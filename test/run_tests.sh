@@ -14,3 +14,4 @@ echo "which_python ${which_python}"
 "${which_python}" -c "import sys; assert sys.version_info >= (3, 8, 0)"
 
 "${which_python}" "$(which nosetests)" "${script_dir}"/**/test_*.py
+"${which_python}" "$(which nosetests)" "${script_dir}"/test_*.py
