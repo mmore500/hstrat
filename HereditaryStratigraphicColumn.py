@@ -38,7 +38,7 @@ class HereditaryStratigraphicColumn:
     def GetNumLayersDeposited(self,) -> int:
         return self._num_layers_deposited
 
-    def GetLastCommonRankWith(self, other,) -> typing.Optional[int]:
+    def CalcLastCommonRankWith(self, other,) -> typing.Optional[int]:
 
         self_column_idx = 0
         other_column_idx = 0
@@ -87,7 +87,7 @@ class HereditaryStratigraphicColumn:
 
         return last_common_rank
 
-    def GetFirstDisparateRankWith(self, other,) -> typing.Optional[int]:
+    def CalcFirstDisparateRankWith(self, other,) -> typing.Optional[int]:
 
         self_column_idx = 0
         other_column_idx = 0
@@ -137,12 +137,12 @@ class HereditaryStratigraphicColumn:
         # no disparate rank found
         return None
 
-    def GetMrcaRankBoundsWith(
+    def CalcMrcaRankBoundsWith(
         self,
         other,
     ) -> typing.Tuple[typing.Optional[int], typing.Optional[int],]:
 
         return (
-            self.GetLastCommonRankWith(other,),
-            self.GetFirstDisparateRankWith(other,),
+            self.CalcLastCommonRankWith(other,),
+            self.CalcFirstDisparateRankWith(other,),
         )

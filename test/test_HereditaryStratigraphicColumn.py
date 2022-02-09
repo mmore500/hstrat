@@ -48,16 +48,16 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             for first, second in it.combinations(population, 2):
                 # assert commutativity
                 assert (
-                    first.GetLastCommonRankWith(second)
-                    == second.GetLastCommonRankWith(first)
+                    first.CalcLastCommonRankWith(second)
+                    == second.CalcLastCommonRankWith(first)
                 )
                 assert (
-                    first.GetFirstDisparateRankWith(second)
-                    == second.GetFirstDisparateRankWith(first)
+                    first.CalcFirstDisparateRankWith(second)
+                    == second.CalcFirstDisparateRankWith(first)
                 )
                 assert (
-                    first.GetMrcaRankBoundsWith(second)
-                    == second.GetMrcaRankBoundsWith(first)
+                    first.CalcMrcaRankBoundsWith(second)
+                    == second.CalcMrcaRankBoundsWith(first)
                 )
 
             # advance generation
@@ -77,13 +77,13 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
         for generation in range(100):
 
             for first, second in it.combinations(population, 2):
-                lcrw = first.GetLastCommonRankWith(second)
+                lcrw = first.CalcLastCommonRankWith(second)
                 assert lcrw is None or lcrw <= generation, lcrw
 
-                fdrw = first.GetFirstDisparateRankWith(second)
+                fdrw = first.CalcFirstDisparateRankWith(second)
                 assert fdrw is None or fdrw <= generation, fdrw
 
-                assert first.GetMrcaRankBoundsWith(second) == (lcrw, fdrw)
+                assert first.CalcMrcaRankBoundsWith(second) == (lcrw, fdrw)
 
             # advance generation
             random.shuffle(population)
@@ -98,11 +98,11 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
         for generation in range(100):
 
-            assert first.GetLastCommonRankWith(second) == None
-            assert second.GetLastCommonRankWith(first) == None
+            assert first.CalcLastCommonRankWith(second) == None
+            assert second.CalcLastCommonRankWith(first) == None
 
-            assert first.GetFirstDisparateRankWith(second) == 0
-            assert second.GetFirstDisparateRankWith(first) == 0
+            assert first.CalcFirstDisparateRankWith(second) == 0
+            assert second.CalcFirstDisparateRankWith(first) == 0
 
             first.DepositLayer()
             second.DepositLayer()
@@ -113,9 +113,9 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
         for generation in range(100):
 
-            assert first.GetLastCommonRankWith(first) == generation
+            assert first.CalcLastCommonRankWith(first) == generation
 
-            assert first.GetFirstDisparateRankWith(first) == None
+            assert first.CalcFirstDisparateRankWith(first) == None
 
             first.DepositLayer()
 
