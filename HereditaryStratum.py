@@ -28,3 +28,6 @@ class HereditaryStratum:
 
     def GetDepositionRank(self: 'HereditaryStratum',) -> int:
         return self._deposition_rank
+
+    def GetUid(self: 'HereditaryStratum',) -> frozenbitarray:
+        return self._uid
