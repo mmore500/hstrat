@@ -162,3 +162,37 @@ class HereditaryStratigraphicColumn:
             self.CalcLastCommonRankWith(other,),
             self.CalcFirstDisparateRankWith(other,),
         )
+
+    def CalcRanksSinceLastCommonalityWith(
+        self: 'HereditaryStratigraphicColumn',
+        other: 'HereditaryStratigraphicColumn',
+    ) -> typing.Optional[int]:
+
+        last_common_rank = self.CalcLastCommonRankWith(other,)
+        if last_common_rank is None: return None
+        else:
+            assert self.GetNumLayersDeposited()
+            return self.GetNumLayersDeposited() - 1 - last_common_rank
+
+    # note, returns -1 if disparity is that other has advanced to ranks
+    # past self's largest rank
+    def CalcRanksSinceFirstDisparityWith(
+        self: 'HereditaryStratigraphicColumn',
+        other: 'HereditaryStratigraphicColumn',
+    ) -> typing.Optional[int]:
+
+        first_disparate_rank = self.CalcFirstDisparateRankWith(other,)
+        if first_disparate_rank is None: return None
+        else:
+            assert self.GetNumLayersDeposited()
+            return self.GetNumLayersDeposited() - 1 - first_disparate_rank
+
+
+    def CalcRanksSinceMrcaBoundsWith(
+        self: 'HereditaryStratigraphicColumn',
+        other: 'HereditaryStratigraphicColumn',
+    ) -> typing.Tuple[typing.Optional[int], typing.Optional[int],]:
+        return (
+            self.CalcRanksSinceLastCommonalityWith(other,),
+            self.CalcRanksSinceFirstDisparityWith(other,),
+        )

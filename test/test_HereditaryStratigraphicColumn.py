@@ -36,7 +36,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
         assert original1 != copy1
 
 
-    def test_comparison_commutativity(self,):
+    def test_comparison_commutativity_asyncrhonous(self,):
 
         population = [
             HereditaryStratigraphicColumn()
@@ -64,6 +64,53 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             random.shuffle(population)
             for target in range(5):
                 population[target] = deepcopy(population[-1])
+            for individual in population:
+                # asynchronous generations
+                if random.choice([True, False]):
+                    individual.DepositLayer()
+
+
+    def test_comparison_commutativity_syncrhonous(self,):
+
+        population = [
+            HereditaryStratigraphicColumn()
+            for __ in range(10)
+        ]
+
+        for generation in range(100):
+
+            for first, second in it.combinations(population, 2):
+                # assert commutativity
+                assert (
+                    first.CalcLastCommonRankWith(second)
+                    == second.CalcLastCommonRankWith(first)
+                )
+                assert (
+                    first.CalcFirstDisparateRankWith(second)
+                    == second.CalcFirstDisparateRankWith(first)
+                )
+                assert (
+                    first.CalcMrcaRankBoundsWith(second)
+                    == second.CalcMrcaRankBoundsWith(first)
+                )
+                assert (
+                    first.CalcRanksSinceLastCommonalityWith(second)
+                    == second.CalcRanksSinceLastCommonalityWith(first)
+                )
+                assert (
+                    first.CalcRanksSinceFirstDisparityWith(second)
+                    == second.CalcRanksSinceFirstDisparityWith(first)
+                )
+                assert (
+                    first.CalcRanksSinceMrcaBoundsWith(second)
+                    == second.CalcRanksSinceMrcaBoundsWith(first)
+                )
+
+            # advance generation
+            random.shuffle(population)
+            for target in range(5):
+                population[target] = deepcopy(population[-1])
+            # synchronous generations
             for individual in population: individual.DepositLayer()
 
 
@@ -78,18 +125,38 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
             for first, second in it.combinations(population, 2):
                 lcrw = first.CalcLastCommonRankWith(second)
-                assert lcrw is None or lcrw <= generation, lcrw
+                if lcrw is not None:
+                    assert 0 <= lcrw <= generation
 
                 fdrw = first.CalcFirstDisparateRankWith(second)
-                assert fdrw is None or fdrw <= generation, fdrw
+                if fdrw is not None:
+                    assert 0 <= fdrw <= generation
 
                 assert first.CalcMrcaRankBoundsWith(second) == (lcrw, fdrw)
+                if lcrw is not None and fdrw is not None:
+                    assert lcrw < fdrw
 
-            # advance generation
+                rslcw = first.CalcRanksSinceLastCommonalityWith(second)
+                if rslcw is not None:
+                    assert 0 <= rslcw <= generation
+
+                rsfdw = first.CalcRanksSinceFirstDisparityWith(second)
+                if rsfdw is not None:
+                    assert -1 <= rsfdw <= generation
+
+                assert (
+                    first.CalcRanksSinceMrcaBoundsWith(second) == (rslcw, rsfdw)
+                )
+                if rslcw is not None and rsfdw is not None:
+                    assert rslcw > rsfdw
+
+            # advance generations asynchronously
             random.shuffle(population)
             for target in range(5):
                 population[target] = deepcopy(population[-1])
-            for individual in population: individual.DepositLayer()
+            for individual in population:
+                if random.choice([True, False]):
+                    individual.DepositLayer()
 
 
     def test_scenario_no_mrca(self,):
@@ -104,6 +171,12 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             assert first.CalcFirstDisparateRankWith(second) == 0
             assert second.CalcFirstDisparateRankWith(first) == 0
 
+            assert first.CalcRanksSinceLastCommonalityWith(second) == None
+            assert second.CalcRanksSinceLastCommonalityWith(first) == None
+
+            assert first.CalcRanksSinceFirstDisparityWith(second) == generation
+            assert second.CalcRanksSinceFirstDisparityWith(first) == generation
+
             first.DepositLayer()
             second.DepositLayer()
 
@@ -117,7 +190,137 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
             assert first.CalcFirstDisparateRankWith(first) == None
 
+            assert first.CalcRanksSinceLastCommonalityWith(first) == 0
+
+            assert first.CalcRanksSinceFirstDisparityWith(first) == None
+
             first.DepositLayer()
+
+
+    def test_scenario_partial_even_divergence(self,):
+        first = HereditaryStratigraphicColumn()
+
+        for generation in range(100):
+            first.DepositLayer()
+
+        second = deepcopy(first)
+
+        first.DepositLayer()
+        second.DepositLayer()
+
+        for generation in range(101, 200):
+
+            assert (
+                0
+                < first.CalcLastCommonRankWith(second)
+                <= 100
+            )
+
+            assert (
+                100
+                <= first.CalcFirstDisparateRankWith(second)
+                <= generation
+            )
+
+            assert (
+                generation - 101
+                < first.CalcRanksSinceLastCommonalityWith(second)
+                <= generation
+            )
+
+            assert (
+                0
+                <= first.CalcRanksSinceFirstDisparityWith(second)
+                < generation - 100
+            )
+
+            first.DepositLayer()
+            second.DepositLayer()
+
+
+    def test_scenario_partial_uneven_divergence(self,):
+        first = HereditaryStratigraphicColumn()
+
+        for generation in range(100):
+            first.DepositLayer()
+
+        second = deepcopy(first)
+
+        first.DepositLayer()
+
+        for generation in range(101, 200):
+
+            assert (
+                0
+                < first.CalcLastCommonRankWith(second)
+                <= 100
+            )
+            assert (
+                100
+                <= first.CalcFirstDisparateRankWith(second)
+                <= generation
+            )
+
+            assert (
+                generation - 101
+                < first.CalcRanksSinceLastCommonalityWith(second)
+                <= generation
+            )
+            assert (
+                0
+                <= second.CalcRanksSinceLastCommonalityWith(first)
+                <= 100
+            )
+            assert (
+                0
+                <= first.CalcRanksSinceFirstDisparityWith(second)
+                < generation - 100
+            )
+            assert (
+                -1 == second.CalcRanksSinceFirstDisparityWith(first)
+            )
+
+
+            first.DepositLayer()
+
+        second.DepositLayer()
+
+        for generation in range(101, 200):
+
+            assert (
+                0
+                < first.CalcLastCommonRankWith(second)
+                <= 100
+            )
+            assert (
+                100
+                <= first.CalcFirstDisparateRankWith(second)
+                <= generation
+            )
+
+
+            assert (
+                100
+                <= first.CalcRanksSinceLastCommonalityWith(second)
+                <= 200
+            )
+            assert (
+                0
+                < second.CalcRanksSinceLastCommonalityWith(first)
+                <= generation - 100
+            )
+            assert (
+                0
+                <= first.CalcRanksSinceFirstDisparityWith(second)
+                < 100
+            )
+            assert (
+                0
+                <= second.CalcRanksSinceFirstDisparityWith(first)
+                < generation - 100
+            )
+
+            second.DepositLayer()
 
 
 if __name__ == '__main__':
