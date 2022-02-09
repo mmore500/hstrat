@@ -134,8 +134,18 @@ class HereditaryStratigraphicColumn:
                 # advance to next-newer stratum on other column
                 other_column_idx += 1
 
-        # no disparate rank found
-        return None
+        if self_column_idx < self.GetColumnSize():
+            # although no mismatching strata are found between self and other
+            # self has strata ranks beyond the newest found in other
+            return rank_at(self, self_column_idx)
+        elif other_column_idx < other.GetColumnSize():
+            # although no mismatching strata are found between other and self
+            # other has strata ranks beyond the newest found in self
+            return rank_at(other, other_column_idx)
+        else:
+            # no disparate strata found
+            # and self and other have the same newest rank
+            return None
 
     def CalcMrcaRankBoundsWith(
         self,
