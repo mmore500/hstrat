@@ -10,7 +10,7 @@ class HereditaryStratigraphicColumn:
     _default_stratum_uid_size: int
 
     def __init__(
-        self,
+        self: 'HereditaryStratigraphicColumn',
         default_stratum_uid_size: int=64,
     ):
         self._column = []
@@ -25,20 +25,23 @@ class HereditaryStratigraphicColumn:
         else:
             return False
 
-    def DepositLayer(self,) -> None:
+    def DepositLayer(self: 'HereditaryStratigraphicColumn',) -> None:
         self._column.append(HereditaryStratum(
             deposition_rank=self._num_layers_deposited,
             uid_size=self._default_stratum_uid_size,
         ))
         self._num_layers_deposited += 1
 
-    def GetColumnSize(self,) -> int:
+    def GetColumnSize(self: 'HereditaryStratigraphicColumn',) -> int:
         return len(self._column)
 
-    def GetNumLayersDeposited(self,) -> int:
+    def GetNumLayersDeposited(self: 'HereditaryStratigraphicColumn',) -> int:
         return self._num_layers_deposited
 
-    def CalcLastCommonRankWith(self, other,) -> typing.Optional[int]:
+    def CalcLastCommonRankWith(
+        self: 'HereditaryStratigraphicColumn',
+        other: 'HereditaryStratigraphicColumn',
+    ) -> typing.Optional[int]:
 
         self_column_idx = 0
         other_column_idx = 0
@@ -87,7 +90,10 @@ class HereditaryStratigraphicColumn:
 
         return last_common_rank
 
-    def CalcFirstDisparateRankWith(self, other,) -> typing.Optional[int]:
+    def CalcFirstDisparateRankWith(
+        self: 'HereditaryStratigraphicColumn',
+        other: 'HereditaryStratigraphicColumn',
+    ) -> typing.Optional[int]:
 
         self_column_idx = 0
         other_column_idx = 0
@@ -148,8 +154,8 @@ class HereditaryStratigraphicColumn:
             return None
 
     def CalcMrcaRankBoundsWith(
-        self,
-        other,
+        self: 'HereditaryStratigraphicColumn',
+        other: 'HereditaryStratigraphicColumn',
     ) -> typing.Tuple[typing.Optional[int], typing.Optional[int],]:
 
         return (
