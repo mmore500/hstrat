@@ -1,7 +1,7 @@
 import math
 import typing
 
-from . import HereditaryStratum
+from .HereditaryStratum import HereditaryStratum
 from .stratum_retention_predicate_maximal \
     import stratum_retention_predicate_maximal
 
