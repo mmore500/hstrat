@@ -52,7 +52,7 @@ class HereditaryStratigraphicColumn:
             )
             # predicate must *always* retain the initial and latest strata
             if e.GetDepositionRank() in (0, self.GetNumLayersDeposited() - 1):
-                assert should_retain
+                assert res
             return res
 
         self._column = [
