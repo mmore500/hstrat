@@ -43,13 +43,22 @@ class HereditaryStratigraphicColumn:
         self.PurgeColumn()
 
     def PurgeColumn(self: 'HereditaryStratigraphicColumn',) -> None:
+
+        # wrapper to enforce requirements on predicate
+        def should_retain(e: HereditaryStratum,) -> bool:
+            res = self._stratum_retention_predicate(
+                stratum_rank=e.GetDepositionRank(),
+                column_layers_deposited=self.GetNumLayersDeposited(),
+            )
+            # predicate must *always* retain the initial and latest strata
+            if e.GetDepositionRank() in (0, self.GetNumLayersDeposited() - 1):
+                assert should_retain
+            return res
+
         self._column = [
             entry
             for entry in self._column
-            if self._stratum_retention_predicate(
-                stratum_rank=entry.GetDepositionRank(),
-                column_layers_deposited=self.GetNumLayersDeposited(),
-            )
+            if should_retain(entry)
         ]
 
     def GetColumnSize(self: 'HereditaryStratigraphicColumn',) -> int:
@@ -144,7 +153,9 @@ class HereditaryStratigraphicColumn:
                     other_column_idx += 1
                 else:
                     # mismatching uids at the same rank
-                    return rank_at(self, self_column_idx)
+                    res = rank_at(self, self_column_idx)
+                    assert 0 <= res < self.GetNumLayersDeposited()
+                    return res
             elif (
                 rank_at(self, self_column_idx)
                 < rank_at(other, other_column_idx)
@@ -163,11 +174,19 @@ class HereditaryStratigraphicColumn:
         if self_column_idx < self.GetColumnSize():
             # although no mismatching strata are found between self and other
             # self has strata ranks beyond the newest found in other
-            return rank_at(self, self_column_idx)
+            # conservatively assume mismatch will be with next rank of other
+            assert other_column_idx == other.GetColumnSize()
+            res = rank_at(other, other_column_idx - 1) + 1
+            assert 0 <= res <= self.GetNumLayersDeposited()
+            return res
         elif other_column_idx < other.GetColumnSize():
             # although no mismatching strata are found between other and self
             # other has strata ranks beyond the newest found in self
-            return rank_at(other, other_column_idx)
+            # conservatively assume mismatch will be with next rank
+            assert self_column_idx == self.GetColumnSize()
+            res = rank_at(self, self_column_idx - 1) + 1
+            assert 0 <= res <= self.GetNumLayersDeposited()
+            return res
         else:
             # no disparate strata found
             # and self and other have the same newest rank
