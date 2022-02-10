@@ -322,6 +322,28 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
             second.DepositLayer()
 
+    def test_maximal_retention_predicate(self,):
+        column = HereditaryStratigraphicColumn(
+            stratum_retention_predicate=lambda **kwargs: True,
+        )
+
+        for gen in range(100):
+            assert column.GetColumnSize() == gen + 1
+            column.DepositLayer()
+
+
+    def test_minimal_retention_predicate(self,):
+        column = HereditaryStratigraphicColumn(
+            stratum_retention_predicate
+                =lambda *, column_layers_deposited, stratum_rank: (
+                stratum_rank in (0, column_layers_deposited - 1,)
+            ),
+        )
+
+        for gen in range(100):
+            assert 1 <= column.GetColumnSize() <= 2
+            column.DepositLayer()
+
 
 if __name__ == '__main__':
     unittest.main()

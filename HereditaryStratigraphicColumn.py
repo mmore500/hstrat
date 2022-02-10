@@ -8,15 +8,21 @@ class HereditaryStratigraphicColumn:
     _column: typing.List[HereditaryStratum,]
     _num_layers_deposited: int
     _default_stratum_uid_size: int
+    _stratum_retention_predicate: typing.Callable[[int, int], bool]
 
     def __init__(
         self: 'HereditaryStratigraphicColumn',
         *,
         default_stratum_uid_size: int=64,
+        stratum_retention_predicate=lambda **kwargs: True,
     ):
+        """
+        Retention predicate should take two keyword arguments: stratum_rank and column_layers_deposited.
+        Default retention predicate is to keep all strata."""
         self._column = []
         self._num_layers_deposited = 0
         self._default_stratum_uid_size = default_stratum_uid_size
+        self._stratum_retention_predicate = stratum_retention_predicate
 
         self.DepositLayer()
 
@@ -32,6 +38,17 @@ class HereditaryStratigraphicColumn:
             uid_size=self._default_stratum_uid_size,
         ))
         self._num_layers_deposited += 1
+        self.PurgeColumn()
+
+    def PurgeColumn(self: 'HereditaryStratigraphicColumn',) -> None:
+        self._column = [
+            entry
+            for entry in self._column
+            if self._stratum_retention_predicate(
+                stratum_rank=entry.GetDepositionRank(),
+                column_layers_deposited=self.GetNumLayersDeposited(),
+            )
+        ]
 
     def GetColumnSize(self: 'HereditaryStratigraphicColumn',) -> int:
         return len(self._column)
