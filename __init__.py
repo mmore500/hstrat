@@ -5,6 +5,7 @@ from .HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 from .HereditaryStratum import HereditaryStratum
 from .stratum_retention_predicate_maximal import stratum_retention_predicate_maximal
 from .stratum_retention_predicate_minimal import stratum_retention_predicate_minimal
+from .StratumRetentionPredicateRecencyProportionalResolution import StratumRetentionPredicateRecencyProportionalResolution
 from .stratum_retention_predicate_stochastic import stratum_retention_predicate_stochastic
 
 # adapted from https://stackoverflow.com/a/31079085
@@ -17,4 +18,5 @@ __all__ = [
     'stratum_retention_predicate_maximal',
     'stratum_retention_predicate_minimal',
     'stratum_retention_predicate_stochastic',
+    'StratumRetentionPredicateRecencyProportionalResolution',
 ]
