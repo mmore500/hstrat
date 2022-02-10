@@ -1,5 +1,6 @@
 #!/bin/python3
 
+from copy import deepcopy
 import random
 import unittest
 
@@ -18,7 +19,7 @@ class TestHereditaryStratum(unittest.TestCase):
         original1 = HereditaryStratum(
             deposition_rank=42,
         )
-        copy1 = original1
+        copy1 = deepcopy(original1)
         original2 = HereditaryStratum(
             deposition_rank=42,
         )
