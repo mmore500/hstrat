@@ -28,5 +28,9 @@ class TestHereditaryStratum(unittest.TestCase):
         assert original1 != original2
         assert copy1 != original2
 
+        assert original1.GetUid() == copy1.GetUid()
+        assert original1.GetUid() != original2.GetUid()
+        assert copy1.GetUid() != original2.GetUid()
+
 if __name__ == '__main__':
     unittest.main()
