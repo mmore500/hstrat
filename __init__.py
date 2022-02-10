@@ -3,6 +3,7 @@ from .binary_search import binary_search
 from .doubling_search import doubling_search
 from .HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 from .HereditaryStratum import HereditaryStratum
+from .StratumRetentionPredicateDepthProportionalResolution import StratumRetentionPredicateDepthProportionalResolution
 from .stratum_retention_predicate_maximal import stratum_retention_predicate_maximal
 from .stratum_retention_predicate_minimal import stratum_retention_predicate_minimal
 from .StratumRetentionPredicateRecencyProportionalResolution import StratumRetentionPredicateRecencyProportionalResolution
@@ -18,5 +19,6 @@ __all__ = [
     'stratum_retention_predicate_maximal',
     'stratum_retention_predicate_minimal',
     'stratum_retention_predicate_stochastic',
+    'StratumRetentionPredicateDepthProportionalResolution',
     'StratumRetentionPredicateRecencyProportionalResolution',
 ]
