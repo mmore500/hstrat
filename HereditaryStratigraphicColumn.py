@@ -172,7 +172,9 @@ class HereditaryStratigraphicColumn:
         if last_common_rank is None: return None
         else:
             assert self.GetNumLayersDeposited()
-            return self.GetNumLayersDeposited() - 1 - last_common_rank
+            res = self.GetNumLayersDeposited() - 1 - last_common_rank
+            assert 0 <= res < self.GetNumLayersDeposited()
+            return res
 
     # note, returns -1 if disparity is that other has advanced to ranks
     # past self's largest rank
@@ -185,7 +187,9 @@ class HereditaryStratigraphicColumn:
         if first_disparate_rank is None: return None
         else:
             assert self.GetNumLayersDeposited()
-            return self.GetNumLayersDeposited() - 1 - first_disparate_rank
+            res = self.GetNumLayersDeposited() - 1 - first_disparate_rank
+            assert -1 <= res < self.GetNumLayersDeposited()
+            return res
 
 
     def CalcRanksSinceMrcaBoundsWith(
