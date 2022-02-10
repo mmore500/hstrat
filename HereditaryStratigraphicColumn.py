@@ -11,6 +11,7 @@ class HereditaryStratigraphicColumn:
 
     def __init__(
         self: 'HereditaryStratigraphicColumn',
+        *,
         default_stratum_uid_size: int=64,
     ):
         self._column = []
