@@ -38,7 +38,7 @@ class HereditaryStratigraphicColumn:
     def GetNumLayersDeposited(self: 'HereditaryStratigraphicColumn',) -> int:
         return self._num_layers_deposited
 
-    def CalcLastCommonRankWith(
+    def CalcRankOfLastCommonalityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
@@ -90,7 +90,7 @@ class HereditaryStratigraphicColumn:
 
         return last_common_rank
 
-    def CalcFirstDisparateRankWith(
+    def CalcRankOfFirstDisparityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
@@ -153,14 +153,14 @@ class HereditaryStratigraphicColumn:
             # and self and other have the same newest rank
             return None
 
-    def CalcMrcaRankBoundsWith(
+    def CalcRankOfMrcaBoundsWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Tuple[typing.Optional[int], typing.Optional[int],]:
 
         return (
-            self.CalcLastCommonRankWith(other,),
-            self.CalcFirstDisparateRankWith(other,),
+            self.CalcRankOfLastCommonalityWith(other,),
+            self.CalcRankOfFirstDisparityWith(other,),
         )
 
     def CalcRanksSinceLastCommonalityWith(
@@ -168,7 +168,7 @@ class HereditaryStratigraphicColumn:
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
 
-        last_common_rank = self.CalcLastCommonRankWith(other,)
+        last_common_rank = self.CalcRankOfLastCommonalityWith(other,)
         if last_common_rank is None: return None
         else:
             assert self.GetNumLayersDeposited()
@@ -183,7 +183,7 @@ class HereditaryStratigraphicColumn:
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
 
-        first_disparate_rank = self.CalcFirstDisparateRankWith(other,)
+        first_disparate_rank = self.CalcRankOfFirstDisparityWith(other,)
         if first_disparate_rank is None: return None
         else:
             assert self.GetNumLayersDeposited()

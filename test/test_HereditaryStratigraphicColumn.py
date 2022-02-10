@@ -48,16 +48,16 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             for first, second in it.combinations(population, 2):
                 # assert commutativity
                 assert (
-                    first.CalcLastCommonRankWith(second)
-                    == second.CalcLastCommonRankWith(first)
+                    first.CalcRankOfLastCommonalityWith(second)
+                    == second.CalcRankOfLastCommonalityWith(first)
                 )
                 assert (
-                    first.CalcFirstDisparateRankWith(second)
-                    == second.CalcFirstDisparateRankWith(first)
+                    first.CalcRankOfFirstDisparityWith(second)
+                    == second.CalcRankOfFirstDisparityWith(first)
                 )
                 assert (
-                    first.CalcMrcaRankBoundsWith(second)
-                    == second.CalcMrcaRankBoundsWith(first)
+                    first.CalcRankOfMrcaBoundsWith(second)
+                    == second.CalcRankOfMrcaBoundsWith(first)
                 )
 
             # advance generation
@@ -82,16 +82,16 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             for first, second in it.combinations(population, 2):
                 # assert commutativity
                 assert (
-                    first.CalcLastCommonRankWith(second)
-                    == second.CalcLastCommonRankWith(first)
+                    first.CalcRankOfLastCommonalityWith(second)
+                    == second.CalcRankOfLastCommonalityWith(first)
                 )
                 assert (
-                    first.CalcFirstDisparateRankWith(second)
-                    == second.CalcFirstDisparateRankWith(first)
+                    first.CalcRankOfFirstDisparityWith(second)
+                    == second.CalcRankOfFirstDisparityWith(first)
                 )
                 assert (
-                    first.CalcMrcaRankBoundsWith(second)
-                    == second.CalcMrcaRankBoundsWith(first)
+                    first.CalcRankOfMrcaBoundsWith(second)
+                    == second.CalcRankOfMrcaBoundsWith(first)
                 )
                 assert (
                     first.CalcRanksSinceLastCommonalityWith(second)
@@ -124,15 +124,15 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
         for generation in range(100):
 
             for first, second in it.combinations(population, 2):
-                lcrw = first.CalcLastCommonRankWith(second)
+                lcrw = first.CalcRankOfLastCommonalityWith(second)
                 if lcrw is not None:
                     assert 0 <= lcrw <= generation
 
-                fdrw = first.CalcFirstDisparateRankWith(second)
+                fdrw = first.CalcRankOfFirstDisparityWith(second)
                 if fdrw is not None:
                     assert 0 <= fdrw <= generation
 
-                assert first.CalcMrcaRankBoundsWith(second) == (lcrw, fdrw)
+                assert first.CalcRankOfMrcaBoundsWith(second) == (lcrw, fdrw)
                 if lcrw is not None and fdrw is not None:
                     assert lcrw < fdrw
 
@@ -165,11 +165,11 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
         for generation in range(100):
 
-            assert first.CalcLastCommonRankWith(second) == None
-            assert second.CalcLastCommonRankWith(first) == None
+            assert first.CalcRankOfLastCommonalityWith(second) == None
+            assert second.CalcRankOfLastCommonalityWith(first) == None
 
-            assert first.CalcFirstDisparateRankWith(second) == 0
-            assert second.CalcFirstDisparateRankWith(first) == 0
+            assert first.CalcRankOfFirstDisparityWith(second) == 0
+            assert second.CalcRankOfFirstDisparityWith(first) == 0
 
             assert first.CalcRanksSinceLastCommonalityWith(second) == None
             assert second.CalcRanksSinceLastCommonalityWith(first) == None
@@ -186,9 +186,9 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
         for generation in range(100):
 
-            assert first.CalcLastCommonRankWith(first) == generation
+            assert first.CalcRankOfLastCommonalityWith(first) == generation
 
-            assert first.CalcFirstDisparateRankWith(first) == None
+            assert first.CalcRankOfFirstDisparityWith(first) == None
 
             assert first.CalcRanksSinceLastCommonalityWith(first) == 0
 
@@ -212,13 +212,13 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
             assert (
                 0
-                < first.CalcLastCommonRankWith(second)
+                < first.CalcRankOfLastCommonalityWith(second)
                 <= 100
             )
 
             assert (
                 100
-                <= first.CalcFirstDisparateRankWith(second)
+                <= first.CalcRankOfFirstDisparityWith(second)
                 <= generation
             )
 
@@ -252,12 +252,12 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
             assert (
                 0
-                < first.CalcLastCommonRankWith(second)
+                < first.CalcRankOfLastCommonalityWith(second)
                 <= 100
             )
             assert (
                 100
-                <= first.CalcFirstDisparateRankWith(second)
+                <= first.CalcRankOfFirstDisparityWith(second)
                 <= generation
             )
 
@@ -289,12 +289,12 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
             assert (
                 0
-                < first.CalcLastCommonRankWith(second)
+                < first.CalcRankOfLastCommonalityWith(second)
                 <= 100
             )
             assert (
                 100
-                <= first.CalcFirstDisparateRankWith(second)
+                <= first.CalcRankOfFirstDisparityWith(second)
                 <= generation
             )
 
