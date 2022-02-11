@@ -41,9 +41,9 @@ class HereditaryStratigraphicColumn:
             uid_size=self._default_stratum_uid_size,
         ))
         self._num_layers_deposited += 1
-        self.PurgeColumn()
+        self._PurgeColumn()
 
-    def PurgeColumn(self: 'HereditaryStratigraphicColumn',) -> None:
+    def _PurgeColumn(self: 'HereditaryStratigraphicColumn',) -> None:
 
         # wrapper to enforce requirements on predicate
         def should_retain(e: HereditaryStratum,) -> bool:
