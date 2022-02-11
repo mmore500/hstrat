@@ -12,13 +12,15 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
     def _do_test_space_complexity(self, min_intervals_divide_into):
         column = HereditaryStratigraphicColumn(
             stratum_retention_predicate
-                =StratumRetentionPredicateDepthProportionalResolution(),
+                =StratumRetentionPredicateDepthProportionalResolution(
+                    min_intervals_divide_into=min_intervals_divide_into,
+                ),
         )
 
         for generation in range(10000):
+            assert column.GetColumnSize() <= min_intervals_divide_into*2 + 1
             column.DepositLayer()
 
-            assert column.GetColumnSize() <= generation*2 + 2
 
     def test_space_complexity(self):
         for min_intervals_divide_into in [
