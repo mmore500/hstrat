@@ -40,6 +40,10 @@ def _do_test_comparison_commutativity_asyncrhonous(
                 first.CalcRankOfMrcaBoundsWith(second)
                 == second.CalcRankOfMrcaBoundsWith(first)
             )
+            assert (
+                first.CalcRankOfMrcaUncertaintyWith(second)
+                == second.CalcRankOfMrcaUncertaintyWith(first)
+            )
 
         # advance generation
         random.shuffle(population)
@@ -80,6 +84,10 @@ def _do_test_comparison_commutativity_syncrhonous(
                 == second.CalcRankOfMrcaBoundsWith(first)
             )
             assert (
+                first.CalcRankOfMrcaUncertaintyWith(second)
+                == second.CalcRankOfMrcaUncertaintyWith(first)
+            )
+            assert (
                 first.CalcRanksSinceLastCommonalityWith(second)
                 == second.CalcRanksSinceLastCommonalityWith(first)
             )
@@ -90,6 +98,10 @@ def _do_test_comparison_commutativity_syncrhonous(
             assert (
                 first.CalcRanksSinceMrcaBoundsWith(second)
                 == second.CalcRanksSinceMrcaBoundsWith(first)
+            )
+            assert (
+                first.CalcRanksSinceMrcaUncertaintyWith(second)
+                == second.CalcRanksSinceMrcaUncertaintyWith(first)
             )
 
         # advance generation
@@ -127,6 +139,8 @@ def _do_test_comparison_validity(
             if lcrw is not None and fdrw is not None:
                 assert lcrw < fdrw
 
+            assert first.CalcRankOfMrcaUncertaintyWith(second) >= 0
+
             rslcw = first.CalcRanksSinceLastCommonalityWith(second)
             if rslcw is not None:
                 assert 0 <= rslcw <= generation
@@ -140,6 +154,8 @@ def _do_test_comparison_validity(
             )
             if rslcw is not None and rsfdw is not None:
                 assert rslcw > rsfdw
+
+            assert first.CalcRanksSinceMrcaUncertaintyWith(second) >= 0
 
         # advance generations asynchronously
         random.shuffle(population)
@@ -170,11 +186,17 @@ def _do_test_scenario_no_mrca(
         assert first.CalcRankOfFirstDisparityWith(second) == 0
         assert second.CalcRankOfFirstDisparityWith(first) == 0
 
+        assert first.CalcRankOfMrcaUncertaintyWith(second) == 0
+        assert second.CalcRankOfMrcaUncertaintyWith(first) == 0
+
         assert first.CalcRanksSinceLastCommonalityWith(second) == None
         assert second.CalcRanksSinceLastCommonalityWith(first) == None
 
         assert first.CalcRanksSinceFirstDisparityWith(second) == generation
         assert second.CalcRanksSinceFirstDisparityWith(first) == generation
+
+        assert first.CalcRanksSinceMrcaUncertaintyWith(second) == 0
+        assert second.CalcRanksSinceMrcaUncertaintyWith(first) == 0
 
         first.DepositLayer()
         second.DepositLayer()
@@ -191,12 +213,12 @@ def _do_test_scenario_no_divergence(
     for generation in range(100):
 
         assert column.CalcRankOfLastCommonalityWith(column) == generation
-
         assert column.CalcRankOfFirstDisparityWith(column) == None
+        assert column.CalcRankOfMrcaUncertaintyWith(column) == 0
 
         assert column.CalcRanksSinceLastCommonalityWith(column) == 0
-
         assert column.CalcRanksSinceFirstDisparityWith(column) == None
+        assert column.CalcRanksSinceMrcaUncertaintyWith(column) == 0
 
         column.DepositLayer()
 
@@ -452,23 +474,61 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
 
     def test_maximal_retention_predicate(self,):
-        column = HereditaryStratigraphicColumn(
+        first = HereditaryStratigraphicColumn(
             stratum_retention_predicate=stratum_retention_predicate_maximal,
         )
+        second = deepcopy(first)
+        third = deepcopy(first)
 
         for gen in range(100):
-            assert column.GetColumnSize() == gen + 1
-            column.DepositLayer()
+            assert first.GetColumnSize() == gen + 1
+            assert second.GetColumnSize() == gen + 1
+            assert third.GetColumnSize() == 1
+
+            assert first.CalcRankOfMrcaUncertaintyWith(second) == 0
+            assert first.CalcRankOfMrcaUncertaintyWith(third) == 0
+
+            assert first.CalcRanksSinceMrcaUncertaintyWith(second) == 0
+            assert second.CalcRanksSinceMrcaUncertaintyWith(first) == 0
+            assert first.CalcRanksSinceMrcaUncertaintyWith(third) == 0
+            assert third.CalcRanksSinceMrcaUncertaintyWith(first) == 0
+
+            first.DepositLayer()
+            second.DepositLayer()
+            # no layers deposited onto third
 
 
     def test_minimal_retention_predicate(self,):
-        column = HereditaryStratigraphicColumn(
+        first = HereditaryStratigraphicColumn(
             stratum_retention_predicate=stratum_retention_predicate_minimal,
         )
+        second = deepcopy(first)
+        third = deepcopy(first)
 
         for gen in range(100):
-            assert 1 <= column.GetColumnSize() <= 2
-            column.DepositLayer()
+            assert first.GetColumnSize() == min(2, gen+1)
+            assert second.GetColumnSize() == min(2, gen+1)
+            assert third.GetColumnSize() == 1
+
+            assert (
+                first.CalcRankOfMrcaUncertaintyWith(second) == max(0, gen - 1)
+            )
+            assert first.CalcRankOfMrcaUncertaintyWith(third) == 0
+
+            assert (
+                first.CalcRanksSinceMrcaUncertaintyWith(second)
+                == max(0, gen - 1)
+            )
+            assert (
+                second.CalcRanksSinceMrcaUncertaintyWith(first)
+                == max(0, gen - 1)
+            )
+            assert first.CalcRanksSinceMrcaUncertaintyWith(third) == 0
+            assert third.CalcRanksSinceMrcaUncertaintyWith(first) == 0
+
+            first.DepositLayer()
+            second.DepositLayer()
+            # no layers deposited onto third
 
 
 if __name__ == '__main__':

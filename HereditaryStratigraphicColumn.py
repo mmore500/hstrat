@@ -1,3 +1,4 @@
+import operator
 import math
 import typing
 
@@ -202,6 +203,14 @@ class HereditaryStratigraphicColumn:
             self.CalcRankOfFirstDisparityWith(other,),
         )
 
+    def CalcRankOfMrcaUncertaintyWith(
+        self: 'HereditaryStratigraphicColumn',
+        other: 'HereditaryStratigraphicColumn',
+    ) :
+        bounds = self.CalcRankOfMrcaBoundsWith(other)
+        if None in bounds: return 0
+        else: return abs(operator.sub(*bounds)) - 1
+
     def CalcRanksSinceLastCommonalityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
@@ -239,3 +248,11 @@ class HereditaryStratigraphicColumn:
             self.CalcRanksSinceLastCommonalityWith(other,),
             self.CalcRanksSinceFirstDisparityWith(other,),
         )
+
+    def CalcRanksSinceMrcaUncertaintyWith(
+        self: 'HereditaryStratigraphicColumn',
+        other: 'HereditaryStratigraphicColumn',
+    ) :
+        bounds = self.CalcRanksSinceMrcaBoundsWith(other)
+        if None in bounds: return 0
+        else: return abs(operator.sub(*bounds)) - 1
