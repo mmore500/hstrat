@@ -63,3 +63,19 @@ class StratumRetentionPredicateRecencyProportionalResolution():
             )
         else:
             return False
+
+
+    def CalcColumnSizeUpperBound(
+        self: 'StratumRetentionPredicateRecencyProportionalResolution',
+        num_layers_deposited: int,
+    ) -> float:
+
+        if num_layers_deposited <= self._min_intervals_divide_into:
+            return self._min_intervals_divide_into
+
+        base = self._min_intervals_divide_into / self._num_intervals_recurse_on
+        num_recursive_stages = math.floor(math.log(
+            num_layers_deposited / self._min_intervals_divide_into,
+            base,
+        ))
+        return num_recursive_stages * (2 * self._min_intervals_divide_into) + 2
