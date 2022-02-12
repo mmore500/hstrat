@@ -1,18 +1,19 @@
 import math
+import typing
 
 
 class StratumRetentionPredicateDepthProportionalResolution():
 
-    _min_intervals_divide_into: int
-    _num_intervals_recurse_on: int
+    _guaranteed_depth_proportional_resolution: int
 
     def __init__(
         self: 'StratumRetentionPredicateDepthProportionalResolution',
-        min_intervals_divide_into: int=10
+        guaranteed_depth_proportional_resolution: int=10
     ):
-      assert min_intervals_divide_into > 0
-
-      self._min_intervals_divide_into = min_intervals_divide_into
+        assert guaranteed_depth_proportional_resolution > 0
+        self._guaranteed_depth_proportional_resolution = (
+            guaranteed_depth_proportional_resolution
+        )
 
 
     def __eq__(
@@ -31,20 +32,24 @@ class StratumRetentionPredicateDepthProportionalResolution():
         column_layers_deposited: int,
     ) -> bool:
 
+        min_intervals_divide_into = (
+            self._guaranteed_depth_proportional_resolution
+        )
+
         if stratum_rank==column_layers_deposited-1: return True
 
-        if column_layers_deposited < self._min_intervals_divide_into:
+        if column_layers_deposited < min_intervals_divide_into:
             return True
 
         cur_stage = math.ceil(math.log(
-            (column_layers_deposited+1)/self._min_intervals_divide_into,
+            (column_layers_deposited+1)/min_intervals_divide_into,
             2,
         ))
-        cur_stage_smallest = 2**(cur_stage-1) * self._min_intervals_divide_into
+        cur_stage_smallest = 2**(cur_stage-1) * min_intervals_divide_into
 
-        assert cur_stage_smallest % self._min_intervals_divide_into == 0
+        assert cur_stage_smallest % min_intervals_divide_into == 0
         cur_stage_interval_size = (
-            cur_stage_smallest // self._min_intervals_divide_into
+            cur_stage_smallest // min_intervals_divide_into
         )
 
         num_complete_intervals = (

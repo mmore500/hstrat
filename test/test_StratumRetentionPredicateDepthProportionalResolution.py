@@ -18,22 +18,23 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
         )
 
         original1 = StratumRetentionPredicateDepthProportionalResolution(
-            min_intervals_divide_into=10,
+            guaranteed_depth_proportional_resolution=10,
         )
         original2 = StratumRetentionPredicateDepthProportionalResolution(
-            min_intervals_divide_into=42,
+            guaranteed_depth_proportional_resolution=42,
         )
         copy1 = deepcopy(original1)
         assert original1 == copy1
         assert original1 != original2
         assert copy1 != original2
 
-    def _do_test_space_complexity(self, min_intervals_divide_into):
+    def _do_test_space_complexity(self, guaranteed_depth_proportional_resolution):
+        predicate = StratumRetentionPredicateDepthProportionalResolution(
+            guaranteed_depth_proportional_resolution
+                =guaranteed_depth_proportional_resolution,
+        )
         column = HereditaryStratigraphicColumn(
-            stratum_retention_predicate
-                =StratumRetentionPredicateDepthProportionalResolution(
-                    min_intervals_divide_into=min_intervals_divide_into,
-                ),
+            stratum_retention_predicate=predicate,
         )
 
         for generation in range(10000):
@@ -41,21 +42,28 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
             column.DepositLayer()
 
     def test_space_complexity(self):
-        for min_intervals_divide_into in [
+        for guaranteed_depth_proportional_resolution in [
             1,
             2,
             10,
             42,
             97,
         ]:
-            self._do_test_space_complexity(min_intervals_divide_into)
+            self._do_test_space_complexity(
+                guaranteed_depth_proportional_resolution,
+            )
 
-    def _do_test_resolution(self, min_intervals_divide_into, synchronous,):
+    def _do_test_resolution(
+        self,
+        guaranteed_depth_proportional_resolution,
+        synchronous,
+    ):
+        predicate = StratumRetentionPredicateDepthProportionalResolution(
+            guaranteed_depth_proportional_resolution
+                =guaranteed_depth_proportional_resolution,
+        )
         column = HereditaryStratigraphicColumn(
-            stratum_retention_predicate
-                =StratumRetentionPredicateDepthProportionalResolution(
-                    min_intervals_divide_into=min_intervals_divide_into,
-                ),
+            stratum_retention_predicate=predicate,
         )
 
         population = [
@@ -64,7 +72,7 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
         ]
 
         for generation in range(500):
-            target_resolu = generation / min_intervals_divide_into
+            target_resolu = generation / guaranteed_depth_proportional_resolution
 
             # subsample consecutive pairs in population
             for f, s in  zip(population, population[1:]):
