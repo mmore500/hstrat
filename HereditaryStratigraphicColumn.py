@@ -49,20 +49,20 @@ class HereditaryStratigraphicColumn:
     def _PurgeColumn(self: 'HereditaryStratigraphicColumn',) -> None:
 
         # wrapper to enforce requirements on predicate
-        def should_retain(e: HereditaryStratum,) -> bool:
+        def should_retain(stratum_rank: int,) -> bool:
             res = self._stratum_retention_predicate(
-                stratum_rank=e.GetDepositionRank(),
+                stratum_rank=stratum_rank,
                 column_layers_deposited=self.GetNumLayersDeposited(),
             )
             # predicate must *always* retain the initial and latest strata
-            if e.GetDepositionRank() in (0, self.GetNumLayersDeposited() - 1):
+            if stratum_rank in (0, self.GetNumLayersDeposited() - 1):
                 assert res
             return res
 
         self._column = [
             entry
-            for entry in self._column
-            if should_retain(entry)
+            for idx, entry in enumerate(self._column)
+            if should_retain(self.CalcRankAtColumnIndex(idx))
         ]
 
     def GetColumnSize(self: 'HereditaryStratigraphicColumn',) -> int:
@@ -70,6 +70,12 @@ class HereditaryStratigraphicColumn:
 
     def GetNumLayersDeposited(self: 'HereditaryStratigraphicColumn',) -> int:
         return self._num_layers_deposited
+
+    def CalcRankAtColumnIndex(
+        self: 'HereditaryStratigraphicColumn',
+        index: int,
+    ) -> int:
+        return self._column[index].GetDepositionRank()
 
     def CalcRankOfLastCommonalityWith(
         self: 'HereditaryStratigraphicColumn',
@@ -81,7 +87,7 @@ class HereditaryStratigraphicColumn:
         last_common_rank = None
 
         # helper lambdas
-        rank_at = lambda which, idx: which._column[idx].GetDepositionRank()
+        rank_at = lambda which, idx: which.CalcRankAtColumnIndex(idx)
         uid_at = lambda which, idx: which._column[idx].GetUid()
 
         while (
@@ -133,7 +139,7 @@ class HereditaryStratigraphicColumn:
         last_common_rank = None
 
         # helper lambdas
-        rank_at = lambda which, idx: which._column[idx].GetDepositionRank()
+        rank_at = lambda which, idx: which.CalcRankAtColumnIndex(idx)
         uid_at = lambda which, idx: which._column[idx].GetUid()
         column_idxs_bounds_check = lambda: (
             self_column_idx < self.GetColumnSize()
