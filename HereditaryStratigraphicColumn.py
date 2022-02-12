@@ -40,11 +40,17 @@ class HereditaryStratigraphicColumn:
 
     def DepositLayer(self: 'HereditaryStratigraphicColumn',) -> None:
         self._column.append(HereditaryStratum(
-            deposition_rank=self._num_layers_deposited,
+            deposition_rank=(
+                None
+                if hasattr(
+                    self._stratum_retention_predicate,
+                    'CalcRankAtColumnIndex',
+                ) else self._num_layers_deposited
+            ),
             uid_size=self._default_stratum_uid_size,
         ))
-        self._num_layers_deposited += 1
         self._PurgeColumn()
+        self._num_layers_deposited += 1
 
     def _PurgeColumn(self: 'HereditaryStratigraphicColumn',) -> None:
         # wrapper to enforce requirements on predicate
@@ -54,7 +60,7 @@ class HereditaryStratigraphicColumn:
                 column_layers_deposited=self.GetNumLayersDeposited(),
             )
             # predicate must *always* retain the initial and latest strata
-            if stratum_rank in (0, self.GetNumLayersDeposited() - 1):
+            if stratum_rank in (0, self.GetNumLayersDeposited()):
                 assert res
             return res
 
@@ -74,7 +80,14 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         index: int,
     ) -> int:
-        return self._column[index].GetDepositionRank()
+        maybe_rank = self._column[index].GetDepositionRank()
+        if maybe_rank is not None:
+            return maybe_rank
+        else:
+            return self._stratum_retention_predicate.CalcRankAtColumnIndex(
+                index=index,
+                num_layers_deposited=self.GetNumLayersDeposited(),
+            )
 
     def CalcRankOfLastCommonalityWith(
         self: 'HereditaryStratigraphicColumn',

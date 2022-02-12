@@ -33,3 +33,10 @@ class StratumRetentionPredicateMaximal:
         actual_rank_of_mrca: typing.Optional[int]=None,
     ) -> float:
         return 0
+
+    def CalcRankAtColumnIndex(
+        self: 'HereditaryStratigraphicColumn',
+        index: int,
+        num_layers_deposited: typing.Optional[int]=None,
+    ) -> int:
+        return index

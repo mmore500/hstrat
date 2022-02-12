@@ -1,5 +1,6 @@
 from bitarray import bitarray, frozenbitarray
 import random
+import typing
 
 
 class HereditaryStratum:
@@ -10,10 +11,11 @@ class HereditaryStratum:
     def __init__(
         self: 'HereditaryStratum',
         *,
-        deposition_rank: int,
+        deposition_rank: typing.Optional[int]=None,
         uid_size: int=64,
     ):
-        self._deposition_rank = deposition_rank
+        if deposition_rank is not None:
+            self._deposition_rank = deposition_rank
         self._uid = frozenbitarray(
             ''.join(random.choices('01', k=uid_size,))
         )
@@ -27,8 +29,12 @@ class HereditaryStratum:
         else:
             return False
 
-    def GetDepositionRank(self: 'HereditaryStratum',) -> int:
-        return self._deposition_rank
+    def GetDepositionRank(
+        self: 'HereditaryStratum',
+    ) -> typing.Optional[int]:
+        if hasattr(self, '_deposition_rank'):
+            return self._deposition_rank
+        else: return None
 
     def GetUid(self: 'HereditaryStratum',) -> frozenbitarray:
         return self._uid

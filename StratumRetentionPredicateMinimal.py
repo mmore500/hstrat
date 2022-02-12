@@ -8,7 +8,7 @@ class StratumRetentionPredicateMinimal:
         stratum_rank: int,
         column_layers_deposited: int,
     ) -> bool:
-        return stratum_rank in (0, column_layers_deposited - 1,)
+        return stratum_rank in (0, column_layers_deposited)
 
     def __eq__(
         self: 'StratumRetentionPredicateMinimal',
@@ -31,9 +31,20 @@ class StratumRetentionPredicateMinimal:
         first_num_layers_deposited: int,
         second_num_layers_deposited: int,
         actual_rank_of_mrca: typing.Optional[int]=None,
-    ) -> float:
+    ) -> int:
         # essentially, no guarantee given
         return max(
             first_num_layers_deposited,
             second_num_layers_deposited,
         )
+
+    def CalcRankAtColumnIndex(
+        self: 'StratumRetentionPredicateMinimal',
+        index: int,
+        num_layers_deposited: int,
+    ) -> int:
+        return [
+            0,
+            num_layers_deposited - 1,
+            num_layers_deposited,
+        ][index]

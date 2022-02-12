@@ -35,11 +35,11 @@ class StratumRetentionPredicateRecursiveInterspersion:
 
         if stratum_rank==column_layers_deposited: return True
 
-        if column_layers_deposited < self._min_intervals_divide_into:
+        if column_layers_deposited <= self._min_intervals_divide_into:
             return True
 
         cur_stage = math.ceil(math.log(
-            (column_layers_deposited+1)/self._min_intervals_divide_into,
+            (column_layers_deposited)/self._min_intervals_divide_into,
             2,
         ))
         cur_stage_smallest = 2**(cur_stage-1) * self._min_intervals_divide_into
