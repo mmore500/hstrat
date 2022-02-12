@@ -3,6 +3,7 @@
 from copy import deepcopy
 import unittest
 
+from pylib import HereditaryStratigraphicColumn
 from pylib import StratumRetentionPredicateMinimal
 
 
