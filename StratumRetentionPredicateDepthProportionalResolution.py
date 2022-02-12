@@ -14,6 +14,16 @@ class StratumRetentionPredicateDepthProportionalResolution():
       self._min_intervals_divide_into = min_intervals_divide_into
 
 
+    def __eq__(
+        self: 'StratumRetentionPredicateDepthProportionalResolution',
+        other: 'StratumRetentionPredicateDepthProportionalResolution',
+    ) -> bool:
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        else:
+            return False
+
+
     def __call__(
         self: 'StratumRetentionPredicateDepthProportionalResolution',
         stratum_rank: int,

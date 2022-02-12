@@ -18,6 +18,16 @@ class StratumRetentionPredicateRecursiveInterspersion():
       self._num_intervals_recurse_on = num_intervals_recurse_on
 
 
+    def __eq__(
+        self: 'StratumRetentionPredicateRecursiveInterspersion',
+        other: 'StratumRetentionPredicateRecursiveInterspersion',
+    ) -> bool:
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        else:
+            return False
+
+
     def __call__(
         self: 'StratumRetentionPredicateRecursiveInterspersion',
         stratum_rank: int,

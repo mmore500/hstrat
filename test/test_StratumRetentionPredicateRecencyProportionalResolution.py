@@ -14,6 +14,23 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
     unittest.TestCase,
 ):
 
+    def test_equality(self):
+        assert (
+            StratumRetentionPredicateRecencyProportionalResolution()
+            == StratumRetentionPredicateRecencyProportionalResolution()
+        )
+
+        original1 = StratumRetentionPredicateRecencyProportionalResolution(
+            guaranteed_mrca_recency_proportional_resolution=2,
+        )
+        original2 = StratumRetentionPredicateRecencyProportionalResolution(
+            guaranteed_mrca_recency_proportional_resolution=3,
+        )
+        copy1 = deepcopy(original1)
+        assert original1 == copy1
+        assert original1 != original2
+        assert copy1 != original2
+
     def _do_test_space_complexity(
         self,
         guaranteed_mrca_recency_proportional_resolution,

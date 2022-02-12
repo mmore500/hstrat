@@ -11,6 +11,24 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
     unittest.TestCase,
 ):
 
+    def test_equality(self):
+        assert (
+            StratumRetentionPredicateDepthProportionalResolution()
+            == StratumRetentionPredicateDepthProportionalResolution()
+        )
+
+        original1 = StratumRetentionPredicateDepthProportionalResolution(
+            min_intervals_divide_into=10,
+        )
+        original2 = StratumRetentionPredicateDepthProportionalResolution(
+            min_intervals_divide_into=42,
+        )
+        copy1 = deepcopy(original1)
+        assert original1 == copy1
+        assert original1 != original2
+        assert copy1 != original2
+
+
     def _do_test_space_complexity(self, min_intervals_divide_into):
         column = HereditaryStratigraphicColumn(
             stratum_retention_predicate

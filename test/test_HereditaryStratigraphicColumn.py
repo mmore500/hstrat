@@ -15,6 +15,29 @@ from pylib import StratumRetentionPredicateStochastic
 
 random.seed(1)
 
+def _do_test_equality(
+    testcase,
+    retention_predicate,
+):
+
+    original1 = HereditaryStratigraphicColumn(
+        stratum_retention_predicate=retention_predicate,
+    )
+    copy1 = deepcopy(original1,)
+    original2 = HereditaryStratigraphicColumn(
+            stratum_retention_predicate=retention_predicate,
+    )
+
+    assert original1 == copy1
+    assert original1 != original2
+    assert copy1 != original2
+
+    copy1.DepositLayer()
+    assert original1 != copy1
+
+    original1.DepositLayer()
+    assert original1 != copy1
+
 def _do_test_comparison_commutativity_asyncrhonous(
     testcase,
     retention_predicate,

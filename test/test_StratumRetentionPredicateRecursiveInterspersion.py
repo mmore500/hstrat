@@ -12,6 +12,26 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
     unittest.TestCase,
 ):
 
+    def test_equality(self):
+        assert (
+            StratumRetentionPredicateRecursiveInterspersion()
+            == StratumRetentionPredicateRecursiveInterspersion()
+        )
+
+        original1 = StratumRetentionPredicateRecursiveInterspersion(
+            min_intervals_divide_into=10,
+            num_intervals_recurse_on=5,
+        )
+        original2 = StratumRetentionPredicateRecursiveInterspersion(
+            min_intervals_divide_into=10,
+            num_intervals_recurse_on=4,
+        )
+        copy1 = deepcopy(original1)
+        assert original1 == copy1
+        assert original1 != original2
+        assert copy1 != original2
+
+
     def _do_test_space_complexity(
         self,
         min_intervals_divide_into,
