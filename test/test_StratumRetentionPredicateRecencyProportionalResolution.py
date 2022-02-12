@@ -5,6 +5,8 @@ import itertools as it
 import unittest
 import random
 
+random.seed(1)
+
 from pylib import HereditaryStratigraphicColumn
 from pylib import HereditaryStratigraphicColumnBundle
 from pylib import StratumRetentionPredicateMaximal
