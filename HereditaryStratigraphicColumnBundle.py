@@ -4,13 +4,14 @@ import typing
 
 from .HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 
+
 class HereditaryStratigraphicColumnBundle:
 
-    _columns: typing.Dict[str, HereditaryStratigraphicColumn,]
+    _columns: typing.Dict[str, HereditaryStratigraphicColumn]
 
     def __init__(
         self: 'HereditaryStratigraphicColumnBundle',
-        columns: typing.Dict[str, HereditaryStratigraphicColumn,],
+        columns: typing.Dict[str, HereditaryStratigraphicColumn],
     ):
         assert len(columns)
         self._columns = columns

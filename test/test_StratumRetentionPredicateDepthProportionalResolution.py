@@ -28,7 +28,6 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
         assert original1 != original2
         assert copy1 != original2
 
-
     def _do_test_space_complexity(self, min_intervals_divide_into):
         column = HereditaryStratigraphicColumn(
             stratum_retention_predicate
@@ -38,9 +37,8 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
         )
 
         for generation in range(10000):
-            assert column.GetColumnSize() <= min_intervals_divide_into*2 + 1
+            assert column.GetColumnSize() <= min_intervals_divide_into * 2 + 1
             column.DepositLayer()
-
 
     def test_space_complexity(self):
         for min_intervals_divide_into in [
@@ -51,7 +49,6 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
             97,
         ]:
             self._do_test_space_complexity(min_intervals_divide_into)
-
 
     def _do_test_resolution(self, min_intervals_divide_into, synchronous,):
         column = HereditaryStratigraphicColumn(
@@ -67,7 +64,6 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
         ]
 
         for generation in range(500):
-
             target_resolu = generation / min_intervals_divide_into
 
             # subsample consecutive pairs in population
@@ -81,7 +77,6 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
             for individual in population:
                 if synchronous or random.choice([True, False]):
                     individual.DepositLayer()
-
 
     def test_resolution(self):
         for min_intervals_divide_into in [

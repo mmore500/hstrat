@@ -1,7 +1,8 @@
 import math
 import typing
 
-class StratumRetentionPredicateRecursiveInterspersion():
+
+class StratumRetentionPredicateRecursiveInterspersion:
 
     _min_intervals_divide_into: int
     _num_intervals_recurse_on: int
@@ -17,7 +18,6 @@ class StratumRetentionPredicateRecursiveInterspersion():
       self._min_intervals_divide_into = min_intervals_divide_into
       self._num_intervals_recurse_on = num_intervals_recurse_on
 
-
     def __eq__(
         self: 'StratumRetentionPredicateRecursiveInterspersion',
         other: 'StratumRetentionPredicateRecursiveInterspersion',
@@ -26,7 +26,6 @@ class StratumRetentionPredicateRecursiveInterspersion():
             return self.__dict__ == other.__dict__
         else:
             return False
-
 
     def __call__(
         self: 'StratumRetentionPredicateRecursiveInterspersion',
@@ -75,7 +74,6 @@ class StratumRetentionPredicateRecursiveInterspersion():
         else:
             return False
 
-
     def CalcColumnSizeUpperBound(
         self: 'StratumRetentionPredicateRecursiveInterspersion',
         num_layers_deposited: int,
@@ -90,7 +88,6 @@ class StratumRetentionPredicateRecursiveInterspersion():
             base,
         ))
         return num_recursive_stages * (2 * self._min_intervals_divide_into) + 2
-
 
     def CalcMrcaUncertaintyUpperBound(
         self: 'StratumRetentionPredicateRecursiveInterspersion',

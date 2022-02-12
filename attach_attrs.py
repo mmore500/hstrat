@@ -1,5 +1,6 @@
 import typing
 
+
 def attach_attrs(
     attrs: typing.Dict[str, typing.Any,],
 ) -> typing.Callable[[typing.Callable,], typing.Callable,]:
@@ -12,7 +13,7 @@ def attach_attrs(
         """Attaches `attrs` to function `f` then returns `f`."""
 
         for k, v, in attrs.items():
-            setattr(f, k, v,)
+            setattr(f, k, v)
         return f
 
     return attach_attrs_decorator

@@ -1,5 +1,6 @@
 import math
 
+
 class StratumRetentionPredicateDepthProportionalResolution():
 
     _min_intervals_divide_into: int

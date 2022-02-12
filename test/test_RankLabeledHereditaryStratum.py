@@ -8,6 +8,7 @@ from pylib import RankLabeledHereditaryStratum
 
 random.seed(1)
 
+
 class TestRankLabeledHereditaryStratum(unittest.TestCase):
 
     def test_deposition_rank(self):
@@ -31,6 +32,7 @@ class TestRankLabeledHereditaryStratum(unittest.TestCase):
         assert original1.GetUid() == copy1.GetUid()
         assert original1.GetUid() != original2.GetUid()
         assert copy1.GetUid() != original2.GetUid()
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -5,6 +5,7 @@ import unittest
 
 from pylib import StratumRetentionPredicateMinimal
 
+
 class TestStratumRetentionPredicateMinimal(unittest.TestCase):
 
     def test_equality(self):

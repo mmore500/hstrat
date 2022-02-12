@@ -1,3 +1,5 @@
+
+
 class StratumRetentionPredicateMaximal:
 
     def __call__(

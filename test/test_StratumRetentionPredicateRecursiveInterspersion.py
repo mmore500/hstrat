@@ -8,6 +8,7 @@ import random
 from pylib import HereditaryStratigraphicColumn
 from pylib import StratumRetentionPredicateRecursiveInterspersion
 
+
 class TestStratumRetentionPredicateDepthProportionalResolution(
     unittest.TestCase,
 ):
@@ -31,13 +32,11 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
         assert original1 != original2
         assert copy1 != original2
 
-
     def _do_test_space_complexity(
         self,
         min_intervals_divide_into,
         num_intervals_recurse_on,
     ):
-
         predicate = StratumRetentionPredicateRecursiveInterspersion(
             min_intervals_divide_into=min_intervals_divide_into,
             num_intervals_recurse_on=num_intervals_recurse_on,
@@ -51,7 +50,6 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
                 column.GetColumnSize()
                 <= predicate.CalcColumnSizeUpperBound(generation)
             )
-
 
     def test_space_complexity(self):
         for min_intervals_divide_into, num_intervals_recurse_on in [

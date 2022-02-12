@@ -4,6 +4,7 @@ import unittest
 
 from pylib import doubling_search
 
+
 class TestDoublingSearch(unittest.TestCase):
 
     def test_doubling_search_trivial(self):
@@ -17,6 +18,7 @@ class TestDoublingSearch(unittest.TestCase):
         assert doubling_search(lambda x: x >= 422, 10) == 422
         assert doubling_search(lambda x: x >= 423) == 423
         assert doubling_search(lambda x: x >= 423, 10) == 423
+
 
 if __name__ == '__main__':
     unittest.main()

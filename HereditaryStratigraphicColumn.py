@@ -5,6 +5,7 @@ import typing
 from .RankLabeledHereditaryStratum import RankLabeledHereditaryStratum
 from .StratumRetentionPredicateMaximal import StratumRetentionPredicateMaximal
 
+
 class HereditaryStratigraphicColumn:
 
     _column: typing.List[RankLabeledHereditaryStratum,]
@@ -46,7 +47,6 @@ class HereditaryStratigraphicColumn:
         self._PurgeColumn()
 
     def _PurgeColumn(self: 'HereditaryStratigraphicColumn',) -> None:
-
         # wrapper to enforce requirements on predicate
         def should_retain(stratum_rank: int,) -> bool:
             res = self._stratum_retention_predicate(
@@ -80,7 +80,6 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
-
         self_column_idx = 0
         other_column_idx = 0
         last_common_rank = None
@@ -93,7 +92,6 @@ class HereditaryStratigraphicColumn:
             self_column_idx < self.GetColumnSize()
             and other_column_idx < other.GetColumnSize()
         ):
-
             if (
                 rank_at(self, self_column_idx)
                 == rank_at(other, other_column_idx)
@@ -132,7 +130,6 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
-
         self_column_idx = 0
         other_column_idx = 0
         last_common_rank = None
@@ -146,7 +143,6 @@ class HereditaryStratigraphicColumn:
         )
 
         while column_idxs_bounds_check():
-
             if (
                 rank_at(self, self_column_idx)
                 == rank_at(other, other_column_idx)
@@ -204,11 +200,10 @@ class HereditaryStratigraphicColumn:
     def CalcRankOfMrcaBoundsWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
-    ) -> typing.Tuple[typing.Optional[int], typing.Optional[int],]:
-
+    ) -> typing.Tuple[typing.Optional[int], typing.Optional[int]]:
         return (
-            self.CalcRankOfLastCommonalityWith(other,),
-            self.CalcRankOfFirstDisparityWith(other,),
+            self.CalcRankOfLastCommonalityWith(other),
+            self.CalcRankOfFirstDisparityWith(other),
         )
 
     def CalcRankOfMrcaUncertaintyWith(
@@ -223,7 +218,6 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
-
         last_common_rank = self.CalcRankOfLastCommonalityWith(other,)
         if last_common_rank is None: return None
         else:
@@ -238,7 +232,6 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
-
         first_disparate_rank = self.CalcRankOfFirstDisparityWith(other,)
         if first_disparate_rank is None: return None
         else:
@@ -246,7 +239,6 @@ class HereditaryStratigraphicColumn:
             res = self.GetNumLayersDeposited() - 1 - first_disparate_rank
             assert -1 <= res < self.GetNumLayersDeposited()
             return res
-
 
     def CalcRanksSinceMrcaBoundsWith(
         self: 'HereditaryStratigraphicColumn',

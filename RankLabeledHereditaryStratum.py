@@ -1,6 +1,7 @@
 from bitarray import bitarray, frozenbitarray
 import random
 
+
 class RankLabeledHereditaryStratum:
 
     _deposition_rank: int

@@ -1,5 +1,6 @@
 import random
 
+
 class StratumRetentionPredicateStochastic:
 
     def __call__(

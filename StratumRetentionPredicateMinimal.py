@@ -1,3 +1,5 @@
+
+
 class StratumRetentionPredicateMinimal:
 
     def __call__(

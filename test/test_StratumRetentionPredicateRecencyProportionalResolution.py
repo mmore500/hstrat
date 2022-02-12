@@ -10,6 +10,7 @@ from pylib import HereditaryStratigraphicColumnBundle
 from pylib import StratumRetentionPredicateMaximal
 from pylib import StratumRetentionPredicateRecencyProportionalResolution
 
+
 class TestStratumRetentionPredicateDepthProportionalResolution(
     unittest.TestCase,
 ):
@@ -35,7 +36,6 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
         self,
         guaranteed_mrca_recency_proportional_resolution,
     ):
-
         predicate = StratumRetentionPredicateRecencyProportionalResolution(
             guaranteed_mrca_recency_proportional_resolution
                 =guaranteed_mrca_recency_proportional_resolution,
@@ -67,7 +67,6 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
         guaranteed_mrca_recency_proportional_resolution,
         synchronous,
     ):
-
         test_predicate = StratumRetentionPredicateRecencyProportionalResolution(
             guaranteed_mrca_recency_proportional_resolution
                 =guaranteed_mrca_recency_proportional_resolution,
@@ -95,7 +94,6 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
         ancestor = [ deepcopy(column_bundle) ]
 
         for generation in range(500):
-
             # subsample consecutive pairs in population
             for f, s in it.chain(
                 zip(population, population[1:]),
@@ -136,7 +134,6 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
                     <= target_resolu
                 )
 
-
             random.shuffle(population)
             random.shuffle(forked_population)
             # reproduction
@@ -149,7 +146,6 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
             ):
                 if synchronous or random.choice([True, False]):
                     individual.DepositLayer()
-
 
     def test_resolution(self):
         for guaranteed_mrca_recency_proportional_resolution in [

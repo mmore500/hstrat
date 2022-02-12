@@ -1,5 +1,6 @@
 import typing
 
+
 def binary_search(
     predicate: typing.Callable[[int], bool],
     lower_bound: int,

@@ -2,6 +2,7 @@ import typing
 
 from . import binary_search
 
+
 def doubling_search(
     predicate: typing.Callable[[int], bool],
     initial_guess: int=1,

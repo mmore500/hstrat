@@ -5,6 +5,7 @@ import unittest
 
 from pylib import StratumRetentionPredicateStochastic
 
+
 class TestStratumRetentionPredicateStochastic(unittest.TestCase):
 
     def test_equality(self):

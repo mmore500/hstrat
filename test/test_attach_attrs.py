@@ -4,9 +4,10 @@ import unittest
 
 from pylib import attach_attrs
 
-class TestAttachAttrs(unittest.TestCase,):
 
-    def test_routine(self,):
+class TestAttachAttrs(unittest.TestCase):
+
+    def test_routine(self):
 
         @attach_attrs({
             'foo' : 'bar',
@@ -19,7 +20,7 @@ class TestAttachAttrs(unittest.TestCase,):
         assert routine.foo == 'bar'
         assert routine.qux == 42
 
-    def test_function(self,):
+    def test_function(self):
         @attach_attrs({
             'foo' : 'bar',
             'qux' : 42,
@@ -30,6 +31,7 @@ class TestAttachAttrs(unittest.TestCase,):
         assert function('fish', bip='bop',) == 128
         assert function.foo == 'bar'
         assert function.qux == 42
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -30,7 +30,6 @@ class StratumRetentionPredicateRecencyProportionalResolution(
             num_intervals_recurse_on=num_intervals_recurse_on,
         )
 
-
     def __eq__(
         self: 'StratumRetentionPredicateRecencyProportionalResolution',
         other: 'StratumRetentionPredicateRecencyProportionalResolution',
@@ -40,7 +39,6 @@ class StratumRetentionPredicateRecencyProportionalResolution(
         else:
             return False
 
-
     def CalcMrcaUncertaintyUpperBound(
         self: 'StratumRetentionPredicateRecencyProportionalResolution',
         *,
@@ -48,12 +46,10 @@ class StratumRetentionPredicateRecencyProportionalResolution(
         first_num_layers_deposited: int,
         second_num_layers_deposited: int,
     ) -> float:
-
         max_ranks_since_mrca = max(
             first_num_layers_deposited,
             second_num_layers_deposited,
         ) - actual_rank_of_mrca
-
         return (
             max_ranks_since_mrca
             / self._guaranteed_mrca_recency_proportional_resolution

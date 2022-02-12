@@ -15,6 +15,7 @@ from pylib import StratumRetentionPredicateStochastic
 
 random.seed(1)
 
+
 def _do_test_equality(
     testcase,
     retention_predicate,
@@ -37,6 +38,7 @@ def _do_test_equality(
 
     original1.DepositLayer()
     assert original1 != copy1
+
 
 def _do_test_comparison_commutativity_asyncrhonous(
     testcase,
@@ -205,7 +207,6 @@ def _do_test_scenario_no_mrca(
     )
 
     for generation in range(100):
-
         assert first.CalcRankOfLastCommonalityWith(second) == None
         assert second.CalcRankOfLastCommonalityWith(first) == None
 
@@ -266,25 +267,21 @@ def _do_test_scenario_partial_even_divergence(
     second.DepositLayer()
 
     for generation in range(101, 200):
-
         assert (
             0
             <= first.CalcRankOfLastCommonalityWith(second)
             <= 100
         )
-
         assert (
             100
             <= first.CalcRankOfFirstDisparityWith(second)
             <= generation
         )
-
         assert (
             generation - 101
             < first.CalcRanksSinceLastCommonalityWith(second)
             <= generation
         )
-
         assert (
             0
             <= first.CalcRanksSinceFirstDisparityWith(second)
@@ -311,7 +308,6 @@ def _do_test_scenario_partial_uneven_divergence(
     first.DepositLayer()
 
     for generation in range(101, 200):
-
         assert (
             0
             <= first.CalcRankOfLastCommonalityWith(second)
@@ -342,13 +338,11 @@ def _do_test_scenario_partial_uneven_divergence(
             -1 == second.CalcRanksSinceFirstDisparityWith(first)
         )
 
-
         first.DepositLayer()
 
     second.DepositLayer()
 
     for generation in range(101, 200):
-
         assert (
             0
             <= first.CalcRankOfLastCommonalityWith(second)
@@ -386,15 +380,13 @@ def _do_test_scenario_partial_uneven_divergence(
 
 class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
-    def test_GetNumLayersDeposited(self,):
-
+    def test_GetNumLayersDeposited(self):
         column = HereditaryStratigraphicColumn()
         for i in range(10):
             assert column.GetNumLayersDeposited() == i + 1
             column.DepositLayer()
 
-
-    def test_equality(self,):
+    def test_equality(self):
         for retention_predicate in [
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
@@ -408,8 +400,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                 retention_predicate,
             )
 
-
-    def test_comparison_commutativity_asyncrhonous(self,):
+    def test_comparison_commutativity_asyncrhonous(self):
         for retention_predicate in [
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
@@ -423,8 +414,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                 retention_predicate,
             )
 
-
-    def test_comparison_commutativity_syncrhonous(self,):
+    def test_comparison_commutativity_syncrhonous(self):
         for retention_predicate in [
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
@@ -438,8 +428,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                 retention_predicate,
             )
 
-
-    def test_comparison_validity(self,):
+    def test_comparison_validity(self):
         for retention_predicate in [
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
@@ -453,8 +442,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                 retention_predicate,
             )
 
-
-    def test_scenario_no_mrca(self,):
+    def test_scenario_no_mrca(self):
         for rp1, rp2 in it.product(
             [
                 StratumRetentionPredicateMaximal(),
@@ -472,8 +460,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                 rp2,
             )
 
-
-    def test_scenario_no_divergence(self,):
+    def test_scenario_no_divergence(self):
         for retention_predicate in [
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
@@ -487,8 +474,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                 retention_predicate,
             )
 
-
-    def test_scenario_partial_even_divergence(self,):
+    def test_scenario_partial_even_divergence(self):
         for retention_predicate in [
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
@@ -502,8 +488,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                 retention_predicate,
             )
 
-
-    def test_scenario_partial_uneven_divergence(self,):
+    def test_scenario_partial_uneven_divergence(self):
         for retention_predicate in [
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
@@ -517,8 +502,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                 retention_predicate,
             )
 
-
-    def test_maximal_retention_predicate(self,):
+    def test_maximal_retention_predicate(self):
         first = HereditaryStratigraphicColumn(
             stratum_retention_predicate=StratumRetentionPredicateMaximal(),
         )
@@ -542,8 +526,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             second.DepositLayer()
             # no layers deposited onto third
 
-
-    def test_minimal_retention_predicate(self,):
+    def test_minimal_retention_predicate(self):
         first = HereditaryStratigraphicColumn(
             stratum_retention_predicate=StratumRetentionPredicateMinimal(),
         )

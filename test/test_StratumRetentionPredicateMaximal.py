@@ -5,6 +5,7 @@ import unittest
 
 from pylib import StratumRetentionPredicateMaximal
 
+
 class TestStratumRetentionPredicateMaximal(unittest.TestCase):
 
     def test_equality(self):
@@ -24,6 +25,7 @@ class TestStratumRetentionPredicateMaximal(unittest.TestCase):
                     column_layers_deposited=column_layers_deposited,
                     stratum_rank=stratum_rank,
                 )
+
 
 if __name__ == '__main__':
     unittest.main()
