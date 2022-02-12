@@ -15,7 +15,6 @@ class StratumRetentionPredicateDepthProportionalResolution():
             guaranteed_depth_proportional_resolution
         )
 
-
     def __eq__(
         self: 'StratumRetentionPredicateDepthProportionalResolution',
         other: 'StratumRetentionPredicateDepthProportionalResolution',
@@ -24,7 +23,6 @@ class StratumRetentionPredicateDepthProportionalResolution():
             return self.__dict__ == other.__dict__
         else:
             return False
-
 
     def __call__(
         self: 'StratumRetentionPredicateDepthProportionalResolution',
@@ -65,7 +63,7 @@ class StratumRetentionPredicateDepthProportionalResolution():
     def CalcColumnSizeUpperBound(
         self: 'StratumRetentionPredicateDepthProportionalResolution',
         num_layers_deposited: typing.Optional[int]=None,
-    ) -> float:
+    ) -> int:
         return self._guaranteed_depth_proportional_resolution * 2 + 2
 
     def CalcMrcaUncertaintyUpperBound(
@@ -74,8 +72,8 @@ class StratumRetentionPredicateDepthProportionalResolution():
         first_num_layers_deposited: int,
         second_num_layers_deposited: int,
         actual_rank_of_mrca: typing.Optional[int]=None,
-    ) -> float:
+    ) -> int:
         return max(
             first_num_layers_deposited,
             second_num_layers_deposited,
-        ) / self._guaranteed_depth_proportional_resolution
+        ) // self._guaranteed_depth_proportional_resolution

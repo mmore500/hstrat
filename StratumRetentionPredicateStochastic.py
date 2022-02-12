@@ -25,7 +25,7 @@ class StratumRetentionPredicateStochastic:
     def CalcColumnSizeUpperBound(
         self: 'StratumRetentionPredicateStochastic',
         num_layers_deposited: int,
-    ) -> float:
+    ) -> int:
         return num_layers_deposited
 
     def CalcMrcaUncertaintyUpperBound(
@@ -34,7 +34,7 @@ class StratumRetentionPredicateStochastic:
         first_num_layers_deposited: int,
         second_num_layers_deposited: int,
         actual_rank_of_mrca: typing.Optional[int]=None,
-    ) -> float:
+    ) -> int:
         # essentially, no guarantee given
         return max(
             first_num_layers_deposited,

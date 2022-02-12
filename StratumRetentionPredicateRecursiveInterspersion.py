@@ -77,16 +77,16 @@ class StratumRetentionPredicateRecursiveInterspersion:
     def CalcColumnSizeUpperBound(
         self: 'StratumRetentionPredicateRecursiveInterspersion',
         num_layers_deposited: int,
-    ) -> float:
+    ) -> int:
 
         if num_layers_deposited <= self._min_intervals_divide_into:
             return self._min_intervals_divide_into
 
         base = self._min_intervals_divide_into / self._num_intervals_recurse_on
-        num_recursive_stages = math.floor(math.log(
+        num_recursive_stages = int(math.floor(math.log(
             num_layers_deposited / self._min_intervals_divide_into,
             base,
-        ))
+        )))
         return num_recursive_stages * (2 * self._min_intervals_divide_into) + 2
 
     def CalcMrcaUncertaintyUpperBound(
@@ -95,7 +95,7 @@ class StratumRetentionPredicateRecursiveInterspersion:
         first_num_layers_deposited: int,
         second_num_layers_deposited: int,
         actual_rank_of_mrca: typing.Optional[int]=None,
-    ) -> float:
+    ) -> int:
         # essentially, no guarantee given
         return max(
             first_num_layers_deposited,

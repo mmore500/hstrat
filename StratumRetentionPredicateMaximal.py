@@ -22,7 +22,7 @@ class StratumRetentionPredicateMaximal:
     def CalcColumnSizeUpperBound(
         self: 'StratumRetentionPredicateMaximal',
         num_layers_deposited: int,
-    ) -> float:
+    ) -> int:
         return num_layers_deposited
 
     def CalcMrcaUncertaintyUpperBound(
@@ -31,7 +31,7 @@ class StratumRetentionPredicateMaximal:
         first_num_layers_deposited: typing.Optional[int]=None,
         second_num_layers_deposited: typing.Optional[int]=None,
         actual_rank_of_mrca: typing.Optional[int]=None,
-    ) -> float:
+    ) -> int:
         return 0
 
     def CalcRankAtColumnIndex(

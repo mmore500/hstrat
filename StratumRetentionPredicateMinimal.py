@@ -22,7 +22,7 @@ class StratumRetentionPredicateMinimal:
     def CalcColumnSizeUpperBound(
         self: 'StratumRetentionPredicateMinimal',
         num_layers_deposited: typing.Optional[int]=None,
-    ) -> float:
+    ) -> int:
         return 2
 
     def CalcMrcaUncertaintyUpperBound(
