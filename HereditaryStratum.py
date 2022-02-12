@@ -2,13 +2,13 @@ from bitarray import bitarray, frozenbitarray
 import random
 
 
-class RankLabeledHereditaryStratum:
+class HereditaryStratum:
 
     _deposition_rank: int
     _uid: frozenbitarray
 
     def __init__(
-        self: 'RankLabeledHereditaryStratum',
+        self: 'HereditaryStratum',
         *,
         deposition_rank: int,
         uid_size: int=64,
@@ -19,16 +19,16 @@ class RankLabeledHereditaryStratum:
         )
 
     def __eq__(
-        self: 'RankLabeledHereditaryStratum',
-        other: 'RankLabeledHereditaryStratum',
+        self: 'HereditaryStratum',
+        other: 'HereditaryStratum',
     ) -> bool:
         if isinstance(other, self.__class__,):
             return self.__dict__ == other.__dict__
         else:
             return False
 
-    def GetDepositionRank(self: 'RankLabeledHereditaryStratum',) -> int:
+    def GetDepositionRank(self: 'HereditaryStratum',) -> int:
         return self._deposition_rank
 
-    def GetUid(self: 'RankLabeledHereditaryStratum',) -> frozenbitarray:
+    def GetUid(self: 'HereditaryStratum',) -> frozenbitarray:
         return self._uid

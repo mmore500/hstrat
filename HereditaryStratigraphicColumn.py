@@ -2,13 +2,13 @@ import operator
 import math
 import typing
 
-from .RankLabeledHereditaryStratum import RankLabeledHereditaryStratum
+from .HereditaryStratum import HereditaryStratum
 from .StratumRetentionPredicateMaximal import StratumRetentionPredicateMaximal
 
 
 class HereditaryStratigraphicColumn:
 
-    _column: typing.List[RankLabeledHereditaryStratum,]
+    _column: typing.List[HereditaryStratum,]
     _num_layers_deposited: int
     _default_stratum_uid_size: int
     _stratum_retention_predicate: typing.Callable[[int, int], bool]
@@ -39,7 +39,7 @@ class HereditaryStratigraphicColumn:
             return False
 
     def DepositLayer(self: 'HereditaryStratigraphicColumn',) -> None:
-        self._column.append(RankLabeledHereditaryStratum(
+        self._column.append(HereditaryStratum(
             deposition_rank=self._num_layers_deposited,
             uid_size=self._default_stratum_uid_size,
         ))
