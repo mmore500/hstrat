@@ -1,3 +1,4 @@
+import typing
 
 
 class StratumRetentionPredicateMinimal:
@@ -17,3 +18,22 @@ class StratumRetentionPredicateMinimal:
             return self.__dict__ == other.__dict__
         else:
             return False
+
+    def CalcColumnSizeUpperBound(
+        self: 'StratumRetentionPredicateMinimal',
+        num_layers_deposited: typing.Optional[int]=None,
+    ) -> float:
+        return 2
+
+    def CalcMrcaUncertaintyUpperBound(
+        self: 'StratumRetentionPredicateMinimal',
+        *,
+        first_num_layers_deposited: int,
+        second_num_layers_deposited: int,
+        actual_rank_of_mrca: typing.Optional[int]=None,
+    ) -> float:
+        # essentially, no guarantee given
+        return max(
+            first_num_layers_deposited,
+            second_num_layers_deposited,
+        )

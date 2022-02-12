@@ -61,3 +61,21 @@ class StratumRetentionPredicateDepthProportionalResolution():
         stratum_interval = stratum_rank // cur_stage_interval_size
 
         return stratum_rank % cur_stage_interval_size == 0
+
+    def CalcColumnSizeUpperBound(
+        self: 'StratumRetentionPredicateDepthProportionalResolution',
+        num_layers_deposited: typing.Optional[int]=None,
+    ) -> float:
+        return self._guaranteed_depth_proportional_resolution * 2 + 2
+
+    def CalcMrcaUncertaintyUpperBound(
+        self: 'StratumRetentionPredicateDepthProportionalResolution',
+        *,
+        first_num_layers_deposited: int,
+        second_num_layers_deposited: int,
+        actual_rank_of_mrca: typing.Optional[int]=None,
+    ) -> float:
+        return max(
+            first_num_layers_deposited,
+            second_num_layers_deposited,
+        ) / self._guaranteed_depth_proportional_resolution

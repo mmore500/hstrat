@@ -1,4 +1,5 @@
 import random
+import typing
 
 
 class StratumRetentionPredicateStochastic:
@@ -20,3 +21,22 @@ class StratumRetentionPredicateStochastic:
             return self.__dict__ == other.__dict__
         else:
             return False
+
+    def CalcColumnSizeUpperBound(
+        self: 'StratumRetentionPredicateStochastic',
+        num_layers_deposited: int,
+    ) -> float:
+        return num_layers_deposited
+
+    def CalcMrcaUncertaintyUpperBound(
+        self: 'StratumRetentionPredicateStochastic',
+        *,
+        first_num_layers_deposited: int,
+        second_num_layers_deposited: int,
+        actual_rank_of_mrca: typing.Optional[int]=None,
+    ) -> float:
+        # essentially, no guarantee given
+        return max(
+            first_num_layers_deposited,
+            second_num_layers_deposited,
+        )
