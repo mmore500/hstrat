@@ -12,6 +12,7 @@ from pylib import StratumRetentionPredicateMinimal
 from pylib import StratumRetentionPredicateRecencyProportionalResolution
 from pylib import StratumRetentionPredicateRecursiveInterspersion
 from pylib import StratumRetentionPredicateStochastic
+from pylib import value_or
 
 random.seed(1)
 
@@ -163,7 +164,10 @@ def _do_test_comparison_validity(
             if fdrw is not None:
                 assert 0 <= fdrw <= generation
 
-            assert first.CalcRankOfMrcaBoundsWith(second) == (lcrw, fdrw)
+            assert (
+                first.CalcRankOfMrcaBoundsWith(second)
+                == (lcrw, value_or(fdrw, first.GetNumStrataDeposited()))
+            )
             if lcrw is not None and fdrw is not None:
                 assert lcrw < fdrw
 
@@ -178,7 +182,8 @@ def _do_test_comparison_validity(
                 assert -1 <= rsfdw <= generation
 
             assert (
-                first.CalcRanksSinceMrcaBoundsWith(second) == (rslcw, rsfdw)
+                first.CalcRanksSinceMrcaBoundsWith(second)
+                == (rslcw, value_or(rsfdw, -1))
             )
             if rslcw is not None and rsfdw is not None:
                 assert rslcw > rsfdw

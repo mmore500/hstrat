@@ -5,7 +5,7 @@ import typing
 
 from .HereditaryStratum import HereditaryStratum
 from .StratumRetentionPredicateMaximal import StratumRetentionPredicateMaximal
-
+from .value_or import value_or
 
 class HereditaryStratigraphicColumn:
 
@@ -220,10 +220,11 @@ class HereditaryStratigraphicColumn:
     def CalcRankOfMrcaBoundsWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
-    ) -> typing.Tuple[typing.Optional[int], typing.Optional[int]]:
+    ) -> typing.Tuple[typing.Optional[int], int]:
+        first_disparity = self.CalcRankOfFirstDisparityWith(other)
         return (
             self.CalcRankOfLastCommonalityWith(other),
-            self.CalcRankOfFirstDisparityWith(other),
+            value_or(first_disparity, self.GetNumStrataDeposited()),
         )
 
     def CalcRankOfMrcaUncertaintyWith(
@@ -263,10 +264,11 @@ class HereditaryStratigraphicColumn:
     def CalcRanksSinceMrcaBoundsWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
-    ) -> typing.Tuple[typing.Optional[int], typing.Optional[int],]:
+    ) -> typing.Tuple[typing.Optional[int], int]:
+        since_first_disparity = self.CalcRanksSinceFirstDisparityWith(other)
         return (
-            self.CalcRanksSinceLastCommonalityWith(other,),
-            self.CalcRanksSinceFirstDisparityWith(other,),
+            self.CalcRanksSinceLastCommonalityWith(other),
+            value_or(since_first_disparity, -1),
         )
 
     def CalcRanksSinceMrcaUncertaintyWith(
