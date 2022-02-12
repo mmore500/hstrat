@@ -12,6 +12,7 @@ from .StratumRetentionPredicateRecencyProportionalResolution import StratumReten
 from .StratumRetentionPredicateRecursiveInterspersion import StratumRetentionPredicateRecursiveInterspersion
 from .StratumRetentionPredicateStochastic \
     import StratumRetentionPredicateStochastic
+from .value_or import value_or
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
@@ -27,4 +28,5 @@ __all__ = [
     'StratumRetentionPredicateRecencyProportionalResolution',
     'StratumRetentionPredicateRecursiveInterspersion',
     'StratumRetentionPredicateStochastic',
+    'value_or',
 ]
