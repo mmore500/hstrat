@@ -33,10 +33,10 @@ def _do_test_equality(
     assert original1 != original2
     assert copy1 != original2
 
-    copy1.DepositLayer()
+    copy1.DepositStratum()
     assert original1 != copy1
 
-    original1.DepositLayer()
+    original1.DepositStratum()
     assert original1 != copy1
 
 
@@ -80,7 +80,7 @@ def _do_test_comparison_commutativity_asyncrhonous(
         for individual in population:
             # asynchronous generations
             if random.choice([True, False]):
-                individual.DepositLayer()
+                individual.DepositStratum()
 
 
 def _do_test_comparison_commutativity_syncrhonous(
@@ -137,7 +137,7 @@ def _do_test_comparison_commutativity_syncrhonous(
         for target in range(5):
             population[target] = deepcopy(population[-1])
         # synchronous generations
-        for individual in population: individual.DepositLayer()
+        for individual in population: individual.DepositStratum()
 
 
 def _do_test_comparison_validity(
@@ -191,7 +191,7 @@ def _do_test_comparison_validity(
             population[target] = deepcopy(population[-1])
         for individual in population:
             if random.choice([True, False]):
-                individual.DepositLayer()
+                individual.DepositStratum()
 
 
 def _do_test_scenario_no_mrca(
@@ -225,8 +225,8 @@ def _do_test_scenario_no_mrca(
         assert first.CalcRanksSinceMrcaUncertaintyWith(second) == 0
         assert second.CalcRanksSinceMrcaUncertaintyWith(first) == 0
 
-        first.DepositLayer()
-        second.DepositLayer()
+        first.DepositStratum()
+        second.DepositStratum()
 
 
 def _do_test_scenario_no_divergence(
@@ -247,7 +247,7 @@ def _do_test_scenario_no_divergence(
         assert column.CalcRanksSinceFirstDisparityWith(column) == None
         assert column.CalcRanksSinceMrcaUncertaintyWith(column) == 0
 
-        column.DepositLayer()
+        column.DepositStratum()
 
 
 def _do_test_scenario_partial_even_divergence(
@@ -259,12 +259,12 @@ def _do_test_scenario_partial_even_divergence(
     )
 
     for generation in range(100):
-        first.DepositLayer()
+        first.DepositStratum()
 
     second = deepcopy(first)
 
-    first.DepositLayer()
-    second.DepositLayer()
+    first.DepositStratum()
+    second.DepositStratum()
 
     for generation in range(101, 200):
         assert (
@@ -288,8 +288,8 @@ def _do_test_scenario_partial_even_divergence(
             < generation - 100
         )
 
-        first.DepositLayer()
-        second.DepositLayer()
+        first.DepositStratum()
+        second.DepositStratum()
 
 
 def _do_test_scenario_partial_uneven_divergence(
@@ -301,11 +301,11 @@ def _do_test_scenario_partial_uneven_divergence(
     )
 
     for generation in range(100):
-        first.DepositLayer()
+        first.DepositStratum()
 
     second = deepcopy(first)
 
-    first.DepositLayer()
+    first.DepositStratum()
 
     for generation in range(101, 200):
         assert (
@@ -338,9 +338,9 @@ def _do_test_scenario_partial_uneven_divergence(
             -1 == second.CalcRanksSinceFirstDisparityWith(first)
         )
 
-        first.DepositLayer()
+        first.DepositStratum()
 
-    second.DepositLayer()
+    second.DepositStratum()
 
     for generation in range(101, 200):
         assert (
@@ -375,16 +375,16 @@ def _do_test_scenario_partial_uneven_divergence(
             < generation - 100
         )
 
-        second.DepositLayer()
+        second.DepositStratum()
 
 
 class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
-    def test_GetNumLayersDeposited(self):
+    def test_GetNumStrataDeposited(self):
         column = HereditaryStratigraphicColumn()
         for i in range(10):
-            assert column.GetNumLayersDeposited() == i + 1
-            column.DepositLayer()
+            assert column.GetNumStrataDeposited() == i + 1
+            column.DepositStratum()
 
     def test_equality(self):
         for retention_predicate in [
@@ -510,9 +510,9 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
         third = deepcopy(first)
 
         for gen in range(100):
-            assert first.GetColumnSize() == gen + 1
-            assert second.GetColumnSize() == gen + 1
-            assert third.GetColumnSize() == 1
+            assert first.GetNumStrataRetained() == gen + 1
+            assert second.GetNumStrataRetained() == gen + 1
+            assert third.GetNumStrataRetained() == 1
 
             assert first.CalcRankOfMrcaUncertaintyWith(second) == 0
             assert first.CalcRankOfMrcaUncertaintyWith(third) == 0
@@ -522,8 +522,8 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             assert first.CalcRanksSinceMrcaUncertaintyWith(third) == 0
             assert third.CalcRanksSinceMrcaUncertaintyWith(first) == 0
 
-            first.DepositLayer()
-            second.DepositLayer()
+            first.DepositStratum()
+            second.DepositStratum()
             # no layers deposited onto third
 
     def test_minimal_retention_predicate(self):
@@ -534,9 +534,9 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
         third = deepcopy(first)
 
         for gen in range(100):
-            assert first.GetColumnSize() == min(2, gen+1)
-            assert second.GetColumnSize() == min(2, gen+1)
-            assert third.GetColumnSize() == 1
+            assert first.GetNumStrataRetained() == min(2, gen+1)
+            assert second.GetNumStrataRetained() == min(2, gen+1)
+            assert third.GetNumStrataRetained() == 1
 
             assert (
                 first.CalcRankOfMrcaUncertaintyWith(second) == max(0, gen - 1)
@@ -554,8 +554,8 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             assert first.CalcRanksSinceMrcaUncertaintyWith(third) == 0
             assert third.CalcRanksSinceMrcaUncertaintyWith(first) == 0
 
-            first.DepositLayer()
-            second.DepositLayer()
+            first.DepositStratum()
+            second.DepositStratum()
             # no layers deposited onto third
 
 

@@ -27,20 +27,20 @@ class StratumRetentionPredicateDepthProportionalResolution():
     def __call__(
         self: 'StratumRetentionPredicateDepthProportionalResolution',
         stratum_rank: int,
-        column_layers_deposited: int,
+        column_strata_deposited: int,
     ) -> bool:
 
         min_intervals_divide_into = (
             self._guaranteed_depth_proportional_resolution
         )
 
-        if stratum_rank==column_layers_deposited: return True
+        if stratum_rank==column_strata_deposited: return True
 
-        if column_layers_deposited <= min_intervals_divide_into:
+        if column_strata_deposited <= min_intervals_divide_into:
             return True
 
         cur_stage = math.ceil(math.log(
-            (column_layers_deposited)/min_intervals_divide_into,
+            (column_strata_deposited)/min_intervals_divide_into,
             2,
         ))
         cur_stage_smallest = 2**(cur_stage-1) * min_intervals_divide_into
@@ -51,29 +51,29 @@ class StratumRetentionPredicateDepthProportionalResolution():
         )
 
         num_complete_intervals = (
-            column_layers_deposited // cur_stage_interval_size
+            column_strata_deposited // cur_stage_interval_size
         )
 
-        num_intervals = (column_layers_deposited+1) // cur_stage_interval_size
+        num_intervals = (column_strata_deposited+1) // cur_stage_interval_size
 
         stratum_interval = stratum_rank // cur_stage_interval_size
 
         return stratum_rank % cur_stage_interval_size == 0
 
-    def CalcColumnSizeUpperBound(
+    def CalcNumStrataRetainedUpperBound(
         self: 'StratumRetentionPredicateDepthProportionalResolution',
-        num_layers_deposited: typing.Optional[int]=None,
+        num_strata_deposited: typing.Optional[int]=None,
     ) -> int:
         return self._guaranteed_depth_proportional_resolution * 2 + 2
 
     def CalcMrcaUncertaintyUpperBound(
         self: 'StratumRetentionPredicateDepthProportionalResolution',
         *,
-        first_num_layers_deposited: int,
-        second_num_layers_deposited: int,
+        first_num_strata_deposited: int,
+        second_num_strata_deposited: int,
         actual_rank_of_mrca: typing.Optional[int]=None,
     ) -> int:
         return max(
-            first_num_layers_deposited,
-            second_num_layers_deposited,
+            first_num_strata_deposited,
+            second_num_strata_deposited,
         ) // self._guaranteed_depth_proportional_resolution

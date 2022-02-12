@@ -23,12 +23,12 @@ class TestStratumRetentionPredicateMinimal(unittest.TestCase):
         assert original == copy
 
     def test_behavior(self):
-        for column_layers_deposited in range(100):
-            for stratum_rank in range(0, column_layers_deposited):
+        for column_strata_deposited in range(100):
+            for stratum_rank in range(0, column_strata_deposited):
                 assert not StratumRetentionPredicateMinimal()(
-                    column_layers_deposited=column_layers_deposited,
+                    column_strata_deposited=column_strata_deposited,
                     stratum_rank=stratum_rank,
-                ) or stratum_rank in (0, column_layers_deposited)
+                ) or stratum_rank in (0, column_strata_deposited)
 
     def test_space_complexity(self):
         predicate = StratumRetentionPredicateMinimal()
@@ -36,12 +36,12 @@ class TestStratumRetentionPredicateMinimal(unittest.TestCase):
             stratum_retention_predicate=predicate,
         )
 
-        for column_layers_deposited in range(100):
-            for stratum_rank in range(0, column_layers_deposited):
-                upper_bound = predicate.CalcColumnSizeUpperBound(
-                    num_layers_deposited=column.GetNumLayersDeposited(),
+        for column_strata_deposited in range(100):
+            for stratum_rank in range(0, column_strata_deposited):
+                upper_bound = predicate.CalcNumStrataRetainedUpperBound(
+                    num_strata_deposited=column.GetNumStrataDeposited(),
                 )
-                assert column.GetColumnSize() <= upper_bound
+                assert column.GetNumStrataRetained() <= upper_bound
 
     def _do_test_resolution(self, synchronous):
         predicate = StratumRetentionPredicateMinimal()
@@ -58,8 +58,8 @@ class TestStratumRetentionPredicateMinimal(unittest.TestCase):
             # subsample consecutive pairs in population
             for f, s in  zip(population, population[1:]):
                 target_resolu = predicate.CalcMrcaUncertaintyUpperBound(
-                    first_num_layers_deposited=f.GetNumLayersDeposited(),
-                    second_num_layers_deposited=s.GetNumLayersDeposited(),
+                    first_num_strata_deposited=f.GetNumStrataDeposited(),
+                    second_num_strata_deposited=s.GetNumStrataDeposited(),
                 )
                 assert f.CalcRankOfMrcaUncertaintyWith(s) <= target_resolu
                 assert f.CalcRanksSinceMrcaUncertaintyWith(s) <= target_resolu
@@ -69,7 +69,7 @@ class TestStratumRetentionPredicateMinimal(unittest.TestCase):
                 population[target] = deepcopy(population[-1])
             for individual in population:
                 if synchronous or random.choice([True, False]):
-                    individual.DepositLayer()
+                    individual.DepositStratum()
 
     def test_resolution(self):
         for synchronous in [True, False]:

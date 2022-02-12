@@ -15,7 +15,7 @@ class HereditaryStratigraphicColumnBundle:
     ):
         assert len(columns)
         self._columns = columns
-        self.DepositLayer()
+        self.DepositStratum()
 
     def __getitem__(
         self: 'HereditaryStratigraphicColumnBundle' ,
@@ -23,13 +23,13 @@ class HereditaryStratigraphicColumnBundle:
     ) -> HereditaryStratigraphicColumn:
         return self._columns[key]
 
-    def DepositLayer(
+    def DepositStratum(
         self: 'HereditaryStratigraphicColumnBundle',
     ) -> None:
         for column in self._columns.values():
-            column.DepositLayer()
+            column.DepositStratum()
 
-    def GetNumLayersDeposited(
+    def GetNumStrataDeposited(
         self: 'HereditaryStratigraphicColumnBundle',
     ) -> int:
-        return next(iter(self._columns.values())).GetNumLayersDeposited()
+        return next(iter(self._columns.values())).GetNumStrataDeposited()

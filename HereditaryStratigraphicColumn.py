@@ -9,7 +9,7 @@ from .StratumRetentionPredicateMaximal import StratumRetentionPredicateMaximal
 class HereditaryStratigraphicColumn:
 
     _column: typing.List[HereditaryStratum,]
-    _num_layers_deposited: int
+    _num_strata_deposited: int
     _default_stratum_uid_size: int
     _stratum_retention_predicate: typing.Callable[[int, int], bool]
 
@@ -20,14 +20,14 @@ class HereditaryStratigraphicColumn:
         stratum_retention_predicate=StratumRetentionPredicateMaximal(),
     ):
         """
-        Retention predicate should take two keyword arguments: stratum_rank and column_layers_deposited.
+        Retention predicate should take two keyword arguments: stratum_rank and column_strata_deposited.
         Default retention predicate is to keep all strata."""
         self._column = []
-        self._num_layers_deposited = 0
+        self._num_strata_deposited = 0
         self._default_stratum_uid_size = default_stratum_uid_size
         self._stratum_retention_predicate = stratum_retention_predicate
 
-        self.DepositLayer()
+        self.DepositStratum()
 
     def __eq__(
         self: 'HereditaryStratigraphicColumn',
@@ -38,29 +38,29 @@ class HereditaryStratigraphicColumn:
         else:
             return False
 
-    def DepositLayer(self: 'HereditaryStratigraphicColumn',) -> None:
+    def DepositStratum(self: 'HereditaryStratigraphicColumn',) -> None:
         self._column.append(HereditaryStratum(
             deposition_rank=(
                 None
                 if hasattr(
                     self._stratum_retention_predicate,
                     'CalcRankAtColumnIndex',
-                ) else self._num_layers_deposited
+                ) else self._num_strata_deposited
             ),
             uid_size=self._default_stratum_uid_size,
         ))
         self._PurgeColumn()
-        self._num_layers_deposited += 1
+        self._num_strata_deposited += 1
 
     def _PurgeColumn(self: 'HereditaryStratigraphicColumn',) -> None:
         # wrapper to enforce requirements on predicate
         def should_retain(stratum_rank: int,) -> bool:
             res = self._stratum_retention_predicate(
                 stratum_rank=stratum_rank,
-                column_layers_deposited=self.GetNumLayersDeposited(),
+                column_strata_deposited=self.GetNumStrataDeposited(),
             )
             # predicate must *always* retain the initial and latest strata
-            if stratum_rank in (0, self.GetNumLayersDeposited()):
+            if stratum_rank in (0, self.GetNumStrataDeposited()):
                 assert res
             return res
 
@@ -70,11 +70,11 @@ class HereditaryStratigraphicColumn:
             if should_retain(self.CalcRankAtColumnIndex(idx))
         ]
 
-    def GetColumnSize(self: 'HereditaryStratigraphicColumn',) -> int:
+    def GetNumStrataRetained(self: 'HereditaryStratigraphicColumn',) -> int:
         return len(self._column)
 
-    def GetNumLayersDeposited(self: 'HereditaryStratigraphicColumn',) -> int:
-        return self._num_layers_deposited
+    def GetNumStrataDeposited(self: 'HereditaryStratigraphicColumn',) -> int:
+        return self._num_strata_deposited
 
     def CalcRankAtColumnIndex(
         self: 'HereditaryStratigraphicColumn',
@@ -86,7 +86,7 @@ class HereditaryStratigraphicColumn:
         else:
             return self._stratum_retention_predicate.CalcRankAtColumnIndex(
                 index=index,
-                num_layers_deposited=self.GetNumLayersDeposited(),
+                num_strata_deposited=self.GetNumStrataDeposited(),
             )
 
     def CalcRankOfLastCommonalityWith(
@@ -102,8 +102,8 @@ class HereditaryStratigraphicColumn:
         uid_at = lambda which, idx: which._column[idx].GetUid()
 
         while (
-            self_column_idx < self.GetColumnSize()
-            and other_column_idx < other.GetColumnSize()
+            self_column_idx < self.GetNumStrataRetained()
+            and other_column_idx < other.GetNumStrataRetained()
         ):
             if (
                 rank_at(self, self_column_idx)
@@ -151,8 +151,8 @@ class HereditaryStratigraphicColumn:
         rank_at = lambda which, idx: which.CalcRankAtColumnIndex(idx)
         uid_at = lambda which, idx: which._column[idx].GetUid()
         column_idxs_bounds_check = lambda: (
-            self_column_idx < self.GetColumnSize()
-            and other_column_idx < other.GetColumnSize()
+            self_column_idx < self.GetNumStrataRetained()
+            and other_column_idx < other.GetNumStrataRetained()
         )
 
         while column_idxs_bounds_check():
@@ -172,7 +172,7 @@ class HereditaryStratigraphicColumn:
                 else:
                     # mismatching uids at the same rank
                     res = rank_at(self, self_column_idx)
-                    assert 0 <= res < self.GetNumLayersDeposited()
+                    assert 0 <= res < self.GetNumStrataDeposited()
                     return res
             elif (
                 rank_at(self, self_column_idx)
@@ -189,21 +189,21 @@ class HereditaryStratigraphicColumn:
                 # advance to next-newer stratum on other column
                 other_column_idx += 1
 
-        if self_column_idx < self.GetColumnSize():
+        if self_column_idx < self.GetNumStrataRetained():
             # although no mismatching strata are found between self and other
             # self has strata ranks beyond the newest found in other
             # conservatively assume mismatch will be with next rank of other
-            assert other_column_idx == other.GetColumnSize()
+            assert other_column_idx == other.GetNumStrataRetained()
             res = rank_at(other, other_column_idx - 1) + 1
-            assert 0 <= res <= self.GetNumLayersDeposited()
+            assert 0 <= res <= self.GetNumStrataDeposited()
             return res
-        elif other_column_idx < other.GetColumnSize():
+        elif other_column_idx < other.GetNumStrataRetained():
             # although no mismatching strata are found between other and self
             # other has strata ranks beyond the newest found in self
             # conservatively assume mismatch will be with next rank
-            assert self_column_idx == self.GetColumnSize()
+            assert self_column_idx == self.GetNumStrataRetained()
             res = rank_at(self, self_column_idx - 1) + 1
-            assert 0 <= res <= self.GetNumLayersDeposited()
+            assert 0 <= res <= self.GetNumStrataDeposited()
             return res
         else:
             # no disparate strata found
@@ -234,9 +234,9 @@ class HereditaryStratigraphicColumn:
         last_common_rank = self.CalcRankOfLastCommonalityWith(other,)
         if last_common_rank is None: return None
         else:
-            assert self.GetNumLayersDeposited()
-            res = self.GetNumLayersDeposited() - 1 - last_common_rank
-            assert 0 <= res < self.GetNumLayersDeposited()
+            assert self.GetNumStrataDeposited()
+            res = self.GetNumStrataDeposited() - 1 - last_common_rank
+            assert 0 <= res < self.GetNumStrataDeposited()
             return res
 
     # note, returns -1 if disparity is that other has advanced to ranks
@@ -248,9 +248,9 @@ class HereditaryStratigraphicColumn:
         first_disparate_rank = self.CalcRankOfFirstDisparityWith(other,)
         if first_disparate_rank is None: return None
         else:
-            assert self.GetNumLayersDeposited()
-            res = self.GetNumLayersDeposited() - 1 - first_disparate_rank
-            assert -1 <= res < self.GetNumLayersDeposited()
+            assert self.GetNumStrataDeposited()
+            res = self.GetNumStrataDeposited() - 1 - first_disparate_rank
+            assert -1 <= res < self.GetNumStrataDeposited()
             return res
 
     def CalcRanksSinceMrcaBoundsWith(

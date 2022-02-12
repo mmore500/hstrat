@@ -49,8 +49,8 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
 
         for generation in range(1000):
             assert (
-                column.GetColumnSize()
-                <= predicate.CalcColumnSizeUpperBound(generation)
+                column.GetNumStrataRetained()
+                <= predicate.CalcNumStrataRetainedUpperBound(generation)
             )
 
     def test_space_complexity(self):

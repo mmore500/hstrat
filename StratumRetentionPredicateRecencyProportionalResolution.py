@@ -43,12 +43,12 @@ class StratumRetentionPredicateRecencyProportionalResolution(
         self: 'StratumRetentionPredicateRecencyProportionalResolution',
         *,
         actual_rank_of_mrca: int,
-        first_num_layers_deposited: int,
-        second_num_layers_deposited: int,
+        first_num_strata_deposited: int,
+        second_num_strata_deposited: int,
     ) -> int:
         max_ranks_since_mrca = max(
-            first_num_layers_deposited,
-            second_num_layers_deposited,
+            first_num_strata_deposited,
+            second_num_strata_deposited,
         ) - actual_rank_of_mrca
         return (
             max_ranks_since_mrca

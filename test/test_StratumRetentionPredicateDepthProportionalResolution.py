@@ -38,10 +38,10 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
         )
 
         for generation in range(10000):
-            assert column.GetColumnSize() <= predicate.CalcColumnSizeUpperBound(
-                num_layers_deposited=column.GetNumLayersDeposited(),
+            assert column.GetNumStrataRetained() <= predicate.CalcNumStrataRetainedUpperBound(
+                num_strata_deposited=column.GetNumStrataDeposited(),
             )
-            column.DepositLayer()
+            column.DepositStratum()
 
     def test_space_complexity(self):
         for guaranteed_depth_proportional_resolution in [
@@ -78,8 +78,8 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
             # subsample consecutive pairs in population
             for f, s in  zip(population, population[1:]):
                 target_resolu = predicate.CalcMrcaUncertaintyUpperBound(
-                    first_num_layers_deposited=f.GetNumLayersDeposited(),
-                    second_num_layers_deposited=s.GetNumLayersDeposited(),
+                    first_num_strata_deposited=f.GetNumStrataDeposited(),
+                    second_num_strata_deposited=s.GetNumStrataDeposited(),
                 )
                 assert f.CalcRankOfMrcaUncertaintyWith(s) <= target_resolu
                 assert f.CalcRanksSinceMrcaUncertaintyWith(s) <= target_resolu
@@ -89,7 +89,7 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
                 population[target] = deepcopy(population[-1])
             for individual in population:
                 if synchronous or random.choice([True, False]):
-                    individual.DepositLayer()
+                    individual.DepositStratum()
 
     def test_resolution(self):
         for min_intervals_divide_into in [

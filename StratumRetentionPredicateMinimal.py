@@ -6,9 +6,9 @@ class StratumRetentionPredicateMinimal:
     def __call__(
         self: 'StratumRetentionPredicateMinimal',
         stratum_rank: int,
-        column_layers_deposited: int,
+        column_strata_deposited: int,
     ) -> bool:
-        return stratum_rank in (0, column_layers_deposited)
+        return stratum_rank in (0, column_strata_deposited)
 
     def __eq__(
         self: 'StratumRetentionPredicateMinimal',
@@ -19,32 +19,32 @@ class StratumRetentionPredicateMinimal:
         else:
             return False
 
-    def CalcColumnSizeUpperBound(
+    def CalcNumStrataRetainedUpperBound(
         self: 'StratumRetentionPredicateMinimal',
-        num_layers_deposited: typing.Optional[int]=None,
+        num_strata_deposited: typing.Optional[int]=None,
     ) -> int:
         return 2
 
     def CalcMrcaUncertaintyUpperBound(
         self: 'StratumRetentionPredicateMinimal',
         *,
-        first_num_layers_deposited: int,
-        second_num_layers_deposited: int,
+        first_num_strata_deposited: int,
+        second_num_strata_deposited: int,
         actual_rank_of_mrca: typing.Optional[int]=None,
     ) -> int:
         # essentially, no guarantee given
         return max(
-            first_num_layers_deposited,
-            second_num_layers_deposited,
+            first_num_strata_deposited,
+            second_num_strata_deposited,
         )
 
     def CalcRankAtColumnIndex(
         self: 'StratumRetentionPredicateMinimal',
         index: int,
-        num_layers_deposited: int,
+        num_strata_deposited: int,
     ) -> int:
         return [
             0,
-            num_layers_deposited - 1,
-            num_layers_deposited,
+            num_strata_deposited - 1,
+            num_strata_deposited,
         ][index]

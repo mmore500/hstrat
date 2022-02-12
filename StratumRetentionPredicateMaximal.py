@@ -6,7 +6,7 @@ class StratumRetentionPredicateMaximal:
     def __call__(
         self: 'StratumRetentionPredicateMaximal',
         stratum_rank: int,
-        column_layers_deposited: int,
+        column_strata_deposited: int,
     ) -> bool:
         return True
 
@@ -19,17 +19,17 @@ class StratumRetentionPredicateMaximal:
         else:
             return False
 
-    def CalcColumnSizeUpperBound(
+    def CalcNumStrataRetainedUpperBound(
         self: 'StratumRetentionPredicateMaximal',
-        num_layers_deposited: int,
+        num_strata_deposited: int,
     ) -> int:
-        return num_layers_deposited
+        return num_strata_deposited
 
     def CalcMrcaUncertaintyUpperBound(
         self: 'StratumRetentionPredicateMaximal',
         *,
-        first_num_layers_deposited: typing.Optional[int]=None,
-        second_num_layers_deposited: typing.Optional[int]=None,
+        first_num_strata_deposited: typing.Optional[int]=None,
+        second_num_strata_deposited: typing.Optional[int]=None,
         actual_rank_of_mrca: typing.Optional[int]=None,
     ) -> int:
         return 0
@@ -37,6 +37,6 @@ class StratumRetentionPredicateMaximal:
     def CalcRankAtColumnIndex(
         self: 'HereditaryStratigraphicColumn',
         index: int,
-        num_layers_deposited: typing.Optional[int]=None,
+        num_strata_deposited: typing.Optional[int]=None,
     ) -> int:
         return index

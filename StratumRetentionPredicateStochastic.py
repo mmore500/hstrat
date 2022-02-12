@@ -7,9 +7,9 @@ class StratumRetentionPredicateStochastic:
     def __call__(
         self: 'StratumRetentionPredicateStochastic',
         stratum_rank: int,
-        column_layers_deposited: int,
+        column_strata_deposited: int,
     ) -> bool:
-        if stratum_rank and stratum_rank == column_layers_deposited - 2:
+        if stratum_rank and stratum_rank == column_strata_deposited - 2:
             return random.choice([True, False])
         else: return True
 
@@ -22,21 +22,21 @@ class StratumRetentionPredicateStochastic:
         else:
             return False
 
-    def CalcColumnSizeUpperBound(
+    def CalcNumStrataRetainedUpperBound(
         self: 'StratumRetentionPredicateStochastic',
-        num_layers_deposited: int,
+        num_strata_deposited: int,
     ) -> int:
-        return num_layers_deposited
+        return num_strata_deposited
 
     def CalcMrcaUncertaintyUpperBound(
         self: 'StratumRetentionPredicateStochastic',
         *,
-        first_num_layers_deposited: int,
-        second_num_layers_deposited: int,
+        first_num_strata_deposited: int,
+        second_num_strata_deposited: int,
         actual_rank_of_mrca: typing.Optional[int]=None,
     ) -> int:
         # essentially, no guarantee given
         return max(
-            first_num_layers_deposited,
-            second_num_layers_deposited,
+            first_num_strata_deposited,
+            second_num_strata_deposited,
         )

@@ -48,8 +48,8 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
 
         for generation in range(1000):
             assert (
-                column.GetColumnSize()
-                <= predicate.CalcColumnSizeUpperBound(generation)
+                column.GetNumStrataRetained()
+                <= predicate.CalcNumStrataRetainedUpperBound(generation)
             )
 
 
@@ -115,8 +115,8 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
 
                 target_resolu = test_predicate.CalcMrcaUncertaintyUpperBound(
                     actual_rank_of_mrca=actual_rank_of_mrca,
-                    first_num_layers_deposited=f.GetNumLayersDeposited(),
-                    second_num_layers_deposited=s.GetNumLayersDeposited(),
+                    first_num_strata_deposited=f.GetNumStrataDeposited(),
+                    second_num_strata_deposited=s.GetNumStrataDeposited(),
                 )
 
                 assert (
@@ -147,7 +147,7 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
                 iter(forked_population),
             ):
                 if synchronous or random.choice([True, False]):
-                    individual.DepositLayer()
+                    individual.DepositStratum()
 
     def test_resolution(self):
         for guaranteed_mrca_recency_proportional_resolution in [
