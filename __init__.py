@@ -4,7 +4,7 @@ from .doubling_search import doubling_search
 from .HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 from .HereditaryStratigraphicColumnBundle \
     import HereditaryStratigraphicColumnBundle
-from .HereditaryStratum import HereditaryStratum
+from .RankLabeledHereditaryStratum import RankLabeledHereditaryStratum
 from .StratumRetentionPredicateDepthProportionalResolution import StratumRetentionPredicateDepthProportionalResolution
 from .StratumRetentionPredicateMaximal import StratumRetentionPredicateMaximal
 from .StratumRetentionPredicateMinimal import StratumRetentionPredicateMinimal
@@ -18,9 +18,9 @@ __all__ = [
     'attach_attrs',
     'binary_search',
     'doubling_search',
-    'HereditaryStratum',
     'HereditaryStratigraphicColumn',
     'HereditaryStratigraphicColumnBundle',
+    'RankLabeledHereditaryStratum',
     'StratumRetentionPredicateDepthProportionalResolution',
     'StratumRetentionPredicateMaximal',
     'StratumRetentionPredicateMinimal',

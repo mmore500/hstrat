@@ -4,23 +4,23 @@ from copy import deepcopy
 import random
 import unittest
 
-from pylib import HereditaryStratum
+from pylib import RankLabeledHereditaryStratum
 
 random.seed(1)
 
-class TestHereditaryStratum(unittest.TestCase):
+class TestRankLabeledHereditaryStratum(unittest.TestCase):
 
     def test_deposition_rank(self):
-        assert HereditaryStratum(
+        assert RankLabeledHereditaryStratum(
             deposition_rank=42,
         ).GetDepositionRank() == 42
 
     def test_uid_generation(self):
-        original1 = HereditaryStratum(
+        original1 = RankLabeledHereditaryStratum(
             deposition_rank=42,
         )
         copy1 = deepcopy(original1)
-        original2 = HereditaryStratum(
+        original2 = RankLabeledHereditaryStratum(
             deposition_rank=42,
         )
 
