@@ -7,8 +7,8 @@ import random
 
 from pylib import HereditaryStratigraphicColumn
 from pylib import HereditaryStratigraphicColumnBundle
+from pylib import StratumRetentionPredicateMaximal
 from pylib import StratumRetentionPredicateRecencyProportionalResolution
-from pylib import stratum_retention_predicate_maximal
 
 class TestStratumRetentionPredicateDepthProportionalResolution(
     unittest.TestCase,
@@ -59,7 +59,7 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
             stratum_retention_predicate=test_predicate,
         )
         column_control = HereditaryStratigraphicColumn(
-            stratum_retention_predicate=stratum_retention_predicate_maximal,
+            stratum_retention_predicate=StratumRetentionPredicateMaximal(),
         )
 
         column_bundle = HereditaryStratigraphicColumnBundle({

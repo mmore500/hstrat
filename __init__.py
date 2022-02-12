@@ -6,11 +6,12 @@ from .HereditaryStratigraphicColumnBundle \
     import HereditaryStratigraphicColumnBundle
 from .HereditaryStratum import HereditaryStratum
 from .StratumRetentionPredicateDepthProportionalResolution import StratumRetentionPredicateDepthProportionalResolution
-from .stratum_retention_predicate_maximal import stratum_retention_predicate_maximal
-from .stratum_retention_predicate_minimal import stratum_retention_predicate_minimal
+from .StratumRetentionPredicateMaximal import StratumRetentionPredicateMaximal
+from .StratumRetentionPredicateMinimal import StratumRetentionPredicateMinimal
 from .StratumRetentionPredicateRecencyProportionalResolution import StratumRetentionPredicateRecencyProportionalResolution
 from .StratumRetentionPredicateRecursiveInterspersion import StratumRetentionPredicateRecursiveInterspersion
-from .stratum_retention_predicate_stochastic import stratum_retention_predicate_stochastic
+from .StratumRetentionPredicateStochastic \
+    import StratumRetentionPredicateStochastic
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
@@ -20,10 +21,10 @@ __all__ = [
     'HereditaryStratum',
     'HereditaryStratigraphicColumn',
     'HereditaryStratigraphicColumnBundle',
-    'stratum_retention_predicate_maximal',
-    'stratum_retention_predicate_minimal',
-    'stratum_retention_predicate_stochastic',
     'StratumRetentionPredicateDepthProportionalResolution',
+    'StratumRetentionPredicateMaximal',
+    'StratumRetentionPredicateMinimal',
     'StratumRetentionPredicateRecencyProportionalResolution',
     'StratumRetentionPredicateRecursiveInterspersion',
+    'StratumRetentionPredicateStochastic',
 ]

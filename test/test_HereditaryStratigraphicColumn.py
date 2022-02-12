@@ -6,12 +6,12 @@ import random
 import unittest
 
 from pylib import HereditaryStratigraphicColumn
-from pylib import stratum_retention_predicate_maximal
-from pylib import stratum_retention_predicate_minimal
-from pylib import stratum_retention_predicate_stochastic
 from pylib import StratumRetentionPredicateDepthProportionalResolution
+from pylib import StratumRetentionPredicateMaximal
+from pylib import StratumRetentionPredicateMinimal
 from pylib import StratumRetentionPredicateRecencyProportionalResolution
 from pylib import StratumRetentionPredicateRecursiveInterspersion
+from pylib import StratumRetentionPredicateStochastic
 
 random.seed(1)
 
@@ -372,30 +372,28 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
 
     def test_equality(self,):
-
-        original1 = HereditaryStratigraphicColumn()
-        copy1 = deepcopy(original1,)
-        original2 = HereditaryStratigraphicColumn()
-
-        assert original1 == copy1
-        assert original1 != original2
-        assert copy1 != original2
-
-        copy1.DepositLayer()
-        assert original1 != copy1
-
-        original1.DepositLayer()
-        assert original1 != copy1
+        for retention_predicate in [
+            StratumRetentionPredicateMaximal(),
+            StratumRetentionPredicateMinimal(),
+            StratumRetentionPredicateDepthProportionalResolution(),
+            StratumRetentionPredicateRecencyProportionalResolution(),
+            StratumRetentionPredicateRecursiveInterspersion(),
+            StratumRetentionPredicateStochastic(),
+        ]:
+            _do_test_equality(
+                self,
+                retention_predicate,
+            )
 
 
     def test_comparison_commutativity_asyncrhonous(self,):
         for retention_predicate in [
-            stratum_retention_predicate_maximal,
-            stratum_retention_predicate_minimal,
-            stratum_retention_predicate_stochastic,
+            StratumRetentionPredicateMaximal(),
+            StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
+            StratumRetentionPredicateStochastic(),
         ]:
             _do_test_comparison_commutativity_asyncrhonous(
                 self,
@@ -405,12 +403,12 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     def test_comparison_commutativity_syncrhonous(self,):
         for retention_predicate in [
-            stratum_retention_predicate_maximal,
-            stratum_retention_predicate_minimal,
-            stratum_retention_predicate_stochastic,
+            StratumRetentionPredicateMaximal(),
+            StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
+            StratumRetentionPredicateStochastic(),
         ]:
             _do_test_comparison_commutativity_syncrhonous(
                 self,
@@ -420,12 +418,12 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     def test_comparison_validity(self,):
         for retention_predicate in [
-            stratum_retention_predicate_maximal,
-            stratum_retention_predicate_minimal,
-            stratum_retention_predicate_stochastic,
+            StratumRetentionPredicateMaximal(),
+            StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
+            StratumRetentionPredicateStochastic(),
         ]:
             _do_test_comparison_validity(
                 self,
@@ -436,12 +434,12 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
     def test_scenario_no_mrca(self,):
         for rp1, rp2 in it.product(
             [
-                stratum_retention_predicate_maximal,
-                stratum_retention_predicate_minimal,
-                stratum_retention_predicate_stochastic,
+                StratumRetentionPredicateMaximal(),
+                StratumRetentionPredicateMinimal(),
                 StratumRetentionPredicateDepthProportionalResolution(),
                 StratumRetentionPredicateRecencyProportionalResolution(),
                 StratumRetentionPredicateRecursiveInterspersion(),
+                StratumRetentionPredicateStochastic(),
             ],
             repeat=2,
         ):
@@ -454,12 +452,12 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     def test_scenario_no_divergence(self,):
         for retention_predicate in [
-            stratum_retention_predicate_maximal,
-            stratum_retention_predicate_minimal,
-            stratum_retention_predicate_stochastic,
+            StratumRetentionPredicateMaximal(),
+            StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
+            StratumRetentionPredicateStochastic(),
         ]:
             _do_test_scenario_no_divergence(
                 self,
@@ -469,12 +467,12 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     def test_scenario_partial_even_divergence(self,):
         for retention_predicate in [
-            stratum_retention_predicate_maximal,
-            stratum_retention_predicate_minimal,
-            stratum_retention_predicate_stochastic,
+            StratumRetentionPredicateMaximal(),
+            StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
+            StratumRetentionPredicateStochastic(),
         ]:
             _do_test_scenario_partial_even_divergence(
                 self,
@@ -484,12 +482,12 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     def test_scenario_partial_uneven_divergence(self,):
         for retention_predicate in [
-            stratum_retention_predicate_maximal,
-            stratum_retention_predicate_minimal,
-            stratum_retention_predicate_stochastic,
+            StratumRetentionPredicateMaximal(),
+            StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
+            StratumRetentionPredicateStochastic(),
         ]:
             _do_test_scenario_partial_uneven_divergence(
                 self,
@@ -499,7 +497,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     def test_maximal_retention_predicate(self,):
         first = HereditaryStratigraphicColumn(
-            stratum_retention_predicate=stratum_retention_predicate_maximal,
+            stratum_retention_predicate=StratumRetentionPredicateMaximal(),
         )
         second = deepcopy(first)
         third = deepcopy(first)
@@ -524,7 +522,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     def test_minimal_retention_predicate(self,):
         first = HereditaryStratigraphicColumn(
-            stratum_retention_predicate=stratum_retention_predicate_minimal,
+            stratum_retention_predicate=StratumRetentionPredicateMinimal(),
         )
         second = deepcopy(first)
         third = deepcopy(first)

@@ -3,8 +3,7 @@ import math
 import typing
 
 from .HereditaryStratum import HereditaryStratum
-from .stratum_retention_predicate_maximal \
-    import stratum_retention_predicate_maximal
+from .StratumRetentionPredicateMaximal import StratumRetentionPredicateMaximal
 
 class HereditaryStratigraphicColumn:
 
@@ -17,7 +16,7 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         *,
         default_stratum_uid_size: int=64,
-        stratum_retention_predicate=stratum_retention_predicate_maximal,
+        stratum_retention_predicate=StratumRetentionPredicateMaximal(),
     ):
         """
         Retention predicate should take two keyword arguments: stratum_rank and column_layers_deposited.

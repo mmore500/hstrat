@@ -6,9 +6,7 @@ import unittest
 import random
 
 from pylib import HereditaryStratigraphicColumn
-from pylib import HereditaryStratigraphicColumnBundle
 from pylib import StratumRetentionPredicateRecursiveInterspersion
-from pylib import stratum_retention_predicate_maximal
 
 class TestStratumRetentionPredicateDepthProportionalResolution(
     unittest.TestCase,
