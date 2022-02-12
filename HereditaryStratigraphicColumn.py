@@ -1,3 +1,4 @@
+from iterpop import iterpop as ip
 import operator
 import math
 import typing
@@ -76,11 +77,17 @@ class HereditaryStratigraphicColumn:
     def GetNumStrataDeposited(self: 'HereditaryStratigraphicColumn',) -> int:
         return self._num_strata_deposited
 
+    def GetStratumAtColumnIndex(
+        self: 'HereditaryStratigraphicColumn',
+        index: int,
+    ) -> HereditaryStratum:
+        return self._column[index]
+
     def CalcRankAtColumnIndex(
         self: 'HereditaryStratigraphicColumn',
         index: int,
     ) -> int:
-        maybe_rank = self._column[index].GetDepositionRank()
+        maybe_rank = self.GetStratumAtColumnIndex(index).GetDepositionRank()
         if maybe_rank is not None:
             return maybe_rank
         else:
@@ -99,7 +106,7 @@ class HereditaryStratigraphicColumn:
 
         # helper lambdas
         rank_at = lambda which, idx: which.CalcRankAtColumnIndex(idx)
-        uid_at = lambda which, idx: which._column[idx].GetUid()
+        uid_at = lambda which, idx: which.GetStratumAtColumnIndex(idx).GetUid()
 
         while (
             self_column_idx < self.GetNumStrataRetained()
@@ -269,3 +276,17 @@ class HereditaryStratigraphicColumn:
         bounds = self.CalcRanksSinceMrcaBoundsWith(other)
         if None in bounds: return 0
         else: return abs(operator.sub(*bounds)) - 1
+
+    def GetLastCommonStratumWith(
+        self: 'HereditaryStratigraphicColumn',
+        other: 'HereditaryStratigraphicColumn',
+    ) -> typing.Optional[HereditaryStratum]:
+        rank = self.CalcRankOfLastCommonalityWith(other)
+        if rank is not None:
+            index = ip.popsingleton(
+                index
+                for index in range(self.GetNumStrataRetained())
+                if rank == self.CalcRankAtColumnIndex(index)
+            )
+            return self.GetStratumAtColumnIndex(index)
+        else: return None
