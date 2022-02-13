@@ -383,6 +383,42 @@ def _do_test_scenario_partial_uneven_divergence(
         second.DepositStratum()
 
 
+def _do_test_HasAnyCommonAncestorWith(
+    self,
+    retention_predicate,
+):
+    first = HereditaryStratigraphicColumn(
+        stratum_retention_predicate=retention_predicate,
+    )
+    first_copy = deepcopy(first)
+    second = HereditaryStratigraphicColumn(
+        stratum_retention_predicate=retention_predicate,
+    )
+
+    def assert_validity():
+        assert first.HasAnyCommonAncestorWith(first)
+        assert first_copy.HasAnyCommonAncestorWith(first_copy)
+        assert first.HasAnyCommonAncestorWith(first_copy)
+        assert first_copy.HasAnyCommonAncestorWith(first)
+
+        assert not second.HasAnyCommonAncestorWith(first)
+        assert not first.HasAnyCommonAncestorWith(second)
+        assert not second.HasAnyCommonAncestorWith(first_copy)
+        assert not first_copy.HasAnyCommonAncestorWith(second)
+
+    assert_validity()
+    first.DepositStratum()
+    assert_validity()
+    second.DepositStratum()
+    assert_validity()
+    first.DepositStratum()
+    assert_validity()
+
+    for __ in range(100):
+        first_copy.DepositStratum()
+        assert_validity()
+
+
 class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     def test_GetNumStrataDeposited(self):
@@ -562,6 +598,20 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             first.DepositStratum()
             second.DepositStratum()
             # no layers deposited onto third
+
+    def test_HasAnyCommonAncestorWith(self):
+        for retention_predicate in [
+            StratumRetentionPredicateMaximal(),
+            StratumRetentionPredicateMinimal(),
+            StratumRetentionPredicateDepthProportionalResolution(),
+            StratumRetentionPredicateRecencyProportionalResolution(),
+            StratumRetentionPredicateRecursiveInterspersion(),
+            StratumRetentionPredicateStochastic(),
+        ]:
+            _do_test_HasAnyCommonAncestorWith(
+                self,
+                retention_predicate,
+            )
 
 
 if __name__ == '__main__':

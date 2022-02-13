@@ -292,3 +292,10 @@ class HereditaryStratigraphicColumn:
             )
             return self.GetStratumAtColumnIndex(index)
         else: return None
+
+    def HasAnyCommonAncestorWith(
+        self: 'HereditaryStratigraphicColumn',
+        other: 'HereditaryStratigraphicColumn',
+    ) -> bool:
+        first_disparity = self.CalcRankOfFirstDisparityWith(other)
+        return True if first_disparity is None else first_disparity > 0
