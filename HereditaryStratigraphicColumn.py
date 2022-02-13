@@ -17,6 +17,7 @@ class HereditaryStratigraphicColumn:
     def __init__(
         self: 'HereditaryStratigraphicColumn',
         *,
+        initial_stratum_annotation=None,
         default_stratum_uid_size: int=64,
         stratum_retention_predicate=StratumRetentionPredicateMaximal(),
     ):
@@ -28,7 +29,7 @@ class HereditaryStratigraphicColumn:
         self._default_stratum_uid_size = default_stratum_uid_size
         self._stratum_retention_predicate = stratum_retention_predicate
 
-        self.DepositStratum()
+        self.DepositStratum(annotation=initial_stratum_annotation)
 
     def __eq__(
         self: 'HereditaryStratigraphicColumn',
@@ -39,8 +40,12 @@ class HereditaryStratigraphicColumn:
         else:
             return False
 
-    def DepositStratum(self: 'HereditaryStratigraphicColumn',) -> None:
+    def DepositStratum(
+        self: 'HereditaryStratigraphicColumn',
+        annotation: typing.Optional[typing.Any]=None,
+    ) -> None:
         self._column.append(HereditaryStratum(
+            annotation=annotation,
             deposition_rank=(
                 None
                 if hasattr(

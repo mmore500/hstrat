@@ -84,6 +84,42 @@ def _do_test_comparison_commutativity_asyncrhonous(
                 individual.DepositStratum()
 
 
+def _do_test_annotation(
+    testcase,
+    retention_predicate,
+):
+
+    column = HereditaryStratigraphicColumn(
+        stratum_retention_predicate=retention_predicate,
+        initial_stratum_annotation=0,
+    )
+    population = [
+        deepcopy(column)
+        for __ in range(10)
+    ]
+
+    for generation in range(100):
+
+        for f, s in it.combinations(population, 2):
+
+            lb, ub = f.CalcRankOfMrcaBoundsWith(s)
+            assert (
+                lb <= f.GetLastCommonStratumWith(s).GetAnnotation() < ub
+            )
+            assert (
+                lb <= s.GetLastCommonStratumWith(f).GetAnnotation() < ub
+            )
+
+        # advance generation
+        random.shuffle(population)
+        for target in range(5):
+            population[target] = deepcopy(population[-1])
+        for individual in population:
+            individual.DepositStratum(
+                annotation=generation + 1,
+            )
+
+
 def _do_test_comparison_commutativity_syncrhonous(
     testcase,
     retention_predicate,
@@ -455,6 +491,20 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             StratumRetentionPredicateStochastic(),
         ]:
             _do_test_comparison_commutativity_asyncrhonous(
+                self,
+                retention_predicate,
+            )
+
+    def test_annotation(self):
+        for retention_predicate in [
+            StratumRetentionPredicateMaximal(),
+            StratumRetentionPredicateMinimal(),
+            StratumRetentionPredicateDepthProportionalResolution(),
+            StratumRetentionPredicateRecencyProportionalResolution(),
+            StratumRetentionPredicateRecursiveInterspersion(),
+            StratumRetentionPredicateStochastic(),
+        ]:
+            _do_test_annotation(
                 self,
                 retention_predicate,
             )

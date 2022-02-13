@@ -7,11 +7,13 @@ class HereditaryStratum:
 
     _deposition_rank: int
     _uid: frozenbitarray
+    _annotation: typing.Optional[typing.Any]
 
     def __init__(
         self: 'HereditaryStratum',
         *,
         deposition_rank: typing.Optional[int]=None,
+        annotation: typing.Optional[typing.Any]=None,
         uid_size: int=64,
     ):
         if deposition_rank is not None:
@@ -19,6 +21,8 @@ class HereditaryStratum:
         self._uid = frozenbitarray(
             ''.join(random.choices('01', k=uid_size,))
         )
+        if annotation is not None:
+            self._annotation = annotation
 
     def __eq__(
         self: 'HereditaryStratum',
@@ -38,3 +42,6 @@ class HereditaryStratum:
 
     def GetUid(self: 'HereditaryStratum',) -> frozenbitarray:
         return self._uid
+
+    def GetAnnotation(self: 'HereditaryStratum') -> typing.Optional[typing.Any]:
+        return self._annotation
