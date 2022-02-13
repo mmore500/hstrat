@@ -15,7 +15,6 @@ class HereditaryStratigraphicColumnBundle:
     ):
         assert len(columns)
         self._columns = columns
-        self.DepositStratum()
 
     def __getitem__(
         self: 'HereditaryStratigraphicColumnBundle' ,
@@ -25,9 +24,12 @@ class HereditaryStratigraphicColumnBundle:
 
     def DepositStratum(
         self: 'HereditaryStratigraphicColumnBundle',
+        annotation: typing.Optional[typing.Any]=None,
     ) -> None:
         for column in self._columns.values():
-            column.DepositStratum()
+            column.DepositStratum(
+                annotation=annotation,
+            )
 
     def GetNumStrataDeposited(
         self: 'HereditaryStratigraphicColumnBundle',

@@ -17,7 +17,7 @@ class HereditaryStratigraphicColumn:
     def __init__(
         self: 'HereditaryStratigraphicColumn',
         *,
-        initial_stratum_annotation=None,
+        initial_stratum_annotation: typing.Optional[typing.Any]=None,
         default_stratum_uid_size: int=64,
         stratum_retention_predicate=StratumRetentionPredicateMaximal(),
     ):
