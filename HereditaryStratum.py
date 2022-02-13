@@ -1,4 +1,4 @@
-from bitarray import bitarray, frozenbitarray
+from bitarray import frozenbitarray
 import random
 import typing
 
@@ -40,7 +40,7 @@ class HereditaryStratum:
             return self._deposition_rank
         else: return None
 
-    def GetUid(self: 'HereditaryStratum',) -> frozenbitarray:
+    def GetUid(self: 'HereditaryStratum') -> frozenbitarray:
         return self._uid
 
     def GetAnnotation(self: 'HereditaryStratum') -> typing.Optional[typing.Any]:

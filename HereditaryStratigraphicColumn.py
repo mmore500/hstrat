@@ -237,7 +237,7 @@ class HereditaryStratigraphicColumn:
     def CalcRankOfMrcaUncertaintyWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
-    ) :
+    ) -> int:
         bounds = self.CalcRankOfMrcaBoundsWith(other)
         return 0 if bounds is None else abs(operator.sub(*bounds)) - 1
 
@@ -287,7 +287,7 @@ class HereditaryStratigraphicColumn:
     def CalcRanksSinceMrcaUncertaintyWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
-    ) :
+    ) -> int:
         bounds = self.CalcRanksSinceMrcaBoundsWith(other)
         return 0 if bounds is None else abs(operator.sub(*bounds)) - 1
 
