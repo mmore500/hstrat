@@ -166,7 +166,10 @@ def _do_test_comparison_validity(
 
             assert (
                 first.CalcRankOfMrcaBoundsWith(second)
-                == (lcrw, value_or(fdrw, first.GetNumStrataDeposited()))
+                in [
+                    (lcrw, value_or(fdrw, first.GetNumStrataDeposited())),
+                    None,
+                ]
             )
             if lcrw is not None and fdrw is not None:
                 assert lcrw < fdrw
@@ -182,11 +185,12 @@ def _do_test_comparison_validity(
                 assert -1 <= rsfdw <= generation
 
             assert (
-                first.CalcRanksSinceMrcaBoundsWith(second)
-                == (rslcw, value_or(rsfdw, -1))
+                first.CalcRanksSinceMrcaBoundsWith(second) is None
+                or first.CalcRanksSinceMrcaBoundsWith(second)
+                    == (value_or(rsfdw, -1) + 1, rslcw + 1)
             )
             if rslcw is not None and rsfdw is not None:
-                assert rslcw > rsfdw
+                assert rsfdw < rslcw
 
             assert first.CalcRanksSinceMrcaUncertaintyWith(second) >= 0
 

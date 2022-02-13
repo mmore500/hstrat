@@ -220,20 +220,21 @@ class HereditaryStratigraphicColumn:
     def CalcRankOfMrcaBoundsWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
-    ) -> typing.Tuple[typing.Optional[int], int]:
-        first_disparity = self.CalcRankOfFirstDisparityWith(other)
-        return (
-            self.CalcRankOfLastCommonalityWith(other),
-            value_or(first_disparity, self.GetNumStrataDeposited()),
-        )
+    ) -> typing.Optional[typing.Tuple[int, int]]:
+        if self.HasAnyCommonAncestorWith(other):
+            first_disparity = self.CalcRankOfFirstDisparityWith(other)
+            return (
+                self.CalcRankOfLastCommonalityWith(other),
+                value_or(first_disparity, self.GetNumStrataDeposited()),
+            )
+        else: return None
 
     def CalcRankOfMrcaUncertaintyWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) :
         bounds = self.CalcRankOfMrcaBoundsWith(other)
-        if None in bounds: return 0
-        else: return abs(operator.sub(*bounds)) - 1
+        return 0 if bounds is None else abs(operator.sub(*bounds)) - 1
 
     def CalcRanksSinceLastCommonalityWith(
         self: 'HereditaryStratigraphicColumn',
@@ -264,20 +265,26 @@ class HereditaryStratigraphicColumn:
     def CalcRanksSinceMrcaBoundsWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
-    ) -> typing.Tuple[typing.Optional[int], int]:
-        since_first_disparity = self.CalcRanksSinceFirstDisparityWith(other)
-        return (
-            self.CalcRanksSinceLastCommonalityWith(other),
-            value_or(since_first_disparity, -1),
-        )
+    ) -> typing.Optional[typing.Tuple[int, int]]:
+        if self.HasAnyCommonAncestorWith(other):
+            since_first_disparity = self.CalcRanksSinceFirstDisparityWith(other)
+            lb_exclusive = value_or(since_first_disparity, -1)
+            lb_inclusive = lb_exclusive + 1
+
+            since_last_common = self.CalcRanksSinceLastCommonalityWith(other)
+            ub_inclusive = since_last_common
+            ub_exclusive = ub_inclusive + 1
+
+            return (lb_inclusive, ub_exclusive)
+        else:
+            return None
 
     def CalcRanksSinceMrcaUncertaintyWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) :
         bounds = self.CalcRanksSinceMrcaBoundsWith(other)
-        if None in bounds: return 0
-        else: return abs(operator.sub(*bounds)) - 1
+        return 0 if bounds is None else abs(operator.sub(*bounds)) - 1
 
     def GetLastCommonStratumWith(
         self: 'HereditaryStratigraphicColumn',
