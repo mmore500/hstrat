@@ -1,11 +1,15 @@
 #!/bin/python3
 
 from copy import deepcopy
+from iterpop import iterpop as ip
 import itertools as it
 import random
 import unittest
 
+from pylib import cyclify
 from pylib import HereditaryStratigraphicColumn
+from pylib import HereditaryStratigraphicColumnBundle
+from pylib import iterify
 from pylib import StratumRetentionPredicateDepthProportionalResolution
 from pylib import StratumRetentionPredicateMaximal
 from pylib import StratumRetentionPredicateMinimal
@@ -119,6 +123,141 @@ def _do_test_annotation(
                 annotation=generation + 1,
             )
 
+
+def _do_test_CalcRankOfMrcaBoundsWith(
+    testcase,
+    retention_predicate,
+):
+    def make_bundle():
+        return HereditaryStratigraphicColumnBundle({
+            'test' : HereditaryStratigraphicColumn(
+                stratum_retention_predicate=retention_predicate,
+                initial_stratum_annotation=0,
+            ),
+            'control' : HereditaryStratigraphicColumn(
+                stratum_retention_predicate=StratumRetentionPredicateMaximal(),
+                initial_stratum_annotation=0,
+            ),
+        })
+
+    column = make_bundle()
+    frozen_copy = deepcopy(column)
+    frozen_unrelated = make_bundle()
+    population = [
+        deepcopy(column)
+        for __ in range(10)
+    ]
+    forked_isolated = deepcopy(column)
+    unrelated_isolated = make_bundle()
+
+    for generation in range(100):
+
+        for f, s in it.chain(
+            it.combinations(population, 2),
+            zip(population, cyclify(forked_isolated)),
+            zip(population, cyclify(frozen_copy)),
+            zip(cyclify(forked_isolated), population),
+            zip(cyclify(frozen_copy), population),
+        ):
+            lb, ub = f['test'].CalcRankOfMrcaBoundsWith(s['test'])
+            actual_rank_of_mrca = f['control'].GetLastCommonStratumWith(
+                s['control'],
+            ).GetAnnotation()
+            assert lb <= actual_rank_of_mrca < ub
+
+        for f, s in it.chain(
+            zip(population, cyclify(frozen_unrelated)),
+            zip(population, cyclify(unrelated_isolated)),
+            zip(cyclify(frozen_unrelated), population),
+            zip(cyclify(unrelated_isolated), population),
+        ):
+            assert f['test'].CalcRankOfMrcaBoundsWith(s['test']) is None
+
+        # advance generation
+        random.shuffle(population)
+        for target in range(3):
+            population[target] = deepcopy(population[-1])
+            population[target].DepositStratum(
+                annotation = population[target].GetNumStrataDeposited(),
+            )
+        for individual in it.chain(
+            iter(population),
+            iterify(forked_isolated),
+            iterify(unrelated_isolated),
+        ):
+            if random.choice([True, False]):
+                individual.DepositStratum(
+                    annotation=individual.GetNumStrataDeposited(),
+                )
+
+def _do_test_CalcRanksSinceMrcaBoundsWith(
+    testcase,
+    retention_predicate,
+):
+    def make_bundle():
+        return HereditaryStratigraphicColumnBundle({
+            'test' : HereditaryStratigraphicColumn(
+                stratum_retention_predicate=retention_predicate,
+                initial_stratum_annotation=0,
+            ),
+            'control' : HereditaryStratigraphicColumn(
+                stratum_retention_predicate=StratumRetentionPredicateMaximal(),
+                initial_stratum_annotation=0,
+            ),
+        })
+
+    column = make_bundle()
+    frozen_copy = deepcopy(column)
+    frozen_unrelated = make_bundle()
+    population = [
+        deepcopy(column)
+        for __ in range(10)
+    ]
+    forked_isolated = deepcopy(column)
+    unrelated_isolated = make_bundle()
+
+    for generation in range(100):
+
+        for f, s in it.chain(
+            it.combinations(population, 2),
+            zip(population, cyclify(forked_isolated)),
+            zip(population, cyclify(frozen_copy)),
+            zip(cyclify(forked_isolated), population),
+            zip(cyclify(frozen_copy), population),
+        ):
+            lb, ub = f['test'].CalcRanksSinceMrcaBoundsWith(s['test'])
+            actual_rank_of_mrca = f['control'].GetLastCommonStratumWith(
+                s['control'],
+            ).GetAnnotation()
+            actual_ranks_since_mrca = (
+                f.GetNumStrataDeposited() - actual_rank_of_mrca - 1
+            )
+            assert lb <= actual_ranks_since_mrca < ub
+
+        for f, s in it.chain(
+            zip(population, cyclify(frozen_unrelated)),
+            zip(population, cyclify(unrelated_isolated)),
+            zip(cyclify(frozen_unrelated), population),
+            zip(cyclify(unrelated_isolated), population),
+        ):
+            assert f['test'].CalcRanksSinceMrcaBoundsWith(s['test']) is None
+
+        # advance generation
+        random.shuffle(population)
+        for target in range(3):
+            population[target] = deepcopy(population[-1])
+            population[target].DepositStratum(
+                annotation = population[target].GetNumStrataDeposited(),
+            )
+        for individual in it.chain(
+            iter(population),
+            iterify(forked_isolated),
+            iterify(unrelated_isolated),
+        ):
+            if random.choice([True, False]):
+                individual.DepositStratum(
+                    annotation=individual.GetNumStrataDeposited(),
+                )
 
 def _do_test_comparison_commutativity_syncrhonous(
     testcase,
@@ -505,6 +644,34 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             StratumRetentionPredicateStochastic(),
         ]:
             _do_test_annotation(
+                self,
+                retention_predicate,
+            )
+
+    def test_CalcRankOfMrcaBoundsWith(self):
+        for retention_predicate in [
+            StratumRetentionPredicateMaximal(),
+            StratumRetentionPredicateMinimal(),
+            StratumRetentionPredicateDepthProportionalResolution(),
+            StratumRetentionPredicateRecencyProportionalResolution(),
+            StratumRetentionPredicateRecursiveInterspersion(),
+            StratumRetentionPredicateStochastic(),
+        ]:
+            _do_test_CalcRankOfMrcaBoundsWith(
+                self,
+                retention_predicate,
+            )
+
+    def test_CalcRanksSinceMrcaBoundsWith(self):
+        for retention_predicate in [
+            StratumRetentionPredicateMaximal(),
+            StratumRetentionPredicateMinimal(),
+            StratumRetentionPredicateDepthProportionalResolution(),
+            StratumRetentionPredicateRecencyProportionalResolution(),
+            StratumRetentionPredicateRecursiveInterspersion(),
+            StratumRetentionPredicateStochastic(),
+        ]:
+            _do_test_CalcRanksSinceMrcaBoundsWith(
                 self,
                 retention_predicate,
             )
