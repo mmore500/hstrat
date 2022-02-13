@@ -1,10 +1,12 @@
 from .attach_attrs import attach_attrs
 from .binary_search import binary_search
+from .cyclify import cyclify
 from .doubling_search import doubling_search
 from .HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 from .HereditaryStratigraphicColumnBundle \
     import HereditaryStratigraphicColumnBundle
 from .HereditaryStratum import HereditaryStratum
+from .iterify import iterify
 from .StratumRetentionPredicateDepthProportionalResolution import StratumRetentionPredicateDepthProportionalResolution
 from .StratumRetentionPredicateMaximal import StratumRetentionPredicateMaximal
 from .StratumRetentionPredicateMinimal import StratumRetentionPredicateMinimal
@@ -18,7 +20,9 @@ from .value_or import value_or
 __all__ = [
     'attach_attrs',
     'binary_search',
+    'cyclify',
     'doubling_search',
+    'iterify',
     'HereditaryStratum',
     'HereditaryStratigraphicColumn',
     'HereditaryStratigraphicColumnBundle',
