@@ -1,3 +1,4 @@
+from copy import deepcopy
 from iterpop import iterpop as ip
 import operator
 import math
@@ -311,3 +312,11 @@ class HereditaryStratigraphicColumn:
     ) -> bool:
         first_disparity = self.CalcRankOfFirstDisparityWith(other)
         return True if first_disparity is None else first_disparity > 0
+
+    def MakeDescendantColumn(
+        self: 'HereditaryStratigraphicColumn',
+        stratum_annotation: typing.Optional[typing.Any]=None,
+    ) -> 'HereditaryStratigraphicColumn':
+        res = deepcopy(self)
+        res.DepositStratum(annotation=stratum_annotation)
+        return res

@@ -81,7 +81,7 @@ def _do_test_comparison_commutativity_asyncrhonous(
         # advance generation
         random.shuffle(population)
         for target in range(5):
-            population[target] = deepcopy(population[-1])
+            population[target] = population[-1].MakeDescendantColumn()
         for individual in population:
             # asynchronous generations
             if random.choice([True, False]):
@@ -176,9 +176,8 @@ def _do_test_CalcRankOfMrcaBoundsWith(
         # advance generation
         random.shuffle(population)
         for target in range(3):
-            population[target] = deepcopy(population[-1])
-            population[target].DepositStratum(
-                annotation = population[target].GetNumStrataDeposited(),
+            population[target] = population[-1].MakeDescendantColumn(
+                stratum_annotation=population[-1].GetNumStrataDeposited(),
             )
         for individual in it.chain(
             iter(population),
@@ -605,6 +604,20 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
         for i in range(10):
             assert column.GetNumStrataDeposited() == i + 1
             column.DepositStratum()
+
+    def test_MakeDescendantColumn(self):
+        column = HereditaryStratigraphicColumn()
+        assert column.GetNumStrataDeposited() == 1
+        descendant = column.MakeDescendantColumn(
+            stratum_annotation='annotation'
+        )
+        assert descendant.GetNumStrataDeposited() == 2
+        assert descendant.HasAnyCommonAncestorWith(column)
+        assert column.GetNumStrataDeposited() == 1
+        assert (
+            descendant.GetStratumAtColumnIndex(-1).GetAnnotation()
+            == 'annotation'
+        )
 
     def test_equality(self):
         for retention_predicate in [

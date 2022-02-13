@@ -1,3 +1,4 @@
+from copy import deepcopy
 import operator
 import math
 import typing
@@ -35,3 +36,11 @@ class HereditaryStratigraphicColumnBundle:
         self: 'HereditaryStratigraphicColumnBundle',
     ) -> int:
         return next(iter(self._columns.values())).GetNumStrataDeposited()
+
+    def MakeDescendantColumn(
+        self: 'HereditaryStratigraphicColumnBundle',
+        stratum_annotation: typing.Optional[typing.Any]=None,
+    ) -> 'HereditaryStratigraphicColumnBundle':
+        res = deepcopy(self)
+        res.DepositStratum(annotation=stratum_annotation)
+        return res
