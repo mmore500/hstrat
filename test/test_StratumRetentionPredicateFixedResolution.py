@@ -1,8 +1,8 @@
 #!/bin/python3
 
 from copy import deepcopy
-import unittest
 import random
+import unittest
 
 from pylib import HereditaryStratigraphicColumn
 from pylib import StratumRetentionPredicateFixedResolution

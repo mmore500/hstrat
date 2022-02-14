@@ -1,7 +1,7 @@
 from copy import deepcopy
 from iterpop import iterpop as ip
-import operator
 import math
+import operator
 import typing
 
 from .HereditaryStratum import HereditaryStratum

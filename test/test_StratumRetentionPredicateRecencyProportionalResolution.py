@@ -2,8 +2,8 @@
 
 from copy import deepcopy
 import itertools as it
-import unittest
 import random
+import unittest
 
 random.seed(1)
 

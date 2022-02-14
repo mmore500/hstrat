@@ -1,6 +1,6 @@
 from copy import deepcopy
-import operator
 import math
+import operator
 import typing
 
 from .HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
