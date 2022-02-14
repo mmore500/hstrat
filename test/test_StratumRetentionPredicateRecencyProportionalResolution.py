@@ -13,7 +13,7 @@ from pylib import StratumRetentionPredicateMaximal
 from pylib import StratumRetentionPredicateRecencyProportionalResolution
 
 
-class TestStratumRetentionPredicateDepthProportionalResolution(
+class TestStratumRetentionPredicateRecencyProportionalResolution(
     unittest.TestCase,
 ):
 

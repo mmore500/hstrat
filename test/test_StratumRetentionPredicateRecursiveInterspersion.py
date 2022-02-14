@@ -11,7 +11,7 @@ from pylib import HereditaryStratigraphicColumn
 from pylib import StratumRetentionPredicateRecursiveInterspersion
 
 
-class TestStratumRetentionPredicateDepthProportionalResolution(
+class TestStratumRetentionPredicateRecursiveInterspersion(
     unittest.TestCase,
 ):
 
