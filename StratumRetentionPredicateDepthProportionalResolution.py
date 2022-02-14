@@ -2,7 +2,7 @@ import math
 import typing
 
 
-class StratumRetentionPredicateDepthProportionalResolution():
+class StratumRetentionPredicateDepthProportionalResolution:
     """Functor specifying a stratum retention policy, for use with
     HereditaryStratigraphicColumn.
 

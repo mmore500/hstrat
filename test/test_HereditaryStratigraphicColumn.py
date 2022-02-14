@@ -246,7 +246,7 @@ def _do_test_CalcRanksSinceMrcaBoundsWith(
         for target in range(3):
             population[target] = deepcopy(population[-1])
             population[target].DepositStratum(
-                annotation = population[target].GetNumStrataDeposited(),
+                annotation=population[target].GetNumStrataDeposited(),
             )
         for individual in it.chain(
             iter(population),
