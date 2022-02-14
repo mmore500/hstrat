@@ -7,13 +7,16 @@ from .HereditaryStratigraphicColumnBundle \
     import HereditaryStratigraphicColumnBundle
 from .HereditaryStratum import HereditaryStratum
 from .iterify import iterify
-from .StratumRetentionPredicateDepthProportionalResolution import StratumRetentionPredicateDepthProportionalResolution
+from .StratumRetentionPredicateDepthProportionalResolution \
+    import StratumRetentionPredicateDepthProportionalResolution
 from .StratumRetentionPredicateMaximal import StratumRetentionPredicateMaximal
 from .StratumRetentionPredicateMinimal import StratumRetentionPredicateMinimal
 from .StratumRetentionPredicateFixedResolution \
     import StratumRetentionPredicateFixedResolution
-from .StratumRetentionPredicateRecencyProportionalResolution import StratumRetentionPredicateRecencyProportionalResolution
-from .StratumRetentionPredicateRecursiveInterspersion import StratumRetentionPredicateRecursiveInterspersion
+from .StratumRetentionPredicateRecencyProportionalResolution \
+    import StratumRetentionPredicateRecencyProportionalResolution
+from .StratumRetentionPredicateRecursiveInterspersion \
+    import StratumRetentionPredicateRecursiveInterspersion
 from .StratumRetentionPredicateStochastic \
     import StratumRetentionPredicateStochastic
 from .value_or import value_or
