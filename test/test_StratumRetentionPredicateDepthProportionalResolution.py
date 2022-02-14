@@ -101,6 +101,36 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
             for synchronous in True, False:
                 self._do_test_resolution(min_intervals_divide_into, synchronous)
 
+    def _do_test_CalcRankAtColumnIndex(
+        self,
+        guaranteed_depth_proportional_resolution,
+    ):
+        predicate = StratumRetentionPredicateDepthProportionalResolution(
+            guaranteed_depth_proportional_resolution
+                =guaranteed_depth_proportional_resolution,
+        )
+        column = HereditaryStratigraphicColumn(
+            stratum_retention_predicate=predicate,
+            initial_stratum_annotation=0,
+        )
+
+        for generation in range(1,5001):
+            for index in range(column.GetNumStrataRetained()):
+                assert (
+                    column.GetStratumAtColumnIndex(index).GetAnnotation()
+                    == column.CalcRankAtColumnIndex(index)
+                )
+            column.DepositStratum(annotation=generation)
+
+    def test_CalcRankAtColumnIndex(self):
+        for min_intervals_divide_into in [
+            1,
+            2,
+            10,
+            17,
+        ]:
+            self._do_test_CalcRankAtColumnIndex(min_intervals_divide_into)
+
 
 if __name__ == '__main__':
     unittest.main()

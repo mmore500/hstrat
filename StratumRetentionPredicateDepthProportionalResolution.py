@@ -42,6 +42,21 @@ class StratumRetentionPredicateDepthProportionalResolution():
         else:
             return False
 
+    def _calc_provided_uncertainty(
+        self: 'StratumRetentionPredicateDepthProportionalResolution',
+        column_strata_deposited: int,
+    ) -> int:
+        """After n strata have been deposited, how many ranks are spaced
+        between retained strata?"""
+
+        guaranteed_resolution = self._guaranteed_depth_proportional_resolution
+        max_uncertainty = column_strata_deposited // guaranteed_resolution
+
+        # round down to lower or equal power of 2
+        provided_uncertainty_exp = (max_uncertainty // 2).bit_length()
+        provided_uncertainty = 2 ** provided_uncertainty_exp
+        return provided_uncertainty
+
     def __call__(
         self: 'StratumRetentionPredicateDepthProportionalResolution',
         stratum_rank: int,
@@ -134,12 +149,9 @@ class StratumRetentionPredicateDepthProportionalResolution():
         ): return True
 
         # +1-because of in-progress deposition
-        max_uncertainty = (column_strata_deposited + 1) // guaranteed_resolution
-
-        # round down to lower or equal power of 2
-        provided_uncertainty_exp = (max_uncertainty // 2).bit_length()
-        provided_uncertainty = 2 ** provided_uncertainty_exp
-
+        provided_uncertainty = self._calc_provided_uncertainty(
+            column_strata_deposited + 1,
+        )
         return stratum_rank % provided_uncertainty == 0
 
     def CalcNumStrataRetainedUpperBound(
@@ -163,3 +175,50 @@ class StratumRetentionPredicateDepthProportionalResolution():
             first_num_strata_deposited,
             second_num_strata_deposited,
         ) // self._guaranteed_depth_proportional_resolution
+
+
+    def _CalcRankAtColumnIndexImpl(
+        self: 'HereditaryStratigraphicColumn',
+        index: int,
+        num_strata_deposited: int,
+    ) -> int:
+        """After n strata have been deposited, what will the rank of the stratum at column index k be?
+
+        Assumes the no in-progress stratum depositions that haven't been
+        reflected in num_strata_deposited.
+        """
+
+        provided_uncertainty = self._calc_provided_uncertainty(
+            num_strata_deposited,
+        )
+        return min(
+            index * provided_uncertainty,
+            num_strata_deposited - 1
+        )
+
+    def CalcRankAtColumnIndex(
+        self: 'HereditaryStratigraphicColumn',
+        index: int,
+        num_strata_deposited: int,
+    ) -> int:
+        """After n strata have been deposited, what will the rank of the stratum at column index k be?
+
+        Enables a HereditaryStratigraphicColumn using this predicate to
+        optimize away storage of rank annotations on strata. Takes into the
+        account the possiblity for in-progress stratum depositions that haven't
+        been reflected in num_strata_deposited.
+        """
+
+        # 0th index is always rank 0
+        if index == 0: return 0
+
+        prev = self._CalcRankAtColumnIndexImpl(index - 1, num_strata_deposited)
+        cur = self._CalcRankAtColumnIndexImpl(index, num_strata_deposited)
+        if (cur == prev):
+            # in cases where the same rank result is calculated for this index
+            # and preceding index, the current index is an in-progress
+            # deposition and must be calculated as the rank succeeding the
+            # previous stratum's rank
+            return prev + 1
+        else:
+            return cur
