@@ -11,6 +11,7 @@ from pylib import HereditaryStratigraphicColumn
 from pylib import HereditaryStratigraphicColumnBundle
 from pylib import iterify
 from pylib import StratumRetentionPredicateDepthProportionalResolution
+from pylib import StratumRetentionPredicateFixedResolution
 from pylib import StratumRetentionPredicateMaximal
 from pylib import StratumRetentionPredicateMinimal
 from pylib import StratumRetentionPredicateRecencyProportionalResolution
@@ -624,6 +625,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
+            StratumRetentionPredicateFixedResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
             StratumRetentionPredicateStochastic(),
@@ -638,6 +640,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
+            StratumRetentionPredicateFixedResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
             StratumRetentionPredicateStochastic(),
@@ -652,6 +655,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
+            StratumRetentionPredicateFixedResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
             StratumRetentionPredicateStochastic(),
@@ -666,6 +670,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
+            StratumRetentionPredicateFixedResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
             StratumRetentionPredicateStochastic(),
@@ -680,6 +685,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
+            StratumRetentionPredicateFixedResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
             StratumRetentionPredicateStochastic(),
@@ -694,6 +700,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
+            StratumRetentionPredicateFixedResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
             StratumRetentionPredicateStochastic(),
@@ -708,6 +715,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
+            StratumRetentionPredicateFixedResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
             StratumRetentionPredicateStochastic(),
@@ -723,6 +731,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                 StratumRetentionPredicateMaximal(),
                 StratumRetentionPredicateMinimal(),
                 StratumRetentionPredicateDepthProportionalResolution(),
+                StratumRetentionPredicateFixedResolution(),
                 StratumRetentionPredicateRecencyProportionalResolution(),
                 StratumRetentionPredicateRecursiveInterspersion(),
                 StratumRetentionPredicateStochastic(),
@@ -740,6 +749,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
+            StratumRetentionPredicateFixedResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
             StratumRetentionPredicateStochastic(),
@@ -754,6 +764,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
+            StratumRetentionPredicateFixedResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
             StratumRetentionPredicateStochastic(),
@@ -768,6 +779,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
+            StratumRetentionPredicateFixedResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
             StratumRetentionPredicateStochastic(),
@@ -838,6 +850,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             StratumRetentionPredicateMaximal(),
             StratumRetentionPredicateMinimal(),
             StratumRetentionPredicateDepthProportionalResolution(),
+            StratumRetentionPredicateFixedResolution(),
             StratumRetentionPredicateRecencyProportionalResolution(),
             StratumRetentionPredicateRecursiveInterspersion(),
             StratumRetentionPredicateStochastic(),

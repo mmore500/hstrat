@@ -10,6 +10,8 @@ from .iterify import iterify
 from .StratumRetentionPredicateDepthProportionalResolution import StratumRetentionPredicateDepthProportionalResolution
 from .StratumRetentionPredicateMaximal import StratumRetentionPredicateMaximal
 from .StratumRetentionPredicateMinimal import StratumRetentionPredicateMinimal
+from .StratumRetentionPredicateFixedResolution \
+    import StratumRetentionPredicateFixedResolution
 from .StratumRetentionPredicateRecencyProportionalResolution import StratumRetentionPredicateRecencyProportionalResolution
 from .StratumRetentionPredicateRecursiveInterspersion import StratumRetentionPredicateRecursiveInterspersion
 from .StratumRetentionPredicateStochastic \
@@ -27,6 +29,7 @@ __all__ = [
     'HereditaryStratigraphicColumn',
     'HereditaryStratigraphicColumnBundle',
     'StratumRetentionPredicateDepthProportionalResolution',
+    'StratumRetentionPredicateFixedResolution',
     'StratumRetentionPredicateMaximal',
     'StratumRetentionPredicateMinimal',
     'StratumRetentionPredicateRecencyProportionalResolution',
