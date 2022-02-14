@@ -54,6 +54,21 @@ class TestStratumRetentionPredicateMaximal(unittest.TestCase):
             for synchronous in [True, False]:
                 self._do_test_resolution(synchronous)
 
+    def test_CalcRankAtColumnIndex(self):
+        predicate = StratumRetentionPredicateMaximal()
+        column = HereditaryStratigraphicColumn(
+            stratum_retention_predicate=predicate,
+            initial_stratum_annotation=0,
+        )
+
+        for generation in range(1,501):
+            for index in range(column.GetNumStrataRetained()):
+                assert (
+                    column.GetStratumAtColumnIndex(index).GetAnnotation()
+                    == column.CalcRankAtColumnIndex(index)
+                )
+            column.DepositStratum(annotation=generation)
+
 
 if __name__ == '__main__':
     unittest.main()
