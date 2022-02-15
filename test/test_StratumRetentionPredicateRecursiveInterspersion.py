@@ -56,9 +56,10 @@ class TestStratumRetentionPredicateRecursiveInterspersion(
     def test_space_complexity(self):
         for min_intervals_divide_into, num_intervals_recurse_on in [
             (2,1),
+            (3,1),
             (10,1),
             (10,5),
-            #(10,9), TODO
+            (10,9),
             (42, 1),
             (42, 21),
         ]:

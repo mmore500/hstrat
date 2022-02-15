@@ -1,6 +1,8 @@
 import math
 import typing
 
+from .StratumRetentionPredicateDepthProportionalResolution \
+    import StratumRetentionPredicateDepthProportionalResolution
 
 class StratumRetentionPredicateRecursiveInterspersion:
 
@@ -33,44 +35,42 @@ class StratumRetentionPredicateRecursiveInterspersion:
         column_strata_deposited: int,
     ) -> bool:
 
-        if stratum_rank==column_strata_deposited: return True
+        if stratum_rank == column_strata_deposited: return True
 
         if column_strata_deposited <= self._min_intervals_divide_into:
             return True
 
-        cur_stage = math.ceil(math.log(
-            (column_strata_deposited)/self._min_intervals_divide_into,
-            2,
-        ))
-        cur_stage_smallest = 2**(cur_stage-1) * self._min_intervals_divide_into
-
-        assert cur_stage_smallest % self._min_intervals_divide_into == 0
-        cur_stage_interval_size = (
-            cur_stage_smallest // self._min_intervals_divide_into
+        depth_predicate = StratumRetentionPredicateDepthProportionalResolution(
+            guaranteed_depth_proportional_resolution
+                = self._min_intervals_divide_into,
+        )
+        interval_size = depth_predicate._calc_provided_uncertainty(
+            column_strata_deposited,
+        )
+        stratum_interval = stratum_rank // interval_size
+        num_complete_intervals = column_strata_deposited // interval_size
+        num_complete_intervals_after_stratum = (
+            num_complete_intervals - stratum_interval
         )
 
-        num_complete_intervals = (
-            column_strata_deposited // cur_stage_interval_size
-        )
-
-        stratum_interval = stratum_rank // cur_stage_interval_size
-
-        if stratum_rank % cur_stage_interval_size == 0: return True
-        # TODO there's an off by one in here with self._num_intervals_recurse_on
+        if depth_predicate(stratum_rank, column_strata_deposited):
+            return True
         elif (
-            stratum_interval + 1
-            >= num_complete_intervals - self._num_intervals_recurse_on
+            num_complete_intervals_after_stratum
+            <= self._num_intervals_recurse_on
         ):
-            strip = (
-                (num_complete_intervals - 1 - self._num_intervals_recurse_on)
-                * cur_stage_interval_size
+            num_intervals_excluded = (
+                num_complete_intervals
+                - self._num_intervals_recurse_on
+            )
+            num_strata_excluded = (
+                num_intervals_excluded * interval_size
             )
             return self(
-              stratum_rank - strip,
-              column_strata_deposited - strip,
+              stratum_rank - num_strata_excluded,
+              column_strata_deposited - num_strata_excluded,
             )
-        else:
-            return False
+        else: return False
 
     def CalcNumStrataRetainedUpperBound(
         self: 'StratumRetentionPredicateRecursiveInterspersion',

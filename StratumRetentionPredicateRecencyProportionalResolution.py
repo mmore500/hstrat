@@ -18,7 +18,7 @@ class StratumRetentionPredicateRecencyProportionalResolution(
             guaranteed_mrca_recency_proportional_resolution
         )
         min_intervals_divide_into = (
-            guaranteed_mrca_recency_proportional_resolution * 2
+            guaranteed_mrca_recency_proportional_resolution * 2 + 2
         )
         num_intervals_recurse_on = min_intervals_divide_into // 2
 

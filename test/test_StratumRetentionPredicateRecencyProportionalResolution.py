@@ -151,6 +151,7 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
 
     def test_resolution(self):
         for guaranteed_mrca_recency_proportional_resolution in [
+            1,
             2,
             3,
             17,
