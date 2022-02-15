@@ -53,8 +53,6 @@ class StratumRetentionPredicateRecursiveInterspersion:
             column_strata_deposited // cur_stage_interval_size
         )
 
-        num_intervals = (column_strata_deposited+1) // cur_stage_interval_size
-
         stratum_interval = stratum_rank // cur_stage_interval_size
 
         if stratum_rank % cur_stage_interval_size == 0: return True
