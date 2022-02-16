@@ -7,8 +7,7 @@ import unittest
 
 random.seed(1)
 
-from pylib import HereditaryStratigraphicColumn
-from pylib import StratumRetentionPredicateRecursiveInterspersion
+from pylib import hstrat
 
 
 class TestStratumRetentionPredicateRecursiveInterspersion(
@@ -17,15 +16,15 @@ class TestStratumRetentionPredicateRecursiveInterspersion(
 
     def test_equality(self):
         assert (
-            StratumRetentionPredicateRecursiveInterspersion()
-            == StratumRetentionPredicateRecursiveInterspersion()
+            hstrat.StratumRetentionPredicateRecursiveInterspersion()
+            == hstrat.StratumRetentionPredicateRecursiveInterspersion()
         )
 
-        original1 = StratumRetentionPredicateRecursiveInterspersion(
+        original1 = hstrat.StratumRetentionPredicateRecursiveInterspersion(
             min_intervals_divide_into=10,
             num_intervals_recurse_on=5,
         )
-        original2 = StratumRetentionPredicateRecursiveInterspersion(
+        original2 = hstrat.StratumRetentionPredicateRecursiveInterspersion(
             min_intervals_divide_into=10,
             num_intervals_recurse_on=4,
         )
@@ -39,11 +38,11 @@ class TestStratumRetentionPredicateRecursiveInterspersion(
         min_intervals_divide_into,
         num_intervals_recurse_on,
     ):
-        predicate = StratumRetentionPredicateRecursiveInterspersion(
+        predicate = hstrat.StratumRetentionPredicateRecursiveInterspersion(
             min_intervals_divide_into=min_intervals_divide_into,
             num_intervals_recurse_on=num_intervals_recurse_on,
         )
-        column = HereditaryStratigraphicColumn(
+        column = hstrat.HereditaryStratigraphicColumn(
             stratum_retention_predicate=predicate,
         )
 

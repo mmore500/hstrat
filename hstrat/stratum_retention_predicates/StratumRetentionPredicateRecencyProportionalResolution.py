@@ -4,6 +4,7 @@ import typing
 from .StratumRetentionPredicateRecursiveInterspersion \
     import StratumRetentionPredicateRecursiveInterspersion
 
+
 class StratumRetentionPredicateRecencyProportionalResolution(
     StratumRetentionPredicateRecursiveInterspersion,
 ):

@@ -4,6 +4,7 @@ import typing
 from .StratumRetentionPredicateDepthProportionalResolution \
     import StratumRetentionPredicateDepthProportionalResolution
 
+
 class StratumRetentionPredicateRecursiveInterspersion:
 
     _min_intervals_divide_into: int

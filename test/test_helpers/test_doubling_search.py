@@ -2,7 +2,7 @@
 
 import unittest
 
-from pylib import doubling_search
+from pylib.helpers import doubling_search
 
 
 class TestDoublingSearch(unittest.TestCase):

@@ -6,33 +6,32 @@ import unittest
 
 random.seed(1)
 
-from pylib import HereditaryStratigraphicColumn
-from pylib import StratumRetentionPredicateMinimal
+from pylib import hstrat
 
 
 class TestStratumRetentionPredicateMinimal(unittest.TestCase):
 
     def test_equality(self):
         assert (
-            StratumRetentionPredicateMinimal()
-            == StratumRetentionPredicateMinimal()
+            hstrat.StratumRetentionPredicateMinimal()
+            == hstrat.StratumRetentionPredicateMinimal()
         )
 
-        original = StratumRetentionPredicateMinimal()
+        original = hstrat.StratumRetentionPredicateMinimal()
         copy = deepcopy(original)
         assert original == copy
 
     def test_behavior(self):
         for column_strata_deposited in range(100):
             for stratum_rank in range(0, column_strata_deposited):
-                assert not StratumRetentionPredicateMinimal()(
+                assert not hstrat.StratumRetentionPredicateMinimal()(
                     column_strata_deposited=column_strata_deposited,
                     stratum_rank=stratum_rank,
                 ) or stratum_rank in (0, column_strata_deposited)
 
     def test_space_complexity(self):
-        predicate = StratumRetentionPredicateMinimal()
-        column = HereditaryStratigraphicColumn(
+        predicate = hstrat.StratumRetentionPredicateMinimal()
+        column = hstrat.HereditaryStratigraphicColumn(
             stratum_retention_predicate=predicate,
         )
 
@@ -44,8 +43,8 @@ class TestStratumRetentionPredicateMinimal(unittest.TestCase):
                 assert column.GetNumStrataRetained() <= upper_bound
 
     def _do_test_resolution(self, synchronous):
-        predicate = StratumRetentionPredicateMinimal()
-        column = HereditaryStratigraphicColumn(
+        predicate = hstrat.StratumRetentionPredicateMinimal()
+        column = hstrat.HereditaryStratigraphicColumn(
             stratum_retention_predicate=predicate,
         )
 
@@ -76,8 +75,8 @@ class TestStratumRetentionPredicateMinimal(unittest.TestCase):
             self._do_test_resolution(synchronous)
 
     def test_CalcRankAtColumnIndex(self):
-        predicate = StratumRetentionPredicateMinimal()
-        column = HereditaryStratigraphicColumn(
+        predicate = hstrat.StratumRetentionPredicateMinimal()
+        column = hstrat.HereditaryStratigraphicColumn(
             stratum_retention_predicate=predicate,
             initial_stratum_annotation=0,
         )

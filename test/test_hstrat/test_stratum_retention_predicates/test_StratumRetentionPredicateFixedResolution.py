@@ -4,47 +4,50 @@ from copy import deepcopy
 import random
 import unittest
 
-from pylib import HereditaryStratigraphicColumn
-from pylib import StratumRetentionPredicateDepthProportionalResolution
+from pylib import hstrat
 
-class TestStratumRetentionPredicateDepthProportionalResolution(
+
+class TestStratumRetentionPredicateFixedResolution(
     unittest.TestCase,
 ):
 
     def test_equality(self):
         assert (
-            StratumRetentionPredicateDepthProportionalResolution()
-            == StratumRetentionPredicateDepthProportionalResolution()
+            hstrat.StratumRetentionPredicateFixedResolution()
+            == hstrat.StratumRetentionPredicateFixedResolution()
         )
 
-        original1 = StratumRetentionPredicateDepthProportionalResolution(
-            guaranteed_depth_proportional_resolution=10,
+        original1 = hstrat.StratumRetentionPredicateFixedResolution(
+            fixed_resolution=10,
         )
-        original2 = StratumRetentionPredicateDepthProportionalResolution(
-            guaranteed_depth_proportional_resolution=42,
+        original2 = hstrat.StratumRetentionPredicateFixedResolution(
+            fixed_resolution=42,
         )
         copy1 = deepcopy(original1)
         assert original1 == copy1
         assert original1 != original2
         assert copy1 != original2
 
-    def _do_test_space_complexity(self, guaranteed_depth_proportional_resolution):
-        predicate = StratumRetentionPredicateDepthProportionalResolution(
-            guaranteed_depth_proportional_resolution
-                =guaranteed_depth_proportional_resolution,
+    def _do_test_space_complexity(self, fixed_resolution):
+        predicate = hstrat.StratumRetentionPredicateFixedResolution(
+            fixed_resolution=fixed_resolution,
         )
-        column = HereditaryStratigraphicColumn(
+        column = hstrat.HereditaryStratigraphicColumn(
             stratum_retention_predicate=predicate,
         )
 
-        for generation in range(10000):
-            assert column.GetNumStrataRetained() <= predicate.CalcNumStrataRetainedUpperBound(
-                num_strata_deposited=column.GetNumStrataDeposited(),
+        for generation in range(500):
+            # this particular implementation should return exact number retained
+            assert (
+                column.GetNumStrataRetained()
+                == predicate.CalcNumStrataRetainedUpperBound(
+                    num_strata_deposited=column.GetNumStrataDeposited(),
+                )
             )
             column.DepositStratum()
 
     def test_space_complexity(self):
-        for guaranteed_depth_proportional_resolution in [
+        for fixed_resolution in [
             1,
             2,
             10,
@@ -52,19 +55,18 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
             97,
         ]:
             self._do_test_space_complexity(
-                guaranteed_depth_proportional_resolution,
+                fixed_resolution,
             )
 
     def _do_test_resolution(
         self,
-        guaranteed_depth_proportional_resolution,
+        fixed_resolution,
         synchronous,
     ):
-        predicate = StratumRetentionPredicateDepthProportionalResolution(
-            guaranteed_depth_proportional_resolution
-                =guaranteed_depth_proportional_resolution,
+        predicate = hstrat.StratumRetentionPredicateFixedResolution(
+            fixed_resolution=fixed_resolution,
         )
-        column = HereditaryStratigraphicColumn(
+        column = hstrat.HereditaryStratigraphicColumn(
             stratum_retention_predicate=predicate,
         )
 
@@ -103,18 +105,17 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
 
     def _do_test_CalcRankAtColumnIndex(
         self,
-        guaranteed_depth_proportional_resolution,
+        fixed_resolution,
     ):
-        predicate = StratumRetentionPredicateDepthProportionalResolution(
-            guaranteed_depth_proportional_resolution
-                =guaranteed_depth_proportional_resolution,
+        predicate = hstrat.StratumRetentionPredicateFixedResolution(
+            fixed_resolution=fixed_resolution,
         )
-        column = HereditaryStratigraphicColumn(
+        column = hstrat.HereditaryStratigraphicColumn(
             stratum_retention_predicate=predicate,
             initial_stratum_annotation=0,
         )
 
-        for generation in range(1,5001):
+        for generation in range(1,501):
             for index in range(column.GetNumStrataRetained()):
                 assert (
                     column.GetStratumAtColumnIndex(index).GetAnnotation()

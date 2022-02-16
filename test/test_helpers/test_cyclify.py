@@ -3,7 +3,7 @@
 import itertools as it
 import unittest
 
-from pylib import cyclify
+from pylib.helpers import cyclify
 
 
 class TestCyclify(unittest.TestCase):

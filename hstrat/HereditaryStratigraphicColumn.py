@@ -4,9 +4,12 @@ import math
 import operator
 import typing
 
+from ..helpers import value_or
+
 from .HereditaryStratum import HereditaryStratum
-from .StratumRetentionPredicateMaximal import StratumRetentionPredicateMaximal
-from .value_or import value_or
+
+from .stratum_retention_predicates import StratumRetentionPredicateMaximal
+
 
 class HereditaryStratigraphicColumn:
 

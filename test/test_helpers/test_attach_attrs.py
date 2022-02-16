@@ -2,7 +2,7 @@
 
 import unittest
 
-from pylib import attach_attrs
+from pylib.helpers import attach_attrs
 
 
 class TestAttachAttrs(unittest.TestCase):

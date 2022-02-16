@@ -2,7 +2,7 @@
 
 import unittest
 
-from pylib import binary_search
+from pylib.helpers import binary_search
 
 
 class TestBinarySearch(unittest.TestCase):

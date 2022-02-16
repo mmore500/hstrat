@@ -2,7 +2,7 @@
 
 import unittest
 
-from pylib import value_or
+from pylib.helpers import value_or
 
 
 class TestValueOr(unittest.TestCase):

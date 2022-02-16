@@ -7,10 +7,7 @@ import unittest
 
 random.seed(1)
 
-from pylib import HereditaryStratigraphicColumn
-from pylib import HereditaryStratigraphicColumnBundle
-from pylib import StratumRetentionPredicateMaximal
-from pylib import StratumRetentionPredicateRecencyProportionalResolution
+from pylib import hstrat
 
 
 class TestStratumRetentionPredicateRecencyProportionalResolution(
@@ -19,14 +16,14 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
 
     def test_equality(self):
         assert (
-            StratumRetentionPredicateRecencyProportionalResolution()
-            == StratumRetentionPredicateRecencyProportionalResolution()
+            hstrat.StratumRetentionPredicateRecencyProportionalResolution()
+            == hstrat.StratumRetentionPredicateRecencyProportionalResolution()
         )
 
-        original1 = StratumRetentionPredicateRecencyProportionalResolution(
+        original1 = hstrat.StratumRetentionPredicateRecencyProportionalResolution(
             guaranteed_mrca_recency_proportional_resolution=2,
         )
-        original2 = StratumRetentionPredicateRecencyProportionalResolution(
+        original2 = hstrat.StratumRetentionPredicateRecencyProportionalResolution(
             guaranteed_mrca_recency_proportional_resolution=3,
         )
         copy1 = deepcopy(original1)
@@ -38,11 +35,12 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
         self,
         guaranteed_mrca_recency_proportional_resolution,
     ):
-        predicate = StratumRetentionPredicateRecencyProportionalResolution(
-            guaranteed_mrca_recency_proportional_resolution
-                =guaranteed_mrca_recency_proportional_resolution,
+        predicate = \
+            hstrat.StratumRetentionPredicateRecencyProportionalResolution(
+                guaranteed_mrca_recency_proportional_resolution
+                    =guaranteed_mrca_recency_proportional_resolution,
         )
-        column = HereditaryStratigraphicColumn(
+        column = hstrat.HereditaryStratigraphicColumn(
             stratum_retention_predicate=predicate,
         )
 
@@ -69,18 +67,20 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
         guaranteed_mrca_recency_proportional_resolution,
         synchronous,
     ):
-        test_predicate = StratumRetentionPredicateRecencyProportionalResolution(
-            guaranteed_mrca_recency_proportional_resolution
-                =guaranteed_mrca_recency_proportional_resolution,
+        test_predicate = \
+            hstrat.StratumRetentionPredicateRecencyProportionalResolution(
+                guaranteed_mrca_recency_proportional_resolution
+                    =guaranteed_mrca_recency_proportional_resolution,
         )
-        column_test = HereditaryStratigraphicColumn(
+        column_test = hstrat.HereditaryStratigraphicColumn(
             stratum_retention_predicate=test_predicate,
         )
-        column_control = HereditaryStratigraphicColumn(
-            stratum_retention_predicate=StratumRetentionPredicateMaximal(),
+        column_control = hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_predicate
+                =hstrat.StratumRetentionPredicateMaximal(),
         )
 
-        column_bundle = HereditaryStratigraphicColumnBundle({
+        column_bundle = hstrat.HereditaryStratigraphicColumnBundle({
             'test' : column_test,
             'control' : column_control,
         })

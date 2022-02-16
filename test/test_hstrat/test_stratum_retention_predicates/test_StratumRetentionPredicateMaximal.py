@@ -6,25 +6,24 @@ import unittest
 
 random.seed(1)
 
-from pylib import HereditaryStratigraphicColumn
-from pylib import StratumRetentionPredicateMaximal
+from pylib import hstrat
 
 
 class TestStratumRetentionPredicateMaximal(unittest.TestCase):
 
     def test_equality(self):
         assert (
-            StratumRetentionPredicateMaximal()
-            == StratumRetentionPredicateMaximal()
+            hstrat.StratumRetentionPredicateMaximal()
+            == hstrat.StratumRetentionPredicateMaximal()
         )
 
-        original = StratumRetentionPredicateMaximal()
+        original = hstrat.StratumRetentionPredicateMaximal()
         copy = deepcopy(original)
         assert original == copy
 
     def _do_test_resolution(self, synchronous):
-        predicate = StratumRetentionPredicateMaximal()
-        column = HereditaryStratigraphicColumn(
+        predicate = hstrat.StratumRetentionPredicateMaximal()
+        column = hstrat.HereditaryStratigraphicColumn(
             stratum_retention_predicate=predicate,
         )
 
@@ -55,8 +54,8 @@ class TestStratumRetentionPredicateMaximal(unittest.TestCase):
                 self._do_test_resolution(synchronous)
 
     def test_CalcRankAtColumnIndex(self):
-        predicate = StratumRetentionPredicateMaximal()
-        column = HereditaryStratigraphicColumn(
+        predicate = hstrat.StratumRetentionPredicateMaximal()
+        column = hstrat.HereditaryStratigraphicColumn(
             stratum_retention_predicate=predicate,
             initial_stratum_annotation=0,
         )
