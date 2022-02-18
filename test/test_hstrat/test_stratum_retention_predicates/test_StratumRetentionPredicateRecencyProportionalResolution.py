@@ -7,6 +7,7 @@ import unittest
 
 random.seed(1)
 
+from pylib.helpers import cyclify
 from pylib import hstrat
 
 
@@ -76,8 +77,8 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
             stratum_retention_predicate=test_predicate,
         )
         column_control = hstrat.HereditaryStratigraphicColumn(
-            stratum_retention_predicate
-                =hstrat.StratumRetentionPredicateMaximal(),
+            stratum_retention_filter
+                =hstrat.StratumRetentionFilterMaximal(),
         )
 
         column_bundle = hstrat.HereditaryStratigraphicColumnBundle({
@@ -162,6 +163,118 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
                     guaranteed_mrca_recency_proportional_resolution,
                     synchronous,
                 )
+
+    def _do_test_deep_resolution(
+        self,
+        guaranteed_mrca_recency_proportional_resolution,
+    ):
+        test_predicate = \
+            hstrat.StratumRetentionPredicateRecencyProportionalResolution(
+                guaranteed_mrca_recency_proportional_resolution
+                    =guaranteed_mrca_recency_proportional_resolution,
+        )
+        column_test = hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_predicate=test_predicate,
+        )
+        column_control = hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_filter
+                =hstrat.StratumRetentionFilterMaximal(),
+        )
+
+        individual = hstrat.HereditaryStratigraphicColumnBundle({
+            'test' : column_test,
+            'control' : column_control,
+        })
+
+        snapshots = [individual]
+        for snapshot in range(100):
+                for fastforward in range(100):
+                        individual.DepositStratum()
+                snapshots.append(deepcopy(individual))
+
+
+        for f, s in it.chain(
+            zip(cyclify(individual), snapshots),
+            zip(snapshots, cyclify(individual)),
+        ):
+            actual_rank_of_mrca = (
+                f['control'].CalcRankOfLastCommonalityWith(s['control'])
+            )
+
+            target_resolu = test_predicate.CalcMrcaUncertaintyUpperBound(
+                actual_rank_of_mrca=actual_rank_of_mrca,
+                first_num_strata_deposited=f.GetNumStrataDeposited(),
+                second_num_strata_deposited=s.GetNumStrataDeposited(),
+            )
+
+            assert (
+                f['test'].CalcRankOfMrcaUncertaintyWith(s['test'])
+                <= target_resolu
+            )
+            assert (
+                s['test'].CalcRankOfMrcaUncertaintyWith(f['test'])
+                <= target_resolu
+            )
+            assert (
+                f['test'].CalcRanksSinceMrcaUncertaintyWith(s['test'])
+                <= target_resolu
+            )
+            assert (
+                s['test'].CalcRanksSinceMrcaUncertaintyWith(f['test'])
+                <= target_resolu
+            )
+
+    def test_deep_resolution(self):
+        for guaranteed_mrca_recency_proportional_resolution in [
+            1,
+            2,
+            3,
+            17,
+            100,
+            1000,
+        ]:
+            self._do_test_deep_resolution(
+                guaranteed_mrca_recency_proportional_resolution,
+            )
+
+    def _do_test_deep_space_complexity(
+        self,
+        guaranteed_mrca_recency_proportional_resolution,
+    ):
+        test_predicate = \
+            hstrat.StratumRetentionPredicateRecencyProportionalResolution(
+                guaranteed_mrca_recency_proportional_resolution
+                    =guaranteed_mrca_recency_proportional_resolution,
+        )
+        individual = hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_predicate=test_predicate,
+        )
+
+        snapshots = [individual]
+        for snapshot in range(100):
+                for fastforward in range(100):
+                        individual.DepositStratum()
+                snapshots.append(deepcopy(individual))
+
+
+        for snapshot in snapshots:
+            target_space = test_predicate.CalcNumStrataRetainedUpperBound(
+                num_strata_deposited=snapshot.GetNumStrataDeposited(),
+            )
+            assert snapshot.GetNumStrataRetained() <= target_space
+
+    def test_deep_space_complexity(self):
+        for guaranteed_mrca_recency_proportional_resolution in [
+            1,
+            2,
+            3,
+            17,
+            100,
+            1000,
+        ]:
+            self._do_test_deep_space_complexity(
+                guaranteed_mrca_recency_proportional_resolution,
+            )
 
 
 if __name__ == '__main__':

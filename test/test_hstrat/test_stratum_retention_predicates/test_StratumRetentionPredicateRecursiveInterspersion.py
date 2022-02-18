@@ -61,12 +61,62 @@ class TestStratumRetentionPredicateRecursiveInterspersion(
             (10,9),
             (42, 1),
             (42, 21),
+            (100, 50),
+            (202, 101),
         ]:
             self._do_test_space_complexity(
                 min_intervals_divide_into,
                 num_intervals_recurse_on,
             )
 
+    def _do_test_deep_space_complexity(
+        self,
+        min_intervals_divide_into,
+        num_intervals_recurse_on,
+    ):
+        test_predicate = hstrat.StratumRetentionPredicateRecursiveInterspersion(
+            min_intervals_divide_into=min_intervals_divide_into,
+            num_intervals_recurse_on=num_intervals_recurse_on,
+        )
+        individual = hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_predicate=test_predicate,
+        )
+
+        snapshots = [individual]
+        for snapshot in range(100):
+                for fastforward in range(100):
+                        individual.DepositStratum()
+                snapshots.append(deepcopy(individual))
+
+
+        for snapshot in snapshots:
+            target_space = test_predicate.CalcNumStrataRetainedUpperBound(
+                num_strata_deposited=snapshot.GetNumStrataDeposited(),
+            )
+            assert snapshot.GetNumStrataRetained() <= target_space, (
+                min_intervals_divide_into,
+                num_intervals_recurse_on,
+                snapshot.GetNumStrataRetained(),
+                target_space,
+                snapshot.GetNumStrataDeposited(),
+            )
+
+    def test_deep_space_complexity(self):
+        for min_intervals_divide_into, num_intervals_recurse_on in [
+            (2,1),
+            (3,1),
+            (10,1),
+            (10,5),
+            (10,9),
+            (42, 1),
+            (42, 21),
+            (100, 50),
+            (202, 101),
+        ]:
+            self._do_test_deep_space_complexity(
+                min_intervals_divide_into,
+                num_intervals_recurse_on,
+            )
 
 if __name__ == '__main__':
     unittest.main()
