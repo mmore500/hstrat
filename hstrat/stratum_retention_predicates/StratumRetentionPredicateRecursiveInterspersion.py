@@ -82,8 +82,8 @@ class StratumRetentionPredicateRecursiveInterspersion:
             return self._min_intervals_divide_into
 
         base = self._min_intervals_divide_into / self._num_intervals_recurse_on
-        num_recursive_stages = int(math.floor(math.log(
-            num_strata_deposited / self._min_intervals_divide_into,
+        num_recursive_stages = int(math.ceil(math.log(
+            2 * num_strata_deposited / self._min_intervals_divide_into,
             base,
         )))
         return num_recursive_stages * (2 * self._min_intervals_divide_into) + 2
