@@ -5,7 +5,7 @@ def binary_search(
     predicate: typing.Callable[[int], bool],
     lower_bound: int,
     upper_bound: int,
-) -> int:
+) -> typing.Optional[int]:
     """
     Find the positive integer threshold below which a search criteria is never satisfied and above which it is always satisfied.
 
@@ -21,12 +21,14 @@ def binary_search(
     Returns
     -------
     guess
-        The lowest integer value that satisfies the search criteria.
+        The lowest integer value that satisfies the search criteria, and None if
+        upper_bound does not satisfy the search criteria.
     """
 
     if lower_bound == upper_bound:
-        assert predicate(lower_bound), lower_bound
-        return lower_bound
+        if predicate(lower_bound):
+            return lower_bound
+        else: return None
 
     midpoint = (lower_bound + upper_bound) // 2
 

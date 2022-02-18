@@ -4,6 +4,7 @@ import math
 import operator
 import typing
 
+from ..helpers import binary_search
 from ..helpers import value_or
 
 from .HereditaryStratum import HereditaryStratum
@@ -105,12 +106,77 @@ class HereditaryStratigraphicColumn:
                 num_strata_deposited=self.GetNumStrataDeposited(),
             )
 
+    def GetNumDiscardedStrata(
+        self: 'HereditaryStratigraphicColumn',
+    ) -> int:
+        return self.GetNumStrataDeposited() - self.GetNumStrataRetained()
+
+    def HasDiscardedStrata(
+        self: 'HereditaryStratigraphicColumn',
+    ) -> bool:
+        return self.GetNumDiscardedStrata() > 0
+
     def CalcRankOfLastCommonalityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
-        self_column_idx = 0
-        other_column_idx = 0
+        if self.HasDiscardedStrata() or other.HasDiscardedStrata():
+            return self._do_generic_CalcRankOfLastCommonalityWith(other)
+        else:
+            return self._do_binary_search_CalcRankOfLastCommonalityWith(other)
+
+    def _do_binary_search_CalcRankOfLastCommonalityWith(
+        self: 'HereditaryStratigraphicColumn',
+        other: 'HereditaryStratigraphicColumn',
+    ) -> typing.Optional[int]:
+        """Assumes both self and other use the maximal retention predicate."""
+
+        assert not self.HasDiscardedStrata() and not other.HasDiscardedStrata()
+
+        lower_bound = 0
+        upper_bound = min([
+            self.GetNumStrataDeposited() - 1,
+            other.GetNumStrataDeposited() - 1,
+        ])
+        assert lower_bound <= upper_bound
+        uid_at = lambda which, idx: which._column[idx].GetUid()
+        predicate = lambda idx: uid_at(self, idx) != uid_at(other, idx)
+
+        first_disparite_idx = binary_search(
+            predicate,
+            lower_bound,
+            upper_bound,
+        )
+
+        if first_disparite_idx is None:
+            # no disparate strata found
+            # fallback to _do_generic_CalcRankOfLastCommonalityWith to handle
+            # proper bookkeeping in this case while skipping most of the search
+            return self._do_generic_CalcRankOfLastCommonalityWith(
+                other,
+                self_start_idx=upper_bound,
+                other_start_idx=upper_bound,
+            )
+        elif first_disparite_idx > 0:
+            # disparate strata found, following some common strata
+            last_common_idx = first_disparite_idx - 1
+            last_common_rank = self.CalcRankAtColumnIndex(
+                last_common_idx,
+            )
+            return last_common_rank
+        else:
+            # no common strata between self and other
+            return None
+
+    def _do_generic_CalcRankOfLastCommonalityWith(
+        self: 'HereditaryStratigraphicColumn',
+        other: 'HereditaryStratigraphicColumn',
+        *,
+        self_start_idx: int=0,
+        other_start_idx: int=0,
+    ) -> typing.Optional[int]:
+        self_column_idx = self_start_idx
+        other_column_idx = other_start_idx
         last_common_rank = None
 
         # helper lambdas
@@ -159,8 +225,60 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
-        self_column_idx = 0
-        other_column_idx = 0
+        if self.HasDiscardedStrata() or other.HasDiscardedStrata():
+            return self._do_generic_CalcRankOfFirstDisparityWith(other)
+        else:
+            return self._do_binary_search_CalcRankOfFirstDisparityWith(other)
+
+    def _do_binary_search_CalcRankOfFirstDisparityWith(
+        self: 'HereditaryStratigraphicColumn',
+        other: 'HereditaryStratigraphicColumn',
+    ) -> typing.Optional[int]:
+        """Assumes both self and other use the maximal retention predicate."""
+
+        assert not self.HasDiscardedStrata() and not other.HasDiscardedStrata()
+
+        lower_bound = 0
+        upper_bound = min([
+            self.GetNumStrataDeposited() - 1,
+            other.GetNumStrataDeposited() - 1,
+        ])
+        assert lower_bound <= upper_bound
+        uid_at = lambda which, idx: which._column[idx].GetUid()
+        predicate = lambda idx: uid_at(self, idx) != uid_at(other, idx)
+
+        first_disparite_idx = binary_search(
+            predicate,
+            lower_bound,
+            upper_bound,
+        )
+
+        if first_disparite_idx is not None:
+            # disparate strata found
+            first_disparite_rank = self.CalcRankAtColumnIndex(
+                first_disparite_idx,
+            )
+            return first_disparite_rank
+        else:
+            # no disparate strata found
+            # fallback to _do_generic_CalcRankOfFirstDisparityWith to handle
+            # proper bookkeeping in this case while skipping most of the search
+            return self._do_generic_CalcRankOfFirstDisparityWith(
+                other,
+                self_start_idx=upper_bound,
+                other_start_idx=upper_bound,
+            )
+
+
+    def _do_generic_CalcRankOfFirstDisparityWith(
+        self: 'HereditaryStratigraphicColumn',
+        other: 'HereditaryStratigraphicColumn',
+        *,
+        self_start_idx: int=0,
+        other_start_idx: int=0,
+    ) -> typing.Optional[int]:
+        self_column_idx = self_start_idx
+        other_column_idx = other_start_idx
         last_common_rank = None
 
         # helper lambdas
