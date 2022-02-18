@@ -105,7 +105,7 @@ class StratumRetentionPredicateFixedResolution:
         return self._fixed_resolution
 
     def CalcRankAtColumnIndex(
-        self: 'HereditaryStratigraphicColumn',
+        self: 'StratumRetentionPredicateFixedResolution',
         index: int,
         num_strata_deposited: int,
     ) -> int:

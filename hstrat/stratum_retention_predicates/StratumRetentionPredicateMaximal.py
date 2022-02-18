@@ -35,7 +35,7 @@ class StratumRetentionPredicateMaximal:
         return 0
 
     def CalcRankAtColumnIndex(
-        self: 'HereditaryStratigraphicColumn',
+        self: 'StratumRetentionPredicateMaximal',
         index: int,
         num_strata_deposited: typing.Optional[int]=None,
     ) -> int:

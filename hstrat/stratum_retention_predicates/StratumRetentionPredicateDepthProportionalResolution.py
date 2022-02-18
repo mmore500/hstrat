@@ -178,7 +178,7 @@ class StratumRetentionPredicateDepthProportionalResolution:
 
 
     def _CalcRankAtColumnIndexImpl(
-        self: 'HereditaryStratigraphicColumn',
+        self: 'StratumRetentionPredicateDepthProportionalResolution',
         index: int,
         num_strata_deposited: int,
     ) -> int:
@@ -197,7 +197,7 @@ class StratumRetentionPredicateDepthProportionalResolution:
         )
 
     def CalcRankAtColumnIndex(
-        self: 'HereditaryStratigraphicColumn',
+        self: 'StratumRetentionPredicateDepthProportionalResolution',
         index: int,
         num_strata_deposited: int,
     ) -> int:
