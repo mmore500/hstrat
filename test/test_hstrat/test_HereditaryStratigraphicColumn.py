@@ -126,7 +126,8 @@ def _do_test_CalcRankOfMrcaBoundsWith(
                 initial_stratum_annotation=0,
             ),
             'control' : hstrat.HereditaryStratigraphicColumn(
-                stratum_retention_predicate=hstrat.StratumRetentionPredicateMaximal(),
+                stratum_retention_filter
+                    =hstrat.StratumRetentionFilterMaximal(),
                 initial_stratum_annotation=0,
             ),
         })
@@ -191,7 +192,8 @@ def _do_test_CalcRanksSinceMrcaBoundsWith(
                 initial_stratum_annotation=0,
             ),
             'control' : hstrat.HereditaryStratigraphicColumn(
-                stratum_retention_predicate=hstrat.StratumRetentionPredicateMaximal(),
+                stratum_retention_filter
+                    =hstrat.StratumRetentionFilterMaximal(),
                 initial_stratum_annotation=0,
             ),
         })

@@ -9,7 +9,8 @@ from ..helpers import value_or
 
 from .HereditaryStratum import HereditaryStratum
 
-from .stratum_retention_predicates import StratumRetentionPredicateMaximal
+from .stratum_retention_filters import StratumRetentionFilterFromPredicate
+from .stratum_retention_filters import StratumRetentionFilterMaximal
 
 
 class HereditaryStratigraphicColumn:
@@ -17,14 +18,15 @@ class HereditaryStratigraphicColumn:
     _column: typing.List[HereditaryStratum,]
     _num_strata_deposited: int
     _default_stratum_uid_size: int
-    _stratum_retention_predicate: typing.Callable[[int, int], bool]
+    _stratum_retention_filter: typing.Callable
 
     def __init__(
         self: 'HereditaryStratigraphicColumn',
         *,
         initial_stratum_annotation: typing.Optional[typing.Any]=None,
         default_stratum_uid_size: int=64,
-        stratum_retention_predicate=StratumRetentionPredicateMaximal(),
+        stratum_retention_filter: typing.Callable=None,
+        stratum_retention_predicate: typing.Callable=None,
     ):
         """
         Retention predicate should take two keyword arguments: stratum_rank and column_strata_deposited.
@@ -32,7 +34,20 @@ class HereditaryStratigraphicColumn:
         self._column = []
         self._num_strata_deposited = 0
         self._default_stratum_uid_size = default_stratum_uid_size
-        self._stratum_retention_predicate = stratum_retention_predicate
+
+        if None not in (stratum_retention_predicate, stratum_retention_filter):
+            raise ValueError(
+                'Exactly one of `stratum_retention_filter` '
+                'and `stratum_retention_predicate` must be provided.'
+            )
+        else:
+            self._stratum_retention_filter = (
+                StratumRetentionFilterFromPredicate(stratum_retention_predicate)
+                    if (stratum_retention_predicate is not None)
+                else stratum_retention_filter
+                    if stratum_retention_filter is not None
+                else StratumRetentionFilterMaximal()
+            )
 
         self.DepositStratum(annotation=initial_stratum_annotation)
 
@@ -56,7 +71,7 @@ class HereditaryStratigraphicColumn:
                 # from stratum's position in column
                 None
                 if hasattr(
-                    self._stratum_retention_predicate,
+                    self._stratum_retention_filter,
                     'CalcRankAtColumnIndex',
                 ) else self._num_strata_deposited
             ),
@@ -65,23 +80,8 @@ class HereditaryStratigraphicColumn:
         self._PurgeColumn()
         self._num_strata_deposited += 1
 
-    def _PurgeColumn(self: 'HereditaryStratigraphicColumn',) -> None:
-        # wrapper to enforce requirements on predicate
-        def should_retain(stratum_rank: int,) -> bool:
-            res = self._stratum_retention_predicate(
-                stratum_rank=stratum_rank,
-                column_strata_deposited=self.GetNumStrataDeposited(),
-            )
-            # predicate must *always* retain the initial and latest strata
-            if stratum_rank in (0, self.GetNumStrataDeposited()):
-                assert res
-            return res
-
-        self._column = [
-            entry
-            for idx, entry in enumerate(self._column)
-            if should_retain(self.CalcRankAtColumnIndex(idx))
-        ]
+    def _PurgeColumn(self: 'HereditaryStratigraphicColumn') -> None:
+        self._column = self._stratum_retention_filter(self)
 
     def GetNumStrataRetained(self: 'HereditaryStratigraphicColumn') -> int:
         return len(self._column)
@@ -103,7 +103,7 @@ class HereditaryStratigraphicColumn:
         if maybe_rank is not None:
             return maybe_rank
         else:
-            return self._stratum_retention_predicate.CalcRankAtColumnIndex(
+            return self._stratum_retention_filter.CalcRankAtColumnIndex(
                 index=index,
                 num_strata_deposited=self.GetNumStrataDeposited(),
             )
