@@ -52,6 +52,8 @@ class HereditaryStratigraphicColumn:
         self._column.append(HereditaryStratum(
             annotation=annotation,
             deposition_rank=(
+                # don't store deposition rank if we know how to calcualte it
+                # from stratum's position in column
                 None
                 if hasattr(
                     self._stratum_retention_predicate,
@@ -81,10 +83,10 @@ class HereditaryStratigraphicColumn:
             if should_retain(self.CalcRankAtColumnIndex(idx))
         ]
 
-    def GetNumStrataRetained(self: 'HereditaryStratigraphicColumn',) -> int:
+    def GetNumStrataRetained(self: 'HereditaryStratigraphicColumn') -> int:
         return len(self._column)
 
-    def GetNumStrataDeposited(self: 'HereditaryStratigraphicColumn',) -> int:
+    def GetNumStrataDeposited(self: 'HereditaryStratigraphicColumn') -> int:
         return self._num_strata_deposited
 
     def GetStratumAtColumnIndex(
