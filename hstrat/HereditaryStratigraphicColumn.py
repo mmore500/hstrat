@@ -347,7 +347,6 @@ class HereditaryStratigraphicColumn:
     ) -> typing.Optional[int]:
         self_column_idx = self_start_idx
         other_column_idx = other_start_idx
-        last_common_rank = None
 
         # helper lambdas
         rank_at = lambda which, idx: which.GetRankAtColumnIndex(idx)
