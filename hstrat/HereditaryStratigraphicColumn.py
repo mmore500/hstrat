@@ -344,70 +344,86 @@ class HereditaryStratigraphicColumn:
         self_start_idx: int=0,
         other_start_idx: int=0,
     ) -> typing.Optional[int]:
-        self_column_idx = self_start_idx
-        other_column_idx = other_start_idx
-
-        # helper lambdas
-        rank_at = lambda which, idx: which.GetRankAtColumnIndex(idx)
-        uid_at = lambda which, idx: which.GetStratumAtColumnIndex(idx).GetUid()
-        column_idxs_bounds_check = lambda: (
-            self_column_idx < self.GetNumStrataRetained()
-            and other_column_idx < other.GetNumStrataRetained()
+        # helper setup
+        self_iter = self._stratum_ordered_store.IterRankUid(
+            get_rank_at_column_index=self.GetRankAtColumnIndex,
+            start_column_index=self_start_idx,
         )
+        other_iter = other._stratum_ordered_store.IterRankUid(
+            get_rank_at_column_index=other.GetRankAtColumnIndex,
+            start_column_index=other_start_idx,
+        )
+        self_cur_rank, self_cur_uid = next(self_iter)
+        other_cur_rank, other_cur_uid = next(other_iter)
+        self_prev_rank: int
+        other_prev_rank: int
 
-        while column_idxs_bounds_check():
-            if (
-                rank_at(self, self_column_idx)
-                == rank_at(other, other_column_idx)
-            ):
+        def advance_self():
+            nonlocal self_prev_rank, self_cur_rank, self_cur_uid, self_iter
+            try:
+                self_prev_rank = self_cur_rank
+                self_cur_rank, self_cur_uid = next(self_iter)
+            except StopIteration:
+                self_iter = None
+
+        def advance_other():
+            nonlocal other_prev_rank, other_cur_rank, other_cur_uid, other_iter
+            try:
+                other_prev_rank = other_cur_rank
+                other_cur_rank, other_cur_uid = next(other_iter)
+            except StopIteration:
+                other_iter = None
+
+        # a.k.a.
+        # while (
+        #     self_column_idx < self.GetNumStrataRetained()
+        #     and other_column_idx < other.GetNumStrataRetained()
+        # ):
+        while self_iter is not None and other_iter is not None:
+            if self_cur_rank == other_cur_rank:
                 # strata at same rank can be compared
-                if (
-                    uid_at(self, self_column_idx)
-                    == uid_at(other, other_column_idx)
-                ):
+                if self_cur_uid == other_cur_uid:
                     # matching uids at the same rank,
                     # keep searching for mismatch
-                    self_column_idx += 1
-                    other_column_idx += 1
+                    # advance self and other
+                    # must ensure both advance, even if one stops iteration
+                    advance_self()
+                    advance_other()
                 else:
                     # mismatching uids at the same rank
-                    res = rank_at(self, self_column_idx)
-                    assert 0 <= res < self.GetNumStrataDeposited()
-                    return res
-            elif (
-                rank_at(self, self_column_idx)
-                < rank_at(other, other_column_idx)
-            ):
+                    assert 0 <= self_cur_rank < self.GetNumStrataDeposited()
+                    return self_cur_rank
+            elif self_cur_rank < other_cur_rank:
                 # current stratum on self column older than on other column
                 # advance to next-newer stratum on self column
-                self_column_idx += 1
-            elif (
-                rank_at(self, self_column_idx)
-                > rank_at(other, other_column_idx)
-            ):
+                advance_self()
+            elif self_cur_rank > other_cur_rank:
                 # current stratum on other column older than on self column
                 # advance to next-newer stratum on other column
-                other_column_idx += 1
+                advance_other()
 
-        if self_column_idx < self.GetNumStrataRetained():
-            # although no mismatching strata are found between self and other
+        if self_iter is not None:
+            # although no mismatching strata found between self and other
             # self has strata ranks beyond the newest found in other
             # conservatively assume mismatch will be with next rank of other
-            assert other_column_idx == other.GetNumStrataRetained()
-            res = rank_at(other, other_column_idx - 1) + 1
+            assert other_iter is None
+            res = other_prev_rank + 1
             assert 0 <= res <= self.GetNumStrataDeposited()
+            assert 0 <= res <= other.GetNumStrataDeposited()
             return res
-        elif other_column_idx < other.GetNumStrataRetained():
-            # although no mismatching strata are found between other and self
+        elif other_iter is not None:
+            # although no mismatching strata found between other and self
             # other has strata ranks beyond the newest found in self
             # conservatively assume mismatch will be with next rank
-            assert self_column_idx == self.GetNumStrataRetained()
-            res = rank_at(self, self_column_idx - 1) + 1
+            assert self_iter is None
+            res = self_prev_rank + 1
             assert 0 <= res <= self.GetNumStrataDeposited()
+            assert 0 <= res <= other.GetNumStrataDeposited()
             return res
         else:
             # no disparate strata found
             # and self and other have the same newest rank
+            assert self_iter is None and other_iter is None
             return None
 
     def CalcRankOfMrcaBoundsWith(
