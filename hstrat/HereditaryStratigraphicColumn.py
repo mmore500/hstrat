@@ -186,7 +186,20 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
-        if self.HasDiscardedStrata() or other.HasDiscardedStrata():
+        if (
+            self.HasDiscardedStrata()
+            or other.HasDiscardedStrata()
+            # for performance reasons
+            # only binary search stores that support random access
+            or not isinstance(
+                self._stratum_ordered_store,
+                HereditaryStratumOrderedStoreList
+            )
+            or not isinstance(
+                other._stratum_ordered_store,
+                HereditaryStratumOrderedStoreList
+            )
+        ):
             return self._do_generic_CalcRankOfLastCommonalityWith(other)
         else:
             return self._do_binary_search_CalcRankOfLastCommonalityWith(other)
@@ -291,7 +304,20 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
-        if self.HasDiscardedStrata() or other.HasDiscardedStrata():
+        if (
+            self.HasDiscardedStrata()
+            or other.HasDiscardedStrata()
+            # for performance reasons
+            # only binary search stores that support random access
+            or not isinstance(
+                self._stratum_ordered_store,
+                HereditaryStratumOrderedStoreList
+            )
+            or not isinstance(
+                other._stratum_ordered_store,
+                HereditaryStratumOrderedStoreList
+            )
+        ):
             return self._do_generic_CalcRankOfFirstDisparityWith(other)
         else:
             return self._do_binary_search_CalcRankOfFirstDisparityWith(other)
