@@ -416,6 +416,10 @@ class HereditaryStratigraphicColumn:
     ) -> typing.Optional[typing.Tuple[int, int]]:
         if self.HasAnyCommonAncestorWith(other):
             first_disparity = self.CalcRankOfFirstDisparityWith(other)
+            if first_disparity is None:
+                num_self_deposited = self.GetNumStrataDeposited()
+                num_other_deposited = other.GetNumStrataDeposited()
+                assert num_self_deposited == num_other_deposited
             return (
                 self.CalcRankOfLastCommonalityWith(other),
                 value_or(first_disparity, self.GetNumStrataDeposited()),
