@@ -1,5 +1,3 @@
-#!/bin/python3
-
 from copy import deepcopy
 from iterpop import iterpop as ip
 import itertools as it
@@ -22,7 +20,7 @@ def _do_test_equality(
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_predicate=retention_predicate,
     )
-    copy1 = deepcopy(original1,)
+    copy1 = deepcopy(original1)
     original2 = hstrat.HereditaryStratigraphicColumn(
             stratum_ordered_store_factory=ordered_store,
             stratum_retention_predicate=retention_predicate,

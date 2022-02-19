@@ -1,5 +1,3 @@
-#!/bin/python3
-
 from copy import deepcopy
 import itertools as it
 import random

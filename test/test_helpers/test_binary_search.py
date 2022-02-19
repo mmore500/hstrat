@@ -1,5 +1,3 @@
-#!/bin/python3
-
 import unittest
 
 from pylib.helpers import binary_search

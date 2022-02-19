@@ -101,9 +101,8 @@ class HereditaryStratumOrderedStoreList:
             assert rank is not None
             yield rank
 
-
     def IterRankUid(
-        self: 'HereditaryStratumOrderedStoreDict',
+        self: 'HereditaryStratumOrderedStoreList',
         # deposition ranks might not be stored in strata
         get_rank_at_column_index: typing.Optional[typing.Callable]=None,
         start_column_index: int=0,

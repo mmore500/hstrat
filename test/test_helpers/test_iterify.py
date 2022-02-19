@@ -1,5 +1,3 @@
-#!/bin/python3
-
 import itertools as it
 import unittest
 
