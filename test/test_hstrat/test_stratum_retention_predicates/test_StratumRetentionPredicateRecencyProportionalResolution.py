@@ -43,6 +43,8 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
         )
         column = hstrat.HereditaryStratigraphicColumn(
             stratum_retention_predicate=predicate,
+            stratum_ordered_store_factory
+                =hstrat.HereditaryStratumOrderedStoreList,
         )
 
         for generation in range(1000):
@@ -74,11 +76,15 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
                     =guaranteed_mrca_recency_proportional_resolution,
         )
         column_test = hstrat.HereditaryStratigraphicColumn(
+            stratum_ordered_store_factory
+                =hstrat.HereditaryStratumOrderedStoreList,
             stratum_retention_predicate=test_predicate,
         )
         column_control = hstrat.HereditaryStratigraphicColumn(
-            stratum_retention_filter
-                =hstrat.StratumRetentionFilterMaximal(),
+            stratum_ordered_store_factory
+                =hstrat.HereditaryStratumOrderedStoreList,
+            stratum_retention_condemner
+                =hstrat.StratumRetentionCondemnerMaximal(),
         )
 
         column_bundle = hstrat.HereditaryStratigraphicColumnBundle({
@@ -174,11 +180,15 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
                     =guaranteed_mrca_recency_proportional_resolution,
         )
         column_test = hstrat.HereditaryStratigraphicColumn(
+            stratum_ordered_store_factory
+                =hstrat.HereditaryStratumOrderedStoreList,
             stratum_retention_predicate=test_predicate,
         )
         column_control = hstrat.HereditaryStratigraphicColumn(
-            stratum_retention_filter
-                =hstrat.StratumRetentionFilterMaximal(),
+            stratum_ordered_store_factory
+                =hstrat.HereditaryStratumOrderedStoreList,
+            stratum_retention_condemner
+                =hstrat.StratumRetentionCondemnerMaximal(),
         )
 
         individual = hstrat.HereditaryStratigraphicColumnBundle({
@@ -247,6 +257,8 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
                     =guaranteed_mrca_recency_proportional_resolution,
         )
         individual = hstrat.HereditaryStratigraphicColumn(
+            stratum_ordered_store_factory
+                =hstrat.HereditaryStratumOrderedStoreList,
             stratum_retention_predicate=test_predicate,
         )
 

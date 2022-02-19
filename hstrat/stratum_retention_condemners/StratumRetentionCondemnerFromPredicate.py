@@ -3,52 +3,51 @@ import typing
 from ..HereditaryStratum import HereditaryStratum
 
 
-class _StratumRetentionFilterFromPredicateBase:
+class _StratumRetentionCondemnerFromPredicateBase:
     pass
 
 
-def StratumRetentionFilterFromPredicate(predicate: typing.Callable):
+def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
 
-    class StratumRetentionFilterFromPredicate(
-        _StratumRetentionFilterFromPredicateBase,
+    class StratumRetentionCondemnerFromPredicate(
+        _StratumRetentionCondemnerFromPredicateBase,
     ):
         _predicate: typing.Callable
 
         def __init__(
-            self: 'StratumRetentionFilterFromPredicate',
+            self: 'StratumRetentionCondemnerFromPredicate',
             predicate: typing.Callable,
         ):
             self._predicate = predicate
 
         def __call__(
-            self: 'StratumRetentionFilterFromPredicate',
-            strat_col: 'HereditaryStratigraphicColumn',
-        ) -> typing.List[HereditaryStratum]:
+            self: 'StratumRetentionCondemnerFromPredicate',
+            retained_ranks: typing.Iterable[int],
+            num_strata_deposited: int,
+        ) -> typing.Iterator[int]:
             # wrapper to enforce requirements on predicate
             def should_retain(stratum_rank: int) -> bool:
                 res = self._predicate(
                     stratum_rank=stratum_rank,
-                    column_strata_deposited=strat_col.GetNumStrataDeposited(),
+                    column_strata_deposited=num_strata_deposited,
                 )
                 # predicate must *always* retain the initial and latest strata
-                if stratum_rank in (0, strat_col.GetNumStrataDeposited()):
+                if stratum_rank in (0, num_strata_deposited):
                     assert res
                 return res
 
-            return [
-                entry
-                for idx, entry in enumerate(strat_col._column)
-                if should_retain(strat_col.CalcRankAtColumnIndex(idx))
-            ]
-
+            for rank in retained_ranks:
+                if not should_retain(rank):
+                    yield rank
+            return
 
         def __eq__(
-            self: 'StratumRetentionFilterFromPredicate',
-            other: 'StratumRetentionFilterFromPredicate',
+            self: 'StratumRetentionCondemnerFromPredicate',
+            other: 'StratumRetentionCondemnerFromPredicate',
         ) -> bool:
             if issubclass(
                 other.__class__,
-                _StratumRetentionFilterFromPredicateBase,
+                _StratumRetentionCondemnerFromPredicateBase,
             ):
                 return self._predicate == other._predicate
             else:
@@ -56,7 +55,7 @@ def StratumRetentionFilterFromPredicate(predicate: typing.Callable):
 
         if hasattr(predicate, 'CalcNumStrataRetainedUpperBound'):
             def CalcNumStrataRetainedUpperBound(
-                self: 'StratumRetentionFilterFromPredicate',
+                self: 'StratumRetentionCondemnerFromPredicate',
                 num_strata_deposited: int,
             ) -> int:
                 return self._predicate.CalcNumStrataRetainedUpperBound(
@@ -65,7 +64,7 @@ def StratumRetentionFilterFromPredicate(predicate: typing.Callable):
 
         if hasattr(predicate, 'CalcMrcaUncertaintyUpperBound'):
             def CalcMrcaUncertaintyUpperBound(
-                self: 'StratumRetentionFilterFromPredicate',
+                self: 'StratumRetentionCondemnerFromPredicate',
                 *,
                 first_num_strata_deposited: int,
                 second_num_strata_deposited: int,
@@ -79,7 +78,7 @@ def StratumRetentionFilterFromPredicate(predicate: typing.Callable):
 
         if hasattr(predicate, 'CalcRankAtColumnIndex'):
             def CalcRankAtColumnIndex(
-                self: 'StratumRetentionPredicateMaximal',
+                self: 'StratumCondemnerateMaximal',
                 index: int,
                 num_strata_deposited: int,
             ) -> int:
@@ -88,4 +87,4 @@ def StratumRetentionFilterFromPredicate(predicate: typing.Callable):
                     num_strata_deposited=num_strata_deposited,
                 )
 
-    return StratumRetentionFilterFromPredicate(predicate)
+    return StratumRetentionCondemnerFromPredicate(predicate)

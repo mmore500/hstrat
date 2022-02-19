@@ -2,17 +2,21 @@ import typing
 
 from ..HereditaryStratum import HereditaryStratum
 
-class StratumRetentionFilterMaximal:
+class StratumRetentionCondemnerMaximal:
 
     def __call__(
-        self: 'StratumRetentionFilterMaximal',
-        strat_col: 'HereditaryStratigraphicColumn',
-    ) -> typing.List[HereditaryStratum]:
-        return strat_col._column
+        self: 'StratumRetentionCondemnerMaximal',
+        retained_ranks: typing.Optional[typing.Iterable[int]]=None,
+        num_strata_deposited: typing.Optional[int]=None,
+    ) -> typing.Iterator[int]:
+        # empty generator
+        # see https://stackoverflow.com/a/13243870/17332200
+        return
+        yield
 
     def __eq__(
-        self: 'StratumRetentionFilterMaximal',
-        other: 'StratumRetentionFilterMaximal',
+        self: 'StratumRetentionCondemnerMaximal',
+        other: 'StratumRetentionCondemnerMaximal',
     ) -> bool:
         if isinstance(other, self.__class__):
             return self.__dict__ == other.__dict__
@@ -20,13 +24,13 @@ class StratumRetentionFilterMaximal:
             return False
 
     def CalcNumStrataRetainedUpperBound(
-        self: 'StratumRetentionFilterMaximal',
+        self: 'StratumRetentionCondemnerMaximal',
         num_strata_deposited: int,
     ) -> int:
         return num_strata_deposited
 
     def CalcMrcaUncertaintyUpperBound(
-        self: 'StratumRetentionFilterMaximal',
+        self: 'StratumRetentionCondemnerMaximal',
         *,
         first_num_strata_deposited: typing.Optional[int]=None,
         second_num_strata_deposited: typing.Optional[int]=None,
@@ -35,7 +39,7 @@ class StratumRetentionFilterMaximal:
         return 0
 
     def CalcRankAtColumnIndex(
-        self: 'StratumRetentionFilterMaximal',
+        self: 'StratumRetentionCondemnerMaximal',
         index: int,
         num_strata_deposited: typing.Optional[int]=None,
     ) -> int:

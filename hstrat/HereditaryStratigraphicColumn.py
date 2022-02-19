@@ -1,5 +1,6 @@
 from copy import deepcopy
 from iterpop import iterpop as ip
+import itertools as it
 import math
 import operator
 import typing
@@ -8,45 +9,53 @@ from ..helpers import binary_search
 from ..helpers import value_or
 
 from .HereditaryStratum import HereditaryStratum
+from .HereditaryStratumOrderedStoreList import HereditaryStratumOrderedStoreList
 
-from .stratum_retention_filters import StratumRetentionFilterFromPredicate
-from .stratum_retention_filters import StratumRetentionFilterMaximal
+from .stratum_retention_condemners import StratumRetentionCondemnerFromPredicate
+from .stratum_retention_condemners import StratumRetentionCondemnerMaximal
 
 
 class HereditaryStratigraphicColumn:
 
-    _column: typing.List[HereditaryStratum,]
+    _stratum_ordered_store: typing.Any
     _num_strata_deposited: int
     _default_stratum_uid_size: int
-    _stratum_retention_filter: typing.Callable
+    _stratum_retention_condemner: typing.Callable
 
     def __init__(
         self: 'HereditaryStratigraphicColumn',
         *,
         initial_stratum_annotation: typing.Optional[typing.Any]=None,
         default_stratum_uid_size: int=64,
-        stratum_retention_filter: typing.Callable=None,
+        stratum_retention_condemner: typing.Callable=None,
         stratum_retention_predicate: typing.Callable=None,
+        stratum_ordered_store_factory: typing.Callable
+            =HereditaryStratumOrderedStoreList,
     ):
         """
         Retention predicate should take two keyword arguments: stratum_rank and column_strata_deposited.
         Default retention predicate is to keep all strata."""
-        self._column = []
+        self._stratum_ordered_store = stratum_ordered_store_factory()
         self._num_strata_deposited = 0
         self._default_stratum_uid_size = default_stratum_uid_size
 
-        if None not in (stratum_retention_predicate, stratum_retention_filter):
+        if None not in (
+            stratum_retention_predicate,
+            stratum_retention_condemner,
+        ):
             raise ValueError(
-                'Exactly one of `stratum_retention_filter` '
+                'Exactly one of `stratum_retention_condemner` '
                 'and `stratum_retention_predicate` must be provided.'
             )
         else:
-            self._stratum_retention_filter = (
-                StratumRetentionFilterFromPredicate(stratum_retention_predicate)
+            self._stratum_retention_condemner = (
+                StratumRetentionCondemnerFromPredicate(
+                    stratum_retention_predicate,
+                )
                     if (stratum_retention_predicate is not None)
-                else stratum_retention_filter
-                    if stratum_retention_filter is not None
-                else StratumRetentionFilterMaximal()
+                else stratum_retention_condemner
+                    if stratum_retention_condemner is not None
+                else StratumRetentionCondemnerMaximal()
             )
 
         self.DepositStratum(annotation=initial_stratum_annotation)
@@ -60,31 +69,58 @@ class HereditaryStratigraphicColumn:
         else:
             return False
 
+    def HasClosedFormRankAtColumnIndex(
+        self: 'HereditaryStratigraphicColumn',
+    ) -> bool:
+        return hasattr(
+            self._stratum_retention_condemner,
+            'CalcRankAtColumnIndex',
+        )
+
     def DepositStratum(
         self: 'HereditaryStratigraphicColumn',
         annotation: typing.Optional[typing.Any]=None,
     ) -> None:
-        self._column.append(HereditaryStratum(
+
+        new_stratum = HereditaryStratum(
             annotation=annotation,
             deposition_rank=(
                 # don't store deposition rank if we know how to calcualte it
                 # from stratum's position in column
                 None
-                if hasattr(
-                    self._stratum_retention_filter,
-                    'CalcRankAtColumnIndex',
-                ) else self._num_strata_deposited
+                if self.HasClosedFormRankAtColumnIndex()
+                else self._num_strata_deposited
             ),
             uid_size=self._default_stratum_uid_size,
-        ))
+        )
+        self._stratum_ordered_store.DepositStratum(
+            rank=self._num_strata_deposited,
+            stratum=new_stratum,
+        )
         self._PurgeColumn()
         self._num_strata_deposited += 1
 
     def _PurgeColumn(self: 'HereditaryStratigraphicColumn') -> None:
-        self._column = self._stratum_retention_filter(self)
+        condemned_ranks = self._stratum_retention_condemner(
+            retained_ranks=self.GetRetainedRanks(),
+            num_strata_deposited=self.GetNumStrataDeposited(),
+        )
+        self._stratum_ordered_store.DelRanks(
+            ranks=condemned_ranks,
+            get_column_index_of_rank=self.GetColumnIndexOfRank,
+        )
+
+    def GetRetainedRanks(
+        self: 'HereditaryStratigraphicColumn',
+    ) -> typing.Iterator[int]:
+            if self.HasClosedFormRankAtColumnIndex():
+                for idx in range(self.GetNumStrataRetained()):
+                    yield self.CalcRankAtColumnIndex(idx)
+            else:
+                yield from self._stratum_ordered_store.GetRetainedRanks()
 
     def GetNumStrataRetained(self: 'HereditaryStratigraphicColumn') -> int:
-        return len(self._column)
+        return self._stratum_ordered_store.GetNumStrataRetained()
 
     def GetNumStrataDeposited(self: 'HereditaryStratigraphicColumn') -> int:
         return self._num_strata_deposited
@@ -93,20 +129,48 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         index: int,
     ) -> HereditaryStratum:
-        return self._column[index]
+        return self._stratum_ordered_store.GetStratumAtColumnIndex(
+            index,
+            get_rank_at_column_index=(
+                self.CalcRankAtColumnIndex
+                if self.HasClosedFormRankAtColumnIndex()
+                else None
+            ),
+        )
 
     def CalcRankAtColumnIndex(
         self: 'HereditaryStratigraphicColumn',
         index: int,
     ) -> int:
-        maybe_rank = self.GetStratumAtColumnIndex(index).GetDepositionRank()
-        if maybe_rank is not None:
-            return maybe_rank
-        else:
-            return self._stratum_retention_filter.CalcRankAtColumnIndex(
+        if self.HasClosedFormRankAtColumnIndex():
+            return self._stratum_retention_condemner.CalcRankAtColumnIndex(
                 index=index,
                 num_strata_deposited=self.GetNumStrataDeposited(),
             )
+        else:
+            # fall back to store lookup
+            return self._stratum_ordered_store.GetRankAtColumnIndex(index)
+
+    def GetColumnIndexOfRank(
+        self: 'HereditaryStratumOrderedStoreList',
+        rank: int,
+    ) -> typing.Optional[int]:
+        if self.HasClosedFormRankAtColumnIndex():
+            assert self.GetNumStrataRetained()
+            res_idx = binary_search(
+                lambda idx: self.CalcRankAtColumnIndex(idx) >= rank,
+                0,
+                self.GetNumStrataRetained() - 1,
+            )
+            if res_idx is None:
+                return None
+            elif self.CalcRankAtColumnIndex(res_idx) == rank:
+                return res_idx
+            else:
+                return None
+        else:
+            # fall back to store lookup
+            return self._stratum_ordered_store.GetColumnIndexOfRank(rank=rank)
 
     def GetNumDiscardedStrata(
         self: 'HereditaryStratigraphicColumn',
@@ -141,7 +205,8 @@ class HereditaryStratigraphicColumn:
             other.GetNumStrataDeposited() - 1,
         ])
         assert lower_bound <= upper_bound
-        uid_at = lambda which, idx: which._column[idx].GetUid()
+        rank_at = lambda which, idx: which.CalcRankAtColumnIndex(idx)
+        uid_at = lambda which, idx: which.GetStratumAtColumnIndex(idx).GetUid()
         predicate = lambda idx: uid_at(self, idx) != uid_at(other, idx)
 
         first_disparite_idx = binary_search(
@@ -246,7 +311,8 @@ class HereditaryStratigraphicColumn:
             other.GetNumStrataDeposited() - 1,
         ])
         assert lower_bound <= upper_bound
-        uid_at = lambda which, idx: which._column[idx].GetUid()
+        rank_at = lambda which, idx: which.CalcRankAtColumnIndex(idx)
+        uid_at = lambda which, idx: which.GetStratumAtColumnIndex(idx).GetUid()
         predicate = lambda idx: uid_at(self, idx) != uid_at(other, idx)
 
         first_disparite_idx = binary_search(
@@ -285,7 +351,7 @@ class HereditaryStratigraphicColumn:
 
         # helper lambdas
         rank_at = lambda which, idx: which.CalcRankAtColumnIndex(idx)
-        uid_at = lambda which, idx: which._column[idx].GetUid()
+        uid_at = lambda which, idx: which.GetStratumAtColumnIndex(idx).GetUid()
         column_idxs_bounds_check = lambda: (
             self_column_idx < self.GetNumStrataRetained()
             and other_column_idx < other.GetNumStrataRetained()

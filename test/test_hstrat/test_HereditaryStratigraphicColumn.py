@@ -15,13 +15,16 @@ random.seed(1)
 def _do_test_equality(
     testcase,
     retention_predicate,
+    ordered_store
 ):
 
     original1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store_factory=ordered_store,
         stratum_retention_predicate=retention_predicate,
     )
     copy1 = deepcopy(original1,)
     original2 = hstrat.HereditaryStratigraphicColumn(
+            stratum_ordered_store_factory=ordered_store,
             stratum_retention_predicate=retention_predicate,
     )
 
@@ -39,10 +42,12 @@ def _do_test_equality(
 def _do_test_comparison_commutativity_asyncrhonous(
     testcase,
     retention_predicate,
+    ordered_store,
 ):
 
     population = [
         hstrat.HereditaryStratigraphicColumn(
+            stratum_ordered_store_factory=ordered_store,
             stratum_retention_predicate=retention_predicate,
         )
         for __ in range(10)
@@ -82,11 +87,13 @@ def _do_test_comparison_commutativity_asyncrhonous(
 def _do_test_annotation(
     testcase,
     retention_predicate,
+    ordered_store,
 ):
 
     column = hstrat.HereditaryStratigraphicColumn(
-        stratum_retention_predicate=retention_predicate,
         initial_stratum_annotation=0,
+        stratum_ordered_store_factory=ordered_store,
+        stratum_retention_predicate=retention_predicate,
     )
     population = [
         deepcopy(column)
@@ -118,17 +125,20 @@ def _do_test_annotation(
 def _do_test_CalcRankOfMrcaBoundsWith(
     testcase,
     retention_predicate,
+    ordered_store,
 ):
     def make_bundle():
         return hstrat.HereditaryStratigraphicColumnBundle({
             'test' : hstrat.HereditaryStratigraphicColumn(
-                stratum_retention_predicate=retention_predicate,
                 initial_stratum_annotation=0,
+                stratum_ordered_store_factory=ordered_store,
+                stratum_retention_predicate=retention_predicate,
             ),
             'control' : hstrat.HereditaryStratigraphicColumn(
-                stratum_retention_filter
-                    =hstrat.StratumRetentionFilterMaximal(),
                 initial_stratum_annotation=0,
+                stratum_ordered_store_factory=ordered_store,
+                stratum_retention_condemner
+                    =hstrat.StratumRetentionCondemnerMaximal(),
             ),
         })
 
@@ -184,17 +194,20 @@ def _do_test_CalcRankOfMrcaBoundsWith(
 def _do_test_CalcRanksSinceMrcaBoundsWith(
     testcase,
     retention_predicate,
+    ordered_store,
 ):
     def make_bundle():
         return hstrat.HereditaryStratigraphicColumnBundle({
             'test' : hstrat.HereditaryStratigraphicColumn(
-                stratum_retention_predicate=retention_predicate,
                 initial_stratum_annotation=0,
+                stratum_ordered_store_factory=ordered_store,
+                stratum_retention_predicate=retention_predicate,
             ),
             'control' : hstrat.HereditaryStratigraphicColumn(
-                stratum_retention_filter
-                    =hstrat.StratumRetentionFilterMaximal(),
                 initial_stratum_annotation=0,
+                stratum_ordered_store_factory=ordered_store,
+                stratum_retention_condemner
+                    =hstrat.StratumRetentionCondemnerMaximal(),
             ),
         })
 
@@ -254,10 +267,12 @@ def _do_test_CalcRanksSinceMrcaBoundsWith(
 def _do_test_comparison_commutativity_syncrhonous(
     testcase,
     retention_predicate,
+    ordered_store,
 ):
 
     population = [
             hstrat.HereditaryStratigraphicColumn(
+                stratum_ordered_store_factory=ordered_store,
                 stratum_retention_predicate=retention_predicate,
             )
         for __ in range(10)
@@ -311,10 +326,12 @@ def _do_test_comparison_commutativity_syncrhonous(
 def _do_test_comparison_validity(
     testcase,
     retention_predicate,
+    ordered_store,
 ):
 
     population = [
         hstrat.HereditaryStratigraphicColumn(
+            stratum_ordered_store_factory=ordered_store,
             stratum_retention_predicate=retention_predicate,
         )
         for __ in range(10)
@@ -377,11 +394,14 @@ def _do_test_scenario_no_mrca(
     testcase,
     retention_predicate1,
     retention_predicate2,
+    ordered_store,
 ):
     first = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store_factory=ordered_store,
         stratum_retention_predicate=retention_predicate1,
     )
     second = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store_factory=ordered_store,
         stratum_retention_predicate=retention_predicate2,
     )
 
@@ -411,8 +431,10 @@ def _do_test_scenario_no_mrca(
 def _do_test_scenario_no_divergence(
     testcase,
     retention_predicate,
+    ordered_store,
 ):
     column = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store_factory=ordered_store,
         stratum_retention_predicate=retention_predicate,
     )
 
@@ -432,8 +454,10 @@ def _do_test_scenario_no_divergence(
 def _do_test_scenario_partial_even_divergence(
     testcase,
     retention_predicate,
+    ordered_store,
 ):
     first = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store_factory=ordered_store,
         stratum_retention_predicate=retention_predicate,
     )
 
@@ -474,8 +498,10 @@ def _do_test_scenario_partial_even_divergence(
 def _do_test_scenario_partial_uneven_divergence(
     self,
     retention_predicate,
+    ordered_store,
 ):
     first = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store_factory=ordered_store,
         stratum_retention_predicate=retention_predicate,
     )
 
@@ -560,12 +586,15 @@ def _do_test_scenario_partial_uneven_divergence(
 def _do_test_HasAnyCommonAncestorWith(
     self,
     retention_predicate,
+    ordered_store,
 ):
     first = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store_factory=ordered_store,
         stratum_retention_predicate=retention_predicate,
     )
     first_copy = deepcopy(first)
     second = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store_factory=ordered_store,
         stratum_retention_predicate=retention_predicate,
     )
 
@@ -611,7 +640,9 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
         assert descendant.HasAnyCommonAncestorWith(column)
         assert column.GetNumStrataDeposited() == 1
         assert (
-            descendant.GetStratumAtColumnIndex(-1).GetAnnotation()
+            descendant.GetStratumAtColumnIndex(
+                descendant.GetNumStrataRetained() - 1
+            ).GetAnnotation()
             == 'annotation'
         )
 
@@ -625,10 +656,15 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
-            _do_test_equality(
-                self,
-                retention_predicate,
-            )
+            for ordered_store in [
+                hstrat.HereditaryStratumOrderedStoreDict,
+                hstrat.HereditaryStratumOrderedStoreList,
+            ]:
+                _do_test_equality(
+                    self,
+                    retention_predicate,
+                    ordered_store,
+                )
 
     def test_comparison_commutativity_asyncrhonous(self):
         for retention_predicate in [
@@ -640,10 +676,15 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
-            _do_test_comparison_commutativity_asyncrhonous(
-                self,
-                retention_predicate,
-            )
+            for ordered_store in [
+                hstrat.HereditaryStratumOrderedStoreDict,
+                hstrat.HereditaryStratumOrderedStoreList,
+            ]:
+                _do_test_comparison_commutativity_asyncrhonous(
+                    self,
+                    retention_predicate,
+                    ordered_store,
+                )
 
     def test_annotation(self):
         for retention_predicate in [
@@ -655,10 +696,15 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
-            _do_test_annotation(
-                self,
-                retention_predicate,
-            )
+            for ordered_store in [
+                hstrat.HereditaryStratumOrderedStoreDict,
+                hstrat.HereditaryStratumOrderedStoreList,
+            ]:
+                _do_test_annotation(
+                    self,
+                    retention_predicate,
+                    ordered_store,
+                )
 
     def test_CalcRankOfMrcaBoundsWith(self):
         for retention_predicate in [
@@ -670,10 +716,15 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
-            _do_test_CalcRankOfMrcaBoundsWith(
-                self,
-                retention_predicate,
-            )
+            for ordered_store in [
+                hstrat.HereditaryStratumOrderedStoreDict,
+                hstrat.HereditaryStratumOrderedStoreList,
+            ]:
+                _do_test_CalcRankOfMrcaBoundsWith(
+                    self,
+                    retention_predicate,
+                    ordered_store,
+                )
 
     def test_CalcRanksSinceMrcaBoundsWith(self):
         for retention_predicate in [
@@ -685,10 +736,15 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
-            _do_test_CalcRanksSinceMrcaBoundsWith(
-                self,
-                retention_predicate,
-            )
+            for ordered_store in [
+                hstrat.HereditaryStratumOrderedStoreDict,
+                hstrat.HereditaryStratumOrderedStoreList,
+            ]:
+                _do_test_CalcRanksSinceMrcaBoundsWith(
+                    self,
+                    retention_predicate,
+                    ordered_store,
+                )
 
     def test_comparison_commutativity_syncrhonous(self):
         for retention_predicate in [
@@ -700,10 +756,15 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
-            _do_test_comparison_commutativity_syncrhonous(
-                self,
-                retention_predicate,
-            )
+            for ordered_store in [
+                hstrat.HereditaryStratumOrderedStoreDict,
+                hstrat.HereditaryStratumOrderedStoreList,
+            ]:
+                _do_test_comparison_commutativity_syncrhonous(
+                    self,
+                    retention_predicate,
+                    ordered_store,
+                )
 
     def test_comparison_validity(self):
         for retention_predicate in [
@@ -715,10 +776,15 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
-            _do_test_comparison_validity(
-                self,
-                retention_predicate,
-            )
+            for ordered_store in [
+                hstrat.HereditaryStratumOrderedStoreDict,
+                hstrat.HereditaryStratumOrderedStoreList,
+            ]:
+                _do_test_comparison_validity(
+                    self,
+                    retention_predicate,
+                    ordered_store,
+                )
 
     def test_scenario_no_mrca(self):
         for rp1, rp2 in it.product(
@@ -733,11 +799,16 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             ],
             repeat=2,
         ):
-            _do_test_scenario_no_mrca(
-                self,
-                rp1,
-                rp2,
-            )
+            for ordered_store in [
+                hstrat.HereditaryStratumOrderedStoreDict,
+                hstrat.HereditaryStratumOrderedStoreList,
+            ]:
+                _do_test_scenario_no_mrca(
+                    self,
+                    rp1,
+                    rp2,
+                    ordered_store,
+                )
 
     def test_scenario_no_divergence(self):
         for retention_predicate in [
@@ -749,10 +820,15 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
-            _do_test_scenario_no_divergence(
-                self,
-                retention_predicate,
-            )
+            for ordered_store in [
+                hstrat.HereditaryStratumOrderedStoreDict,
+                hstrat.HereditaryStratumOrderedStoreList,
+            ]:
+                _do_test_scenario_no_divergence(
+                    self,
+                    retention_predicate,
+                    ordered_store,
+                )
 
     def test_scenario_partial_even_divergence(self):
         for retention_predicate in [
@@ -764,10 +840,15 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
-            _do_test_scenario_partial_even_divergence(
-                self,
-                retention_predicate,
-            )
+            for ordered_store in [
+                hstrat.HereditaryStratumOrderedStoreDict,
+                hstrat.HereditaryStratumOrderedStoreList,
+            ]:
+                _do_test_scenario_partial_even_divergence(
+                    self,
+                    retention_predicate,
+                    ordered_store,
+                )
 
     def test_scenario_partial_uneven_divergence(self):
         for retention_predicate in [
@@ -779,10 +860,15 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
-            _do_test_scenario_partial_uneven_divergence(
-                self,
-                retention_predicate,
-            )
+            for ordered_store in [
+                hstrat.HereditaryStratumOrderedStoreDict,
+                hstrat.HereditaryStratumOrderedStoreList,
+            ]:
+                _do_test_scenario_partial_uneven_divergence(
+                    self,
+                    retention_predicate,
+                    ordered_store,
+                )
 
     def test_maximal_retention_predicate(self):
         first = hstrat.HereditaryStratigraphicColumn(
@@ -850,10 +936,15 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
-            _do_test_HasAnyCommonAncestorWith(
-                self,
-                retention_predicate,
-            )
+            for ordered_store in [
+                hstrat.HereditaryStratumOrderedStoreDict,
+                hstrat.HereditaryStratumOrderedStoreList,
+            ]:
+                _do_test_HasAnyCommonAncestorWith(
+                    self,
+                    retention_predicate,
+                    ordered_store,
+                )
 
 
 if __name__ == '__main__':
