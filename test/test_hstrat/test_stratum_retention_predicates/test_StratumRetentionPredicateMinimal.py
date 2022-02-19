@@ -85,7 +85,7 @@ class TestStratumRetentionPredicateMinimal(unittest.TestCase):
             for index in range(column.GetNumStrataRetained()):
                 assert (
                     column.GetStratumAtColumnIndex(index).GetAnnotation()
-                    == column.CalcRankAtColumnIndex(index)
+                    == column.GetRankAtColumnIndex(index)
                 )
             column.DepositStratum(annotation=generation)
 

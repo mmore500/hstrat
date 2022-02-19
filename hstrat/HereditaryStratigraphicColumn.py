@@ -115,7 +115,7 @@ class HereditaryStratigraphicColumn:
     ) -> typing.Iterator[int]:
             if self.HasClosedFormRankAtColumnIndex():
                 for idx in range(self.GetNumStrataRetained()):
-                    yield self.CalcRankAtColumnIndex(idx)
+                    yield self.GetRankAtColumnIndex(idx)
             else:
                 yield from self._stratum_ordered_store.GetRetainedRanks()
 
@@ -132,13 +132,13 @@ class HereditaryStratigraphicColumn:
         return self._stratum_ordered_store.GetStratumAtColumnIndex(
             index,
             get_rank_at_column_index=(
-                self.CalcRankAtColumnIndex
+                self.GetRankAtColumnIndex
                 if self.HasClosedFormRankAtColumnIndex()
                 else None
             ),
         )
 
-    def CalcRankAtColumnIndex(
+    def GetRankAtColumnIndex(
         self: 'HereditaryStratigraphicColumn',
         index: int,
     ) -> int:
@@ -158,13 +158,13 @@ class HereditaryStratigraphicColumn:
         if self.HasClosedFormRankAtColumnIndex():
             assert self.GetNumStrataRetained()
             res_idx = binary_search(
-                lambda idx: self.CalcRankAtColumnIndex(idx) >= rank,
+                lambda idx: self.GetRankAtColumnIndex(idx) >= rank,
                 0,
                 self.GetNumStrataRetained() - 1,
             )
             if res_idx is None:
                 return None
-            elif self.CalcRankAtColumnIndex(res_idx) == rank:
+            elif self.GetRankAtColumnIndex(res_idx) == rank:
                 return res_idx
             else:
                 return None
@@ -205,7 +205,7 @@ class HereditaryStratigraphicColumn:
             other.GetNumStrataDeposited() - 1,
         ])
         assert lower_bound <= upper_bound
-        rank_at = lambda which, idx: which.CalcRankAtColumnIndex(idx)
+        rank_at = lambda which, idx: which.GetRankAtColumnIndex(idx)
         uid_at = lambda which, idx: which.GetStratumAtColumnIndex(idx).GetUid()
         predicate = lambda idx: uid_at(self, idx) != uid_at(other, idx)
 
@@ -227,7 +227,7 @@ class HereditaryStratigraphicColumn:
         elif first_disparite_idx > 0:
             # disparate strata found, following some common strata
             last_common_idx = first_disparite_idx - 1
-            last_common_rank = self.CalcRankAtColumnIndex(
+            last_common_rank = self.GetRankAtColumnIndex(
                 last_common_idx,
             )
             return last_common_rank
@@ -247,7 +247,7 @@ class HereditaryStratigraphicColumn:
         last_common_rank = None
 
         # helper lambdas
-        rank_at = lambda which, idx: which.CalcRankAtColumnIndex(idx)
+        rank_at = lambda which, idx: which.GetRankAtColumnIndex(idx)
         uid_at = lambda which, idx: which.GetStratumAtColumnIndex(idx).GetUid()
 
         while (
@@ -311,7 +311,7 @@ class HereditaryStratigraphicColumn:
             other.GetNumStrataDeposited() - 1,
         ])
         assert lower_bound <= upper_bound
-        rank_at = lambda which, idx: which.CalcRankAtColumnIndex(idx)
+        rank_at = lambda which, idx: which.GetRankAtColumnIndex(idx)
         uid_at = lambda which, idx: which.GetStratumAtColumnIndex(idx).GetUid()
         predicate = lambda idx: uid_at(self, idx) != uid_at(other, idx)
 
@@ -323,7 +323,7 @@ class HereditaryStratigraphicColumn:
 
         if first_disparite_idx is not None:
             # disparate strata found
-            first_disparite_rank = self.CalcRankAtColumnIndex(
+            first_disparite_rank = self.GetRankAtColumnIndex(
                 first_disparite_idx,
             )
             return first_disparite_rank
@@ -350,7 +350,7 @@ class HereditaryStratigraphicColumn:
         last_common_rank = None
 
         # helper lambdas
-        rank_at = lambda which, idx: which.CalcRankAtColumnIndex(idx)
+        rank_at = lambda which, idx: which.GetRankAtColumnIndex(idx)
         uid_at = lambda which, idx: which.GetStratumAtColumnIndex(idx).GetUid()
         column_idxs_bounds_check = lambda: (
             self_column_idx < self.GetNumStrataRetained()
@@ -490,7 +490,7 @@ class HereditaryStratigraphicColumn:
             index = ip.popsingleton(
                 index
                 for index in range(self.GetNumStrataRetained())
-                if rank == self.CalcRankAtColumnIndex(index)
+                if rank == self.GetRankAtColumnIndex(index)
             )
             return self.GetStratumAtColumnIndex(index)
         else: return None
