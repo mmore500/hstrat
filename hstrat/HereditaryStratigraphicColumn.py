@@ -242,51 +242,50 @@ class HereditaryStratigraphicColumn:
         self_start_idx: int=0,
         other_start_idx: int=0,
     ) -> typing.Optional[int]:
-        self_column_idx = self_start_idx
-        other_column_idx = other_start_idx
+        # helper setup
+        self_iter = self._stratum_ordered_store.IterRankUid(
+            get_rank_at_column_index=self.GetRankAtColumnIndex,
+            start_column_index=self_start_idx,
+        )
+        other_iter = other._stratum_ordered_store.IterRankUid(
+            get_rank_at_column_index=other.GetRankAtColumnIndex,
+            start_column_index=other_start_idx,
+        )
+        self_cur_rank, self_cur_uid = next(self_iter)
+        other_cur_rank, other_cur_uid = next(other_iter)
+
         last_common_rank = None
-
-        # helper lambdas
-        rank_at = lambda which, idx: which.GetRankAtColumnIndex(idx)
-        uid_at = lambda which, idx: which.GetStratumAtColumnIndex(idx).GetUid()
-
-        while (
-            self_column_idx < self.GetNumStrataRetained()
-            and other_column_idx < other.GetNumStrataRetained()
-        ):
-            if (
-                rank_at(self, self_column_idx)
-                == rank_at(other, other_column_idx)
-            ):
-                # strata at same rank can be compared
-                if (
-                    uid_at(self, self_column_idx)
-                    == uid_at(other, other_column_idx)
-                ):
-                    # matching uids at the same rank,
-                    # store rank and keep searching for mismatch
-                    last_common_rank = rank_at(self, self_column_idx)
-                    self_column_idx += 1
-                    other_column_idx += 1
-                else:
-                    # mismatching uids at the same rank
-                    break
-            elif (
-                rank_at(self, self_column_idx)
-                < rank_at(other, other_column_idx)
-            ):
-                # current stratum on self column older than on other column
-                # advance to next-newer stratum on self column
-                self_column_idx += 1
-            elif (
-                rank_at(self, self_column_idx)
-                > rank_at(other, other_column_idx)
-            ):
-                # current stratum on other column older than on self column
-                # advance to next-newer stratum on other column
-                other_column_idx += 1
-
-        return last_common_rank
+        # a.k.a.
+        # while (
+        #     self_column_idx < self.GetNumStrataRetained()
+        #     and other_column_idx < other.GetNumStrataRetained()
+        # ):
+        try:
+            while True:
+                if (self_cur_rank == other_cur_rank):
+                    # strata at same rank can be compared
+                    if (self_cur_uid == other_cur_uid):
+                        # matching uids at the same rank,
+                        # store rank and keep searching for mismatch
+                        last_common_rank = self_cur_rank
+                        # advance self
+                        self_cur_rank, self_cur_uid = next(self_iter)
+                        # advance other
+                        other_cur_rank, other_cur_uid = next(other_iter)
+                    else:
+                        # mismatching uids at the same rank
+                        # a.k.a. break
+                        raise StopIteration
+                elif self_cur_rank < other_cur_rank:
+                    # current stratum on self column older than on other column
+                    # advance to next-newer stratum on self column
+                    self_cur_rank, self_cur_uid = next(self_iter)
+                elif self_cur_rank > other_cur_rank:
+                    # current stratum on other column older than on self column
+                    # advance to next-newer stratum on other column
+                    other_cur_rank, other_cur_uid = next(other_iter)
+        except StopIteration:
+            return last_common_rank
 
     def CalcRankOfFirstDisparityWith(
         self: 'HereditaryStratigraphicColumn',

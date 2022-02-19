@@ -1,3 +1,4 @@
+from bitarray import frozenbitarray
 import itertools as it
 import sys
 import typing
@@ -87,3 +88,18 @@ class HereditaryStratumOrderedStoreDict:
         # note, however, that copy is made lazily
         # (only when first item requested)
         yield from list(self._data.keys())
+
+    def IterRankUid(
+        self: 'HereditaryStratumOrderedStoreDict',
+        # needed for other implementations
+        get_rank_at_column_index: typing.Optional[typing.Callable]=None,
+        start_column_index: int=0,
+    ) -> typing.Iterator[typing.Tuple[int, frozenbitarray]]:
+        # optimization idea:
+        # python dicts are ordered, so is there a way to begin iterating
+        # from a specified item in the dict?
+        # current method must iterate past skipped over items
+        # adapted from https://stackoverflow.com/a/12911454
+        iter_ = it.islice(self._data.items(), start_column_index, None)
+        for rank, stratum in iter_:
+            yield (rank, stratum.GetUid())
