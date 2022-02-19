@@ -84,7 +84,7 @@ class TestStratumRetentionPredicateRecursiveInterspersion(
         for snapshot in range(100):
                 for fastforward in range(100):
                         individual.DepositStratum()
-                snapshots.append(deepcopy(individual))
+                snapshots.append(individual.Clone())
 
 
         for snapshot in snapshots:

@@ -1,4 +1,5 @@
 from bitarray import frozenbitarray
+from copy import copy
 import typing
 
 from ..helpers import binary_search
@@ -114,3 +115,13 @@ class HereditaryStratumOrderedStoreList:
         for index in range(start_column_index, len(self._data)):
             stratum = self._data[index]
             yield (get_rank_at_column_index(index), stratum.GetUid())
+
+    def Clone(
+            self: 'HereditaryStratumOrderedStoreList',
+    ) -> 'HereditaryStratumOrderedStoreList':
+        # shallow copy
+        result = copy(self)
+        # do semi-shallow clone on select elements
+        # see https://stackoverflow.com/a/47859483 for performance consierations
+        result._data = [*self._data]
+        return result

@@ -1,4 +1,4 @@
-from copy import deepcopy
+from copy import copy
 import math
 import operator
 import typing
@@ -37,10 +37,23 @@ class HereditaryStratigraphicColumnBundle:
     ) -> int:
         return next(iter(self._columns.values())).GetNumStrataDeposited()
 
-    def MakeDescendantColumn(
+    def Clone(
+            self: 'HereditaryStratigraphicColumnBundle',
+    ) -> 'HereditaryStratigraphicColumnBundle':
+        # shallow copy
+        result = copy(self)
+        # do semi-shallow clone on select elements
+        # see https://stackoverflow.com/a/5861653 for performance consierations
+        result._columns = {
+            k : v.Clone()
+            for k, v in self._columns.items()
+        }
+        return result
+
+    def CloneDescendant(
         self: 'HereditaryStratigraphicColumnBundle',
         stratum_annotation: typing.Optional[typing.Any]=None,
     ) -> 'HereditaryStratigraphicColumnBundle':
-        res = deepcopy(self)
+        res = self.Clone()
         res.DepositStratum(annotation=stratum_annotation)
         return res

@@ -91,14 +91,14 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
         })
 
         population = [
-            deepcopy(column_bundle)
+            column_bundle.Clone()
             for __ in range(25)
         ]
         forked_population = [
-            deepcopy(column_bundle)
+            column_bundle.Clone()
             for __ in range(5)
         ]
-        ancestor = [ deepcopy(column_bundle) ]
+        ancestor = [ column_bundle.Clone() ]
 
         for generation in range(500):
             # subsample consecutive pairs in population
@@ -145,7 +145,7 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
             random.shuffle(forked_population)
             # reproduction
             for target in range(5):
-                population[target] = deepcopy(population[-1])
+                population[target] = population[-1].Clone()
             # advance generations
             for individual in it.chain(
                 iter(population),
@@ -198,7 +198,7 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
         for snapshot in range(100):
                 for fastforward in range(100):
                         individual.DepositStratum()
-                snapshots.append(deepcopy(individual))
+                snapshots.append(individual.Clone())
 
 
         for f, s in it.chain(
@@ -264,7 +264,7 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
         for snapshot in range(100):
                 for fastforward in range(100):
                         individual.DepositStratum()
-                snapshots.append(deepcopy(individual))
+                snapshots.append(individual.Clone())
 
 
         for snapshot in snapshots:

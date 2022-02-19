@@ -1,4 +1,4 @@
-from copy import deepcopy
+from copy import copy
 from iterpop import iterpop as ip
 import itertools as it
 import math
@@ -546,10 +546,19 @@ class HereditaryStratigraphicColumn:
         first_disparity = self.CalcRankOfFirstDisparityWith(other)
         return True if first_disparity is None else first_disparity > 0
 
-    def MakeDescendantColumn(
+    def Clone(
+            self: 'HereditaryStratigraphicColumn',
+    ) -> 'HereditaryStratigraphicColumn':
+        # shallow copy
+        result = copy(self)
+        # do semi-shallow duplication on select elements
+        result._stratum_ordered_store = self._stratum_ordered_store.Clone()
+        return result
+
+    def CloneDescendant(
         self: 'HereditaryStratigraphicColumn',
         stratum_annotation: typing.Optional[typing.Any]=None,
     ) -> 'HereditaryStratigraphicColumn':
-        res = deepcopy(self)
+        res = self.Clone()
         res.DepositStratum(annotation=stratum_annotation)
         return res

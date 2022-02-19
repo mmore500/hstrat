@@ -1,4 +1,5 @@
 from bitarray import frozenbitarray
+from copy import copy
 import itertools as it
 import sys
 import typing
@@ -103,3 +104,13 @@ class HereditaryStratumOrderedStoreDict:
         iter_ = it.islice(self._data.items(), start_column_index, None)
         for rank, stratum in iter_:
             yield (rank, stratum.GetUid())
+
+    def Clone(
+            self: 'HereditaryStratumOrderedStoreDict',
+    ) -> 'HereditaryStratumOrderedStoreDict':
+        # shallow copy
+        result = copy(self)
+        # do semi-shallow clone on select elements
+        # see https://stackoverflow.com/a/5861653 for performance consierations
+        result._data = self._data.copy()
+        return result

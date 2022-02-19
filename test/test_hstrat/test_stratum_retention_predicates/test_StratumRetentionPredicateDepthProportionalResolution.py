@@ -70,7 +70,7 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
         )
 
         population = [
-            deepcopy(column)
+            column.Clone()
             for __ in range(25)
         ]
 
@@ -87,7 +87,7 @@ class TestStratumRetentionPredicateDepthProportionalResolution(
 
             random.shuffle(population)
             for target in range(5):
-                population[target] = deepcopy(population[-1])
+                population[target] = population[-1].Clone()
             for individual in population:
                 if synchronous or random.choice([True, False]):
                     individual.DepositStratum()

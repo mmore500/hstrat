@@ -47,7 +47,7 @@ class TestStratumRetentionPredicateMinimal(unittest.TestCase):
         )
 
         population = [
-            deepcopy(column)
+            column.Clone()
             for __ in range(25)
         ]
 
@@ -63,7 +63,7 @@ class TestStratumRetentionPredicateMinimal(unittest.TestCase):
 
             random.shuffle(population)
             for target in range(5):
-                population[target] = deepcopy(population[-1])
+                population[target] = population[-1].Clone()
             for individual in population:
                 if synchronous or random.choice([True, False]):
                     individual.DepositStratum()

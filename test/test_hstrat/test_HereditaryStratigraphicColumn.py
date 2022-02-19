@@ -21,14 +21,18 @@ def _do_test_equality(
         stratum_retention_predicate=retention_predicate,
     )
     copy1 = deepcopy(original1)
+    copy2 = original1.Clone()
     original2 = hstrat.HereditaryStratigraphicColumn(
             stratum_ordered_store_factory=ordered_store,
             stratum_retention_predicate=retention_predicate,
     )
 
     assert original1 == copy1
+    assert original1 == copy2
+    assert copy1 == copy2
     assert original1 != original2
     assert copy1 != original2
+    assert copy2 != original2
 
     copy1.DepositStratum()
     assert original1 != copy1
@@ -75,7 +79,7 @@ def _do_test_comparison_commutativity_asyncrhonous(
         # advance generation
         random.shuffle(population)
         for target in range(5):
-            population[target] = population[-1].MakeDescendantColumn()
+            population[target] = population[-1].CloneDescendant()
         for individual in population:
             # asynchronous generations
             if random.choice([True, False]):
@@ -94,7 +98,7 @@ def _do_test_annotation(
         stratum_retention_predicate=retention_predicate,
     )
     population = [
-        deepcopy(column)
+        column.Clone()
         for __ in range(10)
     ]
 
@@ -113,7 +117,7 @@ def _do_test_annotation(
         # advance generation
         random.shuffle(population)
         for target in range(5):
-            population[target] = deepcopy(population[-1])
+            population[target] = population[-1].Clone()
         for individual in population:
             individual.DepositStratum(
                 annotation=generation + 1,
@@ -141,13 +145,13 @@ def _do_test_CalcRankOfMrcaBoundsWith(
         })
 
     column = make_bundle()
-    frozen_copy = deepcopy(column)
+    frozen_copy = column.Clone()
     frozen_unrelated = make_bundle()
     population = [
-        deepcopy(column)
+        column.Clone()
         for __ in range(10)
     ]
-    forked_isolated = deepcopy(column)
+    forked_isolated = column.Clone()
     unrelated_isolated = make_bundle()
 
     for generation in range(100):
@@ -176,7 +180,7 @@ def _do_test_CalcRankOfMrcaBoundsWith(
         # advance generation
         random.shuffle(population)
         for target in range(3):
-            population[target] = population[-1].MakeDescendantColumn(
+            population[target] = population[-1].CloneDescendant(
                 stratum_annotation=population[-1].GetNumStrataDeposited(),
             )
         for individual in it.chain(
@@ -210,13 +214,13 @@ def _do_test_CalcRanksSinceMrcaBoundsWith(
         })
 
     column = make_bundle()
-    frozen_copy = deepcopy(column)
+    frozen_copy = column.Clone()
     frozen_unrelated = make_bundle()
     population = [
-        deepcopy(column)
+        column.Clone()
         for __ in range(10)
     ]
-    forked_isolated = deepcopy(column)
+    forked_isolated = column.Clone()
     unrelated_isolated = make_bundle()
 
     for generation in range(100):
@@ -248,7 +252,7 @@ def _do_test_CalcRanksSinceMrcaBoundsWith(
         # advance generation
         random.shuffle(population)
         for target in range(3):
-            population[target] = deepcopy(population[-1])
+            population[target] = population[-1].Clone()
             population[target].DepositStratum(
                 annotation=population[target].GetNumStrataDeposited(),
             )
@@ -316,7 +320,7 @@ def _do_test_comparison_commutativity_syncrhonous(
         # advance generation
         random.shuffle(population)
         for target in range(5):
-            population[target] = deepcopy(population[-1])
+            population[target] = population[-1].Clone()
         # synchronous generations
         for individual in population: individual.DepositStratum()
 
@@ -382,7 +386,7 @@ def _do_test_comparison_validity(
         # advance generations asynchronously
         random.shuffle(population)
         for target in range(5):
-            population[target] = deepcopy(population[-1])
+            population[target] = population[-1].Clone()
         for individual in population:
             if random.choice([True, False]):
                 individual.DepositStratum()
@@ -462,7 +466,7 @@ def _do_test_scenario_partial_even_divergence(
     for generation in range(100):
         first.DepositStratum()
 
-    second = deepcopy(first)
+    second = first.Clone()
 
     first.DepositStratum()
     second.DepositStratum()
@@ -506,7 +510,7 @@ def _do_test_scenario_partial_uneven_divergence(
     for generation in range(100):
         first.DepositStratum()
 
-    second = deepcopy(first)
+    second = first.Clone()
 
     first.DepositStratum()
 
@@ -590,7 +594,7 @@ def _do_test_HasAnyCommonAncestorWith(
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_predicate=retention_predicate,
     )
-    first_copy = deepcopy(first)
+    first_copy = first.Clone()
     second = hstrat.HereditaryStratigraphicColumn(
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_predicate=retention_predicate,
@@ -628,10 +632,10 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             assert column.GetNumStrataDeposited() == i + 1
             column.DepositStratum()
 
-    def test_MakeDescendantColumn(self):
+    def test_CloneDescendant(self):
         column = hstrat.HereditaryStratigraphicColumn()
         assert column.GetNumStrataDeposited() == 1
-        descendant = column.MakeDescendantColumn(
+        descendant = column.CloneDescendant(
             stratum_annotation='annotation'
         )
         assert descendant.GetNumStrataDeposited() == 2
@@ -872,8 +876,8 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
         first = hstrat.HereditaryStratigraphicColumn(
             stratum_retention_predicate=hstrat.StratumRetentionPredicateMaximal(),
         )
-        second = deepcopy(first)
-        third = deepcopy(first)
+        second = first.Clone()
+        third = first.Clone()
 
         for gen in range(100):
             assert first.GetNumStrataRetained() == gen + 1
@@ -896,8 +900,8 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
         first = hstrat.HereditaryStratigraphicColumn(
             stratum_retention_predicate=hstrat.StratumRetentionPredicateMinimal(),
         )
-        second = deepcopy(first)
-        third = deepcopy(first)
+        second = first.Clone()
+        third = first.Clone()
 
         for gen in range(100):
             assert first.GetNumStrataRetained() == min(2, gen+1)
