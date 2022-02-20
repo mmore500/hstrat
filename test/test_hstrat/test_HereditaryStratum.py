@@ -34,6 +34,21 @@ class TestHereditaryStratum(unittest.TestCase):
         assert original1.GetUid() != original2.GetUid()
         assert copy1.GetUid() != original2.GetUid()
 
+    def test_equality1(self):
+        assert hstrat.HereditaryStratum() != hstrat.HereditaryStratum()
+        stratum1 = hstrat.HereditaryStratum()
+        stratum2 = stratum1
+        assert stratum1 == stratum2
+        assert stratum1 == deepcopy(stratum2)
+
+    def test_equality2(self):
+        stratum_factory = lambda: hstrat.HereditaryStratum(deposition_rank=42)
+        assert stratum_factory() != stratum_factory()
+        stratum1 = stratum_factory()
+        stratum2 = stratum1
+        assert stratum1 == stratum2
+        assert stratum1 == deepcopy(stratum2)
+
 
 if __name__ == '__main__':
     unittest.main()
