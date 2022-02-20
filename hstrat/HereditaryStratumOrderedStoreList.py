@@ -72,7 +72,7 @@ class HereditaryStratumOrderedStoreList:
         ranks: typing.Iterator[int],
         # deposition ranks might not be stored in strata
         get_column_index_of_rank: typing.Optional[typing.Callable]=None,
-    ):
+    ) -> None:
         if get_column_index_of_rank is None:
             get_column_index_of_rank = self.GetColumnIndexOfRank
 

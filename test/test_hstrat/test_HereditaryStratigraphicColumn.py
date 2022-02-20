@@ -13,7 +13,7 @@ random.seed(1)
 def _do_test_equality(
     testcase,
     retention_predicate,
-    ordered_store
+    ordered_store,
 ):
 
     original1 = hstrat.HereditaryStratigraphicColumn(
@@ -874,7 +874,8 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     def test_maximal_retention_predicate(self):
         first = hstrat.HereditaryStratigraphicColumn(
-            stratum_retention_predicate=hstrat.StratumRetentionPredicateMaximal(),
+            stratum_retention_predicate
+                =hstrat.StratumRetentionPredicateMaximal(),
         )
         second = first.Clone()
         third = first.Clone()
@@ -898,7 +899,8 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     def test_minimal_retention_predicate(self):
         first = hstrat.HereditaryStratigraphicColumn(
-            stratum_retention_predicate=hstrat.StratumRetentionPredicateMinimal(),
+            stratum_retention_predicate
+                =hstrat.StratumRetentionPredicateMinimal(),
         )
         second = first.Clone()
         third = first.Clone()

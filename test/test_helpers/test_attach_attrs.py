@@ -6,7 +6,6 @@ from pylib.helpers import attach_attrs
 class TestAttachAttrs(unittest.TestCase):
 
     def test_routine(self):
-
         @attach_attrs({
             'foo' : 'bar',
             'qux' : 42,

@@ -5,9 +5,7 @@ import unittest
 from pylib import hstrat
 
 
-class TestStratumRetentionPredicateFixedResolution(
-    unittest.TestCase,
-):
+class TestStratumRetentionPredicateFixedResolution(unittest.TestCase):
 
     def test_equality(self):
         assert (

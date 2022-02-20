@@ -6,7 +6,6 @@ from pylib.helpers import value_or
 class TestValueOr(unittest.TestCase):
 
     def test_with_value(self):
-
         assert value_or(10, 0) == 10
         assert value_or(False, True) == False
         assert value_or('', 'hello') == ''
