@@ -5,6 +5,9 @@ from pylib.helpers import attach_attrs
 
 class TestAttachAttrs(unittest.TestCase):
 
+    # tests can run independently
+    _multiprocess_can_split_ = True
+
     def test_routine(self):
         @attach_attrs({
             'foo' : 'bar',

@@ -5,6 +5,9 @@ from pylib.helpers import binary_search
 
 class TestBinarySearch(unittest.TestCase):
 
+    # tests can run independently
+    _multiprocess_can_split_ = True
+
     def test_binary_search_singleton(self):
         assert binary_search(lambda __: True, 10, 10) == 10
 

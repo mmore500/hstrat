@@ -9,6 +9,9 @@ random.seed(1)
 
 class TestHereditaryStratum(unittest.TestCase):
 
+    # tests can run independently
+    _multiprocess_can_split_ = True
+
     def test_deposition_rank(self):
         assert hstrat.HereditaryStratum(
             deposition_rank=42,

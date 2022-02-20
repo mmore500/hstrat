@@ -626,6 +626,9 @@ def _do_test_HasAnyCommonAncestorWith(
 
 class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
+    # tests can run independently
+    _multiprocess_can_split_ = True
+
     def test_GetNumStrataDeposited(self):
         column = hstrat.HereditaryStratigraphicColumn()
         for i in range(10):

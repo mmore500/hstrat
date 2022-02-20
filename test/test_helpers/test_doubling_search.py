@@ -5,6 +5,9 @@ from pylib.helpers import doubling_search
 
 class TestDoublingSearch(unittest.TestCase):
 
+    # tests can run independently
+    _multiprocess_can_split_ = True
+
     def test_doubling_search_trivial(self):
         assert doubling_search(lambda __: True) == 1
         assert doubling_search(lambda __: True, 10) == 10

@@ -5,6 +5,9 @@ from pylib.helpers import value_or
 
 class TestValueOr(unittest.TestCase):
 
+    # tests can run independently
+    _multiprocess_can_split_ = True
+
     def test_with_value(self):
         assert value_or(10, 0) == 10
         assert value_or(False, True) == False

@@ -7,6 +7,9 @@ from pylib import hstrat
 
 class TestStratumRetentionPredicateFixedResolution(unittest.TestCase):
 
+    # tests can run independently
+    _multiprocess_can_split_ = True
+
     def test_equality(self):
         assert (
             hstrat.StratumRetentionPredicateFixedResolution()

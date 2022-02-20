@@ -6,6 +6,9 @@ from pylib.helpers import cyclify
 
 class TestCyclify(unittest.TestCase):
 
+    # tests can run independently
+    _multiprocess_can_split_ = True
+
     def test_no_args(self):
         assert list(it.islice(cyclify(), 5)) == []
 
