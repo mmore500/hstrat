@@ -4,23 +4,24 @@ import unittest
 from pylib import hstrat
 
 
-class TestStratumRetentionCondemnerMaximal(unittest.TestCase):
+class TestStratumRetentionCondemnerPerfectResolution(unittest.TestCase):
 
     # tests can run independently
     _multiprocess_can_split_ = True
 
     def test_equality(self):
         assert (
-            hstrat.StratumRetentionCondemnerMaximal()
-            == hstrat.StratumRetentionCondemnerMaximal()
+            hstrat.StratumRetentionCondemnerPerfectResolution()
+            == hstrat.StratumRetentionCondemnerPerfectResolution()
         )
 
-        original = hstrat.StratumRetentionCondemnerMaximal()
+        original = hstrat.StratumRetentionCondemnerPerfectResolution()
         copy = deepcopy(original)
         assert original == copy
 
     def test_condemnation(self):
-        maximal_retention_condemner = hstrat.StratumRetentionCondemnerMaximal()
+        maximal_retention_condemner \
+            = hstrat.StratumRetentionCondemnerPerfectResolution()
         for i in range(100):
             assert list(maximal_retention_condemner(
                 retained_ranks=range(i),

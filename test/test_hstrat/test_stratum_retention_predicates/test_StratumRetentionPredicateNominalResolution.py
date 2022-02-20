@@ -7,23 +7,44 @@ random.seed(1)
 from pylib import hstrat
 
 
-class TestStratumRetentionPredicateMaximal(unittest.TestCase):
+class TestStratumRetentionPredicateNominalResolution(unittest.TestCase):
 
     # tests can run independently
     _multiprocess_can_split_ = True
 
     def test_equality(self):
         assert (
-            hstrat.StratumRetentionPredicateMaximal()
-            == hstrat.StratumRetentionPredicateMaximal()
+            hstrat.StratumRetentionPredicateNominalResolution()
+            == hstrat.StratumRetentionPredicateNominalResolution()
         )
 
-        original = hstrat.StratumRetentionPredicateMaximal()
+        original = hstrat.StratumRetentionPredicateNominalResolution()
         copy = deepcopy(original)
         assert original == copy
 
+    def test_behavior(self):
+        for column_strata_deposited in range(100):
+            for stratum_rank in range(0, column_strata_deposited):
+                assert not hstrat.StratumRetentionPredicateNominalResolution()(
+                    column_strata_deposited=column_strata_deposited,
+                    stratum_rank=stratum_rank,
+                ) or stratum_rank in (0, column_strata_deposited)
+
+    def test_space_complexity(self):
+        predicate = hstrat.StratumRetentionPredicateNominalResolution()
+        column = hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_predicate=predicate,
+        )
+
+        for column_strata_deposited in range(100):
+            for stratum_rank in range(0, column_strata_deposited):
+                upper_bound = predicate.CalcNumStrataRetainedUpperBound(
+                    num_strata_deposited=column.GetNumStrataDeposited(),
+                )
+                assert column.GetNumStrataRetained() <= upper_bound
+
     def _do_test_resolution(self, synchronous):
-        predicate = hstrat.StratumRetentionPredicateMaximal()
+        predicate = hstrat.StratumRetentionPredicateNominalResolution()
         column = hstrat.HereditaryStratigraphicColumn(
             stratum_retention_predicate=predicate,
         )
@@ -50,12 +71,12 @@ class TestStratumRetentionPredicateMaximal(unittest.TestCase):
                 if synchronous or random.choice([True, False]):
                     individual.DepositStratum()
 
-        def test_resolution(self):
-            for synchronous in [True, False]:
-                self._do_test_resolution(synchronous)
+    def test_resolution(self):
+        for synchronous in [True, False]:
+            self._do_test_resolution(synchronous)
 
     def test_CalcRankAtColumnIndex(self):
-        predicate = hstrat.StratumRetentionPredicateMaximal()
+        predicate = hstrat.StratumRetentionPredicateNominalResolution()
         column = hstrat.HereditaryStratigraphicColumn(
             stratum_retention_predicate=predicate,
             initial_stratum_annotation=0,

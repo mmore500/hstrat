@@ -1,9 +1,9 @@
 from .StratumRetentionCondemnerFromPredicate \
     import StratumRetentionCondemnerFromPredicate
-from .StratumRetentionCondemnerMaximal import StratumRetentionCondemnerMaximal
+from .StratumRetentionCondemnerPerfectResolution import StratumRetentionCondemnerPerfectResolution
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
     'StratumRetentionCondemnerFromPredicate',
-    'StratumRetentionCondemnerMaximal',
+    'StratumRetentionCondemnerPerfectResolution',
 ]

@@ -1,18 +1,18 @@
 import typing
 
 
-class StratumRetentionPredicateMinimal:
+class StratumRetentionPredicateNominalResolution:
 
     def __call__(
-        self: 'StratumRetentionPredicateMinimal',
+        self: 'StratumRetentionPredicateNominalResolution',
         stratum_rank: int,
         column_strata_deposited: int,
     ) -> bool:
         return stratum_rank in (0, column_strata_deposited)
 
     def __eq__(
-        self: 'StratumRetentionPredicateMinimal',
-        other: 'StratumRetentionPredicateMinimal',
+        self: 'StratumRetentionPredicateNominalResolution',
+        other: 'StratumRetentionPredicateNominalResolution',
     ) -> bool:
         if isinstance(other, self.__class__):
             return self.__dict__ == other.__dict__
@@ -20,13 +20,13 @@ class StratumRetentionPredicateMinimal:
             return False
 
     def CalcNumStrataRetainedUpperBound(
-        self: 'StratumRetentionPredicateMinimal',
+        self: 'StratumRetentionPredicateNominalResolution',
         num_strata_deposited: typing.Optional[int]=None,
     ) -> int:
         return 2
 
     def CalcMrcaUncertaintyUpperBound(
-        self: 'StratumRetentionPredicateMinimal',
+        self: 'StratumRetentionPredicateNominalResolution',
         *,
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
@@ -39,7 +39,7 @@ class StratumRetentionPredicateMinimal:
         )
 
     def CalcRankAtColumnIndex(
-        self: 'StratumRetentionPredicateMinimal',
+        self: 'StratumRetentionPredicateNominalResolution',
         index: int,
         num_strata_deposited: int,
     ) -> int:

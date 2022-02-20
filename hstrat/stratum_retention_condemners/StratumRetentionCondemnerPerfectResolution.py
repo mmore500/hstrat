@@ -2,10 +2,10 @@ import typing
 
 from ..HereditaryStratum import HereditaryStratum
 
-class StratumRetentionCondemnerMaximal:
+class StratumRetentionCondemnerPerfectResolution:
 
     def __call__(
-        self: 'StratumRetentionCondemnerMaximal',
+        self: 'StratumRetentionCondemnerPerfectResolution',
         retained_ranks: typing.Optional[typing.Iterable[int]]=None,
         num_strata_deposited: typing.Optional[int]=None,
     ) -> typing.Iterator[int]:
@@ -15,8 +15,8 @@ class StratumRetentionCondemnerMaximal:
         yield
 
     def __eq__(
-        self: 'StratumRetentionCondemnerMaximal',
-        other: 'StratumRetentionCondemnerMaximal',
+        self: 'StratumRetentionCondemnerPerfectResolution',
+        other: 'StratumRetentionCondemnerPerfectResolution',
     ) -> bool:
         if isinstance(other, self.__class__):
             return self.__dict__ == other.__dict__
@@ -24,13 +24,13 @@ class StratumRetentionCondemnerMaximal:
             return False
 
     def CalcNumStrataRetainedUpperBound(
-        self: 'StratumRetentionCondemnerMaximal',
+        self: 'StratumRetentionCondemnerPerfectResolution',
         num_strata_deposited: int,
     ) -> int:
         return num_strata_deposited
 
     def CalcMrcaUncertaintyUpperBound(
-        self: 'StratumRetentionCondemnerMaximal',
+        self: 'StratumRetentionCondemnerPerfectResolution',
         *,
         first_num_strata_deposited: typing.Optional[int]=None,
         second_num_strata_deposited: typing.Optional[int]=None,
@@ -39,7 +39,7 @@ class StratumRetentionCondemnerMaximal:
         return 0
 
     def CalcRankAtColumnIndex(
-        self: 'StratumRetentionCondemnerMaximal',
+        self: 'StratumRetentionCondemnerPerfectResolution',
         index: int,
         num_strata_deposited: typing.Optional[int]=None,
     ) -> int:

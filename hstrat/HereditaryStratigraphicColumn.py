@@ -12,7 +12,8 @@ from .HereditaryStratum import HereditaryStratum
 from .HereditaryStratumOrderedStoreList import HereditaryStratumOrderedStoreList
 
 from .stratum_retention_condemners import StratumRetentionCondemnerFromPredicate
-from .stratum_retention_condemners import StratumRetentionCondemnerMaximal
+from .stratum_retention_condemners \
+    import StratumRetentionCondemnerPerfectResolution
 
 
 class HereditaryStratigraphicColumn:
@@ -55,7 +56,7 @@ class HereditaryStratigraphicColumn:
                     if (stratum_retention_predicate is not None)
                 else stratum_retention_condemner
                     if stratum_retention_condemner is not None
-                else StratumRetentionCondemnerMaximal()
+                else StratumRetentionCondemnerPerfectResolution()
             )
 
         self.DepositStratum(annotation=initial_stratum_annotation)

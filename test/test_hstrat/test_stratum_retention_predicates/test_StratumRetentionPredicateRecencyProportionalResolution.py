@@ -22,11 +22,13 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
             == hstrat.StratumRetentionPredicateRecencyProportionalResolution()
         )
 
-        original1 = hstrat.StratumRetentionPredicateRecencyProportionalResolution(
-            guaranteed_mrca_recency_proportional_resolution=2,
+        original1 \
+            = hstrat.StratumRetentionPredicateRecencyProportionalResolution(
+                guaranteed_mrca_recency_proportional_resolution=2,
         )
-        original2 = hstrat.StratumRetentionPredicateRecencyProportionalResolution(
-            guaranteed_mrca_recency_proportional_resolution=3,
+        original2 \
+            = hstrat.StratumRetentionPredicateRecencyProportionalResolution(
+                guaranteed_mrca_recency_proportional_resolution=3,
         )
         copy1 = deepcopy(original1)
         assert original1 == copy1
@@ -86,7 +88,7 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
             stratum_ordered_store_factory
                 =hstrat.HereditaryStratumOrderedStoreList,
             stratum_retention_condemner
-                =hstrat.StratumRetentionCondemnerMaximal(),
+                =hstrat.StratumRetentionCondemnerPerfectResolution(),
         )
 
         column_bundle = hstrat.HereditaryStratigraphicColumnBundle({
@@ -257,7 +259,7 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
             stratum_ordered_store_factory
                 =hstrat.HereditaryStratumOrderedStoreList,
             stratum_retention_condemner
-                =hstrat.StratumRetentionCondemnerMaximal(),
+                =hstrat.StratumRetentionCondemnerPerfectResolution(),
         )
 
         individual = hstrat.HereditaryStratigraphicColumnBundle({

@@ -1,7 +1,7 @@
 from .StratumRetentionPredicateDepthProportionalResolution \
     import StratumRetentionPredicateDepthProportionalResolution
-from .StratumRetentionPredicateMaximal import StratumRetentionPredicateMaximal
-from .StratumRetentionPredicateMinimal import StratumRetentionPredicateMinimal
+from .StratumRetentionPredicateNominalResolution import StratumRetentionPredicateNominalResolution
+from .StratumRetentionPredicatePerfectResolution import StratumRetentionPredicatePerfectResolution
 from .StratumRetentionPredicateFixedResolution \
     import StratumRetentionPredicateFixedResolution
 from .StratumRetentionPredicateRecencyProportionalResolution \
@@ -15,8 +15,8 @@ from .StratumRetentionPredicateStochastic \
 __all__ = [
     'StratumRetentionPredicateDepthProportionalResolution',
     'StratumRetentionPredicateFixedResolution',
-    'StratumRetentionPredicateMaximal',
-    'StratumRetentionPredicateMinimal',
+    'StratumRetentionPredicatePerfectResolution',
+    'StratumRetentionPredicateNominalResolution',
     'StratumRetentionPredicateRecencyProportionalResolution',
     'StratumRetentionPredicateRecursiveInterspersion',
     'StratumRetentionPredicateStochastic',

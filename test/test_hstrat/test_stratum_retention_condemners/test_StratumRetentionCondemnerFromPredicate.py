@@ -20,7 +20,7 @@ class TestStratumRetentionCondemnerFromPredicate(unittest.TestCase):
         )
 
         original = hstrat.StratumRetentionCondemnerFromPredicate(
-            hstrat.StratumRetentionPredicateMaximal(),
+            hstrat.StratumRetentionPredicatePerfectResolution(),
         )
         copy = deepcopy(original)
         assert original == copy
@@ -28,7 +28,7 @@ class TestStratumRetentionCondemnerFromPredicate(unittest.TestCase):
     def test_maximal_retention_condemnation(self):
         maximal_retention_condemner \
             = hstrat.StratumRetentionCondemnerFromPredicate(
-                hstrat.StratumRetentionPredicateMaximal(),
+                hstrat.StratumRetentionPredicatePerfectResolution(),
         )
         for i in range(100):
             assert list(maximal_retention_condemner(
@@ -39,7 +39,7 @@ class TestStratumRetentionCondemnerFromPredicate(unittest.TestCase):
     def test_minimal_retention_condemnation(self):
         minimal_retention_condemner \
             = hstrat.StratumRetentionCondemnerFromPredicate(
-                hstrat.StratumRetentionPredicateMinimal(),
+                hstrat.StratumRetentionPredicateNominalResolution(),
         )
         assert list(minimal_retention_condemner(
             retained_ranks=range(0),
