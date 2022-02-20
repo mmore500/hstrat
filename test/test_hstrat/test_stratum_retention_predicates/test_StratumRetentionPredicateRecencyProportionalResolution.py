@@ -48,15 +48,16 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
                 =hstrat.HereditaryStratumOrderedStoreList,
         )
 
-        for generation in range(1000):
-            assert (
-                column.GetNumStrataRetained()
-                <= predicate.CalcNumStrataRetainedUpperBound(generation)
-            )
-
+        for generation in range(1, 1000):
+            target_space = predicate.CalcNumStrataRetainedUpperBound(generation)
+            # implementation provides an exact count of num retained
+            assert target_space == column.GetNumStrataRetained()
+            column.DepositStratum()
 
     def test_space_complexity(self):
         for guaranteed_mrca_recency_proportional_resolution in [
+            0,
+            1,
             2,
             10,
             42,
@@ -159,6 +160,7 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
 
     def test_resolution(self):
         for guaranteed_mrca_recency_proportional_resolution in [
+            0,
             1,
             2,
             3,
@@ -171,6 +173,72 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
                     synchronous,
                 )
 
+    def _do_test_resolution_regression_case(
+        self,
+        actual_rank_of_mrca,
+        guaranteed_mrca_recency_proportional_resolution,
+        num_strata_deposited,
+    ):
+        test_predicate = \
+            hstrat.StratumRetentionPredicateRecencyProportionalResolution(
+                guaranteed_mrca_recency_proportional_resolution
+                    =guaranteed_mrca_recency_proportional_resolution,
+        )
+        first = hstrat.HereditaryStratigraphicColumn(
+            stratum_ordered_store_factory
+                =hstrat.HereditaryStratumOrderedStoreDict,
+            stratum_retention_predicate=test_predicate,
+        )
+
+        for __ in range(actual_rank_of_mrca): first.DepositStratum()
+
+        second = first.Clone()
+
+        first_num_strata, second_num_strata = num_strata_deposited
+        for __ in range(first_num_strata - actual_rank_of_mrca):
+            first.DepositStratum()
+        for __ in range(second_num_strata - actual_rank_of_mrca):
+            second.DepositStratum()
+
+        target_resolution = test_predicate.CalcMrcaUncertaintyUpperBound(
+            actual_rank_of_mrca=actual_rank_of_mrca,
+            first_num_strata_deposited=first.GetNumStrataDeposited(),
+            second_num_strata_deposited=second.GetNumStrataDeposited(),
+        )
+
+        assert (
+            second.CalcRankOfMrcaUncertaintyWith(first)
+            <= target_resolution
+        )
+        assert (
+            first.CalcRanksSinceMrcaUncertaintyWith(second)
+            <= target_resolution
+        )
+        assert (
+            second.CalcRanksSinceMrcaUncertaintyWith(first)
+            <= target_resolution
+        )
+
+    def test_resolution_regression(self):
+        for case in [
+            {
+                'actual_rank_of_mrca' : 111,
+                'guaranteed_mrca_recency_proportional_resolution' : 17,
+                'num_strata_deposited' : (148, 152),
+            },
+            {
+                'actual_rank_of_mrca' : 101,
+                'guaranteed_mrca_recency_proportional_resolution' : 17,
+                'num_strata_deposited' : (144, 144),
+            },
+            {
+                'actual_rank_of_mrca' : 103,
+                'guaranteed_mrca_recency_proportional_resolution' : 17,
+                'num_strata_deposited' : (144, 144),
+            },
+        ]:
+            self._do_test_resolution_regression_case(**case)
+
     def _do_test_deep_resolution(
         self,
         guaranteed_mrca_recency_proportional_resolution,
@@ -182,7 +250,7 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
         )
         column_test = hstrat.HereditaryStratigraphicColumn(
             stratum_ordered_store_factory
-                =hstrat.HereditaryStratumOrderedStoreList,
+                =hstrat.HereditaryStratumOrderedStoreDict,
             stratum_retention_predicate=test_predicate,
         )
         column_control = hstrat.HereditaryStratigraphicColumn(
@@ -237,12 +305,12 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
 
     def test_deep_resolution(self):
         for guaranteed_mrca_recency_proportional_resolution in [
+            0,
             1,
             2,
             3,
             17,
             100,
-            1000,
         ]:
             self._do_test_deep_resolution(
                 guaranteed_mrca_recency_proportional_resolution,
@@ -259,7 +327,7 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
         )
         individual = hstrat.HereditaryStratigraphicColumn(
             stratum_ordered_store_factory
-                =hstrat.HereditaryStratumOrderedStoreList,
+                =hstrat.HereditaryStratumOrderedStoreDict,
             stratum_retention_predicate=test_predicate,
         )
 
@@ -274,7 +342,8 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
             target_space = test_predicate.CalcNumStrataRetainedUpperBound(
                 num_strata_deposited=snapshot.GetNumStrataDeposited(),
             )
-            assert snapshot.GetNumStrataRetained() <= target_space
+            # implementation provides an exact count of num retained
+            assert snapshot.GetNumStrataRetained() == target_space
 
     def test_deep_space_complexity(self):
         for guaranteed_mrca_recency_proportional_resolution in [
@@ -283,7 +352,6 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
             3,
             17,
             100,
-            1000,
         ]:
             self._do_test_deep_space_complexity(
                 guaranteed_mrca_recency_proportional_resolution,
