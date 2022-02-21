@@ -803,7 +803,6 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateDepthProportionalResolution(),
             hstrat.StratumRetentionPredicateFixedResolution(),
             hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
-            hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
             for ordered_store in [
@@ -834,7 +833,6 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateDepthProportionalResolution(),
             hstrat.StratumRetentionPredicateFixedResolution(),
             hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
-            hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
             for ordered_store in [
@@ -855,7 +853,6 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateDepthProportionalResolution(),
             hstrat.StratumRetentionPredicateFixedResolution(),
             hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
-            hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
             for ordered_store in [
@@ -876,7 +873,6 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateDepthProportionalResolution(),
             hstrat.StratumRetentionPredicateFixedResolution(),
             hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
-            hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
             for ordered_store in [
@@ -897,7 +893,6 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateDepthProportionalResolution(),
             hstrat.StratumRetentionPredicateFixedResolution(),
             hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
-            hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
             for ordered_store in [
@@ -918,7 +913,6 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateDepthProportionalResolution(),
             hstrat.StratumRetentionPredicateFixedResolution(),
             hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
-            hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
             for ordered_store in [
@@ -939,7 +933,6 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateDepthProportionalResolution(),
             hstrat.StratumRetentionPredicateFixedResolution(),
             hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
-            hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
             for ordered_store in [
@@ -960,7 +953,6 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateDepthProportionalResolution(),
             hstrat.StratumRetentionPredicateFixedResolution(),
             hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
-            hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
             for ordered_store in [
@@ -982,7 +974,6 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                 hstrat.StratumRetentionPredicateDepthProportionalResolution(),
                 hstrat.StratumRetentionPredicateFixedResolution(),
                 hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
-                hstrat.StratumRetentionPredicateRecursiveInterspersion(),
                 hstrat.StratumRetentionPredicateStochastic(),
             ],
             repeat=2,
@@ -1006,7 +997,6 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateDepthProportionalResolution(),
             hstrat.StratumRetentionPredicateFixedResolution(),
             hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
-            hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
             for ordered_store in [
@@ -1027,7 +1017,6 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateDepthProportionalResolution(),
             hstrat.StratumRetentionPredicateFixedResolution(),
             hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
-            hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
             for ordered_store in [
@@ -1048,7 +1037,6 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateDepthProportionalResolution(),
             hstrat.StratumRetentionPredicateFixedResolution(),
             hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
-            hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
             for ordered_store in [
@@ -1127,7 +1115,6 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             hstrat.StratumRetentionPredicateDepthProportionalResolution(),
             hstrat.StratumRetentionPredicateFixedResolution(),
             hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
-            hstrat.StratumRetentionPredicateRecursiveInterspersion(),
             hstrat.StratumRetentionPredicateStochastic(),
         ]:
             for ordered_store in [
