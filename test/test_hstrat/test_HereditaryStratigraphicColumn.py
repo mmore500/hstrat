@@ -734,6 +734,41 @@ def _do_test_HasAnyCommonAncestorWith(
         assert_validity()
 
 
+def _do_test_DiffRetainedRanks(
+    self,
+    ordered_store,
+):
+    first = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store_factory=ordered_store,
+        stratum_retention_predicate
+            =hstrat.StratumRetentionPredicateNominalResolution(),
+    )
+    second = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store_factory=ordered_store,
+        stratum_retention_predicate
+            =hstrat.StratumRetentionPredicatePerfectResolution(),
+    )
+
+    assert first.DiffRetainedRanks(second) == (set(), set())
+    assert second.DiffRetainedRanks(first) == (set(), set())
+
+    first.DepositStratum()
+    assert first.DiffRetainedRanks(second) == ({1}, set())
+    assert second.DiffRetainedRanks(first) == (set(), {1})
+
+    second.DepositStratum()
+    assert first.DiffRetainedRanks(second) == (set(), set())
+    assert second.DiffRetainedRanks(first) == (set(), set())
+
+    first.DepositStratum()
+    assert first.DiffRetainedRanks(second) == ({2}, {1})
+    assert second.DiffRetainedRanks(first) == ({1}, {2})
+
+    second.DepositStratum()
+    assert first.DiffRetainedRanks(second) == (set(), {1})
+    assert second.DiffRetainedRanks(first) == ({1}, set())
+
+
 class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     # tests can run independently
@@ -1105,6 +1140,17 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                     retention_predicate,
                     ordered_store,
                 )
+
+    def test_DiffRetainedRanks(self):
+        for ordered_store in [
+            hstrat.HereditaryStratumOrderedStoreDict,
+            hstrat.HereditaryStratumOrderedStoreList,
+            hstrat.HereditaryStratumOrderedStoreTree,
+        ]:
+            _do_test_DiffRetainedRanks(
+                self,
+                ordered_store,
+            )
 
 
 if __name__ == '__main__':

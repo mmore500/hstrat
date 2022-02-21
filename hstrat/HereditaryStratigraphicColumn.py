@@ -563,3 +563,15 @@ class HereditaryStratigraphicColumn:
         res = self.Clone()
         res.DepositStratum(annotation=stratum_annotation)
         return res
+
+    def DiffRetainedRanks(
+        self: 'HereditaryStratigraphicColumn',
+        other: 'HereditaryStratigraphicColumn',
+    ) -> typing.Tuple[typing.Set[int], typing.Set[int]]:
+        self_ranks = set( self.GetRetainedRanks() )
+        other_ranks = set( other.GetRetainedRanks() )
+
+        return (
+            self_ranks - other_ranks,
+            other_ranks - self_ranks,
+        )
