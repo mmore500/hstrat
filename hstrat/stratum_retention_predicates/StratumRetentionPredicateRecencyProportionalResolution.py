@@ -25,7 +25,7 @@ class StratumRetentionPredicateRecencyProportionalResolution:
             return False
 
     def __call__(
-        self: 'StratumRetentionPredicateRecursiveInterspersion',
+        self: 'StratumRetentionPredicateRecencyProportionalResolution',
         stratum_rank: int,
         column_strata_deposited: int,
     ) -> bool:
@@ -126,7 +126,7 @@ class StratumRetentionPredicateRecencyProportionalResolution:
         )
 
     def CalcNumStrataRetainedUpperBound(
-        self: 'StratumRetentionPredicateRecursiveInterspersion',
+        self: 'StratumRetentionPredicateRecencyProportionalResolution',
         num_strata_deposited: int,
     ) -> int:
         # With
