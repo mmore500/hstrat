@@ -65,5 +65,6 @@ class TestStratumRetentionCondemnerRecencyProportionalResolution(
                 guaranteed_mrca_recency_proportional_resolution,
             )
 
+
 if __name__ == '__main__':
     unittest.main()

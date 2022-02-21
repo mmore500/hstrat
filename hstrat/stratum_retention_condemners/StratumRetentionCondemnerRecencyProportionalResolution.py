@@ -22,7 +22,6 @@ class StratumRetentionCondemnerRecencyProportionalResolution(
                 =guaranteed_mrca_recency_proportional_resolution,
         )
 
-
     def _num_to_condemn(
         self: 'StratumRetentionCondemnerRecencyProportionalResolution',
         num_strata_deposited: int,

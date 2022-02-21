@@ -62,5 +62,6 @@ class TestStratumRetentionCondemnerFromPredicate(unittest.TestCase):
             num_strata_deposited=3,
         )) == [2]
 
+
 if __name__ == '__main__':
     unittest.main()
