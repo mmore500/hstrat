@@ -2,6 +2,7 @@ import typing
 
 from ..HereditaryStratum import HereditaryStratum
 
+
 class StratumRetentionCondemnerPerfectResolution:
 
     def __call__(

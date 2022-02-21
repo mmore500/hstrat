@@ -3,7 +3,7 @@ import math
 import typing
 
 
-class StratumRetentionPredicateRecencyProportionalResolution():
+class StratumRetentionPredicateRecencyProportionalResolution:
 
     _guaranteed_mrca_recency_proportional_resolution: int
 
