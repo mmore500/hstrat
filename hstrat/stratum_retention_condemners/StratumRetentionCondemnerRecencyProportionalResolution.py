@@ -56,12 +56,3 @@ class StratumRetentionCondemnerRecencyProportionalResolution(
             factor = 2 * resolution + 1
             num_ranks_back = factor * (2 ** i)
             yield num_strata_deposited - num_ranks_back
-
-    def __eq__(
-        self: 'StratumRetentionCondemnerRecencyProportionalResolution',
-        other: 'StratumRetentionCondemnerRecencyProportionalResolution',
-    ) -> bool:
-        if isinstance(other, self.__class__):
-            return self.__dict__ == other.__dict__
-        else:
-            return False
