@@ -1,3 +1,5 @@
+from .StratumRetentionCondemnerDepthProportionalResolution \
+    import StratumRetentionCondemnerDepthProportionalResolution
 from .StratumRetentionCondemnerFixedResolution \
     import StratumRetentionCondemnerFixedResolution
 from .StratumRetentionCondemnerFromPredicate \
@@ -11,6 +13,7 @@ from .StratumRetentionCondemnerRecencyProportionalResolution \
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
+    'StratumRetentionCondemnerDepthProportionalResolution',
     'StratumRetentionCondemnerFixedResolution',
     'StratumRetentionCondemnerFromPredicate',
     'StratumRetentionCondemnerPerfectResolution',
