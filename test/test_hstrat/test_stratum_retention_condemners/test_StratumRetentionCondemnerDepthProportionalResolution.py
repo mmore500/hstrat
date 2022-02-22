@@ -49,10 +49,7 @@ class TestStratumRetentionCondemnerDepthProportionalResolution(
             control_column.DepositStratum()
             test_column.DepositStratum()
             d1, d2 = control_column.DiffRetainedRanks(test_column)
-            assert d1 == set() and d2 == set(), (
-                i,
-                guaranteed_depth_proportional_resolution,
-            )
+            assert d1 == set() and d2 == set()
 
     def test_retention(self):
         for guaranteed_depth_proportional_resolution in [
