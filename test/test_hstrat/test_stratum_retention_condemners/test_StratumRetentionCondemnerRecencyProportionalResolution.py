@@ -128,13 +128,16 @@ class TestStratumRetentionCondemnerRecencyProportionalResolution(
             stratum_retention_condemner=test_condemner,
         )
 
+        assert 0 == test_condemner.CalcNumStrataRetainedExact(
+            num_strata_deposited=0,
+        )
         for i in range(10000):
-            test_column.DepositStratum()
             calculated_num_retained = test_condemner.CalcNumStrataRetainedExact(
                 num_strata_deposited=test_column.GetNumStrataDeposited(),
             )
             observed_num_retained = test_column.GetNumStrataRetained()
             assert calculated_num_retained == observed_num_retained
+            test_column.DepositStratum()
 
     def test_CalcNumStrataRetainedExact(self):
         for guaranteed_mrca_recency_proportional_resolution in [
@@ -165,14 +168,17 @@ class TestStratumRetentionCondemnerRecencyProportionalResolution(
             stratum_retention_condemner=test_condemner,
         )
 
+        assert 0 <= test_condemner.CalcNumStrataRetainedUpperBound(
+            num_strata_deposited=0,
+        )
         for i in range(10000):
-            test_column.DepositStratum()
             calculated_num_retained_bound \
                 = test_condemner.CalcNumStrataRetainedUpperBound(
                     num_strata_deposited=test_column.GetNumStrataDeposited(),
             )
             observed_num_retained = test_column.GetNumStrataRetained()
             assert calculated_num_retained_bound >= observed_num_retained
+            test_column.DepositStratum()
 
     def test_CalcNumStrataRetainedUpperBound(self):
         for guaranteed_mrca_recency_proportional_resolution in [

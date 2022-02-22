@@ -161,6 +161,8 @@ class StratumRetentionPredicateDepthProportionalResolution:
     ) -> int:
         """Exactly how many strata are retained after n deposted? Inclusive."""
 
+        if num_strata_deposited == 0: return 0
+
         provided_uncertainty = self._calc_provided_uncertainty(
             num_strata_deposited,
         )

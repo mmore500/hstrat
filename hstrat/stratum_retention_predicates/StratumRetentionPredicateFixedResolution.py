@@ -89,6 +89,8 @@ class StratumRetentionPredicateFixedResolution:
     ) -> int:
         """Exactly how many strata are retained after n deposted?"""
 
+        if num_strata_deposited == 0: return 0
+
         uncertainty = self._fixed_resolution
         newest_stratum_rank = num_strata_deposited - 1
         # +1 for 0'th rank stratum
