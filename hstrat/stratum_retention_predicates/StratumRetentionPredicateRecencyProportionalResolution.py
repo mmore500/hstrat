@@ -138,7 +138,7 @@ class StratumRetentionPredicateRecencyProportionalResolution:
             num_stratum_depositions_completed - provided_uncertainty,
         )
 
-    def CalcNumStrataRetainedUpperBound(
+    def CalcNumStrataRetainedExact(
         self: 'StratumRetentionPredicateRecencyProportionalResolution',
         num_strata_deposited: int,
     ) -> int:
@@ -168,6 +168,14 @@ class StratumRetentionPredicateRecencyProportionalResolution:
                 for r in range(1, resolution + 1)
             )
             + 1
+        )
+
+    def CalcNumStrataRetainedUpperBound(
+        self: 'StratumRetentionPredicateRecencyProportionalResolution',
+        num_strata_deposited: int,
+    ):
+        return self.CalcNumStrataRetainedExact(
+            num_strata_deposited=num_strata_deposited,
         )
 
     def CalcMrcaUncertaintyUpperBound(

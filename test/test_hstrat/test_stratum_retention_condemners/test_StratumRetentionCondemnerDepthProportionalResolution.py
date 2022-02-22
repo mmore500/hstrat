@@ -110,6 +110,49 @@ class TestStratumRetentionCondemnerDepthProportionalResolution(
                 guaranteed_depth_proportional_resolution,
             )
 
+    def _do_test_CalcNumStrataRetainedExact(
+        self,
+        guaranteed_depth_proportional_resolution,
+    ):
+        test_condemner \
+            = hstrat.StratumRetentionCondemnerDepthProportionalResolution(
+                guaranteed_depth_proportional_resolution
+                    =guaranteed_depth_proportional_resolution,
+            )
+        test_column = hstrat.HereditaryStratigraphicColumn(
+            always_store_rank_in_stratum=True,
+            stratum_ordered_store_factory
+                =hstrat.HereditaryStratumOrderedStoreDict,
+            stratum_retention_condemner=test_condemner,
+        )
+
+        for i in range(10000):
+            test_column.DepositStratum()
+            calculated_num_retained = test_condemner.CalcNumStrataRetainedExact(
+                num_strata_deposited=test_column.GetNumStrataDeposited(),
+            )
+            observed_num_retained = test_column.GetNumStrataRetained()
+            assert calculated_num_retained == observed_num_retained, (
+                calculated_num_retained,
+                observed_num_retained,
+                test_column.GetNumStrataDeposited(),
+                guaranteed_depth_proportional_resolution,
+                i
+            )
+
+    def test_CalcNumStrataRetainedExact(self):
+        for guaranteed_depth_proportional_resolution in [
+            1,
+            2,
+            3,
+            7,
+            42,
+            100,
+        ]:
+            self._do_test_CalcNumStrataRetainedExact(
+                guaranteed_depth_proportional_resolution,
+            )
+
 
 if __name__ == '__main__':
     unittest.main()

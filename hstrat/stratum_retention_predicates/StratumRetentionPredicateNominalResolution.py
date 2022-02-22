@@ -19,6 +19,12 @@ class StratumRetentionPredicateNominalResolution:
         else:
             return False
 
+    def CalcNumStrataRetainedExact(
+        self: 'StratumRetentionPredicateNominalResolution',
+        num_strata_deposited: int,
+    ) -> int:
+        return min(num_strata_deposited, 2)
+
     def CalcNumStrataRetainedUpperBound(
         self: 'StratumRetentionPredicateNominalResolution',
         num_strata_deposited: typing.Optional[int]=None,

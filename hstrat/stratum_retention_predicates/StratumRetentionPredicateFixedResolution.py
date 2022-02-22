@@ -83,15 +83,38 @@ class StratumRetentionPredicateFixedResolution:
             or stratum_rank % self._fixed_resolution == 0
         )
 
+    def CalcNumStrataRetainedExact(
+        self: 'StratumRetentionPredicateFixedResolution',
+        num_strata_deposited: int,
+    ) -> int:
+        """Exactly how many strata are retained after n deposted?"""
+
+        uncertainty = self._fixed_resolution
+        newest_stratum_rank = num_strata_deposited - 1
+        # +1 for 0'th rank stratum
+        num_strata_at_uncertainty_intervals \
+            = newest_stratum_rank // uncertainty + 1
+        newest_stratum_distinct_from_uncertainty_intervals \
+            = (newest_stratum_rank % uncertainty != 0)
+        return (
+            num_strata_at_uncertainty_intervals
+            + newest_stratum_distinct_from_uncertainty_intervals
+        )
+
+
+        if num_strata_deposited <= 2: return num_strata_deposited
+        else:
+            return (num_strata_deposited - 2) // self._fixed_resolution + 2
+
     def CalcNumStrataRetainedUpperBound(
         self: 'StratumRetentionPredicateFixedResolution',
         num_strata_deposited: int,
     ) -> int:
         """At most, how many strata are retained after n deposted? Inclusive."""
 
-        if num_strata_deposited <= 2: return num_strata_deposited
-        else:
-            return (num_strata_deposited - 2) // self._fixed_resolution + 2
+        return self.CalcNumStrataRetainedExact(
+            num_strata_deposited,
+        )
 
     def CalcMrcaUncertaintyUpperBound(
         self: 'StratumRetentionPredicateFixedResolution',

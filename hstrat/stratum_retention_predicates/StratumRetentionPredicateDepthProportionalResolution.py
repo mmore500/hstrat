@@ -155,6 +155,26 @@ class StratumRetentionPredicateDepthProportionalResolution:
         )
         return stratum_rank % provided_uncertainty == 0
 
+    def CalcNumStrataRetainedExact(
+        self: 'StratumRetentionPredicateDepthProportionalResolution',
+        num_strata_deposited: int,
+    ) -> int:
+        """Exactly how many strata are retained after n deposted? Inclusive."""
+
+        provided_uncertainty = self._calc_provided_uncertainty(
+            num_strata_deposited,
+        )
+        newest_stratum_rank = num_strata_deposited - 1
+        # +1 for 0'th rank stratum
+        num_strata_at_uncertainty_intervals \
+            = newest_stratum_rank // provided_uncertainty + 1
+        newest_stratum_distinct_from_uncertainty_intervals \
+            = (newest_stratum_rank % provided_uncertainty != 0)
+        return (
+            num_strata_at_uncertainty_intervals
+            + newest_stratum_distinct_from_uncertainty_intervals
+        )
+
     def CalcNumStrataRetainedUpperBound(
         self: 'StratumRetentionPredicateDepthProportionalResolution',
         num_strata_deposited: typing.Optional[int]=None,

@@ -19,11 +19,19 @@ class StratumRetentionPredicatePerfectResolution:
         else:
             return False
 
-    def CalcNumStrataRetainedUpperBound(
+    def CalcNumStrataRetainedExact(
         self: 'StratumRetentionPredicatePerfectResolution',
         num_strata_deposited: int,
     ) -> int:
         return num_strata_deposited
+
+    def CalcNumStrataRetainedUpperBound(
+        self: 'StratumRetentionPredicatePerfectResolution',
+        num_strata_deposited: int,
+    ) -> int:
+        return self.CalcNumStrataRetainedExact(
+            num_strata_deposited=num_strata_deposited,
+        )
 
     def CalcMrcaUncertaintyUpperBound(
         self: 'StratumRetentionPredicatePerfectResolution',

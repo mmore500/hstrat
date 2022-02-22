@@ -51,8 +51,7 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
         )
 
         for generation in range(1, 1000):
-            target_space = predicate.CalcNumStrataRetainedUpperBound(generation)
-            # implementation provides an exact count of num retained
+            target_space = predicate.CalcNumStrataRetainedExact(generation)
             assert target_space == column.GetNumStrataRetained()
             column.DepositStratum()
 
@@ -341,7 +340,7 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
 
 
         for snapshot in snapshots:
-            target_space = test_predicate.CalcNumStrataRetainedUpperBound(
+            target_space = test_predicate.CalcNumStrataRetainedExact(
                 num_strata_deposited=snapshot.GetNumStrataDeposited(),
             )
             # implementation provides an exact count of num retained

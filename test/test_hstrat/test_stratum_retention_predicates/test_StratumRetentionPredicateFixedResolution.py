@@ -36,10 +36,9 @@ class TestStratumRetentionPredicateFixedResolution(unittest.TestCase):
         )
 
         for generation in range(500):
-            # this particular implementation should return exact number retained
             assert (
                 column.GetNumStrataRetained()
-                == predicate.CalcNumStrataRetainedUpperBound(
+                == predicate.CalcNumStrataRetainedExact(
                     num_strata_deposited=column.GetNumStrataDeposited(),
                 )
             )

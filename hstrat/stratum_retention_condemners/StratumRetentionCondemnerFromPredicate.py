@@ -54,6 +54,15 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
             else:
                 return False
 
+        if hasattr(predicate, 'CalcNumStrataRetainedExact'):
+            def CalcNumStrataRetainedExact(
+                self: 'StratumRetentionCondemnerFromPredicate',
+                num_strata_deposited: int,
+            ) -> int:
+                return self._predicate.CalcNumStrataRetainedExact(
+                    num_strata_deposited=num_strata_deposited,
+                )
+
         if hasattr(predicate, 'CalcNumStrataRetainedUpperBound'):
             def CalcNumStrataRetainedUpperBound(
                 self: 'StratumRetentionCondemnerFromPredicate',
