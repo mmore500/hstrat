@@ -84,5 +84,24 @@ class TestStratumRetentionCondemnerNominalResolution(unittest.TestCase):
             assert calculated_num_retained == observed_num_retained
 
 
+    def test_CalcNumStrataRetainedUpperBound(self):
+        test_condemner \
+            = hstrat.StratumRetentionCondemnerNominalResolution()
+        test_column = hstrat.HereditaryStratigraphicColumn(
+            stratum_ordered_store_factory
+                =hstrat.HereditaryStratumOrderedStoreDict,
+            stratum_retention_condemner=test_condemner,
+        )
+
+        for i in range(10000):
+            test_column.DepositStratum()
+            calculated_num_retained_bound \
+                = test_condemner.CalcNumStrataRetainedUpperBound(
+                    num_strata_deposited=test_column.GetNumStrataDeposited(),
+            )
+            observed_num_retained = test_column.GetNumStrataRetained()
+            assert calculated_num_retained_bound >= observed_num_retained
+
+
 if __name__ == '__main__':
     unittest.main()

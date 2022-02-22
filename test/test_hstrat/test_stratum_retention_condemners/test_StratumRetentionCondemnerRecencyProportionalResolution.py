@@ -150,6 +150,44 @@ class TestStratumRetentionCondemnerRecencyProportionalResolution(
                 guaranteed_mrca_recency_proportional_resolution,
             )
 
+    def _do_test_CalcNumStrataRetainedUpperBound(
+        self,
+        guaranteed_mrca_recency_proportional_resolution,
+    ):
+        test_condemner \
+            = hstrat.StratumRetentionCondemnerRecencyProportionalResolution(
+                guaranteed_mrca_recency_proportional_resolution
+                    =guaranteed_mrca_recency_proportional_resolution,
+            )
+        test_column = hstrat.HereditaryStratigraphicColumn(
+            stratum_ordered_store_factory
+                =hstrat.HereditaryStratumOrderedStoreDict,
+            stratum_retention_condemner=test_condemner,
+        )
+
+        for i in range(10000):
+            test_column.DepositStratum()
+            calculated_num_retained_bound \
+                = test_condemner.CalcNumStrataRetainedUpperBound(
+                    num_strata_deposited=test_column.GetNumStrataDeposited(),
+            )
+            observed_num_retained = test_column.GetNumStrataRetained()
+            assert calculated_num_retained_bound >= observed_num_retained
+
+    def test_CalcNumStrataRetainedUpperBound(self):
+        for guaranteed_mrca_recency_proportional_resolution in [
+            0,
+            1,
+            2,
+            3,
+            7,
+            42,
+            100,
+        ]:
+            self._do_test_CalcNumStrataRetainedUpperBound(
+                guaranteed_mrca_recency_proportional_resolution,
+            )
+
 
 if __name__ == '__main__':
     unittest.main()
