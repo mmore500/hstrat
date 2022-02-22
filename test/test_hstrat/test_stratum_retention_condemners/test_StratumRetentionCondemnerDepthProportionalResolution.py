@@ -132,13 +132,7 @@ class TestStratumRetentionCondemnerDepthProportionalResolution(
                 num_strata_deposited=test_column.GetNumStrataDeposited(),
             )
             observed_num_retained = test_column.GetNumStrataRetained()
-            assert calculated_num_retained == observed_num_retained, (
-                calculated_num_retained,
-                observed_num_retained,
-                test_column.GetNumStrataDeposited(),
-                guaranteed_depth_proportional_resolution,
-                i
-            )
+            assert calculated_num_retained == observed_num_retained
 
     def test_CalcNumStrataRetainedExact(self):
         for guaranteed_depth_proportional_resolution in [
@@ -177,13 +171,7 @@ class TestStratumRetentionCondemnerDepthProportionalResolution(
                     num_strata_deposited=test_column.GetNumStrataDeposited(),
             )
             observed_num_retained = test_column.GetNumStrataRetained()
-            assert calculated_num_retained_bound >= observed_num_retained, (
-                calculated_num_retained_bound,
-                observed_num_retained,
-                test_column.GetNumStrataDeposited(),
-                guaranteed_depth_proportional_resolution,
-                i
-            )
+            assert calculated_num_retained_bound >= observed_num_retained
 
     def test_CalcNumStrataRetainedUpperBound(self):
         for guaranteed_depth_proportional_resolution in [
