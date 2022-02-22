@@ -18,16 +18,18 @@ from .stratum_retention_condemners \
 
 class HereditaryStratigraphicColumn:
 
-    _stratum_ordered_store: typing.Any
-    _num_strata_deposited: int
+    _always_store_rank_in_stratum: bool
     _default_stratum_uid_size: int
+    _num_strata_deposited: int
+    _stratum_ordered_store: typing.Any
     _stratum_retention_condemner: typing.Callable
 
     def __init__(
         self: 'HereditaryStratigraphicColumn',
         *,
-        initial_stratum_annotation: typing.Optional[typing.Any]=None,
+        always_store_rank_in_stratum: bool=False,
         default_stratum_uid_size: int=64,
+        initial_stratum_annotation: typing.Optional[typing.Any]=None,
         stratum_retention_condemner: typing.Callable=None,
         stratum_retention_predicate: typing.Callable=None,
         stratum_ordered_store_factory: typing.Callable
@@ -36,9 +38,10 @@ class HereditaryStratigraphicColumn:
         """
         Retention predicate should take two keyword arguments: stratum_rank and num_stratum_depositions_completed.
         Default retention predicate is to keep all strata."""
-        self._stratum_ordered_store = stratum_ordered_store_factory()
-        self._num_strata_deposited = 0
+        self._always_store_rank_in_stratum = always_store_rank_in_stratum
         self._default_stratum_uid_size = default_stratum_uid_size
+        self._num_strata_deposited = 0
+        self._stratum_ordered_store = stratum_ordered_store_factory()
 
         if None not in (
             stratum_retention_predicate,
@@ -70,12 +73,16 @@ class HereditaryStratigraphicColumn:
         else:
             return False
 
-    def HasClosedFormRankAtColumnIndex(
+    def _ShouldOmitStratumDepositionRank(
         self: 'HereditaryStratigraphicColumn',
     ) -> bool:
-        return hasattr(
+        can_omit_deposition_rank = hasattr(
             self._stratum_retention_condemner,
             'CalcRankAtColumnIndex',
+        )
+        return (
+            can_omit_deposition_rank
+            and not self._always_store_rank_in_stratum
         )
 
     def DepositStratum(
@@ -89,7 +96,7 @@ class HereditaryStratigraphicColumn:
                 # don't store deposition rank if we know how to calcualte it
                 # from stratum's position in column
                 None
-                if self.HasClosedFormRankAtColumnIndex()
+                if self._ShouldOmitStratumDepositionRank()
                 else self._num_strata_deposited
             ),
             uid_size=self._default_stratum_uid_size,
@@ -114,7 +121,7 @@ class HereditaryStratigraphicColumn:
     def GetRetainedRanks(
         self: 'HereditaryStratigraphicColumn',
     ) -> typing.Iterator[int]:
-            if self.HasClosedFormRankAtColumnIndex():
+            if self._ShouldOmitStratumDepositionRank():
                 for idx in range(self.GetNumStrataRetained()):
                     yield self.GetRankAtColumnIndex(idx)
             else:
@@ -134,7 +141,7 @@ class HereditaryStratigraphicColumn:
             index,
             get_rank_at_column_index=(
                 self.GetRankAtColumnIndex
-                if self.HasClosedFormRankAtColumnIndex()
+                if self._ShouldOmitStratumDepositionRank()
                 else None
             ),
         )
@@ -143,7 +150,7 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         index: int,
     ) -> int:
-        if self.HasClosedFormRankAtColumnIndex():
+        if self._ShouldOmitStratumDepositionRank():
             return self._stratum_retention_condemner.CalcRankAtColumnIndex(
                 index=index,
                 num_strata_deposited=self.GetNumStrataDeposited(),
@@ -156,7 +163,7 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratumOrderedStoreList',
         rank: int,
     ) -> typing.Optional[int]:
-        if self.HasClosedFormRankAtColumnIndex():
+        if self._ShouldOmitStratumDepositionRank():
             assert self.GetNumStrataRetained()
             res_idx = binary_search(
                 lambda idx: self.GetRankAtColumnIndex(idx) >= rank,
