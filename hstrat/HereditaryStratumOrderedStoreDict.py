@@ -29,9 +29,6 @@ class HereditaryStratumOrderedStoreDict:
         rank: int,
         stratum: 'HereditaryStratum',
     ) -> None:
-        # rank is stored as key in self._data dict, don't also store in stratum
-        if hasattr(stratum, '_deposition_rank'):
-            delattr(stratum, '_deposition_rank')
         self._data[rank] = stratum
 
     def GetNumStrataRetained(self: 'HereditaryStratumOrderedStoreDict') -> int:
