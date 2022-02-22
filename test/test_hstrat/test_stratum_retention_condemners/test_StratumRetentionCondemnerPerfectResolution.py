@@ -25,7 +25,7 @@ class TestStratumRetentionCondemnerPerfectResolution(unittest.TestCase):
         for i in range(100):
             assert list(maximal_retention_condemner(
                 retained_ranks=range(i),
-                num_strata_deposited=i,
+                num_stratum_depositions_completed=i,
             )) == []
 
     def test_retention(self):

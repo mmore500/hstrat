@@ -34,7 +34,7 @@ class HereditaryStratigraphicColumn:
             =HereditaryStratumOrderedStoreList,
     ):
         """
-        Retention predicate should take two keyword arguments: stratum_rank and column_strata_deposited.
+        Retention predicate should take two keyword arguments: stratum_rank and num_stratum_depositions_completed.
         Default retention predicate is to keep all strata."""
         self._stratum_ordered_store = stratum_ordered_store_factory()
         self._num_strata_deposited = 0
@@ -104,7 +104,7 @@ class HereditaryStratigraphicColumn:
     def _PurgeColumn(self: 'HereditaryStratigraphicColumn') -> None:
         condemned_ranks = self._stratum_retention_condemner(
             retained_ranks=self.GetRetainedRanks(),
-            num_strata_deposited=self.GetNumStrataDeposited(),
+            num_stratum_depositions_completed=self.GetNumStrataDeposited(),
         )
         self._stratum_ordered_store.DelRanks(
             ranks=condemned_ranks,

@@ -24,11 +24,11 @@ class StratumRetentionCondemnerRecencyProportionalResolution(
 
     def _num_to_condemn(
         self: 'StratumRetentionCondemnerRecencyProportionalResolution',
-        num_strata_deposited: int,
+        num_stratum_depositions_completed: int,
     ) -> int:
-        # how many strata should be eliminated after num_strata_deposited have
-        # been deposited and the num_strata_deposited + 1'th deposition is in
-        # progress?
+        # how many strata should be eliminated after
+        # num_stratum_depositions_completed have been deposited and the
+        # num_stratum_depositions_completed + 1'th deposition is in progress?
         # This expression was extrapolated from
         # resolution = 0, https://oeis.org/A001511
         # resolution = 1, https://oeis.org/A091090
@@ -36,23 +36,24 @@ class StratumRetentionCondemnerRecencyProportionalResolution(
         resolution = self._guaranteed_mrca_recency_proportional_resolution
         # _guaranteed_mrca_recency_proportional_resolution is from super class
 
-        if num_strata_deposited % 2 == 1:
+        if num_stratum_depositions_completed % 2 == 1:
             return 0
-        elif num_strata_deposited < 2 * (resolution + 1):
+        elif num_stratum_depositions_completed < 2 * (resolution + 1):
             return 0
         else:
-            return 1 + self._num_to_condemn(num_strata_deposited // 2)
+            return \
+                1 + self._num_to_condemn(num_stratum_depositions_completed // 2)
 
     def __call__(
         self: 'StratumRetentionCondemnerRecencyProportionalResolution',
-        num_strata_deposited: int,
+        num_stratum_depositions_completed: int,
         retained_ranks: typing.Optional[typing.Iterable[int]]=None,
     ) -> typing.Iterator[int]:
-        num_to_condemn = self._num_to_condemn(num_strata_deposited)
+        num_to_condemn = self._num_to_condemn(num_stratum_depositions_completed)
         resolution = self._guaranteed_mrca_recency_proportional_resolution
         # _guaranteed_mrca_recency_proportional_resolution is from super class
 
         for i in range(num_to_condemn):
             factor = 2 * resolution + 1
             num_ranks_back = factor * (2 ** i)
-            yield num_strata_deposited - num_ranks_back
+            yield num_stratum_depositions_completed - num_ranks_back

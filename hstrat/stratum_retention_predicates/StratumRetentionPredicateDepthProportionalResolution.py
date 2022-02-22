@@ -44,13 +44,14 @@ class StratumRetentionPredicateDepthProportionalResolution:
 
     def _calc_provided_uncertainty(
         self: 'StratumRetentionPredicateDepthProportionalResolution',
-        column_strata_deposited: int,
+        num_stratum_depositions_completed: int,
     ) -> int:
         """After n strata have been deposited, how many ranks are spaced
         between retained strata?"""
 
         guaranteed_resolution = self._guaranteed_depth_proportional_resolution
-        max_uncertainty = column_strata_deposited // guaranteed_resolution
+        max_uncertainty \
+            = num_stratum_depositions_completed // guaranteed_resolution
 
         # round down to lower or equal power of 2
         provided_uncertainty_exp = (max_uncertainty // 2).bit_length()
@@ -60,7 +61,7 @@ class StratumRetentionPredicateDepthProportionalResolution:
     def __call__(
         self: 'StratumRetentionPredicateDepthProportionalResolution',
         stratum_rank: int,
-        column_strata_deposited: int,
+        num_stratum_depositions_completed: int,
     ) -> bool:
         """Decide if a stratum within the stratagraphic column should be
         retained or purged.
@@ -127,7 +128,7 @@ class StratumRetentionPredicateDepthProportionalResolution:
         stratum_rank : int
             The number of strata that were deposited before the stratum under
             consideration for retention.
-        column_strata_deposited :  int
+        num_stratum_depositions_completed : int
             The number of strata that have already been deposited, not
             including the latest stratum being deposited which prompted the
             current purge operation.
@@ -143,14 +144,14 @@ class StratumRetentionPredicateDepthProportionalResolution:
         # easy edge cases we must always retain
         if (
             # always retain newest stratum
-            stratum_rank == column_strata_deposited
+            stratum_rank == num_stratum_depositions_completed
             # retain all strata until more than num_intervals are deposited
-            or column_strata_deposited < guaranteed_resolution
+            or num_stratum_depositions_completed < guaranteed_resolution
         ): return True
 
         # +1 because of in-progress deposition
         provided_uncertainty = self._calc_provided_uncertainty(
-            column_strata_deposited + 1,
+            num_stratum_depositions_completed + 1,
         )
         return stratum_rank % provided_uncertainty == 0
 

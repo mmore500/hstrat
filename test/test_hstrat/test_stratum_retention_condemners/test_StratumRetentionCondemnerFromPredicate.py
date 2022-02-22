@@ -33,7 +33,7 @@ class TestStratumRetentionCondemnerFromPredicate(unittest.TestCase):
         for i in range(100):
             assert list(maximal_retention_condemner(
                 retained_ranks=range(i),
-                num_strata_deposited=i,
+                num_stratum_depositions_completed=i,
             )) == []
 
     def test_minimal_retention_condemnation(self):
@@ -43,23 +43,23 @@ class TestStratumRetentionCondemnerFromPredicate(unittest.TestCase):
         )
         assert list(minimal_retention_condemner(
             retained_ranks=range(0),
-            num_strata_deposited=0,
+            num_stratum_depositions_completed=0,
         )) == []
         assert list(minimal_retention_condemner(
             retained_ranks=range(1),
-            num_strata_deposited=0,
+            num_stratum_depositions_completed=0,
         )) == []
         assert list(minimal_retention_condemner(
             retained_ranks=range(2),
-            num_strata_deposited=1,
+            num_stratum_depositions_completed=1,
         )) == []
         assert list(minimal_retention_condemner(
             retained_ranks=[0,1,2],
-            num_strata_deposited=2,
+            num_stratum_depositions_completed=2,
         )) == [1]
         assert list(minimal_retention_condemner(
             retained_ranks=[0,2,3],
-            num_strata_deposited=3,
+            num_stratum_depositions_completed=3,
         )) == [2]
 
 

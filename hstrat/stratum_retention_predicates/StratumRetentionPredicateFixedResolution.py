@@ -45,7 +45,7 @@ class StratumRetentionPredicateFixedResolution:
     def __call__(
         self: 'StratumRetentionPredicateFixedResolution',
         stratum_rank: int,
-        column_strata_deposited: int,
+        num_stratum_depositions_completed: int,
     ) -> bool:
         """Decide if a stratum within the stratagraphic column should be
         retained or purged.
@@ -67,7 +67,7 @@ class StratumRetentionPredicateFixedResolution:
         stratum_rank : int
             The number of strata that were deposited before the stratum under
             consideration for retention.
-        column_strata_deposited :  int
+        num_stratum_depositions_completed : int
             The number of strata that have already been deposited, not
             including the latest stratum being deposited which prompted the
             current purge operation.
@@ -79,7 +79,7 @@ class StratumRetentionPredicateFixedResolution:
         """
 
         return (
-            stratum_rank == column_strata_deposited
+            stratum_rank == num_stratum_depositions_completed
             or stratum_rank % self._fixed_resolution == 0
         )
 

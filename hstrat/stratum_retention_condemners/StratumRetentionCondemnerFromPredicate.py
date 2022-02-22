@@ -23,16 +23,17 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
         def __call__(
             self: 'StratumRetentionCondemnerFromPredicate',
             retained_ranks: typing.Iterable[int],
-            num_strata_deposited: int,
+            num_stratum_depositions_completed: int,
         ) -> typing.Iterator[int]:
             # wrapper to enforce requirements on predicate
             def should_retain(stratum_rank: int) -> bool:
                 res = self._predicate(
                     stratum_rank=stratum_rank,
-                    column_strata_deposited=num_strata_deposited,
+                    num_stratum_depositions_completed
+                        =num_stratum_depositions_completed,
                 )
                 # predicate must *always* retain the initial and latest strata
-                if stratum_rank in (0, num_strata_deposited):
+                if stratum_rank in (0, num_stratum_depositions_completed):
                     assert res
                 return res
 

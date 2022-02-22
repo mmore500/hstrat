@@ -23,12 +23,13 @@ class TestStratumRetentionPredicateNominalResolution(unittest.TestCase):
         assert original == copy
 
     def test_behavior(self):
-        for column_strata_deposited in range(100):
-            for stratum_rank in range(0, column_strata_deposited):
+        for num_stratum_depositions_completed in range(100):
+            for stratum_rank in range(0, num_stratum_depositions_completed):
                 assert not hstrat.StratumRetentionPredicateNominalResolution()(
-                    column_strata_deposited=column_strata_deposited,
+                    num_stratum_depositions_completed
+                    =num_stratum_depositions_completed,
                     stratum_rank=stratum_rank,
-                ) or stratum_rank in (0, column_strata_deposited)
+                ) or stratum_rank in (0, num_stratum_depositions_completed)
 
     def test_space_complexity(self):
         predicate = hstrat.StratumRetentionPredicateNominalResolution()

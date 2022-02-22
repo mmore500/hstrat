@@ -7,9 +7,12 @@ class StratumRetentionPredicateStochastic:
     def __call__(
         self: 'StratumRetentionPredicateStochastic',
         stratum_rank: int,
-        column_strata_deposited: int,
+        num_stratum_depositions_completed: int,
     ) -> bool:
-        if stratum_rank and stratum_rank == column_strata_deposited - 2:
+        if (
+            stratum_rank
+            and stratum_rank == num_stratum_depositions_completed - 2
+        ):
             return random.choice([True, False])
         else: return True
 

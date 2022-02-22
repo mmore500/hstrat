@@ -27,7 +27,7 @@ class StratumRetentionPredicateRecencyProportionalResolution:
     def __call__(
         self: 'StratumRetentionPredicateRecencyProportionalResolution',
         stratum_rank: int,
-        column_strata_deposited: int,
+        num_stratum_depositions_completed: int,
     ) -> bool:
         # Derivation of predicate implementation:
         #
@@ -104,10 +104,10 @@ class StratumRetentionPredicateRecencyProportionalResolution:
 
         # to satisfy requirements of HereditaryStratigraphicColumn impl
         # we must always keep root ancestor and newest stratum
-        if (stratum_rank in (0, column_strata_deposited)): return True
-        elif column_strata_deposited <= resolution: return True
+        if (stratum_rank in (0, num_stratum_depositions_completed)): return True
+        elif num_stratum_depositions_completed <= resolution: return True
 
-        max_uncertainty = column_strata_deposited // (resolution + 1)
+        max_uncertainty = num_stratum_depositions_completed // (resolution + 1)
         # round down to lower or equal power of 2
         provided_uncertainty_exp = (max_uncertainty // 2).bit_length()
         provided_uncertainty = 2 ** provided_uncertainty_exp
@@ -122,7 +122,7 @@ class StratumRetentionPredicateRecencyProportionalResolution:
         elif stratum_rank < provided_uncertainty: return False
         else: return self.__call__(
             stratum_rank - provided_uncertainty,
-            column_strata_deposited - provided_uncertainty,
+            num_stratum_depositions_completed - provided_uncertainty,
         )
 
     def CalcNumStrataRetainedUpperBound(

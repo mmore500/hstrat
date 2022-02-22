@@ -24,7 +24,7 @@ class StratumRetentionCondemnerDepthProportionalResolution(
 
     def __call__(
         self: 'StratumRetentionCondemnerDepthProportionalResolution',
-        num_strata_deposited: int,
+        num_stratum_depositions_completed: int,
         retained_ranks: typing.Optional[typing.Iterable[int]]=None,
     ) -> typing.Iterator[int]:
         resolution = self._guaranteed_depth_proportional_resolution
@@ -32,18 +32,18 @@ class StratumRetentionCondemnerDepthProportionalResolution(
 
         # until sufficient strata have been deposited to reach target resolution
         # don't remove any strata
-        if num_strata_deposited <= resolution: return
+        if num_stratum_depositions_completed <= resolution: return
 
         # newest stratum is in-progress deposition
-        # that will occupy rank num_strata_deposited
-        second_newest_stratum_rank = num_strata_deposited - 1
+        # that will occupy rank num_stratum_depositions_completed
+        second_newest_stratum_rank = num_stratum_depositions_completed - 1
         # +1's because of in-progress deposition
         # _calc_provided_uncertainty is from super class
         cur_provided_uncertainty = self._calc_provided_uncertainty(
-            num_strata_deposited + 1
+            num_stratum_depositions_completed + 1
         )
         prev_provided_uncertainty = self._calc_provided_uncertainty(
-            num_strata_deposited + 1
+            num_stratum_depositions_completed + 1
             - 1
         )
         if cur_provided_uncertainty != prev_provided_uncertainty:

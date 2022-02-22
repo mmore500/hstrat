@@ -5,8 +5,8 @@ class StratumRetentionPredicatePerfectResolution:
 
     def __call__(
         self: 'StratumRetentionPredicatePerfectResolution',
-        stratum_rank: int,
-        column_strata_deposited: int,
+        stratum_rank: typing.Optional[int]=None,
+        num_stratum_depositions_completed: typing.Optional[int]=None,
     ) -> bool:
         return True
 

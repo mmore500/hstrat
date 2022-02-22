@@ -6,9 +6,9 @@ class StratumRetentionPredicateNominalResolution:
     def __call__(
         self: 'StratumRetentionPredicateNominalResolution',
         stratum_rank: int,
-        column_strata_deposited: int,
+        num_stratum_depositions_completed: int,
     ) -> bool:
-        return stratum_rank in (0, column_strata_deposited)
+        return stratum_rank in (0, num_stratum_depositions_completed)
 
     def __eq__(
         self: 'StratumRetentionPredicateNominalResolution',

@@ -12,9 +12,10 @@ class StratumRetentionCondemnerNominalResolution(
 
     def __call__(
         self: 'StratumRetentionCondemnerNominalResolution',
-        num_strata_deposited: int,
+        num_stratum_depositions_completed: int,
         retained_ranks: typing.Optional[typing.Iterable[int]]=None,
     ) -> typing.Iterator[int]:
-        # in-progress deposition not reflected in num_strata_deposited
-        if num_strata_deposited > 1:
-            yield num_strata_deposited - 1
+        # in-progress deposition not reflected in
+        # num_stratum_depositions_completed
+        if num_stratum_depositions_completed > 1:
+            yield num_stratum_depositions_completed - 1

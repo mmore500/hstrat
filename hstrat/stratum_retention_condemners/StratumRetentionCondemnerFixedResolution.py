@@ -23,14 +23,15 @@ class StratumRetentionCondemnerFixedResolution(
 
     def __call__(
         self: 'StratumRetentionCondemnerFixedResolution',
-        num_strata_deposited: int,
+        num_stratum_depositions_completed: int,
         retained_ranks: typing.Optional[typing.Iterable[int]]=None,
     ) -> typing.Iterator[int]:
         resolution = self._fixed_resolution
         # _fixed_resolution is from super class
 
-        # in-progress deposition not reflected in num_strata_deposited
-        second_newest_stratum_rank = num_strata_deposited - 1
+        # in-progress deposition not reflected in
+        # num_stratum_depositions_completed
+        second_newest_stratum_rank = num_stratum_depositions_completed - 1
         if (
             second_newest_stratum_rank > 0
             and second_newest_stratum_rank % resolution
