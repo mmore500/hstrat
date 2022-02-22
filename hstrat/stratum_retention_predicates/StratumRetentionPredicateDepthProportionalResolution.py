@@ -148,7 +148,7 @@ class StratumRetentionPredicateDepthProportionalResolution:
             or column_strata_deposited < guaranteed_resolution
         ): return True
 
-        # +1-because of in-progress deposition
+        # +1 because of in-progress deposition
         provided_uncertainty = self._calc_provided_uncertainty(
             column_strata_deposited + 1,
         )
