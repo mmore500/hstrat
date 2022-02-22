@@ -24,6 +24,20 @@ class StratumRetentionPredicateRecencyProportionalResolution:
         else:
             return False
 
+    def _calc_provided_uncertainty(
+        self: 'StratumRetentionPredicateDepthProportionalResolution',
+        num_stratum_depositions_completed: int,
+    ) -> int:
+        """When n strata have been deposited, how big will the interval until
+        the first retained stratum be?"""
+        resolution = self._guaranteed_mrca_recency_proportional_resolution
+
+        max_uncertainty = num_stratum_depositions_completed // (resolution + 1)
+        # round down to lower or equal power of 2
+        provided_uncertainty_exp = (max_uncertainty // 2).bit_length()
+        provided_uncertainty = 2 ** provided_uncertainty_exp
+        return provided_uncertainty
+
     def __call__(
         self: 'StratumRetentionPredicateRecencyProportionalResolution',
         stratum_rank: int,
@@ -107,10 +121,9 @@ class StratumRetentionPredicateRecencyProportionalResolution:
         if (stratum_rank in (0, num_stratum_depositions_completed)): return True
         elif num_stratum_depositions_completed <= resolution: return True
 
-        max_uncertainty = num_stratum_depositions_completed // (resolution + 1)
-        # round down to lower or equal power of 2
-        provided_uncertainty_exp = (max_uncertainty // 2).bit_length()
-        provided_uncertainty = 2 ** provided_uncertainty_exp
+        provided_uncertainty = self._calc_provided_uncertainty(
+            num_stratum_depositions_completed,
+        )
 
         # logically,  we could just test
         #   if stratum_rank == provided_uncertainty: return True
@@ -173,4 +186,23 @@ class StratumRetentionPredicateRecencyProportionalResolution:
         else: return (
             max_ranks_since_mrca
             // self._guaranteed_mrca_recency_proportional_resolution
+        )
+
+    def CalcRankAtColumnIndex(
+        self: 'StratumRetentionPredicatePerfectResolution',
+        index: int,
+        num_strata_deposited: int,
+    ) -> int:
+        resolution = self._guaranteed_mrca_recency_proportional_resolution
+
+        # calculate the interval between retained strata we're starting out with
+        # -1 due to *lack* of an in-progress deposition
+        provided_uncertainty = self._calc_provided_uncertainty(
+            num_strata_deposited - 1,
+        )
+
+        if index == 0: return 0
+        else: return provided_uncertainty + self.CalcRankAtColumnIndex(
+          index - 1,
+          num_strata_deposited - provided_uncertainty,
         )
