@@ -769,6 +769,38 @@ def _do_test_DiffRetainedRanks(
     assert second.DiffRetainedRanks(first) == ({1}, set())
 
 
+def _do_test_always_store_rank_in_stratum(
+    testcase,
+    retention_predicate,
+    ordered_store
+):
+    first = hstrat.HereditaryStratigraphicColumn(
+        always_store_rank_in_stratum=True,
+        stratum_ordered_store_factory=ordered_store,
+        stratum_retention_predicate=retention_predicate,
+    )
+    second = hstrat.HereditaryStratigraphicColumn(
+        always_store_rank_in_stratum=False,
+        stratum_ordered_store_factory=ordered_store,
+        stratum_retention_predicate=retention_predicate,
+    )
+
+    assert not first._ShouldOmitStratumDepositionRank()
+    assert first.GetStratumAtColumnIndex(0).GetDepositionRank() == 0, first.GetStratumAtColumnIndex(0).GetDepositionRank()
+    if hasattr(retention_predicate, 'CalcRankAtColumnIndex'):
+        assert second._ShouldOmitStratumDepositionRank()
+        assert second.GetStratumAtColumnIndex(0).GetDepositionRank() is None
+    else:
+        assert not second._ShouldOmitStratumDepositionRank()
+        assert second.GetStratumAtColumnIndex(0).GetDepositionRank() == 0
+
+    for gen in range(100):
+        assert first.DiffRetainedRanks(second) == (set(), set())
+
+        first.DepositStratum()
+        second.DepositStratum()
+
+
 class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     # tests can run independently
@@ -1138,6 +1170,25 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                 self,
                 ordered_store,
             )
+
+    def test_always_store_rank_in_stratum(self):
+        for retention_predicate in [
+            hstrat.StratumRetentionPredicatePerfectResolution(),
+            hstrat.StratumRetentionPredicateNominalResolution(),
+            hstrat.StratumRetentionPredicateDepthProportionalResolution(),
+            hstrat.StratumRetentionPredicateFixedResolution(),
+            hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
+        ]:
+            for ordered_store in [
+                hstrat.HereditaryStratumOrderedStoreDict,
+                hstrat.HereditaryStratumOrderedStoreList,
+                hstrat.HereditaryStratumOrderedStoreTree,
+            ]:
+                _do_test_always_store_rank_in_stratum(
+                    self,
+                    retention_predicate,
+                    ordered_store,
+                )
 
 
 if __name__ == '__main__':
