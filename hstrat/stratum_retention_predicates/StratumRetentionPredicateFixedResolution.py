@@ -85,7 +85,7 @@ class StratumRetentionPredicateFixedResolution:
 
     def CalcNumStrataRetainedUpperBound(
         self: 'StratumRetentionPredicateFixedResolution',
-        num_strata_deposited: typing.Optional[int]=None,
+        num_strata_deposited: int,
     ) -> int:
         """At most, how many strata are retained after n deposted? Inclusive."""
 
