@@ -218,7 +218,7 @@ class HereditaryStratumOrderedStoreTree:
             assert rank is not None
             yield rank
 
-    def _do_reverse_IterRankUid(
+    def _do_reverse_IterRankDifferentia(
         self: 'HereditaryStratumOrderedStoreTree',
         # deposition ranks might not be stored in strata
         get_rank_at_column_index: typing.Optional[typing.Callable]=None,
@@ -234,17 +234,17 @@ class HereditaryStratumOrderedStoreTree:
                 else:
                     rank = get_rank_at_column_index(column_idx)
                     assert rank is not None
-                yield (rank, node.stratum.GetUid())
+                yield (rank, node.stratum.GetDifferentia())
             else:
                 break
 
-    def IterRankUid(
+    def IterRankDifferentia(
         self: 'HereditaryStratumOrderedStoreTree',
         # deposition ranks might not be stored in strata
         get_rank_at_column_index: typing.Optional[typing.Callable]=None,
         start_column_index: int=0,
     ) -> typing.Iterator[typing.Tuple[int, int]]:
-        reverse_iter = self._do_reverse_IterRankUid(
+        reverse_iter = self._do_reverse_IterRankDifferentia(
             get_rank_at_column_index=get_rank_at_column_index,
             start_column_index=start_column_index,
         )

@@ -152,7 +152,7 @@ class TestHereditaryStratum(unittest.TestCase):
 
         assert set(store1.GetRetainedRanks()) == set(ranks)
 
-    def test_IterRankUid1(self):
+    def test_IterRankDifferentia1(self):
         store1 = hstrat.HereditaryStratumOrderedStoreDict()
         ranks = [0, 8, 42, 63]
         strata = [
@@ -163,19 +163,19 @@ class TestHereditaryStratum(unittest.TestCase):
             store1.DepositStratum(rank=rank, stratum=stratum)
 
         assert (
-            [*zip(ranks, [stratum.GetUid() for stratum in strata])]
-            == [*store1.IterRankUid()]
+            [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])]
+            == [*store1.IterRankDifferentia()]
         )
         assert (
-            [*zip(ranks, [stratum.GetUid() for stratum in strata])][0:]
-            == [*store1.IterRankUid(start_column_index=0)]
+            [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])][0:]
+            == [*store1.IterRankDifferentia(start_column_index=0)]
         )
         assert (
-            [*zip(ranks, [stratum.GetUid() for stratum in strata])][2:]
-            == [*store1.IterRankUid(start_column_index=2)]
+            [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])][2:]
+            == [*store1.IterRankDifferentia(start_column_index=2)]
         )
 
-    def test_IterRankUid2(self):
+    def test_IterRankDifferentia2(self):
         store1 = hstrat.HereditaryStratumOrderedStoreDict()
         ranks = [0, 8, 42, 63]
         strata = [
@@ -187,19 +187,21 @@ class TestHereditaryStratum(unittest.TestCase):
 
         col_index_to_rank = lambda column_idx: ranks[column_idx]
         assert (
-            [*zip(ranks, [stratum.GetUid() for stratum in strata])]
-            == [*store1.IterRankUid(get_rank_at_column_index=col_index_to_rank)]
+            [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])]
+            == [*store1.IterRankDifferentia(
+                get_rank_at_column_index=col_index_to_rank,
+            )]
         )
         assert (
-            [*zip(ranks, [stratum.GetUid() for stratum in strata])][0:]
-            == [*store1.IterRankUid(
+            [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])][0:]
+            == [*store1.IterRankDifferentia(
                 get_rank_at_column_index=col_index_to_rank,
                 start_column_index=0,
             )]
         )
         assert (
-            [*zip(ranks, [stratum.GetUid() for stratum in strata])][2:]
-            == [*store1.IterRankUid(
+            [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])][2:]
+            == [*store1.IterRankDifferentia(
                 get_rank_at_column_index=col_index_to_rank,
                 start_column_index=2,
             )]
@@ -229,8 +231,8 @@ class TestHereditaryStratum(unittest.TestCase):
                 del strata[ranks.index(rank)]
                 ranks.remove(rank)
             assert (
-                [*zip(ranks, [stratum.GetUid() for stratum in strata])]
-                == [*store1.IterRankUid()]
+                [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])]
+                == [*store1.IterRankDifferentia()]
             )
 
     def test_DelRanks_getrank_impl2(self):
@@ -259,8 +261,8 @@ class TestHereditaryStratum(unittest.TestCase):
                 del strata[ranks.index(rank)]
                 ranks.remove(rank)
             assert (
-                [*zip(ranks, [stratum.GetUid() for stratum in strata])]
-                == [*store1.IterRankUid()]
+                [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])]
+                == [*store1.IterRankDifferentia()]
             )
 
     def test_DelRanks_getrank_impl3(self):
@@ -289,8 +291,8 @@ class TestHereditaryStratum(unittest.TestCase):
                 del strata[ranks.index(rank)]
                 ranks.remove(rank)
             assert (
-                [*zip(ranks, [stratum.GetUid() for stratum in strata])]
-                == [*store1.IterRankUid()]
+                [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])]
+                == [*store1.IterRankDifferentia()]
             )
 
     def test_DelRanks_getrank_impl4(self):
@@ -317,8 +319,8 @@ class TestHereditaryStratum(unittest.TestCase):
                 del strata[ranks.index(rank)]
                 ranks.remove(rank)
             assert (
-                [*zip(ranks, [stratum.GetUid() for stratum in strata])]
-                == [*store1.IterRankUid()]
+                [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])]
+                == [*store1.IterRankDifferentia()]
             )
 
     def test_DelRanks_getrank_impl5(self):
@@ -343,8 +345,8 @@ class TestHereditaryStratum(unittest.TestCase):
                 del strata[ranks.index(rank)]
                 ranks.remove(rank)
             assert (
-                [*zip(ranks, [stratum.GetUid() for stratum in strata])]
-                == [*store1.IterRankUid()]
+                [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])]
+                == [*store1.IterRankDifferentia()]
             )
 
     def test_DelRanks_calcrank_impl1(self):
@@ -371,8 +373,8 @@ class TestHereditaryStratum(unittest.TestCase):
                 del strata[ranks.index(rank)]
                 ranks.remove(rank)
             assert (
-                [*zip(ranks, [stratum.GetUid() for stratum in strata])]
-                == [*store1.IterRankUid(
+                [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])]
+                == [*store1.IterRankDifferentia(
                     get_rank_at_column_index=lambda idx: ranks[idx],
                 )]
             )
@@ -403,8 +405,8 @@ class TestHereditaryStratum(unittest.TestCase):
                 del strata[ranks.index(rank)]
                 ranks.remove(rank)
             assert (
-                [*zip(ranks, [stratum.GetUid() for stratum in strata])]
-                == [*store1.IterRankUid(
+                [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])]
+                == [*store1.IterRankDifferentia(
                     get_rank_at_column_index=lambda idx: ranks[idx],
                 )]
             )
@@ -435,8 +437,8 @@ class TestHereditaryStratum(unittest.TestCase):
                 del strata[ranks.index(rank)]
                 ranks.remove(rank)
             assert (
-                [*zip(ranks, [stratum.GetUid() for stratum in strata])]
-                == [*store1.IterRankUid(
+                [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])]
+                == [*store1.IterRankDifferentia(
                     get_rank_at_column_index=lambda idx: ranks[idx],
                 )]
             )
@@ -465,8 +467,8 @@ class TestHereditaryStratum(unittest.TestCase):
                 del strata[ranks.index(rank)]
                 ranks.remove(rank)
             assert (
-                [*zip(ranks, [stratum.GetUid() for stratum in strata])]
-                == [*store1.IterRankUid(
+                [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])]
+                == [*store1.IterRankDifferentia(
                     get_rank_at_column_index=lambda idx: ranks[idx],
                 )]
             )
@@ -493,8 +495,8 @@ class TestHereditaryStratum(unittest.TestCase):
                 del strata[ranks.index(rank)]
                 ranks.remove(rank)
             assert (
-                [*zip(ranks, [stratum.GetUid() for stratum in strata])]
-                == [*store1.IterRankUid(
+                [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])]
+                == [*store1.IterRankDifferentia(
                     get_rank_at_column_index=lambda idx: ranks[idx],
                 )]
             )

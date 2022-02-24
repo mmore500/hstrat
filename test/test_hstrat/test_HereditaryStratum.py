@@ -17,7 +17,7 @@ class TestHereditaryStratum(unittest.TestCase):
             deposition_rank=42,
         ).GetDepositionRank() == 42
 
-    def test_uid_generation(self):
+    def test_differentia_generation(self):
         original1 = hstrat.HereditaryStratum(
             deposition_rank=42,
         )
@@ -30,9 +30,9 @@ class TestHereditaryStratum(unittest.TestCase):
         assert original1 != original2
         assert copy1 != original2
 
-        assert original1.GetUid() == copy1.GetUid()
-        assert original1.GetUid() != original2.GetUid()
-        assert copy1.GetUid() != original2.GetUid()
+        assert original1.GetDifferentia() == copy1.GetDifferentia()
+        assert original1.GetDifferentia() != original2.GetDifferentia()
+        assert copy1.GetDifferentia() != original2.GetDifferentia()
 
     def test_equality1(self):
         assert hstrat.HereditaryStratum() != hstrat.HereditaryStratum()

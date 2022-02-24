@@ -100,7 +100,7 @@ class HereditaryStratumOrderedStoreList:
             assert rank is not None
             yield rank
 
-    def IterRankUid(
+    def IterRankDifferentia(
         self: 'HereditaryStratumOrderedStoreList',
         # deposition ranks might not be stored in strata
         get_rank_at_column_index: typing.Optional[typing.Callable]=None,
@@ -112,7 +112,7 @@ class HereditaryStratumOrderedStoreList:
         # adapted from https://stackoverflow.com/a/12911454
         for index in range(start_column_index, len(self._data)):
             stratum = self._data[index]
-            yield (get_rank_at_column_index(index), stratum.GetUid())
+            yield (get_rank_at_column_index(index), stratum.GetDifferentia())
 
     def Clone(
             self: 'HereditaryStratumOrderedStoreList',

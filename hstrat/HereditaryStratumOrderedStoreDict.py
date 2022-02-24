@@ -86,7 +86,7 @@ class HereditaryStratumOrderedStoreDict:
         # (only when first item requested)
         yield from list(self._data.keys())
 
-    def IterRankUid(
+    def IterRankDifferentia(
         self: 'HereditaryStratumOrderedStoreDict',
         # needed for other implementations
         get_rank_at_column_index: typing.Optional[typing.Callable]=None,
@@ -99,7 +99,7 @@ class HereditaryStratumOrderedStoreDict:
         # adapted from https://stackoverflow.com/a/12911454
         iter_ = it.islice(self._data.items(), start_column_index, None)
         for rank, stratum in iter_:
-            yield (rank, stratum.GetUid())
+            yield (rank, stratum.GetDifferentia())
 
     def Clone(
             self: 'HereditaryStratumOrderedStoreDict',

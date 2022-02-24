@@ -18,7 +18,7 @@ from .stratum_retention_condemners \
 class HereditaryStratigraphicColumn:
 
     _always_store_rank_in_stratum: bool
-    _default_stratum_uid_size: int
+    _default_stratum_differentia_size: int
     _num_strata_deposited: int
     _stratum_ordered_store: typing.Any
     _stratum_retention_condemner: typing.Callable
@@ -27,7 +27,7 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         *,
         always_store_rank_in_stratum: bool=True,
-        default_stratum_uid_size: int=64,
+        default_stratum_differentia_size: int=64,
         initial_stratum_annotation: typing.Optional[typing.Any]=None,
         stratum_retention_condemner: typing.Callable=None,
         stratum_retention_predicate: typing.Callable=None,
@@ -38,7 +38,7 @@ class HereditaryStratigraphicColumn:
         Retention predicate should take two keyword arguments: stratum_rank and num_stratum_depositions_completed.
         Default retention predicate is to keep all strata."""
         self._always_store_rank_in_stratum = always_store_rank_in_stratum
-        self._default_stratum_uid_size = default_stratum_uid_size
+        self._default_stratum_differentia_size = default_stratum_differentia_size
         self._num_strata_deposited = 0
         self._stratum_ordered_store = stratum_ordered_store_factory()
 
@@ -98,7 +98,7 @@ class HereditaryStratigraphicColumn:
                 if self._ShouldOmitStratumDepositionRank()
                 else self._num_strata_deposited
             ),
-            uid_size=self._default_stratum_uid_size,
+            differentia_size=self._default_stratum_differentia_size,
         )
         self._stratum_ordered_store.DepositStratum(
             rank=self._num_strata_deposited,
@@ -226,8 +226,10 @@ class HereditaryStratigraphicColumn:
         ])
         assert lower_bound <= upper_bound
         rank_at = lambda which, idx: which.GetRankAtColumnIndex(idx)
-        uid_at = lambda which, idx: which.GetStratumAtColumnIndex(idx).GetUid()
-        predicate = lambda idx: uid_at(self, idx) != uid_at(other, idx)
+        differentia_at = lambda which, idx: \
+                which.GetStratumAtColumnIndex(idx).GetDifferentia()
+        predicate = lambda idx: \
+            differentia_at(self, idx) != differentia_at(other, idx)
 
         first_disparite_idx = binary_search(
             predicate,
@@ -263,16 +265,16 @@ class HereditaryStratigraphicColumn:
         other_start_idx: int=0,
     ) -> typing.Optional[int]:
         # helper setup
-        self_iter = self._stratum_ordered_store.IterRankUid(
+        self_iter = self._stratum_ordered_store.IterRankDifferentia(
             get_rank_at_column_index=self.GetRankAtColumnIndex,
             start_column_index=self_start_idx,
         )
-        other_iter = other._stratum_ordered_store.IterRankUid(
+        other_iter = other._stratum_ordered_store.IterRankDifferentia(
             get_rank_at_column_index=other.GetRankAtColumnIndex,
             start_column_index=other_start_idx,
         )
-        self_cur_rank, self_cur_uid = next(self_iter)
-        other_cur_rank, other_cur_uid = next(other_iter)
+        self_cur_rank, self_cur_differentia = next(self_iter)
+        other_cur_rank, other_cur_differentia = next(other_iter)
 
         last_common_rank = None
         # a.k.a.
@@ -284,26 +286,26 @@ class HereditaryStratigraphicColumn:
             while True:
                 if (self_cur_rank == other_cur_rank):
                     # strata at same rank can be compared
-                    if (self_cur_uid == other_cur_uid):
-                        # matching uids at the same rank,
+                    if (self_cur_differentia == other_cur_differentia):
+                        # matching differentiae at the same rank,
                         # store rank and keep searching for mismatch
                         last_common_rank = self_cur_rank
                         # advance self
-                        self_cur_rank, self_cur_uid = next(self_iter)
+                        self_cur_rank, self_cur_differentia = next(self_iter)
                         # advance other
-                        other_cur_rank, other_cur_uid = next(other_iter)
+                        other_cur_rank, other_cur_differentia = next(other_iter)
                     else:
-                        # mismatching uids at the same rank
+                        # mismatching differentiae at the same rank
                         # a.k.a. break
                         raise StopIteration
                 elif self_cur_rank < other_cur_rank:
                     # current stratum on self column older than on other column
                     # advance to next-newer stratum on self column
-                    self_cur_rank, self_cur_uid = next(self_iter)
+                    self_cur_rank, self_cur_differentia = next(self_iter)
                 elif self_cur_rank > other_cur_rank:
                     # current stratum on other column older than on self column
                     # advance to next-newer stratum on other column
-                    other_cur_rank, other_cur_uid = next(other_iter)
+                    other_cur_rank, other_cur_differentia = next(other_iter)
         except StopIteration:
             return last_common_rank
 
@@ -344,8 +346,10 @@ class HereditaryStratigraphicColumn:
         ])
         assert lower_bound <= upper_bound
         rank_at = lambda which, idx: which.GetRankAtColumnIndex(idx)
-        uid_at = lambda which, idx: which.GetStratumAtColumnIndex(idx).GetUid()
-        predicate = lambda idx: uid_at(self, idx) != uid_at(other, idx)
+        differentia_at = lambda which, idx: \
+                which.GetStratumAtColumnIndex(idx).GetDifferentia()
+        predicate = lambda idx: \
+            differentia_at(self, idx) != differentia_at(other, idx)
 
         first_disparite_idx = binary_search(
             predicate,
@@ -378,32 +382,34 @@ class HereditaryStratigraphicColumn:
         other_start_idx: int=0,
     ) -> typing.Optional[int]:
         # helper setup
-        self_iter = self._stratum_ordered_store.IterRankUid(
+        self_iter = self._stratum_ordered_store.IterRankDifferentia(
             get_rank_at_column_index=self.GetRankAtColumnIndex,
             start_column_index=self_start_idx,
         )
-        other_iter = other._stratum_ordered_store.IterRankUid(
+        other_iter = other._stratum_ordered_store.IterRankDifferentia(
             get_rank_at_column_index=other.GetRankAtColumnIndex,
             start_column_index=other_start_idx,
         )
-        self_cur_rank, self_cur_uid = next(self_iter)
-        other_cur_rank, other_cur_uid = next(other_iter)
+        self_cur_rank, self_cur_differentia = next(self_iter)
+        other_cur_rank, other_cur_differentia = next(other_iter)
         self_prev_rank: int
         other_prev_rank: int
 
         def advance_self():
-            nonlocal self_prev_rank, self_cur_rank, self_cur_uid, self_iter
+            nonlocal self_prev_rank, self_cur_rank, \
+                self_cur_differentia, self_iter
             try:
                 self_prev_rank = self_cur_rank
-                self_cur_rank, self_cur_uid = next(self_iter)
+                self_cur_rank, self_cur_differentia = next(self_iter)
             except StopIteration:
                 self_iter = None
 
         def advance_other():
-            nonlocal other_prev_rank, other_cur_rank, other_cur_uid, other_iter
+            nonlocal other_prev_rank, other_cur_rank, \
+                other_cur_differentia, other_iter
             try:
                 other_prev_rank = other_cur_rank
-                other_cur_rank, other_cur_uid = next(other_iter)
+                other_cur_rank, other_cur_differentia = next(other_iter)
             except StopIteration:
                 other_iter = None
 
@@ -415,15 +421,15 @@ class HereditaryStratigraphicColumn:
         while self_iter is not None and other_iter is not None:
             if self_cur_rank == other_cur_rank:
                 # strata at same rank can be compared
-                if self_cur_uid == other_cur_uid:
-                    # matching uids at the same rank,
+                if self_cur_differentia == other_cur_differentia:
+                    # matching differentiae at the same rank,
                     # keep searching for mismatch
                     # advance self and other
                     # must ensure both advance, even if one stops iteration
                     advance_self()
                     advance_other()
                 else:
-                    # mismatching uids at the same rank
+                    # mismatching differentiae at the same rank
                     assert 0 <= self_cur_rank < self.GetNumStrataDeposited()
                     return self_cur_rank
             elif self_cur_rank < other_cur_rank:
