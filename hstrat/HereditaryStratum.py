@@ -1,4 +1,3 @@
-from bitarray import frozenbitarray
 import random
 import typing
 
@@ -6,7 +5,7 @@ import typing
 class HereditaryStratum:
 
     _deposition_rank: int
-    _uid: frozenbitarray
+    _uid: int
     _annotation: typing.Optional[typing.Any]
 
     def __init__(
@@ -18,9 +17,7 @@ class HereditaryStratum:
     ):
         if deposition_rank is not None:
             self._deposition_rank = deposition_rank
-        self._uid = frozenbitarray(
-            ''.join(random.choices('01', k=uid_size,))
-        )
+        self._uid = random.randrange(2**uid_size)
         if annotation is not None:
             self._annotation = annotation
 
@@ -40,7 +37,7 @@ class HereditaryStratum:
             return self._deposition_rank
         else: return None
 
-    def GetUid(self: 'HereditaryStratum') -> frozenbitarray:
+    def GetUid(self: 'HereditaryStratum') -> int:
         return self._uid
 
     def GetAnnotation(self: 'HereditaryStratum') -> typing.Optional[typing.Any]:

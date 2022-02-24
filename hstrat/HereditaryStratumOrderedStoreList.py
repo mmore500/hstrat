@@ -1,4 +1,3 @@
-from bitarray import frozenbitarray
 from copy import copy
 from interval_search import binary_search
 import typing
@@ -106,7 +105,7 @@ class HereditaryStratumOrderedStoreList:
         # deposition ranks might not be stored in strata
         get_rank_at_column_index: typing.Optional[typing.Callable]=None,
         start_column_index: int=0,
-    ) -> typing.Iterator[typing.Tuple[int, frozenbitarray]]:
+    ) -> typing.Iterator[typing.Tuple[int, int]]:
         if get_rank_at_column_index is None:
             get_rank_at_column_index = self.GetRankAtColumnIndex
 

@@ -1,4 +1,3 @@
-from bitarray import frozenbitarray
 from copy import copy
 import itertools as it
 import sys
@@ -92,7 +91,7 @@ class HereditaryStratumOrderedStoreDict:
         # needed for other implementations
         get_rank_at_column_index: typing.Optional[typing.Callable]=None,
         start_column_index: int=0,
-    ) -> typing.Iterator[typing.Tuple[int, frozenbitarray]]:
+    ) -> typing.Iterator[typing.Tuple[int, int]]:
         # optimization idea:
         # python dicts are ordered, so is there a way to begin iterating
         # from a specified item in the dict?

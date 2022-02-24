@@ -1,5 +1,4 @@
 import anytree
-from bitarray import frozenbitarray
 from copy import copy
 from interval_search import binary_search
 import itertools as it
@@ -224,7 +223,7 @@ class HereditaryStratumOrderedStoreTree:
         # deposition ranks might not be stored in strata
         get_rank_at_column_index: typing.Optional[typing.Callable]=None,
         start_column_index: int=0,
-    ) -> typing.Iterator[typing.Tuple[int, frozenbitarray]]:
+    ) -> typing.Iterator[typing.Tuple[int, int]]:
         for reverse_column_idx, node in enumerate(self._GetAscendingIter()):
             column_idx = self.GetNumStrataRetained() - 1 - reverse_column_idx
             if column_idx >= start_column_index:
@@ -244,7 +243,7 @@ class HereditaryStratumOrderedStoreTree:
         # deposition ranks might not be stored in strata
         get_rank_at_column_index: typing.Optional[typing.Callable]=None,
         start_column_index: int=0,
-    ) -> typing.Iterator[typing.Tuple[int, frozenbitarray]]:
+    ) -> typing.Iterator[typing.Tuple[int, int]]:
         reverse_iter = self._do_reverse_IterRankUid(
             get_rank_at_column_index=get_rank_at_column_index,
             start_column_index=start_column_index,
