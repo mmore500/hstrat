@@ -1,11 +1,11 @@
 from copy import deepcopy
+from iterify import cyclify
 import itertools as it
 import random
 import unittest
 
 random.seed(1)
 
-from pylib.helpers import cyclify
 from pylib import hstrat
 
 

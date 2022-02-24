@@ -1,5 +1,6 @@
 from copy import deepcopy
 from iterpop import iterpop as ip
+from iterify import cyclify, iterify
 import itertools as it
 import random
 import unittest
@@ -268,10 +269,10 @@ def _do_test_CalcRankOfMrcaBoundsWith(
 
         for f, s in it.chain(
             it.combinations(population, 2),
-            zip(population, helpers.cyclify(forked_isolated)),
-            zip(population, helpers.cyclify(frozen_copy)),
-            zip(helpers.cyclify(forked_isolated), population),
-            zip(helpers.cyclify(frozen_copy), population),
+            zip(population, cyclify(forked_isolated)),
+            zip(population, cyclify(frozen_copy)),
+            zip(cyclify(forked_isolated), population),
+            zip(cyclify(frozen_copy), population),
         ):
             lb, ub = f['test'].CalcRankOfMrcaBoundsWith(s['test'])
             actual_rank_of_mrca = f['control'].GetLastCommonStratumWith(
@@ -280,10 +281,10 @@ def _do_test_CalcRankOfMrcaBoundsWith(
             assert lb <= actual_rank_of_mrca < ub
 
         for f, s in it.chain(
-            zip(population, helpers.cyclify(frozen_unrelated)),
-            zip(population, helpers.cyclify(unrelated_isolated)),
-            zip(helpers.cyclify(frozen_unrelated), population),
-            zip(helpers.cyclify(unrelated_isolated), population),
+            zip(population, cyclify(frozen_unrelated)),
+            zip(population, cyclify(unrelated_isolated)),
+            zip(cyclify(frozen_unrelated), population),
+            zip(cyclify(unrelated_isolated), population),
         ):
             assert f['test'].CalcRankOfMrcaBoundsWith(s['test']) is None
 
@@ -295,8 +296,8 @@ def _do_test_CalcRankOfMrcaBoundsWith(
             )
         for individual in it.chain(
             iter(population),
-            helpers.iterify(forked_isolated),
-            helpers.iterify(unrelated_isolated),
+            iterify(forked_isolated),
+            iterify(unrelated_isolated),
         ):
             if random.choice([True, False]):
                 individual.DepositStratum(
@@ -337,10 +338,10 @@ def _do_test_CalcRanksSinceMrcaBoundsWith(
 
         for f, s in it.chain(
             it.combinations(population, 2),
-            zip(population, helpers.cyclify(forked_isolated)),
-            zip(population, helpers.cyclify(frozen_copy)),
-            zip(helpers.cyclify(forked_isolated), population),
-            zip(helpers.cyclify(frozen_copy), population),
+            zip(population, cyclify(forked_isolated)),
+            zip(population, cyclify(frozen_copy)),
+            zip(cyclify(forked_isolated), population),
+            zip(cyclify(frozen_copy), population),
         ):
             lb, ub = f['test'].CalcRanksSinceMrcaBoundsWith(s['test'])
             actual_rank_of_mrca = f['control'].GetLastCommonStratumWith(
@@ -352,10 +353,10 @@ def _do_test_CalcRanksSinceMrcaBoundsWith(
             assert lb <= actual_ranks_since_mrca < ub
 
         for f, s in it.chain(
-            zip(population, helpers.cyclify(frozen_unrelated)),
-            zip(population, helpers.cyclify(unrelated_isolated)),
-            zip(helpers.cyclify(frozen_unrelated), population),
-            zip(helpers.cyclify(unrelated_isolated), population),
+            zip(population, cyclify(frozen_unrelated)),
+            zip(population, cyclify(unrelated_isolated)),
+            zip(cyclify(frozen_unrelated), population),
+            zip(cyclify(unrelated_isolated), population),
         ):
             assert f['test'].CalcRanksSinceMrcaBoundsWith(s['test']) is None
 
@@ -368,8 +369,8 @@ def _do_test_CalcRanksSinceMrcaBoundsWith(
             )
         for individual in it.chain(
             iter(population),
-            helpers.iterify(forked_isolated),
-            helpers.iterify(unrelated_isolated),
+            iterify(forked_isolated),
+            iterify(unrelated_isolated),
         ):
             if random.choice([True, False]):
                 individual.DepositStratum(
