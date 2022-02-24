@@ -1,11 +1,11 @@
 from copy import copy
+from interval_search import binary_search
 from iterpop import iterpop as ip
 import itertools as it
 import math
 import operator
 import typing
 
-from ..helpers import binary_search
 from ..helpers import value_or
 
 from .HereditaryStratum import HereditaryStratum

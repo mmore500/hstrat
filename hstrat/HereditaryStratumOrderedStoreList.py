@@ -1,8 +1,7 @@
 from bitarray import frozenbitarray
 from copy import copy
+from interval_search import binary_search
 import typing
-
-from ..helpers import binary_search
 
 from .HereditaryStratum import HereditaryStratum
 

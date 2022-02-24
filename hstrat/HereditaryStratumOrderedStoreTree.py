@@ -1,11 +1,11 @@
 import anytree
 from bitarray import frozenbitarray
 from copy import copy
+from interval_search import binary_search
 import itertools as it
 import typing
 
 from ..helpers import AnyTreeAscendingIter
-from ..helpers import binary_search
 
 from .HereditaryStratum import HereditaryStratum
 
