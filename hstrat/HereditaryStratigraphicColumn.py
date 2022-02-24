@@ -4,9 +4,8 @@ from iterpop import iterpop as ip
 import itertools as it
 import math
 import operator
+import opytional as opyt
 import typing
-
-from ..helpers import value_or
 
 from .HereditaryStratum import HereditaryStratum
 from .HereditaryStratumOrderedStoreList import HereditaryStratumOrderedStoreList
@@ -472,7 +471,7 @@ class HereditaryStratigraphicColumn:
                 assert num_self_deposited == num_other_deposited
             return (
                 self.CalcRankOfLastCommonalityWith(other),
-                value_or(first_disparity, self.GetNumStrataDeposited()),
+                opyt.or_value(first_disparity, self.GetNumStrataDeposited()),
             )
         else: return None
 
@@ -515,7 +514,7 @@ class HereditaryStratigraphicColumn:
     ) -> typing.Optional[typing.Tuple[int, int]]:
         if self.HasAnyCommonAncestorWith(other):
             since_first_disparity = self.CalcRanksSinceFirstDisparityWith(other)
-            lb_exclusive = value_or(since_first_disparity, -1)
+            lb_exclusive = opyt.or_value(since_first_disparity, -1)
             lb_inclusive = lb_exclusive + 1
 
             since_last_common = self.CalcRanksSinceLastCommonalityWith(other)

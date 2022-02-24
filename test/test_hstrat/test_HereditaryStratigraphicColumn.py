@@ -2,10 +2,10 @@ from copy import deepcopy
 from iterpop import iterpop as ip
 from iterify import cyclify, iterify
 import itertools as it
+import opytional as opyt
 import random
 import unittest
 
-from pylib import helpers
 from pylib import hstrat
 
 random.seed(1)
@@ -466,7 +466,7 @@ def _do_test_comparison_validity(
                 in [
                     (
                         lcrw,
-                        helpers.value_or(fdrw, first.GetNumStrataDeposited())
+                        opyt.or_value(fdrw, first.GetNumStrataDeposited())
                     ),
                     None,
                 ]
@@ -487,7 +487,7 @@ def _do_test_comparison_validity(
             assert (
                 first.CalcRanksSinceMrcaBoundsWith(second) is None
                 or first.CalcRanksSinceMrcaBoundsWith(second)
-                    == (helpers.value_or(rsfdw, -1) + 1, rslcw + 1)
+                    == (opyt.or_value(rsfdw, -1) + 1, rslcw + 1)
             )
             if rslcw is not None and rsfdw is not None:
                 assert rsfdw < rslcw
