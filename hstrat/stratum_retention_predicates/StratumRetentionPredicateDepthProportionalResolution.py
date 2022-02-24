@@ -3,13 +3,22 @@ import typing
 
 
 class StratumRetentionPredicateDepthProportionalResolution:
-    """Functor specifying a stratum retention policy, for use with
-    HereditaryStratigraphicColumn.
+    """Functor to implement the depth-proportional resolution strata retention
+    policy, for use with HereditaryStratigraphicColumn.
 
-    With n as the number of strata deposited on the column, this retention
-    predicate provides,
-    * MRCA rank estimate uncertainty: O(n), and
-    * Space complexity: O(1).
+    This functor enacts the depth-proportional resolution policy by specifying
+    whether a stratum with deposition rank r should be retained within the
+    hereditary stratigraphic column after n strata have been deposited.
+
+    The depth-proportional resolution policy ensures estimates of MRCA rank will
+    have uncertainty bounds less than or equal to a user-specified
+    proportion of the largest number of strata deposited on either column.
+    Thus, MRCA rank estimate uncertainty scales as O(n) with respect to the
+    greater number of strata deposited on either column.
+
+    Under the depth-proportional resolution policy, the number of strata
+    retained (i.e., space complexity) scales as O(1) with respect to the number
+    of strata deposited.
     """
 
     _guaranteed_depth_proportional_resolution: int
@@ -23,7 +32,11 @@ class StratumRetentionPredicateDepthProportionalResolution:
         Parameters
         ----------
         guaranteed_depth_proportional_resolution : int
-            The desired minimum number of intervals for the rank of the MRCA to be able to be distinguished between.
+            The desired minimum number of intervals for the rank of the MRCA to
+            be able to be distinguished between. The uncertainty of MRCA
+            rank estimates provided under the depth-proportional resolution
+            policy will scale as total number of strata deposited divided by
+            guaranteed_depth_proportional_resolution.
         """
 
         assert guaranteed_depth_proportional_resolution > 0
@@ -159,7 +172,7 @@ class StratumRetentionPredicateDepthProportionalResolution:
         self: 'StratumRetentionPredicateDepthProportionalResolution',
         num_strata_deposited: int,
     ) -> int:
-        """Exactly how many strata are retained after n deposted? Inclusive."""
+        """Exactly how many strata are retained after n deposted?"""
 
         if num_strata_deposited == 0: return 0
 
@@ -205,7 +218,8 @@ class StratumRetentionPredicateDepthProportionalResolution:
         index: int,
         num_strata_deposited: int,
     ) -> int:
-        """After n strata have been deposited, what will the rank of the stratum at column index k be?
+        """After n strata have been deposited, what will the rank of the
+        stratum at column index k be?
 
         Assumes the no in-progress stratum depositions that haven't been
         reflected in num_strata_deposited.
@@ -224,7 +238,8 @@ class StratumRetentionPredicateDepthProportionalResolution:
         index: int,
         num_strata_deposited: int,
     ) -> int:
-        """After n strata have been deposited, what will the rank of the stratum at column index k be?
+        """After n strata have been deposited, what will the rank of the
+        stratum at column index k be?
 
         Enables a HereditaryStratigraphicColumn using this predicate to
         optimize away storage of rank annotations on strata. Takes into the

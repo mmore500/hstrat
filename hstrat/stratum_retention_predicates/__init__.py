@@ -1,3 +1,9 @@
+"""Functors that implement strata retention policies by specifying
+whether a stratum with deposition rank r should be retained within
+a hereditary stratigraphic column after n strata have been
+deposited."""
+
+
 from .StratumRetentionPredicateDepthProportionalResolution \
     import StratumRetentionPredicateDepthProportionalResolution
 from .StratumRetentionPredicateNominalResolution import StratumRetentionPredicateNominalResolution

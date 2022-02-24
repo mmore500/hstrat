@@ -3,13 +3,22 @@ import typing
 
 
 class StratumRetentionPredicateFixedResolution:
-    """Functor specifying a stratum retention policy, for use with
-    HereditaryStratigraphicColumn.
+    """Functor to implement the fixed resolution strata retention policy, for
+    use with HereditaryStratigraphicColumn.
 
-    With n as the number of strata deposited on the column, this retention
-    predicate provides,
-    * MRCA rank estimate uncertainty: O(1), and
-    * Space complexity: O(n).
+    This functor enacts the fixed resolution policy by specifying
+    whether a stratum with deposition rank r should be retained within the
+    hereditary stratigraphic column after n strata have been deposited.
+
+    The fixed resolution policy ensures estimates of MRCA rank will have
+    uncertainty bounds less than or equal a fixed, absolute user-specified cap
+    that is independent of the number of strata deposited on either column.
+    Thus, MRCA rank estimate uncertainty scales as O(1) with respect to the
+    greater number of strata deposited on either column.
+
+    Under the fixed resolution policy, the number of strata retained (i.e.,
+    space complexity) scales as O(n) with respect to the number of strata
+    deposited.
     """
 
     _fixed_resolution: int
@@ -23,7 +32,9 @@ class StratumRetentionPredicateFixedResolution:
         Parameters
         ----------
         fixed_resolution : int
-            The rank interval strata should be retained at.
+            The rank interval strata should be retained at. The uncertainty of
+            MRCA estimates provided under the fixed resolution policy will
+            always be strictly less than this cap.
         """
 
         assert fixed_resolution > 0
@@ -134,7 +145,8 @@ class StratumRetentionPredicateFixedResolution:
         index: int,
         num_strata_deposited: int,
     ) -> int:
-        """After n strata have been deposited, what will the rank of the stratum at column index k be?
+        """After n strata have been deposited, what will the rank of the
+        stratum at column index k be?
 
         Enables a HereditaryStratigraphicColumn using this predicate to
         optimize away storage of rank annotations on strata. Takes into the
