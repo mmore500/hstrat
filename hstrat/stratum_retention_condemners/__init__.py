@@ -1,3 +1,7 @@
+"""Functors that implement strata retention policies by specifying
+the set of strata ranks that should be pruned from a hereditary
+stratigraphic column when the nth stratum is deposited."""
+
 from .StratumRetentionCondemnerDepthProportionalResolution \
     import StratumRetentionCondemnerDepthProportionalResolution
 from .StratumRetentionCondemnerFixedResolution \

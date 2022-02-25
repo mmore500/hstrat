@@ -9,11 +9,47 @@ class StratumRetentionCondemnerDepthProportionalResolution(
     # inherit CalcNumStrataRetainedUpperBound, etc.
     StratumRetentionPredicateDepthProportionalResolution,
 ):
+    """Functor to implement the depth-proportional resolution strata retention
+    policy, for use with HereditaryStratigraphicColumn.
+
+    This functor enacts the depth-proportional resolution policy by specifying
+    the set of strata ranks that should be purged from a hereditary
+    stratigraphic column when the nth stratum is deposited.
+
+    The depth-proportional resolution policy ensures estimates of MRCA rank will
+    have uncertainty bounds less than or equal to a user-specified
+    proportion of the largest number of strata deposited on either column.
+    Thus, MRCA rank estimate uncertainty scales as O(n) with respect to the
+    greater number of strata deposited on either column.
+
+    Under the depth-proportional resolution policy, the number of strata
+    retained (i.e., space complexity) scales as O(1) with respect to the number
+    of strata deposited.
+
+    See Also
+    --------
+    StratumRetentionPredicateDepthProportionalResolution:
+        For definitions of methods inherited by this class that describe
+        guaranteed properties of the depth resolution stratum retention
+        policy.
+    """
 
     def __init__(
         self: 'StratumRetentionCondemnerDepthProportionalResolution',
         guaranteed_depth_proportional_resolution: int=10,
     ):
+        """Construct the functor.
+
+        Parameters
+        ----------
+        guaranteed_depth_proportional_resolution : int, optional
+            The desired minimum number of intervals for the rank of the MRCA to
+            be able to be distinguished between. The uncertainty of MRCA
+            rank estimates provided under the depth-proportional resolution
+            policy will scale as total number of strata deposited divided by
+            guaranteed_depth_proportional_resolution.
+        """
+
         super(
             StratumRetentionCondemnerDepthProportionalResolution,
             self,
@@ -27,6 +63,37 @@ class StratumRetentionCondemnerDepthProportionalResolution(
         num_stratum_depositions_completed: int,
         retained_ranks: typing.Optional[typing.Iterable[int]]=None,
     ) -> typing.Iterator[int]:
+        """Decide which strata within the stratagraphic column should be purged.
+
+        Every time a new stratum is deposited, this method is called to
+        determine which strata should be purged. All strata at ranks yielded
+        from this functor are immediately purged from the column, meaning that
+        for a stratum to persist it must not be yielded by this functor each
+        and every time a new stratum is deposited.
+
+        Parameters
+        ----------
+        num_stratum_depositions_completed : int
+            The number of strata that have already been deposited, not
+            including the latest stratum being deposited which prompted the
+            current purge operation.
+        retained_ranks : iterator over int, optional
+            An iterator over ranks of strata currently retained within the
+            hereditary stratigraphic column. Not used in this functor.
+
+        Returns
+        -------
+        iterator over int
+            The ranks of strata that should be purged from the hereditary
+            stratigraphic column at this deposition step.
+
+        See Also
+        --------
+        StratumRetentionPredicateDepthProportionalResolution:
+            For details on the rationale, implementation, and guarantees of the
+            depth-proportional resolution stratum retention policy.
+        """
+
         resolution = self._guaranteed_depth_proportional_resolution
         # _guaranteed_depth_proportional_resolution is from super class
 

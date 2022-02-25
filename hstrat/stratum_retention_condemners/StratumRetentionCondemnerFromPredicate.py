@@ -4,20 +4,54 @@ from ..HereditaryStratum import HereditaryStratum
 
 
 class _StratumRetentionCondemnerFromPredicateBase:
+    """Dummy class to faciliate recognition of instantiations of the
+    StratumRetentionCondemnerFromPredicate class across different calls to
+    the StratumRetentionCondemnerFromPredicate factory."""
+
     pass
 
 
 def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
+    """Factory method to generate a stratum retention condemner functor from a
+    stratum retention predicate functor.
+
+    Parameters
+    ----------
+    predicate : callable
+        Callable specifying whether a stratum with deposition rank r should be
+        retained within the hereditary stratigraphic column after n strata have
+        been deposited.
+
+    Returns
+    -------
+    condemner : callable
+        Functor that enacts the predicate's stratum retention policy by
+        specifying the set of strata ranks that should be purged from a
+        hereditary stratigraphic column when the nth stratum is deposited.
+    """
 
     class StratumRetentionCondemnerFromPredicate(
         _StratumRetentionCondemnerFromPredicateBase,
     ):
+        """Functor that wraps a stratum retention predicate functor to
+        operate as a stratum retention condemner."""
+
         _predicate: typing.Callable
 
         def __init__(
             self: 'StratumRetentionCondemnerFromPredicate',
             predicate: typing.Callable,
         ):
+            """Construct the functor.
+
+            Parameters
+            ----------
+            predicate : callable
+                Callable specifying whether a stratum with deposition rank r
+                should be retained within the hereditary stratigraphic column
+                after n strata have been deposited.
+            """
+
             self._predicate = predicate
 
         def __call__(
@@ -25,8 +59,13 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
             retained_ranks: typing.Iterable[int],
             num_stratum_depositions_completed: int,
         ) -> typing.Iterator[int]:
-            # wrapper to enforce requirements on predicate
+
+
             def should_retain(stratum_rank: int) -> bool:
+                """Should the rth stratum rank be retained?
+
+                Asserts retention requirements are respected by predicate.
+                """
                 res = self._predicate(
                     stratum_rank=stratum_rank,
                     num_stratum_depositions_completed
@@ -46,6 +85,11 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
             self: 'StratumRetentionCondemnerFromPredicate',
             other: 'StratumRetentionCondemnerFromPredicate',
         ) -> bool:
+            """Compare for value-wise equality."""
+
+            # account for possible distinct instantiations of the
+            # StratumRetentionCondemnerFromPredicate class across calls to the
+            # StratumRetentionCondemnerFromPredicate factory
             if issubclass(
                 other.__class__,
                 _StratumRetentionCondemnerFromPredicateBase,
@@ -59,6 +103,9 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
                 self: 'StratumRetentionCondemnerFromPredicate',
                 num_strata_deposited: int,
             ) -> int:
+                """Forwarding wrapper for predicate's
+                CalcNumStrataRetainedExact method, if available."""
+
                 return self._predicate.CalcNumStrataRetainedExact(
                     num_strata_deposited=num_strata_deposited,
                 )
@@ -68,6 +115,9 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
                 self: 'StratumRetentionCondemnerFromPredicate',
                 num_strata_deposited: int,
             ) -> int:
+                """Forwarding wrapper for predicate's
+                CalcNumStrataRetainedUpperBound method, if available."""
+
                 return self._predicate.CalcNumStrataRetainedUpperBound(
                     num_strata_deposited=num_strata_deposited,
                 )
@@ -80,6 +130,9 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
                 second_num_strata_deposited: int,
                 actual_rank_of_mrca: int,
             ) -> int:
+                """Forwarding wrapper for predicate's
+                CalcMrcaUncertaintyUpperBound method, if available."""
+
                 return self._predicate.CalcMrcaUncertaintyUpperBound(
                     first_num_strata_deposited=first_num_strata_deposited,
                     second_num_strata_deposited=second_num_strata_deposited,
@@ -88,10 +141,13 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
 
         if hasattr(predicate, 'CalcRankAtColumnIndex'):
             def CalcRankAtColumnIndex(
-                self: 'StratumCondemnerateMaximal',
+                self: 'StratumRetentionCondemnerFromPredicate',
                 index: int,
                 num_strata_deposited: int,
             ) -> int:
+                """Forwarding wrapper for predicate's CalcRankAtColumnIndex
+                method, if available."""
+
                 return self._predicate.CalcRankAtColumnIndex(
                     index=index,
                     num_strata_deposited=num_strata_deposited,

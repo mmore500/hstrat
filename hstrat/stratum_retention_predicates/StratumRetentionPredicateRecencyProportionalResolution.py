@@ -4,7 +4,7 @@ import typing
 
 
 class StratumRetentionPredicateRecencyProportionalResolution:
-    """Functor to implement the MRCA-recency-proportional resolution strata
+    """Functor to implement the MRCA-recency-proportional resolution stratum
     retention policy, for use with HereditaryStratigraphicColumn.
 
     This functor enacts the MRCA-recency-proportional resolution policy by
@@ -23,6 +23,13 @@ class StratumRetentionPredicateRecencyProportionalResolution:
     Under the MRCA-recency-proportional resolution policy, the number of strata
     retained (i.e., space complexity) scales as O(log(n)) with respect to the
     number of strata deposited.
+
+    See Also
+    --------
+    StratumRetentionCondemnerRecencyProportionalResolution:
+        For a potentially more computationally efficient specificiation of the
+        MRCA-recency-proportional resolution policy that directly generates the
+        ranks of strata that should be purged during the nth stratum deposition.
     """
 
     _guaranteed_mrca_recency_proportional_resolution: int
@@ -35,7 +42,7 @@ class StratumRetentionPredicateRecencyProportionalResolution:
 
         Parameters
         ----------
-        guaranteed_mrca_recency_proportional_resolution : int
+        guaranteed_mrca_recency_proportional_resolution : int, optional
             The desired minimum number of intervals between the MRCA and the
             deeper compared column to be able to be distinguished between. The
             uncertainty of MRCA rank estimates provided under the MRCA-recency-

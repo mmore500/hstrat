@@ -2,7 +2,7 @@ import typing
 
 
 class StratumRetentionPredicateNominalResolution:
-    """Functor to implement the nominal resolution strata retention policy, for
+    """Functor to implement the nominal resolution stratum retention policy, for
     use with HereditaryStratigraphicColumn.
 
     This functor enacts the nominal resolution policy by specifying
@@ -19,6 +19,13 @@ class StratumRetentionPredicateNominalResolution:
     Under the nominal resolution policy, the number of strata retained (i.e.,
     space complexity) scales as O(1) with respect to the number of strata
     deposited.
+
+    See Also
+    --------
+    StratumRetentionCondemnerNominalResolution:
+        For a potentially more computationally efficient specificiation of the
+        nominal resolution policy that directly generates the ranks of strata
+        that should be purged during the nth stratum deposition.
     """
 
     def __call__(

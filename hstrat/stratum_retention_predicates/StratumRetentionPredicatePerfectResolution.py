@@ -2,7 +2,7 @@ import typing
 
 
 class StratumRetentionPredicatePerfectResolution:
-    """Functor to implement the perfect resolution strata retention policy, for
+    """Functor to implement the perfect resolution stratum retention policy, for
     use with HereditaryStratigraphicColumn.
 
     This functor enacts the perfect resolution policy by specifying
@@ -17,6 +17,13 @@ class StratumRetentionPredicatePerfectResolution:
     Under the perfect resolution policy, the number of strata retained (i.e.,
     space complexity) scales as O(n) with respect to the number of strata
     deposited.
+
+    See Also
+    --------
+    StratumRetentionCondemnerPerfectResolution:
+        For a potentially more computationally efficient specificiation of the
+        perfect resolution policy that directly generates the ranks of strata
+        that should be purged during the nth stratum deposition.
     """
 
     def __call__(

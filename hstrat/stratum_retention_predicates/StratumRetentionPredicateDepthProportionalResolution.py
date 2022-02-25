@@ -3,7 +3,7 @@ import typing
 
 
 class StratumRetentionPredicateDepthProportionalResolution:
-    """Functor to implement the depth-proportional resolution strata retention
+    """Functor to implement the depth-proportional resolution stratum retention
     policy, for use with HereditaryStratigraphicColumn.
 
     This functor enacts the depth-proportional resolution policy by specifying
@@ -19,6 +19,13 @@ class StratumRetentionPredicateDepthProportionalResolution:
     Under the depth-proportional resolution policy, the number of strata
     retained (i.e., space complexity) scales as O(1) with respect to the number
     of strata deposited.
+
+    See Also
+    --------
+    StratumRetentionCondemnerDepthProportionalResolution:
+        For a potentially more computationally efficient specificiation of the
+        depth-proportional resolution policy that directly generates the ranks
+        of strata that should be purged during the nth stratum deposition.
     """
 
     _guaranteed_depth_proportional_resolution: int
@@ -31,7 +38,7 @@ class StratumRetentionPredicateDepthProportionalResolution:
 
         Parameters
         ----------
-        guaranteed_depth_proportional_resolution : int
+        guaranteed_depth_proportional_resolution : int, optional
             The desired minimum number of intervals for the rank of the MRCA to
             be able to be distinguished between. The uncertainty of MRCA
             rank estimates provided under the depth-proportional resolution

@@ -3,7 +3,7 @@ import typing
 
 
 class StratumRetentionPredicateFixedResolution:
-    """Functor to implement the fixed resolution strata retention policy, for
+    """Functor to implement the fixed resolution stratum retention policy, for
     use with HereditaryStratigraphicColumn.
 
     This functor enacts the fixed resolution policy by specifying
@@ -19,6 +19,13 @@ class StratumRetentionPredicateFixedResolution:
     Under the fixed resolution policy, the number of strata retained (i.e.,
     space complexity) scales as O(n) with respect to the number of strata
     deposited.
+
+    See Also
+    --------
+    StratumRetentionCondemnerFixedResolution:
+        For a potentially more computationally efficient specificiation of the
+        fixed resolution policy that directly generates the ranks of strata
+        that should be purged during the nth stratum deposition.
     """
 
     _fixed_resolution: int
@@ -31,7 +38,7 @@ class StratumRetentionPredicateFixedResolution:
 
         Parameters
         ----------
-        fixed_resolution : int
+        fixed_resolution : int, optional
             The rank interval strata should be retained at. The uncertainty of
             MRCA estimates provided under the fixed resolution policy will
             always be strictly less than this cap.

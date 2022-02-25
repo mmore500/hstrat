@@ -3,8 +3,8 @@ import typing
 
 
 class StratumRetentionPredicateStochastic:
-    """Functor to implement the stochastic resolution strata retention policy, for
-    use with HereditaryStratigraphicColumn.
+    """Functor to implement the stochastic resolution stratum retention policy,
+    for use with HereditaryStratigraphicColumn.
 
     This functor enacts the stochastic resolution policy by specifying
     whether a stratum with deposition rank r should be retained within the
