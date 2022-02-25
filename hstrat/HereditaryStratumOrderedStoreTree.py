@@ -26,7 +26,7 @@ class HereditaryStratumOrderedStoreTree:
     """
 
     # strata stored in a tree with most ancient as root and most recent as leaf
-    _leaf: typing.AnyNode[HereditaryStratum]
+    _leaf: anytree.AnyNode # will contain HereditaryStratum
     # maintaining a counter is much more efficient than counting steps from leaf
     # to root
     _num_strata_retained: int
