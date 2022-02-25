@@ -101,7 +101,15 @@ class HereditaryStratigraphicColumnBundle:
     ) -> 'HereditaryStratigraphicColumnBundle':
         """Return a cloned bundle that has had an additional stratum deposited.
 
-        Does not alter self."""
+        Does not alter self.
+
+        Parameters
+        ----------
+        stratum_annotation: any, optional
+            Optional object to store as an annotation. Allows arbitrary user-
+            provided to be associated with this stratum deposition in the
+            line of descent.
+        """
 
         res = self.Clone()
         res.DepositStratum(annotation=stratum_annotation)

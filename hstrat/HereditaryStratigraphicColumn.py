@@ -16,11 +16,44 @@ from .stratum_retention_condemners \
 
 
 class HereditaryStratigraphicColumn:
+    """Genetic annotation to enable phylogenetic inference among distributed
+    digital evolution populations.
 
+    Primary end-user facing interface for hstrat library. Should be bundled with
+    digital genomes and propagated via the CloneDescendant method when passing
+    those genomes from parent to offspring.
+
+    Naming conventions are derived by analogy to Geological "Stratigraphy"
+    (i.e., <https://en.wikipedia.org/wiki/Stratigraphy>). The "hereditary
+    stratigraphy" system provided by this software works by associating an
+    identifier, referred to as a "stratum," with each elapsed generation along
+    a line of descent. This allows two "columns" to be aligned to detect the
+    generation of their most recent common ancestor: strata before the MRCA
+    will be identical and strata after will differ.
+
+    Stratum retention policy and stratum differentia bit width can be configured
+    to tune the time and space complexity of the column, trading-off with
+    uncertainty induced on estimates of phylogenetic distance back to the most
+    common recent ancestor of two columns.
+
+    Arbitrary user-defined data can be associated with strata by optional
+    argument to the CloneDescendant method. (Note that a first stratum is
+    deposited during column initialization, so an optional annotation argument
+    may also be provided then.)
+    """
+
+    # if True, strata will be constructed with deposition rank stored even if
+    # the stratum retention condemner does not require it
     _always_store_rank_in_stratum: bool
+    # how many bits wide of differentia should the deposted strata be
+    # constructed with?
     _default_stratum_differentia_size: int
+    # counter tracking the number of strata deposited
+    # incremented *after* a deposition and its coinciding purge are complete
     _num_strata_deposited: int
+    # data structure storing retained strata
     _stratum_ordered_store: typing.Any
+    # functor specifying stratum retention policy
     _stratum_retention_condemner: typing.Callable
 
     def __init__(
@@ -34,9 +67,47 @@ class HereditaryStratigraphicColumn:
         stratum_ordered_store_factory: typing.Callable
             =HereditaryStratumOrderedStoreList,
     ):
+        """Initialize column to track a new line of descent.
+
+        Deposits a first stratum, so GetNumStrataDeposited() will return 1 after
+        initialization even though the user has not yet called DepositStratum().
+
+        Parameters
+        ----------
+        always_store_rank_in_stratum : bool, optional
+            Should the deposition rank be stored as a data member of generated
+            strata, even if not strictly necessary?
+        default_stratum_differentia_size : int, optional
+            The bit width of the generated differentia. Default 64, allowing
+            for 2^64 distinct values.
+        initial_stratum_annotation: any, optional
+            Optional object to store as an annotation. Allows arbitrary user-
+            provided to be associated with the first stratum deposition in the
+            line of descent.
+        stratum_retention_condemner : callable, optional
+            Functor that implements stratum retention policy by specifying
+            the set of strata ranks that should be pruned from a hereditary
+            stratigraphic column when the nth stratum is deposited. Mutually
+            exclusive with stratum_retention_predicate; only one should be
+            specified.
+        stratum_retention_predicate : callable, optional
+            Functor that implements stratum retention policy by specifying
+            whether a stratum with deposition rank r should be retained within
+            a hereditary stratigraphic column after n strata have been
+            deposited. Mutually exclusive with stratum_retention_condemner;
+            only one should be specified.
+        stratum_ordered_store_factory : callable, optional
+            Callable to generate a container that implements the necessary
+            interface to store strata within the column. Can be configured for
+            performance reasons, but has no semantic effect. A type that can be
+            default-constructed will suffice.
+
+        Note
+        ----
+        If no condemner or predicate functor specifying a stratum retention
+        policy is provided, the perfect resolution policy where all strata are
+        retained is used.
         """
-        Retention predicate should take two keyword arguments: stratum_rank and num_stratum_depositions_completed.
-        Default retention predicate is to keep all strata."""
         self._always_store_rank_in_stratum = always_store_rank_in_stratum
         self._default_stratum_differentia_size = default_stratum_differentia_size
         self._num_strata_deposited = 0
@@ -67,6 +138,8 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> bool:
+        """Compare for value-wise equality."""
+
         if isinstance(other, self.__class__):
             return self.__dict__ == other.__dict__
         else:
@@ -75,6 +148,17 @@ class HereditaryStratigraphicColumn:
     def _ShouldOmitStratumDepositionRank(
         self: 'HereditaryStratigraphicColumn',
     ) -> bool:
+        """Implementation detail to inspect configured stratum retention policy
+        and manual override to decide whether deposition rank should be stored
+        as a data member of generated strata.
+
+        Note that strata are not required to be stored if the stratum retention
+        policy allows for the rank of a stratum to be calcualted as a function
+        of its position within the column and the number of strata deposited
+        onto the column. However, it may be beneficial to store the stratum
+        anyways for performance reasons if this calculation is expenxive.
+        """
+
         can_omit_deposition_rank = hasattr(
             self._stratum_retention_condemner,
             'CalcRankAtColumnIndex',
@@ -88,6 +172,15 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         annotation: typing.Optional[typing.Any]=None,
     ) -> None:
+        """Elapse a generation.
+
+        Parameters
+        ----------
+        annotation: any, optional
+            Optional object to store as an annotation. Allows arbitrary user-
+            provided to be associated with this stratum deposition in the
+            line of descent.
+        """
 
         new_stratum = HereditaryStratum(
             annotation=annotation,
@@ -108,6 +201,14 @@ class HereditaryStratigraphicColumn:
         self._num_strata_deposited += 1
 
     def _PurgeColumn(self: 'HereditaryStratigraphicColumn') -> None:
+        """Implementation detail to discard stored strata according to the
+        configured stratum retention policy.
+
+        Called after a new stratum has been appended to the column's store but
+        before it is considered fully deposited (i.e., it is reflected in the
+        column's internal deposition counter).
+        """
+
         condemned_ranks = self._stratum_retention_condemner(
             retained_ranks=self.GetRetainedRanks(),
             num_stratum_depositions_completed=self.GetNumStrataDeposited(),
@@ -120,22 +221,45 @@ class HereditaryStratigraphicColumn:
     def GetRetainedRanks(
         self: 'HereditaryStratigraphicColumn',
     ) -> typing.Iterator[int]:
-            if self._ShouldOmitStratumDepositionRank():
-                for idx in range(self.GetNumStrataRetained()):
-                    yield self.GetRankAtColumnIndex(idx)
-            else:
-                yield from self._stratum_ordered_store.GetRetainedRanks()
+        """Get an iterator over deposition ranks of strata stored in the column.
+
+        Order of iteration should not be considered guaranteed. The store may
+        be altered during iteration without iterator invalidation, although
+        subsequent updates will not be reflected in the iterator.
+        """
+
+        if self._ShouldOmitStratumDepositionRank():
+            for idx in range(self.GetNumStrataRetained()):
+                yield self.GetRankAtColumnIndex(idx)
+        else:
+            yield from self._stratum_ordered_store.GetRetainedRanks()
 
     def GetNumStrataRetained(self: 'HereditaryStratigraphicColumn') -> int:
+        """How many strata are currently stored within the column?
+
+        May be fewer than the number of strata deposited if strata have been
+        discarded as part of the configured stratum retention policy.
+        """
+
         return self._stratum_ordered_store.GetNumStrataRetained()
 
     def GetNumStrataDeposited(self: 'HereditaryStratigraphicColumn') -> int:
+        """How many strata have been depostited on the column?
+
+        Note that a first stratum is deposited on the column during
+        initialization."""
+
         return self._num_strata_deposited
 
     def GetStratumAtColumnIndex(
         self: 'HereditaryStratigraphicColumn',
         index: int,
     ) -> HereditaryStratum:
+        """Get the stratum positioned at index i among retained strata.
+
+        Index order is from most ancient (index 0) to most recent.
+        """
+
         return self._stratum_ordered_store.GetStratumAtColumnIndex(
             index,
             get_rank_at_column_index=(
@@ -149,6 +273,12 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         index: int,
     ) -> int:
+        """What is the deposition rank of the stratum positioned at index i
+        among retained strata?
+
+        Index order is from most ancient (index 0) to most recent.
+        """
+
         if self._ShouldOmitStratumDepositionRank():
             return self._stratum_retention_condemner.CalcRankAtColumnIndex(
                 index=index,
@@ -162,6 +292,12 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratumOrderedStoreList',
         rank: int,
     ) -> typing.Optional[int]:
+        """What is the index position within retained strata of the stratum
+        deposited at rank r?
+
+        Returns None if no stratum with rank r is present within the store.
+        """
+
         if self._ShouldOmitStratumDepositionRank():
             assert self.GetNumStrataRetained()
             res_idx = binary_search(
@@ -182,17 +318,34 @@ class HereditaryStratigraphicColumn:
     def GetNumDiscardedStrata(
         self: 'HereditaryStratigraphicColumn',
     ) -> int:
+        """How many strata have been discarded by the configured column
+        retention policy?"""
+
         return self.GetNumStrataDeposited() - self.GetNumStrataRetained()
 
     def HasDiscardedStrata(
         self: 'HereditaryStratigraphicColumn',
     ) -> bool:
+        """Have any strata have been discarded by the configured column
+        retention policy?"""
+
         return self.GetNumDiscardedStrata() > 0
 
     def CalcRankOfLastCommonalityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
+        """How many depositions elapsed along the columns' lines of
+        descent before the last matching strata at the same rank between
+        self and other?
+
+        Returns
+        -------
+        int, optional
+            The number of depositions elapsed or None if no common ancestor is
+            shared between the columns.
+        """
+
         if (
             self.HasDiscardedStrata()
             or other.HasDiscardedStrata()
@@ -215,8 +368,11 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
-        """Assumes both self and other use the maximal retention predicate."""
+        """Implementation detail with optimized implementation for specialized
+        case where both self and other use the perfect resolution stratum
+        retention policy."""
 
+        # both must have (effectively) used the perfect resolution policy
         assert not self.HasDiscardedStrata() and not other.HasDiscardedStrata()
 
         lower_bound = 0
@@ -264,6 +420,8 @@ class HereditaryStratigraphicColumn:
         self_start_idx: int=0,
         other_start_idx: int=0,
     ) -> typing.Optional[int]:
+        """Implementation detail with general-case implementation."""
+
         # helper setup
         self_iter = self._stratum_ordered_store.IterRankDifferentia(
             get_rank_at_column_index=self.GetRankAtColumnIndex,
@@ -313,6 +471,24 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
+        """How many depositions elapsed along the columns' lines of
+        descent before the first mismatching strata at the same rank between
+        self and other?
+
+        Returns
+        -------
+        int, optional
+            The number of depositions elapsed or None if no disparity (i.e.,
+            both columns have same number of strata deposited and the most
+            recent stratum is common between self and other).
+
+        Note
+        ----
+        If no mismatching strata are found but self and other have different
+        numbers of strata deposited, this method returns one greater than the
+        lesser of the columns' deposition counts.
+        """
+
         if (
             self.HasDiscardedStrata()
             or other.HasDiscardedStrata()
@@ -335,8 +511,11 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
-        """Assumes both self and other use the maximal retention predicate."""
+        """Implementation detail with optimized implementation for specialized
+        case where both self and other use the perfect resolution stratum
+        retention policy."""
 
+        # both must have (effectively) used the perfect resolution policy
         assert not self.HasDiscardedStrata() and not other.HasDiscardedStrata()
 
         lower_bound = 0
@@ -373,7 +552,6 @@ class HereditaryStratigraphicColumn:
                 other_start_idx=upper_bound,
             )
 
-
     def _do_generic_CalcRankOfFirstDisparityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
@@ -381,6 +559,8 @@ class HereditaryStratigraphicColumn:
         self_start_idx: int=0,
         other_start_idx: int=0,
     ) -> typing.Optional[int]:
+        """Implementation detail with general-case implementation."""
+
         # helper setup
         self_iter = self._stratum_ordered_store.IterRankDifferentia(
             get_rank_at_column_index=self.GetRankAtColumnIndex,
@@ -469,6 +649,17 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[typing.Tuple[int, int]]:
+        """Calculate bounds on estimate for the number of depositions elapsed
+        along the line of descent before the most recent common ancestor with
+        other.
+
+        Returns
+        -------
+        (int, int), optional
+            Lower then upper bound on estimate or None if no common ancestor is
+            shared between self and other.
+        """
+
         if self.HasAnyCommonAncestorWith(other):
             first_disparity = self.CalcRankOfFirstDisparityWith(other)
             if first_disparity is None:
@@ -485,6 +676,13 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> int:
+        """Calculate uncertainty of estimate for the number of depositions
+        elapsed along the line of descent before the most common recent
+        ancestor with other.
+
+        Returns 0 if no common ancestor is shared between self and other.
+        """
+
         bounds = self.CalcRankOfMrcaBoundsWith(other)
         return 0 if bounds is None else abs(operator.sub(*bounds)) - 1
 
@@ -492,6 +690,13 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
+        """How many depositions have elapsed along this column's line of
+        descent since the las matching strata at the same rank between self and
+        other?
+
+        Returns None if no common ancestor is shared between self and other.
+        """
+
         last_common_rank = self.CalcRankOfLastCommonalityWith(other,)
         if last_common_rank is None: return None
         else:
@@ -500,12 +705,27 @@ class HereditaryStratigraphicColumn:
             assert 0 <= res < self.GetNumStrataDeposited()
             return res
 
-    # note, returns -1 if disparity is that other has advanced to ranks
-    # past self's largest rank
     def CalcRanksSinceFirstDisparityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
+        """How many depositions have elapsed along this column's line of
+        descent since the first mismatching strata at the same rank between
+        self and other?
+
+        Returns
+        -------
+        int, optional
+            The number of depositions elapsed or None if no disparity (i.e.,
+            both columns have same number of strata deposited and the most
+            recent stratum is common between self and other).
+
+        Note
+        ----
+        Returns -1 if self and other share no mismatching strata at common
+        ranks but other has more strata deposited then self.
+        """
+
         first_disparate_rank = self.CalcRankOfFirstDisparityWith(other,)
         if first_disparate_rank is None: return None
         else:
@@ -518,6 +738,17 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[typing.Tuple[int, int]]:
+        """Calculate bounds on estimate for the number of depositions elapsed
+        along this column's line of descent since the most recent common
+        ancestor with other.
+
+        Returns
+        -------
+        (int, int), optional
+            Lower then upper bound on estimate or None if no common ancestor is
+            shared between self and other.
+        """
+
         if self.HasAnyCommonAncestorWith(other):
             since_first_disparity = self.CalcRanksSinceFirstDisparityWith(other)
             lb_exclusive = opyt.or_value(since_first_disparity, -1)
@@ -535,6 +766,13 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> int:
+        """Calculate uncertainty of estimate for the number of depositions
+        elapsed along this column's line of descent since the most common recent
+        ancestor with other.
+
+        Returns 0 if no common ancestor is shared between self and other.
+        """
+
         bounds = self.CalcRanksSinceMrcaBoundsWith(other)
         return 0 if bounds is None else abs(operator.sub(*bounds)) - 1
 
@@ -542,6 +780,12 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[HereditaryStratum]:
+        """Get the most recent stratum in common between self and other, if any.
+
+        Common strata share identical rank and differentia. Returns None if no
+        common strata exist between the two columns.
+        """
+
         rank = self.CalcRankOfLastCommonalityWith(other)
         if rank is not None:
             index = ip.popsingleton(
@@ -556,12 +800,21 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> bool:
+        """Does self share any common ancestor with other?
+
+        Note that stratum rention policies are strictly required to permanently
+        retain the most ancient stratum.
+        """
+
         first_disparity = self.CalcRankOfFirstDisparityWith(other)
         return True if first_disparity is None else first_disparity > 0
 
     def Clone(
             self: 'HereditaryStratigraphicColumn',
     ) -> 'HereditaryStratigraphicColumn':
+        """Create a copy of the store with identical data that may be freely
+        altered without affecting data within this store."""
+
         # shallow copy
         result = copy(self)
         # do semi-shallow duplication on select elements
@@ -572,6 +825,18 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         stratum_annotation: typing.Optional[typing.Any]=None,
     ) -> 'HereditaryStratigraphicColumn':
+        """Return a cloned bundle that has had an additional stratum deposited.
+
+        Does not alter self.
+
+        Parameters
+        ----------
+        stratum_annotation: any, optional
+            Optional object to store as an annotation. Allows arbitrary user-
+            provided to be associated with this stratum deposition in the
+            line of descent.
+        """
+
         res = self.Clone()
         res.DepositStratum(annotation=stratum_annotation)
         return res
@@ -580,6 +845,9 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Tuple[typing.Set[int], typing.Set[int]]:
+        """Return the set of ranks retained by self but not other and vice
+        versa as a tuple."""
+
         self_ranks = set( self.GetRetainedRanks() )
         other_ranks = set( other.GetRetainedRanks() )
 

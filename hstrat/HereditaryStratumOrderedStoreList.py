@@ -163,9 +163,9 @@ class HereditaryStratumOrderedStoreList:
         """Get an iterator over deposition ranks of strata present in the
         store.
 
-        Order should not be considered guaranteed. The store may be altered
-        during iteration without iterator invalidation, although subsequent
-        updates will not be reflected in the iterator.
+        Order of iteration should not be considered guaranteed. The store may
+        be altered during iteration without iterator invalidation, although
+        subsequent updates will not be reflected in the iterator.
         """
 
         # must make copy to prevent invalidation when strata are deleted

@@ -1,4 +1,4 @@
-"""Functors that implement strata retention policies by specifying
+"""Functors that implement stratum retention policies by specifying
 the set of strata ranks that should be pruned from a hereditary
 stratigraphic column when the nth stratum is deposited."""
 

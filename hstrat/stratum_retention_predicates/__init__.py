@@ -1,4 +1,4 @@
-"""Functors that implement strata retention policies by specifying
+"""Functors that implement stratum retention policies by specifying
 whether a stratum with deposition rank r should be retained within
 a hereditary stratigraphic column after n strata have been
 deposited."""
