@@ -656,8 +656,13 @@ class HereditaryStratigraphicColumn:
         Returns
         -------
         (int, int), optional
-            Lower then upper bound on estimate or None if no common ancestor is
-            shared between self and other.
+            Inclusive lower and then exclusive upper bound on estimate or None
+            if no common ancestor is shared between self and other.
+
+        See Also
+        --------
+        CalcRankOfMrcaUncertaintyWith :
+            Wrapper to report uncertainty of calculated bounds.
         """
 
         if self.HasAnyCommonAncestorWith(other):
@@ -681,6 +686,12 @@ class HereditaryStratigraphicColumn:
         ancestor with other.
 
         Returns 0 if no common ancestor is shared between self and other.
+
+        See Also
+        --------
+        CalcRankOfMrcaBoundsWith :
+            Calculates bound whose uncertainty this method reports. See the
+            corresponding docstring for explanation of parameters.
         """
 
         bounds = self.CalcRankOfMrcaBoundsWith(other)
@@ -745,8 +756,13 @@ class HereditaryStratigraphicColumn:
         Returns
         -------
         (int, int), optional
-            Lower then upper bound on estimate or None if no common ancestor is
-            shared between self and other.
+            Inclusive lower bound and then exclusive upper bound on estimate or
+            None if no common ancestor is shared between self and other.
+
+        See Also
+        --------
+        CalcRanksSinceMrcaUncertaintyWith :
+            Wrapper to report uncertainty of calculated bounds.
         """
 
         if self.HasAnyCommonAncestorWith(other):
@@ -771,6 +787,12 @@ class HereditaryStratigraphicColumn:
         ancestor with other.
 
         Returns 0 if no common ancestor is shared between self and other.
+
+        See Also
+        --------
+        CalcRanksSinceMrcaBoundsWith :
+            Calculates bound whose uncertainty this method reports. See the
+            corresponding docstring for explanation of parameters.
         """
 
         bounds = self.CalcRanksSinceMrcaBoundsWith(other)
