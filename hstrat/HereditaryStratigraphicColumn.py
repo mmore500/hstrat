@@ -47,7 +47,7 @@ class HereditaryStratigraphicColumn:
     _always_store_rank_in_stratum: bool
     # how many bits wide of differentia should the deposted strata be
     # constructed with?
-    _default_stratum_differentia_size: int
+    _stratum_differentia_bit_width: int
     # counter tracking the number of strata deposited
     # incremented *after* a deposition and its coinciding purge are complete
     _num_strata_deposited: int
@@ -60,7 +60,7 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         *,
         always_store_rank_in_stratum: bool=True,
-        default_stratum_differentia_size: int=64,
+        stratum_differentia_bit_width: int=64,
         initial_stratum_annotation: typing.Optional[typing.Any]=None,
         stratum_retention_condemner: typing.Callable=None,
         stratum_retention_predicate: typing.Callable=None,
@@ -77,7 +77,7 @@ class HereditaryStratigraphicColumn:
         always_store_rank_in_stratum : bool, optional
             Should the deposition rank be stored as a data member of generated
             strata, even if not strictly necessary?
-        default_stratum_differentia_size : int, optional
+        stratum_differentia_bit_width : int, optional
             The bit width of the generated differentia. Default 64, allowing
             for 2^64 distinct values.
         initial_stratum_annotation: any, optional
@@ -109,7 +109,7 @@ class HereditaryStratigraphicColumn:
         retained is used.
         """
         self._always_store_rank_in_stratum = always_store_rank_in_stratum
-        self._default_stratum_differentia_size = default_stratum_differentia_size
+        self._stratum_differentia_bit_width = stratum_differentia_bit_width
         self._num_strata_deposited = 0
         self._stratum_ordered_store = stratum_ordered_store_factory()
 
@@ -191,7 +191,7 @@ class HereditaryStratigraphicColumn:
                 if self._ShouldOmitStratumDepositionRank()
                 else self._num_strata_deposited
             ),
-            differentia_size=self._default_stratum_differentia_size,
+            differentia_bit_width=self._stratum_differentia_bit_width,
         )
         self._stratum_ordered_store.DepositStratum(
             rank=self._num_strata_deposited,

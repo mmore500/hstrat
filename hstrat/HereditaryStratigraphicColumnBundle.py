@@ -34,8 +34,15 @@ class HereditaryStratigraphicColumnBundle:
             "must have same number strata deposited. "
         self._columns = columns
 
+    def __iter__(
+        self: 'HereditaryStratigraphicColumnBundle',
+    ) -> typing.Iterator[str]:
+        """Iterable interface."""
+
+        yield from self._columns
+
     def __getitem__(
-        self: 'HereditaryStratigraphicColumnBundle' ,
+        self: 'HereditaryStratigraphicColumnBundle',
         key: str,
     ) -> HereditaryStratigraphicColumn:
         """Brackets operator; access constituent column by name."""

@@ -17,7 +17,7 @@ class HereditaryStratum:
         self: 'HereditaryStratum',
         *,
         annotation: typing.Optional[typing.Any]=None,
-        differentia_size: int=64,
+        differentia_bit_width: int=64,
         deposition_rank: typing.Optional[int]=None,
     ):
         """Construct the stratum.
@@ -31,7 +31,7 @@ class HereditaryStratum:
             Optional object to store as an annotation. Allows arbitrary user-
             provided to be associated with this stratum's generation in its
             line of descent.
-        differentia_size: int, optional
+        differentia_bit_width: int, optional
             The bit width of the generated differentia. Default 64, allowing
             for 2^64 distinct values.
         deposition_rank : int, optional
@@ -41,7 +41,7 @@ class HereditaryStratum:
 
         if deposition_rank is not None:
             self._deposition_rank = deposition_rank
-        self._differentia = random.randrange(2**differentia_size)
+        self._differentia = random.randrange(2**differentia_bit_width)
         if annotation is not None:
             self._annotation = annotation
 
