@@ -803,6 +803,214 @@ def _do_test_always_store_rank_in_stratum(
         second.DepositStratum()
 
 
+def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith1(
+    testcase,
+    ordered_store,
+    differentia_width,
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_width,
+        stratum_ordered_store_factory=ordered_store,
+    )
+
+    for generation in range(100): column.DepositStratum()
+
+    offspring1 = column.CloneDescendant()
+    offspring2 = column.CloneDescendant()
+
+    for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+        if differentia_width == 64:
+            assert c1.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+                c2,
+            ) == column.GetNumStrataDeposited() - 1
+            assert c2.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+                c1,
+            ) == column.GetNumStrataDeposited() - 1
+        else:
+            assert c1.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+                c2,
+            ) >= column.GetNumStrataDeposited() - 1
+            assert c2.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+                c1,
+            ) >= column.GetNumStrataDeposited() - 1
+
+    for c in [column, offspring1, offspring2]:
+        assert c.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(c) \
+            == c.GetNumStrataDeposited() - 1
+
+    for generation in range(100):
+        offspring1.DepositStratum()
+        offspring2.DepositStratum()
+
+    for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+        if differentia_width == 64:
+            assert c1.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+                c2,
+            ) == column.GetNumStrataDeposited() - 1
+            assert c2.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+                c1,
+            ) == column.GetNumStrataDeposited() - 1
+        else:
+            assert c1.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+                c2,
+            ) >= column.GetNumStrataDeposited() - 1
+            assert c2.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+                c1,
+            ) >= column.GetNumStrataDeposited() - 1
+
+    for c in [column, offspring1, offspring2]:
+        assert c.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(c) \
+            == c.GetNumStrataDeposited() - 1
+
+
+def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith2(
+    testcase,
+    ordered_store,
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+    )
+
+    while True:
+        offspring1 = column.CloneDescendant()
+        offspring2 = column.CloneDescendant()
+        res = offspring1.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+            offspring2,
+        )
+        if res is not None and res > column.GetNumStrataDeposited() - 1:
+            assert offspring2.\
+                CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+                    offspring1,
+                ) == res
+            break
+
+
+def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith3(
+    testcase,
+    ordered_store,
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=64,
+        stratum_retention_condemner
+            =hstrat.StratumRetentionCondemnerNominalResolution(),
+    )
+
+    for generation in range(100): column.DepositStratum()
+
+    offspring1 = column.CloneDescendant()
+    offspring2 = column.CloneDescendant()
+
+    for generation in range(100):
+        offspring1.DepositStratum()
+        offspring2.DepositStratum()
+
+    for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+        assert c1.GetNumStrataRetained() == 2
+        assert c2.GetNumStrataRetained() == 2
+
+        assert c1.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+            c2,
+        ) == 0
+        assert c2.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+            c1,
+        ) == 0
+
+
+def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith4(
+    testcase,
+    ordered_store,
+):
+
+    def do_once():
+        c1 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+        )
+        c2 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+        )
+
+        res = c1.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+            c2,
+        )
+        assert c2.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+            c1,
+        ) == res
+        assert res in (None, 0)
+
+        if res is None:
+            for generation in range(100):
+                c1.DepositStratum()
+                c2.DepositStratum()
+            res = c1.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(c2)
+            assert res is None
+            assert c2.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+                c1,
+            ) is None
+        elif res == 0:
+            while True:
+                c1_ = c1.CloneDescendant()
+                c2_ = c2.CloneDescendant()
+                if c1_.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+                    c2_
+                ) == 1: break
+
+        return res
+
+    while do_once() is not None: pass
+
+    while do_once() != 0: pass
+
+def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith5(
+    testcase,
+    ordered_store,
+):
+
+    def do_once():
+        c1 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+            stratum_retention_predicate
+                =hstrat.StratumRetentionPredicateFixedResolution(2),
+        )
+        c2 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+            stratum_retention_predicate
+                =hstrat.StratumRetentionPredicateFixedResolution(2),
+        )
+
+        res = c1.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+            c2,
+        )
+        assert c2.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+            c1,
+        ) == res
+        assert res in (None, 0)
+
+        if res is None:
+            for generation in range(100):
+                c1.DepositStratum()
+                c2.DepositStratum()
+            res = c1.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(c2)
+            assert res is None
+            assert c2.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+                c1,
+            ) is None
+        elif res == 0:
+            while True:
+                c1_ = c1.CloneDescendant()
+                c2_ = c2.CloneDescendant()
+                c1_.DepositStratum()
+                c2_.DepositStratum()
+                if c1_.CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
+                    c2_
+                ) == 2: break
+
+        return res
+
+    while do_once() is not None: pass
+
+    while do_once() != 0: pass
+
+
 class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     # tests can run independently
@@ -1245,6 +1453,36 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
         ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
             significance_level=1.0 - 0.99
         ) == 1
+
+    def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(self):
+        for ordered_store in [
+            hstrat.HereditaryStratumOrderedStoreDict,
+            hstrat.HereditaryStratumOrderedStoreList,
+            hstrat.HereditaryStratumOrderedStoreTree,
+        ]:
+            _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith2(
+                self,
+                ordered_store,
+            )
+            _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith3(
+                self,
+                ordered_store,
+            )
+            _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith4(
+                self,
+                ordered_store,
+            )
+            _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith5(
+                self,
+                ordered_store,
+            )
+            for differentia_width in 1, 2, 8:
+                _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith1(
+                    self,
+                    ordered_store,
+                    differentia_width
+                )
+
 
 
 if __name__ == '__main__':
