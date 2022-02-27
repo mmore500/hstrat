@@ -797,13 +797,13 @@ class HereditaryStratigraphicColumn:
             if self_cur_rank == other_cur_rank:
                 # strata at same rank can be compared
                 if self_cur_differentia == other_cur_differentia:
+                    preceding_common_ranks.appendleft(self_cur_rank)
                     # matching differentiae at the same rank,
                     # keep searching for mismatch
                     # advance self and other
                     # must ensure both advance, even if one stops iteration
                     advance_self()
                     advance_other()
-                    preceding_common_ranks.appendleft(self_cur_rank)
                 else:
                     # mismatching differentiae at the same rank
                     preceding_common_ranks.appendleft(self_cur_rank)
@@ -832,7 +832,8 @@ class HereditaryStratigraphicColumn:
             # self has strata ranks beyond the newest found in other
             # conservatively assume mismatch will be with next rank of other
             assert other_iter is None
-            res = other_prev_rank + 1
+            preceding_common_ranks.appendleft(other_prev_rank + 1)
+            res = preceding_common_ranks[-1]
             assert 0 <= res <= self.GetNumStrataDeposited()
             assert 0 <= res <= other.GetNumStrataDeposited()
             return res
@@ -841,7 +842,8 @@ class HereditaryStratigraphicColumn:
             # other has strata ranks beyond the newest found in self
             # conservatively assume mismatch will be with next rank
             assert self_iter is None
-            res = self_prev_rank + 1
+            preceding_common_ranks.appendleft(self_prev_rank + 1)
+            res = preceding_common_ranks[-1]
             assert 0 <= res <= self.GetNumStrataDeposited()
             assert 0 <= res <= other.GetNumStrataDeposited()
             return res
@@ -849,7 +851,8 @@ class HereditaryStratigraphicColumn:
             # no disparate strata found
             # and self and other have the same newest rank
             assert self_iter is None and other_iter is None
-            return None
+            preceding_common_ranks.appendleft(None)
+            return preceding_common_ranks[-1]
 
     def CalcRankOfMrcaBoundsWith(
         self: 'HereditaryStratigraphicColumn',
