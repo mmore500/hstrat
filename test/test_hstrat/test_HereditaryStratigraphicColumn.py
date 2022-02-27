@@ -171,12 +171,12 @@ def _do_test_comparison_commutativity_asyncrhonous(
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert (
-                first.CalcRankOfLastCommonalityWith(second)
-                == second.CalcRankOfLastCommonalityWith(first)
+                first.CalcRankOfLastRetainedCommonalityWith(second)
+                == second.CalcRankOfLastRetainedCommonalityWith(first)
             )
             assert (
-                first.CalcRankOfFirstDisparityWith(second)
-                == second.CalcRankOfFirstDisparityWith(first)
+                first.CalcRankOfFirstRetainedDisparityWith(second)
+                == second.CalcRankOfFirstRetainedDisparityWith(first)
             )
             assert (
                 first.CalcRankOfMrcaBoundsWith(second)
@@ -396,12 +396,12 @@ def _do_test_comparison_commutativity_syncrhonous(
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert (
-                first.CalcRankOfLastCommonalityWith(second)
-                == second.CalcRankOfLastCommonalityWith(first)
+                first.CalcRankOfLastRetainedCommonalityWith(second)
+                == second.CalcRankOfLastRetainedCommonalityWith(first)
             )
             assert (
-                first.CalcRankOfFirstDisparityWith(second)
-                == second.CalcRankOfFirstDisparityWith(first)
+                first.CalcRankOfFirstRetainedDisparityWith(second)
+                == second.CalcRankOfFirstRetainedDisparityWith(first)
             )
             assert (
                 first.CalcRankOfMrcaBoundsWith(second)
@@ -412,12 +412,12 @@ def _do_test_comparison_commutativity_syncrhonous(
                 == second.CalcRankOfMrcaUncertaintyWith(first)
             )
             assert (
-                first.CalcRanksSinceLastCommonalityWith(second)
-                == second.CalcRanksSinceLastCommonalityWith(first)
+                first.CalcRanksSinceLastRetainedCommonalityWith(second)
+                == second.CalcRanksSinceLastRetainedCommonalityWith(first)
             )
             assert (
-                first.CalcRanksSinceFirstDisparityWith(second)
-                == second.CalcRanksSinceFirstDisparityWith(first)
+                first.CalcRanksSinceFirstRetainedDisparityWith(second)
+                == second.CalcRanksSinceFirstRetainedDisparityWith(first)
             )
             assert (
                 first.CalcRanksSinceMrcaBoundsWith(second)
@@ -453,11 +453,11 @@ def _do_test_comparison_validity(
     for generation in range(100):
 
         for first, second in it.combinations(population, 2):
-            lcrw = first.CalcRankOfLastCommonalityWith(second)
+            lcrw = first.CalcRankOfLastRetainedCommonalityWith(second)
             if lcrw is not None:
                 assert 0 <= lcrw <= generation
 
-            fdrw = first.CalcRankOfFirstDisparityWith(second)
+            fdrw = first.CalcRankOfFirstRetainedDisparityWith(second)
             if fdrw is not None:
                 assert 0 <= fdrw <= generation
 
@@ -476,11 +476,11 @@ def _do_test_comparison_validity(
 
             assert first.CalcRankOfMrcaUncertaintyWith(second) >= 0
 
-            rslcw = first.CalcRanksSinceLastCommonalityWith(second)
+            rslcw = first.CalcRanksSinceLastRetainedCommonalityWith(second)
             if rslcw is not None:
                 assert 0 <= rslcw <= generation
 
-            rsfdw = first.CalcRanksSinceFirstDisparityWith(second)
+            rsfdw = first.CalcRanksSinceFirstRetainedDisparityWith(second)
             if rsfdw is not None:
                 assert -1 <= rsfdw <= generation
 
@@ -519,20 +519,20 @@ def _do_test_scenario_no_mrca(
     )
 
     for generation in range(100):
-        assert first.CalcRankOfLastCommonalityWith(second) == None
-        assert second.CalcRankOfLastCommonalityWith(first) == None
+        assert first.CalcRankOfLastRetainedCommonalityWith(second) == None
+        assert second.CalcRankOfLastRetainedCommonalityWith(first) == None
 
-        assert first.CalcRankOfFirstDisparityWith(second) == 0
-        assert second.CalcRankOfFirstDisparityWith(first) == 0
+        assert first.CalcRankOfFirstRetainedDisparityWith(second) == 0
+        assert second.CalcRankOfFirstRetainedDisparityWith(first) == 0
 
         assert first.CalcRankOfMrcaUncertaintyWith(second) == 0
         assert second.CalcRankOfMrcaUncertaintyWith(first) == 0
 
-        assert first.CalcRanksSinceLastCommonalityWith(second) == None
-        assert second.CalcRanksSinceLastCommonalityWith(first) == None
+        assert first.CalcRanksSinceLastRetainedCommonalityWith(second) == None
+        assert second.CalcRanksSinceLastRetainedCommonalityWith(first) == None
 
-        assert first.CalcRanksSinceFirstDisparityWith(second) == generation
-        assert second.CalcRanksSinceFirstDisparityWith(first) == generation
+        assert first.CalcRanksSinceFirstRetainedDisparityWith(second) == generation
+        assert second.CalcRanksSinceFirstRetainedDisparityWith(first) == generation
 
         assert first.CalcRanksSinceMrcaUncertaintyWith(second) == 0
         assert second.CalcRanksSinceMrcaUncertaintyWith(first) == 0
@@ -553,12 +553,13 @@ def _do_test_scenario_no_divergence(
 
     for generation in range(100):
 
-        assert column.CalcRankOfLastCommonalityWith(column) == generation
-        assert column.CalcRankOfFirstDisparityWith(column) == None
+        assert column.CalcRankOfLastRetainedCommonalityWith(column) \
+            == generation
+        assert column.CalcRankOfFirstRetainedDisparityWith(column) == None
         assert column.CalcRankOfMrcaUncertaintyWith(column) == 0
 
-        assert column.CalcRanksSinceLastCommonalityWith(column) == 0
-        assert column.CalcRanksSinceFirstDisparityWith(column) == None
+        assert column.CalcRanksSinceLastRetainedCommonalityWith(column) == 0
+        assert column.CalcRanksSinceFirstRetainedDisparityWith(column) == None
         assert column.CalcRanksSinceMrcaUncertaintyWith(column) == 0
 
         column.DepositStratum()
@@ -585,22 +586,22 @@ def _do_test_scenario_partial_even_divergence(
     for generation in range(101, 200):
         assert (
             0
-            <= first.CalcRankOfLastCommonalityWith(second)
+            <= first.CalcRankOfLastRetainedCommonalityWith(second)
             <= 100
         )
         assert (
             100
-            <= first.CalcRankOfFirstDisparityWith(second)
+            <= first.CalcRankOfFirstRetainedDisparityWith(second)
             <= generation
         )
         assert (
             generation - 101
-            < first.CalcRanksSinceLastCommonalityWith(second)
+            < first.CalcRanksSinceLastRetainedCommonalityWith(second)
             <= generation
         )
         assert (
             0
-            <= first.CalcRanksSinceFirstDisparityWith(second)
+            <= first.CalcRanksSinceFirstRetainedDisparityWith(second)
             < generation - 100
         )
 
@@ -628,32 +629,32 @@ def _do_test_scenario_partial_uneven_divergence(
     for generation in range(101, 200):
         assert (
             0
-            <= first.CalcRankOfLastCommonalityWith(second)
+            <= first.CalcRankOfLastRetainedCommonalityWith(second)
             <= 100
         )
         assert (
             100
-            <= first.CalcRankOfFirstDisparityWith(second)
+            <= first.CalcRankOfFirstRetainedDisparityWith(second)
             <= generation
         )
 
         assert (
             generation - 101
-            < first.CalcRanksSinceLastCommonalityWith(second)
+            < first.CalcRanksSinceLastRetainedCommonalityWith(second)
             <= generation
         )
         assert (
             0
-            <= second.CalcRanksSinceLastCommonalityWith(first)
+            <= second.CalcRanksSinceLastRetainedCommonalityWith(first)
             <= 100
         )
         assert (
             0
-            <= first.CalcRanksSinceFirstDisparityWith(second)
+            <= first.CalcRanksSinceFirstRetainedDisparityWith(second)
             < generation - 100
         )
         assert (
-            -1 == second.CalcRanksSinceFirstDisparityWith(first)
+            -1 == second.CalcRanksSinceFirstRetainedDisparityWith(first)
         )
 
         first.DepositStratum()
@@ -663,33 +664,33 @@ def _do_test_scenario_partial_uneven_divergence(
     for generation in range(101, 200):
         assert (
             0
-            <= first.CalcRankOfLastCommonalityWith(second)
+            <= first.CalcRankOfLastRetainedCommonalityWith(second)
             <= 100
         )
         assert (
             100
-            <= first.CalcRankOfFirstDisparityWith(second)
+            <= first.CalcRankOfFirstRetainedDisparityWith(second)
             <= generation + 1
         )
 
         assert (
             100
-            <= first.CalcRanksSinceLastCommonalityWith(second)
+            <= first.CalcRanksSinceLastRetainedCommonalityWith(second)
             <= 200
         )
         assert (
             0
-            <= second.CalcRanksSinceLastCommonalityWith(first)
+            <= second.CalcRanksSinceLastRetainedCommonalityWith(first)
             <= generation
         )
         assert (
             0
-            <= first.CalcRanksSinceFirstDisparityWith(second)
+            <= first.CalcRanksSinceFirstRetainedDisparityWith(second)
             < 100
         )
         assert (
             -1
-            <= second.CalcRanksSinceFirstDisparityWith(first)
+            <= second.CalcRanksSinceFirstRetainedDisparityWith(first)
             < generation - 100
         )
 

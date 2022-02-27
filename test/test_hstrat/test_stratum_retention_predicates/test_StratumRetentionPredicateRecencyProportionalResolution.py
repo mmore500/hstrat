@@ -115,9 +115,10 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
                 zip(population, ancestor),
             ):
 
-                actual_rank_of_mrca = (
-                    f['control'].CalcRankOfLastCommonalityWith(s['control'])
-                )
+                actual_rank_of_mrca \
+                    = f['control'].CalcRankOfLastRetainedCommonalityWith(
+                        s['control']
+                    )
                 assert (
                     f['control'].CalcRankOfMrcaUncertaintyWith(s['control'])
                     == 0
@@ -278,7 +279,7 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
             zip(snapshots, cyclify(individual)),
         ):
             actual_rank_of_mrca = (
-                f['control'].CalcRankOfLastCommonalityWith(s['control'])
+                f['control'].CalcRankOfLastRetainedCommonalityWith(s['control'])
             )
 
             target_resolu = test_predicate.CalcMrcaUncertaintyUpperBound(

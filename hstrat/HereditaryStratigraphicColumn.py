@@ -356,7 +356,7 @@ class HereditaryStratigraphicColumn:
             math.log(significance_level, log_base)
         ))
 
-    def CalcDefinitiveMaxRankOfLastCommonalityWith(
+    def CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
@@ -375,12 +375,12 @@ class HereditaryStratigraphicColumn:
         assert self.CalcNumConsecutiveCollisionsToReachThreshold(
             significance_level=1.0 - confidence_level,
         ) == 1
-        return self.CalcDefinitiveMaxRankOfLastCommonalityWith(
+        return self.CalcRankOfLastRetainedCommonalityWith(
             other,
             confidence_level=confidence_level,
         )
 
-    def CalcRankOfLastCommonalityWith(
+    def CalcRankOfLastRetainedCommonalityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
         confidence_level: float=0.95,
@@ -423,17 +423,17 @@ class HereditaryStratigraphicColumn:
                 HereditaryStratumOrderedStoreList
             )
         ):
-            return self._do_generic_CalcRankOfLastCommonalityWith(
+            return self._do_generic_CalcRankOfLastRetainedCommonalityWith(
                 other,
                 confidence_level=confidence_level,
             )
         else:
-            return self._do_binary_search_CalcRankOfLastCommonalityWith(
+            return self._do_binary_search_CalcRankOfLastRetainedCommonalityWith(
                 other,
                 confidence_level=confidence_level,
             )
 
-    def _do_binary_search_CalcRankOfLastCommonalityWith(
+    def _do_binary_search_CalcRankOfLastRetainedCommonalityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
         confidence_level: float,
@@ -470,9 +470,9 @@ class HereditaryStratigraphicColumn:
         assert collision_implausibility_threshold > 0
         if first_disparite_idx is None:
             # no disparate strata found
-            # fall back to _do_generic_CalcRankOfLastCommonalityWith to handle
+            # fall back to _do_generic_CalcRankOfLastRetainedCommonalityWith to handle
             # proper bookkeeping in this case while skipping most of the search
-            return self._do_generic_CalcRankOfLastCommonalityWith(
+            return self._do_generic_CalcRankOfLastRetainedCommonalityWith(
                 other,
                 self_start_idx=upper_bound,
                 other_start_idx=upper_bound,
@@ -498,7 +498,7 @@ class HereditaryStratigraphicColumn:
             # level; conservatively conclude there is no common ancestor
             return None
 
-    def _do_generic_CalcRankOfLastCommonalityWith(
+    def _do_generic_CalcRankOfLastRetainedCommonalityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
         *,
@@ -575,7 +575,7 @@ class HereditaryStratigraphicColumn:
                 # level; conservatively conclude there is no common ancestor
                 return None
 
-    def CalcDefinitiveMaxRankOfFirstDisparityWith(
+    def CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
@@ -601,12 +601,12 @@ class HereditaryStratigraphicColumn:
         assert self.CalcNumConsecutiveCollisionsToReachThreshold(
             significance_level=1.0 - confidence_level,
         ) == 1
-        return self.CalcRankOfFirstDisparityWith(
+        return self.CalcRankOfFirstRetainedDisparityWith(
             other,
             confidence_level=confidence_level,
         )
 
-    def CalcRankOfFirstDisparityWith(
+    def CalcRankOfFirstRetainedDisparityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
         confidence_level: float=0.95,
@@ -654,17 +654,17 @@ class HereditaryStratigraphicColumn:
                 HereditaryStratumOrderedStoreList
             )
         ):
-            return self._do_generic_CalcRankOfFirstDisparityWith(
+            return self._do_generic_CalcRankOfFirstRetainedDisparityWith(
                 other,
                 confidence_level=confidence_level,
             )
         else:
-            return self._do_binary_search_CalcRankOfFirstDisparityWith(
+            return self._do_binary_search_CalcRankOfFirstRetainedDisparityWith(
                 other,
                 confidence_level=confidence_level,
             )
 
-    def _do_binary_search_CalcRankOfFirstDisparityWith(
+    def _do_binary_search_CalcRankOfFirstRetainedDisparityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
         confidence_level: float,
@@ -717,16 +717,17 @@ class HereditaryStratigraphicColumn:
             return first_disparite_rank
         else:
             # no disparate strata found
-            # fall back to _do_generic_CalcRankOfFirstDisparityWith to handle
-            # proper bookkeeping in this case while skipping most of the search
-            return self._do_generic_CalcRankOfFirstDisparityWith(
+            # fall back to _do_generic_CalcRankOfFirstRetainedDisparityWith to
+            # handle proper bookkeeping in this case while skipping most of the
+            # search
+            return self._do_generic_CalcRankOfFirstRetainedDisparityWith(
                 other,
                 self_start_idx=upper_bound,
                 other_start_idx=upper_bound,
                 confidence_level=confidence_level,
             )
 
-    def _do_generic_CalcRankOfFirstDisparityWith(
+    def _do_generic_CalcRankOfFirstRetainedDisparityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
         *,
@@ -891,18 +892,20 @@ class HereditaryStratigraphicColumn:
             }[bound_type],
         ):
             first_disparity = {
-                'symmetric' : lambda: self.CalcRankOfFirstDisparityWith(
+                'symmetric' : lambda: self.CalcRankOfFirstRetainedDisparityWith(
                     other,
                     confidence_level=1.0 - significance_level/2.0
                 ),
                 'hard_upper_bound' : lambda: \
-                    self.CalcDefinitiveMaxRankOfFirstDisparityWith(other),
+                    self.CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(
+                        other
+                    ),
             }[bound_type]()
             if first_disparity is None:
                 num_self_deposited = self.GetNumStrataDeposited()
                 num_other_deposited = other.GetNumStrataDeposited()
                 assert num_self_deposited == num_other_deposited
-            last_commonality = self.CalcRankOfLastCommonalityWith(
+            last_commonality = self.CalcRankOfLastRetainedCommonalityWith(
                 other,
                 confidence_level={
                     'symmetric' : 1.0 - significance_level / 2.0,
@@ -944,7 +947,7 @@ class HereditaryStratigraphicColumn:
         )
         return 0 if bounds is None else abs(operator.sub(*bounds)) - 1
 
-    def CalcDefinitiveMinRanksSinceLastCommonalityWith(
+    def CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
@@ -960,12 +963,12 @@ class HereditaryStratigraphicColumn:
         assert self.CalcNumConsecutiveCollisionsToReachThreshold(
             significance_level=1.0 - confidence_level,
         ) == 1
-        return self.CalcRanksSinceLastCommonalityWith(
+        return self.CalcRanksSinceLastRetainedCommonalityWith(
             self,
             confidence_level=confidence_level,
         )
 
-    def CalcRanksSinceLastCommonalityWith(
+    def CalcRanksSinceLastRetainedCommonalityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
         confidence_level: float=0.95,
@@ -992,7 +995,7 @@ class HereditaryStratigraphicColumn:
 
         assert 0.0 <= confidence_level <= 1.0
 
-        last_common_rank = self.CalcRankOfLastCommonalityWith(
+        last_common_rank = self.CalcRankOfLastRetainedCommonalityWith(
             other,
             confidence_level=confidence_level,
         )
@@ -1003,7 +1006,7 @@ class HereditaryStratigraphicColumn:
             assert 0 <= res < self.GetNumStrataDeposited()
             return res
 
-    def CalcDefinitiveMinRanksSinceFirstDisparityWith(
+    def CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(
             self: 'HereditaryStratigraphicColumn',
             other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
@@ -1020,12 +1023,12 @@ class HereditaryStratigraphicColumn:
         assert self.CalcNumConsecutiveCollisionsToReachThreshold(
             significance_level=1.0 - confidence_level,
         ) == 1
-        return self.CalcRanksSinceFirstDisparityWith(
+        return self.CalcRanksSinceFirstRetainedDisparityWith(
             other,
             confidence_level=confidence_level,
         )
 
-    def CalcRanksSinceFirstDisparityWith(
+    def CalcRanksSinceFirstRetainedDisparityWith(
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
         confidence_level: float=0.95,
@@ -1058,7 +1061,7 @@ class HereditaryStratigraphicColumn:
         confidence_level < 0.5.
         """
 
-        first_disparate_rank = self.CalcRankOfFirstDisparityWith(
+        first_disparate_rank = self.CalcRankOfFirstRetainedDisparityWith(
             other,
             confidence_level=confidence_level,
         )
@@ -1116,24 +1119,28 @@ class HereditaryStratigraphicColumn:
             }[bound_type],
         ):
             since_first_disparity = {
-                'symmetric' : lambda: self.CalcRanksSinceFirstDisparityWith(
-                    other,
-                    confidence_level=1.0 - significance_level / 2.0,
-                ),
+                'symmetric' : lambda: \
+                    self.CalcRanksSinceFirstRetainedDisparityWith(
+                        other,
+                        confidence_level=1.0 - significance_level / 2.0,
+                    ),
                 'hard_lower_bound' : lambda: \
-                    self.CalcDefinitiveMinRanksSinceFirstDisparityWith(other),
+                    self.CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(
+                        other
+                    ),
             }[bound_type]()
 
             lb_exclusive = opyt.or_value(since_first_disparity, -1)
             lb_inclusive = lb_exclusive + 1
 
-            since_last_commonality = self.CalcRanksSinceLastCommonalityWith(
-                other,
-                confidence_level={
-                    'symmetric' : 1.0 - significance_level / 2.0,
-                    'hard_lower_bound' : 1.0 - significance_level,
-                }[bound_type],
-            )
+            since_last_commonality \
+                = self.CalcRanksSinceLastRetainedCommonalityWith(
+                    other,
+                    confidence_level={
+                        'symmetric' : 1.0 - significance_level / 2.0,
+                        'hard_lower_bound' : 1.0 - significance_level,
+                    }[bound_type],
+                )
             assert since_last_commonality is not None
             ub_inclusive = since_last_commonality
             ub_exclusive = ub_inclusive + 1
@@ -1187,12 +1194,12 @@ class HereditaryStratigraphicColumn:
 
         See Also
         --------
-        CalcRankOfLastCommonalityWith :
+        CalcRankOfLastRetainedCommonalityWith :
             Selects the stratum returned. See the corresponding docstring for
             explanation of parameters.
         """
 
-        rank = self.CalcRankOfLastCommonalityWith(
+        rank = self.CalcRankOfLastRetainedCommonalityWith(
             other,
             confidence_level=confidence_level,
         )
@@ -1221,10 +1228,11 @@ class HereditaryStratigraphicColumn:
             share a common ancestor?
         """
 
-        first_disparity = self.CalcDefinitiveMaxRankOfFirstDisparityWith(
-            other,
-            confidence_level=confidence_level,
-        )
+        first_disparity \
+            = self.CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(
+                other,
+                confidence_level=confidence_level,
+            )
         return False if first_disparity is None else first_disparity == 0
 
     def HasAnyCommonAncestorWith(
@@ -1251,7 +1259,7 @@ class HereditaryStratigraphicColumn:
             ancestor?
         """
 
-        first_disparity = self.CalcRankOfFirstDisparityWith(
+        first_disparity = self.CalcRankOfFirstRetainedDisparityWith(
             other,
             confidence_level=confidence_level,
         )
