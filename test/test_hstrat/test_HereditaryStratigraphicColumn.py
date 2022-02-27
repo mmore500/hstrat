@@ -1179,6 +1179,146 @@ def _do_test_CalcRankOfLastRetainedCommonalityWith3(
         ) == 0
 
 
+def _do_test_CalcRankOfLastRetainedCommonalityWith4(
+    testcase,
+    ordered_store,
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+        stratum_retention_predicate
+            =hstrat.StratumRetentionPredicateFixedResolution(2)
+    )
+
+    while True:
+        offspring1 = column.CloneDescendant()
+        offspring2 = column.CloneDescendant()
+
+        res = offspring1.CalcRankOfLastRetainedCommonalityWith(
+            offspring2,
+        )
+        assert res is None
+        assert res == offspring2.CalcRankOfLastRetainedCommonalityWith(
+            offspring1,
+        )
+        for gen in range(10):
+            offspring1.DepositStratum()
+            offspring2.DepositStratum()
+
+        # should happen about every 1 in 20 times
+        if offspring2.CalcRankOfLastRetainedCommonalityWith(
+            offspring1,
+        ) is not None: break
+
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+        stratum_retention_predicate
+            =hstrat.StratumRetentionPredicateFixedResolution(2)
+    )
+
+    for __ in range(100): column.DepositStratum()
+
+    for rep in range(5):
+        offspring1 = column.CloneDescendant()
+        offspring2 = column.CloneDescendant()
+
+        res = offspring1.CalcRankOfLastRetainedCommonalityWith(
+            offspring2,
+        )
+        assert res is not None
+        assert res == offspring2.CalcRankOfLastRetainedCommonalityWith(
+            offspring1,
+        )
+
+        for gen in range(10):
+            offspring1.DepositStratum()
+            offspring2.DepositStratum()
+
+        res = offspring1.CalcRankOfLastRetainedCommonalityWith(
+            offspring2,
+        )
+        assert res is not None
+        assert res == offspring2.CalcRankOfLastRetainedCommonalityWith(
+            offspring1,
+        )
+
+
+def _do_test_CalcRankOfLastRetainedCommonalityWith5(
+    testcase,
+    ordered_store,
+    differentia_width,
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_width,
+        stratum_ordered_store_factory=ordered_store,
+        stratum_retention_predicate
+            =hstrat.StratumRetentionPredicateFixedResolution(2),
+    )
+
+    for generation in range(100): column.DepositStratum()
+
+    offspring1 = column.CloneDescendant()
+    offspring2 = column.CloneDescendant()
+
+    assert column.GetNumStrataDeposited() == 101
+    assert offspring1.GetNumStrataDeposited() == 102
+    assert offspring2.GetNumStrataDeposited() == 102
+
+    for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+        if differentia_width == 64:
+            assert c1.CalcRankOfLastRetainedCommonalityWith(
+                c2,
+            ) == column.GetNumStrataDeposited() - 1
+            assert c2.CalcRankOfLastRetainedCommonalityWith(
+                c1,
+            ) == column.GetNumStrataDeposited() - 1
+        elif differentia_width == 1:
+            assert c1.CalcRankOfLastRetainedCommonalityWith(
+                c2,
+            ) < column.GetNumStrataDeposited() - 1
+            assert c2.CalcRankOfLastRetainedCommonalityWith(
+                c1,
+            ) < column.GetNumStrataDeposited() - 1
+
+    for c in [column, offspring1, offspring2]:
+        for conf in 0.8, 0.95, 0.99:
+            col_idx = c.GetNumStrataRetained() - c.\
+                CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                    significance_level=1 - conf,
+                )
+            assert c.CalcRankOfLastRetainedCommonalityWith(c, conf) \
+                == c.GetRankAtColumnIndex(col_idx)
+
+    for generation in range(99):
+        offspring1.DepositStratum()
+        offspring2.DepositStratum()
+
+    for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+        if differentia_width == 64:
+            assert c1.CalcRankOfLastRetainedCommonalityWith(
+                c2,
+            ) == column.GetNumStrataDeposited() - 1
+            assert c2.CalcRankOfLastRetainedCommonalityWith(
+                c1,
+            ) == column.GetNumStrataDeposited() - 1
+        elif differentia_width == 1:
+            assert c1.CalcRankOfLastRetainedCommonalityWith(
+                c2,
+                0.999999
+            ) < c2.CalcRankOfLastRetainedCommonalityWith(
+                c1,
+                0.8
+            )
+
+    for c in [column, offspring1, offspring2]:
+        for conf in 0.8, 0.95, 0.99:
+            col_idx = c.GetNumStrataRetained() - c.\
+                CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                    significance_level=1 - conf,
+                )
+            assert c.CalcRankOfLastRetainedCommonalityWith(c, conf) \
+                == c.GetRankAtColumnIndex(col_idx)
+
+
 def _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith1(
     testcase,
     ordered_store,
@@ -1880,8 +2020,17 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                 self,
                 ordered_store,
             )
+            _do_test_CalcRankOfLastRetainedCommonalityWith4(
+                self,
+                ordered_store,
+            )
             for differentia_width in 1, 2, 8:
                 _do_test_CalcRankOfLastRetainedCommonalityWith1(
+                    self,
+                    ordered_store,
+                    differentia_width
+                )
+                _do_test_CalcRankOfLastRetainedCommonalityWith5(
                     self,
                     ordered_store,
                     differentia_width
