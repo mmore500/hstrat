@@ -1367,12 +1367,13 @@ def _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith1(
                 c1,
             ) == column.GetNumStrataDeposited()
         else:
-            assert c1.CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(
+            res = c1.CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(
                 c2,
-            ) in (column.GetNumStrataDeposited(), None)
+            )
+            assert res >= column.GetNumStrataDeposited()
             assert c2.CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(
                 c1,
-            ) in (column.GetNumStrataDeposited(), None)
+            ) == res
 
     for c in [column, offspring1, offspring2]:
         assert c.CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(c) \
