@@ -326,7 +326,7 @@ class TestStratumRetentionPredicateRecencyProportionalResolution(
             hstrat.StratumRetentionPredicateRecencyProportionalResolution(
                 guaranteed_mrca_recency_proportional_resolution
                     =guaranteed_mrca_recency_proportional_resolution,
-        )
+            )
         individual = hstrat.HereditaryStratigraphicColumn(
             stratum_ordered_store_factory
                 =hstrat.HereditaryStratumOrderedStoreDict,

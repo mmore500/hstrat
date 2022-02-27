@@ -774,7 +774,7 @@ def _do_test_DiffRetainedRanks(
 def _do_test_always_store_rank_in_stratum(
     testcase,
     retention_predicate,
-    ordered_store
+    ordered_store,
 ):
     first = hstrat.HereditaryStratigraphicColumn(
         always_store_rank_in_stratum=True,
@@ -788,7 +788,7 @@ def _do_test_always_store_rank_in_stratum(
     )
 
     assert not first._ShouldOmitStratumDepositionRank()
-    assert first.GetStratumAtColumnIndex(0).GetDepositionRank() == 0, first.GetStratumAtColumnIndex(0).GetDepositionRank()
+    assert first.GetStratumAtColumnIndex(0).GetDepositionRank() == 0
     if hasattr(retention_predicate, 'CalcRankAtColumnIndex'):
         assert second._ShouldOmitStratumDepositionRank()
         assert second.GetStratumAtColumnIndex(0).GetDepositionRank() is None
