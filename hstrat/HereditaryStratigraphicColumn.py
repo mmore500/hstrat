@@ -102,8 +102,8 @@ class HereditaryStratigraphicColumn:
             performance reasons, but has no semantic effect. A type that can be
             default-constructed will suffice.
 
-        Note
-        ----
+        Notes
+        -----
         If no condemner or predicate functor specifying a stratum retention
         policy is provided, the perfect resolution policy where all strata are
         retained is used.
@@ -395,7 +395,7 @@ class HereditaryStratigraphicColumn:
 
         if first_disparite_idx is None:
             # no disparate strata found
-            # fallback to _do_generic_CalcRankOfLastCommonalityWith to handle
+            # fall back to _do_generic_CalcRankOfLastCommonalityWith to handle
             # proper bookkeeping in this case while skipping most of the search
             return self._do_generic_CalcRankOfLastCommonalityWith(
                 other,
@@ -482,8 +482,8 @@ class HereditaryStratigraphicColumn:
             both columns have same number of strata deposited and the most
             recent stratum is common between self and other).
 
-        Note
-        ----
+        Notes
+        -----
         If no mismatching strata are found but self and other have different
         numbers of strata deposited, this method returns one greater than the
         lesser of the columns' deposition counts.
@@ -493,7 +493,7 @@ class HereditaryStratigraphicColumn:
             self.HasDiscardedStrata()
             or other.HasDiscardedStrata()
             # for performance reasons
-            # only binary search stores that support random access
+            # only apply binary search to stores that support random access
             or not isinstance(
                 self._stratum_ordered_store,
                 HereditaryStratumOrderedStoreList
@@ -544,7 +544,7 @@ class HereditaryStratigraphicColumn:
             return first_disparite_rank
         else:
             # no disparate strata found
-            # fallback to _do_generic_CalcRankOfFirstDisparityWith to handle
+            # fall back to _do_generic_CalcRankOfFirstDisparityWith to handle
             # proper bookkeeping in this case while skipping most of the search
             return self._do_generic_CalcRankOfFirstDisparityWith(
                 other,
@@ -731,8 +731,8 @@ class HereditaryStratigraphicColumn:
             both columns have same number of strata deposited and the most
             recent stratum is common between self and other).
 
-        Note
-        ----
+        Notes
+        -----
         Returns -1 if self and other share no mismatching strata at common
         ranks but other has more strata deposited then self.
         """
