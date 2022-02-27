@@ -960,6 +960,7 @@ def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith4(
 
     while do_once() != 0: pass
 
+
 def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith5(
     testcase,
     ordered_store,
@@ -1009,6 +1010,7 @@ def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith5(
     while do_once() is not None: pass
 
     while do_once() != 0: pass
+
 
 def _do_test_CalcRankOfLastRetainedCommonalityWith1(
     testcase,
