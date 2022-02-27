@@ -340,7 +340,7 @@ class HereditaryStratigraphicColumn:
 
         return 1.0 / 2**self._stratum_differentia_bit_width
 
-    def CalcMinImplausibleNumSpuriousConsecutiveDifferentiaCollisions(
+    def CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
         self: 'HereditaryStratigraphicColumn',
         *,
         significance_level: float,
@@ -464,7 +464,7 @@ class HereditaryStratigraphicColumn:
         )
 
         collision_implausibility_threshold = self.\
-            CalcMinImplausibleNumSpuriousConsecutiveDifferentiaCollisions(
+            CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
                 significance_level=1.0 - confidence_level,
         )
         assert collision_implausibility_threshold > 0
@@ -524,7 +524,7 @@ class HereditaryStratigraphicColumn:
         # that we can discount this many (minus 1) as potentially occuring due
         # to spurious differentia collisions
         collision_implausibility_threshold = self.\
-            CalcMinImplausibleNumSpuriousConsecutiveDifferentiaCollisions(
+            CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
                 significance_level=1.0 - confidence_level,
         )
         assert collision_implausibility_threshold > 0
@@ -697,7 +697,7 @@ class HereditaryStratigraphicColumn:
         if first_disparite_idx is not None:
             # disparate strata found
             collision_plausibility_threshold = self.\
-                CalcMinImplausibleNumSpuriousConsecutiveDifferentiaCollisions(
+                CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
                     significance_level=1.0 - confidence_level,
             ) - 1
             # discount collision_implausibility_threshold - 1 common
@@ -773,7 +773,7 @@ class HereditaryStratigraphicColumn:
         # can discount this many (minus 1) as potentially occuring due to
         # spurious differentia collisions
         collision_implausibility_threshold = self.\
-            CalcMinImplausibleNumSpuriousConsecutiveDifferentiaCollisions(
+            CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
                 significance_level=1.0 - confidence_level,
         )
         assert collision_implausibility_threshold > 0

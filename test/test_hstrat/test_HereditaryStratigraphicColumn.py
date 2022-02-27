@@ -1205,6 +1205,46 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             stratum_differentia_bit_width=8,
         ).CalcProbabilityDifferentiaCollision() == 1.0 / 256.0
 
+    def \
+    test_CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+        self
+    ):
+        assert hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+        ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1.0 - 0.49
+        ) == 1
+        assert hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+        ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1.0 - 0.95
+        ) == 5
+        assert hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=2,
+        ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1.0 - 0.95
+        ) == 3
+        assert hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=5,
+        ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1.0 - 0.95
+        ) == 1
+        assert hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=64,
+        ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1.0 - 0.49
+        ) == 1
+        assert hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=64,
+        ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1.0 - 0.95
+        ) == 1
+        assert hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=64,
+        ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1.0 - 0.99
+        ) == 1
+
 
 if __name__ == '__main__':
     unittest.main()
