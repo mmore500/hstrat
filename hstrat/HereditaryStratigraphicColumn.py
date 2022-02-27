@@ -639,6 +639,25 @@ class HereditaryStratigraphicColumn:
 
         The true rank of the first disparity with other is guaranteed to never
         be after the returned rank when confidence_level < 0.5.
+
+        If the differentia width and confidence level are configured such that
+        one or more suprious differentia collisions is plausible, this method
+        will never return None.
+
+        Consider two columns that compare identical at all common ranks. If
+        these columns have few enough common ranks that all these collisions
+        could plausibly be spurious then there is not yet enough to support
+        common lineage between the columns so rank 0 must be selected as the
+        estimated site of first retained disparity. If these columns have
+        enough common ranks that all collisions could not plausibly be spurious
+        then the largest rank that could not conceivably be spurious must be
+        selected (and we are guaranteed such a rank exists). It is only when
+        not even one collision could plausibly be spurious that strong enough
+        evidence exists to conclude that there is no disparity.
+
+        For example, the method may return None with 64-bit differentia and 95%
+        confidence level but will never return None with 1-bit differentia and
+        95% confidence level.
         """
 
         assert 0.0 <= confidence_level <= 1.0

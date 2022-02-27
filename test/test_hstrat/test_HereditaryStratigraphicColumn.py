@@ -1533,6 +1533,444 @@ def _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith5(
     while do_once() != 0: pass
 
 
+def _do_test_CalcRankOfFirstRetainedDisparityWith1(
+    testcase,
+    ordered_store,
+    differentia_width,
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_width,
+        stratum_ordered_store_factory=ordered_store,
+    )
+
+    for generation in range(100): column.DepositStratum()
+
+    offspring1 = column.CloneDescendant()
+    offspring2 = column.CloneDescendant()
+
+    if differentia_width == 64:
+        for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+            assert c1.CalcRankOfFirstRetainedDisparityWith(
+                c2,
+            ) == column.GetNumStrataDeposited()
+            assert c2.CalcRankOfFirstRetainedDisparityWith(
+                c1,
+            ) == column.GetNumStrataDeposited()
+
+    elif differentia_width == 1:
+        assert offspring1.CalcRankOfFirstRetainedDisparityWith(
+            offspring2,
+        ) < offspring2.GetNumStrataDeposited() - 1
+        assert offspring2.CalcRankOfFirstRetainedDisparityWith(
+            offspring1,
+        ) < offspring2.GetNumStrataDeposited() - 1
+        for c in [offspring1, offspring2]:
+            assert c.CalcRankOfFirstRetainedDisparityWith(
+                column,
+            ) < column.GetNumStrataDeposited()
+            assert column.CalcRankOfFirstRetainedDisparityWith(
+                c,
+            ) < column.GetNumStrataDeposited()
+
+    for c in [column, offspring1, offspring2]:
+        if c.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=0.2,
+        ) > 1:
+            assert c.CalcRankOfFirstRetainedDisparityWith(c, 0.8) \
+                == c.GetNumStrataDeposited() - c.\
+                    CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                        significance_level=0.2,
+                    ) + 1
+        else: assert c.CalcRankOfFirstRetainedDisparityWith(c, 0.8) is None
+        if c.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=0.05,
+        ) > 1:
+            assert c.CalcRankOfFirstRetainedDisparityWith(c, 0.95) \
+                == c.GetNumStrataDeposited() - c.\
+                    CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                        significance_level=0.05,
+                    ) + 1
+        else: assert c.CalcRankOfFirstRetainedDisparityWith(c, 0.95) is None
+
+    for generation in range(100):
+        offspring1.DepositStratum()
+        offspring2.DepositStratum()
+
+    for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+        if differentia_width == 64:
+            assert c1.CalcRankOfFirstRetainedDisparityWith(
+                c2,
+            ) == column.GetNumStrataDeposited()
+            assert c2.CalcRankOfFirstRetainedDisparityWith(
+                c1,
+            ) == column.GetNumStrataDeposited()
+        elif differentia_width == 1:
+            assert c1.CalcRankOfFirstRetainedDisparityWith(
+                c2,
+                0.999999
+            ) < c2.CalcRankOfFirstRetainedDisparityWith(
+                c1,
+                0.8
+            )
+
+    for c in [column, offspring1, offspring2]:
+        if c.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=0.2,
+        ) > 1:
+            assert c.CalcRankOfFirstRetainedDisparityWith(c, 0.8) \
+                == c.GetNumStrataDeposited() - c.\
+                    CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                        significance_level=0.2,
+                    ) + 1
+        else: assert c.CalcRankOfFirstRetainedDisparityWith(c, 0.8) is None
+        if c.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=0.05,
+        ) > 1:
+            assert c.CalcRankOfFirstRetainedDisparityWith(c, 0.95) \
+                == c.GetNumStrataDeposited() - c.\
+                    CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                        significance_level=0.05,
+                    ) + 1
+        else: assert c.CalcRankOfFirstRetainedDisparityWith(c, 0.95) is None
+
+
+def _do_test_CalcRankOfFirstRetainedDisparityWith2(
+    testcase,
+    ordered_store,
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+    )
+
+    while True:
+        offspring1 = column.CloneDescendant()
+        offspring2 = column.CloneDescendant()
+
+        res = offspring1.CalcRankOfFirstRetainedDisparityWith(
+            offspring2,
+        )
+        assert res == 0
+        assert res == offspring2.CalcRankOfFirstRetainedDisparityWith(
+            offspring1,
+        )
+
+        res = offspring1.CalcRankOfFirstRetainedDisparityWith(
+            offspring2, 0.49,
+        )
+        assert res in (None, 1)
+        assert res == offspring2.CalcRankOfFirstRetainedDisparityWith(
+            offspring1, 0.49,
+        )
+        if res == 1: break
+
+    while True:
+        offspring1 = column.CloneDescendant()
+        offspring2 = column.CloneDescendant()
+
+        res = offspring1.CalcRankOfFirstRetainedDisparityWith(
+            offspring2,
+        )
+        assert res == 0
+        assert res == offspring2.CalcRankOfFirstRetainedDisparityWith(
+            offspring1,
+        )
+
+        res = offspring1.CalcRankOfFirstRetainedDisparityWith(
+            offspring2, 0.49,
+        )
+        assert res in (None, 1)
+        assert res == offspring2.CalcRankOfFirstRetainedDisparityWith(
+            offspring1, 0.49,
+        )
+        if res is None: break
+
+    for rep in range(500):
+        offspring1 = column.CloneDescendant()
+        offspring2 = column.CloneDescendant()
+
+        res = offspring1.CalcRankOfFirstRetainedDisparityWith(
+            offspring2, 0.49,
+        )
+        assert res in (None, 1)
+        assert res == offspring2.CalcRankOfFirstRetainedDisparityWith(
+            offspring1, 0.49,
+        )
+
+        for gen in range(8):
+            offspring1.DepositStratum()
+            offspring2.DepositStratum()
+            # should occur about 1 in 20 times
+            assert offspring2.CalcRankOfFirstRetainedDisparityWith(
+                offspring1,
+            ) is not None
+            assert offspring1.CalcRankOfFirstRetainedDisparityWith(
+                offspring2,
+            ) is not None
+
+
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+    )
+
+    for __ in range(100): column.DepositStratum()
+
+    for rep in range(5):
+        offspring1 = column.CloneDescendant()
+        offspring2 = column.CloneDescendant()
+
+        divergence_rank = offspring1.GetNumStrataDeposited() - 1
+
+        res = offspring1.CalcRankOfFirstRetainedDisparityWith(
+            offspring2,
+        )
+        assert res < divergence_rank
+        assert res == offspring2.CalcRankOfFirstRetainedDisparityWith(
+            offspring1,
+        )
+
+        for gen in range(10):
+            offspring1.DepositStratum()
+            offspring2.DepositStratum()
+
+        res = offspring1.CalcRankOfFirstRetainedDisparityWith(
+            offspring2,
+        )
+        assert res is not None
+        assert res < offspring1.GetNumStrataDeposited() - 1
+        assert res == offspring2.CalcRankOfFirstRetainedDisparityWith(
+            offspring1,
+        )
+
+        for gen in range(42):
+            offspring1.DepositStratum()
+
+        res = offspring1.CalcRankOfFirstRetainedDisparityWith(
+            offspring2,
+        )
+        assert res is not None
+        assert res < offspring2.GetNumStrataDeposited()
+        assert res == offspring2.CalcRankOfFirstRetainedDisparityWith(
+            offspring1,
+        )
+
+
+def _do_test_CalcRankOfFirstRetainedDisparityWith3(
+    testcase,
+    ordered_store,
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=64,
+        stratum_retention_condemner
+            =hstrat.StratumRetentionCondemnerNominalResolution(),
+    )
+
+    for generation in range(100): column.DepositStratum()
+
+    offspring1 = column.CloneDescendant()
+    offspring2 = column.CloneDescendant()
+
+    for generation in range(100):
+        offspring1.DepositStratum()
+        offspring2.DepositStratum()
+
+    for c2 in [offspring1, offspring2]:
+        assert column.CalcRankOfFirstRetainedDisparityWith(
+            c2,
+        ) == column.GetNumStrataDeposited()
+
+        assert c2.CalcRankOfFirstRetainedDisparityWith(
+            column,
+        ) == column.GetNumStrataDeposited()
+
+    assert offspring1.CalcRankOfFirstRetainedDisparityWith(
+        offspring2,
+    ) == offspring1.GetNumStrataDeposited() - 1
+    assert offspring2.CalcRankOfFirstRetainedDisparityWith(
+        offspring1,
+    ) == offspring1.GetNumStrataDeposited() - 1
+
+
+def _do_test_CalcRankOfFirstRetainedDisparityWith4(
+    testcase,
+    ordered_store,
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+        stratum_retention_predicate
+            =hstrat.StratumRetentionPredicateFixedResolution(2)
+    )
+
+    while True:
+        offspring1 = column.CloneDescendant()
+        offspring2 = column.CloneDescendant()
+
+        res = offspring1.CalcRankOfFirstRetainedDisparityWith(
+            offspring2,
+        )
+        assert res == 0
+        assert res == offspring2.CalcRankOfFirstRetainedDisparityWith(
+            offspring1,
+        )
+
+        for gen in range(20):
+            offspring1.DepositStratum()
+
+        assert offspring2.CalcRankOfFirstRetainedDisparityWith(
+            offspring1,
+        ) is not None
+
+        for gen in range(20):
+            offspring2.DepositStratum()
+
+        assert offspring2.CalcRankOfFirstRetainedDisparityWith(
+            offspring1,
+        ) is not None
+        break
+
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+        stratum_retention_predicate
+            =hstrat.StratumRetentionPredicateFixedResolution(2)
+    )
+
+    for __ in range(100): column.DepositStratum()
+
+    for rep in range(50):
+        offspring1 = column.CloneDescendant()
+        offspring2 = column.CloneDescendant()
+
+        res = offspring1.CalcRankOfFirstRetainedDisparityWith(
+            offspring2,
+        )
+
+        idx = offspring1.GetNumStrataRetained() - offspring1.\
+            CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                significance_level=0.05
+            ) + 1
+        assert offspring1.GetRankAtColumnIndex(idx-1)  \
+            <= res <= offspring1.GetRankAtColumnIndex(idx)
+
+        assert res == offspring2.CalcRankOfFirstRetainedDisparityWith(
+            offspring1,
+        )
+
+        for gen in range(10):
+            offspring1.DepositStratum()
+            offspring2.DepositStratum()
+
+        res = offspring1.CalcRankOfFirstRetainedDisparityWith(
+            offspring2,
+        )
+        assert res is not None
+        assert res == offspring2.CalcRankOfFirstRetainedDisparityWith(
+            offspring1,
+        )
+
+        for gen in range(42):
+            offspring1.DepositStratum()
+
+        res = offspring1.CalcRankOfFirstRetainedDisparityWith(
+            offspring2,
+        )
+        assert res is not None
+        assert res == offspring2.CalcRankOfFirstRetainedDisparityWith(
+            offspring1,
+        )
+
+
+def _do_test_CalcRankOfFirstRetainedDisparityWith5(
+    testcase,
+    ordered_store,
+    differentia_width,
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_width,
+        stratum_ordered_store_factory=ordered_store,
+        stratum_retention_predicate
+            =hstrat.StratumRetentionPredicateFixedResolution(2),
+    )
+
+    for generation in range(100): column.DepositStratum()
+
+    offspring1 = column.CloneDescendant()
+    offspring2 = column.CloneDescendant()
+
+    assert column.GetNumStrataDeposited() == 101
+    assert offspring1.GetNumStrataDeposited() == 102
+    assert offspring2.GetNumStrataDeposited() == 102
+
+    for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+        if differentia_width == 64:
+            assert c1.CalcRankOfFirstRetainedDisparityWith(
+                c2,
+            ) == column.GetNumStrataDeposited()
+            assert c2.CalcRankOfFirstRetainedDisparityWith(
+                c1,
+            ) == column.GetNumStrataDeposited()
+        elif differentia_width == 1:
+            assert c1.CalcRankOfFirstRetainedDisparityWith(
+                c2,
+            ) < column.GetNumStrataDeposited()
+            assert c2.CalcRankOfFirstRetainedDisparityWith(
+                c1,
+            ) < column.GetNumStrataDeposited()
+
+    for c in [column, offspring1, offspring2]:
+        for conf in 0.8, 0.95, 0.99:
+            col_idx = c.GetNumStrataRetained() - c.\
+                CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                    significance_level=1 - conf,
+                ) + 1
+            if col_idx == c.GetNumStrataRetained():
+                assert c.\
+                    CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                        significance_level=1 - conf,
+                    ) == 1
+                assert c.CalcRankOfFirstRetainedDisparityWith(c, conf) \
+                    is None
+            else:
+                assert c.CalcRankOfFirstRetainedDisparityWith(c, conf) \
+                    == c.GetRankAtColumnIndex(col_idx)
+
+    for generation in range(99):
+        offspring1.DepositStratum()
+        offspring2.DepositStratum()
+
+    for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+        if differentia_width == 64:
+            assert c1.CalcRankOfFirstRetainedDisparityWith(
+                c2,
+            ) == column.GetNumStrataDeposited()
+            assert c2.CalcRankOfFirstRetainedDisparityWith(
+                c1,
+            ) == column.GetNumStrataDeposited()
+        elif differentia_width == 1:
+            assert c1.CalcRankOfFirstRetainedDisparityWith(
+                c2,
+                0.999999
+            ) < c2.CalcRankOfFirstRetainedDisparityWith(
+                c1,
+                0.8
+            )
+
+    for c in [column, offspring1, offspring2]:
+        for conf in 0.8, 0.95, 0.99:
+            col_idx = c.GetNumStrataRetained() - c.\
+                CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                    significance_level=1 - conf,
+                ) + 1
+            if col_idx == c.GetNumStrataRetained():
+                assert c.\
+                    CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                        significance_level=1 - conf,
+                    ) == 1
+                assert c.CalcRankOfFirstRetainedDisparityWith(c, conf) \
+                    is None
+            else:
+                assert c.CalcRankOfFirstRetainedDisparityWith(c, conf) \
+                    == c.GetRankAtColumnIndex(col_idx)
+
+
 class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     # tests can run independently
@@ -2061,6 +2499,36 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             )
             for differentia_width in 1, 2, 8:
                 _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith1(
+                    self,
+                    ordered_store,
+                    differentia_width
+                )
+
+    def test_CalcRankOfFirstRetainedDisparityWith(self):
+        for ordered_store in [
+            hstrat.HereditaryStratumOrderedStoreDict,
+            hstrat.HereditaryStratumOrderedStoreList,
+            hstrat.HereditaryStratumOrderedStoreTree,
+        ]:
+            _do_test_CalcRankOfFirstRetainedDisparityWith2(
+                self,
+                ordered_store,
+            )
+            _do_test_CalcRankOfFirstRetainedDisparityWith3(
+                self,
+                ordered_store,
+            )
+            _do_test_CalcRankOfFirstRetainedDisparityWith4(
+                self,
+                ordered_store,
+            )
+            for differentia_width in 1, 2, 8:
+                _do_test_CalcRankOfFirstRetainedDisparityWith1(
+                    self,
+                    ordered_store,
+                    differentia_width
+                )
+                _do_test_CalcRankOfFirstRetainedDisparityWith5(
                     self,
                     ordered_store,
                     differentia_width
