@@ -372,7 +372,7 @@ class HereditaryStratigraphicColumn:
         """
 
         confidence_level = 0.49
-        assert self.CalcNumConsecutiveCollisionsToReachThreshold(
+        assert self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
             significance_level=1.0 - confidence_level,
         ) == 1
         return self.CalcRankOfLastRetainedCommonalityWith(
@@ -598,7 +598,7 @@ class HereditaryStratigraphicColumn:
         """
 
         confidence_level = 0.49
-        assert self.CalcNumConsecutiveCollisionsToReachThreshold(
+        assert self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
             significance_level=1.0 - confidence_level,
         ) == 1
         return self.CalcRankOfFirstRetainedDisparityWith(
@@ -960,7 +960,7 @@ class HereditaryStratigraphicColumn:
         """
 
         confidence_level = 0.49
-        assert self.CalcNumConsecutiveCollisionsToReachThreshold(
+        assert self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
             significance_level=1.0 - confidence_level,
         ) == 1
         return self.CalcRanksSinceLastRetainedCommonalityWith(
@@ -1020,7 +1020,7 @@ class HereditaryStratigraphicColumn:
         """
 
         confidence_level = 0.49
-        assert self.CalcNumConsecutiveCollisionsToReachThreshold(
+        assert self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
             significance_level=1.0 - confidence_level,
         ) == 1
         return self.CalcRanksSinceFirstRetainedDisparityWith(
