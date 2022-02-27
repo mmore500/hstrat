@@ -1191,6 +1191,20 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                     ordered_store,
                 )
 
+    def test_CalcProbabilityDifferentiaCollision(self):
+        assert hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+        ).CalcProbabilityDifferentiaCollision() == 0.5
+        assert hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=2,
+        ).CalcProbabilityDifferentiaCollision() == 0.25
+        assert hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=3,
+        ).CalcProbabilityDifferentiaCollision() == 0.125
+        assert hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=8,
+        ).CalcProbabilityDifferentiaCollision() == 1.0 / 256.0
+
 
 if __name__ == '__main__':
     unittest.main()
