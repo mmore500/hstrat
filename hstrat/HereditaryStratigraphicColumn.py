@@ -422,6 +422,8 @@ class HereditaryStratigraphicColumn:
                 other._stratum_ordered_store,
                 HereditaryStratumOrderedStoreList
             )
+            # binary search currently requires no spurious collisions
+            or self._stratum_differentia_bit_width < 64
         ):
             return self._do_generic_CalcRankOfLastRetainedCommonalityWith(
                 other,
@@ -454,6 +456,7 @@ class HereditaryStratigraphicColumn:
         rank_at = lambda which, idx: which.GetRankAtColumnIndex(idx)
         differentia_at = lambda which, idx: \
                 which.GetStratumAtColumnIndex(idx).GetDifferentia()
+        # todo: how to account for possible spurious differentiae collisions?
         predicate = lambda idx: \
             differentia_at(self, idx) != differentia_at(other, idx)
 
@@ -653,6 +656,8 @@ class HereditaryStratigraphicColumn:
                 other._stratum_ordered_store,
                 HereditaryStratumOrderedStoreList
             )
+            # binary search currently requires no spurious collisions
+            or self._stratum_differentia_bit_width < 64
         ):
             return self._do_generic_CalcRankOfFirstRetainedDisparityWith(
                 other,
@@ -685,6 +690,7 @@ class HereditaryStratigraphicColumn:
         rank_at = lambda which, idx: which.GetRankAtColumnIndex(idx)
         differentia_at = lambda which, idx: \
                 which.GetStratumAtColumnIndex(idx).GetDifferentia()
+        # todo: how to account for possible spurious differentiae collisions?
         predicate = lambda idx: \
             differentia_at(self, idx) != differentia_at(other, idx)
 
