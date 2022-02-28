@@ -4,6 +4,7 @@ from iterify import cyclify, iterify
 import itertools as it
 import opytional as opyt
 import random
+from scipy import stats
 import unittest
 
 from pylib import hstrat
@@ -1971,6 +1972,70 @@ def _do_test_CalcRankOfFirstRetainedDisparityWith5(
                     == c.GetRankAtColumnIndex(col_idx)
 
 
+def _do_test_CalcRankOfMrcaBoundsWith_narrow(
+        testcase,
+        predicate,
+        differentia_width,
+        confidence_level,
+        mrca_rank,
+):
+
+    columns = [hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_width,
+        stratum_retention_predicate=predicate,
+        stratum_ordered_store_factory=hstrat.HereditaryStratumOrderedStoreDict,
+    ) for __ in range(20)]
+
+    for generation in range(mrca_rank):
+        for column in columns: column.DepositStratum()
+
+    steps = (0, 16, 51)
+
+    for step1, step2 in it.product(steps, steps):
+        column1 = [col.Clone() for col in columns]
+        column2 = [col.Clone() for col in columns]
+        for __ in range(step1):
+            for col in column1: col.DepositStratum()
+        for i in range(step2):
+            for col in column2: col.DepositStratum()
+
+        num_inside_bounds = 0
+        num_outside_bounds = 0
+        for c1, c2 in zip(column1, column2):
+            assert c1.CalcRankOfMrcaBoundsWith(
+                c2,
+                confidence_level=confidence_level
+            ) == c2.CalcRankOfMrcaBoundsWith(
+                c1,
+                confidence_level=confidence_level,
+            )
+            res = c1.CalcRankOfMrcaBoundsWith(
+                c2,
+                confidence_level=confidence_level,
+            )
+
+            if res is None:
+                num_outside_bounds += 1
+                continue
+
+            lb, ub = res
+            assert lb < ub
+            assert lb >= 0
+            assert ub >= 0
+
+            num_inside_bounds += (lb <= mrca_rank < ub)
+            num_outside_bounds += not (lb <= mrca_rank < ub)
+
+            assert mrca_rank < ub
+
+        num_trials = num_inside_bounds + num_outside_bounds
+        assert 0.005 < stats.binom.cdf(
+            n=num_trials,
+            p=1 - confidence_level,
+            k=num_outside_bounds,
+        ) < 0.995
+
+
 class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     # tests can run independently
@@ -2533,6 +2598,24 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                     ordered_store,
                     differentia_width
                 )
+
+
+    def test_CalcRankOfMrcaBoundsWith_narrow(self):
+        for predicate in [
+            hstrat.StratumRetentionPredicatePerfectResolution(),
+            hstrat.StratumRetentionPredicateFixedResolution(),
+            hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
+        ]:
+            for differentia_width in 1, 2, 8, 64:
+                for confidence_level in 0.8, 0.95:
+                    for mrca_rank in 100,:
+                        _do_test_CalcRankOfMrcaBoundsWith_narrow(
+                            self,
+                            predicate,
+                            differentia_width,
+                            confidence_level,
+                            mrca_rank,
+                        )
 
 
 if __name__ == '__main__':
