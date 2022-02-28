@@ -877,7 +877,6 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
         confidence_level: float=0.95,
-        bound_type: str='symmetric',
     ) -> typing.Optional[typing.Tuple[int, int]]:
         """Calculate bounds on estimate for the number of depositions elapsed
         along the line of descent before the most recent common ancestor with
@@ -888,12 +887,6 @@ class HereditaryStratigraphicColumn:
         confidence_level : float, optional
             Bounds must capture what probability of containing the true rank of
             the MRCA? Default 0.95.
-        bound_type : {'symmetric', 'hard_upper_bound'}
-            How should the bounds be constructed? If 'symmetric', then true rank
-            of the MRCA will fall above or below the bounds with equal
-            probability. If 'hard_upper_bound' then the true rank of the MRCA
-            is guaranteed to never fall above the bounds but may fall below.
-            Default 'symmetric'.
 
         Returns
         -------
@@ -907,38 +900,42 @@ class HereditaryStratigraphicColumn:
         --------
         CalcRankOfMrcaUncertaintyWith :
             Wrapper to report uncertainty of calculated bounds.
+
+        Notes
+        -----
+        The true rank of the MRCA is guaranteed to never fall above the bounds but may fall below.
+
+        An alternate approach could be to construct the bounds such that the
+        true rank of the MRCA will fall above or below the bounds with equal
+        probability. This would involve setting the confidence level for
+        calculating the first disparity with other to significance_level/2 and
+        the confidence level for calculaing the last comonality with other to
+        1 - significance_level/2. This means the confidence level applied to
+        calculating the first disparity with other would always be <= 0.5.
+        However, shifting the calculated first disparity with other below
+        the definitive max first retained disparity requires confidence level
+        >= 0.5. So, in practice such a symmetric approach would only result in
+        the lower bound being shifted downward. For this reason, it is no longer
+        provided as an option.
         """
 
         assert 0.0 <= confidence_level <= 1.0
-        significance_level = 1.0 - confidence_level
 
         if self.HasAnyCommonAncestorWith(
             other,
-            confidence_level={
-                'symmetric' : 1.0 - significance_level / 2.0,
-                'hard_upper_bound' : 1.0 - significance_level,
-            }[bound_type],
+            confidence_level=confidence_level,
         ):
-            first_disparity = {
-                'symmetric' : lambda: self.CalcRankOfFirstRetainedDisparityWith(
-                    other,
-                    confidence_level=significance_level/2.0
-                ),
-                'hard_upper_bound' : lambda: \
-                    self.CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(
-                        other
-                    ),
-            }[bound_type]()
+            first_disparity \
+                = self.CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(
+                        other,
+                    )
             if first_disparity is None:
                 num_self_deposited = self.GetNumStrataDeposited()
                 num_other_deposited = other.GetNumStrataDeposited()
                 assert num_self_deposited == num_other_deposited
             last_commonality = self.CalcRankOfLastRetainedCommonalityWith(
                 other,
-                confidence_level={
-                    'symmetric' : 1.0 - significance_level / 2.0,
-                    'hard_upper_bound' : 1.0 - significance_level,
-                }[bound_type],
+                confidence_level=confidence_level,
             )
             assert last_commonality is not None
             return (
@@ -951,7 +948,6 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
         confidence_level: float=0.95,
-        bound_type: str='symmetric',
     ) -> int:
         """Calculate uncertainty of estimate for the number of depositions
         elapsed along the line of descent before the most common recent
@@ -971,7 +967,6 @@ class HereditaryStratigraphicColumn:
         bounds = self.CalcRankOfMrcaBoundsWith(
             other,
             confidence_level=confidence_level,
-            bound_type=bound_type,
         )
         return 0 if bounds is None else abs(operator.sub(*bounds)) - 1
 
@@ -1104,7 +1099,6 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
         confidence_level: float=0.95,
-        bound_type: str='symmetric',
     ) -> typing.Optional[typing.Tuple[int, int]]:
         """Calculate bounds on estimate for the number of depositions elapsed
         along this column's line of descent since the most recent common
@@ -1115,12 +1109,6 @@ class HereditaryStratigraphicColumn:
         confidence_level : float, optional
             With what probability should the true rank of the MRCA fall
             within the calculated bounds? Default 0.95.
-        bound_type : {'symmetric', 'hard_lower_bound'}
-            If 'symmetric', then the true number of ranks since the MRCA may
-            lie on either side of the calculated bounds (i.e., may be less than
-            the lower bound or greater than the upper bound). If
-            'hard_lower_bound', then the true number of ranks since the MRCA is
-            guaranteed to be strictly less than or  Default 'symmetric'.
 
         Returns
         -------
@@ -1134,29 +1122,35 @@ class HereditaryStratigraphicColumn:
         --------
         CalcRanksSinceMrcaUncertaintyWith :
             Wrapper to report uncertainty of calculated bounds.
+
+        Notes
+        -----
+        The true number of ranks since the MRCA is guaranteed to never fall below the bounds but may fall above.
+
+        An alternate approach could be to construct the bounds such that the
+        true number of ranks since the MRCA will fall above or below the bounds
+        with equal probability. This would involve setting the confidence level
+        for calculating the first disparity with other to significance_level/2
+        and the confidence level for calculaing the last comonality with other
+        to 1 - significance_level/2. This means the confidence level applied to
+        calculating the first disparity with other would always be <= 0.5.
+        However, shifting the calculated first disparity with other above
+        the definitive min first retained disparity requires confidence level
+        >= 0.5. So, in practice such a symmetric approach would only result in
+        the upper bound being shifted upward. For this reason, it is no longer
+        provided as an option.
         """
 
         assert 0.0 <= confidence_level <= 1.0
 
-        significance_level = 1 - confidence_level
         if self.HasAnyCommonAncestorWith(
             other,
-            confidence_level={
-                'symmetric' : 1.0 - significance_level / 2.0,
-                'hard_lower_bound' : 1.0 - significance_level,
-            }[bound_type],
+            confidence_level=confidence_level,
         ):
-            since_first_disparity = {
-                'symmetric' : lambda: \
-                    self.CalcRanksSinceFirstRetainedDisparityWith(
-                        other,
-                        confidence_level=significance_level / 2.0,
-                    ),
-                'hard_lower_bound' : lambda: \
-                    self.CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(
-                        other
-                    ),
-            }[bound_type]()
+            since_first_disparity \
+                = self.CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(
+                    other,
+                )
 
             lb_exclusive = opyt.or_value(since_first_disparity, -1)
             lb_inclusive = lb_exclusive + 1
@@ -1164,10 +1158,7 @@ class HereditaryStratigraphicColumn:
             since_last_commonality \
                 = self.CalcRanksSinceLastRetainedCommonalityWith(
                     other,
-                    confidence_level={
-                        'symmetric' : 1.0 - significance_level / 2.0,
-                        'hard_lower_bound' : 1.0 - significance_level,
-                    }[bound_type],
+                    confidence_level=confidence_level,
                 )
             assert since_last_commonality is not None
             ub_inclusive = since_last_commonality
@@ -1181,7 +1172,6 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
         confidence_level: float=0.95,
-        bound_type: str='symmetric',
     ) -> int:
         """Calculate uncertainty of estimate for the number of depositions
         elapsed along this column's line of descent since the most common recent
@@ -1203,7 +1193,6 @@ class HereditaryStratigraphicColumn:
         bounds = self.CalcRanksSinceMrcaBoundsWith(
             other,
             confidence_level=confidence_level,
-            bound_type=bound_type,
         )
         return 0 if bounds is None else abs(operator.sub(*bounds)) - 1
 
