@@ -2137,6 +2137,110 @@ def _do_test_CalcRankOfMrcaBoundsWith_narrow_no_mrca(
         ) < 0.999
 
 
+def _do_test_CalcRankOfEarliestDetectableMrcaWith1(
+    testcase,
+    confidence_level,
+    differentia_bit_width,
+):
+    expected_thresh = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_bit_width,
+    ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+        significance_level=1 - confidence_level,
+    ) - 1
+
+    for r1, r2, r3 in it.product(*[range(1, expected_thresh)]*3):
+        c1 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=differentia_bit_width,
+            stratum_retention_predicate
+                =hstrat.StratumRetentionPredicatePerfectResolution(),
+        )
+        c2 = c1.Clone()
+        c3 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=differentia_bit_width,
+            stratum_retention_predicate
+                =hstrat.StratumRetentionPredicateFixedResolution(2),
+        )
+        for __ in range(r1-1): c1.DepositStratum()
+        for __ in range(r2-1): c2.DepositStratum()
+        for __ in range(r3-1): c3.DepositStratum()
+
+        for x1, x2 in it.combinations([c1, c2, c3], 2):
+            assert x1.CalcRankOfEarliestDetectableMrcaWith(
+                x2,
+                confidence_level=confidence_level,
+            ) is None, (
+                r1, r2, r3, confidence_level, differentia_bit_width,
+                x1.CalcRankOfEarliestDetectableMrcaWith(
+                    x2,
+                    confidence_level=confidence_level,
+                ), x1.GetNumStrataRetained(), x2.GetNumStrataRetained()
+            )
+            assert x2.CalcRankOfEarliestDetectableMrcaWith(
+                x1,
+                confidence_level=confidence_level,
+            ) is None
+            assert x1.CalcRankOfMrcaBoundsWith(
+                x2,
+                confidence_level=confidence_level,
+            ) is None
+            assert x2.CalcRankOfMrcaBoundsWith(
+                x1,
+                confidence_level=confidence_level,
+            ) is None
+
+
+def _do_test_CalcRankOfEarliestDetectableMrcaWith2(
+    testcase,
+    confidence_level,
+    differentia_bit_width,
+):
+    expected_thresh = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_bit_width,
+    ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+        significance_level=1 - confidence_level,
+    ) - 1
+
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_bit_width,
+        stratum_retention_predicate
+            =hstrat.StratumRetentionPredicatePerfectResolution(),
+    )
+    c2 = c1.Clone()
+    c3 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_bit_width,
+        stratum_retention_predicate
+            =hstrat.StratumRetentionPredicateFixedResolution(2),
+    )
+
+    for x1, x2 in it.combinations([c1, c2, c3], 2):
+        x1 = x1.Clone()
+        x2 = x2.Clone()
+        while x1.GetNthCommonRankWith(x2, expected_thresh) is None:
+            random.choice([x1, x2]).DepositStratum()
+
+        assert x1.CalcRankOfEarliestDetectableMrcaWith(
+            x2,
+            confidence_level=confidence_level,
+        ) == x1.GetNthCommonRankWith(x2, expected_thresh)
+        assert x2.CalcRankOfEarliestDetectableMrcaWith(
+            x1,
+            confidence_level=confidence_level,
+        )  == x2.GetNthCommonRankWith(x1, expected_thresh)
+
+        for __ in range(3):
+            x1.DepositStratum()
+            x2.DepositStratum()
+
+        assert x1.CalcRankOfEarliestDetectableMrcaWith(
+            x2,
+            confidence_level=confidence_level,
+        ) == x1.GetNthCommonRankWith(x2, expected_thresh)
+        assert x2.CalcRankOfEarliestDetectableMrcaWith(
+            x1,
+            confidence_level=confidence_level,
+        )  == x2.GetNthCommonRankWith(x1, expected_thresh)
+
+
 class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     # tests can run independently
@@ -2774,6 +2878,21 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
         assert c1.GetNthCommonRankWith(c3, 2) == 4
         assert c3.GetNthCommonRankWith(c1, 2) == 4
+
+    def test_CalcRankOfEarliestDetectableMrcaWith(self):
+
+        for confidence_level in 0.8, 0.95, 0.99:
+            for differentia_bit_width in 1, 2, 8, 64:
+                _do_test_CalcRankOfEarliestDetectableMrcaWith1(
+                    self,
+                    confidence_level,
+                    differentia_bit_width,
+                )
+                _do_test_CalcRankOfEarliestDetectableMrcaWith2(
+                    self,
+                    confidence_level,
+                    differentia_bit_width,
+                )
 
 
 if __name__ == '__main__':
