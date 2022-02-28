@@ -1,19 +1,5 @@
-from .HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
-from .HereditaryStratigraphicColumnBundle \
-    import HereditaryStratigraphicColumnBundle
-from .HereditaryStratum import HereditaryStratum
-from .HereditaryStratumOrderedStoreDict import HereditaryStratumOrderedStoreDict
-from .HereditaryStratumOrderedStoreList import HereditaryStratumOrderedStoreList
-from .HereditaryStratumOrderedStoreTree import HereditaryStratumOrderedStoreTree
-from .stratum_retention_condemners import *
-from .stratum_retention_predicates import *
+"""Top-level package for hstrat."""
 
-# adapted from https://stackoverflow.com/a/31079085
-__all__ = [
-    'HereditaryStratigraphColumn',
-    'HereditaryStratigraphicColumnBundle',
-    'HereditaryStratum',
-    'HereditaryStratumOrderedStoreDict',
-    'HereditaryStratumOrderedStoreList',
-    'HereditaryStratumOrderedStoreTree',
-]
+__author__ = """Matthew Andres Moreno"""
+__email__ = 'm.more500@gmail.com'
+__version__ = '0.0.0'
