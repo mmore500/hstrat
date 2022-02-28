@@ -1,4 +1,4 @@
-* opytional version:
+* hstrat version:
 * Python version:
 * Operating System:
 
