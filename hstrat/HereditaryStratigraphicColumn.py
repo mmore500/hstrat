@@ -1429,8 +1429,11 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
         confidence_level: float=0.95,
-    ) -> bool:
+    ) -> typing.Optional[bool]:
         """Does self share any common ancestor with other?
+
+        If insufficient common ranks between self and other are available to
+        resolve any common ancestor, returns None.
 
         Note that stratum rention policies are strictly required to permanently
         retain the most ancient stratum.
@@ -1448,6 +1451,12 @@ class HereditaryStratigraphicColumn:
             Can we definitively conclude that self and other share no common
             ancestor?
         """
+
+        if self.CalcRankOfEarliestDetectableMrcaWith(
+            other,
+            confidence_level=confidence_level,
+        ) is None:
+            return None
 
         first_disparity = self.CalcRankOfFirstRetainedDisparityWith(
             other,
