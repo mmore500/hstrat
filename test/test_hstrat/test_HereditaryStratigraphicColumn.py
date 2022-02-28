@@ -2241,6 +2241,20 @@ def _do_test_CalcRankOfEarliestDetectableMrcaWith2(
         )  == x2.GetNthCommonRankWith(x1, expected_thresh)
 
 
+def _do_test_CalcRankOfEarliestDetectableMrcaWith3(
+    testcase,
+):
+
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=64,
+        stratum_retention_predicate
+            =hstrat.StratumRetentionPredicatePerfectResolution(),
+    )
+    for __ in range(10):
+        assert c1.CalcRankOfEarliestDetectableMrcaWith(c1) == 0
+        c1.DepositStratum()
+
+
 def _do_test_CalcRanksSinceEarliestDetectableMrcaWith1(
     testcase,
     confidence_level,
@@ -2996,6 +3010,8 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
         assert c3.GetNthCommonRankWith(c1, 2) == 4
 
     def test_CalcRankOfEarliestDetectableMrcaWith(self):
+
+        _do_test_CalcRankOfEarliestDetectableMrcaWith3(self)
 
         for confidence_level in 0.8, 0.95, 0.99:
             for differentia_bit_width in 1, 2, 8, 64:
