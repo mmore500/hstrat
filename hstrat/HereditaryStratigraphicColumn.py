@@ -1080,7 +1080,7 @@ class HereditaryStratigraphicColumn:
         other: 'HereditaryStratigraphicColumn',
     ) -> typing.Optional[int]:
         """At least, how many depositions have elapsed along this column's line
-        of descent since the las matching strata at the same rank between self
+        of descent since the last matching strata at the same rank between self
         and other?
 
         Returns None if no common ancestor between self and other can be

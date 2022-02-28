@@ -2240,6 +2240,7 @@ def _do_test_CalcRankOfEarliestDetectableMrcaWith2(
             confidence_level=confidence_level,
         )  == x2.GetNthCommonRankWith(x1, expected_thresh)
 
+
 def _do_test_CalcRanksSinceEarliestDetectableMrcaWith1(
     testcase,
     confidence_level,
@@ -2831,9 +2832,7 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                     differentia_width
                 )
 
-    def test_CalcRankOfLastRetainedCommonalityWith(
-        self,
-    ):
+    def test_CalcRankOfLastRetainedCommonalityWith(self):
         for ordered_store in [
             hstrat.HereditaryStratumOrderedStoreDict,
             hstrat.HereditaryStratumOrderedStoreList,
@@ -2921,7 +2920,6 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                     ordered_store,
                     differentia_width
                 )
-
 
     def test_CalcRankOfMrcaBoundsWith_narrow(self):
         for predicate in [
