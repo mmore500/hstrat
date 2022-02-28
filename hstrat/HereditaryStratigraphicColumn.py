@@ -7,6 +7,7 @@ import math
 import operator
 import opytional as opyt
 import typing
+import warnings
 
 from .HereditaryStratum import HereditaryStratum
 from .HereditaryStratumOrderedStoreList import HereditaryStratumOrderedStoreList
@@ -947,6 +948,9 @@ class HereditaryStratigraphicColumn:
         --------
         CalcRankOfMrcaUncertaintyWith :
             Wrapper to report uncertainty of calculated bounds.
+        CalcRankOfEarliestDetectableMrcaWith :
+            Could any MRCA be detected between self and other? What is the rank
+            of the earliest MRCA that could be reliably detected?
 
         Notes
         -----
@@ -964,9 +968,35 @@ class HereditaryStratigraphicColumn:
         >= 0.5. So, in practice such a symmetric approach would only result in
         the lower bound being shifted downward. For this reason, it is no longer
         provided as an option.
+
+        In the absence of evidence to the contrary (i.e., more common
+        strata than spurious differentia collisions alone could plausibly
+        cause), this method assumes no common ancestry between self and other,
+        returning None. This means that if few enough common ranks are shared
+        between self and other (and the differentia bit with is small enough),
+        it may not be possible to detect any common ancestry after accounting
+        for the possibility of spurious differentia collisions (even if common
+        ancestry did exist). So, calls to this method would always return None.
+        Likewise, MRCAs at very early ranks may not be able to be reliably
+        detected due to insufficient evidence. This can lead to cases where
+        columns with true common ancestry have MRCA bounds estimated as None at
+        much higher than the expected failure rate at the given confidence
+        level. Note that with sufficient differentia bit width (i.e., so that
+        even one collision is implausible at the given confidence level) this
+        issue does not occur. Use CalcRankOfEarliestDetectableMrcaWith to
+        determine the earliest rank at which an MRCA could be reliably detected
+        between self and other.
         """
 
         assert 0.0 <= confidence_level <= 1.0
+
+        if self.CalcRankOfEarliestDetectableMrcaWith(
+            other,
+            confidence_level=confidence_level,
+        ) is None:
+            warnings.warn(
+                'Insufficient common ranks between columns to detect common ' 'ancestry at given confidence level.'
+            )
 
         if self.HasAnyCommonAncestorWith(
             other,
@@ -1197,6 +1227,10 @@ class HereditaryStratigraphicColumn:
         --------
         CalcRanksSinceMrcaUncertaintyWith :
             Wrapper to report uncertainty of calculated bounds.
+        CalcRanksSinceEarliestDetectableMrcaWith :
+            Could any MRCA be detected between self and other? How many ranks
+            have elapsed since the earliest MRCA that could be reliably
+            detected?
 
         Notes
         -----
@@ -1214,9 +1248,35 @@ class HereditaryStratigraphicColumn:
         >= 0.5. So, in practice such a symmetric approach would only result in
         the upper bound being shifted upward. For this reason, it is no longer
         provided as an option.
+
+        In the absence of evidence to the contrary (i.e., more common
+        strata than spurious differentia collisions alone could plausibly
+        cause), this method assumes no common ancestry between self and other,
+        returning None. This means that if few enough common ranks are shared
+        between self and other (and the differentia bit with is small enough),
+        it may not be possible to detect any common ancestry after accounting
+        for the possibility of spurious differentia collisions (even if common
+        ancestry did exist). So, calls to this method would always return None.
+        Likewise, MRCAs at very early ranks may not be able to be reliably
+        detected due to insufficient evidence. This can lead to cases where
+        columns with true common ancestry have MRCA bounds estimated as None at
+        much higher than the expected failure rate at the given confidence
+        level. Note that with sufficient differentia bit width (i.e., so that
+        even one collision is implausible at the given confidence level) this
+        issue does not occur. Use CalcRanksSinceEarliestDetectableMrcaWith to
+        determine the earliest rank at which an MRCA could be reliably detected
+        between self and other.
         """
 
         assert 0.0 <= confidence_level <= 1.0
+
+        if self.CalcRankOfEarliestDetectableMrcaWith(
+            other,
+            confidence_level=confidence_level,
+        ) is None:
+            warnings.warn(
+                'Insufficient common ranks between columns to detect common ' 'ancestry at given confidence level.'
+            )
 
         if self.HasAnyCommonAncestorWith(
             other,
