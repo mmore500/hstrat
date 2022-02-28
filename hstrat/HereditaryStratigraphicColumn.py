@@ -1025,14 +1025,14 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
         confidence_level: float=0.95,
-    ) -> int:
+    ) -> typing.Optional[int]:
         """Calculate uncertainty of estimate for the number of depositions
         elapsed along the line of descent before the most common recent
         ancestor with other.
 
         Returns 0 if no common ancestor between self and other can be resolved
-        with sufficient confidence. (Sufficient confidence depends on
-        bound_type.)
+        with sufficient confidence. If insufficient common ranks between self
+        and other are available to resolve any common ancestor, returns None.
 
         See Also
         --------
@@ -1040,6 +1040,12 @@ class HereditaryStratigraphicColumn:
             Calculates bound whose uncertainty this method reports. See the
             corresponding docstring for explanation of parameters.
         """
+
+        if self.CalcRankOfEarliestDetectableMrcaWith(
+            other,
+            confidence_level=confidence_level,
+        ) is None:
+            return None
 
         bounds = self.CalcRankOfMrcaBoundsWith(
             other,
@@ -1307,14 +1313,14 @@ class HereditaryStratigraphicColumn:
         self: 'HereditaryStratigraphicColumn',
         other: 'HereditaryStratigraphicColumn',
         confidence_level: float=0.95,
-    ) -> int:
+    ) -> typing.Optional[int]:
         """Calculate uncertainty of estimate for the number of depositions
         elapsed along this column's line of descent since the most common recent
         ancestor with other.
 
         Returns 0 if no common ancestor between self and other can be resolved
-        with sufficient confidence. (Sufficient confidence depends on
-        bound_type.)
+        with sufficient confidence. If insufficient common ranks between self
+        and other are available to resolve any common ancestor, returns None.
 
         See Also
         --------
@@ -1324,6 +1330,12 @@ class HereditaryStratigraphicColumn:
         """
 
         assert 0.0 <= confidence_level <= 1.0
+
+        if self.CalcRankOfEarliestDetectableMrcaWith(
+            other,
+            confidence_level=confidence_level,
+        ) is None:
+            return None
 
         bounds = self.CalcRanksSinceMrcaBoundsWith(
             other,
