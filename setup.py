@@ -36,7 +36,7 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
     ],
-    description="hstrat makes working with values that might be None safer and easier",
+    description="hstrat enables phylogenetic inference on distributed digital evolution populations",
     install_requires=requirements,
     license="MIT license",
     long_description=readme + '\n\n' + history,
