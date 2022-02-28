@@ -2850,6 +2850,309 @@ def _do_test_CalcRanksSinceFirstRetainedDisparityWith1(
             )
 
 
+def _do_test_CalcRanksSinceMrcaBoundsWith_narrow_shallow(
+        testcase,
+        predicate,
+        differentia_width,
+        confidence_level,
+):
+
+    columns = [hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_width,
+        stratum_retention_predicate=predicate,
+        stratum_ordered_store_factory=hstrat.HereditaryStratumOrderedStoreDict,
+    ) for __ in range(20)]
+
+    steps = list(range(columns[0].\
+        CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1-confidence_level,
+        ) - columns[0].GetNumStrataDeposited()))
+
+    for step1, step2 in it.product(steps, steps):
+        column1 = [col.Clone() for col in columns]
+        column2 = [col.Clone() for col in columns]
+        for __ in range(step1):
+            for col in column1: col.DepositStratum()
+        for i in range(step2):
+            for col in column2: col.DepositStratum()
+
+        for c1, c2 in zip(column1, column2):
+            assert c1.CalcRanksSinceMrcaBoundsWith(
+                c2,
+                confidence_level=confidence_level
+            ) is None
+            assert c2.CalcRanksSinceMrcaBoundsWith(
+                c1,
+                confidence_level=confidence_level,
+            ) is None
+
+
+def _do_test_CalcRanksSinceMrcaBoundsWith_narrow_with_mrca(
+        testcase,
+        predicate,
+        differentia_width,
+        confidence_level,
+        mrca_rank,
+):
+
+    columns = [hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_width,
+        stratum_retention_predicate=predicate,
+        stratum_ordered_store_factory=hstrat.HereditaryStratumOrderedStoreDict,
+    ) for __ in range(20)]
+
+    for generation in range(mrca_rank):
+        for column in columns: column.DepositStratum()
+
+    steps = (0, 16, 51)
+
+    for step1, step2 in it.product(steps, steps):
+        column1 = [col.Clone() for col in columns]
+        column2 = [col.Clone() for col in columns]
+        for __ in range(step1):
+            for col in column1: col.DepositStratum()
+        for i in range(step2):
+            for col in column2: col.DepositStratum()
+
+        num_inside_bounds = 0
+        num_outside_bounds = 0
+        for c1, c2 in zip(column1, column2):
+            res = c1.CalcRanksSinceMrcaBoundsWith(
+                c2,
+                confidence_level=confidence_level,
+            )
+
+            if res is None:
+                num_outside_bounds += 1
+                continue
+
+            lb, ub = res
+            assert lb < ub
+            assert lb >= 0
+            assert ub >= 0
+
+            num_inside_bounds += (
+                lb <= c1.GetNumStrataDeposited() - 1 - mrca_rank < ub
+            )
+            num_outside_bounds += not (
+                lb <= c1.GetNumStrataDeposited() - 1 - mrca_rank < ub
+            )
+
+            assert c1.GetNumStrataDeposited() - 1 - mrca_rank >= lb
+
+        num_trials = num_inside_bounds + num_outside_bounds
+        assert 0.001 < stats.binom.cdf(
+            n=num_trials,
+            p=1 - confidence_level,
+            k=num_outside_bounds,
+        ) < 0.999
+
+
+def _do_test_CalcRanksSinceMrcaBoundsWith_narrow_no_mrca(
+        testcase,
+        predicate,
+        differentia_width,
+        confidence_level,
+        mrca_rank,
+):
+
+    def make_column():
+        return hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=differentia_width,
+            stratum_retention_predicate=predicate,
+            stratum_ordered_store_factory
+                =hstrat.HereditaryStratumOrderedStoreDict,
+        )
+    columns = [make_column() for __ in range(20)]
+
+    for generation in range(mrca_rank):
+        for column in columns: column.DepositStratum()
+
+    steps = (0, 16, 51)
+
+    for step1, step2 in it.product(steps, steps):
+        column1 = [make_column() for col in columns]
+        column2 = [make_column() for col in columns]
+        for __ in range(step1):
+            for col in column1: col.DepositStratum()
+        for i in range(step2):
+            for col in column2: col.DepositStratum()
+
+        num_inside_bounds = 0
+        num_outside_bounds = 0
+        for c1, c2 in zip(column1, column2):
+            res = c1.CalcRanksSinceMrcaBoundsWith(
+                c2,
+                confidence_level=confidence_level,
+            )
+
+            if res is None:
+                num_inside_bounds += 1
+                continue
+
+            lb, ub = res
+            assert lb < ub
+            assert lb >= 0
+            assert ub >= 0
+
+            num_outside_bounds += 1
+
+        num_trials = num_inside_bounds + num_outside_bounds
+        assert 0.001 < stats.binom.cdf(
+            n=num_trials,
+            p=1 - confidence_level,
+            k=num_outside_bounds,
+        ) < 0.999
+
+
+def _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_shallow(
+        testcase,
+        predicate,
+        differentia_width,
+        confidence_level,
+):
+
+    columns = [hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_width,
+        stratum_retention_predicate=predicate,
+        stratum_ordered_store_factory=hstrat.HereditaryStratumOrderedStoreDict,
+    ) for __ in range(20)]
+
+    steps = list(range(columns[0].\
+        CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1-confidence_level,
+        ) - columns[0].GetNumStrataDeposited()))
+
+    for step1, step2 in it.product(steps, steps):
+        column1 = [col.Clone() for col in columns]
+        column2 = [col.Clone() for col in columns]
+        for __ in range(step1):
+            for col in column1: col.DepositStratum()
+        for i in range(step2):
+            for col in column2: col.DepositStratum()
+
+        for c1, c2 in zip(column1, column2):
+            assert c1.CalcRanksSinceMrcaUncertaintyWith(
+                c2,
+                confidence_level=confidence_level
+            ) is None
+            assert c2.CalcRanksSinceMrcaUncertaintyWith(
+                c1,
+                confidence_level=confidence_level,
+            ) is None
+
+
+def _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_with_mrca(
+        testcase,
+        predicate,
+        differentia_width,
+        confidence_level,
+        mrca_rank,
+):
+
+    columns = [hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_width,
+        stratum_retention_predicate=predicate,
+        stratum_ordered_store_factory=hstrat.HereditaryStratumOrderedStoreDict,
+    ) for __ in range(20)]
+
+    for generation in range(mrca_rank):
+        for column in columns: column.DepositStratum()
+
+    steps = (0, 16, 51)
+
+    for step1, step2 in it.product(steps, steps):
+        column1 = [col.Clone() for col in columns]
+        column2 = [col.Clone() for col in columns]
+        for __ in range(step1):
+            for col in column1: col.DepositStratum()
+        for i in range(step2):
+            for col in column2: col.DepositStratum()
+
+        num_inside_bounds = 0
+        num_outside_bounds = 0
+        for c1, c2 in zip(column1, column2):
+            assert c1.CalcRanksSinceMrcaUncertaintyWith(
+                c2,
+                confidence_level=confidence_level
+            ) == c2.CalcRanksSinceMrcaUncertaintyWith(
+                c1,
+                confidence_level=confidence_level,
+            )
+            res = c1.CalcRanksSinceMrcaUncertaintyWith(
+                c2,
+                confidence_level=confidence_level,
+            )
+
+            if res is not None:
+                assert res >= 0
+                assert c1.CalcRanksSinceMrcaUncertaintyWith(
+                    c2,
+                    confidence_level=confidence_level
+                ) >= c2.CalcRanksSinceMrcaUncertaintyWith(
+                    c1,
+                    confidence_level=confidence_level/2,
+                )
+
+def _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_no_mrca(
+        testcase,
+        predicate,
+        differentia_width,
+        confidence_level,
+        mrca_rank,
+):
+
+    def make_column():
+        return hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=differentia_width,
+            stratum_retention_predicate=predicate,
+            stratum_ordered_store_factory
+                =hstrat.HereditaryStratumOrderedStoreDict,
+        )
+    columns = [make_column() for __ in range(20)]
+
+    for generation in range(mrca_rank):
+        for column in columns: column.DepositStratum()
+
+    steps = (0, 16, 51)
+
+    for step1, step2 in it.product(steps, steps):
+        column1 = [make_column() for col in columns]
+        column2 = [make_column() for col in columns]
+        for __ in range(step1):
+            for col in column1: col.DepositStratum()
+        for i in range(step2):
+            for col in column2: col.DepositStratum()
+
+        num_inside_bounds = 0
+        num_outside_bounds = 0
+        for c1, c2 in zip(column1, column2):
+            assert c1.CalcRanksSinceMrcaUncertaintyWith(
+                c2,
+                confidence_level=confidence_level
+            ) == c2.CalcRanksSinceMrcaUncertaintyWith(
+                c1,
+                confidence_level=confidence_level,
+            )
+            res = c1.CalcRanksSinceMrcaUncertaintyWith(
+                c2,
+                confidence_level=confidence_level,
+            )
+
+            if res is not None:
+                assert 0 <= res
+                assert c1.CalcRanksSinceMrcaUncertaintyWith(
+                    c2,
+                    confidence_level=confidence_level
+                ) >= c2.CalcRanksSinceMrcaUncertaintyWith(
+                    c1,
+                    confidence_level=confidence_level/2,
+                ) or c1.CalcRanksSinceMrcaUncertaintyWith(
+                    c2,
+                    confidence_level=confidence_level
+                ) == 0
+
+
 class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     # tests can run independently
@@ -3586,6 +3889,65 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                 self,
                 differentia_width
             )
+
+    def test_CalcRanksSinceMrcaBoundsWith_narrow(self):
+        for predicate in [
+            hstrat.StratumRetentionPredicatePerfectResolution(),
+            hstrat.StratumRetentionPredicateFixedResolution(),
+            hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
+        ]:
+            for differentia_width in 1, 8, 64:
+                for confidence_level in 0.95,:
+                    _do_test_CalcRanksSinceMrcaBoundsWith_narrow_shallow(
+                        self,
+                        predicate,
+                        differentia_width,
+                        confidence_level,
+                    )
+                    _do_test_CalcRanksSinceMrcaBoundsWith_narrow_with_mrca(
+                        self,
+                        predicate,
+                        differentia_width,
+                        confidence_level,
+                        100,
+                    )
+                    _do_test_CalcRanksSinceMrcaBoundsWith_narrow_no_mrca(
+                        self,
+                        predicate,
+                        differentia_width,
+                        confidence_level,
+                        100,
+                    )
+
+
+    def test_CalcRanksSinceMrcaUncertaintyWith_narrow(self):
+        for predicate in [
+            hstrat.StratumRetentionPredicatePerfectResolution(),
+            hstrat.StratumRetentionPredicateFixedResolution(),
+            hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
+        ]:
+            for differentia_width in 1, 8, 64:
+                for confidence_level in 0.95,:
+                    _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_shallow(
+                        self,
+                        predicate,
+                        differentia_width,
+                        confidence_level,
+                    )
+                    _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_with_mrca(
+                        self,
+                        predicate,
+                        differentia_width,
+                        confidence_level,
+                        100,
+                    )
+                    _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_no_mrca(
+                        self,
+                        predicate,
+                        differentia_width,
+                        confidence_level,
+                        100,
+                    )
 
 
 if __name__ == '__main__':
