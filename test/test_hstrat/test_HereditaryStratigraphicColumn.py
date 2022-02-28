@@ -3153,6 +3153,90 @@ def _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_no_mrca(
                 ) == 0
 
 
+def _do_test_DefinitivelySharesNoCommonAncestorWith1(testcase, predicate):
+    while True:
+        c1 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+            stratum_retention_predicate=predicate,
+        )
+        c2 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+            stratum_retention_predicate=predicate,
+        )
+        if c1.DefinitivelySharesNoCommonAncestorWith(c2):
+            assert c2.DefinitivelySharesNoCommonAncestorWith(c1)
+            for __ in range(100):
+                c1.DepositStratum()
+                assert c1.DefinitivelySharesNoCommonAncestorWith(c2)
+                assert c2.DefinitivelySharesNoCommonAncestorWith(c1)
+            for __ in range(100):
+                c2.DepositStratum()
+                assert c1.DefinitivelySharesNoCommonAncestorWith(c2)
+                assert c2.DefinitivelySharesNoCommonAncestorWith(c1)
+            break
+
+    while True:
+        c1 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+            stratum_retention_predicate=predicate,
+        )
+        c2 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+            stratum_retention_predicate=predicate,
+        )
+        if not c1.DefinitivelySharesNoCommonAncestorWith(c2):
+            assert not c2.DefinitivelySharesNoCommonAncestorWith(c1)
+            for __ in range(100):
+                c1.DepositStratum()
+                assert not c1.DefinitivelySharesNoCommonAncestorWith(c2)
+                assert not c2.DefinitivelySharesNoCommonAncestorWith(c1)
+            for __ in range(100):
+                c2.DepositStratum()
+                assert not c1.DefinitivelySharesNoCommonAncestorWith(c2)
+                assert not c2.DefinitivelySharesNoCommonAncestorWith(c1)
+            break
+
+    for rep in range(100):
+        c1 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=64,
+            stratum_retention_predicate=predicate,
+        )
+        c2 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=64,
+            stratum_retention_predicate=predicate,
+        )
+        assert c1.DefinitivelySharesNoCommonAncestorWith(c2)
+        assert c2.DefinitivelySharesNoCommonAncestorWith(c1)
+
+
+def _do_test_DefinitivelySharesNoCommonAncestorWith2(testcase, predicate):
+
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+        stratum_retention_predicate=predicate,
+    )
+    c2 = c1.Clone()
+    assert not c1.DefinitivelySharesNoCommonAncestorWith(c2)
+    assert not c2.DefinitivelySharesNoCommonAncestorWith(c1)
+    for __ in range(100):
+        c1.DepositStratum()
+        assert not c1.DefinitivelySharesNoCommonAncestorWith(c2)
+        assert not c2.DefinitivelySharesNoCommonAncestorWith(c1)
+    for __ in range(100):
+        c2.DepositStratum()
+        assert not c1.DefinitivelySharesNoCommonAncestorWith(c2)
+        assert not c2.DefinitivelySharesNoCommonAncestorWith(c1)
+
+    for rep in range(100):
+        c1 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=64,
+            stratum_retention_predicate=predicate,
+        )
+        c2 = c1.Clone()
+        assert not c1.DefinitivelySharesNoCommonAncestorWith(c2)
+        assert not c2.DefinitivelySharesNoCommonAncestorWith(c1)
+
+
 class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     # tests can run independently
@@ -3948,6 +4032,17 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                         confidence_level,
                         100,
                     )
+
+    def test_DefinitivelySharesNoCommonAncestorWith(self):
+        for predicate in [
+            hstrat.StratumRetentionPredicatePerfectResolution(),
+            hstrat.StratumRetentionPredicateNominalResolution(),
+            hstrat.StratumRetentionPredicateDepthProportionalResolution(),
+            hstrat.StratumRetentionPredicateFixedResolution(),
+            hstrat.StratumRetentionPredicateRecencyProportionalResolution(),
+        ]:
+            _do_test_DefinitivelySharesNoCommonAncestorWith1(self, predicate)
+            _do_test_DefinitivelySharesNoCommonAncestorWith2(self, predicate)
 
 
 if __name__ == '__main__':
