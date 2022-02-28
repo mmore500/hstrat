@@ -2731,6 +2731,50 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                             mrca_rank,
                         )
 
+    def test_GetNthCommonRankWith(self):
+        c1 = hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_predicate
+                =hstrat.StratumRetentionPredicatePerfectResolution(),
+        )
+        c2 = hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_predicate
+                =hstrat.StratumRetentionPredicateNominalResolution(),
+        )
+        c3 = hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_predicate
+                =hstrat.StratumRetentionPredicateFixedResolution(2),
+        )
+        for __ in range(42):
+            c1.DepositStratum()
+
+        for __ in range(9):
+            c2.DepositStratum()
+
+        for __ in range(100):
+            c3.DepositStratum()
+
+        for col in c1, c2, c3:
+            for i in range(col.GetNumStrataRetained()):
+                assert col.GetRankAtColumnIndex(i) \
+                    == col.GetNthCommonRankWith(col, i)
+            assert col.GetNthCommonRankWith(col, col.GetNumStrataRetained()) \
+                is None
+
+        for x1, x2 in it.combinations([c1, c2, c3], 2):
+            assert x1.GetNthCommonRankWith(x2, 0) == 0
+
+        assert c1.GetNthCommonRankWith(c2, 1) == c2.GetNumStrataDeposited() - 1
+        assert c2.GetNthCommonRankWith(c1, 1) == c2.GetNumStrataDeposited() - 1
+
+        assert c1.GetNthCommonRankWith(c2, 2) is None
+        assert c2.GetNthCommonRankWith(c1, 2) is None
+
+        assert c1.GetNthCommonRankWith(c3, 1) == 2
+        assert c3.GetNthCommonRankWith(c1, 1) == 2
+
+        assert c1.GetNthCommonRankWith(c3, 2) == 4
+        assert c3.GetNthCommonRankWith(c1, 2) == 4
+
 
 if __name__ == '__main__':
     unittest.main()
