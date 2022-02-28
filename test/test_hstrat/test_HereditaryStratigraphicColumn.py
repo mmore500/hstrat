@@ -2654,6 +2654,202 @@ def _do_test_CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith1(
             is None
 
 
+def _do_test_CalcRanksSinceLastRetainedCommonalityWith1(
+    testcase,
+    differentia_width,
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_width,
+    )
+
+    for generation in range(100): column.DepositStratum()
+
+    offspring1 = column.CloneDescendant()
+    offspring2 = column.CloneDescendant()
+
+    for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+        if differentia_width == 64:
+            assert c1.CalcRanksSinceLastRetainedCommonalityWith(
+                c2,
+            ) == c1.GetNumStrataDeposited() - column.GetNumStrataDeposited()
+            assert c2.CalcRanksSinceLastRetainedCommonalityWith(
+                c1,
+            ) == c2.GetNumStrataDeposited() - column.GetNumStrataDeposited()
+        elif differentia_width == 1:
+            assert c1.CalcRanksSinceLastRetainedCommonalityWith(
+                c2,
+            ) > c1.GetNumStrataDeposited() - column.GetNumStrataDeposited()
+            assert c2.CalcRanksSinceLastRetainedCommonalityWith(
+                c1,
+            ) > c1.GetNumStrataDeposited() - column.GetNumStrataDeposited()
+
+    for c in [column, offspring1, offspring2]:
+        assert c.CalcRanksSinceLastRetainedCommonalityWith(c, 0.8) \
+            == c.\
+                CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                    significance_level=0.2,
+                ) - 1
+        assert c.CalcRanksSinceLastRetainedCommonalityWith(c, 0.99) \
+            == c.\
+            CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                significance_level=0.01,
+            ) - 1
+
+    for generation in range(100):
+        offspring1.DepositStratum()
+        offspring2.DepositStratum()
+
+    for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+        if differentia_width == 64:
+            assert c1.CalcRanksSinceLastRetainedCommonalityWith(
+                c2,
+            ) == c1.GetNumStrataDeposited() - column.GetNumStrataDeposited()
+            assert c2.CalcRanksSinceLastRetainedCommonalityWith(
+                c1,
+            ) == c2.GetNumStrataDeposited() - column.GetNumStrataDeposited()
+        elif differentia_width == 1:
+            assert c1.CalcRanksSinceLastRetainedCommonalityWith(
+                c2,
+                0.999999
+            ) > c1.CalcRanksSinceLastRetainedCommonalityWith(
+                c2,
+                0.8
+            )
+
+    for c in [column, offspring1, offspring2]:
+        assert c.CalcRanksSinceLastRetainedCommonalityWith(c, 0.8) \
+            == c.\
+                CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                    significance_level=0.2,
+                ) - 1
+        assert c.CalcRanksSinceLastRetainedCommonalityWith(c, 0.99) \
+            == c.\
+            CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                significance_level=0.01,
+            ) - 1
+
+
+def _do_test_CalcRanksSinceFirstRetainedDisparityWith1(
+    testcase,
+    differentia_width,
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_width,
+    )
+
+    for generation in range(100): column.DepositStratum()
+
+    offspring1 = column.CloneDescendant()
+    offspring2 = column.CloneDescendant()
+
+    for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+        if differentia_width == 64:
+            assert c1.CalcRanksSinceFirstRetainedDisparityWith(
+                c2,
+            ) == c1.GetNumStrataDeposited() - column.GetNumStrataDeposited() - 1
+            assert c2.CalcRanksSinceFirstRetainedDisparityWith(
+                c1,
+            ) == c2.GetNumStrataDeposited() - column.GetNumStrataDeposited() - 1
+        elif differentia_width == 1:
+            assert c1.CalcRanksSinceFirstRetainedDisparityWith(
+                c2,
+            ) > c1.GetNumStrataDeposited() - column.GetNumStrataDeposited() - 1
+            assert c2.CalcRanksSinceFirstRetainedDisparityWith(
+                c1,
+            ) > c1.GetNumStrataDeposited() - column.GetNumStrataDeposited() - 1
+
+    for c in [column, offspring1, offspring2]:
+        if c.\
+            CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                significance_level=0.2,
+            ) == 1:
+            assert c.CalcRanksSinceFirstRetainedDisparityWith(c, 0.8) is None
+        else:
+            assert c.CalcRanksSinceFirstRetainedDisparityWith(c, 0.8) == c.\
+                CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                    significance_level=0.2,
+                ) - 2, (
+                c.CalcRanksSinceFirstRetainedDisparityWith(c, 0.8),
+                c.\
+                    CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                        significance_level=0.2,
+                    )
+            )
+
+        if c.\
+            CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                significance_level=0.01,
+            ) == 1:
+            assert c.CalcRanksSinceFirstRetainedDisparityWith(c, 0.99) is None
+        else:
+            assert c.CalcRanksSinceFirstRetainedDisparityWith(c, 0.99) == c.\
+                CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                    significance_level=0.01,
+                ) - 2, (
+                c.CalcRanksSinceFirstRetainedDisparityWith(c, 0.99),
+                c.\
+                    CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                        significance_level=0.01,
+                    )
+            )
+
+    for generation in range(100):
+        offspring1.DepositStratum()
+        offspring2.DepositStratum()
+
+    for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+        if differentia_width == 64:
+            assert c1.CalcRanksSinceFirstRetainedDisparityWith(
+                c2,
+            ) == c1.GetNumStrataDeposited() - column.GetNumStrataDeposited() - 1
+            assert c2.CalcRanksSinceFirstRetainedDisparityWith(
+                c1,
+            ) == c2.GetNumStrataDeposited() - column.GetNumStrataDeposited() - 1
+        elif differentia_width == 1:
+            assert c1.CalcRanksSinceFirstRetainedDisparityWith(
+                c2,
+                0.999999
+            ) > c1.CalcRanksSinceFirstRetainedDisparityWith(
+                c2,
+                0.8
+            )
+
+    for c in [column, offspring1, offspring2]:
+        if c.\
+            CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                significance_level=0.2,
+            ) == 1:
+            assert c.CalcRanksSinceFirstRetainedDisparityWith(c, 0.8) is None
+        else:
+            assert c.CalcRanksSinceFirstRetainedDisparityWith(c, 0.8) == c.\
+                CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                    significance_level=0.2,
+                ) - 2, (
+                c.CalcRanksSinceFirstRetainedDisparityWith(c, 0.8),
+                c.\
+                    CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                        significance_level=0.2,
+                    )
+            )
+
+        if c.\
+            CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                significance_level=0.01,
+            ) == 1:
+            assert c.CalcRanksSinceFirstRetainedDisparityWith(c, 0.99) is None
+        else:
+            assert c.CalcRanksSinceFirstRetainedDisparityWith(c, 0.99) == c.\
+                CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                    significance_level=0.01,
+                ) - 2, (
+                c.CalcRanksSinceFirstRetainedDisparityWith(c, 0.99),
+                c.\
+                    CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                        significance_level=0.01,
+                    )
+            )
+
+
 class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     # tests can run independently
@@ -3376,6 +3572,21 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                     ordered_store,
                     differentia_width
                 )
+
+    def test_CalcRanksSinceLastRetainedCommonalityWith(self):
+        for differentia_width in 1, 2, 8, 64:
+            _do_test_CalcRanksSinceLastRetainedCommonalityWith1(
+                self,
+                differentia_width
+            )
+
+    def test_CalcRanksSinceFirstRetainedDisparityWith(self):
+        for differentia_width in 1, 2, 8, 64:
+            _do_test_CalcRanksSinceFirstRetainedDisparityWith1(
+                self,
+                differentia_width
+            )
+
 
 if __name__ == '__main__':
     unittest.main()
