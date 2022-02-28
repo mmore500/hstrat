@@ -4095,6 +4095,50 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
         assert c1.HasAnyCommonAncestorWith(c2) == True
         assert c2.HasAnyCommonAncestorWith(c1) == True
 
+    def test_CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(self):
+        c1 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+        )
+        assert c1.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.5) == 0.5
+        assert c1.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.6) == 0.75
+        assert c1.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.75) == 0.75
+
+        c2 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=64,
+        )
+        p = 1/2**64
+        assert c2.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.5) == 1 - p
+        assert c2.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.6) == 1 - p
+        assert c2.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.75) == 1 -p
+        assert c2.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.95) == 1 -p
+        assert c2.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.99) == 1 -p
+
+    def test_CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(self):
+        c1 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+        )
+        assert c1.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.5) \
+            == 0.5
+        assert c1.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.6) \
+            == 0.75
+        assert c1.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.75) \
+            == 0.75
+
+        c2 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=64,
+        )
+        p = 1/2**64
+        assert c2.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.5) \
+            == 1 - p
+        assert c2.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.6) \
+            == 1 - p
+        assert c2.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.75) \
+            == 1 -p
+        assert c2.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.95) \
+            == 1 -p
+        assert c2.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.99) \
+            == 1 -p
+
 
 if __name__ == '__main__':
     unittest.main()

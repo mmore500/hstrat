@@ -951,6 +951,9 @@ class HereditaryStratigraphicColumn:
         CalcRankOfEarliestDetectableMrcaWith :
             Could any MRCA be detected between self and other? What is the rank
             of the earliest MRCA that could be reliably detected?
+        CalcRankOfMrcaBoundsWithProvidedConfidenceLevel :
+            With what actual confidence (i.e., more than requested) is the true
+            rank of the MRCA captured within the calculated bounds?
 
         Notes
         -----
@@ -1052,6 +1055,24 @@ class HereditaryStratigraphicColumn:
             confidence_level=confidence_level,
         )
         return 0 if bounds is None else abs(operator.sub(*bounds)) - 1
+
+    def CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(
+        self: 'HereditaryStratigraphicColumn',
+        requested_confidence_level: float=0.95,
+    ) -> float:
+        """With what actual confidence is the true rank of the MRCA
+        captured within the calculated bounds for a requested confidence level?
+
+        Guaranteed greater than or equal to the requested confidence level.
+        """
+
+        n = self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1 - requested_confidence_level,
+        )
+        res = 1 - self.CalcProbabilityDifferentiaCollision() ** n
+        assert res >= requested_confidence_level
+        assert 0 <= res <= 1
+        return res
 
     def CalcRankOfEarliestDetectableMrcaWith(
         self: 'HereditaryStratigraphicColumn',
@@ -1237,6 +1258,9 @@ class HereditaryStratigraphicColumn:
             Could any MRCA be detected between self and other? How many ranks
             have elapsed since the earliest MRCA that could be reliably
             detected?
+        CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel :
+            With what actual confidence (i.e., more than requested) is the true
+            rank of the MRCA captured within the calculated bounds?
 
         Notes
         -----
@@ -1342,6 +1366,20 @@ class HereditaryStratigraphicColumn:
             confidence_level=confidence_level,
         )
         return 0 if bounds is None else abs(operator.sub(*bounds)) - 1
+
+    def CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(
+        self: 'HereditaryStratigraphicColumn',
+        requested_confidence_level: float=0.95,
+    ) -> float:
+        """With what actual confidence is the true rank of the MRCA
+        captured within the calculated bounds for a requested confidence level?
+
+        Guaranteed greater than or equal to the requested confidence level.
+        """
+
+        return self.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(
+            requested_confidence_level=requested_confidence_level,
+        )
 
     def CalcRanksSinceEarliestDetectableMrcaWith(
         self: 'HereditaryStratigraphicColumn',
