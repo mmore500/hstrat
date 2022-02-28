@@ -1422,10 +1422,7 @@ class HereditaryStratigraphicColumn:
         """
 
         first_disparity \
-            = self.CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(
-                other,
-                confidence_level=confidence_level,
-            )
+            = self.CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(other)
         return False if first_disparity is None else first_disparity == 0
 
     def HasAnyCommonAncestorWith(
