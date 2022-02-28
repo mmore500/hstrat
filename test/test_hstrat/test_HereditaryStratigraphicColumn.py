@@ -1972,7 +1972,44 @@ def _do_test_CalcRankOfFirstRetainedDisparityWith5(
                     == c.GetRankAtColumnIndex(col_idx)
 
 
-def _do_test_CalcRankOfMrcaBoundsWith_narrow(
+def _do_test_CalcRankOfMrcaBoundsWith_narrow_shallow(
+        testcase,
+        predicate,
+        differentia_width,
+        confidence_level,
+):
+
+    columns = [hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_width,
+        stratum_retention_predicate=predicate,
+        stratum_ordered_store_factory=hstrat.HereditaryStratumOrderedStoreDict,
+    ) for __ in range(20)]
+
+    steps = list(range(columns[0].\
+        CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1-confidence_level,
+        ) - columns[0].GetNumStrataDeposited()))
+
+    for step1, step2 in it.product(steps, steps):
+        column1 = [col.Clone() for col in columns]
+        column2 = [col.Clone() for col in columns]
+        for __ in range(step1):
+            for col in column1: col.DepositStratum()
+        for i in range(step2):
+            for col in column2: col.DepositStratum()
+
+        for c1, c2 in zip(column1, column2):
+            assert c1.CalcRankOfMrcaBoundsWith(
+                c2,
+                confidence_level=confidence_level
+            ) is None
+            assert c2.CalcRankOfMrcaBoundsWith(
+                c1,
+                confidence_level=confidence_level,
+            ) is None
+
+
+def _do_test_CalcRankOfMrcaBoundsWith_narrow_with_mrca(
         testcase,
         predicate,
         differentia_width,
@@ -2029,11 +2066,75 @@ def _do_test_CalcRankOfMrcaBoundsWith_narrow(
             assert mrca_rank < ub
 
         num_trials = num_inside_bounds + num_outside_bounds
-        assert 0.005 < stats.binom.cdf(
+        assert 0.001 < stats.binom.cdf(
             n=num_trials,
             p=1 - confidence_level,
             k=num_outside_bounds,
-        ) < 0.995
+        ) < 0.999
+
+
+def _do_test_CalcRankOfMrcaBoundsWith_narrow_no_mrca(
+        testcase,
+        predicate,
+        differentia_width,
+        confidence_level,
+        mrca_rank,
+):
+
+    def make_column():
+        return hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=differentia_width,
+            stratum_retention_predicate=predicate,
+            stratum_ordered_store_factory
+                =hstrat.HereditaryStratumOrderedStoreDict,
+        )
+    columns = [make_column() for __ in range(20)]
+
+    for generation in range(mrca_rank):
+        for column in columns: column.DepositStratum()
+
+    steps = (0, 16, 51)
+
+    for step1, step2 in it.product(steps, steps):
+        column1 = [make_column() for col in columns]
+        column2 = [make_column() for col in columns]
+        for __ in range(step1):
+            for col in column1: col.DepositStratum()
+        for i in range(step2):
+            for col in column2: col.DepositStratum()
+
+        num_inside_bounds = 0
+        num_outside_bounds = 0
+        for c1, c2 in zip(column1, column2):
+            assert c1.CalcRankOfMrcaBoundsWith(
+                c2,
+                confidence_level=confidence_level
+            ) == c2.CalcRankOfMrcaBoundsWith(
+                c1,
+                confidence_level=confidence_level,
+            )
+            res = c1.CalcRankOfMrcaBoundsWith(
+                c2,
+                confidence_level=confidence_level,
+            )
+
+            if res is None:
+                num_inside_bounds += 1
+                continue
+
+            lb, ub = res
+            assert lb < ub
+            assert lb >= 0
+            assert ub >= 0
+
+            num_outside_bounds += 1
+
+        num_trials = num_inside_bounds + num_outside_bounds
+        assert 0.001 < stats.binom.cdf(
+            n=num_trials,
+            p=1 - confidence_level,
+            k=num_outside_bounds,
+        ) < 0.999
 
 
 class TestHereditaryStratigraphicColumn(unittest.TestCase):
@@ -2608,8 +2709,21 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
         ]:
             for differentia_width in 1, 2, 8, 64:
                 for confidence_level in 0.8, 0.95:
-                    for mrca_rank in 100,:
-                        _do_test_CalcRankOfMrcaBoundsWith_narrow(
+                    _do_test_CalcRankOfMrcaBoundsWith_narrow_shallow(
+                        self,
+                        predicate,
+                        differentia_width,
+                        confidence_level,
+                    )
+                    _do_test_CalcRankOfMrcaBoundsWith_narrow_with_mrca(
+                        self,
+                        predicate,
+                        differentia_width,
+                        confidence_level,
+                        100,
+                    )
+                    for mrca_rank in 0, 100,:
+                        _do_test_CalcRankOfMrcaBoundsWith_narrow_no_mrca(
                             self,
                             predicate,
                             differentia_width,
