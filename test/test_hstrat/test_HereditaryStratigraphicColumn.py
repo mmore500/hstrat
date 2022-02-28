@@ -2522,6 +2522,138 @@ def _do_test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
                 ) == 0
 
 
+def _do_test_CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith1(
+    testcase,
+    ordered_store,
+    differentia_width,
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_width,
+        stratum_ordered_store_factory=ordered_store,
+    )
+
+    for generation in range(100): column.DepositStratum()
+
+    offspring1 = column.CloneDescendant()
+    offspring2 = column.CloneDescendant()
+
+    for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+        if differentia_width == 64:
+            assert c1.CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith(
+                c2,
+            ) == c1.GetNumStrataDeposited() - column.GetNumStrataDeposited()
+            assert c2.CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith(
+                c1,
+            ) == c2.GetNumStrataDeposited() - column.GetNumStrataDeposited()
+        else:
+            assert c1.CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith(
+                c2,
+            ) in (
+                c1.GetNumStrataDeposited() - column.GetNumStrataDeposited(),
+                0
+            )
+            assert c2.CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith(
+                c1,
+            ) in (
+                c2.GetNumStrataDeposited() - column.GetNumStrataDeposited(),
+                0,
+            )
+
+    for c in [column, offspring1, offspring2]:
+        assert c.CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith(c) \
+            == 0
+
+    for generation in range(100):
+        offspring1.DepositStratum()
+        offspring2.DepositStratum()
+
+    for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+        if differentia_width == 64:
+            assert c1.CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith(
+                c2,
+            ) == c1.GetNumStrataDeposited() - column.GetNumStrataDeposited()
+            assert c2.CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith(
+                c1,
+            ) == c2.GetNumStrataDeposited() - column.GetNumStrataDeposited()
+        else:
+            res = c1.CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith(
+                c2,
+            )
+            assert res \
+                <= c1.GetNumStrataDeposited() \
+                    - column.GetNumStrataDeposited()
+
+    for c in [column, offspring1, offspring2]:
+        assert c.CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith(c) \
+            == 0
+
+
+def _do_test_CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith1(
+    testcase,
+    ordered_store,
+    differentia_width,
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_width,
+        stratum_ordered_store_factory=ordered_store,
+    )
+
+    for generation in range(100): column.DepositStratum()
+
+    offspring1 = column.CloneDescendant()
+    offspring2 = column.CloneDescendant()
+
+    for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+        if differentia_width == 64:
+            assert c1.CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(
+                c2,
+            ) == c1.GetNumStrataDeposited() - column.GetNumStrataDeposited() - 1
+            assert c2.CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(
+                c1,
+            ) == c2.GetNumStrataDeposited() - column.GetNumStrataDeposited() - 1
+        else:
+            assert c1.CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(
+                c2,
+            ) in (
+                c1.GetNumStrataDeposited() - column.GetNumStrataDeposited() - 1,
+                None
+            )
+            assert c2.CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(
+                c1,
+            ) in (
+                c2.GetNumStrataDeposited() - column.GetNumStrataDeposited() - 1,
+                None,
+            )
+
+    for c in [column, offspring1, offspring2]:
+        assert c.CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(c) \
+            is None
+
+    for generation in range(100):
+        offspring1.DepositStratum()
+        offspring2.DepositStratum()
+
+    for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
+        if differentia_width == 64:
+            assert c1.CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(
+                c2,
+            ) == c1.GetNumStrataDeposited() - column.GetNumStrataDeposited() - 1
+            assert c2.CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(
+                c1,
+            ) == c2.GetNumStrataDeposited() - column.GetNumStrataDeposited() - 1
+        else:
+            res = c1.CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(
+                c2,
+            )
+            assert res \
+                <= c1.GetNumStrataDeposited() \
+                    - column.GetNumStrataDeposited() - 1
+
+    for c in [column, offspring1, offspring2]:
+        assert c.CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(c) \
+            is None
+
+
 class TestHereditaryStratigraphicColumn(unittest.TestCase):
 
     # tests can run independently
@@ -3218,6 +3350,32 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
                             confidence_level,
                             mrca_rank,
                         )
+
+    def test_CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith(self):
+        for ordered_store in [
+            hstrat.HereditaryStratumOrderedStoreDict,
+            hstrat.HereditaryStratumOrderedStoreList,
+            hstrat.HereditaryStratumOrderedStoreTree,
+        ]:
+            for differentia_width in 1, 2, 8:
+                _do_test_CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith1(
+                    self,
+                    ordered_store,
+                    differentia_width
+                )
+
+    def test_CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(self):
+        for ordered_store in [
+            hstrat.HereditaryStratumOrderedStoreDict,
+            hstrat.HereditaryStratumOrderedStoreList,
+            hstrat.HereditaryStratumOrderedStoreTree,
+        ]:
+            for differentia_width in 1, 2, 8:
+                _do_test_CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith1(
+                    self,
+                    ordered_store,
+                    differentia_width
+                )
 
 if __name__ == '__main__':
     unittest.main()
