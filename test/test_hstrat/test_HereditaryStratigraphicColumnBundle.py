@@ -57,6 +57,40 @@ class TestHereditaryStratum(unittest.TestCase):
         assert column2 == column3
         assert column1 != column3
 
+    def test_forwarding_fallback(self):
+        bundle1 = hstrat.HereditaryStratigraphicColumnBundle({
+            'test' : hstrat.HereditaryStratigraphicColumn(
+                stratum_retention_condemner
+                    =hstrat.StratumRetentionCondemnerNominalResolution(),
+                stratum_differentia_bit_width=1,
+            ),
+            'control' : hstrat.HereditaryStratigraphicColumn(
+                stratum_retention_condemner
+                    =hstrat.StratumRetentionCondemnerPerfectResolution(),
+            ),
+        })
+
+        for __ in range(100): bundle1.DepositStratum()
+        bundle2 = bundle1.Clone()
+        for __ in range(100): bundle1.DepositStratum()
+        for __ in range(100): bundle2.DepositStratum()
+
+        res = bundle1.HasAnyCommonAncestorWith(bundle2)
+        assert res['test'] is None
+        assert res['control'] == True
+
+        res = bundle1.HasAnyCommonAncestorWith(bundle2, confidence_level=0.49)
+        assert res['test'] == True
+        assert res['control'] == True
+
+        res = bundle1.GetNumStrataRetained()
+        assert \
+            0 < res['test'] < res['control'] <= bundle1.GetNumStrataDeposited()
+
+        assert bundle1._stratum_differentia_bit_width == {
+            'test' : 1,
+            'control' : 64,
+        }
 
 if __name__ == '__main__':
     unittest.main()

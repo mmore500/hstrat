@@ -121,3 +121,75 @@ class HereditaryStratigraphicColumnBundle:
         res = self.Clone()
         res.DepositStratum(annotation=stratum_annotation)
         return res
+
+    def __getattr__(self, attr):
+        """Forward all unknown method calls and property accesses to underlying
+        HereditaryStratigraphicColumns, returning a dict of results for each
+        column key stored.
+
+        Note that __getattr__ is only called after other attribute lookup (i.e.,
+        explicitly provided methods and properties) has failed.
+        """
+        # Adapted from
+        # https://rosettacode.org/wiki/Respond_to_an_unknown_method_call#Python
+
+        # raise AttributeError for dunder methods so that callers expecting
+        # them unimplemented can catch and run their fallbacks
+        if '__' in attr:
+            raise AttributeError
+
+        def arg_debundler(args, column_name):
+            """If any args are column bundles, extract the focal column."""
+
+            return [
+                arg
+                if not isinstance(arg, self.__class__)
+                else arg[column_name]
+                for arg in args
+            ]
+
+        def kwarg_debundler(kwargs, column_name):
+            """If any kwarg vals are column bundles, extract the focal
+            column."""
+
+            return {
+                k : v \
+                    if not isinstance(v, self.__class__)
+                    else v[column_name]
+                for k, v in kwargs.items()
+            }
+
+        if any(
+            callable(getattr(column, attr))
+            for column in self._columns.values()
+        ):
+            # method forwarding
+            assert all(
+                callable(getattr(column, attr))
+                for column in self._columns.values()
+            )
+
+            def forwarded(*args, **kwargs):
+                """Apply method to each column independently, extracting the
+                corresponding column from any column bundles passed as
+                arguments.
+
+                Returns a dict mapping each column name to its result.
+                """
+
+                return {
+                    column_name : getattr(column, attr)(
+                        *arg_debundler(args, column_name),
+                        **kwarg_debundler(kwargs, column_name),
+                    )
+                    for column_name, column in self._columns.items()
+                }
+
+            return forwarded
+
+        else:
+            # property forwarding
+            return {
+                column_name : getattr(column, attr)
+                for column_name, column in self._columns.items()
+            }
