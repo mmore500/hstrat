@@ -922,7 +922,7 @@ class HereditaryStratigraphicColumn:
             first_disparity = {
                 'symmetric' : lambda: self.CalcRankOfFirstRetainedDisparityWith(
                     other,
-                    confidence_level=1.0 - significance_level/2.0
+                    confidence_level=significance_level/2.0
                 ),
                 'hard_upper_bound' : lambda: \
                     self.CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(
@@ -1150,7 +1150,7 @@ class HereditaryStratigraphicColumn:
                 'symmetric' : lambda: \
                     self.CalcRanksSinceFirstRetainedDisparityWith(
                         other,
-                        confidence_level=1.0 - significance_level / 2.0,
+                        confidence_level=significance_level / 2.0,
                     ),
                 'hard_lower_bound' : lambda: \
                     self.CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(
