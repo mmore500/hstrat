@@ -4044,6 +4044,57 @@ class TestHereditaryStratigraphicColumn(unittest.TestCase):
             _do_test_DefinitivelySharesNoCommonAncestorWith1(self, predicate)
             _do_test_DefinitivelySharesNoCommonAncestorWith2(self, predicate)
 
+    def test_HasAnyCommonAncestorWith_narrow(self):
+
+        c1 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+        )
+        c2 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+        )
+        assert c1.HasAnyCommonAncestorWith(c2) is None
+        assert c2.HasAnyCommonAncestorWith(c1) is None
+
+        c1 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=64,
+        )
+        c2 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=64,
+        )
+        assert c1.HasAnyCommonAncestorWith(c2) == False
+        assert c2.HasAnyCommonAncestorWith(c1) == False
+
+        c1 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+        )
+        c2 = c1.Clone()
+        assert c1.HasAnyCommonAncestorWith(c2) is None
+        assert c2.HasAnyCommonAncestorWith(c1) is None
+
+        c1 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=64,
+        )
+        c2 = c1.Clone()
+        assert c1.HasAnyCommonAncestorWith(c2) == True
+        assert c2.HasAnyCommonAncestorWith(c1) == True
+
+
+        c1 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=1,
+        )
+        for __ in range(100): c1.DepositStratum()
+        c2 = c1.CloneDescendant()
+        assert c1.HasAnyCommonAncestorWith(c2) == True
+        assert c2.HasAnyCommonAncestorWith(c1) == True
+
+        c1 = hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=64,
+        )
+        for __ in range(100): c1.DepositStratum()
+        c2 = c1.CloneDescendant()
+        assert c1.HasAnyCommonAncestorWith(c2) == True
+        assert c2.HasAnyCommonAncestorWith(c1) == True
+
 
 if __name__ == '__main__':
     unittest.main()
