@@ -26,6 +26,10 @@ class StratumRetentionPredicateDepthProportionalResolution:
         For a potentially more computationally efficient specificiation of the
         depth-proportional resolution policy that directly generates the ranks
         of strata that should be purged during the nth stratum deposition.
+    StratumRetentionPredicateTaperedDepthProportionalResolution:
+        For a predicate retention policy that achieves the same guarantees for
+        depth-proportional resolution but purges unnecessary strata more
+        graudally.
     """
 
     _guaranteed_depth_proportional_resolution: int

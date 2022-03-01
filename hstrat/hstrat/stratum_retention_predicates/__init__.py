@@ -14,6 +14,8 @@ from .StratumRetentionPredicateRecencyProportionalResolution \
     import StratumRetentionPredicateRecencyProportionalResolution
 from .StratumRetentionPredicateStochastic \
     import StratumRetentionPredicateStochastic
+from .StratumRetentionPredicateTaperedDepthProportionalResolution \
+    import StratumRetentionPredicateTaperedDepthProportionalResolution
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
@@ -23,4 +25,5 @@ __all__ = [
     'StratumRetentionPredicateNominalResolution',
     'StratumRetentionPredicateRecencyProportionalResolution',
     'StratumRetentionPredicateStochastic',
+    'StratumRetentionPredicateTaperedDepthProportionalResolution',
 ]
