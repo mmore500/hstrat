@@ -210,3 +210,77 @@ class StratumRetentionPredicateTaperedDepthProportionalResolution:
             first_num_strata_deposited,
             second_num_strata_deposited,
         ) // self._guaranteed_depth_proportional_resolution
+
+
+    def _CalcRankAtColumnIndexImpl(
+        self: 'StratumRetentionPredicateTaperedDepthProportionalResolution',
+        index: int,
+        num_strata_deposited: int,
+    ) -> int:
+        """After n strata have been deposited, what will the rank of the
+        stratum at column index k be?
+
+        Assumes that no in-progress stratum depositions that haven't been
+        reflected in num_strata_deposited.
+        """
+
+        guaranteed_resolution = self._guaranteed_depth_proportional_resolution
+
+        cur_stage_uncertainty = self._calc_provided_uncertainty(
+            num_strata_deposited,
+        )
+        cur_stage_max_idx = num_strata_deposited // cur_stage_uncertainty
+
+        prev_stage_uncertainty = cur_stage_uncertainty // 2
+        prev_stage_max_idx = (num_strata_deposited - 1)// prev_stage_uncertainty
+
+        thresh_idx = (
+            2 * prev_stage_max_idx
+            - 4 * guaranteed_resolution
+            + 2
+        ) // 2
+
+        before_thresh_idx = min(thresh_idx, index)
+        after_thresh_idx = max(index - thresh_idx, 0)
+
+        return \
+            before_thresh_idx * cur_stage_uncertainty \
+            + after_thresh_idx * prev_stage_uncertainty
+
+    def CalcRankAtColumnIndex(
+        self: 'StratumRetentionPredicateTaperedDepthProportionalResolution',
+        index: int,
+        num_strata_deposited: int,
+    ) -> int:
+        """After n strata have been deposited, what will the rank of the
+        stratum at column index k be?
+
+        Enables a HereditaryStratigraphicColumn using this predicate to
+        optimize away storage of rank annotations on strata. Takes into the
+        account the possiblity for in-progress stratum depositions that haven't
+        been reflected in num_strata_deposited.
+        """
+
+        guaranteed_resolution = self._guaranteed_depth_proportional_resolution
+
+        if num_strata_deposited < guaranteed_resolution * 2 + 1:
+            # use identity mapping before first ranks are condemned
+            return index
+        elif (
+            index == self.CalcNumStrataRetainedExact(num_strata_deposited) - 1
+        ):
+            # case where index is the very most recent stratum
+            return num_strata_deposited - 1
+        elif index == self.CalcNumStrataRetainedExact(num_strata_deposited):
+            # in cases where the index is an in-progress
+            # deposition rank must be calculated as the rank succeeding the
+            # previous stratum's rank
+            return self.CalcRankAtColumnIndex(
+                index - 1,
+                num_strata_deposited,
+            ) + 1
+        else:
+            return self._CalcRankAtColumnIndexImpl(
+                index,
+                num_strata_deposited,
+            )

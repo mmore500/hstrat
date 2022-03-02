@@ -157,6 +157,52 @@ class TestStratumRetentionPredicateTaperedDepthProportionalResolution(
         ]:
             self._do_test_CalcRankAtColumnIndex(min_intervals_divide_into)
 
+    def _do_test_CalcRankAtColumnIndex(
+        self,
+        guaranteed_depth_proportional_resolution,
+    ):
+        test_predicate \
+           = hstrat.StratumRetentionPredicateTaperedDepthProportionalResolution(
+                guaranteed_depth_proportional_resolution
+                    =guaranteed_depth_proportional_resolution,
+            )
+        test_column = hstrat.HereditaryStratigraphicColumn(
+            always_store_rank_in_stratum=True,
+            stratum_ordered_store_factory
+                =hstrat.HereditaryStratumOrderedStoreDict,
+            stratum_retention_predicate=test_predicate,
+        )
+
+        for i in range(10000):
+            test_column.DepositStratum()
+            actual_ranks = { *test_column.GetRetainedRanks() }
+            calcualted_ranks = {
+                test_predicate.CalcRankAtColumnIndex(
+                    index=i,
+                    num_strata_deposited=test_column.GetNumStrataDeposited()
+                )
+                for i in range(test_column.GetNumStrataRetained())
+            }
+            assert actual_ranks == calcualted_ranks
+            # in-progress deposition case
+            assert test_predicate.CalcRankAtColumnIndex(
+                index=test_column.GetNumStrataRetained(),
+                num_strata_deposited=test_column.GetNumStrataDeposited(),
+            ) == test_column.GetNumStrataDeposited()
+
+    def test_CalcRankAtColumnIndex(self):
+        for guaranteed_depth_proportional_resolution in [
+            1,
+            2,
+            3,
+            7,
+            42,
+            100,
+        ]:
+            self._do_test_CalcRankAtColumnIndex(
+                guaranteed_depth_proportional_resolution,
+            )
+
 
 if __name__ == '__main__':
     unittest.main()
