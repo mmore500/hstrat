@@ -258,16 +258,23 @@ class StratumRetentionPredicateDepthProportionalResolution:
         been reflected in num_strata_deposited.
         """
 
-        # 0th index is always rank 0
-        if index == 0: return 0
-
-        prev = self._CalcRankAtColumnIndexImpl(index - 1, num_strata_deposited)
-        cur = self._CalcRankAtColumnIndexImpl(index, num_strata_deposited)
-        if (cur == prev):
-            # in cases where the same rank result is calculated for this index
-            # and preceding index, the current index is an in-progress
-            # deposition and must be calculated as the rank succeeding the
+        if index == 0:
+            # 0th index is always rank 0
+            return 0
+        elif index \
+            == self.CalcNumStrataRetainedExact(num_strata_deposited) - 1:
+            # case where index is the very most recent stratum
+            return num_strata_deposited - 1
+        elif index == self.CalcNumStrataRetainedExact(num_strata_deposited):
+            # in cases where the index is an in-progress
+            # deposition rank must be calculated as the rank succeeding the
             # previous stratum's rank
-            return prev + 1
+            return self.CalcRankAtColumnIndex(
+                index - 1,
+                num_strata_deposited,
+            ) + 1
         else:
-            return cur
+            return self._CalcRankAtColumnIndexImpl(
+                index,
+                num_strata_deposited,
+            )
