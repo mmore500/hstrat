@@ -14,6 +14,8 @@ from .StratumRetentionCondemnerNominalResolution \
     import StratumRetentionCondemnerNominalResolution
 from .StratumRetentionCondemnerRecencyProportionalResolution \
     import StratumRetentionCondemnerRecencyProportionalResolution
+from .StratumRetentionCondemnerTaperedDepthProportionalResolution \
+    import StratumRetentionCondemnerTaperedDepthProportionalResolution
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
@@ -23,4 +25,5 @@ __all__ = [
     'StratumRetentionCondemnerPerfectResolution',
     'StratumRetentionCondemnerNominalResolution',
     'StratumRetentionCondemnerRecencyProportionalResolution',
+    'StratumRetentionCondemnerTaperedDepthProportionalResolution',
 ]
