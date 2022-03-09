@@ -474,8 +474,9 @@ class HereditaryStratigraphicColumn:
         assert collision_implausibility_threshold > 0
         if first_disparite_idx is None:
             # no disparate strata found
-            # fall back to _do_generic_CalcRankOfLastRetainedCommonalityWith to handle
-            # proper bookkeeping in this case while skipping most of the search
+            # fall back to _do_generic_CalcRankOfLastRetainedCommonalityWith
+            # to handle proper bookkeeping in this case while skipping most of
+            # the search
             return self._do_generic_CalcRankOfLastRetainedCommonalityWith(
                 other,
                 self_start_idx=upper_bound,
@@ -957,7 +958,8 @@ class HereditaryStratigraphicColumn:
 
         Notes
         -----
-        The true rank of the MRCA is guaranteed to never fall above the bounds but may fall below.
+        The true rank of the MRCA is guaranteed to never fall above the bounds
+        but may fall below.
 
         An alternate approach could be to construct the bounds such that the
         true rank of the MRCA will fall above or below the bounds with equal
@@ -998,7 +1000,8 @@ class HereditaryStratigraphicColumn:
             confidence_level=confidence_level,
         ) is None:
             warnings.warn(
-                'Insufficient common ranks between columns to detect common ' 'ancestry at given confidence level.'
+                'Insufficient common ranks between columns to detect common '
+                'ancestry at given confidence level.'
             )
 
         if self.HasAnyCommonAncestorWith(
@@ -1264,7 +1267,8 @@ class HereditaryStratigraphicColumn:
 
         Notes
         -----
-        The true number of ranks since the MRCA is guaranteed to never fall below the bounds but may fall above.
+        The true number of ranks since the MRCA is guaranteed to never fall
+        below the bounds but may fall above.
 
         An alternate approach could be to construct the bounds such that the
         true number of ranks since the MRCA will fall above or below the bounds
@@ -1305,7 +1309,8 @@ class HereditaryStratigraphicColumn:
             confidence_level=confidence_level,
         ) is None:
             warnings.warn(
-                'Insufficient common ranks between columns to detect common ' 'ancestry at given confidence level.'
+                'Insufficient common ranks between columns to detect common '
+                'ancestry at given confidence level.'
             )
 
         if self.HasAnyCommonAncestorWith(
