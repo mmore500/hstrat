@@ -2,7 +2,7 @@ from copy import copy
 from interval_search import binary_search
 import typing
 
-from .HereditaryStratum import HereditaryStratum
+from ..HereditaryStratum import HereditaryStratum
 
 
 class HereditaryStratumOrderedStoreList:

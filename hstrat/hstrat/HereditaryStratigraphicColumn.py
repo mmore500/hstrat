@@ -10,8 +10,8 @@ import typing
 import warnings
 
 from .HereditaryStratum import HereditaryStratum
-from .HereditaryStratumOrderedStoreList import HereditaryStratumOrderedStoreList
 
+from .stratum_ordered_stores import HereditaryStratumOrderedStoreList
 from .stratum_retention_condemners import StratumRetentionCondemnerFromPredicate
 from .stratum_retention_condemners \
     import StratumRetentionCondemnerPerfectResolution

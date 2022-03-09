@@ -3,7 +3,7 @@ import itertools as it
 import sys
 import typing
 
-from .HereditaryStratum import HereditaryStratum
+from ..HereditaryStratum import HereditaryStratum
 
 
 class HereditaryStratumOrderedStoreDict:

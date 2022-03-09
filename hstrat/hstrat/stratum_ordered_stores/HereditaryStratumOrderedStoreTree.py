@@ -4,9 +4,9 @@ from interval_search import binary_search
 import itertools as it
 import typing
 
-from ..helpers import AnyTreeAscendingIter
+from ...helpers import AnyTreeAscendingIter
 
-from .HereditaryStratum import HereditaryStratum
+from ..HereditaryStratum import HereditaryStratum
 
 
 class HereditaryStratumOrderedStoreTree:
