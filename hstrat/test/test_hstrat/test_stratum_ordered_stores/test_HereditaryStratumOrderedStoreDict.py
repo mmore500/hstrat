@@ -7,7 +7,7 @@ from hstrat import hstrat
 random.seed(1)
 
 
-class TestHereditaryStratum(unittest.TestCase):
+class TestHereditaryStratumOrderedStoreDict(unittest.TestCase):
 
     # tests can run independently
     _multiprocess_can_split_ = True
