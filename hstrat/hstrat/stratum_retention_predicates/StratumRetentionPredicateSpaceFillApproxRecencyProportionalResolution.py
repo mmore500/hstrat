@@ -158,6 +158,20 @@ class StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution:
 
         return provided_uncertainty
 
+    def _iter_retained_ranks(
+        self: \
+        'StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution',
+        num_strata_deposited: int,
+    ):
+        cur_rank = 0
+        while cur_rank < num_strata_deposited:
+            yield cur_rank
+            provided_uncertainty = self._calc_provided_uncertainty(
+                num_strata_deposited,
+                cur_rank,
+            )
+            cur_rank += provided_uncertainty
+
     def __call__(
         self: \
         'StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution',
@@ -190,22 +204,14 @@ class StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution:
             True if the stratum should be retained, False otherwise.
         """
 
-        # to satisfy requirements of HereditaryStratigraphicColumn impl
-        # we must always keep root ancestor and newest stratum
-        if (stratum_rank in (0, num_stratum_depositions_completed)): return True
-        elif num_stratum_depositions_completed < self._target_size: return True
-
-        cur_rank = 0
-        while cur_rank < stratum_rank:
-            # +1 due to in-progress deposition
-            provided_uncertainty = self._calc_provided_uncertainty(
+        return next((
+            rank == stratum_rank
+            for rank in self._iter_retained_ranks(
+                # +1 due to in-progress deposition
                 num_stratum_depositions_completed + 1,
-                cur_rank,
             )
-
-            cur_rank += provided_uncertainty
-
-        return cur_rank == stratum_rank
+            if rank >= stratum_rank
+        ))
 
     def CalcNumStrataRetainedExact(
         self: 'StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution',
@@ -213,20 +219,9 @@ class StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution:
     ) -> int:
         """Exactly how many strata are retained after n deposted?"""
 
-        if num_strata_deposited <= self._target_size:
-            return num_strata_deposited
-
-        cur_rank = 0
-        counter = 0
-        while cur_rank < num_strata_deposited:
-            provided_uncertainty = self._calc_provided_uncertainty(
-                num_strata_deposited,
-                cur_rank,
-            )
-            cur_rank += provided_uncertainty
-            counter += 1
-
-        return counter
+        return sum(
+            1 for __ in self._iter_retained_ranks(num_strata_deposited)
+        )
 
     def CalcNumStrataRetainedUpperBound(
         self: 'StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution',
@@ -270,20 +265,9 @@ class StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution:
         been reflected in num_strata_deposited.
         """
 
-        cur_rank = 0
-        counter = 0
-        while counter < index:
-            if cur_rank < num_strata_deposited:
-                provided_uncertainty = self._calc_provided_uncertainty(
-                    num_stratum_depositions_completed,
-                    cur_rank,
-                )
-                cur_rank += provided_uncertainty
-            else:
-                # in-progress stratum deposition case
-                assert counter == index - 1
-                cur_rank += 1
-                assert cur_rank == num_strata_deposited
-            counter += 1
-
-        return cur_rank
+        next(
+            rank for i, rank in enumerate(
+                self._iter_retained_ranks(num_strata_deposited)
+            )
+            if i == index
+        )
