@@ -71,7 +71,14 @@ class StratumRetentionPredicateDepthProportionalResolution:
         num_stratum_depositions_completed: int,
     ) -> int:
         """After n strata have been deposited, how many ranks are spaced
-        between retained strata?"""
+        between retained strata?
+
+        Note that the returned value actually corresponds to one more than the
+        uncertainty with respect to calculating MRCA supposing two identically
+        distributed columns. For example a return value of 1 corresponds to
+        strata retained at every rank, so the rank of the MRCA can be
+        determined with 0 uncertainty.
+        """
 
         guaranteed_resolution = self._guaranteed_depth_proportional_resolution
         max_uncertainty \

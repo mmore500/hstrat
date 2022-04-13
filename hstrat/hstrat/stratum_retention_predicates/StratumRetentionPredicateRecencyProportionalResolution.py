@@ -71,7 +71,14 @@ class StratumRetentionPredicateRecencyProportionalResolution:
         num_stratum_depositions_completed: int,
     ) -> int:
         """When n strata have been deposited, how big will the interval until
-        the first retained stratum be?"""
+        the first retained stratum be?
+
+        Note that the returned value actually corresponds to one more than the
+        uncertainty with respect to calculating MRCA supposing two identically
+        distributed columns. For example a return value of 1 corresponds to
+        strata retained at every rank, so the rank of the MRCA can be
+        determined with 0 uncertainty.
+        """
         resolution = self._guaranteed_mrca_recency_proportional_resolution
 
         max_uncertainty = num_stratum_depositions_completed // (resolution + 1)
