@@ -206,7 +206,7 @@ class StratumRetentionPredicateRecencyProportionalResolution:
 
         # to satisfy requirements of HereditaryStratigraphicColumn impl
         # we must always keep root ancestor and newest stratum
-        if (stratum_rank in (0, num_stratum_depositions_completed)): return True
+        if stratum_rank in (0, num_stratum_depositions_completed): return True
         elif num_stratum_depositions_completed <= resolution: return True
 
         provided_uncertainty = self._calc_provided_uncertainty(
