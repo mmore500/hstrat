@@ -1,5 +1,5 @@
 
-def bit_ceil(n: int):
+def bit_ceil(n: int) -> int:
     """Calculate the smallest power of 2 not smaller than n."""
 
     if n:
