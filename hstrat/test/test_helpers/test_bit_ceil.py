@@ -1,5 +1,3 @@
-from copy import deepcopy
-import random
 import unittest
 
 from hstrat.helpers import bit_ceil
