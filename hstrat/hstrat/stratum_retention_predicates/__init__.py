@@ -12,6 +12,8 @@ from .StratumRetentionPredicateFixedResolution \
     import StratumRetentionPredicateFixedResolution
 from .StratumRetentionPredicateRecencyProportionalResolution \
     import StratumRetentionPredicateRecencyProportionalResolution
+from .StratumRetentionPredicateGeomSeqNthRoot \
+    import StratumRetentionPredicateGeomSeqNthRoot
 from .StratumRetentionPredicateStochastic \
     import StratumRetentionPredicateStochastic
 from .StratumRetentionPredicateTaperedDepthProportionalResolution \
@@ -21,6 +23,7 @@ from .StratumRetentionPredicateTaperedDepthProportionalResolution \
 __all__ = [
     'StratumRetentionPredicateDepthProportionalResolution',
     'StratumRetentionPredicateFixedResolution',
+    'StratumRetentionPredicateGeomSeqNthRoot',
     'StratumRetentionPredicatePerfectResolution',
     'StratumRetentionPredicateNominalResolution',
     'StratumRetentionPredicateRecencyProportionalResolution',

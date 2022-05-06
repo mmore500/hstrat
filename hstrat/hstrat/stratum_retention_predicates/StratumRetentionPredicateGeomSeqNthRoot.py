@@ -1,9 +1,12 @@
 import gmpy
 import math
+import numpy as np
 import typing
 
+from ...helpers import bit_floor
 
-class StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution:
+
+class StratumRetentionPredicateGeomSeqNthRoot:
     """Functor to implement the approximate space-filling MRCA-recency-
     proportional resolution stratum retention policy, for use with
     HereditaryStratigraphicColumn.
@@ -31,37 +34,33 @@ class StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution:
     guaranteed estimate uncertainty. For larger target space utilizations,
     number of strata retained appears generally less than twice the target
     space utilization.
-
-    See Also
-    --------
-    StratumRetentionPredicateSpaceCapExactRecencyProportionalResolution
-    StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution
-    StratumRetentionPredicateSpaceFillExactRecencyProportionalResolution
     """
 
-    _target_size: int
+    _degree: int
+    _interspersal: int
 
     def __init__(
         self: \
-        'StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution',
-        target_size: int=100,
+        'StratumRetentionPredicateGeomSeqNthRoot',
+        degree: int=100,
+        interspersal: int=1,
     ):
         """Construct the functor.
 
         Parameters
         ----------
-        target_size : int, optional
+        root : int, optional
             Target column size. Must be >= 8 (TODO relax?).
         """
 
-        assert target_size >= 8
-        self._target_size = target_size
+        assert degree >= 0
+        assert interspersal
+        self._degree = degree
+        self._interspersal = interspersal
 
     def __eq__(
-        self: \
-        'StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution',
-        other: \
-        'StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution',
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
+        other: 'StratumRetentionPredicateGeomSeqNthRoot',
     ) -> bool:
         """Compare for value-wise equality."""
 
@@ -70,111 +69,96 @@ class StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution:
         else:
             return False
 
-    def _calc_base(
-        self: \
-        'StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution',
+    def _calc_common_ratio(
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
         num_strata_deposited: int,
     ) -> float:
         """What should the base of the exponential distribution of retained
         ranks be?"""
 
-        # base ** target_size == num_strata_deposited
-        # take the target_size'th root of each side...
-        return num_strata_deposited ** (1 / self._target_size)
+        # base ** degree == num_strata_deposited
+        # take the degree'th root of each side...
+        return num_strata_deposited ** (1 / self._degree)
 
-    def _calc_max_permissible_uncertainty(
-        self: \
-        'StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution',
-        num_strata_deposited: int,
-        rank: int,
-    ) -> int:
-        """After n strata have been deposited, at most how many ranks can be
-        spaced between retained strata surrounding rank r?
-        """
-
-        ranks_since = num_strata_deposited - rank
-        base = self._calc_base(num_strata_deposited)
-
-        # aka
-        # base ** log(ranks_since, base) - base ** (log(ranks_since, base) - 1)
-        max_uncertainty = ranks_since - ranks_since / base
-
-        # round down to lower or equal power of 2
-        max_permissible_uncertainty_exp \
-            = (int(max_uncertainty) // 2).bit_length()
-        max_permissible_uncertainty = 2 ** max_permissible_uncertainty_exp
-
-        assert max_permissible_uncertainty > 0
-
-        return max_permissible_uncertainty
-
-    def _calc_provided_uncertainty(
-        self: \
-        'StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution',
-        num_strata_deposited: int,
-        rank: int,
-    ) -> int:
-        """After n strata have been deposited, how many ranks are spaced
-        between retained strata at rank r?
-
-        Uncertainty is chosen so that, in the worst case, the "front" rank that
-        is "uncertainty" # of ranks ahead of the provided "back" rank has max
-        permissible uncertainty greater than or equal to the provided
-        uncertainty.
-
-        Note that the returned value actually corresponds to one more than the
-        uncertainty with respect to calculating MRCA supposing two identically
-        distributed columns. For example a return value of 1 corresponds to
-        strata retained at every rank, so the rank of the MRCA can be
-        determined with 0 uncertainty.
-        """
-
-        # ansatz
-        provided_uncertainty = self._calc_max_permissible_uncertainty(
-            num_strata_deposited,
-            rank,
-        )
-
-        # apply correction to accomodate uncertainty requirement of worst-case
-        # captured rank, if needed
-        if self._calc_max_permissible_uncertainty(
-            num_strata_deposited,
-            rank + provided_uncertainty,
-        ) < provided_uncertainty:
-            # TODO
-            # prove that we at most have to divide by 2,
-            # i.e., that rank + ansatz / 2 cannot require uncertainty less than
-            # ansatz / 2
-            provided_uncertainty //= 2
-
-        # sanity check: are we satisfying uncertainty requirements of
-        # worst-case captured rank?
-        assert self._calc_max_permissible_uncertainty(
-            num_strata_deposited,
-            rank + provided_uncertainty,
-        ) >= provided_uncertainty
-        # max "uncertainty" is 1 where every strata retained
-        assert provided_uncertainty > 0
-
-        return provided_uncertainty
-
-    def _iter_retained_ranks(
-        self: \
-        'StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution',
+    def _iter_target_recencies(
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
         num_strata_deposited: int,
     ):
-        cur_rank = 0
-        while cur_rank < num_strata_deposited:
-            yield cur_rank
-            provided_uncertainty = self._calc_provided_uncertainty(
-                num_strata_deposited,
-                cur_rank,
+        """TODO."""
+
+        # target recencies are a geometric sequence
+        common_ratio = self._calc_common_ratio(num_strata_deposited)
+        for pow in range(self._degree + 1):
+            yield common_ratio ** pow
+
+    def _get_retained_ranks(
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
+        num_strata_deposited: int,
+    ) -> typing.Set[int]:
+        """TODO."""
+
+        interspersal = self._interspersal
+        last_rank = num_strata_deposited - 1
+        res = {0, last_rank}
+
+        for target_recency in self._iter_target_recencies(num_strata_deposited):
+            recency_cutoff = target_recency * (interspersal + 1) / interspersal
+            rank_cutoff = num_strata_deposited - int(math.ceil(recency_cutoff))
+            min_candidate_rank = np.clip(
+                rank_cutoff + 1, # optimization: exclude unnecessary rank
+                0,
+                num_strata_deposited - 1,
             )
-            cur_rank += provided_uncertainty
+
+            # spacing between retained ranks
+            target_retained_ranks_sep = max(
+                target_recency / interspersal,
+                1.0,
+            )
+            # round down to power of 2
+            retained_ranks_sep = bit_floor(int(target_retained_ranks_sep))
+
+            # round UP to nearest multiple of retained_ranks_sep
+            min_retained_rank = (
+                min_candidate_rank
+                - (min_candidate_rank % -retained_ranks_sep)
+            )
+            assert min_retained_rank % retained_ranks_sep == 0
+            assert min_candidate_rank <= min_retained_rank
+
+            target_ranks = range(
+                min_retained_rank, # start
+                num_strata_deposited, # stop
+                retained_ranks_sep, # sep
+            )
+            assert len(target_ranks)
+            assert target_ranks[-1] >= num_strata_deposited - target_recency
+            assert len(target_ranks) >= min(
+                interspersal,
+                len(range(min_candidate_rank, num_strata_deposited)),
+            )
+            assert len(target_ranks) <= 2 * (interspersal + 1)
+
+            res.update(target_ranks)
+
+        return res
+
+    def _iter_retained_ranks(
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
+        num_strata_deposited: int,
+    ):
+        yield from sorted(self._get_retained_ranks(num_strata_deposited))
+
+    def CalcNumStrataRetainedExact(
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
+        num_strata_deposited: int,
+    ) -> int:
+        """Exactly how many strata are retained after n deposted?"""
+
+        return len(self._get_retained_ranks(num_strata_deposited))
 
     def __call__(
-        self: \
-        'StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution',
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
         stratum_rank: int,
         num_stratum_depositions_completed: int,
     ) -> bool:
@@ -204,17 +188,12 @@ class StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution:
             True if the stratum should be retained, False otherwise.
         """
 
-        return next((
-            rank == stratum_rank
-            for rank in self._iter_retained_ranks(
-                # +1 due to in-progress deposition
-                num_stratum_depositions_completed + 1,
-            )
-            if rank >= stratum_rank
-        ))
+        return stratum_rank in self._get_retained_ranks(
+            num_stratum_depositions_completed + 1,
+        )
 
     def CalcNumStrataRetainedExact(
-        self: 'StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution',
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
         num_strata_deposited: int,
     ) -> int:
         """Exactly how many strata are retained after n deposted?"""
@@ -224,15 +203,15 @@ class StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution:
         )
 
     def CalcNumStrataRetainedUpperBound(
-        self: 'StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution',
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
         num_strata_deposited: int,
     ):
         """At most, how many strata are retained after n deposted? Inclusive."""
 
-        return 2 * num_strata_deposited + 2
+        return 2 * (self._degree + 1) * (self._interspersal + 1) + 1
 
     def CalcMrcaUncertaintyUpperBound(
-        self: 'StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution',
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
         *,
         actual_rank_of_mrca: int,
         first_num_strata_deposited: int,
@@ -244,15 +223,33 @@ class StratumRetentionPredicateSpaceFillApproxRecencyProportionalResolution:
             first_num_strata_deposited,
             second_num_strata_deposited,
         )
-        max_ranks_since_mrca = max_num_strata_deposited - actual_rank_of_mrca
-        base = self._calc_base(max_num_strata_deposited)
+        if max_num_strata_deposited == 0: return 0
 
-        return int(
-            max_ranks_since_mrca * (1.0 - 1.0 / base)
-        )
+        interspersal = self._interspersal
+        # edge case: no uncertainty guarantee for interspersal 1
+        # interspersal >= 2 required for uncertainty guarantee
+        if interspersal == 1: return max_num_strata_deposited
+
+        max_ranks_since_mrca = max_num_strata_deposited - actual_rank_of_mrca
+        # edge case: columns are identical
+        if max_ranks_since_mrca == 0: return 0
+
+        common_ratio = self._calc_common_ratio(max_num_strata_deposited)
+        # edge case: no strata have yet been dropped
+        if common_ratio == 1.0: return 0
+
+        # TODO refine for rounding error
+        pow = math.log(max_ranks_since_mrca, common_ratio)
+        assert pow <= self._degree + 0.01 # account for rounding error
+
+        ceil_pow = int(math.ceil(pow))
+        upper = int(math.ceil(common_ratio ** ceil_pow))
+
+        # return upper
+        return int(math.ceil(upper / (interspersal - 1)))
 
     def CalcRankAtColumnIndex(
-        self: 'StratumRetentionPredicatePerfectResolution',
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
         index: int,
         num_strata_deposited: int,
     ) -> int:
