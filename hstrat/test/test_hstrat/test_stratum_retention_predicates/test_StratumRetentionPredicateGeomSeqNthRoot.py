@@ -1,9 +1,11 @@
 from copy import deepcopy
 import itertools as it
+from more_itertools import zip_equal
 import random
 import unittest
 
 from hstrat import hstrat
+from hstrat import helpers
 
 
 class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
@@ -166,6 +168,79 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
             assert actual_ranks == expected_ranks
             column.DepositStratum(annotation=generation)
 
+    def _do_test__calc_common_ratio(self, degree, interspersal):
+            predicate = hstrat.StratumRetentionPredicateGeomSeqNthRoot(
+                degree=degree,
+                interspersal=interspersal,
+            )
+            common_ratio_by_generation = [
+                predicate._calc_common_ratio(g)
+                for g in range(1000)
+            ]
+            assert helpers.is_nondecreasing(common_ratio_by_generation)
+
+    def _do_test__iter_target_recencies(self, degree, interspersal):
+            predicate = hstrat.StratumRetentionPredicateGeomSeqNthRoot(
+                degree=degree,
+                interspersal=interspersal,
+            )
+            target_recencies_by_generation = [
+                predicate._iter_target_recencies(g)
+                for g in range(10000)
+            ]
+            zipped = list(zip_equal(*target_recencies_by_generation))
+            assert len(zipped) == degree + 1
+            for equiv_seq in zipped:
+                assert helpers.is_nondecreasing(equiv_seq)
+
+    def _do_test__iter_target_ranks(self, degree, interspersal):
+            predicate = hstrat.StratumRetentionPredicateGeomSeqNthRoot(
+                degree=degree,
+                interspersal=interspersal,
+            )
+            target_ranks_by_generation = [
+                predicate._iter_target_ranks(g)
+                for g in range(10000)
+            ]
+            zipped = list(zip_equal(*target_ranks_by_generation))
+            assert len(zipped) == degree + 1
+            for equiv_seq in zipped:
+                assert helpers.is_nondecreasing(equiv_seq)
+
+    def _do_test__iter_rank_cutoffs(self, degree, interspersal):
+            predicate = hstrat.StratumRetentionPredicateGeomSeqNthRoot(
+                degree=degree,
+                interspersal=interspersal,
+            )
+            rank_cutoffs_by_generation = [
+                predicate._iter_rank_cutoffs(g)
+                for g in range(10000)
+            ]
+            zipped = list(zip_equal(*rank_cutoffs_by_generation))
+            assert len(zipped) == degree + 1
+            for equiv_seq in zipped:
+                assert helpers.is_nondecreasing(equiv_seq)
+
+    def _do_test__iter_rank_seps(self, degree, interspersal):
+            predicate = hstrat.StratumRetentionPredicateGeomSeqNthRoot(
+                degree=degree,
+                interspersal=interspersal,
+            )
+            rank_seps_by_generation = [
+                predicate._iter_rank_seps(g)
+                for g in range(10000)
+            ]
+            zipped = list(zip_equal(*rank_seps_by_generation))
+            assert len(zipped) == degree + 1
+            for equiv_seq in zipped:
+                assert helpers.is_nondecreasing(equiv_seq)
+                assert all(
+                    # is power of 2
+                    # https://stackoverflow.com/a/57025941
+                    (item & (item-1) == 0) and item
+                    for item in equiv_seq
+                )
+
     def test_equality(self):
         assert (
             hstrat.StratumRetentionPredicateGeomSeqNthRoot()
@@ -238,6 +313,8 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
         for degree in [
             1,
             2,
+            3,
+            9,
             10,
             17,
         ]:
@@ -247,6 +324,86 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
                 5,
             ]:
                 self._do_test__get_retained_ranks(degree, interspersal)
+
+    def test__calc_common_ratio(self):
+        for degree in [
+            1,
+            2,
+            3,
+            9,
+            10,
+            17,
+        ]:
+            for interspersal in [
+                1,
+                2,
+                5,
+            ]:
+                self._do_test__calc_common_ratio(degree, interspersal)
+
+    def test__iter_target_recencies(self):
+        for degree in [
+            1,
+            2,
+            3,
+            9,
+            10,
+            17,
+        ]:
+            for interspersal in [
+                1,
+                2,
+                5,
+            ]:
+                self._do_test__iter_target_recencies(degree, interspersal)
+
+    def test__iter_target_ranks(self):
+        for degree in [
+            1,
+            2,
+            3,
+            9,
+            10,
+            17,
+        ]:
+            for interspersal in [
+                1,
+                2,
+                5,
+            ]:
+                self._do_test__iter_target_ranks(degree, interspersal)
+
+    def test__iter_rank_cutoffs(self):
+        for degree in [
+            1,
+            2,
+            3,
+            9,
+            10,
+            17,
+        ]:
+            for interspersal in [
+                1,
+                2,
+                5,
+            ]:
+                self._do_test__iter_rank_cutoffs(degree, interspersal)
+
+    def test__iter_rank_seps(self):
+        for degree in [
+            1,
+            2,
+            3,
+            9,
+            10,
+            17,
+        ]:
+            for interspersal in [
+                1,
+                2,
+                5,
+            ]:
+                self._do_test__iter_rank_seps(degree, interspersal)
 
 
 if __name__ == '__main__':

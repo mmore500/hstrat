@@ -91,6 +91,51 @@ class StratumRetentionPredicateGeomSeqNthRoot:
         for pow in range(self._degree + 1):
             yield common_ratio ** pow
 
+    def _iter_target_ranks(
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
+        num_strata_deposited: int,
+    ):
+        """TODO."""
+        for target_recency in self._iter_target_recencies(num_strata_deposited):
+            recency_cutoff = target_recency
+            rank_cutoff = max(
+                num_strata_deposited - int(math.ceil(recency_cutoff)),
+                0,
+            )
+            if num_strata_deposited == 0: assert rank_cutoff == 0
+            else: assert 0 <= rank_cutoff <= num_strata_deposited - 1
+            yield rank_cutoff
+
+    def _iter_rank_cutoffs(
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
+        num_strata_deposited: int,
+    ):
+        """TODO."""
+        for target_recency in self._iter_target_recencies(num_strata_deposited):
+            recency_cutoff = target_recency
+            rank_cutoff = max(
+                num_strata_deposited - int(math.ceil(2 * recency_cutoff)),
+                0,
+            )
+            if num_strata_deposited == 0: assert rank_cutoff == 0
+            else: assert 0 <= rank_cutoff <= num_strata_deposited - 1
+            yield rank_cutoff
+
+    def _iter_rank_seps(
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
+        num_strata_deposited: int,
+    ):
+        """TODO."""
+        for target_recency in self._iter_target_recencies(num_strata_deposited):
+            # spacing between retained ranks
+            target_retained_ranks_sep = max(
+                target_recency / self._interspersal,
+                1.0,
+            )
+            # round down to power of 2
+            retained_ranks_sep = bit_floor(int(target_retained_ranks_sep))
+            yield retained_ranks_sep
+
     def _get_retained_ranks(
         self: 'StratumRetentionPredicateGeomSeqNthRoot',
         num_strata_deposited: int,
@@ -101,43 +146,54 @@ class StratumRetentionPredicateGeomSeqNthRoot:
         last_rank = num_strata_deposited - 1
         res = {0, last_rank}
 
-        for target_recency in self._iter_target_recencies(num_strata_deposited):
-            recency_cutoff = target_recency * (interspersal + 1) / interspersal
-            rank_cutoff = num_strata_deposited - int(math.ceil(recency_cutoff))
-            min_candidate_rank = np.clip(
-                rank_cutoff + 1, # optimization: exclude unnecessary rank
-                0,
-                num_strata_deposited - 1,
-            )
+        for target_rank, rank_cutoff, retained_ranks_sep in zip(
+            self._iter_target_ranks(num_strata_deposited),
+            self._iter_rank_cutoffs(num_strata_deposited),
+            self._iter_rank_seps(num_strata_deposited),
+        ):
 
-            # spacing between retained ranks
-            target_retained_ranks_sep = max(
-                target_recency / interspersal,
-                1.0,
-            )
-            # round down to power of 2
-            retained_ranks_sep = bit_floor(int(target_retained_ranks_sep))
 
-            # round UP to nearest multiple of retained_ranks_sep
+            # round UP from rank_cutoff
+            # adapted from https://stackoverflow.com/a/14092788
             min_retained_rank = (
-                min_candidate_rank
-                - (min_candidate_rank % -retained_ranks_sep)
+                rank_cutoff
+                - (rank_cutoff % -retained_ranks_sep)
             )
             assert min_retained_rank % retained_ranks_sep == 0
-            assert min_candidate_rank <= min_retained_rank
+
+            # TODO can the min_retained_rank be stricter?
+            # maybe something like this
+            # round DOWN to nearest multiple of retained_ranks_sep
+            # min_retained_rank = (
+            #     target_rank
+            #     - (target_rank % retained_ranks_sep)
+            # )
+            # assert min_retained_rank % retained_ranks_sep == 0
 
             target_ranks = range(
                 min_retained_rank, # start
                 num_strata_deposited, # stop
                 retained_ranks_sep, # sep
             )
+
+            # ensure target_ranks non-empty
             assert len(target_ranks)
-            assert target_ranks[-1] >= num_strata_deposited - target_recency
+            # ensure last coverage at or past the target
+            assert target_ranks[0] <= target_rank
+            # ensure one-past-midpoint coverage before the target
+            if len(target_ranks) >= 3:
+                assert target_ranks[len(target_ranks)//2 + 1] > target_rank
+            # TODO under a stricter bound,
+            # ensure second-to-last coverage before the target
+            # if len(target_ranks) >= 2:
+            #     assert target_ranks[1] > target_rank
+            # ensure at least interspersal ranks covered
             assert len(target_ranks) >= min(
                 interspersal,
-                len(range(min_candidate_rank, num_strata_deposited)),
+                len(range(target_rank, num_strata_deposited)),
             )
-            assert len(target_ranks) <= 2 * (interspersal + 1)
+            # ensure space complexity cap respected
+            assert len(target_ranks) <= 4 * (interspersal + 1)
 
             res.update(target_ranks)
 
@@ -208,7 +264,7 @@ class StratumRetentionPredicateGeomSeqNthRoot:
     ):
         """At most, how many strata are retained after n deposted? Inclusive."""
 
-        return 2 * (self._degree + 1) * (self._interspersal + 1) + 1
+        return 4 * (self._degree + 1) * (self._interspersal + 1) + 1
 
     def CalcMrcaUncertaintyUpperBound(
         self: 'StratumRetentionPredicateGeomSeqNthRoot',
@@ -238,15 +294,16 @@ class StratumRetentionPredicateGeomSeqNthRoot:
         # edge case: no strata have yet been dropped
         if common_ratio == 1.0: return 0
 
-        # TODO refine for rounding error
-        pow = math.log(max_ranks_since_mrca, common_ratio)
-        assert pow <= self._degree + 0.01 # account for rounding error
+        # round up to next power of common_ratio
+        rounded_ranks_since_mrca = (
+            common_ratio
+            ** int(math.ceil(math.log(max_ranks_since_mrca, common_ratio)))
+        )
+        # should be leq just multiplying max_ranks_since_mrca by common_ratio
+        assert rounded_ranks_since_mrca <= max_ranks_since_mrca * common_ratio
 
-        ceil_pow = int(math.ceil(pow))
-        upper = int(math.ceil(common_ratio ** ceil_pow))
-
-        # return upper
-        return int(math.ceil(upper / (interspersal - 1)))
+        # account for increased resolution from interspersal
+        return int(math.ceil(rounded_ranks_since_mrca / (interspersal - 1)))
 
     def CalcRankAtColumnIndex(
         self: 'StratumRetentionPredicateGeomSeqNthRoot',
