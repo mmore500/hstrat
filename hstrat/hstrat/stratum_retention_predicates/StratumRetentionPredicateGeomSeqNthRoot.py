@@ -43,7 +43,7 @@ class StratumRetentionPredicateGeomSeqNthRoot:
         self: \
         'StratumRetentionPredicateGeomSeqNthRoot',
         degree: int=100,
-        interspersal: int=1,
+        interspersal: int=2,
     ):
         """Construct the functor.
 
