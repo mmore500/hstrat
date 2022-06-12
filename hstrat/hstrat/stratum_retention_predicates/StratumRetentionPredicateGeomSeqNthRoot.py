@@ -136,23 +136,16 @@ class StratumRetentionPredicateGeomSeqNthRoot:
             retained_ranks_sep = bit_floor(int(target_retained_ranks_sep))
             yield retained_ranks_sep
 
-    def _get_retained_ranks(
+    def _iter_rank_backstops(
         self: 'StratumRetentionPredicateGeomSeqNthRoot',
         num_strata_deposited: int,
-    ) -> typing.Set[int]:
+    ):
         """TODO."""
 
-        interspersal = self._interspersal
-        last_rank = num_strata_deposited - 1
-        res = {0, last_rank}
-
-        for target_rank, rank_cutoff, retained_ranks_sep in zip(
-            self._iter_target_ranks(num_strata_deposited),
+        for rank_cutoff, retained_ranks_sep in zip(
             self._iter_rank_cutoffs(num_strata_deposited),
             self._iter_rank_seps(num_strata_deposited),
         ):
-
-
             # round UP from rank_cutoff
             # adapted from https://stackoverflow.com/a/14092788
             min_retained_rank = (
@@ -169,6 +162,29 @@ class StratumRetentionPredicateGeomSeqNthRoot:
             #     - (target_rank % retained_ranks_sep)
             # )
             # assert min_retained_rank % retained_ranks_sep == 0
+            if num_strata_deposited == 0: assert min_retained_rank == 0
+            else: assert 0 <= min_retained_rank <= num_strata_deposited - 1
+
+            yield min_retained_rank
+
+    def _get_retained_ranks(
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
+        num_strata_deposited: int,
+    ) -> typing.Set[int]:
+        """TODO."""
+
+        interspersal = self._interspersal
+        last_rank = num_strata_deposited - 1
+        res = {0, last_rank}
+
+        for target_rank, rank_backstop, retained_ranks_sep in zip(
+            self._iter_target_ranks(num_strata_deposited),
+            self._iter_rank_backstops(num_strata_deposited),
+            self._iter_rank_seps(num_strata_deposited),
+        ):
+
+
+            min_retained_rank = rank_backstop
 
             target_ranks = range(
                 min_retained_rank, # start

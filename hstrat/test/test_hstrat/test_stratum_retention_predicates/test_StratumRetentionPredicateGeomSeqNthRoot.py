@@ -241,6 +241,20 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
                     for item in equiv_seq
                 )
 
+    def _do_test__iter_rank_backstops(self, degree, interspersal):
+            predicate = hstrat.StratumRetentionPredicateGeomSeqNthRoot(
+                degree=degree,
+                interspersal=interspersal,
+            )
+            rank_backstops_by_generation = [
+                predicate._iter_rank_backstops(g)
+                for g in range(10000)
+            ]
+            zipped = list(zip_equal(*rank_backstops_by_generation))
+            assert len(zipped) == degree + 1
+            for equiv_seq in zipped:
+                assert helpers.is_nondecreasing(equiv_seq)
+
     def test_equality(self):
         assert (
             hstrat.StratumRetentionPredicateGeomSeqNthRoot()
@@ -404,6 +418,22 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
                 5,
             ]:
                 self._do_test__iter_rank_seps(degree, interspersal)
+
+    def test__iter_rank_backstops(self):
+        for degree in [
+            1,
+            2,
+            3,
+            9,
+            10,
+            17,
+        ]:
+            for interspersal in [
+                1,
+                2,
+                5,
+            ]:
+                self._do_test__iter_rank_backstops(degree, interspersal)
 
 
 if __name__ == '__main__':
