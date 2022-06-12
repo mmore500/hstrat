@@ -54,7 +54,7 @@ class StratumRetentionPredicateGeomSeqNthRoot:
         """
 
         assert degree >= 0
-        assert interspersal
+        assert interspersal >= 1
         self._degree = degree
         self._interspersal = interspersal
 
