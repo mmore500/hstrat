@@ -3,7 +3,7 @@ import math
 import numpy as np
 import typing
 
-from ...helpers import bit_floor
+from ...helpers import bit_floor, is_nondecreasing
 
 
 class StratumRetentionPredicateGeomSeqNthRoot:
@@ -112,9 +112,11 @@ class StratumRetentionPredicateGeomSeqNthRoot:
     ):
         """TODO."""
         for target_recency in self._iter_target_recencies(num_strata_deposited):
-            recency_cutoff = target_recency
             rank_cutoff = max(
-                num_strata_deposited - int(math.ceil(2 * recency_cutoff)),
+                num_strata_deposited - int(math.ceil(
+                    target_recency
+                    * (self._interspersal + 1) / self._interspersal
+                )),
                 0,
             )
             if num_strata_deposited == 0: assert rank_cutoff == 0
@@ -146,6 +148,7 @@ class StratumRetentionPredicateGeomSeqNthRoot:
             self._iter_rank_cutoffs(num_strata_deposited),
             self._iter_rank_seps(num_strata_deposited),
         ):
+
             # round UP from rank_cutoff
             # adapted from https://stackoverflow.com/a/14092788
             min_retained_rank = (
@@ -154,14 +157,6 @@ class StratumRetentionPredicateGeomSeqNthRoot:
             )
             assert min_retained_rank % retained_ranks_sep == 0
 
-            # TODO can the min_retained_rank be stricter?
-            # maybe something like this
-            # round DOWN to nearest multiple of retained_ranks_sep
-            # min_retained_rank = (
-            #     target_rank
-            #     - (target_rank % retained_ranks_sep)
-            # )
-            # assert min_retained_rank % retained_ranks_sep == 0
             if num_strata_deposited == 0: assert min_retained_rank == 0
             else: assert 0 <= min_retained_rank <= num_strata_deposited - 1
 
@@ -194,22 +189,20 @@ class StratumRetentionPredicateGeomSeqNthRoot:
 
             # ensure target_ranks non-empty
             assert len(target_ranks)
+            # ensure expected ordering of target ranks
+            assert is_nondecreasing(target_ranks)
             # ensure last coverage at or past the target
             assert target_ranks[0] <= target_rank
             # ensure one-past-midpoint coverage before the target
             if len(target_ranks) >= 3:
                 assert target_ranks[len(target_ranks)//2 + 1] > target_rank
-            # TODO under a stricter bound,
-            # ensure second-to-last coverage before the target
-            # if len(target_ranks) >= 2:
-            #     assert target_ranks[1] > target_rank
             # ensure at least interspersal ranks covered
             assert len(target_ranks) >= min(
                 interspersal,
                 len(range(target_rank, num_strata_deposited)),
             )
             # ensure space complexity cap respected
-            assert len(target_ranks) <= 4 * (interspersal + 1)
+            assert len(target_ranks) <= 2 * (interspersal + 1)
 
             res.update(target_ranks)
 
@@ -280,7 +273,7 @@ class StratumRetentionPredicateGeomSeqNthRoot:
     ):
         """At most, how many strata are retained after n deposted? Inclusive."""
 
-        return 4 * (self._degree + 1) * (self._interspersal + 1) + 1
+        return 2 * (self._degree + 1) * (self._interspersal + 1) + 1
 
     def CalcMrcaUncertaintyUpperBound(
         self: 'StratumRetentionPredicateGeomSeqNthRoot',
