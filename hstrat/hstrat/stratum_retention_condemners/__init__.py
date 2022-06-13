@@ -8,6 +8,8 @@ from .StratumRetentionCondemnerFixedResolution \
     import StratumRetentionCondemnerFixedResolution
 from .StratumRetentionCondemnerFromPredicate \
     import StratumRetentionCondemnerFromPredicate
+from .StratumRetentionCondemnerGeomSeqNthRoot \
+    import StratumRetentionCondemnerGeomSeqNthRoot
 from .StratumRetentionCondemnerPerfectResolution \
     import StratumRetentionCondemnerPerfectResolution
 from .StratumRetentionCondemnerNominalResolution \
@@ -22,6 +24,7 @@ __all__ = [
     'StratumRetentionCondemnerDepthProportionalResolution',
     'StratumRetentionCondemnerFixedResolution',
     'StratumRetentionCondemnerFromPredicate',
+    'StratumRetentionCondemnerGeomSeqNthRoot',
     'StratumRetentionCondemnerPerfectResolution',
     'StratumRetentionCondemnerNominalResolution',
     'StratumRetentionCondemnerRecencyProportionalResolution',
