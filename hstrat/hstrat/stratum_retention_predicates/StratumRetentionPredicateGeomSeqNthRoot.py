@@ -1,4 +1,4 @@
-import gmpy
+import itertools as it
 import math
 import numpy as np
 import typing
@@ -168,6 +168,9 @@ class StratumRetentionPredicateGeomSeqNthRoot:
     ) -> typing.Set[int]:
         """TODO."""
 
+        # special case
+        if num_strata_deposited == 0: return set()
+
         interspersal = self._interspersal
         last_rank = num_strata_deposited - 1
         res = {0, last_rank}
@@ -206,6 +209,9 @@ class StratumRetentionPredicateGeomSeqNthRoot:
 
             res.update(target_ranks)
 
+        assert all(isinstance(n, int) for n in res)
+        assert all(0 <= n < num_strata_deposited for n in res)
+        assert res
         return res
 
     def _iter_retained_ranks(
@@ -328,9 +334,19 @@ class StratumRetentionPredicateGeomSeqNthRoot:
         been reflected in num_strata_deposited.
         """
 
-        next(
+        num_retained = self.CalcNumStrataRetainedExact(
+            num_strata_deposited=num_strata_deposited,
+        )
+        # allow index equal for in-progress deposition case
+        assert 0 <= index <= num_retained
+
+        return next(
             rank for i, rank in enumerate(
-                self._iter_retained_ranks(num_strata_deposited)
+                it.chain(
+                    self._iter_retained_ranks(num_strata_deposited),
+                    # in-progress deposition case
+                    (num_strata_deposited,),
+                )
             )
             if i == index
         )
