@@ -206,6 +206,8 @@ class StratumRetentionPredicateGeomSeqNthRoot:
             )
             # ensure space complexity cap respected
             assert len(target_ranks) <= 2 * (interspersal + 1)
+            # ensure sufficient target_ranks included
+            if retained_ranks_sep > 1: assert len(target_ranks) >= interspersal
 
             res.update(target_ranks)
 
