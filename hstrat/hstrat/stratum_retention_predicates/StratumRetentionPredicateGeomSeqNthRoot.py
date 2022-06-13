@@ -40,8 +40,7 @@ class StratumRetentionPredicateGeomSeqNthRoot:
     _interspersal: int
 
     def __init__(
-        self: \
-        'StratumRetentionPredicateGeomSeqNthRoot',
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
         degree: int=100,
         interspersal: int=2,
     ):
@@ -49,8 +48,10 @@ class StratumRetentionPredicateGeomSeqNthRoot:
 
         Parameters
         ----------
-        root : int, optional
-            Target column size. Must be >= 8 (TODO relax?).
+        degree : int, optional
+            TODO.
+        interspersal : int, optional
+            TODO.
         """
 
         assert degree >= 0
@@ -181,7 +182,6 @@ class StratumRetentionPredicateGeomSeqNthRoot:
             self._iter_rank_seps(num_strata_deposited),
         ):
 
-
             min_retained_rank = rank_backstop
 
             target_ranks = range(
@@ -269,8 +269,8 @@ class StratumRetentionPredicateGeomSeqNthRoot:
     ) -> int:
         """Exactly how many strata are retained after n deposted?"""
 
-        return sum(
-            1 for __ in self._iter_retained_ranks(num_strata_deposited)
+        return len(
+            self._get_retained_ranks(num_strata_deposited)
         )
 
     def CalcNumStrataRetainedUpperBound(
