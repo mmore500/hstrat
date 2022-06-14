@@ -1,3 +1,5 @@
+from collections import OrderedDict
+import functools
 import interval_search as inch
 import itertools as it
 import math
@@ -177,7 +179,13 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
             retained_ranks_sep, # sep
         ))
 
-    def _iter_priority_ranks(
+    def __hash__(self):
+        return hash(
+            (self._degree, self._interspersal),
+        )
+
+    @functools.lru_cache(maxsize=512)
+    def _get_priority_ranks(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
         pow: int,
         num_strata_deposited: int,
@@ -185,7 +193,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         """Iterate over ranks in order of last-to-be-deleted to first-to-be-deleted for a certain pow."""
 
         if num_strata_deposited == 1:
-            return 0
+            return [0]
         assert num_strata_deposited
 
         min_retained_rank = self._calc_rank_backstop(pow, num_strata_deposited)
@@ -217,10 +225,14 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
             #TODO more elegant solution?
             pass
 
-        yield from target_ranks
-
-        # TODO non-recursion implementation?
-        yield from self._iter_priority_ranks(pow, num_strata_deposited - 1)
+        res = target_ranks + self._get_priority_ranks(
+            pow,
+            num_strata_deposited - 1,
+        )
+        # remove duplicates while preserving order
+        # adpated from https://stackoverflow.com/a/7961390/17332200
+        res = list(OrderedDict.fromkeys(res))
+        return res
 
     def _get_retained_ranks(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
@@ -236,21 +248,23 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         res = {0, last_rank}
 
         iters = [
-            self._iter_priority_ranks(pow, num_strata_deposited)
+            iter(self._get_priority_ranks(pow, num_strata_deposited))
             for pow in reversed(range(self._degree + 1))
         ]
         while len(res) < self.CalcNumStrataRetainedUpperBound():
             num_empty = 0
-            for iter in iters:
+            for iter_ in iters:
                 try:
-                    for priority_rank in iter:
+                    for priority_rank in iter_:
                         if priority_rank not in res:
                             res.add(priority_rank)
                             raise StopIteration
-                    # out of options in iter
+                    # out of options in iter_
                     num_empty += 1
                 except StopIteration:
                     pass
+                if len(res) == self.CalcNumStrataRetainedUpperBound():
+                    break
             if num_empty == len(iters):
                 break
         #
