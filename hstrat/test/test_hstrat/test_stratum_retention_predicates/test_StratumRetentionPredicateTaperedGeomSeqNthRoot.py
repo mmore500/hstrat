@@ -246,6 +246,35 @@ class TestStratumRetentionPredicateTaperedGeomSeqNthRoot(unittest.TestCase):
                     for g in range(10000)
                 )
 
+    def _do_test_is_superset_geomseqnthroot(
+        self,
+        degree,
+        interspersal,
+    ):
+        predicate = hstrat.StratumRetentionPredicateTaperedGeomSeqNthRoot(
+            degree=degree,
+            interspersal=interspersal,
+        )
+
+        control_predicate = hstrat.StratumRetentionPredicateGeomSeqNthRoot(
+            degree=degree,
+            interspersal=interspersal,
+        )
+
+        for generation in range(1,5001):
+            retained_ranks_set = predicate._get_retained_ranks(generation)
+            control_retained_ranks_set \
+                = control_predicate._get_retained_ranks(generation)
+            assert retained_ranks_set.issuperset(
+                control_retained_ranks_set
+            ), (
+                generation,
+                len(control_retained_ranks_set),
+                len(retained_ranks_set),
+                control_predicate.CalcNumStrataRetainedUpperBound(),
+                predicate.CalcNumStrataRetainedUpperBound(),
+            )
+
     def test_equality(self):
         assert (
             hstrat.StratumRetentionPredicateTaperedGeomSeqNthRoot()
@@ -467,6 +496,26 @@ class TestStratumRetentionPredicateTaperedGeomSeqNthRoot(unittest.TestCase):
                 assert column.GetNumStrataDeposited() == 2
                 assert column.GetNumStrataRetained() == 2
                 assert set(column.GetRetainedRanks()) == {0, 1}
+
+    # generate multiple member functions to enable parallel evaluation
+    for degree in [
+        1,
+        2,
+        3,
+        9,
+        10,
+        17,
+        101,
+    ]:
+        for interspersal in [
+            1,
+            2,
+            5,
+        ]:
+            exec(
+                f'def test_is_superset_geomseqnthroot_{degree}_{interspersal}(self): self._do_test_is_superset_geomseqnthroot({degree}, {interspersal})'
+            )
+
 
 if __name__ == '__main__':
     unittest.main()
