@@ -320,7 +320,14 @@ class StratumRetentionPredicateGeomSeqNthRoot:
             ** int(math.ceil(math.log(max_ranks_since_mrca, common_ratio)))
         )
         # should be leq just multiplying max_ranks_since_mrca by common_ratio
-        assert rounded_ranks_since_mrca <= max_ranks_since_mrca * common_ratio
+        assert (
+            rounded_ranks_since_mrca <= max_ranks_since_mrca * common_ratio
+            # account for representation error etc.
+            or math.isclose(
+                rounded_ranks_since_mrca,
+                max_ranks_since_mrca * common_ratio,
+            )
+        )
 
         # account for increased resolution from interspersal
         return int(math.ceil(rounded_ranks_since_mrca / (interspersal - 1)))
