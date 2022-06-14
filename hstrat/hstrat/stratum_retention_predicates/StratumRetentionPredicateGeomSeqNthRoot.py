@@ -89,7 +89,9 @@ class StratumRetentionPredicateGeomSeqNthRoot:
 
         # target recencies are a geometric sequence
         common_ratio = self._calc_common_ratio(num_strata_deposited)
-        for pow in range(self._degree + 1):
+        # don't iterate over 0th pow, this is just the most recent rank
+        # i.e., recency == 1
+        for pow in range(1, self._degree + 1):
             yield common_ratio ** pow
 
     def _iter_target_ranks(

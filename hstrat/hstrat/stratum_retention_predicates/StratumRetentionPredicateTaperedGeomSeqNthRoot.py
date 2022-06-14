@@ -249,7 +249,9 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
 
         iters = [
             iter(self._get_priority_ranks(pow, num_strata_deposited))
-            for pow in reversed(range(self._degree + 1))
+            # don't iterate over 0th pow, this is just the most recent rank
+            # i.e., recency == 1
+            for pow in reversed(range(1, self._degree + 1))
         ]
         while len(res) < self.CalcNumStrataRetainedUpperBound():
             num_empty = 0

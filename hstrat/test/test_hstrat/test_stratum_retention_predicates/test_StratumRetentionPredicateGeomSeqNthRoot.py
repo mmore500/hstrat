@@ -189,7 +189,7 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
                 for g in range(10000)
             ]
             zipped = list(zip_equal(*target_recencies_by_generation))
-            assert len(zipped) == degree + 1
+            assert len(zipped) == degree
             for equiv_seq in zipped:
                 assert helpers.is_nondecreasing(equiv_seq)
 
@@ -203,7 +203,7 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
                 for g in range(10000)
             ]
             zipped = list(zip_equal(*target_ranks_by_generation))
-            assert len(zipped) == degree + 1
+            assert len(zipped) == degree
             for equiv_seq in zipped:
                 assert helpers.is_nondecreasing(equiv_seq)
 
@@ -217,7 +217,7 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
                 for g in range(10000)
             ]
             zipped = list(zip_equal(*rank_cutoffs_by_generation))
-            assert len(zipped) == degree + 1
+            assert len(zipped) == degree
             for equiv_seq in zipped:
                 assert helpers.is_nondecreasing(equiv_seq)
 
@@ -231,7 +231,7 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
                 for g in range(10000)
             ]
             zipped = list(zip_equal(*rank_seps_by_generation))
-            assert len(zipped) == degree + 1
+            assert len(zipped) == degree
             for equiv_seq in zipped:
                 assert helpers.is_nondecreasing(equiv_seq)
                 assert all(
@@ -251,7 +251,7 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
                 for g in range(10000)
             ]
             zipped = list(zip_equal(*rank_backstops_by_generation))
-            assert len(zipped) == degree + 1
+            assert len(zipped) == degree
             for equiv_seq in zipped:
                 assert helpers.is_nondecreasing(equiv_seq)
 
