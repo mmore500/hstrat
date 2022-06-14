@@ -359,7 +359,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         """At most, how many strata are retained after n deposted? Inclusive."""
 
         # +2 is 0th rank and last rank
-        return self._degree * 2 * (self._interspersal + 1) + 1
+        return self._degree * 2 * (self._interspersal + 1) + 2
 
     def CalcMrcaUncertaintyUpperBound(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
