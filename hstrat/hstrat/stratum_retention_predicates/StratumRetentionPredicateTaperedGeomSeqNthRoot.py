@@ -253,25 +253,52 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
             # i.e., recency == 1
             for pow in reversed(range(1, self._degree + 1))
         ]
+        # round robin, taking at least one from each
         while len(res) < self.CalcNumStrataRetainedUpperBound():
-            num_empty = 0
+            res_before = len(res)
             for iter_ in iters:
-                try:
-                    for priority_rank in iter_:
-                        if priority_rank not in res:
-                            res.add(priority_rank)
-                            raise StopIteration
-                    # out of options in iter_
-                    num_empty += 1
-                except StopIteration:
-                    pass
+                for priority_rank in iter_:
+                    if priority_rank not in res:
+                        res.add(priority_rank)
+                        break
                 if len(res) == self.CalcNumStrataRetainedUpperBound():
                     break
-            if num_empty == len(iters):
+            if res_before == len(res):
                 break
-        #
+
+        # DRAFT A
+        # iters = [
+        #     iter(self._get_priority_ranks(pow, num_strata_deposited))
+        #     for pow in reversed(range(self._degree + 1))
+        # ]
+        # for iter_ in iters:
+        #     res.update(
+        #         it.islice(iter_, 2 * (self._interspersal + 1)),
+        #     )
+
+        # DRAFT B
+        # iters = [
+        #     iter(self._get_priority_ranks(pow, num_strata_deposited))
+        #     for pow in reversed(range(self._degree + 1))
+        # ]
+        # while len(res) < self.CalcNumStrataRetainedUpperBound():
+        #     res_before = len(res)
+        #     for iter_ in iters:
+        #         try:
+        #             res.add(next(iter_))
+        #         except StopIteration:
+        #             pass
+        #         # res.update(
+        #         #     # it.islice(iter_, 2 * (self._interspersal + 1)),
+        #         #     it.islice(iter_, 1),
+        #         # )
+        #         if len(res) == self.CalcNumStrataRetainedUpperBound():
+        #             break
+        #     if len(res) == res_before: break
+
+        # DRAFT C
         # for priority_ranks_slice in it.zip_longest(*(
-        #     self._iter_priority_ranks(pow, num_strata_deposited)
+        #     iter(self._get_priority_ranks(pow, num_strata_deposited))
         #     for pow in reversed(range(self._degree + 1))
         # )):
         #     for priority_rank in priority_ranks_slice:
@@ -282,13 +309,14 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         #     else:
         #         continue # only executed if the inner loop did NOT break
         #     break # only executed if the inner loop DID break
-
+        #
         # assert len(res) == min(
         #     num_strata_deposited,
         #     self.CalcNumStrataRetainedUpperBound(),
         # )
         assert all(isinstance(n, int) for n in res)
         assert all(0 <= n < num_strata_deposited for n in res)
+        assert len(res) <= self.CalcNumStrataRetainedUpperBound()
         assert res
         return res
         return res
