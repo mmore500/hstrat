@@ -184,81 +184,67 @@ class TestStratumRetentionPredicateTaperedGeomSeqNthRoot(unittest.TestCase):
             ]
             assert helpers.is_nondecreasing(common_ratio_by_generation)
 
-    def _do_test__iter_target_recencies(self, degree, interspersal):
+    def _do_test__calc_target_recency(self, degree, interspersal):
             predicate = hstrat.StratumRetentionPredicateTaperedGeomSeqNthRoot(
                 degree=degree,
                 interspersal=interspersal,
             )
-            target_recencies_by_generation = [
-                predicate._iter_target_recencies(g)
-                for g in range(10000)
-            ]
-            zipped = list(zip_equal(*target_recencies_by_generation))
-            assert len(zipped) == degree + 1
-            for equiv_seq in zipped:
-                assert helpers.is_nondecreasing(equiv_seq)
-
-    def _do_test__iter_target_ranks(self, degree, interspersal):
-            predicate = hstrat.StratumRetentionPredicateTaperedGeomSeqNthRoot(
-                degree=degree,
-                interspersal=interspersal,
-            )
-            target_ranks_by_generation = [
-                predicate._iter_target_ranks(g)
-                for g in range(10000)
-            ]
-            zipped = list(zip_equal(*target_ranks_by_generation))
-            assert len(zipped) == degree + 1
-            for equiv_seq in zipped:
-                assert helpers.is_nondecreasing(equiv_seq)
-
-    def _do_test__iter_rank_cutoffs(self, degree, interspersal):
-            predicate = hstrat.StratumRetentionPredicateTaperedGeomSeqNthRoot(
-                degree=degree,
-                interspersal=interspersal,
-            )
-            rank_cutoffs_by_generation = [
-                predicate._iter_rank_cutoffs(g)
-                for g in range(10000)
-            ]
-            zipped = list(zip_equal(*rank_cutoffs_by_generation))
-            assert len(zipped) == degree + 1
-            for equiv_seq in zipped:
-                assert helpers.is_nondecreasing(equiv_seq)
-
-    def _do_test__iter_rank_seps(self, degree, interspersal):
-            predicate = hstrat.StratumRetentionPredicateTaperedGeomSeqNthRoot(
-                degree=degree,
-                interspersal=interspersal,
-            )
-            rank_seps_by_generation = [
-                predicate._iter_rank_seps(g)
-                for g in range(10000)
-            ]
-            zipped = list(zip_equal(*rank_seps_by_generation))
-            assert len(zipped) == degree + 1
-            for equiv_seq in zipped:
-                assert helpers.is_nondecreasing(equiv_seq)
-                assert all(
-                    # is power of 2
-                    # https://stackoverflow.com/a/57025941
-                    (item & (item-1) == 0) and item
-                    for item in equiv_seq
+            for pow in range(degree + 1):
+                assert helpers.is_nondecreasing(
+                    predicate._calc_target_recency(pow, g)
+                    for g in range(10000)
                 )
 
-    def _do_test__iter_rank_backstops(self, degree, interspersal):
+    def _do_test__calc_target_rank(self, degree, interspersal):
             predicate = hstrat.StratumRetentionPredicateTaperedGeomSeqNthRoot(
                 degree=degree,
                 interspersal=interspersal,
             )
-            rank_backstops_by_generation = [
-                predicate._iter_rank_backstops(g)
-                for g in range(10000)
-            ]
-            zipped = list(zip_equal(*rank_backstops_by_generation))
-            assert len(zipped) == degree + 1
-            for equiv_seq in zipped:
-                assert helpers.is_nondecreasing(equiv_seq)
+            for pow in range(degree + 1):
+                assert helpers.is_nondecreasing(
+                    predicate._calc_target_rank(pow, g)
+                    for g in range(10000)
+                )
+
+    def _do_test__calc_rank_cutoff(self, degree, interspersal):
+            predicate = hstrat.StratumRetentionPredicateTaperedGeomSeqNthRoot(
+                degree=degree,
+                interspersal=interspersal,
+            )
+            for pow in range(degree + 1):
+                assert helpers.is_nondecreasing(
+                    predicate._calc_rank_cutoff(pow, g)
+                    for g in range(10000)
+                )
+
+    def _do_test__calc_rank_sep(self, degree, interspersal):
+            # is power of 2
+            # https://stackoverflow.com/a/57025941
+            ispow2 = lambda item: (item & (item-1) == 0) and item
+            predicate = hstrat.StratumRetentionPredicateTaperedGeomSeqNthRoot(
+                degree=degree,
+                interspersal=interspersal,
+            )
+            for pow in range(degree + 1):
+                assert helpers.is_nondecreasing(
+                    predicate._calc_rank_sep(pow, g)
+                    for g in range(1000)
+                )
+                assert all(
+                    ispow2(predicate._calc_rank_sep(pow, g))
+                    for g in range(1000)
+                )
+
+    def _do_test__calc_rank_backstop(self, degree, interspersal):
+            predicate = hstrat.StratumRetentionPredicateTaperedGeomSeqNthRoot(
+                degree=degree,
+                interspersal=interspersal,
+            )
+            for pow in range(degree + 1):
+                assert helpers.is_nondecreasing(
+                    predicate._calc_rank_backstop(pow, g)
+                    for g in range(10000)
+                )
 
     def test_equality(self):
         assert (
@@ -363,7 +349,7 @@ class TestStratumRetentionPredicateTaperedGeomSeqNthRoot(unittest.TestCase):
             ]:
                 self._do_test__calc_common_ratio(degree, interspersal)
 
-    def test__iter_target_recencies(self):
+    def test__calc_target_recency(self):
         for degree in [
             1,
             2,
@@ -378,9 +364,9 @@ class TestStratumRetentionPredicateTaperedGeomSeqNthRoot(unittest.TestCase):
                 2,
                 5,
             ]:
-                self._do_test__iter_target_recencies(degree, interspersal)
+                self._do_test__calc_target_recency(degree, interspersal)
 
-    def test__iter_target_ranks(self):
+    def test__calc_target_rank(self):
         for degree in [
             1,
             2,
@@ -395,9 +381,9 @@ class TestStratumRetentionPredicateTaperedGeomSeqNthRoot(unittest.TestCase):
                 2,
                 5,
             ]:
-                self._do_test__iter_target_ranks(degree, interspersal)
+                self._do_test__calc_target_rank(degree, interspersal)
 
-    def test__iter_rank_cutoffs(self):
+    def test__calc_rank_cutoff(self):
         for degree in [
             1,
             2,
@@ -412,9 +398,9 @@ class TestStratumRetentionPredicateTaperedGeomSeqNthRoot(unittest.TestCase):
                 2,
                 5,
             ]:
-                self._do_test__iter_rank_cutoffs(degree, interspersal)
+                self._do_test__calc_rank_cutoff(degree, interspersal)
 
-    def test__iter_rank_seps(self):
+    def test__calc_rank_sep(self):
         for degree in [
             1,
             2,
@@ -429,9 +415,9 @@ class TestStratumRetentionPredicateTaperedGeomSeqNthRoot(unittest.TestCase):
                 2,
                 5,
             ]:
-                self._do_test__iter_rank_seps(degree, interspersal)
+                self._do_test__calc_rank_sep(degree, interspersal)
 
-    def test__iter_rank_backstops(self):
+    def test__calc_rank_backstop(self):
         for degree in [
             1,
             2,
@@ -446,7 +432,7 @@ class TestStratumRetentionPredicateTaperedGeomSeqNthRoot(unittest.TestCase):
                 2,
                 5,
             ]:
-                self._do_test__iter_rank_backstops(degree, interspersal)
+                self._do_test__calc_rank_backstop(degree, interspersal)
 
     def test_first_deposition(self):
         for degree in [

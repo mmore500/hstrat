@@ -1,3 +1,4 @@
+import interval_search as inch
 import itertools as it
 import math
 import numpy as np
@@ -81,107 +82,145 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         # take the degree'th root of each side...
         return num_strata_deposited ** (1 / self._degree)
 
-    def _iter_target_recencies(
+    def _calc_target_recency(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
+        pow: int,
         num_strata_deposited: int,
     ):
-        """TODO."""
-
-        # target recencies are a geometric sequence
         common_ratio = self._calc_common_ratio(num_strata_deposited)
-        for pow in range(self._degree + 1):
-            yield common_ratio ** pow
+        return common_ratio ** pow
 
-    def _iter_target_ranks(
-        self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
+    def _calc_target_rank(
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
+        pow: int,
         num_strata_deposited: int,
     ):
         """TODO."""
-        for target_recency in self._iter_target_recencies(num_strata_deposited):
-            recency_cutoff = target_recency
-            rank_cutoff = max(
-                num_strata_deposited - int(math.ceil(recency_cutoff)),
-                0,
-            )
-            if num_strata_deposited == 0: assert rank_cutoff == 0
-            else: assert 0 <= rank_cutoff <= num_strata_deposited - 1
-            yield rank_cutoff
+        target_recency = self._calc_target_recency(pow, num_strata_deposited)
+        recency_cutoff = target_recency
+        rank_cutoff = max(
+            num_strata_deposited - int(math.ceil(recency_cutoff)),
+            0,
+        )
+        if num_strata_deposited == 0: assert rank_cutoff == 0
+        else: assert 0 <= rank_cutoff <= num_strata_deposited - 1
+        return rank_cutoff
 
-    def _iter_rank_cutoffs(
-        self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
+    def _calc_rank_cutoff(
+        self: 'StratumRetentionPredicateGeomSeqNthRoot',
+        pow: int,
         num_strata_deposited: int,
     ):
         """TODO."""
-        for target_recency in self._iter_target_recencies(num_strata_deposited):
-            rank_cutoff = max(
-                num_strata_deposited - int(math.ceil(
-                    target_recency
-                    * (self._interspersal + 1) / self._interspersal
-                )),
-                0,
-            )
-            if num_strata_deposited == 0: assert rank_cutoff == 0
-            else: assert 0 <= rank_cutoff <= num_strata_deposited - 1
-            yield rank_cutoff
+        target_recency = self._calc_target_recency(pow, num_strata_deposited)
+        rank_cutoff = max(
+            num_strata_deposited - int(math.ceil(
+                target_recency
+                * (self._interspersal + 1) / self._interspersal
+            )),
+            0,
+        )
+        if num_strata_deposited == 0: assert rank_cutoff == 0
+        else: assert 0 <= rank_cutoff <= num_strata_deposited - 1
+        return rank_cutoff
 
-    def _iter_rank_seps(
+    def _calc_rank_sep(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
+        pow: int,
         num_strata_deposited: int,
     ):
         """TODO."""
-        for target_recency in self._iter_target_recencies(num_strata_deposited):
-            # spacing between retained ranks
-            target_retained_ranks_sep = max(
-                target_recency / self._interspersal,
-                1.0,
-            )
-            # round down to power of 2
-            retained_ranks_sep = bit_floor(int(target_retained_ranks_sep))
-            yield retained_ranks_sep
+        target_recency = self._calc_target_recency(pow, num_strata_deposited)
+        # spacing between retained ranks
+        target_retained_ranks_sep = max(
+            target_recency / self._interspersal,
+            1.0,
+        )
+        # round down to power of 2
+        retained_ranks_sep = bit_floor(int(target_retained_ranks_sep))
+        return retained_ranks_sep
 
-    def _iter_rank_backstops(
+    def _calc_rank_backstop(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
+        pow: int,
         num_strata_deposited: int,
     ):
         """TODO."""
 
-        for rank_cutoff, retained_ranks_sep in zip(
-            self._iter_rank_cutoffs(num_strata_deposited),
-            self._iter_rank_seps(num_strata_deposited),
-        ):
+        rank_cutoff = self._calc_rank_cutoff(pow, num_strata_deposited)
+        retained_ranks_sep = self._calc_rank_sep(pow, num_strata_deposited)
 
-            # round UP from rank_cutoff
-            # adapted from https://stackoverflow.com/a/14092788
-            min_retained_rank = (
-                rank_cutoff
-                - (rank_cutoff % -retained_ranks_sep)
-            )
-            assert min_retained_rank % retained_ranks_sep == 0
+        # round UP from rank_cutoff
+        # adapted from https://stackoverflow.com/a/14092788
+        min_retained_rank = (
+            rank_cutoff
+            - (rank_cutoff % -retained_ranks_sep)
+        )
+        assert min_retained_rank % retained_ranks_sep == 0
 
-            if num_strata_deposited == 0: assert min_retained_rank == 0
-            else: assert 0 <= min_retained_rank <= num_strata_deposited - 1
+        if num_strata_deposited == 0: assert min_retained_rank == 0
+        else: assert 0 <= min_retained_rank <= num_strata_deposited - 1
+        return min_retained_rank
 
-            yield min_retained_rank
-
-    def _get_nth_pow_retained_ranks(
+    def _get_naive_ranks(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
-        n: int,
+        pow: int,
         num_strata_deposited: int,
     ):
-        min_retained_rank = list(
-            self._iter_rank_backstops(num_strata_deposited),
-        )[n]
-        retained_ranks_sep = list(
-            self._iter_rank_seps(num_strata_deposited),
-        )[n]
 
-        target_ranks = range(
+        min_retained_rank = self._calc_rank_backstop(pow, num_strata_deposited)
+        retained_ranks_sep = self._calc_rank_sep(pow, num_strata_deposited)
+
+        return set(range(
             min_retained_rank, # start
             num_strata_deposited, # stop
             retained_ranks_sep, # sep
-        )
-        return target_ranks
+        ))
 
+    def _iter_priority_ranks(
+        self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
+        pow: int,
+        num_strata_deposited: int,
+    ):
+        """Iterate over ranks in order of last-to-be-deleted to first-to-be-deleted for a certain pow."""
+
+        if num_strata_deposited == 1:
+            return 0
+        assert num_strata_deposited
+
+        min_retained_rank = self._calc_rank_backstop(pow, num_strata_deposited)
+        retained_ranks_sep = self._calc_rank_sep(pow, num_strata_deposited)
+
+        target_ranks = list(reversed(range(
+            min_retained_rank, # start
+            num_strata_deposited, # stop
+            retained_ranks_sep, # sep
+        )))
+
+        try:
+            # while True: TODO
+            # need to account for maybe having to do this multiple times?
+            # TODO this can be in constant time?
+            next_sep_rank = inch.doubling_search(
+                lambda x: self._calc_rank_sep(pow, x) > retained_ranks_sep
+            )
+            next_sep_rank_backstop = self._calc_rank_backstop(pow, next_sep_rank)
+
+            target_ranks.sort(
+                key=lambda x: (
+                    # (x > next_sep_rank_backstop) +
+                    (x in self._get_naive_ranks(pow, next_sep_rank))
+                ),
+                reverse=True,
+            )
+        except OverflowError:
+            #TODO more elegant solution?
+            pass
+
+        yield from target_ranks
+
+        # TODO non-recursion implementation?
+        yield from self._iter_priority_ranks(pow, num_strata_deposited - 1)
 
     def _get_retained_ranks(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
@@ -196,132 +235,46 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         last_rank = num_strata_deposited - 1
         res = {0, last_rank}
 
-        for target_rank, rank_backstop, retained_ranks_sep, idx in zip(
-            self._iter_target_ranks(num_strata_deposited),
-            self._iter_rank_backstops(num_strata_deposited),
-            self._iter_rank_seps(num_strata_deposited),
-            it.count(),
-        ):
+        iters = [
+            self._iter_priority_ranks(pow, num_strata_deposited)
+            for pow in reversed(range(self._degree + 1))
+        ]
+        while len(res) < self.CalcNumStrataRetainedUpperBound():
+            num_empty = 0
+            for iter in iters:
+                try:
+                    for priority_rank in iter:
+                        if priority_rank not in res:
+                            res.add(priority_rank)
+                            raise StopIteration
+                    # out of options in iter
+                    num_empty += 1
+                except StopIteration:
+                    pass
+            if num_empty == len(iters):
+                break
+        #
+        # for priority_ranks_slice in it.zip_longest(*(
+        #     self._iter_priority_ranks(pow, num_strata_deposited)
+        #     for pow in reversed(range(self._degree + 1))
+        # )):
+        #     for priority_rank in priority_ranks_slice:
+        #         if priority_rank is not None:
+        #             res.add(priority_rank)
+        #         if len(res) == self.CalcNumStrataRetainedUpperBound():
+        #             break
+        #     else:
+        #         continue # only executed if the inner loop did NOT break
+        #     break # only executed if the inner loop DID break
 
-            min_retained_rank = rank_backstop
-
-            target_ranks = set(range(
-                min_retained_rank, # start
-                num_strata_deposited, # stop
-                retained_ranks_sep, # sep
-            ))
-
-            if idx == 0:
-                res.update(target_ranks)
-                continue
-
-            def has_remaining_capacity():
-                return 2 * (interspersal + 1) > len(target_ranks)
-
-            cur_rank = num_strata_deposited
-            # cur_sep = retained_ranks_sep
-            cur_sep = 1
-
-            while (
-                cur_sep
-                and cur_rank > cur_sep
-                and has_remaining_capacity()
-            ):
-                cur_rank -= cur_sep
-                for rank in reversed(
-                    self._get_nth_pow_retained_ranks(idx, cur_rank)
-                ):
-                    target_ranks.add(rank)
-                    if not has_remaining_capacity(): break
-
-            if cur_sep and cur_rank > cur_sep:
-                assert not has_remaining_capacity()
-            res.update(target_ranks)
-
-
-            # TODO make this more efficient!
-            # miscellaneous ideas
-            # must pick these up in the reverse order they were dropped
-
-            # calculate rank of last sep change
-            # common_ratio = num_strata_deposited ** (1 / self._degree)
-            # target_recency = common_ratio ** idx
-            # target_retained_ranks_sep = max(
-            #     target_recency / self._interspersal,
-            #     1.0,
-            # )
-            # # round down to power of 2
-            # retained_ranks_sep = bit_floor(int(target_retained_ranks_sep))
-
-            # target_recency = num_strata_deposited ** (idx / self._degree)
-            # target_retained_ranks_sep = max(
-            #     target_recency / self._interspersal,
-            #     1.0,
-            # )
-            # # round down to power of 2
-            # retained_ranks_sep = bit_floor(int(target_retained_ranks_sep))
-
-            # cur_ranks_sep
-            #   = num_strata_deposited ** (idx / self._degree)
-            #         / self._interspersal
-
-            # retained_ranks_sep * self._interspersal
-            #   = num_strata_deposited ** (idx / self._degree)
-
-            # (retained_ranks_sep * self._interspersal) ** (self._degree / idx)
-            # = num_strata_deposited
-
-            # num_strata_deposited =
-            # (cur_ranks_sep * self._interspersal) ** (self._degree / idx)
-
-            # or if idx == 0
-            # cur_ranks_sep
-            #   = 1 / self._interspersal
-
-            #ignore idx == 0 for now
-
-            # last_doubling_rank = (cur_sep * interspersal) ** (self._degree / idx)
-
-
-            # while (
-            #     interspersal > 1
-            #     and remaining_capacity
-            #     and cur_sep #// 2
-            #     and cur_rank > cur_sep
-            # ):
-            #     remaining_capacity -= 1
-            #     # cur_sep = max([*self._iter_rank_seps(
-            #     #     cur_rank #- cur_sep #// 2
-            #     # )][idx],1)
-            #     cur_rank -= cur_sep
-            #     target_ranks.add(cur_rank)
-            #
-            #
-            # target_ranks.update(set(range(
-            #     min_retained_rank,
-            #     0,
-            #     -retained_ranks_sep, # sep
-            # )[:remaining_capacity]))
-            #
-            # if remaining_capacity and retained_ranks_sep // 2:
-            #     candidate_ranks = range(
-            #         min_retained_rank + retained_ranks_sep // 2, # start
-            #         num_strata_deposited, # stop
-            #         retained_ranks_sep, # sep
-            #     )
-            #     target_ranks.update(
-            #         # last up to remaining_capacity elements of range
-            #         # candidate_ranks[-interspersal:],
-            #         # candidate_ranks[:remaining_capacity],
-            #         candidate_ranks[:remaining_capacity],
-            #     )
-            #     # retained_ranks_sep //= 2
-
-            # res.update(target_ranks)
-
+        # assert len(res) == min(
+        #     num_strata_deposited,
+        #     self.CalcNumStrataRetainedUpperBound(),
+        # )
         assert all(isinstance(n, int) for n in res)
         assert all(0 <= n < num_strata_deposited for n in res)
         assert res
+        return res
         return res
 
     def _iter_retained_ranks(
@@ -385,7 +338,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
 
     def CalcNumStrataRetainedUpperBound(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
-        num_strata_deposited: int,
+        num_strata_deposited: typing.Optional[int]=None,
     ):
         """At most, how many strata are retained after n deposted? Inclusive."""
 
