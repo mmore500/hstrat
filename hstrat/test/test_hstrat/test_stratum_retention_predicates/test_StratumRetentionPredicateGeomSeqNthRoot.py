@@ -450,6 +450,35 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
             ]:
                 self._do_test__iter_rank_backstops(degree, interspersal)
 
+    def test_first_deposition(self):
+        for degree in [
+            1,
+            2,
+            3,
+            9,
+            10,
+            17,
+            101,
+        ]:
+            for interspersal in [
+                1,
+                2,
+                5,
+            ]:
+                predicate = hstrat.StratumRetentionPredicateGeomSeqNthRoot(
+                    degree=degree,
+                    interspersal=interspersal,
+                )
+                column = hstrat.HereditaryStratigraphicColumn(
+                    stratum_retention_predicate=predicate,
+                )
+                assert column.GetNumStrataDeposited() == 1
+                assert column.GetNumStrataRetained() == 1
+                assert set(column.GetRetainedRanks()) == {0}
+                column.DepositStratum()
+                assert column.GetNumStrataDeposited() == 2
+                assert column.GetNumStrataRetained() == 2
+                assert set(column.GetRetainedRanks()) == {0, 1}
 
 if __name__ == '__main__':
     unittest.main()
