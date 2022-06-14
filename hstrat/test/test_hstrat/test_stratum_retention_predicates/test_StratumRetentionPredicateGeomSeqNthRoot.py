@@ -290,54 +290,63 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
                     interspersal,
                 )
 
-    def test_resolution(self):
-        for degree in [
+    # generate multiple member functions to enable parallel evaluation
+    for degree in [
+        1,
+        2,
+        3,
+        9,
+        10,
+        17,
+        101,
+    ]:
+        for interspersal in [
             1,
             2,
-            4,
+            5,
         ]:
-            for interspersal in [
-                1,
-                2,
-                3,
-                5,
-            ]:
-                for synchronous in True, False:
-                    self._do_test_resolution(
-                        degree,
-                        interspersal,
-                        synchronous,
-                    )
+            for synchronous in True, False:
+                exec(
+                    f'def test_resolution_{degree}_{interspersal}_{synchronous}(self): self._do_test_resolution({degree}, {interspersal}, {synchronous})'
+            )
 
-    def test_CalcRankAtColumnIndex(self):
-        for degree in [
+    # generate multiple member functions to enable parallel evaluation
+    for degree in [
+        1,
+        2,
+        3,
+        9,
+        10,
+        17,
+        101,
+    ]:
+        for interspersal in [
             1,
             2,
-            10,
-            17,
+            5,
         ]:
-            for interspersal in [
-                1,
-                2,
-                5,
-            ]:
-                self._do_test_CalcRankAtColumnIndex(degree, interspersal)
+            exec(
+                f'def test_CalcRankAtColumnIndex_{degree}_{interspersal}(self): self._do_test_CalcRankAtColumnIndex({degree}, {interspersal})'
+            )
 
-    def test__get_retained_ranks(self):
-        for degree in [
+    # generate multiple member functions to enable parallel evaluation
+    for degree in [
+        1,
+        2,
+        3,
+        9,
+        10,
+        17,
+        101,
+    ]:
+        for interspersal in [
             1,
             2,
-            3,
-            9,
-            10,
-            17,
+            5,
         ]:
-            for interspersal in [
-                1,
-                2,
-                5,
-            ]:
-                self._do_test__get_retained_ranks(degree, interspersal)
+            exec(
+                f'def test__get_retained_ranks_{degree}_{interspersal}(self): self._do_test__get_retained_ranks({degree}, {interspersal})'
+            )
 
     def test__calc_common_ratio(self):
         for degree in [
@@ -347,6 +356,7 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
             9,
             10,
             17,
+            101,
         ]:
             for interspersal in [
                 1,
@@ -363,6 +373,7 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
             9,
             10,
             17,
+            101,
         ]:
             for interspersal in [
                 1,
@@ -379,6 +390,7 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
             9,
             10,
             17,
+            101,
         ]:
             for interspersal in [
                 1,
@@ -395,6 +407,7 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
             9,
             10,
             17,
+            101,
         ]:
             for interspersal in [
                 1,
@@ -411,6 +424,7 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
             9,
             10,
             17,
+            101,
         ]:
             for interspersal in [
                 1,
@@ -427,6 +441,7 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
             9,
             10,
             17,
+            101,
         ]:
             for interspersal in [
                 1,
