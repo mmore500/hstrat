@@ -18,6 +18,8 @@ from .StratumRetentionCondemnerRecencyProportionalResolution \
     import StratumRetentionCondemnerRecencyProportionalResolution
 from .StratumRetentionCondemnerTaperedDepthProportionalResolution \
     import StratumRetentionCondemnerTaperedDepthProportionalResolution
+from .StratumRetentionCondemnerTaperedGeomSeqNthRoot \
+    import StratumRetentionCondemnerTaperedGeomSeqNthRoot
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
@@ -29,4 +31,5 @@ __all__ = [
     'StratumRetentionCondemnerNominalResolution',
     'StratumRetentionCondemnerRecencyProportionalResolution',
     'StratumRetentionCondemnerTaperedDepthProportionalResolution',
+    'StratumRetentionCondemnerTaperedGeomSeqNthRoot',
 ]
