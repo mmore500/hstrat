@@ -279,7 +279,7 @@ class StratumRetentionPredicateGeomSeqNthRoot:
 
     def CalcNumStrataRetainedUpperBound(
         self: 'StratumRetentionPredicateGeomSeqNthRoot',
-        num_strata_deposited: int,
+        num_strata_deposited: typing.Optional[int]=None,
     ):
         """At most, how many strata are retained after n deposted? Inclusive."""
 
