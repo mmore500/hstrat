@@ -6,7 +6,7 @@ import math
 import numpy as np
 import typing
 
-from ...helpers import bit_floor, is_nondecreasing
+from ...helpers import bit_floor, is_nondecreasing, memoize_generator
 
 
 class StratumRetentionPredicateTaperedGeomSeqNthRoot:
@@ -184,6 +184,81 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
             (self._degree, self._interspersal),
         )
 
+    @memoize_generator()
+    def _iter_priority_ranks(
+        self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
+        pow: int,
+        num_strata_deposited: int,
+    ):
+        """Iterate over ranks in order of last-to-be-deleted to first-to-be-deleted for a certain pow."""
+
+        if num_strata_deposited == 1:
+            yield 0
+            return
+        assert num_strata_deposited
+
+        min_retained_rank = self._calc_rank_backstop(pow, num_strata_deposited)
+        retained_ranks_sep = self._calc_rank_sep(pow, num_strata_deposited)
+
+        try:
+            # while True: TODO
+            # need to account for maybe having to do this multiple times?
+            # TODO this can be in constant time?
+            next_sep_rank = inch.doubling_search(
+                lambda x: self._calc_rank_sep(pow, x) > retained_ranks_sep,
+            )
+            next_sep_rank_backstop = self._calc_rank_backstop(
+                pow,
+                next_sep_rank,
+            )
+
+            yield from reversed(range(
+                next_sep_rank_backstop, # start
+                min(next_sep_rank, num_strata_deposited), # stop
+                retained_ranks_sep * 2, # sep
+            ))
+
+            # TODO somehow exclude duplicates with above for efficiency?
+            yield from reversed(range(
+                min_retained_rank, # start
+                num_strata_deposited, # stop
+                retained_ranks_sep, # sep
+            ))
+
+        except OverflowError:
+            #TODO more elegant solution?
+            yield from reversed(range(
+                min_retained_rank, # start
+                num_strata_deposited, # stop
+                retained_ranks_sep, # sep
+            ))
+
+        # recurse
+        if retained_ranks_sep == 1:
+            yield from reversed(range(
+                0,
+                min_retained_rank,
+            ))
+            return
+
+        prev_sep_rank = num_strata_deposited - inch.binary_search(
+            lambda x: \
+                self._calc_rank_sep(pow, num_strata_deposited - x) \
+                < retained_ranks_sep,
+                1,
+                num_strata_deposited,
+        )
+        yield from range(
+            min_retained_rank,
+            prev_sep_rank, # not inclusive
+            -retained_ranks_sep,
+        )
+        assert prev_sep_rank < num_strata_deposited
+        yield from self._iter_priority_ranks(
+            pow,
+            prev_sep_rank,
+        )
+
     @functools.lru_cache(maxsize=512)
     def _get_priority_ranks(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
@@ -249,7 +324,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         res = {0, last_rank}
 
         iters = [
-            iter(self._get_priority_ranks(pow, num_strata_deposited))
+            self._iter_priority_ranks(pow, num_strata_deposited)
             # don't iterate over 0th pow, this is just the most recent rank
             # i.e., recency == 1
             for pow in reversed(range(1, self._degree + 1))
