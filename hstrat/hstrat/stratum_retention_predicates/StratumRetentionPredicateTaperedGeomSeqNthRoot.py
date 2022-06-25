@@ -234,6 +234,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         res = list(OrderedDict.fromkeys(res))
         return res
 
+    @functools.lru_cache(maxsize=512)
     def _get_retained_ranks(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
         num_strata_deposited: int,
@@ -266,59 +267,10 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
             if res_before == len(res):
                 break
 
-        # DRAFT A
-        # iters = [
-        #     iter(self._get_priority_ranks(pow, num_strata_deposited))
-        #     for pow in reversed(range(self._degree + 1))
-        # ]
-        # for iter_ in iters:
-        #     res.update(
-        #         it.islice(iter_, 2 * (self._interspersal + 1)),
-        #     )
-
-        # DRAFT B
-        # iters = [
-        #     iter(self._get_priority_ranks(pow, num_strata_deposited))
-        #     for pow in reversed(range(self._degree + 1))
-        # ]
-        # while len(res) < self.CalcNumStrataRetainedUpperBound():
-        #     res_before = len(res)
-        #     for iter_ in iters:
-        #         try:
-        #             res.add(next(iter_))
-        #         except StopIteration:
-        #             pass
-        #         # res.update(
-        #         #     # it.islice(iter_, 2 * (self._interspersal + 1)),
-        #         #     it.islice(iter_, 1),
-        #         # )
-        #         if len(res) == self.CalcNumStrataRetainedUpperBound():
-        #             break
-        #     if len(res) == res_before: break
-
-        # DRAFT C
-        # for priority_ranks_slice in it.zip_longest(*(
-        #     iter(self._get_priority_ranks(pow, num_strata_deposited))
-        #     for pow in reversed(range(self._degree + 1))
-        # )):
-        #     for priority_rank in priority_ranks_slice:
-        #         if priority_rank is not None:
-        #             res.add(priority_rank)
-        #         if len(res) == self.CalcNumStrataRetainedUpperBound():
-        #             break
-        #     else:
-        #         continue # only executed if the inner loop did NOT break
-        #     break # only executed if the inner loop DID break
-        #
-        # assert len(res) == min(
-        #     num_strata_deposited,
-        #     self.CalcNumStrataRetainedUpperBound(),
-        # )
         assert all(isinstance(n, int) for n in res)
         assert all(0 <= n < num_strata_deposited for n in res)
         assert len(res) <= self.CalcNumStrataRetainedUpperBound()
         assert res
-        return res
         return res
 
     def _iter_retained_ranks(
