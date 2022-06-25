@@ -44,8 +44,8 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
 
     def __call__(
         self: 'StratumRetentionCondemnerTaperedGeomSeqNthRoot',
+        num_stratum_depositions_completed: int,
         retained_ranks: typing.Optional[typing.Iterable[int]]=None,
-        num_stratum_depositions_completed: typing.Optional[int]=None,
     ) -> typing.Iterator[int]:
         """Decide which strata within the stratagraphic column should be purged.
 

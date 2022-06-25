@@ -56,8 +56,8 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
 
         def __call__(
             self: 'StratumRetentionCondemnerFromPredicate',
-            retained_ranks: typing.Iterable[int],
             num_stratum_depositions_completed: int,
+            retained_ranks: typing.Iterable[int],
         ) -> typing.Iterator[int]:
 
 

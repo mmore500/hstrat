@@ -35,8 +35,8 @@ class StratumRetentionCondemnerPerfectResolution(
 
     def __call__(
         self: 'StratumRetentionCondemnerPerfectResolution',
-        retained_ranks: typing.Optional[typing.Iterable[int]]=None,
         num_stratum_depositions_completed: typing.Optional[int]=None,
+        retained_ranks: typing.Optional[typing.Iterable[int]]=None,
     ) -> typing.Iterator[int]:
         """Decide which strata within the stratagraphic column should be purged.
 
