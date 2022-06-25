@@ -360,7 +360,10 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
     ) -> int:
         """Exactly how many strata are retained after n deposted?"""
 
-        return len(self._get_retained_ranks(num_strata_deposited))
+        return min(
+            num_strata_deposited,
+            self.CalcNumStrataRetainedUpperBound(),
+        )
 
     def __call__(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
