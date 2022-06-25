@@ -256,7 +256,10 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         assert prev_sep_rank < num_strata_deposited
         yield from self._iter_priority_ranks(
             pow,
-            prev_sep_rank,
+            # + 1 due to apparent off-by-one error w/ just prev_sep_rank
+            # where rank 5984 isn't properly retained
+            # with degree 9, interspersal 2 @ generation 6405
+            min(prev_sep_rank + 1, num_strata_deposited - 1),
         )
 
     @functools.lru_cache(maxsize=512)
