@@ -138,7 +138,7 @@ class TestStratumRetentionPredicateTaperedGeomSeqNthRoot(unittest.TestCase):
             initial_stratum_annotation=0,
         )
 
-        for generation in range(1,5001):
+        for generation in range(1,10001):
             for index in range(column.GetNumStrataRetained()):
                 assert (
                     column.GetStratumAtColumnIndex(index).GetAnnotation()
@@ -160,7 +160,7 @@ class TestStratumRetentionPredicateTaperedGeomSeqNthRoot(unittest.TestCase):
             initial_stratum_annotation=0,
         )
 
-        for generation in range(1,5001):
+        for generation in range(1,10001):
             actual_ranks = {
                 column.GetStratumAtColumnIndex(index).GetAnnotation()
                 for index in range(column.GetNumStrataRetained())
@@ -261,7 +261,7 @@ class TestStratumRetentionPredicateTaperedGeomSeqNthRoot(unittest.TestCase):
             interspersal=interspersal,
         )
 
-        for generation in range(1,5001):
+        for generation in range(1,10001):
             retained_ranks_set = predicate._get_retained_ranks(generation)
             control_retained_ranks_set \
                 = control_predicate._get_retained_ranks(generation)
