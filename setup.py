@@ -15,6 +15,7 @@ requirements = [
     "iterpop>=0.3.4",
     "interval_search>=0.1.2",
     "gmpy>=1.17",
+    "lru-dict>=1.1.7",
     "matplotlib>=3.1.2",
     "opytional>=0.1.0",
 ]
