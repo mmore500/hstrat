@@ -189,7 +189,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
         pow: int,
         num_strata_deposited: int,
-    ):
+    ) -> typing.List[int]:
         """Iterate over ranks in order of last-to-be-deleted to first-to-be-deleted for a certain pow."""
 
         if num_strata_deposited == 1:
