@@ -260,56 +260,6 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         )
 
     @functools.lru_cache(maxsize=512)
-    def _get_priority_ranks(
-        self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
-        pow: int,
-        num_strata_deposited: int,
-    ) -> typing.List[int]:
-        """Iterate over ranks in order of last-to-be-deleted to first-to-be-deleted for a certain pow."""
-
-        if num_strata_deposited == 1:
-            return [0]
-        assert num_strata_deposited
-
-        min_retained_rank = self._calc_rank_backstop(pow, num_strata_deposited)
-        retained_ranks_sep = self._calc_rank_sep(pow, num_strata_deposited)
-
-        target_ranks = list(reversed(range(
-            min_retained_rank, # start
-            num_strata_deposited, # stop
-            retained_ranks_sep, # sep
-        )))
-
-        try:
-            # while True: TODO
-            # need to account for maybe having to do this multiple times?
-            # TODO this can be in constant time?
-            next_sep_rank = inch.doubling_search(
-                lambda x: self._calc_rank_sep(pow, x) > retained_ranks_sep
-            )
-            next_sep_rank_backstop = self._calc_rank_backstop(pow, next_sep_rank)
-
-            target_ranks.sort(
-                key=lambda x: (
-                    # (x > next_sep_rank_backstop) +
-                    (x in self._get_naive_ranks(pow, next_sep_rank))
-                ),
-                reverse=True,
-            )
-        except OverflowError:
-            #TODO more elegant solution?
-            pass
-
-        res = target_ranks + self._get_priority_ranks(
-            pow,
-            num_strata_deposited - 1,
-        )
-        # remove duplicates while preserving order
-        # adpated from https://stackoverflow.com/a/7961390/17332200
-        res = list(OrderedDict.fromkeys(res))
-        return res
-
-    @functools.lru_cache(maxsize=512)
     def _get_retained_ranks(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
         num_strata_deposited: int,
