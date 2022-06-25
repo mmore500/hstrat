@@ -88,7 +88,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
         pow: int,
         num_strata_deposited: int,
-    ):
+    ) -> float:
         common_ratio = self._calc_common_ratio(num_strata_deposited)
         return common_ratio ** pow
 
@@ -96,7 +96,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         self: 'StratumRetentionPredicateGeomSeqNthRoot',
         pow: int,
         num_strata_deposited: int,
-    ):
+    ) -> int:
         """TODO."""
         target_recency = self._calc_target_recency(pow, num_strata_deposited)
         recency_cutoff = target_recency
@@ -112,7 +112,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         self: 'StratumRetentionPredicateGeomSeqNthRoot',
         pow: int,
         num_strata_deposited: int,
-    ):
+    ) -> int:
         """TODO."""
         target_recency = self._calc_target_recency(pow, num_strata_deposited)
         rank_cutoff = max(
@@ -130,7 +130,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
         pow: int,
         num_strata_deposited: int,
-    ):
+    ) -> int:
         """TODO."""
         target_recency = self._calc_target_recency(pow, num_strata_deposited)
         # spacing between retained ranks
@@ -146,7 +146,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
         pow: int,
         num_strata_deposited: int,
-    ):
+    ) -> int:
         """TODO."""
 
         rank_cutoff = self._calc_rank_cutoff(pow, num_strata_deposited)
