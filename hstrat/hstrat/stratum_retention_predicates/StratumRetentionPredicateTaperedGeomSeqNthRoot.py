@@ -241,12 +241,11 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
             ))
             return
 
-        prev_sep_rank = num_strata_deposited - inch.binary_search(
+        prev_sep_rank = inch.binary_search(
             lambda x: \
-                self._calc_rank_sep(pow, num_strata_deposited - x) \
-                < retained_ranks_sep,
-                1,
-                num_strata_deposited,
+                self._calc_rank_sep(pow, x + 1) >= retained_ranks_sep,
+                0,
+                num_strata_deposited - 1,
         )
         yield from range(
             min_retained_rank,
