@@ -203,6 +203,8 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         )
 
     @memoize_generator()
+    # note: may return duplicates, but this is ok for use case
+    # because priority only depends on soonest position in yield stream
     def _iter_priority_ranks(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
         pow: int,
@@ -288,6 +290,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
 
         # recurse
         if retained_ranks_sep == 1:
+            # base case
             yield from reversed(range(
                 0,
                 min_retained_rank,
