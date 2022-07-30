@@ -235,7 +235,6 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
                 pow,
                 biggest_relevant_rank,
             )
-            biggest_relevant_sep = retained_ranks_sep * 2
 
         # in practice, just
         # cur_sep == retained_ranks * 2 seems required
