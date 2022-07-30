@@ -197,11 +197,6 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
     ):
         """Iterate over ranks in order of last-to-be-deleted to first-to-be-deleted for a certain pow."""
 
-        if num_strata_deposited == 1:
-            yield 0
-            return
-        assert num_strata_deposited
-
         min_retained_rank = self._calc_rank_backstop(pow, num_strata_deposited)
         retained_ranks_sep = self._calc_rank_sep(pow, num_strata_deposited)
 
