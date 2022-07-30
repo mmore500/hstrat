@@ -348,6 +348,17 @@ class TestStratumRetentionPredicateGeomSeqNthRoot(unittest.TestCase):
                 f'def test__get_retained_ranks_{degree}_{interspersal}(self): self._do_test__get_retained_ranks({degree}, {interspersal})'
             )
 
+    # regression test cases for test__do_get_retained_ranks (above)
+    # maintained separately to ensure they are not removed and can easily
+    # be isolated
+    for degree, interspersal in [
+        (10, 5),
+        (9, 2),
+    ]:
+        exec(
+            f'def test__get_retained_ranks_regression_{degree}_{interspersal}(self): self._do_test__get_retained_ranks({degree}, {interspersal})'
+        )
+
     def test__calc_common_ratio(self):
         for degree in [
             1,
