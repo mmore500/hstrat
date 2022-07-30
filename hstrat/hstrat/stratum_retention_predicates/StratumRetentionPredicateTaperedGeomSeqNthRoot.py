@@ -182,21 +182,6 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         else: assert 0 <= min_retained_rank <= num_strata_deposited - 1
         return min_retained_rank
 
-    def _get_naive_ranks(
-        self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
-        pow: int,
-        num_strata_deposited: int,
-    ):
-
-        min_retained_rank = self._calc_rank_backstop(pow, num_strata_deposited)
-        retained_ranks_sep = self._calc_rank_sep(pow, num_strata_deposited)
-
-        return set(range(
-            min_retained_rank, # start
-            num_strata_deposited, # stop
-            retained_ranks_sep, # sep
-        ))
-
     def __hash__(self):
         return hash(
             (self._degree, self._interspersal),
@@ -361,17 +346,6 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         num_strata_deposited: int,
     ):
         yield from sorted(self._get_retained_ranks(num_strata_deposited))
-
-    def CalcNumStrataRetainedExact(
-        self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
-        num_strata_deposited: int,
-    ) -> int:
-        """Exactly how many strata are retained after n deposted?"""
-
-        return min(
-            num_strata_deposited,
-            self.CalcNumStrataRetainedUpperBound(),
-        )
 
     def __call__(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',

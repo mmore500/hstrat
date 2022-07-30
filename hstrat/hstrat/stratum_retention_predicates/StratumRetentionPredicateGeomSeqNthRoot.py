@@ -230,14 +230,6 @@ class StratumRetentionPredicateGeomSeqNthRoot:
     ):
         yield from sorted(self._get_retained_ranks(num_strata_deposited))
 
-    def CalcNumStrataRetainedExact(
-        self: 'StratumRetentionPredicateGeomSeqNthRoot',
-        num_strata_deposited: int,
-    ) -> int:
-        """Exactly how many strata are retained after n deposted?"""
-
-        return len(self._get_retained_ranks(num_strata_deposited))
-
     def __call__(
         self: 'StratumRetentionPredicateGeomSeqNthRoot',
         stratum_rank: int,
