@@ -12,17 +12,26 @@ from ...helpers import bit_floor, div_range, is_nondecreasing, memoize_generator
 
 
 class StratumRetentionPredicateTaperedGeomSeqNthRoot:
-    """Functor to implement the approximate space-filling MRCA-recency-
+    """Functor to implement an exactly space-filling MRCA-recency-
     proportional resolution stratum retention policy, for use with
     HereditaryStratigraphicColumn.
 
-    This functor enacts the approximate space-filling MRCA-recency-proportional
+    This functor enacts the exactly space-filling MRCA-recency-proportional
     resolution policy by specifying whether a stratum with deposition rank r
     should be retained within the hereditary stratigraphic column after n
     strata have been deposited.
 
-    The approximate space-filling MRCA-recency-proportional resolution policy imposes an O(1) limit on the number of retained strata and that retained strata will be exponentially distributed with respect to ranks elapsed since their deposit. MRCA rank estimate uncertainty scales in the worst case scales as O(n) with respect to the greater number of strata deposited on either column. However, with respect to estimating the rank of the MRCA when lineages diverged any fixed number of generations ago,
-    uncertainty scales as O(log(n)) (TODO check this).
+    The exactly space-filling MRCA-recency-proportional resolution policy
+    imposes an O(1) limit on the number of retained strata. The number of
+    retained strata will be exactly equal to this O(1) limit after O(1)
+    depositions have elapsed and will remain exactly equal to the O(1) limit
+    subsequently. This policy also guarantees that retained strata will be
+    exponentially distributed with respect to ranks elapsed since their
+    deposit. MRCA rank estimate uncertainty scales in the worst case scales as
+    O(n) with respect to the greater number of strata deposited on either
+    column. However, with respect to estimating the rank of the MRCA when
+    lineages diverged any fixed number of generations ago, uncertainty scales
+    as O(log(n)) (TODO check this).
 
     Under the MRCA-recency-proportional resolution policy, the number of strata
     retained (i.e., space complexity) scales as O(1) with respect to the
@@ -39,6 +48,18 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
     guaranteed estimate uncertainty. For larger target space utilizations,
     number of strata retained appears generally less than twice the target
     space utilization.
+
+    See Also
+    --------
+    StratumRetentionCondemnerTaperedGeomSeqNthRoot:
+        For a potentially more computationally efficient specificiation of the
+        exactly space-filling MRCA-recency-proportional resolution retention
+        policy that directly generates the ranks of strata that should be
+        purged during the nth stratum deposition.
+    StratumRetentionPredicateGeomSeqNthRoot:
+        For a predicate retention policy that achieves the same guarantees for
+        resolution and space complexity but fluctuates in size below an upper
+        size bound instead of remaining exactly at the size bound.
     """
 
     _degree: int
@@ -54,13 +75,24 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         Parameters
         ----------
         degree : int, optional
-            TODO.
+            How many should target recencies for uncertainty-capped coverage
+            should be spaced exponentially from zero recency to maximum recency
+            (i.e., number strata deposited)? Adjust this parameter to set exact
+            space usage (i.e., to fill available space).
         interspersal : int, optional
-            TODO.
+            At least how many retained ranks should be spaced between zero
+            recency and each target recency? Must be greater than 0. No bound
+            on MRCA rank estimate uncertainty provided if set to 1. For most
+            use cases, leave this set to 2.
         """
 
         assert degree >= 0
         assert interspersal >= 1
+        if interspersal == 1:
+            warnings.warn(
+                'Interspersal set to 1, '
+                'no bound on MRCA rank estimate uncertainty can be guaranteed.',
+            )
         self._degree = degree
         self._interspersal = interspersal
 
@@ -79,8 +111,8 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
         num_strata_deposited: int,
     ) -> float:
-        """What should the base of the exponential distribution of retained
-        ranks be?"""
+        """What should the base of the exponential distribution of target ranks
+        be?"""
 
         # this try-except isn't necessary for the test cases
         # and the bounds of normal usage, but provides better resiliency
@@ -107,6 +139,11 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         pow: int,
         num_strata_deposited: int,
     ) -> float:
+        """"What should the target recency of the `pow`'th exponentially distributed coverage target be when `num_strata_deposited`?
+
+        Will strictly increase with `num_strata_deposited`.
+        """
+
         common_ratio = self._calc_common_ratio(num_strata_deposited)
         return common_ratio ** pow
 
@@ -115,7 +152,11 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         pow: int,
         num_strata_deposited: int,
     ) -> int:
-        """TODO."""
+        """What should the rank of the `pow`th exponentially-spaced-back-from-
+        recency-zero target be?
+
+        Will monotonically increase with `num_strata_deposited`.
+        """
         target_recency = self._calc_target_recency(pow, num_strata_deposited)
         recency_cutoff = target_recency
         rank_cutoff = max(
@@ -131,7 +172,12 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         pow: int,
         num_strata_deposited: int,
     ) -> int:
-        """TODO."""
+        """Before what rank should no strata be retained to provide coverage for the `pow`th target recency?
+
+        Will be less than target rank to ensure adequate resolution at target
+        rank and just greater than target rank. Inclusive (i.e., this rank may
+        be retained). Will monotonically increase with num_strata_deposited.
+        """
         target_recency = self._calc_target_recency(pow, num_strata_deposited)
         rank_cutoff = max(
             num_strata_deposited - int(math.ceil(
@@ -149,7 +195,12 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         pow: int,
         num_strata_deposited: int,
     ) -> int:
-        """TODO."""
+        """How far apart should ranks retained to cover the `pow`th target
+        recency be spaced?
+
+        Will be a power of 2 monotonically increasing with
+        `num_strata_deposited`.
+        """
         target_recency = self._calc_target_recency(pow, num_strata_deposited)
         # spacing between retained ranks
         target_retained_ranks_sep = max(
@@ -165,12 +216,20 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         pow: int,
         num_strata_deposited: int,
     ) -> int:
-        """TODO."""
+        """What should the most ancient rank retained to cover the `pow`th
+        target recency be?
+
+        This rank and all subsequent ranks spaced forward by `_calc_rank_sep`
+        positions through recency zero will be retained. Will monotonically
+        increase with `num_strata_deposited` and be an even multiple of
+        `_calc_rank_sep`.
+        """
 
         rank_cutoff = self._calc_rank_cutoff(pow, num_strata_deposited)
         retained_ranks_sep = self._calc_rank_sep(pow, num_strata_deposited)
 
         # round UP from rank_cutoff
+        # to align evenly with retained_ranks_sep
         # adapted from https://stackoverflow.com/a/14092788
         min_retained_rank = (
             rank_cutoff
@@ -182,20 +241,35 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         else: assert 0 <= min_retained_rank <= num_strata_deposited - 1
         return min_retained_rank
 
-    def __hash__(self):
+    def __hash__(
+        self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
+    ) -> int:
+        """Hash predicate object via configuration members."""
+
         return hash(
             (self._degree, self._interspersal),
         )
 
     @memoize_generator()
-    # note: may return duplicates, but this is ok for use case
-    # because priority only depends on soonest position in yield stream
     def _iter_priority_ranks(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
         pow: int,
         num_strata_deposited: int,
     ):
-        """Iterate over ranks in order of last-to-be-deleted to first-to-be-deleted for a certain pow."""
+        """Iterate over retained ranks for the `pow`th target recency.
+
+        Ranks are yielded from last-to-be-deleted to first-to-be-deleted. The
+        very-first-to-be-deleted (i.e., lowest priority) rank is yielded last.
+        Will yield all ranks less than `num_strata_deposited` before exhaustion.
+
+        Notes
+        -----
+        May yield duplicates (i.e., yield rank x then later again yield rank x).
+        This is acceptable in the internal use case because rank priority only
+        depends on its soonest position in the stream of yielded values.
+        Subsequent yieldings have no effect because the generator is sampled
+        until exhausted or an unseen rank is yielded.
+        """
 
         min_retained_rank = self._calc_rank_backstop(pow, num_strata_deposited)
         retained_ranks_sep = self._calc_rank_sep(pow, num_strata_deposited)
@@ -231,17 +305,16 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
                 biggest_relevant_rank,
             )
 
-        # in practice, just
-        # cur_sep == retained_ranks * 2 seems required
+        # in practice, just "cur_sep == retained_ranks * 2" appears required
         # i.e., tests pass with
         #
         # for cur_sep in retained_ranks_sep * 2,:
         #
         # TODO can this be proven?
         for cur_sep in div_range(
-            biggest_relevant_sep,
-            retained_ranks_sep, # non-inclusive
-            2,
+            biggest_relevant_sep, # start
+            retained_ranks_sep, # stop, non-inclusive
+            2, # iteration action: divide by 2
         ):
             #TODO can this doubling search be done in constant time?
             cur_sep_rank = inch.doubling_search(
@@ -263,7 +336,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         # TODO somehow exclude duplicates with above for better efficiency?
         yield from reversed(range(
             min_retained_rank, # start
-            num_strata_deposited, # stop
+            num_strata_deposited, # stop, non-inclusive
             retained_ranks_sep, # sep
         ))
 
@@ -283,9 +356,9 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
                 num_strata_deposited - 1,
         )
         yield from range(
-            min_retained_rank,
-            prev_sep_rank, # not inclusive
-            -retained_ranks_sep,
+            min_retained_rank, # start
+            prev_sep_rank, # stop, not inclusive
+            -retained_ranks_sep, # sep
         )
         assert prev_sep_rank < num_strata_deposited
         yield from self._iter_priority_ranks(
@@ -293,6 +366,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
             # + 1 due to apparent off-by-one error w/ just prev_sep_rank
             # where rank 5984 isn't properly retained
             # with degree 9, interspersal 2 @ generation 6405
+            # on get_retained_ranks test case
             min(prev_sep_rank + 1, num_strata_deposited - 1),
         )
 
@@ -301,34 +375,49 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
         num_strata_deposited: int,
     ) -> typing.Set[int]:
-        """TODO."""
+        """Calculate the set of strata ranks retained at
+        `num_strata_deposited`."""
 
         # special case
         if num_strata_deposited == 0: return set()
 
         interspersal = self._interspersal
         last_rank = num_strata_deposited - 1
+        # we will always retain the zeroth rank and the last rank
+        # Set data structure prevents duplicates
         res = {0, last_rank}
 
+        # create iterators that yield ranks for retention in priority order for
+        # each target recency
         iters = [
             self._iter_priority_ranks(pow, num_strata_deposited)
+            # optimization:
             # don't iterate over 0th pow, this is just the most recent rank
             # i.e., recency == 1
             for pow in reversed(range(1, self._degree + 1))
         ]
-        # round robin, taking at least one from each
+        # round robin, taking at least one rank from each iterator until the
+        # upper bound on space complexity is exactly reached or all iterators
+        # are exhausted
         while len(res) < self.CalcNumStrataRetainedUpperBound():
             res_before = len(res)
             for iter_ in iters:
+                # will loop 0 times if iter_ is empty
                 for priority_rank in iter_:
+                    # draw from iter_ until a rank not already in res is
+                    # discovered or iter_ is exhausted
                     if priority_rank not in res:
                         res.add(priority_rank)
                         break
+                # ensure space complexity limit is not exceeded
                 if len(res) == self.CalcNumStrataRetainedUpperBound():
                     break
+            # if no progress was made then all iter_ were empty
+            # and its time to quit
             if res_before == len(res):
                 break
 
+        # sanity checks then return
         assert all(isinstance(n, int) for n in res)
         assert all(0 <= n < num_strata_deposited for n in res)
         assert len(res) <= self.CalcNumStrataRetainedUpperBound()
@@ -339,6 +428,9 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
         num_strata_deposited: int,
     ):
+        """Iterate over retained strata ranks at `num_strata_deposited` in
+        ascending order."""
+
         yield from sorted(self._get_retained_ranks(num_strata_deposited))
 
     def __call__(
@@ -373,6 +465,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         """
 
         return stratum_rank in self._get_retained_ranks(
+            # +1 because of in-progress deposition
             num_stratum_depositions_completed + 1,
         )
 
