@@ -8,7 +8,7 @@ import numpy as np
 import typing
 import warnings
 
-from ...helpers import bit_floor, is_nondecreasing, memoize_generator
+from ...helpers import bit_floor, div_range, is_nondecreasing, memoize_generator
 
 
 class StratumRetentionPredicateTaperedGeomSeqNthRoot:
@@ -218,38 +218,73 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         min_retained_rank = self._calc_rank_backstop(pow, num_strata_deposited)
         retained_ranks_sep = self._calc_rank_sep(pow, num_strata_deposited)
 
-        try:
-            # while True: TODO
-            # need to account for maybe having to do this multiple times?
-            # TODO this can be in constant time?
-            next_sep_rank = inch.doubling_search(
-                lambda x: self._calc_rank_sep(pow, x) > retained_ranks_sep,
+        if pow == self._degree:
+            # the highest-degree pow always tracks strata 0
+            # and the biggest relevant sep for strata 0 is infinite.
+            # i.e., the backstop for highest-debree pow is always strata 0
+            # So, we need a special case for this pow.
+            # However, because strata 0 is retained indefinitely, we actually
+            # only need to worry about the next retained strata,
+            # which is at retained_ranks_sep.
+            # Thus, we use calc_rank_sep instead of calc_rank_backstop.
+            #TODO can this doubling search be done in constant time?
+            biggest_relevant_rank = inch.doubling_search(
+                lambda x: self._calc_rank_sep(pow, x+1) >= num_strata_deposited,
+                num_strata_deposited,
             )
-            next_sep_rank_backstop = self._calc_rank_backstop(
+            biggest_relevant_sep = self._calc_rank_sep(
                 pow,
-                next_sep_rank,
+                biggest_relevant_rank,
+            )
+
+        else:
+            #TODO can this doubling search be done in constant time?
+            biggest_relevant_rank = inch.doubling_search(
+                lambda x: \
+                    self._calc_rank_backstop(pow, x+1) >= num_strata_deposited,
+                num_strata_deposited,
+            )
+            biggest_relevant_sep = self._calc_rank_sep(
+                pow,
+                biggest_relevant_rank,
+            )
+            biggest_relevant_sep = retained_ranks_sep * 2
+
+        # in practice, just
+        # cur_sep == retained_ranks * 2 seems required
+        # i.e., tests pass with
+        #
+        # for cur_sep in retained_ranks_sep * 2,:
+        #
+        # TODO can this be proven?
+        for cur_sep in div_range(
+            biggest_relevant_sep,
+            retained_ranks_sep, # non-inclusive
+            2,
+        ):
+            #TODO can this doubling search be done in constant time?
+            cur_sep_rank = inch.doubling_search(
+                lambda x: self._calc_rank_sep(pow, x) >= cur_sep,
+                num_strata_deposited,
+            )
+            cur_sep_rank_backstop = self._calc_rank_backstop(
+                pow,
+                cur_sep_rank,
             )
 
             yield from reversed(range(
-                next_sep_rank_backstop, # start
-                min(next_sep_rank, num_strata_deposited), # stop
-                retained_ranks_sep * 2, # sep
+                cur_sep_rank_backstop, # start
+                # +1 to be inclusive of cur_sep_rank
+                min(cur_sep_rank + 1, num_strata_deposited), # stop
+                cur_sep, # sep
             ))
 
-            # TODO somehow exclude duplicates with above for efficiency?
-            yield from reversed(range(
-                min_retained_rank, # start
-                num_strata_deposited, # stop
-                retained_ranks_sep, # sep
-            ))
-
-        except OverflowError:
-            #TODO more elegant solution?
-            yield from reversed(range(
-                min_retained_rank, # start
-                num_strata_deposited, # stop
-                retained_ranks_sep, # sep
-            ))
+        # TODO somehow exclude duplicates with above for better efficiency?
+        yield from reversed(range(
+            min_retained_rank, # start
+            num_strata_deposited, # stop
+            retained_ranks_sep, # sep
+        ))
 
         # recurse
         if retained_ranks_sep == 1:
