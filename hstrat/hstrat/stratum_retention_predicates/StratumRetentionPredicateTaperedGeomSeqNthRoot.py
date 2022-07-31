@@ -126,7 +126,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         except OverflowError:
             warnings.warn(
                 'OverflowError converting num_strata_deposited to float, '
-                'converting to mpmath.mpf instead.'
+                'converting to mpmath.mpf instead.',
             )
             num_strata_deposited = mp.mpf(num_strata_deposited)
 
@@ -157,6 +157,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
 
         Will monotonically increase with `num_strata_deposited`.
         """
+
         target_recency = self._calc_target_recency(pow, num_strata_deposited)
         recency_cutoff = target_recency
         rank_cutoff = max(
@@ -178,6 +179,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         rank and just greater than target rank. Inclusive (i.e., this rank may
         be retained). Will monotonically increase with num_strata_deposited.
         """
+
         target_recency = self._calc_target_recency(pow, num_strata_deposited)
         rank_cutoff = max(
             num_strata_deposited - int(math.ceil(
@@ -201,6 +203,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         Will be a power of 2 monotonically increasing with
         `num_strata_deposited`.
         """
+
         target_recency = self._calc_target_recency(pow, num_strata_deposited)
         # spacing between retained ranks
         target_retained_ranks_sep = max(
