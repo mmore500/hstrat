@@ -188,6 +188,7 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
             )),
             0,
         )
+        assert rank_cutoff <= self._calc_target_rank(pow, num_strata_deposited)
         if num_strata_deposited == 0: assert rank_cutoff == 0
         else: assert 0 <= rank_cutoff <= num_strata_deposited - 1
         return rank_cutoff
@@ -239,9 +240,23 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
             - (rank_cutoff % -retained_ranks_sep)
         )
         assert min_retained_rank % retained_ranks_sep == 0
+        assert min_retained_rank >= rank_cutoff
 
+        # check that even with rounding up, we are still covering the target
+        # rank
+        # i.e., that the most ancient retained rank (the backstop rank) falls
+        # before the target rank so that the target rank is guaranteed within
+        # a _calc_rank_sep window
+        assert (
+            min_retained_rank
+            <= self._calc_target_rank(pow, num_strata_deposited)
+        )
+
+        # more sanity checks on range of output value
         if num_strata_deposited == 0: assert min_retained_rank == 0
         else: assert 0 <= min_retained_rank <= num_strata_deposited - 1
+
+        # backstop rank synonomous w/ the most ancient (min) retained rank
         return min_retained_rank
 
     def __hash__(

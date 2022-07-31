@@ -195,9 +195,10 @@ class StratumRetentionPredicateGeomSeqNthRoot:
         `_calc_rank_sep`.
         """
 
-        for rank_cutoff, retained_ranks_sep in zip(
+        for rank_cutoff, retained_ranks_sep, target_rank in zip(
             self._iter_rank_cutoffs(num_strata_deposited),
             self._iter_rank_seps(num_strata_deposited),
+            self._iter_target_ranks(num_strata_deposited),
         ):
 
             # round UP from rank_cutoff
@@ -208,10 +209,20 @@ class StratumRetentionPredicateGeomSeqNthRoot:
                 - (rank_cutoff % -retained_ranks_sep)
             )
             assert min_retained_rank % retained_ranks_sep == 0
+            assert min_retained_rank >= rank_cutoff
 
+            # check that even with rounding up, we are still covering the
+            # target rank
+            # i.e., that the most ancient retained rank (the backstop rank)
+            # falls before the target rank so that the target rank is
+            # guaranteed within an _iter_rank_sep window
+            assert min_retained_rank <= target_rank
+
+            # more sanity checks on range of return value
             if num_strata_deposited == 0: assert min_retained_rank == 0
             else: assert 0 <= min_retained_rank <= num_strata_deposited - 1
 
+            # backstop rank synonomous w/ the most ancient (min) retained rank
             yield min_retained_rank
 
     def _get_retained_ranks(
