@@ -292,7 +292,11 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         min_retained_rank = self._calc_rank_backstop(pow, num_strata_deposited)
         retained_ranks_sep = self._calc_rank_sep(pow, num_strata_deposited)
 
-        if pow == self._degree:
+        if pow == 0:
+            # optimization
+            yield from reversed(range(num_strata_deposited))
+            return
+        elif pow == self._degree:
             # the highest-degree pow always tracks strata 0
             # and the biggest relevant sep for strata 0 is infinite.
             # i.e., the backstop for highest-debree pow is always strata 0
@@ -409,10 +413,11 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
         # each target recency
         iters = [
             self._iter_priority_ranks(pow, num_strata_deposited)
-            # optimization:
-            # don't iterate over 0th pow, this is just the most recent rank
-            # i.e., recency == 1
-            for pow in reversed(range(1, self._degree + 1))
+            # note:
+            # even though 0th pow is always just the most recent rank
+            # we need to iterate over it because it will eventually yield
+            # all preceding ranks ensuring that we fill available space
+            for pow in reversed(range(0, self._degree + 1))
         ]
         # round robin, taking at least one rank from each iterator until the
         # upper bound on space complexity is exactly reached or all iterators
@@ -433,13 +438,18 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
             # if no progress was made then all iter_ were empty
             # and its time to quit
             if res_before == len(res):
+                assert len(res) == num_strata_deposited
                 break
 
         # sanity checks then return
         assert all(isinstance(n, int) for n in res)
         assert all(0 <= n < num_strata_deposited for n in res)
         assert len(res) <= self.CalcNumStrataRetainedUpperBound()
+        assert len(res) == self.CalcNumStrataRetainedExact(num_strata_deposited)
         assert res
+        if len(res) < self.CalcNumStrataRetainedUpperBound():
+            assert res == {*range(len(res))}
+
         return res
 
     def _iter_retained_ranks(
@@ -493,8 +503,9 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
     ) -> int:
         """Exactly how many strata are retained after n deposted?"""
 
-        return len(
-            self._get_retained_ranks(num_strata_deposited)
+        return min(
+            num_strata_deposited,
+            self.CalcNumStrataRetainedUpperBound(),
         )
 
     def CalcNumStrataRetainedUpperBound(
@@ -503,8 +514,10 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
     ):
         """At most, how many strata are retained after n deposted? Inclusive."""
 
-        # +2 is 0th rank and last rank
-        return self._degree * 2 * (self._interspersal + 1) + 2
+        # +1 at end is 0th rank
+        # (necessary or isn't a subset of GeomSeqNthRoot (untapered))
+        # last rank (degree zero) is +1 on degree
+        return (self._degree + 1) * 2 * (self._interspersal + 1) + 1
 
     def CalcMrcaUncertaintyUpperBound(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',
