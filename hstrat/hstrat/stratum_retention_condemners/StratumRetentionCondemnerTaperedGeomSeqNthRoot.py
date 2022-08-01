@@ -22,6 +22,24 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
         policy.
     """
 
+    # store the most recent result from calls to __call__ that dropped a rank
+    # in the format
+    #
+    # (num_stratum_depositions_completed, dropped_rank)
+    #
+    # this cache enables optimization if calls to __call__ are made in
+    # monotonically increasing order with respect to
+    # num_stratum_depositions_completed but is not necessary for __call__ to
+    # produce a correct result
+    # (if the optimization is not available, dropped rank is computed using a
+    # slower fallback method)
+    #
+    # note that because this policy maintains column size exactly at a fixed
+    # size bound so at most only one rank will be dropped when a new stratum is
+    # deposited
+    # (zero ranks are dropped while the column is growing to that size bound)
+    _cached_result: typing.Optional[typing.Tuple[int, int]]
+
     def __init__(
         self: 'StratumRetentionCondemnerTaperedGeomSeqNthRoot',
         degree: int=100,
