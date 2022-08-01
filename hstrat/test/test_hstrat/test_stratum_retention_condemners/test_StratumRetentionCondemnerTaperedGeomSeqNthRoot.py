@@ -32,7 +32,7 @@ class TestStratumRetentionCondemnerTaperedGeomSeqNthRoot(
             stratum_ordered_store_factory
                 =hstrat.HereditaryStratumOrderedStoreDict,
             stratum_retention_predicate
-            =hstrat.StratumRetentionPredicateGeomSeqNthRoot(
+            =hstrat.StratumRetentionPredicateTaperedGeomSeqNthRoot(
                     degree=degree,
                     interspersal=interspersal,
                 ),
