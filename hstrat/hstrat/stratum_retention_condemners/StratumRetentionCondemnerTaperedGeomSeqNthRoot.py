@@ -110,6 +110,15 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
 
         if num_stratum_depositions_completed < size_bound:
             res = set()
+        # if we have a cached result for the current time point, use it
+        elif opyt.apply_if(
+            self._cached_result,
+            lambda x: x[0] == num_stratum_depositions_completed,
+        ):
+            cached_time, cached_drop = self._cached_result
+            res = {
+                cached_drop,
+            }
         elif (
             self._degree
             and opyt.apply_if(
