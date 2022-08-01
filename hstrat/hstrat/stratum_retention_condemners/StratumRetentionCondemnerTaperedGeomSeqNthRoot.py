@@ -109,7 +109,7 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
         res = None
 
         if num_stratum_depositions_completed < size_bound:
-            res = {}
+            res = set()
         elif (
             self._degree
             and opyt.apply_if(
