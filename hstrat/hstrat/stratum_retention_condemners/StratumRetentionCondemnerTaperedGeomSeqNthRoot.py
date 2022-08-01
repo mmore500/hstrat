@@ -1,4 +1,7 @@
+from iterpop import iterpop as ip
+import opytional as opyt
 import typing
+import warnings
 
 from ..HereditaryStratum import HereditaryStratum
 from ..stratum_retention_predicates \
@@ -41,6 +44,8 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
             degree=degree,
             interspersal=interspersal,
         )
+
+        self._cached_result = None
 
     def __call__(
         self: 'StratumRetentionCondemnerTaperedGeomSeqNthRoot',
@@ -93,4 +98,57 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
         )
 
         # take set difference between prev retained ranks and cur retained ranks
-        yield from (prev_retained_ranks - cur_retained_ranks)
+        res = (prev_retained_ranks - cur_retained_ranks)
+
+        # assertions to check validity of optimization
+        # (thereby negating it, but that's ok)
+        size_bound = super(
+            StratumRetentionCondemnerTaperedGeomSeqNthRoot,
+            self,
+        ).CalcNumStrataRetainedUpperBound()
+        if num_stratum_depositions_completed < size_bound:
+            assert res == set()
+        elif (
+            self._degree
+            and opyt.apply_if(
+                self._cached_result,
+                lambda x: x[0] == num_stratum_depositions_completed - 1,
+            )
+        ):
+
+            cached_time, cached_drop = self._cached_result
+
+            pow1_sep = super(
+                StratumRetentionCondemnerTaperedGeomSeqNthRoot,
+                self,
+            )._calc_rank_sep(
+                1,
+                cached_drop,
+            ) // 2
+            if pow1_sep == 0:
+                pow1_sep = 1
+
+            # TODO should this be +1?
+            pow1_frontstop = (
+                (num_stratum_depositions_completed + 1)
+                - (num_stratum_depositions_completed + 1) % pow1_sep
+            )
+            if pow1_frontstop - 1 < cached_drop:
+                # if -2 this fails
+                assert res == {
+                    cached_drop + 1,
+                }, (
+                    res,
+                    cached_drop,
+                    self._degree,
+                    self._interspersal,
+                    pow1_sep,
+                    pow1_frontstop,
+                )
+
+        if res:
+            self._cached_result = (
+                num_stratum_depositions_completed,
+                ip.popsingleton(res),
+            )
+        yield from res
