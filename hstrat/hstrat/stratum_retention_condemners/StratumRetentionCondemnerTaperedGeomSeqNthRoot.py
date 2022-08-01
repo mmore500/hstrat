@@ -83,31 +83,15 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
             nth root geometric sequence stratum retention policy.
         """
 
-        prev_retained_ranks = super(
-            StratumRetentionCondemnerTaperedGeomSeqNthRoot,
-            self,
-        )._get_retained_ranks(
-            num_stratum_depositions_completed,
-        )
-
-        cur_retained_ranks = super(
-            StratumRetentionCondemnerTaperedGeomSeqNthRoot,
-            self,
-        )._get_retained_ranks(
-            num_stratum_depositions_completed + 1,
-        )
-
-        # take set difference between prev retained ranks and cur retained ranks
-        res = (prev_retained_ranks - cur_retained_ranks)
-
-        # assertions to check validity of optimization
-        # (thereby negating it, but that's ok)
         size_bound = super(
             StratumRetentionCondemnerTaperedGeomSeqNthRoot,
             self,
         ).CalcNumStrataRetainedUpperBound()
+
+        res = None
+
         if num_stratum_depositions_completed < size_bound:
-            assert res == set()
+            res = {}
         elif (
             self._degree
             and opyt.apply_if(
@@ -115,7 +99,6 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
                 lambda x: x[0] == num_stratum_depositions_completed - 1,
             )
         ):
-
             cached_time, cached_drop = self._cached_result
 
             pow1_sep = super(
@@ -135,20 +118,33 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
             )
             if pow1_frontstop - 1 < cached_drop:
                 # if -2 this fails
-                assert res == {
+                res = {
                     cached_drop + 1,
-                }, (
-                    res,
-                    cached_drop,
-                    self._degree,
-                    self._interspersal,
-                    pow1_sep,
-                    pow1_frontstop,
-                )
+                }
+
+        # fallback to do full computation
+        if res is None:
+            prev_retained_ranks = super(
+                StratumRetentionCondemnerTaperedGeomSeqNthRoot,
+                self,
+            )._get_retained_ranks(
+                num_stratum_depositions_completed,
+            )
+
+            cur_retained_ranks = super(
+                StratumRetentionCondemnerTaperedGeomSeqNthRoot,
+                self,
+            )._get_retained_ranks(
+                num_stratum_depositions_completed + 1,
+            )
+
+            # take set difference between prev retained ranks and cur retained ranks
+            res = (prev_retained_ranks - cur_retained_ranks)
 
         if res:
             self._cached_result = (
                 num_stratum_depositions_completed,
                 ip.popsingleton(res),
             )
+
         yield from res
