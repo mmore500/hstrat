@@ -266,13 +266,7 @@ class TestStratumRetentionPredicateTaperedGeomSeqNthRoot(unittest.TestCase):
             control_retained_ranks_set \
                 = control_predicate._get_retained_ranks(generation)
             assert retained_ranks_set.issuperset(
-                control_retained_ranks_set
-            ), (
-                generation,
-                len(control_retained_ranks_set),
-                len(retained_ranks_set),
-                control_predicate.CalcNumStrataRetainedUpperBound(),
-                predicate.CalcNumStrataRetainedUpperBound(),
+                control_retained_ranks_set,
             )
 
     def test_equality(self):
