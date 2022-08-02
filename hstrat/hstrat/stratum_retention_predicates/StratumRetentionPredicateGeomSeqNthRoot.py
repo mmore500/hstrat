@@ -1,6 +1,5 @@
 import itertools as it
 import math
-import numpy as np
 import typing
 import warnings
 

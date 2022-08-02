@@ -4,7 +4,6 @@ import interval_search as inch
 import itertools as it
 import math
 import mpmath as mp
-import numpy as np
 import typing
 import warnings
 
