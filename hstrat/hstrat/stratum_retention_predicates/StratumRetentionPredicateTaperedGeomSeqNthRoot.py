@@ -417,7 +417,12 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
             # even though 0th pow is always just the most recent rank
             # we need to iterate over it because it will eventually yield
             # all preceding ranks ensuring that we fill available space
-            for pow in reversed(range(0, self._degree + 1))
+            # HOWEVER, it is excluded from the first round and is only drawn
+            # from subsequently to ensure that it will have lowest priority
+            # thereby making optimizations easier [and requiring less space
+            # be devoted to the equivalent of
+            # reversed(range(num_strata_deposited))]
+            for pow in reversed(range(1, self._degree + 1))
         ]
         # round robin, taking at least one rank from each iterator until the
         # upper bound on space complexity is exactly reached or all iterators
@@ -438,8 +443,15 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
             # if no progress was made then all iter_ were empty
             # and its time to quit
             if res_before == len(res):
-                assert len(res) == num_strata_deposited
                 break
+
+        # draw from pow 0 iter until res full
+        # (pow 0 iter only drawn from if all other iters are exhausted)
+        for priority_rank in self._iter_priority_ranks(0, num_strata_deposited):
+            # ensure space complexity limit is not exceeded
+            if len(res) == self.CalcNumStrataRetainedUpperBound():
+                break
+            res.add(priority_rank)
 
         # sanity checks then return
         assert all(isinstance(n, int) for n in res)
@@ -514,10 +526,8 @@ class StratumRetentionPredicateTaperedGeomSeqNthRoot:
     ):
         """At most, how many strata are retained after n deposted? Inclusive."""
 
-        # +1 at end is 0th rank
-        # (necessary or isn't a subset of GeomSeqNthRoot (untapered))
-        # last rank (degree zero) is +1 on degree
-        return (self._degree + 1) * 2 * (self._interspersal + 1) + 1
+        # +2 is 0th rank and last rank
+        return self._degree * 2 * (self._interspersal + 1) + 2
 
     def CalcMrcaUncertaintyUpperBound(
         self: 'StratumRetentionPredicateTaperedGeomSeqNthRoot',

@@ -140,6 +140,8 @@ requests==2.27.1
     #   requests-toolbelt
     #   sphinx
     #   twine
+safe-assert==0.2.0
+    # via -r requirements_dev.in
 scipy==1.5.4
     # via -r requirements_dev.in
 six==1.16.0

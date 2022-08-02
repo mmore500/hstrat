@@ -1,5 +1,6 @@
 from iterpop import iterpop as ip
 import opytional as opyt
+from safe_assert import safe_assert as always_assert
 import typing
 import warnings
 
@@ -133,7 +134,6 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
                 lambda x: x[0] == num_stratum_depositions_completed - 1,
             )
         ):
-            # TODO can this be extended to many more cases (entire logic?)
             # shortcut explanation...
             #
             # recall that the geom seq nth root policy is defined by a fixed
@@ -159,98 +159,192 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
             # remaining iterators will be polled an additional rank than they
             # would not have had to produce otherwise)
             #
-            # note that targets' iterators are drawn from in the order of
-            # most ancient to most recent (i.e., k = d down to k = 0)
+            # note that the pool of retained ranks being drawn into is seeded
+            # with rank 0 and rank n - 1, because these must be retained
+            #
+            # note also that targets' iterators are drawn from in the order of
+            # most ancient to most recent (i.e., k = d down to k = 1)
+            #
+            # in order to make this shortcut optimization more effective and
+            # simplify its implementation, the k = 0 iterator is excluded from
+            # this phase
+            #
+            # only after (and if) all k > 0 iterators have been exhausted is
+            # the k = 0 iterator drawn from
+            #
+            # the k = 0 iterator is the lowest-priority iterator that
+            # exclusively vacuums up (i.e., yields) ranks that have been
+            # yielded from no other iterator... put another way, the k = 0
+            # iterator will never pre-empt another iterator by claiming a rank
+            # "first"
+            #
             #
             # this optimization focuses on the k = 0 iterator, which
             # corresponds to the target that tracks the most recent rank
             # deposited
             #
-            # note that this iterator yields reversed(range(n))
+            # because the k = 0 target tracks the most recent rank, the k = 0
+            # iterator yields all deposited ranks in reverse order
+            # i.e., this iterator yields reversed(range(n))
             #
             # as n increases, more and more of dropped ranks will correspond
             # to the most ancient rank yielded from the 0th iterator
+            # (considering the implicit seed n - 1 as yielded from this
+            # iterator)
             #
-            # under an ideal scenario where no iterators are exhausted and
-            # there is no conflict for the 0th iterator's desired ranks (i.e.,
-            # no other iterators have already yielded them), the 0th iterator
-            # will yield the last
-            #
-            # z = size_bound // (degree + 1)
-            #
-            # ranks (floor division because it is the last to be polled)
+            # under an ideal scenario where no iterators are exhausted the 0th
+            # iterator will yield just the second-to-last rank (i.e., n - 2)
+            # because the last rank is always retained
             #
             # however, if other iterators are exhausted, the 0th iterator may
             # be polled for more ranks
             #
-            # only considering cases where no other iterators are exhausted is
-            # a) hard enough to compute to probably negate optimiation benefits
-            # b) exclusive against optimization at such timepoints
+            # only considering cases where no other iterators are exhausted
+            # a) is hard enough computationally to probably negate opt benefits
+            # b) reduces the cases where this optimization applies (i.e.,
+            #    excludes optimization at such timepoints)
             #
-            # so, let's broaden out and rely on a small amount of caching so
-            # that we can account for the fact that the 0th iterator may be
-            # providing more than z items to the set of retained ranks even
-            # when there is no conflict for the 0th iterator's desired ranks
+            # that raises the question, how to compute the number of items
+            # yielded from the k = 0 iterator?
             #
-            # key question:
-            # under what conditions is some other rank besides the 0th
-            # iterator's most ancient retained rank dropped?
+            # we will employ a small amount of caching to sidestep this
+            # problem: we can look at the number of items yielded from the
+            # k = 0 iterator at the previous timepoint
             #
-            # key observation:
-            # only possible when a new highest-priority rank becomes available
-            # to any other iterator
-            # (every other iterator gets first dibs above the 0th iterator, so
-            # this is the only situation may result in a non-0th iterator's
-            # lowest-priority rank getting dropped)
+            # our shortcut optimization will rely on detecting whether
+            # 1) there could possibly have been any change to the number of
+            #    items yielded from the k = 0 iterator due to a new highest-
+            #    priority rank becoming available to any other k > 1 iterator
+            #    (which would cause the to dropped rank jump forward more than
+            #    one position) (every other iterator gets first dibs above the
+            #    k = 0 iterator, so this is the only situation may result in a
+            #    k > 0 iterator's lowest-priority rank getting dropped)
+            # 2) there could possibly be a latent rank being retained by a
+            #    k > 0 iterator at the end of the chain of k = 0's retain ranks
+            #    that the k = 0 iterator's retained rainks had previously been
+            #    stepping over (thereby extending the k = 0 iterator's most
+            #    ancient retained rank backward) (and might cause the dropped
+            #    rank to jump forward more than one position)
             #
-            # so, if there is... [unfinished commentary ends here]
-            # ...it turns out that making the 0th root very lowest priority
-            # makes this optimization MUCH simpler and more effective...
-            # ...so let's refactor but keep this unfinished commentary on the
-            # existing approach for posterity
-            cached_time, cached_drop = self._cached_result
+            # if neither of these scenarios is possible, we can guarantee that
+            # the next dropped rank will immediately succeed the previous
+            # (cached) dropped rank
+            #
+            # scenario 1 is only possible when the deposited rank could align
+            # with the current sep (rank-to-rank step size) of the k = 1
+            # iterator
+            # (all iterators k > 1 have monotonically increasing seps that only
+            # increase by doubling so are covered by checking the k = 1 case)
+            #
+            # scenario 2 is only possible when the rank-to-be-dropped could
+            # have been retained as a priority rank of a k > 1 iterator...
+            # so, check whether the contemporaneous to rank-to-be-dropped k = 1
+            # sep could have aligned with that rank
+            # (again, all iterators k > 1 have monotonically increasing seps
+            # that only increase by doubling so are covered by checking the
+            # k = 1 case)
+
+            # unpack cache
+            cached_time, cached_drop_rank = self._cached_result
+            assert cached_drop_rank > 0
 
             # what is the tightest spacing between retained ranks for
-            # any non-0th iterator?
-            pow1_sep = super(
+            # any non-0th pow iterator at the current timepoint?
+            # allows us to detect whether deposited rank is relevant to any
+            # k > 1 iterator)
+            pow1_newsep = super(
                 StratumRetentionCondemnerTaperedGeomSeqNthRoot,
                 self,
             )._calc_rank_sep(
                 1,
-                cached_drop,
-            ) // 2
-            if pow1_sep == 0:
-                pow1_sep = 1
-
-            # TODO should this be +1?
-            pow1_frontstop = (
-                (num_stratum_depositions_completed + 1)
-                - (num_stratum_depositions_completed + 1) % pow1_sep
-            )
-            if pow1_frontstop - 1 < cached_drop:
-                # if -2 this fails
-                res = {
-                    cached_drop + 1,
-                }
-
-        # fallback to do full computation
-        if res is None:
-            prev_retained_ranks = super(
-                StratumRetentionCondemnerTaperedGeomSeqNthRoot,
-                self,
-            )._get_retained_ranks(
+                # no +1 to be conservative
                 num_stratum_depositions_completed,
             )
-
-            cur_retained_ranks = super(
+            # what is the tightest spacing between retained ranks for
+            # any non-0th pow iterator at the end of the k = 0 retention chain?
+            # (i.e., at rank-to-be-dropped)
+            # allows us to detect any possible ranks retained for k > 0
+            # that may be retained even if the apparent k = 0 retention chain
+            # advances past them
+            # (this would interfere with our assumption of the k = 0 drop
+            # moving forward one rank per deposition)
+            pow1_oldsep = super(
                 StratumRetentionCondemnerTaperedGeomSeqNthRoot,
                 self,
-            )._get_retained_ranks(
-                num_stratum_depositions_completed + 1,
+            )._calc_rank_sep(
+                1,
+                # no +1 to be conservative
+                cached_drop_rank,
             )
+            assert pow1_oldsep <= pow1_newsep
 
-            # take set difference between prev retained ranks and cur retained ranks
+            if (
+                # ensure deposited rank is irrelevant to all pow > 0
+                # no +1 due to translation from len to index of last
+                num_stratum_depositions_completed % pow1_newsep > 1
+                # ensure rank-to-drop isn't possibly retained for pow > 0
+                and (cached_drop_rank + 1) % pow1_oldsep > 1
+                # ^^^ note that >1's ensure that we are at least two ranks
+                # past any problem rank (i.e., that the preceding call
+                # computed a drop_rank at the end of the k = 0 retention chain)
+            ):
+                # sufficient guarantee drop moves forward exactly 1
+                res = {
+                    # drop rank 1 past the one we last dropped
+                    cached_drop_rank + 1,
+                }
+
+        elif self._degree:
+            # TODO case with no caching?
+            # can we prove when pow0 retention chain is only 1 long?
+            # i.e., previous iterators don't exhaust?
+            pass
+
+        prev_retained_ranks = super(
+            StratumRetentionCondemnerTaperedGeomSeqNthRoot,
+            self,
+        )._get_retained_ranks(
+            num_stratum_depositions_completed,
+        )
+
+        cur_retained_ranks = super(
+            StratumRetentionCondemnerTaperedGeomSeqNthRoot,
+            self,
+        )._get_retained_ranks(
+            num_stratum_depositions_completed + 1,
+        )
+
+        if res is not None:
+            always_assert(
+                res == (prev_retained_ranks - cur_retained_ranks),
+                {
+                    'res' : res,
+                    '(prev_retained_ranks - cur_retained_ranks)' \
+                        : (prev_retained_ranks - cur_retained_ranks),
+                },
+            )
+        else:
             res = (prev_retained_ranks - cur_retained_ranks)
+
+        # # have we determined res using a shortcut method?
+        # # if not, fall back to do full computation for res
+        # if res is None:
+        #     prev_retained_ranks = super(
+        #         StratumRetentionCondemnerTaperedGeomSeqNthRoot,
+        #         self,
+        #     )._get_retained_ranks(
+        #         num_stratum_depositions_completed,
+        #     )
+        #
+        #     cur_retained_ranks = super(
+        #         StratumRetentionCondemnerTaperedGeomSeqNthRoot,
+        #         self,
+        #     )._get_retained_ranks(
+        #         num_stratum_depositions_completed + 1,
+        #     )
+        #     # take set difference between prev retained ranks and cur retained
+        #     # ranks
+        #     res = (prev_retained_ranks - cur_retained_ranks)
 
         # if res is not empty, it will only have one rank
         # cache that dropped rank with the current timepoint
