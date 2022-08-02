@@ -53,24 +53,22 @@ class TestStratumRetentionCondemnerTaperedGeomSeqNthRoot(
             d1, d2 = control_column.DiffRetainedRanks(test_column)
             assert d1 == set() and d2 == set()
 
-    def test_retention(self):
-        for degree in [
+    for degree in [
+        1,
+        2,
+        3,
+        9,
+        10,
+        101,
+    ]:
+        for interspersal in [
             1,
             2,
-            3,
-            9,
-            10,
-            101,
+            5,
         ]:
-            for interspersal in [
-                1,
-                2,
-                5,
-            ]:
-                self._do_test_retention(
-                    degree,
-                    interspersal,
-                )
+            exec(
+                f'def test_retention_{degree}_{interspersal}(self): self._do_test_retention({degree}, {interspersal})'
+            )
 
     def _do_test_CalcRankAtColumnIndex(
         self,
@@ -106,24 +104,23 @@ class TestStratumRetentionCondemnerTaperedGeomSeqNthRoot(
                 num_strata_deposited=test_column.GetNumStrataDeposited(),
             ) == test_column.GetNumStrataDeposited()
 
-    def test_CalcRankAtColumnIndex(self):
-        for degree in [
+    # generate multiple member functions to enable parallel evaluation
+    for degree in [
+        1,
+        2,
+        3,
+        9,
+        10,
+        101,
+    ]:
+        for interspersal in [
             1,
             2,
-            3,
-            9,
-            10,
-            101,
+            5,
         ]:
-            for interspersal in [
-                1,
-                2,
-                5,
-            ]:
-                self._do_test_CalcRankAtColumnIndex(
-                    degree,
-                    interspersal,
-                )
+            exec(
+                f'def test_CalcRankAtColumnIndex_{degree}_{interspersal}(self): self._do_test_CalcRankAtColumnIndex({degree}, {interspersal})'
+            )
 
     def _do_test_CalcNumStrataRetainedExact(
         self,
@@ -153,25 +150,23 @@ class TestStratumRetentionCondemnerTaperedGeomSeqNthRoot(
             assert calculated_num_retained == observed_num_retained
             test_column.DepositStratum()
 
-    def test_CalcNumStrataRetainedExact(self):
-        for degree in [
+    # generate multiple member functions to enable parallel evaluation
+    for degree in [
+        1,
+        2,
+        3,
+        9,
+        10,
+        101,
+    ]:
+        for interspersal in [
             1,
             2,
-            3,
-            9,
-            10,
-            101,
+            5,
         ]:
-            for interspersal in [
-                1,
-                2,
-                5,
-            ]:
-                self._do_test_CalcNumStrataRetainedExact(
-                    degree,
-                    interspersal,
-                )
-
+            exec(
+                f'def test_CalcNumStrataRetainedExact_{degree}_{interspersal}(self): self._do_test_CalcNumStrataRetainedExact({degree}, {interspersal})'
+            )
 
     def _do_test_CalcNumStrataRetainedUpperBound(
         self,
@@ -202,24 +197,23 @@ class TestStratumRetentionCondemnerTaperedGeomSeqNthRoot(
             assert calculated_num_retained_bound >= observed_num_retained
             test_column.DepositStratum()
 
-    def test_CalcNumStrataRetainedUpperBound(self):
-        for degree in [
+    # generate multiple member functions to enable parallel evaluation
+    for degree in [
+        1,
+        2,
+        3,
+        9,
+        10,
+        101,
+    ]:
+        for interspersal in [
             1,
             2,
-            3,
-            9,
-            10,
-            101,
+            5,
         ]:
-            for interspersal in [
-                1,
-                2,
-                5,
-            ]:
-                self._do_test_CalcNumStrataRetainedUpperBound(
-                    degree,
-                    interspersal,
-                )
+            exec(
+                f'def test_CalcNumStrataRetainedUpperBound_{degree}_{interspersal}(self): self._do_test_CalcNumStrataRetainedUpperBound({degree}, {interspersal})'
+            )
 
 
 if __name__ == '__main__':
