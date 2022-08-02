@@ -243,6 +243,11 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
             # (again, all iterators k > 1 have monotonically increasing seps
             # that only increase by doubling so are covered by checking the
             # k = 1 case)
+            #
+            # NOTE: on further reflection, it seems that scenario 2 is the only
+            # relevant scenario because the newly-added rank is always
+            # guaranteed to be retained due to the pool of retained ranks being
+            # seeded with it... have disabled unnecessary restriction below
 
             # unpack cache
             cached_time, cached_drop_rank = self._cached_result
@@ -251,7 +256,7 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
             # what is the tightest spacing between retained ranks for
             # any non-0th pow iterator at the current timepoint?
             # allows us to detect whether deposited rank is relevant to any
-            # k > 1 iterator)
+            # k > 1 iterator
             pow1_newsep = super(
                 StratumRetentionCondemnerTaperedGeomSeqNthRoot,
                 self,
@@ -279,11 +284,15 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
             assert pow1_oldsep <= pow1_newsep
 
             if (
+                # scenario 1 (NOT ACTUALLY NECESSARY, DISABLED)
                 # ensure deposited rank is irrelevant to all pow > 0
                 # no +1 due to translation from len to index of last
-                num_stratum_depositions_completed % pow1_newsep > 1
+                #
+                # num_stratum_depositions_completed % pow1_newsep > 1 and
+                #
+                # scenario 2
                 # ensure rank-to-drop isn't possibly retained for pow > 0
-                and (cached_drop_rank + 1) % pow1_oldsep > 1
+                (cached_drop_rank + 1) % pow1_oldsep > 1
                 # ^^^ note that >1's ensure that we are at least two ranks
                 # past any problem rank (i.e., that the preceding call
                 # computed a drop_rank at the end of the k = 0 retention chain)
