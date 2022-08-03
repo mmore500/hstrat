@@ -1,3 +1,4 @@
+from .all_same import all_same
 from .AnyTreeAscendingIter import AnyTreeAscendingIter
 from .bit_ceil import bit_ceil
 from .bit_floor import bit_floor
@@ -8,6 +9,7 @@ from .memoize_generator import memoize_generator
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
+    'all_same',
     'AnyTreeAscendingIter',
     'bit_ceil',
     'bit_floor',
