@@ -1,4 +1,5 @@
 import itertools as it
+import numbers
 import numpy as np
 import pytest
 
@@ -88,7 +89,7 @@ def test_ranks_valid(time_sequence):
             perfect_resolution_policy.IterRetainedRanks(spec),
         ):
             assert all(
-                isinstance(r, int)
+                isinstance(r, numbers.Integral)
                 and 0 <= r < num_strata_deposited
                 for r in which(policy, num_strata_deposited)
             )
