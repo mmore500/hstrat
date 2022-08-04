@@ -1,3 +1,13 @@
+"""The perfect resolution policy retains all strata. So, comparisons between
+two columns under this policy will detect MRCA rank with zero
+uncertainty. So, MRCA rank estimate uncertainty scales as O(1) with respect
+to the greater number of strata deposited on either column.
+
+Under the perfect resolution policy, the number of strata retained (i.e.,
+space complexity) scales as O(n) with respect to the number of strata
+deposited.
+"""
+
 from .PolicySpec import PolicySpec
 
 from ._enact.GenDropRanks import GenDropRanks

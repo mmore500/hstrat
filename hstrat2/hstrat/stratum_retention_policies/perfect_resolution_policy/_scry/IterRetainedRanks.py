@@ -3,6 +3,7 @@ import typing
 from ..PolicySpec import PolicySpec
 
 class IterRetainedRanks:
+    """Functor to provide member function implementation in Policy class."""
 
     def __init__(
         self: 'IterRetainedRanks',

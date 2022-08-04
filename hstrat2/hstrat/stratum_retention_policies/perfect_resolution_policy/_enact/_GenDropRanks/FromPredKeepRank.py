@@ -57,6 +57,12 @@ class _PredKeepRank:
         -------
         bool
             True if the stratum should be retained, False otherwise.
+
+        See Also
+        --------
+        perfect_resolution_policy:
+            For details on the rationale, implementation, and guarantees of the
+            perfect resolution stratum retention policy.
         """
 
         return True

@@ -36,14 +36,11 @@ class _PolicyCouplerBase:
 
     pass
 
-_ftor_type = typing.Callable[
-    [typing.Any], # policy spec
-    typing.Callable, # functor
-]
+_ftor_type = typing.Type[typing.Callable]
 
 def PolicyCouplerFactory(
     *,
-    policy_spec_t: typing.Any,
+    policy_spec_t: typing.Type,
     # enactment
     gen_drop_ranks_ftor_t: _ftor_type,
     # invariants
@@ -56,11 +53,15 @@ def PolicyCouplerFactory(
     calc_num_strata_retained_exact_ftor_t: typing.Optional[_ftor_type]=None,
     calc_rank_at_column_index_ftor_t: typing.Optional[_ftor_type]=None,
     iter_retained_ranks_ftor_t: typing.Optional[_ftor_type]=None,
-):
+) -> typing.Type[typing.Callable]:
+    """Joins policy implementation functors into a single class that can be
+    instantiated with particular policy specification parameters."""
 
     class PolicyCoupler(
         _PolicyCouplerBase,
     ):
+        """Instantiate policy implementation for particular policy
+        specification parameters."""
 
         _policy_spec: policy_spec_t
 
@@ -83,6 +84,11 @@ def PolicyCouplerFactory(
             policy_spec=None,
             **kwargs,
         ):
+            """Construct a PolicyCoupler instance.
+
+            If policy_spec is not provided, all arguments are forwarded to
+            """
+
             self._policy_spec = opyt.or_else(
                 policy_spec,
                 lambda: policy_spec_t(*args, **kwargs),
@@ -157,6 +163,13 @@ def PolicyCouplerFactory(
         def WithoutCalcRankAtColumnIndex(
             self: 'PolicyCoupler',
         ) -> 'PolicyCoupler':
+            """Make a copy of this policy instance with CalcRankAtColumnIndex
+            diabled.
+
+            Useful to prevent optimization-out of strata rank number storage in
+            a stratum ordered store backing a hereditary stratigraphic column.
+            """
+
             type_ = PolicyCouplerFactory(
                 policy_spec_t=policy_spec_t,
                 # enactment

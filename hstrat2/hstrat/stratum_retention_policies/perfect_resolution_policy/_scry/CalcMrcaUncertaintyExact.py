@@ -3,6 +3,7 @@ import typing
 from ..PolicySpec import PolicySpec
 
 class CalcMrcaUncertaintyExact:
+    """Functor to provide member function implementation in Policy class."""
 
     def __init__(
         self: 'CalcMrcaUncertaintyExact',

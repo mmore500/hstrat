@@ -57,7 +57,7 @@ class GenDropRanks:
 
         See Also
         --------
-        StratumRetentionPredicatePerfectResolution:
+        perfect_resolution_policy:
             For details on the rationale, implementation, and guarantees of the
             perfect resolution stratum retention policy.
         """

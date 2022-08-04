@@ -9,7 +9,9 @@ class _GenDropRanksFromPredKeepRankBase:
     pass
 
 
-def GenDropRanksFromPredKeepRank(predicate: typing.Callable):
+def GenDropRanksFromPredKeepRank(
+    predicate: typing.Type[typing.Callable],
+) -> typing.Type[typing.Callable]:
     """Factory method to generate a stratum retention condemner functor from a
     stratum retention predicate functor.
 
