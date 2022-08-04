@@ -21,21 +21,19 @@ from hstrat2.hstrat import perfect_resolution_policy
 def test_only_dwindling_over_time(time_sequence):
     policy = perfect_resolution_policy.Policy()
     spec = policy.GetSpec()
-    instance = perfect_resolution_policy.GenDropRanks(spec)
+    instance = perfect_resolution_policy.IterRetainedRanks(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            perfect_resolution_policy.GenDropRanks(spec),
+            perfect_resolution_policy.IterRetainedRanks(spec),
         ):
             cur_set = {*which(
                 policy,
                 num_strata_deposited,
-                None,
             )}
             next_set = {*which(
                 policy,
                 num_strata_deposited + 1,
-                None,
             )}
             assert cur_set.issuperset(next_set - {num_strata_deposited})
 
@@ -54,21 +52,17 @@ def test_only_dwindling_over_time(time_sequence):
 def test_ranks_sorted_and_unique(time_sequence):
     policy = perfect_resolution_policy.Policy()
     spec = policy.GetSpec()
-    instance = perfect_resolution_policy.GenDropRanks(spec)
+    instance = perfect_resolution_policy.IterRetainedRanks(spec)
     for num_strata_deposited in time_sequence:
-        cur_set = {*policy.IterRetainedRanks(
-            num_strata_deposited,
-        )}
         for which in (
             instance,
-            perfect_resolution_policy.GenDropRanks(spec),
+            perfect_resolution_policy.IterRetainedRanks(spec),
         ):
             assert all(
                 i < j
                 for i, j in pairwise(which(
                     policy,
                     num_strata_deposited,
-                    cur_set,
                 ))
             )
 
@@ -87,19 +81,16 @@ def test_ranks_sorted_and_unique(time_sequence):
 def test_ranks_valid(time_sequence):
     policy = perfect_resolution_policy.Policy()
     spec = policy.GetSpec()
-    instance = perfect_resolution_policy.GenDropRanks(spec)
+    instance = perfect_resolution_policy.IterRetainedRanks(spec)
     for num_strata_deposited in time_sequence:
-        cur_set = {*policy.IterRetainedRanks(
-            num_strata_deposited,
-        )}
         for which in (
             instance,
-            perfect_resolution_policy.GenDropRanks(spec),
+            perfect_resolution_policy.IterRetainedRanks(spec),
         ):
             assert all(
                 isinstance(r, int)
                 and 0 <= r < num_strata_deposited
-                for r in which(policy, num_strata_deposited, cur_set)
+                for r in which(policy, num_strata_deposited)
             )
 
 def test_eq():
