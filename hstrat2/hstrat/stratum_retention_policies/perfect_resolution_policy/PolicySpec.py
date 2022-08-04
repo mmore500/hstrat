@@ -7,4 +7,4 @@ class PolicySpec:
         self: 'PolicySpec',
         other: typing.Any,
     ):
-        return type(self) is type(other)
+        return isinstance(other, PolicySpec)
