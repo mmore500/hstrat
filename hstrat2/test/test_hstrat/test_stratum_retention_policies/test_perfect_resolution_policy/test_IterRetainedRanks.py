@@ -28,10 +28,14 @@ def test_only_dwindling_over_time(time_sequence):
             perfect_resolution_policy.GenDropRanks(spec),
         ):
             cur_set = {*which(
+                policy,
                 num_strata_deposited,
+                None,
             )}
             next_set = {*which(
+                policy,
                 num_strata_deposited + 1,
+                None,
             )}
             assert cur_set.issuperset(next_set - {num_strata_deposited})
 
@@ -61,7 +65,11 @@ def test_ranks_sorted_and_unique(time_sequence):
         ):
             assert all(
                 i < j
-                for i, j in pairwise(which(num_strata_deposited))
+                for i, j in pairwise(which(
+                    policy,
+                    num_strata_deposited,
+                    cur_set,
+                ))
             )
 
 @pytest.mark.parametrize(
@@ -91,7 +99,7 @@ def test_ranks_valid(time_sequence):
             assert all(
                 isinstance(r, int)
                 and 0 <= r < num_strata_deposited
-                for r in which(num_strata_deposited)
+                for r in which(policy, num_strata_deposited, cur_set)
             )
 
 def test_eq():

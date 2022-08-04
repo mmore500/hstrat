@@ -20,7 +20,7 @@ class IterRetainedRanks:
     def __call__(
         self: 'IterRetainedRanks',
         policy: typing.Optional['Policy'],
-        num_strata_deposited: typing.Optional[int],
+        num_strata_deposited: int,
     ) -> typing.Iterator[int]:
         """Iterate over retained strata ranks at `num_strata_deposited` in
         ascending order."""

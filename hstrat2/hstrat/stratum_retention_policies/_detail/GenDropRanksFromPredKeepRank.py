@@ -61,6 +61,7 @@ def GenDropRanksFromPredKeepRank(
                 Asserts retention requirements are respected by predicate.
                 """
                 res = self._predicate(
+                    policy,
                     stratum_rank=stratum_rank,
                     num_stratum_depositions_completed
                         =num_stratum_depositions_completed,

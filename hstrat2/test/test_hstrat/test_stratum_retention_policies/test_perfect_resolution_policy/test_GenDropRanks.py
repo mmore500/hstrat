@@ -25,7 +25,7 @@ def test_impl_consistency(time_sequence):
         *perfect_resolution_policy._GenDropRanks.iter_impls()
     ]
     instances = [
-        impl()
+        impl(spec)
         for impl in impls
     ]
     for num_strata_deposited in time_sequence:

@@ -13,7 +13,7 @@ class GenDropRanks:
 
     def __init__(
         self: 'GenDropRanks',
-        policy_spec: typing.Optional[PolicySpec]=None,
+        policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
@@ -25,9 +25,9 @@ class GenDropRanks:
 
     def __call__(
         self: 'GenDropRanks',
-        policy: typing.Optional['Policy']=None,
-        num_stratum_depositions_completed: typing.Optional[int]=None,
-        retained_ranks: typing.Optional[typing.Iterable[int]]=None,
+        policy: typing.Optional['Policy'],
+        num_stratum_depositions_completed: typing.Optional[int],
+        retained_ranks: typing.Optional[typing.Iterable[int]],
     ) -> typing.Iterator[int]:
         """Decide which strata within the stratagraphic column should be purged.
 
@@ -45,7 +45,7 @@ class GenDropRanks:
             The number of strata that have already been deposited, not
             including the latest stratum being deposited which prompted the
             current purge operation.
-        retained_ranks : iterator over int, optional
+        retained_ranks : iterator over int
             An iterator over ranks of strata currently retained within the
             hereditary stratigraphic column. Not used in this functor.
 
