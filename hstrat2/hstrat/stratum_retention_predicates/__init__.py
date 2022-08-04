@@ -6,7 +6,6 @@ deposited."""
 
 from .StratumRetentionPredicateDepthProportionalResolution \
     import StratumRetentionPredicateDepthProportionalResolution
-from .StratumRetentionPredicateNominalResolution import StratumRetentionPredicateNominalResolution
 from .StratumRetentionPredicateFixedResolution \
     import StratumRetentionPredicateFixedResolution
 from .StratumRetentionPredicateRecencyProportionalResolution \
@@ -25,7 +24,6 @@ __all__ = [
     'StratumRetentionPredicateDepthProportionalResolution',
     'StratumRetentionPredicateFixedResolution',
     'StratumRetentionPredicateGeomSeqNthRoot',
-    'StratumRetentionPredicateNominalResolution',
     'StratumRetentionPredicateRecencyProportionalResolution',
     'StratumRetentionPredicateStochastic',
     'StratumRetentionPredicateTaperedDepthProportionalResolution',

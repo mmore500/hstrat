@@ -1,44 +1,33 @@
 import typing
 
-from ..HereditaryStratum import HereditaryStratum
-from ..stratum_retention_predicates \
-    import StratumRetentionPredicateNominalResolution
+from ...PolicySpec import PolicySpec
 
-
-class StratumRetentionCondemnerNominalResolution(
-    # inherit CalcNumStrataRetainedUpperBound, etc.
-    StratumRetentionPredicateNominalResolution,
-):
+class GenDropRanks:
     """Functor to implement the nominal resolution stratum retention policy, for
     use with HereditaryStratigraphicColumn.
 
     This functor enacts the nominal resolution policy by specifying the set of
     strata ranks that should be purged from a hereditary stratigraphic column
     when the nth stratum is deposited.
-
-    The nominal resolution policy only retains the most ancient (i.e., very
-    first) and most recent (i.e., last) strata. So, comparisons between two
-    columns under this policy will only be able to detect whether they share
-    any common ancestor and whether they are from the same organism (i.e., no
-    generations have elapsed since the MRCA). Thus, MRCA rank estimate
-    uncertainty scales as O(n) with respect to the greater number of strata deposited on either column.
-
-    Under the nominal resolution policy, the number of strata retained (i.e.,
-    space complexity) scales as O(1) with respect to the number of strata
-    deposited.
-
-    See Also
-    --------
-    StratumRetentionPredicateNominalResolution:
-        For definitions of methods inherited by this class that describe
-        guaranteed properties of the nominal resolution stratum retention
-        policy.
     """
 
+    def __init__(
+        self: 'GenDropRanks',
+        policy_spec: typing.Optional[PolicySpec],
+    ) -> None:
+        pass
+
+    def __eq__(
+        self: 'GenDropRanks',
+        other: typing.Any,
+    ) -> bool:
+        return isinstance(other, GenDropRanks)
+
     def __call__(
-        self: 'StratumRetentionCondemnerNominalResolution',
+        self: 'GenDropRanks',
+        policy: typing.Optional['Policy'],
         num_stratum_depositions_completed: int,
-        retained_ranks: typing.Optional[typing.Iterable[int]]=None,
+        retained_ranks: typing.Optional[typing.Iterable[int]],
     ) -> typing.Iterator[int]:
         """Decide which strata within the stratagraphic column should be purged.
 
@@ -50,11 +39,13 @@ class StratumRetentionCondemnerNominalResolution(
 
         Parameters
         ----------
+        policy: Policy
+            Policy this functor enacts.
         num_stratum_depositions_completed : int
             The number of strata that have already been deposited, not
             including the latest stratum being deposited which prompted the
             current purge operation.
-        retained_ranks : iterator over int, optional
+        retained_ranks : iterator over int
             An iterator over ranks of strata currently retained within the
             hereditary stratigraphic column. Not used in this functor.
 
@@ -66,7 +57,7 @@ class StratumRetentionCondemnerNominalResolution(
 
         See Also
         --------
-        StratumRetentionPredicateNominalResolution:
+        nominal_resolution_policy:
             For details on the rationale, implementation, and guarantees of the
             nominal resolution stratum retention policy.
         """
