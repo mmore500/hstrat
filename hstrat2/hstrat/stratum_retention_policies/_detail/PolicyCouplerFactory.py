@@ -87,6 +87,8 @@ def PolicyCouplerFactory(
                 policy_spec,
                 lambda: policy_spec_t(*args, **kwargs),
             )
+            if policy_spec is not None:
+                assert len(args) == len(kwargs) == 0
 
             # enactment
             self.GenDropRanks = gen_drop_ranks_ftor_t(self._policy_spec)
