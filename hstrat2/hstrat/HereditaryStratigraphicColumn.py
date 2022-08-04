@@ -13,8 +13,8 @@ from .HereditaryStratum import HereditaryStratum
 
 from .stratum_ordered_stores import HereditaryStratumOrderedStoreList
 from .stratum_retention_condemners import StratumRetentionCondemnerFromPredicate
-from .stratum_retention_condemners \
-    import StratumRetentionCondemnerPerfectResolution
+# from .stratum_retention_condemners \
+#     import StratumRetentionCondemnerPerfectResolution
 
 
 class HereditaryStratigraphicColumn:

@@ -1,40 +1,31 @@
 import typing
 
-from ..HereditaryStratum import HereditaryStratum
-from ..stratum_retention_predicates \
-    import StratumRetentionPredicatePerfectResolution
+from ...PolicySpec import PolicySpec
 
-
-class StratumRetentionCondemnerPerfectResolution(
-    # inherit CalcNumStrataRetainedUpperBound, etc.
-    StratumRetentionPredicatePerfectResolution,
-):
+class GenDropRanks:
     """Functor to implement the perfect resolution stratum retention policy, for
     use with HereditaryStratigraphicColumn.
 
     This functor enacts the perfect resolution policy by specifying the set of
     strata ranks that should be purged from a hereditary stratigraphic column
     when the nth stratum is deposited.
-
-    The perfect resolution policy retains all strata. So, comparisons between
-    two columns under this policy will detect MRCA rank with zero
-    uncertainty. So, MRCA rank estimate uncertainty scales as O(1) with respect
-    to the greater number of strata deposited on either column.
-
-    Under the perfect resolution policy, the number of strata retained (i.e.,
-    space complexity) scales as O(n) with respect to the number of strata
-    deposited.
-
-    See Also
-    --------
-    StratumRetentionPredicatePerfectResolution:
-        For definitions of methods inherited by this class that describe
-        guaranteed properties of the perfect resolution stratum retention
-        policy.
     """
 
+    def __init__(
+        self: 'GenDropRanks',
+        policy_spec: typing.Optional[PolicySpec]=None,
+    ) -> None:
+        pass
+
+    def __eq__(
+        self: 'GenDropRanks',
+        other: typing.Any,
+    ) -> bool:
+        return isinstance(other, GenDropRanks)
+
     def __call__(
-        self: 'StratumRetentionCondemnerPerfectResolution',
+        self: 'GenDropRanks',
+        policy: typing.Optional['Policy']=None,
         num_stratum_depositions_completed: typing.Optional[int]=None,
         retained_ranks: typing.Optional[typing.Iterable[int]]=None,
     ) -> typing.Iterator[int]:
@@ -48,6 +39,8 @@ class StratumRetentionCondemnerPerfectResolution(
 
         Parameters
         ----------
+        policy: Policy
+            Policy this functor enacts.
         num_stratum_depositions_completed : int
             The number of strata that have already been deposited, not
             including the latest stratum being deposited which prompted the
