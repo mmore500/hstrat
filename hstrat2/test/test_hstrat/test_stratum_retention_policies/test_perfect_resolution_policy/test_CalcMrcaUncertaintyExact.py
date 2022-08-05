@@ -21,6 +21,10 @@ def test_policy_consistency(time_sequence):
     spec = policy.GetSpec()
     instance = perfect_resolution_policy.CalcMrcaUncertaintyExact(spec)
     for num_strata_deposited in time_sequence:
+        retained_ranks = np.fromiter(
+            policy.IterRetainedRanks(num_strata_deposited),
+            int,
+        )
         for actual_mrca_rank in np.random.default_rng(
             num_strata_deposited,
         ).integers(
@@ -28,10 +32,6 @@ def test_policy_consistency(time_sequence):
             high=num_strata_deposited,
             size=10**2,
         ) if num_strata_deposited else iter(()):
-            retained_ranks = np.fromiter(
-                policy.IterRetainedRanks(num_strata_deposited),
-                int,
-            )
             lb = retained_ranks[retained_ranks <= actual_mrca_rank].max(
                 initial=0,
             )

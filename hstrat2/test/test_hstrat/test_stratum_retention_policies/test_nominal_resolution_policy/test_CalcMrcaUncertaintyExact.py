@@ -21,11 +21,11 @@ def test_policy_consistency(time_sequence):
     spec = policy.GetSpec()
     instance = nominal_resolution_policy.CalcMrcaUncertaintyExact(spec)
     for num_strata_deposited in time_sequence:
+        retained_ranks = np.fromiter(
+            policy.IterRetainedRanks(num_strata_deposited),
+            int,
+        )
         for actual_mrca_rank in range(num_strata_deposited):
-            retained_ranks = np.fromiter(
-                policy.IterRetainedRanks(num_strata_deposited),
-                int,
-            )
             last_known_commonality = retained_ranks[
                 retained_ranks <= actual_mrca_rank,
             ].max(
