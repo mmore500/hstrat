@@ -58,11 +58,7 @@ def test_policy_consistency(fixed_resolution, time_sequence):
                     num_strata_deposited,
                     num_strata_deposited,
                     actual_mrca_rank,
-                ) == policy_requirement, (
-                    num_strata_deposited,
-                    actual_mrca_rank,
-                    fixed_resolution,
-                )
+                ) == policy_requirement
 
 @pytest.mark.parametrize(
     'fixed_resolution',
