@@ -20,9 +20,9 @@ class CalcMrcaUncertaintyExact:
     def __call__(
         self: 'CalcMrcaUncertaintyExact',
         policy: typing.Optional['Policy'],
-        first_num_strata_deposited: typing.Optional[int],
-        second_num_strata_deposited: typing.Optional[int],
-        actual_rank_of_mrca: typing.Optional[int],
+        first_num_strata_deposited: int,
+        second_num_strata_deposited: int,
+        actual_rank_of_mrca: int,
     ) -> int:
         """Exactly how much uncertainty to estimate rank of MRCA?"""
 
