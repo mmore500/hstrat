@@ -22,6 +22,6 @@ class CalcNumStrataRetainedUpperBound:
         policy: typing.Optional['Policy'],
         num_strata_deposited: typing.Optional[int],
     ) -> int:
-        """Exactly how many strata are retained after n deposted?"""
+        """At most, how many strata are retained after n deposted? Inclusive."""
 
         return 2
