@@ -4,8 +4,6 @@ stratigraphic column when the nth stratum is deposited."""
 
 from .StratumRetentionCondemnerDepthProportionalResolution \
     import StratumRetentionCondemnerDepthProportionalResolution
-from .StratumRetentionCondemnerFixedResolution \
-    import StratumRetentionCondemnerFixedResolution
 from .StratumRetentionCondemnerFromPredicate \
     import StratumRetentionCondemnerFromPredicate
 from .StratumRetentionCondemnerGeomSeqNthRoot \
@@ -20,7 +18,6 @@ from .StratumRetentionCondemnerTaperedGeomSeqNthRoot \
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
     'StratumRetentionCondemnerDepthProportionalResolution',
-    'StratumRetentionCondemnerFixedResolution',
     'StratumRetentionCondemnerFromPredicate',
     'StratumRetentionCondemnerGeomSeqNthRoot',
     'StratumRetentionCondemnerRecencyProportionalResolution',
