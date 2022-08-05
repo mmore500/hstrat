@@ -2,8 +2,6 @@
 the set of strata ranks that should be pruned from a hereditary
 stratigraphic column when the nth stratum is deposited."""
 
-from .StratumRetentionCondemnerDepthProportionalResolution \
-    import StratumRetentionCondemnerDepthProportionalResolution
 from .StratumRetentionCondemnerFromPredicate \
     import StratumRetentionCondemnerFromPredicate
 from .StratumRetentionCondemnerGeomSeqNthRoot \
@@ -17,7 +15,6 @@ from .StratumRetentionCondemnerTaperedGeomSeqNthRoot \
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
-    'StratumRetentionCondemnerDepthProportionalResolution',
     'StratumRetentionCondemnerFromPredicate',
     'StratumRetentionCondemnerGeomSeqNthRoot',
     'StratumRetentionCondemnerRecencyProportionalResolution',
