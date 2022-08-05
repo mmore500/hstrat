@@ -1,0 +1,81 @@
+import typing
+
+from .._impl import calc_provided_uncertainty
+from ..PolicySpec import PolicySpec
+
+class CalcMrcaUncertaintyExact:
+    """Functor to provide member function implementation in Policy class."""
+
+    def __init__(
+        self: 'CalcMrcaUncertaintyExact',
+        policy_spec: typing.Optional[PolicySpec],
+    ) -> None:
+        pass
+
+    def __eq__(
+        self: 'CalcMrcaUncertaintyExact',
+        other: typing.Any,
+    ) -> bool:
+        return isinstance(other, CalcMrcaUncertaintyExact)
+
+    def __call__(
+        self: 'CalcMrcaUncertaintyExact',
+        policy: typing.Optional['Policy'],
+        first_num_strata_deposited: int,
+        second_num_strata_deposited: int,
+        actual_rank_of_mrca: int,
+    ) -> int:
+        """Exactly how much uncertainty to estimate rank of MRCA?"""
+
+        spec = policy.GetSpec()
+        guaranteed_resolution = spec._guaranteed_depth_proportional_resolution
+
+        least_num_strata_deposited = min(
+            first_num_strata_deposited,
+            second_num_strata_deposited,
+        )
+        least_last_rank = least_num_strata_deposited - 1
+
+        # mrca at very last rank
+        if actual_rank_of_mrca == least_last_rank:
+            return 0
+        # haven't added enough ranks to start dropping ranks
+        elif least_last_rank < guaranteed_resolution * 2:
+            return 0
+
+        cur_stage_uncertainty = calc_provided_uncertainty(
+            guaranteed_resolution,
+            least_num_strata_deposited,
+        )
+        cur_stage_max_idx = least_num_strata_deposited // cur_stage_uncertainty
+
+        prev_stage_uncertainty = cur_stage_uncertainty // 2
+        prev_stage_max_idx = least_last_rank // prev_stage_uncertainty
+
+        thresh_idx = (
+            2 * prev_stage_max_idx
+            - 4 * guaranteed_resolution
+            + 2
+        ) // 2
+
+
+        # note that cur stage uncertainty is iterated through first
+        # because ranks are removed from the back, the old prev stage
+        # uncertainty lingers at more recent ranks
+        if actual_rank_of_mrca < thresh_idx * cur_stage_uncertainty:
+            # mrca between last regularly-spaced rank and tail rank
+            if actual_rank_of_mrca >= (
+                least_last_rank - least_last_rank % cur_stage_uncertainty
+            ):
+                return (least_last_rank - 1) % cur_stage_uncertainty
+            # mrca between two regularly-spaced ranks
+            else:
+                return cur_stage_uncertainty - 1
+        # mrca between last regularly-spaced rank and tail rank
+        elif actual_rank_of_mrca >= (
+            least_last_rank - least_last_rank % prev_stage_uncertainty
+        ):
+            return (least_last_rank - 1) % prev_stage_uncertainty
+        # mrca between two regularly-spaced ranks
+        else:
+            return prev_stage_uncertainty - 1
