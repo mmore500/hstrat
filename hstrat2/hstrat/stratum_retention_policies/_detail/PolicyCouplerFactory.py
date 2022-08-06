@@ -96,7 +96,10 @@ def PolicyCouplerFactory(
                 assert len(args) == len(kwargs) == 0
 
             # enactment
-            self.GenDropRanks = gen_drop_ranks_ftor_t(self._policy_spec)
+            self.GenDropRanks = _CurryPolicy(
+                self,
+                gen_drop_ranks_ftor_t(self._policy_spec),
+            )
 
             # invariants
             self.CalcMrcaUncertaintyUpperBound = _CurryPolicy(
