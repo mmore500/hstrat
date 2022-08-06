@@ -1,0 +1,67 @@
+import gmpy
+import typing
+
+from .._impl import calc_provided_uncertainty
+from ..PolicySpec import PolicySpec
+
+class CalcNumStrataRetainedExact:
+    """Functor to provide member function implementation in Policy class."""
+
+    def __init__(
+        self: 'CalcNumStrataRetainedExact',
+        policy_spec: typing.Optional[PolicySpec],
+    ) -> None:
+        pass
+
+    def __eq__(
+        self: 'CalcNumStrataRetainedExact',
+        other: typing.Any,
+    ) -> bool:
+        return isinstance(other, CalcNumStrataRetainedExact)
+
+    def __call__(
+        self: 'CalcNumStrataRetainedExact',
+        policy: typing.Optional['Policy'],
+        num_strata_deposited: int,
+    ) -> int:
+        """Exactly how many strata are retained after n deposted?
+
+        The calculation can be written mathematically as,
+
+          weight of binary expansion of n (i.e., #1's set in binary repr)
+          + sum(
+              floor( log2(n//r) )
+              for r from 1 to r inclusive
+          )
+          + 1
+
+        where
+
+          n = num_strata_deposited - 1
+          r = resolution
+
+        This expression for exact number deposited was extrapolated from
+            * resolution = 0, <https://oeis.org/A063787>
+            * resolution = 1, <https://oeis.org/A056791>
+        and is unit tested extensively.
+
+        Note that the implementation must include a special case to account for
+        n < r causing log2(0). In this case, the number of strata retained is
+        equal to the number deposited (i.e., none have been discarded yet).
+        """
+
+        spec = policy.GetSpec()
+
+        resolution = spec._guaranteed_mrca_recency_proportional_resolution
+        if num_strata_deposited - 1 <= resolution: return num_strata_deposited
+        else: return (
+            # cast to int to handle numpy.int32, numpy.int64 etc.
+            gmpy.popcount(int(num_strata_deposited - 1))
+            + sum(
+                # X.bit_length() - 1 equivalent to floor(log2(X))
+                # cast to int to handle numpy.int32, numpy.int64 etc.
+                int((num_strata_deposited - 1) // r).bit_length() - 1
+                for r in range(1, resolution + 1)
+            )
+            + 1
+        )

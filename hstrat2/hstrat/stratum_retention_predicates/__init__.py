@@ -4,8 +4,6 @@ a hereditary stratigraphic column after n strata have been
 deposited."""
 
 
-from .StratumRetentionPredicateRecencyProportionalResolution \
-    import StratumRetentionPredicateRecencyProportionalResolution
 from .StratumRetentionPredicateGeomSeqNthRoot \
     import StratumRetentionPredicateGeomSeqNthRoot
 from .StratumRetentionPredicateStochastic \
@@ -16,7 +14,6 @@ from .StratumRetentionPredicateTaperedGeomSeqNthRoot \
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
     'StratumRetentionPredicateGeomSeqNthRoot',
-    'StratumRetentionPredicateRecencyProportionalResolution',
     'StratumRetentionPredicateStochastic',
     'StratumRetentionPredicateTaperedGeomSeqNthRoot',
 ]

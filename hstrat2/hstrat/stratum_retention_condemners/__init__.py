@@ -6,8 +6,6 @@ from .StratumRetentionCondemnerFromPredicate \
     import StratumRetentionCondemnerFromPredicate
 from .StratumRetentionCondemnerGeomSeqNthRoot \
     import StratumRetentionCondemnerGeomSeqNthRoot
-from .StratumRetentionCondemnerRecencyProportionalResolution \
-    import StratumRetentionCondemnerRecencyProportionalResolution
 from .StratumRetentionCondemnerTaperedGeomSeqNthRoot \
     import StratumRetentionCondemnerTaperedGeomSeqNthRoot
 
@@ -15,6 +13,5 @@ from .StratumRetentionCondemnerTaperedGeomSeqNthRoot \
 __all__ = [
     'StratumRetentionCondemnerFromPredicate',
     'StratumRetentionCondemnerGeomSeqNthRoot',
-    'StratumRetentionCondemnerRecencyProportionalResolution',
     'StratumRetentionCondemnerTaperedGeomSeqNthRoot',
 ]

@@ -7,6 +7,7 @@ from . import depth_proportional_resolution_tapered_policy
 from . import fixed_resolution_policy
 from . import nominal_resolution_policy
 from . import perfect_resolution_policy
+from . import recency_proportional_resolution_policy
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
@@ -15,4 +16,5 @@ __all__ = [
     'fixed_resolution_policy',
     'nominal_resolution_policy',
     'perfect_resolution_policy',
+    'recency_proportional_resolution_policy',
 ]
