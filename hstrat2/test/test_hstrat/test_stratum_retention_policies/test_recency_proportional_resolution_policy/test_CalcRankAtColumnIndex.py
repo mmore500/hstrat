@@ -8,6 +8,7 @@ from hstrat2.hstrat import recency_proportional_resolution_policy
 @pytest.mark.parametrize(
     'recency_proportional_resolution',
     [
+        0,
         1,
         2,
         3,
@@ -54,6 +55,7 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
 @pytest.mark.parametrize(
     'recency_proportional_resolution',
     [
+        0,
         1,
         2,
         3,

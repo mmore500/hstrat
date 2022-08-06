@@ -32,4 +32,5 @@ class CalcNumStrataRetainedUpperBound:
             (resolution + 1) * math.log2(num_strata_deposited - 1)
             - sum(math.log2(r + 1) for r in range(resolution))
             + 1
+            + (resolution == 0) # <<< patches failed 0-resolution test cases
         ) if num_strata_deposited > resolution + 1 else num_strata_deposited

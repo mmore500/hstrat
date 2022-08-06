@@ -11,6 +11,7 @@ from hstrat2.hstrat import recency_proportional_resolution_policy
 @pytest.mark.parametrize(
     'recency_proportional_resolution',
     [
+        0,
         1,
         2,
         3,
@@ -54,6 +55,7 @@ def test_only_dwindling_over_time(recency_proportional_resolution, time_sequence
 @pytest.mark.parametrize(
     'recency_proportional_resolution',
     [
+        0,
         1,
         2,
         3,
@@ -95,6 +97,7 @@ def test_ranks_sorted_and_unique(recency_proportional_resolution, time_sequence)
 @pytest.mark.parametrize(
     'recency_proportional_resolution',
     [
+        0,
         1,
         2,
         3,
@@ -141,6 +144,7 @@ def test_zero_and_last_ranks_retained(recency_proportional_resolution, time_sequ
 @pytest.mark.parametrize(
     'recency_proportional_resolution',
     [
+        0,
         1,
         2,
         3,
@@ -180,6 +184,7 @@ def test_ranks_valid(recency_proportional_resolution, time_sequence):
 @pytest.mark.parametrize(
     'recency_proportional_resolution',
     [
+        0,
         1,
         2,
         3,

@@ -6,6 +6,7 @@ from hstrat2.hstrat import recency_proportional_resolution_policy
 @pytest.mark.parametrize(
     'recency_proportional_resolution',
     [
+        0,
         1,
         2,
         3,
@@ -24,6 +25,7 @@ def test_eq(recency_proportional_resolution):
 @pytest.mark.parametrize(
     'recency_proportional_resolution',
     [
+        0,
         1,
         2,
         3,
