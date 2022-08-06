@@ -15,7 +15,7 @@ class CalcMrcaUncertaintyUpperBound:
         self: 'CalcMrcaUncertaintyUpperBound',
         other: typing.Any,
     ) -> bool:
-        return isinstance(other, CalcMrcaUncertaintyUpperBound)
+        return isinstance(other, self.__class__)
 
     def __call__(
         self: 'CalcMrcaUncertaintyUpperBound',

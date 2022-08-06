@@ -23,7 +23,7 @@ class _PredKeepRank:
         self: '_PredKeepRank',
         other: typing.Any,
     ) -> bool:
-        return isinstance(other, _PredKeepRank)
+        return isinstance(other, self.__class__)
 
     def __call__(
         self: '_PredKeepRank',

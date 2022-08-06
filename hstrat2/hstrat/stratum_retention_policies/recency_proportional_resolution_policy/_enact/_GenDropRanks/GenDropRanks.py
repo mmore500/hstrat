@@ -23,7 +23,7 @@ class GenDropRanks:
         self: 'GenDropRanks',
         other: typing.Any,
     ) -> bool:
-        return isinstance(other, GenDropRanks)
+        return isinstance(other, self.__class__)
 
     def __call__(
         self: 'GenDropRanks',

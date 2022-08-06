@@ -27,7 +27,7 @@ class PolicySpec:
         self: 'PolicySpec',
         other: typing.Any,
     ) -> bool:
-        return isinstance(other, PolicySpec) and (
+        return isinstance(other, self.__class__) and (
             self._fixed_resolution,
         ) == (
             other._fixed_resolution,

@@ -15,7 +15,7 @@ class CalcRankAtColumnIndex:
         self: 'CalcRankAtColumnIndex',
         other: typing.Any,
     ) -> bool:
-        return isinstance(other, CalcRankAtColumnIndex)
+        return isinstance(other, self.__class__)
 
     def __call__(
         self: 'CalcRankAtColumnIndex',

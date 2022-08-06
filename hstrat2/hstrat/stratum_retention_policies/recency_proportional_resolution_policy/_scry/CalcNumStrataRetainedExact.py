@@ -17,7 +17,7 @@ class CalcNumStrataRetainedExact:
         self: 'CalcNumStrataRetainedExact',
         other: typing.Any,
     ) -> bool:
-        return isinstance(other, CalcNumStrataRetainedExact)
+        return isinstance(other, self.__class__)
 
     def __call__(
         self: 'CalcNumStrataRetainedExact',

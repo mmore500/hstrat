@@ -61,16 +61,13 @@ class HereditaryStratumOrderedStoreTree:
     ) -> bool:
         """Compare for value-wise equality."""
 
-        if isinstance(other, self.__class__):
-            return (
-                self._leaf.stratum if self._leaf is not None else None,
-                self._num_strata_retained,
-            ) == (
-                other._leaf.stratum if other._leaf is not None else None,
-                other._num_strata_retained,
-            )
-        else:
-            return False
+        return isinstance(other, self.__class__) and (
+            self._leaf.stratum if self._leaf is not None else None,
+            self._num_strata_retained,
+        ) == (
+            other._leaf.stratum if other._leaf is not None else None,
+            other._num_strata_retained,
+        )
 
     def _GetAscendingIter(
         self: 'HereditaryStratumOrderedStoreTree',

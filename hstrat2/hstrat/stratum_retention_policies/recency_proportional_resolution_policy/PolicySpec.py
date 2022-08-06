@@ -30,7 +30,7 @@ class PolicySpec:
         self: 'PolicySpec',
         other: typing.Any,
     ) -> bool:
-        return isinstance(other, PolicySpec) and (
+        return isinstance(other, self.__class__) and (
             self._guaranteed_mrca_recency_proportional_resolution,
         ) == (
             other._guaranteed_mrca_recency_proportional_resolution,

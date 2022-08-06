@@ -21,11 +21,10 @@ class _CurryPolicy:
         self._ftor = ftor
 
     def __eq__(self: '_CurryPolicy', other: typing.Any) -> bool:
-        if isinstance(other, _CurryPolicy):
+        return isinstance(other, self.__class__) and (
             # don't compare policy to prevent infinite recursion
-            return self._ftor == other._ftor
-        else:
-            return False
+            self._ftor == other._ftor,
+        )
 
     def __call__(self: '_CurryPolicy', *args, **kwargs) -> typing.Any:
         return self._ftor(self._policy, *args, **kwargs)

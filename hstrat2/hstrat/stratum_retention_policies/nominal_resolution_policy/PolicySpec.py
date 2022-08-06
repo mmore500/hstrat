@@ -8,4 +8,4 @@ class PolicySpec:
         self: 'PolicySpec',
         other: typing.Any,
     ) -> bool:
-        return isinstance(other, PolicySpec)
+        return isinstance(other, self.__class__)

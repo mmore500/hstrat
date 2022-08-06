@@ -15,7 +15,7 @@ class IterRetainedRanks:
         self: 'IterRetainedRanks',
         other: typing.Any,
     ) -> bool:
-        return isinstance(other, IterRetainedRanks)
+        return isinstance(other, self.__class__)
 
     def __call__(
         self: 'IterRetainedRanks',

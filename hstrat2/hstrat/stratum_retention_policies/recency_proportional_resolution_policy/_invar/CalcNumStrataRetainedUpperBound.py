@@ -16,7 +16,7 @@ class CalcNumStrataRetainedUpperBound:
         self: 'CalcNumStrataRetainedUpperBound',
         other: typing.Any,
     ) -> bool:
-        return isinstance(other, CalcNumStrataRetainedUpperBound)
+        return isinstance(other, self.__class__)
 
     def __call__(
         self: 'CalcNumStrataRetainedUpperBound',

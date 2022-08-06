@@ -70,10 +70,10 @@ class StratumRetentionPredicateStochastic:
     ) -> bool:
         """Compare for value-wise equality."""
 
-        if isinstance(other, self.__class__):
-            return self.__dict__ == other.__dict__
-        else:
-            return False
+        return isinstance(
+            other,
+            self.__class__,
+        ) and self.__dict__ == other.__dict__
 
     def CalcNumStrataRetainedUpperBound(
         self: 'StratumRetentionPredicateStochastic',
