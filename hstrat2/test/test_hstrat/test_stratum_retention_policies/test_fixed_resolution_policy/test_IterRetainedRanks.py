@@ -1,3 +1,4 @@
+from iterpop import iterpop as ip
 import itertools as it
 import numbers
 import numpy as np
@@ -88,6 +89,52 @@ def test_ranks_sorted_and_unique(fixed_resolution, time_sequence):
                     num_strata_deposited,
                 ))
             )
+
+@pytest.mark.parametrize(
+    'fixed_resolution',
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    'time_sequence',
+    [
+        range(10**2),
+        (i for i in range(10**2) for __ in range(2)),
+        np.random.default_rng(1).integers(
+            low=0,
+            high=10**3,
+            size=10**2,
+        ),
+    ],
+)
+def test_zero_and_last_ranks_retained(fixed_resolution, time_sequence):
+    policy = fixed_resolution_policy.Policy(fixed_resolution)
+    spec = policy.GetSpec()
+    instance = fixed_resolution_policy.IterRetainedRanks(spec)
+    for num_strata_deposited in time_sequence:
+        for which in (
+            instance,
+            fixed_resolution_policy.IterRetainedRanks(spec),
+        ):
+            res = which(
+                policy,
+                num_strata_deposited,
+            )
+            if num_strata_deposited > 1:
+                first, *middle, last = res
+                assert first == 0
+                assert last == num_strata_deposited - 1
+            elif num_strata_deposited == 1:
+                assert ip.popsingleton(res) == 0
+            else:
+                assert next(res, None) is None
 
 @pytest.mark.parametrize(
     'fixed_resolution',
