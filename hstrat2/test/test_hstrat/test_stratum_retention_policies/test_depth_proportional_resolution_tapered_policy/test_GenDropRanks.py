@@ -45,19 +45,19 @@ def test_impl_consistency(depth_proportional_resolution, time_sequence):
     for num_strata_deposited in time_sequence:
         assert all_same(it.chain(
             (
-                [*impl(spec)(
+                sorted(impl(spec)(
                     policy,
                     num_strata_deposited,
                     policy.IterRetainedRanks(num_strata_deposited),
-                )]
+                ))
                 for impl in impls
             ),
             (
-                [*instance(
+                sorted(instance(
                     policy,
                     num_strata_deposited,
                     policy.IterRetainedRanks(num_strata_deposited),
-                )]
+                ))
                 for instance in instances
             ),
         ))
@@ -100,11 +100,11 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
             instance,
             depth_proportional_resolution_tapered_policy.GenDropRanks(spec),
         ):
-            assert {*which(
+            assert sorted(which(
                 policy,
                 num_strata_deposited,
                 policy.IterRetainedRanks(num_strata_deposited)
-            )} == policy_requirement
+            )) == sorted(policy_requirement)
 
 @pytest.mark.parametrize(
     'depth_proportional_resolution',
