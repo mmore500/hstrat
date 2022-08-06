@@ -10,24 +10,24 @@ from hstrat2.hstrat import recency_proportional_resolution_policy
     'recency_proportional_resolution',
     [
         1,
-        # 2,
-        # 3,
-        # 7,
-        # 42,
-        # 97,
-        # 100,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
     ],
 )
 @pytest.mark.parametrize(
     'time_sequence',
     [
         range(10**4),
-        # (i for i in range(10**2) for __ in range(2)),
-        # np.random.default_rng(1).integers(
-        #     low=0,
-        #     high=2**32,
-        #     size=10**2,
-        # ),
+        (i for i in range(10**2) for __ in range(2)),
+        np.random.default_rng(1).integers(
+            low=0,
+            high=2**32,
+            size=10**2,
+        ),
     ],
 )
 def test_impl_consistency(recency_proportional_resolution, time_sequence):
