@@ -28,9 +28,9 @@ class _PredKeepRank:
 
     def __call__(
         self: '_PredKeepRank',
-        policy: typing.Optional['Policy'],
-        num_stratum_depositions_completed: typing.Optional[int],
-        stratum_rank: typing.Optional[int],
+        policy: 'Policy',
+        num_stratum_depositions_completed: int,
+        stratum_rank: int,
     ) -> bool:
         """Decide if a stratum within the stratagraphic column should be
         retained or purged.

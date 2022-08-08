@@ -21,7 +21,7 @@ class CalcNumStrataRetainedExact:
 
     def __call__(
         self: 'CalcNumStrataRetainedExact',
-        policy: typing.Optional['Policy'],
+        policy: 'Policy',
         num_strata_deposited: int,
     ) -> int:
         """Exactly how many strata are retained after n deposted?

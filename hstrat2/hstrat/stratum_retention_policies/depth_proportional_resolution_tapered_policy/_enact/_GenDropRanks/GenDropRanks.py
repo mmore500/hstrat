@@ -26,7 +26,7 @@ class GenDropRanks:
 
     def __call__(
         self: 'GenDropRanks',
-        policy: typing.Optional['Policy'],
+        policy: 'Policy',
         num_stratum_depositions_completed: int,
         retained_ranks: typing.Optional[typing.Iterable[int]],
     ) -> typing.Iterator[int]:

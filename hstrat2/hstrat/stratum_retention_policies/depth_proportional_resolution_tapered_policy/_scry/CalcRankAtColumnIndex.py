@@ -20,9 +20,9 @@ class CalcRankAtColumnIndex:
 
     def _CalcRankAtColumnIndexImpl(
         self: 'CalcRankAtColumnIndex',
-        policy: typing.Optional['Policy'],
+        policy: 'Policy',
         index: int,
-        num_strata_deposited: typing.Optional[int],
+        num_strata_deposited: int,
     ) -> int:
         """After n strata have been deposited, what will the rank of the
         stratum at column index k be?

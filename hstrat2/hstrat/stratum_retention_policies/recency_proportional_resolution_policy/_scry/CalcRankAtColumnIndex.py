@@ -20,7 +20,7 @@ class CalcRankAtColumnIndex:
 
     def __call__(
         self: 'CalcRankAtColumnIndex',
-        policy: typing.Optional['Policy'],
+        policy: 'Policy',
         index: int,
         num_strata_deposited: typing.Optional[int],
     ) -> int:
