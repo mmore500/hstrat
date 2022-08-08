@@ -7,9 +7,10 @@ import typing
 def find_bounds(
     query: typing.Any,
     iterable: typing.Iterable[typing.Any],
-    filter_below=operator.lt,
-    filter_above=operator.gt,
-    key=lambda x: x,
+    filter_below: typing.Callable=operator.lt,
+    filter_above: typing.Callable=operator.gt,
+    key: typing.Callable=lambda x: x,
+    initializer: typing.Tuple[typing.Any, typing.Any]=(None, None),
 ) -> typing.Tuple[typing.Optional[typing.Any], typing.Optional[typing.Any]]:
 
     def operation(accumulation, element):
@@ -41,8 +42,4 @@ def find_bounds(
 
         return (res_below, res_above)
 
-    return reduce(
-        operation, # function
-        iterable, # iterable
-        (None, None), # initializer
-    )
+    return reduce(operation, iterable, initializer)
