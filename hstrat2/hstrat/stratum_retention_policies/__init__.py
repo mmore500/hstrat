@@ -9,6 +9,7 @@ from . import geom_seq_nth_root_policy
 from . import geom_seq_nth_root_tapered_policy
 from . import nominal_resolution_policy
 from . import perfect_resolution_policy
+from . import pseudostochastic_policy
 from . import recency_proportional_resolution_policy
 
 # adapted from https://stackoverflow.com/a/31079085
@@ -20,5 +21,6 @@ __all__ = [
     'geom_seq_nth_root_tapered_policy',
     'nominal_resolution_policy',
     'perfect_resolution_policy',
+    'pseudostochastic_policy',
     'recency_proportional_resolution_policy',
 ]

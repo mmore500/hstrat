@@ -1,0 +1,3 @@
+from ..._detail import CalcWorstCaseMrcaUncertaintyUpperBound
+
+CalcMrcaUncertaintyUpperBound = CalcWorstCaseMrcaUncertaintyUpperBound
