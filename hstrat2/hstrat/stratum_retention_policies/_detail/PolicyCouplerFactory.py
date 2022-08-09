@@ -159,6 +159,11 @@ def PolicyCouplerFactory(
             else:
                 return False
 
+        def __hash__(self: 'PolicyCoupler') -> int:
+            """Hash object instance."""
+
+            return hash(self._policy_spec)
+
         def GetSpec(self: 'PolicyCoupler') -> policy_spec_t:
             return self._policy_spec
 

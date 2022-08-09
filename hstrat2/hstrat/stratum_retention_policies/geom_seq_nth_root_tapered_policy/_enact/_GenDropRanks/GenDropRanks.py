@@ -2,25 +2,20 @@ from iterpop import iterpop as ip
 import opytional as opyt
 from safe_assert import safe_assert as always_assert
 import typing
-import warnings
 
-from ..HereditaryStratum import HereditaryStratum
-from ..stratum_retention_predicates \
-    import StratumRetentionPredicateTaperedGeomSeqNthRoot
+from ..._impl import calc_rank_sep
+from ..._impl import get_retained_ranks
+from ...PolicySpec import PolicySpec
 
+class GenDropRanks:
+    """Functor to implement the approximate space-filling MRCA-recency-
+    proportional resolution stratum retention policy, for use with
+    HereditaryStratigraphicColumn.
 
-class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
-    # inherit CalcNumStrataRetainedUpperBound, etc.
-    StratumRetentionPredicateTaperedGeomSeqNthRoot,
-):
-    """TODO
-
-    See Also
-    --------
-    StratumRetentionPredicateTaperedGeomSeqNthRoot:
-        For definitions of methods inherited by this class that describe
-        guaranteed properties of the nth root geometric sequence stratum retention
-        policy.
+    This functor enacts the approximate space-filling MRCA-recency-
+    proportional resolution stratum retention policy by specifying the set of
+    strata ranks that should be purged from a hereditary stratigraphic column
+    when the nth stratum is deposited.
     """
 
     # store the most recent result from calls to __call__ that dropped a rank
@@ -42,34 +37,22 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
     _cached_result: typing.Optional[typing.Tuple[int, int]]
 
     def __init__(
-        self: 'StratumRetentionCondemnerTaperedGeomSeqNthRoot',
-        degree: int=100,
-        interspersal: int=2,
-    ):
-        """Construct the functor.
-
-        Parameters
-        ----------
-        degree : int, optional
-            TODO.
-        interspersal : int, optional
-            TODO.
-        """
-
-        super(
-            StratumRetentionCondemnerTaperedGeomSeqNthRoot,
-            self,
-        ).__init__(
-            degree=degree,
-            interspersal=interspersal,
-        )
-
+        self: 'GenDropRanks',
+        policy_spec: typing.Optional[PolicySpec],
+    ) -> None:
         self._cached_result = None
 
+    def __eq__(
+        self: 'GenDropRanks',
+        other: typing.Any,
+    ) -> bool:
+        return isinstance(other, self.__class__)
+
     def __call__(
-        self: 'StratumRetentionCondemnerTaperedGeomSeqNthRoot',
+        self: 'GenDropRanks',
+        policy: 'Policy',
         num_stratum_depositions_completed: int,
-        retained_ranks: typing.Optional[typing.Iterable[int]]=None,
+        retained_ranks: typing.Optional[typing.Iterable[int]],
     ) -> typing.Iterator[int]:
         """Decide which strata within the stratagraphic column should be purged.
 
@@ -81,11 +64,13 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
 
         Parameters
         ----------
+        policy: Policy
+            Policy this functor enacts.
         num_stratum_depositions_completed : int
             The number of strata that have already been deposited, not
             including the latest stratum being deposited which prompted the
             current purge operation.
-        retained_ranks : iterator over int, optional
+        retained_ranks : iterator over int
             An iterator over ranks of strata currently retained within the
             hereditary stratigraphic column. Not used in this functor.
 
@@ -97,15 +82,16 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
 
         See Also
         --------
-        StratumRetentionPredicateTaperedGeomSeqNthRoot:
+        depth_proportional_resolution_tapered_policy:
             For details on the rationale, implementation, and guarantees of the
-            nth root geometric sequence stratum retention policy.
+            tapered depth-proportional resolution stratum retention policy.
         """
 
-        size_bound = super(
-            StratumRetentionCondemnerTaperedGeomSeqNthRoot,
-            self,
-        ).CalcNumStrataRetainedUpperBound()
+        spec = policy.GetSpec()
+
+        size_bound = policy.CalcNumStrataRetainedUpperBound(
+            num_stratum_depositions_completed,
+        )
 
         # try a series of shortcuts that only apply in certain cases
         # if no shortcut cases are available (and res is still None), fallback
@@ -128,7 +114,7 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
         # if degree > 0 and we have a cached result for the preceding time point
         # try to use shortcut to return same result for current time point
         elif (
-            self._degree
+            spec._degree
             and opyt.apply_if(
                 self._cached_result,
                 lambda x: x[0] == num_stratum_depositions_completed - 1,
@@ -257,10 +243,9 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
             # any non-0th pow iterator at the current timepoint?
             # allows us to detect whether deposited rank is relevant to any
             # k > 1 iterator
-            pow1_newsep = super(
-                StratumRetentionCondemnerTaperedGeomSeqNthRoot,
-                self,
-            )._calc_rank_sep(
+            pow1_newsep = calc_rank_sep(
+                spec._degree,
+                spec._interspersal,
                 1,
                 # no +1 to be conservative
                 num_stratum_depositions_completed,
@@ -273,10 +258,9 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
             # advances past them
             # (this would interfere with our assumption of the k = 0 drop
             # moving forward one rank per deposition)
-            pow1_oldsep = super(
-                StratumRetentionCondemnerTaperedGeomSeqNthRoot,
-                self,
-            )._calc_rank_sep(
+            pow1_oldsep = calc_rank_sep(
+                spec._degree,
+                spec._interspersal,
                 1,
                 # no +1 to be conservative
                 cached_drop_rank,
@@ -303,23 +287,19 @@ class StratumRetentionCondemnerTaperedGeomSeqNthRoot(
                     cached_drop_rank + 1,
                 }
 
-        elif self._degree:
+        elif spec._degree:
             # TODO case with no caching?
             # can we prove when pow0 retention chain is only 1 long?
             # i.e., previous iterators don't exhaust?
             pass
 
-        prev_retained_ranks = super(
-            StratumRetentionCondemnerTaperedGeomSeqNthRoot,
-            self,
-        )._get_retained_ranks(
+        prev_retained_ranks = get_retained_ranks(
+            policy,
             num_stratum_depositions_completed,
         )
 
-        cur_retained_ranks = super(
-            StratumRetentionCondemnerTaperedGeomSeqNthRoot,
-            self,
-        )._get_retained_ranks(
+        cur_retained_ranks = get_retained_ranks(
+            policy,
             num_stratum_depositions_completed + 1,
         )
 

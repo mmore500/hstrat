@@ -6,6 +6,7 @@ from . import depth_proportional_resolution_policy
 from . import depth_proportional_resolution_tapered_policy
 from . import fixed_resolution_policy
 from . import geom_seq_nth_root_policy
+from . import geom_seq_nth_root_tapered_policy
 from . import nominal_resolution_policy
 from . import perfect_resolution_policy
 from . import recency_proportional_resolution_policy
@@ -16,6 +17,7 @@ __all__ = [
     'depth_proportional_resolution_tapered_policy',
     'fixed_resolution_policy',
     'geom_seq_nth_root_policy',
+    'geom_seq_nth_root_tapered_policy',
     'nominal_resolution_policy',
     'perfect_resolution_policy',
     'recency_proportional_resolution_policy',

@@ -1,0 +1,68 @@
+import math
+import typing
+
+from .._impl import calc_common_ratio
+from ..PolicySpec import PolicySpec
+
+class CalcMrcaUncertaintyUpperBound:
+    """Functor to provide member function implementation in Policy class."""
+
+    def __init__(
+        self: 'CalcMrcaUncertaintyUpperBound',
+        policy_spec: typing.Optional[PolicySpec],
+    ) -> None:
+        pass
+
+    def __eq__(
+        self: 'CalcMrcaUncertaintyUpperBound',
+        other: typing.Any,
+    ) -> bool:
+        return isinstance(other, self.__class__)
+
+    def __call__(
+        self: 'CalcMrcaUncertaintyUpperBound',
+        policy: 'Policy',
+        first_num_strata_deposited: int,
+        second_num_strata_deposited: int,
+        actual_rank_of_mrca: typing.Optional[int],
+    ) -> int:
+        """At most, how much uncertainty to estimate rank of MRCA? Inclusive."""
+
+        spec = policy.GetSpec()
+
+        max_num_strata_deposited = max(
+            first_num_strata_deposited,
+            second_num_strata_deposited,
+        )
+        if max_num_strata_deposited == 0: return 0
+
+        interspersal = spec._interspersal
+        # edge case: no uncertainty guarantee for interspersal 1
+        # interspersal >= 2 required for uncertainty guarantee
+        if interspersal == 1: return max_num_strata_deposited
+
+        max_ranks_since_mrca = max_num_strata_deposited - actual_rank_of_mrca
+        # edge case: columns are identical
+        if max_ranks_since_mrca == 0: return 0
+
+        common_ratio = calc_common_ratio(spec._degree, max_num_strata_deposited)
+        # edge case: no strata have yet been dropped
+        if common_ratio == 1.0: return 0
+
+        # round up to next power of common_ratio
+        rounded_ranks_since_mrca = (
+            common_ratio
+            ** int(math.ceil(math.log(max_ranks_since_mrca, common_ratio)))
+        )
+        # should be leq just multiplying max_ranks_since_mrca by common_ratio
+        assert (
+            rounded_ranks_since_mrca <= max_ranks_since_mrca * common_ratio
+            # account for representation error etc.
+            or math.isclose(
+                rounded_ranks_since_mrca,
+                max_ranks_since_mrca * common_ratio,
+            )
+        )
+
+        # account for increased resolution from interspersal
+        return int(math.ceil(rounded_ranks_since_mrca / (interspersal - 1)))

@@ -1,0 +1,57 @@
+import pytest
+
+from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
+
+
+@pytest.mark.parametrize(
+    'degree',
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    'interspersal',
+    [
+        1,
+        2,
+        5,
+    ],
+)
+def test_eq(degree, interspersal):
+    spec = geom_seq_nth_root_tapered_policy.PolicySpec(degree, interspersal)
+    assert spec == spec
+    assert spec == geom_seq_nth_root_tapered_policy.PolicySpec(degree, interspersal)
+    assert not spec == geom_seq_nth_root_tapered_policy.PolicySpec(degree, interspersal + 1)
+    assert not spec == geom_seq_nth_root_tapered_policy.PolicySpec(degree + 1, interspersal)
+    assert not spec == geom_seq_nth_root_tapered_policy.PolicySpec(degree + 1, interspersal + 1)
+
+@pytest.mark.parametrize(
+    'degree',
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    'interspersal',
+    [
+        1,
+        2,
+        5,
+    ],
+)
+def test_init(degree, interspersal):
+    spec = geom_seq_nth_root_tapered_policy.PolicySpec(degree, interspersal)
+    assert spec._degree == degree
+    assert spec._interspersal == interspersal

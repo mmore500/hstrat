@@ -6,11 +6,8 @@ deposited."""
 
 from .StratumRetentionPredicateStochastic \
     import StratumRetentionPredicateStochastic
-from .StratumRetentionPredicateTaperedGeomSeqNthRoot \
-    import StratumRetentionPredicateTaperedGeomSeqNthRoot
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
     'StratumRetentionPredicateStochastic',
-    'StratumRetentionPredicateTaperedGeomSeqNthRoot',
 ]
