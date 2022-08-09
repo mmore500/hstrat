@@ -17,6 +17,7 @@ class CalcWorstCaseNumStrataRetainedUpperBound:
 
     def __call__(
         self: 'CalcWorstCaseNumStrataRetainedUpperBound',
+        policy: typing.Optional['Policy'],
         num_strata_deposited: int,
     ) -> int:
         """At most, how many strata are retained after n deposted? Inclusive."""

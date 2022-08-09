@@ -17,6 +17,7 @@ class CalcWorstCaseMrcaUncertaintyUpperBound:
 
     def __call__(
         self: 'CalcWorstCaseMrcaUncertaintyUpperBound',
+        policy: typing.Optional['Policy'],
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
         actual_rank_of_mrca: typing.Optional[int]=None,
