@@ -12,9 +12,7 @@ import warnings
 from .HereditaryStratum import HereditaryStratum
 
 from .stratum_ordered_stores import HereditaryStratumOrderedStoreList
-from .stratum_retention_condemners import StratumRetentionCondemnerFromPredicate
-# from .stratum_retention_condemners \
-#     import StratumRetentionCondemnerPerfectResolution
+from .stratum_retention_policies import perfect_resolution_policy
 
 
 class HereditaryStratigraphicColumn:
@@ -56,16 +54,15 @@ class HereditaryStratigraphicColumn:
     # data structure storing retained strata
     _stratum_ordered_store: typing.Any
     # functor specifying stratum retention policy
-    _stratum_retention_condemner: typing.Callable
+    _stratum_retention_policy: typing.Any
 
     def __init__(
         self: 'HereditaryStratigraphicColumn',
+        stratum_retention_policy: typing.Any=perfect_resolution_policy.Policy(),
         *,
         always_store_rank_in_stratum: bool=True,
         stratum_differentia_bit_width: int=64,
         initial_stratum_annotation: typing.Optional[typing.Any]=None,
-        stratum_retention_condemner: typing.Callable=None,
-        stratum_retention_predicate: typing.Callable=None,
         stratum_ordered_store_factory: typing.Callable
             =HereditaryStratumOrderedStoreList,
     ):
@@ -76,6 +73,10 @@ class HereditaryStratigraphicColumn:
 
         Parameters
         ----------
+        stratum_retention_policy : any
+            Policy struct that implements stratum retention policy by specifying
+            the set of strata ranks that should be pruned from a hereditary
+            stratigraphic column when the nth stratum is deposited.
         always_store_rank_in_stratum : bool, optional
             Should the deposition rank be stored as a data member of generated
             strata, even if not strictly necessary?
@@ -86,18 +87,6 @@ class HereditaryStratigraphicColumn:
             Optional object to store as an annotation. Allows arbitrary user-
             provided to be associated with the first stratum deposition in the
             line of descent.
-        stratum_retention_condemner : callable, optional
-            Functor that implements stratum retention policy by specifying
-            the set of strata ranks that should be pruned from a hereditary
-            stratigraphic column when the nth stratum is deposited. Mutually
-            exclusive with stratum_retention_predicate; only one should be
-            specified.
-        stratum_retention_predicate : callable, optional
-            Functor that implements stratum retention policy by specifying
-            whether a stratum with deposition rank r should be retained within
-            a hereditary stratigraphic column after n strata have been
-            deposited. Mutually exclusive with stratum_retention_condemner;
-            only one should be specified.
         stratum_ordered_store_factory : callable, optional
             Callable to generate a container that implements the necessary
             interface to store strata within the column. Can be configured for
@@ -115,24 +104,8 @@ class HereditaryStratigraphicColumn:
         self._num_strata_deposited = 0
         self._stratum_ordered_store = stratum_ordered_store_factory()
 
-        if None not in (
-            stratum_retention_predicate,
-            stratum_retention_condemner,
-        ):
-            raise ValueError(
-                'Exactly one of `stratum_retention_condemner` '
-                'and `stratum_retention_predicate` must be provided.'
-            )
-        else:
-            self._stratum_retention_condemner = (
-                StratumRetentionCondemnerFromPredicate(
-                    stratum_retention_predicate,
-                )
-                    if (stratum_retention_predicate is not None)
-                else stratum_retention_condemner
-                    if stratum_retention_condemner is not None
-                else StratumRetentionCondemnerPerfectResolution()
-            )
+
+        self._stratum_retention_policy = stratum_retention_policy
 
         self.DepositStratum(annotation=initial_stratum_annotation)
 
@@ -161,10 +134,10 @@ class HereditaryStratigraphicColumn:
         anyways for performance reasons if this calculation is expenxive.
         """
 
-        can_omit_deposition_rank = hasattr(
-            self._stratum_retention_condemner,
-            'CalcRankAtColumnIndex',
+        can_omit_deposition_rank = (
+            self._stratum_retention_policy.CalcRankAtColumnIndex is not None
         )
+
         return (
             can_omit_deposition_rank
             and not self._always_store_rank_in_stratum
@@ -211,9 +184,9 @@ class HereditaryStratigraphicColumn:
         column's internal deposition counter).
         """
 
-        condemned_ranks = self._stratum_retention_condemner(
-            retained_ranks=self.GetRetainedRanks(),
+        condemned_ranks = self._stratum_retention_policy.GenDropRanks(
             num_stratum_depositions_completed=self.GetNumStrataDeposited(),
+            retained_ranks=self.GetRetainedRanks(),
         )
         self._stratum_ordered_store.DelRanks(
             ranks=condemned_ranks,
@@ -282,7 +255,7 @@ class HereditaryStratigraphicColumn:
         """
 
         if self._ShouldOmitStratumDepositionRank():
-            return self._stratum_retention_condemner.CalcRankAtColumnIndex(
+            return self._stratum_retention_policy.CalcRankAtColumnIndex(
                 index=index,
                 num_strata_deposited=self.GetNumStrataDeposited(),
             )
