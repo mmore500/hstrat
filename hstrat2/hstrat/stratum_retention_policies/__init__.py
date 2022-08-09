@@ -11,6 +11,7 @@ from . import nominal_resolution_policy
 from . import perfect_resolution_policy
 from . import pseudostochastic_policy
 from . import recency_proportional_resolution_policy
+from . import stochastic_policy
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
@@ -23,4 +24,5 @@ __all__ = [
     'perfect_resolution_policy',
     'pseudostochastic_policy',
     'recency_proportional_resolution_policy',
+    'stochastic_policy',
 ]
