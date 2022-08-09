@@ -286,7 +286,7 @@ class HereditaryStratumOrderedStoreTree:
         else:
             self._do_calcrank_DelRanks(ranks, get_column_index_of_rank)
 
-    def GetRetainedRanks(
+    def IterRetainedRanks(
         self: 'HereditaryStratumOrderedStoreDict',
     ) -> typing.Iterator[int]:
         """Get an iterator over deposition ranks of strata present in the

@@ -186,14 +186,14 @@ class HereditaryStratigraphicColumn:
 
         condemned_ranks = self._stratum_retention_policy.GenDropRanks(
             num_stratum_depositions_completed=self.GetNumStrataDeposited(),
-            retained_ranks=self.GetRetainedRanks(),
+            retained_ranks=self.IterRetainedRanks(),
         )
         self._stratum_ordered_store.DelRanks(
             ranks=condemned_ranks,
             get_column_index_of_rank=self.GetColumnIndexOfRank,
         )
 
-    def GetRetainedRanks(
+    def IterRetainedRanks(
         self: 'HereditaryStratigraphicColumn',
     ) -> typing.Iterator[int]:
         """Get an iterator over deposition ranks of strata stored in the column.
@@ -207,7 +207,7 @@ class HereditaryStratigraphicColumn:
             for idx in range(self.GetNumStrataRetained()):
                 yield self.GetRankAtColumnIndex(idx)
         else:
-            yield from self._stratum_ordered_store.GetRetainedRanks()
+            yield from self._stratum_ordered_store.IterRetainedRanks()
 
     def GetNumStrataRetained(self: 'HereditaryStratigraphicColumn') -> int:
         """How many strata are currently stored within the column?
@@ -1519,8 +1519,8 @@ class HereditaryStratigraphicColumn:
         """Return the set of ranks retained by self but not other and vice
         versa as a tuple."""
 
-        self_ranks = set( self.GetRetainedRanks() )
-        other_ranks = set( other.GetRetainedRanks() )
+        self_ranks = set( self.IterRetainedRanks() )
+        other_ranks = set( other.IterRetainedRanks() )
 
         return (
             self_ranks - other_ranks,

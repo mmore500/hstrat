@@ -37,7 +37,7 @@ def test_impl_consistency(fixed_resolution):
                 sorted(impl(spec)(
                     policy,
                     num_strata_deposited,
-                    column.GetRetainedRanks(),
+                    column.IterRetainedRanks(),
                 ))
                 for impl in impls
             ),
@@ -45,7 +45,7 @@ def test_impl_consistency(fixed_resolution):
                 sorted(instance(
                     policy,
                     num_strata_deposited,
-                    column.GetRetainedRanks(),
+                    column.IterRetainedRanks(),
                 ))
                 for instance in instances
             )

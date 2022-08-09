@@ -29,14 +29,14 @@ def test_impl_stochasticity(impl, replicate):
                 sorted(impl(spec)(
                     policy,
                     num_strata_deposited,
-                    column.GetRetainedRanks(),
+                    column.IterRetainedRanks(),
                 ))
             ),
             (
                 sorted(impl(spec)(
                     policy,
                     num_strata_deposited,
-                    column.GetRetainedRanks(),
+                    column.IterRetainedRanks(),
                 ))
             ),
         )):

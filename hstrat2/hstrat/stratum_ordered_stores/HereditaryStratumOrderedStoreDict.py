@@ -142,7 +142,7 @@ class HereditaryStratumOrderedStoreDict:
         for rank in ranks:
             del self._data[rank]
 
-    def GetRetainedRanks(
+    def IterRetainedRanks(
         self: 'HereditaryStratumOrderedStoreDict',
     ) -> typing.Iterator[int]:
         """Get an iterator over deposition ranks of strata present in the

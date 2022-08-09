@@ -31,7 +31,7 @@ def test_policy_consistency(replicate):
         ):
             lb, ub = find_bounds(
                 query=actual_mrca_rank,
-                iterable=column.GetRetainedRanks(),
+                iterable=column.IterRetainedRanks(),
                 initializer=(0, num_strata_deposited - 1),
                 filter_above=operator.ge,
                 filter_below=operator.le,

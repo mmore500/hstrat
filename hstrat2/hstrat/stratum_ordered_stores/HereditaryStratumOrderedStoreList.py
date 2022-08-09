@@ -157,7 +157,7 @@ class HereditaryStratumOrderedStoreList:
             assert index is not None
             del self._data[index]
 
-    def GetRetainedRanks(
+    def IterRetainedRanks(
         self: 'HereditaryStratumOrderedStoreDict',
     ) -> typing.Iterator[int]:
         """Get an iterator over deposition ranks of strata present in the

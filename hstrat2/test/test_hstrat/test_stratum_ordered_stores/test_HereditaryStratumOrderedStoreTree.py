@@ -154,7 +154,7 @@ class TestHereditaryStratumOrderedStoreTree(unittest.TestCase):
         assert store1.GetColumnIndexOfRank(63) == 3
         assert store1.GetColumnIndexOfRank(64) == None
 
-    def test_GetRetainedRanks(self):
+    def test_IterRetainedRanks(self):
         store1 = hstrat.HereditaryStratumOrderedStoreTree()
         ranks = [0, 8, 42, 63]
         for rank in ranks:
@@ -163,7 +163,7 @@ class TestHereditaryStratumOrderedStoreTree(unittest.TestCase):
                 stratum=hstrat.HereditaryStratum(deposition_rank=rank),
             )
 
-        assert set(store1.GetRetainedRanks()) == set(ranks)
+        assert set(store1.IterRetainedRanks()) == set(ranks)
 
     def test_IterRankDifferentia1(self):
         store1 = hstrat.HereditaryStratumOrderedStoreTree()
