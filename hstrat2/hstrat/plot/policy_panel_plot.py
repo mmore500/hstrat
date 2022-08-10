@@ -1,11 +1,11 @@
 from matplotlib import pyplot as plt
 import typing
 
-from .mrca_uncertainty_absolute_plot import mrca_uncertainty_absolute_plot
-from .mrca_uncertainty_relative_plot import mrca_uncertainty_relative_plot
-from .strata_retained_frac_plot import strata_retained_frac_plot
-from .strata_retained_num_plot import strata_retained_num_plot
-from .stratum_retention_drip_plot import stratum_retention_drip_plot
+from .mrca_uncertainty_absolute_barplot import mrca_uncertainty_absolute_barplot
+from .mrca_uncertainty_relative_barplot import mrca_uncertainty_relative_barplot
+from .strata_retained_frac_lineplot import strata_retained_frac_lineplot
+from .strata_retained_num_lineplot import strata_retained_num_lineplot
+from .stratum_retention_dripplot import stratum_retention_dripplot
 
 def policy_panel_plot(
     stratum_retention_policy: typing.Any,
@@ -33,19 +33,19 @@ def policy_panel_plot(
     fig.suptitle(str(stratum_retention_policy))
 
     # left column
-    stratum_retention_drip_plot(
+    stratum_retention_dripplot(
         stratum_retention_policy=stratum_retention_policy,
         num_generations=num_generations,
         axes=top_left_ax,
         do_show=False,
     )
-    mrca_uncertainty_absolute_plot(
+    mrca_uncertainty_absolute_barplot(
         stratum_retention_policy=stratum_retention_policy,
         num_generations=num_generations,
         axes=mid_left_ax,
         do_show=False,
     )
-    mrca_uncertainty_relative_plot(
+    mrca_uncertainty_relative_barplot(
         stratum_retention_policy=stratum_retention_policy,
         num_generations=num_generations,
         axes=bot_left_ax,
@@ -53,14 +53,14 @@ def policy_panel_plot(
     )
 
     # right column
-    strata_retained_num_plot(
+    strata_retained_num_lineplot(
         stratum_retention_policy=stratum_retention_policy,
         num_generations=num_generations,
         axes=top_right_ax,
         do_show=False,
     )
 
-    strata_retained_frac_plot(
+    strata_retained_frac_lineplot(
         stratum_retention_policy=stratum_retention_policy,
         num_generations=num_generations,
         axes=mid_right_ax,

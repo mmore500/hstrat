@@ -3,7 +3,7 @@ import unittest
 from hstrat2 import hstrat
 
 
-class TestMrcaUncertaintyRelativePlot(unittest.TestCase):
+class TestStratumRetentionDripPlot(unittest.TestCase):
 
     # tests can run independently
     _multiprocess_can_split_ = True
@@ -14,8 +14,8 @@ class TestMrcaUncertaintyRelativePlot(unittest.TestCase):
             hstrat.nominal_resolution_policy.Policy(),
             hstrat.perfect_resolution_policy.Policy(),
         ]:
-            hstrat.mrca_uncertainty_relative_plot(policy, 100, do_show=False)
-            hstrat.mrca_uncertainty_relative_plot(policy, 10, do_show=False)
+            hstrat.stratum_retention_dripplot(policy, 100, do_show=False)
+            hstrat.stratum_retention_dripplot(policy, 10, do_show=False)
 
 
 if __name__ == '__main__':

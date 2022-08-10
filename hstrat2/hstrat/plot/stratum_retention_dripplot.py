@@ -1,22 +1,22 @@
+import opytional as opyt
 from matplotlib import pyplot as plt
 import typing
-import seaborn as sns
 
 from ..HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 
-def mrca_uncertainty_absolute_plot(
+def stratum_retention_dripplot(
     stratum_retention_policy: typing.Any,
     num_generations: int,
     do_show: bool=True,
     axes: typing.Optional[plt.matplotlib.axes.Axes]=None,
 ) -> plt.matplotlib.axes.Axes:
-    """Plot absolute uncertainty for MRCA estimation over column ranks
-    (positions) in a hereditary stratigraphic column at a particular generation
-    under a particular stratum retention policy.
+    """Plot position of retained strata within a hereditary stratigraphic
+    column over successive depositions under a particular stratum retention
+    policy.
 
     Parameters
     ----------
-    stratum_retention_policy: Callable
+    stratum_retention_policy: any
         Object specifying stratum retention policy.
     num_generations: int
         Number of generations to plot.
@@ -33,29 +33,33 @@ def mrca_uncertainty_absolute_plot(
     elif not isinstance(axes, plt.matplotlib.axes.Axes):
         raise ValueError(f"Invalid argument for axes: {axes}")
 
-    xs = [0]
-    ys = [0]
     column = HereditaryStratigraphicColumn(
         stratum_retention_policy=stratum_retention_policy,
     )
-    for gen in range(num_generations):
-        xs.append(gen)
-        if stratum_retention_policy.CalcMrcaUncertaintyExact is not None:
-            ys.append(stratum_retention_policy.CalcMrcaUncertaintyExact(
-                num_generations,
-                num_generations,
-                gen,
-            ))
-        else:
-            ys.append(float('nan'))
+    for gen in range(1, num_generations):
+        for rank in stratum_retention_policy.GenDropRanks(
+            gen,
+            opyt.apply_if_or_value(
+                stratum_retention_policy.IterRetainedRanks,
+                lambda x: x(gen),
+                column.IterRetainedRanks(),
+            ),
+        ):
+            axes.plot([rank, rank], [rank, gen], 'k')
+        column.DepositStratum()
 
-    sns.lineplot(
-        xs,
-        ys,
-        ax=axes,
-    )
+    for remaining_rank in opyt.apply_if_or_value(
+        stratum_retention_policy.IterRetainedRanks,
+        lambda x: x(gen),
+        column.IterRetainedRanks(),
+    ):
+        axes.plot([remaining_rank, remaining_rank], [remaining_rank, gen], 'k')
+
+
+    axes.invert_yaxis()
+
     axes.set_xlabel('Position (Rank)')
-    axes.set_ylabel('Absolute MRCA Uncertainty')
+    axes.set_ylabel('Generation')
 
     if do_show: plt.show()
 

@@ -4,19 +4,17 @@ import seaborn as sns
 
 from ..HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 
-def mrca_uncertainty_relative_plot(
+def strata_retained_frac_lineplot(
     stratum_retention_policy: typing.Any,
     num_generations: int,
     do_show: bool=True,
     axes: typing.Optional[plt.matplotlib.axes.Axes]=None,
 ) -> plt.matplotlib.axes.Axes:
-    """Plot relative uncertainty for MRCA estimation over column ranks
-    (positions) in a hereditary stratigraphic column at a particular generation
-    under a particular stratum retention policy.
+    """Plot fraction deposited strata that are retained at each generation.
 
     Parameters
     ----------
-    stratum_retention_policy: Callable
+    stratum_retention_policy: any
         Object specifying stratum retention policy.
     num_generations: int
         Number of generations to plot.
@@ -34,22 +32,18 @@ def mrca_uncertainty_relative_plot(
         raise ValueError(f"Invalid argument for axes: {axes}")
 
     xs = [0]
-    ys = [0]
+    ys = [1]
     column = HereditaryStratigraphicColumn(
         stratum_retention_policy=stratum_retention_policy,
     )
-    for gen in range(num_generations):
+    for gen in range(1, num_generations):
         xs.append(gen)
         if stratum_retention_policy.CalcNumStrataRetainedExact is not None:
             ys.append(
-                stratum_retention_policy.CalcMrcaUncertaintyExact(
-                    num_generations,
-                    num_generations,
-                    gen,
-                ) / (num_generations - gen),
+                stratum_retention_policy.CalcNumStrataRetainedExact(gen) / gen,
             )
         else:
-            ys.append(column.GetNumStrataRetained())
+            ys.append(column.GetNumStrataRetained() / gen)
             column.DepositStratum()
 
     sns.lineplot(
@@ -57,8 +51,8 @@ def mrca_uncertainty_relative_plot(
         ys,
         ax=axes,
     )
-    axes.set_xlabel('Position (Rank)')
-    axes.set_ylabel('Relative MRCA Uncertainty')
+    axes.set_xlabel('Generation')
+    axes.set_ylabel('Frac Strata Retained')
 
     if do_show: plt.show()
 

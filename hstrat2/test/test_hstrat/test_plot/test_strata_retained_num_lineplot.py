@@ -14,8 +14,8 @@ class TestStrataRetainedNumPlot(unittest.TestCase):
             hstrat.nominal_resolution_policy.Policy(),
             hstrat.perfect_resolution_policy.Policy(),
         ]:
-            hstrat.strata_retained_num_plot(policy, 100, do_show=False)
-            hstrat.strata_retained_num_plot(policy, 10, do_show=False)
+            hstrat.strata_retained_num_lineplot(policy, 100, do_show=False)
+            hstrat.strata_retained_num_lineplot(policy, 10, do_show=False)
 
 
 if __name__ == '__main__':

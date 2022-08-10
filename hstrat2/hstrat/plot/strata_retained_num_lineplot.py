@@ -4,7 +4,7 @@ import seaborn as sns
 
 from ..HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 
-def strata_retained_num_plot(
+def strata_retained_num_lineplot(
     stratum_retention_policy: typing.Callable[[int, int], bool],
     num_generations: int,
     do_show: bool=True,
