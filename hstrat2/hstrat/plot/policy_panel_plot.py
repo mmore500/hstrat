@@ -11,6 +11,7 @@ def policy_panel_plot(
     stratum_retention_policy: typing.Any,
     num_generations: int,
     do_show: bool=True,
+    fig: typing.Optional[plt.matplotlib.figure.Figure]=None,
 ) -> plt.matplotlib.figure.Figure:
     """Draw multipanel figure to holisticaly describe stratum retention policy
     at a particular generation.
@@ -23,13 +24,21 @@ def policy_panel_plot(
         Number of generations to plot.
     do_show : bool, optional
         Whether to show() the plot automatically.
+    fig : matplotlib/pylab figure, optional
+        If a valid matplotlib.figure.Figure instance, the plot is drawn in that
+        Figure. By default (None), a new figure is created.
      """
 
-    fig, (
+    if fig is None:
+        fig = plt.figure()
+    elif not isinstance(fig, plt.matplotlib.figure.Figure):
+        raise ValueError(f"Invalid argument for fig: {fig}")
+
+    (
         (top_left_ax, top_right_ax),
         (mid_left_ax, mid_right_ax),
         (bot_left_ax, bot_right_ax),
-    ) = plt.subplots(3, 2)
+    ) = fig.subplots(3, 2)
     fig.suptitle(str(stratum_retention_policy))
 
     # left column
