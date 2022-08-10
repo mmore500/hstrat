@@ -8,7 +8,7 @@ def stratum_retention_dripplot(
     stratum_retention_policy: typing.Any,
     num_generations: int,
     do_show: bool=True,
-    axes: typing.Optional[plt.matplotlib.axes.Axes]=None,
+    ax: typing.Optional[plt.matplotlib.axes.Axes]=None,
 ) -> plt.matplotlib.axes.Axes:
     """Plot position of retained strata within a hereditary stratigraphic
     column over successive depositions under a particular stratum retention
@@ -20,18 +20,18 @@ def stratum_retention_dripplot(
         Object specifying stratum retention policy.
     num_generations: int
         Number of generations to plot.
-    axes : matplotlib/pylab axes, optional
+    ax : matplotlib/pylab axes, optional
         If a valid matplotlib.axes.Axes instance, the plot is drawn in that
         Axes. By default (None), a new axes is created.
     do_show : bool, optional
         Whether to show() the plot automatically.
      """
 
-    if axes is None:
+    if ax is None:
         fig = plt.figure()
-        axes = fig.add_subplot(1, 1, 1)
-    elif not isinstance(axes, plt.matplotlib.axes.Axes):
-        raise ValueError(f"Invalid argument for axes: {axes}")
+        ax = fig.add_subplot(1, 1, 1)
+    elif not isinstance(ax, plt.matplotlib.axes.Axes):
+        raise ValueError(f"Invalid argument for ax: {ax}")
 
     column = HereditaryStratigraphicColumn(
         stratum_retention_policy=stratum_retention_policy,
@@ -45,7 +45,7 @@ def stratum_retention_dripplot(
                 column.IterRetainedRanks(),
             ),
         ):
-            axes.plot([rank, rank], [rank, gen], 'k')
+            ax.plot([rank, rank], [rank, gen], 'k')
         column.DepositStratum()
 
     for remaining_rank in opyt.apply_if_or_value(
@@ -53,14 +53,14 @@ def stratum_retention_dripplot(
         lambda x: x(gen),
         column.IterRetainedRanks(),
     ):
-        axes.plot([remaining_rank, remaining_rank], [remaining_rank, gen], 'k')
+        ax.plot([remaining_rank, remaining_rank], [remaining_rank, gen], 'k')
 
 
-    axes.invert_yaxis()
+    ax.invert_yaxis()
 
-    axes.set_xlabel('Position (Rank)')
-    axes.set_ylabel('Generation')
+    ax.set_xlabel('Position (Rank)')
+    ax.set_ylabel('Generation')
 
     if do_show: plt.show()
 
-    return axes
+    return ax

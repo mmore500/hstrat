@@ -36,19 +36,19 @@ def policy_panel_plot(
     stratum_retention_dripplot(
         stratum_retention_policy=stratum_retention_policy,
         num_generations=num_generations,
-        axes=top_left_ax,
+        ax=top_left_ax,
         do_show=False,
     )
     mrca_uncertainty_absolute_barplot(
         stratum_retention_policy=stratum_retention_policy,
         num_generations=num_generations,
-        axes=mid_left_ax,
+        ax=mid_left_ax,
         do_show=False,
     )
     mrca_uncertainty_relative_barplot(
         stratum_retention_policy=stratum_retention_policy,
         num_generations=num_generations,
-        axes=bot_left_ax,
+        ax=bot_left_ax,
         do_show=False,
     )
 
@@ -56,14 +56,14 @@ def policy_panel_plot(
     strata_retained_num_lineplot(
         stratum_retention_policy=stratum_retention_policy,
         num_generations=num_generations,
-        axes=top_right_ax,
+        ax=top_right_ax,
         do_show=False,
     )
 
     strata_retained_frac_lineplot(
         stratum_retention_policy=stratum_retention_policy,
         num_generations=num_generations,
-        axes=mid_right_ax,
+        ax=mid_right_ax,
         do_show=False,
     )
 

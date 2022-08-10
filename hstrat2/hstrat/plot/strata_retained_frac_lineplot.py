@@ -8,7 +8,7 @@ def strata_retained_frac_lineplot(
     stratum_retention_policy: typing.Any,
     num_generations: int,
     do_show: bool=True,
-    axes: typing.Optional[plt.matplotlib.axes.Axes]=None,
+    ax: typing.Optional[plt.matplotlib.axes.Axes]=None,
 ) -> plt.matplotlib.axes.Axes:
     """Plot fraction deposited strata that are retained at each generation.
 
@@ -18,18 +18,18 @@ def strata_retained_frac_lineplot(
         Object specifying stratum retention policy.
     num_generations: int
         Number of generations to plot.
-    axes : matplotlib/pylab axes, optional
+    ax : matplotlib/pylab axes, optional
         If a valid matplotlib.axes.Axes instance, the plot is drawn in that
         Axes. By default (None), a new axes is created.
     do_show : bool, optional
         Whether to show() the plot automatically.
      """
 
-    if axes is None:
+    if ax is None:
         fig = plt.figure()
-        axes = fig.add_subplot(1, 1, 1)
-    elif not isinstance(axes, plt.matplotlib.axes.Axes):
-        raise ValueError(f"Invalid argument for axes: {axes}")
+        ax = fig.add_subplot(1, 1, 1)
+    elif not isinstance(ax, plt.matplotlib.axes.Axes):
+        raise ValueError(f"Invalid argument for ax: {ax}")
 
     xs = [0]
     ys = [1]
@@ -49,11 +49,11 @@ def strata_retained_frac_lineplot(
     sns.lineplot(
         xs,
         ys,
-        ax=axes,
+        ax=ax,
     )
-    axes.set_xlabel('Generation')
-    axes.set_ylabel('Frac Strata Retained')
+    ax.set_xlabel('Generation')
+    ax.set_ylabel('Frac Strata Retained')
 
     if do_show: plt.show()
 
-    return axes
+    return ax
