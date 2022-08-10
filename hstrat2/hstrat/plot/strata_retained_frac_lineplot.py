@@ -19,8 +19,8 @@ def strata_retained_frac_lineplot(
     num_generations: int
         Number of generations to plot.
     axes : matplotlib/pylab axes, optional
-        If a valid matplotlib.axes.Axes instance, the phylogram is plotted
-        in that Axes. By default (None), a new figure is created.
+        If a valid matplotlib.axes.Axes instance, the plot is drawn in that
+        Axes. By default (None), a new axes is created.
     do_show : bool, optional
         Whether to show() the plot automatically.
      """
