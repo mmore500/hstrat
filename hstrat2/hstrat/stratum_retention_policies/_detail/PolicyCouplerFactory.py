@@ -206,6 +206,12 @@ def PolicyCouplerFactory(
                 iter_retained_ranks_ftor_t\
                     =iter_retained_ranks_ftor_t,
             )
+
+            # propagate any glossing over over implementation details
+            type_.__module__ = PolicyCoupler.__module__
+            type_.__name__ = PolicyCoupler.__name__
+            type_.__qualname__ = PolicyCoupler.__qualname__
+
             return type_(
                 policy_spec=self._policy_spec,
             )
