@@ -38,7 +38,7 @@ def mrca_uncertainty_relative_barplot(
     column = HereditaryStratigraphicColumn(
         stratum_retention_policy=stratum_retention_policy,
     )
-    for gen in range(num_generations):
+    for gen in range(1, num_generations):
         xs.append(gen)
         if stratum_retention_policy.CalcNumStrataRetainedExact is not None:
             ys.append(
