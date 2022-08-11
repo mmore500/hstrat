@@ -61,6 +61,7 @@ def strata_retained_frac_lineplot(
         integer=True,
         min_n_ticks=0,
     ))
+    ax.set_ylim([-0.05,1.05])
 
     if do_show: plt.show()
 
