@@ -1,4 +1,6 @@
+import itertools as it
 from matplotlib import pyplot as plt
+import matplotlib.colors as colors
 import typing
 import seaborn as sns
 
@@ -52,10 +54,17 @@ def mrca_uncertainty_relative_barplot(
             ys.append(column.GetNumStrataRetained())
             column.DepositStratum()
 
-    sns.barplot(
+    ax.bar(
         xs,
         ys,
-        ax=ax,
+        color=[*it.islice(
+            it.cycle([
+                'mediumpurple',
+                'mediumslateblue',
+            ]),
+            num_generations,
+        )],
+        width=1.0,
     )
     ax.set_xlabel('Position (Rank)')
     ax.set_ylabel('Relative MRCA Uncertainty')

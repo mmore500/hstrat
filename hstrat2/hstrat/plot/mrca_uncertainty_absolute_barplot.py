@@ -1,3 +1,4 @@
+import itertools as it
 from matplotlib import pyplot as plt
 import typing
 import seaborn as sns
@@ -49,10 +50,17 @@ def mrca_uncertainty_absolute_barplot(
         else:
             ys.append(float('nan'))
 
-    sns.barplot(
+    ax.bar(
         xs,
         ys,
-        ax=ax,
+        color=[*it.islice(
+            it.cycle([
+                'mediumpurple',
+                'mediumslateblue',
+            ]),
+            num_generations,
+        )],
+        width=1.0,
     )
     ax.set_xlabel('Position (Rank)')
     ax.set_ylabel('Absolute MRCA Uncertainty')
