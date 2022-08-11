@@ -97,7 +97,7 @@ def stratum_retention_dripplot(
     ))
 
     ax.set_xlabel('Position (Rank)')
-    ax.set_ylabel('Generation')
+    ax.set_ylabel('Retention History\n(Generations)')
 
     if do_show: plt.show()
 
