@@ -67,12 +67,12 @@ def stratum_retention_dripplot(
     ):
         ax.plot(
             [remaining_rank, remaining_rank],
-            [remaining_rank, num_generations],
+            [remaining_rank, num_generations - 1],
             'k',
         )
         ax.plot(
             remaining_rank,
-            num_generations,
+            num_generations - 1,
             ms=min(200 / num_generations, 20),
             marker=caretdown_marker,
             markerfacecolor='k',
