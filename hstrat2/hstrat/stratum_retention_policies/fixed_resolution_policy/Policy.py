@@ -24,3 +24,8 @@ Policy = PolicyCouplerFactory(
     calc_rank_at_column_index_ftor_t=CalcRankAtColumnIndex,
     iter_retained_ranks_ftor_t=IterRetainedRanks,
 )
+
+# gloss away PolicyCoupler implementation details
+Policy.__name__ = 'Policy'
+Policy.__qualname__ = 'Policy'
+Policy.__module__ = __package__
