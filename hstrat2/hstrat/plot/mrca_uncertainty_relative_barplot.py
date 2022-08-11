@@ -68,7 +68,7 @@ def mrca_uncertainty_relative_barplot(
         width=1.0,
     )
     ax.set_xlabel('Position (Rank)')
-    ax.set_ylabel('Relative MRCA Uncertainty')
+    ax.set_ylabel('Relative MRCA\n Uncertainty', labelpad=20)
     ax.xaxis.set_major_locator(ticker.MaxNLocator(
         nbins='auto',
         steps=[1, 2, 5, 10],

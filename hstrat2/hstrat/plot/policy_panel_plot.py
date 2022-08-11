@@ -30,7 +30,7 @@ def policy_panel_plot(
      """
 
     if fig is None:
-        fig = plt.figure()
+        fig = plt.figure(figsize=(8, 6))
     elif not isinstance(fig, plt.matplotlib.figure.Figure):
         raise ValueError(f"Invalid argument for fig: {fig}")
 
@@ -77,6 +77,12 @@ def policy_panel_plot(
     )
 
     #TODO bot_right_ax text panel with params etc
+
+    top_left_ax.get_yaxis().set_label_coords(-0.1, 0.5)
+    mid_left_ax.get_yaxis().set_label_coords(-0.1, 0.5)
+    bot_left_ax.get_yaxis().set_label_coords(-0.1, 0.5)
+    top_right_ax.set(xlabel=None)
+    fig.subplots_adjust(wspace=0.3)
 
     if do_show: plt.show()
 
