@@ -34,11 +34,11 @@ def policy_panel_plot(
     elif not isinstance(fig, plt.matplotlib.figure.Figure):
         raise ValueError(f"Invalid argument for fig: {fig}")
 
-    (
-        (top_left_ax, top_right_ax),
-        (mid_left_ax, mid_right_ax),
-        (bot_left_ax, bot_right_ax),
-    ) = fig.subplots(3, 2)
+    top_left_ax = fig.add_subplot(3, 2, 1)
+    mid_left_ax = fig.add_subplot(3, 2, 3)
+    bot_left_ax = fig.add_subplot(3, 2, 5)
+    top_right_ax = fig.add_subplot(2, 2, 2)
+    bot_right_ax = fig.add_subplot(2, 2, 4)
     fig.suptitle(str(stratum_retention_policy))
 
     # left column
@@ -72,7 +72,7 @@ def policy_panel_plot(
     strata_retained_frac_lineplot(
         stratum_retention_policy=stratum_retention_policy,
         num_generations=num_generations,
-        ax=mid_right_ax,
+        ax=bot_right_ax,
         do_show=False,
     )
 
