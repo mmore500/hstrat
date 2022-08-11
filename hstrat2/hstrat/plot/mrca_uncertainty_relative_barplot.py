@@ -1,6 +1,7 @@
 import itertools as it
 from matplotlib import pyplot as plt
 import matplotlib.colors as colors
+import matplotlib.ticker as ticker
 import typing
 import seaborn as sns
 
@@ -68,6 +69,18 @@ def mrca_uncertainty_relative_barplot(
     )
     ax.set_xlabel('Position (Rank)')
     ax.set_ylabel('Relative MRCA Uncertainty')
+    ax.xaxis.set_major_locator(ticker.MaxNLocator(
+        nbins='auto',
+        steps=[1, 2, 5, 10],
+        integer=True,
+        min_n_ticks=0,
+    ))
+    ax.yaxis.set_major_locator(ticker.MaxNLocator(
+        nbins='auto',
+        steps=[1, 2, 5, 10],
+        integer=True,
+        min_n_ticks=0,
+    ))
 
     if do_show: plt.show()
 

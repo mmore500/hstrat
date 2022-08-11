@@ -1,5 +1,6 @@
 import opytional as opyt
 from matplotlib import pyplot as plt
+from matplotlib import ticker
 import typing
 
 from ..HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
@@ -59,6 +60,18 @@ def stratum_retention_dripplot(
             'k',
         )
 
+    ax.xaxis.set_major_locator(ticker.MaxNLocator(
+        nbins='auto',
+        steps=[1, 2, 5, 10],
+        integer=True,
+        min_n_ticks=0,
+    ))
+    ax.yaxis.set_major_locator(ticker.MaxNLocator(
+        nbins='auto',
+        steps=[1, 2, 5, 10],
+        integer=True,
+        min_n_ticks=0,
+    ))
 
     ax.set_xlabel('Position (Rank)')
     ax.set_ylabel('Generation')

@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+from matplotlib import ticker
 import typing
 import seaborn as sns
 
@@ -53,6 +54,13 @@ def strata_retained_frac_lineplot(
     )
     ax.set_xlabel('Generation')
     ax.set_ylabel('Frac Strata Retained')
+
+    ax.xaxis.set_major_locator(ticker.MaxNLocator(
+        nbins='auto',
+        steps=[1, 2, 5, 10],
+        integer=True,
+        min_n_ticks=0,
+    ))
 
     if do_show: plt.show()
 
