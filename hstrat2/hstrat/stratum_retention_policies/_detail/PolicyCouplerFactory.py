@@ -164,6 +164,17 @@ def PolicyCouplerFactory(
 
             return hash(self._policy_spec)
 
+        def __repr__(
+            self: 'PolicyCoupler',
+        ) -> str:
+            return f'''{
+                self.__module__.split(".")[-2]
+            }.{
+                PolicyCoupler.__qualname__
+            }(policy_spec={
+                self._policy_spec
+            !r})'''
+
         def GetSpec(self: 'PolicyCoupler') -> policy_spec_t:
             return self._policy_spec
 

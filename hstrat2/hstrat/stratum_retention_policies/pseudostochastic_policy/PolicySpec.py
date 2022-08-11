@@ -29,3 +29,14 @@ class PolicySpec:
         ) == (
             other._random_seed,
         )
+
+    def __repr__(
+        self: 'PolicySpec',
+    ) -> str:
+        return f'''{
+            PolicySpec.__module__
+        }.{
+            __package__.split(".")[-1]
+        }(random_seed={
+            self._random_seed
+        })'''

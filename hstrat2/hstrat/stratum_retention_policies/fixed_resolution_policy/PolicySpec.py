@@ -32,3 +32,14 @@ class PolicySpec:
         ) == (
             other._fixed_resolution,
         )
+
+    def __repr__(
+        self: 'PolicySpec',
+    ) -> str:
+        return f'''{
+            __package__.split(".")[-1]
+        }.{
+            PolicySpec.__qualname__
+        }(fixed_resolution={
+            self._fixed_resolution
+        })'''

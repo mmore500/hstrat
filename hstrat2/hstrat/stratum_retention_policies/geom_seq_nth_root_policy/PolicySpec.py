@@ -50,3 +50,16 @@ class PolicySpec:
             other._degree,
             other._interspersal,
         )
+
+    def __repr__(
+        self: 'PolicySpec',
+    ) -> str:
+        return f'''{
+            __package__.split(".")[-1]
+        }.{
+            PolicySpec.__qualname__
+        }(degree={
+            self._degree
+        }, interspersal={
+            self._interspersal
+        })'''

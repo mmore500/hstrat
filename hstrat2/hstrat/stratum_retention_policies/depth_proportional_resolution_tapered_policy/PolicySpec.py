@@ -35,3 +35,14 @@ class PolicySpec:
         ) == (
             other._guaranteed_depth_proportional_resolution,
         )
+
+    def __repr__(
+        self: 'PolicySpec',
+    ) -> str:
+        return f'''{
+            self.GetPolicyName()
+        }.{
+            PolicySpec.__qualname__
+        }(guaranteed_depth_proportional_resolution={
+            self._guaranteed_depth_proportional_resolution
+        })'''

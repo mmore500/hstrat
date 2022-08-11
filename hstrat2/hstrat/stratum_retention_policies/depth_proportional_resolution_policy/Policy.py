@@ -28,4 +28,4 @@ Policy = PolicyCouplerFactory(
 # gloss away PolicyCoupler implementation details
 Policy.__name__ = 'Policy'
 Policy.__qualname__ = 'Policy'
-Policy.__module__ = __package__
+Policy.__module__ = __name__
