@@ -1,6 +1,8 @@
 from matplotlib import pyplot as plt
 import typing
 
+from ...helpers import ScalarFormatterFixedPrecision
+
 from .mrca_uncertainty_absolute_barplot import mrca_uncertainty_absolute_barplot
 from .mrca_uncertainty_relative_barplot import mrca_uncertainty_relative_barplot
 from .strata_retained_frac_lineplot import strata_retained_frac_lineplot
@@ -78,13 +80,25 @@ def policy_panel_plot(
 
     #TODO bot_right_ax text panel with params etc
 
-    top_left_ax.get_yaxis().set_label_coords(-0.1, 0.5)
-    mid_left_ax.get_yaxis().set_label_coords(-0.1, 0.5)
-    bot_left_ax.get_yaxis().set_label_coords(-0.1, 0.5)
+    top_left_ax.get_yaxis().set_label_coords(-0.15, 0.5)
+    mid_left_ax.get_yaxis().set_label_coords(-0.15, 0.5)
+    bot_left_ax.get_yaxis().set_label_coords(-0.15, 0.5)
     top_right_ax.set(xlabel=None)
     top_left_ax.set(xlabel=None)
     mid_left_ax.set(xlabel=None)
     fig.subplots_adjust(wspace=0.3)
+    fig.subplots_adjust(hspace=0.3)
+
+    # can't reuse single object due to side effects between plots
+    def make_fixed_prec_sci_formatter():
+        formatter = ScalarFormatterFixedPrecision()
+        formatter.set_scientific(True)
+        formatter.set_powerlimits((0,0))
+        return formatter
+    top_left_ax.yaxis.set_major_formatter(make_fixed_prec_sci_formatter())
+    mid_left_ax.yaxis.set_major_formatter(make_fixed_prec_sci_formatter())
+    bot_left_ax.yaxis.set_major_formatter(make_fixed_prec_sci_formatter())
+    top_right_ax.yaxis.set_major_formatter(make_fixed_prec_sci_formatter())
 
     if do_show: plt.show()
 

@@ -78,7 +78,6 @@ def mrca_uncertainty_relative_barplot(
     ax.yaxis.set_major_locator(ticker.MaxNLocator(
         nbins='auto',
         steps=[1, 2, 5, 10],
-        integer=True,
         min_n_ticks=0,
     ))
 
