@@ -50,11 +50,14 @@ def stratum_retention_dripplot(
 
     for remaining_rank in opyt.apply_if_or_value(
         stratum_retention_policy.IterRetainedRanks,
-        lambda x: x(gen),
+        lambda x: x(num_generations),
         column.IterRetainedRanks(),
     ):
-        ax.plot([remaining_rank, remaining_rank], [remaining_rank, gen], 'k')
-
+        ax.plot(
+            [remaining_rank, remaining_rank],
+            [remaining_rank, num_generations],
+            'k',
+        )
 
     ax.invert_yaxis()
 
