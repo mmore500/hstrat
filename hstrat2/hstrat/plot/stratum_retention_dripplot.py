@@ -59,7 +59,6 @@ def stratum_retention_dripplot(
             'k',
         )
 
-    ax.invert_yaxis()
 
     ax.set_xlabel('Position (Rank)')
     ax.set_ylabel('Generation')
