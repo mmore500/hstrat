@@ -1,5 +1,5 @@
 import colorsys
-import matplotlib.colors as mcolors
+import matplotlib as mpl
 import typing
 
 # adapted from https://stackoverflow.com/a/49601444
@@ -17,8 +17,8 @@ def scale_luminosity(
     >> scale_luminosity((.3,.55,.1), 0.5)
     """
     try:
-        c = mcolors.cnames[color]
+        c = mpl.colors.cnames[color]
     except:
         c = color
-    c = colorsys.rgb_to_hls(*mcolors.to_rgb(c))
+    c = colorsys.rgb_to_hls(*mpl.colors.to_rgb(c))
     return colorsys.hls_to_rgb(c[0], max(0, min(1, amount * c[1])), c[2])

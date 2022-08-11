@@ -1,7 +1,6 @@
-import opytional as opyt
-import matplotlib
+import matplotlib as mpl
 from matplotlib import pyplot as plt
-from matplotlib import ticker
+import opytional as opyt
 import typing
 
 from ...helpers import scale_luminosity
@@ -123,13 +122,13 @@ def stratum_retention_dripplot(
     # make space for triangle markers
     ymin, ymax = ax.get_ylim()
     ax.set_ylim([ymin, ymax + 2])
-    ax.xaxis.set_major_locator(ticker.MaxNLocator(
+    ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(
         nbins='auto',
         steps=[1, 2, 5, 10],
         integer=True,
         min_n_ticks=0,
     ))
-    ax.yaxis.set_major_locator(ticker.MaxNLocator(
+    ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(
         nbins='auto',
         steps=[1, 2, 5, 10],
         integer=True,
@@ -143,7 +142,7 @@ def stratum_retention_dripplot(
         max(xmax, num_generations),
     ])
     height = min(3, num_generations)
-    ax.add_patch(matplotlib.patches.Rectangle(
+    ax.add_patch(mpl.patches.Rectangle(
         xy=(-0.5, num_generations - 1 - height / 2),
         width=num_generations,
         height=height,

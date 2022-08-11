@@ -1,6 +1,6 @@
 import itertools as it
+import matplotlib as mpl
 from matplotlib import pyplot as plt
-import matplotlib.ticker as ticker
 import typing
 import seaborn as sns
 
@@ -65,13 +65,13 @@ def mrca_uncertainty_absolute_barplot(
     )
     ax.set_xlabel('Position (Rank)')
     ax.set_ylabel('Absolute MRCA\n Uncertainty', labelpad=20)
-    ax.xaxis.set_major_locator(ticker.MaxNLocator(
+    ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(
         nbins='auto',
         steps=[1, 2, 5, 10],
         integer=True,
         min_n_ticks=0,
     ))
-    ax.yaxis.set_major_locator(ticker.MaxNLocator(
+    ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(
         nbins='auto',
         steps=[1, 2, 5, 10],
         integer=True,

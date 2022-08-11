@@ -1,7 +1,7 @@
-import matplotlib.ticker
+import matplotlib as mpl
 
 # adapted from https://stackoverflow.com/a/42156450
-class ScalarFormatterFixedPrecision(matplotlib.ticker.ScalarFormatter):
+class ScalarFormatterFixedPrecision(mpl.ticker.ScalarFormatter):
 
     _precision: int
 
