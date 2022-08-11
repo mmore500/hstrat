@@ -3,6 +3,8 @@ from matplotlib import pyplot as plt
 from matplotlib import ticker
 import typing
 
+from ...helpers import caretdown_marker
+
 from ..HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 
 def stratum_retention_dripplot(
@@ -47,6 +49,15 @@ def stratum_retention_dripplot(
             ),
         ):
             ax.plot([rank, rank], [rank, gen], 'k')
+            ax.plot(
+                rank,
+                gen,
+                ms=min(200 / num_generations, 20),
+                marker=caretdown_marker,
+                markerfacecolor='None',
+                markeredgecolor='r',
+                markeredgewidth=1,
+            )
         column.DepositStratum()
 
     for remaining_rank in opyt.apply_if_or_value(
@@ -59,7 +70,19 @@ def stratum_retention_dripplot(
             [remaining_rank, num_generations],
             'k',
         )
+        ax.plot(
+            remaining_rank,
+            num_generations,
+            ms=min(200 / num_generations, 20),
+            marker=caretdown_marker,
+            markerfacecolor='k',
+            markeredgecolor='k',
+            markeredgewidth=1,
+        )
 
+    # make space for triangle markers
+    ymin, ymax = ax.get_ylim()
+    ax.set_ylim([ymin, ymax + 2])
     ax.xaxis.set_major_locator(ticker.MaxNLocator(
         nbins='auto',
         steps=[1, 2, 5, 10],

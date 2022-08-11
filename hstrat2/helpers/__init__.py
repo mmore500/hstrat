@@ -2,6 +2,8 @@ from .all_same import all_same
 from .AnyTreeAscendingIter import AnyTreeAscendingIter
 from .bit_ceil import bit_ceil
 from .bit_floor import bit_floor
+from .caretdown_marker import caretdown_marker
+from .caretup_marker import caretup_marker
 from .div_range import div_range
 from .find_bounds import find_bounds
 from .is_nondecreasing import is_nondecreasing
@@ -15,6 +17,8 @@ __all__ = [
     'AnyTreeAscendingIter',
     'bit_ceil',
     'bit_floor',
+    'caretdown_marker',
+    'caretup_marker',
     'div_range',
     'find_bounds',
     'is_nondecreasing',
