@@ -1,9 +1,11 @@
 import opytional as opyt
+import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib import ticker
 import typing
 
 from ...helpers import caretdown_marker
+from ...helpers import scale_luminosity
 
 from ..HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 
@@ -94,6 +96,22 @@ def stratum_retention_dripplot(
         steps=[1, 2, 5, 10],
         integer=True,
         min_n_ticks=0,
+    ))
+
+    # make space for rectangle
+    xmin, xmax = ax.get_xlim()
+    ax.set_xlim([
+        min(xmin, -1),
+        max(xmax, num_generations),
+    ])
+    height = min(3, num_generations)
+    ax.add_patch(matplotlib.patches.Rectangle(
+        xy=(-0.5, num_generations - 1 - height / 2),
+        width=num_generations,
+        height=height,
+        facecolor=scale_luminosity('C0', 1.5),
+        edgecolor=scale_luminosity('C0', 0.5),
+        linewidth=6 / max(0.2 * num_generations, 1),
     ))
 
     ax.set_xlabel('Position (Rank)')
