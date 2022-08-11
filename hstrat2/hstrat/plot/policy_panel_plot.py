@@ -82,6 +82,8 @@ def policy_panel_plot(
     mid_left_ax.get_yaxis().set_label_coords(-0.1, 0.5)
     bot_left_ax.get_yaxis().set_label_coords(-0.1, 0.5)
     top_right_ax.set(xlabel=None)
+    top_left_ax.set(xlabel=None)
+    mid_left_ax.set(xlabel=None)
     fig.subplots_adjust(wspace=0.3)
 
     if do_show: plt.show()
