@@ -4,7 +4,6 @@ from matplotlib import pyplot as plt
 from matplotlib import ticker
 import typing
 
-from ...helpers import caretdown_marker
 from ...helpers import scale_luminosity
 
 from ..HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
@@ -50,15 +49,36 @@ def stratum_retention_dripplot(
                 column.IterRetainedRanks(),
             ),
         ):
-            ax.plot([rank, rank], [rank, gen], 'k')
             ax.plot(
                 rank,
                 gen,
-                ms=min(200 / num_generations, 20),
-                marker=caretdown_marker,
+                ms=20 / max(0.2 * num_generations, 1),
+                marker='v',
                 markerfacecolor='None',
+                markeredgecolor='w',
+                markeredgewidth=4 / max(0.2 * num_generations, 1),
+            )
+            ax.plot(
+                [rank, rank],
+                [rank, gen],
+                'w',
+                lw=4 / max(0.2 * num_generations, 1),
+            )
+            ax.plot([rank, rank], [rank, gen], 'r')
+            ax.plot(
+                rank,
+                gen,
+                ms=max(
+                    20 / max(0.2 * num_generations, 1),
+                    4,
+                ),
+                marker='v',
+                markerfacecolor=scale_luminosity(
+                    'r',
+                    max(10 / max(0.2 * num_generations, 1), 1)
+                ),
                 markeredgecolor='r',
-                markeredgewidth=1,
+                markeredgewidth=2 / max(0.05 * num_generations, 1),
             )
         column.DepositStratum()
 
@@ -68,6 +88,21 @@ def stratum_retention_dripplot(
         column.IterRetainedRanks(),
     ):
         ax.plot(
+            remaining_rank,
+            num_generations - 1,
+            ms=20 / max(0.2 * num_generations, 1),
+            marker='v',
+            markerfacecolor='None',
+            markeredgecolor='w',
+            markeredgewidth=4 / max(0.2 * num_generations, 1),
+        )
+        ax.plot(
+            [remaining_rank, remaining_rank],
+            [remaining_rank, num_generations - 1],
+            'w',
+            lw=4 / max(0.2 * num_generations, 1),
+        )
+        ax.plot(
             [remaining_rank, remaining_rank],
             [remaining_rank, num_generations - 1],
             'k',
@@ -75,11 +110,14 @@ def stratum_retention_dripplot(
         ax.plot(
             remaining_rank,
             num_generations - 1,
-            ms=min(200 / num_generations, 20),
-            marker=caretdown_marker,
+            ms=max(
+                20 / max(0.2 * num_generations, 1),
+                4,
+            ),
+            marker='v',
             markerfacecolor='k',
             markeredgecolor='k',
-            markeredgewidth=1,
+            markeredgewidth=2 / max(0.05 * num_generations, 1),
         )
 
     # make space for triangle markers
