@@ -25,7 +25,7 @@ def test_init(random_seed):
     policy = pseudostochastic_policy.Policy(random_seed)
 
     # invariants
-    assert callable(policy.CalcMrcaUncertaintyUpperBound)
+    assert callable(policy.CalcMrcaUncertaintyAbsUpperBound)
     assert callable(policy.CalcNumStrataRetainedUpperBound)
     # scrying
     assert policy.CalcMrcaUncertaintyExact is None
@@ -89,8 +89,8 @@ def test_WithoutCalcRankAtColumnIndex(random_seed):
 
     assert stripped.CalcRankAtColumnIndex is None
 
-    assert original.CalcMrcaUncertaintyUpperBound \
-        == stripped.CalcMrcaUncertaintyUpperBound
+    assert original.CalcMrcaUncertaintyAbsUpperBound \
+        == stripped.CalcMrcaUncertaintyAbsUpperBound
     assert original.CalcNumStrataRetainedUpperBound \
         == stripped.CalcNumStrataRetainedUpperBound
     # scrying

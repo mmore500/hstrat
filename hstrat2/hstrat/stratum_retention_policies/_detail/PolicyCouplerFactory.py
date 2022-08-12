@@ -1,7 +1,7 @@
 import opytional as opyt
 import typing
 
-from . import CalcWorstCaseMrcaUncertaintyUpperBound
+from . import CalcWorstCaseMrcaUncertaintyAbsUpperBound
 from . import CalcWorstCaseNumStrataRetainedUpperBound
 
 
@@ -43,8 +43,8 @@ def PolicyCouplerFactory(
     # enactment
     gen_drop_ranks_ftor_t: _ftor_type,
     # invariants
-    calc_mrca_uncertainty_upper_bound_ftor_t: _ftor_type \
-        =CalcWorstCaseMrcaUncertaintyUpperBound,
+    calc_mrca_uncertainty_abs_upper_bound_ftor_t: _ftor_type \
+        =CalcWorstCaseMrcaUncertaintyAbsUpperBound,
     calc_num_strata_retained_upper_bound_ftor_t: _ftor_type \
         =CalcWorstCaseNumStrataRetainedUpperBound,
     # scrying
@@ -65,7 +65,7 @@ def PolicyCouplerFactory(
         _policy_spec: policy_spec_t
 
         # invariants
-        CalcMrcaUncertaintyUpperBound: typing.Callable
+        CalcMrcaUncertaintyAbsUpperBound: typing.Callable
         CalcNumStrataRetainedUpperBound: typing.Callable
 
         # scrying
@@ -102,9 +102,9 @@ def PolicyCouplerFactory(
             )
 
             # invariants
-            self.CalcMrcaUncertaintyUpperBound = _CurryPolicy(
+            self.CalcMrcaUncertaintyAbsUpperBound = _CurryPolicy(
                 self,
-                calc_mrca_uncertainty_upper_bound_ftor_t(self._policy_spec),
+                calc_mrca_uncertainty_abs_upper_bound_ftor_t(self._policy_spec),
             )
             self.CalcNumStrataRetainedUpperBound = _CurryPolicy(
                 self,
@@ -140,7 +140,7 @@ def PolicyCouplerFactory(
                 return (
                     self._policy_spec,
                     self.GenDropRanks,
-                    self.CalcMrcaUncertaintyUpperBound,
+                    self.CalcMrcaUncertaintyAbsUpperBound,
                     self.CalcNumStrataRetainedUpperBound,
                     self.CalcMrcaUncertaintyExact,
                     self.CalcNumStrataRetainedExact,
@@ -149,7 +149,7 @@ def PolicyCouplerFactory(
                 ) == (
                     other._policy_spec,
                     other.GenDropRanks,
-                    other.CalcMrcaUncertaintyUpperBound,
+                    other.CalcMrcaUncertaintyAbsUpperBound,
                     other.CalcNumStrataRetainedUpperBound,
                     other.CalcMrcaUncertaintyExact,
                     other.CalcNumStrataRetainedExact,
@@ -198,8 +198,8 @@ def PolicyCouplerFactory(
                 # enactment
                 gen_drop_ranks_ftor_t=gen_drop_ranks_ftor_t,
                 # invariants
-                calc_mrca_uncertainty_upper_bound_ftor_t\
-                    =calc_mrca_uncertainty_upper_bound_ftor_t,
+                calc_mrca_uncertainty_abs_upper_bound_ftor_t\
+                    =calc_mrca_uncertainty_abs_upper_bound_ftor_t,
                 calc_num_strata_retained_upper_bound_ftor_t\
                     =calc_num_strata_retained_upper_bound_ftor_t,
                 # scrying

@@ -30,7 +30,8 @@ from .PolicySpec import PolicySpec
 from ._enact.GenDropRanks import GenDropRanks
 from ._enact import _GenDropRanks
 
-from ._invar.CalcMrcaUncertaintyUpperBound import CalcMrcaUncertaintyUpperBound
+from ._invar.CalcMrcaUncertaintyAbsUpperBound \
+    import CalcMrcaUncertaintyAbsUpperBound
 from ._invar.CalcNumStrataRetainedUpperBound \
     import CalcNumStrataRetainedUpperBound
 

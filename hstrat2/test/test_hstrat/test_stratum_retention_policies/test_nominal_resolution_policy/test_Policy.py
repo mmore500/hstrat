@@ -12,7 +12,7 @@ def test_init():
     policy = nominal_resolution_policy.Policy()
 
     # invariants
-    assert callable(policy.CalcMrcaUncertaintyUpperBound)
+    assert callable(policy.CalcMrcaUncertaintyAbsUpperBound)
     assert callable(policy.CalcNumStrataRetainedUpperBound)
     # scrying
     assert callable(policy.CalcMrcaUncertaintyExact)
@@ -41,8 +41,8 @@ def test_WithoutCalcRankAtColumnIndex():
 
     assert stripped.CalcRankAtColumnIndex is None
 
-    assert original.CalcMrcaUncertaintyUpperBound \
-        == stripped.CalcMrcaUncertaintyUpperBound
+    assert original.CalcMrcaUncertaintyAbsUpperBound \
+        == stripped.CalcMrcaUncertaintyAbsUpperBound
     assert original.CalcNumStrataRetainedUpperBound \
         == stripped.CalcNumStrataRetainedUpperBound
     # scrying

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from hstrat2.hstrat import perfect_resolution_policy
+from hstrat2.hstrat import nominal_resolution_policy
 
 
 @pytest.mark.parametrize(
@@ -17,9 +17,9 @@ from hstrat2.hstrat import perfect_resolution_policy
     ],
 )
 def test_policy_consistency(time_sequence):
-    policy = perfect_resolution_policy.Policy()
+    policy = nominal_resolution_policy.Policy()
     spec = policy.GetSpec()
-    instance = perfect_resolution_policy.CalcMrcaUncertaintyUpperBound(
+    instance = nominal_resolution_policy.CalcMrcaUncertaintyAbsUpperBound(
         spec,
     )
     for num_strata_deposited in time_sequence:
@@ -37,7 +37,7 @@ def test_policy_consistency(time_sequence):
             )
             for which in (
                 instance,
-                perfect_resolution_policy.CalcMrcaUncertaintyUpperBound(spec)
+                nominal_resolution_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
             ):
                 assert which(
                     policy,
@@ -47,12 +47,12 @@ def test_policy_consistency(time_sequence):
                 ) >= policy_requirement
 
 def test_eq():
-    policy = perfect_resolution_policy.Policy()
+    policy = nominal_resolution_policy.Policy()
     spec = policy.GetSpec()
-    instance = perfect_resolution_policy.CalcMrcaUncertaintyUpperBound(spec)
+    instance = nominal_resolution_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
 
     assert instance == instance
-    assert instance == perfect_resolution_policy.CalcMrcaUncertaintyUpperBound(
+    assert instance == nominal_resolution_policy.CalcMrcaUncertaintyAbsUpperBound(
         spec,
     )
     assert not instance == None

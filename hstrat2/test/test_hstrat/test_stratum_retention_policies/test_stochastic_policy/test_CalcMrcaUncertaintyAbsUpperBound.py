@@ -23,7 +23,7 @@ def test_policy_consistency(replicate):
 
     )
     spec = policy.GetSpec()
-    instance = stochastic_policy.CalcMrcaUncertaintyUpperBound(spec)
+    instance = stochastic_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
     for num_strata_deposited in range(1, 200):
         for actual_mrca_rank in it.chain(
             range(min(100, num_strata_deposited)),
@@ -39,7 +39,7 @@ def test_policy_consistency(replicate):
             policy_requirement = ub - lb
             for which in (
                 instance,
-                stochastic_policy.CalcMrcaUncertaintyUpperBound(spec)
+                stochastic_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
             ):
                 assert which(
                     policy,
@@ -56,10 +56,10 @@ def test_eq(replicate):
     random.seed(replicate)
     policy = stochastic_policy.Policy()
     spec = policy.GetSpec()
-    instance = stochastic_policy.CalcMrcaUncertaintyUpperBound(spec)
+    instance = stochastic_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
 
     assert instance == instance
-    assert instance == stochastic_policy.CalcMrcaUncertaintyUpperBound(
+    assert instance == stochastic_policy.CalcMrcaUncertaintyAbsUpperBound(
         spec,
     )
     assert not instance == None

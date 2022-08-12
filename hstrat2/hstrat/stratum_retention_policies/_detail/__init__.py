@@ -1,5 +1,5 @@
-from .CalcWorstCaseMrcaUncertaintyUpperBound \
-    import CalcWorstCaseMrcaUncertaintyUpperBound
+from .CalcWorstCaseMrcaUncertaintyAbsUpperBound \
+    import CalcWorstCaseMrcaUncertaintyAbsUpperBound
 from .CalcWorstCaseNumStrataRetainedUpperBound \
     import CalcWorstCaseNumStrataRetainedUpperBound
 from .GenDropRanksFromPredKeepRank import GenDropRanksFromPredKeepRank

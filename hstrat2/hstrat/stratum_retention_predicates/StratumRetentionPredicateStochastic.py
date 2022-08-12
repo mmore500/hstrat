@@ -83,7 +83,7 @@ class StratumRetentionPredicateStochastic:
 
         return num_strata_deposited
 
-    def CalcMrcaUncertaintyUpperBound(
+    def CalcMrcaUncertaintyAbsUpperBound(
         self: 'StratumRetentionPredicateStochastic',
         *,
         first_num_strata_deposited: int,

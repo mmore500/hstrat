@@ -20,7 +20,7 @@ def test_init(replicate):
     policy = stochastic_policy.Policy()
 
     # invariants
-    assert callable(policy.CalcMrcaUncertaintyUpperBound)
+    assert callable(policy.CalcMrcaUncertaintyAbsUpperBound)
     assert callable(policy.CalcNumStrataRetainedUpperBound)
     # scrying
     assert policy.CalcMrcaUncertaintyExact is None
@@ -65,8 +65,8 @@ def test_WithoutCalcRankAtColumnIndex(replicate):
 
     assert stripped.CalcRankAtColumnIndex is None
 
-    assert original.CalcMrcaUncertaintyUpperBound \
-        == stripped.CalcMrcaUncertaintyUpperBound
+    assert original.CalcMrcaUncertaintyAbsUpperBound \
+        == stripped.CalcMrcaUncertaintyAbsUpperBound
     assert original.CalcNumStrataRetainedUpperBound \
         == stripped.CalcNumStrataRetainedUpperBound
     # scrying

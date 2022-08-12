@@ -34,7 +34,7 @@ def test_init(degree, interspersal):
     policy = geom_seq_nth_root_policy.Policy(degree, interspersal)
 
     # invariants
-    assert callable(policy.CalcMrcaUncertaintyUpperBound)
+    assert callable(policy.CalcMrcaUncertaintyAbsUpperBound)
     assert callable(policy.CalcNumStrataRetainedUpperBound)
     # scrying
     assert callable(policy.CalcMrcaUncertaintyExact)
@@ -127,8 +127,8 @@ def test_WithoutCalcRankAtColumnIndex(degree, interspersal):
 
     assert stripped.CalcRankAtColumnIndex is None
 
-    assert original.CalcMrcaUncertaintyUpperBound \
-        == stripped.CalcMrcaUncertaintyUpperBound
+    assert original.CalcMrcaUncertaintyAbsUpperBound \
+        == stripped.CalcMrcaUncertaintyAbsUpperBound
     assert original.CalcNumStrataRetainedUpperBound \
         == stripped.CalcNumStrataRetainedUpperBound
     # scrying

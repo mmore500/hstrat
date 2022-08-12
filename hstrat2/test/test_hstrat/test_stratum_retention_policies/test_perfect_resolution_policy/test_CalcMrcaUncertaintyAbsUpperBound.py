@@ -1,20 +1,9 @@
 import numpy as np
 import pytest
 
-from hstrat2.hstrat import fixed_resolution_policy
+from hstrat2.hstrat import perfect_resolution_policy
 
 
-@pytest.mark.parametrize(
-    'fixed_resolution',
-    [
-        1,
-        2,
-        3,
-        7,
-        42,
-        100,
-    ],
-)
 @pytest.mark.parametrize(
     'time_sequence',
     [
@@ -27,10 +16,10 @@ from hstrat2.hstrat import fixed_resolution_policy
         ),
     ],
 )
-def test_policy_consistency(fixed_resolution, time_sequence):
-    policy = fixed_resolution_policy.Policy(fixed_resolution)
+def test_policy_consistency(time_sequence):
+    policy = perfect_resolution_policy.Policy()
     spec = policy.GetSpec()
-    instance = fixed_resolution_policy.CalcMrcaUncertaintyUpperBound(
+    instance = perfect_resolution_policy.CalcMrcaUncertaintyAbsUpperBound(
         spec,
     )
     for num_strata_deposited in time_sequence:
@@ -48,7 +37,7 @@ def test_policy_consistency(fixed_resolution, time_sequence):
             )
             for which in (
                 instance,
-                fixed_resolution_policy.CalcMrcaUncertaintyUpperBound(spec)
+                perfect_resolution_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
             ):
                 assert which(
                     policy,
@@ -57,24 +46,13 @@ def test_policy_consistency(fixed_resolution, time_sequence):
                     actual_mrca_rank,
                 ) >= policy_requirement
 
-@pytest.mark.parametrize(
-    'fixed_resolution',
-    [
-        1,
-        2,
-        3,
-        7,
-        42,
-        100,
-    ],
-)
-def test_eq(fixed_resolution):
-    policy = fixed_resolution_policy.Policy(fixed_resolution)
+def test_eq():
+    policy = perfect_resolution_policy.Policy()
     spec = policy.GetSpec()
-    instance = fixed_resolution_policy.CalcMrcaUncertaintyUpperBound(spec)
+    instance = perfect_resolution_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
 
     assert instance == instance
-    assert instance == fixed_resolution_policy.CalcMrcaUncertaintyUpperBound(
+    assert instance == perfect_resolution_policy.CalcMrcaUncertaintyAbsUpperBound(
         spec,
     )
     assert not instance == None

@@ -1,37 +1,55 @@
+import itertools as it
 import numpy as np
 import pytest
 
-from hstrat2.hstrat import depth_proportional_resolution_policy
+from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
 
 
 @pytest.mark.parametrize(
-    'depth_proportional_resolution',
+    'degree',
     [
         1,
         2,
         3,
         7,
+        9,
         42,
-        97,
         100,
+    ],
+)
+@pytest.mark.parametrize(
+    'interspersal',
+    [
+        1,
+        2,
+        5,
     ],
 )
 @pytest.mark.parametrize(
     'time_sequence',
     [
-        range(10**4),
-        (i for i in range(10**2) for __ in range(2)),
+        it.chain(
+            range(10**3),
+            np.logspace(10, 32, num=50, base=2, dtype='int'),
+        ),
+        (i for i in range(10) for __ in range(2)),
+        (10 - i for i in range(10) for __ in range(2)),
         np.random.default_rng(1).integers(
             low=0,
-            high=2**32,
-            size=10**2,
+            high=10**2,
+            size=10,
+        ),
+        np.random.default_rng(1).integers(
+            low=0,
+            high=2**16,
+            size=10,
         ),
     ],
 )
-def test_policy_consistency(depth_proportional_resolution, time_sequence):
-    policy = depth_proportional_resolution_policy.Policy(depth_proportional_resolution)
+def test_policy_consistency(degree, interspersal, time_sequence):
+    policy = geom_seq_nth_root_tapered_policy.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_policy.CalcMrcaUncertaintyUpperBound(
+    instance = geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyAbsUpperBound(
         spec,
     )
     for num_strata_deposited in time_sequence:
@@ -49,7 +67,7 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
             )
             for which in (
                 instance,
-                depth_proportional_resolution_policy.CalcMrcaUncertaintyUpperBound(spec)
+                geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
             ):
                 assert which(
                     policy,
@@ -59,24 +77,32 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
                 ) >= policy_requirement
 
 @pytest.mark.parametrize(
-    'depth_proportional_resolution',
+    'degree',
     [
         1,
         2,
         3,
         7,
+        9,
         42,
-        97,
         100,
     ],
 )
-def test_eq(depth_proportional_resolution):
-    policy = depth_proportional_resolution_policy.Policy(depth_proportional_resolution)
+@pytest.mark.parametrize(
+    'interspersal',
+    [
+        1,
+        2,
+        5,
+    ],
+)
+def test_eq(degree, interspersal):
+    policy = geom_seq_nth_root_tapered_policy.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_policy.CalcMrcaUncertaintyUpperBound(spec)
+    instance = geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
 
     assert instance == instance
-    assert instance == depth_proportional_resolution_policy.CalcMrcaUncertaintyUpperBound(
+    assert instance == geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyAbsUpperBound(
         spec,
     )
     assert not instance == None

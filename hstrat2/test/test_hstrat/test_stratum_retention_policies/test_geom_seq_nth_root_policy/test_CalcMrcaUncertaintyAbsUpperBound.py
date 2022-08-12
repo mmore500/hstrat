@@ -2,7 +2,7 @@ import itertools as it
 import numpy as np
 import pytest
 
-from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
+from hstrat2.hstrat import geom_seq_nth_root_policy
 
 
 @pytest.mark.parametrize(
@@ -47,9 +47,9 @@ from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
     ],
 )
 def test_policy_consistency(degree, interspersal, time_sequence):
-    policy = geom_seq_nth_root_tapered_policy.Policy(degree, interspersal)
+    policy = geom_seq_nth_root_policy.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyUpperBound(
+    instance = geom_seq_nth_root_policy.CalcMrcaUncertaintyAbsUpperBound(
         spec,
     )
     for num_strata_deposited in time_sequence:
@@ -67,7 +67,7 @@ def test_policy_consistency(degree, interspersal, time_sequence):
             )
             for which in (
                 instance,
-                geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyUpperBound(spec)
+                geom_seq_nth_root_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
             ):
                 assert which(
                     policy,
@@ -97,12 +97,12 @@ def test_policy_consistency(degree, interspersal, time_sequence):
     ],
 )
 def test_eq(degree, interspersal):
-    policy = geom_seq_nth_root_tapered_policy.Policy(degree, interspersal)
+    policy = geom_seq_nth_root_policy.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyUpperBound(spec)
+    instance = geom_seq_nth_root_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
 
     assert instance == instance
-    assert instance == geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyUpperBound(
+    assert instance == geom_seq_nth_root_policy.CalcMrcaUncertaintyAbsUpperBound(
         spec,
     )
     assert not instance == None

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from hstrat2.hstrat import depth_proportional_resolution_tapered_policy
+from hstrat2.hstrat import depth_proportional_resolution_policy
 
 
 @pytest.mark.parametrize(
@@ -29,9 +29,9 @@ from hstrat2.hstrat import depth_proportional_resolution_tapered_policy
     ],
 )
 def test_policy_consistency(depth_proportional_resolution, time_sequence):
-    policy = depth_proportional_resolution_tapered_policy.Policy(depth_proportional_resolution)
+    policy = depth_proportional_resolution_policy.Policy(depth_proportional_resolution)
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyUpperBound(
+    instance = depth_proportional_resolution_policy.CalcMrcaUncertaintyAbsUpperBound(
         spec,
     )
     for num_strata_deposited in time_sequence:
@@ -49,7 +49,7 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
             )
             for which in (
                 instance,
-                depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyUpperBound(spec)
+                depth_proportional_resolution_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
             ):
                 assert which(
                     policy,
@@ -71,12 +71,12 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
     ],
 )
 def test_eq(depth_proportional_resolution):
-    policy = depth_proportional_resolution_tapered_policy.Policy(depth_proportional_resolution)
+    policy = depth_proportional_resolution_policy.Policy(depth_proportional_resolution)
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyUpperBound(spec)
+    instance = depth_proportional_resolution_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
 
     assert instance == instance
-    assert instance == depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyUpperBound(
+    assert instance == depth_proportional_resolution_policy.CalcMrcaUncertaintyAbsUpperBound(
         spec,
     )
     assert not instance == None

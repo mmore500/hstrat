@@ -1,13 +1,12 @@
 import numpy as np
 import pytest
 
-from hstrat2.hstrat import recency_proportional_resolution_policy
+from hstrat2.hstrat import depth_proportional_resolution_tapered_policy
 
 
 @pytest.mark.parametrize(
-    'recency_proportional_resolution',
+    'depth_proportional_resolution',
     [
-        0,
         1,
         2,
         3,
@@ -29,10 +28,10 @@ from hstrat2.hstrat import recency_proportional_resolution_policy
         ),
     ],
 )
-def test_policy_consistency(recency_proportional_resolution, time_sequence):
-    policy = recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+def test_policy_consistency(depth_proportional_resolution, time_sequence):
+    policy = depth_proportional_resolution_tapered_policy.Policy(depth_proportional_resolution)
     spec = policy.GetSpec()
-    instance = recency_proportional_resolution_policy.CalcMrcaUncertaintyUpperBound(
+    instance = depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyAbsUpperBound(
         spec,
     )
     for num_strata_deposited in time_sequence:
@@ -50,7 +49,7 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
             )
             for which in (
                 instance,
-                recency_proportional_resolution_policy.CalcMrcaUncertaintyUpperBound(spec)
+                depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
             ):
                 assert which(
                     policy,
@@ -60,9 +59,8 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
                 ) >= policy_requirement
 
 @pytest.mark.parametrize(
-    'recency_proportional_resolution',
+    'depth_proportional_resolution',
     [
-        0,
         1,
         2,
         3,
@@ -72,13 +70,13 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
         100,
     ],
 )
-def test_eq(recency_proportional_resolution):
-    policy = recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+def test_eq(depth_proportional_resolution):
+    policy = depth_proportional_resolution_tapered_policy.Policy(depth_proportional_resolution)
     spec = policy.GetSpec()
-    instance = recency_proportional_resolution_policy.CalcMrcaUncertaintyUpperBound(spec)
+    instance = depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
 
     assert instance == instance
-    assert instance == recency_proportional_resolution_policy.CalcMrcaUncertaintyUpperBound(
+    assert instance == depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyAbsUpperBound(
         spec,
     )
     assert not instance == None
