@@ -2,19 +2,9 @@ import itertools as it
 import numpy as np
 import pytest
 
-from hstrat2.hstrat import fixed_resolution_policy
+from hstrat2.hstrat import perfect_resolution_policy
 
-@pytest.mark.parametrize(
-    'fixed_resolution',
-    [
-        1,
-        2,
-        3,
-        7,
-        42,
-        100,
-    ],
-)
+
 @pytest.mark.parametrize(
     'time_sequence',
     [
@@ -27,32 +17,33 @@ from hstrat2.hstrat import fixed_resolution_policy
         ),
     ],
 )
-def test_policy_consistency(fixed_resolution, time_sequence):
-    policy = fixed_resolution_policy.Policy(fixed_resolution)
+def test_policy_consistency(time_sequence):
+    policy = perfect_resolution_policy.Policy()
     spec = policy.GetSpec()
-    instance = fixed_resolution_policy.CalcMrcaUncertaintyExact(spec)
+    instance = perfect_resolution_policy.CalcMrcaUncertaintyAbsExact(spec)
     for num_strata_deposited in time_sequence:
         retained_ranks = np.fromiter(
             policy.IterRetainedRanks(num_strata_deposited),
             int,
         )
-        for actual_mrca_rank in range(num_strata_deposited):
-            last_known_commonality = retained_ranks[
-                retained_ranks <= actual_mrca_rank,
-            ].max(
+        for actual_mrca_rank in np.random.default_rng(
+            num_strata_deposited,
+        ).integers(
+            low=0,
+            high=num_strata_deposited,
+            size=10**2,
+        ) if num_strata_deposited else iter(()):
+            lb = retained_ranks[retained_ranks <= actual_mrca_rank].max(
                 initial=0,
             )
-            first_known_disparity = retained_ranks[
-                retained_ranks > actual_mrca_rank,
-            ].min(
+            ub = retained_ranks[retained_ranks > actual_mrca_rank].min(
                 initial=num_strata_deposited,
             )
-            policy_requirement \
-                =  first_known_disparity - last_known_commonality - 1
+            policy_requirement = ub - lb - 1
             assert policy_requirement >= 0
             for which in (
                 instance,
-                fixed_resolution_policy.CalcMrcaUncertaintyExact(spec),
+                perfect_resolution_policy.CalcMrcaUncertaintyAbsExact(spec),
             ):
                 assert which(
                     policy,
@@ -61,21 +52,10 @@ def test_policy_consistency(fixed_resolution, time_sequence):
                     actual_mrca_rank,
                 ) == policy_requirement
 
-@pytest.mark.parametrize(
-    'fixed_resolution',
-    [
-        1,
-        2,
-        3,
-        7,
-        42,
-        100,
-    ],
-)
-def test_policy_consistency_uneven_branches(fixed_resolution):
-    policy = fixed_resolution_policy.Policy(fixed_resolution)
+def test_policy_consistency_uneven_branches():
+    policy = perfect_resolution_policy.Policy()
     spec = policy.GetSpec()
-    instance = fixed_resolution_policy.CalcMrcaUncertaintyExact(spec)
+    instance = perfect_resolution_policy.CalcMrcaUncertaintyAbsExact(spec)
     sample_durations = it.chain(
         range(10**2),
         np.logspace(7, 16, num=10, base=2, dtype='int'),
@@ -105,7 +85,7 @@ def test_policy_consistency_uneven_branches(fixed_resolution):
                 assert policy_requirement >= 0
                 for which in (
                     instance,
-                    fixed_resolution_policy.CalcMrcaUncertaintyExact(spec),
+                    perfect_resolution_policy.CalcMrcaUncertaintyAbsExact(spec),
                 ):
                     assert which(
                         policy,
@@ -114,22 +94,11 @@ def test_policy_consistency_uneven_branches(fixed_resolution):
                         actual_mrca_rank,
                     ) == policy_requirement
 
-@pytest.mark.parametrize(
-    'fixed_resolution',
-    [
-        1,
-        2,
-        3,
-        7,
-        42,
-        100,
-    ],
-)
-def test_eq(fixed_resolution):
-    policy = fixed_resolution_policy.Policy(fixed_resolution)
+def test_eq():
+    policy = perfect_resolution_policy.Policy()
     spec = policy.GetSpec()
-    instance = fixed_resolution_policy.CalcMrcaUncertaintyExact(spec)
+    instance = perfect_resolution_policy.CalcMrcaUncertaintyAbsExact(spec)
 
     assert instance == instance
-    assert instance == fixed_resolution_policy.CalcMrcaUncertaintyExact(spec)
+    assert instance == perfect_resolution_policy.CalcMrcaUncertaintyAbsExact(spec)
     assert not instance == None

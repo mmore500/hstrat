@@ -1,6 +1,6 @@
 from .._detail import PolicyCouplerFactory
 
-from . import CalcMrcaUncertaintyExact
+from . import CalcMrcaUncertaintyAbsExact
 from . import CalcNumStrataRetainedExact
 from . import CalcMrcaUncertaintyAbsUpperBound
 from . import CalcNumStrataRetainedUpperBound
@@ -19,7 +19,7 @@ Policy = PolicyCouplerFactory(
     calc_num_strata_retained_upper_bound_ftor_t\
         =CalcNumStrataRetainedUpperBound,
     # scrying
-    calc_mrca_uncertainty_exact_ftor_t=CalcMrcaUncertaintyExact,
+    calc_mrca_uncertainty_abs_exact_ftor_t=CalcMrcaUncertaintyAbsExact,
     calc_num_strata_retained_exact_ftor_t=CalcNumStrataRetainedExact,
     calc_rank_at_column_index_ftor_t=CalcRankAtColumnIndex,
     iter_retained_ranks_ftor_t=IterRetainedRanks,

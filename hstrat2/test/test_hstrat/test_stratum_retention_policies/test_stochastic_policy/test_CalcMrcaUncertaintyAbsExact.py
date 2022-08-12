@@ -12,4 +12,4 @@ def test_policy_consistency(replicate):
     random.seed(replicate)
     policy = stochastic_policy.Policy()
     spec = policy.GetSpec()
-    assert stochastic_policy.CalcMrcaUncertaintyExact is None
+    assert stochastic_policy.CalcMrcaUncertaintyAbsExact is None

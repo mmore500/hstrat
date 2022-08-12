@@ -40,7 +40,7 @@ from ._invar.CalcMrcaUncertaintyAbsUpperBound \
 from ._invar.CalcNumStrataRetainedUpperBound \
     import CalcNumStrataRetainedUpperBound
 
-from ._scry.CalcMrcaUncertaintyExact import CalcMrcaUncertaintyExact
+from ._scry.CalcMrcaUncertaintyAbsExact import CalcMrcaUncertaintyAbsExact
 from ._scry.CalcNumStrataRetainedExact import CalcNumStrataRetainedExact
 from ._scry.CalcRankAtColumnIndex import CalcRankAtColumnIndex
 from ._scry.IterRetainedRanks import IterRetainedRanks

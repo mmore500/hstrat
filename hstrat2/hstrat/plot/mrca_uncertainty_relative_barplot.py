@@ -44,7 +44,7 @@ def mrca_uncertainty_relative_barplot(
         xs.append(gen)
         if stratum_retention_policy.CalcNumStrataRetainedExact is not None:
             ys.append(
-                stratum_retention_policy.CalcMrcaUncertaintyExact(
+                stratum_retention_policy.CalcMrcaUncertaintyAbsExact(
                     num_generations,
                     num_generations,
                     gen,

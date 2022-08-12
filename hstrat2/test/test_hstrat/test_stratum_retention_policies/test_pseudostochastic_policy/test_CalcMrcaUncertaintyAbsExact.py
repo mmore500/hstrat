@@ -17,4 +17,4 @@ from hstrat2.hstrat import pseudostochastic_policy
 def test_policy_consistency(random_seed):
     policy = pseudostochastic_policy.Policy(random_seed)
     spec = policy.GetSpec()
-    assert pseudostochastic_policy.CalcMrcaUncertaintyExact is None
+    assert pseudostochastic_policy.CalcMrcaUncertaintyAbsExact is None

@@ -42,8 +42,8 @@ def mrca_uncertainty_absolute_barplot(
     )
     for gen in range(1, num_generations):
         xs.append(gen)
-        if stratum_retention_policy.CalcMrcaUncertaintyExact is not None:
-            ys.append(stratum_retention_policy.CalcMrcaUncertaintyExact(
+        if stratum_retention_policy.CalcMrcaUncertaintyAbsExact is not None:
+            ys.append(stratum_retention_policy.CalcMrcaUncertaintyAbsExact(
                 num_generations,
                 num_generations,
                 gen,

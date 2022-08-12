@@ -29,7 +29,7 @@ def test_init(depth_proportional_resolution):
     assert callable(policy.CalcMrcaUncertaintyAbsUpperBound)
     assert callable(policy.CalcNumStrataRetainedUpperBound)
     # scrying
-    assert callable(policy.CalcMrcaUncertaintyExact)
+    assert callable(policy.CalcMrcaUncertaintyAbsExact)
     assert callable(policy.CalcNumStrataRetainedExact)
     assert callable(policy.CalcRankAtColumnIndex)
     assert callable(policy.IterRetainedRanks)
@@ -98,8 +98,8 @@ def test_WithoutCalcRankAtColumnIndex(depth_proportional_resolution):
     assert original.CalcNumStrataRetainedUpperBound \
         == stripped.CalcNumStrataRetainedUpperBound
     # scrying
-    assert original.CalcMrcaUncertaintyExact \
-        == stripped.CalcMrcaUncertaintyExact
+    assert original.CalcMrcaUncertaintyAbsExact \
+        == stripped.CalcMrcaUncertaintyAbsExact
     assert original.CalcNumStrataRetainedExact \
         == stripped.CalcNumStrataRetainedExact
     assert original.IterRetainedRanks == stripped.IterRetainedRanks

@@ -34,7 +34,7 @@ from hstrat2.hstrat import depth_proportional_resolution_policy
 def test_policy_consistency(depth_proportional_resolution, time_sequence):
     policy = depth_proportional_resolution_policy.Policy(depth_proportional_resolution)
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_policy.CalcMrcaUncertaintyExact(spec)
+    instance = depth_proportional_resolution_policy.CalcMrcaUncertaintyAbsExact(spec)
     for num_strata_deposited in time_sequence:
         retained_ranks = np.fromiter(
             policy.IterRetainedRanks(num_strata_deposited),
@@ -63,7 +63,7 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
             assert policy_requirement >= 0
             for which in (
                 instance,
-                depth_proportional_resolution_policy.CalcMrcaUncertaintyExact(spec),
+                depth_proportional_resolution_policy.CalcMrcaUncertaintyAbsExact(spec),
             ):
                 assert which(
                     policy,
@@ -87,7 +87,7 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
 def test_policy_consistency_uneven_branches(depth_proportional_resolution):
     policy = depth_proportional_resolution_policy.Policy(depth_proportional_resolution)
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_policy.CalcMrcaUncertaintyExact(spec)
+    instance = depth_proportional_resolution_policy.CalcMrcaUncertaintyAbsExact(spec)
     sample_durations = it.chain(
         range(10**2),
         np.logspace(7, 16, num=10, base=2, dtype='int'),
@@ -117,7 +117,7 @@ def test_policy_consistency_uneven_branches(depth_proportional_resolution):
                 assert policy_requirement >= 0
                 for which in (
                     instance,
-                    depth_proportional_resolution_policy.CalcMrcaUncertaintyExact(spec),
+                    depth_proportional_resolution_policy.CalcMrcaUncertaintyAbsExact(spec),
                 ):
                     assert which(
                         policy,
@@ -141,8 +141,8 @@ def test_policy_consistency_uneven_branches(depth_proportional_resolution):
 def test_eq(depth_proportional_resolution):
     policy = depth_proportional_resolution_policy.Policy(depth_proportional_resolution)
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_policy.CalcMrcaUncertaintyExact(spec)
+    instance = depth_proportional_resolution_policy.CalcMrcaUncertaintyAbsExact(spec)
 
     assert instance == instance
-    assert instance == depth_proportional_resolution_policy.CalcMrcaUncertaintyExact(spec)
+    assert instance == depth_proportional_resolution_policy.CalcMrcaUncertaintyAbsExact(spec)
     assert not instance == None

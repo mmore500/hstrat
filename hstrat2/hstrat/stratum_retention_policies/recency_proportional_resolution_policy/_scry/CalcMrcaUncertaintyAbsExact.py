@@ -3,23 +3,23 @@ import typing
 from .._impl import calc_provided_uncertainty
 from ..PolicySpec import PolicySpec
 
-class CalcMrcaUncertaintyExact:
+class CalcMrcaUncertaintyAbsExact:
     """Functor to provide member function implementation in Policy class."""
 
     def __init__(
-        self: 'CalcMrcaUncertaintyExact',
+        self: 'CalcMrcaUncertaintyAbsExact',
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcMrcaUncertaintyExact',
+        self: 'CalcMrcaUncertaintyAbsExact',
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcMrcaUncertaintyExact',
+        self: 'CalcMrcaUncertaintyAbsExact',
         policy: 'Policy',
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,

@@ -6,23 +6,23 @@ from .....helpers import find_bounds
 from .._impl import get_retained_ranks
 from ..PolicySpec import PolicySpec
 
-class CalcMrcaUncertaintyExact:
+class CalcMrcaUncertaintyAbsExact:
     """Functor to provide member function implementation in Policy class."""
 
     def __init__(
-        self: 'CalcMrcaUncertaintyExact',
+        self: 'CalcMrcaUncertaintyAbsExact',
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcMrcaUncertaintyExact',
+        self: 'CalcMrcaUncertaintyAbsExact',
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcMrcaUncertaintyExact',
+        self: 'CalcMrcaUncertaintyAbsExact',
         policy: 'Policy',
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
@@ -38,7 +38,8 @@ class CalcMrcaUncertaintyExact:
         least_last_rank = least_num_strata_deposited - 1
 
         retained_ranks = get_retained_ranks(
-            policy,
+            spec._degree,
+            spec._interspersal,
             least_num_strata_deposited,
         )
         lower_bound, upper_bound = find_bounds(

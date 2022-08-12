@@ -2,66 +2,31 @@ import itertools as it
 import numpy as np
 import pytest
 
-from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
+from hstrat2.hstrat import nominal_resolution_policy
 
-@pytest.mark.parametrize(
-    'degree',
-    [
-        1,
-        2,
-        3,
-        7,
-        9,
-        42,
-        100,
-    ],
-)
-@pytest.mark.parametrize(
-    'interspersal',
-    [
-        1,
-        2,
-        5,
-    ],
-)
+
 @pytest.mark.parametrize(
     'time_sequence',
     [
-        it.chain(
-            range(10**3),
-            np.logspace(10, 32, num=50, base=2, dtype='int'),
-        ),
-        (i for i in range(10) for __ in range(2)),
-        (10 - i for i in range(10) for __ in range(2)),
+        range(10**2),
+        (i for i in range(10**2) for __ in range(2)),
         np.random.default_rng(1).integers(
             low=0,
-            high=10**2,
-            size=10,
-        ),
-        np.random.default_rng(1).integers(
-            low=0,
-            high=2**16,
-            size=10,
+            high=10**3,
+            size=10**2,
         ),
     ],
 )
-def test_policy_consistency(degree, interspersal, time_sequence):
-    policy = geom_seq_nth_root_tapered_policy.Policy(degree, interspersal)
+def test_policy_consistency(time_sequence):
+    policy = nominal_resolution_policy.Policy()
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyExact(spec)
+    instance = nominal_resolution_policy.CalcMrcaUncertaintyAbsExact(spec)
     for num_strata_deposited in time_sequence:
         retained_ranks = np.fromiter(
             policy.IterRetainedRanks(num_strata_deposited),
             int,
         )
-        for actual_mrca_rank in it.chain(
-            range(min(num_strata_deposited, 10**3)),
-            np.random.default_rng(1).integers(
-                low=0,
-                high=num_strata_deposited,
-                size=10**2,
-            ) if num_strata_deposited else iter(()),
-        ):
+        for actual_mrca_rank in range(num_strata_deposited):
             last_known_commonality = retained_ranks[
                 retained_ranks <= actual_mrca_rank,
             ].max(
@@ -77,7 +42,7 @@ def test_policy_consistency(degree, interspersal, time_sequence):
             assert policy_requirement >= 0
             for which in (
                 instance,
-                geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyExact(spec),
+                nominal_resolution_policy.CalcMrcaUncertaintyAbsExact(spec),
             ):
                 assert which(
                     policy,
@@ -86,30 +51,10 @@ def test_policy_consistency(degree, interspersal, time_sequence):
                     actual_mrca_rank,
                 ) == policy_requirement
 
-@pytest.mark.parametrize(
-    'degree',
-    [
-        1,
-        2,
-        3,
-        7,
-        9,
-        42,
-        100,
-    ],
-)
-@pytest.mark.parametrize(
-    'interspersal',
-    [
-        1,
-        2,
-        5,
-    ],
-)
-def test_policy_consistency_uneven_branches(degree, interspersal):
-    policy = geom_seq_nth_root_tapered_policy.Policy(degree, interspersal)
+def test_policy_consistency_uneven_branches():
+    policy = nominal_resolution_policy.Policy()
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyExact(spec)
+    instance = nominal_resolution_policy.CalcMrcaUncertaintyAbsExact(spec)
     sample_durations = it.chain(
         range(10**2),
         np.logspace(7, 16, num=10, base=2, dtype='int'),
@@ -139,7 +84,7 @@ def test_policy_consistency_uneven_branches(degree, interspersal):
                 assert policy_requirement >= 0
                 for which in (
                     instance,
-                    geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyExact(spec),
+                    nominal_resolution_policy.CalcMrcaUncertaintyAbsExact(spec),
                 ):
                     assert which(
                         policy,
@@ -148,31 +93,11 @@ def test_policy_consistency_uneven_branches(degree, interspersal):
                         actual_mrca_rank,
                     ) == policy_requirement
 
-@pytest.mark.parametrize(
-    'degree',
-    [
-        1,
-        2,
-        3,
-        7,
-        9,
-        42,
-        100,
-    ],
-)
-@pytest.mark.parametrize(
-    'interspersal',
-    [
-        1,
-        2,
-        5,
-    ],
-)
-def test_eq(degree, interspersal):
-    policy = geom_seq_nth_root_tapered_policy.Policy(degree, interspersal)
+def test_eq():
+    policy = nominal_resolution_policy.Policy()
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyExact(spec)
+    instance = nominal_resolution_policy.CalcMrcaUncertaintyAbsExact(spec)
 
     assert instance == instance
-    assert instance == geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyExact(spec)
+    assert instance == nominal_resolution_policy.CalcMrcaUncertaintyAbsExact(spec)
     assert not instance == None

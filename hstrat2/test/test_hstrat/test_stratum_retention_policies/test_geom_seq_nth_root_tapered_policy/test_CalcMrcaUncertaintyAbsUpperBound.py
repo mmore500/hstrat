@@ -60,7 +60,7 @@ def test_policy_consistency(degree, interspersal, time_sequence):
             high=num_strata_deposited,
             size=10**2,
         ) if num_strata_deposited else iter(()):
-            policy_requirement = policy.CalcMrcaUncertaintyExact(
+            policy_requirement = policy.CalcMrcaUncertaintyAbsExact(
                 num_strata_deposited,
                 num_strata_deposited,
                 actual_mrca_rank,
