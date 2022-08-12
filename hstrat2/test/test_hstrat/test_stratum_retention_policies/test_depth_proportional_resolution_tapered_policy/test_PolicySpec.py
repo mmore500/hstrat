@@ -50,3 +50,11 @@ def test_GetPolicyTitle():
         depth_proportional_resolution,
     )
     assert spec.GetPolicyTitle()
+
+def test_repr():
+    depth_proportional_resolution = 1
+    spec = depth_proportional_resolution_tapered_policy.PolicySpec(
+        depth_proportional_resolution,
+    )
+    assert str(depth_proportional_resolution) in repr(spec)
+    assert spec.GetPolicyName() in repr(spec)

@@ -57,3 +57,7 @@ def test_WithoutCalcRankAtColumnIndex():
     # test chaining
     assert perfect_resolution_policy.Policy().WithoutCalcRankAtColumnIndex() \
         == stripped
+
+def test_repr():
+    policy = perfect_resolution_policy.Policy()
+    assert policy.GetSpec().GetPolicyName() in repr(policy)

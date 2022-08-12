@@ -114,3 +114,9 @@ def test_WithoutCalcRankAtColumnIndex(recency_proportional_resolution):
     assert recency_proportional_resolution_policy.Policy(
         recency_proportional_resolution,
     ).WithoutCalcRankAtColumnIndex() == stripped
+
+def test_repr():
+    recency_proportional_resolution = 1
+    policy = recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+    assert str(recency_proportional_resolution) in repr(policy)
+    assert policy.GetSpec().GetPolicyName() in repr(policy)

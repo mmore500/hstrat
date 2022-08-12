@@ -81,3 +81,7 @@ def test_WithoutCalcRankAtColumnIndex(replicate):
     # test chaining
     assert stochastic_policy.Policy().WithoutCalcRankAtColumnIndex() \
         == stripped
+
+def test_repr():
+    policy = stochastic_policy.Policy()
+    assert policy.GetSpec().GetPolicyName() in repr(policy)

@@ -44,3 +44,9 @@ def test_GetPolicyTitle():
     random_seed = 1
     spec = pseudostochastic_policy.PolicySpec(random_seed)
     assert spec.GetPolicyTitle()
+
+def test_repr():
+    random_seed = 1
+    spec = pseudostochastic_policy.PolicySpec(random_seed)
+    assert str(random_seed) in repr(spec)
+    assert spec.GetPolicyName() in repr(spec)

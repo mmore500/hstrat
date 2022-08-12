@@ -110,3 +110,11 @@ def test_WithoutCalcRankAtColumnIndex(depth_proportional_resolution):
     assert depth_proportional_resolution_tapered_policy.Policy(
         depth_proportional_resolution,
     ).WithoutCalcRankAtColumnIndex() == stripped
+
+def test_repr():
+    depth_proportional_resolution = 1
+    policy = depth_proportional_resolution_tapered_policy.Policy(
+        depth_proportional_resolution,
+    )
+    assert str(depth_proportional_resolution) in repr(policy)
+    assert policy.GetSpec().GetPolicyName() in repr(policy)

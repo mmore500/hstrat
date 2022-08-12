@@ -106,3 +106,9 @@ def test_WithoutCalcRankAtColumnIndex(random_seed):
     assert pseudostochastic_policy.Policy(
         random_seed,
     ).WithoutCalcRankAtColumnIndex() == stripped
+
+def test_repr():
+    random_seed = 1
+    policy = pseudostochastic_policy.Policy(random_seed)
+    assert str(random_seed) in repr(policy)
+    assert policy.GetSpec().GetPolicyName() in repr(policy)

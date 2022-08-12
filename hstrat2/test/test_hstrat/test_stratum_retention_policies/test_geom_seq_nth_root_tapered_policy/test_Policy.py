@@ -145,3 +145,11 @@ def test_WithoutCalcRankAtColumnIndex(degree, interspersal):
         degree,
         interspersal,
     ).WithoutCalcRankAtColumnIndex() == stripped
+
+def test_repr():
+    degree = 1
+    interspersal = 2
+    policy = geom_seq_nth_root_tapered_policy.Policy(degree, interspersal)
+    assert str(degree) in repr(policy)
+    assert str(interspersal) in repr(policy)
+    assert policy.GetSpec().GetPolicyName() in repr(policy)

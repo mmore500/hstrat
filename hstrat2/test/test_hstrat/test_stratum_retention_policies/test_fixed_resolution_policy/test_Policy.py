@@ -106,3 +106,9 @@ def test_WithoutCalcRankAtColumnIndex(fixed_resolution):
     assert fixed_resolution_policy.Policy(
         fixed_resolution,
     ).WithoutCalcRankAtColumnIndex() == stripped
+
+def test_repr():
+    fixed_resolution = 1
+    policy = fixed_resolution_policy.Policy(fixed_resolution)
+    assert str(fixed_resolution) in repr(policy)
+    assert policy.GetSpec().GetPolicyName() in repr(policy)

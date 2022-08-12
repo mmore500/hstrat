@@ -16,3 +16,7 @@ def test_GetPolicyName():
 def test_GetPolicyTitle():
     spec = perfect_resolution_policy.PolicySpec()
     assert spec.GetPolicyTitle()
+
+def test_repr():
+    spec = perfect_resolution_policy.PolicySpec()
+    assert spec.GetPolicyName() in repr(spec)
