@@ -118,3 +118,11 @@ def test_repr():
     )
     assert str(depth_proportional_resolution) in repr(policy)
     assert policy.GetSpec().GetPolicyName() in repr(policy)
+
+def test_str():
+    depth_proportional_resolution = 1
+    policy = depth_proportional_resolution_tapered_policy.Policy(
+        depth_proportional_resolution,
+    )
+    assert str(depth_proportional_resolution) in str(policy)
+    assert policy.GetSpec().GetPolicyTitle() in str(policy)

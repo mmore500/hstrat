@@ -175,6 +175,11 @@ def PolicyCouplerFactory(
                 self._policy_spec
             !r})'''
 
+        def __str__(
+            self: 'PolicyCoupler',
+        ) -> str:
+            return str(self._policy_spec)
+
         def GetSpec(self: 'PolicyCoupler') -> policy_spec_t:
             return self._policy_spec
 

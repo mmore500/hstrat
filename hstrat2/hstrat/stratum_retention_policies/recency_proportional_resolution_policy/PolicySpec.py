@@ -47,6 +47,15 @@ class PolicySpec:
             self._guaranteed_mrca_recency_proportional_resolution
         })'''
 
+    def __str__(
+        self: 'PolicySpec',
+    ) -> str:
+        return f'''{
+            self.GetPolicyTitle()
+        } (resolution: {
+            self._guaranteed_mrca_recency_proportional_resolution
+        })'''
+
     @staticmethod
     def GetPolicyName() -> str:
         return __package__.split(".")[-1]

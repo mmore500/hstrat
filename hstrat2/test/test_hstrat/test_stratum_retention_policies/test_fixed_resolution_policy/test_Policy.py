@@ -112,3 +112,9 @@ def test_repr():
     policy = fixed_resolution_policy.Policy(fixed_resolution)
     assert str(fixed_resolution) in repr(policy)
     assert policy.GetSpec().GetPolicyName() in repr(policy)
+
+def test_str():
+    fixed_resolution = 1
+    policy = fixed_resolution_policy.Policy(fixed_resolution)
+    assert str(fixed_resolution) in str(policy)
+    assert policy.GetSpec().GetPolicyTitle() in str(policy)

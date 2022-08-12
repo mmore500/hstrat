@@ -61,3 +61,7 @@ def test_WithoutCalcRankAtColumnIndex():
 def test_repr():
     policy = nominal_resolution_policy.Policy()
     assert policy.GetSpec().GetPolicyName() in repr(policy)
+
+def test_str():
+    policy = nominal_resolution_policy.Policy()
+    assert policy.GetSpec().GetPolicyTitle() in str(policy)

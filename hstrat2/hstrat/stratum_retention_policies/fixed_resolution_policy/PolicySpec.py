@@ -44,6 +44,15 @@ class PolicySpec:
             self._fixed_resolution
         })'''
 
+    def __str__(
+        self: 'PolicySpec',
+    ) -> str:
+        return f'''{
+            self.GetPolicyTitle()
+        } (resolution: {
+            self._fixed_resolution
+        })'''
+
     @staticmethod
     def GetPolicyName() -> str:
         return __package__.split(".")[-1]

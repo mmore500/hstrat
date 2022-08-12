@@ -19,6 +19,11 @@ class PolicySpec:
             PolicySpec.__qualname__
         }()'''
 
+    def __str__(
+        self: 'PolicySpec',
+    ) -> str:
+        return self.GetPolicyTitle()
+
     @staticmethod
     def GetPolicyName() -> str:
         return __package__.split(".")[-1]

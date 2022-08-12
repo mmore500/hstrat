@@ -41,6 +41,15 @@ class PolicySpec:
             self._random_seed
         })'''
 
+    def __str__(
+        self: 'PolicySpec',
+    ) -> str:
+        return f'''{
+            self.GetPolicyTitle()
+        } (seed: {
+            self._random_seed
+        })'''
+
     @staticmethod
     def GetPolicyName() -> str:
         return __package__.split(".")[-1]

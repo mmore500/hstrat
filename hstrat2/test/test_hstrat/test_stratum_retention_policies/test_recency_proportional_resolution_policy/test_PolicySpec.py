@@ -54,3 +54,9 @@ def test_repr():
     spec = recency_proportional_resolution_policy.PolicySpec(recency_proportional_resolution)
     assert str(recency_proportional_resolution) in repr(spec)
     assert spec.GetPolicyName() in repr(spec)
+
+def test_str():
+    recency_proportional_resolution = 1
+    spec = recency_proportional_resolution_policy.PolicySpec(recency_proportional_resolution)
+    assert str(recency_proportional_resolution) in str(spec)
+    assert spec.GetPolicyTitle() in str(spec)

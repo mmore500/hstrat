@@ -64,6 +64,17 @@ class PolicySpec:
             self._interspersal
         })'''
 
+    def __str__(
+        self: 'PolicySpec',
+    ) -> str:
+        return f'''{
+            self.GetPolicyTitle()
+        } (degree: {
+            self._degree
+        }, interspersal: {
+            self._interspersal
+        })'''
+
     @staticmethod
     def GetPolicyName() -> str:
         return __package__.split(".")[-1]

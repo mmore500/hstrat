@@ -33,3 +33,7 @@ def test_GetPolicyTitle():
 def test_repr():
     spec = stochastic_policy.PolicySpec()
     assert spec.GetPolicyName() in repr(spec)
+
+def test_str():
+    spec = stochastic_policy.PolicySpec()
+    assert spec.GetPolicyTitle() in str(spec)

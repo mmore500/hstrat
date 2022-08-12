@@ -75,3 +75,11 @@ def test_repr():
     assert str(degree) in repr(spec)
     assert str(interspersal) in repr(spec)
     assert spec.GetPolicyName() in repr(spec)
+
+def test_str():
+    degree = 1
+    interspersal = 2
+    spec = geom_seq_nth_root_tapered_policy.PolicySpec(degree, interspersal)
+    assert str(degree) in str(spec)
+    assert str(interspersal) in str(spec)
+    assert spec.GetPolicyTitle() in str(spec)
