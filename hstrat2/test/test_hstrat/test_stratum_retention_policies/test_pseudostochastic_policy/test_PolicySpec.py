@@ -34,3 +34,13 @@ def test_eq(random_seed):
 def test_init(random_seed):
     spec = pseudostochastic_policy.PolicySpec(random_seed)
     assert spec._random_seed == random_seed
+
+def test_GetPolicyName():
+    random_seed = 1
+    spec = pseudostochastic_policy.PolicySpec(random_seed)
+    assert spec.GetPolicyName()
+
+def test_GetPolicyTitle():
+    random_seed = 1
+    spec = pseudostochastic_policy.PolicySpec(random_seed)
+    assert spec.GetPolicyTitle()

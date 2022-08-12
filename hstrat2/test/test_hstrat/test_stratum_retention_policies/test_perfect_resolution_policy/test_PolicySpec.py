@@ -8,3 +8,11 @@ def test_eq():
 
 def test_init():
     pass
+
+def test_GetPolicyName():
+    spec = perfect_resolution_policy.PolicySpec()
+    assert spec.GetPolicyName()
+
+def test_GetPolicyTitle():
+    spec = perfect_resolution_policy.PolicySpec()
+    assert spec.GetPolicyTitle()

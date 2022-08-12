@@ -37,9 +37,17 @@ class PolicySpec:
         self: 'PolicySpec',
     ) -> str:
         return f'''{
-            __package__.split(".")[-1]
+            self.GetPolicyName()
         }.{
             PolicySpec.__qualname__
         }(fixed_resolution={
             self._fixed_resolution
         })'''
+
+    @staticmethod
+    def GetPolicyName() -> str:
+        return __package__.split(".")[-1]
+
+    @staticmethod
+    def GetPolicyTitle() -> str:
+        return "Fixed Resolution Stratum Retention Policy"

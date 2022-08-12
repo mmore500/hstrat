@@ -38,3 +38,13 @@ def test_eq(recency_proportional_resolution):
 def test_init(recency_proportional_resolution):
     spec = recency_proportional_resolution_policy.PolicySpec(recency_proportional_resolution)
     assert spec._guaranteed_mrca_recency_proportional_resolution == recency_proportional_resolution
+
+def test_GetPolicyName():
+    recency_proportional_resolution = 1
+    spec = recency_proportional_resolution_policy.PolicySpec(recency_proportional_resolution)
+    assert spec.GetPolicyName()
+
+def test_GetPolicyTitle():
+    recency_proportional_resolution = 1
+    spec = recency_proportional_resolution_policy.PolicySpec(recency_proportional_resolution)
+    assert spec.GetPolicyTitle()

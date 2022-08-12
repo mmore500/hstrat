@@ -34,9 +34,17 @@ class PolicySpec:
         self: 'PolicySpec',
     ) -> str:
         return f'''{
-            PolicySpec.__module__
+            self.GetPolicyName()
         }.{
             __package__.split(".")[-1]
         }(random_seed={
             self._random_seed
         })'''
+
+    @staticmethod
+    def GetPolicyName() -> str:
+        return __package__.split(".")[-1]
+
+    @staticmethod
+    def GetPolicyTitle() -> str:
+        return "Pseudostochastic Stratum Retention Policy"

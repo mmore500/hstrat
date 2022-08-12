@@ -168,7 +168,7 @@ def PolicyCouplerFactory(
             self: 'PolicyCoupler',
         ) -> str:
             return f'''{
-                self.__module__.split(".")[-2]
+                self._policy_spec.GetPolicyName()
             }.{
                 PolicyCoupler.__qualname__
             }(policy_spec={

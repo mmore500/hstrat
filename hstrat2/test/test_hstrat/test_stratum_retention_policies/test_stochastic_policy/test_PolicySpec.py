@@ -21,3 +21,11 @@ def test_eq(replicate):
 def test_init(replicate):
     random.seed(replicate)
     spec = stochastic_policy.PolicySpec()
+
+def test_GetPolicyName():
+    spec = stochastic_policy.PolicySpec()
+    assert spec.GetPolicyName()
+
+def test_GetPolicyTitle():
+    spec = stochastic_policy.PolicySpec()
+    assert spec.GetPolicyTitle()

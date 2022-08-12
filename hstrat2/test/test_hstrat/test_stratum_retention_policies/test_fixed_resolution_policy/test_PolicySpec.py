@@ -34,3 +34,13 @@ def test_eq(fixed_resolution):
 def test_init(fixed_resolution):
     spec = fixed_resolution_policy.PolicySpec(fixed_resolution)
     assert spec._fixed_resolution == fixed_resolution
+
+def test_GetPolicyName():
+    fixed_resolution = 1
+    spec = fixed_resolution_policy.PolicySpec(fixed_resolution)
+    assert spec.GetPolicyName()
+
+def test_GetPolicyTitle():
+    fixed_resolution = 1
+    spec = fixed_resolution_policy.PolicySpec(fixed_resolution)
+    assert spec.GetPolicyTitle()

@@ -55,3 +55,15 @@ def test_init(degree, interspersal):
     spec = geom_seq_nth_root_policy.PolicySpec(degree, interspersal)
     assert spec._degree == degree
     assert spec._interspersal == interspersal
+
+def test_GetPolicyName():
+    degree = 1
+    interspersal = 2
+    spec = geom_seq_nth_root_policy.PolicySpec(degree, interspersal)
+    assert spec.GetPolicyName()
+
+def test_GetPolicyTitle():
+    degree = 1
+    interspersal = 2
+    spec = geom_seq_nth_root_policy.PolicySpec(degree, interspersal)
+    assert spec.GetPolicyTitle()

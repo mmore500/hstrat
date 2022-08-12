@@ -46,3 +46,11 @@ class PolicySpec:
         }(guaranteed_depth_proportional_resolution={
             self._guaranteed_depth_proportional_resolution
         })'''
+
+    @staticmethod
+    def GetPolicyName() -> str:
+        return __package__.split(".")[-1]
+
+    @staticmethod
+    def GetPolicyTitle() -> str:
+        return "Tapered Depth-proportional Resolution Stratum Retention Policy"

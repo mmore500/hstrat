@@ -63,7 +63,7 @@ class PolicySpec:
         self: 'PolicySpec',
     ) -> str:
         return f'''{
-            __package__.split(".")[-1]
+            self.GetPolicyName()
         }.{
             PolicySpec.__qualname__
         }(degree={
@@ -71,3 +71,11 @@ class PolicySpec:
         }, interspersal={
             self._interspersal
         })'''
+
+    @staticmethod
+    def GetPolicyName() -> str:
+        return __package__.split(".")[-1]
+
+    @staticmethod
+    def GetPolicyTitle() -> str:
+        return "Tapered Nth Root Geometric Sequence Stratum Retention Policy"

@@ -36,3 +36,17 @@ def test_eq(depth_proportional_resolution):
 def test_init(depth_proportional_resolution):
     spec = depth_proportional_resolution_tapered_policy.PolicySpec(depth_proportional_resolution)
     assert spec._guaranteed_depth_proportional_resolution == depth_proportional_resolution
+
+def test_GetPolicyName():
+    depth_proportional_resolution = 1
+    spec = depth_proportional_resolution_tapered_policy.PolicySpec(
+        depth_proportional_resolution,
+    )
+    assert spec.GetPolicyName()
+
+def test_GetPolicyTitle():
+    depth_proportional_resolution = 1
+    spec = depth_proportional_resolution_tapered_policy.PolicySpec(
+        depth_proportional_resolution,
+    )
+    assert spec.GetPolicyTitle()
