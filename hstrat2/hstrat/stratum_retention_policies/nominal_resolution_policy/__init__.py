@@ -21,6 +21,7 @@ from ._invar.CalcNumStrataRetainedUpperBound \
     import CalcNumStrataRetainedUpperBound
 
 from ._scry.CalcMrcaUncertaintyAbsExact import CalcMrcaUncertaintyAbsExact
+from ._scry.CalcMrcaUncertaintyRelExact import CalcMrcaUncertaintyRelExact
 from ._scry.CalcNumStrataRetainedExact import CalcNumStrataRetainedExact
 from ._scry.CalcRankAtColumnIndex import CalcRankAtColumnIndex
 from ._scry.IterRetainedRanks import IterRetainedRanks

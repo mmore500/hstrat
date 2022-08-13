@@ -24,6 +24,7 @@ def test_init(replicate):
     assert callable(policy.CalcNumStrataRetainedUpperBound)
     # scrying
     assert policy.CalcMrcaUncertaintyAbsExact is None
+    assert policy.CalcMrcaUncertaintyRelExact is None
     assert policy.CalcNumStrataRetainedExact is None
     assert policy.CalcRankAtColumnIndex is None
     assert policy.IterRetainedRanks is None
@@ -72,6 +73,8 @@ def test_WithoutCalcRankAtColumnIndex(replicate):
     # scrying
     assert original.CalcMrcaUncertaintyAbsExact \
         == stripped.CalcMrcaUncertaintyAbsExact
+    assert original.CalcMrcaUncertaintyRelExact \
+        == stripped.CalcMrcaUncertaintyRelExact
     assert original.CalcNumStrataRetainedExact \
         == stripped.CalcNumStrataRetainedExact
     assert original.IterRetainedRanks == stripped.IterRetainedRanks

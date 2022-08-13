@@ -1,3 +1,5 @@
+from .CalcMrcaUncertaintyRelExactFromAbs \
+    import CalcMrcaUncertaintyRelExactFromAbs
 from .CalcWorstCaseMrcaUncertaintyAbsUpperBound \
     import CalcWorstCaseMrcaUncertaintyAbsUpperBound
 from .CalcWorstCaseNumStrataRetainedUpperBound \

@@ -49,6 +49,7 @@ def PolicyCouplerFactory(
         =CalcWorstCaseNumStrataRetainedUpperBound,
     # scrying
     calc_mrca_uncertainty_abs_exact_ftor_t: typing.Optional[_ftor_type]=None,
+    calc_mrca_uncertainty_rel_exact_ftor_t: typing.Optional[_ftor_type]=None,
     calc_num_strata_retained_exact_ftor_t: typing.Optional[_ftor_type]=None,
     calc_rank_at_column_index_ftor_t: typing.Optional[_ftor_type]=None,
     iter_retained_ranks_ftor_t: typing.Optional[_ftor_type]=None,
@@ -70,6 +71,7 @@ def PolicyCouplerFactory(
 
         # scrying
         CalcMrcaUncertaintyAbsExact: typing.Optional[typing.Callable]
+        CalcMrcaUncertaintyRelExact: typing.Optional[typing.Callable]
         CalcNumStrataRetainedExact: typing.Optional[typing.Callable]
         CalcRankAtColumnIndex: typing.Optional[typing.Callable]
         IterRetainedRanks: typing.Optional[typing.Callable]
@@ -116,6 +118,10 @@ def PolicyCouplerFactory(
                 calc_mrca_uncertainty_abs_exact_ftor_t,
                 lambda x: _CurryPolicy(self, x(self._policy_spec)),
             )
+            self.CalcMrcaUncertaintyRelExact = opyt.apply_if(
+                calc_mrca_uncertainty_rel_exact_ftor_t,
+                lambda x: _CurryPolicy(self, x(self._policy_spec)),
+            )
             self.CalcNumStrataRetainedExact = opyt.apply_if(
                 calc_num_strata_retained_exact_ftor_t,
                 lambda x: _CurryPolicy(self, x(self._policy_spec)),
@@ -143,6 +149,7 @@ def PolicyCouplerFactory(
                     self.CalcMrcaUncertaintyAbsUpperBound,
                     self.CalcNumStrataRetainedUpperBound,
                     self.CalcMrcaUncertaintyAbsExact,
+                    self.CalcMrcaUncertaintyRelExact,
                     self.CalcNumStrataRetainedExact,
                     self.CalcRankAtColumnIndex,
                     self.IterRetainedRanks,
@@ -152,6 +159,7 @@ def PolicyCouplerFactory(
                     other.CalcMrcaUncertaintyAbsUpperBound,
                     other.CalcNumStrataRetainedUpperBound,
                     other.CalcMrcaUncertaintyAbsExact,
+                    other.CalcMrcaUncertaintyRelExact,
                     other.CalcNumStrataRetainedExact,
                     other.CalcRankAtColumnIndex,
                     other.IterRetainedRanks,
@@ -205,6 +213,8 @@ def PolicyCouplerFactory(
                 # scrying
                 calc_mrca_uncertainty_abs_exact_ftor_t\
                     =calc_mrca_uncertainty_abs_exact_ftor_t,
+                calc_mrca_uncertainty_rel_exact_ftor_t\
+                    =calc_mrca_uncertainty_rel_exact_ftor_t,
                 calc_num_strata_retained_exact_ftor_t\
                     =calc_num_strata_retained_exact_ftor_t,
                 calc_rank_at_column_index_ftor_t=None,

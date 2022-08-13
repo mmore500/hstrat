@@ -31,6 +31,7 @@ def test_init(recency_proportional_resolution):
     assert callable(policy.CalcNumStrataRetainedUpperBound)
     # scrying
     assert callable(policy.CalcMrcaUncertaintyAbsExact)
+    assert callable(policy.CalcMrcaUncertaintyRelExact)
     assert callable(policy.CalcNumStrataRetainedExact)
     assert callable(policy.CalcRankAtColumnIndex)
     assert callable(policy.IterRetainedRanks)
@@ -104,6 +105,8 @@ def test_WithoutCalcRankAtColumnIndex(recency_proportional_resolution):
     # scrying
     assert original.CalcMrcaUncertaintyAbsExact \
         == stripped.CalcMrcaUncertaintyAbsExact
+    assert original.CalcMrcaUncertaintyRelExact \
+        == stripped.CalcMrcaUncertaintyRelExact
     assert original.CalcNumStrataRetainedExact \
         == stripped.CalcNumStrataRetainedExact
     assert original.IterRetainedRanks == stripped.IterRetainedRanks
