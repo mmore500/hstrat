@@ -44,6 +44,7 @@ def test_policy_consistency(replicate):
                 assert which(
                     policy,
                     num_strata_deposited,
+                    num_strata_deposited,
                     actual_mrca_rank,
                 ) >= policy_requirement
         column.DepositStratum()
