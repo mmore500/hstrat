@@ -4,6 +4,7 @@ from . import CalcMrcaUncertaintyAbsExact
 from . import CalcMrcaUncertaintyRelExact
 from . import CalcNumStrataRetainedExact
 from . import CalcMrcaUncertaintyAbsUpperBound
+from . import CalcMrcaUncertaintyRelUpperBound
 from . import CalcNumStrataRetainedUpperBound
 from . import CalcRankAtColumnIndex
 from . import GenDropRanks
@@ -17,6 +18,8 @@ Policy = PolicyCouplerFactory(
     # invariants
     calc_mrca_uncertainty_abs_upper_bound_ftor_t\
         =CalcMrcaUncertaintyAbsUpperBound,
+    calc_mrca_uncertainty_rel_upper_bound_ftor_t\
+        =CalcMrcaUncertaintyRelUpperBound,
     calc_num_strata_retained_upper_bound_ftor_t\
         =CalcNumStrataRetainedUpperBound,
     # scrying

@@ -2,6 +2,7 @@ import opytional as opyt
 import typing
 
 from . import CalcWorstCaseMrcaUncertaintyAbsUpperBound
+from . import CalcWorstCaseMrcaUncertaintyRelUpperBound
 from . import CalcWorstCaseNumStrataRetainedUpperBound
 
 
@@ -45,6 +46,8 @@ def PolicyCouplerFactory(
     # invariants
     calc_mrca_uncertainty_abs_upper_bound_ftor_t: _ftor_type \
         =CalcWorstCaseMrcaUncertaintyAbsUpperBound,
+    calc_mrca_uncertainty_rel_upper_bound_ftor_t: _ftor_type \
+        =CalcWorstCaseMrcaUncertaintyRelUpperBound,
     calc_num_strata_retained_upper_bound_ftor_t: _ftor_type \
         =CalcWorstCaseNumStrataRetainedUpperBound,
     # scrying
@@ -67,6 +70,7 @@ def PolicyCouplerFactory(
 
         # invariants
         CalcMrcaUncertaintyAbsUpperBound: typing.Callable
+        CalcMrcaUncertaintyRelUpperBound: typing.Callable
         CalcNumStrataRetainedUpperBound: typing.Callable
 
         # scrying
@@ -108,6 +112,10 @@ def PolicyCouplerFactory(
                 self,
                 calc_mrca_uncertainty_abs_upper_bound_ftor_t(self._policy_spec),
             )
+            self.CalcMrcaUncertaintyRelUpperBound = _CurryPolicy(
+                self,
+                calc_mrca_uncertainty_rel_upper_bound_ftor_t(self._policy_spec),
+            )
             self.CalcNumStrataRetainedUpperBound = _CurryPolicy(
                 self,
                 calc_num_strata_retained_upper_bound_ftor_t(self._policy_spec),
@@ -147,6 +155,7 @@ def PolicyCouplerFactory(
                     self._policy_spec,
                     self.GenDropRanks,
                     self.CalcMrcaUncertaintyAbsUpperBound,
+                    self.CalcMrcaUncertaintyRelUpperBound,
                     self.CalcNumStrataRetainedUpperBound,
                     self.CalcMrcaUncertaintyAbsExact,
                     self.CalcMrcaUncertaintyRelExact,
@@ -157,6 +166,7 @@ def PolicyCouplerFactory(
                     other._policy_spec,
                     other.GenDropRanks,
                     other.CalcMrcaUncertaintyAbsUpperBound,
+                    other.CalcMrcaUncertaintyRelUpperBound,
                     other.CalcNumStrataRetainedUpperBound,
                     other.CalcMrcaUncertaintyAbsExact,
                     other.CalcMrcaUncertaintyRelExact,
@@ -208,6 +218,8 @@ def PolicyCouplerFactory(
                 # invariants
                 calc_mrca_uncertainty_abs_upper_bound_ftor_t\
                     =calc_mrca_uncertainty_abs_upper_bound_ftor_t,
+                calc_mrca_uncertainty_rel_upper_bound_ftor_t\
+                    =calc_mrca_uncertainty_rel_upper_bound_ftor_t,
                 calc_num_strata_retained_upper_bound_ftor_t\
                     =calc_num_strata_retained_upper_bound_ftor_t,
                 # scrying
