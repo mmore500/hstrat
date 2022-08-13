@@ -35,6 +35,7 @@ def test_init(degree, interspersal):
 
     # invariants
     assert callable(policy.CalcMrcaUncertaintyAbsUpperBound)
+    assert callable(policy.CalcMrcaUncertaintyAbsUpperBoundPessimalRank)
     assert callable(policy.CalcMrcaUncertaintyRelUpperBound)
     assert callable(policy.CalcNumStrataRetainedUpperBound)
     # scrying
@@ -131,6 +132,8 @@ def test_WithoutCalcRankAtColumnIndex(degree, interspersal):
 
     assert original.CalcMrcaUncertaintyAbsUpperBound \
         == stripped.CalcMrcaUncertaintyAbsUpperBound
+    assert original.CalcMrcaUncertaintyAbsUpperBoundPessimalRank \
+        == stripped.CalcMrcaUncertaintyAbsUpperBoundPessimalRank
     assert original.CalcMrcaUncertaintyRelUpperBound \
         == stripped.CalcMrcaUncertaintyRelUpperBound
     assert original.CalcNumStrataRetainedUpperBound \
