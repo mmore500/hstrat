@@ -25,7 +25,6 @@ class CalcNumStrataRetainedExact:
     ) -> int:
         """Exactly how many strata are retained after n deposted?"""
 
-
         if num_strata_deposited == 0: return 0
 
         spec = policy.GetSpec()

@@ -24,7 +24,7 @@ class CalcMrcaUncertaintyAbsUpperBound:
         policy: 'Policy',
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
-        actual_rank_of_mrca: typing.Optional[int],
+        actual_rank_of_mrca: int,
     ) -> int:
         """At most, how much absolute uncertainty to estimate rank of MRCA?
         Inclusive."""
