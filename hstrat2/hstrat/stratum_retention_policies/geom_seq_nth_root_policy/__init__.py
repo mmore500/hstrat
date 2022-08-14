@@ -34,6 +34,8 @@ from ._enact import _GenDropRanks
 
 from ._invar.CalcMrcaUncertaintyAbsUpperBound \
     import CalcMrcaUncertaintyAbsUpperBound
+from ._invar.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank \
+    import CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
 from ._invar.CalcMrcaUncertaintyAbsUpperBoundPessimalRank \
     import CalcMrcaUncertaintyAbsUpperBoundPessimalRank
 from ._invar.CalcMrcaUncertaintyRelUpperBound \

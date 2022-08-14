@@ -1,3 +1,5 @@
+from .CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank \
+    import CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
 from .CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce \
     import CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce
 from .CalcMrcaUncertaintyRelExactFromAbs \

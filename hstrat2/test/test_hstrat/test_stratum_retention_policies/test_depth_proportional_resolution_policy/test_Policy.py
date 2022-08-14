@@ -27,6 +27,7 @@ def test_init(depth_proportional_resolution):
 
     # invariants
     assert callable(policy.CalcMrcaUncertaintyAbsUpperBound)
+    assert callable(policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank)
     assert callable(policy.CalcMrcaUncertaintyAbsUpperBoundPessimalRank)
     assert callable(policy.CalcMrcaUncertaintyRelUpperBound)
     assert callable(policy.CalcNumStrataRetainedUpperBound)
@@ -98,6 +99,8 @@ def test_WithoutCalcRankAtColumnIndex(depth_proportional_resolution):
 
     assert original.CalcMrcaUncertaintyAbsUpperBound \
         == stripped.CalcMrcaUncertaintyAbsUpperBound
+    assert original.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank \
+        == stripped.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
     assert original.CalcMrcaUncertaintyAbsUpperBoundPessimalRank \
         == stripped.CalcMrcaUncertaintyAbsUpperBoundPessimalRank
     assert original.CalcMrcaUncertaintyRelUpperBound \

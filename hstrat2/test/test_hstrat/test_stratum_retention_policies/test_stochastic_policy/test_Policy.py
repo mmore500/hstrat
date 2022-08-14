@@ -21,6 +21,7 @@ def test_init(replicate):
 
     # invariants
     assert callable(policy.CalcMrcaUncertaintyAbsUpperBound)
+    assert callable(policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank)
     assert callable(policy.CalcMrcaUncertaintyAbsUpperBoundPessimalRank)
     assert callable(policy.CalcMrcaUncertaintyRelUpperBound)
     assert callable(policy.CalcNumStrataRetainedUpperBound)
@@ -70,6 +71,8 @@ def test_WithoutCalcRankAtColumnIndex(replicate):
 
     assert original.CalcMrcaUncertaintyAbsUpperBound \
         == stripped.CalcMrcaUncertaintyAbsUpperBound
+    assert original.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank \
+        == stripped.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
     assert original.CalcMrcaUncertaintyAbsUpperBoundPessimalRank \
         == stripped.CalcMrcaUncertaintyAbsUpperBoundPessimalRank
     assert original.CalcMrcaUncertaintyRelUpperBound \

@@ -18,6 +18,8 @@ from ._invar.CalcMrcaUncertaintyAbsUpperBound \
     import CalcMrcaUncertaintyAbsUpperBound
 from ._invar.CalcMrcaUncertaintyAbsUpperBoundPessimalRank \
     import CalcMrcaUncertaintyAbsUpperBoundPessimalRank
+from ._invar.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank \
+    import CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
 from ._invar.CalcMrcaUncertaintyRelUpperBound \
     import CalcMrcaUncertaintyRelUpperBound
 from ._invar.CalcNumStrataRetainedUpperBound \
