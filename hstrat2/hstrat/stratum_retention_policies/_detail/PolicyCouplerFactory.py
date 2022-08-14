@@ -3,6 +3,7 @@ import typing
 
 from . import CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
 from . import CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce
+from . import CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
 from . import CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce
 from . import CalcWorstCaseMrcaUncertaintyAbsUpperBound
 from . import CalcWorstCaseMrcaUncertaintyRelUpperBound
@@ -55,6 +56,8 @@ def PolicyCouplerFactory(
         =CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce,
     calc_mrca_uncertainty_rel_upper_bound_ftor_t: _ftor_type \
         =CalcWorstCaseMrcaUncertaintyRelUpperBound,
+    calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor_t: _ftor_type \
+        =CalcMrcaUncertaintyRelUpperBoundAtPessimalRank,
     calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor_t: _ftor_type \
         =CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce,
     calc_num_strata_retained_upper_bound_ftor_t: _ftor_type \
@@ -82,6 +85,7 @@ def PolicyCouplerFactory(
         CalcMrcaUncertaintyAbsUpperBoundPessimalRank: typing.Callable
         CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank: typing.Callable
         CalcMrcaUncertaintyRelUpperBound: typing.Callable
+        CalcMrcaUncertaintyRelUpperBoundAtPessimalRank: typing.Callable
         CalcMrcaUncertaintyRelUpperBoundPessimalRank: typing.Callable
         CalcNumStrataRetainedUpperBound: typing.Callable
 
@@ -140,6 +144,10 @@ def PolicyCouplerFactory(
                 self,
                 calc_mrca_uncertainty_rel_upper_bound_ftor_t(self._policy_spec),
             )
+            self.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank = _CurryPolicy(
+                self,
+                calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor_t(self._policy_spec),
+            )
             self.CalcMrcaUncertaintyRelUpperBoundPessimalRank = _CurryPolicy(
                 self,
                 calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor_t(self._policy_spec),
@@ -186,6 +194,7 @@ def PolicyCouplerFactory(
                     self.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank,
                     self.CalcMrcaUncertaintyAbsUpperBoundPessimalRank,
                     self.CalcMrcaUncertaintyRelUpperBound,
+                    self.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank,
                     self.CalcMrcaUncertaintyRelUpperBoundPessimalRank,
                     self.CalcNumStrataRetainedUpperBound,
                     self.CalcMrcaUncertaintyAbsExact,
@@ -200,6 +209,7 @@ def PolicyCouplerFactory(
                     other.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank,
                     other.CalcMrcaUncertaintyAbsUpperBoundPessimalRank,
                     other.CalcMrcaUncertaintyRelUpperBound,
+                    other.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank,
                     other.CalcMrcaUncertaintyRelUpperBoundPessimalRank,
                     other.CalcNumStrataRetainedUpperBound,
                     other.CalcMrcaUncertaintyAbsExact,
@@ -258,6 +268,8 @@ def PolicyCouplerFactory(
                     =calc_mrca_uncertainty_abs_upper_bound_pessimal_rank_ftor_t,
                 calc_mrca_uncertainty_rel_upper_bound_ftor_t\
                     =calc_mrca_uncertainty_rel_upper_bound_ftor_t,
+                calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor_t\
+                    =calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor_t,
                 calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor_t\
                     =calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor_t,
                 calc_num_strata_retained_upper_bound_ftor_t\

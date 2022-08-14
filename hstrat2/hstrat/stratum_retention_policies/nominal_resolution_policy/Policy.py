@@ -7,6 +7,7 @@ from . import CalcMrcaUncertaintyAbsUpperBound
 from . import CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
 from . import CalcMrcaUncertaintyAbsUpperBoundPessimalRank
 from . import CalcMrcaUncertaintyRelUpperBound
+from . import CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
 from . import CalcMrcaUncertaintyRelUpperBoundPessimalRank
 from . import CalcNumStrataRetainedUpperBound
 from . import CalcRankAtColumnIndex
@@ -27,6 +28,8 @@ Policy = PolicyCouplerFactory(
         =CalcMrcaUncertaintyAbsUpperBoundPessimalRank,
     calc_mrca_uncertainty_rel_upper_bound_ftor_t\
         =CalcMrcaUncertaintyRelUpperBound,
+    calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor_t\
+        =CalcMrcaUncertaintyRelUpperBoundAtPessimalRank,
     calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor_t\
         =CalcMrcaUncertaintyRelUpperBoundPessimalRank,
     calc_num_strata_retained_upper_bound_ftor_t\
