@@ -56,3 +56,69 @@ def test_eq():
         spec,
     )
     assert not instance == None
+
+def test_negative_index():
+    policy = perfect_resolution_policy.Policy()
+    spec = policy.GetSpec()
+    instance = perfect_resolution_policy.CalcMrcaUncertaintyRelUpperBound(spec)
+
+    for diff in range(1,100):
+        assert instance(
+            policy,
+            100,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            100,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            101,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            101,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            150,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            150,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            100,
+            101,
+            -diff,
+        ) == instance(
+            policy,
+            101,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            100,
+            150,
+            -diff,
+        ) == instance(
+            policy,
+            150,
+            100,
+            99 - diff,
+        )

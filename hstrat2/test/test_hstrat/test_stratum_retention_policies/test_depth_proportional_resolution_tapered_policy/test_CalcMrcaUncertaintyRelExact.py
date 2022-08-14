@@ -156,3 +156,81 @@ def test_eq(depth_proportional_resolution):
     assert instance == instance
     assert instance == depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyRelExact(spec)
     assert not instance == None
+
+@pytest.mark.parametrize(
+    'depth_proportional_resolution',
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_negative_index(depth_proportional_resolution):
+    policy = depth_proportional_resolution_tapered_policy.Policy(depth_proportional_resolution)
+    spec = policy.GetSpec()
+    instance = depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyRelExact(spec)
+
+    for diff in range(1,100):
+        assert instance(
+            policy,
+            100,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            100,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            101,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            101,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            150,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            150,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            100,
+            101,
+            -diff,
+        ) == instance(
+            policy,
+            101,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            100,
+            150,
+            -diff,
+        ) == instance(
+            policy,
+            150,
+            100,
+            99 - diff,
+        )

@@ -176,3 +176,89 @@ def test_eq(degree, interspersal):
     assert instance == instance
     assert instance == geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyAbsExact(spec)
     assert not instance == None
+
+@pytest.mark.parametrize(
+    'degree',
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    'interspersal',
+    [
+        1,
+        2,
+        5,
+    ],
+)
+def test_negative_index(degree, interspersal):
+    policy = geom_seq_nth_root_tapered_policy.Policy(degree, interspersal)
+    spec = policy.GetSpec()
+    instance = geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyAbsExact(spec)
+
+    for diff in range(1,100):
+        assert instance(
+            policy,
+            100,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            100,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            101,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            101,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            150,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            150,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            100,
+            101,
+            -diff,
+        ) == instance(
+            policy,
+            101,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            100,
+            150,
+            -diff,
+        ) == instance(
+            policy,
+            150,
+            100,
+            99 - diff,
+        )

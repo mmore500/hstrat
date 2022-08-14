@@ -29,6 +29,15 @@ class CalcMrcaUncertaintyRelUpperBound:
     ) -> float:
         """At most, how much uncertainty to estimate rank of MRCA? Inclusive."""
 
+        # rectify negative-indexed actual_rank_of_mrca
+        if actual_rank_of_mrca is not None and actual_rank_of_mrca < 0:
+            least_last_rank = min(
+                first_num_strata_deposited - 1,
+                second_num_strata_deposited - 1,
+            )
+            actual_rank_of_mrca += least_last_rank
+            assert actual_rank_of_mrca >= 0
+
         spec = policy.GetSpec()
 
         if 0 in (first_num_strata_deposited, second_num_strata_deposited):

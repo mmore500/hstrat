@@ -159,3 +159,82 @@ def test_eq(recency_proportional_resolution):
     assert instance == instance
     assert instance == recency_proportional_resolution_policy.CalcMrcaUncertaintyRelExact(spec)
     assert not instance == None
+
+@pytest.mark.parametrize(
+    'recency_proportional_resolution',
+    [
+        0,
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_negative_index(recency_proportional_resolution):
+    policy = recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+    spec = policy.GetSpec()
+    instance = recency_proportional_resolution_policy.CalcMrcaUncertaintyRelExact(spec)
+
+    for diff in range(1,100):
+        assert instance(
+            policy,
+            100,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            100,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            101,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            101,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            150,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            150,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            100,
+            101,
+            -diff,
+        ) == instance(
+            policy,
+            101,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            100,
+            150,
+            -diff,
+        ) == instance(
+            policy,
+            150,
+            100,
+            99 - diff,
+        )

@@ -78,3 +78,80 @@ def test_eq(fixed_resolution):
         spec,
     )
     assert not instance == None
+
+@pytest.mark.parametrize(
+    'fixed_resolution',
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+def test_negative_index(fixed_resolution):
+    policy = fixed_resolution_policy.Policy(fixed_resolution)
+    spec = policy.GetSpec()
+    instance = fixed_resolution_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
+
+    for diff in range(1,100):
+        assert instance(
+            policy,
+            100,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            100,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            101,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            101,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            150,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            150,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            100,
+            101,
+            -diff,
+        ) == instance(
+            policy,
+            101,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            100,
+            150,
+            -diff,
+        ) == instance(
+            policy,
+            150,
+            100,
+            99 - diff,
+        )

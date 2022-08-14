@@ -64,3 +64,74 @@ def test_eq(replicate):
         spec,
     )
     assert not instance == None
+
+@pytest.mark.parametrize(
+    'replicate',
+    range(5),
+)
+def test_negative_index(random_seed):
+    random.seed(replicate)
+    policy = stochastic_policy.Policy()
+    spec = policy.GetSpec()
+    instance = stochastic_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
+
+    for diff in range(1,100):
+        assert instance(
+            policy,
+            100,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            100,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            101,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            101,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            150,
+            100,
+            -diff,
+        ) == instance(
+            policy,
+            150,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            100,
+            101,
+            -diff,
+        ) == instance(
+            policy,
+            101,
+            100,
+            99 - diff,
+        )
+
+        assert instance(
+            policy,
+            100,
+            150,
+            -diff,
+        ) == instance(
+            policy,
+            150,
+            100,
+            99 - diff,
+        )
