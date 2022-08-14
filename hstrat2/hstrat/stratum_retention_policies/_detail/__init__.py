@@ -4,6 +4,8 @@ from .CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce \
     import CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce
 from .CalcMrcaUncertaintyRelExactFromAbs \
     import CalcMrcaUncertaintyRelExactFromAbs
+from .CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce \
+    import CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce
 from .CalcWorstCaseMrcaUncertaintyAbsUpperBound \
     import CalcWorstCaseMrcaUncertaintyAbsUpperBound
 from .CalcWorstCaseMrcaUncertaintyRelUpperBound \

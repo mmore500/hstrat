@@ -29,6 +29,7 @@ def test_init(fixed_resolution):
     assert callable(policy.CalcMrcaUncertaintyAbsUpperBoundPessimalRank)
     assert callable(policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank)
     assert callable(policy.CalcMrcaUncertaintyRelUpperBound)
+    assert callable(policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank)
     assert callable(policy.CalcNumStrataRetainedUpperBound)
     # scrying
     assert callable(policy.CalcMrcaUncertaintyAbsExact)
@@ -101,6 +102,8 @@ def test_WithoutCalcRankAtColumnIndex(fixed_resolution):
         == stripped.CalcMrcaUncertaintyAbsUpperBoundPessimalRank
     assert original.CalcMrcaUncertaintyRelUpperBound \
         == stripped.CalcMrcaUncertaintyRelUpperBound
+    assert original.CalcMrcaUncertaintyRelUpperBoundPessimalRank \
+        == stripped.CalcMrcaUncertaintyRelUpperBoundPessimalRank
     assert original.CalcNumStrataRetainedUpperBound \
         == stripped.CalcNumStrataRetainedUpperBound
     # scrying
