@@ -7,19 +7,19 @@ class CalcMrcaUncertaintyAbsUpperBoundPessimalRank:
     """Functor to provide member function implementation in Policy class."""
 
     def __init__(
-        self: 'CalcPessimalRankForMrcaUncertaintyAbsUpperBound',
+        self: 'CalcMrcaUncertaintyAbsUpperBoundPessimalRank',
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcPessimalRankForMrcaUncertaintyAbsUpperBound',
+        self: 'CalcMrcaUncertaintyAbsUpperBoundPessimalRank',
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcPessimalRankForMrcaUncertaintyAbsUpperBound',
+        self: 'CalcMrcaUncertaintyAbsUpperBoundPessimalRank',
         policy: 'Policy',
         first_num_strata_deposited: typing.Optional[int],
         second_num_strata_deposited: typing.Optional[int],
