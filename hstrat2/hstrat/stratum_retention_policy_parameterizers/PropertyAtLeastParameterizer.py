@@ -129,8 +129,8 @@ class PropertyAtLeastParameterizer:
             except (MemoryError, OverflowError, RecursionError):
                 pass
             # all searchable parameters sastisfy requirement, so
-            # arbitrarily pick lower bound
-            return sys.maxsize
+            # arbitrarily pick
+            return opyt.or_value(ub, lb)
         else:
             assert sign == -1
             assert eval_at_param(lb) < thresh
