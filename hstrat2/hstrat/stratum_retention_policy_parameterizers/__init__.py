@@ -10,6 +10,8 @@ from .MrcaUncertaintyRelExactPolicyEvaluator \
     import MrcaUncertaintyRelExactPolicyEvaluator
 from .MrcaUncertaintyRelUpperBoundPolicyEvaluator \
     import MrcaUncertaintyRelUpperBoundPolicyEvaluator
+from .NumStrataRetainedExactPolicyEvaluator \
+    import NumStrataRetainedExactPolicyEvaluator
 from .PropertyAtLeastParameterizer \
     import PropertyAtLeastParameterizer
 from .PropertyAtMostParameterizer \
@@ -21,6 +23,7 @@ __all__ = [
     'MrcaUncertaintyAbsUpperBoundPolicyEvaluator',
     'MrcaUncertaintyRelExactPolicyEvaluator',
     'MrcaUncertaintyRelUpperBoundPolicyEvaluator',
+    'NumStrataRetainedExactPolicyEvaluator',
     'PropertyAtLeastParameterizer',
     'PropertyAtMostParameterizer',
 ]
