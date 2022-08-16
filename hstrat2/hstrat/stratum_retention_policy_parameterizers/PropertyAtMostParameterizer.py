@@ -142,7 +142,7 @@ class PropertyAtMostParameterizer:
             self._policy_evaluator
         !r}, param_lower_bound={
             self._param_lower_bound
-        !r}, param_upper_bound!={
+        !r}, param_upper_bound={
             self._param_upper_bound
         !r})'''
 
