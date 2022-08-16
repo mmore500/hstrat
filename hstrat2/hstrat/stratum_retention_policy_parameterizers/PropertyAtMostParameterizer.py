@@ -52,8 +52,13 @@ class PropertyAtMostParameterizer:
             policy_t,
         )
         try:
+            res = self._try_calc_parameter(policy_t)
+            if res is not None:
+                assert self._param_lower_bound <= res
+                if self._param_upper_bound is not None:
+                    assert res <= self._param_upper_bound
             return opyt.apply_if(
-                self._try_calc_parameter(policy_t),
+                res,
                 lambda x: policy_factory(x).GetSpec(),
             )
         except (MemoryError, OverflowError, RecursionError):
