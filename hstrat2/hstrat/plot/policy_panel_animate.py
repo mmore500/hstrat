@@ -9,7 +9,7 @@ def policy_panel_animate(
     stratum_retention_policy: typing.Any,
     num_generations: int,
     do_show: bool=False,
-) -> None:
+) -> mpl.animation.FuncAnimation:
     """Draw multipanel figure to holisticaly describe stratum retention policy
     at a particular generation.
 
