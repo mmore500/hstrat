@@ -1,6 +1,9 @@
+from keyname import keyname as kn
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import matplotlib.animation
+from slugify import slugify
+from tqdm import tqdm
 import typing
 
 from .policy_panel_plot import policy_panel_plot
@@ -9,6 +12,7 @@ def policy_panel_animate(
     stratum_retention_policy: typing.Any,
     num_generations: int,
     do_show: bool=False,
+    save_as: typing.Optional[str]=None,
 ) -> mpl.animation.FuncAnimation:
     """Draw multipanel figure to holisticaly describe stratum retention policy
     at a particular generation.
@@ -21,6 +25,8 @@ def policy_panel_animate(
         Number of generations to plot.
     do_show : bool, optional
         Whether to show() the plot automatically.
+    save_as : str, optional
+        If set, save animation as file type specified.
      """
 
     fig = plt.figure(figsize=(8, 6), dpi=80)
@@ -43,6 +49,21 @@ def policy_panel_animate(
         interval=500,
         blit=False,
     )
+
+    if save_as is not None:
+        progress = tqdm(total=num_generations)
+        res.save(
+            kn.pack({
+                'a' : 'policy_panel_plot',
+                'num_generations' : num_generations,
+                'policy' : slugify(str(stratum_retention_policy)),
+                'ext' : f'.{save_as.strip(".")}',
+            }),
+            fps=5,
+            writer='imagemagick',
+            progress_callback=lambda *args, **kwargs: progress.update(),
+        )
+
 
     if do_show: plt.show()
 
