@@ -30,14 +30,11 @@ class CalcMrcaUncertaintyRelUpperBoundPessimalRank:
         spec = policy.GetSpec()
         resolution = spec._guaranteed_mrca_recency_proportional_resolution
 
-        if resolution == 0:
-            least_last_rank = min(
-                first_num_strata_deposited - 1,
-                second_num_strata_deposited - 1,
-            )
-            return max(
-                least_last_rank - 1,
-                0
-            )
-        else:
-            return 0
+        least_last_rank = min(
+            first_num_strata_deposited - 1,
+            second_num_strata_deposited - 1,
+        )
+        return max(
+            least_last_rank - 1,
+            0
+        )
