@@ -12,6 +12,9 @@ def stratum_retention_dripplot(
     num_generations: int,
     do_show: bool=False,
     ax: typing.Optional[plt.matplotlib.axes.Axes]=None,
+    draw_extant_history: bool=True,
+    draw_extinct_history: bool=True,
+    draw_extinct_placeholders: bool=False,
 ) -> plt.matplotlib.axes.Axes:
     """Plot position of retained strata within a hereditary stratigraphic
     column over successive depositions under a particular stratum retention
@@ -48,6 +51,34 @@ def stratum_retention_dripplot(
                 column.IterRetainedRanks(),
             ),
         ):
+            if draw_extinct_placeholders:
+                ax.plot(
+                    rank,
+                    num_generations - 1,
+                    ms=20 / max(0.2 * num_generations, 1),
+                    marker='v',
+                    markerfacecolor='None',
+                    markeredgecolor='w',
+                    markeredgewidth=4 / max(0.2 * num_generations, 1),
+                )
+                ax.plot(
+                    rank,
+                    num_generations - 1,
+                    ms=max(
+                        20 / max(0.2 * num_generations, 1),
+                        4,
+                    ),
+                    marker='v',
+                    markerfacecolor=scale_luminosity(
+                        'r',
+                        max(10 / max(0.2 * num_generations, 1), 1)
+                    ),
+                    markeredgecolor='r',
+                    markeredgewidth=2 / max(0.05 * num_generations, 1),
+                )
+
+            if not draw_extinct_history:
+                break
             ax.plot(
                 rank,
                 gen,
@@ -95,17 +126,18 @@ def stratum_retention_dripplot(
             markeredgecolor='w',
             markeredgewidth=4 / max(0.2 * num_generations, 1),
         )
-        ax.plot(
-            [remaining_rank, remaining_rank],
-            [remaining_rank, num_generations - 1],
-            'w',
-            lw=4 / max(0.2 * num_generations, 1),
-        )
-        ax.plot(
-            [remaining_rank, remaining_rank],
-            [remaining_rank, num_generations - 1],
-            'k',
-        )
+        if draw_extant_history:
+            ax.plot(
+                [remaining_rank, remaining_rank],
+                [remaining_rank, num_generations - 1],
+                'w',
+                lw=4 / max(0.2 * num_generations, 1),
+            )
+            ax.plot(
+                [remaining_rank, remaining_rank],
+                [remaining_rank, num_generations - 1],
+                'k',
+            )
         ax.plot(
             remaining_rank,
             num_generations - 1,
