@@ -151,6 +151,10 @@ def stratum_retention_dripplot(
             markeredgewidth=2 / max(0.05 * num_generations, 1),
         )
 
+    # make space for extant underbar
+    ymin, ymax = ax.get_ylim()
+    ymid = (ymin + ymax) / 2
+    ax.set_ylim([min(ymin, ymid - 2), max(ymax, ymid + 2)])
     # make space for triangle markers
     ymin, ymax = ax.get_ylim()
     ax.set_ylim([ymin, ymax + 2])
