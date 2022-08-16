@@ -60,11 +60,7 @@ class CalcMrcaUncertaintyRelUpperBound:
             first_num_strata_deposited - 1,
             second_num_strata_deposited - 1,
         )
-        least_recency = (
-            least_last_rank - actual_rank_of_mrca
-            if actual_rank_of_mrca is not None
-            else 1
-        )
+        least_recency = least_last_rank - actual_rank_of_mrca
 
         # worst-case recency is 1
         res = abs_upper_bound / least_recency
