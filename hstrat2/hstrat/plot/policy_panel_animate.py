@@ -51,14 +51,16 @@ def policy_panel_animate(
     )
 
     if save_as is not None:
+        fname = kn.pack({
+            'a' : 'policy_panel_plot',
+            'num_generations' : num_generations,
+            'policy' : slugify(str(stratum_retention_policy)),
+            'ext' : f'.{save_as.strip(".")}',
+        })
+        print(f'saving animation to {fname}')
         progress = tqdm(total=num_generations)
         res.save(
-            kn.pack({
-                'a' : 'policy_panel_plot',
-                'num_generations' : num_generations,
-                'policy' : slugify(str(stratum_retention_policy)),
-                'ext' : f'.{save_as.strip(".")}',
-            }),
+            fname,
             fps=5,
             writer='imagemagick',
             progress_callback=lambda *args, **kwargs: progress.update(),
