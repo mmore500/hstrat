@@ -129,7 +129,10 @@ def PolicyCouplerFactory(
                 assert policy_spec is None
                 maybe_policy_spec = parameterizer(type(self))
                 if maybe_policy_spec is None:
-                    raise UnsatisfiableParameterizationRequestError()
+                    raise UnsatisfiableParameterizationRequestError(
+                        repr(type(self)),
+                        repr(parameterizer),
+                    )
                 else:
                     self._policy_spec = maybe_policy_spec
             else:

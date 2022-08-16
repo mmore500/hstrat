@@ -61,3 +61,30 @@ class MrcaUncertaintyRelUpperBoundPolicyEvaluator:
             self._at_num_strata_deposited,
             at_rank,
         )
+
+    def __repr__(
+        self: 'MrcaUncertaintyRelUpperBoundPolicyEvaluator',
+    ) -> str:
+        return f'''{
+            MrcaUncertaintyRelUpperBoundPolicyEvaluator.__qualname__
+        }(at_num_strata_deposited={
+            self._at_num_strata_deposited
+        !r}, at_rank={
+            self._at_rank
+        !r}, policy_param_focalizer={
+            self._policy_param_focalizer
+        !r})'''
+
+    def __str__(
+        self: 'MrcaUncertaintyRelUpperBoundPolicyEvaluator',
+    ) -> str:
+        title = 'Upper Bound Relative MRCA Uncertainty Evaluator'
+        return f'''{
+            title
+        } (at num strata deposited: {
+            self._at_num_strata_deposited
+        }, at rank: {
+            opyt.value_or(self._at_rank, 'pessimal')
+        }, focalizer: {
+            self._policy_param_focalizer
+        })'''
