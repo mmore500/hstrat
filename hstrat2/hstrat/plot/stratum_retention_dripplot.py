@@ -135,6 +135,9 @@ def stratum_retention_dripplot(
         min_n_ticks=0,
     ))
 
+    # strip any negative xticks
+    ax.set_xticks([tick for tick in ax.get_xticks() if tick >= 0])
+
     # make space for rectangle
     xmin, xmax = ax.get_xlim()
     ax.set_xlim([

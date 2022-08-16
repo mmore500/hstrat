@@ -78,6 +78,9 @@ def mrca_uncertainty_absolute_barplot(
         min_n_ticks=0,
     ))
 
+    # strip any negative xticks
+    ax.set_xticks([tick for tick in ax.get_xticks() if tick >= 0])
+
     if do_show: plt.show()
 
     return ax

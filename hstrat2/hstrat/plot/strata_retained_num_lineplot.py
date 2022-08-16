@@ -70,6 +70,9 @@ def strata_retained_num_lineplot(
     ymin, ymax = ax.get_ylim()
     ax.set_ylim([ymin, ymax + 2])
 
+    # strip any negative xticks
+    ax.set_xticks([tick for tick in ax.get_xticks() if tick >= 0])
+
     if do_show: plt.show()
 
     return ax
