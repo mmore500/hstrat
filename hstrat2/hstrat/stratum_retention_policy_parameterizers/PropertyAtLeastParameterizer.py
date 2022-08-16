@@ -155,5 +155,5 @@ class PropertyAtLeastParameterizer:
         }, param lower bound: {
             self._param_lower_bound
         }, param upper bound: {
-            opyt.value_or(self._param_upper_bound, 'inf')
+            opyt.or_value(self._param_upper_bound, 'inf')
         })'''

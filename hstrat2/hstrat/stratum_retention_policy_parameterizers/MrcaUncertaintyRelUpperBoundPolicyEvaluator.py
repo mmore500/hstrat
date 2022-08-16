@@ -82,7 +82,7 @@ class MrcaUncertaintyRelUpperBoundPolicyEvaluator:
         } (at num strata deposited: {
             self._at_num_strata_deposited
         }, at rank: {
-            opyt.value_or(self._at_rank, 'pessimal')
+            opyt.or_value(self._at_rank, 'pessimal')
         }, focalizer: {
             self._policy_param_focalizer
         })'''
