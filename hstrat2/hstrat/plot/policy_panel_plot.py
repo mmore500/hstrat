@@ -100,6 +100,24 @@ def policy_panel_plot(
     for ax in all_axes:
         ax.yaxis.set_major_formatter(make_fixed_prec_sci_formatter())
 
+    # ensure left col vertical alignment
+    left_col = top_left_ax, mid_left_ax, bot_left_ax
+    left_col_xlim = (
+        min((ax.get_xlim()[0] for ax in left_col)),
+        max((ax.get_xlim()[1] for ax in left_col)),
+    )
+    for ax in left_col:
+        ax.set_xlim(left_col_xlim)
+
+    # ensure right col vertical alignment
+    right_col = top_right_ax, bot_right_ax
+    right_col_xlim = (
+        min((ax.get_xlim()[0] for ax in right_col)),
+        max((ax.get_xlim()[1] for ax in right_col)),
+    )
+    for ax in right_col:
+        ax.set_xlim(right_col_xlim)
+
     if do_show: plt.show()
 
     return fig
