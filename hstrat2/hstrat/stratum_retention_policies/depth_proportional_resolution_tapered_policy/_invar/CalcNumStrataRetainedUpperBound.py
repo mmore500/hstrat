@@ -20,10 +20,13 @@ class CalcNumStrataRetainedUpperBound:
     def __call__(
         self: 'CalcNumStrataRetainedUpperBound',
         policy: 'Policy',
-        num_strata_deposited: typing.Optional[int],
+        num_strata_deposited: int,
     ) -> int:
         """At most, how many strata are retained after n deposted? Inclusive."""
 
         spec = policy.GetSpec()
 
-        return spec._guaranteed_depth_proportional_resolution * 2 + 1
+        return min(
+            spec._guaranteed_depth_proportional_resolution * 2 + 1,
+            num_strata_deposited,
+        )
