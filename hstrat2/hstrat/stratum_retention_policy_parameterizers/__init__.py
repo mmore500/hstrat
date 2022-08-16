@@ -18,6 +18,8 @@ from .PropertyAtLeastParameterizer \
     import PropertyAtLeastParameterizer
 from .PropertyAtMostParameterizer \
     import PropertyAtMostParameterizer
+from .PropertyExactlyParameterizer \
+    import PropertyExactlyParameterizer
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
@@ -29,4 +31,5 @@ __all__ = [
     'NumStrataRetainedUpperBoundPolicyEvaluator',
     'PropertyAtLeastParameterizer',
     'PropertyAtMostParameterizer',
+    'PropertyExactlyParameterizer',
 ]
