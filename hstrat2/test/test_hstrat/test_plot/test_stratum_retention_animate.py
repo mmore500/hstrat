@@ -124,7 +124,7 @@ def test_more_doc_animations(policy):
 
     res = hstrat.stratum_retention_animate(
         policy,
-        10,
+        256,
         draw_extant_history=False,
         draw_extinct_history=False,
         draw_extinct_placeholders=True,
@@ -132,7 +132,7 @@ def test_more_doc_animations(policy):
     )
     res = hstrat.stratum_retention_animate(
         policy,
-        10,
+        256,
         draw_extant_history=True,
         draw_extinct_history=False,
         draw_extinct_placeholders=True,
@@ -140,6 +140,6 @@ def test_more_doc_animations(policy):
     )
     res = hstrat.stratum_retention_animate(
         policy,
-        10,
+        256,
         save_as='gif',
     )
