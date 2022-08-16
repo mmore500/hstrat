@@ -76,7 +76,7 @@ individual1_grandchild1.CalcRankOfMrcaBoundsWith(
 |------------|------------------|-------------|
 | ![](docs/assets/a=stratum_retention_dripplot+extant_history=False+extinct_history=False+extinct_placeholders=True+num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-4+ext=.gif) | ![](docs/assets/a=stratum_retention_dripplot+extant_history=True+extinct_history=False+extinct_placeholders=True+num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-4+ext=.gif) | ![](docs/assets/a=stratum_retention_dripplot+extant_history=True+extinct_history=True+extinct_placeholders=False+num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-4+ext=.gif) |
 
-## Available Policies
+## Available Stratum Retention Policies
 
 | Policy                                 | Space Complexity | MRCA Gen Uncertainty |
 |----------------------------------------|------------------|----------------------|
@@ -84,6 +84,10 @@ individual1_grandchild1.CalcRankOfMrcaBoundsWith(
 | Recency Proportional Resolution Policy | `k * log(n)`     | `m/k`                |
 | Depth Proportional Resolution Policy   | `k`              | `n/k`                |
 | Geometric Sequence Nth Root Policy     | `k`              | `m * n^(1/k)`        |
+
+where `n` is generations elapsed, `m` is generations since MRCA, and `k` is an arbitrary user-determined constant.
+
+End users can also define custom stratum retention policies.
 
 ### Depth Proportional Resolution Policy
 
