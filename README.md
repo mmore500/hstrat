@@ -15,6 +15,10 @@ hstrat enables phylogenetic inference on distributed digital evolution populatio
 * Free software: MIT license
 * Documentation: <https://hstrat.readthedocs.io>
 
+## Install
+
+`python3 -m pip install hstrat`
+
 ## Usage
 
 ```python3
