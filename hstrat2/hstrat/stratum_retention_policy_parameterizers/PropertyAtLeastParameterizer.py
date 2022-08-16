@@ -98,7 +98,7 @@ class PropertyAtLeastParameterizer:
                     # successor fails requirement
                     lambda p: eval_at_param(p + 1) < thresh,
                     lower_bound=lb,
-                    upper_bound=ub - 1,
+                    upper_bound=opyt.apply_if(ub, lambda x: x - 1),
                 )
                 if res is not None:
                     return res

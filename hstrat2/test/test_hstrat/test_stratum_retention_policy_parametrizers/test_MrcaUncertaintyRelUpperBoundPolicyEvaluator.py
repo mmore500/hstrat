@@ -74,6 +74,39 @@ def test_satisfiable(
             at_num_strata_deposited,
         ) >= target_value
 
+    if policy_t not in (
+        hstrat.geom_seq_nth_root_policy.Policy,
+        hstrat.geom_seq_nth_root_tapered_policy.Policy,
+    ):
+        # disable for these policies because too slow
+        parameterizer = hstrat.PropertyAtLeastParameterizer(
+            target_value=target_value,
+            policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+                at_num_strata_deposited=at_num_strata_deposited,
+                at_rank=at_rank,
+            ),
+            param_lower_bound=1,
+            param_upper_bound=None,
+        )
+        policy_spec = parameterizer(policy_t)
+        assert policy_spec == policy_t(parameterizer=parameterizer).GetSpec()
+
+        if at_rank is not None:
+            assert policy_t(
+                policy_spec=policy_spec,
+            ).CalcMrcaUncertaintyRelUpperBound(
+                at_num_strata_deposited,
+                at_num_strata_deposited,
+                at_rank,
+            ) >= target_value
+        else:
+            assert policy_t(
+                policy_spec=policy_spec,
+            ).CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
+                at_num_strata_deposited,
+                at_num_strata_deposited,
+            ) >= target_value
+
 @pytest.mark.parametrize(
     'policy_t',
     [
@@ -122,3 +155,23 @@ def test_unsatisfiable(
     assert policy_spec is None
     with pytest.raises(hstrat.UnsatisfiableParameterizationRequestError):
         policy_t(parameterizer=parameterizer)
+
+    if policy_t not in (
+        hstrat.geom_seq_nth_root_policy.Policy,
+        hstrat.geom_seq_nth_root_tapered_policy.Policy,
+    ):
+        # disable for these policies because too slow
+        parameterizer = hstrat.PropertyAtLeastParameterizer(
+            target_value=target_value,
+            policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+                at_num_strata_deposited=at_num_strata_deposited,
+                at_rank=at_rank,
+            ),
+            param_lower_bound=1,
+            param_upper_bound=None,
+        )
+        policy_spec = parameterizer(policy_t)
+
+        assert policy_spec is None
+        with pytest.raises(hstrat.UnsatisfiableParameterizationRequestError):
+            policy_t(parameterizer=parameterizer)
