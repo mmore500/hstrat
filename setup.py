@@ -15,11 +15,13 @@ requirements = [
     "iterpop>=0.3.4",
     "interval_search>=0.2.0",
     "gmpy>=1.17",
+    "keyname>=0.4.1",
     "lru-dict>=1.1.7",
     "matplotlib>=3.1.2",
     "mmh3>=3.0.0",
     "mpmath>=1.1.0",
     "opytional>=0.1.0",
+    "python-slugify>=6.1.2",
 ]
 
 setup_requirements = ['pytest-runner', ]
