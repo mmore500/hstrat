@@ -8,6 +8,8 @@ from . import CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce
 from . import CalcWorstCaseMrcaUncertaintyAbsUpperBound
 from . import CalcWorstCaseMrcaUncertaintyRelUpperBound
 from . import CalcWorstCaseNumStrataRetainedUpperBound
+from .UnsatisfiableParameterizationRequestError \
+    import UnsatisfiableParameterizationRequestError
 
 
 class _CurryPolicy:
@@ -106,20 +108,34 @@ def PolicyCouplerFactory(
         def __init__(
             self: 'PolicyCoupler',
             *args,
-            policy_spec=None,
+            parameterizer: typing.Optional[
+                typing.Callable[[typing.Type], typing.Optional['PolicySpec']]
+            ]=None,
+            policy_spec: typing.Optional['PolicySpec']=None,
             **kwargs,
         ):
             """Construct a PolicyCoupler instance.
 
             If policy_spec is not provided, all arguments are forwarded to
+            policy spec initializer.
             """
 
-            self._policy_spec = opyt.or_else(
-                policy_spec,
-                lambda: policy_spec_t(*args, **kwargs),
-            )
             if policy_spec is not None:
                 assert len(args) == len(kwargs) == 0
+                assert parameterizer is None
+                self._policy_spec = policy_spec
+            elif parameterizer is not None:
+                assert len(args) == len(kwargs) == 0
+                assert policy_spec is None
+                maybe_policy_spec = parameterizer(type(self))
+                if maybe_policy_spec is None:
+                    raise UnsatisfiableParameterizationRequestError()
+                else:
+                    self._policy_spec = maybe_policy_spec
+            else:
+                assert parameterizer is None
+                assert policy_spec is None
+                self._policy_spec = policy_spec_t_(*args, **kwargs)
 
             # enactment
             self.GenDropRanks = _CurryPolicy(

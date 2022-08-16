@@ -52,7 +52,7 @@ importlib-metadata==4.11.1
     # via sphinx
 iniconfig==1.1.1
     # via pytest
-interval-search==0.1.2
+interval-search==0.2.0
     # via -r requirements_dev.in
 iterify==0.1.0
     # via -r requirements_dev.in

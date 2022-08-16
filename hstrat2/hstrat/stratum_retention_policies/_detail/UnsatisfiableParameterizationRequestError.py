@@ -1,0 +1,2 @@
+class UnsatisfiableParameterizationRequestError(ValueError):
+    pass
