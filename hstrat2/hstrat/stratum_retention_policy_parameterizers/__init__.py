@@ -2,6 +2,8 @@
 requirements."""
 
 
+from .MrcaUncertaintyAbsUpperBoundPolicyEvaluator \
+    import MrcaUncertaintyAbsUpperBoundPolicyEvaluator
 from .MrcaUncertaintyRelUpperBoundPolicyEvaluator \
     import MrcaUncertaintyRelUpperBoundPolicyEvaluator
 from .PropertyAtLeastParameterizer \
@@ -11,6 +13,7 @@ from .PropertyAtMostParameterizer \
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
+    'MrcaUncertaintyAbsUpperBoundPolicyEvaluator',
     'MrcaUncertaintyRelUpperBoundPolicyEvaluator',
     'PropertyAtLeastParameterizer',
     'PropertyAtMostParameterizer',
