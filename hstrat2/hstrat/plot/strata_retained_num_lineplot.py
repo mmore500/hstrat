@@ -8,7 +8,7 @@ from ..HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 def strata_retained_num_lineplot(
     stratum_retention_policy: typing.Callable[[int, int], bool],
     num_generations: int,
-    do_show: bool=True,
+    do_show: bool=False,
     ax: typing.Optional[plt.matplotlib.axes.Axes]=None,
 ) -> plt.matplotlib.axes.Axes:
     """Plot number deposited strata that are retained at each generation.

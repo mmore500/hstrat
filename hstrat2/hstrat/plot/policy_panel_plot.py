@@ -12,7 +12,7 @@ from .stratum_retention_dripplot import stratum_retention_dripplot
 def policy_panel_plot(
     stratum_retention_policy: typing.Any,
     num_generations: int,
-    do_show: bool=True,
+    do_show: bool=False,
     fig: typing.Optional[plt.matplotlib.figure.Figure]=None,
 ) -> plt.matplotlib.figure.Figure:
     """Draw multipanel figure to holisticaly describe stratum retention policy

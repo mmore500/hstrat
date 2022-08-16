@@ -9,7 +9,7 @@ from ..HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 def mrca_uncertainty_absolute_barplot(
     stratum_retention_policy: typing.Any,
     num_generations: int,
-    do_show: bool=True,
+    do_show: bool=False,
     ax: typing.Optional[plt.matplotlib.axes.Axes]=None,
 ) -> plt.matplotlib.axes.Axes:
     """Plot absolute uncertainty for MRCA estimation over column ranks
