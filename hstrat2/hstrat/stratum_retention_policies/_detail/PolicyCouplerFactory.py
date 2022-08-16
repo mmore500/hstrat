@@ -72,13 +72,15 @@ def PolicyCouplerFactory(
     """Joins policy implementation functors into a single class that can be
     instantiated with particular policy specification parameters."""
 
+    policy_spec_t_ = policy_spec_t
+
     class PolicyCoupler(
         _PolicyCouplerBase,
     ):
         """Instantiate policy implementation for particular policy
         specification parameters."""
 
-        _policy_spec: policy_spec_t
+        _policy_spec: policy_spec_t_
 
         # invariants
         CalcMrcaUncertaintyAbsUpperBound: typing.Callable
@@ -98,6 +100,8 @@ def PolicyCouplerFactory(
 
         # enactment
         GenDropRanks: typing.Callable
+
+        policy_spec_t: typing.Type = policy_spec_t_
 
         def __init__(
             self: 'PolicyCoupler',
@@ -242,7 +246,7 @@ def PolicyCouplerFactory(
         ) -> str:
             return str(self._policy_spec)
 
-        def GetSpec(self: 'PolicyCoupler') -> policy_spec_t:
+        def GetSpec(self: 'PolicyCoupler') -> policy_spec_t_:
             return self._policy_spec
 
         def WithoutCalcRankAtColumnIndex(
@@ -256,7 +260,7 @@ def PolicyCouplerFactory(
             """
 
             type_ = PolicyCouplerFactory(
-                policy_spec_t=policy_spec_t,
+                policy_spec_t=policy_spec_t_,
                 # enactment
                 gen_drop_ranks_ftor_t=gen_drop_ranks_ftor_t,
                 # invariants
