@@ -29,4 +29,15 @@ class CalcMrcaUncertaintyAbsUpperBound:
 
         spec = policy.GetSpec()
 
-        return spec._fixed_resolution - 1
+        least_last_rank = max(
+            min(
+                first_num_strata_deposited - 1,
+                second_num_strata_deposited - 1,
+            ),
+            0,
+        )
+
+        return min(
+            spec._fixed_resolution - 1,
+            least_last_rank,
+        )
