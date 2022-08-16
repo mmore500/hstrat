@@ -1,8 +1,11 @@
 import numpy as np
+import opytional as opyt
 import pytest
 import sys
 
 from hstrat2 import hstrat
+from hstrat2.hstrat.stratum_retention_policies._detail \
+    import CalcWorstCaseMrcaUncertaintyRelUpperBound
 
 @pytest.mark.parametrize(
     'policy_t',
@@ -38,6 +41,7 @@ from hstrat2 import hstrat
         0.01,
         0.25,
         1,
+        1.5,
     ],
 )
 def test_satisfiable_at_least(
@@ -47,13 +51,26 @@ def test_satisfiable_at_least(
     target_value,
 ):
 
+    if CalcWorstCaseMrcaUncertaintyRelUpperBound()(
+        None,
+        at_num_strata_deposited,
+        at_num_strata_deposited,
+        opyt.or_value(at_rank, -1),
+    ) <= target_value:
+        # skip impossible to parameterize cases
+        return
+
     parameterizer = hstrat.PropertyAtLeastParameterizer(
         target_value=target_value,
         policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
             at_num_strata_deposited=at_num_strata_deposited,
             at_rank=at_rank,
         ),
-        param_lower_bound=1,
+        param_lower_bound=(
+            0
+            if policy_t == hstrat.recency_proportional_resolution_policy.Policy
+            else 1
+        ),
     )
     policy_spec = parameterizer(policy_t)
     assert policy_spec == policy_t(parameterizer=parameterizer).GetSpec()
@@ -85,7 +102,12 @@ def test_satisfiable_at_least(
                 at_num_strata_deposited=at_num_strata_deposited,
                 at_rank=at_rank,
             ),
-            param_lower_bound=1,
+            param_lower_bound=(
+                0
+                if policy_t \
+                    == hstrat.recency_proportional_resolution_policy.Policy
+                else 1
+            ),
             param_upper_bound=None,
         )
         policy_spec = parameterizer(policy_t)
@@ -156,25 +178,6 @@ def test_unsatisfiable_at_least(
     with pytest.raises(hstrat.UnsatisfiableParameterizationRequestError):
         policy_t(parameterizer=parameterizer)
 
-    if policy_t not in (
-        hstrat.geom_seq_nth_root_policy.Policy,
-        hstrat.geom_seq_nth_root_tapered_policy.Policy,
-    ):
-        # disable for these policies because too slow
-        parameterizer = hstrat.PropertyAtLeastParameterizer(
-            target_value=target_value,
-            policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
-                at_num_strata_deposited=at_num_strata_deposited,
-                at_rank=at_rank,
-            ),
-            param_lower_bound=1,
-            param_upper_bound=None,
-        )
-        policy_spec = parameterizer(policy_t)
-
-        assert policy_spec is None
-        with pytest.raises(hstrat.UnsatisfiableParameterizationRequestError):
-            policy_t(parameterizer=parameterizer)
 
 @pytest.mark.parametrize(
     'policy_t',
@@ -182,6 +185,8 @@ def test_unsatisfiable_at_least(
         hstrat.depth_proportional_resolution_policy.Policy,
         hstrat.depth_proportional_resolution_tapered_policy.Policy,
         hstrat.fixed_resolution_policy.Policy,
+        hstrat.geom_seq_nth_root_policy.Policy,
+        hstrat.geom_seq_nth_root_tapered_policy.Policy,
         hstrat.recency_proportional_resolution_policy.Policy,
     ],
 )
@@ -197,9 +202,10 @@ def test_unsatisfiable_at_least(
     [
         None,
         -1,
+        -2,
         -8,
-        0,
         100,
+        0,
     ],
 )
 @pytest.mark.parametrize(
@@ -254,6 +260,7 @@ def test_satisfiable_at_most(
         hstrat.geom_seq_nth_root_policy.Policy,
         hstrat.geom_seq_nth_root_tapered_policy.Policy,
     ):
+        # don't evaluate geom seq nth root on these at all b/c too slow
         parameterizer = hstrat.PropertyAtMostParameterizer(
             target_value=target_value,
             policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
@@ -332,26 +339,6 @@ def test_unsatisfiable_at_most(
     with pytest.raises(hstrat.UnsatisfiableParameterizationRequestError):
         policy_t(parameterizer=parameterizer)
 
-    if policy_t not in (
-        hstrat.geom_seq_nth_root_policy.Policy,
-        hstrat.geom_seq_nth_root_tapered_policy.Policy,
-        hstrat.depth_proportional_resolution_policy.Policy,
-        hstrat.depth_proportional_resolution_tapered_policy.Policy,
-    ):
-        parameterizer = hstrat.PropertyAtMostParameterizer(
-            target_value=target_value,
-            policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
-                at_num_strata_deposited=at_num_strata_deposited,
-                at_rank=at_rank,
-            ),
-            param_lower_bound=1,
-            param_upper_bound=None,
-        )
-        policy_spec = parameterizer(policy_t)
-
-        assert policy_spec is None
-        with pytest.raises(hstrat.UnsatisfiableParameterizationRequestError):
-            policy_t(parameterizer=parameterizer)
 
 def test_against_expected_upper_bound():
 
