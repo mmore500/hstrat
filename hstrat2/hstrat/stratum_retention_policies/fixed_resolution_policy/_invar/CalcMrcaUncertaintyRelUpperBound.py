@@ -1,5 +1,7 @@
 import typing
 
+from ..._detail import CalcWorstCaseMrcaUncertaintyRelUpperBound
+
 from ..PolicySpec import PolicySpec
 
 
@@ -45,4 +47,15 @@ class CalcMrcaUncertaintyRelUpperBound:
         )
 
         # worst-case recency is 1
-        return abs_upper_bound / 1.0
+        res = abs_upper_bound / 1.0
+
+        # tighten to worst-possible case given number of strata deposited
+        return min(
+            res,
+            CalcWorstCaseMrcaUncertaintyRelUpperBound()(
+                policy,
+                first_num_strata_deposited,
+                second_num_strata_deposited,
+                actual_rank_of_mrca,
+            ),
+        )

@@ -66,4 +66,15 @@ class CalcMrcaUncertaintyRelUpperBound:
 
         common_ratio = calc_common_ratio(spec._degree, max_num_strata_deposited)
 
-        return length_ratio * common_ratio / (interspersal - 1)
+        res = length_ratio * common_ratio / (interspersal - 1)
+
+        # tighten to worst-possible case given number of strata deposited
+        return min(
+            res,
+            CalcWorstCaseMrcaUncertaintyRelUpperBound()(
+                policy,
+                first_num_strata_deposited,
+                second_num_strata_deposited,
+                actual_rank_of_mrca,
+            ),
+        )

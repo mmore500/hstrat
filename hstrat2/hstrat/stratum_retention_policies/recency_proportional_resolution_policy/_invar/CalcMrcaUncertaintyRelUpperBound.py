@@ -63,7 +63,19 @@ class CalcMrcaUncertaintyRelUpperBound:
                 second_num_strata_deposited,
                 actual_rank_of_mrca,
             )
-        else: return (
-            length_ratio
-            / spec._guaranteed_mrca_recency_proportional_resolution
-        )
+        else:
+            res = (
+                length_ratio
+                / spec._guaranteed_mrca_recency_proportional_resolution
+            )
+
+            # tighten to worst-possible case given number of strata deposited
+            return min(
+                res,
+                CalcWorstCaseMrcaUncertaintyRelUpperBound()(
+                    policy,
+                    first_num_strata_deposited,
+                    second_num_strata_deposited,
+                    actual_rank_of_mrca,
+                ),
+            )
