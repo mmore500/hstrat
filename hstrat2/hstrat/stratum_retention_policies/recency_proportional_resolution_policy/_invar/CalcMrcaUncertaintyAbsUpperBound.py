@@ -1,5 +1,7 @@
 import typing
 
+from ..._detail import CalcWorstCaseMrcaUncertaintyAbsUpperBound
+
 from ..PolicySpec import PolicySpec
 
 class CalcMrcaUncertaintyAbsUpperBound:
@@ -42,8 +44,24 @@ class CalcMrcaUncertaintyAbsUpperBound:
             second_num_strata_deposited,
         ) - actual_rank_of_mrca
         if spec._guaranteed_mrca_recency_proportional_resolution == 0:
-            return min(first_num_strata_deposited, second_num_strata_deposited)
-        else: return (
+            return CalcWorstCaseMrcaUncertaintyAbsUpperBound()(
+                policy,
+                first_num_strata_deposited,
+                second_num_strata_deposited,
+                actual_rank_of_mrca,
+            )
+
+        res = (
             max_ranks_since_mrca
             // spec._guaranteed_mrca_recency_proportional_resolution
+        )
+
+        return min(
+            res,
+            CalcWorstCaseMrcaUncertaintyAbsUpperBound()(
+                policy,
+                first_num_strata_deposited,
+                second_num_strata_deposited,
+                actual_rank_of_mrca,
+            ),
         )

@@ -1,6 +1,8 @@
 import math
 import typing
 
+from ..._detail import CalcWorstCaseMrcaUncertaintyAbsUpperBound
+
 from .._impl import calc_common_ratio
 from ..PolicySpec import PolicySpec
 
@@ -75,4 +77,14 @@ class CalcMrcaUncertaintyAbsUpperBound:
         )
 
         # account for increased resolution from interspersal
-        return int(math.ceil(rounded_ranks_since_mrca / (interspersal - 1)))
+        res = int(math.ceil(rounded_ranks_since_mrca / (interspersal - 1)))
+
+        return min(
+            res,
+            CalcWorstCaseMrcaUncertaintyAbsUpperBound()(
+                policy,
+                first_num_strata_deposited,
+                second_num_strata_deposited,
+                actual_rank_of_mrca,
+            ),
+        )

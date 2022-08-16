@@ -1,5 +1,7 @@
 import typing
 
+from ..._detail import CalcWorstCaseMrcaUncertaintyAbsUpperBound
+
 from ..PolicySpec import PolicySpec
 
 class CalcMrcaUncertaintyAbsUpperBound:
@@ -22,22 +24,21 @@ class CalcMrcaUncertaintyAbsUpperBound:
         policy: 'Policy',
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
-        actual_rank_of_mrca: typing.Optional[int],
+        actual_rank_of_mrca: int,
     ) -> int:
         """At most, how much absolute uncertainty to estimate rank of MRCA?
         Inclusive."""
 
         spec = policy.GetSpec()
 
-        least_last_rank = max(
-            min(
-                first_num_strata_deposited - 1,
-                second_num_strata_deposited - 1,
-            ),
-            0,
-        )
+        res = spec._fixed_resolution - 1
 
         return min(
-            spec._fixed_resolution - 1,
-            least_last_rank,
+            res,
+            CalcWorstCaseMrcaUncertaintyAbsUpperBound()(
+                policy,
+                first_num_strata_deposited,
+                second_num_strata_deposited,
+                actual_rank_of_mrca,
+            ),
         )
