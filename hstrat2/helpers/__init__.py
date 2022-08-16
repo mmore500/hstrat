@@ -10,6 +10,7 @@ from .is_nondecreasing import is_nondecreasing
 from .is_nonincreasing import is_nonincreasing
 from .memoize_generator import memoize_generator
 from .pairwise import pairwise
+from .RecursionLimit import RecursionLimit
 from .scale_luminosity import scale_luminosity
 from .ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
 
@@ -27,6 +28,7 @@ __all__ = [
     'is_nonincreasing',
     'memoize_generator',
     'pairwise',
+    'RecursionLimit',
     'scale_luminosity',
     'ScalarFormatterFixedPrecision',
 ]
