@@ -68,11 +68,9 @@ individual1_grandchild1.CalcRankOfMrcaBoundsWith(
 
 ## Retention Drip Plot Visualization
 
-![](docs/assets/a=stratum_retention_dripplot+extant_history=False+extinct_history=False+extinct_placeholders=True+num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-4+ext=.gif)
-
-![](docs/assets/a=stratum_retention_dripplot+extant_history=True+extinct_history=False+extinct_placeholders=True+num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-4+ext=.gif)
-
-![](docs/assets/a=stratum_retention_dripplot+extant_history=True+extinct_history=True+extinct_placeholders=False+num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-4+ext=.gif)
+| No History | Retained History | All History |
+|------------|------------------|-------------|
+| ![](docs/assets/a=stratum_retention_dripplot+extant_history=False+extinct_history=False+extinct_placeholders=True+num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-4+ext=.gif) | ![](docs/assets/a=stratum_retention_dripplot+extant_history=True+extinct_history=False+extinct_placeholders=True+num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-4+ext=.gif) | ![](docs/assets/a=stratum_retention_dripplot+extant_history=True+extinct_history=True+extinct_placeholders=False+num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-4+ext=.gif) |
 
 ## Available Policies
 
@@ -85,101 +83,69 @@ individual1_grandchild1.CalcRankOfMrcaBoundsWith(
 
 ### Depth Proportional Resolution Policy
 
-![](docs/assets/a=policy_panel_plot+num_generations=256+policy=depth-proportional-resolution-stratum-retention-policy-resolution-2+ext=.gif)
+| Sparse Parameterization | Dense Parameterization |
+|-------------------------|------------------------|
+| ![](docs/assets/a=policy_panel_plot+num_generations=256+policy=depth-proportional-resolution-stratum-retention-policy-resolution-2+ext=.gif) | ![](docs/assets/a=policy_panel_plot+num_generations=256+policy=depth-proportional-resolution-stratum-retention-policy-resolution-8+ext=.gif) |
+| ![](docs/assets/num_generations=256+policy=depth-proportional-resolution-stratum-retention-policy-resolution-2+viz=stratum-retention-dripplot+ext=.png) | ![](docs/assets/num_generations=256+policy=depth-proportional-resolution-stratum-retention-policy-resolution-8+viz=stratum-retention-dripplot+ext=.png) |
 
-![](docs/assets/a=policy_panel_plot+num_generations=256+policy=depth-proportional-resolution-stratum-retention-policy-resolution-8+ext=.gif)
-
-![](docs/assets/num_generations=256+policy=depth-proportional-resolution-stratum-retention-policy-resolution-2+viz=stratum-retention-dripplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=depth-proportional-resolution-stratum-retention-policy-resolution-8+viz=stratum-retention-dripplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=depth-proportional-resolution-stratum-retention-policy-resolution-8+viz=strata-retained-num-lineplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=depth-proportional-resolution-stratum-retention-policy-resolution-8+viz=mrca-uncertainty-absolute-barplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=depth-proportional-resolution-stratum-retention-policy-resolution-8+viz=mrca-uncertainty-relative-barplot+ext=.png)
+| Dense Parameterization Detail | | |
+| ------------------------------|-|-|
+| ![](docs/assets/num_generations=256+policy=depth-proportional-resolution-stratum-retention-policy-resolution-8+viz=strata-retained-num-lineplot+ext=.png) | ![](docs/assets/num_generations=256+policy=depth-proportional-resolution-stratum-retention-policy-resolution-8+viz=mrca-uncertainty-absolute-barplot+ext=.png) | ![](docs/assets/num_generations=256+policy=depth-proportional-resolution-stratum-retention-policy-resolution-8+viz=mrca-uncertainty-relative-barplot+ext=.png) |
 
 ### Tapered Depth Proportional Resolution Policy
 
-![](docs/assets/a=policy_panel_plot+num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-1+ext=.gif)
+| Sparse Parameterization | Dense Parameterization |
+|-------------------------|------------------------|
+| ![](docs/assets/a=policy_panel_plot+num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-1+ext=.gif) | ![](docs/assets/a=policy_panel_plot+num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-7+ext=.gif) |
+| ![](docs/assets/num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-1+viz=stratum-retention-dripplot+ext=.png) | ![](docs/assets/num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-7+viz=stratum-retention-dripplot+ext=.png) |
 
-![](docs/assets/a=policy_panel_plot+num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-7+ext=.gif)
-
-![](docs/assets/num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-1+viz=stratum-retention-dripplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-7+viz=stratum-retention-dripplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-7+viz=strata-retained-num-lineplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-7+viz=mrca-uncertainty-absolute-barplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-7+viz=mrca-uncertainty-relative-barplot+ext=.png)
-
+| Dense Parameterization Detail | | |
+| ------------------------------|-|-|
+| ![](docs/assets/num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-7+viz=strata-retained-num-lineplot+ext=.png) | ![](docs/assets/num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-7+viz=mrca-uncertainty-absolute-barplot+ext=.png) | ![](docs/assets/num_generations=256+policy=tapered-depth-proportional-resolution-stratum-retention-policy-resolution-7+viz=mrca-uncertainty-relative-barplot+ext=.png) |
 
 ### Fixed Resolution Policy
 
-![](docs/assets/a=policy_panel_plot+num_generations=256+policy=fixed-resolution-stratum-retention-policy-resolution-128+ext=.gif)
+| Sparse Parameterization | Dense Parameterization |
+|-------------------------|------------------------|
+| ![](docs/assets/a=policy_panel_plot+num_generations=256+policy=fixed-resolution-stratum-retention-policy-resolution-128+ext=.gif) | ![](docs/assets/a=policy_panel_plot+num_generations=256+policy=fixed-resolution-stratum-retention-policy-resolution-32+ext=.gif) |
+| ![](docs/assets/num_generations=256+policy=fixed-resolution-stratum-retention-policy-resolution-128+viz=stratum-retention-dripplot+ext=.png) | ![](docs/assets/num_generations=256+policy=fixed-resolution-stratum-retention-policy-resolution-32+viz=stratum-retention-dripplot+ext=.png) |
 
-![](docs/assets/a=policy_panel_plot+num_generations=256+policy=fixed-resolution-stratum-retention-policy-resolution-32+ext=.gif)
-
-![](docs/assets/num_generations=256+policy=fixed-resolution-stratum-retention-policy-resolution-128+viz=stratum-retention-dripplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=fixed-resolution-stratum-retention-policy-resolution-32+viz=stratum-retention-dripplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=fixed-resolution-stratum-retention-policy-resolution-32+viz=strata-retained-num-lineplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=fixed-resolution-stratum-retention-policy-resolution-32+viz=mrca-uncertainty-absolute-barplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=fixed-resolution-stratum-retention-policy-resolution-32+viz=mrca-uncertainty-relative-barplot+ext=.png)
+| Dense Parameterization Detail | | |
+| ------------------------------|-|-|
+![](docs/assets/num_generations=256+policy=fixed-resolution-stratum-retention-policy-resolution-32+viz=strata-retained-num-lineplot+ext=.png) | ![](docs/assets/num_generations=256+policy=fixed-resolution-stratum-retention-policy-resolution-32+viz=mrca-uncertainty-absolute-barplot+ext=.png) | ![](docs/assets/num_generations=256+policy=fixed-resolution-stratum-retention-policy-resolution-32+viz=mrca-uncertainty-relative-barplot+ext=.png) |
 
 ### Geometric Sequence Nth Root Policy
 
-![](docs/assets/a=policy_panel_plot+num_generations=256+policy=nth-root-geometric-sequence-stratum-retention-policy-degree-6-interspersal-2+ext=.gif)
+| Sparse Parameterization | Dense Parameterization |
+|-------------------------|------------------------|
+| ![](docs/assets/a=policy_panel_plot+num_generations=256+policy=nth-root-geometric-sequence-stratum-retention-policy-degree-6-interspersal-2+ext=.gif) | ![](docs/assets/a=policy_panel_plot+num_generations=256+policy=nth-root-geometric-sequence-stratum-retention-policy-degree-1024-interspersal-2+ext=.gif) |
+| ![](docs/assets/num_generations=256+policy=nth-root-geometric-sequence-stratum-retention-policy-degree-6-interspersal-2+viz=stratum-retention-dripplot+ext=.png) | ![](docs/assets/num_generations=256+policy=nth-root-geometric-sequence-stratum-retention-policy-degree-1024-interspersal-2+viz=stratum-retention-dripplot+ext=.png) |
 
-![](docs/assets/a=policy_panel_plot+num_generations=256+policy=nth-root-geometric-sequence-stratum-retention-policy-degree-1024-interspersal-2+ext=.gif)
-
-![](docs/assets/num_generations=256+policy=nth-root-geometric-sequence-stratum-retention-policy-degree-6-interspersal-2+viz=stratum-retention-dripplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=nth-root-geometric-sequence-stratum-retention-policy-degree-1024-interspersal-2+viz=stratum-retention-dripplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=nth-root-geometric-sequence-stratum-retention-policy-degree-1024-interspersal-2+viz=strata-retained-num-lineplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=nth-root-geometric-sequence-stratum-retention-policy-degree-1024-interspersal-2+viz=mrca-uncertainty-absolute-barplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=nth-root-geometric-sequence-stratum-retention-policy-degree-1024-interspersal-2+viz=mrca-uncertainty-relative-barplot+ext=.png)
+| Dense Parameterization Detail | | |
+| ------------------------------|-|-|
+| ![](docs/assets/num_generations=256+policy=nth-root-geometric-sequence-stratum-retention-policy-degree-1024-interspersal-2+viz=strata-retained-num-lineplot+ext=.png) | ![](docs/assets/num_generations=256+policy=nth-root-geometric-sequence-stratum-retention-policy-degree-1024-interspersal-2+viz=mrca-uncertainty-absolute-barplot+ext=.png) | ![](docs/assets/num_generations=256+policy=nth-root-geometric-sequence-stratum-retention-policy-degree-1024-interspersal-2+viz=mrca-uncertainty-relative-barplot+ext=.png) |
 
 ### Tapered Geometric Sequence Nth Root Policy
 
-![](docs/assets/a=policy_panel_plot+num_generations=256+policy=tapered-nth-root-geometric-sequence-stratum-retention-policy-degree-1-interspersal-2+ext=.gif)
+| Sparse Parameterization | Dense Parameterization |
+|-------------------------|------------------------|
+| ![](docs/assets/a=policy_panel_plot+num_generations=256+policy=tapered-nth-root-geometric-sequence-stratum-retention-policy-degree-1-interspersal-2+ext=.gif) | ![](docs/assets/a=policy_panel_plot+num_generations=256+policy=tapered-nth-root-geometric-sequence-stratum-retention-policy-degree-4-interspersal-2+ext=.gif)
+| ![](docs/assets/num_generations=256+policy=tapered-nth-root-geometric-sequence-stratum-retention-policy-degree-1-interspersal-2+viz=stratum-retention-dripplot+ext=.png) | ![](docs/assets/num_generations=256+policy=tapered-nth-root-geometric-sequence-stratum-retention-policy-degree-4-interspersal-2+viz=stratum-retention-dripplot+ext=.png) |
 
-![](docs/assets/a=policy_panel_plot+num_generations=256+policy=tapered-nth-root-geometric-sequence-stratum-retention-policy-degree-4-interspersal-2+ext=.gif)
-
-![](docs/assets/num_generations=256+policy=tapered-nth-root-geometric-sequence-stratum-retention-policy-degree-1-interspersal-2+viz=stratum-retention-dripplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=tapered-nth-root-geometric-sequence-stratum-retention-policy-degree-4-interspersal-2+viz=stratum-retention-dripplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=tapered-nth-root-geometric-sequence-stratum-retention-policy-degree-4-interspersal-2+viz=strata-retained-num-lineplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=tapered-nth-root-geometric-sequence-stratum-retention-policy-degree-4-interspersal-2+viz=mrca-uncertainty-absolute-barplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=tapered-nth-root-geometric-sequence-stratum-retention-policy-degree-4-interspersal-2+viz=mrca-uncertainty-relative-barplot+ext=.png)
+| Dense Parameterization Detail | | |
+| ------------------------------|-|-|
+| ![](docs/assets/num_generations=256+policy=tapered-nth-root-geometric-sequence-stratum-retention-policy-degree-4-interspersal-2+viz=strata-retained-num-lineplot+ext=.png) | ![](docs/assets/num_generations=256+policy=tapered-nth-root-geometric-sequence-stratum-retention-policy-degree-4-interspersal-2+viz=mrca-uncertainty-absolute-barplot+ext=.png) | ![](docs/assets/num_generations=256+policy=tapered-nth-root-geometric-sequence-stratum-retention-policy-degree-4-interspersal-2+viz=mrca-uncertainty-relative-barplot+ext=.png) |
 
 ### Recency Proportional Resolution Policy
 
+| Sparse Parameterization | Dense Parameterization |
+|-------------------------|------------------------|
+| ![](docs/assets/a=policy_panel_plot+num_generations=256+policy=recency-proportional-resolution-stratum-retention-policy-resolution-0+ext=.gif) | ![](docs/assets/a=policy_panel_plot+num_generations=256+policy=recency-proportional-resolution-stratum-retention-policy-resolution-6+ext=.gif) |
+| ![](docs/assets/num_generations=256+policy=recency-proportional-resolution-stratum-retention-policy-resolution-0+viz=stratum-retention-dripplot+ext=.png) | ![](docs/assets/num_generations=256+policy=recency-proportional-resolution-stratum-retention-policy-resolution-6+viz=stratum-retention-dripplot+ext=.png) |
 
-![](docs/assets/a=policy_panel_plot+num_generations=256+policy=recency-proportional-resolution-stratum-retention-policy-resolution-0+ext=.gif)
-
-![](docs/assets/a=policy_panel_plot+num_generations=256+policy=recency-proportional-resolution-stratum-retention-policy-resolution-6+ext=.gif)
-
-![](docs/assets/num_generations=256+policy=recency-proportional-resolution-stratum-retention-policy-resolution-0+viz=stratum-retention-dripplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=recency-proportional-resolution-stratum-retention-policy-resolution-6+viz=stratum-retention-dripplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=recency-proportional-resolution-stratum-retention-policy-resolution-6+viz=strata-retained-num-lineplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=recency-proportional-resolution-stratum-retention-policy-resolution-6+viz=mrca-uncertainty-absolute-barplot+ext=.png)
-
-![](docs/assets/num_generations=256+policy=recency-proportional-resolution-stratum-retention-policy-resolution-6+viz=mrca-uncertainty-relative-barplot+ext=.png)
+| Dense Parameterization Detail | | |
+| ------------------------------|-|-|
+| ![](docs/assets/num_generations=256+policy=recency-proportional-resolution-stratum-retention-policy-resolution-6+viz=strata-retained-num-lineplot+ext=.png) | ![](docs/assets/num_generations=256+policy=recency-proportional-resolution-stratum-retention-policy-resolution-6+viz=mrca-uncertainty-absolute-barplot+ext=.png) |  ![](docs/assets/num_generations=256+policy=recency-proportional-resolution-stratum-retention-policy-resolution-6+viz=mrca-uncertainty-relative-barplot+ext=.png) |
 
 ### Other Policies
 
