@@ -99,7 +99,9 @@ class PropertyAtLeastParameterizer:
                     # successor fails requirement
                     lambda p: eval_at_param(p + 1) < thresh,
                     lower_bound=lb,
-                    upper_bound=opyt.apply_if(ub, lambda x: x - 1),
+                    # override upper bound to avoid unnecessary infinite search
+                    # b/c doubling_search is implemented non-recursively
+                    upper_bound=opyt.or_value(ub, sys.maxsize) - 1,
                 )
                 if res is not None:
                     return res
@@ -113,7 +115,9 @@ class PropertyAtLeastParameterizer:
                 res = inch.interval_search(
                     lambda p: eval_at_param(p) == thresh,
                     lower_bound=lb,
-                    upper_bound=ub,
+                    # override upper bound to avoid unnecessary infinite search
+                    # b/c doubling_search is implemented non-recursively
+                    upper_bound=opyt.or_value(ub, sys.maxsize),
                 )
                 if res is not None:
                     return res
