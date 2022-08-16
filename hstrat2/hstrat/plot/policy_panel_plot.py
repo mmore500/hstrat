@@ -95,10 +95,10 @@ def policy_panel_plot(
         formatter.set_scientific(True)
         formatter.set_powerlimits((0,0))
         return formatter
-    top_left_ax.yaxis.set_major_formatter(make_fixed_prec_sci_formatter())
-    mid_left_ax.yaxis.set_major_formatter(make_fixed_prec_sci_formatter())
-    bot_left_ax.yaxis.set_major_formatter(make_fixed_prec_sci_formatter())
-    top_right_ax.yaxis.set_major_formatter(make_fixed_prec_sci_formatter())
+
+    all_axes = top_left_ax, mid_left_ax, bot_left_ax, top_right_ax, bot_right_ax
+    for ax in all_axes:
+        ax.yaxis.set_major_formatter(make_fixed_prec_sci_formatter())
 
     if do_show: plt.show()
 
