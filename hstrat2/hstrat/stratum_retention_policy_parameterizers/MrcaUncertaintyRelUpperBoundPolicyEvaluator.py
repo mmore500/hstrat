@@ -10,7 +10,6 @@ _policy_param_focalizer_t = typing.Callable[
 
 class MrcaUncertaintyRelUpperBoundPolicyEvaluator:
 
-    _threshold_uncertainty: float
     _at_num_strata_deposited: int
     _at_rank: typing.Optional[int]
     _policy_param_focalizer: _policy_param_focalizer_t

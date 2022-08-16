@@ -12,6 +12,7 @@ _policy_evaluator_t = typing.Callable[
 
 class PropertyAtLeastParameterizer:
 
+    _target_value: typing.Union[float, int]
     _policy_evaluator: _policy_evaluator_t
     _param_lower_bound: int
     _param_upper_bound: typing.Optional[int]
