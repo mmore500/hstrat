@@ -69,7 +69,7 @@ def test_eq(replicate):
     'replicate',
     range(5),
 )
-def test_negative_index(random_seed):
+def test_negative_index(replicate):
     random.seed(replicate)
     policy = stochastic_policy.Policy()
     spec = policy.GetSpec()
