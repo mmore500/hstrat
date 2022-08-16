@@ -14,7 +14,7 @@ class TestPolicyPanelPlot(unittest.TestCase):
             hstrat.nominal_resolution_policy.Policy(),
             hstrat.perfect_resolution_policy.Policy(),
         ]:
-            hstrat.policy_panel_plot(policy, 100, do_show=True)
+            hstrat.policy_panel_plot(policy, 100, do_show=False)
             hstrat.policy_panel_plot(policy, 10, do_show=False)
 
 
