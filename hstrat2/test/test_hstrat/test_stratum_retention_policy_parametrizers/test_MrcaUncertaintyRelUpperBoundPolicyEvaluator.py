@@ -352,3 +352,309 @@ def test_unsatisfiable_at_most(
         assert policy_spec is None
         with pytest.raises(hstrat.UnsatisfiableParameterizationRequestError):
             policy_t(parameterizer=parameterizer)
+
+def test_against_expected_upper_bound():
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtMostParameterizer(
+        target_value=0.0,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=100,
+            at_rank=0,
+        ),
+        param_lower_bound=1,
+    )
+    assert parameterizer(policy_t) == policy_t.policy_spec_t(
+        fixed_resolution=1,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtMostParameterizer(
+        target_value=0.0,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=101,
+            at_rank=98,
+        ),
+        param_lower_bound=1,
+    )
+    assert parameterizer(policy_t) == policy_t.policy_spec_t(
+        fixed_resolution=1,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtLeastParameterizer(
+        target_value=0.0,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=100,
+            at_rank=0,
+        ),
+        param_lower_bound=1,
+    )
+    assert parameterizer(policy_t) == policy_t.policy_spec_t(
+        fixed_resolution=1,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtLeastParameterizer(
+        target_value=0.0,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=101,
+            at_rank=98,
+        ),
+        param_lower_bound=1,
+    )
+    assert parameterizer(policy_t) == policy_t.policy_spec_t(
+        fixed_resolution=1,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtLeastParameterizer(
+        target_value=0.05,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=101,
+            at_rank=0,
+        ),
+        param_lower_bound=1,
+    )
+    res_spec = parameterizer(policy_t)
+    assert res_spec == policy_t.policy_spec_t(
+        fixed_resolution=6,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtMostParameterizer(
+        target_value=0.05,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=101,
+            at_rank=0,
+        ),
+        param_lower_bound=1,
+    )
+    res_spec = parameterizer(policy_t)
+    assert res_spec == policy_t.policy_spec_t(
+        fixed_resolution=6,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtLeastParameterizer(
+        target_value=0.049,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=101,
+            at_rank=0,
+        ),
+        param_lower_bound=1,
+    )
+    res_spec = parameterizer(policy_t)
+    assert res_spec == policy_t.policy_spec_t(
+        fixed_resolution=6,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtMostParameterizer(
+        target_value=0.049,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=101,
+            at_rank=0,
+        ),
+        param_lower_bound=1,
+    )
+    res_spec = parameterizer(policy_t)
+    assert res_spec == policy_t.policy_spec_t(
+        fixed_resolution=5,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtLeastParameterizer(
+        target_value=0.051,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=101,
+            at_rank=0,
+        ),
+        param_lower_bound=1,
+    )
+    res_spec = parameterizer(policy_t)
+    assert res_spec == policy_t.policy_spec_t(
+        fixed_resolution=7,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtMostParameterizer(
+        target_value=0.051,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=101,
+            at_rank=0,
+        ),
+        param_lower_bound=1,
+    )
+    res_spec = parameterizer(policy_t)
+    assert res_spec == policy_t.policy_spec_t(
+        fixed_resolution=6,
+    )
+
+def test_against_expected_no_upper_bound():
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtMostParameterizer(
+        target_value=0.0,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=100,
+            at_rank=0,
+        ),
+        param_lower_bound=1,
+        param_upper_bound=None,
+    )
+    assert parameterizer(policy_t) == policy_t.policy_spec_t(
+        fixed_resolution=1,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtMostParameterizer(
+        target_value=0.0,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=101,
+            at_rank=98,
+        ),
+        param_lower_bound=1,
+        param_upper_bound=None,
+    )
+    assert parameterizer(policy_t) == policy_t.policy_spec_t(
+        fixed_resolution=1,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtLeastParameterizer(
+        target_value=0.0,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=100,
+            at_rank=0,
+        ),
+        param_lower_bound=1,
+        param_upper_bound=None,
+    )
+    assert parameterizer(policy_t) == policy_t.policy_spec_t(
+        fixed_resolution=1,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtLeastParameterizer(
+        target_value=0.0,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=101,
+            at_rank=98,
+        ),
+        param_lower_bound=1,
+        param_upper_bound=None,
+    )
+    assert parameterizer(policy_t) == policy_t.policy_spec_t(
+        fixed_resolution=1,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtLeastParameterizer(
+        target_value=0.05,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=101,
+            at_rank=0,
+        ),
+        param_lower_bound=1,
+        param_upper_bound=None,
+    )
+    res_spec = parameterizer(policy_t)
+    assert res_spec == policy_t.policy_spec_t(
+        fixed_resolution=6,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtMostParameterizer(
+        target_value=0.05,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=101,
+            at_rank=0,
+        ),
+        param_lower_bound=1,
+        param_upper_bound=None,
+    )
+    res_spec = parameterizer(policy_t)
+    assert res_spec == policy_t.policy_spec_t(
+        fixed_resolution=6,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtLeastParameterizer(
+        target_value=0.049,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=101,
+            at_rank=0,
+        ),
+        param_lower_bound=1,
+        param_upper_bound=None,
+    )
+    res_spec = parameterizer(policy_t)
+    assert res_spec == policy_t.policy_spec_t(
+        fixed_resolution=6,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtMostParameterizer(
+        target_value=0.049,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=101,
+            at_rank=0,
+        ),
+        param_lower_bound=1,
+        param_upper_bound=None,
+    )
+    res_spec = parameterizer(policy_t)
+    assert res_spec == policy_t.policy_spec_t(
+        fixed_resolution=5,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtLeastParameterizer(
+        target_value=0.051,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=101,
+            at_rank=0,
+        ),
+        param_lower_bound=1,
+        param_upper_bound=None,
+    )
+    res_spec = parameterizer(policy_t)
+    assert res_spec == policy_t.policy_spec_t(
+        fixed_resolution=7,
+    )
+
+    # case
+    policy_t = hstrat.fixed_resolution_policy.Policy
+    parameterizer = hstrat.PropertyAtMostParameterizer(
+        target_value=0.051,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundPolicyEvaluator(
+            at_num_strata_deposited=101,
+            at_rank=0,
+        ),
+        param_lower_bound=1,
+        param_upper_bound=None,
+    )
+    res_spec = parameterizer(policy_t)
+    assert res_spec == policy_t.policy_spec_t(
+        fixed_resolution=6,
+    )
