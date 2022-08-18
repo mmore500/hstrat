@@ -22,11 +22,14 @@ from hstrat2.hstrat.stratum_retention_policies._detail \
 @pytest.mark.parametrize(
     'time_sequence',
     [
-        range(10**2),
+        np.random.default_rng(1).integers(
+            10**2,
+            size=10,
+        ),
         np.random.default_rng(1).integers(
             10**3,
-            size=10**2,
-        )
+            size=10,
+        ),
     ],
 )
 def test_policy_consistency(recency_proportional_resolution, time_sequence):
