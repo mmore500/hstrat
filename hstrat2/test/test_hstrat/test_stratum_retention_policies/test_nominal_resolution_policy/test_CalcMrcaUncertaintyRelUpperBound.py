@@ -14,6 +14,7 @@ from hstrat2.hstrat import nominal_resolution_policy
             high=2**32,
             size=10**2,
         ),
+        (2**32,),
     ],
 )
 def test_policy_consistency(time_sequence):

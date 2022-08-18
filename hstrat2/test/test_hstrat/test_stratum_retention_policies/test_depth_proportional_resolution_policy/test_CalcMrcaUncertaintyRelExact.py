@@ -27,6 +27,7 @@ from hstrat2.hstrat import depth_proportional_resolution_policy
             high=2**32,
             size=10,
         ),
+        (2**32,),
     ],
 )
 def test_policy_consistency(depth_proportional_resolution, time_sequence):

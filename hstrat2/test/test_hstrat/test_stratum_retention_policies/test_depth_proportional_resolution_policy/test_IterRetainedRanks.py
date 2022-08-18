@@ -30,6 +30,7 @@ from hstrat2.hstrat import depth_proportional_resolution_policy
             high=2**32,
             size=10**2,
         ),
+        (2**32,),
     ],
 )
 def test_only_dwindling_over_time(depth_proportional_resolution, time_sequence):
@@ -73,6 +74,7 @@ def test_only_dwindling_over_time(depth_proportional_resolution, time_sequence):
             high=2**32,
             size=10**2,
         ),
+        (2**32,),
     ],
 )
 def test_ranks_sorted_and_unique(depth_proportional_resolution, time_sequence):
@@ -114,6 +116,7 @@ def test_ranks_sorted_and_unique(depth_proportional_resolution, time_sequence):
             high=2**32,
             size=10**2,
         ),
+        (2**32,),
     ],
 )
 def test_zero_and_last_ranks_retained(depth_proportional_resolution, time_sequence):
@@ -160,6 +163,7 @@ def test_zero_and_last_ranks_retained(depth_proportional_resolution, time_sequen
             high=2**32,
             size=10**2,
         ),
+        (2**32,),
     ],
 )
 def test_ranks_valid(depth_proportional_resolution, time_sequence):
