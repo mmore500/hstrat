@@ -11,19 +11,20 @@ from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
 @pytest.mark.parametrize(
     'degree',
     [
-        1,
+        pytest.param(1, marks=pytest.mark.heavy_3a),
         2,
         3,
         7,
         9,
-        42,
-        100,
+        pytest.param(42, marks=pytest.mark.heavy_2a),
+        pytest.param(97, marks=pytest.mark.heavy_2a),
+        pytest.param(100, marks=pytest.mark.heavy_2a),
     ],
 )
 @pytest.mark.parametrize(
     'interspersal',
     [
-        1,
+        pytest.param(1, marks=pytest.mark.heavy_3b),
         2,
         5,
     ],
@@ -31,10 +32,10 @@ from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
 @pytest.mark.parametrize(
     'time_sequence',
     [
-        it.chain(
-            range(10**3),
+        pytest.param(it.chain(
+            range(10**4),
             np.logspace(10, 32, num=50, base=2, dtype='int'),
-        ),
+        ), marks=pytest.mark.heavy_3c),
         (i for i in range(10) for __ in range(2)),
         (10 - i for i in range(10) for __ in range(2)),
         np.random.default_rng(1).integers(
@@ -42,11 +43,11 @@ from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
             high=10**2,
             size=10,
         ),
-        np.random.default_rng(1).integers(
+        pytest.param(np.random.default_rng(1).integers(
             low=0,
-            high=2**16,
+            high=2**32,
             size=10,
-        ),
+        ), marks=pytest.mark.heavy_2b),
     ],
 )
 def test_only_dwindling_over_time(degree, interspersal, time_sequence):
@@ -71,19 +72,20 @@ def test_only_dwindling_over_time(degree, interspersal, time_sequence):
 @pytest.mark.parametrize(
     'degree',
     [
-        1,
+        pytest.param(1, marks=pytest.mark.heavy_3a),
         2,
         3,
         7,
         9,
-        42,
-        100,
+        pytest.param(42, marks=pytest.mark.heavy_2a),
+        pytest.param(97, marks=pytest.mark.heavy_2a),
+        pytest.param(100, marks=pytest.mark.heavy_2a),
     ],
 )
 @pytest.mark.parametrize(
     'interspersal',
     [
-        1,
+        pytest.param(1, marks=pytest.mark.heavy_3b),
         2,
         5,
     ],
@@ -91,13 +93,22 @@ def test_only_dwindling_over_time(degree, interspersal, time_sequence):
 @pytest.mark.parametrize(
     'time_sequence',
     [
-        range(10**4),
-        (i for i in range(10**2) for __ in range(2)),
+        pytest.param(it.chain(
+            range(10**4),
+            np.logspace(10, 32, num=50, base=2, dtype='int'),
+        ), marks=pytest.mark.heavy_3c),
+        (i for i in range(10) for __ in range(2)),
+        (10 - i for i in range(10) for __ in range(2)),
         np.random.default_rng(1).integers(
             low=0,
-            high=2**32,
-            size=10**2,
+            high=10**2,
+            size=10,
         ),
+        pytest.param(np.random.default_rng(1).integers(
+            low=0,
+            high=2**32,
+            size=10,
+        ), marks=pytest.mark.heavy_2b),
     ],
 )
 def test_ranks_sorted_and_unique(degree, interspersal, time_sequence):
@@ -120,19 +131,20 @@ def test_ranks_sorted_and_unique(degree, interspersal, time_sequence):
 @pytest.mark.parametrize(
     'degree',
     [
-        1,
+        pytest.param(1, marks=pytest.mark.heavy_3a),
         2,
         3,
         7,
         9,
-        42,
-        100,
+        pytest.param(42, marks=pytest.mark.heavy_2a),
+        pytest.param(97, marks=pytest.mark.heavy_2a),
+        pytest.param(100, marks=pytest.mark.heavy_2a),
     ],
 )
 @pytest.mark.parametrize(
     'interspersal',
     [
-        1,
+        pytest.param(1, marks=pytest.mark.heavy_3b),
         2,
         5,
     ],
@@ -140,13 +152,22 @@ def test_ranks_sorted_and_unique(degree, interspersal, time_sequence):
 @pytest.mark.parametrize(
     'time_sequence',
     [
-        range(10**4),
-        (i for i in range(10**2) for __ in range(2)),
+        pytest.param(it.chain(
+            range(10**4),
+            np.logspace(10, 32, num=50, base=2, dtype='int'),
+        ), marks=pytest.mark.heavy_3c),
+        (i for i in range(10) for __ in range(2)),
+        (10 - i for i in range(10) for __ in range(2)),
         np.random.default_rng(1).integers(
             low=0,
-            high=2**32,
-            size=10**2,
+            high=10**2,
+            size=10,
         ),
+        pytest.param(np.random.default_rng(1).integers(
+            low=0,
+            high=2**32,
+            size=10,
+        ), marks=pytest.mark.heavy_2b),
     ],
 )
 def test_zero_and_last_ranks_retained(degree, interspersal, time_sequence):
@@ -174,19 +195,20 @@ def test_zero_and_last_ranks_retained(degree, interspersal, time_sequence):
 @pytest.mark.parametrize(
     'degree',
     [
-        1,
+        pytest.param(1, marks=pytest.mark.heavy_3a),
         2,
         3,
         7,
         9,
-        42,
-        100,
+        pytest.param(42, marks=pytest.mark.heavy_2a),
+        pytest.param(97, marks=pytest.mark.heavy_2a),
+        pytest.param(100, marks=pytest.mark.heavy_2a),
     ],
 )
 @pytest.mark.parametrize(
     'interspersal',
     [
-        1,
+        pytest.param(1, marks=pytest.mark.heavy_3b),
         2,
         5,
     ],
@@ -194,13 +216,22 @@ def test_zero_and_last_ranks_retained(degree, interspersal, time_sequence):
 @pytest.mark.parametrize(
     'time_sequence',
     [
-        range(10**4),
-        (i for i in range(10**2) for __ in range(2)),
+        pytest.param(it.chain(
+            range(10**4),
+            np.logspace(10, 32, num=50, base=2, dtype='int'),
+        ), marks=pytest.mark.heavy_3c),
+        (i for i in range(10) for __ in range(2)),
+        (10 - i for i in range(10) for __ in range(2)),
         np.random.default_rng(1).integers(
             low=0,
-            high=2**32,
-            size=10**2,
+            high=10**2,
+            size=10,
         ),
+        pytest.param(np.random.default_rng(1).integers(
+            low=0,
+            high=2**32,
+            size=10,
+        ), marks=pytest.mark.heavy_2b),
     ],
 )
 def test_ranks_valid(degree, interspersal, time_sequence):
@@ -227,6 +258,7 @@ def test_ranks_valid(degree, interspersal, time_sequence):
         7,
         9,
         42,
+        97,
         100,
     ],
 )

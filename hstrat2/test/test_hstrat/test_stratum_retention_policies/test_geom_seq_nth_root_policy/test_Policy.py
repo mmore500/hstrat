@@ -12,6 +12,7 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
         7,
         9,
         42,
+        97,
         100,
     ],
 )
@@ -60,6 +61,7 @@ def test_init(degree, interspersal):
         7,
         9,
         42,
+        97,
         100,
     ],
 )
@@ -91,6 +93,7 @@ def test_eq(degree, interspersal):
         7,
         9,
         42,
+        97,
         100,
     ],
 )
@@ -115,6 +118,7 @@ def test_GetSpec(degree, interspersal):
         7,
         9,
         42,
+        97,
         100,
     ],
 )

@@ -15,13 +15,14 @@ from hstrat2.hstrat.stratum_retention_policies._detail \
         7,
         9,
         42,
+        97,
         100,
     ],
 )
 @pytest.mark.parametrize(
     'interspersal',
     [
-        1,
+        pytest.param(1, marks=pytest.mark.heavy_3b),
         2,
         5,
     ],
@@ -32,7 +33,7 @@ from hstrat2.hstrat.stratum_retention_policies._detail \
         range(10**2),
         np.random.default_rng(1).integers(
             10**3,
-            size=10**2,
+            size=20,
         )
     ],
 )
@@ -85,6 +86,7 @@ def test_policy_consistency(degree, interspersal, time_sequence):
         7,
         9,
         42,
+        97,
         100,
     ],
 )

@@ -8,19 +8,20 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
 @pytest.mark.parametrize(
     'degree',
     [
-        1,
+        pytest.param(1, marks=pytest.mark.heavy_3a),
         2,
         3,
         7,
         9,
-        42,
-        100,
+        pytest.param(42, marks=pytest.mark.heavy_2a),
+        pytest.param(97, marks=pytest.mark.heavy_2a),
+        pytest.param(100, marks=pytest.mark.heavy_2a),
     ],
 )
 @pytest.mark.parametrize(
     'interspersal',
     [
-        1,
+        pytest.param(1, marks=pytest.mark.heavy_3b),
         2,
         5,
     ],
@@ -28,10 +29,10 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
 @pytest.mark.parametrize(
     'time_sequence',
     [
-        it.chain(
+        pytest.param(it.chain(
             range(10**3),
             np.logspace(10, 32, num=50, base=2, dtype='int'),
-        ),
+        ), marks=pytest.mark.heavy_3c),
         (i for i in range(10) for __ in range(2)),
         (10 - i for i in range(10) for __ in range(2)),
         np.random.default_rng(1).integers(
@@ -39,11 +40,11 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
             high=10**2,
             size=10,
         ),
-        np.random.default_rng(1).integers(
+        pytest.param(np.random.default_rng(1).integers(
             low=0,
             high=2**16,
             size=10,
-        ),
+        ), marks=pytest.mark.heavy_2b),
     ],
 )
 def test_policy_consistency(degree, interspersal, time_sequence):
@@ -72,6 +73,7 @@ def test_policy_consistency(degree, interspersal, time_sequence):
         7,
         9,
         42,
+        97,
         100,
     ],
 )
