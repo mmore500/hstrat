@@ -1,4 +1,4 @@
-# hstrat
+![hstrat wordmark](docs/assets/hstrat-wordmark.png)
 
 [
   ![PyPi](https://img.shields.io/pypi/v/hstrat.svg)
@@ -179,3 +179,7 @@ End users can also define custom stratum retention policies.
 ## Credits
 
 This package was created with Cookiecutter and the `audreyr/cookiecutter-pypackage` project template.
+
+## hcat
+
+![hcat](docs/assets/hcat-banner.png)
