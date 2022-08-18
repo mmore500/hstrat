@@ -77,7 +77,7 @@ def test_impl_consistency(depth_proportional_resolution, time_sequence):
 @pytest.mark.parametrize(
     'time_sequence',
     [
-        range(10**4),
+        range(10**3),
         (i for i in range(10**2) for __ in range(2)),
         np.random.default_rng(1).integers(
             low=0,

@@ -23,7 +23,7 @@ from hstrat2.hstrat import depth_proportional_resolution_tapered_policy
 @pytest.mark.parametrize(
     'time_sequence',
     [
-        range(10**4),
+        range(10**3),
         (i for i in range(10**2) for __ in range(2)),
         np.random.default_rng(1).integers(
             low=0,
@@ -66,7 +66,7 @@ def test_only_dwindling_over_time(depth_proportional_resolution, time_sequence):
 @pytest.mark.parametrize(
     'time_sequence',
     [
-        range(10**4),
+        range(10**3),
         (i for i in range(10**2) for __ in range(2)),
         np.random.default_rng(1).integers(
             low=0,
@@ -107,7 +107,7 @@ def test_ranks_sorted_and_unique(depth_proportional_resolution, time_sequence):
 @pytest.mark.parametrize(
     'time_sequence',
     [
-        range(10**4),
+        range(10**3),
         (i for i in range(10**2) for __ in range(2)),
         np.random.default_rng(1).integers(
             low=0,
@@ -153,7 +153,7 @@ def test_zero_and_last_ranks_retained(depth_proportional_resolution, time_sequen
 @pytest.mark.parametrize(
     'time_sequence',
     [
-        range(10**4),
+        range(10**3),
         (i for i in range(10**2) for __ in range(2)),
         np.random.default_rng(1).integers(
             low=0,
