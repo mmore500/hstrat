@@ -22,6 +22,7 @@ requirements = [
     "mpmath>=1.1.0",
     "opytional>=0.1.0",
     "python-slugify>=6.1.2",
+    "seaborn>=0.11.2",
 ]
 
 setup_requirements = ['pytest-runner', ]

@@ -21,6 +21,7 @@ mmh3==3.0.0
 mpmath==1.1.0
 opytional==0.1.0
 python-slugify==6.1.2
+seaborn==0.11.2
 
 # testing
 scipy==1.5.4
