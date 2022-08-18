@@ -46,6 +46,9 @@ jobs:
           requirementsFiles: "requirements_dev.txt"
     - name: Test Black tidyness
       uses: psf/black@stable
+    - uses: editorconfig-checker/action-editorconfig-checker@main
+    - name: Test editorconfig tidyness
+      run: editorconfig-checker
 
   deploy:
     needs: [test, tidy]
