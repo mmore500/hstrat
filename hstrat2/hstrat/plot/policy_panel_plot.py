@@ -1,13 +1,18 @@
-from matplotlib import pyplot as plt
 import typing
 
-from ...helpers import ScalarFormatterFixedPrecision
+from matplotlib import pyplot as plt
 
-from .mrca_uncertainty_absolute_barplot import mrca_uncertainty_absolute_barplot
-from .mrca_uncertainty_relative_barplot import mrca_uncertainty_relative_barplot
+from ...helpers import ScalarFormatterFixedPrecision
+from .mrca_uncertainty_absolute_barplot import (
+    mrca_uncertainty_absolute_barplot,
+)
+from .mrca_uncertainty_relative_barplot import (
+    mrca_uncertainty_relative_barplot,
+)
 from .strata_retained_frac_lineplot import strata_retained_frac_lineplot
 from .strata_retained_num_lineplot import strata_retained_num_lineplot
 from .stratum_retention_dripplot import stratum_retention_dripplot
+
 
 def policy_panel_plot(
     stratum_retention_policy: typing.Any,

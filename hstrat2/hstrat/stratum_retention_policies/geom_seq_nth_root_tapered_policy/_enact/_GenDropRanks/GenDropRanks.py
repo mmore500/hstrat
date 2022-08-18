@@ -1,11 +1,12 @@
+import typing
+
 from iterpop import iterpop as ip
 import opytional as opyt
 from safe_assert import safe_assert as always_assert
-import typing
 
-from ..._impl import calc_rank_sep
-from ..._impl import get_retained_ranks
 from ...PolicySpec import PolicySpec
+from ..._impl import calc_rank_sep, get_retained_ranks
+
 
 class GenDropRanks:
     """Functor to implement the approximate space-filling MRCA-recency-

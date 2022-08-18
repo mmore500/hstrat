@@ -2,8 +2,9 @@ import numpy as np
 import pytest
 
 from hstrat2.hstrat import depth_proportional_resolution_policy
-from hstrat2.hstrat.stratum_retention_policies._detail \
-    import CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce
+from hstrat2.hstrat.stratum_retention_policies._detail import (
+    CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce,
+)
 
 
 @pytest.mark.parametrize(

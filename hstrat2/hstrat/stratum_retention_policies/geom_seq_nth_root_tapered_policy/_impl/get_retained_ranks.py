@@ -2,8 +2,8 @@ import functools
 import typing
 
 from .....helpers import is_nondecreasing
-
 from .iter_priority_ranks import iter_priority_ranks
+
 
 @functools.lru_cache(maxsize=512)
 def get_retained_ranks(

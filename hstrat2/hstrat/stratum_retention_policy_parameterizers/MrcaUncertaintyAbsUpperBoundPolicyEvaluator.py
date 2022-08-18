@@ -1,6 +1,6 @@
-import opytional as opyt
 import typing
 
+import opytional as opyt
 
 _policy_param_focalizer_t = typing.Callable[
     [typing.Type],

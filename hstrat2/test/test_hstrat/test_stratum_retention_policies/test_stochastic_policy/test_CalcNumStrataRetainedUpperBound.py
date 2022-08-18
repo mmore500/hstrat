@@ -1,9 +1,9 @@
-import numpy as np
-import pytest
 import random
 
-from hstrat2.hstrat import HereditaryStratigraphicColumn
-from hstrat2.hstrat import stochastic_policy
+import numpy as np
+import pytest
+
+from hstrat2.hstrat import HereditaryStratigraphicColumn, stochastic_policy
 
 
 @pytest.mark.parametrize(

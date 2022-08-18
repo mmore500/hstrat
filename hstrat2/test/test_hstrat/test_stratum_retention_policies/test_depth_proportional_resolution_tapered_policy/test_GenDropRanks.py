@@ -1,11 +1,12 @@
 import itertools as it
+
 import numpy as np
 import pytest
 
 from hstrat2.helpers import all_same
 from hstrat2.hstrat import depth_proportional_resolution_tapered_policy
-
 from hstrat import hstrat
+
 
 @pytest.mark.parametrize(
     'depth_proportional_resolution',

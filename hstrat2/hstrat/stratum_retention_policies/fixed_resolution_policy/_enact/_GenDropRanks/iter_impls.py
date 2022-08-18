@@ -1,7 +1,7 @@
 import typing
 
-from .GenDropRanks import GenDropRanks
 from .FromPredKeepRank import FromPredKeepRank
+from .GenDropRanks import GenDropRanks
 
 
 def iter_impls() -> typing.Iterator[typing.Type[typing.Callable]]:

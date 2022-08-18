@@ -2,6 +2,7 @@ import typing
 
 from .calc_common_ratio import calc_common_ratio
 
+
 def iter_target_recencies(
     degree: int,
     num_strata_deposited: int,

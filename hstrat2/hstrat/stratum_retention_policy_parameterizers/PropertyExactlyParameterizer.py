@@ -1,11 +1,11 @@
-import interval_search as inch
-import numpy as np
-import opytional as opyt
 import sys
 import typing
 
-from .PropertyAtLeastParameterizer import PropertyAtLeastParameterizer
+import interval_search as inch
+import numpy as np
+import opytional as opyt
 
+from .PropertyAtLeastParameterizer import PropertyAtLeastParameterizer
 
 _policy_evaluator_t = typing.Callable[
     [typing.Type, int],

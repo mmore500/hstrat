@@ -1,15 +1,19 @@
-import opytional as opyt
 import typing
 
-from . import CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
-from . import CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce
-from . import CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
-from . import CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce
-from . import CalcWorstCaseMrcaUncertaintyAbsUpperBound
-from . import CalcWorstCaseMrcaUncertaintyRelUpperBound
-from . import CalcWorstCaseNumStrataRetainedUpperBound
-from .UnsatisfiableParameterizationRequestError \
-    import UnsatisfiableParameterizationRequestError
+import opytional as opyt
+
+from . import (
+    CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank,
+    CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce,
+    CalcMrcaUncertaintyRelUpperBoundAtPessimalRank,
+    CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce,
+    CalcWorstCaseMrcaUncertaintyAbsUpperBound,
+    CalcWorstCaseMrcaUncertaintyRelUpperBound,
+    CalcWorstCaseNumStrataRetainedUpperBound,
+)
+from .UnsatisfiableParameterizationRequestError import (
+    UnsatisfiableParameterizationRequestError,
+)
 
 
 class _CurryPolicy:

@@ -1,10 +1,12 @@
-import numpy as np
-import pytest
 import random
 
+import numpy as np
+import pytest
+
 from hstrat2.hstrat import stochastic_policy
-from hstrat2.hstrat.stratum_retention_policies._detail \
-    import CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce
+from hstrat2.hstrat.stratum_retention_policies._detail import (
+    CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce,
+)
 
 
 @pytest.mark.parametrize(

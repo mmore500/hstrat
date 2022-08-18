@@ -1,8 +1,10 @@
-import numpy as np
-import pytest
 import sys
 
+import numpy as np
+import pytest
+
 from hstrat2 import hstrat
+
 
 @pytest.mark.parametrize(
     'policy_t',

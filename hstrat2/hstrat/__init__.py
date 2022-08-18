@@ -1,6 +1,7 @@
 from .HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
-from .HereditaryStratigraphicColumnBundle \
-    import HereditaryStratigraphicColumnBundle
+from .HereditaryStratigraphicColumnBundle import (
+    HereditaryStratigraphicColumnBundle,
+)
 from .HereditaryStratum import HereditaryStratum
 from .plot import *
 from .stratum_ordered_stores import *

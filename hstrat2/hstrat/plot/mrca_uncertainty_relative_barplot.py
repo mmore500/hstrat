@@ -1,10 +1,12 @@
 import itertools as it
+import typing
+
 import matplotlib as mpl
 from matplotlib import pyplot as plt
-import typing
 import seaborn as sns
 
 from ..HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
+
 
 def mrca_uncertainty_relative_barplot(
     stratum_retention_policy: typing.Any,

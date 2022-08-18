@@ -1,7 +1,8 @@
+import math
+
 from .calc_target_rank import calc_target_rank
 from .calc_target_recency import calc_target_recency
 
-import math
 
 def calc_rank_cutoff(
     degree: int,

@@ -2,6 +2,7 @@ import unittest
 
 from hstrat.helpers import bit_floor
 
+
 class TestBitFloor(unittest.TestCase):
 
     # tests can run independently

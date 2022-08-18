@@ -1,8 +1,10 @@
-import mmh3
 import typing
 
-from ..._impl import decide_if_discard
+import mmh3
+
 from ...PolicySpec import PolicySpec
+from ..._impl import decide_if_discard
+
 
 class GenDropRanks:
     """Functor to implement the fixed resolution stratum retention policy, for

@@ -1,10 +1,13 @@
 import itertools as it
+
 import numpy as np
 import pytest
 
 from hstrat2.helpers import all_same
-from hstrat2.hstrat import HereditaryStratigraphicColumn
-from hstrat2.hstrat import pseudostochastic_policy
+from hstrat2.hstrat import (
+    HereditaryStratigraphicColumn,
+    pseudostochastic_policy,
+)
 
 
 @pytest.mark.parametrize(

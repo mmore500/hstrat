@@ -1,7 +1,8 @@
 from functools import reduce
 import operator
-import opytional as opyt
 import typing
+
+import opytional as opyt
 
 
 def find_bounds(

@@ -27,30 +27,33 @@ geom_seq_nth_root_tapered_policy:
     resolution but retains a constant column size exactly equal to the hard upper limit on number of strata retained.
 """
 
+from .Policy import Policy
 from .PolicySpec import PolicySpec
-
-from ._enact.GenDropRanks import GenDropRanks
 from ._enact import _GenDropRanks
-
-from ._invar.CalcMrcaUncertaintyAbsUpperBound \
-    import CalcMrcaUncertaintyAbsUpperBound
-from ._invar.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank \
-    import CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
-from ._invar.CalcMrcaUncertaintyAbsUpperBoundPessimalRank \
-    import CalcMrcaUncertaintyAbsUpperBoundPessimalRank
-from ._invar.CalcMrcaUncertaintyRelUpperBound \
-    import CalcMrcaUncertaintyRelUpperBound
-from ._invar.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank \
-    import CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
-from ._invar.CalcMrcaUncertaintyRelUpperBoundPessimalRank \
-    import CalcMrcaUncertaintyRelUpperBoundPessimalRank
-from ._invar.CalcNumStrataRetainedUpperBound \
-    import CalcNumStrataRetainedUpperBound
-
+from ._enact.GenDropRanks import GenDropRanks
+from ._invar.CalcMrcaUncertaintyAbsUpperBound import (
+    CalcMrcaUncertaintyAbsUpperBound,
+)
+from ._invar.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank import (
+    CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank,
+)
+from ._invar.CalcMrcaUncertaintyAbsUpperBoundPessimalRank import (
+    CalcMrcaUncertaintyAbsUpperBoundPessimalRank,
+)
+from ._invar.CalcMrcaUncertaintyRelUpperBound import (
+    CalcMrcaUncertaintyRelUpperBound,
+)
+from ._invar.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank import (
+    CalcMrcaUncertaintyRelUpperBoundAtPessimalRank,
+)
+from ._invar.CalcMrcaUncertaintyRelUpperBoundPessimalRank import (
+    CalcMrcaUncertaintyRelUpperBoundPessimalRank,
+)
+from ._invar.CalcNumStrataRetainedUpperBound import (
+    CalcNumStrataRetainedUpperBound,
+)
 from ._scry.CalcMrcaUncertaintyAbsExact import CalcMrcaUncertaintyAbsExact
 from ._scry.CalcMrcaUncertaintyRelExact import CalcMrcaUncertaintyRelExact
 from ._scry.CalcNumStrataRetainedExact import CalcNumStrataRetainedExact
 from ._scry.CalcRankAtColumnIndex import CalcRankAtColumnIndex
 from ._scry.IterRetainedRanks import IterRetainedRanks
-
-from .Policy import Policy

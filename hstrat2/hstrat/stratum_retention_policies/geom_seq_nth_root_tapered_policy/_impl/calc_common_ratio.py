@@ -1,6 +1,8 @@
-import mpmath as mp
 import typing
 import warnings
+
+import mpmath as mp
+
 
 def calc_common_ratio(
     degree: int,

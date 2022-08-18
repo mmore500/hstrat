@@ -4,8 +4,9 @@ a hereditary stratigraphic column after n strata have been
 deposited."""
 
 
-from .StratumRetentionPredicateStochastic \
-    import StratumRetentionPredicateStochastic
+from .StratumRetentionPredicateStochastic import (
+    StratumRetentionPredicateStochastic,
+)
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [

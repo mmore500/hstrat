@@ -1,9 +1,11 @@
+import typing
+
 import matplotlib as mpl
 from matplotlib import pyplot as plt
-import typing
 import seaborn as sns
 
 from ..HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
+
 
 def strata_retained_num_lineplot(
     stratum_retention_policy: typing.Callable[[int, int], bool],

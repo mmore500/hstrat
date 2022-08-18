@@ -1,5 +1,7 @@
 import itertools as it
+
 import lru
+
 
 def memoize_generator(lru_cache_size: int=128):
 

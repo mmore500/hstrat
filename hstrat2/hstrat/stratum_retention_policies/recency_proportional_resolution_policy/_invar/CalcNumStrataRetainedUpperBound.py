@@ -3,6 +3,7 @@ import typing
 
 from ..PolicySpec import PolicySpec
 
+
 class CalcNumStrataRetainedUpperBound:
     """Functor to provide member function implementation in Policy class."""
 

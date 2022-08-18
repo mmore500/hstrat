@@ -2,6 +2,7 @@ import typing
 
 from ..PolicySpec import PolicySpec
 
+
 class CalcNumStrataRetainedExact:
     """Functor to provide member function implementation in Policy class."""
 

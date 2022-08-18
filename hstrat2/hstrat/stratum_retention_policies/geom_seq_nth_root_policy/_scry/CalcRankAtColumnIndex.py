@@ -3,6 +3,7 @@ import typing
 
 from ..PolicySpec import PolicySpec
 
+
 class CalcRankAtColumnIndex:
     """Functor to provide member function implementation in Policy class."""
 

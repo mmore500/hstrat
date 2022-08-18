@@ -1,7 +1,9 @@
-import mpmath as mp
 import typing
 
+import mpmath as mp
+
 from .calc_common_ratio import calc_common_ratio
+
 
 def calc_target_recency(
     degree: int,

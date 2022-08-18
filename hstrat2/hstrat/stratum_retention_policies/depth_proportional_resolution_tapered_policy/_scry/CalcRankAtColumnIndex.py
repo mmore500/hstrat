@@ -1,7 +1,8 @@
 import typing
 
-from .._impl import calc_provided_uncertainty
 from ..PolicySpec import PolicySpec
+from .._impl import calc_provided_uncertainty
+
 
 class CalcRankAtColumnIndex:
     """Functor to provide member function implementation in Policy class."""

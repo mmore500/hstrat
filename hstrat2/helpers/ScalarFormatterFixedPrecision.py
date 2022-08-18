@@ -1,5 +1,6 @@
 import matplotlib as mpl
 
+
 # adapted from https://stackoverflow.com/a/42156450
 class ScalarFormatterFixedPrecision(mpl.ticker.ScalarFormatter):
 

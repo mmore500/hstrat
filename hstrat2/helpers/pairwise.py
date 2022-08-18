@@ -1,6 +1,7 @@
 import itertools as it
 import typing
 
+
 # adapted from https://docs.python.org/3/library/itertools.html
 def pairwise(iterable: typing.Iterable) -> typing.Iterator:
     """Return successive overlapping pairs taken from the input iterable.

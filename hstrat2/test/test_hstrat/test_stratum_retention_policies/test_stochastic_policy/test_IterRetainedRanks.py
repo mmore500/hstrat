@@ -1,9 +1,10 @@
-from iterpop import iterpop as ip
 import itertools as it
 import numbers
+import random
+
+from iterpop import iterpop as ip
 import numpy as np
 import pytest
-import random
 
 from hstrat2.helpers import pairwise
 from hstrat2.hstrat import stochastic_policy

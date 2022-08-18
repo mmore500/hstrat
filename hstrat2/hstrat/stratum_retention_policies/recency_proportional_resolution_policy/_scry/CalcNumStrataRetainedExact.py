@@ -1,8 +1,10 @@
-import gmpy
 import typing
 
-from .._impl import calc_provided_uncertainty
+import gmpy
+
 from ..PolicySpec import PolicySpec
+from .._impl import calc_provided_uncertainty
+
 
 class CalcNumStrataRetainedExact:
     """Functor to provide member function implementation in Policy class."""

@@ -1,6 +1,5 @@
 import typing
 
-
 _policy_param_focalizer_t = typing.Callable[
     [typing.Type],
     typing.Callable[[int], 'Policy'],

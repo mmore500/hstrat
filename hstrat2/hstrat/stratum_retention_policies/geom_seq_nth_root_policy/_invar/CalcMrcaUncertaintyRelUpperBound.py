@@ -2,9 +2,8 @@ import math
 import typing
 
 from ..._detail import CalcWorstCaseMrcaUncertaintyRelUpperBound
-
-from .._impl import calc_common_ratio
 from ..PolicySpec import PolicySpec
+from .._impl import calc_common_ratio
 
 
 class CalcMrcaUncertaintyRelUpperBound:

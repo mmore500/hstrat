@@ -1,5 +1,6 @@
 import mmh3
 
+
 def decide_if_discard(
     random_seed: int,
     stratum_rank: int,

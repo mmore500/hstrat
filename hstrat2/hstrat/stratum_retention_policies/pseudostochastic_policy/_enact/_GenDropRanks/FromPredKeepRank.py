@@ -1,8 +1,8 @@
-import mmh3
 import typing
 
-from ...._detail import GenDropRanksFromPredKeepRank
+import mmh3
 
+from ...._detail import GenDropRanksFromPredKeepRank
 from ...PolicySpec import PolicySpec
 from ..._impl import decide_if_discard
 

@@ -1,12 +1,14 @@
+import typing
+
 from keyname import keyname as kn
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import matplotlib.animation
 from slugify import slugify
 from tqdm import tqdm
-import typing
 
 from .policy_panel_plot import policy_panel_plot
+
 
 def policy_panel_animate(
     stratum_retention_policy: typing.Any,

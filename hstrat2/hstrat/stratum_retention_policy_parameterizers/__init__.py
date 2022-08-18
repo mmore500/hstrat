@@ -2,24 +2,27 @@
 requirements."""
 
 
-from .MrcaUncertaintyAbsExactPolicyEvaluator \
-    import MrcaUncertaintyAbsExactPolicyEvaluator
-from .MrcaUncertaintyAbsUpperBoundPolicyEvaluator \
-    import MrcaUncertaintyAbsUpperBoundPolicyEvaluator
-from .MrcaUncertaintyRelExactPolicyEvaluator \
-    import MrcaUncertaintyRelExactPolicyEvaluator
-from .MrcaUncertaintyRelUpperBoundPolicyEvaluator \
-    import MrcaUncertaintyRelUpperBoundPolicyEvaluator
-from .NumStrataRetainedExactPolicyEvaluator \
-    import NumStrataRetainedExactPolicyEvaluator
-from .NumStrataRetainedUpperBoundPolicyEvaluator \
-    import NumStrataRetainedUpperBoundPolicyEvaluator
-from .PropertyAtLeastParameterizer \
-    import PropertyAtLeastParameterizer
-from .PropertyAtMostParameterizer \
-    import PropertyAtMostParameterizer
-from .PropertyExactlyParameterizer \
-    import PropertyExactlyParameterizer
+from .MrcaUncertaintyAbsExactPolicyEvaluator import (
+    MrcaUncertaintyAbsExactPolicyEvaluator,
+)
+from .MrcaUncertaintyAbsUpperBoundPolicyEvaluator import (
+    MrcaUncertaintyAbsUpperBoundPolicyEvaluator,
+)
+from .MrcaUncertaintyRelExactPolicyEvaluator import (
+    MrcaUncertaintyRelExactPolicyEvaluator,
+)
+from .MrcaUncertaintyRelUpperBoundPolicyEvaluator import (
+    MrcaUncertaintyRelUpperBoundPolicyEvaluator,
+)
+from .NumStrataRetainedExactPolicyEvaluator import (
+    NumStrataRetainedExactPolicyEvaluator,
+)
+from .NumStrataRetainedUpperBoundPolicyEvaluator import (
+    NumStrataRetainedUpperBoundPolicyEvaluator,
+)
+from .PropertyAtLeastParameterizer import PropertyAtLeastParameterizer
+from .PropertyAtMostParameterizer import PropertyAtMostParameterizer
+from .PropertyExactlyParameterizer import PropertyExactlyParameterizer
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [

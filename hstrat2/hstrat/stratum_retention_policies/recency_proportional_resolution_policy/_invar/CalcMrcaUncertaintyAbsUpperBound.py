@@ -1,8 +1,8 @@
 import typing
 
 from ..._detail import CalcWorstCaseMrcaUncertaintyAbsUpperBound
-
 from ..PolicySpec import PolicySpec
+
 
 class CalcMrcaUncertaintyAbsUpperBound:
     """Functor to provide member function implementation in Policy class."""

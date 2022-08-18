@@ -1,11 +1,14 @@
+import sys
+
 import numpy as np
 import opytional as opyt
 import pytest
-import sys
 
 from hstrat2 import hstrat
-from hstrat2.hstrat.stratum_retention_policies._detail \
-    import CalcWorstCaseMrcaUncertaintyRelUpperBound
+from hstrat2.hstrat.stratum_retention_policies._detail import (
+    CalcWorstCaseMrcaUncertaintyRelUpperBound,
+)
+
 
 @pytest.mark.parametrize(
     'policy_t',

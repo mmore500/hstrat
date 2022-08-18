@@ -1,8 +1,11 @@
-import opytional as opyt
 import typing
 
-from .CalcWorstCaseMrcaUncertaintyAbsUpperBound \
-    import CalcWorstCaseMrcaUncertaintyAbsUpperBound
+import opytional as opyt
+
+from .CalcWorstCaseMrcaUncertaintyAbsUpperBound import (
+    CalcWorstCaseMrcaUncertaintyAbsUpperBound,
+)
+
 
 class CalcWorstCaseMrcaUncertaintyRelUpperBound:
 

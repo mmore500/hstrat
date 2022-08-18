@@ -2,9 +2,9 @@ import math
 import typing
 
 from ..._detail import CalcWorstCaseMrcaUncertaintyAbsUpperBound
-
-from .._impl import calc_common_ratio
 from ..PolicySpec import PolicySpec
+from .._impl import calc_common_ratio
+
 
 class CalcMrcaUncertaintyAbsUpperBound:
     """Functor to provide member function implementation in Policy class."""

@@ -1,8 +1,8 @@
 import typing
 
 from .....helpers import bit_floor
-
 from .iter_target_recencies import iter_target_recencies
+
 
 def iter_rank_seps(
     degree: int,

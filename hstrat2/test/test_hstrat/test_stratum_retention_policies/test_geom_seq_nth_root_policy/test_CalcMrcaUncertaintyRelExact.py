@@ -1,8 +1,10 @@
 import itertools as it
+
 import numpy as np
 import pytest
 
 from hstrat2.hstrat import geom_seq_nth_root_policy
+
 
 @pytest.mark.parametrize(
     'degree',

@@ -1,9 +1,9 @@
-import interval_search as inch
-import numpy as np
-import opytional as opyt
 import sys
 import typing
 
+import interval_search as inch
+import numpy as np
+import opytional as opyt
 
 _policy_evaluator_t = typing.Callable[
     [typing.Type, int],

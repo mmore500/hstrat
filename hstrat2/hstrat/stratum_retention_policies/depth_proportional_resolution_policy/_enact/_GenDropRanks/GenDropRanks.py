@@ -1,7 +1,8 @@
 import typing
 
-from ..._impl import calc_provided_uncertainty
 from ...PolicySpec import PolicySpec
+from ..._impl import calc_provided_uncertainty
+
 
 class GenDropRanks:
     """Functor to implement the depth-proportional resolution stratum retention

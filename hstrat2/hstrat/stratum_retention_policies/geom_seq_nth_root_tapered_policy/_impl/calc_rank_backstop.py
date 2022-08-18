@@ -2,6 +2,7 @@ from .calc_rank_cutoff import calc_rank_cutoff
 from .calc_rank_sep import calc_rank_sep
 from .calc_target_rank import calc_target_rank
 
+
 def calc_rank_backstop(
     degree: int,
     interspersal: int,

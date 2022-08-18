@@ -1,16 +1,16 @@
 from collections import deque
 from copy import copy
-from interval_search import binary_search
-from iterpop import iterpop as ip
 import itertools as it
 import math
 import operator
-import opytional as opyt
 import typing
 import warnings
 
-from .HereditaryStratum import HereditaryStratum
+from interval_search import binary_search
+from iterpop import iterpop as ip
+import opytional as opyt
 
+from .HereditaryStratum import HereditaryStratum
 from .stratum_ordered_stores import HereditaryStratumOrderedStoreList
 from .stratum_retention_policies import perfect_resolution_policy
 

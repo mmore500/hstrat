@@ -3,6 +3,7 @@ import unittest
 
 from hstrat.helpers import memoize_generator
 
+
 class TestMemoizeGenerator(unittest.TestCase):
 
     # tests can run independently

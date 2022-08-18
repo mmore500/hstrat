@@ -2,6 +2,7 @@ import typing
 
 from ...PolicySpec import PolicySpec
 
+
 class GenDropRanks:
     """Functor to implement the fixed resolution stratum retention policy, for
     use with HereditaryStratigraphicColumn.

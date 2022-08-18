@@ -1,6 +1,7 @@
 from copy import copy
-from interval_search import binary_search
 import typing
+
+from interval_search import binary_search
 
 from ..HereditaryStratum import HereditaryStratum
 

@@ -1,5 +1,7 @@
-from .all_same import all_same
 from .AnyTreeAscendingIter import AnyTreeAscendingIter
+from .RecursionLimit import RecursionLimit
+from .ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
+from .all_same import all_same
 from .bit_ceil import bit_ceil
 from .bit_floor import bit_floor
 from .caretdown_marker import caretdown_marker
@@ -10,9 +12,7 @@ from .is_nondecreasing import is_nondecreasing
 from .is_nonincreasing import is_nonincreasing
 from .memoize_generator import memoize_generator
 from .pairwise import pairwise
-from .RecursionLimit import RecursionLimit
 from .scale_luminosity import scale_luminosity
-from .ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [

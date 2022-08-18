@@ -4,6 +4,7 @@ from .iter_rank_cutoffs import iter_rank_cutoffs
 from .iter_rank_seps import iter_rank_seps
 from .iter_target_ranks import iter_target_ranks
 
+
 def iter_rank_backstops(
     degree: int,
     interspersal: int,

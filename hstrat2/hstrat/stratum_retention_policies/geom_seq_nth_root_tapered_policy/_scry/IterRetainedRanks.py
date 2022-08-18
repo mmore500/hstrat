@@ -1,9 +1,9 @@
 import typing
 
 from .....helpers import memoize_generator
-
-from .._impl import get_retained_ranks
 from ..PolicySpec import PolicySpec
+from .._impl import get_retained_ranks
+
 
 class IterRetainedRanks:
     """Functor to provide member function implementation in Policy class."""

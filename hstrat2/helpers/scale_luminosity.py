@@ -1,6 +1,8 @@
 import colorsys
-import matplotlib as mpl
 import typing
+
+import matplotlib as mpl
+
 
 # adapted from https://stackoverflow.com/a/49601444
 def scale_luminosity(

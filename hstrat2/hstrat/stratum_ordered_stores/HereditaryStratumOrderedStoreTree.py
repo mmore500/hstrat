@@ -1,11 +1,11 @@
-import anytree
 from copy import copy
-from interval_search import binary_search
 import itertools as it
 import typing
 
-from ...helpers import AnyTreeAscendingIter
+import anytree
+from interval_search import binary_search
 
+from ...helpers import AnyTreeAscendingIter
 from ..HereditaryStratum import HereditaryStratum
 
 

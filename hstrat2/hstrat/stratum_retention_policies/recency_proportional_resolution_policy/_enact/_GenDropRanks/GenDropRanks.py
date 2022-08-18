@@ -1,8 +1,8 @@
 import typing
 
-from ..._impl import calc_provided_uncertainty
-from ..._impl import num_to_condemn
 from ...PolicySpec import PolicySpec
+from ..._impl import calc_provided_uncertainty, num_to_condemn
+
 
 class GenDropRanks:
     """Functor to implement the recency-proportional resolution stratum

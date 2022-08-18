@@ -2,6 +2,7 @@ import typing
 
 from ..PolicySpec import PolicySpec
 
+
 class CalcMrcaUncertaintyAbsExact:
     """Functor to provide member function implementation in Policy class."""
 

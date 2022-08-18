@@ -3,6 +3,7 @@ import unittest
 
 from hstrat.helpers import div_range
 
+
 class TestDivRange(unittest.TestCase):
 
     # tests can run independently

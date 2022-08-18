@@ -1,8 +1,8 @@
 import typing
 
 from .....helpers import bit_floor
-
 from .calc_target_recency import calc_target_recency
+
 
 def calc_rank_sep(
     degree: int,

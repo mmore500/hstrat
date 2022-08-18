@@ -2,6 +2,7 @@ import unittest
 
 from hstrat.helpers import bit_ceil
 
+
 class TestBitCeil(unittest.TestCase):
 
     # tests can run independently

@@ -2,6 +2,7 @@ import math
 
 from .calc_target_recency import calc_target_recency
 
+
 def calc_target_rank(
     degree: int,
     pow: int,

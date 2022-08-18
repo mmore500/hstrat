@@ -2,6 +2,7 @@ import unittest
 
 from hstrat.helpers import is_nonincreasing
 
+
 class TestIsNondecreasing(unittest.TestCase):
 
     # tests can run independently

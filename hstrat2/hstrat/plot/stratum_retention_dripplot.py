@@ -1,11 +1,12 @@
+import typing
+
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import opytional as opyt
-import typing
 
 from ...helpers import scale_luminosity
-
 from ..HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
+
 
 def stratum_retention_dripplot(
     stratum_retention_policy: typing.Any,

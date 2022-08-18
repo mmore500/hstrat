@@ -3,6 +3,7 @@ import typing
 
 from .iter_target_recencies import iter_target_recencies
 
+
 def iter_target_ranks(
     degree: int,
     num_strata_deposited: int,

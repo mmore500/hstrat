@@ -1,12 +1,14 @@
+import typing
+
 from keyname import keyname as kn
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import matplotlib.animation
 from slugify import slugify
 from tqdm import tqdm
-import typing
 
 from .stratum_retention_dripplot import stratum_retention_dripplot
+
 
 def stratum_retention_animate(
     stratum_retention_policy: typing.Any,

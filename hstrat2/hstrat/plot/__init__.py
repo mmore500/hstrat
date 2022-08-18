@@ -2,8 +2,12 @@
 data."""
 
 
-from .mrca_uncertainty_absolute_barplot import mrca_uncertainty_absolute_barplot
-from .mrca_uncertainty_relative_barplot import mrca_uncertainty_relative_barplot
+from .mrca_uncertainty_absolute_barplot import (
+    mrca_uncertainty_absolute_barplot,
+)
+from .mrca_uncertainty_relative_barplot import (
+    mrca_uncertainty_relative_barplot,
+)
 from .policy_panel_animate import policy_panel_animate
 from .policy_panel_plot import policy_panel_plot
 from .strata_retained_frac_lineplot import strata_retained_frac_lineplot

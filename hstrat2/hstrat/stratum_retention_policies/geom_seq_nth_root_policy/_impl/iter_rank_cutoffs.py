@@ -1,8 +1,8 @@
+import math
 import typing
 
 from .iter_target_recencies import iter_target_recencies
 
-import math
 
 def iter_rank_cutoffs(
     degree: int,

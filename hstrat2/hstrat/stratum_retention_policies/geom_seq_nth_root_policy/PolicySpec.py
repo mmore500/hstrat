@@ -1,6 +1,7 @@
 import typing
 import warnings
 
+
 class PolicySpec:
     """Contains all policy parameters, if any."""
 

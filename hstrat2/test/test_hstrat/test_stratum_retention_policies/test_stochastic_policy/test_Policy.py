@@ -1,5 +1,6 @@
-import pytest
 import random
+
+import pytest
 
 from hstrat2.hstrat import stochastic_policy
 

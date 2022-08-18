@@ -1,11 +1,12 @@
 from copy import deepcopy
-from iterpop import iterpop as ip
-from iterify import cyclify, iterify
 import itertools as it
-import opytional as opyt
 import random
-from scipy import stats
 import unittest
+
+from iterify import cyclify, iterify
+from iterpop import iterpop as ip
+import opytional as opyt
+from scipy import stats
 
 from hstrat2 import hstrat
 

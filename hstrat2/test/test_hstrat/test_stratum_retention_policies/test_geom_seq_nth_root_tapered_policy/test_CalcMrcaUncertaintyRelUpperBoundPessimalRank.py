@@ -2,8 +2,9 @@ import numpy as np
 import pytest
 
 from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
-from hstrat2.hstrat.stratum_retention_policies._detail \
-    import CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce
+from hstrat2.hstrat.stratum_retention_policies._detail import (
+    CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce,
+)
 
 
 @pytest.mark.parametrize(

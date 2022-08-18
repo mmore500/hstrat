@@ -1,10 +1,11 @@
-import interval_search as inch
 import typing
 
-from .....helpers import div_range, memoize_generator
+import interval_search as inch
 
+from .....helpers import div_range, memoize_generator
 from .calc_rank_backstop import calc_rank_backstop
 from .calc_rank_sep import calc_rank_sep
+
 
 @memoize_generator()
 def iter_priority_ranks(

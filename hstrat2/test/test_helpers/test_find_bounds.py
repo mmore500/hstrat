@@ -4,6 +4,7 @@ import unittest
 
 from hstrat2.helpers import find_bounds
 
+
 class TestFindBounds(unittest.TestCase):
 
     # tests can run independently

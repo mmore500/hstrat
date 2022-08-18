@@ -2,9 +2,9 @@ import operator
 import typing
 
 from .....helpers import find_bounds
-
-from .._impl import get_retained_ranks
 from ..PolicySpec import PolicySpec
+from .._impl import get_retained_ranks
+
 
 class CalcMrcaUncertaintyAbsExact:
     """Functor to provide member function implementation in Policy class."""

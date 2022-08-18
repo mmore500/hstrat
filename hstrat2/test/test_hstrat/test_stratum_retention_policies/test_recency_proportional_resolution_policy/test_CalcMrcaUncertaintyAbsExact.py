@@ -1,8 +1,10 @@
 import itertools as it
+
 import numpy as np
 import pytest
 
 from hstrat2.hstrat import recency_proportional_resolution_policy
+
 
 @pytest.mark.parametrize(
     'recency_proportional_resolution',

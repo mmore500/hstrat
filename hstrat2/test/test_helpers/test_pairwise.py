@@ -3,6 +3,7 @@ import unittest
 
 from hstrat2.helpers import pairwise
 
+
 class TestAllSame(unittest.TestCase):
 
     # tests can run independently

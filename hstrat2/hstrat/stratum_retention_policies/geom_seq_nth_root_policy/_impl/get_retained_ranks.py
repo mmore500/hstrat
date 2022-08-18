@@ -1,10 +1,10 @@
 import typing
 
 from .....helpers import is_nondecreasing
-
 from .iter_rank_backstops import iter_rank_backstops
 from .iter_rank_seps import iter_rank_seps
 from .iter_target_ranks import iter_target_ranks
+
 
 def get_retained_ranks(
     degree: int,

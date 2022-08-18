@@ -1,8 +1,10 @@
 import itertools as it
+
 import numpy as np
 import pytest
 
 from hstrat2.hstrat import fixed_resolution_policy
+
 
 @pytest.mark.parametrize(
     'fixed_resolution',

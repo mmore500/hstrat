@@ -1,9 +1,9 @@
 import typing
 
 from ...._detail import GenDropRanksFromPredKeepRank
-
 from ...PolicySpec import PolicySpec
 from ..._impl import get_retained_ranks
+
 
 class _PredKeepRank:
     """Functor to implement the approximate space-filling MRCA-recency-

@@ -1,13 +1,16 @@
 import itertools as it
 import operator
-import numpy as np
-import pytest
 import random
 
+import numpy as np
+import pytest
+
 from hstrat2.helpers import find_bounds
-from hstrat2.hstrat import HereditaryStratigraphicColumn
-from hstrat2.hstrat import HereditaryStratumOrderedStoreDict
-from hstrat2.hstrat import stochastic_policy
+from hstrat2.hstrat import (
+    HereditaryStratigraphicColumn,
+    HereditaryStratumOrderedStoreDict,
+    stochastic_policy,
+)
 
 
 @pytest.mark.parametrize(
