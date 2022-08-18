@@ -8,7 +8,7 @@ from hstrat2.hstrat import recency_proportional_resolution_policy
 
 
 @pytest.mark.parametrize(
-    'recency_proportional_resolution',
+    "recency_proportional_resolution",
     [
         0,
         1,
@@ -21,7 +21,7 @@ from hstrat2.hstrat import recency_proportional_resolution_policy
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         range(10**3),
         (i for i in range(10**2) for __ in range(2)),
@@ -34,37 +34,43 @@ from hstrat2.hstrat import recency_proportional_resolution_policy
     ],
 )
 def test_impl_consistency(recency_proportional_resolution, time_sequence):
-    policy = recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+    policy = recency_proportional_resolution_policy.Policy(
+        recency_proportional_resolution
+    )
     spec = policy.GetSpec()
     impls = [
         *recency_proportional_resolution_policy._GenDropRanks.iter_impls()
     ]
-    instances = [
-        impl(spec)
-        for impl in impls
-    ]
+    instances = [impl(spec) for impl in impls]
     for num_strata_deposited in time_sequence:
-        assert all_same(it.chain(
-            (
-                sorted(impl(spec)(
-                    policy,
-                    num_strata_deposited,
-                    policy.IterRetainedRanks(num_strata_deposited),
-                ))
-                for impl in impls
-            ),
-            (
-                sorted(instance(
-                    policy,
-                    num_strata_deposited,
-                    policy.IterRetainedRanks(num_strata_deposited),
-                ))
-                for instance in instances
+        assert all_same(
+            it.chain(
+                (
+                    sorted(
+                        impl(spec)(
+                            policy,
+                            num_strata_deposited,
+                            policy.IterRetainedRanks(num_strata_deposited),
+                        )
+                    )
+                    for impl in impls
+                ),
+                (
+                    sorted(
+                        instance(
+                            policy,
+                            num_strata_deposited,
+                            policy.IterRetainedRanks(num_strata_deposited),
+                        )
+                    )
+                    for instance in instances
+                ),
             )
-        ))
+        )
+
 
 @pytest.mark.parametrize(
-    'recency_proportional_resolution',
+    "recency_proportional_resolution",
     [
         0,
         1,
@@ -77,7 +83,7 @@ def test_impl_consistency(recency_proportional_resolution, time_sequence):
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         range(10**3),
         (i for i in range(10**2) for __ in range(2)),
@@ -90,27 +96,36 @@ def test_impl_consistency(recency_proportional_resolution, time_sequence):
     ],
 )
 def test_policy_consistency(recency_proportional_resolution, time_sequence):
-    policy = recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+    policy = recency_proportional_resolution_policy.Policy(
+        recency_proportional_resolution
+    )
     spec = policy.GetSpec()
     instance = recency_proportional_resolution_policy.GenDropRanks(spec)
     for num_strata_deposited in time_sequence:
-        policy_requirement = {*policy.IterRetainedRanks(
-            num_strata_deposited,
-        )} - {*policy.IterRetainedRanks(
-            num_strata_deposited + 1,
-        )}
+        policy_requirement = {
+            *policy.IterRetainedRanks(
+                num_strata_deposited,
+            )
+        } - {
+            *policy.IterRetainedRanks(
+                num_strata_deposited + 1,
+            )
+        }
         for which in (
             instance,
             recency_proportional_resolution_policy.GenDropRanks(spec),
         ):
-            assert sorted(which(
-                policy,
-                num_strata_deposited,
-                policy.IterRetainedRanks(num_strata_deposited)
-            )) == sorted(policy_requirement)
+            assert sorted(
+                which(
+                    policy,
+                    num_strata_deposited,
+                    policy.IterRetainedRanks(num_strata_deposited),
+                )
+            ) == sorted(policy_requirement)
+
 
 @pytest.mark.parametrize(
-    'recency_proportional_resolution',
+    "recency_proportional_resolution",
     [
         0,
         1,
@@ -123,10 +138,14 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
     ],
 )
 def test_eq(recency_proportional_resolution):
-    policy = recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+    policy = recency_proportional_resolution_policy.Policy(
+        recency_proportional_resolution
+    )
     spec = policy.GetSpec()
     instance = recency_proportional_resolution_policy.GenDropRanks(spec)
 
     assert instance == instance
-    assert instance == recency_proportional_resolution_policy.GenDropRanks(spec)
+    assert instance == recency_proportional_resolution_policy.GenDropRanks(
+        spec
+    )
     assert not instance == None

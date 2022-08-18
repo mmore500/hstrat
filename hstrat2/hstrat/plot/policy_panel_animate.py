@@ -13,8 +13,8 @@ from .policy_panel_plot import policy_panel_plot
 def policy_panel_animate(
     stratum_retention_policy: typing.Any,
     num_generations: int,
-    do_show: bool=False,
-    save_as: typing.Optional[str]=None,
+    do_show: bool = False,
+    save_as: typing.Optional[str] = None,
 ) -> mpl.animation.FuncAnimation:
     """Draw multipanel figure to holisticaly describe stratum retention policy
     at a particular generation.
@@ -29,7 +29,7 @@ def policy_panel_animate(
         Whether to show() the plot automatically.
     save_as : str, optional
         If set, save animation as file type specified.
-     """
+    """
 
     fig = plt.figure(figsize=(8, 6), dpi=80)
 
@@ -53,22 +53,24 @@ def policy_panel_animate(
     )
 
     if save_as is not None:
-        fname = kn.pack({
-            'a' : 'policy_panel_plot',
-            'num_generations' : num_generations,
-            'policy' : slugify(str(stratum_retention_policy)),
-            'ext' : f'.{save_as.strip(".")}',
-        })
-        print(f'saving animation to {fname}')
+        fname = kn.pack(
+            {
+                "a": "policy_panel_plot",
+                "num_generations": num_generations,
+                "policy": slugify(str(stratum_retention_policy)),
+                "ext": f'.{save_as.strip(".")}',
+            }
+        )
+        print(f"saving animation to {fname}")
         progress = tqdm(total=num_generations)
         res.save(
             fname,
             fps=5,
-            writer='imagemagick',
+            writer="imagemagick",
             progress_callback=lambda *args, **kwargs: progress.update(),
         )
 
-
-    if do_show: plt.show()
+    if do_show:
+        plt.show()
 
     return res

@@ -38,10 +38,7 @@ def GenDropRanksFromPredKeepRank(
 
         _predicate: typing.Callable
 
-        def __init__(
-            self: 'GenDropRanksFromPredKeepRank',
-            *args, **kwargs
-        ):
+        def __init__(self: "GenDropRanksFromPredKeepRank", *args, **kwargs):
             """Construct the functor.
 
             Arguments are forwarded to predicate constructor."""
@@ -49,12 +46,11 @@ def GenDropRanksFromPredKeepRank(
             self._predicate = predicate(*args, **kwargs)
 
         def __call__(
-            self: 'GenDropRanksFromPredKeepRank',
+            self: "GenDropRanksFromPredKeepRank",
             policy: typing.Any,
             num_stratum_depositions_completed: int,
             retained_ranks: typing.Iterable[int],
         ) -> typing.Iterator[int]:
-
             def should_retain(stratum_rank: int) -> bool:
                 """Should the rth stratum rank be retained?
 
@@ -63,8 +59,7 @@ def GenDropRanksFromPredKeepRank(
                 res = self._predicate(
                     policy,
                     stratum_rank=stratum_rank,
-                    num_stratum_depositions_completed
-                        =num_stratum_depositions_completed,
+                    num_stratum_depositions_completed=num_stratum_depositions_completed,
                 )
                 # predicate must *always* retain the initial and latest strata
                 if stratum_rank in (0, num_stratum_depositions_completed):
@@ -77,7 +72,7 @@ def GenDropRanksFromPredKeepRank(
             return
 
         def __eq__(
-            self: 'GenDropRanksFromPredKeepRank',
+            self: "GenDropRanksFromPredKeepRank",
             other: typing.Any,
         ) -> bool:
             """Compare for value-wise equality."""

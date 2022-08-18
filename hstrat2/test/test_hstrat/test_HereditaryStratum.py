@@ -13,9 +13,12 @@ class TestHereditaryStratum(unittest.TestCase):
     _multiprocess_can_split_ = True
 
     def test_deposition_rank(self):
-        assert hstrat.HereditaryStratum(
-            deposition_rank=42,
-        ).GetDepositionRank() == 42
+        assert (
+            hstrat.HereditaryStratum(
+                deposition_rank=42,
+            ).GetDepositionRank()
+            == 42
+        )
 
     def test_differentia_generation(self):
         original1 = hstrat.HereditaryStratum(
@@ -50,5 +53,5 @@ class TestHereditaryStratum(unittest.TestCase):
         assert stratum1 == deepcopy(stratum2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -38,20 +38,20 @@ class GenDropRanks:
     _cached_result: typing.Optional[typing.Tuple[int, int]]
 
     def __init__(
-        self: 'GenDropRanks',
+        self: "GenDropRanks",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         self._cached_result = None
 
     def __eq__(
-        self: 'GenDropRanks',
+        self: "GenDropRanks",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'GenDropRanks',
-        policy: 'Policy',
+        self: "GenDropRanks",
+        policy: "Policy",
         num_stratum_depositions_completed: int,
         retained_ranks: typing.Optional[typing.Iterable[int]],
     ) -> typing.Iterator[int]:
@@ -114,12 +114,9 @@ class GenDropRanks:
             }
         # if degree > 0 and we have a cached result for the preceding time point
         # try to use shortcut to return same result for current time point
-        elif (
-            spec._degree
-            and opyt.apply_if(
-                self._cached_result,
-                lambda x: x[0] == num_stratum_depositions_completed - 1,
-            )
+        elif spec._degree and opyt.apply_if(
+            self._cached_result,
+            lambda x: x[0] == num_stratum_depositions_completed - 1,
         ):
             # shortcut explanation...
             #
@@ -277,7 +274,8 @@ class GenDropRanks:
                 #
                 # scenario 2
                 # ensure rank-to-drop isn't possibly retained for pow > 0
-                (cached_drop_rank + 1) % pow1_oldsep > 1
+                (cached_drop_rank + 1) % pow1_oldsep
+                > 1
                 # ^^^ note that >1's ensure that we are at least two ranks
                 # past any problem rank (i.e., that the preceding call
                 # computed a drop_rank at the end of the k = 0 retention chain)
@@ -285,7 +283,8 @@ class GenDropRanks:
                 # sufficient guarantee drop moves forward exactly 1
                 res = {
                     # drop rank 1 past the one we last dropped
-                    cached_drop_rank + 1,
+                    cached_drop_rank
+                    + 1,
                 }
 
         elif spec._degree:
@@ -308,13 +307,14 @@ class GenDropRanks:
             always_assert(
                 res == (prev_retained_ranks - cur_retained_ranks),
                 {
-                    'res' : res,
-                    '(prev_retained_ranks - cur_retained_ranks)' \
-                        : (prev_retained_ranks - cur_retained_ranks),
+                    "res": res,
+                    "(prev_retained_ranks - cur_retained_ranks)": (
+                        prev_retained_ranks - cur_retained_ranks
+                    ),
                 },
             )
         else:
-            res = (prev_retained_ranks - cur_retained_ranks)
+            res = prev_retained_ranks - cur_retained_ranks
 
         # # have we determined res using a shortcut method?
         # # if not, fall back to do full computation for res

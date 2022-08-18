@@ -1,4 +1,5 @@
 from ..._detail import CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
 
-CalcMrcaUncertaintyRelUpperBoundAtPessimalRank \
-    = CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
+CalcMrcaUncertaintyRelUpperBoundAtPessimalRank = (
+    CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
+)

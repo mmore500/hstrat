@@ -4,22 +4,21 @@ import numpy as np
 
 
 class CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce:
-
     def __init__(
-        self: 'CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce',
-        policy_spec: typing.Optional[typing.Any]=None,
+        self: "CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce",
+        policy_spec: typing.Optional[typing.Any] = None,
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce',
+        self: "CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce',
-        policy: typing.Optional['Policy'],
+        self: "CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce",
+        policy: typing.Optional["Policy"],
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
     ) -> int:
@@ -41,7 +40,7 @@ class CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce:
                     policy.CalcMrcaUncertaintyRelUpperBound(
                         first_num_strata_deposited,
                         second_num_strata_deposited,
-                        r
+                        r,
                     ),
                 )
                 for r in range(least_num_strata_deposited)

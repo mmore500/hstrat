@@ -8,7 +8,7 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
 
 
 @pytest.mark.parametrize(
-    'depth_proportional_resolution',
+    "depth_proportional_resolution",
     [
         1,
         2,
@@ -20,7 +20,7 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         np.random.default_rng(1).integers(
             10**2,
@@ -33,7 +33,9 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
     ],
 )
 def test_policy_consistency(depth_proportional_resolution, time_sequence):
-    policy = depth_proportional_resolution_tapered_policy.Policy(depth_proportional_resolution)
+    policy = depth_proportional_resolution_tapered_policy.Policy(
+        depth_proportional_resolution
+    )
     spec = policy.GetSpec()
     instance = depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
         spec,
@@ -64,20 +66,26 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
                 )
                 for which in (
                     instance,
-                    depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(spec)
+                    depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
+                        spec
+                    ),
                 ):
-                    assert policy.CalcMrcaUncertaintyAbsUpperBound(
-                        num_strata_deposited_a,
-                        num_strata_deposited_b,
-                        which(
-                            policy,
+                    assert (
+                        policy.CalcMrcaUncertaintyAbsUpperBound(
                             num_strata_deposited_a,
                             num_strata_deposited_b,
-                        ),
-                    ) == policy_requirement
+                            which(
+                                policy,
+                                num_strata_deposited_a,
+                                num_strata_deposited_b,
+                            ),
+                        )
+                        == policy_requirement
+                    )
+
 
 @pytest.mark.parametrize(
-    'depth_proportional_resolution',
+    "depth_proportional_resolution",
     [
         1,
         2,
@@ -89,12 +97,19 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
     ],
 )
 def test_eq(depth_proportional_resolution):
-    policy = depth_proportional_resolution_tapered_policy.Policy(depth_proportional_resolution)
+    policy = depth_proportional_resolution_tapered_policy.Policy(
+        depth_proportional_resolution
+    )
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(spec)
+    instance = depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
+        spec
+    )
 
     assert instance == instance
-    assert instance == depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
-        spec,
+    assert (
+        instance
+        == depth_proportional_resolution_tapered_policy.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
+            spec,
+        )
     )
     assert not instance == None

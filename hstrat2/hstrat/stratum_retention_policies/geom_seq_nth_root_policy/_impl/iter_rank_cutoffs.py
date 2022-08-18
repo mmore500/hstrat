@@ -14,12 +14,14 @@ def iter_rank_cutoffs(
 
     for target_recency in iter_target_recencies(degree, num_strata_deposited):
         rank_cutoff = max(
-            num_strata_deposited - int(math.ceil(
-                target_recency
-                * (interspersal + 1) / interspersal
-            )),
+            num_strata_deposited
+            - int(
+                math.ceil(target_recency * (interspersal + 1) / interspersal)
+            ),
             0,
         )
-        if num_strata_deposited == 0: assert rank_cutoff == 0
-        else: assert 0 <= rank_cutoff <= num_strata_deposited - 1
+        if num_strata_deposited == 0:
+            assert rank_cutoff == 0
+        else:
+            assert 0 <= rank_cutoff <= num_strata_deposited - 1
         yield rank_cutoff

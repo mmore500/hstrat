@@ -39,7 +39,7 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
         _predicate: typing.Callable
 
         def __init__(
-            self: 'StratumRetentionCondemnerFromPredicate',
+            self: "StratumRetentionCondemnerFromPredicate",
             predicate: typing.Callable,
         ):
             """Construct the functor.
@@ -55,12 +55,10 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
             self._predicate = predicate
 
         def __call__(
-            self: 'StratumRetentionCondemnerFromPredicate',
+            self: "StratumRetentionCondemnerFromPredicate",
             num_stratum_depositions_completed: int,
             retained_ranks: typing.Iterable[int],
         ) -> typing.Iterator[int]:
-
-
             def should_retain(stratum_rank: int) -> bool:
                 """Should the rth stratum rank be retained?
 
@@ -68,8 +66,7 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
                 """
                 res = self._predicate(
                     stratum_rank=stratum_rank,
-                    num_stratum_depositions_completed
-                        =num_stratum_depositions_completed,
+                    num_stratum_depositions_completed=num_stratum_depositions_completed,
                 )
                 # predicate must *always* retain the initial and latest strata
                 if stratum_rank in (0, num_stratum_depositions_completed):
@@ -82,8 +79,8 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
             return
 
         def __eq__(
-            self: 'StratumRetentionCondemnerFromPredicate',
-            other: 'StratumRetentionCondemnerFromPredicate',
+            self: "StratumRetentionCondemnerFromPredicate",
+            other: "StratumRetentionCondemnerFromPredicate",
         ) -> bool:
             """Compare for value-wise equality."""
 
@@ -98,9 +95,10 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
             else:
                 return False
 
-        if hasattr(predicate, 'CalcNumStrataRetainedExact'):
+        if hasattr(predicate, "CalcNumStrataRetainedExact"):
+
             def CalcNumStrataRetainedExact(
-                self: 'StratumRetentionCondemnerFromPredicate',
+                self: "StratumRetentionCondemnerFromPredicate",
                 num_strata_deposited: int,
             ) -> int:
                 """Forwarding wrapper for predicate's
@@ -110,9 +108,10 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
                     num_strata_deposited=num_strata_deposited,
                 )
 
-        if hasattr(predicate, 'CalcNumStrataRetainedUpperBound'):
+        if hasattr(predicate, "CalcNumStrataRetainedUpperBound"):
+
             def CalcNumStrataRetainedUpperBound(
-                self: 'StratumRetentionCondemnerFromPredicate',
+                self: "StratumRetentionCondemnerFromPredicate",
                 num_strata_deposited: int,
             ) -> int:
                 """Forwarding wrapper for predicate's
@@ -122,9 +121,10 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
                     num_strata_deposited=num_strata_deposited,
                 )
 
-        if hasattr(predicate, 'CalcMrcaUncertaintyUpperBound'):
+        if hasattr(predicate, "CalcMrcaUncertaintyUpperBound"):
+
             def CalcMrcaUncertaintyUpperBound(
-                self: 'StratumRetentionCondemnerFromPredicate',
+                self: "StratumRetentionCondemnerFromPredicate",
                 *,
                 first_num_strata_deposited: int,
                 second_num_strata_deposited: int,
@@ -139,9 +139,10 @@ def StratumRetentionCondemnerFromPredicate(predicate: typing.Callable):
                     actual_rank_of_mrca=actual_rank_of_mrca,
                 )
 
-        if hasattr(predicate, 'CalcRankAtColumnIndex'):
+        if hasattr(predicate, "CalcRankAtColumnIndex"):
+
             def CalcRankAtColumnIndex(
-                self: 'StratumRetentionCondemnerFromPredicate',
+                self: "StratumRetentionCondemnerFromPredicate",
                 index: int,
                 num_strata_deposited: int,
             ) -> int:

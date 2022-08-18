@@ -8,20 +8,20 @@ class CalcRankAtColumnIndex:
     """Functor to provide member function implementation in Policy class."""
 
     def __init__(
-        self: 'CalcRankAtColumnIndex',
+        self: "CalcRankAtColumnIndex",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcRankAtColumnIndex',
+        self: "CalcRankAtColumnIndex",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcRankAtColumnIndex',
-        policy: 'Policy',
+        self: "CalcRankAtColumnIndex",
+        policy: "Policy",
         index: int,
         num_strata_deposited: typing.Optional[int],
     ) -> int:
@@ -37,12 +37,17 @@ class CalcRankAtColumnIndex:
         spec = policy.GetSpec()
 
         # allow index equal for in-progress deposition case
-        assert 0 <= index <= policy.CalcNumStrataRetainedExact(
-            num_strata_deposited=num_strata_deposited,
+        assert (
+            0
+            <= index
+            <= policy.CalcNumStrataRetainedExact(
+                num_strata_deposited=num_strata_deposited,
+            )
         )
 
         return next(
-            rank for i, rank in enumerate(
+            rank
+            for i, rank in enumerate(
                 it.chain(
                     policy.IterRetainedRanks(num_strata_deposited),
                     # in-progress deposition case

@@ -17,8 +17,8 @@ from .stratum_retention_dripplot import stratum_retention_dripplot
 def policy_panel_plot(
     stratum_retention_policy: typing.Any,
     num_generations: int,
-    do_show: bool=False,
-    fig: typing.Optional[plt.matplotlib.figure.Figure]=None,
+    do_show: bool = False,
+    fig: typing.Optional[plt.matplotlib.figure.Figure] = None,
 ) -> plt.matplotlib.figure.Figure:
     """Draw multipanel figure to holisticaly describe stratum retention policy
     at a particular generation.
@@ -34,7 +34,7 @@ def policy_panel_plot(
     fig : matplotlib/pylab figure, optional
         If a valid matplotlib.figure.Figure instance, the plot is drawn in that
         Figure. By default (None), a new figure is created.
-     """
+    """
 
     if fig is None:
         fig = plt.figure(figsize=(8, 6))
@@ -83,7 +83,7 @@ def policy_panel_plot(
         do_show=False,
     )
 
-    #TODO bot_right_ax text panel with params etc
+    # TODO bot_right_ax text panel with params etc
 
     top_left_ax.get_yaxis().set_label_coords(-0.15, 0.5)
     mid_left_ax.get_yaxis().set_label_coords(-0.15, 0.5)
@@ -98,10 +98,16 @@ def policy_panel_plot(
     def make_fixed_prec_sci_formatter():
         formatter = ScalarFormatterFixedPrecision()
         formatter.set_scientific(True)
-        formatter.set_powerlimits((0,0))
+        formatter.set_powerlimits((0, 0))
         return formatter
 
-    all_axes = top_left_ax, mid_left_ax, bot_left_ax, top_right_ax, bot_right_ax
+    all_axes = (
+        top_left_ax,
+        mid_left_ax,
+        bot_left_ax,
+        top_right_ax,
+        bot_right_ax,
+    )
     for ax in all_axes:
         ax.yaxis.set_major_formatter(make_fixed_prec_sci_formatter())
 
@@ -123,6 +129,7 @@ def policy_panel_plot(
     for ax in right_col:
         ax.set_xlim(right_col_xlim)
 
-    if do_show: plt.show()
+    if do_show:
+        plt.show()
 
     return fig

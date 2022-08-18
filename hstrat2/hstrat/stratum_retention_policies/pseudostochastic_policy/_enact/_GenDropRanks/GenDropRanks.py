@@ -16,20 +16,20 @@ class GenDropRanks:
     """
 
     def __init__(
-        self: 'GenDropRanks',
+        self: "GenDropRanks",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: 'GenDropRanks',
+        self: "GenDropRanks",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'GenDropRanks',
-        policy: 'Policy',
+        self: "GenDropRanks",
+        policy: "Policy",
         num_stratum_depositions_completed: int,
         retained_ranks: typing.Optional[typing.Iterable[int]],
     ) -> typing.Iterator[int]:
@@ -71,12 +71,9 @@ class GenDropRanks:
         # in-progress deposition not reflected in
         # num_stratum_depositions_completed
         second_newest_stratum_rank = num_stratum_depositions_completed - 2
-        if (
-            second_newest_stratum_rank > 0
-            and decide_if_discard(
-                spec._random_seed,
-                second_newest_stratum_rank,
-                num_stratum_depositions_completed,
-            )
+        if second_newest_stratum_rank > 0 and decide_if_discard(
+            spec._random_seed,
+            second_newest_stratum_rank,
+            num_stratum_depositions_completed,
         ):
             yield second_newest_stratum_rank

@@ -14,20 +14,20 @@ class _PredKeepRank:
     """
 
     def __init__(
-        self: '_PredKeepRank',
+        self: "_PredKeepRank",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: '_PredKeepRank',
+        self: "_PredKeepRank",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: '_PredKeepRank',
-        policy: typing.Optional['Policy'],
+        self: "_PredKeepRank",
+        policy: typing.Optional["Policy"],
         num_stratum_depositions_completed: typing.Optional[int],
         stratum_rank: typing.Optional[int],
     ) -> bool:
@@ -66,5 +66,6 @@ class _PredKeepRank:
         """
 
         return stratum_rank in (0, num_stratum_depositions_completed)
+
 
 FromPredKeepRank = GenDropRanksFromPredKeepRank(_PredKeepRank)

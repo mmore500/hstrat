@@ -2,8 +2,9 @@ import typing
 
 _policy_param_focalizer_t = typing.Callable[
     [typing.Type],
-    typing.Callable[[int], 'Policy'],
+    typing.Callable[[int], "Policy"],
 ]
+
 
 class NumStrataRetainedExactPolicyEvaluator:
 
@@ -11,10 +12,11 @@ class NumStrataRetainedExactPolicyEvaluator:
     _policy_param_focalizer: _policy_param_focalizer_t
 
     def __init__(
-        self: 'NumStrataRetainedExactPolicyEvaluator',
+        self: "NumStrataRetainedExactPolicyEvaluator",
         at_num_strata_deposited: int,
-        policy_param_focalizer: _policy_param_focalizer_t\
-            =lambda policy_t: lambda i: policy_t(i),
+        policy_param_focalizer: _policy_param_focalizer_t = lambda policy_t: lambda i: policy_t(
+            i
+        ),
     ) -> None:
         """Initialize functor to evaluate exact num strata retained.
 
@@ -31,7 +33,7 @@ class NumStrataRetainedExactPolicyEvaluator:
         self._policy_param_focalizer = policy_param_focalizer
 
     def __call__(
-        self: 'NumStrataRetainedExactPolicyEvaluator',
+        self: "NumStrataRetainedExactPolicyEvaluator",
         policy_t: typing.Type,
         parameter_value: int,
     ) -> int:
@@ -44,24 +46,24 @@ class NumStrataRetainedExactPolicyEvaluator:
         )
 
     def __repr__(
-        self: 'NumStrataRetainedExactPolicyEvaluator',
+        self: "NumStrataRetainedExactPolicyEvaluator",
     ) -> str:
-        return f'''{
+        return f"""{
             NumStrataRetainedExactPolicyEvaluator.__qualname__
         }(at_num_strata_deposited={
             self._at_num_strata_deposited
         !r}, policy_param_focalizer={
             self._policy_param_focalizer
-        !r})'''
+        !r})"""
 
     def __str__(
-        self: 'NumStrataRetainedExactPolicyEvaluator',
+        self: "NumStrataRetainedExactPolicyEvaluator",
     ) -> str:
-        title = 'Exact Num Strata Retained Evaluator'
-        return f'''{
+        title = "Exact Num Strata Retained Evaluator"
+        return f"""{
             title
         } (at num strata deposited: {
             self._at_num_strata_deposited
         }, focalizer: {
             self._policy_param_focalizer
-        })'''
+        })"""

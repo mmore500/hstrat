@@ -8,22 +8,21 @@ from .CalcWorstCaseMrcaUncertaintyAbsUpperBound import (
 
 
 class CalcWorstCaseMrcaUncertaintyRelUpperBound:
-
     def __init__(
-        self: 'CalcWorstCaseMrcaUncertaintyRelUpperBound',
-        policy_spec: typing.Optional[typing.Any]=None,
+        self: "CalcWorstCaseMrcaUncertaintyRelUpperBound",
+        policy_spec: typing.Optional[typing.Any] = None,
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcWorstCaseMrcaUncertaintyRelUpperBound',
+        self: "CalcWorstCaseMrcaUncertaintyRelUpperBound",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcWorstCaseMrcaUncertaintyRelUpperBound',
-        policy: typing.Optional['Policy'],
+        self: "CalcWorstCaseMrcaUncertaintyRelUpperBound",
+        policy: typing.Optional["Policy"],
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
         actual_rank_of_mrca: int,

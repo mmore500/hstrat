@@ -15,20 +15,20 @@ class _PredKeepRank:
     """
 
     def __init__(
-        self: '_PredKeepRank',
+        self: "_PredKeepRank",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: '_PredKeepRank',
+        self: "_PredKeepRank",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: '_PredKeepRank',
-        policy: 'Policy',
+        self: "_PredKeepRank",
+        policy: "Policy",
         num_stratum_depositions_completed: int,
         stratum_rank: int,
     ) -> bool:
@@ -71,8 +71,10 @@ class _PredKeepRank:
 
         # to satisfy requirements of HereditaryStratigraphicColumn impl
         # we must always keep root ancestor and newest stratum
-        if stratum_rank in (0, num_stratum_depositions_completed): return True
-        elif num_stratum_depositions_completed <= resolution: return True
+        if stratum_rank in (0, num_stratum_depositions_completed):
+            return True
+        elif num_stratum_depositions_completed <= resolution:
+            return True
 
         provided_uncertainty = calc_provided_uncertainty(
             resolution,
@@ -85,9 +87,8 @@ class _PredKeepRank:
         )
         # see CalcRankAtColumnIndex
         num_interval_steps = (
-            (greatest_viable_rank + provided_uncertainty)
-            // provided_uncertainty
-        )
+            greatest_viable_rank + provided_uncertainty
+        ) // provided_uncertainty
         cutoff_rank = num_interval_steps * provided_uncertainty
 
         # logically,  we could just test
@@ -96,8 +97,10 @@ class _PredKeepRank:
         # condition
         #   if stratum_rank % provided_uncertainty == 0
         # so as an optimization go ahead and return True now if it holds
-        if stratum_rank % provided_uncertainty == 0: return True
-        elif stratum_rank <= cutoff_rank: return False
+        if stratum_rank % provided_uncertainty == 0:
+            return True
+        elif stratum_rank <= cutoff_rank:
+            return False
         else:
             assert cutoff_rank
             return self(
@@ -105,5 +108,6 @@ class _PredKeepRank:
                 num_stratum_depositions_completed - cutoff_rank,
                 stratum_rank - cutoff_rank,
             )
+
 
 FromPredKeepRank = GenDropRanksFromPredKeepRank(_PredKeepRank)

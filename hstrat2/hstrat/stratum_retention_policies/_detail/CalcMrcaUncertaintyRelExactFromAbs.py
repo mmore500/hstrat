@@ -2,22 +2,21 @@ import typing
 
 
 class CalcMrcaUncertaintyRelExactFromAbs:
-
     def __init__(
-        self: 'CalcMrcaUncertaintyRelExactFromAbs',
-        policy_spec: typing.Optional[typing.Any]=None,
+        self: "CalcMrcaUncertaintyRelExactFromAbs",
+        policy_spec: typing.Optional[typing.Any] = None,
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcMrcaUncertaintyRelExactFromAbs',
+        self: "CalcMrcaUncertaintyRelExactFromAbs",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcMrcaUncertaintyRelExactFromAbs',
-        policy: typing.Optional['Policy'],
+        self: "CalcMrcaUncertaintyRelExactFromAbs",
+        policy: typing.Optional["Policy"],
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
         actual_rank_of_mrca: int,
@@ -37,7 +36,8 @@ class CalcMrcaUncertaintyRelExactFromAbs:
         if (
             first_num_strata_deposited <= 2
             or second_num_strata_deposited <= 2
-            or actual_rank_of_mrca in (
+            or actual_rank_of_mrca
+            in (
                 first_num_strata_deposited - 1,
                 second_num_strata_deposited - 1,
             )

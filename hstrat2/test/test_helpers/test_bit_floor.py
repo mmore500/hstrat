@@ -20,5 +20,6 @@ class TestBitFloor(unittest.TestCase):
         assert bit_floor(0b00001000) == 0b00001000
         assert bit_floor(0b00001001) == 0b00001000
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

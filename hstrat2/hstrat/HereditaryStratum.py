@@ -14,11 +14,11 @@ class HereditaryStratum:
     _annotation: typing.Optional[typing.Any]
 
     def __init__(
-        self: 'HereditaryStratum',
+        self: "HereditaryStratum",
         *,
-        annotation: typing.Optional[typing.Any]=None,
-        differentia_bit_width: int=64,
-        deposition_rank: typing.Optional[int]=None,
+        annotation: typing.Optional[typing.Any] = None,
+        differentia_bit_width: int = 64,
+        deposition_rank: typing.Optional[int] = None,
     ):
         """Construct the stratum.
 
@@ -46,18 +46,21 @@ class HereditaryStratum:
             self._annotation = annotation
 
     def __eq__(
-        self: 'HereditaryStratum',
-        other: 'HereditaryStratum',
+        self: "HereditaryStratum",
+        other: "HereditaryStratum",
     ) -> bool:
         """Compare for value-wise equality."""
 
-        return isinstance(
-            other,
-            self.__class__,
-        ) and self.__dict__ == other.__dict__
+        return (
+            isinstance(
+                other,
+                self.__class__,
+            )
+            and self.__dict__ == other.__dict__
+        )
 
     def GetDepositionRank(
-        self: 'HereditaryStratum',
+        self: "HereditaryStratum",
     ) -> typing.Optional[int]:
         """Get the deposition order rank associated with this stratum, if stored.
 
@@ -66,17 +69,20 @@ class HereditaryStratum:
         supports calculation of deposition rank from column index.
         """
 
-        if hasattr(self, '_deposition_rank'):
+        if hasattr(self, "_deposition_rank"):
             return self._deposition_rank
-        else: return None
+        else:
+            return None
 
-    def GetDifferentia(self: 'HereditaryStratum') -> int:
+    def GetDifferentia(self: "HereditaryStratum") -> int:
         """Accessor for randomly-generated value distinguishing this stratum
         from others generated at the same rank in other hereditary columns."""
 
         return self._differentia
 
-    def GetAnnotation(self: 'HereditaryStratum') -> typing.Optional[typing.Any]:
+    def GetAnnotation(
+        self: "HereditaryStratum",
+    ) -> typing.Optional[typing.Any]:
         """Accessor for arbitrary, user-specified data provided when stratum
         was deposited, if any."""
 

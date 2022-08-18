@@ -9,9 +9,9 @@ class PolicySpec:
     _interspersal: int
 
     def __init__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
         degree: int,
-        interspersal: int=2,
+        interspersal: int = 2,
     ):
         """Construct the policy spec.
 
@@ -34,14 +34,14 @@ class PolicySpec:
         assert interspersal >= 1
         if interspersal == 1:
             warnings.warn(
-                'Interspersal set to 1, '
-                'no bound on MRCA rank estimate uncertainty can be guaranteed.',
+                "Interspersal set to 1, "
+                "no bound on MRCA rank estimate uncertainty can be guaranteed.",
             )
         self._degree = degree
         self._interspersal = interspersal
 
     def __eq__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__) and (
@@ -53,9 +53,9 @@ class PolicySpec:
         )
 
     def __repr__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
     ) -> str:
-        return f'''{
+        return f"""{
             self.GetPolicyName()
         }.{
             PolicySpec.__qualname__
@@ -63,18 +63,18 @@ class PolicySpec:
             self._degree
         }, interspersal={
             self._interspersal
-        })'''
+        })"""
 
     def __str__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
     ) -> str:
-        return f'''{
+        return f"""{
             self.GetPolicyTitle()
         } (degree: {
             self._degree
         }, interspersal: {
             self._interspersal
-        })'''
+        })"""
 
     @staticmethod
     def GetPolicyName() -> str:

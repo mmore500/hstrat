@@ -8,13 +8,13 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
 
 
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         range(10**2),
         np.random.default_rng(1).integers(
             10**3,
             size=10**2,
-        )
+        ),
     ],
 )
 def test_policy_consistency(time_sequence):
@@ -49,21 +49,32 @@ def test_policy_consistency(time_sequence):
                 )
                 for which in (
                     instance,
-                    nominal_resolution_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(spec)
+                    nominal_resolution_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
+                        spec
+                    ),
                 ):
-                    assert which(
-                        policy,
-                        num_strata_deposited_a,
-                        num_strata_deposited_b,
-                    ) == policy_requirement
+                    assert (
+                        which(
+                            policy,
+                            num_strata_deposited_a,
+                            num_strata_deposited_b,
+                        )
+                        == policy_requirement
+                    )
+
 
 def test_eq():
     policy = nominal_resolution_policy.Policy()
     spec = policy.GetSpec()
-    instance = nominal_resolution_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(spec)
+    instance = nominal_resolution_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
+        spec
+    )
 
     assert instance == instance
-    assert instance == nominal_resolution_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
-        spec,
+    assert (
+        instance
+        == nominal_resolution_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
+            spec,
+        )
     )
     assert not instance == None

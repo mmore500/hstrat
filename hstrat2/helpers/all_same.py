@@ -1,7 +1,7 @@
 import typing
 
 
-#Adapted from https://stackoverflow.com/a/3787989
+# Adapted from https://stackoverflow.com/a/3787989
 def all_same(items: typing.Iterable) -> bool:
     """Do all items in items compare equal?
 

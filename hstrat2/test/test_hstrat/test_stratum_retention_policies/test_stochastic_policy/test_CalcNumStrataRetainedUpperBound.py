@@ -7,7 +7,7 @@ from hstrat2.hstrat import HereditaryStratigraphicColumn, stochastic_policy
 
 
 @pytest.mark.parametrize(
-    'replicate',
+    "replicate",
     range(5),
 )
 def test_policy_consistency(replicate):
@@ -24,13 +24,17 @@ def test_policy_consistency(replicate):
             instance,
             stochastic_policy.CalcNumStrataRetainedUpperBound(spec),
         ):
-            assert which(
-                policy,
-                num_strata_deposited,
-            ) >= policy_requirement
+            assert (
+                which(
+                    policy,
+                    num_strata_deposited,
+                )
+                >= policy_requirement
+            )
+
 
 @pytest.mark.parametrize(
-    'replicate',
+    "replicate",
     range(5),
 )
 def test_eq(replicate):

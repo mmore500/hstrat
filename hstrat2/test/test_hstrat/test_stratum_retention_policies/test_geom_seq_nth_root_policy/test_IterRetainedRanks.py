@@ -10,7 +10,7 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
 
 
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         pytest.param(1, marks=pytest.mark.heavy_3a),
         2,
@@ -23,7 +23,7 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         pytest.param(1, marks=pytest.mark.heavy_3b),
         2,
@@ -31,12 +31,15 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
-        pytest.param(it.chain(
-            range(10**4),
-            np.logspace(10, 32, num=50, base=2, dtype='int'),
-        ), marks=pytest.mark.heavy_3c),
+        pytest.param(
+            it.chain(
+                range(10**4),
+                np.logspace(10, 32, num=50, base=2, dtype="int"),
+            ),
+            marks=pytest.mark.heavy_3c,
+        ),
         (i for i in range(10) for __ in range(2)),
         (10 - i for i in range(10) for __ in range(2)),
         np.random.default_rng(1).integers(
@@ -44,11 +47,14 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
             high=10**2,
             size=10,
         ),
-        pytest.param(np.random.default_rng(1).integers(
-            low=0,
-            high=2**32,
-            size=10,
-        ), marks=pytest.mark.heavy_2b),
+        pytest.param(
+            np.random.default_rng(1).integers(
+                low=0,
+                high=2**32,
+                size=10,
+            ),
+            marks=pytest.mark.heavy_2b,
+        ),
     ],
 )
 def test_only_dwindling_over_time(degree, interspersal, time_sequence):
@@ -60,18 +66,23 @@ def test_only_dwindling_over_time(degree, interspersal, time_sequence):
             instance,
             geom_seq_nth_root_policy.IterRetainedRanks(spec),
         ):
-            cur_set = {*which(
-                policy,
-                num_strata_deposited,
-            )}
-            next_set = {*which(
-                policy,
-                num_strata_deposited + 1,
-            )}
+            cur_set = {
+                *which(
+                    policy,
+                    num_strata_deposited,
+                )
+            }
+            next_set = {
+                *which(
+                    policy,
+                    num_strata_deposited + 1,
+                )
+            }
             assert cur_set.issuperset(next_set - {num_strata_deposited})
 
+
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         pytest.param(1, marks=pytest.mark.heavy_3a),
         2,
@@ -84,7 +95,7 @@ def test_only_dwindling_over_time(degree, interspersal, time_sequence):
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         pytest.param(1, marks=pytest.mark.heavy_3b),
         2,
@@ -92,12 +103,15 @@ def test_only_dwindling_over_time(degree, interspersal, time_sequence):
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
-        pytest.param(it.chain(
-            range(10**4),
-            np.logspace(10, 32, num=50, base=2, dtype='int'),
-        ), marks=pytest.mark.heavy_3c),
+        pytest.param(
+            it.chain(
+                range(10**4),
+                np.logspace(10, 32, num=50, base=2, dtype="int"),
+            ),
+            marks=pytest.mark.heavy_3c,
+        ),
         (i for i in range(10) for __ in range(2)),
         (10 - i for i in range(10) for __ in range(2)),
         np.random.default_rng(1).integers(
@@ -105,11 +119,14 @@ def test_only_dwindling_over_time(degree, interspersal, time_sequence):
             high=10**2,
             size=10,
         ),
-        pytest.param(np.random.default_rng(1).integers(
-            low=0,
-            high=2**32,
-            size=10,
-        ), marks=pytest.mark.heavy_2b),
+        pytest.param(
+            np.random.default_rng(1).integers(
+                low=0,
+                high=2**32,
+                size=10,
+            ),
+            marks=pytest.mark.heavy_2b,
+        ),
     ],
 )
 def test_ranks_sorted_and_unique(degree, interspersal, time_sequence):
@@ -123,14 +140,17 @@ def test_ranks_sorted_and_unique(degree, interspersal, time_sequence):
         ):
             assert all(
                 i < j
-                for i, j in pairwise(which(
-                    policy,
-                    num_strata_deposited,
-                ))
+                for i, j in pairwise(
+                    which(
+                        policy,
+                        num_strata_deposited,
+                    )
+                )
             )
 
+
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         pytest.param(1, marks=pytest.mark.heavy_3a),
         2,
@@ -143,7 +163,7 @@ def test_ranks_sorted_and_unique(degree, interspersal, time_sequence):
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         pytest.param(1, marks=pytest.mark.heavy_3b),
         2,
@@ -151,12 +171,15 @@ def test_ranks_sorted_and_unique(degree, interspersal, time_sequence):
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
-        pytest.param(it.chain(
-            range(10**4),
-            np.logspace(10, 32, num=50, base=2, dtype='int'),
-        ), marks=pytest.mark.heavy_3c),
+        pytest.param(
+            it.chain(
+                range(10**4),
+                np.logspace(10, 32, num=50, base=2, dtype="int"),
+            ),
+            marks=pytest.mark.heavy_3c,
+        ),
         (i for i in range(10) for __ in range(2)),
         (10 - i for i in range(10) for __ in range(2)),
         np.random.default_rng(1).integers(
@@ -164,11 +187,14 @@ def test_ranks_sorted_and_unique(degree, interspersal, time_sequence):
             high=10**2,
             size=10,
         ),
-        pytest.param(np.random.default_rng(1).integers(
-            low=0,
-            high=2**32,
-            size=10,
-        ), marks=pytest.mark.heavy_2b),
+        pytest.param(
+            np.random.default_rng(1).integers(
+                low=0,
+                high=2**32,
+                size=10,
+            ),
+            marks=pytest.mark.heavy_2b,
+        ),
     ],
 )
 def test_zero_and_last_ranks_retained(degree, interspersal, time_sequence):
@@ -193,8 +219,9 @@ def test_zero_and_last_ranks_retained(degree, interspersal, time_sequence):
             else:
                 assert next(res, None) is None
 
+
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         pytest.param(1, marks=pytest.mark.heavy_3a),
         2,
@@ -207,7 +234,7 @@ def test_zero_and_last_ranks_retained(degree, interspersal, time_sequence):
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         pytest.param(1, marks=pytest.mark.heavy_3b),
         2,
@@ -215,12 +242,15 @@ def test_zero_and_last_ranks_retained(degree, interspersal, time_sequence):
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
-        pytest.param(it.chain(
-            range(10**4),
-            np.logspace(10, 32, num=50, base=2, dtype='int'),
-        ), marks=pytest.mark.heavy_3c),
+        pytest.param(
+            it.chain(
+                range(10**4),
+                np.logspace(10, 32, num=50, base=2, dtype="int"),
+            ),
+            marks=pytest.mark.heavy_3c,
+        ),
         (i for i in range(10) for __ in range(2)),
         (10 - i for i in range(10) for __ in range(2)),
         np.random.default_rng(1).integers(
@@ -228,11 +258,14 @@ def test_zero_and_last_ranks_retained(degree, interspersal, time_sequence):
             high=10**2,
             size=10,
         ),
-        pytest.param(np.random.default_rng(1).integers(
-            low=0,
-            high=2**32,
-            size=10,
-        ), marks=pytest.mark.heavy_2b),
+        pytest.param(
+            np.random.default_rng(1).integers(
+                low=0,
+                high=2**32,
+                size=10,
+            ),
+            marks=pytest.mark.heavy_2b,
+        ),
     ],
 )
 def test_ranks_valid(degree, interspersal, time_sequence):
@@ -250,8 +283,9 @@ def test_ranks_valid(degree, interspersal, time_sequence):
                 for r in which(policy, num_strata_deposited)
             )
 
+
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         1,
         2,
@@ -264,14 +298,13 @@ def test_ranks_valid(degree, interspersal, time_sequence):
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         1,
         2,
         5,
     ],
 )
-
 def test_eq(degree, interspersal):
     policy = geom_seq_nth_root_policy.Policy(degree, interspersal)
     spec = policy.GetSpec()

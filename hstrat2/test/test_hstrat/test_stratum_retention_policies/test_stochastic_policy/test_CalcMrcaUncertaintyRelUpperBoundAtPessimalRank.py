@@ -10,25 +10,27 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
 
 
 @pytest.mark.parametrize(
-    'replicate',
+    "replicate",
     range(5),
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         range(10**2),
         np.random.default_rng(1).integers(
             10**3,
             size=10**2,
-        )
+        ),
     ],
 )
 def test_policy_consistency(replicate, time_sequence):
     random.seed(replicate)
     policy = stochastic_policy.Policy()
     spec = policy.GetSpec()
-    instance = stochastic_policy.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
-        spec,
+    instance = (
+        stochastic_policy.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
+            spec,
+        )
     )
     for num_strata_deposited_a in time_sequence:
         for num_strata_deposited_b in (
@@ -56,29 +58,42 @@ def test_policy_consistency(replicate, time_sequence):
                 )
                 for which in (
                     instance,
-                    stochastic_policy.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(spec)
+                    stochastic_policy.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
+                        spec
+                    ),
                 ):
-                    assert which(
-                        policy,
-                        num_strata_deposited_a,
-                        num_strata_deposited_b,
-                    ) == policy_requirement
+                    assert (
+                        which(
+                            policy,
+                            num_strata_deposited_a,
+                            num_strata_deposited_b,
+                        )
+                        == policy_requirement
+                    )
+
 
 @pytest.mark.parametrize(
-    'replicate',
+    "replicate",
     range(5),
 )
 def test_eq(replicate):
     random.seed(replicate)
     policy = stochastic_policy.Policy()
     spec = policy.GetSpec()
-    instance = stochastic_policy.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
-        spec,
+    instance = (
+        stochastic_policy.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
+            spec,
+        )
     )
-    instance = stochastic_policy.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(spec)
+    instance = (
+        stochastic_policy.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(spec)
+    )
 
     assert instance == instance
-    assert instance == stochastic_policy.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
-        spec,
+    assert (
+        instance
+        == stochastic_policy.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
+            spec,
+        )
     )
     assert not instance == None

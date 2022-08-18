@@ -10,7 +10,7 @@ def calc_target_recency(
     pow: int,
     num_strata_deposited: int,
 ) -> typing.Union[float, mp.mpf]:
-    """"What should the target recency of the `pow`'th exponentially
+    """ "What should the target recency of the `pow`'th exponentially
     distributed coverage target be when `num_strata_deposited`?
 
     Will strictly increase with `num_strata_deposited`.
@@ -18,7 +18,7 @@ def calc_target_recency(
 
     common_ratio = calc_common_ratio(degree, num_strata_deposited)
     try:
-        res = common_ratio ** pow
+        res = common_ratio**pow
     except OverflowError:
         res = mp.mpf(common_ratio) ** pow
     return res

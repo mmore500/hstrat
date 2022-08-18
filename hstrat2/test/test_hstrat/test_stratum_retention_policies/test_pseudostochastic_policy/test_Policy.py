@@ -4,7 +4,7 @@ from hstrat2.hstrat import pseudostochastic_policy
 
 
 @pytest.mark.parametrize(
-    'random_seed',
+    "random_seed",
     [
         1,
         2,
@@ -43,7 +43,7 @@ def test_init(random_seed):
 
 
 @pytest.mark.parametrize(
-    'random_seed',
+    "random_seed",
     [
         1,
         2,
@@ -58,12 +58,15 @@ def test_eq(random_seed):
     assert policy == policy
     assert policy == pseudostochastic_policy.Policy(random_seed)
     assert policy == policy.WithoutCalcRankAtColumnIndex()
-    assert policy.WithoutCalcRankAtColumnIndex() \
+    assert (
+        policy.WithoutCalcRankAtColumnIndex()
         == policy.WithoutCalcRankAtColumnIndex()
+    )
     assert not policy == pseudostochastic_policy.Policy(random_seed + 1)
 
+
 @pytest.mark.parametrize(
-    'random_seed',
+    "random_seed",
     [
         1,
         2,
@@ -74,11 +77,13 @@ def test_eq(random_seed):
     ],
 )
 def test_GetSpec(random_seed):
-    assert pseudostochastic_policy.Policy(random_seed).GetSpec() \
-        == pseudostochastic_policy.PolicySpec(random_seed)
+    assert pseudostochastic_policy.Policy(
+        random_seed
+    ).GetSpec() == pseudostochastic_policy.PolicySpec(random_seed)
+
 
 @pytest.mark.parametrize(
-    'random_seed',
+    "random_seed",
     [
         1,
         2,
@@ -95,41 +100,66 @@ def test_WithoutCalcRankAtColumnIndex(random_seed):
 
     assert stripped.CalcRankAtColumnIndex is None
 
-    assert original.CalcMrcaUncertaintyAbsUpperBound \
+    assert (
+        original.CalcMrcaUncertaintyAbsUpperBound
         == stripped.CalcMrcaUncertaintyAbsUpperBound
-    assert original.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
         == stripped.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
-    assert original.CalcMrcaUncertaintyAbsUpperBoundPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyAbsUpperBoundPessimalRank
         == stripped.CalcMrcaUncertaintyAbsUpperBoundPessimalRank
-    assert original.CalcMrcaUncertaintyRelUpperBound \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelUpperBound
         == stripped.CalcMrcaUncertaintyRelUpperBound
-    assert original.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
         == stripped.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
-    assert original.CalcMrcaUncertaintyRelUpperBoundPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelUpperBoundPessimalRank
         == stripped.CalcMrcaUncertaintyRelUpperBoundPessimalRank
-    assert original.CalcNumStrataRetainedUpperBound \
+    )
+    assert (
+        original.CalcNumStrataRetainedUpperBound
         == stripped.CalcNumStrataRetainedUpperBound
+    )
     # scrying
-    assert original.CalcMrcaUncertaintyAbsExact \
+    assert (
+        original.CalcMrcaUncertaintyAbsExact
         == stripped.CalcMrcaUncertaintyAbsExact
-    assert original.CalcMrcaUncertaintyRelExact \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelExact
         == stripped.CalcMrcaUncertaintyRelExact
-    assert original.CalcNumStrataRetainedExact \
+    )
+    assert (
+        original.CalcNumStrataRetainedExact
         == stripped.CalcNumStrataRetainedExact
+    )
     assert original.IterRetainedRanks == stripped.IterRetainedRanks
     # enactment
     assert original.GenDropRanks == stripped.GenDropRanks
 
     # test chaining
-    assert pseudostochastic_policy.Policy(
-        random_seed,
-    ).WithoutCalcRankAtColumnIndex() == stripped
+    assert (
+        pseudostochastic_policy.Policy(
+            random_seed,
+        ).WithoutCalcRankAtColumnIndex()
+        == stripped
+    )
+
 
 def test_repr():
     random_seed = 1
     policy = pseudostochastic_policy.Policy(random_seed)
     assert str(random_seed) in repr(policy)
     assert policy.GetSpec().GetPolicyName() in repr(policy)
+
 
 def test_str():
     random_seed = 1

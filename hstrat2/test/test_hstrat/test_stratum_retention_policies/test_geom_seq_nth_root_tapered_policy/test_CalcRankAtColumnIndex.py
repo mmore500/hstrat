@@ -7,7 +7,7 @@ from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
 
 
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         pytest.param(1, marks=pytest.mark.heavy_3a),
         2,
@@ -20,7 +20,7 @@ from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         pytest.param(1, marks=pytest.mark.heavy_3b),
         2,
@@ -28,12 +28,15 @@ from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
-        pytest.param(it.chain(
-            range(10**3),
-            np.logspace(10, 32, num=50, base=2, dtype='int'),
-        ), marks=pytest.mark.heavy_3c),
+        pytest.param(
+            it.chain(
+                range(10**3),
+                np.logspace(10, 32, num=50, base=2, dtype="int"),
+            ),
+            marks=pytest.mark.heavy_3c,
+        ),
         (i for i in range(10) for __ in range(2)),
         (10 - i for i in range(10) for __ in range(2)),
         np.random.default_rng(1).integers(
@@ -41,11 +44,14 @@ from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
             high=10**2,
             size=10,
         ),
-        pytest.param(np.random.default_rng(1).integers(
-            low=0,
-            high=2**16,
-            size=10,
-        ), marks=pytest.mark.heavy_2b),
+        pytest.param(
+            np.random.default_rng(1).integers(
+                low=0,
+                high=2**16,
+                size=10,
+            ),
+            marks=pytest.mark.heavy_2b,
+        ),
     ],
 )
 def test_policy_consistency(degree, interspersal, time_sequence):
@@ -63,15 +69,18 @@ def test_policy_consistency(degree, interspersal, time_sequence):
                     policy.IterRetainedRanks(num_strata_deposited),
                     (
                         which(policy, i, num_strata_deposited)
-                        for i in range(policy.CalcNumStrataRetainedExact(
-                            num_strata_deposited,
-                        ))
+                        for i in range(
+                            policy.CalcNumStrataRetainedExact(
+                                num_strata_deposited,
+                            )
+                        )
                     ),
                 )
             )
 
+
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         1,
         2,
@@ -84,7 +93,7 @@ def test_policy_consistency(degree, interspersal, time_sequence):
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         1,
         2,
@@ -97,5 +106,7 @@ def test_eq(degree, interspersal):
     instance = geom_seq_nth_root_tapered_policy.CalcRankAtColumnIndex(spec)
 
     assert instance == instance
-    assert instance == geom_seq_nth_root_tapered_policy.CalcRankAtColumnIndex(spec)
+    assert instance == geom_seq_nth_root_tapered_policy.CalcRankAtColumnIndex(
+        spec
+    )
     assert not instance == None

@@ -22,7 +22,7 @@ class StratumRetentionPredicateStochastic:
     """
 
     def __call__(
-        self: 'StratumRetentionPredicateStochastic',
+        self: "StratumRetentionPredicateStochastic",
         stratum_rank: int,
         num_stratum_depositions_completed: int,
     ) -> bool:
@@ -62,21 +62,25 @@ class StratumRetentionPredicateStochastic:
             and stratum_rank == num_stratum_depositions_completed - 2
         ):
             return random.choice([True, False])
-        else: return True
+        else:
+            return True
 
     def __eq__(
-        self: 'StratumRetentionPredicateStochastic',
-        other: 'StratumRetentionPredicateStochastic',
+        self: "StratumRetentionPredicateStochastic",
+        other: "StratumRetentionPredicateStochastic",
     ) -> bool:
         """Compare for value-wise equality."""
 
-        return isinstance(
-            other,
-            self.__class__,
-        ) and self.__dict__ == other.__dict__
+        return (
+            isinstance(
+                other,
+                self.__class__,
+            )
+            and self.__dict__ == other.__dict__
+        )
 
     def CalcNumStrataRetainedUpperBound(
-        self: 'StratumRetentionPredicateStochastic',
+        self: "StratumRetentionPredicateStochastic",
         num_strata_deposited: int,
     ) -> int:
         """At most, how many strata are retained after n deposted? Inclusive."""
@@ -84,11 +88,11 @@ class StratumRetentionPredicateStochastic:
         return num_strata_deposited
 
     def CalcMrcaUncertaintyAbsUpperBound(
-        self: 'StratumRetentionPredicateStochastic',
+        self: "StratumRetentionPredicateStochastic",
         *,
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
-        actual_rank_of_mrca: typing.Optional[int]=None,
+        actual_rank_of_mrca: typing.Optional[int] = None,
     ) -> int:
         """At most, how much uncertainty to estimate rank of MRCA? Inclusive."""
 

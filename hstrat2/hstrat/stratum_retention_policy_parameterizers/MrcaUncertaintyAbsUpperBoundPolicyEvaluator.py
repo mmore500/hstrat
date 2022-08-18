@@ -4,8 +4,9 @@ import opytional as opyt
 
 _policy_param_focalizer_t = typing.Callable[
     [typing.Type],
-    typing.Callable[[int], 'Policy'],
+    typing.Callable[[int], "Policy"],
 ]
+
 
 class MrcaUncertaintyAbsUpperBoundPolicyEvaluator:
 
@@ -14,11 +15,12 @@ class MrcaUncertaintyAbsUpperBoundPolicyEvaluator:
     _policy_param_focalizer: _policy_param_focalizer_t
 
     def __init__(
-        self: 'MrcaUncertaintyAbsUpperBoundPolicyEvaluator',
+        self: "MrcaUncertaintyAbsUpperBoundPolicyEvaluator",
         at_num_strata_deposited: int,
-        at_rank: typing.Optional[int]=None,
-        policy_param_focalizer: _policy_param_focalizer_t\
-            =lambda policy_t: lambda i: policy_t(i),
+        at_rank: typing.Optional[int] = None,
+        policy_param_focalizer: _policy_param_focalizer_t = lambda policy_t: lambda i: policy_t(
+            i
+        ),
     ) -> None:
         """Initialize functor to evaluate upper bound on absolute MRCA
         uncertainty.
@@ -40,7 +42,7 @@ class MrcaUncertaintyAbsUpperBoundPolicyEvaluator:
         self._policy_param_focalizer = policy_param_focalizer
 
     def __call__(
-        self: 'MrcaUncertaintyAbsUpperBoundPolicyEvaluator',
+        self: "MrcaUncertaintyAbsUpperBoundPolicyEvaluator",
         policy_t: typing.Type,
         parameter_value: int,
     ) -> int:
@@ -61,9 +63,9 @@ class MrcaUncertaintyAbsUpperBoundPolicyEvaluator:
         )
 
     def __repr__(
-        self: 'MrcaUncertaintyAbsUpperBoundPolicyEvaluator',
+        self: "MrcaUncertaintyAbsUpperBoundPolicyEvaluator",
     ) -> str:
-        return f'''{
+        return f"""{
             MrcaUncertaintyAbsUpperBoundPolicyEvaluator.__qualname__
         }(at_num_strata_deposited={
             self._at_num_strata_deposited
@@ -71,13 +73,13 @@ class MrcaUncertaintyAbsUpperBoundPolicyEvaluator:
             self._at_rank
         !r}, policy_param_focalizer={
             self._policy_param_focalizer
-        !r})'''
+        !r})"""
 
     def __str__(
-        self: 'MrcaUncertaintyAbsUpperBoundPolicyEvaluator',
+        self: "MrcaUncertaintyAbsUpperBoundPolicyEvaluator",
     ) -> str:
-        title = 'Upper Bound Absolute MRCA Uncertainty Evaluator'
-        return f'''{
+        title = "Upper Bound Absolute MRCA Uncertainty Evaluator"
+        return f"""{
             title
         } (at num strata deposited: {
             self._at_num_strata_deposited
@@ -85,4 +87,4 @@ class MrcaUncertaintyAbsUpperBoundPolicyEvaluator:
             opyt.value_or(self._at_rank, 'pessimal')
         }, focalizer: {
             self._policy_param_focalizer
-        })'''
+        })"""

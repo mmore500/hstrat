@@ -8,20 +8,20 @@ class CalcMrcaUncertaintyAbsUpperBound:
     """Functor to provide member function implementation in Policy class."""
 
     def __init__(
-        self: 'CalcMrcaUncertaintyAbsUpperBound',
+        self: "CalcMrcaUncertaintyAbsUpperBound",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcMrcaUncertaintyAbsUpperBound',
+        self: "CalcMrcaUncertaintyAbsUpperBound",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcMrcaUncertaintyAbsUpperBound',
-        policy: 'Policy',
+        self: "CalcMrcaUncertaintyAbsUpperBound",
+        policy: "Policy",
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
         actual_rank_of_mrca: int,
@@ -31,10 +31,13 @@ class CalcMrcaUncertaintyAbsUpperBound:
 
         spec = policy.GetSpec()
 
-        res = max(
-            first_num_strata_deposited,
-            second_num_strata_deposited,
-        ) // spec._guaranteed_depth_proportional_resolution
+        res = (
+            max(
+                first_num_strata_deposited,
+                second_num_strata_deposited,
+            )
+            // spec._guaranteed_depth_proportional_resolution
+        )
 
         return min(
             res,

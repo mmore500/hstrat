@@ -11,8 +11,8 @@ from ..HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 def mrca_uncertainty_absolute_barplot(
     stratum_retention_policy: typing.Any,
     num_generations: int,
-    do_show: bool=False,
-    ax: typing.Optional[plt.matplotlib.axes.Axes]=None,
+    do_show: bool = False,
+    ax: typing.Optional[plt.matplotlib.axes.Axes] = None,
 ) -> plt.matplotlib.axes.Axes:
     """Plot absolute uncertainty for MRCA estimation over column ranks
     (positions) in a hereditary stratigraphic column at a particular generation
@@ -29,7 +29,7 @@ def mrca_uncertainty_absolute_barplot(
         Axes. By default (None), a new axes is created.
     do_show : bool, optional
         Whether to show() the plot automatically.
-     """
+    """
 
     if ax is None:
         fig = plt.figure()
@@ -45,44 +45,55 @@ def mrca_uncertainty_absolute_barplot(
     for gen in range(1, num_generations):
         xs.append(gen)
         if stratum_retention_policy.CalcMrcaUncertaintyAbsExact is not None:
-            ys.append(stratum_retention_policy.CalcMrcaUncertaintyAbsExact(
-                num_generations,
-                num_generations,
-                gen,
-            ))
+            ys.append(
+                stratum_retention_policy.CalcMrcaUncertaintyAbsExact(
+                    num_generations,
+                    num_generations,
+                    gen,
+                )
+            )
         else:
-            ys.append(float('nan'))
+            ys.append(float("nan"))
 
     ax.bar(
         xs,
         ys,
-        color=[*it.islice(
-            it.cycle([
-                'mediumpurple',
-                'mediumslateblue',
-            ]),
-            num_generations,
-        )],
+        color=[
+            *it.islice(
+                it.cycle(
+                    [
+                        "mediumpurple",
+                        "mediumslateblue",
+                    ]
+                ),
+                num_generations,
+            )
+        ],
         width=1.0,
     )
-    ax.set_xlabel('Position (Rank)')
-    ax.set_ylabel('Absolute MRCA\n Uncertainty', labelpad=20)
-    ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(
-        nbins='auto',
-        steps=[1, 2, 5, 10],
-        integer=True,
-        min_n_ticks=0,
-    ))
-    ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(
-        nbins='auto',
-        steps=[1, 2, 5, 10],
-        integer=True,
-        min_n_ticks=0,
-    ))
+    ax.set_xlabel("Position (Rank)")
+    ax.set_ylabel("Absolute MRCA\n Uncertainty", labelpad=20)
+    ax.xaxis.set_major_locator(
+        mpl.ticker.MaxNLocator(
+            nbins="auto",
+            steps=[1, 2, 5, 10],
+            integer=True,
+            min_n_ticks=0,
+        )
+    )
+    ax.yaxis.set_major_locator(
+        mpl.ticker.MaxNLocator(
+            nbins="auto",
+            steps=[1, 2, 5, 10],
+            integer=True,
+            min_n_ticks=0,
+        )
+    )
 
     # strip any negative xticks
     ax.set_xticks([tick for tick in ax.get_xticks() if tick >= 0])
 
-    if do_show: plt.show()
+    if do_show:
+        plt.show()
 
     return ax

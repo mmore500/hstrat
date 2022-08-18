@@ -15,20 +15,20 @@ class _PredKeepRank:
     """
 
     def __init__(
-        self: '_PredKeepRank',
+        self: "_PredKeepRank",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: '_PredKeepRank',
+        self: "_PredKeepRank",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: '_PredKeepRank',
-        policy: 'Policy',
+        self: "_PredKeepRank",
+        policy: "Policy",
         num_stratum_depositions_completed: int,
         stratum_rank: int,
     ) -> bool:
@@ -74,7 +74,8 @@ class _PredKeepRank:
             stratum_rank == num_stratum_depositions_completed
             # retain all strata until more than num_intervals are deposited
             or num_stratum_depositions_completed < guaranteed_resolution
-        ): return True
+        ):
+            return True
 
         # +1 because of in-progress deposition
         cur_stage_uncertainty = calc_provided_uncertainty(
@@ -82,24 +83,22 @@ class _PredKeepRank:
             num_stratum_depositions_completed + 1,
         )
         cur_stage_idx = stratum_rank // cur_stage_uncertainty
-        cur_stage_max_idx = \
+        cur_stage_max_idx = (
             num_stratum_depositions_completed // cur_stage_uncertainty
+        )
 
         # use lambdas to prevent division by zero
         prev_stage_uncertainty = cur_stage_uncertainty // 2
         prev_stage_idx = lambda: stratum_rank // prev_stage_uncertainty
-        prev_stage_max_idx = \
+        prev_stage_max_idx = (
             lambda: num_stratum_depositions_completed // prev_stage_uncertainty
-
-        return (
-            stratum_rank % cur_stage_uncertainty == 0
-            or (
-                stratum_rank % prev_stage_uncertainty == 0
-                and prev_stage_idx()
-                    > 2 * prev_stage_max_idx()
-                        - 4 * guaranteed_resolution
-                        + 1
-            )
         )
+
+        return stratum_rank % cur_stage_uncertainty == 0 or (
+            stratum_rank % prev_stage_uncertainty == 0
+            and prev_stage_idx()
+            > 2 * prev_stage_max_idx() - 4 * guaranteed_resolution + 1
+        )
+
 
 FromPredKeepRank = GenDropRanksFromPredKeepRank(_PredKeepRank)

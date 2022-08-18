@@ -5,7 +5,7 @@ from hstrat2.hstrat import fixed_resolution_policy
 
 
 @pytest.mark.parametrize(
-    'fixed_resolution',
+    "fixed_resolution",
     [
         1,
         2,
@@ -16,7 +16,7 @@ from hstrat2.hstrat import fixed_resolution_policy
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         range(10**2),
         (i for i in range(10**2) for __ in range(2)),
@@ -39,13 +39,17 @@ def test_policy_consistency(fixed_resolution, time_sequence):
             instance,
             fixed_resolution_policy.CalcNumStrataRetainedUpperBound(spec),
         ):
-            assert which(
-                policy,
-                num_strata_deposited,
-            ) >= policy_requirement
+            assert (
+                which(
+                    policy,
+                    num_strata_deposited,
+                )
+                >= policy_requirement
+            )
+
 
 @pytest.mark.parametrize(
-    'fixed_resolution',
+    "fixed_resolution",
     [
         1,
         2,

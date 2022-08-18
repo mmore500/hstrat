@@ -10,6 +10,7 @@ _policy_evaluator_t = typing.Callable[
     typing.Union[float, int],
 ]
 
+
 class PropertyAtLeastParameterizer:
 
     _target_value: typing.Union[float, int]
@@ -18,11 +19,11 @@ class PropertyAtLeastParameterizer:
     _param_upper_bound: typing.Optional[int]
 
     def __init__(
-        self: 'PropertyAtLeastParameterizer',
+        self: "PropertyAtLeastParameterizer",
         target_value: typing.Union[float, int],
         policy_evaluator: _policy_evaluator_t,
-        param_lower_bound: int=0,
-        param_upper_bound: typing.Optional[int]=sys.maxsize,
+        param_lower_bound: int = 0,
+        param_upper_bound: typing.Optional[int] = sys.maxsize,
     ) -> None:
         """Initialize functor to parameterize stratum retention policy so that
         an evaluated property is greater than or equal to a target value.
@@ -45,9 +46,9 @@ class PropertyAtLeastParameterizer:
         self._param_upper_bound = param_upper_bound
 
     def __call__(
-        self: 'PropertyAtLeastParameterizer',
+        self: "PropertyAtLeastParameterizer",
         policy_t: typing.Type,
-    ) -> typing.Optional['PolicySpec']:
+    ) -> typing.Optional["PolicySpec"]:
         policy_factory = self._policy_evaluator._policy_param_focalizer(
             policy_t,
         )
@@ -65,7 +66,7 @@ class PropertyAtLeastParameterizer:
             return None
 
     def _try_calc_parameter(
-        self: 'PropertyAtLeastParameterizer',
+        self: "PropertyAtLeastParameterizer",
         policy_t: typing.Type,
     ) -> typing.Optional[int]:
         lb = self._param_lower_bound
@@ -80,7 +81,7 @@ class PropertyAtLeastParameterizer:
         )
         sign = opyt.apply_if(
             next_diff_param,
-            lambda x: np.sign(eval_at_param(x) - eval_at_param(lb))
+            lambda x: np.sign(eval_at_param(x) - eval_at_param(lb)),
         )
         assert sign != 0
 
@@ -137,9 +138,9 @@ class PropertyAtLeastParameterizer:
             return None
 
     def __repr__(
-        self: 'PropertyAtLeastParameterizer',
+        self: "PropertyAtLeastParameterizer",
     ) -> str:
-        return f'''{
+        return f"""{
             PropertyAtLeastParameterizer.__qualname__
         }(target_value={
             self._target_value
@@ -149,13 +150,13 @@ class PropertyAtLeastParameterizer:
             self._param_lower_bound
         !r}, param_upper_bound={
             self._param_upper_bound
-        !r})'''
+        !r})"""
 
     def __str__(
-        self: 'PropertyAtLeastParameterizer',
+        self: "PropertyAtLeastParameterizer",
     ) -> str:
-        title = 'At Least Parameterizer'
-        return f'''{
+        title = "At Least Parameterizer"
+        return f"""{
             title
         } (target value: {
             self._target_value
@@ -165,4 +166,4 @@ class PropertyAtLeastParameterizer:
             self._param_lower_bound
         }, param upper bound: {
             opyt.or_value(self._param_upper_bound, 'inf')
-        })'''
+        })"""

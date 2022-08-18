@@ -11,7 +11,7 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
 
 
 @pytest.mark.parametrize(
-    'policy_t',
+    "policy_t",
     [
         hstrat.depth_proportional_resolution_policy.Policy,
         hstrat.depth_proportional_resolution_tapered_policy.Policy,
@@ -23,14 +23,14 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
     ],
 )
 @pytest.mark.parametrize(
-    'at_num_strata_deposited',
+    "at_num_strata_deposited",
     [
         10**3,
         10**6,
     ],
 )
 @pytest.mark.parametrize(
-    'at_rank',
+    "at_rank",
     [
         # None, not yet implemented
         -2,
@@ -40,7 +40,7 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
     ],
 )
 @pytest.mark.parametrize(
-    'target_value',
+    "target_value",
     [
         0.01,
         0.25,
@@ -54,12 +54,15 @@ def test_satisfiable_at_least(
     target_value,
 ):
 
-    if CalcWorstCaseMrcaUncertaintyRelUpperBound()(
-        None,
-        at_num_strata_deposited,
-        at_num_strata_deposited,
-        opyt.or_value(at_rank, -1),
-    ) <= target_value:
+    if (
+        CalcWorstCaseMrcaUncertaintyRelUpperBound()(
+            None,
+            at_num_strata_deposited,
+            at_num_strata_deposited,
+            opyt.or_value(at_rank, -1),
+        )
+        <= target_value
+    ):
         # skip impossible to parameterize cases
         return
 
@@ -79,20 +82,24 @@ def test_satisfiable_at_least(
     assert policy_spec == policy_t(parameterizer=parameterizer).GetSpec()
 
     if at_rank is not None:
-        assert policy_t(
-            policy_spec=policy_spec,
-        ).CalcMrcaUncertaintyRelExact(
-            at_num_strata_deposited,
-            at_num_strata_deposited,
-            at_rank,
-        ) >= target_value
+        assert (
+            policy_t(policy_spec=policy_spec,).CalcMrcaUncertaintyRelExact(
+                at_num_strata_deposited,
+                at_num_strata_deposited,
+                at_rank,
+            )
+            >= target_value
+        )
     else:
-        assert policy_t(
-            policy_spec=policy_spec,
-        ).CalcMrcaUncertaintyRelExactAtPessimalRank(
-            at_num_strata_deposited,
-            at_num_strata_deposited,
-        ) >= target_value
+        assert (
+            policy_t(
+                policy_spec=policy_spec,
+            ).CalcMrcaUncertaintyRelExactAtPessimalRank(
+                at_num_strata_deposited,
+                at_num_strata_deposited,
+            )
+            >= target_value
+        )
 
     if policy_t not in (
         hstrat.geom_seq_nth_root_policy.Policy,
@@ -107,8 +114,8 @@ def test_satisfiable_at_least(
             ),
             param_lower_bound=(
                 0
-                if policy_t \
-                    == hstrat.recency_proportional_resolution_policy.Policy
+                if policy_t
+                == hstrat.recency_proportional_resolution_policy.Policy
                 else 1
             ),
             param_upper_bound=None,
@@ -117,23 +124,28 @@ def test_satisfiable_at_least(
         assert policy_spec == policy_t(parameterizer=parameterizer).GetSpec()
 
         if at_rank is not None:
-            assert policy_t(
-                policy_spec=policy_spec,
-            ).CalcMrcaUncertaintyRelExact(
-                at_num_strata_deposited,
-                at_num_strata_deposited,
-                at_rank,
-            ) >= target_value
+            assert (
+                policy_t(policy_spec=policy_spec,).CalcMrcaUncertaintyRelExact(
+                    at_num_strata_deposited,
+                    at_num_strata_deposited,
+                    at_rank,
+                )
+                >= target_value
+            )
         else:
-            assert policy_t(
-                policy_spec=policy_spec,
-            ).CalcMrcaUncertaintyRelExactAtPessimalRank(
-                at_num_strata_deposited,
-                at_num_strata_deposited,
-            ) >= target_value
+            assert (
+                policy_t(
+                    policy_spec=policy_spec,
+                ).CalcMrcaUncertaintyRelExactAtPessimalRank(
+                    at_num_strata_deposited,
+                    at_num_strata_deposited,
+                )
+                >= target_value
+            )
+
 
 @pytest.mark.parametrize(
-    'policy_t',
+    "policy_t",
     [
         hstrat.depth_proportional_resolution_policy.Policy,
         hstrat.depth_proportional_resolution_tapered_policy.Policy,
@@ -145,14 +157,14 @@ def test_satisfiable_at_least(
     ],
 )
 @pytest.mark.parametrize(
-    'at_num_strata_deposited',
+    "at_num_strata_deposited",
     [
         10**3,
         10**6,
     ],
 )
 @pytest.mark.parametrize(
-    'at_rank,target_value',
+    "at_rank,target_value",
     [
         # (None, 10**9), not yet implemented
         (-1, 10**9),
@@ -184,7 +196,7 @@ def test_unsatisfiable_at_least(
 
 
 @pytest.mark.parametrize(
-    'policy_t',
+    "policy_t",
     [
         hstrat.depth_proportional_resolution_policy.Policy,
         hstrat.depth_proportional_resolution_tapered_policy.Policy,
@@ -196,14 +208,14 @@ def test_unsatisfiable_at_least(
     ],
 )
 @pytest.mark.parametrize(
-    'at_num_strata_deposited',
+    "at_num_strata_deposited",
     [
         10**3,
         10**6,
     ],
 )
 @pytest.mark.parametrize(
-    'at_rank',
+    "at_rank",
     [
         # None, not yet implemented
         -1,
@@ -214,7 +226,7 @@ def test_unsatisfiable_at_least(
     ],
 )
 @pytest.mark.parametrize(
-    'target_value',
+    "target_value",
     [
         0.01,
         0.25,
@@ -230,10 +242,14 @@ def test_satisfiable_at_most(
     target_value,
 ):
 
-    if policy_t not in (
-        hstrat.geom_seq_nth_root_policy.Policy,
-        hstrat.geom_seq_nth_root_tapered_policy.Policy,
-    ) or target_value > 1:
+    if (
+        policy_t
+        not in (
+            hstrat.geom_seq_nth_root_policy.Policy,
+            hstrat.geom_seq_nth_root_tapered_policy.Policy,
+        )
+        or target_value > 1
+    ):
         parameterizer = hstrat.PropertyAtMostParameterizer(
             target_value=target_value,
             policy_evaluator=hstrat.MrcaUncertaintyRelExactPolicyEvaluator(
@@ -248,20 +264,24 @@ def test_satisfiable_at_most(
         assert policy_spec == policy_t(parameterizer=parameterizer).GetSpec()
 
         if at_rank is not None:
-            assert policy_t(
-                policy_spec=policy_spec,
-            ).CalcMrcaUncertaintyRelExact(
-                at_num_strata_deposited,
-                at_num_strata_deposited,
-                at_rank,
-            ) <= target_value
+            assert (
+                policy_t(policy_spec=policy_spec,).CalcMrcaUncertaintyRelExact(
+                    at_num_strata_deposited,
+                    at_num_strata_deposited,
+                    at_rank,
+                )
+                <= target_value
+            )
         else:
-            assert policy_t(
-                policy_spec=policy_spec,
-            ).CalcMrcaUncertaintyRelExactAtPessimalRank(
-                at_num_strata_deposited,
-                at_num_strata_deposited,
-            ) <= target_value
+            assert (
+                policy_t(
+                    policy_spec=policy_spec,
+                ).CalcMrcaUncertaintyRelExactAtPessimalRank(
+                    at_num_strata_deposited,
+                    at_num_strata_deposited,
+                )
+                <= target_value
+            )
 
     if policy_t not in (
         hstrat.geom_seq_nth_root_policy.Policy,
@@ -282,24 +302,28 @@ def test_satisfiable_at_most(
         assert policy_spec == policy_t(parameterizer=parameterizer).GetSpec()
 
         if at_rank is not None:
-            assert policy_t(
-                policy_spec=policy_spec,
-            ).CalcMrcaUncertaintyRelExact(
-                at_num_strata_deposited,
-                at_num_strata_deposited,
-                at_rank,
-            ) <= target_value
+            assert (
+                policy_t(policy_spec=policy_spec,).CalcMrcaUncertaintyRelExact(
+                    at_num_strata_deposited,
+                    at_num_strata_deposited,
+                    at_rank,
+                )
+                <= target_value
+            )
         else:
-            assert policy_t(
-                policy_spec=policy_spec,
-            ).CalcMrcaUncertaintyRelExactAtPessimalRank(
-                at_num_strata_deposited,
-                at_num_strata_deposited,
-            ) <= target_value
+            assert (
+                policy_t(
+                    policy_spec=policy_spec,
+                ).CalcMrcaUncertaintyRelExactAtPessimalRank(
+                    at_num_strata_deposited,
+                    at_num_strata_deposited,
+                )
+                <= target_value
+            )
 
 
 @pytest.mark.parametrize(
-    'policy_t',
+    "policy_t",
     [
         hstrat.depth_proportional_resolution_policy.Policy,
         hstrat.depth_proportional_resolution_tapered_policy.Policy,
@@ -311,14 +335,14 @@ def test_satisfiable_at_most(
     ],
 )
 @pytest.mark.parametrize(
-    'at_num_strata_deposited',
+    "at_num_strata_deposited",
     [
         10**3,
         10**6,
     ],
 )
 @pytest.mark.parametrize(
-    'at_rank,target_value',
+    "at_rank,target_value",
     [
         # (None, -1), not yet implemented
         (-1, -1),
@@ -496,6 +520,7 @@ def test_against_expected_upper_bound():
     assert res_spec == policy_t.policy_spec_t(
         fixed_resolution=6,
     )
+
 
 def test_against_expected_no_upper_bound():
 

@@ -4,7 +4,7 @@ from hstrat2.hstrat import pseudostochastic_policy
 
 
 @pytest.mark.parametrize(
-    'random_seed',
+    "random_seed",
     [
         1,
         2,

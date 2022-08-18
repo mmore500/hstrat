@@ -6,7 +6,7 @@ from hstrat2.hstrat import stochastic_policy
 
 
 @pytest.mark.parametrize(
-    'replicate',
+    "replicate",
     range(5),
 )
 def test_eq(replicate):
@@ -15,25 +15,30 @@ def test_eq(replicate):
     assert spec == spec
     assert spec == stochastic_policy.PolicySpec()
 
+
 @pytest.mark.parametrize(
-    'replicate',
+    "replicate",
     range(5),
 )
 def test_init(replicate):
     random.seed(replicate)
     spec = stochastic_policy.PolicySpec()
 
+
 def test_GetPolicyName():
     spec = stochastic_policy.PolicySpec()
     assert spec.GetPolicyName()
+
 
 def test_GetPolicyTitle():
     spec = stochastic_policy.PolicySpec()
     assert spec.GetPolicyTitle()
 
+
 def test_repr():
     spec = stochastic_policy.PolicySpec()
     assert spec.GetPolicyName() in repr(spec)
+
 
 def test_str():
     spec = stochastic_policy.PolicySpec()

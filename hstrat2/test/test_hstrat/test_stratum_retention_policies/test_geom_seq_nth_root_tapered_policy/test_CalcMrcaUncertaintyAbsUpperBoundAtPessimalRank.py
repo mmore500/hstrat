@@ -8,7 +8,7 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
 
 
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         pytest.param(1, marks=pytest.mark.heavy_2a),
         2,
@@ -21,7 +21,7 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         pytest.param(1, marks=pytest.mark.heavy_2b),
         2,
@@ -29,13 +29,13 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         range(10**2),
         np.random.default_rng(1).integers(
             10**3,
             size=20,
-        )
+        ),
     ],
 )
 def test_policy_consistency(degree, interspersal, time_sequence):
@@ -70,16 +70,22 @@ def test_policy_consistency(degree, interspersal, time_sequence):
                 )
                 for which in (
                     instance,
-                    geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(spec)
+                    geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
+                        spec
+                    ),
                 ):
-                    assert which(
-                        policy,
-                        num_strata_deposited_a,
-                        num_strata_deposited_b,
-                    ) == policy_requirement
+                    assert (
+                        which(
+                            policy,
+                            num_strata_deposited_a,
+                            num_strata_deposited_b,
+                        )
+                        == policy_requirement
+                    )
+
 
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         1,
         2,
@@ -92,7 +98,7 @@ def test_policy_consistency(degree, interspersal, time_sequence):
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         1,
         2,
@@ -102,10 +108,15 @@ def test_policy_consistency(degree, interspersal, time_sequence):
 def test_eq(degree, interspersal):
     policy = geom_seq_nth_root_tapered_policy.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(spec)
+    instance = geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
+        spec
+    )
 
     assert instance == instance
-    assert instance == geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
-        spec,
+    assert (
+        instance
+        == geom_seq_nth_root_tapered_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
+            spec,
+        )
     )
     assert not instance == None

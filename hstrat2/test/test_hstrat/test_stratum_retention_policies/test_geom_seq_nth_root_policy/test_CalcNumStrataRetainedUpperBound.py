@@ -7,7 +7,7 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
 
 
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         pytest.param(1, marks=pytest.mark.heavy_3a),
         2,
@@ -20,7 +20,7 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         pytest.param(1, marks=pytest.mark.heavy_3b),
         2,
@@ -28,12 +28,15 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
-        pytest.param(it.chain(
-            range(10**3),
-            np.logspace(10, 32, num=50, base=2, dtype='int'),
-        ), marks=pytest.mark.heavy_3c),
+        pytest.param(
+            it.chain(
+                range(10**3),
+                np.logspace(10, 32, num=50, base=2, dtype="int"),
+            ),
+            marks=pytest.mark.heavy_3c,
+        ),
         (i for i in range(10) for __ in range(2)),
         (10 - i for i in range(10) for __ in range(2)),
         np.random.default_rng(1).integers(
@@ -41,11 +44,14 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
             high=10**2,
             size=10,
         ),
-        pytest.param(np.random.default_rng(1).integers(
-            low=0,
-            high=2**16,
-            size=10,
-        ), marks=pytest.mark.heavy_2b),
+        pytest.param(
+            np.random.default_rng(1).integers(
+                low=0,
+                high=2**16,
+                size=10,
+            ),
+            marks=pytest.mark.heavy_2b,
+        ),
     ],
 )
 def test_policy_consistency(degree, interspersal, time_sequence):
@@ -60,13 +66,17 @@ def test_policy_consistency(degree, interspersal, time_sequence):
             instance,
             geom_seq_nth_root_policy.CalcNumStrataRetainedUpperBound(spec),
         ):
-            assert which(
-                policy,
-                num_strata_deposited,
-            ) >= policy_requirement
+            assert (
+                which(
+                    policy,
+                    num_strata_deposited,
+                )
+                >= policy_requirement
+            )
+
 
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         1,
         2,
@@ -79,7 +89,7 @@ def test_policy_consistency(degree, interspersal, time_sequence):
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         1,
         2,
@@ -92,7 +102,10 @@ def test_eq(degree, interspersal):
     instance = geom_seq_nth_root_policy.CalcNumStrataRetainedUpperBound(spec)
 
     assert instance == instance
-    assert instance == geom_seq_nth_root_policy.CalcNumStrataRetainedUpperBound(
-        spec,
+    assert (
+        instance
+        == geom_seq_nth_root_policy.CalcNumStrataRetainedUpperBound(
+            spec,
+        )
     )
     assert not instance == None

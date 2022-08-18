@@ -2,22 +2,21 @@ import typing
 
 
 class CalcWorstCaseNumStrataRetainedUpperBound:
-
     def __init__(
-        self: 'CalcWorstCaseNumStrataRetainedUpperBound',
-        policy_spec: typing.Optional[typing.Any]=None,
+        self: "CalcWorstCaseNumStrataRetainedUpperBound",
+        policy_spec: typing.Optional[typing.Any] = None,
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcWorstCaseNumStrataRetainedUpperBound',
+        self: "CalcWorstCaseNumStrataRetainedUpperBound",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcWorstCaseNumStrataRetainedUpperBound',
-        policy: typing.Optional['Policy'],
+        self: "CalcWorstCaseNumStrataRetainedUpperBound",
+        policy: typing.Optional["Policy"],
         num_strata_deposited: int,
     ) -> int:
         """At most, how many strata are retained after n deposted? Inclusive."""

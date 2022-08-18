@@ -10,8 +10,8 @@ from ..HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 def strata_retained_num_lineplot(
     stratum_retention_policy: typing.Callable[[int, int], bool],
     num_generations: int,
-    do_show: bool=False,
-    ax: typing.Optional[plt.matplotlib.axes.Axes]=None,
+    do_show: bool = False,
+    ax: typing.Optional[plt.matplotlib.axes.Axes] = None,
 ) -> plt.matplotlib.axes.Axes:
     """Plot number deposited strata that are retained at each generation.
 
@@ -26,7 +26,7 @@ def strata_retained_num_lineplot(
         Axes. By default (None), a new axes is created.
     do_show : bool, optional
         Whether to show() the plot automatically.
-     """
+    """
 
     if ax is None:
         fig = plt.figure()
@@ -54,27 +54,32 @@ def strata_retained_num_lineplot(
         ys,
         ax=ax,
     )
-    ax.set_xlabel('Generation')
-    ax.set_ylabel('Num Strata Retained')
+    ax.set_xlabel("Generation")
+    ax.set_ylabel("Num Strata Retained")
 
-    ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(
-        nbins='auto',
-        steps=[1, 2, 5, 10],
-        integer=True,
-        min_n_ticks=0,
-    ))
-    ax.yaxis.set_major_locator(mpl.ticker.MaxNLocator(
-        nbins='auto',
-        steps=[1, 2, 5, 10],
-        integer=True,
-        min_n_ticks=0,
-    ))
+    ax.xaxis.set_major_locator(
+        mpl.ticker.MaxNLocator(
+            nbins="auto",
+            steps=[1, 2, 5, 10],
+            integer=True,
+            min_n_ticks=0,
+        )
+    )
+    ax.yaxis.set_major_locator(
+        mpl.ticker.MaxNLocator(
+            nbins="auto",
+            steps=[1, 2, 5, 10],
+            integer=True,
+            min_n_ticks=0,
+        )
+    )
     ymin, ymax = ax.get_ylim()
     ax.set_ylim([ymin, ymax + 2])
 
     # strip any negative xticks
     ax.set_xticks([tick for tick in ax.get_xticks() if tick >= 0])
 
-    if do_show: plt.show()
+    if do_show:
+        plt.show()
 
     return ax

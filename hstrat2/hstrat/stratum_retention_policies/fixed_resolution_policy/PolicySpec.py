@@ -7,7 +7,7 @@ class PolicySpec:
     _fixed_resolution: int
 
     def __init__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
         fixed_resolution: int,
     ):
         """Construct the policy spec.
@@ -24,34 +24,32 @@ class PolicySpec:
         self._fixed_resolution = fixed_resolution
 
     def __eq__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__) and (
             self._fixed_resolution,
-        ) == (
-            other._fixed_resolution,
-        )
+        ) == (other._fixed_resolution,)
 
     def __repr__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
     ) -> str:
-        return f'''{
+        return f"""{
             self.GetPolicyName()
         }.{
             PolicySpec.__qualname__
         }(fixed_resolution={
             self._fixed_resolution
-        })'''
+        })"""
 
     def __str__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
     ) -> str:
-        return f'''{
+        return f"""{
             self.GetPolicyTitle()
         } (resolution: {
             self._fixed_resolution
-        })'''
+        })"""
 
     @staticmethod
     def GetPolicyName() -> str:

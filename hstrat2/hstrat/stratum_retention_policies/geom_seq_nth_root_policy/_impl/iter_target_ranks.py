@@ -17,6 +17,8 @@ def iter_target_ranks(
             num_strata_deposited - int(math.ceil(recency_cutoff)),
             0,
         )
-        if num_strata_deposited == 0: assert rank_cutoff == 0
-        else: assert 0 <= rank_cutoff <= num_strata_deposited - 1
+        if num_strata_deposited == 0:
+            assert rank_cutoff == 0
+        else:
+            assert 0 <= rank_cutoff <= num_strata_deposited - 1
         yield rank_cutoff

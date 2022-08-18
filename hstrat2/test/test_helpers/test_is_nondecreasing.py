@@ -12,34 +12,45 @@ class TestIsNondecreasing(unittest.TestCase):
         assert is_nondecreasing([])
 
     def test_singleton(self):
-        assert is_nondecreasing(['a'])
+        assert is_nondecreasing(["a"])
         assert is_nondecreasing([0])
         assert is_nondecreasing([1])
 
     def test_nondecreasing(self):
-        assert is_nondecreasing([
-            *range(10),
-        ])
-        assert is_nondecreasing([
-            0,
-            *range(10),
-        ])
-        assert is_nondecreasing([
-            0,
-            0,
-            *range(10),
-            *range(9,18),
-        ])
+        assert is_nondecreasing(
+            [
+                *range(10),
+            ]
+        )
+        assert is_nondecreasing(
+            [
+                0,
+                *range(10),
+            ]
+        )
+        assert is_nondecreasing(
+            [
+                0,
+                0,
+                *range(10),
+                *range(9, 18),
+            ]
+        )
 
     def test_decreasing(self):
-        assert not is_nondecreasing([
-            0,
-            -1,
-        ])
-        assert not is_nondecreasing([
-            *range(10),
-            *range(2),
-        ])
+        assert not is_nondecreasing(
+            [
+                0,
+                -1,
+            ]
+        )
+        assert not is_nondecreasing(
+            [
+                *range(10),
+                *range(2),
+            ]
+        )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

@@ -15,6 +15,7 @@ def pairwise(iterable: typing.Iterable) -> typing.Iterator:
     next(b, None)
     return zip(a, b)
 
+
 # use library implementation if available (Python 3.10+)
 try:
     pairwise = it.pairwise

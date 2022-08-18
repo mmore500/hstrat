@@ -8,20 +8,22 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
 
 
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         range(10**2),
         np.random.default_rng(1).integers(
             10**3,
             size=10**2,
-        )
+        ),
     ],
 )
 def test_policy_consistency(time_sequence):
     policy = nominal_resolution_policy.Policy()
     spec = policy.GetSpec()
-    instance = nominal_resolution_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
-        spec,
+    instance = (
+        nominal_resolution_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
+            spec,
+        )
     )
     for num_strata_deposited_a in time_sequence:
         for num_strata_deposited_b in (
@@ -49,25 +51,38 @@ def test_policy_consistency(time_sequence):
                 )
                 for which in (
                     instance,
-                    nominal_resolution_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(spec)
+                    nominal_resolution_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
+                        spec
+                    ),
                 ):
-                    assert policy.CalcMrcaUncertaintyRelUpperBound(
-                        num_strata_deposited_a,
-                        num_strata_deposited_b,
-                        which(
-                            policy,
+                    assert (
+                        policy.CalcMrcaUncertaintyRelUpperBound(
                             num_strata_deposited_a,
                             num_strata_deposited_b,
-                        ),
-                    ) == policy_requirement
+                            which(
+                                policy,
+                                num_strata_deposited_a,
+                                num_strata_deposited_b,
+                            ),
+                        )
+                        == policy_requirement
+                    )
+
 
 def test_eq():
     policy = nominal_resolution_policy.Policy()
     spec = policy.GetSpec()
-    instance = nominal_resolution_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(spec)
+    instance = (
+        nominal_resolution_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
+            spec
+        )
+    )
 
     assert instance == instance
-    assert instance == nominal_resolution_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
-        spec,
+    assert (
+        instance
+        == nominal_resolution_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
+            spec,
+        )
     )
     assert not instance == None

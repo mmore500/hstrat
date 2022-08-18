@@ -5,7 +5,7 @@ from hstrat2.hstrat import recency_proportional_resolution_policy
 
 
 @pytest.mark.parametrize(
-    'recency_proportional_resolution',
+    "recency_proportional_resolution",
     [
         0,
         1,
@@ -18,7 +18,7 @@ from hstrat2.hstrat import recency_proportional_resolution_policy
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         range(10**3),
         (i for i in range(10**2) for __ in range(2)),
@@ -31,24 +31,36 @@ from hstrat2.hstrat import recency_proportional_resolution_policy
     ],
 )
 def test_policy_consistency(recency_proportional_resolution, time_sequence):
-    policy = recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+    policy = recency_proportional_resolution_policy.Policy(
+        recency_proportional_resolution
+    )
     spec = policy.GetSpec()
-    instance = recency_proportional_resolution_policy.CalcNumStrataRetainedUpperBound(spec)
+    instance = (
+        recency_proportional_resolution_policy.CalcNumStrataRetainedUpperBound(
+            spec
+        )
+    )
     for num_strata_deposited in time_sequence:
         policy_requirement = policy.CalcNumStrataRetainedExact(
             num_strata_deposited,
         )
         for which in (
             instance,
-            recency_proportional_resolution_policy.CalcNumStrataRetainedUpperBound(spec),
+            recency_proportional_resolution_policy.CalcNumStrataRetainedUpperBound(
+                spec
+            ),
         ):
-            assert which(
-                policy,
-                num_strata_deposited,
-            ) >= policy_requirement
+            assert (
+                which(
+                    policy,
+                    num_strata_deposited,
+                )
+                >= policy_requirement
+            )
+
 
 @pytest.mark.parametrize(
-    'recency_proportional_resolution',
+    "recency_proportional_resolution",
     [
         0,
         1,
@@ -61,12 +73,21 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
     ],
 )
 def test_eq(recency_proportional_resolution):
-    policy = recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+    policy = recency_proportional_resolution_policy.Policy(
+        recency_proportional_resolution
+    )
     spec = policy.GetSpec()
-    instance = recency_proportional_resolution_policy.CalcNumStrataRetainedUpperBound(spec)
+    instance = (
+        recency_proportional_resolution_policy.CalcNumStrataRetainedUpperBound(
+            spec
+        )
+    )
 
     assert instance == instance
-    assert instance == recency_proportional_resolution_policy.CalcNumStrataRetainedUpperBound(
-        spec,
+    assert (
+        instance
+        == recency_proportional_resolution_policy.CalcNumStrataRetainedUpperBound(
+            spec,
+        )
     )
     assert not instance == None

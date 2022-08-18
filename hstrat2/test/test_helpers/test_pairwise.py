@@ -15,28 +15,28 @@ class TestAllSame(unittest.TestCase):
 
     def test_singleton(self):
         for container in list, iter:
-            for content in None, True, False, 'a', 1, 0, 'asdf', [1,2,3]:
+            for content in None, True, False, "a", 1, 0, "asdf", [1, 2, 3]:
                 assert [*pairwise(container((content,)))] == []
 
     def test_different_types(self):
         for container in list, iter:
-            content = [None, True, False, 'a', [1,2,3]]
+            content = [None, True, False, "a", [1, 2, 3]]
             assert [*pairwise(container(content))] == [
                 (None, True),
                 (True, False),
-                (False, 'a'),
-                ('a', [1,2,3]),
+                (False, "a"),
+                ("a", [1, 2, 3]),
             ]
 
     def test_doublet_same(self):
         for container in list, iter:
-            for content in None, True, False, 'a', 1, 0, 'asdf', [1,2,3]:
+            for content in None, True, False, "a", 1, 0, "asdf", [1, 2, 3]:
                 assert [*pairwise(container((content, content)))] == [
                     (content, content),
                 ]
 
     def test_doublet_notsame(self):
-        content = None, True, False, 'a', 1, 0, 'asdf', [1,2,3]
+        content = None, True, False, "a", 1, 0, "asdf", [1, 2, 3]
         for container in list, iter:
             for a, b in it.permutations(content, 2):
                 assert [*pairwise(container((a, b)))] == [
@@ -45,7 +45,7 @@ class TestAllSame(unittest.TestCase):
 
     def test_triplet_same(self):
         for container in list, iter:
-            for content in None, True, False, 'a', 1, 0, 'asdf', [1,2,3]:
+            for content in None, True, False, "a", 1, 0, "asdf", [1, 2, 3]:
                 assert [*pairwise(container((content, content, content)))] == [
                     (content, content),
                     (content, content),
@@ -53,12 +53,12 @@ class TestAllSame(unittest.TestCase):
 
     def test_different_types(self):
         for container in list, iter:
-            content = [None, True, False, 'a', [1,2,3]]
+            content = [None, True, False, "a", [1, 2, 3]]
             assert [*pairwise(container(content))] == [
                 (None, True),
                 (True, False),
-                (False, 'a'),
-                ('a', [1,2,3]),
+                (False, "a"),
+                ("a", [1, 2, 3]),
             ]
 
     def test_same_type(self):
@@ -70,5 +70,6 @@ class TestAllSame(unittest.TestCase):
                 (2, 3),
             ]
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

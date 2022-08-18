@@ -28,10 +28,7 @@ def iter_rank_backstops(
         # round UP from rank_cutoff
         # to align evenly with retained_ranks_sep
         # adapted from https://stackoverflow.com/a/14092788
-        min_retained_rank = (
-            rank_cutoff
-            - (rank_cutoff % -retained_ranks_sep)
-        )
+        min_retained_rank = rank_cutoff - (rank_cutoff % -retained_ranks_sep)
         assert min_retained_rank % retained_ranks_sep == 0
         assert min_retained_rank >= rank_cutoff
 
@@ -43,8 +40,10 @@ def iter_rank_backstops(
         assert min_retained_rank <= target_rank
 
         # more sanity checks on range of return value
-        if num_strata_deposited == 0: assert min_retained_rank == 0
-        else: assert 0 <= min_retained_rank <= num_strata_deposited - 1
+        if num_strata_deposited == 0:
+            assert min_retained_rank == 0
+        else:
+            assert 0 <= min_retained_rank <= num_strata_deposited - 1
 
         # backstop rank synonomous w/ the most ancient (min) retained rank
         yield min_retained_rank

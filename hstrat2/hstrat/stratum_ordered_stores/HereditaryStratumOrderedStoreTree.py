@@ -26,18 +26,18 @@ class HereditaryStratumOrderedStoreTree:
     """
 
     # strata stored in a tree with most ancient as root and most recent as leaf
-    _leaf: anytree.AnyNode # will contain HereditaryStratum
+    _leaf: anytree.AnyNode  # will contain HereditaryStratum
     # maintaining a counter is much more efficient than counting steps from leaf
     # to root
     _num_strata_retained: int
 
-    def __init__(self: 'HereditaryStratumOrderedStoreTree'):
+    def __init__(self: "HereditaryStratumOrderedStoreTree"):
         """Initialize instance variables."""
 
         self._leaf = None
         self._num_strata_retained = 0
 
-    def __del__(self: 'HereditaryStratumOrderedStoreTree'):
+    def __del__(self: "HereditaryStratumOrderedStoreTree"):
         """Destruct the store, releasing resources no longer needed by this
         store that are needed by no other stores.
 
@@ -56,8 +56,8 @@ class HereditaryStratumOrderedStoreTree:
                 del node
 
     def __eq__(
-        self: 'HereditaryStratumOrderedStoreTree',
-        other: 'HereditaryStratumOrderedStoreTree',
+        self: "HereditaryStratumOrderedStoreTree",
+        other: "HereditaryStratumOrderedStoreTree",
     ) -> bool:
         """Compare for value-wise equality."""
 
@@ -70,7 +70,7 @@ class HereditaryStratumOrderedStoreTree:
         )
 
     def _GetAscendingIter(
-        self: 'HereditaryStratumOrderedStoreTree',
+        self: "HereditaryStratumOrderedStoreTree",
     ) -> typing.Iterator[anytree.AnyNode]:
         """Implementation detail that yields retained strata in order from most
         recent to most ancient."""
@@ -78,9 +78,9 @@ class HereditaryStratumOrderedStoreTree:
         return AnyTreeAscendingIter(self._leaf)
 
     def DepositStratum(
-        self: 'HereditaryStratumOrderedStoreTree',
+        self: "HereditaryStratumOrderedStoreTree",
         rank: int,
-        stratum: 'HereditaryStratum',
+        stratum: "HereditaryStratum",
     ) -> None:
         """Insert a new stratum into the store.
 
@@ -99,7 +99,7 @@ class HereditaryStratumOrderedStoreTree:
         self._leaf = new_leaf
         self._num_strata_retained += 1
 
-    def GetNumStrataRetained(self: 'HereditaryStratumOrderedStoreTree') -> int:
+    def GetNumStrataRetained(self: "HereditaryStratumOrderedStoreTree") -> int:
         """How many strata are present in the store?
 
         May be fewer than the number of strata deposited if deletions have
@@ -109,10 +109,10 @@ class HereditaryStratumOrderedStoreTree:
         return self._num_strata_retained
 
     def GetStratumAtColumnIndex(
-        self: 'HereditaryStratumOrderedStoreTree',
+        self: "HereditaryStratumOrderedStoreTree",
         index: int,
         # needed for other implementations
-        get_rank_at_column_index: typing.Optional[typing.Callable]=None,
+        get_rank_at_column_index: typing.Optional[typing.Callable] = None,
     ) -> HereditaryStratum:
         """Get the stratum positioned at index i among retained strata.
 
@@ -136,7 +136,7 @@ class HereditaryStratumOrderedStoreTree:
         ).stratum
 
     def GetRankAtColumnIndex(
-        self: 'HereditaryStratumOrderedStoreTree',
+        self: "HereditaryStratumOrderedStoreTree",
         index: int,
     ) -> int:
         """What is the deposition rank of the stratum positioned at index i
@@ -147,7 +147,7 @@ class HereditaryStratumOrderedStoreTree:
         return res_rank
 
     def GetColumnIndexOfRank(
-        self: 'HereditaryStratumOrderedStoreTree',
+        self: "HereditaryStratumOrderedStoreTree",
         rank: int,
     ) -> typing.Optional[int]:
         """What is the index position within retained strata of the stratum
@@ -166,7 +166,7 @@ class HereditaryStratumOrderedStoreTree:
             return None
 
     def _do_getrank_DelRanks(
-        self: 'HereditaryStratumOrderedStoreTree',
+        self: "HereditaryStratumOrderedStoreTree",
         ranks: typing.Iterator[int],
         # deposition ranks are stored in strata
     ) -> None:
@@ -175,7 +175,9 @@ class HereditaryStratumOrderedStoreTree:
 
         # duplicate everything after deepest deletion
         # except other ranks slated for deletion
-        pending_node = None # top of new chain, needs to be attached to a parent
+        pending_node = (
+            None  # top of new chain, needs to be attached to a parent
+        )
 
         ascending_iter = self._GetAscendingIter()
         target_ranks = sorted(ranks)
@@ -205,7 +207,7 @@ class HereditaryStratumOrderedStoreTree:
             self._leaf = next(ascending_iter, None)
 
     def _do_calcrank_DelRanks(
-        self: 'HereditaryStratumOrderedStoreTree',
+        self: "HereditaryStratumOrderedStoreTree",
         ranks: typing.Iterator[int],
         # deposition ranks are not stored in strata
         get_column_index_of_rank: typing.Callable,
@@ -217,8 +219,10 @@ class HereditaryStratumOrderedStoreTree:
         # duplicate everything after deepest deletion
         # except other ranks slated for deletion
 
-        pending_node = None # top of new chain, needs to be attached to a parent
-        pending_leaf = None # bottom of new chain
+        pending_node = (
+            None  # top of new chain, needs to be attached to a parent
+        )
+        pending_leaf = None  # bottom of new chain
         num_deleted_nodes = 0
         # RE: pending_leaf, num_deleted_nodes
         # get_column_index_of_rank can depend on state of this object
@@ -266,10 +270,10 @@ class HereditaryStratumOrderedStoreTree:
         self._num_strata_retained -= num_deleted_nodes
 
     def DelRanks(
-        self: 'HereditaryStratumOrderedStoreTree',
+        self: "HereditaryStratumOrderedStoreTree",
         ranks: typing.Iterator[int],
         # deposition ranks might not be stored in strata
-        get_column_index_of_rank: typing.Optional[typing.Callable]=None,
+        get_column_index_of_rank: typing.Optional[typing.Callable] = None,
     ) -> None:
         """Purge strata with specified deposition ranks from the store.
 
@@ -287,7 +291,7 @@ class HereditaryStratumOrderedStoreTree:
             self._do_calcrank_DelRanks(ranks, get_column_index_of_rank)
 
     def IterRetainedRanks(
-        self: 'HereditaryStratumOrderedStoreDict',
+        self: "HereditaryStratumOrderedStoreDict",
     ) -> typing.Iterator[int]:
         """Get an iterator over deposition ranks of strata present in the
         store.
@@ -309,10 +313,10 @@ class HereditaryStratumOrderedStoreTree:
             yield rank
 
     def _do_reverse_IterRankDifferentia(
-        self: 'HereditaryStratumOrderedStoreTree',
+        self: "HereditaryStratumOrderedStoreTree",
         # deposition ranks might not be stored in strata
-        get_rank_at_column_index: typing.Optional[typing.Callable]=None,
-        start_column_index: int=0,
+        get_rank_at_column_index: typing.Optional[typing.Callable] = None,
+        start_column_index: int = 0,
     ) -> typing.Iterator[typing.Tuple[int, int]]:
         """What is the deposition rank of the stratum positioned at index i
         among retained strata?
@@ -335,10 +339,10 @@ class HereditaryStratumOrderedStoreTree:
                 break
 
     def IterRankDifferentia(
-        self: 'HereditaryStratumOrderedStoreTree',
+        self: "HereditaryStratumOrderedStoreTree",
         # deposition ranks might not be stored in strata
-        get_rank_at_column_index: typing.Optional[typing.Callable]=None,
-        start_column_index: int=0,
+        get_rank_at_column_index: typing.Optional[typing.Callable] = None,
+        start_column_index: int = 0,
     ) -> typing.Iterator[typing.Tuple[int, int]]:
         """Get an iterator over tuples containing deposition ranks and
         differentia of retained strata.
@@ -363,8 +367,8 @@ class HereditaryStratumOrderedStoreTree:
         return reversed(reverse_data)
 
     def Clone(
-            self: 'HereditaryStratumOrderedStoreTree',
-    ) -> 'HereditaryStratumOrderedStoreTree':
+        self: "HereditaryStratumOrderedStoreTree",
+    ) -> "HereditaryStratumOrderedStoreTree":
         """Create a copy of the store with identical data that may be freely
         altered without affecting data within this store."""
 

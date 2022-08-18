@@ -4,7 +4,7 @@ from hstrat2.hstrat import recency_proportional_resolution_policy
 
 
 @pytest.mark.parametrize(
-    'recency_proportional_resolution',
+    "recency_proportional_resolution",
     [
         0,
         1,
@@ -18,13 +18,19 @@ from hstrat2.hstrat import recency_proportional_resolution_policy
 )
 def test_init(recency_proportional_resolution):
     assert (
-        recency_proportional_resolution_policy.Policy(recency_proportional_resolution).GetSpec()
+        recency_proportional_resolution_policy.Policy(
+            recency_proportional_resolution
+        ).GetSpec()
         == recency_proportional_resolution_policy.Policy(
-            policy_spec=recency_proportional_resolution_policy.PolicySpec(recency_proportional_resolution),
+            policy_spec=recency_proportional_resolution_policy.PolicySpec(
+                recency_proportional_resolution
+            ),
         ).GetSpec()
     )
 
-    policy = recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+    policy = recency_proportional_resolution_policy.Policy(
+        recency_proportional_resolution
+    )
 
     # invariants
     assert callable(policy.CalcMrcaUncertaintyAbsUpperBound)
@@ -45,7 +51,7 @@ def test_init(recency_proportional_resolution):
 
 
 @pytest.mark.parametrize(
-    'recency_proportional_resolution',
+    "recency_proportional_resolution",
     [
         0,
         1,
@@ -58,16 +64,25 @@ def test_init(recency_proportional_resolution):
     ],
 )
 def test_eq(recency_proportional_resolution):
-    policy = recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+    policy = recency_proportional_resolution_policy.Policy(
+        recency_proportional_resolution
+    )
     assert policy == policy
-    assert policy == recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+    assert policy == recency_proportional_resolution_policy.Policy(
+        recency_proportional_resolution
+    )
     assert not policy == policy.WithoutCalcRankAtColumnIndex()
-    assert policy.WithoutCalcRankAtColumnIndex() \
+    assert (
+        policy.WithoutCalcRankAtColumnIndex()
         == policy.WithoutCalcRankAtColumnIndex()
-    assert not policy == recency_proportional_resolution_policy.Policy(recency_proportional_resolution + 1)
+    )
+    assert not policy == recency_proportional_resolution_policy.Policy(
+        recency_proportional_resolution + 1
+    )
+
 
 @pytest.mark.parametrize(
-    'recency_proportional_resolution',
+    "recency_proportional_resolution",
     [
         0,
         1,
@@ -80,11 +95,15 @@ def test_eq(recency_proportional_resolution):
     ],
 )
 def test_GetSpec(recency_proportional_resolution):
-    assert recency_proportional_resolution_policy.Policy(recency_proportional_resolution).GetSpec() \
-        == recency_proportional_resolution_policy.PolicySpec(recency_proportional_resolution)
+    assert recency_proportional_resolution_policy.Policy(
+        recency_proportional_resolution
+    ).GetSpec() == recency_proportional_resolution_policy.PolicySpec(
+        recency_proportional_resolution
+    )
+
 
 @pytest.mark.parametrize(
-    'recency_proportional_resolution',
+    "recency_proportional_resolution",
     [
         0,
         1,
@@ -98,49 +117,80 @@ def test_GetSpec(recency_proportional_resolution):
 )
 def test_WithoutCalcRankAtColumnIndex(recency_proportional_resolution):
 
-    original = recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+    original = recency_proportional_resolution_policy.Policy(
+        recency_proportional_resolution
+    )
     stripped = original.WithoutCalcRankAtColumnIndex()
 
     assert stripped.CalcRankAtColumnIndex is None
 
-    assert original.CalcMrcaUncertaintyAbsUpperBound \
+    assert (
+        original.CalcMrcaUncertaintyAbsUpperBound
         == stripped.CalcMrcaUncertaintyAbsUpperBound
-    assert original.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
         == stripped.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
-    assert original.CalcMrcaUncertaintyAbsUpperBoundPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyAbsUpperBoundPessimalRank
         == stripped.CalcMrcaUncertaintyAbsUpperBoundPessimalRank
-    assert original.CalcMrcaUncertaintyRelUpperBound \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelUpperBound
         == stripped.CalcMrcaUncertaintyRelUpperBound
-    assert original.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
         == stripped.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
-    assert original.CalcMrcaUncertaintyRelUpperBoundPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelUpperBoundPessimalRank
         == stripped.CalcMrcaUncertaintyRelUpperBoundPessimalRank
-    assert original.CalcNumStrataRetainedUpperBound \
+    )
+    assert (
+        original.CalcNumStrataRetainedUpperBound
         == stripped.CalcNumStrataRetainedUpperBound
+    )
     # scrying
-    assert original.CalcMrcaUncertaintyAbsExact \
+    assert (
+        original.CalcMrcaUncertaintyAbsExact
         == stripped.CalcMrcaUncertaintyAbsExact
-    assert original.CalcMrcaUncertaintyRelExact \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelExact
         == stripped.CalcMrcaUncertaintyRelExact
-    assert original.CalcNumStrataRetainedExact \
+    )
+    assert (
+        original.CalcNumStrataRetainedExact
         == stripped.CalcNumStrataRetainedExact
+    )
     assert original.IterRetainedRanks == stripped.IterRetainedRanks
     # enactment
     assert original.GenDropRanks == stripped.GenDropRanks
 
     # test chaining
-    assert recency_proportional_resolution_policy.Policy(
-        recency_proportional_resolution,
-    ).WithoutCalcRankAtColumnIndex() == stripped
+    assert (
+        recency_proportional_resolution_policy.Policy(
+            recency_proportional_resolution,
+        ).WithoutCalcRankAtColumnIndex()
+        == stripped
+    )
+
 
 def test_repr():
     recency_proportional_resolution = 1
-    policy = recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+    policy = recency_proportional_resolution_policy.Policy(
+        recency_proportional_resolution
+    )
     assert str(recency_proportional_resolution) in repr(policy)
     assert policy.GetSpec().GetPolicyName() in repr(policy)
 
+
 def test_str():
     recency_proportional_resolution = 1
-    policy = recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+    policy = recency_proportional_resolution_policy.Policy(
+        recency_proportional_resolution
+    )
     assert str(recency_proportional_resolution) in str(policy)
     assert policy.GetSpec().GetPolicyTitle() in str(policy)

@@ -4,7 +4,7 @@ from hstrat2.hstrat import depth_proportional_resolution_policy
 
 
 @pytest.mark.parametrize(
-    'depth_proportional_resolution',
+    "depth_proportional_resolution",
     [
         1,
         2,
@@ -16,13 +16,20 @@ from hstrat2.hstrat import depth_proportional_resolution_policy
     ],
 )
 def test_eq(depth_proportional_resolution):
-    spec = depth_proportional_resolution_policy.PolicySpec(depth_proportional_resolution)
+    spec = depth_proportional_resolution_policy.PolicySpec(
+        depth_proportional_resolution
+    )
     assert spec == spec
-    assert spec == depth_proportional_resolution_policy.PolicySpec(depth_proportional_resolution)
-    assert not spec == depth_proportional_resolution_policy.PolicySpec(depth_proportional_resolution + 1)
+    assert spec == depth_proportional_resolution_policy.PolicySpec(
+        depth_proportional_resolution
+    )
+    assert not spec == depth_proportional_resolution_policy.PolicySpec(
+        depth_proportional_resolution + 1
+    )
+
 
 @pytest.mark.parametrize(
-    'depth_proportional_resolution',
+    "depth_proportional_resolution",
     [
         1,
         2,
@@ -34,8 +41,14 @@ def test_eq(depth_proportional_resolution):
     ],
 )
 def test_init(depth_proportional_resolution):
-    spec = depth_proportional_resolution_policy.PolicySpec(depth_proportional_resolution)
-    assert spec._guaranteed_depth_proportional_resolution == depth_proportional_resolution
+    spec = depth_proportional_resolution_policy.PolicySpec(
+        depth_proportional_resolution
+    )
+    assert (
+        spec._guaranteed_depth_proportional_resolution
+        == depth_proportional_resolution
+    )
+
 
 def test_GetPolicyName():
     depth_proportional_resolution = 1
@@ -44,12 +57,14 @@ def test_GetPolicyName():
     )
     assert spec.GetPolicyName()
 
+
 def test_GetPolicyTitle():
     depth_proportional_resolution = 1
     spec = depth_proportional_resolution_policy.PolicySpec(
         depth_proportional_resolution,
     )
     assert spec.GetPolicyTitle()
+
 
 def test_repr():
     depth_proportional_resolution = 1
@@ -58,6 +73,7 @@ def test_repr():
     )
     assert str(depth_proportional_resolution) in repr(spec)
     assert spec.GetPolicyName() in repr(spec)
+
 
 def test_str():
     depth_proportional_resolution = 1

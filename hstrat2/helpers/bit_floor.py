@@ -1,4 +1,3 @@
-
 def bit_floor(n: int) -> int:
     """Calculate the largest power of two not greater than n.
 

@@ -8,20 +8,20 @@ class CalcMrcaUncertaintyAbsExact:
     """Functor to provide member function implementation in Policy class."""
 
     def __init__(
-        self: 'CalcMrcaUncertaintyAbsExact',
+        self: "CalcMrcaUncertaintyAbsExact",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcMrcaUncertaintyAbsExact',
+        self: "CalcMrcaUncertaintyAbsExact",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcMrcaUncertaintyAbsExact',
-        policy: 'Policy',
+        self: "CalcMrcaUncertaintyAbsExact",
+        policy: "Policy",
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
         actual_rank_of_mrca: int,
@@ -78,18 +78,16 @@ class CalcMrcaUncertaintyAbsExact:
         #   least_num_strata = num_strata_deposited - greatest_viable_rank
 
         # -1 due to *lack* of an in-progress deposition
-        greatest_viable_rank = (
-            least_last_rank
-            - provided_uncertainty * (resolution + 1)
+        greatest_viable_rank = least_last_rank - provided_uncertainty * (
+            resolution + 1
         )
 
         # calculate how many steps at provided_uncertainty interval we can take
         # +provided_uncertainty because greatest viable rank is the *last*
         # position we can take a step in our interval from
         num_interval_steps = (
-            (greatest_viable_rank + provided_uncertainty)
-            // provided_uncertainty
-        )
+            greatest_viable_rank + provided_uncertainty
+        ) // provided_uncertainty
         cutoff_rank = num_interval_steps * provided_uncertainty
 
         if actual_rank_of_mrca < cutoff_rank:
@@ -103,10 +101,9 @@ class CalcMrcaUncertaintyAbsExact:
             assert cutoff_rank
             return self(
                 policy=policy,
-                first_num_strata_deposited \
-                    =least_num_strata_deposited - cutoff_rank,
-                second_num_strata_deposited \
-                    =least_num_strata_deposited - cutoff_rank,
-                actual_rank_of_mrca \
-                    =actual_rank_of_mrca - cutoff_rank,
+                first_num_strata_deposited=least_num_strata_deposited
+                - cutoff_rank,
+                second_num_strata_deposited=least_num_strata_deposited
+                - cutoff_rank,
+                actual_rank_of_mrca=actual_rank_of_mrca - cutoff_rank,
             )

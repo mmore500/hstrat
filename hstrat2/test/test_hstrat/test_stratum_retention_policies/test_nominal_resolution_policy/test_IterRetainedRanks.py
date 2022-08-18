@@ -10,7 +10,7 @@ from hstrat2.hstrat import nominal_resolution_policy
 
 
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         range(10**2),
         (i for i in range(10**2) for __ in range(2)),
@@ -30,18 +30,23 @@ def test_only_dwindling_over_time(time_sequence):
             instance,
             nominal_resolution_policy.IterRetainedRanks(spec),
         ):
-            cur_set = {*which(
-                policy,
-                num_strata_deposited,
-            )}
-            next_set = {*which(
-                policy,
-                num_strata_deposited + 1,
-            )}
+            cur_set = {
+                *which(
+                    policy,
+                    num_strata_deposited,
+                )
+            }
+            next_set = {
+                *which(
+                    policy,
+                    num_strata_deposited + 1,
+                )
+            }
             assert cur_set.issuperset(next_set - {num_strata_deposited})
 
+
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         range(10**2),
         (i for i in range(10**2) for __ in range(2)),
@@ -63,14 +68,17 @@ def test_ranks_sorted_and_unique(time_sequence):
         ):
             assert all(
                 i < j
-                for i, j in pairwise(which(
-                    policy,
-                    num_strata_deposited,
-                ))
+                for i, j in pairwise(
+                    which(
+                        policy,
+                        num_strata_deposited,
+                    )
+                )
             )
 
+
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         range(10**2),
         (i for i in range(10**2) for __ in range(2)),
@@ -103,8 +111,9 @@ def test_zero_and_last_ranks_retained(time_sequence):
             else:
                 assert next(res, None) is None
 
+
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         range(10**2),
         (i for i in range(10**2) for __ in range(2)),
@@ -129,6 +138,7 @@ def test_ranks_valid(time_sequence):
                 and 0 <= r < num_strata_deposited
                 for r in which(policy, num_strata_deposited)
             )
+
 
 def test_eq():
     policy = nominal_resolution_policy.Policy()

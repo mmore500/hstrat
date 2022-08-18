@@ -7,7 +7,7 @@ class PolicySpec:
     random_seed: int
 
     def __init__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
         random_seed: int,
     ) -> None:
         """Construct the policy spec.
@@ -21,34 +21,32 @@ class PolicySpec:
         self._random_seed = random_seed
 
     def __eq__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
         other: typing.Any,
     ) -> bool:
-        return isinstance(other, self.__class__) and (
-            self._random_seed,
-        ) == (
+        return isinstance(other, self.__class__) and (self._random_seed,) == (
             other._random_seed,
         )
 
     def __repr__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
     ) -> str:
-        return f'''{
+        return f"""{
             self.GetPolicyName()
         }.{
             __package__.split(".")[-1]
         }(random_seed={
             self._random_seed
-        })'''
+        })"""
 
     def __str__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
     ) -> str:
-        return f'''{
+        return f"""{
             self.GetPolicyTitle()
         } (seed: {
             self._random_seed
-        })'''
+        })"""
 
     @staticmethod
     def GetPolicyName() -> str:

@@ -7,7 +7,7 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
 
 
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         pytest.param(1, marks=pytest.mark.heavy_3a),
         2,
@@ -20,7 +20,7 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         pytest.param(1, marks=pytest.mark.heavy_3b),
         2,
@@ -28,12 +28,15 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
-        pytest.param(it.chain(
-            range(10**3),
-            np.logspace(10, 32, num=50, base=2, dtype='int'),
-        ), marks=pytest.mark.heavy_3c),
+        pytest.param(
+            it.chain(
+                range(10**3),
+                np.logspace(10, 32, num=50, base=2, dtype="int"),
+            ),
+            marks=pytest.mark.heavy_3c,
+        ),
         (i for i in range(10) for __ in range(2)),
         (10 - i for i in range(10) for __ in range(2)),
         np.random.default_rng(1).integers(
@@ -41,11 +44,14 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
             high=10**2,
             size=10,
         ),
-        pytest.param(np.random.default_rng(1).integers(
-            low=0,
-            high=2**16,
-            size=10,
-        ), marks=pytest.mark.heavy_2b),
+        pytest.param(
+            np.random.default_rng(1).integers(
+                low=0,
+                high=2**16,
+                size=10,
+            ),
+            marks=pytest.mark.heavy_2b,
+        ),
     ],
 )
 def test_policy_consistency(degree, interspersal, time_sequence):
@@ -55,13 +61,15 @@ def test_policy_consistency(degree, interspersal, time_sequence):
         spec,
     )
     for num_strata_deposited in time_sequence:
-        for actual_mrca_rank in np.random.default_rng(
-            num_strata_deposited,
-        ).integers(
-            low=0,
-            high=num_strata_deposited,
-            size=10**2,
-        ) if num_strata_deposited else iter(()):
+        for actual_mrca_rank in (
+            np.random.default_rng(num_strata_deposited,).integers(
+                low=0,
+                high=num_strata_deposited,
+                size=10**2,
+            )
+            if num_strata_deposited
+            else iter(())
+        ):
             policy_requirement = policy.CalcMrcaUncertaintyAbsExact(
                 num_strata_deposited,
                 num_strata_deposited,
@@ -69,17 +77,23 @@ def test_policy_consistency(degree, interspersal, time_sequence):
             )
             for which in (
                 instance,
-                geom_seq_nth_root_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
+                geom_seq_nth_root_policy.CalcMrcaUncertaintyAbsUpperBound(
+                    spec
+                ),
             ):
-                assert which(
-                    policy,
-                    num_strata_deposited,
-                    num_strata_deposited,
-                    actual_mrca_rank,
-                ) >= policy_requirement
+                assert (
+                    which(
+                        policy,
+                        num_strata_deposited,
+                        num_strata_deposited,
+                        actual_mrca_rank,
+                    )
+                    >= policy_requirement
+                )
+
 
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         1,
         2,
@@ -92,7 +106,7 @@ def test_policy_consistency(degree, interspersal, time_sequence):
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         1,
         2,
@@ -105,13 +119,17 @@ def test_eq(degree, interspersal):
     instance = geom_seq_nth_root_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
 
     assert instance == instance
-    assert instance == geom_seq_nth_root_policy.CalcMrcaUncertaintyAbsUpperBound(
-        spec,
+    assert (
+        instance
+        == geom_seq_nth_root_policy.CalcMrcaUncertaintyAbsUpperBound(
+            spec,
+        )
     )
     assert not instance == None
 
+
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         1,
         2,
@@ -124,7 +142,7 @@ def test_eq(degree, interspersal):
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         1,
         2,
@@ -136,61 +154,36 @@ def test_negative_index(degree, interspersal):
     spec = policy.GetSpec()
     instance = geom_seq_nth_root_policy.CalcMrcaUncertaintyAbsUpperBound(spec)
 
-    for diff in range(1,100):
-        assert instance(
-            policy,
-            100,
-            100,
-            -diff,
-        ) == instance(
+    for diff in range(1, 100):
+        assert instance(policy, 100, 100, -diff,) == instance(
             policy,
             100,
             100,
             99 - diff,
         )
 
-        assert instance(
-            policy,
-            101,
-            100,
-            -diff,
-        ) == instance(
+        assert instance(policy, 101, 100, -diff,) == instance(
             policy,
             101,
             100,
             99 - diff,
         )
 
-        assert instance(
-            policy,
-            150,
-            100,
-            -diff,
-        ) == instance(
+        assert instance(policy, 150, 100, -diff,) == instance(
             policy,
             150,
             100,
             99 - diff,
         )
 
-        assert instance(
-            policy,
-            100,
-            101,
-            -diff,
-        ) == instance(
+        assert instance(policy, 100, 101, -diff,) == instance(
             policy,
             101,
             100,
             99 - diff,
         )
 
-        assert instance(
-            policy,
-            100,
-            150,
-            -diff,
-        ) == instance(
+        assert instance(policy, 100, 150, -diff,) == instance(
             policy,
             150,
             100,

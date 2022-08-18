@@ -5,22 +5,22 @@ class PolicySpec:
     """Contains all policy parameters, if any."""
 
     def __eq__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __repr__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
     ) -> str:
-        return f'''{
+        return f"""{
             self.GetPolicyName()
         }.{
             PolicySpec.__qualname__
-        }()'''
+        }()"""
 
     def __str__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
     ) -> str:
         return self.GetPolicyTitle()
 

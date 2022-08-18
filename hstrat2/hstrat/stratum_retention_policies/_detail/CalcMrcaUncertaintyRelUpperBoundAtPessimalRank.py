@@ -4,22 +4,21 @@ import numpy as np
 
 
 class CalcMrcaUncertaintyRelUpperBoundAtPessimalRank:
-
     def __init__(
-        self: 'CalcMrcaUncertaintyRelUpperBoundAtPessimalRank',
-        policy_spec: typing.Optional[typing.Any]=None,
+        self: "CalcMrcaUncertaintyRelUpperBoundAtPessimalRank",
+        policy_spec: typing.Optional[typing.Any] = None,
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcMrcaUncertaintyRelUpperBoundAtPessimalRank',
+        self: "CalcMrcaUncertaintyRelUpperBoundAtPessimalRank",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcMrcaUncertaintyRelUpperBoundAtPessimalRank',
-        policy: 'Policy',
+        self: "CalcMrcaUncertaintyRelUpperBoundAtPessimalRank",
+        policy: "Policy",
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
     ) -> float:

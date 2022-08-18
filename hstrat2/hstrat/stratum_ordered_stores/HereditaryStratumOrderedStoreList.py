@@ -24,26 +24,29 @@ class HereditaryStratumOrderedStoreList:
     # strata stored from most ancient (index 0, front) to most recent (back)
     _data: typing.List[HereditaryStratum]
 
-    def __init__(self: 'HereditaryStratumOrderedStoreList'):
+    def __init__(self: "HereditaryStratumOrderedStoreList"):
         """Initialize instance variables."""
 
         self._data = []
 
     def __eq__(
-        self: 'HereditaryStratumOrderedStoreList',
-        other: 'HereditaryStratumOrderedStoreList',
+        self: "HereditaryStratumOrderedStoreList",
+        other: "HereditaryStratumOrderedStoreList",
     ) -> bool:
         """Compare for value-wise equality."""
 
-        return isinstance(
-            other,
-            self.__class__,
-        ) and self.__dict__ == other.__dict__
+        return (
+            isinstance(
+                other,
+                self.__class__,
+            )
+            and self.__dict__ == other.__dict__
+        )
 
     def DepositStratum(
-        self: 'HereditaryStratumOrderedStoreList',
+        self: "HereditaryStratumOrderedStoreList",
         rank: int,
-        stratum: 'HereditaryStratum',
+        stratum: "HereditaryStratum",
     ) -> None:
         """Insert a new stratum into the store.
 
@@ -57,7 +60,7 @@ class HereditaryStratumOrderedStoreList:
 
         self._data.append(stratum)
 
-    def GetNumStrataRetained(self: 'HereditaryStratumOrderedStoreList') -> int:
+    def GetNumStrataRetained(self: "HereditaryStratumOrderedStoreList") -> int:
         """How many strata are present in the store?
 
         May be fewer than the number of strata deposited if deletions have
@@ -67,10 +70,10 @@ class HereditaryStratumOrderedStoreList:
         return len(self._data)
 
     def GetStratumAtColumnIndex(
-        self: 'HereditaryStratumOrderedStoreList',
+        self: "HereditaryStratumOrderedStoreList",
         index: int,
         # needed for other implementations
-        get_rank_at_column_index: typing.Optional[typing.Callable]=None,
+        get_rank_at_column_index: typing.Optional[typing.Callable] = None,
     ) -> HereditaryStratum:
         """Get the stratum positioned at index i among retained strata.
 
@@ -88,7 +91,7 @@ class HereditaryStratumOrderedStoreList:
         return self._data[index]
 
     def GetRankAtColumnIndex(
-        self: 'HereditaryStratumOrderedStoreList',
+        self: "HereditaryStratumOrderedStoreList",
         index: int,
     ) -> int:
         """What is the deposition rank of the stratum positioned at index i
@@ -102,7 +105,7 @@ class HereditaryStratumOrderedStoreList:
         return res_rank
 
     def GetColumnIndexOfRank(
-        self: 'HereditaryStratumOrderedStoreList',
+        self: "HereditaryStratumOrderedStoreList",
         rank: int,
     ) -> typing.Optional[int]:
         """What is the index position within retained strata of the stratum
@@ -127,10 +130,10 @@ class HereditaryStratumOrderedStoreList:
                 return None
 
     def DelRanks(
-        self: 'HereditaryStratumOrderedStoreList',
+        self: "HereditaryStratumOrderedStoreList",
         ranks: typing.Iterator[int],
         # deposition ranks might not be stored in strata
-        get_column_index_of_rank: typing.Optional[typing.Callable]=None,
+        get_column_index_of_rank: typing.Optional[typing.Callable] = None,
     ) -> None:
         """Purge strata with specified deposition ranks from the store.
 
@@ -146,10 +149,7 @@ class HereditaryStratumOrderedStoreList:
         if get_column_index_of_rank is None:
             get_column_index_of_rank = self.GetColumnIndexOfRank
 
-        indices = [
-            get_column_index_of_rank(rank)
-            for rank in ranks
-        ]
+        indices = [get_column_index_of_rank(rank) for rank in ranks]
         # adapted from https://stackoverflow.com/a/11303234/17332200
         # iterate over indices in reverse order to prevent invalidation
         # reversed() is an potential optimization
@@ -159,7 +159,7 @@ class HereditaryStratumOrderedStoreList:
             del self._data[index]
 
     def IterRetainedRanks(
-        self: 'HereditaryStratumOrderedStoreDict',
+        self: "HereditaryStratumOrderedStoreDict",
     ) -> typing.Iterator[int]:
         """Get an iterator over deposition ranks of strata present in the
         store.
@@ -172,19 +172,16 @@ class HereditaryStratumOrderedStoreList:
         # must make copy to prevent invalidation when strata are deleted
         # note, however, that copy is made lazily
         # (only when first item requested)
-        ranks = [
-            stratum.GetDepositionRank()
-            for stratum in self._data
-        ]
+        ranks = [stratum.GetDepositionRank() for stratum in self._data]
         for rank in ranks:
             assert rank is not None
             yield rank
 
     def IterRankDifferentia(
-        self: 'HereditaryStratumOrderedStoreList',
+        self: "HereditaryStratumOrderedStoreList",
         # deposition ranks might not be stored in strata
-        get_rank_at_column_index: typing.Optional[typing.Callable]=None,
-        start_column_index: int=0,
+        get_rank_at_column_index: typing.Optional[typing.Callable] = None,
+        start_column_index: int = 0,
     ) -> typing.Iterator[typing.Tuple[int, int]]:
         """Get an iterator over tuples containing deposition ranks and
         differentia of retained strata.
@@ -210,8 +207,8 @@ class HereditaryStratumOrderedStoreList:
             yield (get_rank_at_column_index(index), stratum.GetDifferentia())
 
     def Clone(
-            self: 'HereditaryStratumOrderedStoreList',
-    ) -> 'HereditaryStratumOrderedStoreList':
+        self: "HereditaryStratumOrderedStoreList",
+    ) -> "HereditaryStratumOrderedStoreList":
         """Create a copy of the store with identical data that may be freely
         altered without affecting data within this store."""
 

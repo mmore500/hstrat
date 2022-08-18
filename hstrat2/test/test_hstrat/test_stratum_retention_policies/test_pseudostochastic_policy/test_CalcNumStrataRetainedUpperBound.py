@@ -8,7 +8,7 @@ from hstrat2.hstrat import (
 
 
 @pytest.mark.parametrize(
-    'random_seed',
+    "random_seed",
     [
         1,
         2,
@@ -31,13 +31,17 @@ def test_policy_consistency(random_seed):
             instance,
             pseudostochastic_policy.CalcNumStrataRetainedUpperBound(spec),
         ):
-            assert which(
-                policy,
-                num_strata_deposited,
-            ) >= policy_requirement
+            assert (
+                which(
+                    policy,
+                    num_strata_deposited,
+                )
+                >= policy_requirement
+            )
+
 
 @pytest.mark.parametrize(
-    'random_seed',
+    "random_seed",
     [
         1,
         2,

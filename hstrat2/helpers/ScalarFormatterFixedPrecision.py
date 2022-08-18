@@ -7,14 +7,14 @@ class ScalarFormatterFixedPrecision(mpl.ticker.ScalarFormatter):
     _precision: int
 
     def __init__(
-        self: 'ScalarFormatterFixedPrecision',
-        precision: int=1,
+        self: "ScalarFormatterFixedPrecision",
+        precision: int = 1,
     ) -> None:
         super(ScalarFormatterFixedPrecision, self).__init__()
         self._precision = precision
 
     # Override function that finds format to use.
     def _set_format(
-        self: 'ScalarFormatterFixedPrecision',
+        self: "ScalarFormatterFixedPrecision",
     ) -> None:
-        self.format = '%.1f'
+        self.format = "%.1f"

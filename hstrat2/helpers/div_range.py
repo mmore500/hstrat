@@ -1,4 +1,3 @@
-
 # adapted from https://stackoverflow.com/a/11443871/17332200
 def div_range(start: int, end: int, divide_by: int):
 

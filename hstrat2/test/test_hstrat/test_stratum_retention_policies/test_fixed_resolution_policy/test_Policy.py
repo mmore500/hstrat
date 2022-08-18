@@ -4,7 +4,7 @@ from hstrat2.hstrat import fixed_resolution_policy
 
 
 @pytest.mark.parametrize(
-    'fixed_resolution',
+    "fixed_resolution",
     [
         1,
         2,
@@ -42,7 +42,7 @@ def test_init(fixed_resolution):
 
 
 @pytest.mark.parametrize(
-    'fixed_resolution',
+    "fixed_resolution",
     [
         1,
         2,
@@ -57,12 +57,15 @@ def test_eq(fixed_resolution):
     assert policy == policy
     assert policy == fixed_resolution_policy.Policy(fixed_resolution)
     assert not policy == policy.WithoutCalcRankAtColumnIndex()
-    assert policy.WithoutCalcRankAtColumnIndex() \
+    assert (
+        policy.WithoutCalcRankAtColumnIndex()
         == policy.WithoutCalcRankAtColumnIndex()
+    )
     assert not policy == fixed_resolution_policy.Policy(fixed_resolution + 1)
 
+
 @pytest.mark.parametrize(
-    'fixed_resolution',
+    "fixed_resolution",
     [
         1,
         2,
@@ -73,11 +76,13 @@ def test_eq(fixed_resolution):
     ],
 )
 def test_GetSpec(fixed_resolution):
-    assert fixed_resolution_policy.Policy(fixed_resolution).GetSpec() \
-        == fixed_resolution_policy.PolicySpec(fixed_resolution)
+    assert fixed_resolution_policy.Policy(
+        fixed_resolution
+    ).GetSpec() == fixed_resolution_policy.PolicySpec(fixed_resolution)
+
 
 @pytest.mark.parametrize(
-    'fixed_resolution',
+    "fixed_resolution",
     [
         1,
         2,
@@ -94,39 +99,62 @@ def test_WithoutCalcRankAtColumnIndex(fixed_resolution):
 
     assert stripped.CalcRankAtColumnIndex is None
 
-    assert original.CalcMrcaUncertaintyAbsUpperBound \
+    assert (
+        original.CalcMrcaUncertaintyAbsUpperBound
         == stripped.CalcMrcaUncertaintyAbsUpperBound
-    assert original.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
         == stripped.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
-    assert original.CalcMrcaUncertaintyAbsUpperBoundPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyAbsUpperBoundPessimalRank
         == stripped.CalcMrcaUncertaintyAbsUpperBoundPessimalRank
-    assert original.CalcMrcaUncertaintyRelUpperBound \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelUpperBound
         == stripped.CalcMrcaUncertaintyRelUpperBound
-    assert original.CalcMrcaUncertaintyRelUpperBoundPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelUpperBoundPessimalRank
         == stripped.CalcMrcaUncertaintyRelUpperBoundPessimalRank
-    assert original.CalcNumStrataRetainedUpperBound \
+    )
+    assert (
+        original.CalcNumStrataRetainedUpperBound
         == stripped.CalcNumStrataRetainedUpperBound
+    )
     # scrying
-    assert original.CalcMrcaUncertaintyAbsExact \
+    assert (
+        original.CalcMrcaUncertaintyAbsExact
         == stripped.CalcMrcaUncertaintyAbsExact
-    assert original.CalcMrcaUncertaintyRelExact \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelExact
         == stripped.CalcMrcaUncertaintyRelExact
-    assert original.CalcNumStrataRetainedExact \
+    )
+    assert (
+        original.CalcNumStrataRetainedExact
         == stripped.CalcNumStrataRetainedExact
+    )
     assert original.IterRetainedRanks == stripped.IterRetainedRanks
     # enactment
     assert original.GenDropRanks == stripped.GenDropRanks
 
     # test chaining
-    assert fixed_resolution_policy.Policy(
-        fixed_resolution,
-    ).WithoutCalcRankAtColumnIndex() == stripped
+    assert (
+        fixed_resolution_policy.Policy(
+            fixed_resolution,
+        ).WithoutCalcRankAtColumnIndex()
+        == stripped
+    )
+
 
 def test_repr():
     fixed_resolution = 1
     policy = fixed_resolution_policy.Policy(fixed_resolution)
     assert str(fixed_resolution) in repr(policy)
     assert policy.GetSpec().GetPolicyName() in repr(policy)
+
 
 def test_str():
     fixed_resolution = 1

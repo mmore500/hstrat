@@ -14,7 +14,8 @@ def get_retained_ranks(
     """Calculate the set of strata ranks retained at `num_strata_deposited`."""
 
     # special case
-    if num_strata_deposited == 0: return set()
+    if num_strata_deposited == 0:
+        return set()
 
     last_rank = num_strata_deposited - 1
     # we will always retain the zeroth rank and the last rank
@@ -30,9 +31,9 @@ def get_retained_ranks(
         min_retained_rank = rank_backstop
 
         target_ranks = range(
-            min_retained_rank, # start
-            num_strata_deposited, # stop, not inclusive
-            retained_ranks_sep, # sep
+            min_retained_rank,  # start
+            num_strata_deposited,  # stop, not inclusive
+            retained_ranks_sep,  # sep
         )
 
         # sanity checks
@@ -44,7 +45,7 @@ def get_retained_ranks(
         assert target_ranks[0] <= target_rank
         # ensure one-past-midpoint coverage before the target
         if len(target_ranks) >= 3:
-            assert target_ranks[len(target_ranks)//2 + 1] > target_rank
+            assert target_ranks[len(target_ranks) // 2 + 1] > target_rank
         # ensure at least interspersal ranks covered
         assert len(target_ranks) >= min(
             interspersal,
@@ -53,7 +54,8 @@ def get_retained_ranks(
         # ensure space complexity cap respected
         assert len(target_ranks) <= 2 * (interspersal + 1)
         # ensure sufficient target_ranks included
-        if retained_ranks_sep > 1: assert len(target_ranks) >= interspersal
+        if retained_ranks_sep > 1:
+            assert len(target_ranks) >= interspersal
 
         # add to retained set
         res.update(target_ranks)

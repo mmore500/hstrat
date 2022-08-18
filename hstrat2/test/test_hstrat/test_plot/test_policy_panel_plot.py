@@ -18,5 +18,5 @@ class TestPolicyPanelPlot(unittest.TestCase):
             hstrat.policy_panel_plot(policy, 10, do_show=False)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -8,7 +8,7 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
 
 
 @pytest.mark.parametrize(
-    'fixed_resolution',
+    "fixed_resolution",
     [
         1,
         2,
@@ -19,7 +19,7 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         np.random.default_rng(1).integers(
             10**2,
@@ -34,8 +34,10 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
 def test_policy_consistency(fixed_resolution, time_sequence):
     policy = fixed_resolution_policy.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = fixed_resolution_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
-        spec,
+    instance = (
+        fixed_resolution_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
+            spec,
+        )
     )
     for num_strata_deposited_a in time_sequence:
         for num_strata_deposited_b in (
@@ -63,20 +65,26 @@ def test_policy_consistency(fixed_resolution, time_sequence):
                 )
                 for which in (
                     instance,
-                    fixed_resolution_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(spec)
+                    fixed_resolution_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
+                        spec
+                    ),
                 ):
-                    assert policy.CalcMrcaUncertaintyRelUpperBound(
-                        num_strata_deposited_a,
-                        num_strata_deposited_b,
-                        which(
-                            policy,
+                    assert (
+                        policy.CalcMrcaUncertaintyRelUpperBound(
                             num_strata_deposited_a,
                             num_strata_deposited_b,
-                        ),
-                    ) == policy_requirement
+                            which(
+                                policy,
+                                num_strata_deposited_a,
+                                num_strata_deposited_b,
+                            ),
+                        )
+                        == policy_requirement
+                    )
+
 
 @pytest.mark.parametrize(
-    'fixed_resolution',
+    "fixed_resolution",
     [
         1,
         2,
@@ -89,10 +97,17 @@ def test_policy_consistency(fixed_resolution, time_sequence):
 def test_eq(fixed_resolution):
     policy = fixed_resolution_policy.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = fixed_resolution_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(spec)
+    instance = (
+        fixed_resolution_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
+            spec
+        )
+    )
 
     assert instance == instance
-    assert instance == fixed_resolution_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
-        spec,
+    assert (
+        instance
+        == fixed_resolution_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
+            spec,
+        )
     )
     assert not instance == None

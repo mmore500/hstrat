@@ -8,5 +8,5 @@ from .StratumRetentionCondemnerFromPredicate import (
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
-    'StratumRetentionCondemnerFromPredicate',
+    "StratumRetentionCondemnerFromPredicate",
 ]

@@ -57,14 +57,13 @@ class HereditaryStratigraphicColumn:
     _stratum_retention_policy: typing.Any
 
     def __init__(
-        self: 'HereditaryStratigraphicColumn',
-        stratum_retention_policy: typing.Any=perfect_resolution_policy.Policy(),
+        self: "HereditaryStratigraphicColumn",
+        stratum_retention_policy: typing.Any = perfect_resolution_policy.Policy(),
         *,
-        always_store_rank_in_stratum: bool=True,
-        stratum_differentia_bit_width: int=64,
-        initial_stratum_annotation: typing.Optional[typing.Any]=None,
-        stratum_ordered_store_factory: typing.Callable
-            =HereditaryStratumOrderedStoreList,
+        always_store_rank_in_stratum: bool = True,
+        stratum_differentia_bit_width: int = 64,
+        initial_stratum_annotation: typing.Optional[typing.Any] = None,
+        stratum_ordered_store_factory: typing.Callable = HereditaryStratumOrderedStoreList,
     ):
         """Initialize column to track a new line of descent.
 
@@ -104,24 +103,26 @@ class HereditaryStratigraphicColumn:
         self._num_strata_deposited = 0
         self._stratum_ordered_store = stratum_ordered_store_factory()
 
-
         self._stratum_retention_policy = stratum_retention_policy
 
         self.DepositStratum(annotation=initial_stratum_annotation)
 
     def __eq__(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
     ) -> bool:
         """Compare for value-wise equality."""
 
-        return isinstance(
-            other,
-            self.__class__,
-        ) and self.__dict__ == other.__dict__
+        return (
+            isinstance(
+                other,
+                self.__class__,
+            )
+            and self.__dict__ == other.__dict__
+        )
 
     def _ShouldOmitStratumDepositionRank(
-        self: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
     ) -> bool:
         """Implementation detail to inspect configured stratum retention policy
         and manual override to decide whether deposition rank should be stored
@@ -139,13 +140,12 @@ class HereditaryStratigraphicColumn:
         )
 
         return (
-            can_omit_deposition_rank
-            and not self._always_store_rank_in_stratum
+            can_omit_deposition_rank and not self._always_store_rank_in_stratum
         )
 
     def DepositStratum(
-        self: 'HereditaryStratigraphicColumn',
-        annotation: typing.Optional[typing.Any]=None,
+        self: "HereditaryStratigraphicColumn",
+        annotation: typing.Optional[typing.Any] = None,
     ) -> None:
         """Elapse a generation.
 
@@ -175,7 +175,7 @@ class HereditaryStratigraphicColumn:
         self._PurgeColumn()
         self._num_strata_deposited += 1
 
-    def _PurgeColumn(self: 'HereditaryStratigraphicColumn') -> None:
+    def _PurgeColumn(self: "HereditaryStratigraphicColumn") -> None:
         """Implementation detail to discard stored strata according to the
         configured stratum retention policy.
 
@@ -194,7 +194,7 @@ class HereditaryStratigraphicColumn:
         )
 
     def IterRetainedRanks(
-        self: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
     ) -> typing.Iterator[int]:
         """Get an iterator over deposition ranks of strata stored in the column.
 
@@ -209,7 +209,7 @@ class HereditaryStratigraphicColumn:
         else:
             yield from self._stratum_ordered_store.IterRetainedRanks()
 
-    def GetNumStrataRetained(self: 'HereditaryStratigraphicColumn') -> int:
+    def GetNumStrataRetained(self: "HereditaryStratigraphicColumn") -> int:
         """How many strata are currently stored within the column?
 
         May be fewer than the number of strata deposited if strata have been
@@ -218,7 +218,7 @@ class HereditaryStratigraphicColumn:
 
         return self._stratum_ordered_store.GetNumStrataRetained()
 
-    def GetNumStrataDeposited(self: 'HereditaryStratigraphicColumn') -> int:
+    def GetNumStrataDeposited(self: "HereditaryStratigraphicColumn") -> int:
         """How many strata have been depostited on the column?
 
         Note that a first stratum is deposited on the column during
@@ -227,7 +227,7 @@ class HereditaryStratigraphicColumn:
         return self._num_strata_deposited
 
     def GetStratumAtColumnIndex(
-        self: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
         index: int,
     ) -> HereditaryStratum:
         """Get the stratum positioned at index i among retained strata.
@@ -245,7 +245,7 @@ class HereditaryStratigraphicColumn:
         )
 
     def GetRankAtColumnIndex(
-        self: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
         index: int,
     ) -> int:
         """What is the deposition rank of the stratum positioned at index i
@@ -264,7 +264,7 @@ class HereditaryStratigraphicColumn:
             return self._stratum_ordered_store.GetRankAtColumnIndex(index)
 
     def GetColumnIndexOfRank(
-        self: 'HereditaryStratumOrderedStoreList',
+        self: "HereditaryStratumOrderedStoreList",
         rank: int,
     ) -> typing.Optional[int]:
         """What is the index position within retained strata of the stratum
@@ -291,7 +291,7 @@ class HereditaryStratigraphicColumn:
             return self._stratum_ordered_store.GetColumnIndexOfRank(rank=rank)
 
     def GetNumDiscardedStrata(
-        self: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
     ) -> int:
         """How many strata have been discarded by the configured column
         retention policy?"""
@@ -299,7 +299,7 @@ class HereditaryStratigraphicColumn:
         return self.GetNumStrataDeposited() - self.GetNumStrataRetained()
 
     def HasDiscardedStrata(
-        self: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
     ) -> bool:
         """Have any strata have been discarded by the configured column
         retention policy?"""
@@ -307,7 +307,7 @@ class HereditaryStratigraphicColumn:
         return self.GetNumDiscardedStrata() > 0
 
     def CalcProbabilityDifferentiaCollision(
-        self: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
     ) -> float:
         """What is the probability of two randomly-differentiated differentia
         being identical by coincidence?"""
@@ -315,7 +315,7 @@ class HereditaryStratigraphicColumn:
         return 1.0 / 2**self._stratum_differentia_bit_width
 
     def CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-        self: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
         *,
         significance_level: float,
     ) -> float:
@@ -326,13 +326,11 @@ class HereditaryStratigraphicColumn:
         assert 0.0 <= significance_level <= 1.0
 
         log_base = self.CalcProbabilityDifferentiaCollision()
-        return int(math.ceil(
-            math.log(significance_level, log_base)
-        ))
+        return int(math.ceil(math.log(significance_level, log_base)))
 
     def CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
     ) -> typing.Optional[int]:
         """At most, how many depositions elapsed along the columns' lines of
         descent before the last matching strata at the same rank between
@@ -346,18 +344,21 @@ class HereditaryStratigraphicColumn:
         """
 
         confidence_level = 0.49
-        assert self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-            significance_level=1.0 - confidence_level,
-        ) == 1
+        assert (
+            self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                significance_level=1.0 - confidence_level,
+            )
+            == 1
+        )
         return self.CalcRankOfLastRetainedCommonalityWith(
             other,
             confidence_level=confidence_level,
         )
 
     def CalcRankOfLastRetainedCommonalityWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
-        confidence_level: float=0.95,
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
+        confidence_level: float = 0.95,
     ) -> typing.Optional[int]:
         """How many depositions elapsed along the columns' lines of
         descent before the last matching strata at the same rank between
@@ -389,12 +390,10 @@ class HereditaryStratigraphicColumn:
             # for performance reasons
             # only binary search stores that support random access
             or not isinstance(
-                self._stratum_ordered_store,
-                HereditaryStratumOrderedStoreList
+                self._stratum_ordered_store, HereditaryStratumOrderedStoreList
             )
             or not isinstance(
-                other._stratum_ordered_store,
-                HereditaryStratumOrderedStoreList
+                other._stratum_ordered_store, HereditaryStratumOrderedStoreList
             )
             # binary search currently requires no spurious collisions
             or self._stratum_differentia_bit_width < 64
@@ -404,14 +403,16 @@ class HereditaryStratigraphicColumn:
                 confidence_level=confidence_level,
             )
         else:
-            return self._do_binary_search_CalcRankOfLastRetainedCommonalityWith(
-                other,
-                confidence_level=confidence_level,
+            return (
+                self._do_binary_search_CalcRankOfLastRetainedCommonalityWith(
+                    other,
+                    confidence_level=confidence_level,
+                )
             )
 
     def _do_binary_search_CalcRankOfLastRetainedCommonalityWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
         confidence_level: float,
     ) -> typing.Optional[int]:
         """Implementation detail with optimized implementation for specialized
@@ -422,17 +423,21 @@ class HereditaryStratigraphicColumn:
         assert not self.HasDiscardedStrata() and not other.HasDiscardedStrata()
 
         lower_bound = 0
-        upper_bound = min([
-            self.GetNumStrataDeposited() - 1,
-            other.GetNumStrataDeposited() - 1,
-        ])
+        upper_bound = min(
+            [
+                self.GetNumStrataDeposited() - 1,
+                other.GetNumStrataDeposited() - 1,
+            ]
+        )
         assert lower_bound <= upper_bound
         rank_at = lambda which, idx: which.GetRankAtColumnIndex(idx)
-        differentia_at = lambda which, idx: \
-                which.GetStratumAtColumnIndex(idx).GetDifferentia()
+        differentia_at = lambda which, idx: which.GetStratumAtColumnIndex(
+            idx
+        ).GetDifferentia()
         # todo: how to account for possible spurious differentiae collisions?
-        predicate = lambda idx: \
-            differentia_at(self, idx) != differentia_at(other, idx)
+        predicate = lambda idx: differentia_at(self, idx) != differentia_at(
+            other, idx
+        )
 
         first_disparite_idx = binary_search(
             predicate,
@@ -440,9 +445,10 @@ class HereditaryStratigraphicColumn:
             upper_bound,
         )
 
-        collision_implausibility_threshold = self.\
-            CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+        collision_implausibility_threshold = (
+            self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
                 significance_level=1.0 - confidence_level,
+            )
         )
         assert collision_implausibility_threshold > 0
         if first_disparite_idx is None:
@@ -462,8 +468,9 @@ class HereditaryStratigraphicColumn:
             # as potential spurious differentia collisions
             # ... must also subtract 1 (canceling out -1 above) to account for
             # moving from disparite stratum to preceding common stratum
-            last_common_idx \
-                = first_disparite_idx - collision_implausibility_threshold
+            last_common_idx = (
+                first_disparite_idx - collision_implausibility_threshold
+            )
             last_common_rank = self.GetRankAtColumnIndex(
                 last_common_idx,
             )
@@ -477,11 +484,11 @@ class HereditaryStratigraphicColumn:
             return None
 
     def _do_generic_CalcRankOfLastRetainedCommonalityWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
         *,
-        self_start_idx: int=0,
-        other_start_idx: int=0,
+        self_start_idx: int = 0,
+        other_start_idx: int = 0,
         confidence_level: float,
     ) -> typing.Optional[int]:
         """Implementation detail with general-case implementation."""
@@ -501,16 +508,18 @@ class HereditaryStratigraphicColumn:
         # we need to keep track of enough ranks of last-seen common strata so
         # that we can discount this many (minus 1) as potentially occuring due
         # to spurious differentia collisions
-        collision_implausibility_threshold = self.\
-            CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+        collision_implausibility_threshold = (
+            self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
                 significance_level=1.0 - confidence_level,
+            )
         )
         assert collision_implausibility_threshold > 0
         # holds up to n last-seen ranks with common strata,
         # with the newest last-seen rank at the front (index 0)
         # and the up to nth last-seen rank at the back (index -1)
-        preceding_common_strata_ranks \
-            = deque([], collision_implausibility_threshold)
+        preceding_common_strata_ranks = deque(
+            [], collision_implausibility_threshold
+        )
         # a.k.a.
         # while (
         #     self_column_idx < self.GetNumStrataRetained()
@@ -518,16 +527,18 @@ class HereditaryStratigraphicColumn:
         # ):
         try:
             while True:
-                if (self_cur_rank == other_cur_rank):
+                if self_cur_rank == other_cur_rank:
                     # strata at same rank can be compared
-                    if (self_cur_differentia == other_cur_differentia):
+                    if self_cur_differentia == other_cur_differentia:
                         # matching differentiae at the same rank,
                         # store rank and keep searching for mismatch
                         preceding_common_strata_ranks.appendleft(self_cur_rank)
                         # advance self
                         self_cur_rank, self_cur_differentia = next(self_iter)
                         # advance other
-                        other_cur_rank, other_cur_differentia = next(other_iter)
+                        other_cur_rank, other_cur_differentia = next(
+                            other_iter
+                        )
                     else:
                         # mismatching differentiae at the same rank
                         # a.k.a. break
@@ -554,8 +565,8 @@ class HereditaryStratigraphicColumn:
                 return None
 
     def GetNthCommonRankWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
         n: int,
     ) -> typing.Optional[int]:
         """Return the nth rank retained by both columns.
@@ -580,7 +591,8 @@ class HereditaryStratigraphicColumn:
             while True:
                 if self_cur_rank == other_cur_rank:
                     # strata at common rank
-                    if n == 0: return self_cur_rank
+                    if n == 0:
+                        return self_cur_rank
 
                     n -= 1
                     # advance self
@@ -599,10 +611,9 @@ class HereditaryStratigraphicColumn:
         except StopIteration:
             return None
 
-
     def CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
     ) -> typing.Optional[int]:
         """At most, how many depositions elapsed along the columns'
         lines of descent before the first mismatching strata at the same rank
@@ -623,18 +634,21 @@ class HereditaryStratigraphicColumn:
         """
 
         confidence_level = 0.49
-        assert self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-            significance_level=1.0 - confidence_level,
-        ) == 1
+        assert (
+            self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                significance_level=1.0 - confidence_level,
+            )
+            == 1
+        )
         return self.CalcRankOfFirstRetainedDisparityWith(
             other,
             confidence_level=confidence_level,
         )
 
     def CalcRankOfFirstRetainedDisparityWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
-        confidence_level: float=0.95,
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
+        confidence_level: float = 0.95,
     ) -> typing.Optional[int]:
         """How many depositions elapsed along the columns' lines of
         descent before the first mismatching strata at the same rank between
@@ -690,12 +704,10 @@ class HereditaryStratigraphicColumn:
             # for performance reasons
             # only apply binary search to stores that support random access
             or not isinstance(
-                self._stratum_ordered_store,
-                HereditaryStratumOrderedStoreList
+                self._stratum_ordered_store, HereditaryStratumOrderedStoreList
             )
             or not isinstance(
-                other._stratum_ordered_store,
-                HereditaryStratumOrderedStoreList
+                other._stratum_ordered_store, HereditaryStratumOrderedStoreList
             )
             # binary search currently requires no spurious collisions
             or self._stratum_differentia_bit_width < 64
@@ -711,8 +723,8 @@ class HereditaryStratigraphicColumn:
             )
 
     def _do_binary_search_CalcRankOfFirstRetainedDisparityWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
         confidence_level: float,
     ) -> typing.Optional[int]:
         """Implementation detail with optimized implementation for specialized
@@ -723,17 +735,21 @@ class HereditaryStratigraphicColumn:
         assert not self.HasDiscardedStrata() and not other.HasDiscardedStrata()
 
         lower_bound = 0
-        upper_bound = min([
-            self.GetNumStrataDeposited() - 1,
-            other.GetNumStrataDeposited() - 1,
-        ])
+        upper_bound = min(
+            [
+                self.GetNumStrataDeposited() - 1,
+                other.GetNumStrataDeposited() - 1,
+            ]
+        )
         assert lower_bound <= upper_bound
         rank_at = lambda which, idx: which.GetRankAtColumnIndex(idx)
-        differentia_at = lambda which, idx: \
-                which.GetStratumAtColumnIndex(idx).GetDifferentia()
+        differentia_at = lambda which, idx: which.GetStratumAtColumnIndex(
+            idx
+        ).GetDifferentia()
         # todo: how to account for possible spurious differentiae collisions?
-        predicate = lambda idx: \
-            differentia_at(self, idx) != differentia_at(other, idx)
+        predicate = lambda idx: differentia_at(self, idx) != differentia_at(
+            other, idx
+        )
 
         first_disparite_idx = binary_search(
             predicate,
@@ -743,10 +759,12 @@ class HereditaryStratigraphicColumn:
 
         if first_disparite_idx is not None:
             # disparate strata found
-            collision_plausibility_threshold = self.\
-                CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            collision_plausibility_threshold = (
+                self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
                     significance_level=1.0 - confidence_level,
-            ) - 1
+                )
+                - 1
+            )
             # discount collision_implausibility_threshold - 1 common
             # ranks due to potential spurious differentia collisions;
             # if not enough common ranks are available we still know
@@ -775,11 +793,11 @@ class HereditaryStratigraphicColumn:
             )
 
     def _do_generic_CalcRankOfFirstRetainedDisparityWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
         *,
-        self_start_idx: int=0,
-        other_start_idx: int=0,
+        self_start_idx: int = 0,
+        other_start_idx: int = 0,
         confidence_level: float,
     ) -> typing.Optional[int]:
         """Implementation detail with general-case implementation."""
@@ -799,8 +817,7 @@ class HereditaryStratigraphicColumn:
         other_prev_rank: int
 
         def advance_self():
-            nonlocal self_prev_rank, self_cur_rank, \
-                self_cur_differentia, self_iter
+            nonlocal self_prev_rank, self_cur_rank, self_cur_differentia, self_iter
             try:
                 self_prev_rank = self_cur_rank
                 self_cur_rank, self_cur_differentia = next(self_iter)
@@ -808,21 +825,20 @@ class HereditaryStratigraphicColumn:
                 self_iter = None
 
         def advance_other():
-            nonlocal other_prev_rank, other_cur_rank, \
-                other_cur_differentia, other_iter
+            nonlocal other_prev_rank, other_cur_rank, other_cur_differentia, other_iter
             try:
                 other_prev_rank = other_cur_rank
                 other_cur_rank, other_cur_differentia = next(other_iter)
             except StopIteration:
                 other_iter = None
 
-
         # we need to keep track of enough last-seen common ranks so that we
         # can discount this many (minus 1) as potentially occuring due to
         # spurious differentia collisions
-        collision_implausibility_threshold = self.\
-            CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+        collision_implausibility_threshold = (
+            self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
                 significance_level=1.0 - confidence_level,
+            )
         )
         assert collision_implausibility_threshold > 0
         # holds up to n last-seen common ranks,
@@ -896,9 +912,9 @@ class HereditaryStratigraphicColumn:
             return preceding_common_ranks[-1]
 
     def CalcRankOfMrcaBoundsWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
-        confidence_level: float=0.95,
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
+        confidence_level: float = 0.95,
     ) -> typing.Optional[typing.Tuple[int, int]]:
         """Calculate bounds on estimate for the number of depositions elapsed
         along the line of descent before the most recent common ancestor with
@@ -968,23 +984,27 @@ class HereditaryStratigraphicColumn:
 
         assert 0.0 <= confidence_level <= 1.0
 
-        if self.CalcRankOfEarliestDetectableMrcaWith(
-            other,
-            confidence_level=confidence_level,
-        ) is None:
+        if (
+            self.CalcRankOfEarliestDetectableMrcaWith(
+                other,
+                confidence_level=confidence_level,
+            )
+            is None
+        ):
             warnings.warn(
-                'Insufficient common ranks between columns to detect common '
-                'ancestry at given confidence level.'
+                "Insufficient common ranks between columns to detect common "
+                "ancestry at given confidence level."
             )
 
         if self.HasAnyCommonAncestorWith(
             other,
             confidence_level=confidence_level,
         ):
-            first_disparity \
-                = self.CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(
-                        other,
-                    )
+            first_disparity = (
+                self.CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(
+                    other,
+                )
+            )
             if first_disparity is None:
                 num_self_deposited = self.GetNumStrataDeposited()
                 num_other_deposited = other.GetNumStrataDeposited()
@@ -998,12 +1018,13 @@ class HereditaryStratigraphicColumn:
                 last_commonality,
                 opyt.or_value(first_disparity, self.GetNumStrataDeposited()),
             )
-        else: return None
+        else:
+            return None
 
     def CalcRankOfMrcaUncertaintyWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
-        confidence_level: float=0.95,
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
+        confidence_level: float = 0.95,
     ) -> typing.Optional[int]:
         """Calculate uncertainty of estimate for the number of depositions
         elapsed along the line of descent before the most common recent
@@ -1020,10 +1041,13 @@ class HereditaryStratigraphicColumn:
             corresponding docstring for explanation of parameters.
         """
 
-        if self.CalcRankOfEarliestDetectableMrcaWith(
-            other,
-            confidence_level=confidence_level,
-        ) is None:
+        if (
+            self.CalcRankOfEarliestDetectableMrcaWith(
+                other,
+                confidence_level=confidence_level,
+            )
+            is None
+        ):
             return None
 
         bounds = self.CalcRankOfMrcaBoundsWith(
@@ -1033,8 +1057,8 @@ class HereditaryStratigraphicColumn:
         return 0 if bounds is None else abs(operator.sub(*bounds)) - 1
 
     def CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(
-        self: 'HereditaryStratigraphicColumn',
-        requested_confidence_level: float=0.95,
+        self: "HereditaryStratigraphicColumn",
+        requested_confidence_level: float = 0.95,
     ) -> float:
         """With what actual confidence is the true rank of the MRCA
         captured within the calculated bounds for a requested confidence level?
@@ -1051,9 +1075,9 @@ class HereditaryStratigraphicColumn:
         return res
 
     def CalcRankOfEarliestDetectableMrcaWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
-        confidence_level: float=0.95,
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
+        confidence_level: float = 0.95,
     ) -> typing.Optional[int]:
         """What is the earliest possible rank a MRCA between self and other
         could be reliably detected at?
@@ -1071,16 +1095,17 @@ class HereditaryStratigraphicColumn:
         ranks had equivalent differentiae).
         """
 
-        num_required_common_ranks = self.\
-            CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+        num_required_common_ranks = (
+            self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
                 significance_level=1 - confidence_level,
             )
+        )
         # zero-indexed
         return self.GetNthCommonRankWith(other, num_required_common_ranks - 1)
 
     def CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
     ) -> typing.Optional[int]:
         """At least, how many depositions have elapsed along this column's line
         of descent since the last matching strata at the same rank between self
@@ -1091,18 +1116,21 @@ class HereditaryStratigraphicColumn:
         """
 
         confidence_level = 0.49
-        assert self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-            significance_level=1.0 - confidence_level,
-        ) == 1
+        assert (
+            self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                significance_level=1.0 - confidence_level,
+            )
+            == 1
+        )
         return self.CalcRanksSinceLastRetainedCommonalityWith(
             self,
             confidence_level=confidence_level,
         )
 
     def CalcRanksSinceLastRetainedCommonalityWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
-        confidence_level: float=0.95,
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
+        confidence_level: float = 0.95,
     ) -> typing.Optional[int]:
         """How many depositions have elapsed along this column's line of
         descent since the las matching strata at the same rank between self and
@@ -1130,7 +1158,8 @@ class HereditaryStratigraphicColumn:
             other,
             confidence_level=confidence_level,
         )
-        if last_common_rank is None: return None
+        if last_common_rank is None:
+            return None
         else:
             assert self.GetNumStrataDeposited()
             res = self.GetNumStrataDeposited() - 1 - last_common_rank
@@ -1138,8 +1167,8 @@ class HereditaryStratigraphicColumn:
             return res
 
     def CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(
-            self: 'HereditaryStratigraphicColumn',
-            other: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
     ) -> typing.Optional[int]:
         """At least, how many depositions have elapsed along this column's line
         of descent since the first mismatching strata at the same rank between
@@ -1151,18 +1180,21 @@ class HereditaryStratigraphicColumn:
         """
 
         confidence_level = 0.49
-        assert self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-            significance_level=1.0 - confidence_level,
-        ) == 1
+        assert (
+            self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                significance_level=1.0 - confidence_level,
+            )
+            == 1
+        )
         return self.CalcRanksSinceFirstRetainedDisparityWith(
             other,
             confidence_level=confidence_level,
         )
 
     def CalcRanksSinceFirstRetainedDisparityWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
-        confidence_level: float=0.95,
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
+        confidence_level: float = 0.95,
     ) -> typing.Optional[int]:
         """How many depositions have elapsed along this column's line of
         descent since the first mismatching strata at the same rank between
@@ -1196,7 +1228,8 @@ class HereditaryStratigraphicColumn:
             other,
             confidence_level=confidence_level,
         )
-        if first_disparate_rank is None: return None
+        if first_disparate_rank is None:
+            return None
         else:
             assert self.GetNumStrataDeposited()
             res = self.GetNumStrataDeposited() - 1 - first_disparate_rank
@@ -1204,9 +1237,9 @@ class HereditaryStratigraphicColumn:
             return res
 
     def CalcRanksSinceMrcaBoundsWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
-        confidence_level: float=0.95,
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
+        confidence_level: float = 0.95,
     ) -> typing.Optional[typing.Tuple[int, int]]:
         """Calculate bounds on estimate for the number of depositions elapsed
         along this column's line of descent since the most recent common
@@ -1277,32 +1310,37 @@ class HereditaryStratigraphicColumn:
 
         assert 0.0 <= confidence_level <= 1.0
 
-        if self.CalcRankOfEarliestDetectableMrcaWith(
-            other,
-            confidence_level=confidence_level,
-        ) is None:
+        if (
+            self.CalcRankOfEarliestDetectableMrcaWith(
+                other,
+                confidence_level=confidence_level,
+            )
+            is None
+        ):
             warnings.warn(
-                'Insufficient common ranks between columns to detect common '
-                'ancestry at given confidence level.'
+                "Insufficient common ranks between columns to detect common "
+                "ancestry at given confidence level."
             )
 
         if self.HasAnyCommonAncestorWith(
             other,
             confidence_level=confidence_level,
         ):
-            since_first_disparity \
-                = self.CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(
+            since_first_disparity = (
+                self.CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(
                     other,
                 )
+            )
 
             lb_exclusive = opyt.or_value(since_first_disparity, -1)
             lb_inclusive = lb_exclusive + 1
 
-            since_last_commonality \
-                = self.CalcRanksSinceLastRetainedCommonalityWith(
+            since_last_commonality = (
+                self.CalcRanksSinceLastRetainedCommonalityWith(
                     other,
                     confidence_level=confidence_level,
                 )
+            )
             assert since_last_commonality is not None
             ub_inclusive = since_last_commonality
             ub_exclusive = ub_inclusive + 1
@@ -1312,9 +1350,9 @@ class HereditaryStratigraphicColumn:
             return None
 
     def CalcRanksSinceMrcaUncertaintyWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
-        confidence_level: float=0.95,
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
+        confidence_level: float = 0.95,
     ) -> typing.Optional[int]:
         """Calculate uncertainty of estimate for the number of depositions
         elapsed along this column's line of descent since the most common recent
@@ -1333,10 +1371,13 @@ class HereditaryStratigraphicColumn:
 
         assert 0.0 <= confidence_level <= 1.0
 
-        if self.CalcRankOfEarliestDetectableMrcaWith(
-            other,
-            confidence_level=confidence_level,
-        ) is None:
+        if (
+            self.CalcRankOfEarliestDetectableMrcaWith(
+                other,
+                confidence_level=confidence_level,
+            )
+            is None
+        ):
             return None
 
         bounds = self.CalcRanksSinceMrcaBoundsWith(
@@ -1346,8 +1387,8 @@ class HereditaryStratigraphicColumn:
         return 0 if bounds is None else abs(operator.sub(*bounds)) - 1
 
     def CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(
-        self: 'HereditaryStratigraphicColumn',
-        requested_confidence_level: float=0.95,
+        self: "HereditaryStratigraphicColumn",
+        requested_confidence_level: float = 0.95,
     ) -> float:
         """With what actual confidence is the true rank of the MRCA
         captured within the calculated bounds for a requested confidence level?
@@ -1360,9 +1401,9 @@ class HereditaryStratigraphicColumn:
         )
 
     def CalcRanksSinceEarliestDetectableMrcaWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
-        confidence_level: float=0.95,
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
+        confidence_level: float = 0.95,
     ) -> typing.Optional[int]:
         """How many depositions have elapsed since the earliest possible rank a
         MRCA between self and other could be reliably detected at?
@@ -1389,9 +1430,9 @@ class HereditaryStratigraphicColumn:
         )
 
     def GetLastCommonStratumWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
-        confidence_level: float=0.95,
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
+        confidence_level: float = 0.95,
     ) -> typing.Optional[HereditaryStratum]:
         """Get the most recent stratum in common between self and other, if any.
 
@@ -1419,11 +1460,12 @@ class HereditaryStratigraphicColumn:
                 if rank == self.GetRankAtColumnIndex(index)
             )
             return self.GetStratumAtColumnIndex(index)
-        else: return None
+        else:
+            return None
 
     def DefinitivelySharesNoCommonAncestorWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
     ) -> bool:
         """Does self definitively share no common ancestor with other?
 
@@ -1437,14 +1479,15 @@ class HereditaryStratigraphicColumn:
             share a common ancestor?
         """
 
-        first_disparity \
-            = self.CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(other)
+        first_disparity = (
+            self.CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(other)
+        )
         return False if first_disparity is None else first_disparity == 0
 
     def HasAnyCommonAncestorWith(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
-        confidence_level: float=0.95,
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
+        confidence_level: float = 0.95,
     ) -> typing.Optional[bool]:
         """Does self share any common ancestor with other?
 
@@ -1468,10 +1511,13 @@ class HereditaryStratigraphicColumn:
             ancestor?
         """
 
-        if self.CalcRankOfEarliestDetectableMrcaWith(
-            other,
-            confidence_level=confidence_level,
-        ) is None:
+        if (
+            self.CalcRankOfEarliestDetectableMrcaWith(
+                other,
+                confidence_level=confidence_level,
+            )
+            is None
+        ):
             return None
 
         first_disparity = self.CalcRankOfFirstRetainedDisparityWith(
@@ -1481,8 +1527,8 @@ class HereditaryStratigraphicColumn:
         return True if first_disparity is None else first_disparity > 0
 
     def Clone(
-            self: 'HereditaryStratigraphicColumn',
-    ) -> 'HereditaryStratigraphicColumn':
+        self: "HereditaryStratigraphicColumn",
+    ) -> "HereditaryStratigraphicColumn":
         """Create a copy of the store with identical data that may be freely
         altered without affecting data within this store."""
 
@@ -1493,9 +1539,9 @@ class HereditaryStratigraphicColumn:
         return result
 
     def CloneDescendant(
-        self: 'HereditaryStratigraphicColumn',
-        stratum_annotation: typing.Optional[typing.Any]=None,
-    ) -> 'HereditaryStratigraphicColumn':
+        self: "HereditaryStratigraphicColumn",
+        stratum_annotation: typing.Optional[typing.Any] = None,
+    ) -> "HereditaryStratigraphicColumn":
         """Return a cloned bundle that has had an additional stratum deposited.
 
         Does not alter self.
@@ -1513,14 +1559,14 @@ class HereditaryStratigraphicColumn:
         return res
 
     def DiffRetainedRanks(
-        self: 'HereditaryStratigraphicColumn',
-        other: 'HereditaryStratigraphicColumn',
+        self: "HereditaryStratigraphicColumn",
+        other: "HereditaryStratigraphicColumn",
     ) -> typing.Tuple[typing.Set[int], typing.Set[int]]:
         """Return the set of ranks retained by self but not other and vice
         versa as a tuple."""
 
-        self_ranks = set( self.IterRetainedRanks() )
-        other_ranks = set( other.IterRetainedRanks() )
+        self_ranks = set(self.IterRetainedRanks())
+        other_ranks = set(other.IterRetainedRanks())
 
         return (
             self_ranks - other_ranks,

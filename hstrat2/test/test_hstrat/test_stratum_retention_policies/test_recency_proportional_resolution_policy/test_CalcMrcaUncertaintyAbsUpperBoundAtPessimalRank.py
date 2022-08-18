@@ -8,7 +8,7 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
 
 
 @pytest.mark.parametrize(
-    'recency_proportional_resolution',
+    "recency_proportional_resolution",
     [
         0,
         1,
@@ -21,7 +21,7 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         np.random.default_rng(1).integers(
             10**2,
@@ -34,7 +34,9 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
     ],
 )
 def test_policy_consistency(recency_proportional_resolution, time_sequence):
-    policy = recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+    policy = recency_proportional_resolution_policy.Policy(
+        recency_proportional_resolution
+    )
     spec = policy.GetSpec()
     instance = recency_proportional_resolution_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
         spec,
@@ -65,16 +67,22 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
                 )
                 for which in (
                     instance,
-                    recency_proportional_resolution_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(spec)
+                    recency_proportional_resolution_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
+                        spec
+                    ),
                 ):
-                    assert which(
-                        policy,
-                        num_strata_deposited_a,
-                        num_strata_deposited_b,
-                    ) == policy_requirement
+                    assert (
+                        which(
+                            policy,
+                            num_strata_deposited_a,
+                            num_strata_deposited_b,
+                        )
+                        == policy_requirement
+                    )
+
 
 @pytest.mark.parametrize(
-    'recency_proportional_resolution',
+    "recency_proportional_resolution",
     [
         0,
         1,
@@ -87,12 +95,19 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
     ],
 )
 def test_eq(recency_proportional_resolution):
-    policy = recency_proportional_resolution_policy.Policy(recency_proportional_resolution)
+    policy = recency_proportional_resolution_policy.Policy(
+        recency_proportional_resolution
+    )
     spec = policy.GetSpec()
-    instance = recency_proportional_resolution_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(spec)
+    instance = recency_proportional_resolution_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
+        spec
+    )
 
     assert instance == instance
-    assert instance == recency_proportional_resolution_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
-        spec,
+    assert (
+        instance
+        == recency_proportional_resolution_policy.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
+            spec,
+        )
     )
     assert not instance == None

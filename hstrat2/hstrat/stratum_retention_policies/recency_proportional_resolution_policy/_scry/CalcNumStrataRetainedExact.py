@@ -10,20 +10,20 @@ class CalcNumStrataRetainedExact:
     """Functor to provide member function implementation in Policy class."""
 
     def __init__(
-        self: 'CalcNumStrataRetainedExact',
+        self: "CalcNumStrataRetainedExact",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcNumStrataRetainedExact',
+        self: "CalcNumStrataRetainedExact",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcNumStrataRetainedExact',
-        policy: 'Policy',
+        self: "CalcNumStrataRetainedExact",
+        policy: "Policy",
         num_strata_deposited: int,
     ) -> int:
         """Exactly how many strata are retained after n deposted?
@@ -55,15 +55,17 @@ class CalcNumStrataRetainedExact:
         spec = policy.GetSpec()
 
         resolution = spec._guaranteed_mrca_recency_proportional_resolution
-        if num_strata_deposited - 1 <= resolution: return num_strata_deposited
-        else: return (
-            # cast to int to handle numpy.int32, numpy.int64 etc.
-            gmpy.popcount(int(num_strata_deposited - 1))
-            + sum(
-                # X.bit_length() - 1 equivalent to floor(log2(X))
+        if num_strata_deposited - 1 <= resolution:
+            return num_strata_deposited
+        else:
+            return (
                 # cast to int to handle numpy.int32, numpy.int64 etc.
-                int((num_strata_deposited - 1) // r).bit_length() - 1
-                for r in range(1, resolution + 1)
+                gmpy.popcount(int(num_strata_deposited - 1))
+                + sum(
+                    # X.bit_length() - 1 equivalent to floor(log2(X))
+                    # cast to int to handle numpy.int32, numpy.int64 etc.
+                    int((num_strata_deposited - 1) // r).bit_length() - 1
+                    for r in range(1, resolution + 1)
+                )
+                + 1
             )
-            + 1
-        )

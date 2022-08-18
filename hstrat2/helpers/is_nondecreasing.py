@@ -1,4 +1,3 @@
-
 def is_nondecreasing(seq) -> bool:
 
     list_ = [*seq]

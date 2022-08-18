@@ -8,20 +8,20 @@ class CalcMrcaUncertaintyRelUpperBound:
     """Functor to provide member function implementation in Policy class."""
 
     def __init__(
-        self: 'CalcMrcaUncertaintyRelUpperBound',
+        self: "CalcMrcaUncertaintyRelUpperBound",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcMrcaUncertaintyRelUpperBound',
+        self: "CalcMrcaUncertaintyRelUpperBound",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcMrcaUncertaintyRelUpperBound',
-        policy: 'Policy',
+        self: "CalcMrcaUncertaintyRelUpperBound",
+        policy: "Policy",
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
         actual_rank_of_mrca: int,
@@ -42,7 +42,8 @@ class CalcMrcaUncertaintyRelUpperBound:
         if (
             first_num_strata_deposited <= 2
             or second_num_strata_deposited <= 2
-            or actual_rank_of_mrca in (
+            or actual_rank_of_mrca
+            in (
                 first_num_strata_deposited - 1,
                 second_num_strata_deposited - 1,
             )

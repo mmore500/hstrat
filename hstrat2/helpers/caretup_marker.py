@@ -2,8 +2,8 @@ import typing
 
 caretup_marker: typing.List[typing.Tuple[int, int]] = [
     (0, 0),
-    (-1, -3**0.5),
-    (1, -3**0.5),
+    (-1, -(3**0.5)),
+    (1, -(3**0.5)),
     (0, 0),
 ]
 """A equilateral triangle, oriented tip up and positioned within the

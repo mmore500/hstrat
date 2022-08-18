@@ -20,5 +20,6 @@ class TestBitCeil(unittest.TestCase):
         assert bit_ceil(0b00001000) == 0b00001000
         assert bit_ceil(0b00001001) == 0b00010000
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

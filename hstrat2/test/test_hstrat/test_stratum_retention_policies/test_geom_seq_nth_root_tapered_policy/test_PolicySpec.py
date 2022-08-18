@@ -4,7 +4,7 @@ from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
 
 
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         1,
         2,
@@ -17,7 +17,7 @@ from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         1,
         2,
@@ -27,13 +27,22 @@ from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
 def test_eq(degree, interspersal):
     spec = geom_seq_nth_root_tapered_policy.PolicySpec(degree, interspersal)
     assert spec == spec
-    assert spec == geom_seq_nth_root_tapered_policy.PolicySpec(degree, interspersal)
-    assert not spec == geom_seq_nth_root_tapered_policy.PolicySpec(degree, interspersal + 1)
-    assert not spec == geom_seq_nth_root_tapered_policy.PolicySpec(degree + 1, interspersal)
-    assert not spec == geom_seq_nth_root_tapered_policy.PolicySpec(degree + 1, interspersal + 1)
+    assert spec == geom_seq_nth_root_tapered_policy.PolicySpec(
+        degree, interspersal
+    )
+    assert not spec == geom_seq_nth_root_tapered_policy.PolicySpec(
+        degree, interspersal + 1
+    )
+    assert not spec == geom_seq_nth_root_tapered_policy.PolicySpec(
+        degree + 1, interspersal
+    )
+    assert not spec == geom_seq_nth_root_tapered_policy.PolicySpec(
+        degree + 1, interspersal + 1
+    )
+
 
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         1,
         2,
@@ -46,7 +55,7 @@ def test_eq(degree, interspersal):
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         1,
         2,
@@ -58,17 +67,20 @@ def test_init(degree, interspersal):
     assert spec._degree == degree
     assert spec._interspersal == interspersal
 
+
 def test_GetPolicyName():
     degree = 1
     interspersal = 2
     spec = geom_seq_nth_root_tapered_policy.PolicySpec(degree, interspersal)
     assert spec.GetPolicyName()
 
+
 def test_GetPolicyTitle():
     degree = 1
     interspersal = 2
     spec = geom_seq_nth_root_tapered_policy.PolicySpec(degree, interspersal)
     assert spec.GetPolicyTitle()
+
 
 def test_repr():
     degree = 1
@@ -77,6 +89,7 @@ def test_repr():
     assert str(degree) in repr(spec)
     assert str(interspersal) in repr(spec)
     assert spec.GetPolicyName() in repr(spec)
+
 
 def test_str():
     degree = 1

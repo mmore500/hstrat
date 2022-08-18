@@ -8,12 +8,11 @@ import opytional as opyt
 def find_bounds(
     query: typing.Any,
     iterable: typing.Iterable[typing.Any],
-    filter_below: typing.Callable=operator.lt,
-    filter_above: typing.Callable=operator.gt,
-    key: typing.Callable=lambda x: x,
-    initializer: typing.Tuple[typing.Any, typing.Any]=(None, None),
+    filter_below: typing.Callable = operator.lt,
+    filter_above: typing.Callable = operator.gt,
+    key: typing.Callable = lambda x: x,
+    initializer: typing.Tuple[typing.Any, typing.Any] = (None, None),
 ) -> typing.Tuple[typing.Optional[typing.Any], typing.Optional[typing.Any]]:
-
     def operation(accumulation, element):
         cur_below, cur_above = accumulation
 
@@ -39,7 +38,6 @@ def find_bounds(
             ),
             maybe_above,
         )
-
 
         return (res_below, res_above)
 

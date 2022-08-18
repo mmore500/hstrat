@@ -4,8 +4,9 @@ import opytional as opyt
 
 _policy_param_focalizer_t = typing.Callable[
     [typing.Type],
-    typing.Callable[[int], 'Policy'],
+    typing.Callable[[int], "Policy"],
 ]
+
 
 class MrcaUncertaintyRelExactPolicyEvaluator:
 
@@ -14,11 +15,12 @@ class MrcaUncertaintyRelExactPolicyEvaluator:
     _policy_param_focalizer: _policy_param_focalizer_t
 
     def __init__(
-        self: 'MrcaUncertaintyRelExactPolicyEvaluator',
+        self: "MrcaUncertaintyRelExactPolicyEvaluator",
         at_num_strata_deposited: int,
-        at_rank: typing.Optional[int]=None,
-        policy_param_focalizer: _policy_param_focalizer_t\
-            =lambda policy_t: lambda i: policy_t(i),
+        at_rank: typing.Optional[int] = None,
+        policy_param_focalizer: _policy_param_focalizer_t = lambda policy_t: lambda i: policy_t(
+            i
+        ),
     ) -> None:
         """Initialize functor to evaluate exact relative MRCA
         uncertainty.
@@ -40,7 +42,7 @@ class MrcaUncertaintyRelExactPolicyEvaluator:
         self._policy_param_focalizer = policy_param_focalizer
 
     def __call__(
-        self: 'MrcaUncertaintyRelExactPolicyEvaluator',
+        self: "MrcaUncertaintyRelExactPolicyEvaluator",
         policy_t: typing.Type,
         parameter_value: int,
     ) -> float:
@@ -49,7 +51,7 @@ class MrcaUncertaintyRelExactPolicyEvaluator:
         policy = policy_factory(parameter_value)
         if self._at_rank is None:
             raise NotImplementedError(
-                'CalcMrcaUncertaintyRelExactPessimalRank not yet implemented'
+                "CalcMrcaUncertaintyRelExactPessimalRank not yet implemented"
             )
         at_rank = opyt.or_value(
             self._at_rank,
@@ -66,9 +68,9 @@ class MrcaUncertaintyRelExactPolicyEvaluator:
         )
 
     def __repr__(
-        self: 'MrcaUncertaintyRelExactPolicyEvaluator',
+        self: "MrcaUncertaintyRelExactPolicyEvaluator",
     ) -> str:
-        return f'''{
+        return f"""{
             MrcaUncertaintyRelExactPolicyEvaluator.__qualname__
         }(at_num_strata_deposited={
             self._at_num_strata_deposited
@@ -76,13 +78,13 @@ class MrcaUncertaintyRelExactPolicyEvaluator:
             self._at_rank
         !r}, policy_param_focalizer={
             self._policy_param_focalizer
-        !r})'''
+        !r})"""
 
     def __str__(
-        self: 'MrcaUncertaintyRelExactPolicyEvaluator',
+        self: "MrcaUncertaintyRelExactPolicyEvaluator",
     ) -> str:
-        title = 'Exact Relative MRCA Uncertainty Evaluator'
-        return f'''{
+        title = "Exact Relative MRCA Uncertainty Evaluator"
+        return f"""{
             title
         } (at num strata deposited: {
             self._at_num_strata_deposited
@@ -90,4 +92,4 @@ class MrcaUncertaintyRelExactPolicyEvaluator:
             opyt.or_value(self._at_rank, 'pessimal')
         }, focalizer: {
             self._policy_param_focalizer
-        })'''
+        })"""

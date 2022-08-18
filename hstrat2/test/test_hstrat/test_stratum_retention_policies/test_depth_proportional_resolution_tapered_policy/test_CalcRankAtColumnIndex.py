@@ -7,7 +7,7 @@ from hstrat2.hstrat import depth_proportional_resolution_tapered_policy
 
 
 @pytest.mark.parametrize(
-    'depth_proportional_resolution',
+    "depth_proportional_resolution",
     [
         1,
         2,
@@ -19,7 +19,7 @@ from hstrat2.hstrat import depth_proportional_resolution_tapered_policy
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         range(10**3),
         (i for i in range(10**2) for __ in range(2)),
@@ -32,13 +32,21 @@ from hstrat2.hstrat import depth_proportional_resolution_tapered_policy
     ],
 )
 def test_policy_consistency(depth_proportional_resolution, time_sequence):
-    policy = depth_proportional_resolution_tapered_policy.Policy(depth_proportional_resolution)
+    policy = depth_proportional_resolution_tapered_policy.Policy(
+        depth_proportional_resolution
+    )
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_tapered_policy.CalcRankAtColumnIndex(spec)
+    instance = (
+        depth_proportional_resolution_tapered_policy.CalcRankAtColumnIndex(
+            spec
+        )
+    )
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            depth_proportional_resolution_tapered_policy.CalcRankAtColumnIndex(spec),
+            depth_proportional_resolution_tapered_policy.CalcRankAtColumnIndex(
+                spec
+            ),
         ):
             assert all(
                 calculated == policy_requirement
@@ -46,15 +54,18 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
                     policy.IterRetainedRanks(num_strata_deposited),
                     (
                         which(policy, i, num_strata_deposited)
-                        for i in range(policy.CalcNumStrataRetainedExact(
-                            num_strata_deposited,
-                        ))
+                        for i in range(
+                            policy.CalcNumStrataRetainedExact(
+                                num_strata_deposited,
+                            )
+                        )
                     ),
                 )
             )
 
+
 @pytest.mark.parametrize(
-    'depth_proportional_resolution',
+    "depth_proportional_resolution",
     [
         1,
         2,
@@ -66,10 +77,21 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
     ],
 )
 def test_eq(depth_proportional_resolution):
-    policy = depth_proportional_resolution_tapered_policy.Policy(depth_proportional_resolution)
+    policy = depth_proportional_resolution_tapered_policy.Policy(
+        depth_proportional_resolution
+    )
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_tapered_policy.CalcRankAtColumnIndex(spec)
+    instance = (
+        depth_proportional_resolution_tapered_policy.CalcRankAtColumnIndex(
+            spec
+        )
+    )
 
     assert instance == instance
-    assert instance == depth_proportional_resolution_tapered_policy.CalcRankAtColumnIndex(spec)
+    assert (
+        instance
+        == depth_proportional_resolution_tapered_policy.CalcRankAtColumnIndex(
+            spec
+        )
+    )
     assert not instance == None

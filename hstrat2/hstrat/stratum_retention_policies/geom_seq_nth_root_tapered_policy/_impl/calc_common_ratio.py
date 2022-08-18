@@ -22,8 +22,8 @@ def calc_common_ratio(
         num_strata_deposited = float(num_strata_deposited)
     except OverflowError:
         warnings.warn(
-            'OverflowError converting num_strata_deposited to float, '
-            'converting to mpmath.mpf instead.',
+            "OverflowError converting num_strata_deposited to float, "
+            "converting to mpmath.mpf instead.",
         )
         num_strata_deposited = mp.mpf(num_strata_deposited)
 

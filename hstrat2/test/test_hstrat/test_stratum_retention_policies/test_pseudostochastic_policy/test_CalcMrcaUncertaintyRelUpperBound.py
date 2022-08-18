@@ -13,7 +13,7 @@ from hstrat2.hstrat import (
 
 
 @pytest.mark.parametrize(
-    'random_seed',
+    "random_seed",
     [
         1,
         2,
@@ -28,7 +28,6 @@ def test_policy_consistency(random_seed):
     column = HereditaryStratigraphicColumn(
         stratum_retention_policy=policy,
         stratum_ordered_store_factory=HereditaryStratumOrderedStoreDict,
-
     )
     spec = policy.GetSpec()
     instance = pseudostochastic_policy.CalcMrcaUncertaintyRelUpperBound(spec)
@@ -51,18 +50,22 @@ def test_policy_consistency(random_seed):
             policy_requirement = (ub - lb) / recency
             for which in (
                 instance,
-                pseudostochastic_policy.CalcMrcaUncertaintyRelUpperBound(spec)
+                pseudostochastic_policy.CalcMrcaUncertaintyRelUpperBound(spec),
             ):
-                assert which(
-                    policy,
-                    num_strata_deposited,
-                    num_strata_deposited,
-                    actual_mrca_rank,
-                ) >= policy_requirement
+                assert (
+                    which(
+                        policy,
+                        num_strata_deposited,
+                        num_strata_deposited,
+                        actual_mrca_rank,
+                    )
+                    >= policy_requirement
+                )
         column.DepositStratum()
 
+
 @pytest.mark.parametrize(
-    'random_seed',
+    "random_seed",
     [
         1,
         2,
@@ -78,13 +81,17 @@ def test_eq(random_seed):
     instance = pseudostochastic_policy.CalcMrcaUncertaintyRelUpperBound(spec)
 
     assert instance == instance
-    assert instance == pseudostochastic_policy.CalcMrcaUncertaintyRelUpperBound(
-        spec,
+    assert (
+        instance
+        == pseudostochastic_policy.CalcMrcaUncertaintyRelUpperBound(
+            spec,
+        )
     )
     assert not instance == None
 
+
 @pytest.mark.parametrize(
-    'random_seed',
+    "random_seed",
     [
         1,
         2,
@@ -99,61 +106,36 @@ def test_negative_index(random_seed):
     spec = policy.GetSpec()
     instance = pseudostochastic_policy.CalcMrcaUncertaintyRelUpperBound(spec)
 
-    for diff in range(1,100):
-        assert instance(
-            policy,
-            100,
-            100,
-            -diff,
-        ) == instance(
+    for diff in range(1, 100):
+        assert instance(policy, 100, 100, -diff,) == instance(
             policy,
             100,
             100,
             99 - diff,
         )
 
-        assert instance(
-            policy,
-            101,
-            100,
-            -diff,
-        ) == instance(
+        assert instance(policy, 101, 100, -diff,) == instance(
             policy,
             101,
             100,
             99 - diff,
         )
 
-        assert instance(
-            policy,
-            150,
-            100,
-            -diff,
-        ) == instance(
+        assert instance(policy, 150, 100, -diff,) == instance(
             policy,
             150,
             100,
             99 - diff,
         )
 
-        assert instance(
-            policy,
-            100,
-            101,
-            -diff,
-        ) == instance(
+        assert instance(policy, 100, 101, -diff,) == instance(
             policy,
             101,
             100,
             99 - diff,
         )
 
-        assert instance(
-            policy,
-            100,
-            150,
-            -diff,
-        ) == instance(
+        assert instance(policy, 100, 150, -diff,) == instance(
             policy,
             150,
             100,

@@ -13,7 +13,7 @@ from .HereditaryStratumOrderedStoreTree import (
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
-    'HereditaryStratumOrderedStoreDict',
-    'HereditaryStratumOrderedStoreList',
-    'HereditaryStratumOrderedStoreTree',
+    "HereditaryStratumOrderedStoreDict",
+    "HereditaryStratumOrderedStoreList",
+    "HereditaryStratumOrderedStoreTree",
 ]

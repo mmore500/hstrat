@@ -9,11 +9,11 @@ from hstrat2.hstrat import HereditaryStratigraphicColumn, stochastic_policy
 
 
 @pytest.mark.parametrize(
-    'impl',
+    "impl",
     stochastic_policy._GenDropRanks.iter_impls(),
 )
 @pytest.mark.parametrize(
-    'replicate',
+    "replicate",
     range(5),
 )
 def test_impl_stochasticity(impl, replicate):
@@ -24,28 +24,35 @@ def test_impl_stochasticity(impl, replicate):
         stratum_retention_policy=policy,
     )
     for num_strata_deposited in range(1, 10**3):
-        if all_same(it.chain(
-            (
-                sorted(impl(spec)(
-                    policy,
-                    num_strata_deposited,
-                    column.IterRetainedRanks(),
-                ))
-            ),
-            (
-                sorted(impl(spec)(
-                    policy,
-                    num_strata_deposited,
-                    column.IterRetainedRanks(),
-                ))
-            ),
-        )):
+        if all_same(
+            it.chain(
+                (
+                    sorted(
+                        impl(spec)(
+                            policy,
+                            num_strata_deposited,
+                            column.IterRetainedRanks(),
+                        )
+                    )
+                ),
+                (
+                    sorted(
+                        impl(spec)(
+                            policy,
+                            num_strata_deposited,
+                            column.IterRetainedRanks(),
+                        )
+                    )
+                ),
+            )
+        ):
             break
         else:
             assert False, "All implementations were identical."
 
+
 @pytest.mark.parametrize(
-    'replicate',
+    "replicate",
     range(5),
 )
 def test_eq(replicate):

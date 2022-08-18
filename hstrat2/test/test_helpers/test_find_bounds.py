@@ -79,22 +79,20 @@ class TestFindBounds(unittest.TestCase):
         assert find_bounds(
             query=5,
             iterable=(8, 8, 5, -1, 7, -1, -10, 0, 5, 5, 20, 3, 3, 6, 100),
-            initializer=(None, 7)
+            initializer=(None, 7),
         ) == (3, 6)
         assert find_bounds(
             query=5,
             iterable=(8, 8, 5, -1, 7, -1, -10, 0, 5, 5, 20, 3, 3, 6, 100),
-            initializer=(4, 7)
+            initializer=(4, 7),
         ) == (4, 6)
         assert find_bounds(
             query=5,
             iterable=(8, 8, 5, -1, 7, -1, -10, 0, 5, 5, 20, 3, 3, 6, 100),
-            initializer=(4, None)
+            initializer=(4, None),
         ) == (4, 6)
         assert find_bounds(
-            query=5,
-            iterable=(8, 8, 5, 7, 20, 6, 100),
-            initializer=(4, None)
+            query=5, iterable=(8, 8, 5, 7, 20, 6, 100), initializer=(4, None)
         ) == (4, 6)
 
     def test_filter_above(self):
@@ -119,5 +117,6 @@ class TestFindBounds(unittest.TestCase):
             filter_below=operator.le,
         ) == (5, 5)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

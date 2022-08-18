@@ -7,20 +7,20 @@ class CalcMrcaUncertaintyAbsExact:
     """Functor to provide member function implementation in Policy class."""
 
     def __init__(
-        self: 'CalcMrcaUncertaintyAbsExact',
+        self: "CalcMrcaUncertaintyAbsExact",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcMrcaUncertaintyAbsExact',
+        self: "CalcMrcaUncertaintyAbsExact",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcMrcaUncertaintyAbsExact',
-        policy: 'Policy',
+        self: "CalcMrcaUncertaintyAbsExact",
+        policy: "Policy",
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
         actual_rank_of_mrca: int,

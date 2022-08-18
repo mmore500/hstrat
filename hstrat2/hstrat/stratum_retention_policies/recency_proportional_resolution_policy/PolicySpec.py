@@ -7,7 +7,7 @@ class PolicySpec:
     _guaranteed_mrca_recency_proportional_resolution: int
 
     def __init__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
         guaranteed_mrca_recency_proportional_resolution: int,
     ):
         """Construct the policy spec.
@@ -23,38 +23,37 @@ class PolicySpec:
             guaranteed_mrca_recency_proportional_resolution.
         """
 
-        self._guaranteed_mrca_recency_proportional_resolution \
-            = guaranteed_mrca_recency_proportional_resolution
+        self._guaranteed_mrca_recency_proportional_resolution = (
+            guaranteed_mrca_recency_proportional_resolution
+        )
 
     def __eq__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__) and (
             self._guaranteed_mrca_recency_proportional_resolution,
-        ) == (
-            other._guaranteed_mrca_recency_proportional_resolution,
-        )
+        ) == (other._guaranteed_mrca_recency_proportional_resolution,)
 
     def __repr__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
     ) -> str:
-        return f'''{
+        return f"""{
             self.GetPolicyName()
         }.{
             PolicySpec.__qualname__
         }(guaranteed_mrca_recency_proportional_resolution={
             self._guaranteed_mrca_recency_proportional_resolution
-        })'''
+        })"""
 
     def __str__(
-        self: 'PolicySpec',
+        self: "PolicySpec",
     ) -> str:
-        return f'''{
+        return f"""{
             self.GetPolicyTitle()
         } (resolution: {
             self._guaranteed_mrca_recency_proportional_resolution
-        })'''
+        })"""
 
     @staticmethod
     def GetPolicyName() -> str:

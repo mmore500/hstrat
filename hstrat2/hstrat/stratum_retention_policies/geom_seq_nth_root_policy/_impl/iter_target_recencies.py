@@ -15,4 +15,4 @@ def iter_target_recencies(
     # don't iterate over 0th pow, this is just the most recent rank
     # i.e., recency == 1
     for pow in range(1, degree + 1):
-        yield common_ratio ** pow
+        yield common_ratio**pow

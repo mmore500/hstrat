@@ -14,20 +14,20 @@ class GenDropRanks:
     """
 
     def __init__(
-        self: 'GenDropRanks',
+        self: "GenDropRanks",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: 'GenDropRanks',
+        self: "GenDropRanks",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'GenDropRanks',
-        policy: 'Policy',
+        self: "GenDropRanks",
+        policy: "Policy",
         num_stratum_depositions_completed: int,
         retained_ranks: typing.Optional[typing.Iterable[int]],
     ) -> typing.Iterator[int]:
@@ -73,5 +73,5 @@ class GenDropRanks:
 
         for i in range(num_to_condemn_):
             factor = 2 * resolution + 1
-            num_ranks_back = factor * (2 ** i)
+            num_ranks_back = factor * (2**i)
             yield num_stratum_depositions_completed - num_ranks_back

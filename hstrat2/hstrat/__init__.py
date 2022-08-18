@@ -12,7 +12,7 @@ from .stratum_retention_predicates import *
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
-    'HereditaryStratigraphColumn',
-    'HereditaryStratigraphicColumnBundle',
-    'HereditaryStratum',
+    "HereditaryStratigraphColumn",
+    "HereditaryStratigraphicColumnBundle",
+    "HereditaryStratum",
 ]

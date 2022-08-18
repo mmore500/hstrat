@@ -49,9 +49,9 @@ def iter_priority_ranks(
         # only need to worry about the next retained strata,
         # which is at retained_ranks_sep.
         # Thus, we use calc_rank_sep instead of calc_rank_backstop.
-        #TODO can this doubling search be done in constant time?
+        # TODO can this doubling search be done in constant time?
         biggest_relevant_rank = inch.doubling_search(
-            lambda x: calc_rank_sep(d, i, pow, x+1) >= num_strata_deposited,
+            lambda x: calc_rank_sep(d, i, pow, x + 1) >= num_strata_deposited,
             num_strata_deposited,
         )
         biggest_relevant_sep = calc_rank_sep(
@@ -62,10 +62,10 @@ def iter_priority_ranks(
         )
 
     else:
-        #TODO can this doubling search be done in constant time?
+        # TODO can this doubling search be done in constant time?
         biggest_relevant_rank = inch.doubling_search(
-            lambda x: \
-                calc_rank_backstop(d, i, pow, x+1) >= num_strata_deposited,
+            lambda x: calc_rank_backstop(d, i, pow, x + 1)
+            >= num_strata_deposited,
             num_strata_deposited,
         )
         biggest_relevant_sep = calc_rank_sep(
@@ -82,11 +82,11 @@ def iter_priority_ranks(
     #
     # TODO can this be proven?
     for cur_sep in div_range(
-        biggest_relevant_sep, # start
-        retained_ranks_sep, # stop, non-inclusive
-        2, # iteration action: divide by 2
+        biggest_relevant_sep,  # start
+        retained_ranks_sep,  # stop, non-inclusive
+        2,  # iteration action: divide by 2
     ):
-        #TODO can this doubling search be done in constant time?
+        # TODO can this doubling search be done in constant time?
         cur_sep_rank = inch.doubling_search(
             lambda x: calc_rank_sep(d, i, pow, x) >= cur_sep,
             # cur_sep is always guaranteed at least leq its threshold
@@ -104,39 +104,44 @@ def iter_priority_ranks(
             cur_sep_rank,
         )
 
-        yield from reversed(range(
-            cur_sep_rank_backstop, # start
-            # +1 to be inclusive of cur_sep_rank
-            min(cur_sep_rank + 1, num_strata_deposited), # stop
-            cur_sep, # sep
-        ))
+        yield from reversed(
+            range(
+                cur_sep_rank_backstop,  # start
+                # +1 to be inclusive of cur_sep_rank
+                min(cur_sep_rank + 1, num_strata_deposited),  # stop
+                cur_sep,  # sep
+            )
+        )
 
     # TODO somehow exclude duplicates with above for better efficiency?
-    yield from reversed(range(
-        min_retained_rank, # start
-        num_strata_deposited, # stop, non-inclusive
-        retained_ranks_sep, # sep
-    ))
+    yield from reversed(
+        range(
+            min_retained_rank,  # start
+            num_strata_deposited,  # stop, non-inclusive
+            retained_ranks_sep,  # sep
+        )
+    )
 
     # recurse
     if retained_ranks_sep == 1:
         # base case
-        yield from reversed(range(
-            0,
-            min_retained_rank,
-        ))
+        yield from reversed(
+            range(
+                0,
+                min_retained_rank,
+            )
+        )
         return
 
     prev_sep_rank = inch.binary_search(
-        lambda x: \
-            calc_rank_sep(d, i, pow, x + 1) >= retained_ranks_sep,
-            0,
-            num_strata_deposited - 1,
+        lambda x: calc_rank_sep(d, i, pow, x + 1) >= retained_ranks_sep,
+        0,
+        num_strata_deposited - 1,
     )
     yield from range(
-        min_retained_rank, # start
-        prev_sep_rank, # stop, not inclusive
-        -retained_ranks_sep, # sep
+        min_retained_rank,  # start
+        prev_sep_rank,  # stop, not inclusive
+        -retained_ranks_sep,  # sep
     )
     assert prev_sep_rank < num_strata_deposited
     yield from iter_priority_ranks(

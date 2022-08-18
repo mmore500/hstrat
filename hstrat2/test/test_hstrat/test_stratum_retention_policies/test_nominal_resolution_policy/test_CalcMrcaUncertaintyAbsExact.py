@@ -7,7 +7,7 @@ from hstrat2.hstrat import nominal_resolution_policy
 
 
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         range(10**2),
         (i for i in range(10**2) for __ in range(2)),
@@ -38,19 +38,24 @@ def test_policy_consistency(time_sequence):
             ].min(
                 initial=num_strata_deposited,
             )
-            policy_requirement \
-                =  first_known_disparity - last_known_commonality - 1
+            policy_requirement = (
+                first_known_disparity - last_known_commonality - 1
+            )
             assert policy_requirement >= 0
             for which in (
                 instance,
                 nominal_resolution_policy.CalcMrcaUncertaintyAbsExact(spec),
             ):
-                assert which(
-                    policy,
-                    num_strata_deposited,
-                    num_strata_deposited,
-                    actual_mrca_rank,
-                ) == policy_requirement
+                assert (
+                    which(
+                        policy,
+                        num_strata_deposited,
+                        num_strata_deposited,
+                        actual_mrca_rank,
+                    )
+                    == policy_requirement
+                )
+
 
 def test_policy_consistency_uneven_branches():
     policy = nominal_resolution_policy.Policy()
@@ -58,7 +63,7 @@ def test_policy_consistency_uneven_branches():
     instance = nominal_resolution_policy.CalcMrcaUncertaintyAbsExact(spec)
     sample_durations = it.chain(
         range(10**2),
-        np.logspace(7, 16, num=10, base=2, dtype='int'),
+        np.logspace(7, 16, num=10, base=2, dtype="int"),
     )
     for num_strata_deposited_a in sample_durations:
         ranks_a = set(policy.IterRetainedRanks(num_strata_deposited_a))
@@ -80,19 +85,26 @@ def test_policy_consistency_uneven_branches():
                 ].min(
                     initial=least_num_strata_deposited,
                 )
-                policy_requirement \
-                    =  first_known_disparity - last_known_commonality - 1
+                policy_requirement = (
+                    first_known_disparity - last_known_commonality - 1
+                )
                 assert policy_requirement >= 0
                 for which in (
                     instance,
-                    nominal_resolution_policy.CalcMrcaUncertaintyAbsExact(spec),
+                    nominal_resolution_policy.CalcMrcaUncertaintyAbsExact(
+                        spec
+                    ),
                 ):
-                    assert which(
-                        policy,
-                        num_strata_deposited_a,
-                        num_strata_deposited_b,
-                        actual_mrca_rank,
-                    ) == policy_requirement
+                    assert (
+                        which(
+                            policy,
+                            num_strata_deposited_a,
+                            num_strata_deposited_b,
+                            actual_mrca_rank,
+                        )
+                        == policy_requirement
+                    )
+
 
 def test_eq():
     policy = nominal_resolution_policy.Policy()
@@ -100,69 +112,47 @@ def test_eq():
     instance = nominal_resolution_policy.CalcMrcaUncertaintyAbsExact(spec)
 
     assert instance == instance
-    assert instance == nominal_resolution_policy.CalcMrcaUncertaintyAbsExact(spec)
+    assert instance == nominal_resolution_policy.CalcMrcaUncertaintyAbsExact(
+        spec
+    )
     assert not instance == None
+
 
 def test_negative_index():
     policy = nominal_resolution_policy.Policy()
     spec = policy.GetSpec()
     instance = nominal_resolution_policy.CalcMrcaUncertaintyAbsExact(spec)
 
-    for diff in range(1,100):
-        assert instance(
-            policy,
-            100,
-            100,
-            -diff,
-        ) == instance(
+    for diff in range(1, 100):
+        assert instance(policy, 100, 100, -diff,) == instance(
             policy,
             100,
             100,
             99 - diff,
         )
 
-        assert instance(
-            policy,
-            101,
-            100,
-            -diff,
-        ) == instance(
+        assert instance(policy, 101, 100, -diff,) == instance(
             policy,
             101,
             100,
             99 - diff,
         )
 
-        assert instance(
-            policy,
-            150,
-            100,
-            -diff,
-        ) == instance(
+        assert instance(policy, 150, 100, -diff,) == instance(
             policy,
             150,
             100,
             99 - diff,
         )
 
-        assert instance(
-            policy,
-            100,
-            101,
-            -diff,
-        ) == instance(
+        assert instance(policy, 100, 101, -diff,) == instance(
             policy,
             101,
             100,
             99 - diff,
         )
 
-        assert instance(
-            policy,
-            100,
-            150,
-            -diff,
-        ) == instance(
+        assert instance(policy, 100, 150, -diff,) == instance(
             policy,
             150,
             100,

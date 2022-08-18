@@ -7,7 +7,7 @@ from .iter_priority_ranks import iter_priority_ranks
 
 @functools.lru_cache(maxsize=512)
 def get_retained_ranks(
-    policy: 'Policy',
+    policy: "Policy",
     num_strata_deposited: int,
 ) -> typing.Set[int]:
     """Calculate the set of strata ranks retained at `num_strata_deposited`."""
@@ -17,7 +17,8 @@ def get_retained_ranks(
     interspersal = spec._interspersal
 
     # special case
-    if num_strata_deposited == 0: return set()
+    if num_strata_deposited == 0:
+        return set()
 
     last_rank = num_strata_deposited - 1
     # we will always retain the zeroth rank and the last rank
@@ -67,10 +68,7 @@ def get_retained_ranks(
     # draw from pow 0 iter until res full
     # (pow 0 iter only drawn from if all other iters are exhausted)
     for priority_rank in iter_priority_ranks(
-        degree,
-        interspersal,
-        0,
-        num_strata_deposited
+        degree, interspersal, 0, num_strata_deposited
     ):
         # ensure space complexity limit is not exceeded
         if len(res) == policy.CalcNumStrataRetainedUpperBound(

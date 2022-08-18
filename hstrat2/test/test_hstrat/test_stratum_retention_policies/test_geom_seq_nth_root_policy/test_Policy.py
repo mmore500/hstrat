@@ -4,7 +4,7 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
 
 
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         1,
         2,
@@ -17,7 +17,7 @@ from hstrat2.hstrat import geom_seq_nth_root_policy
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         1,
         2,
@@ -28,7 +28,9 @@ def test_init(degree, interspersal):
     assert (
         geom_seq_nth_root_policy.Policy(degree, interspersal).GetSpec()
         == geom_seq_nth_root_policy.Policy(
-            policy_spec=geom_seq_nth_root_policy.PolicySpec(degree, interspersal),
+            policy_spec=geom_seq_nth_root_policy.PolicySpec(
+                degree, interspersal
+            ),
         ).GetSpec()
     )
 
@@ -53,7 +55,7 @@ def test_init(degree, interspersal):
 
 
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         1,
         2,
@@ -66,7 +68,7 @@ def test_init(degree, interspersal):
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         1,
         2,
@@ -78,14 +80,23 @@ def test_eq(degree, interspersal):
     assert policy == policy
     assert policy == geom_seq_nth_root_policy.Policy(degree, interspersal)
     assert not policy == policy.WithoutCalcRankAtColumnIndex()
-    assert policy.WithoutCalcRankAtColumnIndex() \
+    assert (
+        policy.WithoutCalcRankAtColumnIndex()
         == policy.WithoutCalcRankAtColumnIndex()
-    assert not policy == geom_seq_nth_root_policy.Policy(degree, interspersal + 1)
-    assert not policy == geom_seq_nth_root_policy.Policy(degree + 1, interspersal)
-    assert not policy == geom_seq_nth_root_policy.Policy(degree + 1, interspersal + 1)
+    )
+    assert not policy == geom_seq_nth_root_policy.Policy(
+        degree, interspersal + 1
+    )
+    assert not policy == geom_seq_nth_root_policy.Policy(
+        degree + 1, interspersal
+    )
+    assert not policy == geom_seq_nth_root_policy.Policy(
+        degree + 1, interspersal + 1
+    )
+
 
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         1,
         2,
@@ -98,7 +109,7 @@ def test_eq(degree, interspersal):
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         1,
         2,
@@ -106,11 +117,13 @@ def test_eq(degree, interspersal):
     ],
 )
 def test_GetSpec(degree, interspersal):
-    assert geom_seq_nth_root_policy.Policy(degree, interspersal).GetSpec() \
-        == geom_seq_nth_root_policy.PolicySpec(degree, interspersal)
+    assert geom_seq_nth_root_policy.Policy(
+        degree, interspersal
+    ).GetSpec() == geom_seq_nth_root_policy.PolicySpec(degree, interspersal)
+
 
 @pytest.mark.parametrize(
-    'degree',
+    "degree",
     [
         1,
         2,
@@ -123,7 +136,7 @@ def test_GetSpec(degree, interspersal):
     ],
 )
 @pytest.mark.parametrize(
-    'interspersal',
+    "interspersal",
     [
         1,
         2,
@@ -137,36 +150,60 @@ def test_WithoutCalcRankAtColumnIndex(degree, interspersal):
 
     assert stripped.CalcRankAtColumnIndex is None
 
-    assert original.CalcMrcaUncertaintyAbsUpperBound \
+    assert (
+        original.CalcMrcaUncertaintyAbsUpperBound
         == stripped.CalcMrcaUncertaintyAbsUpperBound
-    assert original.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
         == stripped.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
-    assert original.CalcMrcaUncertaintyAbsUpperBoundPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyAbsUpperBoundPessimalRank
         == stripped.CalcMrcaUncertaintyAbsUpperBoundPessimalRank
-    assert original.CalcMrcaUncertaintyRelUpperBound \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelUpperBound
         == stripped.CalcMrcaUncertaintyRelUpperBound
-    assert original.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
         == stripped.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
-    assert original.CalcMrcaUncertaintyRelUpperBoundPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelUpperBoundPessimalRank
         == stripped.CalcMrcaUncertaintyRelUpperBoundPessimalRank
-    assert original.CalcNumStrataRetainedUpperBound \
+    )
+    assert (
+        original.CalcNumStrataRetainedUpperBound
         == stripped.CalcNumStrataRetainedUpperBound
+    )
     # scrying
-    assert original.CalcMrcaUncertaintyAbsExact \
+    assert (
+        original.CalcMrcaUncertaintyAbsExact
         == stripped.CalcMrcaUncertaintyAbsExact
-    assert original.CalcMrcaUncertaintyRelExact \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelExact
         == stripped.CalcMrcaUncertaintyRelExact
-    assert original.CalcNumStrataRetainedExact \
+    )
+    assert (
+        original.CalcNumStrataRetainedExact
         == stripped.CalcNumStrataRetainedExact
+    )
     assert original.IterRetainedRanks == stripped.IterRetainedRanks
     # enactment
     assert original.GenDropRanks == stripped.GenDropRanks
 
     # test chaining
-    assert geom_seq_nth_root_policy.Policy(
-        degree,
-        interspersal,
-    ).WithoutCalcRankAtColumnIndex() == stripped
+    assert (
+        geom_seq_nth_root_policy.Policy(
+            degree,
+            interspersal,
+        ).WithoutCalcRankAtColumnIndex()
+        == stripped
+    )
+
 
 def test_repr():
     degree = 1
@@ -175,6 +212,7 @@ def test_repr():
     assert str(degree) in repr(policy)
     assert str(interspersal) in repr(policy)
     assert policy.GetSpec().GetPolicyName() in repr(policy)
+
 
 def test_str():
     degree = 1

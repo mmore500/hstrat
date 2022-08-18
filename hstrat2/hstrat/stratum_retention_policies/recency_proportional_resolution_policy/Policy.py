@@ -33,20 +33,13 @@ Policy = PolicyCouplerFactory(
     # enactment
     gen_drop_ranks_ftor_t=GenDropRanks,
     # invariants
-    calc_mrca_uncertainty_abs_upper_bound_ftor_t\
-        =CalcMrcaUncertaintyAbsUpperBound,
-    calc_mrca_uncertainty_abs_upper_bound_pessimal_rank_ftor_t\
-        =CalcMrcaUncertaintyAbsUpperBoundPessimalRank,
-    calc_mrca_uncertainty_abs_upper_bound_at_pessimal_rank_ftor_t\
-        =CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank,
-    calc_mrca_uncertainty_rel_upper_bound_ftor_t\
-        =CalcMrcaUncertaintyRelUpperBound,
-    calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor_t\
-        =CalcMrcaUncertaintyRelUpperBoundAtPessimalRank,
-    calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor_t\
-        =CalcMrcaUncertaintyRelUpperBoundPessimalRank,
-    calc_num_strata_retained_upper_bound_ftor_t\
-        =CalcNumStrataRetainedUpperBound,
+    calc_mrca_uncertainty_abs_upper_bound_ftor_t=CalcMrcaUncertaintyAbsUpperBound,
+    calc_mrca_uncertainty_abs_upper_bound_pessimal_rank_ftor_t=CalcMrcaUncertaintyAbsUpperBoundPessimalRank,
+    calc_mrca_uncertainty_abs_upper_bound_at_pessimal_rank_ftor_t=CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank,
+    calc_mrca_uncertainty_rel_upper_bound_ftor_t=CalcMrcaUncertaintyRelUpperBound,
+    calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor_t=CalcMrcaUncertaintyRelUpperBoundAtPessimalRank,
+    calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor_t=CalcMrcaUncertaintyRelUpperBoundPessimalRank,
+    calc_num_strata_retained_upper_bound_ftor_t=CalcNumStrataRetainedUpperBound,
     # scrying
     calc_mrca_uncertainty_abs_exact_ftor_t=CalcMrcaUncertaintyAbsExact,
     calc_mrca_uncertainty_rel_exact_ftor_t=CalcMrcaUncertaintyRelExact,
@@ -56,6 +49,6 @@ Policy = PolicyCouplerFactory(
 )
 
 # gloss away PolicyCoupler implementation details
-Policy.__module__ = 'Policy'
-Policy.__qualname__ = 'Policy'
+Policy.__module__ = "Policy"
+Policy.__qualname__ = "Policy"
 Policy.__module__ = __name__

@@ -12,16 +12,17 @@ _policy_evaluator_t = typing.Callable[
     typing.Union[float, int],
 ]
 
+
 class PropertyExactlyParameterizer:
 
     _impl: PropertyAtLeastParameterizer
 
     def __init__(
-        self: 'PropertyExactlyParameterizer',
+        self: "PropertyExactlyParameterizer",
         target_value: typing.Union[float, int],
         policy_evaluator: _policy_evaluator_t,
-        param_lower_bound: int=0,
-        param_upper_bound: typing.Optional[int]=sys.maxsize,
+        param_lower_bound: int = 0,
+        param_upper_bound: typing.Optional[int] = sys.maxsize,
     ) -> None:
         """Initialize functor to parameterize stratum retention policy so that
         an evaluated property is exactly equal to a target value.
@@ -46,9 +47,9 @@ class PropertyExactlyParameterizer:
         )
 
     def __call__(
-        self: 'PropertyExactlyParameterizer',
+        self: "PropertyExactlyParameterizer",
         policy_t: typing.Type,
-    ) -> typing.Optional['PolicySpec']:
+    ) -> typing.Optional["PolicySpec"]:
         policy_factory = self._impl._policy_evaluator._policy_param_focalizer(
             policy_t,
         )
@@ -63,7 +64,8 @@ class PropertyExactlyParameterizer:
 
         if (
             res is not None
-            and self._impl._target_value == self._impl._policy_evaluator(
+            and self._impl._target_value
+            == self._impl._policy_evaluator(
                 policy_t,
                 res,
             )
@@ -73,9 +75,9 @@ class PropertyExactlyParameterizer:
             return None
 
     def __repr__(
-        self: 'PropertyExactlyParameterizer',
+        self: "PropertyExactlyParameterizer",
     ) -> str:
-        return f'''{
+        return f"""{
             PropertyExactlyParameterizer.__qualname__
         }(target_value={
             self._impl._target_value
@@ -85,13 +87,13 @@ class PropertyExactlyParameterizer:
             self._impl._param_lower_bound
         !r}, param_upper_bound={
             self._impl._param_upper_bound
-        !r})'''
+        !r})"""
 
     def __str__(
-        self: 'PropertyExactlyParameterizer',
+        self: "PropertyExactlyParameterizer",
     ) -> str:
-        title = 'Exactly Parameterizer'
-        return f'''{
+        title = "Exactly Parameterizer"
+        return f"""{
             title
         } (target value: {
             self._impl._target_value
@@ -101,4 +103,4 @@ class PropertyExactlyParameterizer:
             self._impl._param_lower_bound
         }, param upper bound: {
             opyt.or_value(self._impl._param_upper_bound, 'inf')
-        })'''
+        })"""

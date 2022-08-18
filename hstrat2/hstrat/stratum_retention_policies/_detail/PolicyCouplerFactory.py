@@ -20,25 +20,27 @@ class _CurryPolicy:
     """Helper class to enable the policy coupler to insert itself as the
     first argument to calls to implementation functors."""
 
-    _policy: 'PolicyCoupler'
+    _policy: "PolicyCoupler"
     _ftor: typing.Callable
 
     def __init__(
-        self: 'CurryPolicy',
-        policy: 'PolicyCoupler',
+        self: "CurryPolicy",
+        policy: "PolicyCoupler",
         ftor: typing.Callable,
     ) -> None:
         self._policy = policy
         self._ftor = ftor
 
-    def __eq__(self: '_CurryPolicy', other: typing.Any) -> bool:
+    def __eq__(self: "_CurryPolicy", other: typing.Any) -> bool:
         return isinstance(other, self.__class__) and (
             # don't compare policy to prevent infinite recursion
-            self._ftor == other._ftor,
+            self._ftor
+            == other._ftor,
         )
 
-    def __call__(self: '_CurryPolicy', *args, **kwargs) -> typing.Any:
+    def __call__(self: "_CurryPolicy", *args, **kwargs) -> typing.Any:
         return self._ftor(self._policy, *args, **kwargs)
+
 
 class _PolicyCouplerBase:
     """Dummy class to faciliate recognition of instantiations of the
@@ -46,7 +48,9 @@ class _PolicyCouplerBase:
 
     pass
 
+
 _ftor_type = typing.Type[typing.Callable]
+
 
 def PolicyCouplerFactory(
     *,
@@ -54,26 +58,19 @@ def PolicyCouplerFactory(
     # enactment
     gen_drop_ranks_ftor_t: _ftor_type,
     # invariants
-    calc_mrca_uncertainty_abs_upper_bound_ftor_t: _ftor_type \
-        =CalcWorstCaseMrcaUncertaintyAbsUpperBound,
-    calc_mrca_uncertainty_abs_upper_bound_at_pessimal_rank_ftor_t: _ftor_type \
-        =CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank,
-    calc_mrca_uncertainty_abs_upper_bound_pessimal_rank_ftor_t: _ftor_type \
-        =CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce,
-    calc_mrca_uncertainty_rel_upper_bound_ftor_t: _ftor_type \
-        =CalcWorstCaseMrcaUncertaintyRelUpperBound,
-    calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor_t: _ftor_type \
-        =CalcMrcaUncertaintyRelUpperBoundAtPessimalRank,
-    calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor_t: _ftor_type \
-        =CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce,
-    calc_num_strata_retained_upper_bound_ftor_t: _ftor_type \
-        =CalcWorstCaseNumStrataRetainedUpperBound,
+    calc_mrca_uncertainty_abs_upper_bound_ftor_t: _ftor_type = CalcWorstCaseMrcaUncertaintyAbsUpperBound,
+    calc_mrca_uncertainty_abs_upper_bound_at_pessimal_rank_ftor_t: _ftor_type = CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank,
+    calc_mrca_uncertainty_abs_upper_bound_pessimal_rank_ftor_t: _ftor_type = CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce,
+    calc_mrca_uncertainty_rel_upper_bound_ftor_t: _ftor_type = CalcWorstCaseMrcaUncertaintyRelUpperBound,
+    calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor_t: _ftor_type = CalcMrcaUncertaintyRelUpperBoundAtPessimalRank,
+    calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor_t: _ftor_type = CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce,
+    calc_num_strata_retained_upper_bound_ftor_t: _ftor_type = CalcWorstCaseNumStrataRetainedUpperBound,
     # scrying
-    calc_mrca_uncertainty_abs_exact_ftor_t: typing.Optional[_ftor_type]=None,
-    calc_mrca_uncertainty_rel_exact_ftor_t: typing.Optional[_ftor_type]=None,
-    calc_num_strata_retained_exact_ftor_t: typing.Optional[_ftor_type]=None,
-    calc_rank_at_column_index_ftor_t: typing.Optional[_ftor_type]=None,
-    iter_retained_ranks_ftor_t: typing.Optional[_ftor_type]=None,
+    calc_mrca_uncertainty_abs_exact_ftor_t: typing.Optional[_ftor_type] = None,
+    calc_mrca_uncertainty_rel_exact_ftor_t: typing.Optional[_ftor_type] = None,
+    calc_num_strata_retained_exact_ftor_t: typing.Optional[_ftor_type] = None,
+    calc_rank_at_column_index_ftor_t: typing.Optional[_ftor_type] = None,
+    iter_retained_ranks_ftor_t: typing.Optional[_ftor_type] = None,
 ) -> typing.Type[typing.Callable]:
     """Joins policy implementation functors into a single class that can be
     instantiated with particular policy specification parameters."""
@@ -110,12 +107,12 @@ def PolicyCouplerFactory(
         policy_spec_t: typing.Type = policy_spec_t_
 
         def __init__(
-            self: 'PolicyCoupler',
+            self: "PolicyCoupler",
             *args,
             parameterizer: typing.Optional[
-                typing.Callable[[typing.Type], typing.Optional['PolicySpec']]
-            ]=None,
-            policy_spec: typing.Optional['PolicySpec']=None,
+                typing.Callable[[typing.Type], typing.Optional["PolicySpec"]]
+            ] = None,
+            policy_spec: typing.Optional["PolicySpec"] = None,
             **kwargs,
         ):
             """Construct a PolicyCoupler instance.
@@ -153,7 +150,9 @@ def PolicyCouplerFactory(
             # invariants
             self.CalcMrcaUncertaintyAbsUpperBound = _CurryPolicy(
                 self,
-                calc_mrca_uncertainty_abs_upper_bound_ftor_t(self._policy_spec),
+                calc_mrca_uncertainty_abs_upper_bound_ftor_t(
+                    self._policy_spec
+                ),
             )
             self.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank = _CurryPolicy(
                 self,
@@ -169,15 +168,21 @@ def PolicyCouplerFactory(
             )
             self.CalcMrcaUncertaintyRelUpperBound = _CurryPolicy(
                 self,
-                calc_mrca_uncertainty_rel_upper_bound_ftor_t(self._policy_spec),
+                calc_mrca_uncertainty_rel_upper_bound_ftor_t(
+                    self._policy_spec
+                ),
             )
             self.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank = _CurryPolicy(
                 self,
-                calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor_t(self._policy_spec),
+                calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor_t(
+                    self._policy_spec
+                ),
             )
             self.CalcMrcaUncertaintyRelUpperBoundPessimalRank = _CurryPolicy(
                 self,
-                calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor_t(self._policy_spec),
+                calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor_t(
+                    self._policy_spec
+                ),
             )
             self.CalcNumStrataRetainedUpperBound = _CurryPolicy(
                 self,
@@ -207,7 +212,7 @@ def PolicyCouplerFactory(
             )
 
         def __eq__(
-            self: 'PolicyCoupler',
+            self: "PolicyCoupler",
             other: typing.Any,
         ) -> bool:
             if issubclass(
@@ -248,33 +253,33 @@ def PolicyCouplerFactory(
             else:
                 return False
 
-        def __hash__(self: 'PolicyCoupler') -> int:
+        def __hash__(self: "PolicyCoupler") -> int:
             """Hash object instance."""
 
             return hash(self._policy_spec)
 
         def __repr__(
-            self: 'PolicyCoupler',
+            self: "PolicyCoupler",
         ) -> str:
-            return f'''{
+            return f"""{
                 self._policy_spec.GetPolicyName()
             }.{
                 PolicyCoupler.__qualname__
             }(policy_spec={
                 self._policy_spec
-            !r})'''
+            !r})"""
 
         def __str__(
-            self: 'PolicyCoupler',
+            self: "PolicyCoupler",
         ) -> str:
             return str(self._policy_spec)
 
-        def GetSpec(self: 'PolicyCoupler') -> policy_spec_t_:
+        def GetSpec(self: "PolicyCoupler") -> policy_spec_t_:
             return self._policy_spec
 
         def WithoutCalcRankAtColumnIndex(
-            self: 'PolicyCoupler',
-        ) -> 'PolicyCoupler':
+            self: "PolicyCoupler",
+        ) -> "PolicyCoupler":
             """Make a copy of this policy instance with CalcRankAtColumnIndex
             diabled.
 
@@ -287,30 +292,19 @@ def PolicyCouplerFactory(
                 # enactment
                 gen_drop_ranks_ftor_t=gen_drop_ranks_ftor_t,
                 # invariants
-                calc_mrca_uncertainty_abs_upper_bound_ftor_t\
-                    =calc_mrca_uncertainty_abs_upper_bound_ftor_t,
-                calc_mrca_uncertainty_abs_upper_bound_at_pessimal_rank_ftor_t\
-                    =calc_mrca_uncertainty_abs_upper_bound_at_pessimal_rank_ftor_t,
-                calc_mrca_uncertainty_abs_upper_bound_pessimal_rank_ftor_t\
-                    =calc_mrca_uncertainty_abs_upper_bound_pessimal_rank_ftor_t,
-                calc_mrca_uncertainty_rel_upper_bound_ftor_t\
-                    =calc_mrca_uncertainty_rel_upper_bound_ftor_t,
-                calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor_t\
-                    =calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor_t,
-                calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor_t\
-                    =calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor_t,
-                calc_num_strata_retained_upper_bound_ftor_t\
-                    =calc_num_strata_retained_upper_bound_ftor_t,
+                calc_mrca_uncertainty_abs_upper_bound_ftor_t=calc_mrca_uncertainty_abs_upper_bound_ftor_t,
+                calc_mrca_uncertainty_abs_upper_bound_at_pessimal_rank_ftor_t=calc_mrca_uncertainty_abs_upper_bound_at_pessimal_rank_ftor_t,
+                calc_mrca_uncertainty_abs_upper_bound_pessimal_rank_ftor_t=calc_mrca_uncertainty_abs_upper_bound_pessimal_rank_ftor_t,
+                calc_mrca_uncertainty_rel_upper_bound_ftor_t=calc_mrca_uncertainty_rel_upper_bound_ftor_t,
+                calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor_t=calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor_t,
+                calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor_t=calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor_t,
+                calc_num_strata_retained_upper_bound_ftor_t=calc_num_strata_retained_upper_bound_ftor_t,
                 # scrying
-                calc_mrca_uncertainty_abs_exact_ftor_t\
-                    =calc_mrca_uncertainty_abs_exact_ftor_t,
-                calc_mrca_uncertainty_rel_exact_ftor_t\
-                    =calc_mrca_uncertainty_rel_exact_ftor_t,
-                calc_num_strata_retained_exact_ftor_t\
-                    =calc_num_strata_retained_exact_ftor_t,
+                calc_mrca_uncertainty_abs_exact_ftor_t=calc_mrca_uncertainty_abs_exact_ftor_t,
+                calc_mrca_uncertainty_rel_exact_ftor_t=calc_mrca_uncertainty_rel_exact_ftor_t,
+                calc_num_strata_retained_exact_ftor_t=calc_num_strata_retained_exact_ftor_t,
                 calc_rank_at_column_index_ftor_t=None,
-                iter_retained_ranks_ftor_t\
-                    =iter_retained_ranks_ftor_t,
+                iter_retained_ranks_ftor_t=iter_retained_ranks_ftor_t,
             )
 
             # propagate any glossing over over implementation details
@@ -321,6 +315,5 @@ def PolicyCouplerFactory(
             return type_(
                 policy_spec=self._policy_spec,
             )
-
 
     return PolicyCoupler

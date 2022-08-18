@@ -8,20 +8,20 @@ class CalcRankAtColumnIndex:
     """Functor to provide member function implementation in Policy class."""
 
     def __init__(
-        self: 'CalcRankAtColumnIndex',
+        self: "CalcRankAtColumnIndex",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcRankAtColumnIndex',
+        self: "CalcRankAtColumnIndex",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcRankAtColumnIndex',
-        policy: 'Policy',
+        self: "CalcRankAtColumnIndex",
+        policy: "Policy",
         index: int,
         num_strata_deposited: typing.Optional[int],
     ) -> int:
@@ -66,17 +66,15 @@ class CalcRankAtColumnIndex:
 
         # -1 due to *lack* of an in-progress deposition
         greatest_viable_rank = (
-            num_strata_deposited - 1
-            - provided_uncertainty * (resolution + 1)
+            num_strata_deposited - 1 - provided_uncertainty * (resolution + 1)
         )
 
         # calculate how many steps at provided_uncertainty interval we can take
         # +provided_uncertainty because greatest viable rank is the *last*
         # position we can take a step in our interval from
         num_interval_steps = (
-            (greatest_viable_rank + provided_uncertainty)
-            // provided_uncertainty
-        )
+            greatest_viable_rank + provided_uncertainty
+        ) // provided_uncertainty
 
         if index <= num_interval_steps or provided_uncertainty == 1:
             # we can reach index within the current provided_uncertainty stage
@@ -90,6 +88,6 @@ class CalcRankAtColumnIndex:
             return num_ranks_traversed + self(
                 policy=policy,
                 index=index - num_interval_steps,
-                num_strata_deposited
-                    =num_strata_deposited - num_ranks_traversed,
+                num_strata_deposited=num_strata_deposited
+                - num_ranks_traversed,
             )

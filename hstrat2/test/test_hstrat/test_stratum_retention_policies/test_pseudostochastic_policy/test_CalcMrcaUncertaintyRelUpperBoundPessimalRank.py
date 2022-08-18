@@ -8,7 +8,7 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
 
 
 @pytest.mark.parametrize(
-    'random_seed',
+    "random_seed",
     [
         1,
         2,
@@ -19,20 +19,22 @@ from hstrat2.hstrat.stratum_retention_policies._detail import (
     ],
 )
 @pytest.mark.parametrize(
-    'time_sequence',
+    "time_sequence",
     [
         range(10**2),
         np.random.default_rng(1).integers(
             10**3,
             size=10**2,
-        )
+        ),
     ],
 )
 def test_policy_consistency(random_seed, time_sequence):
     policy = pseudostochastic_policy.Policy(random_seed)
     spec = policy.GetSpec()
-    instance = pseudostochastic_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
-        spec,
+    instance = (
+        pseudostochastic_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
+            spec,
+        )
     )
     for num_strata_deposited_a in time_sequence:
         for num_strata_deposited_b in (
@@ -60,20 +62,26 @@ def test_policy_consistency(random_seed, time_sequence):
                 )
                 for which in (
                     instance,
-                    pseudostochastic_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(spec)
+                    pseudostochastic_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
+                        spec
+                    ),
                 ):
-                    assert policy.CalcMrcaUncertaintyRelUpperBound(
-                        num_strata_deposited_a,
-                        num_strata_deposited_b,
-                        which(
-                            policy,
+                    assert (
+                        policy.CalcMrcaUncertaintyRelUpperBound(
                             num_strata_deposited_a,
                             num_strata_deposited_b,
-                        ),
-                    ) == policy_requirement
+                            which(
+                                policy,
+                                num_strata_deposited_a,
+                                num_strata_deposited_b,
+                            ),
+                        )
+                        == policy_requirement
+                    )
+
 
 @pytest.mark.parametrize(
-    'random_seed',
+    "random_seed",
     [
         1,
         2,
@@ -84,10 +92,17 @@ def test_policy_consistency(random_seed, time_sequence):
 def test_eq(random_seed):
     policy = pseudostochastic_policy.Policy(random_seed)
     spec = policy.GetSpec()
-    instance = pseudostochastic_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(spec)
+    instance = (
+        pseudostochastic_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
+            spec
+        )
+    )
 
     assert instance == instance
-    assert instance == pseudostochastic_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
-        spec,
+    assert (
+        instance
+        == pseudostochastic_policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
+            spec,
+        )
     )
     assert not instance == None

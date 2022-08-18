@@ -8,20 +8,20 @@ class CalcMrcaUncertaintyAbsExact:
     """Functor to provide member function implementation in Policy class."""
 
     def __init__(
-        self: 'CalcMrcaUncertaintyAbsExact',
+        self: "CalcMrcaUncertaintyAbsExact",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcMrcaUncertaintyAbsExact',
+        self: "CalcMrcaUncertaintyAbsExact",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcMrcaUncertaintyAbsExact',
-        policy: 'Policy',
+        self: "CalcMrcaUncertaintyAbsExact",
+        policy: "Policy",
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
         actual_rank_of_mrca: int,
@@ -63,11 +63,8 @@ class CalcMrcaUncertaintyAbsExact:
         prev_stage_max_idx = least_last_rank // prev_stage_uncertainty
 
         thresh_idx = (
-            2 * prev_stage_max_idx
-            - 4 * guaranteed_resolution
-            + 2
+            2 * prev_stage_max_idx - 4 * guaranteed_resolution + 2
         ) // 2
-
 
         # note that cur stage uncertainty is iterated through first
         # because ranks are removed from the back, the old prev stage

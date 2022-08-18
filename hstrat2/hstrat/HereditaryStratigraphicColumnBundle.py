@@ -15,7 +15,7 @@ class HereditaryStratigraphicColumnBundle:
     _columns: typing.Dict[str, HereditaryStratigraphicColumn]
 
     def __init__(
-        self: 'HereditaryStratigraphicColumnBundle',
+        self: "HereditaryStratigraphicColumnBundle",
         columns: typing.Dict[str, HereditaryStratigraphicColumn],
     ):
         """Construct bundle.
@@ -26,23 +26,27 @@ class HereditaryStratigraphicColumnBundle:
             HereditaryStratigraphicColumn objects to bundle together, each
             associated with a unique names as its key.
         """
-        assert len(columns), \
-            "Must provide at least one column to " \
+        assert len(columns), (
+            "Must provide at least one column to "
             "HereditaryStratigraphicColumnBundle."
-        assert len({c.GetNumStrataDeposited() for c in columns.values()}) == 1,\
-            "All columns provided ot HereditaryStratigraphicColumnBundle " \
+        )
+        assert (
+            len({c.GetNumStrataDeposited() for c in columns.values()}) == 1
+        ), (
+            "All columns provided ot HereditaryStratigraphicColumnBundle "
             "must have same number strata deposited. "
+        )
         self._columns = columns
 
     def __iter__(
-        self: 'HereditaryStratigraphicColumnBundle',
+        self: "HereditaryStratigraphicColumnBundle",
     ) -> typing.Iterator[str]:
         """Iterable interface."""
 
         yield from self._columns
 
     def __getitem__(
-        self: 'HereditaryStratigraphicColumnBundle',
+        self: "HereditaryStratigraphicColumnBundle",
         key: str,
     ) -> HereditaryStratigraphicColumn:
         """Brackets operator; access constituent column by name."""
@@ -50,19 +54,22 @@ class HereditaryStratigraphicColumnBundle:
         return self._columns[key]
 
     def __eq__(
-        self: 'HereditaryStratigraphicColumnBundle',
-        other: 'HereditaryStratigraphicColumnBundle',
+        self: "HereditaryStratigraphicColumnBundle",
+        other: "HereditaryStratigraphicColumnBundle",
     ) -> bool:
         """Compare for value-wise equality."""
 
-        return isinstance(
-            other,
-            self.__class__,
-        ) and self.__dict == other.__dict__
+        return (
+            isinstance(
+                other,
+                self.__class__,
+            )
+            and self.__dict == other.__dict__
+        )
 
     def DepositStratum(
-        self: 'HereditaryStratigraphicColumnBundle',
-        annotation: typing.Optional[typing.Any]=None,
+        self: "HereditaryStratigraphicColumnBundle",
+        annotation: typing.Optional[typing.Any] = None,
     ) -> None:
         """Elapse a generation on all constituent columns.
 
@@ -79,7 +86,7 @@ class HereditaryStratigraphicColumnBundle:
             )
 
     def GetNumStrataDeposited(
-        self: 'HereditaryStratigraphicColumnBundle',
+        self: "HereditaryStratigraphicColumnBundle",
     ) -> int:
         """How many strata have been deposited on constituent columns?
 
@@ -87,8 +94,8 @@ class HereditaryStratigraphicColumnBundle:
         return next(iter(self._columns.values())).GetNumStrataDeposited()
 
     def Clone(
-            self: 'HereditaryStratigraphicColumnBundle',
-    ) -> 'HereditaryStratigraphicColumnBundle':
+        self: "HereditaryStratigraphicColumnBundle",
+    ) -> "HereditaryStratigraphicColumnBundle":
         """Create a copy of the bundle with identical data that may be freely
         altered without affecting data within this bundle."""
 
@@ -96,16 +103,13 @@ class HereditaryStratigraphicColumnBundle:
         result = copy(self)
         # do semi-shallow clone on select elements
         # see https://stackoverflow.com/a/5861653 for performance consierations
-        result._columns = {
-            k : v.Clone()
-            for k, v in self._columns.items()
-        }
+        result._columns = {k: v.Clone() for k, v in self._columns.items()}
         return result
 
     def CloneDescendant(
-        self: 'HereditaryStratigraphicColumnBundle',
-        stratum_annotation: typing.Optional[typing.Any]=None,
-    ) -> 'HereditaryStratigraphicColumnBundle':
+        self: "HereditaryStratigraphicColumnBundle",
+        stratum_annotation: typing.Optional[typing.Any] = None,
+    ) -> "HereditaryStratigraphicColumnBundle":
         """Return a cloned bundle that has had an additional stratum deposited.
 
         Does not alter self.
@@ -135,7 +139,7 @@ class HereditaryStratigraphicColumnBundle:
 
         # raise AttributeError for dunder methods so that callers expecting
         # them unimplemented can catch and run their fallbacks
-        if '__' in attr:
+        if "__" in attr:
             raise AttributeError
 
         def arg_debundler(args, column_name):
@@ -153,9 +157,7 @@ class HereditaryStratigraphicColumnBundle:
             column."""
 
             return {
-                k : v \
-                    if not isinstance(v, self.__class__)
-                    else v[column_name]
+                k: v if not isinstance(v, self.__class__) else v[column_name]
                 for k, v in kwargs.items()
             }
 
@@ -178,7 +180,7 @@ class HereditaryStratigraphicColumnBundle:
                 """
 
                 return {
-                    column_name : getattr(column, attr)(
+                    column_name: getattr(column, attr)(
                         *arg_debundler(args, column_name),
                         **kwarg_debundler(kwargs, column_name),
                     )
@@ -190,6 +192,6 @@ class HereditaryStratigraphicColumnBundle:
         else:
             # property forwarding
             return {
-                column_name : getattr(column, attr)
+                column_name: getattr(column, attr)
                 for column_name, column in self._columns.items()
             }

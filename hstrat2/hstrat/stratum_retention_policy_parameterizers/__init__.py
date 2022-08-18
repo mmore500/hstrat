@@ -26,13 +26,13 @@ from .PropertyExactlyParameterizer import PropertyExactlyParameterizer
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
-    'MrcaUncertaintyAbsExactPolicyEvaluator',
-    'MrcaUncertaintyAbsUpperBoundPolicyEvaluator',
-    'MrcaUncertaintyRelExactPolicyEvaluator',
-    'MrcaUncertaintyRelUpperBoundPolicyEvaluator',
-    'NumStrataRetainedExactPolicyEvaluator',
-    'NumStrataRetainedUpperBoundPolicyEvaluator',
-    'PropertyAtLeastParameterizer',
-    'PropertyAtMostParameterizer',
-    'PropertyExactlyParameterizer',
+    "MrcaUncertaintyAbsExactPolicyEvaluator",
+    "MrcaUncertaintyAbsUpperBoundPolicyEvaluator",
+    "MrcaUncertaintyRelExactPolicyEvaluator",
+    "MrcaUncertaintyRelUpperBoundPolicyEvaluator",
+    "NumStrataRetainedExactPolicyEvaluator",
+    "NumStrataRetainedUpperBoundPolicyEvaluator",
+    "PropertyAtLeastParameterizer",
+    "PropertyAtMostParameterizer",
+    "PropertyExactlyParameterizer",
 ]

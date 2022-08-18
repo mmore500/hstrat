@@ -4,7 +4,7 @@ from hstrat2.hstrat import depth_proportional_resolution_policy
 
 
 @pytest.mark.parametrize(
-    'depth_proportional_resolution',
+    "depth_proportional_resolution",
     [
         1,
         2,
@@ -17,13 +17,19 @@ from hstrat2.hstrat import depth_proportional_resolution_policy
 )
 def test_init(depth_proportional_resolution):
     assert (
-        depth_proportional_resolution_policy.Policy(depth_proportional_resolution).GetSpec()
+        depth_proportional_resolution_policy.Policy(
+            depth_proportional_resolution
+        ).GetSpec()
         == depth_proportional_resolution_policy.Policy(
-            policy_spec=depth_proportional_resolution_policy.PolicySpec(depth_proportional_resolution),
+            policy_spec=depth_proportional_resolution_policy.PolicySpec(
+                depth_proportional_resolution
+            ),
         ).GetSpec()
     )
 
-    policy = depth_proportional_resolution_policy.Policy(depth_proportional_resolution)
+    policy = depth_proportional_resolution_policy.Policy(
+        depth_proportional_resolution
+    )
 
     # invariants
     assert callable(policy.CalcMrcaUncertaintyAbsUpperBound)
@@ -44,7 +50,7 @@ def test_init(depth_proportional_resolution):
 
 
 @pytest.mark.parametrize(
-    'depth_proportional_resolution',
+    "depth_proportional_resolution",
     [
         1,
         2,
@@ -56,16 +62,25 @@ def test_init(depth_proportional_resolution):
     ],
 )
 def test_eq(depth_proportional_resolution):
-    policy = depth_proportional_resolution_policy.Policy(depth_proportional_resolution)
+    policy = depth_proportional_resolution_policy.Policy(
+        depth_proportional_resolution
+    )
     assert policy == policy
-    assert policy == depth_proportional_resolution_policy.Policy(depth_proportional_resolution)
+    assert policy == depth_proportional_resolution_policy.Policy(
+        depth_proportional_resolution
+    )
     assert not policy == policy.WithoutCalcRankAtColumnIndex()
-    assert policy.WithoutCalcRankAtColumnIndex() \
+    assert (
+        policy.WithoutCalcRankAtColumnIndex()
         == policy.WithoutCalcRankAtColumnIndex()
-    assert not policy == depth_proportional_resolution_policy.Policy(depth_proportional_resolution + 1)
+    )
+    assert not policy == depth_proportional_resolution_policy.Policy(
+        depth_proportional_resolution + 1
+    )
+
 
 @pytest.mark.parametrize(
-    'depth_proportional_resolution',
+    "depth_proportional_resolution",
     [
         1,
         2,
@@ -77,11 +92,15 @@ def test_eq(depth_proportional_resolution):
     ],
 )
 def test_GetSpec(depth_proportional_resolution):
-    assert depth_proportional_resolution_policy.Policy(depth_proportional_resolution).GetSpec() \
-        == depth_proportional_resolution_policy.PolicySpec(depth_proportional_resolution)
+    assert depth_proportional_resolution_policy.Policy(
+        depth_proportional_resolution
+    ).GetSpec() == depth_proportional_resolution_policy.PolicySpec(
+        depth_proportional_resolution
+    )
+
 
 @pytest.mark.parametrize(
-    'depth_proportional_resolution',
+    "depth_proportional_resolution",
     [
         1,
         2,
@@ -94,40 +113,66 @@ def test_GetSpec(depth_proportional_resolution):
 )
 def test_WithoutCalcRankAtColumnIndex(depth_proportional_resolution):
 
-    original = depth_proportional_resolution_policy.Policy(depth_proportional_resolution)
+    original = depth_proportional_resolution_policy.Policy(
+        depth_proportional_resolution
+    )
     stripped = original.WithoutCalcRankAtColumnIndex()
 
     assert stripped.CalcRankAtColumnIndex is None
 
-    assert original.CalcMrcaUncertaintyAbsUpperBound \
+    assert (
+        original.CalcMrcaUncertaintyAbsUpperBound
         == stripped.CalcMrcaUncertaintyAbsUpperBound
-    assert original.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
         == stripped.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
-    assert original.CalcMrcaUncertaintyAbsUpperBoundPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyAbsUpperBoundPessimalRank
         == stripped.CalcMrcaUncertaintyAbsUpperBoundPessimalRank
-    assert original.CalcMrcaUncertaintyRelUpperBound \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelUpperBound
         == stripped.CalcMrcaUncertaintyRelUpperBound
-    assert original.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
         == stripped.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
-    assert original.CalcMrcaUncertaintyRelUpperBoundPessimalRank \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelUpperBoundPessimalRank
         == stripped.CalcMrcaUncertaintyRelUpperBoundPessimalRank
-    assert original.CalcNumStrataRetainedUpperBound \
+    )
+    assert (
+        original.CalcNumStrataRetainedUpperBound
         == stripped.CalcNumStrataRetainedUpperBound
+    )
     # scrying
-    assert original.CalcMrcaUncertaintyAbsExact \
+    assert (
+        original.CalcMrcaUncertaintyAbsExact
         == stripped.CalcMrcaUncertaintyAbsExact
-    assert original.CalcMrcaUncertaintyRelExact \
+    )
+    assert (
+        original.CalcMrcaUncertaintyRelExact
         == stripped.CalcMrcaUncertaintyRelExact
-    assert original.CalcNumStrataRetainedExact \
+    )
+    assert (
+        original.CalcNumStrataRetainedExact
         == stripped.CalcNumStrataRetainedExact
+    )
     assert original.IterRetainedRanks == stripped.IterRetainedRanks
     # enactment
     assert original.GenDropRanks == stripped.GenDropRanks
 
     # test chaining
-    assert depth_proportional_resolution_policy.Policy(
-        depth_proportional_resolution,
-    ).WithoutCalcRankAtColumnIndex() == stripped
+    assert (
+        depth_proportional_resolution_policy.Policy(
+            depth_proportional_resolution,
+        ).WithoutCalcRankAtColumnIndex()
+        == stripped
+    )
+
 
 def test_repr():
     depth_proportional_resolution = 1
@@ -136,6 +181,7 @@ def test_repr():
     )
     assert str(depth_proportional_resolution) in repr(policy)
     assert policy.GetSpec().GetPolicyName() in repr(policy)
+
 
 def test_str():
     depth_proportional_resolution = 1

@@ -10,7 +10,6 @@ class TestMemoizeGenerator(unittest.TestCase):
     _multiprocess_can_split_ = True
 
     def test_empty(self):
-
         @memoize_generator()
         def empty_generator(*args, **kwargs):
             return
@@ -26,10 +25,10 @@ class TestMemoizeGenerator(unittest.TestCase):
         def singleton_generator(item):
             yield item
 
-        assert [*singleton_generator('a')] == ['a']
-        assert [*singleton_generator('b')] == ['b']
-        assert [*singleton_generator('a')] == ['a']
-        assert [*singleton_generator('a')] == ['a']
+        assert [*singleton_generator("a")] == ["a"]
+        assert [*singleton_generator("b")] == ["b"]
+        assert [*singleton_generator("a")] == ["a"]
+        assert [*singleton_generator("a")] == ["a"]
 
     def test_infinite(self):
         @memoize_generator()
@@ -41,5 +40,6 @@ class TestMemoizeGenerator(unittest.TestCase):
         assert [*it.islice(infinite_generator(0), 2)] == [*range(2)]
         assert [*it.islice(infinite_generator(1), 2)] == [*range(1, 3)]
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

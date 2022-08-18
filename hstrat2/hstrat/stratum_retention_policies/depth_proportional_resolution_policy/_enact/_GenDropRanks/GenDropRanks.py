@@ -13,20 +13,20 @@ class GenDropRanks:
     """
 
     def __init__(
-        self: 'GenDropRanks',
+        self: "GenDropRanks",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: 'GenDropRanks',
+        self: "GenDropRanks",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'GenDropRanks',
-        policy: 'Policy',
+        self: "GenDropRanks",
+        policy: "Policy",
         num_stratum_depositions_completed: int,
         retained_ranks: typing.Optional[typing.Iterable[int]],
     ) -> typing.Iterator[int]:
@@ -68,7 +68,8 @@ class GenDropRanks:
 
         # until sufficient strata have been deposited to reach target resolution
         # don't remove any strata
-        if num_stratum_depositions_completed <= resolution: return
+        if num_stratum_depositions_completed <= resolution:
+            return
 
         # newest stratum is in-progress deposition
         # that will occupy rank num_stratum_depositions_completed
@@ -81,8 +82,7 @@ class GenDropRanks:
         )
         prev_provided_uncertainty = calc_provided_uncertainty(
             resolution,
-            num_stratum_depositions_completed + 1
-                - 1,
+            num_stratum_depositions_completed + 1 - 1,
         )
         if cur_provided_uncertainty != prev_provided_uncertainty:
             # we just passed the threshold where the spacing between retained

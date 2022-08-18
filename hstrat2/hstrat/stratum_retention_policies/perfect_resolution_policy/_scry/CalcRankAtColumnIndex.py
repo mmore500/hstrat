@@ -7,20 +7,20 @@ class CalcRankAtColumnIndex:
     """Functor to provide member function implementation in Policy class."""
 
     def __init__(
-        self: 'CalcRankAtColumnIndex',
+        self: "CalcRankAtColumnIndex",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
     def __eq__(
-        self: 'CalcRankAtColumnIndex',
+        self: "CalcRankAtColumnIndex",
         other: typing.Any,
     ) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: 'CalcRankAtColumnIndex',
-        policy: typing.Optional['Policy'],
+        self: "CalcRankAtColumnIndex",
+        policy: typing.Optional["Policy"],
         index: int,
         num_strata_deposited: typing.Optional[int],
     ) -> int:

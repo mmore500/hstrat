@@ -11,7 +11,7 @@ from hstrat2.hstrat import (
 
 
 @pytest.mark.parametrize(
-    'fixed_resolution',
+    "fixed_resolution",
     [
         1,
         2,
@@ -24,39 +24,41 @@ from hstrat2.hstrat import (
 def test_impl_consistency(fixed_resolution):
     policy = pseudostochastic_policy.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    impls = [
-        *pseudostochastic_policy._GenDropRanks.iter_impls()
-    ]
-    instances = [
-        impl(spec)
-        for impl in impls
-    ]
+    impls = [*pseudostochastic_policy._GenDropRanks.iter_impls()]
+    instances = [impl(spec) for impl in impls]
     column = HereditaryStratigraphicColumn(
         stratum_retention_policy=policy,
     )
     for num_strata_deposited in range(1, 10**3):
-        assert all_same(it.chain(
-            (
-                sorted(impl(spec)(
-                    policy,
-                    num_strata_deposited,
-                    column.IterRetainedRanks(),
-                ))
-                for impl in impls
-            ),
-            (
-                sorted(instance(
-                    policy,
-                    num_strata_deposited,
-                    column.IterRetainedRanks(),
-                ))
-                for instance in instances
+        assert all_same(
+            it.chain(
+                (
+                    sorted(
+                        impl(spec)(
+                            policy,
+                            num_strata_deposited,
+                            column.IterRetainedRanks(),
+                        )
+                    )
+                    for impl in impls
+                ),
+                (
+                    sorted(
+                        instance(
+                            policy,
+                            num_strata_deposited,
+                            column.IterRetainedRanks(),
+                        )
+                    )
+                    for instance in instances
+                ),
             )
-        ))
+        )
         column.DepositStratum()
 
+
 @pytest.mark.parametrize(
-    'fixed_resolution',
+    "fixed_resolution",
     [
         1,
         2,
