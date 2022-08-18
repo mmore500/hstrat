@@ -4,7 +4,6 @@ import unittest
 from hstrat2 import hstrat
 
 
-
 @pytest.mark.parametrize(
     'policy',
     [
@@ -17,6 +16,7 @@ def test_one(policy):
         10,
     )
 
+@pytest.mark.heavy
 @pytest.mark.parametrize(
     'policy',
     [

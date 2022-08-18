@@ -30,6 +30,7 @@ def test_one(policy):
         10,
     )
 
+@pytest.mark.heavy
 @pytest.mark.parametrize(
     'policy',
     [
