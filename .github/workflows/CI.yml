@@ -44,6 +44,8 @@ jobs:
       uses: jamescurtin/isort-action@master
       with:
           requirementsFiles: "requirements_dev.txt"
+    - name: Test Black tidyness
+      uses: psf/black@stable
 
   deploy:
     needs: [test, tidy]
