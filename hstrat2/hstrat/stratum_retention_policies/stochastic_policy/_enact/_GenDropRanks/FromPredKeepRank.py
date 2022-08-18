@@ -3,7 +3,7 @@ import typing
 
 from ...._detail import GenDropRanksFromPredKeepRank
 
-from ... import PolicySpec
+from ...PolicySpec import PolicySpec
 from ..._impl import decide_if_discard
 
 

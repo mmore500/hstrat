@@ -2,7 +2,7 @@ import typing
 
 from ...._detail import GenDropRanksFromPredKeepRank
 
-from ... import PolicySpec
+from ...PolicySpec import PolicySpec
 from ..._impl import calc_provided_uncertainty
 
 class _PredKeepRank:

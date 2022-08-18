@@ -2,7 +2,7 @@ import typing
 
 from ...._detail import GenDropRanksFromPredKeepRank
 
-from ... import PolicySpec
+from ...PolicySpec import PolicySpec
 
 class _PredKeepRank:
     """Functor to implement the perfect resolution stratum retention policy, for
