@@ -18,6 +18,7 @@ def test(policy):
     hstrat.stratum_retention_dripplot(policy, 10, do_show=False)
 
 
+@pytest.mark.heavy
 @pytest.mark.parametrize(
     "policy",
     [
