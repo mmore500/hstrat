@@ -19,14 +19,12 @@ bleach==4.1.0
 bump2version==0.5.11
     # via -r requirements_dev.in
 certifi==2021.10.8
-    # via
-    #   matplotlib
-    #   requests
+    # via requests
 charset-normalizer==2.0.12
     # via requests
 click==8.1.3
     # via keyname
-coverage==4.5.4
+coverage==6.4.4
     # via -r requirements_dev.in
 cycler==0.11.0
     # via matplotlib
