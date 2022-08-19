@@ -46,6 +46,8 @@ filelock==3.6.0
     #   virtualenv
 flake8==3.7.8
     # via -r requirements_dev.in
+fonttools==4.36.0
+    # via matplotlib
 gmpy==1.17
     # via -r requirements_dev.in
 idna==3.3
@@ -74,7 +76,7 @@ lru-dict==1.1.7
     # via -r requirements_dev.in
 markupsafe==2.1.0
     # via jinja2
-matplotlib==3.3.2
+matplotlib==3.5.2
     # via
     #   -r requirements_dev.in
     #   seaborn
@@ -101,6 +103,7 @@ opytional==0.1.0
 packaging==21.3
     # via
     #   bleach
+    #   matplotlib
     #   pytest
     #   sphinx
     #   tox
