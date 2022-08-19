@@ -1,23 +1,33 @@
 from copy import deepcopy
 import itertools as it
 import random
-import unittest
 
 from iterify import cyclify, iterify
 from iterpop import iterpop as ip
 import opytional as opyt
+import pytest
 from scipy import stats
 
 from hstrat2 import hstrat
 
-random.seed(1)
 
-
-def _do_test_Clone1(
-    testcase,
-    retention_policy,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_Clone1(retention_policy, ordered_store):
     original1 = hstrat.HereditaryStratigraphicColumn(
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_policy=retention_policy,
@@ -34,11 +44,23 @@ def _do_test_Clone1(
             assert first.HasAnyCommonAncestorWith(second)
 
 
-def _do_test_Clone2(
-    testcase,
-    retention_policy,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_Clone2(retention_policy, ordered_store):
     original2 = hstrat.HereditaryStratigraphicColumn(
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_policy=retention_policy,
@@ -58,12 +80,23 @@ def _do_test_Clone2(
             assert first.HasAnyCommonAncestorWith(second)
 
 
-def _do_test_Clone3(
-    testcase,
-    retention_policy,
-    ordered_store,
-):
-
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_Clone3(retention_policy, ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
         initial_stratum_annotation=0,
         stratum_ordered_store_factory=ordered_store,
@@ -91,11 +124,23 @@ def _do_test_Clone3(
                 individual.DepositStratum()
 
 
-def _do_test_Clone3(
-    testcase,
-    retention_policy,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_Clone4(retention_policy, ordered_store):
     # regression test for bug with tree store cloning
     column = hstrat.HereditaryStratigraphicColumn(
         initial_stratum_annotation=0,
@@ -118,8 +163,23 @@ def _do_test_Clone3(
                 individual.DepositStratum()
 
 
-def _do_test_equality(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_eq(
     retention_policy,
     ordered_store,
 ):
@@ -149,12 +209,26 @@ def _do_test_equality(
     assert original1 != copy1
 
 
-def _do_test_comparison_commutativity_asyncrhonous(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_comparison_commutativity_asyncrhonous(
     retention_policy,
     ordered_store,
 ):
-
     population = [
         hstrat.HereditaryStratigraphicColumn(
             stratum_ordered_store_factory=ordered_store,
@@ -164,7 +238,6 @@ def _do_test_comparison_commutativity_asyncrhonous(
     ]
 
     for generation in range(100):
-
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert first.CalcRankOfLastRetainedCommonalityWith(
@@ -190,12 +263,23 @@ def _do_test_comparison_commutativity_asyncrhonous(
                 individual.DepositStratum()
 
 
-def _do_test_annotation(
-    testcase,
-    retention_policy,
-    ordered_store,
-):
-
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_annotation(retention_policy, ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
         initial_stratum_annotation=0,
         stratum_ordered_store_factory=ordered_store,
@@ -204,9 +288,7 @@ def _do_test_annotation(
     population = [column.Clone() for __ in range(10)]
 
     for generation in range(100):
-
         for f, s in it.combinations(population, 2):
-
             lb, ub = f.CalcRankOfMrcaBoundsWith(s)
             assert lb <= f.GetLastCommonStratumWith(s).GetAnnotation() < ub
             assert lb <= s.GetLastCommonStratumWith(f).GetAnnotation() < ub
@@ -221,11 +303,23 @@ def _do_test_annotation(
             )
 
 
-def _do_test_CalcRankOfMrcaBoundsWith(
-    testcase,
-    retention_policy,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store):
     def make_bundle():
         return hstrat.HereditaryStratigraphicColumnBundle(
             {
@@ -293,8 +387,23 @@ def _do_test_CalcRankOfMrcaBoundsWith(
                 )
 
 
-def _do_test_CalcRanksSinceMrcaBoundsWith(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_CalcRanksSinceMrcaBoundsWith(
     retention_policy,
     ordered_store,
 ):
@@ -322,7 +431,6 @@ def _do_test_CalcRanksSinceMrcaBoundsWith(
     unrelated_isolated = make_bundle()
 
     for generation in range(100):
-
         for f, s in it.chain(
             it.combinations(population, 2),
             zip(population, cyclify(forked_isolated)),
@@ -369,8 +477,23 @@ def _do_test_CalcRanksSinceMrcaBoundsWith(
                 )
 
 
-def _do_test_comparison_commutativity_syncrhonous(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_comparison_commutativity_syncrhonous(
     retention_policy,
     ordered_store,
 ):
@@ -421,12 +544,23 @@ def _do_test_comparison_commutativity_syncrhonous(
             individual.DepositStratum()
 
 
-def _do_test_comparison_validity(
-    testcase,
-    retention_policy,
-    ordered_store,
-):
-
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_comparison_validity(retention_policy, ordered_store):
     population = [
         hstrat.HereditaryStratigraphicColumn(
             stratum_ordered_store_factory=ordered_store,
@@ -436,7 +570,6 @@ def _do_test_comparison_validity(
     ]
 
     for generation in range(100):
-
         for first, second in it.combinations(population, 2):
             lcrw = first.CalcRankOfLastRetainedCommonalityWith(second)
             if lcrw is not None:
@@ -483,8 +616,31 @@ def _do_test_comparison_validity(
                 individual.DepositStratum()
 
 
-def _do_test_scenario_no_mrca(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy1",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "retention_policy2",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_scenario_no_mrca(
     retention_policy1,
     retention_policy2,
     ordered_store,
@@ -527,18 +683,29 @@ def _do_test_scenario_no_mrca(
         second.DepositStratum()
 
 
-def _do_test_scenario_no_divergence(
-    testcase,
-    retention_policy,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_scenario_no_divergence(retention_policy, ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_policy=retention_policy,
     )
 
     for generation in range(100):
-
         assert (
             column.CalcRankOfLastRetainedCommonalityWith(column) == generation
         )
@@ -552,11 +719,23 @@ def _do_test_scenario_no_divergence(
         column.DepositStratum()
 
 
-def _do_test_scenario_partial_even_divergence(
-    testcase,
-    retention_policy,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_scenario_partial_even_divergence(retention_policy, ordered_store):
     first = hstrat.HereditaryStratigraphicColumn(
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_policy=retention_policy,
@@ -592,11 +771,23 @@ def _do_test_scenario_partial_even_divergence(
         second.DepositStratum()
 
 
-def _do_test_scenario_partial_uneven_divergence(
-    self,
-    retention_policy,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_scenario_partial_uneven_divergence(retention_policy, ordered_store):
     first = hstrat.HereditaryStratigraphicColumn(
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_policy=retention_policy,
@@ -666,11 +857,23 @@ def _do_test_scenario_partial_uneven_divergence(
         second.DepositStratum()
 
 
-def _do_test_HasAnyCommonAncestorWith(
-    self,
-    retention_policy,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_HasAnyCommonAncestorWith(retention_policy, ordered_store):
     first = hstrat.HereditaryStratigraphicColumn(
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_policy=retention_policy,
@@ -705,10 +908,15 @@ def _do_test_HasAnyCommonAncestorWith(
         assert_validity()
 
 
-def _do_test_DiffRetainedRanks(
-    self,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_DiffRetainedRanks(ordered_store):
     first = hstrat.HereditaryStratigraphicColumn(
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_policy=hstrat.nominal_resolution_policy.Policy(),
@@ -738,11 +946,23 @@ def _do_test_DiffRetainedRanks(
     assert second.DiffRetainedRanks(first) == ({1}, set())
 
 
-def _do_test_always_store_rank_in_stratum(
-    testcase,
-    retention_policy,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_always_store_rank_in_stratum(retention_policy, ordered_store):
     first = hstrat.HereditaryStratigraphicColumn(
         always_store_rank_in_stratum=True,
         stratum_ordered_store_factory=ordered_store,
@@ -765,13 +985,23 @@ def _do_test_always_store_rank_in_stratum(
 
     for gen in range(100):
         assert first.DiffRetainedRanks(second) == (set(), set())
-
         first.DepositStratum()
         second.DepositStratum()
 
 
-def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith1(
-    testcase,
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8],
+)
+def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith1(
     ordered_store,
     differentia_width,
 ):
@@ -859,10 +1089,15 @@ def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith1(
         )
 
 
-def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith2(
-    testcase,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith2(ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=1,
     )
@@ -883,10 +1118,15 @@ def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith2(
             break
 
 
-def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith3(
-    testcase,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith3(ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=64,
         stratum_retention_policy=hstrat.nominal_resolution_policy.Policy(),
@@ -920,10 +1160,15 @@ def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith3(
         )
 
 
-def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith4(
-    testcase,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith4(ordered_store):
     def do_once():
         c1 = hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=1,
@@ -974,10 +1219,15 @@ def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith4(
         pass
 
 
-def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith5(
-    testcase,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith5(ordered_store):
     def do_once():
         c1 = hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=1,
@@ -1032,8 +1282,19 @@ def _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith5(
         pass
 
 
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.nominal_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8],
+)
 def _do_test_CalcRankOfLastRetainedCommonalityWith1(
-    testcase,
     ordered_store,
     differentia_width,
 ):
@@ -1124,10 +1385,15 @@ def _do_test_CalcRankOfLastRetainedCommonalityWith1(
         )
 
 
-def _do_test_CalcRankOfLastRetainedCommonalityWith2(
-    testcase,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_CalcRankOfLastRetainedCommonalityWith2(ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=1,
     )
@@ -1188,10 +1454,15 @@ def _do_test_CalcRankOfLastRetainedCommonalityWith2(
         )
 
 
-def _do_test_CalcRankOfLastRetainedCommonalityWith3(
-    testcase,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_CalcRankOfLastRetainedCommonalityWith3(ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=64,
         stratum_retention_policy=hstrat.nominal_resolution_policy.Policy(),
@@ -1225,10 +1496,15 @@ def _do_test_CalcRankOfLastRetainedCommonalityWith3(
         )
 
 
-def _do_test_CalcRankOfLastRetainedCommonalityWith4(
-    testcase,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_CalcRankOfLastRetainedCommonalityWith4(ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=1,
         stratum_retention_policy=hstrat.fixed_resolution_policy.Policy(2),
@@ -1291,8 +1567,19 @@ def _do_test_CalcRankOfLastRetainedCommonalityWith4(
         )
 
 
-def _do_test_CalcRankOfLastRetainedCommonalityWith5(
-    testcase,
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8],
+)
+def test_CalcRankOfLastRetainedCommonalityWith5(
     ordered_store,
     differentia_width,
 ):
@@ -1388,8 +1675,19 @@ def _do_test_CalcRankOfLastRetainedCommonalityWith5(
             ) == c.GetRankAtColumnIndex(col_idx)
 
 
-def _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith1(
-    testcase,
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8],
+)
+def test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith1(
     ordered_store,
     differentia_width,
 ):
@@ -1463,10 +1761,15 @@ def _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith1(
         assert c.CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(c) is None
 
 
-def _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith2(
-    testcase,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith2(ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=1,
     )
@@ -1487,10 +1790,15 @@ def _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith2(
             break
 
 
-def _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith3(
-    testcase,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith3(ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=64,
         stratum_retention_policy=hstrat.nominal_resolution_policy.Policy(),
@@ -1538,10 +1846,15 @@ def _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith3(
         )
 
 
-def _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith4(
-    testcase,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith4(ordered_store):
     def do_once():
         c1 = hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=1,
@@ -1592,10 +1905,15 @@ def _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith4(
         pass
 
 
-def _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith5(
-    testcase,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith5(ordered_store):
     def do_once():
         c1 = hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=1,
@@ -1648,8 +1966,19 @@ def _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith5(
         pass
 
 
-def _do_test_CalcRankOfFirstRetainedDisparityWith1(
-    testcase,
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8],
+)
+def test_CalcRankOfFirstRetainedDisparityWith1(
     ordered_store,
     differentia_width,
 ):
@@ -1798,10 +2127,15 @@ def _do_test_CalcRankOfFirstRetainedDisparityWith1(
             assert c.CalcRankOfFirstRetainedDisparityWith(c, 0.95) is None
 
 
-def _do_test_CalcRankOfFirstRetainedDisparityWith2(
-    testcase,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_CalcRankOfFirstRetainedDisparityWith2(ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=1,
     )
@@ -1932,10 +2266,15 @@ def _do_test_CalcRankOfFirstRetainedDisparityWith2(
         )
 
 
-def _do_test_CalcRankOfFirstRetainedDisparityWith3(
-    testcase,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_CalcRankOfFirstRetainedDisparityWith3(ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=64,
         stratum_retention_policy=hstrat.nominal_resolution_policy.Policy(),
@@ -1980,10 +2319,15 @@ def _do_test_CalcRankOfFirstRetainedDisparityWith3(
     )
 
 
-def _do_test_CalcRankOfFirstRetainedDisparityWith4(
-    testcase,
-    ordered_store,
-):
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_CalcRankOfFirstRetainedDisparityWith4(ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=1,
         stratum_retention_policy=hstrat.fixed_resolution_policy.Policy(2),
@@ -2079,8 +2423,19 @@ def _do_test_CalcRankOfFirstRetainedDisparityWith4(
         )
 
 
-def _do_test_CalcRankOfFirstRetainedDisparityWith5(
-    testcase,
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8],
+)
+def test_CalcRankOfFirstRetainedDisparityWith5(
     ordered_store,
     differentia_width,
 ):
@@ -2196,8 +2551,25 @@ def _do_test_CalcRankOfFirstRetainedDisparityWith5(
                 ) == c.GetRankAtColumnIndex(col_idx)
 
 
-def _do_test_CalcRankOfMrcaBoundsWith_narrow_shallow(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_policy.Policy(
+            guaranteed_mrca_recency_proportional_resolution=10,
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8, 64],
+)
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.8, 0.95],
+)
+def test_CalcRankOfMrcaBoundsWith_narrow_shallow(
     retention_policy,
     differentia_width,
     confidence_level,
@@ -2249,14 +2621,34 @@ def _do_test_CalcRankOfMrcaBoundsWith_narrow_shallow(
             )
 
 
-def _do_test_CalcRankOfMrcaBoundsWith_narrow_with_mrca(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_policy.Policy(
+            guaranteed_mrca_recency_proportional_resolution=10,
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8, 64],
+)
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.8, 0.95],
+)
+@pytest.mark.parametrize(
+    "mrca_rank",
+    [100],
+)
+def test_CalcRankOfMrcaBoundsWith_narrow_with_mrca(
     retention_policy,
     differentia_width,
     confidence_level,
     mrca_rank,
 ):
-
     columns = [
         hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=differentia_width,
@@ -2322,8 +2714,29 @@ def _do_test_CalcRankOfMrcaBoundsWith_narrow_with_mrca(
         )
 
 
-def _do_test_CalcRankOfMrcaBoundsWith_narrow_no_mrca(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_policy.Policy(
+            guaranteed_mrca_recency_proportional_resolution=10,
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8, 64],
+)
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.8, 0.95],
+)
+@pytest.mark.parametrize(
+    "mrca_rank",
+    [0, 100],
+)
+def test_CalcRankOfMrcaBoundsWith_narrow_no_mrca(
     retention_policy,
     differentia_width,
     confidence_level,
@@ -2391,8 +2804,15 @@ def _do_test_CalcRankOfMrcaBoundsWith_narrow_no_mrca(
         )
 
 
-def _do_test_CalcRankOfEarliestDetectableMrcaWith1(
-    testcase,
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.8, 0.95, 0.99],
+)
+@pytest.mark.parametrize(
+    "differentia_bit_width",
+    [1, 2, 8, 64],
+)
+def test_CalcRankOfEarliestDetectableMrcaWith1(
     confidence_level,
     differentia_bit_width,
 ):
@@ -2465,8 +2885,15 @@ def _do_test_CalcRankOfEarliestDetectableMrcaWith1(
             )
 
 
-def _do_test_CalcRankOfEarliestDetectableMrcaWith2(
-    testcase,
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.8, 0.95, 0.99],
+)
+@pytest.mark.parametrize(
+    "differentia_bit_width",
+    [1, 2, 8, 64],
+)
+def test_CalcRankOfEarliestDetectableMrcaWith2(
     confidence_level,
     differentia_bit_width,
 ):
@@ -2518,9 +2945,7 @@ def _do_test_CalcRankOfEarliestDetectableMrcaWith2(
         ) == x2.GetNthCommonRankWith(x1, expected_thresh)
 
 
-def _do_test_CalcRankOfEarliestDetectableMrcaWith3(
-    testcase,
-):
+def test_CalcRankOfEarliestDetectableMrcaWith3():
 
     c1 = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=64,
@@ -2531,8 +2956,15 @@ def _do_test_CalcRankOfEarliestDetectableMrcaWith3(
         c1.DepositStratum()
 
 
-def _do_test_CalcRanksSinceEarliestDetectableMrcaWith1(
-    testcase,
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.8, 0.95, 0.99],
+)
+@pytest.mark.parametrize(
+    "differentia_bit_width",
+    [1, 2, 8, 64],
+)
+def test_CalcRanksSinceEarliestDetectableMrcaWith1(
     confidence_level,
     differentia_bit_width,
 ):
@@ -2605,8 +3037,15 @@ def _do_test_CalcRanksSinceEarliestDetectableMrcaWith1(
             )
 
 
-def _do_test_CalcRanksSinceEarliestDetectableMrcaWith2(
-    testcase,
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.8, 0.95, 0.99],
+)
+@pytest.mark.parametrize(
+    "differentia_bit_width",
+    [1, 2, 8, 64],
+)
+def test_CalcRanksSinceEarliestDetectableMrcaWith2(
     confidence_level,
     differentia_bit_width,
 ):
@@ -2674,8 +3113,25 @@ def _do_test_CalcRanksSinceEarliestDetectableMrcaWith2(
         )
 
 
-def _do_test_CalcRankOfMrcaUncertaintyWith_narrow_shallow(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_policy.Policy(
+            guaranteed_mrca_recency_proportional_resolution=10,
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8, 64],
+)
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.8, 0.95],
+)
+def test_CalcRankOfMrcaUncertaintyWith_narrow_shallow(
     retention_policy,
     differentia_width,
     confidence_level,
@@ -2727,8 +3183,29 @@ def _do_test_CalcRankOfMrcaUncertaintyWith_narrow_shallow(
             )
 
 
-def _do_test_CalcRankOfMrcaUncertaintyWith_narrow_with_mrca(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_policy.Policy(
+            guaranteed_mrca_recency_proportional_resolution=10,
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8, 64],
+)
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.8, 0.95],
+)
+@pytest.mark.parametrize(
+    "mrca_rank",
+    [100],
+)
+def test_CalcRankOfMrcaUncertaintyWith_narrow_with_mrca(
     retention_policy,
     differentia_width,
     confidence_level,
@@ -2784,8 +3261,29 @@ def _do_test_CalcRankOfMrcaUncertaintyWith_narrow_with_mrca(
                 )
 
 
-def _do_test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_policy.Policy(
+            guaranteed_mrca_recency_proportional_resolution=10,
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8, 64],
+)
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.8, 0.95],
+)
+@pytest.mark.parametrize(
+    "mrca_rank",
+    [0, 100],
+)
+def test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
     retention_policy,
     differentia_width,
     confidence_level,
@@ -2847,8 +3345,19 @@ def _do_test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
                 )
 
 
-def _do_test_CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith1(
-    testcase,
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8],
+)
+def test_CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith1(
     ordered_store,
     differentia_width,
 ):
@@ -2925,8 +3434,19 @@ def _do_test_CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith1(
         assert c.CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith(c) == 0
 
 
-def _do_test_CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith1(
-    testcase,
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8],
+)
+def test_CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith1(
     ordered_store,
     differentia_width,
 ):
@@ -3021,10 +3541,11 @@ def _do_test_CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith1(
         )
 
 
-def _do_test_CalcRanksSinceLastRetainedCommonalityWith1(
-    testcase,
-    differentia_width,
-):
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8, 64],
+)
+def test_CalcRanksSinceLastRetainedCommonalityWith1(differentia_width):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=differentia_width,
     )
@@ -3119,10 +3640,11 @@ def _do_test_CalcRanksSinceLastRetainedCommonalityWith1(
         )
 
 
-def _do_test_CalcRanksSinceFirstRetainedDisparityWith1(
-    testcase,
-    differentia_width,
-):
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8, 64],
+)
+def test_CalcRanksSinceFirstRetainedDisparityWith1(differentia_width):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=differentia_width,
     )
@@ -3283,8 +3805,25 @@ def _do_test_CalcRanksSinceFirstRetainedDisparityWith1(
             )
 
 
-def _do_test_CalcRanksSinceMrcaBoundsWith_narrow_shallow(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_policy.Policy(
+            guaranteed_mrca_recency_proportional_resolution=10,
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 8, 64],
+)
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.95],
+)
+def test_CalcRanksSinceMrcaBoundsWith_narrow_shallow(
     retention_policy,
     differentia_width,
     confidence_level,
@@ -3336,8 +3875,29 @@ def _do_test_CalcRanksSinceMrcaBoundsWith_narrow_shallow(
             )
 
 
-def _do_test_CalcRanksSinceMrcaBoundsWith_narrow_with_mrca(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_policy.Policy(
+            guaranteed_mrca_recency_proportional_resolution=10,
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 8, 64],
+)
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.95],
+)
+@pytest.mark.parametrize(
+    "mrca_rank",
+    [100],
+)
+def test_CalcRanksSinceMrcaBoundsWith_narrow_with_mrca(
     retention_policy,
     differentia_width,
     confidence_level,
@@ -3407,8 +3967,29 @@ def _do_test_CalcRanksSinceMrcaBoundsWith_narrow_with_mrca(
         )
 
 
-def _do_test_CalcRanksSinceMrcaBoundsWith_narrow_no_mrca(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_policy.Policy(
+            guaranteed_mrca_recency_proportional_resolution=10,
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 8, 64],
+)
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.95],
+)
+@pytest.mark.parametrize(
+    "mrca_rank",
+    [100],
+)
+def test_CalcRanksSinceMrcaBoundsWith_narrow_no_mrca(
     retention_policy,
     differentia_width,
     confidence_level,
@@ -3470,13 +4051,29 @@ def _do_test_CalcRanksSinceMrcaBoundsWith_narrow_no_mrca(
         )
 
 
-def _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_shallow(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_policy.Policy(
+            guaranteed_mrca_recency_proportional_resolution=10,
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 8, 64],
+)
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.95],
+)
+def test_CalcRanksSinceMrcaUncertaintyWith_narrow_shallow(
     retention_policy,
     differentia_width,
     confidence_level,
 ):
-
     columns = [
         hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=differentia_width,
@@ -3485,7 +4082,6 @@ def _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_shallow(
         )
         for __ in range(20)
     ]
-
     steps = list(
         range(
             columns[
@@ -3523,8 +4119,29 @@ def _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_shallow(
             )
 
 
-def _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_with_mrca(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_policy.Policy(
+            guaranteed_mrca_recency_proportional_resolution=10,
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 8, 64],
+)
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.95],
+)
+@pytest.mark.parametrize(
+    "mrca_rank",
+    [100],
+)
+def test_CalcRanksSinceMrcaUncertaintyWith_narrow_with_mrca(
     retention_policy,
     differentia_width,
     confidence_level,
@@ -3580,8 +4197,29 @@ def _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_with_mrca(
                 )
 
 
-def _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_no_mrca(
-    testcase,
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_policy.Policy(
+            guaranteed_mrca_recency_proportional_resolution=10,
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 8, 64],
+)
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.95],
+)
+@pytest.mark.parametrize(
+    "mrca_rank",
+    [100],
+)
+def test_CalcRanksSinceMrcaUncertaintyWith_narrow_no_mrca(
     retention_policy,
     differentia_width,
     confidence_level,
@@ -3643,10 +4281,17 @@ def _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_no_mrca(
                 )
 
 
-def _do_test_DefinitivelySharesNoCommonAncestorWith1(
-    testcase,
-    retention_policy,
-):
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_policy.Policy(
+            guaranteed_mrca_recency_proportional_resolution=10,
+        ),
+    ],
+)
+def test_DefinitivelySharesNoCommonAncestorWith1(retention_policy):
     while True:
         c1 = hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=1,
@@ -3702,10 +4347,17 @@ def _do_test_DefinitivelySharesNoCommonAncestorWith1(
         assert c2.DefinitivelySharesNoCommonAncestorWith(c1)
 
 
-def _do_test_DefinitivelySharesNoCommonAncestorWith2(
-    testcase,
-    retention_policy,
-):
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_policy.Policy(),
+        hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_policy.Policy(
+            guaranteed_mrca_recency_proportional_resolution=10,
+        ),
+    ],
+)
+def test_DefinitivelySharesNoCommonAncestorWith2(retention_policy):
 
     c1 = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=1,
@@ -3733,913 +4385,303 @@ def _do_test_DefinitivelySharesNoCommonAncestorWith2(
         assert not c2.DefinitivelySharesNoCommonAncestorWith(c1)
 
 
-class TestHereditaryStratigraphicColumn(unittest.TestCase):
+def test_GetNumStrataDeposited():
+    column = hstrat.HereditaryStratigraphicColumn()
+    for i in range(10):
+        assert column.GetNumStrataDeposited() == i + 1
+        column.DepositStratum()
 
-    # tests can run independently
-    _multiprocess_can_split_ = True
 
-    def test_GetNumStrataDeposited(self):
-        column = hstrat.HereditaryStratigraphicColumn()
-        for i in range(10):
-            assert column.GetNumStrataDeposited() == i + 1
-            column.DepositStratum()
+def test_CloneDescendant():
+    column = hstrat.HereditaryStratigraphicColumn()
+    assert column.GetNumStrataDeposited() == 1
+    descendant = column.CloneDescendant(stratum_annotation="annotation")
+    assert descendant.GetNumStrataDeposited() == 2
+    assert descendant.HasAnyCommonAncestorWith(column)
+    assert column.GetNumStrataDeposited() == 1
+    assert (
+        descendant.GetStratumAtColumnIndex(
+            descendant.GetNumStrataRetained() - 1
+        ).GetAnnotation()
+        == "annotation"
+    )
 
-    def test_CloneDescendant(self):
-        column = hstrat.HereditaryStratigraphicColumn()
-        assert column.GetNumStrataDeposited() == 1
-        descendant = column.CloneDescendant(stratum_annotation="annotation")
-        assert descendant.GetNumStrataDeposited() == 2
-        assert descendant.HasAnyCommonAncestorWith(column)
-        assert column.GetNumStrataDeposited() == 1
-        assert (
-            descendant.GetStratumAtColumnIndex(
-                descendant.GetNumStrataRetained() - 1
-            ).GetAnnotation()
-            == "annotation"
+
+def test_maximal_retention_policy():
+    first = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=hstrat.perfect_resolution_policy.Policy(),
+    )
+    second = first.Clone()
+    third = first.Clone()
+
+    for gen in range(100):
+        assert first.GetNumStrataRetained() == gen + 1
+        assert second.GetNumStrataRetained() == gen + 1
+        assert third.GetNumStrataRetained() == 1
+
+        assert first.CalcRankOfMrcaUncertaintyWith(second) == 0
+        assert first.CalcRankOfMrcaUncertaintyWith(third) == 0
+
+        assert first.CalcRanksSinceMrcaUncertaintyWith(second) == 0
+        assert second.CalcRanksSinceMrcaUncertaintyWith(first) == 0
+        assert first.CalcRanksSinceMrcaUncertaintyWith(third) == 0
+        assert third.CalcRanksSinceMrcaUncertaintyWith(first) == 0
+
+        first.DepositStratum()
+        second.DepositStratum()
+        # no layers deposited onto third
+
+
+def test_minimal_retention_policy():
+    first = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=hstrat.nominal_resolution_policy.Policy(),
+    )
+    second = first.Clone()
+    third = first.Clone()
+
+    for gen in range(100):
+        assert first.GetNumStrataRetained() == min(2, gen + 1)
+        assert second.GetNumStrataRetained() == min(2, gen + 1)
+        assert third.GetNumStrataRetained() == 1
+
+        assert first.CalcRankOfMrcaUncertaintyWith(second) == max(0, gen - 1)
+        assert first.CalcRankOfMrcaUncertaintyWith(third) == 0
+
+        assert first.CalcRanksSinceMrcaUncertaintyWith(second) == max(
+            0, gen - 1
         )
-
-    def test_Clone(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.nominal_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-        ]:
-            for ordered_store in [
-                hstrat.HereditaryStratumOrderedStoreDict,
-                hstrat.HereditaryStratumOrderedStoreList,
-                hstrat.HereditaryStratumOrderedStoreTree,
-            ]:
-                _do_test_Clone1(
-                    self,
-                    retention_policy,
-                    ordered_store,
-                )
-                _do_test_Clone2(
-                    self,
-                    retention_policy,
-                    ordered_store,
-                )
-                _do_test_Clone3(
-                    self,
-                    retention_policy,
-                    ordered_store,
-                )
-
-    def test_equality(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.nominal_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-        ]:
-            for ordered_store in [
-                hstrat.HereditaryStratumOrderedStoreDict,
-                hstrat.HereditaryStratumOrderedStoreList,
-                hstrat.HereditaryStratumOrderedStoreTree,
-            ]:
-                _do_test_equality(
-                    self,
-                    retention_policy,
-                    ordered_store,
-                )
-
-    def test_comparison_commutativity_asyncrhonous(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.nominal_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-        ]:
-            for ordered_store in [
-                hstrat.HereditaryStratumOrderedStoreDict,
-                hstrat.HereditaryStratumOrderedStoreList,
-                hstrat.HereditaryStratumOrderedStoreTree,
-            ]:
-                _do_test_comparison_commutativity_asyncrhonous(
-                    self,
-                    retention_policy,
-                    ordered_store,
-                )
-
-    def test_annotation(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.nominal_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-        ]:
-            for ordered_store in [
-                hstrat.HereditaryStratumOrderedStoreDict,
-                hstrat.HereditaryStratumOrderedStoreList,
-                hstrat.HereditaryStratumOrderedStoreTree,
-            ]:
-                _do_test_annotation(
-                    self,
-                    retention_policy,
-                    ordered_store,
-                )
-
-    def test_CalcRankOfMrcaBoundsWith(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.nominal_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-        ]:
-            for ordered_store in [
-                hstrat.HereditaryStratumOrderedStoreDict,
-                hstrat.HereditaryStratumOrderedStoreList,
-                hstrat.HereditaryStratumOrderedStoreTree,
-            ]:
-                _do_test_CalcRankOfMrcaBoundsWith(
-                    self,
-                    retention_policy,
-                    ordered_store,
-                )
-
-    def test_CalcRanksSinceMrcaBoundsWith(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.nominal_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-        ]:
-            for ordered_store in [
-                hstrat.HereditaryStratumOrderedStoreDict,
-                hstrat.HereditaryStratumOrderedStoreList,
-                hstrat.HereditaryStratumOrderedStoreTree,
-            ]:
-                _do_test_CalcRanksSinceMrcaBoundsWith(
-                    self,
-                    retention_policy,
-                    ordered_store,
-                )
-
-    def test_comparison_commutativity_syncrhonous(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.nominal_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-        ]:
-            for ordered_store in [
-                hstrat.HereditaryStratumOrderedStoreDict,
-                hstrat.HereditaryStratumOrderedStoreList,
-                hstrat.HereditaryStratumOrderedStoreTree,
-            ]:
-                _do_test_comparison_commutativity_syncrhonous(
-                    self,
-                    retention_policy,
-                    ordered_store,
-                )
-
-    def test_comparison_validity(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.nominal_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-        ]:
-            for ordered_store in [
-                hstrat.HereditaryStratumOrderedStoreDict,
-                hstrat.HereditaryStratumOrderedStoreList,
-                hstrat.HereditaryStratumOrderedStoreTree,
-            ]:
-                _do_test_comparison_validity(
-                    self,
-                    retention_policy,
-                    ordered_store,
-                )
-
-    def test_scenario_no_mrca(self):
-        for rp1, rp2 in it.product(
-            [
-                hstrat.perfect_resolution_policy.Policy(),
-                hstrat.nominal_resolution_policy.Policy(),
-                hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-            ],
-            repeat=2,
-        ):
-            for ordered_store in [
-                hstrat.HereditaryStratumOrderedStoreDict,
-                hstrat.HereditaryStratumOrderedStoreList,
-                hstrat.HereditaryStratumOrderedStoreTree,
-            ]:
-                _do_test_scenario_no_mrca(
-                    self,
-                    rp1,
-                    rp2,
-                    ordered_store,
-                )
-
-    def test_scenario_no_divergence(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.nominal_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-        ]:
-            for ordered_store in [
-                hstrat.HereditaryStratumOrderedStoreDict,
-                hstrat.HereditaryStratumOrderedStoreList,
-                hstrat.HereditaryStratumOrderedStoreTree,
-            ]:
-                _do_test_scenario_no_divergence(
-                    self,
-                    retention_policy,
-                    ordered_store,
-                )
-
-    def test_scenario_partial_even_divergence(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.nominal_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-        ]:
-            for ordered_store in [
-                hstrat.HereditaryStratumOrderedStoreDict,
-                hstrat.HereditaryStratumOrderedStoreList,
-                hstrat.HereditaryStratumOrderedStoreTree,
-            ]:
-                _do_test_scenario_partial_even_divergence(
-                    self,
-                    retention_policy,
-                    ordered_store,
-                )
-
-    def test_scenario_partial_uneven_divergence(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.nominal_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-        ]:
-            for ordered_store in [
-                hstrat.HereditaryStratumOrderedStoreDict,
-                hstrat.HereditaryStratumOrderedStoreList,
-                hstrat.HereditaryStratumOrderedStoreTree,
-            ]:
-                _do_test_scenario_partial_uneven_divergence(
-                    self,
-                    retention_policy,
-                    ordered_store,
-                )
-
-    def test_maximal_retention_policy(self):
-        first = hstrat.HereditaryStratigraphicColumn(
-            stratum_retention_policy=hstrat.perfect_resolution_policy.Policy(),
+        assert second.CalcRanksSinceMrcaUncertaintyWith(first) == max(
+            0, gen - 1
         )
-        second = first.Clone()
-        third = first.Clone()
+        assert first.CalcRanksSinceMrcaUncertaintyWith(third) == 0
+        assert third.CalcRanksSinceMrcaUncertaintyWith(first) == 0
 
-        for gen in range(100):
-            assert first.GetNumStrataRetained() == gen + 1
-            assert second.GetNumStrataRetained() == gen + 1
-            assert third.GetNumStrataRetained() == 1
+        first.DepositStratum()
+        second.DepositStratum()
+        # no layers deposited onto third
 
-            assert first.CalcRankOfMrcaUncertaintyWith(second) == 0
-            assert first.CalcRankOfMrcaUncertaintyWith(third) == 0
 
-            assert first.CalcRanksSinceMrcaUncertaintyWith(second) == 0
-            assert second.CalcRanksSinceMrcaUncertaintyWith(first) == 0
-            assert first.CalcRanksSinceMrcaUncertaintyWith(third) == 0
-            assert third.CalcRanksSinceMrcaUncertaintyWith(first) == 0
-
-            first.DepositStratum()
-            second.DepositStratum()
-            # no layers deposited onto third
-
-    def test_minimal_retention_policy(self):
-        first = hstrat.HereditaryStratigraphicColumn(
-            stratum_retention_policy=hstrat.nominal_resolution_policy.Policy(),
-        )
-        second = first.Clone()
-        third = first.Clone()
-
-        for gen in range(100):
-            assert first.GetNumStrataRetained() == min(2, gen + 1)
-            assert second.GetNumStrataRetained() == min(2, gen + 1)
-            assert third.GetNumStrataRetained() == 1
-
-            assert first.CalcRankOfMrcaUncertaintyWith(second) == max(
-                0, gen - 1
-            )
-            assert first.CalcRankOfMrcaUncertaintyWith(third) == 0
-
-            assert first.CalcRanksSinceMrcaUncertaintyWith(second) == max(
-                0, gen - 1
-            )
-            assert second.CalcRanksSinceMrcaUncertaintyWith(first) == max(
-                0, gen - 1
-            )
-            assert first.CalcRanksSinceMrcaUncertaintyWith(third) == 0
-            assert third.CalcRanksSinceMrcaUncertaintyWith(first) == 0
-
-            first.DepositStratum()
-            second.DepositStratum()
-            # no layers deposited onto third
-
-    def test_HasAnyCommonAncestorWith(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.nominal_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-        ]:
-            for ordered_store in [
-                hstrat.HereditaryStratumOrderedStoreDict,
-                hstrat.HereditaryStratumOrderedStoreList,
-                hstrat.HereditaryStratumOrderedStoreTree,
-            ]:
-                _do_test_HasAnyCommonAncestorWith(
-                    self,
-                    retention_policy,
-                    ordered_store,
-                )
-
-    def test_DiffRetainedRanks(self):
-        for ordered_store in [
-            hstrat.HereditaryStratumOrderedStoreDict,
-            hstrat.HereditaryStratumOrderedStoreList,
-            hstrat.HereditaryStratumOrderedStoreTree,
-        ]:
-            _do_test_DiffRetainedRanks(
-                self,
-                ordered_store,
-            )
-
-    def test_always_store_rank_in_stratum(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.nominal_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-        ]:
-            for ordered_store in [
-                hstrat.HereditaryStratumOrderedStoreDict,
-                hstrat.HereditaryStratumOrderedStoreList,
-                hstrat.HereditaryStratumOrderedStoreTree,
-            ]:
-                _do_test_always_store_rank_in_stratum(
-                    self,
-                    retention_policy,
-                    ordered_store,
-                )
-
-    def test_CalcProbabilityDifferentiaCollision(self):
-        assert (
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=1,
-            ).CalcProbabilityDifferentiaCollision()
-            == 0.5
-        )
-        assert (
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=2,
-            ).CalcProbabilityDifferentiaCollision()
-            == 0.25
-        )
-        assert (
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=3,
-            ).CalcProbabilityDifferentiaCollision()
-            == 0.125
-        )
-        assert (
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=8,
-            ).CalcProbabilityDifferentiaCollision()
-            == 1.0 / 256.0
-        )
-
-    def test_CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(self):
-        assert (
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=1,
-            ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-                significance_level=1.0 - 0.49
-            )
-            == 1
-        )
-        assert (
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=1,
-            ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-                significance_level=1.0 - 0.95
-            )
-            == 5
-        )
-        assert (
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=2,
-            ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-                significance_level=1.0 - 0.95
-            )
-            == 3
-        )
-        assert (
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=5,
-            ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-                significance_level=1.0 - 0.95
-            )
-            == 1
-        )
-        assert (
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=64,
-            ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-                significance_level=1.0 - 0.49
-            )
-            == 1
-        )
-        assert (
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=64,
-            ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-                significance_level=1.0 - 0.95
-            )
-            == 1
-        )
-        assert (
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=64,
-            ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-                significance_level=1.0 - 0.99
-            )
-            == 1
-        )
-
-    def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith(self):
-        for ordered_store in [
-            hstrat.HereditaryStratumOrderedStoreDict,
-            hstrat.HereditaryStratumOrderedStoreList,
-            hstrat.HereditaryStratumOrderedStoreTree,
-        ]:
-            _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith2(
-                self,
-                ordered_store,
-            )
-            _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith3(
-                self,
-                ordered_store,
-            )
-            _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith4(
-                self,
-                ordered_store,
-            )
-            _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith5(
-                self,
-                ordered_store,
-            )
-            for differentia_width in 1, 2, 8:
-                _do_test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith1(
-                    self, ordered_store, differentia_width
-                )
-
-    def test_CalcRankOfLastRetainedCommonalityWith(self):
-        for ordered_store in [
-            hstrat.HereditaryStratumOrderedStoreDict,
-            hstrat.HereditaryStratumOrderedStoreList,
-            hstrat.HereditaryStratumOrderedStoreTree,
-        ]:
-            _do_test_CalcRankOfLastRetainedCommonalityWith2(
-                self,
-                ordered_store,
-            )
-            _do_test_CalcRankOfLastRetainedCommonalityWith3(
-                self,
-                ordered_store,
-            )
-            _do_test_CalcRankOfLastRetainedCommonalityWith4(
-                self,
-                ordered_store,
-            )
-            for differentia_width in 1, 2, 8:
-                _do_test_CalcRankOfLastRetainedCommonalityWith1(
-                    self, ordered_store, differentia_width
-                )
-                _do_test_CalcRankOfLastRetainedCommonalityWith5(
-                    self, ordered_store, differentia_width
-                )
-
-    def test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith(self):
-        for ordered_store in [
-            hstrat.HereditaryStratumOrderedStoreDict,
-            hstrat.HereditaryStratumOrderedStoreList,
-            hstrat.HereditaryStratumOrderedStoreTree,
-        ]:
-            _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith2(
-                self,
-                ordered_store,
-            )
-            _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith3(
-                self,
-                ordered_store,
-            )
-            _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith4(
-                self,
-                ordered_store,
-            )
-            _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith5(
-                self,
-                ordered_store,
-            )
-            for differentia_width in 1, 2, 8:
-                _do_test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith1(
-                    self, ordered_store, differentia_width
-                )
-
-    def test_CalcRankOfFirstRetainedDisparityWith(self):
-        for ordered_store in [
-            hstrat.HereditaryStratumOrderedStoreDict,
-            hstrat.HereditaryStratumOrderedStoreList,
-            hstrat.HereditaryStratumOrderedStoreTree,
-        ]:
-            _do_test_CalcRankOfFirstRetainedDisparityWith2(
-                self,
-                ordered_store,
-            )
-            _do_test_CalcRankOfFirstRetainedDisparityWith3(
-                self,
-                ordered_store,
-            )
-            _do_test_CalcRankOfFirstRetainedDisparityWith4(
-                self,
-                ordered_store,
-            )
-            for differentia_width in 1, 2, 8:
-                _do_test_CalcRankOfFirstRetainedDisparityWith1(
-                    self, ordered_store, differentia_width
-                )
-                _do_test_CalcRankOfFirstRetainedDisparityWith5(
-                    self, ordered_store, differentia_width
-                )
-
-    def test_CalcRankOfMrcaBoundsWith_narrow(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-            hstrat.recency_proportional_resolution_policy.Policy(
-                guaranteed_mrca_recency_proportional_resolution=10,
-            ),
-        ]:
-            for differentia_width in 1, 2, 8, 64:
-                for confidence_level in 0.8, 0.95:
-                    _do_test_CalcRankOfMrcaBoundsWith_narrow_shallow(
-                        self,
-                        retention_policy,
-                        differentia_width,
-                        confidence_level,
-                    )
-                    _do_test_CalcRankOfMrcaBoundsWith_narrow_with_mrca(
-                        self,
-                        retention_policy,
-                        differentia_width,
-                        confidence_level,
-                        100,
-                    )
-                    for mrca_rank in (
-                        0,
-                        100,
-                    ):
-                        _do_test_CalcRankOfMrcaBoundsWith_narrow_no_mrca(
-                            self,
-                            retention_policy,
-                            differentia_width,
-                            confidence_level,
-                            mrca_rank,
-                        )
-
-    def test_GetNthCommonRankWith(self):
-        c1 = hstrat.HereditaryStratigraphicColumn(
-            stratum_retention_policy=hstrat.perfect_resolution_policy.Policy(),
-        )
-        c2 = hstrat.HereditaryStratigraphicColumn(
-            stratum_retention_policy=hstrat.nominal_resolution_policy.Policy(),
-        )
-        c3 = hstrat.HereditaryStratigraphicColumn(
-            stratum_retention_policy=hstrat.fixed_resolution_policy.Policy(2),
-        )
-        for __ in range(42):
-            c1.DepositStratum()
-
-        for __ in range(9):
-            c2.DepositStratum()
-
-        for __ in range(100):
-            c3.DepositStratum()
-
-        for col in c1, c2, c3:
-            for i in range(col.GetNumStrataRetained()):
-                assert col.GetRankAtColumnIndex(i) == col.GetNthCommonRankWith(
-                    col, i
-                )
-            assert (
-                col.GetNthCommonRankWith(col, col.GetNumStrataRetained())
-                is None
-            )
-
-        for x1, x2 in it.combinations([c1, c2, c3], 2):
-            assert x1.GetNthCommonRankWith(x2, 0) == 0
-
-        assert c1.GetNthCommonRankWith(c2, 1) == c2.GetNumStrataDeposited() - 1
-        assert c2.GetNthCommonRankWith(c1, 1) == c2.GetNumStrataDeposited() - 1
-
-        assert c1.GetNthCommonRankWith(c2, 2) is None
-        assert c2.GetNthCommonRankWith(c1, 2) is None
-
-        assert c1.GetNthCommonRankWith(c3, 1) == 2
-        assert c3.GetNthCommonRankWith(c1, 1) == 2
-
-        assert c1.GetNthCommonRankWith(c3, 2) == 4
-        assert c3.GetNthCommonRankWith(c1, 2) == 4
-
-    def test_CalcRankOfEarliestDetectableMrcaWith(self):
-
-        _do_test_CalcRankOfEarliestDetectableMrcaWith3(self)
-
-        for confidence_level in 0.8, 0.95, 0.99:
-            for differentia_bit_width in 1, 2, 8, 64:
-                _do_test_CalcRankOfEarliestDetectableMrcaWith1(
-                    self,
-                    confidence_level,
-                    differentia_bit_width,
-                )
-                _do_test_CalcRankOfEarliestDetectableMrcaWith2(
-                    self,
-                    confidence_level,
-                    differentia_bit_width,
-                )
-
-    def test_CalcRanksSinceEarliestDetectableMrcaWith(self):
-
-        for confidence_level in 0.8, 0.95, 0.99:
-            for differentia_bit_width in 1, 2, 8, 64:
-                _do_test_CalcRanksSinceEarliestDetectableMrcaWith1(
-                    self,
-                    confidence_level,
-                    differentia_bit_width,
-                )
-                _do_test_CalcRanksSinceEarliestDetectableMrcaWith2(
-                    self,
-                    confidence_level,
-                    differentia_bit_width,
-                )
-
-    def test_CalcRankOfMrcaUncertaintyWith_narrow(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-            hstrat.recency_proportional_resolution_policy.Policy(
-                guaranteed_mrca_recency_proportional_resolution=10,
-            ),
-        ]:
-            for differentia_width in 1, 2, 8, 64:
-                for confidence_level in 0.8, 0.95:
-                    _do_test_CalcRankOfMrcaUncertaintyWith_narrow_shallow(
-                        self,
-                        retention_policy,
-                        differentia_width,
-                        confidence_level,
-                    )
-                    _do_test_CalcRankOfMrcaUncertaintyWith_narrow_with_mrca(
-                        self,
-                        retention_policy,
-                        differentia_width,
-                        confidence_level,
-                        100,
-                    )
-                    for mrca_rank in (
-                        0,
-                        100,
-                    ):
-                        _do_test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
-                            self,
-                            retention_policy,
-                            differentia_width,
-                            confidence_level,
-                            mrca_rank,
-                        )
-
-    def test_CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith(self):
-        for ordered_store in [
-            hstrat.HereditaryStratumOrderedStoreDict,
-            hstrat.HereditaryStratumOrderedStoreList,
-            hstrat.HereditaryStratumOrderedStoreTree,
-        ]:
-            for differentia_width in 1, 2, 8:
-                _do_test_CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith1(
-                    self, ordered_store, differentia_width
-                )
-
-    def test_CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(self):
-        for ordered_store in [
-            hstrat.HereditaryStratumOrderedStoreDict,
-            hstrat.HereditaryStratumOrderedStoreList,
-            hstrat.HereditaryStratumOrderedStoreTree,
-        ]:
-            for differentia_width in 1, 2, 8:
-                _do_test_CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith1(
-                    self, ordered_store, differentia_width
-                )
-
-    def test_CalcRanksSinceLastRetainedCommonalityWith(self):
-        for differentia_width in 1, 2, 8, 64:
-            _do_test_CalcRanksSinceLastRetainedCommonalityWith1(
-                self, differentia_width
-            )
-
-    def test_CalcRanksSinceFirstRetainedDisparityWith(self):
-        for differentia_width in 1, 2, 8, 64:
-            _do_test_CalcRanksSinceFirstRetainedDisparityWith1(
-                self, differentia_width
-            )
-
-    def test_CalcRanksSinceMrcaBoundsWith_narrow(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-            hstrat.recency_proportional_resolution_policy.Policy(
-                guaranteed_mrca_recency_proportional_resolution=10,
-            ),
-        ]:
-            for differentia_width in 1, 8, 64:
-                for confidence_level in (0.95,):
-                    _do_test_CalcRanksSinceMrcaBoundsWith_narrow_shallow(
-                        self,
-                        retention_policy,
-                        differentia_width,
-                        confidence_level,
-                    )
-                    _do_test_CalcRanksSinceMrcaBoundsWith_narrow_with_mrca(
-                        self,
-                        retention_policy,
-                        differentia_width,
-                        confidence_level,
-                        100,
-                    )
-                    _do_test_CalcRanksSinceMrcaBoundsWith_narrow_no_mrca(
-                        self,
-                        retention_policy,
-                        differentia_width,
-                        confidence_level,
-                        100,
-                    )
-
-    def test_CalcRanksSinceMrcaUncertaintyWith_narrow(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-            hstrat.recency_proportional_resolution_policy.Policy(
-                guaranteed_mrca_recency_proportional_resolution=10,
-            ),
-        ]:
-            for differentia_width in 1, 8, 64:
-                for confidence_level in (0.95,):
-                    _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_shallow(
-                        self,
-                        retention_policy,
-                        differentia_width,
-                        confidence_level,
-                    )
-                    _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_with_mrca(
-                        self,
-                        retention_policy,
-                        differentia_width,
-                        confidence_level,
-                        100,
-                    )
-                    _do_test_CalcRanksSinceMrcaUncertaintyWith_narrow_no_mrca(
-                        self,
-                        retention_policy,
-                        differentia_width,
-                        confidence_level,
-                        100,
-                    )
-
-    def test_DefinitivelySharesNoCommonAncestorWith(self):
-        for retention_policy in [
-            hstrat.perfect_resolution_policy.Policy(),
-            hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
-            hstrat.recency_proportional_resolution_policy.Policy(
-                guaranteed_mrca_recency_proportional_resolution=10,
-            ),
-        ]:
-            _do_test_DefinitivelySharesNoCommonAncestorWith1(
-                self,
-                retention_policy,
-            )
-            _do_test_DefinitivelySharesNoCommonAncestorWith2(
-                self,
-                retention_policy,
-            )
-
-    def test_HasAnyCommonAncestorWith_narrow(self):
-
-        c1 = hstrat.HereditaryStratigraphicColumn(
+def test_CalcProbabilityDifferentiaCollision():
+    assert (
+        hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=1,
-        )
-        c2 = hstrat.HereditaryStratigraphicColumn(
+        ).CalcProbabilityDifferentiaCollision()
+        == 0.5
+    )
+    assert (
+        hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=2,
+        ).CalcProbabilityDifferentiaCollision()
+        == 0.25
+    )
+    assert (
+        hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=3,
+        ).CalcProbabilityDifferentiaCollision()
+        == 0.125
+    )
+    assert (
+        hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=8,
+        ).CalcProbabilityDifferentiaCollision()
+        == 1.0 / 256.0
+    )
+
+
+def test_CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions():
+    assert (
+        hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=1,
+        ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1.0 - 0.49
         )
-        assert c1.HasAnyCommonAncestorWith(c2) is None
-        assert c2.HasAnyCommonAncestorWith(c1) is None
-
-        c1 = hstrat.HereditaryStratigraphicColumn(
-            stratum_differentia_bit_width=64,
-        )
-        c2 = hstrat.HereditaryStratigraphicColumn(
-            stratum_differentia_bit_width=64,
-        )
-        assert c1.HasAnyCommonAncestorWith(c2) == False
-        assert c2.HasAnyCommonAncestorWith(c1) == False
-
-        c1 = hstrat.HereditaryStratigraphicColumn(
+        == 1
+    )
+    assert (
+        hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=1,
+        ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1.0 - 0.95
         )
-        c2 = c1.Clone()
-        assert c1.HasAnyCommonAncestorWith(c2) is None
-        assert c2.HasAnyCommonAncestorWith(c1) is None
-
-        c1 = hstrat.HereditaryStratigraphicColumn(
+        == 5
+    )
+    assert (
+        hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=2,
+        ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1.0 - 0.95
+        )
+        == 3
+    )
+    assert (
+        hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=5,
+        ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1.0 - 0.95
+        )
+        == 1
+    )
+    assert (
+        hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=64,
+        ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1.0 - 0.49
         )
-        c2 = c1.Clone()
-        assert c1.HasAnyCommonAncestorWith(c2) == True
-        assert c2.HasAnyCommonAncestorWith(c1) == True
-
-        c1 = hstrat.HereditaryStratigraphicColumn(
-            stratum_differentia_bit_width=1,
-        )
-        for __ in range(100):
-            c1.DepositStratum()
-        c2 = c1.CloneDescendant()
-        assert c1.HasAnyCommonAncestorWith(c2) == True
-        assert c2.HasAnyCommonAncestorWith(c1) == True
-
-        c1 = hstrat.HereditaryStratigraphicColumn(
+        == 1
+    )
+    assert (
+        hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=64,
+        ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1.0 - 0.95
         )
-        for __ in range(100):
-            c1.DepositStratum()
-        c2 = c1.CloneDescendant()
-        assert c1.HasAnyCommonAncestorWith(c2) == True
-        assert c2.HasAnyCommonAncestorWith(c1) == True
-
-    def test_CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(self):
-        c1 = hstrat.HereditaryStratigraphicColumn(
-            stratum_differentia_bit_width=1,
-        )
-        assert c1.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.5) == 0.5
-        assert c1.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.6) == 0.75
-        assert c1.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.75) == 0.75
-
-        c2 = hstrat.HereditaryStratigraphicColumn(
+        == 1
+    )
+    assert (
+        hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=64,
+        ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            significance_level=1.0 - 0.99
         )
-        p = 1 / 2**64
-        assert c2.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.5) == 1 - p
-        assert c2.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.6) == 1 - p
-        assert (
-            c2.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.75) == 1 - p
-        )
-        assert (
-            c2.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.95) == 1 - p
-        )
-        assert (
-            c2.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.99) == 1 - p
-        )
-
-    def test_CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(self):
-        c1 = hstrat.HereditaryStratigraphicColumn(
-            stratum_differentia_bit_width=1,
-        )
-        assert (
-            c1.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.5) == 0.5
-        )
-        assert (
-            c1.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.6) == 0.75
-        )
-        assert (
-            c1.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.75)
-            == 0.75
-        )
-
-        c2 = hstrat.HereditaryStratigraphicColumn(
-            stratum_differentia_bit_width=64,
-        )
-        p = 1 / 2**64
-        assert (
-            c2.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.5)
-            == 1 - p
-        )
-        assert (
-            c2.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.6)
-            == 1 - p
-        )
-        assert (
-            c2.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.75)
-            == 1 - p
-        )
-        assert (
-            c2.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.95)
-            == 1 - p
-        )
-        assert (
-            c2.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.99)
-            == 1 - p
-        )
+        == 1
+    )
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_GetNthCommonRankWith():
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=hstrat.perfect_resolution_policy.Policy(),
+    )
+    c2 = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=hstrat.nominal_resolution_policy.Policy(),
+    )
+    c3 = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=hstrat.fixed_resolution_policy.Policy(2),
+    )
+    for __ in range(42):
+        c1.DepositStratum()
+
+    for __ in range(9):
+        c2.DepositStratum()
+
+    for __ in range(100):
+        c3.DepositStratum()
+
+    for col in c1, c2, c3:
+        for i in range(col.GetNumStrataRetained()):
+            assert col.GetRankAtColumnIndex(i) == col.GetNthCommonRankWith(
+                col, i
+            )
+        assert (
+            col.GetNthCommonRankWith(col, col.GetNumStrataRetained()) is None
+        )
+
+    for x1, x2 in it.combinations([c1, c2, c3], 2):
+        assert x1.GetNthCommonRankWith(x2, 0) == 0
+
+    assert c1.GetNthCommonRankWith(c2, 1) == c2.GetNumStrataDeposited() - 1
+    assert c2.GetNthCommonRankWith(c1, 1) == c2.GetNumStrataDeposited() - 1
+
+    assert c1.GetNthCommonRankWith(c2, 2) is None
+    assert c2.GetNthCommonRankWith(c1, 2) is None
+
+    assert c1.GetNthCommonRankWith(c3, 1) == 2
+    assert c3.GetNthCommonRankWith(c1, 1) == 2
+
+    assert c1.GetNthCommonRankWith(c3, 2) == 4
+    assert c3.GetNthCommonRankWith(c1, 2) == 4
+
+
+def test_HasAnyCommonAncestorWith_narrow():
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+    )
+    c2 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+    )
+    assert c1.HasAnyCommonAncestorWith(c2) is None
+    assert c2.HasAnyCommonAncestorWith(c1) is None
+
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=64,
+    )
+    c2 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=64,
+    )
+    assert c1.HasAnyCommonAncestorWith(c2) == False
+    assert c2.HasAnyCommonAncestorWith(c1) == False
+
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+    )
+    c2 = c1.Clone()
+    assert c1.HasAnyCommonAncestorWith(c2) is None
+    assert c2.HasAnyCommonAncestorWith(c1) is None
+
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=64,
+    )
+    c2 = c1.Clone()
+    assert c1.HasAnyCommonAncestorWith(c2) == True
+    assert c2.HasAnyCommonAncestorWith(c1) == True
+
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+    )
+    for __ in range(100):
+        c1.DepositStratum()
+    c2 = c1.CloneDescendant()
+    assert c1.HasAnyCommonAncestorWith(c2) == True
+    assert c2.HasAnyCommonAncestorWith(c1) == True
+
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=64,
+    )
+    for __ in range(100):
+        c1.DepositStratum()
+    c2 = c1.CloneDescendant()
+    assert c1.HasAnyCommonAncestorWith(c2) == True
+    assert c2.HasAnyCommonAncestorWith(c1) == True
+
+
+def test_CalcRankOfMrcaBoundsWithProvidedConfidenceLevel():
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+    )
+    assert c1.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.5) == 0.5
+    assert c1.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.6) == 0.75
+    assert c1.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.75) == 0.75
+
+    c2 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=64,
+    )
+    p = 1 / 2**64
+    assert c2.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.5) == 1 - p
+    assert c2.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.6) == 1 - p
+    assert c2.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.75) == 1 - p
+    assert c2.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.95) == 1 - p
+    assert c2.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(0.99) == 1 - p
+
+
+def test_CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel():
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+    )
+    assert c1.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.5) == 0.5
+    assert c1.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.6) == 0.75
+    assert c1.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.75) == 0.75
+
+    c2 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=64,
+    )
+    p = 1 / 2**64
+    assert c2.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.5) == 1 - p
+    assert c2.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.6) == 1 - p
+    assert (
+        c2.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.75) == 1 - p
+    )
+    assert (
+        c2.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.95) == 1 - p
+    )
+    assert (
+        c2.CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(0.99) == 1 - p
+    )
