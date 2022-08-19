@@ -24,5 +24,4 @@ class CalcMrcaUncertaintyAbsExact:
         actual_rank_of_mrca: typing.Optional[int],
     ) -> int:
         """Exactly how much uncertainty to estimate rank of MRCA?"""
-
         return 0

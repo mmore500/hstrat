@@ -28,5 +28,4 @@ class CalcMrcaUncertaintyRelUpperBound:
     ) -> float:
         """At most, how much relative uncertainty to estimate rank of MRCA?
         Inclusive."""
-
         return 0.0

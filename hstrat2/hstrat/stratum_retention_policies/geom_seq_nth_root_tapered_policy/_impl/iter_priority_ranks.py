@@ -28,7 +28,6 @@ def iter_priority_ranks(
     Subsequent yieldings have no effect because the generator is sampled until
     exhausted or an unseen rank is yielded.
     """
-
     # aliases for terseness
     d = degree
     i = interspersal

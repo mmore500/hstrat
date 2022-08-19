@@ -1,10 +1,11 @@
-"""The pseudostochastic resolution policy retains strata probabilistically. It
-would be a poor choice to use in practice because mismatches between the
+"""Retain strata probabilistically in a nondeterministic manner.
+
+It would be a poor choice to use in practice because mismatches between the
 particular ranks that each column happens to have strata for will degrade
 the effectiveness of comparisons between columns. Rather, it is included in
 the library as an edge case for testing purposes. Worst-case MRCA rank estimate uncertainty scales as O(n) with respect to the greater number of strata deposited on either column being compared.
 
-Under the pseudostochastic resolution policy, the worst and average case number
+Under the stochastic resolution policy, the worst and average case number
 of strata retained (i.e., space complexity) scales as O(n) with respect to
 the number of strata deposited.
 

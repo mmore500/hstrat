@@ -11,7 +11,9 @@ def mrca_uncertainty_absolute_barplot(
     do_show: bool = False,
     ax: typing.Optional[plt.matplotlib.axes.Axes] = None,
 ) -> plt.matplotlib.axes.Axes:
-    """Plot absolute uncertainty for MRCA estimation over column ranks
+    """Profile distribution of retained rank spacing under a retention policy.
+
+    Plots absolute uncertainty for MRCA estimation over column ranks
     (positions) in a hereditary stratigraphic column at a particular generation
     under a particular stratum retention policy.
 
@@ -27,7 +29,6 @@ def mrca_uncertainty_absolute_barplot(
     do_show : bool, optional
         Whether to show() the plot automatically.
     """
-
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)

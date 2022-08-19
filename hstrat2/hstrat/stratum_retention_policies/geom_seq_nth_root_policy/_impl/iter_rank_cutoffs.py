@@ -11,7 +11,6 @@ def iter_rank_cutoffs(
 ) -> typing.Iterator[int]:
     """Yield rank before which no strata should be retained for each
     exponentially-spaced coverage target `pow` in ascending order."""
-
     for target_recency in iter_target_recencies(degree, num_strata_deposited):
         rank_cutoff = max(
             num_strata_deposited

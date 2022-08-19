@@ -21,6 +21,5 @@ class CalcNumStrataRetainedExact:
         policy: typing.Optional[PolicyCouplerBase],
         num_strata_deposited: int,
     ) -> int:
-        """Exactly how many strata are retained after n deposted?"""
-
+        """Exactly how many strata are retained after n deposited?"""
         return min(num_strata_deposited, 2)

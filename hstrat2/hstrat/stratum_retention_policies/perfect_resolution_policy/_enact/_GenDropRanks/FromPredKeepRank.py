@@ -60,7 +60,6 @@ class _PredKeepRank:
             For details on the rationale, implementation, and guarantees of the
             perfect resolution stratum retention policy.
         """
-
         return True
 
 

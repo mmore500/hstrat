@@ -25,8 +25,7 @@ class CalcNumStrataRetainedUpperBound:
         policy: PolicyCouplerBase,
         num_strata_deposited: int,
     ) -> int:
-        """Exactly how many strata are retained after n deposted?. Inclusive."""
-
+        """Exactly how many strata are retained after n deposited? Inclusive."""
         spec = policy.GetSpec()
         resolution = spec._guaranteed_mrca_recency_proportional_resolution
 

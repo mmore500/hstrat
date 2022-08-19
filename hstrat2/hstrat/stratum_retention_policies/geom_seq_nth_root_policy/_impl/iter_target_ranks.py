@@ -10,7 +10,6 @@ def iter_target_ranks(
 ) -> typing.Iterator[int]:
     """Yield strata ranks for each exponentially-spaced coverage target
     `pow` in ascending order."""
-
     for target_recency in iter_target_recencies(degree, num_strata_deposited):
         recency_cutoff = target_recency
         rank_cutoff = max(

@@ -18,7 +18,6 @@ def iter_rank_backstops(
     increase with `num_strata_deposited` and be an even multiple of
     `_calc_rank_sep`.
     """
-
     for rank_cutoff, retained_ranks_sep, target_rank in zip(
         iter_rank_cutoffs(degree, interspersal, num_strata_deposited),
         iter_rank_seps(degree, interspersal, num_strata_deposited),

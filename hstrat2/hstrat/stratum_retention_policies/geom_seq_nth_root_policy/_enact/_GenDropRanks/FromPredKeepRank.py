@@ -62,7 +62,7 @@ class _PredKeepRank:
         --------
         depth_proportional_resolution_tapered_policy:
             For details on the rationale, implementation, and guarantees of the
-            depth-proprtional resolution stratum retention policy.
+            depth-proportional resolution stratum retention policy.
         """
         spec = policy.GetSpec()
 

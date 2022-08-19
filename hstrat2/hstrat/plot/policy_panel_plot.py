@@ -20,8 +20,9 @@ def policy_panel_plot(
     do_show: bool = False,
     fig: typing.Optional[plt.matplotlib.figure.Figure] = None,
 ) -> plt.matplotlib.figure.Figure:
-    """Draw multipanel figure to holisticaly describe stratum retention policy
-    at a particular generation.
+    """Holisticaly sketch stratum retention policy at a particular generation.
+
+    Produces a composite multipanel plot.
 
     Parameters
     ----------
@@ -35,7 +36,6 @@ def policy_panel_plot(
         If a valid matplotlib.figure.Figure instance, the plot is drawn in that
         Figure. By default (None), a new figure is created.
     """
-
     if fig is None:
         fig = plt.figure(figsize=(8, 6))
     elif not isinstance(fig, plt.matplotlib.figure.Figure):

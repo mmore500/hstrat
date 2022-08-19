@@ -27,5 +27,4 @@ class CalcMrcaUncertaintyRelUpperBoundPessimalRank:
     ) -> int:
         """Calculate rank for which upper bound on relative MRCA uncertainty is
         pessimized."""
-
         return 0

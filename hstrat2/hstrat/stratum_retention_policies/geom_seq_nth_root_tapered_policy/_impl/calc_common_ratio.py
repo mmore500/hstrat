@@ -10,7 +10,6 @@ def calc_common_ratio(
 ) -> typing.Union[float, mp.mpf]:
     """What should the base of the exponential distribution of retained
     ranks be?"""
-
     # this try-except isn't necessary for the test cases
     # and the bounds of normal usage, but provides better resiliency
     # for extreme magnitude num_strata_deposited which may arise from time

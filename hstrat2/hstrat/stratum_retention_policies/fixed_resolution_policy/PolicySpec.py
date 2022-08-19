@@ -21,7 +21,6 @@ class PolicySpec(PolicySpecBase):
             MRCA estimates provided under the fixed resolution policy will
             always be strictly less than this cap.
         """
-
         assert fixed_resolution > 0
         self._fixed_resolution = fixed_resolution
 
@@ -48,6 +47,7 @@ class PolicySpec(PolicySpecBase):
 
     @staticmethod
     def GetPolicyName() -> str:
+        """Get programatic name for policy."""
         return __package__.split(".")[-1]
 
     @staticmethod

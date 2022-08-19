@@ -61,7 +61,6 @@ class GenDropRanks:
             For details on the rationale, implementation, and guarantees of the
             fixed resolution stratum retention policy.
         """
-
         # in-progress deposition not reflected in
         # num_stratum_depositions_completed
         second_newest_stratum_rank = num_stratum_depositions_completed - 2

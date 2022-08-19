@@ -1,6 +1,4 @@
-"""Utilities to solve for policy parameterizations that satisfy various
-requirements."""
-
+"""Utils to set up policy parameterizations satisfying various requirements."""
 
 from .MrcaUncertaintyAbsExactPolicyEvaluator import (
     MrcaUncertaintyAbsExactPolicyEvaluator,

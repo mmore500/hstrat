@@ -10,6 +10,7 @@ from ._policy_evaluator_t import _policy_evaluator_t
 
 
 class PropertyAtLeastParameterizer:
+    """Parameterizes so evaluated property meets or exceeds a target value."""
 
     _target_value: typing.Union[float, int]
     _policy_evaluator: _policy_evaluator_t
@@ -23,8 +24,7 @@ class PropertyAtLeastParameterizer:
         param_lower_bound: int = 0,
         param_upper_bound: typing.Optional[int] = sys.maxsize,
     ) -> None:
-        """Initialize functor to parameterize stratum retention policy so that
-        an evaluated property is greater than or equal to a target value.
+        """Init functor with parameterization requirements.
 
         Parameters
         ----------
@@ -47,6 +47,7 @@ class PropertyAtLeastParameterizer:
         self: "PropertyAtLeastParameterizer",
         policy_t: typing.Type,
     ) -> typing.Optional[PolicySpecBase]:
+        """Solve for policy spec satisfying parameterization requirements."""
         policy_factory = self._policy_evaluator._policy_param_focalizer(
             policy_t,
         )

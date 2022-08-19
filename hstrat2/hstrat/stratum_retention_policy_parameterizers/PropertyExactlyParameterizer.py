@@ -7,6 +7,7 @@ from .PropertyAtLeastParameterizer import PropertyAtLeastParameterizer
 
 
 class PropertyExactlyParameterizer:
+    """Parameterizes so evaluated property exactly equals a target value."""
 
     _impl: PropertyAtLeastParameterizer
 
@@ -15,8 +16,7 @@ class PropertyExactlyParameterizer:
         *args,
         **kwargs,
     ) -> None:
-        """Initialize functor to parameterize stratum retention policy so that
-        an evaluated property is exactly equal to a target value.
+        """Init functor with parameterization requirements.
 
         Parameters
         ----------
@@ -36,6 +36,7 @@ class PropertyExactlyParameterizer:
         self: "PropertyExactlyParameterizer",
         policy_t: typing.Type,
     ) -> typing.Optional[PolicySpecBase]:
+        """Solve for policy spec satisfying parameterization requirements."""
         policy_factory = self._impl._policy_evaluator._policy_param_focalizer(
             policy_t,
         )

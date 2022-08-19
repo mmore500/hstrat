@@ -16,8 +16,7 @@ def policy_panel_animate(
     do_show: bool = False,
     save_as: typing.Optional[str] = None,
 ) -> mpl.animation.FuncAnimation:
-    """Draw multipanel figure to holisticaly describe stratum retention policy
-    at a particular generation.
+    """Animate evolution of column and its properties under a retention policy.
 
     Parameters
     ----------
@@ -30,7 +29,6 @@ def policy_panel_animate(
     save_as : str, optional
         If set, save animation as file type specified.
     """
-
     fig = plt.figure(figsize=(8, 6), dpi=80)
 
     def update_func(frame) -> None:

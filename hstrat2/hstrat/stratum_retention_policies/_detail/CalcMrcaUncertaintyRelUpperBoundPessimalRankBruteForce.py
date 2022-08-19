@@ -24,7 +24,6 @@ class CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce:
     ) -> int:
         """Calculate pessimal rank for upper bound on absolute MRCA
         uncertainty by brute force."""
-
         least_num_strata_deposited = min(
             first_num_strata_deposited,
             second_num_strata_deposited,

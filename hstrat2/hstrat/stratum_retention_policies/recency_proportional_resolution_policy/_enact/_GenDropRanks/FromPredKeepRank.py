@@ -60,9 +60,8 @@ class _PredKeepRank:
         --------
         recency_proportional_resolution_policy:
             For details on the rationale, implementation, and guarantees of the
-            recency-proprtional resolution stratum retention policy.
+            recency-proportional resolution stratum retention policy.
         """
-
         spec = policy.GetSpec()
         resolution = spec._guaranteed_mrca_recency_proportional_resolution
 

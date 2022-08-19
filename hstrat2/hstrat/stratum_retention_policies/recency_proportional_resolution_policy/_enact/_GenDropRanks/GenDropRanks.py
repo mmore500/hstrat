@@ -52,7 +52,7 @@ class GenDropRanks:
         Returns
         -------
         iterator over int
-                The ranks of strata that should be purged from the hereditary
+            The ranks of strata that should be purged from the hereditary
             stratigraphic column at this deposition step.
 
         See Also
@@ -61,7 +61,6 @@ class GenDropRanks:
             For details on the rationale, implementation, and guarantees of the
             recency-proportional resolution stratum retention policy.
         """
-
         spec = policy.GetSpec()
         resolution = spec._guaranteed_mrca_recency_proportional_resolution
         num_to_condemn_ = num_to_condemn(

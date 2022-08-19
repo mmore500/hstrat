@@ -28,10 +28,9 @@ class CalcRankAtColumnIndex:
 
         Enables a HereditaryStratigraphicColumn using this predicate to
         optimize away storage of rank annotations on strata. Takes into the
-        account the possiblity for in-progress stratum depositions that haven't
+        account the possibility for in-progress stratum depositions that haven't
         been reflected in num_strata_deposited.
         """
-
         spec = policy.GetSpec()
         resolution = spec._guaranteed_mrca_recency_proportional_resolution
 

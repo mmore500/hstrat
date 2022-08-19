@@ -16,7 +16,6 @@ def calc_rank_cutoff(
     rank and just greater than target rank. Inclusive (i.e., this rank may
     be retained). Will monotonically increase with num_strata_deposited.
     """
-
     target_recency = calc_target_recency(
         degree,
         pow,

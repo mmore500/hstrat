@@ -17,7 +17,6 @@ class IterRetainedRanks:
 
     def __hash__(self: "IterRetainedRanks") -> int:
         """Hash object instance."""
-
         return 0
 
     def __eq__(self: "IterRetainedRanks", other: typing.Any) -> bool:
@@ -31,7 +30,6 @@ class IterRetainedRanks:
     ) -> typing.Iterator[int]:
         """Iterate over retained strata ranks at `num_strata_deposited` in
         ascending order."""
-
         yield from sorted(
             get_retained_ranks(
                 policy,

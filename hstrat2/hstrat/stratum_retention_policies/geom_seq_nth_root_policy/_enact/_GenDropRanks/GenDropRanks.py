@@ -63,7 +63,6 @@ class GenDropRanks:
             For details on the rationale, implementation, and guarantees of the
             tapered depth-proportional resolution stratum retention policy.
         """
-
         spec = policy.GetSpec()
 
         prev_retained_ranks = get_retained_ranks(

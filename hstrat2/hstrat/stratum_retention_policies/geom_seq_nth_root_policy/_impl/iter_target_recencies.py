@@ -9,7 +9,6 @@ def iter_target_recencies(
 ) -> typing.Iterator[int]:
     """Yield strata recencies for each exponentially-spaced coverage target
     `pow` in ascending order."""
-
     # target recencies are a geometric sequence
     common_ratio = calc_common_ratio(degree, num_strata_deposited)
     # don't iterate over 0th pow, this is just the most recent rank

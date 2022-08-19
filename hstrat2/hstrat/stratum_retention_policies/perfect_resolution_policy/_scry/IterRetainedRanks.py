@@ -23,5 +23,4 @@ class IterRetainedRanks:
     ) -> typing.Iterator[int]:
         """Iterate over retained strata ranks at `num_strata_deposited` in
         ascending order."""
-
         yield from range(num_strata_deposited)

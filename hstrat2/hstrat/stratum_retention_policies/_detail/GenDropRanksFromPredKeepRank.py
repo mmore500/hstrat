@@ -39,8 +39,8 @@ def GenDropRanksFromPredKeepRank(
         def __init__(self: "GenDropRanksFromPredKeepRank", *args, **kwargs):
             """Construct the functor.
 
-            Arguments are forwarded to predicate constructor."""
-
+            Arguments are forwarded to predicate constructor.
+            """
             self._predicate = predicate(*args, **kwargs)
 
         def __call__(
@@ -74,7 +74,6 @@ def GenDropRanksFromPredKeepRank(
             other: typing.Any,
         ) -> bool:
             """Compare for value-wise equality."""
-
             # account for possible distinct instantiations of the
             # GenDropRanksFromPredKeepRank class across calls to the
             # GenDropRanksFromPredKeepRank factory

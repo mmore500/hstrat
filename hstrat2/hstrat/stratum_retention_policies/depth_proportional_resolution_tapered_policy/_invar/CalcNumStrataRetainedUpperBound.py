@@ -24,8 +24,7 @@ class CalcNumStrataRetainedUpperBound:
         policy: PolicyCouplerBase,
         num_strata_deposited: int,
     ) -> int:
-        """At most, how many strata are retained after n deposted? Inclusive."""
-
+        """At most, how many strata are retained after n deposited? Inclusive."""
         spec = policy.GetSpec()
 
         return min(

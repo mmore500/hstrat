@@ -1,4 +1,6 @@
-"""The depth-proportional resolution policy ensures estimates of MRCA rank will
+"""Maintain constant size complexity and evenly-spaced strata.
+
+The depth-proportional resolution policy ensures estimates of MRCA rank will
 have uncertainty bounds less than or equal to a user-specified proportion of
 the largest number of strata deposited on either column. Thus, MRCA rank
 estimate uncertainty scales as O(n) with respect to the greater number of

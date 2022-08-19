@@ -17,7 +17,9 @@ def stratum_retention_dripplot(
     draw_extinct_history: bool = True,
     draw_extinct_placeholders: bool = False,
 ) -> plt.matplotlib.axes.Axes:
-    """Plot position of retained strata within a hereditary stratigraphic
+    """Show history of retained and purged strata at a particular generation.
+
+    Plots position of retained strata within a hereditary stratigraphic
     column over successive depositions under a particular stratum retention
     policy.
 
@@ -33,7 +35,6 @@ def stratum_retention_dripplot(
     do_show : bool, optional
         Whether to show() the plot automatically.
     """
-
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)

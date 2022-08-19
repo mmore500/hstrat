@@ -60,7 +60,6 @@ class GenDropRanks:
             For details on the rationale, implementation, and guarantees of the
             nominal resolution stratum retention policy.
         """
-
         # in-progress deposition not reflected in
         # num_stratum_depositions_completed
         if num_stratum_depositions_completed > 1:

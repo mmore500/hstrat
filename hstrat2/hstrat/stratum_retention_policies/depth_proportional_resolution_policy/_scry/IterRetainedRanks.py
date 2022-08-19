@@ -24,7 +24,6 @@ class IterRetainedRanks:
     ) -> typing.Iterator[int]:
         """Iterate over retained strata ranks at `num_strata_deposited` in
         ascending order."""
-
         spec = policy.GetSpec()
         uncertainty = calc_provided_uncertainty(
             spec._guaranteed_depth_proportional_resolution,

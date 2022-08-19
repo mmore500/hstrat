@@ -27,7 +27,6 @@ class CalcMrcaUncertaintyRelUpperBoundPessimalRank:
     ) -> int:
         """Calculate rank for which upper bound on relative MRCA uncertainty is
         pessimized."""
-
         least_last_rank = min(
             first_num_strata_deposited - 1,
             second_num_strata_deposited - 1,

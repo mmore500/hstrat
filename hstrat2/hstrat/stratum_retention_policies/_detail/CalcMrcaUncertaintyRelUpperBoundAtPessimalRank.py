@@ -23,7 +23,6 @@ class CalcMrcaUncertaintyRelUpperBoundAtPessimalRank:
         second_num_strata_deposited: int,
     ) -> float:
         """Calculate relative MRCA uncertainty at pessimal rank."""
-
         pessimal_rank = policy.CalcMrcaUncertaintyRelUpperBoundPessimalRank(
             first_num_strata_deposited,
             second_num_strata_deposited,

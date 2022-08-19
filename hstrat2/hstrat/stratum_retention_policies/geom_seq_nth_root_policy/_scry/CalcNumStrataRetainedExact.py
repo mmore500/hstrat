@@ -22,8 +22,7 @@ class CalcNumStrataRetainedExact:
         policy: PolicyCouplerBase,
         num_strata_deposited: int,
     ) -> int:
-        """Exactly how many strata are retained after n deposted?"""
-
+        """Exactly how many strata are retained after n deposited?"""
         spec = policy.GetSpec()
         return len(
             get_retained_ranks(

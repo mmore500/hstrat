@@ -21,6 +21,5 @@ class CalcWorstCaseNumStrataRetainedUpperBound:
         policy: typing.Optional[PolicyCouplerBase],
         num_strata_deposited: int,
     ) -> int:
-        """At most, how many strata are retained after n deposted? Inclusive."""
-
+        """At most, how many strata are retained after n deposited? Inclusive."""
         return num_strata_deposited

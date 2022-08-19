@@ -33,7 +33,6 @@ class CalcMrcaUncertaintyAbsUpperBound:
     ) -> int:
         """At most, how much absolute uncertainty to estimate rank of MRCA?
         Inclusive."""
-
         # rectify negative-indexed actual_rank_of_mrca
         if actual_rank_of_mrca is not None and actual_rank_of_mrca < 0:
             least_last_rank = min(

@@ -24,7 +24,6 @@ class IterRetainedRanks:
     ) -> typing.Iterator[int]:
         """Iterate over retained strata ranks at `num_strata_deposited` in
         ascending order."""
-
         spec = policy.GetSpec()
         resolution = spec._guaranteed_mrca_recency_proportional_resolution
 

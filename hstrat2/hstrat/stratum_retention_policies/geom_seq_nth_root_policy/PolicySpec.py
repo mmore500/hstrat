@@ -31,7 +31,6 @@ class PolicySpec(PolicySpecBase):
             on MRCA rank estimate uncertainty provided if set to 1. For most
             use cases, leave this set to 2.
         """
-
         assert degree >= 0
         assert interspersal >= 1
         if interspersal == 1:
@@ -73,8 +72,10 @@ class PolicySpec(PolicySpecBase):
 
     @staticmethod
     def GetPolicyName() -> str:
+        """Get programatic name for policy."""
         return __package__.split(".")[-1]
 
     @staticmethod
     def GetPolicyTitle() -> str:
+        """Get human-readable title for policy."""
         return "Nth Root Geometric Sequence Stratum Retention Policy"

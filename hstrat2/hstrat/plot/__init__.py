@@ -1,6 +1,4 @@
-"""Visualizations to analyze library algorithms and end-user phylogenetic
-data."""
-
+"""Visualizations for both library algorithms and end-user phylogenetic data."""
 
 from .mrca_uncertainty_absolute_barplot import (
     mrca_uncertainty_absolute_barplot,

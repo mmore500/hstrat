@@ -17,7 +17,6 @@ def calc_rank_backstop(
     increase with `num_strata_deposited` and be an even multiple of
     `_calc_rank_sep`.
     """
-
     rank_cutoff = calc_rank_cutoff(
         degree,
         interspersal,

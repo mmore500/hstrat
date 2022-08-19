@@ -60,7 +60,6 @@ class GenDropRanks:
             For details on the rationale, implementation, and guarantees of the
             fixed resolution stratum retention policy.
         """
-
         spec = policy.GetSpec()
 
         # in-progress deposition not reflected in

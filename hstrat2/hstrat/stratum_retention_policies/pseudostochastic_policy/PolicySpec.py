@@ -16,7 +16,6 @@ class PolicySpec(PolicySpecBase):
         random_seed : int
             Seed value for the onboard random number generator.
         """
-
         self._random_seed = random_seed
 
     def __eq__(self: "PolicySpec", other: typing.Any) -> bool:
@@ -42,8 +41,10 @@ class PolicySpec(PolicySpecBase):
 
     @staticmethod
     def GetPolicyName() -> str:
+        """Get programatic name for policy."""
         return __package__.split(".")[-1]
 
     @staticmethod
     def GetPolicyTitle() -> str:
+        """Get human-readable title for policy."""
         return "Pseudostochastic Stratum Retention Policy"

@@ -7,12 +7,12 @@ from ..HereditaryStratum import HereditaryStratum
 
 
 class HereditaryStratumOrderedStoreList:
-    """Container for use with HereditaryStratigraphicColumn to store deposited
-    strata, implemented as a list.
+    """Container for use with HereditaryStratigraphicColumn.
 
-    Retained strata are stored from most ancient (index 0, front) to most
-    recent (back). Cloned stores instantiate an independent list (although
-    strata are not deepcopied themselves).
+    Stores deposited strata using a list implementation. Retained strata are
+    stored from most ancient (index 0, front) to most recent (back). Cloned
+    stores instantiate an independent list (although strata are not deepcopied
+    themselves).
 
     Potentially useful in scenarios where moderate strata counts are retained,
     many strata are deposited without column cloning, deleted strata tend to
@@ -26,7 +26,6 @@ class HereditaryStratumOrderedStoreList:
 
     def __init__(self: "HereditaryStratumOrderedStoreList"):
         """Initialize instance variables."""
-
         self._data = []
 
     def __eq__(
@@ -34,7 +33,6 @@ class HereditaryStratumOrderedStoreList:
         other: "HereditaryStratumOrderedStoreList",
     ) -> bool:
         """Compare for value-wise equality."""
-
         return (
             isinstance(
                 other,
@@ -57,7 +55,6 @@ class HereditaryStratumOrderedStoreList:
         stratum : HereditaryStratum
             The stratum to deposit.
         """
-
         self._data.append(stratum)
 
     def GetNumStrataRetained(self: "HereditaryStratumOrderedStoreList") -> int:
@@ -66,7 +63,6 @@ class HereditaryStratumOrderedStoreList:
         May be fewer than the number of strata deposited if deletions have
         occured.
         """
-
         return len(self._data)
 
     def GetStratumAtColumnIndex(
@@ -87,19 +83,18 @@ class HereditaryStratumOrderedStoreList:
             Callable that returns the index position within retained strata of
             the stratum deposited at rank r.
         """
-
         return self._data[index]
 
     def GetRankAtColumnIndex(
         self: "HereditaryStratumOrderedStoreList",
         index: int,
     ) -> int:
-        """What is the deposition rank of the stratum positioned at index i
-        among retained strata?
+        """Map from deposition generation to column position.
 
-        Index order is from most ancient (index 0) to most recent.
+        What is the deposition rank of the stratum positioned at index i
+        among retained strata? Index order is from most ancient (index 0) to
+        most recent.
         """
-
         res_rank = self.GetStratumAtColumnIndex(index).GetDepositionRank()
         assert res_rank is not None
         return res_rank
@@ -108,12 +103,12 @@ class HereditaryStratumOrderedStoreList:
         self: "HereditaryStratumOrderedStoreList",
         rank: int,
     ) -> typing.Optional[int]:
-        """What is the index position within retained strata of the stratum
-        deposited at rank r?
+        """Map from column position to deposition generation
 
-        Returns None if no stratum with rank r is present within the store.
+        What is the index position within retained strata of the stratum
+        deposited at rank r? Returns None if no stratum with rank r is present
+        within the store.
         """
-
         if self.GetNumStrataRetained() == 0:
             return None
         else:
@@ -145,7 +140,6 @@ class HereditaryStratumOrderedStoreList:
             Callable that returns the deposition rank of the stratum positioned
             at index i among retained strata.
         """
-
         if get_column_index_of_rank is None:
             get_column_index_of_rank = self.GetColumnIndexOfRank
 
@@ -161,14 +155,12 @@ class HereditaryStratumOrderedStoreList:
     def IterRetainedRanks(
         self: "HereditaryStratumOrderedStoreList",
     ) -> typing.Iterator[int]:
-        """Get an iterator over deposition ranks of strata present in the
-        store.
+        """Iterate over deposition ranks of strata present in the store.
 
         Order of iteration should not be considered guaranteed. The store may
         be altered during iteration without iterator invalidation, although
         subsequent updates will not be reflected in the iterator.
         """
-
         # must make copy to prevent invalidation when strata are deleted
         # note, however, that copy is made lazily
         # (only when first item requested)
@@ -183,10 +175,10 @@ class HereditaryStratumOrderedStoreList:
         get_rank_at_column_index: typing.Optional[typing.Callable] = None,
         start_column_index: int = 0,
     ) -> typing.Iterator[typing.Tuple[int, int]]:
-        """Get an iterator over tuples containing deposition ranks and
-        differentia of retained strata.
+        """Iterate over differentia and corresponding deposition ranks.
 
-        Guaranteed ordered from most ancient to most recent.
+        Values yielded as tuples. Guaranteed ordered from most ancient to most
+        recent.
 
         Parameters
         ----------
@@ -197,7 +189,6 @@ class HereditaryStratumOrderedStoreList:
             Number of strata to skip over before yielding first result from the
             iterator. Default 0, meaning no strata are skipped over.
         """
-
         if get_rank_at_column_index is None:
             get_rank_at_column_index = self.GetRankAtColumnIndex
 
@@ -209,9 +200,11 @@ class HereditaryStratumOrderedStoreList:
     def Clone(
         self: "HereditaryStratumOrderedStoreList",
     ) -> "HereditaryStratumOrderedStoreList":
-        """Create a copy of the store with identical data that may be freely
-        altered without affecting data within this store."""
+        """Create an independent copy of the store.
 
+        Returned copy contains identical data but may be freely altered without
+        affecting data within this store.
+        """
         # shallow copy
         result = copy(self)
         # do semi-shallow clone on select elements

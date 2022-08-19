@@ -21,8 +21,10 @@ class PolicySpec(PolicySpecBase):
 
     @staticmethod
     def GetPolicyName() -> str:
+        """Get programatic name for policy."""
         return __package__.split(".")[-1]
 
     @staticmethod
     def GetPolicyTitle() -> str:
+        """Get human-readable title for policy."""
         return "Perfect Resolution Stratum Retention Policy"

@@ -3,9 +3,12 @@ import typing
 
 
 class HereditaryStratum:
-    """Struct to package differentia "fingerprint" associated with a particular
-    generation of a line of descent with additional metadata, including
-    optional user-provided annotation."""
+    """Packages stratigraph data associated with a particular generation.
+
+    Includes differentia "fingerprint" associated with a particular
+    generation of a line of descent and possibly additional metadata, including
+    optional user-provided annotation.
+    """
 
     _deposition_rank: int
     # random "fingerprint" generated at initialization
@@ -36,9 +39,7 @@ class HereditaryStratum:
             for 2^64 distinct values.
         deposition_rank : int, optional
             The position of the stratum being deposited within the sequence of strata deposited into the column. Precisely, the number of strata that have been deposited before stratum.
-
         """
-
         if deposition_rank is not None:
             self._deposition_rank = deposition_rank
         self._differentia = random.randrange(2**differentia_bit_width)
@@ -47,7 +48,6 @@ class HereditaryStratum:
 
     def __eq__(self: "HereditaryStratum", other: "HereditaryStratum") -> bool:
         """Compare for value-wise equality."""
-
         return (
             isinstance(
                 other,
@@ -63,22 +63,21 @@ class HereditaryStratum:
         self. Deposition rank may not be stored if the stratum retention policy
         supports calculation of deposition rank from column index.
         """
-
         if hasattr(self, "_deposition_rank"):
             return self._deposition_rank
         else:
             return None
 
     def GetDifferentia(self: "HereditaryStratum") -> int:
-        """Accessor for randomly-generated value distinguishing this stratum
-        from others generated at the same rank in other hereditary columns."""
+        """Access differentia.
 
+        Returns the randomly-generated value that distinguishes this stratum
+        from others generated at the same rank in other hereditary columns.
+        """
         return self._differentia
 
     def GetAnnotation(
         self: "HereditaryStratum",
     ) -> typing.Optional[typing.Any]:
-        """Accessor for arbitrary, user-specified data provided when stratum
-        was deposited, if any."""
-
+        """Access arbitrary, user-specified annotation, if any."""
         return self._annotation

@@ -69,7 +69,6 @@ def PolicyCouplerFactory(
 ) -> typing.Type[typing.Callable]:
     """Joins policy implementation functors into a single class that can be
     instantiated with particular policy specification parameters."""
-
     policy_spec_t_ = policy_spec_t
 
     class PolicyCoupler(
@@ -115,7 +114,6 @@ def PolicyCouplerFactory(
             If policy_spec is not provided, all arguments are forwarded to
             policy spec initializer.
             """
-
             if policy_spec is not None:
                 assert len(args) == len(kwargs) == 0
                 assert parameterizer is None
@@ -250,7 +248,6 @@ def PolicyCouplerFactory(
 
         def __hash__(self: "PolicyCoupler") -> int:
             """Hash object instance."""
-
             return hash(self._policy_spec)
 
         def __repr__(self: "PolicyCoupler") -> str:
@@ -272,12 +269,11 @@ def PolicyCouplerFactory(
             self: "PolicyCoupler",
         ) -> "PolicyCoupler":
             """Make a copy of this policy instance with CalcRankAtColumnIndex
-            diabled.
+            disabled.
 
             Useful to prevent optimization-out of strata rank number storage in
             a stratum ordered store backing a hereditary stratigraphic column.
             """
-
             type_ = PolicyCouplerFactory(
                 policy_spec_t=policy_spec_t_,
                 # enactment

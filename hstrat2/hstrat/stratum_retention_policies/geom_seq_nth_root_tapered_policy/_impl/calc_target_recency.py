@@ -15,7 +15,6 @@ def calc_target_recency(
 
     Will strictly increase with `num_strata_deposited`.
     """
-
     common_ratio = calc_common_ratio(degree, num_strata_deposited)
     try:
         res = common_ratio**pow

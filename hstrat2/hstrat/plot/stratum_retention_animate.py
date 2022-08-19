@@ -19,8 +19,7 @@ def stratum_retention_animate(
     draw_extinct_history: bool = True,
     draw_extinct_placeholders: bool = False,
 ) -> mpl.animation.FuncAnimation:
-    """Draw multipanel figure to holisticaly describe stratum retention policy
-    at a particular generation.
+    """Animate evolution of strata histories under a stratum retention policy.
 
     Parameters
     ----------
@@ -33,7 +32,6 @@ def stratum_retention_animate(
     save_as : str, optional
         If set, save animation as file type specified.
     """
-
     fig = plt.figure(figsize=(6, 6), dpi=80)
 
     def update_func(frame) -> None:

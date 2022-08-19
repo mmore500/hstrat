@@ -23,7 +23,7 @@ class CalcNumStrataRetainedExact:
         policy: PolicyCouplerBase,
         num_strata_deposited: int,
     ) -> int:
-        """Exactly how many strata are retained after n deposted?
+        """Exactly how many strata are retained after n deposited?
 
         The calculation can be written mathematically as,
 
@@ -48,7 +48,6 @@ class CalcNumStrataRetainedExact:
         n < r causing log2(0). In this case, the number of strata retained is
         equal to the number deposited (i.e., none have been discarded yet).
         """
-
         spec = policy.GetSpec()
 
         resolution = spec._guaranteed_mrca_recency_proportional_resolution

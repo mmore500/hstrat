@@ -61,7 +61,6 @@ class _PredKeepRank:
             For details on the rationale, implementation, and guarantees of the
             nominal resolution stratum retention policy.
         """
-
         return stratum_rank in (0, num_stratum_depositions_completed)
 
 

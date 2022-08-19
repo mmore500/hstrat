@@ -1,4 +1,6 @@
-"""The exactly space-filling MRCA-recency-proportional resolution policy
+"""Maintain constant size complexity with recency-proportional strata spacing.
+
+The exactly space-filling MRCA-recency-proportional resolution policy
 imposes an O(1) limit on the number of retained strata and guarantees that
 retained strata will be exponentially distributed with respect to ranks elapsed
 since their deposit. MRCA rank estimate uncertainty scales in the worst case

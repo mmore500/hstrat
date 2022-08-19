@@ -19,8 +19,7 @@ class MrcaUncertaintyRelUpperBoundPolicyEvaluator:
             lambda policy_t: lambda i: policy_t(i)
         ),
     ) -> None:
-        """Initialize functor to evaluate upper bound on relative MRCA
-        uncertainty.
+        """Init functor to evaluate upper bound on relative MRCA uncertainty.
 
         Parameters
         ----------
@@ -43,7 +42,7 @@ class MrcaUncertaintyRelUpperBoundPolicyEvaluator:
         policy_t: typing.Type,
         parameter_value: int,
     ) -> float:
-        """Evaluate upper bound on relative MRCA uncertainty for policy with a particular parameter value."""
+        """Get upper bound on relative MRCA uncertainty for particular param."""
         policy_factory = self._policy_param_focalizer(policy_t)
         policy = policy_factory(parameter_value)
         at_rank = opyt.or_value(

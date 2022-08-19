@@ -1,4 +1,6 @@
-r"""The MRCA-recency-proportional resolution policy ensures estimates of MRCA
+r"""Provide log space complexity and recency-proportional strata spacing.
+
+The MRCA-recency-proportional resolution policy ensures estimates of MRCA
 rank will have uncertainty bounds less than or equal to a user-specified
 proportion of the actual number of generations elapsed since the MRCA and the
 deepest of the compared columns. MRCA rank estimate uncertainty scales in the

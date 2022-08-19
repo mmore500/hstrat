@@ -13,7 +13,6 @@ def calc_target_rank(
 
     Will monotonically increase with `num_strata_deposited`.
     """
-
     target_recency = calc_target_recency(degree, pow, num_strata_deposited)
     recency_cutoff = target_recency
     rank_cutoff = max(

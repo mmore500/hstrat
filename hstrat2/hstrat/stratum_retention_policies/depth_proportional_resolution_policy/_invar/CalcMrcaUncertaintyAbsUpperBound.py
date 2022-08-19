@@ -31,7 +31,6 @@ class CalcMrcaUncertaintyAbsUpperBound:
     ) -> int:
         """At most, how much absolute uncertainty to estimate rank of MRCA?
         Inclusive."""
-
         spec = policy.GetSpec()
 
         res = (

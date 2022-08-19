@@ -12,7 +12,6 @@ def get_retained_ranks(
     num_strata_deposited: int,
 ) -> typing.Set[int]:
     """Calculate the set of strata ranks retained at `num_strata_deposited`."""
-
     # special case
     if num_strata_deposited == 0:
         return set()

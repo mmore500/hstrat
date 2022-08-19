@@ -5,9 +5,11 @@ from .HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 
 
 class HereditaryStratigraphicColumnBundle:
-    """Packages multiple HereditaryStratigraphicColumn instances together in
-    order to conveniently advance them in sync along a line of descent with a
-    similar interface to an individual HereditaryStratigraphicColumn.
+    """Packages multiple HereditaryStratigraphicColumn instances together.
+
+    Allows packaged columsn to conveniently advance in sync along a line of
+    descent with a similar interface to an individual
+    HereditaryStratigraphicColumn.
     """
 
     _columns: typing.Dict[str, HereditaryStratigraphicColumn]
@@ -39,8 +41,7 @@ class HereditaryStratigraphicColumnBundle:
     def __iter__(
         self: "HereditaryStratigraphicColumnBundle",
     ) -> typing.Iterator[str]:
-        """Iterable interface."""
-
+        """Iterate over held columns."""
         yield from self._columns
 
     def __getitem__(
@@ -48,7 +49,6 @@ class HereditaryStratigraphicColumnBundle:
         key: str,
     ) -> HereditaryStratigraphicColumn:
         """Brackets operator; access constituent column by name."""
-
         return self._columns[key]
 
     def __eq__(
@@ -56,7 +56,6 @@ class HereditaryStratigraphicColumnBundle:
         other: "HereditaryStratigraphicColumnBundle",
     ) -> bool:
         """Compare for value-wise equality."""
-
         return (
             isinstance(
                 other,
@@ -88,15 +87,18 @@ class HereditaryStratigraphicColumnBundle:
     ) -> int:
         """How many strata have been deposited on constituent columns?
 
-        Should be identical across constituent columns."""
+        Should be identical across constituent columns.
+        """
         return next(iter(self._columns.values())).GetNumStrataDeposited()
 
     def Clone(
         self: "HereditaryStratigraphicColumnBundle",
     ) -> "HereditaryStratigraphicColumnBundle":
-        """Create a copy of the bundle with identical data that may be freely
-        altered without affecting data within this bundle."""
+        """Create a copy of the bundle.
 
+        Copy contains identical data but may be freely altered without
+        affecting data within this bundle.
+        """
         # shallow copy
         result = copy(self)
         # do semi-shallow clone on select elements
@@ -119,7 +121,6 @@ class HereditaryStratigraphicColumnBundle:
             provided to be associated with this stratum deposition in the
             line of descent.
         """
-
         res = self.Clone()
         res.DepositStratum(annotation=stratum_annotation)
         return res
@@ -127,10 +128,11 @@ class HereditaryStratigraphicColumnBundle:
     def __getattr__(
         self: "HereditaryStratigraphicColumnBundle",
         attr: str,
-    ) -> typing.Callable:
-        """Forward all unknown method calls and property accesses to underlying
-        HereditaryStratigraphicColumns, returning a dict of results for each
-        column key stored.
+    ) -> typing.Union[typing.Callable, typing.Dict]:
+        """Forward all unknown method calls and property accesses.
+
+        Forward to underlying ereditaryStratigraphicColumns, returning a dict
+        of results for each column key stored.
 
         Note that __getattr__ is only called after other attribute lookup (i.e.,
         explicitly provided methods and properties) has failed.
@@ -143,9 +145,8 @@ class HereditaryStratigraphicColumnBundle:
         if "__" in attr:
             raise AttributeError
 
-        def arg_debundler(args, column_name):
+        def arg_debundler(args, column_name) -> typing.List:
             """If any args are column bundles, extract the focal column."""
-
             return [
                 arg
                 if not isinstance(arg, self.__class__)
@@ -153,10 +154,8 @@ class HereditaryStratigraphicColumnBundle:
                 for arg in args
             ]
 
-        def kwarg_debundler(kwargs, column_name):
-            """If any kwarg vals are column bundles, extract the focal
-            column."""
-
+        def kwarg_debundler(kwargs, column_name) -> typing.Dict:
+            """If any kwarg vals are column bundles, extract focal column."""
             return {
                 k: v if not isinstance(v, self.__class__) else v[column_name]
                 for k, v in kwargs.items()
@@ -172,14 +171,11 @@ class HereditaryStratigraphicColumnBundle:
                 for column in self._columns.values()
             )
 
-            def forwarded(*args, **kwargs):
-                """Apply method to each column independently, extracting the
-                corresponding column from any column bundles passed as
-                arguments.
+            def forwarded(*args, **kwargs) -> typing.Dict:
+                """Apply method to each column independently.
 
-                Returns a dict mapping each column name to its result.
+                Extracts the corresponding column from any column bundles passed as arguments. Returns a dict mapping each column name to its result.
                 """
-
                 return {
                     column_name: getattr(column, attr)(
                         *arg_debundler(args, column_name),

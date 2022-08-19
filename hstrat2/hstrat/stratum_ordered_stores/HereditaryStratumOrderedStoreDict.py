@@ -7,11 +7,10 @@ from ..HereditaryStratum import HereditaryStratum
 
 
 class HereditaryStratumOrderedStoreDict:
-    """Container for use with HereditaryStratigraphicColumn to store deposited
-    strata, implemented as a dict.
+    """Container for use with HereditaryStratigraphicColumn.
 
-    Retained strata are stored as dict values with their associated deposition
-    ranks as keys.
+    Stores deposited strata using a dict implementation. Retained strata are
+    stored as dict values with their associated deposition ranks as keys.
 
     Potentially useful in scenarios where large strata counts are retained or
     deleted strata tend to be more ancient.
@@ -22,7 +21,6 @@ class HereditaryStratumOrderedStoreDict:
 
     def __init__(self: "HereditaryStratumOrderedStoreDict"):
         """Initialize instance variables."""
-
         self._data = {}
 
     def __eq__(
@@ -30,7 +28,6 @@ class HereditaryStratumOrderedStoreDict:
         other: "HereditaryStratumOrderedStoreDict",
     ) -> bool:
         """Compare for value-wise equality."""
-
         return (
             isinstance(
                 other,
@@ -53,7 +50,6 @@ class HereditaryStratumOrderedStoreDict:
         stratum : HereditaryStratum
             The stratum to deposit.
         """
-
         self._data[rank] = stratum
 
     def GetNumStrataRetained(self: "HereditaryStratumOrderedStoreDict") -> int:
@@ -62,7 +58,6 @@ class HereditaryStratumOrderedStoreDict:
         May be fewer than the number of strata deposited if deletions have
         occured.
         """
-
         return len(self._data)
 
     def GetStratumAtColumnIndex(
@@ -82,7 +77,6 @@ class HereditaryStratumOrderedStoreDict:
             Callable that returns the index position within retained strata of
             the stratum deposited at rank r.
         """
-
         if get_rank_at_column_index is not None:
             return self._data[get_rank_at_column_index(index)]
         else:
@@ -94,12 +88,12 @@ class HereditaryStratumOrderedStoreDict:
         self: "HereditaryStratumOrderedStoreDict",
         index: int,
     ) -> int:
-        """What is the deposition rank of the stratum positioned at index i
-        among retained strata?
+        """Map deposition generation to column position.
 
-        Index order is from most ancient (index 0) to most recent.
+        What is the deposition rank of the stratum positioned at index i
+        among retained strata? Index order is from most ancient (index 0) to
+        most recent.
         """
-
         # for python 3.7+, dictionaries are guaranteed insertion ordered
         assert sys.version_info >= (3, 7)
         return next(it.islice(self._data.keys(), index, None))
@@ -108,12 +102,12 @@ class HereditaryStratumOrderedStoreDict:
         self: "HereditaryStratumOrderedStoreDict",
         rank: int,
     ) -> typing.Optional[int]:
-        """What is the index position within retained strata of the stratum
-        deposited at rank r?
+        """Map column position ot deposition generation.
 
-        Returns None if no stratum with rank r is present within the store.
+        What is the index position within retained strata of the stratum
+        deposited at rank r? Returns None if no stratum with rank r is present
+        within the store.
         """
-
         # for python 3.7+, dictionaries are guaranteed insertion ordered
         assert sys.version_info >= (3, 7)
         try:
@@ -141,21 +135,18 @@ class HereditaryStratumOrderedStoreDict:
             Callable that returns the deposition rank of the stratum positioned
             at index i among retained strata. Not used in this method.
         """
-
         for rank in ranks:
             del self._data[rank]
 
     def IterRetainedRanks(
         self: "HereditaryStratumOrderedStoreDict",
     ) -> typing.Iterator[int]:
-        """Get an iterator over deposition ranks of strata present in the
-        store.
+        """Iterate over deposition ranks of strata present in the store.
 
         Order should not be considered guaranteed. The store may be altered
         during iteration without iterator invalidation, although subsequent
         updates will not be reflected in the iterator.
         """
-
         # must make copy to prevent
         # `RuntimeError: dictionary changed size during iteration`
         # note, however, that copy is made lazily
@@ -168,10 +159,10 @@ class HereditaryStratumOrderedStoreDict:
         get_rank_at_column_index: typing.Optional[typing.Callable] = None,
         start_column_index: int = 0,
     ) -> typing.Iterator[typing.Tuple[int, int]]:
-        """Get an iterator over tuples containing deposition ranks and
-        differentia of retained strata.
+        """Iterate over differentia and corresponding deposition ranks.
 
-        Guaranteed ordered from most ancient to most recent.
+        Values yielded as tuples. Guaranteed ordered from most ancient to most
+        recent.
 
         Parameters
         ----------
@@ -182,7 +173,6 @@ class HereditaryStratumOrderedStoreDict:
             Number of strata to skip over before yielding first result from the
             iterator. Default 0, meaning no strata are skipped over.
         """
-
         # optimization idea:
         # python dicts are ordered, so is there a way to begin iterating
         # from a specified item in the dict?
@@ -195,9 +185,11 @@ class HereditaryStratumOrderedStoreDict:
     def Clone(
         self: "HereditaryStratumOrderedStoreDict",
     ) -> "HereditaryStratumOrderedStoreDict":
-        """Create a copy of the store with identical data that may be freely
-        altered without affecting data within this store."""
+        """Create an independent copy of the store.
 
+        Returned copy contains identical data but may be freely altered without
+        affecting data within this store.
+        """
         # shallow copy
         result = copy(self)
         # do semi-shallow clone on select elements

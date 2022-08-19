@@ -1,6 +1,7 @@
-"""Stratum retention policies that specify which set of strata ranks that
-should be retained in a hereditary stratigraphic column when the nth stratum is
-deposited."""
+"""Logic to control stratum retention within HereditaryStratigraphicColumn.
+
+Stratum retention policies specify which strata ranks that should be retained ----- and which should be purged --- when the nth stratum is deposited.
+"""
 
 from . import (
     depth_proportional_resolution_policy,

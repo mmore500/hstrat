@@ -60,7 +60,6 @@ class GenDropRanks:
             For details on the rationale, implementation, and guarantees of the
             perfect resolution stratum retention policy.
         """
-
         # empty generator
         # see https://stackoverflow.com/a/13243870/17332200
         return

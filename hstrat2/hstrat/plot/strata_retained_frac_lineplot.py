@@ -27,7 +27,6 @@ def strata_retained_frac_lineplot(
     do_show : bool, optional
         Whether to show() the plot automatically.
     """
-
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)

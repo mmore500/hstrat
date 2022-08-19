@@ -9,11 +9,13 @@ def scale_luminosity(
     color: typing.Union[typing.Tuple[float, float, float], str],
     amount: float,
 ) -> typing.Tuple[float, float, float]:
-    """Lightens or darkens the given color by multiplying luminosity by the
-    given amount. Input can be matplotlib color string, hex string, or RGB
-    tuple.
+    """Lighten or darken a given color.
 
-    Examples:
+    Multiplies luminosity by the given amount. Input can be matplotlib color
+    string, hex string, or RGB tuple.
+
+    Examples
+    --------
     >> scale_luminosity('g', 0.3)
     >> scale_luminosity('#F034A3', 0.6)
     >> scale_luminosity((.3,.55,.1), 0.5)

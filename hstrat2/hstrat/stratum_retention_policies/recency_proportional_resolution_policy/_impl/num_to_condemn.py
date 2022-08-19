@@ -13,7 +13,6 @@ def num_to_condemn(
         * resolution = 1, <https://oeis.org/A091090>
     and is unit tested extensively.
     """
-
     resolution = guaranteed_mrca_recency_proportional_resolution
     # _guaranteed_mrca_recency_proportional_resolution is from super class
 

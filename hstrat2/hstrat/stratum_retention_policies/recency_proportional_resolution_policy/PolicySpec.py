@@ -24,7 +24,6 @@ class PolicySpec(PolicySpecBase):
             phylogenetic depth of the MRCA divided by
             guaranteed_mrca_recency_proportional_resolution.
         """
-
         self._guaranteed_mrca_recency_proportional_resolution = (
             guaranteed_mrca_recency_proportional_resolution
         )
@@ -52,8 +51,10 @@ class PolicySpec(PolicySpecBase):
 
     @staticmethod
     def GetPolicyName() -> str:
+        """Get programatic name for policy."""
         return __package__.split(".")[-1]
 
     @staticmethod
     def GetPolicyTitle() -> str:
+        """Get human-readable title for policy."""
         return "Recency-proportional Resolution Stratum Retention Policy"

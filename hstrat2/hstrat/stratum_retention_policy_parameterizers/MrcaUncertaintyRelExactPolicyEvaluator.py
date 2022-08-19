@@ -19,8 +19,7 @@ class MrcaUncertaintyRelExactPolicyEvaluator:
             lambda policy_t: lambda i: policy_t(i)
         ),
     ) -> None:
-        """Initialize functor to evaluate exact relative MRCA
-        uncertainty.
+        """Initialize functor to evaluate exact relative MRCA uncertainty.
 
         Parameters
         ----------
@@ -43,7 +42,7 @@ class MrcaUncertaintyRelExactPolicyEvaluator:
         policy_t: typing.Type,
         parameter_value: int,
     ) -> float:
-        """Evaluate exact relative MRCA uncertainty for policy with a particular parameter value."""
+        """Get exact relative MRCA uncertainty under a specific parameter."""
         policy_factory = self._policy_param_focalizer(policy_t)
         policy = policy_factory(parameter_value)
         if self._at_rank is None:

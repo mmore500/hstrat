@@ -34,8 +34,7 @@ class NumStrataRetainedExactPolicyEvaluator:
         policy_t: typing.Type,
         parameter_value: int,
     ) -> int:
-        """Evaluate exact num strata retained for policy with a particular
-        parameter value."""
+        """Get exact num strata retained under a specific parameter."""
         policy_factory = self._policy_param_focalizer(policy_t)
         policy = policy_factory(parameter_value)
         return policy.CalcNumStrataRetainedExact(

@@ -1,4 +1,6 @@
-"""The nominal resolution policy only retains the most ancient (i.e., very
+"""Retain as few strata as possible.
+
+The nominal resolution policy only retains the most ancient (i.e., very
 first) and most recent (i.e., last) strata. So, comparisons between two
 columns under this policy will only be able to detect whether they share
 any common ancestor and whether they are from the same organism (i.e., no

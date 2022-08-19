@@ -10,7 +10,8 @@ class GenDropRanks:
     policy, for use with HereditaryStratigraphicColumn.
 
     This functor enacts the depth-proportional resolution policy by specifying
-    the set of strata ranks that should be purged from a hereditary stratigraphic column when the nth stratum is deposited.
+    the set of strata ranks that should be purged from a hereditary
+    stratigraphic column when the nth stratum is deposited.
     """
 
     def __init__(
@@ -60,7 +61,6 @@ class GenDropRanks:
             For details on the rationale, implementation, and guarantees of the
             depth-proportional resolution stratum retention policy.
         """
-
         spec = policy.GetSpec()
         resolution = spec._guaranteed_depth_proportional_resolution
 

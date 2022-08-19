@@ -11,7 +11,6 @@ def calc_provided_uncertainty(
     strata retained at every rank, so the rank of the MRCA can be
     determined with 0 uncertainty.
     """
-
     resolution = guaranteed_mrca_recency_proportional_resolution
 
     max_uncertainty = num_stratum_depositions_completed // (resolution + 1)

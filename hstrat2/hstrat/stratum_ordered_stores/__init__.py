@@ -1,5 +1,4 @@
-"""Containers for use with HereditaryStratigraphicColumn to store deposited
-strata."""
+"""Strata storage implementations for use with HereditaryStratigraphicColumn."""
 
 from .HereditaryStratumOrderedStoreDict import (
     HereditaryStratumOrderedStoreDict,

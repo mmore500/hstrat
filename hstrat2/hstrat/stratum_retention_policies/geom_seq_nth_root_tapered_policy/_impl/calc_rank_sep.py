@@ -13,7 +13,6 @@ def calc_rank_sep(
 
     Will be a power of 2 monotonically increasing with `num_strata_deposited`.
     """
-
     target_recency = calc_target_recency(degree, pow, num_strata_deposited)
     # spacing between retained ranks
     target_retained_ranks_sep = max(

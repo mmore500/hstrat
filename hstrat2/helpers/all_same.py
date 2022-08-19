@@ -7,7 +7,6 @@ def all_same(items: typing.Iterable) -> bool:
 
     Returns True if items is empty.
     """
-
     it = iter(items)
 
     for first in it:

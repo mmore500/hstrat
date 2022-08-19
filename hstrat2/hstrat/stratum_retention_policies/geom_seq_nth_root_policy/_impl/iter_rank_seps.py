@@ -14,7 +14,6 @@ def iter_rank_seps(
 
     Yielded values will be powers of 2.
     """
-
     for target_recency in iter_target_recencies(degree, num_strata_deposited):
         # spacing between retained ranks
         target_retained_ranks_sep = max(

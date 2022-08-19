@@ -1,4 +1,6 @@
-"""The perfect resolution policy retains all strata. So, comparisons between
+"""Retain all strata to ensure perfect resolution for MRCA estimation.
+
+The perfect resolution policy retains all strata. So, comparisons between
 two columns under this policy will detect MRCA rank with zero
 uncertainty. So, MRCA rank estimate uncertainty scales as O(1) with respect
 to the greater number of strata deposited on either column.

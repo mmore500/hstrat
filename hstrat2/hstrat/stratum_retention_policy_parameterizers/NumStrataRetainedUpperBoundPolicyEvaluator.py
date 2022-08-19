@@ -34,8 +34,7 @@ class NumStrataRetainedUpperBoundPolicyEvaluator:
         policy_t: typing.Type,
         parameter_value: int,
     ) -> int:
-        """Evaluate upper bound on num strata retained for policy with a
-        particular parameter value."""
+        """Get upper bound on num strata retained for specific parameter."""
         policy_factory = self._policy_param_focalizer(policy_t)
         policy = policy_factory(parameter_value)
         return policy.CalcNumStrataRetainedUpperBound(

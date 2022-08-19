@@ -62,7 +62,6 @@ class _PredKeepRank:
             For details on the rationale, implementation, and guarantees of the
             fixed resolution stratum retention policy.
         """
-
         if (
             stratum_rank
             and stratum_rank == num_stratum_depositions_completed - 2

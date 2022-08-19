@@ -1,4 +1,6 @@
-"""The fixed resolution policy ensures estimates of MRCA rank will have
+"""Accept linear size complexity to maintain fixed spacing between strata.
+
+The fixed resolution policy ensures estimates of MRCA rank will have
 uncertainty bounds less than or equal a fixed, absolute user-specified cap
 that is independent of the number of strata deposited on either column.
 Thus, MRCA rank estimate uncertainty scales as O(1) with respect to the
