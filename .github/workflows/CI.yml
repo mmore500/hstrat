@@ -37,7 +37,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install -r requirements_dev.txt
     - name: Run tests with coverage report
-      run: coverage run -m pytest -n auto
+      run: coverage run -m pytest
     - uses: codecov/codecov-action@v3
       with:
         flags: tests # optional
