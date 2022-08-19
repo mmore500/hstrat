@@ -222,7 +222,10 @@ def test_eq(
     [
         hstrat.HereditaryStratumOrderedStoreDict,
         hstrat.HereditaryStratumOrderedStoreList,
-        hstrat.HereditaryStratumOrderedStoreTree,
+        pytest.param(
+            hstrat.HereditaryStratumOrderedStoreTree,
+            marks=pytest.mark.heavy,
+        ),
     ],
 )
 def test_comparison_commutativity_asyncrhonous(
@@ -276,7 +279,10 @@ def test_comparison_commutativity_asyncrhonous(
     [
         hstrat.HereditaryStratumOrderedStoreDict,
         hstrat.HereditaryStratumOrderedStoreList,
-        hstrat.HereditaryStratumOrderedStoreTree,
+        pytest.param(
+            hstrat.HereditaryStratumOrderedStoreTree,
+            marks=pytest.mark.heavy,
+        ),
     ],
 )
 def test_annotation(retention_policy, ordered_store):
@@ -316,7 +322,10 @@ def test_annotation(retention_policy, ordered_store):
     [
         hstrat.HereditaryStratumOrderedStoreDict,
         hstrat.HereditaryStratumOrderedStoreList,
-        hstrat.HereditaryStratumOrderedStoreTree,
+        pytest.param(
+            hstrat.HereditaryStratumOrderedStoreTree,
+            marks=pytest.mark.heavy,
+        ),
     ],
 )
 def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store):
@@ -400,7 +409,10 @@ def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store):
     [
         hstrat.HereditaryStratumOrderedStoreDict,
         hstrat.HereditaryStratumOrderedStoreList,
-        hstrat.HereditaryStratumOrderedStoreTree,
+        pytest.param(
+            hstrat.HereditaryStratumOrderedStoreTree,
+            marks=pytest.mark.heavy,
+        ),
     ],
 )
 def test_CalcRanksSinceMrcaBoundsWith(
@@ -480,7 +492,10 @@ def test_CalcRanksSinceMrcaBoundsWith(
 @pytest.mark.parametrize(
     "retention_policy",
     [
-        hstrat.perfect_resolution_policy.Policy(),
+        pytest.param(
+            hstrat.perfect_resolution_policy.Policy(),
+            marks=pytest.mark.heavy_2a,
+        ),
         hstrat.nominal_resolution_policy.Policy(),
         hstrat.fixed_resolution_policy.Policy(fixed_resolution=10),
     ],
@@ -488,9 +503,15 @@ def test_CalcRanksSinceMrcaBoundsWith(
 @pytest.mark.parametrize(
     "ordered_store",
     [
-        hstrat.HereditaryStratumOrderedStoreDict,
+        pytest.param(
+            hstrat.HereditaryStratumOrderedStoreDict,
+            marks=pytest.mark.heavy_2b,
+        ),
         hstrat.HereditaryStratumOrderedStoreList,
-        hstrat.HereditaryStratumOrderedStoreTree,
+        pytest.param(
+            hstrat.HereditaryStratumOrderedStoreTree,
+            marks=pytest.mark.heavy,
+        ),
     ],
 )
 def test_comparison_commutativity_syncrhonous(
@@ -557,7 +578,10 @@ def test_comparison_commutativity_syncrhonous(
     [
         hstrat.HereditaryStratumOrderedStoreDict,
         hstrat.HereditaryStratumOrderedStoreList,
-        hstrat.HereditaryStratumOrderedStoreTree,
+        pytest.param(
+            hstrat.HereditaryStratumOrderedStoreTree,
+            marks=pytest.mark.heavy,
+        ),
     ],
 )
 def test_comparison_validity(retention_policy, ordered_store):
@@ -784,7 +808,10 @@ def test_scenario_partial_even_divergence(retention_policy, ordered_store):
     [
         hstrat.HereditaryStratumOrderedStoreDict,
         hstrat.HereditaryStratumOrderedStoreList,
-        hstrat.HereditaryStratumOrderedStoreTree,
+        pytest.param(
+            hstrat.HereditaryStratumOrderedStoreTree,
+            marks=pytest.mark.heavy,
+        ),
     ],
 )
 def test_scenario_partial_uneven_divergence(retention_policy, ordered_store):
