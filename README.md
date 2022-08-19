@@ -4,11 +4,19 @@
   ![PyPi](https://img.shields.io/pypi/v/hstrat.svg)
 ](https://pypi.python.org/pypi/hstrat)
 [
-  ![Travis CI](https://img.shields.io/travis/mmore500/hstrat.svg)
-](https://travis-ci.com/mmore500/hstrat)
+  ![codecov](https://codecov.io/gh/mmore500/hstrat/branch/master/graph/badge.svg?token=JwMfFOpBBD)
+](https://codecov.io/gh/mmore500/hstrat)
+[
+  ![Codacy Badge](https://app.codacy.com/project/badge/Grade/9ab14d415aa9458d97b4cf760b95f874)](https://www.codacy.com/gh/mmore500/hstrat/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mmore500/hstrat&amp;utm_campaign=Badge_Grade)
+[
+  ![CI](https://github.com/mmore500/hstrat/actions/workflows/CI.yml/badge.svg)
+](https://github.com/mmore500/hstrat/actions)
 [
   ![Read The Docs](https://readthedocs.org/projects/hstrat/badge/?version=latest)
 ](https://hstrat.readthedocs.io/en/latest/?badge=latest)
+[
+  ![GitHub stars](https://img.shields.io/github/stars/mmore500/hstrat.svg?style=round-square&logo=github&label=Stars&logoColor=white)](https://github.com/mmore500/hstrat
+)
 
 hstrat enables phylogenetic inference on distributed digital evolution populations
 
