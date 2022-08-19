@@ -6,4 +6,4 @@ API Reference
    :toctree: _autosummary
    :recursive:
 
-   hstrat
+   hstrat2
