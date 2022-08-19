@@ -1,5 +1,4 @@
 import itertools as it
-import numbers
 
 from iterpop import iterpop as ip
 import numpy as np

@@ -1,5 +1,3 @@
-import unittest
-
 import pytest
 
 from hstrat2 import hstrat

@@ -1,5 +1,4 @@
 import itertools as it
-import numbers
 import random
 
 from iterpop import iterpop as ip

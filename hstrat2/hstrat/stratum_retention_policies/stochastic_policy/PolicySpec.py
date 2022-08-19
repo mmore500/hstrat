@@ -8,7 +8,6 @@ class PolicySpec:
         self: "PolicySpec",
     ) -> None:
         """Construct the policy spec."""
-        pass
 
     def __eq__(
         self: "PolicySpec",

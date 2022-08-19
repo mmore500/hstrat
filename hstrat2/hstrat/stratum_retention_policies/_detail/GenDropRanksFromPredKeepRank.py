@@ -6,8 +6,6 @@ class _GenDropRanksFromPredKeepRankBase:
     GenDropRanksFromPredKeepRank class across different calls to
     the GenDropRanksFromPredKeepRank factory."""
 
-    pass
-
 
 def GenDropRanksFromPredKeepRank(
     predicate: typing.Type[typing.Callable],
