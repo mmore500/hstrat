@@ -1,5 +1,7 @@
 import typing
 
+from .PolicyCouplerBase import PolicyCouplerBase
+
 
 class CalcMrcaUncertaintyRelExactFromAbs:
     def __init__(
@@ -16,7 +18,7 @@ class CalcMrcaUncertaintyRelExactFromAbs:
 
     def __call__(
         self: "CalcMrcaUncertaintyRelExactFromAbs",
-        policy: typing.Optional["Policy"],
+        policy: typing.Optional[PolicyCouplerBase],
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
         actual_rank_of_mrca: int,

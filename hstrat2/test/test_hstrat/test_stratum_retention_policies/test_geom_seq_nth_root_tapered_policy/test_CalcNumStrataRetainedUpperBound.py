@@ -114,4 +114,4 @@ def test_eq(degree, interspersal):
             spec,
         )
     )
-    assert not instance == None
+    assert instance is not None

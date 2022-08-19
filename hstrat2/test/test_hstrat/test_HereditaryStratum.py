@@ -42,7 +42,9 @@ class TestHereditaryStratum(unittest.TestCase):
         assert stratum1 == deepcopy(stratum2)
 
     def test_equality2(self):
-        stratum_factory = lambda: hstrat.HereditaryStratum(deposition_rank=42)
+        def stratum_factory():
+            return hstrat.HereditaryStratum(deposition_rank=42)
+
         assert stratum_factory() != stratum_factory()
         stratum1 = stratum_factory()
         stratum2 = stratum1

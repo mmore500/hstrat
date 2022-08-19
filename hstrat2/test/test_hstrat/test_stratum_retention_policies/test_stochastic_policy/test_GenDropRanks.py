@@ -1,7 +1,6 @@
 import itertools as it
 import random
 
-import numpy as np
 import pytest
 
 from hstrat2.helpers import all_same
@@ -10,7 +9,7 @@ from hstrat2.hstrat import HereditaryStratigraphicColumn, stochastic_policy
 
 @pytest.mark.parametrize(
     "impl",
-    stochastic_policy._GenDropRanks.iter_impls(),
+    stochastic_policy.GenDropRanks_impls,
 )
 @pytest.mark.parametrize(
     "replicate",
@@ -63,4 +62,4 @@ def test_eq(replicate):
 
     assert instance == instance
     assert instance == stochastic_policy.GenDropRanks(spec)
-    assert not instance == None
+    assert instance is not None

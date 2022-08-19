@@ -45,10 +45,7 @@ class HereditaryStratum:
         if annotation is not None:
             self._annotation = annotation
 
-    def __eq__(
-        self: "HereditaryStratum",
-        other: "HereditaryStratum",
-    ) -> bool:
+    def __eq__(self: "HereditaryStratum", other: "HereditaryStratum") -> bool:
         """Compare for value-wise equality."""
 
         return (
@@ -59,9 +56,7 @@ class HereditaryStratum:
             and self.__dict__ == other.__dict__
         )
 
-    def GetDepositionRank(
-        self: "HereditaryStratum",
-    ) -> typing.Optional[int]:
+    def GetDepositionRank(self: "HereditaryStratum") -> typing.Optional[int]:
         """Get the deposition order rank associated with this stratum, if stored.
 
         Deposition rank is the number of strata deposited on a column before

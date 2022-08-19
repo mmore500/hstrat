@@ -1,10 +1,9 @@
 import typing
 
-import opytional as opyt
-
 from .CalcWorstCaseMrcaUncertaintyAbsUpperBound import (
     CalcWorstCaseMrcaUncertaintyAbsUpperBound,
 )
+from .PolicyCouplerBase import PolicyCouplerBase
 
 
 class CalcWorstCaseMrcaUncertaintyRelUpperBound:
@@ -22,7 +21,7 @@ class CalcWorstCaseMrcaUncertaintyRelUpperBound:
 
     def __call__(
         self: "CalcWorstCaseMrcaUncertaintyRelUpperBound",
-        policy: typing.Optional["Policy"],
+        policy: typing.Optional[PolicyCouplerBase],
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
         actual_rank_of_mrca: int,

@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 
 from hstrat2.hstrat import (
@@ -60,4 +59,4 @@ def test_eq(random_seed):
     assert instance == pseudostochastic_policy.CalcNumStrataRetainedUpperBound(
         spec,
     )
-    assert not instance == None
+    assert instance is not None

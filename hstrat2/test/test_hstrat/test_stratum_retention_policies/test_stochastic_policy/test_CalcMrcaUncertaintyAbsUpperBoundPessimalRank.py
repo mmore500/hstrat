@@ -96,4 +96,4 @@ def test_eq(replicate):
             spec,
         )
     )
-    assert not instance == None
+    assert instance is not None

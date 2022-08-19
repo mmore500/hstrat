@@ -106,4 +106,4 @@ def test_eq(fixed_resolution):
             spec,
         )
     )
-    assert not instance == None
+    assert instance is not None

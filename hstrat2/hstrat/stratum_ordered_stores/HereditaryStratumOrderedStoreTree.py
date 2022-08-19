@@ -3,7 +3,6 @@ import itertools as it
 import typing
 
 import anytree
-from interval_search import binary_search
 
 from ...helpers import AnyTreeAscendingIter
 from ..HereditaryStratum import HereditaryStratum
@@ -291,7 +290,7 @@ class HereditaryStratumOrderedStoreTree:
             self._do_calcrank_DelRanks(ranks, get_column_index_of_rank)
 
     def IterRetainedRanks(
-        self: "HereditaryStratumOrderedStoreDict",
+        self: "HereditaryStratumOrderedStoreTree",
     ) -> typing.Iterator[int]:
         """Get an iterator over deposition ranks of strata present in the
         store.

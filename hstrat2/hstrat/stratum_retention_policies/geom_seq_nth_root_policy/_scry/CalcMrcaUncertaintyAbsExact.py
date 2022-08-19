@@ -2,6 +2,7 @@ import operator
 import typing
 
 from .....helpers import find_bounds
+from ..._detail import PolicyCouplerBase
 from ..PolicySpec import PolicySpec
 from .._impl import get_retained_ranks
 
@@ -15,15 +16,12 @@ class CalcMrcaUncertaintyAbsExact:
     ) -> None:
         pass
 
-    def __eq__(
-        self: "CalcMrcaUncertaintyAbsExact",
-        other: typing.Any,
-    ) -> bool:
+    def __eq__(self: "CalcMrcaUncertaintyAbsExact", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
         self: "CalcMrcaUncertaintyAbsExact",
-        policy: "Policy",
+        policy: PolicyCouplerBase,
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
         actual_rank_of_mrca: int,

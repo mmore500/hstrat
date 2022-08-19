@@ -37,7 +37,7 @@ def test_impl_consistency(depth_proportional_resolution, time_sequence):
         depth_proportional_resolution
     )
     spec = policy.GetSpec()
-    impls = [*depth_proportional_resolution_policy._GenDropRanks.iter_impls()]
+    impls = [*depth_proportional_resolution_policy.GenDropRanks_impls]
     instances = [impl(spec) for impl in impls]
     for num_strata_deposited in time_sequence:
         assert all_same(
@@ -140,4 +140,4 @@ def test_eq(depth_proportional_resolution):
 
     assert instance == instance
     assert instance == depth_proportional_resolution_policy.GenDropRanks(spec)
-    assert not instance == None
+    assert instance is not None

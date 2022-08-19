@@ -58,7 +58,7 @@ from hstrat2.hstrat import geom_seq_nth_root_tapered_policy
 def test_impl_consistency(degree, interspersal, time_sequence):
     policy = geom_seq_nth_root_tapered_policy.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    impls = [*geom_seq_nth_root_tapered_policy._GenDropRanks.iter_impls()]
+    impls = [*geom_seq_nth_root_tapered_policy.GenDropRanks_impls]
     instances = [impl(spec) for impl in impls]
     for num_strata_deposited in time_sequence:
         assert all_same(
@@ -178,4 +178,4 @@ def test_eq(degree, interspersal):
 
     assert instance == instance
     assert instance == geom_seq_nth_root_tapered_policy.GenDropRanks(spec)
-    assert not instance == None
+    assert instance is not None

@@ -3,7 +3,6 @@ import itertools as it
 import random
 
 from iterify import cyclify, iterify
-from iterpop import iterpop as ip
 import opytional as opyt
 import pytest
 from scipy import stats
@@ -679,8 +678,8 @@ def test_scenario_no_mrca(
     )
 
     for generation in range(100):
-        assert first.CalcRankOfLastRetainedCommonalityWith(second) == None
-        assert second.CalcRankOfLastRetainedCommonalityWith(first) == None
+        assert first.CalcRankOfLastRetainedCommonalityWith(second) is None
+        assert second.CalcRankOfLastRetainedCommonalityWith(first) is None
 
         assert first.CalcRankOfFirstRetainedDisparityWith(second) == 0
         assert second.CalcRankOfFirstRetainedDisparityWith(first) == 0
@@ -688,8 +687,8 @@ def test_scenario_no_mrca(
         assert first.CalcRankOfMrcaUncertaintyWith(second) == 0
         assert second.CalcRankOfMrcaUncertaintyWith(first) == 0
 
-        assert first.CalcRanksSinceLastRetainedCommonalityWith(second) == None
-        assert second.CalcRanksSinceLastRetainedCommonalityWith(first) == None
+        assert first.CalcRanksSinceLastRetainedCommonalityWith(second) is None
+        assert second.CalcRanksSinceLastRetainedCommonalityWith(first) is None
 
         assert (
             first.CalcRanksSinceFirstRetainedDisparityWith(second)
@@ -733,11 +732,11 @@ def test_scenario_no_divergence(retention_policy, ordered_store):
         assert (
             column.CalcRankOfLastRetainedCommonalityWith(column) == generation
         )
-        assert column.CalcRankOfFirstRetainedDisparityWith(column) == None
+        assert column.CalcRankOfFirstRetainedDisparityWith(column) is None
         assert column.CalcRankOfMrcaUncertaintyWith(column) == 0
 
         assert column.CalcRanksSinceLastRetainedCommonalityWith(column) == 0
-        assert column.CalcRanksSinceFirstRetainedDisparityWith(column) == None
+        assert column.CalcRanksSinceFirstRetainedDisparityWith(column) is None
         assert column.CalcRanksSinceMrcaUncertaintyWith(column) == 0
 
         column.DepositStratum()
@@ -3264,8 +3263,6 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_with_mrca(
             for col in column2:
                 col.DepositStratum()
 
-        num_inside_bounds = 0
-        num_outside_bounds = 0
         for c1, c2 in zip(column1, column2):
             assert c1.CalcRankOfMrcaUncertaintyWith(
                 c2, confidence_level=confidence_level
@@ -3341,8 +3338,6 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
             for col in column2:
                 col.DepositStratum()
 
-        num_inside_bounds = 0
-        num_outside_bounds = 0
         for c1, c2 in zip(column1, column2):
             assert c1.CalcRankOfMrcaUncertaintyWith(
                 c2, confidence_level=confidence_level
@@ -4200,8 +4195,6 @@ def test_CalcRanksSinceMrcaUncertaintyWith_narrow_with_mrca(
             for col in column2:
                 col.DepositStratum()
 
-        num_inside_bounds = 0
-        num_outside_bounds = 0
         for c1, c2 in zip(column1, column2):
             assert c1.CalcRanksSinceMrcaUncertaintyWith(
                 c2, confidence_level=confidence_level
@@ -4277,8 +4270,6 @@ def test_CalcRanksSinceMrcaUncertaintyWith_narrow_no_mrca(
             for col in column2:
                 col.DepositStratum()
 
-        num_inside_bounds = 0
-        num_outside_bounds = 0
         for c1, c2 in zip(column1, column2):
             assert c1.CalcRanksSinceMrcaUncertaintyWith(
                 c2, confidence_level=confidence_level
@@ -4634,8 +4625,8 @@ def test_HasAnyCommonAncestorWith_narrow():
     c2 = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=64,
     )
-    assert c1.HasAnyCommonAncestorWith(c2) == False
-    assert c2.HasAnyCommonAncestorWith(c1) == False
+    assert c1.HasAnyCommonAncestorWith(c2) is False
+    assert c2.HasAnyCommonAncestorWith(c1) is False
 
     c1 = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=1,
@@ -4648,8 +4639,8 @@ def test_HasAnyCommonAncestorWith_narrow():
         stratum_differentia_bit_width=64,
     )
     c2 = c1.Clone()
-    assert c1.HasAnyCommonAncestorWith(c2) == True
-    assert c2.HasAnyCommonAncestorWith(c1) == True
+    assert c1.HasAnyCommonAncestorWith(c2) is True
+    assert c2.HasAnyCommonAncestorWith(c1) is True
 
     c1 = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=1,
@@ -4657,8 +4648,8 @@ def test_HasAnyCommonAncestorWith_narrow():
     for __ in range(100):
         c1.DepositStratum()
     c2 = c1.CloneDescendant()
-    assert c1.HasAnyCommonAncestorWith(c2) == True
-    assert c2.HasAnyCommonAncestorWith(c1) == True
+    assert c1.HasAnyCommonAncestorWith(c2) is True
+    assert c2.HasAnyCommonAncestorWith(c1) is True
 
     c1 = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=64,
@@ -4666,8 +4657,8 @@ def test_HasAnyCommonAncestorWith_narrow():
     for __ in range(100):
         c1.DepositStratum()
     c2 = c1.CloneDescendant()
-    assert c1.HasAnyCommonAncestorWith(c2) == True
-    assert c2.HasAnyCommonAncestorWith(c1) == True
+    assert c1.HasAnyCommonAncestorWith(c2) is True
+    assert c2.HasAnyCommonAncestorWith(c1) is True
 
 
 def test_CalcRankOfMrcaBoundsWithProvidedConfidenceLevel():

@@ -1,6 +1,5 @@
 import itertools as it
 
-import numpy as np
 import pytest
 
 from hstrat2.helpers import all_same
@@ -24,7 +23,7 @@ from hstrat2.hstrat import (
 def test_impl_consistency(fixed_resolution):
     policy = pseudostochastic_policy.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    impls = [*pseudostochastic_policy._GenDropRanks.iter_impls()]
+    impls = [*pseudostochastic_policy.GenDropRanks_impls]
     instances = [impl(spec) for impl in impls]
     column = HereditaryStratigraphicColumn(
         stratum_retention_policy=policy,
@@ -75,4 +74,4 @@ def test_eq(fixed_resolution):
 
     assert instance == instance
     assert instance == pseudostochastic_policy.GenDropRanks(spec)
-    assert not instance == None
+    assert instance is not None

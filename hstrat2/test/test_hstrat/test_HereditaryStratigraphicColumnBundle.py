@@ -77,11 +77,11 @@ class TestHereditaryStratum(unittest.TestCase):
 
         res = bundle1.HasAnyCommonAncestorWith(bundle2)
         assert res["test"] is None
-        assert res["control"] == True
+        assert res["control"] is True
 
         res = bundle1.HasAnyCommonAncestorWith(bundle2, confidence_level=0.49)
-        assert res["test"] == True
-        assert res["control"] == True
+        assert res["test"] is True
+        assert res["control"] is True
 
         res = bundle1.GetNumStrataRetained()
         assert (

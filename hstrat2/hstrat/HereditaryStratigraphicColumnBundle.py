@@ -124,7 +124,10 @@ class HereditaryStratigraphicColumnBundle:
         res.DepositStratum(annotation=stratum_annotation)
         return res
 
-    def __getattr__(self, attr):
+    def __getattr__(
+        self: "HereditaryStratigraphicColumnBundle",
+        attr: str,
+    ) -> typing.Callable:
         """Forward all unknown method calls and property accesses to underlying
         HereditaryStratigraphicColumns, returning a dict of results for each
         column key stored.

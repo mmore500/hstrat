@@ -1,5 +1,6 @@
 import typing
 
+from ..._detail import PolicyCouplerBase
 from ..PolicySpec import PolicySpec
 from .._impl import calc_provided_uncertainty
 
@@ -13,15 +14,12 @@ class CalcRankAtColumnIndex:
     ) -> None:
         pass
 
-    def __eq__(
-        self: "CalcRankAtColumnIndex",
-        other: typing.Any,
-    ) -> bool:
+    def __eq__(self: "CalcRankAtColumnIndex", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
         self: "CalcRankAtColumnIndex",
-        policy: "Policy",
+        policy: PolicyCouplerBase,
         index: int,
         num_strata_deposited: int,
     ) -> int:

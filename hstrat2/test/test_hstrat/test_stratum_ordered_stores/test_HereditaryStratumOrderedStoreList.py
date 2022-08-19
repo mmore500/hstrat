@@ -128,13 +128,13 @@ class TestHereditaryStratumOrderedStoreList(unittest.TestCase):
                 stratum=hstrat.HereditaryStratum(deposition_rank=rank),
             )
 
-        assert store1.GetColumnIndexOfRank(-1) == None
+        assert store1.GetColumnIndexOfRank(-1) is None
         assert store1.GetColumnIndexOfRank(0) == 0
-        assert store1.GetColumnIndexOfRank(1) == None
+        assert store1.GetColumnIndexOfRank(1) is None
         assert store1.GetColumnIndexOfRank(8) == 1
         assert store1.GetColumnIndexOfRank(42) == 2
         assert store1.GetColumnIndexOfRank(63) == 3
-        assert store1.GetColumnIndexOfRank(64) == None
+        assert store1.GetColumnIndexOfRank(64) is None
 
     def test_IterRetainedRanks(self):
         store1 = hstrat.HereditaryStratumOrderedStoreList()
@@ -175,7 +175,9 @@ class TestHereditaryStratumOrderedStoreList(unittest.TestCase):
         for rank, stratum in zip(ranks, strata):
             store1.DepositStratum(rank=rank, stratum=stratum)
 
-        col_index_to_rank = lambda column_idx: ranks[column_idx]
+        def col_index_to_rank(column_idx):
+            return ranks[column_idx]
+
         assert [
             *zip(ranks, [stratum.GetDifferentia() for stratum in strata])
         ] == [

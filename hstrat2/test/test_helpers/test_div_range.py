@@ -1,4 +1,3 @@
-import itertools as it
 import unittest
 
 from hstrat.helpers import div_range

@@ -125,7 +125,7 @@ def test_eq():
     assert instance == perfect_resolution_policy.CalcMrcaUncertaintyRelExact(
         spec
     )
-    assert not instance == None
+    assert instance is not None
 
 
 def test_negative_index():

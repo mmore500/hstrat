@@ -2,10 +2,7 @@ import typing
 
 import opytional as opyt
 
-_policy_param_focalizer_t = typing.Callable[
-    [typing.Type],
-    typing.Callable[[int], "Policy"],
-]
+from ._policy_param_focalizer_t import _policy_param_focalizer_t
 
 
 class MrcaUncertaintyAbsUpperBoundPolicyEvaluator:
@@ -18,8 +15,8 @@ class MrcaUncertaintyAbsUpperBoundPolicyEvaluator:
         self: "MrcaUncertaintyAbsUpperBoundPolicyEvaluator",
         at_num_strata_deposited: int,
         at_rank: typing.Optional[int] = None,
-        policy_param_focalizer: _policy_param_focalizer_t = lambda policy_t: lambda i: policy_t(
-            i
+        policy_param_focalizer: _policy_param_focalizer_t = (
+            lambda policy_t: lambda i: policy_t(i)
         ),
     ) -> None:
         """Initialize functor to evaluate upper bound on absolute MRCA
@@ -62,9 +59,7 @@ class MrcaUncertaintyAbsUpperBoundPolicyEvaluator:
             at_rank,
         )
 
-    def __repr__(
-        self: "MrcaUncertaintyAbsUpperBoundPolicyEvaluator",
-    ) -> str:
+    def __repr__(self: "MrcaUncertaintyAbsUpperBoundPolicyEvaluator") -> str:
         return f"""{
             MrcaUncertaintyAbsUpperBoundPolicyEvaluator.__qualname__
         }(at_num_strata_deposited={
@@ -75,9 +70,7 @@ class MrcaUncertaintyAbsUpperBoundPolicyEvaluator:
             self._policy_param_focalizer
         !r})"""
 
-    def __str__(
-        self: "MrcaUncertaintyAbsUpperBoundPolicyEvaluator",
-    ) -> str:
+    def __str__(self: "MrcaUncertaintyAbsUpperBoundPolicyEvaluator") -> str:
         title = "Upper Bound Absolute MRCA Uncertainty Evaluator"
         return f"""{
             title

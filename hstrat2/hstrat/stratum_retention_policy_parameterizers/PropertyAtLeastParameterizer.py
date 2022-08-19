@@ -5,10 +5,8 @@ import interval_search as inch
 import numpy as np
 import opytional as opyt
 
-_policy_evaluator_t = typing.Callable[
-    [typing.Type, int],
-    typing.Union[float, int],
-]
+from ..stratum_retention_policies._detail import PolicySpecBase
+from ._policy_evaluator_t import _policy_evaluator_t
 
 
 class PropertyAtLeastParameterizer:
@@ -48,7 +46,7 @@ class PropertyAtLeastParameterizer:
     def __call__(
         self: "PropertyAtLeastParameterizer",
         policy_t: typing.Type,
-    ) -> typing.Optional["PolicySpec"]:
+    ) -> typing.Optional[PolicySpecBase]:
         policy_factory = self._policy_evaluator._policy_param_focalizer(
             policy_t,
         )
@@ -72,7 +70,9 @@ class PropertyAtLeastParameterizer:
         lb = self._param_lower_bound
         ub = self._param_upper_bound
         thresh = self._target_value
-        eval_at_param = lambda val: self._policy_evaluator(policy_t, val)
+
+        def eval_at_param(val: int) -> typing.Union[float, int]:
+            return self._policy_evaluator(policy_t, val)
 
         next_diff_param = inch.interval_search(
             lambda p: eval_at_param(p) != eval_at_param(lb),
@@ -137,9 +137,7 @@ class PropertyAtLeastParameterizer:
             assert eval_at_param(lb) < thresh
             return None
 
-    def __repr__(
-        self: "PropertyAtLeastParameterizer",
-    ) -> str:
+    def __repr__(self: "PropertyAtLeastParameterizer") -> str:
         return f"""{
             PropertyAtLeastParameterizer.__qualname__
         }(target_value={
@@ -152,9 +150,7 @@ class PropertyAtLeastParameterizer:
             self._param_upper_bound
         !r})"""
 
-    def __str__(
-        self: "PropertyAtLeastParameterizer",
-    ) -> str:
+    def __str__(self: "PropertyAtLeastParameterizer") -> str:
         title = "At Least Parameterizer"
         return f"""{
             title

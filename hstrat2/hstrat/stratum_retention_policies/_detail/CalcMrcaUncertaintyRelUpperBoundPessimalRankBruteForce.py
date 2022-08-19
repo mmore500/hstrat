@@ -1,6 +1,6 @@
 import typing
 
-import numpy as np
+from .PolicyCouplerBase import PolicyCouplerBase
 
 
 class CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce:
@@ -18,7 +18,7 @@ class CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce:
 
     def __call__(
         self: "CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce",
-        policy: typing.Optional["Policy"],
+        policy: typing.Optional[PolicyCouplerBase],
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
     ) -> int:

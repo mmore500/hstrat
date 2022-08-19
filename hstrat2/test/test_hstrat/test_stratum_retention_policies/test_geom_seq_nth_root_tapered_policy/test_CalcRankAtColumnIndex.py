@@ -109,4 +109,4 @@ def test_eq(degree, interspersal):
     assert instance == geom_seq_nth_root_tapered_policy.CalcRankAtColumnIndex(
         spec
     )
-    assert not instance == None
+    assert instance is not None

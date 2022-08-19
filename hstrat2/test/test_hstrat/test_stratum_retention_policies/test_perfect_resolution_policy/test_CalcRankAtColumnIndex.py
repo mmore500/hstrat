@@ -50,4 +50,4 @@ def test_eq():
 
     assert instance == instance
     assert instance == perfect_resolution_policy.CalcRankAtColumnIndex(spec)
-    assert not instance == None
+    assert instance is not None

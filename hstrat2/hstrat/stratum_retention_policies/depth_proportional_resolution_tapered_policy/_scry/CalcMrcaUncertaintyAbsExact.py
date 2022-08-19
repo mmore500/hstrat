@@ -1,5 +1,6 @@
 import typing
 
+from ..._detail import PolicyCouplerBase
 from ..PolicySpec import PolicySpec
 from .._impl import calc_provided_uncertainty
 
@@ -13,15 +14,12 @@ class CalcMrcaUncertaintyAbsExact:
     ) -> None:
         pass
 
-    def __eq__(
-        self: "CalcMrcaUncertaintyAbsExact",
-        other: typing.Any,
-    ) -> bool:
+    def __eq__(self: "CalcMrcaUncertaintyAbsExact", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
         self: "CalcMrcaUncertaintyAbsExact",
-        policy: "Policy",
+        policy: PolicyCouplerBase,
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
         actual_rank_of_mrca: int,
@@ -57,7 +55,9 @@ class CalcMrcaUncertaintyAbsExact:
             guaranteed_resolution,
             least_num_strata_deposited,
         )
-        cur_stage_max_idx = least_num_strata_deposited // cur_stage_uncertainty
+        cur_stage_max_idx = (  # noqa: F841, keep unused for comprehensibility
+            least_num_strata_deposited // cur_stage_uncertainty
+        )
 
         prev_stage_uncertainty = cur_stage_uncertainty // 2
         prev_stage_max_idx = least_last_rank // prev_stage_uncertainty

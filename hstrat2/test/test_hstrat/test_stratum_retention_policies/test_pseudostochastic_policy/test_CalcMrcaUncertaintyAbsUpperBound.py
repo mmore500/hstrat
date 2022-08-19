@@ -1,7 +1,6 @@
 import itertools as it
 import operator
 
-import numpy as np
 import pytest
 
 from hstrat2.helpers import find_bounds
@@ -83,7 +82,7 @@ def test_eq(random_seed):
             spec,
         )
     )
-    assert not instance == None
+    assert instance is not None
 
 
 @pytest.mark.parametrize(

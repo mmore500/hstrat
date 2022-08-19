@@ -10,7 +10,7 @@ from hstrat2 import hstrat
     ],
 )
 def test_one(policy):
-    res = hstrat.policy_panel_animate(
+    hstrat.policy_panel_animate(
         policy,
         10,
     )
@@ -84,7 +84,7 @@ def test_one(policy):
     ],
 )
 def test_doc_animations(policy):
-    res = hstrat.policy_panel_animate(
+    hstrat.policy_panel_animate(
         policy,
         256,
         save_as="gif",

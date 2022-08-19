@@ -1,15 +1,14 @@
 import typing
 
+from .._detail import PolicySpecBase
 
-class PolicySpec:
+
+class PolicySpec(PolicySpecBase):
     """Contains all policy parameters, if any."""
 
     random_seed: int
 
-    def __init__(
-        self: "PolicySpec",
-        random_seed: int,
-    ) -> None:
+    def __init__(self: "PolicySpec", random_seed: int) -> None:
         """Construct the policy spec.
 
         Parameters
@@ -20,17 +19,12 @@ class PolicySpec:
 
         self._random_seed = random_seed
 
-    def __eq__(
-        self: "PolicySpec",
-        other: typing.Any,
-    ) -> bool:
+    def __eq__(self: "PolicySpec", other: typing.Any) -> bool:
         return isinstance(other, self.__class__) and (self._random_seed,) == (
             other._random_seed,
         )
 
-    def __repr__(
-        self: "PolicySpec",
-    ) -> str:
+    def __repr__(self: "PolicySpec") -> str:
         return f"""{
             self.GetPolicyName()
         }.{
@@ -39,9 +33,7 @@ class PolicySpec:
             self._random_seed
         })"""
 
-    def __str__(
-        self: "PolicySpec",
-    ) -> str:
+    def __str__(self: "PolicySpec") -> str:
         return f"""{
             self.GetPolicyTitle()
         } (seed: {

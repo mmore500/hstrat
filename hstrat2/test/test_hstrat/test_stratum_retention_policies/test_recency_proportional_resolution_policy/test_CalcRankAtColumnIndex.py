@@ -88,4 +88,4 @@ def test_eq(recency_proportional_resolution):
         instance
         == recency_proportional_resolution_policy.CalcRankAtColumnIndex(spec)
     )
-    assert not instance == None
+    assert instance is not None

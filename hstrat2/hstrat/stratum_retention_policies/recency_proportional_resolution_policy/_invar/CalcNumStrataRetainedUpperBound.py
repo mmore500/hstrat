@@ -1,6 +1,7 @@
 import math
 import typing
 
+from ..._detail import PolicyCouplerBase
 from ..PolicySpec import PolicySpec
 
 
@@ -21,7 +22,7 @@ class CalcNumStrataRetainedUpperBound:
 
     def __call__(
         self: "CalcNumStrataRetainedUpperBound",
-        policy: "Policy",
+        policy: PolicyCouplerBase,
         num_strata_deposited: int,
     ) -> int:
         """Exactly how many strata are retained after n deposted?. Inclusive."""

@@ -2,10 +2,7 @@ import typing
 
 import opytional as opyt
 
-_policy_param_focalizer_t = typing.Callable[
-    [typing.Type],
-    typing.Callable[[int], "Policy"],
-]
+from ._policy_param_focalizer_t import _policy_param_focalizer_t
 
 
 class MrcaUncertaintyRelExactPolicyEvaluator:
@@ -18,8 +15,8 @@ class MrcaUncertaintyRelExactPolicyEvaluator:
         self: "MrcaUncertaintyRelExactPolicyEvaluator",
         at_num_strata_deposited: int,
         at_rank: typing.Optional[int] = None,
-        policy_param_focalizer: _policy_param_focalizer_t = lambda policy_t: lambda i: policy_t(
-            i
+        policy_param_focalizer: _policy_param_focalizer_t = (
+            lambda policy_t: lambda i: policy_t(i)
         ),
     ) -> None:
         """Initialize functor to evaluate exact relative MRCA
@@ -67,9 +64,7 @@ class MrcaUncertaintyRelExactPolicyEvaluator:
             at_rank,
         )
 
-    def __repr__(
-        self: "MrcaUncertaintyRelExactPolicyEvaluator",
-    ) -> str:
+    def __repr__(self: "MrcaUncertaintyRelExactPolicyEvaluator") -> str:
         return f"""{
             MrcaUncertaintyRelExactPolicyEvaluator.__qualname__
         }(at_num_strata_deposited={
@@ -80,9 +75,7 @@ class MrcaUncertaintyRelExactPolicyEvaluator:
             self._policy_param_focalizer
         !r})"""
 
-    def __str__(
-        self: "MrcaUncertaintyRelExactPolicyEvaluator",
-    ) -> str:
+    def __str__(self: "MrcaUncertaintyRelExactPolicyEvaluator") -> str:
         title = "Exact Relative MRCA Uncertainty Evaluator"
         return f"""{
             title

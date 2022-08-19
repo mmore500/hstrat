@@ -13,6 +13,6 @@ def all_same(items: typing.Iterable) -> bool:
     for first in it:
         break
     else:
-        return True  # empty case, note all([]) == True
+        return True  # empty case, note all([]) is True
 
     return all(x == first for x in it)

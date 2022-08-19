@@ -1,32 +1,25 @@
 import typing
 
+from .._detail import PolicySpecBase
 
-class PolicySpec:
+
+class PolicySpec(PolicySpecBase):
     """Contains all policy parameters, if any."""
 
-    def __init__(
-        self: "PolicySpec",
-    ) -> None:
+    def __init__(self: "PolicySpec") -> None:
         """Construct the policy spec."""
 
-    def __eq__(
-        self: "PolicySpec",
-        other: typing.Any,
-    ) -> bool:
+    def __eq__(self: "PolicySpec", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
-    def __repr__(
-        self: "PolicySpec",
-    ) -> str:
+    def __repr__(self: "PolicySpec") -> str:
         return f"""{
             self.GetPolicyName()
         }.{
             PolicySpec.__qualname__
         }()"""
 
-    def __str__(
-        self: "PolicySpec",
-    ) -> str:
+    def __str__(self: "PolicySpec") -> str:
         return self.GetPolicyTitle()
 
     @staticmethod

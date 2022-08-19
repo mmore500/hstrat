@@ -22,7 +22,7 @@ from hstrat2.hstrat import nominal_resolution_policy
 def test_impl_consistency(time_sequence):
     policy = nominal_resolution_policy.Policy()
     spec = policy.GetSpec()
-    impls = [*nominal_resolution_policy._GenDropRanks.iter_impls()]
+    impls = [*nominal_resolution_policy.GenDropRanks_impls]
     instances = [impl(spec) for impl in impls]
     for num_strata_deposited in time_sequence:
         assert all_same(
@@ -97,4 +97,4 @@ def test_eq():
 
     assert instance == instance
     assert instance == nominal_resolution_policy.GenDropRanks(spec)
-    assert not instance == None
+    assert instance is not None

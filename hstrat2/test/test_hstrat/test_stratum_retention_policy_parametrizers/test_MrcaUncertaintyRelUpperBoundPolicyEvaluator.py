@@ -1,4 +1,3 @@
-import numpy as np
 import opytional as opyt
 import pytest
 

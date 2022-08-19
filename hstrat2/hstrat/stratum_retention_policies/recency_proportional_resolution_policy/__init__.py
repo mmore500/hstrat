@@ -1,4 +1,4 @@
-"""The MRCA-recency-proportional resolution policy ensures estimates of MRCA
+r"""The MRCA-recency-proportional resolution policy ensures estimates of MRCA
 rank will have uncertainty bounds less than or equal to a user-specified
 proportion of the actual number of generations elapsed since the MRCA and the
 deepest of the compared columns. MRCA rank estimate uncertainty scales in the
@@ -95,8 +95,8 @@ retained after being deposited. This property generalizes recursively.
 
 from .Policy import Policy
 from .PolicySpec import PolicySpec
-from ._enact import _GenDropRanks
 from ._enact.GenDropRanks import GenDropRanks
+from ._enact._GenDropRanks import impls as GenDropRanks_impls
 from ._invar.CalcMrcaUncertaintyAbsUpperBound import (
     CalcMrcaUncertaintyAbsUpperBound,
 )
@@ -123,3 +123,22 @@ from ._scry.CalcMrcaUncertaintyRelExact import CalcMrcaUncertaintyRelExact
 from ._scry.CalcNumStrataRetainedExact import CalcNumStrataRetainedExact
 from ._scry.CalcRankAtColumnIndex import CalcRankAtColumnIndex
 from ._scry.IterRetainedRanks import IterRetainedRanks
+
+__all__ = [
+    "CalcMrcaUncertaintyAbsExact",
+    "CalcMrcaUncertaintyAbsUpperBound",
+    "CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank",
+    "CalcMrcaUncertaintyAbsUpperBoundPessimalRank",
+    "CalcMrcaUncertaintyRelExact",
+    "CalcMrcaUncertaintyRelUpperBound",
+    "CalcMrcaUncertaintyRelUpperBoundAtPessimalRank",
+    "CalcMrcaUncertaintyRelUpperBoundPessimalRank",
+    "CalcNumStrataRetainedExact",
+    "CalcNumStrataRetainedUpperBound",
+    "CalcRankAtColumnIndex",
+    "GenDropRanks",
+    "GenDropRanks_impls",
+    "IterRetainedRanks",
+    "Policy",
+    "PolicySpec",
+]

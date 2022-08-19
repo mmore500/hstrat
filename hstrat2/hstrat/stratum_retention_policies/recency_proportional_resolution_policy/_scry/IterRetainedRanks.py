@@ -1,5 +1,6 @@
 import typing
 
+from ..._detail import PolicyCouplerBase
 from ..PolicySpec import PolicySpec
 from .._impl import calc_provided_uncertainty
 
@@ -13,15 +14,12 @@ class IterRetainedRanks:
     ) -> None:
         pass
 
-    def __eq__(
-        self: "IterRetainedRanks",
-        other: typing.Any,
-    ) -> bool:
+    def __eq__(self: "IterRetainedRanks", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
         self: "IterRetainedRanks",
-        policy: "Policy",
+        policy: PolicyCouplerBase,
         num_strata_deposited: int,
     ) -> typing.Iterator[int]:
         """Iterate over retained strata ranks at `num_strata_deposited` in

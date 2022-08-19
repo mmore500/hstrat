@@ -11,6 +11,8 @@ from . import (
     CalcWorstCaseMrcaUncertaintyRelUpperBound,
     CalcWorstCaseNumStrataRetainedUpperBound,
 )
+from .PolicyCouplerBase import PolicyCouplerBase
+from .PolicySpecBase import PolicySpecBase
 from .UnsatisfiableParameterizationRequestError import (
     UnsatisfiableParameterizationRequestError,
 )
@@ -20,12 +22,12 @@ class _CurryPolicy:
     """Helper class to enable the policy coupler to insert itself as the
     first argument to calls to implementation functors."""
 
-    _policy: "PolicyCoupler"
+    _policy: PolicyCouplerBase
     _ftor: typing.Callable
 
     def __init__(
-        self: "CurryPolicy",
-        policy: "PolicyCoupler",
+        self: "_CurryPolicy",
+        policy: PolicyCouplerBase,
         ftor: typing.Callable,
     ) -> None:
         self._policy = policy
@@ -40,11 +42,6 @@ class _CurryPolicy:
 
     def __call__(self: "_CurryPolicy", *args, **kwargs) -> typing.Any:
         return self._ftor(self._policy, *args, **kwargs)
-
-
-class _PolicyCouplerBase:
-    """Dummy class to faciliate recognition of instantiations of the
-    PolicyCoupler class across different calls to the PolicyCoupler factory."""
 
 
 _ftor_type = typing.Type[typing.Callable]
@@ -76,7 +73,7 @@ def PolicyCouplerFactory(
     policy_spec_t_ = policy_spec_t
 
     class PolicyCoupler(
-        _PolicyCouplerBase,
+        PolicyCouplerBase,
     ):
         """Instantiate policy implementation for particular policy
         specification parameters."""
@@ -108,9 +105,9 @@ def PolicyCouplerFactory(
             self: "PolicyCoupler",
             *args,
             parameterizer: typing.Optional[
-                typing.Callable[[typing.Type], typing.Optional["PolicySpec"]]
+                typing.Callable[[typing.Type], typing.Optional[PolicySpecBase]]
             ] = None,
-            policy_spec: typing.Optional["PolicySpec"] = None,
+            policy_spec: typing.Optional[PolicySpecBase] = None,
             **kwargs,
         ):
             """Construct a PolicyCoupler instance.
@@ -215,7 +212,7 @@ def PolicyCouplerFactory(
         ) -> bool:
             if issubclass(
                 other.__class__,
-                _PolicyCouplerBase,
+                PolicyCouplerBase,
             ):
                 return (
                     self._policy_spec,
@@ -256,9 +253,7 @@ def PolicyCouplerFactory(
 
             return hash(self._policy_spec)
 
-        def __repr__(
-            self: "PolicyCoupler",
-        ) -> str:
+        def __repr__(self: "PolicyCoupler") -> str:
             return f"""{
                 self._policy_spec.GetPolicyName()
             }.{
@@ -267,9 +262,7 @@ def PolicyCouplerFactory(
                 self._policy_spec
             !r})"""
 
-        def __str__(
-            self: "PolicyCoupler",
-        ) -> str:
+        def __str__(self: "PolicyCoupler") -> str:
             return str(self._policy_spec)
 
         def GetSpec(self: "PolicyCoupler") -> policy_spec_t_:

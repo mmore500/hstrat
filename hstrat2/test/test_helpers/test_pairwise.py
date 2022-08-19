@@ -51,16 +51,6 @@ class TestAllSame(unittest.TestCase):
                     (content, content),
                 ]
 
-    def test_different_types(self):
-        for container in list, iter:
-            content = [None, True, False, "a", [1, 2, 3]]
-            assert [*pairwise(container(content))] == [
-                (None, True),
-                (True, False),
-                (False, "a"),
-                ("a", [1, 2, 3]),
-            ]
-
     def test_same_type(self):
         for container in list, iter:
             content = range(4)

@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 
 from hstrat2 import hstrat

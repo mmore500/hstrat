@@ -200,7 +200,7 @@ def test_eq(degree, interspersal):
     assert instance == geom_seq_nth_root_policy.CalcMrcaUncertaintyAbsExact(
         spec
     )
-    assert not instance == None
+    assert instance is not None
 
 
 @pytest.mark.parametrize(

@@ -1,8 +1,10 @@
 import typing
 import warnings
 
+from .._detail import PolicySpecBase
 
-class PolicySpec:
+
+class PolicySpec(PolicySpecBase):
     """Contains all policy parameters, if any."""
 
     _degree: int
@@ -12,7 +14,7 @@ class PolicySpec:
         self: "PolicySpec",
         degree: int,
         interspersal: int = 2,
-    ):
+    ) -> None:
         """Construct the policy spec.
 
         Parameters
@@ -40,10 +42,7 @@ class PolicySpec:
         self._degree = degree
         self._interspersal = interspersal
 
-    def __eq__(
-        self: "PolicySpec",
-        other: typing.Any,
-    ) -> bool:
+    def __eq__(self: "PolicySpec", other: typing.Any) -> bool:
         return isinstance(other, self.__class__) and (
             self._degree,
             self._interspersal,
@@ -62,9 +61,7 @@ class PolicySpec:
             )
         )
 
-    def __repr__(
-        self: "PolicySpec",
-    ) -> str:
+    def __repr__(self: "PolicySpec") -> str:
         return f"""{
             self.GetPolicyName()
         }.{
@@ -75,9 +72,7 @@ class PolicySpec:
             self._interspersal
         })"""
 
-    def __str__(
-        self: "PolicySpec",
-    ) -> str:
+    def __str__(self: "PolicySpec") -> str:
         return f"""{
             self.GetPolicyTitle()
         } (degree: {

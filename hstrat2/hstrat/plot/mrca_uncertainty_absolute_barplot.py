@@ -3,9 +3,6 @@ import typing
 
 import matplotlib as mpl
 from matplotlib import pyplot as plt
-import seaborn as sns
-
-from ..HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 
 
 def mrca_uncertainty_absolute_barplot(
@@ -39,9 +36,6 @@ def mrca_uncertainty_absolute_barplot(
 
     xs = [0]
     ys = [0]
-    column = HereditaryStratigraphicColumn(
-        stratum_retention_policy=stratum_retention_policy,
-    )
     for gen in range(1, num_generations):
         xs.append(gen)
         if stratum_retention_policy.CalcMrcaUncertaintyAbsExact is not None:
@@ -53,6 +47,7 @@ def mrca_uncertainty_absolute_barplot(
                 )
             )
         else:
+            # not implemented for policies without CalcMrcaUncertaintyAbsExact
             ys.append(float("nan"))
 
     ax.bar(

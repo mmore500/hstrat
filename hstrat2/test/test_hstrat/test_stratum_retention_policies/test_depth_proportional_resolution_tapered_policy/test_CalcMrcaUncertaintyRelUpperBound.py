@@ -97,7 +97,7 @@ def test_eq(depth_proportional_resolution):
             spec,
         )
     )
-    assert not instance == None
+    assert instance is not None
 
 
 @pytest.mark.parametrize(

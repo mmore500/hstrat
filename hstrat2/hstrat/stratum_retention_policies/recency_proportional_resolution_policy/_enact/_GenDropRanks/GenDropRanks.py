@@ -1,7 +1,8 @@
 import typing
 
+from ...._detail import PolicyCouplerBase
 from ...PolicySpec import PolicySpec
-from ..._impl import calc_provided_uncertainty, num_to_condemn
+from ..._impl import num_to_condemn
 
 
 class GenDropRanks:
@@ -19,15 +20,12 @@ class GenDropRanks:
     ) -> None:
         pass
 
-    def __eq__(
-        self: "GenDropRanks",
-        other: typing.Any,
-    ) -> bool:
+    def __eq__(self: "GenDropRanks", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
         self: "GenDropRanks",
-        policy: "Policy",
+        policy: PolicyCouplerBase,
         num_stratum_depositions_completed: int,
         retained_ranks: typing.Optional[typing.Iterable[int]],
     ) -> typing.Iterator[int]:

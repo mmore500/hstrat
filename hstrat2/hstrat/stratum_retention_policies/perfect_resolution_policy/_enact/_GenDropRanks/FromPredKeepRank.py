@@ -1,6 +1,6 @@
 import typing
 
-from ...._detail import GenDropRanksFromPredKeepRank
+from ...._detail import GenDropRanksFromPredKeepRank, PolicyCouplerBase
 from ...PolicySpec import PolicySpec
 
 
@@ -18,15 +18,12 @@ class _PredKeepRank:
     ) -> None:
         pass
 
-    def __eq__(
-        self: "_PredKeepRank",
-        other: typing.Any,
-    ) -> bool:
+    def __eq__(self: "_PredKeepRank", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
         self: "_PredKeepRank",
-        policy: typing.Optional["Policy"],
+        policy: typing.Optional[PolicyCouplerBase],
         num_stratum_depositions_completed: typing.Optional[int],
         stratum_rank: typing.Optional[int],
     ) -> bool:

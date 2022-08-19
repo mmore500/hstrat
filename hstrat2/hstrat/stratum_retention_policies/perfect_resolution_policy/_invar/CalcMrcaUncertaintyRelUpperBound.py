@@ -1,5 +1,6 @@
 import typing
 
+from ..._detail import PolicyCouplerBase
 from ..PolicySpec import PolicySpec
 
 
@@ -20,7 +21,7 @@ class CalcMrcaUncertaintyRelUpperBound:
 
     def __call__(
         self: "CalcMrcaUncertaintyRelUpperBound",
-        policy: typing.Optional["Policy"],
+        policy: typing.Optional[PolicyCouplerBase],
         first_num_strata_deposited: typing.Optional[int],
         second_num_strata_deposited: typing.Optional[int],
         actual_rank_of_mrca: typing.Optional[int],

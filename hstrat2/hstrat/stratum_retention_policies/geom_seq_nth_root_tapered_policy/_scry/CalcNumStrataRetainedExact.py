@@ -1,7 +1,7 @@
 import typing
 
+from ..._detail import PolicyCouplerBase
 from ..PolicySpec import PolicySpec
-from .._impl import get_retained_ranks
 
 
 class CalcNumStrataRetainedExact:
@@ -13,15 +13,12 @@ class CalcNumStrataRetainedExact:
     ) -> None:
         pass
 
-    def __eq__(
-        self: "CalcNumStrataRetainedExact",
-        other: typing.Any,
-    ) -> bool:
+    def __eq__(self: "CalcNumStrataRetainedExact", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
         self: "CalcNumStrataRetainedExact",
-        policy: "Policy",
+        policy: PolicyCouplerBase,
         num_strata_deposited: int,
     ) -> int:
         """Exactly how many strata are retained after n deposted?"""

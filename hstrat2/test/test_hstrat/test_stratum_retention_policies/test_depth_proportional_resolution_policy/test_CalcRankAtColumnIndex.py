@@ -82,4 +82,4 @@ def test_eq(depth_proportional_resolution):
         instance
         == depth_proportional_resolution_policy.CalcRankAtColumnIndex(spec)
     )
-    assert not instance == None
+    assert instance is not None

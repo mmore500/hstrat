@@ -1,5 +1,6 @@
 import typing
 
+from ...._detail import PolicyCouplerBase
 from ...PolicySpec import PolicySpec
 from ..._impl import calc_provided_uncertainty
 
@@ -19,15 +20,12 @@ class GenDropRanks:
     ) -> None:
         pass
 
-    def __eq__(
-        self: "GenDropRanks",
-        other: typing.Any,
-    ) -> bool:
+    def __eq__(self: "GenDropRanks", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
         self: "GenDropRanks",
-        policy: "Policy",
+        policy: PolicyCouplerBase,
         num_stratum_depositions_completed: int,
         retained_ranks: typing.Optional[typing.Iterable[int]],
     ) -> typing.Iterator[int]:
@@ -79,7 +77,7 @@ class GenDropRanks:
         prev_stage_uncertainty = cur_stage_uncertainty // 2
         assert prev_stage_uncertainty
 
-        cur_stage_idx = (
+        cur_stage_idx = (  # noqa: F841, keep unused for comprehensibility
             num_stratum_depositions_completed // cur_stage_uncertainty
         )
         prev_stage_idx = (

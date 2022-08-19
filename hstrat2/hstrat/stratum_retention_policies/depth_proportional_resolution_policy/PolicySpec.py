@@ -1,7 +1,9 @@
 import typing
 
+from .._detail import PolicySpecBase
 
-class PolicySpec:
+
+class PolicySpec(PolicySpecBase):
     """Contains all policy parameters, if any."""
 
     _guaranteed_depth_proportional_resolution: int
@@ -27,17 +29,12 @@ class PolicySpec:
             guaranteed_depth_proportional_resolution
         )
 
-    def __eq__(
-        self: "PolicySpec",
-        other: typing.Any,
-    ) -> bool:
+    def __eq__(self: "PolicySpec", other: typing.Any) -> bool:
         return isinstance(other, self.__class__) and (
             self._guaranteed_depth_proportional_resolution,
         ) == (other._guaranteed_depth_proportional_resolution,)
 
-    def __repr__(
-        self: "PolicySpec",
-    ) -> str:
+    def __repr__(self: "PolicySpec") -> str:
         return f"""{
             self.GetPolicyName()
         }.{
@@ -46,9 +43,7 @@ class PolicySpec:
             self._guaranteed_depth_proportional_resolution
         })"""
 
-    def __str__(
-        self: "PolicySpec",
-    ) -> str:
+    def __str__(self: "PolicySpec") -> str:
         return f"""{
             self.GetPolicyTitle()
         } (resolution: {

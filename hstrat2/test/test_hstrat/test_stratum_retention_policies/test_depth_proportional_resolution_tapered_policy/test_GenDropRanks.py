@@ -5,7 +5,6 @@ import pytest
 
 from hstrat2.helpers import all_same
 from hstrat2.hstrat import depth_proportional_resolution_tapered_policy
-from hstrat import hstrat
 
 
 @pytest.mark.parametrize(
@@ -38,9 +37,7 @@ def test_impl_consistency(depth_proportional_resolution, time_sequence):
         depth_proportional_resolution
     )
     spec = policy.GetSpec()
-    impls = [
-        *depth_proportional_resolution_tapered_policy._GenDropRanks.iter_impls()
-    ]
+    impls = [*depth_proportional_resolution_tapered_policy.GenDropRanks_impls]
     instances = [impl(spec) for impl in impls]
 
     for num_strata_deposited in time_sequence:
@@ -147,4 +144,4 @@ def test_eq(depth_proportional_resolution):
         instance
         == depth_proportional_resolution_tapered_policy.GenDropRanks(spec)
     )
-    assert not instance == None
+    assert instance is not None

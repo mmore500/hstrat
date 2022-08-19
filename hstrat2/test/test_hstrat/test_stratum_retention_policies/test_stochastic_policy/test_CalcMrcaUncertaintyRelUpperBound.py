@@ -2,7 +2,6 @@ import itertools as it
 import operator
 import random
 
-import numpy as np
 import pytest
 
 from hstrat2.helpers import find_bounds
@@ -73,7 +72,7 @@ def test_eq(replicate):
     assert instance == stochastic_policy.CalcMrcaUncertaintyRelUpperBound(
         spec,
     )
-    assert not instance == None
+    assert instance is not None
 
 
 @pytest.mark.parametrize(

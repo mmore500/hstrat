@@ -1,4 +1,3 @@
-import itertools as it
 import numbers
 
 from iterpop import iterpop as ip
@@ -235,4 +234,4 @@ def test_eq(recency_proportional_resolution):
         instance
         == recency_proportional_resolution_policy.IterRetainedRanks(spec)
     )
-    assert not instance == None
+    assert instance is not None

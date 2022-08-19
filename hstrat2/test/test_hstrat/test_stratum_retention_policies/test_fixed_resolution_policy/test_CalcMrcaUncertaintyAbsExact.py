@@ -146,7 +146,7 @@ def test_eq(fixed_resolution):
     assert instance == fixed_resolution_policy.CalcMrcaUncertaintyAbsExact(
         spec
     )
-    assert not instance == None
+    assert instance is not None
 
 
 @pytest.mark.parametrize(

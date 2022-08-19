@@ -1,4 +1,3 @@
-import itertools as it
 import numbers
 
 from iterpop import iterpop as ip
@@ -245,4 +244,4 @@ def test_eq(depth_proportional_resolution):
         instance
         == depth_proportional_resolution_tapered_policy.IterRetainedRanks(spec)
     )
-    assert not instance == None
+    assert instance is not None

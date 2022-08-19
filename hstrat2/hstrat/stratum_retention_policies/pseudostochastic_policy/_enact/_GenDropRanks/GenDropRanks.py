@@ -1,7 +1,6 @@
 import typing
 
-import mmh3
-
+from ...._detail import PolicyCouplerBase
 from ...PolicySpec import PolicySpec
 from ..._impl import decide_if_discard
 
@@ -21,15 +20,12 @@ class GenDropRanks:
     ) -> None:
         pass
 
-    def __eq__(
-        self: "GenDropRanks",
-        other: typing.Any,
-    ) -> bool:
+    def __eq__(self: "GenDropRanks", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
         self: "GenDropRanks",
-        policy: "Policy",
+        policy: PolicyCouplerBase,
         num_stratum_depositions_completed: int,
         retained_ranks: typing.Optional[typing.Iterable[int]],
     ) -> typing.Iterator[int]:

@@ -1,6 +1,9 @@
 import typing
 
-from ..._detail import CalcWorstCaseMrcaUncertaintyRelUpperBound
+from ..._detail import (
+    CalcWorstCaseMrcaUncertaintyRelUpperBound,
+    PolicyCouplerBase,
+)
 from ..PolicySpec import PolicySpec
 
 
@@ -21,7 +24,7 @@ class CalcMrcaUncertaintyRelUpperBound:
 
     def __call__(
         self: "CalcMrcaUncertaintyRelUpperBound",
-        policy: "Policy",
+        policy: PolicyCouplerBase,
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
         actual_rank_of_mrca: int,
@@ -36,8 +39,6 @@ class CalcMrcaUncertaintyRelUpperBound:
             )
             actual_rank_of_mrca += least_last_rank
             assert actual_rank_of_mrca >= 0
-
-        spec = policy.GetSpec()
 
         if (
             first_num_strata_deposited <= 2

@@ -1,5 +1,6 @@
 import typing
 
+from ..._detail import PolicyCouplerBase
 from ..PolicySpec import PolicySpec
 
 
@@ -20,15 +21,12 @@ class CalcMrcaUncertaintyRelUpperBoundPessimalRank:
 
     def __call__(
         self: "CalcMrcaUncertaintyRelUpperBoundPessimalRank",
-        policy: "Policy",
+        policy: PolicyCouplerBase,
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
     ) -> int:
         """Calculate rank for which upper bound on relative MRCA uncertainty is
         pessimized."""
-
-        spec = policy.GetSpec()
-        interspersal = spec._interspersal
 
         least_last_rank = min(
             first_num_strata_deposited - 1,

@@ -1,6 +1,9 @@
 import typing
 
-from ..._detail import CalcWorstCaseMrcaUncertaintyRelUpperBound
+from ..._detail import (
+    CalcWorstCaseMrcaUncertaintyRelUpperBound,
+    PolicyCouplerBase,
+)
 from ..PolicySpec import PolicySpec
 from .._impl import calc_common_ratio
 
@@ -22,7 +25,7 @@ class CalcMrcaUncertaintyRelUpperBound:
 
     def __call__(
         self: "CalcMrcaUncertaintyRelUpperBound",
-        policy: "Policy",
+        policy: PolicyCouplerBase,
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
         actual_rank_of_mrca: int,

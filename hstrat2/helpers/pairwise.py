@@ -18,6 +18,6 @@ def pairwise(iterable: typing.Iterable) -> typing.Iterator:
 
 # use library implementation if available (Python 3.10+)
 try:
-    pairwise = it.pairwise
+    pairwise = it.pairwise  # noqa: F811
 except AttributeError:
     pass

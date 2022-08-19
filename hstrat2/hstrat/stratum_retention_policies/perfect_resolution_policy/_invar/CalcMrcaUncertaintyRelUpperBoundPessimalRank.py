@@ -1,5 +1,6 @@
 import typing
 
+from ..._detail import PolicyCouplerBase
 from ..PolicySpec import PolicySpec
 
 
@@ -20,7 +21,7 @@ class CalcMrcaUncertaintyRelUpperBoundPessimalRank:
 
     def __call__(
         self: "CalcMrcaUncertaintyRelUpperBoundPessimalRank",
-        policy: "Policy",
+        policy: PolicyCouplerBase,
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
     ) -> int:

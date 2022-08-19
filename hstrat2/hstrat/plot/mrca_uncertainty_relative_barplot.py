@@ -3,7 +3,6 @@ import typing
 
 import matplotlib as mpl
 from matplotlib import pyplot as plt
-import seaborn as sns
 
 from ..HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 

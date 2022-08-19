@@ -50,4 +50,4 @@ def test_eq():
     assert instance == perfect_resolution_policy.CalcNumStrataRetainedExact(
         spec,
     )
-    assert not instance == None
+    assert instance is not None

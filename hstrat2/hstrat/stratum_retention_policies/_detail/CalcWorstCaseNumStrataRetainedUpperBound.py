@@ -1,5 +1,7 @@
 import typing
 
+from .PolicyCouplerBase import PolicyCouplerBase
+
 
 class CalcWorstCaseNumStrataRetainedUpperBound:
     def __init__(
@@ -16,7 +18,7 @@ class CalcWorstCaseNumStrataRetainedUpperBound:
 
     def __call__(
         self: "CalcWorstCaseNumStrataRetainedUpperBound",
-        policy: typing.Optional["Policy"],
+        policy: typing.Optional[PolicyCouplerBase],
         num_strata_deposited: int,
     ) -> int:
         """At most, how many strata are retained after n deposted? Inclusive."""

@@ -1,6 +1,9 @@
 import typing
 
-from ..._detail import CalcWorstCaseMrcaUncertaintyRelUpperBound
+from ..._detail import (
+    CalcWorstCaseMrcaUncertaintyRelUpperBound,
+    PolicyCouplerBase,
+)
 from ..PolicySpec import PolicySpec
 
 
@@ -21,7 +24,7 @@ class CalcMrcaUncertaintyRelUpperBound:
 
     def __call__(
         self: "CalcMrcaUncertaintyRelUpperBound",
-        policy: "Policy",
+        policy: PolicyCouplerBase,
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
         actual_rank_of_mrca: int,
@@ -50,14 +53,6 @@ class CalcMrcaUncertaintyRelUpperBound:
         )
 
         length_ratio = max_num_strata_deposited / min_num_strata_deposited
-
-        max_ranks_since_mrca = (
-            max(
-                first_num_strata_deposited,
-                second_num_strata_deposited,
-            )
-            - actual_rank_of_mrca
-        )
 
         if spec._guaranteed_mrca_recency_proportional_resolution == 0:
             return CalcWorstCaseMrcaUncertaintyRelUpperBound()(

@@ -1,9 +1,6 @@
 import typing
 
-_policy_param_focalizer_t = typing.Callable[
-    [typing.Type],
-    typing.Callable[[int], "Policy"],
-]
+from ._policy_param_focalizer_t import _policy_param_focalizer_t
 
 
 class NumStrataRetainedExactPolicyEvaluator:
@@ -14,8 +11,8 @@ class NumStrataRetainedExactPolicyEvaluator:
     def __init__(
         self: "NumStrataRetainedExactPolicyEvaluator",
         at_num_strata_deposited: int,
-        policy_param_focalizer: _policy_param_focalizer_t = lambda policy_t: lambda i: policy_t(
-            i
+        policy_param_focalizer: _policy_param_focalizer_t = (
+            lambda policy_t: lambda i: policy_t(i)
         ),
     ) -> None:
         """Initialize functor to evaluate exact num strata retained.
@@ -45,9 +42,7 @@ class NumStrataRetainedExactPolicyEvaluator:
             self._at_num_strata_deposited,
         )
 
-    def __repr__(
-        self: "NumStrataRetainedExactPolicyEvaluator",
-    ) -> str:
+    def __repr__(self: "NumStrataRetainedExactPolicyEvaluator") -> str:
         return f"""{
             NumStrataRetainedExactPolicyEvaluator.__qualname__
         }(at_num_strata_deposited={
@@ -56,9 +51,7 @@ class NumStrataRetainedExactPolicyEvaluator:
             self._policy_param_focalizer
         !r})"""
 
-    def __str__(
-        self: "NumStrataRetainedExactPolicyEvaluator",
-    ) -> str:
+    def __str__(self: "NumStrataRetainedExactPolicyEvaluator") -> str:
         title = "Exact Num Strata Retained Evaluator"
         return f"""{
             title

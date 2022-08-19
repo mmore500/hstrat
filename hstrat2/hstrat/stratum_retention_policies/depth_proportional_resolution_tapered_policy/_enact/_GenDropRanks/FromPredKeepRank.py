@@ -1,6 +1,6 @@
 import typing
 
-from ...._detail import GenDropRanksFromPredKeepRank
+from ...._detail import GenDropRanksFromPredKeepRank, PolicyCouplerBase
 from ...PolicySpec import PolicySpec
 from ..._impl import calc_provided_uncertainty
 
@@ -20,15 +20,12 @@ class _PredKeepRank:
     ) -> None:
         pass
 
-    def __eq__(
-        self: "_PredKeepRank",
-        other: typing.Any,
-    ) -> bool:
+    def __eq__(self: "_PredKeepRank", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
         self: "_PredKeepRank",
-        policy: "Policy",
+        policy: PolicyCouplerBase,
         num_stratum_depositions_completed: int,
         stratum_rank: int,
     ) -> bool:
@@ -82,17 +79,21 @@ class _PredKeepRank:
             guaranteed_resolution,
             num_stratum_depositions_completed + 1,
         )
-        cur_stage_idx = stratum_rank // cur_stage_uncertainty
-        cur_stage_max_idx = (
+
+        # keep unused variables for comprehensibility
+        cur_stage_idx = stratum_rank // cur_stage_uncertainty  # noqa: F841
+        cur_stage_max_idx = (  # noqa: F841
             num_stratum_depositions_completed // cur_stage_uncertainty
         )
 
         # use lambdas to prevent division by zero
         prev_stage_uncertainty = cur_stage_uncertainty // 2
-        prev_stage_idx = lambda: stratum_rank // prev_stage_uncertainty
-        prev_stage_max_idx = (
-            lambda: num_stratum_depositions_completed // prev_stage_uncertainty
-        )
+
+        def prev_stage_idx() -> int:
+            return stratum_rank // prev_stage_uncertainty
+
+        def prev_stage_max_idx() -> int:
+            return num_stratum_depositions_completed // prev_stage_uncertainty
 
         return stratum_rank % cur_stage_uncertainty == 0 or (
             stratum_rank % prev_stage_uncertainty == 0

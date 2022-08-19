@@ -10,21 +10,21 @@ from hstrat2 import hstrat
     ],
 )
 def test_one(policy):
-    res = hstrat.stratum_retention_animate(
+    hstrat.stratum_retention_animate(
         policy,
         10,
         draw_extant_history=False,
         draw_extinct_history=False,
         draw_extinct_placeholders=True,
     )
-    res = hstrat.stratum_retention_animate(
+    hstrat.stratum_retention_animate(
         policy,
         10,
         draw_extant_history=True,
         draw_extinct_history=False,
         draw_extinct_placeholders=True,
     )
-    res = hstrat.stratum_retention_animate(
+    hstrat.stratum_retention_animate(
         policy,
         10,
     )
@@ -98,7 +98,7 @@ def test_one(policy):
     ],
 )
 def test_doc_animations(policy):
-    res = hstrat.stratum_retention_animate(
+    hstrat.stratum_retention_animate(
         policy,
         256,
         save_as="gif",
@@ -123,7 +123,7 @@ def test_doc_animations(policy):
 )
 def test_more_doc_animations(policy):
 
-    res = hstrat.stratum_retention_animate(
+    hstrat.stratum_retention_animate(
         policy,
         256,
         draw_extant_history=False,
@@ -131,7 +131,7 @@ def test_more_doc_animations(policy):
         draw_extinct_placeholders=True,
         save_as="gif",
     )
-    res = hstrat.stratum_retention_animate(
+    hstrat.stratum_retention_animate(
         policy,
         256,
         draw_extant_history=True,
@@ -139,7 +139,7 @@ def test_more_doc_animations(policy):
         draw_extinct_placeholders=True,
         save_as="gif",
     )
-    res = hstrat.stratum_retention_animate(
+    hstrat.stratum_retention_animate(
         policy,
         256,
         save_as="gif",

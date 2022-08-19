@@ -72,4 +72,4 @@ def test_eq(fixed_resolution):
 
     assert instance == instance
     assert instance == fixed_resolution_policy.CalcRankAtColumnIndex(spec)
-    assert not instance == None
+    assert instance is not None

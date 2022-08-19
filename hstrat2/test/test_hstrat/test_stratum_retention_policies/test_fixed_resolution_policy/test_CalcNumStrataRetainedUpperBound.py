@@ -68,4 +68,4 @@ def test_eq(fixed_resolution):
     assert instance == fixed_resolution_policy.CalcNumStrataRetainedUpperBound(
         spec,
     )
-    assert not instance == None
+    assert instance is not None

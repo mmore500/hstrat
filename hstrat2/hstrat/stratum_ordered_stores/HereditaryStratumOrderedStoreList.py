@@ -159,7 +159,7 @@ class HereditaryStratumOrderedStoreList:
             del self._data[index]
 
     def IterRetainedRanks(
-        self: "HereditaryStratumOrderedStoreDict",
+        self: "HereditaryStratumOrderedStoreList",
     ) -> typing.Iterator[int]:
         """Get an iterator over deposition ranks of strata present in the
         store.

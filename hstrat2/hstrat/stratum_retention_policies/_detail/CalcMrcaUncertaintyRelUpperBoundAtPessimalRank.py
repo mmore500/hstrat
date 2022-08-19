@@ -1,6 +1,6 @@
 import typing
 
-import numpy as np
+from .PolicyCouplerBase import PolicyCouplerBase
 
 
 class CalcMrcaUncertaintyRelUpperBoundAtPessimalRank:
@@ -18,7 +18,7 @@ class CalcMrcaUncertaintyRelUpperBoundAtPessimalRank:
 
     def __call__(
         self: "CalcMrcaUncertaintyRelUpperBoundAtPessimalRank",
-        policy: "Policy",
+        policy: PolicyCouplerBase,
         first_num_strata_deposited: int,
         second_num_strata_deposited: int,
     ) -> float:

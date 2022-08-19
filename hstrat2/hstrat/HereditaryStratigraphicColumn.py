@@ -1,6 +1,5 @@
 from collections import deque
 from copy import copy
-import itertools as it
 import math
 import operator
 import typing
@@ -430,14 +429,15 @@ class HereditaryStratigraphicColumn:
             ]
         )
         assert lower_bound <= upper_bound
-        rank_at = lambda which, idx: which.GetRankAtColumnIndex(idx)
-        differentia_at = lambda which, idx: which.GetStratumAtColumnIndex(
-            idx
-        ).GetDifferentia()
-        # todo: how to account for possible spurious differentiae collisions?
-        predicate = lambda idx: differentia_at(self, idx) != differentia_at(
-            other, idx
-        )
+
+        def differentia_at(
+            which: HereditaryStratigraphicColumn,
+            idx: int,
+        ) -> int:
+            return which.GetStratumAtColumnIndex(idx).GetDifferentia()
+
+        def predicate(idx: int) -> bool:
+            return differentia_at(self, idx) != differentia_at(other, idx)
 
         first_disparite_idx = binary_search(
             predicate,
@@ -742,14 +742,15 @@ class HereditaryStratigraphicColumn:
             ]
         )
         assert lower_bound <= upper_bound
-        rank_at = lambda which, idx: which.GetRankAtColumnIndex(idx)
-        differentia_at = lambda which, idx: which.GetStratumAtColumnIndex(
-            idx
-        ).GetDifferentia()
-        # todo: how to account for possible spurious differentiae collisions?
-        predicate = lambda idx: differentia_at(self, idx) != differentia_at(
-            other, idx
-        )
+
+        def differentia_at(
+            which: HereditaryStratigraphicColumn,
+            idx: int,
+        ) -> int:
+            return which.GetStratumAtColumnIndex(idx).GetDifferentia()
+
+        def predicate(idx: int) -> bool:
+            return differentia_at(self, idx) != differentia_at(other, idx)
 
         first_disparite_idx = binary_search(
             predicate,

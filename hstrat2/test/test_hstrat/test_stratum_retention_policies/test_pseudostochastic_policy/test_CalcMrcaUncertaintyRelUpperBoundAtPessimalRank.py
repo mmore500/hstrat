@@ -101,4 +101,4 @@ def test_eq(random_seed):
             spec,
         )
     )
-    assert not instance == None
+    assert instance is not None

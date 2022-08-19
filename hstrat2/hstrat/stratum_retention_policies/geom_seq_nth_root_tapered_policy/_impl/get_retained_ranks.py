@@ -1,13 +1,13 @@
 import functools
 import typing
 
-from .....helpers import is_nondecreasing
+from ..._detail import PolicyCouplerBase
 from .iter_priority_ranks import iter_priority_ranks
 
 
 @functools.lru_cache(maxsize=512)
 def get_retained_ranks(
-    policy: "Policy",
+    policy: PolicyCouplerBase,
     num_strata_deposited: int,
 ) -> typing.Set[int]:
     """Calculate the set of strata ranks retained at `num_strata_deposited`."""
