@@ -43,11 +43,6 @@ jobs:
         flags: tests # optional
         fail_ci_if_error: true # optional (default = false)
         verbose: true # optional (default = false)
-    - uses: codecov/codecov-action@v3
-      with:
-        flags: tests # optional
-        fail_ci_if_error: true # optional (default = false)
-        verbose: true # optional (default = false)
 
   tidy:
     runs-on: ubuntu-latest
