@@ -107,6 +107,7 @@ def test_doc_animations(policy):
     )
 
 
+@pytest.mark.heavy
 @pytest.mark.parametrize(
     "policy",
     [
