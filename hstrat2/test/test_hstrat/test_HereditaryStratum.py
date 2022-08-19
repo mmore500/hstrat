@@ -4,8 +4,6 @@ import unittest
 
 from hstrat import hstrat
 
-random.seed(1)
-
 
 class TestHereditaryStratum(unittest.TestCase):
 

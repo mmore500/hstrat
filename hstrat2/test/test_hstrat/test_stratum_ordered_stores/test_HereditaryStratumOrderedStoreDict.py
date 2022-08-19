@@ -4,8 +4,6 @@ import unittest
 
 from hstrat2 import hstrat
 
-random.seed(1)
-
 
 class TestHereditaryStratumOrderedStoreDict(unittest.TestCase):
 
