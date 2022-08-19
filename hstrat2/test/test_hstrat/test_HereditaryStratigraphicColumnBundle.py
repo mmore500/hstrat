@@ -2,7 +2,7 @@ from copy import deepcopy
 import random
 import unittest
 
-from hstrat import hstrat
+from hstrat2 import hstrat
 
 random.seed(1)
 
@@ -18,7 +18,7 @@ class TestHereditaryStratum(unittest.TestCase):
                 {
                     "test": hstrat.HereditaryStratigraphicColumn(),
                     "control": hstrat.HereditaryStratigraphicColumn(
-                        stratum_retention_condemner=hstrat.StratumRetentionCondemnerPerfectResolution(),
+                        stratum_retention_policy=hstrat.perfect_resolution_policy.Policy(),
                     ),
                 }
             )
@@ -38,7 +38,7 @@ class TestHereditaryStratum(unittest.TestCase):
                 {
                     "test": hstrat.HereditaryStratigraphicColumn(),
                     "control": hstrat.HereditaryStratigraphicColumn(
-                        stratum_retention_condemner=hstrat.StratumRetentionCondemnerPerfectResolution(),
+                        stratum_retention_policy=hstrat.perfect_resolution_policy.Policy(),
                     ),
                 }
             )
@@ -61,11 +61,11 @@ class TestHereditaryStratum(unittest.TestCase):
         bundle1 = hstrat.HereditaryStratigraphicColumnBundle(
             {
                 "test": hstrat.HereditaryStratigraphicColumn(
-                    stratum_retention_condemner=hstrat.StratumRetentionCondemnerNominalResolution(),
+                    stratum_retention_policy=hstrat.nominal_resolution_policy.Policy(),
                     stratum_differentia_bit_width=1,
                 ),
                 "control": hstrat.HereditaryStratigraphicColumn(
-                    stratum_retention_condemner=hstrat.StratumRetentionCondemnerPerfectResolution(),
+                    stratum_retention_policy=hstrat.perfect_resolution_policy.Policy(),
                 ),
             }
         )
