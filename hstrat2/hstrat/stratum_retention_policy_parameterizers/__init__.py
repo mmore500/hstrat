@@ -1,26 +1,26 @@
 """Utils to set up policy parameterizations satisfying various requirements."""
 
-from .MrcaUncertaintyAbsExactPolicyEvaluator import (
+from ._MrcaUncertaintyAbsExactPolicyEvaluator import (
     MrcaUncertaintyAbsExactPolicyEvaluator,
 )
-from .MrcaUncertaintyAbsUpperBoundPolicyEvaluator import (
+from ._MrcaUncertaintyAbsUpperBoundPolicyEvaluator import (
     MrcaUncertaintyAbsUpperBoundPolicyEvaluator,
 )
-from .MrcaUncertaintyRelExactPolicyEvaluator import (
+from ._MrcaUncertaintyRelExactPolicyEvaluator import (
     MrcaUncertaintyRelExactPolicyEvaluator,
 )
-from .MrcaUncertaintyRelUpperBoundPolicyEvaluator import (
+from ._MrcaUncertaintyRelUpperBoundPolicyEvaluator import (
     MrcaUncertaintyRelUpperBoundPolicyEvaluator,
 )
-from .NumStrataRetainedExactPolicyEvaluator import (
+from ._NumStrataRetainedExactPolicyEvaluator import (
     NumStrataRetainedExactPolicyEvaluator,
 )
-from .NumStrataRetainedUpperBoundPolicyEvaluator import (
+from ._NumStrataRetainedUpperBoundPolicyEvaluator import (
     NumStrataRetainedUpperBoundPolicyEvaluator,
 )
-from .PropertyAtLeastParameterizer import PropertyAtLeastParameterizer
-from .PropertyAtMostParameterizer import PropertyAtMostParameterizer
-from .PropertyExactlyParameterizer import PropertyExactlyParameterizer
+from ._PropertyAtLeastParameterizer import PropertyAtLeastParameterizer
+from ._PropertyAtMostParameterizer import PropertyAtMostParameterizer
+from ._PropertyExactlyParameterizer import PropertyExactlyParameterizer
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [

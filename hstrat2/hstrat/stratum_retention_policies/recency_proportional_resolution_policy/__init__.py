@@ -95,36 +95,36 @@ are perfect powers of 2 measuring from the root ancestor will have been
 retained after being deposited. This property generalizes recursively.
 """
 
-from .Policy import Policy
-from .PolicySpec import PolicySpec
-from ._enact.GenDropRanks import GenDropRanks
-from ._enact._GenDropRanks import impls as GenDropRanks_impls
-from ._invar.CalcMrcaUncertaintyAbsUpperBound import (
+from ._Policy import Policy
+from ._PolicySpec import PolicySpec
+from ._enact._GenDropRanks import GenDropRanks
+from ._enact._GenDropRanks_ import impls as GenDropRanks_impls
+from ._invar._CalcMrcaUncertaintyAbsUpperBound import (
     CalcMrcaUncertaintyAbsUpperBound,
 )
-from ._invar.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank import (
+from ._invar._CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank import (
     CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank,
 )
-from ._invar.CalcMrcaUncertaintyAbsUpperBoundPessimalRank import (
+from ._invar._CalcMrcaUncertaintyAbsUpperBoundPessimalRank import (
     CalcMrcaUncertaintyAbsUpperBoundPessimalRank,
 )
-from ._invar.CalcMrcaUncertaintyRelUpperBound import (
+from ._invar._CalcMrcaUncertaintyRelUpperBound import (
     CalcMrcaUncertaintyRelUpperBound,
 )
-from ._invar.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank import (
+from ._invar._CalcMrcaUncertaintyRelUpperBoundAtPessimalRank import (
     CalcMrcaUncertaintyRelUpperBoundAtPessimalRank,
 )
-from ._invar.CalcMrcaUncertaintyRelUpperBoundPessimalRank import (
+from ._invar._CalcMrcaUncertaintyRelUpperBoundPessimalRank import (
     CalcMrcaUncertaintyRelUpperBoundPessimalRank,
 )
-from ._invar.CalcNumStrataRetainedUpperBound import (
+from ._invar._CalcNumStrataRetainedUpperBound import (
     CalcNumStrataRetainedUpperBound,
 )
-from ._scry.CalcMrcaUncertaintyAbsExact import CalcMrcaUncertaintyAbsExact
-from ._scry.CalcMrcaUncertaintyRelExact import CalcMrcaUncertaintyRelExact
-from ._scry.CalcNumStrataRetainedExact import CalcNumStrataRetainedExact
-from ._scry.CalcRankAtColumnIndex import CalcRankAtColumnIndex
-from ._scry.IterRetainedRanks import IterRetainedRanks
+from ._scry._CalcMrcaUncertaintyAbsExact import CalcMrcaUncertaintyAbsExact
+from ._scry._CalcMrcaUncertaintyRelExact import CalcMrcaUncertaintyRelExact
+from ._scry._CalcNumStrataRetainedExact import CalcNumStrataRetainedExact
+from ._scry._CalcRankAtColumnIndex import CalcRankAtColumnIndex
+from ._scry._IterRetainedRanks import IterRetainedRanks
 
 __all__ = [
     "CalcMrcaUncertaintyAbsExact",

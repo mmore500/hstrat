@@ -1,12 +1,12 @@
 """Strata storage implementations for use with HereditaryStratigraphicColumn."""
 
-from .HereditaryStratumOrderedStoreDict import (
+from ._HereditaryStratumOrderedStoreDict import (
     HereditaryStratumOrderedStoreDict,
 )
-from .HereditaryStratumOrderedStoreList import (
+from ._HereditaryStratumOrderedStoreList import (
     HereditaryStratumOrderedStoreList,
 )
-from .HereditaryStratumOrderedStoreTree import (
+from ._HereditaryStratumOrderedStoreTree import (
     HereditaryStratumOrderedStoreTree,
 )
 

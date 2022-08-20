@@ -1,18 +1,18 @@
-from .AnyTreeAscendingIter import AnyTreeAscendingIter
-from .RecursionLimit import RecursionLimit
-from .ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
-from .all_same import all_same
-from .bit_ceil import bit_ceil
-from .bit_floor import bit_floor
-from .caretdown_marker import caretdown_marker
-from .caretup_marker import caretup_marker
-from .div_range import div_range
-from .find_bounds import find_bounds
-from .is_nondecreasing import is_nondecreasing
-from .is_nonincreasing import is_nonincreasing
-from .memoize_generator import memoize_generator
-from .pairwise import pairwise
-from .scale_luminosity import scale_luminosity
+from ._AnyTreeAscendingIter import AnyTreeAscendingIter
+from ._RecursionLimit import RecursionLimit
+from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
+from ._all_same import all_same
+from ._bit_ceil import bit_ceil
+from ._bit_floor import bit_floor
+from ._caretdown_marker import caretdown_marker
+from ._caretup_marker import caretup_marker
+from ._div_range import div_range
+from ._find_bounds import find_bounds
+from ._is_nondecreasing import is_nondecreasing
+from ._is_nonincreasing import is_nonincreasing
+from ._memoize_generator import memoize_generator
+from ._pairwise import pairwise
+from ._scale_luminosity import scale_luminosity
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
@@ -32,3 +32,9 @@ __all__ = [
     "scale_luminosity",
     "ScalarFormatterFixedPrecision",
 ]
+
+for o in __all__:
+    try:
+        eval(o).__module__ = __name__
+    except AttributeError:
+        pass

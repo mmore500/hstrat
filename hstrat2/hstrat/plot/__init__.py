@@ -1,17 +1,17 @@
 """Visualizations for both library algorithms and end-user phylogenetic data."""
 
-from .mrca_uncertainty_absolute_barplot import (
+from ._mrca_uncertainty_absolute_barplot import (
     mrca_uncertainty_absolute_barplot,
 )
-from .mrca_uncertainty_relative_barplot import (
+from ._mrca_uncertainty_relative_barplot import (
     mrca_uncertainty_relative_barplot,
 )
-from .policy_panel_animate import policy_panel_animate
-from .policy_panel_plot import policy_panel_plot
-from .strata_retained_frac_lineplot import strata_retained_frac_lineplot
-from .strata_retained_num_lineplot import strata_retained_num_lineplot
-from .stratum_retention_animate import stratum_retention_animate
-from .stratum_retention_dripplot import stratum_retention_dripplot
+from ._policy_panel_animate import policy_panel_animate
+from ._policy_panel_plot import policy_panel_plot
+from ._strata_retained_frac_lineplot import strata_retained_frac_lineplot
+from ._strata_retained_num_lineplot import strata_retained_num_lineplot
+from ._stratum_retention_animate import stratum_retention_animate
+from ._stratum_retention_dripplot import stratum_retention_dripplot
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
