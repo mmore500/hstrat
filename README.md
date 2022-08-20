@@ -7,7 +7,8 @@
   ![codecov](https://codecov.io/gh/mmore500/hstrat/branch/master/graph/badge.svg?token=JwMfFOpBBD)
 ](https://codecov.io/gh/mmore500/hstrat)
 [
-  ![Codacy Badge](https://app.codacy.com/project/badge/Grade/9ab14d415aa9458d97b4cf760b95f874)](https://www.codacy.com/gh/mmore500/hstrat/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mmore500/hstrat&amp;utm_campaign=Badge_Grade)
+  ![Codacy Badge](https://app.codacy.com/project/badge/Grade/9ab14d415aa9458d97b4cf760b95f874)
+](https://www.codacy.com/gh/mmore500/hstrat/dashboard)
 [
   ![CI](https://github.com/mmore500/hstrat/actions/workflows/CI.yml/badge.svg)
 ](https://github.com/mmore500/hstrat/actions)
