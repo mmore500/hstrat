@@ -32,6 +32,7 @@ distlib==0.3.4
     # via virtualenv
 docutils==0.17.1
     # via
+    #   myst-parser
     #   readme-renderer
     #   sphinx
 entrypoints==0.3
@@ -63,7 +64,9 @@ iterify==0.1.0
 iterpop==0.3.4
     # via -r requirements_dev.in
 jinja2==3.0.3
-    # via sphinx
+    # via
+    #   myst-parser
+    #   sphinx
 keyname==0.4.1
     # via
     #   -r requirements_dev.in
@@ -72,6 +75,10 @@ kiwisolver==1.3.2
     # via matplotlib
 lru-dict==1.1.7
     # via -r requirements_dev.in
+markdown-it-py==2.1.0
+    # via
+    #   mdit-py-plugins
+    #   myst-parser
 markupsafe==2.1.0
     # via jinja2
 matplotlib==3.5.2
@@ -81,13 +88,17 @@ matplotlib==3.5.2
     #   teeplot
 mccabe==0.6.1
     # via flake8
+mdit-py-plugins==0.3.0
+    # via myst-parser
+mdurl==0.1.2
+    # via markdown-it-py
 mmh3==3.0.0
     # via -r requirements_dev.in
 more-itertools==8.13.0
     # via -r requirements_dev.in
 mpmath==1.1.0
     # via -r requirements_dev.in
-nose==1.3.7
+myst_parser==0.18.0
     # via -r requirements_dev.in
 numpy==1.23.1
     # via
@@ -160,7 +171,9 @@ pytz==2021.3
     #   babel
     #   pandas
 pyyaml==6.0
-    # via watchdog
+    # via
+    #   myst-parser
+    #   watchdog
 readme-renderer==32.0
     # via twine
 requests-toolbelt==0.9.1
@@ -188,7 +201,9 @@ six==1.16.0
 snowballstemmer==2.2.0
     # via sphinx
 sphinx==4.4.0
-    # via -r requirements_dev.in
+    # via
+    #   -r requirements_dev.in
+    #   myst-parser
 sphinxcontrib-applehelp==1.0.2
     # via sphinx
 sphinxcontrib-devhelp==1.0.2
@@ -215,6 +230,8 @@ tqdm==4.62.3
     # via twine
 twine==1.14.0
     # via -r requirements_dev.in
+typing-extensions==4.3.0
+    # via myst-parser
 urllib3==1.26.8
     # via requests
 virtualenv==20.13.1
