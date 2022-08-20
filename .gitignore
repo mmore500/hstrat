@@ -1,5 +1,8 @@
 # documentation
 docs/_autosummary/
+docs/api
+docs/_modules
+docs/_build
 
 # test output
 teeplots/
