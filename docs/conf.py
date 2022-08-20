@@ -47,6 +47,8 @@ autoclass_content = "class"
 
 autodoc_class_signature = "separated"
 
+add_module_names = False
+
 autodoc_default_options = {
     "member-order": "bysource",
     "special-members": "__init__",

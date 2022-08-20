@@ -1,8 +1,8 @@
-{{ fullname | escape | underline}}
+{{ name | escape | underline }}
 
-.. currentmodule:: {{ module }}
+.. currentmodule:: ~{{ module }}
 
-.. autoclass:: {{ objname }}
+.. autoclass:: {{ fullname }}
    :undoc-members:
    :members:
    :special-members: __call__, __repr__, __str__
@@ -14,7 +14,7 @@
    .. rubric:: {{ _('Methods') }}
 
    {% for item in methods %}
-   .. automethod:: {{ item }}
+   .. automethod:: ~{{ item }}
    {%- endfor %}
    {% endif %}
    {% endblock %}

@@ -1,4 +1,6 @@
-{{ fullname | escape | underline}}
+{{ name | escape | underline }}
+
+.. currentmodule:: ~{{ module }}
 
 {% if classes or functions %}
 .. automodule:: {{ fullname }}
@@ -17,7 +19,7 @@
    .. autosummary::
      :toctree:
    {% for item in attributes %}
-      {{ item }}
+      ~{{ item }}
    {%- endfor %}
    {% endif %}
    {% endblock %}
@@ -29,7 +31,7 @@
    .. autosummary::
      :toctree:
    {% for item in functions %}
-      {{ item }}
+      ~{{ item }}
    {%- endfor %}
    {% endif %}
    {% endblock %}
@@ -41,7 +43,7 @@
    .. autosummary::
      :toctree:
    {% for item in classes %}
-      {{ item }}
+      ~{{ item }}
    {%- endfor %}
    {% endif %}
    {% endblock %}
@@ -53,7 +55,7 @@
    .. autosummary::
      :toctree:
    {% for item in exceptions %}
-      {{ item }}
+      ~{{ item }}
    {%- endfor %}
    {% endif %}
    {% endblock %}
@@ -66,7 +68,7 @@
    :toctree:
    :recursive:
 {% for item in modules %}
-   {{ item }}
+   ~{{ item }}
 {%- endfor %}
 {% endif %}
 {% endblock %}
