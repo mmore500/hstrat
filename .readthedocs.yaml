@@ -9,3 +9,6 @@ build:
   commands:
     - pip install -r requirements_dev.txt
     - make -C docs/ html
+    - mkdir -p _readthedocs
+    - rm -rf _readthedocs/html
+    - cp -r docs/_build/html _readthedocs/
