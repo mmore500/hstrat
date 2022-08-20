@@ -4,6 +4,8 @@ build:
   image: latest
   apt_packages:
     - pandoc
-
+  commands:
+    - pip install -r requirements_dev.txt
+    - make -C docs/ html
 python:
   version: "3.7"

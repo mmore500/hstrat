@@ -200,17 +200,7 @@ texinfo_documents = [
 
 # -- Theme Options -------------------------------------------
 
-# from https://exhale.readthedocs.io/en/latest/usage.html#start-to-finish-for-read-the-docs
-# on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
-on_rtd = os.environ.get("READTHEDOCS", None) == "True"
+import sphinx_rtd_theme
 
-if on_rtd:  # rtd doesn't run Makefile, so we have to copy assets ourself
-    subprocess.call(
-        "mkdir -p _build/html/docs/; cp -r assets _build/html/docs/",
-        shell=True,
-    )
-else:  # only import and set the theme if we're building docs locally
-    import sphinx_rtd_theme
-
-    html_theme = "sphinx_rtd_theme"
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+html_theme = "sphinx_rtd_theme"
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
