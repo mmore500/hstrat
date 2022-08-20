@@ -18,9 +18,10 @@
 # absolute, like shown here.
 #
 import os
-import sphinx_rtd_theme
 import subprocess
 import sys
+
+import sphinx_rtd_theme
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -107,12 +108,12 @@ html_static_path = ["_static"]
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = 'assets/hstrat-hcat.png'
+html_logo = "assets/hstrat-hcat.png"
 
 # The name of an image file (relative to this directory) to use as a favicon of
 # the docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-#html_favicon = None
+# html_favicon = None
 
 # -- Options for HTMLHelp output ---------------------------------------
 
@@ -179,14 +180,15 @@ texinfo_documents = [
 
 # from https://exhale.readthedocs.io/en/latest/usage.html#start-to-finish-for-read-the-docs
 # on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 
-if on_rtd: # rtd doesn't run Makefile, so we have to copy assets ourself
-  subprocess.call(
-    'mkdir -p _build/html/docs/; cp -r assets _build/html/docs/',
-    shell=True,
-  )
-else: # only import and set the theme if we're building docs locally
-  import sphinx_rtd_theme
-  html_theme = 'sphinx_rtd_theme'
-  html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+if on_rtd:  # rtd doesn't run Makefile, so we have to copy assets ourself
+    subprocess.call(
+        "mkdir -p _build/html/docs/; cp -r assets _build/html/docs/",
+        shell=True,
+    )
+else:  # only import and set the theme if we're building docs locally
+    import sphinx_rtd_theme
+
+    html_theme = "sphinx_rtd_theme"
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
