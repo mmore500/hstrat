@@ -1,11 +1,11 @@
 version: 2
 
 build:
-  image: latest
+  os: "ubuntu-22.04"
   apt_packages:
     - pandoc
+  tools:
+    python: "3.8"
   commands:
     - pip install -r requirements_dev.txt
     - make -C docs/ html
-python:
-  version: "3.7"
