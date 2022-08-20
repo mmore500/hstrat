@@ -1,21 +1,21 @@
-Welcome to hstrat's documentation!
-======================================
+========
+Overview
+========
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-   readme
-   api
-   installation
-   usage
-   modules
-   contributing
-   authors
-   history
+.. include:: readme.rst
 
 Indices and tables
 ==================
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
+   index
+   api
+   contributing
+   authors
+   history

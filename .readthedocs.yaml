@@ -1,0 +1,9 @@
+version: 2
+
+build:
+  image: latest
+  apt_packages:
+    - pandoc
+
+python:
+  version: "3.7"
