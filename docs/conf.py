@@ -40,7 +40,19 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.autosummary",
     "sphinx_rtd_theme",
+    "sphinx_automodapi.automodapi",
 ]
+
+autoclass_content = "class"
+
+autodoc_class_signature = "separated"
+
+autodoc_default_options = {
+    "member-order": "bysource",
+    "special-members": "__init__",
+    "undoc-members": True,
+    "exclude-members": "__weakref__",
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -73,7 +85,7 @@ release = hstrat.__version__
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -95,6 +107,10 @@ autosummary_generate = True
 #
 html_theme = "sphinx_rtd_theme"
 
+html_theme_options = {
+    "globaltoc_maxdepth": -1,
+    "navigation_depth": -1,
+}
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
 # documentation.
@@ -105,6 +121,11 @@ html_theme = "sphinx_rtd_theme"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
+
+def setup(app):
+    app.add_css_file("theme_override.css")
+
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
