@@ -27,7 +27,6 @@ clean:
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: assets Makefile readme.rst
-	sphinx-apidoc -o _modules/ ../hstrat
 	cp index_stage1.rst index.rst
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	cp index_stage2.rst index.rst
