@@ -2,6 +2,8 @@
 Overview
 ========
 
+.. include:: readme.rst
+
 .. toctree::
    :maxdepth: 1
    :hidden:
@@ -12,5 +14,3 @@ Overview
    authors
    history
    indices
-
-.. include:: readme.rst

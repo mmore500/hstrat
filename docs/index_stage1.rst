@@ -5,8 +5,9 @@ Overview
 .. toctree::
    :maxdepth: 1
    :hidden:
+   :titlesonly:
 
-   index
+   self
    api
    contributing
    authors
