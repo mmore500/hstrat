@@ -2,10 +2,11 @@
 Overview
 ========
 
+.. include:: readme.rst
+
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :titlesonly:
 
    self
    api
@@ -13,5 +14,3 @@ Overview
    authors
    history
    indices
-
-.. include:: readme.rst
