@@ -39,7 +39,7 @@ def test_satisfiable_at_least(
 
     parameterizer = hstrat.PropertyAtLeastParameterizer(
         target_value=target_value,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=at_num_strata_deposited,
         ),
         param_lower_bound=(
@@ -65,7 +65,7 @@ def test_satisfiable_at_least(
         # disable for these policies because too slow
         parameterizer = hstrat.PropertyAtLeastParameterizer(
             target_value=target_value,
-            policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+            policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
                 at_num_strata_deposited=at_num_strata_deposited,
             ),
             param_lower_bound=(
@@ -120,7 +120,7 @@ def test_unsatisfiable_at_least(
 
     parameterizer = hstrat.PropertyAtLeastParameterizer(
         target_value=target_value,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=at_num_strata_deposited,
         ),
         param_lower_bound=1,
@@ -165,7 +165,7 @@ def test_satisfiable_at_most(
 
     parameterizer = hstrat.PropertyAtMostParameterizer(
         target_value=target_value,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=at_num_strata_deposited,
         ),
         param_lower_bound=(
@@ -186,7 +186,7 @@ def test_satisfiable_at_most(
 
     parameterizer = hstrat.PropertyAtMostParameterizer(
         target_value=target_value,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=at_num_strata_deposited,
         ),
         param_lower_bound=(
@@ -242,7 +242,7 @@ def test_unsatisfiable_at_most(
 
     parameterizer = hstrat.PropertyAtMostParameterizer(
         target_value=target_value,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=at_num_strata_deposited,
         ),
         param_lower_bound=1,
@@ -259,7 +259,7 @@ def test_against_expected_upper_bound():
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
         target_value=100,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=100,
         ),
         param_lower_bound=1,
@@ -274,7 +274,7 @@ def test_against_expected_upper_bound():
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
         target_value=100,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=100,
         ),
         param_lower_bound=1,
@@ -289,7 +289,7 @@ def test_against_expected_upper_bound():
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
         target_value=22,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=100,
         ),
         param_lower_bound=1,
@@ -305,7 +305,7 @@ def test_against_expected_upper_bound():
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
         target_value=22,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=100,
         ),
         param_lower_bound=1,
@@ -321,7 +321,7 @@ def test_against_expected_upper_bound():
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
         target_value=21,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=100,
         ),
         param_lower_bound=1,
@@ -337,7 +337,7 @@ def test_against_expected_upper_bound():
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
         target_value=21,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=100,
         ),
         param_lower_bound=1,
@@ -353,7 +353,7 @@ def test_against_expected_upper_bound():
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
         target_value=23,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=100,
         ),
         param_lower_bound=1,
@@ -369,7 +369,7 @@ def test_against_expected_upper_bound():
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
         target_value=23,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=100,
         ),
         param_lower_bound=1,
@@ -387,7 +387,7 @@ def test_against_expected_no_upper_bound():
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
         target_value=100,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=100,
         ),
         param_lower_bound=1,
@@ -403,7 +403,7 @@ def test_against_expected_no_upper_bound():
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
         target_value=100,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=100,
         ),
         param_lower_bound=1,
@@ -419,7 +419,7 @@ def test_against_expected_no_upper_bound():
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
         target_value=22,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=100,
         ),
         param_lower_bound=1,
@@ -436,7 +436,7 @@ def test_against_expected_no_upper_bound():
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
         target_value=22,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=100,
         ),
         param_lower_bound=1,
@@ -453,7 +453,7 @@ def test_against_expected_no_upper_bound():
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
         target_value=21,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=100,
         ),
         param_lower_bound=1,
@@ -470,7 +470,7 @@ def test_against_expected_no_upper_bound():
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
         target_value=21,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=100,
         ),
         param_lower_bound=1,
@@ -487,7 +487,7 @@ def test_against_expected_no_upper_bound():
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
         target_value=23,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=100,
         ),
         param_lower_bound=1,
@@ -504,7 +504,7 @@ def test_against_expected_no_upper_bound():
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
         target_value=23,
-        policy_evaluator=hstrat.NumStrataRetainedUpperBoundPolicyEvaluator(
+        policy_evaluator=hstrat.NumStrataRetainedUpperBoundEvaluator(
             at_num_strata_deposited=100,
         ),
         param_lower_bound=1,

@@ -3,20 +3,20 @@ import typing
 from ._detail import policy_param_focalizer_t
 
 
-class NumStrataRetainedUpperBoundPolicyEvaluator:
-    """Enacts space complexity bound parameterization requirement."""
+class NumStrataRetainedExactEvaluator:
+    """Enacts exact space complexity parameterization requirement."""
 
     _at_num_strata_deposited: int
     _policy_param_focalizer: policy_param_focalizer_t
 
     def __init__(
-        self: "NumStrataRetainedUpperBoundPolicyEvaluator",
+        self: "NumStrataRetainedExactEvaluator",
         at_num_strata_deposited: int,
         policy_param_focalizer: policy_param_focalizer_t = (
             lambda policy_t: lambda i: policy_t(i)
         ),
     ) -> None:
-        """Initialize functor to evaluate upper bound on num strata retained.
+        """Initialize functor to evaluate exact num strata retained.
 
         Parameters
         ----------
@@ -31,28 +31,28 @@ class NumStrataRetainedUpperBoundPolicyEvaluator:
         self._policy_param_focalizer = policy_param_focalizer
 
     def __call__(
-        self: "NumStrataRetainedUpperBoundPolicyEvaluator",
+        self: "NumStrataRetainedExactEvaluator",
         policy_t: typing.Type,
         parameter_value: int,
     ) -> int:
-        """Get upper bound on num strata retained for specific parameter."""
+        """Get exact num strata retained under a specific parameter."""
         policy_factory = self._policy_param_focalizer(policy_t)
         policy = policy_factory(parameter_value)
-        return policy.CalcNumStrataRetainedUpperBound(
+        return policy.CalcNumStrataRetainedExact(
             self._at_num_strata_deposited,
         )
 
-    def __repr__(self: "NumStrataRetainedUpperBoundPolicyEvaluator") -> str:
+    def __repr__(self: "NumStrataRetainedExactEvaluator") -> str:
         return f"""{
-            NumStrataRetainedUpperBoundPolicyEvaluator.__qualname__
+            NumStrataRetainedExactEvaluator.__qualname__
         }(at_num_strata_deposited={
             self._at_num_strata_deposited
         !r}, policy_param_focalizer={
             self._policy_param_focalizer
         !r})"""
 
-    def __str__(self: "NumStrataRetainedUpperBoundPolicyEvaluator") -> str:
-        title = "Upper Bound Num Strata Retained Evaluator"
+    def __str__(self: "NumStrataRetainedExactEvaluator") -> str:
+        title = "Exact Num Strata Retained Evaluator"
         return f"""{
             title
         } (at num strata deposited: {

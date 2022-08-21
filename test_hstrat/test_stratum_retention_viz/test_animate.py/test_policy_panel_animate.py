@@ -23,7 +23,7 @@ def test_one(policy):
         policy_t(
             parameterizer=hstrat.PropertyExactlyParameterizer(
                 target_value=target_value,
-                policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+                policy_evaluator=hstrat.MrcaUncertaintyAbsExactEvaluator(
                     at_num_strata_deposited=256,
                     at_rank=0,
                 ),
@@ -43,7 +43,7 @@ def test_one(policy):
         policy_t(
             parameterizer=hstrat.PropertyAtLeastParameterizer(
                 target_value=31,
-                policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+                policy_evaluator=hstrat.MrcaUncertaintyAbsExactEvaluator(
                     at_num_strata_deposited=256,
                     at_rank=0,
                 ),
@@ -60,7 +60,7 @@ def test_one(policy):
         hstrat.geom_seq_nth_root_algo.Policy(
             parameterizer=hstrat.PropertyExactlyParameterizer(
                 target_value=127,
-                policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+                policy_evaluator=hstrat.MrcaUncertaintyAbsExactEvaluator(
                     at_num_strata_deposited=256,
                     at_rank=0,
                 ),
@@ -73,7 +73,7 @@ def test_one(policy):
         hstrat.geom_seq_nth_root_tapered_algo.Policy(
             parameterizer=hstrat.PropertyAtMostParameterizer(
                 target_value=127,
-                policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+                policy_evaluator=hstrat.MrcaUncertaintyAbsExactEvaluator(
                     at_num_strata_deposited=256,
                     at_rank=0,
                 ),

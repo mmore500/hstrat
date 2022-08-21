@@ -5,22 +5,22 @@ import opytional as opyt
 from ._detail import policy_param_focalizer_t
 
 
-class MrcaUncertaintyAbsUpperBoundPolicyEvaluator:
-    """Enacts absolute MRCA uncertainty bound parameterization requirement."""
+class MrcaUncertaintyRelExactEvaluator:
+    """Enacts exact relative MRCA uncertainty parameterization requirement."""
 
     _at_num_strata_deposited: int
     _at_rank: typing.Optional[int]
     _policy_param_focalizer: policy_param_focalizer_t
 
     def __init__(
-        self: "MrcaUncertaintyAbsUpperBoundPolicyEvaluator",
+        self: "MrcaUncertaintyRelExactEvaluator",
         at_num_strata_deposited: int,
         at_rank: typing.Optional[int] = None,
         policy_param_focalizer: policy_param_focalizer_t = (
             lambda policy_t: lambda i: policy_t(i)
         ),
     ) -> None:
-        """Init functor to evaluate upper bound on absolute MRCA uncertainty.
+        """Initialize functor to evaluate exact relative MRCA uncertainty.
 
         Parameters
         ----------
@@ -39,29 +39,34 @@ class MrcaUncertaintyAbsUpperBoundPolicyEvaluator:
         self._policy_param_focalizer = policy_param_focalizer
 
     def __call__(
-        self: "MrcaUncertaintyAbsUpperBoundPolicyEvaluator",
+        self: "MrcaUncertaintyRelExactEvaluator",
         policy_t: typing.Type,
         parameter_value: int,
-    ) -> int:
-        """Get absolute MRCA uncertainty upper bound for a specific param."""
+    ) -> float:
+        """Get exact relative MRCA uncertainty under a specific parameter."""
         policy_factory = self._policy_param_focalizer(policy_t)
         policy = policy_factory(parameter_value)
+        if self._at_rank is None:
+            raise NotImplementedError(
+                "CalcMrcaUncertaintyRelExactPessimalRank not yet implemented"
+            )
         at_rank = opyt.or_value(
             self._at_rank,
-            policy.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
-                self._at_num_strata_deposited,
-                self._at_num_strata_deposited,
-            ),
+            None,
+            # policy.CalcMrcaUncertaintyRelExactPessimalRank(
+            #     self._at_num_strata_deposited,
+            #     self._at_num_strata_deposited,
+            # ),
         )
-        return policy.CalcMrcaUncertaintyAbsUpperBound(
+        return policy.CalcMrcaUncertaintyRelExact(
             self._at_num_strata_deposited,
             self._at_num_strata_deposited,
             at_rank,
         )
 
-    def __repr__(self: "MrcaUncertaintyAbsUpperBoundPolicyEvaluator") -> str:
+    def __repr__(self: "MrcaUncertaintyRelExactEvaluator") -> str:
         return f"""{
-            MrcaUncertaintyAbsUpperBoundPolicyEvaluator.__qualname__
+            MrcaUncertaintyRelExactEvaluator.__qualname__
         }(at_num_strata_deposited={
             self._at_num_strata_deposited
         !r}, at_rank={
@@ -70,14 +75,14 @@ class MrcaUncertaintyAbsUpperBoundPolicyEvaluator:
             self._policy_param_focalizer
         !r})"""
 
-    def __str__(self: "MrcaUncertaintyAbsUpperBoundPolicyEvaluator") -> str:
-        title = "Upper Bound Absolute MRCA Uncertainty Evaluator"
+    def __str__(self: "MrcaUncertaintyRelExactEvaluator") -> str:
+        title = "Exact Relative MRCA Uncertainty Evaluator"
         return f"""{
             title
         } (at num strata deposited: {
             self._at_num_strata_deposited
         }, at rank: {
-            opyt.value_or(self._at_rank, 'pessimal')
+            opyt.or_value(self._at_rank, 'pessimal')
         }, focalizer: {
             self._policy_param_focalizer
         })"""

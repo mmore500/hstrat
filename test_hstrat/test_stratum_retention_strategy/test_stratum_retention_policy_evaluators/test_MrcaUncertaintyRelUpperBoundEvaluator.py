@@ -1,6 +1,10 @@
+import opytional as opyt
 import pytest
 
 from hstrat import hstrat
+from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import (
+    CalcMrcaUncertaintyRelUpperBoundWorstCase,
+)
 
 
 @pytest.mark.parametrize(
@@ -9,9 +13,8 @@ from hstrat import hstrat
         hstrat.depth_proportional_resolution_algo.Policy,
         hstrat.depth_proportional_resolution_tapered_algo.Policy,
         hstrat.fixed_resolution_algo.Policy,
-        # disabled because slow
-        # hstrat.geom_seq_nth_root_algo.Policy,
-        # hstrat.geom_seq_nth_root_tapered_algo.Policy,
+        hstrat.geom_seq_nth_root_algo.Policy,
+        hstrat.geom_seq_nth_root_tapered_algo.Policy,
         hstrat.recency_proportional_resolution_algo.Policy,
     ],
 )
@@ -25,8 +28,9 @@ from hstrat import hstrat
 @pytest.mark.parametrize(
     "at_rank",
     [
-        # None, not yet implemented
-        -500,
+        None,
+        -1,
+        -8,
         0,
         100,
     ],
@@ -34,11 +38,10 @@ from hstrat import hstrat
 @pytest.mark.parametrize(
     "target_value",
     [
+        0.01,
+        0.25,
         1,
-        10,
-        50,
-        100,
-        500,
+        1.5,
     ],
 )
 def test_satisfiable_at_least(
@@ -48,9 +51,21 @@ def test_satisfiable_at_least(
     target_value,
 ):
 
+    if (
+        CalcMrcaUncertaintyRelUpperBoundWorstCase()(
+            None,
+            at_num_strata_deposited,
+            at_num_strata_deposited,
+            opyt.or_value(at_rank, -1),
+        )
+        <= target_value
+    ):
+        # skip impossible to parameterize cases
+        return
+
     parameterizer = hstrat.PropertyAtLeastParameterizer(
         target_value=target_value,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=at_num_strata_deposited,
             at_rank=at_rank,
         ),
@@ -65,7 +80,9 @@ def test_satisfiable_at_least(
 
     if at_rank is not None:
         assert (
-            policy_t(policy_spec=policy_spec,).CalcMrcaUncertaintyAbsExact(
+            policy_t(
+                policy_spec=policy_spec,
+            ).CalcMrcaUncertaintyRelUpperBound(
                 at_num_strata_deposited,
                 at_num_strata_deposited,
                 at_rank,
@@ -76,7 +93,7 @@ def test_satisfiable_at_least(
         assert (
             policy_t(
                 policy_spec=policy_spec,
-            ).CalcMrcaUncertaintyAbsExactAtPessimalRank(
+            ).CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
                 at_num_strata_deposited,
                 at_num_strata_deposited,
             )
@@ -90,7 +107,7 @@ def test_satisfiable_at_least(
         # disable for these policies because too slow
         parameterizer = hstrat.PropertyAtLeastParameterizer(
             target_value=target_value,
-            policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+            policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
                 at_num_strata_deposited=at_num_strata_deposited,
                 at_rank=at_rank,
             ),
@@ -107,7 +124,9 @@ def test_satisfiable_at_least(
 
         if at_rank is not None:
             assert (
-                policy_t(policy_spec=policy_spec,).CalcMrcaUncertaintyAbsExact(
+                policy_t(
+                    policy_spec=policy_spec,
+                ).CalcMrcaUncertaintyRelUpperBound(
                     at_num_strata_deposited,
                     at_num_strata_deposited,
                     at_rank,
@@ -118,7 +137,7 @@ def test_satisfiable_at_least(
             assert (
                 policy_t(
                     policy_spec=policy_spec,
-                ).CalcMrcaUncertaintyAbsExactAtPessimalRank(
+                ).CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
                     at_num_strata_deposited,
                     at_num_strata_deposited,
                 )
@@ -132,9 +151,8 @@ def test_satisfiable_at_least(
         hstrat.depth_proportional_resolution_algo.Policy,
         hstrat.depth_proportional_resolution_tapered_algo.Policy,
         hstrat.fixed_resolution_algo.Policy,
-        # disabled because slow
-        # hstrat.geom_seq_nth_root_algo.Policy,
-        # hstrat.geom_seq_nth_root_tapered_algo.Policy,
+        hstrat.geom_seq_nth_root_algo.Policy,
+        hstrat.geom_seq_nth_root_tapered_algo.Policy,
         hstrat.recency_proportional_resolution_algo.Policy,
     ],
 )
@@ -148,11 +166,11 @@ def test_satisfiable_at_least(
 @pytest.mark.parametrize(
     "at_rank,target_value",
     [
-        # (None, 10**7), not yet implemented
-        (-1, 10**7),
-        (-8, 10**7),
-        (0, 10**7),
-        (10, 10**7),
+        (None, 10**9),
+        (-1, 10**9),
+        (-8, 10**9),
+        (0, 1.01),
+        (10, 1.1),
     ],
 )
 def test_unsatisfiable_at_least(
@@ -164,7 +182,7 @@ def test_unsatisfiable_at_least(
 
     parameterizer = hstrat.PropertyAtLeastParameterizer(
         target_value=target_value,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=at_num_strata_deposited,
             at_rank=at_rank,
         ),
@@ -183,6 +201,8 @@ def test_unsatisfiable_at_least(
         hstrat.depth_proportional_resolution_algo.Policy,
         hstrat.depth_proportional_resolution_tapered_algo.Policy,
         hstrat.fixed_resolution_algo.Policy,
+        hstrat.geom_seq_nth_root_algo.Policy,
+        hstrat.geom_seq_nth_root_tapered_algo.Policy,
         hstrat.recency_proportional_resolution_algo.Policy,
     ],
 )
@@ -196,18 +216,22 @@ def test_unsatisfiable_at_least(
 @pytest.mark.parametrize(
     "at_rank",
     [
-        # None, not yet implemented
-        0,
-        -500,
+        None,
+        -1,
+        -2,
+        -8,
         100,
+        0,
     ],
 )
 @pytest.mark.parametrize(
     "target_value",
     [
+        0.01,
+        0.25,
         1,
-        50,
-        250,
+        1.1,
+        100,
     ],
 )
 def test_satisfiable_at_most(
@@ -227,7 +251,7 @@ def test_satisfiable_at_most(
     ):
         parameterizer = hstrat.PropertyAtMostParameterizer(
             target_value=target_value,
-            policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+            policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
                 at_num_strata_deposited=at_num_strata_deposited,
                 at_rank=at_rank,
             ),
@@ -238,7 +262,9 @@ def test_satisfiable_at_most(
 
         if at_rank is not None:
             assert (
-                policy_t(policy_spec=policy_spec,).CalcMrcaUncertaintyAbsExact(
+                policy_t(
+                    policy_spec=policy_spec,
+                ).CalcMrcaUncertaintyRelUpperBound(
                     at_num_strata_deposited,
                     at_num_strata_deposited,
                     at_rank,
@@ -249,7 +275,7 @@ def test_satisfiable_at_most(
             assert (
                 policy_t(
                     policy_spec=policy_spec,
-                ).CalcMrcaUncertaintyAbsExactAtPessimalRank(
+                ).CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
                     at_num_strata_deposited,
                     at_num_strata_deposited,
                 )
@@ -260,17 +286,14 @@ def test_satisfiable_at_most(
         hstrat.geom_seq_nth_root_algo.Policy,
         hstrat.geom_seq_nth_root_tapered_algo.Policy,
     ):
+        # don't evaluate geom seq nth root on these at all b/c too slow
         parameterizer = hstrat.PropertyAtMostParameterizer(
             target_value=target_value,
-            policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+            policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
                 at_num_strata_deposited=at_num_strata_deposited,
                 at_rank=at_rank,
             ),
-            param_lower_bound=(
-                0
-                if policy_t == hstrat.recency_proportional_resolution_algo
-                else 1
-            ),
+            param_lower_bound=1,
             param_upper_bound=None,
         )
         policy_spec = parameterizer(policy_t)
@@ -278,7 +301,9 @@ def test_satisfiable_at_most(
 
         if at_rank is not None:
             assert (
-                policy_t(policy_spec=policy_spec,).CalcMrcaUncertaintyAbsExact(
+                policy_t(
+                    policy_spec=policy_spec,
+                ).CalcMrcaUncertaintyRelUpperBound(
                     at_num_strata_deposited,
                     at_num_strata_deposited,
                     at_rank,
@@ -289,7 +314,7 @@ def test_satisfiable_at_most(
             assert (
                 policy_t(
                     policy_spec=policy_spec,
-                ).CalcMrcaUncertaintyAbsExactAtPessimalRank(
+                ).CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
                     at_num_strata_deposited,
                     at_num_strata_deposited,
                 )
@@ -303,9 +328,8 @@ def test_satisfiable_at_most(
         hstrat.depth_proportional_resolution_algo.Policy,
         hstrat.depth_proportional_resolution_tapered_algo.Policy,
         hstrat.fixed_resolution_algo.Policy,
-        # disabled because slow
-        # hstrat.geom_seq_nth_root_algo.Policy,
-        # hstrat.geom_seq_nth_root_tapered_algo.Policy,
+        hstrat.geom_seq_nth_root_algo.Policy,
+        hstrat.geom_seq_nth_root_tapered_algo.Policy,
         hstrat.recency_proportional_resolution_algo.Policy,
     ],
 )
@@ -319,7 +343,7 @@ def test_satisfiable_at_most(
 @pytest.mark.parametrize(
     "at_rank,target_value",
     [
-        # (None, -1), not yet implemented
+        (None, -1),
         (-1, -1),
         (-8, -1),
         (0, -1),
@@ -335,7 +359,7 @@ def test_unsatisfiable_at_most(
 
     parameterizer = hstrat.PropertyAtMostParameterizer(
         target_value=target_value,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=at_num_strata_deposited,
             at_rank=at_rank,
         ),
@@ -349,11 +373,12 @@ def test_unsatisfiable_at_most(
 
 
 def test_against_expected_upper_bound():
+
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
-        target_value=0,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.0,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=100,
             at_rank=0,
         ),
@@ -366,8 +391,8 @@ def test_against_expected_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
-        target_value=0,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.0,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=101,
             at_rank=98,
         ),
@@ -380,8 +405,8 @@ def test_against_expected_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
-        target_value=0,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.0,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=100,
             at_rank=0,
         ),
@@ -394,8 +419,8 @@ def test_against_expected_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
-        target_value=0,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.0,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=101,
             at_rank=98,
         ),
@@ -408,8 +433,8 @@ def test_against_expected_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
-        target_value=5,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.05,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=101,
             at_rank=0,
         ),
@@ -423,8 +448,8 @@ def test_against_expected_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
-        target_value=5,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.05,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=101,
             at_rank=0,
         ),
@@ -438,8 +463,8 @@ def test_against_expected_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
-        target_value=4.5,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.049,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=101,
             at_rank=0,
         ),
@@ -453,8 +478,8 @@ def test_against_expected_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
-        target_value=4.5,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.049,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=101,
             at_rank=0,
         ),
@@ -468,8 +493,8 @@ def test_against_expected_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
-        target_value=5.5,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.051,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=101,
             at_rank=0,
         ),
@@ -483,8 +508,8 @@ def test_against_expected_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
-        target_value=5.5,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.051,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=101,
             at_rank=0,
         ),
@@ -501,8 +526,8 @@ def test_against_expected_no_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
-        target_value=0,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.0,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=100,
             at_rank=0,
         ),
@@ -516,8 +541,8 @@ def test_against_expected_no_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
-        target_value=0,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.0,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=101,
             at_rank=98,
         ),
@@ -531,8 +556,8 @@ def test_against_expected_no_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
-        target_value=0,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.0,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=100,
             at_rank=0,
         ),
@@ -546,8 +571,8 @@ def test_against_expected_no_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
-        target_value=0,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.0,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=101,
             at_rank=98,
         ),
@@ -561,8 +586,8 @@ def test_against_expected_no_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
-        target_value=5,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.05,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=101,
             at_rank=0,
         ),
@@ -577,8 +602,8 @@ def test_against_expected_no_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
-        target_value=5,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.05,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=101,
             at_rank=0,
         ),
@@ -593,8 +618,8 @@ def test_against_expected_no_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
-        target_value=4.5,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.049,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=101,
             at_rank=0,
         ),
@@ -609,8 +634,8 @@ def test_against_expected_no_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
-        target_value=4.5,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.049,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=101,
             at_rank=0,
         ),
@@ -625,8 +650,8 @@ def test_against_expected_no_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtLeastParameterizer(
-        target_value=5.5,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.051,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=101,
             at_rank=0,
         ),
@@ -641,8 +666,8 @@ def test_against_expected_no_upper_bound():
     # case
     policy_t = hstrat.fixed_resolution_algo.Policy
     parameterizer = hstrat.PropertyAtMostParameterizer(
-        target_value=5.5,
-        policy_evaluator=hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+        target_value=0.051,
+        policy_evaluator=hstrat.MrcaUncertaintyRelUpperBoundEvaluator(
             at_num_strata_deposited=101,
             at_rank=0,
         ),
