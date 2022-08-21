@@ -9,7 +9,7 @@ from hstrat.hstrat import HereditaryStratigraphicColumn, stochastic_algo
 
 @pytest.mark.parametrize(
     "impl",
-    stochastic_algo.GenDropRanks_impls,
+    stochastic_algo._GenDropRanks_impls,
 )
 @pytest.mark.parametrize(
     "replicate",

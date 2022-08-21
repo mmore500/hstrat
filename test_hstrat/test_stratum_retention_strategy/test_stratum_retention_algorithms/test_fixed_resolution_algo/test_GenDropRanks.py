@@ -33,7 +33,7 @@ from hstrat.hstrat import fixed_resolution_algo
 def test_impl_consistency(fixed_resolution, time_sequence):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    impls = [*fixed_resolution_algo.GenDropRanks_impls]
+    impls = [*fixed_resolution_algo._GenDropRanks_impls]
     instances = [impl(spec) for impl in impls]
     for num_strata_deposited in time_sequence:
         assert all_same(

@@ -35,7 +35,7 @@ StratumRetentionPredicateDepthProportionalResolution:
 from ._Policy import Policy
 from ._PolicySpec import PolicySpec
 from ._enact._GenDropRanks import GenDropRanks
-from ._enact._GenDropRanks_ import impls as GenDropRanks_impls
+from ._enact._GenDropRanks_ import impls as _GenDropRanks_impls
 from ._invar._CalcMrcaUncertaintyAbsUpperBound import (
     CalcMrcaUncertaintyAbsUpperBound,
 )
@@ -76,7 +76,7 @@ __all__ = [
     "CalcNumStrataRetainedUpperBound",
     "CalcRankAtColumnIndex",
     "GenDropRanks",
-    "GenDropRanks_impls",
+    "_GenDropRanks_impls",
     "IterRetainedRanks",
     "Policy",
     "PolicySpec",

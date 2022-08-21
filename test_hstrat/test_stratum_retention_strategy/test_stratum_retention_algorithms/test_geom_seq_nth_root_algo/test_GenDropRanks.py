@@ -58,7 +58,7 @@ from hstrat.hstrat import geom_seq_nth_root_algo
 def test_impl_consistency(degree, interspersal, time_sequence):
     policy = geom_seq_nth_root_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    impls = [*geom_seq_nth_root_algo.GenDropRanks_impls]
+    impls = [*geom_seq_nth_root_algo._GenDropRanks_impls]
     instances = [impl(spec) for impl in impls]
     for num_strata_deposited in time_sequence:
         assert all_same(

@@ -22,7 +22,7 @@ from hstrat.hstrat import perfect_resolution_algo
 def test_impl_consistency(time_sequence):
     policy = perfect_resolution_algo.Policy()
     spec = policy.GetSpec()
-    impls = [*perfect_resolution_algo.GenDropRanks_impls]
+    impls = [*perfect_resolution_algo._GenDropRanks_impls]
     instances = [impl(spec) for impl in impls]
     for num_strata_deposited in time_sequence:
         assert all_same(

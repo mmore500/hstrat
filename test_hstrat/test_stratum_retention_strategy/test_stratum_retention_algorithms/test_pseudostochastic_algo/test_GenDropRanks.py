@@ -20,7 +20,7 @@ from hstrat.hstrat import HereditaryStratigraphicColumn, pseudostochastic_algo
 def test_impl_consistency(fixed_resolution):
     policy = pseudostochastic_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    impls = [*pseudostochastic_algo.GenDropRanks_impls]
+    impls = [*pseudostochastic_algo._GenDropRanks_impls]
     instances = [impl(spec) for impl in impls]
     column = HereditaryStratigraphicColumn(
         stratum_retention_policy=policy,
