@@ -24,6 +24,52 @@ class _PredKeepRank:
     def __eq__(self: "_PredKeepRank", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
+    def _do_call(
+        self: "_PredKeepRank",
+        resolution: int,
+        num_stratum_depositions_completed: int,
+        stratum_rank: int,
+    ) -> bool:
+        # to satisfy requirements of HereditaryStratigraphicColumn impl
+        # we must always keep root ancestor and newest stratum
+        if stratum_rank in (0, num_stratum_depositions_completed):
+            return True
+        elif num_stratum_depositions_completed <= resolution:
+            return True
+
+        provided_uncertainty = calc_provided_uncertainty(
+            resolution,
+            num_stratum_depositions_completed,
+        )
+        # see CalcRankAtColumnIndex
+        greatest_viable_rank = (
+            num_stratum_depositions_completed
+            - provided_uncertainty * (resolution + 1)
+        )
+        # see CalcRankAtColumnIndex
+        num_interval_steps = (
+            greatest_viable_rank + provided_uncertainty
+        ) // provided_uncertainty
+        cutoff_rank = num_interval_steps * provided_uncertainty
+
+        # logically,  we could just test
+        #   if stratum_rank == provided_uncertainty: return True
+        # but we are guaranteed to eventually return True under the weaker
+        # condition
+        #   if stratum_rank % provided_uncertainty == 0
+        # so as an optimization go ahead and return True now if it holds
+        if stratum_rank % provided_uncertainty == 0:
+            return True
+        elif stratum_rank <= cutoff_rank:
+            return False
+        else:
+            assert cutoff_rank
+            return self._do_call(
+                resolution,
+                num_stratum_depositions_completed - cutoff_rank,
+                stratum_rank - cutoff_rank,
+            )
+
     def __call__(
         self: "_PredKeepRank",
         policy: PolicyCouplerBase,
@@ -63,48 +109,10 @@ class _PredKeepRank:
             For details on the rationale, implementation, and guarantees of the
             recency-proportional resolution stratum retention policy.
         """
-        spec = policy.GetSpec()
-        resolution = spec._guaranteed_mrca_recency_proportional_resolution
-
-        # to satisfy requirements of HereditaryStratigraphicColumn impl
-        # we must always keep root ancestor and newest stratum
-        if stratum_rank in (0, num_stratum_depositions_completed):
-            return True
-        elif num_stratum_depositions_completed <= resolution:
-            return True
-
-        provided_uncertainty = calc_provided_uncertainty(
-            resolution,
+        return self._do_call(
+            policy.GetSpec()._guaranteed_mrca_recency_proportional_resolution,
             num_stratum_depositions_completed,
+            stratum_rank,
         )
-        # see CalcRankAtColumnIndex
-        greatest_viable_rank = (
-            num_stratum_depositions_completed
-            - provided_uncertainty * (resolution + 1)
-        )
-        # see CalcRankAtColumnIndex
-        num_interval_steps = (
-            greatest_viable_rank + provided_uncertainty
-        ) // provided_uncertainty
-        cutoff_rank = num_interval_steps * provided_uncertainty
-
-        # logically,  we could just test
-        #   if stratum_rank == provided_uncertainty: return True
-        # but we are guaranteed to eventually return True under the weaker
-        # condition
-        #   if stratum_rank % provided_uncertainty == 0
-        # so as an optimization go ahead and return True now if it holds
-        if stratum_rank % provided_uncertainty == 0:
-            return True
-        elif stratum_rank <= cutoff_rank:
-            return False
-        else:
-            assert cutoff_rank
-            return self(
-                policy,
-                num_stratum_depositions_completed - cutoff_rank,
-                stratum_rank - cutoff_rank,
-            )
-
 
 FromPredKeepRank = GenDropRanksFromPredKeepRank(_PredKeepRank)

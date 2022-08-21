@@ -26,6 +26,20 @@ class _PredKeepRank:
     def __eq__(self: "_PredKeepRank", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
+    def _do_call(
+        self: "_PredKeepRank",
+        degree: int,
+        interspersal: int,
+        num_stratum_depositions_completed: int,
+        stratum_rank: int,
+    ) -> bool:
+        return stratum_rank in get_retained_ranks(
+            degree,
+            interspersal,
+            # +1 because of in-progress deposition
+            num_stratum_depositions_completed + 1,
+        )
+
     def __call__(
         self: "_PredKeepRank",
         policy: PolicyCouplerBase,
@@ -66,12 +80,11 @@ class _PredKeepRank:
             depth-proportional resolution stratum retention policy.
         """
         spec = policy.GetSpec()
-
-        return stratum_rank in get_retained_ranks(
+        return self._do_call(
             spec._degree,
             spec._interspersal,
-            # +1 because of in-progress deposition
-            num_stratum_depositions_completed + 1,
+            num_stratum_depositions_completed,
+            stratum_rank,
         )
 
 
