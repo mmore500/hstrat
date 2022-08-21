@@ -33,11 +33,11 @@ hstrat enables phylogenetic inference on distributed digital evolution populatio
 ```python3
 from hstrat import hstrat
 
-stratum_retention_policy = hstrat.geom_seq_nth_root_tapered_policy.Policy(
+stratum_retention_policy = hstrat.geom_seq_nth_root_tapered_algo.Policy(
     parameterizer=hstrat.PropertyAtMostParameterizer(
         target_value=127,
         policy_evaluator \
-            =hstrat.MrcaUncertaintyAbsExactPolicyEvaluator(
+            =hstrat.MrcaUncertaintyAbsExactEvaluator(
                 at_num_strata_deposited=256,
                 at_rank=0,
         ),
@@ -178,12 +178,12 @@ End users can also define custom stratum retention policies.
 * `PropertyExactlyParameterizer`
 
 
-* `MrcaUncertaintyAbsExactPolicyEvaluator`
-* `MrcaUncertaintyAbsUpperBoundPolicyEvaluator`
-* `MrcaUncertaintyRelExactPolicyEvaluator`
-* `MrcaUncertaintyRelUpperBoundPolicyEvaluator`
-* `NumStrataRetainedExactPolicyEvaluator`
-* `NumStrataRetainedUpperBoundPolicyEvaluator`
+* `MrcaUncertaintyAbsExactEvaluator`
+* `MrcaUncertaintyAbsUpperBoundEvaluator`
+* `MrcaUncertaintyRelExactEvaluator`
+* `MrcaUncertaintyRelUpperBoundEvaluator`
+* `NumStrataRetainedExactEvaluator`
+* `NumStrataRetainedUpperBoundEvaluator`
 
 ## Credits
 
