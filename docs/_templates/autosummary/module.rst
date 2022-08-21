@@ -12,6 +12,19 @@
 .. automodule:: {{ fullname }}
 {% endif %}
 
+   {% block modules %}
+   {% if modules %}
+   .. rubric:: Modules
+
+   .. autosummary::
+      :toctree:
+      :recursive:
+   {% for item in modules %}
+      ~{{ item }}
+   {%- endfor %}
+   {% endif %}
+   {% endblock %}
+
    {% block attributes %}
    {% if attributes %}
    .. rubric:: {{ _('Module Attributes') }}
@@ -59,16 +72,3 @@
    {%- endfor %}
    {% endif %}
    {% endblock %}
-
-{% block modules %}
-{% if modules %}
-.. rubric:: Modules
-
-.. autosummary::
-   :toctree:
-   :recursive:
-{% for item in modules %}
-   ~{{ item }}
-{%- endfor %}
-{% endif %}
-{% endblock %}
