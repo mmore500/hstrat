@@ -100,6 +100,7 @@ pygments_style = "sphinx"
 todo_include_todos = False
 
 autosummary_generate = True
+autosummary_imported_members = True
 
 # -- Options for HTML output -------------------------------------------
 
