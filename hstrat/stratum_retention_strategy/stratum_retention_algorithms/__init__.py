@@ -14,6 +14,7 @@ from . import (
     perfect_resolution_algo,
     pseudostochastic_algo,
     recency_proportional_resolution_algo,
+    recency_proportional_resolution_curbed_algo,
     stochastic_algo,
 )
 from ._detail import UnsatisfiableParameterizationRequestError
@@ -30,6 +31,7 @@ __all__ = [
     "perfect_resolution_algo",
     "pseudostochastic_algo",
     "recency_proportional_resolution_algo",
+    "recency_proportional_resolution_curbed_algo",
     "stochastic_algo",
 ]
 
