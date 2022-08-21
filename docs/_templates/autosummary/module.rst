@@ -27,14 +27,15 @@
 
    {% set ns = namespace(forwarded_modules = false) %}
    {% for item in members %}
-   {% if item not in all_functions and item not in all_classes and item not in all_exceptions and item not in all_attributes and item not in all_modules and item not in modules %}
+   {% if item not in all_functions and item not in all_classes and item not in all_exceptions and item not in all_attributes and item not in all_modules and item not in modules and item not in " ".join(modules) and item not in " ".join(all_modules) %}
    {% if not item.startswith("_") %}
       {% set ns.forwarded_modules = true %}
    {% endif %}
    {% endif %}
    {%- endfor %}
 
-   {% if ns.forwarded_modules and modules == all_modules %}
+   {% if ns.forwarded_modules %}
+
    .. rubric:: {{ _('Forwarded Modules') }}
 
    Modules defined elsewhere made available in this namespace for convenience.
@@ -42,7 +43,7 @@
 
    .. autosummary::
    {% for item in members %}
-   {% if item not in all_functions and item not in all_classes and item not in all_exceptions and item not in all_attributes and item not in all_modules and item not in modules %}
+   {% if item not in all_functions and item not in all_classes and item not in all_exceptions and item not in all_attributes and item not in all_modules and item not in modules and item not in " ".join(modules) and item not in " ".join(all_modules) %}
    {% if not item.startswith("_") %}
       {{ item }}
    {% endif %}
