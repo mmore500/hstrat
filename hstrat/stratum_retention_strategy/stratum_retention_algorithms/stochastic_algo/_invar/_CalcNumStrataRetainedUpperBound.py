@@ -1,0 +1,3 @@
+from ..._impl import CalcNumStrataRetainedUpperBoundWorstCase
+
+CalcNumStrataRetainedUpperBound = CalcNumStrataRetainedUpperBoundWorstCase

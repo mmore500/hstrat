@@ -1,3 +1,0 @@
-from ..._detail import CalcWorstCaseNumStrataRetainedUpperBound
-
-CalcNumStrataRetainedUpperBound = CalcWorstCaseNumStrataRetainedUpperBound
