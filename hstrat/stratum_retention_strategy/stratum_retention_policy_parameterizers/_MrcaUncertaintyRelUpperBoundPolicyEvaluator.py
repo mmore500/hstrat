@@ -6,6 +6,7 @@ from ._detail import policy_param_focalizer_t
 
 
 class MrcaUncertaintyRelUpperBoundPolicyEvaluator:
+    """Enacts relative MRCA uncertainty bound parameterization requirement."""
 
     _at_num_strata_deposited: int
     _at_rank: typing.Optional[int]

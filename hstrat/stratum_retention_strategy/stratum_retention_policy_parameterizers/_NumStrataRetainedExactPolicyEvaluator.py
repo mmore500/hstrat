@@ -4,6 +4,7 @@ from ._detail import policy_param_focalizer_t
 
 
 class NumStrataRetainedExactPolicyEvaluator:
+    """Enacts exact space complexity parameterization requirement."""
 
     _at_num_strata_deposited: int
     _policy_param_focalizer: policy_param_focalizer_t

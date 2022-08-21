@@ -7,7 +7,7 @@ from .._HereditaryStratum import HereditaryStratum
 
 
 class HereditaryStratumOrderedStoreDict:
-    """Container for use with HereditaryStratigraphicColumn.
+    """Interchangeable backing container for HereditaryStratigraphicColumn.
 
     Stores deposited strata using a dict implementation. Retained strata are
     stored as dict values with their associated deposition ranks as keys.

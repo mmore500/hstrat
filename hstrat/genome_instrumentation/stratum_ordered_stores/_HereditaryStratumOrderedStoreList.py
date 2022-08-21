@@ -7,7 +7,7 @@ from .._HereditaryStratum import HereditaryStratum
 
 
 class HereditaryStratumOrderedStoreList:
-    """Container for use with HereditaryStratigraphicColumn.
+    """Interchangeable backing container for HereditaryStratigraphicColumn.
 
     Stores deposited strata using a list implementation. Retained strata are
     stored from most ancient (index 0, front) to most recent (back). Cloned

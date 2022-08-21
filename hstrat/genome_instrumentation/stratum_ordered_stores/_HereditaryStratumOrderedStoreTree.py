@@ -9,7 +9,7 @@ from .._HereditaryStratum import HereditaryStratum
 
 
 class HereditaryStratumOrderedStoreTree:
-    """Container for use with HereditaryStratigraphicColumn.
+    """Interchangeable backing container for HereditaryStratigraphicColumn.
 
     Stores deposited strata as a linked tree. Retained strata pertinent to the
     store are essentially a linear linked list reaching from tree leaf (most

@@ -1,4 +1,4 @@
-"""Convenient flat library namespace."""
+"""Convenient library repack as a flat namespace."""
 
 from ..genome_instrumentation import *  # noqa: F401
 from ..phylogenetic_inference import *  # noqa: F401
