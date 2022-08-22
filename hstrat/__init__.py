@@ -15,7 +15,7 @@ from . import (
 __all__ = [
     "_auxiliary_lib",
     "genome_instrumentation",
-    "phylogenetic_inference"
+    "phylogenetic_inference",
     "stratum_retention_strategy",
     "stratum_retention_viz",
 ]
