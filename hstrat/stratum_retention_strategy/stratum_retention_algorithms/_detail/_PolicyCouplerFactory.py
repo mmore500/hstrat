@@ -5,9 +5,9 @@ import opytional as opyt
 from .._impl import (
     CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank,
     CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce,
+    CalcMrcaUncertaintyAbsUpperBoundWorstCase,
     CalcMrcaUncertaintyRelUpperBoundAtPessimalRank,
     CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce,
-    CalcMrcaUncertaintyAbsUpperBoundWorstCase,
     CalcMrcaUncertaintyRelUpperBoundWorstCase,
     CalcNumStrataRetainedUpperBoundWorstCase,
 )

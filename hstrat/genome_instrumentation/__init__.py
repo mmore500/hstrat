@@ -1,11 +1,11 @@
 """Data structures to annotate genomes with."""
 
+from . import stratum_ordered_stores
 from ._HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 from ._HereditaryStratigraphicColumnBundle import (
     HereditaryStratigraphicColumnBundle,
 )
 from ._HereditaryStratum import HereditaryStratum
-from . import stratum_ordered_stores
 from .stratum_ordered_stores import *  # noqa: F401
 
 # adapted from https://stackoverflow.com/a/31079085

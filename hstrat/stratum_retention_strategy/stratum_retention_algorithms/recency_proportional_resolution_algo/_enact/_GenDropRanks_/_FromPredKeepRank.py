@@ -115,4 +115,5 @@ class _PredKeepRank:
             stratum_rank,
         )
 
+
 FromPredKeepRank = GenDropRanksFromPredKeepRank(_PredKeepRank)

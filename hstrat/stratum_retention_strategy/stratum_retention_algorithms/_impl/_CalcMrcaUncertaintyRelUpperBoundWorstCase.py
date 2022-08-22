@@ -1,9 +1,9 @@
 import typing
 
+from .._detail._PolicyCouplerBase import PolicyCouplerBase
 from ._CalcMrcaUncertaintyAbsUpperBoundWorstCase import (
     CalcMrcaUncertaintyAbsUpperBoundWorstCase,
 )
-from .._detail._PolicyCouplerBase import PolicyCouplerBase
 
 
 class CalcMrcaUncertaintyRelUpperBoundWorstCase:

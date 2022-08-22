@@ -1,20 +1,14 @@
 """Functors to specify property policies should be parameterized for."""
 
-from ._MrcaUncertaintyAbsExactEvaluator import (
-    MrcaUncertaintyAbsExactEvaluator,
-)
+from ._MrcaUncertaintyAbsExactEvaluator import MrcaUncertaintyAbsExactEvaluator
 from ._MrcaUncertaintyAbsUpperBoundEvaluator import (
     MrcaUncertaintyAbsUpperBoundEvaluator,
 )
-from ._MrcaUncertaintyRelExactEvaluator import (
-    MrcaUncertaintyRelExactEvaluator,
-)
+from ._MrcaUncertaintyRelExactEvaluator import MrcaUncertaintyRelExactEvaluator
 from ._MrcaUncertaintyRelUpperBoundEvaluator import (
     MrcaUncertaintyRelUpperBoundEvaluator,
 )
-from ._NumStrataRetainedExactEvaluator import (
-    NumStrataRetainedExactEvaluator,
-)
+from ._NumStrataRetainedExactEvaluator import NumStrataRetainedExactEvaluator
 from ._NumStrataRetainedUpperBoundEvaluator import (
     NumStrataRetainedUpperBoundEvaluator,
 )
