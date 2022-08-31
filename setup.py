@@ -12,6 +12,7 @@ with open("HISTORY.rst") as history_file:
 
 requirements = [
     "anytree>=2.8.0",
+    "cppimport>=22.8.2",
     "iterpop>=0.3.4",
     "interval_search>=0.2.0",
     "gmpy>=1.17",
@@ -22,6 +23,7 @@ requirements = [
     "mpmath>=1.1.0",
     "opytional>=0.1.0",
     "python-slugify>=6.1.2",
+    "pybind11>=2.10.0",
     "seaborn>=0.11.2",
 ]
 
