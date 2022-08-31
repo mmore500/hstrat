@@ -49,6 +49,8 @@ jobs:
   tidy:
     runs-on: ubuntu-latest
     steps:
+    - name: Install apt dependencies
+      run: sudo apt-get install -y rename
     - uses: actions/checkout@v1
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
@@ -63,6 +65,8 @@ jobs:
     - uses: editorconfig-checker/action-editorconfig-checker@main
     - name: Test editorconfig tidyness
       run: editorconfig-checker
+    - name: Test tidy/ tidyness
+      run: ./tidy/test_tidy.sh
 
   deploy:
     needs: [coverage, test, tidy]
