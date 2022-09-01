@@ -10,6 +10,12 @@ namespace algo = hstrat::fixed_resolution_algo;
 using instance_t = algo::GenDropRanksFtor<algo::PolicySpecDynamic>;
 
 PYBIND11_MODULE(GenDropRanksNative, m) {
+
+  // ensure availability of algo::PolicySpecDynamic
+  // see https://stackoverflow.com/questions/51833291/splitting-up-pybind11-modules-and-issues-with-automatic-type-conversion#comment113430868_51852400
+  py::module::import("cppimport.import_hook")
+  py::module::import("..._PolicySpec_.PolicySpecNative")
+
   py::class_<instance_t>>(
     m,
     "GenDropRanksNative"
