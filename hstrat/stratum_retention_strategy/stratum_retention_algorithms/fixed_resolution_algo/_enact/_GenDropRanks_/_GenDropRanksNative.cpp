@@ -7,7 +7,7 @@
 namespace py = pybind11;
 namespace algo = hstrat::fixed_resolution_algo;
 
-using instance_t = algo::GenDropRanksFtor<algo::PolicySpecDynamic>;
+using self_t = algo::GenDropRanksFtor<algo::PolicySpecDynamic>;
 
 PYBIND11_MODULE(GenDropRanksNative, m) {
 
@@ -16,15 +16,15 @@ PYBIND11_MODULE(GenDropRanksNative, m) {
   py::module::import("cppimport.import_hook")
   py::module::import("..._PolicySpec_.PolicySpecNative")
 
-  py::class_<instance_t>>(
+  py::class_<self_t>>(
     m,
     "GenDropRanksNative"
   )
   .def(py::init<const algo::PolicySpecDynamic&>())
   .def(
     "__call__",
-    [](instance_t& self, const algo::PolicySpecDynamic& spec){
-      return this(spec);
+    [](self_t& self, const algo::PolicySpecDynamic& spec){
+      return self(spec);
     }
   );
 }
