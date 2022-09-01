@@ -5,6 +5,8 @@
 #include <format>
 #include <string>
 
+#include "../../../../../hstrat_pybind/PyObjectConcept.hpp"
+
 namespace hstrat {
 namespace fixed_resolution_algo {
 
@@ -17,6 +19,11 @@ public:
   PolicySpec(
     const int fixed_resolution
   ) : fixed_resolution(fixed_resolution)
+  { }
+
+  PolicySpec(
+    PyObjectConcept auto policy_spec
+  ) : fixed_resolution(policy_spec.attr("GetFixedResolution")().cast<int>())
   { }
 
   int GetFixedResolution() const { return fixed_resolution; }
