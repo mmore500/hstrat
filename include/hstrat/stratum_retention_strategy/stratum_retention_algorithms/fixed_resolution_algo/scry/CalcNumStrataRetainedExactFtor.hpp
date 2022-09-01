@@ -5,10 +5,10 @@
 namespace hstrat {
 namespace fixed_resolution_algo {
 
-template<typename POLICY_SPEC>
-struct X {
+struct CalcNumStrataRetainedExactFtor {
 
-  X(const POLICY_SPEC& spec) {}
+  template<typename POLICY_SPEC>
+  CalcNumStrataRetainedExactFtor(const POLICY_SPEC&) {}
 
   template<typename POLICY>
   void operator()(const POLICY& policy) const {

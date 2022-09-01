@@ -5,10 +5,10 @@
 namespace hstrat {
 namespace fixed_resolution_algo {
 
-template<typename POLICY_SPEC>
-struct X {
+struct CalcMrcaUncertaintyAbsUpperBoundPessimalRankFtor {
 
-  X(const POLICY_SPEC& spec) {}
+  template<typename POLICY_SPEC>
+  CalcMrcaUncertaintyAbsUpperBoundPessimalRankFtor(const POLICY_SPEC&) {}
 
   template<typename POLICY>
   void operator()(const POLICY& policy) const {
