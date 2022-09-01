@@ -2,10 +2,15 @@
 #ifndef HSTRAT_STRATUM_RETENTION_STRATEGY_STRATUM_RETENTION_ALGORITHMS_FIXED_RESOLUTION_ALGO_POLICYSPEC_HPP_INCLUDE
 #define HSTRAT_STRATUM_RETENTION_STRATEGY_STRATUM_RETENTION_ALGORITHMS_FIXED_RESOLUTION_ALGO_POLICYSPEC_HPP_INCLUDE
 
-#include <format>
 #include <string>
+#include <string_view>
 
-#include "../../../../../hstrat_pybind/PyObjectConcept.hpp"
+#include "../../../../../third-party/fmt/include/fmt/core.h"
+
+#include "../../../../hstrat_pybind/PyObjectConcept.hpp"
+
+#include "get_algo_name.hpp"
+#include "get_algo_title.hpp"
 
 namespace hstrat {
 namespace fixed_resolution_algo {
@@ -22,33 +27,35 @@ public:
   { }
 
   PolicySpec(
-    PyObjectConcept auto policy_spec
-  ) : fixed_resolution(policy_spec.attr("GetFixedResolution")().cast<int>())
+    hstrat_pybind::PyObjectConcept auto policy_spec
+  ) : fixed_resolution(
+    policy_spec.attr("GetFixedResolution")().template cast<int>()
+  )
   { }
 
   int GetFixedResolution() const { return fixed_resolution; }
 
   std::string Repr() const {
-    return std::format(
+    return fmt::format(
       "{}(fixed_resolution={})",
-      GetPolicyName(),
+      GetAlgoName(),
       GetFixedResolution()
     );
   }
 
   std::string Str() const {
-    return std::format(
+    return fmt::format(
       "{} (resolution: {})",
-      GetPolicyTitle(),
+      GetAlgoTitle(),
       GetFixedResolution()
     );
   }
 
-  static consteval std::string GetAlgoName() {
+  static consteval std::string_view GetAlgoName() {
     return hstrat::fixed_resolution_algo::get_algo_name();
   }
 
-  static consteval std::string GetAlgoTitle() {
+  static consteval std::string_view GetAlgoTitle() {
     return hstrat::fixed_resolution_algo::get_algo_title();
   }
 

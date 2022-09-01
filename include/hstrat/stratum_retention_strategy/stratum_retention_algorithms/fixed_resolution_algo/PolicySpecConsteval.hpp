@@ -2,11 +2,13 @@
 #ifndef HSTRAT_STRATUM_RETENTION_STRATEGY_STRATUM_RETENTION_ALGORITHMS_FIXED_RESOLUTION_ALGO_POLICYSPECCONSTEVAL_HPP_INCLUDE
 #define HSTRAT_STRATUM_RETENTION_STRATEGY_STRATUM_RETENTION_ALGORITHMS_FIXED_RESOLUTION_ALGO_POLICYSPECCONSTEVAL_HPP_INCLUDE
 
-#include <format>
 #include <string>
+#include <string_view>
 
-#include "get_policy_name.hpp"
-#include "get_policy_title.hpp"
+#include "../../../../../third-party/fmt/include/fmt/core.h"
+
+#include "get_algo_name.hpp"
+#include "get_algo_title.hpp"
 
 namespace hstrat {
 namespace fixed_resolution_algo {
@@ -16,32 +18,29 @@ struct PolicySpecConsteval {
 
   static consteval int GetFixedResolution() { return FIXED_RESOLUTION; }
 
-  static consteval std::string Repr() {
-    return std::format(
+  static std::string Repr() {
+    return fmt::format(
       "{}(fixed_resolution={})",
-      GetPolicyName(),
+      GetAlgoName(),
       GetFixedResolution()
     );
   }
 
-  static consteval std::string Str() {
-    return std::format(
+  static std::string Str() {
+    return fmt::format(
       "{} (resolution: {})",
-      GetPolicyTitle(),
+      GetAlgoTitle(),
       GetFixedResolution()
     );
   }
 
-  static consteval std::string GetAlgoName() {
+  static consteval std::string_view GetAlgoName() {
     return hstrat::fixed_resolution_algo::get_algo_name();
   }
 
-  static consteval std::string GetAlgoTitle() {
+  static consteval std::string_view GetAlgoTitle() {
     return hstrat::fixed_resolution_algo::get_algo_title();
   }
-
-};
-
 
 };
 

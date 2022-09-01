@@ -1,0 +1,6 @@
+[submodule "third-party/Catch2"]
+  path = third-party/Catch2
+  url = https://github.com/catchorg/Catch2.git
+[submodule "third-party/fmt"]
+  path = third-party/fmt
+  url = https://github.com/fmtlib/fmt

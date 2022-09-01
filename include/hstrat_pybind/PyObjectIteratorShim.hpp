@@ -2,7 +2,7 @@
 #ifndef HSTRAT_PYBIND_PYOBJECTITERATORSHIM_HPP_INCLUDE
 #define HSTRAT_PYBIND_PYOBJECTITERATORSHIM_HPP_INCLUDE
 
-#include <pyblind11/pybind11.h>
+#include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 
