@@ -4,7 +4,7 @@
 
 #include <utility>
 
-#include "PolicySpecDynamic.hpp"
+#include "PolicySpec.hpp"
 
 #include "enact/GenDropRanksFtor.hpp"
 #include "invar/CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankFtor.hpp"
@@ -22,7 +22,9 @@
 namespace hstrat {
 namespace fixed_resolution_algo {
 
-template <typename POLICY_SPEC> class Policy {
+template <
+  typename POLICY_SPEC=hstrat::fixed_resolution_algo::PolicySpec
+> class Policy {
 
   [[no_unique_address]] POLICY_SPEC spec;
 
@@ -75,7 +77,5 @@ public:
 
 } // namespace fixed_resolution_algo
 } // namespace hstrat
-
-using PolicyDynamic = Policy<hstrat::fixed_resolution_algo::PolicySpecDynamic>;
 
 #endif // #ifndef HSTRAT_STRATUM_RETENTION_STRATEGY_STRATUM_RETENTION_ALGORITHMS_FIXED_RESOLUTION_ALGO_POLICY_HPP_INCLUDE
