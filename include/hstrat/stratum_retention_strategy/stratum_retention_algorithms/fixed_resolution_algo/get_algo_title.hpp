@@ -7,7 +7,7 @@
 namespace hstrat {
 namespace fixed_resolution_algo {
 
-constexpr std::string_view get_algo_title() {
+std::string get_algo_title() {
   return "Fixed Resolution Stratum Retention Policy";
 }
 

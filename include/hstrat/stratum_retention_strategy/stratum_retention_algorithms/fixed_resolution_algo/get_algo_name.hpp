@@ -7,7 +7,7 @@
 namespace hstrat {
 namespace fixed_resolution_algo {
 
-constexpr std::string_view get_algo_name() {
+std::string get_algo_name() {
   return "fixed_resolution_algo";
 }
 

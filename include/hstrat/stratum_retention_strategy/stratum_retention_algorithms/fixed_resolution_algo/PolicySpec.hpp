@@ -35,6 +35,14 @@ public:
 
   int GetFixedResolution() const { return fixed_resolution; }
 
+  static std::string GetAlgoName() {
+    return hstrat::fixed_resolution_algo::get_algo_name();
+  }
+
+  static std::string GetAlgoTitle() {
+    return hstrat::fixed_resolution_algo::get_algo_title();
+  }
+
   std::string Repr() const {
     return fmt::format(
       "{}(fixed_resolution={})",
@@ -49,14 +57,6 @@ public:
       GetAlgoTitle(),
       GetFixedResolution()
     );
-  }
-
-  static consteval std::string_view GetAlgoName() {
-    return hstrat::fixed_resolution_algo::get_algo_name();
-  }
-
-  static consteval std::string_view GetAlgoTitle() {
-    return hstrat::fixed_resolution_algo::get_algo_title();
   }
 
 };

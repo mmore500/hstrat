@@ -18,6 +18,14 @@ struct PolicySpecConsteval {
 
   static consteval int GetFixedResolution() { return FIXED_RESOLUTION; }
 
+  static constexpr std::string GetAlgoName() {
+    return hstrat::fixed_resolution_algo::get_algo_name();
+  }
+
+  static constexpr std::string GetAlgoTitle() {
+    return hstrat::fixed_resolution_algo::get_algo_title();
+  }
+
   static std::string Repr() {
     return fmt::format(
       "{}(fixed_resolution={})",
@@ -32,14 +40,6 @@ struct PolicySpecConsteval {
       GetAlgoTitle(),
       GetFixedResolution()
     );
-  }
-
-  static consteval std::string_view GetAlgoName() {
-    return hstrat::fixed_resolution_algo::get_algo_name();
-  }
-
-  static consteval std::string_view GetAlgoTitle() {
-    return hstrat::fixed_resolution_algo::get_algo_title();
   }
 
 };

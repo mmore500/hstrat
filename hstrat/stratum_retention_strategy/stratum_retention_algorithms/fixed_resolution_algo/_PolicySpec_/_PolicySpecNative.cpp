@@ -10,7 +10,7 @@ using self_t = algo::PolicySpec;
 
 PYBIND11_MODULE(_PolicySpecNative, m) {
 
-  py::class_<self_t>>(
+  py::class_<self_t>(
     m,
     "PolicySpecNative"
   )
@@ -25,8 +25,16 @@ PYBIND11_MODULE(_PolicySpecNative, m) {
 
 /*
 <%
-cfg['extra_compile_args'] = ['-std=c++20']
-cfg['include_dirs'] = ['../../../../../include']
+import os
+import subprocess
+
+os.environ["CC"] = "g++"
+root_dir = subprocess.Popen(['git', 'rev-parse', '--show-toplevel'], stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8')
+
+cfg['extra_compile_args'] = ['-std=c++2a', '-fconcepts','-fcoroutines', '-DFMT_HEADER_ONLY']
+cfg['force_rebuild'] = True
+cfg['include_dirs'] = [f'{root_dir}/include']
+
 setup_pybind11(cfg)
 %>
 */

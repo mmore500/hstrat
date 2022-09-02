@@ -2,7 +2,7 @@
 #ifndef HSTRAT_STRATUM_RETENTION_STRATEGY_STRATUM_RETENTION_ALGORITHMS_FIXED_RESOLUTION_ALGO_POLICY_HPP_INCLUDE
 #define HSTRAT_STRATUM_RETENTION_STRATEGY_STRATUM_RETENTION_ALGORITHMS_FIXED_RESOLUTION_ALGO_POLICY_HPP_INCLUDE
 
-#include <utility>
+#include "../detail/PolicyCoupler.hpp"
 
 #include "PolicySpec.hpp"
 
@@ -11,6 +11,7 @@
 #include "invar/CalcMrcaUncertaintyAbsUpperBoundFtor.hpp"
 #include "invar/CalcMrcaUncertaintyAbsUpperBoundPessimalRankFtor.hpp"
 #include "invar/CalcMrcaUncertaintyRelUpperBoundAtPessimalRankFtor.hpp"
+#include "invar/CalcMrcaUncertaintyRelUpperBoundFtor.hpp"
 #include "invar/CalcMrcaUncertaintyRelUpperBoundPessimalRankFtor.hpp"
 #include "invar/CalcNumStrataRetainedUpperBoundFtor.hpp"
 #include "scry/CalcMrcaUncertaintyAbsExactFtor.hpp"
@@ -24,56 +25,23 @@ namespace fixed_resolution_algo {
 
 template <
   typename POLICY_SPEC=hstrat::fixed_resolution_algo::PolicySpec
-> class Policy {
-
-  [[no_unique_address]] POLICY_SPEC spec;
-
-public:
-  // enactment
-  [[no_unique_address]] GenDropRanksFtor GenDropRanks;
-
-  // invariants
-  [[no_unique_address]] CalcMrcaUncertaintyAbsUpperBoundFtor<POLICY_SPEC>
-      CalcMrcaUncertaintyAbsUpperBound;
-  [[no_unique_address]] CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankFtor<
-      POLICY_SPEC>
-      CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank;
-  [[no_unique_address]] CalcMrcaUncertaintyAbsUpperBoundPessimalRankFtor<
-      POLICY_SPEC>
-      CalcMrcaUncertaintyAbsUpperBoundPessimalRank;
-  [[no_unique_address]] CalcMrcaUncertaintyRelUpperBoundAtPessimalRankFtor<
-      POLICY_SPEC>
-      CalcMrcaUncertaintyRelUpperBoundAtPessimalRank;
-  [[no_unique_address]] CalcMrcaUncertaintyRelUpperBoundPessimalRankFtor<
-      POLICY_SPEC>
-      CalcMrcaUncertaintyRelUpperBoundPessimalRank;
-  [[no_unique_address]] CalcNumStrataRetainedUpperBoundFtor<POLICY_SPEC>
-      CalcNumStrataRetainedUpperBound;
-
-  // scrying
-  [[no_unique_address]] CalcMrcaUncertaintyAbsExactFtor<POLICY_SPEC>
-      CalcMrcaUncertaintyAbsExact;
-  [[no_unique_address]] CalcMrcaUncertaintyRelExactFtor<POLICY_SPEC>
-      CalcMrcaUncertaintyRelExact;
-  [[no_unique_address]] CalcNumStrataRetainedExactFtor<POLICY_SPEC>
-      CalcNumStrataRetainedExact;
-  [[no_unique_address]] CalcRankAtColumnIndexFtor<POLICY_SPEC>
-      CalcRankAtColumnIndex;
-  [[no_unique_address]] IterRetainedRanksFtor<POLICY_SPEC> IterRetainedRanks;
-
-  template <typename... Args>
-  Policy(Args &&... args)
-      : spec(std::forward<Args>(args)...), GenDropRanks(spec),
-        CalcMrcaUncertaintyAbsUpperBound(spec),
-        CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(spec),
-        CalcMrcaUncertaintyAbsUpperBoundPessimalRank(spec),
-        CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(spec),
-        CalcMrcaUncertaintyRelUpperBoundPessimalRank(spec),
-        CalcNumStrataRetainedUpperBound(spec),
-        CalcMrcaUncertaintyAbsExact(spec), CalcMrcaUncertaintyRelExact(spec),
-        CalcNumStrataRetainedExact(spec), CalcRankAtColumnIndex(spec),
-        IterRetainedRanks(spec) {}
-};
+>
+using = PolicyCoupler<
+  POLICY_SPEC,
+  GenDropRanksFtor,
+  CalcMrcaUncertaintyAbsUpperBoundFtor,
+  CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankFtor,
+  CalcMrcaUncertaintyAbsUpperBoundFtor,
+  CalcMrcaUncertaintyAbsUpperBoundPessimalRankFtor,
+  CalcMrcaUncertaintyRelUpperBoundAtPessimalRankFtor,
+  CalcMrcaUncertaintyRelUpperBoundPessimalRankFtor,
+  CalcNumStrataRetainedUpperBoundFtor,
+  CalcMrcaUncertaintyAbsExactFtor,
+  CalcMrcaUncertaintyRelExactFtor,
+  CalcNumStrataRetainedExactFtor,
+  CalcRankAtColumnIndexFtor,
+  IterRetainedRanksFtor,
+>;
 
 } // namespace fixed_resolution_algo
 } // namespace hstrat

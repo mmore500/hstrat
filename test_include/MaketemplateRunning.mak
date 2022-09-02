@@ -1,11 +1,13 @@
 CXX ?= g++
 
-FLAGS = -std=c++20 -D_GLIBCXX_DEBUG -D_LIBCPP_DEBUG -g -pipe -pthread -Wall -Wno-unused-function -Wno-unused-private-field -I$(TO_ROOT)/include/ -I$(TO_ROOT)/third-party/ $$(python3 -m pybind11 --includes) -DCATCH_CONFIG_MAIN
+FLAGS_ALWAYS = -std=c++20 -g -pipe -pthread -fvisibility=hidden -fcoroutines -fPIC -Wall -Wno-unused-function -Wno-unused-private-field -I$(TO_ROOT)/include/ -I$(TO_ROOT)/third-party/ $$(python3.7 -m pybind11 --includes) -DCATCH_CONFIG_MAIN -DFMT_HEADER_ONLY
+
+FLAGS = $(FLAGS_ALWAYS)
 
 default: test
 
 test-%: %.cpp ../third-party/Catch2/single_include/catch2/catch.hpp
-	$(CXX) $(FLAGS) $< -o $@.out
+	$(CXX) $(FLAGS) $< -o $@.out $$(python3.7-config --ldflags)
 	# execute test
 	./$@.out
 
@@ -23,17 +25,8 @@ test: $(addprefix test-, $(TEST_NAMES))
 	rm -rf test*.out
 
 # Test optimized version without debug features
-opt: FLAGS := -std=c++20 -pipe -pthread -DNDEBUG -O3 -ffast-math -flto -march=native -Wno-unused-function -I$(TO_ROOT)/include/ -I$(TO_ROOT)/third-party/ $$(python3 -m pybind11 --includes) -DCATCH_CONFIG_MAIN
+opt: FLAGS := $(FLAGS_ALWAYS) -DNDEBUG -O3 -ffast-math -flto -march=native
 opt: $(addprefix test-, $(TEST_NAMES))
-	rm -rf test*.out
-
-# Test in debug mode with pointer tracking
-fulldebug: FLAGS := -std=c++20 -pipe -pthread -g -Wall -Wno-unused-function -I$(TO_ROOT)/include/ -I$(TO_ROOT)/third-party/ $$(python3 -m pybind11 --includes) -pedantic -DEMP_TRACK_MEM -D_GLIBCXX_DEBUG -D_LIBCPP_DEBUG -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -ftemplate-backtrace-limit=0 -DCATCH_CONFIG_MAIN # -Wmisleading-indentation
-fulldebug: $(addprefix test-, $(TEST_NAMES))
-	rm -rf test*.out
-
-cranky: FLAGS := -std=c++20 -pipe -pthread -g -Wall -Wno-unused-function -I$(TO_ROOT)/include/ -I$(TO_ROOT)/third-party/ $$(python3 -m pybind11 --includes) -pedantic -DEMP_TRACK_MEM -D_GLIBCXX_DEBUG -D_LIBCPP_DEBUG -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -Wconversion -Weffc++ -DCATCH_CONFIG_MAIN
-cranky: $(addprefix test-, $(TEST_NAMES))
 	rm -rf test*.out
 
 $(TO_ROOT)/coverage_include:
@@ -43,7 +36,7 @@ $(TO_ROOT)/coverage_include:
 	git submodule init
 	git submodule update
 
-coverage: FLAGS := -std=c++20 -pthread -g -Wall -Wno-unused-function -I$(TO_ROOT)/coverage_include/ -I$(TO_ROOT)/third-party/ $$(python3 -m pybind11 --includes) -DEMP_TRACK_MEM -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -ftemplate-backtrace-limit=0 -fprofile-instr-generate -fcoverage-mapping -fno-inline -fno-elide-constructors -O0 -DCATCH_CONFIG_MAIN
+coverage: FLAGS := -$(FLAGS_ALWAYS) -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -ftemplate-backtrace-limit=0 -fprofile-instr-generate -fcoverage-mapping -fno-inline -fno-elide-constructors -O0
 coverage: $(TO_ROOT)/coverage_include $(addprefix cov-, $(TEST_NAMES))
 
 clean:

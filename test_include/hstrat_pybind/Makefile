@@ -1,7 +1,6 @@
 TEST_NAMES += include
 TEST_NAMES += PyObjectConcept
-TEST_NAMES += PyObjectIteratorShim
-TEST_NAMES += PyObjectPolicyShim
+TEST_NAMES += shim_py_object_generator
 
 TO_ROOT := $(shell git rev-parse --show-cdup)
 
