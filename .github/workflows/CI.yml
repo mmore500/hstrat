@@ -24,6 +24,36 @@ jobs:
     - name: Test with tox
       run: tox
 
+  test-py-native:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9]
+        cxx:
+          - g++-10
+          # - clang++-14 <- need to adjust -fcoroutines flag in Mako blocks
+    steps:
+    - run: |
+        sudo apt update
+        sudo apt install -y g++-10 clang-14
+    - uses: actions/checkout@v1
+      with:
+        submodules: recursive
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements_dev.txt
+    - name: Run tests
+      run: tox
+      env:
+        CXX: ${{ matrix.cxx }}
+        HSTRAT_CPPIMPORT_OPT_IN: 1
+        HSTRAT_RERAISE_IMPORT_NATIVE_EXCEPTION: 1
+
   test-cpp:
     runs-on: ubuntu-22.04
     strategy:
@@ -97,7 +127,7 @@ jobs:
       run: ./tidy/test_tidy.sh
 
   deploy:
-    needs: [coverage, test-py, test-cpp, tidy]
+    needs: [coverage, test-py, test-py-native, test-cpp, tidy]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 
