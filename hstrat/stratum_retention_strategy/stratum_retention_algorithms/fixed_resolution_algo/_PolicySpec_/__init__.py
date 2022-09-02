@@ -8,6 +8,7 @@ impls = [
 
 try:
     import cppimport.import_hook
+
     from ._PolicySpecNative import PolicySpecNative
     impls.append(PolicySpecNative)
 except (CompileError, ImportError, SystemExit):

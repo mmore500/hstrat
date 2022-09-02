@@ -10,6 +10,7 @@ impls = [
 
 try:
     import cppimport.import_hook
+
     from ._GenDropRanksNative import GenDropRanksNative
     impls.append(GenDropRanksNative)
 except (CompileError, ImportError, SystemExit):
