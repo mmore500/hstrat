@@ -62,7 +62,10 @@ PYBIND11_MODULE(_GenDropRanksNative, m) {
 import os
 import subprocess
 
-os.environ["CC"] = "g++"
+os.environ["CC"] = os.environ.get(
+  "CC",
+  os.environ.get("CXX", "g++"),
+)
 root_dir = subprocess.Popen(['git', 'rev-parse', '--show-toplevel'], stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8')
 
 cfg['extra_compile_args'] = ['-std=c++2a', '-fconcepts','-fcoroutines', '-DFMT_HEADER_ONLY']
