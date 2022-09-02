@@ -1,6 +1,6 @@
 #pragma once
-#ifndef HSTRAT_PYBIND_PYOBJECTITERATORSHIM_HPP_INCLUDE
-#define HSTRAT_PYBIND_PYOBJECTITERATORSHIM_HPP_INCLUDE
+#ifndef HSTRAT_PYBIND_SHIM_PY_OBJECT_GENERATOR_HPP_INCLUDE
+#define HSTRAT_PYBIND_SHIM_PY_OBJECT_GENERATOR_HPP_INCLUDE
 
 #include <pybind11/pybind11.h>
 
@@ -20,4 +20,4 @@ cppcoro::generator<T> shim_py_object_generator(py::object object) {
 
 } // namespace hstrat_pybind
 
-#endif // #ifndef HSTRAT_PYBIND_PYOBJECTITERATORSHIM_HPP_INCLUDE
+#endif // #ifndef HSTRAT_PYBIND_SHIM_PY_OBJECT_GENERATOR_HPP_INCLUDE
