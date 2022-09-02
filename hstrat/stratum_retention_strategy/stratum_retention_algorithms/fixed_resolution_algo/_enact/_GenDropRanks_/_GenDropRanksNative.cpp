@@ -47,7 +47,6 @@ PYBIND11_MODULE(_GenDropRanksNative, m) {
       const int num_stratum_depositions_completed,
       py::object retained_ranks
     ){
-      std::cout << ""; // TODO why the hell is this necessary
       return self(
         hstrat_pybind::PyObjectPolicyShim<algo::PolicySpec>(policy),
         num_stratum_depositions_completed,
