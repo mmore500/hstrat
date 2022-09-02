@@ -47,6 +47,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install -r requirements_dev.txt
+    - name: Debug failing test
+      run: python3 -m pytest -s --full-trace test_hstrat/test_stratum_retention_strategy/test_stratum_retention_algorithms/test_fixed_resolution_algo
+      env:
+        CXX: ${{ matrix.cxx }}
+        HSTRAT_CPPIMPORT_OPT_IN: 1
+        HSTRAT_RERAISE_IMPORT_NATIVE_EXCEPTION: 1
     - name: Run tests
       run: tox
       env:
