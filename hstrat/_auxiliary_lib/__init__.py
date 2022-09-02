@@ -8,6 +8,7 @@ from ._caretdown_marker import caretdown_marker
 from ._caretup_marker import caretup_marker
 from ._div_range import div_range
 from ._find_bounds import find_bounds
+from ._hstrat_import_native import hstrat_import_native
 from ._is_nondecreasing import is_nondecreasing
 from ._is_nonincreasing import is_nonincreasing
 from ._launder_impl_modules import launder_impl_modules
@@ -25,6 +26,7 @@ __all__ = [
     "caretup_marker",
     "div_range",
     "find_bounds",
+    "hstrat_import_native",
     "is_nondecreasing",
     "is_nonincreasing",
     "launder_impl_modules",

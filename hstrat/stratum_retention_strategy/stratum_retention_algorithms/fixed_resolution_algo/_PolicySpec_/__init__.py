@@ -1,19 +1,15 @@
-from distutils.errors import CompileError
+import opytional as opyt
 
+from ....._auxiliary_lib import hstrat_import_native
 from ._PolicySpec import PolicySpec
 
 impls = [
     PolicySpec,
 ]
 
-try:
-    import cppimport.import_hook
-
-    from ._PolicySpecNative import PolicySpecNative
-
+PolicySpecNative = opyt.apply_if(
+    hstrat_import_native("._PolicySpecNative", __name__),
+    lambda x: x.PolicySpecNative,
+)
+if PolicySpecNative is not None:
     impls.append(PolicySpecNative)
-except (CompileError, ImportError, SystemExit):
-    import os
-
-    os.environ["HSTRAT_NATIVE_ERROR"] = "1"
-    pass
