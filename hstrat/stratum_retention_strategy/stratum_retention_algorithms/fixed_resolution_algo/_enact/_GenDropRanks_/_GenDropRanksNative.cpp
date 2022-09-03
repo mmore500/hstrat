@@ -1,5 +1,5 @@
 // cppimport
-#include <iostream>
+#include <memory>
 
 #include <pybind11/pybind11.h>
 
@@ -36,7 +36,8 @@ PYBIND11_MODULE(_GenDropRanksNative, m) {
   .def(
     py::init([](py::object py_policy_spec) {
       auto policy_spec = algo::PolicySpec{py_policy_spec};
-      return self_t{policy_spec};
+      // not sure if this is necessary vs just returning self_t{policy_spec}
+      return std::make_unique<self_t>(policy_spec);
     })
   )
   .def(
@@ -47,12 +48,10 @@ PYBIND11_MODULE(_GenDropRanksNative, m) {
       const int num_stratum_depositions_completed,
       py::object retained_ranks
     ){
-      auto policy_ = hstrat_pybind::PyObjectPolicyShim<algo::PolicySpec>(policy);
-      auto gen = hstrat_pybind::shim_py_object_generator<const int>(retained_ranks);
       return self(
-        policy_,
+        hstrat_pybind::PyObjectPolicyShim<algo::PolicySpec>(policy),
         num_stratum_depositions_completed,
-        std::move(gen)
+        hstrat_pybind::shim_py_object_generator<const int>(retained_ranks)
       );
     }
   );
