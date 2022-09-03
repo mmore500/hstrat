@@ -47,10 +47,12 @@ PYBIND11_MODULE(_GenDropRanksNative, m) {
       const int num_stratum_depositions_completed,
       py::object retained_ranks
     ){
+      auto policy_ = hstrat_pybind::PyObjectPolicyShim<algo::PolicySpec>(policy);
+      auto gen = hstrat_pybind::shim_py_object_generator<const int>(retained_ranks);
       return self(
-        hstrat_pybind::PyObjectPolicyShim<algo::PolicySpec>(policy),
+        policy_,
         num_stratum_depositions_completed,
-        hstrat_pybind::shim_py_object_generator<const int>(retained_ranks)
+        std::move(gen)
       );
     }
   );

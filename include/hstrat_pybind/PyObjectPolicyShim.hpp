@@ -19,7 +19,10 @@ class PyObjectPolicyShim {
 
 public:
 
-  PyObjectPolicyShim(py::object policy_obj) : policy_obj(policy_obj) {}
+  PyObjectPolicyShim(py::object policy_obj) : policy_obj(policy_obj) {
+    // debugging code to check that policy obj is valid
+    policy_obj.attr("GetSpec")();
+  }
 
   auto GetSpec() const {
     auto spec_obj = policy_obj.attr("GetSpec")();
