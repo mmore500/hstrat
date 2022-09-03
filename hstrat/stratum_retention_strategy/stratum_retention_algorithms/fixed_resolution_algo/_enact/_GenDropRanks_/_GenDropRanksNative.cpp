@@ -67,7 +67,7 @@ os.environ["CC"] = os.environ.get(
 )
 root_dir = subprocess.Popen(['git', 'rev-parse', '--show-toplevel'], stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8')
 
-cfg['extra_compile_args'] = ['-std=c++2a', '-fconcepts','-fcoroutines', '-DFMT_HEADER_ONLY']
+cfg['extra_compile_args'] = ['-std=c++2a', '-fconcepts','-fcoroutines', '-DFMT_HEADER_ONLY', '-g']
 cfg['force_rebuild'] = True
 cfg['include_dirs'] = [f'{root_dir}/include']
 
