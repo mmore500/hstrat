@@ -46,7 +46,7 @@ class CalcMrcaUncertaintyAbsUpperBound:
             )
             - actual_rank_of_mrca
         )
-        if spec._guaranteed_mrca_recency_proportional_resolution == 0:
+        if spec.GetRecencyProportionalResolution() == 0:
             return CalcMrcaUncertaintyAbsUpperBoundWorstCase()(
                 policy,
                 first_num_strata_deposited,
@@ -54,10 +54,7 @@ class CalcMrcaUncertaintyAbsUpperBound:
                 actual_rank_of_mrca,
             )
 
-        res = (
-            max_ranks_since_mrca
-            // spec._guaranteed_mrca_recency_proportional_resolution
-        )
+        res = max_ranks_since_mrca // spec.GetRecencyProportionalResolution()
 
         return min(
             res,

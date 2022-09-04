@@ -62,7 +62,7 @@ class GenDropRanks:
             depth-proportional resolution stratum retention policy.
         """
         spec = policy.GetSpec()
-        resolution = spec._guaranteed_depth_proportional_resolution
+        resolution = spec.GetDepthProportionalResolution()
 
         # until sufficient strata have been deposited to reach target resolution
         # don't remove any strata

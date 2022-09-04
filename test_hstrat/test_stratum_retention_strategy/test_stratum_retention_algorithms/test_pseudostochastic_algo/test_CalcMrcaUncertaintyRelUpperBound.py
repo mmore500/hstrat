@@ -12,7 +12,7 @@ from hstrat.hstrat import (
 
 
 @pytest.mark.parametrize(
-    "random_seed",
+    "hash_salt",
     [
         1,
         2,
@@ -22,8 +22,8 @@ from hstrat.hstrat import (
         100,
     ],
 )
-def test_policy_consistency(random_seed):
-    policy = pseudostochastic_algo.Policy(random_seed)
+def test_policy_consistency(hash_salt):
+    policy = pseudostochastic_algo.Policy(hash_salt)
     column = HereditaryStratigraphicColumn(
         stratum_retention_policy=policy,
         stratum_ordered_store_factory=HereditaryStratumOrderedStoreDict,
@@ -64,7 +64,7 @@ def test_policy_consistency(random_seed):
 
 
 @pytest.mark.parametrize(
-    "random_seed",
+    "hash_salt",
     [
         1,
         2,
@@ -74,8 +74,8 @@ def test_policy_consistency(random_seed):
         100,
     ],
 )
-def test_eq(random_seed):
-    policy = pseudostochastic_algo.Policy(random_seed)
+def test_eq(hash_salt):
+    policy = pseudostochastic_algo.Policy(hash_salt)
     spec = policy.GetSpec()
     instance = pseudostochastic_algo.CalcMrcaUncertaintyRelUpperBound(spec)
 
@@ -87,7 +87,7 @@ def test_eq(random_seed):
 
 
 @pytest.mark.parametrize(
-    "random_seed",
+    "hash_salt",
     [
         1,
         2,
@@ -97,8 +97,8 @@ def test_eq(random_seed):
         100,
     ],
 )
-def test_negative_index(random_seed):
-    policy = pseudostochastic_algo.Policy(random_seed)
+def test_negative_index(hash_salt):
+    policy = pseudostochastic_algo.Policy(hash_salt)
     spec = policy.GetSpec()
     instance = pseudostochastic_algo.CalcMrcaUncertaintyRelUpperBound(spec)
 

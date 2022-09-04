@@ -30,6 +30,6 @@ class CalcNumStrataRetainedUpperBound:
 
         # +2 is 0th rank and last rank
         return min(
-            spec._degree * 2 * (spec._interspersal + 1) + 2,
+            spec.GetDegree() * 2 * (spec.GetInterspersal() + 1) + 2,
             num_strata_deposited,
         )

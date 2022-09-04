@@ -6,21 +6,22 @@ from .._detail import PolicySpecBase
 class PolicySpec(PolicySpecBase):
     """Contains all policy parameters, if any."""
 
-    random_seed: int
+    hash_salt: int
 
-    def __init__(self: "PolicySpec", random_seed: int) -> None:
+    def __init__(self: "PolicySpec", hash_salt: int) -> None:
         """Construct the policy spec.
 
         Parameters
         ----------
-        random_seed : int
-            Seed value for the onboard random number generator.
+        hash_salt : int
+            Salt value fed into hash used to deterministically choose whether
+            to keep or drop ranks.
         """
-        self._random_seed = random_seed
+        self._hash_salt = hash_salt
 
     def __eq__(self: "PolicySpec", other: typing.Any) -> bool:
-        return isinstance(other, self.__class__) and (self._random_seed,) == (
-            other._random_seed,
+        return isinstance(other, self.__class__) and (self._hash_salt,) == (
+            other._hash_salt,
         )
 
     def __repr__(self: "PolicySpec") -> str:
@@ -28,16 +29,19 @@ class PolicySpec(PolicySpecBase):
             self.GetPolicyName()
         }.{
             __package__.split(".")[-1]
-        }(random_seed={
-            self._random_seed
+        }(hash_salt={
+            self._hash_salt
         })"""
 
     def __str__(self: "PolicySpec") -> str:
         return f"""{
             self.GetPolicyTitle()
-        } (seed: {
-            self._random_seed
+        } (hash salt: {
+            self._hash_salt
         })"""
+
+    def GetHashSalt(self: "PolicySpec") -> int:
+        return self._hash_salt
 
     @staticmethod
     def GetPolicyName() -> str:

@@ -30,7 +30,7 @@ class CalcRankAtColumnIndex:
         reflected in num_strata_deposited.
         """
         spec = policy.GetSpec()
-        guaranteed_resolution = spec._guaranteed_depth_proportional_resolution
+        guaranteed_resolution = spec.GetDepthProportionalResolution()
 
         cur_stage_uncertainty = calc_provided_uncertainty(
             guaranteed_resolution,
@@ -72,7 +72,7 @@ class CalcRankAtColumnIndex:
         been reflected in num_strata_deposited.
         """
         spec = policy.GetSpec()
-        guaranteed_resolution = spec._guaranteed_depth_proportional_resolution
+        guaranteed_resolution = spec.GetDepthProportionalResolution()
 
         if num_strata_deposited < guaranteed_resolution * 2 + 1:
             # use identity mapping before first ranks are condemned

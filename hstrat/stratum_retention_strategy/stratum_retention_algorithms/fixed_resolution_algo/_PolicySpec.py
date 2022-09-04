@@ -45,6 +45,9 @@ class PolicySpec(PolicySpecBase):
             self._fixed_resolution
         })"""
 
+    def GetFixedResolution(self: "PolicySpec") -> int:
+        return self._fixed_resolution
+
     @staticmethod
     def GetPolicyName() -> str:
         """Get programatic name for policy."""

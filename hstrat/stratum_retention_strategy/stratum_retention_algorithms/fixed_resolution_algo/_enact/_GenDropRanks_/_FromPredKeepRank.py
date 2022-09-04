@@ -65,7 +65,7 @@ class _PredKeepRank:
         spec = policy.GetSpec()
         return (
             stratum_rank == num_stratum_depositions_completed
-            or stratum_rank % spec._fixed_resolution == 0
+            or stratum_rank % spec.GetFixedResolution() == 0
         )
 
 

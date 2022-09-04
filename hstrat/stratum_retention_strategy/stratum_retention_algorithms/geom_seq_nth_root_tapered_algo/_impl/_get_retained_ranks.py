@@ -12,8 +12,8 @@ def get_retained_ranks(
 ) -> typing.Set[int]:
     """Calculate the set of strata ranks retained at `num_strata_deposited`."""
     spec = policy.GetSpec()
-    degree = spec._degree
-    interspersal = spec._interspersal
+    degree = spec.GetDegree()
+    interspersal = spec.GetInterspersal()
 
     # special case
     if num_strata_deposited == 0:

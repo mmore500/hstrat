@@ -42,12 +42,12 @@ def test_eq(recency_proportional_resolution):
         100,
     ],
 )
-def test_init(recency_proportional_resolution):
+def test_GetRecencyProportionalResolution(recency_proportional_resolution):
     spec = recency_proportional_resolution_algo.PolicySpec(
         recency_proportional_resolution
     )
     assert (
-        spec._guaranteed_mrca_recency_proportional_resolution
+        spec.GetRecencyProportionalResolution()
         == recency_proportional_resolution
     )
 

@@ -227,7 +227,7 @@ def test_comparison_validity(retention_policy, ordered_store):
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )
@@ -298,7 +298,7 @@ def test_CalcRanksSinceMrcaBoundsWith_narrow_shallow(
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )
@@ -391,7 +391,7 @@ def test_CalcRanksSinceMrcaBoundsWith_narrow_with_mrca(
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )

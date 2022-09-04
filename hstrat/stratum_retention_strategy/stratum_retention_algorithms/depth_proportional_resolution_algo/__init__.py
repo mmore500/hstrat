@@ -14,16 +14,16 @@ This retention policy guarantees that columns will retain appropriate strata so
 that for any two columns with m and n strata deposited, the rank of the most
 recent common ancestor can be determined with uncertainty of at most
 
-    bound = floor(max(m, n) / guaranteed_depth_proportional_resolution)
+    bound = floor(max(m, n) / depth_proportional_resolution)
 
 ranks. Achieving this limit on uncertainty requires retaining sufficient strata
 so that no more than bound ranks elapsed between any two strata. This policy
 accumulates retained strata at a fixed interval until twice as many as
-guaranteed_depth_proportional_resolution are at hand. Then, every other
+depth_proportional_resolution are at hand. Then, every other
 retained stratum is purged and the cycle repeats with a new twice-as-wide
 interval between retained strata.
 
-Suppose guaranteed_depth_proportional_resolution is 3.
+Suppose depth_proportional_resolution is 3.
 
        guaranteed   actual
 time   resolution   uncertainty   column

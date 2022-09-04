@@ -35,7 +35,7 @@ class CalcMrcaUncertaintyAbsExact:
             assert actual_rank_of_mrca >= 0
 
         spec = policy.GetSpec()
-        guaranteed_resolution = spec._guaranteed_depth_proportional_resolution
+        guaranteed_resolution = spec.GetDepthProportionalResolution()
 
         least_num_strata_deposited = min(
             first_num_strata_deposited,

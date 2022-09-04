@@ -62,10 +62,35 @@ def test_eq(degree, interspersal):
         5,
     ],
 )
-def test_init(degree, interspersal):
+def test_GetDegree(degree, interspersal):
     spec = geom_seq_nth_root_tapered_algo.PolicySpec(degree, interspersal)
-    assert spec._degree == degree
-    assert spec._interspersal == interspersal
+    assert spec.GetDegree() == degree
+
+
+@pytest.mark.parametrize(
+    "degree",
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "interspersal",
+    [
+        1,
+        2,
+        5,
+    ],
+)
+def test_GetInterspersal(degree, interspersal):
+    spec = geom_seq_nth_root_tapered_algo.PolicySpec(degree, interspersal)
+    assert spec.GetInterspersal() == interspersal
 
 
 def test_GetPolicyName():

@@ -4,7 +4,7 @@ from hstrat.hstrat import HereditaryStratigraphicColumn, pseudostochastic_algo
 
 
 @pytest.mark.parametrize(
-    "random_seed",
+    "hash_salt",
     [
         1,
         2,
@@ -14,8 +14,8 @@ from hstrat.hstrat import HereditaryStratigraphicColumn, pseudostochastic_algo
         100,
     ],
 )
-def test_policy_consistency(random_seed):
-    policy = pseudostochastic_algo.Policy(random_seed)
+def test_policy_consistency(hash_salt):
+    policy = pseudostochastic_algo.Policy(hash_salt)
     spec = policy.GetSpec()
     instance = pseudostochastic_algo.CalcNumStrataRetainedUpperBound(spec)
     column = HereditaryStratigraphicColumn(
@@ -37,7 +37,7 @@ def test_policy_consistency(random_seed):
 
 
 @pytest.mark.parametrize(
-    "random_seed",
+    "hash_salt",
     [
         1,
         2,
@@ -47,8 +47,8 @@ def test_policy_consistency(random_seed):
         100,
     ],
 )
-def test_eq(random_seed):
-    policy = pseudostochastic_algo.Policy(random_seed)
+def test_eq(hash_salt):
+    policy = pseudostochastic_algo.Policy(hash_salt)
     spec = policy.GetSpec()
     instance = pseudostochastic_algo.CalcNumStrataRetainedUpperBound(spec)
 

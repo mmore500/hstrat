@@ -9,7 +9,7 @@ from hstrat import hstrat
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )
@@ -83,7 +83,7 @@ def test_DefinitivelySharesNoCommonAncestorWith1(retention_policy):
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )

@@ -64,7 +64,7 @@ class _PredKeepRank:
             depth-proportional resolution stratum retention policy.
         """
         spec = policy.GetSpec()
-        guaranteed_resolution = spec._guaranteed_depth_proportional_resolution
+        guaranteed_resolution = spec.GetDepthProportionalResolution()
 
         # easy edge cases we must always retain
         if (

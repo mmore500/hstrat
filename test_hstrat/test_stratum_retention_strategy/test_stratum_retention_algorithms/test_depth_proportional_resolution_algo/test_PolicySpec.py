@@ -40,13 +40,12 @@ def test_eq(depth_proportional_resolution):
         100,
     ],
 )
-def test_init(depth_proportional_resolution):
+def test_GetDepthProportionalResolution(depth_proportional_resolution):
     spec = depth_proportional_resolution_algo.PolicySpec(
         depth_proportional_resolution
     )
     assert (
-        spec._guaranteed_depth_proportional_resolution
-        == depth_proportional_resolution
+        spec.GetDepthProportionalResolution() == depth_proportional_resolution
     )
 
 
