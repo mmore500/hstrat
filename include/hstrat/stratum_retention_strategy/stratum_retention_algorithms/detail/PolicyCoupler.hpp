@@ -52,7 +52,7 @@ class PolicyCoupler {
   [[no_unique_address]]
     CALC_MRCA_UNCERTAINTY_REL_UPPER_BOUND_PESSIMAL_RANK_FTOR
     calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor;
-  [[no_unique_address]] CALC_NUM_STRATA_RETAINED_UPPERB_BOUND_FTOR
+  [[no_unique_address]] CALC_NUM_STRATA_RETAINED_UPPER_BOUND_FTOR
     calc_num_strata_retained_upper_bound_ftor;
 
   // scrying
@@ -72,7 +72,7 @@ public:
 
   template <typename... Args>
   PolicyCoupler(Args &&... args)
-    : spec(std::forward<Args>(args)...),
+    : spec(std::forward<Args>(args)...)
       // enactment
     , gen_drop_ranks_ftor(spec)
       // invariants
@@ -88,9 +88,8 @@ public:
     , calc_mrca_uncertainty_rel_exact_ftor(spec)
     , calc_num_strata_retained_exact_ftor(spec)
     , calc_rank_at_column_index_ftor(spec)
-    , iter_retained_ranks_ftor(spec) {}
-
-  }
+    , iter_retained_ranks_ftor(spec)
+  { }
 
   const spec_t& GetSpec() const { return spec; }
 
