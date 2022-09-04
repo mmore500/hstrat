@@ -27,7 +27,6 @@ jobs:
   test-py-native:
     runs-on: ubuntu-22.04
     strategy:
-      fail-fast: false
       matrix:
         python-version: [3.8, 3.9]
         cxx:
@@ -36,7 +35,7 @@ jobs:
     steps:
     - run: |
         sudo apt update
-        sudo apt install -y g++-10 clang-14 gdb
+        sudo apt install -y g++-10 clang-14
     - uses: actions/checkout@v1
       with:
         submodules: recursive
