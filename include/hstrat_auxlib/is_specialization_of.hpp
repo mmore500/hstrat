@@ -1,6 +1,6 @@
 #pragma once
-#ifndef HSTRAT_AUXLIB_IS_SPECILIAZATION_OF_HPP_INCLUDE
-#define HSTRAT_AUXLIB_IS_SPECILIAZATION_OF_HPP_INCLUDE
+#ifndef HSTRAT_AUXLIB_IS_SPECIALIZATION_OF_HPP_INCLUDE
+#define HSTRAT_AUXLIB_IS_SPECIALIZATION_OF_HPP_INCLUDE
 
 #include <type_traits>
 
@@ -15,4 +15,4 @@ struct is_specialization_of<Template, Template<Args...>> : std::true_type {};
 
 } // nsmespace hstrat_auxlib
 
-#endif // #ifndef HSTRAT_AUXLIB_IS_SPECILIAZATION_OF_HPP_INCLUDE
+#endif // #ifndef HSTRAT_AUXLIB_IS_SPECIALIZATION_OF_HPP_INCLUDE
