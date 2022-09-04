@@ -8,7 +8,7 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import
 
 
 @pytest.mark.parametrize(
-    "random_seed",
+    "hash_salt",
     [
         1,
         2,
@@ -28,8 +28,8 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import
         ),
     ],
 )
-def test_policy_consistency(random_seed, time_sequence):
-    policy = pseudostochastic_algo.Policy(random_seed)
+def test_policy_consistency(hash_salt, time_sequence):
+    policy = pseudostochastic_algo.Policy(hash_salt)
     spec = policy.GetSpec()
     instance = (
         pseudostochastic_algo.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
@@ -77,7 +77,7 @@ def test_policy_consistency(random_seed, time_sequence):
 
 
 @pytest.mark.parametrize(
-    "random_seed",
+    "hash_salt",
     [
         1,
         2,
@@ -85,8 +85,8 @@ def test_policy_consistency(random_seed, time_sequence):
         7,
     ],
 )
-def test_eq(random_seed):
-    policy = pseudostochastic_algo.Policy(random_seed)
+def test_eq(hash_salt):
+    policy = pseudostochastic_algo.Policy(hash_salt)
     spec = policy.GetSpec()
     instance = (
         pseudostochastic_algo.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(

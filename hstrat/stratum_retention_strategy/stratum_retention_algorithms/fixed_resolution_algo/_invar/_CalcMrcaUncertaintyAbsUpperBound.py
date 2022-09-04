@@ -31,7 +31,7 @@ class CalcMrcaUncertaintyAbsUpperBound:
         Inclusive."""
         spec = policy.GetSpec()
 
-        res = spec._fixed_resolution - 1
+        res = spec.GetFixedResolution() - 1
 
         return min(
             res,

@@ -32,7 +32,7 @@ class CalcRankAtColumnIndex:
         been reflected in num_strata_deposited.
         """
         spec = policy.GetSpec()
-        resolution = spec._guaranteed_mrca_recency_proportional_resolution
+        resolution = spec.GetRecencyProportionalResolution()
 
         # calculate the interval between retained strata we're starting out with
         # -1 due to *lack* of an in-progress deposition

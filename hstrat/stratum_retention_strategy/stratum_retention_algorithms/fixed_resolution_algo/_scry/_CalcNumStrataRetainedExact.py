@@ -27,7 +27,7 @@ class CalcNumStrataRetainedExact:
         if num_strata_deposited == 0:
             return 0
 
-        uncertainty = spec._fixed_resolution
+        uncertainty = spec.GetFixedResolution()
         newest_stratum_rank = num_strata_deposited - 1
         # +1 for 0'th rank stratum
         num_strata_at_uncertainty_intervals = (

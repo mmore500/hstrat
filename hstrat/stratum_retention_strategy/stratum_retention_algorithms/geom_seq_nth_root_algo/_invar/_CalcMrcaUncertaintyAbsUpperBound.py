@@ -49,7 +49,7 @@ class CalcMrcaUncertaintyAbsUpperBound:
         if max_num_strata_deposited == 0:
             return 0
 
-        interspersal = spec._interspersal
+        interspersal = spec.GetInterspersal()
         # edge case: no uncertainty guarantee for interspersal 1
         # interspersal >= 2 required for uncertainty guarantee
         if interspersal == 1:
@@ -61,7 +61,7 @@ class CalcMrcaUncertaintyAbsUpperBound:
             return 0
 
         common_ratio = calc_common_ratio(
-            spec._degree, max_num_strata_deposited
+            spec.GetDegree(), max_num_strata_deposited
         )
         # edge case: no strata have yet been dropped
         if common_ratio == 1.0:

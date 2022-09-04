@@ -23,7 +23,7 @@ class CalcNumStrataRetainedExact:
     ) -> int:
         """Exactly how many strata are retained after n deposited?"""
         spec = policy.GetSpec()
-        guaranteed_resolution = spec._guaranteed_depth_proportional_resolution
+        guaranteed_resolution = spec.GetDepthProportionalResolution()
 
         if num_strata_deposited < guaranteed_resolution * 2 + 1:
             return num_strata_deposited

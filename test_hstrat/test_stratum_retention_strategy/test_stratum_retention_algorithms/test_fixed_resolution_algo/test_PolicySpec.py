@@ -32,9 +32,9 @@ def test_eq(fixed_resolution):
         100,
     ],
 )
-def test_init(fixed_resolution):
+def test_GetFixedResolution(fixed_resolution):
     spec = fixed_resolution_algo.PolicySpec(fixed_resolution)
-    assert spec._fixed_resolution == fixed_resolution
+    assert spec.GetFixedResolution() == fixed_resolution
 
 
 def test_GetPolicyName():

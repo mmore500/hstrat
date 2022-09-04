@@ -4,7 +4,7 @@ from hstrat.hstrat import pseudostochastic_algo
 
 
 @pytest.mark.parametrize(
-    "random_seed",
+    "hash_salt",
     [
         1,
         2,
@@ -14,15 +14,15 @@ from hstrat.hstrat import pseudostochastic_algo
         100,
     ],
 )
-def test_eq(random_seed):
-    spec = pseudostochastic_algo.PolicySpec(random_seed)
+def test_eq(hash_salt):
+    spec = pseudostochastic_algo.PolicySpec(hash_salt)
     assert spec == spec
-    assert spec == pseudostochastic_algo.PolicySpec(random_seed)
-    assert not spec == pseudostochastic_algo.PolicySpec(random_seed + 1)
+    assert spec == pseudostochastic_algo.PolicySpec(hash_salt)
+    assert not spec == pseudostochastic_algo.PolicySpec(hash_salt + 1)
 
 
 @pytest.mark.parametrize(
-    "random_seed",
+    "hash_salt",
     [
         1,
         2,
@@ -32,32 +32,32 @@ def test_eq(random_seed):
         100,
     ],
 )
-def test_init(random_seed):
-    spec = pseudostochastic_algo.PolicySpec(random_seed)
-    assert spec._random_seed == random_seed
+def test_GetHashSalt(hash_salt):
+    spec = pseudostochastic_algo.PolicySpec(hash_salt)
+    assert spec.GetHashSalt() == hash_salt
 
 
 def test_GetPolicyName():
-    random_seed = 1
-    spec = pseudostochastic_algo.PolicySpec(random_seed)
+    hash_salt = 1
+    spec = pseudostochastic_algo.PolicySpec(hash_salt)
     assert spec.GetPolicyName()
 
 
 def test_GetPolicyTitle():
-    random_seed = 1
-    spec = pseudostochastic_algo.PolicySpec(random_seed)
+    hash_salt = 1
+    spec = pseudostochastic_algo.PolicySpec(hash_salt)
     assert spec.GetPolicyTitle()
 
 
 def test_repr():
-    random_seed = 1
-    spec = pseudostochastic_algo.PolicySpec(random_seed)
-    assert str(random_seed) in repr(spec)
+    hash_salt = 1
+    spec = pseudostochastic_algo.PolicySpec(hash_salt)
+    assert str(hash_salt) in repr(spec)
     assert spec.GetPolicyName() in repr(spec)
 
 
 def test_str():
-    random_seed = 1
-    spec = pseudostochastic_algo.PolicySpec(random_seed)
-    assert str(random_seed) in str(spec)
+    hash_salt = 1
+    spec = pseudostochastic_algo.PolicySpec(hash_salt)
+    assert str(hash_salt) in str(spec)
     assert spec.GetPolicyTitle() in str(spec)

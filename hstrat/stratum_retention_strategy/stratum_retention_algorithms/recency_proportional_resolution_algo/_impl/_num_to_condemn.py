@@ -1,5 +1,5 @@
 def num_to_condemn(
-    guaranteed_mrca_recency_proportional_resolution: int,
+    recency_proportional_resolution: int,
     num_stratum_depositions_completed: int,
 ) -> int:
     """How many strata should be eliminated after
@@ -13,8 +13,7 @@ def num_to_condemn(
         * resolution = 1, <https://oeis.org/A091090>
     and is unit tested extensively.
     """
-    resolution = guaranteed_mrca_recency_proportional_resolution
-    # _guaranteed_mrca_recency_proportional_resolution is from super class
+    resolution = recency_proportional_resolution
 
     if num_stratum_depositions_completed % 2 == 1:
         return 0

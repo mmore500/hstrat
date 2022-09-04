@@ -110,7 +110,7 @@ class _PredKeepRank:
             recency-proportional resolution stratum retention policy.
         """
         return self._do_call(
-            policy.GetSpec()._guaranteed_mrca_recency_proportional_resolution,
+            policy.GetSpec().GetRecencyProportionalResolution(),
             num_stratum_depositions_completed,
             stratum_rank,
         )

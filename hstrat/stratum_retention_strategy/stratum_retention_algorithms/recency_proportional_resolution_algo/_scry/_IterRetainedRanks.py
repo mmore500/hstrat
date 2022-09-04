@@ -25,7 +25,7 @@ class IterRetainedRanks:
         """Iterate over retained strata ranks at `num_strata_deposited` in
         ascending order."""
         spec = policy.GetSpec()
-        resolution = spec._guaranteed_mrca_recency_proportional_resolution
+        resolution = spec.GetRecencyProportionalResolution()
 
         cur_rank = 0
         last_rank = num_strata_deposited - 1

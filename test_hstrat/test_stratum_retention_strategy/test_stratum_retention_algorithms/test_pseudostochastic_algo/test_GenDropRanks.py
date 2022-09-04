@@ -7,7 +7,7 @@ from hstrat.hstrat import HereditaryStratigraphicColumn, pseudostochastic_algo
 
 
 @pytest.mark.parametrize(
-    "fixed_resolution",
+    "hash_salt",
     [
         1,
         2,
@@ -17,8 +17,8 @@ from hstrat.hstrat import HereditaryStratigraphicColumn, pseudostochastic_algo
         100,
     ],
 )
-def test_impl_consistency(fixed_resolution):
-    policy = pseudostochastic_algo.Policy(fixed_resolution)
+def test_impl_consistency(hash_salt):
+    policy = pseudostochastic_algo.Policy(hash_salt)
     spec = policy.GetSpec()
     impls = [*pseudostochastic_algo._GenDropRanks_impls]
     instances = [impl(spec) for impl in impls]
@@ -54,7 +54,7 @@ def test_impl_consistency(fixed_resolution):
 
 
 @pytest.mark.parametrize(
-    "fixed_resolution",
+    "hash_salt",
     [
         1,
         2,
@@ -64,8 +64,8 @@ def test_impl_consistency(fixed_resolution):
         100,
     ],
 )
-def test_eq(fixed_resolution):
-    policy = pseudostochastic_algo.Policy(fixed_resolution)
+def test_eq(hash_salt):
+    policy = pseudostochastic_algo.Policy(hash_salt)
     spec = policy.GetSpec()
     instance = pseudostochastic_algo.GenDropRanks(spec)
 

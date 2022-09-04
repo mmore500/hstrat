@@ -27,7 +27,7 @@ class CalcNumStrataRetainedUpperBound:
     ) -> int:
         """At most how many strata are retained after n deposited? Inclusive."""
         spec = policy.GetSpec()
-        resolution = spec._guaranteed_mrca_recency_proportional_resolution
+        resolution = spec.GetRecencyProportionalResolution()
 
         res = (
             int(

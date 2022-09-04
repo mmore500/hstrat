@@ -66,14 +66,14 @@ class GenDropRanks:
         spec = policy.GetSpec()
 
         prev_retained_ranks = get_retained_ranks(
-            spec._degree,
-            spec._interspersal,
+            spec.GetDegree(),
+            spec.GetInterspersal(),
             num_stratum_depositions_completed,
         )
 
         cur_retained_ranks = get_retained_ranks(
-            spec._degree,
-            spec._interspersal,
+            spec.GetDegree(),
+            spec.GetInterspersal(),
             num_stratum_depositions_completed + 1,
         )
 

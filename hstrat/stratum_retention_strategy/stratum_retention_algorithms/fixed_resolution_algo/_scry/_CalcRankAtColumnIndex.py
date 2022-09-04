@@ -40,6 +40,6 @@ class CalcRankAtColumnIndex:
             return num_strata_deposited
         else:
             return min(
-                index * spec._fixed_resolution,
+                index * spec.GetFixedResolution(),
                 num_strata_deposited - 1,
             )

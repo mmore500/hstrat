@@ -67,7 +67,7 @@ class GenDropRanks:
         # num_stratum_depositions_completed
         second_newest_stratum_rank = num_stratum_depositions_completed - 2
         if second_newest_stratum_rank > 0 and decide_if_discard(
-            spec._random_seed,
+            spec.GetHashSalt(),
             second_newest_stratum_rank,
             num_stratum_depositions_completed,
         ):

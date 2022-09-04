@@ -28,7 +28,7 @@ class CalcNumStrataRetainedExact:
 
         spec = policy.GetSpec()
         provided_uncertainty = calc_provided_uncertainty(
-            spec._guaranteed_depth_proportional_resolution,
+            spec.GetDepthProportionalResolution(),
             num_strata_deposited,
         )
         newest_stratum_rank = num_strata_deposited - 1

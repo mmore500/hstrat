@@ -28,8 +28,8 @@ class IterRetainedRanks:
 
         yield from sorted(
             get_retained_ranks(
-                spec._degree,
-                spec._interspersal,
+                spec.GetDegree(),
+                spec.GetInterspersal(),
                 num_strata_deposited,
             )
         )

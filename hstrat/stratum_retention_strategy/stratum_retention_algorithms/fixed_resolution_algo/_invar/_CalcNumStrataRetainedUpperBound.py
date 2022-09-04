@@ -29,6 +29,6 @@ class CalcNumStrataRetainedUpperBound:
 
         # +2 due to 0'th and num_strata_deposited - 1'th ranks
         return min(
-            num_strata_deposited // spec._fixed_resolution + 2,
+            num_strata_deposited // spec.GetFixedResolution() + 2,
             num_strata_deposited,
         )

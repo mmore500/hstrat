@@ -2583,7 +2583,7 @@ def test_CalcRankOfFirstRetainedDisparityWith5(
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )
@@ -2653,7 +2653,7 @@ def test_CalcRankOfMrcaBoundsWith_narrow_shallow(
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )
@@ -2746,7 +2746,7 @@ def test_CalcRankOfMrcaBoundsWith_narrow_with_mrca(
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )
@@ -3145,7 +3145,7 @@ def test_CalcRanksSinceEarliestDetectableMrcaWith2(
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )
@@ -3215,7 +3215,7 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_shallow(
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )
@@ -3291,7 +3291,7 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_with_mrca(
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )
@@ -3833,7 +3833,7 @@ def test_CalcRanksSinceFirstRetainedDisparityWith1(differentia_width):
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )
@@ -3903,7 +3903,7 @@ def test_CalcRanksSinceMrcaBoundsWith_narrow_shallow(
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )
@@ -3995,7 +3995,7 @@ def test_CalcRanksSinceMrcaBoundsWith_narrow_with_mrca(
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )
@@ -4079,7 +4079,7 @@ def test_CalcRanksSinceMrcaBoundsWith_narrow_no_mrca(
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )
@@ -4147,7 +4147,7 @@ def test_CalcRanksSinceMrcaUncertaintyWith_narrow_shallow(
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )
@@ -4223,7 +4223,7 @@ def test_CalcRanksSinceMrcaUncertaintyWith_narrow_with_mrca(
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )
@@ -4305,7 +4305,7 @@ def test_CalcRanksSinceMrcaUncertaintyWith_narrow_no_mrca(
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )
@@ -4371,7 +4371,7 @@ def test_DefinitivelySharesNoCommonAncestorWith1(retention_policy):
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
         hstrat.recency_proportional_resolution_algo.Policy(
-            guaranteed_mrca_recency_proportional_resolution=10,
+            recency_proportional_resolution=10,
         ),
     ],
 )

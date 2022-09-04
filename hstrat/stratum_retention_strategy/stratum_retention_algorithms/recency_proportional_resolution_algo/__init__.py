@@ -21,7 +21,7 @@ determined with uncertainty of at most
 
     bound = floor(
         max(m - k, n - k)
-        / guaranteed_mrca_recency_proportional_resolution
+        / recency_proportional_resolution
     )
 
 ranks.

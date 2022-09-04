@@ -50,7 +50,7 @@ class CalcNumStrataRetainedExact:
         """
         spec = policy.GetSpec()
 
-        resolution = spec._guaranteed_mrca_recency_proportional_resolution
+        resolution = spec.GetRecencyProportionalResolution()
         if num_strata_deposited - 1 <= resolution:
             return num_strata_deposited
         else:

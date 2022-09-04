@@ -2,7 +2,7 @@ import mmh3
 
 
 def decide_if_discard(
-    random_seed: int,
+    hash_salt: int,
     stratum_rank: int,
     num_stratum_depositions_completed: int,
 ) -> bool:
@@ -14,7 +14,7 @@ def decide_if_discard(
                     num_stratum_depositions_completed,
                 )
             ),
-            random_seed,
+            hash_salt,
         )
         % 2
     )

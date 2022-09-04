@@ -44,8 +44,8 @@ class CalcMrcaUncertaintyAbsExact:
         least_last_rank = least_num_strata_deposited - 1
 
         retained_ranks = get_retained_ranks(
-            spec._degree,
-            spec._interspersal,
+            spec.GetDegree(),
+            spec.GetInterspersal(),
             least_num_strata_deposited,
         )
         lower_bound, upper_bound = find_bounds(

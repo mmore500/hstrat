@@ -79,6 +79,12 @@ class PolicySpec(PolicySpecBase):
             self._interspersal
         })"""
 
+    def GetDegree(self: "PolicySpec") -> int:
+        return self._degree
+
+    def GetInterspersal(self: "PolicySpec") -> int:
+        return self._interspersal
+
     @staticmethod
     def GetPolicyName() -> str:
         """Get programatic name for policy."""

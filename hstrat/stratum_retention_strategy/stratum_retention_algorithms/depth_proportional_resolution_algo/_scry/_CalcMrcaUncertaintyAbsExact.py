@@ -43,7 +43,7 @@ class CalcMrcaUncertaintyAbsExact:
         least_last_rank = least_num_strata_deposited - 1
 
         uncertainty = calc_provided_uncertainty(
-            spec._guaranteed_depth_proportional_resolution,
+            spec.GetDepthProportionalResolution(),
             least_num_strata_deposited,
         )
 

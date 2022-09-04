@@ -4,7 +4,7 @@ from hstrat.hstrat import pseudostochastic_algo
 
 
 @pytest.mark.parametrize(
-    "random_seed",
+    "hash_salt",
     [
         1,
         2,
@@ -14,15 +14,15 @@ from hstrat.hstrat import pseudostochastic_algo
         100,
     ],
 )
-def test_init(random_seed):
+def test_init(hash_salt):
     assert (
-        pseudostochastic_algo.Policy(random_seed).GetSpec()
+        pseudostochastic_algo.Policy(hash_salt).GetSpec()
         == pseudostochastic_algo.Policy(
-            policy_spec=pseudostochastic_algo.PolicySpec(random_seed),
+            policy_spec=pseudostochastic_algo.PolicySpec(hash_salt),
         ).GetSpec()
     )
 
-    policy = pseudostochastic_algo.Policy(random_seed)
+    policy = pseudostochastic_algo.Policy(hash_salt)
 
     # invariants
     assert callable(policy.CalcMrcaUncertaintyAbsUpperBound)
@@ -43,7 +43,7 @@ def test_init(random_seed):
 
 
 @pytest.mark.parametrize(
-    "random_seed",
+    "hash_salt",
     [
         1,
         2,
@@ -53,20 +53,20 @@ def test_init(random_seed):
         100,
     ],
 )
-def test_eq(random_seed):
-    policy = pseudostochastic_algo.Policy(random_seed)
+def test_eq(hash_salt):
+    policy = pseudostochastic_algo.Policy(hash_salt)
     assert policy == policy
-    assert policy == pseudostochastic_algo.Policy(random_seed)
+    assert policy == pseudostochastic_algo.Policy(hash_salt)
     assert policy == policy.WithoutCalcRankAtColumnIndex()
     assert (
         policy.WithoutCalcRankAtColumnIndex()
         == policy.WithoutCalcRankAtColumnIndex()
     )
-    assert not policy == pseudostochastic_algo.Policy(random_seed + 1)
+    assert not policy == pseudostochastic_algo.Policy(hash_salt + 1)
 
 
 @pytest.mark.parametrize(
-    "random_seed",
+    "hash_salt",
     [
         1,
         2,
@@ -76,14 +76,14 @@ def test_eq(random_seed):
         100,
     ],
 )
-def test_GetSpec(random_seed):
+def test_GetSpec(hash_salt):
     assert pseudostochastic_algo.Policy(
-        random_seed
-    ).GetSpec() == pseudostochastic_algo.PolicySpec(random_seed)
+        hash_salt
+    ).GetSpec() == pseudostochastic_algo.PolicySpec(hash_salt)
 
 
 @pytest.mark.parametrize(
-    "random_seed",
+    "hash_salt",
     [
         1,
         2,
@@ -93,9 +93,9 @@ def test_GetSpec(random_seed):
         100,
     ],
 )
-def test_WithoutCalcRankAtColumnIndex(random_seed):
+def test_WithoutCalcRankAtColumnIndex(hash_salt):
 
-    original = pseudostochastic_algo.Policy(random_seed)
+    original = pseudostochastic_algo.Policy(hash_salt)
     stripped = original.WithoutCalcRankAtColumnIndex()
 
     assert stripped.CalcRankAtColumnIndex is None
@@ -148,21 +148,21 @@ def test_WithoutCalcRankAtColumnIndex(random_seed):
     # test chaining
     assert (
         pseudostochastic_algo.Policy(
-            random_seed,
+            hash_salt,
         ).WithoutCalcRankAtColumnIndex()
         == stripped
     )
 
 
 def test_repr():
-    random_seed = 1
-    policy = pseudostochastic_algo.Policy(random_seed)
-    assert str(random_seed) in repr(policy)
+    hash_salt = 1
+    policy = pseudostochastic_algo.Policy(hash_salt)
+    assert str(hash_salt) in repr(policy)
     assert policy.GetSpec().GetPolicyName() in repr(policy)
 
 
 def test_str():
-    random_seed = 1
-    policy = pseudostochastic_algo.Policy(random_seed)
-    assert str(random_seed) in str(policy)
+    hash_salt = 1
+    policy = pseudostochastic_algo.Policy(hash_salt)
+    assert str(hash_salt) in str(policy)
     assert policy.GetSpec().GetPolicyTitle() in str(policy)

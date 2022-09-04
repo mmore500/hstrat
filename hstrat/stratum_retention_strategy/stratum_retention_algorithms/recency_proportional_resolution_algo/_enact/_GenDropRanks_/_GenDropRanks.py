@@ -62,7 +62,7 @@ class GenDropRanks:
             recency-proportional resolution stratum retention policy.
         """
         spec = policy.GetSpec()
-        resolution = spec._guaranteed_mrca_recency_proportional_resolution
+        resolution = spec.GetRecencyProportionalResolution()
         num_to_condemn_ = num_to_condemn(
             resolution,
             num_stratum_depositions_completed,
