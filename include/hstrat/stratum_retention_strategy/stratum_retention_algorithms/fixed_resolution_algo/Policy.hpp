@@ -26,7 +26,7 @@ namespace fixed_resolution_algo {
 template <
   typename POLICY_SPEC=hstrat::fixed_resolution_algo::PolicySpec
 >
-using = PolicyCoupler<
+using Policy = PolicyCoupler<
   POLICY_SPEC,
   GenDropRanksFtor,
   CalcMrcaUncertaintyAbsUpperBoundFtor,
