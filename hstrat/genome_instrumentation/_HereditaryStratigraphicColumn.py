@@ -293,6 +293,12 @@ class HereditaryStratigraphicColumn:
         """
         return self.GetNumStrataDeposited() - self.GetNumStrataRetained()
 
+    def GetStratumDifferentiaBitWidth(
+        self: "HereditaryStratigraphicColumn",
+    ) -> int:
+        """How many bits wide are the differentia of strata?"""
+        return self._stratum_differentia_bit_width
+
     def HasDiscardedStrata(
         self: "HereditaryStratigraphicColumn",
     ) -> bool:

@@ -20,28 +20,29 @@ def calc_rank_of_first_retained_disparity_between(
 
     How many depositions elapsed along the columns' lines of
     descent before the first mismatching strata at the same rank between
-    self and other?
+    first and second?
 
     Parameters
     ----------
     confidence_level : float, optional
         With what probability should the true rank of the first disparity
-        with other fall at or after the returned rank? Default 0.95.
+        between first and second fall at or after the returned rank? Default
+        0.95.
 
     Returns
     -------
     int, optional
         The number of depositions elapsed or None if no disparity (i.e.,
         both columns have same number of strata deposited and the most
-        recent stratum is common between self and other).
+        recent stratum is common between first and second).
 
     Notes
     -----
-    If no mismatching strata are found but self and other have different
+    If no mismatching strata are found but first and second have different
     numbers of strata deposited, this method returns one greater than the
     lesser of the columns' deposition counts.
 
-    The true rank of the first disparity with other is guaranteed to never
+    The true rank of the first disparity with second is guaranteed to never
     be after the returned rank when confidence_level < 0.5.
 
     If the differentia width and confidence level are configured such that
@@ -66,25 +67,27 @@ def calc_rank_of_first_retained_disparity_between(
     assert 0.0 <= confidence_level <= 1.0
 
     if (
-        self.HasDiscardedStrata()
-        or other.HasDiscardedStrata()
+        first.HasDiscardedStrata()
+        or second.HasDiscardedStrata()
         # for performance reasons
         # only apply binary search to stores that support random access
         or not isinstance(
-            self._stratum_ordered_store, HereditaryStratumOrderedStoreList
+            first._stratum_ordered_store, HereditaryStratumOrderedStoreList
         )
         or not isinstance(
-            other._stratum_ordered_store, HereditaryStratumOrderedStoreList
+            second._stratum_ordered_store, HereditaryStratumOrderedStoreList
         )
         # binary search currently requires no spurious collisions
-        or self._stratum_differentia_bit_width < 64
+        or first.GetStratumDifferentiaBitWidth() < 64
     ):
-        return self._do_generic_CalcRankOfFirstRetainedDisparityWith(
-            other,
+        return calc_rank_of_first_retained_disparity_between_generic(
+            first,
+            second,
             confidence_level=confidence_level,
         )
     else:
-        return self._do_binary_search_CalcRankOfFirstRetainedDisparityWith(
-            other,
+        return calc_rank_of_first_retained_disparity_between_bsearch(
+            first,
+            second,
             confidence_level=confidence_level,
         )

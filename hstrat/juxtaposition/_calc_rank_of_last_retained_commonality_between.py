@@ -20,13 +20,14 @@ def calc_rank_of_last_retained_commonality_between(
 
     How many depositions elapsed along the columns' lines of
     descent before the last matching strata at the same rank between
-    self and other?
+    first and second?
 
     Parameters
     ----------
     confidence_level : float, optional
         With what probability should the true rank of the last commonality
-        with other fall at or after the returned rank? Default 0.95.
+        between first and second fall at or after the returned rank? Default
+        0.95.
 
     Returns
     -------
@@ -36,31 +37,33 @@ def calc_rank_of_last_retained_commonality_between(
 
     Notes
     -----
-    The true rank of the last commonality with other is guaranteed to never
+    The true rank of the last commonality with second is guaranteed to never
     be after the returned rank when confidence_level < 0.5.
     """
     assert 0.0 <= confidence_level <= 1.0
 
     if (
-        self.HasDiscardedStrata()
-        or other.HasDiscardedStrata()
+        first.HasDiscardedStrata()
+        or second.HasDiscardedStrata()
         # for performance reasons
         # only binary search stores that support random access
         or not isinstance(
-            self._stratum_ordered_store, HereditaryStratumOrderedStoreList
+            first._stratum_ordered_store, HereditaryStratumOrderedStoreList
         )
         or not isinstance(
-            other._stratum_ordered_store, HereditaryStratumOrderedStoreList
+            second._stratum_ordered_store, HereditaryStratumOrderedStoreList
         )
         # binary search currently requires no spurious collisions
-        or self._stratum_differentia_bit_width < 64
+        or first.GetStratumDifferentiaBitWidth() < 64
     ):
-        return self._do_generic_CalcRankOfLastRetainedCommonalityWith(
-            other,
+        return calc_rank_of_last_retained_commonality_between_generic(
+            first,
+            second,
             confidence_level=confidence_level,
         )
     else:
-        return self._do_binary_search_CalcRankOfLastRetainedCommonalityWith(
-            other,
+        return calc_rank_of_last_retained_commonality_between_bsearch(
+            first,
+            second,
             confidence_level=confidence_level,
         )

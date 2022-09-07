@@ -1,5 +1,7 @@
 import typing
 
+from interval_search import binary_search
+
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._calc_rank_of_last_retained_commonality_between_generic import (
     calc_rank_of_last_retained_commonality_between_generic,
@@ -14,17 +16,17 @@ def calc_rank_of_last_retained_commonality_between_bsearch(
     """Find rank of strata commonality before first strata disparity.
 
     Implementation detail. Provides optimized implementation for
-    special case where both self and other use the perfect resolution
+    special case where both first and second use the perfect resolution
     stratum retention policy.
     """
     # both must have (effectively) used the perfect resolution policy
-    assert not self.HasDiscardedStrata() and not other.HasDiscardedStrata()
+    assert not first.HasDiscardedStrata() and not second.HasDiscardedStrata()
 
     lower_bound = 0
     upper_bound = min(
         [
-            self.GetNumStrataDeposited() - 1,
-            other.GetNumStrataDeposited() - 1,
+            first.GetNumStrataDeposited() - 1,
+            second.GetNumStrataDeposited() - 1,
         ]
     )
     assert lower_bound <= upper_bound
@@ -36,7 +38,7 @@ def calc_rank_of_last_retained_commonality_between_bsearch(
         return which.GetStratumAtColumnIndex(idx).GetDifferentia()
 
     def predicate(idx: int) -> bool:
-        return differentia_at(self, idx) != differentia_at(other, idx)
+        return differentia_at(first, idx) != differentia_at(second, idx)
 
     first_disparite_idx = binary_search(
         predicate,
@@ -45,20 +47,21 @@ def calc_rank_of_last_retained_commonality_between_bsearch(
     )
 
     collision_implausibility_threshold = (
-        self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+        first.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
             significance_level=1.0 - confidence_level,
         )
     )
     assert collision_implausibility_threshold > 0
     if first_disparite_idx is None:
         # no disparate strata found
-        # fall back to _do_generic_CalcRankOfLastRetainedCommonalityWith
+        # fall back to calc_rank_of_last_retained_commonality_between_generic
         # to handle proper bookkeeping in this case while skipping most of
         # the search
-        return self._do_generic_CalcRankOfLastRetainedCommonalityWith(
-            other,
-            self_start_idx=upper_bound,
-            other_start_idx=upper_bound,
+        return calc_rank_of_last_retained_commonality_between_generic(
+            first,
+            second,
+            first_start_idx=upper_bound,
+            second_start_idx=upper_bound,
             confidence_level=confidence_level,
         )
     elif first_disparite_idx >= collision_implausibility_threshold:
@@ -70,13 +73,13 @@ def calc_rank_of_last_retained_commonality_between_bsearch(
         last_common_idx = (
             first_disparite_idx - collision_implausibility_threshold
         )
-        last_common_rank = self.GetRankAtColumnIndex(
+        last_common_rank = first.GetRankAtColumnIndex(
             last_common_idx,
         )
         assert last_common_idx == last_common_rank
         return last_common_rank
     else:
-        # no common strata between self and other
+        # no common strata between first and second
         # or not enough common strata to discount the possibility all
         # are spurious collisions with respect to the given confidence
         # level; conservatively conclude there is no common ancestor

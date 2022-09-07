@@ -1,5 +1,7 @@
 import typing
 
+from interval_search import binary_search
+
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._calc_rank_of_first_retained_disparity_between_generic import (
     calc_rank_of_first_retained_disparity_between_generic,
@@ -14,17 +16,17 @@ def calc_rank_of_first_retained_disparity_between_bsearch(
     """Find first mismatching strata between columns.
 
     Implementation detail. Provides optimized implementation for special
-    case where both self and other use the perfect resolution stratum
+    case where both self and second use the perfect resolution stratum
     retention policy.
     """
     # both must have (effectively) used the perfect resolution policy
-    assert not self.HasDiscardedStrata() and not other.HasDiscardedStrata()
+    assert not first.HasDiscardedStrata() and not second.HasDiscardedStrata()
 
     lower_bound = 0
     upper_bound = min(
         [
-            self.GetNumStrataDeposited() - 1,
-            other.GetNumStrataDeposited() - 1,
+            first.GetNumStrataDeposited() - 1,
+            second.GetNumStrataDeposited() - 1,
         ]
     )
     assert lower_bound <= upper_bound
@@ -36,7 +38,7 @@ def calc_rank_of_first_retained_disparity_between_bsearch(
         return which.GetStratumAtColumnIndex(idx).GetDifferentia()
 
     def predicate(idx: int) -> bool:
-        return differentia_at(self, idx) != differentia_at(other, idx)
+        return differentia_at(first, idx) != differentia_at(second, idx)
 
     first_disparite_idx = binary_search(
         predicate,
@@ -46,8 +48,12 @@ def calc_rank_of_first_retained_disparity_between_bsearch(
 
     if first_disparite_idx is not None:
         # disparate strata found
+        assert (
+            first.GetStratumDifferentiaBitWidth()
+            == second.GetStratumDifferentiaBitWidth()
+        )
         collision_plausibility_threshold = (
-            self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            first.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
                 significance_level=1.0 - confidence_level,
             )
             - 1
@@ -63,18 +69,19 @@ def calc_rank_of_first_retained_disparity_between_bsearch(
             first_disparite_idx - collision_plausibility_threshold,
             0,
         )
-        first_disparite_rank = self.GetRankAtColumnIndex(
+        first_disparite_rank = first.GetRankAtColumnIndex(
             spurious_collision_corrected_idx
         )
         return first_disparite_rank
     else:
         # no disparate strata found
-        # fall back to _do_generic_CalcRankOfFirstRetainedDisparityWith to
+        # fall back to calc_rank_of_first_retained_disparity_between_generic to
         # handle proper bookkeeping in this case while skipping most of the
         # search
-        return self._do_generic_CalcRankOfFirstRetainedDisparityWith(
-            other,
-            self_start_idx=upper_bound,
-            other_start_idx=upper_bound,
+        return calc_rank_of_first_retained_disparity_between_generic(
+            first,
+            second,
+            first_start_idx=upper_bound,
+            second_start_idx=upper_bound,
             confidence_level=confidence_level,
         )
