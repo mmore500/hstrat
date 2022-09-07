@@ -14,7 +14,7 @@ def calc_definitive_max_rank_of_last_retained_commonality_between(
 
     At most, how many depositions elapsed along the columns' lines of
     descent before the last matching strata at the same rank between
-    self and other?
+    first and second?
 
     Returns
     -------
@@ -24,12 +24,17 @@ def calc_definitive_max_rank_of_last_retained_commonality_between(
     """
     confidence_level = 0.49
     assert (
-        self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+        first.GetStratumDifferentiaBitWidth()
+        == second.GetStratumDifferentiaBitWidth()
+    )
+    assert (
+        first.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
             significance_level=1.0 - confidence_level,
         )
         == 1
     )
-    return self.CalcRankOfLastRetainedCommonalityWith(
-        other,
+    return calc_rank_of_last_retained_commonality_between(
+        first,
+        second,
         confidence_level=confidence_level,
     )
