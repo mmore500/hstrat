@@ -11,40 +11,40 @@ def get_nth_common_rank_between(
     """Return the nth rank retained by both columns.
 
     Zero indexed. Returns None if n + 1 common ranks do not exist between
-    self and other.
+    first and second.
     """
     assert n >= 0
 
     # helper setup
-    self_iter = self._stratum_ordered_store.IterRankDifferentia(
-        get_rank_at_column_index=self.GetRankAtColumnIndex,
+    first_iter = first._stratum_ordered_store.IterRankDifferentia(
+        get_rank_at_column_index=first.GetRankAtColumnIndex,
     )
-    other_iter = other._stratum_ordered_store.IterRankDifferentia(
-        get_rank_at_column_index=other.GetRankAtColumnIndex,
+    second_iter = second._stratum_ordered_store.IterRankDifferentia(
+        get_rank_at_column_index=second.GetRankAtColumnIndex,
     )
-    self_cur_rank, self_cur_differentia = next(self_iter)
-    other_cur_rank, other_cur_differentia = next(other_iter)
+    first_cur_rank, first_cur_differentia = next(first_iter)
+    second_cur_rank, second_cur_differentia = next(second_iter)
 
     try:
         while True:
-            if self_cur_rank == other_cur_rank:
+            if first_cur_rank == second_cur_rank:
                 # strata at common rank
                 if n == 0:
-                    return self_cur_rank
+                    return first_cur_rank
 
                 n -= 1
-                # advance self
-                self_cur_rank, self_cur_differentia = next(self_iter)
-                # advance other
-                other_cur_rank, other_cur_differentia = next(other_iter)
-            elif self_cur_rank < other_cur_rank:
-                # current stratum on self column older than on other column
-                # advance to next-newer stratum on self column
-                self_cur_rank, self_cur_differentia = next(self_iter)
-            elif self_cur_rank > other_cur_rank:
-                # current stratum on other column older than on self column
-                # advance to next-newer stratum on other column
-                other_cur_rank, other_cur_differentia = next(other_iter)
+                # advance first
+                first_cur_rank, first_cur_differentia = next(first_iter)
+                # advance second
+                second_cur_rank, second_cur_differentia = next(second_iter)
+            elif first_cur_rank < second_cur_rank:
+                # current stratum on first column older than on second column
+                # advance to next-newer stratum on first column
+                first_cur_rank, first_cur_differentia = next(first_iter)
+            elif first_cur_rank > second_cur_rank:
+                # current stratum on second column older than on first column
+                # advance to next-newer stratum on second column
+                second_cur_rank, second_cur_differentia = next(second_iter)
 
     except StopIteration:
         return None
