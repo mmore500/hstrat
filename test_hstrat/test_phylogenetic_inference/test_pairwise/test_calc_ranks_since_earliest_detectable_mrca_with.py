@@ -146,7 +146,7 @@ def test_CalcRanksSinceEarliestDetectableMrcaWith2(
             confidence_level=confidence_level,
         ) == (
             x2.GetNumStrataDeposited()
-            - hstrat.get_nth_common_rank_between(x2,x2, expected_thresh)
+            - hstrat.get_nth_common_rank_between(x2,x1, expected_thresh)
             - 1
         )
 
@@ -169,6 +169,6 @@ def test_CalcRanksSinceEarliestDetectableMrcaWith2(
             confidence_level=confidence_level,
         ) == (
             x2.GetNumStrataDeposited()
-            - hstrat.get_nth_common_rank_between(x2,x2, expected_thresh)
+            - hstrat.get_nth_common_rank_between(x2,x1, expected_thresh)
             - 1
         )
