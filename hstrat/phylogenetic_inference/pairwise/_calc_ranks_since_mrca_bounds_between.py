@@ -5,8 +5,8 @@ import opytional as opyt
 
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ...juxtaposition import (
-    calc_definitive_min_ranks_since_first_retained_disparity_between,
-    calc_ranks_since_last_retained_commonality_between,
+    calc_definitive_min_ranks_since_first_retained_disparity_with,
+    calc_ranks_since_last_retained_commonality_with,
 )
 from ._calc_rank_of_earliest_detectable_mrca_between import (
     calc_rank_of_earliest_detectable_mrca_between,

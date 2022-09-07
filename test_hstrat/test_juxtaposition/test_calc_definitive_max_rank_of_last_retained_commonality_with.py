@@ -40,26 +40,30 @@ def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith1(
     for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
         if differentia_width == 64:
             assert (
-                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c1,
+                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                    c1,
                     c2,
                 )
                 == column.GetNumStrataDeposited() - 1
             )
             assert (
-                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c2,
+                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                    c2,
                     c1,
                 )
                 == column.GetNumStrataDeposited() - 1
             )
         else:
             assert (
-                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c1,
+                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                    c1,
                     c2,
                 )
                 >= column.GetNumStrataDeposited() - 1
             )
             assert (
-                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c2,
+                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                    c2,
                     c1,
                 )
                 >= column.GetNumStrataDeposited() - 1
@@ -67,7 +71,9 @@ def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith1(
 
     for c in [column, offspring1, offspring2]:
         assert (
-            hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c,c)
+            hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                c, c
+            )
             == c.GetNumStrataDeposited() - 1
         )
 
@@ -78,26 +84,30 @@ def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith1(
     for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
         if differentia_width == 64:
             assert (
-                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c1,
+                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                    c1,
                     c2,
                 )
                 == column.GetNumStrataDeposited() - 1
             )
             assert (
-                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c2,
+                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                    c2,
                     c1,
                 )
                 == column.GetNumStrataDeposited() - 1
             )
         else:
             assert (
-                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c1,
+                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                    c1,
                     c2,
                 )
                 >= column.GetNumStrataDeposited() - 1
             )
             assert (
-                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c2,
+                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                    c2,
                     c1,
                 )
                 >= column.GetNumStrataDeposited() - 1
@@ -105,7 +115,9 @@ def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith1(
 
     for c in [column, offspring1, offspring2]:
         assert (
-            hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c,c)
+            hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                c, c
+            )
             == c.GetNumStrataDeposited() - 1
         )
 
@@ -126,12 +138,14 @@ def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith2(ordered_store):
     while True:
         offspring1 = column.CloneDescendant()
         offspring2 = column.CloneDescendant()
-        res = hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(offspring1,
+        res = hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+            offspring1,
             offspring2,
         )
         if res is not None and res > column.GetNumStrataDeposited() - 1:
             assert (
-                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(offspring2,
+                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                    offspring2,
                     offspring1,
                 )
                 == res
@@ -168,13 +182,15 @@ def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith3(ordered_store):
         assert c2.GetNumStrataRetained() == 2
 
         assert (
-            hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c1,
+            hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                c1,
                 c2,
             )
             == 0
         )
         assert (
-            hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c2,
+            hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                c2,
                 c1,
             )
             == 0
@@ -198,11 +214,13 @@ def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith4(ordered_store):
             stratum_differentia_bit_width=1,
         )
 
-        res = hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c1,
+        res = hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+            c1,
             c2,
         )
         assert (
-            hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c2,
+            hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                c2,
                 c1,
             )
             == res
@@ -213,10 +231,13 @@ def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith4(ordered_store):
             for generation in range(100):
                 c1.DepositStratum()
                 c2.DepositStratum()
-            res = hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c1,c2)
+            res = hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                c1, c2
+            )
             assert res is None
             assert (
-                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c2,
+                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                    c2,
                     c1,
                 )
                 is None
@@ -226,7 +247,9 @@ def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith4(ordered_store):
                 c1_ = c1.CloneDescendant()
                 c2_ = c2.CloneDescendant()
                 if (
-                    hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c1_,c2_)
+                    hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                        c1_, c2_
+                    )
                     == 1
                 ):
                     break
@@ -259,11 +282,13 @@ def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith5(ordered_store):
             stratum_retention_policy=hstrat.fixed_resolution_algo.Policy(2),
         )
 
-        res = hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c1,
+        res = hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+            c1,
             c2,
         )
         assert (
-            hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c2,
+            hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                c2,
                 c1,
             )
             == res
@@ -274,10 +299,13 @@ def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith5(ordered_store):
             for generation in range(100):
                 c1.DepositStratum()
                 c2.DepositStratum()
-            res = hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c1,c2)
+            res = hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                c1, c2
+            )
             assert res is None
             assert (
-                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c2,
+                hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                    c2,
                     c1,
                 )
                 is None
@@ -289,7 +317,9 @@ def test_CalcDefinitiveMaxRankOfLastRetainedCommonalityWith5(ordered_store):
                 c1_.DepositStratum()
                 c2_.DepositStratum()
                 if (
-                    hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(c1_,c2_)
+                    hstrat.calc_definitive_max_rank_of_last_retained_commonality_between(
+                        c1_, c2_
+                    )
                     == 2
                 ):
                     break

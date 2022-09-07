@@ -6,18 +6,18 @@ from ._calc_rank_of_last_retained_commonality_between import (
 )
 
 
-def calc_ranks_since_last_retained_commonality_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+def calc_ranks_since_last_retained_commonality_with(
+    focal: HereditaryStratigraphicColumn,
+    other: HereditaryStratigraphicColumn,
     confidence_level: float = 0.95,
 ) -> typing.Optional[int]:
     """Determine generations since MRCA with particular confidence.
 
-    How many depositions have elapsed along this column's line of
-    descent since the las matching strata at the same rank between self and
+    How many depositions have elapsed along the focal column's line of
+    descent since the last matching strata at the same rank between focal and
     other?
 
-    Returns None if no common ancestor is shared between self and other.
+    Returns None if no common ancestor is shared between focal and other.
 
     Parameters
     ----------
@@ -34,14 +34,15 @@ def calc_ranks_since_last_retained_commonality_between(
     """
     assert 0.0 <= confidence_level <= 1.0
 
-    last_common_rank = self.CalcRankOfLastRetainedCommonalityWith(
+    last_common_rank = calc_rank_of_last_retained_commonality_between(
+        focal,
         other,
         confidence_level=confidence_level,
     )
     if last_common_rank is None:
         return None
     else:
-        assert self.GetNumStrataDeposited()
-        res = self.GetNumStrataDeposited() - 1 - last_common_rank
-        assert 0 <= res < self.GetNumStrataDeposited()
+        assert focal.GetNumStrataDeposited()
+        res = focal.GetNumStrataDeposited() - 1 - last_common_rank
+        assert 0 <= res < focal.GetNumStrataDeposited()
         return res
