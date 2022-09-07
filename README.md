@@ -55,13 +55,14 @@ individual2 = hstrat.HereditaryStratigraphicColumn(
 
 individual1_child1 = individual1.CloneDescendant()
 
-individual1.HasAnyCommonAncestorWith(individual2) # -> False
-individual1_child1.HasAnyCommonAncestorWith(individual2) # -> False
+hstrat.does_have_any_common_ancestor(individual1, individual2) # -> False
+hstrat.does_have_any_common_ancestor(individual1_child1, individual2) # -> False
 
 individual1_grandchild1 = individual1_child1.CloneDescendant()
 individual1_grandchild2 = individual1_child1.CloneDescendant()
 
-individual1_grandchild1.CalcRankOfMrcaBoundsWith(
+hstrat.calc_rank_of_mrca_bounds_between(
+  individual1_grandchild1,
   individual1_grandchild2,
 ) # -> (1, 2)
 ```

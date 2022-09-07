@@ -7,6 +7,7 @@ __version__ = "0.3.2"
 from . import (
     _auxiliary_lib,
     genome_instrumentation,
+    juxtaposition,
     phylogenetic_inference,
     stratum_retention_strategy,
     stratum_retention_viz,
@@ -15,6 +16,7 @@ from . import (
 __all__ = [
     "_auxiliary_lib",
     "genome_instrumentation",
+    "juxtaposition",
     "phylogenetic_inference",
     "stratum_retention_strategy",
     "stratum_retention_viz",
