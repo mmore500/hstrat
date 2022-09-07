@@ -7,14 +7,14 @@ def diff_retained_ranks(
     first: HereditaryStratigraphicColumn,
     second: HereditaryStratigraphicColumn,
 ) -> typing.Tuple[typing.Set[int], typing.Set[int]]:
-    """Return ranks retained by self but not other, and vice versa.
+    """Return ranks retained by first but not second, and vice versa.
 
     Returned as a tuple of sets.
     """
-    self_ranks = set(self.IterRetainedRanks())
-    other_ranks = set(other.IterRetainedRanks())
+    first_ranks = set(first.IterRetainedRanks())
+    second_ranks = set(second.IterRetainedRanks())
 
     return (
-        self_ranks - other_ranks,
-        other_ranks - self_ranks,
+        first_ranks - second_ranks,
+        second_ranks - first_ranks,
     )
