@@ -37,7 +37,7 @@ def test_Clone1(retention_policy, ordered_store):
 
     for first in original1, original1_copy1, original1_copy2:
         for second in original1, original1_copy1, original1_copy2:
-            assert first.HasAnyCommonAncestorWith(second)
+            assert hstrat.does_have_any_common_ancestor(first, second)
 
 
 @pytest.mark.parametrize(
@@ -73,7 +73,7 @@ def test_Clone2(retention_policy, ordered_store):
 
     for first in original2, original2_copy1, original2_copy2:
         for second in original2, original2_copy1, original2_copy2:
-            assert first.HasAnyCommonAncestorWith(second)
+            assert hstrat.does_have_any_common_ancestor(first, second)
 
 
 @pytest.mark.parametrize(
@@ -105,7 +105,7 @@ def test_Clone3(retention_policy, ordered_store):
         for f, s in it.combinations(population, 2):
             assert not f.HasDiscardedStrata()
             assert not s.HasDiscardedStrata()
-            assert f.HasAnyCommonAncestorWith(s)
+            assert hstrat.does_have_any_common_ancestor(f, s)
             assert (
                 hstrat.get_last_common_stratum_between(
                     f,
@@ -150,7 +150,7 @@ def test_Clone4(retention_policy, ordered_store):
 
         for f, s in it.combinations(population, 2):
             assert not f.HasDiscardedStrata()
-            assert f.HasAnyCommonAncestorWith(s)
+            assert hstrat.does_have_any_common_ancestor(f, s)
             assert hstrat.get_last_common_stratum_between(f, s) is not None
 
         # advance generation
@@ -235,7 +235,7 @@ def test_annotation(retention_policy, ordered_store):
 
     for generation in range(100):
         for f, s in it.combinations(population, 2):
-            lb, ub = f.CalcRankOfMrcaBoundsWith(s)
+            lb, ub = hstrat.calc_rank_of_mrca_bounds_between(f, s)
             assert (
                 lb
                 <= hstrat.get_last_common_stratum_between(f, s).GetAnnotation()
@@ -295,7 +295,7 @@ def test_always_store_rank_in_stratum(retention_policy, ordered_store):
         assert second.GetStratumAtColumnIndex(0).GetDepositionRank() == 0
 
     for gen in range(100):
-        assert first.DiffRetainedRanks(second) == (set(), set())
+        assert hstrat.diff_retained_ranks(first, second) == (set(), set())
         first.DepositStratum()
         second.DepositStratum()
 
@@ -312,7 +312,7 @@ def test_CloneDescendant():
     assert column.GetNumStrataDeposited() == 1
     descendant = column.CloneDescendant(stratum_annotation="annotation")
     assert descendant.GetNumStrataDeposited() == 2
-    assert descendant.HasAnyCommonAncestorWith(column)
+    assert hstrat.does_have_any_common_ancestor(descendant, column)
     assert column.GetNumStrataDeposited() == 1
     assert (
         descendant.GetStratumAtColumnIndex(
@@ -334,13 +334,17 @@ def test_maximal_retention_policy():
         assert second.GetNumStrataRetained() == gen + 1
         assert third.GetNumStrataRetained() == 1
 
-        assert first.CalcRankOfMrcaUncertaintyWith(second) == 0
-        assert first.CalcRankOfMrcaUncertaintyWith(third) == 0
+        assert hstrat.calc_rank_of_mrca_uncertainty_between(first, second) == 0
+        assert hstrat.calc_rank_of_mrca_uncertainty_between(first, third) == 0
 
-        assert first.CalcRanksSinceMrcaUncertaintyWith(second) == 0
-        assert second.CalcRanksSinceMrcaUncertaintyWith(first) == 0
-        assert first.CalcRanksSinceMrcaUncertaintyWith(third) == 0
-        assert third.CalcRanksSinceMrcaUncertaintyWith(first) == 0
+        assert (
+            hstrat.calc_ranks_since_mrca_uncertainty_with(first, second) == 0
+        )
+        assert (
+            hstrat.calc_ranks_since_mrca_uncertainty_with(second, first) == 0
+        )
+        assert hstrat.calc_ranks_since_mrca_uncertainty_with(first, third) == 0
+        assert hstrat.calc_ranks_since_mrca_uncertainty_with(third, first) == 0
 
         first.DepositStratum()
         second.DepositStratum()
@@ -359,17 +363,19 @@ def test_minimal_retention_policy():
         assert second.GetNumStrataRetained() == min(2, gen + 1)
         assert third.GetNumStrataRetained() == 1
 
-        assert first.CalcRankOfMrcaUncertaintyWith(second) == max(0, gen - 1)
-        assert first.CalcRankOfMrcaUncertaintyWith(third) == 0
+        assert hstrat.calc_rank_of_mrca_uncertainty_between(
+            first, second
+        ) == max(0, gen - 1)
+        assert hstrat.calc_rank_of_mrca_uncertainty_between(first, third) == 0
 
-        assert first.CalcRanksSinceMrcaUncertaintyWith(second) == max(
-            0, gen - 1
-        )
-        assert second.CalcRanksSinceMrcaUncertaintyWith(first) == max(
-            0, gen - 1
-        )
-        assert first.CalcRanksSinceMrcaUncertaintyWith(third) == 0
-        assert third.CalcRanksSinceMrcaUncertaintyWith(first) == 0
+        assert hstrat.calc_ranks_since_mrca_uncertainty_with(
+            first, second
+        ) == max(0, gen - 1)
+        assert hstrat.calc_ranks_since_mrca_uncertainty_with(
+            second, first
+        ) == max(0, gen - 1)
+        assert hstrat.calc_ranks_since_mrca_uncertainty_with(first, third) == 0
+        assert hstrat.calc_ranks_since_mrca_uncertainty_with(third, first) == 0
 
         first.DepositStratum()
         second.DepositStratum()

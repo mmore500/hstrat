@@ -189,28 +189,15 @@ def test_comparison_validity(retention_policy, ordered_store):
 
     for generation in range(100):
         for first, second in it.combinations(population, 2):
-            lcrw = first.CalcRankOfLastRetainedCommonalityWith(second)
-            if lcrw is not None:
-                assert 0 <= lcrw <= generation
-
-            fdrw = first.CalcRankOfFirstRetainedDisparityWith(second)
-            if fdrw is not None:
-                assert 0 <= fdrw <= generation
-
-            assert first.CalcRankOfMrcaBoundsWith(second) in [
-                (lcrw, opyt.or_value(fdrw, first.GetNumStrataDeposited())),
-                None,
-            ]
-            if lcrw is not None and fdrw is not None:
-                assert lcrw < fdrw
-
-            assert first.CalcRankOfMrcaUncertaintyWith(second) >= 0
-
-            rslcw = first.CalcRanksSinceLastRetainedCommonalityWith(second)
+            rslcw = hstrat.calc_ranks_since_last_retained_commonality_with(
+                first, second
+            )
             if rslcw is not None:
                 assert 0 <= rslcw <= generation
 
-            rsfdw = first.CalcRanksSinceFirstRetainedDisparityWith(second)
+            rsfdw = hstrat.calc_ranks_since_first_retained_disparity_with(
+                first, second
+            )
             if rsfdw is not None:
                 assert -1 <= rsfdw <= generation
 
@@ -224,8 +211,6 @@ def test_comparison_validity(retention_policy, ordered_store):
             )
             if rslcw is not None and rsfdw is not None:
                 assert rsfdw < rslcw
-
-            assert first.CalcRanksSinceMrcaUncertaintyWith(second) >= 0
 
         # advance generations asynchronously
         random.shuffle(population)

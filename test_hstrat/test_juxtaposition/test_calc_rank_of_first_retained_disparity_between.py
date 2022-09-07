@@ -63,186 +63,6 @@ def test_comparison_commutativity_asyncrhonous(
 @pytest.mark.parametrize(
     "retention_policy",
     [
-        hstrat.perfect_resolution_algo.Policy(),
-        hstrat.nominal_resolution_algo.Policy(),
-        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
-    ],
-)
-@pytest.mark.parametrize(
-    "ordered_store",
-    [
-        hstrat.HereditaryStratumOrderedStoreDict,
-        hstrat.HereditaryStratumOrderedStoreList,
-        pytest.param(
-            hstrat.HereditaryStratumOrderedStoreTree,
-            marks=pytest.mark.heavy,
-        ),
-    ],
-)
-def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store):
-    def make_bundle():
-        return hstrat.HereditaryStratigraphicColumnBundle(
-            {
-                "test": hstrat.HereditaryStratigraphicColumn(
-                    initial_stratum_annotation=0,
-                    stratum_ordered_store_factory=ordered_store,
-                    stratum_retention_policy=retention_policy,
-                ),
-                "control": hstrat.HereditaryStratigraphicColumn(
-                    initial_stratum_annotation=0,
-                    stratum_ordered_store_factory=ordered_store,
-                    stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
-                ),
-            }
-        )
-
-    column = make_bundle()
-    frozen_copy = column.Clone()
-    frozen_unrelated = make_bundle()
-    population = [column.Clone() for __ in range(10)]
-    forked_isolated = column.Clone()
-    unrelated_isolated = make_bundle()
-
-    for generation in range(100):
-
-        for f, s in it.chain(
-            it.combinations(population, 2),
-            zip(population, cyclify(forked_isolated)),
-            zip(population, cyclify(frozen_copy)),
-            zip(cyclify(forked_isolated), population),
-            zip(cyclify(frozen_copy), population),
-        ):
-            lb, ub = f["test"].CalcRankOfMrcaBoundsWith(s["test"])
-            actual_rank_of_mrca = (
-                f["control"]
-                .GetLastCommonStratumWith(
-                    s["control"],
-                )
-                .GetAnnotation()
-            )
-            assert lb <= actual_rank_of_mrca < ub
-
-        for f, s in it.chain(
-            zip(population, cyclify(frozen_unrelated)),
-            zip(population, cyclify(unrelated_isolated)),
-            zip(cyclify(frozen_unrelated), population),
-            zip(cyclify(unrelated_isolated), population),
-        ):
-            assert f["test"].CalcRankOfMrcaBoundsWith(s["test"]) is None
-
-        # advance generation
-        random.shuffle(population)
-        for target in range(3):
-            population[target] = population[-1].CloneDescendant(
-                stratum_annotation=population[-1].GetNumStrataDeposited(),
-            )
-        for individual in it.chain(
-            iter(population),
-            iterify(forked_isolated),
-            iterify(unrelated_isolated),
-        ):
-            if random.choice([True, False]):
-                individual.DepositStratum(
-                    annotation=individual.GetNumStrataDeposited(),
-                )
-
-
-@pytest.mark.parametrize(
-    "retention_policy",
-    [
-        hstrat.perfect_resolution_algo.Policy(),
-        hstrat.nominal_resolution_algo.Policy(),
-        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
-    ],
-)
-@pytest.mark.parametrize(
-    "ordered_store",
-    [
-        hstrat.HereditaryStratumOrderedStoreDict,
-        hstrat.HereditaryStratumOrderedStoreList,
-        pytest.param(
-            hstrat.HereditaryStratumOrderedStoreTree,
-            marks=pytest.mark.heavy,
-        ),
-    ],
-)
-def test_CalcRanksSinceMrcaBoundsWith(
-    retention_policy,
-    ordered_store,
-):
-    def make_bundle():
-        return hstrat.HereditaryStratigraphicColumnBundle(
-            {
-                "test": hstrat.HereditaryStratigraphicColumn(
-                    initial_stratum_annotation=0,
-                    stratum_ordered_store_factory=ordered_store,
-                    stratum_retention_policy=retention_policy,
-                ),
-                "control": hstrat.HereditaryStratigraphicColumn(
-                    initial_stratum_annotation=0,
-                    stratum_ordered_store_factory=ordered_store,
-                    stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
-                ),
-            }
-        )
-
-    column = make_bundle()
-    frozen_copy = column.Clone()
-    frozen_unrelated = make_bundle()
-    population = [column.Clone() for __ in range(10)]
-    forked_isolated = column.Clone()
-    unrelated_isolated = make_bundle()
-
-    for generation in range(100):
-        for f, s in it.chain(
-            it.combinations(population, 2),
-            zip(population, cyclify(forked_isolated)),
-            zip(population, cyclify(frozen_copy)),
-            zip(cyclify(forked_isolated), population),
-            zip(cyclify(frozen_copy), population),
-        ):
-            lb, ub = f["test"].CalcRanksSinceMrcaBoundsWith(s["test"])
-            actual_rank_of_mrca = (
-                f["control"]
-                .GetLastCommonStratumWith(
-                    s["control"],
-                )
-                .GetAnnotation()
-            )
-            actual_ranks_since_mrca = (
-                f.GetNumStrataDeposited() - actual_rank_of_mrca - 1
-            )
-            assert lb <= actual_ranks_since_mrca < ub
-
-        for f, s in it.chain(
-            zip(population, cyclify(frozen_unrelated)),
-            zip(population, cyclify(unrelated_isolated)),
-            zip(cyclify(frozen_unrelated), population),
-            zip(cyclify(unrelated_isolated), population),
-        ):
-            assert f["test"].CalcRanksSinceMrcaBoundsWith(s["test"]) is None
-
-        # advance generation
-        random.shuffle(population)
-        for target in range(3):
-            population[target] = population[-1].Clone()
-            population[target].DepositStratum(
-                annotation=population[target].GetNumStrataDeposited(),
-            )
-        for individual in it.chain(
-            iter(population),
-            iterify(forked_isolated),
-            iterify(unrelated_isolated),
-        ):
-            if random.choice([True, False]):
-                individual.DepositStratum(
-                    annotation=individual.GetNumStrataDeposited(),
-                )
-
-
-@pytest.mark.parametrize(
-    "retention_policy",
-    [
         pytest.param(
             hstrat.perfect_resolution_algo.Policy(),
             marks=pytest.mark.heavy_2a,
@@ -329,7 +149,9 @@ def test_comparison_validity(retention_policy, ordered_store):
 
     for generation in range(100):
         for first, second in it.combinations(population, 2):
-            lcrw = first.CalcRankOfLastRetainedCommonalityWith(second)
+            lcrw = hstrat.calc_rank_of_last_retained_commonality_between(
+                first, second
+            )
             if lcrw is not None:
                 assert 0 <= lcrw <= generation
 
@@ -340,7 +162,7 @@ def test_comparison_validity(retention_policy, ordered_store):
             if fdrw is not None:
                 assert 0 <= fdrw <= generation
 
-            assert first.CalcRankOfMrcaBoundsWith(second) in [
+            assert hstrat.calc_rank_of_mrca_bounds_between(first, second) in [
                 (lcrw, opyt.or_value(fdrw, first.GetNumStrataDeposited())),
                 None,
             ]
@@ -431,7 +253,12 @@ def test_scenario_no_divergence(retention_policy, ordered_store):
     )
 
     for generation in range(100):
-        assert column.CalcRankOfFirstRetainedDisparityWith(column) is None
+        assert (
+            hstrat.calc_rank_of_first_retained_disparity_between(
+                column, column
+            )
+            is None
+        )
 
         column.DepositStratum()
 

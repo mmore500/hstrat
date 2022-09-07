@@ -1,4 +1,5 @@
 import itertools as it
+
 import pytest
 
 from hstrat import hstrat

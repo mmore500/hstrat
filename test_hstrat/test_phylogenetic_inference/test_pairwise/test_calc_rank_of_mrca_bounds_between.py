@@ -231,11 +231,15 @@ def test_comparison_validity(retention_policy, ordered_store):
 
     for generation in range(100):
         for first, second in it.combinations(population, 2):
-            lcrw = first.CalcRankOfLastRetainedCommonalityWith(second)
+            lcrw = hstrat.calc_rank_of_last_retained_commonality_between(
+                first, second
+            )
             if lcrw is not None:
                 assert 0 <= lcrw <= generation
 
-            fdrw = first.CalcRankOfFirstRetainedDisparityWith(second)
+            fdrw = hstrat.calc_rank_of_first_retained_disparity_between(
+                first, second
+            )
             if fdrw is not None:
                 assert 0 <= fdrw <= generation
 

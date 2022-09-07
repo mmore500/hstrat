@@ -62,14 +62,16 @@ def test_CalcRankOfEarliestDetectableMrcaWith1(
                 is None
             )
             assert (
-                x1.CalcRankOfMrcaBoundsWith(
+                hstrat.calc_rank_of_mrca_bounds_between(
+                    x1,
                     x2,
                     confidence_level=confidence_level,
                 )
                 is None
             )
             assert (
-                x2.CalcRankOfMrcaBoundsWith(
+                hstrat.calc_rank_of_mrca_bounds_between(
+                    x2,
                     x1,
                     confidence_level=confidence_level,
                 )
@@ -111,19 +113,21 @@ def test_CalcRankOfEarliestDetectableMrcaWith2(
     for x1, x2 in it.combinations([c1, c2, c3], 2):
         x1 = x1.Clone()
         x2 = x2.Clone()
-        while x1.GetNthCommonRankWith(x2, expected_thresh) is None:
+        while (
+            hstrat.get_nth_common_rank_between(x1, x2, expected_thresh) is None
+        ):
             random.choice([x1, x2]).DepositStratum()
 
         assert hstrat.calc_rank_of_earliest_detectable_mrca_between(
             x1,
             x2,
             confidence_level=confidence_level,
-        ) == x1.GetNthCommonRankWith(x2, expected_thresh)
+        ) == hstrat.get_nth_common_rank_between(x1, x2, expected_thresh)
         assert hstrat.calc_rank_of_earliest_detectable_mrca_between(
             x2,
             x1,
             confidence_level=confidence_level,
-        ) == x2.GetNthCommonRankWith(x1, expected_thresh)
+        ) == hstrat.get_nth_common_rank_between(x2, x1, expected_thresh)
 
         for __ in range(3):
             x1.DepositStratum()
@@ -133,12 +137,12 @@ def test_CalcRankOfEarliestDetectableMrcaWith2(
             x1,
             x2,
             confidence_level=confidence_level,
-        ) == x1.GetNthCommonRankWith(x2, expected_thresh)
+        ) == hstrat.get_nth_common_rank_between(x1, x2, expected_thresh)
         assert hstrat.calc_rank_of_earliest_detectable_mrca_between(
             x2,
             x1,
             confidence_level=confidence_level,
-        ) == x2.GetNthCommonRankWith(x1, expected_thresh)
+        ) == hstrat.get_nth_common_rank_between(x2, x1, expected_thresh)
 
 
 def test_CalcRankOfEarliestDetectableMrcaWith3():

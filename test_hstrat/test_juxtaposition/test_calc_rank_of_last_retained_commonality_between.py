@@ -150,11 +150,13 @@ def test_comparison_validity(retention_policy, ordered_store):
             if lcrw is not None:
                 assert 0 <= lcrw <= generation
 
-            fdrw = first.CalcRankOfFirstRetainedDisparityWith(second)
+            fdrw = hstrat.calc_rank_of_first_retained_disparity_between(
+                first, second
+            )
             if fdrw is not None:
                 assert 0 <= fdrw <= generation
 
-            assert first.CalcRankOfMrcaBoundsWith(second) in [
+            assert hstrat.calc_rank_of_mrca_bounds_between(first, second) in [
                 (lcrw, opyt.or_value(fdrw, first.GetNumStrataDeposited())),
                 None,
             ]

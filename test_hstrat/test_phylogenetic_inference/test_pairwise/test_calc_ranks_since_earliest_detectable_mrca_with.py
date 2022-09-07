@@ -46,7 +46,8 @@ def test_CalcRanksSinceEarliestDetectableMrcaWith1(
 
         for x1, x2 in it.combinations([c1, c2, c3], 2):
             assert (
-                x1.CalcRanksSinceEarliestDetectableMrcaWith(
+                hstrat.calc_ranks_since_earliest_detectable_mrca_with(
+                    x1,
                     x2,
                     confidence_level=confidence_level,
                 )
@@ -57,7 +58,8 @@ def test_CalcRanksSinceEarliestDetectableMrcaWith1(
                 r3,
                 confidence_level,
                 differentia_bit_width,
-                x1.CalcRanksSinceEarliestDetectableMrcaWith(
+                hstrat.calc_ranks_since_earliest_detectable_mrca_with(
+                    x1,
                     x2,
                     confidence_level=confidence_level,
                 ),
@@ -65,21 +67,24 @@ def test_CalcRanksSinceEarliestDetectableMrcaWith1(
                 x2.GetNumStrataRetained(),
             )
             assert (
-                x2.CalcRanksSinceEarliestDetectableMrcaWith(
+                hstrat.calc_ranks_since_earliest_detectable_mrca_with(
+                    x2,
                     x1,
                     confidence_level=confidence_level,
                 )
                 is None
             )
             assert (
-                x1.CalcRankOfMrcaBoundsWith(
+                hstrat.calc_rank_of_mrca_bounds_between(
+                    x1,
                     x2,
                     confidence_level=confidence_level,
                 )
                 is None
             )
             assert (
-                x2.CalcRankOfMrcaBoundsWith(
+                hstrat.calc_rank_of_mrca_bounds_between(
+                    x2,
                     x1,
                     confidence_level=confidence_level,
                 )
@@ -121,23 +126,27 @@ def test_CalcRanksSinceEarliestDetectableMrcaWith2(
     for x1, x2 in it.combinations([c1, c2, c3], 2):
         x1 = x1.Clone()
         x2 = x2.Clone()
-        while x1.GetNthCommonRankWith(x2, expected_thresh) is None:
+        while (
+            hstrat.get_nth_common_rank_between(x1, x2, expected_thresh) is None
+        ):
             random.choice([x1, x2]).DepositStratum()
 
-        assert x1.CalcRanksSinceEarliestDetectableMrcaWith(
+        assert hstrat.calc_ranks_since_earliest_detectable_mrca_with(
+            x1,
             x2,
             confidence_level=confidence_level,
         ) == (
             x1.GetNumStrataDeposited()
-            - x1.GetNthCommonRankWith(x2, expected_thresh)
+            - hstrat.get_nth_common_rank_between(x1, x2, expected_thresh)
             - 1
         )
-        assert x2.CalcRanksSinceEarliestDetectableMrcaWith(
+        assert hstrat.calc_ranks_since_earliest_detectable_mrca_with(
+            x2,
             x1,
             confidence_level=confidence_level,
         ) == (
             x2.GetNumStrataDeposited()
-            - x2.GetNthCommonRankWith(x2, expected_thresh)
+            - hstrat.get_nth_common_rank_between(x2,x2, expected_thresh)
             - 1
         )
 
@@ -145,19 +154,21 @@ def test_CalcRanksSinceEarliestDetectableMrcaWith2(
             x1.DepositStratum()
             x2.DepositStratum()
 
-        assert x1.CalcRanksSinceEarliestDetectableMrcaWith(
+        assert hstrat.calc_ranks_since_earliest_detectable_mrca_with(
+            x1,
             x2,
             confidence_level=confidence_level,
         ) == (
             x1.GetNumStrataDeposited()
-            - x1.GetNthCommonRankWith(x2, expected_thresh)
+            - hstrat.get_nth_common_rank_between(x1, x2, expected_thresh)
             - 1
         )
-        assert x2.CalcRanksSinceEarliestDetectableMrcaWith(
+        assert hstrat.calc_ranks_since_earliest_detectable_mrca_with(
+            x2,
             x1,
             confidence_level=confidence_level,
         ) == (
             x2.GetNumStrataDeposited()
-            - x2.GetNthCommonRankWith(x2, expected_thresh)
+            - hstrat.get_nth_common_rank_between(x2,x2, expected_thresh)
             - 1
         )

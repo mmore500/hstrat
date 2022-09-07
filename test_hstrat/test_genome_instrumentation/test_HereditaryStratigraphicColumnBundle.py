@@ -75,13 +75,31 @@ class TestHereditaryStratum(unittest.TestCase):
         for __ in range(100):
             bundle2.DepositStratum()
 
-        res = bundle1.HasAnyCommonAncestorWith(bundle2)
-        assert res["test"] is None
-        assert res["control"] is True
+        assert (
+            hstrat.does_have_any_common_ancestor(
+                bundle1["test"], bundle2["test"]
+            )
+            is None
+        )
+        assert (
+            hstrat.does_have_any_common_ancestor(
+                bundle1["control"], bundle2["control"]
+            )
+            is True
+        )
 
-        res = bundle1.HasAnyCommonAncestorWith(bundle2, confidence_level=0.49)
-        assert res["test"] is True
-        assert res["control"] is True
+        assert (
+            hstrat.does_have_any_common_ancestor(
+                bundle1["test"], bundle2["test"], confidence_level=0.49
+            )
+            is True
+        )
+        assert (
+            hstrat.does_have_any_common_ancestor(
+                bundle1["control"], bundle2["control"], confidence_level=0.49
+            )
+            is True
+        )
 
         res = bundle1.GetNumStrataRetained()
         assert (

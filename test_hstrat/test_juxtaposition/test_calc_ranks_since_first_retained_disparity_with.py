@@ -94,7 +94,9 @@ def test_comparison_validity(retention_policy, ordered_store):
 
     for generation in range(100):
         for first, second in it.combinations(population, 2):
-            rslcw = first.CalcRanksSinceLastRetainedCommonalityWith(second)
+            rslcw = hstrat.calc_ranks_since_last_retained_commonality_with(
+                first, second
+            )
             if rslcw is not None:
                 assert 0 <= rslcw <= generation
 
@@ -104,9 +106,11 @@ def test_comparison_validity(retention_policy, ordered_store):
             if rsfdw is not None:
                 assert -1 <= rsfdw <= generation
 
-            assert first.CalcRanksSinceMrcaBoundsWith(
-                second
-            ) is None or first.CalcRanksSinceMrcaBoundsWith(second) == (
+            assert hstrat.calc_ranks_since_mrca_bounds_with(
+                first, second
+            ) is None or hstrat.calc_ranks_since_mrca_bounds_with(
+                first, second
+            ) == (
                 opyt.or_value(rsfdw, -1) + 1,
                 rslcw + 1,
             )
