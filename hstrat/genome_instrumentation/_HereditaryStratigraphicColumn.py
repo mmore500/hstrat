@@ -1141,7 +1141,7 @@ class HereditaryStratigraphicColumn:
             == 1
         )
         return self.CalcRanksSinceLastRetainedCommonalityWith(
-            self,
+            other,
             confidence_level=confidence_level,
         )
 
