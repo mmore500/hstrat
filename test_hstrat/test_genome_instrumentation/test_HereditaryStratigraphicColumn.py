@@ -110,7 +110,8 @@ def test_Clone3(retention_policy, ordered_store):
             assert not s.HasDiscardedStrata()
             assert f.HasAnyCommonAncestorWith(s)
             assert (
-                f.GetLastCommonStratumWith(
+                hstrat.get_last_common_stratum_between(
+                    f,
                     s,
                 )
                 is not None
@@ -153,7 +154,7 @@ def test_Clone4(retention_policy, ordered_store):
         for f, s in it.combinations(population, 2):
             assert not f.HasDiscardedStrata()
             assert f.HasAnyCommonAncestorWith(s)
-            assert f.GetLastCommonStratumWith(s) is not None
+            assert hstrat.get_last_common_stratum_between(f, s) is not None
 
         # advance generation
         population[0] = population[0].Clone()
@@ -295,8 +296,16 @@ def test_annotation(retention_policy, ordered_store):
     for generation in range(100):
         for f, s in it.combinations(population, 2):
             lb, ub = f.CalcRankOfMrcaBoundsWith(s)
-            assert lb <= f.GetLastCommonStratumWith(s).GetAnnotation() < ub
-            assert lb <= s.GetLastCommonStratumWith(f).GetAnnotation() < ub
+            assert (
+                lb
+                <= hstrat.get_last_common_stratum_between(f, s).GetAnnotation()
+                < ub
+            )
+            assert (
+                lb
+                <= hstrat.get_last_common_stratum_between(s, f).GetAnnotation()
+                < ub
+            )
 
         # advance generation
         random.shuffle(population)
@@ -361,13 +370,10 @@ def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store):
             zip(cyclify(frozen_copy), population),
         ):
             lb, ub = f["test"].CalcRankOfMrcaBoundsWith(s["test"])
-            actual_rank_of_mrca = (
-                f["control"]
-                .GetLastCommonStratumWith(
-                    s["control"],
-                )
-                .GetAnnotation()
-            )
+            actual_rank_of_mrca = hstrat.get_last_common_stratum_between(
+                f["control"],
+                s["control"],
+            ).GetAnnotation()
             assert lb <= actual_rank_of_mrca < ub
 
         for f, s in it.chain(
@@ -450,13 +456,10 @@ def test_CalcRanksSinceMrcaBoundsWith(
             zip(cyclify(frozen_copy), population),
         ):
             lb, ub = f["test"].CalcRanksSinceMrcaBoundsWith(s["test"])
-            actual_rank_of_mrca = (
-                f["control"]
-                .GetLastCommonStratumWith(
-                    s["control"],
-                )
-                .GetAnnotation()
-            )
+            actual_rank_of_mrca = hstrat.get_last_common_stratum_between(
+                f["control"],
+                s["control"],
+            ).GetAnnotation()
             actual_ranks_since_mrca = (
                 f.GetNumStrataDeposited() - actual_rank_of_mrca - 1
             )

@@ -16,7 +16,7 @@ def get_last_common_stratum_between(
     second: HereditaryStratigraphicColumn,
     confidence_level: float = 0.95,
 ) -> typing.Optional[HereditaryStratum]:
-    """Get the most recent stratum in common between self and other, if any.
+    """Get the most recent stratum in common between first and second, if any.
 
     Common strata share identical rank and differentia. Returns None if no
     common strata exist between the two columns. Allows probability equal
@@ -30,16 +30,17 @@ def get_last_common_stratum_between(
         Selects the stratum returned. See the corresponding docstring for
         explanation of parameters.
     """
-    rank = self.CalcRankOfLastRetainedCommonalityWith(
-        other,
+    rank = calc_rank_of_last_retained_commonality_between(
+        first,
+        second,
         confidence_level=confidence_level,
     )
     if rank is not None:
         index = ip.popsingleton(
             index
-            for index in range(self.GetNumStrataRetained())
-            if rank == self.GetRankAtColumnIndex(index)
+            for index in range(first.GetNumStrataRetained())
+            if rank == first.GetRankAtColumnIndex(index)
         )
-        return self.GetStratumAtColumnIndex(index)
+        return first.GetStratumAtColumnIndex(index)
     else:
         return None
