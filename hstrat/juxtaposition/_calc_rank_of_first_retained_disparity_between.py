@@ -2,7 +2,6 @@ import typing
 
 from ..genome_instrumentation import (
     HereditaryStratigraphicColumn,
-    HereditaryStratumOrderedStoreDict,
     HereditaryStratumOrderedStoreList,
 )
 from ._impl import (
