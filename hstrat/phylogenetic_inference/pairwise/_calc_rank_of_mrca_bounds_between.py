@@ -46,7 +46,7 @@ def calc_rank_of_mrca_bounds_between(
     calc_rank_of_earliest_detectable_mrca_between :
         Could any MRCA be detected between first and second? What is the rank
         of the earliest MRCA that could be reliably detected?
-    CalcRankOfMrcaBoundsWithProvidedConfidenceLevel :
+    calc_rank_of_mrca_bounds_provided_confidence_level :
         With what actual confidence (i.e., more than requested) is the true
         rank of the MRCA captured within the calculated bounds?
 

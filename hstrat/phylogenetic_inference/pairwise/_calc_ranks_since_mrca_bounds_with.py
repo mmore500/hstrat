@@ -47,7 +47,7 @@ def calc_ranks_since_mrca_bounds_with(
         Could any MRCA be detected between focal and other? How many ranks
         have elapsed since the earliest MRCA that could be reliably
         detected?
-    CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel :
+    calc_ranks_since_mrca_bounds_provided_confidence_level :
         With what actual confidence (i.e., more than requested) is the true
         rank of the MRCA captured within the calculated bounds?
 

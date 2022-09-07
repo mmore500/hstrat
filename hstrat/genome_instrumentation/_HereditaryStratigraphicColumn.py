@@ -330,37 +330,6 @@ class HereditaryStratigraphicColumn:
         log_base = self.CalcProbabilityDifferentiaCollision()
         return int(math.ceil(math.log(significance_level, log_base)))
 
-    def CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(
-        self: "HereditaryStratigraphicColumn",
-        requested_confidence_level: float = 0.95,
-    ) -> float:
-        """Calculate provided confidence for a MRCA generation estimate.
-
-        With what actual confidence is the true rank of the MRCA captured within the calculated estimate bounds for a requested confidence level?
-        Guaranteed greater than or equal to the requested confidence level.
-        """
-        n = self.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-            significance_level=1 - requested_confidence_level,
-        )
-        res = 1 - self.CalcProbabilityDifferentiaCollision() ** n
-        assert res >= requested_confidence_level
-        assert 0 <= res <= 1
-        return res
-
-    def CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel(
-        self: "HereditaryStratigraphicColumn",
-        requested_confidence_level: float = 0.95,
-    ) -> float:
-        """Calculate provided confidence for a MRCA generation estimate.
-
-        With what actual confidence is the true rank of the MRCA
-        captured within the calculated bounds for a requested confidence level?
-        Guaranteed greater than or equal to the requested confidence level.
-        """
-        return self.CalcRankOfMrcaBoundsWithProvidedConfidenceLevel(
-            requested_confidence_level=requested_confidence_level,
-        )
-
     def Clone(
         self: "HereditaryStratigraphicColumn",
     ) -> "HereditaryStratigraphicColumn":
