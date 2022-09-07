@@ -18,7 +18,7 @@ from hstrat import hstrat
     "differentia_bit_width",
     [1, 2, 8, 64],
 )
-def test_CalcRankOfEarliestDetectableMrcaWith1(
+def test_CalcRanksSinceEarliestDetectableMrcaWith1(
     confidence_level,
     differentia_bit_width,
 ):
@@ -50,16 +50,26 @@ def test_CalcRankOfEarliestDetectableMrcaWith1(
 
         for x1, x2 in it.combinations([c1, c2, c3], 2):
             assert (
-                hstrat.calc_rank_of_earliest_detectable_mrca_between(
-                    x1,
+                x1.CalcRanksSinceEarliestDetectableMrcaWith(
                     x2,
                     confidence_level=confidence_level,
                 )
                 is None
+            ), (
+                r1,
+                r2,
+                r3,
+                confidence_level,
+                differentia_bit_width,
+                x1.CalcRanksSinceEarliestDetectableMrcaWith(
+                    x2,
+                    confidence_level=confidence_level,
+                ),
+                x1.GetNumStrataRetained(),
+                x2.GetNumStrataRetained(),
             )
             assert (
-                hstrat.calc_rank_of_earliest_detectable_mrca_between(
-                    x2,
+                x2.CalcRanksSinceEarliestDetectableMrcaWith(
                     x1,
                     confidence_level=confidence_level,
                 )
@@ -89,7 +99,7 @@ def test_CalcRankOfEarliestDetectableMrcaWith1(
     "differentia_bit_width",
     [1, 2, 8, 64],
 )
-def test_CalcRankOfEarliestDetectableMrcaWith2(
+def test_CalcRanksSinceEarliestDetectableMrcaWith2(
     confidence_level,
     differentia_bit_width,
 ):
@@ -118,41 +128,40 @@ def test_CalcRankOfEarliestDetectableMrcaWith2(
         while x1.GetNthCommonRankWith(x2, expected_thresh) is None:
             random.choice([x1, x2]).DepositStratum()
 
-        assert hstrat.calc_rank_of_earliest_detectable_mrca_between(
-            x1,
+        assert x1.CalcRanksSinceEarliestDetectableMrcaWith(
             x2,
             confidence_level=confidence_level,
-        ) == x1.GetNthCommonRankWith(x2, expected_thresh)
-        assert hstrat.calc_rank_of_earliest_detectable_mrca_between(
-            x2,
+        ) == (
+            x1.GetNumStrataDeposited()
+            - x1.GetNthCommonRankWith(x2, expected_thresh)
+            - 1
+        )
+        assert x2.CalcRanksSinceEarliestDetectableMrcaWith(
             x1,
             confidence_level=confidence_level,
-        ) == x2.GetNthCommonRankWith(x1, expected_thresh)
+        ) == (
+            x2.GetNumStrataDeposited()
+            - x2.GetNthCommonRankWith(x2, expected_thresh)
+            - 1
+        )
 
         for __ in range(3):
             x1.DepositStratum()
             x2.DepositStratum()
 
-        assert hstrat.calc_rank_of_earliest_detectable_mrca_between(
-            x1,
+        assert x1.CalcRanksSinceEarliestDetectableMrcaWith(
             x2,
             confidence_level=confidence_level,
-        ) == x1.GetNthCommonRankWith(x2, expected_thresh)
-        assert hstrat.calc_rank_of_earliest_detectable_mrca_between(
-            x2,
-            x1,
-            confidence_level=confidence_level,
-        ) == x2.GetNthCommonRankWith(x1, expected_thresh)
-
-
-def test_CalcRankOfEarliestDetectableMrcaWith3():
-
-    c1 = hstrat.HereditaryStratigraphicColumn(
-        stratum_differentia_bit_width=64,
-        stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
-    )
-    for __ in range(10):
-        assert (
-            hstrat.calc_rank_of_earliest_detectable_mrca_between(c1, c1) == 0
+        ) == (
+            x1.GetNumStrataDeposited()
+            - x1.GetNthCommonRankWith(x2, expected_thresh)
+            - 1
         )
-        c1.DepositStratum()
+        assert x2.CalcRanksSinceEarliestDetectableMrcaWith(
+            x1,
+            confidence_level=confidence_level,
+        ) == (
+            x2.GetNumStrataDeposited()
+            - x2.GetNthCommonRankWith(x2, expected_thresh)
+            - 1
+        )

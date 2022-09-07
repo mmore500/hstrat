@@ -17,11 +17,11 @@ def calc_rank_of_mrca_uncertainty_between(
 
     Calculate uncertainty of estimate for the number of depositions
     elapsed along the line of descent before the most common recent
-    ancestor with other.
+    ancestor with second.
 
-    Returns 0 if no common ancestor between self and other can be resolved
-    with sufficient confidence. If insufficient common ranks between self
-    and other are available to resolve any common ancestor, returns None.
+    Returns 0 if no common ancestor between first and second can be resolved
+    with sufficient confidence. If insufficient common ranks between first
+    and second are available to resolve any common ancestor, returns None.
 
     See Also
     --------
@@ -30,16 +30,18 @@ def calc_rank_of_mrca_uncertainty_between(
         corresponding docstring for explanation of parameters.
     """
     if (
-        self.CalcRankOfEarliestDetectableMrcaWith(
-            other,
+        calc_rank_of_earliest_detectable_mrca_between(
+            first,
+            second,
             confidence_level=confidence_level,
         )
         is None
     ):
         return None
 
-    bounds = self.CalcRankOfMrcaBoundsWith(
-        other,
+    bounds = calc_rank_of_mrca_bounds_between(
+        first,
+        second,
         confidence_level=confidence_level,
     )
     return 0 if bounds is None else abs(operator.sub(*bounds)) - 1

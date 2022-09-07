@@ -11,17 +11,18 @@ from ...juxtaposition import (
 from ._calc_rank_of_earliest_detectable_mrca_between import (
     calc_rank_of_earliest_detectable_mrca_between,
 )
+from ._does_have_any_common_ancestor import does_have_any_common_ancestor
 
 
-def calc_ranks_since_mrca_bounds_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+def calc_ranks_since_mrca_bounds_with(
+    focal: HereditaryStratigraphicColumn,
+    other: HereditaryStratigraphicColumn,
     confidence_level: float = 0.95,
 ) -> typing.Optional[typing.Tuple[int, int]]:
     """How many generations have elapsed since MRCA?
 
     Calculate bounds on estimate for the number of depositions elapsed
-    along this column's line of descent since the most recent common
+    along focal column's line of descent since the most recent common
     ancestor with other.
 
     Parameters
@@ -34,7 +35,7 @@ def calc_ranks_since_mrca_bounds_between(
     -------
     (int, int), optional
         Inclusive lower bound and then exclusive upper bound on estimate or
-        None if no common ancestor between self and other can be resolved
+        None if no common ancestor between focal and other can be resolved
         with sufficient confidence. (Sufficient confidence depends on
         bound_type.)
 
@@ -43,7 +44,7 @@ def calc_ranks_since_mrca_bounds_between(
     calc_ranks_since_mrca_uncertainty_between :
         Wrapper to report uncertainty of calculated bounds.
     calc_ranks_since_earliest_detectable_mrca_between :
-        Could any MRCA be detected between self and other? How many ranks
+        Could any MRCA be detected between focal and other? How many ranks
         have elapsed since the earliest MRCA that could be reliably
         detected?
     CalcRanksSinceMrcaBoundsWithProvidedConfidenceLevel :
@@ -70,9 +71,9 @@ def calc_ranks_since_mrca_bounds_between(
 
     In the absence of evidence to the contrary (i.e., more common
     strata than spurious differentia collisions alone could plausibly
-    cause), this method assumes no common ancestry between self and other,
+    cause), this method assumes no common ancestry between focal and other,
     returning None. This means that if few enough common ranks are shared
-    between self and other (and the differentia bit with is small enough),
+    between focal and other (and the differentia bit with is small enough),
     it may not be possible to detect any common ancestry after accounting
     for the possibility of spurious differentia collisions (even if common
     ancestry did exist). So, calls to this method would always return None.
@@ -84,12 +85,13 @@ def calc_ranks_since_mrca_bounds_between(
     even one collision is implausible at the given confidence level) this
     issue does not occur. Use CalcRanksSinceEarliestDetectableMrcaWith to
     determine the earliest rank at which an MRCA could be reliably detected
-    between self and other.
+    between focal and other.
     """
     assert 0.0 <= confidence_level <= 1.0
 
     if (
-        self.CalcRankOfEarliestDetectableMrcaWith(
+        calc_rank_of_earliest_detectable_mrca_between(
+            focal,
             other,
             confidence_level=confidence_level,
         )
@@ -100,12 +102,14 @@ def calc_ranks_since_mrca_bounds_between(
             "ancestry at given confidence level."
         )
 
-    if self.HasAnyCommonAncestorWith(
+    if does_have_any_common_ancestor(
+        focal,
         other,
         confidence_level=confidence_level,
     ):
         since_first_disparity = (
-            self.CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith(
+            calc_definitive_min_ranks_since_first_retained_disparity_with(
+                focal,
                 other,
             )
         )
@@ -114,7 +118,8 @@ def calc_ranks_since_mrca_bounds_between(
         lb_inclusive = lb_exclusive + 1
 
         since_last_commonality = (
-            self.CalcRanksSinceLastRetainedCommonalityWith(
+            calc_ranks_since_last_retained_commonality_with(
+                focal,
                 other,
                 confidence_level=confidence_level,
             )
