@@ -2875,18 +2875,6 @@ def test_CalcRankOfEarliestDetectableMrcaWith1(
                     confidence_level=confidence_level,
                 )
                 is None
-            ), (
-                r1,
-                r2,
-                r3,
-                confidence_level,
-                differentia_bit_width,
-                x1.CalcRankOfEarliestDetectableMrcaWith(
-                    x2,
-                    confidence_level=confidence_level,
-                ),
-                x1.GetNumStrataRetained(),
-                x2.GetNumStrataRetained(),
             )
             assert (
                 x2.CalcRankOfEarliestDetectableMrcaWith(
