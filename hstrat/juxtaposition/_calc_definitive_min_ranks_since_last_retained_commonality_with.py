@@ -21,8 +21,8 @@ def calc_definitive_min_ranks_since_last_retained_commonality_with(
     """
     confidence_level = 0.49
     assert (
-        focal.GetStrataDifferentiaWidth()
-        == other.GetStratumDifferentiaBitWidth
+        focal.GetStratumDifferentiaBitWidth()
+        == other.GetStratumDifferentiaBitWidth()
     )
     assert (
         focal.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
