@@ -1,4 +1,3 @@
-from copy import deepcopy
 import itertools as it
 import random
 

@@ -1,11 +1,4 @@
-from copy import deepcopy
-import itertools as it
-import random
-
-from iterify import cyclify, iterify
-import opytional as opyt
 import pytest
-from scipy import stats
 
 from hstrat import hstrat
 
