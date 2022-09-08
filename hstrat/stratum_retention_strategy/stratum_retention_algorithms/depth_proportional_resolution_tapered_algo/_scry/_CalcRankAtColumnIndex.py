@@ -36,13 +36,10 @@ class CalcRankAtColumnIndex:
             guaranteed_resolution,
             num_strata_deposited,
         )
-        cur_stage_max_idx = (  # noqa: F841, keep unused for comprehensibility
-            num_strata_deposited // cur_stage_uncertainty
-        )
 
         prev_stage_uncertainty = cur_stage_uncertainty // 2
         prev_stage_max_idx = (
-            num_strata_deposited - 1
+            num_strata_deposited - 2
         ) // prev_stage_uncertainty
 
         thresh_idx = (
