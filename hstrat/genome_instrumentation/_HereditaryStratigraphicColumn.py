@@ -1,13 +1,8 @@
-from collections import deque
 from copy import copy
 import math
-import operator
 import typing
-import warnings
 
 from interval_search import binary_search
-from iterpop import iterpop as ip
-import opytional as opyt
 
 from ..stratum_retention_strategy.stratum_retention_algorithms import (
     perfect_resolution_algo,
