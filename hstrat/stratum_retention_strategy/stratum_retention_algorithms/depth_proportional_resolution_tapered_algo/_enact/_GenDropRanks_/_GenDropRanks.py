@@ -66,44 +66,32 @@ class GenDropRanks:
 
         # until sufficient strata have been deposited to reach target resolution
         # don't remove any strata
-        if num_stratum_depositions_completed < 2 * resolution:
+        if num_stratum_depositions_completed < 2 * resolution + 1:
             return
 
-        # +1's because of in-progress deposition
         cur_stage_uncertainty = calc_provided_uncertainty(
-            resolution, num_stratum_depositions_completed + 1
+            resolution, num_stratum_depositions_completed
         )
         prev_stage_uncertainty = cur_stage_uncertainty // 2
         assert prev_stage_uncertainty
 
-        cur_stage_idx = (  # noqa: F841, keep unused for comprehensibility
-            num_stratum_depositions_completed // cur_stage_uncertainty
-        )
         prev_stage_idx = (
-            num_stratum_depositions_completed // prev_stage_uncertainty
-        )
+            num_stratum_depositions_completed - 1
+        ) // prev_stage_uncertainty
 
+        second_newest_stratum_rank = num_stratum_depositions_completed - 1
         # we just added a new peg so we have to clear out an old one
-        if num_stratum_depositions_completed % prev_stage_uncertainty == 0:
+        if second_newest_stratum_rank % prev_stage_uncertainty == 0:
 
             target_idx = prev_stage_idx * 2 - 4 * resolution + 1
             target_rank = target_idx * prev_stage_uncertainty
-            # assert target_rank <= num_stratum_depositions_completed
-            assert target_rank >= 0
-            if target_rank < num_stratum_depositions_completed:
+            if 0 < target_rank < num_stratum_depositions_completed:
                 yield target_rank
 
-        # newest stratum is in-progress deposition
-        # that will occupy rank num_stratum_depositions_completed
-        second_newest_stratum_rank = num_stratum_depositions_completed - 1
-        # we always keep the newest stratum
-        # but unless the now-second-newest stratum is needed as a waypoint
-        # of the cur_provided_uncertainty intervals, we will get rid of it
-        if (
-            second_newest_stratum_rank % prev_stage_uncertainty
-            or prev_stage_idx == 4 * resolution - 1
-        ):
+        else:
+            # newest stratum is in-progress deposition
+            # that will occupy rank num_stratum_depositions_completed
             # we always keep the newest stratum
-            # but unless the now-second-newest stratum is needed as a waypoint
-            # of the cur_provided_uncertainty intervals, get rid of it
+            # but because we know the second newest is not needed as a waypoint
+            # we will get rid of it
             yield second_newest_stratum_rank

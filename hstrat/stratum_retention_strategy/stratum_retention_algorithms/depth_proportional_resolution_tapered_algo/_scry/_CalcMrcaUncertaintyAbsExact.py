@@ -59,7 +59,7 @@ class CalcMrcaUncertaintyAbsExact:
         )
 
         prev_stage_uncertainty = cur_stage_uncertainty // 2
-        prev_stage_max_idx = least_last_rank // prev_stage_uncertainty
+        prev_stage_max_idx = (least_last_rank - 1) // prev_stage_uncertainty
 
         thresh_idx = (
             2 * prev_stage_max_idx - 4 * guaranteed_resolution + 2
