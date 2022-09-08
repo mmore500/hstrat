@@ -11,21 +11,21 @@ def test_init():
     pass
 
 
-def test_GetPolicyName():
+def test_GetAlgoName():
     spec = perfect_resolution_algo.PolicySpec()
-    assert spec.GetPolicyName()
+    assert spec.GetAlgoName()
 
 
-def test_GetPolicyTitle():
+def test_GetAlgoTitle():
     spec = perfect_resolution_algo.PolicySpec()
-    assert spec.GetPolicyTitle()
+    assert spec.GetAlgoTitle()
 
 
 def test_repr():
     spec = perfect_resolution_algo.PolicySpec()
-    assert spec.GetPolicyName() in repr(spec)
+    assert spec.GetAlgoName() in repr(spec)
 
 
 def test_str():
     spec = perfect_resolution_algo.PolicySpec()
-    assert spec.GetPolicyTitle() in str(spec)
+    assert spec.GetAlgoTitle() in str(spec)

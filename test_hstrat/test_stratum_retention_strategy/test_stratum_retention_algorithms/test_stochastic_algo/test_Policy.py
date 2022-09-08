@@ -126,9 +126,9 @@ def test_WithoutCalcRankAtColumnIndex(replicate):
 
 def test_repr():
     policy = stochastic_algo.Policy()
-    assert policy.GetSpec().GetPolicyName() in repr(policy)
+    assert policy.GetSpec().GetAlgoName() in repr(policy)
 
 
 def test_str():
     policy = stochastic_algo.Policy()
-    assert policy.GetSpec().GetPolicyTitle() in str(policy)
+    assert policy.GetSpec().GetAlgoTitle() in str(policy)

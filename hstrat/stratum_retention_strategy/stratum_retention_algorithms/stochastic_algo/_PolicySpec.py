@@ -14,20 +14,20 @@ class PolicySpec(PolicySpecBase):
 
     def __repr__(self: "PolicySpec") -> str:
         return f"""{
-            self.GetPolicyName()
+            self.GetAlgoName()
         }.{
             PolicySpec.__qualname__
         }()"""
 
     def __str__(self: "PolicySpec") -> str:
-        return self.GetPolicyTitle()
+        return self.GetAlgoTitle()
 
     @staticmethod
-    def GetPolicyName() -> str:
-        """Get programatic name for policy."""
+    def GetAlgoName() -> str:
+        """Get programatic name for underlying retention algorithm."""
         return __package__.split(".")[-1]
 
     @staticmethod
-    def GetPolicyTitle() -> str:
+    def GetAlgoTitle() -> str:
         """Get human-readable title for policy."""
-        return "Stochastic Stratum Retention Policy"
+        return "Stochastic Stratum Retention Algorithm"

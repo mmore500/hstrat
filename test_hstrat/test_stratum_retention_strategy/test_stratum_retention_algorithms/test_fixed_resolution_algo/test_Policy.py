@@ -153,11 +153,11 @@ def test_repr():
     fixed_resolution = 1
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     assert str(fixed_resolution) in repr(policy)
-    assert policy.GetSpec().GetPolicyName() in repr(policy)
+    assert policy.GetSpec().GetAlgoName() in repr(policy)
 
 
 def test_str():
     fixed_resolution = 1
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     assert str(fixed_resolution) in str(policy)
-    assert policy.GetSpec().GetPolicyTitle() in str(policy)
+    assert policy.GetSpec().GetAlgoTitle() in str(policy)

@@ -48,20 +48,20 @@ def test_GetFixedResolution(depth_proportional_resolution):
     )
 
 
-def test_GetPolicyName():
+def test_GetAlgoName():
     depth_proportional_resolution = 1
     spec = depth_proportional_resolution_tapered_algo.PolicySpec(
         depth_proportional_resolution,
     )
-    assert spec.GetPolicyName()
+    assert spec.GetAlgoName()
 
 
-def test_GetPolicyTitle():
+def test_GetAlgoTitle():
     depth_proportional_resolution = 1
     spec = depth_proportional_resolution_tapered_algo.PolicySpec(
         depth_proportional_resolution,
     )
-    assert spec.GetPolicyTitle()
+    assert spec.GetAlgoTitle()
 
 
 def test_repr():
@@ -70,7 +70,7 @@ def test_repr():
         depth_proportional_resolution,
     )
     assert str(depth_proportional_resolution) in repr(spec)
-    assert spec.GetPolicyName() in repr(spec)
+    assert spec.GetAlgoName() in repr(spec)
 
 
 def test_str():
@@ -79,4 +79,4 @@ def test_str():
         depth_proportional_resolution,
     )
     assert str(depth_proportional_resolution) in str(spec)
-    assert spec.GetPolicyTitle() in str(spec)
+    assert spec.GetAlgoTitle() in str(spec)

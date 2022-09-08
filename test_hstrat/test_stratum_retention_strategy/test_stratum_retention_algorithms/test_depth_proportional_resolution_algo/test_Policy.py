@@ -180,7 +180,7 @@ def test_repr():
         depth_proportional_resolution,
     )
     assert str(depth_proportional_resolution) in repr(policy)
-    assert policy.GetSpec().GetPolicyName() in repr(policy)
+    assert policy.GetSpec().GetAlgoName() in repr(policy)
 
 
 def test_str():
@@ -189,4 +189,4 @@ def test_str():
         depth_proportional_resolution,
     )
     assert str(depth_proportional_resolution) in str(policy)
-    assert policy.GetSpec().GetPolicyTitle() in str(policy)
+    assert policy.GetSpec().GetAlgoTitle() in str(policy)

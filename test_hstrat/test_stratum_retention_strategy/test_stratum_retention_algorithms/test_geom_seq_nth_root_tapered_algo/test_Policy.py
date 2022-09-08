@@ -215,7 +215,7 @@ def test_repr():
     policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
     assert str(degree) in repr(policy)
     assert str(interspersal) in repr(policy)
-    assert policy.GetSpec().GetPolicyName() in repr(policy)
+    assert policy.GetSpec().GetAlgoName() in repr(policy)
 
 
 def test_str():
@@ -224,4 +224,4 @@ def test_str():
     policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
     assert str(degree) in str(policy)
     assert str(interspersal) in str(policy)
-    assert policy.GetSpec().GetPolicyTitle() in str(policy)
+    assert policy.GetSpec().GetAlgoTitle() in str(policy)

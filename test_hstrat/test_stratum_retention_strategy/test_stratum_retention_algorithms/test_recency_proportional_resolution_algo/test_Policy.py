@@ -184,7 +184,7 @@ def test_repr():
         recency_proportional_resolution
     )
     assert str(recency_proportional_resolution) in repr(policy)
-    assert policy.GetSpec().GetPolicyName() in repr(policy)
+    assert policy.GetSpec().GetAlgoName() in repr(policy)
 
 
 def test_str():
@@ -193,4 +193,4 @@ def test_str():
         recency_proportional_resolution
     )
     assert str(recency_proportional_resolution) in str(policy)
-    assert policy.GetSpec().GetPolicyTitle() in str(policy)
+    assert policy.GetSpec().GetAlgoTitle() in str(policy)

@@ -37,27 +37,27 @@ def test_GetFixedResolution(fixed_resolution):
     assert spec.GetFixedResolution() == fixed_resolution
 
 
-def test_GetPolicyName():
+def test_GetAlgoName():
     fixed_resolution = 1
     spec = fixed_resolution_algo.PolicySpec(fixed_resolution)
-    assert spec.GetPolicyName()
+    assert spec.GetAlgoName()
 
 
-def test_GetPolicyTitle():
+def test_GetAlgoTitle():
     fixed_resolution = 1
     spec = fixed_resolution_algo.PolicySpec(fixed_resolution)
-    assert spec.GetPolicyTitle()
+    assert spec.GetAlgoTitle()
 
 
 def test_repr():
     fixed_resolution = 1
     spec = fixed_resolution_algo.PolicySpec(fixed_resolution)
     assert str(fixed_resolution) in repr(spec)
-    assert spec.GetPolicyName() in repr(spec)
+    assert spec.GetAlgoName() in repr(spec)
 
 
 def test_str():
     fixed_resolution = 1
     spec = fixed_resolution_algo.PolicySpec(fixed_resolution)
     assert str(fixed_resolution) in str(spec)
-    assert spec.GetPolicyTitle() in str(spec)
+    assert spec.GetAlgoTitle() in str(spec)
