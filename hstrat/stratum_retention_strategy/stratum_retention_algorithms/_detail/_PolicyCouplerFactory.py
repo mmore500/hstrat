@@ -263,6 +263,7 @@ def PolicyCouplerFactory(
             return str(self._policy_spec)
 
         def GetSpec(self: "PolicyCoupler") -> policy_spec_t_:
+            """Get policy's parameter specification."""
             return self._policy_spec
 
         def WithoutCalcRankAtColumnIndex(
