@@ -158,7 +158,7 @@ def test_repr():
     hash_salt = 1
     policy = pseudostochastic_algo.Policy(hash_salt)
     assert str(hash_salt) in repr(policy)
-    assert policy.GetSpec().GetAlgoName() in repr(policy)
+    assert policy.GetSpec().GetAlgoIdentifier() in repr(policy)
 
 
 def test_str():

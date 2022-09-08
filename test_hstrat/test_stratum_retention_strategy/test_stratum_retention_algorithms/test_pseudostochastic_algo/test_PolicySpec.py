@@ -37,10 +37,10 @@ def test_GetHashSalt(hash_salt):
     assert spec.GetHashSalt() == hash_salt
 
 
-def test_GetAlgoName():
+def test_GetAlgoIdentifier():
     hash_salt = 1
     spec = pseudostochastic_algo.PolicySpec(hash_salt)
-    assert spec.GetAlgoName()
+    assert spec.GetAlgoIdentifier()
 
 
 def test_GetAlgoTitle():
@@ -53,7 +53,7 @@ def test_repr():
     hash_salt = 1
     spec = pseudostochastic_algo.PolicySpec(hash_salt)
     assert str(hash_salt) in repr(spec)
-    assert spec.GetAlgoName() in repr(spec)
+    assert spec.GetAlgoIdentifier() in repr(spec)
 
 
 def test_str():

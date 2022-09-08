@@ -11,9 +11,9 @@ def test_init():
     pass
 
 
-def test_GetAlgoName():
+def test_GetAlgoIdentifier():
     spec = perfect_resolution_algo.PolicySpec()
-    assert spec.GetAlgoName()
+    assert spec.GetAlgoIdentifier()
 
 
 def test_GetAlgoTitle():
@@ -23,7 +23,7 @@ def test_GetAlgoTitle():
 
 def test_repr():
     spec = perfect_resolution_algo.PolicySpec()
-    assert spec.GetAlgoName() in repr(spec)
+    assert spec.GetAlgoIdentifier() in repr(spec)
 
 
 def test_str():

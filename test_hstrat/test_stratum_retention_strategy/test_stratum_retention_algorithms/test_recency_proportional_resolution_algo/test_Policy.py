@@ -184,7 +184,7 @@ def test_repr():
         recency_proportional_resolution
     )
     assert str(recency_proportional_resolution) in repr(policy)
-    assert policy.GetSpec().GetAlgoName() in repr(policy)
+    assert policy.GetSpec().GetAlgoIdentifier() in repr(policy)
 
 
 def test_str():

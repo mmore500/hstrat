@@ -93,11 +93,11 @@ def test_GetInterspersal(degree, interspersal):
     assert spec.GetInterspersal() == interspersal
 
 
-def test_GetAlgoName():
+def test_GetAlgoIdentifier():
     degree = 1
     interspersal = 2
     spec = geom_seq_nth_root_tapered_algo.PolicySpec(degree, interspersal)
-    assert spec.GetAlgoName()
+    assert spec.GetAlgoIdentifier()
 
 
 def test_GetAlgoTitle():
@@ -113,7 +113,7 @@ def test_repr():
     spec = geom_seq_nth_root_tapered_algo.PolicySpec(degree, interspersal)
     assert str(degree) in repr(spec)
     assert str(interspersal) in repr(spec)
-    assert spec.GetAlgoName() in repr(spec)
+    assert spec.GetAlgoIdentifier() in repr(spec)
 
 
 def test_str():

@@ -26,7 +26,7 @@ class PolicySpec(PolicySpecBase):
 
     def __repr__(self: "PolicySpec") -> str:
         return f"""{
-            self.GetAlgoName()
+            self.GetAlgoIdentifier()
         }.{
             __package__.split(".")[-1]
         }(hash_salt={
@@ -44,11 +44,11 @@ class PolicySpec(PolicySpecBase):
         return self._hash_salt
 
     @staticmethod
-    def GetAlgoName() -> str:
+    def GetAlgoIdentifier() -> str:
         """Get programatic name for underlying retention algorithm."""
         return __package__.split(".")[-1]
 
     @staticmethod
     def GetAlgoTitle() -> str:
-        """Get human-readable title for policy."""
+        """Get human-readable name for underlying retention algorithm."""
         return "Pseudostochastic Stratum Retention Algorithm"

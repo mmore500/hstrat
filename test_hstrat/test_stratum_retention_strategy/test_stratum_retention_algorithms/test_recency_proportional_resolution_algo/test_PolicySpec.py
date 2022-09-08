@@ -52,12 +52,12 @@ def test_GetRecencyProportionalResolution(recency_proportional_resolution):
     )
 
 
-def test_GetAlgoName():
+def test_GetAlgoIdentifier():
     recency_proportional_resolution = 1
     spec = recency_proportional_resolution_algo.PolicySpec(
         recency_proportional_resolution
     )
-    assert spec.GetAlgoName()
+    assert spec.GetAlgoIdentifier()
 
 
 def test_GetAlgoTitle():
@@ -74,7 +74,7 @@ def test_repr():
         recency_proportional_resolution
     )
     assert str(recency_proportional_resolution) in repr(spec)
-    assert spec.GetAlgoName() in repr(spec)
+    assert spec.GetAlgoIdentifier() in repr(spec)
 
 
 def test_str():

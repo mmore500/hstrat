@@ -33,7 +33,7 @@ class PolicySpec(PolicySpecBase):
 
     def __repr__(self: "PolicySpec") -> str:
         return f"""{
-            self.GetAlgoName()
+            self.GetAlgoIdentifier()
         }.{
             PolicySpec.__qualname__
         }(depth_proportional_resolution={
@@ -51,11 +51,11 @@ class PolicySpec(PolicySpecBase):
         return self._depth_proportional_resolution
 
     @staticmethod
-    def GetAlgoName() -> str:
+    def GetAlgoIdentifier() -> str:
         """Get programatic name for underlying retention algorithm."""
         return __package__.split(".")[-1]
 
     @staticmethod
     def GetAlgoTitle() -> str:
-        """Get human-readable title for policy."""
+        """Get human-readable name for underlying retention algorithm."""
         return "Depth-proportional Resolution Stratum Retention Algorithm"

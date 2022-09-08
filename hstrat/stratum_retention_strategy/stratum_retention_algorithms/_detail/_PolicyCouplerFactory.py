@@ -252,7 +252,7 @@ def PolicyCouplerFactory(
 
         def __repr__(self: "PolicyCoupler") -> str:
             return f"""{
-                self._policy_spec.GetAlgoName()
+                self._policy_spec.GetAlgoIdentifier()
             }.{
                 PolicyCoupler.__qualname__
             }(policy_spec={

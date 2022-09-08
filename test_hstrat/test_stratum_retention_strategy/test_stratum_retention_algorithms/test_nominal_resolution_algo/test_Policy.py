@@ -105,7 +105,7 @@ def test_WithoutCalcRankAtColumnIndex():
 
 def test_repr():
     policy = nominal_resolution_algo.Policy()
-    assert policy.GetSpec().GetAlgoName() in repr(policy)
+    assert policy.GetSpec().GetAlgoIdentifier() in repr(policy)
 
 
 def test_str():

@@ -25,9 +25,9 @@ def test_init(replicate):
     stochastic_algo.PolicySpec()
 
 
-def test_GetAlgoName():
+def test_GetAlgoIdentifier():
     spec = stochastic_algo.PolicySpec()
-    assert spec.GetAlgoName()
+    assert spec.GetAlgoIdentifier()
 
 
 def test_GetAlgoTitle():
@@ -37,7 +37,7 @@ def test_GetAlgoTitle():
 
 def test_repr():
     spec = stochastic_algo.PolicySpec()
-    assert spec.GetAlgoName() in repr(spec)
+    assert spec.GetAlgoIdentifier() in repr(spec)
 
 
 def test_str():

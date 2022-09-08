@@ -211,7 +211,7 @@ def test_repr():
     policy = geom_seq_nth_root_algo.Policy(degree, interspersal)
     assert str(degree) in repr(policy)
     assert str(interspersal) in repr(policy)
-    assert policy.GetSpec().GetAlgoName() in repr(policy)
+    assert policy.GetSpec().GetAlgoIdentifier() in repr(policy)
 
 
 def test_str():
