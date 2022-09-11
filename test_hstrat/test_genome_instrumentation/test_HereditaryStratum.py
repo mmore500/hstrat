@@ -1,4 +1,6 @@
 from copy import deepcopy
+import pickle
+import tempfile
 import unittest
 
 from hstrat import hstrat
@@ -50,6 +52,17 @@ class TestHereditaryStratum(unittest.TestCase):
         stratum2 = stratum1
         assert stratum1 == stratum2
         assert stratum1 == deepcopy(stratum2)
+
+    def test_pickle(self):
+        original = hstrat.HereditaryStratum()
+        with tempfile.TemporaryDirectory() as tmp_path:
+            with open(f"{tmp_path}/data", "wb") as tmp_file:
+                pickle.dump(original, tmp_file)
+
+            with open(f"{tmp_path}/data", "rb") as tmp_file:
+                reconstituted = pickle.load(tmp_file)
+                assert reconstituted == original
+                assert reconstituted != hstrat.HereditaryStratum()
 
 
 if __name__ == "__main__":
