@@ -1,3 +1,6 @@
+import pickle
+import tempfile
+
 import pytest
 
 from hstrat.hstrat import pseudostochastic_algo
@@ -63,6 +66,28 @@ def test_eq(hash_salt):
         == policy.WithoutCalcRankAtColumnIndex()
     )
     assert not policy == pseudostochastic_algo.Policy(hash_salt + 1)
+
+
+@pytest.mark.parametrize(
+    "hash_salt",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+def test_pickle(hash_salt):
+    original = pseudostochastic_algo.Policy(hash_salt)
+    with tempfile.TemporaryDirectory() as tmp_path:
+        with open(f"{tmp_path}/data", "wb") as tmp_file:
+            pickle.dump(original, tmp_file)
+
+        with open(f"{tmp_path}/data", "rb") as tmp_file:
+            reconstituted = pickle.load(tmp_file)
+            assert reconstituted == original
 
 
 @pytest.mark.parametrize(

@@ -1,3 +1,6 @@
+import pickle
+import tempfile
+
 import pytest
 
 from hstrat.hstrat import geom_seq_nth_root_algo
@@ -93,6 +96,38 @@ def test_eq(degree, interspersal):
     assert not policy == geom_seq_nth_root_algo.Policy(
         degree + 1, interspersal + 1
     )
+
+
+@pytest.mark.parametrize(
+    "degree",
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "interspersal",
+    [
+        1,
+        2,
+        5,
+    ],
+)
+def test_pickle(degree, interspersal):
+    original = geom_seq_nth_root_algo.Policy(degree, interspersal)
+    with tempfile.TemporaryDirectory() as tmp_path:
+        with open(f"{tmp_path}/data", "wb") as tmp_file:
+            pickle.dump(original, tmp_file)
+
+        with open(f"{tmp_path}/data", "rb") as tmp_file:
+            reconstituted = pickle.load(tmp_file)
+            assert reconstituted == original
 
 
 @pytest.mark.parametrize(

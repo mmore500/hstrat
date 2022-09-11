@@ -1,3 +1,6 @@
+import pickle
+import tempfile
+
 import pytest
 
 from hstrat.hstrat import recency_proportional_resolution_algo
@@ -79,6 +82,32 @@ def test_eq(recency_proportional_resolution):
     assert not policy == recency_proportional_resolution_algo.Policy(
         recency_proportional_resolution + 1
     )
+
+
+@pytest.mark.parametrize(
+    "recency_proportional_resolution",
+    [
+        0,
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_pickle(recency_proportional_resolution):
+    original = recency_proportional_resolution_algo.Policy(
+        recency_proportional_resolution
+    )
+    with tempfile.TemporaryDirectory() as tmp_path:
+        with open(f"{tmp_path}/data", "wb") as tmp_file:
+            pickle.dump(original, tmp_file)
+
+        with open(f"{tmp_path}/data", "rb") as tmp_file:
+            reconstituted = pickle.load(tmp_file)
+            assert reconstituted == original
 
 
 @pytest.mark.parametrize(

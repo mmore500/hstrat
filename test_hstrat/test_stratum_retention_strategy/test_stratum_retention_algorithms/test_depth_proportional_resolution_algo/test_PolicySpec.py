@@ -1,3 +1,6 @@
+import pickle
+import tempfile
+
 import pytest
 
 from hstrat.hstrat import depth_proportional_resolution_algo
@@ -26,6 +29,30 @@ def test_eq(depth_proportional_resolution):
     assert not spec == depth_proportional_resolution_algo.PolicySpec(
         depth_proportional_resolution + 1
     )
+
+
+@pytest.mark.parametrize(
+    "depth_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+def test_pickle(depth_proportional_resolution):
+    original = depth_proportional_resolution_algo.PolicySpec(
+        depth_proportional_resolution
+    )
+    with tempfile.TemporaryDirectory() as tmp_path:
+        with open(f"{tmp_path}/data", "wb") as tmp_file:
+            pickle.dump(original, tmp_file)
+
+        with open(f"{tmp_path}/data", "rb") as tmp_file:
+            reconstituted = pickle.load(tmp_file)
+            assert reconstituted == original
 
 
 @pytest.mark.parametrize(
