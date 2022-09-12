@@ -1,6 +1,8 @@
 from copy import deepcopy
 import itertools as it
+import pickle
 import random
+import tempfile
 
 import pytest
 
@@ -158,6 +160,108 @@ def test_Clone4(retention_policy, ordered_store):
         for individual in population:
             if random.choice([True, False]):
                 individual.DepositStratum()
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_pickle(retention_policy, ordered_store):
+    original = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store_factory=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+    with tempfile.TemporaryDirectory() as tmp_path:
+        with open(f"{tmp_path}/data", "wb") as tmp_file:
+            pickle.dump(original, tmp_file)
+
+        with open(f"{tmp_path}/data", "rb") as tmp_file:
+            reconstituted = pickle.load(tmp_file)
+            assert reconstituted == original
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_pickle_with_deposits(retention_policy, ordered_store):
+    original = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store_factory=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+    for __ in range(100):
+        original.DepositStratum()
+    with tempfile.TemporaryDirectory() as tmp_path:
+        with open(f"{tmp_path}/data", "wb") as tmp_file:
+            pickle.dump(original, tmp_file)
+
+        with open(f"{tmp_path}/data", "rb") as tmp_file:
+            reconstituted = pickle.load(tmp_file)
+            assert reconstituted == original
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_pickle_with_population(retention_policy, ordered_store):
+    population = [
+        hstrat.HereditaryStratigraphicColumn(
+            stratum_ordered_store_factory=ordered_store,
+            stratum_retention_policy=retention_policy,
+        )
+        for idx in range(20)
+    ]
+
+    for gen in range(10**3):
+        population[random.randrange(len(population))] = population[
+            random.randrange(len(population))
+        ].CloneDescendant()
+
+    for original in population:
+        with tempfile.TemporaryDirectory() as tmp_path:
+            with open(f"{tmp_path}/data", "wb") as tmp_file:
+                pickle.dump(original, tmp_file)
+
+            with open(f"{tmp_path}/data", "rb") as tmp_file:
+                reconstituted = pickle.load(tmp_file)
+                assert reconstituted == original
 
 
 @pytest.mark.parametrize(
