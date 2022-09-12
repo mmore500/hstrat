@@ -1,4 +1,6 @@
 from copy import deepcopy
+import pickle
+import tempfile
 import unittest
 
 from hstrat import hstrat
@@ -53,6 +55,35 @@ class TestHereditaryStratum(unittest.TestCase):
         assert column1 != column2
         assert column2 == column3
         assert column1 != column3
+
+    def test_pickle(self):
+        def make_populated_bundle():
+            return hstrat.HereditaryStratigraphicColumnBundle(
+                {
+                    "test": hstrat.HereditaryStratigraphicColumn(),
+                    "control": hstrat.HereditaryStratigraphicColumn(
+                        stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
+                    ),
+                }
+            )
+
+        column1 = make_populated_bundle()
+        column2 = column1.Clone()
+        column3 = column1.CloneDescendant()
+
+        column3.DepositStratum()
+
+        for __ in range(100):
+            column1.DepositStratum()
+
+        for original in column1, column2, column3:
+            with tempfile.TemporaryDirectory() as tmp_path:
+                with open(f"{tmp_path}/data", "wb") as tmp_file:
+                    pickle.dump(original, tmp_file)
+
+                with open(f"{tmp_path}/data", "rb") as tmp_file:
+                    reconstituted = pickle.load(tmp_file)
+                    assert reconstituted == original
 
     def test_forwarding_fallback(self):
         bundle1 = hstrat.HereditaryStratigraphicColumnBundle(
