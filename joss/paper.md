@@ -24,36 +24,35 @@ bibliography: paper.bib
 
 # Summary
 
-Digital evolution, simulation that instantiates evolutionary processes over populations of virtual agents, avails both theoretical evolutionary biology and applied heuristic optimization engineering.
+Digital evolutions systems instantiate evolutionary processes over populations of virtual agents *in silico*.
+Such systems help expand evolutionary theory and can be used to solve applied heuristic optimization problems.
 Digital evolution will benefit greatly by continuing to capitalize on profound advances in parallel and distributed computing [CITE], particularly emerging unconventional computing architectures [CITE].
-However, scaling up digital evolution presents many challenges --- one of them being managing record keeping of evolutionary history across vast and potentially unreliable hardware networks.
+However, scaling up digital evolution presents many challenges; here, we focus on the problem of record keeping of evolutionary history across vast and potentially unreliable hardware networks.
 
-Hereditary stratigraphy is a recently-developed technique to enable phylogenetic inference over distributed digital evolution populations [@moreno2022hereditary].
-This technique departs from the traditional perfect-tracking approach.
+The `hstrat` Python library exists to facilitate application of hereditary stratigraphy, a cutting-edge technique to enable phylogenetic inference over distributed digital evolution populations [@moreno2022hereditary].
+This technique departs from the traditional perfect-tracking approach to phylogenetic record-keeping.
 Instead, hereditary stratigraphy enables phylogenetic history to be inferred from heritable annotations attached to evolving digital agents.
-This approach aligns with established notions of phylogenetic reconstruction in evolutionary biology [CITE].
-Unlike a typical neutral drift model where genomes diverge under stochastic perturbation, hereditary stratigraphy attaches a set of immutable historical "checkpoints" --- referred to as _strata_ --- as an annotation evolving genomes.
-Checkpoints can be discarded to reduce annotation size at the cost of increasing inference uncertainty.
-Thus, direct, flexible trade-offs between annotation size and inference precision can be made by adjusting which checkpoints are discarded when.
-A particular trade-off choice is referred to as a _stratum retention policy_.
+This approach aligns with phylogenetic reconstruction methodologies in evolutionary biology [CITE].
+Hereditary stratigraphy attaches a set of immutable historical "checkpoints" --- referred to as _strata_ --- as an annotation on evolving genomes.
+Checkpoints can be strategically discarded to reduce annotation size at the cost of increasing inference uncertainty.
+A particular strategy for which checkpoints to discarded when is referred to as a _stratum retention policy_.
+Appropriate policy choice varies by application.
+For example, if annotation size is not a concern it may be best to preserve all strata.
+In other situations, it may be necessary to constrain annotation size to remain within a fixed memory budget.
 
-The `hstrat` Python library exists to facilitate application of hereditary stratigraphy methodology.
 Key features of the library include:
 
-- a comprehensive test suite to ensure stability and reliability,
-- convenient availability as a Python package via the PyPi repository,
-- extensive documentation hosted on [ReadTheDocs](https://readthedocs.io), including
-  - a quick start guide,
-  - a developer-oriented recap of the hereditary stratigraphy method,
-  - a catalog of available stratum retention policies, and
-  - a full API reference,
+- object-oriented hereditary stratigraphic column implementation to annotate arbitrary genomes,
 - modular interchangeability and user extensibility of stratum retention policies,
 - programmatic interface to query guarantees and behavior of stratum retention policy,
 - modular interchangeability and user extensibility of back-end data structure used to store annotation data,
-- pure Python implementation to ensure universal portability,
 - a suite of visualization tools to elucidate stratum retention policies,
-- support for automatic parameterization of stratum retention policies to meet user size complexity or inference precision specifications, and
-- tools to compare two columns and extract information about phylogenetic relationship between them.
+- support for automatic parameterization of stratum retention policies to meet user size complexity or inference precision specifications,
+- tools to compare two columns and extract information about the phylogenetic relationship between them,
+- [extensive documentation](https://hstrat.readthedocs.io) hosted on [ReadTheDocs](https://readthedocs.io),
+- a comprehensive test suite to ensure stability and reliability,
+- convenient availability as a Python package via the [PyPI repository](https://pypi.org/), and
+- pure Python implementation to ensure universal portability.
 
 # Statement of Need
 
