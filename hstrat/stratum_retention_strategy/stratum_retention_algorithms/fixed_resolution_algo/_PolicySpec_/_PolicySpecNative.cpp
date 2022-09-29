@@ -16,6 +16,7 @@ PYBIND11_MODULE(_PolicySpecNative, m) {
   )
   .def(py::init<int>())
   .def("GetFixedResolution", &self_t::GetFixedResolution)
+  .def("__eq__", &self_t::operator==)
   .def("__repr__", &self_t::Repr)
   .def("__str__", &self_t::Str)
   .def_static("GetAlgoIdentifier", &self_t::GetAlgoIdentifier)

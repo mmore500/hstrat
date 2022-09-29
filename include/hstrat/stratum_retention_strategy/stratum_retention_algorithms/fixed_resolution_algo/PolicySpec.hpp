@@ -35,6 +35,10 @@ public:
 
   int GetFixedResolution() const { return fixed_resolution; }
 
+  bool operator==(const PolicySpec& other) const {
+    return fixed_resolution == other.fixed_resolution;
+  }
+
   static constexpr std::string_view GetAlgoIdentifier() {
     return hstrat::fixed_resolution_algo::get_algo_identifier();
   }

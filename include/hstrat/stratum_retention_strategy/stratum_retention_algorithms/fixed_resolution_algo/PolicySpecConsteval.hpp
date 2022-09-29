@@ -26,6 +26,12 @@ struct PolicySpecConsteval {
     return hstrat::fixed_resolution_algo::get_algo_title();
   }
 
+  static consteval bool operator==(
+    const PolicySpecConsteval<FIXED_RESOLUTION>& other
+  ) {
+    return true;
+  }
+
   static std::string Repr() {
     return fmt::format(
       "{}(fixed_resolution={})",
