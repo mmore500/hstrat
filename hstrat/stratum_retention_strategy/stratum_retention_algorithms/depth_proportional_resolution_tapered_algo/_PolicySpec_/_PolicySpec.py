@@ -53,7 +53,7 @@ class PolicySpec(PolicySpecBase):
     @staticmethod
     def GetAlgoIdentifier() -> str:
         """Get programatic name for underlying retention algorithm."""
-        return __package__.split(".")[-1]
+        return __package__.split(".")[-2]
 
     @staticmethod
     def GetAlgoTitle() -> str:
