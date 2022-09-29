@@ -3,6 +3,7 @@
 
 #include <pybind11/pybind11.h>
 
+#include <hstrat/config/HSTRAT_RANK_T.hpp>
 #include <hstrat_pybind/PyObjectPolicyShim.hpp>
 #include <hstrat_pybind/shim_py_object_generator.hpp>
 #include <hstrat/stratum_retention_strategy/stratum_retention_algorithms/depth_proportional_resolution_algo/enact/GenDropRanksFtor.hpp>
@@ -45,13 +46,15 @@ PYBIND11_MODULE(_GenDropRanksNative, m) {
     [](
       const self_t& self,
       py::object policy,
-      const int num_stratum_depositions_completed,
+      const HSTRAT_RANK_T num_stratum_depositions_completed,
       py::object retained_ranks
     ){
       return self(
         hstrat_pybind::PyObjectPolicyShim<algo::PolicySpec>(policy),
         num_stratum_depositions_completed,
-        hstrat_pybind::shim_py_object_generator<const int>(retained_ranks)
+        hstrat_pybind::shim_py_object_generator<
+          const HSTRAT_RANK_T
+        >(retained_ranks)
       );
     }
   );

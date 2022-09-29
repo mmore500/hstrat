@@ -5,13 +5,15 @@
 #include <assert.h>
 #include <bit>
 
+#include "../../../../config/HSTRAT_RANK_T.hpp"
+
 namespace hstrat {
 namespace depth_proportional_resolution_algo {
 
 template<typename POLICY>
-int calc_provided_uncertainty(
+HSTRAT_RANK_T calc_provided_uncertainty(
   const POLICY& policy,
-  const int num_stratum_depositions_completed
+  const HSTRAT_RANK_T num_stratum_depositions_completed
 ) {
 
   const auto& spec = policy.GetSpec();
@@ -23,7 +25,7 @@ int calc_provided_uncertainty(
 
   // round down to lower or equal power of 2
   assert(max_uncertainty > 0);
-  return std::bit_floor(unsigned(max_uncertainty));
+  return std::bit_floor(max_uncertainty);
 
 }
 

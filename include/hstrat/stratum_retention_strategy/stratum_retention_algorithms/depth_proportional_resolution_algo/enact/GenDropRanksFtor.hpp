@@ -10,6 +10,8 @@
 
 #include "../../../../../hstrat_auxlib/IsSpecializationOf.hpp"
 
+#include "../../../../config/HSTRAT_RANK_T.hpp"
+
 #include "../../detail/PolicyCoupler.hpp"
 
 #include "../impl/calc_provided_uncertainty.hpp"
@@ -27,10 +29,10 @@ struct GenDropRanksFtor {
   * (returned generator holds a reference to policy)
   */
   template<typename POLICY>
-  cppcoro::generator<const int> operator()(
+  cppcoro::generator<const HSTRAT_RANK_T> operator()(
     const POLICY& policy,
-    const int num_stratum_depositions_completed,
-    cppcoro::generator<const int> retained_ranks={}
+    const HSTRAT_RANK_T num_stratum_depositions_completed,
+    cppcoro::generator<const HSTRAT_RANK_T> retained_ranks={}
   ) const {
     return do_call<POLICY>(
       policy,
@@ -43,7 +45,7 @@ private:
 
   // delegated implementation enables operator() template deduction
   template<typename POLICY>
-  cppcoro::generator<const int> do_call(
+  cppcoro::generator<const HSTRAT_RANK_T> do_call(
     std::conditional<
       hstrat_auxlib::is_specialization_of<
         hstrat::detail::PolicyCoupler,
@@ -52,8 +54,8 @@ private:
       const POLICY&, // specialization of PolicyCoupler
       POLICY   // i.e., PyObjectPolicyShim
     >::type policy,
-    const int num_stratum_depositions_completed,
-    cppcoro::generator<const int> retained_ranks={}
+    const HSTRAT_RANK_T num_stratum_depositions_completed,
+    cppcoro::generator<const HSTRAT_RANK_T> retained_ranks={}
   ) const {
 
     const auto& spec = policy.GetSpec();

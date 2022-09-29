@@ -8,6 +8,8 @@ namespace py = pybind11;
 
 #include "../../third-party/cppcoro/include/cppcoro/generator.hpp"
 
+#include "../hstrat/config/HSTRAT_RANK_T.hpp"
+
 #include "shim_py_object_generator.hpp"
 
 namespace hstrat_pybind {
@@ -28,11 +30,11 @@ public:
   }
 
   // enactment
-  cppcoro::generator<const int> GenDropRanks(
-    const int num_stratum_depositions_completed,
-    cppcoro::generator<const int> retained_ranks
+  cppcoro::generator<const HSTRAT_RANK_T> GenDropRanks(
+    const HSTRAT_RANK_T num_stratum_depositions_completed,
+    cppcoro::generator<const HSTRAT_RANK_T> retained_ranks
   ) {
-    return shim_py_object_generator<const int>(
+    return shim_py_object_generator<const HSTRAT_RANK_T>(
       policy_obj.attr("GenDropRanks")(
         num_stratum_depositions_completed,
         retained_ranks

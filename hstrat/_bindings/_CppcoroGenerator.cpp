@@ -3,18 +3,20 @@
 
 #include <cppcoro/include/cppcoro/generator.hpp>
 
+#include <hstrat/config/HSTRAT_RANK_T.hpp>
+
 namespace py = pybind11;
 
 PYBIND11_MODULE(_CppcoroGenerator, m) {
 
-  using int_generator_t = cppcoro::generator<const int>;
-  py::class_<int_generator_t>(
+  using rank_generator_t = cppcoro::generator<const HSTRAT_RANK_T>;
+  py::class_<rank_generator_t>(
     m,
-    "CppcoroGeneratorInt"
+    "CppcoroGeneratorHstratRankT"
   )
   .def(
     "__iter__",
-    [](int_generator_t& self) {
+    [](rank_generator_t& self) {
       return py::make_iterator(self.begin(), self.end());
     },
     py::keep_alive<0, 1>()
