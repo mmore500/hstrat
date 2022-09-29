@@ -16,9 +16,13 @@ namespace depth_proportional_resolution_algo {
 template<int DEPTH_PROPORTIONAL_RESOLUTION>
 struct PolicySpecConsteval {
 
-  static consteval int GetDepthProportionalResolution() { return DEPTH_PROPORTIONAL_RESOLUTION; }
+  static consteval int GetDepthProportionalResolution() {
+    return DEPTH_PROPORTIONAL_RESOLUTION;
+  }
 
-  static consteval bool operator==(const PolicySpecConsteval<FIXED_RESOLUTION>& other) {
+  consteval bool operator==(
+    const PolicySpecConsteval<DEPTH_PROPORTIONAL_RESOLUTION>& other
+  ) const {
     return true;
   }
 
