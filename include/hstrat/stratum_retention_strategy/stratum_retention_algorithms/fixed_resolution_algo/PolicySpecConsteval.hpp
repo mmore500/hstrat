@@ -7,7 +7,7 @@
 
 #include "../../../../../third-party/fmt/include/fmt/core.h"
 
-#include "get_algo_name.hpp"
+#include "get_algo_identifier.hpp"
 #include "get_algo_title.hpp"
 
 namespace hstrat {
@@ -18,8 +18,8 @@ struct PolicySpecConsteval {
 
   static consteval int GetFixedResolution() { return FIXED_RESOLUTION; }
 
-  static constexpr std::string_view GetAlgoName() {
-    return hstrat::fixed_resolution_algo::get_algo_name();
+  static constexpr std::string_view GetAlgoIdentifier() {
+    return hstrat::fixed_resolution_algo::get_algo_identifier();
   }
 
   static constexpr std::string_view GetAlgoTitle() {
@@ -29,7 +29,7 @@ struct PolicySpecConsteval {
   static std::string Repr() {
     return fmt::format(
       "{}(fixed_resolution={})",
-      GetAlgoName(),
+      GetAlgoIdentifier(),
       GetFixedResolution()
     );
   }

@@ -9,7 +9,7 @@
 
 #include "../../../../hstrat_pybind/PyObjectConcept.hpp"
 
-#include "get_algo_name.hpp"
+#include "get_algo_identifier.hpp"
 #include "get_algo_title.hpp"
 
 namespace hstrat {
@@ -35,8 +35,8 @@ public:
 
   int GetFixedResolution() const { return fixed_resolution; }
 
-  static constexpr std::string_view GetAlgoName() {
-    return hstrat::fixed_resolution_algo::get_algo_name();
+  static constexpr std::string_view GetAlgoIdentifier() {
+    return hstrat::fixed_resolution_algo::get_algo_identifier();
   }
 
   static constexpr std::string_view GetAlgoTitle() {
@@ -46,7 +46,7 @@ public:
   std::string Repr() const {
     return fmt::format(
       "{}(fixed_resolution={})",
-      GetAlgoName(),
+      GetAlgoIdentifier(),
       GetFixedResolution()
     );
   }

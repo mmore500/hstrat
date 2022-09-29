@@ -18,7 +18,7 @@ PYBIND11_MODULE(_PolicySpecNative, m) {
   .def("GetFixedResolution", &self_t::GetFixedResolution)
   .def("__repr__", &self_t::Repr)
   .def("__str__", &self_t::Str)
-  .def_static("GetAlgoName", &self_t::GetAlgoName)
+  .def_static("GetAlgoIdentifier", &self_t::GetAlgoIdentifier)
   .def_static("GetAlgoTitle", &self_t::GetAlgoTitle);
 
 }
