@@ -187,7 +187,6 @@ def test_str(impl):
         lambda x: x.GetInterspersal(),
         lambda x: x.GetAlgoIdentifier(),
         lambda x: x.GetAlgoTitle(),
-        lambda x: repr(x),
         lambda x: str(x),
     ],
 )
