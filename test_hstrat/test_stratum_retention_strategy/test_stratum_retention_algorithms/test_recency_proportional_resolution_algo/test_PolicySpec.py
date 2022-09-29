@@ -7,6 +7,9 @@ from hstrat.hstrat import recency_proportional_resolution_algo
 
 
 @pytest.mark.parametrize(
+    "impl", recency_proportional_resolution_algo._PolicySpec_.impls
+)
+@pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
         0,
@@ -19,17 +22,11 @@ from hstrat.hstrat import recency_proportional_resolution_algo
         100,
     ],
 )
-def test_eq(recency_proportional_resolution):
-    spec = recency_proportional_resolution_algo.PolicySpec(
-        recency_proportional_resolution
-    )
+def test_eq(impl, recency_proportional_resolution):
+    spec = impl(recency_proportional_resolution)
     assert spec == spec
-    assert spec == recency_proportional_resolution_algo.PolicySpec(
-        recency_proportional_resolution
-    )
-    assert not spec == recency_proportional_resolution_algo.PolicySpec(
-        recency_proportional_resolution + 1
-    )
+    assert spec == impl(recency_proportional_resolution)
+    assert not spec == impl(recency_proportional_resolution + 1)
 
 
 @pytest.mark.parametrize(
@@ -59,6 +56,9 @@ def test_pickle(recency_proportional_resolution):
 
 
 @pytest.mark.parametrize(
+    "impl", recency_proportional_resolution_algo._PolicySpec_.impls
+)
+@pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
         0,
@@ -71,45 +71,84 @@ def test_pickle(recency_proportional_resolution):
         100,
     ],
 )
-def test_GetRecencyProportionalResolution(recency_proportional_resolution):
-    spec = recency_proportional_resolution_algo.PolicySpec(
-        recency_proportional_resolution
-    )
+def test_GetRecencyProportionalResolution(
+    impl, recency_proportional_resolution
+):
+    spec = impl(recency_proportional_resolution)
     assert (
         spec.GetRecencyProportionalResolution()
         == recency_proportional_resolution
     )
 
 
-def test_GetAlgoIdentifier():
+@pytest.mark.parametrize(
+    "impl", recency_proportional_resolution_algo._PolicySpec_.impls
+)
+def test_GetAlgoIdentifier(impl):
     recency_proportional_resolution = 1
-    spec = recency_proportional_resolution_algo.PolicySpec(
-        recency_proportional_resolution
-    )
+    spec = impl(recency_proportional_resolution)
     assert spec.GetAlgoIdentifier()
 
 
-def test_GetAlgoTitle():
+@pytest.mark.parametrize(
+    "impl", recency_proportional_resolution_algo._PolicySpec_.impls
+)
+def test_GetAlgoTitle(impl):
     recency_proportional_resolution = 1
-    spec = recency_proportional_resolution_algo.PolicySpec(
-        recency_proportional_resolution
-    )
+    spec = impl(recency_proportional_resolution)
     assert spec.GetAlgoTitle()
 
 
-def test_repr():
+@pytest.mark.parametrize(
+    "impl", recency_proportional_resolution_algo._PolicySpec_.impls
+)
+def test_repr(impl):
     recency_proportional_resolution = 1
-    spec = recency_proportional_resolution_algo.PolicySpec(
-        recency_proportional_resolution
-    )
+    spec = impl(recency_proportional_resolution)
     assert str(recency_proportional_resolution) in repr(spec)
     assert spec.GetAlgoIdentifier() in repr(spec)
 
 
-def test_str():
+@pytest.mark.parametrize(
+    "impl", recency_proportional_resolution_algo._PolicySpec_.impls
+)
+def test_str(impl):
     recency_proportional_resolution = 1
-    spec = recency_proportional_resolution_algo.PolicySpec(
-        recency_proportional_resolution
-    )
+    spec = impl(recency_proportional_resolution)
     assert str(recency_proportional_resolution) in str(spec)
     assert spec.GetAlgoTitle() in str(spec)
+
+
+@pytest.mark.parametrize(
+    "recency_proportional_resolution",
+    [
+        0,
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "what",
+    [
+        lambda x: x.GetRecencyProportionalResolution(),
+        lambda x: x.GetAlgoIdentifier(),
+        lambda x: x.GetAlgoTitle(),
+        lambda x: repr(x),
+        lambda x: str(x),
+    ],
+)
+def test_consistency(recency_proportional_resolution, what):
+    assert (
+        len(
+            {
+                what(impl(recency_proportional_resolution))
+                for impl in recency_proportional_resolution_algo._PolicySpec_.impls
+            }
+        )
+        == 1
+    )
