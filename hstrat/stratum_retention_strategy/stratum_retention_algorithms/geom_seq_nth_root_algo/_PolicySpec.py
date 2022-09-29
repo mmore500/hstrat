@@ -52,7 +52,7 @@ class PolicySpec(PolicySpecBase):
 
     def __repr__(self: "PolicySpec") -> str:
         return f"""{
-            self.GetPolicyName()
+            self.GetAlgoIdentifier()
         }.{
             PolicySpec.__qualname__
         }(degree={
@@ -63,7 +63,7 @@ class PolicySpec(PolicySpecBase):
 
     def __str__(self: "PolicySpec") -> str:
         return f"""{
-            self.GetPolicyTitle()
+            self.GetAlgoTitle()
         } (degree: {
             self._degree
         }, interspersal: {
@@ -77,11 +77,11 @@ class PolicySpec(PolicySpecBase):
         return self._interspersal
 
     @staticmethod
-    def GetPolicyName() -> str:
-        """Get programatic name for policy."""
+    def GetAlgoIdentifier() -> str:
+        """Get programatic name for underlying retention algorithm."""
         return __package__.split(".")[-1]
 
     @staticmethod
-    def GetPolicyTitle() -> str:
-        """Get human-readable title for policy."""
-        return "Nth Root Geometric Sequence Stratum Retention Policy"
+    def GetAlgoTitle() -> str:
+        """Get human-readable name for underlying retention algorithm."""
+        return "Nth Root Geometric Sequence Stratum Retention Algorithm"

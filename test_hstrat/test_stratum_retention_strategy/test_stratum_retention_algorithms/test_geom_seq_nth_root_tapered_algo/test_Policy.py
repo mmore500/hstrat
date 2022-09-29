@@ -1,3 +1,6 @@
+import pickle
+import tempfile
+
 import pytest
 
 from hstrat.hstrat import geom_seq_nth_root_tapered_algo
@@ -118,6 +121,38 @@ def test_eq(degree, interspersal):
         5,
     ],
 )
+def test_pickle(degree, interspersal):
+    original = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
+    with tempfile.TemporaryDirectory() as tmp_path:
+        with open(f"{tmp_path}/data", "wb") as tmp_file:
+            pickle.dump(original, tmp_file)
+
+        with open(f"{tmp_path}/data", "rb") as tmp_file:
+            reconstituted = pickle.load(tmp_file)
+            assert reconstituted == original
+
+
+@pytest.mark.parametrize(
+    "degree",
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "interspersal",
+    [
+        1,
+        2,
+        5,
+    ],
+)
 def test_GetSpec(degree, interspersal):
     assert geom_seq_nth_root_tapered_algo.Policy(
         degree, interspersal
@@ -215,7 +250,7 @@ def test_repr():
     policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
     assert str(degree) in repr(policy)
     assert str(interspersal) in repr(policy)
-    assert policy.GetSpec().GetPolicyName() in repr(policy)
+    assert policy.GetSpec().GetAlgoIdentifier() in repr(policy)
 
 
 def test_str():
@@ -224,4 +259,4 @@ def test_str():
     policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
     assert str(degree) in str(policy)
     assert str(interspersal) in str(policy)
-    assert policy.GetSpec().GetPolicyTitle() in str(policy)
+    assert policy.GetSpec().GetAlgoTitle() in str(policy)

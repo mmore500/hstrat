@@ -1,3 +1,6 @@
+import pickle
+import tempfile
+
 import pytest
 
 from hstrat.hstrat import fixed_resolution_algo
@@ -62,6 +65,28 @@ def test_eq(fixed_resolution):
         == policy.WithoutCalcRankAtColumnIndex()
     )
     assert not policy == fixed_resolution_algo.Policy(fixed_resolution + 1)
+
+
+@pytest.mark.parametrize(
+    "fixed_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+def test_pickle(fixed_resolution):
+    original = fixed_resolution_algo.Policy(fixed_resolution)
+    with tempfile.TemporaryDirectory() as tmp_path:
+        with open(f"{tmp_path}/data", "wb") as tmp_file:
+            pickle.dump(original, tmp_file)
+
+        with open(f"{tmp_path}/data", "rb") as tmp_file:
+            reconstituted = pickle.load(tmp_file)
+            assert reconstituted == original
 
 
 @pytest.mark.parametrize(
@@ -153,11 +178,11 @@ def test_repr():
     fixed_resolution = 1
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     assert str(fixed_resolution) in repr(policy)
-    assert policy.GetSpec().GetPolicyName() in repr(policy)
+    assert policy.GetSpec().GetAlgoIdentifier() in repr(policy)
 
 
 def test_str():
     fixed_resolution = 1
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     assert str(fixed_resolution) in str(policy)
-    assert policy.GetSpec().GetPolicyTitle() in str(policy)
+    assert policy.GetSpec().GetAlgoTitle() in str(policy)

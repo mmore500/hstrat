@@ -1,3 +1,6 @@
+import pickle
+import tempfile
+
 import pytest
 
 from hstrat.hstrat import pseudostochastic_algo
@@ -32,32 +35,54 @@ def test_eq(hash_salt):
         100,
     ],
 )
+def test_pickle(hash_salt):
+    original = pseudostochastic_algo.PolicySpec(hash_salt)
+    with tempfile.TemporaryDirectory() as tmp_path:
+        with open(f"{tmp_path}/data", "wb") as tmp_file:
+            pickle.dump(original, tmp_file)
+
+        with open(f"{tmp_path}/data", "rb") as tmp_file:
+            reconstituted = pickle.load(tmp_file)
+            assert reconstituted == original
+
+
+@pytest.mark.parametrize(
+    "hash_salt",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
 def test_GetHashSalt(hash_salt):
     spec = pseudostochastic_algo.PolicySpec(hash_salt)
     assert spec.GetHashSalt() == hash_salt
 
 
-def test_GetPolicyName():
+def test_GetAlgoIdentifier():
     hash_salt = 1
     spec = pseudostochastic_algo.PolicySpec(hash_salt)
-    assert spec.GetPolicyName()
+    assert spec.GetAlgoIdentifier()
 
 
-def test_GetPolicyTitle():
+def test_GetAlgoTitle():
     hash_salt = 1
     spec = pseudostochastic_algo.PolicySpec(hash_salt)
-    assert spec.GetPolicyTitle()
+    assert spec.GetAlgoTitle()
 
 
 def test_repr():
     hash_salt = 1
     spec = pseudostochastic_algo.PolicySpec(hash_salt)
     assert str(hash_salt) in repr(spec)
-    assert spec.GetPolicyName() in repr(spec)
+    assert spec.GetAlgoIdentifier() in repr(spec)
 
 
 def test_str():
     hash_salt = 1
     spec = pseudostochastic_algo.PolicySpec(hash_salt)
     assert str(hash_salt) in str(spec)
-    assert spec.GetPolicyTitle() in str(spec)
+    assert spec.GetAlgoTitle() in str(spec)

@@ -52,7 +52,8 @@ setup(
     description="hstrat enables phylogenetic inference on distributed digital evolution populations",
     install_requires=requirements,
     license="MIT license",
-    long_description=readme + "\n\n" + history,
+    long_description=readme,
+    long_description_content_type="text/markdown",
     include_package_data=True,
     keywords="hstrat",
     name="hstrat",
@@ -61,6 +62,6 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/mmore500/hstrat",
-    version="0.3.2",
+    version="1.0.1",
     zip_safe=False,
 )

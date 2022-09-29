@@ -1,3 +1,6 @@
+import pickle
+import tempfile
+
 from hstrat.hstrat import perfect_resolution_algo
 
 
@@ -38,6 +41,17 @@ def test_eq():
         policy.WithoutCalcRankAtColumnIndex()
         == policy.WithoutCalcRankAtColumnIndex()
     )
+
+
+def test_pickle():
+    original = perfect_resolution_algo.Policy()
+    with tempfile.TemporaryDirectory() as tmp_path:
+        with open(f"{tmp_path}/data", "wb") as tmp_file:
+            pickle.dump(original, tmp_file)
+
+        with open(f"{tmp_path}/data", "rb") as tmp_file:
+            reconstituted = pickle.load(tmp_file)
+            assert reconstituted == original
 
 
 def test_GetSpec():
@@ -105,9 +119,9 @@ def test_WithoutCalcRankAtColumnIndex():
 
 def test_repr():
     policy = perfect_resolution_algo.Policy()
-    assert policy.GetSpec().GetPolicyName() in repr(policy)
+    assert policy.GetSpec().GetAlgoIdentifier() in repr(policy)
 
 
 def test_str():
     policy = perfect_resolution_algo.Policy()
-    assert policy.GetSpec().GetPolicyTitle() in str(policy)
+    assert policy.GetSpec().GetAlgoTitle() in str(policy)

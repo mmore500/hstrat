@@ -2,11 +2,12 @@
 
 __author__ = """Matthew Andres Moreno"""
 __email__ = "m.more500@gmail.com"
-__version__ = "0.3.2"
+__version__ = "1.0.1"
 
 from . import (
     _auxiliary_lib,
     genome_instrumentation,
+    juxtaposition,
     phylogenetic_inference,
     stratum_retention_strategy,
     stratum_retention_viz,
@@ -15,6 +16,7 @@ from . import (
 __all__ = [
     "_auxiliary_lib",
     "genome_instrumentation",
+    "juxtaposition",
     "phylogenetic_inference",
     "stratum_retention_strategy",
     "stratum_retention_viz",

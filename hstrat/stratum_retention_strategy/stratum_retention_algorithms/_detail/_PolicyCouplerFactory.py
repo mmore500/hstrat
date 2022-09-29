@@ -252,7 +252,7 @@ def PolicyCouplerFactory(
 
         def __repr__(self: "PolicyCoupler") -> str:
             return f"""{
-                self._policy_spec.GetPolicyName()
+                self._policy_spec.GetAlgoIdentifier()
             }.{
                 PolicyCoupler.__qualname__
             }(policy_spec={
@@ -263,6 +263,7 @@ def PolicyCouplerFactory(
             return str(self._policy_spec)
 
         def GetSpec(self: "PolicyCoupler") -> policy_spec_t_:
+            """Get policy's parameter specification."""
             return self._policy_spec
 
         def WithoutCalcRankAtColumnIndex(
