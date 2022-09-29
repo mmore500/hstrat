@@ -6,7 +6,7 @@ import unittest
 from hstrat import hstrat
 
 
-class TestHereditaryStratum(unittest.TestCase):
+class TestHereditaryStratigraphicColumnBundle(unittest.TestCase):
 
     # tests can run independently
     _multiprocess_can_split_ = True
