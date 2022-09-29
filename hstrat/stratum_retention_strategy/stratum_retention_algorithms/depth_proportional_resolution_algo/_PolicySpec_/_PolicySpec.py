@@ -58,4 +58,4 @@ class PolicySpec(PolicySpecBase):
     @staticmethod
     def GetAlgoTitle() -> str:
         """Get human-readable name for underlying retention algorithm."""
-        return "Depth-proportional Resolution Stratum Retention Algorithm"
+        return "Depth-Proportional Resolution Stratum Retention Algorithm"
