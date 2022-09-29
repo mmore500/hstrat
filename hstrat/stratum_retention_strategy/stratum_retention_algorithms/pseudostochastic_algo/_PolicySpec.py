@@ -28,7 +28,7 @@ class PolicySpec(PolicySpecBase):
         return f"""{
             self.GetAlgoIdentifier()
         }.{
-            __package__.split(".")[-1]
+            PolicySpec.__qualname__
         }(hash_salt={
             self._hash_salt
         })"""
