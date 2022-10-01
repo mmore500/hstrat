@@ -10,9 +10,19 @@ struct CalcMrcaUncertaintyAbsUpperBoundPessimalRankFtor {
   template<typename POLICY_SPEC>
   CalcMrcaUncertaintyAbsUpperBoundPessimalRankFtor(const POLICY_SPEC&) {}
 
-  template<typename POLICY>
-  void operator()(const POLICY& policy) const {
+  consteval bool operator==(
+    const CalcMrcaUncertaintyAbsUpperBoundPessimalRankFtor& other
+  ) const {
+    return true;
+  }
 
+  template<typename POLICY>
+  HSTRAT_RANK_T operator()(
+    const POLICY& policy,
+    const HSTRAT_RANK_T first_num_strata_deposited,
+    const HSTRAT_RANK_T second_num_strata_deposited
+  ) const {
+    return 0;
   }
 
 };
