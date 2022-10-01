@@ -3,7 +3,7 @@
 #define HSTRAT_STRATUM_RETENTION_STRATEGY_STRATUM_RETENTION_ALGORITHMS_FIXED_RESOLUTION_ALGO_INCLUDE_HPP_INCLUDE
 
 #include "enact/GenDropRanksFtor.hpp"
-// #include "invar/CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankFtor.hpp"
+#include "invar/CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankFtor.hpp"
 #include "invar/CalcMrcaUncertaintyAbsUpperBoundFtor.hpp"
 #include "invar/CalcMrcaUncertaintyAbsUpperBoundPessimalRankFtor.hpp"
 // #include "invar/CalcMrcaUncertaintyRelUpperBoundAtPessimalRankFtor.hpp"

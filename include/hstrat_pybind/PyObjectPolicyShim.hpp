@@ -33,7 +33,7 @@ public:
   cppcoro::generator<const HSTRAT_RANK_T> GenDropRanks(
     const HSTRAT_RANK_T num_stratum_depositions_completed,
     cppcoro::generator<const HSTRAT_RANK_T> retained_ranks
-  ) {
+  ) const {
     return shim_py_object_generator<const HSTRAT_RANK_T>(
       policy_obj.attr("GenDropRanks")(
         num_stratum_depositions_completed,
@@ -43,9 +43,38 @@ public:
   }
 
   // invariants
-  // CalcMrcaUncertaintyAbsUpperBound
-  // CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
-  // CalcMrcaUncertaintyAbsUpperBoundPessimalRank
+  HSTRAT_RANK_T CalcMrcaUncertaintyAbsUpperBound(
+    const HSTRAT_RANK_T first_num_strata_deposited,
+    const HSTRAT_RANK_T second_num_strata_deposited,
+    const HSTRAT_RANK_T actual_rank_of_mrca
+  ) const {
+    return policy_obj.attr("CalcMrcaUncertaintyAbsUpperBound")(
+      first_num_strata_deposited,
+      second_num_strata_deposited,
+      actual_rank_of_mrca
+    ).template cast<HSTRAT_RANK_T>();
+  }
+
+  HSTRAT_RANK_T CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
+    const HSTRAT_RANK_T first_num_strata_deposited,
+    const HSTRAT_RANK_T second_num_strata_deposited
+  ) const {
+    return policy_obj.attr("CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank")(
+      first_num_strata_deposited,
+      second_num_strata_deposited
+    ).template cast<HSTRAT_RANK_T>();
+  }
+
+  HSTRAT_RANK_T CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
+    const HSTRAT_RANK_T first_num_strata_deposited,
+    const HSTRAT_RANK_T second_num_strata_deposited
+  ) const {
+    return policy_obj.attr("CalcMrcaUncertaintyAbsUpperBoundPessimalRank")(
+      first_num_strata_deposited,
+      second_num_strata_deposited
+    ).template cast<HSTRAT_RANK_T>();
+  }
+
   // CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
   // CalcMrcaUncertaintyRelUpperBoundPessimalRank
   // CalcNumStrataRetainedUpperBound

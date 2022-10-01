@@ -9,9 +9,11 @@ impls = [
     CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank,
 ]
 
-# PolicySpecNative = opyt.apply_if(
-# hstrat_import_native("._CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankNative", __name__),
-#     lambda x: x.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankNative,
-# )
-# if CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankNative is not None:
-#     impls.append(CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankNative)
+CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankNative = opyt.apply_if(
+    hstrat_import_native(
+        "._CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankNative", __name__
+    ),
+    lambda x: x.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankNative,
+)
+if CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankNative is not None:
+    impls.append(CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankNative)
