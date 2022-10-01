@@ -9,7 +9,7 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import
 
 @pytest.mark.parametrize(
     "impl",
-    fixed_resolution_algo._invar._CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank_.impls,
+    fixed_resolution_algo._invar._CalcMrcaUncertaintyAbsUpperBoundPessimalRank_.impls,
 )
 @pytest.mark.parametrize(
     "fixed_resolution",
@@ -83,7 +83,7 @@ def test_policy_consistency(impl, fixed_resolution, time_sequence):
 
 @pytest.mark.parametrize(
     "impl",
-    fixed_resolution_algo._invar._CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank_.impls,
+    fixed_resolution_algo._invar._CalcMrcaUncertaintyAbsUpperBoundPessimalRank_.impls,
 )
 @pytest.mark.parametrize(
     "fixed_resolution",
