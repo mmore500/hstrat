@@ -79,3 +79,45 @@ def test_eq(impl, fixed_resolution):
     assert instance == instance
     assert instance == impl(spec)
     assert instance is not None
+
+
+@pytest.mark.parametrize(
+    "fixed_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "time_sequence",
+    [
+        range(10**3),
+        np.random.default_rng(1).integers(
+            low=0,
+            high=2**32,
+            size=10,
+        ),
+        (2**32,),
+    ],
+)
+def test_impl_consistency(fixed_resolution, time_sequence):
+    policy = fixed_resolution_algo.Policy(fixed_resolution)
+    spec = policy.GetSpec()
+
+    for gen in time_sequence:
+        assert (
+            len(
+                {
+                    impl(spec)(
+                        policy,
+                        gen,
+                    )
+                    for impl in fixed_resolution_algo._scry._CalcNumStrataRetainedExact_.impls
+                }
+            )
+            == 1
+        )
