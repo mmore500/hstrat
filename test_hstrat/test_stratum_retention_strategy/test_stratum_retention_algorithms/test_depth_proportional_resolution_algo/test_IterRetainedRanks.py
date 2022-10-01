@@ -9,6 +9,10 @@ from hstrat.hstrat import depth_proportional_resolution_algo
 
 
 @pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_algo._scry._IterRetainedRanks_.impls,
+)
+@pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
         1,
@@ -34,17 +38,17 @@ from hstrat.hstrat import depth_proportional_resolution_algo
     ],
 )
 def test_only_dwindling_over_time(
-    depth_proportional_resolution, time_sequence
+    impl, depth_proportional_resolution, time_sequence
 ):
     policy = depth_proportional_resolution_algo.Policy(
         depth_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            depth_proportional_resolution_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             cur_set = {
                 *which(
@@ -61,6 +65,10 @@ def test_only_dwindling_over_time(
             assert cur_set.issuperset(next_set - {num_strata_deposited})
 
 
+@pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_algo._scry._IterRetainedRanks_.impls,
+)
 @pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
@@ -86,16 +94,18 @@ def test_only_dwindling_over_time(
         (2**32,),
     ],
 )
-def test_ranks_sorted_and_unique(depth_proportional_resolution, time_sequence):
+def test_ranks_sorted_and_unique(
+    impl, depth_proportional_resolution, time_sequence
+):
     policy = depth_proportional_resolution_algo.Policy(
         depth_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            depth_proportional_resolution_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             assert all(
                 i < j
@@ -108,6 +118,10 @@ def test_ranks_sorted_and_unique(depth_proportional_resolution, time_sequence):
             )
 
 
+@pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_algo._scry._IterRetainedRanks_.impls,
+)
 @pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
@@ -134,17 +148,17 @@ def test_ranks_sorted_and_unique(depth_proportional_resolution, time_sequence):
     ],
 )
 def test_zero_and_last_ranks_retained(
-    depth_proportional_resolution, time_sequence
+    impl, depth_proportional_resolution, time_sequence
 ):
     policy = depth_proportional_resolution_algo.Policy(
         depth_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            depth_proportional_resolution_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             res = which(
                 policy,
@@ -160,6 +174,10 @@ def test_zero_and_last_ranks_retained(
                 assert next(res, None) is None
 
 
+@pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_algo._scry._IterRetainedRanks_.impls,
+)
 @pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
@@ -185,16 +203,16 @@ def test_zero_and_last_ranks_retained(
         (2**32,),
     ],
 )
-def test_ranks_valid(depth_proportional_resolution, time_sequence):
+def test_ranks_valid(impl, depth_proportional_resolution, time_sequence):
     policy = depth_proportional_resolution_algo.Policy(
         depth_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            depth_proportional_resolution_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             assert all(
                 isinstance(r, numbers.Integral)
@@ -203,6 +221,10 @@ def test_ranks_valid(depth_proportional_resolution, time_sequence):
             )
 
 
+@pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_algo._scry._IterRetainedRanks_.impls,
+)
 @pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
@@ -215,15 +237,13 @@ def test_ranks_valid(depth_proportional_resolution, time_sequence):
         100,
     ],
 )
-def test_eq(depth_proportional_resolution):
+def test_eq(impl, depth_proportional_resolution):
     policy = depth_proportional_resolution_algo.Policy(
         depth_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
 
     assert instance == instance
-    assert instance == depth_proportional_resolution_algo.IterRetainedRanks(
-        spec
-    )
+    assert instance == impl(spec)
     assert instance is not None
