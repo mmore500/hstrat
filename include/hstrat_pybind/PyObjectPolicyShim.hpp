@@ -75,9 +75,37 @@ public:
     ).template cast<HSTRAT_RANK_T>();
   }
 
-  // CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
-  // CalcMrcaUncertaintyRelUpperBoundPessimalRank
-  // CalcNumStrataRetainedUpperBound
+  double CalcMrcaUncertaintyRelUpperBound(
+    const HSTRAT_RANK_T first_num_strata_deposited,
+    const HSTRAT_RANK_T second_num_strata_deposited,
+    const HSTRAT_RANK_T actual_rank_of_mrca
+  ) const {
+    return policy_obj.attr("CalcMrcaUncertaintyRelUpperBound")(
+      first_num_strata_deposited,
+      second_num_strata_deposited,
+      actual_rank_of_mrca
+    ).template cast<double>();
+  }
+
+  double CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
+    const HSTRAT_RANK_T first_num_strata_deposited,
+    const HSTRAT_RANK_T second_num_strata_deposited
+  ) const {
+    return policy_obj.attr("CalcMrcaUncertaintyRelUpperBoundAtPessimalRank")(
+      first_num_strata_deposited,
+      second_num_strata_deposited
+    ).template cast<double>();
+  }
+
+  HSTRAT_RANK_T CalcMrcaUncertaintyRelUpperBoundPessimalRank(
+    const HSTRAT_RANK_T first_num_strata_deposited,
+    const HSTRAT_RANK_T second_num_strata_deposited
+  ) const {
+    return policy_obj.attr("CalcMrcaUncertaintyRelUpperBoundPessimalRank")(
+      first_num_strata_deposited,
+      second_num_strata_deposited
+    ).template cast<HSTRAT_RANK_T>();
+  }
 
   // scrying
   // CalcMrcaUncertaintyAbsExact

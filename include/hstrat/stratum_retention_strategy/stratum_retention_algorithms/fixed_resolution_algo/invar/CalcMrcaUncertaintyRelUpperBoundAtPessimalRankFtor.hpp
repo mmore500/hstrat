@@ -2,22 +2,12 @@
 #ifndef HSTRAT_STRATUM_RETENTION_STRATEGY_STRATUM_RETENTION_ALGORITHMS_FIXED_RESOLUTION_ALGO_INVAR_CALCMRCAUNCERTAINTYRELUPPERBOUNDATPESSIMALRANKFTOR_HPP_INCLUDE
 #define HSTRAT_STRATUM_RETENTION_STRATEGY_STRATUM_RETENTION_ALGORITHMS_FIXED_RESOLUTION_ALGO_INVAR_CALCMRCAUNCERTAINTYRELUPPERBOUNDATPESSIMALRANKFTOR_HPP_INCLUDE
 
+#include "../../impl/CalcMrcaUncertaintyRelUpperBoundAtPessimalRankFtor.hpp"
+
 namespace hstrat {
 namespace fixed_resolution_algo {
 
-struct CalcMrcaUncertaintyRelUpperBoundAtPessimalRankFtor {
-
-  template<typename POLICY_SPEC>
-  explicit CalcMrcaUncertaintyRelUpperBoundAtPessimalRankFtor(
-    const POLICY_SPEC&
-  ) {}
-
-  template<typename POLICY>
-  void operator()(const POLICY& policy) const {
-
-  }
-
-};
+using CalcMrcaUncertaintyRelUpperBoundAtPessimalRankFtor = hstrat::impl::CalcMrcaUncertaintyRelUpperBoundAtPessimalRankFtor;
 
 } // namespace fixed_resolution_algo
 } // namespace hstrat
