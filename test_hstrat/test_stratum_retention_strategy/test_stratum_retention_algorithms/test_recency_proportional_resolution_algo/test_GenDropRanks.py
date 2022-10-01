@@ -68,6 +68,10 @@ def test_impl_consistency(recency_proportional_resolution, time_sequence):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    recency_proportional_resolution_algo._enact._GenDropRanks_.impls,
+)
+@pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
         0,
@@ -93,12 +97,14 @@ def test_impl_consistency(recency_proportional_resolution, time_sequence):
         (2**32,),
     ],
 )
-def test_policy_consistency(recency_proportional_resolution, time_sequence):
+def test_policy_consistency(
+    impl, recency_proportional_resolution, time_sequence
+):
     policy = recency_proportional_resolution_algo.Policy(
         recency_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = recency_proportional_resolution_algo.GenDropRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         policy_requirement = {
             *policy.IterRetainedRanks(
@@ -111,7 +117,7 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
         }
         for which in (
             instance,
-            recency_proportional_resolution_algo.GenDropRanks(spec),
+            impl(spec),
         ):
             assert sorted(
                 which(
@@ -122,6 +128,10 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
             ) == sorted(policy_requirement)
 
 
+@pytest.mark.parametrize(
+    "impl",
+    recency_proportional_resolution_algo._enact._GenDropRanks_.impls,
+)
 @pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
@@ -135,13 +145,13 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
         100,
     ],
 )
-def test_eq(recency_proportional_resolution):
+def test_eq(impl, recency_proportional_resolution):
     policy = recency_proportional_resolution_algo.Policy(
         recency_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = recency_proportional_resolution_algo.GenDropRanks(spec)
+    instance = impl(spec)
 
     assert instance == instance
-    assert instance == recency_proportional_resolution_algo.GenDropRanks(spec)
+    assert instance == impl(spec)
     assert instance is not None

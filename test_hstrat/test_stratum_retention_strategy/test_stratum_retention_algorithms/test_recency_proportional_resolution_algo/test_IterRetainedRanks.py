@@ -9,6 +9,10 @@ from hstrat.hstrat import recency_proportional_resolution_algo
 
 
 @pytest.mark.parametrize(
+    "impl",
+    recency_proportional_resolution_algo._scry._IterRetainedRanks_.impls,
+)
+@pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
         0,
@@ -35,17 +39,17 @@ from hstrat.hstrat import recency_proportional_resolution_algo
     ],
 )
 def test_only_dwindling_over_time(
-    recency_proportional_resolution, time_sequence
+    impl, recency_proportional_resolution, time_sequence
 ):
     policy = recency_proportional_resolution_algo.Policy(
         recency_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = recency_proportional_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            recency_proportional_resolution_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             cur_set = {
                 *which(
@@ -62,6 +66,10 @@ def test_only_dwindling_over_time(
             assert cur_set.issuperset(next_set - {num_strata_deposited})
 
 
+@pytest.mark.parametrize(
+    "impl",
+    recency_proportional_resolution_algo._scry._IterRetainedRanks_.impls,
+)
 @pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
@@ -89,17 +97,17 @@ def test_only_dwindling_over_time(
     ],
 )
 def test_ranks_sorted_and_unique(
-    recency_proportional_resolution, time_sequence
+    impl, recency_proportional_resolution, time_sequence
 ):
     policy = recency_proportional_resolution_algo.Policy(
         recency_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = recency_proportional_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            recency_proportional_resolution_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             assert all(
                 i < j
@@ -112,6 +120,10 @@ def test_ranks_sorted_and_unique(
             )
 
 
+@pytest.mark.parametrize(
+    "impl",
+    recency_proportional_resolution_algo._scry._IterRetainedRanks_.impls,
+)
 @pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
@@ -139,17 +151,17 @@ def test_ranks_sorted_and_unique(
     ],
 )
 def test_zero_and_last_ranks_retained(
-    recency_proportional_resolution, time_sequence
+    impl, recency_proportional_resolution, time_sequence
 ):
     policy = recency_proportional_resolution_algo.Policy(
         recency_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = recency_proportional_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            recency_proportional_resolution_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             res = which(
                 policy,
@@ -165,6 +177,10 @@ def test_zero_and_last_ranks_retained(
                 assert next(res, None) is None
 
 
+@pytest.mark.parametrize(
+    "impl",
+    recency_proportional_resolution_algo._scry._IterRetainedRanks_.impls,
+)
 @pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
@@ -191,16 +207,16 @@ def test_zero_and_last_ranks_retained(
         (2**32,),
     ],
 )
-def test_ranks_valid(recency_proportional_resolution, time_sequence):
+def test_ranks_valid(impl, recency_proportional_resolution, time_sequence):
     policy = recency_proportional_resolution_algo.Policy(
         recency_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = recency_proportional_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            recency_proportional_resolution_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             assert all(
                 isinstance(r, numbers.Integral)
@@ -209,6 +225,10 @@ def test_ranks_valid(recency_proportional_resolution, time_sequence):
             )
 
 
+@pytest.mark.parametrize(
+    "impl",
+    recency_proportional_resolution_algo._scry._IterRetainedRanks_.impls,
+)
 @pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
@@ -222,15 +242,13 @@ def test_ranks_valid(recency_proportional_resolution, time_sequence):
         100,
     ],
 )
-def test_eq(recency_proportional_resolution):
+def test_eq(impl, recency_proportional_resolution):
     policy = recency_proportional_resolution_algo.Policy(
         recency_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = recency_proportional_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
 
     assert instance == instance
-    assert instance == recency_proportional_resolution_algo.IterRetainedRanks(
-        spec
-    )
+    assert instance == impl(spec)
     assert instance is not None

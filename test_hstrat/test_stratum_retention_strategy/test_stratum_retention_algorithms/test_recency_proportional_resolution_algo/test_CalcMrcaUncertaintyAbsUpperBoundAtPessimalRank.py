@@ -8,6 +8,10 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import
 
 
 @pytest.mark.parametrize(
+    "impl",
+    recency_proportional_resolution_algo._invar._CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank_.impls,
+)
+@pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
         0,
@@ -33,14 +37,14 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import
         ),
     ],
 )
-def test_policy_consistency(recency_proportional_resolution, time_sequence):
+def test_policy_consistency(
+    impl, recency_proportional_resolution, time_sequence
+):
     policy = recency_proportional_resolution_algo.Policy(
         recency_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = recency_proportional_resolution_algo.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
-        spec,
-    )
+    instance = impl(spec)
     for num_strata_deposited_a in time_sequence:
         for num_strata_deposited_b in (
             num_strata_deposited_a // 3,
@@ -67,9 +71,7 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
                 )
                 for which in (
                     instance,
-                    recency_proportional_resolution_algo.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
-                        spec
-                    ),
+                    impl(spec),
                 ):
                     assert (
                         which(
@@ -81,6 +83,10 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
                     )
 
 
+@pytest.mark.parametrize(
+    "impl",
+    recency_proportional_resolution_algo._invar._CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank_.impls,
+)
 @pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
@@ -94,20 +100,13 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
         100,
     ],
 )
-def test_eq(recency_proportional_resolution):
+def test_eq(impl, recency_proportional_resolution):
     policy = recency_proportional_resolution_algo.Policy(
         recency_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = recency_proportional_resolution_algo.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
-        spec
-    )
+    instance = impl(spec)
 
     assert instance == instance
-    assert (
-        instance
-        == recency_proportional_resolution_algo.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank(
-            spec,
-        )
-    )
+    assert instance == impl(spec)
     assert instance is not None
