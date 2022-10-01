@@ -5,6 +5,10 @@ from hstrat.hstrat import depth_proportional_resolution_tapered_algo
 
 
 @pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_tapered_algo._invar._CalcNumStrataRetainedUpperBound_.impls,
+)
+@pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
         1,
@@ -29,23 +33,21 @@ from hstrat.hstrat import depth_proportional_resolution_tapered_algo
         (2**32,),
     ],
 )
-def test_policy_consistency(depth_proportional_resolution, time_sequence):
+def test_policy_consistency(
+    impl, depth_proportional_resolution, time_sequence
+):
     policy = depth_proportional_resolution_tapered_algo.Policy(
         depth_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_tapered_algo.CalcNumStrataRetainedUpperBound(
-        spec
-    )
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         policy_requirement = policy.CalcNumStrataRetainedExact(
             num_strata_deposited,
         )
         for which in (
             instance,
-            depth_proportional_resolution_tapered_algo.CalcNumStrataRetainedUpperBound(
-                spec
-            ),
+            impl(spec),
         ):
             assert (
                 which(
@@ -56,6 +58,10 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
             )
 
 
+@pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_tapered_algo._invar._CalcNumStrataRetainedUpperBound_.impls,
+)
 @pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
@@ -68,20 +74,13 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
         100,
     ],
 )
-def test_eq(depth_proportional_resolution):
+def test_eq(impl, depth_proportional_resolution):
     policy = depth_proportional_resolution_tapered_algo.Policy(
         depth_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_tapered_algo.CalcNumStrataRetainedUpperBound(
-        spec
-    )
+    instance = impl(spec)
 
     assert instance == instance
-    assert (
-        instance
-        == depth_proportional_resolution_tapered_algo.CalcNumStrataRetainedUpperBound(
-            spec,
-        )
-    )
+    assert instance == impl(spec)
     assert instance is not None

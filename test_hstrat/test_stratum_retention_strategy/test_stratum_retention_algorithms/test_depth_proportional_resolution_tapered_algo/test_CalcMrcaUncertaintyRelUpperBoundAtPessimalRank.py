@@ -8,6 +8,10 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import
 
 
 @pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_tapered_algo._invar._CalcMrcaUncertaintyRelUpperBoundAtPessimalRank_.impls,
+)
+@pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
         1,
@@ -32,14 +36,14 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import
         ),
     ],
 )
-def test_policy_consistency(depth_proportional_resolution, time_sequence):
+def test_policy_consistency(
+    impl, depth_proportional_resolution, time_sequence
+):
     policy = depth_proportional_resolution_tapered_algo.Policy(
         depth_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_tapered_algo.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
-        spec,
-    )
+    instance = impl(spec)
     for num_strata_deposited_a in time_sequence:
         for num_strata_deposited_b in (
             num_strata_deposited_a // 3,
@@ -66,9 +70,7 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
                 )
                 for which in (
                     instance,
-                    depth_proportional_resolution_tapered_algo.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
-                        spec
-                    ),
+                    impl(spec),
                 ):
                     assert (
                         which(
@@ -81,6 +83,10 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_tapered_algo._invar._CalcMrcaUncertaintyRelUpperBoundAtPessimalRank_.impls,
+)
+@pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
         1,
@@ -92,20 +98,13 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
         100,
     ],
 )
-def test_eq(depth_proportional_resolution):
+def test_eq(impl, depth_proportional_resolution):
     policy = depth_proportional_resolution_tapered_algo.Policy(
         depth_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_tapered_algo.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
-        spec
-    )
+    instance = impl(spec)
 
     assert instance == instance
-    assert (
-        instance
-        == depth_proportional_resolution_tapered_algo.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
-            spec,
-        )
-    )
+    assert instance == impl(spec)
     assert instance is not None

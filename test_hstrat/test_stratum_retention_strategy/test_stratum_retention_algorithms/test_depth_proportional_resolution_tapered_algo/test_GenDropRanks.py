@@ -68,6 +68,10 @@ def test_impl_consistency(depth_proportional_resolution, time_sequence):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_tapered_algo._enact._GenDropRanks_.impls,
+)
+@pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
         1,
@@ -91,12 +95,14 @@ def test_impl_consistency(depth_proportional_resolution, time_sequence):
         ),
     ],
 )
-def test_policy_consistency(depth_proportional_resolution, time_sequence):
+def test_policy_consistency(
+    impl, depth_proportional_resolution, time_sequence
+):
     policy = depth_proportional_resolution_tapered_algo.Policy(
         depth_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_tapered_algo.GenDropRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         policy_requirement = {
             *policy.IterRetainedRanks(
@@ -109,7 +115,7 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
         }
         for which in (
             instance,
-            depth_proportional_resolution_tapered_algo.GenDropRanks(spec),
+            impl(spec),
         ):
             assert sorted(
                 which(
@@ -120,6 +126,10 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
             ) == sorted(policy_requirement)
 
 
+@pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_tapered_algo._enact._GenDropRanks_.impls,
+)
 @pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
@@ -132,15 +142,13 @@ def test_policy_consistency(depth_proportional_resolution, time_sequence):
         100,
     ],
 )
-def test_eq(depth_proportional_resolution):
+def test_eq(impl, depth_proportional_resolution):
     policy = depth_proportional_resolution_tapered_algo.Policy(
         depth_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = depth_proportional_resolution_tapered_algo.GenDropRanks(spec)
+    instance = impl(spec)
 
     assert instance == instance
-    assert instance == depth_proportional_resolution_tapered_algo.GenDropRanks(
-        spec
-    )
+    assert instance == impl(spec)
     assert instance is not None

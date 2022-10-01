@@ -7,6 +7,10 @@ from hstrat.hstrat import depth_proportional_resolution_tapered_algo
 
 
 @pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_tapered_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
         1,
@@ -18,21 +22,19 @@ from hstrat.hstrat import depth_proportional_resolution_tapered_algo
         100,
     ],
 )
-def test_init(depth_proportional_resolution):
+def test_init(impl, depth_proportional_resolution):
+    spec = impl(depth_proportional_resolution).GetSpec()
     assert (
-        depth_proportional_resolution_tapered_algo.Policy(
-            depth_proportional_resolution
-        ).GetSpec()
-        == depth_proportional_resolution_tapered_algo.Policy(
+        spec
+        == impl(
             policy_spec=depth_proportional_resolution_tapered_algo.PolicySpec(
                 depth_proportional_resolution
             ),
         ).GetSpec()
     )
+    assert spec == impl(policy_spec=spec).GetSpec()
 
-    policy = depth_proportional_resolution_tapered_algo.Policy(
-        depth_proportional_resolution
-    )
+    policy = impl(depth_proportional_resolution)
 
     # invariants
     assert callable(policy.CalcMrcaUncertaintyAbsUpperBound)
@@ -77,6 +79,10 @@ def test_pickle(depth_proportional_resolution):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_tapered_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
         1,
@@ -88,24 +94,22 @@ def test_pickle(depth_proportional_resolution):
         100,
     ],
 )
-def test_eq(depth_proportional_resolution):
-    policy = depth_proportional_resolution_tapered_algo.Policy(
-        depth_proportional_resolution
-    )
+def test_eq(impl, depth_proportional_resolution):
+    policy = impl(depth_proportional_resolution)
     assert policy == policy
-    assert policy == depth_proportional_resolution_tapered_algo.Policy(
-        depth_proportional_resolution
-    )
+    assert policy == impl(depth_proportional_resolution)
     assert not policy == policy.WithoutCalcRankAtColumnIndex()
     assert (
         policy.WithoutCalcRankAtColumnIndex()
         == policy.WithoutCalcRankAtColumnIndex()
     )
-    assert not policy == depth_proportional_resolution_tapered_algo.Policy(
-        depth_proportional_resolution + 1
-    )
+    assert not policy == impl(depth_proportional_resolution + 1)
 
 
+@pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_tapered_algo._Policy_.impls,
+)
 @pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
@@ -118,14 +122,15 @@ def test_eq(depth_proportional_resolution):
         100,
     ],
 )
-def test_GetSpec(depth_proportional_resolution):
-    assert depth_proportional_resolution_tapered_algo.Policy(
-        depth_proportional_resolution
-    ).GetSpec() == depth_proportional_resolution_tapered_algo.PolicySpec(
-        depth_proportional_resolution
-    )
+def test_GetSpec(impl, depth_proportional_resolution):
+    spec = impl(depth_proportional_resolution).GetSpec()
+    assert spec == type(spec)(depth_proportional_resolution)
 
 
+@pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_tapered_algo._Policy_.impls,
+)
 @pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
@@ -138,11 +143,9 @@ def test_GetSpec(depth_proportional_resolution):
         100,
     ],
 )
-def test_WithoutCalcRankAtColumnIndex(depth_proportional_resolution):
+def test_WithoutCalcRankAtColumnIndex(impl, depth_proportional_resolution):
 
-    original = depth_proportional_resolution_tapered_algo.Policy(
-        depth_proportional_resolution
-    )
+    original = impl(depth_proportional_resolution)
     stripped = original.WithoutCalcRankAtColumnIndex()
 
     assert stripped.CalcRankAtColumnIndex is None
@@ -194,26 +197,82 @@ def test_WithoutCalcRankAtColumnIndex(depth_proportional_resolution):
 
     # test chaining
     assert (
-        depth_proportional_resolution_tapered_algo.Policy(
-            depth_proportional_resolution,
-        ).WithoutCalcRankAtColumnIndex()
+        impl(depth_proportional_resolution).WithoutCalcRankAtColumnIndex()
         == stripped
     )
 
 
-def test_repr():
-    depth_proportional_resolution = 1
-    policy = depth_proportional_resolution_tapered_algo.Policy(
+@pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_tapered_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
+    "depth_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_repr(impl, depth_proportional_resolution):
+    policy = impl(
         depth_proportional_resolution,
     )
     assert str(depth_proportional_resolution) in repr(policy)
     assert policy.GetSpec().GetAlgoIdentifier() in repr(policy)
 
 
-def test_str():
-    depth_proportional_resolution = 1
-    policy = depth_proportional_resolution_tapered_algo.Policy(
-        depth_proportional_resolution,
-    )
+@pytest.mark.parametrize(
+    "impl",
+    depth_proportional_resolution_tapered_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
+    "depth_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_str(impl, depth_proportional_resolution):
+    policy = impl(depth_proportional_resolution)
     assert str(depth_proportional_resolution) in str(policy)
     assert policy.GetSpec().GetAlgoTitle() in str(policy)
+
+
+@pytest.mark.parametrize(
+    "depth_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "what",
+    [
+        lambda x: str(x),
+    ],
+)
+def test_consistency(depth_proportional_resolution, what):
+    assert (
+        len(
+            {
+                what(impl(depth_proportional_resolution))
+                for impl in depth_proportional_resolution_tapered_algo._Policy_.impls
+            }
+        )
+        == 1
+    )
