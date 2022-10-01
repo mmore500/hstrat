@@ -4,6 +4,8 @@
 
 #include <assert.h>
 
+#include "../../../../config/HSTRAT_RANK_T.hpp"
+
 #include "../../impl/CalcMrcaUncertaintyAbsUpperBoundWorstCaseFtor.hpp"
 
 namespace hstrat {
