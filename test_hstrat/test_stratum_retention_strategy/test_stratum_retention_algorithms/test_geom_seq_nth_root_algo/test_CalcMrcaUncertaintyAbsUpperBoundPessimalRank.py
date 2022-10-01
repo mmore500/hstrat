@@ -8,6 +8,10 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import
 
 
 @pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_algo._invar._CalcMrcaUncertaintyAbsUpperBoundPessimalRank_.impls,
+)
+@pytest.mark.parametrize(
     "degree",
     [
         1,
@@ -38,14 +42,10 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import
         ),
     ],
 )
-def test_policy_consistency(degree, interspersal, time_sequence):
+def test_policy_consistency(impl, degree, interspersal, time_sequence):
     policy = geom_seq_nth_root_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = (
-        geom_seq_nth_root_algo.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
-            spec,
-        )
-    )
+    instance = impl(spec)
     for num_strata_deposited_a in time_sequence:
         for num_strata_deposited_b in (
             num_strata_deposited_a // 3,
@@ -72,9 +72,7 @@ def test_policy_consistency(degree, interspersal, time_sequence):
                 )
                 for which in (
                     instance,
-                    geom_seq_nth_root_algo.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
-                        spec
-                    ),
+                    impl(spec),
                 ):
                     assert (
                         policy.CalcMrcaUncertaintyAbsUpperBound(
@@ -90,6 +88,10 @@ def test_policy_consistency(degree, interspersal, time_sequence):
                     )
 
 
+@pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_algo._invar._CalcMrcaUncertaintyAbsUpperBoundPessimalRank_.impls,
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -111,20 +113,11 @@ def test_policy_consistency(degree, interspersal, time_sequence):
         5,
     ],
 )
-def test_eq(degree, interspersal):
+def test_eq(impl, degree, interspersal):
     policy = geom_seq_nth_root_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = (
-        geom_seq_nth_root_algo.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
-            spec
-        )
-    )
+    instance = impl(spec)
 
     assert instance == instance
-    assert (
-        instance
-        == geom_seq_nth_root_algo.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
-            spec,
-        )
-    )
+    assert instance == impl(spec)
     assert instance is not None

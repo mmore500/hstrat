@@ -7,6 +7,10 @@ from hstrat.hstrat import geom_seq_nth_root_algo
 
 
 @pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_algo._scry._CalcMrcaUncertaintyAbsExact_.impls,
+)
+@pytest.mark.parametrize(
     "degree",
     [
         pytest.param(1, marks=pytest.mark.heavy_3a),
@@ -54,10 +58,10 @@ from hstrat.hstrat import geom_seq_nth_root_algo
         ),
     ],
 )
-def test_policy_consistency(degree, interspersal, time_sequence):
+def test_policy_consistency(impl, degree, interspersal, time_sequence):
     policy = geom_seq_nth_root_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_algo.CalcMrcaUncertaintyAbsExact(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         retained_ranks = np.fromiter(
             policy.IterRetainedRanks(num_strata_deposited),
@@ -89,7 +93,7 @@ def test_policy_consistency(degree, interspersal, time_sequence):
             assert policy_requirement >= 0
             for which in (
                 instance,
-                geom_seq_nth_root_algo.CalcMrcaUncertaintyAbsExact(spec),
+                impl(spec),
             ):
                 assert (
                     which(
@@ -102,6 +106,10 @@ def test_policy_consistency(degree, interspersal, time_sequence):
                 )
 
 
+@pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_algo._scry._CalcMrcaUncertaintyAbsExact_.impls,
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -123,10 +131,10 @@ def test_policy_consistency(degree, interspersal, time_sequence):
         5,
     ],
 )
-def test_policy_consistency_uneven_branches(degree, interspersal):
+def test_policy_consistency_uneven_branches(impl, degree, interspersal):
     policy = geom_seq_nth_root_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_algo.CalcMrcaUncertaintyAbsExact(spec)
+    instance = impl(spec)
     sample_durations = it.chain(
         range(10**2),
         np.logspace(7, 16, num=10, base=2, dtype="int"),
@@ -157,7 +165,7 @@ def test_policy_consistency_uneven_branches(degree, interspersal):
                 assert policy_requirement >= 0
                 for which in (
                     instance,
-                    geom_seq_nth_root_algo.CalcMrcaUncertaintyAbsExact(spec),
+                    impl(spec),
                 ):
                     assert (
                         which(
@@ -171,6 +179,10 @@ def test_policy_consistency_uneven_branches(degree, interspersal):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_algo._scry._CalcMrcaUncertaintyAbsExact_.impls,
+)
+@pytest.mark.parametrize(
     "degree",
     [
         1,
@@ -191,17 +203,21 @@ def test_policy_consistency_uneven_branches(degree, interspersal):
         5,
     ],
 )
-def test_eq(degree, interspersal):
+def test_eq(impl, degree, interspersal):
     policy = geom_seq_nth_root_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_algo.CalcMrcaUncertaintyAbsExact(spec)
+    instance = impl(spec)
 
     assert instance == instance
-    assert instance == geom_seq_nth_root_algo.CalcMrcaUncertaintyAbsExact(spec)
+    assert instance == impl(spec)
     assert instance is not None
 
 
 @pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_algo._scry._CalcMrcaUncertaintyAbsExact_.impls,
+)
+@pytest.mark.parametrize(
     "degree",
     [
         1,
@@ -222,10 +238,10 @@ def test_eq(degree, interspersal):
         5,
     ],
 )
-def test_negative_index(degree, interspersal):
+def test_negative_index(impl, degree, interspersal):
     policy = geom_seq_nth_root_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_algo.CalcMrcaUncertaintyAbsExact(spec)
+    instance = impl(spec)
 
     for diff in range(1, 100):
         assert instance(policy, 100, 100, -diff,) == instance(

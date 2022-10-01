@@ -88,6 +88,10 @@ def test_impl_consistency(degree, interspersal, time_sequence):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_algo._enact._GenDropRanks_.impls,
+)
+@pytest.mark.parametrize(
     "degree",
     [
         1,
@@ -123,10 +127,10 @@ def test_impl_consistency(degree, interspersal, time_sequence):
         ),
     ],
 )
-def test_policy_consistency(degree, interspersal, time_sequence):
+def test_policy_consistency(impl, degree, interspersal, time_sequence):
     policy = geom_seq_nth_root_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_algo.GenDropRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         policy_requirement = {
             *policy.IterRetainedRanks(
@@ -139,7 +143,7 @@ def test_policy_consistency(degree, interspersal, time_sequence):
         }
         for which in (
             instance,
-            geom_seq_nth_root_algo.GenDropRanks(spec),
+            impl(spec),
         ):
             assert sorted(
                 which(
@@ -150,6 +154,10 @@ def test_policy_consistency(degree, interspersal, time_sequence):
             ) == sorted(policy_requirement)
 
 
+@pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_algo._enact._GenDropRanks_.impls,
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -171,11 +179,11 @@ def test_policy_consistency(degree, interspersal, time_sequence):
         5,
     ],
 )
-def test_eq(degree, interspersal):
+def test_eq(impl, degree, interspersal):
     policy = geom_seq_nth_root_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_algo.GenDropRanks(spec)
+    instance = impl(spec)
 
     assert instance == instance
-    assert instance == geom_seq_nth_root_algo.GenDropRanks(spec)
+    assert instance == impl(spec)
     assert instance is not None
