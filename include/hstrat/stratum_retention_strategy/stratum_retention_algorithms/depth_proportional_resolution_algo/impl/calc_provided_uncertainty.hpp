@@ -4,6 +4,9 @@
 
 #include <assert.h>
 #include <bit>
+#include <type_traits>
+
+#include "../../../../../hstrat_auxlib/audit_cast.hpp"
 
 #include "../../../../config/HSTRAT_RANK_T.hpp"
 
@@ -25,7 +28,13 @@ HSTRAT_RANK_T calc_provided_uncertainty(
 
   // round down to lower or equal power of 2
   assert(max_uncertainty > 0);
-  return std::bit_floor(max_uncertainty);
+  if constexpr (std::is_signed_v<decltype(max_uncertainty)>) {
+    using as_unsigned_t = std::make_unsigned_t<decltype(max_uncertainty)>;
+    const auto as_unsigned = hstrat_auxlib::audit_cast<
+      as_unsigned_t
+    >(max_uncertainty);
+    return std::bit_floor(as_unsigned);
+  } else return std::bit_floor(max_uncertainty);
 
 }
 
