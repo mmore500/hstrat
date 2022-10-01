@@ -7,6 +7,10 @@ from hstrat.hstrat import fixed_resolution_algo
 
 
 @pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
     "fixed_resolution",
     [
         1,
@@ -17,15 +21,17 @@ from hstrat.hstrat import fixed_resolution_algo
         100,
     ],
 )
-def test_init(fixed_resolution):
+def test_init(impl, fixed_resolution):
+    spec = impl(fixed_resolution).GetSpec()
     assert (
-        fixed_resolution_algo.Policy(fixed_resolution).GetSpec()
-        == fixed_resolution_algo.Policy(
+        spec
+        == impl(
             policy_spec=fixed_resolution_algo.PolicySpec(fixed_resolution),
         ).GetSpec()
     )
+    assert spec == impl(policy_spec=spec).GetSpec()
 
-    policy = fixed_resolution_algo.Policy(fixed_resolution)
+    policy = impl(fixed_resolution)
 
     # invariants
     assert callable(policy.CalcMrcaUncertaintyAbsUpperBound)
@@ -45,6 +51,10 @@ def test_init(fixed_resolution):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
     "fixed_resolution",
     [
         1,
@@ -55,10 +65,10 @@ def test_init(fixed_resolution):
         100,
     ],
 )
-def test_eq(fixed_resolution):
-    policy = fixed_resolution_algo.Policy(fixed_resolution)
+def test_eq(impl, fixed_resolution):
+    policy = impl(fixed_resolution)
     assert policy == policy
-    assert policy == fixed_resolution_algo.Policy(fixed_resolution)
+    assert policy == impl(fixed_resolution)
     assert not policy == policy.WithoutCalcRankAtColumnIndex()
     assert (
         policy.WithoutCalcRankAtColumnIndex()
@@ -90,22 +100,9 @@ def test_pickle(fixed_resolution):
 
 
 @pytest.mark.parametrize(
-    "fixed_resolution",
-    [
-        1,
-        2,
-        3,
-        7,
-        42,
-        100,
-    ],
+    "impl",
+    fixed_resolution_algo._Policy_.impls,
 )
-def test_GetSpec(fixed_resolution):
-    assert fixed_resolution_algo.Policy(
-        fixed_resolution
-    ).GetSpec() == fixed_resolution_algo.PolicySpec(fixed_resolution)
-
-
 @pytest.mark.parametrize(
     "fixed_resolution",
     [
@@ -117,9 +114,29 @@ def test_GetSpec(fixed_resolution):
         100,
     ],
 )
-def test_WithoutCalcRankAtColumnIndex(fixed_resolution):
+def test_GetSpec(impl, fixed_resolution):
+    spec = impl(fixed_resolution).GetSpec()
+    assert spec == type(spec)(fixed_resolution)
 
-    original = fixed_resolution_algo.Policy(fixed_resolution)
+
+@pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
+    "fixed_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+def test_WithoutCalcRankAtColumnIndex(impl, fixed_resolution):
+
+    original = impl(fixed_resolution)
     stripped = original.WithoutCalcRankAtColumnIndex()
 
     assert stripped.CalcRankAtColumnIndex is None
@@ -167,22 +184,80 @@ def test_WithoutCalcRankAtColumnIndex(fixed_resolution):
 
     # test chaining
     assert (
-        fixed_resolution_algo.Policy(
+        impl(
             fixed_resolution,
         ).WithoutCalcRankAtColumnIndex()
         == stripped
     )
 
 
-def test_repr():
-    fixed_resolution = 1
-    policy = fixed_resolution_algo.Policy(fixed_resolution)
+@pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
+    "fixed_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+def test_repr(impl, fixed_resolution):
+    policy = impl(fixed_resolution)
     assert str(fixed_resolution) in repr(policy)
     assert policy.GetSpec().GetAlgoIdentifier() in repr(policy)
 
 
-def test_str():
-    fixed_resolution = 1
-    policy = fixed_resolution_algo.Policy(fixed_resolution)
+@pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
+    "fixed_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+def test_str(impl, fixed_resolution):
+    policy = impl(fixed_resolution)
     assert str(fixed_resolution) in str(policy)
     assert policy.GetSpec().GetAlgoTitle() in str(policy)
+
+
+@pytest.mark.parametrize(
+    "fixed_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "what",
+    [
+        lambda x: str(x),
+    ],
+)
+def test_consistency(fixed_resolution, what):
+    assert (
+        len(
+            {
+                what(impl(fixed_resolution))
+                for impl in fixed_resolution_algo._Policy_.impls
+            }
+        )
+        == 1
+    )

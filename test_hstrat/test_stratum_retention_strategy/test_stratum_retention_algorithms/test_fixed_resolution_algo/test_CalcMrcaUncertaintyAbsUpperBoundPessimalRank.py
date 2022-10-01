@@ -8,6 +8,10 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import
 
 
 @pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._invar._CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank_.impls,
+)
+@pytest.mark.parametrize(
     "fixed_resolution",
     [
         1,
@@ -31,14 +35,10 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import
         ),
     ],
 )
-def test_policy_consistency(fixed_resolution, time_sequence):
+def test_policy_consistency(impl, fixed_resolution, time_sequence):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = (
-        fixed_resolution_algo.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
-            spec,
-        )
-    )
+    instance = impl(spec)
     for num_strata_deposited_a in time_sequence:
         for num_strata_deposited_b in (
             num_strata_deposited_a // 3,
@@ -65,9 +65,7 @@ def test_policy_consistency(fixed_resolution, time_sequence):
                 )
                 for which in (
                     instance,
-                    fixed_resolution_algo.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
-                        spec
-                    ),
+                    impl(spec),
                 ):
                     assert (
                         policy.CalcMrcaUncertaintyAbsUpperBound(
@@ -84,6 +82,10 @@ def test_policy_consistency(fixed_resolution, time_sequence):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._invar._CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank_.impls,
+)
+@pytest.mark.parametrize(
     "fixed_resolution",
     [
         1,
@@ -94,20 +96,11 @@ def test_policy_consistency(fixed_resolution, time_sequence):
         100,
     ],
 )
-def test_eq(fixed_resolution):
+def test_eq(impl, fixed_resolution):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = (
-        fixed_resolution_algo.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
-            spec
-        )
-    )
+    instance = impl(spec)
 
     assert instance == instance
-    assert (
-        instance
-        == fixed_resolution_algo.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
-            spec,
-        )
-    )
+    assert instance == impl(spec)
     assert instance is not None

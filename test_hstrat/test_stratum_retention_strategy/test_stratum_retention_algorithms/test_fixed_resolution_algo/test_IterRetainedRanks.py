@@ -9,6 +9,10 @@ from hstrat.hstrat import fixed_resolution_algo
 
 
 @pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._scry._IterRetainedRanks_.impls,
+)
+@pytest.mark.parametrize(
     "fixed_resolution",
     [
         1,
@@ -31,14 +35,14 @@ from hstrat.hstrat import fixed_resolution_algo
         ),
     ],
 )
-def test_only_dwindling_over_time(fixed_resolution, time_sequence):
+def test_only_dwindling_over_time(impl, fixed_resolution, time_sequence):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = fixed_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            fixed_resolution_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             cur_set = {
                 *which(
@@ -56,6 +60,10 @@ def test_only_dwindling_over_time(fixed_resolution, time_sequence):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._scry._IterRetainedRanks_.impls,
+)
+@pytest.mark.parametrize(
     "fixed_resolution",
     [
         1,
@@ -78,14 +86,14 @@ def test_only_dwindling_over_time(fixed_resolution, time_sequence):
         ),
     ],
 )
-def test_ranks_sorted_and_unique(fixed_resolution, time_sequence):
+def test_ranks_sorted_and_unique(impl, fixed_resolution, time_sequence):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = fixed_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            fixed_resolution_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             assert all(
                 i < j
@@ -98,6 +106,10 @@ def test_ranks_sorted_and_unique(fixed_resolution, time_sequence):
             )
 
 
+@pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._scry._IterRetainedRanks_.impls,
+)
 @pytest.mark.parametrize(
     "fixed_resolution",
     [
@@ -122,14 +134,14 @@ def test_ranks_sorted_and_unique(fixed_resolution, time_sequence):
         ),
     ],
 )
-def test_zero_and_last_ranks_retained(fixed_resolution, time_sequence):
+def test_zero_and_last_ranks_retained(impl, fixed_resolution, time_sequence):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = fixed_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            fixed_resolution_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             res = which(
                 policy,
@@ -145,6 +157,10 @@ def test_zero_and_last_ranks_retained(fixed_resolution, time_sequence):
                 assert next(res, None) is None
 
 
+@pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._scry._IterRetainedRanks_.impls,
+)
 @pytest.mark.parametrize(
     "fixed_resolution",
     [
@@ -168,14 +184,14 @@ def test_zero_and_last_ranks_retained(fixed_resolution, time_sequence):
         ),
     ],
 )
-def test_ranks_valid(fixed_resolution, time_sequence):
+def test_ranks_valid(impl, fixed_resolution, time_sequence):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = fixed_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            fixed_resolution_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             assert all(
                 isinstance(r, numbers.Integral)
@@ -184,6 +200,10 @@ def test_ranks_valid(fixed_resolution, time_sequence):
             )
 
 
+@pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._scry._IterRetainedRanks_.impls,
+)
 @pytest.mark.parametrize(
     "fixed_resolution",
     [
@@ -195,11 +215,11 @@ def test_ranks_valid(fixed_resolution, time_sequence):
         100,
     ],
 )
-def test_eq(fixed_resolution):
+def test_eq(impl, fixed_resolution):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = fixed_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
 
     assert instance == instance
-    assert instance == fixed_resolution_algo.IterRetainedRanks(spec)
+    assert instance == impl(spec)
     assert instance is not None

@@ -5,6 +5,10 @@ from hstrat.hstrat import fixed_resolution_algo
 
 
 @pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._invar._CalcMrcaUncertaintyAbsUpperBound_.impls,
+)
+@pytest.mark.parametrize(
     "fixed_resolution",
     [
         1,
@@ -27,12 +31,10 @@ from hstrat.hstrat import fixed_resolution_algo
         ),
     ],
 )
-def test_policy_consistency(fixed_resolution, time_sequence):
+def test_policy_consistency(impl, fixed_resolution, time_sequence):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = fixed_resolution_algo.CalcMrcaUncertaintyAbsUpperBound(
-        spec,
-    )
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for actual_mrca_rank in (
             np.random.default_rng(num_strata_deposited,).integers(
@@ -50,7 +52,7 @@ def test_policy_consistency(fixed_resolution, time_sequence):
             )
             for which in (
                 instance,
-                fixed_resolution_algo.CalcMrcaUncertaintyAbsUpperBound(spec),
+                impl(spec),
             ):
                 assert (
                     which(
@@ -64,28 +66,9 @@ def test_policy_consistency(fixed_resolution, time_sequence):
 
 
 @pytest.mark.parametrize(
-    "fixed_resolution",
-    [
-        1,
-        2,
-        3,
-        7,
-        42,
-        100,
-    ],
+    "impl",
+    fixed_resolution_algo._invar._CalcMrcaUncertaintyAbsUpperBound_.impls,
 )
-def test_eq(fixed_resolution):
-    policy = fixed_resolution_algo.Policy(fixed_resolution)
-    spec = policy.GetSpec()
-    instance = fixed_resolution_algo.CalcMrcaUncertaintyAbsUpperBound(spec)
-
-    assert instance == instance
-    assert instance == fixed_resolution_algo.CalcMrcaUncertaintyAbsUpperBound(
-        spec,
-    )
-    assert instance is not None
-
-
 @pytest.mark.parametrize(
     "fixed_resolution",
     [
@@ -97,10 +80,35 @@ def test_eq(fixed_resolution):
         100,
     ],
 )
-def test_negative_index(fixed_resolution):
+def test_eq(impl, fixed_resolution):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = fixed_resolution_algo.CalcMrcaUncertaintyAbsUpperBound(spec)
+    instance = impl(spec)
+
+    assert instance == instance
+    assert instance == impl(spec)
+    assert instance is not None
+
+
+@pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._invar._CalcMrcaUncertaintyAbsUpperBound_.impls,
+)
+@pytest.mark.parametrize(
+    "fixed_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+def test_negative_index(impl, fixed_resolution):
+    policy = fixed_resolution_algo.Policy(fixed_resolution)
+    spec = policy.GetSpec()
+    instance = impl(spec)
 
     for diff in range(1, 100):
         assert instance(policy, 100, 100, -diff,) == instance(
