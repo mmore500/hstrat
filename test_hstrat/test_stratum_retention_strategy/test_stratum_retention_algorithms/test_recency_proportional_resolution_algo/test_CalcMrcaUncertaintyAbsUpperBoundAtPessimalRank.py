@@ -110,3 +110,54 @@ def test_eq(impl, recency_proportional_resolution):
     assert instance == instance
     assert instance == impl(spec)
     assert instance is not None
+
+
+@pytest.mark.parametrize(
+    "rep",
+    range(20),
+)
+@pytest.mark.parametrize(
+    "recency_proportional_resolution",
+    [
+        0,
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_impl_consistency(rep, recency_proportional_resolution):
+    policy = recency_proportional_resolution_algo.Policy(
+        recency_proportional_resolution
+    )
+    spec = policy.GetSpec()
+
+    rng = np.random.default_rng(rep)
+
+    for num_strata_deposited_a in (
+        rng.integers(1, 2**5),
+        rng.integers(1, 2**10),
+        rng.integers(1, 2**32),
+    ):
+        for num_strata_deposited_b in (
+            num_strata_deposited_a,
+            num_strata_deposited_a + 107,
+            rng.integers(1, num_strata_deposited_a + 1),
+        ):
+            bound = min(num_strata_deposited_a, num_strata_deposited_b)
+            assert (
+                len(
+                    {
+                        impl(spec)(
+                            policy,
+                            num_strata_deposited_a,
+                            num_strata_deposited_b,
+                        )
+                        for impl in recency_proportional_resolution_algo._invar._CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank_.impls
+                    }
+                )
+                == 1
+            )
