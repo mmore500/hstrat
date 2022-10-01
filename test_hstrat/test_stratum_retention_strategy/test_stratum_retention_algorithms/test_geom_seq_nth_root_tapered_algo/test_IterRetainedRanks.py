@@ -10,6 +10,10 @@ from hstrat.hstrat import geom_seq_nth_root_tapered_algo
 
 
 @pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_tapered_algo._scry._IterRetainedRanks_.impls,
+)
+@pytest.mark.parametrize(
     "degree",
     [
         pytest.param(1, marks=pytest.mark.heavy_3a),
@@ -57,14 +61,14 @@ from hstrat.hstrat import geom_seq_nth_root_tapered_algo
         ),
     ],
 )
-def test_only_dwindling_over_time(degree, interspersal, time_sequence):
+def test_only_dwindling_over_time(impl, degree, interspersal, time_sequence):
     policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_tapered_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            geom_seq_nth_root_tapered_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             cur_set = {
                 *which(
@@ -82,6 +86,10 @@ def test_only_dwindling_over_time(degree, interspersal, time_sequence):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_tapered_algo._scry._IterRetainedRanks_.impls,
+)
+@pytest.mark.parametrize(
     "degree",
     [
         pytest.param(1, marks=pytest.mark.heavy_3a),
@@ -129,14 +137,14 @@ def test_only_dwindling_over_time(degree, interspersal, time_sequence):
         ),
     ],
 )
-def test_ranks_sorted_and_unique(degree, interspersal, time_sequence):
+def test_ranks_sorted_and_unique(impl, degree, interspersal, time_sequence):
     policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_tapered_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            geom_seq_nth_root_tapered_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             assert all(
                 i < j
@@ -150,6 +158,10 @@ def test_ranks_sorted_and_unique(degree, interspersal, time_sequence):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_tapered_algo._scry._IterRetainedRanks_.impls,
+)
+@pytest.mark.parametrize(
     "degree",
     [
         pytest.param(1, marks=pytest.mark.heavy_3a),
@@ -197,14 +209,16 @@ def test_ranks_sorted_and_unique(degree, interspersal, time_sequence):
         ),
     ],
 )
-def test_zero_and_last_ranks_retained(degree, interspersal, time_sequence):
+def test_zero_and_last_ranks_retained(
+    impl, degree, interspersal, time_sequence
+):
     policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_tapered_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            geom_seq_nth_root_tapered_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             res = which(
                 policy,
@@ -221,6 +235,10 @@ def test_zero_and_last_ranks_retained(degree, interspersal, time_sequence):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_tapered_algo._scry._IterRetainedRanks_.impls,
+)
+@pytest.mark.parametrize(
     "degree",
     [
         pytest.param(1, marks=pytest.mark.heavy_3a),
@@ -268,14 +286,14 @@ def test_zero_and_last_ranks_retained(degree, interspersal, time_sequence):
         ),
     ],
 )
-def test_ranks_valid(degree, interspersal, time_sequence):
+def test_ranks_valid(impl, degree, interspersal, time_sequence):
     policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_tapered_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            geom_seq_nth_root_tapered_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             assert all(
                 isinstance(r, numbers.Integral)
@@ -284,6 +302,10 @@ def test_ranks_valid(degree, interspersal, time_sequence):
             )
 
 
+@pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_tapered_algo._scry._IterRetainedRanks_.impls,
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -305,11 +327,11 @@ def test_ranks_valid(degree, interspersal, time_sequence):
         5,
     ],
 )
-def test_eq(degree, interspersal):
+def test_eq(impl, degree, interspersal):
     policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_tapered_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
 
     assert instance == instance
-    assert instance == geom_seq_nth_root_tapered_algo.IterRetainedRanks(spec)
+    assert instance == impl(spec)
     assert instance is not None

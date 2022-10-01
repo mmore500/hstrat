@@ -7,6 +7,10 @@ from hstrat.hstrat import geom_seq_nth_root_tapered_algo
 
 
 @pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_tapered_algo._scry._CalcRankAtColumnIndex_.impls,
+)
+@pytest.mark.parametrize(
     "degree",
     [
         pytest.param(1, marks=pytest.mark.heavy_3a),
@@ -54,14 +58,14 @@ from hstrat.hstrat import geom_seq_nth_root_tapered_algo
         ),
     ],
 )
-def test_policy_consistency(degree, interspersal, time_sequence):
+def test_policy_consistency(impl, degree, interspersal, time_sequence):
     policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_tapered_algo.CalcRankAtColumnIndex(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            geom_seq_nth_root_tapered_algo.CalcRankAtColumnIndex(spec),
+            impl(spec),
         ):
             assert all(
                 calculated == policy_requirement
@@ -79,6 +83,10 @@ def test_policy_consistency(degree, interspersal, time_sequence):
             )
 
 
+@pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_tapered_algo._scry._CalcRankAtColumnIndex_.impls,
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -100,13 +108,11 @@ def test_policy_consistency(degree, interspersal, time_sequence):
         5,
     ],
 )
-def test_eq(degree, interspersal):
+def test_eq(impl, degree, interspersal):
     policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_tapered_algo.CalcRankAtColumnIndex(spec)
+    instance = impl(spec)
 
     assert instance == instance
-    assert instance == geom_seq_nth_root_tapered_algo.CalcRankAtColumnIndex(
-        spec
-    )
+    assert instance == impl(spec)
     assert instance is not None
