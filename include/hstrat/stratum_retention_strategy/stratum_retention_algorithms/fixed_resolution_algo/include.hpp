@@ -9,7 +9,7 @@
 #include "invar/CalcMrcaUncertaintyRelUpperBoundAtPessimalRankFtor.hpp"
 #include "invar/CalcMrcaUncertaintyRelUpperBoundFtor.hpp"
 #include "invar/CalcMrcaUncertaintyRelUpperBoundPessimalRankFtor.hpp"
-// #include "invar/CalcNumStrataRetainedUpperBoundFtor.hpp"
+#include "invar/CalcNumStrataRetainedUpperBoundFtor.hpp"
 // #include "scry/CalcMrcaUncertaintyAbsExactFtor.hpp"
 // #include "scry/CalcMrcaUncertaintyRelExactFtor.hpp"
 // #include "scry/CalcNumStrataRetainedExactFtor.hpp"

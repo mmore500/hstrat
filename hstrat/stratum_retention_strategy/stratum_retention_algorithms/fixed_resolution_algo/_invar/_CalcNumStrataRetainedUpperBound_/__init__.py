@@ -7,9 +7,9 @@ impls = [
     CalcNumStrataRetainedUpperBound,
 ]
 
-# PolicySpecNative = opyt.apply_if(
-# hstrat_import_native("._CalcNumStrataRetainedUpperBoundNative", __name__),
-#     lambda x: x.CalcNumStrataRetainedUpperBoundNative,
-# )
-# if CalcNumStrataRetainedUpperBoundNative is not None:
-#     impls.append(CalcNumStrataRetainedUpperBoundNative)
+CalcNumStrataRetainedUpperBoundNative = opyt.apply_if(
+    hstrat_import_native("._CalcNumStrataRetainedUpperBoundNative", __name__),
+    lambda x: x.CalcNumStrataRetainedUpperBoundNative,
+)
+if CalcNumStrataRetainedUpperBoundNative is not None:
+    impls.append(CalcNumStrataRetainedUpperBoundNative)
