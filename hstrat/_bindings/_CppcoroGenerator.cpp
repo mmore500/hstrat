@@ -20,6 +20,17 @@ PYBIND11_MODULE(_CppcoroGenerator, m) {
       return py::make_iterator(self.begin(), self.end());
     },
     py::keep_alive<0, 1>()
+  )
+  .def(
+    "__next__",
+    [](rank_generator_t& self) {
+      auto iter = self.begin();
+      if (iter == self.end()) throw py::stop_iteration{};
+
+      const auto res = *iter;
+      ++iter;
+      return res;
+    }
   );
 
 }
