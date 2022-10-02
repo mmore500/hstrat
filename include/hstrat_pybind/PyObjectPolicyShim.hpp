@@ -132,15 +132,11 @@ public:
     ).template cast<double>();
   }
 
-  HSTRAT_RANK_T CalcMrcaUncertaintyNumStrataRetainedExact(
-    const HSTRAT_RANK_T first_num_strata_deposited,
-    const HSTRAT_RANK_T second_num_strata_deposited,
-    const HSTRAT_RANK_T actual_rank_of_mrca
+  HSTRAT_RANK_T CalcNumStrataRetainedExact(
+    const HSTRAT_RANK_T num_strata_deposited
   ) const {
-    return policy_obj.attr("CalcMrcaUncertaintyNumStrataRetainedExact")(
-      first_num_strata_deposited,
-      second_num_strata_deposited,
-      actual_rank_of_mrca
+    return policy_obj.attr("CalcNumStrataRetainedExact")(
+      num_strata_deposited
     ).template cast<HSTRAT_RANK_T>();
   }
 
