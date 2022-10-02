@@ -1,8 +1,15 @@
+import pytest
+
 from hstrat import hstrat
+from hstrat.genome_instrumentation import stratum_ordered_stores
 
 
-def test_deposition():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_deposition(impl):
+    store1 = impl()
     assert store1.GetNumStrataRetained() == 0
 
     stratum1 = hstrat.HereditaryStratum(deposition_rank=0)
@@ -22,8 +29,12 @@ def test_deposition():
     assert store2.GetStratumAtColumnIndex(0) == stratum1
 
 
-def test_deletion1():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_deletion1(impl):
+    store1 = impl()
     stratum1 = hstrat.HereditaryStratum(deposition_rank=0)
     store1.DepositStratum(0, stratum1)
 
@@ -36,8 +47,12 @@ def test_deletion1():
     assert store2.GetStratumAtColumnIndex(0) == stratum1
 
 
-def test_deletion2():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_deletion2(impl):
+    store1 = impl()
     stratum1 = hstrat.HereditaryStratum(deposition_rank=0)
     store1.DepositStratum(0, stratum1)
 
@@ -51,13 +66,14 @@ def test_deletion2():
     assert store1.GetStratumAtColumnIndex(1) == stratum2
 
 
-def test_equality():
-    assert (
-        hstrat.HereditaryStratumOrderedStoreTree()
-        == hstrat.HereditaryStratumOrderedStoreTree()
-    )
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_equality(impl):
+    assert impl() == impl()
 
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+    store1 = impl()
     store1.DepositStratum(0, hstrat.HereditaryStratum(deposition_rank=0))
     store2 = store1.Clone()
     assert store1 == store2
@@ -66,9 +82,13 @@ def test_equality():
     assert store1 != store2
 
 
-def test_AscendingIter():
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_AscendingIter(impl):
     strata = [hstrat.HereditaryStratum() for __ in range(10)]
-    store = hstrat.HereditaryStratumOrderedStoreTree()
+    store = impl()
     for rank, stratum in enumerate(strata):
         store.DepositStratum(rank=rank, stratum=stratum)
 
@@ -77,8 +97,12 @@ def test_AscendingIter():
     ]
 
 
-def test_GetRankAtColumnIndex():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_GetRankAtColumnIndex(impl):
+    store1 = impl()
     store1.DepositStratum(0, hstrat.HereditaryStratum(deposition_rank=0))
     store1.DepositStratum(1, hstrat.HereditaryStratum(deposition_rank=1))
     store1.DepositStratum(2, hstrat.HereditaryStratum(deposition_rank=2))
@@ -91,8 +115,12 @@ def test_GetRankAtColumnIndex():
     assert store1.GetRankAtColumnIndex(1) == 2
 
 
-def test_GetStratumAtColumnIndex():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_GetStratumAtColumnIndex(impl):
+    store1 = impl()
     strata = [
         hstrat.HereditaryStratum(deposition_rank=rank) for rank in range(3)
     ]
@@ -107,8 +135,12 @@ def test_GetStratumAtColumnIndex():
     assert store1.GetStratumAtColumnIndex(1) == strata[2]
 
 
-def test_GetNumStrataRetained():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_GetNumStrataRetained(impl):
+    store1 = impl()
     for rank in range(5):
         assert store1.GetNumStrataRetained() == rank
         store1.DepositStratum(rank, hstrat.HereditaryStratum())
@@ -130,8 +162,12 @@ def test_GetNumStrataRetained():
     assert store1.GetNumStrataRetained() == 3
 
 
-def test_GetColumnIndexOfRank():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_GetColumnIndexOfRank(impl):
+    store1 = impl()
     ranks = [0, 8, 42, 63]
     for rank in ranks:
         store1.DepositStratum(
@@ -148,8 +184,12 @@ def test_GetColumnIndexOfRank():
     assert store1.GetColumnIndexOfRank(64) is None
 
 
-def test_IterRetainedRanks():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_IterRetainedRanks(impl):
+    store1 = impl()
     ranks = [0, 8, 42, 63]
     for rank in ranks:
         store1.DepositStratum(
@@ -160,8 +200,12 @@ def test_IterRetainedRanks():
     assert set(store1.IterRetainedRanks()) == set(ranks)
 
 
-def test_IterRankDifferentia1():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_IterRankDifferentia1(impl):
+    store1 = impl()
     ranks = [0, 8, 42, 63]
     strata = [hstrat.HereditaryStratum(deposition_rank=rank) for rank in ranks]
     for rank, stratum in zip(ranks, strata):
@@ -178,8 +222,12 @@ def test_IterRankDifferentia1():
     ] == [*store1.IterRankDifferentia(start_column_index=2)]
 
 
-def test_IterRankDifferentia2():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_IterRankDifferentia2(impl):
+    store1 = impl()
     ranks = [0, 8, 42, 63]
     strata = [hstrat.HereditaryStratum(deposition_rank=rank) for rank in ranks]
     for rank, stratum in zip(ranks, strata):
@@ -209,8 +257,12 @@ def test_IterRankDifferentia2():
     ]
 
 
-def test_DelRanks_getrank_impl1():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_DelRanks_getrank_impl1(impl):
+    store1 = impl()
     ranks = [0, 8, 42, 55, 63]
     strata = [hstrat.HereditaryStratum(deposition_rank=rank) for rank in ranks]
     for rank, stratum in zip(ranks, strata):
@@ -234,8 +286,12 @@ def test_DelRanks_getrank_impl1():
         ] == [*store1.IterRankDifferentia()]
 
 
-def test_DelRanks_getrank_impl2():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_DelRanks_getrank_impl2(impl):
+    store1 = impl()
     ranks = [0, 8, 42, 55, 63]
     strata = [hstrat.HereditaryStratum(deposition_rank=rank) for rank in ranks]
     for rank, stratum in zip(ranks, strata):
@@ -261,8 +317,12 @@ def test_DelRanks_getrank_impl2():
         ] == [*store1.IterRankDifferentia()]
 
 
-def test_DelRanks_getrank_impl3():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_DelRanks_getrank_impl3(impl):
+    store1 = impl()
     ranks = [0, 8, 42, 55, 63, 80]
     strata = [hstrat.HereditaryStratum(deposition_rank=rank) for rank in ranks]
     for rank, stratum in zip(ranks, strata):
@@ -288,8 +348,12 @@ def test_DelRanks_getrank_impl3():
         ] == [*store1.IterRankDifferentia()]
 
 
-def test_DelRanks_getrank_impl4():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_DelRanks_getrank_impl4(impl):
+    store1 = impl()
     ranks = [0, 8, 42, 55, 63]
     strata = [hstrat.HereditaryStratum(deposition_rank=rank) for rank in ranks]
     for rank, stratum in zip(ranks, strata):
@@ -313,8 +377,12 @@ def test_DelRanks_getrank_impl4():
         ] == [*store1.IterRankDifferentia()]
 
 
-def test_DelRanks_getrank_impl5():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_DelRanks_getrank_impl5(impl):
+    store1 = impl()
     ranks = [0, 8, 42, 55, 63]
     strata = [hstrat.HereditaryStratum(deposition_rank=rank) for rank in ranks]
     for rank, stratum in zip(ranks, strata):
@@ -336,8 +404,12 @@ def test_DelRanks_getrank_impl5():
         ] == [*store1.IterRankDifferentia()]
 
 
-def test_DelRanks_calcrank_impl1():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_DelRanks_calcrank_impl1(impl):
+    store1 = impl()
     ranks = [0, 8, 42, 55, 63]
     strata = [hstrat.HereditaryStratum() for rank in ranks]
     for rank, stratum in zip(ranks, strata):
@@ -368,8 +440,12 @@ def test_DelRanks_calcrank_impl1():
         ]
 
 
-def test_DelRanks_calcrank_impl2():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_DelRanks_calcrank_impl2(impl):
+    store1 = impl()
     ranks = [0, 8, 42, 55, 63]
     strata = [hstrat.HereditaryStratum() for rank in ranks]
     for rank, stratum in zip(ranks, strata):
@@ -402,8 +478,12 @@ def test_DelRanks_calcrank_impl2():
         ]
 
 
-def test_DelRanks_calcrank_impl3():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_DelRanks_calcrank_impl3(impl):
+    store1 = impl()
     ranks = [0, 8, 42, 55, 63, 80]
     strata = [hstrat.HereditaryStratum() for rank in ranks]
     for rank, stratum in zip(ranks, strata):
@@ -436,8 +516,12 @@ def test_DelRanks_calcrank_impl3():
         ]
 
 
-def test_DelRanks_calcrank_impl4():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_DelRanks_calcrank_impl4(impl):
+    store1 = impl()
     ranks = [0, 8, 42, 55, 63]
     strata = [hstrat.HereditaryStratum() for rank in ranks]
     for rank, stratum in zip(ranks, strata):
@@ -468,8 +552,12 @@ def test_DelRanks_calcrank_impl4():
         ]
 
 
-def test_DelRanks_calcrank_impl5():
-    store1 = hstrat.HereditaryStratumOrderedStoreTree()
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_DelRanks_calcrank_impl5(impl):
+    store1 = impl()
     ranks = [0, 8, 42, 55, 63]
     strata = [hstrat.HereditaryStratum() for rank in ranks]
     for rank, stratum in zip(ranks, strata):
@@ -498,7 +586,11 @@ def test_DelRanks_calcrank_impl5():
         ]
 
 
-def test_DelRanks_getrank_sideffects():
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_DelRanks_getrank_sideffects(impl):
     store1 = hstrat.HereditaryStratumOrderedStoreDict()
     ranks = [0, 8, 42, 55, 63]
     strata = [hstrat.HereditaryStratum(deposition_rank=rank) for rank in ranks]
@@ -522,7 +614,11 @@ def test_DelRanks_getrank_sideffects():
         ] == [*store2.IterRankDifferentia()]
 
 
-def test_DelRanks_calcrank_sideffects():
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
+)
+def test_DelRanks_calcrank_sideffects(impl):
     store1 = hstrat.HereditaryStratumOrderedStoreDict()
     ranks = [0, 8, 42, 55, 63]
     strata = [hstrat.HereditaryStratum() for rank in ranks]
