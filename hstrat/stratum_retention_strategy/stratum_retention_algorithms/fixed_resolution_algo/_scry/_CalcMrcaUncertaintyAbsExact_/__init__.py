@@ -7,9 +7,9 @@ impls = [
     CalcMrcaUncertaintyAbsExact,
 ]
 
-# PolicySpecNative = opyt.apply_if(
-# hstrat_import_native("._CalcMrcaUncertaintyAbsExactNative", __name__),
-#     lambda x: x.CalcMrcaUncertaintyAbsExactNative,
-# )
-# if CalcMrcaUncertaintyAbsExactNative is not None:
-#     impls.append(CalcMrcaUncertaintyAbsExactNative)
+CalcMrcaUncertaintyAbsExactNative = opyt.apply_if(
+    hstrat_import_native("._CalcMrcaUncertaintyAbsExactNative", __name__),
+    lambda x: x.CalcMrcaUncertaintyAbsExactNative,
+)
+if CalcMrcaUncertaintyAbsExactNative is not None:
+    impls.append(CalcMrcaUncertaintyAbsExactNative)

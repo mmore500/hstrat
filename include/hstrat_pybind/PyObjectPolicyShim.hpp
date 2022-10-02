@@ -108,9 +108,42 @@ public:
   }
 
   // scrying
-  // CalcMrcaUncertaintyAbsExact
-  // CalcMrcaUncertaintyRelExact
-  // CalcNumStrataRetainedExact
+  HSTRAT_RANK_T CalcMrcaUncertaintyAbsExact(
+    const HSTRAT_RANK_T first_num_strata_deposited,
+    const HSTRAT_RANK_T second_num_strata_deposited,
+    const HSTRAT_RANK_T actual_rank_of_mrca
+  ) const {
+    return policy_obj.attr("CalcMrcaUncertaintyAbsExact")(
+      first_num_strata_deposited,
+      second_num_strata_deposited,
+      actual_rank_of_mrca
+    ).template cast<HSTRAT_RANK_T>();
+  }
+
+  double CalcMrcaUncertaintyRelExact(
+    const HSTRAT_RANK_T first_num_strata_deposited,
+    const HSTRAT_RANK_T second_num_strata_deposited,
+    const HSTRAT_RANK_T actual_rank_of_mrca
+  ) const {
+    return policy_obj.attr("CalcMrcaUncertaintyRelExact")(
+      first_num_strata_deposited,
+      second_num_strata_deposited,
+      actual_rank_of_mrca
+    ).template cast<double>();
+  }
+
+  HSTRAT_RANK_T CalcMrcaUncertaintyNumStrataRetainedExact(
+    const HSTRAT_RANK_T first_num_strata_deposited,
+    const HSTRAT_RANK_T second_num_strata_deposited,
+    const HSTRAT_RANK_T actual_rank_of_mrca
+  ) const {
+    return policy_obj.attr("CalcMrcaUncertaintyNumStrataRetainedExact")(
+      first_num_strata_deposited,
+      second_num_strata_deposited,
+      actual_rank_of_mrca
+    ).template cast<HSTRAT_RANK_T>();
+  }
+
   // CalcRankAtColumnIndex
   // IterRetainedRanks
 
