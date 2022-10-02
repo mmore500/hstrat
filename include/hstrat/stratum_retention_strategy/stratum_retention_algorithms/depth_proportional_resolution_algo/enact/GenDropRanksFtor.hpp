@@ -24,6 +24,10 @@ struct GenDropRanksFtor {
   template<typename POLICY_SPEC>
   explicit GenDropRanksFtor(const POLICY_SPEC&) {}
 
+  consteval bool operator==(const GenDropRanksFtor& other) const {
+    return true;
+  }
+
   /**
   * @warning: returned generator lifetime cannot exceed policy's
   * (returned generator holds a reference to policy)

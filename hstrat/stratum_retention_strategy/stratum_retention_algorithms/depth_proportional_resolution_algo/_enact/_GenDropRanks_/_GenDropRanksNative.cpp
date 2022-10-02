@@ -41,6 +41,7 @@ PYBIND11_MODULE(_GenDropRanksNative, m) {
       return std::make_unique<self_t>(policy_spec);
     })
   )
+  .def("__eq__", &self_t::operator==)
   .def(
     "__call__",
     [](
