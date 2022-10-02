@@ -172,16 +172,14 @@ def test_impl_consistency(fixed_resolution, time_sequence):
         assert (
             len(
                 {
-                    (
-                        tuple(
+                    tuple(
+                        sorted(
                             impl(spec)(
                                 policy,
                                 gen,
                                 policy.IterRetainedRanks(gen),
                             )
-                        ),
-                        gen,
-                        fixed_resolution,
+                        )
                     )
                     for impl in it.chain(
                         fixed_resolution_algo._enact._GenDropRanks_.impls,
