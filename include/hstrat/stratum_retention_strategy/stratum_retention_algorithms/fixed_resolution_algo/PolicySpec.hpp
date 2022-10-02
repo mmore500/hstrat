@@ -49,7 +49,7 @@ public:
 
   std::string Repr() const {
     return fmt::format(
-      "{}(fixed_resolution={})",
+      "{}._PolicySpec_.PolicySpecNative(fixed_resolution={})",
       GetAlgoIdentifier(),
       GetFixedResolution()
     );

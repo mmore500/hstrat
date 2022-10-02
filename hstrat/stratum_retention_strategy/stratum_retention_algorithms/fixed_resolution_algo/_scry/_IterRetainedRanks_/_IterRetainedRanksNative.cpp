@@ -5,8 +5,8 @@
 
 #include <hstrat/config/HSTRAT_RANK_T.hpp>
 #include <hstrat_pybind/PyObjectPolicyShim.hpp>
-#include <hstrat/stratum_retention_strategy/stratum_retention_algorithms/fixed_resolution_algo/scry/IterRetainedRanksFtor.hpp>
 #include <hstrat/stratum_retention_strategy/stratum_retention_algorithms/fixed_resolution_algo/PolicySpec.hpp>
+#include <hstrat/stratum_retention_strategy/stratum_retention_algorithms/fixed_resolution_algo/scry/IterRetainedRanksFtor.hpp>
 
 namespace py = pybind11;
 namespace algo = hstrat::fixed_resolution_algo;

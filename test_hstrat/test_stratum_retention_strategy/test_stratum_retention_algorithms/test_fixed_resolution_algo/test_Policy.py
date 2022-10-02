@@ -141,47 +141,6 @@ def test_WithoutCalcRankAtColumnIndex(impl, fixed_resolution):
 
     assert stripped.CalcRankAtColumnIndex is None
 
-    assert (
-        original.CalcMrcaUncertaintyAbsUpperBound
-        == stripped.CalcMrcaUncertaintyAbsUpperBound
-    )
-    assert (
-        original.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
-        == stripped.CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank
-    )
-    assert (
-        original.CalcMrcaUncertaintyAbsUpperBoundPessimalRank
-        == stripped.CalcMrcaUncertaintyAbsUpperBoundPessimalRank
-    )
-    assert (
-        original.CalcMrcaUncertaintyRelUpperBound
-        == stripped.CalcMrcaUncertaintyRelUpperBound
-    )
-    assert (
-        original.CalcMrcaUncertaintyRelUpperBoundPessimalRank
-        == stripped.CalcMrcaUncertaintyRelUpperBoundPessimalRank
-    )
-    assert (
-        original.CalcNumStrataRetainedUpperBound
-        == stripped.CalcNumStrataRetainedUpperBound
-    )
-    # scrying
-    assert (
-        original.CalcMrcaUncertaintyAbsExact
-        == stripped.CalcMrcaUncertaintyAbsExact
-    )
-    assert (
-        original.CalcMrcaUncertaintyRelExact
-        == stripped.CalcMrcaUncertaintyRelExact
-    )
-    assert (
-        original.CalcNumStrataRetainedExact
-        == stripped.CalcNumStrataRetainedExact
-    )
-    assert original.IterRetainedRanks == stripped.IterRetainedRanks
-    # enactment
-    assert original.GenDropRanks == stripped.GenDropRanks
-
     # test chaining
     assert (
         impl(

@@ -7,9 +7,9 @@ impls = [
     Policy,
 ]
 
-# PolicyNative = opyt.apply_if(
-#     hstrat_import_native("._PolicyNative", __name__),
-#     lambda x: x.PolicyNative,
-# )
-# if PolicyNative is not None:
-#     impls.append(PolicyNative)
+PolicyNative = opyt.apply_if(
+    hstrat_import_native("._PolicyNative", __name__),
+    lambda x: x.PolicyNative,
+)
+if PolicyNative is not None:
+    impls.append(PolicyNative)

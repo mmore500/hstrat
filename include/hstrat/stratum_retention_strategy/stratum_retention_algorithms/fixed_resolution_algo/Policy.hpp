@@ -26,21 +26,21 @@ namespace fixed_resolution_algo {
 template <
   typename POLICY_SPEC=hstrat::fixed_resolution_algo::PolicySpec
 >
-using Policy = PolicyCoupler<
+using Policy = hstrat::detail::PolicyCoupler<
   POLICY_SPEC,
   GenDropRanksFtor,
-  CalcMrcaUncertaintyAbsUpperBoundFtor,
   CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankFtor,
   CalcMrcaUncertaintyAbsUpperBoundFtor,
   CalcMrcaUncertaintyAbsUpperBoundPessimalRankFtor,
   CalcMrcaUncertaintyRelUpperBoundAtPessimalRankFtor,
+  CalcMrcaUncertaintyRelUpperBoundFtor,
   CalcMrcaUncertaintyRelUpperBoundPessimalRankFtor,
   CalcNumStrataRetainedUpperBoundFtor,
   CalcMrcaUncertaintyAbsExactFtor,
   CalcMrcaUncertaintyRelExactFtor,
   CalcNumStrataRetainedExactFtor,
   CalcRankAtColumnIndexFtor,
-  IterRetainedRanksFtor,
+  IterRetainedRanksFtor
 >;
 
 } // namespace fixed_resolution_algo

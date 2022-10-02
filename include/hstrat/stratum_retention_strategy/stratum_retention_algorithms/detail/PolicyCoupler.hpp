@@ -2,7 +2,12 @@
 #ifndef HSTRAT_STRATUM_RETENTION_STRATEGY_STRATUM_RETENTION_ALGORITHMS_DETAIL_POLICYCOUPLER_HPP_INCLUDE
 #define HSTRAT_STRATUM_RETENTION_STRATEGY_STRATUM_RETENTION_ALGORITHMS_DETAIL_POLICYCOUPLER_HPP_INCLUDE
 
+#include <tuple>
 #include <utility>
+
+#include "../../../../../third-party/fmt/include/fmt/core.h"
+
+#include "Monostate.hpp"
 
 namespace hstrat {
 namespace detail {
@@ -15,8 +20,8 @@ template<
   typename CALC_MRCA_UNCERTAINTY_ABS_UPPER_BOUND_AT_PESSIMAL_RANK_FTOR,
   typename CALC_MRCA_UNCERTAINTY_ABS_UPPER_BOUND_FTOR,
   typename CALC_MRCA_UNCERTAINTY_ABS_UPPER_BOUND_PESSIMAL_RANK_FTOR,
-  typename CALC_MRCA_UNCERTAINTY_REL_UPPER_BOUND_FTOR,
   typename CALC_MRCA_UNCERTAINTY_REL_UPPER_BOUND_AT_PESSIMAL_RANK_FTOR,
+  typename CALC_MRCA_UNCERTAINTY_REL_UPPER_BOUND_FTOR,
   typename CALC_MRCA_UNCERTAINTY_REL_UPPER_BOUND_PESSIMAL_RANK_FTOR,
   typename CALC_NUM_STRATA_RETAINED_UPPER_BOUND_FTOR,
   // scrying
@@ -91,7 +96,75 @@ public:
     , iter_retained_ranks_ftor(spec)
   { }
 
+  constexpr bool operator==(const PolicyCoupler& other) const {
+    return std::tuple{
+      spec//,
+      // gen_drop_ranks_ftor,
+      // calc_mrca_uncertainty_abs_upper_bound_at_pessimal_rank_ftor,
+      // calc_mrca_uncertainty_abs_upper_bound_ftor,
+      // calc_mrca_uncertainty_abs_upper_bound_pessimal_rank_ftor,
+      // calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor,
+      // calc_mrca_uncertainty_rel_upper_bound_ftor,
+      // calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor,
+      // calc_num_strata_retained_upper_bound_ftor,
+      // calc_mrca_uncertainty_abs_exact_ftor,
+      // calc_mrca_uncertainty_rel_exact_ftor,
+      // calc_num_strata_retained_exact_ftor,
+      // calc_rank_at_column_index_ftor,
+      // iter_retained_ranks_ftor
+    } == std::tuple{
+      other.spec//,
+      // other.gen_drop_ranks_ftor,
+      // other.calc_mrca_uncertainty_abs_upper_bound_at_pessimal_rank_ftor,
+      // other.calc_mrca_uncertainty_abs_upper_bound_ftor,
+      // other.calc_mrca_uncertainty_abs_upper_bound_pessimal_rank_ftor,
+      // other.calc_mrca_uncertainty_rel_upper_bound_at_pessimal_rank_ftor,
+      // other.calc_mrca_uncertainty_rel_upper_bound_ftor,
+      // other.calc_mrca_uncertainty_rel_upper_bound_pessimal_rank_ftor,
+      // other.calc_num_strata_retained_upper_bound_ftor,
+      // other.calc_mrca_uncertainty_abs_exact_ftor,
+      // other.calc_mrca_uncertainty_rel_exact_ftor,
+      // other.calc_num_strata_retained_exact_ftor,
+      // other.calc_rank_at_column_index_ftor,
+      // other.iter_retained_ranks_ftor
+    };
+  }
+
   const spec_t& GetSpec() const { return spec; }
+
+  using without_calc_rank_at_column_index_t = hstrat::detail::PolicyCoupler<
+    POLICY_SPEC,
+    // enactment
+    GEN_DROP_RANKS_FTOR,
+    // invariants
+    CALC_MRCA_UNCERTAINTY_ABS_UPPER_BOUND_AT_PESSIMAL_RANK_FTOR,
+    CALC_MRCA_UNCERTAINTY_ABS_UPPER_BOUND_FTOR,
+    CALC_MRCA_UNCERTAINTY_ABS_UPPER_BOUND_PESSIMAL_RANK_FTOR,
+    CALC_MRCA_UNCERTAINTY_REL_UPPER_BOUND_AT_PESSIMAL_RANK_FTOR,
+    CALC_MRCA_UNCERTAINTY_REL_UPPER_BOUND_FTOR,
+    CALC_MRCA_UNCERTAINTY_REL_UPPER_BOUND_PESSIMAL_RANK_FTOR,
+    CALC_NUM_STRATA_RETAINED_UPPER_BOUND_FTOR,
+    // scrying
+    CALC_MRCA_UNCERTAINTY_ABS_EXACT_FTOR,
+    CALC_MRCA_UNCERTAINTY_REL_EXACT_FTOR,
+    CALC_NUM_STRATA_RETAINED_EXACT_FTOR,
+    hstrat::detail::Monostate,
+    ITER_RETAINED_RANKS_FTOR
+  >;
+
+  const auto WithoutCalcRankAtColumnIndex() const {
+    return without_calc_rank_at_column_index_t{spec};
+  }
+
+  std::string Repr() const {
+    return fmt::format(
+      "{}._Policy_.Policy(policy_spec={})",
+      spec.GetAlgoIdentifier(),
+      spec.Repr()
+    );
+  }
+
+  std::string Str() const { return spec.Str(); }
 
   // enactment
   template <typename... Args>
