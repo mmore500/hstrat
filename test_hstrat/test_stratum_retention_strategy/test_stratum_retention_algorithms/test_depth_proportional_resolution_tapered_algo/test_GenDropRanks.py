@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from hstrat._auxiliary_lib import all_same
+from hstrat._testing import iter_ftor_shims, iter_no_calcrank_ftor_shims
 from hstrat.hstrat import depth_proportional_resolution_tapered_algo
 
 
@@ -152,3 +153,66 @@ def test_eq(impl, depth_proportional_resolution):
     assert instance == instance
     assert instance == impl(spec)
     assert instance is not None
+
+
+@pytest.mark.parametrize(
+    "depth_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "time_sequence",
+    [
+        range(10**2),
+        np.random.default_rng(1).integers(
+            low=0,
+            high=2**32,
+            size=10**2,
+        ),
+    ],
+)
+def test_impl_consistency(depth_proportional_resolution, time_sequence):
+    policy = depth_proportional_resolution_tapered_algo.Policy(
+        depth_proportional_resolution
+    )
+    spec = policy.GetSpec()
+
+    for gen in time_sequence:
+        assert (
+            len(
+                {
+                    (
+                        tuple(
+                            sorted(
+                                impl(spec)(
+                                    policy,
+                                    gen,
+                                    policy.IterRetainedRanks(gen),
+                                )
+                            )
+                        ),
+                        gen,
+                        depth_proportional_resolution,
+                    )
+                    for impl in it.chain(
+                        depth_proportional_resolution_tapered_algo._enact._GenDropRanks_.impls,
+                        iter_ftor_shims(
+                            lambda p: p.GenDropRanks,
+                            depth_proportional_resolution_tapered_algo._Policy_.impls,
+                        ),
+                        iter_no_calcrank_ftor_shims(
+                            lambda p: p.GenDropRanks,
+                            depth_proportional_resolution_tapered_algo._Policy_.impls,
+                        ),
+                    )
+                }
+            )
+            == 1
+        )
