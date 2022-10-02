@@ -3,6 +3,7 @@ import itertools as it
 import numpy as np
 import pytest
 
+from hstrat._testing import iter_ftor_shims, iter_no_calcrank_ftor_shims
 from hstrat.hstrat import geom_seq_nth_root_algo
 
 
@@ -116,3 +117,67 @@ def test_eq(impl, degree, interspersal):
     assert instance == instance
     assert instance == impl(spec)
     assert instance is not None
+
+
+@pytest.mark.parametrize(
+    "rep",
+    range(5),
+)
+@pytest.mark.parametrize(
+    "degree",
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "interspersal",
+    [
+        1,
+        2,
+        5,
+    ],
+)
+def test_impl_consistency(rep, degree, interspersal):
+    policy = geom_seq_nth_root_algo.Policy(degree, interspersal)
+    spec = policy.GetSpec()
+
+    rng = np.random.default_rng(rep)
+
+    for num_strata_deposited in (
+        rng.integers(1, 2**5),
+        rng.integers(1, 2**10),
+        rng.integers(1, 2**32),
+    ):
+        for index in (
+            0,
+            policy.CalcNumStrataRetainedExact(num_strata_deposited) - 1,
+            rng.integers(
+                0, policy.CalcNumStrataRetainedExact(num_strata_deposited)
+            ),
+        ):
+            assert (
+                len(
+                    {
+                        impl(spec)(
+                            policy,
+                            index,
+                            num_strata_deposited,
+                        )
+                        for impl in it.chain(
+                            geom_seq_nth_root_algo._scry._CalcRankAtColumnIndex_.impls,
+                            iter_ftor_shims(
+                                lambda p: p.CalcRankAtColumnIndex,
+                                geom_seq_nth_root_algo._Policy_.impls,
+                            ),
+                        )
+                    }
+                )
+                == 1
+            )
