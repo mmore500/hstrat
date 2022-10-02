@@ -591,7 +591,7 @@ def test_DelRanks_calcrank_impl5(impl):
     stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
 )
 def test_DelRanks_getrank_sideffects(impl):
-    store1 = hstrat.HereditaryStratumOrderedStoreDict()
+    store1 = impl()
     ranks = [0, 8, 42, 55, 63]
     strata = [hstrat.HereditaryStratum(deposition_rank=rank) for rank in ranks]
     for rank, stratum in zip(ranks, strata):
@@ -619,7 +619,7 @@ def test_DelRanks_getrank_sideffects(impl):
     stratum_ordered_stores._HereditaryStratumOrderedStoreTree_.impls,
 )
 def test_DelRanks_calcrank_sideffects(impl):
-    store1 = hstrat.HereditaryStratumOrderedStoreDict()
+    store1 = impl()
     ranks = [0, 8, 42, 55, 63]
     strata = [hstrat.HereditaryStratum() for rank in ranks]
     for rank, stratum in zip(ranks, strata):
