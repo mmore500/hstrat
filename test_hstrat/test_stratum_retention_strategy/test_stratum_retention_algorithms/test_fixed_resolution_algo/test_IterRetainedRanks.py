@@ -1,3 +1,4 @@
+import itertools as it
 import numbers
 
 from iterpop import iterpop as ip
@@ -5,6 +6,7 @@ import numpy as np
 import pytest
 
 from hstrat._auxiliary_lib import pairwise
+from hstrat._testing import iter_ftor_shims, iter_no_calcrank_ftor_shims
 from hstrat.hstrat import fixed_resolution_algo
 
 
@@ -223,3 +225,56 @@ def test_eq(impl, fixed_resolution):
     assert instance == instance
     assert instance == impl(spec)
     assert instance is not None
+
+
+@pytest.mark.parametrize(
+    "fixed_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "time_sequence",
+    [
+        range(10),
+        np.random.default_rng(1).integers(
+            low=0,
+            high=10**2,
+            size=10,
+        ),
+    ],
+)
+def test_impl_consistency(fixed_resolution, time_sequence):
+    policy = fixed_resolution_algo.Policy(fixed_resolution)
+    spec = policy.GetSpec()
+
+    for gen in time_sequence:
+        assert (
+            len(
+                {
+                    tuple(
+                        impl(spec)(
+                            policy,
+                            gen,
+                        )
+                    )
+                    for impl in it.chain(
+                        fixed_resolution_algo._scry._IterRetainedRanks_.impls,
+                        iter_ftor_shims(
+                            lambda p: p.IterRetainedRanks,
+                            fixed_resolution_algo._Policy_.impls,
+                        ),
+                        iter_no_calcrank_ftor_shims(
+                            lambda p: p.IterRetainedRanks,
+                            fixed_resolution_algo._Policy_.impls,
+                        ),
+                    )
+                }
+            )
+            == 1
+        )
