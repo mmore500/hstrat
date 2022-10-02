@@ -1,6 +1,9 @@
+import itertools as it
+
 import numpy as np
 import pytest
 
+from hstrat._testing import iter_ftor_shims, iter_no_calcrank_ftor_shims
 from hstrat.hstrat import depth_proportional_resolution_tapered_algo
 
 
@@ -128,7 +131,17 @@ def test_impl_consistency(depth_proportional_resolution, time_sequence):
                         policy,
                         gen,
                     )
-                    for impl in depth_proportional_resolution_tapered_algo._scry._CalcNumStrataRetainedExact_.impls
+                    for impl in it.chain(
+                        depth_proportional_resolution_tapered_algo._scry._CalcNumStrataRetainedExact_.impls,
+                        iter_ftor_shims(
+                            lambda p: p.CalcNumStrataRetainedExact,
+                            depth_proportional_resolution_tapered_algo._Policy_.impls,
+                        ),
+                        iter_no_calcrank_ftor_shims(
+                            lambda p: p.CalcNumStrataRetainedExact,
+                            depth_proportional_resolution_tapered_algo._Policy_.impls,
+                        ),
+                    )
                 }
             )
             == 1
