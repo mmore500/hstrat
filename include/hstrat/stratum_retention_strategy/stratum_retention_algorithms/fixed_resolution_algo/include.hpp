@@ -13,7 +13,7 @@
 #include "scry/CalcMrcaUncertaintyAbsExactFtor.hpp"
 #include "scry/CalcMrcaUncertaintyRelExactFtor.hpp"
 #include "scry/CalcNumStrataRetainedExactFtor.hpp"
-// #include "scry/CalcRankAtColumnIndexFtor.hpp"
+#include "scry/CalcRankAtColumnIndexFtor.hpp"
 // #include "scry/IterRetainedRanksFtor.hpp"
 #include "get_algo_identifier.hpp"
 #include "get_algo_title.hpp"
