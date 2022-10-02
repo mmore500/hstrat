@@ -3,6 +3,7 @@ import itertools as it
 import numpy as np
 import pytest
 
+from hstrat._testing import iter_ftor_shims, iter_no_calcrank_ftor_shims
 from hstrat.hstrat import recency_proportional_resolution_algo
 
 
@@ -295,7 +296,17 @@ def test_impl_consistency(rep, recency_proportional_resolution):
                                 num_strata_deposited_b,
                                 actual_mrca_rank,
                             )
-                            for impl in recency_proportional_resolution_algo._scry._CalcMrcaUncertaintyAbsExact_.impls
+                            for impl in it.chain(
+                                recency_proportional_resolution_algo._scry._CalcMrcaUncertaintyAbsExact_.impls,
+                                iter_ftor_shims(
+                                    lambda p: p.CalcMrcaUncertaintyAbsExact,
+                                    recency_proportional_resolution_algo._Policy_.impls,
+                                ),
+                                iter_no_calcrank_ftor_shims(
+                                    lambda p: p.CalcMrcaUncertaintyAbsExact,
+                                    recency_proportional_resolution_algo._Policy_.impls,
+                                ),
+                            )
                         }
                     )
                     == 1
