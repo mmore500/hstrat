@@ -188,18 +188,14 @@ def test_impl_consistency(depth_proportional_resolution, time_sequence):
         assert (
             len(
                 {
-                    (
-                        tuple(
-                            sorted(
-                                impl(spec)(
-                                    policy,
-                                    gen,
-                                    policy.IterRetainedRanks(gen),
-                                )
+                    tuple(
+                        sorted(
+                            impl(spec)(
+                                policy,
+                                gen,
+                                policy.IterRetainedRanks(gen),
                             )
-                        ),
-                        gen,
-                        depth_proportional_resolution,
+                        )
                     )
                     for impl in it.chain(
                         depth_proportional_resolution_tapered_algo._enact._GenDropRanks_.impls,

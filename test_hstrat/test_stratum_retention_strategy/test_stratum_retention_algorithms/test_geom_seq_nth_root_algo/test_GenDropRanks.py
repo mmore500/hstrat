@@ -244,15 +244,13 @@ def test_impl_consistency(degree, interspersal, time_sequence):
         assert (
             len(
                 {
-                    (
-                        tuple(
-                            sorted(
-                                impl(spec)(
-                                    policy,
-                                    gen,
-                                    policy.IterRetainedRanks(gen),
-                                )
-                            ),
+                    tuple(
+                        sorted(
+                            impl(spec)(
+                                policy,
+                                gen,
+                                policy.IterRetainedRanks(gen),
+                            )
                         )
                     )
                     for impl in it.chain(
