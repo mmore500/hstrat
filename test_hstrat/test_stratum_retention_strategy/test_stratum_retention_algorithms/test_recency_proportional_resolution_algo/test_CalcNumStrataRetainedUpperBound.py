@@ -1,6 +1,9 @@
+import itertools as it
+
 import numpy as np
 import pytest
 
+from hstrat._testing import iter_ftor_shims, iter_no_calcrank_ftor_shims
 from hstrat.hstrat import recency_proportional_resolution_algo
 
 
@@ -127,7 +130,17 @@ def test_impl_consistency(recency_proportional_resolution, time_sequence):
                         policy,
                         gen,
                     )
-                    for impl in recency_proportional_resolution_algo._invar._CalcNumStrataRetainedUpperBound_.impls
+                    for impl in it.chain(
+                        recency_proportional_resolution_algo._invar._CalcNumStrataRetainedUpperBound_.impls,
+                        iter_ftor_shims(
+                            lambda p: p.CalcNumStrataRetainedUpperBound,
+                            recency_proportional_resolution_algo._Policy_.impls,
+                        ),
+                        iter_no_calcrank_ftor_shims(
+                            lambda p: p.CalcNumStrataRetainedUpperBound,
+                            recency_proportional_resolution_algo._Policy_.impls,
+                        ),
+                    )
                 }
             )
             == 1
