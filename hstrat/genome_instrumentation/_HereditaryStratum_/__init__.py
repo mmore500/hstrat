@@ -7,9 +7,9 @@ impls = [
     HereditaryStratum,
 ]
 
-# HereditaryStratumNative = opyt.apply_if(
-#     hstrat_import_native("._HereditaryStratumNative", __name__),
-#     lambda x: x.HereditaryStratumNative,
-# )
-# if HereditaryStratumNative is not None:
-#     impls.append(HereditaryStratumNative)
+HereditaryStratumNative = opyt.apply_if(
+    hstrat_import_native("._HereditaryStratumNative", __name__),
+    lambda x: x.HereditaryStratumNative,
+)
+if HereditaryStratumNative is not None:
+    impls.append(HereditaryStratumNative)

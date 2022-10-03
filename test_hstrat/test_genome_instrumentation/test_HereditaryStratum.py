@@ -4,7 +4,7 @@ import tempfile
 
 import pytest
 
-from hstrat import genome_instrumentation
+from hstrat import genome_instrumentation, hstrat
 
 
 @pytest.mark.parametrize(
@@ -69,12 +69,8 @@ def test_equality2(impl):
     assert stratum1 == deepcopy(stratum2)
 
 
-@pytest.mark.parametrize(
-    "impl",
-    genome_instrumentation._HereditaryStratum_.impls,
-)
-def test_pickle(impl):
-    original = impl()
+def test_pickle():
+    original = hstrat.HereditaryStratum()
     with tempfile.TemporaryDirectory() as tmp_path:
         with open(f"{tmp_path}/data", "wb") as tmp_file:
             pickle.dump(original, tmp_file)
@@ -82,4 +78,4 @@ def test_pickle(impl):
         with open(f"{tmp_path}/data", "rb") as tmp_file:
             reconstituted = pickle.load(tmp_file)
             assert reconstituted == original
-            assert reconstituted != impl()
+            assert reconstituted != hstrat.HereditaryStratum()
