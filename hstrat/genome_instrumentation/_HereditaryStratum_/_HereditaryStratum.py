@@ -80,4 +80,7 @@ class HereditaryStratum:
         self: "HereditaryStratum",
     ) -> typing.Optional[typing.Any]:
         """Access arbitrary, user-specified annotation, if any."""
-        return self._annotation
+        if hasattr(self, "_annotation"):
+            return self._annotation
+        else:
+            return None
