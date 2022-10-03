@@ -4,6 +4,7 @@
 
 #include "audit_cast.hpp"
 #include "audit_compare.hpp"
+#include "binary_search.hpp"
 #include "is_specialization_of.hpp"
 #include "IsSpecializationOf.hpp"
 #include "safe_cast.hpp"

@@ -1,4 +1,5 @@
 TEST_NAMES += audit_compare
+TEST_NAMES += binary_search
 TEST_NAMES += include
 TEST_NAMES += safe_compare
 
