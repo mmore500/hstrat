@@ -7,6 +7,8 @@
 #include <tuple>
 #include <variant>
 
+#include "../../hstrat_pybind/PyObjectConcept.hpp"
+
 #include "../config/HSTRAT_RANK_T.hpp"
 #include "../config/pick_differentia.hpp"
 
@@ -41,6 +43,28 @@ public:
     }()
   )
   { }
+
+  HereditaryStratum(
+    hstrat_pybind::PyObjectConcept auto stratum
+  )
+  : differentia(
+    stratum.attr("GetDifferentia")().template cast<DIFFERENTIA_T>()
+  )
+  , annotation(
+    stratum.attr("GetAnnotation")()
+  )
+  , deposition_rank(
+    [&stratum](){
+      if constexpr (std::is_same_v<DEPOSITION_RANK_T, HSTRAT_RANK_T>) {
+        const auto res = stratum.attr("GetDepositionRank")();
+        if (res.is_none()) return HSTRAT_RANK_T{};
+        else return res.template cast<HSTRAT_RANK_T>();
+      } else return DEPOSITION_RANK_T{};
+    }()
+  )
+  { }
+
+  using differentia_t = DIFFERENTIA_T;
 
   using with_deposition_rank_t = HereditaryStratum<
     DIFFERENTIA_T,

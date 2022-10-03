@@ -149,7 +149,16 @@ PYBIND11_MODULE(_HereditaryStratumNative, m) {
     m,
     "_HereditaryStratumNative_bit_deporank"
   )
-  .def("__eq__", &bit_deporank_t::operator==)
+  .def("__eq__",
+    [](const bit_deporank_t& self, const bit_deporank_t& other){
+      return self == other;
+    }
+  )
+  .def("__eq__",
+    [](const bit_deporank_t& self, py::object other){
+      return self == bit_deporank_t{other};
+    }
+  )
   .def("__copy__", [](const bit_deporank_t& self){ return self; })
   .def("__deepcopy__", [](const bit_deporank_t& self, py::object){
     return self;
@@ -162,7 +171,16 @@ PYBIND11_MODULE(_HereditaryStratumNative, m) {
     m,
     "_HereditaryStratumNative_byte_deporank"
   )
-  .def("__eq__", &byte_deporank_t::operator==)
+  .def("__eq__",
+    [](const byte_deporank_t& self, const byte_deporank_t& other){
+      return self == other;
+    }
+  )
+  .def("__eq__",
+    [](const byte_deporank_t& self, py::object other){
+      return self == byte_deporank_t{other};
+    }
+  )
   .def("__copy__", [](const byte_deporank_t& self){ return self; })
   .def("__deepcopy__", [](const byte_deporank_t& self, py::object){
     return self;
@@ -175,7 +193,16 @@ PYBIND11_MODULE(_HereditaryStratumNative, m) {
     m,
     "_HereditaryStratumNative_word_deporank"
   )
-  .def("__eq__", &word_deporank_t::operator==)
+  .def("__eq__",
+    [](const word_deporank_t& self, const word_deporank_t& other){
+      return self == other;
+    }
+  )
+  .def("__eq__",
+    [](const word_deporank_t& self, py::object other){
+      return self == word_deporank_t{other};
+    }
+  )
   .def("__copy__", [](const word_deporank_t& self){ return self; })
   .def("__deepcopy__", [](const word_deporank_t& self, py::object){
     return self;
@@ -188,7 +215,16 @@ PYBIND11_MODULE(_HereditaryStratumNative, m) {
     m,
     "_HereditaryStratumNative_doubleword_deporank"
   )
-  .def("__eq__", &doubleword_deporank_t::operator==)
+  .def("__eq__",
+    [](const doubleword_deporank_t& self, const doubleword_deporank_t& other){
+      return self == other;
+    }
+  )
+  .def("__eq__",
+    [](const doubleword_deporank_t& self, py::object other){
+      return self == doubleword_deporank_t{other};
+    }
+  )
   .def("__copy__", [](const doubleword_deporank_t& self){ return self; })
   .def("__deepcopy__", [](const doubleword_deporank_t& self, py::object){
     return self;
@@ -201,7 +237,16 @@ PYBIND11_MODULE(_HereditaryStratumNative, m) {
     m,
     "_HereditaryStratumNative_quadword_deporank"
   )
-  .def("__eq__", &quadword_deporank_t::operator==)
+  .def("__eq__",
+    [](const quadword_deporank_t& self, const quadword_deporank_t& other){
+      return self == other;
+    }
+  )
+  .def("__eq__",
+    [](const quadword_deporank_t& self, py::object other){
+      return self == quadword_deporank_t{other};
+    }
+  )
   .def("__copy__", [](const quadword_deporank_t& self){ return self; })
   .def("__deepcopy__", [](const quadword_deporank_t& self, py::object){
     return self;
@@ -215,7 +260,16 @@ PYBIND11_MODULE(_HereditaryStratumNative, m) {
     m,
     "_HereditaryStratumNative_bit_nodeporank"
   )
-  .def("__eq__", &bit_nodeporank_t::operator==)
+  .def("__eq__",
+    [](const bit_nodeporank_t& self, const bit_nodeporank_t& other){
+      return self == other;
+    }
+  )
+  .def("__eq__",
+    [](const bit_nodeporank_t& self, py::object other){
+      return self == bit_nodeporank_t{other};
+    }
+  )
   .def("__copy__", [](const bit_nodeporank_t& self){ return self; })
   .def("__deepcopy__", [](const bit_nodeporank_t& self, py::object){
     return self;
@@ -228,7 +282,16 @@ PYBIND11_MODULE(_HereditaryStratumNative, m) {
     m,
     "_HereditaryStratumNative_byte_nodeporank"
   )
-  .def("__eq__", &byte_nodeporank_t::operator==)
+  .def("__eq__",
+    [](const byte_nodeporank_t& self, const byte_nodeporank_t& other){
+      return self == other;
+    }
+  )
+  .def("__eq__",
+    [](const byte_nodeporank_t& self, py::object other){
+      return self == byte_nodeporank_t{other};
+    }
+  )
   .def("__copy__", [](const byte_nodeporank_t& self){ return self; })
   .def("__deepcopy__", [](const byte_nodeporank_t& self, py::object){
     return self;
@@ -241,7 +304,16 @@ PYBIND11_MODULE(_HereditaryStratumNative, m) {
     m,
     "_HereditaryStratumNative_word_nodeporank"
   )
-  .def("__eq__", &word_nodeporank_t::operator==)
+  .def("__eq__",
+    [](const word_nodeporank_t& self, const word_nodeporank_t& other){
+      return self == other;
+    }
+  )
+  .def("__eq__",
+    [](const word_nodeporank_t& self, py::object other){
+      return self == word_nodeporank_t{other};
+    }
+  )
   .def("__copy__", [](const word_nodeporank_t& self){ return self; })
   .def("__deepcopy__", [](const word_nodeporank_t& self, py::object){
     return self;
@@ -254,7 +326,16 @@ PYBIND11_MODULE(_HereditaryStratumNative, m) {
     m,
     "_HereditaryStratumNative_doubleword_nodeporank"
   )
-  .def("__eq__", &doubleword_nodeporank_t::operator==)
+  .def("__eq__",
+    [](const doubleword_nodeporank_t& self, const doubleword_nodeporank_t& other){
+      return self == other;
+    }
+  )
+  .def("__eq__",
+    [](const doubleword_nodeporank_t& self, py::object other){
+      return self == doubleword_nodeporank_t{other};
+    }
+  )
   .def("__copy__", [](const doubleword_nodeporank_t& self){ return self; })
   .def("__deepcopy__", [](const doubleword_nodeporank_t& self, py::object){
     return self;
@@ -269,7 +350,16 @@ PYBIND11_MODULE(_HereditaryStratumNative, m) {
     m,
     "_HereditaryStratumNative_quadword_nodeporank"
   )
-  .def("__eq__", &quadword_nodeporank_t::operator==)
+  .def("__eq__",
+    [](const quadword_nodeporank_t& self, const quadword_nodeporank_t& other){
+      return self == other;
+    }
+  )
+  .def("__eq__",
+    [](const quadword_nodeporank_t& self, py::object other){
+      return self == quadword_nodeporank_t{other};
+    }
+  )
   .def("__copy__", [](const quadword_nodeporank_t& self){ return self; })
   .def("__deepcopy__", [](const quadword_nodeporank_t& self, py::object){ return self; })
   .def("GetDifferentia", &quadword_nodeporank_t::GetDifferentia)

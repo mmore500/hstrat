@@ -9,9 +9,11 @@ impls = [
     HereditaryStratumOrderedStoreList,
 ]
 
-# HereditaryStratumOrderedStoreListNative = opyt.apply_if(
-#     hstrat_import_native("._HereditaryStratumOrderedStoreListNative", __name__),
-#     lambda x: x.HereditaryStratumOrderedStoreListNative,
-# )
-# if HereditaryStratumOrderedStoreListNative is not None:
-#     impls.append(HereditaryStratumOrderedStoreListNative)
+HereditaryStratumOrderedStoreListNative = opyt.apply_if(
+    hstrat_import_native(
+        "._HereditaryStratumOrderedStoreListNative", __name__
+    ),
+    lambda x: x.HereditaryStratumOrderedStoreListNative,
+)
+if HereditaryStratumOrderedStoreListNative is not None:
+    impls.append(HereditaryStratumOrderedStoreListNative)
