@@ -22,7 +22,9 @@ requirements = [
     "mpmath>=1.1.0",
     "opytional>=0.1.0",
     "python-slugify>=6.1.2",
+    "safe_assert>=0.2.0",
     "seaborn>=0.11.2",
+    "tqdm>=4.62.3",
 ]
 
 setup_requirements = [
