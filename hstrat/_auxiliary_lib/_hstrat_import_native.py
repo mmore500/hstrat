@@ -30,13 +30,13 @@ def hstrat_import_native(
     """
 
     try:
-        if strtobool(os.environ.get("HSTRAT_CPPIMPORT_OPT_IN", "f")):
+        if strtobool(os.getenv("HSTRAT_CPPIMPORT_OPT_IN", "f")):
             import cppimport.import_hook
 
         return importlib.import_module(name, package)
     except (CompileError, ImportError, SystemExit) as e:
         if strtobool(
-            os.environ.get("HSTRAT_RERAISE_IMPORT_NATIVE_EXCEPTION", "f")
+            os.getenv("HSTRAT_RERAISE_IMPORT_NATIVE_EXCEPTION", "f")
         ):
             raise e
         else:
