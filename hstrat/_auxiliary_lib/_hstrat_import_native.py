@@ -35,9 +35,7 @@ def hstrat_import_native(
 
         return importlib.import_module(name, package)
     except (CompileError, ImportError, SystemExit) as e:
-        if strtobool(
-            os.getenv("HSTRAT_RERAISE_IMPORT_NATIVE_EXCEPTION", "f")
-        ):
+        if strtobool(os.getenv("HSTRAT_RERAISE_IMPORT_NATIVE_EXCEPTION", "f")):
             raise e
         else:
             return None
