@@ -65,6 +65,8 @@ public:
   { }
 
   using differentia_t = DIFFERENTIA_T;
+  using annotation_t = ANNOTATION_T;
+  using deposition_rank_t = DEPOSITION_RANK_T;
 
   using with_deposition_rank_t = HereditaryStratum<
     DIFFERENTIA_T,
