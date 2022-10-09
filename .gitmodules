@@ -8,8 +8,8 @@
   path = third-party/cppcoro
   url = https://github.com/mmore500/cppcoro.git
 [submodule "third-party/gcem"]
-	path = third-party/gcem
-	url = https://github.com/kthohr/gcem.git
+  path = third-party/gcem
+  url = https://github.com/kthohr/gcem.git
 [submodule "third-party/ccmath"]
-	path = third-party/ccmath
-	url = https://github.com/mmore500/ccmath.git
+  path = third-party/ccmath
+  url = https://github.com/mmore500/ccmath.git
