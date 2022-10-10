@@ -2,6 +2,10 @@
 #ifndef HSTRAT_PYBIND_PYOBJECTORDEREDSTORESHIM_HPP_INCLUDE
 #define HSTRAT_PYBIND_PYOBJECTORDEREDSTORESHIM_HPP_INCLUDE
 
+#include <functional>
+#include <utility>
+
+#include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 
 namespace py = pybind11;
@@ -84,7 +88,7 @@ public:
     } else {
       store_obj.attr("DelRanks")(
         ranks,
-        get_column_index_of_rank
+        std::function<HSTRAT_RANK_T(HSTRAT_RANK_T)>(get_column_index_of_rank)
       );
     }
   }
@@ -115,7 +119,7 @@ public:
     } else {
       return store_obj.attr("DelRanks")(
         start_column_index,
-        get_rank_at_column_index
+        std::function<HSTRAT_RANK_T(HSTRAT_RANK_T)>(get_rank_at_column_index)
       ).template cast<return_t>();
     }
   }

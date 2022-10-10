@@ -6,63 +6,64 @@
 #include <pybind11/stl.h>
 
 #include <hstrat/genome_instrumentation/HereditaryStratum.hpp>
+#include <hstrat_pybind/pyobject.hpp>
 
 namespace py = pybind11;
 using namespace pybind11::literals;
 
 using bit_deporank_t = hstrat::HereditaryStratum<
   bool, // DIFFERENTIA_T
-  py::object, // ANNOTATION_T
+  hstrat_pybind::pyobject, // ANNOTATION_T
   HSTRAT_RANK_T // DEPOSITION_RANK_T
 >;
 
 using byte_deporank_t = hstrat::HereditaryStratum<
   uint8_t, // DIFFERENTIA_T
-  py::object, // ANNOTATION_T
+  hstrat_pybind::pyobject, // ANNOTATION_T
   HSTRAT_RANK_T // DEPOSITION_RANK_T
 >;
 
 using word_deporank_t = hstrat::HereditaryStratum<
   uint16_t, // DIFFERENTIA_T
-  py::object, // ANNOTATION_T
+  hstrat_pybind::pyobject, // ANNOTATION_T
   HSTRAT_RANK_T // DEPOSITION_RANK_T
 >;
 
 using doubleword_deporank_t = hstrat::HereditaryStratum<
   uint32_t, // DIFFERENTIA_T
-  py::object, // ANNOTATION_T
+  hstrat_pybind::pyobject, // ANNOTATION_T
   HSTRAT_RANK_T // DEPOSITION_RANK_T
 >;
 
 using quadword_deporank_t = hstrat::HereditaryStratum<
   uint64_t, // DIFFERENTIA_T
-  py::object, // ANNOTATION_T
+  hstrat_pybind::pyobject, // ANNOTATION_T
   HSTRAT_RANK_T // DEPOSITION_RANK_T
 >;
 
 using bit_nodeporank_t = hstrat::HereditaryStratum<
   bool, // DIFFERENTIA_T
-  py::object // ANNOTATION_T
+  hstrat_pybind::pyobject // ANNOTATION_T
 >;
 
 using byte_nodeporank_t = hstrat::HereditaryStratum<
   uint8_t, // DIFFERENTIA_T
-  py::object // ANNOTATION_T
+  hstrat_pybind::pyobject // ANNOTATION_T
 >;
 
 using word_nodeporank_t = hstrat::HereditaryStratum<
   uint16_t, // DIFFERENTIA_T
-  py::object // ANNOTATION_T
+  hstrat_pybind::pyobject // ANNOTATION_T
 >;
 
 using doubleword_nodeporank_t = hstrat::HereditaryStratum<
   uint32_t, // DIFFERENTIA_T
-  py::object // ANNOTATION_T
+  hstrat_pybind::pyobject // ANNOTATION_T
 >;
 
 using quadword_nodeporank_t = hstrat::HereditaryStratum<
   uint64_t, // DIFFERENTIA_T
-  py::object // ANNOTATION_T
+  hstrat_pybind::pyobject // ANNOTATION_T
 >;
 
 PYBIND11_MODULE(_HereditaryStratumNative, m) {

@@ -44,14 +44,15 @@ class HereditaryStratigraphicColumn {
     deposition_rank_t
   >;
 
-  using store_t = STORE_T<stratum_t_>;
+  using store_t_ = STORE_T<stratum_t_>;
 
   POLICY_T policy;
-  store_t store;
+  store_t_ store;
   HSTRAT_RANK_T num_strata_deposited{};
 
 public:
 
+  using store_t = store_t_;
   using stratum_t = stratum_t_;
   using differentia_t = stratum_t::differentia_t;
   using annotation_t = stratum_t::annotation_t;

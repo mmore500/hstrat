@@ -277,7 +277,7 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
     > {
 
       const bool has_calc_rank_at_column_index = stratum_retention_policy.attr(
-        "has_calc_rank_at_column_index"
+        "HasCalcRankAtColumnIndex"
       )().template cast<bool>();
 
       if (
