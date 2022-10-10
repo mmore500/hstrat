@@ -63,8 +63,16 @@ PYBIND11_MODULE(_HereditaryStratumOrderedStoreListNative, m) {
     py::arg("index"),
     py::arg("get_rank_at_column_index") = py::none()
   )
-  .def("GetRankAtColumnIndex", &self_t::GetRankAtColumnIndex)
-  .def("GetColumnIndexOfRank", &self_t::GetColumnIndexOfRank)
+  .def("GetRankAtColumnIndex",
+    [](const self_t& self, const HSTRAT_RANK_T index){
+      return self.GetRankAtColumnIndex(index);
+    }
+  )
+  .def("GetColumnIndexOfRank",
+    [](const self_t& self, const HSTRAT_RANK_T rank){
+      return self.GetColumnIndexOfRank(rank);
+    }
+  )
   .def("DelRanks",
     [](self_t& self, py::object ranks, py::object get_column_index_of_rank){
       if (!get_column_index_of_rank.is_none()) {

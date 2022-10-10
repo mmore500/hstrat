@@ -51,6 +51,9 @@ PYBIND11_MODULE(_PolicyNative, m) {
   .def("__repr__", &self_t::Repr)
   .def("__str__", &self_t::Str)
   .def("GetSpec", &self_t::GetSpec)
+  .def("HasCalcRankAtColumnIndex", [](const self_t&){
+    return self_t::has_calc_rank_at_column_index();
+  })
   .def("WithoutCalcRankAtColumnIndex", &self_t::WithoutCalcRankAtColumnIndex)
   // enact
   .def("GenDropRanks", [](
@@ -201,6 +204,9 @@ PYBIND11_MODULE(_PolicyNative, m) {
   .def("__repr__", &without_t::Repr)
   .def("__str__", &without_t::Str)
   .def("GetSpec", &without_t::GetSpec)
+  .def("HasCalcRankAtColumnIndex", [](const without_t&){
+    return without_t::has_calc_rank_at_column_index();
+  })
   .def("WithoutCalcRankAtColumnIndex", &without_t::WithoutCalcRankAtColumnIndex)
   // enact
   .def("GenDropRanks", [](

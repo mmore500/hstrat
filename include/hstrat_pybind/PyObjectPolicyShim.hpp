@@ -2,6 +2,8 @@
 #ifndef HSTRAT_PYBIND_PYOBJECTPOLICYSHIM_HPP_INCLUDE
 #define HSTRAT_PYBIND_PYOBJECTPOLICYSHIM_HPP_INCLUDE
 
+#include <type_traits>
+
 #include <pybind11/pybind11.h>
 
 namespace py = pybind11;
@@ -14,14 +16,32 @@ namespace py = pybind11;
 
 namespace hstrat_pybind {
 
-template<typename POLICY_SPEC>
+template<
+  typename POLICY_SPEC,
+  typename HAS_SCRY_CALC_RANK_AT_COLUMN_INDEX=std::true_type,
+  typename HAS_SCRY_OTHER=std::true_type
+>
 class PyObjectPolicyShim {
 
   py::object policy_obj;
 
 public:
 
+  using spec_t = POLICY_SPEC;
+
+  consteval static bool has_calc_rank_at_column_index() {
+    return HAS_SCRY_CALC_RANK_AT_COLUMN_INDEX::value;
+  }
+
+  consteval static bool has_iter_retained_ranks() {
+    return HAS_SCRY_OTHER::value;
+  }
+
   PyObjectPolicyShim(py::object policy_obj) : policy_obj(policy_obj) {}
+
+  bool operator==(const PyObjectPolicyShim& other) const {
+    return policy_obj.equal(other.policy_obj);
+  }
 
   auto GetSpec() const {
     auto spec_obj = policy_obj.attr("GetSpec")();
@@ -113,11 +133,13 @@ public:
     const HSTRAT_RANK_T second_num_strata_deposited,
     const HSTRAT_RANK_T actual_rank_of_mrca
   ) const {
-    return policy_obj.attr("CalcMrcaUncertaintyAbsExact")(
-      first_num_strata_deposited,
-      second_num_strata_deposited,
-      actual_rank_of_mrca
-    ).template cast<HSTRAT_RANK_T>();
+    if constexpr (HAS_SCRY_OTHER::value) {
+      return policy_obj.attr("CalcMrcaUncertaintyAbsExact")(
+        first_num_strata_deposited,
+        second_num_strata_deposited,
+        actual_rank_of_mrca
+      ).template cast<HSTRAT_RANK_T>();
+    } else return HAS_SCRY_OTHER{};
   }
 
   double CalcMrcaUncertaintyRelExact(
@@ -125,23 +147,46 @@ public:
     const HSTRAT_RANK_T second_num_strata_deposited,
     const HSTRAT_RANK_T actual_rank_of_mrca
   ) const {
-    return policy_obj.attr("CalcMrcaUncertaintyRelExact")(
-      first_num_strata_deposited,
-      second_num_strata_deposited,
-      actual_rank_of_mrca
-    ).template cast<double>();
+    if constexpr (HAS_SCRY_OTHER::value) {
+      return policy_obj.attr("CalcMrcaUncertaintyRelExact")(
+        first_num_strata_deposited,
+        second_num_strata_deposited,
+        actual_rank_of_mrca
+      ).template cast<double>();
+    } else return HAS_SCRY_OTHER{};
   }
 
   HSTRAT_RANK_T CalcNumStrataRetainedExact(
     const HSTRAT_RANK_T num_strata_deposited
   ) const {
-    return policy_obj.attr("CalcNumStrataRetainedExact")(
-      num_strata_deposited
-    ).template cast<HSTRAT_RANK_T>();
+    if constexpr (HAS_SCRY_OTHER::value) {
+      return policy_obj.attr("CalcNumStrataRetainedExact")(
+        num_strata_deposited
+      ).template cast<HSTRAT_RANK_T>();
+    } else return HAS_SCRY_OTHER{};
   }
 
-  // CalcRankAtColumnIndex
-  // IterRetainedRanks
+  HSTRAT_RANK_T CalcRankAtColumnIndex(
+    const HSTRAT_RANK_T index,
+    const HSTRAT_RANK_T num_strata_deposited
+  ) const {
+    if constexpr (HAS_SCRY_CALC_RANK_AT_COLUMN_INDEX::value) {
+      return policy_obj.attr("CalcRankAtColumnIndex")(
+        index,
+        num_strata_deposited
+      ).template cast<HSTRAT_RANK_T>();
+    } else return HAS_SCRY_CALC_RANK_AT_COLUMN_INDEX{};
+  }
+
+  cppcoro::generator<const HSTRAT_RANK_T> IterRetainedRanks(
+    const HSTRAT_RANK_T num_strata_deposited
+  ) const {
+    if constexpr (HAS_SCRY_OTHER::value) {
+      return std::move(shim_py_object_generator<const HSTRAT_RANK_T>(
+        policy_obj.attr("IterRetainedRanks")(num_strata_deposited)
+      ));
+    } else return HAS_SCRY_OTHER{};
+  }
 
 };
 

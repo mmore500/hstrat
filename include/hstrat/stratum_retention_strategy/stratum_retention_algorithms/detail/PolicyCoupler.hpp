@@ -75,13 +75,13 @@ public:
 
   using spec_t = POLICY_SPEC;
 
-  consteval bool has_calc_rank_at_column_index() {
+  consteval static bool has_calc_rank_at_column_index() {
     return !std::is_same_v<
       CALC_RANK_AT_COLUMN_INDEX_FTOR, hstrat::detail::Monostate
       >;
   }
 
-  consteval bool has_iter_retained_ranks() {
+  consteval static bool has_iter_retained_ranks() {
     return !std::is_same_v<
       ITER_RETAINED_RANKS_FTOR, hstrat::detail::Monostate
     >;

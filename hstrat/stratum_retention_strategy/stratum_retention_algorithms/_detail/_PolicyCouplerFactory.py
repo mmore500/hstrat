@@ -266,6 +266,9 @@ def PolicyCouplerFactory(
             """Get policy's parameter specification."""
             return self._policy_spec
 
+        def HasCalcRankAtColumnIndex(self: "PolicyCoupler") -> bool:
+            return calc_rank_at_column_index_ftor_t is not None
+
         def WithoutCalcRankAtColumnIndex(
             self: "PolicyCoupler",
         ) -> "PolicyCoupler":

@@ -60,14 +60,20 @@ public:
     return data[index];
   }
 
-  HSTRAT_RANK_T GetRankAtColumnIndex(const HSTRAT_RANK_T index) const {
+  HSTRAT_RANK_T GetRankAtColumnIndex(
+    const hstrat::RankTConcept auto index
+  ) const {
     return GetStratumAtColumnIndex(index).GetDepositionRank();
   }
 
-  HSTRAT_RANK_T GetColumnIndexOfRank(const HSTRAT_RANK_T rank) const {
+  HSTRAT_RANK_T GetColumnIndexOfRank(
+    const hstrat::RankTConcept auto rank
+  ) const {
     const std::size_t res = hstrat_auxlib::binary_search(
       [this, rank](const std::size_t idx){
-        return GetRankAtColumnIndex(idx) >= rank;
+        return GetRankAtColumnIndex(
+          hstrat_auxlib::audit_cast<HSTRAT_RANK_T>(idx)
+        ) >= rank;
       },
       GetNumStrataRetained()
     );

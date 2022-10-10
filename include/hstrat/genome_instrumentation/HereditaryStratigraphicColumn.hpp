@@ -32,10 +32,10 @@ template<
 >
 class HereditaryStratigraphicColumn {
 
-  using deposition_rank_t = std::conditional<
+  using deposition_rank_t = std::conditional_t<
     POLICY_T::has_calc_rank_at_column_index(),
-    HSTRAT_RANK_T,
-    hstrat_auxlib::Monostate
+    hstrat_auxlib::Monostate,
+    HSTRAT_RANK_T
   >;
 
   using stratum_t_ = hstrat::HereditaryStratum<
@@ -44,8 +44,10 @@ class HereditaryStratigraphicColumn {
     deposition_rank_t
   >;
 
+  using store_t = STORE_T<stratum_t_>;
+
   POLICY_T policy;
-  STORE_T<stratum_t_> store;
+  store_t store;
   HSTRAT_RANK_T num_strata_deposited{};
 
 public:
@@ -53,12 +55,18 @@ public:
   using stratum_t = stratum_t_;
   using differentia_t = stratum_t::differentia_t;
   using annotation_t = stratum_t::annotation_t;
-  consteval bool has_annotation() { return std::is_same_v<annotation_t>; }
+  consteval bool has_annotation() {
+    return std::is_same_v<annotation_t, hstrat_auxlib::Monostate>;
+  }
 
   HereditaryStratigraphicColumn(
     const POLICY_T& stratum_retention_policy,
-    const ANNOTATION_T& initial_annotation={}
-  ) : policy(stratum_retention_policy) {
+    const ANNOTATION_T& initial_annotation={},
+    const store_t& store={}
+  )
+  : policy(stratum_retention_policy)
+  , store(store)
+  {
     DepositStratum(initial_annotation);
   }
 
@@ -76,9 +84,31 @@ public:
 
 private:
 
-  consteval bool OmitsStratumDepositionRank() {
-    return !POLICY_T::has_calc_rank_at_column_index();
+  consteval static bool omits_stratum_deposition_rank() {
+    return POLICY_T::has_calc_rank_at_column_index();
   }
+
+  void PurgeColumn() {
+    if constexpr (omits_stratum_deposition_rank()) {
+      store.DelRanks(
+        policy.GenDropRanks(num_strata_deposited, IterRetainedRanks()),
+        [this](const HSTRAT_RANK_T rank){ return GetColumnIndexOfRank(rank); }
+      );
+    } else {
+      store.DelRanks(
+        policy.GenDropRanks(num_strata_deposited, IterRetainedRanks())
+      );
+    }
+  }
+
+  cppcoro::generator<const HSTRAT_RANK_T>
+  IterRetainedRanksViaGetRankAtColumnIndex() const {
+    for (std::size_t i{}; i < GetNumStrataRetained(); ++i) {
+      co_yield GetRankAtColumnIndex(i);
+    }
+  }
+
+public:
 
   void DepositStratum(const ANNOTATION_T& annotation={}) {
     const stratum_t stratum{
@@ -95,20 +125,11 @@ private:
 
   }
 
-  void PurgeColumn() {
-    auto condemned_ranks = policy.GenDropRanks(num_strata_deposited);
-    store.DelRanks(condemned_ranks);
-  }
-
-public:
-
   cppcoro::generator<const HSTRAT_RANK_T> IterRetainedRanks() const {
     if constexpr (POLICY_T::has_iter_retained_ranks()) {
       return policy.IterRetainedRanks(GetNumStrataDeposited());
-    } else if constexpr (OmitsStratumDepositionRank()) {
-      for (std::size_t i{}; i < GetNumStrataRetained(); ++i) {
-        co_yield GetRankAtColumnIndex(i);
-      }
+    } else if constexpr (omits_stratum_deposition_rank()) {
+      return IterRetainedRanksViaGetRankAtColumnIndex();
     } else {
       return store.IterRetainedRanks();
     }
@@ -120,10 +141,10 @@ public:
 
   HSTRAT_RANK_T GetNumStrataDeposited() const { return num_strata_deposited; }
 
-  const stratum_t& GetStratumAtColumnIndex(
+  decltype(auto) GetStratumAtColumnIndex(
     const HSTRAT_RANK_T index
   ) const {
-    if constexpr (OmitsStratumDepositionRank()) {
+    if constexpr (omits_stratum_deposition_rank()) {
       return store.GetStratumAtColumnIndex(
         index,
         [this](const HSTRAT_RANK_T rank){ return GetRankAtColumnIndex(rank); }
@@ -134,7 +155,7 @@ public:
   }
 
   const HSTRAT_RANK_T GetRankAtColumnIndex(const HSTRAT_RANK_T index) const {
-    if constexpr (OmitsStratumDepositionRank()) {
+    if constexpr (omits_stratum_deposition_rank()) {
       return policy.CalcRankAtColumnIndex(index, num_strata_deposited);
     } else {
       return store.GetRankAtColumnIndex(index);
@@ -142,7 +163,7 @@ public:
   }
 
   HSTRAT_RANK_T GetColumnIndexOfRank(const HSTRAT_RANK_T rank) const {
-    if constexpr (OmitsStratumDepositionRank()) {
+    if constexpr (omits_stratum_deposition_rank()) {
       assert(GetNumStrataRetained());
 
       const std::size_t res = hstrat_auxlib::binary_search(
@@ -161,16 +182,16 @@ public:
     return GetNumStrataDeposited() - GetNumStrataRetained();
   }
 
-  consteval int GetStratumDifferentiaBitWidth() {
-    return hstrat_auxlib::audit_cast<int>(sizeof(differentia_t) * CHAR_BIT);
+  consteval static int GetStratumDifferentiaBitWidth() {
+    return sizeof(differentia_t) * CHAR_BIT;
   }
 
   HSTRAT_RANK_T HasDiscardedStrata() const {
     return GetNumDiscardedStrata();
   }
 
-  consteval double CalcProbabilityDifferentiaCollision() const {
-    return ccmath::ldexp(-GetStratumDifferentiaBitWidth());
+  consteval static double CalcProbabilityDifferentiaCollision() {
+    return ccmath::ldexp(1, -GetStratumDifferentiaBitWidth());
   }
 
   constexpr std::size_t
