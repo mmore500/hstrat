@@ -7,7 +7,6 @@
 
 #include <hstrat/config/HSTRAT_RANK_T.hpp>
 #include <hstrat/genome_instrumentation/stratum_ordered_stores/HereditaryStratumOrderedStoreList.hpp>
-#include <hstrat_pybind/PyObjectPolicyShim.hpp>
 #include <hstrat_pybind/pyobject.hpp>
 #include <hstrat_pybind/shim_py_object_generator.hpp>
 
