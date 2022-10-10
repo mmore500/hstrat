@@ -45,14 +45,14 @@ private:
   // delegated implementation enables operator() template deduction
   template<typename POLICY>
   cppcoro::generator<const HSTRAT_RANK_T> do_call(
-    std::conditional<
+    std::conditional_t<
       hstrat_auxlib::is_specialization_of<
         hstrat::detail::PolicyCoupler,
         POLICY
       >::value,
       const POLICY&, // specialization of PolicyCoupler
       POLICY   // i.e., PyObjectPolicyShim
-    >::type policy,
+    > policy,
     const HSTRAT_RANK_T num_strata_deposited
   ) const {
 
