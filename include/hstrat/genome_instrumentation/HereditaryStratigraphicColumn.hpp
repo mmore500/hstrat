@@ -7,7 +7,6 @@
 #include <cstddef>
 #include <tuple>
 #include <type_traits>
-#include <variant>
 
 #include "../../../third-party/ccmath/include/ccmath/ceil.hpp"
 #include "../../../third-party/ccmath/include/ccmath/ldexp.hpp"
@@ -16,6 +15,7 @@
 #include "../../hstrat_auxlib/audit_cast.hpp"
 #include "../../hstrat_auxlib/binary_search.hpp"
 #include "../../hstrat_auxlib/constexpr_log.hpp"
+#include "../../hstrat_auxlib/Monostate.hpp"
 
 #include "../config/HSTRAT_RANK_T.hpp"
 
@@ -27,7 +27,7 @@ namespace hstrat {
 template<
   typename POLICY_T,
   typename DIFFERENTIA_T=uint64_t,
-  typename ANNOTATION_T=std::monostate,
+  typename ANNOTATION_T=hstrat_auxlib::Monostate,
   template<typename> typename STORE_T=hstrat::HereditaryStratumOrderedStoreList
 >
 class HereditaryStratigraphicColumn {
@@ -35,7 +35,7 @@ class HereditaryStratigraphicColumn {
   using deposition_rank_t = std::conditional<
     POLICY_T::has_calc_rank_at_column_index(),
     HSTRAT_RANK_T,
-    std::monostate
+    hstrat_auxlib::Monostate
   >;
 
   using stratum_t_ = hstrat::HereditaryStratum<

@@ -7,6 +7,7 @@
 #include <tuple>
 #include <variant>
 
+#include "../../hstrat_auxlib/Monostate.hpp"
 #include "../../hstrat_pybind/PyObjectConcept.hpp"
 
 #include "../config/HSTRAT_RANK_T.hpp"
@@ -16,8 +17,8 @@ namespace hstrat {
 
 template<
   typename DIFFERENTIA_T=uint64_t,
-  typename ANNOTATION_T=std::monostate,
-  typename DEPOSITION_RANK_T=std::monostate
+  typename ANNOTATION_T=hstrat_auxlib::Monostate,
+  typename DEPOSITION_RANK_T=hstrat_auxlib::Monostate
 >
 class HereditaryStratum {
 
@@ -76,7 +77,7 @@ public:
   using without_deposition_rank_t = HereditaryStratum<
     DIFFERENTIA_T,
     ANNOTATION_T,
-    std::monostate
+    hstrat_auxlib::Monostate
   >;
 
   bool operator==(const HereditaryStratum& other) const {

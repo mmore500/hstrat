@@ -8,6 +8,7 @@
 #include "constexpr_log.hpp"
 #include "is_specialization_of.hpp"
 #include "IsSpecializationOf.hpp"
+#include "Monostate.hpp"
 #include "safe_cast.hpp"
 #include "safe_compare.hpp"
 

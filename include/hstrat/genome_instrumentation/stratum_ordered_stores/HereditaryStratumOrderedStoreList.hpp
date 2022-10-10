@@ -10,13 +10,13 @@
 #include <ranges>
 #include <type_traits>
 #include <utility>
-#include <variant>
 #include <vector>
 
 #include "../../../../third-party/cppcoro/include/cppcoro/generator.hpp"
 
 #include "../../../hstrat_auxlib/audit_cast.hpp"
 #include "../../../hstrat_auxlib/binary_search.hpp"
+#include "../../../hstrat_auxlib/Monostate.hpp"
 
 #include "../../config/HSTRAT_RANK_T.hpp"
 
@@ -52,7 +52,7 @@ public:
     return hstrat_auxlib::audit_cast<HSTRAT_RANK_T>(data.size());
   }
 
-  template<typename F=std::monostate>
+  template<typename F=hstrat_auxlib::Monostate>
   const HEREDITARY_STRATUM_T& GetStratumAtColumnIndex(
     const HSTRAT_RANK_T index,
     F={} // get_rank_at_column_index, unused
@@ -74,7 +74,7 @@ public:
     return hstrat_auxlib::audit_cast<HSTRAT_RANK_T>(res);
   }
 
-  template<typename F=std::monostate>
+  template<typename F=hstrat_auxlib::Monostate>
   void DelRanks(
     cppcoro::generator<const HSTRAT_RANK_T> ranks,
     // deposition ranks might not be stored in strata
@@ -85,7 +85,7 @@ public:
       ranks,
       std::back_inserter(indices),
       [this, &get_column_index_of_rank](const HSTRAT_RANK_T rank) {
-        if constexpr (std::is_same_v<F, std::monostate>) {
+        if constexpr (std::is_same_v<F, hstrat_auxlib::Monostate>) {
           return GetColumnIndexOfRank(rank);
         } else {
           return get_column_index_of_rank(rank);
@@ -129,7 +129,7 @@ public:
       for (const HSTRAT_RANK_T rank : ranks) co_yield rank;
     }
 
-    template<typename F=std::monostate>
+    template<typename F=hstrat_auxlib::Monostate>
     cppcoro::generator<
       std::tuple<HSTRAT_RANK_T, typename HEREDITARY_STRATUM_T::differentia_t>
     > IterRankDifferentia(
@@ -143,7 +143,7 @@ public:
         ++index
       ) {
         const HSTRAT_RANK_T rank = [this, &get_rank_at_column_index, index](){
-          if constexpr (std::is_same_v<F, std::monostate>) {
+          if constexpr (std::is_same_v<F, hstrat_auxlib::Monostate>) {
             return GetRankAtColumnIndex(index);
           } else {
             return get_rank_at_column_index(index);
