@@ -6,11 +6,16 @@
 
 #include <pybind11/pybind11.h>
 
+#include "../pyobject.hpp"
+
 namespace py = pybind11;
 
 namespace hstrat_pybind {
 
-template<class T> concept PyObjectConcept = std::same_as<T, py::object>;
+template<class T> concept PyObjectConcept = (
+  std::same_as<T, py::object>
+  || std::same_as<T, hstrat_pybind::pyobject>
+);
 
 }
 

@@ -8,13 +8,14 @@
 #include <hstrat/config/HSTRAT_RANK_T.hpp>
 #include <hstrat/genome_instrumentation/stratum_ordered_stores/HereditaryStratumOrderedStoreList.hpp>
 #include <hstrat_pybind/PyObjectPolicyShim.hpp>
+#include <hstrat_pybind/pyobject.hpp>
 #include <hstrat_pybind/shim_py_object_generator.hpp>
 
 namespace py = pybind11;
 
 using stratum_t = hstrat::HereditaryStratum<
   uint64_t, // DIFFERENTIA_T
-  py::object, // ANNOTATION_T
+  hstrat_pybind::pyobject, // ANNOTATION_T
   HSTRAT_RANK_T // DEPOSITION_RANK_T
 >;
 
