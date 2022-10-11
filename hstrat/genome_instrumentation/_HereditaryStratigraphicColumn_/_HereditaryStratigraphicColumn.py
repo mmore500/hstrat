@@ -56,7 +56,7 @@ class HereditaryStratigraphicColumn:
         self: "HereditaryStratigraphicColumn",
         stratum_retention_policy: typing.Any = perfect_resolution_algo.Policy(),
         *,
-        always_store_rank_in_stratum: bool = True,
+        always_store_rank_in_stratum: bool = False,
         stratum_differentia_bit_width: int = 64,
         initial_stratum_annotation: typing.Optional[typing.Any] = None,
         stratum_ordered_store_factory: typing.Callable = HereditaryStratumOrderedStoreList,

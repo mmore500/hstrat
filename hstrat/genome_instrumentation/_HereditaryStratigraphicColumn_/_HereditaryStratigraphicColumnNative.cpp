@@ -513,7 +513,7 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
     },
     py::arg("stratum_retention_policy") = hstrat::fixed_resolution_algo::Policy{1},
     py::kw_only(),
-    py::arg("always_store_rank_in_stratum") = true,
+    py::arg("always_store_rank_in_stratum") = false,
     py::arg("stratum_differentia_bit_width") = 64,
     py::arg("initial_stratum_annotation") =  py::none(),
     py::arg("stratum_ordered_store_factory") = py::none()
