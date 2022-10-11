@@ -13,6 +13,56 @@
 namespace py = pybind11;
 using namespace pybind11::literals;
 
+#define INSTANCE_DEPORANK(SELF_T) py::class_<SELF_T>(\
+    m,\
+    "_HereditaryStratumNative_" #SELF_T\
+  )\
+  .def("__eq__",\
+    [](const SELF_T& self, const SELF_T& other){\
+      return self == other;\
+    }\
+  )\
+  .def("__eq__",\
+    [](const SELF_T& self, py::object other){\
+      return self == SELF_T{other};\
+    }\
+  )\
+  .def("__copy__", [](const SELF_T& self){ return self; })\
+  .def("__deepcopy__", [](const SELF_T& self, py::object){\
+    return self;\
+  })\
+  .def("GetDifferentia", &SELF_T::GetDifferentia)\
+  .def("GetDepositionRank", &SELF_T::GetDepositionRank)\
+  .def("GetAnnotation", [](const SELF_T& self) -> py::object {\
+    return self.GetAnnotation();\
+  })
+
+#define INSTANCE_NODEPORANK(SELF_T) py::class_<SELF_T>(\
+    m,\
+    "_HereditaryStratumNative_" #SELF_T\
+  )\
+  .def("__eq__",\
+    [](const SELF_T& self, const SELF_T& other){\
+      return self == other;\
+    }\
+  )\
+  .def("__eq__",\
+    [](const SELF_T& self, py::object other){\
+      return self == SELF_T{other};\
+    }\
+  )\
+  .def("__copy__", [](const SELF_T& self){ return self; })\
+  .def("__deepcopy__", [](const SELF_T& self, py::object){\
+    return self;\
+  })\
+  .def("GetDifferentia", &SELF_T::GetDifferentia)\
+  .def("GetDepositionRank",\
+    [](const SELF_T&){ return py::none(); }\
+  )\
+  .def("GetAnnotation", [](const SELF_T& self) -> py::object {\
+    return self.GetAnnotation();\
+  })
+
 using bit_deporank_t = hstrat::HereditaryStratum<
   bool, // DIFFERENTIA_T
   hstrat_pybind::pyobject, // ANNOTATION_T
@@ -147,229 +197,17 @@ PYBIND11_MODULE(_HereditaryStratumNative, m) {
     py::arg("deposition_rank") = py::none()
   );
 
+  INSTANCE_DEPORANK(bit_deporank_t);
+  INSTANCE_DEPORANK(byte_deporank_t);
+  INSTANCE_DEPORANK(word_deporank_t);
+  INSTANCE_DEPORANK(doubleword_deporank_t);
+  INSTANCE_DEPORANK(quadword_deporank_t);
 
-  py::class_<bit_deporank_t>(
-    m,
-    "_HereditaryStratumNative_bit_deporank"
-  )
-  .def("__eq__",
-    [](const bit_deporank_t& self, const bit_deporank_t& other){
-      return self == other;
-    }
-  )
-  .def("__eq__",
-    [](const bit_deporank_t& self, py::object other){
-      return self == bit_deporank_t{other};
-    }
-  )
-  .def("__copy__", [](const bit_deporank_t& self){ return self; })
-  .def("__deepcopy__", [](const bit_deporank_t& self, py::object){
-    return self;
-  })
-  .def("GetDifferentia", &bit_deporank_t::GetDifferentia)
-  .def("GetDepositionRank", &bit_deporank_t::GetDepositionRank)
-  .def("GetAnnotation", &bit_deporank_t::GetAnnotation);
-
-  py::class_<byte_deporank_t>(
-    m,
-    "_HereditaryStratumNative_byte_deporank"
-  )
-  .def("__eq__",
-    [](const byte_deporank_t& self, const byte_deporank_t& other){
-      return self == other;
-    }
-  )
-  .def("__eq__",
-    [](const byte_deporank_t& self, py::object other){
-      return self == byte_deporank_t{other};
-    }
-  )
-  .def("__copy__", [](const byte_deporank_t& self){ return self; })
-  .def("__deepcopy__", [](const byte_deporank_t& self, py::object){
-    return self;
-  })
-  .def("GetDifferentia", &byte_deporank_t::GetDifferentia)
-  .def("GetDepositionRank", &byte_deporank_t::GetDepositionRank)
-  .def("GetAnnotation", &byte_deporank_t::GetAnnotation);
-
-  py::class_<word_deporank_t>(
-    m,
-    "_HereditaryStratumNative_word_deporank"
-  )
-  .def("__eq__",
-    [](const word_deporank_t& self, const word_deporank_t& other){
-      return self == other;
-    }
-  )
-  .def("__eq__",
-    [](const word_deporank_t& self, py::object other){
-      return self == word_deporank_t{other};
-    }
-  )
-  .def("__copy__", [](const word_deporank_t& self){ return self; })
-  .def("__deepcopy__", [](const word_deporank_t& self, py::object){
-    return self;
-  })
-  .def("GetDifferentia", &word_deporank_t::GetDifferentia)
-  .def("GetDepositionRank", &word_deporank_t::GetDepositionRank)
-  .def("GetAnnotation", &word_deporank_t::GetAnnotation);
-
-  py::class_<doubleword_deporank_t>(
-    m,
-    "_HereditaryStratumNative_doubleword_deporank"
-  )
-  .def("__eq__",
-    [](const doubleword_deporank_t& self, const doubleword_deporank_t& other){
-      return self == other;
-    }
-  )
-  .def("__eq__",
-    [](const doubleword_deporank_t& self, py::object other){
-      return self == doubleword_deporank_t{other};
-    }
-  )
-  .def("__copy__", [](const doubleword_deporank_t& self){ return self; })
-  .def("__deepcopy__", [](const doubleword_deporank_t& self, py::object){
-    return self;
-  })
-  .def("GetDifferentia", &doubleword_deporank_t::GetDifferentia)
-  .def("GetDepositionRank", &doubleword_deporank_t::GetDepositionRank)
-  .def("GetAnnotation", &doubleword_deporank_t::GetAnnotation);
-
-  py::class_<quadword_deporank_t>(
-    m,
-    "_HereditaryStratumNative_quadword_deporank"
-  )
-  .def("__eq__",
-    [](const quadword_deporank_t& self, const quadword_deporank_t& other){
-      return self == other;
-    }
-  )
-  .def("__eq__",
-    [](const quadword_deporank_t& self, py::object other){
-      return self == quadword_deporank_t{other};
-    }
-  )
-  .def("__copy__", [](const quadword_deporank_t& self){ return self; })
-  .def("__deepcopy__", [](const quadword_deporank_t& self, py::object){
-    return self;
-  })
-  .def("GetDifferentia", &quadword_deporank_t::GetDifferentia)
-  .def("GetDepositionRank", &quadword_deporank_t::GetDepositionRank)
-  .def("GetAnnotation", &quadword_deporank_t::GetAnnotation);
-
-
-  py::class_<bit_nodeporank_t>(
-    m,
-    "_HereditaryStratumNative_bit_nodeporank"
-  )
-  .def("__eq__",
-    [](const bit_nodeporank_t& self, const bit_nodeporank_t& other){
-      return self == other;
-    }
-  )
-  .def("__eq__",
-    [](const bit_nodeporank_t& self, py::object other){
-      return self == bit_nodeporank_t{other};
-    }
-  )
-  .def("__copy__", [](const bit_nodeporank_t& self){ return self; })
-  .def("__deepcopy__", [](const bit_nodeporank_t& self, py::object){
-    return self;
-  })
-  .def("GetDifferentia", &bit_nodeporank_t::GetDifferentia)
-  .def("GetDepositionRank", [](const bit_nodeporank_t&){ return py::none(); })
-  .def("GetAnnotation", &bit_nodeporank_t::GetAnnotation);
-
-  py::class_<byte_nodeporank_t>(
-    m,
-    "_HereditaryStratumNative_byte_nodeporank"
-  )
-  .def("__eq__",
-    [](const byte_nodeporank_t& self, const byte_nodeporank_t& other){
-      return self == other;
-    }
-  )
-  .def("__eq__",
-    [](const byte_nodeporank_t& self, py::object other){
-      return self == byte_nodeporank_t{other};
-    }
-  )
-  .def("__copy__", [](const byte_nodeporank_t& self){ return self; })
-  .def("__deepcopy__", [](const byte_nodeporank_t& self, py::object){
-    return self;
-  })
-  .def("GetDifferentia", &byte_nodeporank_t::GetDifferentia)
-  .def("GetDepositionRank", [](const byte_nodeporank_t&){ return py::none(); })
-  .def("GetAnnotation", &byte_nodeporank_t::GetAnnotation);
-
-  py::class_<word_nodeporank_t>(
-    m,
-    "_HereditaryStratumNative_word_nodeporank"
-  )
-  .def("__eq__",
-    [](const word_nodeporank_t& self, const word_nodeporank_t& other){
-      return self == other;
-    }
-  )
-  .def("__eq__",
-    [](const word_nodeporank_t& self, py::object other){
-      return self == word_nodeporank_t{other};
-    }
-  )
-  .def("__copy__", [](const word_nodeporank_t& self){ return self; })
-  .def("__deepcopy__", [](const word_nodeporank_t& self, py::object){
-    return self;
-  })
-  .def("GetDifferentia", &word_nodeporank_t::GetDifferentia)
-  .def("GetDepositionRank", [](const word_nodeporank_t&){ return py::none(); })
-  .def("GetAnnotation", &word_nodeporank_t::GetAnnotation);
-
-  py::class_<doubleword_nodeporank_t>(
-    m,
-    "_HereditaryStratumNative_doubleword_nodeporank"
-  )
-  .def("__eq__",
-    [](const doubleword_nodeporank_t& self, const doubleword_nodeporank_t& other){
-      return self == other;
-    }
-  )
-  .def("__eq__",
-    [](const doubleword_nodeporank_t& self, py::object other){
-      return self == doubleword_nodeporank_t{other};
-    }
-  )
-  .def("__copy__", [](const doubleword_nodeporank_t& self){ return self; })
-  .def("__deepcopy__", [](const doubleword_nodeporank_t& self, py::object){
-    return self;
-  })
-  .def("GetDifferentia", &doubleword_nodeporank_t::GetDifferentia)
-  .def("GetDepositionRank", [](const doubleword_nodeporank_t&){
-    return py::none();
-  })
-  .def("GetAnnotation", &doubleword_nodeporank_t::GetAnnotation);
-
-  py::class_<quadword_nodeporank_t>(
-    m,
-    "_HereditaryStratumNative_quadword_nodeporank"
-  )
-  .def("__eq__",
-    [](const quadword_nodeporank_t& self, const quadword_nodeporank_t& other){
-      return self == other;
-    }
-  )
-  .def("__eq__",
-    [](const quadword_nodeporank_t& self, py::object other){
-      return self == quadword_nodeporank_t{other};
-    }
-  )
-  .def("__copy__", [](const quadword_nodeporank_t& self){ return self; })
-  .def("__deepcopy__", [](const quadword_nodeporank_t& self, py::object){ return self; })
-  .def("GetDifferentia", &quadword_nodeporank_t::GetDifferentia)
-  .def("GetDepositionRank", [](const quadword_nodeporank_t&){
-    return py::none();
-  })
-  .def("GetAnnotation", &quadword_nodeporank_t::GetAnnotation);
+  INSTANCE_NODEPORANK(bit_nodeporank_t);
+  INSTANCE_NODEPORANK(byte_nodeporank_t);
+  INSTANCE_NODEPORANK(word_nodeporank_t);
+  INSTANCE_NODEPORANK(doubleword_nodeporank_t);
+  INSTANCE_NODEPORANK(quadword_nodeporank_t);
 
 }
 
