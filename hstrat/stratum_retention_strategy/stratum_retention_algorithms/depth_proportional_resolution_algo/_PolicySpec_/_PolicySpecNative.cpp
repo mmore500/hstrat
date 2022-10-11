@@ -1,6 +1,7 @@
 // cppimport
 #include <pybind11/pybind11.h>
 
+#include <hstrat_pybind/all_tu_declarations.hpp>
 #include <hstrat/stratum_retention_strategy/stratum_retention_algorithms/depth_proportional_resolution_algo/PolicySpec.hpp>
 
 namespace py = pybind11;

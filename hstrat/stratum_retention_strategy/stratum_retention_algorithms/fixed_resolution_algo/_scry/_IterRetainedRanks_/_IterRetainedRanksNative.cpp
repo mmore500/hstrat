@@ -4,6 +4,7 @@
 #include <pybind11/pybind11.h>
 
 #include <hstrat/config/HSTRAT_RANK_T.hpp>
+#include <hstrat_pybind/all_tu_declarations.hpp>
 #include <hstrat_pybind/PyObjectPolicyShim.hpp>
 #include <hstrat/stratum_retention_strategy/stratum_retention_algorithms/fixed_resolution_algo/PolicySpec.hpp>
 #include <hstrat/stratum_retention_strategy/stratum_retention_algorithms/fixed_resolution_algo/scry/IterRetainedRanksFtor.hpp>

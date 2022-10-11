@@ -6,8 +6,8 @@
 #include <pybind11/stl.h>
 
 #include <hstrat/genome_instrumentation/HereditaryStratum.hpp>
+#include <hstrat_pybind/all_tu_declarations.hpp>
 #include <hstrat_pybind/pyobject.hpp>
-#include <hstrat_pybind/custom_casters.hpp>
 
 
 namespace py = pybind11;

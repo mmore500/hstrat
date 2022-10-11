@@ -9,7 +9,7 @@
 #include <cppcoro/include/cppcoro/generator.hpp>
 
 #include <hstrat/config/HSTRAT_RANK_T.hpp>
-#include <hstrat_pybind/custom_casters.hpp>
+#include <hstrat_pybind/all_tu_declarations.hpp>
 
 namespace py = pybind11;
 
@@ -23,16 +23,6 @@ namespace py = pybind11;
     return py::make_iterator(self.begin(), self.end());\
   },\
   py::keep_alive<0, 1>()\
-)\
-.def(\
-  "__next__",\
-  [](SELF_T& self) {\
-    auto iter = self.begin();\
-    if (iter == self.end()) throw py::stop_iteration{};\
-    const auto res = *iter;\
-    ++iter;\
-    return res;\
-  }\
 )
 
 using rank_generator_t = cppcoro::generator<const HSTRAT_RANK_T>;

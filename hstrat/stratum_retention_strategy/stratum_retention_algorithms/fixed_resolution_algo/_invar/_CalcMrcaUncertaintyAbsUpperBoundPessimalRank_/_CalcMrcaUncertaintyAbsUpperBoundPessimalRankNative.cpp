@@ -4,6 +4,7 @@
 #include <pybind11/pybind11.h>
 
 #include <hstrat/config/HSTRAT_RANK_T.hpp>
+#include <hstrat_pybind/all_tu_declarations.hpp>
 #include <hstrat_pybind/PyObjectPolicyShim.hpp>
 #include <hstrat_pybind/shim_py_object_generator.hpp>
 #include <hstrat/stratum_retention_strategy/stratum_retention_algorithms/fixed_resolution_algo/invar/CalcMrcaUncertaintyAbsUpperBoundPessimalRankFtor.hpp>

@@ -7,9 +7,9 @@
 
 #include <hstrat/config/HSTRAT_RANK_T.hpp>
 #include <hstrat/genome_instrumentation/stratum_ordered_stores/HereditaryStratumOrderedStoreList.hpp>
+#include <hstrat_pybind/all_tu_declarations.hpp>
 #include <hstrat_pybind/pyobject.hpp>
 #include <hstrat_pybind/shim_py_object_generator.hpp>
-#include <hstrat_pybind/custom_casters.hpp>
 
 namespace py = pybind11;
 
