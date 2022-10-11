@@ -37,8 +37,10 @@ using namespace pybind11::literals;
 .def("DepositStratum", [](SELF_T& self){ self.DepositStratum(); })\
 .def("DepositStratum", [](SELF_T& self, py::object annotation){\
   self.DepositStratum(annotation);\
-})\
-.def("IterRetainedRanks", &SELF_T::IterRetainedRanks)\
+}, py::arg("annotation"))\
+.def("IterRetainedRanks",\
+  &SELF_T::IterRetainedRanks, py::keep_alive<0, 1>()\
+)\
 .def("GetNumStrataRetained", &SELF_T::GetNumStrataRetained)\
 .def("GetNumStrataDeposited", &SELF_T::GetNumStrataDeposited)\
 .def("GetStratumAtColumnIndex", &SELF_T::GetStratumAtColumnIndex)\
@@ -56,14 +58,26 @@ using namespace pybind11::literals;
 )\
 .def(\
   "CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions",\
-  &SELF_T::CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions\
+  &SELF_T::CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions,\
+  py::arg("significance_level")\
 )\
 .def(\
   "Clone",\
   [](const SELF_T& self){ return self; }\
 )\
-.def("CloneDescendant", &SELF_T::CloneDescendant)
-
+.def("CloneDescendant", [](SELF_T& self){\
+  return self.CloneDescendant();\
+})\
+.def("CloneDescendant", [](SELF_T& self, py::object annotation){\
+  return self.CloneDescendant(annotation);\
+}, py::arg("stratum_annotation"))\
+.def_property_readonly(\
+  "_stratum_ordered_store",\
+  &SELF_T::_GetStratumOrderedStoreForPy\
+)\
+.def("_ShouldOmitStratumDepositionRank",\
+  [](const SELF_T&){ return SELF_T::_omits_stratum_deposition_rank();}\
+)
 
 using bit_nodeporank_t = hstrat::HereditaryStratigraphicColumn<
   hstrat_pybind::PyObjectPolicyShim<
@@ -261,6 +275,10 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
   );
   importlib.attr("import_module")(
     "..._HereditaryStratum_._HereditaryStratumNative",
+    m.attr("__name__")
+  );
+  importlib.attr("import_module")(
+    "...stratum_ordered_stores._HereditaryStratumOrderedStoreList_._HereditaryStratumOrderedStoreListNative",
     m.attr("__name__")
   );
 

@@ -3,6 +3,7 @@
 #define HSTRAT_PYBIND_PYOBJECTPOLICYSHIM_HPP_INCLUDE
 
 #include <type_traits>
+#include <utility>
 
 #include <pybind11/pybind11.h>
 
@@ -12,6 +13,7 @@ namespace py = pybind11;
 
 #include "../hstrat/config/HSTRAT_RANK_T.hpp"
 
+#include "deepcopy.hpp"
 #include "shim_py_object_generator.hpp"
 
 namespace hstrat_pybind {
@@ -37,6 +39,10 @@ public:
     return HAS_SCRY_OTHER::value;
   }
 
+  PyObjectPolicyShim(const PyObjectPolicyShim& other)
+  : policy_obj(hstrat_pybind::deepcopy(other.policy_obj))
+  {}
+
   PyObjectPolicyShim(py::object policy_obj) : policy_obj(policy_obj) {}
 
   bool operator==(const PyObjectPolicyShim& other) const {
@@ -57,7 +63,7 @@ public:
     return shim_py_object_generator<const HSTRAT_RANK_T>(
       policy_obj.attr("GenDropRanks")(
         num_stratum_depositions_completed,
-        retained_ranks
+        std::move(retained_ranks)
       )
     );
   }

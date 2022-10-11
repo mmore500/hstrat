@@ -94,7 +94,7 @@ public:
 
   DEPOSITION_RANK_T GetDepositionRank() const { return deposition_rank; }
 
-  ANNOTATION_T GetAnnotation() const { return annotation; }
+  const ANNOTATION_T& GetAnnotation() const { return annotation; }
 
   DIFFERENTIA_T GetDifferentia() const { return differentia; }
 

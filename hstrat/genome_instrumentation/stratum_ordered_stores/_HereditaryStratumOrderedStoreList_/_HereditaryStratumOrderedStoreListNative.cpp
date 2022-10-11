@@ -94,7 +94,10 @@ PYBIND11_MODULE(_HereditaryStratumOrderedStoreListNative, m) {
     py::arg("ranks"),
     py::arg("get_column_index_of_rank") = py::none()
   )
-  .def("IterRetainedRanks", &self_t::IterRetainedRanks)
+  .def(
+    "IterRetainedRanks", &self_t::IterRetainedRanks,
+    py::keep_alive<0, 1>()
+  )
   .def("IterRankDifferentia",
     [](
       const self_t& self,
@@ -115,7 +118,8 @@ PYBIND11_MODULE(_HereditaryStratumOrderedStoreListNative, m) {
       }
     },
     py::arg("get_rank_at_column_index") = py::none(),
-    py::arg("start_column_index") = 0
+    py::arg("start_column_index") = 0,
+    py::keep_alive<0, 1>()
   );
 
 }

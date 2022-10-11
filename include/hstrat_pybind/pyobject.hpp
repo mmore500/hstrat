@@ -19,7 +19,7 @@ public:
 
   pyobject(const py::object& obj) : object(obj) {}
 
-  operator py::object() { return object; }
+  operator py::object() const { return object; }
 
   bool operator==(const pyobject& other) const {
     return object.equal(other.object);

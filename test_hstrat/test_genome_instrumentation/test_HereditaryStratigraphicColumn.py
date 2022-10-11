@@ -7,8 +7,13 @@ import tempfile
 import pytest
 
 from hstrat import hstrat
+from hstrat import genome_instrumentation
 
 
+@pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
 @pytest.mark.parametrize(
     "retention_policy",
     [
@@ -25,8 +30,8 @@ from hstrat import hstrat
         hstrat.HereditaryStratumOrderedStoreTree,
     ],
 )
-def test_Clone1(retention_policy, ordered_store):
-    original1 = hstrat.HereditaryStratigraphicColumn(
+def test_Clone1(impl, retention_policy, ordered_store):
+    original1 = impl(
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_policy=retention_policy,
     )
@@ -43,6 +48,10 @@ def test_Clone1(retention_policy, ordered_store):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize(
     "retention_policy",
     [
         hstrat.perfect_resolution_algo.Policy(),
@@ -58,8 +67,8 @@ def test_Clone1(retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreTree,
     ],
 )
-def test_Clone2(retention_policy, ordered_store):
-    original2 = hstrat.HereditaryStratigraphicColumn(
+def test_Clone2(impl, retention_policy, ordered_store):
+    original2 = impl(
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_policy=retention_policy,
     )
@@ -79,6 +88,10 @@ def test_Clone2(retention_policy, ordered_store):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize(
     "retention_policy",
     [
         hstrat.perfect_resolution_algo.Policy(),
@@ -94,8 +107,8 @@ def test_Clone2(retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreTree,
     ],
 )
-def test_Clone3(retention_policy, ordered_store):
-    column = hstrat.HereditaryStratigraphicColumn(
+def test_Clone3(impl, retention_policy, ordered_store):
+    column = impl(
         initial_stratum_annotation=0,
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
@@ -124,6 +137,10 @@ def test_Clone3(retention_policy, ordered_store):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize(
     "retention_policy",
     [
         hstrat.perfect_resolution_algo.Policy(),
@@ -139,9 +156,9 @@ def test_Clone3(retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreTree,
     ],
 )
-def test_Clone4(retention_policy, ordered_store):
+def test_Clone4(impl, retention_policy, ordered_store):
     # regression test for bug with tree store cloning
-    column = hstrat.HereditaryStratigraphicColumn(
+    column = impl(
         initial_stratum_annotation=0,
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
@@ -265,6 +282,10 @@ def test_pickle_with_population(retention_policy, ordered_store):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize(
     "retention_policy",
     [
         hstrat.perfect_resolution_algo.Policy(),
@@ -281,17 +302,18 @@ def test_pickle_with_population(retention_policy, ordered_store):
     ],
 )
 def test_eq(
+    impl,
     retention_policy,
     ordered_store,
 ):
 
-    original1 = hstrat.HereditaryStratigraphicColumn(
+    original1 = impl(
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     copy1 = deepcopy(original1)
     copy2 = original1.Clone()
-    original2 = hstrat.HereditaryStratigraphicColumn(
+    original2 = impl(
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_policy=retention_policy,
     )
@@ -311,6 +333,10 @@ def test_eq(
 
 
 @pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize(
     "retention_policy",
     [
         hstrat.perfect_resolution_algo.Policy(),
@@ -329,8 +355,8 @@ def test_eq(
         ),
     ],
 )
-def test_annotation(retention_policy, ordered_store):
-    column = hstrat.HereditaryStratigraphicColumn(
+def test_annotation(impl, retention_policy, ordered_store):
+    column = impl(
         initial_stratum_annotation=0,
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_policy=retention_policy,
@@ -362,6 +388,10 @@ def test_annotation(retention_policy, ordered_store):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize(
     "retention_policy",
     [
         hstrat.perfect_resolution_algo.Policy(),
@@ -377,13 +407,13 @@ def test_annotation(retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreTree,
     ],
 )
-def test_always_store_rank_in_stratum(retention_policy, ordered_store):
-    first = hstrat.HereditaryStratigraphicColumn(
+def test_always_store_rank_in_stratum(impl, retention_policy, ordered_store):
+    first = impl(
         always_store_rank_in_stratum=True,
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_policy=retention_policy,
     )
-    second = hstrat.HereditaryStratigraphicColumn(
+    second = impl(
         always_store_rank_in_stratum=False,
         stratum_ordered_store_factory=ordered_store,
         stratum_retention_policy=retention_policy,
@@ -404,15 +434,23 @@ def test_always_store_rank_in_stratum(retention_policy, ordered_store):
         second.DepositStratum()
 
 
-def test_GetNumStrataDeposited():
-    column = hstrat.HereditaryStratigraphicColumn()
+@pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+def test_GetNumStrataDeposited(impl):
+    column = impl()
     for i in range(10):
         assert column.GetNumStrataDeposited() == i + 1
         column.DepositStratum()
 
 
-def test_CloneDescendant():
-    column = hstrat.HereditaryStratigraphicColumn()
+@pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+def test_CloneDescendant(impl):
+    column = impl()
     assert column.GetNumStrataDeposited() == 1
     descendant = column.CloneDescendant(stratum_annotation="annotation")
     assert descendant.GetNumStrataDeposited() == 2
@@ -426,8 +464,12 @@ def test_CloneDescendant():
     )
 
 
-def test_maximal_retention_policy():
-    first = hstrat.HereditaryStratigraphicColumn(
+@pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+def test_maximal_retention_policy(impl):
+    first = impl(
         stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
     )
     second = first.Clone()
@@ -455,8 +497,12 @@ def test_maximal_retention_policy():
         # no layers deposited onto third
 
 
-def test_minimal_retention_policy():
-    first = hstrat.HereditaryStratigraphicColumn(
+@pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+def test_minimal_retention_policy(impl):
+    first = impl(
         stratum_retention_policy=hstrat.nominal_resolution_algo.Policy(),
     )
     second = first.Clone()
@@ -486,36 +532,50 @@ def test_minimal_retention_policy():
         # no layers deposited onto third
 
 
-def test_CalcProbabilityDifferentiaCollision():
+@pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+def test_CalcProbabilityDifferentiaCollision(impl):
     assert (
-        hstrat.HereditaryStratigraphicColumn(
+        impl(
             stratum_differentia_bit_width=1,
         ).CalcProbabilityDifferentiaCollision()
         == 0.5
     )
+    try:
+        assert (
+            impl(
+                stratum_differentia_bit_width=2,
+            ).CalcProbabilityDifferentiaCollision()
+            == 0.25
+        )
+    except ValueError:
+        pass
+    try:
+        assert (
+            impl(
+                stratum_differentia_bit_width=3,
+            ).CalcProbabilityDifferentiaCollision()
+            == 0.125
+        )
+    except ValueError:
+        pass
     assert (
-        hstrat.HereditaryStratigraphicColumn(
-            stratum_differentia_bit_width=2,
-        ).CalcProbabilityDifferentiaCollision()
-        == 0.25
-    )
-    assert (
-        hstrat.HereditaryStratigraphicColumn(
-            stratum_differentia_bit_width=3,
-        ).CalcProbabilityDifferentiaCollision()
-        == 0.125
-    )
-    assert (
-        hstrat.HereditaryStratigraphicColumn(
+        impl(
             stratum_differentia_bit_width=8,
         ).CalcProbabilityDifferentiaCollision()
         == 1.0 / 256.0
     )
 
 
-def test_CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions():
+@pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+def test_CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(impl):
     assert (
-        hstrat.HereditaryStratigraphicColumn(
+        impl(
             stratum_differentia_bit_width=1,
         ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
             significance_level=1.0 - 0.49
@@ -523,31 +583,37 @@ def test_CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions():
         == 1
     )
     assert (
-        hstrat.HereditaryStratigraphicColumn(
+        impl(
             stratum_differentia_bit_width=1,
         ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
             significance_level=1.0 - 0.95
         )
         == 5
     )
-    assert (
-        hstrat.HereditaryStratigraphicColumn(
-            stratum_differentia_bit_width=2,
-        ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-            significance_level=1.0 - 0.95
+    try:
+        assert (
+            impl(
+                stratum_differentia_bit_width=2,
+            ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                significance_level=1.0 - 0.95
+            )
+            == 3
         )
-        == 3
-    )
-    assert (
-        hstrat.HereditaryStratigraphicColumn(
-            stratum_differentia_bit_width=5,
-        ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-            significance_level=1.0 - 0.95
+    except ValueError:
+        pass
+    try:
+        assert (
+            impl(
+                stratum_differentia_bit_width=5,
+            ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+                significance_level=1.0 - 0.95
+            )
+            == 1
         )
-        == 1
-    )
+    except ValueError:
+        pass
     assert (
-        hstrat.HereditaryStratigraphicColumn(
+        impl(
             stratum_differentia_bit_width=64,
         ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
             significance_level=1.0 - 0.49
@@ -555,7 +621,7 @@ def test_CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions():
         == 1
     )
     assert (
-        hstrat.HereditaryStratigraphicColumn(
+        impl(
             stratum_differentia_bit_width=64,
         ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
             significance_level=1.0 - 0.95
@@ -563,7 +629,7 @@ def test_CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions():
         == 1
     )
     assert (
-        hstrat.HereditaryStratigraphicColumn(
+        impl(
             stratum_differentia_bit_width=64,
         ).CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
             significance_level=1.0 - 0.99

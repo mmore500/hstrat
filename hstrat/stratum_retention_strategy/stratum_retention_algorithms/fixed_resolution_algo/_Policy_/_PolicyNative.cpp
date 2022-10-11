@@ -51,6 +51,8 @@ PYBIND11_MODULE(_PolicyNative, m) {
   .def("__eq__", [](const self_t&, py::object) { return false; })
   .def("__repr__", &self_t::Repr)
   .def("__str__", &self_t::Str)
+  .def("__copy__", [](const self_t& self){ return self; })
+  .def("__deepcopy__", [](const self_t& self, py::object){ return self; })
   .def("GetSpec", &self_t::GetSpec)
   .def("HasCalcRankAtColumnIndex", [](const self_t&){
     return self_t::has_calc_rank_at_column_index();

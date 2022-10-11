@@ -2,11 +2,11 @@
 #ifndef HSTRAT_PYBIND_PYOBJECTORDEREDSTORESHIM_HPP_INCLUDE
 #define HSTRAT_PYBIND_PYOBJECTORDEREDSTORESHIM_HPP_INCLUDE
 
-#include <functional>
 #include <utility>
 
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 namespace py = pybind11;
 
@@ -16,6 +16,7 @@ namespace py = pybind11;
 #include "../hstrat/config/HSTRAT_RANK_T.hpp"
 #include "../hstrat/genome_instrumentation/HereditaryStratum.hpp"
 
+#include "deepcopy.hpp"
 #include "shim_py_object_generator.hpp"
 
 namespace hstrat_pybind {
@@ -27,7 +28,13 @@ class PyObjectOrderedStoreShim {
 
 public:
 
+  py::object GetObj() const { return store_obj; }
+
   using hereditary_stratum_t = HEREDITARY_STRATUM_T;
+
+  PyObjectOrderedStoreShim(const PyObjectOrderedStoreShim& other)
+  : store_obj(hstrat_pybind::deepcopy(other.store_obj))
+  {}
 
   PyObjectOrderedStoreShim(py::object obj) : store_obj(obj) {}
 
@@ -84,19 +91,20 @@ public:
     F get_column_index_of_rank={}
   ) {
     if constexpr (std::is_same_v<F, hstrat_auxlib::Monostate>) {
-      store_obj.attr("DelRanks")(ranks);
+      store_obj.attr("DelRanks")(std::move(ranks));
     } else {
       store_obj.attr("DelRanks")(
-        ranks,
-        std::function<HSTRAT_RANK_T(HSTRAT_RANK_T)>(get_column_index_of_rank)
+        std::move(ranks),
+        py::cpp_function(get_column_index_of_rank)
       );
     }
   }
 
   cppcoro::generator<const HSTRAT_RANK_T> IterRetainedRanks() const {
-    return store_obj.attr(
-      "IterRetainedRanks"
-    )().template cast<cppcoro::generator<const HSTRAT_RANK_T>>();
+    using val_t = const HSTRAT_RANK_T;
+    return hstrat_pybind::shim_py_object_generator<val_t>(
+      store_obj.attr("IterRetainedRanks")()
+    );
   }
 
   template<typename F=hstrat_auxlib::Monostate>
@@ -106,21 +114,21 @@ public:
     const HSTRAT_RANK_T start_column_index = 0,
     F get_rank_at_column_index = {}
   ) const {
-    using return_t = cppcoro::generator<
-      std::tuple<
-        HSTRAT_RANK_T,
-        typename hereditary_stratum_t::differentia_t
-      >
+    using val_t = std::tuple<
+      HSTRAT_RANK_T,
+      typename hereditary_stratum_t::differentia_t
     >;
     if constexpr (std::is_same_v<F, hstrat_auxlib::Monostate>) {
-      return store_obj.attr("DelRanks")(
-        start_column_index
-      ).template cast<return_t>();
+      return hstrat_pybind::shim_py_object_generator<val_t>(
+        store_obj.attr("IterRankDifferentia")(start_column_index)
+      );
     } else {
-      return store_obj.attr("DelRanks")(
-        start_column_index,
-        std::function<HSTRAT_RANK_T(HSTRAT_RANK_T)>(get_rank_at_column_index)
-      ).template cast<return_t>();
+      return hstrat_pybind::shim_py_object_generator<val_t>(
+        store_obj.attr("IterRankDifferentia")(
+          start_column_index,
+          py::cpp_function(get_rank_at_column_index)
+        )
+      );
     }
   }
 
