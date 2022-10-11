@@ -1,5 +1,6 @@
 // cppimport
 #include <cstddef>
+#include <iostream>
 #include <tuple>
 
 #include <pybind11/pybind11.h>
@@ -33,10 +34,38 @@ namespace py = pybind11;
   }\
 )
 
+using rank_generator_t = cppcoro::generator<const HSTRAT_RANK_T>;
+
+// https://github.com/pybind/pybind11/issues/1176#issuecomment-343312352
+namespace pybind11 { namespace detail {
+
+template <> struct type_caster<rank_generator_t> : public type_caster_base<rank_generator_t> {
+    using base = type_caster_base<rank_generator_t>;
+public:
+    bool load(handle src, bool convert) {
+        if (base::load(src, convert)) {
+            std::cerr << "loaded via base!\n";
+            return true;
+        }
+        // else if (py::isinstance<py::int_>(src)) {
+        //     std::cerr << "loading from integer!\n";
+        //     value = new rank_generator_t(py::cast<int>(src));
+        //     return true;
+        // }
+
+        return false;
+    }
+
+    static handle cast(rank_generator_t *src, return_value_policy policy, handle parent) {
+        /* Do any additional work here */
+        return base::cast(src, policy, parent);
+    }
+};
+
+}}
 
 PYBIND11_MODULE(_CppcoroGenerator, m) {
 
-  using rank_generator_t = cppcoro::generator<const HSTRAT_RANK_T>;
   INSTANCE(rank_generator_t);
 
   using bool_tuple_t = std::tuple<HSTRAT_RANK_T, bool>;
