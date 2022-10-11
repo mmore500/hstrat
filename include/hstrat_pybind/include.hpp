@@ -7,6 +7,7 @@
 #include "deepcopy.hpp"
 #include "PyObjectConcept.hpp"
 #include "pyobject.hpp"
+#include "PyObjectOrderedStoreShimConcept.hpp"
 #include "PyObjectOrderedStoreShim.hpp"
 #include "PyObjectPolicyShim.hpp"
 #include "shim_py_object_generator.hpp"

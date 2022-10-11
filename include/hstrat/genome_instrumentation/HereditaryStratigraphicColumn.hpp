@@ -17,7 +17,7 @@
 #include "../../hstrat_auxlib/constexpr_log.hpp"
 #include "../../hstrat_auxlib/is_specialization_of.hpp"
 #include "../../hstrat_auxlib/Monostate.hpp"
-#include "../../hstrat_pybind/PyObjectOrderedStoreShim.hpp"
+#include "../../hstrat_pybind/PyObjectOrderedStoreShimConcept.hpp"
 
 #include "../config/HSTRAT_RANK_T.hpp"
 
@@ -88,13 +88,9 @@ public:
   const store_t& GetStratumOrderedStore() const { return store; }
 
   decltype(auto) _GetStratumOrderedStoreForPy() const {
-    if constexpr (
-      hstrat_auxlib::is_specialization_of<
-        hstrat_pybind::PyObjectOrderedStoreShim,
-        store_t
-      >::value
-    ) return GetStratumOrderedStore().GetObj();
-    else return GetStratumOrderedStore();
+    if constexpr (hstrat_pybind::PyObjectOrderedStoreShimConcept<store_t>) {
+      return GetStratumOrderedStore().GetObj();
+    } else return GetStratumOrderedStore();
   }
 
   consteval static bool _omits_stratum_deposition_rank() {
