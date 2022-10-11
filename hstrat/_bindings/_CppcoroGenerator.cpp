@@ -11,156 +11,53 @@
 
 namespace py = pybind11;
 
+#define INSTANCE(SELF_T) py::class_<SELF_T>(\
+  m,\
+  "CppcoroGeneratorHstratRankT" #SELF_T\
+)\
+.def(\
+  "__iter__",\
+  [](SELF_T& self) {\
+    return py::make_iterator(self.begin(), self.end());\
+  },\
+  py::keep_alive<0, 1>()\
+)\
+.def(\
+  "__next__",\
+  [](SELF_T& self) {\
+    auto iter = self.begin();\
+    if (iter == self.end()) throw py::stop_iteration{};\
+    const auto res = *iter;\
+    ++iter;\
+    return res;\
+  }\
+)
+
+
 PYBIND11_MODULE(_CppcoroGenerator, m) {
 
   using rank_generator_t = cppcoro::generator<const HSTRAT_RANK_T>;
-  py::class_<rank_generator_t>(
-    m,
-    "CppcoroGeneratorHstratRankT"
-  )
-  .def(
-    "__iter__",
-    [](rank_generator_t& self) {
-      return py::make_iterator(self.begin(), self.end());
-    },
-    py::keep_alive<0, 1>()
-  )
-  .def(
-    "__next__",
-    [](rank_generator_t& self) {
-      auto iter = self.begin();
-      if (iter == self.end()) throw py::stop_iteration{};
-
-      const auto res = *iter;
-      ++iter;
-      return res;
-    }
-  );
+  INSTANCE(rank_generator_t);
 
   using bool_tuple_t = std::tuple<HSTRAT_RANK_T, bool>;
   using bool_tuple_generator_t = cppcoro::generator<bool_tuple_t>;
-  py::class_<bool_tuple_generator_t>(
-    m,
-    "CppcoroGeneratorHstratRankBoolTupleT"
-  )
-  .def(
-    "__iter__",
-    [](bool_tuple_generator_t& self) {
-      return py::make_iterator(self.begin(), self.end());
-    },
-    py::keep_alive<0, 1>()
-  )
-  .def(
-    "__next__",
-    [](bool_tuple_generator_t& self) {
-      auto iter = self.begin();
-      if (iter == self.end()) throw py::stop_iteration{};
-
-      const auto res = *iter;
-      ++iter;
-      return res;
-    }
-  );
+  INSTANCE(bool_tuple_generator_t);
 
   using byte_tuple_t = std::tuple<HSTRAT_RANK_T, uint8_t>;
   using byte_tuple_generator_t = cppcoro::generator<byte_tuple_t>;
-  py::class_<byte_tuple_generator_t>(
-    m,
-    "CppcoroGeneratorHstratRankByteTupleT"
-  )
-  .def(
-    "__iter__",
-    [](byte_tuple_generator_t& self) {
-      return py::make_iterator(self.begin(), self.end());
-    },
-    py::keep_alive<0, 1>()
-  )
-  .def(
-    "__next__",
-    [](byte_tuple_generator_t& self) {
-      auto iter = self.begin();
-      if (iter == self.end()) throw py::stop_iteration{};
-
-      const auto res = *iter;
-      ++iter;
-      return res;
-    }
-  );
+  INSTANCE(byte_tuple_generator_t);
 
   using word_tuple_t = std::tuple<HSTRAT_RANK_T, uint16_t>;
   using word_tuple_generator_t = cppcoro::generator<word_tuple_t>;
-  py::class_<word_tuple_generator_t>(
-    m,
-    "CppcoroGeneratorHstratRankWordTupleT"
-  )
-  .def(
-    "__iter__",
-    [](word_tuple_generator_t& self) {
-      return py::make_iterator(self.begin(), self.end());
-    },
-    py::keep_alive<0, 1>()
-  )
-  .def(
-    "__next__",
-    [](word_tuple_generator_t& self) {
-      auto iter = self.begin();
-      if (iter == self.end()) throw py::stop_iteration{};
-
-      const auto res = *iter;
-      ++iter;
-      return res;
-    }
-  );
+  INSTANCE(word_tuple_generator_t);
 
   using doubleword_tuple_t = std::tuple<HSTRAT_RANK_T, uint32_t>;
   using doubleword_tuple_generator_t = cppcoro::generator<doubleword_tuple_t>;
-  py::class_<doubleword_tuple_generator_t>(
-    m,
-    "CppcoroGeneratorHstratRankDoubleWordTupleT"
-  )
-  .def(
-    "__iter__",
-    [](doubleword_tuple_generator_t& self) {
-      return py::make_iterator(self.begin(), self.end());
-    },
-    py::keep_alive<0, 1>()
-  )
-  .def(
-    "__next__",
-    [](doubleword_tuple_generator_t& self) {
-      auto iter = self.begin();
-      if (iter == self.end()) throw py::stop_iteration{};
-
-      const auto res = *iter;
-      ++iter;
-      return res;
-    }
-  );
+  INSTANCE(doubleword_tuple_generator_t);
 
   using quadword_tuple_t = std::tuple<HSTRAT_RANK_T, uint64_t>;
   using quadword_tuple_generator_t = cppcoro::generator<quadword_tuple_t>;
-  py::class_<quadword_tuple_generator_t>(
-    m,
-    "CppcoroGeneratorHstratRankQuadWordTupleT"
-  )
-  .def(
-    "__iter__",
-    [](quadword_tuple_generator_t& self) {
-      return py::make_iterator(self.begin(), self.end());
-    },
-    py::keep_alive<0, 1>()
-  )
-  .def(
-    "__next__",
-    [](quadword_tuple_generator_t& self) {
-      auto iter = self.begin();
-      if (iter == self.end()) throw py::stop_iteration{};
-
-      const auto res = *iter;
-      ++iter;
-      return res;
-    }
-  );
+  INSTANCE(quadword_tuple_generator_t);
 
 }
 
