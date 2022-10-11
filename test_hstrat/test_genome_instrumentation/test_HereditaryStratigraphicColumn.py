@@ -28,6 +28,7 @@ from hstrat import genome_instrumentation
         hstrat.HereditaryStratumOrderedStoreDict,
         hstrat.HereditaryStratumOrderedStoreList,
         hstrat.HereditaryStratumOrderedStoreTree,
+        None,
     ],
 )
 def test_Clone1(impl, retention_policy, ordered_store):
@@ -65,6 +66,7 @@ def test_Clone1(impl, retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreDict,
         hstrat.HereditaryStratumOrderedStoreList,
         hstrat.HereditaryStratumOrderedStoreTree,
+        None,
     ],
 )
 def test_Clone2(impl, retention_policy, ordered_store):
@@ -105,6 +107,7 @@ def test_Clone2(impl, retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreDict,
         hstrat.HereditaryStratumOrderedStoreList,
         hstrat.HereditaryStratumOrderedStoreTree,
+        None,
     ],
 )
 def test_Clone3(impl, retention_policy, ordered_store):
@@ -154,6 +157,7 @@ def test_Clone3(impl, retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreDict,
         hstrat.HereditaryStratumOrderedStoreList,
         hstrat.HereditaryStratumOrderedStoreTree,
+        None,
     ],
 )
 def test_Clone4(impl, retention_policy, ordered_store):
@@ -193,6 +197,7 @@ def test_Clone4(impl, retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreDict,
         hstrat.HereditaryStratumOrderedStoreList,
         hstrat.HereditaryStratumOrderedStoreTree,
+        None,
     ],
 )
 def test_pickle(retention_policy, ordered_store):
@@ -223,6 +228,7 @@ def test_pickle(retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreDict,
         hstrat.HereditaryStratumOrderedStoreList,
         hstrat.HereditaryStratumOrderedStoreTree,
+        None,
     ],
 )
 def test_pickle_with_deposits(retention_policy, ordered_store):
@@ -255,6 +261,7 @@ def test_pickle_with_deposits(retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreDict,
         hstrat.HereditaryStratumOrderedStoreList,
         hstrat.HereditaryStratumOrderedStoreTree,
+        None,
     ],
 )
 def test_pickle_with_population(retention_policy, ordered_store):
@@ -299,6 +306,7 @@ def test_pickle_with_population(retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreDict,
         hstrat.HereditaryStratumOrderedStoreList,
         hstrat.HereditaryStratumOrderedStoreTree,
+        None,
     ],
 )
 def test_eq(
@@ -353,6 +361,7 @@ def test_eq(
             hstrat.HereditaryStratumOrderedStoreTree,
             marks=pytest.mark.heavy,
         ),
+        None,
     ],
 )
 def test_annotation(impl, retention_policy, ordered_store):
@@ -405,6 +414,7 @@ def test_annotation(impl, retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreDict,
         hstrat.HereditaryStratumOrderedStoreList,
         hstrat.HereditaryStratumOrderedStoreTree,
+        None,
     ],
 )
 def test_always_store_rank_in_stratum(impl, retention_policy, ordered_store):

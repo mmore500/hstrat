@@ -59,7 +59,7 @@ class HereditaryStratigraphicColumn:
         always_store_rank_in_stratum: bool = False,
         stratum_differentia_bit_width: int = 64,
         initial_stratum_annotation: typing.Optional[typing.Any] = None,
-        stratum_ordered_store_factory: typing.Callable = HereditaryStratumOrderedStoreList,
+        stratum_ordered_store_factory: typing.Optional[typing.Callable] = None,
     ):
         """Initialize column to track a new line of descent.
 
@@ -94,6 +94,9 @@ class HereditaryStratigraphicColumn:
         policy is provided, the perfect resolution policy where all strata are
         retained is used.
         """
+        if stratum_ordered_store_factory is None:
+            stratum_ordered_store_factory = HereditaryStratumOrderedStoreList
+
         self._always_store_rank_in_stratum = always_store_rank_in_stratum
         self._stratum_differentia_bit_width = stratum_differentia_bit_width
         self._num_strata_deposited = 0
