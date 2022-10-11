@@ -1,6 +1,5 @@
 // cppimport
 #include <cstddef>
-#include <iostream>
 #include <tuple>
 
 #include <pybind11/pybind11.h>
