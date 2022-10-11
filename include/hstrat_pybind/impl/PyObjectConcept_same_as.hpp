@@ -17,6 +17,6 @@ template<class T> concept PyObjectConcept = (
   || std::same_as<T, hstrat_pybind::pyobject>
 );
 
-}
+} // namespace hstrat_pybind
 
 #endif // #ifndef HSTRAT_PYBIND_IMPL_PYOBJECTCONCEPT_SAME_AS_HPP_INCLUDE
