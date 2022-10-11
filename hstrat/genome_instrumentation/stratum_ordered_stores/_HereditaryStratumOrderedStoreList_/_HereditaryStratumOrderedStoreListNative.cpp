@@ -74,7 +74,20 @@ PYBIND11_MODULE(_HereditaryStratumOrderedStoreListNative, m) {
         const store_deporank_t& self,
         py::object get_rank_at_column_index,
         const HSTRAT_RANK_T start_column_index
-      ){ return self.IterRankDifferentia(start_column_index); },
+      ){
+        if (!get_rank_at_column_index.is_none()) {
+          return self.IterRankDifferentia(
+            start_column_index,
+            [get_rank_at_column_index](const HSTRAT_RANK_T index){
+              return get_rank_at_column_index(
+                index
+              ).template cast<HSTRAT_RANK_T>();
+            }
+          );
+        } else {
+          return self.IterRankDifferentia(start_column_index);
+        }
+      },
       py::arg("get_rank_at_column_index") = py::none(),
       py::arg("start_column_index") = 0,
       py::keep_alive<0, 1>()
@@ -85,9 +98,20 @@ PYBIND11_MODULE(_HereditaryStratumOrderedStoreListNative, m) {
         py::object ranks,
         py::object get_column_index_of_rank
       ){
-        self.DelRanks(
-          hstrat_pybind::shim_py_object_generator<const HSTRAT_RANK_T>(ranks)
-        );
+        if (!get_column_index_of_rank.is_none()) {
+          self.DelRanks(
+            hstrat_pybind::shim_py_object_generator<const HSTRAT_RANK_T>(ranks),
+            [get_column_index_of_rank](const HSTRAT_RANK_T rank){
+              return get_column_index_of_rank(
+                rank
+              ).template cast<HSTRAT_RANK_T>();
+            }
+          );
+        } else {
+          self.DelRanks(
+            hstrat_pybind::shim_py_object_generator<const HSTRAT_RANK_T>(ranks)
+          );
+        }
       },
       py::arg("ranks"),
       py::arg("get_column_index_of_rank") = py::none()
