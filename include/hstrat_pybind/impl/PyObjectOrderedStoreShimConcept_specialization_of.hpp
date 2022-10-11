@@ -2,6 +2,8 @@
 #ifndef HSTRAT_PYBIND_IMPL_PYOBJECTORDEREDSTORESHIMCONCEPT_SPECIALIZATION_OF_HPP_INCLUDE
 #define HSTRAT_PYBIND_IMPL_PYOBJECTORDEREDSTORESHIMCONCEPT_SPECIALIZATION_OF_HPP_INCLUDE
 
+#include "../../hstrat_auxlib/is_specialization_of.hpp"
+
 #include "../PyObjectOrderedStoreShim.hpp"
 
 namespace hstrat_pybind {
