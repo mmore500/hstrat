@@ -1,4 +1,3 @@
 import cppimport.import_hook
 
-from . import _CppcoroGenerator
-from . import _Monostate
+from . import _CppcoroGenerator, _Monostate

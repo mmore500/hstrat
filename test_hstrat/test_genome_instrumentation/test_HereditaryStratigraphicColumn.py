@@ -6,8 +6,7 @@ import tempfile
 
 import pytest
 
-from hstrat import hstrat
-from hstrat import genome_instrumentation
+from hstrat import genome_instrumentation, hstrat
 
 
 @pytest.mark.parametrize(
