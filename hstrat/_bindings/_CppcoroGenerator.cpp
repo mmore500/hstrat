@@ -39,25 +39,28 @@ using rank_generator_t = cppcoro::generator<const HSTRAT_RANK_T>;
 // https://github.com/pybind/pybind11/issues/1176#issuecomment-343312352
 namespace pybind11 { namespace detail {
 
-template <> struct type_caster<rank_generator_t> : public type_caster_base<rank_generator_t> {
-    using base = type_caster_base<rank_generator_t>;
+using cast_t = rank_generator_t;
+
+template <> struct type_caster<cast_t> : public type_caster_base<cast_t> {
+    using base = type_caster_base<cast_t>;
 public:
     bool load(handle src, bool convert) {
         if (base::load(src, convert)) {
-            std::cerr << "loaded via base!\n";
+            // std::cerr << "loaded via base!\n";
             return true;
         }
         // else if (py::isinstance<py::int_>(src)) {
         //     std::cerr << "loading from integer!\n";
-        //     value = new rank_generator_t(py::cast<int>(src));
+        //     value = new cast_t(py::cast<int>(src));
         //     return true;
         // }
 
         return false;
     }
 
-    static handle cast(rank_generator_t *src, return_value_policy policy, handle parent) {
+    static handle cast(cast_t *src, return_value_policy policy, handle parent) {
         /* Do any additional work here */
+        std::cerr << "cast via base!\n";
         return base::cast(src, policy, parent);
     }
 };
