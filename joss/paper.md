@@ -25,9 +25,10 @@ bibliography: paper.bib
 # Summary
 
 Digital evolutions systems instantiate evolutionary processes over populations of virtual agents *in silico*.
-Such systems help expand evolutionary theory and can be used to solve applied heuristic optimization problems.
-Digital evolution will benefit greatly by continuing to capitalize on profound advances in parallel and distributed computing [CITE], particularly emerging unconventional computing architectures [CITE].
-However, scaling up digital evolution presents many challenges; here, we focus on the problem of record keeping of evolutionary history across vast and potentially unreliable hardware networks.
+Such systems are a powerful tool for expanding evolutionary theory; notably, their capacity for perfect data tracking makes it possible to perform experiments *in silico* that would be in possible *in vitro* or *in vivo*.
+One particularly powerful set of data to track is the full evolutionary history (phylogeny) of a given population.
+As a slow but highly parallelizable process, digital evolution will benefit greatly by continuing to capitalize on profound advances in parallel and distributed computing [CITE], particularly emerging unconventional computing architectures [CITE].
+However, scaling up digital evolution presents many challenges; for example, perfectly tracking phylogenies becomes highly inneficient. Here, we present an alternative approach to tracking phylogenies across vast and potentially unreliable hardware networks.
 
 The `hstrat` Python library exists to facilitate application of hereditary stratigraphy, a cutting-edge technique to enable phylogenetic inference over distributed digital evolution populations [@moreno2022hereditary].
 This technique departs from the traditional perfect-tracking approach to phylogenetic record-keeping.
@@ -35,7 +36,7 @@ Instead, hereditary stratigraphy enables phylogenetic history to be inferred fro
 This approach aligns with phylogenetic reconstruction methodologies in evolutionary biology [CITE].
 Hereditary stratigraphy attaches a set of immutable historical "checkpoints" --- referred to as _strata_ --- as an annotation on evolving genomes.
 Checkpoints can be strategically discarded to reduce annotation size at the cost of increasing inference uncertainty.
-A particular strategy for which checkpoints to discarded when is referred to as a _stratum retention policy_.
+A particular strategy for which checkpoints to discard when is referred to as a _stratum retention policy_.
 We refer to the set of retained strata as a _hereditary stratigraphic colum_.
 
 Appropriate stratum retention policy choice varies by application.
@@ -59,7 +60,7 @@ Key features of the library include:
 # Statement of Need
 
 The `hstrat` software exists to equip parallel and distributed evolution digital systems --- simulations that instantiate the process of evolution in an agent-based framework --- with phylogenetic tracking capabilities.
-Parallel and distributed computation exponentiates the power of digital evolution by allowing for larger populations, more generations, more sophisticated genotype-phenotype mappings, and more robust fitness functions [CITE]
+Parallel and distributed computation exponentiates the power of digital evolution by allowing for larger populations, more generations, more sophisticated genotype-phenotype mappings, and more robust fitness functions [CITE].
 Indeed, several notable projects within the field have successfully exploited massively parallel and distributed computational resources [CITE CARL SIMMSS; SENTIENT; others].
 Further development of methodology and software such as this work will position the field to continue leveraging ongoing advances in computing hardware.
 
@@ -69,7 +70,7 @@ However, parallel and distributed evaluation complicates, among other concerns, 
 Existing phylogenetic record keeping requires inerrant and complete collation of birth and death reports within a centralized data structure.
 Such perfect tracking approaches are brittle to data loss or corruption and impose communication overhead.
 
-Hereditary stratigraphy methodology, and the implementing `hstrat` software library, furnishes demand for efficient, tractable, and robust phylogenetic inference at scale.
+Hereditary stratigraphy methodology, and the implementing `hstrat` software library, meets the demand for efficient, tractable, and robust phylogenetic inference at scale.
 This approach exchanges a centralized perfect record of history for a process where history is estimated from comparison of available extant genomes, aligning with the paradigm of phylogenetic inference in wet biology.
 
 Although targeted to digital evolution use cases, impact of our work extends beyond to the various applications of digital evolution.
