@@ -23,6 +23,21 @@ If you are reporting a bug, please include:
 * Any details about your local setup that might be helpful in troubleshooting.
 * Detailed steps to reproduce the bug.
 
+Request Support
+~~~~~~~~~~~~~~~
+
+In order to improve the software, it is crucial to understand end-users' use cases and any issues installing the software or challenges using the software.
+If you need support, please reach out.
+
+The best way to request support is to file an issue at https://github.com/mmore500/alifedata-phyloinformatics-convert/issues.
+
+Be sure to include:
+
+* Your use case for the software.
+* Your operating system name and version.
+* Any details about your local setup that might be helpful in troubleshooting.
+* A link to the project you want incorporate the software into, if available.
+
 Fix Bugs
 ~~~~~~~~
 
