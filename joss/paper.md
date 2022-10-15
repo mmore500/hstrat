@@ -25,10 +25,15 @@ bibliography: paper.bib
 # Summary
 
 Digital evolutions systems instantiate evolutionary processes over populations of virtual agents *in silico*.
-Such systems are a powerful tool for expanding evolutionary theory; notably, their capacity for perfect data tracking makes it possible to perform experiments *in silico* that would be in possible *in vitro* or *in vivo*.
-One particularly powerful set of data to track is the full evolutionary history (phylogeny) of a given population.
+Insights from digital evolution experiments heuristic optimization
+
+Such systems are a powerful tool for expanding evolutionary theory.
+notably, their capacity for perfect observability makes it possible to perform experiments *in silico* that would be in possible *in vitro* or *in vivo*.
+In particular, the full evolutionary history (phylogeny) of a given population [CITE].
+
 As a slow but highly parallelizable process, digital evolution will benefit greatly by continuing to capitalize on profound advances in parallel and distributed computing [CITE], particularly emerging unconventional computing architectures [CITE].
-However, scaling up digital evolution presents many challenges; for example, perfectly tracking phylogenies becomes highly inneficient. Here, we present an alternative approach to tracking phylogenies across vast and potentially unreliable hardware networks.
+However, scaling up digital evolution presents many challenges; for example, perfectly tracking phylogenies becomes highly inneficient.
+Here, we implement an alternative approach to tracking phylogenies across vast and potentially unreliable hardware networks.
 
 The `hstrat` Python library exists to facilitate application of hereditary stratigraphy, a cutting-edge technique to enable phylogenetic inference over distributed digital evolution populations [@moreno2022hereditary].
 This technique departs from the traditional perfect-tracking approach to phylogenetic record-keeping.
