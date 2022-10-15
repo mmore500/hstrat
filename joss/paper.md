@@ -24,15 +24,14 @@ bibliography: paper.bib
 
 # Summary
 
-Digital evolutions systems instantiate evolutionary processes over populations of virtual agents *in silico*.
-Insights from digital evolution experiments heuristic optimization
-
-Such systems are a powerful tool for expanding evolutionary theory.
-notably, their capacity for perfect observability makes it possible to perform experiments *in silico* that would be in possible *in vitro* or *in vivo*.
-In particular, the full evolutionary history (phylogeny) of a given population [CITE].
+Digital evolution systems instantiate evolutionary processes over populations of virtual agents *in silico*.
+These programs can serve as rich experimental model systems.
+Insights from digital evolution experiments expand evolutionary theory, and can often directly improve heuristic optimization techniques [CITE].
+Perfect observability, in particular, enables *in silico* experiments that would be otherwise impossible *in vitro* or *in vivo*.
+Notably, availability of the full evolutionary history (phylogeny) of a given population enables very powerful analyses [CITE].
 
 As a slow but highly parallelizable process, digital evolution will benefit greatly by continuing to capitalize on profound advances in parallel and distributed computing [CITE], particularly emerging unconventional computing architectures [CITE].
-However, scaling up digital evolution presents many challenges; for example, perfectly tracking phylogenies becomes highly inneficient.
+However, scaling up digital evolution presents many challenges; for example, perfectly tracking phylogenies becomes inneficient and difficult.
 Here, we implement an alternative approach to tracking phylogenies across vast and potentially unreliable hardware networks.
 
 The `hstrat` Python library exists to facilitate application of hereditary stratigraphy, a cutting-edge technique to enable phylogenetic inference over distributed digital evolution populations [@moreno2022hereditary].
