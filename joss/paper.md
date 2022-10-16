@@ -26,18 +26,19 @@ bibliography: paper.bib
 
 Digital evolution systems instantiate evolutionary processes over populations of virtual agents *in silico*.
 These programs can serve as rich experimental model systems.
-Insights from digital evolution experiments expand evolutionary theory, and can often directly improve heuristic optimization techniques [CITE].
+Insights from digital evolution experiments expand evolutionary theory, and can often directly improve heuristic optimization techniques [@hernandez2022suite;@hernandez2022phylogenetic].
 Perfect observability, in particular, enables *in silico* experiments that would be otherwise impossible *in vitro* or *in vivo*.
-Notably, availability of the full evolutionary history (phylogeny) of a given population enables very powerful analyses [CITE].
+Notably, availability of the full evolutionary history (phylogeny) of a given population enables very powerful analyses [@shahbandegan2022untangling;@hernandez2022can;@dolson2021diversity].
 
-As a slow but highly parallelizable process, digital evolution will benefit greatly by continuing to capitalize on profound advances in parallel and distributed computing [CITE], particularly emerging unconventional computing architectures [CITE].
-However, scaling up digital evolution presents many challenges; for example, perfectly tracking phylogenies becomes inneficient and difficult.
+As a slow but highly parallelizable process, digital evolution will benefit greatly by continuing to capitalize on profound advances in parallel and distributed computing [@moreno2020practical;@ackley2014indefinitely], particularly emerging unconventional computing architectures [@ackley2011homeostatic;@lauterbach2021path;@furber2014spinnaker].
+However, scaling up digital evolution presents many challenges.
+Among these is the existing centralized perfect-tracking phylogenetic data collection model [@bohm2017mabe;@de2012deap;@godin2019apoget;@ofria2004avida;@ofria2020empirical], which is inefficient and difficult to realize in parallel and distributed contexts.
 Here, we implement an alternative approach to tracking phylogenies across vast and potentially unreliable hardware networks.
 
 The `hstrat` Python library exists to facilitate application of hereditary stratigraphy, a cutting-edge technique to enable phylogenetic inference over distributed digital evolution populations [@moreno2022hereditary].
 This technique departs from the traditional perfect-tracking approach to phylogenetic record-keeping.
 Instead, hereditary stratigraphy enables phylogenetic history to be inferred from heritable annotations attached to evolving digital agents.
-This approach aligns with phylogenetic reconstruction methodologies in evolutionary biology [CITE].
+This approach aligns with phylogenetic reconstruction methodologies in evolutionary biology [@gaffney1979introduction;@horner2004phylogenetic].
 Hereditary stratigraphy attaches a set of immutable historical "checkpoints" --- referred to as _strata_ --- as an annotation on evolving genomes.
 Checkpoints can be strategically discarded to reduce annotation size at the cost of increasing inference uncertainty.
 A particular strategy for which checkpoints to discard when is referred to as a _stratum retention policy_.
@@ -64,12 +65,12 @@ Key features of the library include:
 # Statement of Need
 
 The `hstrat` software exists to equip parallel and distributed evolution digital systems --- simulations that instantiate the process of evolution in an agent-based framework --- with phylogenetic tracking capabilities.
-Parallel and distributed computation exponentiates the power of digital evolution by allowing for larger populations, more generations, more sophisticated genotype-phenotype mappings, and more robust fitness functions [CITE].
-Indeed, several notable projects within the field have successfully exploited massively parallel and distributed computational resources [CITE CARL SIMMSS; SENTIENT; others].
+Parallel and distributed computation exponentiates the power of digital evolution by allowing for larger populations, more generations, more sophisticated genotype-phenotype mappings, and more robust fitness functions [@miikkulainen2019evolving;@harding2007fast;@harding2007fastb;@langdon2019continuous;@channon2019maximum].
+Indeed, several notable projects within the field have successfully exploited massively parallel and distributed computational resources [@bennett1999building;@sims1994evolving; @blondeau2009distributed].
 Further development of methodology and software such as this work will position the field to continue leveraging ongoing advances in computing hardware.
 
 The capability to detect phylogenetic cues within digital evolution has become increasingly necessary in both applied and scientific contexts.
-These cues unlock _post hoc_ insight into evolutionary history --- particularly with respect to ecology and selection pressure --- but also can be harnessed to drive digital evolution algorithms as they unfold [CITE].
+These cues unlock _post hoc_ insight into evolutionary history --- particularly with respect to ecology and selection pressure --- but also can be harnessed to drive digital evolution algorithms as they unfold [@burke2003increased;@murphy2008simple].
 However, parallel and distributed evaluation complicates, among other concerns, maintenance of an evolutionary record.
 Existing phylogenetic record keeping requires inerrant and complete collation of birth and death reports within a centralized data structure.
 Such perfect tracking approaches are brittle to data loss or corruption and impose communication overhead.
@@ -78,13 +79,13 @@ Hereditary stratigraphy methodology, and the implementing `hstrat` software libr
 This approach exchanges a centralized perfect record of history for a process where history is estimated from comparison of available extant genomes, aligning with the paradigm of phylogenetic inference in wet biology.
 
 Although targeted to digital evolution use cases, impact of our work extends beyond to the various applications of digital evolution.
-Evolutionary biology poses uniquely abstract, nuanced, and nebulous questions, such as the origins of life and the evolution of complexity [CITE].
-Computational modeling provides one foothold for such inquiry, particularly with respect to phenomena that typically unfold on geological timescales or hypotheses that invoke counterfactuals outside the bounds of physical reality [CITE].
-Elsewhere, in the realm of computational optimization, heuristic algorithms provide a foothold to explore high-dimensional and deceptive search spaces [CITE].
+Evolutionary biology poses uniquely abstract, nuanced, and nebulous questions, such as the origins of life and the evolution of complexity [@mcshea2011miscellaneous;@pross2016life].
+Computational modeling provides one foothold for such inquiry, particularly with respect to phenomena that typically unfold on geological timescales or hypotheses that invoke counterfactuals outside the bounds of physical reality [@clune2011selective;@o2003digital;@mckinley2008harnessing].
+Elsewhere, in the realm of computational optimization, heuristic algorithms provide a foothold to explore high-dimensional and deceptive search spaces [@eiben2015introduction].
 Improvements to distributed phylogenetic tracking can benefit both of these niches, providing means to test more sophisticated evolutionary hypotheses and means to discover better solutions to hard problems.
 
 In addition to its founding purview within digital evolution, we anticipate hereditary stratigraphy --- and this software implementation --- may find applications within other domains of distributed computing.
-For example, hereditary stratigraphy could equip a population protocol system with the capability for on-the-fly estimation of the relationship between descendants of a forking message chain or a forking process tree [@angluin2005power, @aspnes2009introduction].
+For example, hereditary stratigraphy could equip a population protocol system with the capability for on-the-fly estimation of the relationship between descendants of a forking message chain or a forking process tree [@angluin2005power;@aspnes2009introduction].
 
 Across all these domains, free availability of the `hstrat` software will play a central role in bringing hereditary stratigraphy methodology into practice.
 Library development incorporates intentional design choices to promote successful outside use, including
