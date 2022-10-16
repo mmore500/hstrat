@@ -12,6 +12,7 @@ with open("HISTORY.rst") as history_file:
 
 requirements = [
     "anytree>=2.8.0",
+    "bitstring>=3.1.9",
     "cppimport>=22.8.2",
     "distutils-strtobool>=0.1.0",
     "iterpop>=0.3.4",
