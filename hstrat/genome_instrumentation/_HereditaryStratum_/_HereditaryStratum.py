@@ -20,6 +20,7 @@ class HereditaryStratum:
         self: "HereditaryStratum",
         *,
         annotation: typing.Optional[typing.Any] = None,
+        differentia=None,
         differentia_bit_width: int = 64,
         deposition_rank: typing.Optional[int] = None,
     ):
@@ -42,7 +43,11 @@ class HereditaryStratum:
         """
         if deposition_rank is not None:
             self._deposition_rank = deposition_rank
-        self._differentia = random.randrange(2**differentia_bit_width)
+        if differentia is None:
+            self._differentia = random.randrange(2**differentia_bit_width)
+        else:
+            assert differentia < 2**differentia_bit_width
+            self._differentia = differentia
         if annotation is not None:
             self._annotation = annotation
 

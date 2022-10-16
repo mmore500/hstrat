@@ -60,6 +60,8 @@ class HereditaryStratigraphicColumn:
         stratum_differentia_bit_width: int = 64,
         initial_stratum_annotation: typing.Optional[typing.Any] = None,
         stratum_ordered_store_factory: typing.Optional[typing.Callable] = None,
+        _num_strata_deposited: int = 0,
+        _deposit_stratum_on_construction: bool = True,
     ):
         """Initialize column to track a new line of descent.
 
@@ -99,12 +101,14 @@ class HereditaryStratigraphicColumn:
 
         self._always_store_rank_in_stratum = always_store_rank_in_stratum
         self._stratum_differentia_bit_width = stratum_differentia_bit_width
-        self._num_strata_deposited = 0
+        self._num_strata_deposited = _num_strata_deposited
         self._stratum_ordered_store = stratum_ordered_store_factory()
 
         self._stratum_retention_policy = stratum_retention_policy
 
-        self.DepositStratum(annotation=initial_stratum_annotation)
+        if _deposit_stratum_on_construction:
+            assert _num_strata_deposited == 0
+            self.DepositStratum(annotation=initial_stratum_annotation)
 
     def __eq__(
         self: "HereditaryStratigraphicColumn",
@@ -201,6 +205,24 @@ class HereditaryStratigraphicColumn:
                 yield self.GetRankAtColumnIndex(idx)
         else:
             yield from self._stratum_ordered_store.IterRetainedRanks()
+
+    def IterRetainedStrata(
+        self: "HereditaryStratigraphicColumn",
+    ) -> typing.Iterator[HereditaryStratum]:
+        """Iterate over strata stored in the column.
+
+        Strata yielded from most ancient to most recent.
+        """
+        yield from self._stratum_ordered_store.IterRetainedStrata()
+
+    def HasAnyAnnotations(
+        self: "HereditaryStratigraphicColumn",
+    ) -> bool:
+        """Do any retained strata have annotations?"""
+        return any(
+            stratum.GetAnnotation() is not None
+            for stratum in self._stratum_ordered_store.IterRetainedStrata()
+        )
 
     def GetNumStrataRetained(self: "HereditaryStratigraphicColumn") -> int:
         """How many strata are currently stored within the column?
