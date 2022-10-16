@@ -15,6 +15,7 @@ from ._is_nondecreasing import is_nondecreasing
 from ._is_nonincreasing import is_nonincreasing
 from ._iter_chunks import iter_chunks
 from ._launder_impl_modules import launder_impl_modules
+from ._log_once_in_a_row import log_once_in_a_row
 from ._memoize_generator import memoize_generator
 from ._pairwise import pairwise
 from ._popcount import popcount
@@ -38,6 +39,7 @@ __all__ = [
     "is_nonincreasing",
     "iter_chunks",
     "launder_impl_modules",
+    "log_once_in_a_row",
     "memoize_generator",
     "pairwise",
     "popcount",
