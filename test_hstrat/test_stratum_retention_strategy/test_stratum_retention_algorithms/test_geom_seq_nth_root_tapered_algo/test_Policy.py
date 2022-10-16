@@ -103,9 +103,7 @@ def test_eq(impl, degree, interspersal):
     assert not policy == impl(degree + 1, interspersal + 1)
 
 
-@pytest.mark.parametrize(
-    "impl", geom_seq_nth_root_tapered_algo._Policy_.impls
-)
+@pytest.mark.parametrize("impl", geom_seq_nth_root_tapered_algo._Policy_.impls)
 @pytest.mark.parametrize(
     "degree",
     [
