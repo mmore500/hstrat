@@ -170,7 +170,7 @@ public:
 
   std::string Repr() const {
     return fmt::format(
-      "{}._Policy_.Policy(policy_spec={})",
+      "{}._Policy_.PolicyNative(policy_spec={})",
       spec.GetAlgoIdentifier(),
       spec.Repr()
     );
