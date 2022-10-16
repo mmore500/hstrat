@@ -262,6 +262,13 @@ def PolicyCouplerFactory(
         def __str__(self: "PolicyCoupler") -> str:
             return str(self._policy_spec)
 
+        def GetEvalCtor(self: "PolicyCoupler") -> str:
+            return f"""hstrat.{
+                self._policy_spec.GetAlgoIdentifier()
+            }.Policy(policy_spec={
+                self._policy_spec.GetEvalCtor()
+            })"""
+
         def GetSpec(self: "PolicyCoupler") -> policy_spec_t_:
             """Get policy's parameter specification."""
             return self._policy_spec

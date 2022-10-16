@@ -3,6 +3,7 @@ import tempfile
 
 import pytest
 
+from hstrat import hstrat
 from hstrat.hstrat import recency_proportional_resolution_algo
 
 
@@ -82,6 +83,56 @@ def test_eq(impl, recency_proportional_resolution):
         == policy.WithoutCalcRankAtColumnIndex()
     )
     assert not policy == impl(recency_proportional_resolution + 1)
+
+
+@pytest.mark.parametrize(
+    "impl", recency_proportional_resolution_algo._Policy_.impls
+)
+@pytest.mark.parametrize(
+    "recency_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_GetEvalCtor(impl, recency_proportional_resolution):
+    spec = impl(recency_proportional_resolution)
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith(
+        "hstrat.recency_proportional_resolution_algo.Policy("
+    )
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)
+    assert str(spec) == str(reconstituted)
+
+
+@pytest.mark.parametrize(
+    "recency_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_GetEvalCtor_consistency(recency_proportional_resolution):
+    assert (
+        len(
+            set(
+                impl(recency_proportional_resolution).GetEvalCtor()
+                for impl in recency_proportional_resolution_algo._Policy_.impls
+            )
+        )
+        == 1
+    )
 
 
 @pytest.mark.parametrize(

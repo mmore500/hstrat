@@ -3,6 +3,7 @@ import tempfile
 
 import pytest
 
+from hstrat import hstrat
 from hstrat.hstrat import pseudostochastic_algo
 
 
@@ -66,6 +67,26 @@ def test_eq(hash_salt):
         == policy.WithoutCalcRankAtColumnIndex()
     )
     assert not policy == pseudostochastic_algo.Policy(hash_salt + 1)
+
+
+@pytest.mark.parametrize(
+    "hash_salt",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+def test_GetEvalCtor(hash_salt):
+    spec = pseudostochastic_algo.Policy(hash_salt)
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith("hstrat.pseudostochastic_algo.Policy(")
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)
+    assert str(spec) == str(reconstituted)
 
 
 @pytest.mark.parametrize(

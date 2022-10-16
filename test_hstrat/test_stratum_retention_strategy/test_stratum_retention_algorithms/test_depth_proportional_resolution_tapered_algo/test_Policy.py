@@ -3,6 +3,7 @@ import tempfile
 
 import pytest
 
+from hstrat import hstrat
 from hstrat.hstrat import depth_proportional_resolution_tapered_algo
 
 
@@ -52,6 +53,56 @@ def test_init(impl, depth_proportional_resolution):
     assert callable(policy.IterRetainedRanks)
     # enactment
     assert callable(policy.GenDropRanks)
+
+
+@pytest.mark.parametrize(
+    "impl", depth_proportional_resolution_tapered_algo._Policy_.impls
+)
+@pytest.mark.parametrize(
+    "depth_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_GetEvalCtor(impl, depth_proportional_resolution):
+    spec = impl(depth_proportional_resolution)
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith(
+        "hstrat.depth_proportional_resolution_tapered_algo.Policy("
+    )
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)
+    assert str(spec) == str(reconstituted)
+
+
+@pytest.mark.parametrize(
+    "depth_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_GetEvalCtor_consistency(depth_proportional_resolution):
+    assert (
+        len(
+            set(
+                impl(depth_proportional_resolution).GetEvalCtor()
+                for impl in depth_proportional_resolution_tapered_algo._Policy_.impls
+            )
+        )
+        == 1
+    )
 
 
 @pytest.mark.parametrize(

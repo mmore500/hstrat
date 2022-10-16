@@ -178,6 +178,14 @@ public:
 
   std::string Str() const { return spec.Str(); }
 
+  std::string GetEvalCtor() const {
+    return fmt::format(
+      "hstrat.{}.Policy(policy_spec={})",
+      spec.GetAlgoIdentifier(),
+      spec.GetEvalCtor()
+    );
+  }
+
   // enactment
   template <typename... Args>
   decltype(auto) GenDropRanks(Args &&... args) const {
