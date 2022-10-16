@@ -68,7 +68,7 @@ interval-search==0.2.0
     # via -r requirements_dev.in
 iterify==0.1.0
     # via -r requirements_dev.in
-iterpop==0.3.4
+iterpop==0.4.1
     # via -r requirements_dev.in
 jinja2==3.0.3
     # via sphinx
