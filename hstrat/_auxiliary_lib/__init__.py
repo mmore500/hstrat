@@ -9,8 +9,11 @@ from ._caretup_marker import caretup_marker
 from ._check_testing_requirements import check_testing_requirements
 from ._div_range import div_range
 from ._find_bounds import find_bounds
+from ._hstrat_import_native import hstrat_import_native
+from ._is_base64 import is_base64
 from ._is_nondecreasing import is_nondecreasing
 from ._is_nonincreasing import is_nonincreasing
+from ._iter_chunks import iter_chunks
 from ._launder_impl_modules import launder_impl_modules
 from ._memoize_generator import memoize_generator
 from ._pairwise import pairwise
@@ -29,8 +32,11 @@ __all__ = [
     "check_testing_requirements",
     "div_range",
     "find_bounds",
+    "hstrat_import_native",
+    "is_base64",
     "is_nondecreasing",
     "is_nonincreasing",
+    "iter_chunks",
     "launder_impl_modules",
     "memoize_generator",
     "pairwise",
