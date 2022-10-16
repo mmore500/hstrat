@@ -8,6 +8,7 @@ from ._caretdown_marker import caretdown_marker
 from ._caretup_marker import caretup_marker
 from ._div_range import div_range
 from ._find_bounds import find_bounds
+from ._get_hstrat_version import get_hstrat_version
 from ._hstrat_import_native import hstrat_import_native
 from ._is_base64 import is_base64
 from ._is_nondecreasing import is_nondecreasing
@@ -28,6 +29,7 @@ __all__ = [
     "caretup_marker",
     "div_range",
     "find_bounds",
+    "get_hstrat_version",
     "hstrat_import_native",
     "is_base64",
     "is_nondecreasing",
