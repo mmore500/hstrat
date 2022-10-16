@@ -3,7 +3,7 @@
 #define HSTRAT_STRATUM_RETENTION_STRATEGY_STRATUM_RETENTION_ALGORITHMS_IMPL_CALCMRCAUNCERTAINTYABSUPPERBOUNDWORSTCASEFTOR_HPP_INCLUDE
 
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 #include <type_traits>
 
 #include "../../../config/HSTRAT_RANK_T.hpp"

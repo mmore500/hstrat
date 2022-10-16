@@ -2,7 +2,7 @@
 #ifndef HSTRAT_PYBIND_IMPL_CPPCORO_GENERATOR_TYPE_CASTERS_HPP_INCLUDE
 #define HSTRAT_PYBIND_IMPL_CPPCORO_GENERATOR_TYPE_CASTERS_HPP_INCLUDE
 
-#include <assert.h>
+#include <cassert>
 #include <tuple>
 
 #include <pybind11/pybind11.h>

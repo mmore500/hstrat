@@ -2,7 +2,7 @@
 #ifndef HSTRAT_GENOME_INSTRUMENTATION_HEREDITARYSTRATIGRAPHICCOLUMN_HPP_INCLUDE
 #define HSTRAT_GENOME_INSTRUMENTATION_HEREDITARYSTRATIGRAPHICCOLUMN_HPP_INCLUDE
 
-#include <assert.h>
+#include <cassert>
 #include <climits>
 #include <cstddef>
 #include <tuple>

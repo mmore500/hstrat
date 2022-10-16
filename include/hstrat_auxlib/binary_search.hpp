@@ -2,7 +2,7 @@
 #ifndef HSTRAT_AUXLIB_BINARY_SEARCH_HPP_INCLUDE
 #define HSTRAT_AUXLIB_BINARY_SEARCH_HPP_INCLUDE
 
-#include <assert.h>
+#include <cassert>
 #include <cstddef>
 #include <limits>
 

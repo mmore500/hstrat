@@ -3,7 +3,7 @@
 #define HSTRAT_GENOME_INSTRUMENTATION_STRATUM_ORDERED_STORES_HEREDITARYSTRATUMORDEREDSTORELIST_HPP_INCLUDE
 
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 #include <cstddef>
 #include <functional>
 #include <iterator>
