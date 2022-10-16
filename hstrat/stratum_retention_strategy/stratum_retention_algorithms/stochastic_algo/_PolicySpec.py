@@ -22,6 +22,9 @@ class PolicySpec(PolicySpecBase):
     def __str__(self: "PolicySpec") -> str:
         return self.GetAlgoTitle()
 
+    def GetEvalCtor(self: "PolicySpec") -> str:
+        return f"hstrat.{self!r}"
+
     @staticmethod
     def GetAlgoIdentifier() -> str:
         """Get programatic name for underlying retention algorithm."""

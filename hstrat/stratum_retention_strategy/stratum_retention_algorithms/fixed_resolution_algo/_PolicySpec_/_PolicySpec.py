@@ -45,6 +45,9 @@ class PolicySpec(PolicySpecBase):
             self._fixed_resolution
         })"""
 
+    def GetEvalCtor(self: "PolicySpec") -> str:
+        return f"hstrat.{self!r}"
+
     def GetFixedResolution(self: "PolicySpec") -> int:
         return self._fixed_resolution
 

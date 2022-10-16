@@ -43,6 +43,9 @@ class PolicySpec(PolicySpecBase):
     def GetHashSalt(self: "PolicySpec") -> int:
         return self._hash_salt
 
+    def GetEvalCtor(self: "PolicySpec") -> str:
+        return f"hstrat.{self!r}"
+
     @staticmethod
     def GetAlgoIdentifier() -> str:
         """Get programatic name for underlying retention algorithm."""

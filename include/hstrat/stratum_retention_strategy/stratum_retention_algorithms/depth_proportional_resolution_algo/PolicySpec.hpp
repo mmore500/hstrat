@@ -68,6 +68,14 @@ public:
     );
   }
 
+  std::string GetEvalCtor() const {
+    return fmt::format(
+      "hstrat.{}.PolicySpec(depth_proportional_resolution={})",
+      get_algo_identifier(),
+      GetDepthProportionalResolution()
+    );
+  }
+
 };
 
 } // namespace depth_proportional_resolution_algo

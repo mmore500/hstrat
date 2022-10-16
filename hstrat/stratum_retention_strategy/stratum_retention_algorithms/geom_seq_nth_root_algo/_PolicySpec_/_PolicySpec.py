@@ -70,6 +70,9 @@ class PolicySpec(PolicySpecBase):
             self._interspersal
         })"""
 
+    def GetEvalCtor(self: "PolicySpec") -> str:
+        return f"hstrat.{self!r}"
+
     def GetDegree(self: "PolicySpec") -> int:
         return self._degree
 

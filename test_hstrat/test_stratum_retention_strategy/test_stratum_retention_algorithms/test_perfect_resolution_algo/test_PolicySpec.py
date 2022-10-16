@@ -1,6 +1,7 @@
 import pickle
 import tempfile
 
+from hstrat import hstrat
 from hstrat.hstrat import perfect_resolution_algo
 
 
@@ -8,6 +9,15 @@ def test_eq():
     spec = perfect_resolution_algo.PolicySpec()
     assert spec == spec
     assert spec == perfect_resolution_algo.PolicySpec()
+
+
+def test_GetEvalCtor():
+    spec = perfect_resolution_algo.PolicySpec()
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith("hstrat.perfect_resolution_algo.PolicySpec(")
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)
+    assert str(spec) == str(reconstituted)
 
 
 def test_pickle():

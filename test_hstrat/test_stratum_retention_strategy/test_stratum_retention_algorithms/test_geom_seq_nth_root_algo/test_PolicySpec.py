@@ -3,6 +3,7 @@ import tempfile
 
 import pytest
 
+from hstrat import hstrat
 from hstrat.hstrat import geom_seq_nth_root_algo
 
 
@@ -35,6 +36,70 @@ def test_eq(impl, degree, interspersal):
     assert not spec == impl(degree, interspersal + 1)
     assert not spec == impl(degree + 1, interspersal)
     assert not spec == impl(degree + 1, interspersal + 1)
+
+
+@pytest.mark.parametrize("impl", geom_seq_nth_root_algo._PolicySpec_.impls)
+@pytest.mark.parametrize(
+    "degree",
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "interspersal",
+    [
+        1,
+        2,
+        5,
+    ],
+)
+def test_GetEvalCtor(impl, degree, interspersal):
+    spec = impl(degree, interspersal)
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith("hstrat.geom_seq_nth_root_algo.PolicySpec(")
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)
+    assert str(spec) == str(reconstituted)
+
+
+@pytest.mark.parametrize(
+    "degree",
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "interspersal",
+    [
+        1,
+        2,
+        5,
+    ],
+)
+def test_GetEvalCtor_consistency(degree, interspersal):
+    assert (
+        len(
+            set(
+                impl(degree, interspersal).GetEvalCtor()
+                for impl in geom_seq_nth_root_algo._PolicySpec_.impls
+            )
+        )
+        == 1
+    )
 
 
 @pytest.mark.parametrize(

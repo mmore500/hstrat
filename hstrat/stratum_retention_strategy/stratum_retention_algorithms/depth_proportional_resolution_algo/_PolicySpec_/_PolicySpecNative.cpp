@@ -19,6 +19,7 @@ PYBIND11_MODULE(_PolicySpecNative, m) {
   .def("__eq__", &self_t::operator==)
   .def("__repr__", &self_t::Repr)
   .def("__str__", &self_t::Str)
+  .def("GetEvalCtor", &self_t::GetEvalCtor)
   .def_static("GetAlgoIdentifier", &self_t::GetAlgoIdentifier)
   .def_static("GetAlgoTitle", &self_t::GetAlgoTitle);
 

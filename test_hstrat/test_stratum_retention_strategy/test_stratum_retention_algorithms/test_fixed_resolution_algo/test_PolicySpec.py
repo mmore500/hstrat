@@ -3,6 +3,7 @@ import tempfile
 
 import pytest
 
+from hstrat import hstrat
 from hstrat.hstrat import fixed_resolution_algo
 
 
@@ -23,6 +24,50 @@ def test_eq(impl, fixed_resolution):
     assert spec == spec
     assert spec == impl(fixed_resolution)
     assert not spec == impl(fixed_resolution + 1)
+
+
+@pytest.mark.parametrize("impl", fixed_resolution_algo._PolicySpec_.impls)
+@pytest.mark.parametrize(
+    "fixed_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+def test_GetEvalCtor(impl, fixed_resolution):
+    spec = impl(fixed_resolution)
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith("hstrat.fixed_resolution_algo.PolicySpec(")
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)
+    assert str(spec) == str(reconstituted)
+
+
+@pytest.mark.parametrize(
+    "fixed_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+def test_GetEvalCtor_consistency(fixed_resolution):
+    assert (
+        len(
+            set(
+                impl(fixed_resolution).GetEvalCtor()
+                for impl in fixed_resolution_algo._PolicySpec_.impls
+            )
+        )
+        == 1
+    )
 
 
 @pytest.mark.parametrize(

@@ -63,6 +63,14 @@ public:
     );
   }
 
+  std::string GetEvalCtor() const {
+    return fmt::format(
+      "hstrat.{}.PolicySpec(fixed_resolution={})",
+      get_algo_identifier(),
+      GetFixedResolution()
+    );
+  }
+
 };
 
 } // namespace fixed_resolution_algo

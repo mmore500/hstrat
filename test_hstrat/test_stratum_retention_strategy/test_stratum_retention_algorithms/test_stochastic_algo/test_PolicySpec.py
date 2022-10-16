@@ -4,6 +4,7 @@ import tempfile
 
 import pytest
 
+from hstrat import hstrat
 from hstrat.hstrat import stochastic_algo
 
 
@@ -16,6 +17,16 @@ def test_eq(replicate):
     spec = stochastic_algo.PolicySpec()
     assert spec == spec
     assert spec == stochastic_algo.PolicySpec()
+
+
+def test_GetEvalCtor():
+    spec = stochastic_algo.PolicySpec()
+    reconstituted = eval(spec.GetEvalCtor())
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith("hstrat.stochastic_algo.PolicySpec(")
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)
+    assert str(spec) == str(reconstituted)
 
 
 def test_pickle():
