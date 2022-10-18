@@ -28,7 +28,7 @@ Digital evolution systems instantiate evolutionary processes over populations of
 These programs can serve as rich experimental model systems.
 Insights from digital evolution experiments expand evolutionary theory, and can often directly improve heuristic optimization techniques [@hernandez2022suite;@hernandez2022phylogenetic].
 Perfect observability, in particular, enables *in silico* experiments that would be otherwise impossible *in vitro* or *in vivo*.
-Notably, availability of the full evolutionary history (phylogeny) of a given population enables very powerful analyses [@shahbandegan2022untangling;@hernandez2022can;@dolson2021diversity].
+Notably, availability of the full evolutionary history (phylogeny) of a given population enables very powerful analyses [@shahbandegan2022untangling;@hernandez2022can;@dolson2018ecological].
 
 As a slow but highly parallelizable process, digital evolution will benefit greatly by continuing to capitalize on profound advances in parallel and distributed computing [@moreno2020practical;@ackley2014indefinitely], particularly emerging unconventional computing architectures [@ackley2011homeostatic;@lauterbach2021path;@furber2014spinnaker].
 However, scaling up digital evolution presents many challenges.
@@ -100,7 +100,7 @@ Library development incorporates intentional design choices to promote successfu
 
 A pre-release version of this software was used to perform experiments, validate derivations, and create visualizations for the conference article introducing the method of hereditary stratigraphy [@moreno2022hereditary].
 
-A native version of this software is being incorporated into the next version of DISHTINY, a digital framework for studying evolution of multicellularity [@moreno2019toward; @moreno2021exploring; @moreno2021case].
+A native version of this software is being incorporated into the next version of DISHTINY, a digital framework for studying evolution of multicellularity [@moreno2021exploring; @moreno2021case].
 We also anticipate making this software available through the Modular Agent Based Evolution framework as a community-contributed component [@bohm2019mabe].
 
 # Future Work
