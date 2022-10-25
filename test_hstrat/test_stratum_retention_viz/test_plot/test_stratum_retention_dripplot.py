@@ -94,4 +94,5 @@ def test_docplots(policy):
             "policy": slugify(str(policy)),
             "num_generations": "256",
         },
+        teeplot_transparent=False,
     )
