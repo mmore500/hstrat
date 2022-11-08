@@ -60,10 +60,11 @@ hstrat.does_have_any_common_ancestor(individual1_child1, individual2) # -> False
 individual1_grandchild1 = individual1_child1.CloneDescendant()
 individual1_grandchild2 = individual1_child1.CloneDescendant()
 
-hstrat.calc_rank_of_mrca_bounds_between(
+result = hstrat.calc_rank_of_mrca_bounds_between(
   individual1_grandchild1,
   individual1_grandchild2,
-) # -> (1, 2)
+) 
+print(result) # -> (1, 2)
 ```
 
 As shown in the example above, all library components can be accessed directly from the convenience flat namespace `hstrat.hstrat`.
