@@ -35,11 +35,21 @@ However, scaling up digital evolution presents many challenges.
 Among these is the existing centralized perfect-tracking phylogenetic data collection model [@bohm2017mabe;@de2012deap;@godin2019apoget;@ofria2004avida;@ofria2020empirical], which is inefficient and difficult to realize in parallel and distributed contexts.
 Here, we implement an alternative approach to tracking phylogenies across vast and potentially unreliable hardware networks.
 
+![
+  Example scenario of hereditary stratigraph annotation inheritance.
+  Each generation, a new randomly-generated "fingerprint" (drawn as a solid-colored rectangle) is appended to the genome annotation.
+  Genomes' annotations will share identical fingerprints for the generations they experienced shared ancestry.
+  Estimation of the most recent common ancestor (MRCA) generation is straightforward: the first mismatching fingerprints denote the end of common ancestry.
+  \label{fig:stratigraph_inference}
+](assets/stratigraph_inference.png)
+
 The `hstrat` Python library exists to facilitate application of hereditary stratigraphy, a cutting-edge technique to enable phylogenetic inference over distributed digital evolution populations [@moreno2022hereditary].
 This technique departs from the traditional perfect-tracking approach to phylogenetic record-keeping.
 Instead, hereditary stratigraphy enables phylogenetic history to be inferred from heritable annotations attached to evolving digital agents.
 This approach aligns with phylogenetic reconstruction methodologies in evolutionary biology [@gaffney1979introduction;@horner2004phylogenetic].
 Hereditary stratigraphy attaches a set of immutable historical "checkpoints" --- referred to as _strata_ --- as an annotation on evolving genomes.
+\autoref{fig:stratigraph_inference} illustrates how these strata accumulate over generations and how they can be used to infer the phylogenetic relationships.
+
 Checkpoints can be strategically discarded to reduce annotation size at the cost of increasing inference uncertainty.
 A particular strategy for which checkpoints to discard when is referred to as a _stratum retention policy_.
 We refer to the set of retained strata as a _hereditary stratigraphic column_.
