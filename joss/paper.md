@@ -42,7 +42,7 @@ This approach aligns with phylogenetic reconstruction methodologies in evolution
 Hereditary stratigraphy attaches a set of immutable historical "checkpoints" --- referred to as _strata_ --- as an annotation on evolving genomes.
 Checkpoints can be strategically discarded to reduce annotation size at the cost of increasing inference uncertainty.
 A particular strategy for which checkpoints to discard when is referred to as a _stratum retention policy_.
-We refer to the set of retained strata as a _hereditary stratigraphic colum_.
+We refer to the set of retained strata as a _hereditary stratigraphic column_.
 
 Appropriate stratum retention policy choice varies by application.
 For example, if annotation size is not a concern it may be best to preserve all strata.
