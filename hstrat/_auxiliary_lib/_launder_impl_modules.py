@@ -12,5 +12,5 @@ def launder_impl_modules(
     for item in all:
         try:
             item.__module__ = name
-        except AttributeError:
+        except (AttributeError, TypeError):
             pass

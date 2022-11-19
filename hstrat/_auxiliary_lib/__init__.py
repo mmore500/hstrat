@@ -38,5 +38,5 @@ __all__ = [
 for o in __all__:
     try:
         eval(o).__module__ = __name__
-    except AttributeError:
+    except (AttributeError, TypeError):
         pass
