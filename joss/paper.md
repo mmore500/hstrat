@@ -103,6 +103,34 @@ A pre-release version of this software was used to perform experiments, validate
 A native version of this software is being incorporated into the next version of DISHTINY, a digital framework for studying evolution of multicellularity [@moreno2021exploring; @moreno2021case].
 We also anticipate making this software available through the Modular Agent Based Evolution framework as a community-contributed component [@bohm2019mabe].
 
+# Related Software
+
+To our knowledge, no existing software is available to facilitate phylogenetic analyses of fully-distributed digital evolution populations.
+Centralized phylogenetic tracking, however, is a common practice in digital evolution systems.
+Many rely on custom "hand-rolled" solutions.
+However, several general-purpose libraries and frameworks exist to facilitate centralized phylogenetic tracking.
+These include,
+* Automated Phylogeny Over Geological Timescales (APOGeT) [@godin2019apoget],
+* Distributed Evolutionary Algorithms in Python (DEAP) [@de2012deap],
+* Empirical [@ofria2020empirical], and
+* Modular Agent-Based Evolution Framework (MABE) [@bohm2017mabe].
+
+Empirical, MABE, and APOGeT are C++ libraries.
+DEAP, eponymously, is a Python library.
+
+Empirical and MABE's phylogenetic tracking tools cater to asexual lineages, while DEAP and APOGeT focus on sexual lineages.
+Both MABE and Empirical incorporate options for on-the-fly pruning, where records for extinct lineages are deleted in order to temper memory use.
+APOGeT focuses on species-level tracking rather than individual-level genealogical tracking.
+
+Note that the DEAP's distributing computing features are organized around a centralized controller-worker model.
+Phylogenetic tracking takes place on the controller process.
+If any selection and reproduction takes place on worker processes (i.e., island model), migration is managed by the controller process.
+In this scenario, any phylogenetic tracking requires all phylogenetic history occuring on islands in between migrations to be reported back to the controller process.
+
+In prepublication work, we performed phylogenetic inference using fixed-length bitstring components of digital genomes subjected to bitwise mutation.
+(This work motivated development of the more efficient and robust hereditary stratigraph annotation scheme.)
+A huge number of biology-oriented phylogenetic reconstruction tools have been developed, but we found the design of BioPython's `Phylo` module particularly well suited to non-DNA data [@cock2009biopython].
+
 # Future Work
 
 The `hstrat` project remains under active development.
