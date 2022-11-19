@@ -1,7 +1,6 @@
 import typing
 
-import gmpy
-
+from ....._auxiliary_lib import popcount
 from ..._detail import PolicyCouplerBase
 from .._PolicySpec import PolicySpec
 
@@ -56,7 +55,7 @@ class CalcNumStrataRetainedExact:
         else:
             return (
                 # cast to int to handle numpy.int32, numpy.int64 etc.
-                gmpy.popcount(int(num_strata_deposited - 1))
+                popcount(int(num_strata_deposited - 1))
                 + sum(
                     # X.bit_length() - 1 equivalent to floor(log2(X))
                     # cast to int to handle numpy.int32, numpy.int64 etc.

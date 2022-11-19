@@ -49,8 +49,6 @@ flake8==3.7.8
     # via -r requirements_dev.in
 fonttools==4.36.0
     # via matplotlib
-gmpy==1.17
-    # via -r requirements_dev.in
 idna==3.3
     # via requests
 imagesize==1.3.0
