@@ -13,6 +13,7 @@ from ._is_nonincreasing import is_nonincreasing
 from ._launder_impl_modules import launder_impl_modules
 from ._memoize_generator import memoize_generator
 from ._pairwise import pairwise
+from ._popcount import popcount
 from ._scale_luminosity import scale_luminosity
 
 # adapted from https://stackoverflow.com/a/31079085
@@ -30,6 +31,7 @@ __all__ = [
     "launder_impl_modules",
     "memoize_generator",
     "pairwise",
+    "popcount",
     "RecursionLimit",
     "scale_luminosity",
     "ScalarFormatterFixedPrecision",

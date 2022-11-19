@@ -12,6 +12,7 @@ with open("HISTORY.rst") as history_file:
 
 requirements = [
     "anytree>=2.8.0",
+    "bitstring>=3.1.9",
     "iterpop>=0.3.4",
     "interval_search>=0.2.0",
     "gmpy>=1.17",
