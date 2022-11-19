@@ -63,7 +63,7 @@ individual1_grandchild2 = individual1_child1.CloneDescendant()
 result = hstrat.calc_rank_of_mrca_bounds_between(
   individual1_grandchild1,
   individual1_grandchild2,
-) 
+)
 print(result) # -> (1, 2)
 ```
 
