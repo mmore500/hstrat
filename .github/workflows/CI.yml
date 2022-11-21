@@ -39,7 +39,7 @@ jobs:
     - name: Log coverage configuration
       run: coverage debug sys
     - name: Run tests with coverage report
-      run: coverage run -m pytest test_hstrat
+      run: coverage run -m pytest tests/test_hstrat
     - uses: codecov/codecov-action@v3
       with:
         flags: tests # optional
