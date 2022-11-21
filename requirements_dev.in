@@ -1,11 +1,9 @@
 bump2version==0.5.11
 flake8==3.7.8
-pip==19.2.3
 Sphinx==4.4.0
 sphinx_rtd_theme==1.0.0
 tox==3.24.0
 twine==1.14.0
-watchdog==0.9.0
 wheel==0.33.6
 
 
@@ -29,5 +27,4 @@ iterify==0.1.0
 more-itertools==8.13.0
 pytest==7.1.2
 pytest-xdist==2.5.0
-safe-assert==0.2.0
 teeplot==0.4.0

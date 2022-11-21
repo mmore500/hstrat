@@ -8,8 +8,6 @@ alabaster==0.7.12
     # via sphinx
 anytree==2.8.0
     # via -r requirements_dev.in
-argh==0.26.2
-    # via watchdog
 attrs==22.1.0
     # via pytest
 babel==2.9.1
@@ -108,8 +106,6 @@ pandas==1.4.3
     # via
     #   seaborn
     #   teeplot
-pathtools==0.1.2
-    # via watchdog
 pillow==9.2.0
     # via matplotlib
 pkginfo==1.8.2
@@ -158,8 +154,6 @@ pytz==2021.3
     # via
     #   babel
     #   pandas
-pyyaml==6.0
-    # via watchdog
 readme-renderer==32.0
     # via twine
 requests-toolbelt==0.9.1
@@ -169,8 +163,6 @@ requests==2.27.1
     #   requests-toolbelt
     #   sphinx
     #   twine
-safe-assert==0.2.0
-    # via -r requirements_dev.in
 scipy==1.5.4
     # via
     #   -r requirements_dev.in
@@ -222,8 +214,6 @@ urllib3==1.26.8
     # via requests
 virtualenv==20.13.1
     # via tox
-watchdog==0.9.0
-    # via -r requirements_dev.in
 webencodings==0.5.1
     # via bleach
 wheel==0.33.6
@@ -232,5 +222,4 @@ zipp==3.7.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
-# pip
 # setuptools
