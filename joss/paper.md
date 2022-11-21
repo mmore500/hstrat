@@ -120,6 +120,7 @@ Centralized phylogenetic tracking, however, is a common practice in digital evol
 Many rely on custom "hand-rolled" solutions.
 However, several general-purpose libraries and frameworks exist to facilitate centralized phylogenetic tracking.
 These include,
+
 * Automated Phylogeny Over Geological Timescales (APOGeT) [@godin2019apoget],
 * Distributed Evolutionary Algorithms in Python (DEAP) [@de2012deap],
 * Empirical [@ofria2020empirical], and
