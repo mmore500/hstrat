@@ -6,6 +6,9 @@ import pytest
 from hstrat import hstrat
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Insufficient common ranks between columns to detect common ancestry at given confidence level."
+)
 @pytest.mark.parametrize(
     "confidence_level",
     [0.8, 0.95, 0.99],

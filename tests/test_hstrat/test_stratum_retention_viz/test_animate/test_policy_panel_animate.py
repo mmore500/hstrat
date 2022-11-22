@@ -13,10 +13,9 @@ from hstrat import hstrat
     ],
 )
 def test_one(policy):
-    hstrat.policy_panel_animate(
-        policy,
-        10,
-    )
+    hstrat.policy_panel_animate(policy, 10,).to_html5_video(
+        embed_limit=0
+    )  # silence mpl unused animation warning
 
 
 @pytest.mark.heavy

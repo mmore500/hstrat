@@ -19,18 +19,21 @@ def test_one(policy):
         draw_extant_history=False,
         draw_extinct_history=False,
         draw_extinct_placeholders=True,
-    )
+    ).to_html5_video(
+        embed_limit=0
+    )  # silence mpl unused animation warning
     hstrat.stratum_retention_animate(
         policy,
         10,
         draw_extant_history=True,
         draw_extinct_history=False,
         draw_extinct_placeholders=True,
-    )
-    hstrat.stratum_retention_animate(
-        policy,
-        10,
-    )
+    ).to_html5_video(
+        embed_limit=0
+    )  # silence mpl unused animation warning
+    hstrat.stratum_retention_animate(policy, 10).to_html5_video(
+        embed_limit=0
+    )  # silence mpl unused animation warning
 
 
 @pytest.mark.heavy
