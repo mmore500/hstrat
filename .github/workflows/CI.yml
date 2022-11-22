@@ -24,7 +24,7 @@ jobs:
     # numpy build dependencies
     # xlocal workaround adapted from https://github.com/carla-simulator/carla/issues/503#issuecomment-397658790
     - run: |
-        ln -s /usr/include/locale.h /usr/include/xlocale.h
+        sudo ln -s /usr/include/locale.h /usr/include/xlocale.h
         sudo apt-get install \
           build-essential \
           fort77 \
