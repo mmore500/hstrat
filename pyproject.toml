@@ -70,7 +70,7 @@ requires = [
 # additional dev requriements
 # used to generated requirements in dev-requirements/
 [project.optional-dependencies]
-pinned_dependencies = [
+pinned_dependencies_py37 = [
   "anytree==2.8.0",
   "bitstring==3.1.9",
   "iterpop==0.4.1",
@@ -88,7 +88,25 @@ pinned_dependencies = [
   "python-slugify==6.1.2",
   "seaborn==0.11.2",
 ]
-testing = [
+pinned_dependencies_py310 = [
+  "anytree==2.8.0",
+  "bitstring==3.1.9",
+  "iterpop==0.4.1",
+  "interval-search==0.2.0",
+  "keyname==0.4.1",
+  "lru-dict==1.1.8",
+  "matplotlib==3.5.2",
+  "mmh3==3.0.0",
+  "mpmath==1.2.1",
+  "numpy==1.23.5",
+  "opytional==0.1.0",
+  # pandas not a direct requirement
+  # however this pin is necessary due an apparent bug in pip-compile
+  "pandas==1.3.5",
+  "python-slugify==6.1.2",
+  "seaborn==0.12.1",
+]
+testing_py37 = [
   "coverage==6.4.4",
   "flake8==3.7.8",
   "iterify==0.1.0",
@@ -97,6 +115,18 @@ testing = [
   "pytest==7.1.2",
   "safe-assert==0.2.0",
   "scipy==1.7.3",
+  "teeplot==0.4.0",
+  "tox==3.24.0",
+]
+testing_py310 = [
+  "coverage==6.4.4",
+  "flake8==3.7.8",
+  "iterify==0.1.0",
+  "more-itertools==8.13.0",
+  "pytest-xdist==2.5.0",
+  "pytest==7.1.2",
+  "safe-assert==0.2.0",
+  "scipy==1.9.3",
   "teeplot==0.4.0",
   "tox==3.24.0",
 ]
