@@ -51,8 +51,8 @@ def strata_retained_frac_lineplot(
             column.DepositStratum()
 
     sns.lineplot(
-        xs,
-        ys,
+        x=xs,
+        y=ys,
         ax=ax,
     )
     ax.set_xlabel("Generation")
