@@ -35,11 +35,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install -r requirements_dev.txt
+        python -m pip install -r requirements-dev/requirements-testing.txt
     - name: Log coverage configuration
       run: coverage debug sys
     - name: Run tests with coverage report
-      run: coverage run -m pytest test_hstrat
+      run: coverage run -m pytest tests/test_hstrat
     - uses: codecov/codecov-action@v3
       with:
         flags: tests # optional
@@ -59,7 +59,7 @@ jobs:
     - name: Test isort tidyness
       uses: jamescurtin/isort-action@master
       with:
-          requirementsFiles: "requirements_dev.txt"
+          requirementsFiles: "requirements-dev/requirements-testing.txt"
     - name: Test Black tidyness
       uses: psf/black@stable
     - uses: editorconfig-checker/action-editorconfig-checker@main
