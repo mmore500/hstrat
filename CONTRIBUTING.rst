@@ -79,7 +79,7 @@ Ready to contribute? Here's how to set up `hstrat` for local development.
 
     $ git clone git@github.com:your_name_here/hstrat.git
 
-3. Install your local copy into a virtualenv (where `X` is your local major release of Python) ::
+3. Install your local copy into a virtualenv (where `X` is your local major release of Python)::
 
     $ cd hstrat/
     $ python3.X -m venv env
@@ -100,6 +100,11 @@ Ready to contribute? Here's how to set up `hstrat` for local development.
     $ tox
 
    To get flake8 and tox, just pip install them into your virtualenv.
+   To run *all* the tests, you will need ffmpeg installed.
+   The Linux way to do this is::
+   
+    $ sudo apt-get update
+    $ sudo apt-get install ffmpeg
 
 6. Commit your changes and push your branch to GitHub::
 
