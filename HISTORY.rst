@@ -6,3 +6,5 @@ History
 ------------------
 
 * First release on PyPI.
+
+*This record is not actively maintained and is out of date.*
