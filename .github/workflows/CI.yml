@@ -27,6 +27,7 @@ jobs:
           build-essential \
           fort77 \
           gcc \
+          gfortran \
           libatlas-base-dev \
           libblas-dev \
           liblapack-dev \
