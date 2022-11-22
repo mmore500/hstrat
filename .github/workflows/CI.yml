@@ -20,6 +20,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
+        sudo apt-get install -y ffmpeg
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
     - name: Test with tox
@@ -35,6 +36,7 @@ jobs:
         python-version: 3.9
     - name: Install dependencies
       run: |
+        sudo apt-get install -y ffmpeg
         python -m pip install --upgrade pip
         python -m pip install -r requirements-dev/py39/requirements-testing.txt
     - name: Log coverage configuration
