@@ -14,6 +14,7 @@ def _release_cur_mpl_fig():
     plt.clf()
     plt.close()
 
+
 @pytest.mark.parametrize(
     "policy",
     [
