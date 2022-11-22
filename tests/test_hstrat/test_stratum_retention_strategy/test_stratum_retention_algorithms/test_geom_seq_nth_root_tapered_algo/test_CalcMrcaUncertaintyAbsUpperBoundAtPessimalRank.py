@@ -7,6 +7,9 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import
 )
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -84,6 +87,9 @@ def test_policy_consistency(degree, interspersal, time_sequence):
                     )
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [
