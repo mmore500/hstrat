@@ -221,6 +221,9 @@ def test_comparison_validity(retention_policy, ordered_store):
                 individual.DepositStratum()
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Insufficient common ranks between columns to detect common ancestry at given confidence level."
+)
 @pytest.mark.parametrize(
     "retention_policy",
     [
@@ -385,6 +388,9 @@ def test_CalcRanksSinceMrcaBoundsWith_narrow_with_mrca(
         )
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Insufficient common ranks between columns to detect common ancestry at given confidence level."
+)
 @pytest.mark.parametrize(
     "retention_policy",
     [

@@ -6,6 +6,9 @@ import pytest
 from hstrat.hstrat import geom_seq_nth_root_algo
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -57,6 +60,9 @@ def test_init(degree, interspersal):
     assert callable(policy.GenDropRanks)
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -98,6 +104,9 @@ def test_eq(degree, interspersal):
     )
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -130,6 +139,9 @@ def test_pickle(degree, interspersal):
             assert reconstituted == original
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -157,6 +169,9 @@ def test_GetSpec(degree, interspersal):
     ).GetSpec() == geom_seq_nth_root_algo.PolicySpec(degree, interspersal)
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [

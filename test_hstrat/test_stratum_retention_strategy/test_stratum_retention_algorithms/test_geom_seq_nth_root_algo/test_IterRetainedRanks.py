@@ -9,6 +9,9 @@ from hstrat._auxiliary_lib import pairwise
 from hstrat.hstrat import geom_seq_nth_root_algo
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -81,6 +84,9 @@ def test_only_dwindling_over_time(degree, interspersal, time_sequence):
             assert cur_set.issuperset(next_set - {num_strata_deposited})
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -149,6 +155,9 @@ def test_ranks_sorted_and_unique(degree, interspersal, time_sequence):
             )
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -220,6 +229,9 @@ def test_zero_and_last_ranks_retained(degree, interspersal, time_sequence):
                 assert next(res, None) is None
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -284,6 +296,9 @@ def test_ranks_valid(degree, interspersal, time_sequence):
             )
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [
