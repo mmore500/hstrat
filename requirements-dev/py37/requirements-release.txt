@@ -58,7 +58,6 @@ numpy==1.21.6
     #   hstrat (../../pyproject.toml)
     #   matplotlib
     #   pandas
-    #   scipy
     #   seaborn
 opytional==0.1.0
     # via hstrat (../../pyproject.toml)
@@ -102,9 +101,7 @@ requests-toolbelt==0.10.1
     # via twine
 safe-assert==0.4.0
     # via hstrat (../../pyproject.toml)
-scipy==1.7.3
-    # via seaborn
-seaborn==0.11.2
+seaborn==0.12.1
     # via hstrat (../../pyproject.toml)
 six==1.16.0
     # via
@@ -127,6 +124,7 @@ typing-extensions==4.4.0
     # via
     #   importlib-metadata
     #   kiwisolver
+    #   seaborn
 urllib3==1.26.12
     # via requests
 webencodings==0.5.1
