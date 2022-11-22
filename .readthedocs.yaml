@@ -7,7 +7,7 @@ build:
   tools:
     python: "3.8"
   commands:
-    - pip install -r requirements_dev.txt
+    - pip install -r requirements-dev/requirements-docs.txt
     - make -C docs/ html
     - mkdir -p _readthedocs
     - rm -rf _readthedocs/html
