@@ -29,8 +29,8 @@ jobs:
           gcc \
           libatlas-base-dev \
           libblas-dev \
-          liblapack-dev
-        python3-dev
+          liblapack-dev \
+          python3-dev
     - name: Test with tox
       run: tox
 
