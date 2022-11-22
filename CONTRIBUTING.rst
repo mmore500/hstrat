@@ -79,11 +79,12 @@ Ready to contribute? Here's how to set up `hstrat` for local development.
 
     $ git clone git@github.com:your_name_here/hstrat.git
 
-3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
+3. Install your local copy into a virtualenv (where `X` is your local major release of Python) ::
 
-    $ mkvirtualenv hstrat
     $ cd hstrat/
-    $ python setup.py develop
+    $ python3.X -m venv env
+    $ source env/bin/activate
+    $ python3.X -m pip install -r requirements-dev/py3X/requirements-all.txt
 
 4. Create a branch for local development::
 
@@ -95,7 +96,7 @@ Ready to contribute? Here's how to set up `hstrat` for local development.
    tests, including testing other Python versions with tox::
 
     $ flake8 hstrat tests
-    $ python setup.py test or pytest
+    $ pytest
     $ tox
 
    To get flake8 and tox, just pip install them into your virtualenv.
@@ -140,4 +141,4 @@ $ bump2version patch # possible: major / minor / patch
 $ git push
 $ git push --tags
 
-Travis will then deploy to PyPI if tests pass.
+GitHub Actions will then deploy to PyPI if tests pass.
