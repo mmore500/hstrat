@@ -98,6 +98,10 @@ more-itertools==8.13.0
     # via hstrat (../../pyproject.toml)
 mpmath==1.2.1
     # via hstrat (../../pyproject.toml)
+mypy==0.991
+    # via hstrat (../../pyproject.toml)
+mypy-extensions==0.4.3
+    # via mypy
 numpy==1.21.6
     # via
     #   hstrat (../../pyproject.toml)
@@ -222,6 +226,7 @@ toml==0.10.2
 tomli==2.0.1
     # via
     #   build
+    #   mypy
     #   pep517
     #   pytest
 tox==3.24.0
@@ -232,10 +237,13 @@ tqdm==4.64.1
     #   twine
 twine==1.14.0
     # via hstrat (../../pyproject.toml)
+typed-ast==1.5.4
+    # via mypy
 typing-extensions==4.4.0
     # via
     #   importlib-metadata
     #   kiwisolver
+    #   mypy
     #   seaborn
 urllib3==1.26.12
     # via requests
