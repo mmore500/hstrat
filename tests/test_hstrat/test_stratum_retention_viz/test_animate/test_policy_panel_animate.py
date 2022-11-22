@@ -3,6 +3,9 @@ import pytest
 from hstrat import hstrat
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Animation was deleted without rendering anything."
+)
 @pytest.mark.parametrize(
     "policy",
     [

@@ -6,6 +6,9 @@ import pytest
 from hstrat.hstrat import geom_seq_nth_root_tapered_algo
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -108,6 +111,9 @@ def test_policy_consistency(degree, interspersal, time_sequence):
                 )
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -182,6 +188,9 @@ def test_policy_consistency_uneven_branches(degree, interspersal):
                     )
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -216,6 +225,9 @@ def test_eq(degree, interspersal):
     assert instance is not None
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [
