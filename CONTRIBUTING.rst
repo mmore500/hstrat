@@ -102,7 +102,7 @@ Ready to contribute? Here's how to set up `hstrat` for local development.
    To get flake8 and tox, just pip install them into your virtualenv.
    To run *all* the tests, you will need ffmpeg installed.
    The Linux way to do this is::
-   
+
     $ sudo apt-get update
     $ sudo apt-get install ffmpeg
 
