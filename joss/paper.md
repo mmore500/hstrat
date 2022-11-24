@@ -161,6 +161,9 @@ Although, as currently released, `hstrat` does support serialization and de-seri
 
 # Acknowledgements
 
+Thank you to reviewers Kevin Godin-Dubois, Juan Julián Merelo Guervós, and Logan Walker.
+Their comments and contributions improved the maintainability of the software, particularly with respect to improving usability for outside developers.
+
 This research was supported in part by NSF grants DEB-1655715 and DBI-0939454 as well as by Michigan State University through the computational resources provided by the Institute for Cyber-Enabled Research.
 This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE-1424871.
 Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.
