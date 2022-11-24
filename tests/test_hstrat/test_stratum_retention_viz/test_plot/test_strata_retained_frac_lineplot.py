@@ -3,6 +3,7 @@ from slugify import slugify
 from teeplot import teeplot as tp
 
 from hstrat import hstrat
+from hstrat._auxiliary_lib import release_cur_mpl_fig
 
 
 @pytest.mark.parametrize(
@@ -15,7 +16,9 @@ from hstrat import hstrat
 )
 def test(policy):
     hstrat.strata_retained_frac_lineplot(policy, 100, do_show=False)
+    release_cur_mpl_fig()
     hstrat.strata_retained_frac_lineplot(policy, 10, do_show=False)
+    release_cur_mpl_fig()
 
 
 @pytest.mark.parametrize(
@@ -95,3 +98,4 @@ def test_docplots(policy):
         },
         teeplot_transparent=False,
     )
+    release_cur_mpl_fig()

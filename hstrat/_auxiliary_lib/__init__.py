@@ -14,6 +14,7 @@ from ._launder_impl_modules import launder_impl_modules
 from ._memoize_generator import memoize_generator
 from ._pairwise import pairwise
 from ._popcount import popcount
+from ._release_cur_mpl_fig import release_cur_mpl_fig
 from ._scale_luminosity import scale_luminosity
 
 # adapted from https://stackoverflow.com/a/31079085
@@ -33,6 +34,7 @@ __all__ = [
     "pairwise",
     "popcount",
     "RecursionLimit",
+    "release_cur_mpl_fig",
     "scale_luminosity",
     "ScalarFormatterFixedPrecision",
 ]
