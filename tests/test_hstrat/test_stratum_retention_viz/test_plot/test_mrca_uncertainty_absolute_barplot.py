@@ -1,18 +1,9 @@
-from matplotlib import pyplot as plt
 import pytest
 from slugify import slugify
 from teeplot import teeplot as tp
 
 from hstrat import hstrat
-
-
-# adapted from https://stackoverflow.com/a/61039272
-# fixes warning
-# Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are
-# retained until explicitly closed and may consume too much memory.
-def _release_cur_mpl_fig():
-    plt.clf()
-    plt.close()
+from hstrat._auxiliary_lib import release_cur_mpl_fig
 
 
 @pytest.mark.parametrize(
@@ -25,9 +16,9 @@ def _release_cur_mpl_fig():
 )
 def test(policy):
     hstrat.mrca_uncertainty_absolute_barplot(policy, 100, do_show=False)
-    _release_cur_mpl_fig()
+    release_cur_mpl_fig()
     hstrat.mrca_uncertainty_absolute_barplot(policy, 10, do_show=False)
-    _release_cur_mpl_fig()
+    release_cur_mpl_fig()
 
 
 @pytest.mark.parametrize(
@@ -107,4 +98,4 @@ def test_docplots(policy):
         },
         teeplot_transparent=False,
     )
-    _release_cur_mpl_fig()
+    release_cur_mpl_fig()
