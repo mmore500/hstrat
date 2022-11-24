@@ -86,13 +86,17 @@ Ready to contribute? Here's how to set up `hstrat` for local development.
     $ source env/bin/activate
     $ python3.X -m pip install -r requirements-dev/py3X/requirements-all.txt
 
-4. Create a branch for local development::
+4. Alternately, to install development requirements into your local Python environment::
+
+    $ python3.X -m pip install -r requirements-dev/requirements-all.txt
+
+5. Create a branch for local development::
 
     $ git checkout -b name-of-your-bugfix-or-feature
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass the tests::
+6. When you're done making changes, check that your changes pass the tests::
 
     $ python3.X -m pytest
 
@@ -102,13 +106,13 @@ Ready to contribute? Here's how to set up `hstrat` for local development.
     $ sudo apt-get update
     $ sudo apt-get install ffmpeg
 
-6. Commit your changes and push your branch to GitHub::
+7. Commit your changes and push your branch to GitHub::
 
     $ git add .
     $ git commit -m "Your detailed description of your changes."
     $ git push origin name-of-your-bugfix-or-feature
 
-7. Submit a pull request through the GitHub website.
+8. Submit a pull request through the GitHub website.
 
 Pull Request Guidelines
 -----------------------
