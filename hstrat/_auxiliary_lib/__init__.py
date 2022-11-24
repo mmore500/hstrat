@@ -6,6 +6,7 @@ from ._bit_ceil import bit_ceil
 from ._bit_floor import bit_floor
 from ._caretdown_marker import caretdown_marker
 from ._caretup_marker import caretup_marker
+from ._check_testing_requirements import check_testing_requirements
 from ._div_range import div_range
 from ._find_bounds import find_bounds
 from ._is_nondecreasing import is_nondecreasing
@@ -24,6 +25,7 @@ __all__ = [
     "bit_floor",
     "caretdown_marker",
     "caretup_marker",
+    "check_testing_requirements",
     "div_range",
     "find_bounds",
     "is_nondecreasing",
