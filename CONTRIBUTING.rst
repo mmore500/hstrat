@@ -78,10 +78,10 @@ Ready to contribute? Here's how to set up `hstrat` for local development.
 2. Clone your fork locally::
 
     $ git clone git@github.com:your_name_here/hstrat.git
+    $ cd hstrat
 
-3. Install your local copy into a virtualenv (where `X` is your local major release of Python)::
+3. Install development requirements into a virtualenv (where `X` is your local major release of Python)::
 
-    $ cd hstrat/
     $ python3.X -m venv env
     $ source env/bin/activate
     $ python3.X -m pip install -r requirements-dev/py3X/requirements-all.txt
@@ -92,15 +92,11 @@ Ready to contribute? Here's how to set up `hstrat` for local development.
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass flake8 and the
-   tests, including testing other Python versions with tox::
+5. When you're done making changes, check that your changes pass the tests::
 
-    $ flake8 hstrat tests
-    $ pytest
-    $ tox
+    $ python3.X -m pytest
 
-   To get flake8 and tox, just pip install them into your virtualenv.
-   To run *all* the tests, you will need ffmpeg installed.
+   To run some tests, you will need ffmpeg installed.
    The Linux way to do this is::
 
     $ sudo apt-get update
