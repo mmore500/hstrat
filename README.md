@@ -68,7 +68,7 @@ for __ in range(5): descendant2c.DepositStratum()
 print(
     "   estimate descendant2b generations since MRCA with descendant2c?",
     hstrat.calc_ranks_since_mrca_bounds_with(descendant2b, descendant2c),
-) # -> (9, 12)
+) # -> (19, 22)
 print(
     "   estimate descendant2c generations since MRCA with descendant2b?",
     hstrat.calc_ranks_since_mrca_bounds_with(descendant2c, descendant2b),
