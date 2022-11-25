@@ -13,7 +13,7 @@ def calc_rank_of_mrca_uncertainty_between(
     second: HereditaryStratigraphicColumn,
     confidence_level: float = 0.95,
 ) -> typing.Optional[int]:
-    """How much wide is the estimate window for generation of MRCA?
+    """How wide is the estimate window for generation of MRCA?
 
     Calculate uncertainty of estimate for the number of depositions
     elapsed along the line of descent before the most common recent
