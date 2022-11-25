@@ -1,7 +1,13 @@
 """Functions to infer phylogenetic history among a population of extant hstrat
 columns."""
 
-__all__ = []
+from ._does_definitively_share_no_common_ancestor import (
+    does_definitively_share_no_common_ancestor,
+)
+
+__all__ = [
+    "does_definitively_share_no_common_ancestor",
+]
 
 from ..._auxiliary_lib import launder_impl_modules as _launder
 
