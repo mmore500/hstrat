@@ -13,25 +13,27 @@ def calc_rank_of_earliest_detectable_mrca_among(
 ) -> typing.Optional[int]:
     """After what generation is common ancstry robustly detectable?
 
-    Calculates the earliest possible rank a MRCA between first and second
+    Calculates the earliest possible rank a MRCA among the population
     could be reliably detected at.
 
-    Even if a true MRCA of first and second exists, if it occured earlier
+    Even if a true MRCA of the population exists, if it occured earlier
     than the rank calculated here it could not be reliably detected with
     sufficient confidence after accounting for the possibility of spurious
     differentia collisions. (Although subsequent spurious differentia
     collisions after the true MRCA of first and second could lead to MRCA
     detection at such a rank.)
 
-    Returns None if insufficient common ranks exist between first and second
+    Returns None if insufficient common ranks exist with population
     to ever conclude at the given confidence level the existance of any
-    common ancestry between first and second (even if all strata at common
+    common ancestry among th epopulation (even if all strata at common
     ranks had equivalent differentiae).
 
-    calc_rank_of_earliest_detectable_mrca_between :
-        Could any MRCA be detected between first and second? What is the rank
-        of the earliest MRCA that could be reliably detected?
+    Also returns None if population is empty or singleton.
 
+    Notes
+    -----
+    Currently implementaiton uses a naive O(n^2) approach. A more efficient
+    implementation should be possible.
     """
 
     earliest_detectable_mrca_rank = -1

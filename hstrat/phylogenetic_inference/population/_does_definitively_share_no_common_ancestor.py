@@ -7,11 +7,13 @@ from ...genome_instrumentation import HereditaryStratigraphicColumn
 
 def does_definitively_share_no_common_ancestor(
     population: typing.Iterable[HereditaryStratigraphicColumn],
-) -> bool:
+) -> typing.Optional[bool]:
     """Could the population possibly share a common ancestor?
 
     Note that stratum rention policies are strictly required to permanently
     retain the most ancient stratum.
+
+    Returns None if population is empty or singleton.
 
     See Also
     --------
