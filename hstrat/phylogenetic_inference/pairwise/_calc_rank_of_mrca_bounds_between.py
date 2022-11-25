@@ -37,7 +37,7 @@ def calc_rank_of_mrca_bounds_between(
         Inclusive lower and then exclusive upper bound on estimate or None
         if no common ancestor between first and second can be resolved with
         sufficient confidence. (Sufficient confidence depends on
-        bound_type.)
+        confidence_level.)
 
     See Also
     --------
