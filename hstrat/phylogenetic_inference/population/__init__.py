@@ -1,11 +1,15 @@
 """Functions to infer phylogenetic history among a population of extant hstrat
 columns."""
 
+from ._calc_rank_of_earliest_detectable_mrca_among import (
+    calc_rank_of_earliest_detectable_mrca_among,
+)
 from ._does_definitively_share_no_common_ancestor import (
     does_definitively_share_no_common_ancestor,
 )
 
 __all__ = [
+    "calc_rank_of_earliest_detectable_mrca_among",
     "does_definitively_share_no_common_ancestor",
 ]
 
