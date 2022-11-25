@@ -4,12 +4,14 @@ columns."""
 from ._calc_rank_of_earliest_detectable_mrca_among import (
     calc_rank_of_earliest_detectable_mrca_among,
 )
+from ._calc_rank_of_mrca_bounds_among import calc_rank_of_mrca_bounds_among
 from ._does_definitively_share_no_common_ancestor import (
     does_definitively_share_no_common_ancestor,
 )
 
 __all__ = [
     "calc_rank_of_earliest_detectable_mrca_among",
+    "calc_rank_of_mrca_bounds_among",
     "does_definitively_share_no_common_ancestor",
 ]
 
