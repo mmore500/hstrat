@@ -3,7 +3,6 @@ import typing
 import warnings
 
 from ...genome_instrumentation import HereditaryStratigraphicColumn
-from ...juxtaposition import get_nth_common_rank_between
 from ..pairwise import calc_rank_of_earliest_detectable_mrca_between
 
 
