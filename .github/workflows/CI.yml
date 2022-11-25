@@ -26,6 +26,21 @@ jobs:
     - name: Test with tox
       run: tox
 
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Install Python dependencies
+      uses: py-actions/py-dependency-install@v4
+      with:
+        path: "requirements-dev/requirements-testing.txt"
+    - name: Run examples
+      run: ./examples/run_all.sh
+
   coverage:
     runs-on: ubuntu-latest
     steps:
@@ -93,7 +108,7 @@ jobs:
           path: joss/paper.pdf
 
   deploy:
-    needs: [coverage, test, tidy]
+    needs: [coverage, examples, test, tidy]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 

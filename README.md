@@ -32,42 +32,61 @@ hstrat enables phylogenetic inference on distributed digital evolution populatio
 ```python3
 from hstrat import hstrat
 
-stratum_retention_policy = hstrat.geom_seq_nth_root_tapered_algo.Policy(
-    parameterizer=hstrat.PropertyAtMostParameterizer(
-        target_value=127,
-        policy_evaluator \
-            =hstrat.MrcaUncertaintyAbsExactEvaluator(
-                at_num_strata_deposited=256,
-                at_rank=0,
-        ),
-        param_lower_bound=1,
-        param_upper_bound=1024,
-    ),
+print("creating founder1 and founder2, which share no ancestry...")
+founder1 = hstrat.HereditaryStratigraphicColumn(
+    # retain strata from every generation
+    stratum_retention_policy=hstrat.fixed_resolution_algo.Policy(1)
+)
+founder2 = hstrat.HereditaryStratigraphicColumn(
+    # retain strata from every third generation
+    stratum_retention_policy=hstrat.fixed_resolution_algo.Policy(3),
 )
 
-individual1 = hstrat.HereditaryStratigraphicColumn(
-    stratum_retention_policy=stratum_retention_policy,
-)
-individual2 = hstrat.HereditaryStratigraphicColumn(
-  stratum_retention_policy=stratum_retention_policy,
-)
+print(
+    "   do founder1 and founder2 share any common ancestor?",
+    hstrat.does_have_any_common_ancestor(founder1, founder2)
+) # -> False
 
-individual1_child1 = individual1.CloneDescendant()
+print("creating descendant2a, 10 generations removed from founder2...")
+descendant2a = founder2.Clone()
+for __ in range(10): descendant2a.DepositStratum()
 
-hstrat.does_have_any_common_ancestor(individual1, individual2) # -> False
-hstrat.does_have_any_common_ancestor(individual1_child1, individual2) # -> False
+print(
+    "   do founder2 and descendant2a share any common ancestor?",
+    hstrat.does_have_any_common_ancestor(founder2, descendant2a)
+) # -> True
 
-individual1_grandchild1 = individual1_child1.CloneDescendant()
-individual1_grandchild2 = individual1_child1.CloneDescendant()
+print("creating descendant2b, 20 generations removed from descendant2a...")
+descendant2b = descendant2a.Clone()
+for __ in range(20): descendant2b.DepositStratum()
 
-result = hstrat.calc_rank_of_mrca_bounds_between(
-  individual1_grandchild1,
-  individual1_grandchild2,
-)
-print(result) # -> (1, 2)
+print("creating descendant2c, 5 generations removed from descendant2a...")
+descendant2c = descendant2a.Clone()
+for __ in range(5): descendant2c.DepositStratum()
+
+# note MRCA estimate uncertainty, caused by sparse stratum retention policy
+print(
+    "   estimate descendant2b generations since MRCA with descendant2c?",
+    hstrat.calc_ranks_since_mrca_bounds_with(descendant2b, descendant2c),
+) # -> (9, 12)
+print(
+    "   estimate descendant2c generations since MRCA with descendant2b?",
+    hstrat.calc_ranks_since_mrca_bounds_with(descendant2c, descendant2b),
+) # -> (4, 7)
+print(
+    "   estimate generation of MRCA between descendant2b and descendant2c?",
+    hstrat.calc_rank_of_mrca_bounds_between(descendant2b, descendant2c),
+) # -> (9, 12)
 ```
 
 As shown in the example above, all library components can be accessed directly from the convenience flat namespace `hstrat.hstrat`.
+
+See `examples/` for more usage examples, including
+
+* incorporation of hstrat annotations into a custom genome class,
+* automatic stratum retention policy parameterization,
+* pairwise and population-level phylogenetic inference, and
+* phylogenetic tree reconstruction.
 
 ## How it Works
 
