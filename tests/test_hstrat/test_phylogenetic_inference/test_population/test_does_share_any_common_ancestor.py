@@ -183,7 +183,7 @@ def test_does_share_any_common_ancestor_singleton():
     )
     for __ in range(10):
         assert hstrat.does_share_any_common_ancestor([c1]) is None
-        c1.DepositStratum()
+        c2.DepositStratum()
 
 
 @pytest.mark.filterwarnings("ignore:Empty or singleton population.")
