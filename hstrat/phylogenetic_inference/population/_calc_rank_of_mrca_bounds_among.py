@@ -2,8 +2,6 @@ import itertools as it
 import typing
 import warnings
 
-import opytional as opyt
-
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ..pairwise import calc_rank_of_mrca_bounds_between
 from ._calc_rank_of_earliest_detectable_mrca_among import (
