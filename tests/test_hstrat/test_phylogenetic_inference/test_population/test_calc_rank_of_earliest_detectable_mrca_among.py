@@ -184,3 +184,27 @@ def test_calc_rank_of_earliest_detectable_mrca_among4():
         assert hstrat.calc_rank_of_earliest_detectable_mrca_among([c1]) is None
         assert hstrat.calc_rank_of_earliest_detectable_mrca_among([]) is None
         c1.DepositStratum()
+
+
+def test_calc_rank_of_earliest_detectable_mrca_among_generator():
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+    )
+    for __ in range(10):
+        assert hstrat.calc_rank_of_earliest_detectable_mrca_among(
+            [c1 for __ in range(10)]
+        ) == hstrat.calc_rank_of_earliest_detectable_mrca_among(
+            (c1 for __ in range(10))
+        )
+        c1.DepositStratum()
+
+    c2 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=64,
+    )
+    for __ in range(10):
+        assert hstrat.calc_rank_of_earliest_detectable_mrca_among(
+            [c2 for __ in range(10)]
+        ) == hstrat.calc_rank_of_earliest_detectable_mrca_among(
+            (c2 for __ in range(10))
+        )
+        c2.DepositStratum()

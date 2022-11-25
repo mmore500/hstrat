@@ -189,3 +189,23 @@ def test_does_share_any_common_ancestor_singleton():
 @pytest.mark.filterwarnings("ignore:Empty or singleton population.")
 def test_does_share_any_common_ancestor_empty():
     assert hstrat.does_share_any_common_ancestor([]) is None
+
+
+def test_does_share_any_common_ancestor_generator():
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+    )
+    for __ in range(10):
+        assert hstrat.does_share_any_common_ancestor(
+            [c1 for __ in range(10)]
+        ) == hstrat.does_share_any_common_ancestor((c1 for __ in range(10)))
+        c1.DepositStratum()
+
+    c2 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=64,
+    )
+    for __ in range(10):
+        assert hstrat.does_share_any_common_ancestor(
+            [c2 for __ in range(10)]
+        ) == hstrat.does_share_any_common_ancestor((c2 for __ in range(10)))
+        c2.DepositStratum()

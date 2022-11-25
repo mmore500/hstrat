@@ -21,8 +21,8 @@ def does_definitively_share_no_common_ancestor(
         Can we conclude with confidence_level confidence that the population
         shares a common ancestor?
     """
-    population, population_tee = it.tee(population)
-    if len([*zip(population_tee, range(2))]) < 2:
+    pop_tee1, pop_tee2 = it.tee(population)
+    if len([*zip(pop_tee1, range(2))]) < 2:
         warnings.warn(
             "Empty or singleton population. Unable to detect if does "
             "definitively share no common ancestor."
@@ -35,7 +35,7 @@ def does_definitively_share_no_common_ancestor(
                 column.GetStratumAtColumnIndex(0).GetDifferentia(),
                 column.GetStratumDifferentiaBitWidth(),
             )
-            for column in population
+            for column in pop_tee2
         }
     )
 

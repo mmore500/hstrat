@@ -635,3 +635,26 @@ def test_calc_rank_of_earliest_detectable_mrca_emptypop():
     for __ in range(10):
         assert hstrat.calc_rank_of_earliest_detectable_mrca_among([]) is None
         c1.DepositStratum()
+
+
+@pytest.mark.filterwarnings(
+    "ignore:Insufficient common ranks between columns to detect common ancestry at given confidence level."
+)
+def test_calc_rank_of_mrca_bounds_among_generator():
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=1,
+    )
+    for __ in range(10):
+        assert hstrat.calc_rank_of_mrca_bounds_among(
+            [c1 for __ in range(10)]
+        ) == hstrat.calc_rank_of_mrca_bounds_among((c1 for __ in range(10)))
+        c1.DepositStratum()
+
+    c2 = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=64,
+    )
+    for __ in range(10):
+        assert hstrat.calc_rank_of_mrca_bounds_among(
+            [c2 for __ in range(10)]
+        ) == hstrat.calc_rank_of_mrca_bounds_among((c2 for __ in range(10)))
+        c2.DepositStratum()
