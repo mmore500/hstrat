@@ -8,6 +8,8 @@ anytree>=2.8.0
     # via hstrat (../../pyproject.toml)
 attrs>=22.1.0
     # via pytest
+biopython>=1.79
+    # via hstrat (../../pyproject.toml)
 bitstring>=3.1.9
     # via hstrat (../../pyproject.toml)
 click>=8.1.3
@@ -72,6 +74,7 @@ mypy-extensions>=0.4.3
     # via mypy
 numpy>=1.21.6
     # via
+    #   biopython
     #   hstrat (../../pyproject.toml)
     #   matplotlib
     #   pandas
@@ -167,3 +170,6 @@ virtualenv>=20.16.7
     # via tox
 zipp>=3.10.0
     # via importlib-metadata
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
