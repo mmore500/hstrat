@@ -1,3 +1,4 @@
+import itertools as it
 import operator
 import typing
 
@@ -29,9 +30,10 @@ def calc_rank_of_mrca_uncertainty_among(
         Calculates bound whose uncertainty this method reports. See the
         corresponding docstring for explanation of parameters.
     """
+    pop_tee1, pop_tee2 = it.tee(population)
     if (
         calc_rank_of_earliest_detectable_mrca_among(
-            population,
+            pop_tee1,
             confidence_level=confidence_level,
         )
         is None
@@ -39,7 +41,7 @@ def calc_rank_of_mrca_uncertainty_among(
         return None
 
     bounds = calc_rank_of_mrca_bounds_among(
-        population,
+        pop_tee2,
         confidence_level=confidence_level,
     )
     return 0 if bounds is None else abs(operator.sub(*bounds)) - 1

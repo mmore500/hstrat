@@ -42,9 +42,10 @@ def calc_rank_of_mrca_bounds_among(
     """
     assert 0.0 <= confidence_level <= 1.0
 
+    pop_tee1, pop_tee2 = it.tee(population)
     if (
         calc_rank_of_earliest_detectable_mrca_among(
-            population,
+            pop_tee1,
             confidence_level=confidence_level,
         )
         is None
@@ -58,7 +59,7 @@ def calc_rank_of_mrca_bounds_among(
     pop_mrca_rank_lower_bound = float("inf")
     pop_mrca_rank_upper_bound = float("inf")
     any_combinations = False
-    for (first, second) in it.combinations(population, 2):
+    for (first, second) in it.combinations(pop_tee2, 2):
         any_combinations = True
         assert (
             first.GetStratumDifferentiaBitWidth()

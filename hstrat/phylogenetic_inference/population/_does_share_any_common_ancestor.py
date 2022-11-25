@@ -1,3 +1,4 @@
+import itertools as it
 import typing
 
 from ...genome_instrumentation import HereditaryStratigraphicColumn
@@ -32,14 +33,16 @@ def does_share_any_common_ancestor(
         Can we definitively conclude that first and second share no common
         ancestor?
     """
+    pop_tee1, pop_tee2 = it.tee(population)
+
     if (
         calc_rank_of_earliest_detectable_mrca_among(
-            population,
+            pop_tee1,
             confidence_level=confidence_level,
         )
         is None
     ):
         return None
 
-    mrca_bounds = calc_rank_of_mrca_bounds_among(population, confidence_level)
+    mrca_bounds = calc_rank_of_mrca_bounds_among(pop_tee2, confidence_level)
     return mrca_bounds is not None
