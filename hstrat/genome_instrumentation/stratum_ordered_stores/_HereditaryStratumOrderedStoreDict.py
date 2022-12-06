@@ -153,6 +153,14 @@ class HereditaryStratumOrderedStoreDict:
         # (only when first item requested)
         yield from list(self._data.keys())
 
+    def IterRetainedStrata(
+        self: "HereditaryStratumOrderedStoreDict",
+    ) -> typing.Iterator[HereditaryStratum]:
+        """Iterate over stored strata from most ancient to most recent."""
+        # for python 3.7+, dictionaries are guaranteed insertion ordered
+        assert sys.version_info >= (3, 7)
+        yield from self._data.values()
+
     def IterRankDifferentia(
         self: "HereditaryStratumOrderedStoreDict",
         # needed for other implementations

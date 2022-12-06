@@ -199,6 +199,14 @@ class HereditaryStratigraphicColumn:
         else:
             yield from self._stratum_ordered_store.IterRetainedRanks()
 
+    def IterRetainedStrata(
+        self: "HereditaryStratigraphicColumn",
+    ) -> typing.Iterator[HereditaryStratum]:
+        """Iterate over strata stored in the column.
+        Strata yielded from most ancient to most recent.
+        """
+        yield from self._stratum_ordered_store.IterRetainedStrata()
+
     def GetNumStrataRetained(self: "HereditaryStratigraphicColumn") -> int:
         """How many strata are currently stored within the column?
 
