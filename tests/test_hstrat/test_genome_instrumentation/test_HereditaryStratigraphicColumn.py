@@ -570,3 +570,32 @@ def test_CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions():
         )
         == 1
     )
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_IterRetainedStrata(retention_policy, ordered_store):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store_factory=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+    for __ in range(20):
+        column.DepositStratum()
+        assert [*column.IterRetainedStrata()] == [
+            column.GetStratumAtColumnIndex(index)
+            for index in range(column.GetNumStrataRetained())
+        ]

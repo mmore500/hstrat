@@ -306,6 +306,14 @@ class HereditaryStratumOrderedStoreTree:
             assert rank is not None
             yield rank
 
+    def IterRetainedStrata(
+        self: "HereditaryStratumOrderedStoreTree",
+    ) -> typing.Iterator[HereditaryStratum]:
+        """Iterate over stored strata from most ancient to most recent."""
+        yield from reversed(
+            [node.stratum for node in self._GetAscendingIter()]
+        )
+
     def _do_reverse_IterRankDifferentia(
         self: "HereditaryStratumOrderedStoreTree",
         # deposition ranks might not be stored in strata
