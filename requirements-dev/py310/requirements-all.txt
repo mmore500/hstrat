@@ -131,6 +131,8 @@ pluggy==1.0.0
     # via
     #   pytest
     #   tox
+prettytable==3.5.0
+    # via hstrat (../../pyproject.toml)
 py==1.11.0
     # via
     #   pytest
@@ -236,6 +238,8 @@ urllib3==1.26.12
     # via requests
 virtualenv==20.16.7
     # via tox
+wcwidth==0.2.5
+    # via prettytable
 webencodings==0.5.1
     # via bleach
 wheel==0.33.6

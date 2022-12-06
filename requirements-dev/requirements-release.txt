@@ -35,6 +35,7 @@ importlib-metadata>=5.0.0
     #   build
     #   click
     #   pep517
+    #   prettytable
 interval-search>=0.2.0
     # via hstrat (../../pyproject.toml)
 iterpop>=0.4.1
@@ -77,6 +78,8 @@ pip-tools>=6.10.0
     # via hstrat (../../pyproject.toml)
 pkginfo>=1.8.3
     # via twine
+prettytable>=3.5.0
+    # via hstrat (../../pyproject.toml)
 pygments>=2.13.0
     # via readme-renderer
 pyparsing>=3.0.9
@@ -127,6 +130,8 @@ typing-extensions>=4.4.0
     #   seaborn
 urllib3>=1.26.12
     # via requests
+wcwidth>=0.2.5
+    # via prettytable
 webencodings>=0.5.1
     # via bleach
 wheel>=0.33.6
