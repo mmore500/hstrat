@@ -45,6 +45,12 @@ def evolve_drift_synchronous(GenomeType: typing.Type) -> typing.List:
 
 
 if __name__ == "__main__":
+
+    # ensure reproducible results
+    # and avoid edge cases not handled in this simple example
+    random.seed(2)
+    np.random.seed(2)
+
     for genome_type in (
         SimpleGenomeAnnotatedWithDenseRetention,
         SimpleGenomeAnnotatedWithSparseRetention,
