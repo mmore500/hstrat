@@ -15,7 +15,9 @@ cycler>=0.11.0
 fonttools>=4.38.0
     # via matplotlib
 importlib-metadata>=5.0.0
-    # via click
+    # via
+    #   click
+    #   prettytable
 interval-search>=0.2.0
     # via hstrat (../../pyproject.toml)
 iterpop>=0.4.1
@@ -50,6 +52,8 @@ pandas>=1.3.5
     #   seaborn
 pillow>=9.3.0
     # via matplotlib
+prettytable>=3.5.0
+    # via hstrat (../../pyproject.toml)
 pyparsing>=3.0.9
     # via
     #   matplotlib
@@ -79,5 +83,7 @@ typing-extensions>=4.4.0
     #   importlib-metadata
     #   kiwisolver
     #   seaborn
+wcwidth>=0.2.5
+    # via prettytable
 zipp>=3.10.0
     # via importlib-metadata

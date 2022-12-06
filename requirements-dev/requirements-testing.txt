@@ -36,6 +36,7 @@ importlib-metadata>=5.0.0
     # via
     #   click
     #   pluggy
+    #   prettytable
     #   pytest
     #   tox
     #   virtualenv
@@ -101,6 +102,8 @@ pluggy>=1.0.0
     # via
     #   pytest
     #   tox
+prettytable>=3.5.0
+    # via hstrat (../../pyproject.toml)
 py>=1.11.0
     # via
     #   pytest
@@ -168,6 +171,8 @@ typing-extensions>=4.4.0
     #   seaborn
 virtualenv>=20.16.7
     # via tox
+wcwidth>=0.2.5
+    # via prettytable
 zipp>=3.10.0
     # via importlib-metadata
 
