@@ -9,6 +9,7 @@ from . import (
     genome_instrumentation,
     juxtaposition,
     phylogenetic_inference,
+    serialization,
     stratum_retention_strategy,
     stratum_retention_viz,
 )
@@ -18,6 +19,7 @@ __all__ = [
     "genome_instrumentation",
     "juxtaposition",
     "phylogenetic_inference",
+    "serialization",
     "stratum_retention_strategy",
     "stratum_retention_viz",
 ]
