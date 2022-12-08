@@ -150,7 +150,7 @@ A major next objective for the `hstrat` project will be development of a header-
 This implementation will improve memory and CPU efficiency as well as better integrating with many scientific computing or embedded systems applications, which often employ native code to meet performance requirements.
 
 This direction opens the possibility of adding support for other high-level languages in the future [@beazley2003automated].
-Indeed, at a minimum, we plan to update the Python library to include support for wrapped these native components [@pybind11].
+Indeed, at a minimum, we plan to update the Python library to include support for wrapping these native components [@pybind11].
 However, the pure Python implementation will remain as a fallback for platforms lacking native support.
 
 As released in version 1.0.1, the `hstrat` library contains a comprehensive set of tools to perform pairwise comparisons between extant hereditary stratigraphic columns.
