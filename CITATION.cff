@@ -24,11 +24,12 @@ preferred-citation:
   - family-names: Ofria
     given-names: Charles
     orcid: https://orcid.org/0000-0003-2924-1732
-  doi: "https://doi.org/10.1162/isal_a_00550"
-  journal: "Proceedings of the ALIFE 2022: The 2022 Conference on Artificial Life"
-  month: 7
-  start: 64 # First page number
-  end: 74 # Last page number
-  title: "Hereditary Stratigraphy: Genome Annotations to Enable Phylogenetic Inference over Distributed Populations"
-  volume: "Proceedings of the ALIFE 2022: The 2022 Conference on Artificial Life"
+  doi: "https://doi.org/10.21105/joss.04866"
+  journal: "Journal of Open Source Software"
+  month: 12
+  start: 4866 # First page number
+  end: 4866 # Last page number
+  title: "hstrat: a Python Package for phylogenetic inference on distributed digital evolution populations"
+  volume: 7
+  number: 80
   year: 2022
