@@ -17,7 +17,10 @@
 ](https://hstrat.readthedocs.io/en/latest/?badge=latest)
 [
 ![GitHub stars](https://img.shields.io/github/stars/mmore500/hstrat.svg?style=round-square&logo=github&label=Stars&logoColor=white)](https://github.com/mmore500/hstrat)
-[![DOI](https://zenodo.org/badge/464531144.svg)](https://zenodo.org/badge/latestdoi/464531144)
+[
+![Zenodo](https://zenodo.org/badge/464531144.svg)
+](https://zenodo.org/badge/latestdoi/464531144)
+[![JOSS](https://joss.theoj.org/papers/10.21105/joss.04866/status.svg)](https://doi.org/10.21105/joss.04866)
 
 hstrat enables phylogenetic inference on distributed digital evolution populations
 
