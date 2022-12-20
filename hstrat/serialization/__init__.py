@@ -1,7 +1,7 @@
 """Tools to load and save hereditary stratigraphic columns."""
 
-from ._col_to_dataframe import col_to_dataframe
 from ._col_from_records import col_from_records
+from ._col_to_dataframe import col_to_dataframe
 from ._col_to_records import col_to_records
 from ._pack_differentiae import pack_differentiae
 from ._pop_from_records import pop_from_records
