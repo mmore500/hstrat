@@ -47,6 +47,9 @@ class PolicySpec(PolicySpecBase):
             self._depth_proportional_resolution
         })"""
 
+    def GetEvalCtor(self: "PolicySpec") -> str:
+        return f"hstrat.{self!r}"
+
     def GetDepthProportionalResolution(self: "PolicySpec") -> int:
         return self._depth_proportional_resolution
 

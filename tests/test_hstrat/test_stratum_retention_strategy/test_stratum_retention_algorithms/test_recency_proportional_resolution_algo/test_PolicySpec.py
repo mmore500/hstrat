@@ -31,6 +31,30 @@ def test_eq(recency_proportional_resolution):
         recency_proportional_resolution + 1
     )
 
+@pytest.mark.parametrize(
+    "recency_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_GetEvalCtor(recency_proportional_resolution):
+    spec = recency_proportional_resolution_algo.PolicySpec(
+        recency_proportional_resolution
+    )
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith(
+        "hstrat.recency_proportional_resolution_algo.PolicySpec("
+    )
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)
+    assert str(spec) == str(reconstituted)
+
 
 @pytest.mark.parametrize(
     "recency_proportional_resolution",

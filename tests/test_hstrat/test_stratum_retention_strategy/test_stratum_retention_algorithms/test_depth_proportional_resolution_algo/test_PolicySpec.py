@@ -3,6 +3,7 @@ import tempfile
 
 import pytest
 
+from hstrat import hstrat
 from hstrat.hstrat import depth_proportional_resolution_algo
 
 
@@ -30,6 +31,30 @@ def test_eq(depth_proportional_resolution):
         depth_proportional_resolution + 1
     )
 
+
+@pytest.mark.parametrize(
+    "depth_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_GetEvalCtor(impl, depth_proportional_resolution):
+    spec = depth_proportional_resolution_algo.PolicySpec(
+        depth_proportional_resolution
+    )
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith(
+        "hstrat.depth_proportional_resolution_algo.PolicySpec("
+    )
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)
+    assert str(spec) == str(reconstituted)
 
 @pytest.mark.parametrize(
     "depth_proportional_resolution",

@@ -23,6 +23,24 @@ def test_eq(fixed_resolution):
     assert spec == fixed_resolution_algo.PolicySpec(fixed_resolution)
     assert not spec == fixed_resolution_algo.PolicySpec(fixed_resolution + 1)
 
+@pytest.mark.parametrize(
+    "fixed_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+def test_GetEvalCtor(fixed_resolution):
+    spec = fixed_resolution_algo.PolicySpec(fixed_resolution)
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith("hstrat.fixed_resolution_algo.PolicySpec(")
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)
+    assert str(spec) == str(reconstituted)
 
 @pytest.mark.parametrize(
     "fixed_resolution",
