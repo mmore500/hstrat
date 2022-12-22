@@ -3,6 +3,7 @@ import tempfile
 
 import pytest
 
+from hstrat import hstrat
 from hstrat.hstrat import recency_proportional_resolution_algo
 
 

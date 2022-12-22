@@ -3,6 +3,7 @@ import tempfile
 
 import pytest
 
+from hstrat import hstrat
 from hstrat.hstrat import fixed_resolution_algo
 
 

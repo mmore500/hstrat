@@ -3,6 +3,8 @@ import tempfile
 
 import pytest
 
+
+from hstrat import hstrat
 from hstrat.hstrat import depth_proportional_resolution_tapered_algo
 
 
