@@ -18,7 +18,7 @@ def col_to_records(column: HereditaryStratigraphicColumn) -> typing.Dict:
     res = {
         "policy_algo": spec.GetAlgoIdentifier(),
         "policy_spec": spec,
-        "policy": spec.GetEvalCtor(),
+        "policy": policy.GetEvalCtor(),
         "num_strata_deposited": column.GetNumStrataDeposited(),
         "differentiae": packed_differentiae,
         "differentia_bit_width": differentia_bit_width,
