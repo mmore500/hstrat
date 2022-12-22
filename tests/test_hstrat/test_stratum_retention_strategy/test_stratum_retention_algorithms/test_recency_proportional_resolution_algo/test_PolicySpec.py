@@ -32,6 +32,7 @@ def test_eq(recency_proportional_resolution):
         recency_proportional_resolution + 1
     )
 
+
 @pytest.mark.parametrize(
     "recency_proportional_resolution",
     [

@@ -82,6 +82,7 @@ def test_GetEvalCtor(degree, interspersal):
     reconstituted = eval(eval_ctor)
     assert str(spec) == str(reconstituted)
 
+
 @pytest.mark.parametrize(
     "degree",
     [

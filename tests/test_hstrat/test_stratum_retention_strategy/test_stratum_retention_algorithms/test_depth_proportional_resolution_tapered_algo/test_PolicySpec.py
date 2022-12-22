@@ -3,7 +3,6 @@ import tempfile
 
 import pytest
 
-
 from hstrat import hstrat
 from hstrat.hstrat import depth_proportional_resolution_tapered_algo
 
@@ -32,6 +31,7 @@ def test_eq(depth_proportional_resolution):
         depth_proportional_resolution + 1
     )
 
+
 @pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
@@ -55,6 +55,7 @@ def test_GetEvalCtor(depth_proportional_resolution):
     assert eval_ctor.endswith(")")
     reconstituted = eval(eval_ctor)
     assert str(spec) == str(reconstituted)
+
 
 @pytest.mark.parametrize(
     "depth_proportional_resolution",
