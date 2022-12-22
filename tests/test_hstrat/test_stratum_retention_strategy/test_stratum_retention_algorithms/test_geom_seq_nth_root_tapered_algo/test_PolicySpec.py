@@ -72,7 +72,7 @@ def test_eq(degree, interspersal):
         5,
     ],
 )
-def test_GetEvalCtor(impl, degree, interspersal):
+def test_GetEvalCtor(degree, interspersal):
     spec = geom_seq_nth_root_tapered_algo.PolicySpec(degree, interspersal)
     eval_ctor = spec.GetEvalCtor()
     assert eval_ctor.startswith(

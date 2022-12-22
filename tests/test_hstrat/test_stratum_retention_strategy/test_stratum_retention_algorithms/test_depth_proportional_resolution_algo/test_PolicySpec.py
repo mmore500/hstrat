@@ -44,7 +44,7 @@ def test_eq(depth_proportional_resolution):
         100,
     ],
 )
-def test_GetEvalCtor(impl, depth_proportional_resolution):
+def test_GetEvalCtor(depth_proportional_resolution):
     spec = depth_proportional_resolution_algo.PolicySpec(
         depth_proportional_resolution
     )
