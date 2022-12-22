@@ -213,6 +213,15 @@ class HereditaryStratigraphicColumn:
         """
         yield from self._stratum_ordered_store.IterRetainedStrata()
 
+    def HasAnyAnnotations(
+        self: "HereditaryStratigraphicColumn",
+    ) -> bool:
+        """Do any retained strata have annotations?"""
+        return any(
+            stratum.GetAnnotation() is not None
+            for stratum in self._stratum_ordered_store.IterRetainedStrata()
+        )
+
     def GetNumStrataRetained(self: "HereditaryStratigraphicColumn") -> int:
         """How many strata are currently stored within the column?
 
