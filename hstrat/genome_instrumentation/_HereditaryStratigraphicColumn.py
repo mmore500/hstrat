@@ -59,6 +59,8 @@ class HereditaryStratigraphicColumn:
         always_store_rank_in_stratum: bool = True,
         stratum_differentia_bit_width: int = 64,
         initial_stratum_annotation: typing.Optional[typing.Any] = None,
+        _num_strata_deposited: int = 0,
+        _deposit_stratum_on_construction: bool = True,
         stratum_ordered_store_factory: typing.Callable = HereditaryStratumOrderedStoreList,
     ):
         """Initialize column to track a new line of descent.
@@ -94,14 +96,18 @@ class HereditaryStratigraphicColumn:
         policy is provided, the perfect resolution policy where all strata are
         retained is used.
         """
+        if stratum_ordered_store_factory is None:
+            stratum_ordered_store_factory = HereditaryStratumOrderedStoreList
+
         self._always_store_rank_in_stratum = always_store_rank_in_stratum
         self._stratum_differentia_bit_width = stratum_differentia_bit_width
-        self._num_strata_deposited = 0
+        self._num_strata_deposited = _num_strata_deposited
         self._stratum_ordered_store = stratum_ordered_store_factory()
 
         self._stratum_retention_policy = stratum_retention_policy
 
-        self.DepositStratum(annotation=initial_stratum_annotation)
+        if _deposit_stratum_on_construction:
+            self.DepositStratum(annotation=initial_stratum_annotation)
 
     def __eq__(
         self: "HereditaryStratigraphicColumn",
