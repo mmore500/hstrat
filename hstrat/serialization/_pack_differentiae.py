@@ -20,7 +20,7 @@ def pack_differentiae(
             )
             for stratum in strata
         ),
-        start=BitArray(),
+        BitArray(),
     )
 
     # use first byte to tell how many null bits if any are possible
