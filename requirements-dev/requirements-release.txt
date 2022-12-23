@@ -125,6 +125,7 @@ twine>=1.14.0
     # via hstrat (../../pyproject.toml)
 typing-extensions>=4.4.0
     # via
+    #   hstrat (../../pyproject.toml)
     #   importlib-metadata
     #   kiwisolver
     #   seaborn
