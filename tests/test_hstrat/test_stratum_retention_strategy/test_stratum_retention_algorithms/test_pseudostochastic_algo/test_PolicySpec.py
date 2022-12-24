@@ -36,7 +36,8 @@ def test_eq(hash_salt):
     ],
 )
 def test_GetEvalCtor(hash_salt):
-    from hstrat import hstrat # import hstrat for eval()
+    # hstrat. is needed for eval()
+    from hstrat import hstrat # eslint-disable-line no-eval
 
     spec = pseudostochastic_algo.PolicySpec(hash_salt)
     eval_ctor = spec.GetEvalCtor()

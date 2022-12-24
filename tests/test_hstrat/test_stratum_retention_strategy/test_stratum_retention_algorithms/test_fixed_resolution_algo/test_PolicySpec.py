@@ -36,7 +36,8 @@ def test_eq(fixed_resolution):
     ],
 )
 def test_GetEvalCtor(fixed_resolution):
-    from hstrat import hstrat # import hstrat for eval()
+    # hstrat. is needed for eval()
+    from hstrat import hstrat # eslint-disable-line no-eval
 
     spec = fixed_resolution_algo.PolicySpec(fixed_resolution)
     eval_ctor = spec.GetEvalCtor()

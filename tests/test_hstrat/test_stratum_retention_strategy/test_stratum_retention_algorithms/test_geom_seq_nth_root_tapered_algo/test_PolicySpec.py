@@ -72,7 +72,8 @@ def test_eq(degree, interspersal):
     ],
 )
 def test_GetEvalCtor(degree, interspersal):
-    from hstrat import hstrat # import hstrat for eval()
+    # hstrat. is needed for eval()
+    from hstrat import hstrat # eslint-disable-line no-eval
 
     spec = geom_seq_nth_root_tapered_algo.PolicySpec(degree, interspersal)
     eval_ctor = spec.GetEvalCtor()

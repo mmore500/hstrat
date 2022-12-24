@@ -19,7 +19,8 @@ def test_eq(replicate):
 
 
 def test_GetEvalCtor():
-    from hstrat import hstrat # import hstrat for eval()
+    # hstrat. is needed for eval()
+    from hstrat import hstrat # eslint-disable-line no-eval
 
     spec = stochastic_algo.PolicySpec()
     reconstituted = eval(spec.GetEvalCtor())

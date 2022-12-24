@@ -45,7 +45,8 @@ def test_eq(recency_proportional_resolution):
     ],
 )
 def test_GetEvalCtor(recency_proportional_resolution):
-    from hstrat import hstrat # import hstrat for eval()
+    # hstrat. is needed for eval()
+    from hstrat import hstrat # eslint-disable-line no-eval
 
     spec = recency_proportional_resolution_algo.PolicySpec(
         recency_proportional_resolution
