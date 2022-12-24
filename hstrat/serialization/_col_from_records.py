@@ -46,11 +46,12 @@ def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
         return store
 
     def load_policy():
+        # noqa
         from ..stratum_retention_strategy import (
             stratum_retention_algorithms as hstrat,
         )
 
-        return eval(records["policy"])
+        return eval(records["policy"]) # noqa
 
     return HereditaryStratigraphicColumn(
         stratum_retention_policy=load_policy(),

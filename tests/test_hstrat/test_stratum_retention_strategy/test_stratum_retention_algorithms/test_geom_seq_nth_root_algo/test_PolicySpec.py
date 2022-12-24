@@ -71,13 +71,13 @@ def test_eq(degree, interspersal):
 )
 def test_GetEvalCtor(degree, interspersal):
     # hstrat. is needed for eval()
-    from hstrat import hstrat  # eslint-disable-line no-eval
+    from hstrat import hstrat  # noqa
 
     spec = geom_seq_nth_root_algo.PolicySpec(degree, interspersal)
     eval_ctor = spec.GetEvalCtor()
     assert eval_ctor.startswith("hstrat.geom_seq_nth_root_algo.PolicySpec(")
     assert eval_ctor.endswith(")")
-    reconstituted = eval(eval_ctor)  # eslint-disable-line no-eval
+    reconstituted = eval(eval_ctor)  # noqa
     assert spec == reconstituted
 
 

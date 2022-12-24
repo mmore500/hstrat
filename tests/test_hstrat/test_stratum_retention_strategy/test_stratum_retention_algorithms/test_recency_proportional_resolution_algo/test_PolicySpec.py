@@ -46,7 +46,7 @@ def test_eq(recency_proportional_resolution):
 )
 def test_GetEvalCtor(recency_proportional_resolution):
     # hstrat. is needed for eval()
-    from hstrat import hstrat  # eslint-disable-line no-eval
+    from hstrat import hstrat  # noqa
 
     spec = recency_proportional_resolution_algo.PolicySpec(
         recency_proportional_resolution
@@ -56,7 +56,7 @@ def test_GetEvalCtor(recency_proportional_resolution):
         "hstrat.recency_proportional_resolution_algo.PolicySpec("
     )
     assert eval_ctor.endswith(")")
-    reconstituted = eval(eval_ctor)  # eslint-disable-line no-eval
+    reconstituted = eval(eval_ctor)  # noqa
     assert spec == reconstituted
 
 
