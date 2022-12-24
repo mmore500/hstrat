@@ -3,7 +3,6 @@ import tempfile
 
 import pytest
 
-from hstrat import hstrat
 from hstrat.hstrat import recency_proportional_resolution_algo
 
 
@@ -46,6 +45,8 @@ def test_eq(recency_proportional_resolution):
     ],
 )
 def test_GetEvalCtor(recency_proportional_resolution):
+    from hstrat import hstrat # import hstrat for eval()
+
     spec = recency_proportional_resolution_algo.PolicySpec(
         recency_proportional_resolution
     )

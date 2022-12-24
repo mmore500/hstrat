@@ -3,7 +3,6 @@ import tempfile
 
 import pytest
 
-from hstrat import hstrat
 from hstrat.hstrat import depth_proportional_resolution_tapered_algo
 
 
@@ -45,6 +44,8 @@ def test_eq(depth_proportional_resolution):
     ],
 )
 def test_GetEvalCtor(depth_proportional_resolution):
+    from hstrat import hstrat # import hstrat for eval()
+
     spec = depth_proportional_resolution_tapered_algo.PolicySpec(
         depth_proportional_resolution
     )

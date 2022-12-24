@@ -4,7 +4,6 @@ import tempfile
 
 import pytest
 
-from hstrat import hstrat
 from hstrat.hstrat import stochastic_algo
 
 
@@ -20,6 +19,8 @@ def test_eq(replicate):
 
 
 def test_GetEvalCtor():
+    from hstrat import hstrat # import hstrat for eval()
+
     spec = stochastic_algo.PolicySpec()
     reconstituted = eval(spec.GetEvalCtor())
     eval_ctor = spec.GetEvalCtor()
