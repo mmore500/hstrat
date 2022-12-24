@@ -11,8 +11,8 @@ def unpack_differentiae(
     differentia_bit_width: int,
 ) -> typing.Iterable[int]:
 
-    bytes = b64decode(packed_differentiae)
-    bits = BitArray(bytes=bytes)
+    _bytes = b64decode(packed_differentiae)
+    bits = BitArray(bytes=_bytes)
 
     # if null bits are possible, first byte tells how many
     if differentia_bit_width % 8:
