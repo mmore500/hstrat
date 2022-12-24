@@ -17,9 +17,9 @@ def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
 
     if get_hstrat_version() != records["hstrat_version"]:
         log_once_in_a_row(
-            f"""col_from_records version mismatch, record {
+            f"""col_from_records version mismatch, record is version {
                 records['hstrat_version']
-            } and software {
+            } and software is version {
                 get_hstrat_version()
             }"""
         )
