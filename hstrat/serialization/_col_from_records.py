@@ -1,5 +1,4 @@
 import itertools as it
-import logging
 import typing
 
 from .._auxiliary_lib import get_hstrat_version, log_once_in_a_row

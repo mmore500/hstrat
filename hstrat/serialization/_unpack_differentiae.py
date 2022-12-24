@@ -1,9 +1,7 @@
 from base64 import b64decode
-import itertools as it
 import typing
 
 from bitstring import BitArray
-import more_itertools as mit
 
 from .._auxiliary_lib import iter_chunks
 
