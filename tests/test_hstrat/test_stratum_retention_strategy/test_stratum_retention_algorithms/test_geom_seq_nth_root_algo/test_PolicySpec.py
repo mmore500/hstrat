@@ -77,7 +77,7 @@ def test_GetEvalCtor(degree, interspersal):
     assert eval_ctor.startswith("hstrat.geom_seq_nth_root_algo.PolicySpec(")
     assert eval_ctor.endswith(")")
     reconstituted = eval(eval_ctor)
-    assert str(spec) == str(reconstituted)
+    assert spec == reconstituted
 
 
 @pytest.mark.parametrize(

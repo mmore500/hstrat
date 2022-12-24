@@ -81,7 +81,7 @@ def test_GetEvalCtor(degree, interspersal):
     )
     assert eval_ctor.endswith(")")
     reconstituted = eval(eval_ctor)
-    assert str(spec) == str(reconstituted)
+    assert spec == reconstituted
 
 
 @pytest.mark.parametrize(

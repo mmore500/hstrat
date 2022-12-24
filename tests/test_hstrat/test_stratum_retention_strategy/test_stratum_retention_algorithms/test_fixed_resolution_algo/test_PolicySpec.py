@@ -43,7 +43,7 @@ def test_GetEvalCtor(fixed_resolution):
     assert eval_ctor.startswith("hstrat.fixed_resolution_algo.PolicySpec(")
     assert eval_ctor.endswith(")")
     reconstituted = eval(eval_ctor)
-    assert str(spec) == str(reconstituted)
+    assert spec == reconstituted
 
 
 @pytest.mark.parametrize(

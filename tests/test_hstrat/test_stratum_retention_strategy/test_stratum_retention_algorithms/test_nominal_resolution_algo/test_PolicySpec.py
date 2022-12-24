@@ -18,7 +18,7 @@ def test_GetEvalCtor():
     assert eval_ctor.startswith("hstrat.nominal_resolution_algo.PolicySpec(")
     assert eval_ctor.endswith(")")
     reconstituted = eval(eval_ctor)
-    assert str(spec) == str(reconstituted)
+    assert spec == reconstituted
 
 
 def test_pickle():

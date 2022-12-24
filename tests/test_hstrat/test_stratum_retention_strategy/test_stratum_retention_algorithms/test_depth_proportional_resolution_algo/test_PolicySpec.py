@@ -55,7 +55,7 @@ def test_GetEvalCtor(depth_proportional_resolution):
     )
     assert eval_ctor.endswith(")")
     reconstituted = eval(eval_ctor)
-    assert str(spec) == str(reconstituted)
+    assert spec == reconstituted
 
 
 @pytest.mark.parametrize(
