@@ -37,13 +37,13 @@ def test_eq(hash_salt):
 )
 def test_GetEvalCtor(hash_salt):
     # hstrat. is needed for eval()
-    from hstrat import hstrat # eslint-disable-line no-eval
+    from hstrat import hstrat  # eslint-disable-line no-eval
 
     spec = pseudostochastic_algo.PolicySpec(hash_salt)
     eval_ctor = spec.GetEvalCtor()
     assert eval_ctor.startswith("hstrat.pseudostochastic_algo.PolicySpec(")
     assert eval_ctor.endswith(")")
-    reconstituted = eval(eval_ctor) # eslint-disable-line no-eval
+    reconstituted = eval(eval_ctor)  # eslint-disable-line no-eval
     assert spec == reconstituted
 
 

@@ -45,7 +45,7 @@ def test_eq(depth_proportional_resolution):
 )
 def test_GetEvalCtor(depth_proportional_resolution):
     # hstrat. is needed for eval()
-    from hstrat import hstrat # eslint-disable-line no-eval
+    from hstrat import hstrat  # eslint-disable-line no-eval
 
     spec = depth_proportional_resolution_tapered_algo.PolicySpec(
         depth_proportional_resolution
@@ -55,7 +55,7 @@ def test_GetEvalCtor(depth_proportional_resolution):
         "hstrat.depth_proportional_resolution_tapered_algo.PolicySpec("
     )
     assert eval_ctor.endswith(")")
-    reconstituted = eval(eval_ctor) # eslint-disable-line no-eval
+    reconstituted = eval(eval_ctor)  # eslint-disable-line no-eval
     assert spec == reconstituted
 
 
