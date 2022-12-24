@@ -51,7 +51,7 @@ def test_col_to_records(
         )
         for __ in range(popsize)
     ]
-    for birth in range(100):
+    for _ in range(100):
         random.shuffle(pop)
         if pop:
             pop[0] = pop[-1].CloneDescendant()
