@@ -18,7 +18,7 @@ def test_GetEvalCtor():
     eval_ctor = spec.GetEvalCtor()
     assert eval_ctor.startswith("hstrat.nominal_resolution_algo.PolicySpec(")
     assert eval_ctor.endswith(")")
-    reconstituted = eval(eval_ctor)
+    reconstituted = eval(eval_ctor) # eslint-disable-line no-eval
     assert spec == reconstituted
 
 

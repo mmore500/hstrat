@@ -56,7 +56,7 @@ def test_GetEvalCtor(recency_proportional_resolution):
         "hstrat.recency_proportional_resolution_algo.PolicySpec("
     )
     assert eval_ctor.endswith(")")
-    reconstituted = eval(eval_ctor)
+    reconstituted = eval(eval_ctor) # eslint-disable-line no-eval
     assert spec == reconstituted
 
 

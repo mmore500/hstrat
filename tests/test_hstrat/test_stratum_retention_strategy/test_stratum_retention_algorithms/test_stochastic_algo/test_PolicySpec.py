@@ -23,11 +23,11 @@ def test_GetEvalCtor():
     from hstrat import hstrat # eslint-disable-line no-eval
 
     spec = stochastic_algo.PolicySpec()
-    reconstituted = eval(spec.GetEvalCtor())
+    reconstituted = eval(spec.GetEvalCtor()) # eslint-disable-line no-eval
     eval_ctor = spec.GetEvalCtor()
     assert eval_ctor.startswith("hstrat.stochastic_algo.PolicySpec(")
     assert eval_ctor.endswith(")")
-    reconstituted = eval(eval_ctor)
+    reconstituted = eval(eval_ctor) # eslint-disable-line no-eval
     assert spec == reconstituted
 
 

@@ -43,7 +43,7 @@ def test_GetEvalCtor(hash_salt):
     eval_ctor = spec.GetEvalCtor()
     assert eval_ctor.startswith("hstrat.pseudostochastic_algo.PolicySpec(")
     assert eval_ctor.endswith(")")
-    reconstituted = eval(eval_ctor)
+    reconstituted = eval(eval_ctor) # eslint-disable-line no-eval
     assert spec == reconstituted
 
 

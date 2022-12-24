@@ -77,7 +77,7 @@ def test_GetEvalCtor(degree, interspersal):
     eval_ctor = spec.GetEvalCtor()
     assert eval_ctor.startswith("hstrat.geom_seq_nth_root_algo.PolicySpec(")
     assert eval_ctor.endswith(")")
-    reconstituted = eval(eval_ctor)
+    reconstituted = eval(eval_ctor) # eslint-disable-line no-eval
     assert spec == reconstituted
 
 

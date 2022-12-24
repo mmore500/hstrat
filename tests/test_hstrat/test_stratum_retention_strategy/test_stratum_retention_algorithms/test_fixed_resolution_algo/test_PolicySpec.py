@@ -43,7 +43,7 @@ def test_GetEvalCtor(fixed_resolution):
     eval_ctor = spec.GetEvalCtor()
     assert eval_ctor.startswith("hstrat.fixed_resolution_algo.PolicySpec(")
     assert eval_ctor.endswith(")")
-    reconstituted = eval(eval_ctor)
+    reconstituted = eval(eval_ctor) # eslint-disable-line no-eval
     assert spec == reconstituted
 
 
