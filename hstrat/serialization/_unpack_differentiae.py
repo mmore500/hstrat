@@ -14,11 +14,11 @@ def unpack_differentiae(
     _bytes = b64decode(packed_differentiae)
     bits = BitArray(bytes=_bytes)
 
-    # if null bits are possible, first byte tells how many
+    # if padding bits are possible, first byte tells how many are required
     if differentia_bit_width % 8:
-        num_null_bits = bits[:8].uint
-        if num_null_bits:
-            valid_bits = bits[8:-num_null_bits]
+        num_padding_bits = bits[:8].uint
+        if num_padding_bits:
+            valid_bits = bits[8:-num_padding_bits]
         else:
             valid_bits = bits[8:]
     else:

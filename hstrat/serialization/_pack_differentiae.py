@@ -23,12 +23,12 @@ def pack_differentiae(
         BitArray(),
     )
 
-    # use first byte to tell how many null bits if any are possible
+    # use first byte to tell how many padding bits if any are required
     if differentia_bit_width % 8:
         num_jagged_bits = len(differentia_bits) % 8
-        num_null_bits = (8 - num_jagged_bits) % 8
+        num_padding_bits = (8 - num_jagged_bits) % 8
         header = BitArray(
-            uint=num_null_bits,
+            uint=num_padding_bits,
             length=8,
         )
         differentia_bits = header + differentia_bits
