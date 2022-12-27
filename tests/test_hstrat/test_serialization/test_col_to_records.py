@@ -1,6 +1,9 @@
+import logging
+
 import pytest
 
 from hstrat import genome_instrumentation, hstrat
+from hstrat._auxiliary_lib import get_hstrat_version, log_once_in_a_row
 
 
 @pytest.mark.parametrize(
@@ -40,6 +43,7 @@ def test_col_to_records(
     ordered_store,
     num_deposits,
     differentia_bit_width,
+    caplog,
 ):
     column = impl(
         stratum_ordered_store_factory=ordered_store,
@@ -59,3 +63,35 @@ def test_col_to_records(
         assert hstrat.col_to_records(reconstituted) == hstrat.col_to_records(
             column
         )
+
+    # adapted from https://stackoverflow.com/a/48113200
+    with caplog.at_level(logging.INFO):
+        # clear caplog
+        caplog.clear()
+
+        # create a record with a phony version
+        record = hstrat.col_to_records(column)
+        record["hstrat_version"] = "0.0.0"
+
+        # reconstruct phony record
+        hstrat.col_from_records(record)
+
+        # it should have logged one warning
+        assert len(caplog.records) == 1
+        # retrieve it
+        logged = next(iter(caplog.records))
+
+        assert logged.levelno == logging.INFO
+        assert logged.name == "hstrat"
+        assert logged.module == "_log_once_in_a_row"
+        assert (
+            logged.message
+            == f"""col_from_records version mismatch, record is version {
+                record["hstrat_version"]
+            } and software is version {
+                get_hstrat_version()
+            }"""
+        )
+
+        # log something to keep the lru cache from supressing the above calls
+        log_once_in_a_row("foo")
