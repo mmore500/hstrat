@@ -599,3 +599,9 @@ def test_IterRetainedStrata(retention_policy, ordered_store):
             column.GetStratumAtColumnIndex(index)
             for index in range(column.GetNumStrataRetained())
         ]
+
+
+def test_GetColumnIndexOfRank():
+    assert (
+        hstrat.HereditaryStratigraphicColumn().GetColumnIndexOfRank(1) is None
+    )
