@@ -43,14 +43,14 @@ class HereditaryStratumOrderedStoreList:
 
     def DepositStratum(
         self: "HereditaryStratumOrderedStoreList",
-        rank: int,
+        rank: typing.Optional[int],
         stratum: "HereditaryStratum",
     ) -> None:
         """Insert a new stratum into the store.
 
         Parameters
         ----------
-        rank : int
+        rank : typing.Optional[int]
             The position of the stratum being deposited within the sequence of strata deposited into the column. Precisely, the number of strata that have been deposited before stratum.
         stratum : HereditaryStratum
             The stratum to deposit.
