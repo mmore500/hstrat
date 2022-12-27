@@ -36,7 +36,7 @@ def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
             records.get("stratum_annotation", it.repeat(None)),
         ):
             store.DepositStratum(
-                rank=-1,
+                rank=deposition_rank,
                 stratum=HereditaryStratum(
                     annotation=annotation,
                     differentia=differentia,
@@ -51,7 +51,7 @@ def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
             stratum_retention_algorithms as hstrat,
         )
 
-        return eval(records["policy"]) # noqa
+        return eval(records["policy"])  # noqa
 
     return HereditaryStratigraphicColumn(
         stratum_retention_policy=load_policy(),
