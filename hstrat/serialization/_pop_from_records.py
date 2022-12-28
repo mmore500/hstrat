@@ -7,6 +7,8 @@ from ._col_from_records import col_from_records
 def pop_from_records(
     records: typing.Dict,
 ) -> typing.List[HereditaryStratigraphicColumn]:
+    """Deserialize a sequence of `HereditaryStratigraphicColumn`s from a dict
+    composed of builtin types."""
 
     col_records = records["columns"]
     for common_field in (

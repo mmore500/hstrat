@@ -11,7 +11,9 @@ from ._unpack_differentiae import unpack_differentiae
 
 
 def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
-
+    """Deserialize a `HereditaryStratigraphicColumn` from a dict composed of 
+    builtin data types.
+    """
     if "deposition_ranks" in records or "stratum_annotations" in records:
         raise NotImplementedError
 

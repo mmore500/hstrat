@@ -6,7 +6,8 @@ from ._pack_differentiae import pack_differentiae
 
 
 def col_to_records(column: HereditaryStratigraphicColumn) -> typing.Dict:
-
+    """Serialize a `HereditaryStratigraphicColumn` to a dict composed of
+    builtin types."""
     differentia_bit_width = column.GetStratumDifferentiaBitWidth()
     packed_differentiae = pack_differentiae(
         column.IterRetainedStrata(),

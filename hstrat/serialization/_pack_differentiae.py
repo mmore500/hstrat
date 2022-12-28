@@ -10,7 +10,14 @@ def pack_differentiae(
     strata: typing.Iterable[HereditaryStratum],
     differentia_bit_width: int,
 ) -> str:
-
+    """Pack a sequence of differentiae together into a compact 
+    representation.
+    
+    Returns a string with base 64 encoded concatenation of diffferentiae.
+    If `differentia_bit_width` is not an even byte multiple, the first encoded
+    byte tells how many empty padding bits, if any, were placed at the end of
+    the concatenation in order to align the bitstring end to byte boundaries.
+    """
     # this is a concatenation, not a mathematical sum
     differentia_bits = sum(
         (
