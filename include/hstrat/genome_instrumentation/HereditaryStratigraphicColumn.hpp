@@ -72,6 +72,7 @@ public:
   , store(std::get<0>(store_and_deposit_count))
   , num_strata_deposited(std::get<1>(store_and_deposit_count))
   {
+    assert(GetNumStrataRetained() <= GetNumStrataDeposited());
     if (num_strata_deposited == 0) {
       DepositStratum(initial_annotation);
     }
