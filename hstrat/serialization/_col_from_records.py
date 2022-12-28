@@ -56,7 +56,8 @@ def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
     return HereditaryStratigraphicColumn(
         stratum_retention_policy=load_policy(),
         stratum_differentia_bit_width=records["differentia_bit_width"],
-        stratum_ordered_store_factory=load_stratum_ordered_store,
-        _num_strata_deposited=records["num_strata_deposited"],
-        _deposit_stratum_on_construction=False,
+        stratum_ordered_store_factory=(
+            load_stratum_ordered_store(),
+            records["num_strata_deposited"],
+        ),
     )
