@@ -14,7 +14,7 @@ def pop_to_records(
 
     All `HereditaryStratigraphicColumn`s must share identical `policy`,
     `policy_algo`, `policy_spec`, and `differentia_bit_width`. For efficiency,
-    these records are recorded once for all columns. 
+    these records are recorded once for all columns.
     """
     col_records = [col_to_records(column) for column in columns]
 

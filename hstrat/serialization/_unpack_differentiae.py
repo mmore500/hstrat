@@ -10,7 +10,7 @@ def unpack_differentiae(
     packed_differentiae: str,
     differentia_bit_width: int,
 ) -> typing.Iterable[int]:
-    """Unpack a sequence of differentiae from into a compact, concatenated 
+    """Unpack a sequence of differentiae from into a compact, concatenated
     base 64 representation.
     """
     _bytes = b64decode(packed_differentiae)
