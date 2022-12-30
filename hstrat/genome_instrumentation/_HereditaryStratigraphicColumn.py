@@ -14,7 +14,7 @@ from .stratum_ordered_stores._detail import HereditaryStratumOrderedStoreBase
 
 
 # define type alias for ordered stores
-OrderedStore: typing.TypeAlias = typing.Union[
+OrderedStore = typing.Union[
     typing.Callable[..., HereditaryStratumOrderedStoreBase],
     typing.Tuple[HereditaryStratumOrderedStoreBase, int],
     None,
