@@ -1,6 +1,7 @@
 from copy import copy
 import math
 import typing
+import warnings
 
 from interval_search import binary_search
 
@@ -135,6 +136,11 @@ class HereditaryStratigraphicColumn:
                 self._stratum_ordered_store,
                 self._num_strata_deposited,
             ) = stratum_ordered_store
+        else:
+            raise ValueError(
+                """stratum_ordered_store is of invalid type; \
+            should be callable or tuple(callable instance, deposition count)"""
+            )
 
     def __eq__(
         self: "HereditaryStratigraphicColumn",
