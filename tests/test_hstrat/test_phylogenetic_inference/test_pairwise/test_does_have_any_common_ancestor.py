@@ -21,12 +21,12 @@ from hstrat import hstrat
 )
 def test_HasAnyCommonAncestorWith(retention_policy, ordered_store):
     first = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     first_copy = first.Clone()
     second = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
 

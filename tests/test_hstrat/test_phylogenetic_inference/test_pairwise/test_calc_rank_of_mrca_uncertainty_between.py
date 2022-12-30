@@ -31,7 +31,7 @@ def test_comparison_commutativity_asyncrhonous(
 ):
     population = [
         hstrat.HereditaryStratigraphicColumn(
-            stratum_ordered_store_factory=ordered_store,
+            stratum_ordered_store=ordered_store,
             stratum_retention_policy=retention_policy,
         )
         for __ in range(10)
@@ -86,7 +86,7 @@ def test_comparison_commutativity_syncrhonous(
 
     population = [
         hstrat.HereditaryStratigraphicColumn(
-            stratum_ordered_store_factory=ordered_store,
+            stratum_ordered_store=ordered_store,
             stratum_retention_policy=retention_policy,
         )
         for __ in range(10)
@@ -131,7 +131,7 @@ def test_comparison_commutativity_syncrhonous(
 def test_comparison_validity(retention_policy, ordered_store):
     population = [
         hstrat.HereditaryStratigraphicColumn(
-            stratum_ordered_store_factory=ordered_store,
+            stratum_ordered_store=ordered_store,
             stratum_retention_policy=retention_policy,
         )
         for __ in range(10)
@@ -183,11 +183,11 @@ def test_scenario_no_mrca(
     ordered_store,
 ):
     first = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy1,
     )
     second = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy2,
     )
 
@@ -217,7 +217,7 @@ def test_scenario_no_mrca(
 )
 def test_scenario_no_divergence(retention_policy, ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
 
@@ -257,7 +257,7 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_shallow(
         hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=differentia_width,
             stratum_retention_policy=retention_policy,
-            stratum_ordered_store_factory=hstrat.HereditaryStratumOrderedStoreDict,
+            stratum_ordered_store=hstrat.HereditaryStratumOrderedStoreDict,
         )
         for __ in range(20)
     ]
@@ -333,7 +333,7 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_with_mrca(
         hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=differentia_width,
             stratum_retention_policy=retention_policy,
-            stratum_ordered_store_factory=hstrat.HereditaryStratumOrderedStoreDict,
+            stratum_ordered_store=hstrat.HereditaryStratumOrderedStoreDict,
         )
         for __ in range(20)
     ]
@@ -411,7 +411,7 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
         return hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=differentia_width,
             stratum_retention_policy=retention_policy,
-            stratum_ordered_store_factory=hstrat.HereditaryStratumOrderedStoreDict,
+            stratum_ordered_store=hstrat.HereditaryStratumOrderedStoreDict,
         )
 
     columns = [make_column() for __ in range(20)]

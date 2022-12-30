@@ -23,7 +23,7 @@ def test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith1(
 ):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=differentia_width,
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
     )
 
     for generation in range(100):

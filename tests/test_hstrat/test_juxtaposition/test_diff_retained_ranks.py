@@ -13,11 +13,11 @@ from hstrat import hstrat
 )
 def test_DiffRetainedRanks(ordered_store):
     first = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=hstrat.nominal_resolution_algo.Policy(),
     )
     second = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
     )
 

@@ -46,7 +46,7 @@ def test_col_to_records(
     caplog,
 ):
     column = impl(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     for __ in range(num_deposits):
