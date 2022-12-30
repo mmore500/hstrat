@@ -12,6 +12,14 @@ from .stratum_ordered_stores import HereditaryStratumOrderedStoreList
 from .stratum_ordered_stores._detail import HereditaryStratumOrderedStoreBase
 
 
+# define type alias for ordered stores
+OrderedStore: typing.TypeAlias = typing.Union[
+    typing.Callable[..., HereditaryStratumOrderedStoreBase],
+    typing.Tuple[HereditaryStratumOrderedStoreBase, int],
+    None,
+]
+
+
 class HereditaryStratigraphicColumn:
     """Genetic annotation to enable phylogenetic inference.
 
@@ -60,11 +68,8 @@ class HereditaryStratigraphicColumn:
         always_store_rank_in_stratum: bool = True,
         stratum_differentia_bit_width: int = 64,
         initial_stratum_annotation: typing.Optional[typing.Any] = None,
-        stratum_ordered_store_factory: typing.Union[
-            typing.Callable[..., HereditaryStratumOrderedStoreBase],
-            typing.Tuple[HereditaryStratumOrderedStoreBase, int],
-            None,
-        ] = None
+        stratum_ordered_store: OrderedStore = None,
+        stratum_ordered_store_factory: OrderedStore = None
     ):
         """Initialize column to track a new line of descent.
 
@@ -87,13 +92,14 @@ class HereditaryStratigraphicColumn:
             Optional object to store as an annotation. Allows arbitrary user-
             provided to be associated with the first stratum deposition in the
             line of descent.
-        stratum_ordered_store : callable or tuple of store and count, optional
+        stratum_ordered_store: callable or tuple of store and count, optional
             One of:
             * callable to generate a container that implements the necessary
             interface to store strata within the column; can be configured for
             performance reasons, but has no semantic effect.
             * instance of one aforementioned container along with a deposition count
             * None, in which case a default-initialized container will be used
+        stratum_ordered_store_factory: deprecated, alias of stratum_ordered_store.
         Notes
         -----
         If no condemner or predicate functor specifying a stratum retention
@@ -104,22 +110,31 @@ class HereditaryStratigraphicColumn:
         self._stratum_differentia_bit_width = stratum_differentia_bit_width
         self._stratum_retention_policy = stratum_retention_policy
 
-        if stratum_ordered_store_factory is None:
+        if stratum_ordered_store_factory:
+            warnings.warn(
+                """stratum_ordered_store_factory is deprecated.
+            Please use stratum_ordered_store instead.""",
+                DeprecationWarning,
+            )
+            if stratum_ordered_store is None:
+                stratum_ordered_store = stratum_ordered_store_factory
+
+        if stratum_ordered_store is None:
             # if no hstrat ordered store is specified, we use a list
-            stratum_ordered_store_factory = HereditaryStratumOrderedStoreList
-        if callable(stratum_ordered_store_factory):
+            stratum_ordered_store = HereditaryStratumOrderedStoreList
+        if callable(stratum_ordered_store):
             # ordered store is actually an ordered store factory
-            self._stratum_ordered_store = stratum_ordered_store_factory()
+            self._stratum_ordered_store = stratum_ordered_store()
             self._num_strata_deposited = 0
             self.DepositStratum(annotation=initial_stratum_annotation)
         elif isinstance(
-            stratum_ordered_store_factory[0], HereditaryStratumOrderedStoreBase
+            stratum_ordered_store[0], HereditaryStratumOrderedStoreBase
         ):
             # ordered store is already an instance of an ordered store
             (
                 self._stratum_ordered_store,
                 self._num_strata_deposited,
-            ) = stratum_ordered_store_factory
+            ) = stratum_ordered_store
 
     def __eq__(
         self: "HereditaryStratigraphicColumn",
