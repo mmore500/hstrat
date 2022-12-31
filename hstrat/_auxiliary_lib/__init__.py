@@ -17,6 +17,7 @@ from ._pairwise import pairwise
 from ._popcount import popcount
 from ._release_cur_mpl_fig import release_cur_mpl_fig
 from ._scale_luminosity import scale_luminosity
+from ._to_tril import to_tril
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
@@ -39,6 +40,7 @@ __all__ = [
     "release_cur_mpl_fig",
     "scale_luminosity",
     "ScalarFormatterFixedPrecision",
+    "to_tril",
 ]
 
 for o in __all__:
