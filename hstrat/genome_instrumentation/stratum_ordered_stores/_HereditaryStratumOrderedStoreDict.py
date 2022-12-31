@@ -4,9 +4,10 @@ import sys
 import typing
 
 from .._HereditaryStratum import HereditaryStratum
+from ._detail import HereditaryStratumOrderedStoreBase
 
 
-class HereditaryStratumOrderedStoreDict:
+class HereditaryStratumOrderedStoreDict(HereditaryStratumOrderedStoreBase):
     """Interchangeable backing container for HereditaryStratigraphicColumn.
 
     Stores deposited strata using a dict implementation. Retained strata are
@@ -38,14 +39,14 @@ class HereditaryStratumOrderedStoreDict:
 
     def DepositStratum(
         self: "HereditaryStratumOrderedStoreDict",
-        rank: int,
+        rank: typing.Optional[int],
         stratum: "HereditaryStratum",
     ) -> None:
         """Insert a new stratum into the store.
 
         Parameters
         ----------
-        rank : int
+        rank : typing.Optional[int]
             The position of the stratum being deposited within the sequence of strata deposited into the column. Precisely, the number of strata that have been deposited before stratum.
         stratum : HereditaryStratum
             The stratum to deposit.

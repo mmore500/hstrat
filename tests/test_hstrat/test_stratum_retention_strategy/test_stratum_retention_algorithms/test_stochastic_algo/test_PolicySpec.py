@@ -18,6 +18,19 @@ def test_eq(replicate):
     assert spec == stochastic_algo.PolicySpec()
 
 
+def test_GetEvalCtor():
+    # hstrat. is needed for eval()
+    from hstrat import hstrat  # noqa
+
+    spec = stochastic_algo.PolicySpec()
+    reconstituted = eval(spec.GetEvalCtor())  # noqa
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith("hstrat.stochastic_algo.PolicySpec(")
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)  # noqa
+    assert spec == reconstituted
+
+
 def test_pickle():
     original = stochastic_algo.PolicySpec()
     with tempfile.TemporaryDirectory() as tmp_path:

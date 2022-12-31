@@ -28,7 +28,7 @@ class PolicySpec(PolicySpecBase):
         return f"""{
             self.GetAlgoIdentifier()
         }.{
-            __package__.split(".")[-1]
+            PolicySpec.__qualname__
         }(hash_salt={
             self._hash_salt
         })"""
@@ -42,6 +42,9 @@ class PolicySpec(PolicySpecBase):
 
     def GetHashSalt(self: "PolicySpec") -> int:
         return self._hash_salt
+
+    def GetEvalCtor(self: "PolicySpec") -> str:
+        return f"hstrat.{self!r}"
 
     @staticmethod
     def GetAlgoIdentifier() -> str:

@@ -35,6 +35,29 @@ def test_eq(hash_salt):
         100,
     ],
 )
+def test_GetEvalCtor(hash_salt):
+    # hstrat. is needed for eval()
+    from hstrat import hstrat  # noqa
+
+    spec = pseudostochastic_algo.PolicySpec(hash_salt)
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith("hstrat.pseudostochastic_algo.PolicySpec(")
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)  # noqa
+    assert spec == reconstituted
+
+
+@pytest.mark.parametrize(
+    "hash_salt",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
 def test_pickle(hash_salt):
     original = pseudostochastic_algo.PolicySpec(hash_salt)
     with tempfile.TemporaryDirectory() as tmp_path:

@@ -27,7 +27,7 @@ from hstrat import hstrat
 )
 def test_Clone1(retention_policy, ordered_store):
     original1 = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     original1_copy1 = deepcopy(original1)
@@ -60,7 +60,7 @@ def test_Clone1(retention_policy, ordered_store):
 )
 def test_Clone2(retention_policy, ordered_store):
     original2 = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     original2.DepositStratum()
@@ -97,7 +97,7 @@ def test_Clone2(retention_policy, ordered_store):
 def test_Clone3(retention_policy, ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
         initial_stratum_annotation=0,
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
     )
     population = [column.Clone() for __ in range(3)]
@@ -143,7 +143,7 @@ def test_Clone4(retention_policy, ordered_store):
     # regression test for bug with tree store cloning
     column = hstrat.HereditaryStratigraphicColumn(
         initial_stratum_annotation=0,
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
     )
     population = [column.Clone() for __ in range(3)]
@@ -180,7 +180,7 @@ def test_Clone4(retention_policy, ordered_store):
 )
 def test_pickle(retention_policy, ordered_store):
     original = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     with tempfile.TemporaryDirectory() as tmp_path:
@@ -210,7 +210,7 @@ def test_pickle(retention_policy, ordered_store):
 )
 def test_pickle_with_deposits(retention_policy, ordered_store):
     original = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     for __ in range(100):
@@ -243,7 +243,7 @@ def test_pickle_with_deposits(retention_policy, ordered_store):
 def test_pickle_with_population(retention_policy, ordered_store):
     population = [
         hstrat.HereditaryStratigraphicColumn(
-            stratum_ordered_store_factory=ordered_store,
+            stratum_ordered_store=ordered_store,
             stratum_retention_policy=retention_policy,
         )
         for idx in range(20)
@@ -286,13 +286,13 @@ def test_eq(
 ):
 
     original1 = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     copy1 = deepcopy(original1)
     copy2 = original1.Clone()
     original2 = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
 
@@ -332,7 +332,7 @@ def test_eq(
 def test_annotation(retention_policy, ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
         initial_stratum_annotation=0,
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     population = [column.Clone() for __ in range(10)]
@@ -380,12 +380,12 @@ def test_annotation(retention_policy, ordered_store):
 def test_always_store_rank_in_stratum(retention_policy, ordered_store):
     first = hstrat.HereditaryStratigraphicColumn(
         always_store_rank_in_stratum=True,
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     second = hstrat.HereditaryStratigraphicColumn(
         always_store_rank_in_stratum=False,
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
 
@@ -590,7 +590,7 @@ def test_CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions():
 )
 def test_IterRetainedStrata(retention_policy, ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     for __ in range(20):
@@ -599,3 +599,9 @@ def test_IterRetainedStrata(retention_policy, ordered_store):
             column.GetStratumAtColumnIndex(index)
             for index in range(column.GetNumStrataRetained())
         ]
+
+
+def test_GetColumnIndexOfRank():
+    assert (
+        hstrat.HereditaryStratigraphicColumn().GetColumnIndexOfRank(1) is None
+    )

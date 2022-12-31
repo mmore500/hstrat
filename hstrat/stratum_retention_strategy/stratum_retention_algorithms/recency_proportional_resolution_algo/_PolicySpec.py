@@ -47,6 +47,9 @@ class PolicySpec(PolicySpecBase):
             self._recency_proportional_resolution
         })"""
 
+    def GetEvalCtor(self: "PolicySpec") -> str:
+        return f"hstrat.{self!r}"
+
     def GetRecencyProportionalResolution(self: "PolicySpec") -> int:
         return self._recency_proportional_resolution
 

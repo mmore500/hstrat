@@ -10,6 +10,18 @@ def test_eq():
     assert spec == nominal_resolution_algo.PolicySpec()
 
 
+def test_GetEvalCtor():
+    # hstrat. is needed for eval()
+    from hstrat import hstrat  # noqa
+
+    spec = nominal_resolution_algo.PolicySpec()
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith("hstrat.nominal_resolution_algo.PolicySpec(")
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)  # noqa
+    assert spec == reconstituted
+
+
 def test_pickle():
     original = nominal_resolution_algo.PolicySpec()
     with tempfile.TemporaryDirectory() as tmp_path:

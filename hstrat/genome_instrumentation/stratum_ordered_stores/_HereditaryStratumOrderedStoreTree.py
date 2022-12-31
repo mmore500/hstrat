@@ -6,9 +6,10 @@ import anytree
 
 from ..._auxiliary_lib import AnyTreeAscendingIter
 from .._HereditaryStratum import HereditaryStratum
+from ._detail import HereditaryStratumOrderedStoreBase
 
 
-class HereditaryStratumOrderedStoreTree:
+class HereditaryStratumOrderedStoreTree(HereditaryStratumOrderedStoreBase):
     """Interchangeable backing container for HereditaryStratigraphicColumn.
 
     Stores deposited strata as a linked tree. Retained strata pertinent to the
@@ -75,14 +76,14 @@ class HereditaryStratumOrderedStoreTree:
 
     def DepositStratum(
         self: "HereditaryStratumOrderedStoreTree",
-        rank: int,
+        rank: typing.Optional[int],
         stratum: "HereditaryStratum",
     ) -> None:
         """Insert a new stratum into the store.
 
         Parameters
         ----------
-        rank : int
+        rank : typing.Optional[int]
             The position of the stratum being deposited within the sequence of
             strata deposited into the column. Precisely, the number of strata
             that have been deposited before stratum.

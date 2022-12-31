@@ -4,6 +4,7 @@ from ..genome_instrumentation import HereditaryStratigraphicColumn
 
 
 def col_to_dataframe(column: HereditaryStratigraphicColumn) -> pd.DataFrame:
+    """Create a pandas `DataFrame` with retained strata as rows."""
     records = [
         {
             "index": index,

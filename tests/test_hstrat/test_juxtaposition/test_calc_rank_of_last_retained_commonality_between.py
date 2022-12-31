@@ -32,7 +32,7 @@ def test_comparison_commutativity_asyncrhonous(
 ):
     population = [
         hstrat.HereditaryStratigraphicColumn(
-            stratum_ordered_store_factory=ordered_store,
+            stratum_ordered_store=ordered_store,
             stratum_retention_policy=retention_policy,
         )
         for __ in range(10)
@@ -89,7 +89,7 @@ def test_comparison_commutativity_syncrhonous(
 
     population = [
         hstrat.HereditaryStratigraphicColumn(
-            stratum_ordered_store_factory=ordered_store,
+            stratum_ordered_store=ordered_store,
             stratum_retention_policy=retention_policy,
         )
         for __ in range(10)
@@ -136,7 +136,7 @@ def test_comparison_commutativity_syncrhonous(
 def test_comparison_validity(retention_policy, ordered_store):
     population = [
         hstrat.HereditaryStratigraphicColumn(
-            stratum_ordered_store_factory=ordered_store,
+            stratum_ordered_store=ordered_store,
             stratum_retention_policy=retention_policy,
         )
         for __ in range(10)
@@ -202,11 +202,11 @@ def test_scenario_no_mrca(
     ordered_store,
 ):
     first = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy1,
     )
     second = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy2,
     )
 
@@ -246,7 +246,7 @@ def test_scenario_no_mrca(
 )
 def test_scenario_no_divergence(retention_policy, ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
 
@@ -279,7 +279,7 @@ def test_scenario_no_divergence(retention_policy, ordered_store):
 )
 def test_scenario_partial_even_divergence(retention_policy, ordered_store):
     first = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
 
@@ -325,7 +325,7 @@ def test_scenario_partial_even_divergence(retention_policy, ordered_store):
 )
 def test_scenario_partial_uneven_divergence(retention_policy, ordered_store):
     first = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
 
@@ -379,7 +379,7 @@ def _do_test_CalcRankOfLastRetainedCommonalityWith1(
 ):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=differentia_width,
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
     )
 
     for generation in range(100):
@@ -688,7 +688,7 @@ def test_CalcRankOfLastRetainedCommonalityWith5(
 ):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=differentia_width,
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=hstrat.fixed_resolution_algo.Policy(2),
     )
 

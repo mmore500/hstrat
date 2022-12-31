@@ -35,6 +35,29 @@ def test_eq(fixed_resolution):
         100,
     ],
 )
+def test_GetEvalCtor(fixed_resolution):
+    # hstrat. is needed for eval()
+    from hstrat import hstrat  # noqa
+
+    spec = fixed_resolution_algo.PolicySpec(fixed_resolution)
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith("hstrat.fixed_resolution_algo.PolicySpec(")
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)  # noqa
+    assert spec == reconstituted
+
+
+@pytest.mark.parametrize(
+    "fixed_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
 def test_pickle(fixed_resolution):
     original = fixed_resolution_algo.PolicySpec(fixed_resolution)
     with tempfile.TemporaryDirectory() as tmp_path:

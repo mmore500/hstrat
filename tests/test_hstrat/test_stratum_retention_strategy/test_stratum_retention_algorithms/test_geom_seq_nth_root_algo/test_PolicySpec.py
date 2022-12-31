@@ -69,6 +69,39 @@ def test_eq(degree, interspersal):
         5,
     ],
 )
+def test_GetEvalCtor(degree, interspersal):
+    # hstrat. is needed for eval()
+    from hstrat import hstrat  # noqa
+
+    spec = geom_seq_nth_root_algo.PolicySpec(degree, interspersal)
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith("hstrat.geom_seq_nth_root_algo.PolicySpec(")
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)  # noqa
+    assert spec == reconstituted
+
+
+@pytest.mark.parametrize(
+    "degree",
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "interspersal",
+    [
+        1,
+        2,
+        5,
+    ],
+)
 def test_pickle(degree, interspersal):
     original = geom_seq_nth_root_algo.PolicySpec(degree, interspersal)
     with tempfile.TemporaryDirectory() as tmp_path:

@@ -89,6 +89,7 @@ pinned_dependencies_py37 = [
   "prettytable==3.5.0",
   "python-slugify==6.1.2",
   "seaborn==0.12.1",
+  "typing_extensions==4.4.0"
 ]
 pinned_dependencies_py310 = [
   "anytree==2.8.0",

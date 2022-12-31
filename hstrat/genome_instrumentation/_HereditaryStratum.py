@@ -22,6 +22,7 @@ class HereditaryStratum:
         annotation: typing.Optional[typing.Any] = None,
         differentia_bit_width: int = 64,
         deposition_rank: typing.Optional[int] = None,
+        differentia: typing.Optional[int] = None,
     ):
         """Construct the stratum.
 
@@ -42,9 +43,13 @@ class HereditaryStratum:
         """
         if deposition_rank is not None:
             self._deposition_rank = deposition_rank
-        self._differentia = random.randrange(2**differentia_bit_width)
-        if annotation is not None:
-            self._annotation = annotation
+
+        if differentia is not None:
+            self._differentia = differentia
+        else:
+            self._differentia = random.randrange(2**differentia_bit_width)
+
+        self._annotation = annotation
 
     def __eq__(self: "HereditaryStratum", other: "HereditaryStratum") -> bool:
         """Compare for value-wise equality."""
