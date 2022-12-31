@@ -238,7 +238,7 @@ tomli==2.0.1
     #   pytest
 tox==3.24.0
     # via hstrat (../../pyproject.toml)
-tqdm==4.64.1
+tqdm==4.62.3
     # via
     #   hstrat (../../pyproject.toml)
     #   twine
