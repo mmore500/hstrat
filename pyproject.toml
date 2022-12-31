@@ -34,9 +34,6 @@ dependencies = [
   "tqdm>=4.62.3",
 ]
 description = "hstrat enables phylogenetic inference on distributed digital evolution populations"
-dynamic = [
-  "readme",
-]
 license = {text = "MIT license"}
 name  =  "hstrat"
 keywords = [
@@ -44,6 +41,10 @@ keywords = [
 ]
 requires-python = ">=3.7"
 version = "1.2.3"
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
 
 [project.urls]
 homepage = "https://github.com/mmore500/hstrat"
@@ -55,9 +56,6 @@ include-package-data = true
 packages = [
   "hstrat",
 ]
-
-[tool.setuptools.dynamic]
-readme = { file = ["README.md"] }
 
 # adapted from https://tox.wiki/en/latest/example/package.html
 [build-system]
