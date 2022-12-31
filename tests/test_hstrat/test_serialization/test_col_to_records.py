@@ -53,6 +53,69 @@ def test_col_to_records(
     for __ in range(num_deposits):
         column.DepositStratum()
 
+    records = hstrat.col_to_records(column)
+    assert records == hstrat.col_to_records(column)
+    for entry in [
+        "policy_algo",
+        "policy",
+        "num_strata_deposited",
+        "differentiae",
+        "differentia_bit_width",
+        "hstrat_version",
+    ]:
+        assert entry in records
+        assert type(records[entry]) in (int, str)
+
+    assert "policy_spec" in records
+    assert type(records["policy_spec"]) == dict
+
+
+@pytest.mark.parametrize(
+    "impl",
+    [genome_instrumentation.HereditaryStratigraphicColumn],
+    # TODO
+    # genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+        None,
+    ],
+)
+@pytest.mark.parametrize(
+    "num_deposits",
+    [0, 1, 6, 8, 64],
+)
+@pytest.mark.parametrize(
+    "differentia_bit_width",
+    [1, 8, 16, 32, 64],
+)
+def test_col_to_records_then_from_records(
+    impl,
+    retention_policy,
+    ordered_store,
+    num_deposits,
+    differentia_bit_width,
+    caplog,
+):
+    column = impl(
+        stratum_ordered_store=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+    for __ in range(num_deposits):
+        column.DepositStratum()
+
     assert hstrat.col_to_records(column) == hstrat.col_to_records(column)
     reconstituted = hstrat.col_from_records(hstrat.col_to_records(column))
     if (
@@ -64,6 +127,53 @@ def test_col_to_records(
         assert hstrat.col_to_records(reconstituted) == hstrat.col_to_records(
             column
         )
+
+
+@pytest.mark.parametrize(
+    "impl",
+    [genome_instrumentation.HereditaryStratigraphicColumn],
+    # TODO
+    # genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+        None,
+    ],
+)
+@pytest.mark.parametrize(
+    "num_deposits",
+    [0, 1, 6, 8, 64],
+)
+@pytest.mark.parametrize(
+    "differentia_bit_width",
+    [1, 8, 16, 32, 64],
+)
+def test_col_to_records_then_from_records_json(
+    impl,
+    retention_policy,
+    ordered_store,
+    num_deposits,
+    differentia_bit_width,
+    caplog,
+):
+    column = impl(
+        stratum_ordered_store=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+    for __ in range(num_deposits):
+        column.DepositStratum()
 
     records = hstrat.col_to_records(column)
     json_str = json.dumps(records)
@@ -77,6 +187,53 @@ def test_col_to_records(
         assert hstrat.col_to_records(reconstituted) == hstrat.col_to_records(
             column
         )
+
+
+@pytest.mark.parametrize(
+    "impl",
+    [genome_instrumentation.HereditaryStratigraphicColumn],
+    # TODO
+    # genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+        None,
+    ],
+)
+@pytest.mark.parametrize(
+    "num_deposits",
+    [0, 1, 6, 8, 64],
+)
+@pytest.mark.parametrize(
+    "differentia_bit_width",
+    [1, 8, 16, 32, 64],
+)
+def test_col_to_records_version_warning(
+    impl,
+    retention_policy,
+    ordered_store,
+    num_deposits,
+    differentia_bit_width,
+    caplog,
+):
+    column = impl(
+        stratum_ordered_store=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+    for __ in range(num_deposits):
+        column.DepositStratum()
 
     # adapted from https://stackoverflow.com/a/48113200
     with caplog.at_level(logging.INFO):
