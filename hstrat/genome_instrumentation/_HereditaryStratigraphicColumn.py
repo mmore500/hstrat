@@ -69,7 +69,7 @@ class HereditaryStratigraphicColumn:
         stratum_differentia_bit_width: int = 64,
         initial_stratum_annotation: typing.Optional[typing.Any] = None,
         stratum_ordered_store: OrderedStore = None,
-        stratum_ordered_store_factory: OrderedStore = None
+        stratum_ordered_store_factory: OrderedStore = None # deprecated
     ):
         """Initialize column to track a new line of descent.
 
@@ -100,6 +100,7 @@ class HereditaryStratigraphicColumn:
             * instance of one aforementioned container along with a deposition count
             * None, in which case a default-initialized container will be used
         stratum_ordered_store_factory: deprecated, alias of stratum_ordered_store.
+
         Notes
         -----
         If no condemner or predicate functor specifying a stratum retention
@@ -110,14 +111,15 @@ class HereditaryStratigraphicColumn:
         self._stratum_differentia_bit_width = stratum_differentia_bit_width
         self._stratum_retention_policy = stratum_retention_policy
 
-        if stratum_ordered_store_factory:
+        if stratum_ordered_store_factory is not None:
             warnings.warn(
-                """stratum_ordered_store_factory is deprecated.
-            Please use stratum_ordered_store instead.""",
+                """stratum_ordered_store_factory kwarg is deprecated.
+                Please use stratum_ordered_store kwarg instead.""",
                 DeprecationWarning,
             )
-            if stratum_ordered_store is None:
-                stratum_ordered_store = stratum_ordered_store_factory
+            # disallow mixed use of deprecated and replacement
+            assert stratum_ordered_store is None
+            stratum_ordered_store = stratum_ordered_store_factory
 
         if stratum_ordered_store is None:
             # if no hstrat ordered store is specified, we use a list
