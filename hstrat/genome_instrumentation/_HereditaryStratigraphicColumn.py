@@ -69,7 +69,7 @@ class HereditaryStratigraphicColumn:
         stratum_differentia_bit_width: int = 64,
         initial_stratum_annotation: typing.Optional[typing.Any] = None,
         stratum_ordered_store: OrderedStore = None,
-        stratum_ordered_store_factory: OrderedStore = None # deprecated
+        stratum_ordered_store_factory: OrderedStore = None  # deprecated
     ):
         """Initialize column to track a new line of descent.
 
