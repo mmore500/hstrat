@@ -18,7 +18,10 @@ def col_to_records(column: HereditaryStratigraphicColumn) -> typing.Dict:
     spec = policy.GetSpec()
     res = {
         "policy_algo": spec.GetAlgoIdentifier(),
-        "policy_spec": spec,
+        "policy_spec": {
+            k.lstrip("_"): v  # strip leading underscores on private members
+            for k, v in spec.__dict__.items()
+        },
         "policy": policy.GetEvalCtor(),
         "num_strata_deposited": column.GetNumStrataDeposited(),
         "differentiae": packed_differentiae,

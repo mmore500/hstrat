@@ -1,7 +1,9 @@
-from ..._impl import CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
+from ..._impl import (
+    CalcMrcaUncertaintyRelUpperBoundAtPessimalRank as CalcMrcaUncertaintyRelUpperBoundAtPessimalRank_,
+)
 
 
 class CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
-    CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
+    CalcMrcaUncertaintyRelUpperBoundAtPessimalRank_
 ):
     pass

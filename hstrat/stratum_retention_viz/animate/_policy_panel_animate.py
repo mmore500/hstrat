@@ -2,8 +2,8 @@ import typing
 
 from keyname import keyname as kn
 import matplotlib as mpl
+from matplotlib import animation as mpl_animation
 from matplotlib import pyplot as plt
-import matplotlib.animation
 from slugify import slugify
 from tqdm import tqdm
 
@@ -15,7 +15,7 @@ def policy_panel_animate(
     num_generations: int,
     do_show: bool = False,
     save_as: typing.Optional[str] = None,
-) -> mpl.animation.FuncAnimation:
+) -> mpl_animation.FuncAnimation:
     """Animate evolution of column and its properties under a retention policy.
 
     Parameters
@@ -42,7 +42,7 @@ def policy_panel_animate(
             fig=fig,
         )
 
-    res = mpl.animation.FuncAnimation(
+    res = mpl_animation.FuncAnimation(
         fig,
         update_func,
         frames=range(num_generations),

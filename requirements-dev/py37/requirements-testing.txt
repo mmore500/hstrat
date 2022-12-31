@@ -136,6 +136,8 @@ python-slugify==6.1.2
     #   teeplot
 pytz==2022.6
     # via pandas
+pyyaml==5.3.1
+    # via hstrat (../../pyproject.toml)
 safe-assert==0.2.0
     # via hstrat (../../pyproject.toml)
 scipy==1.7.3
