@@ -64,10 +64,10 @@ def test_col_to_records(
         "hstrat_version",
     ]:
         assert entry in records
-        assert type(records[entry]) in (int, str)
+        assert isinstance(records[entry], (int, str))
 
     assert "policy_spec" in records
-    assert type(records["policy_spec"]) == dict
+    assert isinstance(records["policy_spec"], dict)
 
 
 @pytest.mark.parametrize(
