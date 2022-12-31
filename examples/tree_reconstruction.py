@@ -15,7 +15,7 @@ try:
         DistanceMatrix,
         DistanceTreeConstructor,
     )
-except e:
+except ImportError as e:
     print("biopython required for tree reconstruction example")
     print("python3 -m pip install biopython")
     raise e
