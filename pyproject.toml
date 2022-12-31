@@ -145,6 +145,7 @@ release = [
   "wheel==0.33.6",
   "pip==22.0.4",
   "pip_tools==6.10.0",
+  "setuptools==65.6.3",
 ]
 docs = [
   "Sphinx==4.4.0",
