@@ -141,7 +141,7 @@ testing_py310 = [
   "tox==3.24.0",
 ]
 release = [
-  "bump2version==0.5.11",
+  "bumpver==2022.1120",
   "twine==1.14.0",
   "wheel==0.33.6",
   "pip==22.0.4",
