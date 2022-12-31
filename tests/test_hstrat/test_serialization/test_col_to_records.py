@@ -1,3 +1,4 @@
+import json
 import logging
 
 import pytest
@@ -54,6 +55,19 @@ def test_col_to_records(
 
     assert hstrat.col_to_records(column) == hstrat.col_to_records(column)
     reconstituted = hstrat.col_from_records(hstrat.col_to_records(column))
+    if (
+        ordered_store == hstrat.HereditaryStratumOrderedStoreList
+        and impl == genome_instrumentation.HereditaryStratigraphicColumn
+    ):
+        assert reconstituted == column
+    else:
+        assert hstrat.col_to_records(reconstituted) == hstrat.col_to_records(
+            column
+        )
+
+    records = hstrat.col_to_records(column)
+    json_str = json.dumps(records)
+    reconstituted = hstrat.col_from_records(json.loads(json_str))
     if (
         ordered_store == hstrat.HereditaryStratumOrderedStoreList
         and impl == genome_instrumentation.HereditaryStratigraphicColumn

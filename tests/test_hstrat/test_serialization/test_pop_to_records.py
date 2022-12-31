@@ -1,3 +1,4 @@
+import json
 import random
 
 import pytest
@@ -71,6 +72,19 @@ def test_col_to_records(
         assert not any(field in col_rec for col_rec in records["columns"])
 
     reconstituted = hstrat.pop_from_records(records)
+    if (
+        ordered_store == hstrat.HereditaryStratumOrderedStoreList
+        and impl == genome_instrumentation.HereditaryStratigraphicColumn
+    ):
+        assert reconstituted == pop
+    else:
+        assert hstrat.pop_to_records(reconstituted) == hstrat.pop_to_records(
+            pop
+        )
+
+    records = hstrat.pop_to_records(pop)
+    json_str = json.dumps(records)
+    reconstituted = hstrat.pop_from_records(json.loads(json_str))
     if (
         ordered_store == hstrat.HereditaryStratumOrderedStoreList
         and impl == genome_instrumentation.HereditaryStratigraphicColumn
