@@ -74,6 +74,11 @@ def calculate_distance_matrix(
 def reconstruct_tree(
     distance_matrix: DistanceMatrix, algo: Literal["nj", "upgma"] = "nj"
 ):
+    if algo not in ["nj", "upgma"]:
+        raise ValueError(
+            f"""Unsupported reconstruction algorithm {algo}. \
+            Please choose one of 'nj', 'upgma'."""
+        )
     return getattr(DistanceTreeConstructor(), algo)(distance_matrix)
 
 
