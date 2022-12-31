@@ -44,7 +44,7 @@ keywords = [
   "hstrat",
 ]
 requires-python = ">=3.7"
-version = "1.2.1"
+version = "1.2.2"
 
 [project.urls]
 homepage = "https://github.com/mmore500/hstrat"
