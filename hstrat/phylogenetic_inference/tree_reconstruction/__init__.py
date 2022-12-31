@@ -6,6 +6,7 @@ from itertools import combinations
 from typing import Iterable
 
 from ..._auxiliary_lib import launder_impl_modules as _launder
+from ..._auxiliary_lib import to_tril
 
 try:
     from typing import Literal
@@ -66,7 +67,7 @@ def calculate_distance_matrix(
         )
 
     return DistanceMatrix(
-        names=[str(x) for x in population], matrix=_to_tril(matrix_data.T)
+        names=[str(x) for x in population], matrix=to_tril(matrix_data.T)
     )
 
 
