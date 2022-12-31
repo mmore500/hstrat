@@ -351,7 +351,7 @@ class TestHereditaryStratumOrderedStoreList(unittest.TestCase):
             [],
         ):
             store1.DelRanks(
-                get_column_index_of_rank=lambda rank: ranks.index(rank),
+                get_column_index_of_rank=ranks.index,
                 ranks=deletion,
             )
             for rank in deletion:
@@ -384,7 +384,7 @@ class TestHereditaryStratumOrderedStoreList(unittest.TestCase):
             [],
         ):
             store1.DelRanks(
-                get_column_index_of_rank=lambda rank: ranks.index(rank),
+                get_column_index_of_rank=ranks.index,
                 ranks=deletion,
             )
             for rank in deletion:
@@ -417,7 +417,7 @@ class TestHereditaryStratumOrderedStoreList(unittest.TestCase):
             [],
         ):
             store1.DelRanks(
-                get_column_index_of_rank=lambda rank: ranks.index(rank),
+                get_column_index_of_rank=ranks.index,
                 ranks=deletion,
             )
             for rank in deletion:
@@ -448,7 +448,7 @@ class TestHereditaryStratumOrderedStoreList(unittest.TestCase):
             [],
         ):
             store1.DelRanks(
-                get_column_index_of_rank=lambda rank: ranks.index(rank),
+                get_column_index_of_rank=ranks.index,
                 ranks=deletion,
             )
             for rank in deletion:
@@ -477,7 +477,7 @@ class TestHereditaryStratumOrderedStoreList(unittest.TestCase):
             [],
         ):
             store1.DelRanks(
-                get_column_index_of_rank=lambda rank: ranks.index(rank),
+                get_column_index_of_rank=ranks.index,
                 ranks=deletion,
             )
             for rank in deletion:

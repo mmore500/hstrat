@@ -25,7 +25,7 @@ do
     # and https://stackoverflow.com/a/32723119
     # and https://unix.stackexchange.com/a/87748
     export LC_ALL=C
-    echo "x" | ex -s -c "${start},${stop}!sort --stable --ignore-nonprinting --ignore-case --dictionary-order" $filename
+    echo "x" | ex -s -c "${start},${stop}!sort --stable --ignore-nonprinting --ignore-case --dictionary-order" "${filename}"
     # see also https://www.gnu.org/software/coreutils/manual/html_node/sort-invocation.html
 
   done

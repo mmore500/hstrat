@@ -1,7 +1,6 @@
 import itertools as it
 import random
 
-from iterify import iterify
 import opytional as opyt
 import pytest
 

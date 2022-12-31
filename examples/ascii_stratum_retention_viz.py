@@ -1,7 +1,5 @@
 #!/usr/bin/python3
 
-import random
-
 from hstrat import hstrat
 
 if __name__ == "__main__":
