@@ -62,6 +62,8 @@ python-slugify==6.1.2
     # via hstrat (../../pyproject.toml)
 pytz==2022.6
     # via pandas
+safe-assert==0.2.0
+    # via hstrat (../../pyproject.toml)
 seaborn==0.12.1
     # via hstrat (../../pyproject.toml)
 six==1.16.0

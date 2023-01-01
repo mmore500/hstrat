@@ -95,6 +95,8 @@ pytz>=2022.6
     #   pandas
 requests>=2.28.1
     # via sphinx
+safe-assert>=0.2.0
+    # via hstrat (../../pyproject.toml)
 seaborn>=0.12.1
     # via hstrat (../../pyproject.toml)
 six>=1.16.0
