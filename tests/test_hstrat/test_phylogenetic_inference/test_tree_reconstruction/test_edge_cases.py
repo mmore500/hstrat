@@ -9,20 +9,33 @@ from _SimpleGenomeAnnotatedWithDenseRetention import (
 import random
 import warnings
 
-from testfixtures import compare
+from alifedata_phyloinformatics_convert import biopython_tree_to_alife_dataframe, alife_dataframe_to_dendropy_tree
+
+from dendropy.calculate.treecompare import symmetric_difference
+from dendropy import TaxonNamespace, Tree
 
 import pytest
 
-def are_objects_equal(a, b):
-    if a.__dict__.keys() != b.__dict__.keys():
-        return False
+def tree_difference(x, y):
+    tree_a = alife_dataframe_to_dendropy_tree(biopython_tree_to_alife_dataframe(x))
+    tree_b = alife_dataframe_to_dendropy_tree(biopython_tree_to_alife_dataframe(y))
 
-    for x, y in zip(a.__dict__, b.__dict__):
-        try:
-            return are_objects_equal(x, y)
-        except AttributeError:
-            print(x, y)
-            return x == y
+    common_namespace = TaxonNamespace()
+    tree_a.migrate_taxon_namespace(common_namespace)
+    tree_b.migrate_taxon_namespace(common_namespace)
+
+    tree_a.encode_bipartitions()
+    for bp in tree_a.bipartition_encoding:
+        bp.is_mutable = False
+    tree_b.encode_bipartitions()
+    for bp in tree_b.bipartition_encoding:
+        bp.is_mutable = False
+
+    return symmetric_difference(
+        tree_a,
+        tree_b,
+        is_bipartitions_updated=True
+    )
 
 def test_empty_population():
     population = []
