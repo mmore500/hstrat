@@ -45,6 +45,8 @@ class HereditaryStratum:
             self._deposition_rank = deposition_rank
 
         if differentia is not None:
+            if differentia_bit_width is not None:
+                assert differentia < 2**differentia_bit_width
             self._differentia = differentia
         else:
             self._differentia = random.randrange(2**differentia_bit_width)

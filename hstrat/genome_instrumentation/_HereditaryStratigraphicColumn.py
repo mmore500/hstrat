@@ -179,6 +179,26 @@ class HereditaryStratigraphicColumn:
             can_omit_deposition_rank and not self._always_store_rank_in_stratum
         )
 
+    def _CreateStratum(
+        self: "HereditaryStratigraphicColumn",
+        deposition_rank: int,
+        annotation: typing.Optional[typing.Any] = None,
+        differentia: typing.Optional[int] = None,
+    ) -> HereditaryStratum:
+        """Create a hereditary stratum with stored configuration attributes."""
+        return HereditaryStratum(
+            annotation=annotation,
+            deposition_rank=(
+                # don't store deposition rank if we know how to
+                # calcualte it from stratum's position in column
+                None
+                if self._ShouldOmitStratumDepositionRank()
+                else deposition_rank
+            ),
+            differentia_bit_width=self._stratum_differentia_bit_width,
+            differentia=differentia,
+        )
+
     def DepositStratum(
         self: "HereditaryStratigraphicColumn",
         annotation: typing.Optional[typing.Any] = None,
@@ -192,16 +212,9 @@ class HereditaryStratigraphicColumn:
             provided to be associated with this stratum deposition in the
             line of descent.
         """
-        new_stratum = HereditaryStratum(
+        new_stratum = self._CreateStratum(
+            deposition_rank=self._num_strata_deposited,
             annotation=annotation,
-            deposition_rank=(
-                # don't store deposition rank if we know how to calcualte it
-                # from stratum's position in column
-                None
-                if self._ShouldOmitStratumDepositionRank()
-                else self._num_strata_deposited
-            ),
-            differentia_bit_width=self._stratum_differentia_bit_width,
         )
         self._stratum_ordered_store.DepositStratum(
             rank=self._num_strata_deposited,

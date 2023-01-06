@@ -4,7 +4,6 @@ import typing
 from .._auxiliary_lib import get_hstrat_version, log_once_in_a_row
 from ..genome_instrumentation import (
     HereditaryStratigraphicColumn,
-    HereditaryStratum,
     HereditaryStratumOrderedStoreList,
 )
 from ._unpack_differentiae import unpack_differentiae
@@ -26,7 +25,19 @@ def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
             }"""
         )
 
+    def load_policy():
+        # noqa
+        from ..stratum_retention_strategy import (
+            stratum_retention_algorithms as hstrat,
+        )
+
+        return eval(records["policy"])  # noqa
+
     def load_stratum_ordered_store() -> HereditaryStratumOrderedStoreList:
+        dummy_column = HereditaryStratigraphicColumn(
+            stratum_retention_policy=load_policy(),
+            stratum_differentia_bit_width=records["differentia_bit_width"],
+        )
         store = HereditaryStratumOrderedStoreList()
 
         for differentia, deposition_rank, annotation in zip(
@@ -39,21 +50,13 @@ def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
         ):
             store.DepositStratum(
                 rank=deposition_rank,
-                stratum=HereditaryStratum(
+                stratum=dummy_column._CreateStratum(
                     annotation=annotation,
                     differentia=differentia,
                     deposition_rank=deposition_rank,
                 ),
             )
         return store
-
-    def load_policy():
-        # noqa
-        from ..stratum_retention_strategy import (
-            stratum_retention_algorithms as hstrat,
-        )
-
-        return eval(records["policy"])  # noqa
 
     return HereditaryStratigraphicColumn(
         stratum_retention_policy=load_policy(),
