@@ -22,6 +22,7 @@ from ._pairwise import pairwise
 from ._popcount import popcount
 from ._release_cur_mpl_fig import release_cur_mpl_fig
 from ._scale_luminosity import scale_luminosity
+from ._splicewhile import splicewhile
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
@@ -49,6 +50,7 @@ __all__ = [
     "release_cur_mpl_fig",
     "scale_luminosity",
     "ScalarFormatterFixedPrecision",
+    "splicewhile",
 ]
 
 for o in __all__:
