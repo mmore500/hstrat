@@ -3,7 +3,7 @@
 __all__ = []
 
 from itertools import combinations
-from typing import Iterable
+from typing import Iterable, Any
 
 from ..._auxiliary_lib import launder_impl_modules as _launder
 from ..._auxiliary_lib import to_tril
@@ -55,6 +55,7 @@ def distance_matrix_helper(x, y):
 
 def calculate_distance_matrix(
     population: Iterable[HereditaryStratigraphicColumn],
+    names: Iterable[Any] = None
 ):
     matrix_data = np.zeros(len(population), len(population))
 
