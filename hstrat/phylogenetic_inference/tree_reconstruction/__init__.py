@@ -58,9 +58,9 @@ def calculate_distance_matrix(
     population: Iterable[HereditaryStratigraphicColumn],
     names: Iterable[Any] = None
 ):
-    matrix_data = np.zeros(len(population), len(population))
+    matrix_data = np.zeros((len(population), len(population)))
 
-    pairwise = combinations(list(len(population)), 2)
+    pairwise = combinations(range(len(population)), 2)
 
     for a, b in pairwise:
         matrix_data[a][b] = sum(
