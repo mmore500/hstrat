@@ -16,7 +16,7 @@ except ImportError:
 
 from warnings import warn
 
-from Bio.Phylo.TreeConstruction import DistanceMatrix, DistanceTreeConstructor
+from Bio.Phylo.TreeConstruction import DistanceMatrix, DistanceTreeConstructor, BaseTree
 import numpy as np
 
 from ...genome_instrumentation import HereditaryStratigraphicColumn
@@ -82,6 +82,8 @@ def reconstruct_tree(
             f"""Unsupported reconstruction algorithm {algo}. \
             Please choose one of 'nj', 'upgma'."""
         )
+    if not distance_matrix:
+        return BaseTree.Tree()
     return getattr(DistanceTreeConstructor(), algo)(distance_matrix)
 
 
