@@ -7,6 +7,7 @@ from ._bit_floor import bit_floor
 from ._caretdown_marker import caretdown_marker
 from ._caretup_marker import caretup_marker
 from ._check_testing_requirements import check_testing_requirements
+from ._consume import consume
 from ._div_range import div_range
 from ._find_bounds import find_bounds
 from ._get_hstrat_version import get_hstrat_version
@@ -31,6 +32,7 @@ __all__ = [
     "caretdown_marker",
     "caretup_marker",
     "check_testing_requirements",
+    "consume",
     "div_range",
     "find_bounds",
     "get_hstrat_version",
