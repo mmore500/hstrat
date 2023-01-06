@@ -111,6 +111,7 @@ pinned_dependencies_py310 = [
 testing_py37 = [
   "biopython==1.79",
   "coverage==6.4.4",
+  "dendropy==4.5.2",
   "flake8==3.7.8",
   "iterify==0.1.0",
   "more-itertools==8.13.0",
@@ -127,6 +128,7 @@ testing_py37 = [
 testing_py310 = [
   "biopython==1.79",
   "coverage==6.4.4",
+  "dendropy==4.5.2",
   "flake8==3.7.8",
   "iterify==0.1.0",
   "more-itertools==8.13.0",
