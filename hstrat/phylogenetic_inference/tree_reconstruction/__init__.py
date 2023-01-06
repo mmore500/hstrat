@@ -20,17 +20,17 @@ import numpy as np
 
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ..pairwise import (
-    _calc_rank_of_earliest_detectable_mrca_between,
-    _calc_ranks_since_mrca_bounds_with,
-    _does_definitively_have_no_common_ancestor,
+    calc_rank_of_earliest_detectable_mrca_between,
+    calc_ranks_since_mrca_bounds_with,
+    does_definitively_have_no_common_ancestor,
 )
 
 
 def distance_matrix_helper(x, y):
-    mrca_bounds = _calc_ranks_since_mrca_bounds_with(x, y)
+    mrca_bounds = calc_ranks_since_mrca_bounds_with(x, y)
     if mrca_bounds is not None:
         mrca_lb, mrca_ub = mrca_bounds
-    earliest_detectable_mrca = _calc_rank_of_earliest_detectable_mrca_between(
+    earliest_detectable_mrca = calc_rank_of_earliest_detectable_mrca_between(
         x, y
     )
 
@@ -43,7 +43,7 @@ def distance_matrix_helper(x, y):
     if earliest_detectable_mrca:
         return (earliest_detectable_mrca - 1) / 2
 
-    if _does_definitively_have_no_common_ancestor(x, y):
+    if does_definitively_have_no_common_ancestor(x, y):
         assert earliest_detectable_mrca == 0
         warn(
             f"""No common ancestor exists between {x} and {y}; returning a distance of 0.
