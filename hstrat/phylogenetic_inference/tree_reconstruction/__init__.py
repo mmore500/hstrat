@@ -3,8 +3,12 @@
 __all__ = []
 
 from itertools import combinations
+<<<<<<< HEAD
 from typing import Iterable, Any
 from string import ascii_lowercase
+=======
+from typing import Iterable
+>>>>>>> 497fb1e54a20ba986e8c8e46f5f4239c88a94d34
 
 from ..._auxiliary_lib import launder_impl_modules as _launder
 from ..._auxiliary_lib import to_tril
@@ -16,22 +20,39 @@ except ImportError:
 
 from warnings import warn
 
+<<<<<<< HEAD
 from Bio.Phylo.TreeConstruction import DistanceMatrix, DistanceTreeConstructor, BaseTree
+=======
+from Bio.Phylo.TreeConstruction import DistanceMatrix, DistanceTreeConstructor
+>>>>>>> 497fb1e54a20ba986e8c8e46f5f4239c88a94d34
 import numpy as np
 
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ..pairwise import (
+<<<<<<< HEAD
     calc_rank_of_earliest_detectable_mrca_between,
     calc_ranks_since_mrca_bounds_with,
     does_definitively_have_no_common_ancestor,
+=======
+    _calc_rank_of_earliest_detectable_mrca_between,
+    _calc_ranks_since_mrca_bounds_with,
+    _does_definitively_have_no_common_ancestor,
+>>>>>>> 497fb1e54a20ba986e8c8e46f5f4239c88a94d34
 )
 
 
 def distance_matrix_helper(x, y):
+<<<<<<< HEAD
     mrca_bounds = calc_ranks_since_mrca_bounds_with(x, y)
     if mrca_bounds is not None:
         mrca_lb, mrca_ub = mrca_bounds
     earliest_detectable_mrca = calc_rank_of_earliest_detectable_mrca_between(
+=======
+    mrca_bounds = _calc_ranks_since_mrca_bounds_with(x, y)
+    if mrca_bounds is not None:
+        mrca_lb, mrca_ub = mrca_bounds
+    earliest_detectable_mrca = _calc_rank_of_earliest_detectable_mrca_between(
+>>>>>>> 497fb1e54a20ba986e8c8e46f5f4239c88a94d34
         x, y
     )
 
@@ -44,7 +65,11 @@ def distance_matrix_helper(x, y):
     if earliest_detectable_mrca:
         return (earliest_detectable_mrca - 1) / 2
 
+<<<<<<< HEAD
     if does_definitively_have_no_common_ancestor(x, y):
+=======
+    if _does_definitively_have_no_common_ancestor(x, y):
+>>>>>>> 497fb1e54a20ba986e8c8e46f5f4239c88a94d34
         assert earliest_detectable_mrca == 0
         warn(
             f"""No common ancestor exists between {x} and {y}; returning a distance of 0.
