@@ -413,7 +413,7 @@ class HereditaryStratigraphicColumn:
         self: "HereditaryStratigraphicColumn",
         stratum_annotation: typing.Optional[typing.Any] = None,
     ) -> "HereditaryStratigraphicColumn":
-        """Return a cloned bundle that has had an additional stratum deposited.
+        """Return a cloned column that has had an additional stratum deposited.
 
         Does not alter self.
 
