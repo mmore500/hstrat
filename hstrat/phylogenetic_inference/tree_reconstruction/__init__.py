@@ -4,6 +4,7 @@ __all__ = []
 
 from itertools import combinations
 from typing import Iterable, Any
+from string import ascii_lowercase
 
 from ..._auxiliary_lib import launder_impl_modules as _launder
 from ..._auxiliary_lib import to_tril
@@ -68,7 +69,8 @@ def calculate_distance_matrix(
         )
 
     return DistanceMatrix(
-        names=[str(x) for x in population], matrix=to_tril(matrix_data.T)
+        names=names if names else [*ascii_lowercase[: len(population)]],
+        matrix=to_tril(matrix_data.T)
     )
 
 
