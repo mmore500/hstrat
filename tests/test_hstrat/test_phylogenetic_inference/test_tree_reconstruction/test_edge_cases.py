@@ -41,7 +41,13 @@ def test_empty_population():
     population = []
     distance_matrix = tree_reconstruction.calculate_distance_matrix(population)
 
-    compare(distance_matrix, DistanceMatrix(names=[], matrix=[]))
+    assert (
+        str(distance_matrix) == \
+        str(DistanceMatrix(
+            names=[],
+            matrix=[]
+        ))
+    )
 
     tree = tree_reconstruction.reconstruct_tree(distance_matrix)
 
@@ -63,13 +69,14 @@ def test_singleton_population():
         population, names=names
     )
 
-    compare(
-        distance_matrix,
-        DistanceMatrix(
+    assert (
+        str(distance_matrix) == \
+        str(DistanceMatrix(
             names=names,
             matrix=[[0]]
-        )
+        ))
     )
+
     tree = tree_reconstruction.reconstruct_tree(distance_matrix)
 
     assert tree_difference(tree, BaseTree.Tree(rooted=False)) == 0.0
@@ -91,15 +98,15 @@ def test_dual_population_no_mrca():
             population, names=names
         )
 
-    compare(
-        distance_matrix,
-        DistanceMatrix(
+    assert (
+        str(distance_matrix),
+        str(DistanceMatrix(
             names=names,
             matrix=[
                 [0],
                 [0, 0]
             ]
-        )
+        ))
     )
     tree = tree_reconstruction.reconstruct_tree(distance_matrix)
 
@@ -131,15 +138,15 @@ def test_dual_population_with_mrca():
             population, names=names
         )
 
-    compare(
-        distance_matrix,
-        DistanceMatrix(
+    assert (
+        str(distance_matrix),
+        str(DistanceMatrix(
             names=names,
             matrix=[
                 [0],
                 [2.5, 0]
             ]
-        )
+        ))
     )
     tree = tree_reconstruction.reconstruct_tree(distance_matrix)
 
