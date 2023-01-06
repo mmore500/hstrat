@@ -45,7 +45,8 @@ def test_empty_population():
 
     tree = tree_reconstruction.reconstruct_tree(distance_matrix)
 
-    compare(tree, BaseTree.Tree())
+    assert tree_difference(tree, BaseTree.Tree()) == 0.0
+
 
 def test_singleton_population():
     organism = hstrat.HereditaryStratigraphicColumn(
@@ -71,7 +72,7 @@ def test_singleton_population():
     )
     tree = tree_reconstruction.reconstruct_tree(distance_matrix)
 
-    compare(tree, BaseTree.Tree(rooted=False))
+    assert tree_difference(tree, BaseTree.Tree(rooted=False)) == 0.0
 
 def test_dual_population_no_mrca():
     organism1 = SimpleGenomeAnnotatedWithDenseRetention()
@@ -109,7 +110,7 @@ def test_dual_population_no_mrca():
     ]
     true_tree = BaseTree.Tree(rooted=False, root=root_clade)
 
-    compare(tree, true_tree)
+    assert tree_difference(tree, true_tree) == 0.0
 
 
 def test_dual_population_with_mrca():
@@ -149,4 +150,4 @@ def test_dual_population_with_mrca():
     ]
     true_tree = BaseTree.Tree(rooted=False, root=root_clade)
 
-    compare(tree, true_tree)
+    assert tree_difference(tree, true_tree) == 0.0
