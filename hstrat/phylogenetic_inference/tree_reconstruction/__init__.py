@@ -63,9 +63,9 @@ def calculate_distance_matrix(
     pairwise = combinations(range(len(population)), 2)
 
     for a, b in pairwise:
-        matrix_data[a][b] = sum(
-            distance_matrix_helper(x, y)
-            for x, y in zip(population[a], population[b])
+        matrix_data[a][b] = distance_matrix_helper(
+                population[a].annotation,
+                population[b].annotation
         )
 
     return DistanceMatrix(
