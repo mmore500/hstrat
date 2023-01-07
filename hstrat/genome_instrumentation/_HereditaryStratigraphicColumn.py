@@ -4,6 +4,7 @@ import typing
 import warnings
 
 from interval_search import binary_search
+import opytional as opyt
 
 from ..stratum_retention_strategy.stratum_retention_algorithms import (
     perfect_resolution_algo,
@@ -300,6 +301,19 @@ class HereditaryStratigraphicColumn:
                 if self._ShouldOmitStratumDepositionRank()
                 else None
             ),
+        )
+
+    def GetStratumAtRank(
+        self: "HereditaryStratigraphicColumn",
+        rank: int,
+    ) -> typing.Optional[HereditaryStratum]:
+        """Get the stratum deposited at generation g.
+
+        Returns None if stratum with rank g is not retained.
+        """
+        return opyt.apply_if(
+            self.GetColumnIndexOfRank(rank),
+            self.GetStratumAtColumnIndex,
         )
 
     def GetRankAtColumnIndex(

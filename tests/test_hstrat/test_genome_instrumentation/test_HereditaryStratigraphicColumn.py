@@ -605,3 +605,35 @@ def test_GetColumnIndexOfRank():
     assert (
         hstrat.HereditaryStratigraphicColumn().GetColumnIndexOfRank(1) is None
     )
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_GetStratumAtRank(retention_policy, ordered_store):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+    for __ in range(20):
+        for rank, stratum in zip(
+            column.IterRetainedRanks(),
+            column.IterRetainedStrata(),
+        ):
+            assert column.GetStratumAtRank(rank) == stratum
+        column.DepositStratum()
+
+    assert hstrat.HereditaryStratigraphicColumn().GetStratumAtRank(1) is None
