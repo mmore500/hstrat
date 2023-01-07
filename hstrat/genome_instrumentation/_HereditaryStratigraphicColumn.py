@@ -1,5 +1,6 @@
 from copy import copy
 import math
+import sys
 import typing
 import warnings
 
@@ -223,6 +224,55 @@ class HereditaryStratigraphicColumn:
         )
         self._PurgeColumn()
         self._num_strata_deposited += 1
+
+    def DepositStrata(
+        self: "HereditaryStratigraphicColumn",
+        num_stratum_depositions: int,
+    ) -> None:
+        """Elapse n generations.
+
+        Parameters
+        ----------
+        num_stratum_depositions: int
+            How many generations to elapse?
+        """
+        # fallback to naive approach if IterRetainedRanks not available
+        policy = self._stratum_retention_policy
+        if policy.IterRetainedRanks is None or num_stratum_depositions <= 1:
+            for __ in range(num_stratum_depositions):
+                self.DepositStratum()
+            return
+
+        prior_deposit_count = self.GetNumStrataDeposited()
+        target_deposit_count = prior_deposit_count + num_stratum_depositions
+
+        # for python 3.7+, dictionaries are guaranteed insertion ordered
+        assert sys.version_info >= (3, 7)
+        target_retained_ranks = {
+            rank: None
+            for rank in policy.IterRetainedRanks(target_deposit_count)
+        }
+
+        # delete no-longer-needed ranks
+        self._stratum_ordered_store.DelRanks(
+            ranks=(
+                rank
+                for rank in self.IterRetainedRanks()
+                if rank not in target_retained_ranks
+            ),
+            get_column_index_of_rank=self.GetColumnIndexOfRank,
+        )
+
+        # add new retained ranks
+        for rank in target_retained_ranks:
+            if rank >= prior_deposit_count:
+                self._stratum_ordered_store.DepositStratum(
+                    rank=rank,
+                    stratum=self._CreateStratum(rank),
+                )
+
+        # update generation counter
+        self._num_strata_deposited += num_stratum_depositions
 
     def _PurgeColumn(self: "HereditaryStratigraphicColumn") -> None:
         """Discard stored strata according to the configured retention policy.
