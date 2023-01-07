@@ -14,6 +14,8 @@ from ._get_hstrat_version import get_hstrat_version
 from ._is_base64 import is_base64
 from ._is_nondecreasing import is_nondecreasing
 from ._is_nonincreasing import is_nonincreasing
+from ._is_strictly_decreasing import is_strictly_decreasing
+from ._is_strictly_increasing import is_strictly_increasing
 from ._iter_chunks import iter_chunks
 from ._launder_impl_modules import launder_impl_modules
 from ._log_once_in_a_row import log_once_in_a_row
@@ -40,6 +42,8 @@ __all__ = [
     "is_base64",
     "is_nondecreasing",
     "is_nonincreasing",
+    "is_strictly_decreasing",
+    "is_strictly_increasing",
     "iter_chunks",
     "launder_impl_modules",
     "log_once_in_a_row",
