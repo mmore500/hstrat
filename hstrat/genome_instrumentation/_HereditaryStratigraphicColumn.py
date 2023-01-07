@@ -491,3 +491,20 @@ class HereditaryStratigraphicColumn:
         res = self.Clone()
         res.DepositStratum(annotation=stratum_annotation)
         return res
+
+    def CloneNthDescendant(
+        self: "HereditaryStratigraphicColumn",
+        num_stratum_depositions: int,
+    ) -> "HereditaryStratigraphicColumn":
+        """Return a cloned column that has had n additional strata deposited.
+
+        Does not alter self.
+
+        Parameters
+        ----------
+        num_stratum_depositions: int
+            How many generations should clone column be descended?
+        """
+        res = self.Clone()
+        res.DepositStrata(num_stratum_depositions)
+        return res

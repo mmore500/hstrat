@@ -750,3 +750,33 @@ def test_DepositStrata_several(retention_policy, ordered_store):
         )
         assert c1.GetNumStrataRetained() == c2.GetNumStrataRetained()
         assert c1.GetNumStrataDeposited() == c2.GetNumStrataDeposited()
+
+
+def test_CloneNthDescendant_zero():
+    column = hstrat.HereditaryStratigraphicColumn()
+    assert column.GetNumStrataDeposited() == 1
+    descendant = column.CloneNthDescendant(0)
+    assert column is not descendant
+    assert descendant.GetNumStrataDeposited() == 1
+    assert hstrat.does_have_any_common_ancestor(descendant, column)
+    assert column.GetNumStrataDeposited() == 1
+
+
+def test_CloneNthDescendant_one():
+    column = hstrat.HereditaryStratigraphicColumn()
+    assert column.GetNumStrataDeposited() == 1
+    descendant = column.CloneNthDescendant(num_stratum_depositions=1)
+    assert column is not descendant
+    assert descendant.GetNumStrataDeposited() == 2
+    assert hstrat.does_have_any_common_ancestor(descendant, column)
+    assert column.GetNumStrataDeposited() == 1
+
+
+def test_CloneNthDescendant_two():
+    column = hstrat.HereditaryStratigraphicColumn()
+    assert column.GetNumStrataDeposited() == 1
+    descendant = column.CloneNthDescendant(num_stratum_depositions=2)
+    assert column is not descendant
+    assert descendant.GetNumStrataDeposited() == 3
+    assert hstrat.does_have_any_common_ancestor(descendant, column)
+    assert column.GetNumStrataDeposited() == 1
