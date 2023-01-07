@@ -109,8 +109,10 @@ pinned_dependencies_py310 = [
   "tqdm==4.62.3",
 ]
 testing_py37 = [
+  "alifedata_phyloinformatics_convert==0.7.0",
   "biopython==1.79",
   "coverage==6.4.4",
+  "dendropy==4.5.2",
   "flake8==3.7.8",
   "iterify==0.1.0",
   "more-itertools==8.13.0",
@@ -125,8 +127,10 @@ testing_py37 = [
   "tox==3.24.0",
 ]
 testing_py310 = [
+  "alifedata_phyloinformatics_convert==0.7.0",
   "biopython==1.79",
   "coverage==6.4.4",
+  "dendropy==4.5.2",
   "flake8==3.7.8",
   "iterify==0.1.0",
   "more-itertools==8.13.0",
