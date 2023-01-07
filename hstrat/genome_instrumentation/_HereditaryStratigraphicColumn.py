@@ -242,9 +242,9 @@ class HereditaryStratigraphicColumn:
     ) -> typing.Iterator[int]:
         """Iterate over deposition ranks of strata stored in the column.
 
-        Order of iteration should not be considered guaranteed. The store may
-        be altered during iteration without iterator invalidation, although
-        subsequent updates will not be reflected in the iterator.
+        The store may be altered during iteration without iterator
+        invalidation, although subsequent updates will not be reflected in the
+        iterator.
         """
         if self._ShouldOmitStratumDepositionRank():
             for idx in range(self.GetNumStrataRetained()):

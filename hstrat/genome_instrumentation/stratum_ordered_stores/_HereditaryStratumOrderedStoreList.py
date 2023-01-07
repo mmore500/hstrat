@@ -156,11 +156,12 @@ class HereditaryStratumOrderedStoreList(HereditaryStratumOrderedStoreBase):
     def IterRetainedRanks(
         self: "HereditaryStratumOrderedStoreList",
     ) -> typing.Iterator[int]:
-        """Iterate over deposition ranks of strata present in the store.
+        """Iterate over deposition ranks of strata present in the store from
+        most ancient to most recent.
 
-        Order of iteration should not be considered guaranteed. The store may
-        be altered during iteration without iterator invalidation, although
-        subsequent updates will not be reflected in the iterator.
+        The store may be altered during iteration without iterator
+        invalidation, although subsequent updates will not be reflected in the
+        iterator.
         """
         # must make copy to prevent invalidation when strata are deleted
         # note, however, that copy is made lazily
