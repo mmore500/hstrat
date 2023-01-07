@@ -1,11 +1,9 @@
 from collections import defaultdict
 from functools import lru_cache
-import itertools as it
 import typing
 
 import more_itertools as mit
 
-from .._auxiliary_lib import splicewhile
 from ..genome_instrumentation import (
     HereditaryStratigraphicColumn,
     HereditaryStratum,

@@ -1,4 +1,3 @@
-import itertools as it
 import unittest
 
 from hstrat._auxiliary_lib import consume

@@ -1,4 +1,3 @@
-import itertools as it
 import unittest
 
 from hstrat._auxiliary_lib import splicewhile
@@ -25,13 +24,12 @@ class TestConsume(unittest.TestCase):
             else:
                 assert False
 
-            for n in 0, 1:
-                try:
-                    splicewhile(lambda x: condition, [])
-                except TypeError:
-                    pass
-                else:
-                    assert False
+            try:
+                splicewhile(lambda x: condition, [])
+            except TypeError:
+                pass
+            else:
+                assert False
 
     def test_empty(self):
         for condition in True, False:
