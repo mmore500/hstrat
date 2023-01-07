@@ -298,8 +298,13 @@ class HereditaryStratigraphicColumn:
         iterator.
         """
         if self._ShouldOmitStratumDepositionRank():
-            for idx in range(self.GetNumStrataRetained()):
-                yield self.GetRankAtColumnIndex(idx)
+            if hasattr(self._stratum_retention_policy, "IterRetainedRanks"):
+                yield from self._stratum_retention_policy.IterRetainedRanks(
+                    self.GetNumStrataDeposited()
+                )
+            else:
+                for idx in range(self.GetNumStrataRetained()):
+                    yield self.GetRankAtColumnIndex(idx)
         else:
             yield from self._stratum_ordered_store.IterRetainedRanks()
 
