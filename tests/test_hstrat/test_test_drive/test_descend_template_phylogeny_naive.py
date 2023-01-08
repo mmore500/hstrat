@@ -85,16 +85,16 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
             path=f"{assets_path}/grandtwins_and_auntuncle.newick",
             schema="newick",
         ),
-        # dp.Tree.get(path=f"{assets_path}/grandtwins.newick", schema="newick"),
+        dp.Tree.get(path=f"{assets_path}/grandtwins.newick", schema="newick"),
         dp.Tree.get(path=f"{assets_path}/justroot.newick", schema="newick"),
         dp.Tree.get(path=f"{assets_path}/triplets.newick", schema="newick"),
         dp.Tree.get(path=f"{assets_path}/twins.newick", schema="newick"),
         apc.alife_dataframe_to_dendropy_tree(
             pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         ),
-        # apc.alife_dataframe_to_dendropy_tree(
-        #     pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-        # ),
+        apc.alife_dataframe_to_dendropy_tree(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        ),
         apc.alife_dataframe_to_dendropy_tree(
             pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
         ),
@@ -111,7 +111,7 @@ def test_descend_template_phylogeny_naive(
     for node in tree:
         node.edge_length = set_stem_length(node)
 
-    tree.seed_node.edge_length = num_predeposits + 1
+    tree.seed_node.edge_length = num_predeposits
 
     for idx, node in enumerate(tree.leaf_node_iter()):
         node.taxon = tree.taxon_namespace.new_taxon(label=str(idx))
@@ -149,7 +149,7 @@ def test_descend_template_phylogeny_naive(
         for tip_node in tree.leaf_node_iter()
     ]
     assert tip_depths == [
-        column.GetNumStrataDeposited() for column in extant_population
+        column.GetNumStrataDeposited() - 1 for column in extant_population
     ]
 
     assert all(
@@ -184,5 +184,14 @@ def test_descend_template_phylogeny_naive(
 
     for (c1, n1), (c2, n2) in it.chain(sampled_product, spliced_product):
         lb, ub = hstrat.calc_rank_of_mrca_bounds_between(c1, c2)
-        mrca = tree.mrca(taxa=[n1.taxon, n2.taxon])
-        assert lb <= mrca.distance_from_root() - 1 < ub
+        mrca = tree.mrca(
+            taxa=[n1.taxon, n2.taxon],
+            is_bipartitions_updated=True,
+        )
+        # patch for dendropy bug where internal unifurcations are not accounted
+        # for in mrca detection
+        # see https://github.com/jeetsukumaran/DendroPy/pull/148
+        while mrca.num_child_nodes() == 1:
+            (mrca,) = mrca.child_nodes()
+
+        assert lb <= mrca.distance_from_root() < ub
