@@ -44,14 +44,14 @@ def _educe_stratum_ordered_store(
 ) -> HereditaryStratumOrderedStoreList:
 
     # usage ensures ascending_lineage_iterator not empty
-    (tip_node,), ascending_lineage_iterator = mit.spy(
+    (extant_node,), ascending_lineage_iterator = mit.spy(
         ascending_lineage_iterator
     )
-    tip_deposition_count = deposition_count_lookup[id(tip_node)]
+    extant_deposition_count = deposition_count_lookup[id(extant_node)]
 
     rising_required_ranks_iterator = (
         stratum_retention_policy.IterRetainedRanks(
-            tip_deposition_count,
+            extant_deposition_count,
         )
     )
 

@@ -28,7 +28,8 @@ def descend_template_phylogeny_naive(
         hstrat_column_lookup[id(node)] = node_hstrat_column
 
     extant_population = [
-        hstrat_column_lookup[id(next(ascending_lineage_iterator))]  # tip node
+        # extant node
+        hstrat_column_lookup[id(next(ascending_lineage_iterator))]
         for ascending_lineage_iterator in ascending_lineage_iterators
     ]
     return extant_population

@@ -20,6 +20,23 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
     ],
 )
 @pytest.mark.parametrize(
+    "iter_extant_nodes",
+    [
+        # just extants
+        lambda tree: tree.leaf_node_iter(),
+        # with internal nodes
+        lambda tree: it.chain(
+            tree.leaf_node_iter(),
+            # note: will yield duplicates of internal nodes
+            (
+                leaf_node.parent_node
+                for leaf_node in tree.leaf_node_iter()
+                if leaf_node.parent_node is not None
+            ),
+        ),
+    ],
+)
+@pytest.mark.parametrize(
     "num_predeposits",
     [
         0,
@@ -111,6 +128,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 )
 def test_descend_template_phylogeny_posthoc(
     always_store_rank_in_stratum,
+    iter_extant_nodes,
     num_predeposits,
     retention_policy,
     set_stem_length,
@@ -139,10 +157,10 @@ def test_descend_template_phylogeny_posthoc(
 
     extant_population = hstrat.descend_template_phylogeny_posthoc(
         ascending_lineage_iterators=(
-            tip_node.ancestor_iter(
+            extant_node.ancestor_iter(
                 inclusive=True,
             )
-            for tip_node in tree.leaf_node_iter()
+            for extant_node in iter_extant_nodes(tree)
         ),
         descending_tree_iterator=tree.levelorder_node_iter(),
         get_parent=lambda node: node.parent_node,
@@ -150,14 +168,14 @@ def test_descend_template_phylogeny_posthoc(
         seed_column=seed_column,
     )
 
-    num_tips = len(tree)
-    assert num_tips == len(extant_population)
+    num_extants = sum(1 for __ in iter_extant_nodes(tree))
+    assert num_extants == len(extant_population)
 
-    tip_depths = [
-        int(tip_node.distance_from_root())
-        for tip_node in tree.leaf_node_iter()
+    extant_depths = [
+        int(extant_node.distance_from_root())
+        for extant_node in iter_extant_nodes(tree)
     ]
-    assert tip_depths == [
+    assert extant_depths == [
         column.GetNumStrataDeposited() - 1 for column in extant_population
     ]
 
@@ -181,7 +199,7 @@ def test_descend_template_phylogeny_posthoc(
 
     sampled_product = it.permutations(
         random.sample(
-            [*zip(extant_population, tree.leaf_node_iter())],
+            [*zip(extant_population, iter_extant_nodes(tree))],
             min(10, len(extant_population)),
         ),
         2,
@@ -193,14 +211,40 @@ def test_descend_template_phylogeny_posthoc(
 
     for (c1, n1), (c2, n2) in it.chain(sampled_product, spliced_product):
         lb, ub = hstrat.calc_rank_of_mrca_bounds_between(c1, c2)
-        mrca = tree.mrca(
-            taxa=[n1.taxon, n2.taxon],
-            is_bipartitions_updated=True,
-        )
-        # patch for dendropy bug where internal unifurcations are not accounted
-        # for in mrca detection
-        # see https://github.com/jeetsukumaran/DendroPy/pull/148
-        while mrca.num_child_nodes() == 1:
-            (mrca,) = mrca.child_nodes()
+        if n1 == n2:
+            mrca = n1
+        elif n1.parent_node == n2:
+            mrca = n2
+        elif n2.parent_node == n1:
+            mrca = n1
+        else:
+            # convert any internal nodes to mrca-equivalent leaf nodes
+            for candidate in n1.child_nodes():
+                if candidate not in n2.ancestor_iter():
+                    n1 = candidate
 
+            while n1.num_child_nodes():
+                n1 = n1.child_nodes()[0]
+
+            for candidate in n2.child_nodes():
+                if candidate not in n1.ancestor_iter():
+                    n2 = candidate
+
+            while n2.num_child_nodes():
+                n2 = n2.child_nodes()[0]
+
+            mrca = tree.mrca(
+                taxa=[n1.taxon, n2.taxon],
+                is_bipartitions_updated=True,
+            )
+            # patch for dendropy bug where internal unifurcations are not accounted
+            # for in mrca detection
+            # see https://github.com/jeetsukumaran/DendroPy/pull/148
+            while mrca.num_child_nodes() == 1:
+                (mrca,) = mrca.child_nodes()
+
+        if not lb <= mrca.distance_from_root() < ub:
+            print(mrca)
+            print(n1, n1.child_nodes())
+            print(n2, n2.child_nodes())
         assert lb <= mrca.distance_from_root() < ub
