@@ -1,30 +1,30 @@
 import unittest
 
-from hstrat._auxiliary_lib import is_nonincreasing
+from hstrat._auxiliary_lib import is_strictly_decreasing
 
 
-class TestIsNonincreasing(unittest.TestCase):
+class TestIsStrictlyDecreasing(unittest.TestCase):
 
     # tests can run independently
     _multiprocess_can_split_ = True
 
     def test_empty(self):
-        assert is_nonincreasing([])
+        assert is_strictly_decreasing([])
 
     def test_singleton(self):
-        assert is_nonincreasing(["a"])
-        assert is_nonincreasing([0])
-        assert is_nonincreasing([1])
+        assert is_strictly_decreasing(["a"])
+        assert is_strictly_decreasing([0])
+        assert is_strictly_decreasing([1])
 
     def test_nondecreasing(self):
-        assert is_nonincreasing(
+        assert is_strictly_decreasing(
             reversed(
                 [
                     *range(10),
                 ]
             )
         )
-        assert is_nonincreasing(
+        assert not is_strictly_decreasing(
             reversed(
                 [
                     0,
@@ -32,7 +32,7 @@ class TestIsNonincreasing(unittest.TestCase):
                 ]
             )
         )
-        assert is_nonincreasing(
+        assert not is_strictly_decreasing(
             reversed(
                 [
                     0,
@@ -44,13 +44,13 @@ class TestIsNonincreasing(unittest.TestCase):
         )
 
     def test_decreasing(self):
-        assert not is_nonincreasing(
+        assert not is_strictly_decreasing(
             [
                 -1,
                 0,
             ]
         )
-        assert not is_nonincreasing(
+        assert not is_strictly_decreasing(
             reversed(
                 [
                     *range(10),

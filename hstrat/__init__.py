@@ -12,6 +12,7 @@ from . import (
     serialization,
     stratum_retention_strategy,
     stratum_retention_viz,
+    test_drive,
 )
 
 __all__ = [
@@ -22,4 +23,5 @@ __all__ = [
     "serialization",
     "stratum_retention_strategy",
     "stratum_retention_viz",
+    "test_drive",
 ]

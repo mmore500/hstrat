@@ -1,10 +1,8 @@
-def is_nondecreasing(seq) -> bool:
+import typing
 
-    list_ = [*seq]
-    return all(
-        a <= b
-        for a, b in zip(
-            list_,
-            list_[1:],
-        )
-    )
+from ._pairwise import pairwise
+
+
+def is_nondecreasing(seq: typing.Iterable) -> bool:
+
+    return all(a <= b for a, b in pairwise(seq))

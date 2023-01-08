@@ -142,11 +142,12 @@ class HereditaryStratumOrderedStoreDict(HereditaryStratumOrderedStoreBase):
     def IterRetainedRanks(
         self: "HereditaryStratumOrderedStoreDict",
     ) -> typing.Iterator[int]:
-        """Iterate over deposition ranks of strata present in the store.
+        """Iterate over deposition ranks of strata present in the store from
+        most ancient to most recent.
 
-        Order should not be considered guaranteed. The store may be altered
-        during iteration without iterator invalidation, although subsequent
-        updates will not be reflected in the iterator.
+        The store may be altered during iteration without iterator
+        invalidation, although subsequent updates will not be reflected in the
+        iterator.
         """
         # must make copy to prevent
         # `RuntimeError: dictionary changed size during iteration`
