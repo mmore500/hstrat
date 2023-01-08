@@ -11,12 +11,12 @@ from ..genome_instrumentation import (
 )
 
 
-# descend tree to prepare lookup table for node depths
 def _calc_node_depths(
     descending_tree_iterator: typing.Iterator,
-    get_parent: typing.Callable,
-    get_stem_length: typing.Callable,
+    get_parent: typing.Callable[[typing.Any], typing.Any],
+    get_stem_length: typing.Callable[[typing.Any], int],
 ) -> typing.Dict[int, int]:
+    """Descend tree to prepare lookup table of `id(node)` -> node depth."""
 
     node_depth_lookup = dict()
 
@@ -40,8 +40,9 @@ def _educe_stratum_ordered_store(
     stem_strata_lookup: typing.Dict[
         int, typing.Callable[[int], HereditaryStratum]
     ],
-    stratum_retention_policy,
+    stratum_retention_policy: typing.Any,
 ) -> HereditaryStratumOrderedStoreList:
+    """Prepare strata required by one extant lineage member, using cache lookup to ensure that identical strata are provided where common ancestry is shared with previously processesed extant lineage members."""
 
     # usage ensures ascending_lineage_iterator not empty
     (extant_node,), ascending_lineage_iterator = mit.spy(
@@ -71,16 +72,31 @@ def _educe_stratum_ordered_store(
             stratum=rank_stratum_lookup(rank),
         )
 
-    return stratum_ordered_store, tip_deposition_count
+    return stratum_ordered_store, extant_deposition_count
 
 
 def descend_template_phylogeny_posthoc(
     ascending_lineage_iterators: typing.Iterator[typing.Iterator],
     descending_tree_iterator: typing.Iterator,
-    get_parent: typing.Callable,
-    get_stem_length: typing.Callable,
+    get_parent: typing.Callable[[typing.Any], typing.Any],
+    get_stem_length: typing.Callable[[typing.Any], int],
     seed_column: HereditaryStratigraphicColumn,
 ) -> typing.List[HereditaryStratigraphicColumn]:
+    """Generate a population of hereditary stratigraphic columns that could
+    have resulted from the template phylogeny.
+
+    Calculates required ranks according to stratum retention policy for each
+    extant lineage member, creating returned columns with strata at those
+    ranks. Uses cache lookup to ensure that identical strata are provided where
+    extant lineage members share common ancestry.
+
+    Requires `seed_column`'s stratum retention policy to provide
+    `IterRetainedRanks()` method.
+
+    Prefer to use `descend_template_phylogeny`, which will automatically
+    delegate to posthoc implementation if stratum retention policy requirements
+    are met. See `descend_template_phylogeny` for parameter and return value details.
+    """
 
     stratum_retention_policy = seed_column._stratum_retention_policy
     assert stratum_retention_policy.IterRetainedRanks is not None

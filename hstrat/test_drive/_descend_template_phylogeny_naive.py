@@ -6,10 +6,23 @@ from ..genome_instrumentation import HereditaryStratigraphicColumn
 def descend_template_phylogeny_naive(
     ascending_lineage_iterators: typing.Iterator[typing.Iterator],
     descending_tree_iterator: typing.Iterator,
-    get_parent: typing.Callable,
-    get_stem_length: typing.Callable,
+    get_parent: typing.Callable[[typing.Any], typing.Any],
+    get_stem_length: typing.Callable[[typing.Any], int],
     seed_column: HereditaryStratigraphicColumn,
 ) -> typing.List[HereditaryStratigraphicColumn]:
+    """Generate a population of hereditary stratigraphic columns that could
+    have resulted from the template phylogeny.
+
+    Traverses phylogenetic tree in topological order, generating a clone column
+    with `get_stem_length(node)` additional stratum deposits for each node
+    (including internal nodes). Uses `CloneNthDescendant()` instead of `n`
+    calls to `CloneDescendant()` to improve efficiency where
+    `get_stem_length(node)` > 1.
+
+    prefer to use `descend_template_phylogeny`, which will automatically
+    delegate between naive and posthoc implementation, unless performance
+    considerations merit manual override.
+    """
 
     hstrat_column_lookup = dict()  # node id -> column
 
