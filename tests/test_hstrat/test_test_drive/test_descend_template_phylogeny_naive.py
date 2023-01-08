@@ -14,7 +14,10 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 @pytest.mark.parametrize(
     "always_store_rank_in_stratum",
-    [True, False],
+    [
+        True,
+        False,
+    ],
 )
 @pytest.mark.parametrize(
     "num_predeposits",
@@ -32,12 +35,15 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         hstrat.depth_proportional_resolution_algo.Policy(
             depth_proportional_resolution=10
         ),
-        hstrat.depth_proportional_resolution_algo.Policy(
-            depth_proportional_resolution=100
+        pytest.param(
+            hstrat.depth_proportional_resolution_algo.Policy(
+                depth_proportional_resolution=100
+            ),
+            marks=pytest.mark.heavy_3a,
         ),
         pytest.param(
             hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
-            marks=pytest.mark.heavy_2a,
+            marks=pytest.mark.heavy_3a,
         ),
         hstrat.recency_proportional_resolution_algo.Policy(
             recency_proportional_resolution=2
@@ -51,7 +57,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         lambda node: 1 + random.randrange(10),
         pytest.param(
             lambda node: 1 + random.randrange(100),
-            marks=pytest.mark.heavy_2b,
+            marks=pytest.mark.heavy_3b,
         ),
     ],
 )
@@ -89,8 +95,11 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         dp.Tree.get(path=f"{assets_path}/justroot.newick", schema="newick"),
         dp.Tree.get(path=f"{assets_path}/triplets.newick", schema="newick"),
         dp.Tree.get(path=f"{assets_path}/twins.newick", schema="newick"),
-        apc.alife_dataframe_to_dendropy_tree(
-            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        pytest.param(
+            apc.alife_dataframe_to_dendropy_tree(
+                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+            ),
+            marks=pytest.mark.heavy_3c,
         ),
         apc.alife_dataframe_to_dendropy_tree(
             pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
