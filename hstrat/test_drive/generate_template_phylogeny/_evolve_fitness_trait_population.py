@@ -75,7 +75,7 @@ def _apply_mutation(
         n=len(pop_df),
         p=p_niche_invasion,
     )
-    if num_niche_invasions:
+    if num_niches > 1 and num_niche_invasions:
         target_rows = pop_df.sample(n=num_niche_invasions)
         target_rows["niche"] += np.random.randint(
             num_niches - 1,
@@ -87,7 +87,7 @@ def _apply_mutation(
         n=len(pop_df),
         p=p_island_migration,
     )
-    if num_island_migrations:
+    if num_islands > 1 and num_island_migrations:
         target_rows = pop_df.sample(n=num_island_migrations)
         target_rows["island"] += (
             np.random.randint(2, size=target_rows.shape[0]) * 2 + -1
