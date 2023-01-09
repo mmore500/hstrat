@@ -25,6 +25,7 @@ from ._popcount import popcount
 from ._release_cur_mpl_fig import release_cur_mpl_fig
 from ._scale_luminosity import scale_luminosity
 from ._splicewhile import splicewhile
+from ._zip_strict import zip_strict
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
@@ -55,6 +56,7 @@ __all__ = [
     "scale_luminosity",
     "ScalarFormatterFixedPrecision",
     "splicewhile",
+    "zip_strict",
 ]
 
 for o in __all__:
