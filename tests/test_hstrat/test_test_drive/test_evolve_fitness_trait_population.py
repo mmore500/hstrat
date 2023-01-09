@@ -13,6 +13,20 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
 @pytest.mark.parametrize(
+    "num_islands",
+    [
+        1,
+        4,
+    ],
+)
+@pytest.mark.parametrize(
+    "num_niches",
+    [
+        1,
+        4,
+    ],
+)
+@pytest.mark.parametrize(
     "num_generations",
     [
         10,
@@ -27,10 +41,14 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
     ],
 )
 def test_evolve_fitness_trait_population(
+    num_islands,
+    num_niches,
     num_generations,
     population_size,
 ):
     alife_df = hstrat.evolve_fitness_trait_population(
+        num_islands=num_islands,
+        num_niches=num_niches,
         num_generations=num_generations,
         population_size=population_size,
     )
