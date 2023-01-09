@@ -21,9 +21,9 @@ def _setup_population(
             "genome value": 0.0,
             "niche": niche,
         }
-        for __ in range(island_niche_size)
         for island in range(num_islands)
         for niche in range(num_niches)
+        for __ in range(island_niche_size)
     ]
     pop_df = pd.DataFrame.from_dict(pop_records)
 
@@ -140,6 +140,9 @@ def evolve_fitness_trait_population(
             p_island_migration=p_island_migration,
             p_niche_invasion=p_niche_invasion,
         )
+        # optimization: every n generations, sort df to reduce fragmentation
+        if generation % 10:
+            pop_df.sort_values(by=["island", "niche"], inplace=True)
         pop_handles = _do_pophandles_turnover(
             idx_selections,
             pop_df,
