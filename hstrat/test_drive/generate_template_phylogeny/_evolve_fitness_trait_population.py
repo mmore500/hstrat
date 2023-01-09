@@ -54,7 +54,10 @@ def _do_selection(
         random.choice(group_df.index)
         if np.random.random() < p_random_selection
         else group_df.sample(n=tournament_size)["genome value"].idxmax()
-        for (island, niche), group_df in pop_df.groupby(["island", "niche"])
+        for (island, niche), group_df in pop_df.groupby(
+            ["island", "niche"],
+            sort=False,
+        )
         for __ in range(island_niche_size)
     ]
 
