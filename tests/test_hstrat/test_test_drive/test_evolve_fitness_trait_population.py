@@ -46,5 +46,3 @@ def test_evolve_fitness_trait_population(
         leaf_node.level() == num_generations + 1
         for leaf_node in tree.leaf_node_iter()
     )
-
-    tree.print_plot()
