@@ -19,7 +19,7 @@ def descend_template_phylogeny_naive(
     calls to `CloneDescendant()` to improve efficiency where
     `get_stem_length(node)` > 1.
 
-    prefer to use `descend_template_phylogeny`, which will automatically
+    Prefer to use `descend_template_phylogeny`, which will automatically
     delegate between naive and posthoc implementation, unless performance
     considerations merit manual override.
     """
