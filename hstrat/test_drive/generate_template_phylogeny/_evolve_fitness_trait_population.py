@@ -111,7 +111,7 @@ def _do_pophandles_turnover(
 def _do_popdf_turnover(
     idx_selections: typing.List[int], pop_df: pd.DataFrame
 ) -> pd.DataFrame:
-    return pop_df.iloc[idx_selections].reset_index(drop=True)
+    return pop_df.iloc[idx_selections]
 
 
 def evolve_fitness_trait_population(
@@ -142,16 +142,6 @@ def evolve_fitness_trait_population(
             pop_df=pop_df,
             p_random_selection=p_random_selection,
         )
-        _apply_mutation(
-            pop_df=pop_df,
-            num_islands=num_islands,
-            num_niches=num_niches,
-            p_island_migration=p_island_migration,
-            p_niche_invasion=p_niche_invasion,
-        )
-        # optimization: every n generations, sort df to reduce fragmentation
-        if generation % 10:
-            pop_df.sort_values(by=["island", "niche"], inplace=True)
         pop_handles = _do_pophandles_turnover(
             idx_selections,
             pop_df,
@@ -161,5 +151,21 @@ def evolve_fitness_trait_population(
             idx_selections,
             pop_df,
         )
+        _apply_mutation(
+            pop_df=pop_df,
+            num_islands=num_islands,
+            num_niches=num_niches,
+            p_island_migration=p_island_migration,
+            p_niche_invasion=p_niche_invasion,
+        )
+        # reset index
+        pop_df.reset_index(drop=True, inplace=True)
+
+        # could sort to reduce fragmentation, but doesn't help
+        # pop_df.sort_values(
+        #     by=["island", "niche"],
+        #     ignore_index=True,  # resets index
+        #     inplace=True,
+        # )
 
     return compile_perfect_backtrack_phylogeny(pop_handles)
