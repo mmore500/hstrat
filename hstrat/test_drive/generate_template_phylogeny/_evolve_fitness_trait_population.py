@@ -1,3 +1,4 @@
+import random
 import typing
 
 import numpy as np
@@ -47,9 +48,12 @@ def _do_selection(
     island_niche_size: int,
     tournament_size: int,
     pop_df: pd.DataFrame,
+    p_random_selection: float,
 ) -> typing.List[int]:
     return [
-        group_df.sample(n=tournament_size)["genome value"].idxmax()
+        random.choice(group_df.index)
+        if np.random.random() < p_random_selection
+        else group_df.sample(n=tournament_size)["genome value"].idxmax()
         for (island, niche), group_df in pop_df.groupby(["island", "niche"])
         for __ in range(island_niche_size)
     ]
@@ -115,6 +119,7 @@ def evolve_fitness_trait_population(
     tournament_size: int = 4,
     p_island_migration: float = 1e-3,
     p_niche_invasion: float = 1e-4,
+    p_random_selection: float = 0.5,
 ) -> pd.DataFrame:
 
     island_niche_size = population_size // (num_islands * num_niches)
@@ -132,6 +137,7 @@ def evolve_fitness_trait_population(
             island_niche_size=island_niche_size,
             tournament_size=tournament_size,
             pop_df=pop_df,
+            p_random_selection=p_random_selection,
         )
         _apply_mutation(
             pop_df=pop_df,
