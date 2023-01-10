@@ -10,6 +10,8 @@ from ..perfect_tracking import (
     compile_perfect_backtrack_phylogeny,
 )
 
+q = 20
+
 
 def _setup_population(
     island_niche_size: int,
@@ -114,6 +116,7 @@ def _apply_mutation(
 
 
 def _do_pophandles_turnover(
+    cache: np.array,
     idx_selections: typing.List[int],
     pop_df: pd.DataFrame,
     pop_handles: typing.List[PerfectBacktrackHandle],
@@ -122,18 +125,30 @@ def _do_pophandles_turnover(
     island_loc = pop_df.columns.get_loc("island")
     niche_loc = pop_df.columns.get_loc("niche")
 
-    return [
-        pop_handles[idx].CreateDescendant(
-            # create data dict manually for 20% speedup
-            # data=pop_df.iloc[idx].to_dict(),
-            data={
-                "genome value": pop_df.iat[idx, genome_value_loc],
-                "island": pop_df.iat[idx, island_loc],
-                "niche": pop_df.iat[idx, niche_loc],
-            },
-        )
-        for idx in idx_selections
-    ]
+    arr = np.array(idx_selections)
+
+    cache = cache[idx_selections, :]
+
+    cache = np.roll(cache, 1, axis=1)
+
+    cache[:, 0] = idx_selections
+
+    if not any(cache[:, q - 1]):
+        return [pop_handles[idx] for idx in idx_selections], cache
+    else:
+        lookup = {
+            idx: pop_handles[idx].CreateDescendant(
+                # create data dict manually for 20% speedup
+                # data=pop_df.iloc[idx].to_dict(),
+                # data={
+                #     "genome value": pop_df.iat[idx, genome_value_loc],
+                #     "island": pop_df.iat[idx, island_loc],
+                #     "niche": pop_df.iat[idx, niche_loc],
+                # },
+            )
+            for idx in np.unique(cache[:, -1])
+        }
+        return [lookup[cache[:, -1][idx]] for idx in idx_selections], cache
 
 
 def _do_popdf_turnover(
@@ -163,6 +178,8 @@ def evolve_fitness_trait_population(
         num_niches=num_niches,
     )
 
+    cache = np.zeros(dtype=int, shape=(len(pop_df), q))
+
     for generation in tqdm(range(num_generations)):
         _apply_mutation(
             pop_df=pop_df,
@@ -177,7 +194,8 @@ def evolve_fitness_trait_population(
             pop_df=pop_df,
             p_random_selection=p_random_selection,
         )
-        pop_handles = _do_pophandles_turnover(
+        pop_handles, cache = _do_pophandles_turnover(
+            cache,
             idx_selections,
             pop_df,
             pop_handles,
@@ -196,5 +214,8 @@ def evolve_fitness_trait_population(
         #     ignore_index=True,  # resets index
         #     inplace=True,
         # )
+
+    for col in reversed(cache.T):
+        pop_handles = [pop_handles[idx].CreateDescendant() for idx in col]
 
     return compile_perfect_backtrack_phylogeny(pop_handles)
