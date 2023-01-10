@@ -61,11 +61,16 @@ def _do_selection(
         ["island", "niche"],
         sort=False,
     ):
+        num_random_selections = np.random.binomial(
+            n=island_niche_size,
+            p=p_random_selection,
+        )
+        num_tournaments = island_niche_size - num_random_selections
         # minimizing operations on group_df gives >50% speedup
         genome_lookup = group_df["genome value"].to_numpy()
         tournament_rosters = np.random.randint(
             len(genome_lookup),
-            size=(island_niche_size, tournament_size),
+            size=(num_tournaments, tournament_size),
         )
         tournament_fitnesses = genome_lookup[tournament_rosters]
         winning_tournament_positions = tournament_fitnesses.argmax(1)
@@ -76,8 +81,13 @@ def _do_selection(
         winning_idxs = group_df.index.to_numpy()[
             winning_genome_lookup_positions
         ]
-        assert len(winning_idxs) == island_niche_size
+        assert len(winning_idxs) == num_tournaments
         res.extend(winning_idxs)
+
+        # random idxs
+        res.extend(
+            np.random.randint(len(genome_lookup), size=num_random_selections)
+        )
 
     return res
 
