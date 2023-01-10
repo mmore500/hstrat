@@ -51,6 +51,10 @@ def _do_selection(
     p_random_selection: float,
 ) -> typing.List[int]:
     res = []
+    # couldn't get better performance by sending everything to numpy array
+    # and doing more efficient groupby
+    # see https://gist.github.com/mmore500/35bd39e1e26b53cfde6e9da482595932
+    # and https://stackoverflow.com/a/43094244
     for (island, niche), group_df in pop_df.groupby(
         ["island", "niche"],
         sort=False,
