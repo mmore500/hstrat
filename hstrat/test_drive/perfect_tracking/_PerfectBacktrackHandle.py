@@ -19,6 +19,10 @@ class PerfectBacktrackHandle:
     # see https://gist.github.com/mmore500/d6ee9011e38355f1be6c02a70db5b785
     # (didn't complete debugging, but is representative of speed)
 
+    # tried a dict-based database approach, but even with native implementaiton
+    # was aboutt 3x slower than this approach
+    # see https://gist.github.com/mmore500/7e9b85f005882d1e4b0206a9ef6d1de2
+
     parent: "PerfectBacktrackHandle"
     data: typing.Any
 
