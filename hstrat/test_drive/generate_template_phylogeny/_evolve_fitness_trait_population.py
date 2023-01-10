@@ -100,9 +100,19 @@ def _do_pophandles_turnover(
     pop_df: pd.DataFrame,
     pop_handles: typing.List[PerfectBacktrackHandle],
 ) -> typing.List[PerfectBacktrackHandle]:
+    genome_value_loc = pop_df.columns.get_loc("genome value")
+    island_loc = pop_df.columns.get_loc("island")
+    niche_loc = pop_df.columns.get_loc("niche")
+
     return [
         pop_handles[idx].CreateDescendant(
-            data=pop_df.iloc[idx].to_dict(),
+            # create data dict manually for 20% speedup
+            # data=pop_df.iloc[idx].to_dict(),
+            data={
+                "genome value": pop_df.iat[idx, genome_value_loc],
+                "island": pop_df.iat[idx, island_loc],
+                "niche": pop_df.iat[idx, niche_loc],
+            },
         )
         for idx in idx_selections
     ]
