@@ -50,16 +50,30 @@ def _do_selection(
     pop_df: pd.DataFrame,
     p_random_selection: float,
 ) -> typing.List[int]:
-    return [
-        random.choice(group_df.index)
-        if np.random.random() < p_random_selection
-        else group_df.sample(n=tournament_size)["genome value"].idxmax()
-        for (island, niche), group_df in pop_df.groupby(
-            ["island", "niche"],
-            sort=False,
+    res = []
+    for (island, niche), group_df in pop_df.groupby(
+        ["island", "niche"],
+        sort=False,
+    ):
+        # minimizing operations on group_df gives >50% speedup
+        genome_lookup = group_df["genome value"].to_numpy()
+        tournament_rosters = np.random.randint(
+            len(genome_lookup),
+            size=(island_niche_size, tournament_size),
         )
-        for __ in range(island_niche_size)
-    ]
+        tournament_fitnesses = genome_lookup[tournament_rosters]
+        winning_tournament_positions = tournament_fitnesses.argmax(1)
+        winning_genome_lookup_positions = tournament_rosters[
+            np.arange(len(tournament_rosters)),
+            winning_tournament_positions,
+        ]
+        winning_idxs = group_df.index.to_numpy()[
+            winning_genome_lookup_positions
+        ]
+        assert len(winning_idxs) == island_niche_size
+        res.extend(winning_idxs)
+
+    return res
 
 
 def _apply_mutation(
@@ -146,6 +160,13 @@ def evolve_fitness_trait_population(
     )
 
     for generation in tqdm(range(num_generations)):
+        _apply_mutation(
+            pop_df=pop_df,
+            num_islands=num_islands,
+            num_niches=num_niches,
+            p_island_migration=p_island_migration,
+            p_niche_invasion=p_niche_invasion,
+        )
         idx_selections = _do_selection(
             island_niche_size=island_niche_size,
             tournament_size=tournament_size,
@@ -161,13 +182,7 @@ def evolve_fitness_trait_population(
             idx_selections,
             pop_df,
         )
-        _apply_mutation(
-            pop_df=pop_df,
-            num_islands=num_islands,
-            num_niches=num_niches,
-            p_island_migration=p_island_migration,
-            p_niche_invasion=p_niche_invasion,
-        )
+
         # reset index
         pop_df.reset_index(drop=True, inplace=True)
 
