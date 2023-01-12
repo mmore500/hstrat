@@ -107,7 +107,7 @@ class DecantingPhyloTracker:
     def _AdvanceBuffer(
         self: "DecantingPhyloTracker",
     ) -> None:
-        # if buffer is full empty, archive the oldest data before overwriting
+        # if rightmost column not empty, archive it before overwriting
         if not self._is_nan(self._decanting_buffer[0, -1, 0]):
             self._ArchiveBufferTail()
 
