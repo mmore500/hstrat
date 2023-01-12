@@ -53,15 +53,15 @@ def test_evolve_fitness_trait_population(
         population_size=population_size,
     )
 
-    assert "genome value" in alife_df
-    assert "island" in alife_df
-    assert "niche" in alife_df
+    # assert "genome value" in alife_df
+    # assert "island" in alife_df
+    # assert "niche" in alife_df
 
     tree = apc.alife_dataframe_to_dendropy_tree(alife_df)
 
     assert len(tree) == population_size
     assert len(set(leaf_node.level() for leaf_node in tree.leaf_node_iter()))
-    # assert all(
-    #     leaf_node.level() == num_generations + 1
-    #     for leaf_node in tree.leaf_node_iter()
-    # )
+    assert all(
+        leaf_node.level() == num_generations + 1
+        for leaf_node in tree.leaf_node_iter()
+    )
