@@ -136,18 +136,11 @@ class DecantingPhyloTracker:
 
     def _FlushBuffer(self: "DecantingPhyloTracker") -> None:
 
-        # if buffer is completely empty, no op
-        if np.all(self._decanting_buffer.flatten(), self._nan_val):
-            return
-
-        # if decanting buffer hasn't filled,
-        # shift values rightward until flush with rightmost column
-        while self._is_nan(self._decanting_buffer[0, -1, 0]):
-            self._AdvanceBuffer()
-            self._decanting_buffer[:, 0, :] = self._nan_val
-
-        # archive all values in decanting buffer
-        while not self._is_nan(self._decanting_buffer[0, -1, 0]):
+        # advance buffer and fill column 0 with nan until empty
+        # note: buffer may only be partway full, in which case
+        # columns will shift rightwards until reaching rightmost column
+        # and then begin to be archived
+        while not np.all(self._decanting_buffer.flatten(), self._nan_val):
             self._AdvanceBuffer()
             self._decanting_buffer[:, 0, :] = self._nan_val
 
