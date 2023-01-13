@@ -26,6 +26,22 @@ jobs:
     - name: Test with tox
       run: tox
 
+  test-semiheavy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.10"  # why? 3.10 runs tests 2x faster than 3.11
+    - name: Install dependencies
+      run: |
+        sudo apt-get install -y ffmpeg
+        python -m pip install --upgrade pip
+        pip install tox tox-gh-actions
+    - name: Test with tox
+      run: tox -e semiheavy
+
   examples:
     runs-on: ubuntu-latest
     steps:

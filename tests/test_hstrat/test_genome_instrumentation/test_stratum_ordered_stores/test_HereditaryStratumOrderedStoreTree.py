@@ -1,6 +1,7 @@
 import unittest
 
 from hstrat import hstrat
+from hstrat._auxiliary_lib import is_strictly_increasing
 
 
 class TestHereditaryStratumOrderedStoreTree(unittest.TestCase):
@@ -156,6 +157,8 @@ class TestHereditaryStratumOrderedStoreTree(unittest.TestCase):
             )
 
         assert set(store1.IterRetainedRanks()) == set(ranks)
+        assert [*store1.IterRetainedRanks()] == ranks
+        assert is_strictly_increasing(ranks)
 
     def test_IterRankDifferentia1(self):
         store1 = hstrat.HereditaryStratumOrderedStoreTree()
