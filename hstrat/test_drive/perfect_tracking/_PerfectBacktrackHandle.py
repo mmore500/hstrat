@@ -17,6 +17,7 @@ class PerfectBacktrackHandle:
     #       p[random.randrange(len(p))] = random.choice(p).CreateDescendant()
     #
     # see https://gist.github.com/mmore500/d6ee9011e38355f1be6c02a70db5b785
+    # and https://gist.github.com/mmore500/71eb2f3f14afb02fba476dd2cea45210
     # (didn't complete debugging, but is representative of speed)
 
     # tried a dict-based database approach, but even with native implementaiton
