@@ -37,6 +37,7 @@ importlib-metadata==5.0.0
     # via
     #   build
     #   click
+    #   numba
     #   pep517
     #   prettytable
 interval-search==0.2.0
@@ -49,6 +50,8 @@ kiwisolver==1.4.4
     # via matplotlib
 lexid==2021.1006
     # via bumpver
+llvmlite==0.39.1
+    # via numba
 lru-dict==1.1.8
     # via hstrat (../../pyproject.toml)
 matplotlib==3.5.2
@@ -59,10 +62,13 @@ mmh3==3.0.0
     # via hstrat (../../pyproject.toml)
 mpmath==1.2.1
     # via hstrat (../../pyproject.toml)
+numba==0.56.4
+    # via hstrat (../../pyproject.toml)
 numpy==1.21.6
     # via
     #   hstrat (../../pyproject.toml)
     #   matplotlib
+    #   numba
     #   pandas
     #   seaborn
 opytional==0.1.0
@@ -162,5 +168,6 @@ setuptools==65.6.3
     # via
     #   bumpver
     #   hstrat (../../pyproject.toml)
+    #   numba
     #   pip-tools
     #   twine

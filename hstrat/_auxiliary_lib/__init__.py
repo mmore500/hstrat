@@ -11,6 +11,7 @@ from ._consume import consume
 from ._div_range import div_range
 from ._find_bounds import find_bounds
 from ._get_hstrat_version import get_hstrat_version
+from ._indices_of_unique import indices_of_unique
 from ._is_base64 import is_base64
 from ._is_nondecreasing import is_nondecreasing
 from ._is_nonincreasing import is_nonincreasing
@@ -40,6 +41,7 @@ __all__ = [
     "div_range",
     "find_bounds",
     "get_hstrat_version",
+    "indices_of_unique",
     "is_base64",
     "is_nondecreasing",
     "is_nonincreasing",

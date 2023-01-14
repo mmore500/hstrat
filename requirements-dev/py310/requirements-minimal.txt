@@ -22,6 +22,8 @@ keyname==0.4.1
     # via hstrat (../../pyproject.toml)
 kiwisolver==1.4.4
     # via matplotlib
+llvmlite==0.39.1
+    # via numba
 lru-dict==1.1.8
     # via hstrat (../../pyproject.toml)
 matplotlib==3.5.2
@@ -32,10 +34,13 @@ mmh3==3.0.0
     # via hstrat (../../pyproject.toml)
 mpmath==1.2.1
     # via hstrat (../../pyproject.toml)
+numba==0.56.4
+    # via hstrat (../../pyproject.toml)
 numpy==1.23.5
     # via
     #   hstrat (../../pyproject.toml)
     #   matplotlib
+    #   numba
     #   pandas
     #   seaborn
 opytional==0.1.0
@@ -76,3 +81,6 @@ tqdm==4.62.3
     # via hstrat (../../pyproject.toml)
 wcwidth==0.2.5
     # via prettytable
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
