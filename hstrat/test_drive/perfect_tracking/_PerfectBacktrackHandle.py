@@ -26,6 +26,8 @@ class PerfectBacktrackHandle:
     parent: "PerfectBacktrackHandle"
     data: typing.Any
 
+    __slots__ = ("parent", "data")
+
     def __init__(
         self: "PerfectBacktrackHandle",
         parent: "PerfectBacktrackHandle" = None,
