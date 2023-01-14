@@ -61,9 +61,6 @@ class DecantingPhyloTracker:
         buffer_size: int = 10,
         share_common_ancestor: bool = True,
     ) -> None:
-        """Create backtracking breadcrumb, with `parent` as preceding
-        breadcrumb in line of descent or `None` if associated with seed
-        organism."""
 
         # initialize decanting buffer with all nan values
         self._decanting_buffer = np.full(
