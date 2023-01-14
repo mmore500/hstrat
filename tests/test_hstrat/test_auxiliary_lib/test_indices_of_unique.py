@@ -72,9 +72,14 @@ class TestIndicesOfUnique(unittest.TestCase):
             pd.unique(d3)
 
         print()
-        print(f"{t1_hstrat.elapsed=} {t2_hstrat.elapsed=} {t3_hstrat.elapsed=}")
+        print(
+            f"{t1_hstrat.elapsed=} {t2_hstrat.elapsed=} {t3_hstrat.elapsed=}"
+        )
         print(f"{t1_numpy.elapsed=} {t2_numpy.elapsed=} {t3_numpy.elapsed=}")
-        print(f"{t1_pandas.elapsed=} {t2_pandas.elapsed=} {t3_pandas.elapsed=}")
+        print(
+            f"{t1_pandas.elapsed=} {t2_pandas.elapsed=} {t3_pandas.elapsed=}"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
