@@ -4,6 +4,8 @@ import typing
 import numpy as np
 import pandas as pd
 
+from ..._auxiliary_lib import indices_of_unique
+
 from ._PerfectBacktrackHandle import PerfectBacktrackHandle
 from ._compile_perfect_backtrack_phylogeny import (
     compile_perfect_backtrack_phylogeny,
@@ -85,21 +87,24 @@ class DecantingPhyloTracker:
         assert not self._is_nan(self._decanting_buffer[0, -1, 0])
 
         # find positions of unique ancestors with extant descendants
-        __, unique_indices = np.unique(
+        unique_row_indices = indices_of_unique(
             self._decanting_buffer[:, -1, 0],
-            return_index=True,
         )
 
+        unique_positions = self._decanting_buffer[
+            unique_row_indices, -1, 0
+        ]
+        unique_parent_positions = self._decanting_buffer[
+            unique_row_indices, -1, 1
+        ]
         # apply unique ancestors' generational step
         # to relevant perfect tracking handles
         # step 1: copy parents
-        self._decanted_tree_tips[
-            self._decanting_buffer[unique_indices, -1, 0]
-        ] = self._decanted_tree_tips[
-            self._decanting_buffer[unique_indices, -1, 1]
+        self._decanted_tree_tips[unique_positions] = self._decanted_tree_tips[
+            unique_parent_positions
         ]
         # step 2: elapse generation
-        for tip_idx in self._decanting_buffer[unique_indices, -1, 0]:
+        for tip_idx in unique_positions:
             self._decanted_tree_tips[tip_idx] = self._decanted_tree_tips[
                 tip_idx
             ].CreateDescendant()
