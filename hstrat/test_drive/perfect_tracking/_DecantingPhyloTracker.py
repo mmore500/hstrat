@@ -46,6 +46,7 @@ class DecantingPhyloTracker:
     # * new population position id's are pasted over column 0,
     # * and rows shuffle/duplicate according to the selected parent indexes
     #
+    _buffer_pos: int
     _decanting_buffer: np.array  # [int]
 
     # permanent phylogeny storage after consolidation traversing decant buffer
@@ -67,6 +68,7 @@ class DecantingPhyloTracker:
             self._nan_val,
             dtype=np.min_scalar_type(-population_size + 1),
         )
+        self._buffer_pos = 0
 
         if share_common_ancestor:
             common_ancestor = PerfectBacktrackHandle()
@@ -84,18 +86,18 @@ class DecantingPhyloTracker:
     def _ArchiveBufferTail(
         self: "DecantingPhyloTracker",
     ):
-        assert not self._is_nan(self._decanting_buffer[0, -1, 0])
+        assert not self._is_nan(self._decanting_buffer[0, self._buffer_pos, 0])
 
         # find positions of unique ancestors with extant descendants
         unique_row_indices = indices_of_unique(
-            self._decanting_buffer[:, -1, 0],
+            self._decanting_buffer[:, self._buffer_pos, 0],
         )
 
         unique_positions = self._decanting_buffer[
-            unique_row_indices, -1, 0
+            unique_row_indices, self._buffer_pos, 0
         ]
         unique_parent_positions = self._decanting_buffer[
-            unique_row_indices, -1, 1
+            unique_row_indices, self._buffer_pos, 1
         ]
         # apply unique ancestors' generational step
         # to relevant perfect tracking handles
@@ -113,11 +115,15 @@ class DecantingPhyloTracker:
         self: "DecantingPhyloTracker",
     ) -> None:
         # if rightmost column not empty, archive it before overwriting
-        if not self._is_nan(self._decanting_buffer[0, -1, 0]):
+        if not self._is_nan(self._decanting_buffer[0, self._buffer_pos, 0]):
             self._ArchiveBufferTail()
 
         # copy columns 0 thru buffer_size - 2 one column rightwards
-        self._decanting_buffer[:, 1:, :] = self._decanting_buffer[:, :-1, :]
+        self._buffer_pos += 1
+        # wrap buffer position around
+        self._buffer_pos -= self._decanting_buffer.shape[1] * (
+            self._buffer_pos >= self._decanting_buffer.shape[1]
+        )
 
     def ElapseGeneration(
         self: "DecantingPhyloTracker",
@@ -132,12 +138,14 @@ class DecantingPhyloTracker:
         self._AdvanceBuffer()
 
         # set new (leftmost) column
+        # note: 0 - 1 == -1 is valid for indexing
         # layer 0: own population position
-        self._decanting_buffer[:, 0, 0] = np.arange(
+        self._decanting_buffer[:, self._buffer_pos - 1, 0] = np.arange(
             self._decanting_buffer.shape[0]
         )
         # layer 1: parent population position
-        self._decanting_buffer[:, 0, 1] = parent_idxs
+        self._decanting_buffer[:, self._buffer_pos - 1, 1] = parent_idxs
+
 
     def _FlushBuffer(self: "DecantingPhyloTracker") -> None:
 
@@ -147,7 +155,7 @@ class DecantingPhyloTracker:
         # and then begin to be archived
         while not np.all(self._decanting_buffer.flatten(), self._nan_val):
             self._AdvanceBuffer()
-            self._decanting_buffer[:, 0, :] = self._nan_val
+            self._decanting_buffer[:, self._buffer_pos - 1, :] = self._nan_val
 
     def CompilePhylogeny(self: "DecantingPhyloTracker") -> pd.DataFrame:
         self._FlushBuffer()
