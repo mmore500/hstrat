@@ -5,12 +5,9 @@ import numpy as np
 import pandas as pd
 
 from ..._auxiliary_lib import indices_of_unique
-
-from ._PerfectBacktrackHandle import PerfectBacktrackHandle
-from ._compile_perfect_backtrack_phylogeny import (
-    compile_perfect_backtrack_phylogeny,
+from ._compile_phylogeny_from_lineage_iters import (
+    compile_phylogeny_from_lineage_iters,
 )
-from ._iter_perfect_backtrack_lineage import iter_perfect_backtrack_lineage
 
 
 class DecantingPhyloTracker:
@@ -21,6 +18,11 @@ class DecantingPhyloTracker:
     @staticmethod
     def _is_nan(v: int) -> bool:
         return v < 0
+
+    @staticmethod
+    @np.vectorize
+    def _tuple_wrap(v: typing.Any) -> typing.Tuple:
+        return (v,)
 
     # decanting buffer layout
     #
@@ -50,7 +52,8 @@ class DecantingPhyloTracker:
     _decanting_buffer: np.array  # [int]
 
     # permanent phylogeny storage after consolidation traversing decant buffer
-    _decanted_tree_tips: np.array  # [PerfectBacktrackHandle]
+    # using tuples instead of PerfectBacktrackHandle gives significant speedup
+    _decanted_tree_tips: np.array  # [typing.Tuple]
 
     def __init__(
         self: "DecantingPhyloTracker",
@@ -70,18 +73,27 @@ class DecantingPhyloTracker:
         )
         self._buffer_pos = 0
 
+        handles = []
         if share_common_ancestor:
-            common_ancestor = PerfectBacktrackHandle()
-            self._decanted_tree_tips = np.array(
-                [
-                    common_ancestor.CreateDescendant()
-                    for __ in range(population_size)
-                ]
-            )
+            common_ancestor = (None,)
+            # can't use list comprehension due to non-distinct tuple ids
+            handles = []
+            for __ in range(population_size):
+                handle = (common_ancestor,)
+                handles.append(handle)
+            assert len(set(map(id, handles))) == len(handles)
+            assert len(set(map(lambda x: id(x[0]), handles))) == 1
         else:
-            self._decanted_tree_tips = np.array(
-                [PerfectBacktrackHandle() for __ in range(population_size)]
-            )
+            # can't use list comprehension due to non-distinct tuple ids
+            for __ in range(population_size):
+                handle = (None,)
+                handles.append(handle)
+            assert len(set(map(id, handles))) == len(handles)
+
+        handles_array = np.empty(len(handles), dtype=object)
+        handles_array[:] = handles
+        self._decanted_tree_tips = handles_array
+        assert len(set(map(id, self._decanted_tree_tips))) == len(handles)
 
     def _ArchiveBufferTail(
         self: "DecantingPhyloTracker",
@@ -102,14 +114,9 @@ class DecantingPhyloTracker:
         # apply unique ancestors' generational step
         # to relevant perfect tracking handles
         # step 1: copy parents
-        self._decanted_tree_tips[unique_positions] = self._decanted_tree_tips[
-            unique_parent_positions
-        ]
-        # step 2: elapse generation
-        for tip_idx in unique_positions:
-            self._decanted_tree_tips[tip_idx] = self._decanted_tree_tips[
-                tip_idx
-            ].CreateDescendant()
+        self._decanted_tree_tips[unique_positions] = self._tuple_wrap(
+            self._decanted_tree_tips[unique_parent_positions]
+        )
 
     def _AdvanceBuffer(
         self: "DecantingPhyloTracker",
@@ -160,4 +167,18 @@ class DecantingPhyloTracker:
     def CompilePhylogeny(self: "DecantingPhyloTracker") -> pd.DataFrame:
         self._FlushBuffer()
         assert set(self._decanting_buffer.flatten()) == {self._nan_val}
-        return compile_perfect_backtrack_phylogeny(self._decanted_tree_tips)
+
+        def iter_lineage(
+            tuple_handle: typing.Tuple,
+        ) -> typing.Iterable[typing.Tuple]:
+            while True:
+                yield tuple_handle
+
+                if tuple_handle[0] is None:
+                    break
+                else:
+                    tuple_handle = tuple_handle[0]
+
+        return compile_phylogeny_from_lineage_iters(
+            iter_lineage(tip) for tip in self._decanted_tree_tips
+        )
