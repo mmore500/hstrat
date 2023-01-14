@@ -14,7 +14,7 @@ class PerfectBacktrackHandle:
     #
     #   p = [impl() for __ in range(100)]
     #   for __ in tqdm(range(10000000)):
-    #       b[random.randrange(len(p))] = random.choice(p).CreateDescendant()
+    #       p[random.randrange(len(p))] = random.choice(p).CreateDescendant()
     #
     # see https://gist.github.com/mmore500/d6ee9011e38355f1be6c02a70db5b785
     # (didn't complete debugging, but is representative of speed)
