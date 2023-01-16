@@ -14,32 +14,23 @@ from ._compile_phylogeny_from_lineage_iters import (
 # with nopython directive
 # could refactor to use iter_lineage below, but not sure if would affect perf
 @nb.jit(nopython=True)
-def _discern_referenced_row_indices(
+def _discern_referenced_rows(
     parentage_buffer: np.array, num_records: int, population_size: int
 ) -> np.array:
 
-    capacity = len(parentage_buffer)
-
     # idea: might be able to speed this up with some kind of binary search
     # if we also stored generation as a column
-    visited_row_idxs = set()
-    for sought_pop_position in range(population_size):
-        first_occurence_idx = capacity - num_records + sought_pop_position
-        assert (
-            abs(parentage_buffer[first_occurence_idx, 0])
-            == sought_pop_position
-        )
-        sought_pop_position = parentage_buffer[first_occurence_idx, 0]
+    referenced_rows = np.zeros(num_records, dtype=nb.types.bool_)
+    for pop_position in range(population_size):
+        idx = num_records - population_size + pop_position
 
-        for row_idx in range(first_occurence_idx, capacity):
-            if parentage_buffer[row_idx, 0] == sought_pop_position:
-                if row_idx in visited_row_idxs:
-                    break
-                else:
-                    visited_row_idxs.add(row_idx)
-                    sought_pop_position = parentage_buffer[row_idx, 1]
+        while idx != parentage_buffer[idx] and not referenced_rows[idx]:
+            referenced_rows[idx] = True
+            idx = parentage_buffer[idx]
 
-    return np.sort(np.array(list(visited_row_idxs)))
+        referenced_rows[idx] = True
+
+    return referenced_rows
 
 
 @nb.jit(nopython=True)
@@ -47,46 +38,43 @@ def _iter_lineage(
     parentage_buffer: np.array,
     num_records: int,
     population_size: int,
-    sought_pop_position: int,
+    pop_position: int,
 ) -> typing.Iterable[int]:
 
-    capacity = len(parentage_buffer)
-    first_occurence_idx = capacity - num_records + sought_pop_position
-    assert abs(parentage_buffer[first_occurence_idx, 0]) == sought_pop_position
-    sought_pop_position = parentage_buffer[first_occurence_idx, 0]
+    idx = num_records - population_size + pop_position
 
-    for row_idx in range(first_occurence_idx, capacity):
-        if parentage_buffer[row_idx, 0] == sought_pop_position:
-            yield capacity - row_idx
-            sought_pop_position = parentage_buffer[row_idx, 1]
+    while True:
+        yield idx
+        if idx == parentage_buffer[idx]:
+            break
+        idx = parentage_buffer[idx]
 
 
 class GarbageCollectingPhyloTracker:
 
-    _generations_elapsed: int
     _population_size: int
     _num_records: int
     _parentage_buffer: np.array  # [int]
 
     # parentage_buffer:
-    #                        col 0                col 1
-    #                 +------------------+---------------------+
-    #  *gen 0*        | org_pop_position | parent_pop_position |
-    #                 | org_pop_position | parent_pop_position |
+    #
+    #                 +----------------+
+    #  *gen 0*        | parent_row_idx |
+    #                 | parent_row_idx |
     #
     #                 ...
-    #  *gen 1*        | org_pop_position | parent_pop_position |
-    #                 | org_pop_position | parent_pop_position |
+    #  *gen 1*        | parent_row_idx |
+    #                 | parent_row_idx |
     #
     #                 ...
-    #                 | org_pop_position | parent_pop_position |
-    # num_records --> | UNINITIALIZED    | UNINITIALIZED       |
-    #                 | UNINITIALIZED    | UNINITIALIZED       |
-    #                 | UNINITIALIZED    | UNINITIALIZED       |
+    #                 | parent_row_idx |
+    # num_records --> | UNINITIALIZED  |
+    #                 | UNINITIALIZED  |
+    #                 | UNINITIALIZED  |
     #
     #                 ...
-    #                 | UNINITIALIZED    | UNINITIALIZED       |
-    #                 +------------------+---------------------+
+    #                 | UNINITIALIZED  |
+    #                 +----------------+
     #
     # notes:
     # * rows correspond to a single individual in the evolutionary simulation
@@ -98,12 +86,7 @@ class GarbageCollectingPhyloTracker:
     # * number of rows for each generation will decrease below population_size
     #   as rows corresponding to individuals without extant ancestors are
     #   garbage collected
-    # * to ensure that generations can be distinguished, pop positions are
-    #   stored with alternating sign
-    # * buffer grows from bottom, not top (diagram above should be reversed)
-    #   ... this ensures that population positions within a generation are
-    #   encountered in strictly ascending order while iterating backwards in
-    #   time
+    # * self-loop parent_row_idx's denotes no parent (i.e., lineage begin)
 
     def __init__(
         self: "GarbageCollectingPhyloTracker",
@@ -117,59 +100,59 @@ class GarbageCollectingPhyloTracker:
         assert population_size
         assert initial_buffer_size >= population_size + share_common_ancestor
 
-        self._generations_elapsed = 1 + share_common_ancestor
         self._population_size = population_size
         self._parentage_buffer = np.empty(
-            (initial_buffer_size, 2),
-            dtype=np.min_scalar_type(-population_size + 1),
+            initial_buffer_size,
+            dtype=np.int32,
         )
         self._num_records = population_size + share_common_ancestor
 
         if share_common_ancestor:
-            self._parentage_buffer[-1, :] = [-0, 0]
-            self._parentage_buffer[-1 - population_size : -1, 0] = np.arange(
+            self._parentage_buffer[0] = 0
+            self._parentage_buffer[1 : population_size + 1] = 0
+        else:
+            self._parentage_buffer[:population_size, 0] = np.arange(
                 population_size
             )
-            self._parentage_buffer[-1 - population_size : -1, 1] = -0
-        else:
-            self._parentage_buffer[-population_size:, 0] = np.negate(
-                np.arange(population_size)
-            )
-            self._parentage_buffer[-population_size:, 1] = population_size - 1
 
     def _GetBufferCapacity(self: "GarbageCollectingPhyloTracker") -> int:
         return self._parentage_buffer.shape[0]
 
     def _MaybeGarbageCollect(
         self: "GarbageCollectingPhyloTracker", num_to_insert: int
-    ) -> None:
+    ) -> bool:
 
         if self._num_records + num_to_insert >= self._GetBufferCapacity():
-            referenced_indices = _discern_referenced_row_indices(
+            referenced_rows = _discern_referenced_rows(
                 self._parentage_buffer,
                 self._num_records,
                 self._population_size,
             )
+            num_referenced_rows = np.sum(referenced_rows)
+            cumsum = np.cumsum(np.invert(referenced_rows))
+            self._parentage_buffer[: self._num_records] -= cumsum[
+                self._parentage_buffer[: self._num_records]
+            ]
 
-            # condense non-garbage-collected rows to rear of buffer
+            # condense non-garbage-collected rows to front of buffer
             self._parentage_buffer[
-                self._GetBufferCapacity() - len(referenced_indices) :
-            ] = self._parentage_buffer[referenced_indices]
-            self._num_records = len(referenced_indices)
+                :num_referenced_rows
+            ] = self._parentage_buffer[: self._num_records][referenced_rows]
+
+            self._num_records = num_referenced_rows
+
+            return True
+        else:
+            return False
 
     def _MaybeGrowBuffer(
         self: "GarbageCollectingPhyloTracker", num_to_insert: int
     ) -> None:
-        while self._num_records + num_to_insert >= self._GetBufferCapacity():
-            new_buffer = np.empty(
-                (
-                    int(self._GetBufferCapacity() * 1.5),
-                    self._parentage_buffer.shape[1],
-                ),
-                dtype=self._parentage_buffer.dtype,
-            )
-            new_buffer[-self._GetBufferCapacity() :] = self._parentage_buffer
-            self._parentage_buffer = new_buffer
+        while (
+            self._num_records + num_to_insert
+            >= 0.5 * self._GetBufferCapacity()
+        ):
+            self._parentage_buffer.resize(int(self._GetBufferCapacity() * 1.5))
 
     def ElapseGeneration(
         self: "GarbageCollectingPhyloTracker",
@@ -179,28 +162,24 @@ class GarbageCollectingPhyloTracker:
         assert self._population_size == len(parent_idxs)
 
         # if elements will overflow buffer, try garbage collecting
-        self._MaybeGarbageCollect(self._population_size)
-        # if garbage collecting didn't make enough space, increase buffer size
-        self._MaybeGrowBuffer(self._population_size)
+        if self._MaybeGarbageCollect(self._population_size):
+            # if garbage collecting didn't make enough space, increase buffer
+            # size
+            self._MaybeGrowBuffer(self._population_size)
 
         assert self._num_records < self._GetBufferCapacity()
-
-        end_row = self._GetBufferCapacity() - self._num_records
-        begin_row = end_row - self._population_size
-        self._parentage_buffer[begin_row:end_row, 0] = np.arange(
-            0, -self._population_size, -1
+        assert (
+            self._num_records + self._population_size
+            < self._GetBufferCapacity()
         )
-        self._parentage_buffer[begin_row:end_row, 1] = parent_idxs
 
-        # to ensure that generations can be distinguished, pop positions are
-        # stored with alternating sign
-        if self._generations_elapsed % 2:
-            self._parentage_buffer[begin_row:end_row, :] = np.negative(
-                self._parentage_buffer[begin_row:end_row, :]
-            )
+        begin_row = self._num_records
+        end_row = begin_row + self._population_size
+        self._parentage_buffer[begin_row:end_row] = (
+            begin_row - self._population_size + parent_idxs
+        )
 
-        self._generations_elapsed += 1
-        self._num_records += self._population_size
+        self._num_records = end_row
 
     def CompilePhylogeny(
         self: "GarbageCollectingPhyloTracker",
