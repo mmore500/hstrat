@@ -7,6 +7,10 @@ import pandas as pd
 from ..._auxiliary_lib import pairwise
 
 
+def _id(obj: typing.Any) -> int:
+    return obj if isinstance(obj, (str, int, float)) else id(obj)
+
+
 def compile_phylogeny_from_lineage_iters(
     population: typing.Iterable[typing.Iterable[typing.Any]],
 ) -> pd.DataFrame:
@@ -32,14 +36,14 @@ def compile_phylogeny_from_lineage_iters(
             it.islice(lineage_it2, 1, None),
         ):
             assert descendant_handle is not None
-            if id(descendant_handle) not in seen_handle_ids:
-                seen_handle_ids.add(id(descendant_handle))
+            if _id(descendant_handle) not in seen_handle_ids:
+                seen_handle_ids.add(_id(descendant_handle))
                 records.append(
                     {
                         **{
-                            "id": id(descendant_handle),
+                            "id": _id(descendant_handle),
                             "ancestor_list": str(
-                                [opyt.apply_if(ancestor_handle, id)]
+                                [opyt.apply_if(ancestor_handle, _id)]
                             ),
                         },
                         **(

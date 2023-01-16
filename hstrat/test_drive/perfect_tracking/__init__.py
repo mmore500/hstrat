@@ -1,6 +1,7 @@
 """Tools for perfect phylogenetic tracking."""
 
 from ._DecantingPhyloTracker import DecantingPhyloTracker
+from ._GarbageCollectingPhyloTracker import GarbageCollectingPhyloTracker
 from ._PerfectBacktrackHandle import PerfectBacktrackHandle
 from ._compile_perfect_backtrack_phylogeny import (
     compile_perfect_backtrack_phylogeny,
@@ -15,6 +16,7 @@ __all__ = [
     "compile_perfect_backtrack_phylogeny",
     "compile_phylogeny_from_lineage_iters",
     "DecantingPhyloTracker",
+    "GarbageCollectingPhyloTracker",
     "iter_perfect_backtrack_lineage",
     "PerfectBacktrackHandle",
 ]
