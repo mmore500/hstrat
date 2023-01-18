@@ -237,17 +237,24 @@ class GarbageCollectingPhyloTracker:
     def CompilePhylogeny(
         self: "GarbageCollectingPhyloTracker",
         progress_wrap=lambda x: x,
+        loc_transforms: typing.Dict[str, typing.Callable] = {},
     ) -> pd.DataFrame:
 
         self._GarbageCollect()
         records = [
             {
-                "id": idx,
-                "ancestor_list": str(
-                    [parent_idx if parent_idx != idx else None]
-                ),
-                "loc": loc,
-                "trait": trait,
+                **{
+                    "id": idx,
+                    "ancestor_list": str(
+                        [parent_idx if parent_idx != idx else None]
+                    ),
+                    "loc": loc,
+                    "trait": trait,
+                },
+                **{
+                    key: transform(loc)
+                    for key, transform in loc_transforms.items()
+                },
             }
             for idx, (parent_idx, loc, trait) in enumerate(
                 zip(
