@@ -214,12 +214,17 @@ class GarbageCollectingPhyloTracker:
         self: "GarbageCollectingPhyloTracker",
         progress_wrap=lambda x: x,
     ) -> pd.DataFrame:
-        return compile_phylogeny_from_lineage_iters(
-            _iter_lineage(
-                self._parentage_buffer,
-                self._num_records,
-                self._population_size,
-                pop_position,
+
+        self._GarbageCollect()
+        records = [
+            {
+                "id": idx,
+                "ancestor_list": str(
+                    [parent_idx if parent_idx != idx else None]
+                ),
+            }
+            for idx, parent_idx in enumerate(
+                progress_wrap(self._parentage_buffer[: self._num_records])
             )
-            for pop_position in progress_wrap(range(self._population_size))
-        )
+        ]
+        return pd.DataFrame.from_records(records)
