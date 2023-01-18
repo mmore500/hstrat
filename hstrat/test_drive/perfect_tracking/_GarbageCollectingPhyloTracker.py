@@ -64,6 +64,9 @@ class GarbageCollectingPhyloTracker:
     _num_records: int
     _parentage_buffer: np.array  # [int]
 
+    _loc_buffer: np.array  # [int]
+    _trait_buffer: np.array  # [float]
+
     # parentage_buffer:
     #
     #                 +----------------+
@@ -118,6 +121,15 @@ class GarbageCollectingPhyloTracker:
             working_buffer_size * 3 // 2,
             dtype=np.int32,
         )
+        self._loc_buffer = np.empty(
+            working_buffer_size * 3 // 2,
+            dtype=np.min_scalar_type(population_size),
+        )
+        self._trait_buffer = np.empty(
+            working_buffer_size * 3 // 2,
+            dtype=np.single,
+        )
+
         self._num_records = population_size + share_common_ancestor
 
         if share_common_ancestor:
@@ -161,6 +173,12 @@ class GarbageCollectingPhyloTracker:
         ] = self._parentage_buffer[below_row : self._num_records][
             referenced_rows
         ]
+        self._trait_buffer[
+            below_row : below_row + num_referenced_rows
+        ] = self._trait_buffer[below_row : self._num_records][referenced_rows]
+        self._loc_buffer[
+            below_row : below_row + num_referenced_rows
+        ] = self._loc_buffer[below_row : self._num_records][referenced_rows]
 
         self._num_records = num_referenced_rows + below_row
 
@@ -182,6 +200,8 @@ class GarbageCollectingPhyloTracker:
 
     def _GrowBuffer(self: "GarbageCollectingPhyloTracker") -> None:
         self._parentage_buffer.resize(int(self._GetBufferCapacity() * 1.5))
+        self._trait_buffer.resize(int(self._GetBufferCapacity() * 1.5))
+        self._loc_buffer.resize(int(self._GetBufferCapacity() * 1.5))
 
     def _GrowBufferForInsertion(
         self: "GarbageCollectingPhyloTracker", num_to_insert: int
@@ -192,6 +212,7 @@ class GarbageCollectingPhyloTracker:
     def ElapseGeneration(
         self: "GarbageCollectingPhyloTracker",
         parent_idxs: typing.List[int],
+        traits: typing.Optional[typing.List[float]] = None,
     ) -> None:
         assert self._population_size == len(parent_idxs)
 
@@ -207,6 +228,9 @@ class GarbageCollectingPhyloTracker:
         self._parentage_buffer[begin_row:end_row] = (
             begin_row - self._population_size + parent_idxs
         )
+        self._loc_buffer[begin_row:end_row] = np.arange(self._population_size)
+        if traits is not None:
+            self._trait_buffer[begin_row:end_row] = traits
 
         self._num_records = end_row
 
@@ -222,9 +246,15 @@ class GarbageCollectingPhyloTracker:
                 "ancestor_list": str(
                     [parent_idx if parent_idx != idx else None]
                 ),
+                "loc": loc,
+                "trait": trait,
             }
-            for idx, parent_idx in enumerate(
-                progress_wrap(self._parentage_buffer[: self._num_records])
+            for idx, (parent_idx, loc, trait) in enumerate(
+                zip(
+                    progress_wrap(self._parentage_buffer[: self._num_records]),
+                    self._loc_buffer[: self._num_records],
+                    self._trait_buffer[: self._num_records],
+                )
             )
         ]
         return pd.DataFrame.from_records(records)

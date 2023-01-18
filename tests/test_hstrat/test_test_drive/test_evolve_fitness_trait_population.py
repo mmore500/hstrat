@@ -51,9 +51,11 @@ def test_evolve_fitness_trait_population(
         num_niches=num_niches,
         num_generations=num_generations,
         population_size=population_size,
+        tournament_size=2,
     )
 
-    # assert "genome value" in alife_df
+    assert "trait" in alife_df
+    assert "loc" in alife_df
     # assert "island" in alife_df
     # assert "niche" in alife_df
 
