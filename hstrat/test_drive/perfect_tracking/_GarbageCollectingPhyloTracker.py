@@ -103,42 +103,63 @@ class GarbageCollectingPhyloTracker:
 
     def __init__(
         self: "GarbageCollectingPhyloTracker",
-        population_size: int,
+        initial_population: np.array,  # [float]
         working_buffer_size: typing.Optional[int] = None,
         share_common_ancestor: bool = True,
     ) -> None:
+
+        if isinstance(initial_population, int):
+            initial_population = np.full(initial_population, np.nan)
+
+        self._population_size = len(initial_population)
+        assert self._population_size
+
         if working_buffer_size is None:
-            working_buffer_size = 1000 * population_size
+            working_buffer_size = 1000 * self._population_size
 
         self._working_buffer_size = working_buffer_size
         self._working_buffer_end = working_buffer_size
 
-        assert population_size
-        assert working_buffer_size >= population_size + share_common_ancestor
+        assert (
+            working_buffer_size
+            >= self._population_size + share_common_ancestor
+        )
 
-        self._population_size = population_size
         self._parentage_buffer = np.empty(
             working_buffer_size * 3 // 2,
             dtype=np.int32,
         )
         self._loc_buffer = np.empty(
             working_buffer_size * 3 // 2,
-            dtype=np.min_scalar_type(population_size),
+            dtype=np.min_scalar_type(self._population_size),
         )
         self._trait_buffer = np.empty(
             working_buffer_size * 3 // 2,
             dtype=np.single,
         )
 
-        self._num_records = population_size + share_common_ancestor
+        self._num_records = self._population_size + share_common_ancestor
 
         if share_common_ancestor:
             self._parentage_buffer[0] = 0
-            self._parentage_buffer[1 : population_size + 1] = 0
-        else:
-            self._parentage_buffer[:population_size, 0] = np.arange(
-                population_size
+            self._loc_buffer[0] = 0
+            self._trait_buffer[0] = np.nan
+
+            self._parentage_buffer[1 : self._population_size + 1] = 0
+            self._loc_buffer[1 : self._population_size + 1] = np.arange(
+                self._population_size
             )
+            self._trait_buffer[
+                1 : self._population_size + 1
+            ] = initial_population
+        else:
+            self._parentage_buffer[:population_size] = np.arange(
+                self._population_size
+            )
+            self._loc_buffer[:population_size] = np.arange(
+                self._population_size
+            )
+            self._trait_buffer[:population_size] = initial_population
 
     def _GetBufferCapacity(self: "GarbageCollectingPhyloTracker") -> int:
         return self._parentage_buffer.shape[0]

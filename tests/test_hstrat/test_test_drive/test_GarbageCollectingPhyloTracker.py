@@ -55,7 +55,7 @@ def test_GarbateCollectingPhyloTracker():
         common_ancestor.CreateDescendant() for __ in range(population_size)
     ]
     tracker = hstrat.GarbageCollectingPhyloTracker(
-        population_size=population_size,
+        initial_population=population_size,
         working_buffer_size=21,
     )
 
