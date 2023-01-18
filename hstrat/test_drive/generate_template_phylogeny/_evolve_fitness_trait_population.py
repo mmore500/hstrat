@@ -129,6 +129,10 @@ def _apply_niche_swaps(
             assert np.all(
                 swapto_idxs // island_size == swapfrom_idxs // island_size
             )
+            assert all(
+                swapto_idxs // island_niche_size % num_niches
+                != swapfrom_idxs // island_niche_size % num_niches
+            )
 
         pop_arr[np.concatenate((swapfrom_idxs, swapto_idxs))] = pop_arr[
             np.concatenate((swapto_idxs, swapfrom_idxs))
@@ -160,6 +164,9 @@ def _apply_island_swaps(
             assert all(
                 swapto_idxs // island_niche_size % num_niches
                 == swapfrom_idxs // island_niche_size % num_niches
+            )
+            assert np.all(
+                swapto_idxs // island_size != swapfrom_idxs // island_size
             )
 
         pop_arr[np.concatenate((swapfrom_idxs, swapto_idxs))] = pop_arr[
