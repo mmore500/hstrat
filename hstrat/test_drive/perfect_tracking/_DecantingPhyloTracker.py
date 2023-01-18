@@ -160,7 +160,10 @@ class DecantingPhyloTracker:
             self._AdvanceBuffer()
             self._decanting_buffer[:, self._buffer_pos - 1, :] = self._nan_val
 
-    def CompilePhylogeny(self: "DecantingPhyloTracker") -> pd.DataFrame:
+    def CompilePhylogeny(
+        self: "DecantingPhyloTracker",
+        progress_wrap=lambda x: x,
+    ) -> pd.DataFrame:
         self._FlushBuffer()
         assert set(self._decanting_buffer.flatten()) == {self._nan_val}
 
@@ -176,5 +179,6 @@ class DecantingPhyloTracker:
                     tuple_handle = tuple_handle[0]
 
         return compile_phylogeny_from_lineage_iters(
-            iter_lineage(tip) for tip in self._decanted_tree_tips
+            iter_lineage(tip)
+            for tip in progress_wrap(self._decanted_tree_tips)
         )

@@ -212,6 +212,7 @@ class GarbageCollectingPhyloTracker:
 
     def CompilePhylogeny(
         self: "GarbageCollectingPhyloTracker",
+        progress_wrap=lambda x: x,
     ) -> pd.DataFrame:
         return compile_phylogeny_from_lineage_iters(
             _iter_lineage(
@@ -220,5 +221,5 @@ class GarbageCollectingPhyloTracker:
                 self._population_size,
                 pop_position,
             )
-            for pop_position in range(self._population_size)
+            for pop_position in progress_wrap(range(self._population_size))
         )
