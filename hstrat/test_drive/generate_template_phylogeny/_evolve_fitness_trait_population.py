@@ -152,18 +152,19 @@ def _apply_island_swaps(
         swapfrom_idxs = np.random.randint(len(pop_arr), size=num_island_swaps)
         swapto_signs = np.random.randint(2, size=num_island_swaps) * 2 - 1
         swapto_idxs = swapfrom_idxs + swapto_signs * island_size
-        swapto_idxs_no_overflow = swapto_idxs - island_size
+        # wrap overflow
+        swapto_idxs[swapto_idxs >= len(pop_arr)] -= len(pop_arr)
 
         if "pytest" in sys.modules:
-            assert len(swapto_idxs_no_overflow) == len(swapfrom_idxs)
+            assert len(swapto_idxs) == len(swapfrom_idxs)
             assert all(
-                swapto_idxs_no_overflow // island_niche_size % num_niches
+                swapto_idxs // island_niche_size % num_niches
                 == swapfrom_idxs // island_niche_size % num_niches
             )
 
-        pop_arr[
-            np.concatenate((swapfrom_idxs, swapto_idxs_no_overflow))
-        ] = pop_arr[np.concatenate((swapto_idxs_no_overflow, swapfrom_idxs))]
+        pop_arr[np.concatenate((swapfrom_idxs, swapto_idxs))] = pop_arr[
+            np.concatenate((swapto_idxs, swapfrom_idxs))
+        ]
 
 
 def evolve_fitness_trait_population(
