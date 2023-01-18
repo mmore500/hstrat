@@ -1,110 +1,163 @@
 import random
 import typing
 
+import numba as nb
 import numpy as np
 import pandas as pd
+import sys
 from tqdm import tqdm
 
-from ..perfect_tracking import DecantingPhyloTracker
+from ..perfect_tracking import (
+    GarbageCollectingPhyloTracker,
+    PerfectBacktrackHandle,
+)
+
 
 def _setup_population(
     island_niche_size: int,
     num_islands: int,
     num_niches: int,
-) -> typing.Tuple[pd.DataFrame, DecantingPhyloTracker]:
-    pop_records = [
-        {
-            "island": island,
-            "genome value": 0.0,
-            "niche": niche,
-        }
-        for island in range(num_islands)
-        for niche in range(num_niches)
-        for __ in range(island_niche_size)
-    ]
-    pop_df = pd.DataFrame.from_dict(pop_records)
+) -> typing.Tuple[np.array, GarbageCollectingPhyloTracker]:
 
-    pop_tracker = DecantingPhyloTracker(len(pop_records))
-    return pop_df, pop_tracker
+    pop_size = island_niche_size * num_islands * num_niches
+
+    pop_arr = np.zeros(pop_size, dtype=np.single)
+    pop_tracker = GarbageCollectingPhyloTracker(pop_arr)
+
+    return pop_arr, pop_tracker
 
 
+# @nb.jit(nopython=True, fastmath=True)
 def _do_selection(
     island_niche_size: int,
     tournament_size: int,
-    pop_df: pd.DataFrame,
-    p_random_selection: float,
-) -> typing.List[int]:
-    res = []
-    # couldn't get better performance by sending everything to numpy array
-    # and doing more efficient groupby
-    # see https://gist.github.com/mmore500/35bd39e1e26b53cfde6e9da482595932
-    # and https://stackoverflow.com/a/43094244
-    for (island, niche), group_df in pop_df.groupby(
-        ["island", "niche"],
-        sort=False,
-    ):
-        num_random_selections = np.random.binomial(
-            n=island_niche_size,
-            p=p_random_selection,
-        )
-        num_tournaments = island_niche_size - num_random_selections
-        # minimizing operations on group_df gives >50% speedup
-        genome_lookup = group_df["genome value"].to_numpy()
-        tournament_rosters = np.random.randint(
-            len(genome_lookup),
-            size=(num_tournaments, tournament_size),
-        )
-        tournament_fitnesses = genome_lookup[tournament_rosters]
-        winning_tournament_positions = tournament_fitnesses.argmax(1)
-        winning_genome_lookup_positions = tournament_rosters[
-            np.arange(len(tournament_rosters)),
-            winning_tournament_positions,
-        ]
-        winning_idxs = group_df.index.to_numpy()[
-            winning_genome_lookup_positions
-        ]
-        assert len(winning_idxs) == num_tournaments
-        res.extend(winning_idxs)
+    pop_arr: np.array,
+) -> np.array:
 
-        # random idxs
-        res.extend(
-            np.random.randint(len(genome_lookup), size=num_random_selections)
-        )
+    num_island_niches = len(pop_arr) // island_niche_size
 
-    return res
+    tournament_boosters = (
+        np.broadcast_to(
+            np.repeat(
+                np.arange(num_island_niches),
+                island_niche_size,
+            ),
+            shape=(tournament_size, pop_arr.size),
+        ).T
+        * island_niche_size
+    )
+    tournament_rosters = (
+        np.random.randint(
+            0,
+            island_niche_size,
+            (pop_arr.size, tournament_size),
+        )
+        + tournament_boosters
+    )
+
+    tournament_fitnesses = np.take(pop_arr, tournament_rosters)
+    winning_tournament_positions = tournament_fitnesses.argmax(axis=1)
+
+    # https://stackoverflow.com/a/61234228
+    winning_tournament_idxs = np.take_along_axis(
+        tournament_rosters,
+        winning_tournament_positions[:, None],
+        axis=1,
+    )
+    assert len(winning_tournament_idxs.flatten()) == pop_arr.size
+
+    return winning_tournament_idxs.flatten()
 
 
 def _apply_mutation(
-    pop_df: pd.DataFrame,
+    pop_arr: np.array,
+) -> None:
+    pop_arr += np.random.standard_normal(size=len(pop_arr))
+
+
+@nb.jit(nopython=True)
+def _get_island_id(
+    population_idx: int,
+    island_size: int,
+) -> int:
+    return population_idx // island_size
+
+
+@nb.jit(nopython=True)
+def _get_niche_id(
+    population_idx: int, island_niche_size: int, num_niches: int
+) -> int:
+    return (population_idx // island_niche_size) % num_niches
+
+
+def _apply_niche_swaps(
+    pop_arr: np.array,
     num_islands: int,
     num_niches: int,
-    p_island_migration: float,
-    p_niche_invasion: float,
+    island_size: int,
+    island_niche_size: int,
+    p_niche_swap: float,
 ) -> None:
-    pop_df["genome value"] += np.random.standard_normal(size=pop_df.shape[0])
 
-    num_niche_invasions = np.random.binomial(
-        n=len(pop_df),
-        p=p_niche_invasion,
+    num_niche_swaps = np.random.binomial(
+        n=len(pop_arr),
+        p=p_niche_swap,
     )
-    if num_niches > 1 and num_niche_invasions:
-        target_rows = pop_df.sample(n=num_niche_invasions)
-        target_rows["niche"] += np.random.randint(
-            num_niches - 1,
-            size=target_rows.shape[0],
-        )
-        target_rows["niche"] %= num_niches
+    if num_niches > 1 and num_niche_swaps:
 
-    num_island_migrations = np.random.binomial(
-        n=len(pop_df),
-        p=p_island_migration,
-    )
-    if num_islands > 1 and num_island_migrations:
-        target_rows = pop_df.sample(n=num_island_migrations)
-        target_rows["island"] += (
-            np.random.randint(2, size=target_rows.shape[0]) * 2 + -1
+        swapfrom_idxs = np.random.randint(len(pop_arr), size=num_niche_swaps)
+        swapfrom_niches = (swapfrom_idxs // island_niche_size) % num_niches
+
+        niche_steps = np.random.randint(num_niches - 1, size=num_niche_swaps)
+        corrected_niche_steps = (
+            niche_steps + (niche_steps >= swapfrom_niches) - swapfrom_niches
         )
-        target_rows["island"] %= num_islands
+        assert np.all(corrected_niche_steps != 0)
+        swap_steps = corrected_niche_steps * island_niche_size
+
+        swapto_idxs = swapfrom_idxs + swap_steps
+
+        if "pytest" in sys.modules:
+            assert np.all(abs(swap_steps) < island_size)
+            assert len(swapto_idxs) == len(swapfrom_idxs)
+            assert np.all(
+                swapto_idxs // island_size == swapfrom_idxs // island_size
+            )
+
+        pop_arr[np.concatenate((swapfrom_idxs, swapto_idxs))] = pop_arr[
+            np.concatenate((swapto_idxs, swapfrom_idxs))
+        ]
+
+
+def _apply_island_swaps(
+    pop_arr: np.array,
+    num_niches: int,
+    island_size: int,
+    island_niche_size: int,
+    p_island_swap: float,
+) -> None:
+
+    num_island_swaps = np.random.binomial(
+        n=len(pop_arr),
+        p=p_island_swap,
+    )
+    if island_size < len(pop_arr) and num_island_swaps:
+
+        swapfrom_idxs = np.random.randint(len(pop_arr), size=num_island_swaps)
+        swapto_signs = np.random.randint(2, size=num_island_swaps) * 2 - 1
+        swapto_idxs = swapfrom_idxs + swapto_signs * island_size
+        swapto_idxs_no_overflow = swapto_idxs - island_size
+
+        if "pytest" in sys.modules:
+            assert len(swapto_idxs_no_overflow) == len(swapfrom_idxs)
+            assert all(
+                swapto_idxs_no_overflow // island_niche_size % num_niches
+                == swapfrom_idxs // island_niche_size % num_niches
+            )
+
+        pop_arr[
+            np.concatenate((swapfrom_idxs, swapto_idxs_no_overflow))
+        ] = pop_arr[np.concatenate((swapto_idxs_no_overflow, swapfrom_idxs))]
 
 
 def evolve_fitness_trait_population(
@@ -115,45 +168,54 @@ def evolve_fitness_trait_population(
     tournament_size: int = 4,
     p_island_migration: float = 1e-3,
     p_niche_invasion: float = 1e-4,
-    p_random_selection: float = 0.5,
 ) -> pd.DataFrame:
 
+    island_size = population_size // num_islands
     island_niche_size = population_size // (num_islands * num_niches)
     assert island_niche_size * num_islands * num_niches == population_size
     assert tournament_size <= island_niche_size
 
-    pop_df, pop_tracker = _setup_population(
+    pop_arr, pop_tracker = _setup_population(
         island_niche_size=island_niche_size,
         num_islands=num_islands,
         num_niches=num_niches,
     )
 
     for generation in tqdm(range(num_generations)):
-        _apply_mutation(
-            pop_df=pop_df,
+        _apply_island_swaps(
+            pop_arr,
+            num_niches=num_niches,
+            island_size=island_size,
+            island_niche_size=island_niche_size,
+            p_island_swap=p_island_migration,
+        )
+        _apply_niche_swaps(
+            pop_arr,
             num_islands=num_islands,
             num_niches=num_niches,
-            p_island_migration=p_island_migration,
-            p_niche_invasion=p_niche_invasion,
+            island_size=island_size,
+            island_niche_size=island_niche_size,
+            p_niche_swap=p_niche_invasion,
         )
+        _apply_mutation(pop_arr)
         idx_selections = _do_selection(
             island_niche_size=island_niche_size,
             tournament_size=tournament_size,
-            pop_df=pop_df,
-            p_random_selection=p_random_selection,
+            pop_arr=pop_arr,
         )
 
-        pop_tracker.ElapseGeneration(idx_selections)
-        pop_df = pop_df.iloc[idx_selections]
+        pop_arr = pop_arr[idx_selections]
+        pop_tracker.ElapseGeneration(
+            idx_selections,
+            pop_arr,
+        )
 
-        # reset index
-        pop_df.reset_index(drop=True, inplace=True)
-
-        # could sort to reduce fragmentation, but doesn't help
-        # pop_df.sort_values(
-        #     by=["island", "niche"],
-        #     ignore_index=True,  # resets index
-        #     inplace=True,
-        # )
-
-    return pop_tracker.CompilePhylogeny()
+    return pop_tracker.CompilePhylogeny(
+        loc_transforms={
+            "island": lambda loc: _get_island_id(loc, island_size),
+            "niche": lambda loc: _get_niche_id(
+                loc, island_niche_size, num_niches
+            ),
+        },
+        progress_wrap=tqdm,
+    )
