@@ -1,10 +1,10 @@
 import random
+import sys
 import typing
 
 import numba as nb
 import numpy as np
 import pandas as pd
-import sys
 from tqdm import tqdm
 
 from ..perfect_tracking import (
@@ -64,7 +64,13 @@ def _do_selection(
         winning_tournament_positions[:, None],
         axis=1,
     )
-    assert len(winning_tournament_idxs.flatten()) == pop_arr.size
+
+    if "pytest" in sys.modules:
+        assert len(winning_tournament_idxs.flatten()) == pop_arr.size
+        assert np.all(
+            np.arange(pop_arr.size) // island_niche_size
+            == winning_tournament_idxs.flatten() // island_niche_size
+        )
 
     return winning_tournament_idxs.flatten()
 
