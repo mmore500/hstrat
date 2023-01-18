@@ -56,7 +56,7 @@ def test_GarbateCollectingPhyloTracker():
     ]
     tracker = hstrat.GarbageCollectingPhyloTracker(
         population_size=population_size,
-        initial_buffer_size=21,
+        working_buffer_size=21,
     )
 
     # evolve fixed-size population with random selection

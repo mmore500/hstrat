@@ -15,20 +15,28 @@ from ._compile_phylogeny_from_lineage_iters import (
 # could refactor to use iter_lineage below, but not sure if would affect perf
 @nb.jit(nopython=True)
 def _discern_referenced_rows(
-    parentage_buffer: np.array, num_records: int, population_size: int
+    parentage_buffer: np.array,
+    num_records: int,
+    population_size: int,
+    below_row: int = 0,
 ) -> np.array:
 
-    # idea: might be able to speed this up with some kind of binary search
-    # if we also stored generation as a column
-    referenced_rows = np.zeros(num_records, dtype=nb.types.bool_)
+    assert below_row >= 0
+    assert num_records >= below_row
+
+    referenced_rows = np.zeros(num_records - below_row, dtype=nb.types.bool_)
     for pop_position in range(population_size):
         idx = num_records - population_size + pop_position
-
-        while idx != parentage_buffer[idx] and not referenced_rows[idx]:
-            referenced_rows[idx] = True
+        while (
+            idx != parentage_buffer[idx]
+            and not referenced_rows[idx - below_row]
+            and idx >= below_row
+        ):
+            referenced_rows[idx - below_row] = True
             idx = parentage_buffer[idx]
 
-        referenced_rows[idx] = True
+        if idx >= below_row:
+            referenced_rows[idx - below_row] = True
 
     return referenced_rows
 
@@ -88,21 +96,26 @@ class GarbageCollectingPhyloTracker:
     #   garbage collected
     # * self-loop parent_row_idx's denotes no parent (i.e., lineage begin)
 
+    _working_buffer_size: int
+
     def __init__(
         self: "GarbageCollectingPhyloTracker",
         population_size: int,
-        initial_buffer_size: typing.Optional[int] = None,
+        working_buffer_size: typing.Optional[int] = None,
         share_common_ancestor: bool = True,
     ) -> None:
-        if initial_buffer_size is None:
-            initial_buffer_size = 10 * population_size
+        if working_buffer_size is None:
+            working_buffer_size = 1000 * population_size
+
+        self._working_buffer_size = working_buffer_size
+        self._working_buffer_end = working_buffer_size
 
         assert population_size
-        assert initial_buffer_size >= population_size + share_common_ancestor
+        assert working_buffer_size >= population_size + share_common_ancestor
 
         self._population_size = population_size
         self._parentage_buffer = np.empty(
-            initial_buffer_size,
+            working_buffer_size * 3 // 2,
             dtype=np.int32,
         )
         self._num_records = population_size + share_common_ancestor
@@ -118,60 +131,76 @@ class GarbageCollectingPhyloTracker:
     def _GetBufferCapacity(self: "GarbageCollectingPhyloTracker") -> int:
         return self._parentage_buffer.shape[0]
 
-    def _MaybeGarbageCollect(
+    def _GarbageCollect(
+        self: "GarbageCollectingPhyloTracker",
+        below_row: int = 0,
+    ) -> None:
+        assert self._num_records > below_row
+
+        referenced_rows = _discern_referenced_rows(
+            self._parentage_buffer,
+            self._num_records,
+            self._population_size,
+            below_row,
+        )
+        num_referenced_rows = np.sum(referenced_rows)
+        cumsum = np.cumsum(np.invert(referenced_rows))
+        targets = (
+            self._parentage_buffer[below_row : self._num_records] - below_row
+        )
+        if below_row:
+            adjustment = cumsum[np.maximum(targets, 0)]
+            adjustment[targets < 0] = 0
+        else:
+            adjustment = cumsum[targets]
+        self._parentage_buffer[below_row : self._num_records] -= adjustment
+
+        # condense non-garbage-collected rows to front of buffer
+        self._parentage_buffer[
+            below_row : below_row + num_referenced_rows
+        ] = self._parentage_buffer[below_row : self._num_records][
+            referenced_rows
+        ]
+
+        self._num_records = num_referenced_rows + below_row
+
+        self._working_buffer_end = (
+            self._num_records + 2 * self._working_buffer_size // 3
+        )
+
+    def _GarbageCollectWorkingBuffer(
+        self: "GarbageCollectingPhyloTracker",
+    ) -> bool:
+        self._GarbageCollect(
+            max(self._num_records - self._working_buffer_size, 0)
+        )
+
+    def _WouldInsertionOverflow(
         self: "GarbageCollectingPhyloTracker", num_to_insert: int
     ) -> bool:
+        return self._num_records + num_to_insert >= self._GetBufferCapacity()
 
-        if self._num_records + num_to_insert >= self._GetBufferCapacity():
-            referenced_rows = _discern_referenced_rows(
-                self._parentage_buffer,
-                self._num_records,
-                self._population_size,
-            )
-            num_referenced_rows = np.sum(referenced_rows)
-            cumsum = np.cumsum(np.invert(referenced_rows))
-            self._parentage_buffer[: self._num_records] -= cumsum[
-                self._parentage_buffer[: self._num_records]
-            ]
+    def _GrowBuffer(self: "GarbageCollectingPhyloTracker") -> None:
+        self._parentage_buffer.resize(int(self._GetBufferCapacity() * 1.5))
 
-            # condense non-garbage-collected rows to front of buffer
-            self._parentage_buffer[
-                :num_referenced_rows
-            ] = self._parentage_buffer[: self._num_records][referenced_rows]
-
-            self._num_records = num_referenced_rows
-
-            return True
-        else:
-            return False
-
-    def _MaybeGrowBuffer(
+    def _GrowBufferForInsertion(
         self: "GarbageCollectingPhyloTracker", num_to_insert: int
     ) -> None:
-        while (
-            self._num_records + num_to_insert
-            >= 0.5 * self._GetBufferCapacity()
-        ):
-            self._parentage_buffer.resize(int(self._GetBufferCapacity() * 1.5))
+        while self._WouldInsertionOverflow(num_to_insert):
+            self._GrowBuffer()
 
     def ElapseGeneration(
         self: "GarbageCollectingPhyloTracker",
         parent_idxs: typing.List[int],
     ) -> None:
-
         assert self._population_size == len(parent_idxs)
 
-        # if elements will overflow buffer, try garbage collecting
-        if self._MaybeGarbageCollect(self._population_size):
-            # if garbage collecting didn't make enough space, increase buffer
-            # size
-            self._MaybeGrowBuffer(self._population_size)
+        if self._num_records >= self._working_buffer_end:
+            self._GarbageCollectWorkingBuffer()
 
-        assert self._num_records < self._GetBufferCapacity()
-        assert (
-            self._num_records + self._population_size
-            < self._GetBufferCapacity()
-        )
+        if self._WouldInsertionOverflow(self._population_size):
+            self._GrowBufferForInsertion(self._population_size)
+            self._GarbageCollect()
 
         begin_row = self._num_records
         end_row = begin_row + self._population_size
