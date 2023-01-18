@@ -150,7 +150,6 @@ class DecantingPhyloTracker:
         # layer 1: parent population position
         self._decanting_buffer[:, self._buffer_pos - 1, 1] = parent_idxs
 
-
     def _FlushBuffer(self: "DecantingPhyloTracker") -> None:
 
         # advance buffer and fill column 0 with nan until empty
