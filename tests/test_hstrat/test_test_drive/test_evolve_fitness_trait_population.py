@@ -30,7 +30,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
     "num_generations",
     [
         10,
-        20,
+        200,
     ],
 )
 @pytest.mark.parametrize(
@@ -56,8 +56,19 @@ def test_evolve_fitness_trait_population(
 
     assert "trait" in alife_df
     assert "loc" in alife_df
-    # assert "island" in alife_df
-    # assert "niche" in alife_df
+    assert "island" in alife_df
+    assert "niche" in alife_df
+
+    assert all(
+        0 <= island <= num_islands for island in alife_df["island"]
+    ), alife_df["island"]
+    assert all(0 <= niche <= num_niches for niche in alife_df["niche"])
+    assert num_islands * num_niches == len(
+        set(
+            (island, niche)
+            for __, (island, niche) in alife_df[["island", "niche"]].iterrows()
+        )
+    )
 
     tree = apc.alife_dataframe_to_dendropy_tree(alife_df)
 
