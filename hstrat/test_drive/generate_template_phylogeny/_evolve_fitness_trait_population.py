@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from ..._auxiliary_lib import apply_swaps
 from ..perfect_tracking import (
     GarbageCollectingPhyloTracker,
     PerfectBacktrackHandle,
@@ -134,9 +135,7 @@ def _apply_niche_swaps(
                 != swapfrom_idxs // island_niche_size % num_niches
             )
 
-        pop_arr[np.concatenate((swapfrom_idxs, swapto_idxs))] = pop_arr[
-            np.concatenate((swapto_idxs, swapfrom_idxs))
-        ]
+        apply_swaps(pop_arr, swapfrom_idxs, swapto_idxs)
 
 
 def _apply_island_swaps(
@@ -169,9 +168,7 @@ def _apply_island_swaps(
                 swapto_idxs // island_size != swapfrom_idxs // island_size
             )
 
-        pop_arr[np.concatenate((swapfrom_idxs, swapto_idxs))] = pop_arr[
-            np.concatenate((swapto_idxs, swapfrom_idxs))
-        ]
+        apply_swaps(pop_arr, swapfrom_idxs, swapto_idxs)
 
 
 def evolve_fitness_trait_population(
