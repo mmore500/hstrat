@@ -2,6 +2,7 @@ from ._AnyTreeAscendingIter import AnyTreeAscendingIter
 from ._RecursionLimit import RecursionLimit
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
 from ._all_same import all_same
+from ._apply_swaps import apply_swaps
 from ._bit_ceil import bit_ceil
 from ._bit_floor import bit_floor
 from ._caretdown_marker import caretdown_marker
@@ -31,6 +32,7 @@ from ._zip_strict import zip_strict
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
     "all_same",
+    "apply_swaps",
     "AnyTreeAscendingIter",
     "bit_ceil",
     "bit_floor",
