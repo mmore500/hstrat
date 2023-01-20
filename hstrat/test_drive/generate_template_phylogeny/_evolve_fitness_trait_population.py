@@ -21,8 +21,8 @@ def evolve_fitness_trait_population(
     num_niches: int = 4,
     num_generations: int = 100,
     tournament_size: int = 4,
-    p_island_migration: float = 1e-3,
-    p_niche_invasion: float = 1e-4,
+    p_island_swap: float = 1e-3,
+    p_niche_swap: float = 1e-4,
     progress_wrap: typing.Callable = lambda x: x,
 ) -> pd.DataFrame:
 
@@ -40,7 +40,7 @@ def evolve_fitness_trait_population(
             num_niches=num_niches,
             island_size=island_size,
             island_niche_size=island_niche_size,
-            p_island_swap=p_island_migration,
+            p_island_swap=p_island_swap,
         )
         _apply_niche_swaps(
             pop_arr,
@@ -48,7 +48,7 @@ def evolve_fitness_trait_population(
             num_niches=num_niches,
             island_size=island_size,
             island_niche_size=island_niche_size,
-            p_niche_swap=p_niche_invasion,
+            p_niche_swap=p_niche_swap,
         )
         _apply_mutation(pop_arr)
         parent_idxs = _select_parents(
