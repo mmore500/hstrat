@@ -3,6 +3,7 @@ import os
 
 import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
+import numpy as np
 import pandas as pd
 import pytest
 from tqdm import tqdm
@@ -156,3 +157,71 @@ def test_evolve_fitness_trait_population_swaps(
         > 1
         for leaf in tree.leaf_node_iter()
     ) == (p_niche_swap and num_niches > 1)
+
+
+def test_evolve_fitness_trait_population_selection():
+    drift_alife_df = hstrat.evolve_fitness_trait_population(
+        num_generations=200,
+        population_size=128,
+        tournament_size=1,
+        progress_wrap=tqdm,
+    )
+    drift_tree = apc.alife_dataframe_to_dendropy_tree(
+        drift_alife_df,
+        setattrs=("trait",),
+    )
+    drift_tree_mean_fitness = np.mean(
+        [node.trait for node in drift_tree.leaf_node_iter()]
+    )
+
+    weak_alife_df = hstrat.evolve_fitness_trait_population(
+        num_generations=200,
+        population_size=128,
+        tournament_size=2,
+        progress_wrap=tqdm,
+    )
+    weak_tree = apc.alife_dataframe_to_dendropy_tree(
+        weak_alife_df,
+        setattrs=("trait",),
+    )
+    weak_tree_mean_fitness = np.mean(
+        [node.trait for node in weak_tree.leaf_node_iter()]
+    )
+
+    weak_bigpop_alife_df = hstrat.evolve_fitness_trait_population(
+        num_generations=200,
+        population_size=1024,
+        tournament_size=2,
+        progress_wrap=tqdm,
+    )
+    weak_bigpop_tree = apc.alife_dataframe_to_dendropy_tree(
+        weak_bigpop_alife_df,
+        setattrs=("trait",),
+    )
+    weak_bigpop_tree_mean_fitness = np.mean(
+        [node.trait for node in weak_bigpop_tree.leaf_node_iter()]
+    )
+
+    strong_alife_df = hstrat.evolve_fitness_trait_population(
+        num_generations=200,
+        population_size=128,
+        tournament_size=7,
+        progress_wrap=tqdm,
+    )
+    strong_tree = apc.alife_dataframe_to_dendropy_tree(
+        strong_alife_df,
+        setattrs=("trait",),
+    )
+    strong_tree_mean_fitness = np.mean(
+        [node.trait for node in strong_tree.leaf_node_iter()]
+    )
+
+    assert (
+        drift_tree_mean_fitness
+        < weak_tree_mean_fitness
+        < strong_tree_mean_fitness
+    )
+
+    assert weak_tree_mean_fitness < weak_bigpop_tree_mean_fitness
+
+    assert sum(1 for __ in drift_tree) > sum(1 for __ in strong_tree)
