@@ -28,7 +28,6 @@ def _setup_population(
     return pop_arr, pop_tracker
 
 
-# @nb.jit(nopython=True, fastmath=True)
 def _do_selection(
     island_niche_size: int,
     tournament_size: int,
