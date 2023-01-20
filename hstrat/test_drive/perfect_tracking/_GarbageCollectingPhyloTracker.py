@@ -264,7 +264,12 @@ class GarbageCollectingPhyloTracker:
         begin_row = self._num_records - self._population_size
         end_row = self._num_records
         apply_swaps(
-            self._loc_buffer[begin_row:end_row], swapfrom_idxs, swapto_idxs
+            self._parentage_buffer[begin_row:end_row],
+            swapfrom_idxs,
+            swapto_idxs,
+        )
+        apply_swaps(
+            self._trait_buffer[begin_row:end_row], swapfrom_idxs, swapto_idxs
         )
 
     def CompilePhylogeny(
