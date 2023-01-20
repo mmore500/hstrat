@@ -3,10 +3,12 @@ import sys
 import numpy as np
 
 from ...._auxiliary_lib import apply_swaps
+from ...perfect_tracking import GarbageCollectingPhyloTracker
 
 
 def _apply_niche_swaps(
     pop_arr: np.array,
+    pop_tracker: GarbageCollectingPhyloTracker,
     num_islands: int,
     num_niches: int,
     island_size: int,
@@ -44,3 +46,4 @@ def _apply_niche_swaps(
             )
 
         apply_swaps(pop_arr, swapfrom_idxs, swapto_idxs)
+        pop_tracker.ApplyLocSwaps(swapfrom_idxs, swapto_idxs)

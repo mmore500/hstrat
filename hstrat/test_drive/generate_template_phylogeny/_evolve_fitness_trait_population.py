@@ -37,6 +37,7 @@ def evolve_fitness_trait_population(
     for generation in progress_wrap(range(num_generations)):
         _apply_island_swaps(
             pop_arr,
+            pop_tracker,
             num_niches=num_niches,
             island_size=island_size,
             island_niche_size=island_niche_size,
@@ -44,6 +45,7 @@ def evolve_fitness_trait_population(
         )
         _apply_niche_swaps(
             pop_arr,
+            pop_tracker,
             num_islands=num_islands,
             num_niches=num_niches,
             island_size=island_size,

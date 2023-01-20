@@ -5,6 +5,7 @@ import numba as nb
 import numpy as np
 import pandas as pd
 
+from ..._auxiliary_lib import apply_swaps
 from ._compile_phylogeny_from_lineage_iters import (
     compile_phylogeny_from_lineage_iters,
 )
@@ -254,6 +255,17 @@ class GarbageCollectingPhyloTracker:
             self._trait_buffer[begin_row:end_row] = traits
 
         self._num_records = end_row
+
+    def ApplyLocSwaps(
+        self: "GarbageCollectingPhyloTracker",
+        swapfrom_idxs: np.array,  # [int]
+        swapto_idxs: np.array,  # [int]
+    ) -> None:
+        begin_row = self._num_records - self._population_size
+        end_row = self._num_records
+        apply_swaps(
+            self._loc_buffer[begin_row:end_row], swapfrom_idxs, swapto_idxs
+        )
 
     def CompilePhylogeny(
         self: "GarbageCollectingPhyloTracker",
