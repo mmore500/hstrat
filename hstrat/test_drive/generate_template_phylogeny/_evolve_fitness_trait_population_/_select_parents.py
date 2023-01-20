@@ -3,7 +3,7 @@ import sys
 import numpy as np
 
 
-def _do_selection(
+def _select_parents(
     island_niche_size: int,
     tournament_size: int,
     pop_arr: np.array,
