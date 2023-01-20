@@ -1,6 +1,8 @@
+import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from ..perfect_tracking import GarbageCollectingPhyloTracker
 from ._evolve_fitness_trait_population_ import (
     _apply_island_swaps,
     _apply_mutation,
@@ -8,7 +10,6 @@ from ._evolve_fitness_trait_population_ import (
     _do_selection,
     _get_island_id,
     _get_niche_id,
-    _setup_population,
 )
 
 
@@ -27,11 +28,8 @@ def evolve_fitness_trait_population(
     assert island_niche_size * num_islands * num_niches == population_size
     assert tournament_size <= island_niche_size
 
-    pop_arr, pop_tracker = _setup_population(
-        island_niche_size=island_niche_size,
-        num_islands=num_islands,
-        num_niches=num_niches,
-    )
+    pop_arr = np.zeros(population_size, dtype=np.single)
+    pop_tracker = GarbageCollectingPhyloTracker(pop_arr)
 
     for generation in tqdm(range(num_generations)):
         _apply_island_swaps(
