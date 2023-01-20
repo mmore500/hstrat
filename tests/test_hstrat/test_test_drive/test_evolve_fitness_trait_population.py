@@ -63,7 +63,7 @@ def test_evolve_fitness_trait_population(
 
     assert all(
         0 <= island <= num_islands for island in alife_df["island"]
-    ), alife_df["island"]
+    )
     assert all(0 <= niche <= num_niches for niche in alife_df["niche"])
     assert num_islands * num_niches == len(
         set(
