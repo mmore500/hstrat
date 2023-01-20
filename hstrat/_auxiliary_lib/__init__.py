@@ -23,6 +23,7 @@ from ._iter_chunks import iter_chunks
 from ._launder_impl_modules import launder_impl_modules
 from ._log_once_in_a_row import log_once_in_a_row
 from ._memoize_generator import memoize_generator
+from ._omit_last import omit_last
 from ._pairwise import pairwise
 from ._popcount import popcount
 from ._release_cur_mpl_fig import release_cur_mpl_fig
