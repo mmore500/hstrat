@@ -13,12 +13,12 @@ def _compare_compiled_phylogenies(
     control_phylogeny_df: pd.DataFrame,
     test_phylogeny_df: pd.DataFrame,
 ) -> None:
-    # compile tree tracked without decanting
+    # compile tree tracked with handle tracker
     control_tree = apc.alife_dataframe_to_dendropy_tree(
         control_phylogeny_df,
     )
 
-    # compile tree tracked with decanting
+    # compile tree tracked with gc tracker
     assert len(test_phylogeny_df) == len(test_phylogeny_df["id"].unique())
     test_tree = apc.alife_dataframe_to_dendropy_tree(
         test_phylogeny_df,
@@ -33,7 +33,7 @@ def _compare_compiled_phylogenies(
         for i, n in enumerate(tree):
             n.taxon = tree.taxon_namespace.new_taxon(f"{i}")
 
-    # check phylogenetic trees with and without decanting are identical
+    # check phylogenetic trees tracked in different ways are identical
     assert collections.Counter(
         node.level() for node in control_tree
     ) == collections.Counter(node.level() for node in test_tree)
