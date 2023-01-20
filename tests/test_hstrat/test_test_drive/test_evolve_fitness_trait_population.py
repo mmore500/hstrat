@@ -5,6 +5,7 @@ import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
 import pandas as pd
 import pytest
+from tqdm import tqdm
 
 from hstrat import hstrat
 from hstrat._auxiliary_lib import pairwise, zip_strict
@@ -52,6 +53,7 @@ def test_evolve_fitness_trait_population(
         num_generations=num_generations,
         population_size=population_size,
         tournament_size=2,
+        progress_wrap=tqdm,
     )
 
     assert "trait" in alife_df

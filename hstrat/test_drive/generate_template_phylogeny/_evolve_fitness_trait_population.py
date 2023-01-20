@@ -1,3 +1,5 @@
+import typing
+
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -21,6 +23,7 @@ def evolve_fitness_trait_population(
     tournament_size: int = 4,
     p_island_migration: float = 1e-3,
     p_niche_invasion: float = 1e-4,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> pd.DataFrame:
 
     island_size = population_size // num_islands
@@ -31,7 +34,7 @@ def evolve_fitness_trait_population(
     pop_arr = np.zeros(population_size, dtype=np.single)
     pop_tracker = GarbageCollectingPhyloTracker(pop_arr)
 
-    for generation in tqdm(range(num_generations)):
+    for generation in progress_wrap(range(num_generations)):
         _apply_island_swaps(
             pop_arr,
             num_niches=num_niches,
