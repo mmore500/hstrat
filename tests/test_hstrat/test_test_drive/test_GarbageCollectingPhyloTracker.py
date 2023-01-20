@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 
 from hstrat import hstrat
+from hstrat._auxiliary_lib import apply_swaps
 
 
 def _compare_compiled_phylogenies(
@@ -97,3 +98,66 @@ def test_GarbateCollectingPhyloTracker():
         hstrat.compile_perfect_backtrack_phylogeny(handle_population),
         tracker.CompilePhylogeny(),
     )
+
+
+def test_GarbateCollectingPhyloTracker_ApplyLocSwaps():
+
+    # setup population and perfect trackers
+    population_size = 4
+    common_ancestor = hstrat.PerfectBacktrackHandle(data=0)
+    handle_population = [
+        common_ancestor.CreateDescendant(data=idx)
+        for idx in range(population_size)
+    ]
+    tracker = hstrat.GarbageCollectingPhyloTracker(
+        initial_population=population_size,
+        working_buffer_size=21,
+    )
+
+    # evolve fixed-size population with random selection
+    for generation in range(50):
+        parent_idxs = np.random.randint(population_size, size=population_size)
+        tracker.ElapseGeneration(parent_idxs)
+        handle_population = [
+            handle_population[idx].CreateDescendant() for idx in parent_idxs
+        ]
+
+        swapfrom_idxs = np.random.randint(
+            population_size, size=population_size
+        )
+        swapto_idxs = np.random.randint(population_size, size=population_size)
+
+        tracker.ApplyLocSwaps(swapfrom_idxs, swapto_idxs)
+        for from_idx, to_idx in zip(swapfrom_idxs, swapto_idxs):
+            handle_population[from_idx], handle_population[to_idx] = (
+                handle_population[to_idx],
+                handle_population[from_idx],
+            )
+
+        for idx, handle in enumerate(handle_population):
+            handle.data = idx
+
+    handle_alife_df = hstrat.compile_perfect_backtrack_phylogeny(
+        handle_population
+    )
+    handle_tree = apc.alife_dataframe_to_dendropy_tree(
+        handle_alife_df,
+        setattrs={"data": "loc"},
+    )
+    handle_loc_lineages = {
+        tuple(ancestor.loc for ancestor in leaf.ancestor_iter(inclusive=True))
+        for leaf in handle_tree.leaf_node_iter()
+    }
+
+    gc_alife_df = tracker.CompilePhylogeny()
+    gc_tree = apc.alife_dataframe_to_dendropy_tree(
+        gc_alife_df,
+        setattrs=["loc"],
+    )
+    gc_loc_lineages = {
+        tuple(ancestor.loc for ancestor in leaf.ancestor_iter(inclusive=True))
+        for leaf in gc_tree.leaf_node_iter()
+    }
+
+    assert len(handle_tree) == len(gc_tree)
+    assert gc_loc_lineages == handle_loc_lineages
