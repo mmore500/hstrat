@@ -75,16 +75,17 @@ class GarbageCollectingPhyloTracker:
             >= self._population_size + share_common_ancestor
         )
 
+        initial_buffer_size = working_buffer_size * 3 // 2
         self._parentage_buffer = np.empty(
-            working_buffer_size * 3 // 2,
+            initial_buffer_size,
             dtype=np.int32,
         )
         self._loc_buffer = np.empty(
-            working_buffer_size * 3 // 2,
+            initial_buffer_size,
             dtype=np.min_scalar_type(self._population_size),
         )
         self._trait_buffer = np.empty(
-            working_buffer_size * 3 // 2,
+            initial_buffer_size,
             dtype=np.single,
         )
 
