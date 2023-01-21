@@ -16,7 +16,6 @@ _bool_t = numba_bool_or_fallback()
 
 # implemented as free function (not member) so self param doesn't interfere
 # with nopython directive
-# could refactor to use iter_lineage below, but not sure if would affect perf
 @jit(nopython=True)
 def _discern_referenced_rows(
     parentage_buffer: np.array,
@@ -43,23 +42,6 @@ def _discern_referenced_rows(
             referenced_rows[idx - below_row] = True
 
     return referenced_rows
-
-
-@jit(nopython=True)
-def _iter_lineage(
-    parentage_buffer: np.array,
-    num_records: int,
-    population_size: int,
-    pop_position: int,
-) -> typing.Iterable[int]:
-
-    idx = num_records - population_size + pop_position
-
-    while True:
-        yield idx
-        if idx == parentage_buffer[idx]:
-            break
-        idx = parentage_buffer[idx]
 
 
 class GarbageCollectingPhyloTracker:
