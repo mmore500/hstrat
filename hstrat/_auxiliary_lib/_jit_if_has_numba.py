@@ -6,7 +6,11 @@ from ._is_in_coverage_run import is_in_coverage_run
 
 
 def jit_if_has_numba(*args, **kwargs) -> typing.Callable:
-    """Decorator that performs jit compilation if numba available."""
+    """Decorator that performs jit compilation if numba available.
+
+    Also disables jit during coverage measurement to increase source
+    visibility.
+    """
     try:
         import numba as nb
     except ModuleNotFoundError as e:
