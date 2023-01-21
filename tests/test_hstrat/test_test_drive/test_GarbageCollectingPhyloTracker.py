@@ -3,12 +3,11 @@ from copy import copy
 import itertools as it
 
 import alifedata_phyloinformatics_convert as apc
-import dendropy as dp
 import numpy as np
 import pandas as pd
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import apply_swaps, omit_last
+from hstrat._auxiliary_lib import omit_last
 
 
 def _compare_compiled_phylogenies(

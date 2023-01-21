@@ -4,8 +4,6 @@ import typing
 import opytional as opyt
 import pandas as pd
 
-from ..._auxiliary_lib import pairwise
-
 
 def _id(obj: typing.Any) -> int:
     return obj if isinstance(obj, (str, int, float)) else id(obj)

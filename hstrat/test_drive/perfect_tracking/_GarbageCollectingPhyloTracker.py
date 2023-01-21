@@ -1,5 +1,5 @@
-import collections
 import typing
+import types
 
 import numpy as np
 import pandas as pd
@@ -9,9 +9,6 @@ from ..._auxiliary_lib import (
     count_unique,
     jit_if_has_numba,
     numba_bool_or_fallback,
-)
-from ._compile_phylogeny_from_lineage_iters import (
-    compile_phylogeny_from_lineage_iters,
 )
 
 # must be declared outside jit'ed function or numba fails
