@@ -62,10 +62,10 @@ def test_DecantingPhyloTracker():
 
     # evolve fixed-size population with random selection
     for generation in range(50):
-        parent_idxs = np.random.randint(population_size, size=population_size)
-        tracker.ElapseGeneration(parent_idxs)
+        parent_locs = np.random.randint(population_size, size=population_size)
+        tracker.ElapseGeneration(parent_locs)
         handle_population = [
-            handle_population[idx].CreateDescendant() for idx in parent_idxs
+            handle_population[loc].CreateDescendant() for loc in parent_locs
         ]
 
     _compare_compiled_phylogenies(
@@ -75,10 +75,10 @@ def test_DecantingPhyloTracker():
 
     # run more generations
     for generation in range(15):
-        parent_idxs = np.random.randint(population_size, size=population_size)
-        tracker.ElapseGeneration(parent_idxs)
+        parent_locs = np.random.randint(population_size, size=population_size)
+        tracker.ElapseGeneration(parent_locs)
         handle_population = [
-            handle_population[idx].CreateDescendant() for idx in parent_idxs
+            handle_population[loc].CreateDescendant() for loc in parent_locs
         ]
 
     _compare_compiled_phylogenies(
@@ -88,10 +88,10 @@ def test_DecantingPhyloTracker():
 
     # run more generations, fewer than buffer size
     for generation in range(5):
-        parent_idxs = np.random.randint(population_size, size=population_size)
-        tracker.ElapseGeneration(parent_idxs)
+        parent_locs = np.random.randint(population_size, size=population_size)
+        tracker.ElapseGeneration(parent_locs)
         handle_population = [
-            handle_population[idx].CreateDescendant() for idx in parent_idxs
+            handle_population[loc].CreateDescendant() for loc in parent_locs
         ]
 
     _compare_compiled_phylogenies(

@@ -53,15 +53,15 @@ def evolve_fitness_trait_population(
             p_niche_invasion=p_niche_invasion,
         )
         _apply_mutation(pop_arr)
-        parent_idxs = _select_parents(
+        parent_locs = _select_parents(
             island_niche_size=island_niche_size,
             tournament_size=tournament_size,
             pop_arr=pop_arr,
         )
 
-        pop_arr = pop_arr[parent_idxs]
+        pop_arr = pop_arr[parent_locs]
         pop_tracker.ElapseGeneration(
-            parent_idxs,
+            parent_locs,
             pop_arr,
         )
 

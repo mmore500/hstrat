@@ -25,15 +25,15 @@ def _apply_niche_invasions(
     if num_niches == 1 or not num_niche_invasions:
         return
 
-    copyto_idxs = np.empty(num_niche_invasions, dtype=np.int32)
-    copyfrom_idxs = np.empty(num_niche_invasions, dtype=np.int32)
-    num_finalized = 0  # loop until all copyto_idxs are distinct
+    copyto_locs = np.empty(num_niche_invasions, dtype=np.int32)
+    copyfrom_locs = np.empty(num_niche_invasions, dtype=np.int32)
+    num_finalized = 0  # loop until all copyto_locs are distinct
     while num_finalized < num_niche_invasions:
-        copyfrom_idxs[num_finalized:] = np.random.randint(
+        copyfrom_locs[num_finalized:] = np.random.randint(
             len(pop_arr), size=(num_niche_invasions - num_finalized)
         )
         copyfrom_niches = (
-            copyfrom_idxs[num_finalized:] // island_niche_size
+            copyfrom_locs[num_finalized:] // island_niche_size
         ) % num_niches
 
         niche_steps = np.random.randint(
@@ -47,25 +47,25 @@ def _apply_niche_invasions(
         if is_in_unit_test():
             assert np.all(abs(swap_steps) < island_size)
 
-        copyto_idxs[num_finalized:] = (
-            copyfrom_idxs[num_finalized:] + swap_steps
+        copyto_locs[num_finalized:] = (
+            copyfrom_locs[num_finalized:] + swap_steps
         )
         # move unique to front
-        indices_of_unique_ = indices_of_unique(copyto_idxs)
+        indices_of_unique_ = indices_of_unique(copyto_locs)
         num_finalized = len(indices_of_unique_)
-        copyfrom_idxs[:num_finalized] = copyfrom_idxs[indices_of_unique_]
-        copyto_idxs[:num_finalized] = copyto_idxs[indices_of_unique_]
+        copyfrom_locs[:num_finalized] = copyfrom_locs[indices_of_unique_]
+        copyto_locs[:num_finalized] = copyto_locs[indices_of_unique_]
 
     if is_in_unit_test():
-        assert len(copyto_idxs) == len(copyfrom_idxs)
+        assert len(copyto_locs) == len(copyfrom_locs)
         assert np.all(
-            copyto_idxs // island_size == copyfrom_idxs // island_size
-        ), (copyto_idxs, copyfrom_idxs)
+            copyto_locs // island_size == copyfrom_locs // island_size
+        ), (copyto_locs, copyfrom_locs)
         assert all(
-            copyto_idxs // island_niche_size % num_niches
-            != copyfrom_idxs // island_niche_size % num_niches
-        ), (copyto_idxs, copyfrom_idxs)
-        assert count_unique(copyto_idxs) == len(copyto_idxs)
+            copyto_locs // island_niche_size % num_niches
+            != copyfrom_locs // island_niche_size % num_niches
+        ), (copyto_locs, copyfrom_locs)
+        assert count_unique(copyto_locs) == len(copyto_locs)
 
-    pop_arr[copyto_idxs] = pop_arr[copyfrom_idxs].copy()
-    pop_tracker.ApplyLocPasteovers(copyfrom_idxs, copyto_idxs)
+    pop_arr[copyto_locs] = pop_arr[copyfrom_locs].copy()
+    pop_tracker.ApplyLocPasteovers(copyfrom_locs, copyto_locs)

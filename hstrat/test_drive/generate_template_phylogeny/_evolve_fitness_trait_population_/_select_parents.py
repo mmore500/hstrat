@@ -36,17 +36,17 @@ def _select_parents(
     winning_tournament_positions = tournament_fitnesses.argmax(axis=1)
 
     # https://stackoverflow.com/a/61234228
-    winning_tournament_idxs = np.take_along_axis(
+    winning_tournament_locs = np.take_along_axis(
         tournament_rosters,
         winning_tournament_positions[:, None],
         axis=1,
     )
 
     if is_in_unit_test():
-        assert len(winning_tournament_idxs.flatten()) == pop_arr.size
+        assert len(winning_tournament_locs.flatten()) == pop_arr.size
         assert np.all(
             np.arange(pop_arr.size) // island_niche_size
-            == winning_tournament_idxs.flatten() // island_niche_size
+            == winning_tournament_locs.flatten() // island_niche_size
         )
 
-    return winning_tournament_idxs.flatten()
+    return winning_tournament_locs.flatten()

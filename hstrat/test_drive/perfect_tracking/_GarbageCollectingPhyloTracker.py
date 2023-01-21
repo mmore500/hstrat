@@ -193,10 +193,10 @@ class GarbageCollectingPhyloTracker:
 
     def ElapseGeneration(
         self: "GarbageCollectingPhyloTracker",
-        parent_idxs: typing.List[int],
+        parent_locs: typing.List[int],
         traits: typing.Optional[typing.List[float]] = None,
     ) -> None:
-        assert self._population_size == len(parent_idxs)
+        assert self._population_size == len(parent_locs)
 
         if self._num_records >= self._working_buffer_end:
             self._GarbageCollectWorkingBuffer()
@@ -208,7 +208,7 @@ class GarbageCollectingPhyloTracker:
         begin_row = self._num_records
         end_row = begin_row + self._population_size
         self._parentage_buffer[begin_row:end_row] = (
-            begin_row - self._population_size + parent_idxs
+            begin_row - self._population_size + parent_locs
         )
         self._loc_buffer[begin_row:end_row] = np.arange(self._population_size)
         if traits is not None:
@@ -218,35 +218,35 @@ class GarbageCollectingPhyloTracker:
 
     def ApplyLocSwaps(
         self: "GarbageCollectingPhyloTracker",
-        swapfrom_idxs: np.array,  # [int]
-        swapto_idxs: np.array,  # [int]
+        swapfrom_locs: np.array,  # [int]
+        swapto_locs: np.array,  # [int]
     ) -> None:
         begin_row = self._num_records - self._population_size
         end_row = self._num_records
         apply_swaps(
             self._parentage_buffer[begin_row:end_row],
-            swapfrom_idxs,
-            swapto_idxs,
+            swapfrom_locs,
+            swapto_locs,
         )
         apply_swaps(
-            self._trait_buffer[begin_row:end_row], swapfrom_idxs, swapto_idxs
+            self._trait_buffer[begin_row:end_row], swapfrom_locs, swapto_locs
         )
 
     def ApplyLocPasteovers(
         self: "GarbageCollectingPhyloTracker",
-        copyfrom_idxs: np.array,  # [int]
-        copyto_idxs: np.array,  # [int]
+        copyfrom_locs: np.array,  # [int]
+        copyto_locs: np.array,  # [int]
     ) -> None:
-        assert len(copyto_idxs) == count_unique(copyto_idxs)
+        assert len(copyto_locs) == count_unique(copyto_locs)
 
         begin_row = self._num_records - self._population_size
         end_row = self._num_records
         self._parentage_buffer[begin_row:end_row][
-            copyto_idxs
-        ] = self._parentage_buffer[begin_row:end_row][copyfrom_idxs].copy()
+            copyto_locs
+        ] = self._parentage_buffer[begin_row:end_row][copyfrom_locs].copy()
         self._trait_buffer[begin_row:end_row][
-            copyto_idxs
-        ] = self._trait_buffer[begin_row:end_row][copyfrom_idxs].copy()
+            copyto_locs
+        ] = self._trait_buffer[begin_row:end_row][copyfrom_locs].copy()
 
     def CompilePhylogeny(
         self: "GarbageCollectingPhyloTracker",

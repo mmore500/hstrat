@@ -3,7 +3,7 @@ from ...._auxiliary_lib import jit
 
 @jit(nopython=True)
 def _get_island_id(
-    population_idx: int,
+    population_loc: int,
     island_size: int,
 ) -> int:
-    return population_idx // island_size
+    return population_loc // island_size

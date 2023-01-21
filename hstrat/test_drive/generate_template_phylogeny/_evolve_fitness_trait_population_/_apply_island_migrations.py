@@ -23,11 +23,11 @@ def _apply_island_migrations(
     if island_size == len(pop_arr) or not num_island_migrations:
         return
 
-    copyto_idxs = np.empty(num_island_migrations, dtype=np.int32)
-    copyfrom_idxs = np.empty(num_island_migrations, dtype=np.int32)
-    num_finalized = 0  # loop until all copyto_idxs are distinct
+    copyto_locs = np.empty(num_island_migrations, dtype=np.int32)
+    copyfrom_locs = np.empty(num_island_migrations, dtype=np.int32)
+    num_finalized = 0  # loop until all copyto_locs are distinct
     while num_finalized < num_island_migrations:
-        copyfrom_idxs[num_finalized:] = np.random.randint(
+        copyfrom_locs[num_finalized:] = np.random.randint(
             len(pop_arr), size=num_island_migrations - num_finalized
         )
         copyto_signs = (
@@ -35,28 +35,28 @@ def _apply_island_migrations(
             * 2
             - 1
         )
-        copyto_idxs[num_finalized:] = (
-            copyfrom_idxs[num_finalized:] + copyto_signs * island_size
+        copyto_locs[num_finalized:] = (
+            copyfrom_locs[num_finalized:] + copyto_signs * island_size
         )
         # wrap overflow
-        copyto_idxs[copyto_idxs >= len(pop_arr)] -= len(pop_arr)
+        copyto_locs[copyto_locs >= len(pop_arr)] -= len(pop_arr)
 
         # move unique to front
-        indices_of_unique_ = indices_of_unique(copyto_idxs)
+        indices_of_unique_ = indices_of_unique(copyto_locs)
         num_finalized = len(indices_of_unique_)
-        copyfrom_idxs[:num_finalized] = copyfrom_idxs[indices_of_unique_]
-        copyto_idxs[:num_finalized] = copyto_idxs[indices_of_unique_]
+        copyfrom_locs[:num_finalized] = copyfrom_locs[indices_of_unique_]
+        copyto_locs[:num_finalized] = copyto_locs[indices_of_unique_]
 
     if is_in_unit_test():
-        assert len(copyto_idxs) == len(copyfrom_idxs)
+        assert len(copyto_locs) == len(copyfrom_locs)
         assert all(
-            copyto_idxs // island_niche_size % num_niches
-            == copyfrom_idxs // island_niche_size % num_niches
-        ), (copyto_idxs, copyfrom_idxs, indices_of_unique_)
+            copyto_locs // island_niche_size % num_niches
+            == copyfrom_locs // island_niche_size % num_niches
+        ), (copyto_locs, copyfrom_locs, indices_of_unique_)
         assert np.all(
-            copyto_idxs // island_size != copyfrom_idxs // island_size
+            copyto_locs // island_size != copyfrom_locs // island_size
         )
-        assert count_unique(copyto_idxs) == len(copyto_idxs)
+        assert count_unique(copyto_locs) == len(copyto_locs)
 
-    pop_arr[copyto_idxs] = pop_arr[copyfrom_idxs].copy()
-    pop_tracker.ApplyLocPasteovers(copyfrom_idxs, copyto_idxs)
+    pop_arr[copyto_locs] = pop_arr[copyfrom_locs].copy()
+    pop_tracker.ApplyLocPasteovers(copyfrom_locs, copyto_locs)

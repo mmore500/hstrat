@@ -62,10 +62,10 @@ def test_GarbateCollectingPhyloTracker():
 
     # evolve fixed-size population with random selection
     for generation in range(50):
-        parent_idxs = np.random.randint(population_size, size=population_size)
-        tracker.ElapseGeneration(parent_idxs)
+        parent_locs = np.random.randint(population_size, size=population_size)
+        tracker.ElapseGeneration(parent_locs)
         handle_population = [
-            handle_population[idx].CreateDescendant() for idx in parent_idxs
+            handle_population[loc].CreateDescendant() for loc in parent_locs
         ]
 
     _compare_compiled_phylogenies(
@@ -75,10 +75,10 @@ def test_GarbateCollectingPhyloTracker():
 
     # run more generations
     for generation in range(15):
-        parent_idxs = np.random.randint(population_size, size=population_size)
-        tracker.ElapseGeneration(parent_idxs)
+        parent_locs = np.random.randint(population_size, size=population_size)
+        tracker.ElapseGeneration(parent_locs)
         handle_population = [
-            handle_population[idx].CreateDescendant() for idx in parent_idxs
+            handle_population[loc].CreateDescendant() for loc in parent_locs
         ]
 
     _compare_compiled_phylogenies(
@@ -88,10 +88,10 @@ def test_GarbateCollectingPhyloTracker():
 
     # run more generations, fewer than buffer size
     for generation in range(5):
-        parent_idxs = np.random.randint(population_size, size=population_size)
-        tracker.ElapseGeneration(parent_idxs)
+        parent_locs = np.random.randint(population_size, size=population_size)
+        tracker.ElapseGeneration(parent_locs)
         handle_population = [
-            handle_population[idx].CreateDescendant() for idx in parent_idxs
+            handle_population[loc].CreateDescendant() for loc in parent_locs
         ]
 
     _compare_compiled_phylogenies(
@@ -106,8 +106,8 @@ def test_GarbateCollectingPhyloTracker_ApplyLocSwaps():
     population_size = 4
     common_ancestor = hstrat.PerfectBacktrackHandle(data=0)
     handle_population = [
-        common_ancestor.CreateDescendant(data=idx)
-        for idx in range(population_size)
+        common_ancestor.CreateDescendant(data=loc)
+        for loc in range(population_size)
     ]
     tracker = hstrat.GarbageCollectingPhyloTracker(
         initial_population=population_size,
@@ -116,26 +116,26 @@ def test_GarbateCollectingPhyloTracker_ApplyLocSwaps():
 
     # evolve fixed-size population with random selection
     for generation in range(50):
-        parent_idxs = np.random.randint(population_size, size=population_size)
-        tracker.ElapseGeneration(parent_idxs)
+        parent_locs = np.random.randint(population_size, size=population_size)
+        tracker.ElapseGeneration(parent_locs)
         handle_population = [
-            handle_population[idx].CreateDescendant() for idx in parent_idxs
+            handle_population[loc].CreateDescendant() for loc in parent_locs
         ]
 
-        swapfrom_idxs = np.random.randint(
+        swapfrom_locs = np.random.randint(
             population_size, size=population_size
         )
-        swapto_idxs = np.random.randint(population_size, size=population_size)
+        swapto_locs = np.random.randint(population_size, size=population_size)
 
-        tracker.ApplyLocSwaps(swapfrom_idxs, swapto_idxs)
-        for from_idx, to_idx in zip(swapfrom_idxs, swapto_idxs):
-            handle_population[from_idx], handle_population[to_idx] = (
-                handle_population[to_idx],
-                handle_population[from_idx],
+        tracker.ApplyLocSwaps(swapfrom_locs, swapto_locs)
+        for from_loc, to_loc in zip(swapfrom_locs, swapto_locs):
+            handle_population[from_loc], handle_population[to_loc] = (
+                handle_population[to_loc],
+                handle_population[from_loc],
             )
 
-        for idx, handle in enumerate(handle_population):
-            handle.data = idx
+        for loc, handle in enumerate(handle_population):
+            handle.data = loc
 
     handle_alife_df = hstrat.compile_perfect_backtrack_phylogeny(
         handle_population
@@ -172,15 +172,15 @@ def test_GarbateCollectingPhyloTracker_ApplyLocPasteovers():
     )
     handle_naivepaste_population = [
         common_ancestor.CreateDescendant(
-            data={"loc": idx, "trait": float(idx)}
+            data={"loc": loc, "trait": float(loc)}
         )
-        for idx in range(population_size)
+        for loc in range(population_size)
     ]
     handle_copypaste_population = [
         common_ancestor.CreateDescendant(
-            data={"loc": idx, "trait": float(idx)}
+            data={"loc": loc, "trait": float(loc)}
         )
-        for idx in range(population_size)
+        for loc in range(population_size)
     ]
     tracker = hstrat.GarbageCollectingPhyloTracker(
         initial_population=np.arange(population_size),
@@ -189,54 +189,54 @@ def test_GarbateCollectingPhyloTracker_ApplyLocPasteovers():
 
     # evolve fixed-size population with random selection
     for generation in range(50):
-        parent_idxs = np.random.randint(population_size, size=population_size)
+        parent_locs = np.random.randint(population_size, size=population_size)
         tracker.ElapseGeneration(
-            parent_idxs, traits=np.arange(len(parent_idxs))
+            parent_locs, traits=np.arange(population_size)
         )
         handle_naivepaste_population = [
-            handle_naivepaste_population[idx].CreateDescendant(
+            handle_naivepaste_population[parent_loc].CreateDescendant(
                 data={"trait": float(loc)}
             )
-            for loc, idx in enumerate(parent_idxs)
+            for loc, parent_loc in enumerate(parent_locs)
         ]
         handle_copypaste_population = [
-            handle_copypaste_population[idx].CreateDescendant(
+            handle_copypaste_population[parent_loc].CreateDescendant(
                 data={"trait": float(loc)}
             )
-            for loc, idx in enumerate(parent_idxs)
+            for loc, parent_loc in enumerate(parent_locs)
         ]
 
         # apply pasteovers
-        copyfrom_idxs = np.random.randint(
+        copyfrom_locs = np.random.randint(
             population_size, size=np.random.randint(population_size)
         )
-        copyto_idxs = np.arange(population_size)
-        np.random.shuffle(copyto_idxs)
-        copyto_idxs = copyto_idxs[: len(copyfrom_idxs)]
+        copyto_locs = np.arange(population_size)
+        np.random.shuffle(copyto_locs)
+        copyto_locs = copyto_locs[: len(copyfrom_locs)]
 
-        tracker.ApplyLocPasteovers(copyfrom_idxs, copyto_idxs)
+        tracker.ApplyLocPasteovers(copyfrom_locs, copyto_locs)
 
-        for from_idx, to_idx in zip(copyfrom_idxs, copyto_idxs):
-            handle_naivepaste_population[to_idx] = copy(
-                handle_naivepaste_population[from_idx]
+        for from_loc, to_loc in zip(copyfrom_locs, copyto_locs):
+            handle_naivepaste_population[to_loc] = copy(
+                handle_naivepaste_population[from_loc]
             )
-            handle_naivepaste_population[to_idx].data = copy(
-                handle_naivepaste_population[to_idx].data
+            handle_naivepaste_population[to_loc].data = copy(
+                handle_naivepaste_population[to_loc].data
             )
 
         handle_copypaste_population_ = copy(handle_copypaste_population)
-        for from_idx, to_idx in zip(copyfrom_idxs, copyto_idxs):
-            handle_copypaste_population[to_idx] = copy(
-                handle_copypaste_population_[from_idx]
+        for from_loc, to_loc in zip(copyfrom_locs, copyto_locs):
+            handle_copypaste_population[to_loc] = copy(
+                handle_copypaste_population_[from_loc]
             )
-            handle_copypaste_population[to_idx].data = copy(
-                handle_copypaste_population[to_idx].data
+            handle_copypaste_population[to_loc].data = copy(
+                handle_copypaste_population[to_loc].data
             )
 
         # set loc after pasteovers
         for pop in handle_naivepaste_population, handle_copypaste_population:
-            for idx, handle in enumerate(pop):
-                handle.data["loc"] = idx
+            for loc, handle in enumerate(pop):
+                handle.data["loc"] = loc
 
     handle_naivepaste_tree = apc.alife_dataframe_to_dendropy_tree(
         hstrat.compile_perfect_backtrack_phylogeny(

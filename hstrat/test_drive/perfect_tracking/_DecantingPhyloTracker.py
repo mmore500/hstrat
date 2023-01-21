@@ -25,7 +25,7 @@ class DecantingPhyloTracker:
 
     # decanting buffer layout
     #
-    #                     population position
+    #                     population loc
     #                     |
     #                     |
     # generations ago ----|-> 0   1   2   3   4   ...   buffer_size - 1
@@ -38,14 +38,14 @@ class DecantingPhyloTracker:
     #                   ... |
     #   population_size - 1 |
     #
-    # layer 0 (z axis): own population position
-    # layer 1 (z axis): parent's population position
+    # layer 0 (z axis): organism's own population loc
+    # layer 1 (z axis): parent's population loc
     #
     # every generation,
-    # * the backtrack tree is updated using the subset population position ids' #   that survived to the rightmost colun,
-    # * population position ids roll one column to the right,
-    # * new population position id's are pasted over column 0,
-    # * and rows shuffle/duplicate according to the selected parent indexes
+    # * the backtrack tree is updated using the subset population loc ids' #   that survived to the rightmost colun,
+    # * population loc ids roll one column to the right,
+    # * new population loc id's are pasted over column 0,
+    # * and rows shuffle/duplicate according to the selected parent indices
     #
     _buffer_pos: int
     _decanting_buffer: np.array  # [int]
@@ -96,22 +96,22 @@ class DecantingPhyloTracker:
     ):
         assert not self._is_nan(self._decanting_buffer[0, self._buffer_pos, 0])
 
-        # find positions of unique ancestors with extant descendants
+        # find locs of unique ancestors with extant descendants
         unique_row_indices = indices_of_unique(
             self._decanting_buffer[:, self._buffer_pos, 0],
         )
 
-        unique_positions = self._decanting_buffer[
+        unique_locs = self._decanting_buffer[
             unique_row_indices, self._buffer_pos, 0
         ]
-        unique_parent_positions = self._decanting_buffer[
+        unique_parent_locs = self._decanting_buffer[
             unique_row_indices, self._buffer_pos, 1
         ]
         # apply unique ancestors' generational step
         # to relevant perfect tracking handles
         # step 1: copy parents
-        self._decanted_tree_tips[unique_positions] = self._tuple_wrap(
-            self._decanted_tree_tips[unique_parent_positions]
+        self._decanted_tree_tips[unique_locs] = self._tuple_wrap(
+            self._decanted_tree_tips[unique_parent_locs]
         )
 
     def _AdvanceBuffer(
@@ -130,11 +130,11 @@ class DecantingPhyloTracker:
 
     def ElapseGeneration(
         self: "DecantingPhyloTracker",
-        parent_idxs: typing.List[int],
+        parent_locs: typing.List[int],
     ) -> None:
 
         # consolidate rows that now share common ancestry
-        self._decanting_buffer = self._decanting_buffer[parent_idxs, :, :]
+        self._decanting_buffer = self._decanting_buffer[parent_locs, :, :]
 
         # shift buffer one position right,
         # archiving rightmost column if necessary
@@ -142,12 +142,12 @@ class DecantingPhyloTracker:
 
         # set new (leftmost) column
         # note: 0 - 1 == -1 is valid for indexing
-        # layer 0: own population position
+        # layer 0: own population loc
         self._decanting_buffer[:, self._buffer_pos - 1, 0] = np.arange(
             self._decanting_buffer.shape[0]
         )
-        # layer 1: parent population position
-        self._decanting_buffer[:, self._buffer_pos - 1, 1] = parent_idxs
+        # layer 1: parent population loc
+        self._decanting_buffer[:, self._buffer_pos - 1, 1] = parent_locs
 
     def _FlushBuffer(self: "DecantingPhyloTracker") -> None:
 
