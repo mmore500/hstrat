@@ -108,11 +108,20 @@ def test_evolve_fitness_trait_population(
         1.0,
     ],
 )
+@pytest.mark.parametrize(
+    "mut_distn",
+    [
+        np.random.standard_normal,
+        np.random.laplace,
+        lambda size: np.zeros(shape=size),
+    ],
+)
 def test_evolve_fitness_trait_population_swaps(
     num_islands,
     num_niches,
     p_island_migration,
     p_niche_invasion,
+    mut_distn,
 ):
     alife_df = hstrat.evolve_fitness_trait_population(
         num_islands=num_islands,
@@ -121,6 +130,7 @@ def test_evolve_fitness_trait_population_swaps(
         population_size=128,
         p_island_migration=p_island_migration,
         p_niche_invasion=p_niche_invasion,
+        mut_distn=mut_distn,
         progress_wrap=tqdm,
     )
 

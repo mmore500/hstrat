@@ -23,6 +23,7 @@ def evolve_fitness_trait_population(
     tournament_size: int = 4,
     p_island_migration: float = 1e-3,
     p_niche_invasion: float = 1e-4,
+    mut_distn: typing.Callable = np.random.standard_normal,
     progress_wrap: typing.Callable = lambda x: x,
 ) -> pd.DataFrame:
 
@@ -52,7 +53,7 @@ def evolve_fitness_trait_population(
             island_niche_size=island_niche_size,
             p_niche_invasion=p_niche_invasion,
         )
-        _apply_mutation(pop_arr)
+        _apply_mutation(pop_arr, mut_distn)
         parent_locs = _select_parents(
             island_niche_size=island_niche_size,
             tournament_size=tournament_size,
