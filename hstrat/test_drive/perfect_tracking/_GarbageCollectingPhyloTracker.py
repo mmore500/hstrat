@@ -5,7 +5,7 @@ import numba as nb
 import numpy as np
 import pandas as pd
 
-from ..._auxiliary_lib import apply_swaps
+from ..._auxiliary_lib import apply_swaps, count_unique
 from ._compile_phylogeny_from_lineage_iters import (
     compile_phylogeny_from_lineage_iters,
 )
@@ -271,6 +271,22 @@ class GarbageCollectingPhyloTracker:
         apply_swaps(
             self._trait_buffer[begin_row:end_row], swapfrom_idxs, swapto_idxs
         )
+
+    def ApplyLocPasteovers(
+        self: "GarbageCollectingPhyloTracker",
+        copyfrom_idxs: np.array,  # [int]
+        copyto_idxs: np.array,  # [int]
+    ) -> None:
+        assert len(copyto_idxs) == count_unique(copyto_idxs)
+
+        begin_row = self._num_records - self._population_size
+        end_row = self._num_records
+        self._parentage_buffer[begin_row:end_row][
+            copyto_idxs
+        ] = self._parentage_buffer[begin_row:end_row][copyfrom_idxs].copy()
+        self._trait_buffer[begin_row:end_row][
+            copyto_idxs
+        ] = self._trait_buffer[begin_row:end_row][copyfrom_idxs].copy()
 
     def CompilePhylogeny(
         self: "GarbageCollectingPhyloTracker",
