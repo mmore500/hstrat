@@ -33,8 +33,8 @@ def _discern_referenced_rows(
         idx = num_records - population_size + pop_position
         while (
             idx != parentage_buffer[idx]
-            and not referenced_rows[idx - below_row]
             and idx >= below_row
+            and not referenced_rows[idx - below_row]
         ):
             referenced_rows[idx - below_row] = True
             idx = parentage_buffer[idx]
