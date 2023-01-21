@@ -52,7 +52,7 @@ def _apply_island_migrations(
         assert all(
             copyto_locs // island_niche_size % num_niches
             == copyfrom_locs // island_niche_size % num_niches
-        ), (copyto_locs, copyfrom_locs, indices_of_unique_)
+        )
         assert np.all(
             copyto_locs // island_size != copyfrom_locs // island_size
         )

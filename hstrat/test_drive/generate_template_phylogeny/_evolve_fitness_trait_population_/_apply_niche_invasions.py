@@ -60,11 +60,11 @@ def _apply_niche_invasions(
         assert len(copyto_locs) == len(copyfrom_locs)
         assert np.all(
             copyto_locs // island_size == copyfrom_locs // island_size
-        ), (copyto_locs, copyfrom_locs)
+        )
         assert all(
             copyto_locs // island_niche_size % num_niches
             != copyfrom_locs // island_niche_size % num_niches
-        ), (copyto_locs, copyfrom_locs)
+        )
         assert count_unique(copyto_locs) == len(copyto_locs)
 
     pop_arr[copyto_locs] = pop_arr[copyfrom_locs].copy()
