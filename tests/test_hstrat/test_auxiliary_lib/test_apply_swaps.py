@@ -167,10 +167,9 @@ def test_apply_swaps_decomposes(pop_size, num_swaps):
     ],
 )
 def test_apply_swaps_reversible(pop_size, num_swaps):
-    for split in range(pop_size):
-        iota = np.arange(pop_size)
-        swap_from_idxs = np.random.randint(pop_size, size=num_swaps)
-        swap_to_idxs = np.random.randint(pop_size, size=num_swaps)
-        apply_swaps(iota, swap_from_idxs, swap_to_idxs)
-        apply_swaps(iota, swap_from_idxs[::-1], swap_to_idxs[::-1])
-        assert all(iota == np.arange(pop_size))
+    iota = np.arange(pop_size)
+    swap_from_idxs = np.random.randint(pop_size, size=num_swaps)
+    swap_to_idxs = np.random.randint(pop_size, size=num_swaps)
+    apply_swaps(iota, swap_from_idxs, swap_to_idxs)
+    apply_swaps(iota, swap_from_idxs[::-1], swap_to_idxs[::-1])
+    assert all(iota == np.arange(pop_size))

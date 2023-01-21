@@ -34,7 +34,7 @@ def evolve_fitness_trait_population(
     pop_arr = np.zeros(population_size, dtype=np.single)
     pop_tracker = GarbageCollectingPhyloTracker(pop_arr)
 
-    for generation in progress_wrap(range(num_generations)):
+    for __ in progress_wrap(range(num_generations)):
         _apply_island_migrations(
             pop_arr,
             pop_tracker,
