@@ -9,6 +9,7 @@ from ._caretdown_marker import caretdown_marker
 from ._caretup_marker import caretup_marker
 from ._check_testing_requirements import check_testing_requirements
 from ._consume import consume
+from ._count_unique import count_unique
 from ._div_range import div_range
 from ._find_bounds import find_bounds
 from ._get_hstrat_version import get_hstrat_version
