@@ -224,9 +224,20 @@ class GarbageCollectingPhyloTracker:
         return self._num_records + num_to_insert >= self._GetBufferCapacity()
 
     def _GrowBuffer(self: "GarbageCollectingPhyloTracker") -> None:
-        self._parentage_buffer.resize(int(self._GetBufferCapacity() * 1.5))
-        self._trait_buffer.resize(int(self._GetBufferCapacity() * 1.5))
-        self._loc_buffer.resize(int(self._GetBufferCapacity() * 1.5))
+        # refcheck only seems to fail in coverage build,
+        # but set False everywhere anyways
+        self._parentage_buffer.resize(
+            int(self._GetBufferCapacity() * 1.5),
+            refcheck=False,
+        )
+        self._trait_buffer.resize(
+            int(self._GetBufferCapacity() * 1.5),
+            refcheck=False,
+        )
+        self._loc_buffer.resize(
+            int(self._GetBufferCapacity() * 1.5),
+            refcheck=False,
+        )
 
     def _GrowBufferForInsertion(
         self: "GarbageCollectingPhyloTracker", num_to_insert: int
