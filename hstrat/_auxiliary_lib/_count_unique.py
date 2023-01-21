@@ -1,9 +1,9 @@
 import numpy as np
 
-from ._jit_if_has_numba import jit_if_has_numba
+from ._jit import jit
 
 
-@jit_if_has_numba(nopython=True)
+@jit(nopython=True)
 def count_unique(array: np.array) -> np.array:
     """How many unique values are contained `array`?"""
     unique_values = set(array)

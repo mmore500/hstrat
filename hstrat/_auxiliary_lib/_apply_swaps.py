@@ -1,9 +1,9 @@
 import numpy as np
 
-from ._jit_if_has_numba import jit_if_has_numba
+from ._jit import jit
 
 
-@jit_if_has_numba(nopython=True)
+@jit(nopython=True)
 def apply_swaps(
     arr: np.array, swapfrom_idxs: np.array, swapto_idxs: np.array
 ) -> None:

@@ -7,7 +7,7 @@ import pandas as pd
 from ..._auxiliary_lib import (
     apply_swaps,
     count_unique,
-    jit_if_has_numba,
+    jit,
     numba_bool_or_fallback,
 )
 
@@ -17,7 +17,7 @@ _bool_t = numba_bool_or_fallback()
 # implemented as free function (not member) so self param doesn't interfere
 # with nopython directive
 # could refactor to use iter_lineage below, but not sure if would affect perf
-@jit_if_has_numba(nopython=True)
+@jit(nopython=True)
 def _discern_referenced_rows(
     parentage_buffer: np.array,
     num_records: int,
@@ -45,7 +45,7 @@ def _discern_referenced_rows(
     return referenced_rows
 
 
-@jit_if_has_numba(nopython=True)
+@jit(nopython=True)
 def _iter_lineage(
     parentage_buffer: np.array,
     num_records: int,
