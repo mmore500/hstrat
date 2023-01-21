@@ -2,6 +2,8 @@ import sys
 import typing
 import warnings
 
+from ._is_in_coverage_run import is_in_coverage_run
+
 
 def jit_if_has_numba(*args, **kwargs) -> typing.Callable:
     """Decorator that performs jit compilation if numba available."""
@@ -15,7 +17,7 @@ def jit_if_has_numba(*args, **kwargs) -> typing.Callable:
         )
         return lambda f: f
 
-    if "coverage" in sys.modules:
+    if is_in_coverage_run():
         warnings.warn(
             "code coverage tracing detected,"
             "disabling jit compilation to increase source visibility",

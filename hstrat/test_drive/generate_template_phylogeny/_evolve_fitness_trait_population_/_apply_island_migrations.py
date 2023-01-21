@@ -2,7 +2,7 @@ import sys
 
 import numpy as np
 
-from ...._auxiliary_lib import count_unique, indices_of_unique
+from ...._auxiliary_lib import count_unique, indices_of_unique, is_in_unit_test
 from ...perfect_tracking import GarbageCollectingPhyloTracker
 
 
@@ -47,7 +47,7 @@ def _apply_island_migrations(
         copyfrom_idxs[:num_finalized] = copyfrom_idxs[indices_of_unique_]
         copyto_idxs[:num_finalized] = copyto_idxs[indices_of_unique_]
 
-    if "pytest" in sys.modules:
+    if is_in_unit_test():
         assert len(copyto_idxs) == len(copyfrom_idxs)
         assert all(
             copyto_idxs // island_niche_size % num_niches

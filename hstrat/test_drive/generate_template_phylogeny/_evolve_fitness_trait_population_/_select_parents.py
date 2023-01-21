@@ -2,6 +2,8 @@ import sys
 
 import numpy as np
 
+from ...._auxiliary_lib import count_unique, indices_of_unique, is_in_unit_test
+
 
 def _select_parents(
     island_niche_size: int,
@@ -40,7 +42,7 @@ def _select_parents(
         axis=1,
     )
 
-    if "pytest" in sys.modules:
+    if is_in_unit_test():
         assert len(winning_tournament_idxs.flatten()) == pop_arr.size
         assert np.all(
             np.arange(pop_arr.size) // island_niche_size

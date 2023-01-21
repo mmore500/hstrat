@@ -2,7 +2,7 @@ import sys
 
 import numpy as np
 
-from ...._auxiliary_lib import count_unique, indices_of_unique
+from ...._auxiliary_lib import count_unique, indices_of_unique, is_in_unit_test
 from ...perfect_tracking import GarbageCollectingPhyloTracker
 
 
@@ -44,7 +44,7 @@ def _apply_niche_invasions(
         )
         assert np.all(corrected_niche_steps != 0)
         swap_steps = corrected_niche_steps * island_niche_size
-        if "pytest" in sys.modules:
+        if is_in_unit_test():
             assert np.all(abs(swap_steps) < island_size)
 
         copyto_idxs[num_finalized:] = (
@@ -56,7 +56,7 @@ def _apply_niche_invasions(
         copyfrom_idxs[:num_finalized] = copyfrom_idxs[indices_of_unique_]
         copyto_idxs[:num_finalized] = copyto_idxs[indices_of_unique_]
 
-    if "pytest" in sys.modules:
+    if is_in_unit_test():
         assert len(copyto_idxs) == len(copyfrom_idxs)
         assert np.all(
             copyto_idxs // island_size == copyfrom_idxs // island_size

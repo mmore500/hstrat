@@ -16,6 +16,8 @@ from ._get_hstrat_version import get_hstrat_version
 from ._indices_of_unique import indices_of_unique
 from ._interleave import interleave
 from ._is_base64 import is_base64
+from ._is_in_coverage_run import is_in_coverage_run
+from ._is_in_unit_test import is_in_unit_test
 from ._is_nondecreasing import is_nondecreasing
 from ._is_nonincreasing import is_nonincreasing
 from ._is_strictly_decreasing import is_strictly_decreasing
