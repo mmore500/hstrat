@@ -1,8 +1,9 @@
-import numba as nb
 import numpy as np
 
+from ._jit_if_has_numba import jit_if_has_numba
 
-@nb.jit(nopython=True)
+
+@jit_if_has_numba(nopython=True)
 def indices_of_unique(array: np.array) -> np.array:
     unique_indices = []
     seen_values = set()

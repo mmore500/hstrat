@@ -1,20 +1,26 @@
 import collections
 import typing
 
-import numba as nb
 import numpy as np
 import pandas as pd
 
-from ..._auxiliary_lib import apply_swaps, count_unique
+from ..._auxiliary_lib import (
+    apply_swaps,
+    count_unique,
+    jit_if_has_numba,
+    numba_bool_or_fallback,
+)
 from ._compile_phylogeny_from_lineage_iters import (
     compile_phylogeny_from_lineage_iters,
 )
 
+# must be declared outside jit'ed function or numba fails
+_bool_t = numba_bool_or_fallback()
 
 # implemented as free function (not member) so self param doesn't interfere
 # with nopython directive
 # could refactor to use iter_lineage below, but not sure if would affect perf
-@nb.jit(nopython=True)
+@jit_if_has_numba(nopython=True)
 def _discern_referenced_rows(
     parentage_buffer: np.array,
     num_records: int,
@@ -25,7 +31,7 @@ def _discern_referenced_rows(
     assert below_row >= 0
     assert num_records >= below_row
 
-    referenced_rows = np.zeros(num_records - below_row, dtype=nb.types.bool_)
+    referenced_rows = np.zeros(num_records - below_row, dtype=_bool_t)
     for pop_position in range(population_size):
         idx = num_records - population_size + pop_position
         while (
@@ -42,7 +48,7 @@ def _discern_referenced_rows(
     return referenced_rows
 
 
-@nb.jit(nopython=True)
+@jit_if_has_numba(nopython=True)
 def _iter_lineage(
     parentage_buffer: np.array,
     num_records: int,
