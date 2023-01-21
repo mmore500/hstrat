@@ -157,13 +157,13 @@ class GarbageCollectingPhyloTracker:
                 1 : self._population_size + 1
             ] = initial_population
         else:
-            self._parentage_buffer[:population_size] = np.arange(
+            self._parentage_buffer[: self._population_size] = np.arange(
                 self._population_size
             )
-            self._loc_buffer[:population_size] = np.arange(
+            self._loc_buffer[: self._population_size] = np.arange(
                 self._population_size
             )
-            self._trait_buffer[:population_size] = initial_population
+            self._trait_buffer[: self._population_size] = initial_population
 
     def _GetBufferCapacity(self: "GarbageCollectingPhyloTracker") -> int:
         return self._parentage_buffer.shape[0]
