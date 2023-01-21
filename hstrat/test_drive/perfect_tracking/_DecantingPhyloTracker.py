@@ -42,7 +42,8 @@ class DecantingPhyloTracker:
     # layer 1 (z axis): parent's population loc
     #
     # every generation,
-    # * the backtrack tree is updated using the subset population loc ids' #   that survived to the rightmost colun,
+    # * the backtrack tree is updated using the subset population loc ids'
+    #   that survived to the rightmost colun,
     # * population loc ids roll one column to the right,
     # * new population loc id's are pasted over column 0,
     # * and rows shuffle/duplicate according to the selected parent indices
