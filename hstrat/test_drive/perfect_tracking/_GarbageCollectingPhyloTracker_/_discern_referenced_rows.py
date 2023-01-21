@@ -14,6 +14,11 @@ def _discern_referenced_rows(
     population_size: int,
     below_row: int = 0,
 ) -> np.array:
+    """Return array of indices for all rows at or below `below_row` that
+    represent organisms with extant lineages.
+
+    Indices of rows with extinct lineages are not included.
+    """
 
     assert below_row >= 0
     assert num_records >= below_row

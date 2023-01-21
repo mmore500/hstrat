@@ -9,13 +9,28 @@ from ._GarbageCollectingPhyloTracker_ import _discern_referenced_rows
 
 
 class GarbageCollectingPhyloTracker:
+    """Data structure to enable perfect tracking over a fixed-size population
+    with synchronous generations.
+
+    Designed to provide low-overhead tracking. Instead of representing organism
+    records as independent objects (which each require an independent
+    allocations and, on lineage extinction, deletions), stores organism records
+    as rows within a numpy array. Partial garbage collection at regular intervals compacts recent record entries to discard extinct lineages.
+
+    Includes organism population loc and trait values in phylogenetic record.
+    """
 
     _population_size: int
-    _num_records: int
-    _parentage_buffer: np.array  # [int]
+    _working_buffer_size: int
 
-    _loc_buffer: np.array  # [int]
-    _trait_buffer: np.array  # [float]
+    _parentage_buffer: np.array  # [int]
+    """1d array with entries representing individual organisms and stored
+    value at each entry corresponding to index of entry representing that
+    organism's parent."""
+
+    _num_records: int
+    """How many entries are stored in `_parentage_buffer`? May be less than
+    `len(_parentage_buffer)`."""
 
     # parentage_buffer:
     #
@@ -49,7 +64,13 @@ class GarbageCollectingPhyloTracker:
     #   garbage collected
     # * self-loop parent_row_idx's denotes no parent (i.e., lineage begin)
 
-    _working_buffer_size: int
+    _loc_buffer: np.array  # [int]
+    """Population position of each tracked organism; entries describe same
+    organism as entry with corresponding row index in `_parentage_buffer`."""
+
+    _trait_buffer: np.array  # [float]
+    """Phenotypic trait of each tracked organism; entries describe same
+    organism as entry with corresponding row index in `_parentage_buffer`."""
 
     def __init__(
         self: "GarbageCollectingPhyloTracker",
@@ -57,6 +78,34 @@ class GarbageCollectingPhyloTracker:
         working_buffer_size: typing.Optional[int] = None,
         share_common_ancestor: bool = True,
     ) -> None:
+        """Initialize data structure to perfectly track phylogenetic history of
+        a population.
+
+        Parameters
+        ----------
+        initial_population : int or numpy array of float
+            Specification of founding organisms of population. Providing an
+            integer arguent specifices population size, and founding organisms'
+            float phenotypic traits are recorded as NaN. Providing a numpy
+            array of float specifies phenotypic traits of founding organisms.
+        working_buffer_size : int, optional
+            Intermittent garbage collection depth.
+
+            How many rows back should intermittent garbage collection reach?
+            Adjustments to this parameter only affect performance, not tracking
+            semantics. Initial buffer size is set to 150% of
+            `working_buffer_size`.
+        share_common_ancestor : bool, default True
+            Should a dummy common ancestor be inserted as the first entry in
+            the tracker?
+
+            If True, all initial population members will be recorded as
+            children of this dummy ancestor. If False, all initial
+            population members will be recorded as having no parent.
+
+            The dummy ancestor's trait value is recorded as NaN and population
+            loc is recorded as 0.
+        """
 
         if isinstance(initial_population, int):
             initial_population = np.full(initial_population, np.nan)
@@ -113,12 +162,14 @@ class GarbageCollectingPhyloTracker:
             self._trait_buffer[: self._population_size] = initial_population
 
     def _GetBufferCapacity(self: "GarbageCollectingPhyloTracker") -> int:
+        """How much buffer space is allocated?"""
         return self._parentage_buffer.shape[0]
 
     def _GarbageCollect(
         self: "GarbageCollectingPhyloTracker",
         below_row: int = 0,
     ) -> None:
+        """Prune entries with extinct lineages at or after `below_row`."""
         assert self._num_records > below_row
 
         referenced_rows = _discern_referenced_rows(
@@ -161,6 +212,8 @@ class GarbageCollectingPhyloTracker:
     def _GarbageCollectWorkingBuffer(
         self: "GarbageCollectingPhyloTracker",
     ) -> bool:
+        """Prune entries with extinct lineages within the fixed-size working
+        buffer segment."""
         self._GarbageCollect(
             max(self._num_records - self._working_buffer_size, 0)
         )
@@ -168,9 +221,15 @@ class GarbageCollectingPhyloTracker:
     def _WouldInsertionOverflow(
         self: "GarbageCollectingPhyloTracker", num_to_insert: int
     ) -> bool:
+        """Is buffer capacity sufficinet to accomodate `num_to_insert`
+        insertions?"""
         return self._num_records + num_to_insert >= self._GetBufferCapacity()
 
     def _GrowBuffer(self: "GarbageCollectingPhyloTracker") -> None:
+        """Allocate a additional buffer space.
+
+        Buffer grows by a fixed proportion of current buffer size.
+        """
         # refcheck only seems to fail in coverage build,
         # but set False everywhere anyways
         self._parentage_buffer.resize(
@@ -189,14 +248,33 @@ class GarbageCollectingPhyloTracker:
     def _GrowBufferForInsertion(
         self: "GarbageCollectingPhyloTracker", num_to_insert: int
     ) -> None:
+        """Allocate sufficient additonal buffer space to accomodate
+        `num_to_insert` insertions."""
         while self._WouldInsertionOverflow(num_to_insert):
             self._GrowBuffer()
 
     def ElapseGeneration(
         self: "GarbageCollectingPhyloTracker",
-        parent_locs: typing.List[int],
-        traits: typing.Optional[typing.List[float]] = None,
+        parent_locs: typing.List[int],  # np.array ok
+        traits: typing.Optional[typing.List[float]] = None,  # np.array ok
     ) -> None:
+        """Append generational turnover to the phylogenetic record.
+
+        Parameters
+        ----------
+        parent_locs : array_like of int
+            Parent's population loc for each population loc.
+
+            Position within array corresponds to post-turnover population
+            members' population positions. Values within array correspond to
+            those members' parents' population positions within the pre-
+            turnover population.
+        traits: array_like of float, optional
+            Traits of post-turnover population members.
+
+            If unspecified, post-turnover population members' traits are
+            recorded as NaN.
+        """
         assert self._population_size == len(parent_locs)
 
         if self._num_records >= self._working_buffer_end:
@@ -222,6 +300,19 @@ class GarbageCollectingPhyloTracker:
         swapfrom_locs: np.array,  # [int]
         swapto_locs: np.array,  # [int]
     ) -> None:
+        """Swap organisms between population locations.
+
+        Organisms' pre-swap population locations do not remain in the
+        phylogenetic record. Zip of parameters specifies pairs of population
+        locations to swap.
+
+        Notes
+        -----
+        Swaps are performed sequentially, with the most recent organism swapped
+        to a location used for subsequent swaps from or to that location.
+
+        Parameter order is commutative.
+        """
         begin_row = self._num_records - self._population_size
         end_row = self._num_records
         apply_swaps(
@@ -238,6 +329,27 @@ class GarbageCollectingPhyloTracker:
         copyfrom_locs: np.array,  # [int]
         copyto_locs: np.array,  # [int]
     ) -> None:
+        """Replace organisms at `copyfto_locs` locations with non-descendant
+        clones of organisms at `copyfrom_locs` locations.
+
+        Pasted-over organisms do not remain in the phylogenetic record. The
+        pasted-in organism is not recorded as the child of the pasted-from
+        organism; rather, the pasted-in organism is recorded as the child of
+        the pasted-from organism's parent.
+
+        Zip of parameters specifies pasteovers to perform, with the first
+        element of zipped tuples specifying the population location to copy
+        from and the second element specifying the population location to paste
+        over.
+
+        Notes
+        -----
+        The original organism at each location is copied from, ignoring any
+        preceding pasteovers that may have placed a new organism at that
+        location during this operation.
+
+        No repeated entries are allosed in `copyto_locs`.
+        """
         assert len(copyto_locs) == count_unique(copyto_locs)
 
         begin_row = self._num_records - self._population_size
@@ -256,7 +368,25 @@ class GarbageCollectingPhyloTracker:
             str, typing.Callable
         ] = types.MappingProxyType({}),
     ) -> pd.DataFrame:
+        """Create a pandas DataFrame describing full phylogenetic record in
+        alife standard format.
 
+        Parameters
+        ----------
+        progress_wrap : Callable, default identity function
+            Wrapper applied around record row iterator; pass tqdm or equivalent
+            to display progress bar for compilation process.
+        loc_transforms: Dict of str -> Callable, default empty
+            Specification for custom columns in returned dataframe.
+
+            Each dict item creates a new column with name corresponding to the
+            item's key populated with the result of mapping the item's Callable value over organisms' locs.
+
+        Notes
+        -----
+        This operation is non-destructive; further record-keeping may be
+        performed on the tracker object afterwards.
+        """
         self._GarbageCollect()
         records = [
             {
