@@ -96,7 +96,7 @@ def test_evolve_fitness_trait_population(
     ],
 )
 @pytest.mark.parametrize(
-    "p_island_swap",
+    "p_island_migration",
     [
         0.0,
         0.1,
@@ -104,7 +104,7 @@ def test_evolve_fitness_trait_population(
     ],
 )
 @pytest.mark.parametrize(
-    "p_niche_swap",
+    "p_niche_invasion",
     [
         0.0,
         0.1,
@@ -114,16 +114,16 @@ def test_evolve_fitness_trait_population(
 def test_evolve_fitness_trait_population_swaps(
     num_islands,
     num_niches,
-    p_island_swap,
-    p_niche_swap,
+    p_island_migration,
+    p_niche_invasion,
 ):
     alife_df = hstrat.evolve_fitness_trait_population(
         num_islands=num_islands,
         num_niches=num_niches,
         num_generations=200,
         population_size=128,
-        p_island_swap=p_island_swap,
-        p_niche_swap=p_niche_swap,
+        p_island_migration=p_island_migration,
+        p_niche_invasion=p_niche_invasion,
         progress_wrap=tqdm,
     )
 
@@ -146,7 +146,7 @@ def test_evolve_fitness_trait_population_swaps(
         )
         > 1
         for leaf in tree.leaf_node_iter()
-    ) == (p_island_swap and num_islands > 1)
+    ) == (p_island_migration and num_islands > 1)
     assert any(
         len(
             set(
@@ -156,7 +156,7 @@ def test_evolve_fitness_trait_population_swaps(
         )
         > 1
         for leaf in tree.leaf_node_iter()
-    ) == (p_niche_swap and num_niches > 1)
+    ) == (p_niche_invasion and num_niches > 1)
 
 
 def test_evolve_fitness_trait_population_selection():

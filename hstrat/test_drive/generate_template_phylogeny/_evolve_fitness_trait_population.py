@@ -6,9 +6,9 @@ from tqdm import tqdm
 
 from ..perfect_tracking import GarbageCollectingPhyloTracker
 from ._evolve_fitness_trait_population_ import (
-    _apply_island_swaps,
+    _apply_island_migrations,
     _apply_mutation,
-    _apply_niche_swaps,
+    _apply_niche_invasions,
     _get_island_id,
     _get_niche_id,
     _select_parents,
@@ -21,8 +21,8 @@ def evolve_fitness_trait_population(
     num_niches: int = 4,
     num_generations: int = 100,
     tournament_size: int = 4,
-    p_island_swap: float = 1e-3,
-    p_niche_swap: float = 1e-4,
+    p_island_migration: float = 1e-3,
+    p_niche_invasion: float = 1e-4,
     progress_wrap: typing.Callable = lambda x: x,
 ) -> pd.DataFrame:
 
@@ -35,22 +35,22 @@ def evolve_fitness_trait_population(
     pop_tracker = GarbageCollectingPhyloTracker(pop_arr)
 
     for generation in progress_wrap(range(num_generations)):
-        _apply_island_swaps(
+        _apply_island_migrations(
             pop_arr,
             pop_tracker,
             num_niches=num_niches,
             island_size=island_size,
             island_niche_size=island_niche_size,
-            p_island_swap=p_island_swap,
+            p_island_migration=p_island_migration,
         )
-        _apply_niche_swaps(
+        _apply_niche_invasions(
             pop_arr,
             pop_tracker,
             num_islands=num_islands,
             num_niches=num_niches,
             island_size=island_size,
             island_niche_size=island_niche_size,
-            p_niche_swap=p_niche_swap,
+            p_niche_invasion=p_niche_invasion,
         )
         _apply_mutation(pop_arr)
         parent_idxs = _select_parents(
