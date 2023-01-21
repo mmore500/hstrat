@@ -73,11 +73,19 @@ class TestIndicesOfUnique(unittest.TestCase):
 
         print()
         print(
-            f"{t1_hstrat.elapsed=} {t2_hstrat.elapsed=} {t3_hstrat.elapsed=}"
+            f"t1_hstrat.elapsed={t1_hstrat.elapsed} "
+            f"t2_hstrat.elapsed={t2_hstrat.elapsed} "
+            f"t3_hstrat.elapsed={t3_hstrat.elapsed} "
         )
-        print(f"{t1_numpy.elapsed=} {t2_numpy.elapsed=} {t3_numpy.elapsed=}")
         print(
-            f"{t1_pandas.elapsed=} {t2_pandas.elapsed=} {t3_pandas.elapsed=}"
+            f"t1_numpy.elapsed={t1_numpy.elapsed} "
+            f"t2_numpy.elapsed={t2_numpy.elapsed} "
+            f"t3_numpy.elapsed={t3_numpy.elapsed} "
+        )
+        print(
+            f"t1_pandas.elapsed={t1_pandas.elapsed} "
+            f"t2_pandas.elapsed={t2_pandas.elapsed} "
+            f"t3_pandas.elapsed={t3_pandas.elapsed} "
         )
 
 
