@@ -104,7 +104,7 @@ class GarbageCollectingPhyloTracker:
 
     def __init__(
         self: "GarbageCollectingPhyloTracker",
-        initial_population: np.array,  # [float]
+        initial_population: typing.Union[int, np.array],  # [float]
         working_buffer_size: typing.Optional[int] = None,
         share_common_ancestor: bool = True,
     ) -> None:
