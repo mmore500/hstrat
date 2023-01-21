@@ -294,7 +294,9 @@ class GarbageCollectingPhyloTracker:
     def CompilePhylogeny(
         self: "GarbageCollectingPhyloTracker",
         progress_wrap=lambda x: x,
-        loc_transforms: typing.Dict[str, typing.Callable] = {},
+        loc_transforms: typing.Dict[
+            str, typing.Callable
+        ] = types.MappingProxyType({}),
     ) -> pd.DataFrame:
 
         self._GarbageCollect()
