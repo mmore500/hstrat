@@ -10,8 +10,8 @@ class TestOmitLast(unittest.TestCase):
 
     def test(self):
 
-        for len in range(10):
-            operand = [*range(len)]
+        for len_ in range(10):
+            operand = [*range(len_)]
             assert [*omit_last(operand)] == operand[:-1]
             assert [*omit_last(iter(operand))] == operand[:-1]
 
