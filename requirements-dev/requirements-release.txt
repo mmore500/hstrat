@@ -57,6 +57,8 @@ matplotlib>=3.5.2
     #   seaborn
 mmh3>=3.0.0
     # via hstrat (../../pyproject.toml)
+more-itertools>=8.13.0
+    # via hstrat (../../pyproject.toml)
 mpmath>=1.2.1
     # via hstrat (../../pyproject.toml)
 numpy>=1.21.6
