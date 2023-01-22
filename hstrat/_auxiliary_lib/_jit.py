@@ -1,4 +1,3 @@
-import sys
 import typing
 import warnings
 
@@ -13,7 +12,7 @@ def jit(*args, **kwargs) -> typing.Callable:
     """
     try:
         import numba as nb
-    except ModuleNotFoundError as e:
+    except ModuleNotFoundError:
         warnings.warn(
             "numba unavailable,"
             "wrapped function may lose significant performance",

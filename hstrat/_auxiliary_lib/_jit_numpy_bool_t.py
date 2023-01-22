@@ -3,8 +3,6 @@
 Type must be declared outside jit'ed function or numba fails.
 """
 
-import typing
-
 import numpy as np
 
 from ._is_in_coverage_run import is_in_coverage_run

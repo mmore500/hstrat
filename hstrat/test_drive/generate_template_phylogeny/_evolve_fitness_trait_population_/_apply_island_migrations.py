@@ -1,5 +1,3 @@
-import sys
-
 import numpy as np
 
 from ...._auxiliary_lib import count_unique, indices_of_unique, is_in_unit_test

@@ -52,6 +52,8 @@ __all__ = [
     "get_hstrat_version",
     "indices_of_unique",
     "is_base64",
+    "is_in_coverage_run",
+    "is_in_unit_test",
     "is_nondecreasing",
     "is_nonincreasing",
     "is_strictly_decreasing",

@@ -2,7 +2,6 @@ import collections
 import itertools as it
 
 import alifedata_phyloinformatics_convert as apc
-import dendropy as dp
 import numpy as np
 import pandas as pd
 import pytest
