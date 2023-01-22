@@ -2,7 +2,6 @@ import typing
 
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 
 from ..perfect_tracking import GarbageCollectingPhyloTracker
 from ._evolve_fitness_trait_population_ import (
@@ -96,8 +95,10 @@ def evolve_fitness_trait_population(
         Must take int value `size` as sole kwarg. Must return a `numpy.array`
         of float with length `size`.
     progress_wrap : Callable, default identity function
-        Wrapper applied around generation iterator; pass tqdm or equivalent to
-        display progress bar for compilation process.
+        Wrapper applied around generation iterator and row generator for final
+        phylogeny compilation process.
+
+        Pass tqdm or equivalent to display progress bars.
 
     Returns
     -------
@@ -157,5 +158,5 @@ def evolve_fitness_trait_population(
                 loc, island_niche_size, num_niches
             ),
         },
-        progress_wrap=tqdm,
+        progress_wrap=progress_wrap,
     )
