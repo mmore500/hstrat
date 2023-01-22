@@ -120,9 +120,12 @@ def evolve_fitness_trait_population(
 
     Returns
     -------
-    pandas.DataFrame
-        Full phylogenetic record of extant organisms at end of evolutionary
-        simulation in alife standard format.
+    pandas.DataFrame or iterator of pandas.DataFrame
+        Full phylogenetic record of extant organisms in alife standard format
+        either (1) at end of evolutionary simulation after `num_generations` or
+        (2) at `num_generations` intervals as an infinite iterator.
+
+        Return mode depends on `iter_epochs` parameter.
 
     Notes
     -----
