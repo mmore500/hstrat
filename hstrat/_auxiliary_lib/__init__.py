@@ -32,6 +32,7 @@ from ._pairwise import pairwise
 from ._popcount import popcount
 from ._release_cur_mpl_fig import release_cur_mpl_fig
 from ._scale_luminosity import scale_luminosity
+from ._seed_random import seed_random
 from ._splicewhile import splicewhile
 from ._zip_strict import zip_strict
 
@@ -71,6 +72,7 @@ __all__ = [
     "release_cur_mpl_fig",
     "scale_luminosity",
     "ScalarFormatterFixedPrecision",
+    "seed_random",
     "splicewhile",
     "zip_strict",
 ]
