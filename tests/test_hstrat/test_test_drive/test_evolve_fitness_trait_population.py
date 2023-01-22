@@ -232,3 +232,53 @@ def test_evolve_fitness_trait_population_selection():
     assert weak_tree_mean_fitness < weak_bigpop_tree_mean_fitness
 
     assert sum(1 for __ in drift_tree) > sum(1 for __ in strong_tree)
+
+
+@pytest.mark.parametrize(
+    "num_generations",
+    [
+        100,
+        200,
+    ],
+)
+@pytest.mark.parametrize(
+    "population_size",
+    [
+        128,
+        256,
+    ],
+)
+def test_evolve_fitness_trait_population_iter_epochs(
+    num_generations,
+    population_size,
+):
+
+    epoch_iter = hstrat.evolve_fitness_trait_population(
+        iter_epochs=True,
+        num_generations=num_generations,
+        population_size=population_size,
+        progress_wrap=tqdm,
+    )
+
+    dfs = [next(epoch_iter) for __ in range(3)]
+
+    series_sets = [
+        set(
+            # id and ancestor_list (ancestor id) depend on position within
+            # extant organisms, so aren't conserved
+            df.drop(["id", "ancestor_list"], axis=1).apply(
+                tuple,
+                axis=1,
+            )
+        )
+        for df in dfs
+    ]
+
+    assert len(series_sets[0] & series_sets[1]) > 2 * population_size
+    assert len(series_sets[0] & series_sets[2]) > 2 * population_size
+
+    for epoch, df in enumerate(dfs):
+        assert all(
+            leaf_node.level() == (epoch + 1) * num_generations + 1
+            for leaf_node in apc.alife_dataframe_to_dendropy_tree(df).leaf_node_iter()
+        )

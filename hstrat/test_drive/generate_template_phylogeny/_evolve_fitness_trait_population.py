@@ -16,6 +16,7 @@ from ._evolve_fitness_trait_population_ import (
 
 def evolve_fitness_trait_population(
     population_size: int = 1024,
+    iter_epochs: bool = False,
     num_islands: int = 4,
     num_niches: int = 4,
     num_generations: int = 100,
@@ -24,7 +25,7 @@ def evolve_fitness_trait_population(
     p_niche_invasion: float = 1e-4,
     mut_distn: typing.Callable = np.random.standard_normal,
     progress_wrap: typing.Callable = lambda x: x,
-) -> pd.DataFrame:
+) -> typing.Union[pd.DataFrame, typing.Iterator[pd.DataFrame]]:
     """Run simple evolutionary simulation to generate sample phylogeny.
 
     Organisms are simulated with a genetic trait, which directly corresponds to
@@ -71,12 +72,18 @@ def evolve_fitness_trait_population(
     ----------
     population_size : int, default 1024
         Number of organisms within each generational cohort.
+    iter_epochs : bool, default False
+        Should an iterator that yields phylogenies at successive time points
+        be returned instead of a single final phylogeny?
     num_islands : int, default 4
         Must evenly divide `population_size`.
     num_niches : int, default 4
         Must evenly divide `population_size`.
     num_generations : int, default 100
-        Number of generations to simulate
+        Number of generations to simulate.
+
+        If `iter_epochs` is True, the number of generations to simulate within
+        an epoch.
     tournament_size : int, default 4
         Number of organisms sampled to compete for each population slot.
 
@@ -120,43 +127,56 @@ def evolve_fitness_trait_population(
     pop_arr = np.zeros(population_size, dtype=np.single)
     pop_tracker = GarbageCollectingPhyloTracker(pop_arr)
 
-    for __ in progress_wrap(range(num_generations)):
-        _apply_island_migrations(
-            pop_arr,
-            pop_tracker,
-            num_niches=num_niches,
-            island_size=island_size,
-            island_niche_size=island_niche_size,
-            p_island_migration=p_island_migration,
-        )
-        _apply_niche_invasions(
-            pop_arr,
-            pop_tracker,
-            num_islands=num_islands,
-            num_niches=num_niches,
-            island_size=island_size,
-            island_niche_size=island_niche_size,
-            p_niche_invasion=p_niche_invasion,
-        )
-        _apply_mutation(pop_arr, mut_distn)
-        parent_locs = _select_parents(
-            island_niche_size=island_niche_size,
-            tournament_size=tournament_size,
-            pop_arr=pop_arr,
-        )
+    def epoch_iterator(
+        pop_arr: np.array,
+        pop_tracker: GarbageCollectingPhyloTracker,
+    ) -> typing.Iterator[pd.DataFrame]:
+        """Infinite iterator that yields cumulative phylogeny at evenly-spaced
+        generational epochs."""
 
-        pop_arr = pop_arr[parent_locs]
-        pop_tracker.ElapseGeneration(
-            parent_locs,
-            pop_arr,
-        )
+        while True:
+            for __ in progress_wrap(range(num_generations)):
+                _apply_island_migrations(
+                    pop_arr,
+                    pop_tracker,
+                    num_niches=num_niches,
+                    island_size=island_size,
+                    island_niche_size=island_niche_size,
+                    p_island_migration=p_island_migration,
+                )
+                _apply_niche_invasions(
+                    pop_arr,
+                    pop_tracker,
+                    num_islands=num_islands,
+                    num_niches=num_niches,
+                    island_size=island_size,
+                    island_niche_size=island_niche_size,
+                    p_niche_invasion=p_niche_invasion,
+                )
+                _apply_mutation(pop_arr, mut_distn)
+                parent_locs = _select_parents(
+                    island_niche_size=island_niche_size,
+                    tournament_size=tournament_size,
+                    pop_arr=pop_arr,
+                )
 
-    return pop_tracker.CompilePhylogeny(
-        loc_transforms={
-            "island": lambda loc: _get_island_id(loc, island_size),
-            "niche": lambda loc: _get_niche_id(
-                loc, island_niche_size, num_niches
-            ),
-        },
-        progress_wrap=progress_wrap,
-    )
+                pop_arr = pop_arr[parent_locs]
+                pop_tracker.ElapseGeneration(
+                    parent_locs,
+                    pop_arr,
+                )
+
+            yield pop_tracker.CompilePhylogeny(
+                loc_transforms={
+                    "island": lambda loc: _get_island_id(loc, island_size),
+                    "niche": lambda loc: _get_niche_id(
+                        loc, island_niche_size, num_niches
+                    ),
+                },
+                progress_wrap=progress_wrap,
+            )
+
+    if iter_epochs:
+        return epoch_iterator(pop_arr, pop_tracker)
+    else:
+        return next(epoch_iterator(pop_arr, pop_tracker))
