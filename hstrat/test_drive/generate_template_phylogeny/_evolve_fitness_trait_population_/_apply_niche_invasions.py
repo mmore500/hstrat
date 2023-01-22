@@ -15,6 +15,10 @@ def _apply_niche_invasions(
     island_niche_size: int,
     p_niche_invasion: float,
 ) -> None:
+    """Copy organisms to a new niche, altering `pop_arr` inplace.
+
+    See `evolve_fitness_trait_population` for parameter specifications.
+    """
 
     num_niche_invasions = np.random.binomial(
         n=len(pop_arr),

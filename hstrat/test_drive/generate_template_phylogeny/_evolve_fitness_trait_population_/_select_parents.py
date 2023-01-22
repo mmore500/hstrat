@@ -10,7 +10,20 @@ def _select_parents(
     tournament_size: int,
     pop_arr: np.array,
 ) -> np.array:
+    """Perform tournament selection within island-niches.
 
+    The population array `pop_arr` is not altered.
+
+    Returns
+    -------
+    numpy.array of int
+        Population locations (i.e., indices) specifying the parent for each
+        population slot at the next generation.
+
+        Position within array corresponds to post-turnover population members'
+        population positions. Values within array correspond to those members'
+        parents' population positions within the pre-turnover population.
+    """
     num_island_niches = len(pop_arr) // island_niche_size
 
     tournament_boosters = (

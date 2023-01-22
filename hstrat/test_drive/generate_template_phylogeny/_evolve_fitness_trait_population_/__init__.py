@@ -1,3 +1,5 @@
+"""Implementation for `evolve_fitness_trait_population`."""
+
 from ._apply_island_migrations import _apply_island_migrations
 from ._apply_mutation import _apply_mutation
 from ._apply_niche_invasions import _apply_niche_invasions

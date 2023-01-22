@@ -14,6 +14,10 @@ def _apply_island_migrations(
     island_niche_size: int,
     p_island_migration: float,
 ) -> None:
+    """Copy organisms to neighboring islands, altering `pop_arr` inplace.
+
+    See `evolve_fitness_trait_population` for parameter specifications.
+    """
 
     num_island_migrations = np.random.binomial(
         n=len(pop_arr),
