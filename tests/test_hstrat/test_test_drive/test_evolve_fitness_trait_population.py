@@ -274,8 +274,8 @@ def test_evolve_fitness_trait_population_iter_epochs(
         for df in dfs
     ]
 
-    assert len(series_sets[0] & series_sets[1]) > 2 * population_size
-    assert len(series_sets[0] & series_sets[2]) > 2 * population_size
+    assert len(series_sets[0] & series_sets[1]) > num_generations - 1
+    assert len(series_sets[0] & series_sets[2]) > num_generations * 2 - 1
 
     for epoch, df in enumerate(dfs):
         assert all(
