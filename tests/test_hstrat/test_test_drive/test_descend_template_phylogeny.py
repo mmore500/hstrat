@@ -106,8 +106,8 @@ def test_descend_template_phylogeny(
 
     tree.seed_node.edge_length = num_predeposits
 
-    for idx, node in enumerate(tree.leaf_node_iter()):
-        node.taxon = tree.taxon_namespace.new_taxon(label=str(idx))
+    for loc, node in enumerate(tree.leaf_node_iter()):
+        node.taxon = tree.taxon_namespace.new_taxon(label=str(loc))
 
     tree.update_bipartitions(
         suppress_unifurcations=False,

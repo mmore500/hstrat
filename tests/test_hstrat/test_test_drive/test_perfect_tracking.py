@@ -60,8 +60,8 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 def test_perfect_tracking(tree):
 
     # setup tree
-    for idx, node in enumerate(tree):
-        node.taxon = tree.taxon_namespace.new_taxon(label=str(idx))
+    for loc, node in enumerate(tree):
+        node.taxon = tree.taxon_namespace.new_taxon(label=str(loc))
 
     tree.update_bipartitions(
         suppress_unifurcations=False,
