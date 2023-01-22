@@ -49,6 +49,28 @@ def test_stratum_instrumentation_deterministic(
     for a, b in it.combinations(derived_columns, 2):
         assert a == b
 
+    # control test
+    derived_columns = []
+    for rep in range(3):
+        seed_random(rep)
+        col = hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_policy=policy,
+            stratum_ordered_store=stratum_ordered_store,
+        )
+        for __ in range(50):
+            col.DepositStratum()
+
+        col.DepositStrata(10)
+
+        col = col.CloneDescendant()
+
+        col = col.CloneNthDescendant(10)
+
+        derived_columns.append(col)
+
+    for a, b in it.combinations(derived_columns, 2):
+        assert a != b
+
 
 def test_template_phylogeny_generation_determinstic():
     derived_phylogenetic_records = []
@@ -61,6 +83,18 @@ def test_template_phylogeny_generation_determinstic():
 
     for a, b in it.combinations(derived_phylogenetic_records, 2):
         assert a.equals(b)
+
+    # control test
+    derived_phylogenetic_records = []
+    for rep in range(3):
+        seed_random(rep)
+
+        derived_phylogenetic_records.append(
+            hstrat.evolve_fitness_trait_population()
+        )
+
+    for a, b in it.combinations(derived_phylogenetic_records, 2):
+        assert not a.equals(b)
 
 
 @pytest.mark.parametrize(
@@ -116,3 +150,28 @@ def test_stratum_instrumentation_deterministic(
 
     for a, b in it.combinations(derived_column_populations, 2):
         assert a == b
+
+    # control test
+    derived_column_populations = []
+    for rep in range(3):
+        seed_random(rep)
+
+        seed_column = hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_policy=policy,
+        )
+
+        extant_population = hstrat.descend_template_phylogeny(
+            ascending_lineage_iterators=(
+                tip_node.ancestor_iter(
+                    inclusive=True,
+                )
+                for tip_node in tree.leaf_node_iter()
+            ),
+            descending_tree_iterator=tree.levelorder_node_iter(),
+            get_parent=lambda node: node.parent_node,
+            get_stem_length=lambda node: node.edge_length,
+            seed_column=seed_column,
+        )
+
+    for a, b in it.combinations(derived_column_populations, 2):
+        assert a != b
