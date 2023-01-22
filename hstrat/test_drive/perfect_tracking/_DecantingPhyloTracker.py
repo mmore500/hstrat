@@ -112,10 +112,9 @@ class DecantingPhyloTracker:
             assert len(set(map(id, handles))) == len(handles)
             assert len(set(map(lambda x: id(x[0]), handles))) == 1
         else:
-            # can't use list comprehension due to non-distinct tuple ids
-            for __ in range(population_size):
-                handle = (None,)
-                handles.append(handle)
+            # must to use mutable lists so ancestors have distinct id
+            # because contents (i.e., None) are identical
+            handles = [[None] for __ in range(population_size)]
             assert len(set(map(id, handles))) == len(handles)
 
         handles_array = np.empty(len(handles), dtype=object)
