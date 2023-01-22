@@ -211,14 +211,18 @@ class DecantingPhyloTracker:
         self: "DecantingPhyloTracker",
         progress_wrap=lambda x: x,
     ) -> pd.DataFrame:
-        """Create a pandas DataFrame describing full phylogenetic record in
-        alife standard format.
+        """Generate full phylogenetic record of extant organisms.
 
         Parameters
         ----------
         progress_wrap : Callable, default identity function
             Wrapper applied around record row iterator; pass tqdm or equivalent
             to display progress bar for compilation process.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Full phylogenetic record of extant organisms alife standard format.
 
         Notes
         -----

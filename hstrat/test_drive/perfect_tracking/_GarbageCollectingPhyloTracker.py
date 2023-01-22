@@ -368,8 +368,7 @@ class GarbageCollectingPhyloTracker:
             str, typing.Callable
         ] = types.MappingProxyType({}),
     ) -> pd.DataFrame:
-        """Create a pandas DataFrame describing full phylogenetic record in
-        alife standard format.
+        """Generate full phylogenetic record of extant organisms.
 
         Parameters
         ----------
@@ -381,6 +380,11 @@ class GarbageCollectingPhyloTracker:
 
             Each dict item creates a new column with name corresponding to the
             item's key populated with the result of mapping the item's Callable value over organisms' locs.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Full phylogenetic record of extant organisms alife standard format.
 
         Notes
         -----
