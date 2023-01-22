@@ -24,6 +24,7 @@ def evolve_fitness_trait_population(
     p_island_migration: float = 1e-3,
     p_niche_invasion: float = 1e-4,
     mut_distn: typing.Callable = np.random.standard_normal,
+    share_common_ancestor: bool = True,
     progress_wrap: typing.Callable = lambda x: x,
 ) -> typing.Union[pd.DataFrame, typing.Iterator[pd.DataFrame]]:
     """Run simple evolutionary simulation to generate sample phylogeny.
@@ -101,6 +102,16 @@ def evolve_fitness_trait_population(
 
         Must take int value `size` as sole kwarg. Must return a `numpy.array`
         of float with length `size`.
+    share_common_ancestor : bool, default True
+        Should a dummy common ancestor be inserted as the first entry in
+        the phylogenetic record?
+
+        If True, all initial population members will be recorded as
+        children of this dummy ancestor. If False, all initial
+        population members will be recorded as having no parent.
+
+        The dummy ancestor's trait value is recorded as NaN and population
+        loc is recorded as 0.
     progress_wrap : Callable, default identity function
         Wrapper applied around generation iterator and row generator for final
         phylogeny compilation process.
@@ -125,7 +136,10 @@ def evolve_fitness_trait_population(
     assert tournament_size <= island_niche_size
 
     pop_arr = np.zeros(population_size, dtype=np.single)
-    pop_tracker = GarbageCollectingPhyloTracker(pop_arr)
+    pop_tracker = GarbageCollectingPhyloTracker(
+        pop_arr,
+        share_common_ancestor=share_common_ancestor,
+    )
 
     def epoch_iterator(
         pop_arr: np.array,

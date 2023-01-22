@@ -248,15 +248,24 @@ def test_evolve_fitness_trait_population_selection():
         256,
     ],
 )
+@pytest.mark.parametrize(
+    "share_common_ancestor",
+    [
+        True,
+        False,
+    ],
+)
 def test_evolve_fitness_trait_population_iter_epochs(
     num_generations,
     population_size,
+    share_common_ancestor,
 ):
 
     epoch_iter = hstrat.evolve_fitness_trait_population(
         iter_epochs=True,
         num_generations=num_generations,
         population_size=population_size,
+        share_common_ancestor=share_common_ancestor,
         progress_wrap=tqdm,
     )
 
@@ -279,6 +288,8 @@ def test_evolve_fitness_trait_population_iter_epochs(
 
     for epoch, df in enumerate(dfs):
         assert all(
-            leaf_node.level() == (epoch + 1) * num_generations + 1
-            for leaf_node in apc.alife_dataframe_to_dendropy_tree(df).leaf_node_iter()
+            leaf_node.level()
+            == (epoch + 1) * num_generations + share_common_ancestor
+            for tree in apc.alife_dataframe_to_dendropy_trees(df)
+            for leaf_node in tree.leaf_node_iter()
         )
