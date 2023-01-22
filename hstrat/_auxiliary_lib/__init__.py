@@ -23,10 +23,10 @@ from ._is_strictly_decreasing import is_strictly_decreasing
 from ._is_strictly_increasing import is_strictly_increasing
 from ._iter_chunks import iter_chunks
 from ._jit import jit
+from ._jit_numpy_bool_t import jit_numpy_bool_t
 from ._launder_impl_modules import launder_impl_modules
 from ._log_once_in_a_row import log_once_in_a_row
 from ._memoize_generator import memoize_generator
-from ._numba_bool_or_fallback import numba_bool_or_fallback
 from ._omit_last import omit_last
 from ._pairwise import pairwise
 from ._popcount import popcount
@@ -58,10 +58,10 @@ __all__ = [
     "is_strictly_increasing",
     "iter_chunks",
     "jit",
+    "jit_numpy_bool_t",
     "launder_impl_modules",
     "log_once_in_a_row",
     "memoize_generator",
-    "numba_bool_or_fallback",
     "omit_last",
     "pairwise",
     "popcount",

@@ -1,9 +1,7 @@
 import numpy as np
 
-from ...._auxiliary_lib import jit, numba_bool_or_fallback
+from ...._auxiliary_lib import jit, jit_numpy_bool_t
 
-# must be declared outside jit'ed function or numba fails
-_bool_t = numba_bool_or_fallback()
 
 # implemented as free function (not member) so self param doesn't interfere
 # with nopython directive
@@ -23,7 +21,7 @@ def _discern_referenced_rows(
     assert below_row >= 0
     assert num_records >= below_row
 
-    referenced_rows = np.zeros(num_records - below_row, dtype=_bool_t)
+    referenced_rows = np.zeros(num_records - below_row, dtype=jit_numpy_bool_t)
     for pop_position in range(population_size):
         idx = num_records - population_size + pop_position
         while (
