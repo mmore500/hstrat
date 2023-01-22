@@ -2,7 +2,6 @@ import itertools as it
 import os
 
 import alifedata_phyloinformatics_convert as apc
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -20,7 +19,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
     "stratum_retention_algorithm",
     hstrat.provided_stratum_retention_algorithms,
 )
-def test_stratum_instrumentation_deterministic(
+def test_genome_instrumentation_deterministic(
     stratum_ordered_store, stratum_retention_algorithm
 ):
     try:
@@ -118,7 +117,7 @@ def test_template_phylogeny_generation_determinstic():
         ),
     ],
 )
-def test_stratum_instrumentation_deterministic(
+def test_template_phylogeny_descent_deterministic(
     stratum_retention_algorithm,
     tree,
 ):
@@ -148,6 +147,8 @@ def test_stratum_instrumentation_deterministic(
             seed_column=seed_column,
         )
 
+        derived_column_populations.append(extant_population)
+
     for a, b in it.combinations(derived_column_populations, 2):
         assert a == b
 
@@ -172,6 +173,8 @@ def test_stratum_instrumentation_deterministic(
             get_stem_length=lambda node: node.edge_length,
             seed_column=seed_column,
         )
+
+        derived_column_populations.append(extant_population)
 
     for a, b in it.combinations(derived_column_populations, 2):
         assert a != b
