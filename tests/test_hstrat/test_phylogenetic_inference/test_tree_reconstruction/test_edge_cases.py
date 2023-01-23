@@ -9,33 +9,9 @@ from _SimpleGenomeAnnotatedWithDenseRetention import (
 import random
 import warnings
 
-from alifedata_phyloinformatics_convert import biopython_tree_to_alife_dataframe, alife_dataframe_to_dendropy_tree
-
-from dendropy.calculate.treecompare import symmetric_difference
-from dendropy import TaxonNamespace, Tree
+from aux_tree_tools import tree_difference
 
 import pytest
-
-def tree_difference(x, y):
-    tree_a = alife_dataframe_to_dendropy_tree(biopython_tree_to_alife_dataframe(x))
-    tree_b = alife_dataframe_to_dendropy_tree(biopython_tree_to_alife_dataframe(y))
-
-    common_namespace = TaxonNamespace()
-    tree_a.migrate_taxon_namespace(common_namespace)
-    tree_b.migrate_taxon_namespace(common_namespace)
-
-    tree_a.encode_bipartitions()
-    for bp in tree_a.bipartition_encoding:
-        bp.is_mutable = False
-    tree_b.encode_bipartitions()
-    for bp in tree_b.bipartition_encoding:
-        bp.is_mutable = False
-
-    return symmetric_difference(
-        tree_a,
-        tree_b,
-        is_bipartitions_updated=True
-    )
 
 def test_empty_population():
     population = []
@@ -95,7 +71,7 @@ def test_dual_population_no_mrca():
     # make sure calculate_distance_matrix emmits a warning
     with pytest.warns(UserWarning):
         distance_matrix = tree_reconstruction.calculate_distance_matrix(
-            population, names=names
+            [x.annotation for x in population], names=names
         )
 
     assert (
@@ -135,7 +111,7 @@ def test_dual_population_with_mrca():
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         distance_matrix = tree_reconstruction.calculate_distance_matrix(
-            population, names=names
+            [x.annotation for x in population], names=names
         )
 
     assert (
