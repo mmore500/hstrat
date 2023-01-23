@@ -69,7 +69,7 @@ def calculate_distance_matrix(
         )
 
     return DistanceMatrix(
-        names=names if names else [*ascii_lowercase[: len(population)]],
+        names=names if names else [str(x) for x in range(len(population))],
         matrix=to_tril(matrix_data.T)
     )
 
