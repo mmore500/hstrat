@@ -75,7 +75,7 @@ def calculate_distance_matrix(
 
 # TODO: turn into a shim function. add a boolean parameter for 'dendropy tree'
 def reconstruct_tree(
-    distance_matrix: DistanceMatrix, algo: Literal["nj", "upgma"] = "nj"
+    distance_matrix: DistanceMatrix, algo: Literal["nj", "upgma"] = "upgma"
 ):
     if algo not in ["nj", "upgma"]:
         raise ValueError(
