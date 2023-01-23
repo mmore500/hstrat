@@ -64,8 +64,8 @@ def calculate_distance_matrix(
 
     for a, b in pairwise:
         matrix_data[a][b] = distance_matrix_helper(
-                population[a].annotation,
-                population[b].annotation
+                population[a],
+                population[b]
         )
 
     return DistanceMatrix(
