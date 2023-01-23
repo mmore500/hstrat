@@ -55,9 +55,10 @@ repository = "https://github.com/mmore500/hstrat"
 
 [tool.setuptools]
 include-package-data = true
-packages = [
-  "hstrat",
-]
+
+[tool.setuptools.packages.find]
+where = ["hstrat"]
+namespaces = false
 
 # adapted from https://tox.wiki/en/latest/example/package.html
 [build-system]
