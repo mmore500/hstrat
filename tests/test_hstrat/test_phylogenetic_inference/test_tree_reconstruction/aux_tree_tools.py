@@ -124,5 +124,5 @@ def tree_difference(x, y):
     return symmetric_difference(
         tree_a,
         tree_b,
-        is_bipartitions_updated=False
+        is_bipartitions_updated=True
     )
