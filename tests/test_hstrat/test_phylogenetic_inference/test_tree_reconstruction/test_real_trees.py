@@ -22,7 +22,6 @@ def zero_out_branches(root):
         node.branch_length = max(node.branch_length, 0)
         zero_out_branches(node)
 
-
 @pytest.mark.parametrize(
     "orig_tree",
     [
@@ -33,6 +32,7 @@ def zero_out_branches(root):
             path=f"{assets_path}/grandchild_and_auntuncle.newick",
             schema="newick",
         ),
+        # TODO: handle this edge case
         # dp.Tree.get(path=f"{assets_path}/grandchild.newick", schema="newick"),
         dp.Tree.get(
             path=f"{assets_path}/grandtriplets_and_aunt.newick",
@@ -53,6 +53,7 @@ def zero_out_branches(root):
             schema="newick",
         ),
         dp.Tree.get(path=f"{assets_path}/grandtwins.newick", schema="newick"),
+        # TODO: handle this edge case
         # dp.Tree.get(path=f"{assets_path}/justroot.newick", schema="newick"),
         dp.Tree.get(path=f"{assets_path}/triplets.newick", schema="newick"),
         dp.Tree.get(path=f"{assets_path}/twins.newick", schema="newick"),
