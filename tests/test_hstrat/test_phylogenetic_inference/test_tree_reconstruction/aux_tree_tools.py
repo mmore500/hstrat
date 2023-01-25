@@ -13,11 +13,11 @@ class AuxTree():
 
     @property
     def biopython(self):
-        return alife_dataframe_to_biopython_tree(self._tree)
+        return alife_dataframe_to_biopython_tree(self._tree, setup_edge_lengths=True)
 
     @property
     def dendropy(self):
-        return alife_dataframe_to_dendropy_tree(self._tree)
+        return alife_dataframe_to_dendropy_tree(self._tree, setup_edge_lengths=True)
 
     @property
     def alife(self):
