@@ -17,11 +17,6 @@ import pytest
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
-def zero_out_branches(root):
-    for node in root.clades:
-        node.branch_length = max(node.branch_length, 0)
-        zero_out_branches(node)
-
 @pytest.mark.parametrize(
     "orig_tree",
     [
@@ -160,8 +155,6 @@ def test_realworld_trees(orig_tree):
 
     distance_matrix = tree_reconstruction.calculate_distance_matrix(extant_population)
     reconstructed_tree = tree_reconstruction.reconstruct_tree(distance_matrix)
-
-    zero_out_branches(reconstructed_tree.clade)
 
     rec = AuxTree(reconstructed_tree).dendropy
     rec.collapse_unweighted_edges()
