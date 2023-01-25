@@ -8,7 +8,7 @@ from alifedata_phyloinformatics_convert import dendropy_tree_to_alife_dataframe,
 
 import pandas as pd
 
-from aux_tree_tools import tree_difference, AuxTree
+from aux_tree_tools import tree_distance_metric, AuxTree
 
 import dendropy as dp
 import os
@@ -115,7 +115,7 @@ def test_simple_tree():
         # assert abs(original_distance_matrix.distance(a, b) - reconstructed_distance_matrix.distance(a, b)) < 2
 
 
-    print(tree_difference(
+    print(tree_distance_metric(
         orig_tree,
         reconstructed_tree
     ))
@@ -173,7 +173,7 @@ def test_one_tree():
 
     rec.print_plot(show_internal_node_labels=True)
 
-    print(tree_difference(
+    print(tree_distance_metric(
         orig_tree,
         reconstructed_tree
     ))
@@ -219,7 +219,7 @@ def test_reconstruction_quality():
         distance_matrix = tree_reconstruction.calculate_distance_matrix(extant_population)
         reconstructed_tree = tree_reconstruction.reconstruct_tree(distance_matrix)
 
-        metrics.append(tree_difference(
+        metrics.append(tree_distance_metric(
             orig_tree,
             reconstructed_tree
         ))

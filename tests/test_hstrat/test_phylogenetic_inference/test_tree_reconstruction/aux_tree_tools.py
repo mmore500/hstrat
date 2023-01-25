@@ -67,7 +67,7 @@ def sort_by_taxa_name(tree):
     for node in tree.preorder_node_iter():
         node._child_nodes.sort(key=key_func)
 
-def tree_difference(x, y):
+def tree_distance_metric(x, y):
     # use dendropy trees
     tree_a = AuxTree(x).dendropy
     tree_b = AuxTree(y).dendropy
