@@ -84,41 +84,42 @@ def tree_difference(x, y):
     for bp in tree_b.bipartition_encoding:
         bp.is_mutable = False
 
-
-    # # print("tree_a")
     # sort_by_taxa_name(tree_a)
-    # # print("tree_b")
     # sort_by_taxa_name(tree_b)
-
 
     # tree_b.reseed_at(
     #     tree_b.find_node_with_taxon_label("Inner2"),
     #     collapse_unrooted_basal_bifurcation=False,
     # )
+    # tree_a.print_plot(
+    #     show_internal_node_labels=True,
+    #     plot_metric='level'
+    # )
+    # tree_b.print_plot(
+    #     show_internal_node_labels=True,
+    #     plot_metric='level'
+    # )
 
-    tree_a.collapse_unweighted_edges()
-    tree_b.collapse_unweighted_edges()
+    # tree_a.collapse_unweighted_edges()
+    # tree_b.collapse_unweighted_edges()
 
-    tree_a.print_plot(
-        show_internal_node_labels=True,
-        plot_metric='level'
-    )
-    tree_b.print_plot(
-        show_internal_node_labels=True,
-        plot_metric='level'
-    )
+    # tree_a.print_plot(
+    #     show_internal_node_labels=True,
+    #     plot_metric='level'
+    # )
+    # tree_b.print_plot(
+    #     show_internal_node_labels=True,
+    #     plot_metric='level'
+    # )
+    # print("tree_a, tree_b", false_positives_and_negatives(tree_a, tree_b))
+    # print("tree_b, tree_a", false_positives_and_negatives(tree_b, tree_a))
 
-    print("tree_a, tree_b", false_positives_and_negatives(tree_a, tree_b))
-    print("tree_b, tree_a", false_positives_and_negatives(tree_b, tree_a))
-
-    print("tree_a", len(set(tree_a.bipartition_encoding)))
-    print("tree_b", len(set(tree_b.bipartition_encoding)))
-
-
-    print(sorted([x.level() for x in tree_a]))
-    print(sorted([x.level() for x in tree_b]))
+    # print("tree_a", len(set(tree_a.bipartition_encoding)))
+    # print("tree_b", len(set(tree_b.bipartition_encoding)))
 
 
+    # print(sorted([x.level() for x in tree_a]))
+    # print(sorted([x.level() for x in tree_b]))
 
     return symmetric_difference(
         tree_a,
