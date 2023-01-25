@@ -23,13 +23,42 @@ def zero_out_branches(root):
         zero_out_branches(node)
 
 
-def test_simple_tree():
-    orig_tree = dp.Tree.get(
-        path=f"{assets_path}/grandtriplets_and_auntuncle.newick", schema="newick"
-    )
-    # orig_tree = alife_dataframe_to_dendropy_tree(
-    #     pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-    # )
+@pytest.mark.parametrize(
+    "orig_tree",
+    [
+        dp.Tree.get(
+            path=f"{assets_path}/grandchild_and_aunt.newick", schema="newick"
+        ),
+        dp.Tree.get(
+            path=f"{assets_path}/grandchild_and_auntuncle.newick",
+            schema="newick",
+        ),
+        # dp.Tree.get(path=f"{assets_path}/grandchild.newick", schema="newick"),
+        dp.Tree.get(
+            path=f"{assets_path}/grandtriplets_and_aunt.newick",
+            schema="newick",
+        ),
+        dp.Tree.get(
+            path=f"{assets_path}/grandtriplets_and_auntuncle.newick",
+            schema="newick",
+        ),
+        dp.Tree.get(
+            path=f"{assets_path}/grandtriplets.newick", schema="newick"
+        ),
+        dp.Tree.get(
+            path=f"{assets_path}/grandtwins_and_aunt.newick", schema="newick"
+        ),
+        dp.Tree.get(
+            path=f"{assets_path}/grandtwins_and_auntuncle.newick",
+            schema="newick",
+        ),
+        dp.Tree.get(path=f"{assets_path}/grandtwins.newick", schema="newick"),
+        # dp.Tree.get(path=f"{assets_path}/justroot.newick", schema="newick"),
+        dp.Tree.get(path=f"{assets_path}/triplets.newick", schema="newick"),
+        dp.Tree.get(path=f"{assets_path}/twins.newick", schema="newick"),
+    ],
+)
+def test_handwritten_trees(orig_tree):
     for node in orig_tree:
         node.edge.length = 1
 
@@ -61,49 +90,18 @@ def test_simple_tree():
     )
 
     distance_matrix = tree_reconstruction.calculate_distance_matrix(extant_population)
-    print("distance_matrix")
-    print(distance_matrix)
     reconstructed_tree = tree_reconstruction.reconstruct_tree(distance_matrix)
-
-    print("original")
-    orig_tree.print_plot(
-        show_internal_node_labels=True,
-        node_label_compose_fn=lambda node: f"{opyt.apply_if(node, lambda x: x.edge.length)} {opyt.apply_if(node.taxon, lambda x: x.label)}"
-    )
-
-    print("reconstructed")
-
-    zero_out_branches(reconstructed_tree.clade)
 
     rec = alife_dataframe_to_dendropy_tree(
         biopython_tree_to_alife_dataframe(reconstructed_tree, {'name': 'taxon_label'},),
         setup_edge_lengths=True,
     )
 
-    rec.reseed_at(
-        rec.find_node_with_taxon_label("Inner2"),
-        collapse_unrooted_basal_bifurcation=False,
-    )
-
-    print(rec.seed_node.taxon, rec.seed_node.child_nodes())
-
     rec.collapse_unweighted_edges()
 
-    for node in rec:
-        node.edge.length *= 2
-        print(node, node.edge.length)
-
-
-    rec.print_plot(
-        show_internal_node_labels=True,
-        node_label_compose_fn=lambda node: f"{opyt.apply_if(node, lambda x: x.edge.length)} {node.taxon.label}"
-    )
-
-    # tree_a = copy.deepcopy(tree_b)
     common_namespace = dp.TaxonNamespace()
     orig_tree.migrate_taxon_namespace(common_namespace)
     rec.migrate_taxon_namespace(common_namespace)
-
 
     original_distance_matrix = orig_tree.phylogenetic_distance_matrix()
     reconstructed_distance_matrix = rec.phylogenetic_distance_matrix()
@@ -111,14 +109,12 @@ def test_simple_tree():
     taxa = [node.taxon for node in orig_tree.leaf_node_iter()]
 
     for a, b in itertools.combinations(taxa, 2):
-        print(f"{a.label=}{b.label=}: {original_distance_matrix.distance(a, b)=}, {reconstructed_distance_matrix.distance(a, b)=}")
-        # assert abs(original_distance_matrix.distance(a, b) - reconstructed_distance_matrix.distance(a, b)) < 2
+        assert abs(original_distance_matrix.distance(a, b) - reconstructed_distance_matrix.distance(a, b)) < 2.0
 
-
-    print(tree_distance_metric(
+    assert tree_distance_metric(
         orig_tree,
         reconstructed_tree
-    ))
+    ) < 2.0
 
 
 
@@ -160,10 +156,6 @@ def test_one_tree():
     distance_matrix = tree_reconstruction.calculate_distance_matrix(extant_population)
     reconstructed_tree = tree_reconstruction.reconstruct_tree(distance_matrix)
 
-    print("original")
-    orig_tree.print_plot(show_internal_node_labels=True)
-    print("reconstructed")
-
     zero_out_branches(reconstructed_tree.clade)
 
     rec = alife_dataframe_to_dendropy_tree(
@@ -171,7 +163,6 @@ def test_one_tree():
         setup_edge_lengths=True,
     )
 
-    rec.print_plot(show_internal_node_labels=True)
 
     print(tree_distance_metric(
         orig_tree,
