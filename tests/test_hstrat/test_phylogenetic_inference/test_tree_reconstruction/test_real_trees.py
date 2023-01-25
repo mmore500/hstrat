@@ -8,7 +8,7 @@ from alifedata_phyloinformatics_convert import dendropy_tree_to_alife_dataframe,
 
 import pandas as pd
 
-from aux_tree_tools import tree_difference, InternalTree, sort_by_taxa_name
+from aux_tree_tools import tree_difference, AuxTree
 
 import dendropy as dp
 import os
@@ -119,8 +119,6 @@ def test_simple_tree():
         orig_tree,
         reconstructed_tree
     ))
-
-
 
 
 
@@ -266,7 +264,7 @@ def test_reconstructed_mrca():
 
     distance_matrix = tree_reconstruction.calculate_distance_matrix(extant_population)
     reconstructed_tree = tree_reconstruction.reconstruct_tree(distance_matrix)
-    reconstructed_tree = InternalTree(reconstructed_tree)
+    reconstructed_tree = AuxTree(reconstructed_tree)
 
     for orig_pair, rec_pair in zip(
         itertools.combinations(orig_tree.leaf_node_iter(), 2),

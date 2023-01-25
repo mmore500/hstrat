@@ -1,46 +1,76 @@
-from alifedata_phyloinformatics_convert import biopython_tree_to_alife_dataframe, alife_dataframe_to_dendropy_tree
+from alifedata_phyloinformatics_convert import biopython_tree_to_alife_dataframe, alife_dataframe_to_dendropy_tree, dendropy_tree_to_alife_dataframe, alife_dataframe_to_biopython_tree
 import dendropy
 from dendropy.calculate.treecompare import symmetric_difference
 import pandas as pd
 import Bio
 from dendropy.calculate.treecompare import false_positives_and_negatives
 
-class MetaTree(type):
-    @staticmethod
-    def __call__(tree):
+# auxiliary tree class to allow for inter-format conversions
+class AuxTree():
+    def __init__(self, tree):
+        # internal tree representation is an alife-formatted tree
+        self._tree = self._alife_dispatcher(tree)
+
+    @property
+    def biopython(self):
+        return alife_dataframe_to_biopython_tree(self._tree)
+
+    @property
+    def dendropy(self):
+        return alife_dataframe_to_dendropy_tree(self._tree)
+
+    @property
+    def alife(self):
+        return self._tree
+
+    def _alife_dispatcher(self, tree):
+        """
+        Convert any supported tree format to ALife format
+        """
         if isinstance(tree, dendropy.Tree):
-            # no conversion needed
-            return tree
+            # is a Dendropy Tree
+            return dendropy_tree_to_alife_dataframe(tree) #, {'name': 'taxon_label'})
         if isinstance(tree, pd.DataFrame):
             # is an Alife Dataframe
-            return alife_dataframe_to_dendropy_tree(tree, setup_edge_lengths=True)
+            # TODO: check these properties exist https://alife-data-standards.github.io/alife-data-standards/phylogeny.html
+            return tree
         if isinstance(tree, Bio.Phylo.BaseTree.Tree):
             # is a biopython tree
-            return InternalTree(biopython_tree_to_alife_dataframe(tree, {'name': 'taxon_label'}))
-
-class InternalTree(metaclass=MetaTree):
-    pass
+            return biopython_tree_to_alife_dataframe(tree, {'name': 'taxon_label'})
 
 def sort_by_taxa_name(tree):
+    are_all_taxa_ints = all(
+        isinstance(x, int) for x in tree.dendropy.leaf_node_iter()
+    )
+
+    def key_func(node):
+        if are_all_taxa_ints:
+            # cast label to int
+            return int(node.taxon.label)
+        return node.taxon.label if node.taxon is not None else ""
+
     for node in tree.postorder_internal_node_iter():
         # find minimum child
         min_child = min(
             node._child_nodes,
-            key=lambda x: x.taxon.label if x.taxon is not None else ""
+            key=key_func
         )
 
-        # label internal nodes with minimum child
-        if node.taxon is not None:
-            node.taxon.label = min_child.taxon.label
-        else:
-            node.taxon = dendropy.Taxon(label=min_child.taxon.label)
+        if node.taxon is None:
+            # create taxon if there is none
+            node.taxon = dendropy.Taxon()
 
+        # label internal nodes with minimum child
+        node.taxon.label = min_child.taxon.label
+
+    # sort all nodes
     for node in tree.preorder_node_iter():
-        node._child_nodes.sort(key=lambda node: node.taxon.label)
+        node._child_nodes.sort(key=key_func)
 
 def tree_difference(x, y):
-    tree_a = InternalTree(x)
-    tree_b = InternalTree(y)
+    # use dendropy trees
+    tree_a = AuxTree(x).dendropy
+    tree_b = AuxTree(y).dendropy
 
     # tree_a = copy.deepcopy(tree_b)
     common_namespace = dendropy.TaxonNamespace()
@@ -68,7 +98,6 @@ def tree_difference(x, y):
 
     tree_a.collapse_unweighted_edges()
     tree_b.collapse_unweighted_edges()
-
 
     tree_a.print_plot(
         show_internal_node_labels=True,
