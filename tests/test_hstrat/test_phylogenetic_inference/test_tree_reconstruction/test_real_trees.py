@@ -113,13 +113,21 @@ def test_handwritten_trees(orig_tree):
         reconstructed_tree
     ) < 2.0
 
-
-
-def test_one_tree():
-    orig_tree = alife_dataframe_to_dendropy_tree(
-        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-    )
-
+@pytest.mark.parametrize(
+    "orig_tree",
+    [
+        AuxTree(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        ).dendropy,
+        AuxTree(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        ).dendropy,
+        AuxTree(
+            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        ).dendropy,
+    ],
+)
+def test_realworld_trees(orig_tree):
     for node in orig_tree:
         node.edge_length = 1
 
@@ -155,22 +163,74 @@ def test_one_tree():
 
     zero_out_branches(reconstructed_tree.clade)
 
-    rec = alife_dataframe_to_dendropy_tree(
-        biopython_tree_to_alife_dataframe(reconstructed_tree, {'name': 'taxon_label'},),
-        setup_edge_lengths=True,
-    )
+    rec = AuxTree(reconstructed_tree).dendropy
+    rec.collapse_unweighted_edges()
 
+    common_namespace = dp.TaxonNamespace()
+    orig_tree.migrate_taxon_namespace(common_namespace)
+    rec.migrate_taxon_namespace(common_namespace)
 
-    print(tree_distance_metric(
+    original_distance_matrix = orig_tree.phylogenetic_distance_matrix()
+    reconstructed_distance_matrix = rec.phylogenetic_distance_matrix()
+
+    taxa = [node.taxon for node in orig_tree.leaf_node_iter()]
+
+    for a, b in itertools.combinations(taxa, 2):
+        assert abs(original_distance_matrix.distance(a, b) - reconstructed_distance_matrix.distance(a, b)) < 100.0
+
+    assert tree_distance_metric(
         orig_tree,
         reconstructed_tree
-    ))
+    ) < 1000.0
 
-def test_reconstruction_quality():
-    orig_tree = alife_dataframe_to_dendropy_tree(
-        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-    )
 
+@pytest.mark.parametrize(
+    "orig_tree",
+    [
+        dp.Tree.get(
+            path=f"{assets_path}/grandchild_and_aunt.newick", schema="newick"
+        ),
+        dp.Tree.get(
+            path=f"{assets_path}/grandchild_and_auntuncle.newick",
+            schema="newick",
+        ),
+        # TODO: handle this edge case
+        # dp.Tree.get(path=f"{assets_path}/grandchild.newick", schema="newick"),
+        dp.Tree.get(
+            path=f"{assets_path}/grandtriplets_and_aunt.newick",
+            schema="newick",
+        ),
+        dp.Tree.get(
+            path=f"{assets_path}/grandtriplets_and_auntuncle.newick",
+            schema="newick",
+        ),
+        dp.Tree.get(
+            path=f"{assets_path}/grandtriplets.newick", schema="newick"
+        ),
+        dp.Tree.get(
+            path=f"{assets_path}/grandtwins_and_aunt.newick", schema="newick"
+        ),
+        dp.Tree.get(
+            path=f"{assets_path}/grandtwins_and_auntuncle.newick",
+            schema="newick",
+        ),
+        dp.Tree.get(path=f"{assets_path}/grandtwins.newick", schema="newick"),
+        # TODO: handle this edge case
+        # dp.Tree.get(path=f"{assets_path}/justroot.newick", schema="newick"),
+        dp.Tree.get(path=f"{assets_path}/triplets.newick", schema="newick"),
+        dp.Tree.get(path=f"{assets_path}/twins.newick", schema="newick"),
+        AuxTree(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        ).dendropy,
+        AuxTree(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        ).dendropy,
+        AuxTree(
+            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        ).dendropy,
+    ],
+)
+def test_reconstruction_quality(orig_tree):
     for node in orig_tree:
         node.edge_length = 1
 
@@ -216,11 +276,21 @@ def test_reconstruction_quality():
     assert resolutions == sorted(resolutions)
     assert metrics == sorted(metrics)
 
-def test_reconstructed_mrca():
-    orig_tree = alife_dataframe_to_dendropy_tree(
-        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-    )
-
+@pytest.mark.parametrize(
+    "orig_tree",
+    [
+        # AuxTree(
+        #     pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        # ).dendropy,
+        AuxTree(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        ).dendropy,
+        AuxTree(
+            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        ).dendropy,
+    ],
+)
+def test_reconstructed_mrca(orig_tree):
     for node in orig_tree:
         node.edge_length = 1
 
