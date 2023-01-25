@@ -93,11 +93,7 @@ def test_handwritten_trees(orig_tree):
     distance_matrix = tree_reconstruction.calculate_distance_matrix(extant_population)
     reconstructed_tree = tree_reconstruction.reconstruct_tree(distance_matrix)
 
-    rec = alife_dataframe_to_dendropy_tree(
-        biopython_tree_to_alife_dataframe(reconstructed_tree, {'name': 'taxon_label'},),
-        setup_edge_lengths=True,
-    )
-
+    rec = AuxTree(reconstructed_tree).dendropy
     rec.collapse_unweighted_edges()
 
     common_namespace = dp.TaxonNamespace()
