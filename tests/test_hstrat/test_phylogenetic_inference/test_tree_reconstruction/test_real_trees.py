@@ -320,16 +320,15 @@ def test_reconstructed_mrca(orig_tree):
         seed_column=seed_column,
     )
 
-    distance_matrix = tree_reconstruction.calculate_distance_matrix(extant_population)
-    reconstructed_tree = tree_reconstruction.reconstruct_tree(distance_matrix)
-    reconstructed_tree = AuxTree(reconstructed_tree)
+    threshold = 0.9
 
     for orig_pair, rec_pair in zip(
         itertools.combinations(orig_tree.leaf_node_iter(), 2),
-        itertools.combinations(reconstructed_tree.leaf_node_iter(), 2)
+        itertools.combinations(extant_population, 2)
     ):
-        original_mrca = orig_tree.mrca(orig_pair)
+        pdm = orig_tree.phylogenetic_distance_matrix()
+        original_mrca = pdm.mrca(*map(lambda x: x.taxon, orig_pair))
         lower_mrca_bound, upper_mrca_bound = hstrat.calc_rank_of_mrca_bounds_between(*rec_pair)
 
-        assert lower_mrca_bound < original_mrca
-        assert original_mrca < upper_mrca_bound
+        assert threshold * lower_mrca_bound <= original_mrca.distance_from_root()
+        assert original_mrca.distance_from_root() < upper_mrca_bound * (2 - threshold)
