@@ -40,7 +40,7 @@ class AuxTree():
 
 def sort_by_taxa_name(tree):
     are_all_taxa_ints = all(
-        isinstance(x, int) for x in tree.dendropy.leaf_node_iter()
+        isinstance(x, int) for x in tree.leaf_node_iter()
     )
 
     def key_func(node):
