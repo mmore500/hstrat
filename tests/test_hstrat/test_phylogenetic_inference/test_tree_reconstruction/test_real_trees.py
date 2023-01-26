@@ -17,6 +17,12 @@ import pytest
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
+def load_dendropy_tree(path):
+    if path.endswith(".csv"):
+        return AuxTree(pd.read_csv(path)).dendropy
+    elif path.endswith(".newick"):
+        return dp.Tree.get(path=path, schema="newick")
+
 
 @pytest.mark.parametrize(
     "path",
@@ -37,12 +43,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
     ],
 )
 def test_print_performance(path):
-    if path.endswith(".csv"):
-        orig_tree = AuxTree(pd.read_csv(path)).dendropy
-    elif path.endswith(".newick"):
-        orig_tree = dp.Tree.get(path=path, schema="newick")
-    else:
-        raise Exception("Unsupported tree format")
+    orig_tree = load_dendropy_tree(path)
 
     for node in orig_tree:
         node.edge.length = 1
@@ -89,43 +90,27 @@ def test_print_performance(path):
     print()
 
 @pytest.mark.parametrize(
-    "orig_tree",
+    "path",
     [
-        dp.Tree.get(
-            path=f"{assets_path}/grandchild_and_aunt.newick", schema="newick"
-        ),
-        dp.Tree.get(
-            path=f"{assets_path}/grandchild_and_auntuncle.newick",
-            schema="newick",
-        ),
+        f"{assets_path}/grandchild_and_aunt.newick"
+        f"{assets_path}/grandchild_and_auntuncle.newick",
         # TODO: handle this edge case
-        # dp.Tree.get(path=f"{assets_path}/grandchild.newick", schema="newick"),
-        dp.Tree.get(
-            path=f"{assets_path}/grandtriplets_and_aunt.newick",
-            schema="newick",
-        ),
-        dp.Tree.get(
-            path=f"{assets_path}/grandtriplets_and_auntuncle.newick",
-            schema="newick",
-        ),
-        dp.Tree.get(
-            path=f"{assets_path}/grandtriplets.newick", schema="newick"
-        ),
-        dp.Tree.get(
-            path=f"{assets_path}/grandtwins_and_aunt.newick", schema="newick"
-        ),
-        dp.Tree.get(
-            path=f"{assets_path}/grandtwins_and_auntuncle.newick",
-            schema="newick",
-        ),
-        dp.Tree.get(path=f"{assets_path}/grandtwins.newick", schema="newick"),
+        # f"{assets_path}/grandchild.newick",
+        f"{assets_path}/grandtriplets_and_aunt.newick",
+        f"{assets_path}/grandtriplets_and_auntuncle.newick",
+        f"{assets_path}/grandtriplets.newick"
+        f"{assets_path}/grandtwins_and_aunt.newick"
+        f"{assets_path}/grandtwins_and_auntuncle.newick",
+        f"{assets_path}/grandtwins.newick"
         # TODO: handle this edge case
-        # dp.Tree.get(path=f"{assets_path}/justroot.newick", schema="newick"),
-        dp.Tree.get(path=f"{assets_path}/triplets.newick", schema="newick"),
-        dp.Tree.get(path=f"{assets_path}/twins.newick", schema="newick"),
+        # f"{assets_path}/justroot.newick"
+        f"{assets_path}/triplets.newick"
+        f"{assets_path}/twins.newick"
     ],
 )
-def test_handwritten_trees(orig_tree):
+def test_handwritten_trees(path):
+    orig_tree = load_dendropy_tree(path)
+
     for node in orig_tree:
         node.edge.length = 1
 
@@ -180,20 +165,16 @@ def test_handwritten_trees(orig_tree):
     ) < 2.0
 
 @pytest.mark.parametrize(
-    "orig_tree",
+    "path",
     [
-        AuxTree(
-            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-        ).dendropy,
-        AuxTree(
-            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-        ).dendropy,
-        AuxTree(
-            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
-        ).dendropy,
+        f"{assets_path}/nk_ecoeaselection.csv",
+        f"{assets_path}/nk_lexicaseselection.csv",
+        f"{assets_path}/nk_tournamentselection.csv",
     ],
 )
-def test_realworld_trees(orig_tree):
+def test_realworld_trees(path):
+    orig_tree = load_dendropy_tree(path)
+
     for node in orig_tree:
         node.edge_length = 1
 
@@ -249,52 +230,30 @@ def test_realworld_trees(orig_tree):
 
 
 @pytest.mark.parametrize(
-    "orig_tree",
+    "path",
     [
-        dp.Tree.get(
-            path=f"{assets_path}/grandchild_and_aunt.newick", schema="newick"
-        ),
-        dp.Tree.get(
-            path=f"{assets_path}/grandchild_and_auntuncle.newick",
-            schema="newick",
-        ),
+        f"{assets_path}/grandchild_and_aunt.newick",
+        f"{assets_path}/grandchild_and_auntuncle.newick",
         # TODO: handle this edge case
-        # dp.Tree.get(path=f"{assets_path}/grandchild.newick", schema="newick"),
-        dp.Tree.get(
-            path=f"{assets_path}/grandtriplets_and_aunt.newick",
-            schema="newick",
-        ),
-        dp.Tree.get(
-            path=f"{assets_path}/grandtriplets_and_auntuncle.newick",
-            schema="newick",
-        ),
-        dp.Tree.get(
-            path=f"{assets_path}/grandtriplets.newick", schema="newick"
-        ),
-        dp.Tree.get(
-            path=f"{assets_path}/grandtwins_and_aunt.newick", schema="newick"
-        ),
-        dp.Tree.get(
-            path=f"{assets_path}/grandtwins_and_auntuncle.newick",
-            schema="newick",
-        ),
-        dp.Tree.get(path=f"{assets_path}/grandtwins.newick", schema="newick"),
+        # dp.Tree.get(path=f"{assets_path}/grandchild.newick",
+        f"{assets_path}/grandtriplets_and_aunt.newick",
+        f"{assets_path}/grandtriplets_and_auntuncle.newick",
+        f"{assets_path}/grandtriplets.newick",
+        f"{assets_path}/grandtwins_and_aunt.newick",
+        f"{assets_path}/grandtwins_and_auntuncle.newick",
+        f"{assets_path}/grandtwins.newick",
         # TODO: handle this edge case
-        # dp.Tree.get(path=f"{assets_path}/justroot.newick", schema="newick"),
-        dp.Tree.get(path=f"{assets_path}/triplets.newick", schema="newick"),
-        dp.Tree.get(path=f"{assets_path}/twins.newick", schema="newick"),
-        AuxTree(
-            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-        ).dendropy,
-        AuxTree(
-            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-        ).dendropy,
-        AuxTree(
-            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
-        ).dendropy,
+        # dp.Tree.get(path=f"{assets_path}/justroot.newick",
+        f"{assets_path}/triplets.newick",
+        f"{assets_path}/twins.newick",
+        f"{assets_path}/nk_ecoeaselection.csv",
+        f"{assets_path}/nk_lexicaseselection.csv",
+        f"{assets_path}/nk_tournamentselection.csv",
     ],
 )
-def test_reconstruction_quality(orig_tree):
+def test_reconstruction_quality(path):
+    orig_tree = load_dendropy_tree(path)
+
     for node in orig_tree:
         node.edge_length = 1
 
@@ -341,20 +300,16 @@ def test_reconstruction_quality(orig_tree):
     assert metrics == sorted(metrics)
 
 @pytest.mark.parametrize(
-    "orig_tree",
+    "path",
     [
-        # AuxTree(
-        #     pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-        # ).dendropy,
-        AuxTree(
-            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-        ).dendropy,
-        AuxTree(
-            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
-        ).dendropy,
+        # f"{assets_path}/nk_ecoeaselection.csv",
+        f"{assets_path}/nk_lexicaseselection.csv",
+        f"{assets_path}/nk_tournamentselection.csv",
     ],
 )
-def test_reconstructed_mrca(orig_tree):
+def test_reconstructed_mrca(path):
+    orig_tree = load_dendropy_tree(path)
+
     for node in orig_tree:
         node.edge_length = 1
 
