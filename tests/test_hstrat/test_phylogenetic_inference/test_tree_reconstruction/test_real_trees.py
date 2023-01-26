@@ -17,6 +17,77 @@ import pytest
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        f"{assets_path}/nk_ecoeaselection.csv",
+        f"{assets_path}/nk_lexicaseselection.csv",
+        f"{assets_path}/nk_tournamentselection.csv",
+        f"{assets_path}/grandchild_and_aunt.newick",
+        f"{assets_path}/grandchild_and_auntuncle.newick",
+        f"{assets_path}/grandtriplets_and_aunt.newick",
+        f"{assets_path}/grandtriplets_and_auntuncle.newick",
+        f"{assets_path}/grandtriplets.newick",
+        f"{assets_path}/grandtwins_and_aunt.newick",
+        f"{assets_path}/grandtwins_and_auntuncle.newick",
+        f"{assets_path}/grandtwins.newick",
+        f"{assets_path}/triplets.newick",
+        f"{assets_path}/twins.newick",
+    ],
+)
+def test_print_performance(path):
+    if path.endswith(".csv"):
+        orig_tree = AuxTree(pd.read_csv(path)).dendropy
+    elif path.endswith(".newick"):
+        orig_tree = dp.Tree.get(path=path, schema="newick")
+    else:
+        raise Exception("Unsupported tree format")
+
+    for node in orig_tree:
+        node.edge.length = 1
+
+    for idx, node in enumerate(orig_tree.leaf_node_iter()):
+        node.taxon = orig_tree.taxon_namespace.new_taxon(label=str(idx))
+
+    orig_tree.update_bipartitions(
+        suppress_unifurcations=False,
+        collapse_unrooted_basal_bifurcation=False,
+    )
+
+    seed_column = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(
+        ),
+    )
+    seed_column.DepositStrata(num_stratum_depositions=10)
+
+    extant_population = hstrat.descend_template_phylogeny(
+        ascending_lineage_iterators=(
+            tip_node.ancestor_iter(
+                inclusive=True,
+            )
+            for tip_node in orig_tree.leaf_node_iter()
+        ),
+        descending_tree_iterator=orig_tree.levelorder_node_iter(),
+        get_parent=lambda node: node.parent_node,
+        get_stem_length=lambda node: node.edge_length,
+        seed_column=seed_column,
+    )
+
+    distance_matrix = tree_reconstruction.calculate_distance_matrix(extant_population)
+    reconstructed_tree = tree_reconstruction.reconstruct_tree(distance_matrix)
+
+    print(path)
+    print(
+        orig_tree.as_ascii_plot(
+            show_internal_node_labels=True,
+            leaf_spacing_factor=1
+        ),
+        end="\r"
+    )
+    print(f"metric={tree_distance_metric(orig_tree, reconstructed_tree)}")
+    print()
+
 @pytest.mark.parametrize(
     "orig_tree",
     [
