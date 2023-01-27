@@ -1,6 +1,6 @@
 import typing
 
-from ..genome_instrumentation import HereditaryStratigraphicColumn
+from ...genome_instrumentation import HereditaryStratigraphicColumn
 
 
 def descend_template_phylogeny_naive(

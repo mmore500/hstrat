@@ -4,7 +4,7 @@ import typing
 
 import more_itertools as mit
 
-from ..genome_instrumentation import (
+from ...genome_instrumentation import (
     HereditaryStratigraphicColumn,
     HereditaryStratum,
     HereditaryStratumOrderedStoreList,

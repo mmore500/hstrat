@@ -1,6 +1,6 @@
 import typing
 
-from ..genome_instrumentation import HereditaryStratigraphicColumn
+from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._descend_template_phylogeny_naive import descend_template_phylogeny_naive
 from ._descend_template_phylogeny_posthoc import (
     descend_template_phylogeny_posthoc,
