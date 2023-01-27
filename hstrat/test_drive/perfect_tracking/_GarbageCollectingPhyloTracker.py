@@ -1,3 +1,4 @@
+import collections
 import types
 import typing
 
@@ -392,27 +393,34 @@ class GarbageCollectingPhyloTracker:
         performed on the tracker object afterwards.
         """
         self._GarbageCollect()
-        records = [
-            {
-                **{
-                    "id": idx,
-                    "ancestor_list": str(
-                        [parent_idx if parent_idx != idx else None]
-                    ),
-                    "loc": loc,
-                    "trait": trait,
-                },
-                **{
-                    key: transform(loc)
-                    for key, transform in loc_transforms.items()
-                },
-            }
-            for idx, (parent_idx, loc, trait) in enumerate(
-                zip(
-                    progress_wrap(self._parentage_buffer[: self._num_records]),
-                    self._loc_buffer[: self._num_records],
-                    self._trait_buffer[: self._num_records],
-                )
+        generation_lookup = collections.Counter()
+
+        records = []
+        for idx, (parent_idx, loc, trait) in enumerate(
+            zip(
+                progress_wrap(self._parentage_buffer[: self._num_records]),
+                self._loc_buffer[: self._num_records],
+                self._trait_buffer[: self._num_records],
             )
-        ]
+        ):
+            generation_lookup[idx] = generation_lookup[parent_idx] + (
+                parent_idx != idx
+            )
+            records.append(
+                {
+                    **{
+                        "id": idx,
+                        "ancestor_list": str(
+                            [parent_idx if parent_idx != idx else None]
+                        ),
+                        "loc": loc,
+                        "trait": trait,
+                        "generation": generation_lookup[idx],
+                    },
+                    **{
+                        key: transform(loc)
+                        for key, transform in loc_transforms.items()
+                    },
+                }
+            )
         return pd.DataFrame.from_records(records)
