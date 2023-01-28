@@ -2,6 +2,9 @@
 to a template phylogeny."""
 
 from ._descend_template_phylogeny import descend_template_phylogeny
+from ._descend_template_phylogeny_alifestd import (
+    descend_template_phylogeny_alifestd,
+)
 from ._descend_template_phylogeny_naive import descend_template_phylogeny_naive
 from ._descend_template_phylogeny_posthoc import (
     descend_template_phylogeny_posthoc,
@@ -10,6 +13,7 @@ from ._descend_template_phylogeny_posthoc import (
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
     "descend_template_phylogeny",
+    "descend_template_phylogeny_alifestd",
     "descend_template_phylogeny_naive",
     "descend_template_phylogeny_posthoc",
 ]
@@ -19,6 +23,7 @@ from ..._auxiliary_lib import launder_impl_modules as _launder
 _launder(
     [
         descend_template_phylogeny,
+        descend_template_phylogeny_alifestd,
         descend_template_phylogeny_naive,
         descend_template_phylogeny_posthoc,
     ],

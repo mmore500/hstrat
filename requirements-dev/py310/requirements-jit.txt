@@ -32,6 +32,8 @@ matplotlib==3.5.2
     #   seaborn
 mmh3==3.0.0
     # via hstrat (../../pyproject.toml)
+more-itertools==8.13.0
+    # via hstrat (../../pyproject.toml)
 mpmath==1.2.1
     # via hstrat (../../pyproject.toml)
 numba==0.56.4
@@ -44,6 +46,8 @@ numpy==1.23.5
     #   pandas
     #   seaborn
 opytional==0.1.0
+    # via hstrat (../../pyproject.toml)
+ordered-set==4.1.0
     # via hstrat (../../pyproject.toml)
 packaging==23.0
     # via matplotlib
