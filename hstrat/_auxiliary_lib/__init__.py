@@ -34,6 +34,7 @@ from ._release_cur_mpl_fig import release_cur_mpl_fig
 from ._scale_luminosity import scale_luminosity
 from ._seed_random import seed_random
 from ._splicewhile import splicewhile
+from ._swap_rows_and_indices import swap_rows_and_indices
 from ._zip_strict import zip_strict
 
 # adapted from https://stackoverflow.com/a/31079085
@@ -74,6 +75,7 @@ __all__ = [
     "ScalarFormatterFixedPrecision",
     "seed_random",
     "splicewhile",
+    "swap_rows_and_indices",
     "zip_strict",
 ]
 
