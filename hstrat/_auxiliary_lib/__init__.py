@@ -1,6 +1,7 @@
 from ._AnyTreeAscendingIter import AnyTreeAscendingIter
 from ._RecursionLimit import RecursionLimit
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
+from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
@@ -43,6 +44,7 @@ from ._zip_strict import zip_strict
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
+    "alifestd_find_leaf_ids",
     "alifestd_is_topologically_sorted",
     "alifestd_parse_ancestor_id",
     "alifestd_parse_ancestor_ids",
