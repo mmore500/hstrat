@@ -6,7 +6,7 @@ from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 
 
 def alifestd_topological_sort(phylogeny_df: pd.DataFrame) -> pd.DataFrame:
-
+    """Sort rows so all organisms follow members of their `ancestor_list`."""
     phylogeny_df = phylogeny_df.set_index("id", drop=False)
 
     unsorted_ids = set(phylogeny_df["id"])

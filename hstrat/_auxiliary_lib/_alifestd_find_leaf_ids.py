@@ -7,6 +7,7 @@ from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 
 
 def alifestd_find_leaf_ids(phylogeny_df: pd.DataFrame) -> typing.List[int]:
+    """What ids are not listed in any `ancestor_list`?"""
     all_ids = ods.OrderedSet(phylogeny_df["id"])
     internal_ids = set(
         ancestor_id
