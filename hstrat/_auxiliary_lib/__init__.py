@@ -1,6 +1,7 @@
 from ._AnyTreeAscendingIter import AnyTreeAscendingIter
 from ._RecursionLimit import RecursionLimit
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
+from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._all_same import all_same
 from ._apply_swaps import apply_swaps
 from ._bit_ceil import bit_ceil
@@ -39,6 +40,7 @@ from ._zip_strict import zip_strict
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
+    "alifestd_parse_ancestor_ids",
     "all_same",
     "apply_swaps",
     "AnyTreeAscendingIter",
