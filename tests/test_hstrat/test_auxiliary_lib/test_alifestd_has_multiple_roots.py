@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
-    alifestd_is_disconnected,
+    alifestd_has_multiple_roots,
     alifestd_parse_ancestor_ids,
     swap_rows_and_indices,
 )
@@ -20,10 +20,10 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_is_disconnected_empty(phylogeny_df):
+def test_alifestd_has_multiple_roots_empty(phylogeny_df):
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
 
-    assert not alifestd_is_disconnected(phylogeny_df.iloc[-1:0, :])
+    assert not alifestd_has_multiple_roots(phylogeny_df.iloc[-1:0, :])
 
 
 @pytest.mark.parametrize(
@@ -34,13 +34,13 @@ def test_alifestd_is_disconnected_empty(phylogeny_df):
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_is_disconnected_singleton(phylogeny_df):
+def test_alifestd_has_multiple_roots_singleton(phylogeny_df):
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
 
-    assert not alifestd_is_disconnected(phylogeny_df.iloc[0:1, :])
+    assert not alifestd_has_multiple_roots(phylogeny_df.iloc[0:1, :])
 
 
-def test_alifestd_is_disconnected_tworoots():
+def test_alifestd_has_multiple_roots_tworoots():
 
     phylo1 = pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
     phylo1.sort_values("id", ascending=True, inplace=True)
@@ -48,7 +48,7 @@ def test_alifestd_is_disconnected_tworoots():
     phylo2 = pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
     phylo2.sort_values("id", ascending=True, inplace=True)
 
-    assert alifestd_is_disconnected(
+    assert alifestd_has_multiple_roots(
         pd.concat(
             [
                 phylo1.iloc[0:1, :],
@@ -66,7 +66,7 @@ def test_alifestd_is_disconnected_tworoots():
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_is_disconnected_twolineages(phylogeny_df):
+def test_alifestd_has_multiple_roots_twolineages(phylogeny_df):
 
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
     phylogeny_df.reset_index(inplace=True)
@@ -85,7 +85,7 @@ def test_alifestd_is_disconnected_twolineages(phylogeny_df):
             ]
         )
     )
-    assert alifestd_is_disconnected(
+    assert alifestd_has_multiple_roots(
         pd.concat(
             [
                 lineage1,
@@ -93,7 +93,7 @@ def test_alifestd_is_disconnected_twolineages(phylogeny_df):
             ]
         )
     )
-    assert alifestd_is_disconnected(
+    assert alifestd_has_multiple_roots(
         pd.concat(
             [
                 lineage1,
@@ -101,7 +101,7 @@ def test_alifestd_is_disconnected_twolineages(phylogeny_df):
             ]
         ).sort_index()
     )
-    assert alifestd_is_disconnected(
+    assert alifestd_has_multiple_roots(
         pd.concat(
             [
                 lineage1.iloc[::-1, :],
@@ -109,7 +109,7 @@ def test_alifestd_is_disconnected_twolineages(phylogeny_df):
             ]
         )
     )
-    assert alifestd_is_disconnected(
+    assert alifestd_has_multiple_roots(
         pd.concat(
             [
                 lineage1.iloc[:10:-1, :],
@@ -118,7 +118,7 @@ def test_alifestd_is_disconnected_twolineages(phylogeny_df):
             ]
         )
     )
-    assert alifestd_is_disconnected(
+    assert alifestd_has_multiple_roots(
         pd.concat(
             [
                 lineage1.iloc[10::, :],
@@ -132,24 +132,27 @@ def test_alifestd_is_disconnected_twolineages(phylogeny_df):
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+        ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_is_disconnected_false(phylogeny_df):
+def test_alifestd_has_multiple_roots_false(phylogeny_df):
     phylogeny_df.sort_values("id", ascending=False, inplace=True)
     phylogeny_df.set_index("id", drop=False, inplace=True)
 
     phylogeny_df_ = phylogeny_df.copy()
-    assert not alifestd_is_disconnected(phylogeny_df)
+    assert not alifestd_has_multiple_roots(phylogeny_df)
 
     # check for side effects
     assert phylogeny_df.equals(phylogeny_df_)
 
     # reverse dataframe
     phylogeny_df = phylogeny_df.iloc[::-1]
-    assert not alifestd_is_disconnected(phylogeny_df)
+    assert not alifestd_has_multiple_roots(phylogeny_df)
 
     # one-by-one transpositions
     for idx, row in phylogeny_df.iterrows():
@@ -158,4 +161,36 @@ def test_alifestd_is_disconnected_false(phylogeny_df):
                 phylogeny_df, idx, ancestor_id
             )
 
-            assert not alifestd_is_disconnected(phylogeny_df_)
+            assert not alifestd_has_multiple_roots(phylogeny_df_)
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df",
+    [
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+        ),
+    ],
+)
+def test_alifestd_has_multiple_roots_true(phylogeny_df):
+    phylogeny_df.sort_values("id", ascending=False, inplace=True)
+    phylogeny_df.set_index("id", drop=False, inplace=True)
+
+    phylogeny_df_ = phylogeny_df.copy()
+    assert alifestd_has_multiple_roots(phylogeny_df)
+
+    # check for side effects
+    assert phylogeny_df.equals(phylogeny_df_)
+
+    # reverse dataframe
+    phylogeny_df = phylogeny_df.iloc[::-1]
+    assert alifestd_has_multiple_roots(phylogeny_df)
+
+    # one-by-one transpositions
+    for idx, row in phylogeny_df.iterrows():
+        for ancestor_id in alifestd_parse_ancestor_ids(row["ancestor_list"]):
+            phylogeny_df_ = swap_rows_and_indices(
+                phylogeny_df, idx, ancestor_id
+            )
+
+            assert alifestd_has_multiple_roots(phylogeny_df_)

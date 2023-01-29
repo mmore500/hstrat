@@ -2,7 +2,7 @@ from ._AnyTreeAscendingIter import AnyTreeAscendingIter
 from ._RecursionLimit import RecursionLimit
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
 from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
-from ._alifestd_is_disconnected import alifestd_is_disconnected
+from ._alifestd_has_multiple_roots import alifestd_has_multiple_roots
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_is_asexual import alifestd_is_asexual
 from ._alifestd_is_sexual import alifestd_is_sexual
@@ -50,7 +50,7 @@ from ._zip_strict import zip_strict
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
     "alifestd_find_leaf_ids",
-    "alifestd_is_disconnected",
+    "alifestd_has_multiple_roots",
     "alifestd_is_topologically_sorted",
     "alifestd_parse_ancestor_id",
     "alifestd_parse_ancestor_ids",

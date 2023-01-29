@@ -1,10 +1,11 @@
+from collections import abc
 import typing
 
 import pandas as pd
 
 from ..._auxiliary_lib import (
     alifestd_find_leaf_ids,
-    alifestd_is_disconnected,
+    alifestd_has_multiple_roots,
     alifestd_is_topologically_sorted,
     alifestd_parse_ancestor_id,
     alifestd_topological_sort,
@@ -54,7 +55,7 @@ def descend_template_phylogeny_alifestd(
         id.
     """
 
-    assert not alifestd_is_disconnected(phylogeny_df)
+    assert not alifestd_has_multiple_roots(phylogeny_df)
 
     # must take leaf_ids before possible topological sort to preserve order
     if extant_ids is None:
