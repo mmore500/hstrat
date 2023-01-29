@@ -16,6 +16,12 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+        ),
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+        ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
@@ -36,6 +42,12 @@ def test_alifestd_topological_sort_empty(phylogeny_df):
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+        ),
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+        ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
@@ -132,9 +144,29 @@ def test_alifestd_topological_sort_twolineages(phylogeny_df):
     assert len(res) == len(operand)
 
 
+def test_alifestd_topologically_sort_twolineages_sexual():
+    operand = pd.read_csv(
+        f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+    )
+    res = alifestd_topological_sort(operand)
+    assert alifestd_is_topologically_sorted(res)
+    assert len(res) == len(operand)
+
+    operand = operand[::-1]
+    res = alifestd_topological_sort(operand)
+    assert alifestd_is_topologically_sorted(res)
+    assert len(res) == len(operand)
+
+
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+        ),
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+        ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
@@ -158,7 +190,7 @@ def test_alifestd_topological_sort(phylogeny_df):
     assert alifestd_is_topologically_sorted(phylogeny_df)
 
     # one-by-one transpositions
-    for idx, row in phylogeny_df.sample(10).iterrows():
+    for idx, row in phylogeny_df.sample(min(10, len(phylogeny_df))).iterrows():
         for ancestor_id in alifestd_parse_ancestor_ids(row["ancestor_list"]):
             operand = swap_rows_and_indices(phylogeny_df, idx, ancestor_id)
             res = alifestd_topological_sort(operand)
@@ -168,7 +200,7 @@ def test_alifestd_topological_sort(phylogeny_df):
             assert phylogeny_df.equals(phylogeny_df_)
 
     # cumulative transpositions in random order
-    for idx, row in phylogeny_df.sample(10).iterrows():
+    for idx, row in phylogeny_df.sample(min(10, len(phylogeny_df))).iterrows():
         for ancestor_id in alifestd_parse_ancestor_ids(row["ancestor_list"]):
             assert ancestor_id in phylogeny_df_.index
             phylogeny_df = swap_rows_and_indices(

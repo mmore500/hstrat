@@ -15,6 +15,12 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+        ),
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+        ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
@@ -29,6 +35,12 @@ def test_alifestd_is_topologically_sorted_empty(phylogeny_df):
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+        ),
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+        ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
@@ -103,6 +115,12 @@ def test_alifestd_is_topologically_sorted_twolineages_true(phylogeny_df):
     )
 
 
+def test_alifestd_is_topologically_sorted_twolineages_true_sexual():
+    assert alifestd_is_topologically_sorted(
+        pd.read_csv(f"{assets_path}/example-standard-toy-sexual-phylogeny.csv")
+    )
+
+
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
@@ -158,9 +176,22 @@ def test_alifestd_is_topologically_sorted_twolineages_false(phylogeny_df):
     )
 
 
+def test_alifestd_is_topologically_sorted_twolineages_true_sexual():
+    df = pd.read_csv(
+        f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+    )
+    assert not alifestd_is_topologically_sorted(df.iloc[::-1])
+
+
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+        ),
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+        ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
@@ -179,6 +210,12 @@ def test_alifestd_is_topologically_sorted_true(phylogeny_df):
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+        ),
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+        ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
