@@ -6,6 +6,7 @@ import pandas as pd
 
 from ..._auxiliary_lib import (
     alifestd_find_leaf_ids,
+    alifestd_is_disconnected,
     alifestd_is_topologically_sorted,
     alifestd_parse_ancestor_id,
     alifestd_topological_sort,
@@ -54,6 +55,8 @@ def descend_template_phylogeny_alifestd(
         Columns ordered in order of appearance of corresponding extant organism
         id.
     """
+
+    assert not alifestd_is_disconnected(phylogeny_df)
 
     # must take leaf_ids before possible topological sort to preserve order
     if extant_ids is None:
