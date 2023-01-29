@@ -3,12 +3,6 @@ import typing
 import dendropy as dp
 import opytional as opyt
 
-from ..._auxiliary_lib import (
-    alifestd_is_disconnected,
-    alifestd_is_topologically_sorted,
-    alifestd_parse_ancestor_id,
-    alifestd_topological_sort,
-)
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._descend_template_phylogeny import descend_template_phylogeny
 
