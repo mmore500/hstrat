@@ -28,7 +28,6 @@ def _compare_compiled_phylogenies(
 
     test_trees = apc.alife_dataframe_to_dendropy_trees(
         test_phylogeny_df,
-        setattrs=["origin_time"],
     )
     assert sum(
         1 for test_tree in test_trees for __ in test_tree.leaf_node_iter()
