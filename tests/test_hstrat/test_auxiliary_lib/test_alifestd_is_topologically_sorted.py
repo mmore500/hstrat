@@ -23,6 +23,152 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
+def test_alifestd_is_topologically_sorted_empty(phylogeny_df):
+    phylogeny_df.sort_values("id", ascending=True, inplace=True)
+
+    assert alifestd_is_topologically_sorted(phylogeny_df.iloc[-1:0, :])
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df",
+    [
+        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+    ],
+)
+def test_alifestd_is_topologically_sorted_singleton(phylogeny_df):
+    phylogeny_df.sort_values("id", ascending=True, inplace=True)
+
+    assert alifestd_is_topologically_sorted(phylogeny_df.iloc[0:1, :])
+
+
+def test_alifestd_is_topologically_sorted_tworoots():
+
+    phylo1 = pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
+    phylo1.sort_values("id", ascending=True, inplace=True)
+
+    phylo2 = pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
+    phylo2.sort_values("id", ascending=True, inplace=True)
+
+    assert alifestd_is_topologically_sorted(
+        pd.concat(
+            [
+                phylo1.iloc[0:1, :],
+                phylo2.iloc[0:1, :],
+            ]
+        )
+    )
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df",
+    [
+        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+    ],
+)
+def test_alifestd_is_topologically_sorted_twolineages_true(phylogeny_df):
+
+    phylogeny_df.sort_values("id", ascending=True, inplace=True)
+    phylogeny_df.reset_index(inplace=True)
+    max_id = phylogeny_df["id"].max()
+
+    lineage1 = phylogeny_df.copy()
+    lineage2 = phylogeny_df.copy()
+    lineage2["id"] += max_id
+    lineage2["ancestor_list"] = lineage2["ancestor_list"].apply(
+        lambda ancestor_list_str: str(
+            [
+                ancestor_id + max_id
+                for ancestor_id in alifestd_parse_ancestor_ids(
+                    ancestor_list_str
+                )
+            ]
+        )
+    )
+    assert alifestd_is_topologically_sorted(
+        pd.concat(
+            [
+                lineage1,
+                lineage2,
+            ]
+        )
+    )
+    assert alifestd_is_topologically_sorted(
+        pd.concat(
+            [
+                lineage1,
+                lineage2,
+            ]
+        ).sort_index()
+    )
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df",
+    [
+        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+    ],
+)
+def test_alifestd_is_topologically_sorted_twolineages_false(phylogeny_df):
+
+    phylogeny_df.sort_values("id", ascending=True, inplace=True)
+    phylogeny_df.reset_index(inplace=True)
+    max_id = phylogeny_df["id"].max()
+
+    lineage1 = phylogeny_df.copy()
+    lineage2 = phylogeny_df.copy()
+    lineage2["id"] += max_id
+    lineage2["ancestor_list"] = lineage2["ancestor_list"].apply(
+        lambda ancestor_list_str: str(
+            [
+                ancestor_id + max_id
+                for ancestor_id in alifestd_parse_ancestor_ids(
+                    ancestor_list_str
+                )
+            ]
+        )
+    )
+    assert not alifestd_is_topologically_sorted(
+        pd.concat(
+            [
+                lineage1.iloc[::-1, :],
+                lineage2,
+            ]
+        )
+    )
+    assert not alifestd_is_topologically_sorted(
+        pd.concat(
+            [
+                lineage1.iloc[:10:-1, :],
+                lineage2,
+                lineage1.iloc[10::-1, :],
+            ]
+        )
+    )
+    assert not alifestd_is_topologically_sorted(
+        pd.concat(
+            [
+                lineage1.iloc[10::, :],
+                lineage2,
+                lineage1.iloc[:10:, :],
+            ]
+        )
+    )
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df",
+    [
+        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+    ],
+)
 def test_alifestd_is_topologically_sorted_true(phylogeny_df):
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
 
