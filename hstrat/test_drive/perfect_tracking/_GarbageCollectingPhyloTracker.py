@@ -415,7 +415,7 @@ class GarbageCollectingPhyloTracker:
                         ),
                         "loc": loc,
                         "trait": trait,
-                        "generation": generation_lookup[idx],
+                        "origin_time": generation_lookup[idx],
                     },
                     **{
                         key: transform(loc)
