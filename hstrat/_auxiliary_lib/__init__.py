@@ -1,6 +1,7 @@
 from ._AnyTreeAscendingIter import AnyTreeAscendingIter
 from ._RecursionLimit import RecursionLimit
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
+from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._all_same import all_same
@@ -41,6 +42,7 @@ from ._zip_strict import zip_strict
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
+    "alifestd_is_topologically_sorted",
     "alifestd_parse_ancestor_id",
     "alifestd_parse_ancestor_ids",
     "all_same",
