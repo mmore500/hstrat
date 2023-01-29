@@ -8,6 +8,7 @@ import pandas as pd
 import pytest
 
 from hstrat import hstrat
+from hstrat._auxiliary_lib import alifestd_find_leaf_ids
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
@@ -44,8 +45,8 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
-        # pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-        # pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
@@ -79,8 +80,16 @@ def test_descend_template_phylogeny(
     seed_column.DepositStrata(num_stratum_depositions=num_predeposits)
 
     sampled_tree_nodes = random.sample([*tree], 7)
+    id_index = phylogeny_df.set_index("id").index
+    sorted_leaf_nodes = sorted(
+        tree.leaf_node_iter(),
+        key=lambda node: id_index.get_loc(node.id),
+    )
+    assert [n.id for n in sorted_leaf_nodes] == alifestd_find_leaf_ids(
+        phylogeny_df
+    )
     for extant_ids, sorted_extant_nodes in (
-        (None, sorted(tree.leaf_node_iter(), key=lambda node: node.id)),
+        (None, sorted_leaf_nodes),
         (map(lambda node: node.id, sampled_tree_nodes), sampled_tree_nodes),
     ):
 

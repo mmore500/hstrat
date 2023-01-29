@@ -4,6 +4,12 @@ import opytional as opyt
 import ordered_set as ods
 import pandas as pd
 
+from ..._auxiliary_lib import (
+    alifestd_find_leaf_ids,
+    alifestd_is_topologically_sorted,
+    alifestd_parse_ancestor_id,
+    alifestd_topological_sort,
+)
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._descend_template_phylogeny import descend_template_phylogeny
 
@@ -49,37 +55,17 @@ def descend_template_phylogeny_alifestd(
         id.
     """
 
-    if "origin_time" not in phylogeny_df and "generation" in phylogeny_df:
-        phylogeny_df["origin_time"] = phylogeny_df["generation"]
+    # must take leaf_ids before possible topological sort to preserve order
+    if extant_ids is None:
+        extant_ids = alifestd_find_leaf_ids(phylogeny_df)
 
-    if "origin_time" in phylogeny_df:
-        # ensure topological sort
-        phylogeny_df = phylogeny_df.sort_values("origin_time")
+    if not alifestd_is_topologically_sorted(phylogeny_df):
+        phylogeny_df = alifestd_topological_sort(phylogeny_df)
 
     phylogeny_df = phylogeny_df.set_index("id", drop=False)
 
-    def extract_ancestor_id(ancestor_list_str: str) -> typing.Optional[int]:
-        if ancestor_list_str in (
-            "[]",
-            "[none]",
-            "[None]",
-            "[NONE]",
-        ):
-            return None
-        else:
-            without_brackets_str = ancestor_list_str[1:-1]
-            return int(without_brackets_str)
-
-    def find_leaf_ids() -> ods.OrderedSet:  # [int]
-        all_ids = ods.OrderedSet(phylogeny_df["id"])
-        internal_ids = ods.OrderedSet(
-            extract_ancestor_id(ancestor_list)
-            for ancestor_list in phylogeny_df["ancestor_list"]
-        )
-        return all_ids - internal_ids
-
     def lookup_ancestor_id(id: int) -> typing.Optional[int]:
-        return extract_ancestor_id(phylogeny_df.at[id, "ancestor_list"])
+        return alifestd_parse_ancestor_id(phylogeny_df.at[id, "ancestor_list"])
 
     def ascending_lineage_iterator(leaf_id: int) -> typing.Iterator[int]:
         cur_id = leaf_id
@@ -90,14 +76,6 @@ def descend_template_phylogeny_alifestd(
                 break
 
     def descending_tree_iterator() -> typing.Iterator[int]:
-        # ensure exactly one root
-        assert (
-            extract_ancestor_id(phylogeny_df.iloc[0]["ancestor_list"]) is None
-        ), phylogeny_df.iloc[0]["ancestor_list"]
-        assert not any(phylogeny_df.iloc[1:]["ancestor_list"] == "[]")
-        assert not any(phylogeny_df.iloc[1:]["ancestor_list"] == "[none]")
-        assert not any(phylogeny_df.iloc[1:]["ancestor_list"] == "[None]")
-
         # assumes phylogeny dataframe is topologically sorted
         yield from phylogeny_df["id"]
 
@@ -112,14 +90,18 @@ def descend_template_phylogeny_alifestd(
             )
             assert res >= 0
             return res
+        elif "generation" in phylogeny_df:
+            res = (
+                phylogeny_df.loc[id]["generation"]
+                - phylogeny_df.loc[ancestor_id]["generation"]
+            )
+            assert res >= 0
+            return res
         else:
             return 1
 
     return descend_template_phylogeny(
-        (
-            ascending_lineage_iterator(leaf_id)
-            for leaf_id in opyt.or_else(extant_ids, find_leaf_ids)
-        ),
+        (ascending_lineage_iterator(leaf_id) for leaf_id in extant_ids),
         descending_tree_iterator(),
         lookup_ancestor_id,
         get_stem_length,
