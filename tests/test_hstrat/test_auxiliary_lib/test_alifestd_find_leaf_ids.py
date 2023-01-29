@@ -87,11 +87,11 @@ def test_alifestd_find_leaf_ids_twolineages(phylogeny_df):
 
     lineage1 = phylogeny_df.copy()
     lineage2 = phylogeny_df.copy()
-    lineage2["id"] += max_id
+    lineage2["id"] += max_id + 1
     lineage2["ancestor_list"] = lineage2["ancestor_list"].apply(
         lambda ancestor_list_str: str(
             [
-                ancestor_id + max_id
+                ancestor_id + max_id + 1
                 for ancestor_id in alifestd_parse_ancestor_ids(
                     ancestor_list_str
                 )
