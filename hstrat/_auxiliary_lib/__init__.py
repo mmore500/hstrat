@@ -4,6 +4,9 @@ from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
 from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
 from ._alifestd_is_disconnected import alifestd_is_disconnected
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
+from ._alifestd_is_asexual import alifestd_is_asexual
+from ._alifestd_is_sexual import alifestd_is_sexual
+from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_topological_sort import alifestd_topological_sort
