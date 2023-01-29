@@ -1,7 +1,5 @@
 import pandas as pd
 
-from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
-
 
 def alifestd_is_disconnected(phylogeny_df: pd.DataFrame) -> bool:
     return (

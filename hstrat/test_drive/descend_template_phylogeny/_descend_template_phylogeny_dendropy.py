@@ -2,11 +2,8 @@ import typing
 
 import dendropy as dp
 import opytional as opyt
-import ordered_set as ods
-import pandas as pd
 
 from ..._auxiliary_lib import (
-    alifestd_find_leaf_ids,
     alifestd_is_disconnected,
     alifestd_is_topologically_sorted,
     alifestd_parse_ancestor_id,

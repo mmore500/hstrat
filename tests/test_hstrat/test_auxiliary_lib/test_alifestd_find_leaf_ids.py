@@ -1,6 +1,4 @@
-import itertools as it
 import os
-import random
 
 import alifedata_phyloinformatics_convert as apc
 import pandas as pd

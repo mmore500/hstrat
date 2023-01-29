@@ -3,7 +3,6 @@ import os
 import random
 
 import alifedata_phyloinformatics_convert as apc
-import dendropy as dp
 import pandas as pd
 import pytest
 

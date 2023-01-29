@@ -1,8 +1,5 @@
 import unittest
 
-import numpy as np
-import pandas as pd
-
 from hstrat._auxiliary_lib import alifestd_parse_ancestor_id
 
 

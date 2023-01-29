@@ -1,7 +1,5 @@
 import typing
 
-import opytional as opyt
-import ordered_set as ods
 import pandas as pd
 
 from ..._auxiliary_lib import (
@@ -67,8 +65,10 @@ def descend_template_phylogeny_alifestd(
 
     phylogeny_df = phylogeny_df.set_index("id", drop=False)
 
-    def lookup_ancestor_id(id: int) -> typing.Optional[int]:
-        return alifestd_parse_ancestor_id(phylogeny_df.at[id, "ancestor_list"])
+    def lookup_ancestor_id(id_: int) -> typing.Optional[int]:
+        return alifestd_parse_ancestor_id(
+            phylogeny_df.at[id_, "ancestor_list"]
+        )
 
     def ascending_lineage_iterator(leaf_id: int) -> typing.Iterator[int]:
         cur_id = leaf_id
@@ -82,20 +82,20 @@ def descend_template_phylogeny_alifestd(
         # assumes phylogeny dataframe is topologically sorted
         yield from phylogeny_df["id"]
 
-    def get_stem_length(id: int) -> typing.Union[float, int]:
-        ancestor_id = lookup_ancestor_id(id)
+    def get_stem_length(id_: int) -> typing.Union[float, int]:
+        ancestor_id = lookup_ancestor_id(id_)
         if ancestor_id is None:
             return 0
         elif "origin_time" in phylogeny_df:
             res = (
-                phylogeny_df.loc[id]["origin_time"]
+                phylogeny_df.loc[id_]["origin_time"]
                 - phylogeny_df.loc[ancestor_id]["origin_time"]
             )
             assert res >= 0
             return res
         elif "generation" in phylogeny_df:
             res = (
-                phylogeny_df.loc[id]["generation"]
+                phylogeny_df.loc[id_]["generation"]
                 - phylogeny_df.loc[ancestor_id]["generation"]
             )
             assert res >= 0
