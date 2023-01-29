@@ -121,6 +121,13 @@ def test_descend_template_phylogeny(
             elif n2 in n1.ancestor_iter():
                 mrca = n2
             else:
+
+                # dendropy mrca lookup requires leaf nodes
+                while n1.num_child_nodes():
+                    n1, *__ = n1.child_nodes()
+                while n2.num_child_nodes():
+                    n2, *__ = n2.child_nodes()
+
                 mrca = tree.mrca(
                     taxa=[n1.taxon, n2.taxon],
                     is_bipartitions_updated=True,
