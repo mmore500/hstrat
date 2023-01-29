@@ -1,10 +1,7 @@
 import typing
 
+from ..._auxiliary_lib import demark
 from ...genome_instrumentation import HereditaryStratigraphicColumn
-
-
-def _id(obj: typing.Any) -> int:
-    return obj if isinstance(obj, (str, int, float)) else id(obj)
 
 
 def descend_template_phylogeny_naive(
@@ -31,22 +28,22 @@ def descend_template_phylogeny_naive(
     hstrat_column_lookup = dict()  # node id -> column
 
     for root_node in descending_tree_iterator:
-        hstrat_column_lookup[_id(root_node)] = seed_column
+        hstrat_column_lookup[demark(root_node)] = seed_column
         break
 
     for node in descending_tree_iterator:
         stem_length = get_stem_length(node)
         parent_node = get_parent(node)
-        parent_hstrat_column = hstrat_column_lookup[_id(parent_node)]
+        parent_hstrat_column = hstrat_column_lookup[demark(parent_node)]
 
         node_hstrat_column = parent_hstrat_column.CloneNthDescendant(
             stem_length
         )
-        hstrat_column_lookup[_id(node)] = node_hstrat_column
+        hstrat_column_lookup[demark(node)] = node_hstrat_column
 
     extant_population = [
         # extant node
-        hstrat_column_lookup[_id(next(ascending_lineage_iterator))]
+        hstrat_column_lookup[demark(next(ascending_lineage_iterator))]
         for ascending_lineage_iterator in ascending_lineage_iterators
     ]
     return extant_population

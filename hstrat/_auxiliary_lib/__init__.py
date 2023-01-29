@@ -16,6 +16,7 @@ from ._caretup_marker import caretup_marker
 from ._check_testing_requirements import check_testing_requirements
 from ._consume import consume
 from ._count_unique import count_unique
+from ._demark import demark
 from ._div_range import div_range
 from ._find_bounds import find_bounds
 from ._get_hstrat_version import get_hstrat_version
@@ -61,6 +62,7 @@ __all__ = [
     "check_testing_requirements",
     "consume",
     "count_unique",
+    "demark",
     "div_range",
     "find_bounds",
     "get_hstrat_version",

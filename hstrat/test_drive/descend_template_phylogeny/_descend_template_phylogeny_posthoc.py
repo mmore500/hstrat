@@ -4,6 +4,7 @@ import typing
 
 import more_itertools as mit
 
+from ..._auxiliary_lib import demark
 from ...genome_instrumentation import (
     HereditaryStratigraphicColumn,
     HereditaryStratum,
@@ -11,28 +12,24 @@ from ...genome_instrumentation import (
 )
 
 
-def _id(obj: typing.Any) -> int:
-    return obj if isinstance(obj, (str, int, float)) else id(obj)
-
-
 def _calc_node_depths(
     descending_tree_iterator: typing.Iterator,
     get_parent: typing.Callable[[typing.Any], typing.Any],
     get_stem_length: typing.Callable[[typing.Any], int],
 ) -> typing.Dict[int, int]:
-    """Descend tree to prepare lookup table of `_id(node)` -> node depth."""
+    """Descend tree to prepare lookup table of `demark(node)` -> node depth."""
 
     node_depth_lookup = dict()
 
     for root_node in descending_tree_iterator:
-        node_depth_lookup[_id(root_node)] = 0
+        node_depth_lookup[demark(root_node)] = 0
         break
 
     for node in descending_tree_iterator:
         stem_length = get_stem_length(node)
         parent_node = get_parent(node)
-        node_depth_lookup[_id(node)] = (
-            node_depth_lookup[_id(parent_node)] + stem_length
+        node_depth_lookup[demark(node)] = (
+            node_depth_lookup[demark(parent_node)] + stem_length
         )
 
     return node_depth_lookup
@@ -52,7 +49,7 @@ def _educe_stratum_ordered_store(
     (extant_node,), ascending_lineage_iterator = mit.spy(
         ascending_lineage_iterator
     )
-    extant_deposition_count = deposition_count_lookup[_id(extant_node)]
+    extant_deposition_count = deposition_count_lookup[demark(extant_node)]
 
     rising_required_ranks_iterator = (
         stratum_retention_policy.IterRetainedRanks(
@@ -67,10 +64,10 @@ def _educe_stratum_ordered_store(
     cur_node = next(descending_lineage_iterator)
 
     for rank in rising_required_ranks_iterator:
-        while rank >= deposition_count_lookup[_id(cur_node)]:
+        while rank >= deposition_count_lookup[demark(cur_node)]:
             cur_node = next(descending_lineage_iterator)
 
-        rank_stratum_lookup = stem_strata_lookup[_id(cur_node)]
+        rank_stratum_lookup = stem_strata_lookup[demark(cur_node)]
         stratum_ordered_store.DepositStratum(
             rank=rank,
             stratum=rank_stratum_lookup(rank),
