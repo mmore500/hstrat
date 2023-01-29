@@ -20,11 +20,8 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
     ],
 )
 @pytest.mark.parametrize(
-    "drop_origin_time",
-    [
-        True,
-        False,
-    ],
+    "assign_generation__drop_origin_time",
+    [[False, False], [False, True], [True, True]],
 )
 @pytest.mark.parametrize(
     "num_predeposits",
@@ -58,20 +55,28 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 )
 def test_descend_template_phylogeny(
     always_store_rank_in_stratum,
-    drop_origin_time,
+    assign_generation__drop_origin_time,
     num_predeposits,
     retention_policy,
     phylogeny_df,
 ):
 
-    if drop_origin_time and "origin_time" in phylogeny_df:
-        phylogeny_df = phylogeny_df.drop(columns="origin_time")
+    assign_generation, drop_origin_time = assign_generation__drop_origin_time
+
+    phylogeny_df = phylogeny_df.copy()
+
+    if assign_generation:
+        phylogeny_df["generation"] = phylogeny_df["origin_time"]
 
     tree = apc.alife_dataframe_to_dendropy_tree(
         phylogeny_df,
-        setup_edge_lengths=not drop_origin_time,
+        setup_edge_lengths=(not drop_origin_time) or assign_generation,
     )
+
     if drop_origin_time:
+        phylogeny_df.drop(columns="origin_time", inplace=True)
+
+    if drop_origin_time and not assign_generation:
         for node in tree:
             node.edge_length = 1
 
