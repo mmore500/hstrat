@@ -4,12 +4,25 @@ import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
+    alifestd_is_asexual,
     alifestd_is_topologically_sorted,
+    alifestd_make_ancestor_id_col,
     alifestd_parse_ancestor_ids,
     swap_rows_and_indices,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
+
+
+def _try_add_ancestor_id_col(phylogeny_df: pd.DataFrame) -> pd.DataFrame:
+    if alifestd_is_asexual(phylogeny_df):
+        phylogeny_df = phylogeny_df.copy()
+        phylogeny_df["ancestor_id"] = alifestd_make_ancestor_id_col(
+            phylogeny_df["id"], phylogeny_df["ancestor_list"]
+        )
+        return phylogeny_df
+    else:
+        return phylogeny_df.reset_index()
 
 
 @pytest.mark.parametrize(
@@ -26,7 +39,16 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_is_topologically_sorted_empty(phylogeny_df):
+@pytest.mark.parametrize(
+    "apply",
+    [
+        _try_add_ancestor_id_col,
+        lambda x: x,
+    ],
+)
+def test_alifestd_is_topologically_sorted_empty(phylogeny_df, apply):
+    phylogeny_df = apply(phylogeny_df)
+
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
 
     assert alifestd_is_topologically_sorted(phylogeny_df.iloc[-1:0, :])
@@ -46,7 +68,16 @@ def test_alifestd_is_topologically_sorted_empty(phylogeny_df):
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_is_topologically_sorted_singleton(phylogeny_df):
+@pytest.mark.parametrize(
+    "apply",
+    [
+        _try_add_ancestor_id_col,
+        lambda x: x,
+    ],
+)
+def test_alifestd_is_topologically_sorted_singleton(phylogeny_df, apply):
+    phylogeny_df = apply(phylogeny_df)
+
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
 
     assert alifestd_is_topologically_sorted(phylogeny_df.iloc[0:1, :])
@@ -129,7 +160,17 @@ def test_alifestd_is_topologically_sorted_twolineages_true_sexual():
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_is_topologically_sorted_twolineages_false(phylogeny_df):
+@pytest.mark.parametrize(
+    "apply",
+    [
+        _try_add_ancestor_id_col,
+        lambda x: x,
+    ],
+)
+def test_alifestd_is_topologically_sorted_twolineages_false(
+    phylogeny_df, apply
+):
+    phylogeny_df = apply(phylogeny_df)
 
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
     phylogeny_df.reset_index(inplace=True)
@@ -197,7 +238,16 @@ def test_alifestd_is_topologically_sorted_twolineages_true_sexual():
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_is_topologically_sorted_true(phylogeny_df):
+@pytest.mark.parametrize(
+    "apply",
+    [
+        _try_add_ancestor_id_col,
+        lambda x: x,
+    ],
+)
+def test_alifestd_is_topologically_sorted_true(phylogeny_df, apply):
+    phylogeny_df = apply(phylogeny_df)
+
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
 
     phylogeny_df_ = phylogeny_df.copy()
@@ -221,7 +271,17 @@ def test_alifestd_is_topologically_sorted_true(phylogeny_df):
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_is_topologically_sorted_false(phylogeny_df):
+@pytest.mark.parametrize(
+    "apply",
+    [
+        _try_add_ancestor_id_col,
+        lambda x: x,
+    ],
+)
+def test_alifestd_is_topologically_sorted_false(phylogeny_df, apply):
+    phylogeny_df = apply(phylogeny_df)
+
+    phylogeny_df = phylogeny_df.copy()
     phylogeny_df.sort_values("id", ascending=False, inplace=True)
     phylogeny_df.set_index("id", drop=False, inplace=True)
 
