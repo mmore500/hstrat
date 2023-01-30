@@ -10,6 +10,7 @@ from hstrat._auxiliary_lib import (
     alifestd_find_leaf_ids,
     alifestd_has_contiguous_ids,
     alifestd_is_asexual,
+    alifestd_make_ancestor_id_col,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
@@ -41,6 +42,14 @@ def test_alifestd_assign_contiguous_ids(phylogeny_df):
     assert len(alifestd_find_leaf_ids(phylogeny_df)) == len(
         alifestd_find_leaf_ids(reassigned_df)
     )
+    if "ancestor_id" in phylogeny_df:
+        assert (
+            phylogeny_df["ancestor_id"]
+            == alifestd_make_ancestor_id_col(
+                phylogeny_df["id"],
+                phylogeny_df["ancestor_list"],
+            )
+        ).all()
 
     if alifestd_is_asexual(phylogeny_df):
         phylogeny_tree = apc.alife_dataframe_to_dendropy_tree(phylogeny_df)
