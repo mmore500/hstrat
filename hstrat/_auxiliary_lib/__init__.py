@@ -11,6 +11,7 @@ from ._alifestd_is_sexual import alifestd_is_sexual
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
+from ._alifestd_to_working_format import alifestd_to_working_format
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._all_same import all_same
 from ._apply_swaps import apply_swaps
@@ -61,6 +62,7 @@ __all__ = [
     "alifestd_is_topologically_sorted",
     "alifestd_parse_ancestor_id",
     "alifestd_parse_ancestor_ids",
+    "alifestd_to_working_format",
     "alifestd_topological_sort",
     "all_same",
     "apply_swaps",
