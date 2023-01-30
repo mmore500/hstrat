@@ -10,6 +10,7 @@ from hstrat._auxiliary_lib import (
     alifestd_has_contiguous_ids,
     alifestd_is_asexual,
     alifestd_is_topologically_sorted,
+    alifestd_parse_ancestor_ids,
     alifestd_to_working_format,
 )
 
@@ -58,4 +59,16 @@ def test_alifestd_to_working_format(phylogeny_df):
             (node.level(), len(node.child_nodes())) for node in phylogeny_tree
         ) == Counter(
             (node.level(), len(node.child_nodes())) for node in working_tree
+        )
+
+        assert "ancestor_id" in working_df
+        assert set(
+            working_df.loc[
+                working_df["ancestor_id"] != working_df["id"],
+                "ancestor_id",
+            ]
+        ) == set(
+            ancestor_id
+            for ancestor_list_str in working_df["ancestor_list"]
+            for ancestor_id in alifestd_parse_ancestor_ids(ancestor_list_str)
         )
