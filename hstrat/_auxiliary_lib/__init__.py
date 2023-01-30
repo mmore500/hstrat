@@ -3,6 +3,7 @@ from ._RecursionLimit import RecursionLimit
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
 from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
 from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
+from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_has_multiple_roots import alifestd_has_multiple_roots
 from ._alifestd_is_asexual import alifestd_is_asexual
 from ._alifestd_is_sexual import alifestd_is_sexual
@@ -51,6 +52,7 @@ from ._zip_strict import zip_strict
 __all__ = [
     "alifestd_collapse_unifurcations",
     "alifestd_find_leaf_ids",
+    "alifestd_has_contiguous_ids",
     "alifestd_has_multiple_roots",
     "alifestd_is_topologically_sorted",
     "alifestd_parse_ancestor_id",
