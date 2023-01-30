@@ -60,7 +60,7 @@ def test_alifestd_collapse_unifurcations(phylogeny_df):
     )
     for idx, row in collapsed_df.iterrows():
         if len(alifestd_parse_ancestor_ids(row["ancestor_list"])) == 1:
-            assert ref_counts[row["id"] != 1]
+            assert ref_counts[row["id"]] != 1
 
     phylogeny_df = alifestd_topological_sort(phylogeny_df)
     assert alifestd_is_topologically_sorted(collapsed_df)
