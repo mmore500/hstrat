@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
+    alifestd_aggregate_phylogenies,
     alifestd_find_leaf_ids,
     alifestd_has_contiguous_ids,
     alifestd_is_asexual,
@@ -23,11 +24,25 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         pd.read_csv(
             f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
         ),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(
+                    f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+                ),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
+        ),
         pd.read_csv(
             f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
         ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
+        ),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
@@ -46,19 +61,27 @@ def test_alifestd_to_working_format(phylogeny_df):
     )
 
     if alifestd_is_asexual(phylogeny_df):
-        phylogeny_tree = apc.alife_dataframe_to_dendropy_tree(phylogeny_df)
-        working_tree = apc.alife_dataframe_to_dendropy_tree(working_df)
+        phylogeny_trees = apc.alife_dataframe_to_dendropy_trees(phylogeny_df)
+        working_trees = apc.alife_dataframe_to_dendropy_trees(working_df)
 
-        assert Counter(node.level() for node in phylogeny_tree) == Counter(
-            node.level() for node in working_tree
+        assert Counter(
+            node.level() for tree in phylogeny_trees for node in tree
+        ) == Counter(node.level() for tree in working_trees for node in tree)
+        assert Counter(
+            len(node.child_nodes())
+            for tree in phylogeny_trees
+            for node in tree
+        ) == Counter(
+            len(node.child_nodes()) for tree in working_trees for node in tree
         )
         assert Counter(
-            len(node.child_nodes()) for node in phylogeny_tree
-        ) == Counter(len(node.child_nodes()) for node in working_tree)
-        assert Counter(
-            (node.level(), len(node.child_nodes())) for node in phylogeny_tree
+            (node.level(), len(node.child_nodes()))
+            for tree in phylogeny_trees
+            for node in tree
         ) == Counter(
-            (node.level(), len(node.child_nodes())) for node in working_tree
+            (node.level(), len(node.child_nodes()))
+            for tree in working_trees
+            for node in tree
         )
 
         assert "ancestor_id" in working_df
