@@ -1,4 +1,5 @@
 from collections import Counter
+import warnings
 
 import pandas as pd
 
@@ -11,6 +12,13 @@ def alifestd_collapse_unifurcations(
     phylogeny_df: pd.DataFrame,
 ) -> pd.DataFrame:
     """Pare record to bypass organisms with one ancestor and one descendant."""
+
+    if "branch_length" in phylogeny_df or "edge_length" in phylogeny_df:
+        warnings.Warning(
+            "alifestd_collapse_unifurcations does not update branch length "
+            "columns. Use `origin_time` to recalculate branch lengths for "
+            "collapsed phylogeny."
+        )
 
     if not alifestd_is_topologically_sorted(phylogeny_df):
         phylogeny_df = alifestd_topological_sort(phylogeny_df)
