@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
+    alifestd_aggregate_phylogenies,
     alifestd_has_multiple_roots,
     alifestd_parse_ancestor_ids,
     swap_rows_and_indices,
@@ -72,19 +73,16 @@ def test_alifestd_has_multiple_roots_twolineages(phylogeny_df):
     phylogeny_df.reset_index(inplace=True)
     max_id = phylogeny_df["id"].max()
 
-    lineage1 = phylogeny_df.copy()
-    lineage2 = phylogeny_df.copy()
-    lineage2["id"] += max_id + 1
-    lineage2["ancestor_list"] = lineage2["ancestor_list"].apply(
-        lambda ancestor_list_str: str(
-            [
-                ancestor_id + max_id + 1
-                for ancestor_id in alifestd_parse_ancestor_ids(
-                    ancestor_list_str
-                )
-            ]
-        )
+    aggregated_df = alifestd_aggregate_phylogenies(
+        [
+            phylogeny_df.copy(),
+            phylogeny_df.copy(),
+        ]
     )
+
+    lineage1 = aggregated_df[len(phylogeny_df) :]
+    lineage2 = aggregated_df[: len(phylogeny_df)]
+
     assert alifestd_has_multiple_roots(
         pd.concat(
             [
