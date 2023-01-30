@@ -3,7 +3,6 @@ from ._RecursionLimit import RecursionLimit
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
 from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
 from ._alifestd_has_multiple_roots import alifestd_has_multiple_roots
-from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_is_asexual import alifestd_is_asexual
 from ._alifestd_is_sexual import alifestd_is_sexual
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
