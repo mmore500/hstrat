@@ -42,7 +42,7 @@ def alifestd_aggregate_phylogenies(
                             )
                         ]
                     )
-                )
+                ).replace("[]", "[none]")
 
         aggregate_least_available_id += cur_max_id + 1
         if not all_has_ancestor_id and "ancestor_id" in phylogeny_df:
