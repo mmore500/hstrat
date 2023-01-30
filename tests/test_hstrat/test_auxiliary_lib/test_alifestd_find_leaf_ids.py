@@ -9,6 +9,8 @@ from hstrat._auxiliary_lib import (
     alifestd_find_leaf_ids,
     alifestd_is_asexual,
     alifestd_parse_ancestor_ids,
+    alifestd_to_working_format,
+    alifestd_try_add_ancestor_id_col,
     swap_rows_and_indices,
 )
 
@@ -19,17 +21,41 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
     "phylogeny_df",
     [
         pd.read_csv(
-            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+        ),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(
+                    f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+                ),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
         ),
         pd.read_csv(
-            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
         ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
+        ),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_find_leaf_ids_empty(phylogeny_df):
+@pytest.mark.parametrize(
+    "apply",
+    [
+        alifestd_to_working_format,
+        alifestd_try_add_ancestor_id_col,
+        lambda x: x,
+    ],
+)
+def test_alifestd_find_leaf_ids_empty(phylogeny_df, apply):
+    phylogeny_df = phylogeny_df.copy()
+    phylogeny_df = apply(phylogeny_df)
     assert alifestd_find_leaf_ids(phylogeny_df.iloc[-1:0, :]) == []
 
 
@@ -37,17 +63,41 @@ def test_alifestd_find_leaf_ids_empty(phylogeny_df):
     "phylogeny_df",
     [
         pd.read_csv(
-            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+        ),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(
+                    f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+                ),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
         ),
         pd.read_csv(
-            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
         ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
+        ),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_find_leaf_ids_singleton(phylogeny_df):
+@pytest.mark.parametrize(
+    "apply",
+    [
+        alifestd_to_working_format,
+        alifestd_try_add_ancestor_id_col,
+        lambda x: x,
+    ],
+)
+def test_alifestd_find_leaf_ids_singleton(phylogeny_df, apply):
+    phylogeny_df = phylogeny_df.copy()
+    phylogeny_df = apply(phylogeny_df)
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
 
     assert alifestd_find_leaf_ids(phylogeny_df.iloc[0:1, :]) == [
@@ -110,17 +160,41 @@ def _test_alifestd_find_leaf_ids_impl(phylogeny_df):
     "phylogeny_df",
     [
         pd.read_csv(
-            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+        ),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(
+                    f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+                ),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
         ),
         pd.read_csv(
-            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
         ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
+        ),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_find_leaf_ids_twolineages(phylogeny_df):
+@pytest.mark.parametrize(
+    "apply",
+    [
+        alifestd_to_working_format,
+        alifestd_try_add_ancestor_id_col,
+        lambda x: x,
+    ],
+)
+def test_alifestd_find_leaf_ids_twolineages(phylogeny_df, apply):
+    phylogeny_df = phylogeny_df.copy()
+    phylogeny_df = apply(phylogeny_df)
 
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
     phylogeny_df.reset_index(inplace=True)
@@ -185,17 +259,42 @@ def test_alifestd_find_leaf_ids_twolineages(phylogeny_df):
     "phylogeny_df",
     [
         pd.read_csv(
-            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+        ),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(
+                    f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+                ),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
         ),
         pd.read_csv(
-            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
         ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
+        ),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_find_leaf_ids_true(phylogeny_df):
+@pytest.mark.parametrize(
+    "apply",
+    [
+        alifestd_to_working_format,
+        alifestd_try_add_ancestor_id_col,
+        lambda x: x,
+    ],
+)
+def test_alifestd_find_leaf_ids_true(phylogeny_df, apply):
+    phylogeny_df = phylogeny_df.copy()
+    phylogeny_df = apply(phylogeny_df)
+
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
 
     phylogeny_df_ = phylogeny_df.copy()
@@ -209,17 +308,42 @@ def test_alifestd_find_leaf_ids_true(phylogeny_df):
     "phylogeny_df",
     [
         pd.read_csv(
-            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+        ),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(
+                    f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+                ),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
         ),
         pd.read_csv(
-            f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
         ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
+        ),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_find_leaf_ids_false(phylogeny_df):
+@pytest.mark.parametrize(
+    "apply",
+    [
+        alifestd_to_working_format,
+        alifestd_try_add_ancestor_id_col,
+        lambda x: x,
+    ],
+)
+def test_alifestd_find_leaf_ids_false(phylogeny_df, apply):
+    phylogeny_df = phylogeny_df.copy()
+    phylogeny_df = apply(phylogeny_df)
+
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
     phylogeny_df_ = phylogeny_df.copy()
     _test_alifestd_find_leaf_ids_impl(phylogeny_df)
