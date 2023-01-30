@@ -16,6 +16,7 @@ from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_to_working_format import alifestd_to_working_format
 from ._alifestd_topological_sort import alifestd_topological_sort
+from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._all_same import all_same
 from ._apply_swaps import apply_swaps
 from ._bit_ceil import bit_ceil
@@ -70,6 +71,7 @@ __all__ = [
     "alifestd_parse_ancestor_ids",
     "alifestd_to_working_format",
     "alifestd_topological_sort",
+    "alifestd_try_add_ancestor_id_col",
     "all_same",
     "apply_swaps",
     "AnyTreeAscendingIter",
