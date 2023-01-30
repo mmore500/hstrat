@@ -17,6 +17,10 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         pd.read_csv(
             f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
         ),
+        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")[-1:0],
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+        )[0:1],
     ],
 )
 def test_alifestd_has_contiguous_ids_true(phylogeny_df):
