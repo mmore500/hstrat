@@ -31,18 +31,20 @@ def alifestd_aggregate_phylogenies(
                     phylogeny_df["id"], phylogeny_df["ancestor_id"]
                 )
             else:
-                phylogeny_df["ancestor_list"] = phylogeny_df[
-                    "ancestor_list"
-                ].apply(
-                    lambda ancestor_list_str: str(
-                        [
-                            ancestor_id + aggregate_least_available_id
-                            for ancestor_id in alifestd_parse_ancestor_ids(
-                                ancestor_list_str
-                            )
-                        ]
+                phylogeny_df["ancestor_list"] = (
+                    phylogeny_df["ancestor_list"]
+                    .apply(
+                        lambda ancestor_list_str: str(
+                            [
+                                ancestor_id + aggregate_least_available_id
+                                for ancestor_id in alifestd_parse_ancestor_ids(
+                                    ancestor_list_str
+                                )
+                            ]
+                        )
                     )
-                ).replace("[]", "[none]")
+                    .replace("[]", "[none]")
+                )
 
         aggregate_least_available_id += cur_max_id + 1
         if not all_has_ancestor_id and "ancestor_id" in phylogeny_df:
