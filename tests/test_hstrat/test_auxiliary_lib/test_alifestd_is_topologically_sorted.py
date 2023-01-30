@@ -8,21 +8,11 @@ from hstrat._auxiliary_lib import (
     alifestd_is_topologically_sorted,
     alifestd_make_ancestor_id_col,
     alifestd_parse_ancestor_ids,
+    alifestd_try_add_ancestor_id_col,
     swap_rows_and_indices,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
-
-
-def _try_add_ancestor_id_col(phylogeny_df: pd.DataFrame) -> pd.DataFrame:
-    if alifestd_is_asexual(phylogeny_df):
-        phylogeny_df = phylogeny_df.copy()
-        phylogeny_df["ancestor_id"] = alifestd_make_ancestor_id_col(
-            phylogeny_df["id"], phylogeny_df["ancestor_list"]
-        )
-        return phylogeny_df
-    else:
-        return phylogeny_df.reset_index()
 
 
 @pytest.mark.parametrize(
@@ -42,7 +32,7 @@ def _try_add_ancestor_id_col(phylogeny_df: pd.DataFrame) -> pd.DataFrame:
 @pytest.mark.parametrize(
     "apply",
     [
-        _try_add_ancestor_id_col,
+        alifestd_try_add_ancestor_id_col,
         lambda x: x,
     ],
 )
@@ -71,7 +61,7 @@ def test_alifestd_is_topologically_sorted_empty(phylogeny_df, apply):
 @pytest.mark.parametrize(
     "apply",
     [
-        _try_add_ancestor_id_col,
+        alifestd_try_add_ancestor_id_col,
         lambda x: x,
     ],
 )
@@ -163,7 +153,7 @@ def test_alifestd_is_topologically_sorted_twolineages_true_sexual():
 @pytest.mark.parametrize(
     "apply",
     [
-        _try_add_ancestor_id_col,
+        alifestd_try_add_ancestor_id_col,
         lambda x: x,
     ],
 )
@@ -241,7 +231,7 @@ def test_alifestd_is_topologically_sorted_twolineages_true_sexual():
 @pytest.mark.parametrize(
     "apply",
     [
-        _try_add_ancestor_id_col,
+        alifestd_try_add_ancestor_id_col,
         lambda x: x,
     ],
 )
@@ -274,7 +264,7 @@ def test_alifestd_is_topologically_sorted_true(phylogeny_df, apply):
 @pytest.mark.parametrize(
     "apply",
     [
-        _try_add_ancestor_id_col,
+        alifestd_try_add_ancestor_id_col,
         lambda x: x,
     ],
 )
