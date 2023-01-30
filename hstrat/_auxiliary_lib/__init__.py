@@ -1,6 +1,7 @@
 from ._AnyTreeAscendingIter import AnyTreeAscendingIter
 from ._RecursionLimit import RecursionLimit
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
+from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
 from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
 from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
@@ -34,7 +35,9 @@ from ._is_strictly_decreasing import is_strictly_decreasing
 from ._is_strictly_increasing import is_strictly_increasing
 from ._iter_chunks import iter_chunks
 from ._jit import jit
+from ._jit_numba_dict_t import jit_numba_dict_t
 from ._jit_numpy_bool_t import jit_numpy_bool_t
+from ._jit_numpy_int64_t import jit_numpy_int64_t
 from ._launder_impl_modules import launder_impl_modules
 from ._log_once_in_a_row import log_once_in_a_row
 from ._memoize_generator import memoize_generator
@@ -50,6 +53,7 @@ from ._zip_strict import zip_strict
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
+    "alifestd_assign_contiguous_ids",
     "alifestd_collapse_unifurcations",
     "alifestd_find_leaf_ids",
     "alifestd_has_contiguous_ids",
@@ -82,7 +86,9 @@ __all__ = [
     "is_strictly_increasing",
     "iter_chunks",
     "jit",
+    "jit_numba_dict_t",
     "jit_numpy_bool_t",
+    "jit_numpy_int64_t",
     "launder_impl_modules",
     "log_once_in_a_row",
     "memoize_generator",
