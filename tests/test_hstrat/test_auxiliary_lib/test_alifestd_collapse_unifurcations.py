@@ -8,6 +8,7 @@ import pytest
 from hstrat._auxiliary_lib import (
     alifestd_collapse_unifurcations,
     alifestd_find_leaf_ids,
+    alifestd_is_asexual,
     alifestd_is_topologically_sorted,
     alifestd_parse_ancestor_ids,
     alifestd_topological_sort,
@@ -34,6 +35,12 @@ def test_alifestd_collapse_unifurcations(phylogeny_df):
     phylogeny_df_ = phylogeny_df.copy()
     collapsed_df = alifestd_collapse_unifurcations(phylogeny_df)
     assert phylogeny_df.equals(phylogeny_df_)
+
+    assert alifestd_is_asexual(collapsed_df) == alifestd_is_asexual(
+        phylogeny_df
+    )
+    if alifestd_is_asexual(phylogeny_df):
+        assert len(collapsed_df) < len(phylogeny_df)
 
     assert set(alifestd_find_leaf_ids(phylogeny_df)) == set(
         alifestd_find_leaf_ids(collapsed_df)
