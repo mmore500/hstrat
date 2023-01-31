@@ -6,12 +6,18 @@ import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
+    alifestd_aggregate_phylogenies,
+    alifestd_assign_contiguous_ids,
     alifestd_collapse_unifurcations,
     alifestd_find_leaf_ids,
+    alifestd_has_contiguous_ids,
     alifestd_is_asexual,
+    alifestd_is_sexual,
     alifestd_is_topologically_sorted,
     alifestd_parse_ancestor_ids,
+    alifestd_to_working_format,
     alifestd_topological_sort,
+    alifestd_try_add_ancestor_id_col,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
@@ -23,15 +29,41 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         pd.read_csv(
             f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
         ),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(
+                    f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
+                ),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
+        ),
         pd.read_csv(
             f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
         ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
+        ),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_collapse_unifurcations(phylogeny_df):
+@pytest.mark.parametrize(
+    "apply",
+    [
+        alifestd_assign_contiguous_ids,
+        alifestd_to_working_format,
+        alifestd_topological_sort,
+        alifestd_try_add_ancestor_id_col,
+        lambda x: x,
+    ],
+)
+def test_alifestd_collapse_unifurcations(phylogeny_df, apply):
+    phylogeny_df = apply(phylogeny_df.copy())
+
     phylogeny_df_ = phylogeny_df.copy()
     collapsed_df = alifestd_collapse_unifurcations(phylogeny_df)
     assert phylogeny_df.equals(phylogeny_df_)
@@ -39,6 +71,7 @@ def test_alifestd_collapse_unifurcations(phylogeny_df):
     assert alifestd_is_asexual(collapsed_df) == alifestd_is_asexual(
         phylogeny_df
     )
+    assert alifestd_is_sexual(collapsed_df) == alifestd_is_sexual(phylogeny_df)
     if alifestd_is_asexual(phylogeny_df):
         assert len(collapsed_df) < len(phylogeny_df)
 
@@ -49,8 +82,12 @@ def test_alifestd_collapse_unifurcations(phylogeny_df):
     phylogeny_df_ = phylogeny_df.set_index("id", drop=False)
     for idx, row in collapsed_df.iterrows():
         assert all(
-            phylogeny_df_.loc[row["id"]].drop("ancestor_list")
-            == row.drop("ancestor_list")
+            phylogeny_df_.loc[row["id"]]
+            .drop(["ancestor_list", "ancestor_id"], errors="ignore")
+            .dropna()
+            == row.drop(
+                ["ancestor_list", "ancestor_id"], errors="ignore"
+            ).dropna()
         )
 
     ref_counts = Counter(
