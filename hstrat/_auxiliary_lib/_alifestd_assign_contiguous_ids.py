@@ -44,7 +44,7 @@ def alifestd_assign_contiguous_ids(phylogeny_df: pd.DataFrame) -> pd.DataFrame:
     if len(ancestor_ids):
         phylogeny_df["ancestor_id"] = ancestor_ids
         phylogeny_df["ancestor_list"] = alifestd_make_ancestor_list_col(
-            phylogeny_df["id"], pd.Series(ancestor_ids)
+            phylogeny_df["id"], phylogeny_df["ancestor_id"]
         )
     else:
         phylogeny_df["ancestor_list"] = phylogeny_df["ancestor_list"].map(
