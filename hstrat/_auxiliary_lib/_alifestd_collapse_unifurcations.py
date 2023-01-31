@@ -56,10 +56,10 @@ def _alifestd_collapse_unifurcations_asexual(
     phylogeny_df: pd.DataFrame,
 ) -> pd.DataFrame:
 
+    phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
+
     if not alifestd_is_topologically_sorted(phylogeny_df):
         phylogeny_df = alifestd_topological_sort(phylogeny_df)
-
-    phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
 
     original_ids = phylogeny_df["id"].to_numpy()
     if not alifestd_has_contiguous_ids(phylogeny_df):
