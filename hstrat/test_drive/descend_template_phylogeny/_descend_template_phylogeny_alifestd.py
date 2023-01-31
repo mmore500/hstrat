@@ -4,15 +4,15 @@ import typing
 import numpy as np
 import pandas as pd
 
-from ..._auxiliary_lib._alifestd_assign_contiguous_ids import _reassign_ids
 from ..._auxiliary_lib import (
     alifestd_find_leaf_ids,
     alifestd_has_contiguous_ids,
     alifestd_has_multiple_roots,
     alifestd_is_topologically_sorted,
-    alifestd_topological_sort,
     alifestd_to_working_format,
+    alifestd_topological_sort,
 )
+from ..._auxiliary_lib._alifestd_assign_contiguous_ids import _reassign_ids
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._descend_template_phylogeny import descend_template_phylogeny
 
