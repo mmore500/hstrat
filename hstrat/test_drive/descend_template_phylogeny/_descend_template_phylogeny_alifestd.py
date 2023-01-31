@@ -118,4 +118,5 @@ def descend_template_phylogeny_alifestd(
         lookup_ancestor_id,
         get_stem_length,
         seed_column,
+        demark=lambda x: x,
     )

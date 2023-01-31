@@ -16,6 +16,7 @@ def _calc_node_depths(
     descending_tree_iterator: typing.Iterator,
     get_parent: typing.Callable[[typing.Any], typing.Any],
     get_stem_length: typing.Callable[[typing.Any], int],
+    demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
 ) -> typing.Dict[int, int]:
     """Descend tree to prepare lookup table of `demark(node)` -> node depth."""
 
@@ -42,6 +43,7 @@ def _educe_stratum_ordered_store(
         int, typing.Callable[[int], HereditaryStratum]
     ],
     stratum_retention_policy: typing.Any,
+    demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
 ) -> HereditaryStratumOrderedStoreList:
     """Prepare strata required by one extant lineage member, using cache lookup to ensure that identical strata are provided where common ancestry is shared with previously processesed extant lineage members."""
 
@@ -82,6 +84,7 @@ def descend_template_phylogeny_posthoc(
     get_parent: typing.Callable[[typing.Any], typing.Any],
     get_stem_length: typing.Callable[[typing.Any], int],
     seed_column: HereditaryStratigraphicColumn,
+    demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
 ) -> typing.List[HereditaryStratigraphicColumn]:
     """Generate a population of hereditary stratigraphic columns that could
     have resulted from the template phylogeny.
@@ -103,7 +106,10 @@ def descend_template_phylogeny_posthoc(
     assert stratum_retention_policy.IterRetainedRanks is not None
 
     tree_depth_lookup = _calc_node_depths(
-        descending_tree_iterator, get_parent, get_stem_length
+        descending_tree_iterator,
+        get_parent,
+        get_stem_length,
+        demark=demark,
     )
     deposition_count_lookup = {
         k: v + seed_column.GetNumStrataDeposited()
@@ -133,6 +139,7 @@ def descend_template_phylogeny_posthoc(
                 deposition_count_lookup,
                 stem_strata_lookup,
                 stratum_retention_policy,
+                demark=demark,
             ),
         )
         for iter_ in ascending_lineage_iterators

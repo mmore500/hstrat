@@ -10,6 +10,7 @@ def descend_template_phylogeny_naive(
     get_parent: typing.Callable[[typing.Any], typing.Any],
     get_stem_length: typing.Callable[[typing.Any], int],
     seed_column: HereditaryStratigraphicColumn,
+    demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
 ) -> typing.List[HereditaryStratigraphicColumn]:
     """Generate a population of hereditary stratigraphic columns that could
     have resulted from the template phylogeny.

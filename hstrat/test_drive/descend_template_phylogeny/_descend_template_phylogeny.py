@@ -1,5 +1,6 @@
 import typing
 
+from ..._auxiliary_lib import demark
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._descend_template_phylogeny_naive import descend_template_phylogeny_naive
 from ._descend_template_phylogeny_posthoc import (
@@ -13,6 +14,7 @@ def descend_template_phylogeny(
     get_parent: typing.Callable[[typing.Any], typing.Any],
     get_stem_length: typing.Callable[[typing.Any], int],
     seed_column: HereditaryStratigraphicColumn,
+    demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
 ) -> typing.List[HereditaryStratigraphicColumn]:
     """Generate a population of hereditary stratigraphic columns that could
     have resulted from the template phylogeny.
@@ -57,6 +59,15 @@ def descend_template_phylogeny(
         specifies configuration (i.e., differentia bit width and stratum
         retention policy) for returned columns. May already have strata
         deposited, which will be incorporated into generated extant population.
+    demark : function, default _auxiliary_lib.demark
+        Function that converts returned nodes to a unique hashable value.
+
+        For object-based Nodes, this might be `id`. For value-based Nodes, this
+        might be an identity function.
+
+        If default, will use runtime type information to make a reasonable
+        guess. Passing a custom value allows bypass of this slow type
+        inspection.
 
     Returns
     -------
@@ -90,4 +101,5 @@ def descend_template_phylogeny(
         get_parent,
         get_stem_length,
         seed_column,
+        demark=demark,
     )

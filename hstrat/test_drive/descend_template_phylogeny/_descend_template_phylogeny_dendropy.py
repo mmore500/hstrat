@@ -60,4 +60,5 @@ def descend_template_phylogeny_dendropy(
         get_parent=lambda node: node.parent_node,
         get_stem_length=lambda node: node.edge_length,
         seed_column=seed_column,
+        demark=id,
     )
