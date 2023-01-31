@@ -1,14 +1,17 @@
 from collections import abc
 import typing
 
+import numpy as np
 import pandas as pd
 
+from ..._auxiliary_lib._alifestd_assign_contiguous_ids import _reassign_ids
 from ..._auxiliary_lib import (
     alifestd_find_leaf_ids,
+    alifestd_has_contiguous_ids,
     alifestd_has_multiple_roots,
     alifestd_is_topologically_sorted,
-    alifestd_parse_ancestor_id,
     alifestd_topological_sort,
+    alifestd_to_working_format,
 )
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._descend_template_phylogeny import descend_template_phylogeny
@@ -61,43 +64,48 @@ def descend_template_phylogeny_alifestd(
     if extant_ids is None:
         extant_ids = alifestd_find_leaf_ids(phylogeny_df)
 
-    if not alifestd_is_topologically_sorted(phylogeny_df):
-        phylogeny_df = alifestd_topological_sort(phylogeny_df)
+    working_df = alifestd_to_working_format(phylogeny_df)
+    assert "ancestor_id" in working_df
 
-    phylogeny_df = phylogeny_df.set_index("id", drop=False)
+    if not alifestd_has_contiguous_ids(phylogeny_df):
+        if not alifestd_is_topologically_sorted(phylogeny_df):
+            phylogeny_df = alifestd_topological_sort(phylogeny_df)
+
+        __, extant_ids = _reassign_ids(
+            phylogeny_df["id"].to_numpy(), np.fromiter(extant_ids, int)
+        )
 
     def lookup_ancestor_id(id_: int) -> typing.Optional[int]:
-        return alifestd_parse_ancestor_id(
-            phylogeny_df.at[id_, "ancestor_list"]
-        )
+        return working_df["ancestor_id"].iloc[id_]
 
     def ascending_lineage_iterator(leaf_id: int) -> typing.Iterator[int]:
         cur_id = leaf_id
         while True:
             yield cur_id
-            cur_id = lookup_ancestor_id(cur_id)
-            if cur_id is None:
+            next_id = lookup_ancestor_id(cur_id)
+            if cur_id == next_id:
                 break
+            cur_id = next_id
 
     def descending_tree_iterator() -> typing.Iterator[int]:
         # assumes phylogeny dataframe is topologically sorted
-        yield from phylogeny_df["id"]
+        yield from working_df["id"]
 
     def get_stem_length(id_: int) -> typing.Union[float, int]:
         ancestor_id = lookup_ancestor_id(id_)
-        if ancestor_id is None:
+        if ancestor_id == id_:
             return 0
-        elif "origin_time" in phylogeny_df:
+        elif "origin_time" in working_df:
             res = (
-                phylogeny_df.loc[id_]["origin_time"]
-                - phylogeny_df.loc[ancestor_id]["origin_time"]
+                working_df["origin_time"].iloc[id_]
+                - working_df["origin_time"].iloc[ancestor_id]
             )
             assert res >= 0
             return res
-        elif "generation" in phylogeny_df:
+        elif "generation" in working_df:
             res = (
-                phylogeny_df.loc[id_]["generation"]
-                - phylogeny_df.loc[ancestor_id]["generation"]
+                working_df["generation"].iloc[id_]
+                - working_df["generation"].iloc[ancestor_id]
             )
             assert res >= 0
             return res
