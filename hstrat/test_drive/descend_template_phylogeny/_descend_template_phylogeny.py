@@ -9,27 +9,28 @@ from ._descend_template_phylogeny_posthoc import (
 
 
 def descend_template_phylogeny(
-    ascending_lineage_iterators: typing.Iterator[typing.Iterator],
-    descending_tree_iterator: typing.Iterator,
+    ascending_lineage_iterables: typing.Iterable[typing.Iterable],
+    descending_tree_iterable: typing.Iterable,
     get_parent: typing.Callable[[typing.Any], typing.Any],
     get_stem_length: typing.Callable[[typing.Any], int],
     seed_column: HereditaryStratigraphicColumn,
     demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> typing.List[HereditaryStratigraphicColumn]:
     """Generate a population of hereditary stratigraphic columns that could
     have resulted from the template phylogeny.
 
     Parameters
     ----------
-    ascending_lineage_iterators : iterator of phylogeny node iterators
-        Iterator that yields an acending lineage iterator for each extant
+    ascending_lineage_iterables : iterable of phylogeny node iterables
+        Iterable that yields an acending lineage iterable for each extant
         individual from template phylogeny.
 
-        The acending lineage iterator should yield the extant individual's
+        The acending lineage iterable should yield the extant individual's
         phylogeny node object and then successive parent node objects until
         yielding the root node object.
-    descending_tree_iterator : iterator of phylogeny nodes
-        Iterator over all phylogeny node objects in template phylogeny.
+    descending_tree_iterable : iterable of phylogeny nodes
+        Iterable over all phylogeny node objects in template phylogeny.
 
         The root node object must be yielded first. Then, each phylogeny node
         object should be yielded, with no object being yielded before its
@@ -68,6 +69,11 @@ def descend_template_phylogeny(
         If default, will use runtime type information to make a reasonable
         guess. Passing a custom value allows bypass of this slow type
         inspection.
+    progress_wrap : Callable, default identity function
+        Wrapper applied around generation iterator and row generator for final
+        phylogeny compilation process.
+
+        Pass tqdm or equivalent to display progress bars.
 
     Returns
     -------
@@ -75,7 +81,7 @@ def descend_template_phylogeny(
         Population of hereditary stratigraphic columns for extant lineage
         members.
 
-        Order of columns corresponds to order of `ascending_lineage_iterators`.
+        Order of columns corresponds to order of `ascending_lineage_iterables`.
 
     Notes
     -----
@@ -96,8 +102,8 @@ def descend_template_phylogeny(
     )
 
     return impl(
-        ascending_lineage_iterators,
-        descending_tree_iterator,
+        ascending_lineage_iterables,
+        descending_tree_iterable,
         get_parent,
         get_stem_length,
         seed_column,

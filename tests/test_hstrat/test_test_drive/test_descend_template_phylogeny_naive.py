@@ -156,13 +156,13 @@ def test_descend_template_phylogeny_naive(
     seed_column.DepositStrata(num_stratum_depositions=num_predeposits)
 
     extant_population = hstrat.descend_template_phylogeny_naive(
-        ascending_lineage_iterators=(
+        ascending_lineage_iterables=(
             extant_node.ancestor_iter(
                 inclusive=True,
             )
             for extant_node in iter_extant_nodes(tree)
         ),
-        descending_tree_iterator=tree.levelorder_node_iter(),
+        descending_tree_iterable=tree.levelorder_node_iter(),
         get_parent=lambda node: node.parent_node,
         get_stem_length=lambda node: node.edge_length,
         seed_column=seed_column,

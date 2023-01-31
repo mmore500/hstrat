@@ -48,7 +48,7 @@ def descend_template_phylogeny_dendropy(
     """
 
     return descend_template_phylogeny(
-        ascending_lineage_iterators=(
+        ascending_lineage_iterables=(
             extant_node.ancestor_iter(
                 inclusive=True,
             )
@@ -56,7 +56,7 @@ def descend_template_phylogeny_dendropy(
                 extant_nodes, tree.leaf_node_iter()
             )
         ),
-        descending_tree_iterator=tree.levelorder_node_iter(),
+        descending_tree_iterable=tree.levelorder_node_iter(),
         get_parent=lambda node: node.parent_node,
         get_stem_length=lambda node: node.edge_length,
         seed_column=seed_column,

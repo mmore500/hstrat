@@ -13,7 +13,7 @@ from ...genome_instrumentation import (
 
 
 def _calc_node_depths(
-    descending_tree_iterator: typing.Iterator,
+    descending_tree_iterable: typing.Iterable,
     get_parent: typing.Callable[[typing.Any], typing.Any],
     get_stem_length: typing.Callable[[typing.Any], int],
     demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
@@ -21,6 +21,8 @@ def _calc_node_depths(
     """Descend tree to prepare lookup table of `demark(node)` -> node depth."""
 
     node_depth_lookup = dict()
+
+    descending_tree_iterator = iter(descending_tree_iterable)
 
     for root_node in descending_tree_iterator:
         node_depth_lookup[demark(root_node)] = 0
@@ -37,7 +39,7 @@ def _calc_node_depths(
 
 
 def _educe_stratum_ordered_store(
-    ascending_lineage_iterator: typing.Iterator,
+    ascending_lineage_iterable: typing.Iterable,
     deposition_count_lookup: typing.Dict[int, int],
     stem_strata_lookup: typing.Dict[
         int, typing.Callable[[int], HereditaryStratum]
@@ -47,10 +49,14 @@ def _educe_stratum_ordered_store(
 ) -> HereditaryStratumOrderedStoreList:
     """Prepare strata required by one extant lineage member, using cache lookup to ensure that identical strata are provided where common ancestry is shared with previously processesed extant lineage members."""
 
-    # usage ensures ascending_lineage_iterator not empty
-    (extant_node,), ascending_lineage_iterator = mit.spy(
-        ascending_lineage_iterator
-    )
+    try:
+        extant_node = ascending_lineage_iterable[0]
+    except TypeError:
+        # usage ensures ascending_lineage_iterable not empty
+        (extant_node,), ascending_lineage_iterable = mit.spy(
+            ascending_lineage_iterable
+        )
+
     extant_deposition_count = deposition_count_lookup[demark(extant_node)]
 
     rising_required_ranks_iterator = (
@@ -61,7 +67,14 @@ def _educe_stratum_ordered_store(
 
     # pairwise ensures we exclude root node
     stratum_ordered_store = HereditaryStratumOrderedStoreList()
-    descending_lineage_iterator = iter(reversed([*ascending_lineage_iterator]))
+    try:
+        descending_lineage_iterator = iter(
+            reversed(ascending_lineage_iterable)
+        )
+    except TypeError:
+        descending_lineage_iterator = iter(
+            reversed([*ascending_lineage_iterable])
+        )
 
     cur_node = next(descending_lineage_iterator)
 
@@ -79,8 +92,8 @@ def _educe_stratum_ordered_store(
 
 
 def descend_template_phylogeny_posthoc(
-    ascending_lineage_iterators: typing.Iterator[typing.Iterator],
-    descending_tree_iterator: typing.Iterator,
+    ascending_lineage_iterables: typing.Iterable[typing.Iterable],
+    descending_tree_iterable: typing.Iterable,
     get_parent: typing.Callable[[typing.Any], typing.Any],
     get_stem_length: typing.Callable[[typing.Any], int],
     seed_column: HereditaryStratigraphicColumn,
@@ -106,7 +119,7 @@ def descend_template_phylogeny_posthoc(
     assert stratum_retention_policy.IterRetainedRanks is not None
 
     tree_depth_lookup = _calc_node_depths(
-        descending_tree_iterator,
+        descending_tree_iterable,
         get_parent,
         get_stem_length,
         demark=demark,
@@ -142,6 +155,6 @@ def descend_template_phylogeny_posthoc(
                 demark=demark,
             ),
         )
-        for iter_ in ascending_lineage_iterators
+        for iter_ in ascending_lineage_iterables
     ]
     return extant_population

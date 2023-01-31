@@ -135,13 +135,13 @@ def test_template_phylogeny_descent_deterministic(
         )
 
         extant_population = hstrat.descend_template_phylogeny(
-            ascending_lineage_iterators=(
+            ascending_lineage_iterables=(
                 tip_node.ancestor_iter(
                     inclusive=True,
                 )
                 for tip_node in tree.leaf_node_iter()
             ),
-            descending_tree_iterator=tree.levelorder_node_iter(),
+            descending_tree_iterable=tree.levelorder_node_iter(),
             get_parent=lambda node: node.parent_node,
             get_stem_length=lambda node: node.edge_length,
             seed_column=seed_column,
@@ -162,13 +162,13 @@ def test_template_phylogeny_descent_deterministic(
         )
 
         extant_population = hstrat.descend_template_phylogeny(
-            ascending_lineage_iterators=(
+            ascending_lineage_iterables=(
                 tip_node.ancestor_iter(
                     inclusive=True,
                 )
                 for tip_node in tree.leaf_node_iter()
             ),
-            descending_tree_iterator=tree.levelorder_node_iter(),
+            descending_tree_iterable=tree.levelorder_node_iter(),
             get_parent=lambda node: node.parent_node,
             get_stem_length=lambda node: node.edge_length,
             seed_column=seed_column,

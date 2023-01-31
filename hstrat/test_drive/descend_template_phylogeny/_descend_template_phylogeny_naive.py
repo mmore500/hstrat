@@ -5,8 +5,8 @@ from ...genome_instrumentation import HereditaryStratigraphicColumn
 
 
 def descend_template_phylogeny_naive(
-    ascending_lineage_iterators: typing.Iterator[typing.Iterator],
-    descending_tree_iterator: typing.Iterator,
+    ascending_lineage_iterables: typing.Iterable[typing.Iterable],
+    descending_tree_iterable: typing.Iterable,
     get_parent: typing.Callable[[typing.Any], typing.Any],
     get_stem_length: typing.Callable[[typing.Any], int],
     seed_column: HereditaryStratigraphicColumn,
@@ -28,6 +28,8 @@ def descend_template_phylogeny_naive(
 
     hstrat_column_lookup = dict()  # node id -> column
 
+    descending_tree_iterator = iter(descending_tree_iterable)
+
     for root_node in descending_tree_iterator:
         hstrat_column_lookup[demark(root_node)] = seed_column
         break
@@ -44,7 +46,7 @@ def descend_template_phylogeny_naive(
 
     extant_population = [
         # extant node
-        hstrat_column_lookup[demark(next(ascending_lineage_iterator))]
-        for ascending_lineage_iterator in ascending_lineage_iterators
+        hstrat_column_lookup[demark(next(iter(ascending_lineage_iterable)))]
+        for ascending_lineage_iterable in ascending_lineage_iterables
     ]
     return extant_population

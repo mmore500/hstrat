@@ -11,10 +11,26 @@ from ..._auxiliary_lib import (
     alifestd_is_topologically_sorted,
     alifestd_to_working_format,
     alifestd_topological_sort,
+    jit,
 )
 from ..._auxiliary_lib._alifestd_assign_contiguous_ids import _reassign_ids
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._descend_template_phylogeny import descend_template_phylogeny
+
+
+@jit(nopython=True)
+def _unfurl_lineage(ancestor_ids: np.array, leaf_id: int) -> np.array:
+    """List leaf id and its ancestor id sequence through tree root."""
+    id_ = leaf_id
+    res = list()
+    while True:
+        res.append(id_)
+        next_id = ancestor_ids[id_]
+        if id_ == next_id:
+            break
+        id_ = next_id
+
+    return np.array(res)
 
 
 def descend_template_phylogeny_alifestd(
@@ -75,21 +91,10 @@ def descend_template_phylogeny_alifestd(
             phylogeny_df["id"].to_numpy(), np.fromiter(extant_ids, int)
         )
 
-    def lookup_ancestor_id(id_: int) -> typing.Optional[int]:
-        return working_df["ancestor_id"].iloc[id_]
+    ancestor_id_lookup = working_df["ancestor_id"].iloc
 
-    def ascending_lineage_iterator(leaf_id: int) -> typing.Iterator[int]:
-        cur_id = leaf_id
-        while True:
-            yield cur_id
-            next_id = lookup_ancestor_id(cur_id)
-            if cur_id == next_id:
-                break
-            cur_id = next_id
-
-    def descending_tree_iterator() -> typing.Iterator[int]:
-        # assumes phylogeny dataframe is topologically sorted
-        yield from working_df["id"]
+    def lookup_ancestor_id(id_: int) -> int:
+        return ancestor_id_lookup[id_]
 
     def get_stem_length(id_: int) -> typing.Union[float, int]:
         ancestor_id = lookup_ancestor_id(id_)
@@ -113,8 +118,14 @@ def descend_template_phylogeny_alifestd(
             return 1
 
     return descend_template_phylogeny(
-        (ascending_lineage_iterator(leaf_id) for leaf_id in extant_ids),
-        descending_tree_iterator(),
+        (
+            _unfurl_lineage(
+                working_df["ancestor_id"].to_numpy(),
+                leaf_id,
+            )
+            for leaf_id in extant_ids
+        ),
+        working_df["id"].to_numpy(),  # descending_tree_iterable
         lookup_ancestor_id,
         get_stem_length,
         seed_column,
