@@ -64,7 +64,7 @@ def _alifestd_collapse_unifurcations_asexual(
     if not alifestd_is_topologically_sorted(phylogeny_df):
         phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
 
-    original_ids = phylogeny_df["id"].to_numpy()
+    original_ids = phylogeny_df["id"].to_numpy().copy()
     if not alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df = alifestd_assign_contiguous_ids(
             phylogeny_df, mutate=True
