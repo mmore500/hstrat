@@ -4,9 +4,7 @@ import typing
 import opytional as opyt
 import pandas as pd
 
-
-def _id(obj: typing.Any) -> int:
-    return obj if isinstance(obj, (str, int, float)) else id(obj)
+from ..._auxiliary_lib import demark
 
 
 def compile_phylogeny_from_lineage_iters(
@@ -34,14 +32,14 @@ def compile_phylogeny_from_lineage_iters(
             it.islice(lineage_it2, 1, None),
         ):
             assert descendant_handle is not None
-            if _id(descendant_handle) not in seen_handle_ids:
-                seen_handle_ids.add(_id(descendant_handle))
+            if demark(descendant_handle) not in seen_handle_ids:
+                seen_handle_ids.add(demark(descendant_handle))
                 records.append(
                     {
                         **{
-                            "id": _id(descendant_handle),
+                            "id": demark(descendant_handle),
                             "ancestor_list": str(
-                                [opyt.apply_if(ancestor_handle, _id)]
+                                [opyt.apply_if(ancestor_handle, demark)]
                             ),
                         },
                         **(

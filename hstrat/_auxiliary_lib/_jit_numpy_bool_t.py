@@ -9,7 +9,7 @@ from ._is_in_coverage_run import is_in_coverage_run
 
 try:
     import numba as nb
-except ImportError:
+except (ImportError, ModuleNotFoundError):
     jit_numpy_bool_t = np.bool_
 else:
     if is_in_coverage_run():
