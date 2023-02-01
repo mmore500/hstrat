@@ -12,7 +12,7 @@ def jit(*args, **kwargs) -> typing.Callable:
     """
     try:
         import numba as nb
-    except ModuleNotFoundError:
+    except (ImportError, ModuleNotFoundError):
         warnings.warn(
             "numba unavailable,"
             "wrapped function may lose significant performance",

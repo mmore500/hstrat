@@ -15,7 +15,7 @@ class _shim:
 
 try:
     from numba.typed import Dict
-except ImportError:
+except (ImportError, ModuleNotFoundError):
     jit_numba_dict_t = _shim
 else:
     if is_in_coverage_run():
