@@ -19,7 +19,7 @@ def descend_template_phylogeny_dendropy(
     Parameters
     ----------
     tree : dendropy.Tree
-        Phylogeny record as an dendropy Tree.
+        Phylogeny record as a dendropy Tree.
     seed_column : HereditaryStratigraphicColumn
         Hereditary stratigraphic column to seed at root node of phylogeny.
 
@@ -28,7 +28,7 @@ def descend_template_phylogeny_dendropy(
         specifies configuration (i.e., differentia bit width and stratum
         retention policy) for returned columns. May already have strata
         deposited, which will be incorporated into generated extant population.
-    extant_nodess : optional list of dendropy.Nonde
+    extant_nodes : optional list of dendropy.Node
         Which organisms should hereditary stratigraphic columns be created for?
 
         Designates content and order of returned list of hereditary
