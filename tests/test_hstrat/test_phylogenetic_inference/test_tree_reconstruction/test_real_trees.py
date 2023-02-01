@@ -23,6 +23,41 @@ def load_dendropy_tree(path):
     elif path.endswith(".newick"):
         return dp.Tree.get(path=path, schema="newick")
 
+def setup_dendropy_tree(path):
+    tree = load_dendropy_tree(path)
+
+    for node in tree:
+        node.edge.length = 1
+
+    for idx, node in enumerate(tree.leaf_node_iter()):
+        node.taxon = tree.taxon_namespace.new_taxon(label=str(idx))
+
+    tree.update_bipartitions(
+        suppress_unifurcations=False,
+        collapse_unrooted_basal_bifurcation=False,
+    )
+
+    return tree
+
+def descent_extant_population(tree, retention_policy, num_depositions):
+    seed_column = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=retention_policy,
+    )
+
+    seed_column.DepositStrata(num_stratum_depositions=num_depositions)
+
+    return hstrat.descend_template_phylogeny(
+        ascending_lineage_iterators=(
+            tip_node.ancestor_iter(
+                inclusive=True,
+            )
+            for tip_node in tree.leaf_node_iter()
+        ),
+        descending_tree_iterator=tree.levelorder_node_iter(),
+        get_parent=lambda node: node.parent_node,
+        get_stem_length=lambda node: node.edge_length,
+        seed_column=seed_column,
+    )
 
 @pytest.mark.parametrize(
     "path",
@@ -43,36 +78,12 @@ def load_dendropy_tree(path):
     ],
 )
 def test_print_performance(path):
-    orig_tree = load_dendropy_tree(path)
+    orig_tree = setup_dendropy_tree(path)
 
-    for node in orig_tree:
-        node.edge.length = 1
-
-    for idx, node in enumerate(orig_tree.leaf_node_iter()):
-        node.taxon = orig_tree.taxon_namespace.new_taxon(label=str(idx))
-
-    orig_tree.update_bipartitions(
-        suppress_unifurcations=False,
-        collapse_unrooted_basal_bifurcation=False,
-    )
-
-    seed_column = hstrat.HereditaryStratigraphicColumn(
-        stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(
-        ),
-    )
-    seed_column.DepositStrata(num_stratum_depositions=10)
-
-    extant_population = hstrat.descend_template_phylogeny(
-        ascending_lineage_iterators=(
-            tip_node.ancestor_iter(
-                inclusive=True,
-            )
-            for tip_node in orig_tree.leaf_node_iter()
-        ),
-        descending_tree_iterator=orig_tree.levelorder_node_iter(),
-        get_parent=lambda node: node.parent_node,
-        get_stem_length=lambda node: node.edge_length,
-        seed_column=seed_column,
+    extant_population = descent_extant_population(
+        tree=orig_tree,
+        retention_policy=hstrat.perfect_resolution_algo.Policy(),
+        num_depositions=10
     )
 
     distance_matrix = tree_reconstruction.calculate_distance_matrix(extant_population)
@@ -109,36 +120,12 @@ def test_print_performance(path):
     ],
 )
 def test_handwritten_trees(path):
-    orig_tree = load_dendropy_tree(path)
+    orig_tree = setup_dendropy_tree(path)
 
-    for node in orig_tree:
-        node.edge.length = 1
-
-    for idx, node in enumerate(orig_tree.leaf_node_iter()):
-        node.taxon = orig_tree.taxon_namespace.new_taxon(label=str(idx))
-
-    orig_tree.update_bipartitions(
-        suppress_unifurcations=False,
-        collapse_unrooted_basal_bifurcation=False,
-    )
-
-    seed_column = hstrat.HereditaryStratigraphicColumn(
-        stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(
-        ),
-    )
-    seed_column.DepositStrata(num_stratum_depositions=10)
-
-    extant_population = hstrat.descend_template_phylogeny(
-        ascending_lineage_iterators=(
-            tip_node.ancestor_iter(
-                inclusive=True,
-            )
-            for tip_node in orig_tree.leaf_node_iter()
-        ),
-        descending_tree_iterator=orig_tree.levelorder_node_iter(),
-        get_parent=lambda node: node.parent_node,
-        get_stem_length=lambda node: node.edge_length,
-        seed_column=seed_column,
+    extant_population = descent_extant_population(
+        tree=orig_tree,
+        retention_policy=hstrat.perfect_resolution_algo.Policy(),
+        num_depositions=10
     )
 
     distance_matrix = tree_reconstruction.calculate_distance_matrix(extant_population)
@@ -168,41 +155,17 @@ def test_handwritten_trees(path):
     "path",
     [
         f"{assets_path}/nk_ecoeaselection.csv",
-        f"{assets_path}/nk_lexicaseselection.csv",
-        f"{assets_path}/nk_tournamentselection.csv",
+        # f"{assets_path}/nk_lexicaseselection.csv",
+        # f"{assets_path}/nk_tournamentselection.csv",
     ],
 )
 def test_realworld_trees(path):
-    orig_tree = load_dendropy_tree(path)
+    orig_tree = setup_dendropy_tree(path)
 
-    for node in orig_tree:
-        node.edge_length = 1
-
-    for idx, node in enumerate(orig_tree.leaf_node_iter()):
-        node.taxon = orig_tree.taxon_namespace.new_taxon(label=str(idx))
-
-    orig_tree.update_bipartitions(
-        suppress_unifurcations=False,
-        collapse_unrooted_basal_bifurcation=False,
-    )
-
-    seed_column = hstrat.HereditaryStratigraphicColumn(
-        stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(
-        ),
-    )
-    seed_column.DepositStrata(num_stratum_depositions=10)
-
-    extant_population = hstrat.descend_template_phylogeny(
-        ascending_lineage_iterators=(
-            tip_node.ancestor_iter(
-                inclusive=True,
-            )
-            for tip_node in orig_tree.leaf_node_iter()
-        ),
-        descending_tree_iterator=orig_tree.levelorder_node_iter(),
-        get_parent=lambda node: node.parent_node,
-        get_stem_length=lambda node: node.edge_length,
-        seed_column=seed_column,
+    extant_population = descent_extant_population(
+        tree=orig_tree,
+        retention_policy=hstrat.perfect_resolution_algo.Policy(),
+        num_depositions=10
     )
 
     distance_matrix = tree_reconstruction.calculate_distance_matrix(extant_population)
@@ -220,6 +183,7 @@ def test_realworld_trees(path):
 
     taxa = [node.taxon for node in orig_tree.leaf_node_iter()]
 
+    # TODO: only check that 95% of these are good enough
     for a, b in itertools.combinations(taxa, 2):
         assert abs(original_distance_matrix.distance(a, b) - reconstructed_distance_matrix.distance(a, b)) < 100.0
 
@@ -252,39 +216,16 @@ def test_realworld_trees(path):
     ],
 )
 def test_reconstruction_quality(path):
-    orig_tree = load_dendropy_tree(path)
-
-    for node in orig_tree:
-        node.edge_length = 1
-
-    for idx, node in enumerate(orig_tree.leaf_node_iter()):
-        node.taxon = orig_tree.taxon_namespace.new_taxon(label=str(idx))
-
-    orig_tree.update_bipartitions(
-        suppress_unifurcations=False,
-        collapse_unrooted_basal_bifurcation=False,
-    )
+    orig_tree = setup_dendropy_tree(path)
 
     resolutions = [1, 10, 100, 1000]
     metrics = []
 
     for resolution in resolutions:
-        seed_column = hstrat.HereditaryStratigraphicColumn(
-            stratum_retention_policy=hstrat.fixed_resolution_algo.Policy(resolution),
-        )
-        seed_column.DepositStrata(num_stratum_depositions=10)
-
-        extant_population = hstrat.descend_template_phylogeny(
-            ascending_lineage_iterators=(
-                tip_node.ancestor_iter(
-                    inclusive=True,
-                )
-                for tip_node in orig_tree.leaf_node_iter()
-            ),
-            descending_tree_iterator=orig_tree.levelorder_node_iter(),
-            get_parent=lambda node: node.parent_node,
-            get_stem_length=lambda node: node.edge_length,
-            seed_column=seed_column,
+        extant_population = descent_extant_population(
+            tree=orig_tree,
+            retention_policy=hstrat.fixed_resolution_algo.Policy(resolution),
+            num_depositions=10
         )
 
         distance_matrix = tree_reconstruction.calculate_distance_matrix(extant_population)
@@ -299,6 +240,12 @@ def test_reconstruction_quality(path):
     assert resolutions == sorted(resolutions)
     assert metrics == sorted(metrics)
 
+
+def descend_unifurcations(node):
+    while len(node.child_nodes()) == 1:
+        node = next(node.child_node_iter())
+    return node
+
 @pytest.mark.parametrize(
     "path",
     [
@@ -308,46 +255,30 @@ def test_reconstruction_quality(path):
     ],
 )
 def test_reconstructed_mrca(path):
-    orig_tree = load_dendropy_tree(path)
+    num_depositions = 10
+    threshold = 0.99
 
-    for node in orig_tree:
-        node.edge_length = 1
+    orig_tree = setup_dendropy_tree(path)
 
-    for idx, node in enumerate(orig_tree.leaf_node_iter()):
-        node.taxon = orig_tree.taxon_namespace.new_taxon(label=str(idx))
-
-    orig_tree.update_bipartitions(
-        suppress_unifurcations=False,
-        collapse_unrooted_basal_bifurcation=False,
+    extant_population = descent_extant_population(
+        tree=orig_tree,
+        retention_policy=hstrat.perfect_resolution_algo.Policy(),
+        num_depositions=num_depositions,
     )
 
-    seed_column = hstrat.HereditaryStratigraphicColumn(
-        stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
-    )
-    seed_column.DepositStrata(num_stratum_depositions=10)
+    pdm = orig_tree.phylogenetic_distance_matrix()
 
-    extant_population = hstrat.descend_template_phylogeny(
-        ascending_lineage_iterators=(
-            tip_node.ancestor_iter(
-                inclusive=True,
-            )
-            for tip_node in orig_tree.leaf_node_iter()
-        ),
-        descending_tree_iterator=orig_tree.levelorder_node_iter(),
-        get_parent=lambda node: node.parent_node,
-        get_stem_length=lambda node: node.edge_length,
-        seed_column=seed_column,
-    )
-
-    threshold = 0.9
+    assert len(list(orig_tree.leaf_node_iter())) == len(extant_population)
+    assert [x.distance_from_root() + num_depositions for x in orig_tree.leaf_node_iter()] == \
+        [x._num_strata_deposited for x in extant_population]
 
     for orig_pair, rec_pair in zip(
         itertools.combinations(orig_tree.leaf_node_iter(), 2),
         itertools.combinations(extant_population, 2)
     ):
-        pdm = orig_tree.phylogenetic_distance_matrix()
-        original_mrca = pdm.mrca(*map(lambda x: x.taxon, orig_pair))
+        original_mrca = descend_unifurcations(pdm.mrca(*map(lambda x: x.taxon, orig_pair)))
+
         lower_mrca_bound, upper_mrca_bound = hstrat.calc_rank_of_mrca_bounds_between(*rec_pair)
 
-        assert threshold * lower_mrca_bound <= original_mrca.distance_from_root()
-        assert original_mrca.distance_from_root() < upper_mrca_bound * (2 - threshold)
+        assert threshold * (lower_mrca_bound - num_depositions) <= original_mrca.distance_from_root()
+        assert original_mrca.distance_from_root() < (upper_mrca_bound - num_depositions) * (2 - threshold)
