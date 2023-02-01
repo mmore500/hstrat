@@ -34,7 +34,8 @@ def alifestd_assign_contiguous_ids(
 ) -> pd.DataFrame:
     """Reassign so each organism's id corresponds to its row number.
 
-    Organisms retain the same row location; only id numbers change. Input dataframe is not mutated by this operation unless `mutate` True.
+    Organisms retain the same row location; only id numbers change. Input
+    dataframe is not mutated by this operation unless `mutate` True.
     """
 
     if not mutate:

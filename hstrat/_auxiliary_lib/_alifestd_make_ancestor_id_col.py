@@ -8,7 +8,8 @@ def alifestd_make_ancestor_id_col(
     pure-integer series representation.
 
     Each organism must have one or zero ancestors (i.e., asexualasexual data).
-    In the returned series, ancestor id will be assigned to own id for no-ancestor organisms.
+    In the returned series, ancestor id will be assigned to own id for no-
+    ancestor organisms.
     """
     ancestor_ids = (
         ancestor_lists.str.lower()
