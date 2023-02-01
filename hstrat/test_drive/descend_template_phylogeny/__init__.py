@@ -24,14 +24,5 @@ __all__ = [
 
 from ..._auxiliary_lib import launder_impl_modules as _launder
 
-_launder(
-    [
-        descend_template_phylogeny,
-        descend_template_phylogeny_alifestd,
-        descend_template_phylogeny_dendropy,
-        descend_template_phylogeny_naive,
-        descend_template_phylogeny_posthoc,
-    ],
-    __name__,
-)
+_launder([eval(item) for item in __all__], __name__)
 del _launder  # prevent name from leaking
