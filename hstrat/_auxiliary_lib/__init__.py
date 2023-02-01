@@ -41,6 +41,7 @@ from ._is_nondecreasing import is_nondecreasing
 from ._is_nonincreasing import is_nonincreasing
 from ._is_strictly_decreasing import is_strictly_decreasing
 from ._is_strictly_increasing import is_strictly_increasing
+from ._is_subset import is_subset
 from ._iter_chunks import iter_chunks
 from ._jit import jit
 from ._jit_numba_dict_t import jit_numba_dict_t
@@ -102,6 +103,7 @@ __all__ = [
     "is_nonincreasing",
     "is_strictly_decreasing",
     "is_strictly_increasing",
+    "is_subset",
     "iter_chunks",
     "jit",
     "jit_numba_dict_t",
