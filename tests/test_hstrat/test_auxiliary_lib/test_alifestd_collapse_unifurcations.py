@@ -108,13 +108,13 @@ def test_alifestd_collapse_unifurcations(phylogeny_df, apply):
         (collapsed_df, collapsed_descendants_lookup),
     ):
         for _idx, row in df[::-1].iterrows():
-            id = row["id"]
+            id_ = row["id"]
             ancestor_ids = alifestd_parse_ancestor_ids(row["ancestor_list"])
-            lookup[id].add(id)
+            lookup[id_].add(id_)
             for ancestor_id in ancestor_ids:
-                lookup[ancestor_id] |= lookup[id]
+                lookup[ancestor_id] |= lookup[id_]
 
     dropped_ids = set(phylogeny_df["id"]) - set(collapsed_df["id"])
-    for id, descendants in collapsed_descendants_lookup.items():
-        assert descendants <= phylogeny_descendants_lookup[id]
-        assert descendants == (phylogeny_descendants_lookup[id] - dropped_ids)
+    for id_, descendants in collapsed_descendants_lookup.items():
+        assert descendants <= phylogeny_descendants_lookup[id_]
+        assert descendants == (phylogeny_descendants_lookup[id_] - dropped_ids)

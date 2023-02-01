@@ -1,7 +1,5 @@
-from collections import Counter
 import os
 
-import alifedata_phyloinformatics_convert as apc
 import pandas as pd
 import pytest
 

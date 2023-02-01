@@ -71,7 +71,6 @@ def test_alifestd_has_multiple_roots_twolineages(phylogeny_df):
 
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
     phylogeny_df.reset_index(inplace=True)
-    max_id = phylogeny_df["id"].max()
 
     aggregated_df = alifestd_aggregate_phylogenies(
         [
