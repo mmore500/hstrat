@@ -5,9 +5,21 @@ import pandas as pd
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 
 
-def alifestd_topological_sort(phylogeny_df: pd.DataFrame) -> pd.DataFrame:
-    """Sort rows so all organisms follow members of their `ancestor_list`."""
-    phylogeny_df = phylogeny_df.set_index("id", drop=False)
+def alifestd_topological_sort(
+    phylogeny_df: pd.DataFrame,
+    mutate: bool = False,
+) -> pd.DataFrame:
+    """Sort rows so all organisms follow members of their `ancestor_list`.
+
+    Input dataframe is not mutated by this operation unless `mutate` set True.
+    If mutate set True, operation does not occur in place; still use return
+    value to get transformed phylogeny dataframe.
+    """
+
+    if not mutate:
+        phylogeny_df = phylogeny_df.copy()
+
+    phylogeny_df.set_index("id", drop=False, inplace=True)
 
     unsorted_ids = set(phylogeny_df["id"])
     internal_ids_refcounts = Counter(

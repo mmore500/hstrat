@@ -8,11 +8,14 @@ from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 
 def alifestd_aggregate_phylogenies(
     phylogeny_dfs: typing.List[pd.DataFrame],
+    mutate: bool = False,
 ) -> pd.DataFrame:
     """Concatenate independent phylogenies, reassigning organism ids to
     prevent collisions.
 
-    Input dataframes are not mutated by this operation.
+    Inputs dataframe are not mutated by this operation unless `mutate` set True.
+    If mutate set True, operation does not occur in place; still use return
+    value to get transformed phylogeny dataframe.
     """
 
     aggregate_least_available_id = 0
@@ -22,7 +25,8 @@ def alifestd_aggregate_phylogenies(
 
     res = []
     for phylogeny_df in phylogeny_dfs:
-        phylogeny_df = phylogeny_df.copy()
+        if not mutate:
+            phylogeny_df = phylogeny_df.copy()
         cur_max_id = phylogeny_df["id"].max()
 
         if aggregate_least_available_id:

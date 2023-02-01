@@ -39,7 +39,10 @@ def _is_topologically_sorted(ids: np.array, ancestor_ids: np.array) -> bool:
 
 
 def alifestd_is_topologically_sorted(phylogeny_df: pd.DataFrame) -> bool:
-    """Are all organisms listed after members of their `ancestor_list`?"""
+    """Are all organisms listed after members of their `ancestor_list`?
+
+    Input dataframe is not mutated by this operation.
+    """
 
     if "ancestor_id" in phylogeny_df:
         if alifestd_has_contiguous_ids(phylogeny_df):

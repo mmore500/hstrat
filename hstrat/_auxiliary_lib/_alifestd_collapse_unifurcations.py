@@ -54,25 +54,28 @@ def _collapse_unifurcations(
 
 def _alifestd_collapse_unifurcations_asexual(
     phylogeny_df: pd.DataFrame,
+    mutate: bool,
 ) -> pd.DataFrame:
     """Optimized implementation for asexual phylogenies."""
 
-    phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
+    if not mutate:
+        phylogeny_df = phylogeny_df.copy()
+
+    phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
 
     if not alifestd_is_topologically_sorted(phylogeny_df):
-        phylogeny_df = alifestd_topological_sort(phylogeny_df)
+        phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
 
     original_ids = phylogeny_df["id"].to_numpy()
     if not alifestd_has_contiguous_ids(phylogeny_df):
-        phylogeny_df = alifestd_assign_contiguous_ids(phylogeny_df)
+        phylogeny_df = alifestd_assign_contiguous_ids(
+            phylogeny_df, mutate=True
+        )
 
     keep_filter, ancestor_ids = _collapse_unifurcations(
-        # must copy to protect parameter phylogeny_df from changes
-        phylogeny_df["ancestor_id"]
-        .to_numpy()
-        .copy()
+        phylogeny_df["ancestor_id"].to_numpy()
     )
-    phylogeny_df = phylogeny_df.loc[keep_filter].copy()
+    phylogeny_df = phylogeny_df.loc[keep_filter]
     phylogeny_df["id"] = original_ids[keep_filter]
     phylogeny_df["ancestor_id"] = original_ids[ancestor_ids[keep_filter]]
     phylogeny_df["ancestor_list"] = alifestd_make_ancestor_list_col(
@@ -84,10 +87,13 @@ def _alifestd_collapse_unifurcations_asexual(
 
 def alifestd_collapse_unifurcations(
     phylogeny_df: pd.DataFrame,
+    mutate: bool = False,
 ) -> pd.DataFrame:
     """Pare record to bypass organisms with one ancestor and one descendant.
 
-    Input dataframe is not mutated by this operation.
+    Input dataframe is not mutated by this operation unless `mutate` set True.
+    If mutate set True, operation does not occur in place; still use return
+    value to get transformed phylogeny dataframe.
     """
 
     if "branch_length" in phylogeny_df or "edge_length" in phylogeny_df:
@@ -97,13 +103,19 @@ def alifestd_collapse_unifurcations(
             "collapsed phylogeny."
         )
 
+    # special optimized handling for asexual phylogenies
     if alifestd_is_asexual(phylogeny_df):
-        return _alifestd_collapse_unifurcations_asexual(phylogeny_df)
+        return _alifestd_collapse_unifurcations_asexual(
+            phylogeny_df, mutate=mutate
+        )
+
+    if not mutate:
+        phylogeny_df = phylogeny_df.copy()
 
     if not alifestd_is_topologically_sorted(phylogeny_df):
-        phylogeny_df = alifestd_topological_sort(phylogeny_df)
+        phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
 
-    phylogeny_df = phylogeny_df.set_index("id", drop=False)
+    phylogeny_df.set_index("id", drop=False, inplace=True)
 
     ref_counts = Counter(
         id
