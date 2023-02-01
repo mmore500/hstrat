@@ -11,6 +11,7 @@ def descend_template_phylogeny_naive(
     get_stem_length: typing.Callable[[typing.Any], int],
     seed_column: HereditaryStratigraphicColumn,
     demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> typing.List[HereditaryStratigraphicColumn]:
     """Generate a population of hereditary stratigraphic columns that could
     have resulted from the template phylogeny.
@@ -34,7 +35,7 @@ def descend_template_phylogeny_naive(
         hstrat_column_lookup[demark(root_node)] = seed_column
         break
 
-    for node in descending_tree_iterator:
+    for node in progress_wrap(descending_tree_iterator):
         stem_length = get_stem_length(node)
         parent_node = get_parent(node)
         parent_hstrat_column = hstrat_column_lookup[demark(parent_node)]

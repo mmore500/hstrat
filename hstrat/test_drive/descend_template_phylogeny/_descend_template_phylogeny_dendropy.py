@@ -11,6 +11,7 @@ def descend_template_phylogeny_dendropy(
     tree: dp.Tree,
     seed_column: HereditaryStratigraphicColumn,
     extant_nodes: typing.Optional[typing.Iterable[int]] = None,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> typing.List[HereditaryStratigraphicColumn]:
     """Generate a population of hereditary stratigraphic columns that could
     have resulted from the template phylogeny.
@@ -36,6 +37,11 @@ def descend_template_phylogeny_dendropy(
         If None, hereditary stratigraphic columns will be created for all
         phylogenetic leaves (organisms without offspring) in order of
         appearance in `tree.leaf_node_iter()`.
+    progress_wrap : Callable, default identity function
+        Wrapper applied around generation iterator and row generator for final
+        phylogeny compilation process.
+
+        Pass tqdm or equivalent to display progress bars.
 
     Returns
     -------
@@ -61,4 +67,5 @@ def descend_template_phylogeny_dendropy(
         get_stem_length=lambda node: node.edge_length,
         seed_column=seed_column,
         demark=id,
+        progress_wrap=progress_wrap,
     )

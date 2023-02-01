@@ -1,3 +1,4 @@
+import functools
 import itertools as it
 import os
 import random
@@ -5,6 +6,7 @@ import random
 import alifedata_phyloinformatics_convert as apc
 import pandas as pd
 import pytest
+from tqdm import tqdm
 
 from hstrat import hstrat
 from hstrat._auxiliary_lib import alifestd_find_leaf_ids
@@ -115,6 +117,7 @@ def test_descend_template_phylogeny(
             phylogeny_df,
             seed_column=seed_column,
             extant_ids=extant_ids,
+            progress_wrap=functools.partial(tqdm, disable=True),
         )
 
         num_tips = len(sorted_extant_nodes)

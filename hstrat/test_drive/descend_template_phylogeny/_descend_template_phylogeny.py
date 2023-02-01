@@ -108,4 +108,5 @@ def descend_template_phylogeny(
         get_stem_length,
         seed_column,
         demark=demark,
+        progress_wrap=progress_wrap,
     )

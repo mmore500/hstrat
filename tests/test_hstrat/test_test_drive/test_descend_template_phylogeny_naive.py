@@ -1,3 +1,4 @@
+import functools
 import itertools as it
 import os
 import random
@@ -6,6 +7,7 @@ import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
 import pandas as pd
 import pytest
+from tqdm import tqdm
 
 from hstrat import hstrat
 
@@ -166,6 +168,7 @@ def test_descend_template_phylogeny_naive(
         get_parent=lambda node: node.parent_node,
         get_stem_length=lambda node: node.edge_length,
         seed_column=seed_column,
+        progress_wrap=functools.partial(tqdm, disable=True),
     )
 
     num_extants = sum(1 for __ in iter_extant_nodes(tree))

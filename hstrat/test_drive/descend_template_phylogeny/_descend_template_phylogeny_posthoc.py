@@ -17,12 +17,13 @@ def _calc_node_depths(
     get_parent: typing.Callable[[typing.Any], typing.Any],
     get_stem_length: typing.Callable[[typing.Any], int],
     demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> typing.Dict[int, int]:
     """Descend tree to prepare lookup table of `demark(node)` -> node depth."""
 
     node_depth_lookup = dict()
 
-    descending_tree_iterator = iter(descending_tree_iterable)
+    descending_tree_iterator = iter(progress_wrap(descending_tree_iterable))
 
     for root_node in descending_tree_iterator:
         node_depth_lookup[demark(root_node)] = 0
@@ -98,6 +99,7 @@ def descend_template_phylogeny_posthoc(
     get_stem_length: typing.Callable[[typing.Any], int],
     seed_column: HereditaryStratigraphicColumn,
     demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> typing.List[HereditaryStratigraphicColumn]:
     """Generate a population of hereditary stratigraphic columns that could
     have resulted from the template phylogeny.
@@ -122,6 +124,7 @@ def descend_template_phylogeny_posthoc(
         descending_tree_iterable,
         get_parent,
         get_stem_length,
+        progress_wrap=progress_wrap,
         demark=demark,
     )
     deposition_count_lookup = {
@@ -155,6 +158,6 @@ def descend_template_phylogeny_posthoc(
                 demark=demark,
             ),
         )
-        for iter_ in ascending_lineage_iterables
+        for iter_ in progress_wrap(ascending_lineage_iterables)
     ]
     return extant_population

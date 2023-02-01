@@ -1,3 +1,4 @@
+import functools
 import itertools as it
 import os
 import random
@@ -6,6 +7,7 @@ import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
 import pandas as pd
 import pytest
+from tqdm import tqdm
 
 from hstrat import hstrat
 
@@ -280,6 +282,7 @@ def test_descend_template_phylogeny_extant_ids(
         tree,
         seed_column=seed_column,
         extant_nodes=extant_nodes,
+        progress_wrap=functools.partial(tqdm, disable=True),
     )
 
     num_extants = len(extant_nodes)

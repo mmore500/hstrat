@@ -11,6 +11,7 @@ from ..._auxiliary_lib import (
     alifestd_is_topologically_sorted,
     alifestd_to_working_format,
     alifestd_topological_sort,
+    give_len,
     jit,
 )
 from ..._auxiliary_lib._alifestd_assign_contiguous_ids import _reassign_ids
@@ -37,6 +38,7 @@ def descend_template_phylogeny_alifestd(
     phylogeny_df: pd.DataFrame,
     seed_column: HereditaryStratigraphicColumn,
     extant_ids: typing.Optional[typing.Iterable[int]] = None,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> typing.List[HereditaryStratigraphicColumn]:
     """Generate a population of hereditary stratigraphic columns that could
     have resulted from the template phylogeny.
@@ -63,6 +65,11 @@ def descend_template_phylogeny_alifestd(
         If None, hereditary stratigraphic columns will be created for all
         phylogenetic leaves (organisms without offspring) in order of
         appearance in `phylogeny_df`.
+    progress_wrap : Callable, default identity function
+        Wrapper applied around generation iterator and row generator for final
+        phylogeny compilation process.
+
+        Pass tqdm or equivalent to display progress bars.
 
     Returns
     -------
@@ -118,16 +125,20 @@ def descend_template_phylogeny_alifestd(
             return 1
 
     return descend_template_phylogeny(
-        (
-            _unfurl_lineage(
-                working_df["ancestor_id"].to_numpy(),
-                leaf_id,
-            )
-            for leaf_id in extant_ids
+        give_len(
+            (
+                _unfurl_lineage(
+                    working_df["ancestor_id"].to_numpy(),
+                    leaf_id,
+                )
+                for leaf_id in extant_ids
+            ),
+            len(extant_ids),
         ),
         working_df["id"].to_numpy(),  # descending_tree_iterable
         lookup_ancestor_id,
         get_stem_length,
         seed_column,
         demark=lambda x: x,
+        progress_wrap=progress_wrap,
     )
