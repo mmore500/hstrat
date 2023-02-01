@@ -109,11 +109,8 @@ def test_alifestd_aggregate_phylogenies(
     if phylogeny_df3 is not None:
         assert phylogeny_df3.equals(phylogeny_df3_)
 
-    assert len(alifestd_find_leaf_ids(aggregate_df)) == len(
-        sum(
-            map(alifestd_find_leaf_ids, phylogenies),
-            start=[],
-        )
+    assert len(alifestd_find_leaf_ids(aggregate_df)) == sum(
+        map(len, map(alifestd_find_leaf_ids, phylogenies)),
     )
     assert all(
         map(alifestd_has_contiguous_ids, phylogenies)
