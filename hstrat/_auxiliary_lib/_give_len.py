@@ -15,14 +15,14 @@ def give_len(wrapee: typing.Iterable, len_: int) -> typing.Iterable:
         # must define members inline or won't be recognized as wrapee etc.
         for attr in dir(wrapee):
             if attr not in {
-                "__init__",
-                "__new__",
                 "__class__",
                 "__delattr__",
-                "__name__",
-                "__setattr__",
                 "__getattribute__",
+                "__init__",
+                "__name__",
+                "__new__",
                 "__qualname__",
+                "__setattr__",
             }:
                 exec(
                     f"""
