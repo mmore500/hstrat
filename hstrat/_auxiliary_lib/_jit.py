@@ -15,7 +15,9 @@ def jit(*args, **kwargs) -> typing.Callable:
     except (ImportError, ModuleNotFoundError):
         warnings.warn(
             "numba unavailable,"
-            "wrapped function may lose significant performance",
+            "wrapped function may lose significant performance. "
+            "To get numba, install it directly or install hstrat optional jit "
+            "extras: python -m pip install hstrat[jit].",
             ImportWarning,
         )
         return lambda f: f
