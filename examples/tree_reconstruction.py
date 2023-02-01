@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     # ensure reproducible results
     # and avoid edge cases not handled in this simple example
-    hstrat_auxlib._seed_random(2)
+    hstrat_auxlib.seed_random(2)
 
     for genome_type in (
         SimpleGenomeAnnotatedWithDenseRetention,
