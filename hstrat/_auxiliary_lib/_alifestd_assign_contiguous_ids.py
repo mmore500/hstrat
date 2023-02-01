@@ -29,7 +29,11 @@ def _reassign_ids(
 
 
 def alifestd_assign_contiguous_ids(phylogeny_df: pd.DataFrame) -> pd.DataFrame:
-    """TODO."""
+    """Reassign so each organism's id corresponds to its row number.
+
+    Organisms retain the same row location; only id numbers change. Input
+    dataframes are not mutated by this operation.
+    """
     phylogeny_df = phylogeny_df.copy()
 
     reassignment, ancestor_ids = _reassign_ids(

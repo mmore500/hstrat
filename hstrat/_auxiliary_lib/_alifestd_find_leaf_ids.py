@@ -10,7 +10,10 @@ from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
 def alifestd_find_leaf_ids(phylogeny_df: pd.DataFrame) -> typing.List[int]:
-    """What ids are not listed in any `ancestor_list`?"""
+    """What ids are not listed in any `ancestor_list`?
+
+    Input dataframe is not mutated by this operation.
+    """
 
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)

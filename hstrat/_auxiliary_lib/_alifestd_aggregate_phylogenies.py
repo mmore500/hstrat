@@ -9,7 +9,11 @@ from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 def alifestd_aggregate_phylogenies(
     phylogeny_dfs: typing.List[pd.DataFrame],
 ) -> pd.DataFrame:
-    """TODO"""
+    """Concatenate independent phylogenies, reassigning organism ids to
+    prevent collisions.
+
+    Input dataframes are not mutated by this operation.
+    """
 
     aggregate_least_available_id = 0
     all_has_ancestor_id = all(

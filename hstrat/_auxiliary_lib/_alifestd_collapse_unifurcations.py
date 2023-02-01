@@ -55,6 +55,7 @@ def _collapse_unifurcations(
 def _alifestd_collapse_unifurcations_asexual(
     phylogeny_df: pd.DataFrame,
 ) -> pd.DataFrame:
+    """Optimized implementation for asexual phylogenies."""
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
 
@@ -84,7 +85,10 @@ def _alifestd_collapse_unifurcations_asexual(
 def alifestd_collapse_unifurcations(
     phylogeny_df: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Pare record to bypass organisms with one ancestor and one descendant."""
+    """Pare record to bypass organisms with one ancestor and one descendant.
+
+    Input dataframe is not mutated by this operation.
+    """
 
     if "branch_length" in phylogeny_df or "edge_length" in phylogeny_df:
         warnings.Warning(

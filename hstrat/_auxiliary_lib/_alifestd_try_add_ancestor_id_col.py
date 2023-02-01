@@ -7,6 +7,9 @@ from ._alifestd_make_ancestor_id_col import alifestd_make_ancestor_id_col
 def alifestd_try_add_ancestor_id_col(
     phylogeny_df: pd.DataFrame,
 ) -> pd.DataFrame:
+    """Add an ancestor_id column to the input DataFrame if the phylogeny is
+    asexual and the column does not already exist."""
+
     if alifestd_is_asexual(phylogeny_df) and "ancestor_id" not in phylogeny_df:
         phylogeny_df = phylogeny_df.copy()
         phylogeny_df["ancestor_id"] = alifestd_make_ancestor_id_col(

@@ -10,7 +10,17 @@ from ._alifestd_topological_sort import alifestd_topological_sort
 
 
 def alifestd_to_working_format(phylogeny_df: pd.DataFrame) -> pd.DataFrame:
-    """TODO."""
+    """Re-encode phylogeny_df to facilitate efficient analysis and
+    transformation operations.
+
+    The returned phylogeny dataframe will
+    * be topologically sorted (i.e., organisms appear after all ancestors),
+    * have contiguous ids (i.e., organisms' ids correspond to row number),
+    * contain an integer datatype `ancestor_id` column if the phylogeny is
+    asexual (i.e., a more performant representation of `ancestor_list`).
+
+    Input dataframe is not mutated by this operation.
+    """
     is_copy = False
 
     if not alifestd_is_topologically_sorted(phylogeny_df):

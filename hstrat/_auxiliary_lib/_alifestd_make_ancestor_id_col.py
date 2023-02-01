@@ -4,7 +4,12 @@ import pandas as pd
 def alifestd_make_ancestor_id_col(
     ids: pd.Series, ancestor_lists: pd.Series
 ) -> pd.Series:
-    """TODO."""
+    """Translate ancestor ids from a column of singleton `ancestor_list`s into a
+    pure-integer series representation.
+
+    Each organism must have one or zero ancestors (i.e., asexualasexual data).
+    In the returned series, ancestor id will be assigned to own id for no-ancestor organisms.
+    """
     ancestor_ids = (
         ancestor_lists.str.lower()
         .replace("[none]", "[-1]")
