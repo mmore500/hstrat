@@ -10,8 +10,8 @@ from ._jit_numpy_bool_t import jit_numpy_bool_t
 
 @jit(nopython=True)
 def _is_topologically_sorted_contiguous(ancestor_ids: np.array) -> bool:
-    for id, ancestor_id in enumerate(ancestor_ids):
-        if id < ancestor_id:
+    for id_, ancestor_id in enumerate(ancestor_ids):
+        if id_ < ancestor_id:
             return False
     return True
 
@@ -21,8 +21,8 @@ def _is_topologically_sorted_compact(
     ids: np.array, ancestor_ids: np.array
 ) -> bool:
     seen_ancestor_ids = np.zeros(len(ids), dtype=jit_numpy_bool_t)
-    for id, ancestor_id in zip(ids, ancestor_ids):
-        if seen_ancestor_ids[id]:
+    for id_, ancestor_id in zip(ids, ancestor_ids):
+        if seen_ancestor_ids[id_]:
             return False
         seen_ancestor_ids[ancestor_id] = True
     return True
@@ -31,8 +31,8 @@ def _is_topologically_sorted_compact(
 @jit(nopython=True)
 def _is_topologically_sorted(ids: np.array, ancestor_ids: np.array) -> bool:
     seen_ancestor_ids = set()
-    for id, ancestor_id in zip(ids, ancestor_ids):
-        if id in seen_ancestor_ids:
+    for id_, ancestor_id in zip(ids, ancestor_ids):
+        if id_ in seen_ancestor_ids:
             return False
         seen_ancestor_ids.add(ancestor_id)
     return True

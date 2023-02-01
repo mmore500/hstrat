@@ -4,7 +4,6 @@ import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
-    alifestd_is_asexual,
     alifestd_make_ancestor_id_col,
     alifestd_to_working_format,
     alifestd_try_add_ancestor_id_col,

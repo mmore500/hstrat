@@ -198,7 +198,6 @@ def test_alifestd_find_leaf_ids_twolineages(phylogeny_df, apply):
 
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
     phylogeny_df.reset_index(inplace=True)
-    max_id = phylogeny_df["id"].max()
 
     aggregated_df = alifestd_aggregate_phylogenies(
         [

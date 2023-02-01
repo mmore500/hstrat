@@ -9,7 +9,7 @@ from ._is_in_coverage_run import is_in_coverage_run
 
 
 class _shim:
-    def empty(*args, **kwargs) -> typing.Type:
+    def empty(self: "_shim", *args, **kwargs) -> typing.Dict:
         return dict()
 
 

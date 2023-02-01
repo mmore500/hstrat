@@ -2,6 +2,6 @@ from numbers import Number
 import typing
 
 
-def demark(object: typing.Any) -> int:
-    """Provide a hashable identifier for `object`."""
-    return object if isinstance(object, (str, Number)) else id(object)
+def demark(object_: typing.Any) -> int:
+    """Provide a hashable identifier for `object_`."""
+    return object_ if isinstance(object_, (str, Number)) else id(object_)

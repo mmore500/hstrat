@@ -5,7 +5,6 @@ import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_aggregate_phylogenies,
-    alifestd_is_asexual,
     alifestd_is_topologically_sorted,
     alifestd_make_ancestor_id_col,
     alifestd_parse_ancestor_ids,
@@ -110,7 +109,6 @@ def test_alifestd_is_topologically_sorted_twolineages_true(phylogeny_df):
 
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
     phylogeny_df.reset_index(inplace=True)
-    max_id = phylogeny_df["id"].max()
 
     aggregated_df = alifestd_aggregate_phylogenies(
         [
@@ -213,7 +211,7 @@ def test_alifestd_is_topologically_sorted_twolineages_false(
     )
 
 
-def test_alifestd_is_topologically_sorted_twolineages_true_sexual():
+def test_alifestd_is_topologically_sorted_twolineages_false_sexual():
     df = pd.read_csv(
         f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
     )

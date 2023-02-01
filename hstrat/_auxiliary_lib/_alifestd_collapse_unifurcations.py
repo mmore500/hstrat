@@ -9,10 +9,8 @@ from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_asexual import alifestd_is_asexual
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
-from ._alifestd_make_ancestor_id_col import alifestd_make_ancestor_id_col
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
-from ._alifestd_to_working_format import alifestd_to_working_format
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._jit import jit
@@ -34,12 +32,12 @@ def _collapse_unifurcations(
     for pos in range(len(ancestor_ids)):
 
         ancestor_id = ancestor_ids[pos]
-        id = ids[pos]
-        assert id == pos
-        assert ancestor_id <= id
+        id_ = ids[pos]
+        assert id_ == pos
+        assert ancestor_id <= id_
         ref_count = ref_counts[pos]
 
-        if ref_count == 1 and id != ancestor_id:
+        if ref_count == 1 and id_ != ancestor_id:
             # percolate ancestor over self
             ancestor_ids[pos] = ancestor_ids[ancestor_id]
             ids[pos] = ids[ancestor_id]
@@ -118,22 +116,22 @@ def alifestd_collapse_unifurcations(
     phylogeny_df.set_index("id", drop=False, inplace=True)
 
     ref_counts = Counter(
-        id
+        id_
         for ancestor_list_str in phylogeny_df["ancestor_list"]
-        for id in alifestd_parse_ancestor_ids(ancestor_list_str)
+        for id_ in alifestd_parse_ancestor_ids(ancestor_list_str)
     )
 
-    for id in phylogeny_df["id"]:
+    for id_ in phylogeny_df["id"]:
         ancestor_ids = alifestd_parse_ancestor_ids(
-            phylogeny_df.loc[id, "ancestor_list"]
+            phylogeny_df.loc[id_, "ancestor_list"]
         )
-        if len(ancestor_ids) == 1 and ref_counts[id] == 1:
+        if len(ancestor_ids) == 1 and ref_counts[id_] == 1:
             # percolate ancestor over self
             (ancestor_id,) = ancestor_ids
-            phylogeny_df.loc[id] = phylogeny_df.loc[ancestor_id]
+            phylogeny_df.loc[id_] = phylogeny_df.loc[ancestor_id]
         elif len(ancestor_ids):
             # update referenced ancestor
-            phylogeny_df.loc[id, "ancestor_list"] = str(
+            phylogeny_df.loc[id_, "ancestor_list"] = str(
                 [
                     phylogeny_df.loc[ancestor_id, "id"]
                     for ancestor_id in ancestor_ids

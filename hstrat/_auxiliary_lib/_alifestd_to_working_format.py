@@ -2,9 +2,7 @@ import pandas as pd
 
 from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
-from ._alifestd_is_asexual import alifestd_is_asexual
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
-from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 

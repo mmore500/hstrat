@@ -1,7 +1,6 @@
 import typing
 
 import numpy as np
-import opytional as opyt
 import pandas as pd
 
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col

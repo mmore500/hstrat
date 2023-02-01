@@ -1,7 +1,6 @@
 from collections import Counter, defaultdict
 import os
 
-import alifedata_phyloinformatics_convert as apc
 import pandas as pd
 import pytest
 
@@ -10,7 +9,6 @@ from hstrat._auxiliary_lib import (
     alifestd_assign_contiguous_ids,
     alifestd_collapse_unifurcations,
     alifestd_find_leaf_ids,
-    alifestd_has_contiguous_ids,
     alifestd_is_asexual,
     alifestd_is_sexual,
     alifestd_is_topologically_sorted,
@@ -80,7 +78,7 @@ def test_alifestd_collapse_unifurcations(phylogeny_df, apply):
     )
 
     phylogeny_df_ = phylogeny_df.set_index("id", drop=False)
-    for idx, row in collapsed_df.iterrows():
+    for _idx, row in collapsed_df.iterrows():
         assert all(
             phylogeny_df_.loc[row["id"]]
             .drop(["ancestor_list", "ancestor_id"], errors="ignore")
@@ -91,11 +89,11 @@ def test_alifestd_collapse_unifurcations(phylogeny_df, apply):
         )
 
     ref_counts = Counter(
-        id
+        id_
         for ancestor_list_str in collapsed_df["ancestor_list"]
-        for id in alifestd_parse_ancestor_ids(ancestor_list_str)
+        for id_ in alifestd_parse_ancestor_ids(ancestor_list_str)
     )
-    for idx, row in collapsed_df.iterrows():
+    for _idx, row in collapsed_df.iterrows():
         if len(alifestd_parse_ancestor_ids(row["ancestor_list"])) == 1:
             assert ref_counts[row["id"]] != 1
 
@@ -109,7 +107,7 @@ def test_alifestd_collapse_unifurcations(phylogeny_df, apply):
         (phylogeny_df, phylogeny_descendants_lookup),
         (collapsed_df, collapsed_descendants_lookup),
     ):
-        for idx, row in df[::-1].iterrows():
+        for _idx, row in df[::-1].iterrows():
             id = row["id"]
             ancestor_ids = alifestd_parse_ancestor_ids(row["ancestor_list"])
             lookup[id].add(id)

@@ -1,4 +1,3 @@
-from collections import abc
 import typing
 
 import numpy as np
