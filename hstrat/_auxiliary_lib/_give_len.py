@@ -19,8 +19,10 @@ def give_len(wrapee: typing.Iterable, len_: int) -> typing.Iterable:
                 "__new__",
                 "__class__",
                 "__delattr__",
+                "__name__",
                 "__setattr__",
                 "__getattribute__",
+                "__qualname__",
             }:
                 exec(
                     f"""
