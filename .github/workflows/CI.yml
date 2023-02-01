@@ -101,7 +101,7 @@ jobs:
       with:
           requirementsFiles: "requirements-dev/py38/requirements-testing.txt"
     - name: Test Black tidyness
-      uses: psf/black@22.10.0
+      uses: psf/black@27d20144a7517594e24a1649451177b2a11284be
     - uses: editorconfig-checker/action-editorconfig-checker@main
     - name: Test editorconfig tidyness
       run: editorconfig-checker
