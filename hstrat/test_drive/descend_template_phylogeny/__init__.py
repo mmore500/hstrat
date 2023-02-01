@@ -5,6 +5,9 @@ from ._descend_template_phylogeny import descend_template_phylogeny
 from ._descend_template_phylogeny_alifestd import (
     descend_template_phylogeny_alifestd,
 )
+from ._descend_template_phylogeny_biopython import (
+    descend_template_phylogeny_biopython,
+)
 from ._descend_template_phylogeny_dendropy import (
     descend_template_phylogeny_dendropy,
 )
@@ -17,6 +20,7 @@ from ._descend_template_phylogeny_posthoc import (
 __all__ = [
     "descend_template_phylogeny",
     "descend_template_phylogeny_alifestd",
+    "descend_template_phylogeny_biopython",
     "descend_template_phylogeny_dendropy",
     "descend_template_phylogeny_naive",
     "descend_template_phylogeny_posthoc",
