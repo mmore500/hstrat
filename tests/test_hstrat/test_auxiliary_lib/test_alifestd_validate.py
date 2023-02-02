@@ -91,7 +91,9 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 def test_valid_asexual(phylogeny_df, apply_combine, apply):
     phylogeny_df = apply(apply_combine(phylogeny_df.copy()))
 
+    phylogeny_df_ = phylogeny_df.copy()
     assert alifestd_validate(phylogeny_df)
+    assert phylogeny_df_.equals(phylogeny_df)
 
 
 @pytest.mark.parametrize(
@@ -150,7 +152,9 @@ def test_invalid_asexual(phylogeny_path, apply_combine, apply):
     except:
         pass
 
+    phylogeny_df_ = phylogeny_df.copy()
     assert not alifestd_validate(phylogeny_df)
+    assert phylogeny_df_.equals(phylogeny_df)
 
 
 @pytest.mark.parametrize(
@@ -208,7 +212,9 @@ def test_invalid_asexual(phylogeny_path, apply_combine, apply):
 def test_valid_sexual(phylogeny_df, apply_combine, apply_shuffle):
     phylogeny_df = apply_shuffle(apply_combine(phylogeny_df.copy()))
 
+    phylogeny_df_ = phylogeny_df.copy()
     assert alifestd_validate(phylogeny_df)
+    assert phylogeny_df_.equals(phylogeny_df)
 
 
 @pytest.mark.parametrize(
@@ -262,4 +268,6 @@ def test_valid_sexual(phylogeny_df, apply_combine, apply_shuffle):
 def test_invalid_sexual(phylogeny_path, apply_combine, apply_shuffle):
     phylogeny_df = apply_shuffle(apply_combine(pd.read_csv(phylogeny_path)))
 
+    phylogeny_df_ = phylogeny_df.copy()
     assert not alifestd_validate(phylogeny_df)
+    assert phylogeny_df_.equals(phylogeny_df)
