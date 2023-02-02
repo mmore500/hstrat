@@ -13,6 +13,7 @@ from hstrat._auxiliary_lib import (
     alifestd_is_asexual,
     alifestd_make_ancestor_id_col,
     alifestd_to_working_format,
+    alifestd_validate,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
@@ -57,6 +58,7 @@ def test_alifestd_assign_contiguous_ids(phylogeny_df, apply):
     phylogeny_df = apply(phylogeny_df)
     phylogeny_df_ = phylogeny_df.copy()
     reassigned_df = alifestd_assign_contiguous_ids(phylogeny_df)
+    assert alifestd_validate(reassigned_df)
     # check for side effects
     assert phylogeny_df.equals(phylogeny_df_)
 

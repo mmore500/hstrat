@@ -15,6 +15,7 @@ from hstrat._auxiliary_lib import (
     alifestd_make_ancestor_id_col,
     alifestd_to_working_format,
     alifestd_try_add_ancestor_id_col,
+    alifestd_validate,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
@@ -105,6 +106,7 @@ def test_alifestd_aggregate_phylogenies(
         phylogenies.append(phylogeny_df3)
 
     aggregate_df = alifestd_aggregate_phylogenies(phylogenies)
+    assert alifestd_validate(aggregate_df)
     # check for side effects
     assert phylogeny_df1.equals(phylogeny_df1_)
     if phylogeny_df2 is not None:
