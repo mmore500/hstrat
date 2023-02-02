@@ -13,6 +13,7 @@ from hstrat._auxiliary_lib import (
     alifestd_is_topologically_sorted,
     alifestd_parse_ancestor_ids,
     alifestd_to_working_format,
+    alifestd_validate,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
@@ -49,6 +50,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 def test_alifestd_to_working_format(phylogeny_df):
     phylogeny_df_ = phylogeny_df.copy()
     working_df = alifestd_to_working_format(phylogeny_df)
+    assert alifestd_validate(working_df)
     # check for side effects
     assert phylogeny_df.equals(phylogeny_df_)
 

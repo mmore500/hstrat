@@ -16,6 +16,7 @@ from hstrat._auxiliary_lib import (
     alifestd_to_working_format,
     alifestd_topological_sort,
     alifestd_try_add_ancestor_id_col,
+    alifestd_validate,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
@@ -64,6 +65,7 @@ def test_alifestd_collapse_unifurcations(phylogeny_df, apply):
 
     phylogeny_df_ = phylogeny_df.copy()
     collapsed_df = alifestd_collapse_unifurcations(phylogeny_df)
+    assert alifestd_validate(collapsed_df)
     assert phylogeny_df.equals(phylogeny_df_)
 
     assert alifestd_is_asexual(collapsed_df) == alifestd_is_asexual(

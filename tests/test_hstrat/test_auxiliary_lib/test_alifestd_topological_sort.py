@@ -8,6 +8,7 @@ from hstrat._auxiliary_lib import (
     alifestd_is_topologically_sorted,
     alifestd_parse_ancestor_ids,
     alifestd_topological_sort,
+    alifestd_validate,
     swap_rows_and_indices,
 )
 
@@ -34,6 +35,7 @@ def test_alifestd_topological_sort_empty(phylogeny_df):
 
     operand = phylogeny_df.iloc[-1:0, :]
     res = alifestd_topological_sort(operand)
+    assert alifestd_validate(res)
     assert alifestd_is_topologically_sorted(res)
     assert len(res) == len(operand)
     # ensure no side effects
@@ -60,6 +62,7 @@ def test_alifestd_topological_sort_singleton(phylogeny_df):
 
     operand = phylogeny_df.iloc[0:1, :]
     res = alifestd_topological_sort(operand)
+    assert alifestd_validate(res)
     assert alifestd_is_topologically_sorted(res)
     assert len(res) == len(operand)
     # ensure no side effects
@@ -80,6 +83,7 @@ def test_alifestd_topological_sort_tworoots():
         ]
     )
     res = alifestd_topological_sort(operand)
+    assert alifestd_validate(res)
     assert alifestd_is_topologically_sorted(res)
     assert len(res) == len(operand)
 
@@ -114,6 +118,7 @@ def test_alifestd_topological_sort_twolineages(phylogeny_df):
         ]
     )
     res = alifestd_topological_sort(operand)
+    assert alifestd_validate(res)
     assert alifestd_is_topologically_sorted(res)
     assert len(res) == len(operand)
 
@@ -125,6 +130,7 @@ def test_alifestd_topological_sort_twolineages(phylogeny_df):
         ]
     )
     res = alifestd_topological_sort(operand)
+    assert alifestd_validate(res)
     assert alifestd_is_topologically_sorted(res)
     assert len(res) == len(operand)
 
@@ -136,6 +142,7 @@ def test_alifestd_topological_sort_twolineages(phylogeny_df):
         ]
     )
     res = alifestd_topological_sort(operand)
+    assert alifestd_validate(res)
     assert alifestd_is_topologically_sorted(res)
     assert len(res) == len(operand)
 
@@ -145,11 +152,13 @@ def test_alifestd_topologically_sort_twolineages_sexual():
         f"{assets_path}/example-standard-toy-sexual-phylogeny.csv"
     )
     res = alifestd_topological_sort(operand)
+    assert alifestd_validate(res)
     assert alifestd_is_topologically_sorted(res)
     assert len(res) == len(operand)
 
     operand = operand[::-1]
     res = alifestd_topological_sort(operand)
+    assert alifestd_validate(res)
     assert alifestd_is_topologically_sorted(res)
     assert len(res) == len(operand)
 
@@ -175,6 +184,7 @@ def test_alifestd_topological_sort(phylogeny_df):
 
     operand = phylogeny_df
     res = alifestd_topological_sort(operand)
+    assert alifestd_validate(res)
     assert alifestd_is_topologically_sorted(res)
     assert len(res) == len(operand)
     # check for side effects
@@ -190,6 +200,7 @@ def test_alifestd_topological_sort(phylogeny_df):
         for ancestor_id in alifestd_parse_ancestor_ids(row["ancestor_list"]):
             operand = swap_rows_and_indices(phylogeny_df, idx, ancestor_id)
             res = alifestd_topological_sort(operand)
+            assert alifestd_validate(res)
             assert alifestd_is_topologically_sorted(res)
             assert len(res) == len(operand)
             # check for side effects
@@ -203,5 +214,6 @@ def test_alifestd_topological_sort(phylogeny_df):
                 phylogeny_df, idx, ancestor_id
             )
             res = alifestd_topological_sort(operand)
+            assert alifestd_validate(res)
             assert alifestd_is_topologically_sorted(res)
             assert len(res) == len(operand)

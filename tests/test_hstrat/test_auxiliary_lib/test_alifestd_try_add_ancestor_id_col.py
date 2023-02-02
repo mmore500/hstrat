@@ -7,6 +7,7 @@ from hstrat._auxiliary_lib import (
     alifestd_make_ancestor_id_col,
     alifestd_to_working_format,
     alifestd_try_add_ancestor_id_col,
+    alifestd_validate,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
@@ -59,6 +60,7 @@ def test_alifestd_try_add_ancestor_id_col_asexual(phylogeny_df, apply):
     phylogeny_df = apply(phylogeny_df)
     phylogeny_df_ = phylogeny_df.copy()
     res_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
+    assert alifestd_validate(res_df)
     assert "ancestor_id" in res_df
     assert (
         res_df["ancestor_id"]
