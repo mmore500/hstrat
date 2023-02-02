@@ -73,7 +73,7 @@ def test_alifestd_topological_sort_tworoots():
     phylo2 = pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
     phylo2.sort_values("id", ascending=True, inplace=True)
 
-    operand = pd.concat(
+    operand = alifestd_aggregate_phylogenies(
         [
             phylo1.iloc[0:1, :],
             phylo2.iloc[0:1, :],
@@ -107,7 +107,7 @@ def test_alifestd_topological_sort_twolineages(phylogeny_df):
     lineage1 = aggregated_df[len(phylogeny_df) :]
     lineage2 = aggregated_df[: len(phylogeny_df)]
 
-    operand = pd.concat(
+    operand = alifestd_aggregate_phylogenies(
         [
             lineage1.iloc[::-1, :],
             lineage2,
@@ -117,22 +117,22 @@ def test_alifestd_topological_sort_twolineages(phylogeny_df):
     assert alifestd_is_topologically_sorted(res)
     assert len(res) == len(operand)
 
-    operand = pd.concat(
+    operand = alifestd_aggregate_phylogenies(
         [
-            lineage1.iloc[:10:-1, :],
+            lineage1.iloc[::-1, :],
             lineage2,
-            lineage1.iloc[10::-1, :],
+            lineage1.iloc[::-1, :],
         ]
     )
     res = alifestd_topological_sort(operand)
     assert alifestd_is_topologically_sorted(res)
     assert len(res) == len(operand)
 
-    operand = pd.concat(
+    operand = alifestd_aggregate_phylogenies(
         [
-            lineage1.iloc[10::, :],
+            lineage1.iloc[::, :],
             lineage2,
-            lineage1.iloc[:10:, :],
+            lineage1.iloc[::, :],
         ]
     )
     res = alifestd_topological_sort(operand)
