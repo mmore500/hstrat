@@ -18,7 +18,9 @@ from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_to_working_format import alifestd_to_working_format
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_validate import alifestd_validate
 from ._all_same import all_same
+from ._all_unique import all_unique
 from ._apply_swaps import apply_swaps
 from ._bit_ceil import bit_ceil
 from ._bit_floor import bit_floor
@@ -40,6 +42,7 @@ from ._is_nondecreasing import is_nondecreasing
 from ._is_nonincreasing import is_nonincreasing
 from ._is_strictly_decreasing import is_strictly_decreasing
 from ._is_strictly_increasing import is_strictly_increasing
+from ._is_subset import is_subset
 from ._iter_chunks import iter_chunks
 from ._jit import jit
 from ._jit_numba_dict_t import jit_numba_dict_t
@@ -77,7 +80,9 @@ __all__ = [
     "alifestd_to_working_format",
     "alifestd_topological_sort",
     "alifestd_try_add_ancestor_id_col",
+    "alifestd_validate",
     "all_same",
+    "all_unique",
     "apply_swaps",
     "AnyTreeAscendingIter",
     "bit_ceil",
@@ -100,6 +105,7 @@ __all__ = [
     "is_nonincreasing",
     "is_strictly_decreasing",
     "is_strictly_increasing",
+    "is_subset",
     "iter_chunks",
     "jit",
     "jit_numba_dict_t",

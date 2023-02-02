@@ -14,6 +14,7 @@ def alifestd_make_ancestor_id_col(
     ancestor_ids = (
         ancestor_lists.str.lower()
         .replace("[none]", "[-1]")
+        .replace("[]", "[-1]")
         .str.strip("[]")
         .astype(int)
     )

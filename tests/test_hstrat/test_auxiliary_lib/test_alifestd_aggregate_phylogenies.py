@@ -31,6 +31,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv")[-1:0],
     ],
 )
 @pytest.mark.parametrize(
@@ -44,6 +45,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv")[-1:0],
         None,
     ],
 )
@@ -58,6 +60,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         ),
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv")[-1:0],
         None,
     ],
 )
@@ -135,8 +138,8 @@ def test_alifestd_aggregate_phylogenies(
         ).all()
 
     if alifestd_is_asexual(aggregate_df):
-        assert len(apc.alife_dataframe_to_dendropy_trees(aggregate_df)) == len(
-            phylogenies
+        assert len(apc.alife_dataframe_to_dendropy_trees(aggregate_df)) == sum(
+            bool(len(phylogeny)) for phylogeny in phylogenies
         )
         assert Counter(
             (node.level(), len(node.child_nodes()))
@@ -145,5 +148,6 @@ def test_alifestd_aggregate_phylogenies(
         ) == Counter(
             (node.level(), len(node.child_nodes()))
             for tree in map(apc.alife_dataframe_to_dendropy_tree, phylogenies)
+            if tree is not None
             for node in tree
         )

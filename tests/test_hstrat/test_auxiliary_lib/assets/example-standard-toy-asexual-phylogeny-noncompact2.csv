@@ -1,0 +1,7 @@
+id,ancestor_list,trait_a,trait_b,trait_c,destruction_time
+53,[none],0,0,0,1
+34,[53],1,0,0,2
+99,[53],0,0,1,2
+101,[34],1,1,0,none
+22,[34],1,0,0,none
+8,[99],0,0,1,none

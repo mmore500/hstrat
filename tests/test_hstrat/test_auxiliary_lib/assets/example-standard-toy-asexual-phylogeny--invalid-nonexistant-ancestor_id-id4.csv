@@ -1,0 +1,7 @@
+id,ancestor_list,trait_a,trait_b,trait_c,destruction_time,ancestor_id
+0,[6],0,0,0,1,6
+1,[0],1,0,0,2,0
+2,[0],0,0,1,2,0
+3,[1],1,1,0,none,1
+4,[1],1,0,0,none,1
+5,[2],0,0,1,none,2
