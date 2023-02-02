@@ -124,6 +124,13 @@ def test_alifestd_find_leaf_ids_tworoots():
     ) == [phylo1.iloc[0].at["id"]] + [phylo2.iloc[0].at["id"]]
 
 
+def test_alifestd_find_leaf_ids_empty():
+    phylo1 = pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
+    assert alifestd_find_leaf_ids(phylo1[-1:0]) == []
+    phylo1["ancestor_id"] = 0
+    assert alifestd_find_leaf_ids(phylo1[-1:0]) == []
+
+
 def _test_alifestd_find_leaf_ids_impl(phylogeny_df):
     phylogeny_df_ = phylogeny_df.set_index("id")
     if alifestd_is_asexual(phylogeny_df):
