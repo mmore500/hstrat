@@ -249,7 +249,7 @@ def test_reconstruction_quality(path):
 @pytest.mark.parametrize(
     "path",
     [
-        # f"{assets_path}/nk_ecoeaselection.csv",
+        f"{assets_path}/nk_ecoeaselection.csv",
         f"{assets_path}/nk_lexicaseselection.csv",
         f"{assets_path}/nk_tournamentselection.csv",
     ],
