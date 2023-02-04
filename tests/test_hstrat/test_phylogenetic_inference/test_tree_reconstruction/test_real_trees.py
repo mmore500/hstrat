@@ -160,8 +160,8 @@ def test_handwritten_trees(path):
     "path",
     [
         f"{assets_path}/nk_ecoeaselection.csv",
-        # f"{assets_path}/nk_lexicaseselection.csv",
-        # f"{assets_path}/nk_tournamentselection.csv",
+        f"{assets_path}/nk_lexicaseselection.csv",
+        f"{assets_path}/nk_tournamentselection.csv",
     ],
 )
 def test_realworld_trees(path):
@@ -215,7 +215,10 @@ def test_realworld_trees(path):
         # dp.Tree.get(path=f"{assets_path}/justroot.newick",
         f"{assets_path}/triplets.newick",
         f"{assets_path}/twins.newick",
-        f"{assets_path}/nk_ecoeaselection.csv",
+        pytest.param(
+            f"{assets_path}/nk_ecoeaselection.csv",
+            marks=pytest.mark.heavy,
+        ),
         f"{assets_path}/nk_lexicaseselection.csv",
         f"{assets_path}/nk_tournamentselection.csv",
     ],
@@ -249,7 +252,10 @@ def test_reconstruction_quality(path):
 @pytest.mark.parametrize(
     "path",
     [
-        f"{assets_path}/nk_ecoeaselection.csv",
+        pytest.param(
+            f"{assets_path}/nk_ecoeaselection.csv",
+            marks=pytest.mark.heavy,
+        ),
         f"{assets_path}/nk_lexicaseselection.csv",
         f"{assets_path}/nk_tournamentselection.csv",
     ],
