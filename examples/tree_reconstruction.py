@@ -7,6 +7,7 @@ import typing
 
 import numpy as np
 
+from hstrat import _auxiliary_lib as hstrat_auxlib
 from hstrat import hstrat
 
 try:
@@ -15,7 +16,7 @@ try:
         DistanceMatrix,
         DistanceTreeConstructor,
     )
-except ImportError as e:
+except (ImportError, ModuleNotFoundError) as e:
     print("biopython required for tree reconstruction example")
     print("python3 -m pip install biopython")
     raise e
@@ -48,8 +49,7 @@ if __name__ == "__main__":
 
     # ensure reproducible results
     # and avoid edge cases not handled in this simple example
-    random.seed(2)
-    np.random.seed(2)
+    hstrat_auxlib.seed_random(2)
 
     for genome_type in (
         SimpleGenomeAnnotatedWithDenseRetention,

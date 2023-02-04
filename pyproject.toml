@@ -17,7 +17,9 @@ classifiers = [
 # end-user requirements
 dependencies = [
   "anytree>=2.8.0",
+  "biopython>=1.79",
   "bitstring>=3.1.9",
+  "dendropy>=4.5.2",
   "iterpop>=0.3.4",
   "interval_search>=0.2.0",
   "keyname>=0.4.1",
@@ -25,8 +27,10 @@ dependencies = [
   "matplotlib>=3.5.2",
   "mmh3>=3.0.0",
   "numpy>=1.17.2",
+  "more-itertools>=8.13.0",
   "mpmath>=1.1.0",
   "opytional>=0.1.0",
+  "ordered_set>=4.1.0",
   "pandas>=1.0.0",
   "prettytable>=3.5.0",
   "python-slugify>=6.1.2",
@@ -41,7 +45,7 @@ keywords = [
   "hstrat",
 ]
 requires-python = ">=3.7"
-version = "1.2.5"
+version = "1.5.2"
 
 [project.readme]
 file = "README.md"
@@ -54,9 +58,10 @@ repository = "https://github.com/mmore500/hstrat"
 
 [tool.setuptools]
 include-package-data = true
-packages = [
-  "hstrat",
-]
+
+[tool.setuptools.packages.find]
+exclude = ["tests"]
+namespaces = false
 
 # adapted from https://tox.wiki/en/latest/example/package.html
 [build-system]
@@ -72,16 +77,20 @@ requires = [
 [project.optional-dependencies]
 pinned_dependencies_py37 = [
   "anytree==2.8.0",
+  "biopython==1.79",
   "bitstring==3.1.9",
+  "dendropy==4.5.2",
   "iterpop==0.4.1",
   "interval-search==0.2.0",
   "keyname==0.4.1",
   "lru-dict==1.1.8",
   "matplotlib==3.5.2",
   "mmh3==3.0.0",
+  "more-itertools==8.13.0",
   "mpmath==1.2.1",
   "numpy==1.21.6",
   "opytional==0.1.0",
+  "ordered_set==4.1.0",
   "pandas==1.3.5",
   "prettytable==3.5.0",
   "python-slugify==6.1.2",
@@ -91,16 +100,20 @@ pinned_dependencies_py37 = [
 ]
 pinned_dependencies_py310 = [
   "anytree==2.8.0",
+  "biopython==1.79",
   "bitstring==3.1.9",
+  "dendropy==4.5.2",
   "iterpop==0.4.1",
   "interval-search==0.2.0",
   "keyname==0.4.1",
   "lru-dict==1.1.8",
   "matplotlib==3.5.2",
   "mmh3==3.0.0",
+  "more-itertools==8.13.0",
   "mpmath==1.2.1",
   "numpy==1.23.5",
   "opytional==0.1.0",
+  "ordered_set==4.1.0",
   "pandas==1.3.5",
   "prettytable==3.5.0",
   "python-slugify==6.1.2",
@@ -108,11 +121,12 @@ pinned_dependencies_py310 = [
   "seaborn==0.12.1",
   "tqdm==4.62.3",
 ]
+jit = ["numba>=0.56.4"]
+pinned_jit = ["numba==0.56.4"]
 testing_py37 = [
   "alifedata_phyloinformatics_convert==0.7.0",
-  "biopython==1.79",
+  "contexttimer==0.3.3",
   "coverage==6.4.4",
-  "dendropy==4.5.2",
   "flake8==3.7.8",
   "iterify==0.1.0",
   "more-itertools==8.13.0",
@@ -128,9 +142,8 @@ testing_py37 = [
 ]
 testing_py310 = [
   "alifedata_phyloinformatics_convert==0.7.0",
-  "biopython==1.79",
+  "contexttimer==0.3.3",
   "coverage==6.4.4",
-  "dendropy==4.5.2",
   "flake8==3.7.8",
   "iterify==0.1.0",
   "more-itertools==8.13.0",

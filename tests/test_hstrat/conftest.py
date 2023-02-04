@@ -3,6 +3,7 @@
 import random
 import warnings
 
+import numpy as np
 import pkg_resources
 import pytest
 
@@ -34,7 +35,5 @@ def pytest_configure(config):
 @pytest.fixture(autouse=True)
 def reseed_random(request: pytest.FixtureRequest) -> None:
     """Reseed random number generator to ensure determinstic test."""
-    import numpy as np
-
     random.seed(request.node.name)
     np.random.seed(random.randint(1, 2**32))

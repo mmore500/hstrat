@@ -1,3 +1,4 @@
+import functools
 import itertools as it
 import os
 import random
@@ -6,6 +7,7 @@ import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
 import pandas as pd
 import pytest
+from tqdm import tqdm
 
 from hstrat import hstrat
 
@@ -140,8 +142,8 @@ def test_descend_template_phylogeny_posthoc(
 
     tree.seed_node.edge_length = num_predeposits
 
-    for idx, node in enumerate(tree.leaf_node_iter()):
-        node.taxon = tree.taxon_namespace.new_taxon(label=str(idx))
+    for loc, node in enumerate(tree.leaf_node_iter()):
+        node.taxon = tree.taxon_namespace.new_taxon(label=str(loc))
 
     tree.update_bipartitions(
         suppress_unifurcations=False,
@@ -156,16 +158,17 @@ def test_descend_template_phylogeny_posthoc(
     seed_column.DepositStrata(num_stratum_depositions=num_predeposits)
 
     extant_population = hstrat.descend_template_phylogeny_posthoc(
-        ascending_lineage_iterators=(
+        ascending_lineage_iterables=(
             extant_node.ancestor_iter(
                 inclusive=True,
             )
             for extant_node in iter_extant_nodes(tree)
         ),
-        descending_tree_iterator=tree.levelorder_node_iter(),
+        descending_tree_iterable=tree.levelorder_node_iter(),
         get_parent=lambda node: node.parent_node,
         get_stem_length=lambda node: node.edge_length,
         seed_column=seed_column,
+        progress_wrap=functools.partial(tqdm, disable=True),
     )
 
     num_extants = sum(1 for __ in iter_extant_nodes(tree))
