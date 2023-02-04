@@ -18,6 +18,8 @@ biopython==1.79
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
+bitarray==2.6.2
+    # via hstrat (../../pyproject.toml)
 bitstring==3.1.9
     # via hstrat (../../pyproject.toml)
 bleach==5.0.1
