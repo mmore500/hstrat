@@ -1,5 +1,3 @@
-import pytest
-
 from hstrat._auxiliary_lib import iter_slices
 
 

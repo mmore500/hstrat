@@ -3,7 +3,6 @@ import sys
 import typing
 
 from bitarray import util as bitarray_util
-from bitstring import BitArray
 import numpy as np
 
 from .._auxiliary_lib import iter_slices, zip_strict
