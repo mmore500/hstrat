@@ -1,14 +1,16 @@
 from base64 import b64encode
+import sys
 import typing
 
 from bitarray import util as bitarray_util
 from bitstring import BitArray
+import numpy as np
 
 from .._auxiliary_lib import iter_slices, zip_strict
 from ..genome_instrumentation import HereditaryStratum
 
 
-def _make_buffer(strata, differentia_bit_width):
+def _make_buffer_bitarray(strata, differentia_bit_width):
     try:
         len(strata)
     except TypeError:
@@ -37,6 +39,29 @@ def _make_buffer(strata, differentia_bit_width):
         )
 
     return buffer
+
+
+def _make_buffer_numpy(strata, differentia_bit_width):
+    buffer = np.fromiter(
+        (s.GetDifferentia() for s in strata),
+        dtype=eval(f"np.uint{differentia_bit_width}"),
+    )
+    if {
+        ">": "big",
+        "<": "little",
+        "=": sys.byteorder,
+        "|": "not applicable",
+    }[buffer.dtype.byteorder] == "little":
+        buffer.byteswap(inplace=True)
+    return buffer
+
+
+def _make_buffer(strata, differentia_bit_width):
+    strata = [*strata]
+    if differentia_bit_width in (8, 16, 32, 64):
+        return _make_buffer_numpy(strata, differentia_bit_width)
+    else:
+        return _make_buffer_bitarray(strata, differentia_bit_width)
 
 
 def pack_differentiae(
