@@ -39,6 +39,11 @@ def setup_dendropy_tree(path):
 
     return tree
 
+def descend_unifurcations(node):
+    while len(node.child_nodes()) == 1:
+        node = next(node.child_node_iter())
+    return node
+
 def descent_extant_population(tree, retention_policy, num_depositions):
     seed_column = hstrat.HereditaryStratigraphicColumn(
         stratum_retention_policy=retention_policy,
@@ -240,11 +245,6 @@ def test_reconstruction_quality(path):
     assert resolutions == sorted(resolutions)
     assert metrics == sorted(metrics)
 
-
-def descend_unifurcations(node):
-    while len(node.child_nodes()) == 1:
-        node = next(node.child_node_iter())
-    return node
 
 @pytest.mark.parametrize(
     "path",
