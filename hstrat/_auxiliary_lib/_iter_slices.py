@@ -37,7 +37,3 @@ def iter_slices(
         slice(pos, pos + chunk_size)
         for pos in range(start, len_seq, chunk_size)
     )
-    return (
-        slice(pos, pos + chunk_size)
-        for pos in range(start, len_seq, chunk_size)
-    )
