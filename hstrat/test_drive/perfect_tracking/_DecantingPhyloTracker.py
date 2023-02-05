@@ -9,6 +9,10 @@ from ._compile_phylogeny_from_lineage_iters import (
 )
 
 
+# @MAM 02-04-2023
+# created a partial implementation of missing features before testing showed
+# it underperformed the GC tracker; left partial implementation here:
+# https://gist.github.com/mmore500/06a359e528f59f3feb0c72dfc01b8fef
 class DecantingPhyloTracker:
     """Data structure to enable perfect tracking over a fixed-size population
     with synchronous generations.
