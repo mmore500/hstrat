@@ -1,23 +1,35 @@
-from alifedata_phyloinformatics_convert import biopython_tree_to_alife_dataframe, alife_dataframe_to_dendropy_tree, dendropy_tree_to_alife_dataframe, alife_dataframe_to_biopython_tree
-import dendropy
-from dendropy.calculate.treecompare import symmetric_difference
-import pandas as pd
 import Bio
-from dendropy.calculate.treecompare import false_positives_and_negatives
+from alifedata_phyloinformatics_convert import (
+    alife_dataframe_to_biopython_tree,
+    alife_dataframe_to_dendropy_tree,
+    biopython_tree_to_alife_dataframe,
+    dendropy_tree_to_alife_dataframe,
+)
+import dendropy
+from dendropy.calculate.treecompare import (
+    false_positives_and_negatives,
+    symmetric_difference,
+)
+import pandas as pd
+
 
 # auxiliary tree class to allow for inter-format conversions
-class AuxTree():
+class AuxTree:
     def __init__(self, tree):
         # internal tree representation is an alife-formatted tree
         self._tree = self._alife_dispatcher(tree)
 
     @property
     def biopython(self):
-        return alife_dataframe_to_biopython_tree(self._tree, setup_edge_lengths=True)
+        return alife_dataframe_to_biopython_tree(
+            self._tree, setup_edge_lengths=True
+        )
 
     @property
     def dendropy(self):
-        return alife_dataframe_to_dendropy_tree(self._tree, setup_edge_lengths=True)
+        return alife_dataframe_to_dendropy_tree(
+            self._tree, setup_edge_lengths=True
+        )
 
     @property
     def alife(self):
@@ -29,19 +41,22 @@ class AuxTree():
         """
         if isinstance(tree, dendropy.Tree):
             # is a Dendropy Tree
-            return dendropy_tree_to_alife_dataframe(tree) #, {'name': 'taxon_label'})
+            return dendropy_tree_to_alife_dataframe(
+                tree
+            )  # , {'name': 'taxon_label'})
         if isinstance(tree, pd.DataFrame):
             # is an Alife Dataframe
             # TODO: check these properties exist https://alife-data-standards.github.io/alife-data-standards/phylogeny.html
             return tree
         if isinstance(tree, Bio.Phylo.BaseTree.Tree):
             # is a biopython tree
-            return biopython_tree_to_alife_dataframe(tree, {'name': 'taxon_label'})
+            return biopython_tree_to_alife_dataframe(
+                tree, {"name": "taxon_label"}
+            )
+
 
 def sort_by_taxa_name(tree):
-    are_all_taxa_ints = all(
-        isinstance(x, int) for x in tree.leaf_node_iter()
-    )
+    are_all_taxa_ints = all(isinstance(x, int) for x in tree.leaf_node_iter())
 
     def key_func(node):
         if are_all_taxa_ints:
@@ -51,10 +66,7 @@ def sort_by_taxa_name(tree):
 
     for node in tree.postorder_internal_node_iter():
         # find minimum child
-        min_child = min(
-            node._child_nodes,
-            key=key_func
-        )
+        min_child = min(node._child_nodes, key=key_func)
 
         if node.taxon is None:
             # create taxon if there is none
@@ -66,6 +78,7 @@ def sort_by_taxa_name(tree):
     # sort all nodes
     for node in tree.preorder_node_iter():
         node._child_nodes.sort(key=key_func)
+
 
 def tree_distance_metric(x, y):
     # use dendropy trees
@@ -117,12 +130,7 @@ def tree_distance_metric(x, y):
     # print("tree_a", len(set(tree_a.bipartition_encoding)))
     # print("tree_b", len(set(tree_b.bipartition_encoding)))
 
-
     # print(sorted([x.level() for x in tree_a]))
     # print(sorted([x.level() for x in tree_b]))
 
-    return symmetric_difference(
-        tree_a,
-        tree_b,
-        is_bipartitions_updated=True
-    )
+    return symmetric_difference(tree_a, tree_b, is_bipartitions_updated=True)

@@ -1,27 +1,29 @@
+import itertools
+import os
+
+from alifedata_phyloinformatics_convert import (
+    alife_dataframe_to_dendropy_tree,
+    biopython_tree_to_alife_dataframe,
+    dendropy_tree_to_alife_dataframe,
+)
+from aux_tree_tools import AuxTree, tree_distance_metric
+import dendropy as dp
+import opytional as opyt
+import pandas as pd
+import pytest
+
 from hstrat import hstrat
 from hstrat.phylogenetic_inference import tree_reconstruction
 
-import itertools
-import opytional as opyt
-
-from alifedata_phyloinformatics_convert import dendropy_tree_to_alife_dataframe, biopython_tree_to_alife_dataframe, alife_dataframe_to_dendropy_tree
-
-import pandas as pd
-
-from aux_tree_tools import tree_distance_metric, AuxTree
-
-import dendropy as dp
-import os
-
-import pytest
-
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
+
 
 def load_dendropy_tree(path):
     if path.endswith(".csv"):
         return AuxTree(pd.read_csv(path)).dendropy
     elif path.endswith(".newick"):
         return dp.Tree.get(path=path, schema="newick")
+
 
 def setup_dendropy_tree(path):
     tree = load_dendropy_tree(path)
@@ -39,10 +41,12 @@ def setup_dendropy_tree(path):
 
     return tree
 
+
 def descend_unifurcations(node):
     while len(node.child_nodes()) == 1:
         node = next(node.child_node_iter())
     return node
+
 
 def descent_extant_population(tree, retention_policy, num_depositions):
     seed_column = hstrat.HereditaryStratigraphicColumn(
@@ -63,6 +67,7 @@ def descent_extant_population(tree, retention_policy, num_depositions):
         get_stem_length=lambda node: node.edge_length,
         seed_column=seed_column,
     )
+
 
 @pytest.mark.parametrize(
     "path",
@@ -88,22 +93,24 @@ def test_print_performance(path):
     extant_population = descent_extant_population(
         tree=orig_tree,
         retention_policy=hstrat.perfect_resolution_algo.Policy(),
-        num_depositions=10
+        num_depositions=10,
     )
 
-    distance_matrix = tree_reconstruction.calculate_distance_matrix(extant_population)
+    distance_matrix = tree_reconstruction.calculate_distance_matrix(
+        extant_population
+    )
     reconstructed_tree = tree_reconstruction.reconstruct_tree(distance_matrix)
 
     print(path)
     print(
         orig_tree.as_ascii_plot(
-            show_internal_node_labels=True,
-            leaf_spacing_factor=1
+            show_internal_node_labels=True, leaf_spacing_factor=1
         ),
-        end="\r"
+        end="\r",
     )
     print(f"metric={tree_distance_metric(orig_tree, reconstructed_tree)}")
     print()
+
 
 @pytest.mark.parametrize(
     "path",
@@ -120,8 +127,7 @@ def test_print_performance(path):
         f"{assets_path}/grandtwins.newick"
         # TODO: handle this edge case
         # f"{assets_path}/justroot.newick"
-        f"{assets_path}/triplets.newick"
-        f"{assets_path}/twins.newick"
+        f"{assets_path}/triplets.newick" f"{assets_path}/twins.newick",
     ],
 )
 def test_handwritten_trees(path):
@@ -130,10 +136,12 @@ def test_handwritten_trees(path):
     extant_population = descent_extant_population(
         tree=orig_tree,
         retention_policy=hstrat.perfect_resolution_algo.Policy(),
-        num_depositions=10
+        num_depositions=10,
     )
 
-    distance_matrix = tree_reconstruction.calculate_distance_matrix(extant_population)
+    distance_matrix = tree_reconstruction.calculate_distance_matrix(
+        extant_population
+    )
     reconstructed_tree = tree_reconstruction.reconstruct_tree(distance_matrix)
 
     rec = AuxTree(reconstructed_tree).dendropy
@@ -149,12 +157,16 @@ def test_handwritten_trees(path):
     taxa = [node.taxon for node in orig_tree.leaf_node_iter()]
 
     for a, b in itertools.combinations(taxa, 2):
-        assert abs(original_distance_matrix.distance(a, b) - reconstructed_distance_matrix.distance(a, b)) < 2.0
+        assert (
+            abs(
+                original_distance_matrix.distance(a, b)
+                - reconstructed_distance_matrix.distance(a, b)
+            )
+            < 2.0
+        )
 
-    assert tree_distance_metric(
-        orig_tree,
-        reconstructed_tree
-    ) < 2.0
+    assert tree_distance_metric(orig_tree, reconstructed_tree) < 2.0
+
 
 @pytest.mark.parametrize(
     "path",
@@ -170,10 +182,12 @@ def test_realworld_trees(path):
     extant_population = descent_extant_population(
         tree=orig_tree,
         retention_policy=hstrat.perfect_resolution_algo.Policy(),
-        num_depositions=10
+        num_depositions=10,
     )
 
-    distance_matrix = tree_reconstruction.calculate_distance_matrix(extant_population)
+    distance_matrix = tree_reconstruction.calculate_distance_matrix(
+        extant_population
+    )
     reconstructed_tree = tree_reconstruction.reconstruct_tree(distance_matrix)
 
     rec = AuxTree(reconstructed_tree).dendropy
@@ -190,12 +204,15 @@ def test_realworld_trees(path):
 
     # TODO: only check that 95% of these are good enough
     for a, b in itertools.combinations(taxa, 2):
-        assert abs(original_distance_matrix.distance(a, b) - reconstructed_distance_matrix.distance(a, b)) < 100.0
+        assert (
+            abs(
+                original_distance_matrix.distance(a, b)
+                - reconstructed_distance_matrix.distance(a, b)
+            )
+            < 100.0
+        )
 
-    assert tree_distance_metric(
-        orig_tree,
-        reconstructed_tree
-    ) < 1000.0
+    assert tree_distance_metric(orig_tree, reconstructed_tree) < 1000.0
 
 
 @pytest.mark.parametrize(
@@ -233,16 +250,17 @@ def test_reconstruction_quality(path):
         extant_population = descent_extant_population(
             tree=orig_tree,
             retention_policy=hstrat.fixed_resolution_algo.Policy(resolution),
-            num_depositions=10
+            num_depositions=10,
         )
 
-        distance_matrix = tree_reconstruction.calculate_distance_matrix(extant_population)
-        reconstructed_tree = tree_reconstruction.reconstruct_tree(distance_matrix)
+        distance_matrix = tree_reconstruction.calculate_distance_matrix(
+            extant_population
+        )
+        reconstructed_tree = tree_reconstruction.reconstruct_tree(
+            distance_matrix
+        )
 
-        metrics.append(tree_distance_metric(
-            orig_tree,
-            reconstructed_tree
-        ))
+        metrics.append(tree_distance_metric(orig_tree, reconstructed_tree))
 
     # make sure tree distances are increasing with resolution
     assert resolutions == sorted(resolutions)
@@ -275,16 +293,28 @@ def test_reconstructed_mrca(path):
     pdm = orig_tree.phylogenetic_distance_matrix()
 
     assert len(list(orig_tree.leaf_node_iter())) == len(extant_population)
-    assert [x.distance_from_root() + num_depositions for x in orig_tree.leaf_node_iter()] == \
-        [x._num_strata_deposited for x in extant_population]
+    assert [
+        x.distance_from_root() + num_depositions
+        for x in orig_tree.leaf_node_iter()
+    ] == [x._num_strata_deposited for x in extant_population]
 
     for orig_pair, rec_pair in zip(
         itertools.combinations(orig_tree.leaf_node_iter(), 2),
-        itertools.combinations(extant_population, 2)
+        itertools.combinations(extant_population, 2),
     ):
-        original_mrca = descend_unifurcations(pdm.mrca(*map(lambda x: x.taxon, orig_pair)))
+        original_mrca = descend_unifurcations(
+            pdm.mrca(*map(lambda x: x.taxon, orig_pair))
+        )
 
-        lower_mrca_bound, upper_mrca_bound = hstrat.calc_rank_of_mrca_bounds_between(*rec_pair)
+        (
+            lower_mrca_bound,
+            upper_mrca_bound,
+        ) = hstrat.calc_rank_of_mrca_bounds_between(*rec_pair)
 
-        assert threshold * (lower_mrca_bound - num_depositions) <= original_mrca.distance_from_root()
-        assert original_mrca.distance_from_root() < (upper_mrca_bound - num_depositions) * (2 - threshold)
+        assert (
+            threshold * (lower_mrca_bound - num_depositions)
+            <= original_mrca.distance_from_root()
+        )
+        assert original_mrca.distance_from_root() < (
+            upper_mrca_bound - num_depositions
+        ) * (2 - threshold)

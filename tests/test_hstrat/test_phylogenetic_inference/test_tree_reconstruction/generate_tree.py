@@ -1,9 +1,11 @@
-from hstrat import hstrat
 import typing
 
 from _SimpleGenomeAnnotatedWithDenseRetention import (
     SimpleGenomeAnnotatedWithDenseRetention,
 )
+
+from hstrat import hstrat
+
 
 def evolve_drift_synchronous(GenomeType: typing.Type) -> typing.List:
     population = [GenomeType() for __ in range(10)]
@@ -14,16 +16,17 @@ def evolve_drift_synchronous(GenomeType: typing.Type) -> typing.List:
 
     return population
 
-extant_population = evolve_drift_synchronous(SimpleGenomeAnnotatedWithDenseRetention)
+
+extant_population = evolve_drift_synchronous(
+    SimpleGenomeAnnotatedWithDenseRetention
+)
 min_generations = min(
-    genome.annotation.GetNumStrataDeposited()
-    for genome in extant_population
+    genome.annotation.GetNumStrataDeposited() for genome in extant_population
 )
 print("   min generations elapsed", min_generations)
 
 max_generations = max(
-    genome.annotation.GetNumStrataDeposited()
-    for genome in extant_population
+    genome.annotation.GetNumStrataDeposited() for genome in extant_population
 )
 print("   max generations elapsed", max_generations)
 

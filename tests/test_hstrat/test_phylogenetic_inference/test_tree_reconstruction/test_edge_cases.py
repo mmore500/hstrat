@@ -1,29 +1,22 @@
-from hstrat import hstrat
-from hstrat.phylogenetic_inference import tree_reconstruction
-from Bio.Phylo.TreeConstruction import DistanceMatrix, BaseTree
-
-from _SimpleGenomeAnnotatedWithDenseRetention import (
-    SimpleGenomeAnnotatedWithDenseRetention,
-)
-
 import random
 import warnings
 
+from Bio.Phylo.TreeConstruction import BaseTree, DistanceMatrix
+from _SimpleGenomeAnnotatedWithDenseRetention import (
+    SimpleGenomeAnnotatedWithDenseRetention,
+)
 from aux_tree_tools import tree_difference
-
 import pytest
+
+from hstrat import hstrat
+from hstrat.phylogenetic_inference import tree_reconstruction
+
 
 def test_empty_population():
     population = []
     distance_matrix = tree_reconstruction.calculate_distance_matrix(population)
 
-    assert (
-        str(distance_matrix) == \
-        str(DistanceMatrix(
-            names=[],
-            matrix=[]
-        ))
-    )
+    assert str(distance_matrix) == str(DistanceMatrix(names=[], matrix=[]))
 
     tree = tree_reconstruction.reconstruct_tree(distance_matrix)
 
@@ -39,23 +32,20 @@ def test_singleton_population():
         organism.DepositStratum()
 
     population = [organism]
-    names=["foo"]
+    names = ["foo"]
 
     distance_matrix = tree_reconstruction.calculate_distance_matrix(
         population, names=names
     )
 
-    assert (
-        str(distance_matrix) == \
-        str(DistanceMatrix(
-            names=names,
-            matrix=[[0]]
-        ))
+    assert str(distance_matrix) == str(
+        DistanceMatrix(names=names, matrix=[[0]])
     )
 
     tree = tree_reconstruction.reconstruct_tree(distance_matrix)
 
     assert tree_difference(tree, BaseTree.Tree(rooted=False)) == 0.0
+
 
 def test_dual_population_no_mrca():
     organism1 = SimpleGenomeAnnotatedWithDenseRetention()
@@ -66,7 +56,7 @@ def test_dual_population_no_mrca():
         organism2.annotation.DepositStratum()
 
     population = [organism1, organism2]
-    names=["foo", "bar"]
+    names = ["foo", "bar"]
 
     # make sure calculate_distance_matrix emmits a warning
     with pytest.warns(UserWarning):
@@ -76,20 +66,14 @@ def test_dual_population_no_mrca():
 
     assert (
         str(distance_matrix),
-        str(DistanceMatrix(
-            names=names,
-            matrix=[
-                [0],
-                [0, 0]
-            ]
-        ))
+        str(DistanceMatrix(names=names, matrix=[[0], [0, 0]])),
     )
     tree = tree_reconstruction.reconstruct_tree(distance_matrix)
 
-    root_clade = BaseTree.Clade(name='Inner')
+    root_clade = BaseTree.Clade(name="Inner")
     root_clade.clades = [
-        BaseTree.Clade(branch_length=0.0, name='bar'),
-        BaseTree.Clade(branch_length=0.0, name='foo')
+        BaseTree.Clade(branch_length=0.0, name="bar"),
+        BaseTree.Clade(branch_length=0.0, name="foo"),
     ]
     true_tree = BaseTree.Tree(rooted=False, root=root_clade)
 
@@ -101,7 +85,7 @@ def test_dual_population_with_mrca():
     organism2 = SimpleGenomeAnnotatedWithDenseRetention()
 
     population = [organism1, organism2]
-    names=["foo", "bar"]
+    names = ["foo", "bar"]
 
     for _ in range(100):
         parents = random.choices(population, k=len(population))
@@ -116,20 +100,14 @@ def test_dual_population_with_mrca():
 
     assert (
         str(distance_matrix),
-        str(DistanceMatrix(
-            names=names,
-            matrix=[
-                [0],
-                [2.5, 0]
-            ]
-        ))
+        str(DistanceMatrix(names=names, matrix=[[0], [2.5, 0]])),
     )
     tree = tree_reconstruction.reconstruct_tree(distance_matrix)
 
-    root_clade = BaseTree.Clade(name='Inner')
+    root_clade = BaseTree.Clade(name="Inner")
     root_clade.clades = [
-        BaseTree.Clade(branch_length=1.25, name='bar'),
-        BaseTree.Clade(branch_length=1.25, name='foo')
+        BaseTree.Clade(branch_length=1.25, name="bar"),
+        BaseTree.Clade(branch_length=1.25, name="foo"),
     ]
     true_tree = BaseTree.Tree(rooted=False, root=root_clade)
 

@@ -3,8 +3,8 @@
 __all__ = []
 
 from itertools import combinations
-from typing import Iterable, Any
 from string import ascii_lowercase
+from typing import Any, Iterable
 
 from ..._auxiliary_lib import launder_impl_modules as _launder
 from ..._auxiliary_lib import to_tril
@@ -16,7 +16,11 @@ except ImportError:
 
 from warnings import warn
 
-from Bio.Phylo.TreeConstruction import DistanceMatrix, DistanceTreeConstructor, BaseTree
+from Bio.Phylo.TreeConstruction import (
+    BaseTree,
+    DistanceMatrix,
+    DistanceTreeConstructor,
+)
 import numpy as np
 
 from ...genome_instrumentation import HereditaryStratigraphicColumn
@@ -56,7 +60,7 @@ def distance_matrix_helper(x, y):
 
 def calculate_distance_matrix(
     population: Iterable[HereditaryStratigraphicColumn],
-    names: Iterable[Any] = None
+    names: Iterable[Any] = None,
 ):
     matrix_data = np.zeros((len(population), len(population)))
 
@@ -64,14 +68,14 @@ def calculate_distance_matrix(
 
     for a, b in pairwise:
         matrix_data[a][b] = distance_matrix_helper(
-                population[a],
-                population[b]
+            population[a], population[b]
         )
 
     return DistanceMatrix(
         names=names if names else [str(x) for x in range(len(population))],
-        matrix=to_tril(matrix_data.T)
+        matrix=to_tril(matrix_data.T),
     )
+
 
 # TODO: turn into a shim function. add a boolean parameter for 'dendropy tree'
 def reconstruct_tree(
