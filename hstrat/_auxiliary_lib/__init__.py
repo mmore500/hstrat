@@ -60,6 +60,7 @@ from ._seed_random import seed_random
 from ._splicewhile import splicewhile
 from ._swap_rows_and_indices import swap_rows_and_indices
 from ._to_tril import to_tril
+from ._unzip import unzip
 from ._zip_strict import zip_strict
 
 # adapted from https://stackoverflow.com/a/31079085
@@ -126,6 +127,7 @@ __all__ = [
     "splicewhile",
     "swap_rows_and_indices",
     "to_tril",
+    "unzip",
     "zip_strict",
 ]
 
