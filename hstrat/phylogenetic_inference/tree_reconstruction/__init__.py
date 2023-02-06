@@ -50,9 +50,9 @@ def distance_matrix_helper(
     if does_definitively_have_no_common_ancestor(x, y):
         assert earliest_detectable_mrca == 0
         warn(
-            f"""No common ancestor exists between {x} and {y}; returning a distance of 0.
-            This behavior may change in the future (i.e., by returning two distinct trees.)
-            """,
+            f"Independent origins detected for {x} and {y}; returning a "
+            "distance of 0. Future software versions may raise an error for "
+            "this case."
         )
         return 0
 
@@ -81,10 +81,10 @@ def reconstruct_tree(
     distance_matrix: BioPhyloTree.DistanceMatrix,
     algo: Literal["nj", "upgma"] = "upgma",
 ):
-    if algo not in ["nj", "upgma"]:
+    if algo not in ("nj", "upgma"):
         raise ValueError(
-            f"""Unsupported reconstruction algorithm {algo}. \
-            Please choose one of 'nj', 'upgma'."""
+            f"Unsupported reconstruction algorithm {algo}. "
+            "Please choose one of 'nj', 'upgma'."
         )
     if not distance_matrix:
         return BioPhyloTree.BaseTree.Tree()
