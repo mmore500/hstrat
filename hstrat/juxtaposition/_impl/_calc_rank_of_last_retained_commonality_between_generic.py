@@ -22,6 +22,10 @@ def calc_rank_of_last_retained_commonality_between_generic(
     # we need to keep track of enough ranks of last-seen common strata so
     # that we can discount this many (minus 1) as potentially occuring due
     # to spurious differentia collisions
+    assert (
+        first.GetStratumDifferentiaBitWidth()
+        == second.GetStratumDifferentiaBitWidth()
+    )
     collision_implausibility_threshold = (
         first.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
             significance_level=1.0 - confidence_level,
