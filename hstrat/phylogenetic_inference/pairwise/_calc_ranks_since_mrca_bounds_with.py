@@ -50,6 +50,9 @@ def calc_ranks_since_mrca_bounds_with(
     calc_ranks_since_mrca_bounds_provided_confidence_level :
         With what actual confidence (i.e., more than requested) is the true
         rank of the MRCA captured within the calculated bounds?
+    does_definitively_have_no_common_anestor :
+        Does the hereditary stratigraphic record definitively prove that first
+        and second could not possibly share a common ancestor?
 
     Notes
     -----
