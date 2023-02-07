@@ -322,13 +322,16 @@ def test_statistical_properties(
             stratum_retention_policy=retention_policy,
         )
     ]
-    for i in range(100):
+    for i in range(113):
         common_ancestors.append(common_ancestors[-1].CloneDescendant())
 
     for rep in range(10000):
-        num_together = random.randrange(100)
-        left_alone = random.randrange(100)
-        right_alone = random.randrange(100)
+        num_total = random.randrange(57, 113)
+        num_together = random.randrange(num_total + 1)
+        num_alone = num_total - num_together
+
+        left_alone = num_alone
+        right_alone = num_alone
 
         common_ancestor = common_ancestors[num_together]
         left = common_ancestor.Clone()
@@ -350,6 +353,9 @@ def test_statistical_properties(
             - num_together
         )
 
+    err_unbiased_ = np.array(err_unbiased)
+    assert stats.ttest_ind(err_unbiased_, -err_unbiased_)[1] > 0.01
+
     mean_err_unbiased = np.mean(err_unbiased)
     mean_err_maximum_likelihood = np.mean(err_maximum_likelihood)
 
@@ -358,11 +364,20 @@ def test_statistical_properties(
         np.abs(err_maximum_likelihood), 50
     )
 
-    if differentia_width == 1 and not isinstance(
+    if differentia_width == 1 and isinstance(
         retention_policy, hstrat.nominal_resolution_algo.Policy
     ):
-        assert mean_err_unbiased < mean_err_maximum_likelihood
+        assert abs(mean_err_unbiased) < abs(mean_err_maximum_likelihood)
+        assert not all(
+            ml > ub
+            for ml, ub in zip(
+                sorted(np.abs(err_maximum_likelihood)),
+                sorted(np.abs(err_unbiased)),
+            )
+        )
+    elif differentia_width == 1:
+        assert abs(mean_err_unbiased) < abs(mean_err_maximum_likelihood)
         assert median_abs_err_unbiased > median_abs_err_maximum_likelihood
     else:
-        assert mean_err_unbiased <= mean_err_maximum_likelihood
+        assert abs(mean_err_unbiased) <= abs(mean_err_maximum_likelihood)
         assert median_abs_err_unbiased >= median_abs_err_maximum_likelihood

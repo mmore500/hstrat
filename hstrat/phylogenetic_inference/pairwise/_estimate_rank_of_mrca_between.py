@@ -67,7 +67,13 @@ def _estimate_rank_of_mrca_between_unbiased(
                 # expected rank
                 statistics.mean((end_exclusive - 1, begin_inclusive)),
                 # weight
-                base**num_spurious_collisions,
+                (
+                    base**num_spurious_collisions
+                    # uniform prior:
+                    # each time point has equal probability of hosting mrca
+                    # TODO create API to pass other priors?
+                    * (end_exclusive - begin_inclusive)
+                ),
             )
             for (
                 num_spurious_collisions,
@@ -100,7 +106,8 @@ def estimate_rank_of_mrca_between(
         or "unbiased".
 
         The "maximum_likelihood" estimator is faster to compute than the
-        "unbiased" estimator.
+        "unbiased" estimator. Unbiased estimator assumes a uniform prior for
+        generation of MRCA.
 
     Returns
     -------
