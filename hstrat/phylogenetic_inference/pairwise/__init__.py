@@ -1,6 +1,9 @@
 """Functions to infer phylogenetic history between two extant hstrat
 columns."""
 
+from ._calc_patristic_distance_bounds_between import (
+    calc_patristic_distance_bounds_between,
+)
 from ._calc_rank_of_earliest_detectable_mrca_between import (
     calc_rank_of_earliest_detectable_mrca_between,
 )
@@ -35,6 +38,7 @@ from ._estimate_ranks_since_mrca_with import estimate_ranks_since_mrca_with
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
+    "calc_patristic_distance_bounds_between",
     "calc_rank_of_earliest_detectable_mrca_between",
     "calc_rank_of_mrca_bounds_between",
     "calc_rank_of_mrca_bounds_provided_confidence_level",
