@@ -161,7 +161,7 @@ def test_statistical_properties(
         num_alone = num_total - num_together
 
         left_alone = num_alone
-        right_alone = num_alone
+        right_alone = num_alone + random.randrange(19)
 
         common_ancestor = common_ancestors[num_together]
         left = common_ancestor.Clone()
