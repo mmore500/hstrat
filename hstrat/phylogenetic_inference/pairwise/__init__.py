@@ -27,6 +27,9 @@ from ._does_definitively_have_no_common_ancestor import (
     does_definitively_have_no_common_ancestor,
 )
 from ._does_have_any_common_ancestor import does_have_any_common_ancestor
+from ._estimate_patristic_distance_between import (
+    estimate_patristic_distance_between,
+)
 from ._estimate_rank_of_mrca_between import estimate_rank_of_mrca_between
 from ._estimate_ranks_since_mrca_with import estimate_ranks_since_mrca_with
 
@@ -42,6 +45,7 @@ __all__ = [
     "calc_ranks_since_mrca_uncertainty_with",
     "does_definitively_have_no_common_ancestor",
     "does_have_any_common_ancestor",
+    "estimate_patristic_distance_between",
     "estimate_rank_of_mrca_between",
     "estimate_ranks_since_mrca_with",
 ]
