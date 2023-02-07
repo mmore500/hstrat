@@ -25,3 +25,9 @@ def test_unzip_with_empty_tuples():
     input_iterable = [(), (), ()]
     expected_output = []
     assert list(unzip(input_iterable)) == expected_output
+
+
+def test_unzip_with_empty():
+    input_iterable = []
+    expected_output = []
+    assert list(unzip(input_iterable)) == expected_output
