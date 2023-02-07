@@ -27,6 +27,7 @@ from ._does_definitively_have_no_common_ancestor import (
     does_definitively_have_no_common_ancestor,
 )
 from ._does_have_any_common_ancestor import does_have_any_common_ancestor
+from ._estimate_rank_of_mrca_between import estimate_rank_of_mrca_between
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
@@ -40,6 +41,7 @@ __all__ = [
     "calc_ranks_since_mrca_uncertainty_with",
     "does_definitively_have_no_common_ancestor",
     "does_have_any_common_ancestor",
+    "estimate_rank_of_mrca_between",
 ]
 
 from ..._auxiliary_lib import launder_impl_modules as _launder
