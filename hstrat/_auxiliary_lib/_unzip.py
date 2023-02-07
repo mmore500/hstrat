@@ -1,5 +1,6 @@
 import typing
 
+
 # adapted from https://stackoverflow.com/a/22115957
 def unzip(
     iterable: typing.Iterable[typing.Tuple],
