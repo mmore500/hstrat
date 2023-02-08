@@ -1,5 +1,6 @@
-from hstrat._auxiliary_lib import cmp_approx
 import numpy as np
+
+from hstrat._auxiliary_lib import cmp_approx
 
 
 def test_cmp_approx_returns_0_for_close_values():

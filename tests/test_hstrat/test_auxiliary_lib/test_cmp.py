@@ -1,6 +1,6 @@
-from hstrat._auxiliary_lib import cmp
-
 import numpy as np
+
+from hstrat._auxiliary_lib import cmp
 
 
 def test_cmp_greater_than():
