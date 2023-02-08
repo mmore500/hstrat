@@ -11,6 +11,15 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [3.7, 3.8, 3.9, "3.10", 3.11]
+        module:
+          - "_auxiliary_lib"
+          - "genome_instrumentation"
+          - "juxtaposition"
+          - "phylogenetic_inference"
+          - "serialization"
+          - "stratum_retention_strategy"
+          - "stratum_retention_viz"
+          - "test_drive"
 
     steps:
     - uses: actions/checkout@v1
