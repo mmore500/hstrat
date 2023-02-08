@@ -68,6 +68,7 @@ def test_CalcRankOfEarliestDetectableMrcaWith1(
                 hstrat.calc_rank_of_mrca_bounds_between(
                     x1,
                     x2,
+                    prior="arbitrary",
                     confidence_level=confidence_level,
                 )
                 is None
@@ -76,6 +77,7 @@ def test_CalcRankOfEarliestDetectableMrcaWith1(
                 hstrat.calc_rank_of_mrca_bounds_between(
                     x2,
                     x1,
+                    prior="arbitrary",
                     confidence_level=confidence_level,
                 )
                 is None

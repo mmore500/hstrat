@@ -11,6 +11,7 @@ from ._calc_rank_of_mrca_bounds_among import calc_rank_of_mrca_bounds_among
 
 def calc_rank_of_mrca_uncertainty_among(
     population: typing.Iterable[HereditaryStratigraphicColumn],
+    prior: str,
     confidence_level: float = 0.95,
 ) -> typing.Optional[int]:
     """How wide is the estimate window for generation of MRCA?
@@ -42,6 +43,7 @@ def calc_rank_of_mrca_uncertainty_among(
 
     bounds = calc_rank_of_mrca_bounds_among(
         pop_tee2,
+        prior=prior,
         confidence_level=confidence_level,
     )
     return 0 if bounds is None else abs(operator.sub(*bounds)) - 1

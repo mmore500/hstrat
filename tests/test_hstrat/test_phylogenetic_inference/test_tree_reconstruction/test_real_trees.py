@@ -309,7 +309,9 @@ def test_reconstructed_mrca(path):
         (
             lower_mrca_bound,
             upper_mrca_bound,
-        ) = hstrat.calc_rank_of_mrca_bounds_between(*rec_pair)
+        ) = hstrat.calc_rank_of_mrca_bounds_between(
+            *rec_pair, prior="arbitrary"
+        )
 
         assert (
             threshold * (lower_mrca_bound - num_depositions)

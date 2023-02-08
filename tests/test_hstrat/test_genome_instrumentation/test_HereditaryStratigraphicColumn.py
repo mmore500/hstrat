@@ -339,7 +339,9 @@ def test_annotation(retention_policy, ordered_store):
 
     for generation in range(100):
         for f, s in it.combinations(population, 2):
-            lb, ub = hstrat.calc_rank_of_mrca_bounds_between(f, s)
+            lb, ub = hstrat.calc_rank_of_mrca_bounds_between(
+                f, s, prior="arbitrary"
+            )
             assert (
                 lb
                 <= hstrat.get_last_common_stratum_between(f, s).GetAnnotation()
@@ -438,17 +440,43 @@ def test_maximal_retention_policy():
         assert second.GetNumStrataRetained() == gen + 1
         assert third.GetNumStrataRetained() == 1
 
-        assert hstrat.calc_rank_of_mrca_uncertainty_between(first, second) == 0
-        assert hstrat.calc_rank_of_mrca_uncertainty_between(first, third) == 0
+        assert (
+            hstrat.calc_rank_of_mrca_uncertainty_between(
+                first, second, prior="arbitrary"
+            )
+            == 0
+        )
+        assert (
+            hstrat.calc_rank_of_mrca_uncertainty_between(
+                first, third, prior="arbitrary"
+            )
+            == 0
+        )
 
         assert (
-            hstrat.calc_ranks_since_mrca_uncertainty_with(first, second) == 0
+            hstrat.calc_ranks_since_mrca_uncertainty_with(
+                first, second, prior="arbitrary"
+            )
+            == 0
         )
         assert (
-            hstrat.calc_ranks_since_mrca_uncertainty_with(second, first) == 0
+            hstrat.calc_ranks_since_mrca_uncertainty_with(
+                second, first, prior="arbitrary"
+            )
+            == 0
         )
-        assert hstrat.calc_ranks_since_mrca_uncertainty_with(first, third) == 0
-        assert hstrat.calc_ranks_since_mrca_uncertainty_with(third, first) == 0
+        assert (
+            hstrat.calc_ranks_since_mrca_uncertainty_with(
+                first, third, prior="arbitrary"
+            )
+            == 0
+        )
+        assert (
+            hstrat.calc_ranks_since_mrca_uncertainty_with(
+                third, first, prior="arbitrary"
+            )
+            == 0
+        )
 
         first.DepositStratum()
         second.DepositStratum()
@@ -468,18 +496,37 @@ def test_minimal_retention_policy():
         assert third.GetNumStrataRetained() == 1
 
         assert hstrat.calc_rank_of_mrca_uncertainty_between(
-            first, second
+            first, second, prior="arbitrary"
         ) == max(0, gen - 1)
-        assert hstrat.calc_rank_of_mrca_uncertainty_between(first, third) == 0
+        assert (
+            hstrat.calc_rank_of_mrca_uncertainty_between(
+                first, third, prior="arbitrary"
+            )
+            == 0
+        )
 
         assert hstrat.calc_ranks_since_mrca_uncertainty_with(
-            first, second
+            first,
+            second,
+            prior="arbitrary",
         ) == max(0, gen - 1)
         assert hstrat.calc_ranks_since_mrca_uncertainty_with(
-            second, first
+            second,
+            first,
+            prior="arbitrary",
         ) == max(0, gen - 1)
-        assert hstrat.calc_ranks_since_mrca_uncertainty_with(first, third) == 0
-        assert hstrat.calc_ranks_since_mrca_uncertainty_with(third, first) == 0
+        assert (
+            hstrat.calc_ranks_since_mrca_uncertainty_with(
+                first, third, prior="arbitrary"
+            )
+            == 0
+        )
+        assert (
+            hstrat.calc_ranks_since_mrca_uncertainty_with(
+                third, first, prior="arbitrary"
+            )
+            == 0
+        )
 
         first.DepositStratum()
         second.DepositStratum()

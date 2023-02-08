@@ -41,13 +41,17 @@ def test_comparison_commutativity_asyncrhonous(
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert (
-                hstrat.calc_rank_of_mrca_uncertainty_among([first, second])
-                == hstrat.calc_rank_of_mrca_uncertainty_among([second, first])
-                == hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [second, first, first]
+                hstrat.calc_rank_of_mrca_uncertainty_among(
+                    [first, second], prior="arbitrary"
                 )
                 == hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [second, first] * 3
+                    [second, first], prior="arbitrary"
+                )
+                == hstrat.calc_rank_of_mrca_uncertainty_among(
+                    [second, first, first], prior="arbitrary"
+                )
+                == hstrat.calc_rank_of_mrca_uncertainty_among(
+                    [second, first] * 3, prior="arbitrary"
                 )
             )
 
@@ -104,13 +108,17 @@ def test_comparison_commutativity_syncrhonous(
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert (
-                hstrat.calc_rank_of_mrca_uncertainty_among([first, second])
-                == hstrat.calc_rank_of_mrca_uncertainty_among([second, first])
-                == hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [second, first, second]
+                hstrat.calc_rank_of_mrca_uncertainty_among(
+                    [first, second], prior="arbitrary"
                 )
                 == hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [second, first] * 3
+                    [second, first], prior="arbitrary"
+                )
+                == hstrat.calc_rank_of_mrca_uncertainty_among(
+                    [second, first, second], prior="arbitrary"
+                )
+                == hstrat.calc_rank_of_mrca_uncertainty_among(
+                    [second, first] * 3, prior="arbitrary"
                 )
             )
 
@@ -154,7 +162,9 @@ def test_comparison_validity(retention_policy, ordered_store):
     for generation in range(100):
         for first, second in it.combinations(population, 2):
             assert (
-                hstrat.calc_rank_of_mrca_uncertainty_among([first, second])
+                hstrat.calc_rank_of_mrca_uncertainty_among(
+                    [first, second], prior="arbitrary"
+                )
                 >= 0
             )
         for first, second, third in it.islice(
@@ -162,7 +172,8 @@ def test_comparison_validity(retention_policy, ordered_store):
         ):
             assert (
                 hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [first, second, third]
+                    [first, second, third],
+                    prior="arbitrary",
                 )
                 >= 0
             )
@@ -215,14 +226,32 @@ def test_scenario_no_mrca(
     )
 
     for generation in range(100):
-        assert hstrat.calc_rank_of_mrca_uncertainty_among([first, second]) == 0
-        assert hstrat.calc_rank_of_mrca_uncertainty_among([second, first]) == 0
         assert (
-            hstrat.calc_rank_of_mrca_uncertainty_among([first, second, first])
+            hstrat.calc_rank_of_mrca_uncertainty_among(
+                [first, second],
+                prior="arbitrary",
+            )
             == 0
         )
         assert (
-            hstrat.calc_rank_of_mrca_uncertainty_among([second, first] * 3)
+            hstrat.calc_rank_of_mrca_uncertainty_among(
+                [second, first],
+                prior="arbitrary",
+            )
+            == 0
+        )
+        assert (
+            hstrat.calc_rank_of_mrca_uncertainty_among(
+                [first, second, first],
+                prior="arbitrary",
+            )
+            == 0
+        )
+        assert (
+            hstrat.calc_rank_of_mrca_uncertainty_among(
+                [second, first] * 3,
+                prior="arbitrary",
+            )
             == 0
         )
 
@@ -254,16 +283,23 @@ def test_scenario_no_divergence(retention_policy, ordered_store):
 
     for generation in range(100):
         assert (
-            hstrat.calc_rank_of_mrca_uncertainty_among([column, column]) == 0
-        )
-        assert (
             hstrat.calc_rank_of_mrca_uncertainty_among(
-                [column, column, column]
+                [column, column],
+                prior="arbitrary",
             )
             == 0
         )
         assert (
-            hstrat.calc_rank_of_mrca_uncertainty_among([column, column] * 3)
+            hstrat.calc_rank_of_mrca_uncertainty_among(
+                [column, column, column],
+                prior="arbitrary",
+            )
+            == 0
+        )
+        assert (
+            hstrat.calc_rank_of_mrca_uncertainty_among(
+                [column, column] * 3, prior="arbitrary"
+            )
             == 0
         )
 
@@ -331,13 +367,16 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_shallow(
         for c1, c2 in zip(column1, column2):
             assert (
                 hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [c1, c2], confidence_level=confidence_level
+                    [c1, c2],
+                    prior="arbitrary",
+                    confidence_level=confidence_level,
                 )
                 is None
             )
             assert (
                 hstrat.calc_rank_of_mrca_uncertainty_among(
                     [c2, c1],
+                    prior="arbitrary",
                     confidence_level=confidence_level,
                 )
                 is None
@@ -345,13 +384,16 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_shallow(
         for c1, c2, c3 in zip(column1, column2, column3):
             assert (
                 hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [c1, c2, c3], confidence_level=confidence_level
+                    [c1, c2, c3],
+                    prior="arbitrary",
+                    confidence_level=confidence_level,
                 )
                 is None
             )
             assert (
                 hstrat.calc_rank_of_mrca_uncertainty_among(
                     [c2, c3, c1],
+                    prior="arbitrary",
                     confidence_level=confidence_level,
                 )
                 is None
@@ -414,22 +456,27 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_with_mrca(
 
         for c1, c2 in zip(column1, column2):
             assert hstrat.calc_rank_of_mrca_uncertainty_among(
-                [c1, c2], confidence_level=confidence_level
+                [c1, c2], prior="arbitrary", confidence_level=confidence_level
             ) == hstrat.calc_rank_of_mrca_uncertainty_among(
                 [c2, c1],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
             res = hstrat.calc_rank_of_mrca_uncertainty_among(
                 [c1, c2],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
 
             if res is not None:
                 assert res >= 0
                 assert hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [c1, c2], confidence_level=confidence_level
+                    [c1, c2],
+                    prior="arbitrary",
+                    confidence_level=confidence_level,
                 ) >= hstrat.calc_rank_of_mrca_uncertainty_among(
                     [c2, c1],
+                    prior="arbitrary",
                     confidence_level=confidence_level / 2,
                 )
 
@@ -449,22 +496,29 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_with_mrca(
 
         for c1, c2, c3 in zip(column1, column2, column3):
             assert hstrat.calc_rank_of_mrca_uncertainty_among(
-                [c1, c2, c3], confidence_level=confidence_level
+                [c1, c2, c3],
+                prior="arbitrary",
+                confidence_level=confidence_level,
             ) == hstrat.calc_rank_of_mrca_uncertainty_among(
                 [c2, c1, c3],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
             res = hstrat.calc_rank_of_mrca_uncertainty_among(
                 [c1, c2, c3],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
 
             if res is not None:
                 assert res >= 0
                 assert hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [c1, c2, c3], confidence_level=confidence_level
+                    [c1, c2, c3],
+                    prior="arbitrary",
+                    confidence_level=confidence_level,
                 ) >= hstrat.calc_rank_of_mrca_uncertainty_among(
                     [c2, c1, c3],
+                    prior="arbitrary",
                     confidence_level=confidence_level / 2,
                 )
 
@@ -528,13 +582,15 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
 
         for c1, c2 in zip(column1, column2):
             assert hstrat.calc_rank_of_mrca_uncertainty_among(
-                [c1, c2], confidence_level=confidence_level
+                [c1, c2], prior="arbitrary", confidence_level=confidence_level
             ) == hstrat.calc_rank_of_mrca_uncertainty_among(
                 [c2, c1],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
             res = hstrat.calc_rank_of_mrca_uncertainty_among(
                 [c1, c2],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
 
@@ -542,27 +598,36 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
                 assert 0 <= res
                 assert (
                     hstrat.calc_rank_of_mrca_uncertainty_among(
-                        [c1, c2], confidence_level=confidence_level
+                        [c1, c2],
+                        prior="arbitrary",
+                        confidence_level=confidence_level,
                     )
                     >= hstrat.calc_rank_of_mrca_uncertainty_among(
                         [c2, c1],
+                        prior="arbitrary",
                         confidence_level=confidence_level / 2,
                     )
                     or hstrat.calc_rank_of_mrca_uncertainty_among(
-                        [c1, c2], confidence_level=confidence_level
+                        [c1, c2],
+                        prior="arbitrary",
+                        confidence_level=confidence_level,
                     )
                     == 0
                 )
 
         for c1, c2, c3 in zip(column1, column2, column3):
             assert hstrat.calc_rank_of_mrca_uncertainty_among(
-                [c1, c2, c3], confidence_level=confidence_level
+                [c1, c2, c3],
+                prior="arbitrary",
+                confidence_level=confidence_level,
             ) == hstrat.calc_rank_of_mrca_uncertainty_among(
                 [c3, c1, c2],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
             res = hstrat.calc_rank_of_mrca_uncertainty_among(
                 [c1, c2, c3],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
 
@@ -570,14 +635,19 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
                 assert 0 <= res
                 assert (
                     hstrat.calc_rank_of_mrca_uncertainty_among(
-                        [c1, c2, c3], confidence_level=confidence_level
+                        [c1, c2, c3],
+                        prior="arbitrary",
+                        confidence_level=confidence_level,
                     )
                     >= hstrat.calc_rank_of_mrca_uncertainty_among(
                         [c1, c2, c3],
+                        prior="arbitrary",
                         confidence_level=confidence_level / 2,
                     )
                     or hstrat.calc_rank_of_mrca_uncertainty_among(
-                        [c1, c2, c3], confidence_level=confidence_level
+                        [c1, c2, c3],
+                        prior="arbitrary",
+                        confidence_level=confidence_level,
                     )
                     == 0
                 )
@@ -589,20 +659,29 @@ def test_calc_rank_of_mrca_uncertainty_among_singleton():
         stratum_differentia_bit_width=1,
     )
     for __ in range(10):
-        assert hstrat.calc_rank_of_mrca_uncertainty_among([c1]) is None
+        assert (
+            hstrat.calc_rank_of_mrca_uncertainty_among([c1], prior="arbitrary")
+            is None
+        )
         c1.DepositStratum()
 
     c2 = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=64,
     )
     for __ in range(10):
-        assert hstrat.calc_rank_of_mrca_uncertainty_among([c1]) is None
+        assert (
+            hstrat.calc_rank_of_mrca_uncertainty_among([c1], prior="arbitrary")
+            is None
+        )
         c2.DepositStratum()
 
 
 @pytest.mark.filterwarnings("ignore:Empty or singleton population.")
 def test_calc_rank_of_mrca_uncertainty_among_empty():
-    assert hstrat.does_share_any_common_ancestor([]) is None
+    assert (
+        hstrat.calc_rank_of_mrca_uncertainty_among([], prior="arbitrary")
+        is None
+    )
 
 
 def test_calc_rank_of_mrca_uncertainty_among_generator():
@@ -611,9 +690,9 @@ def test_calc_rank_of_mrca_uncertainty_among_generator():
     )
     for __ in range(10):
         assert hstrat.calc_rank_of_mrca_uncertainty_among(
-            [c1 for __ in range(10)]
+            [c1 for __ in range(10)], prior="arbitrary"
         ) == hstrat.calc_rank_of_mrca_uncertainty_among(
-            (c1 for __ in range(10))
+            (c1 for __ in range(10)), prior="arbitrary"
         )
         c1.DepositStratum()
 
@@ -622,8 +701,8 @@ def test_calc_rank_of_mrca_uncertainty_among_generator():
     )
     for __ in range(10):
         assert hstrat.calc_rank_of_mrca_uncertainty_among(
-            [c2 for __ in range(10)]
+            [c2 for __ in range(10)], prior="arbitrary"
         ) == hstrat.calc_rank_of_mrca_uncertainty_among(
-            (c2 for __ in range(10))
+            (c2 for __ in range(10)), prior="arbitrary"
         )
         c2.DepositStratum()

@@ -9,6 +9,7 @@ from ._calc_rank_of_mrca_bounds_between import calc_rank_of_mrca_bounds_between
 def calc_patristic_distance_bounds_between(
     first: HereditaryStratigraphicColumn,
     second: HereditaryStratigraphicColumn,
+    prior: str,
     confidence_level: float = 0.95,
 ) -> typing.Optional[typing.Tuple[int, int]]:
     """What is the total phylogenetic distance along the branch path connecting
@@ -20,6 +21,11 @@ def calc_patristic_distance_bounds_between(
 
     Parameters
     ----------
+    prior : {"arbitrary"}
+        Prior probability density distribution over possible generations of the
+        MRCA.
+
+        Currently only "arbitrary" supported.
     confidence_level : float, optional
         Bounds must capture what probability of containing the true patristic
         distance? Default 0.95.
@@ -45,7 +51,9 @@ def calc_patristic_distance_bounds_between(
     The true patristic distance is guaranteed to never fall below the returned bounds but may fall above.
     """
 
-    mrca_rank_bounds = calc_rank_of_mrca_bounds_between(first, second)
+    mrca_rank_bounds = calc_rank_of_mrca_bounds_between(
+        first, second, prior="arbitrary"
+    )
     inclusive_exclusive_ub_lb_switch_correction = 2
     max_patristic_distance = (
         first.GetNumStrataDeposited() - 1 + second.GetNumStrataDeposited() - 1

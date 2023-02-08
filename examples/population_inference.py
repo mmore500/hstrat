@@ -84,7 +84,8 @@ if __name__ == "__main__":
             print("   max generations elapsed", max_generations)
 
             mrca_lb, mrca_ub = hstrat.calc_rank_of_mrca_bounds_among(
-                genome.annotation for genome in extant_population
+                (genome.annotation for genome in extant_population),
+                prior="arbitrary",
             )
             print(
                 "   population MRCA estmated between generation",

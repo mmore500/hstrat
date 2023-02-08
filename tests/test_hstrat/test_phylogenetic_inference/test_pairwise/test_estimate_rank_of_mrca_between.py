@@ -136,7 +136,7 @@ def test_comparison_validity(
         for first, second in it.combinations(population, 2):
 
             bounds = hstrat.calc_rank_of_mrca_bounds_between(
-                first, second, confidence_level=0.49
+                first, second, prior="arbitrary", confidence_level=0.49
             )
             est = hstrat.estimate_rank_of_mrca_between(
                 first,
@@ -358,7 +358,7 @@ def test_comparison_ml_vs_unbiased(differentia_width, retention_policy):
         for first, second in it.combinations(population, 2):
 
             bounds = hstrat.calc_rank_of_mrca_bounds_between(
-                first, second, confidence_level=0.49
+                first, second, prior="arbitrary", confidence_level=0.49
             )
             if bounds is not None:
                 lb, ub = bounds

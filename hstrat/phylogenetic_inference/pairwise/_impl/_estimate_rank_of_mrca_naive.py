@@ -17,6 +17,7 @@ def estimate_rank_of_mrca_naive(
     rank_of_mrca_bounds = calc_rank_of_mrca_bounds_between(
         first,
         second,
+        prior="arbitrary",
         confidence_level=0.49,
     )
     exclusive_ub_correction = 1 / 2

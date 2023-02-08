@@ -17,6 +17,7 @@ from ._does_have_any_common_ancestor import does_have_any_common_ancestor
 def calc_ranks_since_mrca_bounds_with(
     focal: HereditaryStratigraphicColumn,
     other: HereditaryStratigraphicColumn,
+    prior: str,
     confidence_level: float = 0.95,
 ) -> typing.Optional[typing.Tuple[int, int]]:
     """How many generations have elapsed since MRCA?
@@ -27,6 +28,11 @@ def calc_ranks_since_mrca_bounds_with(
 
     Parameters
     ----------
+    prior : {"arbitrary"}
+        Prior probability density distribution over possible generations of the
+        MRCA.
+
+        Currently only "arbitrary" supported.
     confidence_level : float, optional
         With what probability should the true rank of the MRCA fall
         within the calculated bounds? Default 0.95.
@@ -90,6 +96,7 @@ def calc_ranks_since_mrca_bounds_with(
     determine the earliest rank at which an MRCA could be reliably detected
     between focal and other.
     """
+    assert prior == "arbitrary"
     assert 0.0 <= confidence_level <= 1.0
 
     if (

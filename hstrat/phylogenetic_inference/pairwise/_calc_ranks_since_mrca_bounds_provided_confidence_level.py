@@ -1,5 +1,3 @@
-import typing
-
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._calc_rank_of_mrca_bounds_provided_confidence_level import (
     calc_rank_of_mrca_bounds_provided_confidence_level,
@@ -8,7 +6,8 @@ from ._calc_rank_of_mrca_bounds_provided_confidence_level import (
 
 def calc_ranks_since_mrca_bounds_provided_confidence_level(
     focal: HereditaryStratigraphicColumn,
-    other: typing.Optional[HereditaryStratigraphicColumn] = None,
+    other: HereditaryStratigraphicColumn,
+    prior: str,
     requested_confidence_level: float = 0.95,
 ) -> float:
     """Calculate provided confidence for a MRCA generation estimate.
@@ -21,5 +20,6 @@ def calc_ranks_since_mrca_bounds_provided_confidence_level(
     return calc_rank_of_mrca_bounds_provided_confidence_level(
         focal,
         other,
+        prior,
         requested_confidence_level,
     )

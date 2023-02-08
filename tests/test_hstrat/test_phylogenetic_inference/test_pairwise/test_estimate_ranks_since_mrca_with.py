@@ -116,7 +116,7 @@ def test_comparison_validity(
         for first, second in it.permutations(population, 2):
 
             bounds = hstrat.calc_ranks_since_mrca_bounds_with(
-                first, second, confidence_level=0.49
+                first, second, prior="arbitrary", confidence_level=0.49
             )
             est = hstrat.estimate_ranks_since_mrca_with(
                 first,

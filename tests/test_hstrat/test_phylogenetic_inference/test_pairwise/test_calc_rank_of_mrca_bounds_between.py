@@ -47,8 +47,10 @@ def test_comparison_commutativity_asyncrhonous(
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.calc_rank_of_mrca_bounds_between(
-                first, second
-            ) == hstrat.calc_rank_of_mrca_bounds_between(second, first)
+                first, second, prior="arbitrary"
+            ) == hstrat.calc_rank_of_mrca_bounds_between(
+                second, first, prior="arbitrary"
+            )
 
         # advance generation
         random.shuffle(population)
@@ -116,7 +118,7 @@ def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store):
             zip(cyclify(frozen_copy), population),
         ):
             lb, ub = hstrat.calc_rank_of_mrca_bounds_between(
-                f["test"], s["test"]
+                f["test"], s["test"], prior="arbitrary"
             )
             actual_rank_of_mrca = hstrat.get_last_common_stratum_between(
                 f["control"],
@@ -131,7 +133,9 @@ def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store):
             zip(cyclify(unrelated_isolated), population),
         ):
             assert (
-                hstrat.calc_rank_of_mrca_bounds_between(f["test"], s["test"])
+                hstrat.calc_rank_of_mrca_bounds_between(
+                    f["test"], s["test"], prior="arbitrary"
+                )
                 is None
             )
 
@@ -198,8 +202,10 @@ def test_comparison_commutativity_syncrhonous(
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.calc_rank_of_mrca_bounds_between(
-                first, second
-            ) == hstrat.calc_rank_of_mrca_bounds_between(second, first)
+                first, second, prior="arbitrary"
+            ) == hstrat.calc_rank_of_mrca_bounds_between(
+                second, first, prior="arbitrary"
+            )
 
         # advance generation
         random.shuffle(population)
@@ -255,7 +261,9 @@ def test_comparison_validity(retention_policy, ordered_store):
             if fdrw is not None:
                 assert 0 <= fdrw <= generation
 
-            assert hstrat.calc_rank_of_mrca_bounds_between(first, second) in [
+            assert hstrat.calc_rank_of_mrca_bounds_between(
+                first, second, prior="arbitrary"
+            ) in [
                 (lcrw, opyt.or_value(fdrw, first.GetNumStrataDeposited())),
                 None,
             ]
@@ -329,7 +337,10 @@ def test_CalcRankOfMrcaBoundsWith_narrow_shallow(
         for c1, c2 in zip(column1, column2):
             assert (
                 hstrat.calc_rank_of_mrca_bounds_between(
-                    c1, c2, confidence_level=confidence_level
+                    c1,
+                    c2,
+                    prior="arbitrary",
+                    confidence_level=confidence_level,
                 )
                 is None
             )
@@ -337,6 +348,7 @@ def test_CalcRankOfMrcaBoundsWith_narrow_shallow(
                 hstrat.calc_rank_of_mrca_bounds_between(
                     c2,
                     c1,
+                    prior="arbitrary",
                     confidence_level=confidence_level,
                 )
                 is None
@@ -403,15 +415,17 @@ def test_CalcRankOfMrcaBoundsWith_narrow_with_mrca(
         num_outside_bounds = 0
         for c1, c2 in zip(column1, column2):
             assert hstrat.calc_rank_of_mrca_bounds_between(
-                c1, c2, confidence_level=confidence_level
+                c1, c2, prior="arbitrary", confidence_level=confidence_level
             ) == hstrat.calc_rank_of_mrca_bounds_between(
                 c2,
                 c1,
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
             res = hstrat.calc_rank_of_mrca_bounds_between(
                 c1,
                 c2,
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
 
@@ -501,15 +515,17 @@ def test_CalcRankOfMrcaBoundsWith_narrow_no_mrca(
         num_outside_bounds = 0
         for c1, c2 in zip(column1, column2):
             assert hstrat.calc_rank_of_mrca_bounds_between(
-                c1, c2, confidence_level=confidence_level
+                c1, c2, prior="arbitrary", confidence_level=confidence_level
             ) == hstrat.calc_rank_of_mrca_bounds_between(
                 c2,
                 c1,
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
             res = hstrat.calc_rank_of_mrca_bounds_between(
                 c1,
                 c2,
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
 

@@ -44,5 +44,7 @@ def does_share_any_common_ancestor(
     ):
         return None
 
-    mrca_bounds = calc_rank_of_mrca_bounds_among(pop_tee2, confidence_level)
+    mrca_bounds = calc_rank_of_mrca_bounds_among(
+        pop_tee2, "arbitrary", confidence_level
+    )
     return mrca_bounds is not None

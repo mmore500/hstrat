@@ -71,15 +71,25 @@ for __ in range(5): descendant2c.DepositStratum()
 # note MRCA estimate uncertainty, caused by sparse stratum retention policy
 print(
     "   estimate descendant2b generations since MRCA with descendant2c?",
-    hstrat.calc_ranks_since_mrca_bounds_with(descendant2b, descendant2c),
+    hstrat.calc_ranks_since_mrca_bounds_with(
+      descendant2b,
+      descendant2c,
+      prior="arbitrary",
+    ),
 ) # -> (19, 22)
 print(
     "   estimate descendant2c generations since MRCA with descendant2b?",
-    hstrat.calc_ranks_since_mrca_bounds_with(descendant2c, descendant2b),
+    hstrat.calc_ranks_since_mrca_bounds_with(
+      descendant2c,
+      descendant2b,
+      prior="arbitrary",
+    ),
 ) # -> (4, 7)
 print(
     "   estimate generation of MRCA between descendant2b and descendant2c?",
-    hstrat.calc_rank_of_mrca_bounds_between(descendant2b, descendant2c),
+    hstrat.calc_rank_of_mrca_bounds_between(
+      descendant2b, descendant2c, prior="arbitrary"
+    ),
 ) # -> (9, 12)
 ```
 

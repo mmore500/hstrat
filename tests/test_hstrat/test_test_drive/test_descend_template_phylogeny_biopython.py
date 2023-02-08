@@ -137,10 +137,10 @@ def test_descend_template_phylogeny(
     assert len(extant_population) == len(extant_population_dp)
 
     assert Counter(
-        hstrat.calc_rank_of_mrca_bounds_between(c1, c2)
+        hstrat.calc_rank_of_mrca_bounds_between(c1, c2, prior="arbitrary")
         for c1, c2 in it.permutations(extant_population, 2)
     ) == Counter(
-        hstrat.calc_rank_of_mrca_bounds_between(c1, c2)
+        hstrat.calc_rank_of_mrca_bounds_between(c1, c2, prior="arbitrary")
         for c1, c2 in it.permutations(extant_population_dp, 2)
     )
 

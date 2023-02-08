@@ -53,7 +53,9 @@ def test_CalcRanksSinceMrcaBoundsWith(
             zip(cyclify(frozen_copy), population),
         ):
             lb, ub = hstrat.calc_patristic_distance_bounds_between(
-                f["test"], s["test"]
+                f["test"],
+                s["test"],
+                prior="arbitrary",
             )
             actual_rank_of_mrca = hstrat.get_last_common_stratum_between(
                 f["control"],
@@ -72,7 +74,9 @@ def test_CalcRanksSinceMrcaBoundsWith(
         ):
             assert (
                 hstrat.calc_patristic_distance_bounds_between(
-                    f["test"], s["test"]
+                    f["test"],
+                    s["test"],
+                    prior="arbitrary",
                 )
                 is None
             )
@@ -128,9 +132,11 @@ def test_comparison_commutativity_asyncrhonous(
             assert hstrat.calc_patristic_distance_bounds_between(
                 first,
                 second,
+                prior="arbitrary",
             ) == hstrat.calc_patristic_distance_bounds_between(
                 second,
                 first,
+                prior="arbitrary",
             )
 
         # advance generation
@@ -179,8 +185,14 @@ def test_comparison_commutativity_syncrhonous(
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.calc_patristic_distance_bounds_between(
-                first, second
-            ) == hstrat.calc_patristic_distance_bounds_between(second, first)
+                first,
+                second,
+                prior="arbitrary",
+            ) == hstrat.calc_patristic_distance_bounds_between(
+                second,
+                first,
+                prior="arbitrary",
+            )
 
         # advance generation
         random.shuffle(population)
@@ -227,14 +239,17 @@ def test_comparison_validity(retention_policy, differentia_width):
             rsmw1 = hstrat.calc_ranks_since_mrca_bounds_with(
                 first,
                 second,
+                prior="arbitrary",
             )
             rsmw2 = hstrat.calc_ranks_since_mrca_bounds_with(
                 second,
                 first,
+                prior="arbitrary",
             )
             pd = hstrat.calc_patristic_distance_bounds_between(
                 first,
                 second,
+                prior="arbitrary",
             )
             assert (rsmw1 is None) == (rsmw1 is None) == (pd is None)
             if pd is not None:

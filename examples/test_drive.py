@@ -46,5 +46,5 @@ if __name__ == "__main__":
         print(
             "hstrat.calc_rank_of_mrca_bounds_between "
             f"{clade_lookup[c1.GetNumStrataDeposited() - 1].name} & {clade_lookup[c2.GetNumStrataDeposited() - 1].name}: "
-            f"{hstrat.calc_rank_of_mrca_bounds_between(c1, c2)}"
+            f"{hstrat.calc_rank_of_mrca_bounds_between(c1, c2, prior='arbitrary')}"
         )

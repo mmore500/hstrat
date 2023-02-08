@@ -107,9 +107,13 @@ def test_comparison_validity(retention_policy, ordered_store):
                 assert -1 <= rsfdw <= generation
 
             assert hstrat.calc_ranks_since_mrca_bounds_with(
-                first, second
+                first,
+                second,
+                prior="arbitrary",
             ) is None or hstrat.calc_ranks_since_mrca_bounds_with(
-                first, second
+                first,
+                second,
+                prior="arbitrary",
             ) == (
                 opyt.or_value(rsfdw, -1) + 1,
                 rslcw + 1,

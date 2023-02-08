@@ -67,8 +67,12 @@ if __name__ == "__main__":
                 [
                     sum(
                         it.chain(
-                            hstrat.calc_ranks_since_mrca_bounds_with(i, j),
-                            hstrat.calc_ranks_since_mrca_bounds_with(j, i),
+                            hstrat.calc_ranks_since_mrca_bounds_with(
+                                i, j, prior="arbitrary"
+                            ),
+                            hstrat.calc_ranks_since_mrca_bounds_with(
+                                j, i, prior="arbitrary"
+                            ),
                         )
                     )
                     if i != j

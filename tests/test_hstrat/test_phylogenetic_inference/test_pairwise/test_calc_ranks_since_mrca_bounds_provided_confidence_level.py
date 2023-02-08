@@ -7,19 +7,19 @@ def test_CalcRanksSinceMrcaBoundsProvidedConfidenceLevel():
     )
     assert (
         hstrat.calc_ranks_since_mrca_bounds_provided_confidence_level(
-            c1, c1, 0.5
+            c1, c1, "arbitrary", 0.5
         )
         == 0.5
     )
     assert (
         hstrat.calc_ranks_since_mrca_bounds_provided_confidence_level(
-            c1, c1, 0.6
+            c1, c1, "arbitrary", 0.6
         )
         == 0.75
     )
     assert (
         hstrat.calc_ranks_since_mrca_bounds_provided_confidence_level(
-            c1, c1, 0.75
+            c1, c1, "arbitrary", 0.75
         )
         == 0.75
     )
@@ -30,31 +30,31 @@ def test_CalcRanksSinceMrcaBoundsProvidedConfidenceLevel():
     p = 1 / 2**64
     assert (
         hstrat.calc_ranks_since_mrca_bounds_provided_confidence_level(
-            c2, c2, 0.5
+            c2, c2, "arbitrary", 0.5
         )
         == 1 - p
     )
     assert (
         hstrat.calc_ranks_since_mrca_bounds_provided_confidence_level(
-            c2, c2, 0.6
+            c2, c2, "arbitrary", 0.6
         )
         == 1 - p
     )
     assert (
         hstrat.calc_ranks_since_mrca_bounds_provided_confidence_level(
-            c2, c2, 0.75
+            c2, c2, "arbitrary", 0.75
         )
         == 1 - p
     )
     assert (
         hstrat.calc_ranks_since_mrca_bounds_provided_confidence_level(
-            c2, c2, 0.95
+            c2, c2, "arbitrary", 0.95
         )
         == 1 - p
     )
     assert (
         hstrat.calc_ranks_since_mrca_bounds_provided_confidence_level(
-            c2, c2, 0.99
+            c2, c2, "arbitrary", 0.99
         )
         == 1 - p
     )

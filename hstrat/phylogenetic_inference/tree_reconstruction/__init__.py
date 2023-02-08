@@ -31,7 +31,7 @@ from ..pairwise import (
 def distance_matrix_helper(
     x: HereditaryStratigraphicColumn, y: HereditaryStratigraphicColumn
 ) -> Number:
-    mrca_bounds = calc_ranks_since_mrca_bounds_with(x, y)
+    mrca_bounds = calc_ranks_since_mrca_bounds_with(x, y, prior="arbitrary")
     if mrca_bounds is not None:
         mrca_lb, mrca_ub = mrca_bounds
     earliest_detectable_mrca = calc_rank_of_earliest_detectable_mrca_between(
