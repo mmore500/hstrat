@@ -27,4 +27,4 @@ def cmp(a: typing.Any, b: typing.Any) -> int:
     >>> cmp(2, 2)
     0
     """
-    return (a > b) - (a < b)
+    return bool(a > b) - bool(a < b)
