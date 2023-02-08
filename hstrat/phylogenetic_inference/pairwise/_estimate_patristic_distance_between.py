@@ -10,7 +10,9 @@ from ._estimate_rank_of_mrca_between import estimate_rank_of_mrca_between
 def estimate_patristic_distance_between(
     first: HereditaryStratigraphicColumn,
     second: HereditaryStratigraphicColumn,
-    estimator: str = "maximum_likelihood",
+    estimator: str,
+    prior: str,
+    prior_exponential_factor: typing.Optional[float] = None,
 ) -> typing.Optional[float]:
     """Estimate the total phylogenetic distance along the branch path connecting
     the columns.
@@ -21,10 +23,19 @@ def estimate_patristic_distance_between(
 
     Parameters
     ----------
-    estimator : str, default "maximum_likelihood"
+    estimator : {"maximum_likelihood", "unbiased"}
         What estimation method should be used? Options are "maximum_likelihood"
         or "unbiased".
 
+        See `estimate_ranks_since_mrca_with` for discussion of estimator
+        options.
+    prior : {"arbitrary", "uniform", "exponential"}
+        Prior probability density distribution over possible generations of the
+        MRCA.
+
+        See `estimate_ranks_since_mrca_with` for discussion of prior
+        options.
+    prior_exponential_factor : optional float
         See `estimate_ranks_since_mrca_with` for discussion of estimator
         options.
 
@@ -47,6 +58,8 @@ def estimate_patristic_distance_between(
         first,
         second,
         estimator=estimator,
+        prior=prior,
+        prior_exponential_factor=prior_exponential_factor,
     )
     max_patristic_distance = (
         first.GetNumStrataDeposited() - 1 + second.GetNumStrataDeposited() - 1
@@ -55,4 +68,22 @@ def estimate_patristic_distance_between(
     return opyt.apply_if(
         est_rank_of_mrca_between,
         lambda est: max_patristic_distance - 2 * est,
+    )
+
+
+def ballpark_patristic_distance_between(
+    first: HereditaryStratigraphicColumn,
+    second: HereditaryStratigraphicColumn,
+) -> typing.Optional[float]:
+    """Calculate a fast, rough estimate of the patristic distance between first
+    and second.
+
+    See `estimate_patristic_distance_between` for details.
+    """
+
+    return estimate_patristic_distance_between(
+        first,
+        second,
+        estimator="maximum_likelihood",
+        prior="arbitrary",
     )

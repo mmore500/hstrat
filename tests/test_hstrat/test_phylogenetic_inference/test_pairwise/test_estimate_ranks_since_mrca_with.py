@@ -29,10 +29,19 @@ from hstrat import hstrat
     "estimator",
     ["maximum_likelihood", "unbiased"],
 )
+@pytest.mark.parametrize(
+    "prior",
+    [
+        "arbitrary",
+        # "exponential",  # TODO
+        "uniform",
+    ],
+)
 def test_comparison_commutativity_syncrhonous(
     retention_policy,
     differentia_width,
     estimator,
+    prior,
 ):
 
     population = [
@@ -48,9 +57,9 @@ def test_comparison_commutativity_syncrhonous(
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.estimate_ranks_since_mrca_with(
-                first, second, estimator=estimator
+                first, second, estimator=estimator, prior=prior
             ) == hstrat.estimate_ranks_since_mrca_with(
-                second, first, estimator=estimator
+                second, first, estimator=estimator, prior=prior
             )
 
         # advance generation
@@ -84,7 +93,17 @@ def test_comparison_commutativity_syncrhonous(
     "estimator",
     ["maximum_likelihood", "unbiased"],
 )
-def test_comparison_validity(retention_policy, differentia_width, estimator):
+@pytest.mark.parametrize(
+    "prior",
+    [
+        "arbitrary",
+        # "exponential",  # TODO
+        "uniform",
+    ],
+)
+def test_comparison_validity(
+    retention_policy, differentia_width, estimator, prior
+):
     population = [
         hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=differentia_width,
@@ -103,11 +122,12 @@ def test_comparison_validity(retention_policy, differentia_width, estimator):
                 first,
                 second,
                 estimator=estimator,
+                prior=prior,
             )
             if bounds is not None:
                 lb, ub = bounds
                 assert 0 <= lb <= est <= first.GetNumStrataDeposited()
-                if estimator == "maximum_likelihood":
+                if estimator == "maximum_likelihood" and prior == "arbitrary":
                     assert est < ub
             else:
                 assert est is None
@@ -143,7 +163,8 @@ def test_statistical_properties(
     differentia_width,
 ):
 
-    err_maximum_likelihood = []
+    err_maximum_likelihood_arbitrary = []
+    err_maximum_likelihood_uniform = []
     err_unbiased = []
 
     common_ancestors = [
@@ -170,15 +191,30 @@ def test_statistical_properties(
         left.DepositStrata(left_alone)
         right.DepositStrata(right_alone)
 
-        err_maximum_likelihood.append(
+        err_maximum_likelihood_arbitrary.append(
             hstrat.estimate_ranks_since_mrca_with(
-                left, right, estimator="maximum_likelihood"
+                left,
+                right,
+                estimator="maximum_likelihood",
+                prior="arbitrary",
+            )
+            - left_alone
+        )
+        err_maximum_likelihood_uniform.append(
+            hstrat.estimate_ranks_since_mrca_with(
+                left,
+                right,
+                estimator="maximum_likelihood",
+                prior="uniform",
             )
             - left_alone
         )
         err_unbiased.append(
             hstrat.estimate_ranks_since_mrca_with(
-                left, right, estimator="unbiased"
+                left,
+                right,
+                estimator="unbiased",
+                prior="uniform",
             )
             - left_alone
         )
@@ -187,28 +223,32 @@ def test_statistical_properties(
     print(np.mean(err_unbiased))
     assert stats.ttest_ind(err_unbiased_, -err_unbiased_)[1] > 0.01
 
-    mean_err_unbiased = np.mean(err_unbiased)
-    mean_err_maximum_likelihood = np.mean(err_maximum_likelihood)
-
-    median_abs_err_unbiased = np.percentile(np.abs(err_unbiased), 50)
-    median_abs_err_maximum_likelihood = np.percentile(
-        np.abs(err_maximum_likelihood), 50
-    )
-
-    if differentia_width == 1 and isinstance(
-        retention_policy, hstrat.nominal_resolution_algo.Policy
+    for err_maximum_likelihood in (
+        err_maximum_likelihood_arbitrary,
+        err_maximum_likelihood_uniform,
     ):
-        assert abs(mean_err_unbiased) < abs(mean_err_maximum_likelihood)
-        assert not all(
-            ml > ub
-            for ml, ub in zip(
-                sorted(np.abs(err_maximum_likelihood)),
-                sorted(np.abs(err_unbiased)),
-            )
+        mean_err_unbiased = np.mean(err_unbiased)
+        mean_err_maximum_likelihood = np.mean(err_maximum_likelihood)
+
+        median_abs_err_unbiased = np.percentile(np.abs(err_unbiased), 50)
+        median_abs_err_maximum_likelihood = np.percentile(
+            np.abs(err_maximum_likelihood), 50
         )
-    elif differentia_width == 1:
-        assert abs(mean_err_unbiased) < abs(mean_err_maximum_likelihood)
-        assert median_abs_err_unbiased > median_abs_err_maximum_likelihood
-    else:
-        assert abs(mean_err_unbiased) <= abs(mean_err_maximum_likelihood)
-        assert median_abs_err_unbiased >= median_abs_err_maximum_likelihood
+
+        if differentia_width == 1 and isinstance(
+            retention_policy, hstrat.nominal_resolution_algo.Policy
+        ):
+            assert abs(mean_err_unbiased) < abs(mean_err_maximum_likelihood)
+            assert not all(
+                ml > ub
+                for ml, ub in zip(
+                    sorted(np.abs(err_maximum_likelihood)),
+                    sorted(np.abs(err_unbiased)),
+                )
+            )
+        elif differentia_width == 1:
+            assert abs(mean_err_unbiased) < abs(mean_err_maximum_likelihood)
+            assert median_abs_err_unbiased > median_abs_err_maximum_likelihood
+        else:
+            assert abs(mean_err_unbiased) <= abs(mean_err_maximum_likelihood)
+            assert median_abs_err_unbiased >= median_abs_err_maximum_likelihood

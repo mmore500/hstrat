@@ -1,0 +1,26 @@
+import statistics
+import typing
+
+import opytional as opyt
+
+from ....genome_instrumentation import HereditaryStratigraphicColumn
+from .._calc_rank_of_mrca_bounds_between import (
+    calc_rank_of_mrca_bounds_between,
+)
+
+
+def estimate_rank_of_mrca_naive(
+    first: HereditaryStratigraphicColumn,
+    second: HereditaryStratigraphicColumn,
+) -> typing.Optional[float]:
+
+    rank_of_mrca_bounds = calc_rank_of_mrca_bounds_between(
+        first,
+        second,
+        confidence_level=0.49,
+    )
+    exclusive_ub_correction = 1 / 2
+    return opyt.apply_if(
+        rank_of_mrca_bounds,
+        lambda x: (statistics.mean(x) - exclusive_ub_correction),
+    )

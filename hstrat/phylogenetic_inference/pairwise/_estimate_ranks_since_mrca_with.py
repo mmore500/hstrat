@@ -9,7 +9,9 @@ from ._estimate_rank_of_mrca_between import estimate_rank_of_mrca_between
 def estimate_ranks_since_mrca_with(
     focal: HereditaryStratigraphicColumn,
     other: HereditaryStratigraphicColumn,
-    estimator: str = "maximum_likelihood",
+    estimator: str,
+    prior: str,
+    prior_exponential_factor: typing.Optional[float] = None,
 ) -> typing.Optional[float]:
     """How many generations have elapsed since focal's most recent common
     ancestor with other?
@@ -19,10 +21,19 @@ def estimate_ranks_since_mrca_with(
 
     Parameters
     ----------
-    estimator : str, default "maximum_likelihood"
+    estimator : {"maximum_likelihood", "unbiased"}
         What estimation method should be used? Options are "maximum_likelihood"
         or "unbiased".
 
+        See `estimate_ranks_since_mrca_with` for discussion of estimator
+        options.
+    prior : {"arbitrary", "uniform", "exponential"}
+        Prior probability density distribution over possible generations of the
+        MRCA.
+
+        See `estimate_ranks_since_mrca_with` for discussion of prior
+        options.
+    prior_exponential_factor : optional float
         See `estimate_ranks_since_mrca_with` for discussion of estimator
         options.
 
@@ -45,11 +56,33 @@ def estimate_ranks_since_mrca_with(
     """
 
     est_rank_of_mrca_between = estimate_rank_of_mrca_between(
-        focal, other, estimator=estimator
+        focal,
+        other,
+        estimator=estimator,
+        prior=prior,
+        prior_exponential_factor=prior_exponential_factor,
     )
     return opyt.apply_if(
         est_rank_of_mrca_between,
         lambda est: focal.GetNumStrataDeposited()
         - 1
         - est_rank_of_mrca_between,
+    )
+
+
+def ballpark_ranks_since_mrca_with(
+    focal: HereditaryStratigraphicColumn,
+    other: HereditaryStratigraphicColumn,
+) -> typing.Optional[float]:
+    """Calculate a fast, rough estimate of generations elapsed since MRCA with
+    other.
+
+    See `estimate_ranks_since_mrca_with` for details.
+    """
+
+    return estimate_ranks_since_mrca_with(
+        focal,
+        other,
+        estimator="maximum_likelihood",
+        prior="arbitrary",
     )
