@@ -28,6 +28,7 @@ from ._caretdown_marker import caretdown_marker
 from ._caretup_marker import caretup_marker
 from ._check_testing_requirements import check_testing_requirements
 from ._cmp import cmp
+from ._cmp_approx import cmp_approx
 from ._consume import consume
 from ._count_unique import count_unique
 from ._demark import demark
@@ -94,6 +95,7 @@ __all__ = [
     "caretup_marker",
     "check_testing_requirements",
     "cmp",
+    "cmp_approx",
     "consume",
     "count_unique",
     "demark",
