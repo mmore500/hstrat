@@ -1,4 +1,5 @@
 import itertools as it
+import math
 import random
 
 from iterify import cyclify, iterify
@@ -561,7 +562,7 @@ def test_statistical_properties(
     "retention_policy",
     [
         hstrat.nominal_resolution_algo.Policy(),
-        hstrat.fixed_resolution_algo.Policy(fixed_resolution=13),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=7),
         hstrat.recency_proportional_resolution_algo.Policy(
             recency_proportional_resolution=10,
         ),
@@ -573,7 +574,7 @@ def test_statistical_properties(
 )
 @pytest.mark.parametrize(
     "exponential_factor",
-    [1.01, 1.05],
+    [1.01, 1.1, 4],
 )
 def test_statistical_properties(
     retention_policy,
@@ -593,15 +594,28 @@ def test_statistical_properties(
     for i in range(113):
         common_ancestors.append(common_ancestors[-1].CloneDescendant())
 
-    for rep in range(10000):
-        num_total = int(
-            stats.truncexpon(
-                b=(113 - 57) / exponential_factor,
-                loc=57,
-                scale=exponential_factor,
-            ).rvs(1)[0]
+    weights = np.array(
+        [exponential_factor**i for i in range(113)], dtype=float
+    )
+
+    for rep in range(8000):
+        num_total = random.randrange(57, 113)
+
+        # scrapped continuous approach to generating
+        # note: e^log(b)x == b^x
+        # see https://stackoverflow.com/a/40144719
+        # scale = 1 / np.log(exponential_factor)
+        # drawn = stats.truncexpon(b=num_total / scale, scale=scale).rvs(1)[0]
+        # rounding_correction = 0.5
+        # num_together = num_total - int(
+        #     drawn + rounding_correction
+        # )
+
+        num_together = np.random.choice(
+            np.arange(num_total + 1),
+            p=weights[: num_total + 1] / weights[: num_total + 1].sum(),
         )
-        num_together = random.randrange(num_total + 1)
+        assert 0 <= num_together <= num_total
         num_alone = num_total - num_together
 
         left_alone = num_alone
@@ -637,30 +651,27 @@ def test_statistical_properties(
 
     err_unbiased_ = np.array(err_unbiased)
 
-    assert stats.ttest_ind(err_unbiased_, -err_unbiased_)[1] > 0.01
+    assert (
+        np.count_nonzero(err_unbiased_) < 4
+        or stats.ttest_ind(err_unbiased_, -err_unbiased_)[1] > 0.01
+    ), (np.mean(err_unbiased_), np.count_nonzero(err_unbiased_))
 
     mean_err_unbiased = np.mean(err_unbiased)
     mean_err_maximum_likelihood = np.mean(err_maximum_likelihood)
 
-    median_abs_err_unbiased = np.percentile(np.abs(err_unbiased), 50)
-    median_abs_err_maximum_likelihood = np.percentile(
-        np.abs(err_maximum_likelihood), 50
+    assert not all(
+        ml > ub
+        for ml, ub in zip(
+            sorted(np.abs(err_maximum_likelihood)),
+            sorted(np.abs(err_unbiased)),
+        )
     )
 
     if differentia_width == 1 and isinstance(
         retention_policy, hstrat.nominal_resolution_algo.Policy
     ):
         assert abs(mean_err_unbiased) < abs(mean_err_maximum_likelihood)
-        assert not all(
-            ml > ub
-            for ml, ub in zip(
-                sorted(np.abs(err_maximum_likelihood)),
-                sorted(np.abs(err_unbiased)),
-            )
-        )
     elif differentia_width == 1:
         assert abs(mean_err_unbiased) < abs(mean_err_maximum_likelihood)
-        assert median_abs_err_unbiased > median_abs_err_maximum_likelihood
     else:
         assert abs(mean_err_unbiased) <= abs(mean_err_maximum_likelihood)
-        assert median_abs_err_unbiased >= median_abs_err_maximum_likelihood

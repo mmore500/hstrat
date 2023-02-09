@@ -72,15 +72,20 @@ def estimate_rank_of_mrca_between(
 
     assert (prior_exponential_factor is not None) == (prior == "exponential")
     f = prior_exponential_factor
+    assert f >= 1
 
     prior_interval_weight = {
         # x: interval begin generation, inclusive
         # y: interval end generation, exclusive
         "arbitrary": lambda x, y: 1,
         "uniform": lambda x, y: y - x,
+        "exponential": lambda x, y: np.array(
+            [f**i for i in range(x, y)]
+        ).sum(),
+        # TODO fixup and test continuous approximation
         # simplification: remove 1/log(f) multiplicative constant
         # of integral... constant scaling won't affect weighting result
-        "exponential": lambda x, y: abs(f**x - f**y),
+        # "exponential": lambda x, y: f**y - f**x,
     }[prior]
 
     def bubble_wrapped_prior_interval_weight(x, y):
@@ -92,22 +97,27 @@ def estimate_rank_of_mrca_between(
         # y: interval end generation, exclusive
         "arbitrary": lambda x, y: statistics.mean((x, y - 1)),
         "uniform": lambda x, y: statistics.mean((x, y - 1)),
+        "exponential": lambda x, y: np.average(
+            np.arange(x, y), weights=np.array([f**i for i in range(x, y)])
+        )
+        # TODO fixup and test continuous approximation
         # see
         # https://www.wolframalpha.com/input?i=integrate+f%5Ex+from+a+to+b
         # https://wolframalpha.com/input?i=log%28f%29+%2F+%28f%5Eb+-+f%5Ea%29+times+integral+of+x+*+f%5Ex++from+a+to+b
         # https://www.wolframalpha.com/input?i=b+%2B+%28%28a+-+b%29+f%5Ea%29%2F%28f%5Ea+-+f%5Eb%29+-+1%2Flog%28f%29+with+f+%3D+1.1%2C+a+%3D+10%2C+b%3D14
-        "exponential": lambda x, y: (
-            (y - 1)
-            - 1 / math.log(f)
-            + (x - y + 1) * f**x / (f**x - f ** (y - 1))
-        )
-        if f != 1 and y != x + 1
-        else statistics.mean((x, y - 1)),
+        # "exponential": lambda x, y: (
+        #     (y - 1)
+        #     - 1 / math.log(f)
+        #     + (x - y + 1) * f**x / (f**x - f ** (y - 1))
+        # )
+        # if f != 1 and y != x + 1
+        # else statistics.mean((x, y - 1)),
     }[prior]
 
     def bubble_wrapped_prior_interval_expected(x, y):
         res = prior_interval_expected(x, y)
-        assert x <= res < y
+        assert x <= res or math.isclose(x, res)
+        assert res < y
         return res
 
     return estimator(
