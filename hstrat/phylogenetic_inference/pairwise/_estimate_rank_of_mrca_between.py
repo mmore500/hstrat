@@ -39,13 +39,16 @@ def estimate_rank_of_mrca_between(
         MRCA.
 
         Note: accomodation of user-defined functinos for this argument can
-        easily be implemented if necessary.
+        easily be implemented if necessary. Additionally, the current
+        exponential prior implementation uses an exhaustive, exact algorithm.
+        It will be possible to add a faster continuous approximation if needed.
     prior_exponential_factor : optional float
         Specifies the exponential growth rate of the prior probability density
         over MRCA generations, only used when `prior` is set to "exponential".
 
-        Note: a convenience function to calculate a reasonable prior
-        exponential factor from population size and the number of generations that have elapsed since genesis will be made available in the future.
+        A convenience function to calculate a reasonable prior exponential
+        factor from population size and the number of generations that have
+        elapsed since genesis will be made available in the future.
     Returns
     -------
     float, optional
