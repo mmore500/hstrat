@@ -1,8 +1,8 @@
 from base64 import b64decode
-import numpy as np
 import typing
 
 from bitstring import BitArray
+import numpy as np
 
 from .._auxiliary_lib import iter_chunks
 
@@ -18,7 +18,7 @@ def unpack_differentiae(
 
     if differentia_bit_width in [8, 16, 32, 64]:
         # bit width is a multiple of 8 -- no padding required
-        dt = np.dtype(f'>u{differentia_bit_width // 8}')
+        dt = np.dtype(f">u{differentia_bit_width // 8}")
         yield from np.frombuffer(_bytes, dtype=dt)
     else:
         # padding bits are possible, first byte tells how many are required
