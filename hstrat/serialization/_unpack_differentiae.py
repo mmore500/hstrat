@@ -19,7 +19,7 @@ def unpack_differentiae(
     if differentia_bit_width in [8, 16, 32, 64]:
         # bit width is a multiple of 8 -- no padding required
         dt = np.dtype(f'>u{differentia_bit_width // 8}')
-        return np.frombuffer(_bytes, dtype=dt)
+        yield from np.frombuffer(_bytes, dtype=dt)
     else:
         # padding bits are possible, first byte tells how many are required
         bits = BitArray(bytes=_bytes)
