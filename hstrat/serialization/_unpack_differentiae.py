@@ -1,6 +1,6 @@
 from base64 import b64decode
-import typing
 import numpy as np
+import typing
 
 from bitstring import BitArray
 
