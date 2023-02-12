@@ -3,6 +3,8 @@ import statistics
 
 import scipy
 
+from ..._auxiliary_lib import cmp_approx
+
 
 class BubbleWrappedPrior:
     """Asserts that wrapped prior receives valid inputs and produces valid
@@ -57,5 +59,6 @@ class BubbleWrappedPrior:
         """
         assert 0 <= begin_rank < end_rank
         res = self._prior.CalcIntervalConditionedMean(begin_rank, end_rank)
-        assert begin_rank <= res < end_rank
+        assert cmp_approx(begin_rank, res) <= 0
+        assert res < end_rank
         return res

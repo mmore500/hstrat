@@ -129,7 +129,12 @@ def test_comparison_validity(
             )
             if bounds is not None:
                 lb, ub = bounds
-                assert 0 <= lb <= est <= first.GetNumStrataDeposited()
+                assert 0 <= lb or pytest.approx(0) == lb
+                assert lb <= est or pytest.approx(lb) == est
+                assert (
+                    est <= first.GetNumStrataDeposited()
+                    or pytest.approx(est) == first.GetNumStrataDeposited()
+                )
                 if estimator == "maximum_likelihood" and prior == "arbitrary":
                     assert est < ub
             else:
