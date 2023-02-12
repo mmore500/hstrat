@@ -28,30 +28,40 @@ def estimate_rank_of_mrca_unbiased(
         return None
 
     base = 1 / 2 ** first.GetStratumDifferentiaBitWidth()
-    expected_ranks, weights = tuple(
-        unzip(
-            (
-                # expected rank
-                prior.CalcIntervalConditionedMean(
-                    begin_inclusive, end_exclusive
-                ),
-                # weight
-                (
-                    base**num_spurious_collisions
-                    * prior.CalcIntervalProbabilityProxy(
-                        begin_inclusive, end_exclusive
-                    )
-                ),
+
+    weights, expected_ranks, sum_weight = [], [], 0.0
+    for (
+        num_spurious_collisions,
+        (
+            end_exclusive,
+            begin_inclusive,
+        ),
+    ) in enumerate(pairwise(reversed(waypoints_ascending))):
+        expected_ranks.append(
+            prior.CalcIntervalConditionedMean(
+                begin_inclusive, end_exclusive
             )
-            for (
-                num_spurious_collisions,
-                (
-                    end_exclusive,
-                    begin_inclusive,
-                ),
-            ) in enumerate(pairwise(reversed(waypoints_ascending)))
         )
-    )
+        weights.append(
+            base**num_spurious_collisions
+            * prior.CalcIntervalProbabilityProxy(
+                begin_inclusive, end_exclusive
+            )
+        )
+        sum_weight += weights[-1]
+
+        # if whole rest of the remaining record cannot meaningfully impact
+        # average, exit early
+        if (
+            begin_inclusive
+            and base ** (num_spurious_collisions + 1)
+            * prior.CalcIntervalProbabilityProxy(
+                0,
+                begin_inclusive,
+            ) * begin_inclusive
+            < sum_weight * 10e-6  # numpy uses reltol 10e-5
+        ):
+            break
 
     return np.average(
         np.array(expected_ranks),

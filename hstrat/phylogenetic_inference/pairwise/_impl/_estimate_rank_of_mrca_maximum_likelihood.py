@@ -28,18 +28,27 @@ def estimate_rank_of_mrca_maximum_likelihood(
         return None
 
     base = 1 / 2 ** first.GetStratumDifferentiaBitWidth()
-    max_weight, best_expected_rank = max(
+
+    max_weight, best_expected_rank = -1.0, None
+    for (
+        num_spurious_collisions,
         (
-            # weight
-            (
-                base**num_spurious_collisions
-                * prior.CalcIntervalProbabilityProxy(
-                    begin_inclusive, end_exclusive
-                )
-            ),
-            # expected rank
+            end_exclusive,
+            begin_inclusive,
+        ),
+    ) in enumerate(pairwise(reversed(waypoints_ascending))):
+        cur_weight = (
+            base**num_spurious_collisions
+            * prior.CalcIntervalProbabilityProxy(
+                begin_inclusive, end_exclusive
+            )
+        )
+
+        if cur_weight > max_weight:
+            max_weight = cur_weight
+            # slide to most likely end of interval
             # assumes monotonicity of prior
-            {
+            best_expected_rank = {
                 1: end_exclusive - 1,
                 0: statistics.mean((end_exclusive - 1, begin_inclusive)),
                 -1: begin_inclusive,
@@ -50,15 +59,22 @@ def estimate_rank_of_mrca_maximum_likelihood(
                     ),
                     statistics.mean((end_exclusive - 1, begin_inclusive)),
                 )
-            ],
-        )
-        for (
-            num_spurious_collisions,
-            (
-                end_exclusive,
+            ]
+
+        # if whole rest of the remaining record cannot have higher cur_weight
+        # than best, terminate early
+        if (
+            begin_inclusive
+            and base ** (num_spurious_collisions + 1)
+            * prior.CalcIntervalProbabilityProxy(
+                0,
                 begin_inclusive,
-            ),
-        ) in enumerate(pairwise(reversed(waypoints_ascending)))
-    )
+            )
+            < max_weight
+        ):
+            break
+
+    assert best_expected_rank is not None
+    assert max_weight > 0.0
 
     return best_expected_rank
