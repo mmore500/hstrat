@@ -95,7 +95,8 @@ def calc_rank_of_mrca_bounds_between(
     determine the earliest rank at which an MRCA could be reliably detected
     between first and second.
     """
-    assert prior == "arbitrary"
+    if prior != "arbitrary":
+        raise NotImplementedError
     assert 0.0 <= confidence_level <= 1.0
 
     if (

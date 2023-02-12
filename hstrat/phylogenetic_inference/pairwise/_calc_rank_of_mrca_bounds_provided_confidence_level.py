@@ -14,7 +14,8 @@ def calc_rank_of_mrca_bounds_provided_confidence_level(
 
     The same argument may be provided for focal and other.
     """
-    assert prior == "arbitrary"
+    if prior != "arbitrary":
+        raise NotImplementedError
     assert 0.0 <= requested_confidence_level <= 1.0
     if other is not None:
         assert (
