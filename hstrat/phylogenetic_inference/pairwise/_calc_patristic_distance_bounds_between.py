@@ -52,7 +52,7 @@ def calc_patristic_distance_bounds_between(
     """
 
     mrca_rank_bounds = calc_rank_of_mrca_bounds_between(
-        first, second, prior="arbitrary"
+        first, second, prior=prior
     )
     inclusive_exclusive_ub_lb_switch_correction = 2
     max_patristic_distance = (

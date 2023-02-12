@@ -43,7 +43,7 @@ def calc_rank_of_mrca_uncertainty_between(
     bounds = calc_rank_of_mrca_bounds_between(
         first,
         second,
-        prior="arbitrary",
+        prior=prior,
         confidence_level=confidence_level,
     )
     return 0 if bounds is None else abs(operator.sub(*bounds)) - 1
