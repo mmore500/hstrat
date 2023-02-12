@@ -56,7 +56,8 @@ def estimate_rank_of_mrca_unbiased(
             * prior.CalcIntervalProbabilityProxy(
                 0,
                 begin_inclusive,
-            ) * begin_inclusive
+            )
+            * begin_inclusive
             < sum_weight * 10e-6  # numpy uses reltol 10e-5
         ):
             break
