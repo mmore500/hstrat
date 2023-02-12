@@ -63,6 +63,14 @@ class ExponentialPrior:
                 begin_rank, end_rank
             )
 
+
+        # correction to center interval mean on begin_rank
+        # for interval size 1, has numerical precision issues and
+        # doesn't appear to correct discretization bias
+        # correction = (-f + np.log(f) + 1) / (np.log(f) - f * np.log(f))
+        # begin_rank = begin_rank - 1 + correction
+        # end_rank = end_rank - 1 + correction
+
         # simplification: remove 1/log(f) multiplicative constant
         # of integral... constant scaling won't affect weighting result
         return f**end_rank - f**begin_rank
