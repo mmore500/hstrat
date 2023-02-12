@@ -1,3 +1,4 @@
+import math
 import typing
 
 import opytional as opyt
@@ -57,12 +58,18 @@ def estimate_ranks_since_mrca_with(
         estimator=estimator,
         prior=prior,
     )
-    return opyt.apply_if(
+    res = opyt.apply_if(
         est_rank_of_mrca_between,
         lambda est: focal.GetNumStrataDeposited()
         - 1
         - est_rank_of_mrca_between,
     )
+    if res is not None:
+        assert 0 <= res or math.isclose(0, res, abs_tol=10e-6)
+        assert res <= focal.GetNumStrataDeposited() or math.isclose(
+            res, focal.GetNumStrataDeposited()
+        )
+    return res
 
 
 def ballpark_ranks_since_mrca_with(

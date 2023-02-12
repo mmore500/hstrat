@@ -650,3 +650,69 @@ def test_statistical_properties(
         assert abs(mean_err_unbiased) < abs(mean_err_maximum_likelihood)
     else:
         assert abs(mean_err_unbiased) <= abs(mean_err_maximum_likelihood)
+
+
+@pytest.mark.parametrize(
+    "common_ancestor",
+    [
+        hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_policy=hstrat.nominal_resolution_algo.Policy(),
+        ),
+        hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_policy=hstrat.nominal_resolution_algo.Policy(),
+        ).CloneNthDescendant(5),
+    ],
+)
+@pytest.mark.parametrize(
+    "estimator",
+    ["maximum_likelihood", "unbiased"],
+)
+@pytest.mark.parametrize(
+    "prior",
+    ["arbitrary", "uniform"],
+)
+def test_nominal_retention_policy(common_ancestor, estimator, prior):
+    assert (
+        hstrat.estimate_rank_of_mrca_between(
+            common_ancestor, common_ancestor, estimator=estimator, prior=prior
+        )
+        == common_ancestor.GetNumStrataDeposited() - 1
+    )
+
+    assert (
+        hstrat.calc_rank_of_first_retained_disparity_between(
+            common_ancestor,
+            common_ancestor.CloneNthDescendant(7),
+        )
+        == common_ancestor.GetNumStrataDeposited()
+    )
+
+    assert (
+        hstrat.estimate_rank_of_mrca_between(
+            common_ancestor,
+            common_ancestor.CloneNthDescendant(7),
+            estimator=estimator,
+            prior=prior,
+        )
+        == (common_ancestor.GetNumStrataDeposited() - 1) / 2
+    )
+
+    assert (
+        hstrat.estimate_rank_of_mrca_between(
+            common_ancestor.CloneNthDescendant(2),
+            common_ancestor.CloneNthDescendant(7),
+            estimator=estimator,
+            prior=prior,
+        )
+        == (common_ancestor.GetNumStrataDeposited() - 1 + 2) / 2
+    )
+
+    assert (
+        hstrat.estimate_rank_of_mrca_between(
+            common_ancestor.CloneNthDescendant(7),
+            common_ancestor.CloneNthDescendant(7),
+            estimator=estimator,
+            prior=prior,
+        )
+        == (common_ancestor.GetNumStrataDeposited() + 7 - 1 - 1) / 2
+    )

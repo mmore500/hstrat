@@ -72,11 +72,19 @@ def estimate_rank_of_mrca_between(
             "uniform": UniformPrior,
         }[prior]()
 
-    return estimator(
+    res = estimator(
         first,
         second,
         prior=_BubbleWrappedPrior(prior),
     )
+    if res is not None:
+        assert 0 <= res or math.isclose(0, res, abs_tol=10e-6), res
+        max = (
+            min(first.GetNumStrataDeposited(), second.GetNumStrataDeposited())
+            - 1
+        )
+        assert res <= max or math.isclose(res, max), (res, max)
+    return res
 
 
 def ballpark_rank_of_mrca_between(

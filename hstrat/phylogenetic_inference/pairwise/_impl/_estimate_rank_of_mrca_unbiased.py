@@ -38,9 +38,7 @@ def estimate_rank_of_mrca_unbiased(
         ),
     ) in enumerate(pairwise(reversed(waypoints_ascending))):
         expected_ranks.append(
-            prior.CalcIntervalConditionedMean(
-                begin_inclusive, end_exclusive
-            )
+            prior.CalcIntervalConditionedMean(begin_inclusive, end_exclusive)
         )
         weights.append(
             base**num_spurious_collisions

@@ -29,7 +29,7 @@ from hstrat import hstrat
     [
         "arbitrary",
         hstrat.GeometricPrior(1.1),
-        # "exponential",  # TODO
+        hstrat.ExponentialPrior(1.1),
         "uniform",
     ],
 )
@@ -104,7 +104,7 @@ def test_comparison_commutativity_asynchronous(
     [
         "arbitrary",
         hstrat.GeometricPrior(1.1),
-        # "exponential",  # TODO
+        hstrat.ExponentialPrior(1.1),
         "uniform",
     ],
 )
@@ -175,7 +175,7 @@ def test_comparison_commutativity_synchronous(
     [
         "arbitrary",
         hstrat.GeometricPrior(1.1),
-        # "exponential",  # TODO
+        hstrat.ExponentialPrior(1.1),
         "uniform",
     ],
 )

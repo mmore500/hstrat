@@ -92,8 +92,8 @@ class ExponentialPrior:
                 begin_rank, end_rank
             )
 
-        # if begin_rank == end_rank - 1:
-        #     return begin_rank
+        if begin_rank == end_rank - 1:
+            return begin_rank
         #
         # \int{f^x \, dx}_a^b = (f^b - f^a) / \log(f)
         #
@@ -111,6 +111,6 @@ class ExponentialPrior:
         #
 
         a = begin_rank
-        b = end_rank
+        b = end_rank - 1
 
         return (a * f**a - b * f**b) / (f**a - f**b) - 1 / math.log(f)
