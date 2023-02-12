@@ -114,7 +114,7 @@ def test_CalcRanksSinceMrcaBoundsWith(
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
     ],
 )
-def test_comparison_commutativity_asyncrhonous(
+def test_comparison_commutativity_asynchronous(
     differentia_width,
     retention_policy,
 ):
@@ -167,7 +167,7 @@ def test_comparison_commutativity_asyncrhonous(
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
     ],
 )
-def test_comparison_commutativity_syncrhonous(
+def test_comparison_commutativity_synchronous(
     differentia_width,
     retention_policy,
 ):

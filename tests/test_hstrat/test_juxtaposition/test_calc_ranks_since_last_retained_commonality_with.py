@@ -32,7 +32,7 @@ from hstrat import hstrat
         ),
     ],
 )
-def test_comparison_commutativity_syncrhonous(
+def test_comparison_commutativity_synchronous(
     retention_policy,
     ordered_store,
 ):

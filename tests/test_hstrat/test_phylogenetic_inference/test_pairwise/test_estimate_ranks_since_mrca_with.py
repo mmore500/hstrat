@@ -39,7 +39,7 @@ from hstrat import hstrat
         "uniform",
     ],
 )
-def test_comparison_commutativity_syncrhonous(
+def test_comparison_commutativity_synchronous(
     retention_policy,
     differentia_width,
     estimator,

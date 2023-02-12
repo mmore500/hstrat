@@ -26,7 +26,7 @@ from hstrat import hstrat
         ),
     ],
 )
-def test_comparison_commutativity_asyncrhonous(
+def test_comparison_commutativity_asynchronous(
     retention_policy,
     ordered_store,
 ):
@@ -82,7 +82,7 @@ def test_comparison_commutativity_asyncrhonous(
         ),
     ],
 )
-def test_comparison_commutativity_syncrhonous(
+def test_comparison_commutativity_synchronous(
     retention_policy,
     ordered_store,
 ):

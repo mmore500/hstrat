@@ -42,7 +42,7 @@ from hstrat._auxiliary_lib import cmp_approx, is_strictly_increasing, pairwise
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
     ],
 )
-def test_comparison_commutativity_asyncrhonous(
+def test_comparison_commutativity_asynchronous(
     differentia_width,
     retention_policy,
     estimator,

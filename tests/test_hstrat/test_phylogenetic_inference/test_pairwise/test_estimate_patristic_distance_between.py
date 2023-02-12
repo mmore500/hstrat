@@ -41,7 +41,7 @@ from hstrat import hstrat
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
     ],
 )
-def test_comparison_commutativity_asyncrhonous(
+def test_comparison_commutativity_asynchronous(
     differentia_width,
     retention_policy,
     estimator,
@@ -108,7 +108,7 @@ def test_comparison_commutativity_asyncrhonous(
         "uniform",
     ],
 )
-def test_comparison_commutativity_syncrhonous(
+def test_comparison_commutativity_synchronous(
     retention_policy,
     differentia_width,
     estimator,
