@@ -28,6 +28,7 @@ from hstrat import hstrat
     "prior",
     [
         "arbitrary",
+        hstrat.GeometricPrior(1.1),
         # "exponential",  # TODO
         "uniform",
     ],
@@ -102,6 +103,7 @@ def test_comparison_commutativity_asyncrhonous(
     "prior",
     [
         "arbitrary",
+        hstrat.GeometricPrior(1.1),
         # "exponential",  # TODO
         "uniform",
     ],
@@ -172,6 +174,7 @@ def test_comparison_commutativity_syncrhonous(
     "prior",
     [
         "arbitrary",
+        hstrat.GeometricPrior(1.1),
         # "exponential",  # TODO
         "uniform",
     ],

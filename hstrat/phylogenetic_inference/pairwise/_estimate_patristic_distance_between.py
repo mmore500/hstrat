@@ -11,8 +11,7 @@ def estimate_patristic_distance_between(
     first: HereditaryStratigraphicColumn,
     second: HereditaryStratigraphicColumn,
     estimator: str,
-    prior: str,
-    prior_exponential_factor: typing.Optional[float] = None,
+    prior: typing.Union[str, typing.Any],
 ) -> typing.Optional[float]:
     """Estimate the total phylogenetic distance along the branch path connecting
     the columns.
@@ -29,14 +28,11 @@ def estimate_patristic_distance_between(
 
         See `estimate_ranks_since_mrca_with` for discussion of estimator
         options.
-    prior : {"arbitrary", "uniform", "exponential"}
+    prior :
         Prior probability density distribution over possible generations of the
         MRCA.
 
-        See `estimate_ranks_since_mrca_with` for discussion of prior
-        options.
-    prior_exponential_factor : optional float
-        See `estimate_ranks_since_mrca_with` for discussion of estimator
+        See `estimate_rank_of_mrca_between` for discussion of prior
         options.
 
     Returns
@@ -59,7 +55,6 @@ def estimate_patristic_distance_between(
         second,
         estimator=estimator,
         prior=prior,
-        prior_exponential_factor=prior_exponential_factor,
     )
     max_patristic_distance = (
         first.GetNumStrataDeposited() - 1 + second.GetNumStrataDeposited() - 1

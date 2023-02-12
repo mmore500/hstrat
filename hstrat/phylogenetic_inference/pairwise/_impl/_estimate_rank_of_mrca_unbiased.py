@@ -16,8 +16,7 @@ from ._extract_common_retained_ranks_through_first_retained_disparity import (
 def estimate_rank_of_mrca_unbiased(
     first: HereditaryStratigraphicColumn,
     second: HereditaryStratigraphicColumn,
-    prior_interval_weight: typing.Callable[[int, int], float],
-    prior_interval_expected: typing.Callable[[int, int], float],
+    prior: typing.Any,
 ) -> typing.Optional[float]:
 
     waypoints_ascending = (
@@ -33,11 +32,15 @@ def estimate_rank_of_mrca_unbiased(
         unzip(
             (
                 # expected rank
-                prior_interval_expected(begin_inclusive, end_exclusive),
+                prior.CalcIntervalConditionedMean(
+                    begin_inclusive, end_exclusive
+                ),
                 # weight
                 (
                     base**num_spurious_collisions
-                    * prior_interval_weight(begin_inclusive, end_exclusive)
+                    * prior.CalcIntervalProbabilityProxy(
+                        begin_inclusive, end_exclusive
+                    )
                 ),
             )
             for (

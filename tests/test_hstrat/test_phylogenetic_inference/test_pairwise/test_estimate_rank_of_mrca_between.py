@@ -29,9 +29,9 @@ from hstrat._auxiliary_lib import cmp_approx, is_strictly_increasing, pairwise
 @pytest.mark.parametrize(
     "prior",
     [
-        "arbitrary",
-        "exponential",
-        "uniform",
+        hstrat.ArbitraryPrior(),
+        hstrat.GeometricPrior(growth_factor=1.1),
+        hstrat.UniformPrior(),
     ],
 )
 @pytest.mark.parametrize(
@@ -64,19 +64,11 @@ def test_comparison_commutativity_asyncrhonous(
                 second,
                 estimator=estimator,
                 prior=prior,
-                **{
-                    "prior_exponential_factor": 1.1
-                    for __ in range(prior == "exponential")
-                },
             ) == hstrat.estimate_rank_of_mrca_between(
                 second,
                 first,
                 estimator=estimator,
                 prior=prior,
-                **{
-                    "prior_exponential_factor": 1.1
-                    for __ in range(prior == "exponential")
-                },
             )
 
         # advance generation
@@ -106,9 +98,9 @@ def test_comparison_commutativity_asyncrhonous(
 @pytest.mark.parametrize(
     "prior",
     [
-        "arbitrary",
-        "exponential",
-        "uniform",
+        hstrat.ArbitraryPrior(),
+        hstrat.GeometricPrior(growth_factor=1.1),
+        hstrat.UniformPrior(),
     ],
 )
 @pytest.mark.parametrize(
@@ -144,10 +136,6 @@ def test_comparison_validity(
                 second,
                 estimator=estimator,
                 prior=prior,
-                **{
-                    "prior_exponential_factor": 1.1
-                    for __ in range(prior == "exponential")
-                },
             )
             if bounds is not None:
                 lb, ub = bounds
@@ -256,26 +244,18 @@ def test_comparison_bit_width_effects(retention_policy):
                 for estimator, prior in (
                     ("unbiased", "arbitrary"),
                     ("unbiased", "uniform"),
-                    ("unbiased", "exponential"),
+                    ("unbiased", hstrat.GeometricPrior(1.1)),
                 ):
                     assert hstrat.estimate_rank_of_mrca_between(
                         first[less],
                         second[less],
                         estimator=estimator,
                         prior=prior,
-                        **{
-                            "prior_exponential_factor": 1.1
-                            for __ in range(prior == "exponential")
-                        },
                     ) < hstrat.estimate_rank_of_mrca_between(
                         first[more],
                         second[more],
                         estimator=estimator,
                         prior=prior,
-                        **{
-                            "prior_exponential_factor": 1.1
-                            for __ in range(prior == "exponential")
-                        },
                     ) or opyt.or_value(
                         hstrat.calc_rank_of_first_retained_disparity_between(
                             first[less],
@@ -378,8 +358,7 @@ def test_comparison_ml_vs_unbiased(differentia_width, retention_policy):
                             first,
                             second,
                             estimator="unbiased",
-                            prior="exponential",
-                            prior_exponential_factor=1.1,
+                            prior=hstrat.GeometricPrior(1.1),
                         ),
                         hstrat.estimate_rank_of_mrca_between(
                             first,
@@ -417,15 +396,13 @@ def test_comparison_ml_vs_unbiased(differentia_width, retention_policy):
                         first,
                         second,
                         estimator="unbiased",
-                        prior="exponential",
-                        prior_exponential_factor=1.1,
+                        prior=hstrat.GeometricPrior(1.1),
                     )
                     > hstrat.estimate_rank_of_mrca_between(
                         first,
                         second,
                         estimator="unbiased",
-                        prior="exponential",
-                        prior_exponential_factor=1.05,
+                        prior=hstrat.GeometricPrior(1.05),
                     )
                     or not hstrat.calc_rank_of_first_retained_disparity_between(
                         first, second
@@ -573,13 +550,13 @@ def test_statistical_properties(
     [1, 8, 64],
 )
 @pytest.mark.parametrize(
-    "exponential_factor",
+    "geometric_factor",
     [1.01, 1.1, 4],
 )
 def test_statistical_properties(
     retention_policy,
     differentia_width,
-    exponential_factor,
+    geometric_factor,
 ):
 
     err_maximum_likelihood = []
@@ -595,7 +572,7 @@ def test_statistical_properties(
         common_ancestors.append(common_ancestors[-1].CloneDescendant())
 
     weights = np.array(
-        [exponential_factor**i for i in range(113)], dtype=float
+        [geometric_factor**i for i in range(113)], dtype=float
     )
 
     for rep in range(8000):
@@ -633,8 +610,7 @@ def test_statistical_properties(
                 left,
                 right,
                 estimator="maximum_likelihood",
-                prior="exponential",
-                prior_exponential_factor=exponential_factor,
+                prior=hstrat.GeometricPrior(geometric_factor),
             )
             - num_together
         )
@@ -643,8 +619,7 @@ def test_statistical_properties(
                 left,
                 right,
                 estimator="unbiased",
-                prior="exponential",
-                prior_exponential_factor=exponential_factor,
+                prior=hstrat.GeometricPrior(geometric_factor),
             )
             - num_together
         )

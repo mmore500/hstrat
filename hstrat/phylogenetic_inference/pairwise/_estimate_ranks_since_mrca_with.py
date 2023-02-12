@@ -10,8 +10,7 @@ def estimate_ranks_since_mrca_with(
     focal: HereditaryStratigraphicColumn,
     other: HereditaryStratigraphicColumn,
     estimator: str,
-    prior: str,
-    prior_exponential_factor: typing.Optional[float] = None,
+    prior: typing.Union[str, typing.Any],
 ) -> typing.Optional[float]:
     """How many generations have elapsed since focal's most recent common
     ancestor with other?
@@ -27,14 +26,11 @@ def estimate_ranks_since_mrca_with(
 
         See `estimate_ranks_since_mrca_with` for discussion of estimator
         options.
-    prior : {"arbitrary", "uniform", "exponential"}
+    prior :
         Prior probability density distribution over possible generations of the
         MRCA.
 
         See `estimate_ranks_since_mrca_with` for discussion of prior
-        options.
-    prior_exponential_factor : optional float
-        See `estimate_ranks_since_mrca_with` for discussion of estimator
         options.
 
     Returns
@@ -60,7 +56,6 @@ def estimate_ranks_since_mrca_with(
         other,
         estimator=estimator,
         prior=prior,
-        prior_exponential_factor=prior_exponential_factor,
     )
     return opyt.apply_if(
         est_rank_of_mrca_between,

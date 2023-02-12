@@ -8,6 +8,7 @@ import opytional as opyt
 
 from ..._auxiliary_lib import pairwise, unzip
 from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..priors import ArbitraryPrior, UniformPrior, _BubbleWrappedPrior
 from ._impl import (
     estimate_rank_of_mrca_maximum_likelihood,
     estimate_rank_of_mrca_naive,
@@ -19,8 +20,7 @@ def estimate_rank_of_mrca_between(
     first: HereditaryStratigraphicColumn,
     second: HereditaryStratigraphicColumn,
     estimator: str,
-    prior: str,
-    prior_exponential_factor: typing.Optional[float] = None,
+    prior: typing.Union[str, typing.Any],
 ) -> typing.Optional[float]:
     """At what generation did the most recent common ancestor of first and
     second occur?
@@ -34,21 +34,14 @@ def estimate_rank_of_mrca_between(
         The "maximum_likelihood" estimator is faster to compute than the
         "unbiased" estimator. Unbiased estimator assumes a uniform prior for
         generation of MRCA.
-    prior : {"arbitrary", "uniform", "exponential"}
+    prior : {"arbitrary", "uniform"} or object implementing prior interface
         Prior probability density distribution over possible generations of the
         MRCA.
 
-        Note: accomodation of user-defined functinos for this argument can
-        easily be implemented if necessary. Additionally, the current
-        exponential prior implementation uses an exhaustive, exact algorithm.
-        It will be possible to add a faster continuous approximation if needed.
-    prior_exponential_factor : optional float
-        Specifies the exponential growth rate of the prior probability density
-        over MRCA generations, only used when `prior` is set to "exponential".
+        Implementations for arbitrary, geometric, exponential, and uniform
+        priors are available in hstrat.phylogenetic_inference.priors. User
+        -defined classes specifying custom priors can also be provided.
 
-        A convenience function to calculate a reasonable prior exponential
-        factor from population size and the number of generations that have
-        elapsed since genesis will be made available in the future.
     Returns
     -------
     float, optional
@@ -73,61 +66,16 @@ def estimate_rank_of_mrca_between(
         "unbiased": estimate_rank_of_mrca_unbiased,
     }[estimator]
 
-    assert (prior_exponential_factor is not None) == (prior == "exponential")
-    f = prior_exponential_factor
-    assert f >= 1
-
-    prior_interval_weight = {
-        # x: interval begin generation, inclusive
-        # y: interval end generation, exclusive
-        "arbitrary": lambda x, y: 1,
-        "uniform": lambda x, y: y - x,
-        "exponential": lambda x, y: np.array(
-            [f**i for i in range(x, y)]
-        ).sum(),
-        # TODO fixup and test continuous approximation
-        # simplification: remove 1/log(f) multiplicative constant
-        # of integral... constant scaling won't affect weighting result
-        # "exponential": lambda x, y: f**y - f**x,
-    }[prior]
-
-    def bubble_wrapped_prior_interval_weight(x, y):
-        assert x < y
-        return prior_interval_weight(x, y)
-
-    prior_interval_expected = {
-        # x: interval begin generation, inclusive
-        # y: interval end generation, exclusive
-        "arbitrary": lambda x, y: statistics.mean((x, y - 1)),
-        "uniform": lambda x, y: statistics.mean((x, y - 1)),
-        "exponential": lambda x, y: np.average(
-            np.arange(x, y), weights=np.array([f**i for i in range(x, y)])
-        )
-        # TODO fixup and test continuous approximation
-        # see
-        # https://www.wolframalpha.com/input?i=integrate+f%5Ex+from+a+to+b
-        # https://wolframalpha.com/input?i=log%28f%29+%2F+%28f%5Eb+-+f%5Ea%29+times+integral+of+x+*+f%5Ex++from+a+to+b
-        # https://www.wolframalpha.com/input?i=b+%2B+%28%28a+-+b%29+f%5Ea%29%2F%28f%5Ea+-+f%5Eb%29+-+1%2Flog%28f%29+with+f+%3D+1.1%2C+a+%3D+10%2C+b%3D14
-        # "exponential": lambda x, y: (
-        #     (y - 1)
-        #     - 1 / math.log(f)
-        #     + (x - y + 1) * f**x / (f**x - f ** (y - 1))
-        # )
-        # if f != 1 and y != x + 1
-        # else statistics.mean((x, y - 1)),
-    }[prior]
-
-    def bubble_wrapped_prior_interval_expected(x, y):
-        res = prior_interval_expected(x, y)
-        assert x <= res or math.isclose(x, res)
-        assert res < y
-        return res
+    if isinstance(prior, str):
+        prior = {
+            "arbitrary": ArbitraryPrior,
+            "uniform": UniformPrior,
+        }[prior]()
 
     return estimator(
         first,
         second,
-        prior_interval_weight=bubble_wrapped_prior_interval_weight,
-        prior_interval_expected=bubble_wrapped_prior_interval_expected,
+        prior=_BubbleWrappedPrior(prior),
     )
 
 
