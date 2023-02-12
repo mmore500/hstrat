@@ -3,6 +3,7 @@ between hereditary stratigraphic columns, to assist in estimating the
 phylogenetic relationship of hereditary stratigraphic columns."""
 
 from ._ArbitraryPrior import ArbitraryPrior
+from ._BubbleWrappedPrior import BubbleWrappedPrior as _BubbleWrappedPrior
 from ._ExponentialPrior import ExponentialPrior
 from ._GeometricPrior import GeometricPrior
 from ._UniformPrior import UniformPrior
