@@ -72,7 +72,7 @@ def test_build_distance_matrix_biopython_singleton(
         population,
         estimator,
         prior,
-        taxon_names=names,
+        taxon_labels=names,
         force_common_ancestry=force_common_ancestry,
     )
     m = hstrat.build_distance_matrix_numpy(
@@ -121,7 +121,7 @@ def test_build_distance_matrix_biopython_pair_disjoint(
         population,
         estimator,
         prior,
-        taxon_names=names,
+        taxon_labels=names,
         force_common_ancestry=force_common_ancestry,
     )
     m = hstrat.build_distance_matrix_numpy(
@@ -171,7 +171,7 @@ def test_build_distance_matrix_biopython_pair_disjoint2(
             population,
             estimator,
             prior,
-            taxon_names=names,
+            taxon_labels=names,
             force_common_ancestry=None,
         )
 
@@ -224,7 +224,7 @@ def test_build_distance_matrix_biopython_pair_commonancestry(
         population,
         estimator,
         prior,
-        taxon_names=names,
+        taxon_labels=names,
         force_common_ancestry=force_common_ancestry,
     )
     m = hstrat.build_distance_matrix_numpy(

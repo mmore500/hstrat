@@ -12,7 +12,7 @@ def build_distance_matrix_biopython(
     population: typing.Sequence[HereditaryStratigraphicColumn],
     estimator: str,
     prior: typing.Union[str, typing.Any],
-    taxon_names: typing.Optional[typing.Iterable] = None,
+    taxon_labels: typing.Optional[typing.Iterable] = None,
     force_common_ancestry: typing.Optional[bool] = False,
 ) -> BioPhyloTree.DistanceMatrix:
     """Compute all-pairs patristic distance among a population of extant
@@ -37,7 +37,7 @@ def build_distance_matrix_biopython(
 
         See `estimate_ranks_since_mrca_with` for discussion of prior
         options.
-    taxon_names : Iterable[str]], optional
+    taxon_labels : Iterable[str]], optional
         How extant hereditary stratigraphic be named?
 
         Label order should correspond to the order of corresponding hereditary
@@ -76,7 +76,7 @@ def build_distance_matrix_biopython(
     )
     return BioPhyloTree.DistanceMatrix(
         names=opyt.or_value(
-            taxon_names,
+            taxon_labels,
             [*map(str, range(len(population)))],
         ),
         matrix=to_tril(distance_matrix),
