@@ -6,12 +6,16 @@
 #
 alabaster==0.7.13
     # via sphinx
+alifedata-phyloinformatics-convert==0.8.1
+    # via hstrat (../../pyproject.toml)
 anytree==2.8.0
     # via hstrat (../../pyproject.toml)
 babel==2.11.0
     # via sphinx
 biopython==1.79
-    # via hstrat (../../pyproject.toml)
+    # via
+    #   alifedata-phyloinformatics-convert
+    #   hstrat (../../pyproject.toml)
 bitstring==3.1.9
     # via hstrat (../../pyproject.toml)
 certifi==2022.12.7
@@ -19,17 +23,27 @@ certifi==2022.12.7
 charset-normalizer==3.0.1
     # via requests
 click==8.1.3
-    # via keyname
+    # via
+    #   alifedata-phyloinformatics-convert
+    #   keyname
 cycler==0.11.0
     # via matplotlib
+dataclasses==0.6
+    # via lyncs-utils
 dendropy==4.5.2
-    # via hstrat (../../pyproject.toml)
+    # via
+    #   alifedata-phyloinformatics-convert
+    #   hstrat (../../pyproject.toml)
 docutils==0.17.1
     # via
     #   sphinx
     #   sphinx-rtd-theme
 fonttools==4.38.0
     # via matplotlib
+gitdb==4.0.10
+    # via gitpython
+gitpython==3.1.30
+    # via lyncs-setuptools
 idna==3.4
     # via requests
 imagesize==1.4.1
@@ -37,7 +51,9 @@ imagesize==1.4.1
 interval-search==0.2.0
     # via hstrat (../../pyproject.toml)
 iterpop==0.4.1
-    # via hstrat (../../pyproject.toml)
+    # via
+    #   alifedata-phyloinformatics-convert
+    #   hstrat (../../pyproject.toml)
 jinja2==3.1.2
     # via sphinx
 keyname==0.4.1
@@ -46,6 +62,10 @@ kiwisolver==1.4.4
     # via matplotlib
 lru-dict==1.1.8
     # via hstrat (../../pyproject.toml)
+lyncs-setuptools==0.3.1
+    # via lyncs-utils
+lyncs-utils==0.4.5
+    # via alifedata-phyloinformatics-convert
 markupsafe==2.1.2
     # via jinja2
 matplotlib==3.5.2
@@ -58,24 +78,33 @@ more-itertools==8.13.0
     # via hstrat (../../pyproject.toml)
 mpmath==1.2.1
     # via hstrat (../../pyproject.toml)
+nanto==0.1.1
+    # via alifedata-phyloinformatics-convert
+networkx==3.0
+    # via alifedata-phyloinformatics-convert
 numpy==1.23.5
     # via
+    #   alifedata-phyloinformatics-convert
     #   biopython
     #   hstrat (../../pyproject.toml)
     #   matplotlib
     #   pandas
     #   seaborn
 opytional==0.1.0
-    # via hstrat (../../pyproject.toml)
+    # via
+    #   alifedata-phyloinformatics-convert
+    #   hstrat (../../pyproject.toml)
 ordered-set==4.1.0
     # via hstrat (../../pyproject.toml)
 packaging==23.0
     # via
     #   hstrat (../../pyproject.toml)
+    #   lyncs-setuptools
     #   matplotlib
     #   sphinx
 pandas==1.3.5
     # via
+    #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
     #   seaborn
 pillow==9.4.0
@@ -106,8 +135,12 @@ six==1.16.0
     # via
     #   anytree
     #   python-dateutil
+smmap==5.0.0
+    # via gitdb
 snowballstemmer==2.2.0
     # via sphinx
+sortedcontainers==2.4.0
+    # via alifedata-phyloinformatics-convert
 sphinx==4.4.0
     # via
     #   hstrat (../../pyproject.toml)
@@ -136,4 +169,5 @@ wcwidth==0.2.6
     # via prettytable
 
 # The following packages are considered to be unsafe in a requirements file:
+# pip
 # setuptools

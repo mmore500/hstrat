@@ -6,7 +6,7 @@
 #
 alabaster==0.7.12
     # via sphinx
-alifedata-phyloinformatics-convert==0.7.0
+alifedata-phyloinformatics-convert==0.8.1
     # via hstrat (../../pyproject.toml)
 anytree==2.8.0
     # via hstrat (../../pyproject.toml)
@@ -137,6 +137,8 @@ mypy==0.991
 mypy-extensions==0.4.3
     # via mypy
 nanto==0.1.1
+    # via alifedata-phyloinformatics-convert
+networkx==2.6.3
     # via alifedata-phyloinformatics-convert
 numba==0.56.4
     # via hstrat (../../pyproject.toml)
