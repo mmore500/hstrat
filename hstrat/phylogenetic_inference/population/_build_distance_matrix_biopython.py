@@ -38,7 +38,8 @@ def build_distance_matrix_biopython(
         See `estimate_ranks_since_mrca_with` for discussion of prior
         options.
     taxon_labels : Iterable[str]], optional
-        How extant hereditary stratigraphic be named?
+        How should leaf nodes representing extant hereditary stratigraphic
+        columns be named?
 
         Label order should correspond to the order of corresponding hereditary
         stratigraphic columns within `population`. If None, taxons will be

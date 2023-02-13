@@ -2,7 +2,6 @@ import itertools as it
 import typing
 import warnings
 
-import Bio.Phylo.TreeConstruction as BioPhyloTree
 import numpy as np
 import opytional as opyt
 

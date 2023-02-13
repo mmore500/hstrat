@@ -63,7 +63,6 @@ class ExponentialPrior:
                 begin_rank, end_rank
             )
 
-
         # correction to center interval mean on begin_rank
         # for interval size 1, has numerical precision issues and
         # doesn't appear to correct discretization bias
