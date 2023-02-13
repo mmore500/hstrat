@@ -73,6 +73,7 @@ ordered-set==4.1.0
 packaging==23.0
     # via
     #   build
+    #   hstrat (../../pyproject.toml)
     #   matplotlib
 pandas==1.3.5
     # via

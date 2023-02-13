@@ -70,9 +70,10 @@ opytional==0.1.0
     # via hstrat (../../pyproject.toml)
 ordered-set==4.1.0
     # via hstrat (../../pyproject.toml)
-packaging==21.3
+packaging==23.0
     # via
     #   build
+    #   hstrat (../../pyproject.toml)
     #   matplotlib
 pandas==1.3.5
     # via
@@ -93,9 +94,7 @@ prettytable==3.5.0
 pygments==2.13.0
     # via readme-renderer
 pyparsing==3.0.9
-    # via
-    #   matplotlib
-    #   packaging
+    # via matplotlib
 python-dateutil==2.8.2
     # via
     #   matplotlib

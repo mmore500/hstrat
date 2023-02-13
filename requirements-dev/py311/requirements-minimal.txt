@@ -50,7 +50,9 @@ opytional==0.1.0
 ordered-set==4.1.0
     # via hstrat (../../pyproject.toml)
 packaging==23.0
-    # via matplotlib
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   matplotlib
 pandas==1.3.5
     # via
     #   hstrat (../../pyproject.toml)

@@ -109,6 +109,7 @@ ordered-set==4.1.0
     # via hstrat (../../pyproject.toml)
 packaging==23.0
     # via
+    #   hstrat (../../pyproject.toml)
     #   lyncs-setuptools
     #   matplotlib
     #   pytest
