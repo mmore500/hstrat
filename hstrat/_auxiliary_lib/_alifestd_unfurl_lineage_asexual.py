@@ -27,9 +27,9 @@ def alifestd_unfurl_lineage_asexual(
         phylogeny_df = alifestd_try_add_ancestor_id_col(
             phylogeny_df, mutate=mutate
         )
-        ancestor_lookup = dict(zip(
-            phylogeny_df["id"], phylogeny_df["ancestor_id"]
-        ))
+        ancestor_lookup = dict(
+            zip(phylogeny_df["id"], phylogeny_df["ancestor_id"])
+        )
         cur_id = leaf_id
         res = []
         while True:
