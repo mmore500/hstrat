@@ -97,7 +97,7 @@ def alifestd_collapse_unifurcations(
     """
 
     if "branch_length" in phylogeny_df or "edge_length" in phylogeny_df:
-        warnings.Warning(
+        warnings.warn(
             "alifestd_collapse_unifurcations does not update branch length "
             "columns. Use `origin_time` to recalculate branch lengths for "
             "collapsed phylogeny."

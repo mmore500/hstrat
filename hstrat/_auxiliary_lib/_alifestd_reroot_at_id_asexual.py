@@ -40,7 +40,7 @@ def alifestd_reroot_at_id_asexual(
     """
 
     if "branch_length" in phylogeny_df or "edge_length" in phylogeny_df:
-        warnings.Warning(
+        warnings.warn(
             "alifestd_reroot_at_id_asexual does not update branch length "
             "columns. Use `origin_time` to recalculate branch lengths for "
             "rerooted phylogeny."
