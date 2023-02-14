@@ -30,6 +30,8 @@ cycler==0.11.0
     # via matplotlib
 dataclasses==0.6
     # via lyncs-utils
+decorator==5.1.1
+    # via networkx
 dendropy==4.5.2
     # via
     #   alifedata-phyloinformatics-convert
@@ -85,8 +87,10 @@ mpmath==1.2.1
     # via hstrat (../../pyproject.toml)
 nanto==0.1.1
     # via alifedata-phyloinformatics-convert
-networkx==2.6.3
-    # via alifedata-phyloinformatics-convert
+networkx==2.5
+    # via
+    #   alifedata-phyloinformatics-convert
+    #   hstrat (../../pyproject.toml)
 numpy==1.21.6
     # via
     #   alifedata-phyloinformatics-convert
@@ -145,7 +149,9 @@ smmap==5.0.0
 snowballstemmer==2.2.0
     # via sphinx
 sortedcontainers==2.4.0
-    # via alifedata-phyloinformatics-convert
+    # via
+    #   alifedata-phyloinformatics-convert
+    #   hstrat (../../pyproject.toml)
 sphinx==4.4.0
     # via
     #   hstrat (../../pyproject.toml)
