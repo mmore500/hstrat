@@ -15,6 +15,7 @@ from ._alifestd_make_ancestor_id_col import alifestd_make_ancestor_id_col
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
+from ._alifestd_reroot_at_id_asexual import alifestd_reroot_at_id_asexual
 from ._alifestd_to_working_format import alifestd_to_working_format
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
@@ -85,6 +86,7 @@ __all__ = [
     "alifestd_make_ancestor_list_col",
     "alifestd_parse_ancestor_id",
     "alifestd_parse_ancestor_ids",
+    "alifestd_reroot_at_id_asexual",
     "alifestd_to_working_format",
     "alifestd_topological_sort",
     "alifestd_try_add_ancestor_id_col",
