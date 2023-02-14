@@ -62,6 +62,9 @@ from ._seed_random import seed_random
 from ._splicewhile import splicewhile
 from ._swap_rows_and_indices import swap_rows_and_indices
 from ._to_tril import to_tril
+from ._unfurl_lineage_with_contiguous_ids import (
+    unfurl_lineage_with_contiguous_ids,
+)
 from ._unzip import unzip
 from ._zip_strict import zip_strict
 
@@ -131,6 +134,7 @@ __all__ = [
     "splicewhile",
     "swap_rows_and_indices",
     "to_tril",
+    "unfurl_lineage_with_contiguous_ids",
     "unzip",
     "zip_strict",
 ]

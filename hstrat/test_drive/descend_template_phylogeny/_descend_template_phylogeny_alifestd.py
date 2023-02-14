@@ -12,25 +12,11 @@ from ..._auxiliary_lib import (
     alifestd_topological_sort,
     give_len,
     jit,
+    unfurl_lineage_with_contiguous_ids,
 )
 from ..._auxiliary_lib._alifestd_assign_contiguous_ids import _reassign_ids
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._descend_template_phylogeny import descend_template_phylogeny
-
-
-@jit(nopython=True)
-def _unfurl_lineage(ancestor_ids: np.array, leaf_id: int) -> np.array:
-    """List leaf id and its ancestor id sequence through tree root."""
-    id_ = leaf_id
-    res = list()
-    while True:
-        res.append(id_)
-        next_id = ancestor_ids[id_]
-        if id_ == next_id:
-            break
-        id_ = next_id
-
-    return np.array(res)
 
 
 def descend_template_phylogeny_alifestd(
@@ -126,7 +112,7 @@ def descend_template_phylogeny_alifestd(
     return descend_template_phylogeny(
         give_len(
             (
-                _unfurl_lineage(
+                unfurl_lineage_with_contiguous_ids(
                     working_df["ancestor_id"].to_numpy(),
                     leaf_id,
                 )
