@@ -18,6 +18,7 @@ from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_to_working_format import alifestd_to_working_format
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_unfurl_asexual_lineage import alifestd_unfurl_asexual_lineage
 from ._alifestd_validate import alifestd_validate
 from ._all_same import all_same
 from ._all_unique import all_unique
@@ -87,6 +88,7 @@ __all__ = [
     "alifestd_to_working_format",
     "alifestd_topological_sort",
     "alifestd_try_add_ancestor_id_col",
+    "alifestd_unfurl_asexual_lineage",
     "alifestd_validate",
     "all_same",
     "all_unique",
