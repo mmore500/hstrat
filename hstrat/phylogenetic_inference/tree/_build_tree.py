@@ -5,7 +5,7 @@ import pandas as pd
 
 from ..._auxiliary_lib import get_hstrat_version
 from ...genome_instrumentation import HereditaryStratigraphicColumn
-from ._build_tree_biopython_upgma import build_tree_biopython_upgma
+from ._build_tree_upgma import build_tree_upgma
 
 
 def build_tree(
@@ -70,11 +70,10 @@ def build_tree(
     if version.parse(version_pin) > version.parse(get_hstrat_version()):
         raise ValueError(f"unsupported verison {pinned_version}")
 
-    return build_tree_biopython_upgma(
+    return build_tree_upgma(
         population,
         "maximum_likelihood",
         "arbitrary",
         taxon_labels,
         force_common_ancestry=force_common_ancestry,
-        return_as="alifestd",
     )

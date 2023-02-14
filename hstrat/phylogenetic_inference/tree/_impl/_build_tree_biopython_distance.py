@@ -17,8 +17,7 @@ def build_tree_biopython_distance(
     prior: typing.Union[str, typing.Any],
     taxon_labels: typing.Optional[typing.Iterable],
     force_common_ancestry: bool,
-    return_as: str,
-) -> typing.Union[pd.DataFrame, BioPhyloTree.BaseTree.Tree]:
+) -> pd.DataFrame:
     """Backend interface to biopython distance-based tree reconstruction
     methods."""
 
@@ -64,11 +63,6 @@ def build_tree_biopython_distance(
         # ])
 
     # convert and return
-    if return_as == "alifestd":
-        alifestd_df = apc.biopython_tree_to_alife_dataframe(biopython_tree)
-        alifestd_df["taxon_label"] = alifestd_df["name"]
-        return alifestd_df
-    elif return_as == "biopython":
-        return biopython_tree
-    else:
-        raise ValueError(f"unsupported return_as {return_as}")
+    alifestd_df = apc.biopython_tree_to_alife_dataframe(biopython_tree)
+    alifestd_df["taxon_label"] = alifestd_df["name"]
+    return alifestd_df
