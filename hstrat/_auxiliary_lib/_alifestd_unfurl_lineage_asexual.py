@@ -8,7 +8,7 @@ from ._unfurl_lineage_with_contiguous_ids import (
 )
 
 
-def alifestd_unfurl_asexual_lineage(
+def alifestd_unfurl_lineage_asexual(
     phylogeny_df: pd.DataFrame,
     leaf_id: int,
     mutate: bool = False,
