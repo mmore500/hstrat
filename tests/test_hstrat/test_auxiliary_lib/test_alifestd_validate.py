@@ -271,3 +271,22 @@ def test_invalid_sexual(phylogeny_path, apply_combine, apply_shuffle):
     phylogeny_df_ = phylogeny_df.copy()
     assert not alifestd_validate(phylogeny_df)
     assert phylogeny_df_.equals(phylogeny_df)
+
+
+def test_empty():
+    empty1 = pd.DataFrame(
+        {
+            "ancestor_list": [],
+            "id": [],
+        }
+    )
+    assert alifestd_validate(empty1)
+
+    empty2 = pd.DataFrame(
+        {
+            "ancestor_list": [],
+            "id": [],
+            "origin_time": [],
+        }
+    )
+    assert alifestd_validate(empty2)
