@@ -45,7 +45,5 @@ def test_alifestd_make_ancestor_id_col(phylogeny_df):
 
 
 def test_alifestd_make_ancestor_id_col_empty():
-    res = alifestd_make_ancestor_id_col(
-        pd.Series(), pd.Series()
-    )
+    res = alifestd_make_ancestor_id_col(pd.Series(), pd.Series())
     assert len(res) == 0
