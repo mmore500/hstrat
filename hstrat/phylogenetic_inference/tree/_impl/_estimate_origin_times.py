@@ -9,11 +9,14 @@ import sortedcontainers as sc
 
 def estimate_origin_times(
     graph: nx.Graph,
-    leaf_node_depths: typing.Dict[str, numbers.Number],
+    leaf_node_origin_times: typing.Dict[typing.Any, numbers.Number],
 ) -> typing.Dict[str, numbers.Number]:
     """Estimate origin time of graph nodes by working backward from
     phylogenetic depths of leaf nodes using "length" attributes on graph
-    edges."""
+    edges.
+
+    Keys in `leaf_node_origin_times` should correspond to nodes in graph.
+    """
 
     # ensure clean slate for origin time setup
     for _node, data in graph.nodes(data=True):
@@ -21,10 +24,11 @@ def estimate_origin_times(
             del data["origin_time"]
 
     # setup origin times of leaf nodes in graph
-    leaf_nodes = leaf_node_depths.keys()
+    leaf_nodes = leaf_node_origin_times.keys()
     for leaf_node in leaf_nodes:
-        taxon_label = graph.nodes[leaf_node]["taxon_label"]
-        graph.nodes[leaf_node]["origin_time"] = leaf_node_depths[taxon_label]
+        graph.nodes[leaf_node]["origin_time"] = leaf_node_origin_times[
+            leaf_node
+        ]
 
     # starting from leaf nodes...
     visited_nodes = set()  # fully explored nodes
