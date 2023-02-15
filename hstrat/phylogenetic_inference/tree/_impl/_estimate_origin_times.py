@@ -18,6 +18,8 @@ def estimate_origin_times(
     Keys in `leaf_node_origin_times` should correspond to nodes in graph.
     """
 
+    assert all(data["length"] >= 0 for _a, _b, data in graph.edges(data=True))
+
     # ensure clean slate for origin time setup
     for _node, data in graph.nodes(data=True):
         if "origin_time" in data:
@@ -47,18 +49,38 @@ def estimate_origin_times(
         newly_discovered_nodes = set(graph.neighbors(cur_node)) - (
             visited_nodes | discovered_nodes
         )
+        # enforce chronological consistency:
+        # ensure that nodes are only visited after all children have been
+        # visited and at most one unvisited neighbor (ancestor) remains
+        newly_discovered_nodes -= {
+            node
+            for node in newly_discovered_nodes
+            if sum(
+                "origin_time" not in graph.nodes[neighbor]
+                for neighbor in graph.neighbors(node)
+            )
+            > 1
+        }
         # give newly discovered nodes origin time estimates
         for newly_discovered_node in newly_discovered_nodes:
             assert "origin_time" not in graph[newly_discovered_node]
             # estimate origin_time of cur node
             descendant_origin_times = [
                 graph.nodes[neighbor_node]["origin_time"]
+                for neighbor_node in graph.neighbors(newly_discovered_node)
+                if "origin_time" in graph.nodes[neighbor_node]
+            ]
+            estimated_origin_times = [
+                graph.nodes[neighbor_node]["origin_time"]
                 - graph[newly_discovered_node][neighbor_node]["length"]
                 for neighbor_node in graph.neighbors(newly_discovered_node)
                 if "origin_time" in graph.nodes[neighbor_node]
             ]
-            assert descendant_origin_times
-            origin_time = statistics.mean(descendant_origin_times)
+            assert estimated_origin_times
+            origin_time = min(
+                statistics.mean(estimated_origin_times),
+                min(descendant_origin_times),
+            )
             graph.nodes[newly_discovered_node]["origin_time"] = origin_time
 
         # register newly discovered nodes as eligible to visit next
