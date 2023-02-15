@@ -6,4 +6,4 @@ def alifestd_is_sexual(phylogeny_df: pd.DataFrame) -> bool:
 
     Input dataframe is not mutated by this operation.
     """
-    return phylogeny_df["ancestor_list"].str.contains(",").any()
+    return phylogeny_df["ancestor_list"].astype("str").str.contains(",").any()
