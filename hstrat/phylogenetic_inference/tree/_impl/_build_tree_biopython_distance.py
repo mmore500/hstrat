@@ -6,8 +6,15 @@ import alifedata_phyloinformatics_convert as apc
 import opytional as opyt
 import pandas as pd
 
+from ...._auxiliary_lib import (
+    alifestd_find_root_ids,
+    alifestd_make_empty,
+    alifestd_validate,
+)
 from ....genome_instrumentation import HereditaryStratigraphicColumn
 from ...population import build_distance_matrix_biopython
+from ._append_genesis_organism import append_genesis_organism
+from ._time_calibrate_tree import time_calibrate_tree
 
 
 def build_tree_biopython_distance(
@@ -20,6 +27,11 @@ def build_tree_biopython_distance(
 ) -> pd.DataFrame:
     """Backend interface to biopython distance-based tree reconstruction
     methods."""
+
+    # biopython doesn't represent empty tree elegantly
+    # for simplicity, return early for this special case
+    if len(population) == 0:
+        return alifestd_make_empty()
 
     taxon_labels = opyt.or_value(
         taxon_labels,
@@ -40,29 +52,23 @@ def build_tree_biopython_distance(
         else constructor(distance_matrix)
     )
 
-    def iter_leaf_col_zip():
-        col_lookup = dict(zip(taxon_labels, population))
-        yield from (
-            (leaf_node, col_lookup[leaf_node.name])
-            for leaf_node in biopython_tree.get_terminals()
-        )
-
-    if population:
-        # set up length for branch subtending global mrca
-        base_branch_est = statistics.mean(
-            extant_col.GetNumStrataDeposited()
-            - 1
-            - biopython_tree.distance(leaf_node)
-            for leaf_node, extant_col in iter_leaf_col_zip()
-        )
-        # assert base_branch_est >= 0
-        biopython_tree.root.branch_length = base_branch_est
-        # print(base_branch_est, [
-        #     (biopython_tree.distance(leaf_node), extant_col.GetNumStrataDeposited())
-        #     for leaf_node, extant_col in iter_leaf_col_zip()
-        # ])
-
-    # convert and return
+    # convert, calibrate, and return
     alifestd_df = apc.biopython_tree_to_alife_dataframe(biopython_tree)
     alifestd_df["taxon_label"] = alifestd_df["name"]
+
+    id_lookup = dict(zip(alifestd_df["taxon_label"], alifestd_df["id"]))
+    col_lookup = dict(zip(taxon_labels, population))
+
+    leaf_origin_times = {
+        id_lookup[taxon_label]: col_lookup[taxon_label].GetNumStrataDeposited()
+        - 1
+        for taxon_label in taxon_labels
+    }
+    alifestd_df = time_calibrate_tree(alifestd_df, leaf_origin_times)
+
+    alifestd_df = append_genesis_organism(alifestd_df, mutate=True)
+
+    assert alifestd_validate(alifestd_df)
+    assert len(alifestd_find_root_ids(alifestd_df))
+
     return alifestd_df
