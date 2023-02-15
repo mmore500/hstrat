@@ -10,6 +10,9 @@ from ._alifestd_has_compact_ids import alifestd_has_compact_ids
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_has_multiple_roots import alifestd_has_multiple_roots
 from ._alifestd_is_asexual import alifestd_is_asexual
+from ._alifestd_is_chronologically_ordered import (
+    alifestd_is_chronologically_ordered,
+)
 from ._alifestd_is_sexual import alifestd_is_sexual
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_make_ancestor_id_col import alifestd_make_ancestor_id_col
@@ -83,6 +86,7 @@ __all__ = [
     "alifestd_has_contiguous_ids",
     "alifestd_has_multiple_roots",
     "alifestd_is_asexual",
+    "alifestd_is_chronologically_ordered",
     "alifestd_is_sexual",
     "alifestd_is_topologically_sorted",
     "alifestd_make_ancestor_id_col",
