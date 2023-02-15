@@ -7,7 +7,10 @@ from iterpop import iterpop as ip
 import pandas as pd
 import sortedcontainers as sc
 
-from ...._auxiliary_lib import alifestd_reroot_at_id_asexual
+from ...._auxiliary_lib import (
+    alifestd_is_chronologically_ordered,
+    alifestd_reroot_at_id_asexual,
+)
 from ._estimate_origin_times import estimate_origin_times
 
 
@@ -45,7 +48,7 @@ def time_calibrate_tree(
         for node in graph.nodes
         # older than or same age as neighbors
         if not any(
-            node_origin_times[neighbor] < node_origin_times[node]
+            node_origin_times[neighbor] <= node_origin_times[node]
             for neighbor in graph.neighbors(node)
         )
     ]
@@ -62,5 +65,7 @@ def time_calibrate_tree(
         )
 
     alifestd_df["origin_time"] = alifestd_df["id"].map(node_origin_times)
+
+    assert alifestd_is_chronologically_ordered(alifestd_df)
 
     return alifestd_df

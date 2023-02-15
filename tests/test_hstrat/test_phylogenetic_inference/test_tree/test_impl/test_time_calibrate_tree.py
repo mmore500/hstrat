@@ -192,3 +192,32 @@ def test_time_calibrate_tree_with_disjoint_tree3():
             "Q": 0,
             "R": 1,
         }
+
+
+def test_time_calibrate_tree_with_zero_length_branch_tree():
+
+    alifestd_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4],
+            "ancestor_list": ["[1]", "[none]", "[1]", "[2]", "[2]"],
+            "branch_length": [8, 0, 2, 1, 0],
+            "name": ["A", "B", "C", "D", "E"],
+        }
+    )
+    leaf_node_origin_times = {3: 52, 4: 51}  # 3 -> "D", 4 -> "E"
+
+    for df in alifestd_df, alifestd_df.sample(frac=1):
+        df_ = df.copy()
+        calibrated_df = impl.time_calibrate_tree(df, leaf_node_origin_times)
+
+        assert df.equals(df_)
+        assert ip.popsingleton(alifestd_find_root_ids(calibrated_df)) == 0
+        assert dict(
+            zip(calibrated_df["name"], calibrated_df["origin_time"])
+        ) == {
+            "E": 51,
+            "D": 52,
+            "C": 51,
+            "B": 49,
+            "A": 41,
+        }
