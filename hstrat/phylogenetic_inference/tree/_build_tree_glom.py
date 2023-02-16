@@ -7,6 +7,7 @@ from iterpop import iterpop as ip
 import opytional as opyt
 import pandas as pd
 
+from ..._auxiliary_lib import alifestd_make_empty
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ...juxtaposition import (
     calc_rank_of_first_retained_disparity_between,
@@ -72,6 +73,10 @@ def build_tree_glom(
     pd.DataFrame
         The reconstructed phylogenetic tree in alife standard format.
     """
+
+    # for simplicity, return early for this special case
+    if len(population) == 0:
+        return alifestd_make_empty()
 
     print()
     print(

@@ -15,19 +15,14 @@ from hstrat._auxiliary_lib import alifestd_validate
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
-# @pytest.mark.parametrize(
-#     "version_pin",
-#     [hstrat.__version__],
-# )
-# def test_empty_population(version_pin):
-#     population = []
-#     tree = hstrat.build_tree(
-#         [],
-#         version_pin=version_pin,
-#     )
-#
-#     assert len(tree) == 0
-#     assert alifestd_validate(tree)
+def test_empty_population():
+    population = []
+    tree = hstrat.build_tree_glom(
+        [],
+    )
+
+    assert len(tree) == 0
+    assert alifestd_validate(tree)
 #
 #
 # @pytest.mark.parametrize(
