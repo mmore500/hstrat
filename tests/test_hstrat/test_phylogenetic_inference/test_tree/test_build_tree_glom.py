@@ -7,6 +7,7 @@ from Bio.Phylo.TreeConstruction import BaseTree, DistanceMatrix
 import _impl as impl
 import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
+import networkx as nx
 import pytest
 
 from hstrat import hstrat
@@ -116,6 +117,84 @@ def test_handwritten_trees(version_pin, orig_tree):
         assert original_distance_matrix.distance(
             a, b
         ) == reconstructed_distance_matrix.distance(a, b)
+
+
+@pytest.mark.parametrize("tree_seed", range(10))
+@pytest.mark.parametrize("tree_size", [20, 50, 100])
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.recency_proportional_resolution_algo.Policy(3),
+        hstrat.fixed_resolution_algo.Policy(5),
+    ],
+)
+def test_reconstructed_mrca_fuzz(tree_seed, tree_size, retention_policy):
+
+    nx_tree = nx.random_tree(
+        n=tree_size, seed=tree_seed, create_using=nx.DiGraph
+    )
+
+    extant_population = hstrat.descend_template_phylogeny_networkx(
+        nx_tree,
+        seed_column=hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_policy=retention_policy,
+        ),
+    )
+
+    reconst_df = hstrat.build_tree_glom(extant_population)
+    assert "origin_time" in reconst_df
+
+    assert alifestd_validate(reconst_df)
+    reconst_tree = apc.alife_dataframe_to_dendropy_tree(
+        reconst_df,
+        setup_edge_lengths=True,
+    )
+    pdm = reconst_tree.phylogenetic_distance_matrix()
+
+    assert len(list(reconst_tree.leaf_node_iter())) == len(extant_population)
+    sorted_leaf_nodes = sorted(
+        reconst_tree.leaf_node_iter(), key=lambda x: int(x.taxon.label)
+    )
+    assert {
+        int(leaf_node.distance_from_root()) for leaf_node in sorted_leaf_nodes
+    } == {
+        extant_col.GetNumStrataDeposited() - 1
+        for extant_col in extant_population
+    }
+    assert sorted(
+        int(leaf_node.distance_from_root()) for leaf_node in sorted_leaf_nodes
+    ) == sorted(
+        extant_col.GetNumStrataDeposited() - 1
+        for extant_col in extant_population
+    )
+    assert [
+        int(leaf_node.distance_from_root()) for leaf_node in sorted_leaf_nodes
+    ] == [
+        extant_col.GetNumStrataDeposited() - 1
+        for extant_col in extant_population
+    ]
+
+    for reconst_node_pair, extant_column_pair in zip(
+        it.combinations(sorted_leaf_nodes, 2),
+        it.combinations(extant_population, 2),
+    ):
+        reconst_mrca = impl.descend_unifurcations(
+            pdm.mrca(*map(lambda x: x.taxon, reconst_node_pair))
+        )
+
+        (
+            lower_mrca_bound,
+            upper_mrca_bound,
+        ) = hstrat.calc_rank_of_mrca_bounds_between(
+            *extant_column_pair, prior="arbitrary"
+        )
+
+        assert (
+            lower_mrca_bound
+            <= reconst_mrca.distance_from_root()
+            < upper_mrca_bound
+        )
 
 
 @pytest.mark.parametrize(

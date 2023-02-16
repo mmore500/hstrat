@@ -32,8 +32,6 @@ cycler==0.11.0
     # via matplotlib
 dataclasses==0.6
     # via lyncs-utils
-decorator==5.1.1
-    # via networkx
 dendropy==4.5.2
     # via
     #   alifedata-phyloinformatics-convert
@@ -84,7 +82,7 @@ mpmath==1.2.1
     # via hstrat (../../pyproject.toml)
 nanto==0.1.1
     # via alifedata-phyloinformatics-convert
-networkx==2.5
+networkx==2.6.3
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
