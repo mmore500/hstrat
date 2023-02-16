@@ -23,78 +23,40 @@ def test_empty_population():
 
     assert len(tree) == 0
     assert alifestd_validate(tree)
-#
-#
-# @pytest.mark.parametrize(
-#     "version_pin",
-#     [hstrat.__version__],
-# )
-# def test_dual_population_no_mrca(version_pin):
-#     organism1 = hstrat.HereditaryStratigraphicColumn().CloneNthDescendant(100)
-#     organism2 = hstrat.HereditaryStratigraphicColumn().CloneNthDescendant(100)
-#
-#     population = [organism1, organism2]
-#     names = ["foo", "bar"]
-#
-#     with pytest.raises(ValueError):
-#         tree = hstrat.build_tree(population, version_pin, taxon_labels=names)
-#
-#     tree = hstrat.build_tree(
-#         population, version_pin, taxon_labels=names, force_common_ancestry=True
-#     )
-#     assert alifestd_validate(tree)
-#
-#     root_clade = BaseTree.Clade(name="Inner1")
-#     root_clade.clades = [
-#         BaseTree.Clade(branch_length=101.0, name="bar"),
-#         BaseTree.Clade(branch_length=101.0, name="foo"),
-#     ]
-#     true_tree = BaseTree.Tree(rooted=False, root=root_clade)
-#
-#     assert (
-#         impl.tree_distance_metric(
-#             apc.alife_dataframe_to_biopython_tree(tree), true_tree
-#         )
-#         == 0.0
-#     )
-#
-#
-# @pytest.mark.parametrize(
-#     "version_pin",
-#     [hstrat.__version__],
-# )
-# def test_dual_population_with_mrca(version_pin):
-#     organism1 = hstrat.HereditaryStratigraphicColumn()
-#     organism2 = hstrat.HereditaryStratigraphicColumn()
-#
-#     population = [organism1, organism2]
-#     names = ["foo", "bar"]
-#
-#     for _ in range(100):
-#         parents = random.choices(population, k=len(population))
-#         population = [parent.CloneDescendant() for parent in parents]
-#
-#     tree = hstrat.build_tree(
-#         population, version_pin=version_pin, taxon_labels=names
-#     )
-#     assert alifestd_validate(tree)
-#
-#     root_clade = BaseTree.Clade(name="Inner")
-#     root_clade.clades = [
-#         BaseTree.Clade(branch_length=0.0, name="bar"),
-#         BaseTree.Clade(branch_length=0.0, name="foo"),
-#     ]
-#     true_tree = BaseTree.Tree(rooted=False, root=root_clade)
-#
-#     assert (
-#         impl.tree_distance_metric(
-#             apc.alife_dataframe_to_biopython_tree(tree),
-#             true_tree,
-#         )
-#         == 0.0
-#     )
-#
-#
+
+
+def test_dual_population_no_mrca():
+    organism1 = hstrat.HereditaryStratigraphicColumn().CloneNthDescendant(100)
+    organism2 = hstrat.HereditaryStratigraphicColumn().CloneNthDescendant(100)
+
+    population = [organism1, organism2]
+    names = ["foo", "bar"]
+
+    with pytest.raises(ValueError):
+        tree = hstrat.build_tree_glom(population, taxon_labels=names)
+
+    with pytest.raises(NotImplementedError):
+        tree = hstrat.build_tree_glom(
+            population, taxon_labels=names, force_common_ancestry=True
+        )
+
+    # assert alifestd_validate(tree)
+    #
+    # root_clade = BaseTree.Clade(name="Inner1")
+    # root_clade.clades = [
+    #     BaseTree.Clade(branch_length=101.0, name="bar"),
+    #     BaseTree.Clade(branch_length=101.0, name="foo"),
+    # ]
+    # true_tree = BaseTree.Tree(rooted=False, root=root_clade)
+    #
+    # assert (
+    #     impl.tree_distance_metric(
+    #         apc.alife_dataframe_to_biopython_tree(tree), true_tree
+    #     )
+    #     == 0.0
+    # )
+
+
 @pytest.mark.parametrize(
     "version_pin",
     [hstrat.__version__],

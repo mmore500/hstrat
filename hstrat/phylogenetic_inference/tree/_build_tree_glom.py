@@ -19,7 +19,10 @@ from ..pairwise import (
     estimate_rank_of_mrca_between,
     estimate_ranks_since_mrca_with,
 )
-from ..population import build_distance_matrix_biopython
+from ..population import (
+    build_distance_matrix_biopython,
+    does_definitively_share_no_common_ancestor,
+)
 from ._impl import GlomNode
 
 
@@ -79,6 +82,11 @@ def build_tree_glom(
     if len(population) == 0:
         return alifestd_make_empty()
 
+    if force_common_ancestry:
+        raise NotImplementedError
+    elif does_definitively_share_no_common_ancestor(population):
+        raise ValueError
+
     logging.debug("population distance matrix")
     logging.debug(
         build_distance_matrix_biopython(
@@ -86,7 +94,7 @@ def build_tree_glom(
             "maximum_likelihood",
             "arbitrary",
             taxon_labels,
-            force_common_ancestry or None,
+            force_common_ancestry,
         )
     )
 
