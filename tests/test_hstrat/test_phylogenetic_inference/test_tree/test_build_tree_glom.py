@@ -107,32 +107,26 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 @pytest.mark.parametrize(
     "orig_tree",
     [
-        # impl.setup_dendropy_tree(f"{assets_path}/grandchild_and_aunt.newick"),
-        # impl.setup_dendropy_tree(
-        #     f"{assets_path}/grandchild_and_auntuncle.newick"
-        # ),
-        # TODO: handle this edge case
-        # impl.setup_dendropy_tree(
-        #     f"{assets_path}/grandchild.newick"
-        # ),
-        # impl.setup_dendropy_tree(
-        #     f"{assets_path}/grandtriplets_and_aunt.newick"
-        # ),
+        impl.setup_dendropy_tree(f"{assets_path}/grandchild_and_aunt.newick"),
+        impl.setup_dendropy_tree(
+            f"{assets_path}/grandchild_and_auntuncle.newick"
+        ),
+        impl.setup_dendropy_tree(f"{assets_path}/grandchild.newick"),
+        impl.setup_dendropy_tree(
+            f"{assets_path}/grandtriplets_and_aunt.newick"
+        ),
         impl.setup_dendropy_tree(
             f"{assets_path}/grandtriplets_and_auntuncle.newick"
         ),
-        # impl.setup_dendropy_tree(f"{assets_path}/grandtriplets.newick"),
-        # impl.setup_dendropy_tree(f"{assets_path}/grandtwins_and_aunt.newick"),
+        impl.setup_dendropy_tree(f"{assets_path}/grandtriplets.newick"),
+        impl.setup_dendropy_tree(f"{assets_path}/grandtwins_and_aunt.newick"),
         impl.setup_dendropy_tree(
             f"{assets_path}/grandtwins_and_auntuncle.newick"
         ),
-        # impl.setup_dendropy_tree(f"{assets_path}/grandtwins.newick"),
-        # TODO: handle this edge case
-        # impl.setup_dendropy_tree(
-        #     f"{assets_path}/justroot.newick"
-        # ),
-        # impl.setup_dendropy_tree(f"{assets_path}/triplets.newick"),
-        # impl.setup_dendropy_tree(f"{assets_path}/twins.newick"),
+        impl.setup_dendropy_tree(f"{assets_path}/grandtwins.newick"),
+        impl.setup_dendropy_tree(f"{assets_path}/justroot.newick"),
+        impl.setup_dendropy_tree(f"{assets_path}/triplets.newick"),
+        impl.setup_dendropy_tree(f"{assets_path}/twins.newick"),
     ],
 )
 def test_handwritten_trees(version_pin, orig_tree):
@@ -145,49 +139,38 @@ def test_handwritten_trees(version_pin, orig_tree):
 
     reconst_df = hstrat.build_tree_glom(extant_population)
 
-    # assert alifestd_validate(reconst_df)
-    # print(reconst_df)
-    # # print(alifestd
-    # reconst_tree = apc.alife_dataframe_to_dendropy_tree(
-    #     reconst_df,
-    #     setup_edge_lengths=True,
-    # )
-    # reconst_tree.collapse_unweighted_edges()
-    #
-    # common_namespace = dp.TaxonNamespace()
-    # orig_tree.migrate_taxon_namespace(common_namespace)
-    # reconst_tree.migrate_taxon_namespace(common_namespace)
-    #
-    # original_distance_matrix = orig_tree.phylogenetic_distance_matrix()
-    # reconstructed_distance_matrix = reconst_tree.phylogenetic_distance_matrix()
-    #
-    # taxa = [node.taxon for node in orig_tree.leaf_node_iter()]
-    #
-    # for a, b in it.combinations(taxa, 2):
-    #     assert (
-    #         abs(
-    #             original_distance_matrix.distance(a, b)
-    #             - reconstructed_distance_matrix.distance(a, b)
-    #         )
-    #         < 2.0
-    #     )
-    #
-    # assert impl.tree_distance_metric(orig_tree, reconst_tree) < 2.0
-    #
-    #
+    assert alifestd_validate(reconst_df)
+    reconst_tree = apc.alife_dataframe_to_dendropy_tree(
+        reconst_df,
+        setup_edge_lengths=True,
+    )
+    reconst_tree.collapse_unweighted_edges()
+
+    common_namespace = dp.TaxonNamespace()
+    orig_tree.migrate_taxon_namespace(common_namespace)
+    reconst_tree.migrate_taxon_namespace(common_namespace)
+
+    original_distance_matrix = orig_tree.phylogenetic_distance_matrix()
+    reconstructed_distance_matrix = reconst_tree.phylogenetic_distance_matrix()
+
+    taxa = [node.taxon for node in orig_tree.leaf_node_iter()]
+
+    for a, b in it.combinations(taxa, 2):
+        assert original_distance_matrix.distance(
+            a, b
+        ) == reconstructed_distance_matrix.distance(a, b)
 
 
 @pytest.mark.parametrize(
     "orig_tree",
     [
         # TODO
-        # pytest.param(
-        #     impl.setup_dendropy_tree(f"{assets_path}/nk_ecoeaselection.csv"),
-        #     marks=pytest.mark.heavy,
-        # ),
-
+        pytest.param(
+            impl.setup_dendropy_tree(f"{assets_path}/nk_ecoeaselection.csv"),
+            marks=pytest.mark.heavy,
+        ),
         impl.setup_dendropy_tree(f"{assets_path}/nk_lexicaseselection.csv"),
-        # impl.setup_dendropy_tree(f"{assets_path}/nk_tournamentselection.csv"),
+        impl.setup_dendropy_tree(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
 # @pytest.mark.parametrize(
@@ -207,7 +190,6 @@ def test_reconstructed_mrca(orig_tree):
     )
 
     reconst_df = hstrat.build_tree_glom(extant_population)
-    reconst_df["taxon_label"] = reconst_df["id"]
     assert "origin_time" in reconst_df
 
     assert alifestd_validate(reconst_df)
@@ -240,8 +222,6 @@ def test_reconstructed_mrca(orig_tree):
         for extant_col in extant_population
     ]
 
-    good = 0
-    total = 0
     for reconst_node_pair, extant_column_pair in zip(
         it.combinations(sorted_leaf_nodes, 2),
         it.combinations(extant_population, 2),
@@ -257,14 +237,11 @@ def test_reconstructed_mrca(orig_tree):
             *extant_column_pair, prior="arbitrary"
         )
 
-        good += (
+        assert (
             lower_mrca_bound
             <= reconst_mrca.distance_from_root()
             < upper_mrca_bound
         )
-        total += 1
-
-    print(good, total)
 
 
 # # TODO test determinism

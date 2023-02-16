@@ -3,6 +3,7 @@ import typing
 
 import alifedata_phyloinformatics_convert as apc
 import anytree
+from iterpop import iterpop as ip
 import opytional as opyt
 import pandas as pd
 
@@ -87,6 +88,10 @@ def build_tree_glom(
         taxon_labels,
         [*map(str, range(len(population)))],
     )
+    taxon_label_lookup = {
+        id(column): taxon_label
+        for column, taxon_label in zip(population, taxon_labels)
+    }
 
     glom_root = GlomNode(origin_time=0)
 
@@ -98,5 +103,15 @@ def build_tree_glom(
 
     print()
     print([*zip(taxon_labels, map(id, population))])
+
+    internal_counter = 1
+    for node in anytree.PreOrderIter(glom_root):
+        if node.is_leaf:
+            node.taxon_label = taxon_label_lookup[
+                id(ip.popsingleton(node._leaves))
+            ]
+        else:
+            node.taxon_label = f"Internal{internal_counter}"
+            internal_counter += 1
 
     return apc.anytree_tree_to_alife_dataframe(glom_root)
