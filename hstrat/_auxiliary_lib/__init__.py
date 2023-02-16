@@ -72,6 +72,7 @@ from ._to_tril import to_tril
 from ._unfurl_lineage_with_contiguous_ids import (
     unfurl_lineage_with_contiguous_ids,
 )
+from ._unpairwise import unpairwise
 from ._unzip import unzip
 from ._zip_strict import zip_strict
 
@@ -147,6 +148,7 @@ __all__ = [
     "swap_rows_and_indices",
     "to_tril",
     "unfurl_lineage_with_contiguous_ids",
+    "unpairwise",
     "unzip",
     "zip_strict",
 ]
