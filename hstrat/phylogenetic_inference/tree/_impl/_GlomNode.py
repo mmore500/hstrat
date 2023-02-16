@@ -108,7 +108,7 @@ class GlomNode(anytree.NodeMixin):
                 )
                 child.PercolateColumn(leaf_col)
         # polytomy
-        elif len(set(first_disparities)) == 1:
+        elif len(set(last_commonalities)) == 1:
             logging.debug("handling polytomy")
             logging.debug(f"first_disparities={first_disparities}")
             logging.debug(f"last_commonalities={last_commonalities}")
@@ -121,7 +121,6 @@ class GlomNode(anytree.NodeMixin):
                 "column.GetNumStrataDeposited()="
                 f"{column.GetNumStrataDeposited()}"
             )
-            assert len(set(last_commonalities)) == 1
             assert len(self.children) >= 2
 
             lrc = calc_rank_of_last_retained_commonality_between(
