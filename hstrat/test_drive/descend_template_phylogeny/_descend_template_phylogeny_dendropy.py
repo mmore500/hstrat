@@ -10,7 +10,7 @@ from ._descend_template_phylogeny import descend_template_phylogeny
 def descend_template_phylogeny_dendropy(
     tree: dp.Tree,
     seed_column: HereditaryStratigraphicColumn,
-    extant_nodes: typing.Optional[typing.Iterable[int]] = None,
+    extant_nodes: typing.Optional[typing.Iterable[dp.Node]] = None,
     progress_wrap: typing.Callable = lambda x: x,
 ) -> typing.List[HereditaryStratigraphicColumn]:
     """Generate a population of hereditary stratigraphic columns that could
