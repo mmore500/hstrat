@@ -60,6 +60,8 @@ class GlomNode(anytree.NodeMixin):
             )
             for child in self.children
         ]
+        recentest_first_disparity = max(first_disparities or [None])
+        recentest_last_commonality = max(last_commonalities or [None])
         patristic_distances = [
             estimate_patristic_distance_between(
                 column, child.representative, "maximum_likelihood", "arbitrary"
@@ -140,13 +142,8 @@ class GlomNode(anytree.NodeMixin):
             )
             child.PercolateColumn(column)
             assert len(child._leaves)
-        else:
+        elif first_disparities.count(recentest_first_disparity) == 1:
             logging.debug("forwarding to most related child")
-            recentest_first_disparity = max(first_disparities)
-            recentest_last_commonality = max(last_commonalities)
-
-            # todo generalize
-            assert first_disparities.count(recentest_first_disparity) == 1
             assert last_commonalities.count(recentest_last_commonality) == 1
 
             recentest_first_disparity_idx = first_disparities.index(
@@ -162,6 +159,9 @@ class GlomNode(anytree.NodeMixin):
             self.children[recentest_first_disparity_idx].PercolateColumn(
                 column
             )
+        else:
+            # todo generalize
+            assert False
 
     def __str__(self: "GlomNode") -> str:
         return "\n".join(
