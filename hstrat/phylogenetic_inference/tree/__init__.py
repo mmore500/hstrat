@@ -1,10 +1,12 @@
 """Functions to reconstruct a phylogenetic tree from extant hereditary strata."""
 
 from ._build_tree import build_tree
+from ._build_tree_glom import build_tree_glom
 from ._build_tree_nj import build_tree_nj
 from ._build_tree_upgma import build_tree_upgma
 
 __all__ = [
+    "build_tree_glom",
     "build_tree_nj",
     "build_tree_upgma",
     "build_tree",

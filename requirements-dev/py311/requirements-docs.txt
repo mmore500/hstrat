@@ -6,10 +6,12 @@
 #
 alabaster==0.7.13
     # via sphinx
-alifedata-phyloinformatics-convert==0.8.1
+alifedata-phyloinformatics-convert==0.9.0
     # via hstrat (../../pyproject.toml)
 anytree==2.8.0
-    # via hstrat (../../pyproject.toml)
+    # via
+    #   alifedata-phyloinformatics-convert
+    #   hstrat (../../pyproject.toml)
 babel==2.11.0
     # via sphinx
 biopython==1.79
