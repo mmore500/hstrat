@@ -1,3 +1,4 @@
+import logging
 import numbers
 
 import anytree
@@ -45,10 +46,7 @@ class GlomNode(anytree.NodeMixin):
     def PercolateColumn(
         self: "GlomNode", column: HereditaryStratigraphicColumn
     ) -> None:
-        self._leaves.add(column)
-        if len(self._leaves) == 1:
-            print("init")
-            return
+        logging.debug(f"percolating column {id(column)}")
 
         first_disparities = [
             calc_rank_of_first_retained_disparity_between(
@@ -91,8 +89,12 @@ class GlomNode(anytree.NodeMixin):
             for child in self.children
         ]
 
-        if len(self.children) == 0:
-            print("first split")
+        self._leaves.add(column)
+
+        if len(self._leaves) == 1:
+            logging.debug("initializing empty node")
+        elif len(self.children) == 0:
+            logging.debug("performing first split")
             assert len(self._leaves) == 2
             self.origin_time = calc_rank_of_last_retained_commonality_between(
                 *self._leaves,
@@ -103,16 +105,22 @@ class GlomNode(anytree.NodeMixin):
                     parent=self,
                 )
                 child.PercolateColumn(leaf_col)
-            return
-
         # polytomy
-        if len(set(first_disparities)) == 1:
+        elif len(set(first_disparities)) == 1:
+            logging.debug("handling polytomy")
+            logging.debug(f"first_disparities={first_disparities}")
+            logging.debug(f"last_commonalities={last_commonalities}")
+            logging.debug(f"patristic_distances={patristic_distances}")
+            logging.debug(f"rank_mrcas={rank_mrcas}")
+            logging.debug(f"since_mrcas={since_mrcas}")
+            logging.debug(f"since_mrcas2={since_mrcas2}")
+            logging.debug(f"deposits={deposits}")
+            logging.debug(
+                "column.GetNumStrataDeposited()="
+                f"{column.GetNumStrataDeposited()}"
+            )
             assert len(set(last_commonalities)) == 1
             assert len(self.children) >= 2
-            print("polytomy", first_disparities, last_commonalities)
-            print("polytomy", patristic_distances, rank_mrcas)
-            print("polytomy", since_mrcas, since_mrcas2)
-            print("polytomy", deposits, column.GetNumStrataDeposited())
 
             lrc = calc_rank_of_last_retained_commonality_between(
                 self.children[0].representative,
@@ -120,13 +128,10 @@ class GlomNode(anytree.NodeMixin):
             )
 
             if lrc > last_commonalities[0]:
-                print("shim")
+                logging.debug("inserting shim node")
                 assert lrc >= self.origin_time
-                shim = GlomNode(
-                    origin_time=lrc, parent=self, children=self.children
-                )
+                GlomNode(origin_time=lrc, parent=self, children=self.children)
 
-            print("doing")
             assert self.origin_time >= last_commonalities[0]
             self.origin_time = last_commonalities[0]
             child = GlomNode(
@@ -135,22 +140,31 @@ class GlomNode(anytree.NodeMixin):
             )
             child.PercolateColumn(column)
             assert len(child._leaves)
-            return
+        else:
+            logging.debug("forwarding to most related child")
+            recentest_first_disparity = max(first_disparities)
+            recentest_last_commonality = max(last_commonalities)
 
-        print("descend one")
-        recentest_first_disparity = max(first_disparities)
-        recentest_last_commonality = max(last_commonalities)
+            # todo generalize
+            assert first_disparities.count(recentest_first_disparity) == 1
+            assert last_commonalities.count(recentest_last_commonality) == 1
 
-        # todo generalize
-        assert first_disparities.count(recentest_first_disparity) == 1
-        assert last_commonalities.count(recentest_last_commonality) == 1
+            recentest_first_disparity_idx = first_disparities.index(
+                recentest_first_disparity
+            )
+            recentest_last_commonality_idx = last_commonalities.index(
+                recentest_last_commonality
+            )
+            assert (
+                recentest_first_disparity_idx == recentest_last_commonality_idx
+            )
 
-        recentest_first_disparity_idx = first_disparities.index(
-            recentest_first_disparity
+            self.children[recentest_first_disparity_idx].PercolateColumn(
+                column
+            )
+
+    def __str__(self: "GlomNode") -> str:
+        return "\n".join(
+            f"{pre} {node.origin_time} {node.name}"
+            for pre, __, node in anytree.RenderTree(self)
         )
-        recentest_last_commonality_idx = last_commonalities.index(
-            recentest_last_commonality
-        )
-        assert recentest_first_disparity_idx == recentest_last_commonality_idx
-
-        self.children[recentest_first_disparity_idx].PercolateColumn(column)

@@ -1,4 +1,5 @@
 import copy
+import logging
 import typing
 
 import alifedata_phyloinformatics_convert as apc
@@ -78,8 +79,8 @@ def build_tree_glom(
     if len(population) == 0:
         return alifestd_make_empty()
 
-    print()
-    print(
+    logging.debug("population distance matrix")
+    logging.debug(
         build_distance_matrix_biopython(
             population,
             "maximum_likelihood",
@@ -102,12 +103,10 @@ def build_tree_glom(
 
     for column in population:
         glom_root.PercolateColumn(column)
-        print()
-        for pre, __, node in anytree.RenderTree(glom_root):
-            print(f"{pre} {node.origin_time} {node.name}")
+        logging.debug(glom_root)
 
-    print()
-    print([*zip(taxon_labels, map(id, population))])
+    logging.debug("taxon_labels and corresponding ids")
+    logging.debug(dict(zip(taxon_labels, map(id, population))))
 
     internal_counter = 1
     for node in anytree.PreOrderIter(glom_root):
