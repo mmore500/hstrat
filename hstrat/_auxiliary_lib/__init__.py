@@ -38,6 +38,7 @@ from ._cmp import cmp
 from ._cmp_approx import cmp_approx
 from ._consume import consume
 from ._count_unique import count_unique
+from ._deep_listify import deep_listify
 from ._demark import demark
 from ._div_range import div_range
 from ._find_bounds import find_bounds
@@ -116,6 +117,7 @@ __all__ = [
     "cmp_approx",
     "consume",
     "count_unique",
+    "deep_listify",
     "demark",
     "div_range",
     "find_bounds",
