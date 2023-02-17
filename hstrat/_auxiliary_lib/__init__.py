@@ -75,6 +75,7 @@ from ._unfurl_lineage_with_contiguous_ids import (
 )
 from ._unpairwise import unpairwise
 from ._unzip import unzip
+from ._with_omission import with_omission
 from ._zip_strict import zip_strict
 
 # adapted from https://stackoverflow.com/a/31079085
@@ -152,6 +153,7 @@ __all__ = [
     "unfurl_lineage_with_contiguous_ids",
     "unpairwise",
     "unzip",
+    "with_omission",
     "zip_strict",
 ]
 
