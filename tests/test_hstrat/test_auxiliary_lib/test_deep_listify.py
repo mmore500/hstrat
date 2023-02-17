@@ -1,4 +1,5 @@
 import typing
+
 import pytest
 
 from hstrat._auxiliary_lib import deep_listify

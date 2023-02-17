@@ -39,7 +39,6 @@ def test_time_calibrate_tree_with_simple_tree():
         }
 
 
-#
 def test_time_calibrate_tree_with_empty_tree():
     alifestd_df = pd.DataFrame(
         {

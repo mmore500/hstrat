@@ -33,7 +33,7 @@ def deep_listify(maybe_iterable: typing.Iterable) -> typing.Any:
     [0, 1, 2, 3]
 
     >>> deep_listify(4)
-    [0, 1, 2, 3]
+    4
 
     >>> deep_listify([(1, 2), 3, 4])
     [[1, 2], 3, 4]

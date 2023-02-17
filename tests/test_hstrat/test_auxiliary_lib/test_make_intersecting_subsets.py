@@ -55,6 +55,7 @@ def test_make_intersecting_subsets(ranges, expected_subsets):
         for created_subset, expected_subset in zip(
             created_subsets, expected_subsets
         ):
+            assert len(created_subset) == len(expected_subset)
             assert sorted(created_subset) == sorted(expected_subset)
 
         random.shuffle(ranges)

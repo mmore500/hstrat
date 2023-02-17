@@ -1,5 +1,6 @@
 from hstrat._auxiliary_lib import coshuffled
 
+
 def test_coshuffle_conserve_elements():
     a = [1, 2, 3, 4, 5]
     b = [5, 6, 7, 8, 9]
@@ -20,8 +21,10 @@ def test_coshuffle_keep_relative_order():
     b = [5, 6, 7, 8]
     assert all(y - x == 4 for x, y in zip(*coshuffled(a, b)))
 
+
 def test_coshuffle_singleton():
     assert ([1], [2], [3]) == coshuffled([1], [2], [3])
+
 
 def test_coshuffle_empty():
     assert ([], [], []) == coshuffled([], [], [])

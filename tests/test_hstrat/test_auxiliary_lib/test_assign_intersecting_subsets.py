@@ -94,8 +94,10 @@ def test_assign_intersecting_subsets(
             recreated_subset_ranges = [
                 ranges[i] for i in created_subset_indices
             ]
-            assert sorted(recreated_subset_ranges) == sorted(
-                expected_subset_ranges
-            ) == sorted(created_subset_ranges)
+            assert (
+                sorted(recreated_subset_ranges)
+                == sorted(expected_subset_ranges)
+                == sorted(created_subset_ranges)
+            )
 
         ranges, range_indices = coshuffled(ranges, range_indices)

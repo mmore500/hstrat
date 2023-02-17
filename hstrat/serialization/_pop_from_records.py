@@ -21,4 +21,7 @@ def pop_from_records(
         for col_record in col_records:
             col_record[common_field] = records[common_field]
 
-    return [col_from_records(col_record) for col_record in col_records]
+    return [
+        col_from_records(col_record)
+        for col_record in progress_wrap(col_records)
+    ]
