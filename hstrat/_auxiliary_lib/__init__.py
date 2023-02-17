@@ -62,6 +62,7 @@ from ._jit_numpy_bool_t import jit_numpy_bool_t
 from ._jit_numpy_int64_t import jit_numpy_int64_t
 from ._launder_impl_modules import launder_impl_modules
 from ._log_once_in_a_row import log_once_in_a_row
+from ._make_intersecting_subsets import make_intersecting_subsets
 from ._memoize_generator import memoize_generator
 from ._omit_last import omit_last
 from ._pairwise import pairwise
@@ -142,6 +143,7 @@ __all__ = [
     "jit_numpy_int64_t",
     "launder_impl_modules",
     "log_once_in_a_row",
+    "make_intersecting_subsets",
     "memoize_generator",
     "omit_last",
     "pairwise",
