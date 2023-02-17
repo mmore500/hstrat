@@ -49,6 +49,14 @@ class HereditaryStratigraphicColumn:
     may also be provided then.)
     """
 
+    __slots__ = (
+        "_always_store_rank_in_stratum",
+        "_stratum_differentia_bit_width",
+        "_num_strata_deposited",
+        "_stratum_ordered_store",
+        "_stratum_retention_policy",
+    )
+
     # if True, strata will be constructed with deposition rank stored even if
     # the stratum retention condemner does not require it
     _always_store_rank_in_stratum: bool

@@ -10,6 +10,12 @@ class HereditaryStratum:
     optional user-provided annotation.
     """
 
+    __slots__ = (
+        "_deposition_rank",
+        "_differentia",
+        "_annotation",
+    )
+
     _deposition_rank: int
     # random "fingerprint" generated at initialization
     _differentia: int

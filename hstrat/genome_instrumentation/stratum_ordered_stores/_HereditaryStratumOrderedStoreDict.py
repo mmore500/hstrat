@@ -17,6 +17,8 @@ class HereditaryStratumOrderedStoreDict(HereditaryStratumOrderedStoreBase):
     deleted strata tend to be more ancient.
     """
 
+    __slots__ = ("_data",)
+
     # maps rank to stratum
     _data: typing.Dict[int, HereditaryStratum]
 

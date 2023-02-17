@@ -12,6 +12,8 @@ class HereditaryStratigraphicColumnBundle:
     HereditaryStratigraphicColumn.
     """
 
+    __slots__ = ("_columns",)
+
     _columns: typing.Dict[str, HereditaryStratigraphicColumn]
 
     def __init__(

@@ -22,6 +22,8 @@ class HereditaryStratumOrderedStoreList(HereditaryStratumOrderedStoreBase):
     between stratigraphic columns.
     """
 
+    __slots__ = ("_data",)
+
     # strata stored from most ancient (index 0, front) to most recent (back)
     _data: typing.List[HereditaryStratum]
 
