@@ -18,7 +18,13 @@ def unpack_differentiae(
 
     if differentia_bit_width in [8, 16, 32, 64]:
         # bit width is a multiple of 8 -- no padding required
-        dt = np.dtype(f">u{differentia_bit_width // 8}")
+
+        # numpy dtypes can be composed of various attributes
+        # in this case, we want our type to be big-endian (>),
+        # and to be composed of `num_bytes` unsigned ints (u).
+        # for more info, see https://numpy.org/doc/stable/reference/generated/numpy.dtype.html
+        num_bytes = differentia_bit_width // 8
+        dt = np.dtype(f">u{num_bytes}")
         yield from np.frombuffer(_bytes, dtype=dt)
     else:
         # padding bits are possible, first byte tells how many are required
