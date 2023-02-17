@@ -38,6 +38,7 @@ from ._check_testing_requirements import check_testing_requirements
 from ._cmp import cmp
 from ._cmp_approx import cmp_approx
 from ._consume import consume
+from ._coshuffled import coshuffled
 from ._count_unique import count_unique
 from ._deep_listify import deep_listify
 from ._demark import demark
@@ -121,6 +122,7 @@ __all__ = [
     "cmp_approx",
     "consume",
     "count_unique",
+    "coshuffled",
     "deep_listify",
     "demark",
     "div_range",
