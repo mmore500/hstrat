@@ -29,6 +29,7 @@ from ._alifestd_validate import alifestd_validate
 from ._all_same import all_same
 from ._all_unique import all_unique
 from ._apply_swaps import apply_swaps
+from ._assign_intersecting_subsets import assign_intersecting_subsets
 from ._bit_ceil import bit_ceil
 from ._bit_floor import bit_floor
 from ._caretdown_marker import caretdown_marker
@@ -109,6 +110,7 @@ __all__ = [
     "all_same",
     "all_unique",
     "apply_swaps",
+    "assign_intersecting_subsets",
     "AnyTreeAscendingIter",
     "bit_ceil",
     "bit_floor",
