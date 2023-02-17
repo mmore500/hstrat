@@ -41,4 +41,4 @@ def make_intersecting_subsets(
         else:
             subsets.append([range])
 
-    return list(subsets)
+    return subsets
