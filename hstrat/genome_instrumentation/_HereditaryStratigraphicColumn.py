@@ -163,7 +163,7 @@ class HereditaryStratigraphicColumn:
                 other,
                 self.__class__,
             )
-            and self.__dict__ == other.__dict__
+            and self.__slots__ == other.__slots__
         )
 
     def _ShouldOmitStratumDepositionRank(
