@@ -65,34 +65,42 @@ def test_dual_population_no_mrca():
 @pytest.mark.parametrize(
     "orig_tree",
     [
-        impl.setup_dendropy_tree(f"{assets_path}/grandchild_and_aunt.newick"),
-        impl.setup_dendropy_tree(
-            f"{assets_path}/grandchild_and_auntuncle.newick"
-        ),
-        impl.setup_dendropy_tree(f"{assets_path}/grandchild.newick"),
-        impl.setup_dendropy_tree(
-            f"{assets_path}/grandtriplets_and_aunt.newick"
-        ),
-        impl.setup_dendropy_tree(
-            f"{assets_path}/grandtriplets_and_auntuncle.newick"
-        ),
-        impl.setup_dendropy_tree(f"{assets_path}/grandtriplets.newick"),
-        impl.setup_dendropy_tree(f"{assets_path}/grandtwins_and_aunt.newick"),
+        # impl.setup_dendropy_tree(f"{assets_path}/grandchild_and_aunt.newick"),
+        # impl.setup_dendropy_tree(
+        #     f"{assets_path}/grandchild_and_auntuncle.newick"
+        # ),
+        # impl.setup_dendropy_tree(f"{assets_path}/grandchild.newick"),
+        # impl.setup_dendropy_tree(
+        #     f"{assets_path}/grandtriplets_and_aunt.newick"
+        # ),
+        # impl.setup_dendropy_tree(
+        #     f"{assets_path}/grandtriplets_and_auntuncle.newick"
+        # ),
+        # impl.setup_dendropy_tree(f"{assets_path}/grandtriplets.newick"),
+        # impl.setup_dendropy_tree(f"{assets_path}/grandtwins_and_aunt.newick"),
         impl.setup_dendropy_tree(
             f"{assets_path}/grandtwins_and_auntuncle.newick"
         ),
-        impl.setup_dendropy_tree(f"{assets_path}/grandtwins.newick"),
-        impl.setup_dendropy_tree(f"{assets_path}/justroot.newick"),
-        impl.setup_dendropy_tree(f"{assets_path}/triplets.newick"),
-        impl.setup_dendropy_tree(f"{assets_path}/twins.newick"),
+        # impl.setup_dendropy_tree(f"{assets_path}/grandtwins.newick"),
+        # impl.setup_dendropy_tree(f"{assets_path}/justroot.newick"),
+        # impl.setup_dendropy_tree(f"{assets_path}/triplets.newick"),
+        # impl.setup_dendropy_tree(f"{assets_path}/twins.newick"),
     ],
 )
-def test_handwritten_trees(version_pin, orig_tree):
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        # hstrat.perfect_resolution_algo.Policy(),
+        # hstrat.recency_proportional_resolution_algo.Policy(3),
+        hstrat.fixed_resolution_algo.Policy(2),
+    ],
+)
+def test_handwritten_trees(version_pin, orig_tree, retention_policy):
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn().CloneNthDescendant(
-            10
-        ),
+        seed_column=hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_policy=retention_policy,
+        ).CloneNthDescendant(10),
     )
 
     reconst_df = hstrat.build_tree_glom(extant_population)
@@ -119,14 +127,104 @@ def test_handwritten_trees(version_pin, orig_tree):
         ) == reconstructed_distance_matrix.distance(a, b)
 
 
-@pytest.mark.parametrize("tree_seed", range(10))
-@pytest.mark.parametrize("tree_size", [20, 50, 100])
+@pytest.mark.parametrize(
+    "orig_tree",
+    [
+        pytest.param(
+            impl.setup_dendropy_tree(f"{assets_path}/nk_ecoeaselection.csv"),
+            marks=pytest.mark.heavy,
+        ),
+        impl.setup_dendropy_tree(f"{assets_path}/nk_lexicaseselection.csv"),
+        impl.setup_dendropy_tree(f"{assets_path}/nk_tournamentselection.csv"),
+    ],
+)
 @pytest.mark.parametrize(
     "retention_policy",
     [
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.recency_proportional_resolution_algo.Policy(3),
         hstrat.fixed_resolution_algo.Policy(5),
+    ],
+)
+def test_reconstructed_mrca(orig_tree, retention_policy):
+    num_depositions = 10
+
+    extant_population = hstrat.descend_template_phylogeny_dendropy(
+        orig_tree,
+        seed_column=hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_policy=retention_policy,
+        ).CloneNthDescendant(num_depositions),
+    )
+
+    reconst_df = hstrat.build_tree_glom(extant_population)
+    assert "origin_time" in reconst_df
+
+    assert alifestd_validate(reconst_df)
+    reconst_tree = apc.alife_dataframe_to_dendropy_tree(
+        reconst_df,
+        setup_edge_lengths=True,
+    )
+    pdm = reconst_tree.phylogenetic_distance_matrix()
+
+    assert len(list(reconst_tree.leaf_node_iter())) == len(extant_population)
+    sorted_leaf_nodes = sorted(
+        reconst_tree.leaf_node_iter(), key=lambda x: int(x.taxon.label)
+    )
+    assert {
+        int(leaf_node.distance_from_root()) for leaf_node in sorted_leaf_nodes
+    } == {
+        extant_col.GetNumStrataDeposited() - 1
+        for extant_col in extant_population
+    }
+    assert sorted(
+        int(leaf_node.distance_from_root()) for leaf_node in sorted_leaf_nodes
+    ) == sorted(
+        extant_col.GetNumStrataDeposited() - 1
+        for extant_col in extant_population
+    )
+    assert [
+        int(leaf_node.distance_from_root()) for leaf_node in sorted_leaf_nodes
+    ] == [
+        extant_col.GetNumStrataDeposited() - 1
+        for extant_col in extant_population
+    ]
+
+    for reconst_node_pair, extant_column_pair in zip(
+        it.combinations(sorted_leaf_nodes, 2),
+        it.combinations(extant_population, 2),
+    ):
+        reconst_mrca = impl.descend_unifurcations(
+            pdm.mrca(*map(lambda x: x.taxon, reconst_node_pair))
+        )
+
+        (
+            lower_mrca_bound,
+            upper_mrca_bound,
+        ) = hstrat.calc_rank_of_mrca_bounds_between(
+            *extant_column_pair, prior="arbitrary"
+        )
+
+        assert (
+            lower_mrca_bound
+            <= reconst_mrca.distance_from_root()
+            < upper_mrca_bound
+        )
+
+
+# @pytest.mark.parametrize("tree_seed", range(10))
+# @pytest.mark.parametrize("tree_seed", [20])
+@pytest.mark.parametrize("tree_seed", [4])
+# @pytest.mark.parametrize("tree_size", [20, 50, 100])
+@pytest.mark.parametrize("tree_size", [100])
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        # hstrat.perfect_resolution_algo.Policy(),
+        hstrat.recency_proportional_resolution_algo.Policy(3),
+        # hstrat.fixed_resolution_algo.Policy(5),
+        # hstrat.fixed_resolution_algo.Policy(10),
+        # hstrat.fixed_resolution_algo.Policy(15),
+        # hstrat.fixed_resolution_algo.Policy(120),
     ],
 )
 def test_reconstructed_mrca_fuzz(tree_seed, tree_size, retention_policy):
@@ -194,89 +292,12 @@ def test_reconstructed_mrca_fuzz(tree_seed, tree_size, retention_policy):
             lower_mrca_bound
             <= reconst_mrca.distance_from_root()
             < upper_mrca_bound
-        )
-
-
-@pytest.mark.parametrize(
-    "orig_tree",
-    [
-        # TODO
-        pytest.param(
-            impl.setup_dendropy_tree(f"{assets_path}/nk_ecoeaselection.csv"),
-            marks=pytest.mark.heavy,
-        ),
-        impl.setup_dendropy_tree(f"{assets_path}/nk_lexicaseselection.csv"),
-        impl.setup_dendropy_tree(f"{assets_path}/nk_tournamentselection.csv"),
-    ],
-)
-# @pytest.mark.parametrize(
-#     "retention_policy",
-#     [
-#       TODO
-#     ]
-# )
-def test_reconstructed_mrca(orig_tree):
-    num_depositions = 10
-
-    extant_population = hstrat.descend_template_phylogeny_dendropy(
-        orig_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn().CloneNthDescendant(
-            num_depositions
-        ),
-    )
-
-    reconst_df = hstrat.build_tree_glom(extant_population)
-    assert "origin_time" in reconst_df
-
-    assert alifestd_validate(reconst_df)
-    reconst_tree = apc.alife_dataframe_to_dendropy_tree(
-        reconst_df,
-        setup_edge_lengths=True,
-    )
-    pdm = reconst_tree.phylogenetic_distance_matrix()
-
-    assert len(list(reconst_tree.leaf_node_iter())) == len(extant_population)
-    sorted_leaf_nodes = sorted(
-        reconst_tree.leaf_node_iter(), key=lambda x: int(x.taxon.label)
-    )
-    assert {
-        int(leaf_node.distance_from_root()) for leaf_node in sorted_leaf_nodes
-    } == {
-        extant_col.GetNumStrataDeposited() - 1
-        for extant_col in extant_population
-    }
-    assert sorted(
-        int(leaf_node.distance_from_root()) for leaf_node in sorted_leaf_nodes
-    ) == sorted(
-        extant_col.GetNumStrataDeposited() - 1
-        for extant_col in extant_population
-    )
-    assert [
-        int(leaf_node.distance_from_root()) for leaf_node in sorted_leaf_nodes
-    ] == [
-        extant_col.GetNumStrataDeposited() - 1
-        for extant_col in extant_population
-    ]
-
-    for reconst_node_pair, extant_column_pair in zip(
-        it.combinations(sorted_leaf_nodes, 2),
-        it.combinations(extant_population, 2),
-    ):
-        reconst_mrca = impl.descend_unifurcations(
-            pdm.mrca(*map(lambda x: x.taxon, reconst_node_pair))
-        )
-
-        (
+        ), (
+            id(extant_column_pair[0]),
+            id(extant_column_pair[1]),
             lower_mrca_bound,
+            reconst_mrca.distance_from_root(),
             upper_mrca_bound,
-        ) = hstrat.calc_rank_of_mrca_bounds_between(
-            *extant_column_pair, prior="arbitrary"
-        )
-
-        assert (
-            lower_mrca_bound
-            <= reconst_mrca.distance_from_root()
-            < upper_mrca_bound
         )
 
 

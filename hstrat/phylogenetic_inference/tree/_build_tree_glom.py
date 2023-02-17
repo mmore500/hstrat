@@ -87,16 +87,16 @@ def build_tree_glom(
     elif does_definitively_share_no_common_ancestor(population):
         raise ValueError
 
-    logging.debug("population distance matrix")
-    logging.debug(
-        build_distance_matrix_biopython(
-            population,
-            "maximum_likelihood",
-            "arbitrary",
-            taxon_labels,
-            force_common_ancestry,
-        )
-    )
+    # logging.debug("population distance matrix")
+    # logging.debug(
+    #     build_distance_matrix_biopython(
+    #         population,
+    #         "maximum_likelihood",
+    #         "arbitrary",
+    #         taxon_labels,
+    #         force_common_ancestry,
+    #     )
+    # )
 
     taxon_labels = opyt.or_value(
         taxon_labels,
@@ -109,9 +109,14 @@ def build_tree_glom(
 
     glom_root = GlomNode(origin_time=0)
 
-    for column in population:
+    for i, column in enumerate(population):
         glom_root.PercolateColumn(column)
         logging.debug(glom_root)
+        assert i + 1 == len(glom_root.leaves)
+
+        for n in anytree.PostOrderIter(glom_root):
+            n.Checkup()
+            n.BigCheckup()
 
     logging.debug("taxon_labels and corresponding ids")
     logging.debug(dict(zip(taxon_labels, map(id, population))))
