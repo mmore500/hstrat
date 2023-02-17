@@ -61,3 +61,9 @@ def test_deep_listify_iterator(wrap):
 def test_deep_listify_generator(wrap):
     result = deep_listify(wrap((x for x in range(3))))
     assert result == [0, 1, 2]
+
+
+@pytest.mark.parametrize("wrap", [iter, lambda x: x])
+def test_deep_listify_empty_list_nested(wrap):
+    result = deep_listify(wrap([wrap(["asdf"])]))
+    assert result == [["asdf"]]

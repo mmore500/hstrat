@@ -12,8 +12,10 @@ import typing
 
 
 def deep_listify(maybe_iterable: typing.Iterable) -> typing.Any:
-    """Recursively convert any iterable into a list, converting any nested
+    """Recursively convert an iterable into a list, converting any nested
     iterables recusrively.
+
+    Will not convert strings.
 
     Parameters
     ----------
@@ -43,6 +45,9 @@ def deep_listify(maybe_iterable: typing.Iterable) -> typing.Any:
     [1, [0, 1], 3]
     """
     try:
-        return [*map(deep_listify, maybe_iterable)]
+        if isinstance(maybe_iterable, str):
+            raise TypeError
+        else:
+            return [*map(deep_listify, maybe_iterable)]
     except TypeError:
         return maybe_iterable
