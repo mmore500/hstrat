@@ -42,6 +42,7 @@ from ._deep_listify import deep_listify
 from ._demark import demark
 from ._div_range import div_range
 from ._find_bounds import find_bounds
+from ._generate_omission_subsets import generate_omission_subsets
 from ._get_hstrat_version import get_hstrat_version
 from ._give_len import give_len
 from ._indices_of_unique import indices_of_unique
@@ -121,6 +122,7 @@ __all__ = [
     "demark",
     "div_range",
     "find_bounds",
+    "generate_omission_subsets",
     "get_hstrat_version",
     "give_len",
     "indices_of_unique",
