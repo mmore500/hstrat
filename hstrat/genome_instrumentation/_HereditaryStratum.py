@@ -1,3 +1,4 @@
+import operator
 import random
 import typing
 
@@ -61,13 +62,21 @@ class HereditaryStratum:
 
     def __eq__(self: "HereditaryStratum", other: "HereditaryStratum") -> bool:
         """Compare for value-wise equality."""
-        return (
+        # adapted from https://stackoverflow.com/a/4522896
+        if (
             isinstance(
                 other,
                 self.__class__,
             )
-            and self.__dict__ == other.__dict__
-        )
+            and self.__slots__ == other.__slots__
+        ):
+            return all(
+                getter(self) == getter(other)
+                for getter in [
+                    operator.attrgetter(attr) for attr in self.__slots__
+                ]
+            )
+        return False
 
     def GetDepositionRank(self: "HereditaryStratum") -> typing.Optional[int]:
         """Get the deposition order rank associated with this stratum, if stored.

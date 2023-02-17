@@ -1,4 +1,5 @@
 from copy import copy
+import operator
 import typing
 
 from interval_search import binary_search
@@ -36,13 +37,21 @@ class HereditaryStratumOrderedStoreList(HereditaryStratumOrderedStoreBase):
         other: "HereditaryStratumOrderedStoreList",
     ) -> bool:
         """Compare for value-wise equality."""
-        return (
+        # adapted from https://stackoverflow.com/a/4522896
+        if (
             isinstance(
                 other,
                 self.__class__,
             )
-            and self.__dict__ == other.__dict__
-        )
+            and self.__slots__ == other.__slots__
+        ):
+            return all(
+                getter(self) == getter(other)
+                for getter in [
+                    operator.attrgetter(attr) for attr in self.__slots__
+                ]
+            )
+        return False
 
     def DepositStratum(
         self: "HereditaryStratumOrderedStoreList",

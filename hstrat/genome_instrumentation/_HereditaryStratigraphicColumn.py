@@ -1,5 +1,6 @@
 from copy import copy
 import math
+import operator
 import sys
 import typing
 import warnings
@@ -158,13 +159,21 @@ class HereditaryStratigraphicColumn:
         other: "HereditaryStratigraphicColumn",
     ) -> bool:
         """Compare for value-wise equality."""
-        return (
+        # adapted from https://stackoverflow.com/a/4522896
+        if (
             isinstance(
                 other,
                 self.__class__,
             )
             and self.__slots__ == other.__slots__
-        )
+        ):
+            return all(
+                getter(self) == getter(other)
+                for getter in [
+                    operator.attrgetter(attr) for attr in self.__slots__
+                ]
+            )
+        return False
 
     def _ShouldOmitStratumDepositionRank(
         self: "HereditaryStratigraphicColumn",
