@@ -8,7 +8,10 @@ from iterpop import iterpop as ip
 import opytional as opyt
 import pandas as pd
 
-from ..._auxiliary_lib import alifestd_make_empty
+from ..._auxiliary_lib import (
+    alifestd_is_chronologically_ordered,
+    alifestd_make_empty,
+)
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ...juxtaposition import (
     calc_rank_of_first_retained_disparity_between,
@@ -109,7 +112,11 @@ def build_tree_glom(
 
     glom_root = GlomNode(origin_time=0)
 
-    for i, column in enumerate(population):
+    for i, column in enumerate(
+        sorted(
+            population, key=lambda x: x.GetNumStrataDeposited(), reverse=True
+        )
+    ):
         glom_root.PercolateColumn(column)
         logging.debug(glom_root)
         assert i + 1 == len(glom_root.leaves)
@@ -131,4 +138,11 @@ def build_tree_glom(
             node.taxon_label = f"Internal{internal_counter}"
             internal_counter += 1
 
-    return apc.anytree_tree_to_alife_dataframe(glom_root)
+    # for n in anytree.PostOrderIter(glom_root):
+    #     print(n.origin_time, n.GetBoundsIntersection(), len(n._leaves))
+
+    res = apc.anytree_tree_to_alife_dataframe(glom_root)
+    assert alifestd_is_chronologically_ordered(res), (
+        res,
+    )
+    return res

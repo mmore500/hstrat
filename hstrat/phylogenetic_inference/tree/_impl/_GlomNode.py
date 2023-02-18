@@ -1,6 +1,7 @@
 import itertools as it
 import logging
 import numbers
+import statistics
 import typing
 
 import anytree
@@ -25,17 +26,24 @@ from ...pairwise import (
     estimate_ranks_since_mrca_with,
 )
 
+confidence_level = 0.95
+
 
 def calc_rank_of_first_retained_disparity_between_(c1, c2):
     return opyt.or_value(
-        calc_rank_of_first_retained_disparity_between(c1, c2),
+        calc_rank_of_first_retained_disparity_between(
+            c1, c2, confidence_level=confidence_level
+        ),
         c1.GetNumStrataDeposited(),
     )
 
 
 def calc_rank_of_last_retained_commonality_between_(c1, c2):
     return opyt.or_value(
-        calc_rank_of_last_retained_commonality_between(c1, c2), 0
+        calc_rank_of_last_retained_commonality_between(
+            c1, c2, confidence_level=confidence_level
+        ),
+        0,
     )
 
 
@@ -44,7 +52,7 @@ class GlomNode(anytree.NodeMixin):
     _leaves: sc.SortedSet
     origin_time: numbers.Real
 
-    def __init__(self: "GlomNode", origin_time, parent=None, children=None):
+    def __init__(self: "GlomNode", origin_time=None, parent=None, children=None):
         # if parent:
         #     assert origin_time >= parent.origin_time
         self.origin_time = origin_time
@@ -57,6 +65,11 @@ class GlomNode(anytree.NodeMixin):
             self.children = children
             for child in children:
                 self._leaves.update(child._leaves)
+
+        if origin_time is not None:
+            self.origin_time = origin_time
+        if self._leaves:
+            self.UpdateOriginTime()
 
     @property
     def representative(self: "GlomNode"):
@@ -200,7 +213,8 @@ class GlomNode(anytree.NodeMixin):
             assert len(self.children) >= 2
 
             lrc = calc_rank_of_last_retained_commonality_among(
-                child.representative for child in self.children
+                (child.representative for child in self.children),
+                confidence_level=confidence_level,
             )
 
             # this is probably wrong
@@ -209,11 +223,15 @@ class GlomNode(anytree.NodeMixin):
                 logging.debug("inserting shim node")
                 logging.debug(f"self {id(self)} parent {id(self.parent)}")
                 # assert lrc >= self.origin_time
-                GlomNode(origin_time=opyt.apply_if_or_value(
-                    self.GetBoundsIntersection(),
-                    lambda x: x[0],
-                    lrc,
-                ), parent=self, children=self.children)
+                GlomNode(
+                    origin_time=opyt.apply_if_or_value(
+                        self.GetBoundsIntersection(),
+                        lambda x: x[0],
+                        lrc,
+                    ),
+                    parent=self,
+                    children=self.children,
+                )
 
             # assert self.origin_time >= min(last_commonalities)
             self.origin_time = min(last_commonalities)
@@ -224,7 +242,7 @@ class GlomNode(anytree.NodeMixin):
             child.PercolateColumn(column)
             if self.GetBoundsIntersection() is None:
                 self.ResolveFracture()
-            self.origin_time = self.GetBoundsIntersection()[0]
+            self.UpdateOriginTime()
             self.Checkup()
             assert len(child._leaves)
             logging.debug(f"coming back up through node {id(self)}")
@@ -273,9 +291,7 @@ class GlomNode(anytree.NodeMixin):
     ) -> typing.Optional[typing.Tuple[numbers.Integral, numbers.Integral]]:
         bounds = [
             calc_rank_of_mrca_bounds_between(
-                c1,
-                c2,
-                prior="arbitrary",
+                c1, c2, prior="arbitrary", confidence_level=confidence_level
             )
             for child1, child2 in it.combinations(self.children, r=2)
             for c1, c2 in it.product(child1._leaves, child2._leaves)
@@ -290,6 +306,8 @@ class GlomNode(anytree.NodeMixin):
                 c1.representative,
                 c2.representative,
                 prior="arbitrary",
+                confidence_level=confidence_level,
+                strict=False,
             )
             for c1, c2 in it.combinations(self.children, r=2)
         ]
@@ -322,13 +340,13 @@ class GlomNode(anytree.NodeMixin):
             self.children
         ) <= 1
 
-
-    def ResolveFracture(self: "GlomNode") -> bool:
+    def ResolveFracture(self: "GlomNode") -> None:
         bounds = [
             calc_rank_of_mrca_bounds_between(
                 c1.representative,
                 c2.representative,
                 prior="arbitrary",
+                confidence_level=confidence_level,
             )
             for c1, c2 in it.combinations(self.children, r=2)
         ]
@@ -342,25 +360,28 @@ class GlomNode(anytree.NodeMixin):
         # assert flat_len(partition) == 6  # handle more general case later
 
         gang = {
-            indiv
-            for combo_id in partition[-1]
-            for indiv in blame[combo_id]
+            indiv for combo_id in partition[-1] for indiv in blame[combo_id]
         }
 
         gang_nodes = [self.children[i] for i in gang]
-        gang_time = calc_rank_of_last_retained_commonality_among(
-            n.representative for n in gang_nodes
-        )
+        # gang_time = calc_rank_of_last_retained_commonality_among(
+        #     (n.representative for n in gang_nodes),
+        #     confidence_level=confidence_level,
+        # )
+        # assert gang_time is not None
 
-        assert self.origin_time <= gang_time
+        assert len(gang) < len(self.children)
+        # assert self.origin_time <= gang_time
 
-        GlomNode(origin_time=gang_time, parent=self, children=gang_nodes)
+        GlomNode(origin_time=None, parent=self, children=gang_nodes)
 
         print(partition, bounds, len(self.children))
         print("self", id(self))
         print("blame", blame)
         print("gang", gang)
-        self.origin_time = self.GetBoundsIntersection()[0]
+        if not self.HasValidBoundsIntersection():
+            self.ResolveFracture()
+        self.UpdateOriginTime()
 
     def PercolateColumn(
         self: "GlomNode", column: HereditaryStratigraphicColumn
@@ -373,8 +394,9 @@ class GlomNode(anytree.NodeMixin):
         if not self.HasValidBoundsIntersection():
             self.ResolveFracture()
 
-        if not self.HasValidOriginTime():
-            self.origin_time = self.GetBoundsIntersection()[0]
+        # if not self.HasValidOriginTime():
+        self.UpdateOriginTime()
+        assert self.origin_time >= 0
 
         assert self.HasValidBoundsIntersection()
         assert self.HasValidOriginTime()
@@ -384,17 +406,34 @@ class GlomNode(anytree.NodeMixin):
         # assert self.HasValidMegaBoundsIntersection()
 
     def Checkup(self: "GlomNode") -> None:
+        pass
+        assert self.origin_time >= 0
+        # assert not np.isnan(self.origin_time)
+
         assert self.HasValidBoundsIntersection(), self.GetBoundsIntersection()
+        if not self.HasValidOriginTime():
+            print(self.origin_time)
+            print(self.GetBoundsIntersection())
+            self.UpdateOriginTime()
+            print(self.origin_time)
         assert self.HasValidOriginTime(), (
             self.origin_time, self.GetBoundsIntersection(),
             "self id", id(self),
         )
 
-    def BigCheckup(self: "GlomNode") -> None:
-        assert self.HasValidMegaBoundsIntersection(), ("big checkup",
-            self.origin_time, self.GetMegaBoundsIntersection(),
-            "self id", id(self),
+    def UpdateOriginTime(self: "GlomNode") -> None:
+        self.origin_time = opyt.apply_if_or_value(
+            self.GetBoundsIntersection(),
+            lambda x: statistics.mean([x[1] - 1, x[0]]),
+            self._leaves[0].GetNumStrataDeposited() - 1,
         )
+
+    def BigCheckup(self: "GlomNode") -> None:
+        pass
+        # assert self.HasValidMegaBoundsIntersection(), ("big checkup",
+        #     self.origin_time, self.GetMegaBoundsIntersection(),
+        #     "self id", id(self),
+        # )
 
     def __str__(self: "GlomNode") -> str:
         return "\n".join(

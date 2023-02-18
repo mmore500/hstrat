@@ -65,34 +65,34 @@ def test_dual_population_no_mrca():
 @pytest.mark.parametrize(
     "orig_tree",
     [
-        # impl.setup_dendropy_tree(f"{assets_path}/grandchild_and_aunt.newick"),
-        # impl.setup_dendropy_tree(
-        #     f"{assets_path}/grandchild_and_auntuncle.newick"
-        # ),
-        # impl.setup_dendropy_tree(f"{assets_path}/grandchild.newick"),
-        # impl.setup_dendropy_tree(
-        #     f"{assets_path}/grandtriplets_and_aunt.newick"
-        # ),
-        # impl.setup_dendropy_tree(
-        #     f"{assets_path}/grandtriplets_and_auntuncle.newick"
-        # ),
-        # impl.setup_dendropy_tree(f"{assets_path}/grandtriplets.newick"),
-        # impl.setup_dendropy_tree(f"{assets_path}/grandtwins_and_aunt.newick"),
+        impl.setup_dendropy_tree(f"{assets_path}/grandchild_and_aunt.newick"),
+        impl.setup_dendropy_tree(
+            f"{assets_path}/grandchild_and_auntuncle.newick"
+        ),
+        impl.setup_dendropy_tree(f"{assets_path}/grandchild.newick"),
+        impl.setup_dendropy_tree(
+            f"{assets_path}/grandtriplets_and_aunt.newick"
+        ),
+        impl.setup_dendropy_tree(
+            f"{assets_path}/grandtriplets_and_auntuncle.newick"
+        ),
+        impl.setup_dendropy_tree(f"{assets_path}/grandtriplets.newick"),
+        impl.setup_dendropy_tree(f"{assets_path}/grandtwins_and_aunt.newick"),
         impl.setup_dendropy_tree(
             f"{assets_path}/grandtwins_and_auntuncle.newick"
         ),
-        # impl.setup_dendropy_tree(f"{assets_path}/grandtwins.newick"),
-        # impl.setup_dendropy_tree(f"{assets_path}/justroot.newick"),
-        # impl.setup_dendropy_tree(f"{assets_path}/triplets.newick"),
-        # impl.setup_dendropy_tree(f"{assets_path}/twins.newick"),
+        impl.setup_dendropy_tree(f"{assets_path}/grandtwins.newick"),
+        impl.setup_dendropy_tree(f"{assets_path}/justroot.newick"),
+        impl.setup_dendropy_tree(f"{assets_path}/triplets.newick"),
+        impl.setup_dendropy_tree(f"{assets_path}/twins.newick"),
     ],
 )
 @pytest.mark.parametrize(
     "retention_policy",
     [
-        # hstrat.perfect_resolution_algo.Policy(),
+        hstrat.perfect_resolution_algo.Policy(),
         # hstrat.recency_proportional_resolution_algo.Policy(3),
-        hstrat.fixed_resolution_algo.Policy(2),
+        # hstrat.fixed_resolution_algo.Policy(2),
     ],
 )
 def test_handwritten_trees(version_pin, orig_tree, retention_policy):
@@ -211,23 +211,29 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
         )
 
 
-# @pytest.mark.parametrize("tree_seed", range(10))
+@pytest.mark.parametrize("tree_seed", range(20))
 # @pytest.mark.parametrize("tree_seed", [20])
-@pytest.mark.parametrize("tree_seed", [4])
-# @pytest.mark.parametrize("tree_size", [20, 50, 100])
-@pytest.mark.parametrize("tree_size", [100])
+# @pytest.mark.parametrize("tree_seed", [4])
+@pytest.mark.parametrize("tree_size", [20, 50, 100, 200, 500])
+# @pytest.mark.parametrize("tree_size", [100])
+# @pytest.mark.parametrize("tree_size", [20])
+# @pytest.mark.parametrize("differentia_width", [8, 64])
+@pytest.mark.parametrize("differentia_width", [64])
 @pytest.mark.parametrize(
     "retention_policy",
     [
         # hstrat.perfect_resolution_algo.Policy(),
         hstrat.recency_proportional_resolution_algo.Policy(3),
-        # hstrat.fixed_resolution_algo.Policy(5),
+        hstrat.recency_proportional_resolution_algo.Policy(10),
+        hstrat.fixed_resolution_algo.Policy(5),
         # hstrat.fixed_resolution_algo.Policy(10),
         # hstrat.fixed_resolution_algo.Policy(15),
         # hstrat.fixed_resolution_algo.Policy(120),
     ],
 )
-def test_reconstructed_mrca_fuzz(tree_seed, tree_size, retention_policy):
+def test_reconstructed_mrca_fuzz(
+    tree_seed, tree_size, differentia_width, retention_policy
+):
 
     nx_tree = nx.random_tree(
         n=tree_size, seed=tree_seed, create_using=nx.DiGraph
@@ -237,6 +243,7 @@ def test_reconstructed_mrca_fuzz(tree_seed, tree_size, retention_policy):
         nx_tree,
         seed_column=hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,
+            stratum_differentia_bit_width=differentia_width,
         ),
     )
 
@@ -285,7 +292,7 @@ def test_reconstructed_mrca_fuzz(tree_seed, tree_size, retention_policy):
             lower_mrca_bound,
             upper_mrca_bound,
         ) = hstrat.calc_rank_of_mrca_bounds_between(
-            *extant_column_pair, prior="arbitrary"
+            *extant_column_pair, prior="arbitrary", confidence_level = 0.95, strict=False
         )
 
         assert (
