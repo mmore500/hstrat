@@ -48,9 +48,6 @@ class HereditaryStratum:
         deposition_rank : int, optional
             The position of the stratum being deposited within the sequence of strata deposited into the column. Precisely, the number of strata that have been deposited before stratum.
         """
-        if deposition_rank is not None:
-            self._deposition_rank = deposition_rank
-
         if differentia is not None:
             if differentia_bit_width is not None:
                 assert differentia < 2**differentia_bit_width
@@ -59,6 +56,7 @@ class HereditaryStratum:
             self._differentia = random.randrange(2**differentia_bit_width)
 
         self._annotation = annotation
+        self._deposition_rank = deposition_rank
 
     def __eq__(self: "HereditaryStratum", other: "HereditaryStratum") -> bool:
         """Compare for value-wise equality."""
