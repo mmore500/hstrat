@@ -211,21 +211,23 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
         )
 
 
-@pytest.mark.parametrize("tree_seed", range(20))
-# @pytest.mark.parametrize("tree_seed", [20])
+@pytest.mark.parametrize("tree_seed", range(2000))
+# @pytest.mark.parametrize("tree_seed", [305])
 # @pytest.mark.parametrize("tree_seed", [4])
-@pytest.mark.parametrize("tree_size", [20, 50, 100, 200, 500])
+@pytest.mark.parametrize("tree_size", [15])
 # @pytest.mark.parametrize("tree_size", [100])
-# @pytest.mark.parametrize("tree_size", [20])
-# @pytest.mark.parametrize("differentia_width", [8, 64])
+# @pytest.mark.parametrize("tree_size", [15])
 @pytest.mark.parametrize("differentia_width", [64])
+# @pytest.mark.parametrize("differentia_width", [4])
+# @pytest.mark.parametrize("differentia_width", [1])
 @pytest.mark.parametrize(
     "retention_policy",
     [
         # hstrat.perfect_resolution_algo.Policy(),
-        hstrat.recency_proportional_resolution_algo.Policy(3),
-        hstrat.recency_proportional_resolution_algo.Policy(10),
-        hstrat.fixed_resolution_algo.Policy(5),
+        hstrat.recency_proportional_resolution_algo.Policy(1),
+        # hstrat.recency_proportional_resolution_algo.Policy(2),
+        # hstrat.recency_proportional_resolution_algo.Policy(10),
+        # hstrat.fixed_resolution_algo.Policy(2),
         # hstrat.fixed_resolution_algo.Policy(10),
         # hstrat.fixed_resolution_algo.Policy(15),
         # hstrat.fixed_resolution_algo.Policy(120),
@@ -292,8 +294,24 @@ def test_reconstructed_mrca_fuzz(
             lower_mrca_bound,
             upper_mrca_bound,
         ) = hstrat.calc_rank_of_mrca_bounds_between(
-            *extant_column_pair, prior="arbitrary", confidence_level = 0.95, strict=False
+            *extant_column_pair, prior="arbitrary", confidence_level = 0.999999, strict=False
         )
+
+        if not (
+            lower_mrca_bound
+            <= reconst_mrca.distance_from_root()
+            < upper_mrca_bound
+        ):
+            print(reconst_mrca.taxon.label)
+            print(reconst_mrca.distance_from_root())
+            print()
+            print(nx.forest_str(nx_tree))
+            for col, ln in zip(extant_population, sorted_leaf_nodes):
+                print()
+                print(ln.distance_from_root())
+                print(id(col))
+                print(hstrat.col_to_ascii(col))
+            print(reconst_tree.as_ascii_plot(plot_metric="length"))
 
         assert (
             lower_mrca_bound

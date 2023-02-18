@@ -4,6 +4,9 @@ from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
 from ._alifestd_aggregate_phylogenies import alifestd_aggregate_phylogenies
 from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
 from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
+from ._alifestd_find_chronological_inconsistency import (
+    alifestd_find_chronological_inconsistency,
+)
 from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
 from ._alifestd_find_root_ids import alifestd_find_root_ids
 from ._alifestd_has_compact_ids import alifestd_has_compact_ids

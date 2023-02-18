@@ -19,6 +19,9 @@ from ....juxtaposition import (
     calc_rank_of_last_retained_commonality_among,
     calc_rank_of_last_retained_commonality_between,
 )
+from ....stratum_retention_viz import (
+    col_to_ascii,
+)
 from ...pairwise import (
     calc_rank_of_mrca_bounds_between,
     estimate_patristic_distance_between,
@@ -26,7 +29,7 @@ from ...pairwise import (
     estimate_ranks_since_mrca_with,
 )
 
-confidence_level = 0.95
+confidence_level = 0.49
 
 
 def calc_rank_of_first_retained_disparity_between_(c1, c2):
@@ -76,8 +79,15 @@ class GlomNode(anytree.NodeMixin):
         return self._leaves[0]
 
     @property
+    def longestrepresentative(self: "GlomNode"):
+        return self._leaves[-1]
+
+    @property
     def name(self: "GlomNode"):
-        return " ".join(map(str, map(id, self._leaves)))
+        if len(self._leaves) == 1:
+            return " ".join(map(str, map(id, self._leaves)))
+        else:
+            return ""
 
     def _PercolateColumn(
         self: "GlomNode", column: HereditaryStratigraphicColumn
@@ -340,7 +350,8 @@ class GlomNode(anytree.NodeMixin):
             self.children
         ) <= 1
 
-    def ResolveFracture(self: "GlomNode") -> None:
+    def ResolveFracture(self: "GlomNode", cl = 0.49) -> None:
+        print("boo")
         bounds = [
             calc_rank_of_mrca_bounds_between(
                 c1.representative,
@@ -370,15 +381,105 @@ class GlomNode(anytree.NodeMixin):
         # )
         # assert gang_time is not None
 
-        assert len(gang) < len(self.children)
-        # assert self.origin_time <= gang_time
-
-        GlomNode(origin_time=None, parent=self, children=gang_nodes)
-
         print(partition, bounds, len(self.children))
         print("self", id(self))
         print("blame", blame)
         print("gang", gang)
+        for g in gang:
+            print(id(self.children[g].representative))
+            print(col_to_ascii(self.children[g].representative))
+
+        # +----------------------------------------------------+
+        # |                    MOST ANCIENT                    |
+        # +--------------+---------------+---------------------+
+        # | stratum rank | stratum index | stratum differentia |
+        # +--------------+---------------+---------------------+
+        # |      0       |       0       |          0*         |
+        # +--------------+---------------+---------------------+
+        # |      1       |       1       |          0*         |
+        # +--------------+---------------+---------------------+
+        # |      2       |       2       |          1*         |
+        # +--------------+---------------+---------------------+
+        # |      3       |       3       |          1*         |
+        # +--------------+---------------+---------------------+
+        # |      4       |       4       |          1*         |
+        # +--------------+---------------+---------------------+
+        # |                    MOST RECENT                     |
+        # +----------------------------------------------------+
+        # +----------------------------------------------------+
+        # |                    MOST ANCIENT                    |
+        # +--------------+---------------+---------------------+
+        # | stratum rank | stratum index | stratum differentia |
+        # +--------------+---------------+---------------------+
+        # |      0       |       0       |          0*         |
+        # +--------------+---------------+---------------------+
+        # |      1       |       1       |          0*         |
+        # +--------------+---------------+---------------------+
+        # |      2       |       2       |          1*         |
+        # +--------------+---------------+---------------------+
+        # |      3       |       3       |          0*         |
+        # +--------------+---------------+---------------------+
+        # |      4       |       4       |          1*         |
+        # +--------------+---------------+---------------------+
+        # |                    MOST RECENT                     |
+        # +----------------------------------------------------+
+        # +----------------------------------------------------+
+        # |                    MOST ANCIENT                    |
+        # +--------------+---------------+---------------------+
+        # | stratum rank | stratum index | stratum differentia |
+        # +--------------+---------------+---------------------+
+        # |      0       |       0       |          0*         |
+        # +--------------+---------------+---------------------+
+        # |      1       | ░░░░░░░░░░░░░ | ░░░░░░░░░░░░░░░░░░░ |
+        # +--------------+---------------+---------------------+
+        # |      2       |       1       |          1*         |
+        # +--------------+---------------+---------------------+
+        # |      3       | ░░░░░░░░░░░░░ | ░░░░░░░░░░░░░░░░░░░ |
+        # +--------------+---------------+---------------------+
+        # |      4       |       2       |          1*         |
+        # +--------------+---------------+---------------------+
+        # |      5       |       3       |          1*         |
+        # +--------------+---------------+---------------------+
+        # |      6       |       4       |          0*         |
+        # +--------------+---------------+---------------------+
+        # |      7       |       5       |          1*         |
+        # +--------------+---------------+---------------------+
+        # |      8       |       6       |          0*         |
+        # +--------------+---------------+---------------------+
+        # |      9       |       7       |          1*         |
+        # +--------------+---------------+---------------------+
+        # |      10      |       8       |          1*         |
+        # +--------------+---------------+---------------------+
+        # |                    MOST RECENT                     |
+        # +----------------------------------------------------+
+
+        if len(gang) == len(self.children):
+            # problem: one has missing strata
+            # A   B   C
+            # 1   1   1
+            # 0   X   1
+            # 1   1   1
+            # etc.
+            oddone = (
+                max(gang, key=lambda x: self.children[x].representative.GetNumStrataDeposited())
+            )
+            oddone = self.children[oddone]
+            oddone.parent = None
+            for leaf in oddone._leaves:
+                self.children[0].PercolateColumn(leaf)
+            #
+            #     # max(self.children, key=lambda x: calc_rank_of_last_retained_commonality_between_(x.longestrepresentative, leaf))
+            #
+            #     for child in self.children:
+                    # child.PercolateColumn(leaf)
+            return
+
+        assert len(gang) < len(self.children)
+        # assert self.origin_time <= gang_time
+
+        x = GlomNode(origin_time=None, parent=self, children=gang_nodes)
+        x.UpdateOriginTime()
+
         if not self.HasValidBoundsIntersection():
             self.ResolveFracture()
         self.UpdateOriginTime()
@@ -424,7 +525,9 @@ class GlomNode(anytree.NodeMixin):
     def UpdateOriginTime(self: "GlomNode") -> None:
         self.origin_time = opyt.apply_if_or_value(
             self.GetBoundsIntersection(),
-            lambda x: statistics.mean([x[1] - 1, x[0]]),
+            # lambda x: statistics.mean([x[1] - 1, x[0]]),
+            lambda x: x[1] - 1,
+            # lambda x: x[1] - 1,
             self._leaves[0].GetNumStrataDeposited() - 1,
         )
 

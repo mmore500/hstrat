@@ -9,6 +9,7 @@ import opytional as opyt
 import pandas as pd
 
 from ..._auxiliary_lib import (
+    alifestd_find_chronological_inconsistency,
     alifestd_is_chronologically_ordered,
     alifestd_make_empty,
 )
@@ -25,6 +26,9 @@ from ..pairwise import (
 from ..population import (
     build_distance_matrix_biopython,
     does_definitively_share_no_common_ancestor,
+)
+from ...stratum_retention_viz import (
+    col_to_ascii
 )
 from ._impl import GlomNode
 
@@ -114,16 +118,23 @@ def build_tree_glom(
 
     for i, column in enumerate(
         sorted(
-            population, key=lambda x: x.GetNumStrataDeposited(), reverse=True
+            population, key=lambda x: x.GetNumStrataDeposited(),
+            # reverse=True,
         )
     ):
         glom_root.PercolateColumn(column)
         logging.debug(glom_root)
         assert i + 1 == len(glom_root.leaves)
 
-        for n in anytree.PostOrderIter(glom_root):
-            n.Checkup()
-            n.BigCheckup()
+        # for n in anytree.PostOrderIter(glom_root):
+        #     pass
+            # n.Checkup()
+            # n.BigCheckup()
+
+    for n in anytree.PostOrderIter(glom_root):
+        n.UpdateOriginTime()
+
+    print(glom_root)
 
     logging.debug("taxon_labels and corresponding ids")
     logging.debug(dict(zip(taxon_labels, map(id, population))))
@@ -141,8 +152,19 @@ def build_tree_glom(
     # for n in anytree.PostOrderIter(glom_root):
     #     print(n.origin_time, n.GetBoundsIntersection(), len(n._leaves))
 
+    for col in population:
+        print()
+        print(id(col))
+        print(col_to_ascii(col))
+
+
     res = apc.anytree_tree_to_alife_dataframe(glom_root)
-    assert alifestd_is_chronologically_ordered(res), (
-        res,
-    )
+    print(res)
+    if not alifestd_is_chronologically_ordered(res):
+        for label, col in zip(taxon_labels, population):
+            print(label, col_to_ascii(col))
+        assert alifestd_is_chronologically_ordered(res), (
+            res,
+            alifestd_find_chronological_inconsistency(res),
+        )
     return res
