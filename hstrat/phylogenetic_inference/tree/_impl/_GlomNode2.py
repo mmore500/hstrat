@@ -395,7 +395,9 @@ class GlomNode2(anytree.NodeMixin):
                         to_push.add(child1)
                         to_push.add(child2)
 
-            assert len(to_push) < len(self.children)
+            # assert len(to_push) < len(self.children)
+            if len(to_push) == len(self.children):
+                continue
             if to_push:
                 logging.debug(f"resolving shim {to_push}")
                 GlomNode2(
