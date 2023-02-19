@@ -37,6 +37,7 @@ def build_tree_glom(
     # prior: typing.Union[str, typing.Any],
     taxon_labels: typing.Optional[typing.Iterable] = None,
     force_common_ancestry: bool = False,
+    progress_wrap = lambda x: x,
 ) -> pd.DataFrame:
     """Estimate the phylogenetic history among hereditary stratigraphic
     columns using an agglomerative approach followed by progressive refinement.
@@ -115,11 +116,11 @@ def build_tree_glom(
     glom_root = GlomNode2()
 
     for i, column in enumerate(
-        sorted(
+        progress_wrap(sorted(
             population,
             key=lambda x: x.GetNumStrataDeposited(),
             # reverse=True,
-        )
+        ))
     ):
         glom_root.PercolateColumn(column)
         logging.debug(glom_root)

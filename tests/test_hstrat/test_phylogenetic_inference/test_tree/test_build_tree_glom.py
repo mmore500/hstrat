@@ -9,9 +9,10 @@ import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
 import networkx as nx
 import pytest
+from tqdm import tqdm
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import alifestd_validate
+from hstrat._auxiliary_lib import alifestd_validate, seed_random
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
@@ -91,8 +92,6 @@ def test_dual_population_no_mrca():
     "retention_policy",
     [
         hstrat.perfect_resolution_algo.Policy(),
-        # hstrat.recency_proportional_resolution_algo.Policy(3),
-        # hstrat.fixed_resolution_algo.Policy(2),
     ],
 )
 def test_handwritten_trees(version_pin, orig_tree, retention_policy):
@@ -211,34 +210,22 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
         )
 
 
-@pytest.mark.parametrize("tree_seed", range(200))
-# @pytest.mark.parametrize("tree_seed", [175])
-# @pytest.mark.parametrize("tree_seed", [305])
-# @pytest.mark.parametrize("tree_seed", [4])
-# @pytest.mark.parametrize("tree_size", [10, 30, 100, 300, 1000])
-@pytest.mark.parametrize("tree_size", [200])
-# @pytest.mark.parametrize("tree_size", [15])
-# @pytest.mark.parametrize("differentia_width", [64])
-# @pytest.mark.parametrize("differentia_width", [1, 8, 64])
-@pytest.mark.parametrize("differentia_width", [8])
-# @pytest.mark.parametrize("differentia_width", [1])
+@pytest.mark.parametrize("tree_size", [10, 30, 100, 300, 1000])
+@pytest.mark.parametrize("differentia_width", [1, 2, 8, 64])
+@pytest.mark.parametrize("tree_seed", range(100))
 @pytest.mark.parametrize(
     "retention_policy",
     [
-        # hstrat.perfect_resolution_algo.Policy(),
         hstrat.recency_proportional_resolution_algo.Policy(1),
-        # hstrat.recency_proportional_resolution_algo.Policy(2),
-        # hstrat.recency_proportional_resolution_algo.Policy(10),
-        # hstrat.fixed_resolution_algo.Policy(2),
-        # hstrat.fixed_resolution_algo.Policy(10),
-        # hstrat.fixed_resolution_algo.Policy(15),
-        # hstrat.fixed_resolution_algo.Policy(120),
+        hstrat.recency_proportional_resolution_algo.Policy(10),
+        hstrat.fixed_resolution_algo.Policy(2),
     ],
 )
 def test_reconstructed_mrca_fuzz(
     tree_seed, tree_size, differentia_width, retention_policy
 ):
 
+    seed_random(tree_seed)
     nx_tree = nx.random_tree(
         n=tree_size, seed=tree_seed, create_using=nx.DiGraph
     )
@@ -251,7 +238,7 @@ def test_reconstructed_mrca_fuzz(
         ),
     )
 
-    reconst_df = hstrat.build_tree_glom(extant_population)
+    reconst_df = hstrat.build_tree_glom(extant_population, progress_wrap=tqdm)
     assert "origin_time" in reconst_df
 
     assert alifestd_validate(reconst_df)
