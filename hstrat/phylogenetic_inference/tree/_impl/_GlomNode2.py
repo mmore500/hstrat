@@ -273,14 +273,14 @@ class GlomNode2(anytree.NodeMixin):
             calc_rank_of_first_retained_disparity_between(
                 c1.shortrep, c2.shortrep
             )
-            or 0
+            or min(c1.shortrep.GetNumStrataDeposited(), c2.shortrep.GetNumStrataDeposited())
             for c1, c2 in pairwise(self.children)
         )
         long = min(
             calc_rank_of_first_retained_disparity_between(
-                c1.shortrep, c2.shortrep
+                c1.longrep, c2.longrep
             )
-            or 0
+            or min(c1.longrep.GetNumStrataDeposited(), c2.longrep.GetNumStrataDeposited())
             for c1, c2 in pairwise(self.children)
         )
         return min(short, long) - 1
@@ -320,11 +320,19 @@ class GlomNode2(anytree.NodeMixin):
         #     logging.debug(f"{id(self)} origin_time: bounds intersection short")
         #     res = self.GetBoundsIntersectionShort()[1] - 1
         elif True:
+            res = min(
+                opyt.or_value(calc_rank_of_first_retained_disparity_between(
+                    l1, l2, confidence_level=confidence_level
+                ), l1.GetNumStrataDeposited())
+                for l1, l2 in it.combinations(self._leaves, r=2)
+            ) - 1
+        elif True:
             logging.debug(
                 f"{id(self)} origin_time: bounds intersection frontpoint"
             )
             res = min(
                 self.GetFrontpoint(),
+                self.GetBackpoint(),
                 min(child.origin_time for child in self.children),
             )
         else:
