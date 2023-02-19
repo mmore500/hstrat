@@ -212,12 +212,14 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
 
 
 @pytest.mark.parametrize("tree_seed", range(2000))
+# @pytest.mark.parametrize("tree_seed", [136])
 # @pytest.mark.parametrize("tree_seed", [305])
 # @pytest.mark.parametrize("tree_seed", [4])
-@pytest.mark.parametrize("tree_size", [15])
+@pytest.mark.parametrize("tree_size", [100])
 # @pytest.mark.parametrize("tree_size", [100])
 # @pytest.mark.parametrize("tree_size", [15])
-@pytest.mark.parametrize("differentia_width", [64])
+# @pytest.mark.parametrize("differentia_width", [64])
+@pytest.mark.parametrize("differentia_width", [1])
 # @pytest.mark.parametrize("differentia_width", [4])
 # @pytest.mark.parametrize("differentia_width", [1])
 @pytest.mark.parametrize(
@@ -294,7 +296,10 @@ def test_reconstructed_mrca_fuzz(
             lower_mrca_bound,
             upper_mrca_bound,
         ) = hstrat.calc_rank_of_mrca_bounds_between(
-            *extant_column_pair, prior="arbitrary", confidence_level = 0.999999, strict=False
+            *extant_column_pair,
+            prior="arbitrary",
+            confidence_level=0.9999,
+            strict=False,
         )
 
         if not (
@@ -305,12 +310,12 @@ def test_reconstructed_mrca_fuzz(
             print(reconst_mrca.taxon.label)
             print(reconst_mrca.distance_from_root())
             print()
-            print(nx.forest_str(nx_tree))
             for col, ln in zip(extant_population, sorted_leaf_nodes):
                 print()
                 print(ln.distance_from_root())
                 print(id(col))
                 print(hstrat.col_to_ascii(col))
+            print(nx.forest_str(nx_tree))
             print(reconst_tree.as_ascii_plot(plot_metric="length"))
 
         assert (

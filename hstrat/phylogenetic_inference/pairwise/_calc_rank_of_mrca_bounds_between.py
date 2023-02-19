@@ -19,7 +19,7 @@ def calc_rank_of_mrca_bounds_between(
     second: HereditaryStratigraphicColumn,
     prior: str,
     confidence_level: float = 0.95,
-    strict = True,
+    strict=True,
 ) -> typing.Optional[typing.Tuple[int, int]]:
     """Within what generation range did MRCA fall?
 
@@ -113,11 +113,14 @@ def calc_rank_of_mrca_bounds_between(
             "ancestry at given confidence level."
         )
 
-    if does_have_any_common_ancestor(
-        first,
-        second,
-        confidence_level=confidence_level,
-    ) or not strict:
+    if (
+        does_have_any_common_ancestor(
+            first,
+            second,
+            confidence_level=confidence_level,
+        )
+        or not strict
+    ):
         first_disparity = (
             calc_definitive_max_rank_of_first_retained_disparity_between(
                 first,

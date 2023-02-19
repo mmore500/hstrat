@@ -27,10 +27,8 @@ from ..population import (
     build_distance_matrix_biopython,
     does_definitively_share_no_common_ancestor,
 )
-from ...stratum_retention_viz import (
-    col_to_ascii
-)
-from ._impl import GlomNode
+from ...stratum_retention_viz import col_to_ascii
+from ._impl import GlomNode2
 
 
 def build_tree_glom(
@@ -114,27 +112,34 @@ def build_tree_glom(
         for column, taxon_label in zip(population, taxon_labels)
     }
 
-    glom_root = GlomNode(origin_time=0)
+    glom_root = GlomNode2()
 
     for i, column in enumerate(
         sorted(
-            population, key=lambda x: x.GetNumStrataDeposited(),
+            population,
+            key=lambda x: x.GetNumStrataDeposited(),
             # reverse=True,
         )
     ):
         glom_root.PercolateColumn(column)
         logging.debug(glom_root)
-        assert i + 1 == len(glom_root.leaves)
+        assert i + 1 == len(glom_root._leaves), (i, len(glom_root._leaves))
+        assert i + 1 == len(glom_root.leaves), (i, len(glom_root.leaves))
+
+        # print(glom_root)
 
         # for n in anytree.PostOrderIter(glom_root):
         #     pass
-            # n.Checkup()
-            # n.BigCheckup()
+        # n.Checkup()
+        # n.BigCheckup()
+
+    # if glom_root.origin_time != 0:
+    glom_root = GlomNode2(children=(glom_root,))
 
     for n in anytree.PostOrderIter(glom_root):
-        n.UpdateOriginTime()
+        n.Validate()
 
-    print(glom_root)
+    # print(glom_root)
 
     logging.debug("taxon_labels and corresponding ids")
     logging.debug(dict(zip(taxon_labels, map(id, population))))
@@ -152,14 +157,13 @@ def build_tree_glom(
     # for n in anytree.PostOrderIter(glom_root):
     #     print(n.origin_time, n.GetBoundsIntersection(), len(n._leaves))
 
-    for col in population:
-        print()
-        print(id(col))
-        print(col_to_ascii(col))
-
+    # for col in population:
+    #     print()
+    #     print(id(col))
+    #     print(col_to_ascii(col))
 
     res = apc.anytree_tree_to_alife_dataframe(glom_root)
-    print(res)
+    # print(res)
     if not alifestd_is_chronologically_ordered(res):
         for label, col in zip(taxon_labels, population):
             print(label, col_to_ascii(col))
@@ -168,3 +172,9 @@ def build_tree_glom(
             alifestd_find_chronological_inconsistency(res),
         )
     return res
+
+    def __str__(self: "GlomNode") -> str:
+        return "\n".join(
+            f"{pre} ({id(node)}) {node.origin_time} {node.name}"
+            for pre, __, node in anytree.RenderTree(self)
+        )
