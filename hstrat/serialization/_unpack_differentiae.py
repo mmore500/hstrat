@@ -7,7 +7,9 @@ import numpy as np
 from .._auxiliary_lib import iter_chunks
 
 
-def _numpy_unpack_differentiae(_bytes, differentia_bit_width):
+def _numpy_unpack_differentiae(
+    _bytes: bytes, differentia_bit_width: int
+) -> typing.Iterator[int]:
     # numpy dtypes can be composed of various attributes
     # in this case, we want our type to be big-endian (>),
     # and to be composed of `num_bytes` unsigned ints (u).
@@ -17,7 +19,9 @@ def _numpy_unpack_differentiae(_bytes, differentia_bit_width):
     yield from np.frombuffer(_bytes, dtype=dt)
 
 
-def _bitarray_unpack_differentiae(_bytes, differentia_bit_width):
+def _bitarray_unpack_differentiae(
+    _bytes: bytes, differentia_bit_width: int
+) -> typing.Iterator[int]:
     bits = BitArray(bytes=_bytes)
     num_padding_bits = bits[:8].uint
     if num_padding_bits:
@@ -34,10 +38,9 @@ def _bitarray_unpack_differentiae(_bytes, differentia_bit_width):
 def unpack_differentiae(
     packed_differentiae: str,
     differentia_bit_width: int,
-) -> typing.Iterable[int]:
+) -> typing.Iterator[int]:
     """Unpack a compact, concatenated base 64 representation into
-    a sequence with each element represented as a distinct integer.
-    """
+    a sequence with each element represented as a distinct integer."""
     _bytes = b64decode(packed_differentiae)
 
     if differentia_bit_width in [8, 16, 32, 64]:
