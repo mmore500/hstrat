@@ -126,18 +126,24 @@ def build_tree_glom(
         assert i + 1 == len(glom_root._leaves), (i, len(glom_root._leaves))
         assert i + 1 == len(glom_root.leaves), (i, len(glom_root.leaves))
 
+
+        for n in anytree.PostOrderIter(glom_root):
+            n.Validate()
+
         # print(glom_root)
 
         # for n in anytree.PostOrderIter(glom_root):
         #     pass
         # n.Checkup()
         # n.BigCheckup()
+    # print(glom_root)
+
+    for n in anytree.PostOrderIter(glom_root):
+        # pass
+        n.ResolveShims()
 
     # if glom_root.origin_time != 0:
     glom_root = GlomNode2(children=(glom_root,))
-
-    for n in anytree.PostOrderIter(glom_root):
-        n.Validate()
 
     # print(glom_root)
 

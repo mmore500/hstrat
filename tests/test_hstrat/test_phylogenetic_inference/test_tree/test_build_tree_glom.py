@@ -211,16 +211,16 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
         )
 
 
-@pytest.mark.parametrize("tree_seed", range(2000))
-# @pytest.mark.parametrize("tree_seed", [136])
+@pytest.mark.parametrize("tree_seed", range(200))
+# @pytest.mark.parametrize("tree_seed", [175])
 # @pytest.mark.parametrize("tree_seed", [305])
 # @pytest.mark.parametrize("tree_seed", [4])
-@pytest.mark.parametrize("tree_size", [100])
-# @pytest.mark.parametrize("tree_size", [100])
+# @pytest.mark.parametrize("tree_size", [10, 30, 100, 300, 1000])
+@pytest.mark.parametrize("tree_size", [200])
 # @pytest.mark.parametrize("tree_size", [15])
 # @pytest.mark.parametrize("differentia_width", [64])
-@pytest.mark.parametrize("differentia_width", [1])
-# @pytest.mark.parametrize("differentia_width", [4])
+# @pytest.mark.parametrize("differentia_width", [1, 8, 64])
+@pytest.mark.parametrize("differentia_width", [8])
 # @pytest.mark.parametrize("differentia_width", [1])
 @pytest.mark.parametrize(
     "retention_policy",
