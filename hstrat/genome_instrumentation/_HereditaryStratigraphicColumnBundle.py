@@ -1,4 +1,5 @@
 from copy import copy
+import operator
 import typing
 
 from ._HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
@@ -11,6 +12,8 @@ class HereditaryStratigraphicColumnBundle:
     descent with a similar interface to an individual
     HereditaryStratigraphicColumn.
     """
+
+    __slots__ = ("_columns",)
 
     _columns: typing.Dict[str, HereditaryStratigraphicColumn]
 
@@ -56,12 +59,19 @@ class HereditaryStratigraphicColumnBundle:
         other: "HereditaryStratigraphicColumnBundle",
     ) -> bool:
         """Compare for value-wise equality."""
+        # adapted from https://stackoverflow.com/a/4522896
         return (
             isinstance(
                 other,
                 self.__class__,
             )
-            and self.__dict__ == other.__dict__
+            and self.__slots__ == other.__slots__
+            and all(
+                getter(self) == getter(other)
+                for getter in [
+                    operator.attrgetter(attr) for attr in self.__slots__
+                ]
+            )
         )
 
     def DepositStratum(
