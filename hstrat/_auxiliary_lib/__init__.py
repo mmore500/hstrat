@@ -36,6 +36,7 @@ from ._as_compact_type import as_compact_type
 from ._assign_intersecting_subsets import assign_intersecting_subsets
 from ._bit_ceil import bit_ceil
 from ._bit_floor import bit_floor
+from ._capitalize_n import capitalize_n
 from ._caretdown_marker import caretdown_marker
 from ._caretup_marker import caretup_marker
 from ._check_testing_requirements import check_testing_requirements
@@ -122,6 +123,7 @@ __all__ = [
     "AnyTreeAscendingIter",
     "bit_ceil",
     "bit_floor",
+    "capitalize_n",
     "caretdown_marker",
     "caretup_marker",
     "check_testing_requirements",
