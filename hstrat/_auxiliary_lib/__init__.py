@@ -33,6 +33,7 @@ from ._all_same import all_same
 from ._all_unique import all_unique
 from ._apply_swaps import apply_swaps
 from ._as_compact_type import as_compact_type
+from ._as_nullable_type import as_nullable_type
 from ._assign_intersecting_subsets import assign_intersecting_subsets
 from ._bit_ceil import bit_ceil
 from ._bit_floor import bit_floor
@@ -119,6 +120,7 @@ __all__ = [
     "all_unique",
     "apply_swaps",
     "as_compact_type",
+    "as_nullable_type",
     "assign_intersecting_subsets",
     "AnyTreeAscendingIter",
     "bit_ceil",
