@@ -70,6 +70,7 @@ from ._launder_impl_modules import launder_impl_modules
 from ._log_once_in_a_row import log_once_in_a_row
 from ._make_intersecting_subsets import make_intersecting_subsets
 from ._memoize_generator import memoize_generator
+from ._min_array_dtype import min_array_dtype
 from ._omit_last import omit_last
 from ._pairwise import pairwise
 from ._popcount import popcount
@@ -154,6 +155,7 @@ __all__ = [
     "log_once_in_a_row",
     "make_intersecting_subsets",
     "memoize_generator",
+    "min_array_dtype",
     "omit_last",
     "pairwise",
     "popcount",
