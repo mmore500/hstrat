@@ -77,6 +77,7 @@ from ._min_array_dtype import min_array_dtype
 from ._omit_last import omit_last
 from ._pairwise import pairwise
 from ._popcount import popcount
+from ._raises import raises
 from ._release_cur_mpl_fig import release_cur_mpl_fig
 from ._scale_luminosity import scale_luminosity
 from ._seed_random import seed_random
@@ -166,6 +167,7 @@ __all__ = [
     "pairwise",
     "popcount",
     "RecursionLimit",
+    "raises",
     "release_cur_mpl_fig",
     "scale_luminosity",
     "ScalarFormatterFixedPrecision",
