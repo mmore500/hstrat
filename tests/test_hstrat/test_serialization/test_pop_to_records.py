@@ -1,7 +1,9 @@
+import functools
 import json
 import random
 
 import pytest
+from tqdm import tqdm
 
 from hstrat import genome_instrumentation, hstrat
 
@@ -58,7 +60,9 @@ def test_pop_to_records(
             pop[0] = pop[-1].CloneDescendant()
 
     assert hstrat.pop_to_records(pop) == hstrat.pop_to_records(pop)
-    records = hstrat.pop_to_records(pop)
+    records = hstrat.pop_to_records(
+        pop, progress_wrap=functools.partial(tqdm, disable=True)
+    )
     for field in (
         "policy",
         "policy_algo",
@@ -69,7 +73,9 @@ def test_pop_to_records(
         assert field in records
         assert not any(field in col_rec for col_rec in records["columns"])
 
-    reconstituted = hstrat.pop_from_records(records)
+    reconstituted = hstrat.pop_from_records(
+        records, progress_wrap=functools.partial(tqdm, disable=True)
+    )
     if (
         ordered_store == hstrat.HereditaryStratumOrderedStoreList
         and impl == genome_instrumentation.HereditaryStratigraphicColumn
@@ -82,7 +88,10 @@ def test_pop_to_records(
 
     records = hstrat.pop_to_records(pop)
     json_str = json.dumps(records)
-    reconstituted = hstrat.pop_from_records(json.loads(json_str))
+    reconstituted = hstrat.pop_from_records(
+        json.loads(json_str),
+        progress_wrap=functools.partial(tqdm, disable=True),
+    )
     if (
         ordered_store == hstrat.HereditaryStratumOrderedStoreList
         and impl == genome_instrumentation.HereditaryStratigraphicColumn
@@ -154,7 +163,7 @@ def test_pop_to_records_then_from_records(
         assert reconstituted == pop
     else:
         assert hstrat.pop_to_records(reconstituted) == hstrat.pop_to_records(
-            pop
+            pop, progress_wrap=functools.partial(tqdm, disable=True)
         )
 
 

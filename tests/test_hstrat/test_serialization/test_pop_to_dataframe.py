@@ -1,6 +1,8 @@
+import functools
 import random
 
 import pytest
+from tqdm import tqdm
 
 from hstrat import hstrat
 
@@ -26,7 +28,9 @@ def test_col_to_dataframe(
         target = random.randrange(len(pop))
         pop[target] = random.choice(pop).CloneDescendant()
 
-    df = hstrat.pop_to_dataframe(pop)
+    df = hstrat.pop_to_dataframe(
+        pop, progress_wrap=functools.partial(tqdm, disable=True)
+    )
 
     assert len(df) == sum(column.GetNumStrataRetained() for column in pop)
     for col_idx, col_df in df.groupby("column"):

@@ -6,9 +6,21 @@ from ._col_from_records import col_from_records
 
 def pop_from_records(
     records: typing.Dict,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> typing.List[HereditaryStratigraphicColumn]:
     """Deserialize a sequence of `HereditaryStratigraphicColumn`s from a dict
-    composed of builtin types."""
+    composed of builtin types.
+
+    Parameters
+    ----------
+    records : dict
+        Data to deserialize.
+    progress_wrap : Callable, default identity function
+        Wrapper applied around generation iterator and row generator for final
+        phylogeny compilation process.
+
+        Pass tqdm or equivalent to display progress bars.
+    """
 
     col_records = records["columns"]
     for common_field in (
