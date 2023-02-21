@@ -6,6 +6,7 @@ from ._col_to_records import col_to_records
 from ._col_to_specimen import col_to_specimen
 from ._pack_differentiae import pack_differentiae
 from ._pop_from_records import pop_from_records
+from ._pop_to_assemblage import pop_to_assemblage
 from ._pop_to_dataframe import pop_to_dataframe
 from ._pop_to_records import pop_to_records
 from ._specimen_from_records import specimen_from_records
@@ -19,6 +20,7 @@ __all__ = [
     "col_to_specimen",
     "pack_differentiae",
     "pop_from_records",
+    "pop_to_assemblage",
     "pop_to_dataframe",
     "pop_to_records",
     "specimen_from_records",
