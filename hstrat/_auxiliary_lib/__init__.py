@@ -53,6 +53,8 @@ from ._find_bounds import find_bounds
 from ._flat_len import flat_len
 from ._generate_omission_subsets import generate_omission_subsets
 from ._get_hstrat_version import get_hstrat_version
+from ._get_nullable_mask import get_nullable_mask
+from ._get_nullable_vals import get_nullable_vals
 from ._give_len import give_len
 from ._indices_of_unique import indices_of_unique
 from ._intersect_ranges import intersect_ranges
@@ -142,6 +144,8 @@ __all__ = [
     "flat_len",
     "generate_omission_subsets",
     "get_hstrat_version",
+    "get_nullable_mask",
+    "get_nullable_vals",
     "give_len",
     "indices_of_unique",
     "intersect_ranges",
