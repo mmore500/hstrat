@@ -39,7 +39,7 @@ importlib-metadata>=6.0.0
     #   click
     #   numba
     #   prettytable
-interval-search>=0.2.0
+interval-search>=0.3.1
     # via hstrat (../../pyproject.toml)
 iterpop>=0.4.1
     # via

@@ -52,7 +52,7 @@ gitpython==3.1.30
     # via lyncs-setuptools
 idna==3.4
     # via requests
-interval-search==0.2.0
+interval-search==0.3.1
     # via hstrat (../../pyproject.toml)
 iterpop==0.4.1
     # via

@@ -46,6 +46,7 @@ from ._cmp_approx import cmp_approx
 from ._consume import consume
 from ._coshuffled import coshuffled
 from ._count_unique import count_unique
+from ._curried_binary_search_jit import curried_binary_search_jit
 from ._deep_listify import deep_listify
 from ._demark import demark
 from ._div_range import div_range
@@ -137,6 +138,7 @@ __all__ = [
     "consume",
     "count_unique",
     "coshuffled",
+    "curried_binary_search_jit",
     "deep_listify",
     "demark",
     "div_range",

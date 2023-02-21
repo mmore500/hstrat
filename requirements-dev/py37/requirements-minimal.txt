@@ -38,7 +38,7 @@ importlib-metadata==5.0.0
     # via
     #   click
     #   prettytable
-interval-search==0.2.0
+interval-search==0.3.1
     # via hstrat (../../pyproject.toml)
 iterpop==0.4.1
     # via
