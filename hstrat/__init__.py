@@ -6,6 +6,7 @@ __version__ = "1.5.2"
 
 from . import (
     _auxiliary_lib,
+    frozen_instrumentation,
     genome_instrumentation,
     juxtaposition,
     phylogenetic_inference,
@@ -17,6 +18,7 @@ from . import (
 
 __all__ = [
     "_auxiliary_lib",
+    "frozen_instrumentation",
     "genome_instrumentation",
     "juxtaposition",
     "phylogenetic_inference",
