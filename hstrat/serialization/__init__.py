@@ -1,5 +1,6 @@
 """Tools to load and save hereditary stratigraphic columns."""
 
+from ._assemblage_from_records import assemblage_from_records
 from ._col_from_records import col_from_records
 from ._col_to_dataframe import col_to_dataframe
 from ._col_to_records import col_to_records
@@ -14,6 +15,7 @@ from ._unpack_differentiae import unpack_differentiae
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
+    "assemblage_from_records",
     "col_to_dataframe",
     "col_from_records",
     "col_to_records",
