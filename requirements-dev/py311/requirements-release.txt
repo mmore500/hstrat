@@ -80,6 +80,8 @@ more-itertools==8.13.0
     # via hstrat (../../pyproject.toml)
 mpmath==1.2.1
     # via hstrat (../../pyproject.toml)
+mypy-extensions==1.0.0
+    # via typing-inspect
 nanto==0.1.1
     # via alifedata-phyloinformatics-convert
 networkx==2.6.3
@@ -93,6 +95,7 @@ numpy==1.23.5
     #   hstrat (../../pyproject.toml)
     #   matplotlib
     #   pandas
+    #   pandera
     #   seaborn
 opytional==0.1.0
     # via
@@ -106,11 +109,15 @@ packaging==23.0
     #   hstrat (../../pyproject.toml)
     #   lyncs-setuptools
     #   matplotlib
+    #   pandera
 pandas==1.3.5
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
+    #   pandera
     #   seaborn
+pandera==0.13.4
+    # via hstrat (../../pyproject.toml)
 pathlib2==2.3.7.post1
     # via bumpver
 pillow==9.4.0
@@ -121,6 +128,8 @@ pkginfo==1.9.6
     # via twine
 prettytable==3.5.0
     # via hstrat (../../pyproject.toml)
+pydantic==1.10.5
+    # via pandera
 pygments==2.14.0
     # via readme-renderer
 pyparsing==3.0.9
@@ -169,6 +178,12 @@ tqdm==4.62.3
     #   twine
 twine==1.14.0
     # via hstrat (../../pyproject.toml)
+typing-extensions==4.5.0
+    # via
+    #   pydantic
+    #   typing-inspect
+typing-inspect==0.8.0
+    # via pandera
 urllib3==1.26.14
     # via requests
 wcwidth==0.2.6
@@ -179,6 +194,8 @@ wheel==0.33.6
     # via
     #   hstrat (../../pyproject.toml)
     #   pip-tools
+wrapt==1.14.1
+    # via pandera
 
 # The following packages are considered to be unsafe in a requirements file:
 pip==22.0.4

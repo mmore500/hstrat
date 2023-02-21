@@ -64,6 +64,8 @@ more-itertools==8.13.0
     # via hstrat (../../pyproject.toml)
 mpmath==1.2.1
     # via hstrat (../../pyproject.toml)
+mypy-extensions==1.0.0
+    # via typing-inspect
 nanto==0.1.1
     # via alifedata-phyloinformatics-convert
 networkx==2.6.3
@@ -77,6 +79,7 @@ numpy==1.21.6
     #   hstrat (../../pyproject.toml)
     #   matplotlib
     #   pandas
+    #   pandera
     #   seaborn
 opytional==0.1.0
     # via
@@ -89,15 +92,21 @@ packaging==23.0
     #   hstrat (../../pyproject.toml)
     #   lyncs-setuptools
     #   matplotlib
+    #   pandera
 pandas==1.3.5
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
+    #   pandera
     #   seaborn
+pandera==0.13.4
+    # via hstrat (../../pyproject.toml)
 pillow==9.3.0
     # via matplotlib
 prettytable==3.5.0
     # via hstrat (../../pyproject.toml)
+pydantic==1.10.5
+    # via pandera
 pyparsing==3.0.9
     # via matplotlib
 python-dateutil==2.8.2
@@ -131,9 +140,16 @@ typing-extensions==4.4.0
     #   gitpython
     #   importlib-metadata
     #   kiwisolver
+    #   pandera
+    #   pydantic
     #   seaborn
+    #   typing-inspect
+typing-inspect==0.8.0
+    # via pandera
 wcwidth==0.2.5
     # via prettytable
+wrapt==1.14.1
+    # via pandera
 zipp==3.10.0
     # via importlib-metadata
 
