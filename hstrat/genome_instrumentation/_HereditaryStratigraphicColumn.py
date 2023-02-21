@@ -316,6 +316,15 @@ class HereditaryStratigraphicColumn:
         """
         yield from self._stratum_ordered_store.IterRetainedStrata()
 
+    def IterRetainedDifferentia(
+        self: "HereditaryStratigraphicColumn",
+    ) -> typing.Iterator[int]:
+        """Iterate over differentia of strata stored in the column.
+
+        Differentia yielded from most ancient to most recent.
+        """
+        return map(lambda x: x.GetDifferentia(), self.IterRetainedStrata())
+
     def HasAnyAnnotations(
         self: "HereditaryStratigraphicColumn",
     ) -> bool:

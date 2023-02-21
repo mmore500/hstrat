@@ -648,6 +648,35 @@ def test_IterRetainedStrata(retention_policy, ordered_store):
         ]
 
 
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_IterRetainedDifferentia(retention_policy, ordered_store):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+    for __ in range(20):
+        column.DepositStratum()
+        assert [*column.IterRetainedDifferentia()] == [
+            column.GetStratumAtColumnIndex(index).GetDifferentia()
+            for index in range(column.GetNumStrataRetained())
+        ]
+
+
 def test_GetColumnIndexOfRank():
     assert (
         hstrat.HereditaryStratigraphicColumn().GetColumnIndexOfRank(1) is None
