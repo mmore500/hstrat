@@ -2,11 +2,13 @@ import typing
 
 from ..genome_instrumentation import HereditaryStratigraphicColumn
 from ._col_from_records import col_from_records
+from ._impl import col_records_from_pop_records
 
 
 def pop_from_records(
     records: typing.Dict,
     progress_wrap: typing.Callable = lambda x: x,
+    mutate: bool = False,
 ) -> typing.List[HereditaryStratigraphicColumn]:
     """Deserialize a sequence of `HereditaryStratigraphicColumn`s from a dict
     composed of builtin types.
@@ -20,18 +22,16 @@ def pop_from_records(
         phylogeny compilation process.
 
         Pass tqdm or equivalent to display progress bars.
+    mutate : bool, default False
+        Are side effects on the input argument `records` allowed?
+
+    Returns
+    -------
+    population : List[HereditaryStratigraphicColumn]
+        Deserialized population of HereditaryStratigraphicColumns.
     """
 
-    col_records = records["columns"]
-    for common_field in (
-        "policy",
-        "policy_algo",
-        "policy_spec",
-        "differentia_bit_width",
-        "hstrat_version",
-    ):
-        for col_record in col_records:
-            col_record[common_field] = records[common_field]
+    col_records = col_records_from_pop_records(records, mutate=mutate)
 
     return [
         col_from_records(col_record)
