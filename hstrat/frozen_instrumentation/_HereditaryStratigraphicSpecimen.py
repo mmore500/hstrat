@@ -17,4 +17,7 @@ See Also
 HereditaryStratigraphicAssemblageSpecimen
     Specimen representation that allows for easier alignment among members of
     a population without perfectly homogeneous retained ranks.
+specimen_from_records
+    Deserialize a `HereditaryStratigraphicSpecimen` from a dict composed of
+    builtin data types.
 """

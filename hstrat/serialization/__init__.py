@@ -7,6 +7,7 @@ from ._pack_differentiae import pack_differentiae
 from ._pop_from_records import pop_from_records
 from ._pop_to_dataframe import pop_to_dataframe
 from ._pop_to_records import pop_to_records
+from ._specimen_from_records import specimen_from_records
 from ._unpack_differentiae import unpack_differentiae
 
 # adapted from https://stackoverflow.com/a/31079085
@@ -18,6 +19,7 @@ __all__ = [
     "pop_from_records",
     "pop_to_dataframe",
     "pop_to_records",
+    "specimen_from_records",
     "unpack_differentiae",
 ]
 
