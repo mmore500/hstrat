@@ -30,5 +30,4 @@ def jit(*args, **kwargs) -> typing.Callable:
         )
         return lambda f: f
     else:
-        # return nb.jit(*args, **kwargs)
-        return lambda f: f
+        return nb.jit(*args, **kwargs)
