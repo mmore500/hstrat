@@ -25,7 +25,7 @@ from hstrat._auxiliary_lib import get_hstrat_version, log_once_in_a_row
 )
 @pytest.mark.parametrize(
     "differentia_bit_width",
-    [1, 2, 8, 20, 32, 64],
+    [1, 2, 8, 20, 32, 64, 129],
 )
 def test_col_to_specimen(
     retention_policy,
