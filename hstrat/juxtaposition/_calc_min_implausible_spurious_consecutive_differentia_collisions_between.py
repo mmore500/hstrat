@@ -26,7 +26,9 @@ def calc_min_implausible_spurious_consecutive_differentia_collisions_between(
     if significance_level * first.GetStratumDifferentiaBitWidth() > 1:
         return 1
 
-    log_base = first.CalcProbabilityDifferentiaCollision()
+    log_base = calc_probability_differentia_collision_between(
+        first, second
+    )
     if significance_level >= log_base:
         return 1
     else:
