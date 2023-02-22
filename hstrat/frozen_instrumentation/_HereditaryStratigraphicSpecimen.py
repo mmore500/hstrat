@@ -20,4 +20,7 @@ HereditaryStratigraphicAssemblageSpecimen
 specimen_from_records
     Deserialize a `HereditaryStratigraphicSpecimen` from a dict composed of
     builtin data types.
+col_to_specimen
+    Create a `HereditaryStratigraphicSpecimen` from a
+    `HereditaryStratigraphicColumn`.
 """

@@ -22,4 +22,8 @@ See Also
 HereditaryStratigraphicSpecimen
     Specimen representation that can contain only ranks retained by that
     specimen.
+HereditaryStratigraphicAssemblage
+    Gathers a collection of `HereditaryStratigraphicSpecimen`s and facilitates
+    creation of corresponding aligned
+    `HereditaryStratigraphicAssemblageSpecimen`s.
 """

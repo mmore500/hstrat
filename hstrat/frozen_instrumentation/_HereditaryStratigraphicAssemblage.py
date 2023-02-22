@@ -27,6 +27,12 @@ class HereditaryStratigraphicAssemblage:
         Type alias for a postprocessing representation of the differentia
         retained by an extant HereditaryStratigraphicColumn, indexed by
         deposition rank.
+    assemblage_from_records
+        Deserialize a `HereditaryStratigraphicSpecimen` from a dict composed of
+        builtin data types.
+    pop_to_assemblage
+        Create a `HereditaryStratigraphicAssemblage` from a collection of
+        `HereditaryStratigraphicColumn`s.
     """
 
     __slots__ = ("_assemblage_df",)
