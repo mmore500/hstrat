@@ -1,50 +1,42 @@
-from iterpop import iterpop as ip
-import numpy as np
-import pandas as pd
-import pandera as pa
 import pytest
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import raises
 
 
 @pytest.mark.parametrize(
-    "specimen",
-    [
-        pd.Series(data=[101, 1], index=[0, 3], dtype="uint8"),
-        pd.Series(data=[101, 1], index=[0, 3], dtype="uint16"),
-        pd.Series(data=[101, 1], index=[0, 3], dtype="uint32"),
-        pd.Series(data=[101, 1], index=[0, 3], dtype="uint64"),
-    ],
+    "differentia_bit_width", [1, 2, 7, 8, 16, 32, 64, 129]
 )
-def test_hereditary_stratigraphic_specimen_true(specimen):
-    assert not all(
-        raises(
-            lambda: pa.SeriesSchema(ip.popsingleton(series.__args__)).validate(
-                specimen
-            ),
-            pa.errors.SchemaError,
-        )
-        for series in hstrat.HereditaryStratigraphicSpecimen.__args__
-    )
-
-
 @pytest.mark.parametrize(
-    "notspecimen",
+    "retention_policy",
     [
-        pd.Series(data=[101, 1], index=[0, 3], dtype="int8"),
-        pd.Series(data=[101, np.nan], index=[0, 3], dtype="UInt16"),
-        pd.Series(data=[101, 1], index=[0, 3], dtype=float),
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
     ],
 )
-def test_hereditary_stratigraphic_specimen_false(notspecimen):
-
-    assert all(
-        raises(
-            lambda: pa.SeriesSchema(ip.popsingleton(series.__args__)).validate(
-                notspecimen
-            ),
-            pa.errors.SchemaError,
-        )
-        for series in hstrat.HereditaryStratigraphicSpecimen.__args__
+def test_init_and_getters(differentia_bit_width, retention_policy):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_differentia_bit_width=differentia_bit_width,
+        stratum_retention_policy=retention_policy,
     )
+    for i in range(100):
+
+        specimen = hstrat.col_to_specimen(column)
+        assert specimen.GetNumStrataDeposited() == i + 1
+        assert (
+            specimen.GetStratumDifferentiaBitWidth()
+            == column.GetStratumDifferentiaBitWidth()
+        )
+        assert specimen.GetNumStrataRetained() == column.GetNumStrataRetained()
+        assert [*specimen.GetDifferentiaVals()] == [
+            *column.IterRetainedDifferentia()
+        ]
+        assert [*specimen.GetRankIndex()] == [*column.IterRetainedRanks()]
+
+        assert [*specimen.GetData()] == [*column.IterRetainedDifferentia()]
+        assert [*specimen.GetData().index] == [*column.IterRetainedRanks()]
+
+        column.DepositStratum()

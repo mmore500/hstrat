@@ -1,5 +1,7 @@
+import itertools as it
 import typing
 
+from iterpop import iterpop as ip
 import pandas as pd
 
 from .._auxiliary_lib import as_nullable_type
@@ -35,11 +37,13 @@ class HereditaryStratigraphicAssemblage:
         `HereditaryStratigraphicColumn`s.
     """
 
-    __slots__ = ("_assemblage_df",)
+    __slots__ = ("_assemblage_df", "_stratum_differentia_bit_width")
 
     # rows indexed by rank
     # columns represent individuals within population, as IntegerArrays
     _assemblage_df: pd.DataFrame
+
+    _stratum_differentia_bit_width: int
 
     def __init__(
         self: "HereditaryStratigraphicAssemblage",
@@ -47,22 +51,34 @@ class HereditaryStratigraphicAssemblage:
     ) -> None:
         """Construct a new HereditaryStratigraphicAssemblage instance.
 
-        Takes an iterable of HereditaryStratigraphicSpecimen instances and
+        Takes a collection of HereditaryStratigraphicSpecimen instances and
         creates a new HereditaryStratigraphicAssemblage instance containing
         those specimens.
         """
+        specimens1, specimens2 = it.tee(specimens)
+        self._stratum_differentia_bit_width = ip.pourhomogeneous(
+            specimen.GetStratumDifferentiaBitWidth() for specimen in specimens1
+        )
         try:
             self._assemblage_df = pd.concat(
-                (as_nullable_type(specimen) for specimen in specimens),
+                (
+                    as_nullable_type(specimen.GetData())
+                    for specimen in specimens2
+                ),
                 axis="columns",
             )
         except ValueError:  # empty specimens
             self._assemblage_df = pd.DataFrame()
 
-    def IterSpecimens(
+    def BuildSpecimens(
         self: "HereditaryStratigraphicAssemblage",
     ) -> typing.Iterator[HereditaryStratigraphicAssemblageSpecimen]:
         """Iterator over specimens in assemblage as potentially-padded
         HereditaryStratigraphicAssemblageSpecimen objects."""
-        for _name, values in self._assemblage_df.items():
-            yield values
+        for _column_name, series in self._assemblage_df.items():
+            yield HereditaryStratigraphicAssemblageSpecimen(
+                stratum_differentia_series=series,
+                stratum_differentia_bit_width=(
+                    self._stratum_differentia_bit_width
+                ),
+            )

@@ -50,4 +50,7 @@ def specimen_from_records(
         policy.IterRetainedRanks(records["num_strata_deposited"]),
         dtype=np.min_scalar_type(records["num_strata_deposited"] - 1),
     )
-    return pd.Series(data=differentia, index=ranks)
+    return HereditaryStratigraphicSpecimen(
+        pd.Series(data=differentia, index=ranks),
+        records["differentia_bit_width"],
+    )

@@ -1,51 +1,78 @@
-from iterpop import iterpop as ip
-import numpy as np
-import pandas as pd
-import pandera as pa
+import itertools as it
+
 import pytest
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import raises
+from hstrat._auxiliary_lib import (
+    is_strictly_increasing,
+    random_choice_generator,
+)
 
 
 @pytest.mark.parametrize(
-    "specimen",
-    [
-        pd.Series(data=[101, 1], index=[0, 3], dtype="UInt8"),
-        pd.Series(data=[101, 1], index=[0, 3], dtype="UInt16"),
-        pd.Series(data=[101, 1], index=[0, 3], dtype="UInt32"),
-        pd.Series(data=[101, 1], index=[0, 3], dtype="UInt64"),
-        pd.Series(data=[101, np.nan], index=[0, 3], dtype="UInt16"),
-    ],
+    "differentia_bit_width", [1, 2, 7, 8, 16, 32, 64, 129]
 )
-def test_hereditary_stratigraphic_assemblage_specimen_true(specimen):
-    assert not all(
-        raises(
-            lambda: pa.SeriesSchema(
-                ip.popsingleton(series.__args__), nullable=True
-            ).validate(specimen),
-            pa.errors.SchemaError,
-        )
-        for series in hstrat.HereditaryStratigraphicAssemblageSpecimen.__args__
-    )
-
-
 @pytest.mark.parametrize(
-    "notspecimen",
+    "retention_policy",
     [
-        pd.Series(data=[101, 1], index=[0, 3], dtype="Int8"),
-        pd.Series(data=[101, 1], index=[0, 3], dtype="int8"),
-        pd.Series(data=[101, 1], index=[0, 3], dtype=float),
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
     ],
 )
-def test_hereditary_stratigraphic_assemblage_specimen_false(notspecimen):
-
-    assert all(
-        raises(
-            lambda: pa.SeriesSchema(
-                ip.popsingleton(series.__args__), nullable=True
-            ).validate(notspecimen),
-            pa.errors.SchemaError,
+@pytest.mark.parametrize("synchronous_generations", [True, False])
+@pytest.mark.parametrize("population_size", [1, 2, 9])
+@pytest.mark.parametrize("num_generations", [0, 1, 257])
+def test_init_and_getters(
+    differentia_bit_width,
+    retention_policy,
+    synchronous_generations,
+    population_size,
+    num_generations,
+):
+    population = [
+        hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=differentia_bit_width,
+            stratum_retention_policy=retention_policy,
         )
-        for series in hstrat.HereditaryStratigraphicAssemblageSpecimen.__args__
-    )
+        for __ in range(population_size)
+    ]
+    reproduction_queue = (
+        it.cycle if synchronous_generations else random_choice_generator
+    )(population)
+    for selection in it.islice(
+        reproduction_queue, 0, num_generations * population_size
+    ):
+        selection.DepositStratum()
+
+    assemblage = hstrat.pop_to_assemblage(population)
+
+    for specimen, column in zip(assemblage.BuildSpecimens(), population):
+        assert (
+            specimen.GetNumStrataDeposited() == column.GetNumStrataDeposited()
+        )
+        assert (
+            specimen.GetStratumDifferentiaBitWidth()
+            == column.GetStratumDifferentiaBitWidth()
+        )
+        assert specimen.GetNumStrataRetained() == column.GetNumStrataRetained()
+        assert {*specimen.GetDifferentiaVals()} >= {
+            *column.IterRetainedDifferentia()
+        }
+        assert [
+            *specimen.GetDifferentiaVals()[~specimen.GetStratumMask()]
+        ] >= [*column.IterRetainedDifferentia()]
+        assert {*specimen.GetRankIndex()} >= {*column.IterRetainedRanks()}
+        assert [*specimen.GetRankIndex()[~specimen.GetStratumMask()]] == [
+            *column.IterRetainedRanks()
+        ]
+        assert is_strictly_increasing(specimen.GetRankIndex())
+
+        assert [*specimen.GetData().dropna()] == [
+            *column.IterRetainedDifferentia()
+        ]
+        assert {*specimen.GetData().index} >= {*column.IterRetainedRanks()}
+        assert is_strictly_increasing(specimen.GetData().index)

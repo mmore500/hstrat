@@ -22,4 +22,7 @@ def col_to_specimen(
         dtype=np.min_scalar_type(column.GetNumStrataDeposited() - 1),
     )
 
-    return pd.Series(data=differentia, index=ranks)
+    return HereditaryStratigraphicSpecimen(
+        stratum_differentia_series=pd.Series(data=differentia, index=ranks),
+        stratum_differentia_bit_width=column.GetStratumDifferentiaBitWidth(),
+    )

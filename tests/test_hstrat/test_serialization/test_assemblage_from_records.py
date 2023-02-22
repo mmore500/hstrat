@@ -53,14 +53,20 @@ def test_assemblage_from_records(
     assert all(
         map(
             lambda x: operator.eq(*x),
-            zip(col.IterRetainedRanks(), assemblage_specimen.notna().index),
+            zip(
+                col.IterRetainedRanks(),
+                assemblage_specimen.GetData().notna().index,
+            ),
         )
-        for col, assemblage_specimen in zip(pop, hsa.IterSpecimens())
+        for col, assemblage_specimen in zip(pop, hsa.BuildSpecimens())
     )
     assert all(
         map(
             lambda x: operator.eq(*x),
-            zip(col.IterRetainedDifferentia(), assemblage_specimen.notna()),
+            zip(
+                col.IterRetainedDifferentia(),
+                assemblage_specimen.GetData().notna(),
+            ),
         )
-        for col, assemblage_specimen in zip(pop, hsa.IterSpecimens())
+        for col, assemblage_specimen in zip(pop, hsa.BuildSpecimens())
     )

@@ -40,13 +40,15 @@ def test_specimen_from_records(
     assert all(
         map(
             lambda x: operator.eq(*x),
-            zip(column.IterRetainedRanks(), specimen.index),
+            zip(column.IterRetainedRanks(), specimen.GetRankIndex()),
         )
     )
     assert all(
         map(
             lambda x: operator.eq(*x),
-            zip(column.IterRetainedDifferentia(), specimen),
+            zip(
+                column.IterRetainedDifferentia(), specimen.GetDifferentiaVals()
+            ),
         )
     )
 
@@ -86,13 +88,15 @@ def test_col_to_records_then_to_specimen_json(
     assert all(
         map(
             lambda x: operator.eq(*x),
-            zip(column.IterRetainedRanks(), specimen.index),
+            zip(column.IterRetainedRanks(), specimen.GetRankIndex()),
         )
     )
     assert all(
         map(
             lambda x: operator.eq(*x),
-            zip(column.IterRetainedDifferentia(), specimen),
+            zip(
+                column.IterRetainedDifferentia(), specimen.GetDifferentiaVals()
+            ),
         )
     )
 
