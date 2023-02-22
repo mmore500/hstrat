@@ -36,6 +36,8 @@ dendropy>=4.5.2
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
+deprecated>=1.2.13
+    # via hstrat (../../pyproject.toml)
 docutils>=0.17.1
     # via
     #   sphinx
@@ -199,7 +201,9 @@ urllib3>=1.26.12
 wcwidth>=0.2.5
     # via prettytable
 wrapt>=1.14.1
-    # via pandera
+    # via
+    #   deprecated
+    #   pandera
 zipp>=3.10.0
     # via importlib-metadata
 

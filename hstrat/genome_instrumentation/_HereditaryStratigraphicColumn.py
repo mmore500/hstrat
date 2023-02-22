@@ -4,6 +4,7 @@ import sys
 import typing
 import warnings
 
+from deprecated.sphinx import deprecated
 from interval_search import binary_search
 import opytional as opyt
 
@@ -448,6 +449,10 @@ class HereditaryStratigraphicColumn:
         """Have any deposited strata been discarded?"""
         return self.GetNumDiscardedStrata() > 0
 
+    @deprecated(
+        version="1.6.0",
+        reason="Use calc_probability_differentia_collision_between",
+    )
     def CalcProbabilityDifferentiaCollision(
         self: "HereditaryStratigraphicColumn",
     ) -> float:
@@ -458,6 +463,11 @@ class HereditaryStratigraphicColumn:
         """
         return 1.0 / 2**self._stratum_differentia_bit_width
 
+    @deprecated(
+        version="1.6.0",
+        reason="Use "
+        "calc_min_implausible_spurious_differentia_collisions_between",
+    )
     def CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
         self: "HereditaryStratigraphicColumn",
         significance_level: float,

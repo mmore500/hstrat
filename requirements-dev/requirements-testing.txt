@@ -34,6 +34,8 @@ dendropy>=4.5.2
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
+deprecated>=1.2.13
+    # via hstrat (../../pyproject.toml)
 distlib>=0.3.6
     # via virtualenv
 entrypoints>=0.3
@@ -241,7 +243,9 @@ virtualenv>=20.16.7
 wcwidth>=0.2.5
     # via prettytable
 wrapt>=1.14.1
-    # via pandera
+    # via
+    #   deprecated
+    #   pandera
 zipp>=3.10.0
     # via importlib-metadata
 

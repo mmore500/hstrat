@@ -15,6 +15,12 @@ from ._calc_definitive_min_ranks_since_first_retained_disparity_with import (
 from ._calc_definitive_min_ranks_since_last_retained_commonality_with import (
     calc_definitive_min_ranks_since_last_retained_commonality_with,
 )
+from ._calc_min_implausible_spurious_consecutive_differentia_collisions_between import (
+    calc_min_implausible_spurious_consecutive_differentia_collisions_between,
+)
+from ._calc_probability_differentia_collision_between import (
+    calc_probability_differentia_collision_between,
+)
 from ._calc_rank_of_first_retained_disparity_between import (
     calc_rank_of_first_retained_disparity_between,
 )
@@ -40,6 +46,8 @@ __all__ = [
     "calc_definitive_max_rank_of_last_retained_commonality_between",
     "calc_definitive_min_ranks_since_first_retained_disparity_with",
     "calc_definitive_min_ranks_since_last_retained_commonality_with",
+    "calc_min_implausible_spurious_consecutive_differentia_collisions_between",
+    "calc_probability_differentia_collision_between",
     "calc_rank_of_first_retained_disparity_between",
     "calc_rank_of_last_retained_commonality_among",
     "calc_rank_of_last_retained_commonality_between",

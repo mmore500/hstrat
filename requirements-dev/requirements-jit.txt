@@ -28,6 +28,8 @@ dendropy>=4.5.2
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
+deprecated>=1.2.13
+    # via hstrat (../../pyproject.toml)
 fonttools>=4.38.0
     # via matplotlib
 gitdb>=4.0.10
@@ -155,7 +157,9 @@ typing-inspect>=0.8.0
 wcwidth>=0.2.6
     # via prettytable
 wrapt>=1.14.1
-    # via pandera
+    # via
+    #   deprecated
+    #   pandera
 zipp>=3.11.0
     # via importlib-metadata
 

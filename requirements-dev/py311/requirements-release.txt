@@ -42,6 +42,8 @@ dendropy==4.5.2
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
+deprecated==1.2.13
+    # via hstrat (../../pyproject.toml)
 docutils==0.19
     # via readme-renderer
 fonttools==4.38.0
@@ -195,7 +197,9 @@ wheel==0.33.6
     #   hstrat (../../pyproject.toml)
     #   pip-tools
 wrapt==1.14.1
-    # via pandera
+    # via
+    #   deprecated
+    #   pandera
 
 # The following packages are considered to be unsafe in a requirements file:
 pip==22.0.4
