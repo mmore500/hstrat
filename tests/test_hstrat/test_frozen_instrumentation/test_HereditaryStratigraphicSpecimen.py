@@ -39,4 +39,14 @@ def test_init_and_getters(differentia_bit_width, retention_policy):
         assert [*specimen.GetData()] == [*column.IterRetainedDifferentia()]
         assert [*specimen.GetData().index] == [*column.IterRetainedRanks()]
 
+        for index in range(column.GetNumStrataRetained()):
+            assert specimen.GetRankAtColumnIndex(
+                index
+            ) == column.GetRankAtColumnIndex(index)
+
+        assert [*specimen.IterRetainedRanks()] == [*column.IterRetainedRanks()]
+        assert [*specimen.IterRetainedDifferentia()] == [
+            *column.IterRetainedDifferentia()
+        ]
+
         column.DepositStratum()

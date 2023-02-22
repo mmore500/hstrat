@@ -118,3 +118,30 @@ class HereditaryStratigraphicSpecimen:
             null entries for differentia that are not retained.
         """
         return self._data.index
+
+    def GetRankAtColumnIndex(
+        self: "HereditaryStratigraphicColumn",
+        index: int,
+    ) -> int:
+        """Map array position to generation of deposition.
+
+        What is the deposition rank of the stratum positioned at index i
+        among retained strata? Index order is from most ancient (index 0) to
+        most recent.
+        """
+        return self.GetRankIndex().array[index]
+
+    def IterRetainedRanks(
+        self: "HereditaryStratigraphicColumn",
+    ) -> typing.Iterator[int]:
+        """Iterate over deposition ranks of strata retained in the specimen."""
+        yield from self.GetRankIndex()
+
+    def IterRetainedDifferentia(
+        self: "HereditaryStratigraphicColumn",
+    ) -> typing.Iterator[int]:
+        """Iterate over differentia of strata retained in the specimen.
+
+        Differentia yielded from most ancient to most recent.
+        """
+        yield from self.GetDifferentiaVals()

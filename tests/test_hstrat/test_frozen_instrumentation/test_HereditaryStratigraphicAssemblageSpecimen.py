@@ -76,3 +76,13 @@ def test_init_and_getters(
         ]
         assert {*specimen.GetData().index} >= {*column.IterRetainedRanks()}
         assert is_strictly_increasing(specimen.GetData().index)
+
+        for index in range(column.GetNumStrataRetained()):
+            assert specimen.GetRankAtColumnIndex(
+                index
+            ) == column.GetRankAtColumnIndex(index)
+
+        assert [*specimen.IterRetainedRanks()] == [*column.IterRetainedRanks()]
+        assert [*specimen.IterRetainedDifferentia()] == [
+            *column.IterRetainedDifferentia()
+        ]
