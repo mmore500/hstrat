@@ -77,6 +77,7 @@ from ._log_once_in_a_row import log_once_in_a_row
 from ._make_intersecting_subsets import make_intersecting_subsets
 from ._memoize_generator import memoize_generator
 from ._min_array_dtype import min_array_dtype
+from ._numpy_fromiter_polyfill import numpy_fromiter_polyfill
 from ._numpy_index import numpy_index
 from ._numpy_index_flat import numpy_index_flat
 from ._omit_last import omit_last
@@ -172,6 +173,7 @@ __all__ = [
     "make_intersecting_subsets",
     "memoize_generator",
     "min_array_dtype",
+    "numpy_fromiter_polyfill",
     "numpy_index",
     "numpy_index_flat",
     "omit_last",
