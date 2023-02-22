@@ -84,6 +84,7 @@ from ._omit_last import omit_last
 from ._pairwise import pairwise
 from ._popcount import popcount
 from ._raises import raises
+from ._random_choice_generator import random_choice_generator
 from ._release_cur_mpl_fig import release_cur_mpl_fig
 from ._reversed_enumerate import reversed_enumerate
 from ._scale_luminosity import scale_luminosity
@@ -182,6 +183,7 @@ __all__ = [
     "RecursionLimit",
     "raises",
     "release_cur_mpl_fig",
+    "random_choice_generator",
     "reversed_enumerate",
     "scale_luminosity",
     "ScalarFormatterFixedPrecision",
