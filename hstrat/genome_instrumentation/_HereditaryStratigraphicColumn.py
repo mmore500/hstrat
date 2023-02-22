@@ -471,7 +471,7 @@ class HereditaryStratigraphicColumn:
     def CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
         self: "HereditaryStratigraphicColumn",
         significance_level: float,
-    ) -> float:
+    ) -> int:
         """Determine amount of evidence required to indicate shared ancestry.
 
         Calculates how many differentia collisions are required to reject the
