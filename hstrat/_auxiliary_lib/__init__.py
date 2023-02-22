@@ -78,6 +78,7 @@ from ._make_intersecting_subsets import make_intersecting_subsets
 from ._memoize_generator import memoize_generator
 from ._min_array_dtype import min_array_dtype
 from ._numpy_index import numpy_index
+from ._numpy_index_flat import numpy_index_flat
 from ._omit_last import omit_last
 from ._pairwise import pairwise
 from ._popcount import popcount
@@ -172,6 +173,7 @@ __all__ = [
     "memoize_generator",
     "min_array_dtype",
     "numpy_index",
+    "numpy_index_flat",
     "omit_last",
     "pairwise",
     "popcount",
