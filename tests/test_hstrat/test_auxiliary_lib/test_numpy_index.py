@@ -26,7 +26,10 @@ def test_numpy_index_reverse_index():
     # Test that the function returns the correct index for a reverse indexed # array
     a = np.array([5, 4, 3, 2, 1])
     assert numpy_index(a[::-1], 3) == (2,)
-    assert a[numpy_index(a[::-1], 3)] == 3
+    assert a[::-1][numpy_index(a[::-1], 3)] == 3
+
+    assert numpy_index(a[::-1], 4) == (3,)
+    assert a[::-1][numpy_index(a[::-1], 4)] == 4
 
 
 def test_numpy_index_item_not_found():
