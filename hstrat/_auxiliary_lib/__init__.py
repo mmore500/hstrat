@@ -87,6 +87,7 @@ from ._raises import raises
 from ._random_choice_generator import random_choice_generator
 from ._release_cur_mpl_fig import release_cur_mpl_fig
 from ._reversed_enumerate import reversed_enumerate
+from ._reversed_range import reversed_range
 from ._scale_luminosity import scale_luminosity
 from ._seed_random import seed_random
 from ._splicewhile import splicewhile
@@ -185,6 +186,7 @@ __all__ = [
     "release_cur_mpl_fig",
     "random_choice_generator",
     "reversed_enumerate",
+    "reversed_range",
     "scale_luminosity",
     "ScalarFormatterFixedPrecision",
     "seed_random",
