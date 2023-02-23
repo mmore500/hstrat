@@ -270,6 +270,51 @@ def test_scenario_no_divergence(retention_policy, ordered_store):
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.nominal_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2,
+        ),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=10,
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_scenario_single_branch_divergence(retention_policy, ordered_store):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+
+    for generation in range(40):
+        branch_column = column.CloneDescendant()
+        for branch_generation in range(40):
+            assert (
+                hstrat.calc_rank_of_first_retained_disparity_between(
+                    column, branch_column
+                )
+                == generation + 1
+            )
+            branch_column.DepositStratum()
+
+        column.DepositStratum()
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2,
+        ),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
     ],
 )
 @pytest.mark.parametrize(

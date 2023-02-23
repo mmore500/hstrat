@@ -13,6 +13,9 @@ from hstrat import hstrat
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.nominal_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
     ],
 )
 @pytest.mark.parametrize(
@@ -66,6 +69,9 @@ def test_comparison_commutativity_asynchronous(
         ),
         hstrat.nominal_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
     ],
 )
 @pytest.mark.parametrize(
@@ -120,6 +126,9 @@ def test_comparison_commutativity_synchronous(
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.nominal_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
     ],
 )
 @pytest.mark.parametrize(
@@ -180,6 +189,9 @@ def test_comparison_validity(retention_policy, ordered_store):
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.nominal_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
     ],
 )
 @pytest.mark.parametrize(
@@ -188,6 +200,9 @@ def test_comparison_validity(retention_policy, ordered_store):
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.nominal_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
     ],
 )
 @pytest.mark.parametrize(
@@ -236,6 +251,9 @@ def test_scenario_no_mrca(
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.nominal_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
     ],
 )
 @pytest.mark.parametrize(
@@ -269,6 +287,49 @@ def test_scenario_no_divergence(retention_policy, ordered_store):
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.nominal_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_scenario_single_branch_divergence(retention_policy, ordered_store):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+
+    for generation in range(25):
+        branch_column = column.CloneDescendant()
+        for branch_generation in range(25):
+            assert (
+                0
+                <= hstrat.calc_rank_of_last_retained_commonality_between(
+                    column, branch_column
+                )
+                <= generation
+            )
+            branch_column.DepositStratum()
+
+        column.DepositStratum()
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
     ],
 )
 @pytest.mark.parametrize(
@@ -312,6 +373,9 @@ def test_scenario_partial_even_divergence(retention_policy, ordered_store):
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.nominal_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
     ],
 )
 @pytest.mark.parametrize(
@@ -369,6 +433,9 @@ def test_scenario_partial_uneven_divergence(retention_policy, ordered_store):
         hstrat.perfect_resolution_algo.Policy(),
         hstrat.nominal_resolution_algo.Policy(),
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
     ],
 )
 @pytest.mark.parametrize(
