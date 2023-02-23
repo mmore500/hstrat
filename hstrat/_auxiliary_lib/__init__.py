@@ -1,5 +1,6 @@
 from ._AnyTreeAscendingIter import AnyTreeAscendingIter
 from ._BioPhyloTree import BioPhyloTree
+from ._HereditaryStratigraphicArtifact import HereditaryStratigraphicArtifact
 from ._RecursionLimit import RecursionLimit
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
 from ._alifestd_aggregate_phylogenies import alifestd_aggregate_phylogenies
@@ -162,6 +163,7 @@ __all__ = [
     "get_nullable_mask",
     "get_nullable_vals",
     "give_len",
+    "HereditaryStratigraphicArtifact",
     "indices_of_unique",
     "intersect_ranges",
     "is_base64",
