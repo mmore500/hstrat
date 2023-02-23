@@ -14,6 +14,8 @@ biopython==1.79
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
+bitarray==2.6.2
+    # via hstrat (../../pyproject.toml)
 bitstring==3.1.9
     # via hstrat (../../pyproject.toml)
 click==8.1.3
@@ -34,7 +36,7 @@ fonttools==4.38.0
     # via matplotlib
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.30
+gitpython==3.1.31
     # via lyncs-setuptools
 interval-search==0.3.1
     # via hstrat (../../pyproject.toml)

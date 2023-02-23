@@ -20,9 +20,11 @@ biopython==1.79
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
+bitarray==2.6.2
+    # via hstrat (../../pyproject.toml)
 bitstring==3.1.9
     # via hstrat (../../pyproject.toml)
-bleach==5.0.1
+bleach==6.0.0
     # via readme-renderer
 build==0.10.0
     # via pip-tools
@@ -75,7 +77,7 @@ fonttools==4.38.0
     # via matplotlib
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.30
+gitpython==3.1.31
     # via lyncs-setuptools
 idna==3.4
     # via requests
@@ -124,7 +126,7 @@ mpmath==1.2.1
     # via hstrat (../../pyproject.toml)
 mypy==0.991
     # via hstrat (../../pyproject.toml)
-mypy-extensions==0.4.3
+mypy-extensions==1.0.0
     # via
     #   mypy
     #   typing-inspect
@@ -178,7 +180,7 @@ pip-tools==6.10.0
     # via hstrat (../../pyproject.toml)
 pkginfo==1.9.6
     # via twine
-platformdirs==2.6.2
+platformdirs==3.0.0
     # via virtualenv
 pluggy==1.0.0
     # via
@@ -210,7 +212,7 @@ pytest==7.1.2
     #   hstrat (../../pyproject.toml)
     #   pytest-forked
     #   pytest-xdist
-pytest-forked==1.4.0
+pytest-forked==1.6.0
     # via pytest-xdist
 pytest-xdist==2.5.0
     # via hstrat (../../pyproject.toml)
@@ -264,11 +266,11 @@ sphinx==4.4.0
     #   sphinx-rtd-theme
 sphinx-rtd-theme==1.0.0
     # via hstrat (../../pyproject.toml)
-sphinxcontrib-applehelp==1.0.3
+sphinxcontrib-applehelp==1.0.4
     # via sphinx
 sphinxcontrib-devhelp==1.0.2
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.0
+sphinxcontrib-htmlhelp==2.0.1
     # via sphinx
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
@@ -294,7 +296,7 @@ tqdm==4.62.3
     #   twine
 twine==1.14.0
     # via hstrat (../../pyproject.toml)
-typing-extensions==4.4.0
+typing-extensions==4.5.0
     # via
     #   mypy
     #   pydantic
@@ -303,7 +305,7 @@ typing-inspect==0.8.0
     # via pandera
 urllib3==1.26.14
     # via requests
-virtualenv==20.17.1
+virtualenv==20.19.0
     # via tox
 wcwidth==0.2.6
     # via prettytable

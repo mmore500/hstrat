@@ -1,3 +1,4 @@
+import operator
 import random
 import typing
 
@@ -9,6 +10,12 @@ class HereditaryStratum:
     generation of a line of descent and possibly additional metadata, including
     optional user-provided annotation.
     """
+
+    __slots__ = (
+        "_deposition_rank",
+        "_differentia",
+        "_annotation",
+    )
 
     _deposition_rank: int
     # random "fingerprint" generated at initialization
@@ -41,9 +48,6 @@ class HereditaryStratum:
         deposition_rank : int, optional
             The position of the stratum being deposited within the sequence of strata deposited into the column. Precisely, the number of strata that have been deposited before stratum.
         """
-        if deposition_rank is not None:
-            self._deposition_rank = deposition_rank
-
         if differentia is not None:
             if differentia_bit_width is not None:
                 assert differentia < 2**differentia_bit_width
@@ -52,15 +56,23 @@ class HereditaryStratum:
             self._differentia = random.randrange(2**differentia_bit_width)
 
         self._annotation = annotation
+        self._deposition_rank = deposition_rank
 
     def __eq__(self: "HereditaryStratum", other: "HereditaryStratum") -> bool:
         """Compare for value-wise equality."""
+        # adapted from https://stackoverflow.com/a/4522896
         return (
             isinstance(
                 other,
                 self.__class__,
             )
-            and self.__dict__ == other.__dict__
+            and self.__slots__ == other.__slots__
+            and all(
+                getter(self) == getter(other)
+                for getter in [
+                    operator.attrgetter(attr) for attr in self.__slots__
+                ]
+            )
         )
 
     def GetDepositionRank(self: "HereditaryStratum") -> typing.Optional[int]:

@@ -73,6 +73,7 @@ from ._iter_monotonic_equivalencies import iter_monotonic_equivalencies
 from ._iter_monotonic_equivalencies_reverse import (
     iter_monotonic_equivalencies_reverse,
 )
+from ._iter_slices import iter_slices
 from ._jit import jit
 from ._jit_numba_dict_t import jit_numba_dict_t
 from ._jit_numpy_bool_t import jit_numpy_bool_t
@@ -174,6 +175,7 @@ __all__ = [
     "iter_chunks",
     "iter_monotonic_equivalencies",
     "iter_monotonic_equivalencies_reverse",
+    "iter_slices",
     "jit",
     "jit_numba_dict_t",
     "jit_numpy_bool_t",

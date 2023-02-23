@@ -1,5 +1,6 @@
 from copy import copy
 import math
+import operator
 import sys
 import typing
 import warnings
@@ -49,6 +50,14 @@ class HereditaryStratigraphicColumn:
     deposited during column initialization, so an optional annotation argument
     may also be provided then.)
     """
+
+    __slots__ = (
+        "_always_store_rank_in_stratum",
+        "_stratum_differentia_bit_width",
+        "_num_strata_deposited",
+        "_stratum_ordered_store",
+        "_stratum_retention_policy",
+    )
 
     # if True, strata will be constructed with deposition rank stored even if
     # the stratum retention condemner does not require it
@@ -151,12 +160,19 @@ class HereditaryStratigraphicColumn:
         other: "HereditaryStratigraphicColumn",
     ) -> bool:
         """Compare for value-wise equality."""
+        # adapted from https://stackoverflow.com/a/4522896
         return (
             isinstance(
                 other,
                 self.__class__,
             )
-            and self.__dict__ == other.__dict__
+            and self.__slots__ == other.__slots__
+            and all(
+                getter(self) == getter(other)
+                for getter in [
+                    operator.attrgetter(attr) for attr in self.__slots__
+                ]
+            )
         )
 
     def _ShouldOmitStratumDepositionRank(

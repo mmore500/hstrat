@@ -18,6 +18,8 @@ biopython==1.79
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
+bitarray==2.6.2
+    # via hstrat (../../pyproject.toml)
 bitstring==3.1.9
     # via hstrat (../../pyproject.toml)
 certifi==2022.12.7
@@ -46,7 +48,7 @@ fonttools==4.38.0
     # via matplotlib
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.30
+gitpython==3.1.31
     # via lyncs-setuptools
 idna==3.4
     # via requests
@@ -164,11 +166,11 @@ sphinx==4.4.0
     #   sphinx-rtd-theme
 sphinx-rtd-theme==1.0.0
     # via hstrat (../../pyproject.toml)
-sphinxcontrib-applehelp==1.0.3
+sphinxcontrib-applehelp==1.0.4
     # via sphinx
 sphinxcontrib-devhelp==1.0.2
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.0
+sphinxcontrib-htmlhelp==2.0.1
     # via sphinx
 sphinxcontrib-jsmath==1.0.1
     # via sphinx

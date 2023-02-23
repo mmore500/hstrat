@@ -5,6 +5,7 @@ import typing
 def iter_chunks(
     seq: typing.Sequence,
     chunk_size: int,
+    start: int = 0,
 ) -> typing.Iterator[typing.Sequence]:
     """Yield successive chunks of size `chunk_size` from sequence `seq`.
 
@@ -32,5 +33,6 @@ def iter_chunks(
     [10]
     """
     return (
-        seq[pos : pos + chunk_size] for pos in range(0, len(seq), chunk_size)
+        seq[pos : pos + chunk_size]
+        for pos in range(start, len(seq), chunk_size)
     )
