@@ -1,5 +1,4 @@
 import functools
-from iterpop import iterpop as ip
 import itertools as it
 import logging
 import numbers
@@ -7,6 +6,7 @@ import statistics
 import typing
 
 import anytree
+from iterpop import iterpop as ip
 import numpy as np
 import opytional as opyt
 import sortedcontainers as sc
@@ -25,9 +25,7 @@ from ....juxtaposition import (
     calc_rank_of_last_retained_commonality_among,
     calc_rank_of_last_retained_commonality_between,
 )
-from ....stratum_retention_viz import (
-    col_to_ascii,
-)
+from ....stratum_retention_viz import col_to_ascii
 from ...pairwise import (
     calc_rank_of_mrca_bounds_between,
     estimate_patristic_distance_between,
@@ -183,8 +181,12 @@ class GlomNode2(anytree.NodeMixin):
                 ):
                     self._leaves.add(col)
                     logging.debug(f"{id(self)} forwarded to best branch")
-                    logging.debug(f"{max(other_disparities)} max other_disparities")
-                    logging.debug(f"{candidate.GetLastRetainedCommonalityWithLong(col)}")
+                    logging.debug(
+                        f"{max(other_disparities)} max other_disparities"
+                    )
+                    logging.debug(
+                        f"{candidate.GetLastRetainedCommonalityWithLong(col)}"
+                    )
                     logging.debug(f"other_disparities {other_disparities}")
                     logging.debug(f"chose {id(child)}")
                     child.PercolateColumn(col)
@@ -273,14 +275,20 @@ class GlomNode2(anytree.NodeMixin):
             calc_rank_of_first_retained_disparity_between(
                 c1.shortrep, c2.shortrep
             )
-            or min(c1.shortrep.GetNumStrataDeposited(), c2.shortrep.GetNumStrataDeposited())
+            or min(
+                c1.shortrep.GetNumStrataDeposited(),
+                c2.shortrep.GetNumStrataDeposited(),
+            )
             for c1, c2 in pairwise(self.children)
         )
         long = min(
             calc_rank_of_first_retained_disparity_between(
                 c1.longrep, c2.longrep
             )
-            or min(c1.longrep.GetNumStrataDeposited(), c2.longrep.GetNumStrataDeposited())
+            or min(
+                c1.longrep.GetNumStrataDeposited(),
+                c2.longrep.GetNumStrataDeposited(),
+            )
             for c1, c2 in pairwise(self.children)
         )
         return min(short, long) - 1
@@ -320,12 +328,18 @@ class GlomNode2(anytree.NodeMixin):
         #     logging.debug(f"{id(self)} origin_time: bounds intersection short")
         #     res = self.GetBoundsIntersectionShort()[1] - 1
         elif True:
-            res = min(
-                opyt.or_value(calc_rank_of_first_retained_disparity_between(
-                    l1, l2, confidence_level=confidence_level
-                ), l1.GetNumStrataDeposited())
-                for l1, l2 in it.combinations(self._leaves, r=2)
-            ) - 1
+            res = (
+                min(
+                    opyt.or_value(
+                        calc_rank_of_first_retained_disparity_between(
+                            l1, l2, confidence_level=confidence_level
+                        ),
+                        l1.GetNumStrataDeposited(),
+                    )
+                    for l1, l2 in it.combinations(self._leaves, r=2)
+                )
+                - 1
+            )
         elif True:
             logging.debug(
                 f"{id(self)} origin_time: bounds intersection frontpoint"
@@ -432,7 +446,6 @@ class GlomNode2(anytree.NodeMixin):
             # for d, child in zip(first_disparities, self.children)
             # if d == max_
         )
-
 
     def FindBestStreak(self, col):
         if self.is_leaf:

@@ -9,6 +9,7 @@ from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._jit import jit
 from ._jit_numpy_bool_t import jit_numpy_bool_t
 
+
 #
 # @jit(nopython=True)
 # def _is_chronologically_ordered_contiguous(

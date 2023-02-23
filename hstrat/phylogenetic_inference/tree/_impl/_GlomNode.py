@@ -19,9 +19,7 @@ from ....juxtaposition import (
     calc_rank_of_last_retained_commonality_among,
     calc_rank_of_last_retained_commonality_between,
 )
-from ....stratum_retention_viz import (
-    col_to_ascii,
-)
+from ....stratum_retention_viz import col_to_ascii
 from ...pairwise import (
     calc_rank_of_mrca_bounds_between,
     estimate_patristic_distance_between,
@@ -55,7 +53,9 @@ class GlomNode(anytree.NodeMixin):
     _leaves: sc.SortedSet
     origin_time: numbers.Real
 
-    def __init__(self: "GlomNode", origin_time=None, parent=None, children=None):
+    def __init__(
+        self: "GlomNode", origin_time=None, parent=None, children=None
+    ):
         # if parent:
         #     assert origin_time >= parent.origin_time
         self.origin_time = origin_time
@@ -350,7 +350,7 @@ class GlomNode(anytree.NodeMixin):
             self.children
         ) <= 1
 
-    def ResolveFracture(self: "GlomNode", cl = 0.49) -> None:
+    def ResolveFracture(self: "GlomNode", cl=0.49) -> None:
         print("boo")
         bounds = [
             calc_rank_of_mrca_bounds_between(
@@ -460,8 +460,11 @@ class GlomNode(anytree.NodeMixin):
             # 0   X   1
             # 1   1   1
             # etc.
-            oddone = (
-                max(gang, key=lambda x: self.children[x].representative.GetNumStrataDeposited())
+            oddone = max(
+                gang,
+                key=lambda x: self.children[
+                    x
+                ].representative.GetNumStrataDeposited(),
             )
             oddone = self.children[oddone]
             oddone.parent = None
@@ -471,7 +474,7 @@ class GlomNode(anytree.NodeMixin):
             #     # max(self.children, key=lambda x: calc_rank_of_last_retained_commonality_between_(x.longestrepresentative, leaf))
             #
             #     for child in self.children:
-                    # child.PercolateColumn(leaf)
+            # child.PercolateColumn(leaf)
             return
 
         assert len(gang) < len(self.children)
@@ -518,8 +521,10 @@ class GlomNode(anytree.NodeMixin):
             self.UpdateOriginTime()
             print(self.origin_time)
         assert self.HasValidOriginTime(), (
-            self.origin_time, self.GetBoundsIntersection(),
-            "self id", id(self),
+            self.origin_time,
+            self.GetBoundsIntersection(),
+            "self id",
+            id(self),
         )
 
     def UpdateOriginTime(self: "GlomNode") -> None:

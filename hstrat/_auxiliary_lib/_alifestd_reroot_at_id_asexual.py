@@ -31,7 +31,7 @@ def alifestd_reroot_at_id_asexual(
     new_root_id : int
         The ID of the node to use as the new root of the phylogeny.
     mutate : bool, default False
-        Are side effects on the input argument `phylogeny_df` allowed ?
+        Are side effects on the input argument `phylogeny_df` allowed?
 
     Returns
     -------

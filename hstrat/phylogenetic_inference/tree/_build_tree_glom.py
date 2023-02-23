@@ -18,6 +18,7 @@ from ...juxtaposition import (
     calc_rank_of_first_retained_disparity_between,
     calc_rank_of_last_retained_commonality_between,
 )
+from ...stratum_retention_viz import col_to_ascii
 from ..pairwise import (
     estimate_patristic_distance_between,
     estimate_rank_of_mrca_between,
@@ -27,7 +28,6 @@ from ..population import (
     build_distance_matrix_biopython,
     does_definitively_share_no_common_ancestor,
 )
-from ...stratum_retention_viz import col_to_ascii
 from ._impl import GlomNode2
 
 
@@ -37,7 +37,7 @@ def build_tree_glom(
     # prior: typing.Union[str, typing.Any],
     taxon_labels: typing.Optional[typing.Iterable] = None,
     force_common_ancestry: bool = False,
-    progress_wrap = lambda x: x,
+    progress_wrap=lambda x: x,
 ) -> pd.DataFrame:
     """Estimate the phylogenetic history among hereditary stratigraphic
     columns using an agglomerative approach followed by progressive refinement.
@@ -116,17 +116,18 @@ def build_tree_glom(
     glom_root = GlomNode2()
 
     for i, column in enumerate(
-        progress_wrap(sorted(
-            population,
-            key=lambda x: x.GetNumStrataDeposited(),
-            # reverse=True,
-        ))
+        progress_wrap(
+            sorted(
+                population,
+                key=lambda x: x.GetNumStrataDeposited(),
+                # reverse=True,
+            )
+        )
     ):
         glom_root.PercolateColumn(column)
         logging.debug(glom_root)
         assert i + 1 == len(glom_root._leaves), (i, len(glom_root._leaves))
         assert i + 1 == len(glom_root.leaves), (i, len(glom_root.leaves))
-
 
         for n in anytree.PostOrderIter(glom_root):
             n.Validate()
