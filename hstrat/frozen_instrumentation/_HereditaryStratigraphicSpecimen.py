@@ -46,6 +46,11 @@ class HereditaryStratigraphicSpecimen:
         self._data = stratum_differentia_series
         self._stratum_differentia_bit_width = stratum_differentia_bit_width
 
+        assert self._data.index.dtype in (
+            "int64",
+            "uint64",
+        )
+
     def GetStratumDifferentiaBitWidth(
         self: "HereditaryStratigraphicSpecimen",
     ) -> int:
@@ -107,17 +112,17 @@ class HereditaryStratigraphicSpecimen:
 
     def GetRankIndex(
         self: "HereditaryStratigraphicSpecimen",
-    ) -> pd.Index:
+    ) -> np.ndarray:
         """Get the integer index in the stored Pandas Series, representing the
         ranks of stratum entries.
 
         Returns
         -------
-        ranks : pd.Index
-            A Pandas Index containing ranks of differentia entries, including
+        ranks : np.ndarray
+            A numpy array containing ranks of differentia entries, including
             null entries for differentia that are not retained.
         """
-        return self._data.index
+        return self._data.index.array.to_numpy()
 
     def GetRankAtColumnIndex(
         self: "HereditaryStratigraphicColumn",
@@ -129,7 +134,7 @@ class HereditaryStratigraphicSpecimen:
         among retained strata? Index order is from most ancient (index 0) to
         most recent.
         """
-        return self.GetRankIndex().array[index]
+        return self.GetRankIndex()[index]
 
     def IterRetainedRanks(
         self: "HereditaryStratigraphicColumn",

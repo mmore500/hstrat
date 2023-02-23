@@ -1,3 +1,4 @@
+import functools
 import typing
 
 import numpy as np
@@ -60,6 +61,7 @@ class HereditaryStratigraphicAssemblageSpecimen:
         """How many bits wide are the differentia of strata?"""
         return self._stratum_differentia_bit_width
 
+    @functools.lru_cache(maxsize=None)
     def GetNumStrataDeposited(
         self: "HereditaryStratigraphicAssemblageSpecimen",
     ) -> int:
@@ -70,6 +72,7 @@ class HereditaryStratigraphicAssemblageSpecimen:
         """
         return self._data.last_valid_index() + 1
 
+    @functools.lru_cache(maxsize=None)
     def GetNumStrataRetained(
         self: "HereditaryStratigraphicAssemblageSpecimen",
     ) -> int:
@@ -146,17 +149,17 @@ class HereditaryStratigraphicAssemblageSpecimen:
 
     def GetRankIndex(
         self: "HereditaryStratigraphicAssemblageSpecimen",
-    ) -> pd.Index:
-        """Get the integer index in the stored Pandas NullableInteger Series,
-        representing the ranks of (possibly empty) stratum entries.
+    ) -> np.ndarray:
+        """Get the integer index in the stored Pandas Series, representing the
+        ranks of stratum entries.
 
         Returns
         -------
-        ranks : pd.Index
-            A Pandas Index containing ranks of differentia entries, including
+        ranks : np.ndarray
+            A numpy array containing ranks of differentia entries, including
             null entries for differentia that are not retained.
         """
-        return self._data.index
+        return self._data.index.array.to_numpy()
 
     def GetRankAtColumnIndex(
         self: "HereditaryStratigraphicColumn",
