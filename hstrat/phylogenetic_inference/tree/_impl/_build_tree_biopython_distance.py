@@ -1,7 +1,6 @@
 import statistics
 import typing
 
-import Bio.Phylo.TreeConstruction as BioPhyloTree
 import alifedata_phyloinformatics_convert as apc
 import opytional as opyt
 import pandas as pd
@@ -10,6 +9,7 @@ from ...._auxiliary_lib import (
     alifestd_find_root_ids,
     alifestd_make_empty,
     alifestd_validate,
+    BioPhyloTree,
 )
 from ....genome_instrumentation import HereditaryStratigraphicColumn
 from ...population import build_distance_matrix_biopython

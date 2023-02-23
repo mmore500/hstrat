@@ -1,7 +1,6 @@
 import numbers
 import typing
 
-import Bio.Phylo.TreeConstruction as BioPhyloTree
 import alifedata_phyloinformatics_convert as apc
 from iterpop import iterpop as ip
 import pandas as pd
@@ -10,6 +9,7 @@ import sortedcontainers as sc
 from ...._auxiliary_lib import (
     alifestd_is_chronologically_ordered,
     alifestd_reroot_at_id_asexual,
+    BioPhyloTree,
 )
 from ._estimate_origin_times import estimate_origin_times
 

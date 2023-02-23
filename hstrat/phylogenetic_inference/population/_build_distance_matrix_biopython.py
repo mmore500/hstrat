@@ -1,9 +1,8 @@
 import typing
 
-import Bio.Phylo.TreeConstruction as BioPhyloTree
 import opytional as opyt
 
-from ..._auxiliary_lib import to_tril
+from ..._auxiliary_lib import BioPhyloTree, to_tril
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._build_distance_matrix_numpy import build_distance_matrix_numpy
 

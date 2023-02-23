@@ -1,4 +1,5 @@
 from ._AnyTreeAscendingIter import AnyTreeAscendingIter
+from ._BioPhyloTree import BioPhyloTree
 from ._RecursionLimit import RecursionLimit
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
 from ._alifestd_aggregate_phylogenies import alifestd_aggregate_phylogenies
@@ -133,6 +134,7 @@ __all__ = [
     "as_nullable_type",
     "assign_intersecting_subsets",
     "AnyTreeAscendingIter",
+    "BioPhyloTree",
     "bit_ceil",
     "bit_floor",
     "capitalize_n",
