@@ -69,6 +69,7 @@ from ._is_strictly_decreasing import is_strictly_decreasing
 from ._is_strictly_increasing import is_strictly_increasing
 from ._is_subset import is_subset
 from ._iter_chunks import iter_chunks
+from ._iter_monotonic_equivalencies import iter_monotonic_equivalencies
 from ._jit import jit
 from ._jit_numba_dict_t import jit_numba_dict_t
 from ._jit_numpy_bool_t import jit_numpy_bool_t
@@ -168,6 +169,7 @@ __all__ = [
     "is_strictly_increasing",
     "is_subset",
     "iter_chunks",
+    "iter_monotonic_equivalencies",
     "jit",
     "jit_numba_dict_t",
     "jit_numpy_bool_t",
