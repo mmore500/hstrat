@@ -55,3 +55,21 @@ def test_non_decreasing_arrays():
     assert res == [(1, 0), (2, 1), (3, 2), (5, 3), (7, 7)]
     for i, j in res:
         assert first[i] == second[j]
+
+
+def test_start_parameter1():
+    first = np.array([1, 2, 3, 4, 5])
+    second = np.array([2, 4, 6, 8, 10])
+    res = [*iter_monotonic_equivalencies(first, second, start=(1, 0))]
+    assert res == [(1, 0), (3, 1)]
+    for i, j in res:
+        assert first[i] == second[j]
+
+
+def test_start_parameter2():
+    first = np.array([1, 2, 3, 4, 5])
+    second = np.array([2, 4, 6, 8, 10])
+    res = [*iter_monotonic_equivalencies(first, second, start=(2, 0))]
+    assert res == [(3, 1)]
+    for i, j in res:
+        assert first[i] == second[j]
