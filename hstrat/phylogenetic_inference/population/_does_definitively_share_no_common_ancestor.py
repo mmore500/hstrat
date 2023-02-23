@@ -32,7 +32,8 @@ def does_definitively_share_no_common_ancestor(
     num_unique_rank_0_differentia = len(
         {
             (
-                column.GetStratumAtColumnIndex(0).GetDifferentia(),
+                # note: columns guaranteed never empty
+                next(column.IterRetainedDifferentia()),
                 column.GetStratumDifferentiaBitWidth(),
             )
             for column in pop_tee2
