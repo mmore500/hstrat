@@ -7,9 +7,9 @@ import pandas as pd
 import sortedcontainers as sc
 
 from ...._auxiliary_lib import (
+    BioPhyloTree,
     alifestd_is_chronologically_ordered,
     alifestd_reroot_at_id_asexual,
-    BioPhyloTree,
 )
 from ._estimate_origin_times import estimate_origin_times
 
