@@ -1,3 +1,4 @@
+import functools
 import itertools as it
 import logging
 import numbers
@@ -5,13 +6,18 @@ import statistics
 import typing
 
 import anytree
+from iterpop import iterpop as ip
+import numpy as np
 import opytional as opyt
 import sortedcontainers as sc
 
 from ...._auxiliary_lib import (
     assign_intersecting_subsets,
+    deep_listify,
     flat_len,
+    generate_omission_subsets,
     intersect_ranges,
+    pairwise,
 )
 from ....genome_instrumentation import HereditaryStratigraphicColumn
 from ....juxtaposition import (
@@ -30,36 +36,26 @@ from ...pairwise import (
 confidence_level = 0.49
 
 
-def calc_rank_of_first_retained_disparity_between_(c1, c2):
-    return opyt.or_value(
-        calc_rank_of_first_retained_disparity_between(
-            c1, c2, confidence_level=confidence_level
-        ),
-        c1.GetNumStrataDeposited(),
-    )
+def validate(func):
+    @functools.wraps(func)  # presever name, docstring, etc
+    def wrapper(self, *args, **kwargs):  # NOTE: no self
+        self.Validate()
+        retval = func(
+            self, *args, **kwargs
+        )  # call original function or method
+        self.Validate()
+        return retval
 
-
-def calc_rank_of_last_retained_commonality_between_(c1, c2):
-    return opyt.or_value(
-        calc_rank_of_last_retained_commonality_between(
-            c1, c2, confidence_level=confidence_level
-        ),
-        0,
-    )
+    return wrapper
 
 
 class GlomNode(anytree.NodeMixin):
 
-    _leaves: sc.SortedSet
-    origin_time: numbers.Real
+    _leaves: sc.SortedList
 
-    def __init__(
-        self: "GlomNode", origin_time=None, parent=None, children=None
-    ):
-        # if parent:
-        #     assert origin_time >= parent.origin_time
-        self.origin_time = origin_time
+    def __init__(self: "GlomNode", parent=None, children=None) -> None:
         self.parent = parent
+
         self._leaves = sc.SortedList(
             key=lambda node: node.GetNumStrataDeposited(),
         )  # leaves, sorted with youngest first and oldest last
@@ -69,18 +65,317 @@ class GlomNode(anytree.NodeMixin):
             for child in children:
                 self._leaves.update(child._leaves)
 
-        if origin_time is not None:
-            self.origin_time = origin_time
-        if self._leaves:
-            self.UpdateOriginTime()
-
     @property
-    def representative(self: "GlomNode"):
+    def shortrep(self):
         return self._leaves[0]
 
     @property
-    def longestrepresentative(self: "GlomNode"):
+    def longrep(self):
         return self._leaves[-1]
+
+    # def GetFirstRetainedDisparityBetween(self, node):
+    #
+    #     return (
+    #         calc_rank_of_first_retained_disparity_between(
+    #             self._leaves[0], col, confidence_level=confidence_level
+    #         )
+    #         or self._leaves[0].GetNumStrataDeposited()
+    # )
+
+    def GetFirstRetainedDisparityWithShort(self, col):
+        # logging.debug(col_to_ascii(col))
+        # logging.debug(col_to_ascii(self._leaves[0]))
+        logging.debug(f"first retained disp short {id(self._leaves[0])}")
+        return (
+            calc_rank_of_first_retained_disparity_between(
+                self._leaves[0], col, confidence_level=confidence_level
+            )
+            or self._leaves[0].GetNumStrataDeposited()
+        )
+
+    def GetFirstRetainedDisparityWithLong(self, col):
+        # logging.debug(col_to_ascii(col))
+        # logging.debug(col_to_ascii(self._leaves[-1]))
+        logging.debug(f"first retained disp long {id(self._leaves[-1])}")
+        return (
+            calc_rank_of_first_retained_disparity_between(
+                self._leaves[-1], col, confidence_level=confidence_level
+            )
+            or self._leaves[-1].GetNumStrataDeposited()
+        )
+
+    def GetLastRetainedCommonalityWithShort(self, col):
+        # logging.debug(col_to_ascii(col))
+        # logging.debug(col_to_ascii(self._leaves[0]))
+        logging.debug(f"last retained common short {id(self._leaves[0])}")
+        return calc_rank_of_last_retained_commonality_between(
+            self._leaves[0], col, confidence_level=confidence_level
+        )
+
+    def GetLastRetainedCommonalityWithLong(self, col):
+        # logging.debug(col_to_ascii(col))
+        # logging.debug(col_to_ascii(self._leaves[-1]))
+        logging.debug(f"last retained common long {id(self._leaves[-1])}")
+        return calc_rank_of_last_retained_commonality_between(
+            self._leaves[-1], col, confidence_level=confidence_level
+        )
+
+    def GetLastRetainedCommonalityWithDeep(self, col):
+        # logging.debug(col_to_ascii(col))
+        # logging.debug(col_to_ascii(self._leaves[-1]))
+        return self.FindBestMatch(col)
+
+    def GetFirstRetainedDisparityWithDeep(self, col):
+        # logging.debug(col_to_ascii(col))
+        # logging.debug(col_to_ascii(self._leaves[-1]))
+        return self.FindBestStreak(col)
+
+    # @validate
+    def PercolateColumn(self, col):
+        logging.debug(f"{id(self)} percolating {id(col)}")
+
+        # add first leaf
+        if len(self._leaves) == 0:
+            self._leaves.add(col)
+            self.Validate()
+            logging.debug(f"{id(self)} added first leaf")
+            return
+
+        # make first split
+        if len(self._leaves) == 1:
+            GlomNode(parent=self).PercolateColumn(
+                ip.popsingleton(self._leaves)
+            )
+            self._leaves.add(col)
+            logging.debug(f"{id(self)} made first split")
+            GlomNode(parent=self).PercolateColumn(col)
+            return
+
+        assert len(self.children) >= 2, len(self.children)
+        # forward to best-matching branch
+        first_disparities = [
+            child.GetFirstRetainedDisparityWithDeep(col)
+            for child in self.children
+        ]
+        # last_commonalities = [
+        #     child.GetLastRetainedCommonalityWithLong(col)
+        #     for child in self.children
+        # ]
+
+        zip_ = [
+            *zip(
+                self.children,
+                [*map(anytree.LevelOrderIter, self.children)],
+                deep_listify(generate_omission_subsets(first_disparities)),
+            )
+        ]
+        while True:
+            continue_ = False
+            for child, candidate_, other_disparities in zip_:
+                candidate = next(candidate_, None)
+                if (
+                    candidate is not None
+                    and candidate.GetLastRetainedCommonalityWithDeep(col)
+                    >= max(other_disparities)
+                    # >= max(max(other_disparities), max(other_commonalities) + 1)
+                ):
+                    self._leaves.add(col)
+                    logging.debug(f"{id(self)} forwarded to best branch")
+                    logging.debug(
+                        f"{max(other_disparities)} max other_disparities"
+                    )
+                    logging.debug(
+                        f"{candidate.GetLastRetainedCommonalityWithLong(col)}"
+                    )
+                    logging.debug(f"other_disparities {other_disparities}")
+                    logging.debug(f"chose {id(child)}")
+                    child.PercolateColumn(col)
+                    return
+                elif candidate is not None:
+                    continue_ = True
+
+            if not continue_:
+                logging.debug("best branch search exhausted")
+                break
+
+        logging.debug("best match forwarding failed")
+
+        # shim insertion
+        to_push = set()
+        for child_idx1, child_idx2 in it.combinations(
+            range(len(self.children)), r=2
+        ):
+            child1 = self.children[child_idx1]
+            child2 = self.children[child_idx2]
+            # TODO
+            if child1.GetLastRetainedCommonalityWithShort(
+                child2.shortrep
+            ) >= max(
+                # if child1.GetLastRetainedCommonalityWithLong(
+                #     child2.longrep
+                # ) >= max(
+                child1.GetFirstRetainedDisparityWithLong(col),
+                child2.GetFirstRetainedDisparityWithLong(col),
+            ):
+                to_push.add(child_idx1)
+                to_push.add(child_idx2)
+
+        if to_push:
+            if len(to_push) == len(self.children):
+                GlomNode(parent=self, children=self.children)
+                GlomNode(parent=self).PercolateColumn(col)
+                self._leaves.add(col)
+            else:
+                GlomNode(
+                    parent=self,
+                    children=tuple(self.children[i] for i in to_push),
+                )
+                self.PercolateColumn(col)
+
+            logging.debug(f"{id(self)} inserted shim")
+            return
+
+        # should this be what if multiple best?
+        # if len(set(first_disparities)) != 1:
+        #     youngest_disparity = max(first_disparities)
+        #     self.
+
+        logging.debug(f"{id(self)} created polytomy")
+        GlomNode(parent=self).PercolateColumn(col)
+        self._leaves.add(col)
+
+        logging.debug(f"{id(self)} fallthorugh")
+
+    def GetBoundsWithShort(self, node):
+        return (
+            self.GetLastRetainedCommonalityWithShort(node.shortrep),
+            self.GetFirstRetainedDisparityWithShort(node.shortrep),
+        )
+
+    def GetBoundsWithLong(self, node):
+        return (
+            self.GetLastRetainedCommonalityWithLong(node.longrep),
+            self.GetFirstRetainedDisparityWithLong(node.longrep),
+        )
+
+    def GetBoundsIntersection(self: "GlomNode"):
+        bounds = [
+            c1.GetBoundsWithShort(c2) for c1, c2 in pairwise(self.children)
+        ] + [c1.GetBoundsWithLong(c2) for c1, c2 in pairwise(self.children)]
+        return intersect_ranges(bounds)
+
+    def GetBoundsIntersectionShort(self: "GlomNode"):
+        bounds = [
+            c1.GetBoundsWithShort(c2) for c1, c2 in pairwise(self.children)
+        ]
+        return intersect_ranges(bounds)
+
+    def GetBackpoint(self: "GlomNode"):
+        short = min(
+            calc_rank_of_first_retained_disparity_between(
+                c1.shortrep, c2.shortrep
+            )
+            or min(
+                c1.shortrep.GetNumStrataDeposited(),
+                c2.shortrep.GetNumStrataDeposited(),
+            )
+            for c1, c2 in pairwise(self.children)
+        )
+        long = min(
+            calc_rank_of_first_retained_disparity_between(
+                c1.longrep, c2.longrep
+            )
+            or min(
+                c1.longrep.GetNumStrataDeposited(),
+                c2.longrep.GetNumStrataDeposited(),
+            )
+            for c1, c2 in pairwise(self.children)
+        )
+        return min(short, long) - 1
+
+    def GetFrontpoint(self: "GlomNode"):
+        # return min(
+        #     calc_rank_of_first_retained_disparity_between(c1.shortrep, c2.shortrep, confidence_level=0.49) or 0
+        #     for c1, c2 in pairwise(self.children)
+        # )
+        return min(
+            calc_rank_of_last_retained_commonality_between(
+                c1.shortrep, c2.shortrep, confidence_level=0.49
+            )
+            or 0
+            for c1, c2 in pairwise(self.children)
+        )
+
+    # @functools.cached_property  # TODO just call from root
+    @property
+    def origin_time(self: "GlomNode"):
+        logging.debug(f"{id(self)} calculating origin_time")
+        if self.is_root:
+            logging.debug(f"{id(self)} origin_time: root")
+            return 0
+        elif self.is_leaf:
+            logging.debug(f"{id(self)} origin_time: leaf")
+            assert len(self._leaves) == 1
+            res = self._leaves[0].GetNumStrataDeposited() - 1
+        # elif self.GetBoundsIntersection() is not None:
+        #     logging.debug(f"{id(self)} origin_time: bounds intersection")
+        #     assert len(self._leaves) > 1
+        #     # res = self.GetBackpoint()
+        #     # res = statistics.mean(*self.GetBoundsIntersection())
+        #     res = self.GetBoundsIntersection()[1] - 1
+        #     # res = self.GetBoundsIntersection()[0]
+        # elif self.GetBoundsIntersectionShort() is not None:
+        #     logging.debug(f"{id(self)} origin_time: bounds intersection short")
+        #     res = self.GetBoundsIntersectionShort()[1] - 1
+        elif True:
+            res = (
+                min(
+                    opyt.or_value(
+                        calc_rank_of_first_retained_disparity_between(
+                            l1, l2, confidence_level=confidence_level
+                        ),
+                        l1.GetNumStrataDeposited(),
+                    )
+                    for l1, l2 in it.combinations(self._leaves, r=2)
+                )
+                - 1
+            )
+        elif True:
+            logging.debug(
+                f"{id(self)} origin_time: bounds intersection frontpoint"
+            )
+            res = min(
+                self.GetFrontpoint(),
+                self.GetBackpoint(),
+                min(child.origin_time for child in self.children),
+            )
+        else:
+            print(self)
+            for leaf in self._leaves:
+                print(id(leaf))
+                print(col_to_ascii(leaf))
+            assert False
+            logging.debug(f"{id(self)} origin_time: backpoint")
+            return self.GetBackpoint()
+        assert not np.isnan(res)
+        assert res >= 0
+        return res
+
+    def Validate(self):
+        if self.is_leaf:
+            assert len(self._leaves) < 2, len(self._leaves)
+
+        assert len(self._leaves) == len(self.leaves)
+
+    def __str__(self: "GlomNode") -> str:
+        return "\n".join(
+            f"{pre} ({id(node)}) {node.name}"
+            for pre, __, node in anytree.RenderTree(self)
+        )
+        # return "\n".join(
+        #     f"{pre} ({id(node)}) {node.origin_time} {node.name}"
+        #     for pre, __, node in anytree.RenderTree(self)
+        # )
 
     @property
     def name(self: "GlomNode"):
@@ -89,462 +384,87 @@ class GlomNode(anytree.NodeMixin):
         else:
             return ""
 
-    def _PercolateColumn(
-        self: "GlomNode", column: HereditaryStratigraphicColumn
-    ) -> None:
-        logging.debug(f"percolating column {id(column)}")
-
-        first_disparities = [
-            calc_rank_of_first_retained_disparity_between_(
-                column, child.representative
-            )
-            for child in self.children
-        ]
+    def ResolveShims(self):
         last_commonalities = [
-            calc_rank_of_last_retained_commonality_between_(
-                column, child.representative
+            max(
+                self.children[child_idx1].GetLastRetainedCommonalityWithShort(
+                    self.children[child_idx2].shortrep
+                ),
+                self.children[child_idx1].GetLastRetainedCommonalityWithLong(
+                    self.children[child_idx2].longrep
+                ),
             )
-            for child in self.children
-        ]
-        recentest_first_disparity = max(first_disparities or [None])
-        recentest_last_commonality = max(last_commonalities or [None])
-        patristic_distances = [
-            estimate_patristic_distance_between(
-                column, child.representative, "maximum_likelihood", "arbitrary"
+            for child_idx1, child_idx2 in it.combinations(
+                range(len(self.children)), r=2
             )
-            for child in self.children
-        ]
-        rank_mrcas = [
-            estimate_rank_of_mrca_between(
-                column, child.representative, "maximum_likelihood", "arbitrary"
-            )
-            for child in self.children
-        ]
-        since_mrcas = [
-            estimate_ranks_since_mrca_with(
-                column, child.representative, "maximum_likelihood", "arbitrary"
-            )
-            for child in self.children
-        ]
-        since_mrcas2 = [
-            estimate_ranks_since_mrca_with(
-                child.representative, column, "maximum_likelihood", "arbitrary"
-            )
-            for child in self.children
-        ]
-        deposits = [
-            child.representative.GetNumStrataDeposited()
-            for child in self.children
         ]
 
-        self._leaves.add(column)
-
-        if len(self._leaves) == 1:
-            logging.debug("initializing empty node")
-            return
-        elif (len(self.children)) == 1:
-            # THIS CASE IS ONLY TEMPORARY AFTER SHIM INSERTION
-            logging.debug("single child case")
-
-            self.origin_time = calc_rank_of_last_retained_commonality_between_(
-                self.children[0].representative,
-                column,
-            )
-            child = GlomNode(
-                origin_time=column.GetNumStrataDeposited() - 1,
-                parent=self,
-            )
-            child.PercolateColumn(column)
-            return
-        elif len(self.children) == 0:
-            logging.debug("performing first split")
-            assert len(self._leaves) == 2
-            self.origin_time = calc_rank_of_last_retained_commonality_between_(
-                *self._leaves,
-            )
-            for leaf_col in self._leaves:
-                child = GlomNode(
-                    origin_time=leaf_col.GetNumStrataDeposited() - 1,
-                    parent=self,
-                )
-                child.PercolateColumn(leaf_col)
+        if len(set(last_commonalities)) == 1:
             return
 
-        else:
-            assert len(self.children) > 1
-            logging.debug("forwarding to most related child")
-            descending_iters = [
-                anytree.LevelOrderIter(child) for child in self.children
-            ]
-            win_thresholds = [
-                max(first_disparities[:i] + first_disparities[i + 1 :])
-                # max(first_disparities)
-                for i in range(len(self.children))
-            ]
+        for child1 in self.children:
+            to_push = set()
+            for child2 in self.children:
+                if child1 is not child2:
+                    if child1.GetLastRetainedCommonalityWithShort(
+                        child2.shortrep
+                    ) == max(last_commonalities):
+                        to_push.add(child1)
+                        to_push.add(child2)
+                    elif child1.GetLastRetainedCommonalityWithLong(
+                        child2.longrep
+                    ) == max(last_commonalities):
+                        to_push.add(child1)
+                        to_push.add(child2)
 
-            while True:
-                continue_ = False
-                for child, iter_, thresh in zip(
-                    self.children,
-                    descending_iters,
-                    win_thresholds,
-                ):
-                    desc = next(iter_, None)
-                    if desc is not None:
-                        continue_ = True
-                    if (
-                        desc is not None
-                        and calc_rank_of_last_retained_commonality_between_(
-                            column, desc.representative
-                        )
-                        >= thresh
-                    ):
-                        logging.debug("identified child")
-                        child.PercolateColumn(column)
-                        return
-                if not continue_:
-                    break
-
-        # polytomy
-        # if len(set(last_commonalities)) == 1:
-        if True:
-            logging.debug("handling polytomy")
-            logging.debug(f"first_disparities={first_disparities}")
-            logging.debug(f"last_commonalities={last_commonalities}")
-            logging.debug(f"patristic_distances={patristic_distances}")
-            logging.debug(f"rank_mrcas={rank_mrcas}")
-            logging.debug(f"since_mrcas={since_mrcas}")
-            logging.debug(f"since_mrcas2={since_mrcas2}")
-            logging.debug(f"deposits={deposits}")
-            logging.debug(
-                "column.GetNumStrataDeposited()="
-                f"{column.GetNumStrataDeposited()}"
-            )
-            assert len(self.children) >= 2
-
-            lrc = calc_rank_of_last_retained_commonality_among(
-                (child.representative for child in self.children),
-                confidence_level=confidence_level,
-            )
-
-            # this is probably wrong
-            if lrc > max(last_commonalities):
-                # self becomes shim node, then makes column its second child
-                logging.debug("inserting shim node")
-                logging.debug(f"self {id(self)} parent {id(self.parent)}")
-                # assert lrc >= self.origin_time
+            # assert len(to_push) < len(self.children)
+            if len(to_push) == len(self.children):
+                continue
+            if to_push:
+                logging.debug(f"resolving shim {to_push}")
                 GlomNode(
-                    origin_time=opyt.apply_if_or_value(
-                        self.GetBoundsIntersection(),
-                        lambda x: x[0],
-                        lrc,
-                    ),
                     parent=self,
-                    children=self.children,
+                    children=tuple(to_push),
                 )
+                self.ResolveShims()
+                return
 
-            # assert self.origin_time >= min(last_commonalities)
-            self.origin_time = min(last_commonalities)
-            child = GlomNode(
-                origin_time=column.GetNumStrataDeposited() - 1,
-                parent=self,
+    def FindBestMatch(self, col):
+        if self.is_leaf:
+            return calc_rank_of_last_retained_commonality_between(
+                self._leaves[0], col, confidence_level=confidence_level
             )
-            child.PercolateColumn(column)
-            if self.GetBoundsIntersection() is None:
-                self.ResolveFracture()
-            self.UpdateOriginTime()
-            self.Checkup()
-            assert len(child._leaves)
-            logging.debug(f"coming back up through node {id(self)}")
 
-        # # these sections need consideration
-        # elif first_disparities.count(recentest_first_disparity) == 1:
-        #     logging.debug("forwarding to most related child")
-        #     assert last_commonalities.count(recentest_last_commonality) == 1
-        #
-        #     recentest_first_disparity_idx = first_disparities.index(
-        #         recentest_first_disparity
-        #     )
-        #     recentest_last_commonality_idx = last_commonalities.index(
-        #         recentest_last_commonality
-        #     )
-        #     assert (
-        #         recentest_first_disparity_idx == recentest_last_commonality_idx
-        #     )
-        #
-        #     self.children[recentest_first_disparity_idx].PercolateColumn(
-        #         column
-        #     )
-        # elif last_commonalities.count(recentest_last_commonality) == 1:
-        #     logging.debug("forwarding to most related child")
-        #     assert False
-        #
-        #     recentest_last_commonality_idx = last_commonalities.index(
-        #         recentest_last_commonality
-        #     )
-        #
-        #     self.children[recentest_last_commonality_idx].PercolateColumn(
-        #         column
-        #     )
-        # else:
-        #     logging.debug("resolving partial polytomy")
-        #     logging.debug(f"first_disparities={first_disparities}")
-        #     logging.debug(f"last_commonalities={last_commonalities}")
-        #
-        #     # todo generalize
-        #     assert False
-
-        # TOOD go down both equivalent sides of tree and look for evidence otherwise create a new branch directly
-
-    def GetMegaBoundsIntersection(
-        self: "GlomNode",
-    ) -> typing.Optional[typing.Tuple[numbers.Integral, numbers.Integral]]:
-        bounds = [
-            calc_rank_of_mrca_bounds_between(
-                c1, c2, prior="arbitrary", confidence_level=confidence_level
-            )
-            for child1, child2 in it.combinations(self.children, r=2)
-            for c1, c2 in it.product(child1._leaves, child2._leaves)
-        ]
-        return intersect_ranges(bounds)
-
-    def GetBoundsIntersection(
-        self: "GlomNode",
-    ) -> typing.Optional[typing.Tuple[numbers.Integral, numbers.Integral]]:
-        bounds = [
-            calc_rank_of_mrca_bounds_between(
-                c1.representative,
-                c2.representative,
-                prior="arbitrary",
-                confidence_level=confidence_level,
-                strict=False,
-            )
-            for c1, c2 in it.combinations(self.children, r=2)
-        ]
-        return intersect_ranges(bounds)
-
-    def HasValidOriginTime(self: "GlomNode") -> bool:
-        bi = self.GetBoundsIntersection()
-        if bi is not None:
-            lb, ub = bi
-            return lb <= self.origin_time < ub
-        else:
-            # TODO generalize
-            # assert (
-            #     self.origin_time
-            #     == self._leaves[0].GetNumStrataDeposited() - 1
-            # ), (
-            #     self.origin_time, len(self._leaves)
-            # )
-            pass
-
-        return True
-
-    def HasValidMegaBoundsIntersection(self: "GlomNode") -> bool:
-        return (self.GetMegaBoundsIntersection() is not None) or len(
-            self._leaves
-        ) <= 1
-
-    def HasValidBoundsIntersection(self: "GlomNode") -> bool:
-        return (self.GetBoundsIntersection() is not None) or len(
-            self.children
-        ) <= 1
-
-    def ResolveFracture(self: "GlomNode", cl=0.49) -> None:
-        print("boo")
-        bounds = [
-            calc_rank_of_mrca_bounds_between(
-                c1.representative,
-                c2.representative,
-                prior="arbitrary",
-                confidence_level=confidence_level,
-            )
-            for c1, c2 in it.combinations(self.children, r=2)
-        ]
-        partition = assign_intersecting_subsets(bounds)
-
-        blame = [*it.combinations(range(len(self.children)), r=2)]
-
-        assert len(partition) > 1
-
-        assert len(partition) == 2  # handle more general case later
-        # assert flat_len(partition) == 6  # handle more general case later
-
-        gang = {
-            indiv for combo_id in partition[-1] for indiv in blame[combo_id]
-        }
-
-        gang_nodes = [self.children[i] for i in gang]
-        # gang_time = calc_rank_of_last_retained_commonality_among(
-        #     (n.representative for n in gang_nodes),
-        #     confidence_level=confidence_level,
-        # )
-        # assert gang_time is not None
-
-        print(partition, bounds, len(self.children))
-        print("self", id(self))
-        print("blame", blame)
-        print("gang", gang)
-        for g in gang:
-            print(id(self.children[g].representative))
-            print(col_to_ascii(self.children[g].representative))
-
-        # +----------------------------------------------------+
-        # |                    MOST ANCIENT                    |
-        # +--------------+---------------+---------------------+
-        # | stratum rank | stratum index | stratum differentia |
-        # +--------------+---------------+---------------------+
-        # |      0       |       0       |          0*         |
-        # +--------------+---------------+---------------------+
-        # |      1       |       1       |          0*         |
-        # +--------------+---------------+---------------------+
-        # |      2       |       2       |          1*         |
-        # +--------------+---------------+---------------------+
-        # |      3       |       3       |          1*         |
-        # +--------------+---------------+---------------------+
-        # |      4       |       4       |          1*         |
-        # +--------------+---------------+---------------------+
-        # |                    MOST RECENT                     |
-        # +----------------------------------------------------+
-        # +----------------------------------------------------+
-        # |                    MOST ANCIENT                    |
-        # +--------------+---------------+---------------------+
-        # | stratum rank | stratum index | stratum differentia |
-        # +--------------+---------------+---------------------+
-        # |      0       |       0       |          0*         |
-        # +--------------+---------------+---------------------+
-        # |      1       |       1       |          0*         |
-        # +--------------+---------------+---------------------+
-        # |      2       |       2       |          1*         |
-        # +--------------+---------------+---------------------+
-        # |      3       |       3       |          0*         |
-        # +--------------+---------------+---------------------+
-        # |      4       |       4       |          1*         |
-        # +--------------+---------------+---------------------+
-        # |                    MOST RECENT                     |
-        # +----------------------------------------------------+
-        # +----------------------------------------------------+
-        # |                    MOST ANCIENT                    |
-        # +--------------+---------------+---------------------+
-        # | stratum rank | stratum index | stratum differentia |
-        # +--------------+---------------+---------------------+
-        # |      0       |       0       |          0*         |
-        # +--------------+---------------+---------------------+
-        # |      1       | ░░░░░░░░░░░░░ | ░░░░░░░░░░░░░░░░░░░ |
-        # +--------------+---------------+---------------------+
-        # |      2       |       1       |          1*         |
-        # +--------------+---------------+---------------------+
-        # |      3       | ░░░░░░░░░░░░░ | ░░░░░░░░░░░░░░░░░░░ |
-        # +--------------+---------------+---------------------+
-        # |      4       |       2       |          1*         |
-        # +--------------+---------------+---------------------+
-        # |      5       |       3       |          1*         |
-        # +--------------+---------------+---------------------+
-        # |      6       |       4       |          0*         |
-        # +--------------+---------------+---------------------+
-        # |      7       |       5       |          1*         |
-        # +--------------+---------------+---------------------+
-        # |      8       |       6       |          0*         |
-        # +--------------+---------------+---------------------+
-        # |      9       |       7       |          1*         |
-        # +--------------+---------------+---------------------+
-        # |      10      |       8       |          1*         |
-        # +--------------+---------------+---------------------+
-        # |                    MOST RECENT                     |
-        # +----------------------------------------------------+
-
-        if len(gang) == len(self.children):
-            # problem: one has missing strata
-            # A   B   C
-            # 1   1   1
-            # 0   X   1
-            # 1   1   1
-            # etc.
-            oddone = max(
-                gang,
-                key=lambda x: self.children[
-                    x
-                ].representative.GetNumStrataDeposited(),
-            )
-            oddone = self.children[oddone]
-            oddone.parent = None
-            for leaf in oddone._leaves:
-                self.children[0].PercolateColumn(leaf)
-            #
-            #     # max(self.children, key=lambda x: calc_rank_of_last_retained_commonality_between_(x.longestrepresentative, leaf))
-            #
-            #     for child in self.children:
-            # child.PercolateColumn(leaf)
-            return
-
-        assert len(gang) < len(self.children)
-        # assert self.origin_time <= gang_time
-
-        x = GlomNode(origin_time=None, parent=self, children=gang_nodes)
-        x.UpdateOriginTime()
-
-        if not self.HasValidBoundsIntersection():
-            self.ResolveFracture()
-        self.UpdateOriginTime()
-
-    def PercolateColumn(
-        self: "GlomNode", column: HereditaryStratigraphicColumn
-    ) -> None:
-
-        logging.debug(f"PERCOLATING INSIDE {id(self)}")
-        self._PercolateColumn(column)
-
-        # if NOT intersecting, then split
-        if not self.HasValidBoundsIntersection():
-            self.ResolveFracture()
-
-        # if not self.HasValidOriginTime():
-        self.UpdateOriginTime()
-        assert self.origin_time >= 0
-
-        assert self.HasValidBoundsIntersection()
-        assert self.HasValidOriginTime()
-        # assert False
-        # refactor
-        # assert self.HasValidBoundsIntersection()
-        # assert self.HasValidMegaBoundsIntersection()
-
-    def Checkup(self: "GlomNode") -> None:
-        pass
-        assert self.origin_time >= 0
-        # assert not np.isnan(self.origin_time)
-
-        assert self.HasValidBoundsIntersection(), self.GetBoundsIntersection()
-        if not self.HasValidOriginTime():
-            print(self.origin_time)
-            print(self.GetBoundsIntersection())
-            self.UpdateOriginTime()
-            print(self.origin_time)
-        assert self.HasValidOriginTime(), (
-            self.origin_time,
-            self.GetBoundsIntersection(),
-            "self id",
-            id(self),
+        # first_disparities = [
+        #     child.GetLastRetainedCommonalityWithLong(col)
+        #     for child in self.children
+        # ]
+        # max_ = max(first_disparities)
+        return max(
+            child.FindBestMatch(col)
+            for child in self.children
+            # for d, child in zip(first_disparities, self.children)
+            # if d == max_
         )
 
-    def UpdateOriginTime(self: "GlomNode") -> None:
-        self.origin_time = opyt.apply_if_or_value(
-            self.GetBoundsIntersection(),
-            # lambda x: statistics.mean([x[1] - 1, x[0]]),
-            lambda x: x[1] - 1,
-            # lambda x: x[1] - 1,
-            self._leaves[0].GetNumStrataDeposited() - 1,
-        )
+    def FindBestStreak(self, col):
+        if self.is_leaf:
+            res = calc_rank_of_first_retained_disparity_between(
+                self._leaves[0], col, confidence_level=confidence_level
+            )
+            if res is None:
+                return self._leaves[0].GetNumStrataDeposited()
+            else:
+                return res
 
-    def BigCheckup(self: "GlomNode") -> None:
-        pass
-        # assert self.HasValidMegaBoundsIntersection(), ("big checkup",
-        #     self.origin_time, self.GetMegaBoundsIntersection(),
-        #     "self id", id(self),
-        # )
-
-    def __str__(self: "GlomNode") -> str:
-        return "\n".join(
-            f"{pre} ({id(node)}) {node.origin_time} {node.name}"
-            for pre, __, node in anytree.RenderTree(self)
+        # first_disparities = [
+        #     child.GetLastRetainedCommonalityWithLong(col)
+        #     for child in self.children
+        # ]
+        # max_ = max(first_disparities)
+        return max(
+            child.FindBestStreak(col)
+            for child in self.children
+            # for d, child in zip(first_disparities, self.children)
+            # if d == max_
         )

@@ -28,7 +28,7 @@ from ..population import (
     build_distance_matrix_biopython,
     does_definitively_share_no_common_ancestor,
 )
-from ._impl import GlomNode2
+from ._impl import GlomNode
 
 
 def build_tree_glom(
@@ -113,7 +113,7 @@ def build_tree_glom(
         for column, taxon_label in zip(population, taxon_labels)
     }
 
-    glom_root = GlomNode2()
+    glom_root = GlomNode()
 
     for i, column in enumerate(
         progress_wrap(
@@ -145,7 +145,7 @@ def build_tree_glom(
         n.ResolveShims()
 
     # if glom_root.origin_time != 0:
-    glom_root = GlomNode2(children=(glom_root,))
+    glom_root = GlomNode(children=(glom_root,))
 
     # print(glom_root)
 
