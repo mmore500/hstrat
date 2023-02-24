@@ -9,11 +9,11 @@ import opytional as opyt
 import pandas as pd
 
 from ..._auxiliary_lib import (
+    HereditaryStratigraphicArtifact,
     alifestd_find_chronological_inconsistency,
     alifestd_is_chronologically_ordered,
     alifestd_make_empty,
 )
-from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ...juxtaposition import (
     calc_rank_of_first_retained_disparity_between,
     calc_rank_of_last_retained_commonality_between,
@@ -32,7 +32,7 @@ from ._impl import GlomNode
 
 
 def build_tree_glom(
-    population: typing.Sequence[HereditaryStratigraphicColumn],
+    population: typing.Sequence[HereditaryStratigraphicArtifact],
     # estimator: str,
     # prior: typing.Union[str, typing.Any],
     taxon_labels: typing.Optional[typing.Iterable] = None,
@@ -44,7 +44,7 @@ def build_tree_glom(
 
     Parameters
     ----------
-    population: Sequence[HereditaryStratigraphicColumn]
+    population: Sequence[HereditaryStratigraphicArtifact]
         Hereditary stratigraphic columns corresponding to extant population members.
 
         Each member of population will correspond to a unique leaf node in the

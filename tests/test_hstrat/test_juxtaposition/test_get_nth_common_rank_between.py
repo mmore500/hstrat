@@ -1,9 +1,17 @@
 import itertools as it
 
 from hstrat import hstrat
+import pytest
 
 
-def test_GetNthCommonRankWith():
+@pytest.mark.parametrize(
+    "wrap",
+    [
+        lambda x: x,
+        hstrat.col_to_specimen,
+    ],
+)
+def test_GetNthCommonRankWith(wrap):
     c1 = hstrat.HereditaryStratigraphicColumn(
         stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
     )
@@ -26,31 +34,31 @@ def test_GetNthCommonRankWith():
         for i in range(col.GetNumStrataRetained()):
             assert col.GetRankAtColumnIndex(
                 i
-            ) == hstrat.get_nth_common_rank_between(col, col, i)
+            ) == hstrat.get_nth_common_rank_between(wrap(col), wrap(col), i)
         assert (
             hstrat.get_nth_common_rank_between(
-                col, col, col.GetNumStrataRetained()
+                wrap(col), wrap(col), col.GetNumStrataRetained()
             )
             is None
         )
 
     for x1, x2 in it.combinations([c1, c2, c3], 2):
-        assert hstrat.get_nth_common_rank_between(x1, x2, 0) == 0
+        assert hstrat.get_nth_common_rank_between(wrap(x1), wrap(x2), 0) == 0
 
     assert (
-        hstrat.get_nth_common_rank_between(c1, c2, 1)
+        hstrat.get_nth_common_rank_between(wrap(c1), wrap(c2), 1)
         == c2.GetNumStrataDeposited() - 1
     )
     assert (
-        hstrat.get_nth_common_rank_between(c2, c1, 1)
+        hstrat.get_nth_common_rank_between(wrap(c2), wrap(c1), 1)
         == c2.GetNumStrataDeposited() - 1
     )
 
-    assert hstrat.get_nth_common_rank_between(c1, c2, 2) is None
-    assert hstrat.get_nth_common_rank_between(c2, c1, 2) is None
+    assert hstrat.get_nth_common_rank_between(wrap(c1), wrap(c2), 2) is None
+    assert hstrat.get_nth_common_rank_between(wrap(c2), wrap(c1), 2) is None
 
-    assert hstrat.get_nth_common_rank_between(c1, c3, 1) == 2
-    assert hstrat.get_nth_common_rank_between(c3, c1, 1) == 2
+    assert hstrat.get_nth_common_rank_between(wrap(c1), wrap(c3), 1) == 2
+    assert hstrat.get_nth_common_rank_between(wrap(c3), wrap(c1), 1) == 2
 
-    assert hstrat.get_nth_common_rank_between(c1, c3, 2) == 4
-    assert hstrat.get_nth_common_rank_between(c3, c1, 2) == 4
+    assert hstrat.get_nth_common_rank_between(wrap(c1), wrap(c3), 2) == 4
+    assert hstrat.get_nth_common_rank_between(wrap(c3), wrap(c1), 2) == 4

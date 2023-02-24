@@ -19,7 +19,6 @@ from ...._auxiliary_lib import (
     intersect_ranges,
     pairwise,
 )
-from ....genome_instrumentation import HereditaryStratigraphicColumn
 from ....juxtaposition import (
     calc_rank_of_first_retained_disparity_between,
     calc_rank_of_last_retained_commonality_among,
