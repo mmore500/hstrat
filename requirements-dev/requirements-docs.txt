@@ -15,6 +15,8 @@ anytree>=2.8.0
 babel>=2.11.0
     # via sphinx
 biopython>=1.79
+    # via hstrat (../../pyproject.toml)
+bitarray>=2.6.2
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)

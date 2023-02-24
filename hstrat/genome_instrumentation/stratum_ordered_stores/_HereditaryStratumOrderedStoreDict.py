@@ -1,5 +1,6 @@
 from copy import copy
 import itertools as it
+import operator
 import sys
 import typing
 
@@ -17,6 +18,8 @@ class HereditaryStratumOrderedStoreDict(HereditaryStratumOrderedStoreBase):
     deleted strata tend to be more ancient.
     """
 
+    __slots__ = ("_data",)
+
     # maps rank to stratum
     _data: typing.Dict[int, HereditaryStratum]
 
@@ -29,12 +32,19 @@ class HereditaryStratumOrderedStoreDict(HereditaryStratumOrderedStoreBase):
         other: "HereditaryStratumOrderedStoreDict",
     ) -> bool:
         """Compare for value-wise equality."""
+        # adapted from https://stackoverflow.com/a/4522896
         return (
             isinstance(
                 other,
                 self.__class__,
             )
-            and self.__dict__ == other.__dict__
+            and self.__slots__ == other.__slots__
+            and all(
+                getter(self) == getter(other)
+                for getter in [
+                    operator.attrgetter(attr) for attr in self.__slots__
+                ]
+            )
         )
 
     def DepositStratum(

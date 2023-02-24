@@ -1,4 +1,5 @@
 from copy import copy
+import operator
 import typing
 
 from interval_search import binary_search
@@ -22,6 +23,8 @@ class HereditaryStratumOrderedStoreList(HereditaryStratumOrderedStoreBase):
     between stratigraphic columns.
     """
 
+    __slots__ = ("_data",)
+
     # strata stored from most ancient (index 0, front) to most recent (back)
     _data: typing.List[HereditaryStratum]
 
@@ -34,12 +37,19 @@ class HereditaryStratumOrderedStoreList(HereditaryStratumOrderedStoreBase):
         other: "HereditaryStratumOrderedStoreList",
     ) -> bool:
         """Compare for value-wise equality."""
+        # adapted from https://stackoverflow.com/a/4522896
         return (
             isinstance(
                 other,
                 self.__class__,
             )
-            and self.__dict__ == other.__dict__
+            and self.__slots__ == other.__slots__
+            and all(
+                getter(self) == getter(other)
+                for getter in [
+                    operator.attrgetter(attr) for attr in self.__slots__
+                ]
+            )
         )
 
     def DepositStratum(

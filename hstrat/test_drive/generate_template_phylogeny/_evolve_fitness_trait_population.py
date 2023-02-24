@@ -26,6 +26,7 @@ def evolve_fitness_trait_population(
     mut_distn: typing.Callable = np.random.standard_normal,
     share_common_ancestor: bool = True,
     progress_wrap: typing.Callable = lambda x: x,
+    tracker_buffer_size: typing.Optional[int] = None,
 ) -> typing.Union[pd.DataFrame, typing.Iterator[pd.DataFrame]]:
     """Run simple evolutionary simulation to generate sample phylogeny.
 
@@ -117,7 +118,11 @@ def evolve_fitness_trait_population(
         phylogeny compilation process.
 
         Pass tqdm or equivalent to display progress bars.
+    tracker_buffer_size : int, optional
+        How many rows back should intermittent garbage collection on
+        phylogenetic tracker reach?
 
+        Adjustments to this parameter only affect performance, not tracking semantics. If None, a default value will be used.
     Returns
     -------
     pandas.DataFrame or iterator of pandas.DataFrame
@@ -142,6 +147,7 @@ def evolve_fitness_trait_population(
     pop_tracker = GarbageCollectingPhyloTracker(
         pop_arr,
         share_common_ancestor=share_common_ancestor,
+        working_buffer_size=tracker_buffer_size,
     )
 
     def epoch_iterator(
