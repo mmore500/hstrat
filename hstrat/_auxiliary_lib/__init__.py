@@ -1,4 +1,6 @@
 from ._AnyTreeAscendingIter import AnyTreeAscendingIter
+from ._BioPhyloTree import BioPhyloTree
+from ._HereditaryStratigraphicArtifact import HereditaryStratigraphicArtifact
 from ._RecursionLimit import RecursionLimit
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
 from ._alifestd_aggregate_phylogenies import alifestd_aggregate_phylogenies
@@ -68,6 +70,10 @@ from ._is_strictly_decreasing import is_strictly_decreasing
 from ._is_strictly_increasing import is_strictly_increasing
 from ._is_subset import is_subset
 from ._iter_chunks import iter_chunks
+from ._iter_monotonic_equivalencies import iter_monotonic_equivalencies
+from ._iter_monotonic_equivalencies_reverse import (
+    iter_monotonic_equivalencies_reverse,
+)
 from ._iter_slices import iter_slices
 from ._jit import jit
 from ._jit_numba_dict_t import jit_numba_dict_t
@@ -134,6 +140,7 @@ __all__ = [
     "as_nullable_type",
     "assign_intersecting_subsets",
     "AnyTreeAscendingIter",
+    "BioPhyloTree",
     "bit_ceil",
     "bit_floor",
     "capitalize_n",
@@ -156,6 +163,7 @@ __all__ = [
     "get_nullable_mask",
     "get_nullable_vals",
     "give_len",
+    "HereditaryStratigraphicArtifact",
     "indices_of_unique",
     "intersect_ranges",
     "is_base64",
@@ -167,6 +175,8 @@ __all__ = [
     "is_strictly_increasing",
     "is_subset",
     "iter_chunks",
+    "iter_monotonic_equivalencies",
+    "iter_monotonic_equivalencies_reverse",
     "iter_slices",
     "jit",
     "jit_numba_dict_t",

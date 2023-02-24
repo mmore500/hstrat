@@ -86,3 +86,8 @@ def test_init_and_getters(
         assert [*specimen.IterRetainedDifferentia()] == [
             *column.IterRetainedDifferentia()
         ]
+
+        assert (
+            specimen.GetNumDiscardedStrata() == column.GetNumDiscardedStrata()
+        )
+        assert specimen.HasDiscardedStrata() == column.HasDiscardedStrata()

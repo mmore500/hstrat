@@ -1,14 +1,14 @@
 import typing
 
-from ..genome_instrumentation import HereditaryStratigraphicColumn
+from .._auxiliary_lib import HereditaryStratigraphicArtifact
 from ._calc_ranks_since_first_retained_disparity_with import (
     calc_ranks_since_first_retained_disparity_with,
 )
 
 
 def calc_definitive_min_ranks_since_first_retained_disparity_with(
-    focal: HereditaryStratigraphicColumn,
-    other: HereditaryStratigraphicColumn,
+    focal: HereditaryStratigraphicArtifact,
+    other: HereditaryStratigraphicArtifact,
 ) -> typing.Optional[int]:
     """Determine a hard, exclusive lower bound on generations since MRCA.
 

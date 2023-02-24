@@ -4,9 +4,10 @@ import typing
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 
 
-def iter_ranks_of_retained_commonality_between_generic(
+def iter_mutual_ranks(
     first: HereditaryStratigraphicColumn,
     second: HereditaryStratigraphicColumn,
+    compare: bool = False,
     *,
     first_start_idx: int = 0,
     second_start_idx: int = 0,
@@ -14,14 +15,22 @@ def iter_ranks_of_retained_commonality_between_generic(
     """Iterate over ranks with matching strata between columns in ascending
     order."""
     # helper setup
-    first_iter = first._stratum_ordered_store.IterRankDifferentia(
-        get_rank_at_column_index=first.GetRankAtColumnIndex,
-        start_column_index=first_start_idx,
-    )
-    second_iter = second._stratum_ordered_store.IterRankDifferentia(
-        get_rank_at_column_index=second.GetRankAtColumnIndex,
-        start_column_index=second_start_idx,
-    )
+    try:
+        first_iter = first._stratum_ordered_store.IterRankDifferentia(
+            get_rank_at_column_index=first.GetRankAtColumnIndex,
+            start_column_index=first_start_idx,
+        )
+        second_iter = second._stratum_ordered_store.IterRankDifferentia(
+            get_rank_at_column_index=second.GetRankAtColumnIndex,
+            start_column_index=second_start_idx,
+        )
+    except AttributeError:
+        first_iter = zip(
+            first.IterRetainedRanks(), first.IterRetainedDifferentia()
+        )
+        second_iter = zip(
+            second.IterRetainedRanks(), second.IterRetainedDifferentia()
+        )
     first_cur_rank, first_cur_differentia = next(first_iter)
     second_cur_rank, second_cur_differentia = next(second_iter)
 
@@ -37,15 +46,17 @@ def iter_ranks_of_retained_commonality_between_generic(
                 if first_cur_differentia == second_cur_differentia:
                     # matching differentiae at the same rank,
                     # store rank and keep searching for mismatch
-                    yield first_cur_rank
+                    yield (first_cur_rank, True) if compare else first_cur_rank
                     # advance first
                     first_cur_rank, first_cur_differentia = next(first_iter)
                     # advance second
                     second_cur_rank, second_cur_differentia = next(second_iter)
                 else:
                     # mismatching differentiae at the same rank
-                    # a.k.a. break
-                    raise StopIteration
+                    yield (
+                        first_cur_rank,
+                        False,
+                    ) if compare else first_cur_rank
             elif first_cur_rank < second_cur_rank:
                 # current stratum on first column older than on second column
                 # advance to next-newer stratum on first column

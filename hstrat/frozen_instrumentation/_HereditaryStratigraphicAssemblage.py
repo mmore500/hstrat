@@ -66,9 +66,13 @@ class HereditaryStratigraphicAssemblage:
                     for specimen in specimens2
                 ),
                 axis="columns",
+                sort=True,
             )
         except ValueError:  # empty specimens
             self._assemblage_df = pd.DataFrame()
+
+        assert not self._assemblage_df.index.isna().any()
+        self._assemblage_df.index = self._assemblage_df.index.astype("int64")
 
     def BuildSpecimens(
         self: "HereditaryStratigraphicAssemblage",

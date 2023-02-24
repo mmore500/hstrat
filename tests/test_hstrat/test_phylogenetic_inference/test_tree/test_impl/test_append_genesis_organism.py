@@ -1,9 +1,9 @@
-import Bio.Phylo.BaseTree as BioPhyloTree
 import alifedata_phyloinformatics_convert as apc
 from iterpop import iterpop as ip
 import pandas as pd
 
 from hstrat._auxiliary_lib import (
+    BioPhyloTree,
     alifestd_find_root_ids,
     alifestd_make_empty,
     alifestd_reroot_at_id_asexual,

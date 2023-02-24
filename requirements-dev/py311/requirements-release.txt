@@ -18,7 +18,7 @@ bitarray==2.6.2
     # via hstrat (../../pyproject.toml)
 bitstring==3.1.9
     # via hstrat (../../pyproject.toml)
-bleach==5.0.1
+bleach==6.0.0
     # via readme-renderer
 build==0.10.0
     # via pip-tools
@@ -52,7 +52,7 @@ fonttools==4.38.0
     # via matplotlib
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.30
+gitpython==3.1.31
     # via lyncs-setuptools
 idna==3.4
     # via requests

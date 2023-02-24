@@ -2,6 +2,9 @@ from collections import deque
 import typing
 
 from ...genome_instrumentation import HereditaryStratigraphicColumn
+from .._calc_min_implausible_spurious_consecutive_differentia_collisions_between import (
+    calc_min_implausible_spurious_consecutive_differentia_collisions_between,
+)
 
 
 def calc_rank_of_first_retained_disparity_between_generic(
@@ -17,14 +20,23 @@ def calc_rank_of_first_retained_disparity_between_generic(
     Implementation detail. Provides general-case implementation.
     """
     # helper setup
-    first_iter = first._stratum_ordered_store.IterRankDifferentia(
-        get_rank_at_column_index=first.GetRankAtColumnIndex,
-        start_column_index=first_start_idx,
-    )
-    second_iter = second._stratum_ordered_store.IterRankDifferentia(
-        get_rank_at_column_index=second.GetRankAtColumnIndex,
-        start_column_index=second_start_idx,
-    )
+    try:
+        first_iter = first._stratum_ordered_store.IterRankDifferentia(
+            get_rank_at_column_index=first.GetRankAtColumnIndex,
+            start_column_index=first_start_idx,
+        )
+        second_iter = second._stratum_ordered_store.IterRankDifferentia(
+            get_rank_at_column_index=second.GetRankAtColumnIndex,
+            start_column_index=second_start_idx,
+        )
+    except AttributeError:
+        first_iter = zip(
+            first.IterRetainedRanks(), first.IterRetainedDifferentia()
+        )
+        second_iter = zip(
+            second.IterRetainedRanks(), second.IterRetainedDifferentia()
+        )
+
     first_cur_rank, first_cur_differentia = next(first_iter)
     second_cur_rank, second_cur_differentia = next(second_iter)
     first_prev_rank: int
@@ -53,10 +65,10 @@ def calc_rank_of_first_retained_disparity_between_generic(
         first.GetStratumDifferentiaBitWidth()
         == second.GetStratumDifferentiaBitWidth()
     )
-    collision_implausibility_threshold = (
-        first.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-            significance_level=1.0 - confidence_level,
-        )
+    collision_implausibility_threshold = calc_min_implausible_spurious_consecutive_differentia_collisions_between(
+        first,
+        second,
+        significance_level=1.0 - confidence_level,
     )
     assert collision_implausibility_threshold > 0
     # holds up to n last-seen common ranks,
@@ -107,6 +119,9 @@ def calc_rank_of_first_retained_disparity_between_generic(
         # first has strata ranks beyond the newest found in second
         # conservatively assume mismatch will be with next rank of second
         assert second_iter is None
+        assert second_prev_rank + 1 == min(
+            first.GetNumStrataDeposited(), second.GetNumStrataDeposited()
+        )
         preceding_common_ranks.appendleft(second_prev_rank + 1)
         res = preceding_common_ranks[-1]
         assert 0 <= res <= first.GetNumStrataDeposited()
@@ -117,6 +132,9 @@ def calc_rank_of_first_retained_disparity_between_generic(
         # second has strata ranks beyond the newest found in first
         # conservatively assume mismatch will be with next rank
         assert first_iter is None
+        assert first_prev_rank + 1 == min(
+            first.GetNumStrataDeposited(), second.GetNumStrataDeposited()
+        )
         preceding_common_ranks.appendleft(first_prev_rank + 1)
         res = preceding_common_ranks[-1]
         assert 0 <= res <= first.GetNumStrataDeposited()

@@ -1,14 +1,14 @@
 import math
 
-from ..genome_instrumentation import HereditaryStratigraphicColumn
+from .._auxiliary_lib import HereditaryStratigraphicArtifact
 from ._calc_probability_differentia_collision_between import (
     calc_probability_differentia_collision_between,
 )
 
 
 def calc_min_implausible_spurious_consecutive_differentia_collisions_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
     significance_level: float,
 ) -> int:
     """Determine amount of evidence required to indicate shared ancestry.
@@ -26,9 +26,7 @@ def calc_min_implausible_spurious_consecutive_differentia_collisions_between(
     if significance_level * first.GetStratumDifferentiaBitWidth() > 1:
         return 1
 
-    log_base = calc_probability_differentia_collision_between(
-        first, second
-    )
+    log_base = calc_probability_differentia_collision_between(first, second)
     if significance_level >= log_base:
         return 1
     else:

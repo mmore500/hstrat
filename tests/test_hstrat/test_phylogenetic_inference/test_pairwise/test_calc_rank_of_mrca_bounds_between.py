@@ -550,3 +550,48 @@ def test_CalcRankOfMrcaBoundsWith_narrow_no_mrca(
             )
             < 0.999
         )
+
+
+@pytest.mark.filterwarnings(
+    "ignore:Insufficient common ranks between columns to detect common ancestry at given confidence level."
+)
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
+    ],
+)
+def test_with_HereditaryStratigraphicSpecimens(
+    retention_policy,
+):
+    population = [
+        hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_policy=retention_policy,
+        )
+        for __ in range(10)
+    ]
+
+    for generation in range(100):
+        for first, second in it.combinations(population, 2):
+            first_ = hstrat.col_to_specimen(first)
+            second_ = hstrat.col_to_specimen(second)
+            # assert commutativity
+            assert hstrat.calc_rank_of_mrca_bounds_between(
+                first, second, prior="arbitrary"
+            ) == hstrat.calc_rank_of_mrca_bounds_between(
+                first_, second_, prior="arbitrary"
+            )
+
+        # advance generation
+        random.shuffle(population)
+        for target in range(5):
+            population[target] = population[-1].CloneDescendant()
+        for individual in population:
+            # asynchronous generations
+            if random.choice([True, False]):
+                individual.DepositStratum()

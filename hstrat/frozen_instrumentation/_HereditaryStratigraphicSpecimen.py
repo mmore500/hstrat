@@ -46,6 +46,11 @@ class HereditaryStratigraphicSpecimen:
         self._data = stratum_differentia_series
         self._stratum_differentia_bit_width = stratum_differentia_bit_width
 
+        assert self._data.index.dtype in (
+            "int64",
+            "uint64",
+        )
+
     def GetStratumDifferentiaBitWidth(
         self: "HereditaryStratigraphicSpecimen",
     ) -> int:
@@ -71,6 +76,22 @@ class HereditaryStratigraphicSpecimen:
         discarded as part of the configured stratum retention policy.
         """
         return len(self._data)
+
+    def GetNumDiscardedStrata(
+        self: "HereditaryStratigraphicSpecimen",
+    ) -> int:
+        """How many deposited strata have been discarded?
+
+        Determined by number of generations elapsed and the configured column
+        retention policy.
+        """
+        return self.GetNumStrataDeposited() - self.GetNumStrataRetained()
+
+    def HasDiscardedStrata(
+        self: "HereditaryStratigraphicSpecimen",
+    ) -> bool:
+        """Have any deposited strata been discarded?"""
+        return self.GetNumDiscardedStrata() > 0
 
     def GetData(
         self: "HereditaryStratigraphicSpecimen",
@@ -103,24 +124,24 @@ class HereditaryStratigraphicSpecimen:
         made. Changes to the returned array will propagate to the Series
         object's underlying values, and vice versa.
         """
-        return self._data.array
+        return self._data.array.to_numpy()
 
     def GetRankIndex(
         self: "HereditaryStratigraphicSpecimen",
-    ) -> pd.Index:
+    ) -> np.ndarray:
         """Get the integer index in the stored Pandas Series, representing the
         ranks of stratum entries.
 
         Returns
         -------
-        ranks : pd.Index
-            A Pandas Index containing ranks of differentia entries, including
+        ranks : np.ndarray
+            A numpy array containing ranks of differentia entries, including
             null entries for differentia that are not retained.
         """
-        return self._data.index
+        return self._data.index.array.to_numpy()
 
     def GetRankAtColumnIndex(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSpecimen",
         index: int,
     ) -> int:
         """Map array position to generation of deposition.
@@ -129,16 +150,16 @@ class HereditaryStratigraphicSpecimen:
         among retained strata? Index order is from most ancient (index 0) to
         most recent.
         """
-        return self.GetRankIndex().array[index]
+        return self.GetRankIndex()[index]
 
     def IterRetainedRanks(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSpecimen",
     ) -> typing.Iterator[int]:
         """Iterate over deposition ranks of strata retained in the specimen."""
         yield from self.GetRankIndex()
 
     def IterRetainedDifferentia(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSpecimen",
     ) -> typing.Iterator[int]:
         """Iterate over differentia of strata retained in the specimen.
 

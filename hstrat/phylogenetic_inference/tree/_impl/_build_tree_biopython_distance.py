@@ -1,12 +1,12 @@
 import statistics
 import typing
 
-import Bio.Phylo.TreeConstruction as BioPhyloTree
 import alifedata_phyloinformatics_convert as apc
 import opytional as opyt
 import pandas as pd
 
 from ...._auxiliary_lib import (
+    BioPhyloTree,
     alifestd_find_root_ids,
     alifestd_make_empty,
     alifestd_validate,

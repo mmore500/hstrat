@@ -1,8 +1,8 @@
 import typing
 
-import Bio.Phylo.TreeConstruction as BioPhyloTree
 import pandas as pd
 
+from ..._auxiliary_lib import BioPhyloTree
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._impl import build_tree_biopython_distance
 
