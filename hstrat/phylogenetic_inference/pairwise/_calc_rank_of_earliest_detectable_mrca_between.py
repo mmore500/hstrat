@@ -1,12 +1,15 @@
 import typing
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
-from ...juxtaposition import get_nth_common_rank_between
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
+from ...juxtaposition import (
+    calc_min_implausible_spurious_consecutive_differentia_collisions_between,
+    get_nth_common_rank_between,
+)
 
 
 def calc_rank_of_earliest_detectable_mrca_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
     confidence_level: float = 0.95,
 ) -> typing.Optional[int]:
     """After what generation is common ancstry robustly detectable?
@@ -30,10 +33,10 @@ def calc_rank_of_earliest_detectable_mrca_between(
         first.GetStratumDifferentiaBitWidth()
         == second.GetStratumDifferentiaBitWidth()
     )
-    num_required_common_ranks = (
-        first.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-            significance_level=1 - confidence_level,
-        )
+    num_required_common_ranks = calc_min_implausible_spurious_consecutive_differentia_collisions_between(
+        first,
+        second,
+        significance_level=1 - confidence_level,
     )
     # zero-indexed
     return get_nth_common_rank_between(
