@@ -11,11 +11,11 @@ anytree==2.8.0
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
 biopython==1.79
-    # via hstrat (../../pyproject.toml)
-bitarray==2.6.2
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
+bitarray==2.6.2
+    # via hstrat (../../pyproject.toml)
 bitstring==3.1.9
     # via hstrat (../../pyproject.toml)
 bleach==5.0.1
@@ -134,6 +134,11 @@ pep517==0.13.0
     # via build
 pillow==9.3.0
     # via matplotlib
+pip==22.0.4
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   lyncs-setuptools
+    #   pip-tools
 pip-tools==6.10.0
     # via hstrat (../../pyproject.toml)
 pkginfo==1.8.3
@@ -166,6 +171,13 @@ safe-assert==0.2.0
     # via hstrat (../../pyproject.toml)
 seaborn==0.12.1
     # via hstrat (../../pyproject.toml)
+setuptools==65.6.3
+    # via
+    #   bumpver
+    #   dendropy
+    #   hstrat (../../pyproject.toml)
+    #   pip-tools
+    #   twine
 six==1.16.0
     # via
     #   anytree
@@ -221,17 +233,3 @@ zipp==3.10.0
     # via
     #   importlib-metadata
     #   pep517
-
-# The following packages are considered to be unsafe in a requirements file:
-pip==22.0.4
-    # via
-    #   hstrat (../../pyproject.toml)
-    #   lyncs-setuptools
-    #   pip-tools
-setuptools==65.6.3
-    # via
-    #   bumpver
-    #   dendropy
-    #   hstrat (../../pyproject.toml)
-    #   pip-tools
-    #   twine
