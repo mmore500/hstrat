@@ -5,9 +5,6 @@ import opytional as opyt
 
 from ...._auxiliary_lib import cmp_approx, pairwise, unzip
 from ....genome_instrumentation import HereditaryStratigraphicColumn
-from ....juxtaposition._impl import (
-    iter_ranks_of_retained_commonality_between_generic,
-)
 from ._extract_common_retained_ranks_through_first_retained_disparity import (
     extract_common_retained_ranks_through_first_retained_disparity,
 )

@@ -1,11 +1,11 @@
 import typing
 
-from ..genome_instrumentation import HereditaryStratigraphicColumn
+from .._auxiliary_lib import HereditaryStratigraphicArtifact
 
 
 def diff_retained_ranks(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
 ) -> typing.Tuple[typing.Set[int], typing.Set[int]]:
     """Return ranks retained by first but not second, and vice versa.
 

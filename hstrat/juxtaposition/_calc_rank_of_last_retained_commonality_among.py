@@ -2,11 +2,7 @@ import typing
 
 import opytional as opyt
 
-from .._auxiliary_lib import pairwise
-from ..genome_instrumentation import (
-    HereditaryStratigraphicColumn,
-    HereditaryStratumOrderedStoreList,
-)
+from .._auxiliary_lib import HereditaryStratigraphicArtifact, pairwise
 from ._calc_rank_of_last_retained_commonality_between import (
     calc_rank_of_last_retained_commonality_between,
 )
@@ -24,7 +20,7 @@ def calc_rank_of_last_retained_commonality_between_(
 
 
 def calc_rank_of_last_retained_commonality_among(
-    population: typing.Iterable[HereditaryStratigraphicColumn],
+    population: typing.Iterable[HereditaryStratigraphicArtifact],
     confidence_level=0.95,
 ) -> typing.Optional[int]:
     """Determine lower bound on generation of MRCA at confidence level.

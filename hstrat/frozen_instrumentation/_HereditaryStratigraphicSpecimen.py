@@ -77,6 +77,28 @@ class HereditaryStratigraphicSpecimen:
         """
         return len(self._data)
 
+    def GetNumDiscardedStrata(
+        self: "HereditaryStratigraphicSpecimen",
+    ) -> int:
+        """How many deposited strata have been discarded?
+
+        Determined by number of generations elapsed and the configured column
+        retention policy.
+        """
+        return self.GetNumStrataDeposited() - self.GetNumStrataRetained()
+
+    def GetStratumDifferentiaBitWidth(
+        self: "HereditaryStratigraphicSpecimen",
+    ) -> int:
+        """How many bits wide are the differentia of strata?"""
+        return self._stratum_differentia_bit_width
+
+    def HasDiscardedStrata(
+        self: "HereditaryStratigraphicSpecimen",
+    ) -> bool:
+        """Have any deposited strata been discarded?"""
+        return self.GetNumDiscardedStrata() > 0
+
     def GetData(
         self: "HereditaryStratigraphicSpecimen",
     ) -> _unsigned_integer_series_t:

@@ -5,8 +5,8 @@ import opytional as opyt
 import pytest
 
 from hstrat import hstrat
-from hstrat.juxtaposition._impl import (
-    iter_ranks_of_retained_commonality_between_generic,
+from hstrat.juxtaposition._impl_column import (
+    iter_ranks_of_retained_commonality_between,
 )
 
 
@@ -45,14 +45,8 @@ def test_comparison_commutativity_asynchronous(
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert [
-                *iter_ranks_of_retained_commonality_between_generic(
-                    first, second
-                )
-            ] == [
-                *iter_ranks_of_retained_commonality_between_generic(
-                    second, first
-                )
-            ]
+                *iter_ranks_of_retained_commonality_between(first, second)
+            ] == [*iter_ranks_of_retained_commonality_between(second, first)]
 
         # advance generation
         random.shuffle(population)
@@ -107,14 +101,8 @@ def test_comparison_commutativity_synchronous(
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert [
-                *iter_ranks_of_retained_commonality_between_generic(
-                    first, second
-                )
-            ] == [
-                *iter_ranks_of_retained_commonality_between_generic(
-                    second, first
-                )
-            ]
+                *iter_ranks_of_retained_commonality_between(first, second)
+            ] == [*iter_ranks_of_retained_commonality_between(second, first)]
 
         # advance generation
         random.shuffle(population)
@@ -658,7 +646,7 @@ def test_IterRanksOfRetainedCommonalityBetweenGenerich5(
     for c1, c2 in it.permutations([column, offspring1, offspring2], 2):
         if differentia_width == 64 or c1 is column or c2 is column:
             assert [
-                *iter_ranks_of_retained_commonality_between_generic(
+                *iter_ranks_of_retained_commonality_between(
                     c1,
                     c2,
                 )
@@ -670,7 +658,7 @@ def test_IterRanksOfRetainedCommonalityBetweenGenerich5(
                 and rank in c2.IterRetainedRanks()
                 for rank in (
                     set(
-                        iter_ranks_of_retained_commonality_between_generic(
+                        iter_ranks_of_retained_commonality_between(
                             c1,
                             c2,
                         )
@@ -681,19 +669,14 @@ def test_IterRanksOfRetainedCommonalityBetweenGenerich5(
 
         assert all(
             rank in set(c1.IterRetainedRanks()) & set(c2.IterRetainedRanks())
-            for rank in iter_ranks_of_retained_commonality_between_generic(
-                c2, c1
-            )
+            for rank in iter_ranks_of_retained_commonality_between(c2, c1)
         )
         assert all(
             (
                 c1.GetStratumAtRank(rank).GetDifferentia()
                 == c2.GetStratumAtRank(rank).GetDifferentia()
             )
-            == (
-                rank
-                in iter_ranks_of_retained_commonality_between_generic(c2, c1)
-            )
+            == (rank in iter_ranks_of_retained_commonality_between(c2, c1))
             for rank in (
                 set(c1.IterRetainedRanks()) & set(c2.IterRetainedRanks())
             )
@@ -706,7 +689,7 @@ def test_IterRanksOfRetainedCommonalityBetweenGenerich5(
     for c1, c2 in it.permutations([column, offspring1, offspring2], 2):
         if differentia_width == 64 or c1 is column or c2 is column:
             assert [
-                *iter_ranks_of_retained_commonality_between_generic(
+                *iter_ranks_of_retained_commonality_between(
                     c1,
                     c2,
                 )
@@ -718,7 +701,7 @@ def test_IterRanksOfRetainedCommonalityBetweenGenerich5(
                 and rank in c2.IterRetainedRanks()
                 for rank in (
                     set(
-                        iter_ranks_of_retained_commonality_between_generic(
+                        iter_ranks_of_retained_commonality_between(
                             c1,
                             c2,
                         )
@@ -729,9 +712,7 @@ def test_IterRanksOfRetainedCommonalityBetweenGenerich5(
 
         assert all(
             rank in set(c1.IterRetainedRanks()) & set(c2.IterRetainedRanks())
-            for rank in iter_ranks_of_retained_commonality_between_generic(
-                c2, c1
-            )
+            for rank in iter_ranks_of_retained_commonality_between(c2, c1)
         )
         assert all(
             all(
@@ -742,10 +723,7 @@ def test_IterRanksOfRetainedCommonalityBetweenGenerich5(
                 )
                 if r <= rank
             )
-            == (
-                rank
-                in iter_ranks_of_retained_commonality_between_generic(c2, c1)
-            )
+            == (rank in iter_ranks_of_retained_commonality_between(c2, c1))
             for rank in (
                 set(c1.IterRetainedRanks()) & set(c2.IterRetainedRanks())
             )

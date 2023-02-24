@@ -1,13 +1,8 @@
 import typing
 
-from ..genome_instrumentation import (
-    HereditaryStratigraphicColumn,
-    HereditaryStratumOrderedStoreList,
-)
-from ._impl import (
-    calc_rank_of_last_retained_commonality_between_bsearch,
-    calc_rank_of_last_retained_commonality_between_generic,
-)
+from .._auxiliary_lib import HereditaryStratigraphicArtifact
+from ..genome_instrumentation import HereditaryStratigraphicColumn
+from ._impl import dispatch_impl
 
 
 def calc_rank_of_last_retained_commonality_between(
@@ -41,28 +36,8 @@ def calc_rank_of_last_retained_commonality_between(
     """
     assert 0.0 <= confidence_level <= 1.0
 
-    if (
-        first.HasDiscardedStrata()
-        or second.HasDiscardedStrata()
-        # for performance reasons
-        # only binary search stores that support random access
-        or not isinstance(
-            first._stratum_ordered_store, HereditaryStratumOrderedStoreList
-        )
-        or not isinstance(
-            second._stratum_ordered_store, HereditaryStratumOrderedStoreList
-        )
-        # binary search currently requires no spurious collisions
-        or first.GetStratumDifferentiaBitWidth() < 64
-    ):
-        return calc_rank_of_last_retained_commonality_between_generic(
-            first,
-            second,
-            confidence_level=confidence_level,
-        )
-    else:
-        return calc_rank_of_last_retained_commonality_between_bsearch(
-            first,
-            second,
-            confidence_level=confidence_level,
-        )
+    return dispatch_impl(
+        first, second
+    ).calc_rank_of_last_retained_commonality_between(
+        first, second, confidence_level
+    )

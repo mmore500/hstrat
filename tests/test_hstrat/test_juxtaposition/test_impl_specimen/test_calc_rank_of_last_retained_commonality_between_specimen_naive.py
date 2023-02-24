@@ -6,9 +6,11 @@ import numpy as np
 import pytest
 
 from hstrat import hstrat
-from hstrat.juxtaposition._impl import (
-    calc_rank_of_first_retained_disparity_between_generic,
-    calc_rank_of_first_retained_disparity_between_specimen_naive,
+from hstrat.juxtaposition._impl_column import (
+    calc_rank_of_last_retained_commonality_between_generic,
+)
+from hstrat.juxtaposition._impl_specimen import (
+    calc_rank_of_last_retained_commonality_between,
 )
 
 
@@ -31,15 +33,21 @@ def specimens_mock_simple():
     return first, second
 
 
-def test_calc_rank_of_first_retained_disparity_between_specimen_naive_mock_simple(
+def test_calc_rank_of_last_retained_commonality_between_mock_simple(
     specimens_mock_simple,
 ):
     first, second = specimens_mock_simple
 
     # Test case where there is no disparity.
     assert (
-        calc_rank_of_first_retained_disparity_between_specimen_naive(
+        calc_rank_of_last_retained_commonality_between(
             first, second, confidence_level=0.49
+        )
+        == 4
+    )
+    assert (
+        calc_rank_of_last_retained_commonality_between(
+            first, second, confidence_level=0.9999999999999
         )
         is None
     )
@@ -47,10 +55,10 @@ def test_calc_rank_of_first_retained_disparity_between_specimen_naive_mock_simpl
     # Test case where there is disparity.
     second.GetDifferentiaVals.return_value = np.array([5, 6, 3, 8, 9])
     assert (
-        calc_rank_of_first_retained_disparity_between_specimen_naive(
+        calc_rank_of_last_retained_commonality_between(
             first, second, confidence_level=0.49
         )
-        == 2
+        == 1
     )
 
 
@@ -73,23 +81,23 @@ def specimens_mock_complex():
     return first, second
 
 
-def test_calc_rank_of_first_retained_disparity_between_specimen_naive_mock_complex(
+def test_calc_rank_of_last_retained_commonality_between_mock_complex(
     specimens_mock_complex,
 ):
     first, second = specimens_mock_complex
 
     assert (
-        calc_rank_of_first_retained_disparity_between_specimen_naive(
+        calc_rank_of_last_retained_commonality_between(
             first, second, confidence_level=0.49
         )
-        == 20
+        == 0
     )
 
     assert (
-        calc_rank_of_first_retained_disparity_between_specimen_naive(
+        calc_rank_of_last_retained_commonality_between(
             first, second, confidence_level=0.999
         )
-        == 0
+        is None
     )
 
 
@@ -182,9 +190,9 @@ def test_compare_to_generic_column_impl(
         )
         assert specimen2.GetNumStrataRetained() == right.GetNumStrataRetained()
 
-        assert calc_rank_of_first_retained_disparity_between_specimen_naive(
+        assert calc_rank_of_last_retained_commonality_between(
             specimen1, specimen2, confidence_level=confidence_level
-        ) == calc_rank_of_first_retained_disparity_between_generic(
+        ) == calc_rank_of_last_retained_commonality_between_generic(
             left, right, confidence_level=confidence_level
         )
 
@@ -204,7 +212,7 @@ def test_benchmark():
     tip2_s = hstrat.col_to_specimen(tip2_c)
 
     # pre-compile jit outside of timing
-    calc_rank_of_first_retained_disparity_between_specimen_naive(
+    calc_rank_of_last_retained_commonality_between(
         tip1_s,
         tip2_s,
         confidence_level=0.9999,
@@ -212,7 +220,7 @@ def test_benchmark():
 
     with ctt.Timer(factor=1000) as t_algo_dstruct:
         for __ in range(10000):
-            calc_rank_of_first_retained_disparity_between_specimen_naive(
+            calc_rank_of_last_retained_commonality_between(
                 tip1_s,
                 tip2_s,
                 confidence_level=0.9999,
@@ -221,7 +229,7 @@ def test_benchmark():
     # note higher factor and lower repcount
     with ctt.Timer(factor=10000) as t_dstruct:
         for __ in range(1000):
-            calc_rank_of_first_retained_disparity_between_generic(
+            calc_rank_of_last_retained_commonality_between_generic(
                 tip1_s,
                 tip2_s,
                 confidence_level=0.9999,
@@ -229,7 +237,7 @@ def test_benchmark():
 
     with ctt.Timer(factor=1000) as t_vanilla:
         for __ in range(10000):
-            calc_rank_of_first_retained_disparity_between_generic(
+            calc_rank_of_last_retained_commonality_between_generic(
                 tip1_c,
                 tip2_c,
                 confidence_level=0.9999,

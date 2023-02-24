@@ -83,6 +83,28 @@ class HereditaryStratigraphicAssemblageSpecimen:
         """
         return len(self._data) - self.GetStratumMask().sum()
 
+    def GetNumDiscardedStrata(
+        self: "HereditaryStratigraphicAssemblageSpecimen",
+    ) -> int:
+        """How many deposited strata have been discarded?
+
+        Determined by number of generations elapsed and the configured column
+        retention policy.
+        """
+        return self.GetNumStrataDeposited() - self.GetNumStrataRetained()
+
+    def GetStratumDifferentiaBitWidth(
+        self: "HereditaryStratigraphicAssemblageSpecimen",
+    ) -> int:
+        """How many bits wide are the differentia of strata?"""
+        return self._stratum_differentia_bit_width
+
+    def HasDiscardedStrata(
+        self: "HereditaryStratigraphicAssemblageSpecimen",
+    ) -> bool:
+        """Have any deposited strata been discarded?"""
+        return self.GetNumDiscardedStrata() > 0
+
     def GetData(
         self: "HereditaryStratigraphicSpecimen",
     ) -> _nullable_unsigned_integer_series_t:

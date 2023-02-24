@@ -3,6 +3,9 @@ import typing
 from interval_search import binary_search
 
 from ...genome_instrumentation import HereditaryStratigraphicColumn
+from .._calc_min_implausible_spurious_consecutive_differentia_collisions_between import (
+    calc_min_implausible_spurious_consecutive_differentia_collisions_between,
+)
 from ._calc_rank_of_first_retained_disparity_between_generic import (
     calc_rank_of_first_retained_disparity_between_generic,
 )
@@ -53,7 +56,9 @@ def calc_rank_of_first_retained_disparity_between_bsearch(
             == second.GetStratumDifferentiaBitWidth()
         )
         collision_plausibility_threshold = (
-            first.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+            calc_min_implausible_spurious_consecutive_differentia_collisions_between(
+                first,
+                second,
                 significance_level=1.0 - confidence_level,
             )
             - 1

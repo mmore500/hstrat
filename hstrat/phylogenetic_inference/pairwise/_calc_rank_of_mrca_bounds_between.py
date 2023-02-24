@@ -1,13 +1,11 @@
+import sys
 import typing
 import warnings
 
 import opytional as opyt
 
 from ...genome_instrumentation import HereditaryStratigraphicColumn
-from ...juxtaposition import (
-    calc_definitive_max_rank_of_first_retained_disparity_between,
-    calc_rank_of_last_retained_commonality_between,
-)
+from ...juxtaposition._impl import dispatch_impl
 from ._calc_rank_of_earliest_detectable_mrca_between import (
     calc_rank_of_earliest_detectable_mrca_between,
 )
@@ -101,7 +99,8 @@ def calc_rank_of_mrca_bounds_between(
     assert 0.0 <= confidence_level <= 1.0
 
     if (
-        calc_rank_of_earliest_detectable_mrca_between(
+        not sys.flags.optimize
+        and calc_rank_of_earliest_detectable_mrca_between(
             first,
             second,
             confidence_level=confidence_level,
@@ -121,22 +120,18 @@ def calc_rank_of_mrca_bounds_between(
         )
         or not strict
     ):
-        first_disparity = (
-            calc_definitive_max_rank_of_first_retained_disparity_between(
-                first,
-                second,
-            )
-        )
-        if first_disparity is None:
-            num_self_deposited = first.GetNumStrataDeposited()
-            num_other_deposited = second.GetNumStrataDeposited()
-            assert num_self_deposited == num_other_deposited
-        last_commonality = calc_rank_of_last_retained_commonality_between(
+        last_commonality, first_disparity = dispatch_impl(
+            first, second
+        ).calc_rank_of_parity_segue_between(
             first,
             second,
-            confidence_level=confidence_level,
+            confidence_level_commonality=confidence_level,
+            confidence_level_disparity=0.49,  # 0.49 i.e., definitive max
         )
-        # assert last_commonality is not None
+        assert (
+            first_disparity is not None
+            or first.GetNumStrataDeposited() == second.GetNumStrataDeposited()
+        )
         return (
             opyt.or_value(last_commonality, 0),
             opyt.or_value(first_disparity, first.GetNumStrataDeposited()),

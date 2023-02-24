@@ -3,6 +3,9 @@ import typing
 from interval_search import binary_search
 
 from ...genome_instrumentation import HereditaryStratigraphicColumn
+from .._calc_min_implausible_spurious_consecutive_differentia_collisions_between import (
+    calc_min_implausible_spurious_consecutive_differentia_collisions_between,
+)
 from ._calc_rank_of_last_retained_commonality_between_generic import (
     calc_rank_of_last_retained_commonality_between_generic,
 )
@@ -46,10 +49,10 @@ def calc_rank_of_last_retained_commonality_between_bsearch(
         upper_bound,
     )
 
-    collision_implausibility_threshold = (
-        first.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-            significance_level=1.0 - confidence_level,
-        )
+    collision_implausibility_threshold = calc_min_implausible_spurious_consecutive_differentia_collisions_between(
+        first,
+        second,
+        significance_level=1.0 - confidence_level,
     )
     assert collision_implausibility_threshold > 0
     if first_disparite_idx is None:

@@ -1,11 +1,11 @@
 import typing
 
-from ..genome_instrumentation import HereditaryStratigraphicColumn
+from .._auxiliary_lib import HereditaryStratigraphicArtifact
 
 
 def get_nth_common_rank_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
     n: int,
 ) -> typing.Optional[int]:
     """Return the nth rank retained by both columns.

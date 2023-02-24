@@ -2,8 +2,11 @@ from collections import deque
 import typing
 
 from ...genome_instrumentation import HereditaryStratigraphicColumn
-from ._iter_ranks_of_retained_commonality_between_generic import (
-    iter_ranks_of_retained_commonality_between_generic,
+from .._calc_min_implausible_spurious_consecutive_differentia_collisions_between import (
+    calc_min_implausible_spurious_consecutive_differentia_collisions_between,
+)
+from ._iter_ranks_of_retained_commonality_between import (
+    iter_ranks_of_retained_commonality_between,
 )
 
 
@@ -26,17 +29,15 @@ def calc_rank_of_last_retained_commonality_between_generic(
         first.GetStratumDifferentiaBitWidth()
         == second.GetStratumDifferentiaBitWidth()
     )
-    collision_implausibility_threshold = (
-        first.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
-            significance_level=1.0 - confidence_level,
-        )
+    collision_implausibility_threshold = calc_min_implausible_spurious_consecutive_differentia_collisions_between(
+        first, second, significance_level=1.0 - confidence_level
     )
     assert collision_implausibility_threshold > 0
     # holds up to n last-seen ranks with common strata,
     # with the newest last-seen rank at the front (index 0)
     # and the up to nth last-seen rank at the back (index -1)
     preceding_common_strata_ranks = deque(
-        iter_ranks_of_retained_commonality_between_generic(
+        iter_ranks_of_retained_commonality_between(
             first,
             second,
             first_start_idx=first_start_idx,
