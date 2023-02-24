@@ -94,7 +94,8 @@ def test_dual_population_no_mrca():
         hstrat.perfect_resolution_algo.Policy(),
     ],
 )
-def test_handwritten_trees(version_pin, orig_tree, retention_policy):
+@pytest.mark.parametrize("wrap", [lambda x: x, hstrat.col_to_specimen])
+def test_handwritten_trees(version_pin, orig_tree, retention_policy, wrap):
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
         seed_column=hstrat.HereditaryStratigraphicColumn(
@@ -102,7 +103,7 @@ def test_handwritten_trees(version_pin, orig_tree, retention_policy):
         ).CloneNthDescendant(10),
     )
 
-    reconst_df = hstrat.build_tree_glom(extant_population)
+    reconst_df = hstrat.build_tree_glom([*map(wrap, extant_population)])
 
     assert alifestd_validate(reconst_df)
     reconst_tree = apc.alife_dataframe_to_dendropy_tree(
@@ -208,6 +209,45 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
             <= reconst_mrca.distance_from_root()
             < upper_mrca_bound
         )
+
+
+@pytest.mark.parametrize(
+    "orig_tree",
+    [
+        pytest.param(
+            impl.setup_dendropy_tree(f"{assets_path}/nk_ecoeaselection.csv"),
+            marks=pytest.mark.heavy,
+        ),
+        impl.setup_dendropy_tree(f"{assets_path}/nk_lexicaseselection.csv"),
+        impl.setup_dendropy_tree(f"{assets_path}/nk_tournamentselection.csv"),
+    ],
+)
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.recency_proportional_resolution_algo.Policy(3),
+        hstrat.fixed_resolution_algo.Policy(5),
+    ],
+)
+def test_col_specimen_consistency(orig_tree, retention_policy):
+    num_depositions = 10
+
+    extant_population = hstrat.descend_template_phylogeny_dendropy(
+        orig_tree,
+        seed_column=hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_policy=retention_policy,
+        ).CloneNthDescendant(num_depositions),
+    )
+
+    reconst_df1 = hstrat.build_tree_glom(extant_population)
+    reconst_df2 = hstrat.build_tree_glom(
+        [hstrat.col_to_specimen(col) for col in extant_population]
+    )
+
+    assert reconst_df1[["id", "ancestor_list"]].equals(
+        reconst_df2[["id", "ancestor_list"]]
+    )
 
 
 @pytest.mark.parametrize("tree_size", [10, 30, 100, 300, 1000])
