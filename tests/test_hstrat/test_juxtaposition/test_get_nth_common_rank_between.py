@@ -1,13 +1,17 @@
 import itertools as it
 
-from hstrat import hstrat
 import pytest
 
+from hstrat import hstrat
 
-@pytest.mark.parametrize("wrap", [
-    lambda x: x,
-    hstrat.col_to_specimen,
-])
+
+@pytest.mark.parametrize(
+    "wrap",
+    [
+        lambda x: x,
+        hstrat.col_to_specimen,
+    ],
+)
 def test_GetNthCommonRankWith(wrap):
     c1 = hstrat.HereditaryStratigraphicColumn(
         stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),

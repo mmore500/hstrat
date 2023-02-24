@@ -17,10 +17,13 @@ from hstrat import hstrat
     "differentia_bit_width",
     [1, 2, 8, 64],
 )
-@pytest.mark.parametrize("wrap", [
-    lambda x: x,
-    hstrat.col_to_specimen,
-])
+@pytest.mark.parametrize(
+    "wrap",
+    [
+        lambda x: x,
+        hstrat.col_to_specimen,
+    ],
+)
 def test_CalcRankOfEarliestDetectableMrcaWith1(
     confidence_level,
     differentia_bit_width,
@@ -97,11 +100,13 @@ def test_CalcRankOfEarliestDetectableMrcaWith1(
     "differentia_bit_width",
     [1, 2, 8, 64],
 )
-@pytest.mark.parametrize("wrap", [
-    lambda x: x,
-    hstrat.col_to_specimen,
-])
-
+@pytest.mark.parametrize(
+    "wrap",
+    [
+        lambda x: x,
+        hstrat.col_to_specimen,
+    ],
+)
 def test_CalcRankOfEarliestDetectableMrcaWith2(
     confidence_level,
     differentia_bit_width,
@@ -161,10 +166,13 @@ def test_CalcRankOfEarliestDetectableMrcaWith2(
         ) == hstrat.get_nth_common_rank_between(x2, x1, expected_thresh)
 
 
-@pytest.mark.parametrize("wrap", [
-    lambda x: x,
-    hstrat.col_to_specimen,
-])
+@pytest.mark.parametrize(
+    "wrap",
+    [
+        lambda x: x,
+        hstrat.col_to_specimen,
+    ],
+)
 def test_CalcRankOfEarliestDetectableMrcaWith3(wrap):
 
     c1 = hstrat.HereditaryStratigraphicColumn(
@@ -175,6 +183,7 @@ def test_CalcRankOfEarliestDetectableMrcaWith3(wrap):
         assert (
             hstrat.calc_rank_of_earliest_detectable_mrca_between(
                 wrap(c1), wrap(c1)
-            ) == 0
+            )
+            == 0
         )
         c1.DepositStratum()
