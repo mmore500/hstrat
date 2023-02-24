@@ -49,4 +49,9 @@ def test_init_and_getters(differentia_bit_width, retention_policy):
             *column.IterRetainedDifferentia()
         ]
 
+        assert (
+            specimen.GetNumDiscardedStrata() == column.GetNumDiscardedStrata()
+        )
+        assert specimen.HasDiscardedStrata() == column.HasDiscardedStrata()
+
         column.DepositStratum()
