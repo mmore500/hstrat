@@ -4,7 +4,7 @@ import warnings
 
 import opytional as opyt
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ...juxtaposition._impl import dispatch_impl
 from ._calc_rank_of_earliest_detectable_mrca_between import (
     calc_rank_of_earliest_detectable_mrca_between,
@@ -13,8 +13,8 @@ from ._does_have_any_common_ancestor import does_have_any_common_ancestor
 
 
 def calc_rank_of_mrca_bounds_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
     prior: str,
     confidence_level: float = 0.95,
     strict=True,
