@@ -93,12 +93,6 @@ class HereditaryStratigraphicAssemblageSpecimen:
         """
         return self.GetNumStrataDeposited() - self.GetNumStrataRetained()
 
-    def GetStratumDifferentiaBitWidth(
-        self: "HereditaryStratigraphicAssemblageSpecimen",
-    ) -> int:
-        """How many bits wide are the differentia of strata?"""
-        return self._stratum_differentia_bit_width
-
     def HasDiscardedStrata(
         self: "HereditaryStratigraphicAssemblageSpecimen",
     ) -> bool:
