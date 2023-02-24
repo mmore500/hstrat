@@ -184,7 +184,7 @@ class HereditaryStratigraphicAssemblageSpecimen:
         return self._data.index.array.to_numpy()
 
     def GetRankAtColumnIndex(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicAssemblageSpecimen",
         index: int,
     ) -> int:
         """Map array position to generation of deposition.
@@ -196,13 +196,13 @@ class HereditaryStratigraphicAssemblageSpecimen:
         return self.GetData().dropna().index[index]
 
     def IterRetainedRanks(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicAssemblageSpecimen",
     ) -> typing.Iterator[int]:
         """Iterate over deposition ranks of strata retained in the specimen."""
         yield from self.GetData().dropna().index
 
     def IterRetainedDifferentia(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicAssemblageSpecimen",
     ) -> typing.Iterator[int]:
         """Iterate over differentia of strata retained in the specimen.
 
