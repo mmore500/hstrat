@@ -21,11 +21,11 @@ def calc_rank_of_first_retained_disparity_between_generic(
     """
     # helper setup
     try:
-        first_iter = first._stratum_ordered_store.IterRankDifferentia(
+        first_iter = first._stratum_ordered_store.IterRankDifferentiaZip(
             get_rank_at_column_index=first.GetRankAtColumnIndex,
             start_column_index=first_start_idx,
         )
-        second_iter = second._stratum_ordered_store.IterRankDifferentia(
+        second_iter = second._stratum_ordered_store.IterRankDifferentiaZip(
             get_rank_at_column_index=second.GetRankAtColumnIndex,
             start_column_index=second_start_idx,
         )
