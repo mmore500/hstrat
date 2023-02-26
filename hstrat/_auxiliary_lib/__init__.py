@@ -1,5 +1,6 @@
 from ._AnyTreeAscendingIter import AnyTreeAscendingIter
 from ._BioPhyloTree import BioPhyloTree
+from ._CopyableSeriesItemsIter import CopyableSeriesItemsIter
 from ._HereditaryStratigraphicArtifact import HereditaryStratigraphicArtifact
 from ._RecursionLimit import RecursionLimit
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
@@ -152,6 +153,7 @@ __all__ = [
     "cmp",
     "cmp_approx",
     "consume",
+    "CopyableSeriesItemsIter",
     "count_unique",
     "coshuffled",
     "curried_binary_search_jit",
