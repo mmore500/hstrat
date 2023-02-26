@@ -1,4 +1,4 @@
-from copy import deepcopy
+from copy import copy, deepcopy
 import itertools as it
 import pickle
 import random
@@ -826,6 +826,47 @@ def test_DepositStrata_several(retention_policy, ordered_store):
         )
         assert c1.GetNumStrataRetained() == c2.GetNumStrataRetained()
         assert c1.GetNumStrataDeposited() == c2.GetNumStrataDeposited()
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_IterRankDifferentiaZip(retention_policy, ordered_store):
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+
+    for __ in range(100):
+        c1.DepositStratum()
+        assert [*c1.IterRankDifferentiaZip()] == [
+            *zip(c1.IterRetainedRanks(), c1.IterRetainedDifferentia())
+        ]
+        iter_ = c1.IterRankDifferentiaZip(copyable=True)
+        iter_copy = copy(iter_)
+        next(iter_copy)
+        assert [*iter_copy] == [
+            *zip(c1.IterRetainedRanks(), c1.IterRetainedDifferentia())
+        ][1:]
+        assert [*iter_] == [
+            *zip(c1.IterRetainedRanks(), c1.IterRetainedDifferentia())
+        ]
 
 
 def test_CloneNthDescendant_zero():

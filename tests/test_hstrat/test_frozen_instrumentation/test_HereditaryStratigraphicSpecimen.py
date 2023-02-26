@@ -1,3 +1,5 @@
+import copy
+
 import pytest
 
 from hstrat import hstrat
@@ -55,3 +57,36 @@ def test_init_and_getters(differentia_bit_width, retention_policy):
         assert specimen.HasDiscardedStrata() == column.HasDiscardedStrata()
 
         column.DepositStratum()
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
+    ],
+)
+def test_IterRankDifferentiaZip(retention_policy):
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=retention_policy,
+    )
+
+    for __ in range(100):
+        c1.DepositStratum()
+        s1 = hstrat.col_to_specimen(c1)
+        assert [*s1.IterRankDifferentiaZip()] == [
+            *zip(s1.IterRetainedRanks(), s1.IterRetainedDifferentia())
+        ]
+        iter_ = s1.IterRankDifferentiaZip(copyable=True)
+        iter_copy = copy.copy(iter_)
+        next(iter_copy)
+        assert [*iter_copy] == [
+            *zip(s1.IterRetainedRanks(), s1.IterRetainedDifferentia())
+        ][1:]
+        assert [*iter_] == [
+            *zip(s1.IterRetainedRanks(), s1.IterRetainedDifferentia())
+        ]

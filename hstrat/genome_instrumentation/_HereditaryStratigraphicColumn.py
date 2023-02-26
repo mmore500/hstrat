@@ -344,13 +344,20 @@ class HereditaryStratigraphicColumn:
 
     def IterRankDifferentiaZip(
         self: "HereditaryStratigraphicColumn",
+        copyable: bool = False,
     ) -> typing.Iterator[typing.Tuple[int, int]]:
         """Iterate over ranks of retained strata and their differentia.
+
+        If `copyable`, return an iterator that can be copied to produce a new
+        fully-independent iterator at the same position.
 
         Equivalent to `zip(col.IterRetainedRanks(),
         col.IterRetainedDifferentia())`, but may be more efficient.
         """
-        return self._stratum_ordered_store.IterRankDifferentiaZip()
+        res = self._stratum_ordered_store.IterRankDifferentiaZip()
+        if copyable:
+            res = iter([*res])
+        return res
 
     def HasAnyAnnotations(
         self: "HereditaryStratigraphicColumn",
