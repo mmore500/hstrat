@@ -1,3 +1,4 @@
+import copy
 import functools
 import itertools as it
 import typing
@@ -6,7 +7,7 @@ import anytree
 import numconv
 import opytional as opyt
 
-from ...._auxiliary_lib import HereditaryStratigraphicArtifact
+from ...._auxiliary_lib import CopyableSeriesItemsIter
 
 
 class TrieLeafNode(anytree.NodeMixin):
@@ -26,22 +27,37 @@ class TrieLeafNode(anytree.NodeMixin):
         return self.taxon_label
 
     @property
-    def taxon(self: "TrieInnerNode") -> str:
+    def taxon(self: "TrieLeafNode") -> str:
         return self.name
 
     @property
-    def origin_time(self: "TrieInnerNode") -> int:
+    def origin_time(self: "TrieLeafNode") -> int:
         return self.parent.origin_time
+
+    def __repr__(self: "TrieLeafNode") -> str:
+        return f"""{self.taxon_label} @ {
+            id(self) % 1024
+        :x}"""
 
 
 def iter_alignment(
-    first: "TrieInnerNode", second: "TrieInnerNode"
+    first: "TrieInnerNode",  # zipto: will be missing elenets/older
+    second: "TrieInnerNode",
 ) -> typing.Iterator[int]:
-    for second_child in second.inner_children:
-        for child in sorted(first.inner_children, key=lambda x: x._rank):
-            if child.MatchesNode(second_child):
-                yield child._rank
-                yield from iter_alignment(child, second_child)
+    if first.ConflictsNode(second):
+        return
+    elif first.MatchesNode(second):
+        yield first._rank
+        for x, y in it.product(first.inner_children, second.inner_children):
+            yield from iter_alignment(x, y)
+    elif first._rank > second._rank:
+        for y in second.inner_children:
+            yield from iter_alignment(first, y)
+    elif first._rank < second._rank:
+        for x in first.inner_children:
+            yield from iter_alignment(x, second)
+    else:
+        assert False
 
 
 def iter_monotonic(iter_) -> typing.Iterator[int]:
@@ -53,37 +69,26 @@ def iter_monotonic(iter_) -> typing.Iterator[int]:
 
 
 def _compete_alignment(
-    first: "TrieInnerNode",
-    seconds: typing.List["TrieInnerNode"],
+    first: "TrieInnerNode",  # zipto
     second_iters,  # must be iter_monotonic
-) -> "TrieInnerNode":
-    assert len(seconds)
-    assert all(isinstance(x, TrieInnerNode) for x in seconds)
-
+) -> int:
     idx_best = 0
-    best = float("-inf")
+    best = -1
     for vs in it.zip_longest(*second_iters):
         num_nones = sum((v is None) for v in vs)
         # don't need this case: zip_longest -> not all Nones
         # if num_nones == len(vs):
         #     return idx_best
         if num_nones == len(vs) - 1 and vs[idx_best] is not None:
-            return seconds[idx_best]
+            assert best >= 0 or len(vs) == 1
+            return idx_best
         for idx, v in enumerate(vs):
             if v is not None and v >= best:
                 idx_best = idx
                 best = v
 
-    return seconds[idx_best]
-
-
-def iter_descent(node: "TrieInnerNode"):
-    while True:
-        yield node
-        if node.children:
-            (node,) = node.children
-        else:
-            return
+    assert best >= 0
+    return idx_best
 
 
 def compete_alignment(
@@ -92,27 +97,15 @@ def compete_alignment(
 ) -> "TrieInnerNode":
     assert len(seconds)
     assert all(isinstance(x, TrieInnerNode) for x in seconds)
-    return _compete_alignment(
-        first,
-        seconds,
-        [iter_monotonic(iter_alignment(first, second)) for second in seconds],
-    )
-
-
-# def do_rezip(
-#     first: "TrieInnerNode", second: "TrieInnerNode"
-# ) -> None:
-#     # second guaranteed to be linked list NOT IT ISNT
-#     if second.children:
-#         second_child, = second.children
-#     else:
-#         second.parent = first.parent
-#         return
-#
-#     for child in sorted(first.chldren, key=lambda x: x._rank):
-#         if child.MatchesNode(second_child):
-#             do_rezip(child, second_child)
-#             return
+    return seconds[
+        _compete_alignment(
+            first,
+            [
+                iter_monotonic(iter_alignment(first, second))
+                for second in seconds
+            ],
+        )
+    ]
 
 
 class TrieInnerNode(anytree.NodeMixin):
@@ -129,6 +122,7 @@ class TrieInnerNode(anytree.NodeMixin):
         self.parent = parent
         self._rank = rank
         self._differentia = differentia
+        assert (self._rank is None) == (self._differentia is None)
 
     def Matches(
         self: "TrieInnerNode",
@@ -137,52 +131,87 @@ class TrieInnerNode(anytree.NodeMixin):
     ) -> bool:
         return self._rank == rank and self._differentia == differentia
 
-    def MatchesNode(
-        self: "TrieInnerNode",
-        other: "TrieInnerNode",
-    ) -> bool:
-        return self.Matches(other._rank, other._differentia)
-
-    def HasDescendant(
+    def Conflicts(
         self: "TrieInnerNode",
         rank: int,
         differentia: int,
     ) -> bool:
-        if rank < self._rank:
-            return False
-        elif rank == self._rank and differentia == self._differentia:
-            return True
-        else:
-            return any(
-                child.HasDescendant(rank, differentia)
-                for child in self.children
-            )
+        return self._rank == rank and self._differentia != differentia
+
+    def MatchesNode(
+        self: "TrieInnerNode",
+        other: "TriInnerNode",
+    ) -> bool:
+        return self.Matches(other._rank, other._differentia)
+
+    def ConflictsNode(
+        self: "TrieInnerNode",
+        other: "TrieInnerNode",
+    ) -> bool:
+        return self.Conflicts(other._rank, other._differentia)
 
     def GetDescendants(
         self: "TrieInnerNode",
         rank: int,
         differentia: int,
     ) -> typing.Iterator["TrieInnerNode"]:
-        if rank == self._rank and differentia == self._differentia:
-            return iter([self])
+        assert rank is not None
+        assert differentia is not None
+        assert (self._differentia is None) == (self._rank is None)
+        # handle root case
+        if self._rank is None:
+            for child in self.inner_children:
+                yield from child.GetDescendants(rank, differentia)
+        elif rank == self._rank and differentia == self._differentia:
+            yield self
         elif rank > self._rank:
-            return it.chain(
-                *[
-                    child.GetDescendants(rank, differentia)
-                    for child in self.children
-                    if isinstance(child, TrieInnerNode)
-                ]
-            )
-        else:
-            return iter([])
+            for child in self.inner_children:
+                yield from child.GetDescendants(rank, differentia)
+
+    def GetDeepestAlignment(
+        self: "TrieInnerNode",
+        rank_differentia_iter: CopyableSeriesItemsIter,
+        depth=0,
+    ) -> typing.Optional["TrieInnerNode"]:
+        # print("depth", depth)
+        self._cached_rditer = copy.copy(rank_differentia_iter)
+        try:
+            next_rank, next_differentia = next(rank_differentia_iter)
+        except StopIteration:
+            return None
+        candidates = self.GetDescendants(next_rank, next_differentia)
+        # print(
+        #     next_rank,
+        #     next_differentia,
+        #     self._rank,
+        #     self._differentia,
+        #     candidates,
+        # )
+        return max(
+            (
+                opyt.or_value(
+                    candidate.GetDeepestAlignment(
+                        copy.copy(rank_differentia_iter),
+                        depth + 1,
+                    ),
+                    candidate,
+                )
+                for candidate in candidates
+            ),
+            default=None,
+            key=lambda x: x._rank,
+            # key=lambda x: x[0],
+        )
 
     def InsertTaxon(
         self: "TrieInnerNode",
         taxon_label: str,
-        rank_differentia_iter,
+        rank_differentia_iter: CopyableSeriesItemsIter,
     ) -> None:
         try:
             next_rank, next_differentia = next(rank_differentia_iter)
+            assert next_rank is not None
+            assert next_differentia is not None
             for child in self.inner_children:
                 if child.Matches(next_rank, next_differentia):
                     child.InsertTaxon(
@@ -197,6 +226,9 @@ class TrieInnerNode(anytree.NodeMixin):
 
         except StopIteration:
             TrieLeafNode(parent=self, taxon_label=taxon_label)
+
+    def InsertCachedTaxon(self: "TrieInnerNode", taxon_label: str) -> None:
+        self.InsertTaxon(taxon_label, self._cached_rditer)
 
     def ConsolidateChildren(self: "TrieInnerNode"):
         for __, clump in it.groupby(
@@ -222,7 +254,7 @@ class TrieInnerNode(anytree.NodeMixin):
         sorted_children = sorted(
             self.inner_children,
             key=lambda x: x._rank,
-            # reverse=True,  # from most ancient to least ancient
+            # reverse=True,  # from most recent to most ancient?
         )
         for idx, zipto in enumerate(sorted_children):
             candidates = [

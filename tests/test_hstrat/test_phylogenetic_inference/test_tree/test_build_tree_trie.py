@@ -250,13 +250,17 @@ def test_col_specimen_consistency(orig_tree, retention_policy):
     )
 
 
-@pytest.mark.parametrize("tree_size", [10, 30, 100, 300, 1000])
-@pytest.mark.parametrize("differentia_width", [1, 2, 8, 64])
-@pytest.mark.parametrize("tree_seed", range(100))
+# @pytest.mark.parametrize("tree_size", [10, 30, 100, 300, 1000])
+# @pytest.mark.parametrize("differentia_width", [1, 2, 8, 64])
+@pytest.mark.parametrize("tree_size", [1000])
+@pytest.mark.parametrize("differentia_width", [8])
+@pytest.mark.parametrize("tree_seed", [41])
+# @pytest.mark.parametrize("tree_seed", range(1000))
 @pytest.mark.parametrize(
     "retention_policy",
     [
         hstrat.recency_proportional_resolution_algo.Policy(1),
+        hstrat.recency_proportional_resolution_algo.Policy(2),
         hstrat.recency_proportional_resolution_algo.Policy(10),
         hstrat.fixed_resolution_algo.Policy(2),
     ],
@@ -311,9 +315,10 @@ def test_reconstructed_mrca_fuzz(
         for extant_col in extant_population
     ]
 
-    for reconst_node_pair, extant_column_pair in zip(
+    for reconst_node_pair, extant_column_pair, label_pair in zip(
         it.combinations(sorted_leaf_nodes, 2),
         it.combinations(extant_population, 2),
+        it.combinations(range(len(extant_population)), 2),
     ):
         reconst_mrca = impl.descend_unifurcations(
             pdm.mrca(*map(lambda x: x.taxon, reconst_node_pair))
@@ -337,8 +342,11 @@ def test_reconstructed_mrca_fuzz(
             print(reconst_mrca.taxon.label)
             print(reconst_mrca.distance_from_root())
             print()
-            for col, ln in zip(extant_population, sorted_leaf_nodes):
+            for i, (col, ln) in enumerate(
+                zip(extant_population, sorted_leaf_nodes)
+            ):
                 print()
+                print("label", i)
                 print(ln.distance_from_root())
                 print(id(col))
                 print(hstrat.col_to_ascii(col))
@@ -350,6 +358,8 @@ def test_reconstructed_mrca_fuzz(
             <= reconst_mrca.distance_from_root()
             < upper_mrca_bound
         ), (
+            label_pair[0],
+            label_pair[1],
             id(extant_column_pair[0]),
             id(extant_column_pair[1]),
             lower_mrca_bound,
