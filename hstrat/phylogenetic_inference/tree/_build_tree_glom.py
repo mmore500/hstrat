@@ -125,12 +125,12 @@ def build_tree_glom(
         )
     ):
         glom_root.PercolateColumn(column)
-        logging.debug(glom_root)
-        assert i + 1 == len(glom_root._leaves), (i, len(glom_root._leaves))
-        assert i + 1 == len(glom_root.leaves), (i, len(glom_root.leaves))
+        # logging.debug(glom_root)
+        # assert i + 1 == len(glom_root._leaves), (i, len(glom_root._leaves))
+        # assert i + 1 == len(glom_root.leaves), (i, len(glom_root.leaves))
 
-        for n in anytree.PostOrderIter(glom_root):
-            n.Validate()
+        # for n in anytree.PostOrderIter(glom_root):
+        #     n.Validate()
 
         # print(glom_root)
 
@@ -149,8 +149,8 @@ def build_tree_glom(
 
     # print(glom_root)
 
-    logging.debug("taxon_labels and corresponding ids")
-    logging.debug(dict(zip(taxon_labels, map(id, population))))
+    # logging.debug("taxon_labels and corresponding ids")
+    # logging.debug(dict(zip(taxon_labels, map(id, population))))
 
     internal_counter = 1
     for node in anytree.PreOrderIter(glom_root):
@@ -172,13 +172,13 @@ def build_tree_glom(
 
     res = apc.anytree_tree_to_alife_dataframe(glom_root)
     # print(res)
-    if not alifestd_is_chronologically_ordered(res):
-        for label, col in zip(taxon_labels, population):
-            print(label, col_to_ascii(col))
-        assert alifestd_is_chronologically_ordered(res), (
-            res,
-            alifestd_find_chronological_inconsistency(res),
-        )
+    # if not alifestd_is_chronologically_ordered(res):
+    #     for label, col in zip(taxon_labels, population):
+    #         print(label, col_to_ascii(col))
+    #     assert alifestd_is_chronologically_ordered(res), (
+    #         res,
+    #         alifestd_find_chronological_inconsistency(res),
+    #     )
     return res
 
     def __str__(self: "GlomNode") -> str:

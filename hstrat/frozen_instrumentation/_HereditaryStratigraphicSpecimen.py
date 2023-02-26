@@ -166,3 +166,30 @@ class HereditaryStratigraphicSpecimen:
         Differentia yielded from most ancient to most recent.
         """
         yield from self.GetDifferentiaVals()
+
+    def IterRankDifferentiaZip(
+        self: "HereditaryStratigraphicColumn",
+    ) -> typing.Iterator[typing.Tuple[int, int]]:
+        """Iterate over ranks of retained strata and their differentia.
+
+        Equivalent to `zip(specimen.IterRetainedRanks(),
+        specimen.IterRetainedDifferentia())`, but may be more efficient.
+        """
+        return self._data.items()
+
+    def HasRetainedRank(
+        self: "HereditaryStratigraphicSpecimen",
+        rank: int,
+    ) -> bool:
+        """Does this specimen contain a stratum deposited at generation
+        `rank`?"""
+        return rank in self._data.index
+
+    def HasDifferentiaAtRank(
+        self: "HereditaryStratigraphicSpecimen",
+        differentia: int,
+        rank: int,
+    ) -> bool:
+        """Does this specimen contain a stratum with differentia `differentia`
+        deposited at generation `rank`? ?"""
+        return self._data[rank] == differentia

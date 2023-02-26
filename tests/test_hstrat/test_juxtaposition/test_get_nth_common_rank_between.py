@@ -1,7 +1,8 @@
 import itertools as it
 
-from hstrat import hstrat
 import pytest
+
+from hstrat import hstrat
 
 
 @pytest.mark.parametrize(

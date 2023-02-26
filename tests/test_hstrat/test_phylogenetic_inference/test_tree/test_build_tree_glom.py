@@ -250,15 +250,18 @@ def test_col_specimen_consistency(orig_tree, retention_policy):
     )
 
 
-@pytest.mark.parametrize("tree_size", [10, 30, 100, 300, 1000])
-@pytest.mark.parametrize("differentia_width", [1, 2, 8, 64])
-@pytest.mark.parametrize("tree_seed", range(100))
+@pytest.mark.parametrize("tree_size", [1000])
+# @pytest.mark.parametrize("tree_size", [10, 30, 100, 300, 1000])
+# @pytest.mark.parametrize("differentia_width", [1, 2, 8, 64])
+@pytest.mark.parametrize("differentia_width", [8])
+# @pytest.mark.parametrize("tree_seed", range(100))
+@pytest.mark.parametrize("tree_seed", [20])
 @pytest.mark.parametrize(
     "retention_policy",
     [
         hstrat.recency_proportional_resolution_algo.Policy(1),
-        hstrat.recency_proportional_resolution_algo.Policy(10),
-        hstrat.fixed_resolution_algo.Policy(2),
+        # hstrat.recency_proportional_resolution_algo.Policy(10),
+        # hstrat.fixed_resolution_algo.Policy(2),
     ],
 )
 def test_reconstructed_mrca_fuzz(

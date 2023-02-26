@@ -131,6 +131,11 @@ pathlib2==2.3.7.post1
     # via bumpver
 pillow==9.4.0
     # via matplotlib
+pip==22.0.4
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   lyncs-setuptools
+    #   pip-tools
 pip-tools==6.10.0
     # via hstrat (../../pyproject.toml)
 pkginfo==1.9.6
@@ -165,6 +170,13 @@ safe-assert==0.2.0
     # via hstrat (../../pyproject.toml)
 seaborn==0.12.1
     # via hstrat (../../pyproject.toml)
+setuptools==65.6.3
+    # via
+    #   bumpver
+    #   dendropy
+    #   hstrat (../../pyproject.toml)
+    #   pip-tools
+    #   twine
 six==1.16.0
     # via
     #   anytree
@@ -216,19 +228,7 @@ wrapt==1.14.1
     # via
     #   deprecated
     #   pandera
-zipp==3.14.0
-    # via importlib-metadata
-
-# The following packages are considered to be unsafe in a requirements file:
-pip==22.0.4
+zipp==3.10.0
     # via
-    #   hstrat (../../pyproject.toml)
-    #   lyncs-setuptools
-    #   pip-tools
-setuptools==65.6.3
-    # via
-    #   bumpver
-    #   dendropy
-    #   hstrat (../../pyproject.toml)
-    #   pip-tools
-    #   twine
+    #   importlib-metadata
+    #   pep517

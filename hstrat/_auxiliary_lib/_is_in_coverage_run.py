@@ -1,8 +1,22 @@
 import sys
 
 
-# adapted from https://stackoverflow.com/a/69531314
-# alternate approach: https://stackoverflow.com/a/69531314
-def is_in_coverage_run() -> bool:
-    """Is code coverage currently being measured?"""
-    return "coverage" in sys.modules
+def is_in_coverage_run():
+    """Check whether test is run with coverage."""
+    gettrace = getattr(sys, "gettrace", None)
+
+    if gettrace is None:
+        return False
+    else:
+        gettrace_result = gettrace()
+
+    try:
+        from coverage.pytracer import PyTracer
+        from coverage.tracer import CTracer
+
+        if isinstance(gettrace_result, (CTracer, PyTracer)):
+            return True
+    except ImportError:
+        pass
+
+    return False

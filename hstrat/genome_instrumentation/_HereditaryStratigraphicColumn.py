@@ -342,6 +342,16 @@ class HereditaryStratigraphicColumn:
         """
         return map(lambda x: x.GetDifferentia(), self.IterRetainedStrata())
 
+    def IterRankDifferentiaZip(
+        self: "HereditaryStratigraphicColumn",
+    ) -> typing.Iterator[typing.Tuple[int, int]]:
+        """Iterate over ranks of retained strata and their differentia.
+
+        Equivalent to `zip(col.IterRetainedRanks(),
+        col.IterRetainedDifferentia())`, but may be more efficient.
+        """
+        return self._stratum_ordered_store.IterRankDifferentiaZip()
+
     def HasAnyAnnotations(
         self: "HereditaryStratigraphicColumn",
     ) -> bool:
