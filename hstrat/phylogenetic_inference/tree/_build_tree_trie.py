@@ -103,14 +103,12 @@ def build_tree_trie(
     root = TrieInnerNode(rank=None, differentia=None)
 
     is_perfectly_synchronous = all(
-        artifact.GetNumStrataDeposited() == population[0].GetNumStrataDeposited()
+        artifact.GetNumStrataDeposited()
+        == population[0].GetNumStrataDeposited()
         for artifact in population
     )
 
-    sort_order = argsort(
-        [x.GetNumStrataDeposited() for x in population],
-        # reverse=True,
-    )
+    sort_order = argsort([x.GetNumStrataDeposited() for x in population])
     sorted_labels = [taxon_labels[i] for i in sort_order]
     sorted_population = [population[i] for i in sort_order]
     for label, artifact in progress_wrap(
@@ -121,27 +119,13 @@ def build_tree_trie(
             root.InsertTaxon(label, artifact.IterRankDifferentiaZip())
         else:
             target = root.GetDeepestAlignment(
-                artifact.IterRankDifferentiaZip(
-                    copyable=True,
-                )
+                artifact.IterRankDifferentiaZip(copyable=True)
             )
             if target is not None:
                 target.InsertCachedTaxon(label)
             else:
                 root.InsertTaxon(label, artifact.IterRankDifferentiaZip())
 
-    # # TODO iterator invalidation?
-    # # if there are different deposition counts (optimization)
-    # # for node in sorted(
-    # #     [
-    # #         x for x in anytree.LevelOrderIter(root) if isinstance(x, TrieInnerNode)],
-    # #     key=lambda x: x._rank or 0,
-    # # ):
-    # for node in anytree.PreOrderIter(root):
-    #     if isinstance(node, TrieInnerNode):
-    #         node.Rezip()
-
-    # print(anytree.RenderTree(root))
     res = apc.anytree_tree_to_alife_dataframe(root)
 
     return res
