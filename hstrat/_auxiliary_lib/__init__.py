@@ -3,6 +3,7 @@ from ._BioPhyloTree import BioPhyloTree
 from ._CopyableSeriesItemsIter import CopyableSeriesItemsIter
 from ._HereditaryStratigraphicArtifact import HereditaryStratigraphicArtifact
 from ._RecursionLimit import RecursionLimit
+from ._RngStateContext import RngStateContext
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
 from ._alifestd_aggregate_phylogenies import alifestd_aggregate_phylogenies
 from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
@@ -209,6 +210,7 @@ __all__ = [
     "render_to_numeral_system",
     "reversed_enumerate",
     "reversed_range",
+    "RngStateContext",
     "scale_luminosity",
     "ScalarFormatterFixedPrecision",
     "seed_random",
