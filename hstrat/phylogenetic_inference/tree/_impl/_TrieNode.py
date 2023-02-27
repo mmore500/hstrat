@@ -175,6 +175,7 @@ class TrieInnerNode(anytree.NodeMixin):
     ) -> typing.Optional["TrieInnerNode"]:
         # print("depth", depth)
         self._cached_rditer = copy.copy(rank_differentia_iter)
+        self._cached_depth = depth
         try:
             next_rank, next_differentia = next(rank_differentia_iter)
         except StopIteration:
@@ -188,18 +189,19 @@ class TrieInnerNode(anytree.NodeMixin):
         #     candidates,
         # )
         return max(
-            (
-                opyt.or_value(
+            sorted(  # instead of sort, pick max based on tuple with tiebreaker
+                (opyt.or_value(
                     candidate.GetDeepestAlignment(
                         copy.copy(rank_differentia_iter),
                         depth + 1,
                     ),
                     candidate,
                 )
-                for candidate in candidates
+                for candidate in candidates),
+                key=id,
             ),
             default=None,
-            key=lambda x: x._rank,
+            key=lambda x: x._cached_depth,
             # key=lambda x: x[0],
         )
 

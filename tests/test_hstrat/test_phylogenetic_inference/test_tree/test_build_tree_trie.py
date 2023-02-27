@@ -250,12 +250,12 @@ def test_col_specimen_consistency(orig_tree, retention_policy):
     )
 
 
-# @pytest.mark.parametrize("tree_size", [10, 30, 100, 300, 1000])
-# @pytest.mark.parametrize("differentia_width", [1, 2, 8, 64])
-@pytest.mark.parametrize("tree_size", [1000])
-@pytest.mark.parametrize("differentia_width", [8])
-@pytest.mark.parametrize("tree_seed", [41])
-# @pytest.mark.parametrize("tree_seed", range(1000))
+@pytest.mark.parametrize("tree_size", [10, 30, 100, 300, 1000])
+@pytest.mark.parametrize("differentia_width", [1, 2, 8, 64])
+# @pytest.mark.parametrize("tree_size", [1000])
+# @pytest.mark.parametrize("differentia_width", [8])
+# @pytest.mark.parametrize("tree_seed", [41])
+@pytest.mark.parametrize("tree_seed", range(1000))
 @pytest.mark.parametrize(
     "retention_policy",
     [
