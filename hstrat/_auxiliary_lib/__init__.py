@@ -91,10 +91,12 @@ from ._numpy_index import numpy_index
 from ._numpy_index_flat import numpy_index_flat
 from ._omit_last import omit_last
 from ._pairwise import pairwise
+from ._parse_from_numeral_system import parse_from_numeral_system
 from ._popcount import popcount
 from ._raises import raises
 from ._random_choice_generator import random_choice_generator
 from ._release_cur_mpl_fig import release_cur_mpl_fig
+from ._render_to_numeral_system import render_to_numeral_system
 from ._reversed_enumerate import reversed_enumerate
 from ._reversed_range import reversed_range
 from ._scale_luminosity import scale_luminosity
@@ -196,11 +198,13 @@ __all__ = [
     "numpy_index_flat",
     "omit_last",
     "pairwise",
+    "parse_from_numeral_system",
     "popcount",
     "RecursionLimit",
     "raises",
     "release_cur_mpl_fig",
     "random_choice_generator",
+    "render_to_numeral_system",
     "reversed_enumerate",
     "reversed_range",
     "scale_luminosity",
