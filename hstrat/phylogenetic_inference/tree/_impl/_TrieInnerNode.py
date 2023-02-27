@@ -106,7 +106,7 @@ class TrieInnerNode(anytree.NodeMixin):
         self.InsertTaxon(taxon_label, self._cached_rditer)
 
     @property
-    def name(self: "TrieInnerNode") -> str:
+    def taxon_label(self: "TrieInnerNode") -> str:
         if self.parent is None:
             return "Root"
         else:
@@ -114,10 +114,6 @@ class TrieInnerNode(anytree.NodeMixin):
             return f"""Inner+r={self._rank}+d={
                 render_to_base64url(int(self._rank))
             }"""
-
-    @property
-    def taxon_label(self: "TrieInnerNode") -> str:
-        return self.name
 
     @property
     def taxon(self: "TrieInnerNode") -> str:
