@@ -4,10 +4,9 @@ import itertools as it
 import typing
 
 import anytree
-import numconv
 import opytional as opyt
 
-from ...._auxiliary_lib import CopyableSeriesItemsIter
+from ...._auxiliary_lib import CopyableSeriesItemsIter, render_to_base64url
 
 
 class TrieLeafNode(anytree.NodeMixin):
@@ -297,7 +296,8 @@ class TrieInnerNode(anytree.NodeMixin):
             return "RootNode"
         else:
             return f"""Inner+r={self._rank}+d={
-                numconv.int2str(self._differentia, 64, numconv.BASE64URL)
+                # numpy ints cause indexing errors; convert to native int
+                render_to_base64url(int(self._rank))
             }"""
 
     @property
