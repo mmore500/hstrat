@@ -8,36 +8,7 @@ import opytional as opyt
 
 from ...._auxiliary_lib import CopyableSeriesItemsIter, render_to_base64url
 
-
-class TrieLeafNode(anytree.NodeMixin):
-
-    taxon_label: str
-
-    def __init__(
-        self: "TrieLeafNode",
-        parent: "TrieInnerNode",
-        taxon_label: str,
-    ) -> None:
-        self.parent = parent
-        self.taxon_label = taxon_label
-
-    @property
-    def name(self: "TrieLeafNode") -> str:
-        return self.taxon_label
-
-    @property
-    def taxon(self: "TrieLeafNode") -> str:
-        return self.name
-
-    @property
-    def origin_time(self: "TrieLeafNode") -> int:
-        return self.parent.origin_time
-
-    def __repr__(self: "TrieLeafNode") -> str:
-        return f"""{self.taxon_label} @ {
-            id(self) % 1024
-        :x}"""
-
+from ._TrieLeafNode import TrieLeafNode
 
 class TrieInnerNode(anytree.NodeMixin):
 
@@ -143,8 +114,8 @@ class TrieInnerNode(anytree.NodeMixin):
         if self.parent is None:
             return "Root"
         else:
+            # numpy ints cause indexing errors; convert to native int
             return f"""Inner+r={self._rank}+d={
-                # numpy ints cause indexing errors; convert to native int
                 render_to_base64url(int(self._rank))
             }"""
 
@@ -174,4 +145,4 @@ class TrieInnerNode(anytree.NodeMixin):
             self._differentia
         }) @ {
             render_to_base64url(id(self) % 8192)
-        :x}"""
+        }"""
