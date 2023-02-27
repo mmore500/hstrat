@@ -1,19 +1,21 @@
 import copy
 import functools
 import itertools as it
+import random
 import typing
 
 import anytree
 import opytional as opyt
 
 from ...._auxiliary_lib import CopyableSeriesItemsIter, render_to_base64url
-
 from ._TrieLeafNode import TrieLeafNode
+
 
 class TrieInnerNode(anytree.NodeMixin):
 
     _rank: int
     _differentia: int
+    _tiebreaker: int
 
     def __init__(
         self: "TrieInnerNode",
@@ -25,6 +27,7 @@ class TrieInnerNode(anytree.NodeMixin):
         self._rank = rank
         self._differentia = differentia
         assert (self._rank is None) == (self._differentia is None)
+        self._tiebreaker = random.getrandbits(128)  # uuid standard 128 bits
 
     def Matches(
         self: "TrieInnerNode",
@@ -64,21 +67,18 @@ class TrieInnerNode(anytree.NodeMixin):
             return None
         candidates = self.GetDescendants(next_rank, next_differentia)
         return max(
-            sorted(  # instead of sort, pick max based on tuple with tiebreaker
-                (
-                    opyt.or_value(
-                        candidate.GetDeepestAlignment(
-                            copy.copy(rank_differentia_iter),
-                            depth + 1,
-                        ),
-                        candidate,
-                    )
-                    for candidate in candidates
-                ),
-                key=id,
+            (
+                opyt.or_value(
+                    candidate.GetDeepestAlignment(
+                        copy.copy(rank_differentia_iter),
+                        depth + 1,
+                    ),
+                    candidate,
+                )
+                for candidate in candidates
             ),
             default=None,
-            key=lambda x: x._cached_depth,
+            key=lambda x: (x._cached_depth, x._tiebreaker)
             # key=lambda x: x[0],
         )
 
