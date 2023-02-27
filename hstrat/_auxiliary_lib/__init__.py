@@ -96,6 +96,7 @@ from ._popcount import popcount
 from ._raises import raises
 from ._random_choice_generator import random_choice_generator
 from ._release_cur_mpl_fig import release_cur_mpl_fig
+from ._render_to_base64url import render_to_base64url
 from ._render_to_numeral_system import render_to_numeral_system
 from ._reversed_enumerate import reversed_enumerate
 from ._reversed_range import reversed_range
@@ -204,6 +205,7 @@ __all__ = [
     "raises",
     "release_cur_mpl_fig",
     "random_choice_generator",
+    "render_to_base64url",
     "render_to_numeral_system",
     "reversed_enumerate",
     "reversed_range",
