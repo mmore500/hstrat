@@ -57,6 +57,7 @@ from ._demark import demark
 from ._div_range import div_range
 from ._find_bounds import find_bounds
 from ._flat_len import flat_len
+from ._generate_n import generate_n
 from ._generate_omission_subsets import generate_omission_subsets
 from ._get_hstrat_version import get_hstrat_version
 from ._get_nullable_mask import get_nullable_mask
@@ -166,6 +167,7 @@ __all__ = [
     "div_range",
     "find_bounds",
     "flat_len",
+    "generate_n",
     "generate_omission_subsets",
     "get_hstrat_version",
     "get_nullable_mask",
