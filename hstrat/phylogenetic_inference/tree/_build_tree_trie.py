@@ -70,13 +70,11 @@ def _build_tree_trie(
         if is_perfectly_synchronous:
             root.InsertTaxon(label, artifact.IterRankDifferentiaZip())
         else:
-            target = root.GetDeepestAlignment(
+            res = root.GetDeepestConsecutiveSharedAlleleGenesis(
                 artifact.IterRankDifferentiaZip(copyable=True)
             )
-            if target is not None:
-                target.InsertCachedTaxon(label)
-            else:
-                root.InsertTaxon(label, artifact.IterRankDifferentiaZip())
+            node, subsequent_allele_genesis_iter = res
+            node.InsertTaxon(label, subsequent_allele_genesis_iter)
 
     if not force_common_ancestry:
         try:

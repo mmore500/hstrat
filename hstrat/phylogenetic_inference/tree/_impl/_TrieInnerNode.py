@@ -7,11 +7,7 @@ import typing
 import anytree
 import opytional as opyt
 
-from ...._auxiliary_lib import (
-    CopyableSeriesItemsIter,
-    generate_n,
-    render_to_base64url,
-)
+from ...._auxiliary_lib import generate_n, render_to_base64url
 from ._TrieLeafNode import TrieLeafNode
 
 
@@ -40,7 +36,7 @@ class TrieInnerNode(anytree.NodeMixin):
     ) -> bool:
         return self._rank == rank and self._differentia == differentia
 
-    def GetDescendants(
+    def FindGenesesOfAllele(
         self: "TrieInnerNode",
         rank: int,
         differentia: int,
@@ -51,75 +47,90 @@ class TrieInnerNode(anytree.NodeMixin):
         # handle root case
         if self._rank is None:
             for child in self.inner_children:
-                yield from child.GetDescendants(rank, differentia)
+                yield from child.FindGenesesOfAllele(rank, differentia)
         elif rank == self._rank and differentia == self._differentia:
             yield self
         elif rank > self._rank:
             for child in self.inner_children:
-                yield from child.GetDescendants(rank, differentia)
+                yield from child.FindGenesesOfAllele(rank, differentia)
 
-    def GetDeepestAlignment(
+    def GetDeepestConsecutiveSharedAlleleGenesis(
         self: "TrieInnerNode",
-        rank_differentia_iter: CopyableSeriesItemsIter,
-    ) -> typing.Optional["TrieInnerNode"]:
-        self._cached_rditer = copy.copy(rank_differentia_iter)
-        try:
-            next_rank, next_differentia = next(rank_differentia_iter)
-        except StopIteration:
-            return None
+        taxon_allele_genesis_iter: typing.Iterator[typing.Tuple[int, int]],
+    ) -> (
+        typing.Tuple["TrieInnerNode", typing.Iterator[typing.Tuple[int, int]]]
+    ):
+        # iterator must be copyable
+        assert [*copy.copy(taxon_allele_genesis_iter)] == [
+            *copy.copy(taxon_allele_genesis_iter)
+        ]
 
-        node_stack = [*self.GetDescendants(next_rank, next_differentia)]
-        rditer_stack = [copy.copy(rank_differentia_iter)]
-        deepest_alignment = self
-        while node_stack:
-            candidate = node_stack.pop()
-            rd_iter = rditer_stack.pop()
+        node_stack = [self]
+        allele_genesis_stack = [taxon_allele_genesis_iter]
+        deepest_genesis = self
+        deepest_taxon_allele_genesis_iter = copy.copy(
+            taxon_allele_genesis_iter
+        )
+        while True:
 
-            if (candidate._rank, candidate._tiebreaker) > (
-                opyt.or_value(deepest_alignment._rank, -1),
-                deepest_alignment._tiebreaker,
+            candidate_genesis = node_stack.pop()
+            taxon_allele_genesis_iter = allele_genesis_stack.pop()
+
+            if (
+                opyt.or_value(candidate_genesis._rank, -1),
+                candidate_genesis._tiebreaker,
+            ) > (
+                opyt.or_value(deepest_genesis._rank, -1),
+                deepest_genesis._tiebreaker,
             ):
-                deepest_alignment = candidate
+                deepest_genesis = candidate_genesis
+                deepest_taxon_allele_genesis_iter = copy.copy(
+                    taxon_allele_genesis_iter
+                )
 
-            candidate._cached_rditer = copy.copy(rd_iter)
-            next_rd = next(rd_iter, None)
-            if next_rd is not None:
-                node_stack.extend(candidate.GetDescendants(*next_rd))
-                rditer_stack.extend(
+            next_allele = next(taxon_allele_genesis_iter, None)
+            if next_allele is not None:
+                node_stack.extend(
+                    candidate_genesis.FindGenesesOfAllele(*next_allele)
+                )
+                allele_genesis_stack.extend(
                     generate_n(
-                        lambda: copy.copy(rd_iter),
-                        len(node_stack) - len(rditer_stack),
+                        lambda: copy.copy(taxon_allele_genesis_iter),
+                        len(node_stack) - len(allele_genesis_stack),
                     )
                 )
 
-        return deepest_alignment
+            assert len(node_stack) == len(allele_genesis_stack)
+            if not node_stack:
+                break
+
+        return deepest_genesis, deepest_taxon_allele_genesis_iter
 
     def InsertTaxon(
         self: "TrieInnerNode",
         taxon_label: str,
-        rank_differentia_iter: CopyableSeriesItemsIter,
+        taxon_allele_genesis_iter: typing.Iterator[typing.Tuple[int, int]],
     ) -> None:
         try:
-            next_rank, next_differentia = next(rank_differentia_iter)
+            # common allele genesis trace is for special condition optimization
+            # where GetDeepestConsecutiveSharedAlleleGenesis isn't needed
+            next_rank, next_differentia = next(taxon_allele_genesis_iter)
             assert next_rank is not None
             assert next_differentia is not None
             for child in self.inner_children:
                 if child.Matches(next_rank, next_differentia):
                     child.InsertTaxon(
                         taxon_label,
-                        rank_differentia_iter,
+                        taxon_allele_genesis_iter,
                     )
                     return
             else:
                 TrieInnerNode(
                     next_rank, next_differentia, parent=self
-                ).InsertTaxon(taxon_label, rank_differentia_iter)
+                ).InsertTaxon(taxon_label, taxon_allele_genesis_iter)
 
         except StopIteration:
             TrieLeafNode(parent=self, taxon_label=taxon_label)
-
-    def InsertCachedTaxon(self: "TrieInnerNode", taxon_label: str) -> None:
-        self.InsertTaxon(taxon_label, self._cached_rditer)
 
     @property
     def taxon_label(self: "TrieInnerNode") -> str:
