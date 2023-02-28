@@ -7,7 +7,11 @@ import typing
 import anytree
 import opytional as opyt
 
-from ...._auxiliary_lib import CopyableSeriesItemsIter, render_to_base64url
+from ...._auxiliary_lib import (
+    CopyableSeriesItemsIter,
+    generate_n,
+    render_to_base64url,
+)
 from ._TrieLeafNode import TrieLeafNode
 
 
@@ -63,20 +67,32 @@ class TrieInnerNode(anytree.NodeMixin):
             next_rank, next_differentia = next(rank_differentia_iter)
         except StopIteration:
             return None
-        candidates = self.GetDescendants(next_rank, next_differentia)
-        return max(
-            (
-                opyt.or_value(
-                    candidate.GetDeepestAlignment(
-                        copy.copy(rank_differentia_iter),
-                    ),
-                    candidate,
+
+        node_stack = [*self.GetDescendants(next_rank, next_differentia)]
+        rditer_stack = [copy.copy(rank_differentia_iter)]
+        deepest_alignment = self
+        while node_stack:
+            candidate = node_stack.pop()
+            rd_iter = rditer_stack.pop()
+
+            if (candidate._rank, candidate._tiebreaker) > (
+                opyt.or_value(deepest_alignment._rank, -1),
+                deepest_alignment._tiebreaker,
+            ):
+                deepest_alignment = candidate
+
+            candidate._cached_rditer = copy.copy(rd_iter)
+            next_rd = next(rd_iter, None)
+            if next_rd is not None:
+                node_stack.extend(candidate.GetDescendants(*next_rd))
+                rditer_stack.extend(
+                    generate_n(
+                        lambda: copy.copy(rd_iter),
+                        len(node_stack) - len(rditer_stack),
+                    )
                 )
-                for candidate in candidates
-            ),
-            default=None,
-            key=lambda x: (x._rank, x._tiebreaker)
-        )
+
+        return deepest_alignment
 
     def InsertTaxon(
         self: "TrieInnerNode",
