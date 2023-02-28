@@ -28,10 +28,7 @@ from ..pairwise import (
     estimate_rank_of_mrca_between,
     estimate_ranks_since_mrca_with,
 )
-from ..population import (
-    build_distance_matrix_biopython,
-    does_definitively_share_no_common_ancestor,
-)
+from ..population import build_distance_matrix_biopython
 from ._impl import TrieInnerNode
 
 
@@ -49,11 +46,6 @@ def _build_tree_trie(
     # for simplicity, return early for this special case
     if len(population) == 0:
         return alifestd_make_empty()
-
-    if force_common_ancestry:
-        raise NotImplementedError
-    elif does_definitively_share_no_common_ancestor(population):
-        raise ValueError
 
     taxon_labels = opyt.or_value(
         taxon_labels,
@@ -85,6 +77,13 @@ def _build_tree_trie(
                 target.InsertCachedTaxon(label)
             else:
                 root.InsertTaxon(label, artifact.IterRankDifferentiaZip())
+
+    if not force_common_ancestry:
+        try:
+            root = ip.popsingleton(root.children)
+            root.parent = None
+        except:
+            raise ValueError
 
     res = apc.anytree_tree_to_alife_dataframe(root)
 

@@ -12,7 +12,12 @@ import pytest
 from tqdm import tqdm
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import alifestd_validate, seed_random
+from hstrat._auxiliary_lib import (
+    alifestd_collapse_unifurcations,
+    alifestd_validate,
+    alifestd_has_multiple_roots,
+    seed_random,
+)
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
@@ -37,26 +42,29 @@ def test_dual_population_no_mrca():
     with pytest.raises(ValueError):
         tree = hstrat.build_tree_trie(population, taxon_labels=names)
 
-    with pytest.raises(NotImplementedError):
-        tree = hstrat.build_tree_trie(
-            population, taxon_labels=names, force_common_ancestry=True
-        )
+    tree = hstrat.build_tree_trie(
+        population, taxon_labels=names, force_common_ancestry=True
+    )
+    tree["name"] = tree["taxon_label"]
+    assert not alifestd_has_multiple_roots(tree)
+    assert alifestd_validate(tree)
 
-    # assert alifestd_validate(tree)
-    #
-    # root_clade = BaseTree.Clade(name="Inner1")
-    # root_clade.clades = [
-    #     BaseTree.Clade(branch_length=101.0, name="bar"),
-    #     BaseTree.Clade(branch_length=101.0, name="foo"),
-    # ]
-    # true_tree = BaseTree.Tree(rooted=False, root=root_clade)
-    #
-    # assert (
-    #     impl.tree_distance_metric(
-    #         apc.alife_dataframe_to_biopython_tree(tree), true_tree
-    #     )
-    #     == 0.0
-    # )
+    root_clade = BaseTree.Clade(name="Inner1")
+    root_clade.clades = [
+        BaseTree.Clade(branch_length=100.0, name="bar"),
+        BaseTree.Clade(branch_length=100.0, name="foo"),
+    ]
+    true_tree = BaseTree.Tree(rooted=False, root=root_clade)
+    assert (
+        impl.tree_distance_metric(
+            apc.alife_dataframe_to_biopython_tree(
+                alifestd_collapse_unifurcations(tree),
+                setup_branch_lengths=True,
+            ),
+            true_tree,
+        )
+        == 0.0
+    )
 
 
 @pytest.mark.parametrize(
