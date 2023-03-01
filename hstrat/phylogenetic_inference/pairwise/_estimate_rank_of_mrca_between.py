@@ -32,8 +32,7 @@ def estimate_rank_of_mrca_between(
         or "unbiased".
 
         The "maximum_likelihood" estimator is faster to compute than the
-        "unbiased" estimator. Unbiased estimator assumes a uniform prior for
-        generation of MRCA.
+        "unbiased" estimator.
     prior : {"arbitrary", "uniform"} or object implementing prior interface
         Prior probability density distribution over possible generations of the
         MRCA.
