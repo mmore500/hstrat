@@ -54,12 +54,14 @@ def time_calibrate_tree(
         for node in graph.nodes
         # older than or same age as neighbors
         if not any(
-            node_origin_times[neighbor] <= node_origin_times[node]
+            node_origin_times[neighbor] < node_origin_times[node]
             for neighbor in graph.neighbors(node)
         )
     ]
     assert new_root_ids  # guarantee reroot for consistent output columns
-    for new_root_id in new_root_ids:
+    for new_root_id in sorted(
+        new_root_ids, key=lambda x: (node_origin_times[x], x), reverse=True
+    ):
         alifestd_df = alifestd_reroot_at_id_asexual(
             alifestd_df.drop(
                 ["branch_length", "edge_length"],
