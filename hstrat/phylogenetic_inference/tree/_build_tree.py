@@ -5,7 +5,7 @@ import pandas as pd
 
 from ..._auxiliary_lib import get_hstrat_version
 from ...genome_instrumentation import HereditaryStratigraphicColumn
-from ._build_tree_upgma import build_tree_upgma
+from ._build_tree_trie import build_tree_trie
 
 
 def build_tree(
@@ -70,7 +70,7 @@ def build_tree(
     if version.parse(version_pin) > version.parse(get_hstrat_version()):
         raise ValueError(f"unsupported verison {pinned_version}")
 
-    return build_tree_upgma(
+    return build_tree_trie(
         population,
         "maximum_likelihood",
         "arbitrary",

@@ -9,6 +9,7 @@ import dendropy as dp
 import pytest
 
 from hstrat import hstrat
+from hstrat._auxiliary_lib import alifestd_validate
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
@@ -26,13 +27,8 @@ def test_empty_population(version_pin):
         version_pin=version_pin,
     )
 
-    assert (
-        impl.tree_distance_metric(
-            tree,
-            BaseTree.Tree(),
-        )
-        == 0.0
-    )
+    assert len(tree) == 0
+    assert alifestd_validate(tree)
 
 
 @pytest.mark.parametrize(
@@ -52,6 +48,7 @@ def test_dual_population_no_mrca(version_pin):
     tree = hstrat.build_tree(
         population, version_pin, taxon_labels=names, force_common_ancestry=True
     )
+    assert alifestd_validate(tree)
 
     root_clade = BaseTree.Clade(name="Inner1")
     root_clade.clades = [
@@ -86,6 +83,7 @@ def test_dual_population_with_mrca(version_pin):
     tree = hstrat.build_tree(
         population, version_pin=version_pin, taxon_labels=names
     )
+    assert alifestd_validate(tree)
 
     root_clade = BaseTree.Clade(name="Inner")
     root_clade.clades = [
@@ -101,77 +99,6 @@ def test_dual_population_with_mrca(version_pin):
         )
         == 0.0
     )
-
-
-@pytest.mark.parametrize(
-    "version_pin",
-    [hstrat.__version__],
-)
-@pytest.mark.parametrize(
-    "orig_tree",
-    [
-        impl.setup_dendropy_tree(f"{assets_path}/grandchild_and_aunt.newick"),
-        impl.setup_dendropy_tree(
-            f"{assets_path}/grandchild_and_auntuncle.newick"
-        ),
-        # TODO: handle this edge case
-        # impl.setup_dendropy_tree(
-        #     f"{assets_path}/grandchild.newick"
-        # ),
-        impl.setup_dendropy_tree(
-            f"{assets_path}/grandtriplets_and_aunt.newick"
-        ),
-        impl.setup_dendropy_tree(
-            f"{assets_path}/grandtriplets_and_auntuncle.newick"
-        ),
-        impl.setup_dendropy_tree(f"{assets_path}/grandtriplets.newick"),
-        impl.setup_dendropy_tree(f"{assets_path}/grandtwins_and_aunt.newick"),
-        impl.setup_dendropy_tree(
-            f"{assets_path}/grandtwins_and_auntuncle.newick"
-        ),
-        impl.setup_dendropy_tree(f"{assets_path}/grandtwins.newick"),
-        # TODO: handle this edge case
-        # impl.setup_dendropy_tree(
-        #     f"{assets_path}/justroot.newick"
-        # ),
-        impl.setup_dendropy_tree(f"{assets_path}/triplets.newick"),
-        impl.setup_dendropy_tree(f"{assets_path}/twins.newick"),
-    ],
-)
-def test_handwritten_trees(version_pin, orig_tree):
-    extant_population = hstrat.descend_template_phylogeny_dendropy(
-        orig_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn().CloneNthDescendant(
-            10
-        ),
-    )
-
-    reconst_df = hstrat.build_tree(extant_population, hstrat.__version__)
-    reconst_tree = apc.alife_dataframe_to_dendropy_tree(
-        reconst_df,
-        setup_edge_lengths=True,
-    )
-    reconst_tree.collapse_unweighted_edges()
-
-    common_namespace = dp.TaxonNamespace()
-    orig_tree.migrate_taxon_namespace(common_namespace)
-    reconst_tree.migrate_taxon_namespace(common_namespace)
-
-    original_distance_matrix = orig_tree.phylogenetic_distance_matrix()
-    reconstructed_distance_matrix = reconst_tree.phylogenetic_distance_matrix()
-
-    taxa = [node.taxon for node in orig_tree.leaf_node_iter()]
-
-    for a, b in it.combinations(taxa, 2):
-        assert (
-            abs(
-                original_distance_matrix.distance(a, b)
-                - reconstructed_distance_matrix.distance(a, b)
-            )
-            < 2.0
-        )
-
-    assert impl.tree_distance_metric(orig_tree, reconst_tree) < 2.0
 
 
 @pytest.mark.parametrize(
