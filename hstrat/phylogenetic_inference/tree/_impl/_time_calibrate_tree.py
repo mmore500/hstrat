@@ -46,7 +46,6 @@ def time_calibrate_tree(
         setup_edge_lengths=True,
     )
     graph = digraph.to_undirected()
-    # assert len(graph)
     node_origin_times = estimate_origin_times(graph, leaf_node_origin_times)
 
     new_root_ids = [

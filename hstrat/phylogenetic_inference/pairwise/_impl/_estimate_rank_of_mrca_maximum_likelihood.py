@@ -1,4 +1,3 @@
-import statistics
 import typing
 
 import opytional as opyt
@@ -9,7 +8,6 @@ from ....juxtaposition import calc_probability_differentia_collision_between
 from ...estimators import (
     estimate_rank_of_mrca_maximum_likelihood as estimate_rank_of_mrca_maximum_likelihood_,
 )
-
 from ._extract_common_retained_ranks_through_first_retained_disparity import (
     extract_common_retained_ranks_through_first_retained_disparity,
 )

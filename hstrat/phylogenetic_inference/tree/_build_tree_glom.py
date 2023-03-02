@@ -34,8 +34,6 @@ from ._impl import GlomNode
 
 def build_tree_glom(
     population: typing.Sequence[HereditaryStratigraphicArtifact],
-    # estimator: str,
-    # prior: typing.Union[str, typing.Any],
     taxon_labels: typing.Optional[typing.Iterable] = None,
     force_common_ancestry: bool = False,
     progress_wrap=lambda x: x,

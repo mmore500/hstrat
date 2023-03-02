@@ -9,7 +9,6 @@ from ....juxtaposition import calc_probability_differentia_collision_between
 from ...estimators import (
     estimate_rank_of_mrca_unbiased as estimate_rank_of_mrca_unbiased_,
 )
-
 from ._extract_common_retained_ranks_through_first_retained_disparity import (
     extract_common_retained_ranks_through_first_retained_disparity,
 )
