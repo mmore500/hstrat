@@ -26,6 +26,24 @@ def test_estimate_origin_times_with_simple_tree():
     }
 
 
+def test_estimate_origin_times_with_inconsistent_tree():
+    graph = nx.Graph()
+    graph.add_edge("A", "B", length=8)
+    graph.add_edge("B", "C", length=5)
+    graph.add_edge("C", "D", length=1)
+    graph.add_edge("C", "E", length=10)
+    leaf_node_origin_times = {"D": 54, "E": 60}
+
+    for node in graph.nodes:
+        graph.nodes[node]["taxon_label"] = node
+
+    node_origin_times = impl.estimate_origin_times(
+        graph, leaf_node_origin_times
+    )
+    for from_, to in graph.edges:
+        assert 0 <= node_origin_times[from_] <= node_origin_times[to] <= 60
+
+
 def test_estimate_origin_times_with_empty_tree():
     graph = nx.Graph()
     leaf_node_origin_times = {}
