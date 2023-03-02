@@ -1,5 +1,6 @@
 import statistics
 import typing
+import warnings
 
 import alifedata_phyloinformatics_convert as apc
 import opytional as opyt
@@ -56,6 +57,16 @@ def build_tree_biopython_distance(
     # convert, calibrate, and return
     alifestd_df = apc.biopython_tree_to_alife_dataframe(biopython_tree)
     alifestd_df["taxon_label"] = alifestd_df["name"]
+
+    min_edge_length = alifestd_df["branch_length"].min()
+    if min_edge_length < 0:
+        warnings.warn(
+            f"""Negative branch length(s) estimated with minimum {
+                min_edge_length
+            }; returning estimated tree without further rerooting """
+            "or origin time estimation. "
+        )
+        return alifestd_df
 
     id_lookup = dict(zip(alifestd_df["taxon_label"], alifestd_df["id"]))
     col_lookup = dict(zip(taxon_labels, population))
