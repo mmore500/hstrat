@@ -45,6 +45,8 @@ def test_alifestd_make_ancestor_id_col(phylogeny_df):
 
 
 def test_alifestd_make_ancestor_id_col_empty():
-    res = alifestd_make_ancestor_id_col(pd.Series(), pd.Series())
+    res = alifestd_make_ancestor_id_col(
+        pd.Series(dtype=int), pd.Series(dtype=str)
+    )
     assert len(res) == 0
     assert pd.api.types.is_integer_dtype(res.dtype)

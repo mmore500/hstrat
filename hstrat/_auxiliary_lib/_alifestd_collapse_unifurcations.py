@@ -73,7 +73,10 @@ def _alifestd_collapse_unifurcations_asexual(
     keep_filter, ancestor_ids = _collapse_unifurcations(
         phylogeny_df["ancestor_id"].to_numpy()
     )
-    phylogeny_df = phylogeny_df.loc[keep_filter, :]
+    drop_filter = ~keep_filter
+    phylogeny_df.drop(
+        phylogeny_df.index[drop_filter], inplace=True, axis="rows"
+    )
     phylogeny_df.loc[:, "id"] = original_ids[keep_filter]
     phylogeny_df.loc[:, "ancestor_id"] = original_ids[
         ancestor_ids[keep_filter]

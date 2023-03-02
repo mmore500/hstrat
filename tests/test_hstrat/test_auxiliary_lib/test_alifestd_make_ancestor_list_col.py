@@ -36,6 +36,8 @@ def test_alifestd_make_ancestor_list_col(phylogeny_df):
 
 
 def test_alifestd_make_ancestor_list_col_empty():
-    res = alifestd_make_ancestor_list_col(pd.Series(), pd.Series())
+    res = alifestd_make_ancestor_list_col(
+        pd.Series(dtype=int), pd.Series(dtype=int)
+    )
     assert len(res) == 0
     assert pd.api.types.is_string_dtype(res.dtype)
