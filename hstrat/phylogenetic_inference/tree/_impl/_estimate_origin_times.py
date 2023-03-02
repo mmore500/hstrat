@@ -1,9 +1,9 @@
 import numbers
-import statistics
 import typing
 
 from iterpop import iterpop as ip
 import networkx as nx
+import numpy as np
 import sortedcontainers as sc
 
 
@@ -78,7 +78,7 @@ def estimate_origin_times(
             ]
             assert estimated_origin_times
             origin_time = min(
-                statistics.mean(estimated_origin_times),
+                np.mean(estimated_origin_times),
                 min(descendant_origin_times),
             )
             graph.nodes[newly_discovered_node]["origin_time"] = origin_time
