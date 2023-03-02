@@ -1,6 +1,7 @@
 import copy
 import logging
 import typing
+import warnings
 
 import alifedata_phyloinformatics_convert as apc
 import anytree
@@ -82,7 +83,20 @@ def build_tree_glom(
     -------
     pd.DataFrame
         The reconstructed phylogenetic tree in alife standard format.
+
+    Warnings
+    --------
+    `build_tree_glom` is not intended for external use and is retained only as a
+    reference implementation for internal testing and debugging.
     """
+
+    warnings.warn(
+        "build_tree_glom is not intended for external use; "
+        "build_tree_trie produces equivalent trees significantly more "
+        "efficiently."
+        "build_tree_glom is retained only as a reference implementation for "
+        "internal testing and debugging."
+    )
 
     # for simplicity, return early for this special case
     if len(population) == 0:

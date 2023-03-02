@@ -12,6 +12,7 @@ from tqdm import tqdm
 
 from hstrat import hstrat
 from hstrat._auxiliary_lib import alifestd_validate, generate_n, seed_random
+from hstrat.phylogenetic_inference.tree._build_tree_glom import build_tree_glom
 
 from . import _impl as impl
 
@@ -20,7 +21,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 def test_empty_population():
     population = []
-    tree = hstrat.build_tree_glom(
+    tree = build_tree_glom(
         [],
     )
 
@@ -36,10 +37,10 @@ def test_dual_population_no_mrca():
     names = ["foo", "bar"]
 
     with pytest.raises(ValueError):
-        tree = hstrat.build_tree_glom(population, taxon_labels=names)
+        tree = build_tree_glom(population, taxon_labels=names)
 
     with pytest.raises(NotImplementedError):
-        tree = hstrat.build_tree_glom(
+        tree = build_tree_glom(
             population, taxon_labels=names, force_common_ancestry=True
         )
 
@@ -104,7 +105,7 @@ def test_handwritten_trees(version_pin, orig_tree, retention_policy, wrap):
         ).CloneNthDescendant(10),
     )
 
-    reconst_df = hstrat.build_tree_glom([*map(wrap, extant_population)])
+    reconst_df = build_tree_glom([*map(wrap, extant_population)])
 
     assert alifestd_validate(reconst_df)
     reconst_tree = apc.alife_dataframe_to_dendropy_tree(
@@ -157,7 +158,7 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
         ).CloneNthDescendant(num_depositions),
     )
 
-    reconst_df = hstrat.build_tree_glom(extant_population)
+    reconst_df = build_tree_glom(extant_population)
     assert "origin_time" in reconst_df
 
     assert alifestd_validate(reconst_df)
@@ -241,8 +242,8 @@ def test_col_specimen_consistency(orig_tree, retention_policy):
         ).CloneNthDescendant(num_depositions),
     )
 
-    reconst_df1 = hstrat.build_tree_glom(extant_population)
-    reconst_df2 = hstrat.build_tree_glom(
+    reconst_df1 = build_tree_glom(extant_population)
+    reconst_df2 = build_tree_glom(
         [hstrat.col_to_specimen(col) for col in extant_population]
     )
 
@@ -299,7 +300,7 @@ def test_reconstructed_mrca_fuzz(
         ),
     )
 
-    reconst_df = hstrat.build_tree_glom(extant_population, progress_wrap=tqdm)
+    reconst_df = build_tree_glom(extant_population, progress_wrap=tqdm)
     assert "origin_time" in reconst_df
 
     assert alifestd_validate(reconst_df)
