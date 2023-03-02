@@ -22,6 +22,8 @@ def estimate_rank_of_mrca_unbiased(
     ----------
     coincident_ranks_from_first_disparity_through_first_commonality : typing.Iterator[int]
         Iterator of integer values indicating the coincident ranks between two taxa.
+
+        Inclusive to first disparity and first commonality.
     p_differentia_collision : float
         The multiplicative inverse of the number of possible differentia.
     prior : object

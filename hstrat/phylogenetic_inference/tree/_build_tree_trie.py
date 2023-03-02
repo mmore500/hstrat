@@ -119,6 +119,11 @@ def build_tree_trie(
         shared a common ancestor immediately before the genesis of the
         lineages. If set to False, columns within `population` that
         definitively do not share common ancestry will raise a ValueError.
+    progress_wrap : Callable, default identity function
+        Wrapper applied around generation iterator and row generator for final
+        phylogeny compilation process.
+
+        Pass tqdm or equivalent to display progress bars.
     seed: int, default
         Controls tiebreaking decisions in the algorithm.
 

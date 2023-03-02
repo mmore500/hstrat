@@ -50,20 +50,6 @@ def build_tree_glom(
 
         Each member of population will correspond to a unique leaf node in the
         reconstructed tree.
-    estimator : {"maximum_likelihood", "unbiased"}
-        What estimation method should be used? Options are "maximum_likelihood"
-        or "unbiased".
-
-        The "maximum_likelihood" estimator is faster to compute than the
-        "unbiased" estimator. Unbiased estimator assumes a uniform prior for
-        generation of MRCA.
-    prior : {"arbitrary", "uniform"} or object implementing prior interface
-        Prior probability density distribution over possible generations of the
-        MRCA.
-
-        Implementations for arbitrary, geometric, exponential, and uniform
-        priors are available in hstrat.phylogenetic_inference.priors. User
-        -defined classes specifying custom priors can also be provided.
     taxon_labels: Optional[Iterable], optional
         How should leaf nodes representing extant hereditary stratigraphic
         columns be named?
@@ -78,6 +64,11 @@ def build_tree_glom(
         shared a common ancestor immediately before the genesis of the
         lineages. If set to False, columns within `population` that
         definitively do not share common ancestry will raise a ValueError.
+    progress_wrap : Callable, default identity function
+        Wrapper applied around generation iterator and row generator for final
+        phylogeny compilation process.
+
+        Pass tqdm or equivalent to display progress bars.
 
     Returns
     -------
