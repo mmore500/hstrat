@@ -51,9 +51,9 @@ class TrieLeafNode(anytree.NodeMixin):
         return self.taxon_label
 
     @property
-    def origin_time(self: "TrieLeafNode") -> int:
+    def rank(self: "TrieLeafNode") -> int:
         """Return the origin time for this leaf node."""
-        return self.parent.origin_time
+        return self.parent.rank
 
     def __repr__(self: "TrieLeafNode") -> str:
         """Return a string representation of this leaf node."""

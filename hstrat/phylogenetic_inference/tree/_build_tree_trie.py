@@ -19,6 +19,7 @@ from ..._auxiliary_lib import (
     give_len,
 )
 from ...juxtaposition import (
+    calc_probability_differentia_collision_between,
     calc_rank_of_first_retained_disparity_between,
     calc_rank_of_last_retained_commonality_between,
 )
@@ -29,14 +30,22 @@ from ..pairwise import (
     estimate_ranks_since_mrca_with,
 )
 from ..population import build_distance_matrix_biopython
-from ._impl import TrieInnerNode
+from ..priors import ArbitraryPrior, UniformPrior
+from ._impl import (
+    TrieInnerNode,
+    assign_trie_origin_times_naive,
+    assign_trie_origin_times_unbiased,
+    unzip_trie_expected_collisions,
+)
 
 
 def _build_tree_trie(
     population: typing.Sequence[HereditaryStratigraphicArtifact],
-    taxon_labels: typing.Optional[typing.Iterable] = None,
-    force_common_ancestry: bool = False,
-    progress_wrap=lambda x: x,
+    estimator: str,
+    prior: typing.Union[str, object],
+    taxon_labels: typing.Optional[typing.Iterable],
+    force_common_ancestry: bool,
+    progress_wrap: typing.Callable,
 ) -> pd.DataFrame:
     """Implementation detail for build_tree_trie.
 
@@ -76,6 +85,32 @@ def _build_tree_trie(
             node, subsequent_allele_genesis_iter = res
             node.InsertTaxon(label, subsequent_allele_genesis_iter)
 
+    # assign origin times
+    if estimator == "maximum_likelihood" and prior == "arbitrary":
+        assign_trie_origin_times_naive(root)
+    elif estimator == "maximum_likelihood":
+        raise NotImplementedError(estimator, prior)
+    else:
+        # setup prior
+        if isinstance(prior, str):
+            prior = {
+                "arbitrary": ArbitraryPrior,
+                "uniform": UniformPrior,
+            }[prior]()
+
+        {"unbiased": assign_trie_origin_times_unbiased,}[estimator](
+            root,
+            calc_probability_differentia_collision_between(*population[0:2]),
+            prior,
+        )
+
+    # unzip expected differentia collisions
+    if estimator == "unbiased":
+        unzip_trie_expected_collisions(
+            root,
+            calc_probability_differentia_collision_between(*population[0:2]),
+        )
+
     if not force_common_ancestry:
         try:
             root = ip.popsingleton(root.children)
@@ -90,9 +125,11 @@ def _build_tree_trie(
 
 def build_tree_trie(
     population: typing.Sequence[HereditaryStratigraphicArtifact],
+    estimator: str,
+    prior: typing.Union[str, object],
     taxon_labels: typing.Optional[typing.Iterable] = None,
     force_common_ancestry: bool = False,
-    progress_wrap=lambda x: x,
+    progress_wrap: typing.Callable = lambda x: x,
     seed: typing.Optional[int] = 1,
 ) -> pd.DataFrame:
     """Estimate the phylogenetic history among hereditary stratigraphic
@@ -140,6 +177,8 @@ def build_tree_trie(
     ):
         return _build_tree_trie(
             population=population,
+            estimator=estimator,
+            prior=prior,
             taxon_labels=taxon_labels,
             force_common_ancestry=force_common_ancestry,
             progress_wrap=progress_wrap,

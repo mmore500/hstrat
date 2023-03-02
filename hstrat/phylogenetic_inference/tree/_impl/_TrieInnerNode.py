@@ -147,7 +147,7 @@ class TrieInnerNode(anytree.NodeMixin):
         return self.name
 
     @property
-    def origin_time(self: "TrieInnerNode") -> int:
+    def rank(self: "TrieInnerNode") -> int:
         return opyt.or_value(self._rank, 0)
 
     @property
