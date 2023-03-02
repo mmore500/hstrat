@@ -1,6 +1,6 @@
-import statistics
 import typing
 
+import numpy as np
 import opytional as opyt
 
 
@@ -50,5 +50,5 @@ def estimate_rank_of_mrca_naive(
     exclusive_ub_correction = 1 / 2
     return opyt.apply_if(
         rank_of_mrca_bounds,
-        lambda x: (statistics.mean(x) - exclusive_ub_correction),
+        lambda x: (np.mean(x) - exclusive_ub_correction),
     )

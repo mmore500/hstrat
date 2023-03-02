@@ -1,6 +1,6 @@
-import statistics
 import typing
 
+import numpy as np
 import opytional as opyt
 
 from ..._auxiliary_lib import cmp_approx, pairwise, unzip
@@ -67,14 +67,14 @@ def estimate_rank_of_mrca_maximum_likelihood(
             # assumes monotonicity of prior
             best_expected_rank = {
                 1: end_exclusive - 1,
-                0: statistics.mean((end_exclusive - 1, begin_inclusive)),
+                0: np.mean((end_exclusive - 1, begin_inclusive)),
                 -1: begin_inclusive,
             }[
                 cmp_approx(
                     prior.CalcIntervalConditionedMean(
                         begin_inclusive, end_exclusive
                     ),
-                    statistics.mean((end_exclusive - 1, begin_inclusive)),
+                    np.mean((end_exclusive - 1, begin_inclusive)),
                 )
             ]
 

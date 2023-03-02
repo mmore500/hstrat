@@ -1,4 +1,4 @@
-import statistics
+import numpy as np
 
 
 class UniformPrior:
@@ -51,4 +51,4 @@ class UniformPrior:
             The prior expected generation of MRCA conditioned on the assumption
             that the MRCA falls within the given interval.
         """
-        return statistics.mean((begin_rank, end_rank - 1))
+        return np.mean((begin_rank, end_rank - 1))
