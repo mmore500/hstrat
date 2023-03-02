@@ -1,5 +1,6 @@
 import numbers
 import typing
+import warnings
 
 import alifedata_phyloinformatics_convert as apc
 from iterpop import iterpop as ip
@@ -17,6 +18,7 @@ from ._estimate_origin_times import estimate_origin_times
 def time_calibrate_tree(
     alifestd_df: pd.DataFrame,
     leaf_node_origin_times: typing.Dict[int, numbers.Number],
+    negative_origin_time_correction_method: typing.Optional[str],
 ) -> pd.DataFrame:
     """Time-calibrates a given tree by estimating the origin time of its nodes, by working backward from phylogenetic depths of leaf nodes using branch_length attributes of tree nodes.
 
@@ -29,6 +31,10 @@ def time_calibrate_tree(
     leaf_node_origin_times : dict
         A dictionary that maps the `id` attributes of leaf nodes in the tree
         to their phylogenetic depths since genesis.
+    negative_origin_time_correction_method : optional str
+        How should negative origin time estimates be corrected?
+
+        Options are "truncate", "shift", and "recale".
     """
 
     if not len(alifestd_df):
@@ -65,6 +71,34 @@ def time_calibrate_tree(
         )
 
     alifestd_df["origin_time"] = alifestd_df["id"].map(node_origin_times)
+
+    # could also shift and rescale or just shift,
+    # maybe make kwarg option in future
+    # for now, just truncate
+    min_origin_time = alifestd_df["origin_time"].min()
+    if min_origin_time < 0:
+        if negative_origin_time_correction_method is None:
+            warnings.warn(
+                f"""Negative origin time(s) estimated with minimum {
+                    min_origin_time
+                }; truncating negative origin time(s) to zero. """
+                "Set negative_origin_time_correction_method to silence this "
+                "warning."
+            )
+            negative_origin_time_correction_method = "truncate"
+
+        if negative_origin_time_correction_method == "truncate":
+            alifestd_df.loc[alifestd_df["origin_time"] < 0, "origin_time"] = 0
+        elif negative_origin_time_correction_method == "rescale":
+            scale_to = alifestd_df["origin_time"].max()
+            shift_by = -min_origin_time
+            alifestd_df["origin_time"] += shift_by
+            alifestd_df["origin_time"] *= scale_to / (scale_to + shift_by)
+        elif negative_origin_time_correction_method == "shift":
+            shift_by = -alifestd_df["origin_time"].min()
+            alifestd_df["origin_time"] += shift_by
+        else:
+            assert False, negative_origin_time_correction_method
 
     assert alifestd_is_chronologically_ordered(alifestd_df)
 

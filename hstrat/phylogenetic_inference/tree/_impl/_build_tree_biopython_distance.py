@@ -24,6 +24,7 @@ def build_tree_biopython_distance(
     prior: typing.Union[str, typing.Any],
     taxon_labels: typing.Optional[typing.Iterable],
     force_common_ancestry: bool,
+    negative_origin_time_correction_method: typing.Optional[str],
 ) -> pd.DataFrame:
     """Backend interface to biopython distance-based tree reconstruction
     methods."""
@@ -64,7 +65,9 @@ def build_tree_biopython_distance(
         - 1
         for taxon_label in taxon_labels
     }
-    alifestd_df = time_calibrate_tree(alifestd_df, leaf_origin_times)
+    alifestd_df = time_calibrate_tree(
+        alifestd_df, leaf_origin_times, negative_origin_time_correction_method
+    )
 
     alifestd_df = append_genesis_organism(alifestd_df, mutate=True)
 
