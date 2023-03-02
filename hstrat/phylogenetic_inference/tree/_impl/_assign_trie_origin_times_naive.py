@@ -8,7 +8,7 @@ from ._TrieLeafNode import TrieLeafNode
 def assign_trie_origin_times_naive(trie: TrieInnerNode) -> None:
     for node in anytree.PreOrderIter(trie):
         if node.is_leaf:
-            node.origin_time = node.rank + 0.5
+            node.origin_time = node.rank
             assert isinstance(node, TrieLeafNode)
         elif node.parent is None:
             node.origin_time = 0
