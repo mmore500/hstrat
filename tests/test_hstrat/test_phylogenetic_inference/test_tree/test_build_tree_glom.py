@@ -11,7 +11,7 @@ import pytest
 from tqdm import tqdm
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import alifestd_validate, seed_random
+from hstrat._auxiliary_lib import alifestd_validate, generate_n, seed_random
 
 from . import _impl as impl
 
@@ -251,22 +251,39 @@ def test_col_specimen_consistency(orig_tree, retention_policy):
     )
 
 
-@pytest.mark.parametrize("tree_size", [1000])
-# @pytest.mark.parametrize("tree_size", [10, 30, 100, 300, 1000])
-# @pytest.mark.parametrize("differentia_width", [1, 2, 8, 64])
-@pytest.mark.parametrize("differentia_width", [8])
-# @pytest.mark.parametrize("tree_seed", range(100))
-@pytest.mark.parametrize("tree_seed", [20])
+@pytest.mark.parametrize(
+    "tree_size",
+    [10, 30, 100, 300, pytest.param(1000, marks=pytest.mark.heavy)],
+)
+@pytest.mark.parametrize(
+    "differentia_width", [1, pytest.param(2, marks=pytest.mark.heavy), 8, 64]
+)
+@pytest.mark.parametrize(
+    "tree_seed",
+    [*range(2)]
+    + [pytest.param(i, marks=pytest.mark.heavy) for i in range(2, 50)],
+)
 @pytest.mark.parametrize(
     "retention_policy",
     [
         hstrat.recency_proportional_resolution_algo.Policy(1),
-        # hstrat.recency_proportional_resolution_algo.Policy(10),
-        # hstrat.fixed_resolution_algo.Policy(2),
+        pytest.param(
+            hstrat.recency_proportional_resolution_algo.Policy(2),
+            marks=pytest.mark.heavy,
+        ),
+        pytest.param(
+            hstrat.recency_proportional_resolution_algo.Policy(10),
+            marks=pytest.mark.heavy,
+        ),
+        hstrat.fixed_resolution_algo.Policy(2),
     ],
 )
+@pytest.mark.parametrize(
+    "exhaustive_check",
+    [pytest.param(True, marks=pytest.mark.heavy), False],
+)
 def test_reconstructed_mrca_fuzz(
-    tree_seed, tree_size, differentia_width, retention_policy
+    tree_seed, tree_size, differentia_width, retention_policy, exhaustive_check
 ):
 
     seed_random(tree_seed)
@@ -315,9 +332,27 @@ def test_reconstructed_mrca_fuzz(
         for extant_col in extant_population
     ]
 
-    for reconst_node_pair, extant_column_pair in zip(
-        it.combinations(sorted_leaf_nodes, 2),
-        it.combinations(extant_population, 2),
+    for reconst_node_pair, extant_column_pair, label_pair in (
+        (
+            (
+                (sorted_leaf_nodes[first_idx], sorted_leaf_nodes[second_idx]),
+                (extant_population[first_idx], extant_population[second_idx]),
+                (first_idx, second_idx),
+            )
+            for first_idx, second_idx in generate_n(
+                lambda: (
+                    random.randrange(len(extant_population)),
+                    random.randrange(len(extant_population)),
+                ),
+                10000,
+            )
+        )
+        if not exhaustive_check
+        else zip(
+            it.combinations(sorted_leaf_nodes, 2),
+            it.combinations(extant_population, 2),
+            it.combinations(range(len(extant_population)), 2),
+        )
     ):
         reconst_mrca = impl.descend_unifurcations(
             pdm.mrca(*map(lambda x: x.taxon, reconst_node_pair))
@@ -329,7 +364,7 @@ def test_reconstructed_mrca_fuzz(
         ) = hstrat.calc_rank_of_mrca_bounds_between(
             *extant_column_pair,
             prior="arbitrary",
-            confidence_level=0.9999,
+            confidence_level=0.99999,
             strict=False,
         )
 
@@ -341,8 +376,11 @@ def test_reconstructed_mrca_fuzz(
             print(reconst_mrca.taxon.label)
             print(reconst_mrca.distance_from_root())
             print()
-            for col, ln in zip(extant_population, sorted_leaf_nodes):
+            for i, (col, ln) in enumerate(
+                zip(extant_population, sorted_leaf_nodes)
+            ):
                 print()
+                print("label", i)
                 print(ln.distance_from_root())
                 print(id(col))
                 print(hstrat.col_to_ascii(col))
@@ -354,6 +392,8 @@ def test_reconstructed_mrca_fuzz(
             <= reconst_mrca.distance_from_root()
             < upper_mrca_bound
         ), (
+            label_pair[0],
+            label_pair[1],
             id(extant_column_pair[0]),
             id(extant_column_pair[1]),
             lower_mrca_bound,
