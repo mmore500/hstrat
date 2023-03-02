@@ -4,7 +4,6 @@ import random
 import warnings
 
 from Bio.Phylo.TreeConstruction import BaseTree, DistanceMatrix
-import _impl as impl
 import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
 import networkx as nx
@@ -13,6 +12,8 @@ from tqdm import tqdm
 
 from hstrat import hstrat
 from hstrat._auxiliary_lib import alifestd_validate, seed_random
+
+from . import _impl as impl
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
