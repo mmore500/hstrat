@@ -12,6 +12,7 @@ import pandas as pd
 from ..._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
     RngStateContext,
+    alifestd_collapse_unifurcations,
     alifestd_find_chronological_inconsistency,
     alifestd_is_chronologically_ordered,
     alifestd_make_empty,
@@ -120,7 +121,7 @@ def _build_tree_trie(
 
     res = apc.anytree_tree_to_alife_dataframe(root)
 
-    return res
+    return alifestd_collapse_unifurcations(res, mutate=True)
 
 
 def build_tree_trie(
