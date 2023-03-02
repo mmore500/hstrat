@@ -360,6 +360,3 @@ def test_reconstructed_mrca_fuzz(
             reconst_mrca.distance_from_root(),
             upper_mrca_bound,
         )
-
-
-# # TODO test determinism

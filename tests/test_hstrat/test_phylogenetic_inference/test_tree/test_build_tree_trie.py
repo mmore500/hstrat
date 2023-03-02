@@ -408,4 +408,45 @@ def test_reconstructed_mrca_fuzz(
         )
 
 
-# # TODO test determinism
+@pytest.mark.parametrize(
+    "orig_tree",
+    [
+        pytest.param(
+            impl.setup_dendropy_tree(f"{assets_path}/nk_ecoeaselection.csv"),
+            marks=pytest.mark.heavy,
+        ),
+        impl.setup_dendropy_tree(f"{assets_path}/nk_lexicaseselection.csv"),
+        impl.setup_dendropy_tree(f"{assets_path}/nk_tournamentselection.csv"),
+    ],
+)
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.recency_proportional_resolution_algo.Policy(3),
+        hstrat.fixed_resolution_algo.Policy(5),
+    ],
+)
+@pytest.mark.parametrize(
+    "wrap",
+    [
+        lambda x: x,
+        hstrat.col_to_specimen,
+    ],
+)
+def test_determinism(orig_tree, retention_policy, wrap):
+    num_depositions = 10
+
+    extant_population = hstrat.descend_template_phylogeny_dendropy(
+        orig_tree,
+        seed_column=hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_policy=retention_policy,
+        ).CloneNthDescendant(num_depositions),
+    )
+
+    first_reconst = hstrat.build_tree_trie(extant_population)
+    for rep in range(10):
+        second_reconst = hstrat.build_tree_trie(
+            [wrap(col) for col in extant_population]
+        )
+        assert first_reconst.equals(second_reconst)
