@@ -35,6 +35,7 @@ from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
 from ._alifestd_validate import alifestd_validate
 from ._all_same import all_same
 from ._all_unique import all_unique
+from ._anytree_cardinality import anytree_cardinality
 from ._apply_swaps import apply_swaps
 from ._argsort import argsort
 from ._as_compact_type import as_compact_type
@@ -142,6 +143,7 @@ __all__ = [
     "alifestd_validate",
     "all_same",
     "all_unique",
+    "anytree_cardinality",
     "apply_swaps",
     "argsort",
     "as_compact_type",
