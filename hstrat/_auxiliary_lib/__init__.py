@@ -68,6 +68,7 @@ from ._give_len import give_len
 from ._indices_of_unique import indices_of_unique
 from ._intersect_ranges import intersect_ranges
 from ._is_base64 import is_base64
+from ._is_in import is_in
 from ._is_in_coverage_run import is_in_coverage_run
 from ._is_in_unit_test import is_in_unit_test
 from ._is_nondecreasing import is_nondecreasing
@@ -181,6 +182,7 @@ __all__ = [
     "indices_of_unique",
     "intersect_ranges",
     "is_base64",
+    "is_in",
     "is_in_coverage_run",
     "is_in_unit_test",
     "is_nondecreasing",
