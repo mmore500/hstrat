@@ -57,10 +57,9 @@ def unzip_trie_expected_collisions(
 
     leaf_counts = anytree_calc_leaf_counts(trie)
     del leaf_counts[id(trie)]  # exclude root
-    num_possible_unzips = (
-        sum(leaf_counts.values())
-        - len(leaf_counts)  # -1 per; last sibling always ineligible for unzip
-    )
+    num_possible_unzips = sum(leaf_counts.values()) - len(
+        leaf_counts
+    )  # -1 per; last sibling always ineligible for unzip
     expected_collisions = int(p_differentia_collision * num_possible_unzips)
 
     remaining_collisions = expected_collisions
