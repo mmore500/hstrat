@@ -40,23 +40,18 @@ from ._impl import (
 )
 
 
-def _build_tree_trie(
+def _build_tree_trie_raw(
     population: typing.Sequence[HereditaryStratigraphicArtifact],
     estimator: str,
     prior: typing.Union[str, object],
     taxon_labels: typing.Optional[typing.Iterable],
     force_common_ancestry: bool,
     progress_wrap: typing.Callable,
-) -> pd.DataFrame:
+) -> TrieInnerNode:
     """Implementation detail for build_tree_trie.
 
     See `build_tree_trie` for parameter descriptions.
     """
-
-    # for simplicity, return early for this special case
-    if len(population) == 0:
-        return alifestd_make_empty()
-
     taxon_labels = opyt.or_value(
         taxon_labels,
         [*map(str, range(len(population)))],
@@ -85,6 +80,34 @@ def _build_tree_trie(
             )
             node, subsequent_allele_genesis_iter = res
             node.InsertTaxon(label, subsequent_allele_genesis_iter)
+
+    return root
+
+
+def _build_tree_trie(
+    population: typing.Sequence[HereditaryStratigraphicArtifact],
+    estimator: str,
+    prior: typing.Union[str, object],
+    taxon_labels: typing.Optional[typing.Iterable],
+    force_common_ancestry: bool,
+    progress_wrap: typing.Callable,
+) -> pd.DataFrame:
+    """Implementation detail for build_tree_trie.
+
+    See `build_tree_trie` for parameter descriptions.
+    """
+    # for simplicity, return early for this special case
+    if len(population) == 0:
+        return alifestd_make_empty()
+
+    root = _build_tree_trie_raw(
+        population=population,
+        estimator=estimator,
+        prior=prior,
+        taxon_labels=taxon_labels,
+        force_common_ancestry=force_common_ancestry,
+        progress_wrap=progress_wrap,
+    )
 
     # assign origin times
     if estimator == "maximum_likelihood" and prior == "arbitrary":
