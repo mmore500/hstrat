@@ -14,5 +14,16 @@ def assign_trie_origin_times_naive(trie: TrieInnerNode) -> None:
             node.origin_time = 0
         else:
             node.origin_time = np.mean(
-                (node.rank, min(child.rank for child in node.children) - 1)
+                (
+                    node.rank,
+                    min(
+                        (
+                            child.rank
+                            for child in node.children
+                            if not child.is_leaf
+                        ),
+                        default=node.rank + 1,
+                    )
+                    - 1,
+                )
             )
