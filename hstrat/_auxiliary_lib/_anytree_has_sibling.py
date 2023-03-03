@@ -2,8 +2,8 @@ import anytree
 
 
 def anytree_has_sibling(node: anytree.node) -> bool:
-    """
-    Check whether the given node has at least one sibling in the Anytree tree.
+    """Check whether the given node has at least one sibling in the Anytree
+    tree.
 
     Parameters
     ----------

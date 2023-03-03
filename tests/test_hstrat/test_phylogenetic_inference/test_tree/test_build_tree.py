@@ -117,9 +117,9 @@ def test_dual_population_with_mrca(version_pin):
 @pytest.mark.parametrize(
     "retention_policy",
     [
-      hstrat.fixed_resolution_algo.Policy(3),
-      hstrat.recency_proportional_resolution_algo.Policy(3),
-    ]
+        hstrat.fixed_resolution_algo.Policy(3),
+        hstrat.recency_proportional_resolution_algo.Policy(3),
+    ],
 )
 def test_reconstructed_mrca(orig_tree, retention_policy):
     num_depositions = 10
@@ -128,9 +128,7 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
         orig_tree,
         seed_column=hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,
-        ).CloneNthDescendant(
-            num_depositions
-        ),
+        ).CloneNthDescendant(num_depositions),
     )
 
     reconst_df = hstrat.build_tree(extant_population, hstrat.__version__)
@@ -145,8 +143,7 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
     )
     assert len(sorted_leaf_nodes) == len(extant_population)
     assert [
-        leaf_node.distance_from_root()
-        for leaf_node in sorted_leaf_nodes
+        leaf_node.distance_from_root() for leaf_node in sorted_leaf_nodes
     ] == [
         extant_col.GetNumStrataDeposited() - 1
         for extant_col in extant_population
