@@ -37,6 +37,7 @@ from ._all_same import all_same
 from ._all_unique import all_unique
 from ._anytree_cardinality import anytree_cardinality
 from ._anytree_has_sibling import anytree_has_sibling
+from ._anytree_peel_sibling_to_cousin import anytree_peel_sibling_to_cousin
 from ._apply_swaps import apply_swaps
 from ._argsort import argsort
 from ._as_compact_type import as_compact_type
@@ -147,6 +148,7 @@ __all__ = [
     "all_unique",
     "anytree_cardinality",
     "anytree_has_sibling",
+    "anytree_peel_sibling_to_cousin",
     "apply_swaps",
     "argsort",
     "as_compact_type",
