@@ -5,8 +5,8 @@ import anytree
 import numpy as np
 
 from ...._auxiliary_lib import (
-    anytree_cardinality,
     anytree_calc_leaf_counts,
+    anytree_cardinality,
     anytree_has_grandparent,
     anytree_has_sibling,
     anytree_peel_sibling_to_cousin,
