@@ -6,6 +6,7 @@ import numpy as np
 
 from ...._auxiliary_lib import (
     anytree_cardinality,
+    anytree_calc_leaf_counts,
     anytree_has_grandparent,
     anytree_has_sibling,
     anytree_peel_sibling_to_cousin,
@@ -54,10 +55,11 @@ def unzip_trie_expected_collisions(
     # sequence data structure allows efficient random choice
     possibly_eligible_node_ids = [*eligible_nodes.keys()]
 
-    num_possible_unzips = sum(
-        len(node.leaves) - 1  # last sibling is always ineligible for unzip
-        for node in anytree.PostOrderIter(trie)
-        if node.parent is not None
+    leaf_counts = anytree_calc_leaf_counts(trie)
+    del leaf_counts[id(trie)]  # exclude root
+    num_possible_unzips = (
+        sum(leaf_counts.values())
+        - len(leaf_counts)  # -1 per; last sibling always ineligible for unzip
     )
     expected_collisions = int(p_differentia_collision * num_possible_unzips)
 
