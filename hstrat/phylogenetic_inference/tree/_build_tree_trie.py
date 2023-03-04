@@ -34,8 +34,8 @@ from ..population import build_distance_matrix_biopython
 from ..priors import ArbitraryPrior, UniformPrior
 from ._impl import (
     TrieInnerNode,
+    assign_trie_origin_times_expected_value,
     assign_trie_origin_times_naive,
-    assign_trie_origin_times_unbiased,
     unzip_trie_expected_collisions,
 )
 
@@ -122,7 +122,7 @@ def _build_tree_trie(
                 "uniform": UniformPrior,
             }[prior]()
 
-        {"unbiased": assign_trie_origin_times_unbiased,}[estimator](
+        {"unbiased": assign_trie_origin_times_expected_value,}[estimator](
             root,
             calc_probability_differentia_collision_between(*population[0:2]),
             prior,

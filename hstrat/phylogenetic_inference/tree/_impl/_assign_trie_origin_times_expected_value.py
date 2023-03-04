@@ -8,7 +8,7 @@ from ._TrieLeafNode import TrieLeafNode
 from ._assign_trie_origin_times_naive import assign_trie_origin_times_naive
 
 
-def assign_trie_origin_times_unbiased(
+def assign_trie_origin_times_expected_value(
     trie: TrieInnerNode,
     p_differentia_collision: float,
     prior: object,

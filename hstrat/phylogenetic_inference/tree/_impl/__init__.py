@@ -4,10 +4,10 @@ from ._GlomNode import GlomNode
 from ._TrieInnerNode import TrieInnerNode
 from ._TrieLeafNode import TrieLeafNode
 from ._append_genesis_organism import append_genesis_organism
-from ._assign_trie_origin_times_naive import assign_trie_origin_times_naive
-from ._assign_trie_origin_times_unbiased import (
-    assign_trie_origin_times_unbiased,
+from ._assign_trie_origin_times_expected_value import (
+    assign_trie_origin_times_expected_value,
 )
+from ._assign_trie_origin_times_naive import assign_trie_origin_times_naive
 from ._build_tree_biopython_distance import build_tree_biopython_distance
 from ._estimate_origin_times import estimate_origin_times
 from ._find_chronological_root import find_chronological_root
@@ -21,8 +21,8 @@ __all__ = [
     "TrieInnerNode",
     "TrieLeafNode",
     "append_genesis_organism",
+    "assign_trie_origin_times_expected_value",
     "assign_trie_origin_times_naive",
-    "assign_trie_origin_times_unbiased",
     "build_tree_biopython_distance",
     "estimate_origin_times",
     "find_chronological_root",
