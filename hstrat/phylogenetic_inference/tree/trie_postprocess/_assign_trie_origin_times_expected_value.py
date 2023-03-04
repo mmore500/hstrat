@@ -1,10 +1,10 @@
+import copy
 import typing
 
 import anytree
 import numpy as np
 
-from ._TrieInnerNode import TrieInnerNode
-from ._TrieLeafNode import TrieLeafNode
+from .._impl import TrieInnerNode, TrieLeafNode
 from ._assign_trie_origin_times_naive import assign_trie_origin_times_naive
 
 
@@ -13,7 +13,18 @@ def assign_trie_origin_times_expected_value(
     p_differentia_collision: float,
     prior: object,
     assigned_property: str = "origin_time",
-) -> None:
+    mutate: bool = False,
+) -> TrieInnerNode:
+    """TODO
+
+    Parameters
+    ----------
+        mutate : bool, default False
+            Are side effects on the input argument `trie` allowed?
+    """
+
+    if not mutate:
+        trie = copy.deepcopy(trie)
 
     assign_trie_origin_times_naive(trie, "_naive_origin_time", prior)
 
@@ -48,5 +59,6 @@ def assign_trie_origin_times_expected_value(
                 values,
                 weights=weights,
             )
-            print(values, weights, collision_corrected_origin_time)
             setattr(node, assigned_property, collision_corrected_origin_time)
+
+    return trie

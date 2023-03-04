@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from hstrat import hstrat
-import hstrat.phylogenetic_inference.tree._impl as impl
+import hstrat.phylogenetic_inference.tree.trie_postprocess as impl
 
 
 def test_assign_trie_origin_times_expected_value_single_leaf__arbitrary():

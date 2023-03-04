@@ -1,5 +1,8 @@
 import collections
+import contextlib
+import copy
 import random
+import typing
 
 import anytree
 import numpy as np
@@ -11,42 +14,21 @@ from ...._auxiliary_lib import (
     anytree_has_sibling,
     anytree_peel_sibling_to_cousin,
 )
-from ._TrieInnerNode import TrieInnerNode
+from .._impl import TrieInnerNode, TrieLeafNode
 
 
-def unzip_trie_expected_collisions(
+def _sample_ancestral_rollbacks(
     trie: TrieInnerNode,
     p_differentia_collision: float,
-) -> None:
-    """Compensate for bias towards overestimating relatedness due to spurious
-    differentia collisions.
+    mutate: bool = False,
+) -> TrieInnerNode:
+    """Implementation detail for `sample_ancestral_rollbacks`.
 
-    Each unzip operation alters the tree as if a single spurious collision had
-    occured; a single branch is adjusted to exhibit the next-most-ancient last
-    commonality.
-
-    The number of unzip operations is calculated from the number of possible
-    spurious collisions and the probability of spurious collision. Unzip targets
-    are sampled randomly using the standard library `random` module.
-
-    The trie is modified inplace.
-
-    Parameters:
-    ----------
-    trie : TrieInnerNode
-        The root node of the trie to be unzipped.
-
-    p_differentia_collision : float
-        The multiplicative inverse of the number of possible
-        differentia.
-
-        This fraction of possible unzips are performed.
-
-    Notes:
-    ------
-    This function assumes underlying shared genesis, so the root node of the
-    trie is not eligible for unzipping.
+    See `sample_ancestral_rollbacks` for parameter descriptions.
     """
+    if not mutate:
+        trie = copy.deepcopy(trie)
+
     eligible_nodes = {
         id(node): node
         for node in anytree.PreOrderIter(trie)
@@ -116,3 +98,60 @@ def unzip_trie_expected_collisions(
                     eligible_nodes[id(sibling)] = sibling
                     assert anytree_has_sibling(sibling)
                     assert anytree_has_grandparent(sibling)
+
+    return trie
+
+
+def sample_ancestral_rollbacks(
+    trie: TrieInnerNode,
+    p_differentia_collision: float,
+    mutate: bool = False,
+    seed: typing.Optional[int] = None,
+) -> TrieInnerNode:
+    """Compensate for bias towards overestimating relatedness due to spurious
+    differentia collisions.
+
+    Each rollback operation alters the tree as if a single spurious collision
+    had occured; a single branch is adjusted to exhibit the next-most-ancient last commonality.
+
+    The number of rollback operations is calculated from the number of possible
+    spurious collisions and the probability of spurious collision. Unzip
+    targets are sampled randomly using the standard library `random` module.
+
+    The trie is modified inplace.
+
+    Parameters:
+    ----------
+    trie : TrieInnerNode
+        The root node of the trie to be unzipped.
+    p_differentia_collision : float
+        The multiplicative inverse of the number of possible
+        differentia.
+
+        This fraction of possible rollbacks are performed.
+    mutate : bool, default False
+        Are side effects on the input argument `trie` allowed?
+    seed: int, default
+        Controls sampling decisions in the algorithm.
+
+        Pass an int for reproducible output across multiple function calls. The
+        default value, 1, ensures reproducible output. Pass None to use
+        existing RNG context directly.
+
+    Notes:
+    ------
+    This function assumes underlying shared genesis, so the root node of the
+    trie is not eligible for rollback.
+    """
+    with opyt.apply_if_or_value(
+        seed,
+        RngStateContext,
+        contextlib.nullcontext,
+    ):
+        return _build_tree_trie_ensemble(
+            population=population,
+            postprocessors=postprocessors,
+            taxon_labels=taxon_labels,
+            force_common_ancestry=force_common_ancestry,
+            progress_wrap=progress_wrap,
+        )

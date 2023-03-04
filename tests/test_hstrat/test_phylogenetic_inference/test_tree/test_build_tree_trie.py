@@ -26,7 +26,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 def test_empty_population():
     population = []
-    tree = hstrat.build_tree_trie([], "maximum_likelihood", "arbitrary")
+    tree = hstrat.build_tree_trie([])
 
     assert len(tree) == 0
     assert alifestd_validate(tree)
@@ -40,14 +40,10 @@ def test_dual_population_no_mrca():
     names = ["foo", "bar"]
 
     with pytest.raises(ValueError):
-        tree = hstrat.build_tree_trie(
-            population, "maximum_likelihood", "arbitrary", taxon_labels=names
-        )
+        tree = hstrat.build_tree_trie(population, taxon_labels=names)
 
     tree = hstrat.build_tree_trie(
         population,
-        "maximum_likelihood",
-        "arbitrary",
         taxon_labels=names,
         force_common_ancestry=True,
     )
@@ -117,9 +113,7 @@ def test_handwritten_trees(version_pin, orig_tree, retention_policy, wrap):
         ).CloneNthDescendant(10),
     )
 
-    reconst_df = hstrat.build_tree_trie(
-        [*map(wrap, extant_population)], "maximum_likelihood", "arbitrary"
-    )
+    reconst_df = hstrat.build_tree_trie([*map(wrap, extant_population)])
 
     assert alifestd_validate(reconst_df)
     reconst_tree = apc.alife_dataframe_to_dendropy_tree(
@@ -172,9 +166,7 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
         ).CloneNthDescendant(num_depositions),
     )
 
-    reconst_df = hstrat.build_tree_trie(
-        extant_population, "maximum_likelihood", "arbitrary"
-    )
+    reconst_df = hstrat.build_tree_trie(extant_population)
     assert "origin_time" in reconst_df
 
     assert alifestd_validate(reconst_df)
@@ -258,13 +250,9 @@ def test_col_specimen_consistency(orig_tree, retention_policy):
         ).CloneNthDescendant(num_depositions),
     )
 
-    reconst_df1 = hstrat.build_tree_trie(
-        extant_population, "maximum_likelihood", "arbitrary"
-    )
+    reconst_df1 = hstrat.build_tree_trie(extant_population)
     reconst_df2 = hstrat.build_tree_trie(
         [hstrat.col_to_specimen(col) for col in extant_population],
-        "maximum_likelihood",
-        "arbitrary",
     )
 
     assert reconst_df1[["id", "ancestor_list"]].equals(
@@ -319,8 +307,6 @@ def test_reconstructed_mrca_fuzz(
 
     reconst_df = hstrat.build_tree_trie(
         extant_population,
-        "maximum_likelihood",
-        "arbitrary",
         progress_wrap=tqdm,
     )
     assert "origin_time" in reconst_df
@@ -445,11 +431,12 @@ def test_reconstructed_mrca_fuzz(
     ],
 )
 @pytest.mark.parametrize(
-    "estimator_prior",
+    "bias_adjustment",
     [
-        ("maximum_likelihood", "arbitrary"),
-        ("unbiased", "arbitrary"),
-        ("unbiased", "uniform"),
+        None,
+        "sample_ancestral_rollbacks",
+        hstrat.UniformPrior(),
+        hstrat.ArbitraryPrior(),
     ],
 )
 @pytest.mark.parametrize(
@@ -459,7 +446,7 @@ def test_reconstructed_mrca_fuzz(
         hstrat.col_to_specimen,
     ],
 )
-def test_determinism(orig_tree, retention_policy, estimator_prior, wrap):
+def test_determinism(orig_tree, retention_policy, bias_adjustment, wrap):
     num_depositions = 10
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
@@ -469,9 +456,12 @@ def test_determinism(orig_tree, retention_policy, estimator_prior, wrap):
         ).CloneNthDescendant(num_depositions),
     )
 
-    first_reconst = hstrat.build_tree_trie(extant_population, *estimator_prior)
+    first_reconst = hstrat.build_tree_trie(
+        extant_population, bias_adjustment=bias_adjustment
+    )
     for rep in range(10):
         second_reconst = hstrat.build_tree_trie(
-            [wrap(col) for col in extant_population], *estimator_prior
+            [wrap(col) for col in extant_population],
+            bias_adjustment=bias_adjustment,
         )
         assert first_reconst.equals(second_reconst)

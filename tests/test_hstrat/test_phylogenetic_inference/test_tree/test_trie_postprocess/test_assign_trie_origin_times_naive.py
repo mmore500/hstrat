@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-import hstrat.phylogenetic_inference.tree._impl as impl
+import hstrat.phylogenetic_inference.tree.trie_postprocess as impl
 
 
 def test_assign_trie_origin_times_naive_single_leaf():

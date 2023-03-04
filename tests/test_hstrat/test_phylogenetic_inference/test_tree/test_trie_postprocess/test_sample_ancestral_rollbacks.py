@@ -12,7 +12,7 @@ from hstrat._auxiliary_lib import (
 from hstrat.phylogenetic_inference.tree._build_tree_trie import (
     _build_tree_trie_raw,
 )
-import hstrat.phylogenetic_inference.tree._impl as impl
+import hstrat.phylogenetic_inference.tree.trie_postprocess as impl
 
 
 # Test case for a trie with only one node
@@ -24,17 +24,17 @@ import hstrat.phylogenetic_inference.tree._impl as impl
         1.0,
     ],
 )
-def test_unzip_trie_expected_collisions_single_node_trie(
+def test_sample_ancestral_rollbacks_single_node_trie(
     p_differentia_collision,
 ):
     trie = impl.TrieInnerNode()
-    impl.unzip_trie_expected_collisions(trie, p_differentia_collision)
+    impl.sample_ancestral_rollbacks(trie, p_differentia_collision)
     # Since there is only one node in the trie, we don't expect any new nodes
     expected_num_nodes = 1
     assert anytree_cardinality(trie) == expected_num_nodes
 
 
-def test_unzip_trie_expected_collisions_multiple_levels_trie_phalf():
+def test_sample_ancestral_rollbacks_multiple_levels_trie_phalf():
     root = impl.TrieInnerNode(rank=None, differentia=None)
     impl.TrieInnerNode(rank=0, differentia=101, parent=root)
     for i in range(5):
@@ -75,7 +75,7 @@ def test_unzip_trie_expected_collisions_multiple_levels_trie_phalf():
     ]
 
     p_differentia_collision = 0.5
-    impl.unzip_trie_expected_collisions(root, p_differentia_collision)
+    impl.sample_ancestral_rollbacks(root, p_differentia_collision)
     assert anytree_cardinality(root) == original_num_nodes + 2
     assert len(root.leaves) == original_num_leaves
     assert len(root.children) == 4
@@ -91,7 +91,7 @@ def test_unzip_trie_expected_collisions_multiple_levels_trie_phalf():
     ]
 
 
-def test_unzip_trie_expected_collisions_multiple_levels_trie_pzero():
+def test_sample_ancestral_rollbacks_multiple_levels_trie_pzero():
     root = impl.TrieInnerNode(rank=None, differentia=None)
     impl.TrieInnerNode(rank=0, differentia=101, parent=root)
     for i in range(5):
@@ -132,7 +132,7 @@ def test_unzip_trie_expected_collisions_multiple_levels_trie_pzero():
     ]
 
     p_differentia_collision = 0
-    impl.unzip_trie_expected_collisions(root, p_differentia_collision)
+    impl.sample_ancestral_rollbacks(root, p_differentia_collision)
     assert anytree_cardinality(root) == original_num_nodes
     assert len(root.leaves) == original_num_leaves
     assert len(root.children) == 2
@@ -148,7 +148,7 @@ def test_unzip_trie_expected_collisions_multiple_levels_trie_pzero():
     ]
 
 
-def test_unzip_trie_expected_collisions_multiple_levels_trie_pone():
+def test_sample_ancestral_rollbacks_multiple_levels_trie_pone():
     root = impl.TrieInnerNode(rank=None, differentia=None)
     impl.TrieInnerNode(rank=0, differentia=101, parent=root)
     for i in range(5):
@@ -189,7 +189,7 @@ def test_unzip_trie_expected_collisions_multiple_levels_trie_pone():
     ]
 
     p_differentia_collision = 1
-    impl.unzip_trie_expected_collisions(root, p_differentia_collision)
+    impl.sample_ancestral_rollbacks(root, p_differentia_collision)
     assert anytree_cardinality(root) == original_num_nodes + 4
     assert len(root.leaves) == original_num_leaves
     assert len(root.children) == 6
@@ -241,8 +241,6 @@ def test_unzip_fuzz(
     )
     root = _build_tree_trie_raw(
         extant_population,
-        estimator="maximum_likelihood",
-        prior="arbitrary",
         taxon_labels=None,
         force_common_ancestry=False,
         progress_wrap=lambda x: x,
@@ -261,7 +259,7 @@ def test_unzip_fuzz(
         for leaf in sorted(root.leaves, key=lambda x: x.taxon_label)
     ]
 
-    impl.unzip_trie_expected_collisions(root, p_differentia_collision)
+    impl.sample_ancestral_rollbacks(root, p_differentia_collision)
     assert (
         anytree_cardinality(root) > original_num_nodes
         or p_differentia_collision == 0
