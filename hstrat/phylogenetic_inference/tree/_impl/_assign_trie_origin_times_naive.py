@@ -5,25 +5,31 @@ from ._TrieInnerNode import TrieInnerNode
 from ._TrieLeafNode import TrieLeafNode
 
 
-def assign_trie_origin_times_naive(trie: TrieInnerNode) -> None:
+def assign_trie_origin_times_naive(
+    trie: TrieInnerNode, assigned_property: str = "origin_time"
+) -> None:
     for node in anytree.PreOrderIter(trie):
         if node.is_leaf:
-            node.origin_time = node.rank
+            setattr(node, assigned_property, node.rank)
             assert isinstance(node, TrieLeafNode)
         elif node.parent is None:
-            node.origin_time = 0
+            setattr(node, assigned_property, 0)
         else:
-            node.origin_time = np.mean(
-                (
-                    node.rank,
-                    min(
-                        (
-                            child.rank
-                            for child in node.children
-                            if not child.is_leaf
-                        ),
-                        default=node.rank + 1,
+            setattr(
+                node,
+                assigned_property,
+                np.mean(
+                    (
+                        node.rank,
+                        min(
+                            (
+                                child.rank
+                                for child in node.children
+                                if not child.is_leaf
+                            ),
+                            default=node.rank + 1,
+                        )
+                        - 1,
                     )
-                    - 1,
-                )
+                ),
             )

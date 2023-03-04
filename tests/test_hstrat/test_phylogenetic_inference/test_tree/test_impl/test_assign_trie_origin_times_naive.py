@@ -86,3 +86,13 @@ def test_assign_trie_origin_times_naive_complex():
     assert leaf2a_a.origin_time == 1
     assert leaf2a_b.origin_time == 1
     assert leaf3_a.origin_time == 7
+
+
+def test_assign_trie_origin_times_naive_assigned_property():
+    root = impl.TrieInnerNode(rank=None, differentia=None, parent=None)
+    inner = impl.TrieInnerNode(rank=0, differentia=0, parent=root)
+    leaf = impl.TrieLeafNode(parent=inner, taxon_label="A")
+    impl.assign_trie_origin_times_naive(root, "blueberry")
+    assert leaf.blueberry == 0
+    assert inner.blueberry == 0
+    assert root.blueberry == 0
