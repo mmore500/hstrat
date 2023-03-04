@@ -61,6 +61,7 @@ from ._deep_listify import deep_listify
 from ._demark import demark
 from ._div_range import div_range
 from ._find_bounds import find_bounds
+from ._flag_last import flag_last
 from ._flat_len import flat_len
 from ._generate_n import generate_n
 from ._generate_omission_subsets import generate_omission_subsets
@@ -184,6 +185,7 @@ __all__ = [
     "get_nullable_mask",
     "get_nullable_vals",
     "give_len",
+    "flag_last",
     "HereditaryStratigraphicArtifact",
     "indices_of_unique",
     "intersect_ranges",
