@@ -1,3 +1,4 @@
+import anytree
 import networkx as nx
 import pytest
 
@@ -7,13 +8,14 @@ from hstrat._auxiliary_lib import (
     anytree_cardinality,
     seed_random,
 )
-from hstrat.phylogenetic_inference.tree._build_tree_trie import (
+from hstrat.phylogenetic_inference.tree._build_tree_trie_ensemble import (
     _build_tree_trie_raw,
 )
-import hstrat.phylogenetic_inference.tree.trie_postprocess as impl
+import hstrat.phylogenetic_inference.tree._impl as impl
 
 
 # Test case for a trie with only one node
+@pytest.mark.parametrize("mutate", [True, False])
 @pytest.mark.parametrize(
     "p_differentia_collision",
     [
@@ -23,16 +25,20 @@ import hstrat.phylogenetic_inference.tree.trie_postprocess as impl
     ],
 )
 def test_sample_ancestral_rollbacks_single_node_trie(
+    mutate,
     p_differentia_collision,
 ):
     trie = impl.TrieInnerNode()
-    impl.sample_ancestral_rollbacks(trie, p_differentia_collision)
+    root = hstrat.SampleAncestralRollbacksTriePostprocessor()(
+        trie, p_differentia_collision=p_differentia_collision, mutate=mutate
+    )
     # Since there is only one node in the trie, we don't expect any new nodes
     expected_num_nodes = 1
     assert anytree_cardinality(trie) == expected_num_nodes
 
 
-def test_sample_ancestral_rollbacks_multiple_levels_trie_phalf():
+@pytest.mark.parametrize("mutate", [True, False])
+def test_sample_ancestral_rollbacks_multiple_levels_trie_phalf(mutate):
     root = impl.TrieInnerNode(rank=None, differentia=None)
     impl.TrieInnerNode(rank=0, differentia=101, parent=root)
     for i in range(5):
@@ -73,7 +79,9 @@ def test_sample_ancestral_rollbacks_multiple_levels_trie_phalf():
     ]
 
     p_differentia_collision = 0.5
-    impl.sample_ancestral_rollbacks(root, p_differentia_collision)
+    root = hstrat.SampleAncestralRollbacksTriePostprocessor()(
+        root, p_differentia_collision=p_differentia_collision, mutate=mutate
+    )
     assert anytree_cardinality(root) == original_num_nodes + 2
     assert len(root.leaves) == original_num_leaves
     assert len(root.children) == 4
@@ -89,7 +97,8 @@ def test_sample_ancestral_rollbacks_multiple_levels_trie_phalf():
     ]
 
 
-def test_sample_ancestral_rollbacks_multiple_levels_trie_pzero():
+@pytest.mark.parametrize("mutate", [True, False])
+def test_sample_ancestral_rollbacks_multiple_levels_trie_pzero(mutate):
     root = impl.TrieInnerNode(rank=None, differentia=None)
     impl.TrieInnerNode(rank=0, differentia=101, parent=root)
     for i in range(5):
@@ -130,7 +139,9 @@ def test_sample_ancestral_rollbacks_multiple_levels_trie_pzero():
     ]
 
     p_differentia_collision = 0
-    impl.sample_ancestral_rollbacks(root, p_differentia_collision)
+    root = hstrat.SampleAncestralRollbacksTriePostprocessor()(
+        root, p_differentia_collision=p_differentia_collision, mutate=mutate
+    )
     assert anytree_cardinality(root) == original_num_nodes
     assert len(root.leaves) == original_num_leaves
     assert len(root.children) == 2
@@ -146,7 +157,8 @@ def test_sample_ancestral_rollbacks_multiple_levels_trie_pzero():
     ]
 
 
-def test_sample_ancestral_rollbacks_multiple_levels_trie_pone():
+@pytest.mark.parametrize("mutate", [True, False])
+def test_sample_ancestral_rollbacks_multiple_levels_trie_pone(mutate):
     root = impl.TrieInnerNode(rank=None, differentia=None)
     impl.TrieInnerNode(rank=0, differentia=101, parent=root)
     for i in range(5):
@@ -187,7 +199,9 @@ def test_sample_ancestral_rollbacks_multiple_levels_trie_pone():
     ]
 
     p_differentia_collision = 1
-    impl.sample_ancestral_rollbacks(root, p_differentia_collision)
+    root = hstrat.SampleAncestralRollbacksTriePostprocessor()(
+        root, p_differentia_collision=p_differentia_collision, mutate=mutate
+    )
     assert anytree_cardinality(root) == original_num_nodes + 4
     assert len(root.leaves) == original_num_leaves
     assert len(root.children) == 6
@@ -203,6 +217,7 @@ def test_sample_ancestral_rollbacks_multiple_levels_trie_pone():
     ]
 
 
+@pytest.mark.parametrize("mutate", [True, False])
 @pytest.mark.parametrize("tree_size", [10, 30, 100])
 @pytest.mark.parametrize(
     "tree_seed",
@@ -257,7 +272,9 @@ def test_unzip_fuzz(
         for leaf in sorted(root.leaves, key=lambda x: x.taxon_label)
     ]
 
-    impl.sample_ancestral_rollbacks(root, p_differentia_collision)
+    root = hstrat.SampleAncestralRollbacksTriePostprocessor()(
+        root, p_differentia_collision=p_differentia_collision, mutate=mutate
+    )
     assert (
         anytree_cardinality(root) > original_num_nodes
         or p_differentia_collision == 0
@@ -275,3 +292,105 @@ def test_unzip_fuzz(
         ]
         for leaf in sorted(root.leaves, key=lambda x: x.taxon_label)
     ]
+
+
+@pytest.mark.parametrize("mutate", [True, False])
+def test_sample_ancestral_rollbacks_multiple_levels_seed(mutate):
+    root = impl.TrieInnerNode(rank=None, differentia=None)
+    impl.TrieInnerNode(rank=0, differentia=101, parent=root)
+    for i in range(5):
+        node = impl.TrieInnerNode(
+            rank=1, differentia=i, parent=root.children[0]
+        )
+        impl.TrieLeafNode(parent=node, taxon_label=f"{i}")
+    another = impl.TrieLeafNode(parent=root, taxon_label=f"another")
+    impl.TrieLeafNode(parent=another, taxon_label=f"another_leaf")
+
+    # (rank None, diff None) @ KQ
+    # ├── (rank 0, diff 101) @ MQ
+    # │   ├── (rank 1, diff 0) @ NQ
+    # │   │   └── 0 @ OQ
+    # │   ├── (rank 1, diff 1) @ SQ
+    # │   │   └── 1 @ IQ
+    # │   ├── (rank 1, diff 2) @ BQ
+    # │   │   └── 2 @ CQ
+    # │   ├── (rank 1, diff 3) @ HQ
+    # │   │   └── 3 @ FQ
+    # │   └── (rank 1, diff 4) @ EQ
+    # │       └── 4 @ nQ
+    # └── another @ jQ
+    #     └── another_leaf @ hQ
+
+    assert str(
+        anytree.RenderTree(
+            hstrat.SampleAncestralRollbacksTriePostprocessor(seed=1)(
+                root,
+                p_differentia_collision=0.5,
+                mutate=mutate,
+            )
+        ).by_attr("taxon_label")
+    ) == str(
+        anytree.RenderTree(
+            hstrat.SampleAncestralRollbacksTriePostprocessor(seed=1)(
+                root,
+                p_differentia_collision=0.5,
+                mutate=mutate,
+            )
+        ).by_attr("taxon_label")
+    )
+
+    assert str(
+        anytree.RenderTree(
+            hstrat.SampleAncestralRollbacksTriePostprocessor(seed=1)(
+                root,
+                p_differentia_collision=0.5,
+                mutate=mutate,
+            )
+        ).by_attr("taxon_label")
+    ) != str(
+        anytree.RenderTree(
+            hstrat.SampleAncestralRollbacksTriePostprocessor(seed=3)(
+                root,
+                p_differentia_collision=0.5,
+                mutate=mutate,
+            )
+        ).by_attr("taxon_label")
+    )
+
+
+def test_sample_ancestral_rollbacks_multiple_levels_mutate():
+    root = impl.TrieInnerNode(rank=None, differentia=None)
+    impl.TrieInnerNode(rank=0, differentia=101, parent=root)
+    for i in range(5):
+        node = impl.TrieInnerNode(
+            rank=1, differentia=i, parent=root.children[0]
+        )
+        impl.TrieLeafNode(parent=node, taxon_label=f"{i}")
+    another = impl.TrieLeafNode(parent=root, taxon_label=f"another")
+    impl.TrieLeafNode(parent=another, taxon_label=f"another_leaf")
+
+    # (rank None, diff None) @ KQ
+    # ├── (rank 0, diff 101) @ MQ
+    # │   ├── (rank 1, diff 0) @ NQ
+    # │   │   └── 0 @ OQ
+    # │   ├── (rank 1, diff 1) @ SQ
+    # │   │   └── 1 @ IQ
+    # │   ├── (rank 1, diff 2) @ BQ
+    # │   │   └── 2 @ CQ
+    # │   ├── (rank 1, diff 3) @ HQ
+    # │   │   └── 3 @ FQ
+    # │   └── (rank 1, diff 4) @ EQ
+    # │       └── 4 @ nQ
+    # └── another @ jQ
+    #     └── another_leaf @ hQ
+
+    before = str(anytree.RenderTree(root).by_attr("taxon_label"))
+    res = hstrat.SampleAncestralRollbacksTriePostprocessor(seed=1)(
+        root,
+        p_differentia_collision=0.5,
+        mutate=False,
+    )
+    after = str(anytree.RenderTree(root).by_attr("taxon_label"))
+
+    assert before == after
+    assert str(anytree.RenderTree(res).by_attr("taxon_label")) != after

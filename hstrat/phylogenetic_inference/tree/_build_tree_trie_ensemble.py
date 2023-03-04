@@ -15,6 +15,7 @@ from ..._auxiliary_lib import (
     flag_last,
     give_len,
 )
+from ...juxtaposition import calc_probability_differentia_collision_between
 from ._impl import TrieInnerNode
 
 
@@ -94,9 +95,21 @@ def _build_tree_trie_ensemble(
         except:
             raise ValueError
 
+    p_differentia_collision = calc_probability_differentia_collision_between(
+        population[0], population[0]
+    )
+
     res = []
     for is_last, postprocessor in flag_last(trie_postprocessors):
-        res.append(_finalize_trie(postprocessor(root, mutate=is_last)))
+        res.append(
+            _finalize_trie(
+                postprocessor(
+                    root,
+                    p_differentia_collision=p_differentia_collision,
+                    mutate=is_last,
+                )
+            )
+        )
 
     return res
 

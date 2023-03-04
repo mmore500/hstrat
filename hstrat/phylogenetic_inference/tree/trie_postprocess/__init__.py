@@ -1,14 +1,18 @@
 """Implementation helpers."""
 
-from ._assign_trie_origin_times_expected_value import (
-    assign_trie_origin_times_expected_value,
+from ._AssignOriginTimeExpectedValueTriePostprocessor import (
+    AssignOriginTimeExpectedValueTriePostprocessor,
 )
-from ._assign_trie_origin_times_naive import assign_trie_origin_times_naive
-from ._sample_ancestral_rollbacks import sample_ancestral_rollbacks
+from ._AssignOriginTimeNaiveTriePostprocessor import (
+    AssignOriginTimeNaiveTriePostprocessor,
+)
+from ._SampleAncestralRollbacksTriePostprocessor import (
+    SampleAncestralRollbacksTriePostprocessor,
+)
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
-    "assign_trie_origin_times_expected_value",
-    "assign_trie_origin_times_naive",
-    "sample_ancestral_rollbacks",
+    "AssignOriginTimeExpectedValueTriePostprocessor",
+    "AssignOriginTimeNaiveTriePostprocessor",
+    "SampleAncestralRollbacksTriePostprocessor",
 ]

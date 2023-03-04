@@ -1,11 +1,16 @@
-import hstrat.phylogenetic_inference.tree.trie_postprocess as impl
+import anytree
+
+from hstrat import hstrat
+import hstrat.phylogenetic_inference.tree._impl as impl
 
 
 def test_assign_trie_origin_times_naive_single_leaf():
     root = impl.TrieInnerNode(rank=None, differentia=None, parent=None)
     inner = impl.TrieInnerNode(rank=0, differentia=0, parent=root)
     leaf = impl.TrieLeafNode(parent=inner, taxon_label="A")
-    impl.assign_trie_origin_times_naive(root)
+    root = hstrat.AssignOriginTimeNaiveTriePostprocessor()(
+        root, p_differentia_collision=0.5, mutate=True
+    )
     assert leaf.origin_time == 0
     assert inner.origin_time == 0
     assert root.origin_time == 0
@@ -16,7 +21,9 @@ def test_assign_trie_origin_times_naive_two_leaves():
     inner = impl.TrieInnerNode(rank=0, differentia=0, parent=root)
     leaf1 = impl.TrieLeafNode(parent=inner, taxon_label="A")
     leaf2 = impl.TrieLeafNode(parent=inner, taxon_label="B")
-    impl.assign_trie_origin_times_naive(root)
+    root = hstrat.AssignOriginTimeNaiveTriePostprocessor()(
+        root, p_differentia_collision=0.5, mutate=True
+    )
     assert root.origin_time == 0
     assert inner.origin_time == 0
     assert leaf1.origin_time == 0
@@ -28,7 +35,9 @@ def test_assign_trie_origin_times_naive1():
     inner1 = impl.TrieInnerNode(rank=0, differentia=0, parent=root)
     inner2 = impl.TrieInnerNode(rank=1, differentia=10, parent=inner1)
     leaf = impl.TrieLeafNode(parent=inner2, taxon_label="A")
-    impl.assign_trie_origin_times_naive(root)
+    root = hstrat.AssignOriginTimeNaiveTriePostprocessor()(
+        root, p_differentia_collision=0.5, mutate=True
+    )
     assert root.origin_time == 0
     assert inner1.origin_time == 0
     assert inner2.origin_time == 1
@@ -40,7 +49,9 @@ def test_assign_trie_origin_times_naive2():
     inner1 = impl.TrieInnerNode(rank=0, differentia=0, parent=root)
     inner2 = impl.TrieInnerNode(rank=2, differentia=10, parent=inner1)
     leaf = impl.TrieLeafNode(parent=inner2, taxon_label="A")
-    impl.assign_trie_origin_times_naive(root)
+    root = hstrat.AssignOriginTimeNaiveTriePostprocessor()(
+        root, p_differentia_collision=0.5, mutate=True
+    )
     assert root.origin_time == 0
     assert inner1.origin_time == 0.5
     assert inner2.origin_time == 2
@@ -52,7 +63,9 @@ def test_assign_trie_origin_times_naive3():
     inner1 = impl.TrieInnerNode(rank=0, differentia=0, parent=root)
     inner2 = impl.TrieInnerNode(rank=3, differentia=10, parent=inner1)
     leaf = impl.TrieLeafNode(parent=inner2, taxon_label="A")
-    impl.assign_trie_origin_times_naive(root)
+    root = hstrat.AssignOriginTimeNaiveTriePostprocessor()(
+        root, p_differentia_collision=0.5, mutate=True
+    )
     assert root.origin_time == 0
     assert inner1.origin_time == 1
     assert inner2.origin_time == 3
@@ -73,7 +86,9 @@ def test_assign_trie_origin_times_naive_complex():
     leaf2a_a = impl.TrieLeafNode(parent=inner2a, taxon_label="leaf2a_a")
     leaf2a_b = impl.TrieLeafNode(parent=inner2a, taxon_label="leaf2a_b")
 
-    impl.assign_trie_origin_times_naive(root)
+    root = hstrat.AssignOriginTimeNaiveTriePostprocessor()(
+        root, p_differentia_collision=0.5, mutate=True
+    )
 
     assert root.origin_time == 0
     assert inner1.origin_time == 0
@@ -89,7 +104,31 @@ def test_assign_trie_origin_times_naive_assigned_property():
     root = impl.TrieInnerNode(rank=None, differentia=None, parent=None)
     inner = impl.TrieInnerNode(rank=0, differentia=0, parent=root)
     leaf = impl.TrieLeafNode(parent=inner, taxon_label="A")
-    impl.assign_trie_origin_times_naive(root, "blueberry")
+    root = hstrat.AssignOriginTimeNaiveTriePostprocessor(
+        assigned_property="blueberry"
+    )(root, p_differentia_collision=0.5, mutate=True)
     assert leaf.blueberry == 0
     assert inner.blueberry == 0
     assert root.blueberry == 0
+
+
+def test_assign_trie_origin_times_naive_mutate():
+    root = impl.TrieInnerNode(rank=None, differentia=None, parent=None)
+    inner = impl.TrieInnerNode(rank=0, differentia=0, parent=root)
+    leaf = impl.TrieLeafNode(parent=inner, taxon_label="A")
+    root_ = hstrat.AssignOriginTimeNaiveTriePostprocessor(
+        assigned_property="blueberry"
+    )(root, p_differentia_collision=0.5, mutate=False)
+    assert not hasattr(leaf, "blueberry")
+    assert not hasattr(inner, "blueberry")
+    assert not hasattr(root, "blueberry")
+
+    assert hasattr(root_, "blueberry")
+
+    root = hstrat.AssignOriginTimeNaiveTriePostprocessor(
+        prior=hstrat.ArbitraryPrior(),
+        assigned_property="blueberry",
+    )(root, p_differentia_collision=0.5, mutate=True)
+    assert str(anytree.RenderTree(root).by_attr("blueberry")) == str(
+        anytree.RenderTree(root_).by_attr("blueberry")
+    )

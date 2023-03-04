@@ -4,8 +4,10 @@ import random
 import typing
 
 import anytree
+import opytional as opyt
 
 from ...._auxiliary_lib import (
+    RngStateContext,
     anytree_calc_leaf_counts,
     anytree_has_grandparent,
     anytree_has_sibling,
@@ -19,9 +21,9 @@ def _sample_ancestral_rollbacks(
     p_differentia_collision: float,
     mutate: bool = False,
 ) -> TrieInnerNode:
-    """Implementation detail for `sample_ancestral_rollbacks`.
+    """Implementation detail for `SampleAncestralRollbacks.__call__`.
 
-    See `sample_ancestral_rollbacks` for parameter descriptions.
+    See `SampleAncestralRollbacks.__call__` for parameter descriptions.
     """
     if not mutate:
         trie = copy.deepcopy(trie)
@@ -99,56 +101,66 @@ def _sample_ancestral_rollbacks(
     return trie
 
 
-def sample_ancestral_rollbacks(
-    trie: TrieInnerNode,
-    p_differentia_collision: float,
-    mutate: bool = False,
-    seed: typing.Optional[int] = None,
-) -> TrieInnerNode:
-    """Compensate for bias towards overestimating relatedness due to spurious
-    differentia collisions.
+class SampleAncestralRollbacksTriePostprocessor:
 
-    Each rollback operation alters the tree as if a single spurious collision
-    had occured; a single branch is adjusted to exhibit the next-most-ancient last commonality.
+    _seed: typing.Optional[int]
 
-    The number of rollback operations is calculated from the number of possible
-    spurious collisions and the probability of spurious collision. Unzip
-    targets are sampled randomly using the standard library `random` module.
+    def __init__(
+        self: "SampleAncestralRollbacksTriePostprocessor",
+        seed: typing.Optional[int] = None,
+    ) -> None:
+        self._seed = seed
 
-    The trie is modified inplace.
+    def __call__(
+        self: "SampleAncestralRollbacksTriePostprocessor",
+        trie: TrieInnerNode,
+        p_differentia_collision: float,
+        mutate: bool = False,
+    ) -> TrieInnerNode:
+        """Compensate for bias towards overestimating relatedness due to
+        spurious differentia collisions.
 
-    Parameters:
-    ----------
-    trie : TrieInnerNode
-        The root node of the trie to be unzipped.
-    p_differentia_collision : float
-        The multiplicative inverse of the number of possible
-        differentia.
+        Each rollback operation alters the tree as if a single spurious
+        collision had occured; a single branch is adjusted to exhibit the next-
+        most-ancient last commonality.
 
-        This fraction of possible rollbacks are performed.
-    mutate : bool, default False
-        Are side effects on the input argument `trie` allowed?
-    seed: int, default
-        Controls sampling decisions in the algorithm.
+        The number of rollback operations is calculated from the number of
+        possible spurious collisions and the probability of spurious collision.
+        Unzip targets are sampled randomly using the standard library `random`
+        module.
 
-        Pass an int for reproducible output across multiple function calls. The
-        default value, 1, ensures reproducible output. Pass None to use
-        existing RNG context directly.
+        The trie is modified inplace.
 
-    Notes:
-    ------
-    This function assumes underlying shared genesis, so the root node of the
-    trie is not eligible for rollback.
-    """
-    with opyt.apply_if_or_value(
-        seed,
-        RngStateContext,
-        contextlib.nullcontext,
-    ):
-        return _build_tree_trie_ensemble(
-            population=population,
-            postprocessors=postprocessors,
-            taxon_labels=taxon_labels,
-            force_common_ancestry=force_common_ancestry,
-            progress_wrap=progress_wrap,
-        )
+        Parameters:
+        ----------
+        trie : TrieInnerNode
+            The root node of the trie to be unzipped.
+        p_differentia_collision : float
+            The multiplicative inverse of the number of possible
+            differentia.
+
+            This fraction of possible rollbacks are performed.
+        mutate : bool, default False
+            Are side effects on the input argument `trie` allowed?
+        seed: int, default
+            Controls sampling decisions in the algorithm.
+
+            Pass an int for reproducible output across multiple function calls.
+            The default value, 1, ensures reproducible output. Pass None to use
+            existing RNG context directly.
+
+        Notes:
+        ------
+        This function assumes underlying shared genesis, so the root node of the
+        trie is not eligible for rollback.
+        """
+        with opyt.apply_if_or_value(
+            self._seed,
+            RngStateContext,
+            contextlib.nullcontext(),
+        ):
+            return _sample_ancestral_rollbacks(
+                trie=trie,
+                p_differentia_collision=p_differentia_collision,
+                mutate=mutate,
+            )

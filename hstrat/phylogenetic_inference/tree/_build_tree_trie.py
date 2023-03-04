@@ -1,4 +1,3 @@
-import functools
 import typing
 
 from iterpop import iterpop as ip
@@ -8,13 +7,8 @@ from ..._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
     alifestd_make_empty,
 )
-from ...juxtaposition import calc_probability_differentia_collision_between
 from ._build_tree_trie_ensemble import build_tree_trie_ensemble
-from .trie_postprocess import (
-    assign_trie_origin_times_expected_value,
-    assign_trie_origin_times_naive,
-    sample_ancestral_rollbacks,
-)
+from .trie_postprocess import AssignOriginTimeNaiveTriePostprocessor
 
 
 def build_tree_trie(
@@ -73,28 +67,30 @@ def build_tree_trie(
     if len(population) == 0:
         return alifestd_make_empty()
 
-    p_differentia_collision = calc_probability_differentia_collision_between(
-        population[0], population[0]
-    )
     if bias_adjustment is None:
-        trie_postprocessor = assign_trie_origin_times_naive
+        trie_postprocessor = AssignOriginTimeNaiveTriePostprocessor()
     elif (
         isinstance(bias_adjustment, str)
         and bias_adjustment == "sample_ancestral_rollbacks"
     ):
 
-        def trie_postprocessor(trie: TrieInnerNode) -> None:
-            return assign_trie_origin_times_naive(
-                sample_ancestral_rollbacks(
+        def trie_postprocessor(
+            trie: TrieInnerNode,
+            p_differentia_collision,
+            mutate: bool,
+        ) -> None:
+            return AssignOriginTimeNaiveTriePostprocessor()(
+                SampleAncestralRollbacks(seed=1)(
                     trie,
                     p_differentia_collision=p_differentia_collision,
-                    seed=1,
-                )
+                    mutate=mutate,
+                ),
+                p_differentia_collision=p_differentia_collision,
+                mutate=mutate,
             )
 
     else:
-        trie_postprocessor = functools.partial(
-            assign_trie_origin_times_expected_value,
+        trie_postprocessor = AssignOriginTimesExpectedValueTriePostprocessor(
             prior=bias_adjustment,
         )
 
