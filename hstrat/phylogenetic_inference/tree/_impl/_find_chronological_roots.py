@@ -1,10 +1,7 @@
 import numbers
-import statistics
 import typing
 
-from iterpop import iterpop as ip
 import networkx as nx
-import sortedcontainers as sc
 
 from ._estimate_origin_times import estimate_origin_times
 

@@ -11,7 +11,6 @@ from ..._auxiliary_lib import (
     alifestd_to_working_format,
     alifestd_topological_sort,
     give_len,
-    jit,
     unfurl_lineage_with_contiguous_ids,
 )
 from ..._auxiliary_lib._alifestd_assign_contiguous_ids import _reassign_ids

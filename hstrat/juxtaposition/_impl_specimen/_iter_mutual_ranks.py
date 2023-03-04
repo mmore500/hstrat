@@ -1,4 +1,3 @@
-from collections import deque
 import typing
 
 import numpy as np

@@ -1,7 +1,6 @@
 import typing
 
 import numpy as np
-import pandas as pd
 import pandera as pa
 
 from .._auxiliary_lib import CopyableSeriesItemsIter

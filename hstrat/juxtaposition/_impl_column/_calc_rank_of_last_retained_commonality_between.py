@@ -1,4 +1,3 @@
-from collections import deque
 import typing
 
 from ...genome_instrumentation import (

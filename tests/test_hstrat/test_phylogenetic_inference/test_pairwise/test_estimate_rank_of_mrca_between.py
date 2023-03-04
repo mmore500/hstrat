@@ -1,15 +1,13 @@
 import itertools as it
-import math
 import random
 
-from iterify import cyclify, iterify
 import numpy as np
 import opytional as opyt
 import pytest
 from scipy import stats
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import cmp_approx, is_strictly_increasing, pairwise
+from hstrat._auxiliary_lib import cmp_approx, pairwise
 
 
 @pytest.mark.filterwarnings(

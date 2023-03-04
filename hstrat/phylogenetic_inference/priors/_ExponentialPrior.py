@@ -1,7 +1,4 @@
 import math
-import statistics
-
-import scipy
 
 from ._UniformPrior import UniformPrior
 

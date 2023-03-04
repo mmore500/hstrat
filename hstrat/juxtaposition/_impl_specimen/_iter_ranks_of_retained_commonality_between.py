@@ -1,4 +1,3 @@
-from collections import deque
 import typing
 
 from ...frozen_instrumentation import HereditaryStratigraphicSpecimen

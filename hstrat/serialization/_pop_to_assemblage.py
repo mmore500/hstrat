@@ -1,7 +1,4 @@
-import itertools as it
 import typing
-
-import pandas as pd
 
 from ..frozen_instrumentation import HereditaryStratigraphicAssemblage
 from ..genome_instrumentation import HereditaryStratigraphicColumn

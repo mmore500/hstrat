@@ -1,13 +1,10 @@
 import functools
-import json
-import logging
 import operator
 
 import pytest
 from tqdm import tqdm
 
-from hstrat import genome_instrumentation, hstrat
-from hstrat._auxiliary_lib import get_hstrat_version, log_once_in_a_row
+from hstrat import hstrat
 
 
 @pytest.mark.parametrize(

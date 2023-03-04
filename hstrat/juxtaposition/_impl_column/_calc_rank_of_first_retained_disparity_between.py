@@ -1,7 +1,5 @@
 import typing
 
-from interval_search import binary_search
-
 from ...genome_instrumentation import (
     HereditaryStratigraphicColumn,
     HereditaryStratumOrderedStoreList,

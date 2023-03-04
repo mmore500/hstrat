@@ -3,7 +3,6 @@ import statistics
 
 import numpy as np
 import pytest
-from scipy import stats
 
 from hstrat import hstrat
 

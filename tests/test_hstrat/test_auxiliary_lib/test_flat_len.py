@@ -1,5 +1,3 @@
-import typing
-
 import pytest
 
 from hstrat._auxiliary_lib import flat_len

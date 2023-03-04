@@ -2,14 +2,9 @@ import functools
 import typing
 
 import numpy as np
-import pandas as pd
 import pandera as pa
 
-from .._auxiliary_lib import (
-    get_nullable_mask,
-    get_nullable_vals,
-    numpy_index_flat,
-)
+from .._auxiliary_lib import get_nullable_mask, get_nullable_vals
 
 _nullable_unsigned_integer_series_t = typing.Union[
     pa.typing.Series[pa.typing.UINT8()],

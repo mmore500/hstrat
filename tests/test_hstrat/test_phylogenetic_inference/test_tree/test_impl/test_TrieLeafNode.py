@@ -1,5 +1,3 @@
-from unittest.mock import Mock
-
 import anytree
 import pytest
 

@@ -1,4 +1,3 @@
-import copy
 import typing
 
 import interval_search as inch

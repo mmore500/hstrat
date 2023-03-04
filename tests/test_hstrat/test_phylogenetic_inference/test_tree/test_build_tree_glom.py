@@ -1,9 +1,7 @@
 import itertools as it
 import os
 import random
-import warnings
 
-from Bio.Phylo.TreeConstruction import BaseTree, DistanceMatrix
 import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
 import networkx as nx

@@ -1,10 +1,8 @@
-import statistics
 import typing
 
 import numpy as np
-import opytional as opyt
 
-from ..._auxiliary_lib import pairwise, unzip
+from ..._auxiliary_lib import pairwise
 
 
 # tried a numpy-based implementation but it was slower

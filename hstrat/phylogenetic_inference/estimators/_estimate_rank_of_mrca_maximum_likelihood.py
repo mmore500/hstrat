@@ -1,10 +1,8 @@
 import typing
 
 import numpy as np
-import opytional as opyt
 
-from ..._auxiliary_lib import cmp_approx, pairwise, unzip
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import cmp_approx, pairwise
 
 
 def estimate_rank_of_mrca_maximum_likelihood(

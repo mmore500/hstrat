@@ -1,5 +1,4 @@
 import copy
-import typing
 
 import anytree
 import numpy as np

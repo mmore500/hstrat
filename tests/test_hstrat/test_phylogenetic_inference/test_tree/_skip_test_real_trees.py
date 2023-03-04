@@ -1,14 +1,8 @@
 import itertools
 import os
 
-from alifedata_phyloinformatics_convert import (
-    alife_dataframe_to_dendropy_tree,
-    biopython_tree_to_alife_dataframe,
-    dendropy_tree_to_alife_dataframe,
-)
 from aux_tree_tools import AuxTree, tree_distance_metric
 import dendropy as dp
-import opytional as opyt
 import pandas as pd
 import pytest
 

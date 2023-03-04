@@ -1,9 +1,7 @@
 import itertools as it
 import typing
-import warnings
 
 import numpy as np
-import opytional as opyt
 
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ..pairwise import estimate_patristic_distance_between

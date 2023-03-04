@@ -1,13 +1,10 @@
 import typing
 
 import numpy as np
-import opytional as opyt
 
 from ..._auxiliary_lib import (
-    iter_monotonic_equivalencies,
     iter_monotonic_equivalencies_reverse,
     jit,
-    numpy_index_flat,
     reversed_range,
 )
 from ...frozen_instrumentation import HereditaryStratigraphicSpecimen

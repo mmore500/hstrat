@@ -1,20 +1,17 @@
-import collections
 import contextlib
 import copy
 import random
 import typing
 
 import anytree
-import numpy as np
 
 from ...._auxiliary_lib import (
     anytree_calc_leaf_counts,
-    anytree_cardinality,
     anytree_has_grandparent,
     anytree_has_sibling,
     anytree_peel_sibling_to_cousin,
 )
-from .._impl import TrieInnerNode, TrieLeafNode
+from .._impl import TrieInnerNode
 
 
 def _sample_ancestral_rollbacks(

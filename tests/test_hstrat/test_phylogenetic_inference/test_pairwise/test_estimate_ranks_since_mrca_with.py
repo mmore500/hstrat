@@ -1,10 +1,7 @@
 import itertools as it
-import math
 import random
 
-from iterify import cyclify, iterify
 import numpy as np
-import opytional as opyt
 import pytest
 from scipy import stats
 

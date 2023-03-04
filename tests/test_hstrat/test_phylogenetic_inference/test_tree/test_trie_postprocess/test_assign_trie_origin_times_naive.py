@@ -1,6 +1,3 @@
-import numpy as np
-import pytest
-
 import hstrat.phylogenetic_inference.tree.trie_postprocess as impl
 
 

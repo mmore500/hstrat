@@ -1,5 +1,3 @@
-import base64
-
 from hstrat._auxiliary_lib import render_to_base64url
 
 

@@ -1,4 +1,3 @@
-import anytree
 import networkx as nx
 import pytest
 
@@ -6,7 +5,6 @@ from hstrat import hstrat
 from hstrat._auxiliary_lib import (
     AnyTreeAscendingIter,
     anytree_cardinality,
-    anytree_has_sibling,
     seed_random,
 )
 from hstrat.phylogenetic_inference.tree._build_tree_trie import (

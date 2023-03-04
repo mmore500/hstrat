@@ -1,6 +1,4 @@
 import copy
-import functools
-import itertools as it
 import random
 import typing
 

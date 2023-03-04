@@ -1,7 +1,6 @@
 import numbers
 import typing
 
-from iterpop import iterpop as ip
 import networkx as nx
 import numpy as np
 import sortedcontainers as sc

@@ -1,4 +1,3 @@
-import statistics
 import typing
 import warnings
 

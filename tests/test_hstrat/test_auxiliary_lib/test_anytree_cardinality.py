@@ -1,5 +1,4 @@
 import anytree
-import pytest
 
 from hstrat._auxiliary_lib import anytree_cardinality
 

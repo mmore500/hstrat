@@ -1,7 +1,6 @@
 import copy
 
 import anytree
-import numpy as np
 
 from ...priors import ArbitraryPrior
 from .._impl import TrieInnerNode, TrieLeafNode

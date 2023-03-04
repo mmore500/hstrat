@@ -1,7 +1,6 @@
 import dendropy as dp
 
 from ._AuxTree import AuxTree
-from ._sort_by_taxa_name import sort_by_taxa_name
 
 
 def tree_distance_metric(x, y) -> float:

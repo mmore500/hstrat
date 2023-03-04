@@ -1,7 +1,5 @@
 import typing
 
-import numpy as np
-
 
 def generate_n(generator: typing.Callable, n: int) -> typing.Iterator:
     """Returns an iterator that generates `n` values by repeatedly calling the given `generator` function.

@@ -1,6 +1,3 @@
-import itertools as it
-import random
-
 import numpy as np
 import opytional as opyt
 import pandas as pd

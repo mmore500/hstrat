@@ -1,12 +1,8 @@
 import contextlib
-import copy
-import logging
 import typing
 
 import alifedata_phyloinformatics_convert as apc
-import anytree
 from iterpop import iterpop as ip
-import more_itertools as mit
 import opytional as opyt
 import pandas as pd
 
@@ -14,25 +10,11 @@ from ..._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
     RngStateContext,
     alifestd_collapse_unifurcations,
-    alifestd_find_chronological_inconsistency,
-    alifestd_is_chronologically_ordered,
     alifestd_make_empty,
     argsort,
     flag_last,
     give_len,
 )
-from ...juxtaposition import (
-    calc_probability_differentia_collision_between,
-    calc_rank_of_first_retained_disparity_between,
-    calc_rank_of_last_retained_commonality_between,
-)
-from ...stratum_retention_viz import col_to_ascii
-from ..pairwise import (
-    estimate_patristic_distance_between,
-    estimate_rank_of_mrca_between,
-    estimate_ranks_since_mrca_with,
-)
-from ..population import build_distance_matrix_biopython
 from ._impl import TrieInnerNode
 
 

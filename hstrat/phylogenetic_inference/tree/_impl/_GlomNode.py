@@ -1,9 +1,6 @@
 import functools
 import itertools as it
 import logging
-import numbers
-import statistics
-import typing
 
 import anytree
 from iterpop import iterpop as ip
@@ -12,25 +9,16 @@ import opytional as opyt
 import sortedcontainers as sc
 
 from ...._auxiliary_lib import (
-    assign_intersecting_subsets,
     deep_listify,
-    flat_len,
     generate_omission_subsets,
     intersect_ranges,
     pairwise,
 )
 from ....juxtaposition import (
     calc_rank_of_first_retained_disparity_between,
-    calc_rank_of_last_retained_commonality_among,
     calc_rank_of_last_retained_commonality_between,
 )
 from ....stratum_retention_viz import col_to_ascii
-from ...pairwise import (
-    calc_rank_of_mrca_bounds_between,
-    estimate_patristic_distance_between,
-    estimate_rank_of_mrca_between,
-    estimate_ranks_since_mrca_with,
-)
 
 confidence_level = 0.49
 

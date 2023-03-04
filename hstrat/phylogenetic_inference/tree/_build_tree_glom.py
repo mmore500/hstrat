@@ -1,5 +1,3 @@
-import copy
-import logging
 import typing
 import warnings
 
@@ -11,24 +9,9 @@ import pandas as pd
 
 from ..._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
-    alifestd_find_chronological_inconsistency,
-    alifestd_is_chronologically_ordered,
     alifestd_make_empty,
 )
-from ...juxtaposition import (
-    calc_rank_of_first_retained_disparity_between,
-    calc_rank_of_last_retained_commonality_between,
-)
-from ...stratum_retention_viz import col_to_ascii
-from ..pairwise import (
-    estimate_patristic_distance_between,
-    estimate_rank_of_mrca_between,
-    estimate_ranks_since_mrca_with,
-)
-from ..population import (
-    build_distance_matrix_biopython,
-    does_definitively_share_no_common_ancestor,
-)
+from ..population import does_definitively_share_no_common_ancestor
 from ._impl import GlomNode
 
 

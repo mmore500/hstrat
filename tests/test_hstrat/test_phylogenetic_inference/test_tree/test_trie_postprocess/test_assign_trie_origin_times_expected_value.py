@@ -1,8 +1,5 @@
 import math
 
-import numpy as np
-import pytest
-
 from hstrat import hstrat
 import hstrat.phylogenetic_inference.tree.trie_postprocess as impl
 

@@ -1,4 +1,3 @@
-import functools
 import typing
 
 from ._RngStateContext import RngStateContext

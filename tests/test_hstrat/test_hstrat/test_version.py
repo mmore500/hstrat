@@ -1,5 +1,4 @@
 from hstrat import hstrat
-from hstrat._auxiliary_lib import get_hstrat_version
 
 
 def test_version():

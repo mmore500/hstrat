@@ -128,6 +128,7 @@ __all__ = [
     "alifestd_aggregate_phylogenies",
     "alifestd_assign_contiguous_ids",
     "alifestd_collapse_unifurcations",
+    "alifestd_find_chronological_inconsistency",
     "alifestd_find_leaf_ids",
     "alifestd_find_root_ids",
     "alifestd_has_compact_ids",

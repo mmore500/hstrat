@@ -3,12 +3,9 @@ import typing
 import warnings
 
 import alifedata_phyloinformatics_convert as apc
-from iterpop import iterpop as ip
 import pandas as pd
-import sortedcontainers as sc
 
 from ...._auxiliary_lib import (
-    BioPhyloTree,
     alifestd_is_chronologically_ordered,
     alifestd_reroot_at_id_asexual,
 )

@@ -1,12 +1,6 @@
 import math
-import statistics
 import typing
 
-from iterpop import iterpop as ip
-import numpy as np
-import opytional as opyt
-
-from ..._auxiliary_lib import pairwise, unzip
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ..priors import ArbitraryPrior, UniformPrior, _BubbleWrappedPrior
 from ._impl import (

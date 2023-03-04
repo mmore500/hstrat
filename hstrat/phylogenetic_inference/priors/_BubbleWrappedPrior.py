@@ -1,8 +1,3 @@
-import math
-import statistics
-
-import scipy
-
 from ..._auxiliary_lib import cmp_approx
 
 

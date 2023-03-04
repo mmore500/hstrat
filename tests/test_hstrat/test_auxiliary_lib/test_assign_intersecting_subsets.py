@@ -1,5 +1,3 @@
-import random
-
 import pytest
 
 from hstrat._auxiliary_lib import (

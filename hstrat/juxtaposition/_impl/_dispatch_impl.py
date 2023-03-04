@@ -1,11 +1,7 @@
 import types
-import typing
 
 from .. import _impl_column, _impl_specimen
-from ...frozen_instrumentation import (
-    HereditaryStratigraphicAssemblageSpecimen,
-    HereditaryStratigraphicSpecimen,
-)
+from ...frozen_instrumentation import HereditaryStratigraphicSpecimen
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 
 

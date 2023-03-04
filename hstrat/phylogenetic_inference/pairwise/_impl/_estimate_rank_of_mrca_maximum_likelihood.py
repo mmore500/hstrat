@@ -1,8 +1,5 @@
 import typing
 
-import opytional as opyt
-
-from ...._auxiliary_lib import cmp_approx, pairwise, unzip
 from ....genome_instrumentation import HereditaryStratigraphicColumn
 from ....juxtaposition import calc_probability_differentia_collision_between
 from ...estimators import (
