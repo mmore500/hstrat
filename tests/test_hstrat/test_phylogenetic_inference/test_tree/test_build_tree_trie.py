@@ -69,10 +69,6 @@ def test_dual_population_no_mrca():
 
 
 @pytest.mark.parametrize(
-    "version_pin",
-    [hstrat.__version__],
-)
-@pytest.mark.parametrize(
     "orig_tree",
     [
         impl.setup_dendropy_tree(f"{assets_path}/grandchild_and_aunt.newick"),
@@ -104,7 +100,7 @@ def test_dual_population_no_mrca():
     ],
 )
 @pytest.mark.parametrize("wrap", [lambda x: x, hstrat.col_to_specimen])
-def test_handwritten_trees(version_pin, orig_tree, retention_policy, wrap):
+def test_handwritten_trees(orig_tree, retention_policy, wrap):
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
         seed_column=hstrat.HereditaryStratigraphicColumn(
