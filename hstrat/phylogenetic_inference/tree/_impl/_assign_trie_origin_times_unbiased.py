@@ -4,71 +4,49 @@ import anytree
 import numpy as np
 
 from ._TrieInnerNode import TrieInnerNode
+from ._TrieLeafNode import TrieLeafNode
 from ._assign_trie_origin_times_naive import assign_trie_origin_times_naive
-
-
-def _calc_subtending_interval_means(
-    trie: TrieInnerNode,
-    prior: object,
-) -> typing.Dict[int, float]:
-    subtending_interval_means = dict()
-    for node in anytree.PreOrderIter(trie):
-        if node.is_leaf:
-            pass
-        elif node.parent is None:
-            subtending_interval_means[id(node)] = 0
-        else:
-            subtending_interval_means[
-                id(node)
-            ] = prior.CalcIntervalConditionedMean(node.parent.rank, node.rank)
-    return subtending_interval_means
 
 
 def assign_trie_origin_times_unbiased(
     trie: TrieInnerNode,
     p_differentia_collision: float,
     prior: object,
+    assigned_property: str = "origin_time",
 ) -> None:
 
-    subtending_interval_means = _calc_subtending_interval_means(trie, prior)
-
-    unbiased_subtending_expectations = dict()
-    for node in anytree.PreOrderIter(trie):
-        if node.is_leaf:
-            pass
-        elif node.parent is None:
-            unbiased_subtending_expectations[id(node)] = 0
-        else:
-            unbiased_subtending_expectations[id(node)] = np.average(
-                (
-                    unbiased_subtending_expectations[id(node.parent)],
-                    subtending_interval_means[id(node)],
-                ),
-                weights=(
-                    p_differentia_collision
-                    * prior.CalcIntervalProbabilityProxy(0, node.parent.rank),
-                    1.0
-                    * prior.CalcIntervalProbabilityProxy(
-                        node.parent.rank, node.rank
-                    ),
-                )
-                if node.parent.rank != node.rank
-                else (1, 1),
-            )
+    assign_trie_origin_times_naive(trie, "_naive_origin_time", prior)
 
     for node in anytree.PreOrderIter(trie):
         if node.is_leaf:
-            node.origin_time = node.rank + 0.5
+            setattr(node, assigned_property, node.rank)
+            assert isinstance(node, TrieLeafNode)
         elif node.parent is None:
-            node.origin_time = 0
+            setattr(node, assigned_property, 0)
         else:
-            node.origin_time = np.average(
-                (
-                    unbiased_subtending_expectations[id(node)],
-                    prior.CalcIntervalConditionedMean(
-                        node.rank,
-                        min(child.rank for child in node.children) - 1,
+            assert node.children
+            weights = (
+                p_differentia_collision,
+                1
+                * prior.CalcIntervalProbabilityProxy(
+                    node.rank,
+                    min(
+                        (
+                            child.rank
+                            for child in node.children
+                            if not child.is_leaf
+                        ),
+                        default=node.rank + 1,
                     ),
                 ),
-                weights=(p_differentia_collision, 1.0),
             )
+            values = (
+                getattr(node.parent, assigned_property),
+                node._naive_origin_time,
+            )
+            collision_corrected_origin_time = np.average(
+                values,
+                weights=weights,
+            )
+            print(values, weights, collision_corrected_origin_time)
+            setattr(node, assigned_property, collision_corrected_origin_time)
