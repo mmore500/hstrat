@@ -170,7 +170,7 @@ def build_tree_trie_ensemble(
     with opyt.apply_if_or_value(
         seed,
         RngStateContext,
-        contextlib.nullcontext,
+        contextlib.nullcontext(),
     ):
         return _build_tree_trie_ensemble(
             population=population,
