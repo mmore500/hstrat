@@ -189,19 +189,19 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
         reconst_tree.leaf_node_iter(), key=lambda x: int(x.taxon.label)
     )
     assert {
-        int(leaf_node.distance_from_root()) for leaf_node in sorted_leaf_nodes
+        leaf_node.distance_from_root() for leaf_node in sorted_leaf_nodes
     } == {
         extant_col.GetNumStrataDeposited() - 1
         for extant_col in extant_population
     }
     assert sorted(
-        int(leaf_node.distance_from_root()) for leaf_node in sorted_leaf_nodes
+        leaf_node.distance_from_root() for leaf_node in sorted_leaf_nodes
     ) == sorted(
         extant_col.GetNumStrataDeposited() - 1
         for extant_col in extant_population
     )
     assert [
-        int(leaf_node.distance_from_root()) for leaf_node in sorted_leaf_nodes
+        leaf_node.distance_from_root() for leaf_node in sorted_leaf_nodes
     ] == [
         extant_col.GetNumStrataDeposited() - 1
         for extant_col in extant_population

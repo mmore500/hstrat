@@ -2,7 +2,6 @@ import anytree
 import numpy as np
 
 from ...priors import ArbitraryPrior
-
 from ._TrieInnerNode import TrieInnerNode
 from ._TrieLeafNode import TrieLeafNode
 
