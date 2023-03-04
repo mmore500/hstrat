@@ -120,6 +120,7 @@ from ._unfurl_lineage_with_contiguous_ids import (
 from ._unpairwise import unpairwise
 from ._unzip import unzip
 from ._with_omission import with_omission
+from ._with_rng_state_context import with_rng_state_context
 from ._zip_strict import zip_strict
 
 # adapted from https://stackoverflow.com/a/31079085
@@ -237,6 +238,7 @@ __all__ = [
     "unpairwise",
     "unzip",
     "with_omission",
+    "with_rng_state_context",
     "zip_strict",
 ]
 
