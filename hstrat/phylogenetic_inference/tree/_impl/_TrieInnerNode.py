@@ -142,7 +142,7 @@ class TrieInnerNode(anytree.NodeMixin):
 
     @property
     def taxon(self: "TrieInnerNode") -> str:
-        return self.name
+        return self.taxon_label
 
     @property
     def rank(self: "TrieInnerNode") -> int:
