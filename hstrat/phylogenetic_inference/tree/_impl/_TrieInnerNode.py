@@ -149,13 +149,15 @@ class TrieInnerNode(anytree.NodeMixin):
         return opyt.or_value(self._rank, 0)
 
     @property
-    def inner_children(self: "TrieInnerNode"):
+    def inner_children(
+        self: "TrieInnerNode",
+    ) -> typing.Iterator["TrieInnerNode"]:
         return filter(
             lambda child_: isinstance(child_, TrieInnerNode),
             self.children,
         )
 
-    def __repr__(self: "TrieInnerNode"):
+    def __repr__(self: "TrieInnerNode") -> str:
         return f"""(rank {
             self._rank
         }, diff {
