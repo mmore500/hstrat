@@ -4,5 +4,3 @@ class UnsatisfiableParameterizationRequestError(ValueError):
     May be due to inexistance of satisfactory parameter or due to violation of
     assumed monotonic relationship between parameter and focal property.
     """
-
-    pass
