@@ -27,7 +27,7 @@ class TrieInnerNode(anytree.NodeMixin):
         assert (self._rank is None) == (self._differentia is None)
         self._tiebreaker = random.getrandbits(128)  # uuid standard 128 bits
 
-    def Matches(
+    def IsGenesisOfAllele(
         self: "TrieInnerNode",
         rank: int,
         differentia: int,
@@ -116,7 +116,7 @@ class TrieInnerNode(anytree.NodeMixin):
             assert next_rank is not None
             assert next_differentia is not None
             for child in self.inner_children:
-                if child.Matches(next_rank, next_differentia):
+                if child.IsGenesisOfAllele(next_rank, next_differentia):
                     child.InsertTaxon(
                         taxon_label,
                         taxon_allele_genesis_iter,
