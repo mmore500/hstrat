@@ -51,7 +51,7 @@ class AssignOriginTimeNaiveTriePostprocessor:
                             if not child.is_leaf
                         ),
                         default=node.rank + 1,
-                    ),
+                    ),  # endpoint is exclusive
                 )
                 setattr(
                     node,
