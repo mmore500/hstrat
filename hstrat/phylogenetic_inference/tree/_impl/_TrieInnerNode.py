@@ -138,6 +138,8 @@ class TrieInnerNode(anytree.NodeMixin):
             # numpy ints cause indexing errors; convert to native int
             return f"""Inner+r={self._rank}+d={
                 render_to_base64url(int(self._differentia))
+            }+uid={
+                render_to_base64url(int(self._tiebreaker))
             }"""
 
     @property
