@@ -6,6 +6,9 @@ from ._AssignOriginTimeExpectedValueTriePostprocessor import (
 from ._AssignOriginTimeNaiveTriePostprocessor import (
     AssignOriginTimeNaiveTriePostprocessor,
 )
+from ._AssignOriginTimeNodeRankTriePostprocessor import (
+    AssignOriginTimeNodeRankTriePostprocessor,
+)
 from ._SampleAncestralRollbacksTriePostprocessor import (
     SampleAncestralRollbacksTriePostprocessor,
 )
@@ -14,5 +17,6 @@ from ._SampleAncestralRollbacksTriePostprocessor import (
 __all__ = [
     "AssignOriginTimeExpectedValueTriePostprocessor",
     "AssignOriginTimeNaiveTriePostprocessor",
+    "AssignOriginTimeNodeRankTriePostprocessor",
     "SampleAncestralRollbacksTriePostprocessor",
 ]
