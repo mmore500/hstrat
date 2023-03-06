@@ -158,6 +158,15 @@ class TrieInnerNode(anytree.NodeMixin):
             self.children,
         )
 
+    @property
+    def outer_children(
+        self: "TrieInnerNode",
+    ) -> typing.Iterator["TrieLeafNode"]:
+        return filter(
+            lambda child_: isinstance(child_, TrieLeafNode),
+            self.children,
+        )
+
     def __repr__(self: "TrieInnerNode") -> str:
         return f"""(rank {
             self._rank

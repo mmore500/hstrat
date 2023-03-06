@@ -329,3 +329,12 @@ def test_inner_children(subtrie):
         isinstance(node, impl.TrieInnerNode) for node in subtrie.inner_children
     )
     assert all(node.parent is subtrie for node in subtrie.inner_children)
+
+
+def test_outer_children(subtrie):
+    assert len([*subtrie.outer_children]) == 1
+    assert len(set(map(id, subtrie.outer_children))) == 1
+    assert all(
+        isinstance(node, impl.TrieLeafNode) for node in subtrie.outer_children
+    )
+    assert all(node.parent is subtrie for node in subtrie.outer_children)
