@@ -28,6 +28,11 @@ class AssignOriginTimeNodeRankTriePostprocessor:
         ----------
             mutate : bool, default False
                 Are side effects on the input argument `trie` allowed?
+
+        Returns
+        -------
+        TrieInnerNode
+            The postprocessed trie.
         """
         if not mutate:
             trie = copy.deepcopy(trie)

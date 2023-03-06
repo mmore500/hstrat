@@ -129,8 +129,6 @@ class SampleAncestralRollbacksTriePostprocessor:
         Unzip targets are sampled randomly using the standard library `random`
         module.
 
-        The trie is modified inplace.
-
         Parameters:
         ----------
         trie : TrieInnerNode
@@ -148,6 +146,11 @@ class SampleAncestralRollbacksTriePostprocessor:
             Pass an int for reproducible output across multiple function calls.
             The default value, 1, ensures reproducible output. Pass None to use
             existing RNG context directly.
+
+        Returns
+        -------
+        TrieInnerNode
+            The postprocessed trie.
 
         Notes:
         ------

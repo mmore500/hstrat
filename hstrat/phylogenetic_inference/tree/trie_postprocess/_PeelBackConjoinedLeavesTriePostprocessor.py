@@ -1,9 +1,6 @@
 import copy
 
-
-from ...._auxiliary_lib import (
-    anytree_peel_sibling_to_cousin,
-)
+from ...._auxiliary_lib import anytree_peel_sibling_to_cousin
 from .._impl import TrieInnerNode
 
 
