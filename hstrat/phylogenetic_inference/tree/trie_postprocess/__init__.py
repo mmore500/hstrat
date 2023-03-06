@@ -9,6 +9,7 @@ from ._AssignOriginTimeNaiveTriePostprocessor import (
 from ._AssignOriginTimeNodeRankTriePostprocessor import (
     AssignOriginTimeNodeRankTriePostprocessor,
 )
+from ._CompoundTriePostprocessor import CompoundTriePostprocessor
 from ._PeelBackConjoinedLeavesTriePostprocessor import (
     PeelBackConjoinedLeavesTriePostprocessor,
 )
@@ -21,6 +22,7 @@ __all__ = [
     "AssignOriginTimeExpectedValueTriePostprocessor",
     "AssignOriginTimeNaiveTriePostprocessor",
     "AssignOriginTimeNodeRankTriePostprocessor",
+    "CompoundTriePostprocessor",
     "PeelBackConjoinedLeavesTriePostprocessor",
     "SampleAncestralRollbacksTriePostprocessor",
 ]
