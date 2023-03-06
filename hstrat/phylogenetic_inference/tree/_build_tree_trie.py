@@ -74,24 +74,21 @@ def build_tree_trie(
         and bias_adjustment == "sample_ancestral_rollbacks"
     ):
 
-        def trie_postprocessor(
-            trie: TrieInnerNode,
-            p_differentia_collision,
-            mutate: bool,
-        ) -> None:
-            return AssignOriginTimeNaiveTriePostprocessor()(
-                SampleAncestralRollbacks(seed=1)(
-                    trie,
-                    p_differentia_collision=p_differentia_collision,
-                    mutate=mutate,
-                ),
-                p_differentia_collision=p_differentia_collision,
-                mutate=mutate,
-            )
+        trie_postprocessor = hstrat.CompoundTriePostprocessor(
+            postprocessors=[
+                hstrat.SampleAncestralRollbacksTriePostprocessor(seed=1),
+                hstrat.AssignOriginTimeNaiveTriePostprocessor(),
+            ],
+        )
 
     else:
-        trie_postprocessor = AssignOriginTimesExpectedValueTriePostprocessor(
-            prior=bias_adjustment,
+        trie_postprocessor = hstrat.CompoundTriePostprocessor(
+            postprocessors=[
+                hstrat.PeelBackConjoinedLeavesTriePostprocessor(),
+                hstrat.AssignOriginTimeExpectedValueTriePostprocessor(
+                    prior=bias_adjustment,
+                ),
+            ],
         )
 
     return ip.popsingleton(
