@@ -11,6 +11,9 @@ from ._RngStateContext import RngStateContext
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
 from ._alifestd_aggregate_phylogenies import alifestd_aggregate_phylogenies
 from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
+from ._alifestd_assign_root_ancestor_token import (
+    alifestd_assign_root_ancestor_token,
+)
 from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
 from ._alifestd_convert_root_ancestor_token import (
     alifestd_convert_root_ancestor_token,
@@ -140,6 +143,7 @@ from ._zip_strict import zip_strict
 __all__ = [
     "alifestd_aggregate_phylogenies",
     "alifestd_assign_contiguous_ids",
+    "alifestd_assign_root_ancestor_token",
     "alifestd_collapse_unifurcations",
     "alifestd_find_chronological_inconsistency",
     "alifestd_find_leaf_ids",
