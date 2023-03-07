@@ -47,6 +47,7 @@ from ._anytree_calc_leaf_counts import anytree_calc_leaf_counts
 from ._anytree_cardinality import anytree_cardinality
 from ._anytree_has_grandparent import anytree_has_grandparent
 from ._anytree_has_sibling import anytree_has_sibling
+from ._anytree_iterative_deepcopy import anytree_iterative_deepcopy
 from ._anytree_peel_sibling_to_cousin import anytree_peel_sibling_to_cousin
 from ._apply_swaps import apply_swaps
 from ._argsort import argsort
@@ -163,6 +164,7 @@ __all__ = [
     "anynode_deepcopy_except_neighbors",
     "anytree_calc_leaf_counts",
     "anytree_cardinality",
+    "anytree_iterative_deepcopy",
     "anytree_has_grandparent",
     "anytree_has_sibling",
     "anytree_peel_sibling_to_cousin",
