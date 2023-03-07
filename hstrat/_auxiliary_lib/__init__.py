@@ -36,6 +36,9 @@ from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
 from ._alifestd_validate import alifestd_validate
 from ._all_same import all_same
 from ._all_unique import all_unique
+from ._anynode_deepcopy_except_neighbors import (
+    anynode_deepcopy_except_neighbors,
+)
 from ._anytree_calc_leaf_counts import anytree_calc_leaf_counts
 from ._anytree_cardinality import anytree_cardinality
 from ._anytree_has_grandparent import anytree_has_grandparent
@@ -153,6 +156,7 @@ __all__ = [
     "alifestd_validate",
     "all_same",
     "all_unique",
+    "anynode_deepcopy_except_neighbors",
     "anytree_calc_leaf_counts",
     "anytree_cardinality",
     "anytree_has_grandparent",
