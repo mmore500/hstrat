@@ -1,8 +1,7 @@
-import copy
-
 import anytree
 
 from ._anytree_has_sibling import anytree_has_sibling
+from ._anytree_iterative_deepcopy import anytree_iterative_deepcopy
 
 
 def anytree_peel_sibling_to_cousin(node: anytree.Node) -> None:
@@ -64,7 +63,7 @@ def anytree_peel_sibling_to_cousin(node: anytree.Node) -> None:
 
     parent = node.parent
 
-    peeled_parent = copy.deepcopy(parent)
+    peeled_parent = anytree_iterative_deepcopy(parent)
     peeled_parent.parent = parent.parent
 
     parent.children = filter(lambda x: x is not node, parent.children)
