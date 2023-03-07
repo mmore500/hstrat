@@ -1,5 +1,8 @@
 """Implementation helpers."""
 
+from ._AssignDestructionTimeYoungestPlusOneTriePostprocessor import (
+    AssignDestructionTimeYoungestPlusOneTriePostprocessor,
+)
 from ._AssignOriginTimeExpectedValueTriePostprocessor import (
     AssignOriginTimeExpectedValueTriePostprocessor,
 )
@@ -19,6 +22,7 @@ from ._SampleAncestralRollbacksTriePostprocessor import (
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
+    "AssignDestructionTimeYoungestPlusOneTriePostprocessor",
     "AssignOriginTimeExpectedValueTriePostprocessor",
     "AssignOriginTimeNaiveTriePostprocessor",
     "AssignOriginTimeNodeRankTriePostprocessor",
