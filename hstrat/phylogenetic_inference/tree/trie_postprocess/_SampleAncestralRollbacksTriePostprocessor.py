@@ -1,16 +1,16 @@
 import contextlib
-import copy
 import random
 import typing
 
-import anytree
 import opytional as opyt
 
 from ...._auxiliary_lib import (
+    AnyTreeFastPreOrderIter,
     RngStateContext,
     anytree_calc_leaf_counts,
     anytree_has_grandparent,
     anytree_has_sibling,
+    anytree_iterative_deepcopy,
     anytree_peel_sibling_to_cousin,
 )
 from .._impl import TrieInnerNode
@@ -26,18 +26,19 @@ def _sample_ancestral_rollbacks(
     See `SampleAncestralRollbacks.__call__` for parameter descriptions.
     """
     if not mutate:
-        trie = copy.deepcopy(trie)
+        trie = anytree_iterative_deepcopy(trie)
 
     eligible_nodes = {
         id(node): node
-        for node in anytree.PreOrderIter(trie)
+        for node in AnyTreeFastPreOrderIter(trie)
         if anytree_has_sibling(node) and anytree_has_grandparent(node)
     }
     # sequence data structure allows efficient random choice
     possibly_eligible_node_ids = [*eligible_nodes.keys()]
 
     # 2x number of leaves is the number of nodes in a strictly bifurcating tree
-    unzip_opportunities = 2 * len(trie.leaves)
+    num_leaves = sum(node.is_leaf for node in AnyTreeFastPreOrderIter(trie))
+    unzip_opportunities = 2 * num_leaves
     expected_collisions = int(
         p_differentia_collision * unzip_opportunities
     )

@@ -1,8 +1,10 @@
-import copy
 
-import anytree
 import numpy as np
 
+from ...._auxiliary_lib import (
+    AnyTreeFastPreOrderIter,
+    anytree_iterative_deepcopy,
+)
 from .._impl import TrieInnerNode, TrieLeafNode
 from ._AssignOriginTimeNaiveTriePostprocessor import (
     AssignOriginTimeNaiveTriePostprocessor,
@@ -41,13 +43,13 @@ class AssignOriginTimeExpectedValueTriePostprocessor:
             The postprocessed trie.
         """
         if not mutate:
-            trie = copy.deepcopy(trie)
+            trie = anytree_iterative_deepcopy(trie)
 
         trie = AssignOriginTimeNaiveTriePostprocessor(
             prior=self._prior, assigned_property="_naive_origin_time"
         )(trie, p_differentia_collision=p_differentia_collision, mutate=True)
 
-        for node in anytree.PreOrderIter(trie):
+        for node in AnyTreeFastPreOrderIter(trie):
             if node.is_leaf:
                 setattr(node, self._assigned_property, node.rank)
                 assert isinstance(node, TrieLeafNode)

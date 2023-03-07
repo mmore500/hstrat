@@ -1,6 +1,9 @@
-import copy
 
-from ...._auxiliary_lib import anytree_peel_sibling_to_cousin
+from ...._auxiliary_lib import (
+    AnyTreeFastLeafIter,
+    anytree_iterative_deepcopy,
+    anytree_peel_sibling_to_cousin,
+)
 from .._impl import TrieInnerNode
 
 
@@ -53,9 +56,9 @@ class PeelBackConjoinedLeavesTriePostprocessor:
             The postprocessed trie.
         """
         if not mutate:
-            trie = copy.deepcopy(trie)
+            trie = anytree_iterative_deepcopy(trie)
 
-        for leaf in trie.leaves:
+        for leaf in AnyTreeFastLeafIter(trie):
             if sum(1 for __ in leaf.parent.outer_children) > 1:
                 anytree_peel_sibling_to_cousin(leaf)
 

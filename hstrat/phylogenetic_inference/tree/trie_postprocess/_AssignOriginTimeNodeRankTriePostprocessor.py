@@ -1,7 +1,8 @@
-import copy
 
-import anytree
-
+from ...._auxiliary_lib import (
+    AnyTreeFastPreOrderIter,
+    anytree_iterative_deepcopy,
+)
 from .._impl import TrieInnerNode
 
 
@@ -34,9 +35,9 @@ class AssignOriginTimeNodeRankTriePostprocessor:
             The postprocessed trie.
         """
         if not mutate:
-            trie = copy.deepcopy(trie)
+            trie = anytree_iterative_deepcopy(trie)
 
-        for node in anytree.PreOrderIter(trie):
+        for node in AnyTreeFastPreOrderIter(trie):
             setattr(node, self._assigned_property, node.rank)
 
         return trie

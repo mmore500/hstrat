@@ -63,17 +63,11 @@ def anytree_peel_sibling_to_cousin(node: anytree.Node) -> None:
     assert anytree_has_sibling(node)
 
     parent = node.parent
-    grandparent = parent.parent
-
-    siblings = parent.children
-
-    parent.parent = None
-    parent.children = []
 
     peeled_parent = copy.deepcopy(parent)
+    peeled_parent.parent = parent.parent
 
-    parent.parent = grandparent
-    peeled_parent.parent = grandparent
-    parent.children = filter(lambda x: x is not node, siblings)
+    parent.children = filter(lambda x: x is not node, parent.children)
+
     assert node.parent is None
     peeled_parent.children = [node]

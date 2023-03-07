@@ -1,7 +1,8 @@
-import copy
 
-import anytree
-
+from ...._auxiliary_lib import (
+    AnyTreeFastPreOrderIter,
+    anytree_iterative_deepcopy,
+)
 from ...priors import ArbitraryPrior
 from .._impl import TrieInnerNode, TrieLeafNode
 
@@ -38,9 +39,9 @@ class AssignOriginTimeNaiveTriePostprocessor:
             The postprocessed trie.
         """
         if not mutate:
-            trie = copy.deepcopy(trie)
+            trie = anytree_iterative_deepcopy(trie)
 
-        for node in anytree.PreOrderIter(trie):
+        for node in AnyTreeFastPreOrderIter(trie):
             if node.is_leaf:
                 setattr(node, self._assigned_property, node.rank)
                 assert isinstance(node, TrieLeafNode)

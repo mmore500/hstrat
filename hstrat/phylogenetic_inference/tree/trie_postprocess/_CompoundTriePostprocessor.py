@@ -1,6 +1,6 @@
-import copy
 import typing
 
+from ...._auxiliary_lib import anytree_iterative_deepcopy
 from .._impl import TrieInnerNode
 
 
@@ -33,7 +33,7 @@ class CompoundTriePostprocessor:
             The postprocessed trie.
         """
         if not mutate:
-            trie = copy.deepcopy(trie)
+            trie = anytree_iterative_deepcopy(trie)
 
         for postprocessor in self._postprocessors:
             trie = postprocessor(
