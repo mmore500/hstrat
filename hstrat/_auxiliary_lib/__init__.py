@@ -1,4 +1,8 @@
 from ._AnyTreeAscendingIter import AnyTreeAscendingIter
+from ._AnyTreeFastLeafIter import AnyTreeFastLeafIter
+from ._AnyTreeFastLevelOrderIter import AnyTreeFastLevelOrderIter
+from ._AnyTreeFastPostOrderIter import AnyTreeFastPostOrderIter
+from ._AnyTreeFastPreOrderIter import AnyTreeFastPreOrderIter
 from ._BioPhyloTree import BioPhyloTree
 from ._CopyableSeriesItemsIter import CopyableSeriesItemsIter
 from ._HereditaryStratigraphicArtifact import HereditaryStratigraphicArtifact
@@ -168,6 +172,10 @@ __all__ = [
     "as_nullable_type",
     "assign_intersecting_subsets",
     "AnyTreeAscendingIter",
+    "AnyTreeFastLeafIter",
+    "AnyTreeFastLevelOrderIter",
+    "AnyTreeFastPreOrderIter",
+    "AnyTreeFastPostOrderIter",
     "BioPhyloTree",
     "bit_ceil",
     "bit_floor",
