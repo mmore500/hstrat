@@ -8,9 +8,6 @@ from hstrat._auxiliary_lib import (
     anytree_cardinality,
     seed_random,
 )
-from hstrat.phylogenetic_inference.tree._build_tree_trie_ensemble import (
-    _build_tree_trie_raw,
-)
 import hstrat.phylogenetic_inference.tree._impl as impl
 
 
@@ -236,10 +233,11 @@ def test_sample_ancestral_rollbacks_multiple_levels_trie_pone(mutate):
         0,
         0.5,
         1.0,
+        2**32,  # test full rollback
     ],
 )
 def test_unzip_fuzz(
-    tree_seed, tree_size, retention_policy, p_differentia_collision
+    mutate, tree_seed, tree_size, retention_policy, p_differentia_collision
 ):
 
     seed_random(tree_seed)
@@ -252,7 +250,7 @@ def test_unzip_fuzz(
             stratum_retention_policy=retention_policy,
         ),
     )
-    root = _build_tree_trie_raw(
+    root = impl.build_trie_from_artifacts(
         extant_population,
         taxon_labels=None,
         force_common_ancestry=False,
@@ -280,7 +278,7 @@ def test_unzip_fuzz(
         or p_differentia_collision == 0
     )
     assert len(root.leaves) == original_num_leaves
-    if p_differentia_collision == 1:
+    if p_differentia_collision > 1:
         assert len(root.children) == len(root.leaves)
 
     assert before_ascending_content == [
@@ -294,8 +292,7 @@ def test_unzip_fuzz(
     ]
 
 
-@pytest.mark.parametrize("mutate", [True, False])
-def test_sample_ancestral_rollbacks_multiple_levels_seed(mutate):
+def test_sample_ancestral_rollbacks_multiple_levels_seed():
     root = impl.TrieInnerNode(rank=None, differentia=None)
     impl.TrieInnerNode(rank=0, differentia=101, parent=root)
     for i in range(5):
@@ -326,7 +323,7 @@ def test_sample_ancestral_rollbacks_multiple_levels_seed(mutate):
             hstrat.SampleAncestralRollbacksTriePostprocessor(seed=1)(
                 root,
                 p_differentia_collision=0.5,
-                mutate=mutate,
+                mutate=False,
             )
         ).by_attr("taxon_label")
     ) == str(
@@ -334,7 +331,7 @@ def test_sample_ancestral_rollbacks_multiple_levels_seed(mutate):
             hstrat.SampleAncestralRollbacksTriePostprocessor(seed=1)(
                 root,
                 p_differentia_collision=0.5,
-                mutate=mutate,
+                mutate=False,
             )
         ).by_attr("taxon_label")
     )
@@ -344,7 +341,7 @@ def test_sample_ancestral_rollbacks_multiple_levels_seed(mutate):
             hstrat.SampleAncestralRollbacksTriePostprocessor(seed=1)(
                 root,
                 p_differentia_collision=0.5,
-                mutate=mutate,
+                mutate=False,
             )
         ).by_attr("taxon_label")
     ) != str(
@@ -352,7 +349,7 @@ def test_sample_ancestral_rollbacks_multiple_levels_seed(mutate):
             hstrat.SampleAncestralRollbacksTriePostprocessor(seed=3)(
                 root,
                 p_differentia_collision=0.5,
-                mutate=mutate,
+                mutate=False,
             )
         ).by_attr("taxon_label")
     )

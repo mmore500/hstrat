@@ -39,24 +39,21 @@ def _sample_ancestral_rollbacks(
     # sequence data structure allows efficient random choice
     possibly_eligible_node_ids = [*eligible_nodes.keys()]
 
+    leaf_counts = anytree_calc_leaf_counts(trie)
+    del leaf_counts[id(trie)]  # exclude root
+    max_unzips = sum(leaf_counts.values()) - len(
+        leaf_counts
+    )  # -1 per; last sibling always ineligible for unzip
+
     # 2x number of leaves is the number of nodes in a strictly bifurcating tree
     num_leaves = sum(node.is_leaf for node in AnyTreeFastPreOrderIter(trie))
-    unzip_opportunities = 2 * num_leaves
+    unzip_opportunities = min(2 * num_leaves, max_unzips)
     expected_collisions = int(
         p_differentia_collision * unzip_opportunities
     )
 
-    def check_expected_collisions() -> bool:
-        leaf_counts = anytree_calc_leaf_counts(trie)
-        del leaf_counts[id(trie)]  # exclude root
-        max_unzips = sum(leaf_counts.values()) - len(
-            leaf_counts
-        )  # -1 per; last sibling always ineligible for unzip
-        return max_unzips >= unzip_opportunities >= expected_collisions
-
-    assert check_expected_collisions()
-
-    remaining_collisions = expected_collisions
+    # allow feeding p > 1 for bounds testing
+    remaining_collisions = min(expected_collisions, max_unzips)
     progress = iter(progress_wrap(it.count()))
     while remaining_collisions:
         next(progress)
