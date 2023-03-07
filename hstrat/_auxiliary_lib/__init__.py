@@ -49,6 +49,7 @@ from ._anytree_has_grandparent import anytree_has_grandparent
 from ._anytree_has_sibling import anytree_has_sibling
 from ._anytree_iterative_deepcopy import anytree_iterative_deepcopy
 from ._anytree_peel_sibling_to_cousin import anytree_peel_sibling_to_cousin
+from ._anytree_tree_to_alife_dataframe import anytree_tree_to_alife_dataframe
 from ._apply_swaps import apply_swaps
 from ._argsort import argsort
 from ._as_compact_type import as_compact_type
@@ -168,6 +169,7 @@ __all__ = [
     "anytree_has_grandparent",
     "anytree_has_sibling",
     "anytree_peel_sibling_to_cousin",
+    "anytree_tree_to_alife_dataframe",
     "apply_swaps",
     "argsort",
     "as_compact_type",

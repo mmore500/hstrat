@@ -1,7 +1,6 @@
 import contextlib
 import typing
 
-import alifedata_phyloinformatics_convert as apc
 from iterpop import iterpop as ip
 import opytional as opyt
 import pandas as pd
@@ -11,6 +10,7 @@ from ..._auxiliary_lib import (
     RngStateContext,
     alifestd_collapse_unifurcations,
     alifestd_make_empty,
+    anytree_tree_to_alife_dataframe,
     flag_last,
 )
 from ...juxtaposition import calc_probability_differentia_collision_between
@@ -19,7 +19,7 @@ from ._impl import TrieInnerNode, build_trie_from_artifacts
 
 def _finalize_trie(trie: TrieInnerNode) -> pd.DataFrame:
     return alifestd_collapse_unifurcations(
-        apc.anytree_tree_to_alife_dataframe(trie), mutate=True
+        anytree_tree_to_alife_dataframe(trie), mutate=True
     )
 
 
