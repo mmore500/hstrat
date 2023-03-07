@@ -53,6 +53,7 @@ def _collapse_unifurcations(
 def _alifestd_collapse_unifurcations_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool,
+    root_ancestor_token: str,
 ) -> pd.DataFrame:
     """Optimized implementation for asexual phylogenies."""
 
@@ -82,7 +83,9 @@ def _alifestd_collapse_unifurcations_asexual(
         ancestor_ids[keep_filter]
     ]
     phylogeny_df.loc[:, "ancestor_list"] = alifestd_make_ancestor_list_col(
-        phylogeny_df["id"], phylogeny_df["ancestor_id"]
+        phylogeny_df["id"],
+        phylogeny_df["ancestor_id"],
+        root_ancestor_token=root_ancestor_token,
     )
 
     return phylogeny_df
@@ -91,8 +94,14 @@ def _alifestd_collapse_unifurcations_asexual(
 def alifestd_collapse_unifurcations(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
+    root_ancestor_token: str = "none",
 ) -> pd.DataFrame:
     """Pare record to bypass organisms with one ancestor and one descendant.
+
+    The option `root_ancestor_token` will be sandwiched in brackets to create
+    the ancestor list entry for genesis organisms. For example, the token
+    "None" will yield the entry "[None]" and the token "" will yield the entry
+    "[]". Default "none".
 
     Input dataframe is not mutated by this operation unless `mutate` set True.
     If mutate set True, operation does not occur in place; still use return
@@ -109,7 +118,9 @@ def alifestd_collapse_unifurcations(
     # special optimized handling for asexual phylogenies
     if alifestd_is_asexual(phylogeny_df):
         return _alifestd_collapse_unifurcations_asexual(
-            phylogeny_df, mutate=mutate
+            phylogeny_df,
+            mutate=mutate,
+            root_ancestor_token=root_ancestor_token,
         )
 
     if not mutate:
@@ -142,6 +153,9 @@ def alifestd_collapse_unifurcations(
                     for ancestor_id in ancestor_ids
                 ]
             )
+        else:
+            assert not ancestor_ids
+            phylogeny_df.loc[id_, "ancestor_list"] = f"[{root_ancestor_token}]"
 
     assert "ancestor_id" not in phylogeny_df
 
