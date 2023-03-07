@@ -23,6 +23,7 @@ def anytree_tree_to_alife_dataframe(
         * id,
         * label,
         * name,
+        * destruction_time,
         * origin_time, and
         * taxon_label.
 
@@ -71,6 +72,7 @@ def anytree_tree_to_alife_dataframe(
                 "label": getattr(node, "label", None),
                 "name": getattr(node, "name", None),
                 "origin_time": getattr(node, "origin_time", None),
+                "destruction_time": getattr(node, "destruction_time", None),
                 "taxon_label": getattr(node, "taxon_label", None),
             }
             for node in AnyTreeFastLevelOrderIter(tree)
