@@ -1,7 +1,9 @@
 import pandas as pd
 
 
-def alifestd_has_multiple_roots(phylogeny_df: pd.DataFrame) -> bool:
+def alifestd_has_multiple_roots(
+    phylogeny_df: pd.DataFrame, root_ancestor_token: str
+) -> bool:
     """Does the phylogeny two or more root organisms?
 
     Input dataframe is not mutated by this operation.
