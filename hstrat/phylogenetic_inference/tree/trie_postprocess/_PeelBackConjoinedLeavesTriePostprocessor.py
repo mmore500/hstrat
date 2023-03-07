@@ -1,3 +1,4 @@
+import typing
 
 from ...._auxiliary_lib import (
     AnyTreeFastLeafIter,
@@ -24,6 +25,7 @@ class PeelBackConjoinedLeavesTriePostprocessor:
         trie: TrieInnerNode,
         p_differentia_collision: float,
         mutate: bool = False,
+        progress_wrap: typing.Callable = lambda x: x,
     ) -> TrieInnerNode:
         """Peel apart any `TrieLeafNode` nodes that are direct siblings.
 
@@ -56,9 +58,11 @@ class PeelBackConjoinedLeavesTriePostprocessor:
             The postprocessed trie.
         """
         if not mutate:
-            trie = anytree_iterative_deepcopy(trie)
+            trie = anytree_iterative_deepcopy(
+                trie, progress_wrap=progress_wrap
+            )
 
-        for leaf in AnyTreeFastLeafIter(trie):
+        for leaf in progress_wrap(AnyTreeFastLeafIter(trie)):
             if sum(1 for __ in leaf.parent.outer_children) > 1:
                 anytree_peel_sibling_to_cousin(leaf)
 

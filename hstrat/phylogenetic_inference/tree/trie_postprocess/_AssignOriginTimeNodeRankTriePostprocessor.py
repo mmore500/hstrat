@@ -1,3 +1,4 @@
+import typing
 
 from ...._auxiliary_lib import (
     AnyTreeFastPreOrderIter,
@@ -21,6 +22,7 @@ class AssignOriginTimeNodeRankTriePostprocessor:
         trie: TrieInnerNode,
         p_differentia_collision: float,
         mutate: bool = False,
+        progress_wrap: typing.Callable = lambda x: x,
     ) -> TrieInnerNode:
         """TODO
 
@@ -35,9 +37,11 @@ class AssignOriginTimeNodeRankTriePostprocessor:
             The postprocessed trie.
         """
         if not mutate:
-            trie = anytree_iterative_deepcopy(trie)
+            trie = anytree_iterative_deepcopy(
+                trie, progress_wrap=progress_wrap
+            )
 
-        for node in AnyTreeFastPreOrderIter(trie):
+        for node in progress_wrap(AnyTreeFastPreOrderIter(trie)):
             setattr(node, self._assigned_property, node.rank)
 
         return trie

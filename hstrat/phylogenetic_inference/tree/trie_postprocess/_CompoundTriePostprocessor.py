@@ -19,6 +19,7 @@ class CompoundTriePostprocessor:
         trie: TrieInnerNode,
         p_differentia_collision: float,
         mutate: bool = False,
+        progress_wrap: typing.Callable = lambda x: x,
     ) -> TrieInnerNode:
         """Apply stored postprocessors in sequence.
 
@@ -33,13 +34,16 @@ class CompoundTriePostprocessor:
             The postprocessed trie.
         """
         if not mutate:
-            trie = anytree_iterative_deepcopy(trie)
+            trie = anytree_iterative_deepcopy(
+                trie, progress_wrap=progress_wrap
+            )
 
         for postprocessor in self._postprocessors:
             trie = postprocessor(
                 trie=trie,
                 p_differentia_collision=p_differentia_collision,
                 mutate=True,
+                progress_wrap=progress_wrap,
             )
 
         return trie

@@ -1,4 +1,5 @@
 import contextlib
+import itertools as it
 import random
 import typing
 
@@ -19,14 +20,16 @@ from .._impl import TrieInnerNode
 def _sample_ancestral_rollbacks(
     trie: TrieInnerNode,
     p_differentia_collision: float,
+    sample_expected_collisions: bool,
     mutate: bool = False,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> TrieInnerNode:
     """Implementation detail for `SampleAncestralRollbacks.__call__`.
 
     See `SampleAncestralRollbacks.__call__` for parameter descriptions.
     """
     if not mutate:
-        trie = anytree_iterative_deepcopy(trie)
+        trie = anytree_iterative_deepcopy(trie, progress_wrap=progress_wrap)
 
     eligible_nodes = {
         id(node): node
@@ -51,7 +54,9 @@ def _sample_ancestral_rollbacks(
     assert max_unzips >= unzip_opportunities >= expected_collisions
 
     remaining_collisions = expected_collisions
+    progress = iter(progress_wrap(it.count()))
     while remaining_collisions:
+        next(progress)
         assert possibly_eligible_node_ids
         target_idx = random.randrange(len(possibly_eligible_node_ids))
         target_id = possibly_eligible_node_ids[target_idx]
@@ -123,6 +128,7 @@ class SampleAncestralRollbacksTriePostprocessor:
         trie: TrieInnerNode,
         p_differentia_collision: float,
         mutate: bool = False,
+        progress_wrap: typing.Callable = lambda x: x,
     ) -> TrieInnerNode:
         """Compensate for bias towards overestimating relatedness due to
         spurious differentia collisions.
@@ -173,4 +179,5 @@ class SampleAncestralRollbacksTriePostprocessor:
                 trie=trie,
                 p_differentia_collision=p_differentia_collision,
                 mutate=mutate,
+                progress_wrap=progress_wrap,
             )

@@ -63,6 +63,7 @@ def _build_tree_trie_ensemble(
                     root,
                     p_differentia_collision=p_differentia_collision,
                     mutate=is_last,
+                    progress_wrap=progress_wrap,
                 )
             )
         )
