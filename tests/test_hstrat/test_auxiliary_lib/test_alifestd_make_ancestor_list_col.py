@@ -41,3 +41,16 @@ def test_alifestd_make_ancestor_list_col_empty():
     )
     assert len(res) == 0
     assert pd.api.types.is_string_dtype(res.dtype)
+
+
+def test_alifestd_make_ancestor_list_col_root_ancestor_token():
+    res = alifestd_make_ancestor_list_col(
+        pd.Series([0]),
+        pd.Series([0]),
+        root_ancestor_token="boop",
+    )
+    assert len(res) == 1
+    pd.testing.assert_series_equal(
+        res,
+        pd.Series("[boop]"),
+    )
