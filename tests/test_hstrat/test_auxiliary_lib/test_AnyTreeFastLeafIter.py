@@ -64,7 +64,7 @@ def large_tree():
         "large_tree",
     ],
 )
-def test_preorder_iterator(tree_fixture, request):
+def test_leaf_iter(tree_fixture, request):
     tree = request.getfixturevalue(tree_fixture)
     all(
         n1 is n2

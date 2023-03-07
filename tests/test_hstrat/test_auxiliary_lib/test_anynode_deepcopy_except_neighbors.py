@@ -63,7 +63,7 @@ def large_tree():
         "large_tree",
     ],
 )
-def test_preorder_iterator(tree_fixture, request):
+def test_deepcopy_except_neighbors(tree_fixture, request):
     tree = request.getfixturevalue(tree_fixture)
 
     snapshot_before = str(anytree.RenderTree(tree))
