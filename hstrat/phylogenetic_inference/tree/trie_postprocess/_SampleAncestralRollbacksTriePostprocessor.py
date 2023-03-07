@@ -46,12 +46,15 @@ def _sample_ancestral_rollbacks(
         p_differentia_collision * unzip_opportunities
     )
 
-    leaf_counts = anytree_calc_leaf_counts(trie)
-    del leaf_counts[id(trie)]  # exclude root
-    max_unzips = sum(leaf_counts.values()) - len(
-        leaf_counts
-    )  # -1 per; last sibling always ineligible for unzip
-    assert max_unzips >= unzip_opportunities >= expected_collisions
+    def check_expected_collisions() -> bool:
+        leaf_counts = anytree_calc_leaf_counts(trie)
+        del leaf_counts[id(trie)]  # exclude root
+        max_unzips = sum(leaf_counts.values()) - len(
+            leaf_counts
+        )  # -1 per; last sibling always ineligible for unzip
+        return max_unzips >= unzip_opportunities >= expected_collisions
+
+    assert check_expected_collisions()
 
     remaining_collisions = expected_collisions
     progress = iter(progress_wrap(it.count()))
