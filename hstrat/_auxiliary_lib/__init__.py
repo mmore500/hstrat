@@ -12,6 +12,9 @@ from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
 from ._alifestd_aggregate_phylogenies import alifestd_aggregate_phylogenies
 from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
 from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
+from ._alifestd_convert_root_ancestor_token import (
+    alifestd_convert_root_ancestor_token,
+)
 from ._alifestd_find_chronological_inconsistency import (
     alifestd_find_chronological_inconsistency,
 )
@@ -32,7 +35,6 @@ from ._alifestd_make_empty import alifestd_make_empty
 from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_reroot_at_id_asexual import alifestd_reroot_at_id_asexual
-from ._alifestd_set_root_ancestor_token import alifestd_set_root_ancestor_token
 from ._alifestd_splay_polytomies import alifestd_splay_polytomies
 from ._alifestd_to_working_format import alifestd_to_working_format
 from ._alifestd_topological_sort import alifestd_topological_sort
@@ -155,7 +157,7 @@ __all__ = [
     "alifestd_parse_ancestor_id",
     "alifestd_parse_ancestor_ids",
     "alifestd_reroot_at_id_asexual",
-    "alifestd_set_root_ancestor_token",
+    "alifestd_convert_root_ancestor_token",
     "alifestd_splay_polytomies",
     "alifestd_to_working_format",
     "alifestd_topological_sort",

@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def alifestd_set_root_ancestor_token(
+def alifestd_convert_root_ancestor_token(
     ancestor_list: pd.Series,
     root_ancestor_token: str,
     mutate: bool = False,
