@@ -65,7 +65,7 @@ class AssignOriginTimeNaiveTriePostprocessor:
                     min(
                         interval_mean,
                         min(
-                            (leaf.rank for leaf in node.leaves),
+                            (child.rank for child in node.children),
                             default=interval_mean,
                         ),
                     ),
