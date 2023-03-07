@@ -20,20 +20,24 @@ def anynode_deepcopy_except_neighbors(
         A new AnyNode object with the same attributes and values as the
         original, but with no parent or children.
     """
+    hasattr_parent = hasattr(node, "_NodeMixin__parent")
+
     # temporarily detach parent and children
-    detached_children, node.children = (
-        node.children,
-        tuple(),
+    detached_children, node._NodeMixin__children = (
+        node._NodeMixin__children,
+        list(),
     )
-    detached_parent, node.parent = (
-        node.parent,
-        None,
-    )
+    if hasattr_parent:
+        detached_parent, node._NodeMixin__parent = (
+            node._NodeMixin__parent,
+            None,
+        )
 
     res = copy.deepcopy(node)
 
     # reattach parent and children
-    node.children = detached_children
-    node.parent = detached_parent
+    node._NodeMixin__children = detached_children
+    if hasattr_parent:
+        node._NodeMixin__parent = detached_parent
 
     return res
