@@ -20,7 +20,6 @@ from .._impl import TrieInnerNode
 def _sample_ancestral_rollbacks(
     trie: TrieInnerNode,
     p_differentia_collision: float,
-    sample_expected_collisions: bool,
     mutate: bool = False,
     progress_wrap: typing.Callable = lambda x: x,
 ) -> TrieInnerNode:
