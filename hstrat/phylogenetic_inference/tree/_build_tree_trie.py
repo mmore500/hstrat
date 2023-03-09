@@ -3,12 +3,12 @@ import typing
 from iterpop import iterpop as ip
 import pandas as pd
 
+from . import trie_postprocess
 from ..._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
     alifestd_make_empty,
 )
 from ._build_tree_trie_ensemble import build_tree_trie_ensemble
-from .trie_postprocess import AssignOriginTimeNaiveTriePostprocessor
 
 
 def build_tree_trie(
@@ -68,24 +68,28 @@ def build_tree_trie(
         return alifestd_make_empty()
 
     if bias_adjustment is None:
-        trie_postprocessor = AssignOriginTimeNaiveTriePostprocessor()
+        trie_postprocessor = (
+            trie_postprocess.AssignOriginTimeNaiveTriePostprocessor()
+        )
     elif (
         isinstance(bias_adjustment, str)
         and bias_adjustment == "sample_ancestral_rollbacks"
     ):
 
-        trie_postprocessor = hstrat.CompoundTriePostprocessor(
+        trie_postprocessor = trie_postprocess.CompoundTriePostprocessor(
             postprocessors=[
-                hstrat.SampleAncestralRollbacksTriePostprocessor(seed=1),
-                hstrat.AssignOriginTimeNaiveTriePostprocessor(),
+                trie_postprocess.SampleAncestralRollbacksTriePostprocessor(
+                    seed=1
+                ),
+                trie_postprocess.AssignOriginTimeNaiveTriePostprocessor(),
             ],
         )
 
     else:
-        trie_postprocessor = hstrat.CompoundTriePostprocessor(
+        trie_postprocessor = trie_postprocess.CompoundTriePostprocessor(
             postprocessors=[
-                hstrat.PeelBackConjoinedLeavesTriePostprocessor(),
-                hstrat.AssignOriginTimeExpectedValueTriePostprocessor(
+                trie_postprocess.PeelBackConjoinedLeavesTriePostprocessor(),
+                trie_postprocess.AssignOriginTimeExpectedValueTriePostprocessor(
                     prior=bias_adjustment,
                 ),
             ],
