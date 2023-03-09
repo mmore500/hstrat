@@ -109,25 +109,23 @@ class TrieInnerNode(anytree.NodeMixin):
         taxon_label: str,
         taxon_allele_genesis_iter: typing.Iterator[typing.Tuple[int, int]],
     ) -> TrieLeafNode:
-        try:
-            # common allele genesis trace is for special condition optimization
-            # where GetDeepestConsecutiveSharedAlleleGenesis isn't needed
-            next_rank, next_differentia = next(taxon_allele_genesis_iter)
+        cur_node = self
+        for next_rank, next_differentia in taxon_allele_genesis_iter:
             assert next_rank is not None
             assert next_differentia is not None
-            for child in self.inner_children:
+            for child in cur_node.inner_children:
+                # common allele genesis trace is for special condition
+                # optimization where GetDeepestConsecutiveSharedAlleleGenesis
+                # isn't needed
                 if child.IsGenesisOfAllele(next_rank, next_differentia):
-                    return child.InsertTaxon(
-                        taxon_label,
-                        taxon_allele_genesis_iter,
-                    )
+                    cur_node = child
+                    break
             else:
-                return TrieInnerNode(
-                    next_rank, next_differentia, parent=self
-                ).InsertTaxon(taxon_label, taxon_allele_genesis_iter)
+                cur_node = TrieInnerNode(
+                    next_rank, next_differentia, parent=cur_node
+                )
 
-        except StopIteration:
-            return TrieLeafNode(parent=self, taxon_label=taxon_label)
+        return TrieLeafNode(parent=cur_node, taxon_label=taxon_label)
 
     @property
     def taxon_label(self: "TrieInnerNode") -> str:
