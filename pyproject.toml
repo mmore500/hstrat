@@ -41,7 +41,7 @@ dependencies = [
   "prettytable>=3.5.0",
   "python-slugify>=6.1.2",
   "safe_assert>=0.2.0",
-  "seaborn>=0.11.2",
+  "seaborn>=0.11.0",
   "sortedcontainers>=2.4.0",
   "tqdm>=4.62.3",
 ]
@@ -108,7 +108,7 @@ pinned_dependencies_py37 = [
   "prettytable==3.5.0",
   "python-slugify==6.1.2",
   "safe_assert==0.2.0",
-  "seaborn==0.12.1",
+  "seaborn==0.11.0",
   "sortedcontainers==2.4.0",
   "tqdm==4.62.3",
 ]
@@ -138,7 +138,7 @@ pinned_dependencies_py310 = [
   "prettytable==3.5.0",
   "python-slugify==6.1.2",
   "safe_assert==0.2.0",
-  "seaborn==0.12.1",
+  "seaborn==0.11.0",
   "sortedcontainers==2.4.0",
   "tqdm==4.62.3",
 ]
