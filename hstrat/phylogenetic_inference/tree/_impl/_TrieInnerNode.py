@@ -75,14 +75,20 @@ class TrieInnerNode(anytree.NodeMixin):
         assert differentia is not None
         assert (self._differentia is None) == (self._rank is None)
         # handle root case
-        if self._rank is None:
-            for child in self.inner_children:
-                yield from child.FindOriginationsOfAllele(rank, differentia)
-        elif rank == self._rank and differentia == self._differentia:
-            yield self
-        elif rank > self._rank:
-            for child in self.inner_children:
-                yield from child.FindOriginationsOfAllele(rank, differentia)
+
+        search_stack: List["TrieInnerNode"] = [self]
+        while search_stack:
+            current_node = search_stack.pop()
+
+            if current_node._rank is None:
+                search_stack.extend(current_node.inner_children)
+            elif (
+                rank == current_node._rank
+                and differentia == current_node._differentia
+            ):
+                yield current_node
+            elif rank > current_node._rank:
+                search_stack.extend(current_node.inner_children)
 
     def GetDeepestCongruousAlleleOrigination(
         self: "TrieInnerNode",
