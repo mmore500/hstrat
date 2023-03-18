@@ -32,7 +32,8 @@ def unassemblage_from_records(
         Postprocessing representation of the differentia retained by an extant
         HereditaryStratigraphicColumn, indexed by deposition rank.
     HereditaryStratigraphicAssemblage
-        A collection of HereditaryStratigraphicSpecimens, padded to include entries for all ranks retained by any specimen within the assemblage.
+        A collection of HereditaryStratigraphicSpecimens, padded to include
+        entries for all ranks retained by any specimen within the assemblage.
     """
 
     col_records = col_records_from_pop_records(records, mutate=mutate)

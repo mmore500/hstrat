@@ -8,7 +8,7 @@ from .._impl import TrieInnerNode
 
 
 class AssignOriginTimeNodeRankTriePostprocessor:
-    """Functor to assign trie nodes' rank as their the origin time"""
+    """Functor to assign trie nodes' rank as their the origin time."""
 
     _assigned_property: str
 

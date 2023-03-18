@@ -36,7 +36,8 @@ class UniformPrior:
     def CalcIntervalConditionedMean(
         self: "UniformPrior", begin_rank: int, end_rank: int
     ) -> float:
-        """Calcualate the centriod of prior probability mass within an interval of possible MRCA generations.
+        """Calcualate the centriod of prior probability mass within an interval
+        of possible MRCA generations.
 
         Parameters
         ----------

@@ -10,7 +10,7 @@ from .._impl import TrieInnerNode, TrieLeafNode
 
 class AssignOriginTimeNaiveTriePostprocessor:
     """Functor to assign origin time property to trie nodescalculated as the
-    average of the node's rank and the minimum rank among its children
+    average of the node's rank and the minimum rank among its children.
 
     Optionally calculates origin time expected value over this interval for
     a provided prior distribution.

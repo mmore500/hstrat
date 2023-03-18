@@ -40,7 +40,8 @@ def build_tree(
         Some effort will be made to maintain historical implementations to
         support prior version pins. However, indefinite support is not
         guaranteed for hard version pins; old version pins may eventually raise
-        `DeprecationWarning` or `ValueError`. Where reasonable, consider directly calling an implementing tree building method instead.
+        `DeprecationWarning` or `ValueError`. Where reasonable, consider
+        directly calling an implementing tree building method instead.
     taxon_labels: Optional[Iterable], optional
         How should leaf nodes representing extant hereditary stratigraphic
         columns be named?
@@ -64,7 +65,8 @@ def build_tree(
     Raises
     ------
     ValueError
-        If the specified `version_pin` is higher than the current version of Hereditary Stratigraphic Columns.
+        If the specified `version_pin` is higher than the current version of
+        hstrat.
     """
 
     if version.parse(version_pin) > version.parse(get_hstrat_version()):

@@ -5,9 +5,8 @@ import typing
 def with_omission(
     iterable: typing.Iterable, omit_index: int
 ) -> typing.Generator:
-    """
-    Return an iterator that yields the elements of `iterable`, skipping over
-    the element at index `omit_index`..
+    """Return an iterator that yields the elements of `iterable`, skipping over
+    the element at index `omit_index`.
 
     Yields
     ------

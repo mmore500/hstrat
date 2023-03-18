@@ -17,9 +17,14 @@ def time_calibrate_tree(
     leaf_node_origin_times: typing.Dict[int, numbers.Number],
     negative_origin_time_correction_method: typing.Optional[str],
 ) -> pd.DataFrame:
-    """Time-calibrates a given tree by estimating the origin time of its nodes, by working backward from phylogenetic depths of leaf nodes using branch_length attributes of tree nodes.
+    """Time-calibrates a given tree by estimating the origin time of its nodes,
+    by working backward from phylogenetic depths of leaf nodes using
+    branch_length attributes of tree nodes.
 
-    Sets `origin_time` attributes on tree nodes, reroots the tree to the most ancient (chronologically) clade, and sets the `branch_length` of the new root node to reflect estimated generations elapsed between genesis and the MRCA.
+    Sets `origin_time` attributes on tree nodes, reroots the tree to the most
+    ancient (chronologically) clade, and sets the `branch_length` of the new
+    root node to reflect estimated generations elapsed between genesis and the
+    MRCA.
 
     Parameters
     ----------

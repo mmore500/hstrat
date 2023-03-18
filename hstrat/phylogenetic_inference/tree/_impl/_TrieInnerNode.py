@@ -16,7 +16,8 @@ class TrieInnerNode(anytree.NodeMixin):
     allele (i.e., differentia at a particular rank).
 
     Note that more than one` TrieInnerNode` representing a particular
-    rank/differentia combination may be present. This is only the case when the colliding alleles are known to have independent origins due to previous
+    rank/differentia combination may be present. This is only the case when the
+    colliding alleles are known to have independent origins due to previous
     disparities in the phylogenetic record.
 
     Only `TrieLeafNode` instances will occupy leaf node positions in the trie

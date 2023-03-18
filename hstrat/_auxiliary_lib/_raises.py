@@ -16,10 +16,6 @@ def raises(callable: typing.Callable, exception: BaseException) -> bool:
     bool
         True if the callable raises the specified exception; False otherwise.
 
-    Note
-    ----
-    Exceptions besides `exception` are not caught.
-
     Examples
     --------
     >>> def my_func():

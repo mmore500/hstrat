@@ -7,9 +7,11 @@ class ArbitraryPrior:
     columns that is arbitrary, but computationally efficient.
 
     The prior expectation for MRCA generation is taken as equal probability
-    within each interval between ranks with common strata retained by both extant columns up through the first retained disparity bewteen the columns.
+    within each interval between ranks with common strata retained by both
+    extant columns up through the first retained disparity bewteen the columns.
 
-    Prior probability density is assumed uniformly distributed within each interval between coincident retained ranks. So, conditioning on the
+    Prior probability density is assumed uniformly distributed within each
+    interval between coincident retained ranks. So, conditioning on the
     assumption that the true generation of the MRCA occurs within a particular
     interval, the prior expected value for the MRCA generation will be the
     midpoint of the interval.
@@ -57,7 +59,8 @@ class ArbitraryPrior:
     def CalcIntervalConditionedMean(
         self: "ArbitraryPrior", begin_rank: int, end_rank: int
     ) -> float:
-        """Calcualate the centriod of prior probability mass within an interval of possible MRCA generations.
+        """Calcualate the centriod of prior probability mass within an interval
+        of possible MRCA generations.
 
         Parameters
         ----------

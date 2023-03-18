@@ -18,7 +18,8 @@ def to_tril(matrix: np.ndarray) -> typing.List[typing.List[float]]:
     Returns
     -------
     typing.List[typing.List[float]]
-        The lower triangular form of the input matrix, represented as a list of lists of floats.
+        The lower triangular form of the input matrix, represented as a list of
+        lists of floats.
 
     Examples
     --------
