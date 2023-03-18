@@ -2,15 +2,15 @@ import typing
 
 import opytional as opyt
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ._calc_rank_of_earliest_detectable_mrca_between import (
     calc_rank_of_earliest_detectable_mrca_between,
 )
 
 
 def calc_ranks_since_earliest_detectable_mrca_with(
-    focal: HereditaryStratigraphicColumn,
-    other: HereditaryStratigraphicColumn,
+    focal: HereditaryStratigraphicArtifact,
+    other: HereditaryStratigraphicArtifact,
     confidence_level: float = 0.95,
 ) -> typing.Optional[int]:
     """How many generations have elapsed since the first where common ancestry
