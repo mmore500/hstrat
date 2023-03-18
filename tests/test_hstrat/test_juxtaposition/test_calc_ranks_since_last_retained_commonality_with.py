@@ -36,37 +36,21 @@ def test_CalcRanksSinceLastRetainedCommonalitytWith_specimen(
     child2 = column.CloneDescendant()
 
     assert hstrat.calc_ranks_since_last_retained_commonality_with(
-        hstrat.col_to_specimen(column),
-        hstrat.col_to_specimen(column),
-    ) == hstrat.calc_ranks_since_last_retained_commonality_with(
-        hstrat.col_to_specimen(column),
-        hstrat.col_to_specimen(column),
-    )
+        hstrat.col_to_specimen(column), hstrat.col_to_specimen(column)
+    ) == hstrat.calc_ranks_since_last_retained_commonality_with(column, column)
 
     assert hstrat.calc_ranks_since_last_retained_commonality_with(
-        hstrat.col_to_specimen(column),
-        hstrat.col_to_specimen(child1),
-    ) == hstrat.calc_ranks_since_last_retained_commonality_with(
-        hstrat.col_to_specimen(column),
-        hstrat.col_to_specimen(child1),
-    )
+        hstrat.col_to_specimen(column), hstrat.col_to_specimen(child1)
+    ) == hstrat.calc_ranks_since_last_retained_commonality_with(column, child1)
 
     assert hstrat.calc_ranks_since_last_retained_commonality_with(
-        hstrat.col_to_specimen(child1),
-        hstrat.col_to_specimen(child2),
-    ) == hstrat.calc_ranks_since_last_retained_commonality_with(
-        hstrat.col_to_specimen(child1),
-        hstrat.col_to_specimen(child2),
-    )
+        hstrat.col_to_specimen(child1), hstrat.col_to_specimen(child2)
+    ) == hstrat.calc_ranks_since_last_retained_commonality_with(child1, child2)
 
     child1.DepositStrata(10)
     assert hstrat.calc_ranks_since_last_retained_commonality_with(
-        hstrat.col_to_specimen(child1),
-        hstrat.col_to_specimen(child2),
-    ) == hstrat.calc_ranks_since_last_retained_commonality_with(
-        hstrat.col_to_specimen(child1),
-        hstrat.col_to_specimen(child2),
-    )
+        hstrat.col_to_specimen(child1), hstrat.col_to_specimen(child2)
+    ) == hstrat.calc_ranks_since_last_retained_commonality_with(child1, child2)
 
 
 @pytest.mark.parametrize(

@@ -14,36 +14,28 @@ def test_CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith_specimen():
     child2 = column.CloneDescendant()
 
     assert hstrat.calc_definitive_min_ranks_since_first_retained_disparity_with(
-        hstrat.col_to_specimen(column),
-        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(column), hstrat.col_to_specimen(column)
     ) == hstrat.calc_definitive_min_ranks_since_first_retained_disparity_with(
-        hstrat.col_to_specimen(column),
-        hstrat.col_to_specimen(column),
+        column, column
     )
 
     assert hstrat.calc_definitive_min_ranks_since_first_retained_disparity_with(
-        hstrat.col_to_specimen(column),
-        hstrat.col_to_specimen(child1),
+        hstrat.col_to_specimen(column), hstrat.col_to_specimen(child1)
     ) == hstrat.calc_definitive_min_ranks_since_first_retained_disparity_with(
-        hstrat.col_to_specimen(column),
-        hstrat.col_to_specimen(child1),
+        column, child1
     )
 
     assert hstrat.calc_definitive_min_ranks_since_first_retained_disparity_with(
-        hstrat.col_to_specimen(child1),
-        hstrat.col_to_specimen(child2),
+        hstrat.col_to_specimen(child1), hstrat.col_to_specimen(child2)
     ) == hstrat.calc_definitive_min_ranks_since_first_retained_disparity_with(
-        hstrat.col_to_specimen(child1),
-        hstrat.col_to_specimen(child2),
+        child1, child2
     )
 
     child1.DepositStrata(10)
     assert hstrat.calc_definitive_min_ranks_since_first_retained_disparity_with(
-        hstrat.col_to_specimen(child1),
-        hstrat.col_to_specimen(child2),
+        hstrat.col_to_specimen(child1), hstrat.col_to_specimen(child2)
     ) == hstrat.calc_definitive_min_ranks_since_first_retained_disparity_with(
-        hstrat.col_to_specimen(child1),
-        hstrat.col_to_specimen(child2),
+        child1, child2
     )
 
 

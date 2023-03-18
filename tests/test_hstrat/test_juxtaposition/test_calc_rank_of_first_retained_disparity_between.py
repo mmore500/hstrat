@@ -36,37 +36,21 @@ def test_CalcRankOfFirstRetainedDisparityBetween_specimen(
     child2 = column.CloneDescendant()
 
     assert hstrat.calc_rank_of_first_retained_disparity_between(
-        hstrat.col_to_specimen(column),
-        hstrat.col_to_specimen(column),
-    ) == hstrat.calc_rank_of_first_retained_disparity_between(
-        hstrat.col_to_specimen(column),
-        hstrat.col_to_specimen(column),
-    )
+        hstrat.col_to_specimen(column), hstrat.col_to_specimen(column)
+    ) == hstrat.calc_rank_of_first_retained_disparity_between(column, column)
 
     assert hstrat.calc_rank_of_first_retained_disparity_between(
-        hstrat.col_to_specimen(column),
-        hstrat.col_to_specimen(child1),
-    ) == hstrat.calc_rank_of_first_retained_disparity_between(
-        hstrat.col_to_specimen(column),
-        hstrat.col_to_specimen(child1),
-    )
+        hstrat.col_to_specimen(column), hstrat.col_to_specimen(child1)
+    ) == hstrat.calc_rank_of_first_retained_disparity_between(column, child1)
 
     assert hstrat.calc_rank_of_first_retained_disparity_between(
-        hstrat.col_to_specimen(child1),
-        hstrat.col_to_specimen(child2),
-    ) == hstrat.calc_rank_of_first_retained_disparity_between(
-        hstrat.col_to_specimen(child1),
-        hstrat.col_to_specimen(child2),
-    )
+        hstrat.col_to_specimen(child1), hstrat.col_to_specimen(child2)
+    ) == hstrat.calc_rank_of_first_retained_disparity_between(child1, child2)
 
     child1.DepositStrata(10)
     assert hstrat.calc_rank_of_first_retained_disparity_between(
-        hstrat.col_to_specimen(child1),
-        hstrat.col_to_specimen(child2),
-    ) == hstrat.calc_rank_of_first_retained_disparity_between(
-        hstrat.col_to_specimen(child1),
-        hstrat.col_to_specimen(child2),
-    )
+        hstrat.col_to_specimen(child1), hstrat.col_to_specimen(child2)
+    ) == hstrat.calc_rank_of_first_retained_disparity_between(child1, child2)
 
 
 @pytest.mark.parametrize(
