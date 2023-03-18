@@ -26,12 +26,12 @@ jobs:
 
   set_current_day:
     runs-on: ubuntu-latest
+    name: Set current day
     outputs:
       current_day: ${{ steps.set_day.outputs.current_day }}
 
     steps:
-      - name: Set current day
-        id: set_day
+      - id: set_day
         run: |
           CURRENT_DAY=$(date +'%Y-%m-%d')
           echo "Current day: $CURRENT_DAY"
