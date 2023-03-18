@@ -10,7 +10,7 @@
 ![Codacy Badge](https://app.codacy.com/project/badge/Grade/9ab14d415aa9458d97b4cf760b95f874)
 ](https://www.codacy.com/gh/mmore500/hstrat/dashboard)
 [
-![CI](https://github.com/mmore500/hstrat/actions/workflows/CI.yml/badge.svg)
+![CI](https://github.com/mmore500/hstrat/actions/workflows/ci.yaml/badge.svg)
 ](https://github.com/mmore500/hstrat/actions)
 [
 ![Read The Docs](https://readthedocs.org/projects/hstrat/badge/?version=latest)
