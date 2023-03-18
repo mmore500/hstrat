@@ -1,12 +1,12 @@
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ...juxtaposition import (
     calc_definitive_max_rank_of_first_retained_disparity_between,
 )
 
 
 def does_definitively_have_no_common_ancestor(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
 ) -> bool:
     """Does the hereditary stratigraphic record definitively prove that first
     and second could not possibly share a common ancestor?
