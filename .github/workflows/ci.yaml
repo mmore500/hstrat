@@ -1,4 +1,4 @@
-name: hstrat
+name: ci
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: nightly
+name: heavy-nightly
 
 on:
   pull_request:
