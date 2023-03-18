@@ -1,0 +1,25 @@
+name: heavy-weekly
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at 00:00 UTC
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+jobs:
+  test-semiheavy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.10"  # why? 3.10 runs tests 2x faster than 3.11
+    - name: Install dependencies
+      run: |
+        sudo sed -i 's/azure\.//' /etc/apt/sources.list
+        sudo apt-get update -o Acquire::Retries=3
+        sudo apt-get install -y ffmpeg -o Acquire::Retries=3
+        python -m pip install --upgrade pip
+        pip install tox tox-gh-actions
+    - name: Test with tox
+      run: tox -e semiheavy
