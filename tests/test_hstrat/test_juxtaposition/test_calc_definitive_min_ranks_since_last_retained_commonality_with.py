@@ -5,6 +5,48 @@ import pytest
 from hstrat import hstrat
 
 
+def test_CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith_specimen():
+    column = hstrat.HereditaryStratigraphicColumn()
+    for generation in range(100):
+        column.DepositStratum()
+
+    child1 = column.CloneDescendant()
+    child2 = column.CloneDescendant()
+
+    assert hstrat.calc_definitive_min_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(column),
+    ) == hstrat.calc_definitive_min_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(column),
+    )
+
+    assert hstrat.calc_definitive_min_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(child1),
+    ) == hstrat.calc_definitive_min_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(child1),
+    )
+
+    assert hstrat.calc_definitive_min_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(child1),
+        hstrat.col_to_specimen(child2),
+    ) == hstrat.calc_definitive_min_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(child1),
+        hstrat.col_to_specimen(child2),
+    )
+
+    child1.DepositStrata(10)
+    assert hstrat.calc_definitive_min_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(child1),
+        hstrat.col_to_specimen(child2),
+    ) == hstrat.calc_definitive_min_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(child1),
+        hstrat.col_to_specimen(child2),
+    )
+
+
 @pytest.mark.parametrize(
     "ordered_store",
     [

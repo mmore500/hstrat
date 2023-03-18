@@ -1,6 +1,9 @@
 import typing
 
 from .._auxiliary_lib import HereditaryStratigraphicArtifact
+from ._calc_min_implausible_spurious_consecutive_differentia_collisions_between import (
+    calc_min_implausible_spurious_consecutive_differentia_collisions_between,
+)
 from ._calc_ranks_since_last_retained_commonality_with import (
     calc_ranks_since_last_retained_commonality_with,
 )
@@ -25,7 +28,9 @@ def calc_definitive_min_ranks_since_last_retained_commonality_with(
         == other.GetStratumDifferentiaBitWidth()
     )
     assert (
-        focal.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+        calc_min_implausible_spurious_consecutive_differentia_collisions_between(
+            focal,
+            other,
             significance_level=1.0 - confidence_level,
         )
         == 1
