@@ -18,6 +18,7 @@ from ._impl import TrieInnerNode, build_trie_from_artifacts
 
 
 def _finalize_trie(trie: TrieInnerNode) -> pd.DataFrame:
+    "Convert to alifestd dataframe and collapse unifurcations."
     return alifestd_collapse_unifurcations(
         anytree_tree_to_alife_dataframe(trie), mutate=True
     )
@@ -80,7 +81,20 @@ def build_tree_trie_ensemble(
     seed: typing.Optional[int] = 1,
 ) -> typing.List[pd.DataFrame]:
     """Estimate the phylogenetic history among hereditary stratigraphic
-    columns using an agglomerative approach followed by progressive refinement.
+    columns by building a trie (a.k.a. prefix tree) of the differentia
+    sequences of hereditary stratigraphic artifacts within a population.
+
+    Returns phylogeny reconstruction outcomes from alternate postprocessing
+    schemes applied between trie contruction and conversion to an alife
+    standard data frame, including ancestor taxon origin time estimation.
+    Because the underlying pre-postprocess trie is only constructed once, this
+    method allows for efficient comparison of potprocessing schemes.
+
+    Unless comparing alternate postprocessing schemes or applying a custom
+    postprocessing option, end users should likely prefer `build_tree_trie`.
+    This interface applies a single postprocess, set to a generally-appropriate
+    default with a few other curated postprocesses specifiable by optional
+    argument.
 
     Parameters
     ----------
@@ -91,7 +105,16 @@ def build_tree_trie_ensemble(
         Each member of population will correspond to a unique leaf node in the
         reconstructed tree.
     trie_postprocessors: Iterable[Callable]
-        TODO
+        Tree postprocess functors.
+
+        Must take `trie` of type `TrieInnerNode`, `p_differentia_collision` of
+        type `float`, `mutate` of type `bool`, and `progress_wrap` of type
+        `Callable` params. Must returned postprocessed trie (type
+        `TrieInnerNode`). Several
+
+        Each postprocess will be called indpendently to produce a returned
+        postprocessed variant. Use `CompoundTriePostprocessor` to chain
+        postprocess functors that should be applied in succession.
     taxon_labels: Optional[Iterable], optional
         How should leaf nodes representing extant hereditary stratigraphic
         columns be named?

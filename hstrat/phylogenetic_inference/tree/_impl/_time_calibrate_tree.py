@@ -28,10 +28,9 @@ def time_calibrate_tree(
     leaf_node_origin_times : dict
         A dictionary that maps the `id` attributes of leaf nodes in the tree
         to their phylogenetic depths since genesis.
-    negative_origin_time_correction_method : optional str
+    negative_origin_time_correction_method
+        : {"truncate", "shift", "rescale"}, optional
         How should negative origin time estimates be corrected?
-
-        Options are "truncate", "shift", and "recale".
     """
 
     if not len(alifestd_df):

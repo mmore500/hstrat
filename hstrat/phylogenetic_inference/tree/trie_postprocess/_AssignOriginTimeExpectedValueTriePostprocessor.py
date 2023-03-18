@@ -36,8 +36,8 @@ class AssignOriginTimeExpectedValueTriePostprocessor:
 
         Parameters
         ----------
-            mutate : bool, default False
-                Are side effects on the input argument `trie` allowed?
+        mutate : bool, default False
+            Are side effects on the input argument `trie` allowed?
 
         Returns
         -------

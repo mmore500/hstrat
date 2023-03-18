@@ -20,7 +20,10 @@ def build_tree_trie(
     bias_adjustment: typing.Union[str, object, None] = None,
 ) -> pd.DataFrame:
     """Estimate the phylogenetic history among hereditary stratigraphic
-    columns using an agglomerative approach followed by progressive refinement.
+    columns by building a trie (a.k.a. prefix tree) of the differentia
+    sequences of hereditary stratigraphic artifacts within a population.
+
+    Exhibits time complexity at most `O(nlog(n))` for population size `n`.
 
     Parameters
     ----------
@@ -48,19 +51,55 @@ def build_tree_trie(
         phylogeny compilation process.
 
         Pass tqdm or equivalent to display progress bars.
-    seed : int, default
+    seed : int, default 1
         Controls tiebreaking decisions in the algorithm.
 
         Pass an int for reproducible output across multiple function calls. The
-        default value, 1, ensures reproducible output. Pass None to use
-        existing RNG context directly.
+        default value, 1, ensures reproducible output. Pass None to use global
+        RNG context.
     bias_adjustment : "sample_ancestral_rollbacks" or prior, optional
-        TODO
+        How should bias toward overestimation of relatedness due to differentia
+        collisions be corrected for?
+
+        If "sample_ancestral_rollbacks", the trie topology will be adjusted as
+        if the expected number of collisions had occured. Targets for
+        "unzipping" to reverse the effect of a speculated collision are
+        chosen randomly from within the tree. See
+        `SampleAncestralRollbacksTriePostprocessor` for details.
+
+        If a prior functor is passed, the origin time for each trie node will
+        be calculated as the expected origin time over the distribution of
+        possible differentia collisions. Correction recursively takes into
+        account the possibility of multiple collisions. See
+        `hstrat.phylogenetic_inference.priors` for available prior
+        distributions. A custom prior distribution may also be supplied. See
+        `AssignOriginTimeExpectedValueTriePostprocessor` for details.
+
+        If a prior functor is passed, correction for guaranteed-spurious
+        collision between most-recent strata will also be performed. See
+        `PeelBackConjoinedLeavesTriePostprocessor` for details.
+
+        If None, no correction will be performed. The origin time for each trie
+        node will be assigned using a naive strategy, calculated as the average
+        of the node's rank and the minimum rank among its children. See
+        `AssignOriginTimeNaiveTriePostprocessor` for details.
 
     Returns
     -------
     pd.DataFrame
         The reconstructed phylogenetic tree in alife standard format.
+
+    Notes
+    -----
+    Unifurcations in the reconstructed tree are collapsed.
+
+    However, polytomies are not resolved. In addition to any true polytomies,
+    ancestry sequences that cannot be resolved due to missing information
+    appear as polytomies in the generated reconstruction. Therefore, polytomies
+    are generally overrepresented in reconstructions, especially when low
+    hereditary stratigraphic resolution is available. If overestimation of
+    polytomies is problematic, external tools can be used to decompose
+    polytomies into arbitrarily-arranged bifurcations.
     """
 
     # for simplicity, return early for this special case
