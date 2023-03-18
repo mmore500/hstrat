@@ -31,5 +31,5 @@ def raises(callable: typing.Callable, exception: BaseException) -> bool:
     try:
         callable()
         return False
-    except exception:
+    except:
         return True
