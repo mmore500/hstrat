@@ -147,6 +147,8 @@ def _sample_ancestral_rollbacks(
 
 
 class SampleAncestralRollbacksTriePostprocessor:
+    """Functor to correct for systematic overestimation of relatedness by
+    sampling a compensatory adjustment to trie topology."""
 
     _seed: typing.Optional[int]
 
@@ -154,6 +156,18 @@ class SampleAncestralRollbacksTriePostprocessor:
         self: "SampleAncestralRollbacksTriePostprocessor",
         seed: typing.Optional[int] = None,
     ) -> None:
+        """Initialize functor instance.
+
+        Parameters:
+        ----------
+        seed: int, default
+            Controls sampling decisions in the algorithm.
+
+            Pass an int for reproducible output across multiple function calls.
+            The default value, 1, ensures reproducible output. Pass None to use
+            existing RNG context directly.
+        """
+
         self._seed = seed
 
     def __call__(
@@ -186,12 +200,8 @@ class SampleAncestralRollbacksTriePostprocessor:
             This fraction of possible rollbacks are performed.
         mutate : bool, default False
             Are side effects on the input argument `trie` allowed?
-        seed: int, default
-            Controls sampling decisions in the algorithm.
-
-            Pass an int for reproducible output across multiple function calls.
-            The default value, 1, ensures reproducible output. Pass None to use
-            existing RNG context directly.
+        progress_wrap : typing.Callable, optional
+            Pass tqdm or equivalent to report progress.
 
         Returns
         -------

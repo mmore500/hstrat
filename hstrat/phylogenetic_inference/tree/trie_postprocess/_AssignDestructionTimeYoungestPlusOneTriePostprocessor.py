@@ -9,15 +9,30 @@ from .._impl import TrieInnerNode, TrieLeafNode
 
 
 class AssignDestructionTimeYoungestPlusOneTriePostprocessor:
+    """Functor to assign a destruction time property to trie nodes.
 
-    _assigned_property: str
-    _origin_time_property: str
+    Destruction time of leaf nodes are set to infinity. Destruction time of
+    innner nodes is calculated as the minimum of its children's origin times
+    plus one.
+    """
+
+    _assigned_property: str  # property name for the assigned destruction time.
+    _origin_time_property: str  # property name for the node's origin time.
 
     def __init__(
         self: "AssignDestructionTimeYoungestPlusOneTriePostprocessor",
         assigned_property: str = "destruction_time",
         origin_time_property: str = "origin_time",
     ) -> None:
+        """Initialize functor instance.
+
+        Parameters
+        ----------
+        assigned_property : str, default "destruction_time"
+            The property name for the assigned destruction tim.
+        origin_time_property : str, default "origin_time"
+            The property name for the node's origin time.
+        """
         self._assigned_property = assigned_property
         self._origin_time_property = origin_time_property
 
@@ -28,17 +43,26 @@ class AssignDestructionTimeYoungestPlusOneTriePostprocessor:
         mutate: bool = False,
         progress_wrap: typing.Callable = lambda x: x,
     ) -> TrieInnerNode:
-        """TODO
+        """Assign destruction times to trie nodes based on their origin times.
 
         Parameters
         ----------
+        trie : TrieInnerNode
+            The input trie to be postprocessed.
+        p_differentia_collision : float
+            The multiplicative inverse of the number of possible
+            differentia.
+
+            Not used in the current implementation.
         mutate : bool, default False
             Are side effects on the input argument `trie` allowed?
+        progress_wrap : typing.Callable, optional
+            Pass tqdm or equivalent to report progress.
 
         Returns
         -------
         TrieInnerNode
-            The postprocessed trie.
+            The postprocessed trie with assigned destruction times.
         """
         if not mutate:
             trie = anytree_iterative_deepcopy(

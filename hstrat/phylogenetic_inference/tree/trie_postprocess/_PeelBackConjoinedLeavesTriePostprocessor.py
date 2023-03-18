@@ -9,6 +9,12 @@ from .._impl import TrieInnerNode
 
 
 class PeelBackConjoinedLeavesTriePostprocessor:
+    """Functor to separate any TrieLeafNode instances that are direct siblings.
+
+    Corrects for guaranteed-spurious differentia collisions among most- recent
+    strata.
+    """
+
     def __call__(
         self: "PeelBackConjoinedLeavesTriePostprocessor",
         trie: TrieInnerNode,
@@ -40,6 +46,8 @@ class PeelBackConjoinedLeavesTriePostprocessor:
             This fraction of possible rollbacks are performed.
         mutate : bool, default False
             Are side effects on the input argument `trie` allowed?
+        progress_wrap : typing.Callable, optional
+            Pass tqdm or equivalent to report progress.
 
         Returns
         -------
