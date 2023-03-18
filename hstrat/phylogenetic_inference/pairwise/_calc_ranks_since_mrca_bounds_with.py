@@ -3,7 +3,7 @@ import warnings
 
 import opytional as opyt
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ...juxtaposition import (
     calc_definitive_min_ranks_since_first_retained_disparity_with,
     calc_ranks_since_last_retained_commonality_with,
@@ -15,8 +15,8 @@ from ._does_have_any_common_ancestor import does_have_any_common_ancestor
 
 
 def calc_ranks_since_mrca_bounds_with(
-    focal: HereditaryStratigraphicColumn,
-    other: HereditaryStratigraphicColumn,
+    focal: HereditaryStratigraphicArtifact,
+    other: HereditaryStratigraphicArtifact,
     prior: str,
     confidence_level: float = 0.95,
 ) -> typing.Optional[typing.Tuple[int, int]]:
