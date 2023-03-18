@@ -74,6 +74,18 @@ jobs:
 
   coverage:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        subdivision:
+          - "test_auxiliary_lib"
+          - "test_genome_instrumentation"
+          - "test_juxtaposition"
+          - "test_phylogenetic_inference"
+          - "test_serialization"
+          - "test_stratum_retention_strategy"
+          - "test_stratum_retention_viz"
+          - "test_test_drive"
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python 3.9
@@ -90,7 +102,7 @@ jobs:
     - name: Log coverage configuration
       run: coverage debug sys
     - name: Run tests with coverage report
-      run: coverage run -m pytest tests/test_hstrat
+      run: coverage run -m pytest tests/test_hstrat/${{ matrix.subdivision }}
     - uses: codecov/codecov-action@v3
       with:
         flags: tests # optional
