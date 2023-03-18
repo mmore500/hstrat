@@ -8,17 +8,6 @@ from ...._auxiliary_lib import (
 from .._impl import TrieInnerNode
 
 
-def _peel_back_conjoined_leaves(
-    trie: TrieInnerNode,
-    p_differentia_collision: float,
-    mutate: bool = False,
-) -> TrieInnerNode:
-    """Implementation detail for `SampleAncestralRollbacks.__call__`.
-
-    See `SampleAncestralRollbacks.__call__` for parameter descriptions.
-    """
-
-
 class PeelBackConjoinedLeavesTriePostprocessor:
     def __call__(
         self: "PeelBackConjoinedLeavesTriePostprocessor",

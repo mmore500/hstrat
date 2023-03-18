@@ -112,9 +112,8 @@ class TrieInnerNode(anytree.NodeMixin):
         Returns
         -------
         typing.Tuple["TrieInnerNode", typing.Iterator[typing.Tuple[int, int]]]
-            A tuple containing the retrieved deepest tree match and an iterator
-            over the taxon alleles remaining past the
-            retrieved allele.
+            A tuple containing the retrieved deepest prefix tree match and an
+            iterator over the taxon alleles remaining past the retrieved allele.
         """
         # iterator must be copyable
         assert [*copy.copy(taxon_allele_genesis_iter)] == [
