@@ -11,15 +11,15 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [3.7, 3.8, 3.9, "3.10", 3.11]
-        module:
-          - "_auxiliary_lib"
-          - "genome_instrumentation"
-          - "juxtaposition"
-          - "phylogenetic_inference"
-          - "serialization"
-          - "stratum_retention_strategy"
-          - "stratum_retention_viz"
-          - "test_drive"
+        subdivision:
+          - "test_auxiliary_lib"
+          - "test_genome_instrumentation"
+          - "test_juxtaposition"
+          - "test_phylogenetic_inference"
+          - "test_serialization"
+          - "test_stratum_retention_strategy"
+          - "test_stratum_retention_viz"
+          - "test_test_drive"
 
     steps:
     - uses: actions/checkout@v1
@@ -35,7 +35,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
     - name: Test with tox
-      run: tox
+      run: |
+        export HSTRAT_TESTS_SUBDIVISION=${{ matrix.subdivision }}
+        tox
 
   test-semiheavy:
     runs-on: ubuntu-latest
