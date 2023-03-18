@@ -1,4 +1,3 @@
-import functools
 import itertools as it
 import logging
 
@@ -20,20 +19,7 @@ from ....juxtaposition import (
 )
 from ....stratum_retention_viz import col_to_ascii
 
-confidence_level = 0.49
-
-
-def validate(func):
-    @functools.wraps(func)  # presever name, docstring, etc
-    def wrapper(self, *args, **kwargs):  # NOTE: no self
-        self.Validate()
-        retval = func(
-            self, *args, **kwargs
-        )  # call original function or method
-        self.Validate()
-        return retval
-
-    return wrapper
+_confidence_level = 0.49
 
 
 class GlomNode(anytree.NodeMixin):
@@ -60,71 +46,50 @@ class GlomNode(anytree.NodeMixin):
     def longrep(self):
         return self._leaves[-1]
 
-    # def GetFirstRetainedDisparityBetween(self, node):
-    #
-    #     return (
-    #         calc_rank_of_first_retained_disparity_between(
-    #             self._leaves[0], col, confidence_level=confidence_level
-    #         )
-    #         or self._leaves[0].GetNumStrataDeposited()
-    # )
-
     def GetFirstRetainedDisparityWithShort(self, col):
-        # logging.debug(col_to_ascii(col))
-        # logging.debug(col_to_ascii(self._leaves[0]))
         logging.debug(f"first retained disp short {id(self._leaves[0])}")
         return (
             calc_rank_of_first_retained_disparity_between(
-                self._leaves[0], col, confidence_level=confidence_level
+                self._leaves[0], col, confidence_level=_confidence_level
             )
             or self._leaves[0].GetNumStrataDeposited()
         )
 
     def GetFirstRetainedDisparityWithLong(self, col):
-        # logging.debug(col_to_ascii(col))
-        # logging.debug(col_to_ascii(self._leaves[-1]))
         logging.debug(f"first retained disp long {id(self._leaves[-1])}")
         return (
             calc_rank_of_first_retained_disparity_between(
-                self._leaves[-1], col, confidence_level=confidence_level
+                self._leaves[-1], col, confidence_level=_confidence_level
             )
             or self._leaves[-1].GetNumStrataDeposited()
         )
 
     def GetLastRetainedCommonalityWithShort(self, col):
-        # logging.debug(col_to_ascii(col))
-        # logging.debug(col_to_ascii(self._leaves[0]))
         logging.debug(f"last retained common short {id(self._leaves[0])}")
         return calc_rank_of_last_retained_commonality_between(
-            self._leaves[0], col, confidence_level=confidence_level
+            self._leaves[0], col, confidence_level=_confidence_level
         )
 
     def GetLastRetainedCommonalityWithLong(self, col):
-        # logging.debug(col_to_ascii(col))
-        # logging.debug(col_to_ascii(self._leaves[-1]))
         logging.debug(f"last retained common long {id(self._leaves[-1])}")
         return calc_rank_of_last_retained_commonality_between(
-            self._leaves[-1], col, confidence_level=confidence_level
+            self._leaves[-1], col, confidence_level=_confidence_level
         )
 
     def GetLastRetainedCommonalityWithDeep(self, col):
-        # logging.debug(col_to_ascii(col))
-        # logging.debug(col_to_ascii(self._leaves[-1]))
         return self.FindBestMatch(col)
 
     def GetFirstRetainedDisparityWithDeep(self, col):
-        # logging.debug(col_to_ascii(col))
-        # logging.debug(col_to_ascii(self._leaves[-1]))
         return self.FindBestStreak(col)
 
-    # @validate
     def PercolateColumn(self, col):
         logging.debug(f"{id(self)} percolating {id(col)}")
 
         # add first leaf
         if len(self._leaves) == 0:
             self._leaves.add(col)
-            self.Validate()
+            assert len(self._leaves) < 2, len(self._leaves)
+            assert len(self._leaves) == len(self.leaves)
             logging.debug(f"{id(self)} added first leaf")
             return
 
@@ -144,11 +109,6 @@ class GlomNode(anytree.NodeMixin):
             child.GetFirstRetainedDisparityWithDeep(col)
             for child in self.children
         ]
-        # last_commonalities = [
-        #     child.GetLastRetainedCommonalityWithLong(col)
-        #     for child in self.children
-        # ]
-
         zip_ = [
             *zip(
                 self.children,
@@ -164,7 +124,6 @@ class GlomNode(anytree.NodeMixin):
                     candidate is not None
                     and candidate.GetLastRetainedCommonalityWithDeep(col)
                     >= max(other_disparities)
-                    # >= max(max(other_disparities), max(other_commonalities) + 1)
                 ):
                     self._leaves.add(col)
                     logging.debug(f"{id(self)} forwarded to best branch")
@@ -194,13 +153,9 @@ class GlomNode(anytree.NodeMixin):
         ):
             child1 = self.children[child_idx1]
             child2 = self.children[child_idx2]
-            # TODO
             if child1.GetLastRetainedCommonalityWithShort(
                 child2.shortrep
             ) >= max(
-                # if child1.GetLastRetainedCommonalityWithLong(
-                #     child2.longrep
-                # ) >= max(
                 child1.GetFirstRetainedDisparityWithLong(col),
                 child2.GetFirstRetainedDisparityWithLong(col),
             ):
@@ -221,11 +176,6 @@ class GlomNode(anytree.NodeMixin):
 
             logging.debug(f"{id(self)} inserted shim")
             return
-
-        # should this be what if multiple best?
-        # if len(set(first_disparities)) != 1:
-        #     youngest_disparity = max(first_disparities)
-        #     self.
 
         logging.debug(f"{id(self)} created polytomy")
         GlomNode(parent=self).PercolateColumn(col)
@@ -281,19 +231,14 @@ class GlomNode(anytree.NodeMixin):
         return min(short, long) - 1
 
     def GetFrontpoint(self: "GlomNode"):
-        # return min(
-        #     calc_rank_of_first_retained_disparity_between(c1.shortrep, c2.shortrep, confidence_level=0.49) or 0
-        #     for c1, c2 in pairwise(self.children)
-        # )
         return min(
             calc_rank_of_last_retained_commonality_between(
-                c1.shortrep, c2.shortrep, confidence_level=0.49
+                c1.shortrep, c2.shortrep, confidence_level=_confidence_level
             )
             or 0
             for c1, c2 in pairwise(self.children)
         )
 
-    # @functools.cached_property  # TODO just call from root
     @property
     def origin_time(self: "GlomNode"):
         logging.debug(f"{id(self)} calculating origin_time")
@@ -304,22 +249,12 @@ class GlomNode(anytree.NodeMixin):
             logging.debug(f"{id(self)} origin_time: leaf")
             assert len(self._leaves) == 1
             res = self._leaves[0].GetNumStrataDeposited() - 1
-        # elif self.GetBoundsIntersection() is not None:
-        #     logging.debug(f"{id(self)} origin_time: bounds intersection")
-        #     assert len(self._leaves) > 1
-        #     # res = self.GetBackpoint()
-        #     # res = statistics.mean(*self.GetBoundsIntersection())
-        #     res = self.GetBoundsIntersection()[1] - 1
-        #     # res = self.GetBoundsIntersection()[0]
-        # elif self.GetBoundsIntersectionShort() is not None:
-        #     logging.debug(f"{id(self)} origin_time: bounds intersection short")
-        #     res = self.GetBoundsIntersectionShort()[1] - 1
         elif True:
             res = (
                 min(
                     opyt.or_value(
                         calc_rank_of_first_retained_disparity_between(
-                            l1, l2, confidence_level=confidence_level
+                            l1, l2, confidence_level=_confidence_level
                         ),
                         l1.GetNumStrataDeposited(),
                     )
@@ -348,21 +283,11 @@ class GlomNode(anytree.NodeMixin):
         assert res >= 0
         return res
 
-    def Validate(self):
-        if self.is_leaf:
-            assert len(self._leaves) < 2, len(self._leaves)
-
-        assert len(self._leaves) == len(self.leaves)
-
     def __str__(self: "GlomNode") -> str:
         return "\n".join(
             f"{pre} ({id(node)}) {node.name}"
             for pre, __, node in anytree.RenderTree(self)
         )
-        # return "\n".join(
-        #     f"{pre} ({id(node)}) {node.origin_time} {node.name}"
-        #     for pre, __, node in anytree.RenderTree(self)
-        # )
 
     @property
     def name(self: "GlomNode"):
@@ -404,7 +329,6 @@ class GlomNode(anytree.NodeMixin):
                         to_push.add(child1)
                         to_push.add(child2)
 
-            # assert len(to_push) < len(self.children)
             if len(to_push) == len(self.children):
                 continue
             if to_push:
@@ -419,39 +343,19 @@ class GlomNode(anytree.NodeMixin):
     def FindBestMatch(self, col):
         if self.is_leaf:
             return calc_rank_of_last_retained_commonality_between(
-                self._leaves[0], col, confidence_level=confidence_level
+                self._leaves[0], col, confidence_level=_confidence_level
             )
 
-        # first_disparities = [
-        #     child.GetLastRetainedCommonalityWithLong(col)
-        #     for child in self.children
-        # ]
-        # max_ = max(first_disparities)
-        return max(
-            child.FindBestMatch(col)
-            for child in self.children
-            # for d, child in zip(first_disparities, self.children)
-            # if d == max_
-        )
+        return max(child.FindBestMatch(col) for child in self.children)
 
     def FindBestStreak(self, col):
         if self.is_leaf:
             res = calc_rank_of_first_retained_disparity_between(
-                self._leaves[0], col, confidence_level=confidence_level
+                self._leaves[0], col, confidence_level=_confidence_level
             )
             if res is None:
                 return self._leaves[0].GetNumStrataDeposited()
             else:
                 return res
 
-        # first_disparities = [
-        #     child.GetLastRetainedCommonalityWithLong(col)
-        #     for child in self.children
-        # ]
-        # max_ = max(first_disparities)
-        return max(
-            child.FindBestStreak(col)
-            for child in self.children
-            # for d, child in zip(first_disparities, self.children)
-            # if d == max_
-        )
+        return max(child.FindBestStreak(col) for child in self.children)
