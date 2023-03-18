@@ -1,9 +1,13 @@
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
+from ...juxtaposition import (
+    calc_min_implausible_spurious_consecutive_differentia_collisions_between,
+    calc_probability_differentia_collision_between,
+)
 
 
 def calc_rank_of_mrca_bounds_provided_confidence_level(
-    focal: HereditaryStratigraphicColumn,
-    other: HereditaryStratigraphicColumn,
+    focal: HereditaryStratigraphicArtifact,
+    other: HereditaryStratigraphicArtifact,
     prior: str,
     requested_confidence_level: float = 0.95,
 ) -> float:
@@ -23,10 +27,12 @@ def calc_rank_of_mrca_bounds_provided_confidence_level(
             == other.GetStratumDifferentiaBitWidth()
         )
 
-    n = focal.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+    n = calc_min_implausible_spurious_consecutive_differentia_collisions_between(
+        focal,
+        other,
         significance_level=1 - requested_confidence_level,
     )
-    res = 1 - focal.CalcProbabilityDifferentiaCollision() ** n
+    res = 1 - calc_probability_differentia_collision_between(focal, other) ** n
     assert res >= requested_confidence_level
     assert 0 <= res <= 1
     return res
