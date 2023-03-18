@@ -2,13 +2,13 @@ import typing
 
 import opytional as opyt
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ._calc_rank_of_mrca_bounds_between import calc_rank_of_mrca_bounds_between
 
 
 def calc_patristic_distance_bounds_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
     prior: str,
     confidence_level: float = 0.95,
 ) -> typing.Optional[typing.Tuple[int, int]]:
