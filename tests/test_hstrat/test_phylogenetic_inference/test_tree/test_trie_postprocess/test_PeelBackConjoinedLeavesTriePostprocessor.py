@@ -166,7 +166,7 @@ def test_fixture(trie):
             if node.taxon_label == leaf_taxon
         )
         assert len(leaf_node.parent.children) == 1
-        assert leaf_node.parent.IsGenesisOfAllele(rank=6, differentia=19)
+        assert leaf_node.parent.IsAnOriginationOfAllele(rank=6, differentia=19)
         assert len(leaf_node.parent.parent.children) == 4
 
     for leaf_taxon in "spice", "sweet":
@@ -175,7 +175,7 @@ def test_fixture(trie):
             for node in anytree.PostOrderIter(processed_trie)
             if node.taxon_label == leaf_taxon
         )
-        assert leaf_node.parent.IsGenesisOfAllele(rank=3, differentia=1)
+        assert leaf_node.parent.IsAnOriginationOfAllele(rank=3, differentia=1)
 
     for node in anytree.PostOrderIter(processed_trie):
         attrs = kn.unpack(node.taxon_label)

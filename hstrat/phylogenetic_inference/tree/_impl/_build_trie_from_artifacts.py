@@ -43,7 +43,7 @@ def build_trie_from_artifacts(
         if is_perfectly_synchronous:
             root.InsertTaxon(label, artifact.IterRankDifferentiaZip())
         else:
-            res = root.GetDeepestConsecutiveSharedAlleleGenesis(
+            res = root.GetDeepestCongruousAlleleOrigination(
                 artifact.IterRankDifferentiaZip(copyable=True)
             )
             node, subsequent_allele_genesis_iter = res

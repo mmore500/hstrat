@@ -56,7 +56,7 @@ class TrieInnerNode(anytree.NodeMixin):
         assert (self._rank is None) == (self._differentia is None)
         self._tiebreaker = random.getrandbits(128)  # uuid standard 128 bits
 
-    def IsGenesisOfAllele(
+    def IsAnOriginationOfAllele(
         self: "TrieInnerNode",
         rank: int,
         differentia: int,
@@ -64,29 +64,29 @@ class TrieInnerNode(anytree.NodeMixin):
         """Checks if the node represents an origination of a given allele."""
         return self._rank == rank and self._differentia == differentia
 
-    def FindGenesesOfAllele(
+    def FindOriginationsOfAllele(
         self: "TrieInnerNode",
         rank: int,
         differentia: int,
     ) -> typing.Iterator["TrieInnerNode"]:
         """Searches subtree to find all possible `TrieInnerNodes` representing
-        a genesis of the specified `rank`-`differentia` allele."""
+        an origination of the specified `rank`-`differentia` allele."""
         assert rank is not None
         assert differentia is not None
         assert (self._differentia is None) == (self._rank is None)
         # handle root case
         if self._rank is None:
             for child in self.inner_children:
-                yield from child.FindGenesesOfAllele(rank, differentia)
+                yield from child.FindOriginationsOfAllele(rank, differentia)
         elif rank == self._rank and differentia == self._differentia:
             yield self
         elif rank > self._rank:
             for child in self.inner_children:
-                yield from child.FindGenesesOfAllele(rank, differentia)
+                yield from child.FindOriginationsOfAllele(rank, differentia)
 
-    def GetDeepestConsecutiveSharedAlleleGenesis(
+    def GetDeepestCongruousAlleleOrigination(
         self: "TrieInnerNode",
-        taxon_allele_genesis_iter: typing.Iterator[typing.Tuple[int, int]],
+        taxon_allele_iter: typing.Iterator[typing.Tuple[int, int]],
     ) -> (
         typing.Tuple["TrieInnerNode", typing.Iterator[typing.Tuple[int, int]]]
     ):
@@ -103,7 +103,7 @@ class TrieInnerNode(anytree.NodeMixin):
 
         Parameters
         ----------
-        taxon_allele_genesis_iter : typing.Iterator[typing.Tuple[int, int]]
+        taxon_allele_iter : typing.Iterator[typing.Tuple[int, int]]
             An iterator over the taxon alleles (rank/differentia pairs) in rank-
             ascending order.
 
@@ -116,55 +116,53 @@ class TrieInnerNode(anytree.NodeMixin):
             iterator over the taxon alleles remaining past the retrieved allele.
         """
         # iterator must be copyable
-        assert [*copy.copy(taxon_allele_genesis_iter)] == [
-            *copy.copy(taxon_allele_genesis_iter)
+        assert [*copy.copy(taxon_allele_iter)] == [
+            *copy.copy(taxon_allele_iter)
         ]
 
         node_stack = [self]
-        allele_genesis_stack = [taxon_allele_genesis_iter]
-        deepest_genesis = self
-        deepest_taxon_allele_genesis_iter = copy.copy(
-            taxon_allele_genesis_iter
-        )
+        allele_origination_stack = [taxon_allele_iter]
+        deepest_origination = self
+        deepest_taxon_allele_iter = copy.copy(taxon_allele_iter)
         while True:
 
-            candidate_genesis = node_stack.pop()
-            taxon_allele_genesis_iter = allele_genesis_stack.pop()
+            candidate_origination = node_stack.pop()
+            taxon_allele_iter = allele_origination_stack.pop()
 
             if (
-                opyt.or_value(candidate_genesis._rank, -1),
-                candidate_genesis._tiebreaker,
+                opyt.or_value(candidate_origination._rank, -1),
+                candidate_origination._tiebreaker,
             ) > (
-                opyt.or_value(deepest_genesis._rank, -1),
-                deepest_genesis._tiebreaker,
+                opyt.or_value(deepest_origination._rank, -1),
+                deepest_origination._tiebreaker,
             ):
-                deepest_genesis = candidate_genesis
-                deepest_taxon_allele_genesis_iter = copy.copy(
-                    taxon_allele_genesis_iter
-                )
+                deepest_origination = candidate_origination
+                deepest_taxon_allele_iter = copy.copy(taxon_allele_iter)
 
-            next_allele = next(taxon_allele_genesis_iter, None)
+            next_allele = next(taxon_allele_iter, None)
             if next_allele is not None:
                 node_stack.extend(
-                    candidate_genesis.FindGenesesOfAllele(*next_allele)
+                    candidate_origination.FindOriginationsOfAllele(
+                        *next_allele
+                    )
                 )
-                allele_genesis_stack.extend(
+                allele_origination_stack.extend(
                     generate_n(
-                        lambda: copy.copy(taxon_allele_genesis_iter),
-                        len(node_stack) - len(allele_genesis_stack),
+                        lambda: copy.copy(taxon_allele_iter),
+                        len(node_stack) - len(allele_origination_stack),
                     )
                 )
 
-            assert len(node_stack) == len(allele_genesis_stack)
+            assert len(node_stack) == len(allele_origination_stack)
             if not node_stack:
                 break
 
-        return deepest_genesis, deepest_taxon_allele_genesis_iter
+        return deepest_origination, deepest_taxon_allele_iter
 
     def InsertTaxon(
         self: "TrieInnerNode",
         taxon_label: str,
-        taxon_allele_genesis_iter: typing.Iterator[typing.Tuple[int, int]],
+        taxon_allele_iter: typing.Iterator[typing.Tuple[int, int]],
     ) -> TrieLeafNode:
         """Inserts a taxon into the trie, ultimately resulting in the creation
         of an additional `TrieLeafNode` leaf and --- if necessary --- a
@@ -174,14 +172,14 @@ class TrieInnerNode(anytree.NodeMixin):
         ----------
         taxon_label : str
             The label of the taxon to be inserted.
-        taxon_allele_genesis_iter : typing.Iterator[typing.Tuple[int, int]]
+        taxon_allele_iter : typing.Iterator[typing.Tuple[int, int]]
             An iterator over the taxon's remaining allele sequence that has not
             yet been accounted for thus deep into the trie.
 
         Notes
         -----
         Should only be called on the node corresponding to the deepest congrous
-        allele origination found via `GetDeepestConsecutiveSharedAlleleGenesis`.
+        allele origination found via `GetDeepestCongruousAlleleOrigination`.
         However, may be called on the trie root node when the entire artifact
         population has identical deposition counts. (Because, given a
         deterministic stratum retention strategy, insertion is greatly
@@ -195,14 +193,14 @@ class TrieInnerNode(anytree.NodeMixin):
             The leaf node representing the inserted taxon.
         """
         cur_node = self
-        for next_rank, next_differentia in taxon_allele_genesis_iter:
+        for next_rank, next_differentia in taxon_allele_iter:
             assert next_rank is not None
             assert next_differentia is not None
             for child in cur_node.inner_children:
-                # common allele genesis trace is for special condition
-                # optimization where GetDeepestConsecutiveSharedAlleleGenesis
+                # common allele origination trace is for special condition
+                # optimization where GetDeepestCongruousAlleleOrigination
                 # isn't needed
-                if child.IsGenesisOfAllele(next_rank, next_differentia):
+                if child.IsAnOriginationOfAllele(next_rank, next_differentia):
                     cur_node = child
                     break
             else:
