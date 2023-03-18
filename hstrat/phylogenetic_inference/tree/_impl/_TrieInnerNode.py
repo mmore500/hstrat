@@ -73,20 +73,21 @@ class TrieInnerNode(anytree.NodeMixin):
         an origination of the specified `rank`-`differentia` allele."""
         assert rank is not None
         assert differentia is not None
+        # note: assert handles root case
         assert (self._differentia is None) == (self._rank is None)
-        # handle root case
 
         search_stack: List["TrieInnerNode"] = [self]
         while search_stack:
             current_node = search_stack.pop()
 
+            # handle root node case
             if current_node._rank is None:
                 search_stack.extend(current_node.inner_children)
-            elif (
-                rank == current_node._rank
-                and differentia == current_node._differentia
-            ):
+            # If the current node matches the rank and differentia, yield it
+            elif current_node.IsAnOriginationOfAllele(rank, differentia):
                 yield current_node
+            # If the target allele's rank is deeper than the current node,
+            # keep searching
             elif rank > current_node._rank:
                 search_stack.extend(current_node.inner_children)
 
@@ -135,6 +136,7 @@ class TrieInnerNode(anytree.NodeMixin):
             candidate_origination = node_stack.pop()
             taxon_allele_iter = allele_origination_stack.pop()
 
+            # Update the deepest origination if the candidate is deeper
             if (
                 opyt.or_value(candidate_origination._rank, -1),
                 candidate_origination._tiebreaker,
@@ -145,6 +147,7 @@ class TrieInnerNode(anytree.NodeMixin):
                 deepest_origination = candidate_origination
                 deepest_taxon_allele_iter = copy.copy(taxon_allele_iter)
 
+            # If taxon has susbsequent allele, search its origination
             next_allele = next(taxon_allele_iter, None)
             if next_allele is not None:
                 node_stack.extend(
@@ -160,7 +163,8 @@ class TrieInnerNode(anytree.NodeMixin):
                 )
 
             assert len(node_stack) == len(allele_origination_stack)
-            if not node_stack:
+
+            if not node_stack:  # no more nodes to explore
                 break
 
         return deepest_origination, deepest_taxon_allele_iter
@@ -203,6 +207,8 @@ class TrieInnerNode(anytree.NodeMixin):
             assert next_rank is not None
             assert next_differentia is not None
             for child in cur_node.inner_children:
+                # check immediate children for next allele
+                #
                 # common allele origination trace is for special condition
                 # optimization where GetDeepestCongruousAlleleOrigination
                 # isn't needed
@@ -210,10 +216,12 @@ class TrieInnerNode(anytree.NodeMixin):
                     cur_node = child
                     break
             else:
+                # if no congruent node exists, create a new TrieInnerNode
                 cur_node = TrieInnerNode(
                     next_rank, next_differentia, parent=cur_node
                 )
 
+        # create a TrieLeafNode representing the inserted taxon
         return TrieLeafNode(parent=cur_node, taxon_label=taxon_label)
 
     @property
