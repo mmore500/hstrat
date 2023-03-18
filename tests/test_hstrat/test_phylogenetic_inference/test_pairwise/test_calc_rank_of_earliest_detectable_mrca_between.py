@@ -6,6 +6,72 @@ import pytest
 from hstrat import hstrat
 
 
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8, 64],
+)
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.95, 0.88],
+)
+def test_calc_rank_of_earliest_detectable_mrca_between_specimen(
+    retention_policy, differentia_width, confidence_level
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_width,
+    )
+    for generation in range(100):
+        column.DepositStratum()
+
+    child1 = column.CloneDescendant()
+    child2 = column.CloneDescendant()
+
+    assert hstrat.calc_rank_of_earliest_detectable_mrca_between(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(column),
+        confidence_level=confidence_level,
+    ) == hstrat.calc_rank_of_earliest_detectable_mrca_between(
+        column, column, confidence_level=confidence_level
+    )
+
+    assert hstrat.calc_rank_of_earliest_detectable_mrca_between(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(child1),
+        confidence_level=confidence_level,
+    ) == hstrat.calc_rank_of_earliest_detectable_mrca_between(
+        column, child1, confidence_level=confidence_level
+    )
+
+    assert hstrat.calc_rank_of_earliest_detectable_mrca_between(
+        hstrat.col_to_specimen(child1),
+        hstrat.col_to_specimen(child2),
+        confidence_level=confidence_level,
+    ) == hstrat.calc_rank_of_earliest_detectable_mrca_between(
+        child1, child2, confidence_level=confidence_level
+    )
+
+    child1.DepositStrata(10)
+    assert hstrat.calc_rank_of_earliest_detectable_mrca_between(
+        hstrat.col_to_specimen(child1),
+        hstrat.col_to_specimen(child2),
+        confidence_level=confidence_level,
+    ) == hstrat.calc_rank_of_earliest_detectable_mrca_between(
+        child1, child2, confidence_level=confidence_level
+    )
+
+
 @pytest.mark.filterwarnings(
     "ignore:Insufficient common ranks between columns to detect common ancestry at given confidence level."
 )
