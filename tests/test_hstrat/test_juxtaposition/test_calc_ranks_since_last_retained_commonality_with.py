@@ -10,6 +10,68 @@ from hstrat import hstrat
 @pytest.mark.parametrize(
     "retention_policy",
     [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8, 64],
+)
+def test_CalcRanksSinceLastRetainedCommonalitytWith_specimen(
+    retention_policy, differentia_width
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_width,
+    )
+    for generation in range(100):
+        column.DepositStratum()
+
+    child1 = column.CloneDescendant()
+    child2 = column.CloneDescendant()
+
+    assert hstrat.calc_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(column),
+    ) == hstrat.calc_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(column),
+    )
+
+    assert hstrat.calc_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(child1),
+    ) == hstrat.calc_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(child1),
+    )
+
+    assert hstrat.calc_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(child1),
+        hstrat.col_to_specimen(child2),
+    ) == hstrat.calc_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(child1),
+        hstrat.col_to_specimen(child2),
+    )
+
+    child1.DepositStrata(10)
+    assert hstrat.calc_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(child1),
+        hstrat.col_to_specimen(child2),
+    ) == hstrat.calc_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(child1),
+        hstrat.col_to_specimen(child2),
+    )
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
         pytest.param(
             hstrat.perfect_resolution_algo.Policy(),
             marks=pytest.mark.heavy_2a,
