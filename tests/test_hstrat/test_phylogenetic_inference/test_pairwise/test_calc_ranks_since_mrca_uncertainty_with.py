@@ -9,6 +9,76 @@ from hstrat import hstrat
 @pytest.mark.parametrize(
     "retention_policy",
     [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8, 64],
+)
+@pytest.mark.parametrize(
+    "confidence_level",
+    [0.95, 0.88],
+)
+def test_calc_ranks_since_mrca_uncertainty_with_specimen(
+    retention_policy, differentia_width, confidence_level
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_width,
+    )
+    for generation in range(100):
+        column.DepositStratum()
+
+    child1 = column.CloneDescendant()
+    child2 = column.CloneDescendant()
+
+    assert hstrat.calc_ranks_since_mrca_uncertainty_with(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(column),
+        prior="arbitrary",
+        confidence_level=confidence_level,
+    ) == hstrat.calc_ranks_since_mrca_uncertainty_with(
+        column, column, prior="arbitrary", confidence_level=confidence_level
+    )
+
+    assert hstrat.calc_ranks_since_mrca_uncertainty_with(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(child1),
+        prior="arbitrary",
+        confidence_level=confidence_level,
+    ) == hstrat.calc_ranks_since_mrca_uncertainty_with(
+        column, child1, prior="arbitrary", confidence_level=confidence_level
+    )
+
+    assert hstrat.calc_ranks_since_mrca_uncertainty_with(
+        hstrat.col_to_specimen(child1),
+        hstrat.col_to_specimen(child2),
+        prior="arbitrary",
+        confidence_level=confidence_level,
+    ) == hstrat.calc_ranks_since_mrca_uncertainty_with(
+        child1, child2, prior="arbitrary", confidence_level=confidence_level
+    )
+
+    child1.DepositStrata(10)
+    assert hstrat.calc_ranks_since_mrca_uncertainty_with(
+        hstrat.col_to_specimen(child1),
+        hstrat.col_to_specimen(child2),
+        prior="arbitrary",
+        confidence_level=confidence_level,
+    ) == hstrat.calc_ranks_since_mrca_uncertainty_with(
+        child1, child2, prior="arbitrary", confidence_level=confidence_level
+    )
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
         pytest.param(
             hstrat.perfect_resolution_algo.Policy(),
             marks=pytest.mark.heavy_2a,
