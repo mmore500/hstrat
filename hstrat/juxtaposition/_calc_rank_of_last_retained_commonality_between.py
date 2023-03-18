@@ -1,12 +1,12 @@
 import typing
 
-from ..genome_instrumentation import HereditaryStratigraphicColumn
+from .._auxiliary_lib import HereditaryStratigraphicArtifact
 from ._impl import dispatch_impl
 
 
 def calc_rank_of_last_retained_commonality_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
     confidence_level: float = 0.95,
 ) -> typing.Optional[int]:
     """Determine lower bound on generation of MRCA at confidence level.
