@@ -1,12 +1,12 @@
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ._calc_rank_of_mrca_bounds_provided_confidence_level import (
     calc_rank_of_mrca_bounds_provided_confidence_level,
 )
 
 
 def calc_ranks_since_mrca_bounds_provided_confidence_level(
-    focal: HereditaryStratigraphicColumn,
-    other: HereditaryStratigraphicColumn,
+    focal: HereditaryStratigraphicArtifact,
+    other: HereditaryStratigraphicArtifact,
     prior: str,
     requested_confidence_level: float = 0.95,
 ) -> float:
