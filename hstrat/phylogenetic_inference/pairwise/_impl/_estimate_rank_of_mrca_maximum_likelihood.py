@@ -15,7 +15,7 @@ def estimate_rank_of_mrca_maximum_likelihood(
     second: HereditaryStratigraphicArtifact,
     prior: typing.Any,
 ) -> typing.Optional[float]:
-
+    """Forwards to estimate_rank_of_mrca_maximum_likelihood estimator."""
     waypoints_ascending = (
         extract_common_retained_ranks_through_first_retained_disparity(
             first, second

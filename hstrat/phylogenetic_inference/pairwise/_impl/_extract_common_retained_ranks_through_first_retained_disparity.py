@@ -11,7 +11,13 @@ def extract_common_retained_ranks_through_first_retained_disparity(
     first: HereditaryStratigraphicArtifact,
     second: HereditaryStratigraphicArtifact,
 ) -> typing.List[int]:
+    """Extracts a list of common retained ranks between two hereditary
+    stratigraphic artifacts up to and including the rank of the first retained
+    disparity.
 
+    If no disparity exists (i.e., columns are exactly identical), the rank
+    which is next to be deposited will be considered the next disparity.
+    """
     # choose correct impl for columns/specimens
     impl = dispatch_impl(first, second)
 
