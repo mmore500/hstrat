@@ -182,32 +182,33 @@ def test_fixture(trie):
         if "uid" in attrs:
             del attrs["uid"]
         node.test_name = kn.pack(attrs).rstrip("=")
+        node.children = sorted(node.children, key=lambda x: x.test_name)
 
     assert str(anytree.RenderTree(processed_trie).by_attr("test_name")) == (
         """Root
 └── Inner=+d=C+r=0
-    ├── Inner=+d=f+r=3
-    │   └── space
     ├── Inner=+d=B+r=3
-    │   ├── sweet
+    │   ├── Inner=+d=Q+r=4
+    │   │   └── Inner=+d=L+r=5
+    │   │       └── foo
     │   ├── Inner=+d=R+r=4
     │   │   └── Inner=+d=L+r=5
     │   │       ├── Inner=+d=T+r=6
     │   │       │   └── bank
     │   │       └── Inner=+d=V+r=6
     │   │           └── baa
-    │   ├── Inner=+d=Q+r=4
-    │   │   └── Inner=+d=L+r=5
-    │   │       └── foo
-    │   └── Inner=+d=R+r=4
-    │       ├── Inner=+d=T+r=6
-    │       │   └── bar
-    │       ├── Inner=+d=T+r=6
-    │       │   └── bump
-    │       ├── Inner=+d=T+r=6
-    │       │   └── barf
-    │       └── Inner=+d=T+r=6
-    │           └── baz
-    └── Inner=+d=B+r=3
-        └── spice"""
+    │   ├── Inner=+d=R+r=4
+    │   │   ├── Inner=+d=T+r=6
+    │   │   │   └── barf
+    │   │   ├── Inner=+d=T+r=6
+    │   │   │   └── bar
+    │   │   ├── Inner=+d=T+r=6
+    │   │   │   └── bump
+    │   │   └── Inner=+d=T+r=6
+    │   │       └── baz
+    │   └── sweet
+    ├── Inner=+d=B+r=3
+    │   └── spice
+    └── Inner=+d=f+r=3
+        └── space"""
     )
