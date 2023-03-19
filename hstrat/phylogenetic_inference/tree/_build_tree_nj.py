@@ -2,12 +2,12 @@ import typing
 
 import pandas as pd
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ._impl import build_tree_biopython_distance
 
 
 def build_tree_nj(
-    population: typing.Sequence[HereditaryStratigraphicColumn],
+    population: typing.Sequence[HereditaryStratigraphicArtifact],
     estimator: str,
     prior: typing.Union[str, typing.Any],
     taxon_labels: typing.Optional[typing.Iterable] = None,
