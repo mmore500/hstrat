@@ -1,7 +1,6 @@
 import typing
 
 import numpy as np
-import opytional as opyt
 
 
 def estimate_rank_of_mrca_naive(
