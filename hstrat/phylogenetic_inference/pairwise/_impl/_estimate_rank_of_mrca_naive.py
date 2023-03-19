@@ -1,6 +1,5 @@
 import typing
 
-import numpy as np
 import opytional as opyt
 
 from ...._auxiliary_lib import HereditaryStratigraphicArtifact
