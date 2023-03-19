@@ -17,8 +17,10 @@ def estimate_rank_of_mrca_maximum_likelihood(
 
     Parameters
     ----------
-    coincident_ranks_from_first_disparity_through_first_commonality : typing.Iterator[int]
-        Iterator of integer values indicating the coincident ranks between two taxa.
+    coincident_ranks_from_first_disparity_through_first_commonality
+    : typing.Iterator[int]
+        Iterator of integer values indicating the coincident ranks between two
+        taxa.
 
         Inclusive to first disparity and first commonality.
     p_differentia_collision : float

@@ -24,7 +24,7 @@ def does_definitively_have_no_common_ancestor(
 
     See Also
     --------
-    does_have_any_common_ancestor:
+    does_have_any_common_ancestor :
         Can we conclude with confidence_level confidence that first and second
         share a common ancestor?
     """

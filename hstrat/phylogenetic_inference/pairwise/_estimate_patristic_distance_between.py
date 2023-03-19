@@ -27,7 +27,7 @@ def estimate_patristic_distance_between(
 
         See `estimate_ranks_since_mrca_with` for discussion of estimator
         options.
-    prior :
+    prior : {"arbitrary", "uniform"} or object implementing prior interface
         Prior probability density distribution over possible generations of the
         MRCA.
 

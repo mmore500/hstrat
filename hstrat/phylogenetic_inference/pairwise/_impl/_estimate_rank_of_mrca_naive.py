@@ -13,7 +13,12 @@ def estimate_rank_of_mrca_naive(
     first: HereditaryStratigraphicColumn,
     second: HereditaryStratigraphicColumn,
 ) -> typing.Optional[float]:
+    """Compute a simple, fast estimate the rank of the most recent common
+    ancestor (MRCA).
 
+    Returns None if the two hereditary stratigraphic artifacts definitvely
+    share no common ancestor.
+    """
     rank_of_mrca_bounds = calc_rank_of_mrca_bounds_between(
         first,
         second,
