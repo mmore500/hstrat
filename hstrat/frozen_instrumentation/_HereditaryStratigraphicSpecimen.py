@@ -66,7 +66,13 @@ class HereditaryStratigraphicSpecimen:
         Note that a first stratum is deposited on the column during
         initialization.
         """
-        return self._data.index[-1] + 1
+        assert self._data.index.dtype in (
+            "int64",
+            "uint64",
+        )
+        # self._data.index[-1] is integral
+        # must convert to int, or (at least sometimes) float results after + 1
+        return int(self._data.index[-1]) + 1
 
     def GetNumStrataRetained(
         self: "HereditaryStratigraphicSpecimen",

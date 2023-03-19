@@ -14,7 +14,7 @@ from .._calc_min_implausible_spurious_consecutive_differentia_collisions_between
 from .._impl_column._calc_rank_of_parity_segue_between import (
     calc_rank_of_parity_segue_between,
 )
-from ._iter_mutual_ranks import _compare_differentia_at_common_ranks
+from ._iter_mutual_rank_indices import _compare_differentia_at_common_ranks
 
 _reversed_range_jit = jit(nopython=True)(reversed_range)
 
@@ -142,7 +142,10 @@ def calc_rank_of_parity_segue_between_naive(
             assert 0 <= second_pos < second.GetNumStrataRetained()
 
         assert first_ranks[first_pos] == second_ranks[second_pos]
-        return first_ranks[first_pos]
+        # must convert to Python int; although integral,
+        # numpy ints are experiencing unwanted conversion to floats
+        assert isinstance(first_ranks[first_pos], np.integer)
+        return int(first_ranks[first_pos])
 
     def calc_commonality(first_pos, second_pos):
         collision_plausibility_threshold = calc_min_implausible_spurious_consecutive_differentia_collisions_between(
@@ -177,7 +180,10 @@ def calc_rank_of_parity_segue_between_naive(
             assert 0 <= first_pos < first.GetNumStrataRetained()
             assert 0 <= second_pos < second.GetNumStrataRetained()
             assert first_ranks[first_pos] == second_ranks[second_pos]
-            return first_ranks[first_pos]
+            # must convert to Python int; although integral,
+            # numpy ints are experiencing unwanted conversion to floats
+            assert isinstance(first_ranks[first_pos], np.integer)
+            return int(first_ranks[first_pos])
 
     return (
         calc_commonality(first_pos, second_pos)
