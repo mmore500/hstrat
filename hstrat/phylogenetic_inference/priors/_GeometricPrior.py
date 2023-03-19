@@ -52,7 +52,13 @@ class GeometricPrior:
             proportion.
         """
         f = self._growth_factor
-        return np.array([f**i for i in range(begin_rank, end_rank)]).sum()
+        return np.logspace(
+            begin_rank,
+            end_rank,
+            base=f,
+            endpoint=False,
+            num=end_rank - begin_rank,
+        ).sum()
 
     def CalcIntervalConditionedMean(
         self: "GeometricPrior", begin_rank: int, end_rank: int
@@ -76,5 +82,11 @@ class GeometricPrior:
         f = self._growth_factor
         return np.average(
             np.arange(begin_rank, end_rank),
-            weights=np.array([f**i for i in range(begin_rank, end_rank)]),
+            weights=np.logspace(
+                begin_rank,
+                end_rank,
+                base=f,
+                endpoint=False,
+                num=end_rank - begin_rank,
+            ),
         )
