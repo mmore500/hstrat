@@ -1,7 +1,7 @@
 import math
 import typing
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ..priors import ArbitraryPrior, UniformPrior
 from ..priors._BubbleWrappedPrior import BubbleWrappedPrior
 from ._impl import (
@@ -12,8 +12,8 @@ from ._impl import (
 
 
 def estimate_rank_of_mrca_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
     estimator: str,
     prior: typing.Union[str, typing.Any],
 ) -> typing.Optional[float]:
@@ -82,8 +82,8 @@ def estimate_rank_of_mrca_between(
 
 
 def ballpark_rank_of_mrca_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
 ) -> typing.Optional[float]:
     """Calculate a fast, rough estimate of the rank of the MRCA beteen first
     and second.
