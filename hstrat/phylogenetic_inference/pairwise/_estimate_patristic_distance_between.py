@@ -2,13 +2,13 @@ import typing
 
 import opytional as opyt
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ._estimate_rank_of_mrca_between import estimate_rank_of_mrca_between
 
 
 def estimate_patristic_distance_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
     estimator: str,
     prior: typing.Union[str, typing.Any],
 ) -> typing.Optional[float]:
@@ -66,8 +66,8 @@ def estimate_patristic_distance_between(
 
 
 def ballpark_patristic_distance_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
 ) -> typing.Optional[float]:
     """Calculate a fast, rough estimate of the patristic distance between first
     and second.
