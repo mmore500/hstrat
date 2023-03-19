@@ -79,9 +79,11 @@ def test_sample_ancestral_rollbacks_multiple_levels_trie_phalf(mutate):
     root = hstrat.SampleAncestralRollbacksTriePostprocessor()(
         root, p_differentia_collision=p_differentia_collision, mutate=mutate
     )
-    assert anytree_cardinality(root) == original_num_nodes + 2
+    # for p 0.5, taking into account succession
+    # doubles expected unzips from 2 to 4
+    assert anytree_cardinality(root) >= original_num_nodes + 4
     assert len(root.leaves) == original_num_leaves
-    assert len(root.children) == 4
+    assert len(root.children) == 6
 
     assert before_ascending_content == [
         [

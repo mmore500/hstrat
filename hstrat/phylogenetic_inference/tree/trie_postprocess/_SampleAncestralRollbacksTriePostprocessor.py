@@ -46,17 +46,23 @@ def _sample_ancestral_rollbacks(
     num_leaves = sum(node.is_leaf for node in AnyTreeFastPreOrderIter(trie))
     unzip_opportunities = num_leaves
 
-    # 1 + 1/x + 1/x^2 + ... = x / (x - 1)
-    # expected number of successive collisions:
-    # 1/x + 1/x^2 + 1/x^3 + ... =  1 / (x - 1)
-    # p = 1/x -> x = 1/p
-    #  1/x + 1/x^2 + ... = 1 / (1/p - 1)
-    # 1/x + 1/x^2 + ... = p / (1 - p)
-    # note: does not account for limitations in the number of possible
-    # collisions due to tree depth
-    collision_succession_corrected_expectation_per_opportunity = (
-        p_differentia_collision / (1 - p_differentia_collision)
-    )
+    if p_differentia_collision <= 0.5:
+        # 1 + 1/x + 1/x^2 + ... = x / (x - 1)
+        # expected number of successive collisions:
+        # 1/x + 1/x^2 + 1/x^3 + ... =  1 / (x - 1)
+        # p = 1/x -> x = 1/p
+        #  1/x + 1/x^2 + ... = 1 / (1/p - 1)
+        # 1/x + 1/x^2 + ... = p / (1 - p)
+        # note: does not account for limitations in the number of possible
+        # collisions due to tree depth
+        collision_succession_corrected_expectation_per_opportunity = (
+            p_differentia_collision / (1 - p_differentia_collision)
+        )
+    else:
+        # allow feeding unrealistic p for bounds testing
+        collision_succession_corrected_expectation_per_opportunity = (
+            p_differentia_collision
+        )
 
     # note:
     # this estimates the expected value of the number of collisions;
@@ -80,12 +86,9 @@ def _sample_ancestral_rollbacks(
         )  # -1 per; last sibling always ineligible for unzip
         return max_unzips
 
-    assert expected_collisions <= unzip_opportunities <= calc_max_unzips()
+    expected_collisions = min(expected_collisions, calc_max_unzips())
 
     remaining_collisions = expected_collisions
-    # allow feeding p > 1 for bounds testing
-    if p_differentia_collision > 1:
-        expected_collisions = min(expected_collisions, max_unzips())
 
     progress = iter(progress_wrap(it.count()))
     while remaining_collisions:
