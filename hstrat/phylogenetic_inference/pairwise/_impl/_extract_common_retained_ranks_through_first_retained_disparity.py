@@ -3,13 +3,13 @@ import typing
 from iterpop import iterpop as ip
 import opytional as opyt
 
-from ....genome_instrumentation import HereditaryStratigraphicColumn
+from ...._auxiliary_lib import HereditaryStratigraphicArtifact
 from ....juxtaposition._impl import dispatch_impl
 
 
 def extract_common_retained_ranks_through_first_retained_disparity(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
 ) -> typing.List[int]:
 
     # choose correct impl for columns/specimens

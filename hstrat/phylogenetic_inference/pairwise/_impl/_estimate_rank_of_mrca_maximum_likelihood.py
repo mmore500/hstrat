@@ -1,6 +1,6 @@
 import typing
 
-from ....genome_instrumentation import HereditaryStratigraphicColumn
+from ...._auxiliary_lib import HereditaryStratigraphicArtifact
 from ....juxtaposition import calc_probability_differentia_collision_between
 from ...estimators import (
     estimate_rank_of_mrca_maximum_likelihood as estimate_rank_of_mrca_maximum_likelihood_,
@@ -11,8 +11,8 @@ from ._extract_common_retained_ranks_through_first_retained_disparity import (
 
 
 def estimate_rank_of_mrca_maximum_likelihood(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
     prior: typing.Any,
 ) -> typing.Optional[float]:
 

@@ -3,15 +3,15 @@ import typing
 import numpy as np
 import opytional as opyt
 
-from ....genome_instrumentation import HereditaryStratigraphicColumn
+from ...._auxiliary_lib import HereditaryStratigraphicArtifact
 from .._calc_rank_of_mrca_bounds_between import (
     calc_rank_of_mrca_bounds_between,
 )
 
 
 def estimate_rank_of_mrca_naive(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
 ) -> typing.Optional[float]:
     """Compute a simple, fast estimate the rank of the most recent common
     ancestor (MRCA).
