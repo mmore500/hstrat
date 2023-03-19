@@ -10,9 +10,7 @@ def iter_mutual_ranks(
     *,
     first_start_idx: int = 0,
     second_start_idx: int = 0,
-) -> typing.Union[
-    typing.Iterator[int], typing.Tuple[int, bool]
-]:
+) -> typing.Union[typing.Iterator[int], typing.Tuple[int, bool]]:
     """Iterate over ranks with matching strata between columns in ascending
     order."""
     # helper setup

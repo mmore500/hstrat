@@ -4,9 +4,7 @@ from iterpop import iterpop as ip
 import opytional as opyt
 
 from ....genome_instrumentation import HereditaryStratigraphicColumn
-from ....juxtaposition._impl import (
-    dispatch_impl,
-)
+from ....juxtaposition._impl import dispatch_impl
 
 
 def extract_common_retained_ranks_through_first_retained_disparity(
