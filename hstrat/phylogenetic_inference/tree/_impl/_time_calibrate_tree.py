@@ -15,7 +15,7 @@ from ._estimate_origin_times import estimate_origin_times
 def time_calibrate_tree(
     alifestd_df: pd.DataFrame,
     leaf_node_origin_times: typing.Dict[int, numbers.Number],
-    negative_origin_time_correction_method: typing.Optional[str],
+    negative_origin_time_correction_method: typing.Optional[str] = None,
 ) -> pd.DataFrame:
     """Time-calibrates a given tree by estimating the origin time of its nodes,
     by working backward from phylogenetic depths of leaf nodes using
