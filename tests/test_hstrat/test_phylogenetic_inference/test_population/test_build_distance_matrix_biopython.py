@@ -60,11 +60,15 @@ def test_build_distance_matrix_biopython_empty(
     "names",
     [["foo"], None],
 )
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
 def test_build_distance_matrix_biopython_singleton(
-    differentia_bit_width, estimator, prior, force_common_ancestry, names
+    differentia_bit_width, estimator, prior, force_common_ancestry, names, wrap
 ):
 
-    population = [hstrat.HereditaryStratigraphicColumn()]
+    population = [wrap(hstrat.HereditaryStratigraphicColumn())]
     dm = hstrat.build_distance_matrix_biopython(
         population,
         estimator,
@@ -102,17 +106,22 @@ def test_build_distance_matrix_biopython_singleton(
     "force_common_ancestry",
     [True, False],
 )
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
 def test_build_distance_matrix_biopython_pair_disjoint(
     differentia_bit_width,
     estimator,
     prior,
     names,
     force_common_ancestry,
+    wrap,
 ):
 
     population = [
-        hstrat.HereditaryStratigraphicColumn(),
-        hstrat.HereditaryStratigraphicColumn(),
+        wrap(hstrat.HereditaryStratigraphicColumn()),
+        wrap(hstrat.HereditaryStratigraphicColumn()),
     ]
     dm = hstrat.build_distance_matrix_biopython(
         population,
@@ -152,16 +161,21 @@ def test_build_distance_matrix_biopython_pair_disjoint(
     "names",
     [["foo", "bar"], None],
 )
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
 def test_build_distance_matrix_biopython_pair_disjoint2(
     differentia_bit_width,
     estimator,
     prior,
     names,
+    wrap,
 ):
 
     population = [
-        hstrat.HereditaryStratigraphicColumn(),
-        hstrat.HereditaryStratigraphicColumn(),
+        wrap(hstrat.HereditaryStratigraphicColumn()),
+        wrap(hstrat.HereditaryStratigraphicColumn()),
     ]
     with pytest.raises(ValueError):
         dm = hstrat.build_distance_matrix_biopython(
@@ -200,6 +214,10 @@ def test_build_distance_matrix_biopython_pair_disjoint2(
     "force_common_ancestry",
     [True, False],
 )
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
 def test_build_distance_matrix_biopython_pair_commonancestry(
     differentia_bit_width,
     policy,
@@ -207,6 +225,7 @@ def test_build_distance_matrix_biopython_pair_commonancestry(
     prior,
     names,
     force_common_ancestry,
+    wrap,
 ):
 
     common_ancestor = hstrat.HereditaryStratigraphicColumn(
@@ -214,8 +233,8 @@ def test_build_distance_matrix_biopython_pair_commonancestry(
         stratum_differentia_bit_width=differentia_bit_width,
     ).CloneNthDescendant(7)
     population = [
-        common_ancestor.CloneNthDescendant(4),
-        common_ancestor.CloneNthDescendant(9),
+        wrap(common_ancestor.CloneNthDescendant(4)),
+        wrap(common_ancestor.CloneNthDescendant(9)),
     ]
     dm = hstrat.build_distance_matrix_biopython(
         population,

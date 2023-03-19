@@ -2,13 +2,16 @@ import typing
 
 import opytional as opyt
 
-from ..._auxiliary_lib import BioPhyloTree, to_tril
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import (
+    BioPhyloTree,
+    HereditaryStratigraphicArtifact,
+    to_tril,
+)
 from ._build_distance_matrix_numpy import build_distance_matrix_numpy
 
 
 def build_distance_matrix_biopython(
-    population: typing.Sequence[HereditaryStratigraphicColumn],
+    population: typing.Sequence[HereditaryStratigraphicArtifact],
     estimator: str,
     prior: typing.Union[str, typing.Any],
     taxon_labels: typing.Optional[typing.Iterable] = None,
@@ -19,7 +22,7 @@ def build_distance_matrix_biopython(
 
     Parameters
     ----------
-    population : Sequence[HereditaryStratigraphicColumn]
+    population : Sequence[HereditaryStratigraphicArtifact]
         The extant hereditary stratigraphic columns to compare.
 
         The ordering of rows and columns within the returned matrix will
