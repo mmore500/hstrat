@@ -104,6 +104,16 @@ from ._iter_monotonic_equivalencies_reverse import (
 from ._iter_slices import iter_slices
 from ._jit import jit
 from ._jit_numba_dict_t import jit_numba_dict_t
+from ._jit_numba_integer_array_ts import (
+    jit_numba_int8_arr_t,
+    jit_numba_int16_arr_t,
+    jit_numba_int32_arr_t,
+    jit_numba_int64_arr_t,
+    jit_numba_uint8_arr_t,
+    jit_numba_uint16_arr_t,
+    jit_numba_uint32_arr_t,
+    jit_numba_uint64_arr_t,
+)
 from ._jit_numpy_bool_t import jit_numpy_bool_t
 from ._jit_numpy_int64_t import jit_numpy_int64_t
 from ._launder_impl_modules import launder_impl_modules
@@ -231,6 +241,14 @@ __all__ = [
     "iter_monotonic_equivalencies_reverse",
     "iter_slices",
     "jit",
+    "jit_numba_int8_arr_t",
+    "jit_numba_int16_arr_t",
+    "jit_numba_int32_arr_t",
+    "jit_numba_int64_arr_t",
+    "jit_numba_uint8_arr_t",
+    "jit_numba_uint16_arr_t",
+    "jit_numba_uint32_arr_t",
+    "jit_numba_uint64_arr_t",
     "jit_numba_dict_t",
     "jit_numpy_bool_t",
     "jit_numpy_int64_t",

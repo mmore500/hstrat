@@ -1,3 +1,5 @@
+import numbers
+
 from ..._auxiliary_lib import cmp_approx
 
 
@@ -30,6 +32,8 @@ class BubbleWrappedPrior:
             probability of the MRCA value by a fixed (but unspecified) constant
             proportion.
         """
+        assert isinstance(begin_rank, numbers.Integral)
+        assert isinstance(end_rank, numbers.Integral)
         assert 0 <= begin_rank < end_rank
         res = self._prior.CalcIntervalProbabilityProxy(begin_rank, end_rank)
         return res
@@ -53,6 +57,8 @@ class BubbleWrappedPrior:
             The prior expected generation of MRCA conditioned on the assumption
             that the MRCA falls within the given interval.
         """
+        assert isinstance(begin_rank, numbers.Integral)
+        assert isinstance(end_rank, numbers.Integral)
         assert 0 <= begin_rank < end_rank
         res = self._prior.CalcIntervalConditionedMean(begin_rank, end_rank)
         assert cmp_approx(begin_rank, res) <= 0

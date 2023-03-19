@@ -2,11 +2,34 @@ import typing
 
 import numpy as np
 
-from ..._auxiliary_lib import iter_monotonic_equivalencies, jit
+from ..._auxiliary_lib import (
+    iter_monotonic_equivalencies,
+    jit,
+    jit_numba_uint8_arr_t,
+    jit_numba_uint16_arr_t,
+    jit_numba_uint32_arr_t,
+    jit_numba_uint64_arr_t,
+)
 from ...frozen_instrumentation import HereditaryStratigraphicSpecimen
 
 
-@jit(nopython=True)
+@jit(
+    [
+        (
+            jit_numba_uint64_arr_t,
+            differentia_array_t,
+            jit_numba_uint64_arr_t,
+            differentia_array_t,
+        )
+        for differentia_array_t in (
+            jit_numba_uint8_arr_t,
+            jit_numba_uint16_arr_t,
+            jit_numba_uint32_arr_t,
+            jit_numba_uint64_arr_t,
+        )
+    ],
+    nopython=True,
+)
 def _compare_differentia_at_common_ranks(
     first_ranks: np.array,
     first_differentiae: np.array,
@@ -16,7 +39,11 @@ def _compare_differentia_at_common_ranks(
     for pos1, pos2 in iter_monotonic_equivalencies(first_ranks, second_ranks):
         assert first_ranks[pos1] == second_ranks[pos2]
         yield (
-            first_ranks[pos1],
+            # must convert to Python int; although integral,
+            # numpy ints are experiencing unwanted conversion to floats
+            # note that specified type signature guarantees that arrays
+            # are not inadvertently of float type
+            int(first_ranks[pos1]),
             first_differentiae[pos1] == second_differentiae[pos2],
         )
 
