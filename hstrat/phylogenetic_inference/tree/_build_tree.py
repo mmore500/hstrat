@@ -14,6 +14,7 @@ def build_tree(
     version_pin: str,
     taxon_labels: typing.Optional[typing.Iterable] = None,
     force_common_ancestry: bool = False,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> pd.DataFrame:
     """Estimate the phylogenetic history among hereditary stratigraphic
     columns.
@@ -57,6 +58,8 @@ def build_tree(
         shared a common ancestor immediately before the genesis of the
         lineages. If set to False, columns within `population` that
         definitively do not share common ancestry will raise a ValueError.
+    progress_wrap : Callable, default identity function
+        Pass tqdm or equivalent to display progress bars.
 
     Returns
     -------
@@ -77,5 +80,6 @@ def build_tree(
         population,
         taxon_labels,
         force_common_ancestry=force_common_ancestry,
+        progress_wrap=progress_wrap,
         bias_adjustment=ArbitraryPrior(),
     )
