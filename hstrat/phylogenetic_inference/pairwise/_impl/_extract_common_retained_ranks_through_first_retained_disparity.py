@@ -17,10 +17,6 @@ def extract_common_retained_ranks_through_first_retained_disparity(
     # choose correct impl for columns/specimens
     impl = dispatch_impl(first, second)
 
-    ranks_of_retained_commonality_between = [
-        *impl.iter_ranks_of_retained_commonality_between(first, second)
-    ]
-
     rank_of_first_retained_disparity_between = opyt.or_else(
         impl.calc_rank_of_first_retained_disparity_between(
             first,
@@ -35,6 +31,6 @@ def extract_common_retained_ranks_through_first_retained_disparity(
         ),
     )
     return [
-        *ranks_of_retained_commonality_between,
+        *impl.iter_ranks_of_retained_commonality_between(first, second),
         rank_of_first_retained_disparity_between,
     ]

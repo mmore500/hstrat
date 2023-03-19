@@ -21,11 +21,8 @@ def estimate_rank_of_mrca_unbiased(
             first, second
         )
     )
-    p_collision = calc_probability_differentia_collision_between(first, second)
-    base = 1 / 2 ** first.GetStratumDifferentiaBitWidth()
-
     return estimate_rank_of_mrca_unbiased_(
         reversed(waypoints_ascending),
-        p_collision,
+        calc_probability_differentia_collision_between(first, second),
         prior,
     )
