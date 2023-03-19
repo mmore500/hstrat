@@ -25,11 +25,23 @@ def test_calc_ranks_since_mrca_bounds_provided_confidence_level_specimen(
         stratum_retention_policy=retention_policy,
         stratum_differentia_bit_width=differentia_width,
     )
+    column2 = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_width,
+    )
     for generation in range(100):
         column.DepositStratum()
 
     child1 = column.CloneDescendant()
     child2 = column.CloneDescendant()
+
+    assert hstrat.calc_ranks_since_mrca_bounds_provided_confidence_level(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(column2),
+        prior="arbitrary",
+    ) == hstrat.calc_ranks_since_mrca_bounds_provided_confidence_level(
+        column, column2, prior="arbitrary"
+    )
 
     assert hstrat.calc_ranks_since_mrca_bounds_provided_confidence_level(
         hstrat.col_to_specimen(column),

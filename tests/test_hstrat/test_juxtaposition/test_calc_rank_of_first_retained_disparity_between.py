@@ -29,6 +29,10 @@ def test_CalcRankOfFirstRetainedDisparityBetween_specimen(
         stratum_retention_policy=retention_policy,
         stratum_differentia_bit_width=differentia_width,
     )
+    column2 = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_width,
+    )
     for generation in range(100):
         column.DepositStratum()
 
@@ -38,6 +42,10 @@ def test_CalcRankOfFirstRetainedDisparityBetween_specimen(
     assert hstrat.calc_rank_of_first_retained_disparity_between(
         hstrat.col_to_specimen(column), hstrat.col_to_specimen(column)
     ) == hstrat.calc_rank_of_first_retained_disparity_between(column, column)
+
+    assert hstrat.calc_rank_of_first_retained_disparity_between(
+        hstrat.col_to_specimen(column), hstrat.col_to_specimen(column2)
+    ) == hstrat.calc_rank_of_first_retained_disparity_between(column, column2)
 
     assert hstrat.calc_rank_of_first_retained_disparity_between(
         hstrat.col_to_specimen(column), hstrat.col_to_specimen(child1)

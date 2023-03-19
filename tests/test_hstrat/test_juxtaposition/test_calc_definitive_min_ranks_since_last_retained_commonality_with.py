@@ -7,11 +7,18 @@ from hstrat import hstrat
 
 def test_CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith_specimen():
     column = hstrat.HereditaryStratigraphicColumn()
+    column2 = hstrat.HereditaryStratigraphicColumn()
     for generation in range(100):
         column.DepositStratum()
 
     child1 = column.CloneDescendant()
     child2 = column.CloneDescendant()
+
+    assert hstrat.calc_definitive_min_ranks_since_last_retained_commonality_with(
+        hstrat.col_to_specimen(column), hstrat.col_to_specimen(column2)
+    ) == hstrat.calc_definitive_min_ranks_since_last_retained_commonality_with(
+        column, column2
+    )
 
     assert hstrat.calc_definitive_min_ranks_since_last_retained_commonality_with(
         hstrat.col_to_specimen(column), hstrat.col_to_specimen(column)

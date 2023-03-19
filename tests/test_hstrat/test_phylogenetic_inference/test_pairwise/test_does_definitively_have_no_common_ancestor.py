@@ -25,11 +25,19 @@ def test_does_definitively_have_no_common_ancestor_specimen(
         stratum_retention_policy=retention_policy,
         stratum_differentia_bit_width=differentia_width,
     )
+    column2 = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_width,
+    )
     for generation in range(100):
         column.DepositStratum()
 
     child1 = column.CloneDescendant()
     child2 = column.CloneDescendant()
+
+    assert hstrat.does_definitively_have_no_common_ancestor(
+        hstrat.col_to_specimen(column), hstrat.col_to_specimen(column2)
+    ) == hstrat.does_definitively_have_no_common_ancestor(column, column2)
 
     assert hstrat.does_definitively_have_no_common_ancestor(
         hstrat.col_to_specimen(column), hstrat.col_to_specimen(column)
@@ -43,10 +51,10 @@ def test_does_definitively_have_no_common_ancestor_specimen(
         hstrat.col_to_specimen(child1), hstrat.col_to_specimen(child2)
     ) == hstrat.does_definitively_have_no_common_ancestor(child1, child2)
 
-    child1.DepositStrata(10)
+    column2.DepositStrata(100)
     assert hstrat.does_definitively_have_no_common_ancestor(
-        hstrat.col_to_specimen(child1), hstrat.col_to_specimen(child2)
-    ) == hstrat.does_definitively_have_no_common_ancestor(child1, child2)
+        hstrat.col_to_specimen(child1), hstrat.col_to_specimen(column2)
+    ) == hstrat.does_definitively_have_no_common_ancestor(child1, column2)
 
 
 @pytest.mark.parametrize(

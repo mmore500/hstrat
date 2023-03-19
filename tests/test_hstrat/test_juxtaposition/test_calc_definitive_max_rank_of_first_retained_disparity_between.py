@@ -7,11 +7,18 @@ from hstrat import hstrat
 
 def test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith_specimen():
     column = hstrat.HereditaryStratigraphicColumn()
+    column2 = hstrat.HereditaryStratigraphicColumn()
     for generation in range(100):
         column.DepositStratum()
 
     child1 = column.CloneDescendant()
     child2 = column.CloneDescendant()
+
+    assert hstrat.calc_definitive_max_rank_of_first_retained_disparity_between(
+        hstrat.col_to_specimen(column), hstrat.col_to_specimen(column2)
+    ) == hstrat.calc_definitive_max_rank_of_first_retained_disparity_between(
+        column, column2
+    )
 
     assert hstrat.calc_definitive_max_rank_of_first_retained_disparity_between(
         hstrat.col_to_specimen(column), hstrat.col_to_specimen(column)

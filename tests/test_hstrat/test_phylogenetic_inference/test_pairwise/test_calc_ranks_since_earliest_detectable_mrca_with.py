@@ -32,11 +32,23 @@ def test_calc_ranks_since_earliest_detectable_mrca_with_specimen(
         stratum_retention_policy=retention_policy,
         stratum_differentia_bit_width=differentia_width,
     )
+    column2 = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_width,
+    )
     for generation in range(100):
         column.DepositStratum()
 
     child1 = column.CloneDescendant()
     child2 = column.CloneDescendant()
+
+    assert hstrat.calc_ranks_since_earliest_detectable_mrca_with(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(column2),
+        confidence_level=confidence_level,
+    ) == hstrat.calc_ranks_since_earliest_detectable_mrca_with(
+        column, column2, confidence_level=confidence_level
+    )
 
     assert hstrat.calc_ranks_since_earliest_detectable_mrca_with(
         hstrat.col_to_specimen(column),

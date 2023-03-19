@@ -29,11 +29,19 @@ def test_CalcRankOfLastRetainedCommonalityBetween_specimen(
         stratum_retention_policy=retention_policy,
         stratum_differentia_bit_width=differentia_width,
     )
+    column2 = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_width,
+    )
     for generation in range(100):
         column.DepositStratum()
 
     child1 = column.CloneDescendant()
     child2 = column.CloneDescendant()
+
+    assert hstrat.calc_rank_of_last_retained_commonality_between(
+        hstrat.col_to_specimen(column), hstrat.col_to_specimen(column2)
+    ) == hstrat.calc_rank_of_last_retained_commonality_between(column, column2)
 
     assert hstrat.calc_rank_of_last_retained_commonality_between(
         hstrat.col_to_specimen(column), hstrat.col_to_specimen(column)
