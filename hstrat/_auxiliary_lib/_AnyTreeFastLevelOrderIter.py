@@ -5,7 +5,7 @@ import anytree
 
 
 class AnyTreeFastLevelOrderIter:
-    """Iterator that traverses an `anytree.AnyNode` tree using level-order
+    r"""Iterator that traverses an `anytree.AnyNode` tree using level-order
     strategy.
 
     Parameters

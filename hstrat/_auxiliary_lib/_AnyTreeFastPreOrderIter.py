@@ -4,7 +4,7 @@ import anytree
 
 
 class AnyTreeFastPreOrderIter:
-    """Iterator that traverses an `anytree.AnyNode` tree using pre-order
+    r"""Iterator that traverses an `anytree.AnyNode` tree using pre-order
     strategy (self, children).
 
     Parameters

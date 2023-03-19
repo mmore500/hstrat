@@ -5,7 +5,7 @@ import anytree
 
 
 class AnyTreeFastPostOrderIter:
-    """Iterator that traverses an `anytree.AnyNode` tree using post-order
+    r"""Iterator that traverses an `anytree.AnyNode` tree using post-order
     strategy (children, self).
 
     Parameters
