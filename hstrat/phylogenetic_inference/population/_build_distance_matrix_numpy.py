@@ -3,12 +3,12 @@ import typing
 
 import numpy as np
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ..pairwise import estimate_patristic_distance_between
 
 
 def build_distance_matrix_numpy(
-    population: typing.Sequence[HereditaryStratigraphicColumn],
+    population: typing.Sequence[HereditaryStratigraphicArtifact],
     estimator: str,
     prior: typing.Union[str, typing.Any],
     force_common_ancestry: typing.Optional[bool] = False,
@@ -18,7 +18,7 @@ def build_distance_matrix_numpy(
 
     Parameters
     ----------
-    population : Sequence[HereditaryStratigraphicColumn]
+    population : Sequence[HereditaryStratigraphicArtifact]
         The extant hereditary stratigraphic columns to compare.
 
         The ordering of rows and columns within the returned matrix will

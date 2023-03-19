@@ -57,14 +57,19 @@ def test_build_distance_matrix_numpy_empty(
     "force_common_ancestry",
     [True, False, None],
 )
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
 def test_build_distance_matrix_numpy_singleton(
     differentia_bit_width,
     estimator,
     prior,
     force_common_ancestry,
+    wrap,
 ):
 
-    population = [hstrat.HereditaryStratigraphicColumn()]
+    population = [wrap(hstrat.HereditaryStratigraphicColumn())]
     assert np.array_equal(
         hstrat.build_distance_matrix_numpy(
             population,
@@ -94,15 +99,20 @@ def test_build_distance_matrix_numpy_singleton(
     "prior",
     ["arbitrary", "uniform"],
 )
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
 def test_build_distance_matrix_numpy_pair_unrelated(
     differentia_bit_width,
     estimator,
     prior,
+    wrap,
 ):
 
     population = [
-        hstrat.HereditaryStratigraphicColumn(),
-        hstrat.HereditaryStratigraphicColumn(),
+        wrap(hstrat.HereditaryStratigraphicColumn()),
+        wrap(hstrat.HereditaryStratigraphicColumn()),
     ]
     assert np.array_equal(
         hstrat.build_distance_matrix_numpy(
@@ -163,6 +173,10 @@ def test_build_distance_matrix_numpy_pair_unrelated(
     "force_common_ancestry",
     [True, False, None],
 )
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
 def test_build_distance_matrix_numpy_pair_related(
     generations_before_mrca,
     first_generations_since_mrca,
@@ -171,6 +185,7 @@ def test_build_distance_matrix_numpy_pair_related(
     estimator,
     prior,
     force_common_ancestry,
+    wrap,
 ):
 
     if differentia_bit_width == 64:
@@ -178,8 +193,16 @@ def test_build_distance_matrix_numpy_pair_related(
             stratum_differentia_bit_width=differentia_bit_width
         ).CloneNthDescendant(generations_before_mrca)
         population = [
-            common_ancestor.CloneNthDescendant(first_generations_since_mrca),
-            common_ancestor.CloneNthDescendant(second_generations_since_mrca),
+            wrap(
+                common_ancestor.CloneNthDescendant(
+                    first_generations_since_mrca
+                )
+            ),
+            wrap(
+                common_ancestor.CloneNthDescendant(
+                    second_generations_since_mrca
+                )
+            ),
         ]
         expected_patristic_distance = (
             first_generations_since_mrca + second_generations_since_mrca
@@ -204,8 +227,10 @@ def test_build_distance_matrix_numpy_pair_related(
         stratum_differentia_bit_width=differentia_bit_width,
     ).CloneNthDescendant(generations_before_mrca)
     population = [
-        common_ancestor.CloneNthDescendant(first_generations_since_mrca),
-        common_ancestor.CloneNthDescendant(second_generations_since_mrca),
+        wrap(common_ancestor.CloneNthDescendant(first_generations_since_mrca)),
+        wrap(
+            common_ancestor.CloneNthDescendant(second_generations_since_mrca)
+        ),
     ]
     expected_patristic_distance = hstrat.estimate_patristic_distance_between(
         *population,
@@ -259,6 +284,10 @@ def test_build_distance_matrix_numpy_pair_related(
     "force_common_ancestry",
     [True, False, None],
 )
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
 def test_build_distance_matrix_numpy_pair_and_unrelated(
     generations_before_mrca,
     first_generations_since_mrca,
@@ -267,16 +296,21 @@ def test_build_distance_matrix_numpy_pair_and_unrelated(
     estimator,
     prior,
     force_common_ancestry,
+    wrap,
 ):
 
     common_ancestor = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=differentia_bit_width
     ).CloneNthDescendant(generations_before_mrca)
     population = [
-        common_ancestor.CloneNthDescendant(first_generations_since_mrca),
-        common_ancestor.CloneNthDescendant(second_generations_since_mrca),
-        hstrat.HereditaryStratigraphicColumn(
-            stratum_differentia_bit_width=differentia_bit_width
+        wrap(common_ancestor.CloneNthDescendant(first_generations_since_mrca)),
+        wrap(
+            common_ancestor.CloneNthDescendant(second_generations_since_mrca)
+        ),
+        wrap(
+            hstrat.HereditaryStratigraphicColumn(
+                stratum_differentia_bit_width=differentia_bit_width
+            )
         ),
     ]
     expected_patristic_distance = (
@@ -351,6 +385,10 @@ def test_build_distance_matrix_numpy_pair_and_unrelated(
     "replicate",
     range(20),
 )
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
 def test_build_distance_matrix_numpy_triple(
     generations_before_mrca,
     differentia_bit_width,
@@ -358,15 +396,16 @@ def test_build_distance_matrix_numpy_triple(
     prior,
     force_common_ancestry,
     replicate,
+    wrap,
 ):
 
     common_ancestor = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=differentia_bit_width
     ).CloneNthDescendant(generations_before_mrca)
     population = [
-        common_ancestor.CloneNthDescendant(random.randrange(0, 4)),
-        common_ancestor.CloneNthDescendant(random.randrange(0, 4)),
-        common_ancestor.CloneNthDescendant(random.randrange(0, 4)),
+        wrap(common_ancestor.CloneNthDescendant(random.randrange(0, 4))),
+        wrap(common_ancestor.CloneNthDescendant(random.randrange(0, 4))),
+        wrap(common_ancestor.CloneNthDescendant(random.randrange(0, 4))),
     ]
 
     d01 = hstrat.estimate_patristic_distance_between(
