@@ -22,8 +22,6 @@ class TrieLeafNode(anytree.NodeMixin):
         The taxon label for this leaf node.
     taxon : str
         Synonym for taxon_label.
-    origin_time : str
-        Synonym for taxon_label.
     """
 
     taxon_label: str
