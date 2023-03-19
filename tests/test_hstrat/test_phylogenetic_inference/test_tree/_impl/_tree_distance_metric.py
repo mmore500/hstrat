@@ -1,12 +1,11 @@
+import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
-
-from ._AuxTree import AuxTree
 
 
 def tree_distance_metric(x, y) -> float:
     # use dendropy trees
-    tree_a = AuxTree(x).dendropy
-    tree_b = AuxTree(y).dendropy
+    tree_a = apc.RosettaTree(x).as_dendropy
+    tree_b = apc.RosettaTree(y).as_dendropy
 
     # tree_a = copy.deepcopy(tree_b)
     common_namespace = dp.TaxonNamespace()

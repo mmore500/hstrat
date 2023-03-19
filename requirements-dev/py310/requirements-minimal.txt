@@ -4,7 +4,7 @@
 #
 #    pip-compile --extra=pinned_dependencies_py310 --output-file=requirements-minimal.txt ../../pyproject.toml
 #
-alifedata-phyloinformatics-convert==0.9.0
+alifedata-phyloinformatics-convert==0.11.0
     # via hstrat (../../pyproject.toml)
 anytree==2.8.0
     # via
