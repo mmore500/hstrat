@@ -1,14 +1,26 @@
+import pytest
+
 from hstrat import hstrat
 
 
-def test_calc_min_implausible_spurious_consecutive_differentia_collisions_between():
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_calc_min_implausible_spurious_consecutive_differentia_collisions_between(
+    wrap,
+):
     assert (
         hstrat.calc_min_implausible_spurious_consecutive_differentia_collisions_between(
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=1
+            wrap(
+                hstrat.HereditaryStratigraphicColumn(
+                    stratum_differentia_bit_width=1
+                )
             ),
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=1
+            wrap(
+                hstrat.HereditaryStratigraphicColumn(
+                    stratum_differentia_bit_width=1
+                )
             ),
             significance_level=0.51,
         )
@@ -16,11 +28,15 @@ def test_calc_min_implausible_spurious_consecutive_differentia_collisions_betwee
     )
     assert (
         hstrat.calc_min_implausible_spurious_consecutive_differentia_collisions_between(
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=1
+            wrap(
+                hstrat.HereditaryStratigraphicColumn(
+                    stratum_differentia_bit_width=1
+                )
             ),
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=1
+            wrap(
+                hstrat.HereditaryStratigraphicColumn(
+                    stratum_differentia_bit_width=1
+                )
             ),
             significance_level=0.05,
         )
@@ -28,11 +44,15 @@ def test_calc_min_implausible_spurious_consecutive_differentia_collisions_betwee
     )
     assert (
         hstrat.calc_min_implausible_spurious_consecutive_differentia_collisions_between(
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=2
+            wrap(
+                hstrat.HereditaryStratigraphicColumn(
+                    stratum_differentia_bit_width=2
+                )
             ),
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=2
+            wrap(
+                hstrat.HereditaryStratigraphicColumn(
+                    stratum_differentia_bit_width=2
+                )
             ),
             significance_level=0.05,
         )
@@ -40,11 +60,15 @@ def test_calc_min_implausible_spurious_consecutive_differentia_collisions_betwee
     )
     assert (
         hstrat.calc_min_implausible_spurious_consecutive_differentia_collisions_between(
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=5
+            wrap(
+                hstrat.HereditaryStratigraphicColumn(
+                    stratum_differentia_bit_width=5
+                )
             ),
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=5
+            wrap(
+                hstrat.HereditaryStratigraphicColumn(
+                    stratum_differentia_bit_width=5
+                )
             ),
             significance_level=0.05,
         )
@@ -52,11 +76,15 @@ def test_calc_min_implausible_spurious_consecutive_differentia_collisions_betwee
     )
     assert (
         hstrat.calc_min_implausible_spurious_consecutive_differentia_collisions_between(
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=64
+            wrap(
+                hstrat.HereditaryStratigraphicColumn(
+                    stratum_differentia_bit_width=64
+                )
             ),
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=64
+            wrap(
+                hstrat.HereditaryStratigraphicColumn(
+                    stratum_differentia_bit_width=64
+                )
             ),
             significance_level=0.51,
         )
@@ -64,11 +92,15 @@ def test_calc_min_implausible_spurious_consecutive_differentia_collisions_betwee
     )
     assert (
         hstrat.calc_min_implausible_spurious_consecutive_differentia_collisions_between(
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=64
+            wrap(
+                hstrat.HereditaryStratigraphicColumn(
+                    stratum_differentia_bit_width=64
+                )
             ),
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=64
+            wrap(
+                hstrat.HereditaryStratigraphicColumn(
+                    stratum_differentia_bit_width=64
+                )
             ),
             significance_level=0.05,
         )
@@ -76,11 +108,15 @@ def test_calc_min_implausible_spurious_consecutive_differentia_collisions_betwee
     )
     assert (
         hstrat.calc_min_implausible_spurious_consecutive_differentia_collisions_between(
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=64
+            wrap(
+                hstrat.HereditaryStratigraphicColumn(
+                    stratum_differentia_bit_width=64
+                )
             ),
-            hstrat.HereditaryStratigraphicColumn(
-                stratum_differentia_bit_width=64
+            wrap(
+                hstrat.HereditaryStratigraphicColumn(
+                    stratum_differentia_bit_width=64
+                )
             ),
             significance_level=0.01,
         )
