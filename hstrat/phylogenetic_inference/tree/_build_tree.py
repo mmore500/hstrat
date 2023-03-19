@@ -3,14 +3,16 @@ import typing
 from packaging import version
 import pandas as pd
 
-from ..._auxiliary_lib import get_hstrat_version
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import (
+    HereditaryStratigraphicArtifact,
+    get_hstrat_version,
+)
 from ..priors._ArbitraryPrior import ArbitraryPrior
 from ._build_tree_trie import build_tree_trie
 
 
 def build_tree(
-    population: typing.Sequence[HereditaryStratigraphicColumn],
+    population: typing.Sequence[HereditaryStratigraphicArtifact],
     version_pin: str,
     taxon_labels: typing.Optional[typing.Iterable] = None,
     force_common_ancestry: bool = False,
@@ -24,9 +26,11 @@ def build_tree(
     scenarios. The underlying implementation may be revised in future releases
     of the software.
 
+    The current implementation delegates to `build_tree_trie`.
+
     Parameters
     ----------
-    population: Sequence[HereditaryStratigraphicColumn]
+    population: Sequence[HereditaryStratigraphicArtifact]
         Hereditary stratigraphic columns corresponding to extant population members.
 
         Each member of population will correspond to a unique leaf node in the
