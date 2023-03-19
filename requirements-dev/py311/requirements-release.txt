@@ -36,6 +36,8 @@ click==8.1.3
     #   pip-tools
 colorama==0.4.6
     # via bumpver
+contourpy==1.0.7
+    # via matplotlib
 cycler==0.11.0
     # via matplotlib
 dataclasses==0.6
@@ -74,7 +76,7 @@ lyncs-setuptools==0.3.1
     # via lyncs-utils
 lyncs-utils==0.4.5
     # via alifedata-phyloinformatics-convert
-matplotlib==3.5.2
+matplotlib==3.6.3
     # via
     #   hstrat (../../pyproject.toml)
     #   seaborn
@@ -96,10 +98,12 @@ numpy==1.23.5
     # via
     #   alifedata-phyloinformatics-convert
     #   biopython
+    #   contourpy
     #   hstrat (../../pyproject.toml)
     #   matplotlib
     #   pandas
     #   pandera
+    #   scipy
     #   seaborn
 opytional==0.1.0
     # via
@@ -114,7 +118,7 @@ packaging==23.0
     #   lyncs-setuptools
     #   matplotlib
     #   pandera
-pandas==1.3.5
+pandas==1.5.3
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
@@ -158,7 +162,9 @@ requests-toolbelt==0.10.1
     # via twine
 safe-assert==0.2.0
     # via hstrat (../../pyproject.toml)
-seaborn==0.12.1
+scipy==1.10.1
+    # via seaborn
+seaborn==0.11.0
     # via hstrat (../../pyproject.toml)
 six==1.16.0
     # via

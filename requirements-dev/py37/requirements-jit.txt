@@ -90,6 +90,7 @@ numpy==1.21.6
     #   numba
     #   pandas
     #   pandera
+    #   scipy
     #   seaborn
 opytional==0.1.0
     # via
@@ -129,7 +130,9 @@ pytz==2022.7.1
     # via pandas
 safe-assert==0.2.0
     # via hstrat (../../pyproject.toml)
-seaborn==0.12.1
+scipy==1.7.3
+    # via seaborn
+seaborn==0.11.0
     # via hstrat (../../pyproject.toml)
 six==1.16.0
     # via
@@ -152,7 +155,6 @@ typing-extensions==4.5.0
     #   kiwisolver
     #   pandera
     #   pydantic
-    #   seaborn
     #   typing-inspect
 typing-inspect==0.8.0
     # via pandera
