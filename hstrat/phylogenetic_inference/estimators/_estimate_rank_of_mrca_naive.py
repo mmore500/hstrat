@@ -52,7 +52,4 @@ def estimate_rank_of_mrca_naive(
         return None
 
     exclusive_ub_correction = 1 / 2
-    return opyt.apply_if(
-        rank_of_mrca_bounds,
-        lambda x: (np.mean(x) - exclusive_ub_correction),
-    )
+    return np.mean(rank_of_mrca_bounds) - exclusive_ub_correction
