@@ -9,6 +9,116 @@ from hstrat import hstrat
 
 
 @pytest.mark.parametrize(
+    "estimator",
+    [
+        "maximum_likelihood",
+        "unbiased",
+    ],
+)
+@pytest.mark.parametrize(
+    "prior",
+    [
+        "arbitrary",
+        hstrat.GeometricPrior(1.1),
+        hstrat.ExponentialPrior(1.1),
+        "uniform",
+    ],
+)
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 2, 8, 64],
+)
+def test_estimate_ranks_since_mrca_with_specimen(
+    estimator, prior, retention_policy, differentia_width
+):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_width,
+    )
+    column2 = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_width,
+    )
+    for generation in range(100):
+        column.DepositStratum()
+
+    child1 = column.CloneDescendant()
+    child2 = column.CloneDescendant()
+
+    assert hstrat.estimate_ranks_since_mrca_with(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(column2),
+        estimator=estimator,
+        prior=prior,
+    ) == hstrat.estimate_ranks_since_mrca_with(
+        column,
+        column2,
+        estimator=estimator,
+        prior=prior,
+    )
+
+    assert hstrat.estimate_ranks_since_mrca_with(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(column),
+        estimator=estimator,
+        prior=prior,
+    ) == hstrat.estimate_ranks_since_mrca_with(
+        column,
+        column,
+        estimator=estimator,
+        prior=prior,
+    )
+
+    assert hstrat.estimate_ranks_since_mrca_with(
+        hstrat.col_to_specimen(column),
+        hstrat.col_to_specimen(child1),
+        estimator=estimator,
+        prior=prior,
+    ) == hstrat.estimate_ranks_since_mrca_with(
+        column,
+        child1,
+        estimator=estimator,
+        prior=prior,
+    )
+
+    assert hstrat.estimate_ranks_since_mrca_with(
+        hstrat.col_to_specimen(child1),
+        hstrat.col_to_specimen(child2),
+        estimator=estimator,
+        prior=prior,
+    ) == hstrat.estimate_ranks_since_mrca_with(
+        child1,
+        child2,
+        estimator=estimator,
+        prior=prior,
+    )
+
+    child1.DepositStrata(10)
+    assert hstrat.estimate_ranks_since_mrca_with(
+        hstrat.col_to_specimen(child1),
+        hstrat.col_to_specimen(child2),
+        estimator=estimator,
+        prior=prior,
+    ) == hstrat.estimate_ranks_since_mrca_with(
+        child1,
+        child2,
+        estimator=estimator,
+        prior=prior,
+    )
+
+
+@pytest.mark.parametrize(
     "retention_policy",
     [
         pytest.param(

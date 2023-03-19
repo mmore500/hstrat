@@ -3,13 +3,13 @@ import typing
 
 import opytional as opyt
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ._estimate_rank_of_mrca_between import estimate_rank_of_mrca_between
 
 
 def estimate_ranks_since_mrca_with(
-    focal: HereditaryStratigraphicColumn,
-    other: HereditaryStratigraphicColumn,
+    focal: HereditaryStratigraphicArtifact,
+    other: HereditaryStratigraphicArtifact,
     estimator: str,
     prior: typing.Union[str, typing.Any],
 ) -> typing.Optional[float]:
@@ -74,8 +74,8 @@ def estimate_ranks_since_mrca_with(
 
 
 def ballpark_ranks_since_mrca_with(
-    focal: HereditaryStratigraphicColumn,
-    other: HereditaryStratigraphicColumn,
+    focal: HereditaryStratigraphicArtifact,
+    other: HereditaryStratigraphicArtifact,
 ) -> typing.Optional[float]:
     """Calculate a fast, rough estimate of generations elapsed since MRCA with
     other.
