@@ -2,7 +2,8 @@ import math
 import typing
 
 from ...genome_instrumentation import HereditaryStratigraphicColumn
-from ..priors import ArbitraryPrior, UniformPrior, _BubbleWrappedPrior
+from ..priors import ArbitraryPrior, UniformPrior
+from ..priors._BubbleWrappedPrior import BubbleWrappedPrior
 from ._impl import (
     estimate_rank_of_mrca_maximum_likelihood,
     estimate_rank_of_mrca_naive,
@@ -68,7 +69,7 @@ def estimate_rank_of_mrca_between(
     res = estimator(
         first,
         second,
-        prior=_BubbleWrappedPrior(prior),
+        prior=BubbleWrappedPrior(prior),
     )
     if res is not None:
         assert 0 <= res or math.isclose(0, res, abs_tol=10e-6), res
