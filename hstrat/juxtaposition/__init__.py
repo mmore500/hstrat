@@ -24,9 +24,6 @@ from ._calc_probability_differentia_collision_between import (
 from ._calc_rank_of_first_retained_disparity_between import (
     calc_rank_of_first_retained_disparity_between,
 )
-from ._calc_rank_of_last_retained_commonality_among import (
-    calc_rank_of_last_retained_commonality_among,
-)
 from ._calc_rank_of_last_retained_commonality_between import (
     calc_rank_of_last_retained_commonality_between,
 )
@@ -49,7 +46,6 @@ __all__ = [
     "calc_min_implausible_spurious_consecutive_differentia_collisions_between",
     "calc_probability_differentia_collision_between",
     "calc_rank_of_first_retained_disparity_between",
-    "calc_rank_of_last_retained_commonality_among",
     "calc_rank_of_last_retained_commonality_between",
     "calc_ranks_since_first_retained_disparity_with",
     "calc_ranks_since_last_retained_commonality_with",
