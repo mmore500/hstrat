@@ -60,7 +60,7 @@ def test_estimate_rank_of_mrca_maximum_likelihood_with_common_ancestor4():
 
 def test_estimate_rank_of_mrca_maximum_likelihood_with_common_ancestor5():
     coincident_ranks = [8, 7, 2, 0]
-    p_differentia_collision = 0.5 ** 64
+    p_differentia_collision = 0.5**64
 
     result = hstrat.estimate_rank_of_mrca_maximum_likelihood(
         coincident_ranks, p_differentia_collision, hstrat.ArbitraryPrior()

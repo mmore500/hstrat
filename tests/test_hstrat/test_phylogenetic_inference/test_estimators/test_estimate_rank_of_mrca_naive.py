@@ -14,6 +14,7 @@ def test_estimate_rank_of_mrca_naive_no_common_ancestor():
 
     assert result is None
 
+
 def test_estimate_rank_of_mrca_naive_with_common_ancestor1b():
     coincident_ranks = iter([1, 0])
     p_differentia_collision = 0.5
