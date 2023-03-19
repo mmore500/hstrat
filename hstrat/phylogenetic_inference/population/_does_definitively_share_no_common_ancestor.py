@@ -2,11 +2,11 @@ import itertools as it
 import typing
 import warnings
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 
 
 def does_definitively_share_no_common_ancestor(
-    population: typing.Iterable[HereditaryStratigraphicColumn],
+    population: typing.Iterable[HereditaryStratigraphicArtifact],
 ) -> typing.Optional[bool]:
     """Could the population possibly share a common ancestor?
 

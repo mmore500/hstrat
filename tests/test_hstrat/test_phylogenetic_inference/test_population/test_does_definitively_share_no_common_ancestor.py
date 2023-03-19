@@ -13,7 +13,11 @@ from hstrat import hstrat
         ),
     ],
 )
-def test_does_definitively_share_no_common_ancestor1(retention_policy):
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_does_definitively_share_no_common_ancestor1(retention_policy, wrap):
     while True:
         c1 = hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=1,
@@ -23,41 +27,45 @@ def test_does_definitively_share_no_common_ancestor1(retention_policy):
             stratum_differentia_bit_width=1,
             stratum_retention_policy=retention_policy,
         )
-        if hstrat.does_definitively_share_no_common_ancestor([c1, c2]):
-            assert hstrat.does_definitively_share_no_common_ancestor([c2, c1])
+        if hstrat.does_definitively_share_no_common_ancestor(
+            [wrap(c1), wrap(c2)]
+        ):
             assert hstrat.does_definitively_share_no_common_ancestor(
-                [c2, c1] * 10
+                [wrap(c2), wrap(c1)]
+            )
+            assert hstrat.does_definitively_share_no_common_ancestor(
+                [wrap(c2), wrap(c1)] * 10
             )
             assert not hstrat.does_definitively_share_no_common_ancestor(
-                [c1] * 10
+                [wrap(c1)] * 10
             )
             for __ in range(100):
                 c1.DepositStratum()
                 assert hstrat.does_definitively_share_no_common_ancestor(
-                    [c1, c2]
+                    [wrap(c1), wrap(c2)]
                 )
                 assert hstrat.does_definitively_share_no_common_ancestor(
-                    [c2, c1]
+                    [wrap(c2), wrap(c1)]
                 )
                 assert hstrat.does_definitively_share_no_common_ancestor(
-                    [c2, c1] * 10
+                    [wrap(c2), wrap(c1)] * 10
                 )
                 assert hstrat.does_definitively_share_no_common_ancestor(
-                    [c1] * 10 + [c2]
+                    [wrap(c1)] * 10 + [wrap(c2)]
                 )
             for __ in range(100):
                 c2.DepositStratum()
                 assert hstrat.does_definitively_share_no_common_ancestor(
-                    [c1, c2]
+                    [wrap(c1), wrap(c2)]
                 )
                 assert hstrat.does_definitively_share_no_common_ancestor(
-                    [c2, c1]
+                    [wrap(c2), wrap(c1)]
                 )
                 assert hstrat.does_definitively_share_no_common_ancestor(
-                    [c2, c1] * 10
+                    [wrap(c2), wrap(c1)] * 10
                 )
                 assert hstrat.does_definitively_share_no_common_ancestor(
-                    [c2] * 10 + [c1]
+                    [wrap(c2)] * 10 + [wrap(c1)]
                 )
             break
 
@@ -70,37 +78,39 @@ def test_does_definitively_share_no_common_ancestor1(retention_policy):
             stratum_differentia_bit_width=1,
             stratum_retention_policy=retention_policy,
         )
-        if not hstrat.does_definitively_share_no_common_ancestor([c1, c2]):
+        if not hstrat.does_definitively_share_no_common_ancestor(
+            [wrap(c1), wrap(c2)]
+        ):
             assert not hstrat.does_definitively_share_no_common_ancestor(
-                [c2, c1]
+                [wrap(c2), wrap(c1)]
             )
             for __ in range(100):
                 c1.DepositStratum()
                 assert not hstrat.does_definitively_share_no_common_ancestor(
-                    [c1, c2]
+                    [wrap(c1), wrap(c2)]
                 )
                 assert not hstrat.does_definitively_share_no_common_ancestor(
-                    [c2, c1]
+                    [wrap(c2), wrap(c1)]
                 )
                 assert not hstrat.does_definitively_share_no_common_ancestor(
-                    [c2, c1] * 10
+                    [wrap(c2), wrap(c1)] * 10
                 )
                 assert not hstrat.does_definitively_share_no_common_ancestor(
-                    [c2] * 10 + [c1]
+                    [wrap(c2)] * 10 + [wrap(c1)]
                 )
             for __ in range(100):
                 c2.DepositStratum()
                 assert not hstrat.does_definitively_share_no_common_ancestor(
-                    [c1, c2]
+                    [wrap(c1), wrap(c2)]
                 )
                 assert not hstrat.does_definitively_share_no_common_ancestor(
-                    [c2, c1]
+                    [wrap(c2), wrap(c1)]
                 )
                 assert not hstrat.does_definitively_share_no_common_ancestor(
-                    [c2, c1] * 10
+                    [wrap(c2), wrap(c1)] * 10
                 )
                 assert not hstrat.does_definitively_share_no_common_ancestor(
-                    [c1] * 10 + [c2]
+                    [wrap(c1)] * 10 + [wrap(c2)]
                 )
             break
 
@@ -113,11 +123,17 @@ def test_does_definitively_share_no_common_ancestor1(retention_policy):
             stratum_differentia_bit_width=64,
             stratum_retention_policy=retention_policy,
         )
-        assert hstrat.does_definitively_share_no_common_ancestor([c1, c2])
-        assert hstrat.does_definitively_share_no_common_ancestor([c2, c1])
-        assert hstrat.does_definitively_share_no_common_ancestor([c2, c1] * 10)
         assert hstrat.does_definitively_share_no_common_ancestor(
-            [c1] * 10 + [c2]
+            [wrap(c1), wrap(c2)]
+        )
+        assert hstrat.does_definitively_share_no_common_ancestor(
+            [wrap(c2), wrap(c1)]
+        )
+        assert hstrat.does_definitively_share_no_common_ancestor(
+            [wrap(c2), wrap(c1)] * 10
+        )
+        assert hstrat.does_definitively_share_no_common_ancestor(
+            [wrap(c1)] * 10 + [wrap(c2)]
         )
 
 
@@ -131,23 +147,39 @@ def test_does_definitively_share_no_common_ancestor1(retention_policy):
         ),
     ],
 )
-def test_does_definitively_share_no_common_ancestor2(retention_policy):
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_does_definitively_share_no_common_ancestor2(retention_policy, wrap):
 
     c1 = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=1,
         stratum_retention_policy=retention_policy,
     )
     c2 = c1.Clone()
-    assert not hstrat.does_definitively_share_no_common_ancestor([c1, c2])
-    assert not hstrat.does_definitively_share_no_common_ancestor([c2, c1])
+    assert not hstrat.does_definitively_share_no_common_ancestor(
+        [wrap(c1), wrap(c2)]
+    )
+    assert not hstrat.does_definitively_share_no_common_ancestor(
+        [wrap(c2), wrap(c1)]
+    )
     for __ in range(100):
         c1.DepositStratum()
-        assert not hstrat.does_definitively_share_no_common_ancestor([c1, c2])
-        assert not hstrat.does_definitively_share_no_common_ancestor([c2, c1])
+        assert not hstrat.does_definitively_share_no_common_ancestor(
+            [wrap(c1), wrap(c2)]
+        )
+        assert not hstrat.does_definitively_share_no_common_ancestor(
+            [wrap(c2), wrap(c1)]
+        )
     for __ in range(100):
         c2.DepositStratum()
-        assert not hstrat.does_definitively_share_no_common_ancestor([c1, c2])
-        assert not hstrat.does_definitively_share_no_common_ancestor([c2, c1])
+        assert not hstrat.does_definitively_share_no_common_ancestor(
+            [wrap(c1), wrap(c2)]
+        )
+        assert not hstrat.does_definitively_share_no_common_ancestor(
+            [wrap(c2), wrap(c1)]
+        )
 
     for rep in range(100):
         c1 = hstrat.HereditaryStratigraphicColumn(
@@ -155,8 +187,12 @@ def test_does_definitively_share_no_common_ancestor2(retention_policy):
             stratum_retention_policy=retention_policy,
         )
         c2 = c1.Clone()
-        assert not hstrat.does_definitively_share_no_common_ancestor([c1, c2])
-        assert not hstrat.does_definitively_share_no_common_ancestor([c2, c1])
+        assert not hstrat.does_definitively_share_no_common_ancestor(
+            [wrap(c1), wrap(c2)]
+        )
+        assert not hstrat.does_definitively_share_no_common_ancestor(
+            [wrap(c2), wrap(c1)]
+        )
 
 
 @pytest.mark.filterwarnings("ignore:Empty or singleton population.")
@@ -170,32 +206,19 @@ def test_does_definitively_share_no_common_ancestor2(retention_policy):
         ),
     ],
 )
-def test_does_definitively_share_no_common_ancestor3(retention_policy):
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_does_definitively_share_no_common_ancestor3(retention_policy, wrap):
 
     c1 = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=1,
         stratum_retention_policy=retention_policy,
     )
-    c2 = c1.Clone()
-    assert hstrat.does_definitively_share_no_common_ancestor([c1]) is None
-    assert hstrat.does_definitively_share_no_common_ancestor([c2]) is None
-    for __ in range(100):
-        c1.DepositStratum()
-        assert hstrat.does_definitively_share_no_common_ancestor([c1]) is None
-        assert hstrat.does_definitively_share_no_common_ancestor([c2]) is None
-    for __ in range(100):
-        c2.DepositStratum()
-        assert hstrat.does_definitively_share_no_common_ancestor([c1]) is None
-        assert hstrat.does_definitively_share_no_common_ancestor([c2]) is None
-
-    for rep in range(100):
-        c1 = hstrat.HereditaryStratigraphicColumn(
-            stratum_differentia_bit_width=64,
-            stratum_retention_policy=retention_policy,
-        )
-        c2 = c1.Clone()
-        assert hstrat.does_definitively_share_no_common_ancestor([c1]) is None
-        assert hstrat.does_definitively_share_no_common_ancestor([c2]) is None
+    assert (
+        hstrat.does_definitively_share_no_common_ancestor([wrap(c1)]) is None
+    )
 
 
 @pytest.mark.filterwarnings("ignore:Empty or singleton population.")
@@ -211,41 +234,22 @@ def test_does_definitively_share_no_common_ancestor3(retention_policy):
 )
 def test_does_definitively_share_no_common_ancestor4(retention_policy):
 
-    c1 = hstrat.HereditaryStratigraphicColumn(
-        stratum_differentia_bit_width=1,
-        stratum_retention_policy=retention_policy,
-    )
-    c2 = c1.Clone()
     assert hstrat.does_definitively_share_no_common_ancestor([]) is None
-    assert hstrat.does_definitively_share_no_common_ancestor([]) is None
-    for __ in range(100):
-        c1.DepositStratum()
-        assert hstrat.does_definitively_share_no_common_ancestor([]) is None
-        assert hstrat.does_definitively_share_no_common_ancestor([]) is None
-    for __ in range(100):
-        c2.DepositStratum()
-        assert hstrat.does_definitively_share_no_common_ancestor([]) is None
-        assert hstrat.does_definitively_share_no_common_ancestor([]) is None
-
-    for rep in range(100):
-        c1 = hstrat.HereditaryStratigraphicColumn(
-            stratum_differentia_bit_width=64,
-            stratum_retention_policy=retention_policy,
-        )
-        c2 = c1.Clone()
-        assert hstrat.does_definitively_share_no_common_ancestor([]) is None
-        assert hstrat.does_definitively_share_no_common_ancestor([]) is None
 
 
-def test_does_definitively_share_no_common_ancestor_generator():
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_does_definitively_share_no_common_ancestor_generator(wrap):
     c1 = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=1,
     )
     for __ in range(10):
         assert hstrat.does_definitively_share_no_common_ancestor(
-            [c1 for __ in range(10)]
+            [wrap(c1) for __ in range(10)]
         ) == hstrat.does_definitively_share_no_common_ancestor(
-            (c1 for __ in range(10))
+            (wrap(c1) for __ in range(10))
         )
         c1.DepositStratum()
 
@@ -254,8 +258,8 @@ def test_does_definitively_share_no_common_ancestor_generator():
     )
     for __ in range(10):
         assert hstrat.does_definitively_share_no_common_ancestor(
-            [c2 for __ in range(10)]
+            [wrap(c2) for __ in range(10)]
         ) == hstrat.does_definitively_share_no_common_ancestor(
-            (c2 for __ in range(10))
+            (wrap(c2) for __ in range(10))
         )
         c2.DepositStratum()

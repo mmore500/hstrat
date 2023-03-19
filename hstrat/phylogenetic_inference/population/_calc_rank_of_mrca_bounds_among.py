@@ -2,7 +2,7 @@ import itertools as it
 import typing
 import warnings
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ..pairwise import calc_rank_of_mrca_bounds_between
 from ._calc_rank_of_earliest_detectable_mrca_among import (
     calc_rank_of_earliest_detectable_mrca_among,
@@ -10,7 +10,7 @@ from ._calc_rank_of_earliest_detectable_mrca_among import (
 
 
 def calc_rank_of_mrca_bounds_among(
-    population: typing.Iterable[HereditaryStratigraphicColumn],
+    population: typing.Iterable[HereditaryStratigraphicArtifact],
     prior: str,
     confidence_level: float = 0.95,
 ) -> typing.Optional[typing.Tuple[int, int]]:
