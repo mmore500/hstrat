@@ -5,6 +5,7 @@ import pandas as pd
 
 from ..._auxiliary_lib import get_hstrat_version
 from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..priors._ArbitraryPrior import ArbitraryPrior
 from ._build_tree_trie import build_tree_trie
 
 
@@ -74,8 +75,7 @@ def build_tree(
 
     return build_tree_trie(
         population,
-        "maximum_likelihood",
-        "arbitrary",
         taxon_labels,
         force_common_ancestry=force_common_ancestry,
+        bias_adjustment=ArbitraryPrior(),
     )
