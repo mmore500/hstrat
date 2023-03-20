@@ -34,9 +34,11 @@ def build_tree_biopython_distance(
     if len(population) == 0:
         return alifestd_make_empty()
 
-    taxon_labels = opyt.or_value(
-        taxon_labels,
-        [*map(str, range(len(population)))],
+    taxon_labels = list(
+        opyt.or_value(
+            taxon_labels,
+            map(str, range(len(population))),
+        )
     )
 
     distance_matrix = build_distance_matrix_biopython(
