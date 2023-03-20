@@ -18,6 +18,7 @@ jobs:
         python-version: [3.7, 3.8, 3.9, "3.10", 3.11]
         subdivision:
           - "test_auxiliary_lib"
+          - "test_frozen_instrumentation"
           - "test_genome_instrumentation"
           - "test_juxtaposition"
           - "test_phylogenetic_inference/test_estimators"
@@ -80,6 +81,7 @@ jobs:
       matrix:
         subdivision:
           - "test_auxiliary_lib"
+          - "test_frozen_instrumentation"
           - "test_genome_instrumentation"
           - "test_juxtaposition"
           - "test_phylogenetic_inference/test_estimators"
