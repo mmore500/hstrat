@@ -1,3 +1,4 @@
+import copy
 import itertools as it
 
 import pytest
@@ -91,3 +92,58 @@ def test_init_and_getters(
             specimen.GetNumDiscardedStrata() == column.GetNumDiscardedStrata()
         )
         assert specimen.HasDiscardedStrata() == column.HasDiscardedStrata()
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
+    ],
+)
+def test_IterRankDifferentiaZip(retention_policy):
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=retention_policy,
+    )
+    c2 = c1.CloneNthDescendant(10)
+    c3 = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=retention_policy,
+    ).CloneNthDescendant(4)
+
+    for __ in range(100):
+        c1.DepositStratum()
+        c2.DepositStratum()
+        c3.DepositStratum()
+        for subpopulation in (
+            [c1, c2],
+            [c1, c2, c3],
+        ):
+            assemblage = hstrat.pop_to_assemblage(subpopulation)
+            for specimen, column in zip(
+                assemblage.BuildSpecimens(), subpopulation
+            ):
+                assert [*specimen.IterRankDifferentiaZip()] == [
+                    *zip(
+                        specimen.IterRetainedRanks(),
+                        specimen.IterRetainedDifferentia(),
+                    )
+                ]
+                iter_ = specimen.IterRankDifferentiaZip(copyable=True)
+                iter_copy = copy.copy(iter_)
+                next(iter_copy)
+                assert [*iter_copy] == [
+                    *zip(
+                        specimen.IterRetainedRanks(),
+                        specimen.IterRetainedDifferentia(),
+                    )
+                ][1:]
+                assert [*iter_] == [
+                    *zip(
+                        specimen.IterRetainedRanks(),
+                        specimen.IterRetainedDifferentia(),
+                    )
+                ]

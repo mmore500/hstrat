@@ -4,7 +4,11 @@ import typing
 import numpy as np
 import pandera as pa
 
-from .._auxiliary_lib import get_nullable_mask, get_nullable_vals
+from .._auxiliary_lib import (
+    CopyableSeriesItemsIter,
+    get_nullable_mask,
+    get_nullable_vals,
+)
 
 _nullable_unsigned_integer_series_t = typing.Union[
     pa.typing.Series[pa.typing.UINT8()],
@@ -198,3 +202,37 @@ class HereditaryStratigraphicAssemblageSpecimen:
         Differentia yielded from most ancient to most recent.
         """
         yield from self.GetData().dropna()
+
+    def IterRankDifferentiaZip(
+        self: "HereditaryStratigraphicColumn",
+        copyable: bool = False,
+    ) -> typing.Iterator[typing.Tuple[int, int]]:
+        """Iterate over ranks of retained strata and their differentia.
+
+        If `copyable`, return an iterator that can be copied to produce a new
+        fully-independent iterator at the same position.
+
+        Equivalent to `zip(specimen.IterRetainedRanks(),
+        specimen.IterRetainedDifferentia())`, but may be more efficient.
+        """
+        if copyable:
+            return CopyableSeriesItemsIter(self._data.dropna())
+        else:
+            return self._data.dropna().items()
+
+    def HasRetainedRank(
+        self: "HereditaryStratigraphicSpecimen",
+        rank: int,
+    ) -> bool:
+        """Does this specimen contain a stratum deposited at generation
+        `rank`?"""
+        return rank in self._data.index and not pd.isnull(self._data.loc[rank])
+
+    def HasDifferentiaAtRank(
+        self: "HereditaryStratigraphicSpecimen",
+        differentia: int,
+        rank: int,
+    ) -> bool:
+        """Does this specimen contain a stratum with differentia `differentia`
+        deposited at generation `rank`? ?"""
+        return self._data[rank] == differentia
