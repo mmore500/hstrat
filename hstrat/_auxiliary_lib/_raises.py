@@ -1,12 +1,12 @@
 import typing
 
 
-def raises(callable: typing.Callable, exception: BaseException) -> bool:
-    """Test if a `callable` raises a `exception` when called.
+def raises(callable_: typing.Callable, exception: BaseException) -> bool:
+    """Test if a `callable_` raises a `exception` when called.
 
     Parameters
     ----------
-    callable : typing.Callable
+    callable_ : typing.Callable
         The callable to be tested for raising the specified exception.
     exception : BaseException
         The exception that is expected to be raised by the callable.
@@ -29,7 +29,7 @@ def raises(callable: typing.Callable, exception: BaseException) -> bool:
     False
     """
     try:
-        callable()
+        callable_()
         return False
     except exception:
         return True

@@ -49,7 +49,7 @@ class HereditaryStratigraphicAssemblageSpecimen:
         stratum_differentia_series: _nullable_unsigned_integer_series_t,
         stratum_differentia_bit_width: int,
     ) -> None:
-        """Initialize a HereditaryStratigraphicSpecimen object with a
+        """Initialize a HereditaryStratigraphicAssemblageSpecimen object with a
         (potentially sparse) sequence of rank-indexed differentia and a
         differentia bit width."""
         self._data = stratum_differentia_series
@@ -100,7 +100,7 @@ class HereditaryStratigraphicAssemblageSpecimen:
         return self.GetNumDiscardedStrata() > 0
 
     def GetData(
-        self: "HereditaryStratigraphicSpecimen",
+        self: "HereditaryStratigraphicAssemblageSpecimen",
     ) -> _nullable_unsigned_integer_series_t:
         """Get the underlying Pandas Series containing differentia values
         indexed by rank.
@@ -205,7 +205,7 @@ class HereditaryStratigraphicAssemblageSpecimen:
         yield from self.GetData().dropna()
 
     def IterRankDifferentiaZip(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicAssemblageSpecimen",
         copyable: bool = False,
     ) -> typing.Iterator[typing.Tuple[int, int]]:
         """Iterate over ranks of retained strata and their differentia.
@@ -222,7 +222,7 @@ class HereditaryStratigraphicAssemblageSpecimen:
             return self._data.dropna().items()
 
     def HasRetainedRank(
-        self: "HereditaryStratigraphicSpecimen",
+        self: "HereditaryStratigraphicAssemblageSpecimen",
         rank: int,
     ) -> bool:
         """Does this specimen contain a stratum deposited at generation
@@ -230,7 +230,7 @@ class HereditaryStratigraphicAssemblageSpecimen:
         return rank in self._data.index and not pd.isnull(self._data.loc[rank])
 
     def HasDifferentiaAtRank(
-        self: "HereditaryStratigraphicSpecimen",
+        self: "HereditaryStratigraphicAssemblageSpecimen",
         differentia: int,
         rank: int,
     ) -> bool:

@@ -175,7 +175,7 @@ class HereditaryStratigraphicSpecimen:
         yield from self.GetDifferentiaVals()
 
     def IterRankDifferentiaZip(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSpecimen",
         copyable: bool = False,
     ) -> typing.Iterator[typing.Tuple[int, int]]:
         """Iterate over ranks of retained strata and their differentia.

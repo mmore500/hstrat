@@ -7,5 +7,5 @@ def policy_from_record(policy_record: str) -> typing.Any:
         stratum_retention_algorithms as hstrat,
     )
 
-    hstrat  # mark as used to prevent autoflake purge
+    _ = hstrat  # mark as used to prevent autoflake purge
     return eval(policy_record)  # noqa

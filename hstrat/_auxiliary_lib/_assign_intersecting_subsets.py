@@ -37,14 +37,14 @@ def assign_intersecting_subsets(
 
     range_subsets = []
     index_subsets = []
-    for range_index, range in sorted(enumerate(ranges), key=lambda x: x[1]):
+    for range_index, range_ in sorted(enumerate(ranges), key=lambda x: x[1]):
         for range_subset, index_subset in zip(range_subsets, index_subsets):
-            if intersect_ranges([range, *range_subset]):
-                range_subset.append(range)
+            if intersect_ranges([range_, *range_subset]):
+                range_subset.append(range_)
                 index_subset.append(range_index)
                 break
         else:
-            range_subsets.append([range])
+            range_subsets.append([range_])
             index_subsets.append([range_index])
 
     return index_subsets
