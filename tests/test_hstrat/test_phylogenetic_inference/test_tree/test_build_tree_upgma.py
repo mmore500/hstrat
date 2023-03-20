@@ -71,3 +71,49 @@ def test_determinism(orig_tree, retention_policy, wrap, estimator, prior):
             prior,
         )
         assert first_reconst.equals(second_reconst)
+
+
+@pytest.mark.parametrize(
+    "orig_tree",
+    [
+        impl.setup_dendropy_tree(f"{assets_path}/nk_lexicaseselection.csv"),
+    ],
+)
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.recency_proportional_resolution_algo.Policy(4),
+    ],
+)
+def test_reconstructed_taxon_labels(orig_tree, retention_policy):
+    num_depositions = 10
+
+    extant_population = hstrat.descend_template_phylogeny_dendropy(
+        orig_tree,
+        seed_column=hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_policy=retention_policy,
+        ).CloneNthDescendant(num_depositions),
+    )
+    taxon_labels = [str(id(x)) for x in extant_population]
+
+    reconst_df = hstrat.build_tree_upgma(
+        extant_population,
+        "maximum_likelihood",
+        "arbitrary",
+        taxon_labels=taxon_labels,
+    )
+    assert "taxon_label" in reconst_df
+    assert set(taxon_labels) < set(reconst_df["taxon_label"])
+
+    reconst_df = hstrat.build_tree_upgma(
+        extant_population,
+        "maximum_likelihood",
+        "arbitrary",
+    )
+    assert "taxon_label" in reconst_df
+    assert len(reconst_df["taxon_label"].unique()) == len(
+        reconst_df["taxon_label"]
+    )
+    assert set(map(str, range(len(extant_population)))) < set(
+        reconst_df["taxon_label"]
+    )
