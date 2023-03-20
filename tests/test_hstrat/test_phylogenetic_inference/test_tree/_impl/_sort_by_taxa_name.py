@@ -16,7 +16,7 @@ def sort_by_taxa_name(tree: dp.Tree) -> None:
 
         if node.taxon is None:
             # create taxon if there is none
-            node.taxon = dendropy.Taxon()
+            node.taxon = dp.Taxon()
 
         # label internal nodes with minimum child
         node.taxon.label = min_child.taxon.label

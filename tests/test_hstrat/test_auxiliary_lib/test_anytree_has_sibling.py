@@ -47,7 +47,7 @@ def test_multiple_siblings():
 def test_root_node():
     # Create a tree with multiple nodes
     root = anytree.Node("root")
-    child1 = anytree.Node("child1", parent=root)
+    anytree.Node("child1", parent=root)
     anytree.Node("child2", parent=root)
     # Assert that the root node has no siblings
     assert anytree_has_sibling(root) == False

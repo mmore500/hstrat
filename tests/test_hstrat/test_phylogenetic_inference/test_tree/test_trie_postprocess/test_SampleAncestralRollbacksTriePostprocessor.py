@@ -29,6 +29,7 @@ def test_sample_ancestral_rollbacks_single_node_trie(
     root = hstrat.SampleAncestralRollbacksTriePostprocessor()(
         trie, p_differentia_collision=p_differentia_collision, mutate=mutate
     )
+    assert root.parent is None
     # Since there is only one node in the trie, we don't expect any new nodes
     expected_num_nodes = 1
     assert anytree_cardinality(trie) == expected_num_nodes
@@ -43,8 +44,8 @@ def test_sample_ancestral_rollbacks_multiple_levels_trie_phalf(mutate):
             rank=1, differentia=i, parent=root.children[0]
         )
         impl.TrieLeafNode(parent=node, taxon_label=f"{i}")
-    another = impl.TrieLeafNode(parent=root, taxon_label=f"another")
-    impl.TrieLeafNode(parent=another, taxon_label=f"another_leaf")
+    another = impl.TrieLeafNode(parent=root, taxon_label="another")
+    impl.TrieLeafNode(parent=another, taxon_label="another_leaf")
 
     # (rank None, diff None) @ KQ
     # ├── (rank 0, diff 101) @ MQ

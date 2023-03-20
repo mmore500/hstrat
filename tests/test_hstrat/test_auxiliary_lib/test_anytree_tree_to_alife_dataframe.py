@@ -54,7 +54,7 @@ def test_simple_tree_origin_times():
     marc = anytree.Node("Marc", parent=udo, id=1111, edge_length=1)
     anytree.Node("Lian", parent=marc, id=2222, edge_length=1)
     dan = anytree.Node("Dan", parent=udo, id=333, edge_length=2)
-    jet = anytree.Node("Jet", parent=dan, id=444, edge_length=4)
+    anytree.Node("Jet", parent=dan, id=444, edge_length=4)
     anytree.Node("Jan", parent=dan, id=555, edge_length=5)
     anytree.Node("Joe", parent=dan, id=666, edge_length=6)
 

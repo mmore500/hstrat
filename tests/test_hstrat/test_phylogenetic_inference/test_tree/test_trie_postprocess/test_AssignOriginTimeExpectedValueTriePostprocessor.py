@@ -102,7 +102,7 @@ def test_assign_trie_origin_times_expected_value_complex__arbitrary():
 
     leaf3_a = impl.TrieLeafNode(parent=inner3, taxon_label="leaf3a_a")
 
-    leaf2a_a = impl.TrieLeafNode(parent=inner2a, taxon_label="leaf2a_a")
+    impl.TrieLeafNode(parent=inner2a, taxon_label="leaf2a_a")
     leaf2a_b = impl.TrieLeafNode(parent=inner2a, taxon_label="leaf2a_b")
 
     root = hstrat.AssignOriginTimeExpectedValueTriePostprocessor(

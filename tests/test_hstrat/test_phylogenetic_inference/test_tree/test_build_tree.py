@@ -21,7 +21,7 @@ from . import _impl as impl
 def test_empty_population(version_pin):
     population = []
     tree = hstrat.build_tree(
-        [],
+        population,
         version_pin=version_pin,
     )
 

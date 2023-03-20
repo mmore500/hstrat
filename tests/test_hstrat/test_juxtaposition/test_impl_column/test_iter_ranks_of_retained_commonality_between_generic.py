@@ -681,9 +681,8 @@ def test_IterRanksOfRetainedCommonalityBetweenGenerich5(
             )
         )
 
-    for generation in range(99):
-        offspring1.DepositStratum()
-        offspring2.DepositStratum()
+    offspring1.DepositStrata(99)
+    offspring2.DepositStrata(99)
 
     for c1, c2 in it.permutations([column, offspring1, offspring2], 2):
         if differentia_width == 64 or c1 is column or c2 is column:

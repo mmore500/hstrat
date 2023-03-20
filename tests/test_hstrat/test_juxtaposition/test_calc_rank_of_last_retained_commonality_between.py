@@ -409,7 +409,8 @@ def test_scenario_partial_even_divergence(retention_policy, ordered_store):
     first.DepositStratum()
     second.DepositStratum()
 
-    for generation in range(101, 200):
+    for _generation in range(101, 200):
+        _ = _generation
         assert (
             0
             <= hstrat.calc_rank_of_last_retained_commonality_between(
@@ -864,9 +865,8 @@ def test_CalcRankOfLastRetainedCommonalityWith5(
                 c, c, conf
             ) == c.GetRankAtColumnIndex(col_idx)
 
-    for generation in range(99):
-        offspring1.DepositStratum()
-        offspring2.DepositStratum()
+    offspring1.DepositStrata(99)
+    offspring2.DepositStrata(99)
 
     for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
         if differentia_width == 64:

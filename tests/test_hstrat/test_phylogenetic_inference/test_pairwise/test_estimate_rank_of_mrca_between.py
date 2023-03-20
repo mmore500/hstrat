@@ -453,7 +453,8 @@ def test_comparison_ml_vs_unbiased(differentia_width, retention_policy):
                 first, second, prior="arbitrary", confidence_level=0.49
             )
             if bounds is not None:
-                lb, ub = bounds
+                _lb, ub = bounds
+                _ = _lb
                 assert hstrat.estimate_rank_of_mrca_between(
                     first,
                     second,
@@ -572,10 +573,11 @@ def test_statistical_properties(
             stratum_retention_policy=retention_policy,
         )
     ]
-    for i in range(113):
+    for __ in range(113):
         common_ancestors.append(common_ancestors[-1].CloneDescendant())
 
-    for rep in range(10000):
+    for _rep in range(10000):
+        _ = _rep
         num_total = random.randrange(57, 113)
         num_together = random.randrange(num_total + 1)
         num_alone = num_total - num_together
@@ -686,7 +688,8 @@ def test_statistical_properties(
         [geometric_factor**i for i in range(113)], dtype=float
     )
 
-    for rep in range(8000):
+    for _rep in range(8000):
+        _ = _rep
         num_total = random.randrange(57, 113)
 
         # scrapped continuous approach to generating

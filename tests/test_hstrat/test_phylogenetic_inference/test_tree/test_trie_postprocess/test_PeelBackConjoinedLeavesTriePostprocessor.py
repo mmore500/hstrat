@@ -75,7 +75,7 @@ def trie():
 def test_singleton():
     root_node = impl.TrieInnerNode(rank=None, differentia=None)
     inner_node = impl.TrieInnerNode(rank=1, differentia=2, parent=root_node)
-    leaf_node = impl.TrieLeafNode(taxon_label="bar", parent=inner_node)
+    impl.TrieLeafNode(taxon_label="bar", parent=inner_node)
 
     processed_root = hstrat.PeelBackConjoinedLeavesTriePostprocessor()(
         root_node,
@@ -128,8 +128,8 @@ def test_twins():
 def test_mutate(trie):
     root_node = impl.TrieInnerNode(rank=None, differentia=None)
     inner_node = impl.TrieInnerNode(rank=0, differentia=2, parent=root_node)
-    leaf_node1 = impl.TrieLeafNode(taxon_label="bar", parent=inner_node)
-    leaf_node2 = impl.TrieLeafNode(taxon_label="baz", parent=inner_node)
+    impl.TrieLeafNode(taxon_label="bar", parent=inner_node)
+    impl.TrieLeafNode(taxon_label="baz", parent=inner_node)
 
     root_bak = copy.deepcopy(root_node)
 
