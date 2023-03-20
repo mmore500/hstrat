@@ -166,8 +166,8 @@ def test_sample_ancestral_rollbacks_multiple_levels_trie_pone(mutate):
             rank=1, differentia=i, parent=root.children[0]
         )
         impl.TrieLeafNode(parent=node, taxon_label=f"{i}")
-    another = impl.TrieLeafNode(parent=root, taxon_label=f"another")
-    impl.TrieLeafNode(parent=another, taxon_label=f"another_leaf")
+    another = impl.TrieLeafNode(parent=root, taxon_label="another")
+    impl.TrieLeafNode(parent=another, taxon_label="another_leaf")
 
     # (rank None, diff None) @ KQ
     # ├── (rank 0, diff 101) @ MQ
@@ -303,8 +303,8 @@ def test_sample_ancestral_rollbacks_multiple_levels_seed():
             rank=1, differentia=i, parent=root.children[0]
         )
         impl.TrieLeafNode(parent=node, taxon_label=f"{i}")
-    another = impl.TrieLeafNode(parent=root, taxon_label=f"another")
-    impl.TrieLeafNode(parent=another, taxon_label=f"another_leaf")
+    another = impl.TrieLeafNode(parent=root, taxon_label="another")
+    impl.TrieLeafNode(parent=another, taxon_label="another_leaf")
 
     # (rank None, diff None) @ KQ
     # ├── (rank 0, diff 101) @ MQ
@@ -366,8 +366,8 @@ def test_sample_ancestral_rollbacks_multiple_levels_mutate():
             rank=1, differentia=i, parent=root.children[0]
         )
         impl.TrieLeafNode(parent=node, taxon_label=f"{i}")
-    another = impl.TrieLeafNode(parent=root, taxon_label=f"another")
-    impl.TrieLeafNode(parent=another, taxon_label=f"another_leaf")
+    another = impl.TrieLeafNode(parent=root, taxon_label="another")
+    impl.TrieLeafNode(parent=another, taxon_label="another_leaf")
 
     # (rank None, diff None) @ KQ
     # ├── (rank 0, diff 101) @ MQ

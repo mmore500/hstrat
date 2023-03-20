@@ -466,12 +466,12 @@ def test_scenario_partial_uneven_divergence(retention_policy, ordered_store):
             )
             <= 100
         )
-
         first.DepositStratum()
 
     second.DepositStratum()
 
-    for generation in range(101, 200):
+    for _generation in range(101, 200):
+        _ = _generation
         assert (
             0
             <= hstrat.calc_rank_of_last_retained_commonality_between(
@@ -479,7 +479,6 @@ def test_scenario_partial_uneven_divergence(retention_policy, ordered_store):
             )
             <= 100
         )
-
         second.DepositStratum()
 
 
