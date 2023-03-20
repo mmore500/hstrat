@@ -25,12 +25,12 @@ def test_parse_from_numeral_system(alphabet):
 
 
 def test_render_and_parse_numeral_system_consistency(alphabet):
-    for i in range(100):
+    for __ in range(100):
         num = random.randint(0, 1000000)
         base_num = render_to_numeral_system(num, alphabet)
         assert parse_from_numeral_system(base_num, alphabet) == num
 
-    for i in range(100):
+    for __ in range(100):
         test_digits = "".join([random.choice(alphabet) for j in range(10)])
         base_num = parse_from_numeral_system(test_digits, alphabet)
         assert render_to_numeral_system(

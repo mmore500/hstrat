@@ -40,7 +40,8 @@ def test_comparison_commutativity_asynchronous(
         for __ in range(10)
     ]
 
-    for generation in range(100):
+    for _generation in range(100):
+        __ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert [
@@ -95,8 +96,8 @@ def test_comparison_commutativity_synchronous(
         for __ in range(10)
     ]
 
-    for generation in range(100):
-
+    for _generation in range(100):
+        __ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert [
@@ -632,8 +633,7 @@ def test_IterRanksOfRetainedCommonalityBetweenGenerich5(
         stratum_retention_policy=hstrat.fixed_resolution_algo.Policy(2),
     )
 
-    for generation in range(100):
-        column.DepositStratum()
+    column.DepositStrata(100)
 
     offspring1 = column.CloneDescendant()
     offspring2 = column.CloneDescendant()

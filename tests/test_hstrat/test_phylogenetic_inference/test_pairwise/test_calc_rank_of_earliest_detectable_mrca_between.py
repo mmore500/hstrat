@@ -36,8 +36,7 @@ def test_calc_rank_of_earliest_detectable_mrca_between_specimen(
         stratum_retention_policy=retention_policy,
         stratum_differentia_bit_width=differentia_width,
     )
-    for generation in range(100):
-        column.DepositStratum()
+    column.DepositStrata(100)
 
     child1 = column.CloneDescendant()
     child2 = column.CloneDescendant()

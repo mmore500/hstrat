@@ -39,8 +39,7 @@ def test_calc_rank_of_mrca_bounds_between_specimen(
         stratum_retention_policy=retention_policy,
         stratum_differentia_bit_width=differentia_width,
     )
-    for generation in range(100):
-        column.DepositStratum()
+    column.DepositStrata(100)
 
     child1 = column.CloneDescendant()
     child2 = column.CloneDescendant()
@@ -126,7 +125,8 @@ def test_comparison_commutativity_asynchronous(
         for __ in range(10)
     ]
 
-    for generation in range(100):
+    for _generation in range(100):
+        __ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.calc_rank_of_mrca_bounds_between(
@@ -191,8 +191,8 @@ def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store):
     forked_isolated = column.Clone()
     unrelated_isolated = make_bundle()
 
-    for generation in range(100):
-
+    for _generation in range(100):
+        __ = _generation
         for f, s in it.chain(
             it.combinations(population, 2),
             zip(population, cyclify(forked_isolated)),
@@ -280,8 +280,8 @@ def test_comparison_commutativity_synchronous(
         for __ in range(10)
     ]
 
-    for generation in range(100):
-
+    for _generation in range(100):
+        __ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.calc_rank_of_mrca_bounds_between(
@@ -478,9 +478,8 @@ def test_CalcRankOfMrcaBoundsWith_narrow_with_mrca(
         for __ in range(20)
     ]
 
-    for generation in range(mrca_rank):
-        for column in columns:
-            column.DepositStratum()
+    for column in columns:
+        column.DepositStrata(mrca_rank)
 
     steps = (0, 16, 51)
 
@@ -578,9 +577,8 @@ def test_CalcRankOfMrcaBoundsWith_narrow_no_mrca(
 
     columns = [make_column() for __ in range(20)]
 
-    for generation in range(mrca_rank):
-        for column in columns:
-            column.DepositStratum()
+    for column in columns:
+        column.DepositStrata(mrca_rank)
 
     steps = (0, 16, 51)
 
@@ -659,7 +657,8 @@ def test_with_HereditaryStratigraphicSpecimens(
         for __ in range(10)
     ]
 
-    for generation in range(100):
+    for _generation in range(100):
+        __ = _generation
         for first, second in it.combinations(population, 2):
             first_ = hstrat.col_to_specimen(first)
             second_ = hstrat.col_to_specimen(second)

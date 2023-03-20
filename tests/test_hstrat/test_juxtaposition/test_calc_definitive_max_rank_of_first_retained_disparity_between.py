@@ -8,8 +8,7 @@ from hstrat import hstrat
 def test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith_specimen():
     column = hstrat.HereditaryStratigraphicColumn()
     column2 = hstrat.HereditaryStratigraphicColumn()
-    for generation in range(100):
-        column.DepositStratum()
+    column.DepositStrata(100)
 
     child1 = column.CloneDescendant()
     child2 = column.CloneDescendant()
@@ -60,8 +59,7 @@ def test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith1(
         stratum_ordered_store=ordered_store,
     )
 
-    for generation in range(100):
-        column.DepositStratum()
+    column.DepositStrata(100)
 
     offspring1 = column.CloneDescendant()
     offspring2 = column.CloneDescendant()
@@ -106,9 +104,8 @@ def test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith1(
             is None
         )
 
-    for generation in range(100):
-        offspring1.DepositStratum()
-        offspring2.DepositStratum()
+    offspring1.DepositStrata(100)
+    offspring2.DepositStrata(100)
 
     for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
         if differentia_width == 64:
@@ -194,15 +191,13 @@ def test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith3(ordered_store):
         stratum_retention_policy=hstrat.nominal_resolution_algo.Policy(),
     )
 
-    for generation in range(100):
-        column.DepositStratum()
+    column.DepositStrata(100)
 
     offspring1 = column.CloneDescendant()
     offspring2 = column.CloneDescendant()
 
-    for generation in range(100):
-        offspring1.DepositStratum()
-        offspring2.DepositStratum()
+    offspring1.DepositStrata(100)
+    offspring2.DepositStrata(100)
 
     assert (
         offspring1.GetNumStrataDeposited()
@@ -271,9 +266,8 @@ def test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith4(ordered_store):
         assert res in (0, None)
 
         if res == 0:
-            for generation in range(100):
-                c1.DepositStratum()
-                c2.DepositStratum()
+            c1.DepositStrata(100)
+            c2.DepositStrata(100)
             res = hstrat.calc_definitive_max_rank_of_first_retained_disparity_between(
                 c1, c2
             )
@@ -339,9 +333,8 @@ def test_CalcDefinitiveMaxRankOfFirstRetainedDisparityWith5(ordered_store):
         assert res in (0, None)
 
         if res == 0:
-            for generation in range(100):
-                c1.DepositStratum()
-                c2.DepositStratum()
+            c1.DepositStrata(100)
+            c2.DepositStrata(100)
             res = hstrat.calc_definitive_max_rank_of_first_retained_disparity_between(
                 c1, c2
             )

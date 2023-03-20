@@ -31,8 +31,7 @@ def _find_first_disparity_or_last_commonality(
     ):
         if not comp:
             return positions
-    else:
-        return positions
+    return positions
 
 
 @jit(nopython=True)
@@ -53,11 +52,10 @@ def _backtrack_n_equivalencies(
     ):
         if i == n:
             return positions
+    if strict:
+        return None
     else:
-        if strict:
-            return None
-        else:
-            return (0, 0)
+        return (0, 0)
 
 
 def calc_rank_of_parity_segue_between_naive(

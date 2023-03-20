@@ -73,9 +73,9 @@ def estimate_rank_of_mrca_between(
     )
     if res is not None:
         assert 0 <= res or math.isclose(0, res, abs_tol=10e-6), res
-        max = (
+        max_ = (
             min(first.GetNumStrataDeposited(), second.GetNumStrataDeposited())
             - 1
         )
-        assert res <= max or math.isclose(res, max), (res, max)
+        assert res <= max_ or math.isclose(res, max_), (res, max_)
     return res

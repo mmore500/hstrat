@@ -52,8 +52,7 @@ def test_estimate_rank_of_mrca_between_specimen(
         stratum_retention_policy=retention_policy,
         stratum_differentia_bit_width=differentia_width,
     )
-    for generation in range(100):
-        column.DepositStratum()
+    column.DepositStrata(100)
 
     child1 = column.CloneDescendant()
     child2 = column.CloneDescendant()
@@ -164,7 +163,8 @@ def test_comparison_commutativity_asynchronous(
         for __ in range(10)
     ]
 
-    for generation in range(30):
+    for _generation in range(30):
+        __ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.estimate_rank_of_mrca_between(
@@ -233,7 +233,8 @@ def test_comparison_validity(
         for __ in range(10)
     ]
 
-    for generation in range(50):
+    for _generation in range(50):
+        __ = _generation
         for first, second in it.combinations(population, 2):
 
             bounds = hstrat.calc_rank_of_mrca_bounds_between(
@@ -303,7 +304,8 @@ def test_comparison_bit_width_effects(retention_policy):
         for __ in range(10)
     ]
 
-    for generation in range(50):
+    for _generation in range(50):
+        __ = _generation
         for first, second in it.combinations(population, 2):
             assert len(
                 set(
@@ -443,7 +445,8 @@ def test_comparison_ml_vs_unbiased(differentia_width, retention_policy):
         for __ in range(10)
     ]
 
-    for generation in range(50):
+    for _generation in range(50):
+        __ = _generation
         for first, second in it.combinations(population, 2):
 
             bounds = hstrat.calc_rank_of_mrca_bounds_between(

@@ -33,8 +33,7 @@ def test_CalcRanksSinceFirstRetainedDisparityWith_specimen(
         stratum_retention_policy=retention_policy,
         stratum_differentia_bit_width=differentia_width,
     )
-    for generation in range(100):
-        column.DepositStratum()
+    column.DepositStrata(100)
 
     child1 = column.CloneDescendant()
     child2 = column.CloneDescendant()
@@ -99,8 +98,8 @@ def test_comparison_commutativity_synchronous(
         for __ in range(10)
     ]
 
-    for generation in range(100):
-
+    for _generation in range(100):
+        __ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.calc_ranks_since_first_retained_disparity_with(
@@ -262,14 +261,14 @@ def test_scenario_no_divergence(retention_policy, ordered_store):
         stratum_retention_policy=retention_policy,
     )
 
-    for generation in range(100):
+    for _generation in range(100):
+        __ = _generation
         assert (
             hstrat.calc_ranks_since_first_retained_disparity_with(
                 column, column
             )
             is None
         )
-
         column.DepositStratum()
 
 
@@ -295,8 +294,7 @@ def test_scenario_partial_even_divergence(retention_policy, ordered_store):
         stratum_retention_policy=retention_policy,
     )
 
-    for generation in range(100):
-        first.DepositStratum()
+    first.DepositStrata(100)
 
     second = first.Clone()
 
@@ -341,8 +339,7 @@ def test_scenario_partial_uneven_divergence(retention_policy, ordered_store):
         stratum_retention_policy=retention_policy,
     )
 
-    for generation in range(100):
-        first.DepositStratum()
+    first.DepositStrata(100)
 
     second = first.Clone()
 
@@ -392,8 +389,7 @@ def test_CalcRanksSinceFirstRetainedDisparityWith1(differentia_width):
         stratum_differentia_bit_width=differentia_width,
     )
 
-    for generation in range(100):
-        column.DepositStratum()
+    column.DepositStrata(100)
 
     offspring1 = column.CloneDescendant()
     offspring2 = column.CloneDescendant()
@@ -499,9 +495,8 @@ def test_CalcRanksSinceFirstRetainedDisparityWith1(differentia_width):
                 ),
             )
 
-    for generation in range(100):
-        offspring1.DepositStratum()
-        offspring2.DepositStratum()
+    offspring1.DepositStrata(100)
+    offspring2.DepositStrata(100)
 
     for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
         if differentia_width == 64:

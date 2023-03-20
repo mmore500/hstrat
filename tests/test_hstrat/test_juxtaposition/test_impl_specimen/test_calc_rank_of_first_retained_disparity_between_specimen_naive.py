@@ -134,10 +134,6 @@ def test_compare_to_generic_column_impl(
     uneven_branches,
     other_pop_member,
 ):
-
-    err_maximum_likelihood = []
-    err_unbiased = []
-
     common_ancestors = [
         hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=differentia_width,

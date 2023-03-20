@@ -102,7 +102,8 @@ def test_Clone3(retention_policy, ordered_store):
     )
     population = [column.Clone() for __ in range(3)]
 
-    for generation in range(100):
+    for _generation in range(100):
+        __ = _generation
 
         for f, s in it.combinations(population, 2):
             assert not f.HasDiscardedStrata()
@@ -148,7 +149,8 @@ def test_Clone4(retention_policy, ordered_store):
     )
     population = [column.Clone() for __ in range(3)]
 
-    for generation in range(100):
+    for _generation in range(100):
+        __ = _generation
 
         for f, s in it.combinations(population, 2):
             assert not f.HasDiscardedStrata()

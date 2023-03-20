@@ -36,8 +36,7 @@ def test_calc_rank_of_mrca_uncertainty_between_specimen(
         stratum_retention_policy=retention_policy,
         stratum_differentia_bit_width=differentia_width,
     )
-    for generation in range(100):
-        column.DepositStratum()
+    column.DepositStrata(100)
 
     child1 = column.CloneDescendant()
     child2 = column.CloneDescendant()
@@ -120,7 +119,8 @@ def test_comparison_commutativity_asynchronous(
         for __ in range(10)
     ]
 
-    for generation in range(100):
+    for _generation in range(100):
+        __ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.calc_rank_of_mrca_uncertainty_between(
@@ -177,8 +177,8 @@ def test_comparison_commutativity_synchronous(
         for __ in range(10)
     ]
 
-    for generation in range(100):
-
+    for _generation in range(100):
+        __ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.calc_rank_of_mrca_uncertainty_between(
@@ -224,7 +224,8 @@ def test_comparison_validity(retention_policy, ordered_store):
         for __ in range(10)
     ]
 
-    for generation in range(100):
+    for _generation in range(100):
+        __ = _generation
         for first, second in it.combinations(population, 2):
             assert (
                 hstrat.calc_rank_of_mrca_uncertainty_between(
@@ -280,7 +281,8 @@ def test_scenario_no_mrca(
         stratum_retention_policy=retention_policy2,
     )
 
-    for generation in range(100):
+    for _generation in range(100):
+        __ = _generation
         assert (
             hstrat.calc_rank_of_mrca_uncertainty_between(
                 first, second, prior="arbitrary"
@@ -320,7 +322,8 @@ def test_scenario_no_divergence(retention_policy, ordered_store):
         stratum_retention_policy=retention_policy,
     )
 
-    for generation in range(100):
+    for _generation in range(100):
+        __ = _generation
         assert (
             hstrat.calc_rank_of_mrca_uncertainty_between(
                 column, column, prior="arbitrary"
@@ -444,9 +447,8 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_with_mrca(
         for __ in range(20)
     ]
 
-    for generation in range(mrca_rank):
-        for column in columns:
-            column.DepositStratum()
+    for column in columns:
+        column.DepositStrata(mrca_rank)
 
     steps = (0, 16, 51)
 
@@ -528,9 +530,8 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
 
     columns = [make_column() for __ in range(20)]
 
-    for generation in range(mrca_rank):
-        for column in columns:
-            column.DepositStratum()
+    for column in columns:
+        column.DepositStrata(mrca_rank)
 
     steps = (0, 16, 51)
 

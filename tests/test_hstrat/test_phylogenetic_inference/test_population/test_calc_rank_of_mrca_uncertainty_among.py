@@ -41,7 +41,8 @@ def test_comparison_commutativity_asynchronous(
         for __ in range(10)
     ]
 
-    for generation in range(100):
+    for _generation in range(100):
+        __ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert (
@@ -112,8 +113,8 @@ def test_comparison_commutativity_synchronous(
         for __ in range(10)
     ]
 
-    for generation in range(100):
-
+    for _generation in range(100):
+        __ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert (
@@ -172,7 +173,8 @@ def test_comparison_validity(retention_policy, ordered_store, wrap):
         for __ in range(10)
     ]
 
-    for generation in range(100):
+    for _generation in range(100):
+        __ = _generation
         for first, second in it.combinations(population, 2):
             assert (
                 hstrat.calc_rank_of_mrca_uncertainty_among(
@@ -243,7 +245,8 @@ def test_scenario_no_mrca(
         stratum_retention_policy=retention_policy2,
     )
 
-    for generation in range(100):
+    for _generation in range(100):
+        __ = _generation
         assert (
             hstrat.calc_rank_of_mrca_uncertainty_among(
                 [wrap(first), wrap(second)],
@@ -305,7 +308,8 @@ def test_scenario_no_divergence(retention_policy, ordered_store, wrap):
         stratum_retention_policy=retention_policy,
     )
 
-    for generation in range(100):
+    for _generation in range(100):
+        __ = _generation
         assert (
             hstrat.calc_rank_of_mrca_uncertainty_among(
                 [wrap(column), wrap(column)],
@@ -326,7 +330,6 @@ def test_scenario_no_divergence(retention_policy, ordered_store, wrap):
             )
             == 0
         )
-
         column.DepositStratum()
 
 
@@ -484,9 +487,8 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_with_mrca(
         for __ in range(20)
     ]
 
-    for generation in range(mrca_rank):
-        for column in columns:
-            column.DepositStratum()
+    for column in columns:
+        column.DepositStrata(mrca_rank)
 
     steps = (0, 16, 51)
 
@@ -619,9 +621,8 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
 
     columns = [make_column() for __ in range(20)]
 
-    for generation in range(mrca_rank):
-        for column in columns:
-            column.DepositStratum()
+    for column in columns:
+        column.DepositStrata(mrca_rank)
 
     steps = (0, 16, 51)
 

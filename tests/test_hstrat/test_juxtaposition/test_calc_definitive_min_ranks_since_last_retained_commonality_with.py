@@ -8,8 +8,7 @@ from hstrat import hstrat
 def test_CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith_specimen():
     column = hstrat.HereditaryStratigraphicColumn()
     column2 = hstrat.HereditaryStratigraphicColumn()
-    for generation in range(100):
-        column.DepositStratum()
+    column.DepositStrata(100)
 
     child1 = column.CloneDescendant()
     child2 = column.CloneDescendant()
@@ -67,8 +66,7 @@ def test_CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith1(
         stratum_ordered_store=ordered_store,
     )
 
-    for generation in range(100):
-        column.DepositStratum()
+    column.DepositStrata(100)
 
     offspring1 = column.CloneDescendant()
     offspring2 = column.CloneDescendant()
@@ -113,9 +111,8 @@ def test_CalcDefinitiveMinRanksSinceLastRetainedCommonalityWith1(
             == 0
         )
 
-    for generation in range(100):
-        offspring1.DepositStratum()
-        offspring2.DepositStratum()
+    offspring1.DepositStrata(100)
+    offspring2.DepositStrata(100)
 
     for c1, c2 in it.combinations([column, offspring1, offspring2], 2):
         if differentia_width == 64:

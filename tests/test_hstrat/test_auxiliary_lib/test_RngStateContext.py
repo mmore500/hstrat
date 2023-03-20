@@ -31,7 +31,7 @@ def test_reseeded_rng_temporarily_reseed_rng(seed_values):
     random.seed(outer_seed)
     assert random.random() == seed_values[outer_seed][0]
     with RngStateContext(inner_seed):
-        for i in range(len(seed_values[inner_seed])):
+        for i, __ in enumerate(seed_values[inner_seed]):
             assert random.random() == seed_values[inner_seed][i]
     assert random.random() == seed_values[outer_seed][1]
 
@@ -40,19 +40,19 @@ def test_reseeded_rng_temporarily_reseed_rng_multiple_times(seed_values):
     seed1 = 10
     expected_values1 = seed_values[seed1]
     with RngStateContext(seed1):
-        for i in range(len(expected_values1)):
+        for i, __ in enumerate(expected_values1):
             assert random.random() == expected_values1[i]
 
     seed2 = 20
     expected_values2 = seed_values[seed2]
     with RngStateContext(seed2):
-        for i in range(len(expected_values2)):
+        for i, __ in enumerate(expected_values2):
             assert random.random() == expected_values2[i]
 
     seed3 = 30
     expected_values3 = seed_values[seed3]
     with RngStateContext(seed3):
-        for i in range(len(expected_values3)):
+        for i, __ in enumerate(expected_values3):
             assert random.random() == expected_values3[i]
 
     assert random.random() != expected_values3[-1]
@@ -72,7 +72,7 @@ def test_reseeded_rng_nested_reseeding(seed_values):
 
         inner_inner_seed = 12345
         with RngStateContext(inner_inner_seed):
-            for j in range(len(seed_values[inner_inner_seed])):
+            for j, __ in enumerate(seed_values[inner_inner_seed]):
                 assert random.random() == seed_values[inner_inner_seed][j]
 
         assert random.random() == seed_values[inner_seed][1]

@@ -50,8 +50,7 @@ def test_estimate_ranks_since_mrca_with_specimen(
         stratum_retention_policy=retention_policy,
         stratum_differentia_bit_width=differentia_width,
     )
-    for generation in range(100):
-        column.DepositStratum()
+    column.DepositStrata(100)
 
     child1 = column.CloneDescendant()
     child2 = column.CloneDescendant()
@@ -161,8 +160,8 @@ def test_comparison_commutativity_synchronous(
         for __ in range(10)
     ]
 
-    for generation in range(100):
-
+    for _generation in range(100):
+        __ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.estimate_ranks_since_mrca_with(
@@ -222,7 +221,8 @@ def test_comparison_validity(
         for __ in range(10)
     ]
 
-    for generation in range(100):
+    for _generation in range(100):
+        __ = _generation
         for first, second in it.permutations(population, 2):
 
             bounds = hstrat.calc_ranks_since_mrca_bounds_with(
