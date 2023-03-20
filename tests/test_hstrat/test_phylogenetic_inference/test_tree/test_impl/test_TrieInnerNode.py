@@ -28,9 +28,10 @@ def subtrie():
 
     root = impl.TrieInnerNode(rank=None, differentia=None, parent=None)
     genesis_node = impl.TrieInnerNode(rank=0, differentia=2, parent=root)
-    sibling_node = impl.TrieInnerNode(
+    _sibling_node = impl.TrieInnerNode(
         rank=3, differentia=31, parent=genesis_node
     )
+    _ = _sibling_node
     focal_node = impl.TrieInnerNode(rank=3, differentia=1, parent=genesis_node)
     impl.TrieLeafNode(focal_node, "spice")
     child1 = impl.TrieInnerNode(rank=4, differentia=17, parent=focal_node)
@@ -181,6 +182,7 @@ def test_get_deepest_consecutive_shared_allele_genesis_tiebreaker(
         leftover_iter,
     ) = subtrie.GetDeepestCongruousAlleleOrigination(iter(alleles))
     assert genesis2 is genesis
+    assert [*leftover_iter] == alleles[2:]
 
     alleles = [(4, 17)]
     (
@@ -188,6 +190,7 @@ def test_get_deepest_consecutive_shared_allele_genesis_tiebreaker(
         leftover_iter,
     ) = subtrie.GetDeepestCongruousAlleleOrigination(iter(alleles))
     assert is_in(genesis2, anytree.PostOrderIter(genesis))
+    assert [*leftover_iter] == []
 
 
 def test_insert_taxon_canopy1(subtrie):
@@ -197,6 +200,7 @@ def test_insert_taxon_canopy1(subtrie):
         genesis,
         leftover_iter,
     ) = subtrie.GetDeepestCongruousAlleleOrigination(iter(alleles))
+    assert [*leftover_iter] == []
 
     inserted = genesis.InsertTaxon("fab", iter([]))
     assert inserted.taxon == "fab"
@@ -220,6 +224,7 @@ def test_insert_taxon_canopy2(subtrie):
         genesis,
         leftover_iter,
     ) = subtrie.GetDeepestCongruousAlleleOrigination(iter(alleles))
+    assert [*leftover_iter] == []
     inserted = genesis.InsertTaxon("fab", iter([]))
     assert inserted.taxon == "fab"
     assert inserted.parent is genesis
@@ -239,6 +244,7 @@ def test_insert_taxon_canopy3(subtrie):
         genesis,
         leftover_iter,
     ) = subtrie.GetDeepestCongruousAlleleOrigination(iter(alleles))
+    assert [*leftover_iter] == []
 
     inserted = genesis.InsertTaxon("gg", iter([(7, 12), (8, 20)]))
     assert inserted.taxon == "gg"
@@ -255,6 +261,7 @@ def test_insert_taxon_internal1(subtrie):
         genesis,
         leftover_iter,
     ) = subtrie.GetDeepestCongruousAlleleOrigination(iter(alleles))
+    assert [*leftover_iter] == []
     children_before = [*genesis.children]
 
     inserted = genesis.InsertTaxon("fab", iter([(5, 11)]))
@@ -272,6 +279,7 @@ def test_insert_taxon_internal2(subtrie):
         genesis,
         leftover_iter,
     ) = subtrie.GetDeepestCongruousAlleleOrigination(iter(alleles))
+    assert [*leftover_iter] == []
     descendants_before = [*anytree.PostOrderIter(genesis)]
 
     inserted = genesis.InsertTaxon("fab", iter([(5, 11), (6, 21)]))
@@ -293,6 +301,7 @@ def test_insert_taxon_internal3(subtrie):
         genesis,
         leftover_iter,
     ) = subtrie.GetDeepestCongruousAlleleOrigination(iter(alleles))
+    assert [*leftover_iter] == []
     inserted = genesis.InsertTaxon("fab", iter([(5, 11), (6, 21)]))
     assert inserted.taxon_label == "fab"
     previous_node_count = anytree_cardinality(subtrie)

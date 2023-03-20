@@ -178,7 +178,7 @@ def test_build_distance_matrix_biopython_pair_disjoint2(
         wrap(hstrat.HereditaryStratigraphicColumn()),
     ]
     with pytest.raises(ValueError):
-        dm = hstrat.build_distance_matrix_biopython(
+        hstrat.build_distance_matrix_biopython(
             population,
             estimator,
             prior,

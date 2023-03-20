@@ -25,7 +25,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 def test_empty_population():
     population = []
-    tree = hstrat.build_tree_trie([])
+    tree = hstrat.build_tree_trie(population)
 
     assert len(tree) == 0
     assert alifestd_validate(tree)
@@ -454,7 +454,8 @@ def test_determinism(orig_tree, retention_policy, bias_adjustment, wrap):
     first_reconst = hstrat.build_tree_trie(
         extant_population, bias_adjustment=bias_adjustment
     )
-    for rep in range(10):
+    for _rep in range(10):
+        _ = _rep
         second_reconst = hstrat.build_tree_trie(
             [wrap(col) for col in extant_population],
             bias_adjustment=bias_adjustment,

@@ -69,6 +69,6 @@ def test_flat_len_generator(wrap):
 
 
 @pytest.mark.parametrize("wrap", [iter, lambda x: x])
-def test_flat_len_empty_list_nested(wrap):
+def test_flat_len_singleton_list_nested(wrap):
     result = flat_len(wrap([wrap(["asdf"])]))
     assert result == 4

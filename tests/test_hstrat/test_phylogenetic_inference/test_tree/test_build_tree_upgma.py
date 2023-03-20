@@ -63,7 +63,8 @@ def test_determinism(orig_tree, retention_policy, wrap, estimator, prior):
     first_reconst = hstrat.build_tree_upgma(
         extant_population, estimator, prior
     )
-    for rep in range(3):
+    for _rep in range(3):
+        _ = _rep
         second_reconst = hstrat.build_tree_upgma(
             [wrap(col) for col in extant_population],
             estimator,

@@ -12,9 +12,16 @@ def test_append_genesis_organism_empty():
         {
             "id": [0],
             "ancestor_list": ["[none]"],
-            "origin_time": [0],
-            "name": ["genesis"],
+            "origin_time": [0.0],
         }
+    )
+
+    df_ = df.copy()
+    extended_df = impl.append_genesis_organism(df)
+
+    assert df.equals(df_)
+    assert extended_df.sort_index(axis=1).equals(
+        expected_df.sort_index(axis=1)
     )
 
 

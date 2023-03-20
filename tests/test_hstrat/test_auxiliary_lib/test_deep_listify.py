@@ -63,6 +63,6 @@ def test_deep_listify_generator(wrap):
 
 
 @pytest.mark.parametrize("wrap", [iter, lambda x: x])
-def test_deep_listify_empty_list_nested(wrap):
+def test_deep_listify_singleton_list_nested(wrap):
     result = deep_listify(wrap([wrap(["asdf"])]))
     assert result == [["asdf"]]

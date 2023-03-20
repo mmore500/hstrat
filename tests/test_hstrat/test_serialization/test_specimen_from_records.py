@@ -27,7 +27,7 @@ from hstrat._auxiliary_lib import get_hstrat_version, log_once_in_a_row
     "differentia_bit_width",
     [1, 2, 8, 20, 32, 64, 129],
 )
-def test_specimen_from_records(
+def test_specimen_from_records1(
     retention_policy,
     num_deposits,
     differentia_bit_width,
@@ -120,7 +120,7 @@ def test_col_to_records_then_to_specimen_json(
     "differentia_bit_width",
     [1, 2, 8, 20, 32, 64],
 )
-def test_specimen_from_records(
+def test_specimen_from_records2(
     retention_policy,
     num_deposits,
     differentia_bit_width,

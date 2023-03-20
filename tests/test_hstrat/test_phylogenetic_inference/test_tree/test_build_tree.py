@@ -210,7 +210,8 @@ def test_determinism(orig_tree, retention_policy, wrap, version_pin):
     )
 
     first_reconst = hstrat.build_tree(extant_population, version_pin)
-    for rep in range(3):
+    for _rep in range(3):
+        _ = _rep
         second_reconst = hstrat.build_tree(
             [wrap(col) for col in extant_population], version_pin
         )
