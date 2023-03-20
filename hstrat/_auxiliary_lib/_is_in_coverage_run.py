@@ -5,7 +5,7 @@ def is_in_coverage_run():
     """Check whether test is run with coverage."""
     gettrace = getattr(sys, "gettrace", None)
 
-    if gettrace is None:
+    if gettrace is None:  # pragma: no cover
         return False
     else:
         gettrace_result = gettrace()
@@ -16,7 +16,7 @@ def is_in_coverage_run():
 
         if isinstance(gettrace_result, (CTracer, PyTracer)):
             return True
-    except ImportError:
+    except ImportError:  # pragma: no cover
         pass
 
-    return False
+    return False  # pragma: no cover

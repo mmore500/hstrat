@@ -8,7 +8,7 @@ from ._is_in_coverage_run import is_in_coverage_run
 
 try:
     import numba as nb
-except (ImportError, ModuleNotFoundError):
+except (ImportError, ModuleNotFoundError):  # pragma: no cover
     jit_numba_int8_arr_t = None
     jit_numba_int16_arr_t = None
     jit_numba_int32_arr_t = None
@@ -29,7 +29,7 @@ else:
         jit_numba_uint16_arr_t = None
         jit_numba_uint32_arr_t = None
         jit_numba_uint64_arr_t = None
-    else:
+    else:  # pragma: no cover
         jit_numba_int8_arr_t = nb.types.int8[:]
         jit_numba_int16_arr_t = nb.types.int16[:]
         jit_numba_int32_arr_t = nb.types.int32[:]

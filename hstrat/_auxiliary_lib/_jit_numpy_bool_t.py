@@ -16,5 +16,5 @@ else:
         # when numba disabled for coverage testing,
         # using nb.types.bool_ causes numpy TypeError
         jit_numpy_bool_t = np.bool_
-    else:
+    else:  # pragma: no cover
         jit_numpy_bool_t = nb.types.bool_

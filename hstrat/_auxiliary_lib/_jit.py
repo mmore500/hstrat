@@ -12,7 +12,7 @@ def jit(*args, **kwargs) -> typing.Callable:
     """
     try:
         import numba as nb
-    except (ImportError, ModuleNotFoundError):
+    except (ImportError, ModuleNotFoundError):  # pragma: no cover
         warnings.warn(
             "numba unavailable,"
             "wrapped function may lose significant performance. "
@@ -29,5 +29,5 @@ def jit(*args, **kwargs) -> typing.Callable:
             RuntimeWarning,
         )
         return lambda f: f
-    else:
+    else:  # pragma: no cover
         return nb.jit(*args, **kwargs)

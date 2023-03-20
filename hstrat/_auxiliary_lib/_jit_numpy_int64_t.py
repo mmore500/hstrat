@@ -16,5 +16,5 @@ else:
         # when numba disabled for coverage testing,
         # using nb.types.int64_ causes numpy TypeError
         jit_numpy_int64_t = np.int64
-    else:
+    else:  # pragma: no cover
         jit_numpy_int64_t = nb.types.int64

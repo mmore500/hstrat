@@ -20,5 +20,5 @@ except (ImportError, ModuleNotFoundError):
 else:
     if is_in_coverage_run():
         jit_numba_dict_t = _shim()
-    else:
+    else:  # pragma: no cover
         jit_numba_dict_t = Dict
