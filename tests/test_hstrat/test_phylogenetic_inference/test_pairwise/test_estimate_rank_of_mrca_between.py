@@ -453,8 +453,6 @@ def test_comparison_ml_vs_unbiased(differentia_width, retention_policy):
                 first, second, prior="arbitrary", confidence_level=0.49
             )
             if bounds is not None:
-                _lb, ub = bounds
-                _ = _lb
                 assert hstrat.estimate_rank_of_mrca_between(
                     first,
                     second,
