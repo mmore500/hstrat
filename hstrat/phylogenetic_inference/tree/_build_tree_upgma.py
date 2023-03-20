@@ -29,6 +29,18 @@ def build_tree_upgma(
 
         Each member of population will correspond to a unique leaf node in the
         reconstructed tree.
+    estimator : {"maximum_likelihood", "unbiased"}
+        What estimation method should be used? Options are "maximum_likelihood"
+        or "unbiased".
+
+        See `estimate_ranks_since_mrca_with` for discussion of estimator
+        options.
+    prior : {"arbitrary", "uniform"} or object implementing prior interface
+        Prior probability density distribution over possible generations of the
+        MRCA.
+
+        See `estimate_rank_of_mrca_between` for discussion of prior
+        options.
     taxon_labels: Optional[Iterable], optional
         How should leaf nodes representing extant hereditary stratigraphic
         columns be named?

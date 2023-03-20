@@ -18,8 +18,8 @@ def time_calibrate_tree(
     negative_origin_time_correction_method: typing.Optional[str] = None,
 ) -> pd.DataFrame:
     """Time-calibrates a given tree by estimating the origin time of its nodes,
-    by working backward from phylogenetic depths of leaf nodes using
-    branch_length attributes of tree nodes.
+    working backward from phylogenetic depths of leaf nodes using branch_length
+    attributes.
 
     Sets `origin_time` attributes on tree nodes, reroots the tree to the most
     ancient (chronologically) clade, and sets the `branch_length` of the new
