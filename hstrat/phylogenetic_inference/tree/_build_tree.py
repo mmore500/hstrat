@@ -78,7 +78,7 @@ def build_tree(
     """
 
     if version.parse(version_pin) > version.parse(get_hstrat_version()):
-        raise ValueError(f"unsupported verison {pinned_version}")
+        raise ValueError(f"unsupported verison {version_pin}")
 
     return build_tree_trie(
         population,

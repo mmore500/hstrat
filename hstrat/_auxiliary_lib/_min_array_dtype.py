@@ -39,7 +39,6 @@ def min_array_dtype(arr: np.array) -> np.dtype:
         return np.min_scalar_type(max_)
 
     dtype_min = np.min_scalar_type(min_)
-    dtype_max = np.min_scalar_type(max_)
     conv = dtype_min.type(max_)
     if conv == max_ and np.isfinite(conv):
         return dtype_min

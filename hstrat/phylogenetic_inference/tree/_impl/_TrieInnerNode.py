@@ -77,7 +77,7 @@ class TrieInnerNode(anytree.NodeMixin):
         # note: assert handles root case
         assert (self._differentia is None) == (self._rank is None)
 
-        search_stack: List["TrieInnerNode"] = [self]
+        search_stack = [self]
         while search_stack:
             current_node = search_stack.pop()
 

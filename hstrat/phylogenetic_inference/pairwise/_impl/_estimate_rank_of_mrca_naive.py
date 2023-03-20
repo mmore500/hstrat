@@ -1,5 +1,6 @@
 import typing
 
+import numpy as np
 import opytional as opyt
 
 from ...._auxiliary_lib import HereditaryStratigraphicArtifact
@@ -27,6 +28,6 @@ def estimate_rank_of_mrca_naive(
     return estimate_rank_of_mrca_naive_(
         # in case of no shared ancestry, rank 0 is first disparity
         opyt.or_value(rank_of_mrca_bounds, [0]),
-        p_differentia_collision=p.nan,
+        p_differentia_collision=np.nan,
         prior=object(),
     )
