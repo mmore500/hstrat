@@ -20,7 +20,7 @@ def test_single_node_tree():
 def test_two_node_tree():
     # Create a tree with two nodes
     root = anytree.Node("root")
-    _ = child1 = anytree.Node("child1", parent=root)
+    anytree.Node("child1", parent=root)
     # Assert that the length of the tree is 2 (root and child1)
     assert anytree_cardinality(root) == 2
 
@@ -30,8 +30,8 @@ def test_multi_level_tree():
     root = anytree.Node("root")
     child1 = anytree.Node("child1", parent=root)
     child2 = anytree.Node("child2", parent=root)
-    _ = grandchild1 = anytree.Node("grandchild1", parent=child1)
-    _ = grandchild2 = anytree.Node("grandchild2", parent=child1)
-    _ = grandchild3 = anytree.Node("grandchild3", parent=child2)
+    anytree.Node("grandchild1", parent=child1)
+    anytree.Node("grandchild2", parent=child1)
+    anytree.Node("grandchild3", parent=child2)
     # Assert that the length of the tree is 6 (root, child1, child2, grandchild1, grandchild2, and grandchild3)
     assert anytree_cardinality(root) == 6

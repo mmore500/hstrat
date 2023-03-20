@@ -25,19 +25,19 @@ def test_render_to_numeral_system(alphabet):
 
 
 def test_render_and_parse_numeral_system_consistency(alphabet):
-    for i in range(10):
+    for __ in range(10):
         num = random.randint(0, 1000000)
         base_num = render_to_numeral_system(num, alphabet)
         assert parse_from_numeral_system(base_num, alphabet) == num
 
-    for i in range(10):
+    for __ in range(10):
         num_digits = "".join([random.choice(alphabet) for j in range(10)])
         base_num = parse_from_numeral_system(num_digits, alphabet)
         assert render_to_numeral_system(base_num, alphabet) == num_digits
 
 
 def test_builtin_conversion_operators_consistency():
-    for i in range(100):
+    for __ in range(100):
         num = random.randint(0, 1000000)
         assert bin(num)[2:] == render_to_numeral_system(num, "01")
         assert hex(num)[2:] == render_to_numeral_system(

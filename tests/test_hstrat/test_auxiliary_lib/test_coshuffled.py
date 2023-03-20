@@ -32,7 +32,6 @@ def test_coshuffle_empty():
 
 def test_coshuffle_singleton2():
     a = [1]
-    shuffled = coshuffled(a)
     assert coshuffled(a) == ([1],)
 
 

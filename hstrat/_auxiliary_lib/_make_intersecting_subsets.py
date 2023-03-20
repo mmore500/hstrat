@@ -33,12 +33,12 @@ def make_intersecting_subsets(
     """
 
     subsets = []
-    for range in sorted(ranges):
+    for range_ in sorted(ranges):
         for subset in subsets:
-            if intersect_ranges([range, *subset]):
-                subset.append(range)
+            if intersect_ranges([range_, *subset]):
+                subset.append(range_)
                 break
         else:
-            subsets.append([range])
+            subsets.append([range_])
 
     return subsets

@@ -12,11 +12,11 @@ from hstrat._auxiliary_lib import (
 
 
 def _is_chronological_inconsistency(
-    df: pd.DataFrame, id: typing.Optional[int]
+    df: pd.DataFrame, id_: typing.Optional[int]
 ) -> bool:
-    if id is None:
+    if id_ is None:
         return False
-    ancestor_list_str = df.loc[df["id"] == id, "ancestor_list"].iloc[0]
+    ancestor_list_str = df.loc[df["id"] == id_, "ancestor_list"].iloc[0]
     ancestor_ids = alifestd_parse_ancestor_ids(ancestor_list_str)
 
     if not ancestor_ids:
@@ -26,7 +26,7 @@ def _is_chronological_inconsistency(
         parent_origin_time = df.loc[df["id"] == parent_id, "origin_time"].iloc[
             0
         ]
-        if parent_origin_time > df.loc[df["id"] == id, "origin_time"].iloc[0]:
+        if parent_origin_time > df.loc[df["id"] == id_, "origin_time"].iloc[0]:
             return True
 
     return False

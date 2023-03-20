@@ -28,9 +28,8 @@ def test_with_rng_state_context_sets_seed():
 
 
 def test_with_rng_state_context_works_with_exceptions():
-
     random.seed(456)
-    random.getstate() == random.Random(456).getstate()
+    assert random.getstate() == random.Random(456).getstate()
 
     @with_rng_state_context(seed=123)
     def my_function():

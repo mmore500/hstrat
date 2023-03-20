@@ -16,7 +16,7 @@ def test_anytree_peel_sibling_to_cousin_with_leaf_node():
     # D
     root = anytree.Node("A")
     b = anytree.Node("B", parent=root)
-    c = anytree.Node("C", parent=root)
+    anytree.Node("C", parent=root)
     d = anytree.Node("D", parent=b)
 
     with pytest.raises(AssertionError):
@@ -35,8 +35,8 @@ def test_anytree_peel_sibling_to_cousin_with_node_without_sibling():
     #   / \
     #  B   C
     root = anytree.Node("A")
-    b = anytree.Node("B", parent=root)
-    c = anytree.Node("C", parent=root)
+    anytree.Node("B", parent=root)
+    anytree.Node("C", parent=root)
 
     with pytest.raises(AssertionError):
         anytree_peel_sibling_to_cousin(root)

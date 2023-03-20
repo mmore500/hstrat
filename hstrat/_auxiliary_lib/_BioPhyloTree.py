@@ -5,6 +5,8 @@ try:
     with warnings.catch_warnings(record=True) as w:
         import Bio.Phylo.TreeConstruction as BioPhyloTree
 
+        _ = BioPhyloTree
+
         if w:  # pragma: no cover
             warnings.warn(
                 "ImportWarning: warnings from Biopython import were silenced.",

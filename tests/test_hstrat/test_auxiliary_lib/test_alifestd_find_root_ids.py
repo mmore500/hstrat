@@ -13,7 +13,7 @@ def test_alifestd_find_root_ids_returns_expected_output_with_single_root():
     )
     expected_output = np.array([1])
     for df in phylogeny_df, phylogeny_df.sample(frac=1):
-        output = alifestd_find_root_ids(phylogeny_df)
+        output = alifestd_find_root_ids(df)
         assert np.array_equal(output, expected_output)
 
 
@@ -26,7 +26,7 @@ def test_alifestd_find_root_ids_returns_expected_output_with_multiple_roots():
     )
     expected_output = np.array([1, 2])
     for df in phylogeny_df, phylogeny_df.sample(frac=1):
-        output = alifestd_find_root_ids(phylogeny_df)
+        output = alifestd_find_root_ids(df)
         assert np.array_equal(output, expected_output)
 
 

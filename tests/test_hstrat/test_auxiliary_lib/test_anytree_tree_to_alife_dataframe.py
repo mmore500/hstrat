@@ -23,11 +23,11 @@ def test_singleton():
 def test_simple_tree():
     udo = anytree.Node("Udo", id=0)
     marc = anytree.Node("Marc", parent=udo, id=1111)
-    lian = anytree.Node("Lian", parent=marc, id=2222)
+    anytree.Node("Lian", parent=marc, id=2222)
     dan = anytree.Node("Dan", parent=udo, id=333)
-    jet = anytree.Node("Jet", parent=dan, id=444)
-    jan = anytree.Node("Jan", parent=dan, id=555)
-    joe = anytree.Node("Joe", parent=dan, id=666)
+    anytree.Node("Jet", parent=dan, id=444)
+    anytree.Node("Jan", parent=dan, id=555)
+    anytree.Node("Joe", parent=dan, id=666)
 
     converted_df = anytree_tree_to_alife_dataframe(udo)
     expected_df = pd.DataFrame(
@@ -52,11 +52,11 @@ def test_simple_tree():
 def test_simple_tree_origin_times():
     udo = anytree.Node("Udo", id=0, edge_length=1)
     marc = anytree.Node("Marc", parent=udo, id=1111, edge_length=1)
-    lian = anytree.Node("Lian", parent=marc, id=2222, edge_length=1)
+    anytree.Node("Lian", parent=marc, id=2222, edge_length=1)
     dan = anytree.Node("Dan", parent=udo, id=333, edge_length=2)
     jet = anytree.Node("Jet", parent=dan, id=444, edge_length=4)
-    jan = anytree.Node("Jan", parent=dan, id=555, edge_length=5)
-    joe = anytree.Node("Joe", parent=dan, id=666, edge_length=6)
+    anytree.Node("Jan", parent=dan, id=555, edge_length=5)
+    anytree.Node("Joe", parent=dan, id=666, edge_length=6)
 
     converted_df = anytree_tree_to_alife_dataframe(udo)
     expected_df = pd.DataFrame(

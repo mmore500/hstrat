@@ -10,7 +10,7 @@ def test_no_sibling_lone_root():
     assert anytree_has_sibling(root) == False
 
 
-def test_no_sibling_lone_root():
+def test_no_sibling_only_child():
     # Create a tree with just one node
     root = anytree.Node("root")
     child1 = anytree.Node("child1", parent=root)
@@ -33,7 +33,7 @@ def test_multiple_siblings():
     # Create a tree with multiple sibling nodes
     root = anytree.Node("root")
     child1 = anytree.Node("child1", parent=root)
-    child2 = anytree.Node("child2", parent=root)
+    anytree.Node("child2", parent=root)
     grandchild1 = anytree.Node("grandchild1", parent=child1)
     grandchild2 = anytree.Node("grandchild2", parent=child1)
     # Assert that grandchild1 has at least one sibling
@@ -48,7 +48,7 @@ def test_root_node():
     # Create a tree with multiple nodes
     root = anytree.Node("root")
     child1 = anytree.Node("child1", parent=root)
-    child2 = anytree.Node("child2", parent=root)
+    anytree.Node("child2", parent=root)
     # Assert that the root node has no siblings
     assert anytree_has_sibling(root) == False
 
@@ -57,8 +57,8 @@ def test_leaf_node():
     # Create a tree with multiple nodes
     root = anytree.Node("root")
     child1 = anytree.Node("child1", parent=root)
-    child2 = anytree.Node("child2", parent=root)
-    grandchild1 = anytree.Node("grandchild1", parent=child1)
+    anytree.Node("child2", parent=root)
+    anytree.Node("grandchild1", parent=child1)
     grandchild2 = anytree.Node("grandchild2", parent=child1)
     # Assert that the leaf node grandchild2 has at least one sibling
     assert anytree_has_sibling(grandchild2) == True
