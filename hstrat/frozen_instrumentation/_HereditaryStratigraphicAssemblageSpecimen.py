@@ -158,7 +158,6 @@ class HereditaryStratigraphicAssemblageSpecimen:
         except AttributeError:  # object type (not nullable int) array
             return self._data.array
 
-    # TODO -> GetRankIndices
     def GetRankIndex(
         self: "HereditaryStratigraphicAssemblageSpecimen",
     ) -> np.ndarray:
