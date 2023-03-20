@@ -20,7 +20,7 @@ def linked_list_tree():
     root = anytree.Node("A")
     b = anytree.Node("B", parent=root)
     c = anytree.Node("C", parent=b)
-    _ = d = anytree.Node("D", parent=c)
+    anytree.Node("D", parent=c)
     return root
 
 
@@ -30,12 +30,12 @@ def multifurcating_tree():
     b = anytree.Node("B", parent=root)
     c = anytree.Node("C", parent=root)
     d = anytree.Node("D", parent=root)
-    _ = e = anytree.Node("E", parent=b)
-    _ = f = anytree.Node("F", parent=c)
-    _ = g = anytree.Node("G", parent=c)
-    _ = h = anytree.Node("H", parent=d)
-    _ = i = anytree.Node("I", parent=d)
-    _ = j = anytree.Node("J", parent=d)
+    anytree.Node("E", parent=b)
+    anytree.Node("F", parent=c)
+    anytree.Node("G", parent=c)
+    anytree.Node("H", parent=d)
+    anytree.Node("I", parent=d)
+    anytree.Node("J", parent=d)
     return root
 
 
