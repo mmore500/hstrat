@@ -206,7 +206,8 @@ def test_comparison_commutativity_asynchronous(
         for __ in range(10)
     ]
 
-    for generation in range(30):
+    for _generation in range(30):
+        __ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.calc_patristic_distance_bounds_between(

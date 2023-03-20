@@ -123,9 +123,7 @@ def test_IterRankDifferentiaZip(retention_policy):
             [c1, c2, c3],
         ):
             assemblage = hstrat.pop_to_assemblage(subpopulation)
-            for specimen, column in zip(
-                assemblage.BuildSpecimens(), subpopulation
-            ):
+            for specimen in assemblage.BuildSpecimens():
                 assert [*specimen.IterRankDifferentiaZip()] == [
                     *zip(
                         specimen.IterRetainedRanks(),

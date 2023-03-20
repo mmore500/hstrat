@@ -140,10 +140,11 @@ def test_compare_to_generic_column_impl(
             stratum_retention_policy=retention_policy,
         )
     ]
-    for i in range(37):
+    for __ in range(37):
         common_ancestors.append(common_ancestors[-1].CloneDescendant())
 
-    for rep in range(250):
+    for _rep in range(250):
+        _ = _rep
         num_total = random.randrange(0, 37)
 
         num_together = random.randrange(num_total + 1)
