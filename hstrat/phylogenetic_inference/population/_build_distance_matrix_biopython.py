@@ -79,7 +79,7 @@ def build_distance_matrix_biopython(
     )
     return BioPhyloTree.DistanceMatrix(
         names=opyt.or_value(
-            taxon_labels,
+            opyt.apply_if(taxon_labels, list),
             [*map(str, range(len(population)))],
         ),
         matrix=to_tril(distance_matrix),

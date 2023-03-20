@@ -256,3 +256,74 @@ def test_build_distance_matrix_biopython_pair_commonancestry(
     df_m = pd.DataFrame(m, opyt.or_value(names, ["0", "1"]))
 
     assert df_m.equals(df_dm)
+
+
+@pytest.mark.parametrize(
+    "differentia_bit_width",
+    [1, 2, 8, 64],
+)
+@pytest.mark.parametrize(
+    "policy",
+    [
+        hstrat.fixed_resolution_algo.Policy(3),
+        hstrat.perfect_resolution_algo.Policy(),
+    ],
+)
+@pytest.mark.parametrize(
+    "estimator",
+    ["maximum_likelihood", "unbiased"],
+)
+@pytest.mark.parametrize(
+    "prior",
+    ["arbitrary", "uniform"],
+)
+@pytest.mark.parametrize(
+    "names",
+    [["foo", "bar"]],
+)
+@pytest.mark.parametrize(
+    "force_common_ancestry",
+    [True, False],
+)
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_build_distance_matrix_biopython_pair_iternames(
+    differentia_bit_width,
+    policy,
+    estimator,
+    prior,
+    names,
+    force_common_ancestry,
+    wrap,
+):
+
+    common_ancestor = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=policy,
+        stratum_differentia_bit_width=differentia_bit_width,
+    ).CloneNthDescendant(7)
+    population = [
+        wrap(common_ancestor.CloneNthDescendant(4)),
+        wrap(common_ancestor.CloneNthDescendant(9)),
+    ]
+    dm = hstrat.build_distance_matrix_biopython(
+        population,
+        estimator,
+        prior,
+        taxon_labels=opyt.apply_if(names, iter),
+        force_common_ancestry=force_common_ancestry,
+    )
+    m = hstrat.build_distance_matrix_numpy(
+        population,
+        estimator,
+        prior,
+        force_common_ancestry=force_common_ancestry,
+    )
+
+    df_dm = pd.DataFrame(dm.matrix, dm.names)
+
+    m[np.triu_indices(m.shape[0], 1)] = np.nan
+    df_m = pd.DataFrame(m, opyt.or_value(names, ["0", "1"]))
+
+    assert df_m.equals(df_dm)
