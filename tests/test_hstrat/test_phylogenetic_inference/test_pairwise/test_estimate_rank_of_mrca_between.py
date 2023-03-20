@@ -679,7 +679,7 @@ def test_statistical_properties(
             stratum_retention_policy=retention_policy,
         )
     ]
-    for i in range(113):
+    for __ in range(113):
         common_ancestors.append(common_ancestors[-1].CloneDescendant())
 
     weights = np.array(

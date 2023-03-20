@@ -43,18 +43,22 @@ def calc_rank_of_first_retained_disparity_between_generic(
     second_prev_rank: int
 
     def advance_first():
-        nonlocal first_prev_rank, first_cur_rank, first_cur_differentia, first_iter
+        nonlocal first_prev_rank, first_cur_rank
+        nonlocal first_cur_differentia, first_iter
         try:
             first_prev_rank = first_cur_rank
-            first_cur_rank, first_cur_differentia = next(first_iter)
+            first_cur_rank, _first_cur_differentia = next(first_iter)
+            _ = _first_cur_differentia
         except StopIteration:
             first_iter = None
 
     def advance_second():
-        nonlocal second_prev_rank, second_cur_rank, second_cur_differentia, second_iter
+        nonlocal second_prev_rank, second_cur_rank
+        nonlocal second_cur_differentia, second_iter
         try:
             second_prev_rank = second_cur_rank
-            second_cur_rank, second_cur_differentia = next(second_iter)
+            second_cur_rank, _second_cur_differentia = next(second_iter)
+            _ = _second_cur_differentia
         except StopIteration:
             second_iter = None
 
