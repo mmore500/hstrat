@@ -1,16 +1,6 @@
 import typing
 
 
-def deep_listify(maybe_iterable: typing.Any) -> typing.Any:
-    try:
-        return [*map(deep_listify, maybe_iterable)]
-    except TypeError:
-        return maybe_iterable
-
-
-import typing
-
-
 def deep_listify(maybe_iterable: typing.Iterable) -> typing.Any:
     """Recursively convert an iterable into a list, converting any nested
     iterables recusrively.
@@ -20,7 +10,7 @@ def deep_listify(maybe_iterable: typing.Iterable) -> typing.Any:
     Parameters
     ----------
     maybe_iterable
-        The object to be converted..
+        The object to be converted.
 
     Returns
     -------
