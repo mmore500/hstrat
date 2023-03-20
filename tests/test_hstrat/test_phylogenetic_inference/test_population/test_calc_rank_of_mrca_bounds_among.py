@@ -48,7 +48,7 @@ def test_comparison_commutativity_asynchronous(
     ]
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert (
@@ -127,7 +127,7 @@ def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store, wrap):
     unrelated_isolated = make_bundle()
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         for f, s in it.chain(
             it.combinations(population, 2),
             zip(population, cyclify(forked_isolated)),
@@ -236,7 +236,7 @@ def test_comparison_commutativity_synchronous(
     ]
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert (

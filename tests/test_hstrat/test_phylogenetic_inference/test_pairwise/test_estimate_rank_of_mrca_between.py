@@ -164,7 +164,7 @@ def test_comparison_commutativity_asynchronous(
     ]
 
     for _generation in range(30):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.estimate_rank_of_mrca_between(
@@ -234,7 +234,7 @@ def test_comparison_validity(
     ]
 
     for _generation in range(50):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
 
             bounds = hstrat.calc_rank_of_mrca_bounds_between(
@@ -305,7 +305,7 @@ def test_comparison_bit_width_effects(retention_policy):
     ]
 
     for _generation in range(50):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
             assert len(
                 set(
@@ -446,7 +446,7 @@ def test_comparison_ml_vs_unbiased(differentia_width, retention_policy):
     ]
 
     for _generation in range(50):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
 
             bounds = hstrat.calc_rank_of_mrca_bounds_between(

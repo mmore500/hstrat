@@ -41,7 +41,7 @@ def test_comparison_commutativity_asynchronous(
     ]
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert [
@@ -97,7 +97,7 @@ def test_comparison_commutativity_synchronous(
     ]
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert [

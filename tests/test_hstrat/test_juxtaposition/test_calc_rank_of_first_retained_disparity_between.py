@@ -92,7 +92,7 @@ def test_comparison_commutativity_asynchronous(
     ]
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.calc_rank_of_first_retained_disparity_between(
@@ -152,7 +152,7 @@ def test_comparison_commutativity_synchronous(
     ]
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.calc_rank_of_first_retained_disparity_between(
@@ -272,7 +272,7 @@ def test_scenario_no_mrca(
     )
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         assert (
             hstrat.calc_rank_of_first_retained_disparity_between(first, second)
             == 0
@@ -308,7 +308,7 @@ def test_scenario_no_divergence(retention_policy, ordered_store):
     )
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         assert (
             hstrat.calc_rank_of_first_retained_disparity_between(
                 column, column
@@ -349,7 +349,7 @@ def test_scenario_single_branch_divergence(retention_policy, ordered_store):
     for generation in range(40):
         branch_column = column.CloneDescendant()
         for _branch_generation in range(40):
-            __ = _branch_generation
+            _ = _branch_generation
             assert (
                 hstrat.calc_rank_of_first_retained_disparity_between(
                     column, branch_column

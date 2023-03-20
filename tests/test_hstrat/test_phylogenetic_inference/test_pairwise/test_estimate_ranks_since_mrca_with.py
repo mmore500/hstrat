@@ -161,7 +161,7 @@ def test_comparison_commutativity_synchronous(
     ]
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.estimate_ranks_since_mrca_with(
@@ -222,7 +222,7 @@ def test_comparison_validity(
     ]
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         for first, second in it.permutations(population, 2):
 
             bounds = hstrat.calc_ranks_since_mrca_bounds_with(

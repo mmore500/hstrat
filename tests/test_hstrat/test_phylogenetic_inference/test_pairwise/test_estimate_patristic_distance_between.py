@@ -163,7 +163,7 @@ def test_comparison_commutativity_asynchronous(
     ]
 
     for _generation in range(30):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.estimate_patristic_distance_between(
@@ -232,7 +232,7 @@ def test_comparison_commutativity_synchronous(
     ]
 
     for _generation in range(30):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.estimate_patristic_distance_between(
@@ -302,7 +302,7 @@ def test_comparison_validity(
     ]
 
     for _generation in range(30):
-        __ = _generation
+        _ = _generation
         for first, second in it.permutations(population, 2):
 
             rsmw1 = hstrat.estimate_ranks_since_mrca_with(

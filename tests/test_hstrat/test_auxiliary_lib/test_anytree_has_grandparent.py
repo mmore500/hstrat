@@ -9,10 +9,10 @@ def tree():
     root = anytree.Node("A")
     b = anytree.Node("B", parent=root)
     c = anytree.Node("C", parent=b)
-    __ = d = anytree.Node("D", parent=c)
+    _ = d = anytree.Node("D", parent=c)
     e = anytree.Node("E", parent=root)
-    __ = f = anytree.Node("F", parent=e)
-    __ = x = anytree.Node("X", parent=root)
+    _ = f = anytree.Node("F", parent=e)
+    _ = x = anytree.Node("X", parent=root)
     return root
 
 

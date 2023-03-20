@@ -18,7 +18,7 @@ def linked_list_tree():
     root = anytree.Node("A")
     b = anytree.Node("B", parent=root)
     c = anytree.Node("C", parent=b)
-    __ = d = anytree.Node("D", parent=c)
+    _ = d = anytree.Node("D", parent=c)
     return root
 
 
@@ -28,12 +28,12 @@ def multifurcating_tree():
     b = anytree.Node("B", parent=root)
     c = anytree.Node("C", parent=root)
     d = anytree.Node("D", parent=root)
-    __ = e = anytree.Node("E", parent=b)
-    __ = f = anytree.Node("F", parent=c)
-    __ = g = anytree.Node("G", parent=c)
-    __ = h = anytree.Node("H", parent=d)
-    __ = i = anytree.Node("I", parent=d)
-    __ = j = anytree.Node("J", parent=d)
+    _ = e = anytree.Node("E", parent=b)
+    _ = f = anytree.Node("F", parent=c)
+    _ = g = anytree.Node("G", parent=c)
+    _ = h = anytree.Node("H", parent=d)
+    _ = i = anytree.Node("I", parent=d)
+    _ = j = anytree.Node("J", parent=d)
     return root
 
 
@@ -78,7 +78,7 @@ def test_leaf_iter(tree_fixture, request):
 def test_benchmark(large_tree):
     with ctt.Timer(factor=1000) as t_recursive:
         for __ in range(1):
-            __ = large_tree.leaves
+            _ = large_tree.leaves
 
     with ctt.Timer(factor=1000) as t_iterative:
         for __ in range(1):

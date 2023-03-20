@@ -126,7 +126,7 @@ def test_comparison_commutativity_asynchronous(
     ]
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.calc_rank_of_mrca_bounds_between(
@@ -192,7 +192,7 @@ def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store):
     unrelated_isolated = make_bundle()
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         for f, s in it.chain(
             it.combinations(population, 2),
             zip(population, cyclify(forked_isolated)),
@@ -281,7 +281,7 @@ def test_comparison_commutativity_synchronous(
     ]
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.calc_rank_of_mrca_bounds_between(
@@ -658,7 +658,7 @@ def test_with_HereditaryStratigraphicSpecimens(
     ]
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
             first_ = hstrat.col_to_specimen(first)
             second_ = hstrat.col_to_specimen(second)

@@ -91,7 +91,7 @@ def test_comparison_commutativity_synchronous(
     ]
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert hstrat.calc_ranks_since_last_retained_commonality_with(
@@ -214,7 +214,7 @@ def test_scenario_no_mrca(
     )
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         assert (
             hstrat.calc_ranks_since_last_retained_commonality_with(
                 first, second
@@ -254,7 +254,7 @@ def test_scenario_no_divergence(retention_policy, ordered_store):
     )
 
     for _generation in range(100):
-        __ = _generation
+        _ = _generation
         assert (
             hstrat.calc_ranks_since_last_retained_commonality_with(
                 column, column
