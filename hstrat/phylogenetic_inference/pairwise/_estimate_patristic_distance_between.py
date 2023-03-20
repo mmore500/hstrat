@@ -63,21 +63,3 @@ def estimate_patristic_distance_between(
         est_rank_of_mrca_between,
         lambda est: max_patristic_distance - 2 * est,
     )
-
-
-def ballpark_patristic_distance_between(
-    first: HereditaryStratigraphicArtifact,
-    second: HereditaryStratigraphicArtifact,
-) -> typing.Optional[float]:
-    """Calculate a fast, rough estimate of the patristic distance between first
-    and second.
-
-    See `estimate_patristic_distance_between` for details.
-    """
-
-    return estimate_patristic_distance_between(
-        first,
-        second,
-        estimator="maximum_likelihood",
-        prior="arbitrary",
-    )
