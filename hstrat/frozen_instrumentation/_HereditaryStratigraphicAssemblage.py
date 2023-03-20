@@ -85,20 +85,3 @@ class HereditaryStratigraphicAssemblage:
                     self._stratum_differentia_bit_width
                 ),
             )
-
-    def HasRetainedRank(
-        self: "HereditaryStratigraphicSpecimen",
-        rank: int,
-    ) -> bool:
-        """Does this specimen contain a stratum deposited at generation
-        `rank`?"""
-        return rank in self._data.index
-
-    def HasDifferentiaAtRank(
-        self: "HereditaryStratigraphicSpecimen",
-        differentia: int,
-        rank: int,
-    ) -> bool:
-        """Does this specimen contain a stratum with differentia `differentia`
-        deposited at generation `rank`? ?"""
-        return self._data[rank] == differentia

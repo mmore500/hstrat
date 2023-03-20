@@ -220,20 +220,3 @@ class HereditaryStratigraphicAssemblageSpecimen:
             return CopyableSeriesItemsIter(self._data.dropna())
         else:
             return self._data.dropna().items()
-
-    def HasRetainedRank(
-        self: "HereditaryStratigraphicAssemblageSpecimen",
-        rank: int,
-    ) -> bool:
-        """Does this specimen contain a stratum deposited at generation
-        `rank`?"""
-        return rank in self._data.index and not pd.isnull(self._data.loc[rank])
-
-    def HasDifferentiaAtRank(
-        self: "HereditaryStratigraphicAssemblageSpecimen",
-        differentia: int,
-        rank: int,
-    ) -> bool:
-        """Does this specimen contain a stratum with differentia `differentia`
-        deposited at generation `rank`? ?"""
-        return self._data[rank] == differentia

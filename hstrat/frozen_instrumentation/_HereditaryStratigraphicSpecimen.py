@@ -190,20 +190,3 @@ class HereditaryStratigraphicSpecimen:
             return CopyableSeriesItemsIter(self._data)
         else:
             return self._data.items()
-
-    def HasRetainedRank(
-        self: "HereditaryStratigraphicSpecimen",
-        rank: int,
-    ) -> bool:
-        """Does this specimen contain a stratum deposited at generation
-        `rank`?"""
-        return rank in self._data.index
-
-    def HasDifferentiaAtRank(
-        self: "HereditaryStratigraphicSpecimen",
-        differentia: int,
-        rank: int,
-    ) -> bool:
-        """Does this specimen contain a stratum with differentia `differentia`
-        deposited at generation `rank`? ?"""
-        return self._data[rank] == differentia
