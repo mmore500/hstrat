@@ -370,7 +370,4 @@ def test_build_distance_matrix_biopython_pair_artifact_types_equiv(
     df_dm_column = pd.DataFrame(dm_column.matrix, dm_column.names)
     df_dm_specimen = pd.DataFrame(dm_specimen.matrix, dm_specimen.names)
 
-    print(df_dm_column)
-    print(df_dm_specimen)
-
     assert df_dm_column.equals(df_dm_specimen)
