@@ -60,7 +60,7 @@ def build_tree_biopython_distance(
     alifestd_df["taxon_label"] = alifestd_df["name"]
 
     min_edge_length = alifestd_df["branch_length"].min()
-    if min_edge_length < 0:
+    if min_edge_length < -1e-12:  # why? pytest approx absolute tolerance
         warnings.warn(
             f"""Negative branch length(s) estimated with minimum {
                 min_edge_length
@@ -68,6 +68,9 @@ def build_tree_biopython_distance(
             "or origin time estimation. "
         )
         return alifestd_df
+
+    # set near-zero negative branch lengths to zero
+    alifestd_df["branch_length"] = alifestd_df["branch_length"].clip(lower=0)
 
     id_lookup = dict(zip(alifestd_df["taxon_label"], alifestd_df["id"]))
     col_lookup = dict(zip(taxon_labels, population))
