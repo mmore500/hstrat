@@ -133,9 +133,10 @@ def test_reconstructed_taxon_labels(orig_tree, retention_policy, wrap):
     [
         impl.setup_dendropy_tree(f"{assets_path}/nk_ecoeaselection.csv"),
         impl.setup_dendropy_tree(f"{assets_path}/nk_lexicaseselection.csv"),
-        # umgm flunks building this tree with quartet distance 1.0
+        # upgma flunks building this tree with quartet distance 1.0
         # over all retention policies
         # nj flunks too (but build_tree_trie doesn't)
+        # impl.setup_dendropy_tree(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
 @pytest.mark.parametrize(
