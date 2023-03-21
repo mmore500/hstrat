@@ -18,7 +18,10 @@ def _validate_ancestors_asexual(
             phylogeny_df["id"], phylogeny_df["ancestor_list"]
         )
     elif not (
-        phylogeny_df["ancestor_list"].str.lower().replace("[]", "[none]")
+        phylogeny_df["ancestor_list"]
+        .astype("str")
+        .str.lower()
+        .replace("[]", "[none]")
         == alifestd_make_ancestor_list_col(
             phylogeny_df["id"], phylogeny_df["ancestor_id"]
         )
@@ -27,7 +30,7 @@ def _validate_ancestors_asexual(
 
     return is_subset(
         phylogeny_df["ancestor_id"].to_numpy(),
-        phylogeny_df["id"].to_numpy(),
+        phylogeny_df["id"].astype("int").to_numpy(),
     )
 
 
@@ -52,7 +55,8 @@ def _alifestd_validate(
         return False
 
     ids_valid = (
-        pd.api.types.is_integer_dtype(phylogeny_df["id"])
+        len(phylogeny_df) == 0
+        or pd.api.types.is_integer_dtype(phylogeny_df["id"])
         and (phylogeny_df["id"] >= 0).all()
         and all_unique(phylogeny_df["id"].to_numpy())
     )
@@ -60,7 +64,8 @@ def _alifestd_validate(
         return False
 
     ancestor_lists_syntax_valid = (
-        pd.api.types.is_string_dtype(phylogeny_df["ancestor_list"])
+        len(phylogeny_df) == 0
+        or pd.api.types.is_string_dtype(phylogeny_df["ancestor_list"])
         and phylogeny_df["ancestor_list"].str.startswith("[").all()
         and phylogeny_df["ancestor_list"].str.endswith("]").all()
     )

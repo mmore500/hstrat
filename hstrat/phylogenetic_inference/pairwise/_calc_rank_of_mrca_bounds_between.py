@@ -1,13 +1,11 @@
+import sys
 import typing
 import warnings
 
 import opytional as opyt
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
-from ...juxtaposition import (
-    calc_definitive_max_rank_of_first_retained_disparity_between,
-    calc_rank_of_last_retained_commonality_between,
-)
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
+from ...juxtaposition._impl import dispatch_impl
 from ._calc_rank_of_earliest_detectable_mrca_between import (
     calc_rank_of_earliest_detectable_mrca_between,
 )
@@ -15,9 +13,11 @@ from ._does_have_any_common_ancestor import does_have_any_common_ancestor
 
 
 def calc_rank_of_mrca_bounds_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
+    prior: str,
     confidence_level: float = 0.95,
+    strict=True,
 ) -> typing.Optional[typing.Tuple[int, int]]:
     """Within what generation range did MRCA fall?
 
@@ -27,6 +27,11 @@ def calc_rank_of_mrca_bounds_between(
 
     Parameters
     ----------
+    prior : {"arbitrary"}
+        Prior probability density distribution over possible generations of the
+        MRCA.
+
+        Currently only "arbitrary" supported.
     confidence_level : float, optional
         Bounds must capture what probability of containing the true rank of
         the MRCA? Default 0.95.
@@ -49,11 +54,14 @@ def calc_rank_of_mrca_bounds_between(
     calc_rank_of_mrca_bounds_provided_confidence_level :
         With what actual confidence (i.e., more than requested) is the true
         rank of the MRCA captured within the calculated bounds?
+    does_definitively_have_no_common_anestor :
+        Does the hereditary stratigraphic record definitively prove that first
+        and second could not possibly share a common ancestor?
 
     Notes
     -----
-    The true rank of the MRCA is guaranteed to never fall above the bounds
-    but may fall below.
+    The true rank of the MRCA is guaranteed to never fall above the returned
+    bounds but may fall below.
 
     An alternate approach could be to construct the bounds such that the
     true rank of the MRCA will fall above or below the bounds with equal
@@ -86,10 +94,13 @@ def calc_rank_of_mrca_bounds_between(
     determine the earliest rank at which an MRCA could be reliably detected
     between first and second.
     """
+    if prior != "arbitrary":
+        raise NotImplementedError
     assert 0.0 <= confidence_level <= 1.0
 
     if (
-        calc_rank_of_earliest_detectable_mrca_between(
+        not sys.flags.optimize
+        and calc_rank_of_earliest_detectable_mrca_between(
             first,
             second,
             confidence_level=confidence_level,
@@ -101,29 +112,28 @@ def calc_rank_of_mrca_bounds_between(
             "ancestry at given confidence level."
         )
 
-    if does_have_any_common_ancestor(
-        first,
-        second,
-        confidence_level=confidence_level,
-    ):
-        first_disparity = (
-            calc_definitive_max_rank_of_first_retained_disparity_between(
-                first,
-                second,
-            )
-        )
-        if first_disparity is None:
-            num_self_deposited = first.GetNumStrataDeposited()
-            num_other_deposited = second.GetNumStrataDeposited()
-            assert num_self_deposited == num_other_deposited
-        last_commonality = calc_rank_of_last_retained_commonality_between(
+    if (
+        does_have_any_common_ancestor(
             first,
             second,
             confidence_level=confidence_level,
         )
-        assert last_commonality is not None
+        or not strict
+    ):
+        last_commonality, first_disparity = dispatch_impl(
+            first, second
+        ).calc_rank_of_parity_segue_between(
+            first,
+            second,
+            confidence_level_commonality=confidence_level,
+            confidence_level_disparity=0.49,  # 0.49 i.e., definitive max
+        )
+        assert (
+            first_disparity is not None
+            or first.GetNumStrataDeposited() == second.GetNumStrataDeposited()
+        )
         return (
-            last_commonality,
+            opyt.or_value(last_commonality, 0),
             opyt.or_value(first_disparity, first.GetNumStrataDeposited()),
         )
     else:

@@ -12,6 +12,9 @@ from ._descend_template_phylogeny_dendropy import (
     descend_template_phylogeny_dendropy,
 )
 from ._descend_template_phylogeny_naive import descend_template_phylogeny_naive
+from ._descend_template_phylogeny_networkx import (
+    descend_template_phylogeny_networkx,
+)
 from ._descend_template_phylogeny_posthoc import (
     descend_template_phylogeny_posthoc,
 )
@@ -23,6 +26,7 @@ __all__ = [
     "descend_template_phylogeny_biopython",
     "descend_template_phylogeny_dendropy",
     "descend_template_phylogeny_naive",
+    "descend_template_phylogeny_networkx",
     "descend_template_phylogeny_posthoc",
 ]
 

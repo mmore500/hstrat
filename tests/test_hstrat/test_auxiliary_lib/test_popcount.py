@@ -1,5 +1,3 @@
-import unittest
-
 from hstrat._auxiliary_lib import popcount
 
 

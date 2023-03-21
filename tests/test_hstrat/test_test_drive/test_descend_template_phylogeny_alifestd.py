@@ -144,7 +144,9 @@ def test_descend_template_phylogeny(
         )
 
         for (c1, n1), (c2, n2) in it.chain(sampled_product, spliced_product):
-            lb, ub = hstrat.calc_rank_of_mrca_bounds_between(c1, c2)
+            lb, ub = hstrat.calc_rank_of_mrca_bounds_between(
+                c1, c2, prior="arbitrary"
+            )
             assert n1 != n2
             if n1 in n2.ancestor_iter():
                 mrca = n1

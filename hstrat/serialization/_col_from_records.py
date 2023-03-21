@@ -6,6 +6,7 @@ from ..genome_instrumentation import (
     HereditaryStratigraphicColumn,
     HereditaryStratumOrderedStoreList,
 )
+from ._impl import policy_from_record
 from ._unpack_differentiae import unpack_differentiae
 
 
@@ -25,17 +26,9 @@ def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
             }"""
         )
 
-    def load_policy():
-        # noqa
-        from ..stratum_retention_strategy import (
-            stratum_retention_algorithms as hstrat,
-        )
-
-        return eval(records["policy"])  # noqa
-
     def load_stratum_ordered_store() -> HereditaryStratumOrderedStoreList:
         dummy_column = HereditaryStratigraphicColumn(
-            stratum_retention_policy=load_policy(),
+            stratum_retention_policy=policy_from_record(records["policy"]),
             stratum_differentia_bit_width=records["differentia_bit_width"],
         )
         store = HereditaryStratumOrderedStoreList()
@@ -59,7 +52,7 @@ def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
         return store
 
     return HereditaryStratigraphicColumn(
-        stratum_retention_policy=load_policy(),
+        stratum_retention_policy=policy_from_record(records["policy"]),
         stratum_differentia_bit_width=records["differentia_bit_width"],
         stratum_ordered_store=(
             load_stratum_ordered_store(),

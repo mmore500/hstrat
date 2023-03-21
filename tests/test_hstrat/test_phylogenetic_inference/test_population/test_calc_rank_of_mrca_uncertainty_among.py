@@ -17,17 +17,21 @@ from hstrat import hstrat
 @pytest.mark.parametrize(
     "ordered_store",
     [
-        hstrat.HereditaryStratumOrderedStoreDict,
-        hstrat.HereditaryStratumOrderedStoreList,
         pytest.param(
-            hstrat.HereditaryStratumOrderedStoreTree,
+            hstrat.HereditaryStratumOrderedStoreDict,
             marks=pytest.mark.heavy,
         ),
+        hstrat.HereditaryStratumOrderedStoreList,
     ],
 )
-def test_comparison_commutativity_asyncrhonous(
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_comparison_commutativity_asynchronous(
     retention_policy,
     ordered_store,
+    wrap,
 ):
     population = [
         hstrat.HereditaryStratigraphicColumn(
@@ -37,17 +41,22 @@ def test_comparison_commutativity_asyncrhonous(
         for __ in range(10)
     ]
 
-    for generation in range(100):
+    for _generation in range(100):
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert (
-                hstrat.calc_rank_of_mrca_uncertainty_among([first, second])
-                == hstrat.calc_rank_of_mrca_uncertainty_among([second, first])
-                == hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [second, first, first]
+                hstrat.calc_rank_of_mrca_uncertainty_among(
+                    [wrap(first), wrap(second)], prior="arbitrary"
                 )
                 == hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [second, first] * 3
+                    [wrap(second), wrap(first)], prior="arbitrary"
+                )
+                == hstrat.calc_rank_of_mrca_uncertainty_among(
+                    [wrap(second), wrap(first), wrap(first)], prior="arbitrary"
+                )
+                == hstrat.calc_rank_of_mrca_uncertainty_among(
+                    [wrap(second), wrap(first)] * 3, prior="arbitrary"
                 )
             )
 
@@ -86,9 +95,14 @@ def test_comparison_commutativity_asyncrhonous(
         ),
     ],
 )
-def test_comparison_commutativity_syncrhonous(
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_comparison_commutativity_synchronous(
     retention_policy,
     ordered_store,
+    wrap,
 ):
 
     population = [
@@ -99,18 +113,23 @@ def test_comparison_commutativity_syncrhonous(
         for __ in range(10)
     ]
 
-    for generation in range(100):
-
+    for _generation in range(100):
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert (
-                hstrat.calc_rank_of_mrca_uncertainty_among([first, second])
-                == hstrat.calc_rank_of_mrca_uncertainty_among([second, first])
-                == hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [second, first, second]
+                hstrat.calc_rank_of_mrca_uncertainty_among(
+                    [wrap(first), wrap(second)], prior="arbitrary"
                 )
                 == hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [second, first] * 3
+                    [wrap(second), wrap(first)], prior="arbitrary"
+                )
+                == hstrat.calc_rank_of_mrca_uncertainty_among(
+                    [wrap(second), wrap(first), wrap(second)],
+                    prior="arbitrary",
+                )
+                == hstrat.calc_rank_of_mrca_uncertainty_among(
+                    [wrap(second), wrap(first)] * 3, prior="arbitrary"
                 )
             )
 
@@ -134,15 +153,18 @@ def test_comparison_commutativity_syncrhonous(
 @pytest.mark.parametrize(
     "ordered_store",
     [
-        hstrat.HereditaryStratumOrderedStoreDict,
-        hstrat.HereditaryStratumOrderedStoreList,
         pytest.param(
-            hstrat.HereditaryStratumOrderedStoreTree,
+            hstrat.HereditaryStratumOrderedStoreDict,
             marks=pytest.mark.heavy,
         ),
+        hstrat.HereditaryStratumOrderedStoreList,
     ],
 )
-def test_comparison_validity(retention_policy, ordered_store):
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_comparison_validity(retention_policy, ordered_store, wrap):
     population = [
         hstrat.HereditaryStratigraphicColumn(
             stratum_ordered_store=ordered_store,
@@ -151,10 +173,13 @@ def test_comparison_validity(retention_policy, ordered_store):
         for __ in range(10)
     ]
 
-    for generation in range(100):
+    for _generation in range(100):
+        _ = _generation
         for first, second in it.combinations(population, 2):
             assert (
-                hstrat.calc_rank_of_mrca_uncertainty_among([first, second])
+                hstrat.calc_rank_of_mrca_uncertainty_among(
+                    [wrap(first), wrap(second)], prior="arbitrary"
+                )
                 >= 0
             )
         for first, second, third in it.islice(
@@ -162,7 +187,8 @@ def test_comparison_validity(retention_policy, ordered_store):
         ):
             assert (
                 hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [first, second, third]
+                    [wrap(first), wrap(second), wrap(third)],
+                    prior="arbitrary",
                 )
                 >= 0
             )
@@ -200,10 +226,15 @@ def test_comparison_validity(retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreTree,
     ],
 )
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
 def test_scenario_no_mrca(
     retention_policy1,
     retention_policy2,
     ordered_store,
+    wrap,
 ):
     first = hstrat.HereditaryStratigraphicColumn(
         stratum_ordered_store=ordered_store,
@@ -214,15 +245,34 @@ def test_scenario_no_mrca(
         stratum_retention_policy=retention_policy2,
     )
 
-    for generation in range(100):
-        assert hstrat.calc_rank_of_mrca_uncertainty_among([first, second]) == 0
-        assert hstrat.calc_rank_of_mrca_uncertainty_among([second, first]) == 0
+    for _generation in range(100):
+        _ = _generation
         assert (
-            hstrat.calc_rank_of_mrca_uncertainty_among([first, second, first])
+            hstrat.calc_rank_of_mrca_uncertainty_among(
+                [wrap(first), wrap(second)],
+                prior="arbitrary",
+            )
             == 0
         )
         assert (
-            hstrat.calc_rank_of_mrca_uncertainty_among([second, first] * 3)
+            hstrat.calc_rank_of_mrca_uncertainty_among(
+                [wrap(second), wrap(first)],
+                prior="arbitrary",
+            )
+            == 0
+        )
+        assert (
+            hstrat.calc_rank_of_mrca_uncertainty_among(
+                [wrap(first), wrap(second), wrap(first)],
+                prior="arbitrary",
+            )
+            == 0
+        )
+        assert (
+            hstrat.calc_rank_of_mrca_uncertainty_among(
+                [wrap(second), wrap(first)] * 3,
+                prior="arbitrary",
+            )
             == 0
         )
 
@@ -241,32 +291,45 @@ def test_scenario_no_mrca(
 @pytest.mark.parametrize(
     "ordered_store",
     [
-        hstrat.HereditaryStratumOrderedStoreDict,
+        pytest.param(
+            hstrat.HereditaryStratumOrderedStoreDict,
+            marks=pytest.mark.heavy,
+        ),
         hstrat.HereditaryStratumOrderedStoreList,
-        hstrat.HereditaryStratumOrderedStoreTree,
     ],
 )
-def test_scenario_no_divergence(retention_policy, ordered_store):
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_scenario_no_divergence(retention_policy, ordered_store, wrap):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
 
-    for generation in range(100):
-        assert (
-            hstrat.calc_rank_of_mrca_uncertainty_among([column, column]) == 0
-        )
+    for _generation in range(100):
+        _ = _generation
         assert (
             hstrat.calc_rank_of_mrca_uncertainty_among(
-                [column, column, column]
+                [wrap(column), wrap(column)],
+                prior="arbitrary",
             )
             == 0
         )
         assert (
-            hstrat.calc_rank_of_mrca_uncertainty_among([column, column] * 3)
+            hstrat.calc_rank_of_mrca_uncertainty_among(
+                [wrap(column), wrap(column), wrap(column)],
+                prior="arbitrary",
+            )
             == 0
         )
-
+        assert (
+            hstrat.calc_rank_of_mrca_uncertainty_among(
+                [wrap(column), wrap(column)] * 3, prior="arbitrary"
+            )
+            == 0
+        )
         column.DepositStratum()
 
 
@@ -288,10 +351,21 @@ def test_scenario_no_divergence(retention_policy, ordered_store):
     "confidence_level",
     [0.8, 0.95],
 )
+@pytest.mark.parametrize(
+    "wrap",
+    [
+        lambda x: x,
+        pytest.param(
+            hstrat.col_to_specimen,
+            marks=pytest.mark.heavy,
+        ),
+    ],
+)
 def test_CalcRankOfMrcaUncertaintyWith_narrow_shallow(
     retention_policy,
     differentia_width,
     confidence_level,
+    wrap,
 ):
 
     columns = [
@@ -331,13 +405,16 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_shallow(
         for c1, c2 in zip(column1, column2):
             assert (
                 hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [c1, c2], confidence_level=confidence_level
+                    [wrap(c1), wrap(c2)],
+                    prior="arbitrary",
+                    confidence_level=confidence_level,
                 )
                 is None
             )
             assert (
                 hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [c2, c1],
+                    [wrap(c2), wrap(c1)],
+                    prior="arbitrary",
                     confidence_level=confidence_level,
                 )
                 is None
@@ -345,13 +422,16 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_shallow(
         for c1, c2, c3 in zip(column1, column2, column3):
             assert (
                 hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [c1, c2, c3], confidence_level=confidence_level
+                    [wrap(c1), wrap(c2), wrap(c3)],
+                    prior="arbitrary",
+                    confidence_level=confidence_level,
                 )
                 is None
             )
             assert (
                 hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [c2, c3, c1],
+                    [wrap(c2), wrap(c3), wrap(c1)],
+                    prior="arbitrary",
                     confidence_level=confidence_level,
                 )
                 is None
@@ -380,11 +460,22 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_shallow(
     "mrca_rank",
     [100],
 )
+@pytest.mark.parametrize(
+    "wrap",
+    [
+        lambda x: x,
+        pytest.param(
+            hstrat.col_to_specimen,
+            marks=pytest.mark.heavy,
+        ),
+    ],
+)
 def test_CalcRankOfMrcaUncertaintyWith_narrow_with_mrca(
     retention_policy,
     differentia_width,
     confidence_level,
     mrca_rank,
+    wrap,
 ):
 
     columns = [
@@ -396,9 +487,8 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_with_mrca(
         for __ in range(20)
     ]
 
-    for generation in range(mrca_rank):
-        for column in columns:
-            column.DepositStratum()
+    for column in columns:
+        column.DepositStrata(mrca_rank)
 
     steps = (0, 16, 51)
 
@@ -414,22 +504,29 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_with_mrca(
 
         for c1, c2 in zip(column1, column2):
             assert hstrat.calc_rank_of_mrca_uncertainty_among(
-                [c1, c2], confidence_level=confidence_level
+                [wrap(c1), wrap(c2)],
+                prior="arbitrary",
+                confidence_level=confidence_level,
             ) == hstrat.calc_rank_of_mrca_uncertainty_among(
-                [c2, c1],
+                [wrap(c2), wrap(c1)],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
             res = hstrat.calc_rank_of_mrca_uncertainty_among(
-                [c1, c2],
+                [wrap(c1), wrap(c2)],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
 
             if res is not None:
                 assert res >= 0
                 assert hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [c1, c2], confidence_level=confidence_level
+                    [wrap(c1), wrap(c2)],
+                    prior="arbitrary",
+                    confidence_level=confidence_level,
                 ) >= hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [c2, c1],
+                    [wrap(c2), wrap(c1)],
+                    prior="arbitrary",
                     confidence_level=confidence_level / 2,
                 )
 
@@ -449,22 +546,29 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_with_mrca(
 
         for c1, c2, c3 in zip(column1, column2, column3):
             assert hstrat.calc_rank_of_mrca_uncertainty_among(
-                [c1, c2, c3], confidence_level=confidence_level
+                [wrap(c1), wrap(c2), wrap(c3)],
+                prior="arbitrary",
+                confidence_level=confidence_level,
             ) == hstrat.calc_rank_of_mrca_uncertainty_among(
-                [c2, c1, c3],
+                [wrap(c2), wrap(c1), wrap(c3)],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
             res = hstrat.calc_rank_of_mrca_uncertainty_among(
-                [c1, c2, c3],
+                [wrap(c1), wrap(c2), wrap(c3)],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
 
             if res is not None:
                 assert res >= 0
                 assert hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [c1, c2, c3], confidence_level=confidence_level
+                    [wrap(c1), wrap(c2), wrap(c3)],
+                    prior="arbitrary",
+                    confidence_level=confidence_level,
                 ) >= hstrat.calc_rank_of_mrca_uncertainty_among(
-                    [c2, c1, c3],
+                    [wrap(c2), wrap(c1), wrap(c3)],
+                    prior="arbitrary",
                     confidence_level=confidence_level / 2,
                 )
 
@@ -491,11 +595,22 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_with_mrca(
     "mrca_rank",
     [0, 100],
 )
+@pytest.mark.parametrize(
+    "wrap",
+    [
+        lambda x: x,
+        pytest.param(
+            hstrat.col_to_specimen,
+            marks=pytest.mark.heavy,
+        ),
+    ],
+)
 def test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
     retention_policy,
     differentia_width,
     confidence_level,
     mrca_rank,
+    wrap,
 ):
     def make_column():
         return hstrat.HereditaryStratigraphicColumn(
@@ -506,9 +621,8 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
 
     columns = [make_column() for __ in range(20)]
 
-    for generation in range(mrca_rank):
-        for column in columns:
-            column.DepositStratum()
+    for column in columns:
+        column.DepositStrata(mrca_rank)
 
     steps = (0, 16, 51)
 
@@ -528,13 +642,17 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
 
         for c1, c2 in zip(column1, column2):
             assert hstrat.calc_rank_of_mrca_uncertainty_among(
-                [c1, c2], confidence_level=confidence_level
+                [wrap(c1), wrap(c2)],
+                prior="arbitrary",
+                confidence_level=confidence_level,
             ) == hstrat.calc_rank_of_mrca_uncertainty_among(
-                [c2, c1],
+                [wrap(c2), wrap(c1)],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
             res = hstrat.calc_rank_of_mrca_uncertainty_among(
-                [c1, c2],
+                [wrap(c1), wrap(c2)],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
 
@@ -542,27 +660,36 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
                 assert 0 <= res
                 assert (
                     hstrat.calc_rank_of_mrca_uncertainty_among(
-                        [c1, c2], confidence_level=confidence_level
+                        [wrap(c1), wrap(c2)],
+                        prior="arbitrary",
+                        confidence_level=confidence_level,
                     )
                     >= hstrat.calc_rank_of_mrca_uncertainty_among(
-                        [c2, c1],
+                        [wrap(c2), wrap(c1)],
+                        prior="arbitrary",
                         confidence_level=confidence_level / 2,
                     )
                     or hstrat.calc_rank_of_mrca_uncertainty_among(
-                        [c1, c2], confidence_level=confidence_level
+                        [wrap(c1), wrap(c2)],
+                        prior="arbitrary",
+                        confidence_level=confidence_level,
                     )
                     == 0
                 )
 
         for c1, c2, c3 in zip(column1, column2, column3):
             assert hstrat.calc_rank_of_mrca_uncertainty_among(
-                [c1, c2, c3], confidence_level=confidence_level
+                [wrap(c1), wrap(c2), wrap(c3)],
+                prior="arbitrary",
+                confidence_level=confidence_level,
             ) == hstrat.calc_rank_of_mrca_uncertainty_among(
-                [c3, c1, c2],
+                [wrap(c3), wrap(c1), wrap(c2)],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
             res = hstrat.calc_rank_of_mrca_uncertainty_among(
-                [c1, c2, c3],
+                [wrap(c1), wrap(c2), wrap(c3)],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
 
@@ -570,50 +697,76 @@ def test_CalcRankOfMrcaUncertaintyWith_narrow_no_mrca(
                 assert 0 <= res
                 assert (
                     hstrat.calc_rank_of_mrca_uncertainty_among(
-                        [c1, c2, c3], confidence_level=confidence_level
+                        [wrap(c1), wrap(c2), wrap(c3)],
+                        prior="arbitrary",
+                        confidence_level=confidence_level,
                     )
                     >= hstrat.calc_rank_of_mrca_uncertainty_among(
-                        [c1, c2, c3],
+                        [wrap(c1), wrap(c2), wrap(c3)],
+                        prior="arbitrary",
                         confidence_level=confidence_level / 2,
                     )
                     or hstrat.calc_rank_of_mrca_uncertainty_among(
-                        [c1, c2, c3], confidence_level=confidence_level
+                        [wrap(c1), wrap(c2), wrap(c3)],
+                        prior="arbitrary",
+                        confidence_level=confidence_level,
                     )
                     == 0
                 )
 
 
 @pytest.mark.filterwarnings("ignore:Empty or singleton population.")
-def test_calc_rank_of_mrca_uncertainty_among_singleton():
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_calc_rank_of_mrca_uncertainty_among_singleton(wrap):
     c1 = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=1,
     )
     for __ in range(10):
-        assert hstrat.calc_rank_of_mrca_uncertainty_among([c1]) is None
+        assert (
+            hstrat.calc_rank_of_mrca_uncertainty_among(
+                [wrap(c1)], prior="arbitrary"
+            )
+            is None
+        )
         c1.DepositStratum()
 
     c2 = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=64,
     )
     for __ in range(10):
-        assert hstrat.calc_rank_of_mrca_uncertainty_among([c1]) is None
+        assert (
+            hstrat.calc_rank_of_mrca_uncertainty_among(
+                [wrap(c1)], prior="arbitrary"
+            )
+            is None
+        )
         c2.DepositStratum()
 
 
 @pytest.mark.filterwarnings("ignore:Empty or singleton population.")
 def test_calc_rank_of_mrca_uncertainty_among_empty():
-    assert hstrat.does_share_any_common_ancestor([]) is None
+    assert (
+        hstrat.calc_rank_of_mrca_uncertainty_among([], prior="arbitrary")
+        is None
+    )
 
 
-def test_calc_rank_of_mrca_uncertainty_among_generator():
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_calc_rank_of_mrca_uncertainty_among_generator(wrap):
     c1 = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=1,
     )
     for __ in range(10):
         assert hstrat.calc_rank_of_mrca_uncertainty_among(
-            [c1 for __ in range(10)]
+            [wrap(c1) for __ in range(10)], prior="arbitrary"
         ) == hstrat.calc_rank_of_mrca_uncertainty_among(
-            (c1 for __ in range(10))
+            (wrap(c1) for __ in range(10)), prior="arbitrary"
         )
         c1.DepositStratum()
 
@@ -622,8 +775,8 @@ def test_calc_rank_of_mrca_uncertainty_among_generator():
     )
     for __ in range(10):
         assert hstrat.calc_rank_of_mrca_uncertainty_among(
-            [c2 for __ in range(10)]
+            [wrap(c2) for __ in range(10)], prior="arbitrary"
         ) == hstrat.calc_rank_of_mrca_uncertainty_among(
-            (c2 for __ in range(10))
+            (wrap(c2) for __ in range(10)), prior="arbitrary"
         )
         c2.DepositStratum()

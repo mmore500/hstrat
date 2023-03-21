@@ -1,14 +1,17 @@
 import typing
 
-from ..genome_instrumentation import HereditaryStratigraphicColumn
+from .._auxiliary_lib import HereditaryStratigraphicArtifact
+from ._calc_min_implausible_spurious_consecutive_differentia_collisions_between import (
+    calc_min_implausible_spurious_consecutive_differentia_collisions_between,
+)
 from ._calc_rank_of_first_retained_disparity_between import (
     calc_rank_of_first_retained_disparity_between,
 )
 
 
 def calc_definitive_max_rank_of_first_retained_disparity_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
 ) -> typing.Optional[int]:
     """Determine hard, exclusive upper bound on MRCA generation.
 
@@ -35,7 +38,9 @@ def calc_definitive_max_rank_of_first_retained_disparity_between(
         == second.GetStratumDifferentiaBitWidth()
     )
     assert (
-        first.CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
+        calc_min_implausible_spurious_consecutive_differentia_collisions_between(
+            first,
+            second,
             significance_level=1.0 - confidence_level,
         )
         == 1

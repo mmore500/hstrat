@@ -213,7 +213,9 @@ def test_descend_template_phylogeny_naive(
     )
 
     for (c1, n1), (c2, n2) in it.chain(sampled_product, spliced_product):
-        lb, ub = hstrat.calc_rank_of_mrca_bounds_between(c1, c2)
+        lb, ub = hstrat.calc_rank_of_mrca_bounds_between(
+            c1, c2, prior="arbitrary"
+        )
         if n1 == n2:
             mrca = n1
         elif n1.parent_node == n2:

@@ -1,7 +1,7 @@
 import itertools as it
 import typing
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ._calc_rank_of_earliest_detectable_mrca_among import (
     calc_rank_of_earliest_detectable_mrca_among,
 )
@@ -9,7 +9,7 @@ from ._calc_rank_of_mrca_bounds_among import calc_rank_of_mrca_bounds_among
 
 
 def does_share_any_common_ancestor(
-    population: typing.Iterable[HereditaryStratigraphicColumn],
+    population: typing.Iterable[HereditaryStratigraphicArtifact],
     confidence_level: float = 0.95,
 ) -> typing.Optional[bool]:
     """Determine if common ancestry is evidenced within the population.
@@ -44,5 +44,7 @@ def does_share_any_common_ancestor(
     ):
         return None
 
-    mrca_bounds = calc_rank_of_mrca_bounds_among(pop_tee2, confidence_level)
+    mrca_bounds = calc_rank_of_mrca_bounds_among(
+        pop_tee2, "arbitrary", confidence_level
+    )
     return mrca_bounds is not None

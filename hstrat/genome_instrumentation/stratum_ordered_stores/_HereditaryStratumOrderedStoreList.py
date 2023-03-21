@@ -187,7 +187,7 @@ class HereditaryStratumOrderedStoreList(HereditaryStratumOrderedStoreBase):
         """Iterate over stored strata from most ancient to most recent."""
         yield from self._data
 
-    def IterRankDifferentia(
+    def IterRankDifferentiaZip(
         self: "HereditaryStratumOrderedStoreList",
         # deposition ranks might not be stored in strata
         get_rank_at_column_index: typing.Optional[typing.Callable] = None,

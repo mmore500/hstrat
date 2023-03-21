@@ -1,7 +1,7 @@
 import operator
 import typing
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ._calc_rank_of_earliest_detectable_mrca_between import (
     calc_rank_of_earliest_detectable_mrca_between,
 )
@@ -11,8 +11,9 @@ from ._calc_ranks_since_mrca_bounds_with import (
 
 
 def calc_ranks_since_mrca_uncertainty_with(
-    focal: HereditaryStratigraphicColumn,
-    other: HereditaryStratigraphicColumn,
+    focal: HereditaryStratigraphicArtifact,
+    other: HereditaryStratigraphicArtifact,
+    prior: str,
     confidence_level: float = 0.95,
 ) -> typing.Optional[int]:
     """How wide is the estimation window for generations elapsed since MRCA?
@@ -46,6 +47,7 @@ def calc_ranks_since_mrca_uncertainty_with(
     bounds = calc_ranks_since_mrca_bounds_with(
         focal,
         other,
+        prior=prior,
         confidence_level=confidence_level,
     )
     return 0 if bounds is None else abs(operator.sub(*bounds)) - 1

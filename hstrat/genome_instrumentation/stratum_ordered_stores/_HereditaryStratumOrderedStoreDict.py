@@ -173,7 +173,7 @@ class HereditaryStratumOrderedStoreDict(HereditaryStratumOrderedStoreBase):
         assert sys.version_info >= (3, 7)
         yield from self._data.values()
 
-    def IterRankDifferentia(
+    def IterRankDifferentiaZip(
         self: "HereditaryStratumOrderedStoreDict",
         # needed for other implementations
         get_rank_at_column_index: typing.Optional[typing.Callable] = None,

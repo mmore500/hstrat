@@ -5,6 +5,7 @@ import sys
 import typing
 import warnings
 
+from deprecated.sphinx import deprecated
 from interval_search import binary_search
 import opytional as opyt
 
@@ -332,6 +333,32 @@ class HereditaryStratigraphicColumn:
         """
         yield from self._stratum_ordered_store.IterRetainedStrata()
 
+    def IterRetainedDifferentia(
+        self: "HereditaryStratigraphicColumn",
+    ) -> typing.Iterator[int]:
+        """Iterate over differentia of strata stored in the column.
+
+        Differentia yielded from most ancient to most recent.
+        """
+        return map(lambda x: x.GetDifferentia(), self.IterRetainedStrata())
+
+    def IterRankDifferentiaZip(
+        self: "HereditaryStratigraphicColumn",
+        copyable: bool = False,
+    ) -> typing.Iterator[typing.Tuple[int, int]]:
+        """Iterate over ranks of retained strata and their differentia.
+
+        If `copyable`, return an iterator that can be copied to produce a new
+        fully-independent iterator at the same position.
+
+        Equivalent to `zip(col.IterRetainedRanks(),
+        col.IterRetainedDifferentia())`, but may be more efficient.
+        """
+        res = self._stratum_ordered_store.IterRankDifferentiaZip()
+        if copyable:
+            res = iter([*res])
+        return res
+
     def HasAnyAnnotations(
         self: "HereditaryStratigraphicColumn",
     ) -> bool:
@@ -455,6 +482,10 @@ class HereditaryStratigraphicColumn:
         """Have any deposited strata been discarded?"""
         return self.GetNumDiscardedStrata() > 0
 
+    @deprecated(
+        version="1.6.0",
+        reason="Use calc_probability_differentia_collision_between",
+    )
     def CalcProbabilityDifferentiaCollision(
         self: "HereditaryStratigraphicColumn",
     ) -> float:
@@ -465,10 +496,15 @@ class HereditaryStratigraphicColumn:
         """
         return 1.0 / 2**self._stratum_differentia_bit_width
 
+    @deprecated(
+        version="1.6.0",
+        reason="Use "
+        "calc_min_implausible_spurious_differentia_collisions_between",
+    )
     def CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
         self: "HereditaryStratigraphicColumn",
         significance_level: float,
-    ) -> float:
+    ) -> int:
         """Determine amount of evidence required to indicate shared ancestry.
 
         Calculates how many differentia collisions are required to reject the

@@ -321,7 +321,7 @@ class HereditaryStratumOrderedStoreTree(HereditaryStratumOrderedStoreBase):
             [node.stratum for node in self._GetAscendingIter()]
         )
 
-    def _do_reverse_IterRankDifferentia(
+    def _do_reverse_IterRankDifferentiaZip(
         self: "HereditaryStratumOrderedStoreTree",
         # deposition ranks might not be stored in strata
         get_rank_at_column_index: typing.Optional[typing.Callable] = None,
@@ -330,7 +330,7 @@ class HereditaryStratumOrderedStoreTree(HereditaryStratumOrderedStoreBase):
         """Iterate over differentia and corresponding depsotion rank.
 
         Ordered from most recent to most ancient. Implementation detail for
-        IterRankDifferentia.
+        IterRankDifferentiaZip.
         """
         for reverse_column_idx, node in enumerate(self._GetAscendingIter()):
             column_idx = self.GetNumStrataRetained() - 1 - reverse_column_idx
@@ -346,7 +346,7 @@ class HereditaryStratumOrderedStoreTree(HereditaryStratumOrderedStoreBase):
             else:
                 break
 
-    def IterRankDifferentia(
+    def IterRankDifferentiaZip(
         self: "HereditaryStratumOrderedStoreTree",
         # deposition ranks might not be stored in strata
         get_rank_at_column_index: typing.Optional[typing.Callable] = None,
@@ -366,7 +366,7 @@ class HereditaryStratumOrderedStoreTree(HereditaryStratumOrderedStoreBase):
             Number of strata to skip over before yielding first result from the
             iterator. Default 0, meaning no strata are skipped over.
         """
-        reverse_iter = self._do_reverse_IterRankDifferentia(
+        reverse_iter = self._do_reverse_IterRankDifferentiaZip(
             get_rank_at_column_index=get_rank_at_column_index,
             start_column_index=start_column_index,
         )

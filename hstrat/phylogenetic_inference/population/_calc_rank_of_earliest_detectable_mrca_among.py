@@ -2,12 +2,12 @@ import itertools as it
 import typing
 import warnings
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ..pairwise import calc_rank_of_earliest_detectable_mrca_between
 
 
 def calc_rank_of_earliest_detectable_mrca_among(
-    population: typing.Iterable[HereditaryStratigraphicColumn],
+    population: typing.Iterable[HereditaryStratigraphicArtifact],
     confidence_level: float = 0.95,
 ) -> typing.Optional[int]:
     """After what generation is common ancstry robustly detectable?

@@ -12,7 +12,8 @@ def alifestd_make_ancestor_id_col(
     ancestor organisms.
     """
     ancestor_ids = (
-        ancestor_lists.str.lower()
+        ancestor_lists.astype("str")
+        .str.lower()
         .replace("[none]", "[-1]")
         .replace("[]", "[-1]")
         .str.strip("[]")

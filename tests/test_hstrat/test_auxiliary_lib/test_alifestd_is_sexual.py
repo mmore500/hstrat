@@ -44,6 +44,7 @@ def test_alifestd_is_sexual_true(phylogeny_df, apply):
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        pd.DataFrame({"id": [], "ancestor_list": []}),
     ],
 )
 @pytest.mark.parametrize(

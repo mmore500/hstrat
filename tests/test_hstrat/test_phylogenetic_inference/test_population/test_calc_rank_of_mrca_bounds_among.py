@@ -23,17 +23,21 @@ from hstrat import hstrat
 @pytest.mark.parametrize(
     "ordered_store",
     [
-        hstrat.HereditaryStratumOrderedStoreDict,
-        hstrat.HereditaryStratumOrderedStoreList,
         pytest.param(
-            hstrat.HereditaryStratumOrderedStoreTree,
+            hstrat.HereditaryStratumOrderedStoreDict,
             marks=pytest.mark.heavy,
         ),
+        hstrat.HereditaryStratumOrderedStoreList,
     ],
 )
-def test_comparison_commutativity_asyncrhonous(
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_comparison_commutativity_asynchronous(
     retention_policy,
     ordered_store,
+    wrap,
 ):
     population = [
         hstrat.HereditaryStratigraphicColumn(
@@ -43,13 +47,20 @@ def test_comparison_commutativity_asyncrhonous(
         for __ in range(10)
     ]
 
-    for generation in range(100):
+    for _generation in range(100):
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert (
-                hstrat.calc_rank_of_mrca_bounds_among([first, second])
-                == hstrat.calc_rank_of_mrca_bounds_among([second, first])
-                == hstrat.calc_rank_of_mrca_bounds_among([second, first] * 3)
+                hstrat.calc_rank_of_mrca_bounds_among(
+                    [wrap(first), wrap(second)], prior="arbitrary"
+                )
+                == hstrat.calc_rank_of_mrca_bounds_among(
+                    [wrap(second), wrap(first)], prior="arbitrary"
+                )
+                == hstrat.calc_rank_of_mrca_bounds_among(
+                    [wrap(second), wrap(first)] * 3, prior="arbitrary"
+                )
             )
 
         # advance generation
@@ -76,7 +87,10 @@ def test_comparison_commutativity_asyncrhonous(
 @pytest.mark.parametrize(
     "ordered_store",
     [
-        hstrat.HereditaryStratumOrderedStoreDict,
+        pytest.param(
+            hstrat.HereditaryStratumOrderedStoreDict,
+            marks=pytest.mark.heavy,
+        ),
         hstrat.HereditaryStratumOrderedStoreList,
         pytest.param(
             hstrat.HereditaryStratumOrderedStoreTree,
@@ -84,7 +98,11 @@ def test_comparison_commutativity_asyncrhonous(
         ),
     ],
 )
-def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store):
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store, wrap):
     def make_bundle():
         return hstrat.HereditaryStratigraphicColumnBundle(
             {
@@ -108,8 +126,8 @@ def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store):
     forked_isolated = column.Clone()
     unrelated_isolated = make_bundle()
 
-    for generation in range(100):
-
+    for _generation in range(100):
+        _ = _generation
         for f, s in it.chain(
             it.combinations(population, 2),
             zip(population, cyclify(forked_isolated)),
@@ -118,7 +136,8 @@ def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store):
             zip(cyclify(frozen_copy), population),
         ):
             lb, ub = hstrat.calc_rank_of_mrca_bounds_among(
-                [f["test"], s["test"]]
+                [wrap(f["test"]), wrap(s["test"])],
+                prior="arbitrary",
             )
             actual_rank_of_mrca = hstrat.get_last_common_stratum_between(
                 f["control"], s["control"]
@@ -126,7 +145,8 @@ def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store):
             assert lb <= actual_rank_of_mrca < ub
 
             lb, ub = hstrat.calc_rank_of_mrca_bounds_among(
-                [f["test"], s["test"], f["test"]]
+                [f["test"], s["test"], f["test"]],
+                prior="arbitrary",
             )
             assert lb <= actual_rank_of_mrca < ub
 
@@ -137,18 +157,21 @@ def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store):
             zip(cyclify(unrelated_isolated), population),
         ):
             assert (
-                hstrat.calc_rank_of_mrca_bounds_among([f["test"], s["test"]])
-                is None
-            )
-            assert (
                 hstrat.calc_rank_of_mrca_bounds_among(
-                    [f["test"], s["test"], f["test"]]
+                    [wrap(f["test"]), wrap(s["test"])], prior="arbitrary"
                 )
                 is None
             )
             assert (
                 hstrat.calc_rank_of_mrca_bounds_among(
-                    [f["test"], s["test"]] * 3
+                    [wrap(f["test"]), wrap(s["test"]), wrap(f["test"])],
+                    prior="arbitrary",
+                )
+                is None
+            )
+            assert (
+                hstrat.calc_rank_of_mrca_bounds_among(
+                    [wrap(f["test"]), wrap(s["test"])] * 3, prior="arbitrary"
                 )
                 is None
             )
@@ -192,15 +215,16 @@ def test_CalcRankOfMrcaBoundsWith(retention_policy, ordered_store):
             marks=pytest.mark.heavy_2b,
         ),
         hstrat.HereditaryStratumOrderedStoreList,
-        pytest.param(
-            hstrat.HereditaryStratumOrderedStoreTree,
-            marks=pytest.mark.heavy,
-        ),
     ],
 )
-def test_comparison_commutativity_syncrhonous(
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_comparison_commutativity_synchronous(
     retention_policy,
     ordered_store,
+    wrap,
 ):
 
     population = [
@@ -211,18 +235,23 @@ def test_comparison_commutativity_syncrhonous(
         for __ in range(10)
     ]
 
-    for generation in range(100):
-
+    for _generation in range(100):
+        _ = _generation
         for first, second in it.combinations(population, 2):
             # assert commutativity
             assert (
-                hstrat.calc_rank_of_mrca_bounds_among([first, second])
-                == hstrat.calc_rank_of_mrca_bounds_among([second, first])
-                == hstrat.calc_rank_of_mrca_bounds_among(
-                    [second, first, first]
+                hstrat.calc_rank_of_mrca_bounds_among(
+                    [wrap(first), wrap(second)], prior="arbitrary"
                 )
                 == hstrat.calc_rank_of_mrca_bounds_among(
-                    [second, first, second, first]
+                    [wrap(second), wrap(first)], prior="arbitrary"
+                )
+                == hstrat.calc_rank_of_mrca_bounds_among(
+                    [wrap(second), wrap(first), wrap(first)], prior="arbitrary"
+                )
+                == hstrat.calc_rank_of_mrca_bounds_among(
+                    [wrap(second), wrap(first), wrap(second), wrap(first)],
+                    prior="arbitrary",
                 )
             )
 
@@ -249,15 +278,18 @@ def test_comparison_commutativity_syncrhonous(
 @pytest.mark.parametrize(
     "ordered_store",
     [
-        hstrat.HereditaryStratumOrderedStoreDict,
-        hstrat.HereditaryStratumOrderedStoreList,
         pytest.param(
-            hstrat.HereditaryStratumOrderedStoreTree,
+            hstrat.HereditaryStratumOrderedStoreDict,
             marks=pytest.mark.heavy,
         ),
+        hstrat.HereditaryStratumOrderedStoreList,
     ],
 )
-def test_comparison_validity(retention_policy, ordered_store):
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_comparison_validity(retention_policy, ordered_store, wrap):
     population = [
         hstrat.HereditaryStratigraphicColumn(
             stratum_ordered_store=ordered_store,
@@ -280,18 +312,21 @@ def test_comparison_validity(retention_policy, ordered_store):
             if fdrw is not None:
                 assert 0 <= fdrw <= generation
 
-            assert hstrat.calc_rank_of_mrca_bounds_among([first, second]) in [
-                (lcrw, opyt.or_value(fdrw, first.GetNumStrataDeposited())),
-                None,
-            ]
             assert hstrat.calc_rank_of_mrca_bounds_among(
-                [first, second, first]
+                [wrap(first), wrap(second)], prior="arbitrary"
             ) in [
                 (lcrw, opyt.or_value(fdrw, first.GetNumStrataDeposited())),
                 None,
             ]
             assert hstrat.calc_rank_of_mrca_bounds_among(
-                [first, second] * 3
+                [wrap(first), wrap(second), wrap(first)],
+                prior="arbitrary",
+            ) in [
+                (lcrw, opyt.or_value(fdrw, first.GetNumStrataDeposited())),
+                None,
+            ]
+            assert hstrat.calc_rank_of_mrca_bounds_among(
+                [wrap(first), wrap(second)] * 3, prior="arbitrary"
             ) in [
                 (lcrw, opyt.or_value(fdrw, first.GetNumStrataDeposited())),
                 None,
@@ -327,10 +362,21 @@ def test_comparison_validity(retention_policy, ordered_store):
     "confidence_level",
     [0.8, 0.95],
 )
+@pytest.mark.parametrize(
+    "wrap",
+    [
+        lambda x: x,
+        pytest.param(
+            hstrat.col_to_specimen,
+            marks=pytest.mark.heavy,
+        ),
+    ],
+)
 def test_CalcRankOfMrcaBoundsWith_narrow_shallow(
     retention_policy,
     differentia_width,
     confidence_level,
+    wrap,
 ):
 
     columns = [
@@ -366,20 +412,24 @@ def test_CalcRankOfMrcaBoundsWith_narrow_shallow(
         for c1, c2 in zip(column1, column2):
             assert (
                 hstrat.calc_rank_of_mrca_bounds_among(
-                    [c1, c2], confidence_level=confidence_level
-                )
-                is None
-            )
-            assert (
-                hstrat.calc_rank_of_mrca_bounds_among(
-                    [c2, c1],
+                    [wrap(c1), wrap(c2)],
+                    prior="arbitrary",
                     confidence_level=confidence_level,
                 )
                 is None
             )
             assert (
                 hstrat.calc_rank_of_mrca_bounds_among(
-                    [c2, c1, c1],
+                    [wrap(c2), wrap(c1)],
+                    prior="arbitrary",
+                    confidence_level=confidence_level,
+                )
+                is None
+            )
+            assert (
+                hstrat.calc_rank_of_mrca_bounds_among(
+                    [wrap(c2), wrap(c1), wrap(c1)],
+                    prior="arbitrary",
                     confidence_level=confidence_level,
                 )
                 is None
@@ -411,11 +461,22 @@ def test_CalcRankOfMrcaBoundsWith_narrow_shallow(
     "mrca_rank",
     [100],
 )
+@pytest.mark.parametrize(
+    "wrap",
+    [
+        lambda x: x,
+        pytest.param(
+            hstrat.col_to_specimen,
+            marks=pytest.mark.heavy,
+        ),
+    ],
+)
 def test_CalcRankOfMrcaBoundsWith_narrow_with_mrca(
     retention_policy,
     differentia_width,
     confidence_level,
     mrca_rank,
+    wrap,
 ):
     columns = [
         hstrat.HereditaryStratigraphicColumn(
@@ -426,9 +487,8 @@ def test_CalcRankOfMrcaBoundsWith_narrow_with_mrca(
         for __ in range(20)
     ]
 
-    for generation in range(mrca_rank):
-        for column in columns:
-            column.DepositStratum()
+    for column in columns:
+        column.DepositStrata(mrca_rank)
 
     steps = (0, 16, 51)
 
@@ -447,23 +507,29 @@ def test_CalcRankOfMrcaBoundsWith_narrow_with_mrca(
         for c1, c2 in zip(column1, column2):
             assert (
                 hstrat.calc_rank_of_mrca_bounds_among(
-                    [c1, c2], confidence_level=confidence_level
-                )
-                == hstrat.calc_rank_of_mrca_bounds_among(
-                    [c2, c1],
+                    [wrap(c1), wrap(c2)],
+                    prior="arbitrary",
                     confidence_level=confidence_level,
                 )
                 == hstrat.calc_rank_of_mrca_bounds_among(
-                    [c2, c1, c2],
+                    [wrap(c2), wrap(c1)],
+                    prior="arbitrary",
                     confidence_level=confidence_level,
                 )
                 == hstrat.calc_rank_of_mrca_bounds_among(
-                    [c2, c1] * 2,
+                    [wrap(c2), wrap(c1), wrap(c2)],
+                    prior="arbitrary",
+                    confidence_level=confidence_level,
+                )
+                == hstrat.calc_rank_of_mrca_bounds_among(
+                    [wrap(c2), wrap(c1)] * 2,
+                    prior="arbitrary",
                     confidence_level=confidence_level,
                 )
             )
             res = hstrat.calc_rank_of_mrca_bounds_among(
-                [c1, c2, c1],
+                [wrap(c1), wrap(c2), wrap(c1)],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
 
@@ -518,11 +584,22 @@ def test_CalcRankOfMrcaBoundsWith_narrow_with_mrca(
     "mrca_rank",
     [0, 100],
 )
+@pytest.mark.parametrize(
+    "wrap",
+    [
+        lambda x: x,
+        pytest.param(
+            hstrat.col_to_specimen,
+            marks=pytest.mark.heavy,
+        ),
+    ],
+)
 def test_CalcRankOfMrcaBoundsWith_narrow_no_mrca(
     retention_policy,
     differentia_width,
     confidence_level,
     mrca_rank,
+    wrap,
 ):
     def make_column():
         return hstrat.HereditaryStratigraphicColumn(
@@ -533,9 +610,8 @@ def test_CalcRankOfMrcaBoundsWith_narrow_no_mrca(
 
     columns = [make_column() for __ in range(20)]
 
-    for generation in range(mrca_rank):
-        for column in columns:
-            column.DepositStratum()
+    for column in columns:
+        column.DepositStrata(mrca_rank)
 
     steps = (0, 16, 51)
 
@@ -554,23 +630,29 @@ def test_CalcRankOfMrcaBoundsWith_narrow_no_mrca(
         for c1, c2 in zip(column1, column2):
             assert (
                 hstrat.calc_rank_of_mrca_bounds_among(
-                    [c1, c2], confidence_level=confidence_level
-                )
-                == hstrat.calc_rank_of_mrca_bounds_among(
-                    [c2, c1],
+                    [wrap(c1), wrap(c2)],
+                    prior="arbitrary",
                     confidence_level=confidence_level,
                 )
                 == hstrat.calc_rank_of_mrca_bounds_among(
-                    [c2, c1, c2],
+                    [wrap(c2), wrap(c1)],
+                    prior="arbitrary",
                     confidence_level=confidence_level,
                 )
                 == hstrat.calc_rank_of_mrca_bounds_among(
-                    [c2, c1] * 2,
+                    [wrap(c2), wrap(c1), wrap(c2)],
+                    prior="arbitrary",
+                    confidence_level=confidence_level,
+                )
+                == hstrat.calc_rank_of_mrca_bounds_among(
+                    [wrap(c2), wrap(c1)] * 2,
+                    prior="arbitrary",
                     confidence_level=confidence_level,
                 )
             )
             res = hstrat.calc_rank_of_mrca_bounds_among(
-                [c1, c2, c1],
+                [wrap(c1), wrap(c2), wrap(c1)],
+                prior="arbitrary",
                 confidence_level=confidence_level,
             )
 
@@ -598,14 +680,21 @@ def test_CalcRankOfMrcaBoundsWith_narrow_no_mrca(
 
 
 @pytest.mark.filterwarnings("ignore:Empty or singleton population.")
-def test_calc_rank_of_mrca_bounds_among_singletonpop():
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_calc_rank_of_mrca_bounds_among_singletonpop(wrap):
 
     c1 = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=1,
         stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
     )
     for __ in range(10):
-        assert hstrat.calc_rank_of_earliest_detectable_mrca_among([c1]) is None
+        assert (
+            hstrat.calc_rank_of_earliest_detectable_mrca_among([wrap(c1)])
+            is None
+        )
         c1.DepositStratum()
 
     c1 = hstrat.HereditaryStratigraphicColumn(
@@ -613,7 +702,10 @@ def test_calc_rank_of_mrca_bounds_among_singletonpop():
         stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
     )
     for __ in range(10):
-        assert hstrat.calc_rank_of_earliest_detectable_mrca_among([c1]) is None
+        assert (
+            hstrat.calc_rank_of_earliest_detectable_mrca_among([wrap(c1)])
+            is None
+        )
         c1.DepositStratum()
 
 
@@ -640,14 +732,21 @@ def test_calc_rank_of_earliest_detectable_mrca_emptypop():
 @pytest.mark.filterwarnings(
     "ignore:Insufficient common ranks between columns to detect common ancestry at given confidence level."
 )
-def test_calc_rank_of_mrca_bounds_among_generator():
+@pytest.mark.parametrize(
+    "wrap",
+    [lambda x: x, hstrat.col_to_specimen],
+)
+def test_calc_rank_of_mrca_bounds_among_generator(wrap):
     c1 = hstrat.HereditaryStratigraphicColumn(
         stratum_differentia_bit_width=1,
     )
     for __ in range(10):
         assert hstrat.calc_rank_of_mrca_bounds_among(
-            [c1 for __ in range(10)]
-        ) == hstrat.calc_rank_of_mrca_bounds_among((c1 for __ in range(10)))
+            [wrap(c1) for __ in range(10)],
+            prior="arbitrary",
+        ) == hstrat.calc_rank_of_mrca_bounds_among(
+            (wrap(c1) for __ in range(10)), prior="arbitrary"
+        )
         c1.DepositStratum()
 
     c2 = hstrat.HereditaryStratigraphicColumn(
@@ -655,6 +754,8 @@ def test_calc_rank_of_mrca_bounds_among_generator():
     )
     for __ in range(10):
         assert hstrat.calc_rank_of_mrca_bounds_among(
-            [c2 for __ in range(10)]
-        ) == hstrat.calc_rank_of_mrca_bounds_among((c2 for __ in range(10)))
+            [wrap(c2) for __ in range(10)], prior="arbitrary"
+        ) == hstrat.calc_rank_of_mrca_bounds_among(
+            (wrap(c2) for __ in range(10)), prior="arbitrary"
+        )
         c2.DepositStratum()

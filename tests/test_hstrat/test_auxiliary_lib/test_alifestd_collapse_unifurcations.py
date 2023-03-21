@@ -9,6 +9,7 @@ from hstrat._auxiliary_lib import (
     alifestd_assign_contiguous_ids,
     alifestd_collapse_unifurcations,
     alifestd_find_leaf_ids,
+    alifestd_find_root_ids,
     alifestd_is_asexual,
     alifestd_is_sexual,
     alifestd_is_topologically_sorted,
@@ -60,11 +61,26 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         lambda x: x,
     ],
 )
-def test_alifestd_collapse_unifurcations(phylogeny_df, apply):
+@pytest.mark.parametrize(
+    "root_ancestor_token",
+    [
+        "",
+        "None",
+        "none",
+    ],
+)
+def test_alifestd_collapse_unifurcations(
+    phylogeny_df, apply, root_ancestor_token
+):
     phylogeny_df = apply(phylogeny_df.copy())
 
     phylogeny_df_ = phylogeny_df.copy()
-    collapsed_df = alifestd_collapse_unifurcations(phylogeny_df)
+    collapsed_df = alifestd_collapse_unifurcations(
+        phylogeny_df, root_ancestor_token=root_ancestor_token
+    )
+    assert len(alifestd_find_root_ids(phylogeny_df)) == sum(
+        collapsed_df["ancestor_list"] == f"[{root_ancestor_token}]"
+    )
     assert alifestd_validate(collapsed_df)
     assert phylogeny_df.equals(phylogeny_df_)
 

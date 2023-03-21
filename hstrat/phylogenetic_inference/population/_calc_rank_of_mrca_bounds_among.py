@@ -2,7 +2,7 @@ import itertools as it
 import typing
 import warnings
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ..pairwise import calc_rank_of_mrca_bounds_between
 from ._calc_rank_of_earliest_detectable_mrca_among import (
     calc_rank_of_earliest_detectable_mrca_among,
@@ -10,7 +10,8 @@ from ._calc_rank_of_earliest_detectable_mrca_among import (
 
 
 def calc_rank_of_mrca_bounds_among(
-    population: typing.Iterable[HereditaryStratigraphicColumn],
+    population: typing.Iterable[HereditaryStratigraphicArtifact],
+    prior: str,
     confidence_level: float = 0.95,
 ) -> typing.Optional[typing.Tuple[int, int]]:
     """Within what generation range did MRCA fall?
@@ -20,6 +21,11 @@ def calc_rank_of_mrca_bounds_among(
 
     Parameters
     ----------
+    prior : {"arbitrary"}
+        Prior probability density distribution over possible generations of the
+        MRCA.
+
+        Currently only "arbitrary" supported.
     confidence_level : float, optional
         Bounds must capture what probability of containing the true rank of
         the MRCA? Default 0.95.
@@ -66,7 +72,10 @@ def calc_rank_of_mrca_bounds_among(
             == second.GetStratumDifferentiaBitWidth()
         )
         mrca_rank_bounds = calc_rank_of_mrca_bounds_between(
-            first, second, confidence_level
+            first,
+            second,
+            prior,
+            confidence_level,
         )
 
         if mrca_rank_bounds is None:

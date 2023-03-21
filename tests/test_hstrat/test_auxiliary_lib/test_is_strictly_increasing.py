@@ -37,7 +37,7 @@ class TestIsStrictlyIncreasing(unittest.TestCase):
             ]
         )
 
-    def test_increasing(self):
+    def test_decreasing(self):
         assert not is_strictly_increasing(
             [
                 0,
@@ -50,6 +50,16 @@ class TestIsStrictlyIncreasing(unittest.TestCase):
                 *range(2),
             ]
         )
+
+    def test_increasing(self):
+        assert is_strictly_increasing(
+            [
+                -1,
+                0,
+            ]
+        )
+        assert is_strictly_increasing(range(10))
+        assert is_strictly_increasing([(-1, 0.0), (0, -2), (0, -1)])
 
 
 if __name__ == "__main__":

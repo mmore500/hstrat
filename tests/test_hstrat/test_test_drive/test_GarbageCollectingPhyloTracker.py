@@ -117,7 +117,8 @@ def test_GarbageCollectingPhyloTracker(
 
     # evolve fixed-size population with random selection
     for epoch_length in 0, 3, 50, 15, 5:
-        for generation in range(epoch_length):
+        for _generation in range(epoch_length):
+            _ = _generation
             parent_locs = np.random.randint(
                 population_size, size=population_size
             )
@@ -149,7 +150,8 @@ def test_GarbateCollectingPhyloTracker_ApplyLocSwaps():
     )
 
     # evolve fixed-size population with random selection
-    for generation in range(50):
+    for _generation in range(50):
+        _ = _generation
         parent_locs = np.random.randint(population_size, size=population_size)
         tracker.ElapseGeneration(parent_locs)
         handle_population = [
@@ -222,7 +224,8 @@ def test_GarbateCollectingPhyloTracker_ApplyLocPasteovers():
     )
 
     # evolve fixed-size population with random selection
-    for generation in range(50):
+    for _generation in range(50):
+        _ = _generation
         parent_locs = np.random.randint(population_size, size=population_size)
         tracker.ElapseGeneration(
             parent_locs, traits=np.arange(population_size)

@@ -1,7 +1,6 @@
 import typing
 
 from keyname import keyname as kn
-import matplotlib as mpl
 from matplotlib import animation as mpl_animation
 from matplotlib import pyplot as plt
 from slugify import slugify
