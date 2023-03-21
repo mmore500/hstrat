@@ -201,7 +201,7 @@ def test_reconstructed_dist(orig_tree, retention_policy, wrap):
         for extant_col in extant_population
     ]
 
-    reconstruction_error = impl.tree_distance_metric(
+    reconstruction_error = impl.tree_quartet_distance(
         orig_tree,
         reconst_tree,
     )

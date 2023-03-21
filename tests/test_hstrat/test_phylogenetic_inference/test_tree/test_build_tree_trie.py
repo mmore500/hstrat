@@ -57,7 +57,7 @@ def test_dual_population_no_mrca():
     ]
     true_tree = BaseTree.Tree(rooted=False, root=root_clade)
     assert (
-        impl.tree_distance_metric(
+        impl.tree_unweighted_robinson_foulds_distance(
             apc.alife_dataframe_to_biopython_tree(
                 alifestd_collapse_unifurcations(tree),
                 setup_branch_lengths=True,

@@ -1,8 +1,9 @@
 import alifedata_phyloinformatics_convert as apc
+import dendropy as dp
 import tqdist
 
 
-def tree_distance_metric(x, y) -> float:
+def tree_quartet_distance(x, y) -> float:
     tree_a = apc.RosettaTree(x).as_dendropy
     tree_b = apc.RosettaTree(y).as_dendropy
 
