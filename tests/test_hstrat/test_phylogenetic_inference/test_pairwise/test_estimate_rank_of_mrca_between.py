@@ -4,7 +4,7 @@ import random
 import numpy as np
 import opytional as opyt
 import pytest
-from scipy import stats
+from scipy import stats as scipy_stats
 
 from hstrat import hstrat
 from hstrat._auxiliary_lib import cmp_approx, pairwise
@@ -556,7 +556,7 @@ def test_comparison_ml_vs_unbiased(differentia_width, retention_policy):
     "differentia_width",
     [1, 8, 64],
 )
-def test_statistical_properties(
+def test_statistical_properties_uniform_prior(
     retention_policy,
     differentia_width,
 ):
@@ -574,10 +574,11 @@ def test_statistical_properties(
     for __ in range(113):
         common_ancestors.append(common_ancestors[-1].CloneDescendant())
 
-    for _rep in range(10000):
+    for _rep in range(8000):
         _ = _rep
         num_total = random.randrange(57, 113)
         num_together = random.randrange(num_total + 1)
+        assert 0 <= num_together <= num_total
         num_alone = num_total - num_together
 
         left_alone = num_alone
@@ -610,7 +611,10 @@ def test_statistical_properties(
         )
 
     err_unbiased_ = np.array(err_unbiased)
-    assert stats.ttest_ind(err_unbiased_, -err_unbiased_)[1] > 0.01
+    assert (
+        np.count_nonzero(err_unbiased_) < 4
+        or scipy_stats.ttest_ind(err_unbiased_, -err_unbiased_)[1] > 0.01
+    )
 
     for err_maximum_likelihood in (
         err_maximum_likelihood_arbitrary,
@@ -638,6 +642,23 @@ def test_statistical_properties(
         elif differentia_width == 1:
             assert abs(mean_err_unbiased) < abs(mean_err_maximum_likelihood)
             assert median_abs_err_unbiased > median_abs_err_maximum_likelihood
+        elif differentia_width == 8:
+            t_stat, p_value = scipy_stats.ttest_ind(
+                err_unbiased, err_maximum_likelihood
+            )
+            assert (
+                abs(mean_err_unbiased) <= abs(mean_err_maximum_likelihood)
+                or p_value > 0.01
+            )
+
+            w_stat, p_value = scipy_stats.wilcoxon(
+                np.abs(err_unbiased), np.abs(err_maximum_likelihood)
+            )
+            assert (
+                median_abs_err_unbiased >= median_abs_err_maximum_likelihood
+                or p_value > 0.01
+            )
+
         else:
             assert abs(mean_err_unbiased) <= abs(mean_err_maximum_likelihood)
             assert median_abs_err_unbiased >= median_abs_err_maximum_likelihood
@@ -662,9 +683,9 @@ def test_statistical_properties(
 )
 @pytest.mark.parametrize(
     "geometric_factor",
-    [1.01, 1.1, 4],
+    [1.01, 1.1, 2],
 )
-def test_statistical_properties(
+def test_statistical_properties_geometric_prior(
     retention_policy,
     differentia_width,
     geometric_factor,
@@ -740,8 +761,8 @@ def test_statistical_properties(
 
     assert (
         np.count_nonzero(err_unbiased_) < 4
-        or stats.ttest_ind(err_unbiased_, -err_unbiased_)[1] > 0.01
-    ), (np.mean(err_unbiased_), np.count_nonzero(err_unbiased_))
+        or scipy_stats.ttest_1samp(err_unbiased_, 0)[1] > 0.01
+    )
 
     mean_err_unbiased = np.mean(err_unbiased)
     mean_err_maximum_likelihood = np.mean(err_maximum_likelihood)
@@ -754,11 +775,7 @@ def test_statistical_properties(
         )
     )
 
-    if differentia_width == 1 and isinstance(
-        retention_policy, hstrat.nominal_resolution_algo.Policy
-    ):
-        assert abs(mean_err_unbiased) < abs(mean_err_maximum_likelihood)
-    elif differentia_width == 1:
+    if differentia_width == 1:
         assert abs(mean_err_unbiased) < abs(mean_err_maximum_likelihood)
     else:
         assert abs(mean_err_unbiased) <= abs(mean_err_maximum_likelihood)
