@@ -20,9 +20,11 @@ def build_trie_from_artifacts(
 
     See `build_tree_trie` for parameter descriptions.
     """
-    taxon_labels = opyt.or_value(
-        taxon_labels,
-        [*map(str, range(len(population)))],
+    taxon_labels = list(
+        opyt.or_value(
+            taxon_labels,
+            map(str, range(len(population))),
+        )
     )
 
     root = TrieInnerNode(rank=None, differentia=None)
