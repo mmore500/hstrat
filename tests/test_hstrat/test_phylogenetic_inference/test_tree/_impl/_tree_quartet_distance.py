@@ -1,5 +1,4 @@
 import alifedata_phyloinformatics_convert as apc
-import dendropy as dp
 import tqdist
 
 

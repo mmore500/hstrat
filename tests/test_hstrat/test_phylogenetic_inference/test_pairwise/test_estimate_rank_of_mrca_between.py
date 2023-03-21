@@ -643,17 +643,19 @@ def test_statistical_properties_uniform_prior(
             assert abs(mean_err_unbiased) < abs(mean_err_maximum_likelihood)
             assert median_abs_err_unbiased > median_abs_err_maximum_likelihood
         elif differentia_width == 8:
-            t_stat, p_value = scipy_stats.ttest_ind(
+            _t_stat, p_value = scipy_stats.ttest_ind(
                 err_unbiased, err_maximum_likelihood
             )
+            _ = _t_stat
             assert (
                 abs(mean_err_unbiased) <= abs(mean_err_maximum_likelihood)
                 or p_value > 0.01
             )
 
-            w_stat, p_value = scipy_stats.wilcoxon(
+            _w_stat, p_value = scipy_stats.wilcoxon(
                 np.abs(err_unbiased), np.abs(err_maximum_likelihood)
             )
+            _ = _w_stat
             assert (
                 median_abs_err_unbiased >= median_abs_err_maximum_likelihood
                 or p_value > 0.01

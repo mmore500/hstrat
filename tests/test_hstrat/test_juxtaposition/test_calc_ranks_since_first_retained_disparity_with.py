@@ -618,10 +618,8 @@ def test_artifact_types_equiv(differentia_width, policy):
     )
 
     for a, b in it.product(
-        # [common_ancestor, c1, c2, c_x, c_y],
-        # [common_ancestor, c1, c2, c_x, c_y],
-        [c1],
-        [c2],
+        [common_ancestor, c1, c2, c_x, c_y],
+        [common_ancestor, c1, c2, c_x, c_y],
     ):
         assert hstrat.calc_ranks_since_first_retained_disparity_with(
             hstrat.col_to_specimen(a),
