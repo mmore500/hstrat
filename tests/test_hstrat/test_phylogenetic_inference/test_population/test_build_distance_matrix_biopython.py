@@ -327,3 +327,50 @@ def test_build_distance_matrix_biopython_pair_iternames(
     df_m = pd.DataFrame(m, opyt.or_value(names, ["0", "1"]))
 
     assert df_m.equals(df_dm)
+
+
+@pytest.mark.parametrize(
+    "policy",
+    [
+        hstrat.fixed_resolution_algo.Policy(3),
+        hstrat.recency_proportional_resolution_algo.Policy(4),
+        hstrat.perfect_resolution_algo.Policy(),
+    ],
+)
+@pytest.mark.parametrize(
+    "estimator",
+    ["maximum_likelihood", "unbiased"],
+)
+@pytest.mark.parametrize(
+    "prior",
+    ["arbitrary", "uniform"],
+)
+def test_build_distance_matrix_biopython_pair_artifact_types_equiv(
+    policy, estimator, prior
+):
+
+    common_ancestor = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=policy,
+    ).CloneNthDescendant(7)
+    population = [
+        common_ancestor.CloneNthDescendant(4),
+        common_ancestor.CloneNthDescendant(9),
+    ]
+    dm_column = hstrat.build_distance_matrix_biopython(
+        population,
+        estimator,
+        prior,
+    )
+    dm_specimen = hstrat.build_distance_matrix_biopython(
+        [*map(hstrat.col_to_specimen, population)],
+        estimator,
+        prior,
+    )
+
+    df_dm_column = pd.DataFrame(dm_column.matrix, dm_column.names)
+    df_dm_specimen = pd.DataFrame(dm_specimen.matrix, dm_specimen.names)
+
+    print(df_dm_column)
+    print(df_dm_specimen)
+
+    assert df_dm_column.equals(df_dm_specimen)

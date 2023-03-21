@@ -368,3 +368,52 @@ def test_statistical_properties(
         else:
             assert abs(mean_err_unbiased) <= abs(mean_err_maximum_likelihood)
             assert median_abs_err_unbiased >= median_abs_err_maximum_likelihood
+
+
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 8, 64],
+)
+@pytest.mark.parametrize(
+    "policy",
+    [
+        hstrat.fixed_resolution_algo.Policy(3),
+        hstrat.recency_proportional_resolution_algo.Policy(1),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.perfect_resolution_algo.Policy(),
+    ],
+)
+@pytest.mark.parametrize(
+    "estimator",
+    ["maximum_likelihood", "unbiased"],
+)
+@pytest.mark.parametrize(
+    "prior",
+    ["arbitrary", "uniform"],
+)
+def test_artifact_types_equiv(differentia_width, policy, estimator, prior):
+    common_ancestor = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=policy,
+        stratum_differentia_bit_width=differentia_width,
+    ).CloneNthDescendant(7)
+    c1 = common_ancestor.CloneNthDescendant(4)
+    c2 = common_ancestor.CloneNthDescendant(9)
+    c_x = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=policy,
+        stratum_differentia_bit_width=differentia_width,
+    ).CloneNthDescendant(7)
+    c_y = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=policy,
+        stratum_differentia_bit_width=differentia_width,
+    )
+
+    for a, b in it.product(
+        [common_ancestor, c1, c2, c_x, c_y],
+        [common_ancestor, c1, c2, c_x, c_y],
+    ):
+        assert hstrat.estimate_ranks_since_mrca_with(
+            hstrat.col_to_specimen(a),
+            hstrat.col_to_specimen(b),
+            estimator,
+            prior,
+        ) == hstrat.estimate_ranks_since_mrca_with(a, b, estimator, prior)

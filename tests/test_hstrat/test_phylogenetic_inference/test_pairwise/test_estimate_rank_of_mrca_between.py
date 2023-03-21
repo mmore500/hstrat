@@ -828,3 +828,52 @@ def test_nominal_retention_policy(common_ancestor, estimator, prior):
         )
         == (common_ancestor.GetNumStrataDeposited() + 7 - 1 - 1) / 2
     )
+
+
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 8, 64],
+)
+@pytest.mark.parametrize(
+    "policy",
+    [
+        hstrat.fixed_resolution_algo.Policy(3),
+        hstrat.recency_proportional_resolution_algo.Policy(1),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.perfect_resolution_algo.Policy(),
+    ],
+)
+@pytest.mark.parametrize(
+    "estimator",
+    ["maximum_likelihood", "unbiased"],
+)
+@pytest.mark.parametrize(
+    "prior",
+    ["arbitrary", "uniform"],
+)
+def test_artifact_types_equiv(differentia_width, policy, estimator, prior):
+    common_ancestor = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=policy,
+        stratum_differentia_bit_width=differentia_width,
+    ).CloneNthDescendant(7)
+    c1 = common_ancestor.CloneNthDescendant(4)
+    c2 = common_ancestor.CloneNthDescendant(9)
+    c_x = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=policy,
+        stratum_differentia_bit_width=differentia_width,
+    ).CloneNthDescendant(7)
+    c_y = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=policy,
+        stratum_differentia_bit_width=differentia_width,
+    )
+
+    for a, b in it.product(
+        [common_ancestor, c1, c2, c_x, c_y],
+        [common_ancestor, c1, c2, c_x, c_y],
+    ):
+        assert hstrat.estimate_rank_of_mrca_between(
+            hstrat.col_to_specimen(a),
+            hstrat.col_to_specimen(b),
+            estimator,
+            prior,
+        ) == hstrat.estimate_rank_of_mrca_between(a, b, estimator, prior)

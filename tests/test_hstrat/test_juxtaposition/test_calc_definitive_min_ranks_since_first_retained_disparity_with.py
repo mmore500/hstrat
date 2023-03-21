@@ -161,3 +161,44 @@ def test_CalcDefinitiveMinRanksSinceFirstRetainedDisparityWith1(
             )
             is None
         )
+
+
+@pytest.mark.parametrize(
+    "differentia_width",
+    [1, 8, 64],
+)
+@pytest.mark.parametrize(
+    "policy",
+    [
+        hstrat.fixed_resolution_algo.Policy(3),
+        hstrat.recency_proportional_resolution_algo.Policy(1),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.perfect_resolution_algo.Policy(),
+    ],
+)
+def test_artifact_types_equiv(differentia_width, policy):
+    common_ancestor = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=policy,
+        stratum_differentia_bit_width=differentia_width,
+    ).CloneNthDescendant(7)
+    c1 = common_ancestor.CloneNthDescendant(4)
+    c2 = common_ancestor.CloneNthDescendant(9)
+    c_x = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=policy,
+        stratum_differentia_bit_width=differentia_width,
+    ).CloneNthDescendant(7)
+    c_y = hstrat.HereditaryStratigraphicColumn(
+        stratum_retention_policy=policy,
+        stratum_differentia_bit_width=differentia_width,
+    )
+
+    for a, b in it.product(
+        [common_ancestor, c1, c2, c_x, c_y],
+        [common_ancestor, c1, c2, c_x, c_y],
+    ):
+        assert hstrat.calc_definitive_min_ranks_since_first_retained_disparity_with(
+            hstrat.col_to_specimen(a),
+            hstrat.col_to_specimen(b),
+        ) == hstrat.calc_definitive_min_ranks_since_first_retained_disparity_with(
+            a, b
+        )
