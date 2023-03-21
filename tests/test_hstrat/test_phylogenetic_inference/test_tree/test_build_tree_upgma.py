@@ -85,7 +85,14 @@ def test_determinism(orig_tree, retention_policy, wrap, estimator, prior):
         hstrat.recency_proportional_resolution_algo.Policy(4),
     ],
 )
-def test_reconstructed_taxon_labels(orig_tree, retention_policy):
+@pytest.mark.parametrize(
+    "wrap",
+    [
+        lambda x: x,
+        hstrat.col_to_specimen,
+    ],
+)
+def test_reconstructed_taxon_labels(orig_tree, retention_policy, wrap):
     num_depositions = 10
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
@@ -97,7 +104,7 @@ def test_reconstructed_taxon_labels(orig_tree, retention_policy):
     taxon_labels = [str(id(x)) for x in extant_population]
 
     reconst_df = hstrat.build_tree_upgma(
-        extant_population,
+        [*map(wrap, extant_population)],
         "maximum_likelihood",
         "arbitrary",
         taxon_labels=taxon_labels,
@@ -106,7 +113,7 @@ def test_reconstructed_taxon_labels(orig_tree, retention_policy):
     assert set(taxon_labels) < set(reconst_df["taxon_label"])
 
     reconst_df = hstrat.build_tree_upgma(
-        extant_population,
+        [*map(wrap, extant_population)],
         "maximum_likelihood",
         "arbitrary",
     )
