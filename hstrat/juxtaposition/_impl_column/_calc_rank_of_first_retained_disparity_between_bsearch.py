@@ -77,6 +77,7 @@ def calc_rank_of_first_retained_disparity_between_bsearch(
         first_disparite_rank = first.GetRankAtColumnIndex(
             spurious_collision_corrected_idx
         )
+        assert first_disparite_rank >= 0
         return first_disparite_rank
     else:
         # no disparate strata found

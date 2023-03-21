@@ -149,4 +149,8 @@ def calc_rank_of_first_retained_disparity_between_generic(
         # and first and second have the same newest rank
         assert first_iter is None and second_iter is None
         preceding_common_ranks.appendleft(None)
+        assert (
+            preceding_common_ranks[-1] is None
+            or preceding_common_ranks[-1] >= 0
+        )
         return preceding_common_ranks[-1]

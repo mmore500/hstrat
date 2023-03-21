@@ -143,6 +143,7 @@ def calc_rank_of_parity_segue_between_naive(
         # must convert to Python int; although integral,
         # numpy ints are experiencing unwanted conversion to floats
         assert isinstance(first_ranks[first_pos], np.integer)
+        assert int(first_ranks[first_pos]) >= 0
         return int(first_ranks[first_pos])
 
     def calc_commonality(first_pos, second_pos):
@@ -181,6 +182,7 @@ def calc_rank_of_parity_segue_between_naive(
             # must convert to Python int; although integral,
             # numpy ints are experiencing unwanted conversion to floats
             assert isinstance(first_ranks[first_pos], np.integer)
+            assert int(first_ranks[first_pos]) >= 0
             return int(first_ranks[first_pos])
 
     return (
