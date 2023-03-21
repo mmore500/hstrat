@@ -177,7 +177,6 @@ def test_reconstructed_dist(orig_tree, retention_policy, wrap):
         reconst_df,
         setup_edge_lengths=True,
     )
-    pdm = reconst_tree.phylogenetic_distance_matrix()
 
     assert len(list(reconst_tree.leaf_node_iter())) == len(extant_population)
     sorted_leaf_nodes = sorted(
