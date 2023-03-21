@@ -47,8 +47,8 @@ def calc_rank_of_first_retained_disparity_between_generic(
         nonlocal first_cur_differentia, first_iter
         try:
             first_prev_rank = first_cur_rank
-            first_cur_rank, _first_cur_differentia = next(first_iter)
-            _ = _first_cur_differentia
+            first_cur_rank, first_cur_differentia = next(first_iter)
+            _ = first_cur_differentia
         except StopIteration:
             first_iter = None
 
@@ -57,8 +57,8 @@ def calc_rank_of_first_retained_disparity_between_generic(
         nonlocal second_cur_differentia, second_iter
         try:
             second_prev_rank = second_cur_rank
-            second_cur_rank, _second_cur_differentia = next(second_iter)
-            _ = _second_cur_differentia
+            second_cur_rank, second_cur_differentia = next(second_iter)
+            _ = second_cur_differentia
         except StopIteration:
             second_iter = None
 
