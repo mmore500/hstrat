@@ -57,6 +57,9 @@ jobs:
           ffmpeg \
           libc++-dev \
           libc++abi-dev \
+          g++ \
+          clang \
+          build-essential \
           -o Acquire::Retries=3
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
