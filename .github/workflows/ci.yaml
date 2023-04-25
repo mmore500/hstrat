@@ -11,6 +11,7 @@ on:
     - master
   schedule:
     - cron: '0 0 * * 1'  # weekly
+  workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
