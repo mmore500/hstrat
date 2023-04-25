@@ -68,6 +68,9 @@ jobs:
     - name: Test with tox
       run: |
         export HSTRAT_TESTS_SUBDIVISION=${{ matrix.subdivision }}
+        # workaround for tqdist import error in ci environment, e.g.,
+        # ImportError: /home/runner/work/hstrat/hstrat/.tox/py3X/lib/python3.10/site-packages/tqdist.cpython-310-x86_64-linux-gnu.so: undefined symbol: _ZTVN10__cxxabiv117__class_type_infoE
+        export LD_PRELOAD="/lib/x86_64-linux-gnu/libstdc++.so.6"
         tox
 
   test-py-native:
