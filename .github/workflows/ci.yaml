@@ -100,6 +100,7 @@ jobs:
   test-cpp:
     runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
         cxx:
           - g++-12
