@@ -6,6 +6,7 @@
 #include "audit_compare.hpp"
 #include "binary_search.hpp"
 #include "constexpr_log.hpp"
+#include "HSTRAT_UNUSED.hpp"
 #include "is_specialization_of.hpp"
 #include "IsSpecializationOf.hpp"
 #include "Monostate.hpp"

@@ -8,6 +8,7 @@
 #include <variant>
 
 #include "../../hstrat_auxlib/Monostate.hpp"
+#include "../../hstrat_auxlib/HSTRAT_UNUSED.hpp"
 #include "../../hstrat_pybind/PyObjectConcept.hpp"
 
 #include "../config/HSTRAT_RANK_T.hpp"
@@ -40,7 +41,10 @@ public:
     [&deposition_rank](){
       if constexpr (std::is_same_v<DEPOSITION_RANK_T, HSTRAT_RANK_T>) {
         return deposition_rank;
-      } else return DEPOSITION_RANK_T{};
+      } else {
+        HSTRAT_UNUSED(deposition_rank);
+        return DEPOSITION_RANK_T{};
+      }
     }()
   )
   { }
@@ -60,7 +64,10 @@ public:
         const auto res = stratum.attr("GetDepositionRank")();
         if (res.is_none()) return HSTRAT_RANK_T{};
         else return res.template cast<HSTRAT_RANK_T>();
-      } else return DEPOSITION_RANK_T{};
+      } else {
+        HSTRAT_UNUSED(stratum);
+        return DEPOSITION_RANK_T{};
+      }
     }()
   )
   { }

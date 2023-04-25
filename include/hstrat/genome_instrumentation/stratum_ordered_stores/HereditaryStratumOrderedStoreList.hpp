@@ -16,6 +16,7 @@
 
 #include "../../../hstrat_auxlib/audit_cast.hpp"
 #include "../../../hstrat_auxlib/binary_search.hpp"
+#include "../../../hstrat_auxlib/HSTRAT_UNUSED.hpp"
 #include "../../../hstrat_auxlib/Monostate.hpp"
 
 #include "../../config/HSTRAT_RANK_T.hpp"
@@ -92,8 +93,10 @@ public:
       std::back_inserter(indices),
       [this, &get_column_index_of_rank](const HSTRAT_RANK_T rank) {
         if constexpr (std::is_same_v<F, hstrat_auxlib::Monostate>) {
+          HSTRAT_UNUSED(get_column_index_of_rank);
           return GetColumnIndexOfRank(rank);
         } else {
+          HSTRAT_UNUSED(this);
           return get_column_index_of_rank(rank);
         }
       }
@@ -150,8 +153,10 @@ public:
       ) {
         const HSTRAT_RANK_T rank = [this, &get_rank_at_column_index, index](){
           if constexpr (std::is_same_v<F, hstrat_auxlib::Monostate>) {
+            HSTRAT_UNUSED(get_rank_at_column_index);
             return GetRankAtColumnIndex(index);
           } else {
+            HSTRAT_UNUSED(this);
             return get_rank_at_column_index(index);
           }
         }();
