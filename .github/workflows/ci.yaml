@@ -72,12 +72,12 @@ jobs:
       matrix:
         python-version: [3.8, 3.9]
         cxx:
-          - g++-10
-          # - clang++-14 <- need to adjust -fcoroutines flag in Mako blocks
+          - g++-12
+          - clang++-15
     steps:
     - run: |
         sudo apt update
-        sudo apt install -y g++-10 clang-14
+        sudo apt install -y g++-12 clang-15
     - uses: actions/checkout@v1
       with:
         submodules: recursive
@@ -102,13 +102,13 @@ jobs:
     strategy:
       matrix:
         cxx:
-          - g++-10
-          # - clang++-14 <- need to adjust -fcoroutines flag in Makefiles
+          - g++-12
+          - clang++-15
 
     steps:
     - run: |
         sudo apt update
-        sudo apt install -y g++-10 clang-14
+        sudo apt install -y g++-12 clang-15
     - uses: actions/checkout@v1
       with:
         submodules: recursive
