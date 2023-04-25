@@ -287,7 +287,7 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
     const bool always_store_rank_in_stratum,
     const int stratum_differentia_bit_width,
     const py::object initial_stratum_annotation,
-    const py::object stratum_ordered_store_factory
+    const py::object stratum_ordered_store
   ) -> std::variant<
       bit_deporank_t, byte_deporank_t, word_deporank_t, doubleword_deporank_t, quadword_deporank_t,
       bit_nodeporank_t, byte_nodeporank_t, word_nodeporank_t, doubleword_nodeporank_t, quadword_nodeporank_t,
@@ -302,7 +302,7 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
       if (
         stratum_differentia_bit_width == 1
         && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && stratum_ordered_store_factory.is_none()
+        && stratum_ordered_store.is_none()
       ) {
         return bit_nodeporank_t(
           stratum_retention_policy,
@@ -312,7 +312,7 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
       else if (
         stratum_differentia_bit_width == 8
         && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && stratum_ordered_store_factory.is_none()
+        && stratum_ordered_store.is_none()
       ) {
         return byte_nodeporank_t(
           stratum_retention_policy,
@@ -322,7 +322,7 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
       else if (
         stratum_differentia_bit_width == 16
         && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && stratum_ordered_store_factory.is_none()
+        && stratum_ordered_store.is_none()
       ) {
         return word_nodeporank_t(
           stratum_retention_policy,
@@ -332,7 +332,7 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
       else if (
         stratum_differentia_bit_width == 32
         && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && stratum_ordered_store_factory.is_none()
+        && stratum_ordered_store.is_none()
       ) {
         return doubleword_nodeporank_t(
           stratum_retention_policy,
@@ -342,7 +342,7 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
       else if (
         stratum_differentia_bit_width == 64
         && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && stratum_ordered_store_factory.is_none()
+        && stratum_ordered_store.is_none()
       ) {
         return quadword_nodeporank_t(
           stratum_retention_policy,
@@ -352,7 +352,7 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
       else if (
         stratum_differentia_bit_width == 1
         && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && stratum_ordered_store_factory.is_none()
+        && stratum_ordered_store.is_none()
       ) {
         return bit_deporank_t(
           stratum_retention_policy,
@@ -362,7 +362,7 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
       else if (
         stratum_differentia_bit_width == 8
         && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && stratum_ordered_store_factory.is_none()
+        && stratum_ordered_store.is_none()
       ) {
         return byte_deporank_t(
           stratum_retention_policy,
@@ -372,7 +372,7 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
       else if (
         stratum_differentia_bit_width == 16
         && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && stratum_ordered_store_factory.is_none()
+        && stratum_ordered_store.is_none()
       ) {
         return word_deporank_t(
           stratum_retention_policy,
@@ -382,7 +382,7 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
       else if (
         stratum_differentia_bit_width == 32
         && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && stratum_ordered_store_factory.is_none()
+        && stratum_ordered_store.is_none()
       ) {
         return doubleword_deporank_t(
           stratum_retention_policy,
@@ -392,7 +392,7 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
       else if (
         stratum_differentia_bit_width == 64
         && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && stratum_ordered_store_factory.is_none()
+        && stratum_ordered_store.is_none()
       ) {
         return quadword_deporank_t(
           stratum_retention_policy,
@@ -402,111 +402,111 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
       else if (
         stratum_differentia_bit_width == 1
         && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store_factory.is_none()
+        && !stratum_ordered_store.is_none()
       ) {
         return bit_nodeporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store_factory()
+          stratum_ordered_store()
         );
       }
       else if (
         stratum_differentia_bit_width == 8
         && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store_factory.is_none()
+        && !stratum_ordered_store.is_none()
       ) {
         return byte_nodeporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store_factory()
+          stratum_ordered_store()
         );
       }
       else if (
         stratum_differentia_bit_width == 16
         && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store_factory.is_none()
+        && !stratum_ordered_store.is_none()
       ) {
         return word_nodeporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store_factory()
+          stratum_ordered_store()
         );
       }
       else if (
         stratum_differentia_bit_width == 32
         && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store_factory.is_none()
+        && !stratum_ordered_store.is_none()
       ) {
         return doubleword_nodeporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store_factory()
+          stratum_ordered_store()
         );
       }
       else if (
         stratum_differentia_bit_width == 64
         && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store_factory.is_none()
+        && !stratum_ordered_store.is_none()
       ) {
         return quadword_nodeporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store_factory()
+          stratum_ordered_store()
         );
       }
       else if (
         stratum_differentia_bit_width == 1
         && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store_factory.is_none()
+        && !stratum_ordered_store.is_none()
       ) {
         return bit_deporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store_factory()
+          stratum_ordered_store()
         );
       }
       else if (
         stratum_differentia_bit_width == 8
         && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store_factory.is_none()
+        && !stratum_ordered_store.is_none()
       ) {
         return byte_deporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store_factory()
+          stratum_ordered_store()
         );
       }
       else if (
         stratum_differentia_bit_width == 16
         && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store_factory.is_none()
+        && !stratum_ordered_store.is_none()
       ) {
         return word_deporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store_factory()
+          stratum_ordered_store()
         );
       }
       else if (
         stratum_differentia_bit_width == 32
         && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store_factory.is_none()
+        && !stratum_ordered_store.is_none()
       ) {
         return doubleword_deporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store_factory()
+          stratum_ordered_store()
         );
       }
       else if (
         stratum_differentia_bit_width == 64
         && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store_factory.is_none()
+        && !stratum_ordered_store.is_none()
       ) {
         return quadword_deporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store_factory()
+          stratum_ordered_store()
         );
       }
       else throw std::invalid_argument{"unsupported differentia bit width"};
@@ -516,7 +516,7 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
     py::arg("always_store_rank_in_stratum") = false,
     py::arg("stratum_differentia_bit_width") = 64,
     py::arg("initial_stratum_annotation") =  py::none(),
-    py::arg("stratum_ordered_store_factory") = py::none()
+    py::arg("stratum_ordered_store") = py::none()
   );
 
   INSTANCE(bit_deporank_t);
