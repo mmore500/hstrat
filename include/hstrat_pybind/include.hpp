@@ -3,6 +3,7 @@
 #define HSTRAT_PYBIND_INCLUDE_HPP_INCLUDE
 
 #include "all_tu_declarations.hpp"
+#include "callable.hpp"
 #include "copy.hpp"
 #include "deepcopy.hpp"
 #include "PyObjectConcept.hpp"

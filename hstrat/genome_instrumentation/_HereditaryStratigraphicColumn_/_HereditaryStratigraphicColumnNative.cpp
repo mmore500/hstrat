@@ -8,6 +8,7 @@
 
 #include <hstrat/genome_instrumentation/HereditaryStratigraphicColumn.hpp>
 #include <hstrat_pybind/all_tu_declarations.hpp>
+#include <hstrat_pybind/callable.hpp>
 #include <hstrat_pybind/pyobject.hpp>
 #include <hstrat_pybind/PyObjectOrderedStoreShim.hpp>
 #include <hstrat_pybind/PyObjectPolicyShim.hpp>
@@ -402,111 +403,111 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
       else if (
         stratum_differentia_bit_width == 1
         && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store.is_none()
+        && hstrat_pybind::callable(stratum_ordered_store)
       ) {
         return bit_nodeporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store()
+          {stratum_ordered_store(), 0}
         );
       }
       else if (
         stratum_differentia_bit_width == 8
         && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store.is_none()
+        && hstrat_pybind::callable(stratum_ordered_store)
       ) {
         return byte_nodeporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store()
+          {stratum_ordered_store(), 0}
         );
       }
       else if (
         stratum_differentia_bit_width == 16
         && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store.is_none()
+        && hstrat_pybind::callable(stratum_ordered_store)
       ) {
         return word_nodeporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store()
+          {stratum_ordered_store(), 0}
         );
       }
       else if (
         stratum_differentia_bit_width == 32
         && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store.is_none()
+        && hstrat_pybind::callable(stratum_ordered_store)
       ) {
         return doubleword_nodeporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store()
+          {stratum_ordered_store(), 0}
         );
       }
       else if (
         stratum_differentia_bit_width == 64
         && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store.is_none()
+        && hstrat_pybind::callable(stratum_ordered_store)
       ) {
         return quadword_nodeporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store()
+          {stratum_ordered_store(), 0}
         );
       }
       else if (
         stratum_differentia_bit_width == 1
         && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store.is_none()
+        && hstrat_pybind::callable(stratum_ordered_store)
       ) {
         return bit_deporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store()
+          {stratum_ordered_store(), 0}
         );
       }
       else if (
         stratum_differentia_bit_width == 8
         && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store.is_none()
+        && hstrat_pybind::callable(stratum_ordered_store)
       ) {
         return byte_deporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store()
+          {stratum_ordered_store(), 0}
         );
       }
       else if (
         stratum_differentia_bit_width == 16
         && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store.is_none()
+        && hstrat_pybind::callable(stratum_ordered_store)
       ) {
         return word_deporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store()
+          {stratum_ordered_store(), 0}
         );
       }
       else if (
         stratum_differentia_bit_width == 32
         && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store.is_none()
+        && hstrat_pybind::callable(stratum_ordered_store)
       ) {
         return doubleword_deporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store()
+          {stratum_ordered_store(), 0}
         );
       }
       else if (
         stratum_differentia_bit_width == 64
         && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
-        && !stratum_ordered_store.is_none()
+        && hstrat_pybind::callable(stratum_ordered_store)
       ) {
         return quadword_deporank_shimstore_t(
           stratum_retention_policy,
           initial_stratum_annotation,
-          stratum_ordered_store()
+          {stratum_ordered_store(), 0}
         );
       }
       else throw std::invalid_argument{"unsupported differentia bit width"};
