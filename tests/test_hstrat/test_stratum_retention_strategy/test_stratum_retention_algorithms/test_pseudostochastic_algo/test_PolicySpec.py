@@ -3,7 +3,6 @@ import tempfile
 
 import pytest
 
-from hstrat import hstrat
 from hstrat.hstrat import pseudostochastic_algo
 
 
@@ -37,12 +36,16 @@ def test_eq(hash_salt):
     ],
 )
 def test_GetEvalCtor(hash_salt):
+    # hstrat. is needed for eval()
+    from hstrat import hstrat  # noqa
+
     spec = pseudostochastic_algo.PolicySpec(hash_salt)
     eval_ctor = spec.GetEvalCtor()
     assert eval_ctor.startswith("hstrat.pseudostochastic_algo.PolicySpec(")
     assert eval_ctor.endswith(")")
     reconstituted = eval(eval_ctor)
     assert str(spec) == str(reconstituted)
+    assert spec == reconstituted
 
 
 @pytest.mark.parametrize(

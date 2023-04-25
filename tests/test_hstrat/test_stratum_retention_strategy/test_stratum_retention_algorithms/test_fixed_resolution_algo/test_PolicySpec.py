@@ -3,7 +3,6 @@ import tempfile
 
 import pytest
 
-from hstrat import hstrat
 from hstrat.hstrat import fixed_resolution_algo
 
 
@@ -39,12 +38,16 @@ def test_eq(impl, fixed_resolution):
     ],
 )
 def test_GetEvalCtor(impl, fixed_resolution):
+    # hstrat. is needed for eval()
+    from hstrat import hstrat  # noqa
+
     spec = impl(fixed_resolution)
     eval_ctor = spec.GetEvalCtor()
     assert eval_ctor.startswith("hstrat.fixed_resolution_algo.PolicySpec(")
     assert eval_ctor.endswith(")")
     reconstituted = eval(eval_ctor)
     assert str(spec) == str(reconstituted)
+    assert spec == reconstituted
 
 
 @pytest.mark.parametrize(

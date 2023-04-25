@@ -3,7 +3,7 @@ import unittest
 from hstrat._auxiliary_lib import is_nonincreasing
 
 
-class TestIsNondecreasing(unittest.TestCase):
+class TestIsNonincreasing(unittest.TestCase):
 
     # tests can run independently
     _multiprocess_can_split_ = True

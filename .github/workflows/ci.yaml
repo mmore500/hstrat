@@ -1,16 +1,47 @@
-name: hstrat
+name: ci
 
 on:
-  - push
-  - pull_request
-
+  push:
+    branches:
+    - master
+    tags:
+      - '*'
+  pull_request:
+    branches:
+    - master
+  schedule:
+    - cron: '0 0 * * 1'  # weekly
 jobs:
   test-py:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8, 3.9]
+        python-version: [3.7, 3.8, 3.9, "3.10", 3.11]
+        subdivision:
+          - "test_auxiliary_lib"
+          - "test_frozen_instrumentation"
+          - "test_genome_instrumentation"
+          - "test_juxtaposition"
+          - "test_phylogenetic_inference/test_estimators"
+          - "test_phylogenetic_inference/test_pairwise"
+          - "test_phylogenetic_inference/test_population"
+          - "test_phylogenetic_inference/test_priors"
+          - "test_phylogenetic_inference/test_tree"
+          - "test_serialization"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_depth_proportional_resolution_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_depth_proportional_resolution_tapered_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_fixed_resolution_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_geom_seq_nth_root_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_geom_seq_nth_root_tapered_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_nominal_resolution_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_perfect_resolution_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_pseudostochastic_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_recency_proportional_resolution_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_stochastic_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_policy_evaluators"
+          - "test_stratum_retention_viz"
+          - "test_test_drive"
 
     steps:
     - uses: actions/checkout@v1
@@ -20,10 +51,15 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
+        sudo sed -i 's/azure\.//' /etc/apt/sources.list
+        sudo apt-get update -o Acquire::Retries=3
+        sudo apt-get install -y ffmpeg -o Acquire::Retries=3
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
     - name: Test with tox
-      run: tox
+      run: |
+        export HSTRAT_TESTS_SUBDIVISION=${{ matrix.subdivision }}
+        tox
 
   test-py-native:
     runs-on: ubuntu-22.04
@@ -49,7 +85,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
-        python -m pip install -r requirements_dev.txt
+        python -m pip install -r requirements-dev/requirements-testing.txt
     - name: Run tests
       run: tox
       env:
@@ -79,14 +115,56 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install -r requirements_dev.txt
+        python -m pip install -r requirements-dev/requirements-testing.txt
     - name: Run tests
       run: make -C test_include
       env:
         CXX:   ${{ matrix.cxx }}
 
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Install Python dependencies
+      uses: py-actions/py-dependency-install@v4
+      with:
+        path: "requirements-dev/requirements-testing.txt"
+    - name: Run examples
+      run: ./examples/run_all.sh
+
   coverage:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        subdivision:
+          - "test_auxiliary_lib"
+          - "test_frozen_instrumentation"
+          - "test_genome_instrumentation"
+          - "test_juxtaposition"
+          - "test_phylogenetic_inference/test_estimators"
+          - "test_phylogenetic_inference/test_pairwise"
+          - "test_phylogenetic_inference/test_population"
+          - "test_phylogenetic_inference/test_priors"
+          - "test_phylogenetic_inference/test_tree"
+          - "test_serialization"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_depth_proportional_resolution_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_depth_proportional_resolution_tapered_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_fixed_resolution_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_geom_seq_nth_root_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_geom_seq_nth_root_tapered_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_nominal_resolution_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_perfect_resolution_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_pseudostochastic_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_recency_proportional_resolution_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_stochastic_algo"
+          - "test_stratum_retention_strategy/test_stratum_retention_policy_evaluators"
+          - "test_stratum_retention_viz"
+          - "test_test_drive"
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python 3.9
@@ -95,12 +173,15 @@ jobs:
         python-version: 3.9
     - name: Install dependencies
       run: |
+        sudo sed -i 's/azure\.//' /etc/apt/sources.list
+        sudo apt-get update -o Acquire::Retries=3
+        sudo apt-get install -y ffmpeg -o Acquire::Retries=3
         python -m pip install --upgrade pip
-        python -m pip install -r requirements_dev.txt
+        python -m pip install -r requirements-dev/py39/requirements-testing.txt
     - name: Log coverage configuration
       run: coverage debug sys
     - name: Run tests with coverage report
-      run: coverage run -m pytest test_hstrat
+      run: coverage run -m pytest tests/test_hstrat/${{ matrix.subdivision }}
     - uses: codecov/codecov-action@v3
       with:
         flags: tests # optional
@@ -120,14 +201,37 @@ jobs:
     - name: Test isort tidyness
       uses: jamescurtin/isort-action@master
       with:
-          requirementsFiles: "requirements_dev.txt"
+          requirementsFiles: "requirements-dev/py38/requirements-testing.txt"
     - name: Test Black tidyness
-      uses: psf/black@stable
+      uses: psf/black@27d20144a7517594e24a1649451177b2a11284be
+      with:
+          version: "22.10.0"
     - uses: editorconfig-checker/action-editorconfig-checker@main
     - name: Test editorconfig tidyness
       run: editorconfig-checker
     - name: Test tidy/ tidyness
       run: ./tidy/test_tidy.sh
+
+  paper:
+    runs-on: ubuntu-latest
+    name: Paper Draft
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build draft PDF
+        uses: openjournals/openjournals-draft-action@master
+        with:
+          journal: joss
+          # This should be the path to the paper within your repo.
+          paper-path: joss/paper.md
+      - name: Upload
+        uses: actions/upload-artifact@v1
+        with:
+          name: paper
+          # This is the output path where Pandoc will write the compiled
+          # PDF. Note, this should be the same directory as the input
+          # paper.md
+          path: joss/paper.pdf
 
   deploy:
     needs: [coverage, test-py, test-py-native, test-cpp, tidy]
@@ -143,7 +247,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install setuptools wheel twine
+        python -m pip install -r requirements-dev/py38/requirements-release.txt
     - run: python setup.py sdist bdist_wheel
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@release/v1

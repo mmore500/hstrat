@@ -69,14 +69,14 @@ PYBIND11_MODULE(_HereditaryStratumOrderedStoreListNative, m) {
     stratum_deporank_t
   >;
   INSTANCE(store_deporank_t, )
-    .def("IterRankDifferentia",
+    .def("IterRankDifferentiaZip",
       [](
         const store_deporank_t& self,
         py::object get_rank_at_column_index,
         const HSTRAT_RANK_T start_column_index
       ){
         if (!get_rank_at_column_index.is_none()) {
-          return self.IterRankDifferentia(
+          return self.IterRankDifferentiaZip(
             start_column_index,
             [get_rank_at_column_index](const HSTRAT_RANK_T index){
               return get_rank_at_column_index(
@@ -85,7 +85,7 @@ PYBIND11_MODULE(_HereditaryStratumOrderedStoreListNative, m) {
             }
           );
         } else {
-          return self.IterRankDifferentia(start_column_index);
+          return self.IterRankDifferentiaZip(start_column_index);
         }
       },
       py::arg("get_rank_at_column_index") = py::none(),
@@ -140,13 +140,13 @@ PYBIND11_MODULE(_HereditaryStratumOrderedStoreListNative, m) {
     stratum_nodeporank_t
   >;
     INSTANCE(store_nodeporank_t, _NoDepoRank)
-    .def("IterRankDifferentia",
+    .def("IterRankDifferentiaZip",
       [](
         const store_nodeporank_t& self,
         py::object get_rank_at_column_index,
         const HSTRAT_RANK_T start_column_index
       ){
-        return self.IterRankDifferentia(
+        return self.IterRankDifferentiaZip(
           start_column_index,
           [get_rank_at_column_index](const HSTRAT_RANK_T index){
             return get_rank_at_column_index(

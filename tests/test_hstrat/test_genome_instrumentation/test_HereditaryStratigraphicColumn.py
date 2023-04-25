@@ -1,4 +1,4 @@
-from copy import deepcopy
+from copy import copy, deepcopy
 import itertools as it
 import pickle
 import random
@@ -32,7 +32,7 @@ from hstrat import genome_instrumentation, hstrat
 )
 def test_Clone1(impl, retention_policy, ordered_store):
     original1 = impl(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     original1_copy1 = deepcopy(original1)
@@ -70,7 +70,7 @@ def test_Clone1(impl, retention_policy, ordered_store):
 )
 def test_Clone2(impl, retention_policy, ordered_store):
     original2 = impl(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     original2.DepositStratum()
@@ -112,12 +112,13 @@ def test_Clone2(impl, retention_policy, ordered_store):
 def test_Clone3(impl, retention_policy, ordered_store):
     column = impl(
         initial_stratum_annotation=0,
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
     )
     population = [column.Clone() for __ in range(3)]
 
-    for generation in range(100):
+    for _generation in range(100):
+        _ = _generation
 
         for f, s in it.combinations(population, 2):
             assert not f.HasDiscardedStrata()
@@ -163,12 +164,13 @@ def test_Clone4(impl, retention_policy, ordered_store):
     # regression test for bug with tree store cloning
     column = impl(
         initial_stratum_annotation=0,
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
     )
     population = [column.Clone() for __ in range(3)]
 
-    for generation in range(100):
+    for _generation in range(100):
+        _ = _generation
 
         for f, s in it.combinations(population, 2):
             assert not f.HasDiscardedStrata()
@@ -201,7 +203,7 @@ def test_Clone4(impl, retention_policy, ordered_store):
 )
 def test_pickle(retention_policy, ordered_store):
     original = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     with tempfile.TemporaryDirectory() as tmp_path:
@@ -232,7 +234,7 @@ def test_pickle(retention_policy, ordered_store):
 )
 def test_pickle_with_deposits(retention_policy, ordered_store):
     original = hstrat.HereditaryStratigraphicColumn(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     for __ in range(100):
@@ -266,7 +268,7 @@ def test_pickle_with_deposits(retention_policy, ordered_store):
 def test_pickle_with_population(retention_policy, ordered_store):
     population = [
         hstrat.HereditaryStratigraphicColumn(
-            stratum_ordered_store_factory=ordered_store,
+            stratum_ordered_store=ordered_store,
             stratum_retention_policy=retention_policy,
         )
         for idx in range(20)
@@ -315,13 +317,13 @@ def test_eq(
 ):
 
     original1 = impl(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     copy1 = deepcopy(original1)
     copy2 = original1.Clone()
     original2 = impl(
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
 
@@ -366,14 +368,16 @@ def test_eq(
 def test_annotation(impl, retention_policy, ordered_store):
     column = impl(
         initial_stratum_annotation=0,
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     population = [column.Clone() for __ in range(10)]
 
     for generation in range(100):
         for f, s in it.combinations(population, 2):
-            lb, ub = hstrat.calc_rank_of_mrca_bounds_between(f, s)
+            lb, ub = hstrat.calc_rank_of_mrca_bounds_between(
+                f, s, prior="arbitrary"
+            )
             assert (
                 lb
                 <= hstrat.get_last_common_stratum_between(f, s).GetAnnotation()
@@ -419,12 +423,12 @@ def test_annotation(impl, retention_policy, ordered_store):
 def test_always_store_rank_in_stratum(impl, retention_policy, ordered_store):
     first = impl(
         always_store_rank_in_stratum=True,
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
     second = impl(
         always_store_rank_in_stratum=False,
-        stratum_ordered_store_factory=ordered_store,
+        stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
 
@@ -489,17 +493,43 @@ def test_maximal_retention_policy(impl):
         assert second.GetNumStrataRetained() == gen + 1
         assert third.GetNumStrataRetained() == 1
 
-        assert hstrat.calc_rank_of_mrca_uncertainty_between(first, second) == 0
-        assert hstrat.calc_rank_of_mrca_uncertainty_between(first, third) == 0
+        assert (
+            hstrat.calc_rank_of_mrca_uncertainty_between(
+                first, second, prior="arbitrary"
+            )
+            == 0
+        )
+        assert (
+            hstrat.calc_rank_of_mrca_uncertainty_between(
+                first, third, prior="arbitrary"
+            )
+            == 0
+        )
 
         assert (
-            hstrat.calc_ranks_since_mrca_uncertainty_with(first, second) == 0
+            hstrat.calc_ranks_since_mrca_uncertainty_with(
+                first, second, prior="arbitrary"
+            )
+            == 0
         )
         assert (
-            hstrat.calc_ranks_since_mrca_uncertainty_with(second, first) == 0
+            hstrat.calc_ranks_since_mrca_uncertainty_with(
+                second, first, prior="arbitrary"
+            )
+            == 0
         )
-        assert hstrat.calc_ranks_since_mrca_uncertainty_with(first, third) == 0
-        assert hstrat.calc_ranks_since_mrca_uncertainty_with(third, first) == 0
+        assert (
+            hstrat.calc_ranks_since_mrca_uncertainty_with(
+                first, third, prior="arbitrary"
+            )
+            == 0
+        )
+        assert (
+            hstrat.calc_ranks_since_mrca_uncertainty_with(
+                third, first, prior="arbitrary"
+            )
+            == 0
+        )
 
         first.DepositStratum()
         second.DepositStratum()
@@ -523,18 +553,37 @@ def test_minimal_retention_policy(impl):
         assert third.GetNumStrataRetained() == 1
 
         assert hstrat.calc_rank_of_mrca_uncertainty_between(
-            first, second
+            first, second, prior="arbitrary"
         ) == max(0, gen - 1)
-        assert hstrat.calc_rank_of_mrca_uncertainty_between(first, third) == 0
+        assert (
+            hstrat.calc_rank_of_mrca_uncertainty_between(
+                first, third, prior="arbitrary"
+            )
+            == 0
+        )
 
         assert hstrat.calc_ranks_since_mrca_uncertainty_with(
-            first, second
+            first,
+            second,
+            prior="arbitrary",
         ) == max(0, gen - 1)
         assert hstrat.calc_ranks_since_mrca_uncertainty_with(
-            second, first
+            second,
+            first,
+            prior="arbitrary",
         ) == max(0, gen - 1)
-        assert hstrat.calc_ranks_since_mrca_uncertainty_with(first, third) == 0
-        assert hstrat.calc_ranks_since_mrca_uncertainty_with(third, first) == 0
+        assert (
+            hstrat.calc_ranks_since_mrca_uncertainty_with(
+                first, third, prior="arbitrary"
+            )
+            == 0
+        )
+        assert (
+            hstrat.calc_ranks_since_mrca_uncertainty_with(
+                third, first, prior="arbitrary"
+            )
+            == 0
+        )
 
         first.DepositStratum()
         second.DepositStratum()
@@ -645,3 +694,283 @@ def test_CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(impl):
         )
         == 1
     )
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_IterRetainedStrata(retention_policy, ordered_store):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+    for __ in range(20):
+        column.DepositStratum()
+        assert [*column.IterRetainedStrata()] == [
+            column.GetStratumAtColumnIndex(index)
+            for index in range(column.GetNumStrataRetained())
+        ]
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_IterRetainedDifferentia(retention_policy, ordered_store):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+    for __ in range(20):
+        column.DepositStratum()
+        assert [*column.IterRetainedDifferentia()] == [
+            column.GetStratumAtColumnIndex(index).GetDifferentia()
+            for index in range(column.GetNumStrataRetained())
+        ]
+
+
+def test_GetColumnIndexOfRank():
+    assert (
+        hstrat.HereditaryStratigraphicColumn().GetColumnIndexOfRank(1) is None
+    )
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_GetStratumAtRank(retention_policy, ordered_store):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+    for __ in range(20):
+        for rank, stratum in zip(
+            column.IterRetainedRanks(),
+            column.IterRetainedStrata(),
+        ):
+            assert column.GetStratumAtRank(rank) == stratum
+        column.DepositStratum()
+
+    assert hstrat.HereditaryStratigraphicColumn().GetStratumAtRank(1) is None
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_DepositStrata_zero(retention_policy, ordered_store):
+    column = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+    for __ in range(20):
+        clone = column.Clone()
+        column.DepositStrata(0)
+        assert clone == column
+        column.DepositStratum()
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_DepositStrata_one(retention_policy, ordered_store):
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+    c2 = c1.Clone()
+
+    for __ in range(20):
+        c1.DepositStrata(1)
+        c2.DepositStratum()
+        assert all(
+            a == b
+            for a, b in it.zip_longest(
+                c1.IterRetainedRanks(),
+                c2.IterRetainedRanks(),
+            )
+        )
+        assert c1.GetNumStrataRetained() == c2.GetNumStrataRetained()
+        assert c1.GetNumStrataDeposited() == c2.GetNumStrataDeposited()
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_DepositStrata_several(retention_policy, ordered_store):
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+    c2 = c1.Clone()
+
+    for __ in range(20):
+        step = random.randrange(10)
+        c1.DepositStrata(step)
+        for __ in range(step):
+            c2.DepositStratum()
+        assert all(
+            a == b
+            for a, b in it.zip_longest(
+                c1.IterRetainedRanks(),
+                c2.IterRetainedRanks(),
+            )
+        )
+        assert c1.GetNumStrataRetained() == c2.GetNumStrataRetained()
+        assert c1.GetNumStrataDeposited() == c2.GetNumStrataDeposited()
+
+
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+        hstrat.recency_proportional_resolution_algo.Policy(
+            recency_proportional_resolution=2
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+    ],
+)
+def test_IterRankDifferentiaZip(retention_policy, ordered_store):
+    c1 = hstrat.HereditaryStratigraphicColumn(
+        stratum_ordered_store=ordered_store,
+        stratum_retention_policy=retention_policy,
+    )
+
+    for __ in range(100):
+        c1.DepositStratum()
+        assert [*c1.IterRankDifferentiaZip()] == [
+            *zip(c1.IterRetainedRanks(), c1.IterRetainedDifferentia())
+        ]
+        iter_ = c1.IterRankDifferentiaZip(copyable=True)
+        iter_copy = copy(iter_)
+        next(iter_copy)
+        assert [*iter_copy] == [
+            *zip(c1.IterRetainedRanks(), c1.IterRetainedDifferentia())
+        ][1:]
+        assert [*iter_] == [
+            *zip(c1.IterRetainedRanks(), c1.IterRetainedDifferentia())
+        ]
+
+
+def test_CloneNthDescendant_zero():
+    column = hstrat.HereditaryStratigraphicColumn()
+    assert column.GetNumStrataDeposited() == 1
+    descendant = column.CloneNthDescendant(0)
+    assert column is not descendant
+    assert descendant.GetNumStrataDeposited() == 1
+    assert hstrat.does_have_any_common_ancestor(descendant, column)
+    assert column.GetNumStrataDeposited() == 1
+
+
+def test_CloneNthDescendant_one():
+    column = hstrat.HereditaryStratigraphicColumn()
+    assert column.GetNumStrataDeposited() == 1
+    descendant = column.CloneNthDescendant(num_stratum_depositions=1)
+    assert column is not descendant
+    assert descendant.GetNumStrataDeposited() == 2
+    assert hstrat.does_have_any_common_ancestor(descendant, column)
+    assert column.GetNumStrataDeposited() == 1
+
+
+def test_CloneNthDescendant_two():
+    column = hstrat.HereditaryStratigraphicColumn()
+    assert column.GetNumStrataDeposited() == 1
+    descendant = column.CloneNthDescendant(num_stratum_depositions=2)
+    assert column is not descendant
+    assert descendant.GetNumStrataDeposited() == 3
+    assert hstrat.does_have_any_common_ancestor(descendant, column)
+    assert column.GetNumStrataDeposited() == 1

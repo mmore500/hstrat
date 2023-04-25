@@ -3,7 +3,6 @@ import tempfile
 
 import pytest
 
-from hstrat import hstrat
 from hstrat.hstrat import recency_proportional_resolution_algo
 
 
@@ -46,6 +45,9 @@ def test_eq(impl, recency_proportional_resolution):
     ],
 )
 def test_GetEvalCtor(impl, recency_proportional_resolution):
+    # hstrat. is needed for eval()
+    from hstrat import hstrat  # noqa
+
     spec = impl(recency_proportional_resolution)
     eval_ctor = spec.GetEvalCtor()
     assert eval_ctor.startswith(

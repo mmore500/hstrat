@@ -12,5 +12,5 @@ def is_base64(data: str) -> bool:
         else:
             raise ValueError("Argument must be string or bytes")
         return base64.b64encode(base64.b64decode(data_bytes)) == data_bytes
-    except Exception:
+    except UnicodeEncodeError:
         return False

@@ -10,6 +10,9 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import
 )
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "impl",
     geom_seq_nth_root_algo._invar._CalcMrcaUncertaintyAbsUpperBoundPessimalRank_.impls,
@@ -91,6 +94,9 @@ def test_policy_consistency(impl, degree, interspersal, time_sequence):
                     )
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "impl",
     geom_seq_nth_root_algo._invar._CalcMrcaUncertaintyAbsUpperBoundPessimalRank_.impls,

@@ -67,5 +67,6 @@ class GenDropRanks:
         if second_newest_stratum_rank > 0 and decide_if_discard(
             second_newest_stratum_rank,
             num_stratum_depositions_completed,
+            policy.GetSpec().GetRetentionProbability(),
         ):
             yield second_newest_stratum_rank

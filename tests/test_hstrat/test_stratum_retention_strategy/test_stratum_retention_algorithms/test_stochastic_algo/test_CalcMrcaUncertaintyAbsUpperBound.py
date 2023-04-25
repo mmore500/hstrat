@@ -21,7 +21,7 @@ def test_policy_consistency(replicate):
     policy = stochastic_algo.Policy()
     column = HereditaryStratigraphicColumn(
         stratum_retention_policy=policy,
-        stratum_ordered_store_factory=HereditaryStratumOrderedStoreDict,
+        stratum_ordered_store=HereditaryStratumOrderedStoreDict,
     )
     spec = policy.GetSpec()
     instance = stochastic_algo.CalcMrcaUncertaintyAbsUpperBound(spec)

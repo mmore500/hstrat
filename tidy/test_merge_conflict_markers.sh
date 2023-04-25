@@ -13,6 +13,6 @@ then
   exit 0 # success
 else
   echo "git merge conflict markers found"
-  echo $found_merge_markers
+  echo "${found_merge_markers}"
   exit 1 # failure
 fi

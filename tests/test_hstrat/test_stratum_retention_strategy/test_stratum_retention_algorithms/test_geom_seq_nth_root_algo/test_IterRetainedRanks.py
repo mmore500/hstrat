@@ -10,6 +10,9 @@ from hstrat._testing import iter_ftor_shims, iter_no_calcrank_ftor_shims
 from hstrat.hstrat import geom_seq_nth_root_algo
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "impl",
     geom_seq_nth_root_algo._scry._IterRetainedRanks_.impls,
@@ -86,6 +89,9 @@ def test_only_dwindling_over_time(impl, degree, interspersal, time_sequence):
             assert cur_set.issuperset(next_set - {num_strata_deposited})
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "impl",
     geom_seq_nth_root_algo._scry._IterRetainedRanks_.impls,
@@ -158,6 +164,9 @@ def test_ranks_sorted_and_unique(impl, degree, interspersal, time_sequence):
             )
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "impl",
     geom_seq_nth_root_algo._scry._IterRetainedRanks_.impls,
@@ -235,6 +244,9 @@ def test_zero_and_last_ranks_retained(
                 assert next(res, None) is None
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "impl",
     geom_seq_nth_root_algo._scry._IterRetainedRanks_.impls,
@@ -303,6 +315,9 @@ def test_ranks_valid(impl, degree, interspersal, time_sequence):
             )
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "impl",
     geom_seq_nth_root_algo._scry._IterRetainedRanks_.impls,

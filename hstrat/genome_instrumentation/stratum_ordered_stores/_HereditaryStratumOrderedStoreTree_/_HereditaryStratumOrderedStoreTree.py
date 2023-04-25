@@ -6,9 +6,10 @@ import anytree
 
 from ...._auxiliary_lib import AnyTreeAscendingIter
 from ..._HereditaryStratum import HereditaryStratum
+from .._detail import HereditaryStratumOrderedStoreBase
 
 
-class HereditaryStratumOrderedStoreTree:
+class HereditaryStratumOrderedStoreTree(HereditaryStratumOrderedStoreBase):
     """Interchangeable backing container for HereditaryStratigraphicColumn.
 
     Stores deposited strata as a linked tree. Retained strata pertinent to the
@@ -22,6 +23,11 @@ class HereditaryStratumOrderedStoreTree:
     Potentially useful in scenarios where stratum deletions are uncommon (i.e.,
     the perfect resolution stratum retention policy) or column cloning occurs heavily without much stratum deposition.
     """
+
+    __slots__ = (
+        "_leaf",
+        "_num_strata_retained",
+    )
 
     # strata stored in a tree with most ancient as root and most recent as leaf
     _leaf: anytree.AnyNode  # will contain HereditaryStratum
@@ -75,14 +81,14 @@ class HereditaryStratumOrderedStoreTree:
 
     def DepositStratum(
         self: "HereditaryStratumOrderedStoreTree",
-        rank: int,
+        rank: typing.Optional[int],
         stratum: "HereditaryStratum",
     ) -> None:
         """Insert a new stratum into the store.
 
         Parameters
         ----------
-        rank : int
+        rank : typing.Optional[int]
             The position of the stratum being deposited within the sequence of
             strata deposited into the column. Precisely, the number of strata
             that have been deposited before stratum.
@@ -289,11 +295,12 @@ class HereditaryStratumOrderedStoreTree:
     def IterRetainedRanks(
         self: "HereditaryStratumOrderedStoreTree",
     ) -> typing.Iterator[int]:
-        """Iterate over deposition ranks of strata present in the store.
+        """Iterate over deposition ranks of strata present in the store from
+        most ancient to most recent.
 
-        Order should not be considered guaranteed. The store may be altered
-        during iteration without iterator invalidation, although subsequent
-        updates will not be reflected in the iterator.
+        The store may be altered during iteration without iterator
+        invalidation, although subsequent updates will not be reflected in the
+        iterator.
         """
         # must make copy to prevent invalidation when strata are deleted
         # note, however, that copy is made lazily
@@ -302,7 +309,7 @@ class HereditaryStratumOrderedStoreTree:
             node.stratum.GetDepositionRank()
             for node in self._GetAscendingIter()
         ]
-        for rank in ranks:
+        for rank in reversed(ranks):
             assert rank is not None
             yield rank
 
@@ -310,9 +317,11 @@ class HereditaryStratumOrderedStoreTree:
         self: "HereditaryStratumOrderedStoreTree",
     ) -> typing.Iterator[HereditaryStratum]:
         """Iterate over stored strata from most ancient to most recent."""
-        yield from (node.stratum for node in self._GetAscendingIter())
+        yield from reversed(
+            [node.stratum for node in self._GetAscendingIter()]
+        )
 
-    def _do_reverse_IterRankDifferentia(
+    def _do_reverse_IterRankDifferentiaZip(
         self: "HereditaryStratumOrderedStoreTree",
         # deposition ranks might not be stored in strata
         get_rank_at_column_index: typing.Optional[typing.Callable] = None,
@@ -321,7 +330,7 @@ class HereditaryStratumOrderedStoreTree:
         """Iterate over differentia and corresponding depsotion rank.
 
         Ordered from most recent to most ancient. Implementation detail for
-        IterRankDifferentia.
+        IterRankDifferentiaZip.
         """
         for reverse_column_idx, node in enumerate(self._GetAscendingIter()):
             column_idx = self.GetNumStrataRetained() - 1 - reverse_column_idx
@@ -337,7 +346,7 @@ class HereditaryStratumOrderedStoreTree:
             else:
                 break
 
-    def IterRankDifferentia(
+    def IterRankDifferentiaZip(
         self: "HereditaryStratumOrderedStoreTree",
         # deposition ranks might not be stored in strata
         get_rank_at_column_index: typing.Optional[typing.Callable] = None,
@@ -357,7 +366,7 @@ class HereditaryStratumOrderedStoreTree:
             Number of strata to skip over before yielding first result from the
             iterator. Default 0, meaning no strata are skipped over.
         """
-        reverse_iter = self._do_reverse_IterRankDifferentia(
+        reverse_iter = self._do_reverse_IterRankDifferentiaZip(
             get_rank_at_column_index=get_rank_at_column_index,
             start_column_index=start_column_index,
         )

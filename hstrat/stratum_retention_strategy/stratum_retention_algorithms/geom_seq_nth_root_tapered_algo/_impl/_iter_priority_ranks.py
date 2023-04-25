@@ -11,7 +11,7 @@ from ._calc_rank_sep import calc_rank_sep
 def iter_priority_ranks(
     degree: int,
     interspersal: int,
-    pow: int,
+    pow_: int,
     num_strata_deposited: int,
 ) -> typing.Iterator[int]:
     """Iterate over retained ranks for the `pow`th target recency.
@@ -32,14 +32,14 @@ def iter_priority_ranks(
     d = degree
     i = interspersal
 
-    min_retained_rank = calc_rank_backstop(d, i, pow, num_strata_deposited)
-    retained_ranks_sep = calc_rank_sep(d, i, pow, num_strata_deposited)
+    min_retained_rank = calc_rank_backstop(d, i, pow_, num_strata_deposited)
+    retained_ranks_sep = calc_rank_sep(d, i, pow_, num_strata_deposited)
 
-    if pow == 0:
+    if pow_ == 0:
         # optimization
         yield from reversed(range(num_strata_deposited))
         return
-    elif pow == degree:
+    elif pow_ == degree:
         # the highest-degree pow always tracks strata 0
         # and the biggest relevant sep for strata 0 is infinite.
         # i.e., the backstop for highest-debree pow is always strata 0
@@ -50,27 +50,27 @@ def iter_priority_ranks(
         # Thus, we use calc_rank_sep instead of calc_rank_backstop.
         # TODO can this doubling search be done in constant time?
         biggest_relevant_rank = inch.doubling_search(
-            lambda x: calc_rank_sep(d, i, pow, x + 1) >= num_strata_deposited,
+            lambda x: calc_rank_sep(d, i, pow_, x + 1) >= num_strata_deposited,
             num_strata_deposited,
         )
         biggest_relevant_sep = calc_rank_sep(
             degree,
             interspersal,
-            pow,
+            pow_,
             biggest_relevant_rank,
         )
 
     else:
         # TODO can this doubling search be done in constant time?
         biggest_relevant_rank = inch.doubling_search(
-            lambda x: calc_rank_backstop(d, i, pow, x + 1)
+            lambda x: calc_rank_backstop(d, i, pow_, x + 1)
             >= num_strata_deposited,
             num_strata_deposited,
         )
         biggest_relevant_sep = calc_rank_sep(
             degree,
             interspersal,
-            pow,
+            pow_,
             biggest_relevant_rank,
         )
 
@@ -87,7 +87,7 @@ def iter_priority_ranks(
     ):
         # TODO can this doubling search be done in constant time?
         cur_sep_rank = inch.doubling_search(
-            lambda x: calc_rank_sep(d, i, pow, x) >= cur_sep,
+            lambda x: calc_rank_sep(d, i, pow_, x) >= cur_sep,
             # cur_sep is always guaranteed at least leq its threshold
             # num_strata_deposited, so we can safely begin searching for its
             # threshold at cur_sep
@@ -99,7 +99,7 @@ def iter_priority_ranks(
         cur_sep_rank_backstop = calc_rank_backstop(
             degree,
             interspersal,
-            pow,
+            pow_,
             cur_sep_rank,
         )
 
@@ -133,7 +133,7 @@ def iter_priority_ranks(
         return
 
     prev_sep_rank = inch.binary_search(
-        lambda x: calc_rank_sep(d, i, pow, x + 1) >= retained_ranks_sep,
+        lambda x: calc_rank_sep(d, i, pow_, x + 1) >= retained_ranks_sep,
         0,
         num_strata_deposited - 1,
     )
@@ -146,7 +146,7 @@ def iter_priority_ranks(
     yield from iter_priority_ranks(
         degree,
         interspersal,
-        pow,
+        pow_,
         # + 1 due to apparent off-by-one error w/ just prev_sep_rank
         # where rank 5984 isn't properly retained
         # with degree 9, interspersal 2 @ generation 6405

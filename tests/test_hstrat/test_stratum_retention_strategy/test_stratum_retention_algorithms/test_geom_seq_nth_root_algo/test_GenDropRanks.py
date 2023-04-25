@@ -8,6 +8,9 @@ from hstrat._testing import iter_ftor_shims, iter_no_calcrank_ftor_shims
 from hstrat.hstrat import geom_seq_nth_root_algo
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "degree",
     [
@@ -88,6 +91,9 @@ def test_impl_consistency(degree, interspersal, time_sequence):
         )
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "impl",
     geom_seq_nth_root_algo._enact._GenDropRanks_.impls,
@@ -155,6 +161,9 @@ def test_policy_consistency(impl, degree, interspersal, time_sequence):
             ) == sorted(policy_requirement)
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
 @pytest.mark.parametrize(
     "impl",
     geom_seq_nth_root_algo._enact._GenDropRanks_.impls,

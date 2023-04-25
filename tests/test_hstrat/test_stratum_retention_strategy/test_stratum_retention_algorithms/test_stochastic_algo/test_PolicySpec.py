@@ -20,12 +20,16 @@ def test_eq(replicate):
 
 
 def test_GetEvalCtor():
+    # hstrat. is needed for eval()
+    from hstrat import hstrat  # noqa
+
     spec = stochastic_algo.PolicySpec()
-    reconstituted = eval(spec.GetEvalCtor())
+    reconstituted = eval(spec.GetEvalCtor())  # noqa
     eval_ctor = spec.GetEvalCtor()
     assert eval_ctor.startswith("hstrat.stochastic_algo.PolicySpec(")
     assert eval_ctor.endswith(")")
-    reconstituted = eval(eval_ctor)
+    reconstituted = eval(eval_ctor)  # noqa
+    assert spec == reconstituted
     assert str(spec) == str(reconstituted)
 
 

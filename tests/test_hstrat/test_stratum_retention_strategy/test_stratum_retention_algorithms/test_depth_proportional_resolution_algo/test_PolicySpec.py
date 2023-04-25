@@ -3,7 +3,6 @@ import tempfile
 
 import pytest
 
-from hstrat import hstrat
 from hstrat.hstrat import depth_proportional_resolution_algo
 
 
@@ -45,6 +44,9 @@ def test_eq(impl, depth_proportional_resolution):
     ],
 )
 def test_GetEvalCtor(impl, depth_proportional_resolution):
+    # hstrat. is needed for eval()
+    from hstrat import hstrat  # noqa
+
     spec = impl(depth_proportional_resolution)
     eval_ctor = spec.GetEvalCtor()
     assert eval_ctor.startswith(

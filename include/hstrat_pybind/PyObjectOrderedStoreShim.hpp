@@ -110,7 +110,7 @@ public:
   template<typename F=hstrat_auxlib::Monostate>
   cppcoro::generator<
     std::tuple<HSTRAT_RANK_T, typename hereditary_stratum_t::differentia_t>
-  > IterRankDifferentia(
+  > IterRankDifferentiaZip(
     const HSTRAT_RANK_T start_column_index = 0,
     F get_rank_at_column_index = {}
   ) const {
@@ -120,11 +120,11 @@ public:
     >;
     if constexpr (std::is_same_v<F, hstrat_auxlib::Monostate>) {
       return hstrat_pybind::shim_py_object_generator<val_t>(
-        store_obj.attr("IterRankDifferentia")(start_column_index)
+        store_obj.attr("IterRankDifferentiaZip")(start_column_index)
       );
     } else {
       return hstrat_pybind::shim_py_object_generator<val_t>(
-        store_obj.attr("IterRankDifferentia")(
+        store_obj.attr("IterRankDifferentiaZip")(
           start_column_index,
           py::cpp_function(get_rank_at_column_index)
         )

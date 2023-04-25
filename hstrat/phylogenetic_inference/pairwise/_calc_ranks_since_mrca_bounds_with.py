@@ -3,7 +3,7 @@ import warnings
 
 import opytional as opyt
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ...juxtaposition import (
     calc_definitive_min_ranks_since_first_retained_disparity_with,
     calc_ranks_since_last_retained_commonality_with,
@@ -15,8 +15,9 @@ from ._does_have_any_common_ancestor import does_have_any_common_ancestor
 
 
 def calc_ranks_since_mrca_bounds_with(
-    focal: HereditaryStratigraphicColumn,
-    other: HereditaryStratigraphicColumn,
+    focal: HereditaryStratigraphicArtifact,
+    other: HereditaryStratigraphicArtifact,
+    prior: str,
     confidence_level: float = 0.95,
 ) -> typing.Optional[typing.Tuple[int, int]]:
     """How many generations have elapsed since MRCA?
@@ -27,6 +28,11 @@ def calc_ranks_since_mrca_bounds_with(
 
     Parameters
     ----------
+    prior : {"arbitrary"}
+        Prior probability density distribution over possible generations of the
+        MRCA.
+
+        Currently only "arbitrary" supported.
     confidence_level : float, optional
         With what probability should the true rank of the MRCA fall
         within the calculated bounds? Default 0.95.
@@ -50,6 +56,9 @@ def calc_ranks_since_mrca_bounds_with(
     calc_ranks_since_mrca_bounds_provided_confidence_level :
         With what actual confidence (i.e., more than requested) is the true
         rank of the MRCA captured within the calculated bounds?
+    does_definitively_have_no_common_anestor :
+        Does the hereditary stratigraphic record definitively prove that first
+        and second could not possibly share a common ancestor?
 
     Notes
     -----
@@ -87,6 +96,8 @@ def calc_ranks_since_mrca_bounds_with(
     determine the earliest rank at which an MRCA could be reliably detected
     between focal and other.
     """
+    if prior != "arbitrary":
+        raise NotImplementedError
     assert 0.0 <= confidence_level <= 1.0
 
     if (

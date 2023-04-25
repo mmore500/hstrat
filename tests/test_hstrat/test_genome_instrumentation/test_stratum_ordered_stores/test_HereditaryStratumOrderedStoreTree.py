@@ -212,14 +212,14 @@ def test_IterRankDifferentia1(impl):
         store1.DepositStratum(rank=rank, stratum=stratum)
 
     assert [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])] == [
-        *store1.IterRankDifferentia()
+        *store1.IterRankDifferentiaZip()
     ]
     assert [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])][
         0:
-    ] == [*store1.IterRankDifferentia(start_column_index=0)]
+    ] == [*store1.IterRankDifferentiaZip(start_column_index=0)]
     assert [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])][
         2:
-    ] == [*store1.IterRankDifferentia(start_column_index=2)]
+    ] == [*store1.IterRankDifferentiaZip(start_column_index=2)]
 
 
 @pytest.mark.parametrize(
@@ -237,12 +237,12 @@ def test_IterRankDifferentia2(impl):
         return ranks[column_idx]
 
     assert [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])] == [
-        *store1.IterRankDifferentia(get_rank_at_column_index=col_index_to_rank)
+        *store1.IterRankDifferentiaZip(get_rank_at_column_index=col_index_to_rank)
     ]
     assert [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])][
         0:
     ] == [
-        *store1.IterRankDifferentia(
+        *store1.IterRankDifferentiaZip(
             get_rank_at_column_index=col_index_to_rank,
             start_column_index=0,
         )
@@ -250,7 +250,7 @@ def test_IterRankDifferentia2(impl):
     assert [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])][
         2:
     ] == [
-        *store1.IterRankDifferentia(
+        *store1.IterRankDifferentiaZip(
             get_rank_at_column_index=col_index_to_rank,
             start_column_index=2,
         )
@@ -283,7 +283,7 @@ def test_DelRanks_getrank_impl1(impl):
             ranks.remove(rank)
         assert [
             *zip(ranks, [stratum.GetDifferentia() for stratum in strata])
-        ] == [*store1.IterRankDifferentia()]
+        ] == [*store1.IterRankDifferentiaZip()]
 
 
 @pytest.mark.parametrize(
@@ -314,7 +314,7 @@ def test_DelRanks_getrank_impl2(impl):
             ranks.remove(rank)
         assert [
             *zip(ranks, [stratum.GetDifferentia() for stratum in strata])
-        ] == [*store1.IterRankDifferentia()]
+        ] == [*store1.IterRankDifferentiaZip()]
 
 
 @pytest.mark.parametrize(
@@ -345,7 +345,7 @@ def test_DelRanks_getrank_impl3(impl):
             ranks.remove(rank)
         assert [
             *zip(ranks, [stratum.GetDifferentia() for stratum in strata])
-        ] == [*store1.IterRankDifferentia()]
+        ] == [*store1.IterRankDifferentiaZip()]
 
 
 @pytest.mark.parametrize(
@@ -374,7 +374,7 @@ def test_DelRanks_getrank_impl4(impl):
             ranks.remove(rank)
         assert [
             *zip(ranks, [stratum.GetDifferentia() for stratum in strata])
-        ] == [*store1.IterRankDifferentia()]
+        ] == [*store1.IterRankDifferentiaZip()]
 
 
 @pytest.mark.parametrize(
@@ -401,7 +401,7 @@ def test_DelRanks_getrank_impl5(impl):
             ranks.remove(rank)
         assert [
             *zip(ranks, [stratum.GetDifferentia() for stratum in strata])
-        ] == [*store1.IterRankDifferentia()]
+        ] == [*store1.IterRankDifferentiaZip()]
 
 
 @pytest.mark.parametrize(
@@ -434,7 +434,7 @@ def test_DelRanks_calcrank_impl1(impl):
         assert [
             *zip(ranks, [stratum.GetDifferentia() for stratum in strata])
         ] == [
-            *store1.IterRankDifferentia(
+            *store1.IterRankDifferentiaZip(
                 get_rank_at_column_index=lambda idx: ranks[idx],
             )
         ]
@@ -472,7 +472,7 @@ def test_DelRanks_calcrank_impl2(impl):
         assert [
             *zip(ranks, [stratum.GetDifferentia() for stratum in strata])
         ] == [
-            *store1.IterRankDifferentia(
+            *store1.IterRankDifferentiaZip(
                 get_rank_at_column_index=lambda idx: ranks[idx],
             )
         ]
@@ -510,7 +510,7 @@ def test_DelRanks_calcrank_impl3(impl):
         assert [
             *zip(ranks, [stratum.GetDifferentia() for stratum in strata])
         ] == [
-            *store1.IterRankDifferentia(
+            *store1.IterRankDifferentiaZip(
                 get_rank_at_column_index=lambda idx: ranks[idx],
             )
         ]
@@ -546,7 +546,7 @@ def test_DelRanks_calcrank_impl4(impl):
         assert [
             *zip(ranks, [stratum.GetDifferentia() for stratum in strata])
         ] == [
-            *store1.IterRankDifferentia(
+            *store1.IterRankDifferentiaZip(
                 get_rank_at_column_index=lambda idx: ranks[idx],
             )
         ]
@@ -580,7 +580,7 @@ def test_DelRanks_calcrank_impl5(impl):
         assert [
             *zip(ranks, [stratum.GetDifferentia() for stratum in strata])
         ] == [
-            *store1.IterRankDifferentia(
+            *store1.IterRankDifferentiaZip(
                 get_rank_at_column_index=lambda idx: ranks[idx],
             )
         ]
@@ -611,7 +611,7 @@ def test_DelRanks_getrank_sideffects(impl):
         store1.DelRanks(deletion)
         assert [
             *zip(ranks, [stratum.GetDifferentia() for stratum in strata])
-        ] == [*store2.IterRankDifferentia()]
+        ] == [*store2.IterRankDifferentiaZip()]
 
 
 @pytest.mark.parametrize(
@@ -644,7 +644,7 @@ def test_DelRanks_calcrank_sideffects(impl):
         assert [
             *zip(ranks2, [stratum.GetDifferentia() for stratum in strata])
         ] == [
-            *store2.IterRankDifferentia(
+            *store2.IterRankDifferentiaZip(
                 get_rank_at_column_index=lambda idx: ranks2[idx],
             )
         ]

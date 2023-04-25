@@ -1,6 +1,6 @@
 import typing
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ...juxtaposition import calc_rank_of_first_retained_disparity_between
 from ._calc_rank_of_earliest_detectable_mrca_between import (
     calc_rank_of_earliest_detectable_mrca_between,
@@ -8,8 +8,8 @@ from ._calc_rank_of_earliest_detectable_mrca_between import (
 
 
 def does_have_any_common_ancestor(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
     confidence_level: float = 0.95,
 ) -> typing.Optional[bool]:
     """Determine if common ancestry is evidenced with second.

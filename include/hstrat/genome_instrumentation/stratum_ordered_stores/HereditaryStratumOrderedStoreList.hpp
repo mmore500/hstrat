@@ -138,7 +138,7 @@ public:
     template<typename F=hstrat_auxlib::Monostate>
     cppcoro::generator<
       std::tuple<HSTRAT_RANK_T, typename HEREDITARY_STRATUM_T::differentia_t>
-    > IterRankDifferentia(
+    > IterRankDifferentiaZip(
       // deposition ranks might not be stored in strata
       const HSTRAT_RANK_T start_column_index = 0,
       F get_rank_at_column_index = {}

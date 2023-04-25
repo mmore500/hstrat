@@ -8,9 +8,22 @@ from ._col_to_records import col_to_records
 
 def pop_to_records(
     columns: typing.Iterable[HereditaryStratigraphicColumn],
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> typing.Dict:
+    """Serialize a sequence of `HereditaryStratigraphicColumn`s to a dict
+    composed of builtin types.
 
-    col_records = [col_to_records(column) for column in columns]
+    Parameters
+    ----------
+    columns : iterable of HereditaryStratigraphicColumn
+        Data to serialize.
+    progress_wrap : Callable, default identity function
+        Wrapper applied around generation iterator and row generator for final
+        phylogeny compilation process.
+
+        Pass tqdm or equivalent to display progress bars.
+    """
+    col_records = [col_to_records(column) for column in progress_wrap(columns)]
 
     res = {}
     for common_field in (
