@@ -53,7 +53,11 @@ jobs:
       run: |
         sudo sed -i 's/azure\.//' /etc/apt/sources.list
         sudo apt-get update -o Acquire::Retries=3
-        sudo apt-get install -y ffmpeg -o Acquire::Retries=3
+        sudo apt-get install -y \
+          ffmpeg \
+          libc++-dev \
+          libc++abi-dev \
+          -o Acquire::Retries=3
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
     - name: Test with tox
