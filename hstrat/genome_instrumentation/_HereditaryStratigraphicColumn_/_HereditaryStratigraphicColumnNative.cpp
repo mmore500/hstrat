@@ -511,7 +511,7 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
       }
       else throw std::invalid_argument{"unsupported differentia bit width"};
     },
-    py::arg("stratum_retention_policy") = hstrat::fixed_resolution_algo::Policy{1},
+    py::arg("stratum_retention_policy") = hstrat::fixed_resolution_algo::Policy<>{1},
     py::kw_only(),
     py::arg("always_store_rank_in_stratum") = false,
     py::arg("stratum_differentia_bit_width") = 64,

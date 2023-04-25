@@ -57,8 +57,8 @@ public:
   using store_t = store_t_;
   using store_with_deposit_count_t = std::tuple<store_t, HSTRAT_RANK_T>;
   using stratum_t = stratum_t_;
-  using differentia_t = stratum_t::differentia_t;
-  using annotation_t = stratum_t::annotation_t;
+  using differentia_t = typename stratum_t::differentia_t;
+  using annotation_t = typename stratum_t::annotation_t;
   consteval bool has_annotation() {
     return std::is_same_v<annotation_t, hstrat_auxlib::Monostate>;
   }
