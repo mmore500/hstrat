@@ -237,7 +237,9 @@ def test_IterRankDifferentia2(impl):
         return ranks[column_idx]
 
     assert [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])] == [
-        *store1.IterRankDifferentiaZip(get_rank_at_column_index=col_index_to_rank)
+        *store1.IterRankDifferentiaZip(
+            get_rank_at_column_index=col_index_to_rank
+        )
     ]
     assert [*zip(ranks, [stratum.GetDifferentia() for stratum in strata])][
         0:
