@@ -188,9 +188,9 @@ public:
     const HSTRAT_RANK_T num_strata_deposited
   ) const {
     if constexpr (HAS_SCRY_OTHER::value) {
-      return std::move(shim_py_object_generator<const HSTRAT_RANK_T>(
+      return shim_py_object_generator<const HSTRAT_RANK_T>(
         policy_obj.attr("IterRetainedRanks")(num_strata_deposited)
-      ));
+      );
     } else return HAS_SCRY_OTHER{};
   }
 
