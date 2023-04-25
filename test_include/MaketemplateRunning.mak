@@ -1,6 +1,6 @@
 CXX ?= g++
 
-FLAGS_ALWAYS = -std=c++20 -g -pipe -pthread -fvisibility=hidden -fcoroutines -fPIC -Wall -Wno-unused-function -Wno-unused-private-field -I$(TO_ROOT)/include/ -I$(TO_ROOT)/third-party/ $$(python3.7 -m pybind11 --includes) -DCATCH_CONFIG_MAIN -DFMT_HEADER_ONLY
+FLAGS_ALWAYS = -std=c++20 -g -pipe -pthread -fvisibility=hidden -fPIC -Wall -Wno-unused-function -Wno-unused-private-field -I$(TO_ROOT)/include/ -I$(TO_ROOT)/third-party/ $$(python3.7 -m pybind11 --includes) -DCATCH_CONFIG_MAIN -DFMT_HEADER_ONLY
 
 FLAGS = $(FLAGS_ALWAYS)
 
