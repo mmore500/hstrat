@@ -7,8 +7,8 @@
 #include <tuple>
 #include <variant>
 
-#include "../../hstrat_auxlib/Monostate.hpp"
 #include "../../hstrat_auxlib/HSTRAT_UNUSED.hpp"
+#include "../../hstrat_auxlib/Monostate.hpp"
 #include "../../hstrat_pybind/PyObjectConcept.hpp"
 
 #include "../config/HSTRAT_RANK_T.hpp"
