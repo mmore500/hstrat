@@ -63,6 +63,8 @@ jobs:
           -o Acquire::Retries=3
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
+        /sbin/ldconfig -p | grep stdc++
+        /sbin/ldconfig -p
     - name: Test with tox
       run: |
         export HSTRAT_TESTS_SUBDIVISION=${{ matrix.subdivision }}
