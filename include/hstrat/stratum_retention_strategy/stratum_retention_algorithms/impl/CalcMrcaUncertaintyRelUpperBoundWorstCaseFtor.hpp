@@ -20,7 +20,7 @@ struct CalcMrcaUncertaintyRelUpperBoundWorstCaseFtor {
     const POLICY_SPEC&
   ) {}
 
-  consteval bool operator==(
+  constexpr bool operator==(
     const CalcMrcaUncertaintyRelUpperBoundWorstCaseFtor& other
   ) const {
     return true;

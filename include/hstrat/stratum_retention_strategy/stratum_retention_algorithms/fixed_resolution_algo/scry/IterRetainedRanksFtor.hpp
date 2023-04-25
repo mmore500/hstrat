@@ -21,7 +21,7 @@ struct IterRetainedRanksFtor {
   template<typename POLICY_SPEC>
   explicit IterRetainedRanksFtor(const POLICY_SPEC&) {}
 
-  consteval bool operator==(const IterRetainedRanksFtor& other) const {
+  constexpr bool operator==(const IterRetainedRanksFtor& other) const {
     return true;
   }
 

@@ -14,7 +14,7 @@ struct CalcNumStrataRetainedUpperBoundFtor {
   template<typename POLICY_SPEC>
   explicit CalcNumStrataRetainedUpperBoundFtor(const POLICY_SPEC&) {}
 
-  consteval bool operator==(
+  constexpr bool operator==(
     const CalcNumStrataRetainedUpperBoundFtor& other
   ) const {
     return true;

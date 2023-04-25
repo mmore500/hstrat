@@ -20,7 +20,7 @@ struct PolicySpecConsteval {
     return DEPTH_PROPORTIONAL_RESOLUTION;
   }
 
-  consteval bool operator==(
+  constexpr bool operator==(
     const PolicySpecConsteval<DEPTH_PROPORTIONAL_RESOLUTION>& other
   ) const {
     return true;

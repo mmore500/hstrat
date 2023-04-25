@@ -15,7 +15,7 @@ struct CalcMrcaUncertaintyAbsExactFtor {
   template<typename POLICY_SPEC>
   explicit CalcMrcaUncertaintyAbsExactFtor(const POLICY_SPEC&) {}
 
-  consteval bool operator==(
+  constexpr bool operator==(
     const CalcMrcaUncertaintyAbsExactFtor& other
   ) const {
     return true;

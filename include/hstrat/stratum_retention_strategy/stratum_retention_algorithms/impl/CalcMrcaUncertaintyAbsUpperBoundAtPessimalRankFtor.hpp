@@ -14,7 +14,7 @@ struct CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankFtor {
     const POLICY_SPEC&
   ) {}
 
-  consteval bool operator==(
+  constexpr bool operator==(
     const CalcMrcaUncertaintyAbsUpperBoundAtPessimalRankFtor& other
   ) const {
     return true;

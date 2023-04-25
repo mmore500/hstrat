@@ -98,7 +98,7 @@ public:
     } else return GetStratumOrderedStore();
   }
 
-  consteval static bool _omits_stratum_deposition_rank() {
+  constexpr static bool _omits_stratum_deposition_rank() {
     return POLICY_T::has_calc_rank_at_column_index();
   }
 
@@ -198,7 +198,7 @@ public:
     return GetNumStrataDeposited() - GetNumStrataRetained();
   }
 
-  consteval static int GetStratumDifferentiaBitWidth() {
+  constexpr static int GetStratumDifferentiaBitWidth() {
     if constexpr (std::is_same_v<differentia_t, bool>) { return 1; }
     else return sizeof(differentia_t) * CHAR_BIT;
   }
@@ -207,7 +207,7 @@ public:
     return GetNumDiscardedStrata();
   }
 
-  consteval static double CalcProbabilityDifferentiaCollision() {
+  constexpr static double CalcProbabilityDifferentiaCollision() {
     return ccmath::ldexp(1, -GetStratumDifferentiaBitWidth());
   }
 

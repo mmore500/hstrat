@@ -14,7 +14,7 @@ struct CalcNumStrataRetainedExactFtor {
   template<typename POLICY_SPEC>
   explicit CalcNumStrataRetainedExactFtor(const POLICY_SPEC&) {}
 
-  consteval bool operator==(
+  constexpr bool operator==(
     const CalcNumStrataRetainedExactFtor& other
   ) const {
     return true;

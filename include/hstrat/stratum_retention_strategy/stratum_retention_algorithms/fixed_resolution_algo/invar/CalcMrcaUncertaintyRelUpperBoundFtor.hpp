@@ -17,7 +17,7 @@ struct CalcMrcaUncertaintyRelUpperBoundFtor {
   template<typename POLICY_SPEC>
   explicit CalcMrcaUncertaintyRelUpperBoundFtor(const POLICY_SPEC&) {}
 
-  consteval bool operator==(
+  constexpr bool operator==(
     const CalcMrcaUncertaintyRelUpperBoundFtor& other
   ) const {
     return true;

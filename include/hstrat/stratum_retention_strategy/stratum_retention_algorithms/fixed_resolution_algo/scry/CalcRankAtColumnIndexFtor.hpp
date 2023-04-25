@@ -15,7 +15,7 @@ struct CalcRankAtColumnIndexFtor {
   template<typename POLICY_SPEC>
   explicit CalcRankAtColumnIndexFtor(const POLICY_SPEC&) {}
 
-  consteval bool operator==(
+  constexpr bool operator==(
     const CalcRankAtColumnIndexFtor& other
   ) const {
     return true;

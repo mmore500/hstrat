@@ -21,7 +21,7 @@ struct GenDropRanksFtor {
   template<typename POLICY_SPEC>
   explicit GenDropRanksFtor(const POLICY_SPEC&) {}
 
-  consteval bool operator==(const GenDropRanksFtor& other) const {
+  constexpr bool operator==(const GenDropRanksFtor& other) const {
     return true;
   }
 

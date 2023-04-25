@@ -17,7 +17,7 @@ struct CalcMrcaUncertaintyRelExactFromAbsFtor {
     const POLICY_SPEC&
   ) {}
 
-  consteval bool operator==(
+  constexpr bool operator==(
     const CalcMrcaUncertaintyRelExactFromAbsFtor& other
   ) const {
     return true;
