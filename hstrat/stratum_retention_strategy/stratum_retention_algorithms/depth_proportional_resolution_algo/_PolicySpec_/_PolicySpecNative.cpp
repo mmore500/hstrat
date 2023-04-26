@@ -1,4 +1,6 @@
 // cppimport
+#include <utility>
+
 #include <pybind11/pybind11.h>
 
 #include <hstrat_pybind/all_tu_declarations.hpp>
@@ -18,7 +20,14 @@ PYBIND11_MODULE(_PolicySpecNative, m) {
   )
   .def("__eq__", &self_t::operator==)
   .def("__eq__", [](const py::object& self, const py::object& other){
-    return other.attr("__eq__")(other, self).cast<bool>();
+    // prevent stack overflow on other bound classes using this trick
+    static bool recursion_flag{};
+    const struct ScopeGuard {
+      ~ScopeGuard() { recursion_flag = false; }
+    } scope_guard;
+    const bool recursion_flag_ = std::exchange(recursion_flag, true);
+    // use pure python class' __eq__ impl
+    return !recursion_flag_ && other.attr("__eq__")(self).cast<bool>();
   })
   .def("__repr__", &self_t::Repr)
   .def("__str__", &self_t::Str)
