@@ -21,8 +21,8 @@ class PolicySpec:
         self._hash_salt = hash_salt
 
     def __eq__(self: "PolicySpec", other: typing.Any) -> bool:
-        return isinstance(other, self.__class__) and (self._hash_salt,) == (
-            other._hash_salt,
+        return isinstance(other, PolicySpecABC) and (
+            self.GetEvalCtor() == other.GetEvalCtor()
         )
 
     def __repr__(self: "PolicySpec") -> str:

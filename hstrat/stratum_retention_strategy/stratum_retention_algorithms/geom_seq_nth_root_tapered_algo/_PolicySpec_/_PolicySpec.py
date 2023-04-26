@@ -43,12 +43,8 @@ class PolicySpec:
         self._interspersal = interspersal
 
     def __eq__(self: "PolicySpec", other: typing.Any) -> bool:
-        return isinstance(other, self.__class__) and (
-            self._degree,
-            self._interspersal,
-        ) == (
-            other._degree,
-            other._interspersal,
+        return isinstance(other, PolicySpecABC) and (
+            self.GetEvalCtor() == other.GetEvalCtor()
         )
 
     def __hash__(self: "PolicySpec") -> int:

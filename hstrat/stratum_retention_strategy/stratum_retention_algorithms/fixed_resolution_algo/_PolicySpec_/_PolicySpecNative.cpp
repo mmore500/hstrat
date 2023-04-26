@@ -11,18 +11,26 @@ using self_t = algo::PolicySpec;
 
 PYBIND11_MODULE(_PolicySpecNative, m) {
 
-  py::class_<self_t>(
-    m,
-    "PolicySpecNative"
-  )
+  const auto class_ = py::class_<self_t>(m, "PolicySpecNative")
   .def(py::init<int>())
   .def("GetFixedResolution", &self_t::GetFixedResolution)
   .def("__eq__", &self_t::operator==)
+  .def("__eq__", [](const py::object& self, const py::object& other){
+    return other.attr("__eq__")(self).cast<bool>();
+  })
   .def("__repr__", &self_t::Repr)
   .def("__str__", &self_t::Str)
   .def("GetEvalCtor", &self_t::GetEvalCtor)
   .def_static("GetAlgoIdentifier", &self_t::GetAlgoIdentifier)
   .def_static("GetAlgoTitle", &self_t::GetAlgoTitle);
+
+  const auto import_module = py::module::import("importlib").attr(
+    "import_module"
+  );
+  const auto PolicySpecABC_register = import_module(
+    "...._detail", m.attr("__name__")
+  ).attr("PolicySpecABC").attr("register");
+  PolicySpecABC_register(class_);
 
 }
 
