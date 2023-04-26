@@ -13,6 +13,7 @@ from ...stratum_retention_strategy.stratum_retention_algorithms import (
     perfect_resolution_algo,
 )
 from .._HereditaryStratum import HereditaryStratum
+from .._detail import HereditaryStratigraphicColumnABC
 from ..stratum_ordered_stores import HereditaryStratumOrderedStoreList
 from ..stratum_ordered_stores._detail import HereditaryStratumOrderedStoreBase
 
@@ -24,6 +25,7 @@ OrderedStore = typing.Union[
 ]
 
 
+@HereditaryStratigraphicColumnABC.register
 class HereditaryStratigraphicColumn:
     """Genetic annotation to enable phylogenetic inference.
 

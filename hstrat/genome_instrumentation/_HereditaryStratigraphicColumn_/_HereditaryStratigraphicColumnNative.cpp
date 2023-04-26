@@ -17,7 +17,9 @@
 namespace py = pybind11;
 using namespace pybind11::literals;
 
-#define INSTANCE(SELF_T) py::class_<SELF_T>(\
+#define INSTANCE(SELF_T) \
+HereditaryStratigraphicColumnABC_register( \
+py::class_<SELF_T>(\
   m,\
   "_HereditaryStratigraphicColumnNative"#SELF_T\
 )\
@@ -78,6 +80,7 @@ using namespace pybind11::literals;
 )\
 .def("_ShouldOmitStratumDepositionRank",\
   [](const SELF_T&){ return SELF_T::_omits_stratum_deposition_rank();}\
+) \
 )
 
 using bit_nodeporank_t = hstrat::HereditaryStratigraphicColumn<
@@ -519,6 +522,12 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
     py::arg("initial_stratum_annotation") =  py::none(),
     py::arg("stratum_ordered_store") = py::none()
   );
+
+  const auto HereditaryStratigraphicColumnABC_register \
+    = importlib.attr("import_module")(
+        "..._detail",
+        m.attr("__name__")
+  ).attr("HereditaryStratigraphicColumnABC").attr("register");
 
   INSTANCE(bit_deporank_t);
   INSTANCE(byte_deporank_t);
