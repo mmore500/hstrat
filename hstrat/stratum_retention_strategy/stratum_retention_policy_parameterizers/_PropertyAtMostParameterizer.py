@@ -5,7 +5,7 @@ import interval_search as inch
 import numpy as np
 import opytional as opyt
 
-from ..stratum_retention_algorithms._detail import PolicySpecBase
+from ..stratum_retention_algorithms._detail import PolicySpecABC
 from ._detail import policy_evaluator_t
 
 
@@ -46,7 +46,7 @@ class PropertyAtMostParameterizer:
     def __call__(
         self: "PropertyAtMostParameterizer",
         policy_t: typing.Type,
-    ) -> typing.Optional[PolicySpecBase]:
+    ) -> typing.Optional[PolicySpecABC]:
         """Solve for policy spec satisfying parameterization requirements."""
         policy_factory = self._policy_evaluator._policy_param_focalizer(
             policy_t,

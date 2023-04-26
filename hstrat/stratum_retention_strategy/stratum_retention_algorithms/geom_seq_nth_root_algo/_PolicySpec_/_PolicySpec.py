@@ -1,10 +1,11 @@
 import typing
 import warnings
 
-from ..._detail import PolicySpecBase
+from ..._detail import PolicySpecABC
 
 
-class PolicySpec(PolicySpecBase):
+@PolicySpecABC.register
+class PolicySpec:
     """Contains all policy parameters, if any."""
 
     _degree: int

@@ -1,9 +1,10 @@
 import typing
 
-from .._detail import PolicySpecBase
+from .._detail import PolicySpecABC
 
 
-class PolicySpec(PolicySpecBase):
+@PolicySpecABC.register
+class PolicySpec:
     """Contains all policy parameters, if any."""
 
     def __eq__(self: "PolicySpec", other: typing.Any) -> bool:

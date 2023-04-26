@@ -12,7 +12,7 @@ from .._impl import (
     CalcNumStrataRetainedUpperBoundWorstCase,
 )
 from ._PolicyCouplerBase import PolicyCouplerBase
-from ._PolicySpecBase import PolicySpecBase
+from ._PolicySpecABC import PolicySpecABC
 from ._UnsatisfiableParameterizationRequestError import (
     UnsatisfiableParameterizationRequestError,
 )
@@ -104,9 +104,9 @@ def PolicyCouplerFactory(
             self: "PolicyCoupler",
             *args,
             parameterizer: typing.Optional[
-                typing.Callable[[typing.Type], typing.Optional[PolicySpecBase]]
+                typing.Callable[[typing.Type], typing.Optional[PolicySpecABC]]
             ] = None,
-            policy_spec: typing.Optional[PolicySpecBase] = None,
+            policy_spec: typing.Optional[PolicySpecABC] = None,
             **kwargs,
         ):
             """Construct a PolicyCoupler instance.
