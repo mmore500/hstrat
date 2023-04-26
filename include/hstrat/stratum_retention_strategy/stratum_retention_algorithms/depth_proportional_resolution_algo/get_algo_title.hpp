@@ -8,7 +8,7 @@ namespace hstrat {
 namespace depth_proportional_resolution_algo {
 
 constexpr std::string_view get_algo_title() {
-  return "Depth-Proportional Resolution Stratum Retention Algorithm";
+  return "Depth-proportional Resolution Stratum Retention Algorithm";
 }
 
 } // namespace depth_proportional_resolution_algo
