@@ -1,5 +1,6 @@
 from copy import copy
 import math
+import numbers
 import operator
 import sys
 import typing
@@ -138,14 +139,18 @@ class HereditaryStratigraphicColumn:
         if stratum_ordered_store is None:
             # if no hstrat ordered store is specified, we use a list
             stratum_ordered_store = HereditaryStratumOrderedStoreList
+
         if callable(stratum_ordered_store):
             # ordered store is actually an ordered store factory
             self._stratum_ordered_store = stratum_ordered_store()
             self._num_strata_deposited = 0
             self.DepositStratum(annotation=initial_stratum_annotation)
-        elif isinstance(
-            stratum_ordered_store[0], HereditaryStratumOrderedStoreABC
-        ):
+        elif isinstance(stratum_ordered_store, tuple):
+            assert len(stratum_ordered_store) == 2
+            assert isinstance(
+                stratum_ordered_store[0], HereditaryStratumOrderedStoreABC
+            )
+            assert isinstance(stratum_ordered_store[1], numbers.Integral)
             # ordered store is already an instance of an ordered store
             (
                 self._stratum_ordered_store,
@@ -154,7 +159,8 @@ class HereditaryStratigraphicColumn:
         else:
             raise ValueError(
                 """stratum_ordered_store is of invalid type; \
-            should be callable or tuple(callable instance, deposition count)"""
+            should be callable or \
+            tuple(HereditaryStratumOrderedStore, deposition count)"""
             )
 
     def __eq__(
