@@ -513,6 +513,156 @@ PYBIND11_MODULE(_HereditaryStratigraphicColumnNative, m) {
           {stratum_ordered_store(), 0}
         );
       }
+      else if (
+        stratum_differentia_bit_width == 1
+        && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
+        && py::isinstance<py::tuple>(stratum_ordered_store)
+      ) {
+        using shimstore_t = bit_nodeporank_shimstore_t::store_t;
+        const py::tuple as_tuple = stratum_ordered_store;
+        const auto first = shimstore_t(as_tuple[0]);
+        const auto second = as_tuple[1].cast<HSTRAT_RANK_T>();
+        return bit_nodeporank_shimstore_t(
+          stratum_retention_policy,
+          initial_stratum_annotation,
+          std::tuple<shimstore_t, HSTRAT_RANK_T>{first, second}
+        );
+      }
+      else if (
+        stratum_differentia_bit_width == 8
+        && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
+        && py::isinstance<py::tuple>(stratum_ordered_store)
+      ) {
+        using shimstore_t = byte_nodeporank_shimstore_t::store_t;
+        const py::tuple as_tuple = stratum_ordered_store;
+        const auto first = shimstore_t(as_tuple[0]);
+        const auto second = as_tuple[1].cast<HSTRAT_RANK_T>();
+        return byte_nodeporank_shimstore_t(
+          stratum_retention_policy,
+          initial_stratum_annotation,
+          std::tuple<shimstore_t, HSTRAT_RANK_T>{first, second}
+        );
+      }
+      else if (
+        stratum_differentia_bit_width == 16
+        && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
+        && py::isinstance<py::tuple>(stratum_ordered_store)
+      ) {
+        using shimstore_t = word_nodeporank_shimstore_t::store_t;
+        const py::tuple as_tuple = stratum_ordered_store;
+        const auto first = shimstore_t(as_tuple[0]);
+        const auto second = as_tuple[1].cast<HSTRAT_RANK_T>();
+        return word_nodeporank_shimstore_t(
+          stratum_retention_policy,
+          initial_stratum_annotation,
+          std::tuple<shimstore_t, HSTRAT_RANK_T>{first, second}
+        );
+      }
+      else if (
+        stratum_differentia_bit_width == 32
+        && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
+        && py::isinstance<py::tuple>(stratum_ordered_store)
+      ) {
+        using shimstore_t = doubleword_nodeporank_shimstore_t::store_t;
+        const py::tuple as_tuple = stratum_ordered_store;
+        const auto first = shimstore_t(as_tuple[0]);
+        const auto second = as_tuple[1].cast<HSTRAT_RANK_T>();
+        return doubleword_nodeporank_shimstore_t(
+          stratum_retention_policy,
+          initial_stratum_annotation,
+          std::tuple<shimstore_t, HSTRAT_RANK_T>{first, second}
+        );
+      }
+      else if (
+        stratum_differentia_bit_width == 64
+        && (!always_store_rank_in_stratum && has_calc_rank_at_column_index)
+        && py::isinstance<py::tuple>(stratum_ordered_store)
+      ) {
+        using shimstore_t = quadword_nodeporank_shimstore_t::store_t;
+        const py::tuple as_tuple = stratum_ordered_store;
+        const auto first = shimstore_t(as_tuple[0]);
+        const auto second = as_tuple[1].cast<HSTRAT_RANK_T>();
+        return quadword_nodeporank_shimstore_t(
+          stratum_retention_policy,
+          initial_stratum_annotation,
+          std::tuple<shimstore_t, HSTRAT_RANK_T>{first, second}
+        );
+      }
+      else if (
+        stratum_differentia_bit_width == 1
+        && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
+        && py::isinstance<py::tuple>(stratum_ordered_store)
+      ) {
+        using shimstore_t = bit_deporank_shimstore_t::store_t;;
+        const py::tuple as_tuple = stratum_ordered_store;
+        const auto first = shimstore_t(as_tuple[0]);
+        const auto second = as_tuple[1].cast<HSTRAT_RANK_T>();
+        return bit_deporank_shimstore_t(
+          stratum_retention_policy,
+          initial_stratum_annotation,
+          std::tuple<shimstore_t, HSTRAT_RANK_T>{first, second}
+        );
+      }
+      else if (
+        stratum_differentia_bit_width == 8
+        && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
+        && py::isinstance<py::tuple>(stratum_ordered_store)
+      ) {
+        using shimstore_t = byte_deporank_shimstore_t::store_t;
+        const py::tuple as_tuple = stratum_ordered_store;
+        const auto first = shimstore_t(as_tuple[0]);
+        const auto second = as_tuple[1].cast<HSTRAT_RANK_T>();
+        return byte_deporank_shimstore_t(
+          stratum_retention_policy,
+          initial_stratum_annotation,
+          std::tuple<shimstore_t, HSTRAT_RANK_T>{first, second}
+        );
+      }
+      else if (
+        stratum_differentia_bit_width == 16
+        && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
+        && py::isinstance<py::tuple>(stratum_ordered_store)
+      ) {
+        using shimstore_t = word_deporank_shimstore_t::store_t;
+        const py::tuple as_tuple = stratum_ordered_store;
+        const auto first = shimstore_t(as_tuple[0]);
+        const auto second = as_tuple[1].cast<HSTRAT_RANK_T>();
+        return word_deporank_shimstore_t(
+          stratum_retention_policy,
+          initial_stratum_annotation,
+          std::tuple<shimstore_t, HSTRAT_RANK_T>{first, second}
+        );
+      }
+      else if (
+        stratum_differentia_bit_width == 32
+        && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
+        && py::isinstance<py::tuple>(stratum_ordered_store)
+      ) {
+        using shimstore_t = doubleword_deporank_shimstore_t::store_t;
+        const py::tuple as_tuple = stratum_ordered_store;
+        const auto first = shimstore_t(as_tuple[0]);
+        const auto second = as_tuple[1].cast<HSTRAT_RANK_T>();
+        return doubleword_deporank_shimstore_t(
+          stratum_retention_policy,
+          initial_stratum_annotation,
+          std::tuple<shimstore_t, HSTRAT_RANK_T>{first, second}
+        );
+      }
+      else if (
+        stratum_differentia_bit_width == 64
+        && !(!always_store_rank_in_stratum && has_calc_rank_at_column_index)
+        && py::isinstance<py::tuple>(stratum_ordered_store)
+      ) {
+        using shimstore_t = quadword_deporank_shimstore_t::store_t;
+        const py::tuple as_tuple = stratum_ordered_store;
+        const auto first = shimstore_t(as_tuple[0]);
+        const auto second = as_tuple[1].cast<HSTRAT_RANK_T>();
+        return quadword_deporank_shimstore_t(
+          stratum_retention_policy,
+          initial_stratum_annotation,
+          std::tuple<shimstore_t, HSTRAT_RANK_T>{first, second}
+        );
+      }
       else throw std::invalid_argument{"unsupported differentia bit width"};
     },
     py::arg("stratum_retention_policy") = hstrat::fixed_resolution_algo::Policy<>{1},

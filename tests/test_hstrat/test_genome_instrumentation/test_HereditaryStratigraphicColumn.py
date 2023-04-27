@@ -974,3 +974,25 @@ def test_CloneNthDescendant_two():
     assert descendant.GetNumStrataDeposited() == 3
     assert hstrat.does_have_any_common_ancestor(descendant, column)
     assert column.GetNumStrataDeposited() == 1
+
+
+@pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+def test_init_stratum_ordered_store_tuple(impl):
+
+    store = hstrat.HereditaryStratumOrderedStoreList()
+    store.DepositStratum(0, hstrat.HereditaryStratum(deposition_rank=0))
+    store.DepositStratum(1, hstrat.HereditaryStratum(deposition_rank=1))
+
+    column = impl(stratum_ordered_store=(store, 2))
+    assert column.GetNumStrataDeposited() == 2
+    column.GetStratumAtColumnIndex(0)
+    store.GetStratumAtColumnIndex(0)
+    assert column.GetStratumAtColumnIndex(0) == store.GetStratumAtColumnIndex(
+        0
+    )
+    assert column.GetStratumAtColumnIndex(1) == store.GetStratumAtColumnIndex(
+        1
+    )
