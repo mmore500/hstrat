@@ -5,7 +5,6 @@
 namespace hstrat {
 namespace depth_proportional_resolution_algo {
 
-template<typename POLICY_SPEC>
 struct CalcMrcaUncertaintyRelUpperBoundPessimalRankFtor {
 
   template<typename POLICY_SPEC>

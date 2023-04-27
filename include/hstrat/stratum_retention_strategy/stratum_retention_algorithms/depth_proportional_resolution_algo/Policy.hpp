@@ -26,7 +26,7 @@ namespace depth_proportional_resolution_algo {
 template <
   typename POLICY_SPEC=hstrat::depth_proportional_resolution_algo::PolicySpec
 >
-using Policy = PolicyCoupler<
+using Policy = hstrat::detail::PolicyCoupler<
   POLICY_SPEC,
   GenDropRanksFtor,
   CalcMrcaUncertaintyAbsUpperBoundFtor,
@@ -40,7 +40,7 @@ using Policy = PolicyCoupler<
   CalcMrcaUncertaintyRelExactFtor,
   CalcNumStrataRetainedExactFtor,
   CalcRankAtColumnIndexFtor,
-  IterRetainedRanksFtor,
+  IterRetainedRanksFtor
 >;
 
 } // namespace depth_proportional_resolution_algo
