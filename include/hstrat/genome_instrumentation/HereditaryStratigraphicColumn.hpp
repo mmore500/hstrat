@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 
 #include "../../../third-party/ccmath/include/ccmath/ceil.hpp"
 #include "../../../third-party/ccmath/include/ccmath/ldexp.hpp"
@@ -66,10 +67,10 @@ public:
   HereditaryStratigraphicColumn(
     const POLICY_T& stratum_retention_policy,
     const ANNOTATION_T& initial_annotation={},
-    const store_with_deposit_count_t& store_and_deposit_count={}
+    store_with_deposit_count_t store_and_deposit_count={}
   )
   : policy(stratum_retention_policy)
-  , store(std::get<0>(store_and_deposit_count))
+  , store(std::move(std::get<0>(store_and_deposit_count)))
   , num_strata_deposited(std::get<1>(store_and_deposit_count))
   {
     assert(GetNumStrataRetained() <= GetNumStrataDeposited());
