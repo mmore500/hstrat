@@ -11,6 +11,7 @@ namespace py = pybind11;
 
 #include "../../third-party/cppcoro/include/cppcoro/generator.hpp"
 
+#include "../hstrat_auxlib/deepcopy.hpp"
 #include "../hstrat/config/HSTRAT_RANK_T.hpp"
 
 #include "deepcopy.hpp"
@@ -44,6 +45,10 @@ public:
   {}
 
   PyObjectPolicyShim(py::object policy_obj) : policy_obj(policy_obj) {}
+
+  PyObjectPolicyShim Clone() const {
+    return {hstrat_auxlib::deepcopy(policy_obj)};
+  }
 
   bool operator==(const PyObjectPolicyShim& other) const {
     return policy_obj.equal(other.policy_obj);

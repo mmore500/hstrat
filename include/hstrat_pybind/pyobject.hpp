@@ -4,6 +4,8 @@
 
 #include <pybind11/pybind11.h>
 
+#include "deepcopy.hpp"
+
 namespace py = pybind11;
 
 namespace hstrat_pybind {
@@ -18,6 +20,8 @@ public:
   pyobject(){}
 
   pyobject(const py::object& obj) : object(obj) {}
+
+  pyobject Clone() const { return {hstrat_pybind::deepcopy(object)}; }
 
   operator py::object() const { return object; }
 

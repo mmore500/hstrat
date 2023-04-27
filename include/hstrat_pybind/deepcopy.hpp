@@ -2,7 +2,7 @@
 #ifndef HSTRAT_PYBIND_DEEPCOPY_HPP_INCLUDE
 #define HSTRAT_PYBIND_DEEPCOPY_HPP_INCLUDE
 
-#include <pybind11/pybind11.h>
+#include "pybind11_or_stubs.hpp"
 
 namespace py = pybind11;
 

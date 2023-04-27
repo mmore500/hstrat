@@ -12,6 +12,7 @@ namespace py = pybind11;
 
 #include "../../third-party/cppcoro/include/cppcoro/generator.hpp"
 
+#include "../hstrat_auxlib/deepcopy.hpp"
 #include "../hstrat_auxlib/Monostate.hpp"
 #include "../hstrat/config/HSTRAT_RANK_T.hpp"
 #include "../hstrat/genome_instrumentation/HereditaryStratum.hpp"
@@ -37,6 +38,10 @@ public:
   {}
 
   PyObjectOrderedStoreShim(py::object obj) : store_obj(obj) {}
+
+  PyObjectOrderedStoreShim Clone() const {
+    return {hstrat_auxlib::deepcopy(store_obj)};
+  }
 
   bool operator==(const PyObjectOrderedStoreShim& other) const {
     return store_obj.equal(other.store_obj);

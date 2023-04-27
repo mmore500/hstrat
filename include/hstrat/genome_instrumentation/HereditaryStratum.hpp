@@ -7,6 +7,7 @@
 #include <tuple>
 #include <variant>
 
+#include "../../hstrat_auxlib/deepcopy.hpp"
 #include "../../hstrat_auxlib/HSTRAT_UNUSED.hpp"
 #include "../../hstrat_auxlib/Monostate.hpp"
 #include "../../hstrat_pybind/pybind11_or_stubs.hpp"
@@ -97,6 +98,20 @@ public:
     ANNOTATION_T,
     hstrat_auxlib::Monostate
   >;
+
+  HereditaryStratum Clone() const {
+    if constexpr (std::is_same_v<DEPOSITION_RANK_T, hstrat_auxlib::Monostate>) {
+      return HereditaryStratum(
+        {},
+        hstrat_auxlib::deepcopy(annotation),
+        hstrat_auxlib::deepcopy(differentia)
+      );
+    } else return HereditaryStratum(
+      hstrat_auxlib::deepcopy(deposition_rank),
+      hstrat_auxlib::deepcopy(annotation),
+      hstrat_auxlib::deepcopy(differentia)
+    );
+  }
 
   bool operator==(const HereditaryStratum& other) const {
     return std::tuple{

@@ -34,6 +34,9 @@ py::class_<SELF_T>(\
   }\
 )\
 .def("__copy__", [](const SELF_T& self){ return self; })\
+.def("__deepcopy__", [](const SELF_T& self, py::object){\
+  return self.Clone();\
+})\
 .def("DepositStratum", [](SELF_T& self){ self.DepositStratum(); })\
 .def("DepositStratum", [](SELF_T& self, py::object annotation){\
   self.DepositStratum(annotation);\

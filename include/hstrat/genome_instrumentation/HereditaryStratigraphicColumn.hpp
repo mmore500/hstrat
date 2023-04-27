@@ -79,6 +79,14 @@ public:
     }
   }
 
+  HereditaryStratigraphicColumn Clone() const {
+    auto res = *this;
+    res.policy = hstrat_auxlib::deepcopy(policy);
+    res.store = hstrat_auxlib::deepcopy(store);
+    res.num_strata_deposited = hstrat_auxlib::deepcopy(num_strata_deposited);
+    return res;
+  }
+
   bool operator==(const HereditaryStratigraphicColumn& other) const {
     return std::tuple{
       policy,

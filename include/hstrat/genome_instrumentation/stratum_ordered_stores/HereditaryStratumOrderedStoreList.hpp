@@ -16,6 +16,7 @@
 
 #include "../../../hstrat_auxlib/audit_cast.hpp"
 #include "../../../hstrat_auxlib/binary_search.hpp"
+#include "../../../hstrat_auxlib/deepcopy.hpp"
 #include "../../../hstrat_auxlib/HSTRAT_UNUSED.hpp"
 #include "../../../hstrat_auxlib/Monostate.hpp"
 
@@ -34,6 +35,15 @@ class HereditaryStratumOrderedStoreList {
 public:
 
   using hereditary_stratum_t = HEREDITARY_STRATUM_T;
+
+  HereditaryStratumOrderedStoreList Clone() const {
+    auto res = *this;
+    std::transform(
+      std::begin(res.data), std::end(res.data), std::begin(res.data),
+      hstrat_auxlib::deepcopy<HEREDITARY_STRATUM_T>
+    );
+    return res;
+  }
 
   bool operator==(const HereditaryStratumOrderedStoreList& other) const {
     return data == other.data;
