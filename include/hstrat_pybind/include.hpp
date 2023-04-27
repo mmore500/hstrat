@@ -6,6 +6,7 @@
 #include "callable.hpp"
 #include "copy.hpp"
 #include "deepcopy.hpp"
+#include "pybind11_or_stubs.hpp"
 #include "PyObjectConcept.hpp"
 #include "pyobject.hpp"
 #include "PyObjectOrderedStoreShimConcept.hpp"

@@ -9,10 +9,13 @@
 
 #include "../../hstrat_auxlib/HSTRAT_UNUSED.hpp"
 #include "../../hstrat_auxlib/Monostate.hpp"
+#include "../../hstrat_pybind/pybind11_or_stubs.hpp"
 #include "../../hstrat_pybind/PyObjectConcept.hpp"
 
 #include "../config/HSTRAT_RANK_T.hpp"
 #include "../config/pick_differentia.hpp"
+
+namespace py = pybind11;
 
 namespace hstrat {
 
@@ -49,9 +52,8 @@ public:
   )
   { }
 
-  HereditaryStratum(
-    hstrat_pybind::PyObjectConcept auto stratum
-  )
+  // non-template necessary for implicit conversion
+  HereditaryStratum(py::object stratum)
   : differentia(
     stratum.attr("GetDifferentia")().template cast<DIFFERENTIA_T>()
   )
