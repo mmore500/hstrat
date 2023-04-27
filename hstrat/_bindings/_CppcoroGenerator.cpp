@@ -14,7 +14,7 @@ namespace py = pybind11;
 
 #define INSTANCE(SELF_T) py::class_<SELF_T>(\
   m,\
-  "CppcoroGeneratorHstratRankT" #SELF_T\
+  "CppcoroGeneratorHstrat" #SELF_T\
 )\
 .def(\
   "__iter__",\
