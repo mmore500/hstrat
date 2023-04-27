@@ -5,10 +5,11 @@ import typing
 from interval_search import binary_search
 
 from ..._HereditaryStratum import HereditaryStratum
-from .._detail import HereditaryStratumOrderedStoreBase
+from .._detail import HereditaryStratumOrderedStoreABC
 
 
-class HereditaryStratumOrderedStoreList(HereditaryStratumOrderedStoreBase):
+@HereditaryStratumOrderedStoreABC.register
+class HereditaryStratumOrderedStoreList:
     """Interchangeable backing container for HereditaryStratigraphicColumn.
 
     Stores deposited strata using a list implementation. Retained strata are

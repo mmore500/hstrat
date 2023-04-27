@@ -15,12 +15,12 @@ from ...stratum_retention_strategy.stratum_retention_algorithms import (
 from .._HereditaryStratum import HereditaryStratum
 from .._detail import HereditaryStratigraphicColumnABC
 from ..stratum_ordered_stores import HereditaryStratumOrderedStoreList
-from ..stratum_ordered_stores._detail import HereditaryStratumOrderedStoreBase
+from ..stratum_ordered_stores._detail import HereditaryStratumOrderedStoreABC
 
 # define type alias for ordered stores
 OrderedStore = typing.Union[
-    typing.Callable[..., HereditaryStratumOrderedStoreBase],
-    typing.Tuple[HereditaryStratumOrderedStoreBase, int],
+    typing.Callable[..., HereditaryStratumOrderedStoreABC],
+    typing.Tuple[HereditaryStratumOrderedStoreABC, int],
     None,
 ]
 
@@ -144,7 +144,7 @@ class HereditaryStratigraphicColumn:
             self._num_strata_deposited = 0
             self.DepositStratum(annotation=initial_stratum_annotation)
         elif isinstance(
-            stratum_ordered_store[0], HereditaryStratumOrderedStoreBase
+            stratum_ordered_store[0], HereditaryStratumOrderedStoreABC
         ):
             # ordered store is already an instance of an ordered store
             (

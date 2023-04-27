@@ -6,10 +6,11 @@ import anytree
 
 from ...._auxiliary_lib import AnyTreeAscendingIter
 from ..._HereditaryStratum import HereditaryStratum
-from .._detail import HereditaryStratumOrderedStoreBase
+from .._detail import HereditaryStratumOrderedStoreABC
 
 
-class HereditaryStratumOrderedStoreTree(HereditaryStratumOrderedStoreBase):
+@HereditaryStratumOrderedStoreABC.register
+class HereditaryStratumOrderedStoreTree:
     """Interchangeable backing container for HereditaryStratigraphicColumn.
 
     Stores deposited strata as a linked tree. Retained strata pertinent to the

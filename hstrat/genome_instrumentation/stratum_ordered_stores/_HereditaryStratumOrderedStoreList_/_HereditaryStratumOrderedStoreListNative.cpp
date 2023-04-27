@@ -60,6 +60,13 @@ PYBIND11_MODULE(_HereditaryStratumOrderedStoreListNative, m) {
     m.attr("__name__")
   );
 
+  const auto import_module = py::module::import("importlib").attr(
+    "import_module"
+  );
+  const auto HereditaryStratumOrderedStoreABC_register = import_module(
+    "..._detail", m.attr("__name__")
+  ).attr("HereditaryStratumOrderedStoreABC").attr("register");
+
   using stratum_deporank_t = hstrat::HereditaryStratum<
     uint64_t, // DIFFERENTIA_T
     hstrat_pybind::pyobject, // ANNOTATION_T
@@ -68,7 +75,8 @@ PYBIND11_MODULE(_HereditaryStratumOrderedStoreListNative, m) {
   using store_deporank_t = hstrat::HereditaryStratumOrderedStoreList<
     stratum_deporank_t
   >;
-  INSTANCE(store_deporank_t, )
+  HereditaryStratumOrderedStoreABC_register(
+    INSTANCE(store_deporank_t, )
     .def("IterRankDifferentiaZip",
       [](
         const store_deporank_t& self,
@@ -129,7 +137,8 @@ PYBIND11_MODULE(_HereditaryStratumOrderedStoreListNative, m) {
       [](const store_deporank_t& self, const HSTRAT_RANK_T rank){
         return self.GetColumnIndexOfRank(rank);
       }
-    );
+    )
+  );
 
   using stratum_nodeporank_t = hstrat::HereditaryStratum<
     uint64_t, // DIFFERENTIA_T
@@ -139,6 +148,7 @@ PYBIND11_MODULE(_HereditaryStratumOrderedStoreListNative, m) {
   using store_nodeporank_t = hstrat::HereditaryStratumOrderedStoreList<
     stratum_nodeporank_t
   >;
+  HereditaryStratumOrderedStoreABC_register(
     INSTANCE(store_nodeporank_t, _NoDepoRank)
     .def("IterRankDifferentiaZip",
       [](
@@ -192,7 +202,8 @@ PYBIND11_MODULE(_HereditaryStratumOrderedStoreListNative, m) {
       [](const store_nodeporank_t& self, const HSTRAT_RANK_T rank){
         return py::none();
       }
-    );
+    )
+  );
 
 }
 

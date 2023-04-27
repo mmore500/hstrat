@@ -5,10 +5,11 @@ import sys
 import typing
 
 from ..._HereditaryStratum import HereditaryStratum
-from .._detail import HereditaryStratumOrderedStoreBase
+from .._detail import HereditaryStratumOrderedStoreABC
 
 
-class HereditaryStratumOrderedStoreDict(HereditaryStratumOrderedStoreBase):
+@HereditaryStratumOrderedStoreABC.register
+class HereditaryStratumOrderedStoreDict:
     """Interchangeable backing container for HereditaryStratigraphicColumn.
 
     Stores deposited strata using a dict implementation. Retained strata are

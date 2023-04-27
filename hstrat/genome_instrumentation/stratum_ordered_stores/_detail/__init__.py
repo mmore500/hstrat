@@ -1,7 +1,5 @@
-from ._HereditaryStratumOrderedStoreBase import (
-    HereditaryStratumOrderedStoreBase,
-)
+from ._HereditaryStratumOrderedStoreABC import HereditaryStratumOrderedStoreABC
 
 __all__ = [
-    "HereditaryStratumOrderedStoreBase",
+    "HereditaryStratumOrderedStoreABC",
 ]
