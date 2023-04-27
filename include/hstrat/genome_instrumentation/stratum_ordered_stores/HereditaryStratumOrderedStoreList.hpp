@@ -125,7 +125,8 @@ public:
       // must make copy to prevent invalidation when strata are deleted
       // note, however, that copy is made lazily
       // (only when first item requested)
-      std::vector<HSTRAT_RANK_T> ranks(data.size());
+      std::vector<HSTRAT_RANK_T> ranks;
+      ranks.reserve(data.size());
       std::transform(
         std::begin(data),
         std::end(data),
