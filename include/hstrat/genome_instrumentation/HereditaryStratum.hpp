@@ -34,11 +34,10 @@ public:
 
   HereditaryStratum(
     HSTRAT_RANK_T deposition_rank,
-    ANNOTATION_T annotation={}
+    ANNOTATION_T annotation,
+    DIFFERENTIA_T differentia
   )
-  : differentia(
-    hstrat::pick_differentia<DIFFERENTIA_T>(deposition_rank)
-  )
+  : differentia(differentia)
   , annotation(annotation)
   , deposition_rank(
     [&deposition_rank](){
@@ -49,6 +48,16 @@ public:
         return DEPOSITION_RANK_T{};
       }
     }()
+  )
+  { }
+
+  HereditaryStratum(
+    HSTRAT_RANK_T deposition_rank={},
+    ANNOTATION_T annotation={}
+  ) : HereditaryStratum(
+    deposition_rank,
+    annotation,
+    hstrat::pick_differentia<DIFFERENTIA_T>(deposition_rank)
   )
   { }
 

@@ -127,70 +127,131 @@ PYBIND11_MODULE(_HereditaryStratumNative, m) {
   m.def("HereditaryStratumNative", [](
       py::object annotation,
       const int64_t differentia_bit_width,
-      py::object deposition_rank
+      py::object deposition_rank,
+      py::object differentia
     ) -> std::variant<
       bit_deporank_t, byte_deporank_t, word_deporank_t, doubleword_deporank_t, quadword_deporank_t,
       bit_nodeporank_t, byte_nodeporank_t, word_nodeporank_t, doubleword_nodeporank_t, quadword_nodeporank_t
     > {
 
       if (differentia_bit_width == 1 && deposition_rank.is_none()) {
-        return bit_nodeporank_t(
+        if (differentia.is_none()) {
+          return bit_nodeporank_t(
+            HSTRAT_RANK_T{}, // arbitrary, will be ignored
+            annotation
+          );
+        } else return bit_nodeporank_t(
           HSTRAT_RANK_T{}, // arbitrary, will be ignored
-          annotation
+          annotation,
+          differentia.cast<uint64_t>()
         );
       }
       else if (differentia_bit_width == 8 && deposition_rank.is_none()) {
-        return byte_nodeporank_t(
+        if (differentia.is_none()) {
+          return byte_nodeporank_t(
+            HSTRAT_RANK_T{}, // arbitrary, will be ignored
+            annotation
+          );
+        } else return byte_nodeporank_t(
           HSTRAT_RANK_T{}, // arbitrary, will be ignored
-          annotation
+          annotation,
+          differentia.cast<uint64_t>()
         );
       }
       else if (differentia_bit_width == 16 && deposition_rank.is_none()) {
-        return word_nodeporank_t(
+        if (differentia.is_none()) {
+          return word_nodeporank_t(
+            HSTRAT_RANK_T{}, // arbitrary, will be ignored
+            annotation
+          );
+        } else return word_nodeporank_t(
           HSTRAT_RANK_T{}, // arbitrary, will be ignored
-          annotation
+          annotation,
+          differentia.cast<uint64_t>()
         );
       }
       else if (differentia_bit_width == 32 && deposition_rank.is_none()) {
-        return doubleword_nodeporank_t(
+        if (differentia.is_none()) {
+          return doubleword_nodeporank_t(
+            HSTRAT_RANK_T{}, // arbitrary, will be ignored
+            annotation
+          );
+        } else return doubleword_nodeporank_t(
           HSTRAT_RANK_T{}, // arbitrary, will be ignored
-          annotation
+          annotation,
+          differentia.cast<uint64_t>()
         );
       }
       else if (differentia_bit_width == 64 && deposition_rank.is_none()) {
-        return quadword_nodeporank_t(
+        if (differentia.is_none()) {
+          return quadword_nodeporank_t(
+            HSTRAT_RANK_T{}, // arbitrary, will be ignored
+            annotation
+          );
+        } else return quadword_nodeporank_t(
           HSTRAT_RANK_T{}, // arbitrary, will be ignored
-          annotation
+          annotation,
+          differentia.cast<uint64_t>()
         );
       }
       else if (differentia_bit_width == 1 && !deposition_rank.is_none()) {
-        return bit_deporank_t(
+        if (differentia.is_none()) {
+          return bit_deporank_t(
+            deposition_rank.template cast<HSTRAT_RANK_T>(),
+            annotation
+          );
+        } else return bit_deporank_t(
           deposition_rank.template cast<HSTRAT_RANK_T>(),
-          annotation
+          annotation,
+          differentia.cast<uint64_t>()
         );
       }
       else if (differentia_bit_width == 8 && !deposition_rank.is_none()) {
-        return byte_deporank_t(
+        if (differentia.is_none()) {
+          return byte_deporank_t(
+            deposition_rank.template cast<HSTRAT_RANK_T>(),
+            annotation
+          );
+        } else return byte_deporank_t(
           deposition_rank.template cast<HSTRAT_RANK_T>(),
-          annotation
+          annotation,
+          differentia.cast<uint64_t>()
         );
       }
       else if (differentia_bit_width == 16 && !deposition_rank.is_none()) {
-        return word_deporank_t(
+        if (differentia.is_none()) {
+          return word_deporank_t(
+            deposition_rank.template cast<HSTRAT_RANK_T>(),
+            annotation
+          );
+        } else return word_deporank_t(
           deposition_rank.template cast<HSTRAT_RANK_T>(),
-          annotation
+          annotation,
+          differentia.cast<uint64_t>()
         );
       }
       else if (differentia_bit_width == 32 && !deposition_rank.is_none()) {
-        return doubleword_deporank_t(
+        if (differentia.is_none()) {
+          return doubleword_deporank_t(
+            deposition_rank.template cast<HSTRAT_RANK_T>(),
+            annotation
+          );
+        } else return doubleword_deporank_t(
           deposition_rank.template cast<HSTRAT_RANK_T>(),
-          annotation
+          annotation,
+          differentia.cast<uint64_t>()
         );
       }
       else if (differentia_bit_width == 64 && !deposition_rank.is_none()) {
-        return quadword_deporank_t(
+        if (differentia.is_none()) {
+          return quadword_deporank_t(
+            deposition_rank.template cast<HSTRAT_RANK_T>(),
+            annotation
+          );
+        } else return quadword_deporank_t(
           deposition_rank.template cast<HSTRAT_RANK_T>(),
-          annotation
+          annotation,
+          differentia.cast<uint64_t>()
         );
       }
       else throw std::invalid_argument{"unsupported differentia bit width"};
@@ -198,7 +259,8 @@ PYBIND11_MODULE(_HereditaryStratumNative, m) {
     py::kw_only(),
     py::arg("annotation") = py::none(),
     py::arg("differentia_bit_width") = 64,
-    py::arg("deposition_rank") = py::none()
+    py::arg("deposition_rank") = py::none(),
+    py::arg("differentia") = py::none()
   );
 
   const auto importlib = py::module::import("importlib");
