@@ -41,13 +41,13 @@ class HereditaryStratigraphicColumn {
     HSTRAT_RANK_T
   >;
 
-  using stratum_t_ = hstrat::HereditaryStratum<
+  using hereditary_stratum_t_ = hstrat::HereditaryStratum<
     DIFFERENTIA_T,
     ANNOTATION_T,
     deposition_rank_t
   >;
 
-  using store_t_ = STORE_T<stratum_t_>;
+  using store_t_ = STORE_T<hereditary_stratum_t_>;
 
   POLICY_T policy;
   store_t_ store;
@@ -57,9 +57,9 @@ public:
 
   using store_t = store_t_;
   using store_with_deposit_count_t = std::tuple<store_t, HSTRAT_RANK_T>;
-  using stratum_t = stratum_t_;
-  using differentia_t = typename stratum_t::differentia_t;
-  using annotation_t = typename stratum_t::annotation_t;
+  using hereditary_stratum_t = hereditary_stratum_t_;
+  using differentia_t = typename hereditary_stratum_t::differentia_t;
+  using annotation_t = typename hereditary_stratum_t::annotation_t;
   consteval bool has_annotation() {
     return std::is_same_v<annotation_t, hstrat_auxlib::Monostate>;
   }
@@ -128,7 +128,7 @@ private:
 public:
 
   void DepositStratum(const ANNOTATION_T& annotation={}) {
-    const stratum_t stratum{
+    const hereditary_stratum_t stratum{
       num_strata_deposited,
       annotation
     };
