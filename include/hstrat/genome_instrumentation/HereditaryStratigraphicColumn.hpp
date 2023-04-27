@@ -208,10 +208,14 @@ public:
     return GetNumDiscardedStrata();
   }
 
+  [[deprecated("use calc_probability_differentia_collision_between")]]
   constexpr static double CalcProbabilityDifferentiaCollision() {
     return ccmath::ldexp(1, -GetStratumDifferentiaBitWidth());
   }
 
+  [[deprecated(
+    "use calc_min_implausible_spurious_differentia_collisions_between"
+  )]]
   constexpr std::size_t
   CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(
     const double significance_level
