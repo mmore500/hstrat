@@ -13,7 +13,8 @@
 namespace py = pybind11;
 using namespace pybind11::literals;
 
-#define INSTANCE_DEPORANK(SELF_T) py::class_<SELF_T>(\
+#define INSTANCE_DEPORANK(SELF_T) HereditaryStratumABC_register(\
+  py::class_<SELF_T>(\
     m,\
     "_HereditaryStratumNative_" #SELF_T\
   )\
@@ -35,9 +36,11 @@ using namespace pybind11::literals;
   .def("GetDepositionRank", &SELF_T::GetDepositionRank)\
   .def("GetAnnotation", [](const SELF_T& self) -> py::object {\
     return self.GetAnnotation();\
-  })
+  })\
+)
 
-#define INSTANCE_NODEPORANK(SELF_T) py::class_<SELF_T>(\
+#define INSTANCE_NODEPORANK(SELF_T) HereditaryStratumABC_register(\
+  py::class_<SELF_T>(\
     m,\
     "_HereditaryStratumNative_" #SELF_T\
   )\
@@ -61,7 +64,8 @@ using namespace pybind11::literals;
   )\
   .def("GetAnnotation", [](const SELF_T& self) -> py::object {\
     return self.GetAnnotation();\
-  })
+  })\
+)
 
 using bit_deporank_t = hstrat::HereditaryStratum<
   bool, // DIFFERENTIA_T
@@ -196,6 +200,13 @@ PYBIND11_MODULE(_HereditaryStratumNative, m) {
     py::arg("differentia_bit_width") = 64,
     py::arg("deposition_rank") = py::none()
   );
+
+  const auto importlib = py::module::import("importlib");
+  const auto HereditaryStratumABC_register \
+    = importlib.attr("import_module")(
+        "..._detail",
+        m.attr("__name__")
+  ).attr("HereditaryStratumABC").attr("register");
 
   INSTANCE_DEPORANK(bit_deporank_t);
   INSTANCE_DEPORANK(byte_deporank_t);

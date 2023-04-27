@@ -2,7 +2,10 @@ import operator
 import random
 import typing
 
+from .._detail import HereditaryStratumABC
 
+
+@HereditaryStratumABC.register
 class HereditaryStratum:
     """Packages stratigraph data associated with a particular generation.
 
