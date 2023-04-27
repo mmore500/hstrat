@@ -1,4 +1,5 @@
 from copy import deepcopy
+import itertools as it
 import pickle
 import tempfile
 
@@ -67,6 +68,26 @@ def test_equality2(impl):
     stratum2 = stratum1
     assert stratum1 == stratum2
     assert stratum1 == deepcopy(stratum2)
+
+
+def test_equality3():
+    instances = [
+        impl(differentia=0)
+        for impl in genome_instrumentation._HereditaryStratum_.impls
+    ]
+    for x, y in it.permutations(instances, 2):
+        assert x == y
+
+
+def test_equality4():
+    instances = [
+        impl(differentia=i)
+        for i, impl in enumerate(
+            genome_instrumentation._HereditaryStratum_.impls,
+        )
+    ]
+    for x, y in it.permutations(instances, 2):
+        assert x != y
 
 
 def test_pickle():

@@ -76,6 +76,14 @@ class HereditaryStratum:
                     operator.attrgetter(attr) for attr in self.__slots__
                 ]
             )
+            or (
+                isinstance(other, HereditaryStratumABC)
+                and (
+                    self.GetDepositionRank() == other.GetDepositionRank()
+                    and self.GetDifferentia() == other.GetDifferentia()
+                    and self.GetAnnotation() == other.GetAnnotation()
+                )
+            )
         )
 
     def GetDepositionRank(self: "HereditaryStratum") -> typing.Optional[int]:
