@@ -89,6 +89,7 @@ jobs:
         sudo apt-get install -y \
           g++-12 \
           clang-15 \
+          ffmpeg \
           -o Acquire::Retries=3
     - uses: actions/checkout@v1
       with:
