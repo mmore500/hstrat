@@ -23,7 +23,6 @@ namespace py = pybind11;
 .def(py::init<>())\
 .def("__eq__", &SELF_T::operator==)\
 .def("__copy__", [](const SELF_T& self){ return self; })\
-.def("__deepcopy__", [](const SELF_T& self, py::object){ return self; })\
 .def("Clone", [](const SELF_T& self){ return self; })\
 .def("DepositStratum", [](\
     SELF_T& self,\
