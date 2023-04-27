@@ -24,13 +24,9 @@ namespace py = pybind11;
   py::keep_alive<0, 1>()\
 )
 
-using rank_generator_t = cppcoro::generator<const HSTRAT_RANK_T>;
-
-using quadword_tuple_t = std::tuple<HSTRAT_RANK_T, uint64_t>;
-using quadword_tuple_generator_t = cppcoro::generator<quadword_tuple_t>;
-
 PYBIND11_MODULE(_CppcoroGenerator, m) {
 
+  using rank_generator_t = cppcoro::generator<const HSTRAT_RANK_T>;
   INSTANCE(rank_generator_t);
 
   using bool_tuple_t = std::tuple<HSTRAT_RANK_T, bool>;
@@ -49,6 +45,8 @@ PYBIND11_MODULE(_CppcoroGenerator, m) {
   using doubleword_tuple_generator_t = cppcoro::generator<doubleword_tuple_t>;
   INSTANCE(doubleword_tuple_generator_t);
 
+  using quadword_tuple_t = std::tuple<HSTRAT_RANK_T, uint64_t>;
+  using quadword_tuple_generator_t = cppcoro::generator<quadword_tuple_t>;
   INSTANCE(quadword_tuple_generator_t);
 
 }
