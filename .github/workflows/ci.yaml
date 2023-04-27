@@ -84,8 +84,12 @@ jobs:
           - clang++-15
     steps:
     - run: |
-        sudo apt update
-        sudo apt install -y g++-12 clang-15
+        sudo sed -i 's/azure\.//' /etc/apt/sources.list
+        sudo apt-get update -o Acquire::Retries=3
+        sudo apt-get install -y \
+          g++-12 \
+          clang-15 \
+          -o Acquire::Retries=3
     - uses: actions/checkout@v1
       with:
         submodules: recursive
