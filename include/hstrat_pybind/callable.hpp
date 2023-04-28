@@ -10,8 +10,8 @@ namespace hstrat_pybind {
 
 bool callable(py::object obj) {
 
-  auto copylib = py::module::import("builtins");
-  return copylib.attr("callable")(obj).cast<bool>();
+  auto builtins = py::module::import("builtins");
+  return builtins.attr("callable")(obj).cast<bool>();
 
 }
 
