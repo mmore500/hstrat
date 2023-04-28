@@ -206,6 +206,7 @@ public:
   }
 
   const HSTRAT_RANK_T GetRankAtColumnIndex(const HSTRAT_RANK_T index) const {
+    assert(index < GetNumStrataRetained());
     if constexpr (_omits_stratum_deposition_rank()) {
       return policy.CalcRankAtColumnIndex(index, num_strata_deposited);
     } else {
