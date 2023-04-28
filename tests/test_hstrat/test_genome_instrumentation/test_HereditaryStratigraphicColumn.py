@@ -786,6 +786,10 @@ def test_GetColumnIndexOfRank(impl, always_store_rank_in_stratum):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize(
     "retention_policy",
     [
         hstrat.perfect_resolution_algo.Policy(),
@@ -801,8 +805,8 @@ def test_GetColumnIndexOfRank(impl, always_store_rank_in_stratum):
         hstrat.HereditaryStratumOrderedStoreTree,
     ],
 )
-def test_GetStratumAtRank(retention_policy, ordered_store):
-    column = hstrat.HereditaryStratigraphicColumn(
+def test_GetStratumAtRank(impl, retention_policy, ordered_store):
+    column = impl(
         stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )

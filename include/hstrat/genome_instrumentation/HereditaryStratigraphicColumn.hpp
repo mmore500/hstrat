@@ -3,6 +3,7 @@
 #define HSTRAT_GENOME_INSTRUMENTATION_HEREDITARYSTRATIGRAPHICCOLUMN_HPP_INCLUDE
 
 #include <algorithm>
+#include <assert.h>
 #include <cassert>
 #include <climits>
 #include <cstddef>
@@ -191,6 +192,12 @@ public:
     } else {
       return store.GetStratumAtColumnIndex(index);
     }
+  }
+
+  decltype(auto) GetStratumAtRank(const HSTRAT_RANK_T rank) const {
+    const auto index = GetColumnIndexOfRank(rank);
+    assert(index != std::min(rank + 1, GetNumStrataRetained()));
+    return GetStratumAtColumnIndex(index);
   }
 
   const HSTRAT_RANK_T GetRankAtColumnIndex(const HSTRAT_RANK_T index) const {

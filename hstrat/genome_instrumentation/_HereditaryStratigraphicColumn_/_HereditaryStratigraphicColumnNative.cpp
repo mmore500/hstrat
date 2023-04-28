@@ -54,6 +54,15 @@ py::class_<SELF_T>(\
 .def("GetNumStrataRetained", &SELF_T::GetNumStrataRetained)\
 .def("GetNumStrataDeposited", &SELF_T::GetNumStrataDeposited)\
 .def("GetStratumAtColumnIndex", &SELF_T::GetStratumAtColumnIndex)\
+.def("GetStratumAtRank",\
+  [](const SELF_T& self, const HSTRAT_RANK_T rank)\
+  -> std::variant<SELF_T::hereditary_stratum_t, py::none> {\
+    const auto res = self.GetColumnIndexOfRank(rank);\
+    if (res == std::min(rank + 1, self.GetNumStrataRetained())) {\
+      return py::none();\
+    } else return self.GetStratumAtColumnIndex(res);\
+  }\
+)\
 .def("GetRankAtColumnIndex", &SELF_T::GetRankAtColumnIndex)\
 .def("GetColumnIndexOfRank",\
   [](const SELF_T& self, const HSTRAT_RANK_T rank)\
