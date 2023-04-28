@@ -4,9 +4,9 @@
 
 #include <string>
 
-#include <pybind11/pybind11.h>
-
 #include "../../third-party/fmt/include/fmt/format.h"
+
+#include "pybind11_or_stubs.hpp"
 
 #include "deepcopy.hpp"
 
