@@ -4,12 +4,16 @@
 
 #include <cstdint>
 #include <optional>
+#include <string>
 #include <tuple>
 #include <variant>
+
+#include "../../../third-party/fmt/include/fmt/core.h"
 
 #include "../../hstrat_auxlib/deepcopy.hpp"
 #include "../../hstrat_auxlib/HSTRAT_UNUSED.hpp"
 #include "../../hstrat_auxlib/Monostate.hpp"
+#include "../../hstrat_auxlib/repr.hpp"
 #include "../../hstrat_pybind/pybind11_or_stubs.hpp"
 #include "../../hstrat_pybind/PyObjectConcept.hpp"
 
@@ -130,6 +134,15 @@ public:
   const ANNOTATION_T& GetAnnotation() const { return annotation; }
 
   DIFFERENTIA_T GetDifferentia() const { return differentia; }
+
+  std::string Str() const {
+    return fmt::format(
+      "{{deposition_rank: {}, annotation: {}, differentia: {}}}",
+      GetDepositionRank(),
+      hstrat_auxlib::repr(GetAnnotation()),
+      GetDifferentia()
+    );
+  }
 
 };
 

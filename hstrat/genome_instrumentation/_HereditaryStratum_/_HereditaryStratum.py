@@ -86,6 +86,15 @@ class HereditaryStratum:
             )
         )
 
+    def __str__(self: "HereditaryStratum") -> str:
+        return f"""{{deposition_rank: {
+            self._deposition_rank
+        !r}, annotation: {
+            self._annotation
+        !r}, differentia: {
+            self._differentia
+        !r}}}"""
+
     def GetDepositionRank(self: "HereditaryStratum") -> typing.Optional[int]:
         """Get the deposition order rank associated with this stratum, if stored.
 

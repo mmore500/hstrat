@@ -100,3 +100,13 @@ def test_pickle():
             reconstituted = pickle.load(tmp_file)
             assert reconstituted == original
             assert reconstituted != hstrat.HereditaryStratum()
+
+
+def test_str():
+    for i, j, k in it.product(range(3), range(3), [None, "asdf", 89.8]):
+        assert 1 == len(
+            {
+                str(impl(differentia=i, deposition_rank=j, annotation=k))
+                for impl in genome_instrumentation._HereditaryStratum_.impls
+            }
+        )

@@ -32,6 +32,7 @@ using namespace pybind11::literals;
   .def("__deepcopy__", [](const SELF_T& self, py::object){\
     return self.Clone();\
   })\
+  .def("__str__", &SELF_T::Str)\
   .def("GetDifferentia", &SELF_T::GetDifferentia)\
   .def("GetDepositionRank", &SELF_T::GetDepositionRank)\
   .def("GetAnnotation", [](const SELF_T& self) -> py::object {\
@@ -58,6 +59,7 @@ using namespace pybind11::literals;
   .def("__deepcopy__", [](const SELF_T& self, py::object){\
     return self.Clone();\
   })\
+  .def("__str__", &SELF_T::Str)\
   .def("GetDifferentia", &SELF_T::GetDifferentia)\
   .def("GetDepositionRank",\
     [](const SELF_T&){ return py::none(); }\
