@@ -119,12 +119,12 @@ def test_lessthan3():
     assert not any(
         x == y
         for instances in (instances1, instances2)
-        for x, y in it.permutations(instances1)
+        for x, y in it.permutations(instances, r=2)
     )
     assert all(
         (x < y) or (y < x)
         for instances in (instances1, instances2)
-        for x, y in it.permutations(instances1)
+        for x, y in it.permutations(instances, r=2)
     )
 
     assert 1 == len({x < y for x, y in it.product(instances1, instances2)})
