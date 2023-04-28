@@ -49,6 +49,12 @@ PYBIND11_MODULE(_CppcoroGenerator, m) {
   using rank_generator_t = cppcoro::generator<const HSTRAT_RANK_T>;
   INSTANCE(rank_generator_t);
 
+  INSTANCE(cppcoro::generator<bool>);
+  INSTANCE(cppcoro::generator<uint8_t>);
+  INSTANCE(cppcoro::generator<uint16_t>);
+  INSTANCE(cppcoro::generator<uint32_t>);
+  INSTANCE(cppcoro::generator<uint64_t>);
+
   using bool_tuple_t = std::tuple<HSTRAT_RANK_T, bool>;
   using bool_tuple_generator_t = cppcoro::generator<bool_tuple_t>;
   INSTANCE_DEREF_AS_VALUE(bool_tuple_generator_t);

@@ -164,6 +164,15 @@ public:
     return store.IterRetainedStrata();
   }
 
+  cppcoro::generator<differentia_t> IterRetainedDifferentia() const {
+    return cppcoro::fmap(
+      [](const hereditary_stratum_t stratum){
+        return stratum.GetDifferentia();
+      },
+      store.IterRetainedStrata()
+    );
+  }
+
   HSTRAT_RANK_T GetNumStrataRetained() const {
     return store.GetNumStrataRetained();
   }

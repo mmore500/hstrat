@@ -46,6 +46,12 @@ struct type_caster<generator_t> : public type_caster_base<generator_t> {\
 namespace hstrat_pybind::detail {
   using rank_generator_t = cppcoro::generator<const HSTRAT_RANK_T>;
 
+  using bit_generator_t = cppcoro::generator<bool>;
+  using byte_generator_t = cppcoro::generator<uint8_t>;
+  using word_generator_t = cppcoro::generator<uint16_t>;
+  using doubleword_generator_t = cppcoro::generator<uint32_t>;
+  using quadword_generator_t = cppcoro::generator<uint64_t>;
+
   using bit_tuple_t = std::tuple<HSTRAT_RANK_T, bool>;
   using bit_tuple_generator_t = cppcoro::generator<bit_tuple_t>;
 
@@ -140,6 +146,23 @@ namespace pybind11::detail {
 HSTRAT_PYBIND_GENERATOR_TYPE_CASTER(
   hstrat_pybind::detail::rank_generator_t
 );
+
+HSTRAT_PYBIND_GENERATOR_TYPE_CASTER(
+  hstrat_pybind::detail::bit_generator_t
+);
+HSTRAT_PYBIND_GENERATOR_TYPE_CASTER(
+  hstrat_pybind::detail::byte_generator_t
+);
+HSTRAT_PYBIND_GENERATOR_TYPE_CASTER(
+  hstrat_pybind::detail::word_generator_t
+);
+HSTRAT_PYBIND_GENERATOR_TYPE_CASTER(
+  hstrat_pybind::detail::doubleword_generator_t
+);
+HSTRAT_PYBIND_GENERATOR_TYPE_CASTER(
+  hstrat_pybind::detail::quadword_generator_t
+);
+
 HSTRAT_PYBIND_GENERATOR_TYPE_CASTER(
   hstrat_pybind::detail::bit_tuple_generator_t
 );
