@@ -28,6 +28,16 @@ using namespace pybind11::literals;
       return self == SELF_T{other};\
     }\
   )\
+  .def("__lt__",\
+    [](const SELF_T& self, const SELF_T& other){\
+      return self < other;\
+    }\
+  )\
+  .def("__lt__",\
+    [](const SELF_T& self, py::object other){\
+      return self < SELF_T{other};\
+    }\
+  )\
   .def("__copy__", [](const SELF_T& self){ return self; })\
   .def("__deepcopy__", [](const SELF_T& self, py::object){\
     return self.Clone();\
@@ -53,6 +63,16 @@ using namespace pybind11::literals;
   .def("__eq__",\
     [](const SELF_T& self, py::object other){\
       return self == SELF_T{other};\
+    }\
+  )\
+  .def("__lt__",\
+    [](const SELF_T& self, const SELF_T& other){\
+      return self < other;\
+    }\
+  )\
+  .def("__lt__",\
+    [](const SELF_T& self, py::object other){\
+      return self < SELF_T{other};\
     }\
   )\
   .def("__copy__", [](const SELF_T& self){ return self; })\

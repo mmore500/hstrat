@@ -6,6 +6,7 @@ import tempfile
 import pytest
 
 from hstrat import genome_instrumentation, hstrat
+from hstrat._auxiliary_lib import is_strictly_increasing
 
 
 @pytest.mark.parametrize(
@@ -70,13 +71,63 @@ def test_equality2(impl):
     assert stratum1 == deepcopy(stratum2)
 
 
-def test_equality3():
-    instances = [
-        impl(differentia=0)
+@pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratum_.impls,
+)
+def test_lessthan1(impl):
+    assert impl() != impl()
+    stratum1 = impl()
+    stratum2 = stratum1
+    assert not (stratum1 < stratum2), (
+        str(stratum1),
+        str(stratum2),
+        stratum1 == stratum2,
+    )
+    assert not (stratum2 < stratum1)
+    assert not (stratum1 < deepcopy(stratum2))
+
+
+@pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratum_.impls,
+)
+def test_lessthan2(impl):
+    stratum1 = impl(deposition_rank=0)
+    stratum2 = impl(deposition_rank=1)
+    stratum3 = impl(deposition_rank=2)
+    assert (stratum1 < stratum2) != (stratum2 < stratum1)
+    assert (stratum1 < stratum3) != (stratum3 < stratum1)
+    assert (stratum2 < stratum3) != (stratum3 < stratum2)
+
+    assert sorted([stratum1, stratum2, stratum3]) == sorted(
+        [stratum3, stratum2, stratum1]
+    )
+    assert is_strictly_increasing(sorted([stratum1, stratum2, stratum3]))
+
+
+def test_lessthan3():
+    instances1 = [
+        impl(deposition_rank=0)
         for impl in genome_instrumentation._HereditaryStratum_.impls
     ]
-    for x, y in it.permutations(instances, 2):
-        assert x == y
+    instances2 = [
+        impl(deposition_rank=1)
+        for impl in genome_instrumentation._HereditaryStratum_.impls
+    ]
+
+    assert not any(
+        x == y
+        for instances in (instances1, instances2)
+        for x, y in it.permutations(instances1)
+    )
+    assert all(
+        (x < y) or (y < x)
+        for instances in (instances1, instances2)
+        for x, y in it.permutations(instances1)
+    )
+
+    assert 1 == len({x < y for x, y in it.product(instances1, instances2)})
 
 
 def test_equality4():

@@ -11,6 +11,7 @@
 #include "../../../third-party/fmt/include/fmt/core.h"
 
 #include "../../hstrat_auxlib/deepcopy.hpp"
+#include "../../hstrat_auxlib/HasLessThanOperator.hpp"
 #include "../../hstrat_auxlib/HSTRAT_UNUSED.hpp"
 #include "../../hstrat_auxlib/Monostate.hpp"
 #include "../../hstrat_auxlib/repr.hpp"
@@ -126,6 +127,26 @@ public:
       other.differentia,
       other.annotation,
       other.deposition_rank
+    };
+  }
+
+  bool operator<(const HereditaryStratum& other) const {
+    if constexpr (hstrat_auxlib::HasLessThanOperator<ANNOTATION_T>) {
+      return std::tuple{
+        deposition_rank,
+        annotation,
+        differentia
+      } < std::tuple{
+        other.deposition_rank,
+        other.annotation,
+        other.differentia
+      };
+    } else return std::tuple{
+      deposition_rank,
+      differentia
+    } < std::tuple{
+      other.deposition_rank,
+      other.differentia
     };
   }
 

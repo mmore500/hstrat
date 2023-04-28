@@ -14,7 +14,7 @@ namespace py = pybind11;
 
 namespace hstrat_pybind {
 
-// override operator== to use __eq__
+// override operator== to use __eq__, operator< to use __lt__
 class pyobject {
 
   py::object object;
@@ -31,6 +31,13 @@ public:
 
   bool operator==(const pyobject& other) const {
     return object.equal(other.object);
+  }
+
+  bool operator<(const pyobject& other) const {
+    try {
+      return object < other.object;
+    // py::type_error doesn't catch all TypeErrors
+    } catch (...) { return false; }
   }
 
   std::string Repr() const {

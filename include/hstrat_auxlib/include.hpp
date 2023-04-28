@@ -9,6 +9,7 @@
 #include "constexpr_log.hpp"
 #include "Container.hpp"
 #include "deepcopy.hpp"
+#include "HasLessThanOperator.hpp"
 #include "HSTRAT_UNUSED.hpp"
 #include "is_specialization_of.hpp"
 #include "IsSpecializationOf.hpp"

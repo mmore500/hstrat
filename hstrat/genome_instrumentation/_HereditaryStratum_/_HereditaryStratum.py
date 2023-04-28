@@ -2,6 +2,7 @@ import operator
 import random
 import typing
 
+from ..._auxiliary_lib import best_effort_lexicographical_compare
 from .._detail import HereditaryStratumABC
 
 
@@ -94,6 +95,23 @@ class HereditaryStratum:
         !r}, differentia: {
             self._differentia
         !r}}}"""
+
+    def __lt__(self: "HereditaryStratum", other: "HereditaryStratum") -> bool:
+        """Compare for value-wise ordering."""
+        if not isinstance(other, HereditaryStratumABC):
+            raise TypeError
+        return best_effort_lexicographical_compare(
+            (
+                self.GetDepositionRank(),
+                self.GetAnnotation(),
+                self.GetDifferentia(),
+            ),
+            (
+                other.GetDepositionRank(),
+                other.GetAnnotation(),
+                other.GetDifferentia(),
+            ),
+        )
 
     def GetDepositionRank(self: "HereditaryStratum") -> typing.Optional[int]:
         """Get the deposition order rank associated with this stratum, if stored.
