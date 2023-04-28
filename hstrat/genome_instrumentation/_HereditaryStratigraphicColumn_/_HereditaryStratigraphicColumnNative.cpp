@@ -10,9 +10,12 @@
 #include <hstrat/genome_instrumentation/HereditaryStratigraphicColumn.hpp>
 #include <hstrat_pybind/all_tu_declarations.hpp>
 #include <hstrat_pybind/callable.hpp>
+#include <hstrat_pybind/iter.hpp>
+#include <hstrat_pybind/list.hpp>
 #include <hstrat_pybind/pyobject.hpp>
 #include <hstrat_pybind/PyObjectOrderedStoreShim.hpp>
 #include <hstrat_pybind/PyObjectPolicyShim.hpp>
+#include <hstrat_pybind/zip.hpp>
 #include <hstrat/stratum_retention_strategy/stratum_retention_algorithms/fixed_resolution_algo/Policy.hpp>
 
 namespace py = pybind11;
@@ -51,6 +54,18 @@ py::class_<SELF_T>(\
 )\
 .def("IterRetainedDifferentia",\
   &SELF_T::IterRetainedDifferentia, py::keep_alive<0, 1>()\
+)\
+.def("IterRankDifferentiaZip",\
+  [](const SELF_T& self, const bool copyable)\
+  {\
+    auto zipped = hstrat_pybind::zip(\
+      self.IterRetainedRanks(), self.IterRetainedDifferentia()\
+    );\
+    return copyable\
+      ? hstrat_pybind::iter(hstrat_pybind::list(zipped))\
+      : zipped;\
+  },\
+  py::arg("copyable") = false\
 )\
 .def("GetNumStrataRetained", &SELF_T::GetNumStrataRetained)\
 .def("GetNumStrataDeposited", &SELF_T::GetNumStrataDeposited)\

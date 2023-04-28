@@ -6,6 +6,8 @@
 #include "callable.hpp"
 #include "copy.hpp"
 #include "deepcopy.hpp"
+#include "iter.hpp"
+#include "list.hpp"
 #include "pybind11_or_stubs.hpp"
 #include "PyObjectConcept.hpp"
 #include "pyobject.hpp"
@@ -13,5 +15,6 @@
 #include "PyObjectOrderedStoreShim.hpp"
 #include "PyObjectPolicyShim.hpp"
 #include "shim_py_object_generator.hpp"
+#include "zip.hpp"
 
 #endif // #ifndef HSTRAT_PYBIND_INCLUDE_HPP_INCLUDE

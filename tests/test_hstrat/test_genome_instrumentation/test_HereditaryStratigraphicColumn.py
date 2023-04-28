@@ -947,6 +947,10 @@ def test_DepositStrata_several(impl, retention_policy, ordered_store):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize(
     "retention_policy",
     [
         hstrat.perfect_resolution_algo.Policy(),
@@ -965,8 +969,8 @@ def test_DepositStrata_several(impl, retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreTree,
     ],
 )
-def test_IterRankDifferentiaZip(retention_policy, ordered_store):
-    c1 = hstrat.HereditaryStratigraphicColumn(
+def test_IterRankDifferentiaZip(impl, retention_policy, ordered_store):
+    c1 = impl(
         stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
