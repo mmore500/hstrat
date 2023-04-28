@@ -47,6 +47,11 @@ namespace py = pybind11;
   py::arg("index"),\
   py::arg("get_rank_at_column_index") = py::none()\
 )\
+.def(\
+  "IterRetainedStrata", [](SELF_T& self){\
+    return self.IterRetainedStrata();\
+  }, py::keep_alive<0, 1>()\
+)\
 
 PYBIND11_MODULE(_HereditaryStratumOrderedStoreListNative, m) {
 

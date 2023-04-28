@@ -112,6 +112,13 @@ public:
     );
   }
 
+  cppcoro::generator<hereditary_stratum_t> IterRetainedStrata() const {
+    using val_t = hereditary_stratum_t;
+    return hstrat_pybind::shim_py_object_generator<val_t>(
+      store_obj.attr("IterRetainedStrata")()
+    );
+  }
+
   template<typename F=hstrat_auxlib::Monostate>
   cppcoro::generator<
     std::tuple<HSTRAT_RANK_T, typename hereditary_stratum_t::differentia_t>

@@ -149,6 +149,10 @@ public:
       for (const HSTRAT_RANK_T rank : ranks) co_yield rank;
     }
 
+    cppcoro::generator<HEREDITARY_STRATUM_T> IterRetainedStrata() const {
+      for (auto stratum : data) co_yield stratum;
+    }
+
     template<typename F=hstrat_auxlib::Monostate>
     cppcoro::generator<
       std::tuple<HSTRAT_RANK_T, typename HEREDITARY_STRATUM_T::differentia_t>

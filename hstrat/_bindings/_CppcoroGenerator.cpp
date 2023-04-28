@@ -9,6 +9,7 @@
 
 #include <hstrat_auxlib/DerefAsValueIterator.hpp>
 #include <hstrat/config/HSTRAT_RANK_T.hpp>
+#include <hstrat/genome_instrumentation/HereditaryStratum.hpp>
 #include <hstrat_pybind/all_tu_declarations.hpp>
 
 namespace py = pybind11;
@@ -67,6 +68,89 @@ PYBIND11_MODULE(_CppcoroGenerator, m) {
   using quadword_tuple_t = std::tuple<HSTRAT_RANK_T, uint64_t>;
   using quadword_tuple_generator_t = cppcoro::generator<quadword_tuple_t>;
   INSTANCE_DEREF_AS_VALUE(quadword_tuple_generator_t);
+
+  using bit_deporank_statum_t = hstrat::HereditaryStratum<
+    bool, // DIFFERENTIA_T
+    hstrat_pybind::pyobject, // ANNOTATION_T
+    HSTRAT_RANK_T // DEPOSITION_RANK_T
+  >;
+  using bit_deporank_generator_t = cppcoro::generator<bit_deporank_statum_t>;
+  INSTANCE_DEREF_AS_VALUE(bit_deporank_generator_t);
+
+  using byte_deporank_statum_t = hstrat::HereditaryStratum<
+    uint8_t, // DIFFERENTIA_T
+    hstrat_pybind::pyobject, // ANNOTATION_T
+    HSTRAT_RANK_T // DEPOSITION_RANK_T
+  >;
+  using byte_deporank_generator_t = cppcoro::generator<byte_deporank_statum_t>;
+  INSTANCE_DEREF_AS_VALUE(byte_deporank_generator_t);
+
+  using word_deporank_statum_t = hstrat::HereditaryStratum<
+    uint16_t, // DIFFERENTIA_T
+    hstrat_pybind::pyobject, // ANNOTATION_T
+    HSTRAT_RANK_T // DEPOSITION_RANK_T
+  >;
+  using word_deporank_generator_t = cppcoro::generator<word_deporank_statum_t>;
+  INSTANCE_DEREF_AS_VALUE(word_deporank_generator_t);
+
+  using doubleword_deporank_statum_t = hstrat::HereditaryStratum<
+    uint32_t, // DIFFERENTIA_T
+    hstrat_pybind::pyobject, // ANNOTATION_T
+    HSTRAT_RANK_T // DEPOSITION_RANK_T
+  >;
+  using doubleword_deporank_generator_t = cppcoro::generator<
+    doubleword_deporank_statum_t>;
+  INSTANCE_DEREF_AS_VALUE(doubleword_deporank_generator_t);
+
+  using quadword_deporank_statum_t = hstrat::HereditaryStratum<
+    uint64_t, // DIFFERENTIA_T
+    hstrat_pybind::pyobject, // ANNOTATION_T
+    HSTRAT_RANK_T // DEPOSITION_RANK_T
+  >;
+  using quadword_deporank_generator_t = cppcoro::generator<
+    quadword_deporank_statum_t>;
+  INSTANCE_DEREF_AS_VALUE(quadword_deporank_generator_t);
+
+  using bit_nodeporank_statum_t = hstrat::HereditaryStratum<
+    bool, // DIFFERENTIA_T
+    hstrat_pybind::pyobject // ANNOTATION_T
+  >;
+  using bit_nodeporank_generator_t = cppcoro::generator<
+    bit_nodeporank_statum_t>;
+  INSTANCE_DEREF_AS_VALUE(bit_nodeporank_generator_t);
+
+  using byte_nodeporank_statum_t = hstrat::HereditaryStratum<
+    uint8_t, // DIFFERENTIA_T
+    hstrat_pybind::pyobject // ANNOTATION_T
+  >;
+  using byte_nodeporank_generator_t = cppcoro::generator<
+    byte_nodeporank_statum_t>;
+  INSTANCE_DEREF_AS_VALUE(byte_nodeporank_generator_t);
+
+  using word_nodeporank_statum_t = hstrat::HereditaryStratum<
+    uint16_t, // DIFFERENTIA_T
+    hstrat_pybind::pyobject // ANNOTATION_T
+  >;
+  using word_nodeporank_generator_t = cppcoro::generator<
+    word_nodeporank_statum_t>;
+  INSTANCE_DEREF_AS_VALUE(word_nodeporank_generator_t);
+
+  using doubleword_nodeporank_statum_t = hstrat::HereditaryStratum<
+    uint32_t, // DIFFERENTIA_T
+    hstrat_pybind::pyobject // ANNOTATION_T
+  >;
+  using doubleword_nodeporank_generator_t = cppcoro::generator<
+    doubleword_nodeporank_statum_t>;
+  INSTANCE_DEREF_AS_VALUE(doubleword_nodeporank_generator_t);
+
+  using quadword_nodeporank_statum_t = hstrat::HereditaryStratum<
+    uint64_t, // DIFFERENTIA_T
+    hstrat_pybind::pyobject // ANNOTATION_T
+  >;
+  using quadword_nodeporank_generator_t = cppcoro::generator<
+    quadword_nodeporank_statum_t>;
+  INSTANCE_DEREF_AS_VALUE(quadword_nodeporank_generator_t);
+
 
 }
 

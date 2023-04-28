@@ -186,6 +186,28 @@ def test_IterRetainedRanks(impl):
     "impl",
     stratum_ordered_stores._HereditaryStratumOrderedStoreList_.impls,
 )
+def test_IterRetainedStrata(impl):
+    store1 = impl()
+    strata = [
+        hstrat.HereditaryStratum(deposition_rank=rank) for rank in range(5)
+    ]
+    assert len(strata) == len(set(map(id, strata)))
+    for rank, stratum in enumerate(strata):
+        print([x.GetDepositionRank() for x in store1.IterRetainedStrata()])
+        assert store1.GetNumStrataRetained() == rank
+        assert len([*store1.IterRetainedStrata()]) == rank
+        store1.DepositStratum(stratum=stratum, rank=rank)
+
+    res = [*store1.IterRetainedStrata()]
+    assert len(res) == 5
+    assert len(res) == len(set(map(id, res)))
+    assert sorted(res) == sorted(strata)
+
+
+@pytest.mark.parametrize(
+    "impl",
+    stratum_ordered_stores._HereditaryStratumOrderedStoreList_.impls,
+)
 def test_IterRankDifferentia1(impl):
     store1 = impl()
     ranks = [0, 8, 42, 63]
