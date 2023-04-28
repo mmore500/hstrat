@@ -8,20 +8,24 @@
 
 namespace hstrat_auxlib {
 
+// returns max on failure
 template<typename Pred>
 std::size_t binary_search(
   Pred pred,
   std::size_t min,
-  std::size_t max
+  const std::size_t max  // exclusive
 ) {
 
-  while (min != max) {
-    std::size_t mid = (max + min) / 2;
-    if (pred(mid)) max = mid;
+  std::size_t max_ = max - 1;
+  while (min != max_) {
+    std::size_t mid = (max_ + min) / 2;
+    if (pred(mid)) max_ = mid;
     else min = mid + 1;
   }
 
-  assert(pred(min));
+  if (!pred(min)) {
+    return max;
+  }
 
   return min;
 
@@ -30,7 +34,7 @@ std::size_t binary_search(
 template<typename Pred>
 std::size_t binary_search(
   Pred pred,
-  std::size_t max
+  const std::size_t max // exclusive
 ) {
   return hstrat_auxlib::binary_search<Pred>(pred, 0, max);
 }
