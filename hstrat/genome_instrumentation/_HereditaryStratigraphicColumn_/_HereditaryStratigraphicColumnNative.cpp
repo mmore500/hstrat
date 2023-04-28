@@ -1,4 +1,5 @@
 // cppimport
+#include <algorithm>
 #include <cstddef>
 #include <type_traits>
 #include <variant>
@@ -54,7 +55,15 @@ py::class_<SELF_T>(\
 .def("GetNumStrataDeposited", &SELF_T::GetNumStrataDeposited)\
 .def("GetStratumAtColumnIndex", &SELF_T::GetStratumAtColumnIndex)\
 .def("GetRankAtColumnIndex", &SELF_T::GetRankAtColumnIndex)\
-.def("GetColumnIndexOfRank", &SELF_T::GetColumnIndexOfRank)\
+.def("GetColumnIndexOfRank",\
+  [](const SELF_T& self, const HSTRAT_RANK_T rank)\
+  -> std::variant<HSTRAT_RANK_T, py::none> {\
+    const auto res = self.GetColumnIndexOfRank(rank);\
+    if (res == std::min(rank + 1, self.GetNumStrataRetained())) {\
+      return py::none();\
+    } else return res;\
+  }\
+)\
 .def("GetNumDiscardedStrata", &SELF_T::GetNumDiscardedStrata)\
 .def(\
   "GetStratumDifferentiaBitWidth",\

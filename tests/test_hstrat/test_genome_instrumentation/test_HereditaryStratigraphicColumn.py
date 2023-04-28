@@ -762,10 +762,27 @@ def test_IterRetainedDifferentia(impl, retention_policy, ordered_store):
         ]
 
 
-def test_GetColumnIndexOfRank():
-    assert (
-        hstrat.HereditaryStratigraphicColumn().GetColumnIndexOfRank(1) is None
+@pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize("always_store_rank_in_stratum", [True, False])
+def test_GetColumnIndexOfRank(impl, always_store_rank_in_stratum):
+    col = impl(
+        stratum_retention_policy=hstrat.nominal_resolution_algo.Policy(),
+        always_store_rank_in_stratum=always_store_rank_in_stratum,
     )
+    assert col.GetColumnIndexOfRank(0) == 0
+    assert col.GetColumnIndexOfRank(1) is None
+    col.DepositStratum()
+    assert col.GetColumnIndexOfRank(0) == 0
+    assert col.GetColumnIndexOfRank(1) == 1
+    assert col.GetColumnIndexOfRank(2) is None
+    col.DepositStratum()
+    assert col.GetColumnIndexOfRank(0) == 0
+    assert col.GetColumnIndexOfRank(1) is None
+    assert col.GetColumnIndexOfRank(2) == 1
+    assert col.GetColumnIndexOfRank(3) is None
 
 
 @pytest.mark.parametrize(

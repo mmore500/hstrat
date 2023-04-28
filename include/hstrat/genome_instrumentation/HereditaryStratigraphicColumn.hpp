@@ -2,6 +2,7 @@
 #ifndef HSTRAT_GENOME_INSTRUMENTATION_HEREDITARYSTRATIGRAPHICCOLUMN_HPP_INCLUDE
 #define HSTRAT_GENOME_INSTRUMENTATION_HEREDITARYSTRATIGRAPHICCOLUMN_HPP_INCLUDE
 
+#include <algorithm>
 #include <cassert>
 #include <climits>
 #include <cstddef>
@@ -200,17 +201,20 @@ public:
     }
   }
 
+  // returns min(rank + 1, GetNumStrataRetained()) on failure
   HSTRAT_RANK_T GetColumnIndexOfRank(const HSTRAT_RANK_T rank) const {
     if constexpr (_omits_stratum_deposition_rank()) {
       assert(GetNumStrataRetained());
-
-      const std::size_t res = hstrat_auxlib::binary_search(
-        [this, rank](const std::size_t index){
-          return GetRankAtColumnIndex(index) >= rank;
-        },
-        GetNumStrataRetained() - 1
+      const std::size_t ub = std::min(rank + 1, GetNumStrataRetained());
+      const auto res = hstrat_auxlib::audit_cast<HSTRAT_RANK_T>(
+        hstrat_auxlib::binary_search(
+          [this, rank](const std::size_t index){
+            return GetRankAtColumnIndex(index) >= rank;
+          },
+          ub
+        )
       );
-      return hstrat_auxlib::audit_cast<HSTRAT_RANK_T>(res);
+      return (GetRankAtColumnIndex(res) == rank) ? res : ub;
     } else {
       return store.GetColumnIndexOfRank(rank);
     }
