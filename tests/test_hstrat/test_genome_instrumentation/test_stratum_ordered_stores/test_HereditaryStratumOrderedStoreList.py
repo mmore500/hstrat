@@ -173,13 +173,17 @@ def test_GetColumnIndexOfRank(impl):
 def test_IterRetainedRanks(impl):
     store1 = impl()
     ranks = [0, 8, 42, 63]
-    for rank in ranks:
+    for i, rank in enumerate(ranks):
+        assert store1.GetNumStrataRetained() == i
+        assert len([*store1.IterRetainedRanks()]) == i
         store1.DepositStratum(
             rank=rank,
             stratum=hstrat.HereditaryStratum(deposition_rank=rank),
         )
 
-    assert set(store1.IterRetainedRanks()) == set(ranks)
+    res = [*store1.IterRetainedRanks()]
+    assert len(res) == len(set(res))
+    assert set(res) == set(ranks)
 
 
 @pytest.mark.parametrize(
