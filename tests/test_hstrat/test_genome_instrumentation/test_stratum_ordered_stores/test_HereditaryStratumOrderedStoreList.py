@@ -161,9 +161,14 @@ def test_GetColumnIndexOfRank(impl):
         )
 
     assert store1.GetColumnIndexOfRank(0) == 0
+    assert store1.GetColumnIndexOfRank(1) is None
+    assert store1.GetColumnIndexOfRank(4) is None
+    assert store1.GetColumnIndexOfRank(7) is None
     assert store1.GetColumnIndexOfRank(8) == 1
     assert store1.GetColumnIndexOfRank(42) == 2
     assert store1.GetColumnIndexOfRank(63) == 3
+    assert store1.GetColumnIndexOfRank(64) is None
+    assert store1.GetColumnIndexOfRank(100) is None
 
 
 @pytest.mark.parametrize(

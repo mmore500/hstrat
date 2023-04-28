@@ -1,6 +1,8 @@
 // cppimport
+#include <algorithm>
 #include <assert.h>
 #include <cstddef>
+#include <variant>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -142,8 +144,12 @@ PYBIND11_MODULE(_HereditaryStratumOrderedStoreListNative, m) {
       }
     )
     .def("GetColumnIndexOfRank",
-      [](const store_deporank_t& self, const HSTRAT_RANK_T rank){
-        return self.GetColumnIndexOfRank(rank);
+      [](const store_deporank_t& self, const HSTRAT_RANK_T rank)
+      -> std::variant<HSTRAT_RANK_T, py::none> {
+        const auto res = self.GetColumnIndexOfRank(rank);
+        if (res == std::min(rank + 1, self.GetNumStrataRetained())) {
+          return py::none();
+        } else return res;
       }
     )
   );

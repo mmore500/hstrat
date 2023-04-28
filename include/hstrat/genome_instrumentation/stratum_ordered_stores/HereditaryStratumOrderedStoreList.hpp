@@ -77,18 +77,22 @@ public:
     return GetStratumAtColumnIndex(index).GetDepositionRank();
   }
 
+  // returns min(rank + 1, GetNumStrataRetained()) on failure
   HSTRAT_RANK_T GetColumnIndexOfRank(
     const hstrat::RankTConcept auto rank
   ) const {
-    const std::size_t res = hstrat_auxlib::binary_search(
-      [this, rank](const std::size_t idx){
-        return GetRankAtColumnIndex(
-          hstrat_auxlib::audit_cast<HSTRAT_RANK_T>(idx)
-        ) >= rank;
-      },
-      GetNumStrataRetained()
+    const std::size_t ub = std::min(rank + 1, GetNumStrataRetained());
+    const auto res = hstrat_auxlib::audit_cast<HSTRAT_RANK_T>(
+      hstrat_auxlib::binary_search(
+        [this, rank](const std::size_t idx){
+          return GetRankAtColumnIndex(
+            hstrat_auxlib::audit_cast<HSTRAT_RANK_T>(idx)
+          ) >= rank;
+        },
+        ub
+      )
     );
-    return hstrat_auxlib::audit_cast<HSTRAT_RANK_T>(res);
+    return (GetRankAtColumnIndex(res) == rank) ? res : ub;
   }
 
   template<typename F=hstrat_auxlib::Monostate>
