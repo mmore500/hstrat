@@ -822,6 +822,10 @@ def test_GetStratumAtRank(impl, retention_policy, ordered_store):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize(
     "retention_policy",
     [
         hstrat.perfect_resolution_algo.Policy(),
@@ -840,8 +844,8 @@ def test_GetStratumAtRank(impl, retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreTree,
     ],
 )
-def test_DepositStrata_zero(retention_policy, ordered_store):
-    column = hstrat.HereditaryStratigraphicColumn(
+def test_DepositStrata_zero(impl, retention_policy, ordered_store):
+    column = impl(
         stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
@@ -853,6 +857,10 @@ def test_DepositStrata_zero(retention_policy, ordered_store):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize(
     "retention_policy",
     [
         hstrat.perfect_resolution_algo.Policy(),
@@ -871,8 +879,8 @@ def test_DepositStrata_zero(retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreTree,
     ],
 )
-def test_DepositStrata_one(retention_policy, ordered_store):
-    c1 = hstrat.HereditaryStratigraphicColumn(
+def test_DepositStrata_one(impl, retention_policy, ordered_store):
+    c1 = impl(
         stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )
@@ -893,6 +901,10 @@ def test_DepositStrata_one(retention_policy, ordered_store):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize(
     "retention_policy",
     [
         hstrat.perfect_resolution_algo.Policy(),
@@ -911,8 +923,8 @@ def test_DepositStrata_one(retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreTree,
     ],
 )
-def test_DepositStrata_several(retention_policy, ordered_store):
-    c1 = hstrat.HereditaryStratigraphicColumn(
+def test_DepositStrata_several(impl, retention_policy, ordered_store):
+    c1 = impl(
         stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )

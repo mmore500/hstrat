@@ -152,6 +152,11 @@ public:
 
   }
 
+  void DepositStrata(const HSTRAT_RANK_T num_stratum_depositions) {
+    // TODO optimize (see Python implementation)
+    for (HSTRAT_RANK_T i{}; i < num_stratum_depositions; ++i) DepositStratum();
+  }
+
   cppcoro::generator<const HSTRAT_RANK_T> IterRetainedRanks() const {
     if constexpr (POLICY_T::has_iter_retained_ranks()) {
       return policy.IterRetainedRanks(GetNumStrataDeposited());

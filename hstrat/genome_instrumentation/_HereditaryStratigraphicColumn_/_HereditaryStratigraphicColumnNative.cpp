@@ -42,6 +42,7 @@ py::class_<SELF_T>(\
 .def("DepositStratum", [](SELF_T& self, py::object annotation){\
   self.DepositStratum(annotation);\
 }, py::arg("annotation"))\
+.def("DepositStrata", &SELF_T::DepositStrata)\
 .def("IterRetainedRanks",\
   &SELF_T::IterRetainedRanks, py::keep_alive<0, 1>()\
 )\
