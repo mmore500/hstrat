@@ -8,7 +8,7 @@ namespace hstrat_auxlib {
 
 struct Monostate {
 
-  constexpr bool operator==(const Monostate& other) const { return true; }
+  constexpr bool operator==(const Monostate&) const { return true; }
 
   constexpr bool operator<(const Monostate&) const { return false; }
 
