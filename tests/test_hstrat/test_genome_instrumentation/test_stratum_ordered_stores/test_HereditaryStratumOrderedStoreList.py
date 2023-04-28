@@ -197,7 +197,6 @@ def test_IterRetainedStrata(impl):
     ]
     assert len(strata) == len(set(map(id, strata)))
     for rank, stratum in enumerate(strata):
-        print([x.GetDepositionRank() for x in store1.IterRetainedStrata()])
         assert store1.GetNumStrataRetained() == rank
         assert len([*store1.IterRetainedStrata()]) == rank
         store1.DepositStratum(stratum=stratum, rank=rank)
