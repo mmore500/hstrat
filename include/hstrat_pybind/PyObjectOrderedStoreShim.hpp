@@ -69,9 +69,9 @@ public:
     F={}
   ) const {
     // ignore F for now, can use in future as optimization
-    return store_obj.attr(
-      "GetStratumAtColumnIndex"
-    )(index).template cast<hereditary_stratum_t>();
+    return hereditary_stratum_t{
+      store_obj.attr("GetStratumAtColumnIndex")(index)
+    };
   }
 
   HSTRAT_RANK_T GetRankAtColumnIndex(const HSTRAT_RANK_T index) const {

@@ -15,6 +15,7 @@ namespace py = pybind11;
 namespace hstrat_pybind {
 
 // override operator== to use __eq__, operator< to use __lt__
+#pragma GCC visibility push(hidden)
 class pyobject {
 
   py::object object;
@@ -49,6 +50,7 @@ public:
   }
 
 };
+#pragma GCC visibility pop
 
 } // namespace hstrat_pybind
 

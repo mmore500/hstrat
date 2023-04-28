@@ -13,7 +13,7 @@ namespace hstrat_pybind {
 template<typename T>
 cppcoro::generator<T> shim_py_object_generator(py::object object) {
   for (auto val : object) {
-    const auto res = val.template cast<T>();
+    auto res = val.template cast<T>();
     co_yield res;
   }
 }
