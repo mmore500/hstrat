@@ -4,6 +4,7 @@ import tempfile
 
 import pytest
 
+from hstrat import hstrat
 from hstrat.hstrat import stochastic_algo
 
 
@@ -54,6 +55,16 @@ def test_eq(replicate):
         policy.WithoutCalcRankAtColumnIndex()
         == policy.WithoutCalcRankAtColumnIndex()
     )
+
+
+def test_GetEvalCtor():
+    spec = stochastic_algo.Policy()
+    reconstituted = eval(spec.GetEvalCtor())
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith("hstrat.stochastic_algo.Policy(")
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)
+    assert str(spec) == str(reconstituted)
 
 
 def test_pickle():

@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from hstrat._auxiliary_lib import all_same
+from hstrat._testing import iter_ftor_shims, iter_no_calcrank_ftor_shims
 from hstrat.hstrat import recency_proportional_resolution_algo
 
 
@@ -68,6 +69,10 @@ def test_impl_consistency(recency_proportional_resolution, time_sequence):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    recency_proportional_resolution_algo._enact._GenDropRanks_.impls,
+)
+@pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
         0,
@@ -93,12 +98,14 @@ def test_impl_consistency(recency_proportional_resolution, time_sequence):
         (2**32,),
     ],
 )
-def test_policy_consistency(recency_proportional_resolution, time_sequence):
+def test_policy_consistency(
+    impl, recency_proportional_resolution, time_sequence
+):
     policy = recency_proportional_resolution_algo.Policy(
         recency_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = recency_proportional_resolution_algo.GenDropRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         policy_requirement = {
             *policy.IterRetainedRanks(
@@ -111,7 +118,7 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
         }
         for which in (
             instance,
-            recency_proportional_resolution_algo.GenDropRanks(spec),
+            impl(spec),
         ):
             assert sorted(
                 which(
@@ -122,6 +129,10 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
             ) == sorted(policy_requirement)
 
 
+@pytest.mark.parametrize(
+    "impl",
+    recency_proportional_resolution_algo._enact._GenDropRanks_.impls,
+)
 @pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
@@ -135,13 +146,71 @@ def test_policy_consistency(recency_proportional_resolution, time_sequence):
         100,
     ],
 )
-def test_eq(recency_proportional_resolution):
+def test_eq(impl, recency_proportional_resolution):
     policy = recency_proportional_resolution_algo.Policy(
         recency_proportional_resolution
     )
     spec = policy.GetSpec()
-    instance = recency_proportional_resolution_algo.GenDropRanks(spec)
+    instance = impl(spec)
 
     assert instance == instance
-    assert instance == recency_proportional_resolution_algo.GenDropRanks(spec)
+    assert instance == impl(spec)
     assert instance is not None
+
+
+@pytest.mark.parametrize(
+    "recency_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "time_sequence",
+    [
+        range(10**2),
+        np.random.default_rng(1).integers(
+            low=0,
+            high=10**3,
+            size=10**2,
+        ),
+    ],
+)
+def test_impl_consistency(recency_proportional_resolution, time_sequence):
+    policy = recency_proportional_resolution_algo.Policy(
+        recency_proportional_resolution
+    )
+    spec = policy.GetSpec()
+
+    for gen in time_sequence:
+        assert (
+            len(
+                {
+                    tuple(
+                        sorted(
+                            impl(spec)(
+                                policy,
+                                gen,
+                                policy.IterRetainedRanks(gen),
+                            )
+                        )
+                    )
+                    for impl in it.chain(
+                        recency_proportional_resolution_algo._enact._GenDropRanks_.impls,
+                        iter_ftor_shims(
+                            lambda p: p.GenDropRanks,
+                            recency_proportional_resolution_algo._Policy_.impls,
+                        ),
+                        iter_no_calcrank_ftor_shims(
+                            lambda p: p.GenDropRanks,
+                            recency_proportional_resolution_algo._Policy_.impls,
+                        ),
+                    )
+                }
+            )
+            == 1
+        )

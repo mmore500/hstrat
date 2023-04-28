@@ -1,6 +1,9 @@
+import itertools as it
+
 import numpy as np
 import pytest
 
+from hstrat._testing import iter_ftor_shims, iter_no_calcrank_ftor_shims
 from hstrat.hstrat import geom_seq_nth_root_tapered_algo
 from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import (
     CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce,
@@ -9,6 +12,10 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import
 
 @pytest.mark.filterwarnings(
     "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
+@pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_tapered_algo._invar._CalcMrcaUncertaintyAbsUpperBoundPessimalRank_.impls,
 )
 @pytest.mark.parametrize(
     "degree",
@@ -41,12 +48,10 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms._impl import
         ),
     ],
 )
-def test_policy_consistency(degree, interspersal, time_sequence):
+def test_policy_consistency(impl, degree, interspersal, time_sequence):
     policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_tapered_algo.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
-        spec,
-    )
+    instance = impl(spec)
     for num_strata_deposited_a in time_sequence:
         for num_strata_deposited_b in (
             num_strata_deposited_a // 3,
@@ -73,9 +78,7 @@ def test_policy_consistency(degree, interspersal, time_sequence):
                 )
                 for which in (
                     instance,
-                    geom_seq_nth_root_tapered_algo.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
-                        spec
-                    ),
+                    impl(spec),
                 ):
                     assert (
                         policy.CalcMrcaUncertaintyAbsUpperBound(
@@ -93,6 +96,10 @@ def test_policy_consistency(degree, interspersal, time_sequence):
 
 @pytest.mark.filterwarnings(
     "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
+@pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_tapered_algo._invar._CalcMrcaUncertaintyAbsUpperBoundPessimalRank_.impls,
 )
 @pytest.mark.parametrize(
     "degree",
@@ -115,18 +122,78 @@ def test_policy_consistency(degree, interspersal, time_sequence):
         5,
     ],
 )
-def test_eq(degree, interspersal):
+def test_eq(impl, degree, interspersal):
     policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_tapered_algo.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
-        spec
-    )
+    instance = impl(spec)
 
     assert instance == instance
-    assert (
-        instance
-        == geom_seq_nth_root_tapered_algo.CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
-            spec,
-        )
-    )
+    assert instance == impl(spec)
     assert instance is not None
+
+
+@pytest.mark.parametrize(
+    "rep",
+    range(20),
+)
+@pytest.mark.parametrize(
+    "degree",
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "interspersal",
+    [
+        1,
+        2,
+        5,
+    ],
+)
+def test_impl_consistency(rep, degree, interspersal):
+    policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
+    spec = policy.GetSpec()
+
+    rng = np.random.default_rng(rep)
+
+    for num_strata_deposited_a in (
+        rng.integers(1, 2**5),
+        rng.integers(1, 2**10),
+        rng.integers(1, 2**32),
+    ):
+        for num_strata_deposited_b in (
+            num_strata_deposited_a,
+            num_strata_deposited_a + 107,
+            rng.integers(1, num_strata_deposited_a + 1),
+        ):
+            bound = min(num_strata_deposited_a, num_strata_deposited_b)
+            assert (
+                len(
+                    {
+                        impl(spec)(
+                            policy,
+                            num_strata_deposited_a,
+                            num_strata_deposited_b,
+                        )
+                        for impl in it.chain(
+                            geom_seq_nth_root_tapered_algo._invar._CalcMrcaUncertaintyAbsUpperBoundPessimalRank_.impls,
+                            iter_ftor_shims(
+                                lambda p: p.CalcMrcaUncertaintyAbsUpperBoundPessimalRank,
+                                geom_seq_nth_root_tapered_algo._Policy_.impls,
+                            ),
+                            iter_no_calcrank_ftor_shims(
+                                lambda p: p.CalcMrcaUncertaintyAbsUpperBoundPessimalRank,
+                                geom_seq_nth_root_tapered_algo._Policy_.impls,
+                            ),
+                        )
+                    }
+                )
+                == 1
+            )

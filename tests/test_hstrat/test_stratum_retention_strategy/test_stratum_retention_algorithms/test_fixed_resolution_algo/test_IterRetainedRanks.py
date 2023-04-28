@@ -1,3 +1,4 @@
+import itertools as it
 import numbers
 
 from iterpop import iterpop as ip
@@ -5,9 +6,14 @@ import numpy as np
 import pytest
 
 from hstrat._auxiliary_lib import pairwise
+from hstrat._testing import iter_ftor_shims, iter_no_calcrank_ftor_shims
 from hstrat.hstrat import fixed_resolution_algo
 
 
+@pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._scry._IterRetainedRanks_.impls,
+)
 @pytest.mark.parametrize(
     "fixed_resolution",
     [
@@ -31,14 +37,14 @@ from hstrat.hstrat import fixed_resolution_algo
         ),
     ],
 )
-def test_only_dwindling_over_time(fixed_resolution, time_sequence):
+def test_only_dwindling_over_time(impl, fixed_resolution, time_sequence):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = fixed_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            fixed_resolution_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             cur_set = {
                 *which(
@@ -56,6 +62,10 @@ def test_only_dwindling_over_time(fixed_resolution, time_sequence):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._scry._IterRetainedRanks_.impls,
+)
+@pytest.mark.parametrize(
     "fixed_resolution",
     [
         1,
@@ -78,14 +88,14 @@ def test_only_dwindling_over_time(fixed_resolution, time_sequence):
         ),
     ],
 )
-def test_ranks_sorted_and_unique(fixed_resolution, time_sequence):
+def test_ranks_sorted_and_unique(impl, fixed_resolution, time_sequence):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = fixed_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            fixed_resolution_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             assert all(
                 i < j
@@ -98,6 +108,10 @@ def test_ranks_sorted_and_unique(fixed_resolution, time_sequence):
             )
 
 
+@pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._scry._IterRetainedRanks_.impls,
+)
 @pytest.mark.parametrize(
     "fixed_resolution",
     [
@@ -122,14 +136,14 @@ def test_ranks_sorted_and_unique(fixed_resolution, time_sequence):
         ),
     ],
 )
-def test_zero_and_last_ranks_retained(fixed_resolution, time_sequence):
+def test_zero_and_last_ranks_retained(impl, fixed_resolution, time_sequence):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = fixed_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            fixed_resolution_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             res = which(
                 policy,
@@ -145,6 +159,10 @@ def test_zero_and_last_ranks_retained(fixed_resolution, time_sequence):
                 assert next(res, None) is None
 
 
+@pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._scry._IterRetainedRanks_.impls,
+)
 @pytest.mark.parametrize(
     "fixed_resolution",
     [
@@ -168,20 +186,45 @@ def test_zero_and_last_ranks_retained(fixed_resolution, time_sequence):
         ),
     ],
 )
-def test_ranks_valid(fixed_resolution, time_sequence):
+def test_ranks_valid(impl, fixed_resolution, time_sequence):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = fixed_resolution_algo.IterRetainedRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         for which in (
             instance,
-            fixed_resolution_algo.IterRetainedRanks(spec),
+            impl(spec),
         ):
             assert all(
                 isinstance(r, numbers.Integral)
                 and 0 <= r < num_strata_deposited
                 for r in which(policy, num_strata_deposited)
             )
+
+
+@pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._scry._IterRetainedRanks_.impls,
+)
+@pytest.mark.parametrize(
+    "fixed_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+def test_eq(impl, fixed_resolution):
+    policy = fixed_resolution_algo.Policy(fixed_resolution)
+    spec = policy.GetSpec()
+    instance = impl(spec)
+
+    assert instance == instance
+    assert instance == impl(spec)
+    assert instance is not None
 
 
 @pytest.mark.parametrize(
@@ -195,11 +238,43 @@ def test_ranks_valid(fixed_resolution, time_sequence):
         100,
     ],
 )
-def test_eq(fixed_resolution):
+@pytest.mark.parametrize(
+    "time_sequence",
+    [
+        range(10),
+        np.random.default_rng(1).integers(
+            low=0,
+            high=10**2,
+            size=10,
+        ),
+    ],
+)
+def test_impl_consistency(fixed_resolution, time_sequence):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = fixed_resolution_algo.IterRetainedRanks(spec)
 
-    assert instance == instance
-    assert instance == fixed_resolution_algo.IterRetainedRanks(spec)
-    assert instance is not None
+    for gen in time_sequence:
+        assert (
+            len(
+                {
+                    tuple(
+                        impl(spec)(
+                            policy,
+                            gen,
+                        )
+                    )
+                    for impl in it.chain(
+                        fixed_resolution_algo._scry._IterRetainedRanks_.impls,
+                        iter_ftor_shims(
+                            lambda p: p.IterRetainedRanks,
+                            fixed_resolution_algo._Policy_.impls,
+                        ),
+                        iter_no_calcrank_ftor_shims(
+                            lambda p: p.IterRetainedRanks,
+                            fixed_resolution_algo._Policy_.impls,
+                        ),
+                    )
+                }
+            )
+            == 1
+        )

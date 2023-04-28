@@ -30,6 +30,8 @@ click>=8.1.3
     # via
     #   alifedata-phyloinformatics-convert
     #   keyname
+cppimport>=22.8.2
+    # via hstrat (../../pyproject.toml)
 cycler>=0.11.0
     # via matplotlib
 dataclasses>=0.6
@@ -40,10 +42,14 @@ dendropy>=4.5.2
     #   hstrat (../../pyproject.toml)
 deprecated>=1.2.13
     # via hstrat (../../pyproject.toml)
+distutils-strtobool>=0.1.0
+    # via hstrat (../../pyproject.toml)
 docutils>=0.17.1
     # via
     #   sphinx
     #   sphinx-rtd-theme
+filelock>=3.12.0
+    # via cppimport
 fonttools>=4.38.0
     # via matplotlib
 gitdb>=4.0.10
@@ -57,6 +63,7 @@ imagesize>=1.4.1
 importlib-metadata>=6.0.0
     # via
     #   click
+    #   mako
     #   prettytable
     #   sphinx
 interval-search>=0.3.1
@@ -77,8 +84,12 @@ lyncs-setuptools>=0.3.1
     # via lyncs-utils
 lyncs-utils>=0.4.5
     # via alifedata-phyloinformatics-convert
+mako>=1.2.4
+    # via cppimport
 markupsafe>=2.1.2
-    # via jinja2
+    # via
+    #   jinja2
+    #   mako
 matplotlib>=3.5.2
     # via
     #   hstrat (../../pyproject.toml)
@@ -132,6 +143,12 @@ pillow>=9.4.0
     # via matplotlib
 prettytable>=3.5.0
     # via hstrat (../../pyproject.toml)
+pybind11[global]>=2.10.0
+    # via
+    #   cppimport
+    #   hstrat (../../pyproject.toml)
+pybind11-global>=2.10.0
+    # via pybind11
 pydantic>=1.10.5
     # via pandera
 pygments>=2.14.0

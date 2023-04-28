@@ -3,11 +3,16 @@ import itertools as it
 import numpy as np
 import pytest
 
+from hstrat._testing import iter_ftor_shims, iter_no_calcrank_ftor_shims
 from hstrat.hstrat import geom_seq_nth_root_algo
 
 
 @pytest.mark.filterwarnings(
     "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
+@pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_algo._scry._CalcNumStrataRetainedExact_.impls,
 )
 @pytest.mark.parametrize(
     "degree",
@@ -57,10 +62,10 @@ from hstrat.hstrat import geom_seq_nth_root_algo
         ),
     ],
 )
-def test_policy_consistency(degree, interspersal, time_sequence):
+def test_policy_consistency(impl, degree, interspersal, time_sequence):
     policy = geom_seq_nth_root_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_algo.CalcNumStrataRetainedExact(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         policy_requirement = len(
             [
@@ -71,7 +76,7 @@ def test_policy_consistency(degree, interspersal, time_sequence):
         )
         for which in (
             instance,
-            geom_seq_nth_root_algo.CalcNumStrataRetainedExact(spec),
+            impl(spec),
         ):
             assert (
                 which(
@@ -84,6 +89,10 @@ def test_policy_consistency(degree, interspersal, time_sequence):
 
 @pytest.mark.filterwarnings(
     "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
+@pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_algo._scry._CalcNumStrataRetainedExact_.impls,
 )
 @pytest.mark.parametrize(
     "degree",
@@ -106,13 +115,73 @@ def test_policy_consistency(degree, interspersal, time_sequence):
         5,
     ],
 )
-def test_eq(degree, interspersal):
+def test_eq(impl, degree, interspersal):
     policy = geom_seq_nth_root_algo.Policy(degree, interspersal)
     spec = policy.GetSpec()
-    instance = geom_seq_nth_root_algo.CalcNumStrataRetainedExact(spec)
+    instance = impl(spec)
 
     assert instance == instance
-    assert instance == geom_seq_nth_root_algo.CalcNumStrataRetainedExact(
-        spec,
-    )
+    assert instance == impl(spec)
     assert instance is not None
+
+
+@pytest.mark.parametrize(
+    "degree",
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "interspersal",
+    [
+        1,
+        2,
+        5,
+    ],
+)
+@pytest.mark.parametrize(
+    "time_sequence",
+    [
+        range(10**3),
+        np.random.default_rng(1).integers(
+            low=0,
+            high=2**32,
+            size=10,
+        ),
+        (2**32,),
+    ],
+)
+def test_impl_consistency(degree, interspersal, time_sequence):
+    policy = geom_seq_nth_root_algo.Policy(degree, interspersal)
+    spec = policy.GetSpec()
+
+    for gen in time_sequence:
+        assert (
+            len(
+                {
+                    impl(spec)(
+                        policy,
+                        gen,
+                    )
+                    for impl in it.chain(
+                        geom_seq_nth_root_algo._scry._CalcNumStrataRetainedExact_.impls,
+                        iter_ftor_shims(
+                            lambda p: p.CalcNumStrataRetainedExact,
+                            geom_seq_nth_root_algo._Policy_.impls,
+                        ),
+                        iter_no_calcrank_ftor_shims(
+                            lambda p: p.CalcNumStrataRetainedExact,
+                            geom_seq_nth_root_algo._Policy_.impls,
+                        ),
+                    )
+                }
+            )
+            == 1
+        )

@@ -1,0 +1,16 @@
+#pragma once
+#ifndef HSTRAT_STRATUM_RETENTION_STRATEGY_STRATUM_RETENTION_ALGORITHMS_DETAIL_MONOSTATE_HPP_INCLUDE
+#define HSTRAT_STRATUM_RETENTION_STRATEGY_STRATUM_RETENTION_ALGORITHMS_DETAIL_MONOSTATE_HPP_INCLUDE
+
+namespace hstrat {
+namespace detail {
+
+struct Monostate {
+  template<typename POLICY_SPEC>
+  explicit Monostate(const POLICY_SPEC&) {}
+};
+
+} // namespace detail
+} // namespace hstrat
+
+#endif // #ifndef HSTRAT_STRATUM_RETENTION_STRATEGY_STRATUM_RETENTION_ALGORITHMS_DETAIL_MONOSTATE_HPP_INCLUDE

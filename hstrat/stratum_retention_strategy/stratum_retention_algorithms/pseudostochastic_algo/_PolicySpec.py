@@ -1,9 +1,10 @@
 import typing
 
-from .._detail import PolicySpecBase
+from .._detail import PolicySpecABC
 
 
-class PolicySpec(PolicySpecBase):
+@PolicySpecABC.register
+class PolicySpec:
     """Contains all policy parameters, if any."""
 
     hash_salt: int
@@ -20,8 +21,8 @@ class PolicySpec(PolicySpecBase):
         self._hash_salt = hash_salt
 
     def __eq__(self: "PolicySpec", other: typing.Any) -> bool:
-        return isinstance(other, self.__class__) and (self._hash_salt,) == (
-            other._hash_salt,
+        return isinstance(other, PolicySpecABC) and (
+            self.GetEvalCtor() == other.GetEvalCtor()
         )
 
     def __repr__(self: "PolicySpec") -> str:

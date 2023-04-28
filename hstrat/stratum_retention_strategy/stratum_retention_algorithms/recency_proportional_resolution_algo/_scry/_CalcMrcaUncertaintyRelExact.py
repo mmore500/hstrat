@@ -1,5 +1,3 @@
-from ..._impl import CalcMrcaUncertaintyRelExactFromAbs
+from ._CalcMrcaUncertaintyRelExact_ import CalcMrcaUncertaintyRelExact
 
-
-class CalcMrcaUncertaintyRelExact(CalcMrcaUncertaintyRelExactFromAbs):
-    pass
+CalcMrcaUncertaintyRelExact = CalcMrcaUncertaintyRelExact

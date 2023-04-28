@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from hstrat._auxiliary_lib import all_same
+from hstrat._testing import iter_ftor_shims, iter_no_calcrank_ftor_shims
 from hstrat.hstrat import fixed_resolution_algo
 
 
@@ -63,6 +64,10 @@ def test_impl_consistency(fixed_resolution, time_sequence):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._enact._GenDropRanks_.impls,
+)
+@pytest.mark.parametrize(
     "fixed_resolution",
     [
         1,
@@ -85,10 +90,10 @@ def test_impl_consistency(fixed_resolution, time_sequence):
         ),
     ],
 )
-def test_policy_consistency(fixed_resolution, time_sequence):
+def test_policy_consistency(impl, fixed_resolution, time_sequence):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = fixed_resolution_algo.GenDropRanks(spec)
+    instance = impl(spec)
     for num_strata_deposited in time_sequence:
         policy_requirement = {
             *policy.IterRetainedRanks(
@@ -101,7 +106,7 @@ def test_policy_consistency(fixed_resolution, time_sequence):
         }
         for which in (
             instance,
-            fixed_resolution_algo.GenDropRanks(spec),
+            impl(spec),
         ):
             assert sorted(
                 which(
@@ -110,6 +115,31 @@ def test_policy_consistency(fixed_resolution, time_sequence):
                     policy.IterRetainedRanks(num_strata_deposited),
                 )
             ) == sorted(policy_requirement)
+
+
+@pytest.mark.parametrize(
+    "impl",
+    fixed_resolution_algo._enact._GenDropRanks_.impls,
+)
+@pytest.mark.parametrize(
+    "fixed_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        100,
+    ],
+)
+def test_eq(impl, fixed_resolution):
+    policy = fixed_resolution_algo.Policy(fixed_resolution)
+    spec = policy.GetSpec()
+    instance = impl(spec)
+
+    assert instance == instance
+    assert instance == impl(spec)
+    assert instance is not None
 
 
 @pytest.mark.parametrize(
@@ -123,11 +153,46 @@ def test_policy_consistency(fixed_resolution, time_sequence):
         100,
     ],
 )
-def test_eq(fixed_resolution):
+@pytest.mark.parametrize(
+    "time_sequence",
+    [
+        range(10**2),
+        np.random.default_rng(1).integers(
+            low=0,
+            high=10**3,
+            size=10**2,
+        ),
+    ],
+)
+def test_impl_consistency(fixed_resolution, time_sequence):
     policy = fixed_resolution_algo.Policy(fixed_resolution)
     spec = policy.GetSpec()
-    instance = fixed_resolution_algo.GenDropRanks(spec)
 
-    assert instance == instance
-    assert instance == fixed_resolution_algo.GenDropRanks(spec)
-    assert instance is not None
+    for gen in time_sequence:
+        assert (
+            len(
+                {
+                    tuple(
+                        sorted(
+                            impl(spec)(
+                                policy,
+                                gen,
+                                policy.IterRetainedRanks(gen),
+                            )
+                        )
+                    )
+                    for impl in it.chain(
+                        fixed_resolution_algo._enact._GenDropRanks_.impls,
+                        iter_ftor_shims(
+                            lambda p: p.GenDropRanks,
+                            fixed_resolution_algo._Policy_.impls,
+                        ),
+                        iter_no_calcrank_ftor_shims(
+                            lambda p: p.GenDropRanks,
+                            fixed_resolution_algo._Policy_.impls,
+                        ),
+                    )
+                }
+            )
+            == 1
+        )

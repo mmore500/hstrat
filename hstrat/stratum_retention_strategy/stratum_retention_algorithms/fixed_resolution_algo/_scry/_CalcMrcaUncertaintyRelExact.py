@@ -1,7 +1,3 @@
-from ..._impl import CalcMrcaUncertaintyRelExactFromAbs
+from ._CalcMrcaUncertaintyRelExact_ import CalcMrcaUncertaintyRelExact
 
-
-# must inherit rather than assign due to failure of attribute lookup when
-# pickling otherwise
-class CalcMrcaUncertaintyRelExact(CalcMrcaUncertaintyRelExactFromAbs):
-    pass
+CalcMrcaUncertaintyRelExact = CalcMrcaUncertaintyRelExact

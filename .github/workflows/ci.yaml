@@ -13,7 +13,7 @@ on:
     - cron: '0 0 * * 1'  # weekly
   workflow_dispatch:
 jobs:
-  test:
+  test-py:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -54,13 +54,91 @@ jobs:
       run: |
         sudo sed -i 's/azure\.//' /etc/apt/sources.list
         sudo apt-get update -o Acquire::Retries=3
-        sudo apt-get install -y ffmpeg -o Acquire::Retries=3
+        sudo apt-get install -y \
+          ffmpeg \
+          libc++-dev \
+          libc++abi-dev \
+          g++ \
+          clang \
+          build-essential \
+          -o Acquire::Retries=3
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
+        /sbin/ldconfig -p | grep stdc++
+        /sbin/ldconfig -p
     - name: Test with tox
       run: |
         export HSTRAT_TESTS_SUBDIVISION=${{ matrix.subdivision }}
+        # workaround for tqdist import error in ci environment, e.g.,
+        # ImportError: /home/runner/work/hstrat/hstrat/.tox/py3X/lib/python3.10/site-packages/tqdist.cpython-310-x86_64-linux-gnu.so: undefined symbol: _ZTVN10__cxxabiv117__class_type_infoE
+        export LD_PRELOAD="/lib/x86_64-linux-gnu/libstdc++.so.6"
         tox
+
+  test-py-native:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.8, 3.9]
+        cxx:
+          - g++-12
+          - clang++-15
+    steps:
+    - run: |
+        sudo sed -i 's/azure\.//' /etc/apt/sources.list
+        sudo apt-get update -o Acquire::Retries=3
+        sudo apt-get install -y \
+          g++-12 \
+          clang-15 \
+          ffmpeg \
+          -o Acquire::Retries=3
+    - uses: actions/checkout@v1
+      with:
+        submodules: recursive
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox tox-gh-actions
+        python -m pip install -r requirements-dev/requirements-testing.txt
+    - name: Run tests
+      run: tox
+      env:
+        CXX: ${{ matrix.cxx }}
+        HSTRAT_CPPIMPORT_OPT_IN: 1
+        HSTRAT_RERAISE_IMPORT_NATIVE_EXCEPTION: 1
+
+  test-cpp:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        cxx:
+          - g++-12
+          - clang++-15
+
+    steps:
+    - run: |
+        sudo apt update
+        sudo apt install -y g++-12 clang-15
+    - uses: actions/checkout@v1
+      with:
+        submodules: recursive
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements-dev/requirements-testing.txt
+    - name: Run tests
+      run: make -C test_include
+      env:
+        CXX:   ${{ matrix.cxx }}
 
   examples:
     runs-on: ubuntu-latest
@@ -125,6 +203,7 @@ jobs:
       run: coverage run -m pytest tests/test_hstrat/${{ matrix.subdivision }}
     - uses: codecov/codecov-action@v3
       with:
+        token: ${{ secrets.CODECOV_TOKEN }}
         flags: tests # optional
         fail_ci_if_error: true # optional (default = false)
         verbose: true # optional (default = false)
@@ -175,7 +254,7 @@ jobs:
           path: joss/paper.pdf
 
   deploy:
-    needs: [coverage, examples, test, tidy]
+    needs: [coverage, test-py, test-py-native, test-cpp, tidy]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 

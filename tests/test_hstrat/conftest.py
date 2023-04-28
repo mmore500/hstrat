@@ -1,5 +1,6 @@
 """Configuration file for pytest."""
 
+import os
 import random
 import warnings
 
@@ -9,7 +10,15 @@ import pytest
 
 
 def pytest_configure(config):
-    # check for testing requirements
+    print("env CXX:", os.environ.get("CXX", None))
+    print(
+        "env HSTRAT_CPPIMPORT_OPT_IN:",
+        os.environ.get("HSTRAT_CPPIMPORT_OPT_IN", None),
+    )
+    print(
+        "env HSTRAT_RERAISE_IMPORT_NATIVE_EXCEPTION:",
+        os.environ.get("HSTRAT_RERAISE_IMPORT_NATIVE_EXCEPTION", None),
+    )  # check for testing requirements
     # provide install instructions if they're missing
     try:
         from hstrat._auxiliary_lib._check_testing_requirements import (

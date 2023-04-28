@@ -1,11 +1,7 @@
-from ..._impl import (
-    CalcMrcaUncertaintyRelUpperBoundAtPessimalRank as CalcMrcaUncertaintyRelUpperBoundAtPessimalRank_,
+from ._CalcMrcaUncertaintyRelUpperBoundAtPessimalRank_ import (
+    CalcMrcaUncertaintyRelUpperBoundAtPessimalRank,
 )
 
-
-# must inherit rather than assign due to failure of attribute lookup when
-# pickling otherwise
-class CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
-    CalcMrcaUncertaintyRelUpperBoundAtPessimalRank_
-):
-    pass
+CalcMrcaUncertaintyRelUpperBoundAtPessimalRank = (
+    CalcMrcaUncertaintyRelUpperBoundAtPessimalRank
+)
