@@ -58,6 +58,10 @@ PYBIND11_MODULE(_HereditaryStratumOrderedStoreListNative, m) {
     "....._bindings",
     m.attr("__name__")
   );
+  importlib.attr("import_module")(
+    "...._HereditaryStratum_._HereditaryStratumNative",
+    m.attr("__name__")
+  );
 
   const auto import_module = py::module::import("importlib").attr(
     "import_module"
