@@ -44,6 +44,9 @@ py::class_<SELF_T>(\
 .def("IterRetainedRanks",\
   &SELF_T::IterRetainedRanks, py::keep_alive<0, 1>()\
 )\
+.def("IterRetainedStrata",\
+  &SELF_T::IterRetainedStrata, py::keep_alive<0, 1>()\
+)\
 .def("GetNumStrataRetained", &SELF_T::GetNumStrataRetained)\
 .def("GetNumStrataDeposited", &SELF_T::GetNumStrataDeposited)\
 .def("GetStratumAtColumnIndex", &SELF_T::GetStratumAtColumnIndex)\

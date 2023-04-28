@@ -75,14 +75,12 @@ public:
   }
 
   HSTRAT_RANK_T GetRankAtColumnIndex(const HSTRAT_RANK_T index) const {
-    // ignore F for now, can use in future as optimization
     return store_obj.attr(
       "GetRankAtColumnIndex"
     )(index).template cast<HSTRAT_RANK_T>();
   }
 
   HSTRAT_RANK_T GetColumnIndexOfRank(const HSTRAT_RANK_T index) const {
-    // ignore F for now, can use in future as optimization
     return store_obj.attr(
       "GetColumnIndexOfRank"
     )(index).template cast<HSTRAT_RANK_T>();

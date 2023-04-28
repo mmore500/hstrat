@@ -697,6 +697,10 @@ def test_CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(impl):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize(
     "retention_policy",
     [
         hstrat.perfect_resolution_algo.Policy(),
@@ -712,8 +716,8 @@ def test_CalcMinImplausibleSpuriousConsecutiveDifferentiaCollisions(impl):
         hstrat.HereditaryStratumOrderedStoreTree,
     ],
 )
-def test_IterRetainedStrata(retention_policy, ordered_store):
-    column = hstrat.HereditaryStratigraphicColumn(
+def test_IterRetainedStrata(impl, retention_policy, ordered_store):
+    column = impl(
         stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
     )

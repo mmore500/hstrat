@@ -160,6 +160,10 @@ public:
     }
   }
 
+  cppcoro::generator<hereditary_stratum_t> IterRetainedStrata() const {
+    return store.IterRetainedStrata();
+  }
+
   HSTRAT_RANK_T GetNumStrataRetained() const {
     return store.GetNumStrataRetained();
   }
