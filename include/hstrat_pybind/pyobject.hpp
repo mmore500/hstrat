@@ -21,7 +21,7 @@ class pyobject {
 
 public:
 
-  pyobject(){}
+  pyobject() : object(py::none()) { }
 
   pyobject(const py::object& obj) : object(obj) {}
 
