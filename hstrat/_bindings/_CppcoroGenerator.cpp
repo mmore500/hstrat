@@ -7,6 +7,7 @@
 
 #include <cppcoro/include/cppcoro/generator.hpp>
 
+#include <hstrat_auxlib/DerefAsValueIterator.hpp>
 #include <hstrat/config/HSTRAT_RANK_T.hpp>
 #include <hstrat_pybind/all_tu_declarations.hpp>
 
@@ -24,6 +25,24 @@ namespace py = pybind11;
   py::keep_alive<0, 1>()\
 )
 
+// don't wrap end because it's a sentinel
+#define INSTANCE_DEREF_AS_VALUE(SELF_T) py::class_<SELF_T>(\
+  m,\
+  "CppcoroGeneratorHstratDerefAsValue" #SELF_T\
+)\
+.def(\
+  "__iter__",\
+  [](SELF_T& self) {\
+    return py::make_iterator(\
+      hstrat_auxlib::make_deref_as_value_iterator(self.begin()),\
+      self.end(),\
+      py::return_value_policy::move\
+    );\
+  },\
+  py::keep_alive<0, 1>()\
+)
+
+
 PYBIND11_MODULE(_CppcoroGenerator, m) {
 
   using rank_generator_t = cppcoro::generator<const HSTRAT_RANK_T>;
@@ -31,23 +50,23 @@ PYBIND11_MODULE(_CppcoroGenerator, m) {
 
   using bool_tuple_t = std::tuple<HSTRAT_RANK_T, bool>;
   using bool_tuple_generator_t = cppcoro::generator<bool_tuple_t>;
-  INSTANCE(bool_tuple_generator_t);
+  INSTANCE_DEREF_AS_VALUE(bool_tuple_generator_t);
 
   using byte_tuple_t = std::tuple<HSTRAT_RANK_T, uint8_t>;
   using byte_tuple_generator_t = cppcoro::generator<byte_tuple_t>;
-  INSTANCE(byte_tuple_generator_t);
+  INSTANCE_DEREF_AS_VALUE(byte_tuple_generator_t);
 
   using word_tuple_t = std::tuple<HSTRAT_RANK_T, uint16_t>;
   using word_tuple_generator_t = cppcoro::generator<word_tuple_t>;
-  INSTANCE(word_tuple_generator_t);
+  INSTANCE_DEREF_AS_VALUE(word_tuple_generator_t);
 
   using doubleword_tuple_t = std::tuple<HSTRAT_RANK_T, uint32_t>;
   using doubleword_tuple_generator_t = cppcoro::generator<doubleword_tuple_t>;
-  INSTANCE(doubleword_tuple_generator_t);
+  INSTANCE_DEREF_AS_VALUE(doubleword_tuple_generator_t);
 
   using quadword_tuple_t = std::tuple<HSTRAT_RANK_T, uint64_t>;
   using quadword_tuple_generator_t = cppcoro::generator<quadword_tuple_t>;
-  INSTANCE(quadword_tuple_generator_t);
+  INSTANCE_DEREF_AS_VALUE(quadword_tuple_generator_t);
 
 }
 
