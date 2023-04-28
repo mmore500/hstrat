@@ -987,8 +987,12 @@ def test_IterRankDifferentiaZip(retention_policy, ordered_store):
         ]
 
 
-def test_CloneNthDescendant_zero():
-    column = hstrat.HereditaryStratigraphicColumn()
+@pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+def test_CloneNthDescendant_zero(impl):
+    column = impl()
     assert column.GetNumStrataDeposited() == 1
     descendant = column.CloneNthDescendant(0)
     assert column is not descendant
@@ -997,8 +1001,12 @@ def test_CloneNthDescendant_zero():
     assert column.GetNumStrataDeposited() == 1
 
 
-def test_CloneNthDescendant_one():
-    column = hstrat.HereditaryStratigraphicColumn()
+@pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+def test_CloneNthDescendant_one(impl):
+    column = impl()
     assert column.GetNumStrataDeposited() == 1
     descendant = column.CloneNthDescendant(num_stratum_depositions=1)
     assert column is not descendant
@@ -1007,8 +1015,12 @@ def test_CloneNthDescendant_one():
     assert column.GetNumStrataDeposited() == 1
 
 
-def test_CloneNthDescendant_two():
-    column = hstrat.HereditaryStratigraphicColumn()
+@pytest.mark.parametrize(
+    "impl",
+    genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+def test_CloneNthDescendant_two(impl):
+    column = impl()
     assert column.GetNumStrataDeposited() == 1
     descendant = column.CloneNthDescendant(num_stratum_depositions=2)
     assert column is not descendant

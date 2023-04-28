@@ -99,6 +99,9 @@ py::class_<SELF_T>(\
 .def("CloneDescendant", [](SELF_T& self, py::object annotation){\
   return self.CloneDescendant(annotation);\
 }, py::arg("stratum_annotation"))\
+.def("CloneNthDescendant",\
+  &SELF_T::CloneNthDescendant, py::arg("num_stratum_depositions")\
+)\
 .def_property_readonly(\
   "_stratum_ordered_store",\
   &SELF_T::_GetStratumOrderedStoreForPy\

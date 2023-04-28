@@ -281,6 +281,14 @@ public:
     return res;
   }
 
+  HereditaryStratigraphicColumn CloneNthDescendant(
+    const HSTRAT_RANK_T num_stratum_depositions
+  ) const {
+    HereditaryStratigraphicColumn res{*this};;
+    res.DepositStrata(num_stratum_depositions);
+    return res;
+  }
+
 };
 
 } // namespace hstrat
