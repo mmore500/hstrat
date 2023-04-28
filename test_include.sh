@@ -5,7 +5,7 @@ shopt -s globstar
 
 for f in include/**/*.hpp; do
   echo "${f}"
-  printf "#include \"${f}\"\nint main(){}" | $CXX -std=c++20 $(python3 -m pybind11 --includes) -x c++ - -std=c++2a -fconcepts -fcoroutines -DFMT_HEADER_ONLY -shared -fPIC -o /dev/null &
+  printf "#include \"${f}\"\nint main(){}" | $CXX -std=c++20 $(python3 -m pybind11 --includes) -x c++ - -std=c++20 -DFMT_HEADER_ONLY -shared -fPIC -o /dev/null &
 
   # adapted from https://unix.stackexchange.com/a/436713
   if [[ $(jobs -r -p | wc -l) -ge 2 ]]; then
