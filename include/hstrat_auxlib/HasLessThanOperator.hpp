@@ -8,7 +8,7 @@ namespace hstrat_auxlib {
 
 template<typename T>
 concept HasLessThanOperator = requires(T a, T b) {
-    { a < b } -> std::convertible_to<bool>;
+  { a < b } -> std::convertible_to<bool>;
 };
 
 } // namespace hstrat_auxlib

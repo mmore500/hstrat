@@ -12,14 +12,14 @@ namespace hstrat_auxlib {
 
 template<typename T>
 std::string repr(const T& obj) {
-    if constexpr (std::is_convertible_v<T, std::string_view>) {
-        const char quote = (obj.find('\'') == std::string::npos) ? '\'' : '"';
-        return fmt::format("{}{}{}", quote, obj, quote);
-    } else if constexpr (
-      std::is_same_v<std::decay_t<T>, hstrat_pybind::pyobject>
-    ) {
-      return obj.Repr();
-   } else return fmt::format("{}", obj);
+  if constexpr (std::is_convertible_v<T, std::string_view>) {
+      const char quote = (obj.find('\'') == std::string::npos) ? '\'' : '"';
+      return fmt::format("{}{}{}", quote, obj, quote);
+  } else if constexpr (
+    std::is_same_v<std::decay_t<T>, hstrat_pybind::pyobject>
+  ) {
+    return obj.Repr();
+  } else return fmt::format("{}", obj);
 }
 
 } // namespace hstrat_auxlib
