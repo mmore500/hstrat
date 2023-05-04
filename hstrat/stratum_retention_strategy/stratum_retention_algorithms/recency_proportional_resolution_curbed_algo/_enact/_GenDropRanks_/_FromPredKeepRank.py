@@ -9,7 +9,11 @@ from ....recency_proportional_resolution_algo._enact._GenDropRanks_._FromPredKee
     _PredKeepRank as rpra_PredKeepRank,
 )
 from ..._PolicySpec import PolicySpec
-from ..._impl import calc_provided_degree, calc_provided_resolution
+from ..._impl import (
+    calc_provided_degree,
+    calc_provided_resolution,
+    pick_policy,
+)
 
 
 class _PredKeepRank:
@@ -70,30 +74,16 @@ class _PredKeepRank:
             recency-proportional resolution stratum retention policy.
         """
         spec = policy.GetSpec()
-        resolution = calc_provided_resolution(
-            spec._size_curb,
-            # why is this +1 important?
-            num_stratum_depositions_completed + 1,
+        dispatched_policy = pick_policy(
+            spec.GetSizeCurb(),
+            num_stratum_depositions_completed,
         )
-
-        if resolution >= 0:
-            return rpra_PredKeepRank._do_call(
-                resolution,
-                num_stratum_depositions_completed,
-                stratum_rank,
-            )
-        else:
-            degree = calc_provided_degree(
-                spec._size_curb,
-                num_stratum_depositions_completed,
-            )
-            interspersal = 2
-            return gsnra_PredKeepRank._do_call(
-                degree,
-                interspersal,
-                num_stratum_depositions_completed,
-                stratum_rank,
-            )
+        return {
+            "recency_proportional_resolution_algo": rpra_PredKeepRank,
+            "geom_seq_nth_root_algo": gsnra_PredKeepRank,
+        }[dispatched_policy.GetSpec().GetAlgoIdentifier()]._do_call(
+            dispatched_policy, stratum_rank, num_stratum_depositions_completed
+        )
 
 
 FromPredKeepRank = GenDropRanksFromPredKeepRank(_PredKeepRank)

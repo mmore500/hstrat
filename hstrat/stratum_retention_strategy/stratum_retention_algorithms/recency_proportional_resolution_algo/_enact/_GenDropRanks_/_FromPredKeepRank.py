@@ -26,10 +26,12 @@ class _PredKeepRank:
 
     @staticmethod
     def _do_call(
-        resolution: int,
+        policy: PolicyCouplerBase,
         num_stratum_depositions_completed: int,
         stratum_rank: int,
     ) -> bool:
+        resolution = policy.GetSpec().GetRecencyProportionalResolution()
+
         # to satisfy requirements of HereditaryStratigraphicColumn impl
         # we must always keep root ancestor and newest stratum
         if stratum_rank in (0, num_stratum_depositions_completed):
@@ -65,7 +67,7 @@ class _PredKeepRank:
         else:
             assert cutoff_rank
             return _PredKeepRank._do_call(
-                resolution,
+                policy,
                 num_stratum_depositions_completed - cutoff_rank,
                 stratum_rank - cutoff_rank,
             )
@@ -110,7 +112,7 @@ class _PredKeepRank:
             recency-proportional resolution stratum retention policy.
         """
         return _PredKeepRank._do_call(
-            policy.GetSpec().GetRecencyProportionalResolution(),
+            policy,
             num_stratum_depositions_completed,
             stratum_rank,
         )

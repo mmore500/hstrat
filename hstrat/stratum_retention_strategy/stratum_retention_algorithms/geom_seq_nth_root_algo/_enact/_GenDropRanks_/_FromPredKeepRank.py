@@ -28,11 +28,14 @@ class _PredKeepRank:
 
     @staticmethod
     def _do_call(
-        degree: int,
-        interspersal: int,
+        policy: PolicyCouplerBase,
         num_stratum_depositions_completed: int,
         stratum_rank: int,
     ) -> bool:
+        spec = policy.GetSpec()
+        degree = spec.GetDegree()
+        interspersal = spec.GetInterspersal()
+
         return stratum_rank in get_retained_ranks(
             degree,
             interspersal,
@@ -79,10 +82,8 @@ class _PredKeepRank:
             For details on the rationale, implementation, and guarantees of the
             depth-proportional resolution stratum retention policy.
         """
-        spec = policy.GetSpec()
         return _PredKeepRank._do_call(
-            spec.GetDegree(),
-            spec.GetInterspersal(),
+            policy,
             num_stratum_depositions_completed,
             stratum_rank,
         )
