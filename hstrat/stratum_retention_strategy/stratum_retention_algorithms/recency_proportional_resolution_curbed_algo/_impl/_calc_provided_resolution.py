@@ -24,6 +24,6 @@ def calc_provided_resolution(
                 )  # - 1?
             )
         )
-        - 2
+        - 1
     )  # - 1 ?
     return res
