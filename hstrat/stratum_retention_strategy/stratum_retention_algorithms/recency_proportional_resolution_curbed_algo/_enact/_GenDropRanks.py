@@ -1,3 +1,3 @@
-from ._GenDropRanks_ import FromPredKeepRank
+from ._GenDropRanks_ import GenDropRanks
 
-GenDropRanks = FromPredKeepRank
+GenDropRanks = GenDropRanks

@@ -2,7 +2,6 @@ import typing
 
 from ...._detail import PolicyCouplerBase
 from ..._PolicySpec import PolicySpec
-from ..._impl import num_to_condemn
 
 
 class GenDropRanks:
@@ -61,14 +60,12 @@ class GenDropRanks:
             For details on the rationale, implementation, and guarantees of the
             recency-proportional resolution stratum retention policy.
         """
-        spec = policy.GetSpec()
-        resolution = spec._guaranteed_mrca_recency_proportional_resolution
-        num_to_condemn_ = num_to_condemn(
-            resolution,
-            num_stratum_depositions_completed,
-        )
+        if num_stratum_depositions_completed < 2:
+            return
 
-        for i in range(num_to_condemn_):
-            factor = 2 * resolution + 1
-            num_ranks_back = factor * (2**i)
-            yield num_stratum_depositions_completed - num_ranks_back
+        yield from sorted(
+            set(policy.IterRetainedRanks(num_stratum_depositions_completed))
+            - set(
+                policy.IterRetainedRanks(num_stratum_depositions_completed + 1)
+            )
+        )
