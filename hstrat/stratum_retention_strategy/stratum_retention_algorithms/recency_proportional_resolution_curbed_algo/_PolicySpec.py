@@ -1,4 +1,5 @@
 import typing
+import warnings
 
 from .._detail import PolicySpecBase
 
@@ -22,6 +23,11 @@ class PolicySpec(PolicySpecBase):
         TODO max_resolution?
         """
         self._size_curb = size_curb
+        if size_curb < 8:
+            warnings.warn(
+                f"Size curb set to {size_curb}, "
+                "the minimum guaranteeable size limit is 8.",
+            )
 
     def __eq__(self: "PolicySpec", other: typing.Any) -> bool:
         return isinstance(other, self.__class__) and (self._size_curb,) == (
