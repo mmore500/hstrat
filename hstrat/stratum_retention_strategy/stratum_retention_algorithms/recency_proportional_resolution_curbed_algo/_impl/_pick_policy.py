@@ -20,11 +20,12 @@ def pick_policy(
             resolution,
         )
     else:
+        interspersal = 2
         degree = calc_provided_degree(
             size_curb,
+            interspersal,
             num_stratum_depositions_completed,
         )
-        interspersal = 2
         return gsnra_Policy(
             degree,
             interspersal,
