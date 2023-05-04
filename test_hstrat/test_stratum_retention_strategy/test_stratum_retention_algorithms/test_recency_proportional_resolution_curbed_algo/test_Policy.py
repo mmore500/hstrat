@@ -166,11 +166,11 @@ def test_repr():
     size_curb = 1
     policy = recency_proportional_resolution_curbed_algo.Policy(size_curb)
     assert str(size_curb) in repr(policy)
-    assert policy.GetSpec().GetPolicyName() in repr(policy)
+    assert policy.GetSpec().GetAlgoIdentifier() in repr(policy)
 
 
 def test_str():
     size_curb = 1
     policy = recency_proportional_resolution_curbed_algo.Policy(size_curb)
     assert str(size_curb) in str(policy)
-    assert policy.GetSpec().GetPolicyTitle() in str(policy)
+    assert policy.GetSpec().GetAlgoTitle() in str(policy)

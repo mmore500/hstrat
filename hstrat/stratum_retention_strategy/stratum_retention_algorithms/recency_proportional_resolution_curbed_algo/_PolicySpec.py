@@ -30,7 +30,7 @@ class PolicySpec(PolicySpecBase):
 
     def __repr__(self: "PolicySpec") -> str:
         return f"""{
-            self.GetPolicyName()
+            self.GetAlgoIdentifier()
         }.{
             PolicySpec.__qualname__
         }(size_curb={
@@ -39,19 +39,23 @@ class PolicySpec(PolicySpecBase):
 
     def __str__(self: "PolicySpec") -> str:
         return f"""{
-            self.GetPolicyTitle()
-        } (size curb: {
+            self.GetAlgoTitle()
+        } (size_curb: {
             self._size_curb
         })"""
 
+    def GetEvalCtor(self: "PolicySpec") -> str:
+        return f"hstrat.{self!r}"
+
+    def GetSizeCurb(self: "PolicySpec") -> int:
+        return self._size_curb
+
     @staticmethod
-    def GetPolicyName() -> str:
-        """Get programatic name for policy."""
+    def GetAlgoIdentifier() -> str:
+        """Get programatic name for underlying retention algorithm."""
         return __package__.split(".")[-1]
 
     @staticmethod
-    def GetPolicyTitle() -> str:
-        """Get human-readable title for policy."""
-        return (
-            "Curbed Recency-proportional Resolution Stratum Retention Policy"
-        )
+    def GetAlgoTitle() -> str:
+        """Get human-readable name for underlying retention algorithm."""
+        return "Curbed Recency-proportional Resolution Stratum Retention Algorithm"

@@ -41,27 +41,27 @@ def test_init(size_curb):
     assert spec._size_curb == size_curb
 
 
-def test_GetPolicyName():
+def test_GetAlgoIdentifier():
     size_curb = 42
     spec = recency_proportional_resolution_curbed_algo.PolicySpec(size_curb)
-    assert spec.GetPolicyName()
+    assert spec.GetAlgoIdentifier()
 
 
-def test_GetPolicyTitle():
+def test_GetAlgoTitle():
     size_curb = 42
     spec = recency_proportional_resolution_curbed_algo.PolicySpec(size_curb)
-    assert spec.GetPolicyTitle()
+    assert spec.GetAlgoTitle()
 
 
 def test_repr():
     size_curb = 42
     spec = recency_proportional_resolution_curbed_algo.PolicySpec(size_curb)
     assert str(size_curb) in repr(spec)
-    assert spec.GetPolicyName() in repr(spec)
+    assert spec.GetAlgoIdentifier() in repr(spec)
 
 
 def test_str():
     size_curb = 42
     spec = recency_proportional_resolution_curbed_algo.PolicySpec(size_curb)
     assert str(size_curb) in str(spec)
-    assert spec.GetPolicyTitle() in str(spec)
+    assert spec.GetAlgoTitle() in str(spec)
