@@ -17,6 +17,18 @@ class IterRetainedRanks:
     def __eq__(self: "IterRetainedRanks", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
+    @staticmethod
+    def _do_call(
+        policy: PolicyCouplerBase,
+        num_strata_deposited: int,
+    ) -> typing.Iterator[int]:
+        return pick_policy(
+            policy.GetSpec().GetSizeCurb(),
+            num_strata_deposited,
+        ).IterRetainedRanks(
+            num_strata_deposited,
+        )
+
     def __call__(
         self: "IterRetainedRanks",
         policy: PolicyCouplerBase,
@@ -24,9 +36,4 @@ class IterRetainedRanks:
     ) -> typing.Iterator[int]:
         """Iterate over retained strata ranks at `num_strata_deposited` in
         ascending order."""
-        yield from pick_policy(
-            policy.GetSpec()._size_curb,
-            num_strata_deposited,
-        ).IterRetainedRanks(
-            num_strata_deposited,
-        )
+        return IterRetainedRanks._do_call(policy, num_strata_deposited)
