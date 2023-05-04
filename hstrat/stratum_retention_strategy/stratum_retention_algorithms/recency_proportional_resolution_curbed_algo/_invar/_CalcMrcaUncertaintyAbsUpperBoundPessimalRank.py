@@ -2,6 +2,7 @@ import typing
 
 from ..._detail import PolicyCouplerBase
 from .._PolicySpec import PolicySpec
+from .._impl import pick_policy
 
 
 class CalcMrcaUncertaintyAbsUpperBoundPessimalRank:
@@ -27,4 +28,9 @@ class CalcMrcaUncertaintyAbsUpperBoundPessimalRank:
     ) -> int:
         """Calculate rank for which upper bound on absolute MRCA uncertainty is
         pessimized."""
-        return 0
+        return pick_policy(
+            policy.GetSpec().GetSizeCurb(),
+            max(first_num_strata_deposited, second_num_strata_deposited),
+        ).CalcMrcaUncertaintyAbsUpperBoundPessimalRank(
+            first_num_strata_deposited, second_num_strata_deposited
+        )

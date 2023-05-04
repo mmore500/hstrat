@@ -2,6 +2,7 @@ import typing
 
 from ..._detail import PolicyCouplerBase
 from .._PolicySpec import PolicySpec
+from .._impl import pick_policy
 
 
 class CalcNumStrataRetainedUpperBound:
@@ -21,8 +22,11 @@ class CalcNumStrataRetainedUpperBound:
 
     def __call__(
         self: "CalcNumStrataRetainedUpperBound",
-        policy: typing.Optional[PolicyCouplerBase],
+        policy: PolicyCouplerBase,
         num_strata_deposited: int,
     ) -> int:
         """At most, how many strata are retained after n deposited? Inclusive."""
-        return num_strata_deposited
+        return pick_policy(
+            policy.GetSpec().GetSizeCurb(),
+            num_strata_deposited,
+        ).CalcNumStrataRetainedUpperBound(num_strata_deposited)
