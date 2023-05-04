@@ -15,9 +15,11 @@ def calc_provided_resolution(
     # resolution + 1 == size_curb / ceil(log2(num_depisitons))
     # resolution = size_curb / ceil(log2(num_depisitons)) - 1
     res = (
-        size_curb // (
+        size_curb
+        // (
             # int cast allows for other integer-like types i.e., np int64 etc
-            int(num_stratum_depositions_completed).bit_length() + 1
+            int(num_stratum_depositions_completed).bit_length()
+            + 1
         )  # - 1?
         - 1
     )  # - 1 ?
