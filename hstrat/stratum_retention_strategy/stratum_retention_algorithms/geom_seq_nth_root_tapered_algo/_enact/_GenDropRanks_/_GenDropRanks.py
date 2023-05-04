@@ -111,7 +111,7 @@ class GenDropRanks:
             }
         # if degree > 0 and we have a cached result for the preceding time point
         # try to use shortcut to return same result for current time point
-        elif spec._degree and opyt.apply_if(
+        elif spec.GetDegree() and opyt.apply_if(
             self._cached_result,
             lambda x: x[0] == num_stratum_depositions_completed - 1,
         ):
@@ -239,8 +239,8 @@ class GenDropRanks:
             # allows us to detect whether deposited rank is relevant to any
             # k > 1 iterator
             pow1_newsep = calc_rank_sep(
-                spec._degree,
-                spec._interspersal,
+                spec.GetDegree(),
+                spec.GetInterspersal(),
                 1,
                 # no +1 to be conservative
                 num_stratum_depositions_completed,
@@ -254,8 +254,8 @@ class GenDropRanks:
             # (this would interfere with our assumption of the k = 0 drop
             # moving forward one rank per deposition)
             pow1_oldsep = calc_rank_sep(
-                spec._degree,
-                spec._interspersal,
+                spec.GetDegree(),
+                spec.GetInterspersal(),
                 1,
                 # no +1 to be conservative
                 cached_drop_rank,
@@ -284,7 +284,7 @@ class GenDropRanks:
                     + 1,
                 }
 
-        elif spec._degree:
+        elif spec.GetDegree():
             # TODO case with no caching?
             # can we prove when pow0 retention chain is only 1 long?
             # i.e., previous iterators don't exhaust?

@@ -1,12 +1,14 @@
 from copy import copy
 import itertools as it
+import operator
 import sys
 import typing
 
 from .._HereditaryStratum import HereditaryStratum
+from ._detail import HereditaryStratumOrderedStoreBase
 
 
-class HereditaryStratumOrderedStoreDict:
+class HereditaryStratumOrderedStoreDict(HereditaryStratumOrderedStoreBase):
     """Interchangeable backing container for HereditaryStratigraphicColumn.
 
     Stores deposited strata using a dict implementation. Retained strata are
@@ -15,6 +17,8 @@ class HereditaryStratumOrderedStoreDict:
     Potentially useful in scenarios where large strata counts are retained or
     deleted strata tend to be more ancient.
     """
+
+    __slots__ = ("_data",)
 
     # maps rank to stratum
     _data: typing.Dict[int, HereditaryStratum]
@@ -28,24 +32,31 @@ class HereditaryStratumOrderedStoreDict:
         other: "HereditaryStratumOrderedStoreDict",
     ) -> bool:
         """Compare for value-wise equality."""
+        # adapted from https://stackoverflow.com/a/4522896
         return (
             isinstance(
                 other,
                 self.__class__,
             )
-            and self.__dict__ == other.__dict__
+            and self.__slots__ == other.__slots__
+            and all(
+                getter(self) == getter(other)
+                for getter in [
+                    operator.attrgetter(attr) for attr in self.__slots__
+                ]
+            )
         )
 
     def DepositStratum(
         self: "HereditaryStratumOrderedStoreDict",
-        rank: int,
+        rank: typing.Optional[int],
         stratum: "HereditaryStratum",
     ) -> None:
         """Insert a new stratum into the store.
 
         Parameters
         ----------
-        rank : int
+        rank : typing.Optional[int]
             The position of the stratum being deposited within the sequence of strata deposited into the column. Precisely, the number of strata that have been deposited before stratum.
         stratum : HereditaryStratum
             The stratum to deposit.
@@ -141,11 +152,12 @@ class HereditaryStratumOrderedStoreDict:
     def IterRetainedRanks(
         self: "HereditaryStratumOrderedStoreDict",
     ) -> typing.Iterator[int]:
-        """Iterate over deposition ranks of strata present in the store.
+        """Iterate over deposition ranks of strata present in the store from
+        most ancient to most recent.
 
-        Order should not be considered guaranteed. The store may be altered
-        during iteration without iterator invalidation, although subsequent
-        updates will not be reflected in the iterator.
+        The store may be altered during iteration without iterator
+        invalidation, although subsequent updates will not be reflected in the
+        iterator.
         """
         # must make copy to prevent
         # `RuntimeError: dictionary changed size during iteration`
@@ -153,7 +165,15 @@ class HereditaryStratumOrderedStoreDict:
         # (only when first item requested)
         yield from list(self._data.keys())
 
-    def IterRankDifferentia(
+    def IterRetainedStrata(
+        self: "HereditaryStratumOrderedStoreDict",
+    ) -> typing.Iterator[HereditaryStratum]:
+        """Iterate over stored strata from most ancient to most recent."""
+        # for python 3.7+, dictionaries are guaranteed insertion ordered
+        assert sys.version_info >= (3, 7)
+        yield from self._data.values()
+
+    def IterRankDifferentiaZip(
         self: "HereditaryStratumOrderedStoreDict",
         # needed for other implementations
         get_rank_at_column_index: typing.Optional[typing.Callable] = None,

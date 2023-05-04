@@ -28,6 +28,6 @@ class CalcNumStrataRetainedUpperBound:
         spec = policy.GetSpec()
 
         return min(
-            spec._guaranteed_depth_proportional_resolution * 2 + 1,
+            spec.GetDepthProportionalResolution() * 2 + 1,
             num_strata_deposited,
         )

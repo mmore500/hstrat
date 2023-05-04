@@ -51,7 +51,7 @@ class CalcMrcaUncertaintyRelUpperBound:
 
         length_ratio = max_num_strata_deposited / min_num_strata_deposited
 
-        if spec._guaranteed_mrca_recency_proportional_resolution == 0:
+        if spec.GetRecencyProportionalResolution() == 0:
             return CalcMrcaUncertaintyRelUpperBoundWorstCase()(
                 policy,
                 first_num_strata_deposited,
@@ -59,10 +59,7 @@ class CalcMrcaUncertaintyRelUpperBound:
                 actual_rank_of_mrca,
             )
         else:
-            res = (
-                length_ratio
-                / spec._guaranteed_mrca_recency_proportional_resolution
-            )
+            res = length_ratio / spec.GetRecencyProportionalResolution()
 
             # tighten to worst-possible case given number of strata deposited
             return min(

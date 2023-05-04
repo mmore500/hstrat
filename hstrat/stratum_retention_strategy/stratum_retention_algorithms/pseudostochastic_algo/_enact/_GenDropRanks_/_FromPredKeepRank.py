@@ -70,7 +70,7 @@ class _PredKeepRank:
             and stratum_rank == num_stratum_depositions_completed - 2
         ):
             return not decide_if_discard(
-                spec._random_seed,
+                spec.GetHashSalt(),
                 stratum_rank,
                 num_stratum_depositions_completed,
             )

@@ -6,45 +6,52 @@ from .._detail import PolicySpecBase
 class PolicySpec(PolicySpecBase):
     """Contains all policy parameters, if any."""
 
-    random_seed: int
+    hash_salt: int
 
-    def __init__(self: "PolicySpec", random_seed: int) -> None:
+    def __init__(self: "PolicySpec", hash_salt: int) -> None:
         """Construct the policy spec.
 
         Parameters
         ----------
-        random_seed : int
-            Seed value for the onboard random number generator.
+        hash_salt : int
+            Salt value fed into hash used to deterministically choose whether
+            to keep or drop ranks.
         """
-        self._random_seed = random_seed
+        self._hash_salt = hash_salt
 
     def __eq__(self: "PolicySpec", other: typing.Any) -> bool:
-        return isinstance(other, self.__class__) and (self._random_seed,) == (
-            other._random_seed,
+        return isinstance(other, self.__class__) and (self._hash_salt,) == (
+            other._hash_salt,
         )
 
     def __repr__(self: "PolicySpec") -> str:
         return f"""{
-            self.GetPolicyName()
+            self.GetAlgoIdentifier()
         }.{
-            __package__.split(".")[-1]
-        }(random_seed={
-            self._random_seed
+            PolicySpec.__qualname__
+        }(hash_salt={
+            self._hash_salt
         })"""
 
     def __str__(self: "PolicySpec") -> str:
         return f"""{
-            self.GetPolicyTitle()
-        } (seed: {
-            self._random_seed
+            self.GetAlgoTitle()
+        } (hash salt: {
+            self._hash_salt
         })"""
 
+    def GetHashSalt(self: "PolicySpec") -> int:
+        return self._hash_salt
+
+    def GetEvalCtor(self: "PolicySpec") -> str:
+        return f"hstrat.{self!r}"
+
     @staticmethod
-    def GetPolicyName() -> str:
-        """Get programatic name for policy."""
+    def GetAlgoIdentifier() -> str:
+        """Get programatic name for underlying retention algorithm."""
         return __package__.split(".")[-1]
 
     @staticmethod
-    def GetPolicyTitle() -> str:
-        """Get human-readable title for policy."""
-        return "Pseudostochastic Stratum Retention Policy"
+    def GetAlgoTitle() -> str:
+        """Get human-readable name for underlying retention algorithm."""
+        return "Pseudostochastic Stratum Retention Algorithm"

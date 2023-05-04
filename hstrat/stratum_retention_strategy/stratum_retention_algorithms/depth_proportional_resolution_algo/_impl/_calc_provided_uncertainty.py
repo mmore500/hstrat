@@ -1,5 +1,5 @@
 def calc_provided_uncertainty(
-    guaranteed_depth_proportional_resolution: int,
+    depth_proportional_resolution: int,
     num_stratum_depositions_completed: int,
 ) -> int:
     """After n strata have been deposited, how many ranks are spaced between
@@ -11,7 +11,7 @@ def calc_provided_uncertainty(
     retained at every rank, so the rank of the MRCA can be determined with 0
     uncertainty.
     """
-    guaranteed_resolution = guaranteed_depth_proportional_resolution
+    guaranteed_resolution = depth_proportional_resolution
     max_uncertainty = (
         num_stratum_depositions_completed // guaranteed_resolution
     )

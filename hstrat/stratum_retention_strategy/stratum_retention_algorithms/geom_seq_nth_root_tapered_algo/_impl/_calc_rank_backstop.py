@@ -6,7 +6,7 @@ from ._calc_target_rank import calc_target_rank
 def calc_rank_backstop(
     degree: int,
     interspersal: int,
-    pow: int,
+    pow_: int,
     num_strata_deposited: int,
 ) -> int:
     """What should the most ancient rank retained to cover the `pow`th target
@@ -20,13 +20,13 @@ def calc_rank_backstop(
     rank_cutoff = calc_rank_cutoff(
         degree,
         interspersal,
-        pow,
+        pow_,
         num_strata_deposited,
     )
     retained_ranks_sep = calc_rank_sep(
         degree,
         interspersal,
-        pow,
+        pow_,
         num_strata_deposited,
     )
 
@@ -43,7 +43,7 @@ def calc_rank_backstop(
     # before the target rank so that the target rank is guaranteed within
     # a _calc_rank_sep window
     assert min_retained_rank <= calc_target_rank(
-        degree, pow, num_strata_deposited
+        degree, pow_, num_strata_deposited
     )
 
     # more sanity checks on range of output value

@@ -26,7 +26,7 @@ class IterRetainedRanks:
         ascending order."""
         spec = policy.GetSpec()
         uncertainty = calc_provided_uncertainty(
-            spec._guaranteed_depth_proportional_resolution,
+            spec.GetDepthProportionalResolution(),
             num_strata_deposited,
         )
 

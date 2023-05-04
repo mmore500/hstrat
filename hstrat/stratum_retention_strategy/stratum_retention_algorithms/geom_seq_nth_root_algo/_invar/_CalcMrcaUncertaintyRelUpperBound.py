@@ -41,7 +41,7 @@ class CalcMrcaUncertaintyRelUpperBound:
 
         spec = policy.GetSpec()
 
-        interspersal = spec._interspersal
+        interspersal = spec.GetInterspersal()
         # edge case: no uncertainty guarantee for interspersal 1
         # interspersal >= 2 required for uncertainty guarantee
         if interspersal == 1:
@@ -65,7 +65,7 @@ class CalcMrcaUncertaintyRelUpperBound:
         length_ratio = max_num_strata_deposited / min_num_strata_deposited
 
         common_ratio = calc_common_ratio(
-            spec._degree, max_num_strata_deposited
+            spec.GetDegree(), max_num_strata_deposited
         )
 
         res = length_ratio * common_ratio / (interspersal - 1)

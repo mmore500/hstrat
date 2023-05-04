@@ -31,7 +31,7 @@ class PolicySpec(PolicySpecBase):
 
     def __repr__(self: "PolicySpec") -> str:
         return f"""{
-            self.GetPolicyName()
+            self.GetAlgoIdentifier()
         }.{
             PolicySpec.__qualname__
         }(fixed_resolution={
@@ -40,16 +40,23 @@ class PolicySpec(PolicySpecBase):
 
     def __str__(self: "PolicySpec") -> str:
         return f"""{
-            self.GetPolicyTitle()
+            self.GetAlgoTitle()
         } (resolution: {
             self._fixed_resolution
         })"""
 
+    def GetEvalCtor(self: "PolicySpec") -> str:
+        return f"hstrat.{self!r}"
+
+    def GetFixedResolution(self: "PolicySpec") -> int:
+        return self._fixed_resolution
+
     @staticmethod
-    def GetPolicyName() -> str:
-        """Get programatic name for policy."""
+    def GetAlgoIdentifier() -> str:
+        """Get programatic name for underlying retention algorithm."""
         return __package__.split(".")[-1]
 
     @staticmethod
-    def GetPolicyTitle() -> str:
-        return "Fixed Resolution Stratum Retention Policy"
+    def GetAlgoTitle() -> str:
+        """Get human-readable name for underlying retention algorithm."""
+        return "Fixed Resolution Stratum Retention Algorithm"

@@ -6,55 +6,61 @@ from .._detail import PolicySpecBase
 class PolicySpec(PolicySpecBase):
     """Contains all policy parameters, if any."""
 
-    _guaranteed_depth_proportional_resolution: int
+    _depth_proportional_resolution: int
 
     def __init__(
         self: "PolicySpec",
-        guaranteed_depth_proportional_resolution: int,
+        depth_proportional_resolution: int,
     ):
         """Construct the policy spec.
 
         Parameters
         ----------
-        guaranteed_depth_proportional_resolution : int
+        depth_proportional_resolution : int
             The desired minimum number of intervals for the rank of the MRCA to
             be able to be distinguished between. The uncertainty of MRCA
             rank estimates provided under the tapered depth-proportional
             resolution policy will scale as total number of strata deposited
-            divided by guaranteed_depth_proportional_resolution.
+            divided by depth_proportional_resolution.
         """
-        assert guaranteed_depth_proportional_resolution > 0
-        self._guaranteed_depth_proportional_resolution = (
-            guaranteed_depth_proportional_resolution
-        )
+        assert depth_proportional_resolution > 0
+        self._depth_proportional_resolution = depth_proportional_resolution
 
     def __eq__(self: "PolicySpec", other: typing.Any) -> bool:
         return isinstance(other, self.__class__) and (
-            self._guaranteed_depth_proportional_resolution,
-        ) == (other._guaranteed_depth_proportional_resolution,)
+            self._depth_proportional_resolution,
+        ) == (other._depth_proportional_resolution,)
 
     def __repr__(self: "PolicySpec") -> str:
         return f"""{
-            self.GetPolicyName()
+            self.GetAlgoIdentifier()
         }.{
             PolicySpec.__qualname__
-        }(guaranteed_depth_proportional_resolution={
-            self._guaranteed_depth_proportional_resolution
+        }(depth_proportional_resolution={
+            self._depth_proportional_resolution
         })"""
 
     def __str__(self: "PolicySpec") -> str:
         return f"""{
-            self.GetPolicyTitle()
+            self.GetAlgoTitle()
         } (resolution: {
-            self._guaranteed_depth_proportional_resolution
+            self._depth_proportional_resolution
         })"""
 
+    def GetEvalCtor(self: "PolicySpec") -> str:
+        return f"hstrat.{self!r}"
+
+    def GetDepthProportionalResolution(self: "PolicySpec") -> int:
+        return self._depth_proportional_resolution
+
     @staticmethod
-    def GetPolicyName() -> str:
-        """Get programatic name for policy."""
+    def GetAlgoIdentifier() -> str:
+        """Get programatic name for underlying retention algorithm."""
         return __package__.split(".")[-1]
 
     @staticmethod
-    def GetPolicyTitle() -> str:
-        """Get human-readable title for policy."""
-        return "Tapered Depth-proportional Resolution Stratum Retention Policy"
+    def GetAlgoTitle() -> str:
+        """Get human-readable name for underlying retention algorithm."""
+        return (
+            "Tapered Depth-proportional Resolution Stratum Retention Algorithm"
+        )

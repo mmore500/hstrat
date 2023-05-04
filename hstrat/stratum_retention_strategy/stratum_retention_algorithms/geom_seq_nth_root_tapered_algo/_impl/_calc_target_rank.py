@@ -5,7 +5,7 @@ from ._calc_target_recency import calc_target_recency
 
 def calc_target_rank(
     degree: int,
-    pow: int,
+    pow_: int,
     num_strata_deposited: int,
 ) -> int:
     """What should the rank of the `pow`th exponentially-spaced-back-from-
@@ -13,7 +13,7 @@ def calc_target_rank(
 
     Will monotonically increase with `num_strata_deposited`.
     """
-    target_recency = calc_target_recency(degree, pow, num_strata_deposited)
+    target_recency = calc_target_recency(degree, pow_, num_strata_deposited)
     recency_cutoff = target_recency
     rank_cutoff = max(
         num_strata_deposited - int(math.ceil(recency_cutoff)),

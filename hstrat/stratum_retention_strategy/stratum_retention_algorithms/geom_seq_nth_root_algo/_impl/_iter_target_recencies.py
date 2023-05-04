@@ -13,5 +13,5 @@ def iter_target_recencies(
     common_ratio = calc_common_ratio(degree, num_strata_deposited)
     # don't iterate over 0th pow, this is just the most recent rank
     # i.e., recency == 1
-    for pow in range(1, degree + 1):
-        yield common_ratio**pow
+    for pow_ in range(1, degree + 1):
+        yield common_ratio**pow_

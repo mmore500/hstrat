@@ -64,7 +64,7 @@ class _PredKeepRank:
             depth-proportional resolution stratum retention policy.
         """
         spec = policy.GetSpec()
-        guaranteed_resolution = spec._guaranteed_depth_proportional_resolution
+        guaranteed_resolution = spec.GetDepthProportionalResolution()
 
         # easy edge cases we must always retain
         if (
@@ -94,7 +94,9 @@ class _PredKeepRank:
             return stratum_rank // prev_stage_uncertainty
 
         def prev_stage_max_idx() -> int:
-            return num_stratum_depositions_completed // prev_stage_uncertainty
+            return (
+                num_stratum_depositions_completed - 1
+            ) // prev_stage_uncertainty
 
         return stratum_rank % cur_stage_uncertainty == 0 or (
             stratum_rank % prev_stage_uncertainty == 0

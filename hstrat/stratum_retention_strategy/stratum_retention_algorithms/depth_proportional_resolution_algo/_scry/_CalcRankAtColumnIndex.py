@@ -58,7 +58,7 @@ class CalcRankAtColumnIndex:
             # assumes no in-progress stratum depositions that haven't been
             # reflected in num_strata_deposited
             provided_uncertainty = calc_provided_uncertainty(
-                spec._guaranteed_depth_proportional_resolution,
+                spec.GetDepthProportionalResolution(),
                 num_strata_deposited,
             )
             return min(index * provided_uncertainty, num_strata_deposited - 1)

@@ -25,8 +25,8 @@ class IterRetainedRanks:
         ascending order."""
         spec = policy.GetSpec()
 
-        yield from range(0, num_strata_deposited, spec._fixed_resolution)
+        yield from range(0, num_strata_deposited, spec.GetFixedResolution())
 
         last_rank = num_strata_deposited - 1
-        if last_rank > 0 and last_rank % spec._fixed_resolution:
+        if last_rank > 0 and last_rank % spec.GetFixedResolution():
             yield last_rank

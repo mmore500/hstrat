@@ -4,7 +4,12 @@ docs/api
 docs/_modules
 docs/_build
 docs/readme.rst
+docs/citing.rst
+docs/projects.rst
+docs/publications.rst
 docs/index.rst
+
+joss/paper.pdf
 
 # test output
 teeplots/

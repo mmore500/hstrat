@@ -6,55 +6,59 @@ from .._detail import PolicySpecBase
 class PolicySpec(PolicySpecBase):
     """Contains all policy parameters, if any."""
 
-    _guaranteed_mrca_recency_proportional_resolution: int
+    _recency_proportional_resolution: int
 
     def __init__(
         self: "PolicySpec",
-        guaranteed_mrca_recency_proportional_resolution: int,
+        recency_proportional_resolution: int,
     ) -> None:
         """Construct the policy spec.
 
         Parameters
         ----------
-        guaranteed_mrca_recency_proportional_resolution : int, optional
+        recency_proportional_resolution : int, optional
             The desired minimum number of intervals between the MRCA and the
             deeper compared column to be able to be distinguished between. The
             uncertainty of MRCA rank estimates provided under the MRCA-recency-
             proportional resolution policy will scale as the actual
             phylogenetic depth of the MRCA divided by
-            guaranteed_mrca_recency_proportional_resolution.
+            recency_proportional_resolution.
         """
-        self._guaranteed_mrca_recency_proportional_resolution = (
-            guaranteed_mrca_recency_proportional_resolution
-        )
+        self._recency_proportional_resolution = recency_proportional_resolution
 
     def __eq__(self: "PolicySpec", other: typing.Any) -> bool:
         return isinstance(other, self.__class__) and (
-            self._guaranteed_mrca_recency_proportional_resolution,
-        ) == (other._guaranteed_mrca_recency_proportional_resolution,)
+            self._recency_proportional_resolution,
+        ) == (other._recency_proportional_resolution,)
 
     def __repr__(self: "PolicySpec") -> str:
         return f"""{
-            self.GetPolicyName()
+            self.GetAlgoIdentifier()
         }.{
             PolicySpec.__qualname__
-        }(guaranteed_mrca_recency_proportional_resolution={
-            self._guaranteed_mrca_recency_proportional_resolution
+        }(recency_proportional_resolution={
+            self._recency_proportional_resolution
         })"""
 
     def __str__(self: "PolicySpec") -> str:
         return f"""{
-            self.GetPolicyTitle()
+            self.GetAlgoTitle()
         } (resolution: {
-            self._guaranteed_mrca_recency_proportional_resolution
+            self._recency_proportional_resolution
         })"""
 
+    def GetEvalCtor(self: "PolicySpec") -> str:
+        return f"hstrat.{self!r}"
+
+    def GetRecencyProportionalResolution(self: "PolicySpec") -> int:
+        return self._recency_proportional_resolution
+
     @staticmethod
-    def GetPolicyName() -> str:
-        """Get programatic name for policy."""
+    def GetAlgoIdentifier() -> str:
+        """Get programatic name for underlying retention algorithm."""
         return __package__.split(".")[-1]
 
     @staticmethod
-    def GetPolicyTitle() -> str:
-        """Get human-readable title for policy."""
-        return "Recency-proportional Resolution Stratum Retention Policy"
+    def GetAlgoTitle() -> str:
+        """Get human-readable name for underlying retention algorithm."""
+        return "Recency-proportional Resolution Stratum Retention Algorithm"

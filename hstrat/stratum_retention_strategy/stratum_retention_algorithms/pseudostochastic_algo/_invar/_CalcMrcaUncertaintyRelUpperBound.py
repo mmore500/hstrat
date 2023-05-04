@@ -1,3 +1,7 @@
 from ..._impl import CalcMrcaUncertaintyRelUpperBoundWorstCase
 
-CalcMrcaUncertaintyRelUpperBound = CalcMrcaUncertaintyRelUpperBoundWorstCase
+
+class CalcMrcaUncertaintyRelUpperBound(
+    CalcMrcaUncertaintyRelUpperBoundWorstCase
+):
+    pass

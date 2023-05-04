@@ -1,9 +1,8 @@
 import typing
 
 from keyname import keyname as kn
-import matplotlib as mpl
+from matplotlib import animation as mpl_animation
 from matplotlib import pyplot as plt
-import matplotlib.animation
 from slugify import slugify
 from tqdm import tqdm
 
@@ -18,7 +17,7 @@ def stratum_retention_animate(
     draw_extant_history: bool = True,
     draw_extinct_history: bool = True,
     draw_extinct_placeholders: bool = False,
-) -> mpl.animation.FuncAnimation:
+) -> mpl_animation.FuncAnimation:
     """Animate evolution of strata histories under a stratum retention policy.
 
     Parameters
@@ -50,7 +49,7 @@ def stratum_retention_animate(
         )
         ax.set_aspect("equal")
 
-    res = mpl.animation.FuncAnimation(
+    res = mpl_animation.FuncAnimation(
         fig,
         update_func,
         frames=range(num_generations),

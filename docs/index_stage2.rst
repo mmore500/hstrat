@@ -10,6 +10,9 @@ Overview
 
    index
    api
+   publications
+   projects
+   citing
    contributing
    authors
    history

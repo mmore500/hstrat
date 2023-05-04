@@ -36,7 +36,7 @@ class CalcMrcaUncertaintyAbsUpperBound:
                 first_num_strata_deposited,
                 second_num_strata_deposited,
             )
-            // spec._guaranteed_depth_proportional_resolution
+            // spec.GetDepthProportionalResolution()
         )
 
         return min(

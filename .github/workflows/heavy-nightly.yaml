@@ -1,0 +1,66 @@
+name: heavy-nightly
+
+on:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at 00:00 UTC
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+jobs:
+  # adapted from https://stackoverflow.com/a/67527144
+  check_last_commit_date:
+    runs-on: ubuntu-latest
+    name: Check latest commit
+    outputs:
+      should_run: ${{ steps.should_run.outputs.should_run }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: print latest_commit
+        run: echo ${{ github.sha }}
+
+      - id: should_run
+        continue-on-error: true
+        name: check latest commit is less than a day
+        if: ${{ github.event_name == 'schedule' }}
+        run: test -z $(git rev-list  --after="24 hours"  ${{ github.sha }}) && echo "::set-output name=should_run::false"
+
+  set_current_day:
+    runs-on: ubuntu-latest
+    name: Set current day
+    outputs:
+      current_day: ${{ steps.set_day.outputs.current_day }}
+
+    steps:
+      - id: set_day
+        run: |
+          CURRENT_DAY=$(date +'%Y-%m-%d')
+          echo "Current day: $CURRENT_DAY"
+          echo "::set-output name=current_day::$CURRENT_DAY"
+
+  test-semiheavy:
+    # Ideally, would run exactly once a day
+    # This is a next-best workaround
+    # Also, only run if there are new commits within the last day
+    concurrency:
+      group: ${{ github.ref }}-${{ needs.set_current_day.outputs.current_day }}
+      cancel-in-progress: true
+    needs:
+      - check_last_commit_date
+      - set_current_day
+    if: ${{ needs.check_date.outputs.should_run != 'false' }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.10"  # why? 3.10 runs tests 2x faster than 3.11
+    - name: Install dependencies
+      run: |
+        sudo sed -i 's/azure\.//' /etc/apt/sources.list
+        sudo apt-get update -o Acquire::Retries=3
+        sudo apt-get install -y ffmpeg -o Acquire::Retries=3
+        python -m pip install --upgrade pip
+        pip install tox tox-gh-actions
+    - name: Test with tox
+      run: tox -e semiheavy

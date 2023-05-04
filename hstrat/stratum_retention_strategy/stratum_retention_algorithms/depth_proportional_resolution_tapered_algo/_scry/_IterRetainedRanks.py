@@ -25,7 +25,7 @@ class IterRetainedRanks:
         """Iterate over retained strata ranks at `num_strata_deposited` in
         ascending order."""
         spec = policy.GetSpec()
-        guaranteed_resolution = spec._guaranteed_depth_proportional_resolution
+        guaranteed_resolution = spec.GetDepthProportionalResolution()
 
         if num_strata_deposited < guaranteed_resolution * 2 + 1:
             # use identity mapping before first ranks are condemned
@@ -42,7 +42,7 @@ class IterRetainedRanks:
 
         prev_stage_uncertainty = cur_stage_uncertainty // 2
         prev_stage_max_idx = (
-            num_strata_deposited - 1
+            num_strata_deposited - 2
         ) // prev_stage_uncertainty
         thresh_idx = (
             2 * prev_stage_max_idx - 4 * guaranteed_resolution + 2

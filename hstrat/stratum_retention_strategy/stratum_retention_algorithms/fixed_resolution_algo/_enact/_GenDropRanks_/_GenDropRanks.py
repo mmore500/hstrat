@@ -67,6 +67,6 @@ class GenDropRanks:
         second_newest_stratum_rank = num_stratum_depositions_completed - 1
         if (
             second_newest_stratum_rank > 0
-            and second_newest_stratum_rank % spec._fixed_resolution
+            and second_newest_stratum_rank % spec.GetFixedResolution()
         ):
             yield second_newest_stratum_rank

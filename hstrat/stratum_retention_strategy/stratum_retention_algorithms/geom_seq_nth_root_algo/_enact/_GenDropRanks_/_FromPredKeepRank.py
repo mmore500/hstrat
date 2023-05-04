@@ -81,8 +81,8 @@ class _PredKeepRank:
         """
         spec = policy.GetSpec()
         return self._do_call(
-            spec._degree,
-            spec._interspersal,
+            spec.GetDegree(),
+            spec.GetInterspersal(),
             num_stratum_depositions_completed,
             stratum_rank,
         )

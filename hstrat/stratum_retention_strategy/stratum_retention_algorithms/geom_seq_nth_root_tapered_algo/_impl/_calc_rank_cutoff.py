@@ -7,7 +7,7 @@ from ._calc_target_recency import calc_target_recency
 def calc_rank_cutoff(
     degree: int,
     interspersal: int,
-    pow: int,
+    pow_: int,
     num_strata_deposited: int,
 ) -> int:
     """Before what rank should no strata be retained to provide coverage for the `pow`th target recency?
@@ -18,7 +18,7 @@ def calc_rank_cutoff(
     """
     target_recency = calc_target_recency(
         degree,
-        pow,
+        pow_,
         num_strata_deposited,
     )
     rank_cutoff = max(
@@ -28,7 +28,7 @@ def calc_rank_cutoff(
     )
     assert rank_cutoff <= calc_target_rank(
         degree,
-        pow,
+        pow_,
         num_strata_deposited,
     )
     if num_strata_deposited == 0:
