@@ -24,8 +24,8 @@ class _PredKeepRank:
     def __eq__(self: "_PredKeepRank", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
+    @staticmethod
     def _do_call(
-        self: "_PredKeepRank",
         resolution: int,
         num_stratum_depositions_completed: int,
         stratum_rank: int,
@@ -64,7 +64,7 @@ class _PredKeepRank:
             return False
         else:
             assert cutoff_rank
-            return self._do_call(
+            return _PredKeepRank._do_call(
                 resolution,
                 num_stratum_depositions_completed - cutoff_rank,
                 stratum_rank - cutoff_rank,
@@ -109,7 +109,7 @@ class _PredKeepRank:
             For details on the rationale, implementation, and guarantees of the
             recency-proportional resolution stratum retention policy.
         """
-        return self._do_call(
+        return _PredKeepRank._do_call(
             policy.GetSpec().GetRecencyProportionalResolution(),
             num_stratum_depositions_completed,
             stratum_rank,

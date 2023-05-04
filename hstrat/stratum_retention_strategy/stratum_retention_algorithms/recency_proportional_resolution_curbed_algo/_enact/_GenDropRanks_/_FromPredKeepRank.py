@@ -77,7 +77,7 @@ class _PredKeepRank:
         )
 
         if resolution >= 0:
-            return rpra_PredKeepRank(None)._do_call(
+            return rpra_PredKeepRank._do_call(
                 resolution,
                 num_stratum_depositions_completed,
                 stratum_rank,
@@ -88,7 +88,7 @@ class _PredKeepRank:
                 num_stratum_depositions_completed,
             )
             interspersal = 2
-            return gsnra_PredKeepRank(None)._do_call(
+            return gsnra_PredKeepRank._do_call(
                 degree,
                 interspersal,
                 num_stratum_depositions_completed,
