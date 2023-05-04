@@ -76,13 +76,13 @@ class _PredKeepRank:
         spec = policy.GetSpec()
         dispatched_policy = pick_policy(
             spec.GetSizeCurb(),
-            num_stratum_depositions_completed,
+            num_stratum_depositions_completed + 1,
         )
         return {
             "recency_proportional_resolution_algo": rpra_PredKeepRank,
             "geom_seq_nth_root_algo": gsnra_PredKeepRank,
         }[dispatched_policy.GetSpec().GetAlgoIdentifier()]._do_call(
-            dispatched_policy, stratum_rank, num_stratum_depositions_completed
+            dispatched_policy, num_stratum_depositions_completed, stratum_rank
         )
 
 
