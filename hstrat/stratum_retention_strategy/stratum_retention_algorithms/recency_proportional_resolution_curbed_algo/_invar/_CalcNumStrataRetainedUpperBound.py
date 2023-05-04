@@ -26,7 +26,4 @@ class CalcNumStrataRetainedUpperBound:
         num_strata_deposited: int,
     ) -> int:
         """At most, how many strata are retained after n deposited? Inclusive."""
-        return pick_policy(
-            policy.GetSpec().GetSizeCurb(),
-            num_strata_deposited,
-        ).CalcNumStrataRetainedUpperBound(num_strata_deposited)
+        return max(policy.GetSpec().GetSizeCurb(), 8)
