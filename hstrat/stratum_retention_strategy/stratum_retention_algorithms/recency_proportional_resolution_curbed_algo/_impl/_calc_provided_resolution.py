@@ -20,7 +20,7 @@ def calc_provided_resolution(
             # int cast allows for other integer-like types i.e., np int64 etc
             int(num_stratum_depositions_completed).bit_length()
             + 1
-        )  # - 1?
+        )
         - 1
-    )  # - 1 ?
+    )
     return res
