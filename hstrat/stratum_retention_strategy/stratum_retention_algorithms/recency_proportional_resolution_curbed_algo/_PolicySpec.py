@@ -18,9 +18,10 @@ class PolicySpec(PolicySpecBase):
         Parameters
         ----------
         size_curb : int, optional
-            TODO
+            Fixed, hard-limited stratum storage capacity to make best use of.
 
-        TODO max_resolution?
+            Inclusive. Only size caps of eight strata and above are guaranteed
+            respected. (Initialization of smaller size caps will warn.)
         """
         self._size_curb = size_curb
         if size_curb < 8:

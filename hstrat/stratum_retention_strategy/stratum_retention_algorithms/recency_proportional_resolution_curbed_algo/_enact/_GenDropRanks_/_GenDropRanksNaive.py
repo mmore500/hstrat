@@ -11,6 +11,11 @@ class GenDropRanksNaive:
     This functor enacts the recency-proportional resolution policy by
     specifying the set of strata ranks that should be purged from a hereditary
     stratigraphic column when the nth stratum is deposited.
+
+    Calculation uses a naive approach where set subtraction between retained
+    ranks (i.e., `IterRetainedRanks()` at timepoint n+1 and timepoint n
+    provides the set of ranks to drop. This approach is inefficient, but
+    provided for internal validation and testing.
     """
 
     def __init__(
@@ -28,6 +33,8 @@ class GenDropRanksNaive:
         num_stratum_depositions_completed: int,
         retained_ranks: typing.Optional[typing.Iterable[int]],
     ) -> typing.Iterator[int]:
+        """Implementation for __call__ to faciliate external (but within-
+        library) calls."""
         if num_stratum_depositions_completed < 2:
             return
 

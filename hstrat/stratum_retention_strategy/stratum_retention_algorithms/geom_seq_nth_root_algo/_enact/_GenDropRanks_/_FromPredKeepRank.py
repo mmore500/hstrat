@@ -32,6 +32,8 @@ class _PredKeepRank:
         num_stratum_depositions_completed: int,
         stratum_rank: int,
     ) -> bool:
+        """Implementation for __call__ to faciliate external (but within-
+        library) calls."""
         spec = policy.GetSpec()
         degree = spec.GetDegree()
         interspersal = spec.GetInterspersal()

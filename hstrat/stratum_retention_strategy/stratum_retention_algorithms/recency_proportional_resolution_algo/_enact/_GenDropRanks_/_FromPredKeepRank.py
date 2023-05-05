@@ -24,12 +24,15 @@ class _PredKeepRank:
     def __eq__(self: "_PredKeepRank", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
+    # TODO refactor to not be recursive?
     @staticmethod
     def _do_call(
         policy: PolicyCouplerBase,
         num_stratum_depositions_completed: int,
         stratum_rank: int,
     ) -> bool:
+        """Implementation for __call__ to faciliate external (but within-
+        library) calls."""
         resolution = policy.GetSpec().GetRecencyProportionalResolution()
 
         # to satisfy requirements of HereditaryStratigraphicColumn impl

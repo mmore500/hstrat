@@ -9,7 +9,7 @@ def pick_policy(
     size_curb: int,
     num_stratum_depositions_completed: int,
 ) -> PolicyCouplerBase:
-
+    """Helper that dispatches current retention policy after n depositions."""
     resolution = calc_provided_resolution(
         size_curb,
         num_stratum_depositions_completed,

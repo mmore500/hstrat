@@ -22,6 +22,8 @@ class IterRetainedRanks:
         policy: PolicyCouplerBase,
         num_strata_deposited: int,
     ) -> typing.Iterator[int]:
+        """Implementation for __call__ to faciliate external (but within-
+        library) calls."""
         return pick_policy(
             policy.GetSpec().GetSizeCurb(),
             num_strata_deposited,
