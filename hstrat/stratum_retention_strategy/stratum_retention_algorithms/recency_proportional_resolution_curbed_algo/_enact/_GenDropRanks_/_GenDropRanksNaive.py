@@ -2,11 +2,9 @@ import typing
 
 from ...._detail import PolicyCouplerBase
 from ..._PolicySpec import PolicySpec
-from ..._impl import pick_policy
-from ._GenDropRanksNaive import GenDropRanksNaive
 
 
-class GenDropRanks:
+class GenDropRanksNaive:
     """Functor to implement the recency-proportional resolution stratum
     retention policy, for use with HereditaryStratigraphicColumn.
 
@@ -16,16 +14,32 @@ class GenDropRanks:
     """
 
     def __init__(
-        self: "GenDropRanks",
+        self: "GenDropRanksNaive",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
-    def __eq__(self: "GenDropRanks", other: typing.Any) -> bool:
+    def __eq__(self: "GenDropRanksNaive", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
+    @staticmethod
+    def _do_call(
+        policy: PolicyCouplerBase,
+        num_stratum_depositions_completed: int,
+        retained_ranks: typing.Optional[typing.Iterable[int]],
+    ) -> typing.Iterator[int]:
+        if num_stratum_depositions_completed < 2:
+            return
+
+        yield from sorted(
+            set(policy.IterRetainedRanks(num_stratum_depositions_completed))
+            - set(
+                policy.IterRetainedRanks(num_stratum_depositions_completed + 1)
+            )
+        )
+
     def __call__(
-        self: "GenDropRanks",
+        self: "GenDropRanksNaive",
         policy: PolicyCouplerBase,
         num_stratum_depositions_completed: int,
         retained_ranks: typing.Optional[typing.Iterable[int]],
@@ -62,28 +76,8 @@ class GenDropRanks:
             For details on the rationale, implementation, and guarantees of the
             recency-proportional resolution stratum retention policy.
         """
-        num_depositions = num_stratum_depositions_completed + 1
-        size_curb = policy.GetSpec().GetSizeCurb()
-
-        if (
-            (
-                num_depositions < 2 ** (size_curb - 1) + 1
-                # ^ haven't switched to gsnra
-                and num_depositions.bit_count() == 1
-                # ^ aka num_depositions is an even power of 2
-            )
-            # ^ swtiching between resolutions
-            or num_depositions == 2 ** (size_curb - 1) + 1
-            # ^ switching to gsnra
-        ):
-            # switching between resolutions or policies
-            return GenDropRanksNaive._do_call(
-                policy,
-                num_stratum_depositions_completed,
-                retained_ranks,
-            )
-        else:
-            return pick_policy(size_curb, num_depositions).GenDropRanks(
-                num_stratum_depositions_completed,
-                retained_ranks,
-            )
+        return GenDropRanksNaive._do_call(
+            policy,
+            num_stratum_depositions_completed,
+            retained_ranks,
+        )
