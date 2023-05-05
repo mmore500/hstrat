@@ -58,7 +58,7 @@ class GenDropRanks:
 
         See Also
         --------
-        recency_proportional_resolution_algo:
+        recency_proportional_resolution_curbed_algo:
             For details on the rationale, implementation, and guarantees of the
             recency-proportional resolution stratum retention policy.
         """
