@@ -150,7 +150,7 @@ def test_zero_and_last_ranks_retained(size_curb, time_sequence):
                 num_strata_deposited,
             )
             if num_strata_deposited > 1:
-                first, *middle, last = res
+                first, *_middle, last = res
                 assert first == 0
                 assert last == num_strata_deposited - 1
             elif num_strata_deposited == 1:
