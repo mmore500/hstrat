@@ -2,8 +2,9 @@ import pytest
 
 from hstrat import hstrat
 
-@pytest.fixture(params=
-    [
+
+@pytest.fixture(
+    params=[
         policy_t(
             parameterizer=hstrat.PropertyExactlyParameterizer(
                 target_value=target_value,
