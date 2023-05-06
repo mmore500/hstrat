@@ -179,10 +179,10 @@ The space-vs-resolution and distribution-of-resolution trade-offs of library-pro
 | Stratum Retention Algorithm               | Space Complexity | MRCA Gen Uncertainty |
 | ----------------------------------------- | ---------------- | -------------------- |
 | Fixed Resolution Algorithm                | `n/k`            | `k`                  |
-| Recency Proportional Resolution Algorithm | `k * log(n)`     | `m/k`                |
-| Depth Proportional Resolution Algorithm   | `k`              | `n/k`                |
+| Recency-proportional Resolution Algorithm | `k * log(n)`     | `m/k`                |
+| Depth-proportional Resolution Algorithm   | `k`              | `n/k`                |
 | Geometric Sequence Nth Root Algorithm     | `k`              | `m * n^(1/k)`        |
-| Curbed Recency Proportional Resolution Algorithm | `k`     | `m / k` -> `m * n^(1/k)` |
+| Curbed Recency-proportional Resolution Algorithm | `k`     | `m / k` -> `m * n^(1/k)` |
 
 where `n` is generations elapsed, `m` is generations since MRCA, and `k` is an arbitrary user-determined constant.
 
