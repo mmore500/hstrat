@@ -38,6 +38,7 @@ from hstrat import hstrat
         for policy_t in (
             hstrat.geom_seq_nth_root_algo.Policy,
             hstrat.geom_seq_nth_root_tapered_algo.Policy,
+            hstrat.recency_proportional_resolution_curbed_algo.Policy,
         )
     ]
     + [
@@ -51,6 +52,24 @@ from hstrat import hstrat
                 param_lower_bound=1,
                 param_upper_bound=1024,
             )
+        )
+    ]
+    + [
+        hstrat.recency_proportional_resolution_curbed_algo.Policy(
+            parameterizer=hstrat.PropertyExactlyParameterizer(
+                target_value=127,
+                policy_evaluator=hstrat.MrcaUncertaintyAbsExactEvaluator(
+                    at_num_strata_deposited=256,
+                    at_rank=0,
+                ),
+                param_lower_bound=1,
+                param_upper_bound=1024,
+            )
+        )
+    ]
+    + [
+        hstrat.recency_proportional_resolution_curbed_algo.Policy(
+            size_curb=8,
         )
     ]
     + [
