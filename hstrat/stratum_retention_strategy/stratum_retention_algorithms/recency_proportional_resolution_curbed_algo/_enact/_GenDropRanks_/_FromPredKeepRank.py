@@ -9,11 +9,7 @@ from ....recency_proportional_resolution_algo._enact._GenDropRanks_._FromPredKee
     _PredKeepRank as rpra_PredKeepRank,
 )
 from ..._PolicySpec import PolicySpec
-from ..._impl import (
-    calc_provided_degree,
-    calc_provided_resolution,
-    pick_policy,
-)
+from ..._impl import pick_policy
 
 
 class _PredKeepRank:

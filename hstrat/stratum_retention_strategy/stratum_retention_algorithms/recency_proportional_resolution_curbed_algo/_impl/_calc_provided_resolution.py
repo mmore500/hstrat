@@ -1,6 +1,3 @@
-import math
-
-
 def calc_provided_resolution(
     size_curb: int,
     num_stratum_depositions_completed: int,

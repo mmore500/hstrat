@@ -2,7 +2,6 @@ import typing
 
 from ..._detail import PolicyCouplerBase
 from .._PolicySpec import PolicySpec
-from .._impl import pick_policy
 
 
 class CalcNumStrataRetainedUpperBound:
