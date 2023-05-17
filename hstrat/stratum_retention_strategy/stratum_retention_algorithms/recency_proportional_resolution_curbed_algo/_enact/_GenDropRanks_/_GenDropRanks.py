@@ -2,7 +2,7 @@ import typing
 
 from ...._detail import PolicyCouplerBase
 from ..._PolicySpec import PolicySpec
-from ..._impl import pick_policy
+from ..._impl import calc_geom_seq_nth_root_transition_rank, pick_policy
 from ._GenDropRanksNaive import GenDropRanksNaive
 
 
@@ -65,16 +65,19 @@ class GenDropRanks:
         num_depositions = num_stratum_depositions_completed + 1
         size_curb = policy.GetSpec().GetSizeCurb()
 
+        gsnra_transition_rank = calc_geom_seq_nth_root_transition_rank(
+            size_curb
+        )
+        assert gsnra_transition_rank.bit_count() == 1
+
         if (
-            (
-                num_depositions < 2 ** (size_curb - 1) + 1
-                # ^ haven't switched to gsnra
-                and num_depositions.bit_count() == 1
-                # ^ aka num_depositions is an even power of 2
-            )
-            # ^ swtiching between resolutions
-            or num_depositions == 2 ** (size_curb - 1) + 1
-            # ^ switching to gsnra
+            num_depositions <= gsnra_transition_rank
+            # ^ haven't already switched to gsnra
+            and num_depositions.bit_count() == 1
+            # ^ aka num_depositions will be an even power of 2
+            # ^ POTENTIALLY swtiching between resolutions
+            # see testing for tests helper function
+            # `iter_backing_policy_transition_ranks`
         ):
             # switching between resolutions or policies
             return GenDropRanksNaive._do_call(
