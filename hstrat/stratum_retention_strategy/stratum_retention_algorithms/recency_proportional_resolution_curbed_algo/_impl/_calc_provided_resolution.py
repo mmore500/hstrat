@@ -8,9 +8,9 @@ def calc_provided_resolution(
     used.
     """
     # (resolution + 1) * log2(num_stratum_depositions_completed) <= size_curb
-    # (resolution + 1) * ceil(log2(num_depisitons)) == size_curb
-    # resolution + 1 == size_curb / ceil(log2(num_depisitons))
-    # resolution = size_curb / ceil(log2(num_depisitons)) - 1
+    # (resolution + 1) * ceil(log2(num_depositons)) == size_curb
+    # resolution + 1 == size_curb / ceil(log2(num_depositons))
+    # resolution = size_curb / ceil(log2(num_depositons)) - 1
     res = (
         size_curb
         // (
