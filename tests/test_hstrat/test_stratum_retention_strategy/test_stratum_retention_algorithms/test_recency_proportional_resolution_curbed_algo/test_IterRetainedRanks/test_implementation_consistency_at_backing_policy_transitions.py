@@ -1,7 +1,6 @@
 import itertools as it
 import typing
 
-import numpy as np
 import pytest
 
 from hstrat._auxiliary_lib import pairwise

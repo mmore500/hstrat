@@ -69,9 +69,8 @@ class _PredKeepRank:
             For details on the rationale, implementation, and guarantees of the
             recency-proportional resolution stratum retention policy.
         """
-        spec = policy.GetSpec()
         dispatched_policy = pick_policy(
-            spec.GetSizeCurb(),
+            policy.GetSpec().GetSizeCurb(),
             num_stratum_depositions_completed + 1,
         )
         return {

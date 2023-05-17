@@ -1,4 +1,3 @@
-
 from iterpop import iterpop as ip
 import numpy as np
 import pytest
