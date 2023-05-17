@@ -1,26 +1,10 @@
-import itertools as it
-import typing
 
-import numpy as np
 import pytest
 
 from hstrat.hstrat import recency_proportional_resolution_curbed_algo
 
+from ..impl import iter_backing_policy_transition_ranks
 
-def _iter_backing_policy_transition_ranks(
-    size_curb: int,
-) -> typing.Iterator[int]:
-
-    geom_seq_nth_root_algo_transition_rank = 2 ** (size_curb - 1) + 1
-    for i in it.count():
-        cur_rank = 2**i
-        assert cur_rank.bit_count() == 1
-
-        if cur_rank >= geom_seq_nth_root_algo_transition_rank:
-            # return geom_seq_nth_root_algo_transition_rank
-            return
-
-        yield cur_rank
 
 
 @pytest.mark.parametrize(
@@ -52,7 +36,7 @@ def test_backing_policy_transition_consistency(size_curb):
 
     for num_strata_deposited in (
         test_rank
-        for transition_rank in _iter_backing_policy_transition_ranks(size_curb)
+        for transition_rank in iter_backing_policy_transition_ranks(size_curb)
         for test_rank in range(transition_rank - 2, transition_rank + 3)
     ):
         for which in (
