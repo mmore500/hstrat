@@ -48,12 +48,14 @@ def test_implementation_consistency_at_backing_policy_transitions(size_curb):
         for test_rank in range(transition_rank - 2, transition_rank + 3)
     ):
 
-        for which1, which2 in pairwise((
-            instance,
-            recency_proportional_resolution_curbed_algo.IterRetainedRanks(
-                spec
-            ),
-        )):
+        for which1, which2 in pairwise(
+            (
+                instance,
+                recency_proportional_resolution_curbed_algo.IterRetainedRanks(
+                    spec
+                ),
+            )
+        ):
             assert {
                 *which1(
                     policy,

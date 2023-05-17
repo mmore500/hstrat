@@ -1,4 +1,3 @@
-
 import pytest
 
 from hstrat.hstrat import recency_proportional_resolution_curbed_algo
