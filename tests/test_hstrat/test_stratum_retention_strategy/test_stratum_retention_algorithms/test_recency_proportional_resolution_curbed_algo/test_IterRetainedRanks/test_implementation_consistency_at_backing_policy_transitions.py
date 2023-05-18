@@ -59,6 +59,8 @@ def test_implementation_consistency_at_backing_policy_transitions(size_curb):
                 ),
             )
         ):
+            # fmt: off
+            # black bug in 2022.{10,12}.0 misformats {*x}
             assert {
                 *which1(
                     policy,
@@ -70,3 +72,4 @@ def test_implementation_consistency_at_backing_policy_transitions(size_curb):
                     num_strata_deposited,
                 )
             }
+            # fmt: on
