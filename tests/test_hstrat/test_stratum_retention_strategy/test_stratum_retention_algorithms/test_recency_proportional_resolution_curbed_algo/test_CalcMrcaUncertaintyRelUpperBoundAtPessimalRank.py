@@ -48,33 +48,29 @@ def test_policy_consistency(size_curb, time_sequence):
         ):
             if 0 in (num_strata_deposited_a, num_strata_deposited_b):
                 continue
-            for actual_mrca_rank in np.random.default_rng(1).integers(
-                min(num_strata_deposited_a, num_strata_deposited_b),
-                size=3,
-            ):
-                policy_requirement = policy.CalcMrcaUncertaintyRelUpperBound(
+            policy_requirement = policy.CalcMrcaUncertaintyRelUpperBound(
+                num_strata_deposited_a,
+                num_strata_deposited_b,
+                CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce()(
+                    policy,
                     num_strata_deposited_a,
                     num_strata_deposited_b,
-                    CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce()(
+                ),
+            )
+            for which in (
+                instance,
+                recency_proportional_resolution_curbed_algo.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
+                    spec
+                ),
+            ):
+                assert (
+                    which(
                         policy,
                         num_strata_deposited_a,
                         num_strata_deposited_b,
-                    ),
-                )
-                for which in (
-                    instance,
-                    recency_proportional_resolution_curbed_algo.CalcMrcaUncertaintyRelUpperBoundAtPessimalRank(
-                        spec
-                    ),
-                ):
-                    assert (
-                        which(
-                            policy,
-                            num_strata_deposited_a,
-                            num_strata_deposited_b,
-                        )
-                        == policy_requirement
                     )
+                    == policy_requirement
+                )
 
 
 @pytest.mark.parametrize(
