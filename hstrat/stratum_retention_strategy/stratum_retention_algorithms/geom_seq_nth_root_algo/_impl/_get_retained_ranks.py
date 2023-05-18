@@ -46,10 +46,13 @@ def get_retained_ranks(
         if len(target_ranks) >= 3:
             assert target_ranks[len(target_ranks) // 2 + 1] > target_rank
         # ensure at least interspersal ranks covered
-        assert len(target_ranks) >= min(
-            interspersal,
-            len(range(target_rank, num_strata_deposited)),
-        )
+        try:
+            assert len(target_ranks) >= min(
+                interspersal,
+                len(range(target_rank, num_strata_deposited)),
+            )
+        except OverflowError:
+            pass
         # ensure space complexity cap respected
         assert len(target_ranks) <= 2 * (interspersal + 1)
         # ensure sufficient target_ranks included

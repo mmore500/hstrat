@@ -24,12 +24,17 @@ class _PredKeepRank:
     def __eq__(self: "_PredKeepRank", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
+    # TODO refactor to not be recursive?
+    @staticmethod
     def _do_call(
-        self: "_PredKeepRank",
-        resolution: int,
+        policy: PolicyCouplerBase,
         num_stratum_depositions_completed: int,
         stratum_rank: int,
     ) -> bool:
+        """Implementation for __call__ to faciliate external (but within-
+        library) calls."""
+        resolution = policy.GetSpec().GetRecencyProportionalResolution()
+
         # to satisfy requirements of HereditaryStratigraphicColumn impl
         # we must always keep root ancestor and newest stratum
         if stratum_rank in (0, num_stratum_depositions_completed):
@@ -64,8 +69,8 @@ class _PredKeepRank:
             return False
         else:
             assert cutoff_rank
-            return self._do_call(
-                resolution,
+            return _PredKeepRank._do_call(
+                policy,
                 num_stratum_depositions_completed - cutoff_rank,
                 stratum_rank - cutoff_rank,
             )
@@ -109,8 +114,8 @@ class _PredKeepRank:
             For details on the rationale, implementation, and guarantees of the
             recency-proportional resolution stratum retention policy.
         """
-        return self._do_call(
-            policy.GetSpec().GetRecencyProportionalResolution(),
+        return _PredKeepRank._do_call(
+            policy,
             num_stratum_depositions_completed,
             stratum_rank,
         )
