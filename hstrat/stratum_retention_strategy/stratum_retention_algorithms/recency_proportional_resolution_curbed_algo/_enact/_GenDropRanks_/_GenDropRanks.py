@@ -68,7 +68,7 @@ class GenDropRanks:
         gsnra_transition_rank = calc_geom_seq_nth_root_transition_rank(
             size_curb
         )
-        assert gsnra_transition_rank.bit_count() == 1
+        assert gsnra_transition_rank.bit_count() <= 1
 
         if (
             num_depositions <= gsnra_transition_rank

@@ -45,7 +45,11 @@ def test_iter_backing_policy_transition_ranks(size_curb):
             size_curb, tr1
         ) == calc_provided_resolution(size_curb, tr2 - 1)
 
-    assert calc_provided_resolution(size_curb, test_ranks[-1]) == 0
+    assert (
+        len(test_ranks) == 0
+        or test_ranks[-1] == 0
+        or calc_provided_resolution(size_curb, test_ranks[-1]) >= 0
+    )
 
     assert (
         gsnra_rank == 0

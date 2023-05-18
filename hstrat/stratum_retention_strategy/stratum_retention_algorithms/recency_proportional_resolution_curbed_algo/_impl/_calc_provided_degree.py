@@ -15,8 +15,4 @@ def calc_provided_degree(
         1,
     )
 
-    # sanity check for policy self-consistency of transition from rpra to gsnra
-    # when transferring, resolution 0 is provided, which will be pow2 spacing
-    assert res <= int(num_stratum_depositions_completed).bit_length()
-
     return res

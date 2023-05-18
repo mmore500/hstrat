@@ -5,10 +5,10 @@ from hstrat.hstrat import recency_proportional_resolution_curbed_algo
 from ..impl import iter_backing_policy_transition_ranks
 
 
-
 @pytest.mark.parametrize(
     "size_curb",
     [
+        1,
         2,
         3,
         7,
@@ -21,9 +21,13 @@ from ..impl import iter_backing_policy_transition_ranks
         14,
         15,
         16,
-        # 42,
-        # 97,
-        # 100,
+        42,
+        97,
+        100,
+        254,
+        255,
+        256,
+        257,
     ],
 )
 def test_backing_policy_transition_consistency(size_curb):
@@ -36,7 +40,9 @@ def test_backing_policy_transition_consistency(size_curb):
     for num_strata_deposited in (
         test_rank
         for transition_rank in iter_backing_policy_transition_ranks(size_curb)
-        for test_rank in range(transition_rank - 2, transition_rank + 3)
+        for test_rank in range(
+            max(transition_rank - 2, 0), transition_rank + 3
+        )
     ):
         for which in (
             instance,
@@ -57,4 +63,4 @@ def test_backing_policy_transition_consistency(size_curb):
                 )
             }
             assert (next_set - {num_strata_deposited}) - cur_set == set()
-            assert cur_set.issuperset(next_set - {num_strata_deposited}), size_curb
+            assert cur_set.issuperset(next_set - {num_strata_deposited})

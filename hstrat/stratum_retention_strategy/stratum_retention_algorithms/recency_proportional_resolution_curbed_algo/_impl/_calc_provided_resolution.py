@@ -20,4 +20,12 @@ def calc_provided_resolution(
         )
         - 1
     )
-    return res
+
+    # ensure necessary ranks for consistent transition to gsnra
+    resolution_thresh = 2
+    assert resolution_thresh >= 0
+
+    if res < resolution_thresh:
+        return -1
+    else:
+        return res

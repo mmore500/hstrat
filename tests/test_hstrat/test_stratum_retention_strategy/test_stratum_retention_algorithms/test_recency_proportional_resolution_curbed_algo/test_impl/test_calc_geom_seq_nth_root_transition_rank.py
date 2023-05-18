@@ -13,5 +13,6 @@ from hstrat.stratum_retention_strategy.stratum_retention_algorithms.recency_prop
 def test_calc_provided_resolution_consistency(size_curb):
     transition_rank = calc_geom_seq_nth_root_transition_rank(size_curb)
 
-    assert calc_provided_resolution(size_curb, transition_rank - 1) >= 0
+    if transition_rank:
+        assert calc_provided_resolution(size_curb, transition_rank - 1) >= 0
     assert calc_provided_resolution(size_curb, transition_rank) < 0

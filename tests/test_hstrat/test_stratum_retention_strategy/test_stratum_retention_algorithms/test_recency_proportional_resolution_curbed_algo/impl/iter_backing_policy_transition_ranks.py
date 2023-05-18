@@ -17,7 +17,8 @@ def iter_backing_policy_transition_ranks(
         assert cur_rank.bit_count() == 1
 
         if cur_rank >= gsnra_rank:
-            yield gsnra_rank
+            if gsnra_rank:
+                yield gsnra_rank
             return
 
         if cur_rank and calc_provided_resolution(

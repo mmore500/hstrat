@@ -25,6 +25,7 @@ def _iter_backing_policy_transition_ranks(
 @pytest.mark.parametrize(
     "size_curb",
     [
+        1,
         2,
         3,
         7,
@@ -45,7 +46,9 @@ def test_implementation_consistency_at_backing_policy_transitions(size_curb):
     for num_strata_deposited in (
         test_rank
         for transition_rank in _iter_backing_policy_transition_ranks(size_curb)
-        for test_rank in range(transition_rank - 2, transition_rank + 3)
+        for test_rank in range(
+            max(transition_rank - 2, 0), transition_rank + 3
+        )
     ):
 
         for which1, which2 in pairwise(
