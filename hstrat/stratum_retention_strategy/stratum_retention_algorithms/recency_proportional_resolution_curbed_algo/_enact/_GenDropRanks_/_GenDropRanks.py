@@ -1,5 +1,6 @@
 import typing
 
+from ......_auxiliary_lib import popcount
 from ...._detail import PolicyCouplerBase
 from ..._PolicySpec import PolicySpec
 from ..._impl import calc_geom_seq_nth_root_transition_rank, pick_policy
@@ -69,12 +70,12 @@ class GenDropRanks:
         gsnra_transition_rank = calc_geom_seq_nth_root_transition_rank(
             size_curb
         )
-        assert gsnra_transition_rank.bit_count() <= 1
+        assert popcount(gsnra_transition_rank) <= 1
 
         if (
             num_depositions <= gsnra_transition_rank
             # ^ haven't already switched to gsnra
-            and num_depositions.bit_count() == 1
+            and popcount(num_depositions) == 1
             # ^ aka num_depositions will be an even power of 2
             # ^ POTENTIALLY swtiching between resolutions
             # see testing for tests helper function

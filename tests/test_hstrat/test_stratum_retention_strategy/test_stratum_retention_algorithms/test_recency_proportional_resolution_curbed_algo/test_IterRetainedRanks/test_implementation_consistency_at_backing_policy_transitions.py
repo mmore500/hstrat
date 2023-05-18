@@ -3,7 +3,7 @@ import typing
 
 import pytest
 
-from hstrat._auxiliary_lib import pairwise
+from hstrat._auxiliary_lib import pairwise, popcount
 from hstrat.hstrat import recency_proportional_resolution_curbed_algo
 
 
@@ -14,7 +14,7 @@ def _iter_backing_policy_transition_ranks(
     geom_seq_nth_root_algo_transition_rank = 2 ** (size_curb - 1) + 1
     for i in it.count():
         cur_rank = 2**i
-        assert cur_rank.bit_count() == 1
+        assert popcount(cur_rank) == 1
 
         if cur_rank >= geom_seq_nth_root_algo_transition_rank:
             return geom_seq_nth_root_algo_transition_rank
