@@ -65,6 +65,7 @@ class GenDropRanks:
         num_depositions = num_stratum_depositions_completed + 1
         size_curb = policy.GetSpec().GetSizeCurb()
 
+        # gsnra short for geom_seq_nth_root_algo
         gsnra_transition_rank = calc_geom_seq_nth_root_transition_rank(
             size_curb
         )

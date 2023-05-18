@@ -21,7 +21,9 @@ def calc_provided_resolution(
         - 1
     )
 
-    # ensure necessary ranks for consistent transition to gsnra
+    # ensure necessary ranks for consistent transition to
+    # geometric sequence nth root algorithm
+    # this threshold also used in calc_geom_seq_nth_root_transition_rank
     resolution_thresh = 2
     assert resolution_thresh >= 0
 

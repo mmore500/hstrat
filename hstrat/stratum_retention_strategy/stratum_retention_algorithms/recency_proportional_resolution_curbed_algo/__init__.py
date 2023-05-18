@@ -14,7 +14,7 @@ permanently fixed parameterization of the `geometric_seq_nth root` algorithm.
 
 While
 
-    num_depositions <= 2**(size_curb - 1),
+    num_depositions < 2 ** (size_curb // 3) // 2,
 
 `recency_proportional_resolution_algo` policies apply with resolution
 
@@ -22,13 +22,17 @@ While
 
 For
 
-    num_depisitons > 2**(size_curb - 1),
+    num_depisitons > 2 ** (size_curb // 3) // 2,
 
 a `geometric_sequence_nth_root_algorithm` policy with degree
 
     (size_curb - 2) // 6
 
-and interspersal 2 applies. Because strata retained by each policy supersets
+and interspersal 2 applies. To ensure availability of ranks required by the
+`geometric_sequence_nth_root_algorithm`, the transition between algorithms
+occurs exactly before recency-proportional resolution 1 would apply.
+
+Because strata retained by each policy supersets
 strata retained by all subsequent retention policies, uncertainty bounds for
 all policies apply within their respective domains. (I.e., all strata expected
 by each policy are available when that policy activates.)
