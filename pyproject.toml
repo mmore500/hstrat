@@ -67,7 +67,7 @@ repository = "https://github.com/mmore500/hstrat"
 include-package-data = true
 
 [tool.setuptools.packages.find]
-exclude = ["tests", "tests.*"]
+exclude = ["tests", "tests.*", "docs/assets/*.gif"]
 namespaces = false
 
 # adapted from https://tox.wiki/en/latest/example/package.html
