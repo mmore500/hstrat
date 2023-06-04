@@ -1,5 +1,9 @@
 ## Publications & Presentations
 
+* [Hereditary Stratigraphy Methods for Phylogenetic Inference over Distributed EC Populations](https://github.com/mmore500/hstrat-recomb-concept/releases/latest) at [GPTP 2023](https://web.archive.org/web/20230516045339/http://gptp-workshop.com/)
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/-pRSWX0shT0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 * [Hereditary Stratigraphy: Genome Annotations to Enable Phylogenetic Inference over Distributed Populations](https://github.com/mmore500/hereditary-stratigraph-concept/releases/tag/v0.3.0) at [Artificial Life 2022](https://2022.alife.org/)
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/-HJYNrafLpo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
