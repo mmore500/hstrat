@@ -294,7 +294,9 @@ class HereditaryStratigraphicColumn:
     def _PurgeColumn(self: "HereditaryStratigraphicColumn") -> None:
         """Discard stored strata according to the configured retention policy.
 
-        Implementation detail. Called after a new stratum has been appended to the column's store but before it is considered fully deposited (i.e., it is reflected in the column's internal deposition counter).
+        Implementation detail. Called after a new stratum has been appended to
+        the column's store but before it is considered fully deposited (i.e.,
+        it is reflected in the column's internal deposition counter).
         """
         condemned_ranks = self._stratum_retention_policy.GenDropRanks(
             num_stratum_depositions_completed=self.GetNumStrataDeposited(),
