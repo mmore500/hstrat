@@ -19,9 +19,9 @@ def mrca_uncertainty_absolute_barplot(
 
     Parameters
     ----------
-    stratum_retention_policy: Callable
+    stratum_retention_policy : Callable
         Object specifying stratum retention policy.
-    num_generations: int
+    num_generations : int
         Number of generations to plot.
     ax : matplotlib/pylab axes, optional
         If a valid matplotlib.axes.Axes instance, the plot is drawn in that

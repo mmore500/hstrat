@@ -27,9 +27,9 @@ def stratum_retention_dripplot(
 
     Parameters
     ----------
-    stratum_retention_policy: any
+    stratum_retention_policy : any
         Object specifying stratum retention policy.
-    num_generations: int
+    num_generations : int
         Number of generations to plot.
     ax : matplotlib/pylab axes, optional
         If a valid matplotlib.axes.Axes instance, the plot is drawn in that
