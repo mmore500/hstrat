@@ -32,11 +32,11 @@ def stratum_retention_dripplot(
         Object specifying stratum retention policy.
     num_generations : int
         Number of generations to plot.
+    do_show : bool, optional
+        Whether to show() the plot automatically.
     ax : matplotlib/pylab axes, optional
         If a valid matplotlib.axes.Axes instance, the plot is drawn in that
         Axes. By default (None), a new axes is created.
-    do_show : bool, optional
-        Whether to show() the plot automatically.
     progress_wrap : Callable, default identity function
         Wrapper applied around generation iterator and row generator for final
         phylogeny compilation process.
