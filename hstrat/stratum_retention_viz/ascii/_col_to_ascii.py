@@ -11,6 +11,26 @@ def col_to_ascii(
     key: bool = True,
     time_bookends: bool = True,
 ) -> str:
+    """Create an ASCII table representation of HereditaryStratigraphicColumn
+    state.
+
+    Parameters
+    ----------
+    column : HereditaryStratigraphicColumn
+        The HereditaryStratigraphicColumn object to be converted.
+    discarded_strata : bool, default True
+        Include discarded strata in the output?
+    key : bool, default True
+        Append a legend to the output?
+    time_bookends : bool, default True
+        Prepend and append "MOST ANCIENT" and "MOST RECENT" to the table?
+
+    Returns
+    -------
+    str
+        The ASCII representation of the HereditaryStratigraphicColumn object
+        in tabular format.
+    """
     df = col_to_dataframe(column)
     df.set_index("rank", inplace=True)
 
