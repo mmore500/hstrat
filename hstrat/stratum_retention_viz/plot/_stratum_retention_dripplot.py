@@ -18,6 +18,7 @@ def stratum_retention_dripplot(
     draw_extant_history: bool = True,
     draw_extinct_history: bool = True,
     draw_extinct_placeholders: bool = False,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> plt.matplotlib.axes.Axes:
     """Show history of retained and purged strata at a particular generation.
 
@@ -36,6 +37,11 @@ def stratum_retention_dripplot(
         Axes. By default (None), a new axes is created.
     do_show : bool, optional
         Whether to show() the plot automatically.
+    progress_wrap : Callable, default identity function
+        Wrapper applied around generation iterator and row generator for final
+        phylogeny compilation process.
+
+        Pass tqdm or equivalent to display progress bars.
     """
     if ax is None:
         fig = plt.figure()
@@ -46,7 +52,8 @@ def stratum_retention_dripplot(
     column = HereditaryStratigraphicColumn(
         stratum_retention_policy=stratum_retention_policy,
     )
-    for gen in range(1, num_generations):
+
+    for gen in progress_wrap(range(1, num_generations)):
         for rank in stratum_retention_policy.GenDropRanks(
             gen,
             opyt.apply_if_or_value(
