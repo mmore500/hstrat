@@ -49,17 +49,23 @@ def stratum_retention_dripplot(
     elif not isinstance(ax, plt.matplotlib.axes.Axes):
         raise ValueError(f"Invalid argument for ax: {ax}")
 
-    column = HereditaryStratigraphicColumn(
-        stratum_retention_policy=stratum_retention_policy,
+    # instantiate column if IterRetainedRanks not available
+    column_t = typing.Optional[HereditaryStratigraphicColumn]
+    column: column_t = opyt.apply_if_or_else(
+        stratum_retention_policy.IterRetainedRanks,
+        lambda __: None,
+        lambda: HereditaryStratigraphicColumn(
+            stratum_retention_policy=stratum_retention_policy,
+        ),
     )
 
     for gen in progress_wrap(range(1, num_generations)):
         for rank in stratum_retention_policy.GenDropRanks(
             gen,
-            opyt.apply_if_or_value(
+            opyt.apply_if_or_else(
                 stratum_retention_policy.IterRetainedRanks,
                 lambda x: x(gen),
-                column.IterRetainedRanks(),
+                lambda: column.IterRetainedRanks(),
             ),
         ):
             if draw_extinct_placeholders:
@@ -119,12 +125,12 @@ def stratum_retention_dripplot(
                 markeredgecolor="r",
                 markeredgewidth=2 / max(0.05 * num_generations, 1),
             )
-        column.DepositStratum()
+        opyt.apply_if(column, lambda x: x.DepositStratum())
 
-    for remaining_rank in opyt.apply_if_or_value(
+    for remaining_rank in opyt.apply_if_or_else(
         stratum_retention_policy.IterRetainedRanks,
         lambda x: x(num_generations),
-        column.IterRetainedRanks(),
+        lambda: column.IterRetainedRanks(),
     ):
         ax.plot(
             remaining_rank,
