@@ -176,44 +176,76 @@ jobs:
           path: joss/paper.pdf
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
-  packaging:
+  packaging-bdist:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Build dist assets
+      - name: Build bdist
         run: |
-          rm -rf env
           python3 -m venv env
           source env/bin/activate
-          python3 -m pip install pip --upgrade
           python3 -m pip install -r requirements-dev/requirements-release.txt
-          python3 setup.py sdist bdist_wheel
-          ls
-          ls dist
-      - name: Test sdist install
+          python3 setup.py bdist_wheel
+          tree dist
+          deactivate
+      - name: Upgrade pip
+        run: python3 -m pip install pip --upgrade
+      - name: Install from bdist
+        run: python3 -m pip install dist/*.whl
+      - name: Test install
         run: |
-          rm -rf env
-          python3 -m venv env
-          source env/bin/activate
-          python3 -m pip install pip --upgrade
-          python3 -m pip install dist/*.tar.gz
-          # avoid interference from local import
-          cd "$(mktemp -d)"
+          find . -type f -name '*.py' -exec rm {} \;
           python3 -c "import hstrat; print(hstrat.__version__)"
-      - name: Test bdist install
+
+  # regression test for https://github.com/mmore500/hstrat/commit/c276530
+  packaging-sdist:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build sdist
         run: |
-          rm -rf env
           python3 -m venv env
           source env/bin/activate
-          python3 -m pip install pip --upgrade
-          python3 -m pip install dist/*.whl
-          # avoid interference from local import
-          cd "$(mktemp -d)"
+          python3 -m pip install -r requirements-dev/requirements-release.txt
+          python3 setup.py sdist
+          tree dist
+          deactivate
+      - name: Upgrade pip
+        run: python3 -m pip install pip --upgrade
+      - name: Install from sdist
+        run: python3 -m pip install dist/*.tar.gz
+      - name: Test install
+        run: |
+          find . -type f -name '*.py' -exec rm {} \;
+          python3 -c "import hstrat; print(hstrat.__version__)"
+
+  # regression test for https://github.com/mmore500/hstrat/commit/c276530
+  packaging-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Upgrade pip
+        run: python3 -m pip install pip --upgrade
+      - name: Install from source
+        run: python3 -m pip install .
+      - name: Test install
+        run: |
+          rm -rf *
+          cd
           python3 -c "import hstrat; print(hstrat.__version__)"
 
   deploy:
-    needs: [packaging, coverage, examples, test, tidy]
+    needs:
+      - coverage
+      - examples
+      - packaging-bdist
+      - packaging-sdist
+      - packaging-source
+      - test
+      - tidy
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 
