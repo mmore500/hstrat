@@ -6,6 +6,15 @@ on:
   workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
+  test-pypi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upgrade pip
+        run: python3 -m pip install pip --upgrade
+      - name: Install hstrat
+        run: python3 -m pip install hstrat
+      - name: Test
+        run: python3 -c "import hstrat; print(hstrat.__version__)"
   test-semiheavy:
     runs-on: ubuntu-latest
     steps:
