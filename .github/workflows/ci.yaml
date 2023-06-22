@@ -13,123 +13,6 @@ on:
     - cron: '0 0 * * 1'  # weekly
   workflow_dispatch:
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10", 3.11]
-        subdivision:
-          - "test_auxiliary_lib"
-          - "test_frozen_instrumentation"
-          - "test_genome_instrumentation"
-          - "test_juxtaposition"
-          - "test_phylogenetic_inference/test_estimators"
-          - "test_phylogenetic_inference/test_pairwise"
-          - "test_phylogenetic_inference/test_population"
-          - "test_phylogenetic_inference/test_priors"
-          - "test_phylogenetic_inference/test_tree"
-          - "test_serialization"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_depth_proportional_resolution_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_depth_proportional_resolution_tapered_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_fixed_resolution_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_geom_seq_nth_root_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_geom_seq_nth_root_tapered_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_nominal_resolution_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_perfect_resolution_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_pseudostochastic_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_recency_proportional_resolution_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_recency_proportional_resolution_curbed_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_stochastic_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_policy_evaluators"
-          - "test_stratum_retention_viz"
-          - "test_test_drive"
-
-    steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        sudo sed -i 's/azure\.//' /etc/apt/sources.list
-        sudo apt-get update -o Acquire::Retries=3
-        sudo apt-get install -y ffmpeg -o Acquire::Retries=3
-        python -m pip install --upgrade pip
-        pip install tox tox-gh-actions
-    - name: Test with tox
-      run: |
-        export HSTRAT_TESTS_SUBDIVISION=${{ matrix.subdivision }}
-        tox
-
-  examples:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
-    - name: Install Python dependencies
-      uses: py-actions/py-dependency-install@v4
-      with:
-        path: "requirements-dev/requirements-testing.txt"
-    - name: Run examples
-      run: ./examples/run_all.sh
-
-  coverage:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        subdivision:
-          - "test_auxiliary_lib"
-          - "test_frozen_instrumentation"
-          - "test_genome_instrumentation"
-          - "test_juxtaposition"
-          - "test_phylogenetic_inference/test_estimators"
-          - "test_phylogenetic_inference/test_pairwise"
-          - "test_phylogenetic_inference/test_population"
-          - "test_phylogenetic_inference/test_priors"
-          - "test_phylogenetic_inference/test_tree"
-          - "test_serialization"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_depth_proportional_resolution_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_depth_proportional_resolution_tapered_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_fixed_resolution_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_geom_seq_nth_root_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_geom_seq_nth_root_tapered_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_nominal_resolution_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_perfect_resolution_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_pseudostochastic_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_recency_proportional_resolution_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_recency_proportional_resolution_curbed_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_algorithms/test_stochastic_algo"
-          - "test_stratum_retention_strategy/test_stratum_retention_policy_evaluators"
-          - "test_stratum_retention_viz"
-          - "test_test_drive"
-    steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
-    - name: Install dependencies
-      run: |
-        sudo sed -i 's/azure\.//' /etc/apt/sources.list
-        sudo apt-get update -o Acquire::Retries=3
-        sudo apt-get install -y ffmpeg -o Acquire::Retries=3
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements-dev/py39/requirements-testing.txt
-    - name: Log coverage configuration
-      run: coverage debug sys
-    - name: Run tests with coverage report
-      run: coverage run -m pytest tests/test_hstrat/${{ matrix.subdivision }}
-    - uses: codecov/codecov-action@v3
-      with:
-        flags: tests # optional
-        fail_ci_if_error: true # optional (default = false)
-        verbose: true # optional (default = false)
 
   tidy:
     runs-on: ubuntu-latest
@@ -157,7 +40,6 @@ jobs:
 
   paper:
     runs-on: ubuntu-latest
-    name: Paper Draft
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -176,24 +58,88 @@ jobs:
           # paper.md
           path: joss/paper.pdf
 
-  deploy:
-    needs: [coverage, examples, test, tidy]
+  packaging-build:
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    - name: Install dependencies
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build packages
+        run: |
+          python3 -m pip install pip --upgrade
+          python3 -m pip install -r requirements-dev/requirements-release.txt
+          python3 setup.py sdist bdist_wheel
+          tree dist
+      - uses: actions/upload-artifact@master
+        name: "Upload dist files"
+        with:
+          name: dist
+          path: dist
+
+  # regression test for https://github.com/mmore500/hstrat/commit/c276530
+  packaging-bdist:
+    runs-on: ubuntu-latest
+    needs:
+      - packaging-build
+    steps:
+      - uses: actions/download-artifact@v3
+        name: "Download dist files"
+        with:
+          name: dist
+          path: dist
+      - run: tree .
+      - name: Upgrade pip
+        run: python3 -m pip install pipi --upgrade
+      - name: Install from bdist
+        run: python3 -m pip install dist/*.whl
+      - name: Test install
+        run: |
+          python3 -V
+          python3 -c "import hstrat; print(hstrat.__version__)"
+
+  # regression test for https://github.com/mmore500/hstrat/commit/c276530
+  packaging-sdist:
+    runs-on: ubuntu-latest
+    needs:
+      - packaging-build
+    steps:
+      - uses: actions/download-artifact@v3
+        name: "Download dist files"
+        with:
+          name: dist
+          path: dist
+      - name: Upgrade pip
+        run: python3 -m pip install pip --upgrade
+      - name: Install from sdist
+        run: python3 -m pip install dist/*.tar.gz
+      - name: Test install
+        run: |
+          python3 -V
+          python3 -c "import hstrat; print(hstrat.__version__)"
+
+  # regression test for https://github.com/mmore500/hstrat/commit/c276530
+  packaging-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Upgrade pip
+        run: python3 -m pip install pip --upgrade
+      - name: Install from source
+        run: python3 -m pip install .
+      - name: Test install
+        run: |
+          find . -type f -name '*.py' -exec rm {} \;
+          cd
+          python3 -c "import hstrat; print(hstrat.__version__)"
+
+  test-pypi-dist:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Upgrade pip
+      run: python3 -m pip install pip --upgrade
+    - name: Install from pypi
+      run: python3 -m pip install hstrat
+    - name: Test
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements-dev/py38/requirements-release.txt
-    - run: python setup.py sdist bdist_wheel
-    - name: Publish package
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+        python3 -V
+        python3 -c "import hstrat; print(hstrat.__version__)"
