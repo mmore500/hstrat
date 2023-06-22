@@ -176,6 +176,44 @@ jobs:
           # paper.md
           path: joss/paper.pdf
 
+  # regression test for https://github.com/mmore500/hstrat/commit/c276530
+  build:
+    runs-on: ubuntu-latest
+    name: Test package build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build dist assets
+        run: |
+          rm -rf env
+          python3 -m venv env
+          source env/bin/activate
+          python3 -m pip install pip --upgrade
+          python3 -m pip install -r requirements-dev/requirements-release.txt --upgrade
+          python3 setup.py sdist bdist_wheel
+          ls
+          ls dist
+      - name: Test sdist install
+        run: |
+          rm -rf env
+          python3 -m venv env
+          source env/bin/activate
+          python3 -m pip install pip --upgrade
+          python3 -m pip install dist/*.tar.gz
+          # avoid interference from local import
+          cd "$(mktemp -d)"
+          python3 -c "import hstrat"
+      - name: Test bdist install
+        run: |
+          rm -rf env
+          python3 -m venv env
+          source env/bin/activate
+          python3 -m pip install pip --upgrade
+          python3 -m pip install dist/*.whl
+          # avoid interference from local import
+          cd "$(mktemp -d)"
+          python3 -c "import hstrat"
+
   deploy:
     needs: [coverage, examples, test, tidy]
     runs-on: ubuntu-latest
