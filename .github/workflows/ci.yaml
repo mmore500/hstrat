@@ -63,7 +63,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        ref: "v1.7.2"
       - name: Build packages
         run: |
           python3 -m pip install pip --upgrade
@@ -123,7 +122,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        ref: "v1.7.2"
       - name: Upgrade pip
         run: python3 -m pip install pip --upgrade
       - name: Install from source
