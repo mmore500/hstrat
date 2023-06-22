@@ -200,7 +200,7 @@ jobs:
           python3 -m pip install dist/*.tar.gz
           # avoid interference from local import
           cd "$(mktemp -d)"
-          python3 -c "import hstrat"
+          python3 -c "import hstrat; print(hstrat.__version__)"
       - name: Test bdist install
         run: |
           rm -rf env
@@ -210,7 +210,7 @@ jobs:
           python3 -m pip install dist/*.whl
           # avoid interference from local import
           cd "$(mktemp -d)"
-          python3 -c "import hstrat"
+          python3 -c "import hstrat; print(hstrat.__version__)"
 
   deploy:
     needs: [packaging, coverage, examples, test, tidy]
