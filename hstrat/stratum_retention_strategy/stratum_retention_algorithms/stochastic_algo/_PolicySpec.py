@@ -1,9 +1,10 @@
 import typing
 
-from .._detail import PolicySpecBase
+from .._detail import PolicySpecABC
 
 
-class PolicySpec(PolicySpecBase):
+@PolicySpecABC.register
+class PolicySpec:
     """Contains all policy parameters, if any."""
 
     _retention_probability: float
@@ -23,7 +24,9 @@ class PolicySpec(PolicySpecBase):
         self._retention_probability = retention_probability
 
     def __eq__(self: "PolicySpec", other: typing.Any) -> bool:
-        return isinstance(other, self.__class__)
+        return isinstance(other, PolicySpecABC) and (
+            self.GetEvalCtor() == other.GetEvalCtor()
+        )
 
     def __repr__(self: "PolicySpec") -> str:
         return f"""{
@@ -38,7 +41,7 @@ class PolicySpec(PolicySpecBase):
         return self.GetAlgoTitle()
 
     def GetEvalCtor(self: "PolicySpec") -> str:
-        return f"""hstrat.{self!r}"""
+        return f"hstrat.{self!r}"
 
     def GetRetentionProbability(self: "PolicySpec") -> int:
         return self._retention_probability

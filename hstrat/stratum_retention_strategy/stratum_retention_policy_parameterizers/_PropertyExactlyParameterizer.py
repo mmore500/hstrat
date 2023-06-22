@@ -2,7 +2,7 @@ import typing
 
 import opytional as opyt
 
-from ..stratum_retention_algorithms._detail import PolicySpecBase
+from ..stratum_retention_algorithms._detail import PolicySpecABC
 from ._PropertyAtLeastParameterizer import PropertyAtLeastParameterizer
 
 
@@ -35,7 +35,7 @@ class PropertyExactlyParameterizer:
     def __call__(
         self: "PropertyExactlyParameterizer",
         policy_t: typing.Type,
-    ) -> typing.Optional[PolicySpecBase]:
+    ) -> typing.Optional[PolicySpecABC]:
         """Solve for policy spec satisfying parameterization requirements."""
         policy_factory = self._impl._policy_evaluator._policy_param_focalizer(
             policy_t,

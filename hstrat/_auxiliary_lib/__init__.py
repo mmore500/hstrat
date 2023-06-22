@@ -61,6 +61,9 @@ from ._argsort import argsort
 from ._as_compact_type import as_compact_type
 from ._as_nullable_type import as_nullable_type
 from ._assign_intersecting_subsets import assign_intersecting_subsets
+from ._best_effort_lexicographical_compare import (
+    best_effort_lexicographical_compare,
+)
 from ._bit_ceil import bit_ceil
 from ._bit_floor import bit_floor
 from ._capitalize_n import capitalize_n
@@ -85,6 +88,7 @@ from ._get_hstrat_version import get_hstrat_version
 from ._get_nullable_mask import get_nullable_mask
 from ._get_nullable_vals import get_nullable_vals
 from ._give_len import give_len
+from ._hstrat_import_native import hstrat_import_native
 from ._indices_of_unique import indices_of_unique
 from ._intersect_ranges import intersect_ranges
 from ._is_base64 import is_base64
@@ -199,6 +203,7 @@ __all__ = [
     "AnyTreeFastPreOrderIter",
     "AnyTreeFastPostOrderIter",
     "BioPhyloTree",
+    "best_effort_lexicographical_compare",
     "bit_ceil",
     "bit_floor",
     "capitalize_n",
@@ -225,6 +230,7 @@ __all__ = [
     "give_len",
     "flag_last",
     "HereditaryStratigraphicArtifact",
+    "hstrat_import_native",
     "indices_of_unique",
     "intersect_ranges",
     "is_base64",

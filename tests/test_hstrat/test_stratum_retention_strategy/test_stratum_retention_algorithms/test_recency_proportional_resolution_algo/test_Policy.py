@@ -3,9 +3,14 @@ import tempfile
 
 import pytest
 
+from hstrat import hstrat
 from hstrat.hstrat import recency_proportional_resolution_algo
 
 
+@pytest.mark.parametrize(
+    "impl",
+    recency_proportional_resolution_algo._Policy_.impls,
+)
 @pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
@@ -19,21 +24,19 @@ from hstrat.hstrat import recency_proportional_resolution_algo
         100,
     ],
 )
-def test_init(recency_proportional_resolution):
+def test_init(impl, recency_proportional_resolution):
+    spec = impl(recency_proportional_resolution).GetSpec()
     assert (
-        recency_proportional_resolution_algo.Policy(
-            recency_proportional_resolution
-        ).GetSpec()
-        == recency_proportional_resolution_algo.Policy(
+        spec
+        == impl(
             policy_spec=recency_proportional_resolution_algo.PolicySpec(
                 recency_proportional_resolution
             ),
         ).GetSpec()
     )
+    assert spec == impl(policy_spec=spec).GetSpec()
 
-    policy = recency_proportional_resolution_algo.Policy(
-        recency_proportional_resolution
-    )
+    policy = impl(recency_proportional_resolution)
 
     # invariants
     assert callable(policy.CalcMrcaUncertaintyAbsUpperBound)
@@ -54,6 +57,10 @@ def test_init(recency_proportional_resolution):
 
 
 @pytest.mark.parametrize(
+    "impl",
+    recency_proportional_resolution_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
         0,
@@ -66,21 +73,65 @@ def test_init(recency_proportional_resolution):
         100,
     ],
 )
-def test_eq(recency_proportional_resolution):
-    policy = recency_proportional_resolution_algo.Policy(
-        recency_proportional_resolution
-    )
+def test_eq(impl, recency_proportional_resolution):
+    policy = impl(recency_proportional_resolution)
     assert policy == policy
-    assert policy == recency_proportional_resolution_algo.Policy(
-        recency_proportional_resolution
-    )
+    assert policy == impl(recency_proportional_resolution)
     assert not policy == policy.WithoutCalcRankAtColumnIndex()
     assert (
         policy.WithoutCalcRankAtColumnIndex()
         == policy.WithoutCalcRankAtColumnIndex()
     )
-    assert not policy == recency_proportional_resolution_algo.Policy(
-        recency_proportional_resolution + 1
+    assert not policy == impl(recency_proportional_resolution + 1)
+
+
+@pytest.mark.parametrize(
+    "impl", recency_proportional_resolution_algo._Policy_.impls
+)
+@pytest.mark.parametrize(
+    "recency_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_GetEvalCtor(impl, recency_proportional_resolution):
+    spec = impl(recency_proportional_resolution)
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith(
+        "hstrat.recency_proportional_resolution_algo.Policy("
+    )
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)
+    assert str(spec) == str(reconstituted)
+
+
+@pytest.mark.parametrize(
+    "recency_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_GetEvalCtor_consistency(recency_proportional_resolution):
+    assert (
+        len(
+            set(
+                impl(recency_proportional_resolution).GetEvalCtor()
+                for impl in recency_proportional_resolution_algo._Policy_.impls
+            )
+        )
+        == 1
     )
 
 
@@ -111,26 +162,9 @@ def test_pickle(recency_proportional_resolution):
 
 
 @pytest.mark.parametrize(
-    "recency_proportional_resolution",
-    [
-        0,
-        1,
-        2,
-        3,
-        7,
-        42,
-        97,
-        100,
-    ],
+    "impl",
+    recency_proportional_resolution_algo._Policy_.impls,
 )
-def test_GetSpec(recency_proportional_resolution):
-    assert recency_proportional_resolution_algo.Policy(
-        recency_proportional_resolution
-    ).GetSpec() == recency_proportional_resolution_algo.PolicySpec(
-        recency_proportional_resolution
-    )
-
-
 @pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
@@ -144,11 +178,31 @@ def test_GetSpec(recency_proportional_resolution):
         100,
     ],
 )
-def test_WithoutCalcRankAtColumnIndex(recency_proportional_resolution):
+def test_GetSpec(impl, recency_proportional_resolution):
+    spec = impl(recency_proportional_resolution).GetSpec()
+    assert spec == type(spec)(recency_proportional_resolution)
 
-    original = recency_proportional_resolution_algo.Policy(
-        recency_proportional_resolution
-    )
+
+@pytest.mark.parametrize(
+    "impl",
+    recency_proportional_resolution_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
+    "recency_proportional_resolution",
+    [
+        0,
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_WithoutCalcRankAtColumnIndex(impl, recency_proportional_resolution):
+
+    original = impl(recency_proportional_resolution)
     stripped = original.WithoutCalcRankAtColumnIndex()
 
     assert stripped.CalcRankAtColumnIndex is None
@@ -200,26 +254,89 @@ def test_WithoutCalcRankAtColumnIndex(recency_proportional_resolution):
 
     # test chaining
     assert (
-        recency_proportional_resolution_algo.Policy(
-            recency_proportional_resolution,
-        ).WithoutCalcRankAtColumnIndex()
+        impl(recency_proportional_resolution).WithoutCalcRankAtColumnIndex()
         == stripped
     )
 
 
-def test_repr():
-    recency_proportional_resolution = 1
-    policy = recency_proportional_resolution_algo.Policy(
-        recency_proportional_resolution
-    )
+@pytest.mark.parametrize(
+    "impl",
+    recency_proportional_resolution_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
+    "recency_proportional_resolution",
+    [
+        0,
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_repr(
+    impl,
+    recency_proportional_resolution,
+):
+    policy = impl(recency_proportional_resolution)
     assert str(recency_proportional_resolution) in repr(policy)
     assert policy.GetSpec().GetAlgoIdentifier() in repr(policy)
 
 
-def test_str():
-    recency_proportional_resolution = 1
-    policy = recency_proportional_resolution_algo.Policy(
-        recency_proportional_resolution
-    )
+@pytest.mark.parametrize(
+    "impl",
+    recency_proportional_resolution_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
+    "recency_proportional_resolution",
+    [
+        0,
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_str(
+    impl,
+    recency_proportional_resolution,
+):
+    policy = impl(recency_proportional_resolution)
     assert str(recency_proportional_resolution) in str(policy)
     assert policy.GetSpec().GetAlgoTitle() in str(policy)
+
+
+@pytest.mark.parametrize(
+    "recency_proportional_resolution",
+    [
+        0,
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "what",
+    [
+        lambda x: str(x),
+    ],
+)
+def test_consistency(recency_proportional_resolution, what):
+    assert (
+        len(
+            {
+                what(impl(recency_proportional_resolution))
+                for impl in recency_proportional_resolution_algo._Policy_.impls
+            }
+        )
+        == 1
+    )

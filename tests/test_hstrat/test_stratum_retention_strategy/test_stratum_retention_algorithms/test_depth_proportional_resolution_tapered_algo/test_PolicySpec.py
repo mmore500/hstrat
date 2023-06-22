@@ -3,34 +3,13 @@ import tempfile
 
 import pytest
 
+from hstrat import hstrat
 from hstrat.hstrat import depth_proportional_resolution_tapered_algo
 
 
 @pytest.mark.parametrize(
-    "depth_proportional_resolution",
-    [
-        1,
-        2,
-        3,
-        7,
-        42,
-        97,
-        100,
-    ],
+    "impl", depth_proportional_resolution_tapered_algo._PolicySpec_.impls
 )
-def test_eq(depth_proportional_resolution):
-    spec = depth_proportional_resolution_tapered_algo.PolicySpec(
-        depth_proportional_resolution
-    )
-    assert spec == spec
-    assert spec == depth_proportional_resolution_tapered_algo.PolicySpec(
-        depth_proportional_resolution
-    )
-    assert not spec == depth_proportional_resolution_tapered_algo.PolicySpec(
-        depth_proportional_resolution + 1
-    )
-
-
 @pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
@@ -43,20 +22,64 @@ def test_eq(depth_proportional_resolution):
         100,
     ],
 )
-def test_GetEvalCtor(depth_proportional_resolution):
+def test_eq(impl, depth_proportional_resolution):
+    spec = impl(depth_proportional_resolution)
+    assert spec == spec
+    assert spec == impl(depth_proportional_resolution)
+    assert not spec == impl(depth_proportional_resolution + 1)
+
+
+@pytest.mark.parametrize(
+    "impl", depth_proportional_resolution_tapered_algo._PolicySpec_.impls
+)
+@pytest.mark.parametrize(
+    "depth_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_GetEvalCtor(impl, depth_proportional_resolution):
     # hstrat. is needed for eval()
     from hstrat import hstrat  # noqa
 
-    spec = depth_proportional_resolution_tapered_algo.PolicySpec(
-        depth_proportional_resolution
-    )
+    spec = impl(depth_proportional_resolution)
     eval_ctor = spec.GetEvalCtor()
     assert eval_ctor.startswith(
         "hstrat.depth_proportional_resolution_tapered_algo.PolicySpec("
     )
     assert eval_ctor.endswith(")")
-    reconstituted = eval(eval_ctor)  # noqa
-    assert spec == reconstituted
+    reconstituted = eval(eval_ctor)
+    assert str(spec) == str(reconstituted)
+
+
+@pytest.mark.parametrize(
+    "depth_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+def test_GetEvalCtor_consistency(depth_proportional_resolution):
+    assert (
+        len(
+            set(
+                impl(depth_proportional_resolution).GetEvalCtor()
+                for impl in depth_proportional_resolution_tapered_algo._PolicySpec_.impls
+            )
+        )
+        == 1
+    )
 
 
 @pytest.mark.parametrize(
@@ -84,6 +107,9 @@ def test_pickle(depth_proportional_resolution):
 
 
 @pytest.mark.parametrize(
+    "impl", depth_proportional_resolution_tapered_algo._PolicySpec_.impls
+)
+@pytest.mark.parametrize(
     "depth_proportional_resolution",
     [
         1,
@@ -94,44 +120,85 @@ def test_pickle(depth_proportional_resolution):
         100,
     ],
 )
-def test_GetFixedResolution(depth_proportional_resolution):
-    spec = depth_proportional_resolution_tapered_algo.PolicySpec(
-        depth_proportional_resolution
-    )
+def test_GetFixedResolution(impl, depth_proportional_resolution):
+    spec = impl(depth_proportional_resolution)
     assert (
         spec.GetDepthProportionalResolution() == depth_proportional_resolution
     )
 
 
-def test_GetAlgoIdentifier():
+@pytest.mark.parametrize(
+    "impl", depth_proportional_resolution_tapered_algo._PolicySpec_.impls
+)
+def test_GetAlgoIdentifier(impl):
     depth_proportional_resolution = 1
-    spec = depth_proportional_resolution_tapered_algo.PolicySpec(
-        depth_proportional_resolution,
-    )
+    spec = impl(depth_proportional_resolution)
     assert spec.GetAlgoIdentifier()
 
 
-def test_GetAlgoTitle():
+@pytest.mark.parametrize(
+    "impl", depth_proportional_resolution_tapered_algo._PolicySpec_.impls
+)
+def test_GetAlgoTitle(impl):
     depth_proportional_resolution = 1
-    spec = depth_proportional_resolution_tapered_algo.PolicySpec(
+    spec = impl(
         depth_proportional_resolution,
     )
     assert spec.GetAlgoTitle()
 
 
-def test_repr():
+@pytest.mark.parametrize(
+    "impl", depth_proportional_resolution_tapered_algo._PolicySpec_.impls
+)
+def test_repr(impl):
     depth_proportional_resolution = 1
-    spec = depth_proportional_resolution_tapered_algo.PolicySpec(
+    spec = impl(
         depth_proportional_resolution,
     )
     assert str(depth_proportional_resolution) in repr(spec)
     assert spec.GetAlgoIdentifier() in repr(spec)
 
 
-def test_str():
+@pytest.mark.parametrize(
+    "impl", depth_proportional_resolution_tapered_algo._PolicySpec_.impls
+)
+def test_str(impl):
     depth_proportional_resolution = 1
-    spec = depth_proportional_resolution_tapered_algo.PolicySpec(
+    spec = impl(
         depth_proportional_resolution,
     )
     assert str(depth_proportional_resolution) in str(spec)
     assert spec.GetAlgoTitle() in str(spec)
+
+
+@pytest.mark.parametrize(
+    "depth_proportional_resolution",
+    [
+        1,
+        2,
+        3,
+        7,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "what",
+    [
+        lambda x: x.GetDepthProportionalResolution(),
+        lambda x: x.GetAlgoIdentifier(),
+        lambda x: x.GetAlgoTitle(),
+        lambda x: str(x),
+    ],
+)
+def test_consistency(depth_proportional_resolution, what):
+    assert (
+        len(
+            {
+                what(impl(depth_proportional_resolution))
+                for impl in depth_proportional_resolution_tapered_algo._PolicySpec_.impls
+            }
+        )
+        == 1
+    )

@@ -3,11 +3,16 @@ import tempfile
 
 import pytest
 
+from hstrat import hstrat
 from hstrat.hstrat import geom_seq_nth_root_tapered_algo
 
 
 @pytest.mark.filterwarnings(
     "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
+)
+@pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_tapered_algo._Policy_.impls,
 )
 @pytest.mark.parametrize(
     "degree",
@@ -30,17 +35,19 @@ from hstrat.hstrat import geom_seq_nth_root_tapered_algo
         5,
     ],
 )
-def test_init(degree, interspersal):
+def test_init(impl, degree, interspersal):
+    spec = impl(degree, interspersal).GetSpec()
     assert (
-        geom_seq_nth_root_tapered_algo.Policy(degree, interspersal).GetSpec()
-        == geom_seq_nth_root_tapered_algo.Policy(
+        spec
+        == impl(
             policy_spec=geom_seq_nth_root_tapered_algo.PolicySpec(
                 degree, interspersal
             ),
         ).GetSpec()
     )
+    assert spec == impl(policy_spec=spec).GetSpec()
 
-    policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
+    policy = impl(degree, interspersal)
 
     # invariants
     assert callable(policy.CalcMrcaUncertaintyAbsUpperBound)
@@ -64,6 +71,10 @@ def test_init(degree, interspersal):
     "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
 )
 @pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_tapered_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
     "degree",
     [
         1,
@@ -84,25 +95,83 @@ def test_init(degree, interspersal):
         5,
     ],
 )
-def test_eq(degree, interspersal):
-    policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
+def test_eq(impl, degree, interspersal):
+    policy = impl(degree, interspersal)
     assert policy == policy
-    assert policy == geom_seq_nth_root_tapered_algo.Policy(
-        degree, interspersal
-    )
+    assert policy == impl(degree, interspersal)
     assert not policy == policy.WithoutCalcRankAtColumnIndex()
     assert (
         policy.WithoutCalcRankAtColumnIndex()
         == policy.WithoutCalcRankAtColumnIndex()
     )
-    assert not policy == geom_seq_nth_root_tapered_algo.Policy(
-        degree, interspersal + 1
+    assert not policy == impl(degree, interspersal + 1)
+    assert not policy == impl(degree + 1, interspersal)
+    assert not policy == impl(degree + 1, interspersal + 1)
+
+
+@pytest.mark.parametrize("impl", geom_seq_nth_root_tapered_algo._Policy_.impls)
+@pytest.mark.parametrize(
+    "degree",
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "interspersal",
+    [
+        1,
+        2,
+        5,
+    ],
+)
+def test_GetEvalCtor(impl, degree, interspersal):
+    spec = impl(degree, interspersal)
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith(
+        "hstrat.geom_seq_nth_root_tapered_algo.Policy("
     )
-    assert not policy == geom_seq_nth_root_tapered_algo.Policy(
-        degree + 1, interspersal
-    )
-    assert not policy == geom_seq_nth_root_tapered_algo.Policy(
-        degree + 1, interspersal + 1
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)
+    assert str(spec) == str(reconstituted)
+
+
+@pytest.mark.parametrize(
+    "degree",
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "interspersal",
+    [
+        1,
+        2,
+        5,
+    ],
+)
+def test_GetEvalCtor_consistency(degree, interspersal):
+    assert (
+        len(
+            set(
+                impl(degree, interspersal).GetEvalCtor()
+                for impl in geom_seq_nth_root_tapered_algo._Policy_.impls
+            )
+        )
+        == 1
     )
 
 
@@ -145,6 +214,10 @@ def test_pickle(degree, interspersal):
     "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
 )
 @pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_tapered_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
     "degree",
     [
         1,
@@ -165,18 +238,19 @@ def test_pickle(degree, interspersal):
         5,
     ],
 )
-def test_GetSpec(degree, interspersal):
-    assert geom_seq_nth_root_tapered_algo.Policy(
-        degree, interspersal
-    ).GetSpec() == geom_seq_nth_root_tapered_algo.PolicySpec(
-        degree, interspersal
-    )
+def test_GetSpec(impl, degree, interspersal):
+    spec = impl(degree, interspersal).GetSpec()
+    assert spec == type(spec)(degree, interspersal)
 
 
 @pytest.mark.filterwarnings(
     "ignore:Interspersal set to 1, no bound on MRCA rank estimate uncertainty can be guaranteed."
 )
 @pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_tapered_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
     "degree",
     [
         1,
@@ -197,9 +271,9 @@ def test_GetSpec(degree, interspersal):
         5,
     ],
 )
-def test_WithoutCalcRankAtColumnIndex(degree, interspersal):
+def test_WithoutCalcRankAtColumnIndex(impl, degree, interspersal):
 
-    original = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
+    original = impl(degree, interspersal)
     stripped = original.WithoutCalcRankAtColumnIndex()
 
     assert stripped.CalcRankAtColumnIndex is None
@@ -251,7 +325,7 @@ def test_WithoutCalcRankAtColumnIndex(degree, interspersal):
 
     # test chaining
     assert (
-        geom_seq_nth_root_tapered_algo.Policy(
+        impl(
             degree,
             interspersal,
         ).WithoutCalcRankAtColumnIndex()
@@ -259,19 +333,104 @@ def test_WithoutCalcRankAtColumnIndex(degree, interspersal):
     )
 
 
-def test_repr():
-    degree = 1
-    interspersal = 2
-    policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
+@pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_tapered_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
+    "degree",
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "interspersal",
+    [
+        1,
+        2,
+        5,
+    ],
+)
+def test_repr(impl, degree, interspersal):
+    policy = impl(degree, interspersal)
     assert str(degree) in repr(policy)
     assert str(interspersal) in repr(policy)
     assert policy.GetSpec().GetAlgoIdentifier() in repr(policy)
 
 
-def test_str():
-    degree = 1
-    interspersal = 2
-    policy = geom_seq_nth_root_tapered_algo.Policy(degree, interspersal)
+@pytest.mark.parametrize(
+    "impl",
+    geom_seq_nth_root_tapered_algo._Policy_.impls,
+)
+@pytest.mark.parametrize(
+    "degree",
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "interspersal",
+    [
+        1,
+        2,
+        5,
+    ],
+)
+def test_str(impl, degree, interspersal):
+    policy = impl(degree, interspersal)
     assert str(degree) in str(policy)
     assert str(interspersal) in str(policy)
     assert policy.GetSpec().GetAlgoTitle() in str(policy)
+
+
+@pytest.mark.parametrize(
+    "degree",
+    [
+        1,
+        2,
+        3,
+        7,
+        9,
+        42,
+        97,
+        100,
+    ],
+)
+@pytest.mark.parametrize(
+    "interspersal",
+    [
+        1,
+        2,
+        5,
+    ],
+)
+@pytest.mark.parametrize(
+    "what",
+    [
+        lambda x: str(x),
+    ],
+)
+def test_consistency(degree, interspersal, what):
+    assert (
+        len(
+            {
+                what(impl(degree, interspersal))
+                for impl in geom_seq_nth_root_tapered_algo._Policy_.impls
+            }
+        )
+        == 1
+    )

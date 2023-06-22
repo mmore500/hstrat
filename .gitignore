@@ -25,6 +25,7 @@ __pycache__/
 
 # C extensions
 *.so
+*.out
 
 # Distribution / packaging
 .Python
@@ -172,3 +173,6 @@ cython_debug/
 #.idea/
 
 # End of https://www.toptal.com/developers/gitignore/api/python
+
+*.lock
+.rendered.*

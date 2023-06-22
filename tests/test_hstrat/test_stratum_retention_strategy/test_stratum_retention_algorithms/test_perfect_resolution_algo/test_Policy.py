@@ -1,6 +1,7 @@
 import pickle
 import tempfile
 
+from hstrat import hstrat
 from hstrat.hstrat import perfect_resolution_algo
 
 
@@ -41,6 +42,15 @@ def test_eq():
         policy.WithoutCalcRankAtColumnIndex()
         == policy.WithoutCalcRankAtColumnIndex()
     )
+
+
+def test_GetEvalCtor():
+    spec = perfect_resolution_algo.Policy()
+    eval_ctor = spec.GetEvalCtor()
+    assert eval_ctor.startswith("hstrat.perfect_resolution_algo.Policy(")
+    assert eval_ctor.endswith(")")
+    reconstituted = eval(eval_ctor)
+    assert str(spec) == str(reconstituted)
 
 
 def test_pickle():

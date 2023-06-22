@@ -46,6 +46,8 @@ contexttimer>=0.3.3
     # via hstrat (../../pyproject.toml)
 coverage>=6.4.4
     # via hstrat (../../pyproject.toml)
+cppimport>=22.8.2
+    # via hstrat (../../pyproject.toml)
 cycler>=0.11.0
     # via matplotlib
 dataclasses>=0.6
@@ -58,6 +60,8 @@ deprecated>=1.2.13
     # via hstrat (../../pyproject.toml)
 distlib>=0.3.6
     # via virtualenv
+distutils-strtobool>=0.1.0
+    # via hstrat (../../pyproject.toml)
 docutils>=0.17.1
     # via
     #   readme-renderer
@@ -69,6 +73,7 @@ execnet>=1.9.0
     # via pytest-xdist
 filelock>=3.9.0
     # via
+    #   cppimport
     #   tox
     #   virtualenv
 flake8>=3.7.8
@@ -87,6 +92,7 @@ importlib-metadata>=6.0.0
     # via
     #   build
     #   click
+    #   mako
     #   numba
     #   pluggy
     #   prettytable
@@ -122,8 +128,12 @@ lyncs-setuptools>=0.3.1
     # via lyncs-utils
 lyncs-utils>=0.4.5
     # via alifedata-phyloinformatics-convert
+mako>=1.2.4
+    # via cppimport
 markupsafe>=2.1.2
-    # via jinja2
+    # via
+    #   jinja2
+    #   mako
 matplotlib>=3.5.2
     # via
     #   hstrat (../../pyproject.toml)
@@ -209,6 +219,12 @@ py>=1.11.0
     #   pytest
     #   pytest-forked
     #   tox
+pybind11[global]>=2.10.0
+    # via
+    #   cppimport
+    #   hstrat (../../pyproject.toml)
+pybind11-global>=2.10.0
+    # via pybind11
 pycodestyle>=2.5.0
     # via flake8
 pydantic>=1.10.5

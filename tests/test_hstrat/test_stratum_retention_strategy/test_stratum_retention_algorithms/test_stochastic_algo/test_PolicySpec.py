@@ -4,6 +4,7 @@ import tempfile
 
 import pytest
 
+from hstrat import hstrat
 from hstrat.hstrat import stochastic_algo
 
 
@@ -29,6 +30,7 @@ def test_GetEvalCtor():
     assert eval_ctor.endswith(")")
     reconstituted = eval(eval_ctor)  # noqa
     assert spec == reconstituted
+    assert str(spec) == str(reconstituted)
 
 
 def test_pickle():
