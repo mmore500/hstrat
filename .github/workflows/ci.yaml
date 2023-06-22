@@ -157,7 +157,6 @@ jobs:
 
   paper:
     runs-on: ubuntu-latest
-    name: Paper Draft
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -177,9 +176,8 @@ jobs:
           path: joss/paper.pdf
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
-  build:
+  packaging:
     runs-on: ubuntu-latest
-    name: Test package build
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -215,7 +213,7 @@ jobs:
           python3 -c "import hstrat"
 
   deploy:
-    needs: [build, coverage, examples, test, tidy]
+    needs: [packaging, coverage, examples, test, tidy]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 
