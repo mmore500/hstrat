@@ -63,6 +63,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        ref: "v1.7.2"
       - name: Build packages
         run: |
           python3 -m pip install pip --upgrade
@@ -93,6 +94,7 @@ jobs:
         run: python3 -m pip install dist/*.whl
       - name: Test install
         run: |
+          python3 -V
           python3 -c "import hstrat; print(hstrat.__version__)"
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
@@ -112,6 +114,7 @@ jobs:
         run: python3 -m pip install dist/*.tar.gz
       - name: Test install
         run: |
+          python3 -V
           python3 -c "import hstrat; print(hstrat.__version__)"
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
@@ -120,6 +123,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        ref: "v1.7.2"
       - name: Upgrade pip
         run: python3 -m pip install pip --upgrade
       - name: Install from source
@@ -129,3 +133,15 @@ jobs:
           find . -type f -name '*.py' -exec rm {} \;
           cd
           python3 -c "import hstrat; print(hstrat.__version__)"
+
+  test-pypi-dist:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Upgrade pip
+      run: python3 -m pip install pip --upgrade
+    - name: Install from pypi
+      run: python3 -m pip install hstrat
+    - name: Test
+      run: |
+        python3 -V
+        python3 -c "import hstrat; print(hstrat.__version__)"
