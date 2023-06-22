@@ -215,7 +215,7 @@ jobs:
           python3 -c "import hstrat"
 
   deploy:
-    needs: [coverage, examples, test, tidy]
+    needs: [build, coverage, examples, test, tidy]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 
