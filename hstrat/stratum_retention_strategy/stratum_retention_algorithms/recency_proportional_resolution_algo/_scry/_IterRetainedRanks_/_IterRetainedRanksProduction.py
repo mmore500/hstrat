@@ -12,16 +12,16 @@ class IterRetainedRanksProduction:
     """
 
     def __init__(
-        self: "IterRetainedRanks",
+        self: "IterRetainedRanksProduction",
         policy_spec: typing.Optional[PolicySpec],
     ) -> None:
         pass
 
-    def __eq__(self: "IterRetainedRanks", other: typing.Any) -> bool:
+    def __eq__(self: "IterRetainedRanksProduction", other: typing.Any) -> bool:
         return isinstance(other, self.__class__)
 
     def __call__(
-        self: "IterRetainedRanks",
+        self: "IterRetainedRanksProduction",
         policy: PolicyCouplerBase,
         num_strata_deposited: int,
     ) -> typing.Iterator[int]:
