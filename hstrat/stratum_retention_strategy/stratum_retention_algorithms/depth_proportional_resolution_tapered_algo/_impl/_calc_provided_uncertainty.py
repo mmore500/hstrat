@@ -1,3 +1,6 @@
+from ..... import _auxiliary_lib as auxlib
+
+
 def calc_provided_uncertainty(
     depth_proportional_resolution: int,
     num_stratum_depositions_completed: int,
@@ -17,7 +20,5 @@ def calc_provided_uncertainty(
     )
 
     # round down to lower or equal power of 2
-    # cast to int to make robust to numpy.int32, numpy.int64, etc.
-    provided_uncertainty_exp = int(max_uncertainty // 2).bit_length()
-    provided_uncertainty = 2**provided_uncertainty_exp
+    provided_uncertainty = auxlib.bit_floor(max_uncertainty) or 1
     return provided_uncertainty

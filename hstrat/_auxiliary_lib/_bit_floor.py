@@ -5,7 +5,8 @@ def bit_floor(n: int) -> int:
     """
     if n:
         # see https://stackoverflow.com/a/14267825/17332200
-        exp = (n // 2).bit_length()
+        # cast to int to make robust to numpy.int32, numpy.int64, etc.
+        exp = int(n // 2).bit_length()
         res = 1 << exp
         return res
     else:
