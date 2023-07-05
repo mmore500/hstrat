@@ -11,6 +11,10 @@ def num_to_condemn_production(
 
     Inscrutable bit magic translation of num_to_condemn_reference.
     """
+    # protect against stray numpy integer types
+    recency_proportional_resolution = int(recency_proportional_resolution)
+    num_stratum_depositions_completed = int(num_stratum_depositions_completed)
+
     comparison_value = 2 * (recency_proportional_resolution + 1)
     binary_magnitude_diff = max(
         num_stratum_depositions_completed.bit_length()
