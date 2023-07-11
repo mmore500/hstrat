@@ -26,7 +26,8 @@ See Also
 --------
 geom_seq_nth_root_tapered_algo:
     For a predicate retention policy that achieves the same guarantees for
-    resolution but retains a constant column size exactly equal to the hard upper limit on number of strata retained.
+    resolution but retains a constant column size exactly equal to the hard
+    upper limit on number of strata retained.
 """
 
 from ._Policy import Policy
