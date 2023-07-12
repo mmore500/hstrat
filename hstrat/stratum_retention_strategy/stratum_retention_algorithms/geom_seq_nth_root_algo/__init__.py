@@ -6,8 +6,7 @@ retained strata will be exponentially distributed with respect to ranks elapsed
 since their deposit. MRCA rank estimate uncertainty scales in the worst case
 scales as O(n) with respect to the greater number of strata deposited on either
 column. However, with respect to estimating the rank of the MRCA when lineages
-diverged any fixed number of generations ago, uncertainty scales as O(log(n))
-(TODO check this).
+diverged any fixed number of generations ago, uncertainty scales as O(n^{1/k}).
 
 Under the MRCA-recency-proportional resolution policy, the number of strata
 retained (i.e., space complexity) scales as O(1) with respect to the number of
