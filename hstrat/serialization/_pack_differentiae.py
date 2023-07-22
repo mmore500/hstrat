@@ -4,6 +4,7 @@ import typing
 
 from bitarray import util as bitarray_util
 import numpy as np
+import typing_extensions
 
 from .._auxiliary_lib import iter_slices, zip_strict
 from ..genome_instrumentation import HereditaryStratum
@@ -12,7 +13,7 @@ from ..genome_instrumentation import HereditaryStratum
 def _make_buffer_bitarray(
     strata: typing.Iterable[HereditaryStratum],
     differentia_bit_width: int,
-) -> typing.ByteString:
+) -> typing_extensions.Buffer:
     try:
         len(strata)
     except TypeError:
@@ -46,7 +47,7 @@ def _make_buffer_bitarray(
 def _make_buffer_numpy(
     strata: typing.Iterable[HereditaryStratum],
     differentia_bit_width: int,
-) -> typing.ByteString:
+) -> typing_extensions.Buffer:
     buffer = np.fromiter(
         (s.GetDifferentia() for s in strata),
         dtype=eval(f"np.uint{differentia_bit_width}"),
@@ -64,7 +65,7 @@ def _make_buffer_numpy(
 def _make_buffer(
     strata: typing.Iterable[HereditaryStratum],
     differentia_bit_width: int,
-) -> typing.ByteString:
+) -> typing_extensions.Buffer:
     strata = [*strata]
     if differentia_bit_width in (8, 16, 32, 64):
         return _make_buffer_numpy(strata, differentia_bit_width)

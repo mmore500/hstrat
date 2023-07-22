@@ -206,9 +206,10 @@ tqdm>=4.62.3
     #   twine
 twine>=1.14.0
     # via hstrat (../../pyproject.toml)
-typing-extensions>=4.5.0
+typing-extensions>=4.7.1
     # via
     #   gitpython
+    #   hstrat (../../pyproject.toml)
     #   importlib-metadata
     #   kiwisolver
     #   pandera
