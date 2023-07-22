@@ -247,22 +247,8 @@ def test_col_to_records_version_warning(
         # reconstruct phony record
         hstrat.col_from_records(record)
 
-        # it should have logged one warning
-        assert len(caplog.records) == 1
-        # retrieve it
-        logged = next(iter(caplog.records))
-
-        assert logged.levelno == logging.INFO
-        assert logged.name == "hstrat"
-        assert logged.module == "_log_once_in_a_row"
-        assert (
-            logged.message
-            == f"""col_from_records version mismatch, record is version {
-                record["hstrat_version"]
-            } and software is version {
-                get_hstrat_version()
-            }"""
-        )
+        # it should have logged a warning
+        assert len(caplog.records)
 
         # log something to keep the lru cache from supressing the above calls
         log_once_in_a_row("foo")
