@@ -11,7 +11,7 @@ from .._auxiliary_lib import iter_chunks
 
 
 def _numpy_unpack_differentiae(
-    _bytes: bytes, differentia_bit_width: int
+    buffer: bytes, differentia_bit_width: int
 ) -> typing.Iterator[int]:
     # numpy dtypes can be composed of various attributes
     # in this case, we want our type to be big-endian (>),
@@ -19,15 +19,15 @@ def _numpy_unpack_differentiae(
     # for more info, see https://numpy.org/doc/stable/reference/generated/numpy.dtype.html
     num_bytes = differentia_bit_width // 8
     dt = np.dtype(f">u{num_bytes}")
-    yield from np.frombuffer(_bytes, dtype=dt)
+    yield from np.frombuffer(buffer, dtype=dt)
 
 
 def _bitarray_unpack_differentiae(
-    _bytes: bytes,
+    buffer: bytes,
     differentia_bit_width: int,
     num_packed_differentia: typing.Optional[int],
 ) -> typing.Iterator[int]:
-    bits = BitArray(bytes=_bytes)
+    bits = BitArray(bytes=buffer)
     num_header_bits = (
         8
         if num_packed_differentia is None and bool(differentia_bit_width % 8)
