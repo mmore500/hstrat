@@ -1,10 +1,8 @@
-from base64 import b64decode
 import itertools as it
 import typing
 
 from bitstring import BitArray
 import numpy as np
-import opytional as opyt
 import typing_extensions
 
 from .._auxiliary_lib import iter_chunks

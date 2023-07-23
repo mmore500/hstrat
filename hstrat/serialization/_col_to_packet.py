@@ -1,9 +1,5 @@
-import struct
-import typing
-
 import typing_extensions
 
-from .._auxiliary_lib import get_hstrat_version
 from ..genome_instrumentation import HereditaryStratigraphicColumn
 from ._impl import DEFAULT_PACKET_NUM_STRATA_DEPOSITED_BYTE_WIDTH
 from ._pack_differentiae_bytes import pack_differentiae_bytes

@@ -4,7 +4,7 @@ import logging
 import pytest
 
 from hstrat import genome_instrumentation, hstrat
-from hstrat._auxiliary_lib import get_hstrat_version, log_once_in_a_row
+from hstrat._auxiliary_lib import log_once_in_a_row
 
 
 @pytest.mark.parametrize(

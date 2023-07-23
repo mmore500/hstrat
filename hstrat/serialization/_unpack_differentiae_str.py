@@ -1,9 +1,6 @@
 from base64 import b64decode
 import typing
 
-from bitstring import BitArray
-import numpy as np
-
 from ._unpack_differentiae_bytes import unpack_differentiae_bytes
 
 

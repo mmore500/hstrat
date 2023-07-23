@@ -1,11 +1,7 @@
-import json
-import logging
-
 import pytest
 import typing_extensions
 
 from hstrat import genome_instrumentation, hstrat
-from hstrat._auxiliary_lib import get_hstrat_version, log_once_in_a_row
 
 
 @pytest.mark.parametrize(

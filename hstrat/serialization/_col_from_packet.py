@@ -1,23 +1,15 @@
-import itertools as it
 import typing
 
-import opytional as opyt
 import typing_extensions
 
-from .._auxiliary_lib import get_hstrat_version, log_once_in_a_row
-from ..genome_instrumentation import (
-    HereditaryStratigraphicColumn,
-    HereditaryStratumOrderedStoreList,
-)
+from .._auxiliary_lib import get_hstrat_version
+from ..genome_instrumentation import HereditaryStratigraphicColumn
 from ._col_from_records import col_from_records
 from ._impl import (
     DEFAULT_PACKET_NUM_STRATA_DEPOSITED_BYTE_WIDTH,
-    policy_from_record,
     stringify_packed_differentia_bytes,
 )
-from ._pack_differentiae_str import pack_differentiae_str
 from ._policy_to_records import policy_to_records
-from ._unpack_differentiae_bytes import unpack_differentiae_bytes
 
 
 def col_from_packet(

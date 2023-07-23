@@ -1,10 +1,8 @@
-import contexttimer as ctt
 import more_itertools as mit
 import pytest
 import typing_extensions
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import is_base64
 
 
 @pytest.mark.parametrize(
