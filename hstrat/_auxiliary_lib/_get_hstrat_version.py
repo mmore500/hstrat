@@ -1,2 +1,2 @@
 def get_hstrat_version() -> str:
-    return "1.7.4"
+    return "1.8.0"
