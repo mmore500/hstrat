@@ -30,6 +30,7 @@ from hstrat._auxiliary_lib import get_hstrat_version, log_once_in_a_row
         None,
     ],
 )
+@pytest.mark.parametrize("always_store_rank_in_stratum", [True, False])
 @pytest.mark.parametrize(
     "num_deposits",
     [0, 1, 6, 8, 64],
@@ -42,6 +43,7 @@ def test_col_to_records(
     impl,
     retention_policy,
     ordered_store,
+    always_store_rank_in_stratum,
     num_deposits,
     differentia_bit_width,
     caplog,
@@ -49,6 +51,7 @@ def test_col_to_records(
     column = impl(
         stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
+        always_store_rank_in_stratum=always_store_rank_in_stratum,
     )
     for __ in range(num_deposits):
         column.DepositStratum()
@@ -93,6 +96,7 @@ def test_col_to_records(
         None,
     ],
 )
+@pytest.mark.parametrize("always_store_rank_in_stratum", [True, False])
 @pytest.mark.parametrize(
     "num_deposits",
     [0, 1, 6, 8, 64],
@@ -105,6 +109,7 @@ def test_col_to_records_then_from_records(
     impl,
     retention_policy,
     ordered_store,
+    always_store_rank_in_stratum,
     num_deposits,
     differentia_bit_width,
     caplog,
@@ -113,6 +118,7 @@ def test_col_to_records_then_from_records(
         stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
         stratum_differentia_bit_width=differentia_bit_width,
+        always_store_rank_in_stratum=always_store_rank_in_stratum,
     )
     for __ in range(num_deposits):
         column.DepositStratum()
@@ -153,6 +159,71 @@ def test_col_to_records_then_from_records(
         None,
     ],
 )
+@pytest.mark.parametrize("always_store_rank_in_stratum", [True, False])
+@pytest.mark.parametrize(
+    "num_deposits",
+    [0, 1, 6, 8, 64],
+)
+@pytest.mark.parametrize(
+    "differentia_bit_width",
+    [1, 8, 16, 32, 64],
+)
+def test_col_to_records_then_from_records_with_annotations(
+    impl,
+    retention_policy,
+    ordered_store,
+    always_store_rank_in_stratum,
+    num_deposits,
+    differentia_bit_width,
+    caplog,
+):
+    column = impl(
+        stratum_ordered_store=ordered_store,
+        stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_bit_width,
+        initial_stratum_annotation=9,
+        always_store_rank_in_stratum=always_store_rank_in_stratum,
+    )
+    for gen in range(num_deposits):
+        column.DepositStratum(annotation=gen)
+
+    assert hstrat.col_to_records(column) == hstrat.col_to_records(column)
+    reconstituted = hstrat.col_from_records(hstrat.col_to_records(column))
+    if (
+        ordered_store == hstrat.HereditaryStratumOrderedStoreList
+        and impl == genome_instrumentation.HereditaryStratigraphicColumn
+    ):
+        assert reconstituted == column
+    else:
+        assert hstrat.col_to_records(reconstituted) == hstrat.col_to_records(
+            column
+        )
+
+
+@pytest.mark.parametrize(
+    "impl",
+    [genome_instrumentation.HereditaryStratigraphicColumn],
+    # TODO
+    # genome_instrumentation._HereditaryStratigraphicColumn_.impls,
+)
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.nominal_resolution_algo.Policy(),
+        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
+    ],
+)
+@pytest.mark.parametrize(
+    "ordered_store",
+    [
+        hstrat.HereditaryStratumOrderedStoreDict,
+        hstrat.HereditaryStratumOrderedStoreList,
+        hstrat.HereditaryStratumOrderedStoreTree,
+        None,
+    ],
+)
+@pytest.mark.parametrize("always_store_rank_in_stratum", [True, False])
 @pytest.mark.parametrize(
     "num_deposits",
     [0, 1, 6, 8, 64],
@@ -165,6 +236,7 @@ def test_col_to_records_then_from_records_json(
     impl,
     retention_policy,
     ordered_store,
+    always_store_rank_in_stratum,
     num_deposits,
     differentia_bit_width,
     caplog,
@@ -173,6 +245,7 @@ def test_col_to_records_then_from_records_json(
         stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
         stratum_differentia_bit_width=differentia_bit_width,
+        always_store_rank_in_stratum=always_store_rank_in_stratum,
     )
     for __ in range(num_deposits):
         column.DepositStratum()

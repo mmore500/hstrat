@@ -30,6 +30,10 @@ def col_to_records(column: HereditaryStratigraphicColumn) -> typing.Dict:
             stratum.GetDepositionRank()
             for stratum in column.IterRetainedStrata()
         ]
+        assert (
+            len(res["stratum_deposition_ranks"])
+            <= column.GetNumStrataDeposited()
+        )
 
     if column.HasAnyAnnotations():
         res["stratum_annotations"] = [
