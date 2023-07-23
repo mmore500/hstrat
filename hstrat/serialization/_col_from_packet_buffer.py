@@ -4,9 +4,7 @@ import typing_extensions
 
 from ..genome_instrumentation import HereditaryStratigraphicColumn
 from ._col_from_packet import col_from_packet
-from ._impl import (
-    DEFAULT_PACKET_NUM_STRATA_DEPOSITED_BYTE_WIDTH,
-)
+from ._impl import DEFAULT_PACKET_NUM_STRATA_DEPOSITED_BYTE_WIDTH
 
 
 def col_from_packet_buffer(
