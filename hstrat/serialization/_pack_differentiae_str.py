@@ -1,7 +1,7 @@
-from base64 import b64encode
 import typing
 
 from ..genome_instrumentation import HereditaryStratum
+from ._impl import stringify_packed_differentia_bytes
 from ._pack_differentiae_bytes import pack_differentiae_bytes
 
 
@@ -19,8 +19,4 @@ def pack_differentiae_str(
     """
 
     buffer = pack_differentiae_bytes(strata, differentia_bit_width)
-
-    encoded_bytes = b64encode(buffer)
-
-    encoded_str = encoded_bytes.decode()
-    return encoded_str
+    return stringify_packed_differentia_bytes(buffer)
