@@ -2,6 +2,7 @@
 
 from ._assemblage_from_records import assemblage_from_records
 from ._col_from_packet import col_from_packet
+from ._col_from_packet_buffer import col_from_packet_buffer
 from ._col_from_records import col_from_records
 from ._col_to_dataframe import col_to_dataframe
 from ._col_to_packet import col_to_packet
@@ -27,6 +28,7 @@ __all__ = [
     "assemblage_from_records",
     "col_to_dataframe",
     "col_from_packet",
+    "col_from_packet_buffer",
     "col_from_records",
     "col_to_packet",
     "col_to_records",
