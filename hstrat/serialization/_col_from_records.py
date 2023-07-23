@@ -7,7 +7,7 @@ from ..genome_instrumentation import (
     HereditaryStratumOrderedStoreList,
 )
 from ._impl import policy_from_record
-from ._unpack_differentiae import unpack_differentiae
+from ._unpack_differentiae_str import unpack_differentiae_str
 
 
 def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
@@ -23,6 +23,8 @@ def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
             }"""
         )
 
+    policy = policy_from_record(records["policy"])
+
     def load_stratum_ordered_store() -> HereditaryStratumOrderedStoreList:
         dummy_column = HereditaryStratigraphicColumn(
             stratum_retention_policy=policy_from_record(records["policy"]),
@@ -34,9 +36,16 @@ def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
         store = HereditaryStratumOrderedStoreList()
 
         for differentia, deposition_rank, annotation in zip(
-            unpack_differentiae(
+            unpack_differentiae_str(
                 records["differentiae"],
                 differentia_bit_width=records["differentia_bit_width"],
+                num_packed_differentia=(
+                    None
+                    if not records.get("omits_num_padding_bits_header", False)
+                    else policy.CalcNumStrataRetainedExact(
+                        records["num_strata_deposited"],
+                    )
+                ),
             ),
             records.get("stratum_deposition_ranks", it.repeat(None)),
             records.get("stratum_annotations", it.repeat(None)),
@@ -52,13 +61,11 @@ def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
         return store
 
     return HereditaryStratigraphicColumn(
-        stratum_retention_policy=policy_from_record(records["policy"]),
+        stratum_retention_policy=policy,
         stratum_differentia_bit_width=records["differentia_bit_width"],
         stratum_ordered_store=(
             load_stratum_ordered_store(),
             records["num_strata_deposited"],
         ),
-        always_store_rank_in_stratum=(
-            "stratum_deposition_ranks" in records
-        ),
+        always_store_rank_in_stratum=("stratum_deposition_ranks" in records),
     )
