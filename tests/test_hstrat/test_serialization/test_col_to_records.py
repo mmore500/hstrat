@@ -112,6 +112,7 @@ def test_col_to_records_then_from_records(
     column = impl(
         stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_bit_width,
     )
     for __ in range(num_deposits):
         column.DepositStratum()
@@ -171,6 +172,7 @@ def test_col_to_records_then_from_records_json(
     column = impl(
         stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_bit_width,
     )
     for __ in range(num_deposits):
         column.DepositStratum()
@@ -231,6 +233,7 @@ def test_col_to_records_version_warning(
     column = impl(
         stratum_ordered_store=ordered_store,
         stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_bit_width,
     )
     for __ in range(num_deposits):
         column.DepositStratum()

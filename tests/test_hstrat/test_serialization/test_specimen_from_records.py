@@ -34,6 +34,7 @@ def test_specimen_from_records1(
 ):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_bit_width,
     ).CloneNthDescendant(num_deposits)
 
     specimen = hstrat.specimen_from_records(hstrat.col_to_records(column))
@@ -79,6 +80,7 @@ def test_col_to_records_then_to_specimen_json(
 ):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_bit_width,
     ).CloneNthDescendant(num_deposits)
 
     records = hstrat.col_to_records(column)
@@ -128,6 +130,7 @@ def test_specimen_from_records2(
 ):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_bit_width,
     ).CloneNthDescendant(num_deposits)
 
     # adapted from https://stackoverflow.com/a/48113200

@@ -31,6 +31,7 @@ def test_col_to_specimen(
 ):
     column = hstrat.HereditaryStratigraphicColumn(
         stratum_retention_policy=retention_policy,
+        stratum_differentia_bit_width=differentia_bit_width,
     ).CloneNthDescendant(num_deposits)
 
     specimen = hstrat.col_to_specimen(column)
