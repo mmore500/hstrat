@@ -175,6 +175,13 @@ class HereditaryStratigraphicColumn:
             )
         )
 
+    def _CanOmitStratumDepositionRank(
+        self: "HereditaryStratigraphicColumn",
+    ) -> bool:
+        """Does the column's associated stratum retention policy provide
+        calculation of the rank of a stratum as a function of its position?"""
+        return self._stratum_retention_policy.CalcRankAtColumnIndex is not None
+
     def _ShouldOmitStratumDepositionRank(
         self: "HereditaryStratigraphicColumn",
     ) -> bool:
@@ -190,12 +197,9 @@ class HereditaryStratigraphicColumn:
         onto the column. However, it may be beneficial to store the stratum
         anyways for performance reasons if this calculation is expenxive.
         """
-        can_omit_deposition_rank = (
-            self._stratum_retention_policy.CalcRankAtColumnIndex is not None
-        )
-
         return (
-            can_omit_deposition_rank and not self._always_store_rank_in_stratum
+            self._CanOmitStratumDepositionRank()
+            and not self._always_store_rank_in_stratum
         )
 
     def _CreateStratum(

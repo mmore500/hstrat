@@ -1,20 +1,15 @@
 import typing
 
-from deprecated.sphinx import deprecated
-
 from ..genome_instrumentation import HereditaryStratum
-from ._pack_differentiae_str import pack_differentiae_str
+from ._impl import stringify_packed_differentia_bytes
+from ._pack_differentiae_bytes import pack_differentiae_bytes
 
 
-@deprecated(
-    version="1.8.0",
-    reason="Use pack_differentiae_str instead.",
-)
-def pack_differentiae(
+def pack_differentiae_str(
     strata: typing.Iterable[HereditaryStratum],
     differentia_bit_width: int,
 ) -> str:
-    """Pack a sequence of differentiae together into a compact
+    """Pack a sequence of differentiae together into a compact string
     representation.
 
     Returns a string with base 64 encoded concatenation of diffferentiae.
@@ -23,4 +18,5 @@ def pack_differentiae(
     the concatenation in order to align the bitstring end to byte boundaries.
     """
 
-    return pack_differentiae_str(strata, differentia_bit_width)
+    buffer = pack_differentiae_bytes(strata, differentia_bit_width)
+    return stringify_packed_differentia_bytes(buffer)

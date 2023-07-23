@@ -224,8 +224,9 @@ tqdist==1.0
     # via hstrat (../../pyproject.toml)
 tqdm==4.62.3
     # via hstrat (../../pyproject.toml)
-typing-extensions==4.5.0
+typing-extensions==4.7.1
     # via
+    #   hstrat (../../pyproject.toml)
     #   mypy
     #   pydantic
     #   typing-inspect

@@ -10,7 +10,7 @@ from .._auxiliary_lib import (
 )
 from ..frozen_instrumentation import HereditaryStratigraphicSpecimen
 from ._impl import policy_from_record
-from ._unpack_differentiae import unpack_differentiae
+from ._unpack_differentiae_str import unpack_differentiae_str
 
 
 def specimen_from_records(
@@ -39,7 +39,7 @@ def specimen_from_records(
 
     policy = policy_from_record(records["policy"])
     differentia = numpy_fromiter_polyfill(
-        unpack_differentiae(
+        unpack_differentiae_str(
             records["differentiae"],
             differentia_bit_width=records["differentia_bit_width"],
         ),

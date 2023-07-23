@@ -39,6 +39,7 @@ def test_pop_to_assemblage(
     pop = [
         hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,
+            stratum_differentia_bit_width=differentia_bit_width,
         ).CloneNthDescendant(num_deposits)
         for __ in range(pop_size)
     ]

@@ -51,6 +51,7 @@ def test_pop_to_records(
         impl(
             stratum_ordered_store=ordered_store,
             stratum_retention_policy=retention_policy,
+            stratum_differentia_bit_width=differentia_bit_width,
         )
         for __ in range(popsize)
     ]
@@ -146,6 +147,7 @@ def test_pop_to_records_then_from_records(
         impl(
             stratum_ordered_store=ordered_store,
             stratum_retention_policy=retention_policy,
+            stratum_differentia_bit_width=differentia_bit_width,
         )
         for __ in range(popsize)
     ]
@@ -210,6 +212,7 @@ def test_pop_to_records_then_from_records_json(
         impl(
             stratum_ordered_store=ordered_store,
             stratum_retention_policy=retention_policy,
+            stratum_differentia_bit_width=differentia_bit_width,
         )
         for __ in range(popsize)
     ]
