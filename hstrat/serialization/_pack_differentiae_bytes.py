@@ -12,13 +12,17 @@ from ..genome_instrumentation import HereditaryStratum
 def _make_buffer_bitarray(
     strata: typing.Iterable[HereditaryStratum],
     differentia_bit_width: int,
+    always_omit_num_padding_bits_header: bool,
 ) -> typing_extensions.Buffer:
     try:
         len(strata)
     except TypeError:
         strata = [*strata]
 
-    needs_header = bool(differentia_bit_width % 8)
+    needs_header = (
+        bool(differentia_bit_width % 8)
+        and not always_omit_num_padding_bits_header
+    )
     buffer_size = 8 * needs_header + len(strata) * differentia_bit_width
     buffer = bitarray_util.zeros(buffer_size)
 
@@ -64,6 +68,7 @@ def _make_buffer_numpy(
 def pack_differentiae_bytes(
     strata: typing.Iterable[HereditaryStratum],
     differentia_bit_width: int,
+    always_omit_num_padding_bits_header: bool = False,
 ) -> typing_extensions.Buffer:
     """Pack a sequence of differentiae together into a compact
     representation.
@@ -77,4 +82,6 @@ def pack_differentiae_bytes(
     if differentia_bit_width in (8, 16, 32, 64):
         return _make_buffer_numpy(strata, differentia_bit_width)
     else:
-        return _make_buffer_bitarray(strata, differentia_bit_width)
+        return _make_buffer_bitarray(
+            strata, differentia_bit_width, always_omit_num_padding_bits_header
+        )
