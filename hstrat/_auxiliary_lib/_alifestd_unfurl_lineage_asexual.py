@@ -18,15 +18,15 @@ def alifestd_unfurl_lineage_asexual(
     The provided dataframe must be asexual.
     """
 
+    phylogeny_df = alifestd_try_add_ancestor_id_col(
+        phylogeny_df, mutate=mutate
+    )
     if alifestd_has_contiguous_ids(phylogeny_df):
         return unfurl_lineage_with_contiguous_ids(
             phylogeny_df["ancestor_id"].to_numpy(),
             leaf_id,
         )
     else:
-        phylogeny_df = alifestd_try_add_ancestor_id_col(
-            phylogeny_df, mutate=mutate
-        )
         ancestor_lookup = dict(
             zip(phylogeny_df["id"], phylogeny_df["ancestor_id"])
         )
