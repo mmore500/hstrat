@@ -158,3 +158,39 @@ def test_alifestd_prune_extinct_lineages_asexual_independent_trees(
         alifestd_aggregate_phylogenies([first_df, second_df]),
     )
     assert len(pruned_df) == len(phylogeny_df)
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df",
+    [
+        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
+        ),
+        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+    ],
+)
+@pytest.mark.parametrize(
+    "apply",
+    [
+        alifestd_assign_contiguous_ids,
+        alifestd_to_working_format,
+        alifestd_topological_sort,
+        alifestd_try_add_ancestor_id_col,
+        lambda x: x.sample(frac=1, random_state=1),
+        lambda x: x,
+    ],
+)
+def test_alifestd_prune_extinct_lineages_asexual_ambiguous_extant(
+    phylogeny_df, apply
+):
+    # because the source dataframes are pruned, pruning will be a nop
+    phylogeny_df = apply(phylogeny_df.copy())
+    phylogeny_df.drop("destruction_time", axis="columns", inplace=True)
+
+    with pytest.raises(ValueError):
+        alifestd_prune_extinct_lineages_asexual(phylogeny_df)

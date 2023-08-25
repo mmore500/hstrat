@@ -27,6 +27,14 @@ def alifestd_prune_extinct_lineages_asexual(
     mutate : bool, default False
         Are side effects on the input argument `phylogeny_df` allowed?
 
+    Raises
+    ------
+    ValueError
+        If `phylogeny_df` has neither "extant" or "destruction_time" columns.
+
+        Without at least one of these columns, which taxa are extant is
+        ambiguous.
+
     Returns
     -------
     pandas.DataFrame
