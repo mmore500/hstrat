@@ -37,6 +37,9 @@ from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_make_empty import alifestd_make_empty
 from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
+from ._alifestd_prune_extinct_lineages_asexual import (
+    alifestd_prune_extinct_lineages_asexual,
+)
 from ._alifestd_reroot_at_id_asexual import alifestd_reroot_at_id_asexual
 from ._alifestd_splay_polytomies import alifestd_splay_polytomies
 from ._alifestd_to_working_format import alifestd_to_working_format
@@ -172,6 +175,7 @@ __all__ = [
     "alifestd_make_empty",
     "alifestd_parse_ancestor_id",
     "alifestd_parse_ancestor_ids",
+    "alifestd_prune_extinct_lineages_asexual",
     "alifestd_reroot_at_id_asexual",
     "alifestd_convert_root_ancestor_token",
     "alifestd_splay_polytomies",
