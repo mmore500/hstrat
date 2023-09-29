@@ -42,14 +42,16 @@ def alifestd_find_mrca_id_asexual(
     else:
         phylogeny_df.index = phylogeny_df["id"]
 
-    lineages = [
-        {*alifestd_unfurl_lineage_asexual(phylogeny_df, leaf_id, mutate=True)}
-        for leaf_id in leaf_ids
-    ]
-    if len(lineages) == 0:
+    lineages = {*leaf_ids}
+    if not len(lineages):
         raise ValueError()
 
-    return min(
-        set.intersection(*lineages),
-        key=lambda idx: phylogeny_df.loc[idx, "num_descendants"],
-    )
+    while len(lineages) > 1:
+        oldest = max(lineages, key=lambda i: phylogeny_df.index.get_loc(i))
+        replacement = phylogeny_df.loc[oldest, "ancestor_id"]
+        assert replacement != oldest
+        lineages.remove(oldest)
+        lineages.add(replacement)
+
+    (mrca_id,) = lineages
+    return mrca_id
