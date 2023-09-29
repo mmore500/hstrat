@@ -12,7 +12,7 @@ def alifestd_has_increasing_ids(phylogeny_df: pd.DataFrame) -> bool:
     if "ancestor_id" in phylogeny_df:
         return np.all(phylogeny_df["id"] >= phylogeny_df["ancestor_id"])
     else:
-        for idx, row in phylogeny_df.iterrows():
+        for _idx, row in phylogeny_df.iterrows():
             ancestor_list = alifestd_parse_ancestor_ids(row["ancestor_list"])
             if len(ancestor_list) == 0:
                 continue

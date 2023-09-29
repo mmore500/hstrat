@@ -8,8 +8,6 @@ import pytest
 from hstrat._auxiliary_lib import (
     alifestd_find_mrca_id_asexual,
     alifestd_is_chronologically_ordered,
-    alifestd_make_empty,
-    alifestd_mark_ot_mrca_asexual,
     alifestd_validate,
 )
 
@@ -26,7 +24,6 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 )
 def test_fuzz(phylogeny_df: pd.DataFrame):
     assert alifestd_is_chronologically_ordered(phylogeny_df)
-    original = phylogeny_df.copy()
 
     for ids in it.islice(
         it.product(phylogeny_df["id"], phylogeny_df["id"]), 2

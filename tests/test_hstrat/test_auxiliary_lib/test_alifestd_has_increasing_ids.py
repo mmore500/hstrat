@@ -1,5 +1,4 @@
 import pandas as pd
-import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_has_increasing_ids,
