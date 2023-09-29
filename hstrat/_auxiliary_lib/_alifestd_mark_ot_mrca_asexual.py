@@ -5,9 +5,6 @@ import pandas as pd
 from ._alifestd_chronological_sort import alifestd_chronological_sort
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_has_multiple_roots import alifestd_has_multiple_roots
-from ._alifestd_is_chronologically_sorted import (
-    alifestd_is_chronologically_sorted,
-)
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_mark_leaves import alifestd_mark_leaves
 from ._alifestd_topological_sort import alifestd_topological_sort
@@ -38,8 +35,6 @@ def alifestd_mark_ot_mrca_asexual(
         phylogeny_df = phylogeny_df.copy()
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
-    if not alifestd_is_chronologically_sorted(phylogeny_df):
-        phylogeny_df = alifestd_chronological_sort(phylogeny_df, mutate=True)
     if not alifestd_is_topologically_sorted(phylogeny_df):
         phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
     phylogeny_df = alifestd_mark_leaves(phylogeny_df, mutate=True)
@@ -54,31 +49,24 @@ def alifestd_mark_ot_mrca_asexual(
     phylogeny_df["ot_mrca_time_since"] = phylogeny_df["origin_time"].max()
 
     df = phylogeny_df
+    df["bwd_origin_time"] = -df["origin_time"]
 
     # do calculation
-    assert df["origin_time"].is_monotonic_increasing
-    reverse_index = reversed(df.index)
-    groups = it.groupby(
-        reverse_index,
-        lambda v: df.loc[v, "origin_time"],
-    )
-
     running_mrca_id = max(
-        df["id"], default=None, key=lambda i: df.loc[i, "origin_time"]
-    )
-    for _origin_time, indices in groups:
-        group_mask = df.index.isin(indices)
-        earliest_id = min(
-            df.loc[group_mask, "id"],
-            key=lambda i: df.index.get_loc(i),
-        )
-        leaf_mask = group_mask & df["is_leaf"]
+        df["id"],
+        default=None,
+        key=lambda i: (df.loc[i, "origin_time"], df.index.get_loc(i)),
+    )  # initial value
+    for _origin_time, group in df.groupby("bwd_origin_time"):
+        grp_df = group.reset_index(drop=True)
+        earliest_id = min(grp_df["id"], key=lambda i: df.index.get_loc(i))
 
-        lineages = {*df.loc[leaf_mask, "id"], earliest_id, running_mrca_id}
+        leaf_mask = grp_df["is_leaf"]
+        lineages = {*grp_df.loc[leaf_mask, "id"], earliest_id, running_mrca_id}
 
         while len(lineages) > 1:
             oldest = max(lineages, key=lambda i: df.index.get_loc(i))
-            replacement = phylogeny_df.loc[oldest, "ancestor_id"]
+            replacement = df.loc[oldest, "ancestor_id"]
             assert replacement != oldest
             lineages.remove(oldest)
             lineages.add(replacement)
@@ -87,12 +75,13 @@ def alifestd_mark_ot_mrca_asexual(
         running_mrca_id = mrca_id
 
         # set column values
-        df.loc[group_mask, "ot_mrca_id"] = mrca_id
+        df.loc[grp_df["id"], "ot_mrca_id"] = mrca_id
 
         mrca_time = df.loc[mrca_id, "origin_time"]
-        df.loc[group_mask, "ot_mrca_time_of"] = mrca_time
-        df.loc[group_mask, "ot_mrca_time_since"] = (
-            df.loc[group_mask, "origin_time"] - mrca_time
+        df.loc[grp_df["id"], "ot_mrca_time_of"] = mrca_time
+        df.loc[grp_df["id"], "ot_mrca_time_since"] = (
+            df.loc[grp_df["id"], "origin_time"] - mrca_time
         )
 
+    df.drop("bwd_origin_time", axis=1, inplace=True)
     return df
