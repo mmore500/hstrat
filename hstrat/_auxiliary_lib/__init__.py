@@ -39,6 +39,7 @@ from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_make_ancestor_id_col import alifestd_make_ancestor_id_col
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_make_empty import alifestd_make_empty
+from ._alifestd_mark_leaves import alifestd_mark_leaves
 from ._alifestd_mark_num_descendants_asexual import (
     alifestd_mark_num_descendants_asexual,
 )
@@ -183,6 +184,7 @@ __all__ = [
     "alifestd_make_ancestor_id_col",
     "alifestd_make_ancestor_list_col",
     "alifestd_make_empty",
+    "alifestd_mark_leaves",
     "alifestd_mark_num_descendants_asexual",
     "alifestd_mark_num_leaves_asexual",
     "alifestd_parse_ancestor_id",
