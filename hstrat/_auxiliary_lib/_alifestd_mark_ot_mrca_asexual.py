@@ -71,7 +71,9 @@ def alifestd_mark_ot_mrca_asexual(
     indices = []
     key = df.index.get_loc if not contig else None
     for bwd_origin_time, group in progress_wrap(df.groupby("bwd_origin_time")):
-        earliest_id = group["id"].min() if contig else min(group["id"], key=key)
+        earliest_id = (
+            group["id"].min() if contig else min(group["id"], key=key)
+        )
 
         leaf_mask = group["is_leaf"]
         lineages = sc.SortedSet(
