@@ -9,7 +9,9 @@ def alifestd_mark_leaves(
 ) -> pd.DataFrame:
     """What rows are ancestor to no other row?
 
-    Input dataframe is not mutated by this operation.
+    Input dataframe is not mutated by this operation unless `mutate` set True.
+    If mutate set True, operation does not occur in place; still use return
+    value to get transformed phylogeny dataframe.
     """
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
