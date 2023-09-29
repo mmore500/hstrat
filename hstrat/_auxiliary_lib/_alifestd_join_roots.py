@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 
 from ._alifestd_mark_roots import alifestd_mark_roots
