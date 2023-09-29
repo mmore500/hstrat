@@ -153,6 +153,9 @@ def test_asexual_phylo_df(
 
     original_df = asexual_phylo_df.copy()
     result_df = alifestd_coarsen_mask(asexual_phylo_df, mask, mutate=mutate)
+    assert alifestd_validate(result_df)
+    if drop_ancestor_id:  # allow for addition of ancestor_id column
+        result_df.drop("ancestor_id", axis=1, inplace=True)
 
     assert alifestd_validate(asexual_phylo_df)
 
