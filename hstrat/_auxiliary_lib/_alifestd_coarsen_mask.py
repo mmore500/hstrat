@@ -1,3 +1,4 @@
+import typing
 import warnings
 
 import numpy as np
@@ -15,6 +16,7 @@ from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 def _alifestd_coarsen_mask_asexual(
     phylogeny_df: pd.DataFrame,
     mask: pd.Series,  # boolean mask
+    progress_wrap: typing.Callable,
 ) -> pd.DataFrame:
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
@@ -30,7 +32,7 @@ def _alifestd_coarsen_mask_asexual(
 
     coarsened_ids = {*phylogeny_df.loc[mask, "id"]}
     new_ancestor_ids = {}  # int id --> int ancestor_id
-    for idx in phylogeny_df.index:
+    for idx in progress_wrap(phylogeny_df.index):
         ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
 
         if ancestor_id in coarsened_ids:
@@ -60,6 +62,7 @@ def _alifestd_coarsen_mask_asexual(
 def _alifestd_coarsen_mask_sexual(
     phylogeny_df: pd.DataFrame,
     mask: pd.Series,  # boolean mask
+    progress_wrap: typing.Callable,
 ) -> pd.DataFrame:
 
     if not alifestd_is_topologically_sorted(phylogeny_df):
@@ -72,7 +75,7 @@ def _alifestd_coarsen_mask_sexual(
 
     coarsened_ids = {*phylogeny_df.loc[mask, "id"]}
     new_ancestor_lists = {}  # int id --> list[int] ancestor_ids
-    for idx in phylogeny_df.index:
+    for idx in progress_wrap(phylogeny_df.index):
         ancestor_list = phylogeny_df.at[idx, "ancestor_list"]
         ancestor_ids = alifestd_parse_ancestor_ids(ancestor_list)
 
@@ -106,6 +109,7 @@ def alifestd_coarsen_mask(
     phylogeny_df: pd.DataFrame,
     mask: pd.Series,  # boolean mask
     mutate: bool = False,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> pd.DataFrame:
     """Pare record to bypass organisms outside mask.
 
@@ -130,6 +134,8 @@ def alifestd_coarsen_mask(
         return phylogeny_df
 
     if alifestd_is_asexual(phylogeny_df):
-        return _alifestd_coarsen_mask_asexual(phylogeny_df, mask)
+        return _alifestd_coarsen_mask_asexual(
+            phylogeny_df, mask, progress_wrap
+        )
     else:
-        return _alifestd_coarsen_mask_sexual(phylogeny_df, mask)
+        return _alifestd_coarsen_mask_sexual(phylogeny_df, mask, progress_wrap)
