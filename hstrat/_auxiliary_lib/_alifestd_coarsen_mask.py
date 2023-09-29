@@ -33,6 +33,9 @@ def alifestd_coarsen_mask(
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
+    if len(phylogeny_df) <= 1:
+        return phylogeny_df
+
     if not alifestd_is_topologically_sorted(phylogeny_df):
         phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
 

@@ -301,3 +301,27 @@ def test_sexual_phylo_df(
             check_index_type=False,
             check_like=True,
         )
+
+
+@pytest.mark.parametrize("drop_ancestor_id", [True, False])
+@pytest.mark.parametrize("mutate", [True, False])
+def test_empty_df(drop_ancestor_id: bool, mutate: bool):
+    original_df = alifestd_make_empty(ancestor_id=True)
+    if drop_ancestor_id:
+        original_df = original_df.drop("ancestor_id", axis=1)
+
+    expected_df = original_df.copy()
+    mask = pd.Series(dtype=bool)
+    result_df = alifestd_coarsen_mask(original_df, mask, mutate=mutate)
+
+    assert alifestd_validate(result_df)
+    pd.testing.assert_frame_equal(
+        result_df, expected_df, check_index_type=False, check_like=True
+    )
+    if not mutate:
+        pd.testing.assert_frame_equal(
+            original_df,
+            original_df,
+            check_index_type=False,
+            check_like=True,
+        )
