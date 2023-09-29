@@ -23,6 +23,7 @@ from ._alifestd_find_chronological_inconsistency import (
     alifestd_find_chronological_inconsistency,
 )
 from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
+from ._alifestd_find_mrca_id_asexual import alifestd_find_mrca_id_asexual
 from ._alifestd_find_root_ids import alifestd_find_root_ids
 from ._alifestd_has_compact_ids import alifestd_has_compact_ids
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
@@ -174,6 +175,7 @@ __all__ = [
     "alifestd_collapse_unifurcations",
     "alifestd_find_chronological_inconsistency",
     "alifestd_find_leaf_ids",
+    "alifestd_find_mrca_id_asexual",
     "alifestd_find_root_ids",
     "alifestd_has_compact_ids",
     "alifestd_has_contiguous_ids",
