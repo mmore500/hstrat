@@ -92,7 +92,7 @@ def _alifestd_coarsen_mask_sexual(
         .apply(np.unique)  # sort and prevent duplicate values
         .apply(list)
         .apply(str)
-        .replace("[]", "[none]")
+        .replace("[]", root_token_str)
     )
 
     if "ancestor_id" in phylogeny_df:
