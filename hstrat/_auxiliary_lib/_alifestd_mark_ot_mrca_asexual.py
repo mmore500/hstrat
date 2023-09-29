@@ -8,6 +8,7 @@ from ._alifestd_has_multiple_roots import alifestd_has_multiple_roots
 from ._alifestd_is_chronologically_sorted import (
     alifestd_is_chronologically_sorted,
 )
+from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_mark_leaves import alifestd_mark_leaves
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
@@ -38,6 +39,8 @@ def alifestd_mark_ot_mrca_asexual(
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
     if not alifestd_is_chronologically_sorted(phylogeny_df):
         phylogeny_df = alifestd_chronological_sort(phylogeny_df, mutate=True)
+    if not alifestd_is_topologically_sorted(phylogeny_df):
+        phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
     phylogeny_df = alifestd_mark_leaves(phylogeny_df, mutate=True)
 
     if alifestd_has_contiguous_ids(phylogeny_df):
@@ -65,23 +68,21 @@ def alifestd_mark_ot_mrca_asexual(
     for _origin_time, indices in groups:
         group_mask = df.index.isin(indices)
         earliest_id = min(
-            df.loc[group_mask, "id"], key=lambda i: df.loc[i, "origin_time"]
+            df.loc[group_mask, "id"],
+            key=lambda i: df.index.get_loc(i),
         )
         leaf_mask = group_mask & df["is_leaf"]
 
-        lineages = [
-            {*alifestd_unfurl_lineage_asexual(df, leaf_id, mutate=True)}
-            for leaf_id in {
-                *df.loc[leaf_mask, "id"],
-                earliest_id,
-                running_mrca_id,
-            }
-        ]
-        assert len(lineages)
+        lineages = {*df.loc[leaf_mask, "id"], earliest_id, running_mrca_id}
 
-        mrca_id = max(
-            set.intersection(*lineages), key=lambda i: df.loc[i, "origin_time"]
-        )
+        while len(lineages) > 1:
+            oldest = max(lineages, key=lambda i: df.index.get_loc(i))
+            replacement = phylogeny_df.loc[oldest, "ancestor_id"]
+            assert replacement != oldest
+            lineages.remove(oldest)
+            lineages.add(replacement)
+
+        (mrca_id,) = lineages
         running_mrca_id = mrca_id
 
         # set column values
