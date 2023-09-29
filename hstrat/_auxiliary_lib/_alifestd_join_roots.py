@@ -20,7 +20,6 @@ def alifestd_join_roots(
     if len(phylogeny_df) <= 1:
         return phylogeny_df
 
-
     phylogeny_df.reset_index(drop=True, inplace=True)
     idxmin: int
     if "origin_time" in phylogeny_df.columns:
