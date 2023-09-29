@@ -5,8 +5,8 @@ import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_is_chronologically_ordered,
-    alifestd_mark_ot_mrca_asexual,
     alifestd_make_empty,
+    alifestd_mark_ot_mrca_asexual,
     alifestd_validate,
 )
 

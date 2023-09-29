@@ -4,9 +4,9 @@ import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
-    alifestd_mark_leaves,
     alifestd_find_leaf_ids,
     alifestd_make_empty,
+    alifestd_mark_leaves,
     alifestd_validate,
 )
 
