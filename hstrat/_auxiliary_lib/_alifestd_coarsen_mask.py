@@ -3,6 +3,7 @@ import warnings
 import pandas as pd
 
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
+from ._alifestd_make_ancestor_id_col import alifestd_make_ancestor_id_col
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_topological_sort import alifestd_topological_sort
 
@@ -59,7 +60,7 @@ def alifestd_coarsen_mask(
         res["id"].map(new_ancestor_lists).apply(str).replace("[]", "[none]")
     )
 
-    if "ancestor_id" in res:
+    if "ancestor_id" in phylogeny_df:
         res["ancestor_id"] = alifestd_make_ancestor_id_col(
             res["id"], res["ancestor_list"]
         )

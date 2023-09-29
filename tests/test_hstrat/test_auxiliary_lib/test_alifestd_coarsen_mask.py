@@ -23,6 +23,7 @@ def make_asexual_phylo_df() -> pd.DataFrame:
                 "[2]",
                 "[2]",
             ],
+            "ancestor_id": [0, 0, 0, 1, 1, 2, 2],
         }
     )
 
@@ -33,6 +34,7 @@ def asexual_phylo_df() -> pd.DataFrame:
 
 
 @pytest.mark.parametrize("mutate", [True, False])
+@pytest.mark.parametrize("drop_ancestor_id", [True, False])
 @pytest.mark.parametrize(
     "mask, expected_df",
     [
@@ -44,23 +46,28 @@ def asexual_phylo_df() -> pd.DataFrame:
         # Root singleton dataframe
         (
             pd.Series([True, False, False, False, False, False, False]),
-            pd.DataFrame({"id": [0], "ancestor_list": ["[none]"]}),
+            pd.DataFrame(
+                {"id": [0], "ancestor_list": ["[none]"], "ancestor_id": [0]}
+            ),
         ),
         # Non-root singleton dataframe
         (
             pd.Series([False, True, False, False, False, False, False]),
-            pd.DataFrame({"id": [1], "ancestor_list": ["[none]"]}),
+            pd.DataFrame(
+                {"id": [1], "ancestor_list": ["[none]"], "ancestor_id": [1]}
+            ),
         ),
         # Nothing is included in the mask
         (
             pd.Series([False] * 7),
-            alifestd_make_empty(),
+            alifestd_make_empty(ancestor_id=True),
         ),
         # Root is included in the mask
-        # (Assuming 1 is the root id)
         (
             pd.Series([True, False, False, False, False, False, False]),
-            pd.DataFrame({"id": [0], "ancestor_list": ["[none]"]}),
+            pd.DataFrame(
+                {"id": [0], "ancestor_list": ["[none]"], "ancestor_id": [0]}
+            ),
         ),
         # Root is not included in the mask
         (
@@ -69,24 +76,25 @@ def asexual_phylo_df() -> pd.DataFrame:
                 {
                     "id": list(range(1, 7)),
                     "ancestor_list": [
-                        "[none]",  # assume this changes if root is excluded
+                        "[none]",
                         "[none]",
                         "[1]",
                         "[1]",
                         "[2]",
                         "[2]",
                     ],
-                }
+                    "ancestor_id": [1, 2, 1, 1, 2, 2],
+                },
             ),
         ),
         # No leaves are included in the mask
-        # (Assuming 6 and 7 are leaves)
         (
             pd.Series([True, True, True, True, True, False, False]),
             pd.DataFrame(
                 {
                     "id": [*range(5)],
                     "ancestor_list": ["[none]", "[0]", "[0]", "[1]", "[1]"],
+                    "ancestor_id": [0, 0, 0, 1, 1],
                 }
             ),
         ),
@@ -94,7 +102,11 @@ def asexual_phylo_df() -> pd.DataFrame:
         (
             pd.Series([False, False, False, False, False, True, True]),
             pd.DataFrame(
-                {"id": [5, 6], "ancestor_list": ["[none]", "[none]"]}
+                {
+                    "id": [5, 6],
+                    "ancestor_list": ["[none]", "[none]"],
+                    "ancestor_id": [5, 6],
+                },
             ),
         ),
         # One internal node excluded from mask
@@ -111,7 +123,8 @@ def asexual_phylo_df() -> pd.DataFrame:
                         "[0]",
                         "[0]",
                     ],
-                }
+                    "ancestor_id": [0, 0, 1, 1, 0, 0],
+                },
             ),
         ),
         # All internal nodes excluded from mask
@@ -120,13 +133,9 @@ def asexual_phylo_df() -> pd.DataFrame:
             pd.DataFrame(
                 {
                     "id": [0, 3, 4, 5],
-                    "ancestor_list": [
-                        "[none]",  # Root remains the same
-                        "[0]",
-                        "[0]",
-                        "[0]",
-                    ],
-                }
+                    "ancestor_list": ["[none]", "[0]", "[0]", "[0]"],
+                    "ancestor_id": [0, 0, 0, 0],
+                },
             ),
         ),
     ],
@@ -135,8 +144,13 @@ def test_asexual_phylo_df(
     asexual_phylo_df: pd.DataFrame,
     mask: pd.Series,
     expected_df: pd.DataFrame,
+    drop_ancestor_id: bool,
     mutate: bool,
 ):
+    if drop_ancestor_id:
+        asexual_phylo_df = asexual_phylo_df.drop("ancestor_id", axis=1)
+        expected_df = expected_df.drop("ancestor_id", axis=1)
+
     original_df = asexual_phylo_df.copy()
     result_df = alifestd_coarsen_mask(asexual_phylo_df, mask, mutate=mutate)
 
