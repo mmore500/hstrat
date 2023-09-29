@@ -43,7 +43,8 @@ def alifestd_mark_ot_mrca_asexual(
         phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
     phylogeny_df = alifestd_mark_leaves(phylogeny_df, mutate=True)
 
-    if alifestd_has_contiguous_ids(phylogeny_df):
+    contig = alifestd_has_contiguous_ids(phylogeny_df)
+    if contig:
         phylogeny_df.reset_index(drop=True, inplace=True)
     else:
         warnings.warn("mark_ot_mrca_asexual may be slow with uncontiguous ids")
@@ -62,13 +63,20 @@ def alifestd_mark_ot_mrca_asexual(
         default=None,
         key=lambda i: (df.at[i, "origin_time"], df.index.get_loc(i)),
     )  # initial value
+
+    # for optimization
+    ot_mrca_ids = []
+    ot_mrca_times_of = []
+    ot_mrca_times_since = []
+    indices = []
+    key = df.index.get_loc if not contig else None
     for bwd_origin_time, group in progress_wrap(df.groupby("bwd_origin_time")):
-        earliest_id = min(group["id"], key=df.index.get_loc)
+        earliest_id = group["id"].min() if contig else min(group["id"], key=key)
 
         leaf_mask = group["is_leaf"]
         lineages = sc.SortedSet(
-            {*group.loc[leaf_mask, "id"], earliest_id, running_mrca_id},
-            key=df.index.get_loc,
+            (*group.loc[leaf_mask, "id"], earliest_id, running_mrca_id),
+            key=key,
         )
         while len(lineages) > 1:
             oldest = lineages.pop(-1)
@@ -82,10 +90,16 @@ def alifestd_mark_ot_mrca_asexual(
         # set column values
         mrca_time = df.at[mrca_id, "origin_time"]
 
-        df.loc[
-            group["id"],
-            ["ot_mrca_id",  "ot_mrca_time_of", "ot_mrca_time_since"]
-        ] = [mrca_id, mrca_time, -bwd_origin_time - mrca_time]
+        size = len(group)
+        indices.extend(group["id"])
+        ot_mrca_ids.extend(it.repeat(mrca_id, size))
+        ot_mrca_times_of.extend(it.repeat(mrca_time, size))
+        ot_mrca_times_since.extend(
+            it.repeat(-bwd_origin_time - mrca_time, size),
+        )
 
+    df.loc[indices, "ot_mrca_id"] = ot_mrca_ids
+    df.loc[indices, "ot_mrca_time_of"] = ot_mrca_times_of
+    df.loc[indices, "ot_mrca_time_since"] = ot_mrca_times_since
     df.drop("bwd_origin_time", axis=1, inplace=True)
     return df
