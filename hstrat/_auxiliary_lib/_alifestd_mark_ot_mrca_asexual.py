@@ -3,6 +3,7 @@ import typing
 import warnings
 
 import pandas as pd
+import sortedcontainers as sc
 
 from ._alifestd_chronological_sort import alifestd_chronological_sort
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
@@ -66,13 +67,15 @@ def alifestd_mark_ot_mrca_asexual(
         earliest_id = min(grp_df["id"], key=lambda i: df.index.get_loc(i))
 
         leaf_mask = grp_df["is_leaf"]
-        lineages = {*grp_df.loc[leaf_mask, "id"], earliest_id, running_mrca_id}
 
+        lineages = sc.SortedSet(
+            {*grp_df.loc[leaf_mask, "id"], earliest_id, running_mrca_id},
+            key=lambda i: df.index.get_loc(i),
+        )
         while len(lineages) > 1:
-            oldest = max(lineages, key=lambda i: df.index.get_loc(i))
+            oldest = lineages.pop(-1)
             replacement = df.loc[oldest, "ancestor_id"]
             assert replacement != oldest
-            lineages.remove(oldest)
             lineages.add(replacement)
 
         (mrca_id,) = lineages

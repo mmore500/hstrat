@@ -1,6 +1,7 @@
 import typing
 
 import pandas as pd
+import sortedcontainers as sc
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
@@ -42,15 +43,17 @@ def alifestd_find_mrca_id_asexual(
     else:
         phylogeny_df.index = phylogeny_df["id"]
 
-    lineages = {*leaf_ids}
+    lineages = sc.SortedSet(
+        {*leaf_ids},
+        key=lambda i: phylogeny_df.index.get_loc(i),
+    )
     if not len(lineages):
         raise ValueError()
 
     while len(lineages) > 1:
-        oldest = max(lineages, key=lambda i: phylogeny_df.index.get_loc(i))
+        oldest = lineages.pop(-1)
         replacement = phylogeny_df.loc[oldest, "ancestor_id"]
         assert replacement != oldest
-        lineages.remove(oldest)
         lineages.add(replacement)
 
     (mrca_id,) = lineages
