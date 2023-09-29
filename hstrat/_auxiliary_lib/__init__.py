@@ -47,6 +47,7 @@ from ._alifestd_mark_num_descendants_asexual import (
 )
 from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
 from ._alifestd_mark_ot_mrca_asexual import alifestd_mark_ot_mrca_asexual
+from ._alifestd_mark_roots import alifestd_mark_roots
 from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_prune_extinct_lineages_asexual import (
@@ -193,6 +194,7 @@ __all__ = [
     "alifestd_mark_num_descendants_asexual",
     "alifestd_mark_num_leaves_asexual",
     "alifestd_mark_ot_mrca_asexual",
+    "alifestd_mark_roots",
     "alifestd_parse_ancestor_id",
     "alifestd_parse_ancestor_ids",
     "alifestd_prune_extinct_lineages_asexual",
