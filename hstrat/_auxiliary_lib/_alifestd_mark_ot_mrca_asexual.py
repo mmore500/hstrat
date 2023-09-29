@@ -10,8 +10,8 @@ from ._alifestd_is_chronologically_sorted import (
 )
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_mark_leaves import alifestd_mark_leaves
-from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_topological_sort import alifestd_topological_sort
+from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
 
 
