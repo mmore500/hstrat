@@ -6,7 +6,6 @@ import pytest
 from hstrat._auxiliary_lib import (
     alifestd_mark_leaves,
     alifestd_find_leaf_ids,
-    alifestd_has_multiple_roots,
     alifestd_make_empty,
     alifestd_validate,
 )

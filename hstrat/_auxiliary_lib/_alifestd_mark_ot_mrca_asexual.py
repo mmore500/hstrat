@@ -1,4 +1,3 @@
-from functools import reduce
 import itertools as it
 
 import pandas as pd
@@ -6,7 +5,6 @@ import pandas as pd
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_has_multiple_roots import alifestd_has_multiple_roots
 from ._alifestd_mark_leaves import alifestd_mark_leaves
-from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
 from ._alifestd_is_chronologically_sorted import (
     alifestd_is_chronologically_sorted,
 )
@@ -64,7 +62,7 @@ def alifestd_mark_ot_mrca_asexual(
     running_mrca_id = max(
         df["id"], default=None, key=lambda i: df.loc[i, "origin_time"]
     )
-    for origin_time, indices in groups:
+    for _origin_time, indices in groups:
         group_mask = df.index.isin(indices)
         earliest_id = min(
             df.loc[group_mask, "id"], key=lambda i: df.loc[i, "origin_time"]

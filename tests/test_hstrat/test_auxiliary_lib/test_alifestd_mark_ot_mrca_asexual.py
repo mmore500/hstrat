@@ -6,8 +6,6 @@ import pytest
 from hstrat._auxiliary_lib import (
     alifestd_is_chronologically_ordered,
     alifestd_mark_ot_mrca_asexual,
-    alifestd_find_leaf_ids,
-    alifestd_has_multiple_roots,
     alifestd_make_empty,
     alifestd_validate,
 )

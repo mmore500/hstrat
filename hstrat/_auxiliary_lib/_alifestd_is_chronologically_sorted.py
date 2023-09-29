@@ -1,9 +1,5 @@
 import pandas as pd
 
-from ._alifestd_find_chronological_inconsistency import (
-    alifestd_find_chronological_inconsistency,
-)
-
 
 def alifestd_is_chronologically_sorted(
     phylogeny_df: pd.DataFrame,
