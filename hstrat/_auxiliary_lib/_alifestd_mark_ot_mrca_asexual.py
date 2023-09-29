@@ -60,21 +60,19 @@ def alifestd_mark_ot_mrca_asexual(
     running_mrca_id = max(
         df["id"],
         default=None,
-        key=lambda i: (df.loc[i, "origin_time"], df.index.get_loc(i)),
+        key=lambda i: (df.at[i, "origin_time"], df.index.get_loc(i)),
     )  # initial value
-    for _origin_time, group in progress_wrap(df.groupby("bwd_origin_time")):
-        grp_df = group.reset_index(drop=True)
-        earliest_id = min(grp_df["id"], key=lambda i: df.index.get_loc(i))
+    for bwd_origin_time, group in progress_wrap(df.groupby("bwd_origin_time")):
+        earliest_id = min(group["id"], key=df.index.get_loc)
 
-        leaf_mask = grp_df["is_leaf"]
-
+        leaf_mask = group["is_leaf"]
         lineages = sc.SortedSet(
-            {*grp_df.loc[leaf_mask, "id"], earliest_id, running_mrca_id},
-            key=lambda i: df.index.get_loc(i),
+            {*group.loc[leaf_mask, "id"], earliest_id, running_mrca_id},
+            key=df.index.get_loc,
         )
         while len(lineages) > 1:
             oldest = lineages.pop(-1)
-            replacement = df.loc[oldest, "ancestor_id"]
+            replacement = df.at[oldest, "ancestor_id"]
             assert replacement != oldest
             lineages.add(replacement)
 
@@ -82,13 +80,12 @@ def alifestd_mark_ot_mrca_asexual(
         running_mrca_id = mrca_id
 
         # set column values
-        df.loc[grp_df["id"], "ot_mrca_id"] = mrca_id
+        mrca_time = df.at[mrca_id, "origin_time"]
 
-        mrca_time = df.loc[mrca_id, "origin_time"]
-        df.loc[grp_df["id"], "ot_mrca_time_of"] = mrca_time
-        df.loc[grp_df["id"], "ot_mrca_time_since"] = (
-            df.loc[grp_df["id"], "origin_time"] - mrca_time
-        )
+        df.loc[
+            group["id"],
+            ["ot_mrca_id",  "ot_mrca_time_of", "ot_mrca_time_since"]
+        ] = [mrca_id, mrca_time, -bwd_origin_time - mrca_time]
 
     df.drop("bwd_origin_time", axis=1, inplace=True)
     return df
