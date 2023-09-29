@@ -17,7 +17,7 @@ def alifestd_find_mrca_id_asexual(
     leaf_ids: typing.Iterable[int],
     mutate: bool = False,
 ) -> int:
-    """Find most recent common ancestor of two ids?
+    """Find most recent common ancestor of `leaf_ids`.
 
     Input dataframe is not mutated by this operation unless `mutate` set True.
     If mutate set True, operation does not occur in place; still use return

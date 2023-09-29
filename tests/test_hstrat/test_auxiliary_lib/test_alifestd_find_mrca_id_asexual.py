@@ -8,7 +8,6 @@ import pytest
 from hstrat._auxiliary_lib import (
     alifestd_find_mrca_id_asexual,
     alifestd_is_chronologically_ordered,
-    alifestd_validate,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
