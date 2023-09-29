@@ -7,6 +7,7 @@ from hstrat._auxiliary_lib import (
     alifestd_is_chronologically_ordered,
     alifestd_make_empty,
     alifestd_mark_ot_mrca_asexual,
+    alifestd_to_working_format,
     alifestd_validate,
 )
 
@@ -19,6 +20,9 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
         pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        ),
     ],
 )
 def test_fuzz(phylogeny_df: pd.DataFrame):

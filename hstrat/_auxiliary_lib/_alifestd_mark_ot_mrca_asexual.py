@@ -1,4 +1,6 @@
 import itertools as it
+import typing
+import warnings
 
 import pandas as pd
 
@@ -15,6 +17,7 @@ from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
 def alifestd_mark_ot_mrca_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> pd.DataFrame:
     """Add columns `ot_mrca_id`, `ot_mrca_time_of`, and `ot_mrca_time_since`,
     giving information about mrca of extant organisms at organism `origin_time`.
@@ -42,6 +45,7 @@ def alifestd_mark_ot_mrca_asexual(
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df.reset_index(drop=True, inplace=True)
     else:
+        warnings.warn("mark_ot_mrca_asexual may be slow with uncontiguous ids")
         phylogeny_df.index = phylogeny_df["id"]
 
     phylogeny_df["ot_mrca_id"] = phylogeny_df["id"].max() + 1
@@ -57,7 +61,7 @@ def alifestd_mark_ot_mrca_asexual(
         default=None,
         key=lambda i: (df.loc[i, "origin_time"], df.index.get_loc(i)),
     )  # initial value
-    for _origin_time, group in df.groupby("bwd_origin_time"):
+    for _origin_time, group in progress_wrap(df.groupby("bwd_origin_time")):
         grp_df = group.reset_index(drop=True)
         earliest_id = min(grp_df["id"], key=lambda i: df.index.get_loc(i))
 
