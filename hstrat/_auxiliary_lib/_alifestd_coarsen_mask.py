@@ -1,5 +1,6 @@
 import warnings
 
+import numpy as np
 import pandas as pd
 
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
@@ -57,7 +58,12 @@ def alifestd_coarsen_mask(
 
     res = phylogeny_df[mask].reset_index(drop=True)
     res["ancestor_list"] = (
-        res["id"].map(new_ancestor_lists).apply(str).replace("[]", "[none]")
+        res["id"]
+        .map(new_ancestor_lists)
+        .apply(np.unique)  # sort and prevent duplicate values
+        .apply(list)
+        .apply(str)
+        .replace("[]", "[none]")
     )
 
     if "ancestor_id" in phylogeny_df:

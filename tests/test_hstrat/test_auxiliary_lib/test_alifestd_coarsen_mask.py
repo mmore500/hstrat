@@ -167,3 +167,137 @@ def test_asexual_phylo_df(
             check_index_type=False,
             check_like=True,
         )
+
+
+def make_sexual_phylo_df() -> pd.DataFrame:
+    """Creates an example dataframe with 7 rows representing a sexual phylogeny."""
+    return pd.DataFrame(
+        {
+            "id": [*range(7)],
+            "ancestor_list": [
+                "[none]",
+                "[0]",
+                "[0]",
+                "[1, 2]",
+                "[1, 2]",
+                "[3]",
+                "[3]",
+            ],
+        }
+    )
+
+
+@pytest.fixture  # wrapper because users cannot call fixtures directly
+def sexual_phylo_df() -> pd.DataFrame:
+    return make_sexual_phylo_df()
+
+
+@pytest.mark.parametrize("mutate", [True, False])
+@pytest.mark.parametrize(
+    "mask, expected_df",
+    [
+        # Everything is included in the mask
+        (
+            pd.Series([True] * 7),
+            make_sexual_phylo_df(),
+        ),
+        # Root singleton dataframe
+        (
+            pd.Series([True, False, False, False, False, False, False]),
+            pd.DataFrame({"id": [0], "ancestor_list": ["[none]"]}),
+        ),
+        # Non-root singleton dataframe
+        (
+            pd.Series([False, True, False, False, False, False, False]),
+            pd.DataFrame({"id": [1], "ancestor_list": ["[none]"]}),
+        ),
+        # A node with multiple ancestors
+        (
+            pd.Series([False, False, False, True, False, False, False]),
+            pd.DataFrame({"id": [3], "ancestor_list": ["[none]"]}),
+        ),
+        # Exclude root, result has one ancestor for each entry except the first
+        (
+            pd.Series([False, True, True, True, True, True, True]),
+            pd.DataFrame(
+                {
+                    "id": list(range(1, 7)),
+                    "ancestor_list": [
+                        "[none]",
+                        "[none]",
+                        "[1, 2]",
+                        "[1, 2]",
+                        "[3]",
+                        "[3]",
+                    ],
+                },
+            ),
+        ),
+        # Excluding one internal node and its descendants
+        (
+            pd.Series([True, True, True, False, False, False, False]),
+            pd.DataFrame(
+                {
+                    "id": [*range(3)],
+                    "ancestor_list": ["[none]", "[0]", "[0]"],
+                }
+            ),
+        ),
+        # Including only the leaves
+        (
+            pd.Series([False, False, False, False, False, True, True]),
+            pd.DataFrame(
+                {
+                    "id": [5, 6],
+                    "ancestor_list": ["[none]", "[none]"],
+                },
+            ),
+        ),
+        # Excluding internal nodes
+        (
+            pd.Series([True, False, False, False, False, True, True]),
+            pd.DataFrame(
+                {
+                    "id": [0, 5, 6],
+                    "ancestor_list": ["[none]", "[0]", "[0]"],
+                },
+            ),
+        ),
+        # One internal node excluded (with its descendants) from mask
+        (
+            pd.Series([True, True, False, True, True, False, False]),
+            pd.DataFrame(
+                {
+                    "id": [0, 1, 3, 4],
+                    "ancestor_list": [
+                        "[none]",
+                        "[0]",
+                        "[0, 1]",
+                        "[0, 1]",
+                    ],
+                },
+            ),
+        ),
+    ],
+)
+def test_sexual_phylo_df(
+    sexual_phylo_df: pd.DataFrame,
+    mask: pd.Series,
+    expected_df: pd.DataFrame,
+    mutate: bool,
+):
+    original_df = sexual_phylo_df.copy()
+    result_df = alifestd_coarsen_mask(sexual_phylo_df, mask, mutate=mutate)
+
+    assert alifestd_validate(sexual_phylo_df)
+    assert alifestd_validate(expected_df)
+    pd.testing.assert_frame_equal(
+        result_df, expected_df, check_index_type=False, check_like=True
+    )
+    if not mutate:
+        pd.testing.assert_frame_equal(
+            sexual_phylo_df,
+            original_df,
+            check_index_type=False,
+            check_like=True,
+        )
