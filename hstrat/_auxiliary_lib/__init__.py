@@ -14,6 +14,7 @@ from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
 from ._alifestd_assign_root_ancestor_token import (
     alifestd_assign_root_ancestor_token,
 )
+from ._alifestd_chronological_sort import alifestd_chronological_sort
 from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
 from ._alifestd_convert_root_ancestor_token import (
     alifestd_convert_root_ancestor_token,
@@ -22,19 +23,32 @@ from ._alifestd_find_chronological_inconsistency import (
     alifestd_find_chronological_inconsistency,
 )
 from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
+from ._alifestd_find_mrca_id_asexual import alifestd_find_mrca_id_asexual
 from ._alifestd_find_root_ids import alifestd_find_root_ids
 from ._alifestd_has_compact_ids import alifestd_has_compact_ids
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
+from ._alifestd_has_increasing_ids import alifestd_has_increasing_ids
 from ._alifestd_has_multiple_roots import alifestd_has_multiple_roots
 from ._alifestd_is_asexual import alifestd_is_asexual
 from ._alifestd_is_chronologically_ordered import (
     alifestd_is_chronologically_ordered,
 )
+from ._alifestd_is_chronologically_sorted import (
+    alifestd_is_chronologically_sorted,
+)
 from ._alifestd_is_sexual import alifestd_is_sexual
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
+from ._alifestd_join_roots import alifestd_join_roots
 from ._alifestd_make_ancestor_id_col import alifestd_make_ancestor_id_col
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_make_empty import alifestd_make_empty
+from ._alifestd_mark_leaves import alifestd_mark_leaves
+from ._alifestd_mark_num_descendants_asexual import (
+    alifestd_mark_num_descendants_asexual,
+)
+from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
+from ._alifestd_mark_ot_mrca_asexual import alifestd_mark_ot_mrca_asexual
+from ._alifestd_mark_roots import alifestd_mark_roots
 from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_prune_extinct_lineages_asexual import (
@@ -159,20 +173,30 @@ __all__ = [
     "alifestd_aggregate_phylogenies",
     "alifestd_assign_contiguous_ids",
     "alifestd_assign_root_ancestor_token",
+    "alifestd_chronological_sort",
     "alifestd_collapse_unifurcations",
     "alifestd_find_chronological_inconsistency",
     "alifestd_find_leaf_ids",
+    "alifestd_find_mrca_id_asexual",
     "alifestd_find_root_ids",
     "alifestd_has_compact_ids",
     "alifestd_has_contiguous_ids",
+    "alifestd_has_increasing_ids",
     "alifestd_has_multiple_roots",
     "alifestd_is_asexual",
     "alifestd_is_chronologically_ordered",
+    "alifestd_is_chronologically_sorted",
     "alifestd_is_sexual",
     "alifestd_is_topologically_sorted",
+    "alifestd_join_roots",
     "alifestd_make_ancestor_id_col",
     "alifestd_make_ancestor_list_col",
     "alifestd_make_empty",
+    "alifestd_mark_leaves",
+    "alifestd_mark_num_descendants_asexual",
+    "alifestd_mark_num_leaves_asexual",
+    "alifestd_mark_ot_mrca_asexual",
+    "alifestd_mark_roots",
     "alifestd_parse_ancestor_id",
     "alifestd_parse_ancestor_ids",
     "alifestd_prune_extinct_lineages_asexual",

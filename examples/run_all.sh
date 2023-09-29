@@ -9,5 +9,6 @@ cd "${0%/*}"
 # adapted from https://unix.stackexchange.com/a/556639
 GLOBIGNORE='_*';
 for example in *.py; do
+  echo "running example ${example}"
   python3 "${example}"
 done
