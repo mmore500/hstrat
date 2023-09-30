@@ -1,3 +1,6 @@
+import typing
+
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -34,6 +37,14 @@ def asexual_phylo_df() -> pd.DataFrame:
 
 @pytest.mark.parametrize("mutate", [True, False])
 @pytest.mark.parametrize("drop_ancestor_id", [True, False])
+@pytest.mark.parametrize(
+    "reorder",
+    [
+        None,
+        # roll first row to end to make topo unsorted
+        lambda x: x.apply(np.roll, shift=1),
+    ],
+)
 @pytest.mark.parametrize(
     "mask, expected_df",
     [
@@ -145,7 +156,11 @@ def test_asexual_phylo_df(
     expected_df: pd.DataFrame,
     drop_ancestor_id: bool,
     mutate: bool,
+    reorder: typing.Optional[typing.Callable],
 ):
+    if reorder is not None:
+        asexual_phylo_df = reorder(asexual_phylo_df)
+        mask = reorder(mask)
     if drop_ancestor_id:
         asexual_phylo_df = asexual_phylo_df.drop("ancestor_id", axis=1)
         expected_df = expected_df.drop("ancestor_id", axis=1)
@@ -159,6 +174,10 @@ def test_asexual_phylo_df(
     assert alifestd_validate(asexual_phylo_df)
 
     assert alifestd_validate(expected_df)
+    if reorder is not None:
+        result_df.sort_values(by="id", inplace=True, ignore_index=True)
+        expected_df.sort_values(by="id", inplace=True, ignore_index=True)
+
     pd.testing.assert_frame_equal(
         result_df, expected_df, check_index_type=False, check_like=True
     )
@@ -195,6 +214,14 @@ def sexual_phylo_df() -> pd.DataFrame:
 
 
 @pytest.mark.parametrize("mutate", [True, False])
+@pytest.mark.parametrize(
+    "reorder",
+    [
+        None,
+        # roll first row to end to make topo unsorted
+        lambda x: x.apply(np.roll, shift=1),
+    ],
+)
 @pytest.mark.parametrize(
     "mask, expected_df",
     [
@@ -287,12 +314,19 @@ def test_sexual_phylo_df(
     mask: pd.Series,
     expected_df: pd.DataFrame,
     mutate: bool,
+    reorder: typing.Optional[typing.Callable],
 ):
+    if reorder is not None:
+        sexual_phylo_df = reorder(sexual_phylo_df)
+        mask = reorder(mask)
     original_df = sexual_phylo_df.copy()
     result_df = alifestd_coarsen_mask(sexual_phylo_df, mask, mutate=mutate)
 
     assert alifestd_validate(sexual_phylo_df)
     assert alifestd_validate(expected_df)
+    if reorder is not None:
+        result_df.sort_values(by="id", inplace=True, ignore_index=True)
+        expected_df.sort_values(by="id", inplace=True, ignore_index=True)
     pd.testing.assert_frame_equal(
         result_df, expected_df, check_index_type=False, check_like=True
     )
