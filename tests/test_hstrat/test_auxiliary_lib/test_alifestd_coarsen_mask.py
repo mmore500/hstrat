@@ -3,7 +3,6 @@ import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_coarsen_mask,
-    alifestd_is_chronologically_sorted,
     alifestd_make_empty,
     alifestd_validate,
 )

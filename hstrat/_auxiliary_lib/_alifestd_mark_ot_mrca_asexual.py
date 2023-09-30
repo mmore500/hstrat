@@ -5,14 +5,12 @@ import warnings
 import pandas as pd
 import sortedcontainers as sc
 
-from ._alifestd_chronological_sort import alifestd_chronological_sort
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_has_multiple_roots import alifestd_has_multiple_roots
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_mark_leaves import alifestd_mark_leaves
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
-from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
 
 
 def alifestd_mark_ot_mrca_asexual(
