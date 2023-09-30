@@ -98,10 +98,9 @@ def _alifestd_coarsen_mask_sexual(
         .replace("[]", root_token_str)
     )
 
-    if "ancestor_id" in phylogeny_df:
-        res["ancestor_id"] = alifestd_make_ancestor_id_col(
-            res["id"], res["ancestor_list"]
-        )
+    # don't need update because not in sexual phylos
+    assert "ancestor_id" not in phylogeny_df
+
     return res
 
 
