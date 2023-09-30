@@ -6,7 +6,6 @@ import pandas as pd
 
 from ._alifestd_is_asexual import alifestd_is_asexual
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
-from ._alifestd_make_ancestor_id_col import alifestd_make_ancestor_id_col
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_topological_sort import alifestd_topological_sort
