@@ -20,21 +20,24 @@ def _validate_ancestors_asexual(
         phylogeny_df["ancestor_id"] = alifestd_make_ancestor_id_col(
             phylogeny_df["id"], phylogeny_df["ancestor_list"]
         )
-    elif not (
-        phylogeny_df["ancestor_list"]
-        .astype("str")
-        .str.lower()
-        .replace("[]", "[none]")
-        == alifestd_make_ancestor_list_col(
+    else:
+        ok_ancestor_list_mask = phylogeny_df["ancestor_list"].astype(
+            "str"
+        ).str.lower().replace(
+            "[]", "[none]"
+        ) == alifestd_make_ancestor_list_col(
             phylogeny_df["id"], phylogeny_df["ancestor_id"]
         )
-    ).all():
-        warn(
-            "alifestd_validate asexual: "
-            "ancestor_list nonequivalent to "
-            "alifestd_make_ancestor_list_col result",
-        )
-        return False
+        if not (ok_ancestor_list_mask).all():
+            example_row = phylogeny_df[~ok_ancestor_list_mask].iloc[0]
+            warn(
+                "alifestd_validate asexual: "
+                "ancestor_list nonequivalent to "
+                "alifestd_make_ancestor_list_col result"
+                f"with {(~ok_ancestor_list_mask).sum()} violations, "
+                f"for example\n{example_row}"
+            )
+            return False
 
     ancestor_ids_are_subset = is_subset(
         phylogeny_df["ancestor_id"].to_numpy(),
