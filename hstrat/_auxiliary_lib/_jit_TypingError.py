@@ -9,11 +9,12 @@ from ._is_in_coverage_run import is_in_coverage_run
 
 
 try:
-    from numba import TypingError
+    import numba as nb
 except (ImportError, ModuleNotFoundError):
-    jit_TypingError = TypingError
+    jit_TypingError = tuple()  # empty tuple is nop in except clause
 else:
     if is_in_coverage_run():
+        # when numba disabled for coverage testing,
         jit_TypingError = tuple()  # empty tuple is nop in except clause
     else:  # pragma: no cover
-        jit_TypingError = TypingError
+        jit_TypingError = nb.TypingError
