@@ -3,6 +3,10 @@ import warnings
 
 import pandas as pd
 
+from ._alifestd_is_chronologically_sorted import (
+    alifestd_is_chronologically_sorted,
+)
+from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_find_chronological_inconsistency import (
     alifestd_find_chronological_inconsistency,
 )
@@ -25,6 +29,10 @@ def _report_diagnosis(df: pd.DataFrame, taxon_id: int) -> None:
     append(
         f"with {df['id'].is_monotonic_increasing=} "
         f"{df['id'].is_monotonic_decreasing=}",
+    )
+    append(
+        f"and {alifestd_is_chronologically_sorted(df)=}, "
+        f"and {alifestd_is_topologically_sorted(df)=}",
     )
 
     ot = df["origin_time"]
@@ -67,6 +75,16 @@ def _report_diagnosis(df: pd.DataFrame, taxon_id: int) -> None:
         append(f"{prefix}{time_delta=}")
         if time_delta < 0:
             append(">" * len(prefix) + f" ^^^^^^^^^ time delta is negative!")
+
+    if "ancestor_id" in df.columns:
+        ancestor_origin_time = df["ancestor_id"].map(
+            df.set_index("id")["origin_time"],
+        )
+        discrepancy_mask = ancestor_origin_time > df["origin_time"]
+        num_discrepancies = discrepancy_mask.sum()
+        assert num_discrepancies, num_discrepancies
+        append("")
+        append(f"there are {num_discrepancies=} total")
 
     warnings.warn("\n".join(warning_lines))
 
