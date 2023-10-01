@@ -7,6 +7,7 @@ from ._alifestd_has_compact_ids import alifestd_has_compact_ids
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._jit import jit
+from ._jit_TypingError import jit_TypingError
 
 
 @jit(nopython=True)
@@ -36,7 +37,7 @@ def _alifestd_find_chronological_inconsistency_compact(
 
 
 @jit(nopython=True)
-def _alifestd_find_chronological_inconsistency(
+def _alifestd_find_chronological_inconsistency_arbitrary(
     ids: np.array, ancestor_ids: np.array, origin_times: np.array
 ) -> typing.Optional[int]:
     origin_time_lookup = dict()
@@ -50,30 +51,47 @@ def _alifestd_find_chronological_inconsistency(
     return None
 
 
+def _alifestd_find_chronological_inconsistency_asexual(
+    phylogeny_df: pd.DataFrame, unwrap: typing.Callable
+) -> typing.Optional[int]:
+    if alifestd_has_contiguous_ids(phylogeny_df):
+        call = unwrap(_alifestd_find_chronological_inconsistency_contiguous)
+        return call(
+            phylogeny_df["ancestor_id"].to_numpy(),
+            phylogeny_df["origin_time"].to_numpy(),
+        )
+    elif alifestd_has_compact_ids(phylogeny_df):
+        call = unwrap(_alifestd_find_chronological_inconsistency_compact)
+        return call(
+            phylogeny_df["id"].to_numpy(),
+            phylogeny_df["ancestor_id"].to_numpy(),
+            phylogeny_df["origin_time"].to_numpy(),
+        )
+    else:
+        call = unwrap(_alifestd_find_chronological_inconsistency_arbitrary)
+        return call(
+            phylogeny_df["id"].to_numpy(),
+            phylogeny_df["ancestor_id"].to_numpy(),
+            phylogeny_df["origin_time"].to_numpy(),
+        )
+
+
 def alifestd_find_chronological_inconsistency(
     phylogeny_df: pd.DataFrame,
 ) -> typing.Optional[int]:
     """Return the id of a taxon with origin time precedint its parent's, if
     any are present."""
 
-    if "ancestor_id" in phylogeny_df:
-        if alifestd_has_contiguous_ids(phylogeny_df):
-            return _alifestd_find_chronological_inconsistency_contiguous(
-                phylogeny_df["ancestor_id"].to_numpy(),
-                phylogeny_df["origin_time"].to_numpy(),
-            )
-        elif alifestd_has_compact_ids(phylogeny_df):
-            return _alifestd_find_chronological_inconsistency_compact(
-                phylogeny_df["id"].to_numpy(),
-                phylogeny_df["ancestor_id"].to_numpy(),
-                phylogeny_df["origin_time"].to_numpy(),
-            )
-        else:
-            return _alifestd_find_chronological_inconsistency(
-                phylogeny_df["id"].to_numpy(),
-                phylogeny_df["ancestor_id"].to_numpy(),
-                phylogeny_df["origin_time"].to_numpy(),
-            )
+    if "ancestor_id" in phylogeny_df.columns:
+        for unwrap in lambda x: x, lambda x: x.__wrapped__:
+            try:
+                return _alifestd_find_chronological_inconsistency_asexual(
+                    phylogeny_df, unwrap
+                )
+            except jit_TypingError:
+                continue
+            except ValueError:
+                continue  # if origin_times are sequences i.e., tuples
 
     phylogeny_df = phylogeny_df.set_index("id", drop=False)
 

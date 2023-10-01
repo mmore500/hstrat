@@ -137,6 +137,7 @@ from ._jit_numba_integer_array_ts import (
 )
 from ._jit_numpy_bool_t import jit_numpy_bool_t
 from ._jit_numpy_int64_t import jit_numpy_int64_t
+from ._jit_TypingError import jit_TypingError
 from ._launder_impl_modules import launder_impl_modules
 from ._log_once_in_a_row import log_once_in_a_row
 from ._make_intersecting_subsets import make_intersecting_subsets
@@ -288,6 +289,7 @@ __all__ = [
     "jit_numba_dict_t",
     "jit_numpy_bool_t",
     "jit_numpy_int64_t",
+    "jit_TypingError",
     "launder_impl_modules",
     "log_once_in_a_row",
     "make_intersecting_subsets",

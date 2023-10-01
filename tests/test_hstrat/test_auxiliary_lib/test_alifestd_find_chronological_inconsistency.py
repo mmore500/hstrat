@@ -1,6 +1,8 @@
+from datetime import datetime
 import typing
 
 import pandas as pd
+import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_assign_contiguous_ids,
@@ -9,6 +11,9 @@ from hstrat._auxiliary_lib import (
     alifestd_parse_ancestor_ids,
     alifestd_try_add_ancestor_id_col,
 )
+
+
+dt_epoch = datetime.utcfromtimestamp
 
 
 def _is_chronological_inconsistency(
@@ -32,19 +37,21 @@ def _is_chronological_inconsistency(
     return False
 
 
-def test_find_chronological_inconsistency_empty():
+@pytest.mark.parametrize("dtype", ["int", "str", "float", "object"])
+def test_find_chronological_inconsistency_empty(dtype: str):
     df = alifestd_make_empty()
-    df["origin_time"] = []
+    df["origin_time"] = pd.Series(dtype=dtype)
     assert alifestd_find_chronological_inconsistency(df) is None
 
 
-def test_is_chronologically_ordered_empty():
+def test_find_chronological_inconsistency_empty_datetime():
     df = alifestd_make_empty()
-    df["origin_time"] = []
+    df["origin_time"] = pd.to_datetime(pd.Series())
     assert alifestd_find_chronological_inconsistency(df) is None
 
 
-def test_is_chronologically_ordered_sexual1():
+@pytest.mark.parametrize("wrap", [int, str, float, lambda x: (x,), dt_epoch])
+def test_is_chronologically_ordered_sexual1(wrap: typing.Callable):
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 22, 333, 44, 5],
@@ -56,7 +63,7 @@ def test_is_chronologically_ordered_sexual1():
                 "[333]",
                 "[none]",
             ],
-            "origin_time": [5, 5, 2, 1, 2, 0],
+            "origin_time": [*map(wrap, [5, 5, 2, 1, 2, 0])],
         }
     )
 
@@ -66,16 +73,11 @@ def test_is_chronologically_ordered_sexual1():
         for df in phylogeny_df_, phylogeny_df_.sample(frac=1):
             df_ = df.copy()
             assert alifestd_find_chronological_inconsistency(df) is None
-            assert (
-                alifestd_find_chronological_inconsistency(
-                    df.astype({"origin_time": float})
-                )
-                is None
-            )
             assert df.equals(df_)
 
 
-def test_is_chronologically_ordered_sexual2():
+@pytest.mark.parametrize("wrap", [int, str, float, lambda x: (x,), dt_epoch])
+def test_is_chronologically_ordered_sexual2(wrap: typing.Callable):
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 22, 333, 44, 5],
@@ -87,7 +89,7 @@ def test_is_chronologically_ordered_sexual2():
                 "[333]",
                 "[none]",
             ],
-            "origin_time": [5, 5, 2, 1, 2, 2],
+            "origin_time": [*map(wrap, [5, 5, 2, 1, 2, 2])],
         }
     )
 
@@ -97,16 +99,11 @@ def test_is_chronologically_ordered_sexual2():
         for df in phylogeny_df_, phylogeny_df_.sample(frac=1):
             df_ = df.copy()
             assert alifestd_find_chronological_inconsistency(df) is None
-            assert (
-                alifestd_find_chronological_inconsistency(
-                    df.astype({"origin_time": float})
-                )
-                is None
-            )
             assert df.equals(df_)
 
 
-def test_is_chronologically_unordered_sexual1():
+@pytest.mark.parametrize("wrap", [int, str, float, lambda x: (x,), dt_epoch])
+def test_is_chronologically_unordered_sexual1(wrap: typing.Callable):
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 22, 333, 44, 5],
@@ -118,7 +115,7 @@ def test_is_chronologically_unordered_sexual1():
                 "[333]",
                 "[none]",
             ],
-            "origin_time": [5, 5, 2, 1, 2, 6],
+            "origin_time": [*map(wrap, [5, 5, 2, 1, 2, 6])],
         }
     )
 
@@ -131,16 +128,11 @@ def test_is_chronologically_unordered_sexual1():
                 df_,
                 alifestd_find_chronological_inconsistency(df),
             )
-            assert _is_chronological_inconsistency(
-                df_,
-                alifestd_find_chronological_inconsistency(
-                    df.astype({"origin_time": float})
-                ),
-            )
             assert df.equals(df_)
 
 
-def test_is_chronologically_unordered_sexual2():
+@pytest.mark.parametrize("wrap", [int, str, float, lambda x: (x,), dt_epoch])
+def test_is_chronologically_unordered_sexual2(wrap: typing.Callable):
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 22, 333, 44, 5],
@@ -152,7 +144,7 @@ def test_is_chronologically_unordered_sexual2():
                 "[333]",
                 "[none]",
             ],
-            "origin_time": [1, 5, 2, 1, 2, 2],
+            "origin_time": [*map(wrap, [1, 5, 2, 1, 2, 2])],
         }
     )
 
@@ -170,16 +162,11 @@ def test_is_chronologically_unordered_sexual2():
                 df_,
                 alifestd_find_chronological_inconsistency(df),
             )
-            assert _is_chronological_inconsistency(
-                df_,
-                alifestd_find_chronological_inconsistency(
-                    df.astype({"origin_time": float})
-                ),
-            )
             assert df.equals(df_)
 
 
-def test_is_chronologically_unordered_sexual3():
+@pytest.mark.parametrize("wrap", [int, str, float, lambda x: (x,), dt_epoch])
+def test_is_chronologically_unordered_sexual3(wrap: typing.Callable):
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 22, 333, 44, 5],
@@ -191,7 +178,7 @@ def test_is_chronologically_unordered_sexual3():
                 "[333]",
                 "[none]",
             ],
-            "origin_time": [1, 5, 2, 3, 2, 2],
+            "origin_time": [*map(wrap, [1, 5, 2, 3, 2, 2])],
         }
     )
 
@@ -209,16 +196,11 @@ def test_is_chronologically_unordered_sexual3():
                 df_,
                 alifestd_find_chronological_inconsistency(df),
             )
-            assert _is_chronological_inconsistency(
-                df_,
-                alifestd_find_chronological_inconsistency(
-                    df.astype({"origin_time": float})
-                ),
-            )
             assert df.equals(df_)
 
 
-def test_is_chronologically_ordered_asexual1():
+@pytest.mark.parametrize("wrap", [int, str, float, lambda x: (x,), dt_epoch])
+def test_is_chronologically_ordered_asexual1(wrap: typing.Callable):
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 22, 333, 44, 5],
@@ -230,7 +212,7 @@ def test_is_chronologically_ordered_asexual1():
                 "[1]",
                 "[333]",
             ],
-            "origin_time": [6, 5, 2, 1, 6, 2],
+            "origin_time": [*map(wrap, [6, 5, 2, 1, 6, 2])],
         }
     )
 
@@ -245,16 +227,11 @@ def test_is_chronologically_ordered_asexual1():
         for df in phylogeny_df_, phylogeny_df_.sample(frac=1):
             df_ = df.copy()
             assert alifestd_find_chronological_inconsistency(df) is None
-            assert (
-                alifestd_find_chronological_inconsistency(
-                    df.astype({"origin_time": float})
-                )
-                is None
-            )
             assert df.equals(df_)
 
 
-def test_is_chronologically_ordered_asexual2():
+@pytest.mark.parametrize("wrap", [int, str, float, lambda x: (x,), dt_epoch])
+def test_is_chronologically_ordered_asexual2(wrap: typing.Callable):
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 22, 333, 44, 5],
@@ -266,7 +243,7 @@ def test_is_chronologically_ordered_asexual2():
                 "[1]",
                 "[none]",
             ],
-            "origin_time": [6, 5, 2, 1, 6, 2],
+            "origin_time": [*map(wrap, [6, 5, 2, 1, 6, 2])],
         }
     )
 
@@ -281,16 +258,11 @@ def test_is_chronologically_ordered_asexual2():
         for df in phylogeny_df_, phylogeny_df_.sample(frac=1):
             df_ = df.copy()
             assert alifestd_find_chronological_inconsistency(df) is None
-            assert (
-                alifestd_find_chronological_inconsistency(
-                    df.astype({"origin_time": float})
-                )
-                is None
-            )
             assert df.equals(df_)
 
 
-def test_is_chronologically_unordered_asexual1():
+@pytest.mark.parametrize("wrap", [int, str, float, lambda x: (x,), dt_epoch])
+def test_is_chronologically_unordered_asexual1(wrap: typing.Callable):
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 22, 333, 44, 5],
@@ -302,7 +274,7 @@ def test_is_chronologically_unordered_asexual1():
                 "[333]",
                 "[0]",
             ],
-            "origin_time": [5, 5, 2, 1, 2, 4],
+            "origin_time": [*map(wrap, [5, 5, 2, 1, 2, 4])],
         }
     )
 
@@ -320,16 +292,11 @@ def test_is_chronologically_unordered_asexual1():
                 df_,
                 alifestd_find_chronological_inconsistency(df),
             )
-            assert _is_chronological_inconsistency(
-                df_,
-                alifestd_find_chronological_inconsistency(
-                    df.astype({"origin_time": float})
-                ),
-            )
             assert df.equals(df_)
 
 
-def test_is_chronologically_unordered_asexual2():
+@pytest.mark.parametrize("wrap", [int, str, float, lambda x: (x,), dt_epoch])
+def test_is_chronologically_unordered_asexual2(wrap: typing.Callable):
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 22, 333, 44, 5],
@@ -341,7 +308,7 @@ def test_is_chronologically_unordered_asexual2():
                 "[333]",
                 "[none]",
             ],
-            "origin_time": [1, 5, 2, 1, 2, 2],
+            "origin_time": [*map(wrap, [1, 5, 2, 1, 2, 2])],
         }
     )
 
@@ -359,16 +326,11 @@ def test_is_chronologically_unordered_asexual2():
                 df_,
                 alifestd_find_chronological_inconsistency(df),
             )
-            assert _is_chronological_inconsistency(
-                df_,
-                alifestd_find_chronological_inconsistency(
-                    df.astype({"origin_time": float})
-                ),
-            )
             assert df.equals(df_)
 
 
-def test_is_chronologically_unordered_asexual3():
+@pytest.mark.parametrize("wrap", [int, str, float, lambda x: (x,), dt_epoch])
+def test_is_chronologically_unordered_asexual3(wrap: typing.Callable):
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 22, 333, 44, 5],
@@ -380,7 +342,7 @@ def test_is_chronologically_unordered_asexual3():
                 "[333]",
                 "[none]",
             ],
-            "origin_time": [1, 5, 2, 3, 2, 2],
+            "origin_time": [*map(wrap, [1, 5, 2, 3, 2, 2])],
         }
     )
 
@@ -397,11 +359,5 @@ def test_is_chronologically_unordered_asexual3():
             assert _is_chronological_inconsistency(
                 df_,
                 alifestd_find_chronological_inconsistency(df),
-            )
-            assert _is_chronological_inconsistency(
-                df_,
-                alifestd_find_chronological_inconsistency(
-                    df.astype({"origin_time": float})
-                ),
             )
             assert df.equals(df_)
