@@ -79,7 +79,7 @@ def _alifestd_find_chronological_inconsistency_asexual(
 def alifestd_find_chronological_inconsistency(
     phylogeny_df: pd.DataFrame,
 ) -> typing.Optional[int]:
-    """Return the id of a taxon with origin time precedint its parent's, if
+    """Return the id of a taxon with origin time preceding its parent's, if
     any are present."""
 
     if "ancestor_id" in phylogeny_df.columns:

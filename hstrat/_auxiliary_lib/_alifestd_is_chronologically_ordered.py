@@ -93,7 +93,8 @@ def alifestd_is_chronologically_ordered(
     phylogeny_df: pd.DataFrame,
     diagnose: bool = True,
 ) -> bool:
-    """Are all organisms listed after members of their `ancestor_list`?
+    """Do any organisms have `origin_time`s preceding members of their
+    `ancestor_list`?
 
     Input dataframe is not mutated by this operation.
     """
