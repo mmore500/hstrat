@@ -6,7 +6,7 @@ from ._alifestd_find_chronological_inconsistency import (
 
 
 def alifestd_is_chronologically_ordered(phylogeny_df: pd.DataFrame) -> bool:
-    """Do any organisms have `origin_time`s preceding membersof their
+    """Do any organisms have `origin_time`s preceding members of their
     `ancestor_list`?
 
     Input dataframe is not mutated by this operation.
