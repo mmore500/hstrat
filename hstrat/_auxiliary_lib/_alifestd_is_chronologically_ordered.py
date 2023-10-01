@@ -39,7 +39,7 @@ def _report_diagnosis(df: pd.DataFrame, taxon_id: int) -> None:
     append("")
     append(f"chronological inconsistency occurs at {taxon_id=}")
     (index,) = df[df["id"] == taxon_id].index
-    loc = df[df["id"] == taxon_id].index.get_loc(index)
+    loc = df.index.get_loc(index)
     append(f"for {taxon_id=}, position is {index=} {loc=}")
 
     origin_time = df.at[index, "origin_time"]
@@ -57,7 +57,7 @@ def _report_diagnosis(df: pd.DataFrame, taxon_id: int) -> None:
     for i, ancestor_id in enumerate(ancestor_ids):
         append("")
         (index,) = df[df["id"] == ancestor_id].index
-        loc = df[df["id"] == ancestor_id].index.get_loc(index)
+        loc = df.index.get_loc(index)
         append(f"for {i}th {ancestor_id=}, position is {index=} {loc=}")
 
         origin_time = df.at[index, "origin_time"]
