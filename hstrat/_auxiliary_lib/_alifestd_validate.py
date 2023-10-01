@@ -1,3 +1,6 @@
+import typing
+import warnings
+
 import pandas as pd
 
 from ._alifestd_is_asexual import alifestd_is_asexual
@@ -9,7 +12,7 @@ from ._is_subset import is_subset
 
 
 def _validate_ancestors_asexual(
-    phylogeny_df: pd.DataFrame, mutate: bool
+    phylogeny_df: pd.DataFrame, mutate: bool, warn: typing.Callable
 ) -> bool:
     if "ancestor_id" not in phylogeny_df:
         if not mutate:
@@ -26,32 +29,54 @@ def _validate_ancestors_asexual(
             phylogeny_df["id"], phylogeny_df["ancestor_id"]
         )
     ).all():
+        warn(
+            "alifestd_validate asexual: "
+            "ancestor_list nonequivalent to "
+            "alifestd_make_ancestor_list_col result",
+        )
         return False
 
-    return is_subset(
+    ancestor_ids_are_subset = is_subset(
         phylogeny_df["ancestor_id"].to_numpy(),
         phylogeny_df["id"].astype("int").to_numpy(),
     )
+    if not ancestor_ids_are_subset:
+        warn(
+            "alifestd_validate asexual: "
+            "ancestor_id values are not a subset of id values",
+        )
+    return ancestor_ids_are_subset
 
 
-def _validate_ancestors_sexual(phylogeny_df: pd.DataFrame) -> bool:
+def _validate_ancestors_sexual(
+    phylogeny_df: pd.DataFrame,
+    warn: typing.Callable,
+) -> bool:
     ids = set(phylogeny_df["id"])
-    return all(
+    ancestor_ids_are_subset = all(
         ancestor_id in ids
         for ancestor_list_str in phylogeny_df["ancestor_list"]
         for ancestor_id in alifestd_parse_ancestor_ids(ancestor_list_str)
         if ancestor_id is not None
     )
+    if not ancestor_ids_are_subset:
+        warn(
+            "alifestd_validate sexual: "
+            "ancestor_id values are not a subset of id values",
+        )
+    return ancestor_ids_are_subset
 
 
 def _alifestd_validate(
     phylogeny_df: pd.DataFrame,
     mutate: bool,
+    warn: typing.Callable,
 ) -> bool:
     has_mandatory_columns = (
         "id" in phylogeny_df and "ancestor_list" in phylogeny_df
     )
     if not has_mandatory_columns:
+        warn("alifestd_validate: missing mandatory columns")
         return False
 
     ids_valid = (
@@ -61,6 +86,7 @@ def _alifestd_validate(
         and all_unique(phylogeny_df["id"].to_numpy())
     )
     if not ids_valid:
+        warn("alifestd_validate: invalid id detected")
         return False
 
     ancestor_lists_syntax_valid = (
@@ -70,25 +96,31 @@ def _alifestd_validate(
         and phylogeny_df["ancestor_list"].str.endswith("]").all()
     )
     if not ancestor_lists_syntax_valid:
+        warn("alifestd_validate: invalid ancestor_list syntax detected")
         return False
 
     return (
-        _validate_ancestors_asexual(phylogeny_df, mutate)
+        _validate_ancestors_asexual(phylogeny_df, mutate, warn)
         if alifestd_is_asexual(phylogeny_df)
-        else _validate_ancestors_sexual(phylogeny_df)
+        else _validate_ancestors_sexual(phylogeny_df, warn)
     )
 
 
 def alifestd_validate(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
+    diagnose: bool = True,
 ) -> bool:
     """Is the phylogeny compliant to alife data standards?
 
     Input dataframe is not mutated by this operation unless `mutate` set True.
+    If `diagnose` is set, the failing validation subcheck will warn.
     """
 
+    warn = warnings.warn if diagnose else lambda x: x
+
     try:
-        return _alifestd_validate(phylogeny_df, mutate)
-    except:
+        return _alifestd_validate(phylogeny_df, mutate, warn)
+    except Exception as exception:
+        warn(f"alifestd_validate: {exception=} occured")
         return False
