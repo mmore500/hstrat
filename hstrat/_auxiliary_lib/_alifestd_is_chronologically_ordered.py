@@ -17,8 +17,8 @@ def _report_diagnosis(df: pd.DataFrame, taxon_id: int) -> None:
     warning_lines = [""]
     append = warning_lines.append
 
-    append(f"chronological inconsitency found!")
-    append(f"=================================")
+    append("chronological inconsitency found!")
+    append("=================================")
     append(f"in phylogeny with {len(df)} rows")
     buf = io.StringIO()
     df.info(buf=buf, verbose=True)
@@ -74,7 +74,7 @@ def _report_diagnosis(df: pd.DataFrame, taxon_id: int) -> None:
         time_delta = taxon_origin_time - ancestor_origin_time
         append(f"{prefix}{time_delta=}")
         if time_delta < 0:
-            append(">" * len(prefix) + f" ^^^^^^^^^ time delta is negative!")
+            append(">" * len(prefix) + " ^^^^^^^^^ time delta is negative!")
 
     if "ancestor_id" in df.columns:
         ancestor_origin_time = df["ancestor_id"].map(
