@@ -12,7 +12,6 @@ from hstrat._auxiliary_lib import (
     alifestd_try_add_ancestor_id_col,
 )
 
-
 dt_epoch = datetime.utcfromtimestamp
 
 

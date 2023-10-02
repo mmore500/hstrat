@@ -3,13 +3,13 @@ import warnings
 
 import pandas as pd
 
+from ._alifestd_find_chronological_inconsistency import (
+    alifestd_find_chronological_inconsistency,
+)
 from ._alifestd_is_chronologically_sorted import (
     alifestd_is_chronologically_sorted,
 )
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
-from ._alifestd_find_chronological_inconsistency import (
-    alifestd_find_chronological_inconsistency,
-)
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 
 
