@@ -89,8 +89,8 @@ def alifestd_find_chronological_inconsistency(
                     phylogeny_df, unwrap
                 )
             except jit_TypingError:  # pragma: no cover
-                    # this does get exercised in tests, but not in coverage
-                    # because jit is disabled for better visibility of jit code
+                # this does get exercised in tests, but not in coverage
+                # because jit is disabled for better visibility of jit code
                 continue
             except ValueError:
                 continue  # if origin_times are sequences i.e., tuples
