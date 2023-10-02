@@ -8,7 +8,6 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Natural Language :: English",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
@@ -52,7 +51,7 @@ name  =  "hstrat"
 keywords = [
   "hstrat",
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 version = "1.8.6"
 
 [project.readme]
@@ -83,7 +82,7 @@ requires = [
 # additional dev requriements
 # used to generated requirements in dev-requirements/
 [project.optional-dependencies]
-pinned_dependencies_py37 = [
+pinned_dependencies_py38 = [
   "alifedata_phyloinformatics_convert==0.11.0",
   "anytree==2.8.0",
   "biopython==1.79",
@@ -145,7 +144,7 @@ pinned_dependencies_py310 = [
 ]
 jit = ["numba>=0.56.4"]
 pinned_jit = ["numba==0.56.4"]
-testing_py37 = [
+testing_py38 = [
   "contexttimer==0.3.3",
   "coverage==6.4.4",
   "flake8==3.7.8",

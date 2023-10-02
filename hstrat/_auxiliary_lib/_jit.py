@@ -4,6 +4,16 @@ import warnings
 from ._is_in_coverage_run import is_in_coverage_run
 
 
+class _ShimFtor:
+    __wrapped__: typing.Callable  # shim for numba jit attr
+
+    def __init__(self: "_ShimFtor", wrapped: typing.Callable) -> None:
+        self.__wrapped__ = wrapped
+
+    def __call__(self: "_ShimFtor", *args, **kwargs) -> typing.Any:
+        return self.__wrapped__(*args, **kwargs)
+
+
 def jit(*args, **kwargs) -> typing.Callable:
     """Decorator that performs jit compilation if numba available.
 
@@ -20,7 +30,7 @@ def jit(*args, **kwargs) -> typing.Callable:
             "extras: python -m pip install hstrat[jit].",
             ImportWarning,
         )
-        return lambda f: f
+        return _ShimFtor
 
     if is_in_coverage_run():
         warnings.warn(
@@ -28,6 +38,7 @@ def jit(*args, **kwargs) -> typing.Callable:
             "disabling jit compilation to increase source visibility",
             RuntimeWarning,
         )
-        return lambda f: f
+        return _ShimFtor
     else:  # pragma: no cover
+        # exclude from coverage because jit compilation disabled in cov runs
         return nb.jit(*args, **kwargs)

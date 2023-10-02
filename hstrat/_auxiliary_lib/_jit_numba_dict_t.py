@@ -15,10 +15,11 @@ class _shim:
 
 try:
     from numba.typed import Dict
-except (ImportError, ModuleNotFoundError):
+except (ImportError, ModuleNotFoundError):  # pragma: no cover
     jit_numba_dict_t = _shim()
 else:
     if is_in_coverage_run():
         jit_numba_dict_t = _shim()
     else:  # pragma: no cover
+        # exclude from coverage because jit compilation disabled in cov runs
         jit_numba_dict_t = Dict

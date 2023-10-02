@@ -124,6 +124,7 @@ from ._iter_monotonic_equivalencies_reverse import (
 )
 from ._iter_slices import iter_slices
 from ._jit import jit
+from ._jit_TypingError import jit_TypingError
 from ._jit_numba_dict_t import jit_numba_dict_t
 from ._jit_numba_integer_array_ts import (
     jit_numba_int8_arr_t,
@@ -288,6 +289,7 @@ __all__ = [
     "jit_numba_dict_t",
     "jit_numpy_bool_t",
     "jit_numpy_int64_t",
+    "jit_TypingError",
     "launder_impl_modules",
     "log_once_in_a_row",
     "make_intersecting_subsets",
