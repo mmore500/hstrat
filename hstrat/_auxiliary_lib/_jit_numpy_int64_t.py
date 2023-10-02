@@ -9,7 +9,7 @@ from ._is_in_coverage_run import is_in_coverage_run
 
 try:
     import numba as nb
-except (ImportError, ModuleNotFoundError):
+except (ImportError, ModuleNotFoundError):  # pragma: no cover
     jit_numpy_int64_t = np.int64
 else:
     if is_in_coverage_run():
@@ -17,4 +17,5 @@ else:
         # using nb.types.int64_ causes numpy TypeError
         jit_numpy_int64_t = np.int64
     else:  # pragma: no cover
+        # exclude from coverage because jit compilation disabled in cov runs
         jit_numpy_int64_t = nb.types.int64

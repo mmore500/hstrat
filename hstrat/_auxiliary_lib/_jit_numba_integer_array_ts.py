@@ -30,6 +30,7 @@ else:
         jit_numba_uint32_arr_t = None
         jit_numba_uint64_arr_t = None
     else:  # pragma: no cover
+        # exclude from coverage because jit compilation disabled in cov runs
         jit_numba_int8_arr_t = nb.types.int8[:]
         jit_numba_int16_arr_t = nb.types.int16[:]
         jit_numba_int32_arr_t = nb.types.int32[:]

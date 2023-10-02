@@ -40,4 +40,5 @@ def jit(*args, **kwargs) -> typing.Callable:
         )
         return _ShimFtor
     else:  # pragma: no cover
+        # exclude from coverage because jit compilation disabled in cov runs
         return nb.jit(*args, **kwargs)
