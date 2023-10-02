@@ -30,7 +30,6 @@ def jit(*args, **kwargs) -> typing.Callable:
             "extras: python -m pip install hstrat[jit].",
             ImportWarning,
         )
-        
         return _ShimFtor
 
     if is_in_coverage_run():
