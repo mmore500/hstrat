@@ -1,6 +1,44 @@
 ## Citing
 
-Please cite hstrat as
+You can also access metadata to cite hstrat in our `CITATION.cff` file [here](https://github.com/mmore500/hstrat/blob/master/CITATION.cff).
+Formatted citations were generated via <https://bibtex.online>.
+
+### Software
+
+Please cite hstrat software as
+
+bibtex:
+```bibtex
+@article{moreno2022hstrat,
+  doi = {10.21105/joss.04866},
+  url = {https://doi.org/10.21105/joss.04866},
+  year = {2022},
+  publisher = {The Open Journal},
+  volume = {7},
+  number = {80},
+  pages = {4866},
+  author = {Matthew Andres Moreno and Emily Dolson and Charles Ofria}, 
+  title = {hstrat: a Python Package for phylogenetic inference on distributed digital evolution populations},
+  journal = {Journal of Open Source Software}
+}
+```
+
+APA:
+
+> Moreno, M. A., Dolson, E., & Ofria, C. (2022). hstrat: A Python Package for Phylogenetic Inference on Distributed Digital Evolution Populations. Journal of Open Source Software, 7(80), 4866. https://doi.org/10.21105/joss.04866
+
+Chicago:
+
+> Moreno, Matthew Andres, Emily Dolson, and Charles Ofria. "hstrat: A Python Package for Phylogenetic Inference on Distributed Digital Evolution Populations." Journal of Open Source Software 7, no. 80 (2022): 4866. https://doi.org/10.21105/joss.04866.
+
+MLA:
+
+>Moreno, Matthew Andres et al. "hstrat: A Python Package for Phylogenetic Inference on Distributed Digital Evolution Populations." Journal of Open Source Software 7.80 (2022): 4866. https://doi.org/10.21105/joss.04866.
+
+
+### Methodology
+
+Please cite hereditary stratigraphy methodology as
 
 bibtex:
 ```bibtex
@@ -11,7 +49,6 @@ bibtex:
   series = {ALIFE 2022: The 2022 Conference on Artificial Life},
   year = {2022},
   month = {07},
-  abstract = "{Phylogenies provide direct accounts of the evolutionary trajectories behind evolved artifacts in genetic algorithm and artificial life systems. Phylogenetic analyses can also enable insight into evolutionary and ecological dynamics such as selection pressure and frequency-dependent selection. Traditionally, digital evolution systems have recorded data for phylogenetic analyses through perfect tracking where each birth event is recorded in a centralized data structure. This approach, however, does not easily scale to distributed computing environments where evolutionary individuals may migrate between a large number of disjoint processing elements. To provide for phylogenetic analyses in these environments, we propose an approach to enable phylogenies to be inferred via heritable genetic annotations rather than directly tracked. We introduce a “hereditary stratigraphy” algorithm that enables efficient, accurate phylogenetic reconstruction with tunable, explicit trade-offs between annotation memory footprint and reconstruction accuracy. In particular, we demonstrate an approach that enables estimation of the most recent common ancestor (MRCA) between two individuals with fixed relative accuracy irrespective of lineage depth while only requiring logarithmic annotation space complexity with respect to lineage depth. This approach can estimate, for example, MRCA generation of two genomes within 10\\% relative error with 95\\% confidence up to a depth of a trillion generations with genome annotations smaller than a kilobyte. We also simulate inference over known lineages, recovering up to 85.70\\% of the information contained in the original tree using 64-bit annotations.}",
   booktitle = {Artificial Life Conference Proceedings},
   doi = {10.1162/isal_a_00550},
   url = {https://doi.org/10.1162/isal\_a\_00550},
@@ -22,15 +59,13 @@ bibtex:
 
 APA:
 
-> Moreno, M., Dolson, E., & Ofria, C. (2022). Hereditary Stratigraphy: Genome Annotations to Enable Phylogenetic Inference over Distributed Populations. In Artificial Life Conference Proceedings.
+> Moreno, M., Dolson, E., & Ofria, C. (2022). Hereditary Stratigraphy: Genome Annotations to Enable Phylogenetic Inference over Distributed Populations. In Artificial Life Conference Proceedings. https://doi.org/10.1162/isal_a_00550
 
 Chicago:
 
-> Moreno, Matthew Andres, Emily, Dolson, and Charles, Ofria. "Hereditary Stratigraphy: Genome Annotations to Enable Phylogenetic Inference over Distributed Populations." . In Artificial Life Conference Proceedings. 2022.
+> Moreno, Matthew Andres, Emily, Dolson, and Charles, Ofria. "Hereditary Stratigraphy: Genome Annotations to Enable Phylogenetic Inference over Distributed Populations." In Artificial Life Conference Proceedings. 2022. https://doi.org/10.1162/isal_a_00550
 
 MLA:
 
-> Moreno, Matthew Andres et al. "Hereditary Stratigraphy: Genome Annotations to Enable Phylogenetic Inference over Distributed Populations." Artificial Life Conference Proceedings. 2022.
+> Moreno, Matthew Andres et al. "Hereditary Stratigraphy: Genome Annotations to Enable Phylogenetic Inference over Distributed Populations." Artificial Life Conference Proceedings. 2022. https://doi.org/10.1162/isal_a_00550
 
-You can also access metadata to cite hstrat in our `CITATION.cff` file [here](https://github.com/mmore500/hstrat/blob/master/CITATION.cff).
-Formatted citations were generated via <https://bibtex.online>.
