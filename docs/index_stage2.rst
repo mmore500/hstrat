@@ -9,6 +9,7 @@ Overview
    :hidden:
 
    index
+   quickstart
    api
    publications
    projects
