@@ -9,6 +9,7 @@ Overview
    :hidden:
 
    self
+   quickstart
    api
    publications
    projects
