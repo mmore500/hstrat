@@ -20,6 +20,7 @@ from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
 from ._alifestd_convert_root_ancestor_token import (
     alifestd_convert_root_ancestor_token,
 )
+from ._alifestd_count_inner_nodes import alifestd_count_inner_nodes
 from ._alifestd_find_chronological_inconsistency import (
     alifestd_find_chronological_inconsistency,
 )
@@ -179,6 +180,7 @@ __all__ = [
     "alifestd_chronological_sort",
     "alifestd_coarsen_mask",
     "alifestd_collapse_unifurcations",
+    "alifestd_count_inner_nodes",
     "alifestd_find_chronological_inconsistency",
     "alifestd_find_leaf_ids",
     "alifestd_find_mrca_id_asexual",
