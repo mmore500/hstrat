@@ -34,8 +34,12 @@ def alifestd_find_leaf_ids(phylogeny_df: pd.DataFrame) -> typing.List[int]:
     internal_ids = (
         set(
             ancestor_id
-            for ancestor_list_str in phylogeny_df["ancestor_list"]
-            for ancestor_id in alifestd_parse_ancestor_ids(ancestor_list_str)
+            for ancestor_list in phylogeny_df["ancestor_list"]
+            for ancestor_id in (
+                alifestd_parse_ancestor_ids(ancestor_list)
+                if isinstance(ancestor_list, str)
+                else ancestor_list
+            )
         )
         if "ancestor_id" not in phylogeny_df
         else set(

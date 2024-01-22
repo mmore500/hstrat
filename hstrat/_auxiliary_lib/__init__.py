@@ -14,12 +14,18 @@ from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
 from ._alifestd_assign_root_ancestor_token import (
     alifestd_assign_root_ancestor_token,
 )
+from ._alifestd_calc_polytomic_index import alifestd_calc_polytomic_index
 from ._alifestd_chronological_sort import alifestd_chronological_sort
 from ._alifestd_coarsen_mask import alifestd_coarsen_mask
 from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
 from ._alifestd_convert_root_ancestor_token import (
     alifestd_convert_root_ancestor_token,
 )
+from ._alifestd_count_inner_nodes import alifestd_count_inner_nodes
+from ._alifestd_count_leaf_nodes import alifestd_count_leaf_nodes
+from ._alifestd_count_polytomies import alifestd_count_polytomies
+from ._alifestd_count_root_nodes import alifestd_count_root_nodes
+from ._alifestd_count_unifurcations import alifestd_count_unifurcations
 from ._alifestd_find_chronological_inconsistency import (
     alifestd_find_chronological_inconsistency,
 )
@@ -179,6 +185,12 @@ __all__ = [
     "alifestd_chronological_sort",
     "alifestd_coarsen_mask",
     "alifestd_collapse_unifurcations",
+    "alifestd_calc_polytomic_index",
+    "alifestd_count_inner_nodes",
+    "alifestd_count_leaf_nodes",
+    "alifestd_count_root_nodes",
+    "alifestd_count_polytomies",
+    "alifestd_count_unifurcations",
     "alifestd_find_chronological_inconsistency",
     "alifestd_find_leaf_ids",
     "alifestd_find_mrca_id_asexual",

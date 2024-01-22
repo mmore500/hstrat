@@ -17,7 +17,7 @@ bibtex:
   volume = {7},
   number = {80},
   pages = {4866},
-  author = {Matthew Andres Moreno and Emily Dolson and Charles Ofria}, 
+  author = {Matthew Andres Moreno and Emily Dolson and Charles Ofria},
   title = {hstrat: a Python Package for phylogenetic inference on distributed digital evolution populations},
   journal = {Journal of Open Source Software}
 }
@@ -68,4 +68,3 @@ Chicago:
 MLA:
 
 > Moreno, Matthew Andres et al. "Hereditary Stratigraphy: Genome Annotations to Enable Phylogenetic Inference over Distributed Populations." Artificial Life Conference Proceedings. 2022. https://doi.org/10.1162/isal_a_00550
-
