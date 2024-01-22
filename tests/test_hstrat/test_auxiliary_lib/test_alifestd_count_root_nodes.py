@@ -74,7 +74,15 @@ def test_multiple_trees_df3():
     df = pd.DataFrame(
         {
             "id": [0, 1, 2, 3, 4, 5, 6],
-            "ancestor_list": ["[None]", "[None]", [0], [1], [2], [3], "[None]"],
+            "ancestor_list": [
+                "[None]",
+                "[None]",
+                [0],
+                [1],
+                [2],
+                [3],
+                "[None]",
+            ],
         }
     )
     assert alifestd_count_root_nodes(df) == 3
@@ -84,7 +92,15 @@ def test_multiple_trees_df4():
     df = pd.DataFrame(
         {
             "id": [0, 1, 2, 3, 4, 5, 6],
-            "ancestor_list": ["[none]", "[none]", [0], [1], [2], [3], "[none]"],
+            "ancestor_list": [
+                "[none]",
+                "[none]",
+                [0],
+                [1],
+                [2],
+                [3],
+                "[none]",
+            ],
         }
     )
     assert alifestd_count_root_nodes(df) == 3
