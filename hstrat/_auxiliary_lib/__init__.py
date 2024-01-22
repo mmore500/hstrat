@@ -22,6 +22,7 @@ from ._alifestd_convert_root_ancestor_token import (
 )
 from ._alifestd_count_inner_nodes import alifestd_count_inner_nodes
 from ._alifestd_count_leaf_nodes import alifestd_count_leaf_nodes
+from ._alifestd_count_polytomies import alifestd_count_polytomies
 from ._alifestd_find_chronological_inconsistency import (
     alifestd_find_chronological_inconsistency,
 )
@@ -183,6 +184,7 @@ __all__ = [
     "alifestd_collapse_unifurcations",
     "alifestd_count_inner_nodes",
     "alifestd_count_leaf_nodes",
+    "alifestd_count_polytomies",
     "alifestd_find_chronological_inconsistency",
     "alifestd_find_leaf_ids",
     "alifestd_find_mrca_id_asexual",
