@@ -71,6 +71,16 @@ def test_multiple_trees_df2():
     assert alifestd_count_polytomies(df) == 1
 
 
+def test_multiple_trees_df2():
+    df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6],
+            "ancestor_list": [[None], [None], [0], [1], [0], [0], [None]],
+        }
+    )
+    assert alifestd_count_polytomies(df) == 1
+
+
 def test_sexual():
     df = pd.DataFrame(
         {
