@@ -71,7 +71,7 @@ def test_multiple_trees_df2():
     assert alifestd_count_polytomies(df) == 1
 
 
-def test_multiple_trees_df2():
+def test_multiple_trees_df3():
     df = pd.DataFrame(
         {
             "id": [0, 1, 2, 3, 4, 5, 6],

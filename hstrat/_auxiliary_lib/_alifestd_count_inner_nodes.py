@@ -1,6 +1,5 @@
 import pandas as pd
 
-from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
 from ._alifestd_count_leaf_nodes import alifestd_count_leaf_nodes
 
 
