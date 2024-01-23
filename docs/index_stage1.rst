@@ -10,6 +10,7 @@ Overview
 
    self
    quickstart
+   policies
    api
    publications
    projects
