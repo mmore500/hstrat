@@ -10,6 +10,7 @@ Overview
 
    index
    quickstart
+   policies
    api
    publications
    projects
