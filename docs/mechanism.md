@@ -7,6 +7,8 @@ This is done by means of annotations on the data being copied itself --- no cent
 
 This capability has direct applications in digital evolution research (e.g., artificial life, genetic programming, genetic algorithms), and also may prove useful for other distributed systems applications.
 
+### Naive Approach: Bitstring Drift
+
 ![Cartoon showing relatedness estimation via a bitstring under neutral drift](docs/assets/bitstring_inference.png)
 
 A simple heritable annotation to enable relatedness estimation would be a bitstring under neutral drift.
@@ -14,6 +16,8 @@ Under this model, the number of generations elapsed since two bitstrings' MRCA w
 An example scenario is shown above.
 
 This model suffers from several serious drawbacks in application as a tool for relatedness estimation, including difficulty discerning uneven elapse of generations since MRCA and difficulty parameterizing the model for effective inference over greatly varying generational scales.
+
+### hstrat Approach: Generational Fingerprints
 
 ![Cartoon showing relatedness estimation via a hereditary stratigraphic column](docs/assets/stratigraph_inference.png)
 
@@ -31,6 +35,8 @@ In analogy to geological layering, we refer to the data deposited each generatio
 We call the annotation comprised of strata deposited at each generation a _hereditary stratigraphic column_.
 In accordance, we describe this general approach for relatedness estimation _hereditary stratigraphy_.
 
+### Pruning Strata
+
 ![Comparison of hereditary stratigraphic column before and after pruning retained strata](docs/assets/pruning.png)
 
 As stated so far, hereditary stratigraphy suffers from a major pitfall: linear space complexity of the annotation with respect to the number of generations elapsed.
@@ -40,7 +46,9 @@ Systematically pruning strata --- deleting data from certain generations from th
 However, pruning introduces uncertainty to MRCA generation estimates.
 The exact last generation of common ancestry is bounded between the last-matching and first-mismatching strata, but cannot be resolved within that window.
 
-In this way, hereditary stratigraphy exposes a direct, well-delimited, and flexible trade-off between space complexity and estimation accuracy.
+### Stratum Retention Policy
+
+Stratum pruning operations expose a direct, well-delimited, and flexible trade-off between space complexity and estimation accuracy.
 A pruning strategy must specify the set of strata to be pruned at each generational step.
 We call the particular sequence of strata sets pruned at each generation a _stratum retention policy_.
 
@@ -62,14 +70,12 @@ The cartoon above contrasts retained strata under even and recency-proportional 
 
 Requirements on acceptable space-vs-resolution and distribution-of-resolution trade-offs will vary fundamentally between use cases.
 So, the `hstrat` software accommodates modular, interchangeable specification of stratum retention policy.
-We provide a library of predefined "stratum retention algorithms," summarized below.
+We provide a library of predefined "stratum retention algorithms," summarized [here](./policies.html).
 However, end users can also use custom stratum retention algorithms defined within their own codebases outside the library, if needed.
 (Any custom algorithms with general appeal are welcome to be contributed back to the `hstrat` library!)
 
-More detail on the rationale, implementation details, and performance guarantees of hereditary stratigraphy can be found in [(Moreno et al., 2022)](#moreno2022genome).
+### Further Reading
 
-### References
+More detail on the rationale, implementation details, and performance guarantees of hereditary stratigraphy can be found in our publication introducing the methodology,
 
-<a id="moreno2022genome" href=https://doi.org/10.1162/isal_a_00550>
-Matthew Andres Moreno, Emily Dolson, Charles Ofria; July 18–22, 2022. "Hereditary Stratigraphy: Genome Annotations to Enable Phylogenetic Inference over Distributed Populations." Proceedings of the ALIFE 2022: The 2022 Conference on Artificial Life. ALIFE 2022: The 2022 Conference on Artificial Life. Online. (pp. 64). ASME.
-</a>
+[Matthew Andres Moreno, Emily Dolson, Charles Ofria; July 18–22, 2022. "Hereditary Stratigraphy: Genome Annotations to Enable Phylogenetic Inference over Distributed Populations." Proceedings of the ALIFE 2022: The 2022 Conference on Artificial Life. Online. (pp. 64). ASME.](https://doi.org/10.1162/isal_a_00550).
