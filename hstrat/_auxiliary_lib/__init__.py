@@ -106,6 +106,7 @@ from ._curried_binary_search_jit import curried_binary_search_jit
 from ._deep_listify import deep_listify
 from ._demark import demark
 from ._div_range import div_range
+from ._estimate_binomial_p import estimate_binomial_p
 from ._find_bounds import find_bounds
 from ._flag_last import flag_last
 from ._flat_len import flat_len
@@ -268,6 +269,7 @@ __all__ = [
     "deep_listify",
     "demark",
     "div_range",
+    "estimate_binomial_p",
     "find_bounds",
     "flat_len",
     "generate_n",
