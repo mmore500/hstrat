@@ -3,7 +3,6 @@ import typing
 import numpy as np
 import pandas as pd
 
-
 from ._alifestd_categorize_triplet_asexual import (
     alifestd_categorize_triplet_asexual,
 )
