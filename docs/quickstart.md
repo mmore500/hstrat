@@ -11,7 +11,7 @@ All library components can be accessed directly from the convenience flat namesp
 
 ### Getting Started
 
-In order to track the data (referred to as *stratum*) deposited at each generation, we can use an annotation called a *hereditary stratigraphic column*. 
+In order to track the data (referred to as *stratum*) deposited at each generation, we can use an annotation called a *hereditary stratigraphic column*.
 ```
 from hstrat import hstrat
 
@@ -25,7 +25,7 @@ founder2 = hstrat.HereditaryStratigraphicColumn(
 For each annotation, a specific *stratum retention policy* can be chosen. Simply put, these are various methods use follow a specific algorithm to "prune", or systematically delete, data in the column to avoid a linear space complexity. As a downside, pruning results in uncertainty in MRCA generation estimates.
 
  In the example above, the algorithm `fixed_resolution_algo` was chosen. The specific policy instance is supplied an integer that dictates the amount of pruning, with smaller values resulting in denser stratum retention. For example, a policy using the fixed resolution algorithm supplied with the value three would retain  strata from every third generation.
- 
+
  Below is a quick overview of the five available algorithms. For a more in depth overview, visit [Choosing a Retention Policy](./policies.html).
 
 
@@ -45,7 +45,7 @@ print(
 ) # -> False
 ```
 
-In order for two columns to have a common ancestor, one of the columns must be created from another. This can be accomplished using the `Clone()` method. The `CloneDescendant()` and `CloneNthDescendant(n)` methods are also available, cloning and then depositing one and n descendants respectively. 
+In order for two columns to have a common ancestor, one of the columns must be created from another. This can be accomplished using the `Clone()` method. The `CloneDescendant()` and `CloneNthDescendant(n)` methods are also available, cloning and then depositing one and n descendants respectively.
 
 ```
 descendant2a = founder2.Clone()
@@ -59,9 +59,9 @@ print(
 ) # -> True
 ```
 
-A new generation of stratum can be added by running `DepositStratum()` on specific hereditary stratigraphic columns. To elapse multiple generations , `DepositStrata()` can also be used, taking in an integer to specify the number of generations elapsed. 
+A new generation of stratum can be added by running `DepositStratum()` on specific hereditary stratigraphic columns. To elapse multiple generations , `DepositStrata()` can also be used, taking in an integer to specify the number of generations elapsed.
 
-If you want to find the number of generations elapsed since the MRCA, `calc_ranks_since_mrca_bounds_with` will return a tuple with the estimated lower and upper bound. The argument `prior` represents the prior probability density distribution over possible generations of the MRCA. 
+If you want to find the number of generations elapsed since the MRCA, `calc_ranks_since_mrca_bounds_with` will return a tuple with the estimated lower and upper bound. The argument `prior` represents the prior probability density distribution over possible generations of the MRCA.
 <!-- what does this mean? -->
 ```
 print(
@@ -85,7 +85,7 @@ print(
 
 ### Creating and Using Populations
 
-A genome can be defined with a user-created class, with a specific attribute containing the annotation for each instance. Using this class, a population of the genome can be created by instantiating  a list of objects. 
+A genome can be defined with a user-created class, with a specific attribute containing the annotation for each instance. Using this class, a population of the genome can be created by instantiating  a list of objects.
 
 An easier way to generate a population of hereditary stratigraphic columns is from a biopython tree using `descend_template_phylogeny_biopython`.
 ```
