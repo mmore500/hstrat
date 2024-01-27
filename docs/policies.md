@@ -168,7 +168,7 @@ For a very sparse paramaterization with a size cap of eight strata, shown below,
 
 | Very Sparse Parameterization | |
 |------------------------------|-|
-| [<img src="assets/a=policy_panel_plot+num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+ext=.gif" width=450>](assets/a=policy_panel_plot+num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-9+ext=.gif) | ![assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+viz=stratum-retention-dripplot+ext=.png](assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+viz=stratum-retention-dripplot+ext=.png) |
+| [![](assets/a=policy_panel_plot+num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+ext=.gif)](assets/a=policy_panel_plot+num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+ext=.gif) | [![](assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+viz=stratum-retention-dripplot+ext=.png)](assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+viz=stratum-retention-dripplot+ext=.png) |
 
 _Note: minor changes have been made to the transition points of the curbed-recency proportional resolution algorithm, but these older graphics best convey the underlying concept behind the algorithm._
 
