@@ -10,6 +10,7 @@ Overview
 
    index
    quickstart
+   demo-ping
    mechanism
    policies
    api

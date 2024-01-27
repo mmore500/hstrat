@@ -10,6 +10,7 @@ Overview
 
    self
    quickstart
+   demo-ping
    policies
    api
    publications
