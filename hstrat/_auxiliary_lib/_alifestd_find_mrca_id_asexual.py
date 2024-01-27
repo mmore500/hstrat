@@ -48,7 +48,7 @@ def alifestd_find_mrca_id_asexual(
 
     while len(lineages) > 1:
         oldest = lineages.pop(-1)
-        replacement = phylogeny_df.loc[oldest, "ancestor_id"]
+        replacement = phylogeny_df.at[oldest, "ancestor_id"]
         assert replacement != oldest
         lineages.add(replacement)
 
