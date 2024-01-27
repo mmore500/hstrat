@@ -283,6 +283,11 @@ _Note: minor changes have been made to the transition points of the curbed-recen
 | [![](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+viz=strata-retained-num-lineplot+ext=.png)](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+viz=strata-retained-num-lineplot+ext=.png) | [![](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+viz=mrca-uncertainty-absolute-barplot+ext=.png)](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+viz=mrca-uncertainty-absolute-barplot+ext=.png) | [![](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+viz=mrca-uncertainty-relative-barplot+ext=.png)](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+viz=mrca-uncertainty-relative-barplot+ext=.png) |
 
 
+## Citing
+
+If `hstrat` software or hereditary stratigraphy methodology contributes to a scholarly work, please cite it according to references provided [here](https://hstrat.readthedocs.io/en/latest/citing.html).
+We would love to list your project using `hstrat` in our documentation, see more [here](https://hstrat.readthedocs.io/en/latest/projects.html).
+
 ## Credits
 
 This package was created with Cookiecutter and the `audreyr/cookiecutter-pypackage` project template.
