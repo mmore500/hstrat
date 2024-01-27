@@ -76,6 +76,7 @@ importlib-resources==6.1.1
     # via
     #   jsonschema
     #   jsonschema-specifications
+    #   sphinx
 interval-search==0.3.1
     # via hstrat (../../pyproject.toml)
 iterpop==0.4.1
@@ -154,8 +155,10 @@ numpy==1.21.6
     #   matplotlib
     #   pandas
     #   pandera
+    #   patsy
     #   scipy
     #   seaborn
+    #   statsmodels
 opytional==0.1.0
     # via
     #   alifedata-phyloinformatics-convert
@@ -170,16 +173,20 @@ packaging==23.0
     #   nbconvert
     #   pandera
     #   sphinx
+    #   statsmodels
 pandas==1.3.5
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
     #   pandera
     #   seaborn
+    #   statsmodels
 pandera==0.13.4
     # via hstrat (../../pyproject.toml)
 pandocfilters==1.5.1
     # via nbconvert
+patsy==0.5.6
+    # via statsmodels
 pillow==9.4.0
     # via matplotlib
 pkgutil-resolve-name==1.3.10
@@ -222,13 +229,16 @@ rpds-py==0.17.1
 safe-assert==0.2.0
     # via hstrat (../../pyproject.toml)
 scipy==1.7.3
-    # via seaborn
+    # via
+    #   seaborn
+    #   statsmodels
 seaborn==0.11.0
     # via hstrat (../../pyproject.toml)
 six==1.16.0
     # via
     #   anytree
     #   bleach
+    #   patsy
     #   python-dateutil
 smmap==5.0.0
     # via gitdb
@@ -259,6 +269,8 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
+statsmodels==0.14.1
+    # via hstrat (../../pyproject.toml)
 text-unidecode==1.3
     # via python-slugify
 tinycss2==1.2.1

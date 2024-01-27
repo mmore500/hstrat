@@ -114,8 +114,10 @@ numpy==1.23.5
     #   matplotlib
     #   pandas
     #   pandera
+    #   patsy
     #   scipy
     #   seaborn
+    #   statsmodels
     #   teeplot
 opytional==0.1.0
     # via
@@ -130,6 +132,7 @@ packaging==23.0
     #   matplotlib
     #   pandera
     #   pytest
+    #   statsmodels
     #   tox
 pandas==1.5.3
     # via
@@ -137,9 +140,12 @@ pandas==1.5.3
     #   hstrat (../../pyproject.toml)
     #   pandera
     #   seaborn
+    #   statsmodels
     #   teeplot
 pandera==0.13.4
     # via hstrat (../../pyproject.toml)
+patsy==0.5.6
+    # via statsmodels
 pillow==9.4.0
     # via matplotlib
 platformdirs==3.0.0
@@ -190,11 +196,13 @@ scipy==1.9.3
     # via
     #   hstrat (../../pyproject.toml)
     #   seaborn
+    #   statsmodels
 seaborn==0.11.0
     # via hstrat (../../pyproject.toml)
 six==1.16.0
     # via
     #   anytree
+    #   patsy
     #   python-dateutil
     #   tox
 smmap==5.0.0
@@ -203,6 +211,8 @@ sortedcontainers==2.4.0
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
+statsmodels==0.14.1
+    # via hstrat (../../pyproject.toml)
 teeplot==0.4.0
     # via hstrat (../../pyproject.toml)
 text-unidecode==1.3

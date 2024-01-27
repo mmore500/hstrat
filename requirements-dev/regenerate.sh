@@ -11,6 +11,6 @@ cd "${0%/*}"
 
 ./py311/regenerate.sh
 
-for f in py38*.txt; do
+for f in py38/*.txt; do
   cat "${f}" | sed "s/==/>=/g" > "$(basename "${f}")"
 done

@@ -11,8 +11,7 @@ def col_to_packet(
         DEFAULT_PACKET_NUM_STRATA_DEPOSITED_BYTE_WIDTH
     ),
 ) -> typing_extensions.Buffer:
-    """Serialize a `HereditaryStratigraphicColumn` to a dict composed of
-    builtin types."""
+    """Serialize a `HereditaryStratigraphicColumn` to a binary buffer."""
 
     if (
         not column._CanOmitStratumDepositionRank()

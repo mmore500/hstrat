@@ -152,8 +152,10 @@ numpy==1.23.5
     #   numba
     #   pandas
     #   pandera
+    #   patsy
     #   scipy
     #   seaborn
+    #   statsmodels
     #   teeplot
 opytional==0.1.0
     # via
@@ -170,6 +172,7 @@ packaging==23.0
     #   pandera
     #   pytest
     #   sphinx
+    #   statsmodels
     #   tox
 pandas==1.5.3
     # via
@@ -177,11 +180,14 @@ pandas==1.5.3
     #   hstrat (../../pyproject.toml)
     #   pandera
     #   seaborn
+    #   statsmodels
     #   teeplot
 pandera==0.13.4
     # via hstrat (../../pyproject.toml)
 pathlib2==2.3.7.post1
     # via bumpver
+patsy==0.5.6
+    # via statsmodels
 pillow==9.4.0
     # via matplotlib
 pip-tools==6.10.0
@@ -253,6 +259,7 @@ scipy==1.9.3
     # via
     #   hstrat (../../pyproject.toml)
     #   seaborn
+    #   statsmodels
 seaborn==0.11.0
     # via hstrat (../../pyproject.toml)
 six==1.16.0
@@ -260,6 +267,7 @@ six==1.16.0
     #   anytree
     #   bleach
     #   pathlib2
+    #   patsy
     #   python-dateutil
     #   tox
 smmap==5.0.0
@@ -288,6 +296,8 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
+statsmodels==0.14.1
+    # via hstrat (../../pyproject.toml)
 teeplot==0.4.0
     # via hstrat (../../pyproject.toml)
 text-unidecode==1.3

@@ -12,12 +12,14 @@ from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
-def alifestd_find_mrca_id_asexual(
+def alifestd_categorize_triplet_asexual(
     phylogeny_df: pd.DataFrame,
-    leaf_ids: typing.Iterable[int],
+    triplet_ids: typing.Iterable[int],
     mutate: bool = False,
 ) -> int:
-    """Find most recent common ancestor of `leaf_ids`.
+    """Assess the topological configuration of three `id`'s in `phylogeny_df`.
+
+    If polytomy, return -1. Else, return index of outgroup `id`.
 
     Input dataframe is not mutated by this operation unless `mutate` set True.
     If mutate set True, operation does not occur in place; still use return
@@ -42,15 +44,25 @@ def alifestd_find_mrca_id_asexual(
     else:
         phylogeny_df.index = phylogeny_df["id"]
 
-    lineages = sc.SortedSet({*leaf_ids}, key=phylogeny_df.index.get_loc)
-    if not len(lineages):
-        raise ValueError()
+    trace = [*triplet_ids]
+    queue = sc.SortedSet(trace, key=phylogeny_df.index.get_loc)
+    if not len(queue) == 3:
+        raise ValueError(
+            "triplet_ids should have 3 unique values, "
+            f"but only has {len(queue)}.",
+        )
 
-    while len(lineages) > 1:
-        oldest = lineages.pop(-1)
+    while len(queue) == 3 or trace.count(queue[-1]) == 1:
+        assert len(queue) >= 2
+        oldest = queue.pop(-1)
         replacement = phylogeny_df.at[oldest, "ancestor_id"]
         assert replacement != oldest
-        lineages.add(replacement)
+        queue.add(replacement)
+        trace[trace.index(oldest)] = replacement
 
-    (mrca_id,) = lineages
-    return mrca_id
+    counts = [*map(trace.count, trace)]
+    assert counts.count(1) <= 1
+    try:
+        return counts.index(1)
+    except ValueError:
+        return -1

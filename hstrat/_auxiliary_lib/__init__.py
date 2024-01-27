@@ -14,11 +14,23 @@ from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
 from ._alifestd_assign_root_ancestor_token import (
     alifestd_assign_root_ancestor_token,
 )
+from ._alifestd_calc_polytomic_index import alifestd_calc_polytomic_index
+from ._alifestd_categorize_triplet_asexual import (
+    alifestd_categorize_triplet_asexual,
+)
 from ._alifestd_chronological_sort import alifestd_chronological_sort
 from ._alifestd_coarsen_mask import alifestd_coarsen_mask
 from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
 from ._alifestd_convert_root_ancestor_token import (
     alifestd_convert_root_ancestor_token,
+)
+from ._alifestd_count_inner_nodes import alifestd_count_inner_nodes
+from ._alifestd_count_leaf_nodes import alifestd_count_leaf_nodes
+from ._alifestd_count_polytomies import alifestd_count_polytomies
+from ._alifestd_count_root_nodes import alifestd_count_root_nodes
+from ._alifestd_count_unifurcations import alifestd_count_unifurcations
+from ._alifestd_estimate_triplet_distance_asexual import (
+    alifestd_estimate_triplet_distance_asexual,
 )
 from ._alifestd_find_chronological_inconsistency import (
     alifestd_find_chronological_inconsistency,
@@ -97,6 +109,7 @@ from ._curried_binary_search_jit import curried_binary_search_jit
 from ._deep_listify import deep_listify
 from ._demark import demark
 from ._div_range import div_range
+from ._estimate_binomial_p import estimate_binomial_p
 from ._find_bounds import find_bounds
 from ._flag_last import flag_last
 from ._flat_len import flat_len
@@ -176,9 +189,17 @@ __all__ = [
     "alifestd_aggregate_phylogenies",
     "alifestd_assign_contiguous_ids",
     "alifestd_assign_root_ancestor_token",
+    "alifestd_categorize_triplet_asexual",
     "alifestd_chronological_sort",
     "alifestd_coarsen_mask",
     "alifestd_collapse_unifurcations",
+    "alifestd_calc_polytomic_index",
+    "alifestd_count_inner_nodes",
+    "alifestd_count_leaf_nodes",
+    "alifestd_count_root_nodes",
+    "alifestd_count_polytomies",
+    "alifestd_count_unifurcations",
+    "alifestd_estimate_triplet_distance_asexual",
     "alifestd_find_chronological_inconsistency",
     "alifestd_find_leaf_ids",
     "alifestd_find_mrca_id_asexual",
@@ -252,6 +273,7 @@ __all__ = [
     "deep_listify",
     "demark",
     "div_range",
+    "estimate_binomial_p",
     "find_bounds",
     "flat_len",
     "generate_n",
