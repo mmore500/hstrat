@@ -97,6 +97,7 @@ from ._bit_floor import bit_floor
 from ._capitalize_n import capitalize_n
 from ._caretdown_marker import caretdown_marker
 from ._caretup_marker import caretup_marker
+from ._cast_int_lossless import cast_int_lossless
 from ._check_testing_requirements import check_testing_requirements
 from ._cmp import cmp
 from ._cmp_approx import cmp_approx
@@ -260,6 +261,7 @@ __all__ = [
     "capitalize_n",
     "caretdown_marker",
     "caretup_marker",
+    "cast_int_lossless",
     "check_testing_requirements",
     "cmp",
     "cmp_approx",
