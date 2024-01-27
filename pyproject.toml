@@ -190,9 +190,9 @@ release = [
   "setuptools==65.6.3",
 ]
 docs = [
+  "nbsphinx==0.9.3",
   "Sphinx==4.4.0",
   "sphinx_rtd_theme==1.0.0",
-  "nbsphinx==0.9.3",
 ]
 
 [tool.black]
