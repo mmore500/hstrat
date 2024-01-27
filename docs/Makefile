@@ -31,12 +31,15 @@ publications.rst: publications.md
 citing.rst: citing.md
 	pandoc citing.md --wrap=none --from markdown --to rst -s -o citing.rst
 
+mechanism.rst: mechanism.md
+	pandoc mechanism.md --wrap=none --from markdown --to rst -s -o mechanism.rst
+
 # Put it first so that "make" without argument is like "make help".
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 clean:
-	rm -rf _autosummary _modules _build quickstart.rst policies.rst readme.rst projects.rst publications.rst citing.rst
+	rm -rf _autosummary _modules _build quickstart.rst policies.rst readme.rst projects.rst publications.rst citing.rst mechanism.rst
 
 .PHONY: assets help Makefile clean
 
@@ -46,7 +49,7 @@ clean:
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: assets Makefile quickstart.rst policies.rst readme.rst projects.rst publications.rst citing.rst
+%: assets Makefile quickstart.rst policies.rst readme.rst projects.rst publications.rst citing.rst mechanism.rst
 	cp index_stage1.rst index.rst
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	cp index_stage2.rst index.rst

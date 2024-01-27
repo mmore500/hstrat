@@ -10,6 +10,7 @@ Overview
 
    index
    quickstart
+   mechanism
    policies
    api
    publications

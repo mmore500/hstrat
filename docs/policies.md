@@ -47,6 +47,68 @@ So, red traces span from the generation a pruned stratum was deposited to the ge
 Animated panels below situate this visualization alongside additional graphs depicting absolute and relative estimation error across possible MRCA generations as well as relative and absolute column size (i.e., number of strata retained).
 Two policy instantiations are visualized for each algorithm --- one yielded from a sparse parameterization and the other from a dense parameterization (i.e., one configured to retain fewer strata and one configured to retain more).
 
+
+### Choosing a Retention Algorithm
+
+The space-vs-resolution and distribution-of-resolution trade-offs of library-provided stratum retention algorithms are summarized below.
+
+| Stratum Retention Algorithm               | Space Complexity | MRCA Gen Uncertainty |
+| ----------------------------------------- | ---------------- | -------------------- |
+| Fixed Resolution Algorithm                | `n/k`            | `k`                  |
+| Recency-proportional Resolution Algorithm | `k * log(n)`     | `m/k`                |
+| Depth-proportional Resolution Algorithm   | `k`              | `n/k`                |
+| Geometric Sequence Nth Root Algorithm     | `k`              | `m * n^(1/k)`        |
+| Curbed Recency-proportional Resolution Algorithm | `k`     | `m / k` -> `m * n^(1/k)` |
+
+where `n` is generations elapsed, `m` is generations since MRCA, and `k` is an arbitrary user-determined constant.
+
+Note that distribution-of-resolution trade-offs are described via the definition of uncertainty bounds in terms of generations since MRCA `m` versus overall generations elapsed `n`.
+
+The `hstrat` library includes a suite of variants for several of these stratum retention algorithms.
+These variants differ in terms of secondary considerations, for example whether column size exactly traces the asymptotic guarantee or fluctuates around it.
+Computational intensity to calculate the set of strata to be dropped at each generation may also differ between variants.
+
+The next sections tour available stratum retention algorithms in detail.
+
+### Parameterizing a Retention Policy
+
+Stratum retention algorithms can be automatically parameterized for desired properties.
+For example, you may want to produce a policy from a particular algorithm that retains at most 100 strata at generation 1 million.
+
+Two components are required to perform a parameterization.
+
+The first, an "evaluator" controls which policy property is being parameterized for.
+Available options are
+
+- `MrcaUncertaintyAbsExactEvaluator`
+- `MrcaUncertaintyAbsUpperBoundEvaluator`
+- `MrcaUncertaintyRelExactEvaluator`
+- `MrcaUncertaintyRelUpperBoundEvaluator`
+- `NumStrataRetainedExactEvaluator`
+- `NumStrataRetainedUpperBoundEvaluator`
+
+The second, a "parameterizer" controls whether the policy property should be paramaterized to be greater than, equal, or less than equal a target value.
+Available options are
+
+- `PropertyAtMostParameterizer`
+- `PropertyAtLeastParameterizer`
+- `PropertyExactlyParameterizer`
+
+The evaluator should be provided as an argument to parameterizer, which should in turn be provided as an argument to the algorithm's `Policy` initializer.
+
+```python3
+stratum_retention_policy = hstrat.geom_seq_nth_root_tapered_algo.Policy(
+    parameterizer=hstrat.PropertyAtMostParameterizer(
+        target_value=127,
+        policy_evaluator \
+            =hstrat.MrcaUncertaintyAbsExactEvaluator(
+                at_num_strata_deposited=256,
+                at_rank=0,
+        ),
+    ),
+)
+```
+
 ### Depth Proportional Resolution Algorithm
 
 The depth proportional resolution algorithm drops half of retained strata when a threshold size cap is met in order to maintain `O(1)` space complexity.
@@ -176,3 +238,35 @@ _Note: minor changes have been made to the transition points of the curbed-recen
 | Num Strata Retained                                                                                                                                                                                                                                                                                            | Absolute MRCA Uncertainty by Position                                                                                                                                                                                                                                                                                                                              | Relative MRCA Uncertainty by Position                                                                                                                                                                                                                                                                                         |
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [![](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+viz=strata-retained-num-lineplot+ext=.png)](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+viz=strata-retained-num-lineplot+ext=.png) | [![](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+viz=mrca-uncertainty-absolute-barplot+ext=.png)](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+viz=mrca-uncertainty-absolute-barplot+ext=.png) | [![](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+viz=mrca-uncertainty-relative-barplot+ext=.png)](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-8+viz=mrca-uncertainty-relative-barplot+ext=.png) |
+
+
+### Other Algorithms
+
+These stratum retention algorithms are less likely of interest to end users, included in the library primarily for testing and design validation, but are available nonetheless.
+See API listing for all available algorithms [here](./_autosummary/hstrat.stratum_retention_strategy.stratum_retention_algorithms.html).
+
+- nominal resolution policy
+- perfect resolution policy
+- pseudostochastic policy
+- stochastic policy
+
+### Custom Algorithm Design
+
+Custom stratum retention algorithms can easily be substituted for supplied algorithms without performing any modifications to library code.
+To start, you'll most likely want to copy an existing algorithm from `hstrat/stratum_retention_strategy/stratum_retention_algorithms` to use as an API scaffold.
+
+If writing a custom stratum retention algorithm, you will need to consider
+
+1. Prune sequencing.
+
+   When you discard a stratum now, it won't be available later.
+   If you need a stratum at a particular time point, you must be able to guarantee it hasn't already been discarded at any prior time point.
+
+2. Column composition across intermediate generations.
+
+   For many use cases, resolution and column size guarantees will need to hold at all generations because the number of generations elapsed at the end of an experiment is not known _a priori_ or the option of continuing the experiment with evolved genomes is desired.
+
+3. Tractability of computing the deposit generations of retained strata at an arbitrary generation.
+
+   If this set of generations can be computed efficiently, then an efficient reverse mapping from column array index to deposition generation can be attained.
+   Such a mapping enables deposition generation to be omitted from strata, potentially yielding a 50%+ space savings (depending on the differentia bit width used).
