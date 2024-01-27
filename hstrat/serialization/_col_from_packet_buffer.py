@@ -16,8 +16,7 @@ def col_from_packet_buffer(
     ),
 ) -> HereditaryStratigraphicColumn:
     """Deserialize a `HereditaryStratigraphicColumn` from a buffer containing
-    the differentia packet at the front and column configuration specification
-    information."""
+    the differentia packet at the front, then stored differentia values."""
 
     num_strata_deposited = int.from_bytes(
         packet_buffer[:num_strata_deposited_byte_width],
