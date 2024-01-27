@@ -1,25 +1,6 @@
-## Choosing a Retention Policy
-The space-vs-resolution and distribution-of-resolution trade-offs of library-provided stratum retention algorithms are summarized below.
+## Stratum Retention Policies
 
-| Stratum Retention Algorithm               | Space Complexity | MRCA Gen Uncertainty |
-| ----------------------------------------- | ---------------- | -------------------- |
-| Fixed Resolution Algorithm                | `n/k`            | `k`                  |
-| Recency-proportional Resolution Algorithm | `k * log(n)`     | `m/k`                |
-| Depth-proportional Resolution Algorithm   | `k`              | `n/k`                |
-| Geometric Sequence Nth Root Algorithm     | `k`              | `m * n^(1/k)`        |
-| Curbed Recency-proportional Resolution Algorithm | `k`     | `m / k` -> `m * n^(1/k)` |
-
-where `n` is generations elapsed, `m` is generations since MRCA, and `k` is an arbitrary user-determined constant.
-
-Note that distribution-of-resolution trade-offs are described via the definition of uncertainty bounds in terms of generations since MRCA `m` versus overall generations elapsed `n`.
-
-The `hstrat` library includes a suite of variants for several of these stratum retention algorithms.
-These variants differ in terms of secondary considerations, for example whether column size exactly traces the asymptotic guarantee or fluctuates around it.
-Computational intensity to calculate the set of strata to be dropped at each generation may also differ between variants.
-
-The next sections tour available stratum retention algorithms in detail.
-
-### Retention Drip Plot Visualization
+### Visualizing Policy Behavior
 
 | No History                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Retained History                                                                                                                                                                                                                                                                                                                                                                                                                                                  | All History                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
