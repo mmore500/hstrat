@@ -3,6 +3,7 @@ import typing
 from Bio import Phylo as BioPhylo
 import opytional as opyt
 
+from ..._auxiliary_lib import cast_int_lossless
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._descend_template_phylogeny import descend_template_phylogeny
 
@@ -68,13 +69,15 @@ def descend_template_phylogeny_biopython(
     return descend_template_phylogeny(
         ascending_lineage_iterables=(
             [extant_node, *tree.trace(extant_node, tree.root)]
-            for extant_node in opyt.or_value(
-                extant_nodes, tree.get_terminals()
-            )
+            for extant_node in opyt.or_value(extant_nodes, tree.get_terminals())
         ),
         descending_tree_iterable=tree.find_clades(),
         get_parent=lambda node: parent_lookup.get(node, None),
-        get_stem_length=lambda node: opyt.or_value(node.branch_length, 1),
+        get_stem_length=lambda node: cast_int_lossless(
+            opyt.or_value(node.branch_length, 1),
+            action="warn",
+            context="branch length",
+        ),
         seed_column=seed_column,
         demark=id,
         progress_wrap=progress_wrap,

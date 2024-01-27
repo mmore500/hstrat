@@ -10,6 +10,7 @@ from ..._auxiliary_lib import (
     alifestd_is_topologically_sorted,
     alifestd_to_working_format,
     alifestd_topological_sort,
+    cast_int_lossless,
     give_len,
     unfurl_lineage_with_contiguous_ids,
 )
@@ -87,7 +88,7 @@ def descend_template_phylogeny_alifestd(
     def lookup_ancestor_id(id_: int) -> int:
         return ancestor_id_lookup[id_]
 
-    def get_stem_length(id_: int) -> typing.Union[float, int]:
+    def get_stem_length(id_: int) -> int:
         ancestor_id = lookup_ancestor_id(id_)
         if ancestor_id == id_:
             return 0
@@ -97,14 +98,18 @@ def descend_template_phylogeny_alifestd(
                 - working_df["origin_time"].iloc[ancestor_id]
             )
             assert res >= 0
-            return res
+            return cast_int_lossless(
+                res, action="warn", context="origin time difference"
+            )
         elif "generation" in working_df:
             res = (
                 working_df["generation"].iloc[id_]
                 - working_df["generation"].iloc[ancestor_id]
             )
             assert res >= 0
-            return res
+            return cast_int_lossless(
+                res, action="warn", context="origin time difference"
+            )
         else:
             return 1
 

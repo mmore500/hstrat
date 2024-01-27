@@ -3,6 +3,7 @@ import typing
 import dendropy as dp
 import opytional as opyt
 
+from ..._auxiliary_lib import cast_int_lossless
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._descend_template_phylogeny import descend_template_phylogeny
 
@@ -64,7 +65,9 @@ def descend_template_phylogeny_dendropy(
         ),
         descending_tree_iterable=tree.levelorder_node_iter(),
         get_parent=lambda node: node.parent_node,
-        get_stem_length=lambda node: node.edge_length,
+        get_stem_length=lambda node: cast_int_lossless(
+            node.edge_length, action="warn", context="edge length"
+        ),
         seed_column=seed_column,
         demark=id,
         progress_wrap=progress_wrap,
