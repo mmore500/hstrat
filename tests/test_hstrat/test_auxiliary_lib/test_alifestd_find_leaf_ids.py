@@ -124,7 +124,7 @@ def test_alifestd_find_leaf_ids_tworoots():
     ) == [phylo1.iloc[0].at["id"]] + [phylo2.iloc[0].at["id"]]
 
 
-def test_alifestd_find_leaf_ids_empty():
+def test_alifestd_find_leaf_ids_empty2():
     phylo1 = pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
     assert alifestd_find_leaf_ids(phylo1[-1:0]) == []
     phylo1["ancestor_id"] = 0
