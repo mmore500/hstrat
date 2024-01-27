@@ -46,7 +46,7 @@ def cast_int_lossless(
 
     if not np.isclose(value, int(value)):
         message = (
-            f"Precision loss in"
+            "Precision loss in"
             + f" {context}".rstrip()
             + f" conversion of {value} to int.",
         )
