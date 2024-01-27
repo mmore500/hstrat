@@ -15,6 +15,9 @@ from ._alifestd_assign_root_ancestor_token import (
     alifestd_assign_root_ancestor_token,
 )
 from ._alifestd_calc_polytomic_index import alifestd_calc_polytomic_index
+from ._alifestd_categorize_triplet_asexual import (
+    alifestd_categorize_triplet_asexual,
+)
 from ._alifestd_chronological_sort import alifestd_chronological_sort
 from ._alifestd_coarsen_mask import alifestd_coarsen_mask
 from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
@@ -182,6 +185,7 @@ __all__ = [
     "alifestd_aggregate_phylogenies",
     "alifestd_assign_contiguous_ids",
     "alifestd_assign_root_ancestor_token",
+    "alifestd_categorize_triplet_asexual",
     "alifestd_chronological_sort",
     "alifestd_coarsen_mask",
     "alifestd_collapse_unifurcations",
