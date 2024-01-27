@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import pytest
-from tqdm import tqdm
 
 from hstrat._auxiliary_lib import (
     alifestd_estimate_triplet_distance_asexual,
@@ -146,7 +145,7 @@ def test_differing_polytomy(strict: bool):
 
 
 @pytest.mark.parametrize("strict", [True, False])
-def test_differing_wrong(strict: bool):
+def test_differing_wrong_big(strict: bool):
     adf = pd.DataFrame(
         {
             "id": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],

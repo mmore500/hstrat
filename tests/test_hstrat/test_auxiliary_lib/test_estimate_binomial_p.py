@@ -32,10 +32,27 @@ def half_success_sampler():
         (half_success_sampler, 0.5),
     ],
 )
-@pytest.mark.parametrize("precision", [0.01, 0.05])
+@pytest.mark.parametrize("precision", [0.02, 0.1])
 def test_estimate_binomial_p(sampler, expected_success, precision):
-    p_estimate, confint, nobs = estimate_binomial_p(
-        sampler=sampler, precision=precision
+    p_estimate, confint, nobs1 = estimate_binomial_p(
+        sampler=sampler, precision=precision, confidence=0.8
     )
     assert abs(p_estimate - expected_success) <= precision
     assert 0 <= confint[1] - confint[0] <= precision
+    assert nobs1 > 0
+
+    p_estimate, confint, nobs2 = estimate_binomial_p(
+        sampler=sampler, precision=precision, confidence=0.9
+    )
+    assert abs(p_estimate - expected_success) <= precision
+    assert 0 <= confint[1] - confint[0] <= precision
+    assert nobs2 > 0
+    assert nobs2 > nobs1
+
+    p_estimate, confint, nobs3 = estimate_binomial_p(
+        sampler=sampler, precision=precision / 2, confidence=0.8
+    )
+    assert abs(p_estimate - expected_success) <= precision
+    assert 0 <= confint[1] - confint[0] <= precision
+    assert nobs3 > 0
+    assert nobs3 > nobs1
