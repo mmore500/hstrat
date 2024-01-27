@@ -29,6 +29,9 @@ from ._alifestd_count_leaf_nodes import alifestd_count_leaf_nodes
 from ._alifestd_count_polytomies import alifestd_count_polytomies
 from ._alifestd_count_root_nodes import alifestd_count_root_nodes
 from ._alifestd_count_unifurcations import alifestd_count_unifurcations
+from ._alifestd_estimate_triplet_distance_asexual import (
+    alifestd_estimate_triplet_distance_asexual,
+)
 from ._alifestd_find_chronological_inconsistency import (
     alifestd_find_chronological_inconsistency,
 )
@@ -196,6 +199,7 @@ __all__ = [
     "alifestd_count_root_nodes",
     "alifestd_count_polytomies",
     "alifestd_count_unifurcations",
+    "alifestd_estimate_triplet_distance_asexual",
     "alifestd_find_chronological_inconsistency",
     "alifestd_find_leaf_ids",
     "alifestd_find_mrca_id_asexual",
