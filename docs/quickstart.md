@@ -4,7 +4,7 @@ The goal of this software is to enable approximate inference of the phylogenetic
 
 This capability has direct applications in digital evolution research (e.g., artificial life, genetic programming, genetic algorithms), and also may prove useful for other distributed systems applications.
 
-## Using hstrat
+### Using hstrat
 ```$ python3 -m pip install hstrat```
 
 All library components can be accessed directly from the convenience flat namespace `hstrat.hstrat`
