@@ -11,6 +11,7 @@ Overview
    self
    quickstart
    demo-ping
+   mechanism
    policies
    api
    publications
