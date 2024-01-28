@@ -35,16 +35,16 @@
 ## Features
 
 *hstrat* serves to enable **robust, efficient extraction of evolutionary history** from evolutionary simulations where centralized, direct phylogenetic tracking is not feasible.
-Namely, in large-scale, **decentralized parallel/distributed evolutionary simulations**, where agents' evolutionary lineages migrate among many individual processors over the course of simulation.
+Namely, in large-scale, **decentralized parallel/distributed evolutionary simulations**, where agents' evolutionary lineages migrate among many cooperating processors over the course of simulation.
 
 *hstrat* can
- - accurately estimate time since MRCA among two or several digital agents, even for uneven branch lengths
- - reconstruct phylogenetic trees for entire populations of evolving digital agents
- - serialize genome annotations to/from text and binary formats
- - provide low-footprint genome annotations (e.g., reasonably as low as 64 bits)
- - be directly configured to satisfy memory use limitations and/or inference accuracy requirements
+ - accurately estimate **time since MRCA** among two or several digital agents, even for uneven branch lengths
+ - **reconstruct phylogenetic trees** for entire populations of evolving digital agents
+ - **serialize genome annotations** to/from text and binary formats
+ - provide **low-footprint** genome annotations (e.g., reasonably as low as **64 bits** each)
+ - be directly configured to satisfy **memory use limits** and/or **inference accuracy requirements**
 
-hstrat *operates just as well in single-processor simulation, but direct phylogenetic tracking using a tool like [phylotrackpy](https://github.com/emilydolson/phylotrackpy/) should usually be preferred in such cases due to its capability for perfect record-keeping given centralized global simulation observability.*
+*hstrat operates just as well in single-processor simulation, but direct phylogenetic tracking using a tool like [phylotrackpy](https://github.com/emilydolson/phylotrackpy/) should usually be preferred in such cases due to its capability for perfect record-keeping given centralized global simulation observability.*
 
 
 ## Example Usage
