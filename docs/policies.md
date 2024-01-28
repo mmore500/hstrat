@@ -1,5 +1,11 @@
 ## Stratum Retention Policies
 
+The following compares procedures for stratum pruning in hereditary stratigraphy.
+Read [here](./mechanism.html) for a general introduction to the stratum deposition process.
+
+Note that here we use "algorithm" to connote general classes of stratum retention strategies and "policy" to connote a specific strategy within an algorithmic class.
+Put another way, a policy is a parametrized algorithm.
+
 ### Visualizing Policy Behavior
 
 | No History                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Retained History                                                                                                                                                                                                                                                                                                                                                                                                                                                  | All History                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -45,7 +51,7 @@ where `n` is generations elapsed, `m` is generations since MRCA, and `k` is an a
 
 Note that distribution-of-resolution trade-offs are described via the definition of uncertainty bounds in terms of generations since MRCA `m` versus overall generations elapsed `n`.
 
-The `hstrat` library includes a suite of variants for several of these stratum retention algorithms.
+The *hstrat* library includes a suite of variants for several of these stratum retention algorithms.
 These variants differ in terms of secondary considerations, for example whether column size exactly traces the asymptotic guarantee or fluctuates around it.
 Computational intensity to calculate the set of strata to be dropped at each generation may also differ between variants.
 

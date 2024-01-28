@@ -1,11 +1,7 @@
-## How it Works
+## Under the Hood
 
-The goal of this software is to enable approximate inference of the phylogenetic history of a distributed digital population solely through analysis of heritable genome annotations.
-Put another way, given a scenario where packets of data are being copied and moved within a distributed system, this software enables estimation of how closely any two data packets are related.
-More precisely, for any two extant data packets, estimation bounds can be produced for the number of copies elapsed from those packets' last shared source copy (i.e., most recent common ancestor a.k.a. MRCA) to yield each extant packet.
-This is done by means of annotations on the data being copied itself --- no centralized tracking system required.
-
-This capability has direct applications in digital evolution research (e.g., artificial life, genetic programming, genetic algorithms), and also may prove useful for other distributed systems applications.
+The goal of this software is to enable approximate inference of the phylogenetic history of a distributed digital population solely through analysis of heritable genome annotations --- no centralized tracking system required.
+Here, we will discuss the underlying hereditary stratigraphy methodology that the *hstrat* library uses within `HereditaryStratigraphicColumn` objects to provide this capability.
 
 ### Naive Approach: Bitstring Drift
 
