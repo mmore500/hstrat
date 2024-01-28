@@ -2,7 +2,7 @@
 
 __author__ = """Matthew Andres Moreno"""
 __email__ = "m.more500@gmail.com"
-__version__ = "1.8.8"
+__version__ = "1.9.0"
 
 from . import (
     _auxiliary_lib,
