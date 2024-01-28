@@ -118,3 +118,18 @@ def test_bifurcating():
         assert alifestd_categorize_triplet_asexual(xdf, [3, 4, 5]) == 2
         assert alifestd_categorize_triplet_asexual(xdf, [3, 5, 4]) == 1
         assert alifestd_categorize_triplet_asexual(xdf, [5, 3, 4]) == 0
+
+    df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5],
+            "taxon_label": ["0", "1", "2", "3", "4", "5"],
+            "ancestor_id": [0, 0, 1, 2, 1, 2],
+        },
+    )
+    df["ancestor_list"] = alifestd_make_ancestor_list_col(
+        df["id"], df["ancestor_id"]
+    )
+    for xdf in df, df.sample(frac=1), df.sample(frac=1), df.sample(frac=1):
+        assert alifestd_categorize_triplet_asexual(xdf, [3, 4, 5]) == 1
+        assert alifestd_categorize_triplet_asexual(xdf, [3, 5, 4]) == 2
+        assert alifestd_categorize_triplet_asexual(xdf, [4, 3, 5]) == 0
