@@ -69,7 +69,9 @@ def descend_template_phylogeny_biopython(
     return descend_template_phylogeny(
         ascending_lineage_iterables=(
             [extant_node, *tree.trace(extant_node, tree.root)]
-            for extant_node in opyt.or_value(extant_nodes, tree.get_terminals())
+            for extant_node in opyt.or_value(
+                extant_nodes, tree.get_terminals()
+            )
         ),
         descending_tree_iterable=tree.find_clades(),
         get_parent=lambda node: parent_lookup.get(node, None),

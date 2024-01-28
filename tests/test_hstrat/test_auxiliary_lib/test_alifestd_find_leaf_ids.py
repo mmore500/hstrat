@@ -106,7 +106,6 @@ def test_alifestd_find_leaf_ids_singleton(phylogeny_df, apply):
 
 
 def test_alifestd_find_leaf_ids_tworoots():
-
     phylo1 = pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
     phylo1.sort_values("id", ascending=True, inplace=True)
 
