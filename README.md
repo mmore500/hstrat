@@ -22,90 +22,91 @@
 ](https://zenodo.org/badge/latestdoi/464531144)
 [![JOSS](https://joss.theoj.org/papers/10.21105/joss.04866/status.svg)](https://doi.org/10.21105/joss.04866)
 
-hstrat enables phylogenetic inference on distributed digital evolution populations
+*hstrat* enables phylogenetic inference on distributed digital evolution populations
 
 - Free software: MIT license
 - Documentation: <https://hstrat.readthedocs.io>
+- Repository: <https://github.com/mmore500/hstrat>
 
 ## Install
 
 `python3 -m pip install hstrat`
 
-## Usage
+## Summary
+
+The objective of *hstrat* is to enable robust, efficient extraction of evolutionary history from evolutionary simulations where centralized, direct phylogenetic tracking is not feasible.
+Namely, in large-scale, decentralized parallel/distributed simulations, where agents' evolutionary lineages migrate among many individual processors over the course of simulation.
+*hstrat* operates just as well in single-processor simulation, but direct phylogenetic tracking using a tool [like phylotrackpy](https://github.com/emilydolson/phylotrackpy/) should usually be preferred in such cases due to its capability for perfect record-keeping given centralized global simulation observability.
+
+In order to enable phylogenetic inference over fully-distributed evolutionary simulation, hereditary stratigraphy adopts a paradigm akin to phylogenetic work in natural history/biology.
+In these fields, phylogenetic history is inferred through comparisons among genetic material of extant organisms, with --- in broad terms --- phylogenetic relatedness established through the extent of genetic similarity between organisms.
+Phylogenetic tracking through *hstrat*, similarly, is achieved through analysis of similarity/dissimilarity among genetic material sampled over populations of interest.
+
+Rather than random mutation as with natural genetic material, however, genetic material used by *hstrat* is structured through *hereditary stratigraphy*.
+This methodology, described fully in our documentation, provides strong guarantees on phylogenetic inferential power, minimizes memory footprint, and allows efficient reconstruction procedures.
+
+The following code sample sketches application of *hstrat* to perform this fully-decentralized approach to phylogenetic tracking.
+
+## Example Usage
+
+This code briefly demonstrates,
+1. initialization of a population of `HereditaryStratigraphicColumn` of objects,
+2. generation-to-generation transmission of `HereditaryStratigraphicColumn` objects with simple synchronous turnover, and then
+3. reconstruction of phylogenetic history from the final population of `HereditaryStratigraphicColumn` objects.
 
 ```python3
-from hstrat import hstrat
+from random import choice as rchoice
+import alifedata_phyloinformatics_convert as apc
+from hstrat import hstrat; print(f"{hstrat.__version__=}")  # when last ran?
+from hstrat._auxiliary_lib import seed_random; seed_random(1)  # reproducibility
 
-print("creating founder1 and founder2, which share no ancestry...")
-founder1 = hstrat.HereditaryStratigraphicColumn(
-    # retain strata from every generation
-    stratum_retention_policy=hstrat.fixed_resolution_algo.Policy(1)
-)
-founder2 = hstrat.HereditaryStratigraphicColumn(
-    # retain strata from every third generation
-    stratum_retention_policy=hstrat.fixed_resolution_algo.Policy(3),
-)
+# initialize a small population of hstrat instrumentation
+# (in full simulations, each column would be attached to an individual genome)
+population = [hstrat.HereditaryStratigraphicColumn() for __ in range(5)]
 
-print(
-    "   do founder1 and founder2 share any common ancestor?",
-    hstrat.does_have_any_common_ancestor(founder1, founder2)
-) # -> False
+# evolve population for 40 generations under drift
+for _generation in range(40):
+    population = [rchoice(population).CloneDescendant() for __ in population]
 
-print("creating descendant2a, 10 generations removed from founder2...")
-descendant2a = founder2.Clone()
-for __ in range(10): descendant2a.DepositStratum()
-
-print(
-    "   do founder2 and descendant2a share any common ancestor?",
-    hstrat.does_have_any_common_ancestor(founder2, descendant2a)
-) # -> True
-
-print("creating descendant2b, 20 generations removed from descendant2a...")
-descendant2b = descendant2a.Clone()
-for __ in range(20): descendant2b.DepositStratum()
-
-print("creating descendant2c, 5 generations removed from descendant2a...")
-descendant2c = descendant2a.Clone()
-for __ in range(5): descendant2c.DepositStratum()
-
-# note MRCA estimate uncertainty, caused by sparse stratum retention policy
-print(
-    "   estimate descendant2b generations since MRCA with descendant2c?",
-    hstrat.calc_ranks_since_mrca_bounds_with(
-      descendant2b,
-      descendant2c,
-      prior="arbitrary",
-    ),
-) # -> (19, 22)
-print(
-    "   estimate descendant2c generations since MRCA with descendant2b?",
-    hstrat.calc_ranks_since_mrca_bounds_with(
-      descendant2c,
-      descendant2b,
-      prior="arbitrary",
-    ),
-) # -> (4, 7)
-print(
-    "   estimate generation of MRCA between descendant2b and descendant2c?",
-    hstrat.calc_rank_of_mrca_bounds_between(
-      descendant2b, descendant2c, prior="arbitrary"
-    ),
-) # -> (9, 12)
+# reconstruct estimate of phylogenetic history
+alifestd_df = hstrat.build_tree(population, version_pin=hstrat.__version__)
+tree_ascii = apc.RosettaTree(alifestd_df).as_dendropy.as_ascii_plot(width=20)
+print(tree_ascii)
 ```
 
-As shown in the example above, all library components can be accessed directly from the convenience flat namespace `hstrat.hstrat`.
+```
+hstrat.__version__='1.8.8'
+              /--- 1
+          /---+
+       /--+   \--- 3
+       |  |
+   /---+  \------- 2
+   |   |
++--+   \---------- 0
+   |
+   \-------------- 4
+```
 
-See `examples/` for more usage examples, including
+In [actual usage](https://hstrat.readthedocs.io/en/latest/demo-ping.html), each *hstrat* column would be bundled with underlying genetic material of interest in the simulation --- entire genomes or, in systems with sexual recombination, individual genes.
+The *hstrat* columns are designed as a neutral genetic annotation, enhancing observability of the simulation but not affecting its outcome.
+
+## Getting Started
+
+Refer to our documentation for a [quickstart guide](https://hstrat.readthedocs.io/en/latest/quickstart.html) and an [annotated end-to-end usage example](https://hstrat.readthedocs.io/en/latest/demo-ping.html).
+
+The `examples/` folder provides extensive usage examples, including
 
 * incorporation of hstrat annotations into a custom genome class,
 * automatic stratum retention policy parameterization,
 * pairwise and population-level phylogenetic inference, and
 * phylogenetic tree reconstruction.
 
+Interested users can find an explanation of how hereditary stratigraphy methodology implemented by *hstrat* works "under the hood," information on project-specific *hstrat* configuration, and full API listing for the *hstrat* package in [the documentation](https://hstrat.readthedocs.io/).
+
 ## Citing
 
-If `hstrat` software or hereditary stratigraphy methodology contributes to a scholarly work, please cite it according to references provided [here](https://hstrat.readthedocs.io/en/latest/citing.html).
-We would love to list your project using `hstrat` in our documentation, see more [here](https://hstrat.readthedocs.io/en/latest/projects.html).
+If *hstrat* software or hereditary stratigraphy methodology contributes to a scholarly work, please cite it according to references provided [here](https://hstrat.readthedocs.io/en/latest/citing.html).
+We would love to list your project using *hstrat* in our documentation, see more [here](https://hstrat.readthedocs.io/en/latest/projects.html).
 
 ## Credits
 
