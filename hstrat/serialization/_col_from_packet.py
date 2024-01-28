@@ -21,7 +21,14 @@ def col_from_packet(
     ),
 ) -> HereditaryStratigraphicColumn:
     """Deserialize a `HereditaryStratigraphicColumn` from a differentia packet
-    and column configuration specification information."""
+    and column configuration specification information.
+
+    Use when buffer size equals packet size.
+
+    See Also
+    --------
+    col_from_packet_buffer: use when buffer size exceeds packet size.
+    """
 
     policy_records = policy_to_records(stratum_retention_policy)
     num_strata_deposited = int.from_bytes(
