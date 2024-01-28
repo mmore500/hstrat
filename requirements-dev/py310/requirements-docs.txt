@@ -12,8 +12,18 @@ anytree==2.8.0
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
+asttokens==2.4.1
+    # via stack-data
+attrs==23.2.0
+    # via
+    #   jsonschema
+    #   referencing
 babel==2.11.0
     # via sphinx
+backcall==0.2.0
+    # via ipython
+beautifulsoup4==4.12.3
+    # via nbconvert
 biopython==1.79
     # via
     #   alifedata-phyloinformatics-convert
@@ -22,6 +32,8 @@ bitarray==2.6.2
     # via hstrat (../../pyproject.toml)
 bitstring==3.1.9
     # via hstrat (../../pyproject.toml)
+bleach==6.1.0
+    # via nbconvert
 certifi==2022.12.7
     # via requests
 charset-normalizer==3.0.1
@@ -30,12 +42,20 @@ click==8.1.3
     # via
     #   alifedata-phyloinformatics-convert
     #   keyname
+comm==0.2.1
+    # via ipykernel
 contourpy==1.0.7
     # via matplotlib
 cycler==0.11.0
     # via matplotlib
 dataclasses==0.6
     # via lyncs-utils
+debugpy==1.8.0
+    # via ipykernel
+decorator==5.1.1
+    # via ipython
+defusedxml==0.7.1
+    # via nbconvert
 dendropy==4.5.2
     # via
     #   alifedata-phyloinformatics-convert
@@ -44,8 +64,13 @@ deprecated==1.2.13
     # via hstrat (../../pyproject.toml)
 docutils==0.17.1
     # via
+    #   nbsphinx
     #   sphinx
     #   sphinx-rtd-theme
+executing==2.0.1
+    # via stack-data
+fastjsonschema==2.19.1
+    # via nbformat
 fonttools==4.38.0
     # via matplotlib
 gitdb==4.0.10
@@ -58,12 +83,40 @@ imagesize==1.4.1
     # via sphinx
 interval-search==0.3.1
     # via hstrat (../../pyproject.toml)
+ipykernel==6.26.0
+    # via hstrat (../../pyproject.toml)
+ipython==8.12.3
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   ipykernel
 iterpop==0.4.1
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
+jedi==0.19.1
+    # via ipython
 jinja2==3.1.2
-    # via sphinx
+    # via
+    #   nbconvert
+    #   nbsphinx
+    #   sphinx
+jsonschema==4.21.1
+    # via nbformat
+jsonschema-specifications==2023.12.1
+    # via jsonschema
+jupyter-client==8.6.0
+    # via
+    #   ipykernel
+    #   nbclient
+jupyter-core==5.7.1
+    # via
+    #   ipykernel
+    #   jupyter-client
+    #   nbclient
+    #   nbconvert
+    #   nbformat
+jupyterlab-pygments==0.3.0
+    # via nbconvert
 keyname==0.4.1
     # via hstrat (../../pyproject.toml)
 kiwisolver==1.4.4
@@ -75,11 +128,19 @@ lyncs-setuptools==0.3.1
 lyncs-utils==0.4.5
     # via alifedata-phyloinformatics-convert
 markupsafe==2.1.2
-    # via jinja2
+    # via
+    #   jinja2
+    #   nbconvert
 matplotlib==3.6.3
     # via
     #   hstrat (../../pyproject.toml)
     #   seaborn
+matplotlib-inline==0.1.6
+    # via
+    #   ipykernel
+    #   ipython
+mistune==3.0.2
+    # via nbconvert
 mmh3==3.0.0
     # via hstrat (../../pyproject.toml)
 more-itertools==8.13.0
@@ -90,6 +151,19 @@ mypy-extensions==1.0.0
     # via typing-inspect
 nanto==0.1.1
     # via alifedata-phyloinformatics-convert
+nbclient==0.9.0
+    # via nbconvert
+nbconvert==7.14.2
+    # via nbsphinx
+nbformat==5.9.2
+    # via
+    #   nbclient
+    #   nbconvert
+    #   nbsphinx
+nbsphinx==0.9.3
+    # via hstrat (../../pyproject.toml)
+nest-asyncio==1.6.0
+    # via ipykernel
 networkx==2.6.3
     # via
     #   alifedata-phyloinformatics-convert
@@ -116,8 +190,10 @@ ordered-set==4.1.0
 packaging==23.0
     # via
     #   hstrat (../../pyproject.toml)
+    #   ipykernel
     #   lyncs-setuptools
     #   matplotlib
+    #   nbconvert
     #   pandera
     #   sphinx
     #   statsmodels
@@ -130,20 +206,42 @@ pandas==1.5.3
     #   statsmodels
 pandera==0.13.4
     # via hstrat (../../pyproject.toml)
+pandocfilters==1.5.1
+    # via nbconvert
+parso==0.8.3
+    # via jedi
 patsy==0.5.6
     # via statsmodels
+pexpect==4.9.0
+    # via ipython
+pickleshare==0.7.5
+    # via ipython
 pillow==9.4.0
     # via matplotlib
+platformdirs==4.1.0
+    # via jupyter-core
 prettytable==3.5.0
     # via hstrat (../../pyproject.toml)
+prompt-toolkit==3.0.43
+    # via ipython
+psutil==5.9.8
+    # via ipykernel
+ptyprocess==0.7.0
+    # via pexpect
+pure-eval==0.2.2
+    # via stack-data
 pydantic==1.10.5
     # via pandera
 pygments==2.14.0
-    # via sphinx
+    # via
+    #   ipython
+    #   nbconvert
+    #   sphinx
 pyparsing==3.0.9
     # via matplotlib
 python-dateutil==2.8.2
     # via
+    #   jupyter-client
     #   matplotlib
     #   pandas
 python-slugify==6.1.2
@@ -152,8 +250,22 @@ pytz==2022.7.1
     # via
     #   babel
     #   pandas
+pyyaml==6.0.1
+    # via hstrat (../../pyproject.toml)
+pyzmq==25.1.2
+    # via
+    #   ipykernel
+    #   jupyter-client
+referencing==0.32.1
+    # via
+    #   jsonschema
+    #   jsonschema-specifications
 requests==2.28.2
     # via sphinx
+rpds-py==0.17.1
+    # via
+    #   jsonschema
+    #   referencing
 safe-assert==0.2.0
     # via hstrat (../../pyproject.toml)
 scipy==1.10.1
@@ -165,6 +277,8 @@ seaborn==0.11.0
 six==1.16.0
     # via
     #   anytree
+    #   asttokens
+    #   bleach
     #   patsy
     #   python-dateutil
 smmap==5.0.0
@@ -175,9 +289,12 @@ sortedcontainers==2.4.0
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
+soupsieve==2.5
+    # via beautifulsoup4
 sphinx==4.4.0
     # via
     #   hstrat (../../pyproject.toml)
+    #   nbsphinx
     #   sphinx-rtd-theme
 sphinx-rtd-theme==1.0.0
     # via hstrat (../../pyproject.toml)
@@ -193,12 +310,32 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
+stack-data==0.6.3
+    # via ipython
 statsmodels==0.14.1
     # via hstrat (../../pyproject.toml)
 text-unidecode==1.3
     # via python-slugify
+tinycss2==1.2.1
+    # via nbconvert
+tornado==6.4
+    # via
+    #   ipykernel
+    #   jupyter-client
 tqdm==4.62.3
     # via hstrat (../../pyproject.toml)
+traitlets==5.14.1
+    # via
+    #   comm
+    #   ipykernel
+    #   ipython
+    #   jupyter-client
+    #   jupyter-core
+    #   matplotlib-inline
+    #   nbclient
+    #   nbconvert
+    #   nbformat
+    #   nbsphinx
 typing-extensions==4.7.1
     # via
     #   hstrat (../../pyproject.toml)
@@ -209,7 +346,13 @@ typing-inspect==0.8.0
 urllib3==1.26.14
     # via requests
 wcwidth==0.2.6
-    # via prettytable
+    # via
+    #   prettytable
+    #   prompt-toolkit
+webencodings==0.5.1
+    # via
+    #   bleach
+    #   tinycss2
 wrapt==1.14.1
     # via
     #   deprecated

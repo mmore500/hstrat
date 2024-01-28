@@ -16,7 +16,14 @@ def col_from_packet_buffer(
     ),
 ) -> HereditaryStratigraphicColumn:
     """Deserialize a `HereditaryStratigraphicColumn` from a buffer containing
-    the differentia packet at the front, then stored differentia values."""
+    the differentia packet at the front, then stored differentia values.
+
+    Use when buffer size exceeds packet size.
+
+    See Also
+    --------
+    col_from_packet: use when buffer size equals packet size.
+    """
 
     num_strata_deposited = int.from_bytes(
         packet_buffer[:num_strata_deposited_byte_width],

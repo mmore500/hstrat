@@ -70,6 +70,7 @@ class _PredKeepRank:
             return not decide_if_discard(
                 stratum_rank,
                 num_stratum_depositions_completed,
+                policy.GetSpec().GetRetentionProbability(),
             )
         else:
             return True

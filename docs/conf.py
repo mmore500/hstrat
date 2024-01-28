@@ -39,6 +39,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.autosummary",
     "sphinx_rtd_theme",
+    "nbsphinx",
 ]
 
 autoclass_content = "class"

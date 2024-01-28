@@ -2,7 +2,7 @@
 
 set -e
 
-# cd to scrip directory
+# cd to script directory
 # adapted from https://stackoverflow.com/a/6393573
 cd "${0%/*}"
 

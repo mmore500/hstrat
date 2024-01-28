@@ -9,6 +9,10 @@ Overview
    :hidden:
 
    self
+   quickstart
+   demo-ping
+   mechanism
+   policies
    api
    publications
    projects
