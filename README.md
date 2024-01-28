@@ -24,35 +24,33 @@
 
 *hstrat* enables phylogenetic inference on distributed digital evolution populations
 
-- Free software: MIT license
-- Documentation: <https://hstrat.readthedocs.io>
-- Repository: <https://github.com/mmore500/hstrat>
+  - Free software: MIT license
+  - Documentation: <https://hstrat.readthedocs.io>
+  - Repository: <https://github.com/mmore500/hstrat>
 
 ## Install
 
 `python3 -m pip install hstrat`
 
-## Summary
+## Features
 
-The objective of *hstrat* is to enable robust, efficient extraction of evolutionary history from evolutionary simulations where centralized, direct phylogenetic tracking is not feasible.
-Namely, in large-scale, decentralized parallel/distributed simulations, where agents' evolutionary lineages migrate among many individual processors over the course of simulation.
-*hstrat* operates just as well in single-processor simulation, but direct phylogenetic tracking using a tool [like phylotrackpy](https://github.com/emilydolson/phylotrackpy/) should usually be preferred in such cases due to its capability for perfect record-keeping given centralized global simulation observability.
+*hstrat* serves to enable **robust, efficient extraction of evolutionary history** from evolutionary simulations where centralized, direct phylogenetic tracking is not feasible.
+Namely, in large-scale, **decentralized parallel/distributed evolutionary simulations**, where agents' evolutionary lineages migrate among many individual processors over the course of simulation.
 
-In order to enable phylogenetic inference over fully-distributed evolutionary simulation, hereditary stratigraphy adopts a paradigm akin to phylogenetic work in natural history/biology.
-In these fields, phylogenetic history is inferred through comparisons among genetic material of extant organisms, with --- in broad terms --- phylogenetic relatedness established through the extent of genetic similarity between organisms.
-Phylogenetic tracking through *hstrat*, similarly, is achieved through analysis of similarity/dissimilarity among genetic material sampled over populations of interest.
+*hstrat* operates just as well in single-processor simulation, but direct phylogenetic tracking using a tool like [phylotrackpy](https://github.com/emilydolson/phylotrackpy/) should usually be preferred in such cases due to its capability for perfect record-keeping given centralized global simulation observability.
 
-Rather than random mutation as with natural genetic material, however, genetic material used by *hstrat* is structured through *hereditary stratigraphy*.
-This methodology, described fully in our documentation, provides strong guarantees on phylogenetic inferential power, minimizes memory footprint, and allows efficient reconstruction procedures.
-
-The following code sample sketches application of *hstrat* to perform this fully-decentralized approach to phylogenetic tracking.
+Capabilities include
+ - estimation of MRCA time among two or several digital agents
+ - reconstruction of phylogenetic trees for entire populations of evolving digital agents
+ - serialization
+ - configurable memory footprint for genome annotations
 
 ## Example Usage
 
 This code briefly demonstrates,
-1. initialization of a population of `HereditaryStratigraphicColumn` of objects,
-2. generation-to-generation transmission of `HereditaryStratigraphicColumn` objects with simple synchronous turnover, and then
-3. reconstruction of phylogenetic history from the final population of `HereditaryStratigraphicColumn` objects.
+ 1. initialization of a population of `HereditaryStratigraphicColumn` of objects,
+ 2. generation-to-generation transmission of `HereditaryStratigraphicColumn` objects with simple synchronous turnover, and then
+ 3. reconstruction of phylogenetic history from the final population of `HereditaryStratigraphicColumn` objects.
 
 ```python3
 from random import choice as rchoice
@@ -88,7 +86,18 @@ hstrat.__version__='1.8.8'
 ```
 
 In [actual usage](https://hstrat.readthedocs.io/en/latest/demo-ping.html), each *hstrat* column would be bundled with underlying genetic material of interest in the simulation --- entire genomes or, in systems with sexual recombination, individual genes.
-The *hstrat* columns are designed as a neutral genetic annotation, enhancing observability of the simulation but not affecting its outcome.
+The *hstrat* columns are designed to operate as a neutral genetic annotation, enhancing observability of the simulation but not affecting its outcome.
+
+## How it Works
+
+In order to enable phylogenetic inference over fully-distributed evolutionary simulation, hereditary stratigraphy adopts a paradigm akin to phylogenetic work in natural history/biology.
+In these fields, phylogenetic history is inferred through comparisons among genetic material of extant organisms, with --- in broad terms --- phylogenetic relatedness established through the extent of genetic similarity between organisms.
+Phylogenetic tracking through *hstrat*, similarly, is achieved through analysis of similarity/dissimilarity among genetic material sampled over populations of interest.
+
+Rather than random mutation as with natural genetic material, however, genetic material used by *hstrat* is structured through *hereditary stratigraphy*.
+This methodology, described fully in our documentation, provides strong guarantees on phylogenetic inferential power, minimizes memory footprint, and allows efficient reconstruction procedures.
+
+See [here](https://hstrat.readthedocs.io/en/latest/mechanism.html) for more detail on underlying hereditary stratigraphy methodology.
 
 ## Getting Started
 
