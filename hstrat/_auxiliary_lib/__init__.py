@@ -76,6 +76,9 @@ from ._alifestd_prune_extinct_lineages_asexual import (
 )
 from ._alifestd_reroot_at_id_asexual import alifestd_reroot_at_id_asexual
 from ._alifestd_splay_polytomies import alifestd_splay_polytomies
+from ._alifestd_sum_origin_time_deltas_asexual import (
+    alifestd_sum_origin_time_deltas_asexual,
+)
 from ._alifestd_to_working_format import alifestd_to_working_format
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
@@ -238,6 +241,7 @@ __all__ = [
     "alifestd_reroot_at_id_asexual",
     "alifestd_convert_root_ancestor_token",
     "alifestd_splay_polytomies",
+    "alifestd_sum_origin_time_deltas_asexual",
     "alifestd_to_working_format",
     "alifestd_topological_sort",
     "alifestd_try_add_ancestor_id_col",
