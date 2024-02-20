@@ -77,3 +77,8 @@ def test_calc_interval_conditioned_mean(growth_factor):
         np.average(samples, weights=weights),
         prior.CalcIntervalConditionedMean(begin, end),
     )
+
+
+def test_sample_interval_conditioned_value():
+    with pytest.raises(NotImplementedError):
+        hstrat.GeometricPrior(1.0).SampleIntervalConditionedValue(0, 100)

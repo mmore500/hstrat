@@ -85,3 +85,8 @@ def test_calc_interval_conditioned_mean():
         np.average(samples, weights=weights),
         prior.CalcIntervalConditionedMean(begin, end),
     )
+
+
+def test_sample_interval_conditioned_value():
+    with pytest.raises(NotImplementedError):
+        hstrat.UniformPrior().SampleIntervalConditionedValue(0, 100)

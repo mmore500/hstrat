@@ -37,3 +37,10 @@ def test_calc_interval_conditioned_mean():
         wrapped.CalcIntervalConditionedMean(7, 7)
         wrapped.CalcIntervalConditionedMean(42, 41)
         wrapped.CalcIntervalConditionedMean(-1, 41)
+
+
+def test_sample_interval_conditioned_value():
+    wrapee = hstrat.ArbitraryPrior()
+    wrapped = BubbleWrappedPrior(wrapee)
+    with pytest.raises(NotImplementedError):
+        wrapped.SampleIntervalConditionedValue(0, 100)

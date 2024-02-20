@@ -61,3 +61,12 @@ def test_calc_interval_conditioned_mean(interval_width):
         np.average(samples, weights=weights),
         prior.CalcIntervalConditionedMean(begin, end),
     )
+
+
+def test_sample_interval_conditioned_value():
+    prior = hstrat.ArbitraryPrior()
+    samples = set(
+        prior.SampleIntervalConditionedValue(0, 100) for _ in range(100)
+    )
+    assert len(samples) > 1
+    assert all(0 <= sample < 100 for sample in samples)

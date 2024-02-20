@@ -89,3 +89,8 @@ def test_calc_interval_conditioned_mean(interval_width, growth_factor):
         prior.CalcIntervalConditionedMean(begin, end), abs=0.5
     )
     assert 0 <= prior.CalcIntervalConditionedMean(0, 1) <= 1
+
+
+def test_sample_interval_conditioned_value():
+    with pytest.raises(NotImplementedError):
+        hstrat.ExponentialPrior(1.0).SampleIntervalConditionedValue(0, 100)

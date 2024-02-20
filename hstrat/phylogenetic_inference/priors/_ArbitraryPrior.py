@@ -78,3 +78,24 @@ class ArbitraryPrior(PriorBase):
             that the MRCA falls within the given interval.
         """
         return np.mean((begin_rank, end_rank - 1.0))
+
+    def SampleIntervalConditionedValue(
+        self: "ArbitraryPrior", begin_rank: int, end_rank: int
+    ) -> int:
+        """Sample a generation of the MRCA conditioned on the assumption that
+        the MRCA falls within the given interval.
+
+        Parameters
+        ----------
+        begin_rank : int
+            The starting rank of the interval, inclusive.
+        end_rank : int
+            The ending rank of the interval, exclusive.
+
+        Returns
+        -------
+        int
+            A sampled generation of the MRCA, conditioned on the assumption that
+            the MRCA falls within the given interval.
+        """
+        return np.random.uniform(begin_rank, end_rank - 1.0)
