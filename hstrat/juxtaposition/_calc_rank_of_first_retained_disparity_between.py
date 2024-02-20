@@ -39,7 +39,7 @@ def calc_rank_of_first_retained_disparity_between(
     be after the returned rank when confidence_level < 0.5.
 
     If the differentia width and confidence level are configured such that
-    one or more suprious differentia collisions is plausible, this method
+    one or more spurious differentia collisions is plausible, this method
     will never return None.
 
     Consider two columns that compare identical at all common ranks. If

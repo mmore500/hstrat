@@ -35,7 +35,7 @@ def descend_template_phylogeny(
         The root node object must be yielded first. Then, each phylogeny node
         object should be yielded, with no object being yielded before its
         parent object. Any topologically sorted ordering is allowed, including
-        pre-order depth-first iteration and breadth-first (a.k.a. leve-order)
+        pre-order depth-first iteration and breadth-first (a.k.a. level-order)
         iteration.
     get_parent : function
         Function that returns the parent node object for a phylogeny node
@@ -90,7 +90,7 @@ def descend_template_phylogeny(
     `n` nodes to a single node with stem length `n`).
 
     Delegates to `descend_template_phylogeny_naive` or
-    `descend_template_phylogeny_posthoc`, depending on wheter retained ranks
+    `descend_template_phylogeny_posthoc`, depending on whether retained ranks
     at an arbitrary generation can be calculated by the `seed_column`'s stratum
     retention policy.
     """

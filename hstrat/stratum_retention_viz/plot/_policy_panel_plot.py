@@ -20,7 +20,7 @@ def policy_panel_plot(
     do_show: bool = False,
     fig: typing.Optional[plt.matplotlib.figure.Figure] = None,
 ) -> plt.matplotlib.figure.Figure:
-    """Holisticaly sketch stratum retention policy at a particular generation.
+    """Holistically sketch stratum retention policy at a particular generation.
 
     Produces a composite multipanel plot.
 

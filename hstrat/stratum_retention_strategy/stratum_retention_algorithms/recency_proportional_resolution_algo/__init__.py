@@ -69,7 +69,7 @@ We now have an upper bound for the rank of the first stratum rank we must
 retain. We can repeat this process recursively to select ranks that give
 adequate resolution proportional to worst_case_mrca_depth.
 
-However, we must guarantee that thes ranks are actually available for us to
+However, we must guarantee that these ranks are actually available for us to
 retain (i.e., it hasn't been purged out of the column at a previous time point
 as the column was grown by successive deposition). We will do this by picking
 the rank that is the highest power of 2 less than or equal to our bound. If we

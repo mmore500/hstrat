@@ -87,7 +87,7 @@ class GarbageCollectingPhyloTracker:
         ----------
         initial_population : int or numpy array of float
             Specification of founding organisms of population. Providing an
-            integer arguent specifices population size, and founding organisms'
+            integer argument specifices population size, and founding organisms'
             float phenotypic traits are recorded as NaN. Providing a numpy
             array of float specifies phenotypic traits of founding organisms.
         working_buffer_size : int, optional
@@ -250,7 +250,7 @@ class GarbageCollectingPhyloTracker:
     def _GrowBufferForInsertion(
         self: "GarbageCollectingPhyloTracker", num_to_insert: int
     ) -> None:
-        """Allocate sufficient additonal buffer space to accomodate
+        """Allocate sufficient additional buffer space to accommodate
         `num_to_insert` insertions."""
         while self._WouldInsertionOverflow(num_to_insert):
             self._GrowBuffer()
@@ -331,7 +331,7 @@ class GarbageCollectingPhyloTracker:
         copyfrom_locs: np.array,  # [int]
         copyto_locs: np.array,  # [int]
     ) -> None:
-        """Replace organisms at `copyfto_locs` locations with non-descendant
+        """Replace organisms at `copyto_locs` locations with non-descendant
         clones of organisms at `copyfrom_locs` locations.
 
         Pasted-over organisms do not remain in the phylogenetic record. The

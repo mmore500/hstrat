@@ -8,7 +8,7 @@ from ._HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 class HereditaryStratigraphicColumnBundle:
     """Packages multiple HereditaryStratigraphicColumn instances together.
 
-    Allows packaged columsn to conveniently advance in sync along a line of
+    Allows packaged columns to conveniently advance in sync along a line of
     descent with a similar interface to an individual
     HereditaryStratigraphicColumn.
     """
