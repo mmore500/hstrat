@@ -36,7 +36,7 @@ def build_distance_matrix_numpy(
         See `estimate_ranks_since_mrca_with` for discussion of prior
         options.
     force_common_ancestry : Optional[bool], optional
-        How should columns that definively share no common ancestry be handled?
+        How should columns that definitively share no common ancestry be handled?
 
         If set to True, treat columns with no common ancestry as if they
         shared a common ancestor immediately before the genesis of the
