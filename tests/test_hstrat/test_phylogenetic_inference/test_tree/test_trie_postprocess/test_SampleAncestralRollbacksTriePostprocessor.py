@@ -9,6 +9,14 @@ from hstrat._auxiliary_lib import (
     seed_random,
 )
 import hstrat.phylogenetic_inference.tree._impl as impl
+import hstrat.phylogenetic_inference.tree.trie_postprocess._detail as detail
+
+
+def test_base_class():
+    assert issubclass(
+        hstrat.SampleAncestralRollbacksTriePostprocessor,
+        detail.TriePostprocessorBase,
+    )
 
 
 # Test case for a trie with only one node

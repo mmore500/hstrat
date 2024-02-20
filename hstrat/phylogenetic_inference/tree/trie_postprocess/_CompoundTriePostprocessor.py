@@ -2,9 +2,12 @@ import typing
 
 from ...._auxiliary_lib import anytree_iterative_deepcopy
 from .._impl import TrieInnerNode
+from ._detail import TriePostprocessorBase
 
 
-class CompoundTriePostprocessor:
+class CompoundTriePostprocessor(
+    TriePostprocessorBase,
+):
     """Functor to sequentially apply multiple trie postprocessors.
 
     Allows for the combination and sequential application of multiple trie
@@ -15,13 +18,13 @@ class CompoundTriePostprocessor:
 
     def __init__(
         self: "CompoundTriePostprocessor",
-        postprocessors: typing.Iterable[typing.Callable],
+        postprocessors: typing.Iterable[TriePostprocessorBase],
     ) -> None:
         """Initialize functor instance.
 
         Parameters
         ----------
-        postprocessors : typing.Iterable[typing.Callable]
+        postprocessors : typing.Iterable[TriePostprocessorBase]
             The sequence of postprocess functors to be applied.
         """
         self._postprocessors = postprocessors

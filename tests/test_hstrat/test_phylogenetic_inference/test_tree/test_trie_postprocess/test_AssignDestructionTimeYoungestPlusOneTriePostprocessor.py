@@ -4,6 +4,14 @@ import anytree
 
 from hstrat import hstrat
 import hstrat.phylogenetic_inference.tree._impl as impl
+import hstrat.phylogenetic_inference.tree.trie_postprocess._detail as detail
+
+
+def test_base_class():
+    assert issubclass(
+        hstrat.AssignDestructionTimeYoungestPlusOneTriePostprocessor,
+        detail.TriePostprocessorBase,
+    )
 
 
 def test_assign_trie_destruction_time_youngestplus1_single_leaf():

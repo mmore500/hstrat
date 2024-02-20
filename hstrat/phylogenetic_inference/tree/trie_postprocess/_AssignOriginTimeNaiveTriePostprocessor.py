@@ -7,9 +7,12 @@ from ...._auxiliary_lib import (
 from ...priors import ArbitraryPrior
 from ...priors._detail import PriorBase
 from .._impl import TrieInnerNode, TrieLeafNode
+from ._detail import TriePostprocessorBase
 
 
-class AssignOriginTimeNaiveTriePostprocessor:
+class AssignOriginTimeNaiveTriePostprocessor(
+    TriePostprocessorBase,
+):
     """Functor to assign origin time property to trie nodes calculated as the
     average of the node's rank and the minimum rank among its children.
 

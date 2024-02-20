@@ -10,6 +10,7 @@ from ..._auxiliary_lib import (
 )
 from ..priors._detail import PriorBase
 from ._build_tree_trie_ensemble import build_tree_trie_ensemble
+from .trie_postprocess._detail import TriePostprocessorBase
 
 
 def build_tree_trie(
@@ -21,6 +22,7 @@ def build_tree_trie(
     bias_adjustment: typing.Union[
         typing.Literal["sample_ancestral_rollbacks"],
         PriorBase,
+        TriePostprocessorBase,
         None,
     ] = None,
 ) -> pd.DataFrame:
@@ -60,7 +62,8 @@ def build_tree_trie(
         Pass an int for reproducible output across multiple function calls. The
         default value, 1, ensures reproducible output. Pass None to use global
         RNG context.
-    bias_adjustment : "sample_ancestral_rollbacks" or prior, optional
+    bias_adjustment : "sample_ancestral_rollbacks", PriorBase, or
+    TriePostProcessorBase, optional
         How should bias toward overestimation of relatedness due to differentia
         collisions be corrected for?
 
@@ -135,6 +138,8 @@ def build_tree_trie(
                 ),
             ],
         )
+    elif isinstance(bias_adjustment, TriePostprocessorBase):
+        trie_postprocessor = bias_adjustment
     else:
         raise TypeError(f"Provided {bias_adjustment=} has unrecognized type")
 

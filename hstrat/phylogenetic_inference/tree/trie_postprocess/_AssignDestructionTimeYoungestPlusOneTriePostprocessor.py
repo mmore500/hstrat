@@ -6,9 +6,12 @@ from ...._auxiliary_lib import (
     anytree_iterative_deepcopy,
 )
 from .._impl import TrieInnerNode, TrieLeafNode
+from ._detail import TriePostprocessorBase
 
 
-class AssignDestructionTimeYoungestPlusOneTriePostprocessor:
+class AssignDestructionTimeYoungestPlusOneTriePostprocessor(
+    TriePostprocessorBase,
+):
     """Functor to assign a destruction time property to trie nodes.
 
     Destruction time of leaf nodes are set to infinity. Destruction time of

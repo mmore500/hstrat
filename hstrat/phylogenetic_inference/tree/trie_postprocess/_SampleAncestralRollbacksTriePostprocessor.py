@@ -15,6 +15,7 @@ from ...._auxiliary_lib import (
     anytree_peel_sibling_to_cousin,
 )
 from .._impl import TrieInnerNode
+from ._detail import TriePostprocessorBase
 
 
 def _sample_ancestral_rollbacks(
@@ -149,7 +150,9 @@ def _sample_ancestral_rollbacks(
     return trie
 
 
-class SampleAncestralRollbacksTriePostprocessor:
+class SampleAncestralRollbacksTriePostprocessor(
+    TriePostprocessorBase,
+):
     """Functor to correct for systematic overestimation of relatedness by
     sampling a compensatory adjustment to trie topology."""
 
