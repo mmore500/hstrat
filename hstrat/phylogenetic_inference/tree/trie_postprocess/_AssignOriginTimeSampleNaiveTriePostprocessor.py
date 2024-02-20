@@ -68,7 +68,9 @@ class AssignOriginTimeSampleNaiveTriePostprocessor(TriePostprocessorBase):
             The postprocessed trie with assigned origin times.
         """
         if not mutate:
-            trie = anytree_iterative_deepcopy(trie, progress_wrap=progress_wrap)
+            trie = anytree_iterative_deepcopy(
+                trie, progress_wrap=progress_wrap
+            )
 
         for node in progress_wrap(AnyTreeFastPreOrderIter(trie)):
             if node.is_leaf:
