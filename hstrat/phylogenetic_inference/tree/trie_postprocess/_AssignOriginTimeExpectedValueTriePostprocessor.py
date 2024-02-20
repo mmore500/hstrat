@@ -14,9 +14,7 @@ from ._AssignOriginTimeNaiveTriePostprocessor import (
 from ._detail import TriePostprocessorBase
 
 
-class AssignOriginTimeExpectedValueTriePostprocessor(
-    TriePostprocessorBase,
-):
+class AssignOriginTimeExpectedValueTriePostprocessor(TriePostprocessorBase):
     """Functor to assign origin time property to trie nodes using expected
     values over the distribution of possible differentia collisions.
 

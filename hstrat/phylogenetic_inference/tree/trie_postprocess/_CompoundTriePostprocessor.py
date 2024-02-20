@@ -5,9 +5,7 @@ from .._impl import TrieInnerNode
 from ._detail import TriePostprocessorBase
 
 
-class CompoundTriePostprocessor(
-    TriePostprocessorBase,
-):
+class CompoundTriePostprocessor(TriePostprocessorBase):
     """Functor to sequentially apply multiple trie postprocessors.
 
     Allows for the combination and sequential application of multiple trie

@@ -9,9 +9,7 @@ from .._impl import TrieInnerNode
 from ._detail import TriePostprocessorBase
 
 
-class PeelBackConjoinedLeavesTriePostprocessor(
-    TriePostprocessorBase,
-):
+class PeelBackConjoinedLeavesTriePostprocessor(TriePostprocessorBase):
     """Functor to separate any TrieLeafNode instances that are direct siblings.
 
     Corrects for guaranteed-spurious differentia collisions among most-recent
