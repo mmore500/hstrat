@@ -1,7 +1,9 @@
 import numpy as np
 
+from ._detail import PriorBase
 
-class GeometricPrior:
+
+class GeometricPrior(PriorBase):
     """Enacts a prior expectation that the generation of the most recent common
     ancestor (MRCA) between extant hereditary stratigraphic columns becomes
     exponentialy less likely with increasing antiquity.

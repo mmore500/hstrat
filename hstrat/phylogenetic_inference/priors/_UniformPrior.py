@@ -1,7 +1,9 @@
 import numpy as np
 
+from ._detail import PriorBase
 
-class UniformPrior:
+
+class UniformPrior(PriorBase):
     """Enacts a prior expectation that the generation of the most recent common
     ancestor (MRCA) is equally likely to occur at any generation since genesis.
 

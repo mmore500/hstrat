@@ -6,6 +6,7 @@ from ...._auxiliary_lib import (
     AnyTreeFastPreOrderIter,
     anytree_iterative_deepcopy,
 )
+from ...priors._detail import PriorBase
 from .._impl import TrieInnerNode, TrieLeafNode
 from ._AssignOriginTimeNaiveTriePostprocessor import (
     AssignOriginTimeNaiveTriePostprocessor,
@@ -22,18 +23,18 @@ class AssignOriginTimeExpectedValueTriePostprocessor:
     """
 
     _assigned_property: str  # property name for assigned origin time
-    _prior: object  # prior expectation for ancestor origin times
+    _prior: PriorBase  # prior expectation for ancestor origin times
 
     def __init__(
         self: "AssignOriginTimeExpectedValueTriePostprocessor",
-        prior: object,
+        prior: PriorBase,
         assigned_property: str = "origin_time",
     ) -> None:
         """Initialize functor instance.
 
         Parameters
         ----------
-        prior : object
+        prior : PriorBase
             The prior distribution used to calculate expected values.
         assigned_property : str, default "origin_time"
             The property name for the assigned origin time.

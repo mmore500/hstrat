@@ -3,6 +3,7 @@ import typing
 import numpy as np
 
 from ..._auxiliary_lib import cmp_approx, pairwise
+from ..priors._detail import PriorBase
 
 
 def estimate_rank_of_mrca_maximum_likelihood(
@@ -10,7 +11,7 @@ def estimate_rank_of_mrca_maximum_likelihood(
         int
     ],
     p_differentia_collision: float,
-    prior: object,
+    prior: PriorBase,
 ) -> typing.Optional[float]:
     """Estimate the most recent common ancestor (MRCA) at the rank with the
     highest posterior probability.
@@ -25,7 +26,7 @@ def estimate_rank_of_mrca_maximum_likelihood(
         Inclusive to first disparity and first commonality.
     p_differentia_collision : float
         The multiplicative inverse of the number of possible differentia.
-    prior : object
+    prior : PriorBase
         Prior expectation for the distribution of MRCA generation
         between hereditary stratigraphic columns/
 

@@ -3,13 +3,15 @@ import typing
 
 import numpy as np
 
+from ..priors._detail import PriorBase
+
 
 def estimate_rank_of_mrca_naive(
     coincident_ranks_from_first_disparity_through_first_commonality: typing.Iterator[
         int
     ],
     p_differentia_collision: float,
-    prior: object,
+    prior: typing.Union[typing.Literal["arbitrary"], PriorBase],
 ) -> typing.Optional[float]:
     """Compute a simple, fast estimate the rank of the most recent common
     ancestor (MRCA).
@@ -24,7 +26,7 @@ def estimate_rank_of_mrca_naive(
         Inclusive to first disparity and first commonality.
     p_differentia_collision : float
         The multiplicative inverse of the number of possible differentia.
-    prior : object
+    prior : typing.Union[typing.Literal["arbitrary"], PriorBase]
         Prior expectation for the distribution of MRCA generation
         between hereditary stratigraphic columns/
 

@@ -5,6 +5,7 @@ from ...._auxiliary_lib import (
     anytree_iterative_deepcopy,
 )
 from ...priors import ArbitraryPrior
+from ...priors._detail import PriorBase
 from .._impl import TrieInnerNode, TrieLeafNode
 
 
@@ -17,18 +18,18 @@ class AssignOriginTimeNaiveTriePostprocessor:
     """
 
     _assigned_property: str  # property name for assigned origin time
-    _prior: object  # prior expectation for ancestor origin times
+    _prior: PriorBase  # prior expectation for ancestor origin times
 
     def __init__(
         self: "AssignOriginTimeNaiveTriePostprocessor",
-        prior: object = ArbitraryPrior(),  # ok as kwarg; immutable
+        prior: PriorBase = ArbitraryPrior(),  # ok as kwarg; immutable
         assigned_property: str = "origin_time",
     ) -> None:
         """Initialize functor instance.
 
         Parameters
         ----------
-        prior : object, default ArbitraryPrior()
+        prior : PriorBase, default ArbitraryPrior()
             Prior distribution of ancestor origin times.
 
             Used to calculate interval means.

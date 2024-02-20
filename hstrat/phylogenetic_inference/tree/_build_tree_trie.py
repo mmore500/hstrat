@@ -8,6 +8,7 @@ from ..._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
     alifestd_make_empty,
 )
+from ..priors._detail import PriorBase
 from ._build_tree_trie_ensemble import build_tree_trie_ensemble
 
 
@@ -17,7 +18,11 @@ def build_tree_trie(
     force_common_ancestry: bool = False,
     progress_wrap: typing.Callable = lambda x: x,
     seed: typing.Optional[int] = 1,
-    bias_adjustment: typing.Union[str, object, None] = None,
+    bias_adjustment: typing.Union[
+        typing.Literal["sample_ancestral_rollbacks"],
+        PriorBase,
+        None,
+    ] = None,
 ) -> pd.DataFrame:
     """Estimate the phylogenetic history among hereditary stratigraphic
     columns by building a trie (a.k.a. prefix tree) of the differentia
@@ -121,8 +126,7 @@ def build_tree_trie(
                 trie_postprocess.AssignOriginTimeNaiveTriePostprocessor(),
             ],
         )
-
-    else:
+    elif isinstance(bias_adjustment, PriorBase):
         trie_postprocessor = trie_postprocess.CompoundTriePostprocessor(
             postprocessors=[
                 trie_postprocess.PeelBackConjoinedLeavesTriePostprocessor(),
@@ -131,6 +135,8 @@ def build_tree_trie(
                 ),
             ],
         )
+    else:
+        raise TypeError(f"Provided {bias_adjustment=} has unrecognized type")
 
     return ip.popsingleton(
         build_tree_trie_ensemble(

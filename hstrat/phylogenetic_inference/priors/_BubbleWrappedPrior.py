@@ -1,15 +1,16 @@
 import numbers
 
 from ..._auxiliary_lib import cmp_approx
+from ._detail import PriorBase
 
 
-class BubbleWrappedPrior:
+class BubbleWrappedPrior(PriorBase):
     """Asserts that wrapped prior receives valid inputs and produces valid
     output."""
 
-    _prior: object
+    _prior: PriorBase
 
-    def __init__(self: "BubbleWrappedPrior", wrapee: object):
+    def __init__(self: "BubbleWrappedPrior", wrapee: PriorBase):
         self._prior = wrapee
 
     def CalcIntervalProbabilityProxy(

@@ -3,6 +3,7 @@ import typing
 import numpy as np
 
 from ..._auxiliary_lib import pairwise
+from ..priors._detail import PriorBase
 
 
 # tried a numpy-based implementation but it was slower
@@ -12,7 +13,7 @@ def estimate_rank_of_mrca_unbiased(
         int
     ],
     p_differentia_collision: float,
-    prior: object,
+    prior: PriorBase,
 ) -> typing.Optional[float]:
     """Compute an estimate for the rank of the most recent common ancestor (MRCA) that, on average, avoids systematic over- or under-estimation.
 
@@ -24,7 +25,7 @@ def estimate_rank_of_mrca_unbiased(
         Inclusive to first disparity and first commonality.
     p_differentia_collision : float
         The multiplicative inverse of the number of possible differentia.
-    prior : object
+    prior : PriorBase
         Prior expectation for the distribution of MRCA generation
         between hereditary stratigraphic columns/
 

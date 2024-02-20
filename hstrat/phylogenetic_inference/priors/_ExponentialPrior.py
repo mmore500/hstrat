@@ -1,9 +1,10 @@
 import math
 
 from ._UniformPrior import UniformPrior
+from ._detail import PriorBase
 
 
-class ExponentialPrior:
+class ExponentialPrior(PriorBase):
     """Enacts a prior expectation that the generation of the most recent common
     ancestor (MRCA) between extant hereditary stratigraphic columns becomes
     exponentialy less likely with increasing antiquity.

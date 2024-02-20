@@ -4,6 +4,11 @@ from hstrat import hstrat
 from hstrat.phylogenetic_inference.priors._BubbleWrappedPrior import (
     BubbleWrappedPrior,
 )
+import hstrat.phylogenetic_inference.priors._detail as detail
+
+
+def test_base_class():
+    assert issubclass(BubbleWrappedPrior, detail.PriorBase)
 
 
 def test_calc_interval_probability_proxy():

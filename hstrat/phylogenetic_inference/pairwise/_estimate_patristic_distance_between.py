@@ -3,6 +3,7 @@ import typing
 import opytional as opyt
 
 from ..._auxiliary_lib import HereditaryStratigraphicArtifact
+from ..priors._detail import PriorBase
 from ._estimate_rank_of_mrca_between import estimate_rank_of_mrca_between
 
 
@@ -10,7 +11,7 @@ def estimate_patristic_distance_between(
     first: HereditaryStratigraphicArtifact,
     second: HereditaryStratigraphicArtifact,
     estimator: str,
-    prior: typing.Union[str, typing.Any],
+    prior: typing.Union[typing.Literal["arbitrary", "uniform"], PriorBase],
 ) -> typing.Optional[float]:
     """Estimate the total phylogenetic distance along the branch path connecting
     the columns.

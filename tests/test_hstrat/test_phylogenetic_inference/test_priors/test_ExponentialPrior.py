@@ -4,6 +4,11 @@ import numpy as np
 import pytest
 
 from hstrat import hstrat
+import hstrat.phylogenetic_inference.priors._detail as detail
+
+
+def test_base_class():
+    assert issubclass(hstrat.ExponentialPrior, detail.PriorBase)
 
 
 @pytest.mark.parametrize(

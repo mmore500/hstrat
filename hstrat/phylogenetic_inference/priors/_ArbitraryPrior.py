@@ -1,7 +1,9 @@
 import numpy as np
 
+from ._detail import PriorBase
 
-class ArbitraryPrior:
+
+class ArbitraryPrior(PriorBase):
     """Enacts a prior probability density distribution on the generation of the
     most recent common ancestor (MRCA) between extant hereditary stratigraphic
     columns that is arbitrary, but computationally efficient.
