@@ -10,7 +10,7 @@ class ArbitraryPrior(PriorBase):
 
     The prior expectation for MRCA generation is taken as equal probability
     within each interval between ranks with common strata retained by both
-    extant columns up through the first retained disparity bewteen the columns.
+    extant columns up through the first retained disparity between the columns.
 
     Prior probability density is assumed uniformly distributed within each
     interval between coincident retained ranks. So, conditioning on the
@@ -23,7 +23,7 @@ class ArbitraryPrior(PriorBase):
     enacted prior expectation will depend directly on the instrumentation used
     (i.e., the distribution of coincident retained strata induced by the chosen
     stratum retention policy). For example, a wide interval between coincident
-    retained ranks and a short interval between coincident retaine dranks will
+    retained ranks and a short interval between coincident retained ranks will
     be assigned equal prior probability, resulting in greater per-generation
     prior probability within the small window than within a wide window.
 
