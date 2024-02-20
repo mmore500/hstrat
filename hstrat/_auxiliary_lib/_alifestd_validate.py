@@ -21,12 +21,15 @@ def _validate_ancestors_asexual(
             phylogeny_df["id"], phylogeny_df["ancestor_list"]
         )
     else:
-        ok_ancestor_list_mask = phylogeny_df["ancestor_list"].astype(
-            "str"
-        ).str.lower().replace(
-            "[]", "[none]"
-        ) == alifestd_make_ancestor_list_col(
-            phylogeny_df["id"], phylogeny_df["ancestor_id"]
+        ok_ancestor_list_mask = (
+            phylogeny_df["ancestor_list"]
+            .astype("str")
+            .str.lower()
+            .replace("[]", "[none]")
+            .to_numpy()
+            == alifestd_make_ancestor_list_col(
+                phylogeny_df["id"], phylogeny_df["ancestor_id"]
+            ).to_numpy()
         )
         if not (ok_ancestor_list_mask).all():
             example_row = phylogeny_df[~ok_ancestor_list_mask].iloc[0]
