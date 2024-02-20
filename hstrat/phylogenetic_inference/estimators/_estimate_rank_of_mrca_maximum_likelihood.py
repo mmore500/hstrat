@@ -28,13 +28,13 @@ def estimate_rank_of_mrca_maximum_likelihood(
         The multiplicative inverse of the number of possible differentia.
     prior : PriorBase
         Prior expectation for the distribution of MRCA generation
-        between hereditary stratigraphic columns/
+        between hereditary stratigraphic columns.
 
     Returns
     -------
     typing.Optional[float]
         Estimated rank of the MRCA, or None if the two hereditary stratigraphic
-        artifacts definitvely share no common ancestor.
+        artifacts definitively share no common ancestor.
 
     Notes
     -----

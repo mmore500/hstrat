@@ -28,18 +28,21 @@ def estimate_rank_of_mrca_naive(
         The multiplicative inverse of the number of possible differentia.
     prior : typing.Union[typing.Literal["arbitrary"], PriorBase]
         Prior expectation for the distribution of MRCA generation
-        between hereditary stratigraphic columns/
+        between hereditary stratigraphic columns.
+
+        Not used for this calculation.
 
     Returns
     -------
     typing.Optional[float]
         Estimated rank of the MRCA, or None if the two hereditary stratigraphic
-        artifacts definitvely share no common ancestor.
+        artifacts definitively share no common ancestor.
 
     Notes
     -----
     This function estimates the rank of the MRCA by computing the mean of the
-    first retained disparite rank and the last retained common rank, with a correction factor for upper bound exclusivity.
+    first retained disparate rank and the last retained common rank, with a
+    correction factor for upper bound exclusivity.
     """
 
     rank_of_mrca_bounds = tuple(
