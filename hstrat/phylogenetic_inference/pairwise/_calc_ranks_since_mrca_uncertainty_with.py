@@ -13,7 +13,7 @@ from ._calc_ranks_since_mrca_bounds_with import (
 def calc_ranks_since_mrca_uncertainty_with(
     focal: HereditaryStratigraphicArtifact,
     other: HereditaryStratigraphicArtifact,
-    prior: str,
+    prior: typing.Literal["arbitrary"],
     confidence_level: float = 0.95,
 ) -> typing.Optional[int]:
     """How wide is the estimation window for generations elapsed since MRCA?

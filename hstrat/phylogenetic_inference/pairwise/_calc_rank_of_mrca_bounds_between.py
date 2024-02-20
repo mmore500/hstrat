@@ -15,7 +15,7 @@ from ._does_have_any_common_ancestor import does_have_any_common_ancestor
 def calc_rank_of_mrca_bounds_between(
     first: HereditaryStratigraphicArtifact,
     second: HereditaryStratigraphicArtifact,
-    prior: str,
+    prior: typing.Literal["arbitrary"],
     confidence_level: float = 0.95,
     strict=True,
 ) -> typing.Optional[typing.Tuple[int, int]]:

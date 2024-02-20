@@ -9,7 +9,7 @@ from ._calc_rank_of_mrca_bounds_between import calc_rank_of_mrca_bounds_between
 def calc_patristic_distance_bounds_between(
     first: HereditaryStratigraphicArtifact,
     second: HereditaryStratigraphicArtifact,
-    prior: str,
+    prior: typing.Literal["arbitrary"],
     confidence_level: float = 0.95,
 ) -> typing.Optional[typing.Tuple[int, int]]:
     """What is the total phylogenetic distance along the branch path connecting

@@ -1,3 +1,5 @@
+import typing
+
 from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ...juxtaposition import (
     calc_min_implausible_spurious_consecutive_differentia_collisions_between,
@@ -8,7 +10,7 @@ from ...juxtaposition import (
 def calc_rank_of_mrca_bounds_provided_confidence_level(
     focal: HereditaryStratigraphicArtifact,
     other: HereditaryStratigraphicArtifact,
-    prior: str,
+    prior: typing.Literal["arbitrary"],
     requested_confidence_level: float = 0.95,
 ) -> float:
     """Calculate provided confidence for a MRCA generation estimate.
