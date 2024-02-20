@@ -15,7 +15,7 @@ strata deposited.
 
 Suppose k is specified as the policy's target space utilization. All strata
 will be retained until an upper a hard upper limit of 4k + 2 is reached. Then,
-the number of strata is mainained exactly at this hard upper limit perpetually.
+the number of strata is maintained exactly at this hard upper limit perpetually.
 MRCA rank estimate uncertainty is maintained less than or equal to s * (1 - n^(-1/k)) where n is the number of strata deposited and s is the true number of ranks deposited since the MRCA.
 
 See Also

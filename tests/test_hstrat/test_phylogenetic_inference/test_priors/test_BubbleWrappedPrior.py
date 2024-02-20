@@ -4,6 +4,11 @@ from hstrat import hstrat
 from hstrat.phylogenetic_inference.priors._BubbleWrappedPrior import (
     BubbleWrappedPrior,
 )
+import hstrat.phylogenetic_inference.priors._detail as detail
+
+
+def test_base_class():
+    assert issubclass(BubbleWrappedPrior, detail.PriorBase)
 
 
 def test_calc_interval_probability_proxy():
@@ -32,3 +37,10 @@ def test_calc_interval_conditioned_mean():
         wrapped.CalcIntervalConditionedMean(7, 7)
         wrapped.CalcIntervalConditionedMean(42, 41)
         wrapped.CalcIntervalConditionedMean(-1, 41)
+
+
+def test_sample_interval_conditioned_value():
+    wrapee = hstrat.ArbitraryPrior()
+    wrapped = BubbleWrappedPrior(wrapee)
+    with pytest.raises(NotImplementedError):
+        wrapped.SampleIntervalConditionedValue(0, 100)

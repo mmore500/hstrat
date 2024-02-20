@@ -56,7 +56,8 @@ def build_tree(
         stratigraphic columns within `population`. If None, taxons will be
         named according to their numerical index.
     force_common_ancestry: bool, optional
-        How should columns that definively share no common ancestry be handled?
+        How should columns that definitively share no common ancestry be
+        handled?
 
         If set to True, treat columns with no common ancestry as if they
         shared a common ancestor immediately before the genesis of the

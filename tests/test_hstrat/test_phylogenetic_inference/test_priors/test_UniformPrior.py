@@ -5,6 +5,11 @@ import numpy as np
 import pytest
 
 from hstrat import hstrat
+import hstrat.phylogenetic_inference.priors._detail as detail
+
+
+def test_base_class():
+    assert issubclass(hstrat.UniformPrior, detail.PriorBase)
 
 
 def test_calc_interval_probability_proxy():
@@ -80,3 +85,8 @@ def test_calc_interval_conditioned_mean():
         np.average(samples, weights=weights),
         prior.CalcIntervalConditionedMean(begin, end),
     )
+
+
+def test_sample_interval_conditioned_value():
+    with pytest.raises(NotImplementedError):
+        hstrat.UniformPrior().SampleIntervalConditionedValue(0, 100)

@@ -5,6 +5,14 @@ import pytest
 from hstrat import hstrat
 from hstrat._auxiliary_lib import seed_random
 import hstrat.phylogenetic_inference.tree._impl as impl
+import hstrat.phylogenetic_inference.tree.trie_postprocess._detail as detail
+
+
+def test_base_class():
+    assert issubclass(
+        hstrat.AssignOriginTimeNaiveTriePostprocessor,
+        detail.TriePostprocessorBase,
+    )
 
 
 def test_assign_trie_origin_times_naive_single_leaf():

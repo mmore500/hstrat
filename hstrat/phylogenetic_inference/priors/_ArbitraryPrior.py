@@ -1,14 +1,16 @@
 import numpy as np
 
+from ._detail import PriorBase
 
-class ArbitraryPrior:
+
+class ArbitraryPrior(PriorBase):
     """Enacts a prior probability density distribution on the generation of the
     most recent common ancestor (MRCA) between extant hereditary stratigraphic
     columns that is arbitrary, but computationally efficient.
 
     The prior expectation for MRCA generation is taken as equal probability
     within each interval between ranks with common strata retained by both
-    extant columns up through the first retained disparity bewteen the columns.
+    extant columns up through the first retained disparity between the columns.
 
     Prior probability density is assumed uniformly distributed within each
     interval between coincident retained ranks. So, conditioning on the
@@ -21,7 +23,7 @@ class ArbitraryPrior:
     enacted prior expectation will depend directly on the instrumentation used
     (i.e., the distribution of coincident retained strata induced by the chosen
     stratum retention policy). For example, a wide interval between coincident
-    retained ranks and a short interval between coincident retaine dranks will
+    retained ranks and a short interval between coincident retained ranks will
     be assigned equal prior probability, resulting in greater per-generation
     prior probability within the small window than within a wide window.
 
@@ -59,7 +61,7 @@ class ArbitraryPrior:
     def CalcIntervalConditionedMean(
         self: "ArbitraryPrior", begin_rank: int, end_rank: int
     ) -> float:
-        """Calcualate the centriod of prior probability mass within an interval
+        """Calculate the centriod of prior probability mass within an interval
         of possible MRCA generations.
 
         Parameters
@@ -76,3 +78,24 @@ class ArbitraryPrior:
             that the MRCA falls within the given interval.
         """
         return np.mean((begin_rank, end_rank - 1.0))
+
+    def SampleIntervalConditionedValue(
+        self: "ArbitraryPrior", begin_rank: int, end_rank: int
+    ) -> int:
+        """Sample a generation of the MRCA conditioned on the assumption that
+        the MRCA falls within the given interval.
+
+        Parameters
+        ----------
+        begin_rank : int
+            The starting rank of the interval, inclusive.
+        end_rank : int
+            The ending rank of the interval, exclusive.
+
+        Returns
+        -------
+        int
+            A sampled generation of the MRCA, conditioned on the assumption that
+            the MRCA falls within the given interval.
+        """
+        return np.random.uniform(begin_rank, end_rank - 1.0)

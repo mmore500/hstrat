@@ -1,15 +1,16 @@
 import numbers
 
 from ..._auxiliary_lib import cmp_approx
+from ._detail import PriorBase
 
 
-class BubbleWrappedPrior:
+class BubbleWrappedPrior(PriorBase):
     """Asserts that wrapped prior receives valid inputs and produces valid
     output."""
 
-    _prior: object
+    _prior: PriorBase
 
-    def __init__(self: "BubbleWrappedPrior", wrapee: object):
+    def __init__(self: "BubbleWrappedPrior", wrapee: PriorBase):
         self._prior = wrapee
 
     def CalcIntervalProbabilityProxy(
@@ -41,7 +42,7 @@ class BubbleWrappedPrior:
     def CalcIntervalConditionedMean(
         self: "BubbleWrappedPrior", begin_rank: int, end_rank: int
     ) -> float:
-        """Calcualate the centriod of prior probability mass within an interval
+        """Calculate the centriod of prior probability mass within an interval
         of possible MRCA generations.
 
         Parameters
@@ -64,3 +65,24 @@ class BubbleWrappedPrior:
         assert cmp_approx(begin_rank, res) <= 0
         assert res < end_rank
         return res
+
+    def SampleIntervalConditionedValue(
+        self: "BubbleWrappedPrior", begin_rank: int, end_rank: int
+    ) -> int:
+        """Sample a generation of the MRCA conditioned on the assumption that
+        the MRCA falls within the given interval.
+
+        Parameters
+        ----------
+        begin_rank : int
+            The starting rank of the interval, inclusive.
+        end_rank : int
+            The ending rank of the interval, exclusive.
+
+        Returns
+        -------
+        int
+            A sampled generation of the MRCA, conditioned on the assumption that
+            the MRCA falls within the given interval.
+        """
+        raise NotImplementedError()

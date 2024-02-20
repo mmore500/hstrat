@@ -48,7 +48,9 @@ def _educe_stratum_ordered_store(
     stratum_retention_policy: typing.Any,
     demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
 ) -> HereditaryStratumOrderedStoreList:
-    """Prepare strata required by one extant lineage member, using cache lookup to ensure that identical strata are provided where common ancestry is shared with previously processesed extant lineage members."""
+    """Prepare strata required by one extant lineage member, using cache lookup
+    to ensure that identical strata are provided where common ancestry is
+    shared with previously processed extant lineage members."""
 
     try:
         extant_node = ascending_lineage_iterable[0]

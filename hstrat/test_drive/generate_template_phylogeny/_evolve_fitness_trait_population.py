@@ -60,7 +60,7 @@ def evolve_fitness_trait_population(
     each niche hosts the same number of members within an island.
 
     Organisms switch to another niche ("invade" that niche) with fixed per-
-    organism per-generation probabilty. The switched-to niche is determined
+    organism per-generation probability. The switched-to niche is determined
     randomly with all other niches having uniform probability of being chosen.
     To maintain exactly fixed niche population size, a copy of the invading
     organism remains in the original niche and an additional copy is created as

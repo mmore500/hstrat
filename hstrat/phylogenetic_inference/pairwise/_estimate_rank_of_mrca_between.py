@@ -4,6 +4,7 @@ import typing
 from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ..priors import ArbitraryPrior, UniformPrior
 from ..priors._BubbleWrappedPrior import BubbleWrappedPrior
+from ..priors._detail import PriorBase
 from ._impl import (
     estimate_rank_of_mrca_maximum_likelihood,
     estimate_rank_of_mrca_naive,
@@ -15,7 +16,7 @@ def estimate_rank_of_mrca_between(
     first: HereditaryStratigraphicArtifact,
     second: HereditaryStratigraphicArtifact,
     estimator: str,
-    prior: typing.Union[str, typing.Any],
+    prior: typing.Union[typing.Literal["arbitrary", "uniform"], PriorBase],
 ) -> typing.Optional[float]:
     """At what generation did the most recent common ancestor of first and
     second occur?

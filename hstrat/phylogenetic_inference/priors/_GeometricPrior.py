@@ -1,7 +1,9 @@
 import numpy as np
 
+from ._detail import PriorBase
 
-class GeometricPrior:
+
+class GeometricPrior(PriorBase):
     """Enacts a prior expectation that the generation of the most recent common
     ancestor (MRCA) between extant hereditary stratigraphic columns becomes
     exponentialy less likely with increasing antiquity.
@@ -63,7 +65,7 @@ class GeometricPrior:
     def CalcIntervalConditionedMean(
         self: "GeometricPrior", begin_rank: int, end_rank: int
     ) -> float:
-        """Calcualate the centriod of prior probability mass within an interval
+        """Calculate the centriod of prior probability mass within an interval
         of possible MRCA generations.
 
         Parameters
@@ -90,3 +92,24 @@ class GeometricPrior:
                 num=end_rank - begin_rank,
             ),
         )
+
+    def SampleIntervalConditionedValue(
+        self: "GeometricPrior", begin_rank: int, end_rank: int
+    ) -> int:
+        """Sample a generation of the MRCA conditioned on the assumption that
+        the MRCA falls within the given interval.
+
+        Parameters
+        ----------
+        begin_rank : int
+            The starting rank of the interval, inclusive.
+        end_rank : int
+            The ending rank of the interval, exclusive.
+
+        Returns
+        -------
+        int
+            A sampled generation of the MRCA, conditioned on the assumption that
+            the MRCA falls within the given interval.
+        """
+        raise NotImplementedError()

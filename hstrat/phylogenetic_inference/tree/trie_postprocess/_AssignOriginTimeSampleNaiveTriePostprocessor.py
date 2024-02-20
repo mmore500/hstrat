@@ -10,19 +10,18 @@ from .._impl import TrieInnerNode, TrieLeafNode
 from ._detail import TriePostprocessorBase
 
 
-class AssignOriginTimeNaiveTriePostprocessor(TriePostprocessorBase):
-    """Functor to assign origin time property to trie nodes calculated as the
-    average of the node's rank and the minimum rank among its children.
+class AssignOriginTimeSampleNaiveTriePostprocessor(TriePostprocessorBase):
+    """Functor to assign origin time property to trie nodes sampled between the
+    node's rank and the minimum rank among its children.
 
-    Optionally calculates origin time expected value over this interval for
-    a provided prior distribution.
+    A prior may be provided to customize sampling distribution used.
     """
 
     _assigned_property: str  # property name for assigned origin time
     _prior: PriorBase  # prior expectation for ancestor origin times
 
     def __init__(
-        self: "AssignOriginTimeNaiveTriePostprocessor",
+        self: "AssignOriginTimeSampleNaiveTriePostprocessor",
         prior: PriorBase = ArbitraryPrior(),  # ok as kwarg; immutable
         assigned_property: str = "origin_time",
     ) -> None:
@@ -33,7 +32,7 @@ class AssignOriginTimeNaiveTriePostprocessor(TriePostprocessorBase):
         prior : PriorBase, default ArbitraryPrior()
             Prior distribution of ancestor origin times.
 
-            Used to calculate interval means.
+            Used to calculate interval samples.
         assigned_property : str, default "origin_time"
             The property name for the assigned origin time.
         """
@@ -41,7 +40,7 @@ class AssignOriginTimeNaiveTriePostprocessor(TriePostprocessorBase):
         self._prior = prior
 
     def __call__(
-        self: "AssignOriginTimeNaiveTriePostprocessor",
+        self: "AssignOriginTimeSampleNaiveTriePostprocessor",
         trie: TrieInnerNode,
         p_differentia_collision: float,
         mutate: bool = False,
@@ -80,7 +79,7 @@ class AssignOriginTimeNaiveTriePostprocessor(TriePostprocessorBase):
             elif node.parent is None:
                 setattr(node, self._assigned_property, 0)
             else:
-                interval_mean = self._prior.CalcIntervalConditionedMean(
+                interval_sample = self._prior.SampleIntervalConditionedValue(
                     node.rank,
                     min(
                         (
@@ -95,10 +94,10 @@ class AssignOriginTimeNaiveTriePostprocessor(TriePostprocessorBase):
                     node,
                     self._assigned_property,
                     min(
-                        interval_mean,
+                        interval_sample,
                         min(
                             (child.rank for child in node.children),
-                            default=interval_mean,
+                            default=interval_sample,
                         ),
                     ),
                 )

@@ -7,6 +7,7 @@ import pytest
 from hstrat import hstrat
 from hstrat._auxiliary_lib import anytree_cardinality
 import hstrat.phylogenetic_inference.tree._impl as impl
+import hstrat.phylogenetic_inference.tree.trie_postprocess._detail as detail
 
 
 @pytest.fixture
@@ -70,6 +71,13 @@ def trie():
     impl.TrieLeafNode(greatgrandchild3, "bar")
 
     return root
+
+
+def test_base_class():
+    assert issubclass(
+        hstrat.PeelBackConjoinedLeavesTriePostprocessor,
+        detail.TriePostprocessorBase,
+    )
 
 
 def test_singleton():

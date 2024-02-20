@@ -1,7 +1,9 @@
 import numpy as np
 
+from ._detail import PriorBase
 
-class UniformPrior:
+
+class UniformPrior(PriorBase):
     """Enacts a prior expectation that the generation of the most recent common
     ancestor (MRCA) is equally likely to occur at any generation since genesis.
 
@@ -36,7 +38,7 @@ class UniformPrior:
     def CalcIntervalConditionedMean(
         self: "UniformPrior", begin_rank: int, end_rank: int
     ) -> float:
-        """Calcualate the centriod of prior probability mass within an interval
+        """Calculate the centriod of prior probability mass within an interval
         of possible MRCA generations.
 
         Parameters
@@ -53,3 +55,24 @@ class UniformPrior:
             that the MRCA falls within the given interval.
         """
         return np.mean((begin_rank, end_rank - 1))
+
+    def SampleIntervalConditionedValue(
+        self: "UniformPrior", begin_rank: int, end_rank: int
+    ) -> int:
+        """Sample a generation of the MRCA conditioned on the assumption that
+        the MRCA falls within the given interval.
+
+        Parameters
+        ----------
+        begin_rank : int
+            The starting rank of the interval, inclusive.
+        end_rank : int
+            The ending rank of the interval, exclusive.
+
+        Returns
+        -------
+        int
+            A sampled generation of the MRCA, conditioned on the assumption that
+            the MRCA falls within the given interval.
+        """
+        raise NotImplementedError()

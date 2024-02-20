@@ -6,12 +6,13 @@ from ...._auxiliary_lib import (
     anytree_peel_sibling_to_cousin,
 )
 from .._impl import TrieInnerNode
+from ._detail import TriePostprocessorBase
 
 
-class PeelBackConjoinedLeavesTriePostprocessor:
+class PeelBackConjoinedLeavesTriePostprocessor(TriePostprocessorBase):
     """Functor to separate any TrieLeafNode instances that are direct siblings.
 
-    Corrects for guaranteed-spurious differentia collisions among most- recent
+    Corrects for guaranteed-spurious differentia collisions among most-recent
     strata.
     """
 

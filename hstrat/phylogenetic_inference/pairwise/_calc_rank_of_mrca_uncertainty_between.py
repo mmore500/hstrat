@@ -11,7 +11,7 @@ from ._calc_rank_of_mrca_bounds_between import calc_rank_of_mrca_bounds_between
 def calc_rank_of_mrca_uncertainty_between(
     first: HereditaryStratigraphicArtifact,
     second: HereditaryStratigraphicArtifact,
-    prior: str,
+    prior: typing.Literal["arbitrary"],
     confidence_level: float = 0.95,
 ) -> typing.Optional[int]:
     """How wide is the estimate window for generation of MRCA?

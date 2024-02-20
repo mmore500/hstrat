@@ -17,7 +17,7 @@ from ._does_have_any_common_ancestor import does_have_any_common_ancestor
 def calc_ranks_since_mrca_bounds_with(
     focal: HereditaryStratigraphicArtifact,
     other: HereditaryStratigraphicArtifact,
-    prior: str,
+    prior: typing.Literal["arbitrary"],
     confidence_level: float = 0.95,
 ) -> typing.Optional[typing.Tuple[int, int]]:
     """How many generations have elapsed since MRCA?

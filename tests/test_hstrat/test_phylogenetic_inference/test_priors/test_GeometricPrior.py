@@ -5,6 +5,11 @@ import numpy as np
 import pytest
 
 from hstrat import hstrat
+import hstrat.phylogenetic_inference.priors._detail as detail
+
+
+def test_base_class():
+    assert issubclass(hstrat.GeometricPrior, detail.PriorBase)
 
 
 @pytest.mark.parametrize(
@@ -72,3 +77,8 @@ def test_calc_interval_conditioned_mean(growth_factor):
         np.average(samples, weights=weights),
         prior.CalcIntervalConditionedMean(begin, end),
     )
+
+
+def test_sample_interval_conditioned_value():
+    with pytest.raises(NotImplementedError):
+        hstrat.GeometricPrior(1.0).SampleIntervalConditionedValue(0, 100)

@@ -8,7 +8,9 @@ from ..._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
     alifestd_make_empty,
 )
+from ..priors._detail import PriorBase
 from ._build_tree_trie_ensemble import build_tree_trie_ensemble
+from .trie_postprocess._detail import TriePostprocessorBase
 
 
 def build_tree_trie(
@@ -17,7 +19,12 @@ def build_tree_trie(
     force_common_ancestry: bool = False,
     progress_wrap: typing.Callable = lambda x: x,
     seed: typing.Optional[int] = 1,
-    bias_adjustment: typing.Union[str, object, None] = None,
+    bias_adjustment: typing.Union[
+        typing.Literal["sample_ancestral_rollbacks"],
+        PriorBase,
+        TriePostprocessorBase,
+        None,
+    ] = None,
 ) -> pd.DataFrame:
     """Estimate the phylogenetic history among hereditary stratigraphic
     columns by building a trie (a.k.a. prefix tree) of the differentia
@@ -40,7 +47,8 @@ def build_tree_trie(
         stratigraphic columns within `population`. If None, taxons will be
         named according to their numerical index.
     force_common_ancestry: bool, default False
-        How should columns that definively share no common ancestry be handled?
+        How should columns that definitively share no common ancestry be
+        handled?
 
         If set to True, treat columns with no common ancestry as if they
         shared a common ancestor immediately before the genesis of the
@@ -54,12 +62,13 @@ def build_tree_trie(
         Pass an int for reproducible output across multiple function calls. The
         default value, 1, ensures reproducible output. Pass None to use global
         RNG context.
-    bias_adjustment : "sample_ancestral_rollbacks" or prior, optional
+    bias_adjustment : "sample_ancestral_rollbacks", PriorBase, or
+    TriePostProcessorBase, optional
         How should bias toward overestimation of relatedness due to differentia
         collisions be corrected for?
 
         If "sample_ancestral_rollbacks", the trie topology will be adjusted as
-        if the expected number of collisions had occured. Targets for
+        if the expected number of collisions had occurred. Targets for
         "unzipping" to reverse the effect of a speculated collision are
         chosen randomly from within the tree. See
         `SampleAncestralRollbacksTriePostprocessor` for details.
@@ -120,8 +129,7 @@ def build_tree_trie(
                 trie_postprocess.AssignOriginTimeNaiveTriePostprocessor(),
             ],
         )
-
-    else:
+    elif isinstance(bias_adjustment, PriorBase):
         trie_postprocessor = trie_postprocess.CompoundTriePostprocessor(
             postprocessors=[
                 trie_postprocess.PeelBackConjoinedLeavesTriePostprocessor(),
@@ -130,6 +138,10 @@ def build_tree_trie(
                 ),
             ],
         )
+    elif isinstance(bias_adjustment, TriePostprocessorBase):
+        trie_postprocessor = bias_adjustment
+    else:
+        raise TypeError(f"Provided {bias_adjustment=} has unrecognized type")
 
     return ip.popsingleton(
         build_tree_trie_ensemble(

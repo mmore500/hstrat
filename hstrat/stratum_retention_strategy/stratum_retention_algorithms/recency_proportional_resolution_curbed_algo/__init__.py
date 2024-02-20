@@ -7,7 +7,7 @@ is provided at finest-possible granularity given space constraint with graceful
 degradation of granularity occuring as deposition history grows.
 
 This policy works by splicing together successively-sparser
-`recency_proportional_resolution_algo` paramaterizations then --- after the
+`recency_proportional_resolution_algo` parameterizations then --- after the
 stratum retention count upper bound of the sparsest
 `recency_proportional_resolution_algo` exceeds storage capacity --- a
 permanently fixed parameterization of the `geometric_seq_nth root` algorithm.
