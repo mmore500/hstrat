@@ -12,7 +12,7 @@ class AssignDestructionTimeYoungestPlusOneTriePostprocessor:
     """Functor to assign a destruction time property to trie nodes.
 
     Destruction time of leaf nodes are set to infinity. Destruction time of
-    innner nodes is calculated as the minimum of its children's origin times
+    inner nodes is calculated as the minimum of its children's origin times
     plus one.
     """
 
@@ -43,7 +43,8 @@ class AssignDestructionTimeYoungestPlusOneTriePostprocessor:
         mutate: bool = False,
         progress_wrap: typing.Callable = lambda x: x,
     ) -> TrieInnerNode:
-        """Assign destruction times to trie nodes based on their origin times.
+        """Assign destruction times to trie nodes based on their childrens'
+        origin times.
 
         Parameters
         ----------

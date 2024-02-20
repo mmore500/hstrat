@@ -19,7 +19,7 @@ def build_tree_nj(
     distance-based reconstruction method.
 
     This phylogenetic reconstruction approach is generally unfavorable, incuring
-    `O(n^2)` runtime complexity and providing reconstructions that ocassionally
+    `O(n^2)` runtime complexity and providing reconstructions that occasionally
     conflict with the hereditary stratigraphic record.
 
     Parameters

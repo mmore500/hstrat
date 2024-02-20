@@ -63,7 +63,7 @@ class GeometricPrior:
     def CalcIntervalConditionedMean(
         self: "GeometricPrior", begin_rank: int, end_rank: int
     ) -> float:
-        """Calcualate the centriod of prior probability mass within an interval
+        """Calculate the centriod of prior probability mass within an interval
         of possible MRCA generations.
 
         Parameters

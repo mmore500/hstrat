@@ -11,7 +11,7 @@ from .._impl import TrieInnerNode
 class PeelBackConjoinedLeavesTriePostprocessor:
     """Functor to separate any TrieLeafNode instances that are direct siblings.
 
-    Corrects for guaranteed-spurious differentia collisions among most- recent
+    Corrects for guaranteed-spurious differentia collisions among most-recent
     strata.
     """
 

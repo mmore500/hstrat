@@ -40,7 +40,8 @@ def build_tree_trie(
         stratigraphic columns within `population`. If None, taxons will be
         named according to their numerical index.
     force_common_ancestry: bool, default False
-        How should columns that definively share no common ancestry be handled?
+        How should columns that definitively share no common ancestry be
+        handled?
 
         If set to True, treat columns with no common ancestry as if they
         shared a common ancestor immediately before the genesis of the
@@ -59,7 +60,7 @@ def build_tree_trie(
         collisions be corrected for?
 
         If "sample_ancestral_rollbacks", the trie topology will be adjusted as
-        if the expected number of collisions had occured. Targets for
+        if the expected number of collisions had occurred. Targets for
         "unzipping" to reverse the effect of a speculated collision are
         chosen randomly from within the tree. See
         `SampleAncestralRollbacksTriePostprocessor` for details.
