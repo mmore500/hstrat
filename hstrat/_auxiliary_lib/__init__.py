@@ -102,6 +102,7 @@ from ._as_compact_type import as_compact_type
 from ._as_nullable_type import as_nullable_type
 from ._assign_intersecting_subsets import assign_intersecting_subsets
 from ._bit_ceil import bit_ceil
+from ._bit_drop_msb import bit_drop_msb
 from ._bit_floor import bit_floor
 from ._capitalize_n import capitalize_n
 from ._caretdown_marker import caretdown_marker
@@ -269,6 +270,7 @@ __all__ = [
     "AnyTreeFastPostOrderIter",
     "BioPhyloTree",
     "bit_ceil",
+    "bit_drop_msb",
     "bit_floor",
     "capitalize_n",
     "caretdown_marker",
