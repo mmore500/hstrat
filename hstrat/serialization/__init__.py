@@ -26,10 +26,10 @@ from ._unpack_differentiae_str import unpack_differentiae_str
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
     "assemblage_from_records",
-    "col_to_dataframe",
     "col_from_packet",
     "col_from_packet_buffer",
     "col_from_records",
+    "col_to_dataframe",
     "col_to_packet",
     "col_to_records",
     "col_to_specimen",
