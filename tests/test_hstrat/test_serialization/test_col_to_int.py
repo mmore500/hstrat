@@ -97,7 +97,7 @@ def test_col_from_int():
 
 
 def test_col_from_int_endian():
-    value = 0x108000000F6
+    value = 0x108000000F7
     column = hstrat.col_from_int(
         value,
         differentia_bit_width=1,
@@ -118,7 +118,7 @@ def test_col_from_int_endian():
         (4, 0),
         (5, 1),
         (6, 1),
-        (7, 0),
+        (7, 1),
     ]
 
 
