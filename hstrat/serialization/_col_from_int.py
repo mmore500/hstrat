@@ -34,7 +34,7 @@ def col_from_int(
         raise ValueError(
             f"Invalid integer representation {value} {bin(value)}. "
             "Must be an even byte multiple plus sentry bit. "
-            "Probably missing sentry bit."
+            "Probably missing sentry bit.",
         )
     semantic_value = bit_drop_msb(value)  # drop sentry bit
     buffer = semantic_value.to_bytes(
