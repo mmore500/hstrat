@@ -10,7 +10,10 @@ from ._impl import policy_from_record
 from ._unpack_differentiae_str import unpack_differentiae_str
 
 
-def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
+def col_from_records(
+    records: typing.Dict,
+    differentiae_byte_bit_order: typing.Literal["big", "little"] = "big",
+) -> HereditaryStratigraphicColumn:
     """Deserialize a `HereditaryStratigraphicColumn` from a dict composed of
     builtin data types.
     """
@@ -39,6 +42,7 @@ def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
             unpack_differentiae_str(
                 records["differentiae"],
                 differentia_bit_width=records["differentia_bit_width"],
+                differentiae_byte_bit_order=differentiae_byte_bit_order,
                 num_packed_differentia=(
                     None
                     if not records.get("omits_num_padding_bits_header", False)

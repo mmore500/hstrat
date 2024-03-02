@@ -16,6 +16,7 @@ def col_from_packet(
     packet: typing_extensions.Buffer,
     differentia_bit_width: int,
     stratum_retention_policy: typing.Callable,
+    differentiae_byte_bit_order: typing.Literal["big", "little"] = "big",
     num_strata_deposited_byte_order: typing.Literal["big", "little"] = "big",
     num_strata_deposited_byte_width: int = (
         DEFAULT_PACKET_NUM_STRATA_DEPOSITED_BYTE_WIDTH
@@ -47,4 +48,7 @@ def col_from_packet(
         "hstrat_version": get_hstrat_version(),
     }
 
-    return col_from_records({**policy_records, **differentiae_records})
+    return col_from_records(
+        {**policy_records, **differentiae_records},
+        differentiae_byte_bit_order=differentiae_byte_bit_order,
+    )

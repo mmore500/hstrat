@@ -123,14 +123,24 @@ def test_col_to_packet_then_from_packet(
         column.DepositStratum()
 
     assert hstrat.col_to_packet(column) == hstrat.col_to_packet(column)
+    packet = hstrat.col_to_packet(
+        column, num_strata_deposited_byte_order=byte_order
+    )
     reconstituted = hstrat.col_from_packet(
-        hstrat.col_to_packet(
-            column, num_strata_deposited_byte_order=byte_order
-        ),
+        packet,
         differentia_bit_width=differentia_bit_width,
+        differentiae_byte_bit_order="big",
         num_strata_deposited_byte_order=byte_order,
         stratum_retention_policy=retention_policy,
     )
+    if column.GetNumStrataRetained() >= 20:
+        assert reconstituted != hstrat.col_from_packet(
+            packet,
+            differentia_bit_width=differentia_bit_width,
+            differentiae_byte_bit_order="little",
+            num_strata_deposited_byte_order=byte_order,
+            stratum_retention_policy=retention_policy,
+        )
     assert reconstituted._ShouldOmitStratumDepositionRank()
     if (
         ordered_store == hstrat.HereditaryStratumOrderedStoreList
@@ -211,10 +221,19 @@ def test_col_to_packet_then_from_packet_buffer(
     packet_buffer[: len(packet)] = packet
     reconstituted = hstrat.col_from_packet_buffer(
         packet_buffer,
+        differentiae_byte_bit_order="big",
         differentia_bit_width=differentia_bit_width,
         num_strata_deposited_byte_order=byte_order,
         stratum_retention_policy=retention_policy,
     )
+    if column.GetNumStrataRetained() >= 20:
+        assert reconstituted != hstrat.col_from_packet_buffer(
+            packet_buffer,
+            differentia_bit_width=differentia_bit_width,
+            differentiae_byte_bit_order="little",
+            num_strata_deposited_byte_order=byte_order,
+            stratum_retention_policy=retention_policy,
+        )
     assert reconstituted._ShouldOmitStratumDepositionRank()
     if (
         ordered_store == hstrat.HereditaryStratumOrderedStoreList

@@ -124,7 +124,14 @@ def test_col_to_records_then_from_records(
         column.DepositStratum()
 
     assert hstrat.col_to_records(column) == hstrat.col_to_records(column)
-    reconstituted = hstrat.col_from_records(hstrat.col_to_records(column))
+    records = hstrat.col_to_records(column)
+    reconstituted = hstrat.col_from_records(
+        records, differentiae_byte_bit_order="big"
+    )
+    if column.GetNumStrataRetained() >= 20:
+        assert reconstituted != hstrat.col_from_records(
+            records, differentiae_byte_bit_order="little"
+        )
     if (
         ordered_store == hstrat.HereditaryStratumOrderedStoreList
         and impl == genome_instrumentation.HereditaryStratigraphicColumn

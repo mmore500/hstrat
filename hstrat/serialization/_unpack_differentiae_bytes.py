@@ -3,9 +3,10 @@ import typing
 
 from bitstring import BitArray
 import numpy as np
+import opytional as opyt
 import typing_extensions
 
-from .._auxiliary_lib import iter_chunks
+from .._auxiliary_lib import bytes_swap_bit_order, iter_chunks
 
 
 def _numpy_unpack_differentiae(
@@ -23,6 +24,7 @@ def _numpy_unpack_differentiae(
 def _bitarray_unpack_differentiae(
     buffer: bytes,
     differentia_bit_width: int,
+    differentiae_byte_bit_order: typing.Literal["big", "little"],
     num_packed_differentia: typing.Optional[int],
 ) -> typing.Iterator[int]:
     bits = BitArray(bytes=buffer)
@@ -34,7 +36,9 @@ def _bitarray_unpack_differentiae(
 
     if num_packed_differentia is None:
         if len(bits) and num_header_bits:
-            num_padding_bits = bits[:num_header_bits].uint
+            # undo to prevent num padding bits from being flipped by bit order
+            r = {"big": 1, "little": -1}[differentiae_byte_bit_order]
+            num_padding_bits = bits[:num_header_bits][::r].uint
         else:
             num_padding_bits = 0
         num_valid_bits = len(bits) - num_header_bits - num_padding_bits
@@ -55,10 +59,17 @@ def _bitarray_unpack_differentiae(
 def unpack_differentiae_bytes(
     packed_differentiae: typing_extensions.Buffer,
     differentia_bit_width: int,
+    differentiae_byte_bit_order: typing.Literal["big", "little"] = "big",
     num_packed_differentia: typing.Optional[int] = None,
 ) -> typing.Iterator[int]:
     """Unpack a compact, concatenated byte buffer representation into
     a sequence with each element represented as a distinct integer."""
+    if opyt.or_value(num_packed_differentia, 0) < 0:
+        raise ValueError
+
+    if differentiae_byte_bit_order == "little":
+        packed_differentiae = bytes_swap_bit_order(packed_differentiae)
+
     if differentia_bit_width in [8, 16, 32, 64]:
         # bit width is a multiple of 8 -- no padding required
         assert (
@@ -72,5 +83,8 @@ def unpack_differentiae_bytes(
     else:
         # padding bits are possible, first byte tells how many are required
         yield from _bitarray_unpack_differentiae(
-            packed_differentiae, differentia_bit_width, num_packed_differentia
+            packed_differentiae,
+            differentia_bit_width,
+            differentiae_byte_bit_order,
+            num_packed_differentia,
         )

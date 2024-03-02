@@ -45,7 +45,14 @@ def test_pack_differentiae_bytes(differentia_bit_width, num_strata):
     unpacked_differentiae = hstrat.unpack_differentiae_bytes(
         packed_differentiae,
         differentia_bit_width,
+        differentiae_byte_bit_order="big",
     )
+    if num_strata >= 20:
+        assert unpacked_differentiae != hstrat.unpack_differentiae_bytes(
+            packed_differentiae,
+            differentia_bit_width,
+            differentiae_byte_bit_order="little",
+        )
 
     for stratum, differentia in mit.zip_equal(
         original_strata,
