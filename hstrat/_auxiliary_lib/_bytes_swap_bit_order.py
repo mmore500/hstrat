@@ -2,12 +2,12 @@ import numpy as np
 import typing_extensions
 
 
-def bytes_swap_bit_order(bytes: typing_extensions.Buffer) -> bytes:
+def bytes_swap_bit_order(buffer: typing_extensions.Buffer) -> bytes:
     r"""Reverse the bit order of each byte in a given buffer.
 
     Parameters
     ----------
-    bytes : typing_extensions.Buffer
+    buffer : typing_extensions.Buffer
         Input buffer whose bits in each byte are to be reversed.
 
     Returns
@@ -22,6 +22,6 @@ def bytes_swap_bit_order(bytes: typing_extensions.Buffer) -> bytes:
     >>> bytes_swap_bit_order(input_bytes)
     b'\x80\x40'
     """
-    numpy_bytes = np.frombuffer(bytes, dtype=np.uint8)
+    numpy_bytes = np.frombuffer(buffer, dtype=np.uint8)
     numpy_bits = np.unpackbits(numpy_bytes, bitorder="little")
     return np.packbits(numpy_bits, bitorder="big").tobytes()
