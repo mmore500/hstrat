@@ -10,6 +10,7 @@ def col_from_int(
     value: int,
     differentia_bit_width: int,
     stratum_retention_policy: typing.Callable,
+    num_strata_deposited_byte_order: typing.Literal["big", "little"] = "big",
     num_strata_deposited_byte_width: int = (
         DEFAULT_PACKET_NUM_STRATA_DEPOSITED_BYTE_WIDTH
     ),
@@ -44,5 +45,6 @@ def col_from_int(
         packet=buffer,
         differentia_bit_width=differentia_bit_width,
         stratum_retention_policy=stratum_retention_policy,
+        num_strata_deposited_byte_order=num_strata_deposited_byte_order,
         num_strata_deposited_byte_width=num_strata_deposited_byte_width,
     )

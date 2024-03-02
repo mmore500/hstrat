@@ -1,3 +1,5 @@
+import typing
+
 import typing_extensions
 
 from ..genome_instrumentation import HereditaryStratigraphicColumn
@@ -7,6 +9,7 @@ from ._pack_differentiae_bytes import pack_differentiae_bytes
 
 def col_to_packet(
     column: HereditaryStratigraphicColumn,
+    num_strata_deposited_byte_order: typing.Literal["big", "little"] = "big",
     num_strata_deposited_byte_width: int = (
         DEFAULT_PACKET_NUM_STRATA_DEPOSITED_BYTE_WIDTH
     ),
@@ -41,7 +44,7 @@ def col_to_packet(
         :num_strata_deposited_byte_width
     ] = column.GetNumStrataDeposited().to_bytes(
         num_strata_deposited_byte_width,
-        byteorder="big",
+        byteorder=num_strata_deposited_byte_order,
         signed=False,
     )
     assert len(packet_buffer) == total_packet_bytes

@@ -56,6 +56,12 @@ def test_col_to_packet(
 
     packet = hstrat.col_to_packet(column)
     assert packet == hstrat.col_to_packet(column)
+    assert packet != hstrat.col_to_packet(
+        column, num_strata_deposited_byte_order="little"
+    )
+    assert packet != hstrat.col_to_packet(
+        column, num_strata_deposited_byte_width=42
+    )
     assert isinstance(packet, typing_extensions.Buffer)
     assert len(packet) <= (
         (column.GetNumStrataRetained() * differentia_bit_width + 7) // 8
@@ -70,6 +76,7 @@ def test_col_to_packet(
     # TODO
     # genome_instrumentation._HereditaryStratigraphicColumn_.impls,
 )
+@pytest.mark.parametrize("byte_order", ["big", "little"])
 @pytest.mark.parametrize(
     "retention_policy",
     [
@@ -98,6 +105,7 @@ def test_col_to_packet(
 )
 def test_col_to_packet_then_from_packet(
     impl,
+    byte_order,
     retention_policy,
     ordered_store,
     always_store_rank_in_stratum,
@@ -116,8 +124,11 @@ def test_col_to_packet_then_from_packet(
 
     assert hstrat.col_to_packet(column) == hstrat.col_to_packet(column)
     reconstituted = hstrat.col_from_packet(
-        hstrat.col_to_packet(column),
+        hstrat.col_to_packet(
+            column, num_strata_deposited_byte_order=byte_order
+        ),
         differentia_bit_width=differentia_bit_width,
+        num_strata_deposited_byte_order=byte_order,
         stratum_retention_policy=retention_policy,
     )
     assert reconstituted._ShouldOmitStratumDepositionRank()
@@ -171,6 +182,7 @@ def test_col_to_packet_then_from_packet(
     "buffer_excess_bytes",
     [0, 1, 100],
 )
+@pytest.mark.parametrize("byte_order", ["big", "little"])
 def test_col_to_packet_then_from_packet_buffer(
     impl,
     retention_policy,
@@ -179,6 +191,7 @@ def test_col_to_packet_then_from_packet_buffer(
     num_deposits,
     differentia_bit_width,
     buffer_excess_bytes,
+    byte_order,
     caplog,
 ):
     column = impl(
@@ -191,12 +204,15 @@ def test_col_to_packet_then_from_packet_buffer(
         column.DepositStratum()
 
     assert hstrat.col_to_packet(column) == hstrat.col_to_packet(column)
-    packet = hstrat.col_to_packet(column)
+    packet = hstrat.col_to_packet(
+        column, num_strata_deposited_byte_order=byte_order
+    )
     packet_buffer = bytearray(len(packet) + buffer_excess_bytes)
     packet_buffer[: len(packet)] = packet
     reconstituted = hstrat.col_from_packet_buffer(
         packet_buffer,
         differentia_bit_width=differentia_bit_width,
+        num_strata_deposited_byte_order=byte_order,
         stratum_retention_policy=retention_policy,
     )
     assert reconstituted._ShouldOmitStratumDepositionRank()

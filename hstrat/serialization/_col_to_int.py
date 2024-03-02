@@ -1,3 +1,5 @@
+import typing
+
 from ..genome_instrumentation import HereditaryStratigraphicColumn
 from ._col_to_packet import col_to_packet
 from ._impl import DEFAULT_PACKET_NUM_STRATA_DEPOSITED_BYTE_WIDTH
@@ -5,6 +7,7 @@ from ._impl import DEFAULT_PACKET_NUM_STRATA_DEPOSITED_BYTE_WIDTH
 
 def col_to_int(
     column: HereditaryStratigraphicColumn,
+    num_strata_deposited_byte_order: typing.Literal["big", "little"] = "big",
     num_strata_deposited_byte_width: int = (
         DEFAULT_PACKET_NUM_STRATA_DEPOSITED_BYTE_WIDTH
     ),
@@ -26,6 +29,7 @@ def col_to_int(
 
     buffer = col_to_packet(
         column=column,
+        num_strata_deposited_byte_order=num_strata_deposited_byte_order,
         num_strata_deposited_byte_width=num_strata_deposited_byte_width,
     )
     buffer_num_bits = len(buffer) * 8

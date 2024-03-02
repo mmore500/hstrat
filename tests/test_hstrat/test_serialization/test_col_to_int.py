@@ -56,6 +56,12 @@ def test_col_to_int(
 
     packet = hstrat.col_to_int(column)
     assert packet == hstrat.col_to_int(column)
+    assert packet != hstrat.col_to_int(
+        column, num_strata_deposited_byte_order="little"
+    )
+    assert packet != hstrat.col_to_int(
+        column, num_strata_deposited_byte_width=42
+    )
     assert isinstance(packet, int)
     assert packet.bit_length() <= 8 * (
         (column.GetNumStrataRetained() * differentia_bit_width + 7 + 1) // 8
@@ -121,6 +127,7 @@ def test_col_from_int_byte_width():
     # TODO
     # genome_instrumentation._HereditaryStratigraphicColumn_.impls,
 )
+@pytest.mark.parametrize("byte_order", ["big", "little"])
 @pytest.mark.parametrize(
     "retention_policy",
     [
@@ -149,6 +156,7 @@ def test_col_from_int_byte_width():
 )
 def test_col_to_int_then_from_int(
     impl,
+    byte_order,
     retention_policy,
     ordered_store,
     always_store_rank_in_stratum,
@@ -167,8 +175,9 @@ def test_col_to_int_then_from_int(
 
     assert hstrat.col_to_int(column) == hstrat.col_to_int(column)
     reconstituted = hstrat.col_from_int(
-        hstrat.col_to_int(column),
+        hstrat.col_to_int(column, num_strata_deposited_byte_order=byte_order),
         differentia_bit_width=differentia_bit_width,
+        num_strata_deposited_byte_order=byte_order,
         stratum_retention_policy=retention_policy,
     )
     assert reconstituted._ShouldOmitStratumDepositionRank()

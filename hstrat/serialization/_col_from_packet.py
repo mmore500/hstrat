@@ -16,6 +16,7 @@ def col_from_packet(
     packet: typing_extensions.Buffer,
     differentia_bit_width: int,
     stratum_retention_policy: typing.Callable,
+    num_strata_deposited_byte_order: typing.Literal["big", "little"] = "big",
     num_strata_deposited_byte_width: int = (
         DEFAULT_PACKET_NUM_STRATA_DEPOSITED_BYTE_WIDTH
     ),
@@ -33,7 +34,7 @@ def col_from_packet(
     policy_records = policy_to_records(stratum_retention_policy)
     num_strata_deposited = int.from_bytes(
         packet[:num_strata_deposited_byte_width],
-        byteorder="big",
+        byteorder=num_strata_deposited_byte_order,
         signed=False,
     )
     differentiae_records = {
