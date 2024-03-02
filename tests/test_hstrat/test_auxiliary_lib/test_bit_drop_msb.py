@@ -4,7 +4,7 @@ from hstrat._auxiliary_lib import bit_drop_msb
 
 
 @pytest.mark.parametrize(
-    "input, expected_output",
+    "input_, expected_output",
     [
         (0, 0),
         (1, 0),
@@ -23,5 +23,5 @@ from hstrat._auxiliary_lib import bit_drop_msb
         (1234567890, 160826066),
     ],
 )
-def test_bit_drop_msb(input, expected_output):
-    assert bit_drop_msb(input) == expected_output
+def test_bit_drop_msb(input_, expected_output):
+    assert bit_drop_msb(input_) == expected_output
