@@ -75,6 +75,33 @@ def test_col_from_int():
     column = hstrat.col_from_int(
         value,
         differentia_bit_width=1,
+        num_strata_deposited_byte_order="big",
+        num_strata_deposited_byte_width=4,
+        stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
+    )
+    assert not column._always_store_rank_in_stratum
+    assert column.GetNumStrataDeposited() == 8
+    assert flat_len(column.IterRetainedDifferentia()) == 8
+    assert flat_len(column.IterRetainedRanks()) == 8
+
+    assert [*column.IterRankDifferentiaZip()] == [
+        (0, 1),
+        (1, 1),
+        (2, 1),
+        (3, 1),
+        (4, 0),
+        (5, 1),
+        (6, 1),
+        (7, 0),
+    ]
+
+
+def test_col_from_int_endian():
+    value = 0x108000000F6
+    column = hstrat.col_from_int(
+        value,
+        differentia_bit_width=1,
+        num_strata_deposited_byte_order="little",
         num_strata_deposited_byte_width=4,
         stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
     )
