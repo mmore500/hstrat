@@ -360,7 +360,13 @@ class HereditaryStratigraphicColumn:
         Equivalent to `zip(col.IterRetainedRanks(),
         col.IterRetainedDifferentia())`, but may be more efficient.
         """
-        res = self._stratum_ordered_store.IterRankDifferentiaZip()
+        res = self._stratum_ordered_store.IterRankDifferentiaZip(
+            get_rank_at_column_index=(
+                self.GetRankAtColumnIndex
+                if self._ShouldOmitStratumDepositionRank()
+                else None
+            ),
+        )
         if copyable:
             res = iter([*res])
         return res
