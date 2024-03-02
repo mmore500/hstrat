@@ -1,5 +1,4 @@
 import pytest
-import typing_extensions
 
 from hstrat import genome_instrumentation, hstrat
 from hstrat._auxiliary_lib import flat_len
