@@ -58,6 +58,15 @@ def col_from_records(records: typing.Dict) -> HereditaryStratigraphicColumn:
                     deposition_rank=deposition_rank,
                 ),
             )
+
+        if policy.CalcNumStrataRetainedExact is not None:
+            assert (
+                store.GetNumStrataRetained()
+                == policy.CalcNumStrataRetainedExact(
+                    records["num_strata_deposited"]
+                )
+            )
+
         return store
 
     return HereditaryStratigraphicColumn(
