@@ -79,14 +79,6 @@ def test_Clone2(retention_policy, ordered_store):
 
 
 @pytest.mark.parametrize(
-    "retention_policy",
-    [
-        hstrat.perfect_resolution_algo.Policy(),
-        hstrat.nominal_resolution_algo.Policy(),
-        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
-    ],
-)
-@pytest.mark.parametrize(
     "ordered_store",
     [
         hstrat.HereditaryStratumOrderedStoreDict,
@@ -94,7 +86,7 @@ def test_Clone2(retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreTree,
     ],
 )
-def test_Clone3(retention_policy, ordered_store):
+def test_Clone3(ordered_store):
     column = hstrat.HereditaryStratigraphicColumn(
         initial_stratum_annotation=0,
         stratum_ordered_store=ordered_store,
@@ -125,14 +117,6 @@ def test_Clone3(retention_policy, ordered_store):
 
 
 @pytest.mark.parametrize(
-    "retention_policy",
-    [
-        hstrat.perfect_resolution_algo.Policy(),
-        hstrat.nominal_resolution_algo.Policy(),
-        hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
-    ],
-)
-@pytest.mark.parametrize(
     "ordered_store",
     [
         hstrat.HereditaryStratumOrderedStoreDict,
@@ -140,7 +124,7 @@ def test_Clone3(retention_policy, ordered_store):
         hstrat.HereditaryStratumOrderedStoreTree,
     ],
 )
-def test_Clone4(retention_policy, ordered_store):
+def test_Clone4(ordered_store):
     # regression test for bug with tree store cloning
     column = hstrat.HereditaryStratigraphicColumn(
         initial_stratum_annotation=0,
