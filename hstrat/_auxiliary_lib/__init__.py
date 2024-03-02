@@ -104,6 +104,7 @@ from ._assign_intersecting_subsets import assign_intersecting_subsets
 from ._bit_ceil import bit_ceil
 from ._bit_drop_msb import bit_drop_msb
 from ._bit_floor import bit_floor
+from ._bytes_swap_bit_order import bytes_swap_bit_order
 from ._capitalize_n import capitalize_n
 from ._caretdown_marker import caretdown_marker
 from ._caretup_marker import caretup_marker
@@ -272,6 +273,7 @@ __all__ = [
     "bit_ceil",
     "bit_drop_msb",
     "bit_floor",
+    "bytes_swap_bit_order",
     "capitalize_n",
     "caretdown_marker",
     "caretup_marker",
