@@ -81,7 +81,7 @@ class HereditaryStratigraphicColumn:
         stratum_differentia_bit_width: int = 64,
         initial_stratum_annotation: typing.Optional[typing.Any] = None,
         stratum_ordered_store: OrderedStore = None,
-        stratum_ordered_store_factory: OrderedStore = None  # deprecated
+        stratum_ordered_store_factory: OrderedStore = None,  # deprecated
     ):
         """Initialize column to track a new line of descent.
 
@@ -360,7 +360,13 @@ class HereditaryStratigraphicColumn:
         Equivalent to `zip(col.IterRetainedRanks(),
         col.IterRetainedDifferentia())`, but may be more efficient.
         """
-        res = self._stratum_ordered_store.IterRankDifferentiaZip()
+        res = self._stratum_ordered_store.IterRankDifferentiaZip(
+            get_rank_at_column_index=(
+                self.GetRankAtColumnIndex
+                if self._ShouldOmitStratumDepositionRank()
+                else None
+            ),
+        )
         if copyable:
             res = iter([*res])
         return res

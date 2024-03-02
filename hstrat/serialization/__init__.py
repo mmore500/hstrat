@@ -1,10 +1,12 @@
 """Tools to load and save hereditary stratigraphic columns."""
 
 from ._assemblage_from_records import assemblage_from_records
+from ._col_from_int import col_from_int
 from ._col_from_packet import col_from_packet
 from ._col_from_packet_buffer import col_from_packet_buffer
 from ._col_from_records import col_from_records
 from ._col_to_dataframe import col_to_dataframe
+from ._col_to_int import col_to_int
 from ._col_to_packet import col_to_packet
 from ._col_to_records import col_to_records
 from ._col_to_specimen import col_to_specimen
@@ -26,10 +28,12 @@ from ._unpack_differentiae_str import unpack_differentiae_str
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
     "assemblage_from_records",
-    "col_to_dataframe",
+    "col_from_int",
     "col_from_packet",
     "col_from_packet_buffer",
     "col_from_records",
+    "col_to_dataframe",
+    "col_to_int",
     "col_to_packet",
     "col_to_records",
     "col_to_specimen",
