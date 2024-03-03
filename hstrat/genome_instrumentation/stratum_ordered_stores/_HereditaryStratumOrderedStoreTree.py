@@ -121,7 +121,7 @@ class HereditaryStratumOrderedStoreTree(HereditaryStratumOrderedStoreBase):
         Parameters
         ----------
         ranks : iterator over int
-            The ranks that to be deleted.
+            The ranks that are to be deleted.
         get_column_index_of_rank : callable, optional
             Callable that returns the index position within retained strata of
             the stratum deposited at rank r.
@@ -283,7 +283,7 @@ class HereditaryStratumOrderedStoreTree(HereditaryStratumOrderedStoreBase):
         Parameters
         ----------
         ranks : iterator over int
-            The ranks that to be deleted.
+            The ranks that are to be deleted.
         get_column_index_of_rank : callable, optional
             Callable that returns the deposition rank of the stratum positioned at index i among retained strata.
         """
