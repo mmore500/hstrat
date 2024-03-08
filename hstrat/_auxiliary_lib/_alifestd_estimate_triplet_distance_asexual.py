@@ -21,6 +21,56 @@ def alifestd_estimate_triplet_distance_asexual(
     progress_wrap: typing.Callable = lambda x: x,
     mutate: bool = False,
 ) -> typing.Union[float, typing.Tuple[float, typing.Tuple[float, float, int]]]:
+    """Estimate the triplet distance between two asexual phylogenetic trees in
+    alife sampling sets of three leaf taxa and counting the fraction whose
+    phylogenetic connectivity mismatch between trees.
+
+    Parameters
+    ----------
+    first_df : pd.DataFrame
+        The DataFrame representing the first phylogenetic tree.
+    second_df : pd.DataFrame
+        The DataFrame representing the second phylogenetic tree.
+    taxon_label_key : str
+        The key in the DataFrame to identify the taxon labels.
+    confidence : float, default 0.99
+        The confidence level for the estimation.
+
+        See `estimate_binomial_p` for details.
+    precision : float, default 0.01
+        The precision of the estimation.
+
+        See `estimate_binomial_p` for details.
+    strict : bool or Tuple[bool, bool], default True
+        A flag or a tuple of flags indicating how to treat tuples.
+
+        If False, triplets that form a polytomy in either tree are not counted
+        as mismatching. If True, they are counted as mismatching. If a tuple is
+        given, polytomies in the first and second trees are treated according
+        to the first and second elements of the tuple, respectively.
+    detail : bool, default False
+        If True, returns a detailed result including the estimated distance,
+        confidence interval, and sample size.
+    progress_wrap : typing.Callable, default lambda x: x
+        A callable to display progress, e.g., tqdm.
+    mutate : bool, default False
+        If True, allows mutation of input DataFrames.
+
+    Returns
+    -------
+    float or Tuple[float, Tuple[float, float, int]]
+        The estimated distance between the two trees.
+
+        If `detail` is True, returns a tuple containing the estimated distance,
+        the confidence interval, and the sample size.
+
+    Notes
+    -----
+    The core comparison is done by sampling triplets of taxa, categorizing
+    them, and comparing these categorizations across the two trees, taking into
+    account the `strict` and `lax` parameters for handling polytomies. See
+    `alifestd_categorize_triplet_asexual` for details.
+    """
     if not mutate:
         first_df = first_df.copy()
         second_df = second_df.copy()
