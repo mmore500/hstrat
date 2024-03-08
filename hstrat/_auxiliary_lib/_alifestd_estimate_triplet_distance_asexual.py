@@ -61,7 +61,8 @@ def alifestd_estimate_triplet_distance_asexual(
         cat2 = alifestd_categorize_triplet_asexual(
             second_df, second_triplet_ids, mutate=True
         )
-        match = cat1 == cat2 or (not strict and -1 in (cat1, cat2))
+        lax = not strict
+        match = cat1 == cat2 or (lax and -1 in (cat1, cat2))
         return not match
 
     res = estimate_binomial_p(
