@@ -99,7 +99,9 @@ def test_polytomy_identical(df: pd.DataFrame):
         *it.product([True, False], repeat=2),
     ],
 )
-def test_differing_wrong1(strict: typing.Union[bool, typing.Tuple[bool, bool]]):
+def test_differing_wrong1(
+    strict: typing.Union[bool, typing.Tuple[bool, bool]]
+):
     adf = pd.DataFrame(
         {
             "id": reversed([9, 1, 2, 3, 4, 5]),
@@ -134,7 +136,9 @@ def test_differing_wrong1(strict: typing.Union[bool, typing.Tuple[bool, bool]]):
 @pytest.mark.parametrize(
     "strict", [True, False, *it.product([True, False], repeat=2)]
 )
-def test_differing_wrong2(strict: typing.Union[bool, typing.Tuple[bool, bool]]):
+def test_differing_wrong2(
+    strict: typing.Union[bool, typing.Tuple[bool, bool]]
+):
     adf = pd.DataFrame(
         {
             "id": [0, 1, 2, 3, 4, 5],
