@@ -1,3 +1,6 @@
+import itertools as it
+import typing
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -88,8 +91,15 @@ def test_polytomy_identical(df: pd.DataFrame):
         assert ci[1] >= ci[0]
 
 
-@pytest.mark.parametrize("strict", [True, False])
-def test_differing_wrong1(strict: bool):
+@pytest.mark.parametrize(
+    "strict",
+    [
+        True,
+        False,
+        *it.product([True, False], repeat=2),
+    ],
+)
+def test_differing_wrong1(strict: typing.Union[bool, typing.Tuple[bool, bool]]):
     adf = pd.DataFrame(
         {
             "id": reversed([9, 1, 2, 3, 4, 5]),
@@ -121,8 +131,10 @@ def test_differing_wrong1(strict: bool):
     assert 1 == est
 
 
-@pytest.mark.parametrize("strict", [False])
-def test_differing_wrong2(strict: bool):
+@pytest.mark.parametrize(
+    "strict", [True, False, *it.product([True, False], repeat=2)]
+)
+def test_differing_wrong2(strict: typing.Union[bool, typing.Tuple[bool, bool]]):
     adf = pd.DataFrame(
         {
             "id": [0, 1, 2, 3, 4, 5],
@@ -201,8 +213,17 @@ def test_differing_polytomy(strict: bool):
     assert bool(strict) == est
 
 
-@pytest.mark.parametrize("strict", [True, False])
-def test_differing_polytomy2(strict: bool):
+@pytest.mark.parametrize(
+    "strict",
+    [
+        True,
+        False,
+        *it.product([True, False], repeat=2),
+    ],
+)
+def test_differing_polytomy2(
+    strict: typing.Union[bool, typing.Tuple[bool, bool]]
+):
     adf = pd.DataFrame(
         {
             "id": [0, 1, 2, 3, 4, 5, 6, 7, 8],
@@ -239,8 +260,17 @@ def test_differing_polytomy2(strict: bool):
     assert est
 
 
-@pytest.mark.parametrize("strict", [True, False])
-def test_identical_polytomy1(strict: bool):
+@pytest.mark.parametrize(
+    "strict",
+    [
+        True,
+        False,
+        *it.product([True, False], repeat=2),
+    ],
+)
+def test_identical_polytomy1(
+    strict: typing.Union[bool, typing.Tuple[bool, bool]]
+):
     adf = pd.DataFrame(
         {
             "id": [0, 1, 2, 3, 4, 5, 6, 7, 8],
@@ -277,8 +307,17 @@ def test_identical_polytomy1(strict: bool):
     assert not est
 
 
-@pytest.mark.parametrize("strict", [True, False])
-def test_differing_wrong_big(strict: bool):
+@pytest.mark.parametrize(
+    "strict",
+    [
+        True,
+        False,
+        *it.product([True, False], repeat=2),
+    ],
+)
+def test_differing_wrong_big(
+    strict: typing.Union[bool, typing.Tuple[bool, bool]]
+):
     adf = pd.DataFrame(
         {
             "id": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -318,3 +357,50 @@ def test_differing_wrong_big(strict: bool):
         strict=strict,
     )
     assert 0 < est < 1
+
+
+def test_differing_polytomy_asymmetrical_strict():
+    adf = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5],
+            "taxon_label": ["0", "1", "2", "3", "4", "5"],
+            "ancestor_id": [0, 0, 1, 2, 2, 1],
+        },
+    )
+    adf["ancestor_list"] = alifestd_make_ancestor_list_col(
+        adf["id"], adf["ancestor_id"]
+    )
+    bdf = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5],
+            "taxon_label": ["0", "1", "2", "3", "4", "5"],
+            "ancestor_id": [0, 0, 1, 2, 2, 2],
+        },
+    )
+    bdf["ancestor_list"] = alifestd_make_ancestor_list_col(
+        bdf["id"], bdf["ancestor_id"]
+    )
+    assert not alifestd_estimate_triplet_distance_asexual(
+        adf, bdf, "id", confidence=0.95, precision=0.05, strict=(True, False)
+    )
+    assert alifestd_estimate_triplet_distance_asexual(
+        adf, bdf, "id", confidence=0.95, precision=0.05, strict=(False, True)
+    )
+
+    assert alifestd_estimate_triplet_distance_asexual(
+        adf,
+        bdf.sample(frac=1),
+        "taxon_label",
+        confidence=0.95,
+        precision=0.05,
+        strict=(True, True),
+    )
+
+    assert not alifestd_estimate_triplet_distance_asexual(
+        adf,
+        bdf.sample(frac=1),
+        "taxon_label",
+        confidence=0.95,
+        precision=0.05,
+        strict=(False, False),
+    )

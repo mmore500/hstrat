@@ -1,3 +1,4 @@
+from collections import abc
 import typing
 
 import numpy as np
@@ -16,7 +17,7 @@ def alifestd_estimate_triplet_distance_asexual(
     taxon_label_key: str,
     confidence: float = 0.99,
     precision: float = 0.01,
-    strict: bool = True,
+    strict: typing.Union[bool, typing.Tuple[bool, bool]] = True,
     detail: bool = False,
     progress_wrap: typing.Callable = lambda x: x,
     mutate: bool = False,
@@ -24,6 +25,12 @@ def alifestd_estimate_triplet_distance_asexual(
     if not mutate:
         first_df = first_df.copy()
         second_df = second_df.copy()
+    try:
+        strict1, strict2 = strict
+    except TypeError:
+        strict1 = strict2 = strict
+        assert strict1 == strict2 == strict
+    lax = (not bool(strict1), not bool(strict2))
 
     first_df = first_df.reset_index(drop=True).set_index("id", drop=False)
     second_df = second_df.reset_index(drop=True).set_index("id", drop=False)
@@ -44,6 +51,7 @@ def alifestd_estimate_triplet_distance_asexual(
         return (0.0, [0.0, 0.0], 0) if detail else 0.0
 
     def sample_triplet_comparison() -> bool:
+        """Return True if the two categorizations differ."""
         labels = np.random.choice(first_taxon_labels, 3, replace=False)
         first_triplet_ids = [
             first_df.index[first_df[taxon_label_key] == label].item()
@@ -61,9 +69,16 @@ def alifestd_estimate_triplet_distance_asexual(
         cat2 = alifestd_categorize_triplet_asexual(
             second_df, second_triplet_ids, mutate=True
         )
-        lax = not strict
-        match = cat1 == cat2 or (lax and -1 in (cat1, cat2))
-        return not match
+
+        polytomy = -1
+        if cat1 == cat2:
+            return False
+        elif lax[0] and cat1 == polytomy:
+            return False
+        elif lax[1] and cat2 == polytomy:
+            return False
+        else:
+            return True
 
     res = estimate_binomial_p(
         sample_triplet_comparison,
