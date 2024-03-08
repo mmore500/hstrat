@@ -11,7 +11,8 @@ def estimate_binomial_p(
     precision: float = 0.01,
     progress_wrap: typing.Callable = lambda x: x,
 ) -> typing.Tuple[float, typing.Tuple[float, float, int]]:
-    """Estimate the probability of success in a binomial distribution, along with a confidence interval.
+    """Estimate the probability of success in a binomial distribution, along
+    with a confidence interval.
 
     This function uses a given sampler to generate observations, estimating the
     probability of success. It continues sampling until the width of the
