@@ -21,7 +21,7 @@ def alifestd_estimate_triplet_distance_asexual(
     detail: bool = False,
     progress_wrap: typing.Callable = lambda x: x,
     mutate: bool = False,
-) -> typing.Union[typing.Tuple[float, typing.Tuple[float, float, int]], float]:
+) -> typing.Union[float, typing.Tuple[float, typing.Tuple[float, float, int]]]:
     if not mutate:
         first_df = first_df.copy()
         second_df = second_df.copy()
