@@ -24,6 +24,11 @@ def alifestd_categorize_triplet_asexual(
     Input dataframe is not mutated by this operation unless `mutate` set True.
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
+
+    See Also
+    --------
+    alifestd_estimate_triplet_distance_asexual
+    alifestd_sample_triplet_comparisons_asexual
     """
 
     if not mutate:
