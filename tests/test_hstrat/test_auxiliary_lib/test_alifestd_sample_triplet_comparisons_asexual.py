@@ -2,9 +2,9 @@ import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
-    alifestd_sample_triplet_comparisons_asexual,
     alifestd_make_ancestor_list_col,
     alifestd_make_empty,
+    alifestd_sample_triplet_comparisons_asexual,
 )
 
 
