@@ -44,11 +44,13 @@ def calc_patristic_distance_bounds_between(
         Could any MRCA be detected between first and second? What is the rank
         of the earliest MRCA that could be reliably detected?
     does_definitively_have_no_common_anestor :
-        Does the hereditary stratigraphic record definitively prove that first and second could not possibly share a common ancestor?
+        Does the hereditary stratigraphic record definitively prove that first
+        and second could not possibly share a common ancestor?
 
     Notes
     -----
-    The true patristic distance is guaranteed to never fall below the returned bounds but may fall above.
+    The true patristic distance is guaranteed to never fall below the returned
+    bounds but may fall above.
     """
 
     mrca_rank_bounds = calc_rank_of_mrca_bounds_between(
