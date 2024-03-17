@@ -109,7 +109,7 @@ def alifestd_sample_triplet_comparisons_asexual(
         )
 
         first_sampled_leaf_pair = np.random.choice(
-            first_leaf_ids, 2, replace=False
+            first_triplet_ids, 2, replace=False
         )
         sampled_mrca_id = alifestd_find_mrca_id_asexual(
             first_df, first_sampled_leaf_pair, mutate=True
