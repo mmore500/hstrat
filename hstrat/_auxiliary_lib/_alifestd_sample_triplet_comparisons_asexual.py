@@ -48,8 +48,10 @@ def alifestd_sample_triplet_comparisons_asexual(
     pd.DataFrame
         A DataFrame with rows corresponding to sampled triplet comparisons and
         the following columns:
-        - "triplet code, {first,second}": the categorization of the triplet in the first or second tree.
-        - "triplet match, {lax,lax/strict,strict,strict/lax}": whether the triplet categorizations match with differing treatment of polytomies.
+        - "triplet code, {first,second}": the categorization of the triplet in
+          the first or second tree.
+        - "triplet match, {lax,lax/strict,strict,strict/lax}": whether the
+          triplet categorizations match with differing treatment of polytomies.
         - all columns from the first tree.
 
     Notes
