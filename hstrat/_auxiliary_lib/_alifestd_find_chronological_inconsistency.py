@@ -97,11 +97,12 @@ def alifestd_find_chronological_inconsistency(
 
     phylogeny_df = phylogeny_df.set_index("id", drop=False)
 
+    origin_time_loc = phylogeny_df.columns.get_loc("origin_time")
     for _pos, (_idx, row) in enumerate(phylogeny_df.iterrows()):
         for ancestor_id in alifestd_parse_ancestor_ids(row["ancestor_list"]):
             ancestor_loc = phylogeny_df.index.get_loc(ancestor_id)
             if (
-                phylogeny_df.iloc[ancestor_loc]["origin_time"]
+                phylogeny_df.iat[ancestor_loc, origin_time_loc]
                 > row["origin_time"]
             ):
                 return _idx
