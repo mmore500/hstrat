@@ -9,7 +9,6 @@ from hstrat._auxiliary_lib import (
     alifestd_coerce_chronological_consistency,
     alifestd_find_chronological_inconsistency,
     alifestd_make_empty,
-    alifestd_parse_ancestor_ids,
     alifestd_try_add_ancestor_id_col,
 )
 
