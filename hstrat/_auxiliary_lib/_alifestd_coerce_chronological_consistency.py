@@ -35,9 +35,10 @@ def alifestd_coerce_chronological_consistency(
     for pos, (_idx, row) in enumerate(phylogeny_df.iterrows()):
         for ancestor_id in alifestd_parse_ancestor_ids(row["ancestor_list"]):
             ancestor_loc = phylogeny_df.index.get_loc(ancestor_id)
-            ancestor_time = phylogeny_df.iloc[ancestor_loc, origin_time_loc]
-            phylogeny_df.iloc[pos, origin_time_loc] = max(
-                phylogeny_df.iloc[pos, origin_time_loc], ancestor_time
+            ancestor_time = phylogeny_df.iat[ancestor_loc, origin_time_loc]
+            offspring_time = phylogeny_df.iat[pos, origin_time_loc]
+            phylogeny_df.iat[pos, origin_time_loc] = max(
+                offspring_time, ancestor_time
             )
 
     return phylogeny_df
