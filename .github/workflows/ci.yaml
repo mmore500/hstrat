@@ -125,7 +125,7 @@ jobs:
       run: coverage debug sys
     - name: Run tests with coverage report
       run: coverage run -m pytest tests/test_hstrat/${{ matrix.subdivision }}
-    - uses: codecov/codecov-action@v3
+    - uses: codecov/codecov-action@v4
       with:
         flags: tests # optional
         fail_ci_if_error: true # optional (default = false)
