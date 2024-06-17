@@ -14,5 +14,9 @@ cd "${0%/*}"
 wait
 
 for f in py38/*.txt; do
-  cat "${f}" | sed "s/==/>=/g" > "$(basename "${f}")"
+  cat "${f}" \
+    | sed "s/==/>=/g" \
+    | sed "s/numpy>=/numpy<2,>=/g" \
+    | sed "s/pandas>=/pandas<2,>=/g" \
+    > "$(basename "${f}")"
 done

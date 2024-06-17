@@ -175,7 +175,7 @@ networkx>=2.6.3
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
-numpy>=1.21.6
+numpy<2,>=1.21.6
     # via
     #   alifedata-phyloinformatics-convert
     #   biopython
@@ -203,7 +203,7 @@ packaging>=23.0
     #   pandera
     #   sphinx
     #   statsmodels
-pandas>=1.3.5
+pandas<2,>=1.3.5
     # via
     #   alifedata-phyloinformatics-convert
     #   hstrat (../../pyproject.toml)
