@@ -4,10 +4,10 @@ import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
+    alifestd_aggregate_phylogenies,
     alifestd_count_leaf_nodes,
     alifestd_downsample_tips_asexual,
     alifestd_prune_extinct_lineages_asexual,
-    alifestd_aggregate_phylogenies,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
