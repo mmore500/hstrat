@@ -26,29 +26,44 @@ class MatrixColumn(Enum):
     IS_LEAF_NODE = 8
 
 
-MatrixEntry = namedtuple("MatrixEntry", [
-    'id', 'parent', 'first_child', 'last_child', 'next_sibling',
-    'rank', 'differentia', 'taxon_label', 'is_leaf'
-])
+MatrixEntry = namedtuple(
+    "MatrixEntry",
+    [
+        "id",
+        "parent",
+        "first_child",
+        "last_child",
+        "next_sibling",
+        "rank",
+        "differentia",
+        "taxon_label",
+        "is_leaf",
+    ],
+)
 
 
-def _get_np_uint_by_size(bit_width: int) -> typing.Type:  # todo expand to union
-    """ Determines the smallest possible integer to store stratigraphic data. """
+def _get_np_uint_by_size(
+    bit_width: int,
+) -> typing.Type:  # todo expand to union
+    """Determines the smallest possible integer to store stratigraphic data."""
     sizes = [np.uint8, np.uint16, np.uint32]
     for i in range(3, 6):
-        if bit_width < 2 ** i:
-            return sizes[i-3]
+        if bit_width < 2**i:
+            return sizes[i - 3]
     return np.uint64
 
 
 def _add_child_matrix(m: np.ndarray, root_index: int, child_index: int) -> int:
-    """ Adds a child to the matrix and returns the index of the child. """
+    """Adds a child to the matrix and returns the index of the child."""
     if m[root_index][MatrixColumn.LAST_CHILD_ID.value]:
-        m[m[root_index][MatrixColumn.LAST_CHILD_ID.value]][MatrixColumn.NEXT_SIBLING_ID.value] = child_index
+        m[m[root_index][MatrixColumn.LAST_CHILD_ID.value]][
+            MatrixColumn.NEXT_SIBLING_ID.value
+        ] = child_index
     else:
         m[root_index][MatrixColumn.FIRST_CHILD_ID.value] = child_index
     m[root_index][MatrixColumn.LAST_CHILD_ID.value] = child_index
     return child_index
+
 
 # NOTE: THIS ENTIRE FUNCTION USES ONE-INDEXING FOR IDS TO LEAVE 0 AS A PLACEHOLDER
 # @numba.jit()
@@ -65,11 +80,16 @@ def build_trie_from_artifacts_matrix(
 
     m = np.zeros(
         (len(population), len(MatrixColumn)),
-        dtype=_get_np_uint_by_size(population[0]._stratum_differentia_bit_width) # assumes all bit widths the same
+        dtype=_get_np_uint_by_size(
+            population[0]._stratum_differentia_bit_width
+        ),  # assumes all bit widths the same
     )
-    assert 2**population[0]._stratum_differentia_bit_width > len(taxon_label_ids)
+    assert 2 ** population[0]._stratum_differentia_bit_width > len(
+        taxon_label_ids
+    )
 
     curr_index = 0
+
     def step_index() -> int:
         """
         Steps the current index of the most recent node and returns the value.
@@ -77,11 +97,15 @@ def build_trie_from_artifacts_matrix(
         """
         nonlocal curr_index, m
         if curr_index >= m.shape[0] - 2:
-            m = np.vstack((m, np.zeros((m.shape[0], len(MatrixColumn)), dtype=m.dtype)))
+            m = np.vstack(
+                (m, np.zeros((m.shape[0], len(MatrixColumn)), dtype=m.dtype))
+            )
         curr_index += 1
         return curr_index
 
-    m[curr_index] = np.array([step_index()] + [0] * (len(MatrixColumn)-1))  # root inner node
+    m[curr_index] = np.array(
+        [step_index()] + [0] * (len(MatrixColumn) - 1)
+    )  # root inner node
     for label, artifact in progress_wrap(
         give_len(zip(taxon_label_ids, population), len(population))
     ):
@@ -92,33 +116,55 @@ def build_trie_from_artifacts_matrix(
 
             # iterate through the children of the node checking for a match to branch off of
             create_new = True
-            if (child_index := m[root_index][MatrixColumn.FIRST_CHILD_ID.value]):
+            if child_index := m[root_index][MatrixColumn.FIRST_CHILD_ID.value]:
                 while child_index:
                     if (
-                        m[child_index][MatrixColumn.DIFFERENTIA.value] == differentia
+                        m[child_index][MatrixColumn.DIFFERENTIA.value]
+                        == differentia
                         and m[child_index][MatrixColumn.RANK.value] == rank
                     ):
                         root_index = child_index
                         create_new = False
                         break
-                    child_index = m[child_index][MatrixColumn.NEXT_SIBLING_ID.value]
+                    child_index = m[child_index][
+                        MatrixColumn.NEXT_SIBLING_ID.value
+                    ]
 
             # create a new inner node for the new branch
             if create_new:
-                m[curr_index] = np.array(MatrixEntry(
-                    id=step_index(), parent=root_index, first_child=0, last_child=0,
-                    next_sibling=0, rank=rank, differentia=differentia, is_leaf=0, taxon_label=0
-                ))
+                m[curr_index] = np.array(
+                    MatrixEntry(
+                        id=step_index(),
+                        parent=root_index,
+                        first_child=0,
+                        last_child=0,
+                        next_sibling=0,
+                        rank=rank,
+                        differentia=differentia,
+                        is_leaf=0,
+                        taxon_label=0,
+                    )
+                )
                 root_index = _add_child_matrix(m, root_index, curr_index)
 
         # create a leaf node representing the inserted allele
-        m[curr_index] = np.array(MatrixEntry(
-            id=step_index(), parent=root_index, first_child=0, last_child=0, next_sibling=0,
-            rank=0, differentia=0, taxon_label=label, is_leaf=1
-        ))
+        m[curr_index] = np.array(
+            MatrixEntry(
+                id=step_index(),
+                parent=root_index,
+                first_child=0,
+                last_child=0,
+                next_sibling=0,
+                rank=0,
+                differentia=0,
+                taxon_label=label,
+                is_leaf=1,
+            )
+        )
         root_index = _add_child_matrix(m, root_index, curr_index)
 
     return m
+
 
 def build_trie_from_artifacts(
     population: typing.Sequence[HereditaryStratigraphicArtifact],

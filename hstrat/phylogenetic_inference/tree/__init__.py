@@ -5,7 +5,11 @@ from ._build_tree import build_tree
 from ._build_tree_nj import build_tree_nj
 from ._build_tree_trie import build_tree_trie
 from ._build_tree_trie_ensemble import build_tree_trie_ensemble
-from ._impl import build_trie_from_artifacts, build_trie_from_artifacts_matrix, MatrixColumn
+from ._impl import (
+    build_trie_from_artifacts,
+    build_trie_from_artifacts_matrix,
+    MatrixColumn,
+)
 from ._build_tree_upgma import build_tree_upgma
 from .trie_postprocess import *  # noqa: F401
 
@@ -18,7 +22,7 @@ __all__ = [
     "trie_postprocess",
     "build_trie_from_artifacts_matrix",
     "build_trie_from_artifacts",
-    "MatrixColumn"
+    "MatrixColumn",
 ] + trie_postprocess.__all__
 
 from ..._auxiliary_lib import launder_impl_modules as _launder

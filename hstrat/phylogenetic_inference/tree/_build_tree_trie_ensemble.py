@@ -14,7 +14,12 @@ from ..._auxiliary_lib import (
     flag_last,
 )
 from ...juxtaposition import calc_probability_differentia_collision_between
-from ._impl import TrieInnerNode, build_trie_from_artifacts, build_trie_from_artifacts_matrix, MatrixColumn
+from ._impl import (
+    TrieInnerNode,
+    build_trie_from_artifacts,
+    build_trie_from_artifacts_matrix,
+    MatrixColumn,
+)
 
 
 def _finalize_trie(trie: TrieInnerNode) -> pd.DataFrame:
@@ -40,10 +45,15 @@ def _build_tree_trie_ensemble_matrix(
         return alifestd_make_empty()
 
     taxon_labels = taxon_labels or [*range(len(population))]
-    m = build_trie_from_artifacts_matrix(population, [*range(len(population))], progress_wrap)
+    m = build_trie_from_artifacts_matrix(
+        population, [*range(len(population))], progress_wrap
+    )
 
     if force_common_ancestry:
-        if m[1][MatrixColumn.FIRST_CHILD_ID] != m[1][MatrixColumn.LAST_CHILD_ID]:
+        if (
+            m[1][MatrixColumn.FIRST_CHILD_ID]
+            != m[1][MatrixColumn.LAST_CHILD_ID]
+        ):
             raise ValueError
 
     p_differentia_collision = calc_probability_differentia_collision_between(
@@ -87,7 +97,9 @@ def _build_tree_trie_ensemble(
         force_common_ancestry=force_common_ancestry,
         progress_wrap=progress_wrap,
     )
-    if not force_common_ancestry:  # todo bug? is there supposed to be a not here
+    if (
+        not force_common_ancestry
+    ):  # todo bug? is there supposed to be a not here
         try:
             root = ip.popsingleton(root.children)
             root.parent = None
