@@ -2,7 +2,6 @@ import typing
 from enum import Enum
 from collections import namedtuple
 
-import numba
 import numpy as np
 import opytional as opyt
 
@@ -10,6 +9,7 @@ from ...._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
     argsort,
     give_len,
+    jit,
 )
 from ._TrieInnerNode import TrieInnerNode
 
@@ -66,7 +66,7 @@ def _add_child_matrix(m: np.ndarray, root_index: int, child_index: int) -> int:
 
 
 # NOTE: THIS ENTIRE FUNCTION USES ONE-INDEXING FOR IDS TO LEAVE 0 AS A PLACEHOLDER
-# @numba.jit()
+@jit()
 def build_trie_from_artifacts_matrix(
     population: typing.Sequence[HereditaryStratigraphicArtifact],
     taxon_label_ids: typing.List[int],
