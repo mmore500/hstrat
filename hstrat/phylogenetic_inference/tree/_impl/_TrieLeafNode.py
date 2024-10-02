@@ -53,6 +53,10 @@ class TrieLeafNode(anytree.NodeMixin):
         """Return the origin time for this leaf node."""
         return self.parent.rank
 
+    @property
+    def differentia(self: "TrieLeafNode") -> int:
+        return self.parent.differentia
+
     def __repr__(self: "TrieLeafNode") -> str:
         """Return a string representation of this leaf node."""
         return f"""{self.taxon_label} @ {

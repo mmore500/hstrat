@@ -251,6 +251,10 @@ class TrieInnerNode(anytree.NodeMixin):
         return opyt.or_value(self._rank, 0)
 
     @property
+    def differentia(self: "TrieInnerNode") -> int:
+        return opyt.or_value(self._differentia, 0)
+
+    @property
     def inner_children(
         self: "TrieInnerNode",
     ) -> typing.Iterator["TrieInnerNode"]:

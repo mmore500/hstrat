@@ -14,7 +14,7 @@ from ..._auxiliary_lib import (
     flag_last,
 )
 from ...juxtaposition import calc_probability_differentia_collision_between
-from ._impl import TrieInnerNode, build_trie_from_artifacts
+from ._impl import TrieInnerNode, build_trie_from_artifacts, build_trie_from_artifacts_matrix, MatrixColumn
 
 
 def _finalize_trie(trie: TrieInnerNode) -> pd.DataFrame:
@@ -22,6 +22,48 @@ def _finalize_trie(trie: TrieInnerNode) -> pd.DataFrame:
     return alifestd_collapse_unifurcations(
         anytree_tree_to_alife_dataframe(trie), mutate=True
     )
+
+
+def _build_tree_trie_ensemble_matrix(
+    population: typing.Sequence[HereditaryStratigraphicArtifact],
+    trie_postprocessors: typing.Iterable[typing.Callable],
+    taxon_labels: typing.Optional[typing.Iterable],
+    force_common_ancestry: bool,
+    progress_wrap: typing.Callable,
+) -> typing.List[pd.DataFrame]:
+    """Implementation detail for build_tree_trie_ensemble.
+
+    See `build_tree_trie_ensemble` for parameter descriptions.
+    """
+    # for simplicity, return early for this special case
+    if len(population) == 0:
+        return alifestd_make_empty()
+
+    taxon_labels = taxon_labels or [*range(len(population))]
+    m = build_trie_from_artifacts_matrix(population, [*range(len(population))], progress_wrap)
+
+    if force_common_ancestry:
+        if m[1][MatrixColumn.FIRST_CHILD_ID] != m[1][MatrixColumn.LAST_CHILD_ID]:
+            raise ValueError
+
+    p_differentia_collision = calc_probability_differentia_collision_between(
+        population[0], population[0]
+    )
+
+    res = []
+    for is_last, postprocessor in flag_last(trie_postprocessors):
+        res.append(
+            _finalize_trie(
+                postprocessor(
+                    root,
+                    p_differentia_collision=p_differentia_collision,
+                    mutate=is_last,
+                    progress_wrap=progress_wrap,
+                )
+            )
+        )
+
+    return res
 
 
 def _build_tree_trie_ensemble(
@@ -45,7 +87,7 @@ def _build_tree_trie_ensemble(
         force_common_ancestry=force_common_ancestry,
         progress_wrap=progress_wrap,
     )
-    if not force_common_ancestry:
+    if not force_common_ancestry:  # todo bug? is there supposed to be a not here
         try:
             root = ip.popsingleton(root.children)
             root.parent = None
