@@ -75,6 +75,9 @@ def build_trie_from_artifacts_matrix(
     """
     Implementation of below function build_trie_from_artifacts using
     a matrix rather than the TrieInnerNode.
+    It is designed to work with the optimized case in which the
+    evolution was perfectly synchronous, so it, presently, cannot
+    work with a population out-of-sync in terms of ranks.
     Better suited for optimization with Numba.
     """
 
@@ -163,7 +166,7 @@ def build_trie_from_artifacts_matrix(
         )
         root_index = _add_child_matrix(m, root_index, curr_index)
 
-    return m
+    return m[:curr_index + 1]  # todo: check if we need a .copy()?
 
 
 def build_trie_from_artifacts(
