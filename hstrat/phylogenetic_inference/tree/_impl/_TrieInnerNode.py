@@ -241,6 +241,26 @@ class TrieInnerNode(anytree.NodeMixin):
                 render_to_base64url(int(self._tiebreaker))
             }"""
 
+    # recursive check
+    def __eq__(self: "TrieInnerNode", other: object) -> bool:
+        if not isinstance(other, TrieInnerNode):
+            return False
+        if not (
+            self.rank == other.rank and self.differentia == other.differentia
+        ):
+            return False
+        if not sorted(
+            self.inner_children, key=lambda x: (x.differentia, x.rank)
+        ) == sorted(
+            other.inner_children, key=lambda x: (x.differentia, x.rank)
+        ):  # should be enough
+            return False
+        if not sorted(
+            self.outer_children, key=lambda x: x.taxon_label
+        ) == sorted(other.outer_children, key=lambda x: x.taxon_label):
+            return False
+        return True
+
     @property
     def taxon(self: "TrieInnerNode") -> str:
         """Alias for taxon_label."""

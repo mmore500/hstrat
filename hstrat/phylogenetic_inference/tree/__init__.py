@@ -8,6 +8,7 @@ from ._build_tree_trie_ensemble import build_tree_trie_ensemble
 from ._impl import (
     build_trie_from_artifacts,
     build_trie_from_artifacts_matrix,
+    build_trie_from_artifacts_progressive,
     MatrixColumn,
 )
 from ._build_tree_upgma import build_tree_upgma
@@ -21,6 +22,7 @@ __all__ = [
     "build_tree",
     "trie_postprocess",
     "build_trie_from_artifacts_matrix",
+    "build_trie_from_artifacts_progressive",
     "build_trie_from_artifacts",
     "MatrixColumn",
 ] + trie_postprocess.__all__

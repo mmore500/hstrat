@@ -1,5 +1,6 @@
 import typing
 from enum import Enum
+from typing import Iterable
 from collections import namedtuple
 
 import numpy as np
@@ -12,6 +13,7 @@ from ...._auxiliary_lib import (
     jit,
 )
 from ._TrieInnerNode import TrieInnerNode
+from ._TrieLeafNode import TrieLeafNode
 
 
 class MatrixColumn(Enum):
@@ -26,22 +28,7 @@ class MatrixColumn(Enum):
     IS_LEAF_NODE = 8
 
 
-MatrixEntry = namedtuple(
-    "MatrixEntry",
-    [
-        "id",
-        "parent",
-        "first_child",
-        "last_child",
-        "next_sibling",
-        "rank",
-        "differentia",
-        "taxon_label",
-        "is_leaf",
-    ],
-)
-
-
+# not currently used right now
 def _get_np_uint_by_size(
     bit_width: int,
 ) -> typing.Type:  # todo expand to union
@@ -53,6 +40,7 @@ def _get_np_uint_by_size(
     return np.uint64
 
 
+@jit()
 def _add_child_matrix(m: np.ndarray, root_index: int, child_index: int) -> int:
     """Adds a child to the matrix and returns the index of the child."""
     if m[root_index][MatrixColumn.LAST_CHILD_ID.value]:
@@ -68,9 +56,10 @@ def _add_child_matrix(m: np.ndarray, root_index: int, child_index: int) -> int:
 # NOTE: THIS ENTIRE FUNCTION USES ONE-INDEXING FOR IDS TO LEAVE 0 AS A PLACEHOLDER
 @jit()
 def build_trie_from_artifacts_matrix(
-    population: typing.Sequence[HereditaryStratigraphicArtifact],
+    ranks: np.ndarray,
+    differentia: np.ndarray,
+    stratum_differentia_bit_width: int,
     taxon_label_ids: typing.List[int],
-    progress_wrap: typing.Callable,
 ) -> np.ndarray:
     """
     Implementation of below function build_trie_from_artifacts using
@@ -80,16 +69,11 @@ def build_trie_from_artifacts_matrix(
     work with a population out-of-sync in terms of ranks.
     Better suited for optimization with Numba.
     """
-
     m = np.zeros(
-        (len(population), len(MatrixColumn)),
-        dtype=_get_np_uint_by_size(
-            population[0]._stratum_differentia_bit_width
-        ),  # assumes all bit widths the same
-    )
-    assert 2 ** population[0]._stratum_differentia_bit_width > len(
-        taxon_label_ids
-    )
+        (differentia.shape[1], 9),
+        dtype=np.uint64,  # _get_np_uint_by_size(stratum_differentia_bit_width),
+    )  # assumes all bit widths the same
+    assert 2**stratum_differentia_bit_width > len(taxon_label_ids)
 
     curr_index = 0
 
@@ -100,73 +84,108 @@ def build_trie_from_artifacts_matrix(
         """
         nonlocal curr_index, m
         if curr_index >= m.shape[0] - 2:
-            m = np.vstack(
-                (m, np.zeros((m.shape[0], len(MatrixColumn)), dtype=m.dtype))
-            )
+            m = np.vstack((m, np.zeros((m.shape[0], 9), dtype=m.dtype)))
         curr_index += 1
         return curr_index
 
-    m[curr_index] = np.array(
-        [step_index()] + [0] * (len(MatrixColumn) - 1)
-    )  # root inner node
-    for label, artifact in progress_wrap(
-        give_len(zip(taxon_label_ids, population), len(population))
+    m[curr_index] = np.array([step_index()] + [0] * 8)  # root inner node
+    for label, artifact_idx in zip(
+        taxon_label_ids, range(differentia.shape[1])
     ):
         root_index = 1
 
         # todo: are rank comparisons really needed here ?
-        for rank, differentia in artifact.IterRankDifferentiaZip():
+        for allele_idx in range(ranks.shape[0]):
+            rank = ranks[allele_idx]
+            diff = differentia[allele_idx][artifact_idx]
 
             # iterate through the children of the node checking for a match to branch off of
             create_new = True
-            if child_index := m[root_index][MatrixColumn.FIRST_CHILD_ID.value]:
-                while child_index:
-                    if (
-                        m[child_index][MatrixColumn.DIFFERENTIA.value]
-                        == differentia
-                        and m[child_index][MatrixColumn.RANK.value] == rank
-                    ):
-                        root_index = child_index
-                        create_new = False
-                        break
-                    child_index = m[child_index][
-                        MatrixColumn.NEXT_SIBLING_ID.value
-                    ]
+            child_index = m[int(root_index)][MatrixColumn.FIRST_CHILD_ID.value]
+            while child_index:
+                if m[child_index][MatrixColumn.DIFFERENTIA.value] == diff:
+                    root_index = child_index
+                    create_new = False
+                    break
+                child_index = m[child_index][
+                    MatrixColumn.NEXT_SIBLING_ID.value
+                ]
 
             # create a new inner node for the new branch
             if create_new:
                 m[curr_index] = np.array(
-                    MatrixEntry(
-                        id=step_index(),
-                        parent=root_index,
-                        first_child=0,
-                        last_child=0,
-                        next_sibling=0,
-                        rank=rank,
-                        differentia=differentia,
-                        is_leaf=0,
-                        taxon_label=0,
-                    )
+                    [
+                        step_index(),
+                        root_index,
+                        0,
+                        0,
+                        0,
+                        rank,
+                        diff,
+                        0,
+                        0,
+                    ]
                 )
-                root_index = _add_child_matrix(m, root_index, curr_index)
+                root_index = _add_child_matrix(m, int(root_index), curr_index)
 
-        # create a leaf node representing the inserted allele
-        m[curr_index] = np.array(
-            MatrixEntry(
-                id=step_index(),
-                parent=root_index,
-                first_child=0,
-                last_child=0,
-                next_sibling=0,
-                rank=0,
-                differentia=0,
-                taxon_label=label,
-                is_leaf=1,
-            )
+        m[int(curr_index)] = np.array(
+            [
+                step_index(),
+                int(root_index),
+                0,
+                0,
+                0,
+                0,
+                0,
+                label,
+                1,
+            ]
         )
-        root_index = _add_child_matrix(m, root_index, curr_index)
 
-    return m[:curr_index + 1]  # todo: check if we need a .copy()?
+        root_index = _add_child_matrix(m, int(root_index), curr_index)
+
+    return m[: curr_index + 1]  # todo: check if we need a .copy()?
+
+
+def build_trie_from_artifacts_progressive(
+    population: typing.Sequence[HereditaryStratigraphicArtifact],
+    taxon_labels: typing.Optional[Iterable],
+) -> TrieInnerNode:
+
+    taxon_labels = list(taxon_labels or [*map(str, range(len(population)))])
+    root = TrieInnerNode()
+    differentiae: Iterable[Iterable[int]] = zip(
+        *(x.IterRetainedDifferentia() for x in population)
+    )
+    ranks: Iterable[int] = population[0].IterRetainedRanks()
+    alleles: list[tuple[int, Iterable[int]]] = [*zip(ranks, differentiae)]
+
+    def recursive_builder(
+        root: TrieInnerNode, stage: int, target_artifacts: set[int]
+    ) -> None:
+        rank, diff = alleles[stage]
+        unique_d = {}
+        for i, d in filter(
+            lambda x: x[0] in target_artifacts, enumerate(diff)
+        ):
+            if d not in unique_d:
+                unique_d[d] = set()
+            unique_d[d].add(i)
+        if stage < len(alleles) - 1:
+            for d, targets in unique_d.items():
+                recursive_builder(
+                    TrieInnerNode(rank=rank, differentia=d, parent=root),
+                    stage + 1,
+                    targets,
+                )
+        else:
+            for d, targets in unique_d.items():
+                parent = TrieInnerNode(rank=rank, differentia=d, parent=root)
+                for i in targets:
+                    TrieLeafNode(taxon_label=taxon_labels[i], parent=parent)
+
+    recursive_builder(root, 0, {*range(len(population))})
+    return root
 
 
 def build_trie_from_artifacts(
