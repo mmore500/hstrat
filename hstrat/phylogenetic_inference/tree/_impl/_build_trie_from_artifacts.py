@@ -154,6 +154,8 @@ def build_trie_from_artifacts_progressive(
 
     taxon_labels = list(taxon_labels or [*map(str, range(len(population)))])
     root = TrieInnerNode()
+    if not population:
+        return root
     differentiae: Iterable[Iterable[int]] = zip(
         *(x.IterRetainedDifferentia() for x in population)
     )

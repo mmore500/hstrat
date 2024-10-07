@@ -3,7 +3,6 @@ import pytest
 import numpy as np
 
 from hstrat import hstrat
-from hstrat.phylogenetic_inference.tree._impl import TrieInnerNode
 from hstrat.phylogenetic_inference.tree._impl._build_trie_from_artifacts import (
     build_trie_from_artifacts,
     build_trie_from_artifacts_matrix,
@@ -61,7 +60,7 @@ def test_build_trie_matrix(
 
 def test_build_trie_matrix_empty():
     m = build_trie_from_artifacts_matrix(np.zeros((0,)), np.zeros((0, 0)), 8, [0])
-    root = TrieInnerNode()
+    root = build_trie_from_artifacts([], [], False, lambda x: x)
     assert is_matrix_equal_trie(m, root)
 
 
