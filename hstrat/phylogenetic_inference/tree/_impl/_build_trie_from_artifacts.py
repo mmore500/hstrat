@@ -70,7 +70,7 @@ def build_trie_from_artifacts_matrix(
     Better suited for optimization with Numba.
     """
     m = np.zeros(
-        (differentia.shape[1], 9),
+        (differentia.shape[1]+1, 9),
         dtype=np.uint64,  # _get_np_uint_by_size(stratum_differentia_bit_width),
     )  # assumes all bit widths the same
     assert 2**stratum_differentia_bit_width > len(taxon_label_ids)
