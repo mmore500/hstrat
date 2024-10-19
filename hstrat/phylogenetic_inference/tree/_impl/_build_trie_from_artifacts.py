@@ -1,7 +1,10 @@
+import os
 import typing
 from enum import Enum
+from time import sleep
 from typing import Iterable
-from collections import namedtuple
+from datetime import datetime
+from multiprocess import Queue, Pool, Value
 
 import numpy as np
 import opytional as opyt
@@ -15,6 +18,8 @@ from ...._auxiliary_lib import (
 from ._TrieInnerNode import TrieInnerNode
 from ._TrieLeafNode import TrieLeafNode
 
+from cppimport import import_hook
+from .build_trie_from_artifacts_cpp import build_trie_from_artifacts_sync, TrieInnerNode_C
 
 class MatrixColumn(Enum):
     ID = 0
@@ -146,8 +151,23 @@ def build_trie_from_artifacts_matrix(
 
     return m[: curr_index + 1]  # todo: check if we need a .copy()?
 
+def lprint(*args, **kwargs):
+    print(f'{datetime.now()}: ', end='')
+    print(*args, **kwargs)
+
 
 def build_trie_from_artifacts_progressive(
+    population: typing.Sequence[HereditaryStratigraphicArtifact],
+    taxon_labels: typing.Optional[Iterable],
+    *,
+    multiprocess: bool
+):
+    if multiprocess:
+        return build_trie_from_artifacts_progressive_multiprocess(population, taxon_labels)
+    return build_trie_from_artifacts_progressive_single_process(population, taxon_labels)
+
+# proposed model: add a worker pool
+def build_trie_from_artifacts_progressive_single_process(
     population: typing.Sequence[HereditaryStratigraphicArtifact],
     taxon_labels: typing.Optional[Iterable],
 ) -> TrieInnerNode:
@@ -162,9 +182,9 @@ def build_trie_from_artifacts_progressive(
     ranks: Iterable[int] = population[0].IterRetainedRanks()
     alleles: list[tuple[int, Iterable[int]]] = [*zip(ranks, differentiae)]
 
-    def recursive_builder(
-        root: TrieInnerNode, stage: int, target_artifacts: set[int]
-    ) -> None:
+    n = len(population)
+    m = len(alleles)
+    def recursive_builder(root: TrieInnerNode, stage: int, target_artifacts: set[int]) -> None:
         rank, diff = alleles[stage]
         unique_d = {}
         for i, d in filter(
@@ -173,20 +193,83 @@ def build_trie_from_artifacts_progressive(
             if d not in unique_d:
                 unique_d[d] = set()
             unique_d[d].add(i)
-        if stage < len(alleles) - 1:
+        if stage < m - 1:
             for d, targets in unique_d.items():
-                recursive_builder(
-                    TrieInnerNode(rank=rank, differentia=d, parent=root),
-                    stage + 1,
-                    targets,
-                )
+                recursive_builder(TrieInnerNode(rank=rank, differentia=d, parent=root), stage+1, targets)
         else:
             for d, targets in unique_d.items():
                 parent = TrieInnerNode(rank=rank, differentia=d, parent=root)
                 for i in targets:
                     TrieLeafNode(taxon_label=taxon_labels[i], parent=parent)
 
-    recursive_builder(root, 0, {*range(len(population))})
+    recursive_builder(root, 0, {*range(n)})
+    return root
+
+def build_trie_from_artifacts_cpp_sync(
+    population: list[tuple[list[int], list[int]]],
+    taxon_labels: list[str]
+) -> TrieInnerNode_C:
+    return build_trie_from_artifacts_sync(population, taxon_labels)
+
+# proposed model: add a worker pool
+def build_trie_from_artifacts_progressive_multiprocess(
+    population: typing.Sequence[HereditaryStratigraphicArtifact],
+    taxon_labels: typing.Optional[Iterable],
+) -> TrieInnerNode:
+    """Due to processes not sharing memory, this is not doable under the current model."""
+
+    taxon_labels = list(taxon_labels or [*map(str, range(len(population)))])
+    root = TrieInnerNode()
+    if not population:
+        return root
+    differentiae: Iterable[Iterable[int]] = tuple(zip(
+        *(tuple(x.IterRetainedDifferentia()) for x in population)
+    ))
+    ranks: Iterable[int] = tuple(population[0].IterRetainedRanks())
+    alleles: list[tuple[int, Iterable[int]]] = [*zip(ranks, differentiae)]
+
+    n = len(population)
+    m = len(alleles)
+    def worker(queue: Queue, leaves_added: Value) -> None:
+        while True:
+            unique_d = {}
+            task = queue.get(block=True)
+            if task is None:
+                return queue.put(None)
+
+            # root, stage, target_artifacts = task
+            stage, target_artifacts = task
+            rank, diff = alleles[stage]
+
+            for i, d in filter(
+                lambda x: x[0] in target_artifacts, enumerate(diff)
+            ):
+                if d not in unique_d:
+                    unique_d[d] = set()
+                unique_d[d].add(i)
+            if stage < m - 1:
+                for d, targets in unique_d.items():
+                    # lprint(f"Published task at {stage=} {d}; {targets}")
+                    # queue.put((TrieInnerNode(rank=rank, differentia=d, parent=root), stage+1, targets))
+                    queue.put((stage+1, targets))
+            else:
+                for d, targets in unique_d.items():
+                    # parent = TrieInnerNode(rank=rank, differentia=d, parent=root)
+                    with leaves_added.get_lock():
+                        leaves_added.value += len(targets)
+                    # for i in targets:
+                    #     TrieLeafNode(taxon_label=taxon_labels[i], parent=parent)
+                    if leaves_added.value == n:
+                        queue.put(None)
+
+    main_queue = Queue()
+    leaves_added = Value('i', 0)
+    # main_queue.put((root, 0, {*range(len(population))}))
+    main_queue.put((0, {*range(len(population))}))
+    pool = Pool(os.cpu_count(), initializer=worker, initargs=(main_queue, leaves_added))
+    pool.close()
+    pool.join()
+
     return root
 
 
