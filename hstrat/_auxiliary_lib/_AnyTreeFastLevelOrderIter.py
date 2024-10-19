@@ -44,7 +44,7 @@ class AnyTreeFastLevelOrderIter:
 
     Notes
     -----
-    This implementationis faster than the `LevelOrderIter` implementation provided by `anytree` (especially for large trees). Because it is iterative instead of recursive, it will won't cause recursion limit errors.
+    This implementation is faster than the `LevelOrderIter` implementation provided by `anytree` (especially for large trees). Because it is iterative instead of recursive, it will won't cause recursion limit errors.
     """
 
     _queue: typing.Deque[anytree.AnyNode]
