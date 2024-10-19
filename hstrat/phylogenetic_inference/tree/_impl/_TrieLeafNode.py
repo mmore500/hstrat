@@ -24,6 +24,7 @@ class TrieLeafNode(anytree.NodeMixin):
         Synonym for taxon_label.
     """
 
+    _buildparent: "TrieInnerNode"
     taxon_label: str
 
     def __init__(
@@ -40,6 +41,7 @@ class TrieLeafNode(anytree.NodeMixin):
         taxon_label : str
             The taxon label for this leaf node.
         """
+        self._buildparent = parent
         self.parent = parent
         self.taxon_label = taxon_label
 

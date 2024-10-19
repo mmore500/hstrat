@@ -1,3 +1,4 @@
+from collections import defaultdict
 import copy
 import random
 import typing
@@ -26,6 +27,7 @@ class TrieInnerNode(anytree.NodeMixin):
     both types.
     """
 
+    _buildparent: typing.Optional["TrieInnerNode"]
     _rank: int  # rank of represented allele
     _differentia: int  # differentia of represented allele
     _tiebreaker: int  # random 128-bit integer used to break ties.
@@ -51,6 +53,7 @@ class TrieInnerNode(anytree.NodeMixin):
             The parent node, or None for shim "ancestor of all geneses" root
             node.
         """
+        self._buildparent = parent
         self.parent = parent
         self._rank = rank
         self._differentia = differentia
@@ -207,6 +210,27 @@ class TrieInnerNode(anytree.NodeMixin):
         for next_rank, next_differentia in taxon_allele_iter:
             assert next_rank is not None
             assert next_differentia is not None
+
+            node_stack = [cur_node]
+            while node_stack:
+                node_ = node_stack.pop()
+                for child in node_.inner_children:
+                    if child._rank < next_rank:
+                        node_stack.extend(child.inner_children)
+                        for grandchild in child.children:
+                            grandchild.parent = cur_node
+
+            groups = defaultdict(list)
+            for child in cur_node.inner_children:
+                groups[
+                    (child._rank, child._differentia)
+                ].append(child)
+
+            for group in groups.values():
+                group = sorted(group, key=lambda x: x._tiebreaker)
+                for loser in group[1:]:
+                    loser.parent = None
+
             for child in cur_node.inner_children:
                 # check immediate children for next allele
                 #

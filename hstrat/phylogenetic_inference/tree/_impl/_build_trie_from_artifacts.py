@@ -1,3 +1,4 @@
+import gc
 import typing
 
 import opytional as opyt
@@ -8,6 +9,7 @@ from ...._auxiliary_lib import (
     give_len,
 )
 from ._TrieInnerNode import TrieInnerNode
+from ._TrieLeafNode import TrieLeafNode
 
 
 def build_trie_from_artifacts(
@@ -42,7 +44,7 @@ def build_trie_from_artifacts(
         give_len(zip(sorted_labels, sorted_population), len(population))
     ):
 
-        if is_perfectly_synchronous:
+        if True:
             root.InsertTaxon(label, artifact.IterRankDifferentiaZip())
         else:
             res = root.GetDeepestCongruousAlleleOrigination(
@@ -50,5 +52,9 @@ def build_trie_from_artifacts(
             )
             node, subsequent_allele_genesis_iter = res
             node.InsertTaxon(label, subsequent_allele_genesis_iter)
+
+    for obj in gc.get_objects():
+        if isinstance(obj, (TrieInnerNode, TrieLeafNode)):
+            obj.parent = obj._buildparent
 
     return root
