@@ -213,6 +213,7 @@ class TrieInnerNode(anytree.NodeMixin):
             assert next_rank is not None
             assert next_differentia is not None
 
+            # collapse away nodes with differentiae that have been dropped
             node_stack = [cur_node]
             while node_stack:
                 node_ = node_stack.pop()
@@ -225,12 +226,13 @@ class TrieInnerNode(anytree.NodeMixin):
                             grandchild.parent = None
                             grandchild.parent = cur_node
 
+            # group together nods mad indistinguishable by collapsed precursors
             groups = defaultdict(list)
             for child in cur_node.inner_children:
                 groups[
                     (child._rank, child._differentia)
                 ].append(child)
-
+            # ... in order to keep only the tiebreak winner
             for group in groups.values():
                 group = sorted(group, key=lambda x: x._tiebreaker)
                 for loser in group[1:]:
