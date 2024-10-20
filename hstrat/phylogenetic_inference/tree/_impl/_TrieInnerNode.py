@@ -27,7 +27,8 @@ class TrieInnerNode(anytree.NodeMixin):
     both types.
     """
 
-    _buildparent: typing.Optional["TrieInnerNode"]
+    _buildparent: typing.Optional["TrieInnerNode"]  # to restore build trie
+    # prevent detached children from being garbage collected
     _buildchildren: typing.List["TrieInnerNode"]
     _rank: int  # rank of represented allele
     _differentia: int  # differentia of represented allele
@@ -213,16 +214,20 @@ class TrieInnerNode(anytree.NodeMixin):
             assert next_rank is not None
             assert next_differentia is not None
 
-            # collapse away nodes with differentiae that have been dropped
+            ###################################################################
+            # BEGIN HANDLING SEARCH TREE CONSOLIDATION ########################
+
+            # collapse away nodes with ranks that have been dropped
             node_stack = [*cur_node.inner_children]
             while node_stack:
-                node_ = node_stack.pop()
-                if node_._rank < next_rank:
-                    node_.parent._buildchildren.append(node_)  # prevent gc
-                    node_.parent = None
-                    node_stack.extend(node_.inner_children)
-                    for grandchild in node_.inner_children:
-                        grandchild.parent = None
+                pop_node = node_stack.pop()
+                if pop_node._rank < next_rank:  # node has rank that was dropped
+                    # add ref to detached node to prevent garbage collection
+                    pop_node.parent._buildchildren.append(pop_node)
+                    pop_node.parent = None  # detach dropped from search trie
+                    node_stack.extend(pop_node.inner_children)  # to search next
+                    for grandchild in pop_node.inner_children:
+                        # reattach dropped's children
                         grandchild.parent = cur_node
 
             # group nodes made indistinguishable by collapsed precursors...
@@ -234,15 +239,17 @@ class TrieInnerNode(anytree.NodeMixin):
                 assert child._rank >= next_rank
             # ... in order to keep only the tiebreak winner
             for group in groups.values():
-                group = sorted(group, key=lambda x: x._tiebreaker)
-                for loser in group[1:]:
+                winner, *losers = sorted(group, key=lambda x: x._tiebreaker)
+                for loser in losers:  # keep only the 0th tiebreak winner
                     loser.parent._buildchildren.append(loser)  # prevent gc
-                    # reassign children to winner
+                    # reassign loser's children to winner
                     for loser_child in loser.inner_children:
                         assert loser_child._rank >= next_rank
-                        loser_child.parent = None
-                        loser_child.parent = group[0]
-                    loser.parent = None
+                        loser_child.parent = winner
+                    loser.parent = None  # detach loser from search trie
+
+            # DONE HANDLING SEARCH TREE CONSOLIDATION #########################
+            ###################################################################
 
             for child in cur_node.inner_children:
                 # check immediate children for next allele
