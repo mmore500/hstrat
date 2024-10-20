@@ -153,7 +153,7 @@ class TrieInnerNode(anytree.NodeMixin):
                 deepest_origination = candidate_origination
                 deepest_taxon_allele_iter = copy.copy(taxon_allele_iter)
 
-            # If taxon has susbsequent allele, search its origination
+            # If taxon has subsequent allele, search its origination
             next_allele = next(taxon_allele_iter, None)
             if next_allele is not None:
                 node_stack.extend(
