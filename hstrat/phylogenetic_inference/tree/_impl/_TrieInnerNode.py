@@ -214,17 +214,16 @@ class TrieInnerNode(anytree.NodeMixin):
             assert next_differentia is not None
 
             # collapse away nodes with differentiae that have been dropped
-            node_stack = [cur_node]
+            node_stack = [*cur_node.inner_children]
             while node_stack:
                 node_ = node_stack.pop()
-                for child in node_.inner_children:
-                    if child._rank < next_rank:
-                        child.parent._buildchildren.append(child)  # prevent gc
-                        child.parent = None
-                        node_stack.extend(child.inner_children)
-                        for grandchild in child.inner_children:
-                            grandchild.parent = None
-                            grandchild.parent = cur_node
+                if node_._rank < next_rank:
+                    node_.parent._buildchildren.append(node_)  # prevent gc
+                    node_.parent = None
+                    node_stack.extend(node_.inner_children)
+                    for grandchild in node_.inner_children:
+                        grandchild.parent = None
+                        grandchild.parent = cur_node
 
             # group together nods mad indistinguishable by collapsed precursors
             groups = defaultdict(list)
@@ -232,6 +231,7 @@ class TrieInnerNode(anytree.NodeMixin):
                 groups[
                     (child._rank, child._differentia)
                 ].append(child)
+                assert child._rank >= next_rank
             # ... in order to keep only the tiebreak winner
             for group in groups.values():
                 group = sorted(group, key=lambda x: x._tiebreaker)
@@ -239,6 +239,7 @@ class TrieInnerNode(anytree.NodeMixin):
                     loser.parent._buildchildren.append(loser)  # prevent gc
                     # reassign children to winner
                     for loser_child in loser.inner_children:
+                        assert loser_child._rank >= next_rank
                         loser_child.parent = None
                         loser_child.parent = group[0]
                     loser.parent = None
