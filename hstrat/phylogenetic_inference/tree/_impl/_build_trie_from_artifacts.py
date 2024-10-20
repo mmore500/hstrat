@@ -32,12 +32,6 @@ def build_trie_from_artifacts(
 
     root = TrieInnerNode(rank=None, differentia=None)
 
-    is_perfectly_synchronous = all(
-        artifact.GetNumStrataDeposited()
-        == population[0].GetNumStrataDeposited()
-        for artifact in population
-    )
-
     sort_order = argsort([x.GetNumStrataDeposited() for x in population])
     sorted_labels = [taxon_labels[i] for i in sort_order]
     sorted_population = [population[i] for i in sort_order]
@@ -45,14 +39,7 @@ def build_trie_from_artifacts(
         give_len(zip(sorted_labels, sorted_population), len(population))
     ):
 
-        if True:
-            root.InsertTaxon(label, artifact.IterRankDifferentiaZip())
-        else:
-            res = root.GetDeepestCongruousAlleleOrigination(
-                artifact.IterRankDifferentiaZip(copyable=True)
-            )
-            node, subsequent_allele_genesis_iter = res
-            node.InsertTaxon(label, subsequent_allele_genesis_iter)
+        root.InsertTaxon(label, artifact.IterRankDifferentiaZip())
 
     # hacky way to iterate over all TrieInnerNodes...
     objs = filter(lambda x: isinstance(x, TrieInnerNode), gc.get_objects())
