@@ -4,6 +4,7 @@ import typing
 import opytional as opyt
 
 from ...._auxiliary_lib import (
+    AnyTreeFastLeafIter,
     HereditaryStratigraphicArtifact,
     argsort,
     give_len,
@@ -53,8 +54,19 @@ def build_trie_from_artifacts(
             node, subsequent_allele_genesis_iter = res
             node.InsertTaxon(label, subsequent_allele_genesis_iter)
 
-    for obj in gc.get_objects():
-        if isinstance(obj, (TrieInnerNode, TrieLeafNode)):
+    # hacky way to iterate over all TrieInnerNodes...
+    objs = filter(lambda x: isinstance(x, TrieInnerNode), gc.get_objects())
+    # sort by tiebreaker to ensure deterministic behavior
+    for obj in sorted(objs, key=lambda x: x._tiebreaker):
+        # reset tree from "search" configuration to "build" configuration
+        if obj.parent is not obj._buildparent:
+            obj.parent = None
             obj.parent = obj._buildparent
+
+    # no inner nodes should be leaves...
+    assert not any (
+        isinstance(leaf, TrieInnerNode)
+        for leaf in AnyTreeFastLeafIter(root)
+    )
 
     return root

@@ -28,6 +28,7 @@ class TrieInnerNode(anytree.NodeMixin):
     """
 
     _buildparent: typing.Optional["TrieInnerNode"]
+    _buildchildren: typing.List["TrieInnerNode"]
     _rank: int  # rank of represented allele
     _differentia: int  # differentia of represented allele
     _tiebreaker: int  # random 128-bit integer used to break ties.
@@ -54,6 +55,7 @@ class TrieInnerNode(anytree.NodeMixin):
             node.
         """
         self._buildparent = parent
+        self._buildchildren = []
         self.parent = parent
         self._rank = rank
         self._differentia = differentia
@@ -216,8 +218,11 @@ class TrieInnerNode(anytree.NodeMixin):
                 node_ = node_stack.pop()
                 for child in node_.inner_children:
                     if child._rank < next_rank:
+                        child.parent._buildchildren.append(child)  # prevent gc
+                        child.parent = None
                         node_stack.extend(child.inner_children)
-                        for grandchild in child.children:
+                        for grandchild in child.inner_children:
+                            grandchild.parent = None
                             grandchild.parent = cur_node
 
             groups = defaultdict(list)
@@ -229,6 +234,7 @@ class TrieInnerNode(anytree.NodeMixin):
             for group in groups.values():
                 group = sorted(group, key=lambda x: x._tiebreaker)
                 for loser in group[1:]:
+                    loser.parent._buildchildren.append(loser)  # prevent gc
                     loser.parent = None
 
             for child in cur_node.inner_children:
