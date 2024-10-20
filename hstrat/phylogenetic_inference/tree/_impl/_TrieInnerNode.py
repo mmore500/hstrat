@@ -225,7 +225,7 @@ class TrieInnerNode(anytree.NodeMixin):
                         grandchild.parent = None
                         grandchild.parent = cur_node
 
-            # group together nods mad indistinguishable by collapsed precursors
+            # group nodes made indistinguishable by collapsed precursors...
             groups = defaultdict(list)
             for child in cur_node.inner_children:
                 groups[
