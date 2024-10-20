@@ -237,6 +237,10 @@ class TrieInnerNode(anytree.NodeMixin):
                 group = sorted(group, key=lambda x: x._tiebreaker)
                 for loser in group[1:]:
                     loser.parent._buildchildren.append(loser)  # prevent gc
+                    # reassign children to winner
+                    for loser_child in loser.inner_children:
+                        loser_child.parent = None
+                        loser_child.parent = group[0]
                     loser.parent = None
 
             for child in cur_node.inner_children:
