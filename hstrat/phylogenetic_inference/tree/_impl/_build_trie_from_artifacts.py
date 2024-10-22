@@ -1,3 +1,4 @@
+import gc
 import os
 import typing
 from enum import Enum
@@ -10,6 +11,7 @@ import numpy as np
 import opytional as opyt
 
 from ...._auxiliary_lib import (
+    AnyTreeFastLeafIter,
     HereditaryStratigraphicArtifact,
     argsort,
     give_len,
@@ -272,7 +274,6 @@ def build_trie_from_artifacts_progressive_multiprocess(
 
     return root
 
-
 def build_trie_from_artifacts(
     population: typing.Sequence[HereditaryStratigraphicArtifact],
     taxon_labels: typing.Optional[typing.Iterable],
@@ -292,12 +293,6 @@ def build_trie_from_artifacts(
 
     root = TrieInnerNode(rank=None, differentia=None)
 
-    is_perfectly_synchronous = all(
-        artifact.GetNumStrataDeposited()
-        == population[0].GetNumStrataDeposited()
-        for artifact in population
-    )
-
     sort_order = argsort([x.GetNumStrataDeposited() for x in population])
     sorted_labels = [taxon_labels[i] for i in sort_order]
     sorted_population = [population[i] for i in sort_order]
@@ -305,13 +300,21 @@ def build_trie_from_artifacts(
         give_len(zip(sorted_labels, sorted_population), len(population))
     ):
 
-        if is_perfectly_synchronous:
-            root.InsertTaxon(label, artifact.IterRankDifferentiaZip())
-        else:
-            res = root.GetDeepestCongruousAlleleOrigination(
-                artifact.IterRankDifferentiaZip(copyable=True)
-            )
-            node, subsequent_allele_genesis_iter = res
-            node.InsertTaxon(label, subsequent_allele_genesis_iter)
+        root.InsertTaxon(label, artifact.IterRankDifferentiaZip())
+
+    # hacky way to iterate over all TrieInnerNodes...
+    objs = filter(lambda x: isinstance(x, TrieInnerNode), gc.get_objects())
+    # sort by tiebreaker to ensure deterministic behavior
+    for obj in sorted(objs, key=lambda x: x._tiebreaker):
+        # reset tree from "search" configuration to "build" configuration
+        if obj.parent is not obj._buildparent:
+            obj.parent = None
+            obj.parent = obj._buildparent
+
+    # no inner nodes should be leaves...
+    assert not any (
+        isinstance(leaf, TrieInnerNode)
+        for leaf in AnyTreeFastLeafIter(root)
+    )
 
     return root
