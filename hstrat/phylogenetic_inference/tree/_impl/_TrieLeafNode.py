@@ -1,3 +1,5 @@
+from typing import Union
+
 import anytree
 
 from ...._auxiliary_lib import render_to_base64url
@@ -11,7 +13,7 @@ class TrieLeafNode(anytree.NodeMixin):
 
     Parameters
     ----------
-    parent : TrieInnerNode
+    parent : TrieInnerNode | TrieSearchInnerNode
         The parent node of this leaf node.
     taxon_label : str
         The taxon label for this leaf node.
@@ -28,14 +30,14 @@ class TrieLeafNode(anytree.NodeMixin):
 
     def __init__(
         self: "TrieLeafNode",
-        parent: "TrieInnerNode",
+        parent: Union["TrieInnerNode", "TrieSearchInnerNode"],
         taxon_label: str,
     ) -> None:
         """Initialize a new TrieLeafNode.
 
         Parameters
         ----------
-        parent : TrieInnerNode
+        parent : TrieInnerNode | TrieSearchInnerNode
             The parent node of this leaf node.
         taxon_label : str
             The taxon label for this leaf node.
