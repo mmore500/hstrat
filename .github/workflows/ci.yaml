@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -64,7 +64,7 @@ jobs:
         tox
 
   examples:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python 3.9
@@ -79,7 +79,7 @@ jobs:
       run: ./examples/run_all.sh
 
   coverage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -133,7 +133,7 @@ jobs:
         verbose: true # optional (default = false)
 
   tidy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - name: Install apt dependencies
       run: sudo apt-get install -y rename
@@ -157,7 +157,7 @@ jobs:
       run: ./tidy/test_tidy.sh
 
   paper:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -178,7 +178,7 @@ jobs:
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
   packaging-bdist:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -201,7 +201,7 @@ jobs:
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
   packaging-sdist:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -224,7 +224,7 @@ jobs:
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
   packaging-source:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -247,7 +247,7 @@ jobs:
       - packaging-source
       - test
       - tidy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: startsWith(github.ref, 'refs/tags/v')
 
     steps:

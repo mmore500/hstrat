@@ -7,7 +7,7 @@ on:
 
 jobs:
   test-pypi:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Upgrade pip
         run: python3 -m pip install pip --upgrade
@@ -16,7 +16,7 @@ jobs:
       - name: Test
         run: python3 -c "import hstrat; print(hstrat.__version__)"
   test-semiheavy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python ${{ matrix.python-version }}
