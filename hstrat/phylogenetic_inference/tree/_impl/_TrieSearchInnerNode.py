@@ -6,39 +6,30 @@ import typing
 import anytree
 import opytional as opyt
 
-from ...._auxiliary_lib import generate_n, render_to_base64url
+from ...._auxiliary_lib import generate_n, intersect_ranges, render_to_base64url
 from ._TrieLeafNode import TrieLeafNode
+from ._TrieInnerNode import TrieInnerNode
 
 
-class TrieInnerNode(anytree.NodeMixin):
-    """Inner node of a trie (a.k.a. prefix tree) of differentia
-    sequences of hereditary stratigraphic artifacts within a population.
-    Each inner node represents the hypothesized origination of a particular
-    allele (i.e., differentia at a particular rank).
-
-    Note that more than one` TrieInnerNode` representing a particular
-    rank/differentia combination may be present. This is only the case when the
-    colliding alleles are known to have independent origins due to previous
-    disparities in the phylogenetic record.
-
-    Only `TrieLeafNode` instances will occupy leaf node positions in the trie
-    structure. Each `TrieLeafNode` represents a single member of the extant
-    artifact population. An instance of `TrieInnerNode` may have child nodes of
-    both types.
+class TrieSearchInnerNode(anytree.NodeMixin):
+    """
+    A modification of the TrieInnerNode class involving a build trie and a search trie,
+    allowing for more efficient trie reconstruction in the build_trie_from_artifacts_search
+    function.
     """
 
-    _buildparent: typing.Optional["TrieInnerNode"]  # to restore build trie
+    _buildparent: typing.Optional["TrieSearchInnerNode"]  # to restore build trie
     # prevent detached children from being garbage collected
-    _buildchildren: typing.List["TrieInnerNode"]
+    _buildchildren: typing.List["TrieSearchInnerNode"]
     _rank: int  # rank of represented allele
     _differentia: int  # differentia of represented allele
     _tiebreaker: int  # random 128-bit integer used to break ties.
 
     def __init__(
-        self: "TrieInnerNode",
+        self: "TrieSearchInnerNode",
         rank: typing.Optional[int] = None,
         differentia: typing.Optional[int] = None,
-        parent: typing.Optional["TrieInnerNode"] = None,
+        parent: typing.Optional["TrieSearchInnerNode"] = None,
     ) -> None:
         """Initialize a `TrieInnerNode` instance.
 
@@ -64,7 +55,7 @@ class TrieInnerNode(anytree.NodeMixin):
         self._tiebreaker = random.getrandbits(128)  # uuid standard 128 bits
 
     def IsAnOriginationOfAllele(
-        self: "TrieInnerNode",
+        self: "TrieSearchInnerNode",
         rank: int,
         differentia: int,
     ) -> bool:
@@ -72,10 +63,10 @@ class TrieInnerNode(anytree.NodeMixin):
         return self._rank == rank and self._differentia == differentia
 
     def FindOriginationsOfAllele(
-        self: "TrieInnerNode",
+        self: "TrieSearchInnerNode",
         rank: int,
         differentia: int,
-    ) -> typing.Iterator["TrieInnerNode"]:
+    ) -> typing.Iterator["TrieSearchInnerNode"]:
         """Searches subtree to find all possible `TrieInnerNodes` representing
         an origination of the specified `rank`-`differentia` allele."""
         assert rank is not None
@@ -99,10 +90,10 @@ class TrieInnerNode(anytree.NodeMixin):
                 search_stack.extend(current_node.inner_children)
 
     def GetDeepestCongruousAlleleOrigination(
-        self: "TrieInnerNode",
+        self: "TrieSearchInnerNode",
         taxon_allele_iter: typing.Iterator[typing.Tuple[int, int]],
     ) -> (
-        typing.Tuple["TrieInnerNode", typing.Iterator[typing.Tuple[int, int]]]
+        typing.Tuple["TrieSearchInnerNode", typing.Iterator[typing.Tuple[int, int]]]
     ):
         """Descends the subtrie to retrieve the deepest prefix consistent with
         the hereditary stratigraphic record of a query taxon.
@@ -177,7 +168,7 @@ class TrieInnerNode(anytree.NodeMixin):
         return deepest_origination, deepest_taxon_allele_iter
 
     def InsertTaxon(
-        self: "TrieInnerNode",
+        self: "TrieSearchInnerNode",
         taxon_label: str,
         taxon_allele_iter: typing.Iterator[typing.Tuple[int, int]],
     ) -> TrieLeafNode:
@@ -219,34 +210,35 @@ class TrieInnerNode(anytree.NodeMixin):
 
             # collapse away nodes with ranks that have been dropped
             node_stack = [*cur_node.inner_children]
-            while node_stack:
-                pop_node = node_stack.pop()
-                if pop_node._rank < next_rank:  # node has rank that was dropped
-                    # add ref to detached node to prevent garbage collection
-                    pop_node.parent._buildchildren.append(pop_node)
-                    pop_node.parent = None  # detach dropped from search trie
-                    node_stack.extend(pop_node.inner_children)  # to search next
-                    for grandchild in pop_node.inner_children:
-                        # reattach dropped's children
-                        grandchild.parent = cur_node
+            if any(n._rank < next_rank for n in node_stack):
+                while node_stack:
+                    pop_node = node_stack.pop()
+                    if pop_node._rank < next_rank:  # node has rank that was dropped
+                        # add ref to detached node to prevent garbage collection
+                        pop_node.parent._buildchildren.append(pop_node)
+                        pop_node.parent = None  # detach dropped from search trie
+                        node_stack.extend(pop_node.inner_children)  # to search next
+                        for grandchild in pop_node.inner_children:
+                            # reattach dropped's children
+                            grandchild.parent = cur_node
 
-            # group nodes made indistinguishable by collapsed precursors...
-            groups = defaultdict(list)
-            for child in cur_node.inner_children:
-                groups[
-                    (child._rank, child._differentia)
-                ].append(child)
-                assert child._rank >= next_rank
-            # ... in order to keep only the tiebreak winner
-            for group in groups.values():
-                winner, *losers = sorted(group, key=lambda x: x._tiebreaker)
-                for loser in losers:  # keep only the 0th tiebreak winner
-                    loser.parent._buildchildren.append(loser)  # prevent gc
-                    # reassign loser's children to winner
-                    for loser_child in loser.inner_children:
-                        assert loser_child._rank >= next_rank
-                        loser_child.parent = winner
-                    loser.parent = None  # detach loser from search trie
+                # group nodes made indistinguishable by collapsed precursors...
+                groups = defaultdict(list)
+                for child in cur_node.inner_children:
+                    groups[
+                        (child._rank, child._differentia)
+                    ].append(child)
+                    assert child._rank >= next_rank
+                # ... in order to keep only the tiebreak winner
+                for group in groups.values():
+                    winner, *losers = sorted(group, key=lambda x: x._tiebreaker)
+                    for loser in losers:  # keep only the 0th tiebreak winner
+                        loser.parent._buildchildren.append(loser)  # prevent gc
+                        # reassign loser's children to winner
+                        for loser_child in loser.inner_children:
+                            assert loser_child._rank >= next_rank
+                            loser_child.parent = winner
+                        loser.parent = None  # detach loser from search trie
 
             # DONE HANDLING SEARCH TREE CONSOLIDATION #########################
             ###################################################################
@@ -262,7 +254,7 @@ class TrieInnerNode(anytree.NodeMixin):
                     break
             else:
                 # if no congruent node exists, create a new TrieInnerNode
-                cur_node = TrieInnerNode(
+                cur_node = TrieSearchInnerNode(
                     next_rank, next_differentia, parent=cur_node
                 )
 
@@ -270,7 +262,7 @@ class TrieInnerNode(anytree.NodeMixin):
         return TrieLeafNode(parent=cur_node, taxon_label=taxon_label)
 
     @property
-    def taxon_label(self: "TrieInnerNode") -> str:
+    def taxon_label(self: "TrieSearchInnerNode") -> str:
         """Programatically-generated unique identifier for internal node,
         intended to translate into a unique label for internal taxa after
         conversion to a phylogenetic reconstruction."""
@@ -286,8 +278,8 @@ class TrieInnerNode(anytree.NodeMixin):
             }"""
 
     # recursive check
-    def __eq__(self: "TrieInnerNode", other: object) -> bool:
-        if not isinstance(other, TrieInnerNode):
+    def __eq__(self: "TrieSearchInnerNode", other: object) -> bool:
+        if not isinstance(other, (TrieInnerNode, TrieSearchInnerNode)):
             return False
         if not (
             self.rank == other.rank and self.differentia == other.differentia
@@ -306,31 +298,31 @@ class TrieInnerNode(anytree.NodeMixin):
         return True
 
     @property
-    def taxon(self: "TrieInnerNode") -> str:
+    def taxon(self: "TrieSearchInnerNode") -> str:
         """Alias for taxon_label."""
         return self.taxon_label
 
     @property
-    def rank(self: "TrieInnerNode") -> int:
+    def rank(self: "TrieSearchInnerNode") -> int:
         return opyt.or_value(self._rank, 0)
 
     @property
-    def differentia(self: "TrieInnerNode") -> int:
+    def differentia(self: "TrieSearchInnerNode") -> int:
         return opyt.or_value(self._differentia, 0)
 
     @property
     def inner_children(
-        self: "TrieInnerNode",
-    ) -> typing.Iterator["TrieInnerNode"]:
+        self: "TrieSearchInnerNode",
+    ) -> typing.Iterator["TrieSearchInnerNode"]:
         """Returns iterator over non-leaf child nodes."""
         return filter(
-            lambda child_: isinstance(child_, TrieInnerNode),
+            lambda child_: isinstance(child_, TrieSearchInnerNode),
             self.children,
         )
 
     @property
     def outer_children(
-        self: "TrieInnerNode",
+        self: "TrieSearchInnerNode",
     ) -> typing.Iterator["TrieLeafNode"]:
         """Returns iterator over leaf child nodes."""
         return filter(
@@ -338,7 +330,7 @@ class TrieInnerNode(anytree.NodeMixin):
             self.children,
         )
 
-    def __repr__(self: "TrieInnerNode") -> str:
+    def __repr__(self: "TrieSearchInnerNode") -> str:
         return f"""(rank {
             self._rank
         }, diff {

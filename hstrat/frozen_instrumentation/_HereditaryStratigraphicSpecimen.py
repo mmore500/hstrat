@@ -48,6 +48,12 @@ class HereditaryStratigraphicSpecimen:
         self._stratum_differentia_bit_width = stratum_differentia_bit_width
 
         assert self._data.index.dtype in (
+            "int8",
+            "uint8",
+            "int16",
+            "uint16",
+            "int32",
+            "uint32",
             "int64",
             "uint64",
         )
@@ -67,6 +73,12 @@ class HereditaryStratigraphicSpecimen:
         initialization.
         """
         assert self._data.index.dtype in (
+            "int8",
+            "uint8",
+            "int16",
+            "uint16",
+            "int32",
+            "uint32",
             "int64",
             "uint64",
         )
