@@ -10,7 +10,7 @@ from . import (
 from .._auxiliary_lib import lazy_attach
 __getattr__, __dir__, __all__ = lazy_attach(
     __name__,
-    submodules=["animate", "generate_template_phylogeny", "perfect_tracking"],
+    submodules=["descend_template_phylogeny", "generate_template_phylogeny", "perfect_tracking"],
     submod_attrs={
         "descend_template_phylogeny": descend_template_phylogeny.__all__,
         "generate_template_phylogeny": generate_template_phylogeny.__all__,
