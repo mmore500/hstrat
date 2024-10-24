@@ -1,16 +1,15 @@
 """Tools to infer phylogenetic history from extant genome annotations."""
 
+from .._auxiliary_lib import lazy_attach
 from . import estimators, pairwise, population, priors, tree
-from .estimators import *  # noqa: F401
-from .pairwise import *  # noqa: F401
-from .population import *  # noqa: F401
-from .priors import *  # noqa: F401
-from .tree import *  # noqa: F401
-
-__all__ = (
-    estimators.__all__
-    + pairwise.__all__
-    + population.__all__
-    + priors.__all__
-    + tree.__all__
+__getattr__, __dir__, __all__ = lazy_attach(
+    __name__,
+    submodules=['estimators', 'pairwise', 'population', 'priors', 'tree'],
+    submod_attrs={
+        'estimators': estimators.__all__,
+        'pairwise': pairwise.__all__,
+        'population': population.__all__,
+        'priors': priors.__all__,
+        'tree': tree.__all__,
+    }, launder=False
 )

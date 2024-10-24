@@ -1,16 +1,23 @@
 """Tools to specify stratum retention policy."""
 
+from hstrat._auxiliary_lib import lazy_attach
 from . import (
     stratum_retention_algorithms,
     stratum_retention_policy_evaluators,
     stratum_retention_policy_parameterizers,
 )
-from .stratum_retention_algorithms import *  # noqa: F401
-from .stratum_retention_policy_evaluators import *  # noqa: F401
-from .stratum_retention_policy_parameterizers import *  # noqa: F401
-
-__all__ = (
-    stratum_retention_algorithms.__all__
-    + stratum_retention_policy_evaluators.__all__
-    + stratum_retention_policy_parameterizers.__all__
+__getattr__, __dir__, __all__ = lazy_attach(
+    __name__,
+    submodules=[
+        "stratum_retention_algorithms",
+        "stratum_retention_policy_evaluators",
+        "stratum_retention_policy_parameterizers"
+    ],
+    submod_attrs={
+        "stratum_retention_algorithms": stratum_retention_algorithms.__all__,
+        "stratum_retention_policy_parameterizers": stratum_retention_policy_parameterizers.__all__,
+        "stratum_retention_policy_evaluators": stratum_retention_policy_evaluators.__all__
+    },
+    launder=False
 )
+del lazy_attach
