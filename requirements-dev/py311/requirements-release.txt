@@ -2,6 +2,8 @@
 #    uv pip compile --python-version=3.11 --allow-unsafe ../../pyproject.toml --extra pinned_dependencies_py310 --extra release -o requirements-release.txt
 alifedata-phyloinformatics-convert==0.11.0
     # via hstrat (../../pyproject.toml)
+annotated-types==0.7.0
+    # via pydantic
 anytree==2.8.0
     # via
     #   hstrat (../../pyproject.toml)
@@ -14,26 +16,24 @@ bitarray==2.6.2
     # via hstrat (../../pyproject.toml)
 bitstring==3.1.9
     # via hstrat (../../pyproject.toml)
-bleach==6.0.0
-    # via readme-renderer
 bumpver==2022.1120
     # via hstrat (../../pyproject.toml)
-certifi==2022.12.7
+certifi==2024.8.30
     # via requests
-charset-normalizer==3.0.1
+charset-normalizer==3.4.0
     # via requests
-click==8.1.3
+click==8.1.7
     # via
     #   alifedata-phyloinformatics-convert
     #   bumpver
     #   keyname
 colorama==0.4.6
     # via bumpver
-contourpy==1.0.7
+contourpy==1.3.0
     # via matplotlib
-cycler==0.11.0
+cycler==0.12.1
     # via matplotlib
-dataclasses==0.6
+dataclasses==0.8
     # via lyncs-utils
 dendropy==4.5.2
     # via
@@ -41,15 +41,15 @@ dendropy==4.5.2
     #   alifedata-phyloinformatics-convert
 deprecated==1.2.13
     # via hstrat (../../pyproject.toml)
-docutils==0.19
+docutils==0.21.2
     # via readme-renderer
-fonttools==4.38.0
+fonttools==4.54.1
     # via matplotlib
-gitdb==4.0.10
+gitdb==4.0.11
     # via gitpython
-gitpython==3.1.31
+gitpython==3.1.43
     # via lyncs-setuptools
-idna==3.4
+idna==3.10
     # via requests
 interval-search==0.3.1
     # via hstrat (../../pyproject.toml)
@@ -59,7 +59,7 @@ iterpop==0.4.1
     #   alifedata-phyloinformatics-convert
 keyname==0.4.1
     # via hstrat (../../pyproject.toml)
-kiwisolver==1.4.4
+kiwisolver==1.4.7
     # via matplotlib
 lazy-loader==0.4
     # via hstrat (../../pyproject.toml)
@@ -67,9 +67,9 @@ lexid==2021.1006
     # via bumpver
 lru-dict==1.1.8
     # via hstrat (../../pyproject.toml)
-lyncs-setuptools==0.3.1
+lyncs-setuptools==0.3.2
     # via lyncs-utils
-lyncs-utils==0.4.5
+lyncs-utils==0.5.1
     # via alifedata-phyloinformatics-convert
 matplotlib==3.6.3
     # via
@@ -89,6 +89,8 @@ networkx==2.6.3
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
+nh3==0.2.18
+    # via readme-renderer
 numpy==1.23.5
     # via
     #   hstrat (../../pyproject.toml)
@@ -129,41 +131,43 @@ pathlib2==2.3.7.post1
     # via bumpver
 patsy==0.5.6
     # via statsmodels
-pillow==9.4.0
+pillow==11.0.0
     # via matplotlib
 pip==22.0.4
     # via
     #   hstrat (../../pyproject.toml)
     #   lyncs-setuptools
-pkginfo==1.9.6
+pkginfo==1.11.2
     # via twine
 prettytable==3.5.0
     # via hstrat (../../pyproject.toml)
-pydantic==1.10.5
+pydantic==2.9.2
     # via pandera
-pygments==2.14.0
+pydantic-core==2.23.4
+    # via pydantic
+pygments==2.18.0
     # via readme-renderer
-pyparsing==3.0.9
+pyparsing==3.2.0
     # via matplotlib
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
     # via
     #   matplotlib
     #   pandas
 python-slugify==6.1.2
     # via hstrat (../../pyproject.toml)
-pytz==2022.7.1
+pytz==2024.2
     # via pandas
-readme-renderer==37.3
+readme-renderer==44.0
     # via twine
-requests==2.28.2
+requests==2.32.3
     # via
     #   requests-toolbelt
     #   twine
-requests-toolbelt==0.10.1
+requests-toolbelt==1.0.0
     # via twine
 safe-assert==0.2.0
     # via hstrat (../../pyproject.toml)
-scipy==1.10.1
+scipy==1.14.1
     # via
     #   seaborn
     #   statsmodels
@@ -174,15 +178,15 @@ setuptools==65.6.3
     #   hstrat (../../pyproject.toml)
     #   bumpver
     #   dendropy
+    #   lyncs-setuptools
     #   twine
 six==1.16.0
     # via
     #   anytree
-    #   bleach
     #   pathlib2
     #   patsy
     #   python-dateutil
-smmap==5.0.0
+smmap==5.0.1
     # via gitdb
 sortedcontainers==2.4.0
     # via
@@ -200,24 +204,23 @@ tqdm==4.62.3
     #   twine
 twine==1.14.0
     # via hstrat (../../pyproject.toml)
-typing-extensions==4.7.1
+typing-extensions==4.12.2
     # via
     #   hstrat (../../pyproject.toml)
     #   pydantic
+    #   pydantic-core
     #   typing-inspect
-typing-inspect==0.8.0
+typing-inspect==0.9.0
     # via pandera
-urllib3==1.26.14
+urllib3==2.2.3
     # via requests
 uv==0.4.18
     # via hstrat (../../pyproject.toml)
-wcwidth==0.2.6
+wcwidth==0.2.13
     # via prettytable
-webencodings==0.5.1
-    # via bleach
 wheel==0.33.6
     # via hstrat (../../pyproject.toml)
-wrapt==1.14.1
+wrapt==1.16.0
     # via
     #   deprecated
     #   pandera

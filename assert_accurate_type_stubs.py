@@ -72,15 +72,18 @@ def check_packages(package: list[str]) -> None:
     subpackages = find_modules_with_all_references(
         os.path.join(package_path, "__init__.py")
     )
+    native_all_symbols = get_all_from_stub(os.path.join(package_path, "__init__.pyi")) if subpackages else []
     for subpkg in subpackages:
         check_packages(package + [subpkg])
         symbols = get_all_from_stub(
             os.path.join(package_path, subpkg, "__init__.pyi")
         )
+        for s in symbols:
+            assert s in native_all_symbols, f"Symbol {s} from '{subpkg}' was imported by {'.'.join(package)} but not referenced in its __all__"
         mod = importlib.import_module(".".join(package + [subpkg]))
         assert sorted(mod.__all__) == sorted(
             symbols
-        ), f"Error with {'.'.join(package)}"
+        ), f"Error with {'.'.join(package + [subpkg])}: type stub __all__ is inconsistent"
     for subdir in os.listdir(package_path):
         if (
             subdir not in subpackages
@@ -90,4 +93,5 @@ def check_packages(package: list[str]) -> None:
             check_packages(package + [subdir])
 
 
-check_packages(["hstrat"])
+if __name__ == "__main__":
+    check_packages(["hstrat"])

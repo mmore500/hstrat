@@ -1,5 +1,3 @@
-"""Top-level package for hstrat."""
-
 from . import (
     _auxiliary_lib,
     frozen_instrumentation,

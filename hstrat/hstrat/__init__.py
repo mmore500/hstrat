@@ -26,27 +26,28 @@ from ..stratum_retention_viz import __all__ as __stratum_retention_viz_all__
 from ..test_drive import __all__ as __test_drive_all__
 
 
-_DIR = [  # determined with from hstrat import hstrat; dir(hstrat)
-    "__all__",
-    "__builtins__",
-    "__cached__",
-    "__doc__",
-    "__file__",
-    "__getattr__",
-    "__loader__",
-    "__name__",
-    "__package__",
-    "__path__",
-    "__spec__",
-    "__version__",
-]
-
 __version__ = get_hstrat_version()
+del get_hstrat_version
 
+__all__ = dir() + (
+    __frozen_instrumentation_all__
+    + __genome_instrumentation_all__
+    + __juxtaposition_all__
+    + __phylogenetic_inference_all__
+    + __serialization_all__
+    + __stratum_retention_strategy_all__
+    + __stratum_retention_viz_all__
+    + __test_drive_all__
+)
 
-def __getattr__(name: str) -> None:
-    if name in _DIR:
-        return eval(name)  # potentially unsafe?
+def __dir__() -> list[str]:
+    """ Returns the entire symbol list. """
+    return __all__
+
+def __getattr__(name: str) -> object:  # object as to not put Any in the namespace
+    """ Allows for equivalent behavior to `from mod import *`
+    without the performance dip of importing everything.
+    """
     for mod, all__ in [
         (__frozen_instrumentation, __frozen_instrumentation_all__),
         (__genome_instrumentation, __genome_instrumentation_all__),
@@ -58,5 +59,5 @@ def __getattr__(name: str) -> None:
         (__test_drive, __test_drive_all__),
     ]:
         if name in all__:
-            return mod.__getattr__(name)
+            return getattr(mod, name)
     raise AttributeError(f"Flat namespace 'hstrat' has no attribute '{name}'")

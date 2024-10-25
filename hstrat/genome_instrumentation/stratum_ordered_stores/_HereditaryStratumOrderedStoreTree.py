@@ -52,7 +52,7 @@ class HereditaryStratumOrderedStoreTree(HereditaryStratumOrderedStoreBase):
         """
         # delete all nodes that only lead to this store's leaf
         for node in self._GetAscendingIter():
-            if sum(1 for __ in zip(node.children, range(2))) == 2:
+            if sum(1 for _ in zip(node.children, range(2))) == 2:
                 # if node has more than one child, stop deleting
                 break
             else:
