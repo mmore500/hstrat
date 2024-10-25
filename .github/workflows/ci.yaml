@@ -266,3 +266,17 @@ jobs:
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
+
+  types:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Upgrade pip
+        run: python3 -m pip install pip --upgrade
+      - name: Install from source
+        run: python3 -m pip install .
+      - name: Test install
+        run: |
+          python3 assert_accurate_type_stubs.py
+

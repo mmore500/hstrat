@@ -46,6 +46,5 @@ def __getattr__(name: str) -> None:
         (__test_drive, __test_drive_all__),
     ]:
         if name in all__:
-            print(mod.__name__)
             return mod.__getattr__(name)
     raise AttributeError(f"Flat namespace 'hstrat' has no attribute '{name}'")
