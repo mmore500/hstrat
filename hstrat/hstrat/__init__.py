@@ -45,8 +45,8 @@ def __dir__() -> list[str]:
     return __all__
 
 def __getattr__(name: str) -> object:  # object as to not put Any in the namespace
-    """ Allows for equivalent behavior to `from mod import *`
-    without the performance dip of importing everything.
+    """Allows for equivalent behavior to having `from mod import *`
+    in this file without the performance cost of star imports.
     """
     for mod, all__ in [
         (__frozen_instrumentation, __frozen_instrumentation_all__),
