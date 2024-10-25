@@ -40,9 +40,11 @@ __all__ = dir() + (
     + __test_drive_all__
 )
 
-def __dir__() -> list[str]:
+from typing import List
+def __dir__() -> List[str]:
     """ Returns the entire symbol list. """
     return __all__
+del List
 
 def __getattr__(name: str) -> object:  # object as to not put Any in the namespace
     """Allows for equivalent behavior to having `from mod import *`
