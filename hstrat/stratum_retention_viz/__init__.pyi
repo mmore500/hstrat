@@ -1,13 +1,8 @@
 from . import animate, ascii, plot
 
-from animate import (
-    policy_panel_animate,
-    stratum_retention_animate
-)
+from animate import policy_panel_animate, stratum_retention_animate
 
-from ascii import (
-    col_to_ascii
-)
+from ascii import col_to_ascii
 
 from plot import (
     mrca_uncertainty_absolute_barplot,

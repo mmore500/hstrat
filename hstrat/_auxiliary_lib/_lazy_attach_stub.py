@@ -4,8 +4,11 @@ from lazy_loader import attach_stub
 
 
 def lazy_attach_stub(
-    __name: str, __file: str, *,
-    launder: bool, launder_names: Optional[list[str]] = None
+    __name: str,
+    __file: str,
+    *,
+    launder: bool,
+    launder_names: Optional[list[str]] = None
 ) -> tuple[Callable[[str], Any], Callable[[], list[str]], list[str]]:
     """
     An extension of the lazy_loader.attach_stub function.
@@ -21,6 +24,7 @@ def lazy_attach_stub(
     """
     getattr__, dir__, all__ = attach_stub(__name, __file)
     if launder:
+
         def newgetattr__(n: str):
             attr = getattr__(n)
             if launder_names is not None and n not in launder_names:
@@ -30,5 +34,6 @@ def lazy_attach_stub(
             except (AttributeError, TypeError):
                 pass
             return attr
+
         return newgetattr__, dir__, all__
     return getattr__, dir__, all__

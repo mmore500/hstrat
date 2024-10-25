@@ -205,7 +205,6 @@ from ._with_omission import with_omission
 from ._with_rng_state_context import with_rng_state_context
 from ._zip_strict import zip_strict
 
-
 __all__ = [
     "alifestd_aggregate_phylogenies",
     "alifestd_assign_contiguous_ids",

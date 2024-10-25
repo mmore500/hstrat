@@ -1,4 +1,3 @@
-
 from ._HereditaryStratigraphicAssemblage import (
     HereditaryStratigraphicAssemblage,
 )
@@ -13,4 +12,3 @@ __all__ = [
     "HereditaryStratigraphicAssemblageSpecimen",
     "HereditaryStratigraphicSpecimen",
 ]
-

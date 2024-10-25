@@ -11,7 +11,9 @@ from . import (
     recency_proportional_resolution_curbed_algo,
     stochastic_algo,
 )
-from ._provided_stratum_retention_algorithms import provided_stratum_retention_algorithms
+from ._provided_stratum_retention_algorithms import (
+    provided_stratum_retention_algorithms,
+)
 from ._detail import UnsatisfiableParameterizationRequestError
 
 # adapted from https://stackoverflow.com/a/31079085

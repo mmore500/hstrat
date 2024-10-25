@@ -10,7 +10,9 @@ from stratum_ordered_stores import (
 
 from _HereditaryStratum import HereditaryStratum
 from _HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
-from _HereditaryStratigraphicColumnBundle import HereditaryStratigraphicColumnBundle
+from _HereditaryStratigraphicColumnBundle import (
+    HereditaryStratigraphicColumnBundle,
+)
 
 __all__ = [
     "stratum_ordered_stores",
@@ -20,5 +22,5 @@ __all__ = [
     "HereditaryStratumOrderedStoreDict",
     "HereditaryStratumOrderedStoreList",
     "HereditaryStratumOrderedStoreTree",
-    "provided_stratum_ordered_stores"
+    "provided_stratum_ordered_stores",
 ]
