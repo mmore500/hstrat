@@ -13,7 +13,7 @@ find_modules_with_all_references(file_path)
 get_dunder_all_from_stub(file_path)
     Extracts the `__all__` list from a specified type stub file (`.pyi`).
 
-check_packages(package)
+check_accurate_all_imports(package)
     Recursively checks packages and sub-packages to ensure that all symbols
     referenced in `__all__` in each subpackage are consistent with the symbols
     specified in type stubs and available in imports.
@@ -24,6 +24,7 @@ import ast
 import importlib
 from typing import List
 from pathlib import Path
+
 
 def find_modules_with_all_references(file_path: str):
     """
@@ -115,7 +116,7 @@ def get_dunder_all_from_stub(file_path: str) -> List[str]:
     raise Exception("__all__ could not be found")
 
 
-def check_packages(package: List[str]) -> None:
+def check_accurate_all_imports(package: List[str]) -> List[str]:
     """
     Recursively checks all subpackages in a given package to ensure that `__all__`
     symbols in type stubs are consistent with imported symbols.
@@ -128,14 +129,8 @@ def check_packages(package: List[str]) -> None:
 
     Returns
     -------
-    None
-        Performs checks but does not return a value.
-
-    Raises
-    ------
-    AssertionError
-        If a symbol in a subpackage's `__all__` type stub is not present in
-        the actual module or if `__all__` lists are inconsistent.
+    list of str
+        A list of violations that can be printed after done.
 
     Notes
     -----
@@ -149,6 +144,7 @@ def check_packages(package: List[str]) -> None:
         in their `submod_attrs` dictionaries.
     get_dunder_all_from_stub : Extracts `__all__` from type stubs.
     """
+    violations = []
     package_path = os.path.join(*package)
     subpackages = find_modules_with_all_references(
         os.path.join(package_path, "__init__.py")
@@ -159,26 +155,33 @@ def check_packages(package: List[str]) -> None:
         else []
     )
     for subpkg in subpackages:
-        check_packages(package + [subpkg])
+        check_accurate_all_imports(package + [subpkg])
         symbols = get_dunder_all_from_stub(
             os.path.join(package_path, subpkg, "__init__.pyi")
         )
         for s in symbols:
-            assert (
-                s in native_all_symbols
-            ), f"Symbol {s} from '{subpkg}' was imported by {'.'.join(package)} but not referenced in its __all__"
+            if not s in native_all_symbols:
+                violations.append(f"Symbol {s} from '{subpkg}' was imported by {'.'.join(package)} but not referenced in its __all__")
         mod = importlib.import_module(".".join(package + [subpkg]))
-        assert sorted(mod.__all__) == sorted(
+        if not sorted(mod.__all__) == sorted(
             symbols
-        ), f"Error with {'.'.join(package + [subpkg])}: type stub __all__ is inconsistent"
+        ):
+            violations.append(f"Error with {'.'.join(package + [subpkg])}: type stub __all__ is inconsistent")
     for subdir in os.listdir(package_path):
         if (
             subdir not in subpackages
             and os.path.isdir(os.path.join(package_path, subdir))
             and "__init__.py" in os.listdir(os.path.join(package_path, subdir))
         ):
-            check_packages(package + [subdir])
-
+            check_accurate_all_imports(package + [subdir])
+    return violations
 
 if __name__ == "__main__":
-    check_packages(["hstrat"])
+    cutoff_index = __file__.find("hstrat") + len("hstrat")  # first instance should be root directory
+    os.chdir(__file__[:cutoff_index])
+    violations = check_accurate_all_imports(["hstrat"])
+    if not violations:
+        exit(0)
+    for violation in violations:
+        print(f"ERROR: {violation }")
+    exit(1)

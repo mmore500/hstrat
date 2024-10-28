@@ -40,15 +40,16 @@ __all__ = dir() + (
     + __test_drive_all__
 )
 
-from typing import List
-def __dir__() -> List[str]:
+def __dir__() -> list:
     """ Returns the entire symbol list. """
     return __all__
-del List
 
 def __getattr__(name: str) -> object:
     """Allows for equivalent behavior to having `from mod import *`
     in this file without the performance cost of star imports.
+    Previously, this file eagerly imported every symbol from the
+    below packages. Now, the symbol is only imported if determined
+    to be in said package.
     """
     for mod, all__ in [
         (__frozen_instrumentation, __frozen_instrumentation_all__),

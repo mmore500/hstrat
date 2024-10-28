@@ -14,22 +14,23 @@ def lazy_attach(
     """
     Attaches lazy loading to a package to reduce load times by deferring
     loading of submodules and their attributes until needed. This is used
-    throughout the project in when a package imports all attriutes from
-    a subpackage (otherwise, see _lazy_attach_stub.py).
+    throughout the project in when a package imports all attributes from
+    a subpackage (otherwise, use _lazy_attach_stub.py). Called in the
+    __init__.py file of the package.
 
     Parameters
     ----------
-    __name : str
-        The name of the main package. This should be `__name__` to properly
-        set up lazy loading.
+    module_name : str
+        The name of the package in which symbols are being imported. This
+        should be `__name__` to properly set up lazy loading.
     submodules : list of str
         A list of submodules within the package that are to be loaded lazily.
     submod_attrs : dict
         A dictionary where keys are submodule names and values are lists
         of attribute names within each submodule to be loaded in the namespace.
-    launder : bool, optional
+    launder : bool
         If True, the module name of an attribute is set to the `__name` argument.
-        This allows for hiding implementation details of each class. Default is False.
+        This allows for hiding implementation details of each class.
     launder_names : list of str, optional
         A list of attribute names to launder, if `launder` is True. Only
         attributes in this list will have their names laundered. If None,
@@ -46,8 +47,8 @@ def lazy_attach(
         - `__dir__` : function
             Lists all available attributes, including lazily loaded ones.
         - `__all__` : list of str
-            A list of all attributes for the namespace, ready for
-            import by other modules.
+            A list of all attributes for the namespace to be included in *
+            imports and accessbile from other modules.
 
     Notes
     -----
@@ -61,9 +62,8 @@ def lazy_attach(
 
     See Also
     --------
-    ._lazy_attach_stub : Attaches a lazy loading stub, which defers
-        loading of submodules and attributes similarly but with a different
-        implementation approach.
+    ._lazy_attach_stub : When there are no `__all__` imports, this function
+        is preferred instead, as it only depends on a type stub.
     ._launder_impl_modules : Implementation details for laundering module
     names for attributes.
     """
@@ -72,7 +72,7 @@ def lazy_attach(
     )
     if launder:
 
-        def newgetattr__(n: str):
+        def new_getattr(n: str):
             attr = getattr__(n)
             if launder_names is not None and n not in launder_names:
                 return attr
@@ -82,5 +82,5 @@ def lazy_attach(
                 pass  # module attr not settable for all object types
             return attr
 
-        return newgetattr__, dir__, all__
+        return new_getattr, dir__, all__
     return getattr__, dir__, all__

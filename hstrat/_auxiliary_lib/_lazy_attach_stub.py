@@ -12,22 +12,23 @@ def lazy_attach_stub(
 ) -> tuple[Callable[[str], Any], Callable[[], List[str]], List[str]]:
     """
     Attaches a lazy loading stub to a package, enabling deferred loading
-    of submodules and attributes to improve load times. This is used by
-    importing necessary functions in a type stub and using said stub to
-    determine how to lazily load attributes.
+    of submodules and attributes to improve load times. Used by importing
+    necessary symbols into a type stub (a .pyi file) and evaluating said
+    type stub to determine symbols to import. Called in the __init__.py
+    file of a package, assuming there exists an __init__.pyi file too.
 
     Parameters
     ----------
     module_name : str
-        The name of the main package. This should be `__name__` to properly
-        set up the lazy loading stub.
+        The name of the package in which symbols are being imported. This
+        should be `__name__` to properly set up the lazy loading stub.
     module_path : str
         The file path of the main module. This should be `__file__` to ensure
         correct module referencing.
-    launder : bool, optional
-        If True, the module name of an attribute is set to the `module_name`
-        argument, effectively renaming it in the namespace to hide implementation
-        details. Default is False.
+    launder : bool
+        If True, the `__module__` of an attribute is set to the `module_name`
+        argument, effectively renaming it upon access to hide implementation
+        details.
     launder_names : list of str, optional
         A list of attribute names to launder, if `launder` is True. Only
         attributes in this list will have their names laundered. If None,
@@ -44,8 +45,8 @@ def lazy_attach_stub(
         - `__dir__` : function
             Lists all available attributes, including those lazily loaded.
         - `__all__` : list of str
-            A list of all attributes in the namespace, allowing for
-            import by other modules.
+            A list of all attributes for the namespace to be included in *
+            imports and accessbile from other modules.
 
     Notes
     -----
@@ -61,23 +62,24 @@ def lazy_attach_stub(
     See Also
     --------
     ._lazy_attach : Provides an alternative lazy loading method,
-        where submodules and attributes are loaded directly into the
-        namespace.
+        where submodules and attributes are declared directly in the
+        __init__.py file. This was used when there were `__all__` imports
+        from some subpackage, as lazy_loader does not support that.
     ._launder_impl_modules : Implements laundering for module names
     in attributes.
     """
     getattr__, dir__, all__ = attach_stub(module_name, module_path)
     if launder:
 
-        def newgetattr__(n: str):
+        def new_getattr(n: str):
             attr = getattr__(n)
             if launder_names is not None and n not in launder_names:
                 return attr
             try:
                 attr.__module__ = module_name
             except (AttributeError, TypeError):
-                pass
+                pass  # module attr not settable for all object types
             return attr
 
-        return newgetattr__, dir__, all__
+        return new_getattr, dir__, all__
     return getattr__, dir__, all__
