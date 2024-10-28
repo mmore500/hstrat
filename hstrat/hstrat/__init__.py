@@ -46,7 +46,7 @@ def __dir__() -> List[str]:
     return __all__
 del List
 
-def __getattr__(name: str) -> object:  # object as to not put Any in the namespace
+def __getattr__(name: str) -> object:
     """Allows for equivalent behavior to having `from mod import *`
     in this file without the performance cost of star imports.
     """
