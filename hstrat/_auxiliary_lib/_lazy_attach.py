@@ -79,7 +79,7 @@ def lazy_attach(
             try:
                 attr.__module__ = module_name
             except (AttributeError, TypeError):
-                pass
+                pass  # module attr not settable for all object types
             return attr
 
         return newgetattr__, dir__, all__

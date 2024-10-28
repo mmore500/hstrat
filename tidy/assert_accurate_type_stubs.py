@@ -7,7 +7,7 @@ with lazy-loading and `__all__` reference conventions.
 Functions
 ---------
 find_modules_with_all_references(file_path)
-    Parses the source code of a file to find all modules listed in `submod_attrs`
+    Parses a source file to find all modules listed in `submod_attrs`
     that reference `__all__`.
 
 get_dunder_all_from_stub(file_path)
@@ -76,7 +76,7 @@ def find_modules_with_all_references(file_path: str):
     return modules_with_all
 
 
-def get_dunder_all_from_stub(file_path) -> List[str]:
+def get_dunder_all_from_stub(file_path: str) -> List[str]:
     """
     Extracts the `__all__` symbols from a type stub (`.pyi`) file.
 
