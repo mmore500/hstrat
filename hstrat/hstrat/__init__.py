@@ -29,7 +29,7 @@ from ..test_drive import __all__ as __test_drive_all__
 __version__ = get_hstrat_version()
 del get_hstrat_version
 
-__all__ = dir() + (
+__all__ = (
     __frozen_instrumentation_all__
     + __genome_instrumentation_all__
     + __juxtaposition_all__
