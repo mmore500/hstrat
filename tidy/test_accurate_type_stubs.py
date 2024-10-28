@@ -2,7 +2,11 @@
 """
 Script to validate and analyze Python packages for correct use of `__all__` references
 across modules and type stubs. Uses the AST module to parse source code for compliance
-with lazy-loading and `__all__` reference conventions.
+with lazy-loading and `__all__` reference conventions. The requirements are as follows:
+1) In an __init__.py file where the __all__ of some subpackage is accessed, the type stub
+    of said subpackage must declare an __all__ equivalent to the actual (evaluated) __all__.
+2) Every symbol imported from the __all__ of a subpackage must be in the __all__ of the
+    type stub of the main package.
 
 Functions
 ---------
@@ -163,9 +167,7 @@ def check_accurate_all_imports(package: List[str]) -> List[str]:
             if not s in native_all_symbols:
                 violations.append(f"Symbol {s} from '{subpkg}' was imported by {'.'.join(package)} but not referenced in its __all__")
         mod = importlib.import_module(".".join(package + [subpkg]))
-        if not sorted(mod.__all__) == sorted(
-            symbols
-        ):
+        if not sorted(mod.__all__) == sorted(symbols):
             violations.append(f"Error with {'.'.join(package + [subpkg])}: type stub __all__ is inconsistent")
     for subdir in os.listdir(package_path):
         if (
@@ -184,4 +186,4 @@ if __name__ == "__main__":
         exit(0)
     for violation in violations:
         print(f"ERROR: {violation }")
-    exit(1)
+    raise Exception("Violations were found")
