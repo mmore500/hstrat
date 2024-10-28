@@ -76,7 +76,7 @@ def find_modules_with_all_references(file_path: str):
     return modules_with_all
 
 
-def get_dunder_all_from_stub(file_path) -> List[str]:
+def get_dunder_all_from_stub(file_path: str) -> List[str]:
     """
     Extracts the `__all__` symbols from a type stub (`.pyi`) file.
 
