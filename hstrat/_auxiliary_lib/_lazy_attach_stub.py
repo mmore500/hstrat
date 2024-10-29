@@ -1,5 +1,6 @@
 from typing import Optional, Callable, Any, List
 
+from opytional import apply_if
 from lazy_loader import attach_stub
 
 
@@ -73,7 +74,7 @@ def lazy_attach_stub(
 
         def new_getattr(n: str):
             attr = getattr__(n)
-            if launder_names is not None and n not in launder_names:
+            if apply_if(launder_names, lambda x: n in x):
                 return attr
             try:
                 attr.__module__ = module_name
