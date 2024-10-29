@@ -74,7 +74,7 @@ def lazy_attach_stub(
 
         def new_getattr(n: str):
             attr = getattr__(n)
-            if apply_if(launder_names, lambda x: n in x):
+            if apply_if(launder_names, lambda x: n not in x):
                 return attr
             try:
                 attr.__module__ = module_name
