@@ -1,6 +1,7 @@
 """Tools to specify stratum retention policy."""
 
 from hstrat._auxiliary_lib import lazy_attach
+
 from . import (
     stratum_retention_algorithms,
     stratum_retention_policy_evaluators,

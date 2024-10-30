@@ -1,7 +1,7 @@
-from typing import Optional, Callable, Any, List, Tuple
+from typing import Any, Callable, List, Optional, Tuple
 
-from opytional import apply_if
 from lazy_loader import attach_stub
+from opytional import apply_if
 
 
 def lazy_attach_stub(

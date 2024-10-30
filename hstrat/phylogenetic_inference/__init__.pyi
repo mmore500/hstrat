@@ -1,11 +1,8 @@
-from . import estimators, pairwise, population, priors, tree
-
 from estimators import (
     estimate_rank_of_mrca_maximum_likelihood,
     estimate_rank_of_mrca_naive,
     estimate_rank_of_mrca_unbiased,
 )
-
 from pairwise import (
     ballpark_patristic_distance_between,
     ballpark_rank_of_mrca_between,
@@ -16,8 +13,8 @@ from pairwise import (
     calc_rank_of_mrca_bounds_provided_confidence_level,
     calc_rank_of_mrca_uncertainty_between,
     calc_ranks_since_earliest_detectable_mrca_with,
-    calc_ranks_since_mrca_bounds_with,
     calc_ranks_since_mrca_bounds_provided_confidence_level,
+    calc_ranks_since_mrca_bounds_with,
     calc_ranks_since_mrca_uncertainty_with,
     does_definitively_have_no_common_ancestor,
     does_have_any_common_ancestor,
@@ -25,7 +22,6 @@ from pairwise import (
     estimate_rank_of_mrca_between,
     estimate_ranks_since_mrca_with,
 )
-
 from population import (
     build_distance_matrix_biopython,
     build_distance_matrix_numpy,
@@ -35,21 +31,13 @@ from population import (
     does_definitively_share_no_common_ancestor,
     does_share_any_common_ancestor,
 )
-
 from priors import (
     ArbitraryPrior,
-    GeometricPrior,
     ExponentialPrior,
+    GeometricPrior,
     UniformPrior,
 )
-
 from tree import (
-    build_tree_nj,
-    build_tree_trie,
-    build_tree_trie_ensemble,
-    build_tree_upgma,
-    build_tree,
-    trie_postprocess,
     AssignDestructionTimeYoungestPlusOneTriePostprocessor,
     AssignOriginTimeExpectedValueTriePostprocessor,
     AssignOriginTimeNaiveTriePostprocessor,
@@ -58,7 +46,15 @@ from tree import (
     CompoundTriePostprocessor,
     PeelBackConjoinedLeavesTriePostprocessor,
     SampleAncestralRollbacksTriePostprocessor,
+    build_tree,
+    build_tree_nj,
+    build_tree_trie,
+    build_tree_trie_ensemble,
+    build_tree_upgma,
+    trie_postprocess,
 )
+
+from . import estimators, pairwise, population, priors, tree
 
 __all__ = [
     "estimators",

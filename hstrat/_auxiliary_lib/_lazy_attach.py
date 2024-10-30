@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Any, List, Dict, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from lazy_loader import attach
 from opytional import apply_if

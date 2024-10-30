@@ -23,11 +23,11 @@ check_accurate_all_imports(package)
     specified in type stubs and available in imports.
 """
 
-import os
 import ast
 import importlib
-from typing import List
+import os
 from pathlib import Path
+from typing import List
 
 
 def find_modules_with_all_references(file_path: str):

@@ -1,7 +1,6 @@
 """Data structures to annotate genomes with."""
 
 from . import stratum_ordered_stores
-
 from .._auxiliary_lib import lazy_attach
 
 __getattr__, __dir__, __all__ = lazy_attach(

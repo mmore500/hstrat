@@ -1,7 +1,7 @@
 """Tools to infer phylogenetic history from extant genome annotations."""
 
-from .._auxiliary_lib import lazy_attach
 from . import estimators, pairwise, population, priors, tree
+from .._auxiliary_lib import lazy_attach
 
 __getattr__, __dir__, __all__ = lazy_attach(
     __name__,

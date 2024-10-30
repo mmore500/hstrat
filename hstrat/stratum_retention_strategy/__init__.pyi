@@ -1,18 +1,3 @@
-from . import (
-    stratum_retention_algorithms,
-    stratum_retention_policy_evaluators,
-    stratum_retention_policy_parameterizers,
-)
-
-from stratum_retention_policy_evaluators import (
-    MrcaUncertaintyAbsExactEvaluator,
-    MrcaUncertaintyAbsUpperBoundEvaluator,
-    MrcaUncertaintyRelExactEvaluator,
-    MrcaUncertaintyRelUpperBoundEvaluator,
-    NumStrataRetainedExactEvaluator,
-    NumStrataRetainedUpperBoundEvaluator,
-)
-
 from stratum_retention_algorithms import (
     UnsatisfiableParameterizationRequestError,
     depth_proportional_resolution_algo,
@@ -28,11 +13,24 @@ from stratum_retention_algorithms import (
     recency_proportional_resolution_curbed_algo,
     stochastic_algo,
 )
-
+from stratum_retention_policy_evaluators import (
+    MrcaUncertaintyAbsExactEvaluator,
+    MrcaUncertaintyAbsUpperBoundEvaluator,
+    MrcaUncertaintyRelExactEvaluator,
+    MrcaUncertaintyRelUpperBoundEvaluator,
+    NumStrataRetainedExactEvaluator,
+    NumStrataRetainedUpperBoundEvaluator,
+)
 from stratum_retention_policy_parameterizers import (
     PropertyAtLeastParameterizer,
     PropertyAtMostParameterizer,
     PropertyExactlyParameterizer,
+)
+
+from . import (
+    stratum_retention_algorithms,
+    stratum_retention_policy_evaluators,
+    stratum_retention_policy_parameterizers,
 )
 
 __all__ = [
