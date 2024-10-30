@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Script to validate and analyze Python packages for correct use of `__all__` references
 across modules and type stubs. Uses the AST module to parse source code for compliance
@@ -168,7 +167,7 @@ def check_accurate_all_imports(package: List[str]) -> List[str]:
                 violations.append(
                     f"Symbol {s} from '{subpkg}' was imported by {'.'.join(package)} but not referenced in its __all__"
                 )
-        mod = importlib.import_module(".".join(package + [subpkg]))
+        mod = importlib.import_module(".".join(package + [subpkg]), package='.')
         if not sorted(mod.__all__) == sorted(symbols):
             violations.append(
                 f"Error with {'.'.join(package + [subpkg])}: type stub __all__ is inconsistent"
@@ -184,7 +183,7 @@ def check_accurate_all_imports(package: List[str]) -> List[str]:
 
 
 if __name__ == "__main__":
-    os.chdir(Path(__file__).parent.parent.resolve())
+    os.chdir(Path(__file__).parent.parent.parent.resolve())
     violations = check_accurate_all_imports(["hstrat"])
     if not violations:
         exit(0)
