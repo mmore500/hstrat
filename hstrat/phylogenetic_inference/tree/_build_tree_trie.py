@@ -151,5 +151,5 @@ def build_tree_trie(
             progress_wrap=progress_wrap,
             seed=seed,
             trie_postprocessors=[trie_postprocessor],
-        )
+        ),
     )

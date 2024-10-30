@@ -1,5 +1,6 @@
 """Strata storage implementations for use with HereditaryStratigraphicColumn."""
 
+from ..._auxiliary_lib import launder_impl_modules as _launder
 from ._HereditaryStratumOrderedStoreDict import (
     HereditaryStratumOrderedStoreDict,
 )
@@ -23,8 +24,6 @@ __all__ = [
     "HereditaryStratumOrderedStoreTree",
     "provided_stratum_ordered_stores",
 ]
-
-from ..._auxiliary_lib import launder_impl_modules as _launder
 
 _launder([eval(item) for item in __all__], __name__)
 del _launder  # prevent name from leaking

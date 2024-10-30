@@ -4,8 +4,8 @@ from hstrat._auxiliary_lib import jit, reversed_enumerate
 
 
 def test_reversed_enumerate_list():
-    l = [1, 2, 3, 4]
-    assert list(reversed_enumerate(l)) == [(3, 4), (2, 3), (1, 2), (0, 1)]
+    lst = [1, 2, 3, 4]
+    assert list(reversed_enumerate(lst)) == [(3, 4), (2, 3), (1, 2), (0, 1)]
 
 
 def test_reversed_enumerate_str():
@@ -35,8 +35,8 @@ def test_reversed_enumerate_tuple():
 
 
 def test_reversed_enumerate_is_reverse():
-    l = [1, 2, 3, 4]
-    assert [*reversed_enumerate(l)] == [*reversed([*enumerate(l)])]
+    lst = [1, 2, 3, 4]
+    assert [*reversed_enumerate(lst)] == [*reversed([*enumerate(lst)])]
 
 
 def test_reversed_enumerate_is_jitable():
