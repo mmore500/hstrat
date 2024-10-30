@@ -1,4 +1,4 @@
-from descend_template_phylogeny import (
+from descend_template_phylogeny_ import (
     descend_template_phylogeny,
     descend_template_phylogeny_alifestd,
     descend_template_phylogeny_biopython,
@@ -18,15 +18,16 @@ from perfect_tracking import (
 )
 
 from . import (
-    descend_template_phylogeny,
+    descend_template_phylogeny_,
     generate_template_phylogeny,
     perfect_tracking,
 )
 
 __all__ = [
-    "descend_template_phylogeny",
+    "descend_template_phylogeny_",
     "generate_template_phylogeny",
     "perfect_tracking",
+    "descend_template_phylogeny",
     "descend_template_phylogeny_alifestd",
     "descend_template_phylogeny_biopython",
     "descend_template_phylogeny_dendropy",
