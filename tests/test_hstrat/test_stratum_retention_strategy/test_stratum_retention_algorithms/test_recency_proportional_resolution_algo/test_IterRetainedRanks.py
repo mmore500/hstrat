@@ -7,7 +7,7 @@ import pytest
 
 from hstrat._auxiliary_lib import all_same, pairwise
 from hstrat.hstrat import recency_proportional_resolution_algo
-from hstrat.stratum_retention_strategy.stratum_retention_algorithms.recency_proportional_resolution_algo.recency_proportional_resolution_algo._scry._IterRetainedRanks_ import (
+from hstrat.stratum_retention_strategy.stratum_retention_algorithms.recency_proportional_resolution_algo._scry._IterRetainedRanks_ import (
     impls as rpr_IterRetainedRanks_impls,
 )
 
