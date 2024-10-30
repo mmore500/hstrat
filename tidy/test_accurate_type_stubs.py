@@ -184,10 +184,7 @@ def check_accurate_all_imports(package: List[str]) -> List[str]:
 
 
 if __name__ == "__main__":
-    cutoff_index = __file__.find("hstrat") + len(
-        "hstrat"
-    )  # first instance should be root directory
-    os.chdir(__file__[:cutoff_index])
+    os.chdir(Path(__file__).parent.parent.resolve())
     violations = check_accurate_all_imports(["hstrat"])
     if not violations:
         exit(0)
