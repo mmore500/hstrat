@@ -1,4 +1,4 @@
-from typing import Optional, Callable, Any, List
+from typing import Optional, Callable, Any, List, Tuple
 
 from opytional import apply_if
 from lazy_loader import attach_stub
@@ -10,7 +10,7 @@ def lazy_attach_stub(
     *,
     launder: bool,
     launder_names: Optional[List[str]] = None
-) -> tuple[Callable[[str], Any], Callable[[], List[str]], List[str]]:
+) -> Tuple[Callable[[str], Any], Callable[[], List[str]], List[str]]:
     """
     Attaches a lazy loading stub to a package, enabling deferred loading
     of submodules and attributes to improve load times. Used by importing

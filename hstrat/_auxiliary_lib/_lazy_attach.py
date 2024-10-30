@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Any, List, Dict
+from typing import Callable, Optional, Any, List, Dict, Tuple
 
 from lazy_loader import attach
 from opytional import apply_if
@@ -11,7 +11,7 @@ def lazy_attach(
     submod_attrs: Optional[Dict[str, List[str]]],
     launder: bool,
     launder_names: Optional[List[str]] = None
-) -> tuple[Callable[[str], Any], Callable[[], List[str]], List[str]]:
+) -> Tuple[Callable[[str], Any], Callable[[], List[str]], List[str]]:
     """
     Attaches lazy loading to a package to reduce load times by deferring
     loading of submodules and their attributes until needed. This is used
