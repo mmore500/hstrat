@@ -39,8 +39,8 @@ def calc_rank_of_first_retained_disparity_between_generic(
 
     first_cur_rank, first_cur_differentia = next(first_iter)
     second_cur_rank, second_cur_differentia = next(second_iter)
-    first_prev_rank: int
-    second_prev_rank: int
+    first_prev_rank = None
+    second_prev_rank = None
 
     def advance_first():
         nonlocal first_prev_rank, first_cur_rank

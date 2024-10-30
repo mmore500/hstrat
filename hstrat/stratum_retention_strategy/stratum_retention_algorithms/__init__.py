@@ -17,6 +17,7 @@ from . import (
     recency_proportional_resolution_curbed_algo,
     stochastic_algo,
 )
+from ..._auxiliary_lib import launder_impl_modules as _launder
 from ._detail import UnsatisfiableParameterizationRequestError
 
 provided_stratum_retention_algorithms = [
@@ -48,8 +49,6 @@ __all__ = [
     "recency_proportional_resolution_curbed_algo",
     "stochastic_algo",
 ]
-
-from ..._auxiliary_lib import launder_impl_modules as _launder
 
 _launder([eval(item) for item in __all__], __name__)
 del _launder  # prevent name from leaking
