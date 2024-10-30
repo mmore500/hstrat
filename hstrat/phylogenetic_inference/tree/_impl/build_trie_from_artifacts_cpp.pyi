@@ -1,7 +1,8 @@
+import typing
 from typing import overload
 
 def build_trie_from_artifacts_sync(
-    population: list[tuple[list[int], list[int]]],
+    population: list[typing.Tuple[list[int], list[int]]],
     taxon_labels: list[str]
 ) -> TrieInnerNode_C: ...
 
