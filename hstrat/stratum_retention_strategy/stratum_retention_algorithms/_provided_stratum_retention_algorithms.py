@@ -28,5 +28,6 @@ provided_stratum_retention_algorithms = [
     perfect_resolution_algo,
     pseudostochastic_algo,
     recency_proportional_resolution_algo,
+    recency_proportional_resolution_curbed_algo,
     stochastic_algo,
 ]
