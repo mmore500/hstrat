@@ -2,16 +2,12 @@
 #    uv pip compile --python-version=3.10 ../../pyproject.toml --extra pinned_dependencies_py310 --extra docs -o requirements-docs.txt
 alabaster==0.7.13
     # via sphinx
-alifedata-phyloinformatics-convert==0.11.0
+alifedata-phyloinformatics-convert==0.16.4
     # via hstrat (../../pyproject.toml)
 anytree==2.8.0
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
-appnope==0.1.4
-    # via
-    #   ipykernel
-    #   ipython
 asttokens==2.4.1
     # via stack-data
 attrs==23.2.0
@@ -48,8 +44,6 @@ contourpy==1.0.7
     # via matplotlib
 cycler==0.11.0
     # via matplotlib
-dataclasses==0.6
-    # via lyncs-utils
 debugpy==1.8.0
     # via ipykernel
 decorator==5.1.1
@@ -61,24 +55,26 @@ dendropy==4.5.2
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
 deprecated==1.2.13
-    # via hstrat (../../pyproject.toml)
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   alifedata-phyloinformatics-convert
 docutils==0.17.1
     # via
     #   nbsphinx
     #   sphinx
     #   sphinx-rtd-theme
+ete3==3.1.3
+    # via alifedata-phyloinformatics-convert
 executing==2.0.1
     # via stack-data
 fastjsonschema==2.19.1
     # via nbformat
 fonttools==4.38.0
     # via matplotlib
-gitdb==4.0.10
-    # via gitpython
-gitpython==3.1.31
-    # via lyncs-setuptools
 idna==3.4
-    # via requests
+    # via
+    #   requests
+    #   yarl
 imagesize==1.4.1
     # via sphinx
 interval-search==0.3.1
@@ -125,10 +121,6 @@ lazy-loader==0.4
     # via hstrat (../../pyproject.toml)
 lru-dict==1.1.8
     # via hstrat (../../pyproject.toml)
-lyncs-setuptools==0.3.1
-    # via lyncs-utils
-lyncs-utils==0.4.5
-    # via alifedata-phyloinformatics-convert
 markupsafe==2.1.2
     # via
     #   jinja2
@@ -149,6 +141,8 @@ more-itertools==8.13.0
     # via hstrat (../../pyproject.toml)
 mpmath==1.2.1
     # via hstrat (../../pyproject.toml)
+multidict==6.1.0
+    # via yarl
 mypy-extensions==1.0.0
     # via typing-inspect
 nanto==0.1.1
@@ -194,7 +188,6 @@ packaging==23.0
     #   hstrat (../../pyproject.toml)
     #   ipykernel
     #   lazy-loader
-    #   lyncs-setuptools
     #   matplotlib
     #   nbconvert
     #   pandera
@@ -217,18 +210,20 @@ patsy==0.5.6
     # via statsmodels
 pexpect==4.9.0
     # via ipython
+phylotrackpy==0.2.2
+    # via alifedata-phyloinformatics-convert
 pickleshare==0.7.5
     # via ipython
 pillow==9.4.0
     # via matplotlib
-pip==24.2
-    # via lyncs-setuptools
 platformdirs==4.1.0
     # via jupyter-core
 prettytable==3.5.0
     # via hstrat (../../pyproject.toml)
 prompt-toolkit==3.0.43
     # via ipython
+propcache==0.2.0
+    # via yarl
 psutil==5.9.8
     # via ipykernel
 ptyprocess==0.7.0
@@ -288,8 +283,6 @@ six==1.16.0
     #   bleach
     #   patsy
     #   python-dateutil
-smmap==5.0.0
-    # via gitdb
 snowballstemmer==2.2.0
     # via sphinx
 sortedcontainers==2.4.0
@@ -346,12 +339,16 @@ traitlets==5.14.1
 typing-extensions==4.7.1
     # via
     #   hstrat (../../pyproject.toml)
+    #   alifedata-phyloinformatics-convert
+    #   multidict
     #   pydantic
     #   typing-inspect
 typing-inspect==0.8.0
     # via pandera
 urllib3==1.26.14
     # via requests
+validators==0.34.0
+    # via alifedata-phyloinformatics-convert
 wcwidth==0.2.6
     # via
     #   prettytable
@@ -364,3 +361,5 @@ wrapt==1.14.1
     # via
     #   deprecated
     #   pandera
+yarl==1.17.0
+    # via alifedata-phyloinformatics-convert
