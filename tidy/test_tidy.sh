@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+cd "$(dirname "$0")/.."
+
 # enforce use of GNU version of coreutils
 # (ensuring GNU utils at startup reduces redundant verbosity)
 . ./tidy/util/enforce_gnu_utils.sh
