@@ -85,7 +85,7 @@ requires = [
 # used to generated requirements in dev-requirements/
 [project.optional-dependencies]
 pinned_dependencies_py38 = [
-  "alifedata_phyloinformatics_convert==0.11.0",
+  "alifedata_phyloinformatics_convert==0.16.4",
   "anytree==2.8.0",
   "biopython==1.79",
   "bitarray==2.6.2",
@@ -117,7 +117,7 @@ pinned_dependencies_py38 = [
   "tqdm==4.62.3",
 ]
 pinned_dependencies_py310 = [
-  "alifedata_phyloinformatics_convert==0.11.0",
+  "alifedata_phyloinformatics_convert==0.16.4",
   "anytree==2.8.0",
   "biopython==1.79",
   "bitarray==2.6.2",
