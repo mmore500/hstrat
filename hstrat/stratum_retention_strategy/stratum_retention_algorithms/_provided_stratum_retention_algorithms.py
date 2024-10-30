@@ -1,5 +1,5 @@
 """
-Must be defined in a seperate file so that it is able to be imported
+Must be defined in a separate file so that it is able to be imported
 by the attach_stub function and loaded into the init. The module of this
 list is laundered making it essentially defined therein.
 """
