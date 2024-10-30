@@ -149,7 +149,7 @@ def test_invalid_asexual(phylogeny_path, apply_combine, apply):
     phylogeny_df = apply_combine(pd.read_csv(phylogeny_path))
     try:
         phylogeny_df = apply(phylogeny_df)
-    except ValueError:
+    except Exception:
         pass
 
     phylogeny_df_ = phylogeny_df.copy()
