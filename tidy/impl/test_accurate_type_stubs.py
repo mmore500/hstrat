@@ -167,7 +167,9 @@ def check_accurate_all_imports(package: List[str]) -> List[str]:
                 violations.append(
                     f"Symbol {s} from '{subpkg}' was imported by {'.'.join(package)} but not referenced in its __all__"
                 )
-        mod = importlib.import_module(".".join(package + [subpkg]), package='.')
+        mod = importlib.import_module(
+            ".".join(package + [subpkg]), package="."
+        )
         if not sorted(mod.__all__) == sorted(symbols):
             violations.append(
                 f"Error with {'.'.join(package + [subpkg])}: type stub __all__ is inconsistent"
