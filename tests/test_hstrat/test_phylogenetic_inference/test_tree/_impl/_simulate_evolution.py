@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from random import randint
 
 from hstrat import hstrat

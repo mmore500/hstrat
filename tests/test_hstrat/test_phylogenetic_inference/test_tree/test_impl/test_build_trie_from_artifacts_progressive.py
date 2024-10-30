@@ -5,9 +5,11 @@ import pytest
 
 from hstrat.phylogenetic_inference.tree._impl._build_trie_from_artifacts import (
     build_trie_from_artifacts,
-    build_trie_from_artifacts_progressive
+    build_trie_from_artifacts_progressive,
 )
+
 from .._impl._simulate_evolution import Genome, simulate_evolution
+
 
 @pytest.mark.parametrize(
     "synchronous",

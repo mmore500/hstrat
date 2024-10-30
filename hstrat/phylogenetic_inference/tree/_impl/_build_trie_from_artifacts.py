@@ -1,12 +1,13 @@
+from datetime import datetime
+from enum import Enum
 import gc
 import os
-import typing
-from enum import Enum
 from time import sleep
+import typing
 from typing import Iterable
-from datetime import datetime
-from multiprocess import Queue, Pool, Value
 
+from cppimport import import_hook
+from multiprocess import Pool, Queue, Value
 import numpy as np
 import opytional as opyt
 
@@ -17,12 +18,14 @@ from ...._auxiliary_lib import (
     give_len,
     jit,
 )
-from ._TrieSearchInnerNode import TrieSearchInnerNode
 from ._TrieInnerNode import TrieInnerNode
 from ._TrieLeafNode import TrieLeafNode
+from ._TrieSearchInnerNode import TrieSearchInnerNode
+from .build_trie_from_artifacts_cpp import (
+    TrieInnerNode_C,
+    build_trie_from_artifacts_sync,
+)
 
-from cppimport import import_hook
-from .build_trie_from_artifacts_cpp import build_trie_from_artifacts_sync, TrieInnerNode_C
 
 class MatrixColumn(Enum):
     ID = 0
@@ -362,5 +365,3 @@ def build_trie_from_artifacts_consolidated(
     )
 
     return root
-
-

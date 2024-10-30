@@ -1,14 +1,14 @@
-import pytest
-
 import numpy as np
+import pytest
 
 from hstrat import hstrat
 from hstrat.phylogenetic_inference.tree._impl._build_trie_from_artifacts import (
     build_trie_from_artifacts,
     build_trie_from_artifacts_matrix,
 )
-from .._impl._simulate_evolution import Genome, simulate_evolution
+
 from .._impl._is_matrix_equal_trie import is_matrix_equal_trie
+from .._impl._simulate_evolution import Genome, simulate_evolution
 
 
 # tests for method accuracy are outside. therefore, in this function

@@ -6,10 +6,10 @@ from ._TrieSearchInnerNode import TrieSearchInnerNode
 from ._append_genesis_organism import append_genesis_organism
 from ._build_tree_biopython_distance import build_tree_biopython_distance
 from ._build_trie_from_artifacts import (
+    MatrixColumn,
     build_trie_from_artifacts,
     build_trie_from_artifacts_matrix,
     build_trie_from_artifacts_progressive,
-    MatrixColumn,
 )
 from ._estimate_origin_times import estimate_origin_times
 from ._find_chronological_root import find_chronological_root

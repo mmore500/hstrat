@@ -1,9 +1,12 @@
 import numpy as np
 
-from hstrat.phylogenetic_inference.tree._impl._TrieInnerNode import TrieInnerNode
+from hstrat.phylogenetic_inference.tree._impl._TrieInnerNode import (
+    TrieInnerNode,
+)
 from hstrat.phylogenetic_inference.tree._impl._build_trie_from_artifacts import (
     MatrixColumn,
 )
+
 
 def is_matrix_equal_trie(m: np.ndarray, root: TrieInnerNode) -> bool:
     # stack based approach to go through each root

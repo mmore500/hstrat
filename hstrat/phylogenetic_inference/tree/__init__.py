@@ -5,13 +5,13 @@ from ._build_tree import build_tree
 from ._build_tree_nj import build_tree_nj
 from ._build_tree_trie import build_tree_trie
 from ._build_tree_trie_ensemble import build_tree_trie_ensemble
+from ._build_tree_upgma import build_tree_upgma
 from ._impl import (
+    MatrixColumn,
     build_trie_from_artifacts,
     build_trie_from_artifacts_matrix,
     build_trie_from_artifacts_progressive,
-    MatrixColumn,
 )
-from ._build_tree_upgma import build_tree_upgma
 from .trie_postprocess import *  # noqa: F401
 
 __all__ = [
