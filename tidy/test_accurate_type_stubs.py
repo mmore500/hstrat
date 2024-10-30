@@ -165,10 +165,14 @@ def check_accurate_all_imports(package: List[str]) -> List[str]:
         )
         for s in symbols:
             if not s in native_all_symbols:
-                violations.append(f"Symbol {s} from '{subpkg}' was imported by {'.'.join(package)} but not referenced in its __all__")
+                violations.append(
+                    f"Symbol {s} from '{subpkg}' was imported by {'.'.join(package)} but not referenced in its __all__"
+                )
         mod = importlib.import_module(".".join(package + [subpkg]))
         if not sorted(mod.__all__) == sorted(symbols):
-            violations.append(f"Error with {'.'.join(package + [subpkg])}: type stub __all__ is inconsistent")
+            violations.append(
+                f"Error with {'.'.join(package + [subpkg])}: type stub __all__ is inconsistent"
+            )
     for subdir in os.listdir(package_path):
         if (
             subdir not in subpackages
@@ -178,8 +182,11 @@ def check_accurate_all_imports(package: List[str]) -> List[str]:
             check_accurate_all_imports(package + [subdir])
     return violations
 
+
 if __name__ == "__main__":
-    cutoff_index = __file__.find("hstrat") + len("hstrat")  # first instance should be root directory
+    cutoff_index = __file__.find("hstrat") + len(
+        "hstrat"
+    )  # first instance should be root directory
     os.chdir(__file__[:cutoff_index])
     violations = check_accurate_all_imports(["hstrat"])
     if not violations:

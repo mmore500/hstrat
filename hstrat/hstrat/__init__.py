@@ -34,9 +34,11 @@ __all__ = (
     + __test_drive_all__
 )
 
+
 def __dir__() -> list:
-    """ Returns the entire symbol list. """
+    """Returns the entire symbol list."""
     return __all__
+
 
 def __getattr__(name: str) -> object:
     """Allows for equivalent behavior to having `from mod import *`
