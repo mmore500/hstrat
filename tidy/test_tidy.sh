@@ -3,8 +3,8 @@ set -e
 
 cd "$(dirname "$0")/.."
 
-enforce use of GNU version of coreutils
-(ensuring GNU utils at startup reduces redundant verbosity)
+# enforce use of GNU version of coreutils
+# (ensuring GNU utils at startup reduces redundant verbosity)
 . ./tidy/util/enforce_gnu_utils.sh
 
 echo "Running tidyness enforcement tests..."
@@ -23,3 +23,4 @@ echo "(Including how to automatically generate tidyness fixes if tidyness enforc
 ./tidy/test_modern_suffixes.sh && echo "✔ modern suffixes ok" || exit 1
 ./tidy/test_make_clean.sh && echo "✔ no compilation artifacts" || exit 1
 ./tidy/test_accurate_type_stubs.sh && echo "✔ type stubs all accurate" || exit 1
+./tidy/test_lint.sh && echo "✔ no lint violations" || exit 1

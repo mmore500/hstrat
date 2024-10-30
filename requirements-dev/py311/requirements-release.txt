@@ -89,7 +89,7 @@ networkx==2.6.3
     #   alifedata-phyloinformatics-convert
 nh3==0.2.18
     # via readme-renderer
-numpy==1.23.5
+numpy==1.23.5_provided_stratum_retention_algorithms
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert

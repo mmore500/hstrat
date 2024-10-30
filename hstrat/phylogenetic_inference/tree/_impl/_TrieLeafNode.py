@@ -28,7 +28,7 @@ class TrieLeafNode(anytree.NodeMixin):
 
     def __init__(
         self: "TrieLeafNode",
-        parent: "TrieInnerNode",
+        parent: "TrieInnerNode",  # noqa: F821
         taxon_label: str,
     ) -> None:
         """Initialize a new TrieLeafNode.

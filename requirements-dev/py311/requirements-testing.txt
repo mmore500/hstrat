@@ -194,6 +194,8 @@ pytz==2024.2
     # via pandas
 pyyaml==6.0.1
     # via hstrat (../../pyproject.toml)
+ruff==0.1.11
+    # via hstrat (../../pyproject.toml)
 safe-assert==0.2.0
     # via hstrat (../../pyproject.toml)
 scipy==1.9.3

@@ -41,11 +41,12 @@ def col_to_ascii(
         "stratum differentia",
     ]
 
-    wrap_rank = (
-        lambda rank: f"({rank})"
-        if column._ShouldOmitStratumDepositionRank()
-        else str(rank)
-    )
+    def wrap_rank(rank):
+        return (
+            f"({rank})"
+            if column._ShouldOmitStratumDepositionRank()
+            else str(rank)
+        )
 
     for rank in (
         range(column.GetNumStrataDeposited()) if discarded_strata else df.index
