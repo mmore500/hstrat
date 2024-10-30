@@ -7,6 +7,7 @@ import pytest
 
 from hstrat._auxiliary_lib import all_same, pairwise
 from hstrat.hstrat import recency_proportional_resolution_algo
+from hstrat.stratum_retention_strategy.stratum_retention_algorithms.recency_proportional_resolution_algo.recency_proportional_resolution_algo._scry._IterRetainedRanks_ import impls as rpr_IterRetainedRanks_impls
 
 
 @pytest.mark.parametrize(
@@ -37,9 +38,7 @@ def test_impl_consistency(recency_proportional_resolution, time_sequence):
         recency_proportional_resolution
     )
     spec = policy.GetSpec()
-    impls = [
-        *recency_proportional_resolution_algo._scry._IterRetainedRanks_.impls
-    ]
+    impls = [*rpr_IterRetainedRanks_impls]
     instances = [impl(spec) for impl in impls] + [
         lambda __, num_strata_deposited: policy.IterRetainedRanks(
             num_strata_deposited
@@ -70,10 +69,7 @@ def test_impl_consistency(recency_proportional_resolution, time_sequence):
         )
 
 
-@pytest.mark.parametrize(
-    "impl",
-    recency_proportional_resolution_algo._scry._IterRetainedRanks_.impls,
-)
+@pytest.mark.parametrize("impl", rpr_IterRetainedRanks_impls)
 @pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
@@ -125,10 +121,7 @@ def test_only_dwindling_over_time(
             assert cur_set.issuperset(next_set - {num_strata_deposited})
 
 
-@pytest.mark.parametrize(
-    "impl",
-    recency_proportional_resolution_algo._scry._IterRetainedRanks_.impls,
-)
+@pytest.mark.parametrize("impl", rpr_IterRetainedRanks_impls)
 @pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
@@ -176,10 +169,7 @@ def test_ranks_sorted_and_unique(
             )
 
 
-@pytest.mark.parametrize(
-    "impl",
-    recency_proportional_resolution_algo._scry._IterRetainedRanks_.impls,
-)
+@pytest.mark.parametrize("impl", rpr_IterRetainedRanks_impls)
 @pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
@@ -230,10 +220,7 @@ def test_zero_and_last_ranks_retained(
                 assert next(res, None) is None
 
 
-@pytest.mark.parametrize(
-    "impl",
-    recency_proportional_resolution_algo._scry._IterRetainedRanks_.impls,
-)
+@pytest.mark.parametrize("impl", rpr_IterRetainedRanks_impls)
 @pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
@@ -275,10 +262,7 @@ def test_ranks_valid(impl, recency_proportional_resolution, time_sequence):
             )
 
 
-@pytest.mark.parametrize(
-    "impl",
-    recency_proportional_resolution_algo._scry._IterRetainedRanks_.impls,
-)
+@pytest.mark.parametrize("impl", rpr_IterRetainedRanks_impls)
 @pytest.mark.parametrize(
     "recency_proportional_resolution",
     [
