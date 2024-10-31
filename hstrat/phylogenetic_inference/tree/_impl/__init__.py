@@ -8,6 +8,7 @@ from ._build_tree_biopython_distance import build_tree_biopython_distance
 from ._build_trie_from_artifacts import (
     MatrixColumn,
     build_trie_from_artifacts,
+    build_trie_from_artifacts_consolidated,
     build_trie_from_artifacts_matrix,
     build_trie_from_artifacts_progressive,
 )
@@ -25,6 +26,7 @@ __all__ = [
     "build_tree_biopython_distance",
     "build_trie_from_artifacts",
     "build_trie_from_artifacts_matrix",
+    "build_trie_from_artifacts_consolidated",
     "build_trie_from_artifacts_progressive",
     "MatrixColumn",
     "estimate_origin_times",
