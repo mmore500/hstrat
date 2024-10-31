@@ -1,6 +1,6 @@
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-from lazy_loader import attach
+import lazy_loader
 import opytional as opyt
 
 
