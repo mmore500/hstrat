@@ -30,7 +30,7 @@ def lazy_attach(
         A dictionary where keys are submodule names and values are lists
         of attribute names within each submodule to be loaded in the namespace.
     launder : bool
-        If True, the module name of an attribute is set to the `__name` argument.
+        If True, the module name of an attribute is set to the `module_name` argument.
         This allows for hiding implementation details of each class.
     launder_names : list of str, optional
         A list of attribute names to launder, if `launder` is True. Only
