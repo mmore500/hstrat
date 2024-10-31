@@ -73,7 +73,7 @@ def lazy_attach(
     )
     if launder:
 
-        def new_getattr(n: str):
+        def new_getattr(n: str) -> object:
             attr = getattr__(n)
             if apply_if(launder_names, lambda x: n not in x):
                 return attr
