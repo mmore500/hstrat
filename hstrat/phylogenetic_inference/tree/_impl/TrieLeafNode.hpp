@@ -7,13 +7,12 @@
 class TrieInnerNode;
 class TrieLeafNode {
 private:
-        std::string _taxon_label;
+  std::string _taxon_label;
 public:
-        TrieLeafNode();
-        TrieLeafNode(std::string taxon_label);
-        bool operator==(const TrieLeafNode &other) const;
-        bool operator>(const TrieLeafNode &other) const;
+  TrieLeafNode();
+  TrieLeafNode(std::string taxon_label);
+  bool operator==(const TrieLeafNode &other) const;
+  bool operator>(const TrieLeafNode &other) const;
 };
 
 #endif // !TRIE_LEAF_NODE
-
