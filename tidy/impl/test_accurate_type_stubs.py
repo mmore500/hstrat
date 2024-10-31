@@ -48,7 +48,7 @@ def find_modules_with_all_references(file_path: str) -> list:
     -----
     The function uses the `ast` module to parse the source file and identify
     assignments that contain a `lazy_attach` call with a `submod_attrs` dictionary,
-    where module names are specified with a `__all__` reference.
+    where module names are specified with an `__all__` reference.
     """
     modules_with_all = []
     tree = ast.parse(Path(file_path).read_text())
