@@ -1,7 +1,7 @@
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from lazy_loader import attach
-from opytional import apply_if
+import opytional as opyt
 
 
 def lazy_attach(
