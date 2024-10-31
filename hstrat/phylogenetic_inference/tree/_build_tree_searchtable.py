@@ -12,40 +12,78 @@ from ..._auxiliary_lib import (
     alifestd_try_add_ancestor_list_col,
     argsort,
     give_len,
+    jit,
+    jit_numba_dict_t,
 )
+from numba.typed import List
+from numba.types import uint64, ListType, unicode_type
+
+lsttype = ListType(uint64)
+
+records_type = typing.List[
+    typing.Dict[str, np.uint64],
+]
+
+# adapted from https://docs.python.org/3/library/itertools.html#itertools.pairwise
+@jit(nopython=True)
+def pairwise(iterable):
+    # pairwise('ABCDEFG') → AB BC CD DE EF FG
+    iterator = iter(iterable)
+    for a in iterator:
+        break  # take first element
+    else:
+        return
+
+    for b in iterator:
+        yield a, b
+        a = b
 
 
-def children(records: typing.List[dict], id_: int) -> typing.Iterable[int]:
-    cur, prev = records[id_]["search first_child_id"], id_
+@jit(nopython=True)
+def children(records: records_type, id_: int) -> typing.Iterable[int]:
+    id_ = int(id_)
+    prev = id_
+    cur = records[id_]["search first_child_id"]
     while cur != prev:
         yield cur
-        cur, prev = records[cur]["search next_sibling_id"], cur
+        prev = cur
+        cur = int(records[cur]["search next_sibling_id"])
 
 
-def has_search_parent(records: typing.List[dict], id_: int) -> bool:
+@jit(nopython=True)
+def has_search_parent(records: records_type, id_: int) -> bool:
+    id_ = int(id_)
     return records[id_]["search ancestor_id"] != id_
 
 
+@jit(nopython=True)
 def inner_children(
-    records: typing.List[dict],
+    records: records_type,
     id_: int,
 ) -> typing.Iterable[int]:
+    id_ = int(id_)
     for child in children(records, id_):
         if records[id_]["search first_child_id"] != id_:
             yield child
 
 
-def differentia(records: typing.List[dict], id_: int) -> int:
+@jit(nopython=True)
+def differentia(records: records_type, id_: int) -> int:
+    id_ = int(id_)
     return records[id_]["differentia"]
 
 
-def rank(records: typing.List[dict], id_: int) -> int:
+@jit(nopython=True)
+def rank(records: records_type, id_: int) -> int:
+    id_ = int(id_)
     return records[id_]["rank"]
 
 
+@jit(nopython=True)
 def attach_search_parent(
-    records: typing.List[dict], id_: int, parent_id: int
+    records: records_type, id_: int, parent_id: int
 ) -> None:
+    id_ = int(id_)
     if records[id_]["search ancestor_id"] == parent_id:
         return
 
@@ -54,11 +92,14 @@ def attach_search_parent(
     ancestor_first_child = records[parent_id]["search first_child_id"]
     is_first_child_ = ancestor_first_child == parent_id
     new_next_sibling = id_ if is_first_child_ else ancestor_first_child
-    records[id_]["search next_sibling_id"] = new_next_sibling
+    # typing strangeness
+    records[id_]["search next_sibling_id"] = int(new_next_sibling)
     records[parent_id]["search first_child_id"] = id_
 
 
-def detach_search_parent(records: typing.List[dict], id_: int) -> None:
+@jit(nopython=True)
+def detach_search_parent(records: records_type, id_: int) -> None:
+    id_ = int(id_)
     ancestor_id = records[id_]["search ancestor_id"]
     assert has_search_parent(records, id_)
 
@@ -70,7 +111,7 @@ def detach_search_parent(records: typing.List[dict], id_: int) -> None:
         new_first_child = ancestor_id if is_last_child else next_sibling
         records[ancestor_id]["search first_child_id"] = new_first_child
     else:
-        for child1, child2 in it.pairwise(children(records, ancestor_id)):
+        for child1, child2 in pairwise(children(records, ancestor_id)):
             if child2 == id_:
                 new_next_sib = child1 if is_last_child else next_sibling
                 records[child1]["search next_sibling_id"] = new_next_sib
@@ -82,24 +123,30 @@ def detach_search_parent(records: typing.List[dict], id_: int) -> None:
     records[id_]["search next_sibling_id"] = id_
 
 
+@jit(nopython=True)
 def create_offspring(
-    records: typing.List[dict],
+    records: records_type,
     parent_id: int,
-    differentia: int = np.uint64(0),
-    rank: int = np.uint64(0),
-    label: str = "",
+    differentia: int = 0,
+    rank: int = 0,
 ) -> int:
+    parent_id = int(parent_id)
     size = len(records)
 
     id_ = size
-    records.append(dict())
-    records[id_]["id"] = id_
-    records[id_]["search first_child_id"] = id_
-    records[id_]["search next_sibling_id"] = id_
-    records[id_]["ancestor_id"] = parent_id
-    records[id_]["taxon_label"] = label
-    records[id_]["differentia"] = differentia
-    records[id_]["rank"] = rank
+    records.append(
+        jit_numba_dict_t.empty(
+            key_type=unicode_type,
+            value_type=uint64,
+        ),
+    )
+    record = records[id_]
+    record["id"] = id_
+    record["search first_child_id"] = id_
+    record["search next_sibling_id"] = id_
+    record["ancestor_id"] = parent_id
+    record["differentia"] = differentia
+    record["rank"] = rank
 
     # handles
     records[id_]["search ancestor_id"] = id_
@@ -108,21 +155,24 @@ def create_offspring(
     return id_
 
 
+@jit(nopython=True)
 def insert_artifact(
-    records: typing.List[dict],
-    ranks: typing.Sequence[int],
-    differentiae: typing.Sequence[int],
+    records: records_type,
+    taxon_labels: typing.List[str],
+    ranks: typing.List[int],
+    differentiae: typing.List[int],
     label: str,
-    num_strata_deposited: int = np.uint64(0),
+    num_strata_deposited: int = 0,
 ) -> None:
 
-    cur_node = np.uint64(0)  # root
+    cur_node = 0  # root
     for next_rank, next_differentia in zip(ranks, differentiae):
 
         ###################################################################
         # BEGIN HANDLING SEARCH TREE CONSOLIDATION ########################
 
         # collapse away nodes with ranks that have been dropped
+        cur_node = int(cur_node)
         node_stack = [
             inner_child
             for inner_child in inner_children(records, cur_node)
@@ -143,12 +193,21 @@ def insert_artifact(
                         node_stack.append(grandchild)
 
             # group nodes made indistinguishable by collapsed precursors...
-            groups = collections.defaultdict(list)
+            groups = jit_numba_dict_t.empty(
+                key_type=unicode_type,
+                value_type=lsttype,
+            )
             for child in inner_children(records, cur_node):
-                groups[
-                    (rank(records, child), differentia(records, child))
-                ].append(child)
-            # ... in order to keep only the tiebreak winner
+                key = str(rank(records, child)) + str(
+                    differentia(records, child)
+                )
+
+                if key not in groups:
+                    list_ = List.empty_list(uint64)
+                    list_.append(child)
+                    groups[key] = list_
+                else:
+                    groups[key].append(child)
             for group in groups.values():
                 group = sorted(group)
                 winner, losers = group[0], group[1:]
@@ -184,15 +243,15 @@ def insert_artifact(
                 parent_id=cur_node,
                 differentia=next_differentia,
                 rank=next_rank,
-                label=f"inner_{len(records)}",
             )
+            taxon_labels.append(f"inner_{len(records)}")
 
     create_offspring(  # leaf node
         records=records,
         parent_id=cur_node,
-        label=label,
         rank=num_strata_deposited - 1,
     )
+    taxon_labels.append(label)
 
 
 def build_tree_searchtable(
@@ -217,31 +276,36 @@ def build_tree_searchtable(
     sorted_labels = [taxon_labels[i] for i in sort_order]
     sorted_population = [population[i] for i in sort_order]
 
+    outlabels = ["root"]
     records = [
-        {
-            "id": np.uint64(0),
-            "ancestor_id": np.uint64(0),
-            "search ancestor_id": np.uint64(0),
-            "search first_child_id": np.uint64(0),
-            "search next_sibling_id": np.uint64(0),
-            "taxon_label": "root",
-            "differentia": np.int64(0),
-            "rank": np.uint64(0),
-        },
+        jit_numba_dict_t().empty(
+            key_type=unicode_type,
+            value_type=uint64,
+        ),
     ]
+    record = records[0]
+    record["id"] = 0
+    record["ancestor_id"] = 0
+    record["search ancestor_id"] = 0
+    record["search first_child_id"] = 0
+    record["search next_sibling_id"] = 0
+    record["differentia"] = 0
+    record["rank"] = 0
 
     for label, artifact in progress_wrap(
         give_len(zip(sorted_labels, sorted_population), len(population)),
     ):
         insert_artifact(
             records,
-            [*artifact.IterRetainedRanks()],
-            [*artifact.IterRetainedDifferentia()],
+            outlabels,
+            np.array([*artifact.IterRetainedRanks()], dtype=np.uint64),
+            np.array([*artifact.IterRetainedDifferentia()], dtype=np.uint64),
             label,
             artifact.GetNumStrataDeposited(),
         )
 
     df = pd.DataFrame(records)
+    df["taxon_label"] = outlabels
     df = alifestd_try_add_ancestor_list_col(df, mutate=True)
     multiple_true_roots = (
         (df["id"] != 0) & (df["ancestor_id"] == 0)
