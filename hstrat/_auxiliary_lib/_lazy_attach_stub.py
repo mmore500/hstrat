@@ -72,7 +72,7 @@ def lazy_attach_stub(
     getattr__, dir__, all__ = lazy_loader.attach_stub(module_name, module_path)
     if launder:
 
-        def new_getattr(n: str):
+        def new_getattr(n: str) -> object:
             attr = getattr__(n)
             if opyt.apply_if(launder_names, lambda x: n not in x):
                 return attr
