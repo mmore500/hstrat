@@ -122,6 +122,90 @@ def create_offspring(
     return id_
 
 
+def collapse_indistinguishable_nodes(
+    records: typing.List[Record],
+    cur_node: int,
+) -> None:
+    # group nodes made indistinguishable by collapsed precursors...
+    groups = dict()
+    for child in inner_children(records, cur_node):
+        key = (rank(records, child), differentia(records, child))
+        if key not in groups:
+            groups[key] = [child]
+        else:
+            groups[key].append(child)
+    for group in groups.values():
+        group = sorted(group)
+        winner, losers = group[0], group[1:]
+        for loser in losers:  # keep only the 0th tiebreak winner
+            # reassign loser's children to winner
+            # must grab a copy of inner children to prevent
+            # iterator invalidation
+            for loser_child in [*inner_children(records, loser)]:
+                detach_search_parent(records, loser_child)
+                attach_search_parent(records, loser_child, winner)
+            # detach loser from search trie
+            detach_search_parent(records, loser)
+
+
+def consolidate_trie(
+    records: typing.List[Record],
+    next_rank: int,
+    cur_node: int,
+) -> None:
+    node_stack = [
+        inner_child
+        for inner_child in inner_children(records, cur_node)
+        if rank(records, inner_child) < next_rank
+    ]
+    if not node_stack:
+        return
+
+    # collapse away nodes with ranks that have been dropped
+    while node_stack:
+        pop_node = node_stack.pop()
+        detach_search_parent(records, pop_node)
+        # must grab a copy of inner children to prevent iterator
+        # invalidation
+        for grandchild in [*inner_children(records, pop_node)]:
+            # reattach dropped's children
+            if rank(records, grandchild) >= next_rank:
+                detach_search_parent(records, grandchild)
+                attach_search_parent(records, grandchild, cur_node)
+            else:
+                node_stack.append(grandchild)
+
+    collapse_indistinguishable_nodes(records, cur_node)
+
+
+def place_allele(
+    records: typing.List[Record],
+    cur_node: int,
+    next_rank: int,
+    next_differentia: int,
+) -> int:
+    for child in inner_children(records, cur_node):
+        # check immediate children for next allele
+        #
+        # common allele origination trace is for special condition
+        # optimization where GetDeepestCongruousAlleleOrigination
+        # isn't needed
+        if (
+            rank(records, child) == next_rank
+            and differentia(records, child) == next_differentia
+        ):
+            return child
+    else:
+        # if no congruent node exists, create a new TrieInnerNode
+        return create_offspring(
+            records=records,
+            parent_id=cur_node,
+            differentia=next_differentia,
+            rank=next_rank,
+            taxon_label=f"i{len(records)}",
+        )
+
+
 def insert_artifact(
     records: typing.List[Record],
     ranks: typing.List[int],
@@ -132,75 +216,13 @@ def insert_artifact(
 
     cur_node = 0  # root
     for next_rank, next_differentia in zip(ranks, differentiae):
-
-        ###################################################################
-        # BEGIN HANDLING SEARCH TREE CONSOLIDATION ########################
-
-        # collapse away nodes with ranks that have been dropped
-        node_stack = [
-            inner_child
-            for inner_child in inner_children(records, cur_node)
-            if rank(records, inner_child) < next_rank
-        ]
-        if node_stack:
-            while node_stack:
-                pop_node = node_stack.pop()
-                detach_search_parent(records, pop_node)
-                # must grab a copy of inner children to prevent iterator
-                # invalidation
-                for grandchild in [*inner_children(records, pop_node)]:
-                    # reattach dropped's children
-                    if rank(records, grandchild) >= next_rank:
-                        detach_search_parent(records, grandchild)
-                        attach_search_parent(records, grandchild, cur_node)
-                    else:
-                        node_stack.append(grandchild)
-
-            # group nodes made indistinguishable by collapsed precursors...
-            groups = dict()
-            for child in inner_children(records, cur_node):
-                key = (rank(records, child), differentia(records, child))
-                if key not in groups:
-                    groups[key] = [child]
-                else:
-                    groups[key].append(child)
-            for group in groups.values():
-                group = sorted(group)
-                winner, losers = group[0], group[1:]
-                for loser in losers:  # keep only the 0th tiebreak winner
-                    # reassign loser's children to winner
-                    # must grab a copy of inner children to prevent
-                    # iterator invalidation
-                    for loser_child in [*inner_children(records, loser)]:
-                        detach_search_parent(records, loser_child)
-                        attach_search_parent(records, loser_child, winner)
-                    # detach loser from search trie
-                    detach_search_parent(records, loser)
-
-        # DONE HANDLING SEARCH TREE CONSOLIDATION #########################
-        ###################################################################
-
-        for child in inner_children(records, cur_node):
-            # check immediate children for next allele
-            #
-            # common allele origination trace is for special condition
-            # optimization where GetDeepestCongruousAlleleOrigination
-            # isn't needed
-            if (
-                rank(records, child) == next_rank
-                and differentia(records, child) == next_differentia
-            ):
-                cur_node = child
-                break
-        else:
-            # if no congruent node exists, create a new TrieInnerNode
-            cur_node = create_offspring(
-                records=records,
-                parent_id=cur_node,
-                differentia=next_differentia,
-                rank=next_rank,
-                taxon_label=f"i{len(records)}",
-            )
+        consolidate_trie(records, next_rank, cur_node)
+        cur_node = place_allele(
+            records,
+            cur_node,
+            next_rank,
+            next_differentia,
+        )
 
     create_offspring(  # leaf node
         records=records,
@@ -209,6 +231,28 @@ def insert_artifact(
         differentia=-1,
         taxon_label=label,
     )
+
+
+def finalize_records(
+    records: typing.List[Record],
+    force_common_ancestry: bool,
+) -> pd.DataFrame:
+    df = pd.DataFrame(map(dataclasses.asdict, records))
+    df["id"] = df["ix_id"]
+    df["ancestor_id"] = df["ix_ancestor_id"]
+    df["origin_time"] = df["ix_rank"]
+
+    multiple_true_roots = (
+        (df["id"] != 0) & (df["ancestor_id"] == 0)
+    ).sum() > 1
+    if multiple_true_roots and not force_common_ancestry:
+        raise ValueError(
+            "Reconstruction resulted in multiple independent trees, "
+            "due to artifacts definitively sharing no common ancestor. "
+            "Consider setting force_common_ancestry=True.",
+        )
+
+    return alifestd_try_add_ancestor_list_col(df, mutate=True)
 
 
 def build_tree_searchtable(
@@ -240,25 +284,10 @@ def build_tree_searchtable(
     ):
         insert_artifact(
             records,
-            np.array([*artifact.IterRetainedRanks()], dtype=np.uint64),
-            np.array([*artifact.IterRetainedDifferentia()], dtype=np.uint64),
+            [*artifact.IterRetainedRanks()],
+            [*artifact.IterRetainedDifferentia()],
             label,
             artifact.GetNumStrataDeposited(),
         )
 
-    df = pd.DataFrame(map(dataclasses.asdict, records))
-    df["id"] = df["ix_id"]
-    df["ancestor_id"] = df["ix_ancestor_id"]
-    df = alifestd_try_add_ancestor_list_col(df, mutate=True)
-    multiple_true_roots = (
-        (df["id"] != 0) & (df["ancestor_id"] == 0)
-    ).sum() > 1
-    if multiple_true_roots and not force_common_ancestry:
-        raise ValueError(
-            "Reconstruction resulted in multiple independent trees, "
-            "due to artifacts definitively sharing no common ancestor. "
-            "Consider setting force_common_ancestry=True.",
-        )
-
-    df["origin_time"] = df["ix_rank"]
-    return df
+    return finalize_records(records, force_common_ancestry)
