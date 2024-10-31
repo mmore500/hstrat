@@ -52,12 +52,14 @@ def build_tree_searchtable(
             "rank": pd.Series(fill_values, dtype=np.int64),
         },
     )
+    orig_type_dict = df.dtypes.to_dict()
     id_cols = [x for x in df.columns if x.endswith("id")]
     df.loc[0, id_cols] = 0  # root
     size = 1
 
     def children(id_: int) -> typing.Iterable[int]:
         nonlocal df
+        assert id_ < size
         cur, prev = df.at[id_, "search first_child_id"], id_
         assert cur != fill_value
         for i in it.count():
@@ -71,30 +73,37 @@ def build_tree_searchtable(
 
     def is_root(id_: int) -> bool:
         nonlocal df
+        assert 0 <= id_ < size
         return df.at[id_, "ancestor_id"] == id_
 
     def has_search_parent(id_: int) -> bool:
         nonlocal df
+        assert 0 <= id_ < size
         return df.at[id_, "search ancestor_id"] != id_
 
     def is_leaf(id_: int) -> bool:
         nonlocal df
+        assert 0 <= id_ < size
         return df.at[id_, "search first_child_id"] == id_
 
     def is_inner_node(id_: int) -> bool:
         nonlocal df
+        assert 0 <= id_ < size
         return not is_leaf(id_)
 
     def inner_children(id_: int) -> typing.Iterable[int]:
         nonlocal df
+        assert 0 <= id_ < size
         return filter(is_inner_node, children(id_))
 
     def differentia(id_: int) -> int:
         nonlocal df
+        assert 0 <= id_ < size
         return df.at[id_, "differentia"]
 
     def rank(id_: int) -> int:
         nonlocal df
+        assert 0 <= id_ < size
         return df.at[id_, "rank"]
 
     def find_looped_ids() -> typing.Set[int]:
@@ -117,21 +126,22 @@ def build_tree_searchtable(
         return False
 
     def is_first_child(id_: int) -> bool:
+        assert 0 <= id_ < size
         return ((df["search first_child_id"] == id_) & (df["id"] != id_)).any()
 
     def is_next_sibling(id_: int) -> bool:
+        assert 0 <= id_ < size
         return (
             (df["search next_sibling_id"] == id_) & (df["id"] != id_)
         ).any()
 
     def attach_search_parent(id_: int, parent_id: int) -> None:
         nonlocal df
+        assert 0 <= id_ < size and 0 <= parent_id < size
         assert id_ != parent_id
         assert id_ > parent_id
-        assert not is_first_child(id_)
-        assert not is_next_sibling(id_)
-        assert not find_looped_ids()
-        assert not has_loops()
+        assert not is_first_child(id_) and not is_next_sibling(id_)
+        assert not find_looped_ids() and not has_loops()
         if df.at[id_, "search ancestor_id"] == parent_id:
             return
 
@@ -147,14 +157,14 @@ def build_tree_searchtable(
 
         assert id_ in children(parent_id)
         assert has_search_parent(id_)
-        assert not find_looped_ids()
-        assert not has_loops()
+        assert not find_looped_ids() and not has_loops()
+        assert orig_type_dict == df.dtypes.to_dict()
 
     def detach_search_parent(id_: int) -> None:
         nonlocal df
+        assert 0 <= id_ < size
         ancestor_id = df.at[id_, "search ancestor_id"]
-        assert not find_looped_ids()
-        assert not has_loops()
+        assert not find_looped_ids() and not has_loops()
         if not has_search_parent(id_):  # root
             return
 
@@ -170,8 +180,9 @@ def build_tree_searchtable(
             df.at[ancestor_id, "search first_child_id"] = new_first_child
         else:
             for child1, child2 in it.pairwise(children(ancestor_id)):
-                assert child1 != child2
-                assert child1 != id_
+                assert child1 != child2 and child1 != id_
+                assert 0 <= child1 < size and 0 <= child2 < size
+                assert child1 != fill_value and child2 != fill_value
                 if child2 == id_:
                     new_next_sib = child1 if is_last_child else next_sibling
                     assert new_next_sib != id_
@@ -185,8 +196,8 @@ def build_tree_searchtable(
         assert id_ not in children(ancestor_id)
         assert not is_first_child(id_)
         assert not is_next_sibling(id_)
-        assert not find_looped_ids()
-        assert not has_loops()
+        assert not find_looped_ids() and not has_loops()
+        assert orig_type_dict == df.dtypes.to_dict()
 
     def create_offspring(
         parent_id: int,
@@ -195,6 +206,7 @@ def build_tree_searchtable(
         label: str = "",
     ) -> int:
         nonlocal df, size
+        assert 0 <= parent_id < size
         if size == len(df.index) - 1:
             # double the size of the dataframe
             # adapted from https://stackoverflow.com/a/50788670/17332200
@@ -216,7 +228,8 @@ def build_tree_searchtable(
         df.at[id_, "rank"] = rank
 
         attach_search_parent(id_, parent_id)
-        assert not find_looped_ids()
+        assert not find_looped_ids() and not has_loops()
+        assert orig_type_dict == df.dtypes.to_dict()
 
         return id_
 
