@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import List
 
 
-def find_modules_with_all_references(file_path: str):
+def find_modules_with_all_references(file_path: str) -> list:
     """
     Parses the given source code using the AST module to find all modules listed
     in `submod_attrs` that reference `__all__`.
