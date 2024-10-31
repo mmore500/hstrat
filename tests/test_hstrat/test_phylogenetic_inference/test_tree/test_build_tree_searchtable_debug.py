@@ -36,7 +36,9 @@ def test_dual_population_no_mrca():
     names = ["foo", "bar"]
 
     with pytest.raises(ValueError):
-        tree = hstrat.build_tree_searchtable_debug(population, taxon_labels=names)
+        tree = hstrat.build_tree_searchtable_debug(
+            population, taxon_labels=names
+        )
         print(tree)
 
     tree = hstrat.build_tree_searchtable_debug(
