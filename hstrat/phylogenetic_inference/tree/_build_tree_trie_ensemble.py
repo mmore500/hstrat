@@ -93,12 +93,9 @@ def _build_tree_trie_ensemble(
     root = build_trie_from_artifacts(
         population=population,
         taxon_labels=taxon_labels,
-        force_common_ancestry=force_common_ancestry,
         progress_wrap=progress_wrap,
     )
-    if (
-        not force_common_ancestry
-    ):  # todo bug? is there supposed to be a not here
+    if not force_common_ancestry:
         try:
             (root,) = root.children
             root.parent = None

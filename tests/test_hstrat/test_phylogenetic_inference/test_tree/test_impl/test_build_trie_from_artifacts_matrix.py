@@ -34,8 +34,7 @@ def test_build_trie_matrix(
     root = build_trie_from_artifacts(
         extant_population,
         [str(i) for i in range(len(evolved))],
-        False,
-        lambda x: x,
+        progress_wrap=lambda x: x,
     )
 
     assemblage = hstrat.pop_to_assemblage(extant_population)
@@ -55,5 +54,5 @@ def test_build_trie_matrix_empty():
     m = build_trie_from_artifacts_matrix(
         np.zeros((0,)), np.zeros((0, 0)), 8, [0]
     )
-    root = build_trie_from_artifacts([], [], False, lambda x: x)
+    root = build_trie_from_artifacts([], [], lambda x: x)
     assert is_matrix_equal_trie(m, root)

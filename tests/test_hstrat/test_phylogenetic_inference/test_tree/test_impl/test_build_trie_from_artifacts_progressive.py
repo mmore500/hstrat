@@ -34,8 +34,7 @@ def test_build_trie_progressive(
     assert build_trie_from_artifacts(
         extant_population,
         taxon_labels,
-        False,
-        lambda x: x,
+        progress_wrap=lambda x: x,
     ) == build_trie_from_artifacts_progressive(
         extant_population, taxon_labels, multiprocess=False
     )
@@ -43,5 +42,5 @@ def test_build_trie_progressive(
 
 def test_build_trie_progressive_empty():
     assert build_trie_from_artifacts(
-        [], [], False, lambda x: x
+        [], [], lambda x: x
     ) == build_trie_from_artifacts_progressive([], [], multiprocess=False)
