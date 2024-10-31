@@ -25,10 +25,8 @@ class Record:
     ix_differentia: int = 0
     ix_rank: int = 0
 
-records_type = typing.List[Record]
 
-
-def children(records: records_type, id_: int) -> typing.Iterable[int]:
+def children(records: typing.List[Record], id_: int) -> typing.Iterable[int]:
     prev = id_
     cur = records[id_].ix_search_first_child_id
     while cur != prev:
@@ -37,12 +35,12 @@ def children(records: records_type, id_: int) -> typing.Iterable[int]:
         cur = records[cur].ix_search_next_sibling_id
 
 
-def has_search_parent(records: records_type, id_: int) -> bool:
+def has_search_parent(records: typing.List[Record], id_: int) -> bool:
     return records[id_].ix_search_ancestor_id != id_
 
 
 def inner_children(
-    records: records_type,
+    records: typing.List[Record],
     id_: int,
 ) -> typing.Iterable[int]:
     for child in children(records, id_):
@@ -50,16 +48,16 @@ def inner_children(
             yield child
 
 
-def differentia(records: records_type, id_: int) -> int:
+def differentia(records: typing.List[Record], id_: int) -> int:
     return records[id_].ix_differentia
 
 
-def rank(records: records_type, id_: int) -> int:
+def rank(records: typing.List[Record], id_: int) -> int:
     return records[id_].ix_rank
 
 
 def attach_search_parent(
-    records: records_type, id_: int, parent_id: int
+    records: typing.List[Record], id_: int, parent_id: int
 ) -> None:
     if records[id_].ix_search_ancestor_id == parent_id:
         return
@@ -73,7 +71,7 @@ def attach_search_parent(
     records[parent_id].ix_search_first_child_id = id_
 
 
-def detach_search_parent(records: records_type, id_: int) -> None:
+def detach_search_parent(records: typing.List[Record], id_: int) -> None:
     ancestor_id = records[id_].ix_search_ancestor_id
     assert has_search_parent(records, id_)
 
@@ -98,7 +96,7 @@ def detach_search_parent(records: records_type, id_: int) -> None:
 
 
 def create_offspring(
-    records: records_type,
+    records: typing.List[Record],
     parent_id: int,
     differentia: int = 0,
     rank: int = 0,
@@ -123,7 +121,7 @@ def create_offspring(
 
 
 def insert_artifact(
-    records: records_type,
+    records: typing.List[Record],
     taxon_labels: typing.List[str],
     ranks: typing.List[int],
     differentiae: typing.List[int],
