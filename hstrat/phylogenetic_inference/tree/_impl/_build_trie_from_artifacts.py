@@ -7,7 +7,7 @@ import typing
 from typing import Iterable
 
 from cppimport import import_hook
-from multiprocess import Pool, Queue, Value
+from multiprocessing import Pool, Queue, Value
 import numpy as np
 import opytional as opyt
 
