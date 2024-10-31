@@ -6,10 +6,7 @@ import typing
 import anytree
 import opytional as opyt
 
-from ...._auxiliary_lib import (
-    generate_n,
-    render_to_base64url,
-)
+from ...._auxiliary_lib import generate_n, render_to_base64url
 from ._TrieInnerNode import TrieInnerNode
 from ._TrieLeafNode import TrieLeafNode
 
