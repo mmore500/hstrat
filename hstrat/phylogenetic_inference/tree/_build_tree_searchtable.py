@@ -1,4 +1,4 @@
-import collections
+import dataclasses
 import itertools as it
 import typing
 
@@ -12,165 +12,116 @@ from ..._auxiliary_lib import (
     alifestd_try_add_ancestor_list_col,
     argsort,
     give_len,
-    jit,
-    jit_numba_dict_t,
 )
-from numba.typed import List
-from numba.types import uint64, ListType, unicode_type
-
-lsttype = ListType(uint64)
-
-records_type = typing.List[
-    typing.Dict[str, np.uint64],
-]
-
-col_names = [
-    "id",
-    "search first_child_id",
-    "search next_sibling_id",
-    "search ancestor_id",
-    "ancestor_id",
-    "differentia",
-    "rank",
-]
-
-ix_id = 0
-ix_search_first_child_id = 1
-ix_search_next_sibling_id = 2
-ix_search_ancestor_id = 3
-ix_ancestor_id = 4
-ix_differentia = 5
-ix_rank = 6
-ix_N = 7
-
-# adapted from https://docs.python.org/3/library/itertools.html#itertools.pairwise
-@jit(nopython=True)
-def pairwise(iterable):
-    # pairwise('ABCDEFG') → AB BC CD DE EF FG
-    iterator = iter(iterable)
-    for a in iterator:
-        break  # take first element
-    else:
-        return
-
-    for b in iterator:
-        yield a, b
-        a = b
 
 
+@dataclasses.dataclass(slots=True)
+class Record:
+    ix_id: int = 0
+    ix_search_first_child_id: int = 0
+    ix_search_next_sibling_id: int = 0
+    ix_search_ancestor_id: int = 0
+    ix_ancestor_id: int = 0
+    ix_differentia: int = 0
+    ix_rank: int = 0
 
-@jit(nopython=True)
+records_type = typing.List[Record]
+
+
 def children(records: records_type, id_: int) -> typing.Iterable[int]:
-    id_ = int(id_)
     prev = id_
-    cur = records[id_][ix_search_first_child_id]
+    cur = records[id_].ix_search_first_child_id
     while cur != prev:
         yield cur
         prev = cur
-        cur = int(records[cur][ix_search_next_sibling_id])
+        cur = records[cur].ix_search_next_sibling_id
 
 
-@jit(nopython=True)
 def has_search_parent(records: records_type, id_: int) -> bool:
-    id_ = int(id_)
-    return records[id_][ix_search_ancestor_id] != id_
+    return records[id_].ix_search_ancestor_id != id_
 
 
-@jit(nopython=True)
 def inner_children(
     records: records_type,
     id_: int,
 ) -> typing.Iterable[int]:
-    id_ = int(id_)
     for child in children(records, id_):
-        if records[id_][ix_search_first_child_id] != id_:
+        if records[id_].ix_search_first_child_id != id_:
             yield child
 
 
-@jit(nopython=True)
 def differentia(records: records_type, id_: int) -> int:
-    id_ = int(id_)
-    return records[id_][ix_differentia]
+    return records[id_].ix_differentia
 
 
-@jit(nopython=True)
 def rank(records: records_type, id_: int) -> int:
-    id_ = int(id_)
-    return records[id_][ix_rank]
+    return records[id_].ix_rank
 
 
-@jit(nopython=True)
 def attach_search_parent(
     records: records_type, id_: int, parent_id: int
 ) -> None:
-    id_ = int(id_)
-    if records[id_][ix_search_ancestor_id] == parent_id:
+    if records[id_].ix_search_ancestor_id == parent_id:
         return
 
-    records[id_][ix_search_ancestor_id] = parent_id
+    records[id_].ix_search_ancestor_id = parent_id
 
-    ancestor_first_child = records[parent_id][ix_search_first_child_id]
+    ancestor_first_child = records[parent_id].ix_search_first_child_id
     is_first_child_ = ancestor_first_child == parent_id
     new_next_sibling = id_ if is_first_child_ else ancestor_first_child
-    # typing strangeness
-    records[id_][ix_search_next_sibling_id] = int(new_next_sibling)
-    records[parent_id][ix_search_first_child_id] = id_
+    records[id_].ix_search_next_sibling_id = new_next_sibling
+    records[parent_id].ix_search_first_child_id = id_
 
 
-@jit(nopython=True)
 def detach_search_parent(records: records_type, id_: int) -> None:
-    id_ = int(id_)
-    ancestor_id = records[id_][ix_search_ancestor_id]
+    ancestor_id = records[id_].ix_search_ancestor_id
     assert has_search_parent(records, id_)
 
-    is_first_child_ = records[ancestor_id][ix_search_first_child_id] == id_
-    next_sibling = records[id_][ix_search_next_sibling_id]
+    is_first_child_ = records[ancestor_id].ix_search_first_child_id == id_
+    next_sibling = records[id_].ix_search_next_sibling_id
     is_last_child = next_sibling == id_
 
     if is_first_child_:
         new_first_child = ancestor_id if is_last_child else next_sibling
-        records[ancestor_id][ix_search_first_child_id] = new_first_child
+        records[ancestor_id].ix_search_first_child_id = new_first_child
     else:
-        for child1, child2 in pairwise(children(records, ancestor_id)):
+        for child1, child2 in it.pairwise(children(records, ancestor_id)):
             if child2 == id_:
                 new_next_sib = child1 if is_last_child else next_sibling
-                records[child1][ix_search_next_sibling_id] = new_next_sib
+                records[child1].ix_search_next_sibling_id = new_next_sib
                 break
         else:
             assert False
 
-    records[id_][ix_search_ancestor_id] = id_
-    records[id_][ix_search_next_sibling_id] = id_
+    records[id_].ix_search_ancestor_id = id_
+    records[id_].ix_search_next_sibling_id = id_
 
 
-@jit(nopython=True)
 def create_offspring(
     records: records_type,
     parent_id: int,
     differentia: int = 0,
     rank: int = 0,
 ) -> int:
-    parent_id = int(parent_id)
     size = len(records)
 
     id_ = size
-    records.append(np.zeros(ix_N, dtype=np.uint64))
+    records.append(Record())
     record = records[id_]
-    record[ix_id] = id_
-    record[ix_search_first_child_id] = id_
-    record[ix_search_next_sibling_id] = id_
-    record[ix_ancestor_id] = parent_id
-    record[ix_differentia] = differentia
-    record[ix_rank] = rank
+    record.ix_id = id_
+    record.ix_search_first_child_id = id_
+    record.ix_search_next_sibling_id = id_
+    record.ix_ancestor_id = parent_id
+    record.ix_differentia = differentia
+    record.ix_rank = rank
 
     # handles
-    records[id_][ix_search_ancestor_id] = id_
+    records[id_].ix_search_ancestor_id = id_
     attach_search_parent(records, id_, parent_id)
 
     return id_
 
 
-@jit(nopython=True)
 def insert_artifact(
     records: records_type,
     taxon_labels: typing.List[str],
@@ -187,7 +138,6 @@ def insert_artifact(
         # BEGIN HANDLING SEARCH TREE CONSOLIDATION ########################
 
         # collapse away nodes with ranks that have been dropped
-        cur_node = int(cur_node)
         node_stack = [
             inner_child
             for inner_child in inner_children(records, cur_node)
@@ -208,19 +158,11 @@ def insert_artifact(
                         node_stack.append(grandchild)
 
             # group nodes made indistinguishable by collapsed precursors...
-            groups = jit_numba_dict_t.empty(
-                key_type=unicode_type,
-                value_type=lsttype,
-            )
+            groups = dict()
             for child in inner_children(records, cur_node):
-                key = str(rank(records, child)) + str(
-                    differentia(records, child)
-                )
-
+                key = (rank(records, child), differentia(records, child))
                 if key not in groups:
-                    list_ = List.empty_list(uint64)
-                    list_.append(child)
-                    groups[key] = list_
+                    groups[key] = [child]
                 else:
                     groups[key].append(child)
             for group in groups.values():
@@ -292,15 +234,7 @@ def build_tree_searchtable(
     sorted_population = [population[i] for i in sort_order]
 
     outlabels = ["root"]
-    records = [np.zeros(ix_N, dtype=np.uint64)]
-    record = records[0]
-    record[ix_id] = 0
-    record[ix_ancestor_id] = 0
-    record[ix_search_ancestor_id] = 0
-    record[ix_search_first_child_id] = 0
-    record[ix_search_next_sibling_id] = 0
-    record[ix_differentia] = 0
-    record[ix_rank] = 0
+    records = [Record()]
 
     for label, artifact in progress_wrap(
         give_len(zip(sorted_labels, sorted_population), len(population)),
@@ -314,12 +248,9 @@ def build_tree_searchtable(
             artifact.GetNumStrataDeposited(),
         )
 
-    df = pd.DataFrame(
-        [
-            dict(zip(col_names, record))
-            for record in records
-        ]
-    )
+    df = pd.DataFrame(map(dataclasses.asdict, records))
+    df["id"] = df["ix_id"]
+    df["ancestor_id"] = df["ix_ancestor_id"]
     df["taxon_label"] = outlabels
     df = alifestd_try_add_ancestor_list_col(df, mutate=True)
     multiple_true_roots = (
@@ -332,5 +263,5 @@ def build_tree_searchtable(
             "Consider setting force_common_ancestry=True.",
         )
 
-    df["origin_time"] = df["rank"]
+    df["origin_time"] = df["ix_rank"]
     return df
