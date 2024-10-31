@@ -67,17 +67,11 @@ def build_tree_searchtable(
         nonlocal df
         return df.at[id_, "search ancestor_id"] != id_
 
-    def is_leaf(id_: int) -> bool:
-        nonlocal df
-        return df.at[id_, "search first_child_id"] == id_
-
-    def is_inner_node(id_: int) -> bool:
-        nonlocal df
-        return not is_leaf(id_)
-
     def inner_children(id_: int) -> typing.Iterable[int]:
         nonlocal df
-        return filter(is_inner_node, children(id_))
+        for child in children(id_):
+            if df.at[id_, "search first_child_id"] != id_:
+                yield child
 
     def differentia(id_: int) -> int:
         nonlocal df
@@ -99,7 +93,6 @@ def build_tree_searchtable(
         new_next_sibling = id_ if is_first_child_ else ancestor_first_child
         df.at[id_, "search next_sibling_id"] = new_next_sibling
         df.at[parent_id, "search first_child_id"] = id_
-
 
     def detach_search_parent(id_: int) -> None:
         nonlocal df
@@ -158,11 +151,14 @@ def build_tree_searchtable(
         return id_
 
     def insert_artifact(
-        artifact: HereditaryStratigraphicArtifact, label: str
+        ranks: typing.Sequence[int],
+        differentiae: typing.Sequence[int],
+        label: str,
+        num_strata_deposited: int = 0,
     ) -> None:
 
         cur_node = 0  # root
-        for next_rank, next_differentia in artifact.IterRankDifferentiaZip():
+        for next_rank, next_differentia in zip(ranks, differentiae):
 
             ###################################################################
             # BEGIN HANDLING SEARCH TREE CONSOLIDATION ########################
@@ -193,7 +189,8 @@ def build_tree_searchtable(
                     groups[(rank(child), differentia(child))].append(child)
                 # ... in order to keep only the tiebreak winner
                 for group in groups.values():
-                    winner, *losers = sorted(group)
+                    group = sorted(group)
+                    winner, losers = group[0], group[1:]
                     for loser in losers:  # keep only the 0th tiebreak winner
                         # reassign loser's children to winner
                         # must grab a copy of inner children to prevent
@@ -231,13 +228,18 @@ def build_tree_searchtable(
         create_offspring(  # leaf node
             parent_id=cur_node,
             label=label,
-            rank=artifact.GetNumStrataDeposited() - 1,
+            rank=num_strata_deposited - 1,
         )
 
     for label, artifact in progress_wrap(
         give_len(zip(sorted_labels, sorted_population), len(population)),
     ):
-        insert_artifact(artifact, label)
+        insert_artifact(
+            [*artifact.IterRetainedRanks()],
+            [*artifact.IterRetainedDifferentia()],
+            label,
+            artifact.GetNumStrataDeposited(),
+        )
 
     df = alifestd_try_add_ancestor_list_col(df[:size].copy(), mutate=True)
     multiple_true_roots = (
