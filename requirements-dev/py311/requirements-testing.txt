@@ -30,6 +30,8 @@ contourpy==1.0.7
     # via matplotlib
 coverage==6.4.4
     # via hstrat (../../pyproject.toml)
+cppimport==22.8.2
+    # via hstrat (../../pyproject.toml)
 cycler==0.11.0
     # via matplotlib
 dataclasses==0.6
@@ -48,6 +50,7 @@ execnet==1.9.0
     # via pytest-xdist
 filelock==3.9.0
     # via
+    #   cppimport
     #   tox
     #   virtualenv
 flake8==3.7.8
@@ -80,6 +83,10 @@ lyncs-setuptools==0.3.1
     # via lyncs-utils
 lyncs-utils==0.4.5
     # via alifedata-phyloinformatics-convert
+mako==1.3.6
+    # via cppimport
+markupsafe==3.0.2
+    # via mako
 matplotlib==3.6.3
     # via
     #   hstrat (../../pyproject.toml)
@@ -161,6 +168,8 @@ py==1.11.0
     #   pytest
     #   pytest-forked
     #   tox
+pybind11==2.13.6
+    # via cppimport
 pycodestyle==2.5.0
     # via flake8
 pydantic==1.10.5
@@ -188,7 +197,7 @@ python-slugify==6.1.2
     #   teeplot
 pytz==2022.7.1
     # via pandas
-pyyaml==5.3.1
+pyyaml==6.0.1
     # via hstrat (../../pyproject.toml)
 ruff==0.1.11
     # via hstrat (../../pyproject.toml)

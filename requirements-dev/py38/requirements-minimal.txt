@@ -22,6 +22,8 @@ click==8.1.3
     # via
     #   alifedata-phyloinformatics-convert
     #   keyname
+cppimport==22.8.2
+    # via hstrat (../../pyproject.toml)
 cycler==0.11.0
     # via matplotlib
 dataclasses==0.6
@@ -32,6 +34,8 @@ dendropy==4.5.2
     #   hstrat (../../pyproject.toml)
 deprecated==1.2.13
     # via hstrat (../../pyproject.toml)
+filelock==3.16.1
+    # via cppimport
 fonttools==4.38.0
     # via matplotlib
 gitdb==4.0.10
@@ -54,6 +58,10 @@ lyncs-setuptools==0.3.1
     # via lyncs-utils
 lyncs-utils==0.4.5
     # via alifedata-phyloinformatics-convert
+mako==1.3.6
+    # via cppimport
+markupsafe==2.1.5
+    # via mako
 matplotlib==3.5.2
     # via
     #   hstrat (../../pyproject.toml)
@@ -112,6 +120,8 @@ pillow==9.4.0
     # via matplotlib
 prettytable==3.5.0
     # via hstrat (../../pyproject.toml)
+pybind11==2.13.6
+    # via cppimport
 pydantic==1.10.5
     # via pandera
 pyparsing==3.0.9
