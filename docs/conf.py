@@ -20,11 +20,11 @@
 import os
 import sys
 
-import sphinx_rtd_theme
+sys.path.insert(0, os.path.abspath(".."))  # noqa: E702
 
-sys.path.insert(0, os.path.abspath(".."))
+import sphinx_rtd_theme  # noqa: E402
 
-import hstrat
+import hstrat  # noqa: E402
 
 # -- General configuration ---------------------------------------------
 
@@ -200,8 +200,6 @@ texinfo_documents = [
 ]
 
 # -- Theme Options -------------------------------------------
-
-import sphinx_rtd_theme
 
 html_theme = "sphinx_rtd_theme"
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]

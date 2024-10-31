@@ -1,7 +1,6 @@
 import contextlib
 import typing
 
-from iterpop import iterpop as ip
 import opytional as opyt
 import pandas as pd
 
@@ -101,10 +100,14 @@ def _build_tree_trie_ensemble(
         not force_common_ancestry
     ):  # todo bug? is there supposed to be a not here
         try:
-            root = ip.popsingleton(root.children)
+            (root,) = root.children
             root.parent = None
-        except:
-            raise ValueError
+        except ValueError:
+            raise ValueError(
+                "Reconstruction resulted in multiple independent trees, "
+                "due to artifacts definitively sharing no common ancestor. "
+                "Consider setting force_common_ancestry=True.",
+            )
 
     p_differentia_collision = calc_probability_differentia_collision_between(
         population[0], population[0]

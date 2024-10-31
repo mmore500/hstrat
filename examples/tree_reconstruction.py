@@ -5,7 +5,6 @@ try:
     import typing
 
     import alifedata_phyloinformatics_convert as apc
-    import dendropy as dp
     import opytional as opyt
     import pandas as pd
 

@@ -9,9 +9,9 @@ import pytest
 from hstrat import hstrat
 from hstrat._auxiliary_lib import alifestd_validate
 
-assets_path = os.path.join(os.path.dirname(__file__), "assets")
-
 from . import _impl as impl
+
+assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
 @pytest.mark.parametrize(

@@ -7,7 +7,7 @@ def test_raises_success():
     def my_func():
         raise ValueError("test")
 
-    assert raises(my_func, ValueError) == True
+    assert raises(my_func, ValueError)
 
 
 def test_raises_failure():
@@ -15,11 +15,11 @@ def test_raises_failure():
         raise ValueError("test")
 
     with pytest.raises(ValueError):
-        assert raises(my_func, TypeError) == False
+        assert not raises(my_func, TypeError)
 
 
 def test_raises_no_exception():
     def my_func():
         return True
 
-    assert raises(my_func, ValueError) == False
+    assert not raises(my_func, ValueError)

@@ -1,5 +1,5 @@
-"""Tools to extant populations of hereditary stratigraph columns corresponding
-to a template phylogeny."""
+"""Tools to create extant populations of hereditary stratigraph columns 
+as if they had resulted from a given template phylogeny."""
 
 from ._descend_template_phylogeny import descend_template_phylogeny
 from ._descend_template_phylogeny_alifestd import (
