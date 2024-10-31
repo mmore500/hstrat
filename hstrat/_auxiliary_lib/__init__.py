@@ -89,6 +89,9 @@ from ._alifestd_sum_origin_time_deltas_asexual import (
 from ._alifestd_to_working_format import alifestd_to_working_format
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_try_add_ancestor_list_col import (
+    alifestd_try_add_ancestor_list_col,
+)
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
 from ._alifestd_validate import alifestd_validate
 from ._all_same import all_same
@@ -257,6 +260,7 @@ __all__ = [
     "alifestd_to_working_format",
     "alifestd_topological_sort",
     "alifestd_try_add_ancestor_id_col",
+    "alifestd_try_add_ancestor_list_col",
     "alifestd_unfurl_lineage_asexual",
     "alifestd_validate",
     "all_same",
