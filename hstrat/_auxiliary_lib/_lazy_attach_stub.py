@@ -69,7 +69,7 @@ def lazy_attach_stub(
     ._launder_impl_modules : Implements laundering for module names
     in attributes.
     """
-    getattr__, dir__, all__ = attach_stub(module_name, module_path)
+    getattr__, dir__, all__ = lazy_loader.attach_stub(module_name, module_path)
     if launder:
 
         def new_getattr(n: str):
