@@ -17,6 +17,7 @@ from ..._auxiliary_lib import (
 
 @dataclasses.dataclass(slots=True)
 class Record:
+    taxon_label: str
     ix_id: int = 0
     ix_search_first_child_id: int = 0
     ix_search_next_sibling_id: int = 0
@@ -98,13 +99,14 @@ def detach_search_parent(records: typing.List[Record], id_: int) -> None:
 def create_offspring(
     records: typing.List[Record],
     parent_id: int,
-    differentia: int = 0,
-    rank: int = 0,
+    differentia: int,
+    rank: int,
+    taxon_label: str,
 ) -> int:
     size = len(records)
 
     id_ = size
-    records.append(Record())
+    records.append(Record(taxon_label))
     record = records[id_]
     record.ix_id = id_
     record.ix_search_first_child_id = id_
@@ -122,7 +124,6 @@ def create_offspring(
 
 def insert_artifact(
     records: typing.List[Record],
-    taxon_labels: typing.List[str],
     ranks: typing.List[int],
     differentiae: typing.List[int],
     label: str,
@@ -198,15 +199,16 @@ def insert_artifact(
                 parent_id=cur_node,
                 differentia=next_differentia,
                 rank=next_rank,
+                taxon_label=f"i{len(records)}",
             )
-            taxon_labels.append(f"inner_{len(records)}")
 
     create_offspring(  # leaf node
         records=records,
         parent_id=cur_node,
         rank=num_strata_deposited - 1,
+        differentia=-1,
+        taxon_label=label,
     )
-    taxon_labels.append(label)
 
 
 def build_tree_searchtable(
@@ -231,15 +233,13 @@ def build_tree_searchtable(
     sorted_labels = [taxon_labels[i] for i in sort_order]
     sorted_population = [population[i] for i in sort_order]
 
-    outlabels = ["root"]
-    records = [Record()]
+    records = [Record(taxon_label="root")]
 
     for label, artifact in progress_wrap(
         give_len(zip(sorted_labels, sorted_population), len(population)),
     ):
         insert_artifact(
             records,
-            outlabels,
             np.array([*artifact.IterRetainedRanks()], dtype=np.uint64),
             np.array([*artifact.IterRetainedDifferentia()], dtype=np.uint64),
             label,
@@ -249,7 +249,6 @@ def build_tree_searchtable(
     df = pd.DataFrame(map(dataclasses.asdict, records))
     df["id"] = df["ix_id"]
     df["ancestor_id"] = df["ix_ancestor_id"]
-    df["taxon_label"] = outlabels
     df = alifestd_try_add_ancestor_list_col(df, mutate=True)
     multiple_true_roots = (
         (df["id"] != 0) & (df["ancestor_id"] == 0)
