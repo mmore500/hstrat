@@ -187,7 +187,7 @@ def build_tree_searchtable(
                     new_next_sib = child1 if is_last_child else next_sibling
                     assert new_next_sib != id_
                     df.at[child1, "search next_sibling_id"] = new_next_sib
-                break
+                    break
             else:
                 assert False
 
@@ -286,7 +286,9 @@ def build_tree_searchtable(
                     winner, *losers = sorted(group)
                     for loser in losers:  # keep only the 0th tiebreak winner
                         # reassign loser's children to winner
-                        for loser_child in inner_children(loser):
+                        # must grab a copy of inner children to prevent
+                        # iterator invalidation
+                        for loser_child in [*inner_children(loser)]:
                             assert rank(loser_child) >= next_rank
                             detach_search_parent(loser_child)
                             attach_search_parent(loser_child, winner)
