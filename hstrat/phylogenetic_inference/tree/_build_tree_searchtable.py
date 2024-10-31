@@ -1,8 +1,8 @@
+import collections
 import dataclasses
 import itertools as it
 import typing
 
-import numpy as np
 import opytional as opyt
 import pandas as pd
 
@@ -127,13 +127,10 @@ def collapse_indistinguishable_nodes(
     cur_node: int,
 ) -> None:
     # group nodes made indistinguishable by collapsed precursors...
-    groups = dict()
+    groups = collections.defaultdict(list)
     for child in inner_children(records, cur_node):
         key = (rank(records, child), differentia(records, child))
-        if key not in groups:
-            groups[key] = [child]
-        else:
-            groups[key].append(child)
+        groups[key].append(child)
     for group in groups.values():
         group = sorted(group)
         winner, losers = group[0], group[1:]
@@ -159,7 +156,7 @@ def consolidate_trie(
         if rank(records, inner_child) < next_rank
     ]
     if not node_stack:
-        return
+        return  # nothing to consolidate
 
     # collapse away nodes with ranks that have been dropped
     while node_stack:
@@ -186,14 +183,9 @@ def place_allele(
 ) -> int:
     for child in inner_children(records, cur_node):
         # check immediate children for next allele
-        #
-        # common allele origination trace is for special condition
-        # optimization where GetDeepestCongruousAlleleOrigination
-        # isn't needed
-        if (
-            rank(records, child) == next_rank
-            and differentia(records, child) == next_differentia
-        ):
+        rank_matches = rank(records, child) == next_rank
+        differentia_matches = differentia(records, child) == next_differentia
+        if rank_matches and differentia_matches:
             return child
     else:
         # if no congruent node exists, create a new TrieInnerNode
@@ -211,7 +203,7 @@ def insert_artifact(
     ranks: typing.List[int],
     differentiae: typing.List[int],
     label: str,
-    num_strata_deposited: int = 0,
+    num_strata_deposited: int,
 ) -> None:
 
     cur_node = 0  # root
