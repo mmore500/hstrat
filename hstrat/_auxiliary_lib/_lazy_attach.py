@@ -68,7 +68,7 @@ def lazy_attach(
     ._launder_impl_modules : Implementation details for laundering module
     names for attributes.
     """
-    getattr__, dir__, all__ = attach(
+    getattr__, dir__, all__ = lazy_loader.attach(
         module_name, submodules=submodules, submod_attrs=submod_attrs
     )
     if launder:
