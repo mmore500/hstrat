@@ -3,11 +3,10 @@ from enum import Enum
 import gc
 from multiprocessing import Pool, Queue, Value
 import os
-from time import sleep
 import typing
 from typing import Iterable
 
-from cppimport import import_hook
+from cppimport import import_hook  # noqa: F401
 import numpy as np
 import opytional as opyt
 

@@ -8,7 +8,6 @@ import opytional as opyt
 
 from ...._auxiliary_lib import (
     generate_n,
-    intersect_ranges,
     render_to_base64url,
 )
 from ._TrieInnerNode import TrieInnerNode
