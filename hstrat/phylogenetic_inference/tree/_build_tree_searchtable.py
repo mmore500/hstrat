@@ -276,8 +276,9 @@ def build_tree_searchtable(
     ):
         insert_artifact(
             records,
-            [*artifact.IterRetainedRanks()],
-            [*artifact.IterRetainedDifferentia()],
+            # map int to make invariant to numpy input
+            [*map(int, artifact.IterRetainedRanks())],
+            [*map(int, artifact.IterRetainedDifferentia())],
             label,
             artifact.GetNumStrataDeposited(),
         )
