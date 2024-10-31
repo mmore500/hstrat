@@ -2,8 +2,8 @@ import typing
 from typing import overload
 
 def build_trie_from_artifacts_sync(
-    population: list[typing.Tuple[list[int], list[int]]],
-    taxon_labels: list[str],
+    population: typing.List[typing.Tuple[typing.List[int], typing.List[int]]],
+    taxon_labels: typing.List[str],
 ) -> TrieInnerNode_C: ...
 
 class TrieInnerNode_C:
@@ -17,11 +17,11 @@ class TrieInnerNode_C:
     @property
     def differentia(self) -> int: ...
     @property
-    def inner_children(self) -> list[TrieInnerNode_C]: ...
+    def inner_children(self) -> typing.List[TrieInnerNode_C]: ...
     @property
-    def outer_children(self) -> list[TrieInnerNode_C]: ...
+    def outer_children(self) -> typing.List[TrieInnerNode_C]: ...
     def InsertTaxon(
-        self, ranks: list[int], differentiae: list[int]
+        self, ranks: typing.List[int], differentiae: typing.List[int]
     ) -> None: ...
 
 class TrieLeafNode_C:

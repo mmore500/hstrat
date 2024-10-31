@@ -192,7 +192,7 @@ def build_trie_from_artifacts_progressive_single_process(
         *(x.IterRetainedDifferentia() for x in population)
     )
     ranks: Iterable[int] = population[0].IterRetainedRanks()
-    alleles: list[typing.Tuple[int, Iterable[int]]] = [
+    alleles: typing.List[typing.Tuple[int, Iterable[int]]] = [
         *zip(ranks, differentiae),
     ]
 
@@ -228,8 +228,8 @@ def build_trie_from_artifacts_progressive_single_process(
 
 
 def build_trie_from_artifacts_cpp_sync(
-    population: list[typing.Tuple[list[int], list[int]]],
-    taxon_labels: list[str],
+    population: typing.List[typing.Tuple[typing.List[int], typing.List[int]]],
+    taxon_labels: typing.List[str],
 ) -> TrieInnerNode_C:
     return build_trie_from_artifacts_sync(population, taxon_labels)
 
@@ -249,7 +249,7 @@ def build_trie_from_artifacts_progressive_multiprocess(
         zip(*(tuple(x.IterRetainedDifferentia()) for x in population))
     )
     ranks: Iterable[int] = tuple(population[0].IterRetainedRanks())
-    alleles: list[typing.Tuple[int, Iterable[int]]] = [
+    alleles: typing.List[typing.Tuple[int, Iterable[int]]] = [
         *zip(ranks, differentiae)
     ]
 

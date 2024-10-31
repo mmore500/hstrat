@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from random import randint
+import typing
 
 from hstrat import hstrat
 from hstrat.genome_instrumentation import HereditaryStratigraphicColumn
@@ -11,8 +12,8 @@ class Genome:
 
     def __init__(
         self,
-        data: list[int] | None = None,
-        annotation: HereditaryStratigraphicColumn | None = None,
+        data: typing.Optional[typing.List[int]] = None,
+        annotation: typing.Optional[HereditaryStratigraphicColumn] = None,
     ) -> None:
         self.data = data or [randint(1, 100)]
         self.annotation = annotation or HereditaryStratigraphicColumn(
@@ -34,8 +35,8 @@ class Genome:
 
 
 def simulate_evolution(
-    parents: list[Genome], *, generations: int, carrying_capacity: int
-) -> list[Genome]:
+    parents: typing.List[Genome], *, generations: int, carrying_capacity: int
+) -> typing.List[Genome]:
     for _ in range(generations):
         children = sum(
             [[p.get_descendant() for p in parents] for _ in range(3)], []
