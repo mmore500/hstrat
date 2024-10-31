@@ -267,12 +267,7 @@ def build_tree_searchtable(
                 groups = collections.defaultdict(list)
                 for child in inner_children(cur_node):
                     groups[(rank(child), differentia(child))].append(child)
-                    assert rank(child) >= next_rank, (
-                        df,
-                        child,
-                        rank(child),
-                        next_rank,
-                    )
+                    assert rank(child) >= next_rank
                 # ... in order to keep only the tiebreak winner
                 for group in groups.values():
                     winner, *losers = sorted(group)
