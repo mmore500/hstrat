@@ -8,7 +8,6 @@ import pandas as pd
 
 from ..._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
-    alifestd_count_root_nodes,
     alifestd_make_empty,
     alifestd_try_add_ancestor_list_col,
     argsort,
