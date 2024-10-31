@@ -13,12 +13,7 @@ from ..._auxiliary_lib import (
     flag_last,
 )
 from ...juxtaposition import calc_probability_differentia_collision_between
-from ._impl import (
-    MatrixColumn,
-    TrieInnerNode,
-    build_trie_from_artifacts,
-    build_trie_from_artifacts_matrix,
-)
+from ._impl import TrieInnerNode, build_trie_from_artifacts
 
 
 def _finalize_trie(trie: TrieInnerNode) -> pd.DataFrame:
