@@ -81,7 +81,7 @@ def build_trie_from_artifacts_matrix(
     Better suited for optimization with Numba.
     """
     m = np.zeros(
-        (differentia.shape[1]+1, 9),
+        (differentia.shape[1] + 1, 9),
         dtype=np.uint64,  # _get_np_uint_by_size(stratum_differentia_bit_width),
     )  # assumes all bit widths the same
     assert 2**stratum_differentia_bit_width > len(taxon_label_ids)
@@ -157,8 +157,9 @@ def build_trie_from_artifacts_matrix(
 
     return m[: curr_index + 1]  # todo: check if we need a .copy()?
 
+
 def lprint(*args, **kwargs):
-    print(f'{datetime.now()}: ', end='')
+    print(f"{datetime.now()}: ", end="")
     print(*args, **kwargs)
 
 
@@ -166,11 +167,16 @@ def build_trie_from_artifacts_progressive(
     population: typing.Sequence[HereditaryStratigraphicArtifact],
     taxon_labels: typing.Optional[Iterable],
     *,
-    multiprocess: bool
+    multiprocess: bool,
 ):
     if multiprocess:
-        return build_trie_from_artifacts_progressive_multiprocess(population, taxon_labels)
-    return build_trie_from_artifacts_progressive_single_process(population, taxon_labels)
+        return build_trie_from_artifacts_progressive_multiprocess(
+            population, taxon_labels
+        )
+    return build_trie_from_artifacts_progressive_single_process(
+        population, taxon_labels
+    )
+
 
 # proposed model: add a worker pool
 def build_trie_from_artifacts_progressive_single_process(
@@ -186,11 +192,16 @@ def build_trie_from_artifacts_progressive_single_process(
         *(x.IterRetainedDifferentia() for x in population)
     )
     ranks: Iterable[int] = population[0].IterRetainedRanks()
-    alleles: list[typing.Tuple[int, Iterable[int]]] = [*zip(ranks, differentiae)]
+    alleles: list[typing.Tuple[int, Iterable[int]]] = [
+        *zip(ranks, differentiae),
+    ]
 
     n = len(population)
     m = len(alleles)
-    def recursive_builder(root: TrieInnerNode, stage: int, target_artifacts: set[int]) -> None:
+
+    def recursive_builder(
+        root: TrieInnerNode, stage: int, target_artifacts: set[int]
+    ) -> None:
         rank, diff = alleles[stage]
         unique_d = {}
         for i, d in filter(
@@ -201,7 +212,11 @@ def build_trie_from_artifacts_progressive_single_process(
             unique_d[d].add(i)
         if stage < m - 1:
             for d, targets in unique_d.items():
-                recursive_builder(TrieInnerNode(rank=rank, differentia=d, parent=root), stage+1, targets)
+                recursive_builder(
+                    TrieInnerNode(rank=rank, differentia=d, parent=root),
+                    stage + 1,
+                    targets,
+                )
         else:
             for d, targets in unique_d.items():
                 parent = TrieInnerNode(rank=rank, differentia=d, parent=root)
@@ -211,11 +226,13 @@ def build_trie_from_artifacts_progressive_single_process(
     recursive_builder(root, 0, {*range(n)})
     return root
 
+
 def build_trie_from_artifacts_cpp_sync(
     population: list[typing.Tuple[list[int], list[int]]],
-    taxon_labels: list[str]
+    taxon_labels: list[str],
 ) -> TrieInnerNode_C:
     return build_trie_from_artifacts_sync(population, taxon_labels)
+
 
 # proposed model: add a worker pool
 def build_trie_from_artifacts_progressive_multiprocess(
@@ -228,14 +245,17 @@ def build_trie_from_artifacts_progressive_multiprocess(
     root = TrieInnerNode()
     if not population:
         return root
-    differentiae: Iterable[Iterable[int]] = tuple(zip(
-        *(tuple(x.IterRetainedDifferentia()) for x in population)
-    ))
+    differentiae: Iterable[Iterable[int]] = tuple(
+        zip(*(tuple(x.IterRetainedDifferentia()) for x in population))
+    )
     ranks: Iterable[int] = tuple(population[0].IterRetainedRanks())
-    alleles: list[typing.Tuple[int, Iterable[int]]] = [*zip(ranks, differentiae)]
+    alleles: list[typing.Tuple[int, Iterable[int]]] = [
+        *zip(ranks, differentiae)
+    ]
 
     n = len(population)
     m = len(alleles)
+
     def worker(queue: Queue, leaves_added: Value) -> None:
         while True:
             unique_d = {}
@@ -257,7 +277,7 @@ def build_trie_from_artifacts_progressive_multiprocess(
                 for d, targets in unique_d.items():
                     # lprint(f"Published task at {stage=} {d}; {targets}")
                     # queue.put((TrieInnerNode(rank=rank, differentia=d, parent=root), stage+1, targets))
-                    queue.put((stage+1, targets))
+                    queue.put((stage + 1, targets))
             else:
                 for d, targets in unique_d.items():
                     # parent = TrieInnerNode(rank=rank, differentia=d, parent=root)
@@ -269,10 +289,12 @@ def build_trie_from_artifacts_progressive_multiprocess(
                         queue.put(None)
 
     main_queue = Queue()
-    leaves_added = Value('i', 0)
+    leaves_added = Value("i", 0)
     # main_queue.put((root, 0, {*range(len(population))}))
     main_queue.put((0, {*range(len(population))}))
-    pool = Pool(os.cpu_count(), initializer=worker, initargs=(main_queue, leaves_added))
+    pool = Pool(
+        os.cpu_count(), initializer=worker, initargs=(main_queue, leaves_added)
+    )
     pool.close()
     pool.join()
 
@@ -350,7 +372,9 @@ def build_trie_from_artifacts_consolidated(
         root.InsertTaxon(label, artifact.IterRankDifferentiaZip())
 
     # hacky way to iterate over all TrieInnerNodes...
-    objs = filter(lambda x: isinstance(x, TrieSearchInnerNode), gc.get_objects())
+    objs = filter(
+        lambda x: isinstance(x, TrieSearchInnerNode), gc.get_objects()
+    )
     # sort by tiebreaker to ensure deterministic behavior
     for obj in sorted(objs, key=lambda x: x._tiebreaker):
         # reset tree from "search" configuration to "build" configuration
@@ -359,7 +383,7 @@ def build_trie_from_artifacts_consolidated(
             obj.parent = obj._buildparent
 
     # no inner nodes should be leaves...
-    assert not any (
+    assert not any(
         isinstance(leaf, TrieSearchInnerNode)
         for leaf in AnyTreeFastLeafIter(root)
     )

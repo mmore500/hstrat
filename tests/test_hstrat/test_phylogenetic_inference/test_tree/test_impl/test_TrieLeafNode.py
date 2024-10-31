@@ -30,4 +30,3 @@ def test_eq(inner_node):
     not_eq_node = impl.TrieLeafNode(inner_node, "other_taxon")
     assert leaf_node == other_node
     assert not_eq_node != leaf_node
-

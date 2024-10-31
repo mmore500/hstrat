@@ -43,4 +43,3 @@ def simulate_evolution(
         children.sort(key=lambda x: x.score)
         parents = children[-carrying_capacity:]
     return parents
-

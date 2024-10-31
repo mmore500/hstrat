@@ -39,7 +39,10 @@ def is_matrix_equal_trie(m: np.ndarray, root: TrieInnerNode) -> bool:
                 outer_m.append(child_index)
             child_index = m[child_index][MatrixColumn.NEXT_SIBLING_ID.value]
         for a, b in zip(outer, outer_m):
-            if not int(a.taxon_label) == m[b][MatrixColumn.TAXON_LABEL_ID.value]:
+            if (
+                not int(a.taxon_label)
+                == m[b][MatrixColumn.TAXON_LABEL_ID.value]
+            ):
                 return False
 
         roots_to_analyze.extend([*zip(inner, inner_m)])

@@ -15,21 +15,14 @@ from .._impl._simulate_evolution import Genome, simulate_evolution
 # we can compare the other methods against the method that is being
 # tested in other tests to make sure everything is right
 @pytest.mark.parametrize(
-    "synchronous",
-    [True, pytest.param(False, marks=pytest.mark.heavy)]
+    "synchronous", [True, pytest.param(False, marks=pytest.mark.heavy)]
 )
 @pytest.mark.parametrize(
-    "generations",
-    [1, 4, 20, pytest.param(100, marks=pytest.mark.heavy)]
+    "generations", [1, 4, 20, pytest.param(100, marks=pytest.mark.heavy)]
 )
-@pytest.mark.parametrize(
-    "carrying_capacity",
-    [25, 100]
-)
+@pytest.mark.parametrize("carrying_capacity", [25, 100])
 def test_build_trie_matrix(
-    synchronous: bool,
-    generations: int,
-    carrying_capacity: int
+    synchronous: bool, generations: int, carrying_capacity: int
 ) -> None:
 
     start_pop = [Genome()]
@@ -59,8 +52,8 @@ def test_build_trie_matrix(
 
 
 def test_build_trie_matrix_empty():
-    m = build_trie_from_artifacts_matrix(np.zeros((0,)), np.zeros((0, 0)), 8, [0])
+    m = build_trie_from_artifacts_matrix(
+        np.zeros((0,)), np.zeros((0, 0)), 8, [0]
+    )
     root = build_trie_from_artifacts([], [], False, lambda x: x)
     assert is_matrix_equal_trie(m, root)
-
-

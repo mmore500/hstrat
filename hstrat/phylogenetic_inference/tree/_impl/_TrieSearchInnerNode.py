@@ -22,7 +22,9 @@ class TrieSearchInnerNode(anytree.NodeMixin):
     function.
     """
 
-    _buildparent: typing.Optional["TrieSearchInnerNode"]  # to restore build trie
+    _buildparent: typing.Optional[
+        "TrieSearchInnerNode"
+    ]  # to restore build trie
     # prevent detached children from being garbage collected
     _buildchildren: typing.List["TrieSearchInnerNode"]
     _rank: int  # rank of represented allele
@@ -97,7 +99,9 @@ class TrieSearchInnerNode(anytree.NodeMixin):
         self: "TrieSearchInnerNode",
         taxon_allele_iter: typing.Iterator[typing.Tuple[int, int]],
     ) -> (
-        typing.Tuple["TrieSearchInnerNode", typing.Iterator[typing.Tuple[int, int]]]
+        typing.Tuple[
+            "TrieSearchInnerNode", typing.Iterator[typing.Tuple[int, int]]
+        ]
     ):
         """Descends the subtrie to retrieve the deepest prefix consistent with
         the hereditary stratigraphic record of a query taxon.
@@ -217,11 +221,11 @@ class TrieSearchInnerNode(anytree.NodeMixin):
             if any(n._rank < next_rank for n in node_stack):
                 while node_stack:
                     pop_node = node_stack.pop()
-                    if pop_node._rank < next_rank:  # node has rank that was dropped
+                    if pop_node._rank < next_rank:  # node has dropped rank
                         # add ref to detached node to prevent garbage collection
                         pop_node.parent._buildchildren.append(pop_node)
-                        pop_node.parent = None  # detach dropped from search trie
-                        node_stack.extend(pop_node.inner_children)  # to search next
+                        pop_node.parent = None  # detach dropped from trie
+                        node_stack.extend(pop_node.inner_children)
                         for grandchild in pop_node.inner_children:
                             # reattach dropped's children
                             grandchild.parent = cur_node
@@ -229,13 +233,13 @@ class TrieSearchInnerNode(anytree.NodeMixin):
                 # group nodes made indistinguishable by collapsed precursors...
                 groups = defaultdict(list)
                 for child in cur_node.inner_children:
-                    groups[
-                        (child._rank, child._differentia)
-                    ].append(child)
+                    groups[(child._rank, child._differentia)].append(child)
                     assert child._rank >= next_rank
                 # ... in order to keep only the tiebreak winner
                 for group in groups.values():
-                    winner, *losers = sorted(group, key=lambda x: x._tiebreaker)
+                    winner, *losers = sorted(
+                        group, key=lambda x: x._tiebreaker
+                    )
                     for loser in losers:  # keep only the 0th tiebreak winner
                         loser.parent._buildchildren.append(loser)  # prevent gc
                         # reassign loser's children to winner

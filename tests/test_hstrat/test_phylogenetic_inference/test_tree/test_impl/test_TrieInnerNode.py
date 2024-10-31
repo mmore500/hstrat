@@ -330,6 +330,7 @@ def test_taxon_and_taxon_label(subtrie):
         assert node.taxon == node.taxon_label
         assert isinstance(node.taxon, str)
 
+
 def test_eq_empty():
     n1 = impl.TrieInnerNode()
     m1 = impl.TrieInnerNode()

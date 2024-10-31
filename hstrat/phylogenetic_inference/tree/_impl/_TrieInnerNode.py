@@ -221,11 +221,11 @@ class TrieInnerNode(anytree.NodeMixin):
             node_stack = [*cur_node.inner_children]
             while node_stack:
                 pop_node = node_stack.pop()
-                if pop_node._rank < next_rank:  # node has rank that was dropped
+                if pop_node._rank < next_rank:  # node has dropped rank
                     # add ref to detached node to prevent garbage collection
                     pop_node.parent._buildchildren.append(pop_node)
                     pop_node.parent = None  # detach dropped from search trie
-                    node_stack.extend(pop_node.inner_children)  # to search next
+                    node_stack.extend(pop_node.inner_children)  # search next
                     for grandchild in pop_node.inner_children:
                         # reattach dropped's children
                         grandchild.parent = cur_node
@@ -233,9 +233,7 @@ class TrieInnerNode(anytree.NodeMixin):
             # group nodes made indistinguishable by collapsed precursors...
             groups = defaultdict(list)
             for child in cur_node.inner_children:
-                groups[
-                    (child._rank, child._differentia)
-                ].append(child)
+                groups[(child._rank, child._differentia)].append(child)
                 assert child._rank >= next_rank
             # ... in order to keep only the tiebreak winner
             for group in groups.values():
