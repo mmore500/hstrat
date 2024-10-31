@@ -3,6 +3,7 @@
 set -e
 
 cd "$(dirname "$0")/.."
+
 python3 -m venv .temp
 source .temp/bin/activate
 python3 -m pip install uv wheel
