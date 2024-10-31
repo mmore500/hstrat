@@ -1,4 +1,4 @@
-"""Tools to create extant populations of hereditary stratigraph columns 
+"""Tools to create extant populations of hereditary stratigraph columns
 as if they had resulted from a given template phylogeny."""
 
 from ._descend_template_phylogeny import descend_template_phylogeny
