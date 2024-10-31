@@ -1,13 +1,13 @@
 from datetime import datetime
 from enum import Enum
 import gc
+from multiprocessing import Pool, Queue, Value
 import os
 from time import sleep
 import typing
 from typing import Iterable
 
 from cppimport import import_hook
-from multiprocessing import Pool, Queue, Value
 import numpy as np
 import opytional as opyt
 
