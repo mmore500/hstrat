@@ -38,7 +38,7 @@ def build_tree_searchtable(
     sorted_population = [population[i] for i in sort_order]
 
     fill_value = -1
-    initial_capacity = len(population) * 2
+    initial_capacity = max(len(population) * 2, 64)
     fill_values = [fill_value] * initial_capacity
     df = pd.DataFrame(
         {
