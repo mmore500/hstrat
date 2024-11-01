@@ -70,17 +70,15 @@ def lazy_attach_stub(
     in attributes.
     """
     getattr__, dir__, all__ = lazy_loader.attach_stub(module_name, module_path)
-    if launder:
 
-        def new_getattr(n: str) -> object:
-            attr = getattr__(n)
-            if opyt.apply_if(launder_names, lambda x: n not in x):
-                return attr
-            try:
-                attr.__module__ = module_name
-            except (AttributeError, TypeError):
-                pass  # module attr not settable for all object types
+    def launder_getattr(n: str) -> object:
+        attr = getattr__(n)
+        if opyt.apply_if(launder_names, lambda x: n not in x):
             return attr
+        try:
+            attr.__module__ = module_name
+        except (AttributeError, TypeError):
+            pass  # module attr not settable for all object types
+        return attr
 
-        return new_getattr, dir__, all__
-    return getattr__, dir__, all__
+    return [getattr__, launder_getattr][bool(launder)], dir__, all__
