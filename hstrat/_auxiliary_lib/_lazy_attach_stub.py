@@ -1,15 +1,15 @@
 from typing import Any, Callable, List, Optional, Tuple
 
 import lazy_loader
-import opytional as opyt
+
+from ._GetAttrLaunderShim import GetAttrLaunderShim
 
 
 def lazy_attach_stub(
     module_name: str,
     module_path: str,
     *,
-    launder: bool,
-    launder_names: Optional[List[str]] = None
+    should_launder: Callable = lambda _: True,
 ) -> Tuple[Callable[[str], Any], Callable[[], List[str]], List[str]]:
     """
     Attaches a lazy loading stub to a package, enabling deferred loading
@@ -26,14 +26,10 @@ def lazy_attach_stub(
     module_path : str
         The file path of the main module. This should be `__file__` to ensure
         correct module referencing.
-    launder : bool
-        If True, the `__module__` of an attribute is set to the `module_name`
-        argument, effectively renaming it upon access to hide implementation
-        details.
-    launder_names : list of str, optional
-        A list of attribute names to launder, if `launder` is True. Only
-        attributes in this list will have their names laundered. If None,
-        all attributes are laundered. Default is None.
+    should_launder : callable, default `lambda x: True`
+        A callable that takes a string attr and returns a boolean indicating
+        whether the attr should be laundered. If True, __module__ on the
+        attr will attempt to be set to `module_name`.
 
     Returns
     -------
@@ -70,15 +66,7 @@ def lazy_attach_stub(
     in attributes.
     """
     getattr__, dir__, all__ = lazy_loader.attach_stub(module_name, module_path)
-
-    def launder_getattr(n: str) -> object:
-        attr = getattr__(n)
-        if opyt.apply_if(launder_names, lambda x: n not in x):
-            return attr
-        try:
-            attr.__module__ = module_name
-        except (AttributeError, TypeError):
-            pass  # module attr not settable for all object types
-        return attr
-
-    return [getattr__, launder_getattr][bool(launder)], dir__, all__
+    wrapped_getattr = GetAttrLaunderShim(
+        getattr__, should_launder, module_name
+    )
+    return wrapped_getattr, dir__, all__

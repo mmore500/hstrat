@@ -1,7 +1,8 @@
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import lazy_loader
-import opytional as opyt
+
+from ._GetAttrLaunderShim import GetAttrLaunderShim
 
 
 def lazy_attach(
@@ -9,14 +10,13 @@ def lazy_attach(
     *,
     submodules: Optional[List[str]],
     submod_attrs: Optional[Dict[str, List[str]]],
-    launder: bool,
-    launder_names: Optional[List[str]] = None
+    should_launder: Callable = lambda _: True,
 ) -> Tuple[Callable[[str], Any], Callable[[], List[str]], List[str]]:
     """
     Attaches lazy loading to a package to reduce load times by deferring
     loading of submodules and their attributes until needed. This is used
     throughout the project in when a package imports all attributes from
-    a subpackage (otherwise, use _lazy_attach_stub.py). Called in the
+    a subpackage (otherwise, use _lazy_attach_stub). Called in the
     __init__.py file of the package.
 
     Parameters
@@ -29,13 +29,10 @@ def lazy_attach(
     submod_attrs : dict
         A dictionary where keys are submodule names and values are lists
         of attribute names within each submodule to be loaded in the namespace.
-    launder : bool
-        If True, the module name of an attribute is set to the `module_name` argument.
-        This allows for hiding implementation details of each class.
-    launder_names : list of str, optional
-        A list of attribute names to launder, if `launder` is True. Only
-        attributes in this list will have their names laundered. If None,
-        all attributes are laundered. Default is None.
+    should_launder : callable, default `lambda x: True`
+        A callable that takes a string attr and returns a boolean indicating
+        whether the attr should be laundered. If True, __module__ on the
+        attr will attempt to be set to `module_name`.
 
     Returns
     -------
@@ -71,15 +68,7 @@ def lazy_attach(
     getattr__, dir__, all__ = lazy_loader.attach(
         module_name, submodules=submodules, submod_attrs=submod_attrs
     )
-
-    def launder_getattr(n: str) -> object:
-        attr = getattr__(n)
-        if opyt.apply_if(launder_names, lambda x: n not in x):
-            return attr
-        try:
-            attr.__module__ = module_name
-        except (AttributeError, TypeError):
-            pass  # module attr not settable for all object types
-        return attr
-
-    return [getattr__, launder_getattr][bool(launder)], dir__, all__
+    wrapped_getattr = GetAttrLaunderShim(
+        getattr__, should_launder, module_name
+    )
+    return wrapped_getattr, dir__, all__
