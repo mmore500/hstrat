@@ -9,35 +9,60 @@ with lazy-loading and `__all__` reference conventions. The requirements are as f
 
 Functions
 ---------
-find_modules_with_all_references(file_path)
-    Parses a source file to find all modules listed in `submod_attrs`
-    that reference `__all__`.
+find_modules_with_all_references(package_path)
+    Parses a the `__init__.py` in the `package_path` to find all subpackages from which
+    all symbols are imported (via `__all__`).
 
-get_dunder_all_from_stub(file_path)
-    Extracts the `__all__` list from a specified type stub file (`.pyi`).
+get_dunder_all_from_stub(package_path)
+    Extracts the `__all__` list from the `__init__.pyi` file in the `package_path`.
 
-check_accurate_all_imports(package)
-    Recursively checks packages and sub-packages to ensure that all symbols
-    referenced in `__all__` in each subpackage are consistent with the symbols
-    specified in type stubs and available in imports.
+check_accurate_all_declarations()
+    Walks the `hstrat` directory and makes sure that the `__all__` defined in a type stub
+    of a package is the same as the `__all__` obtained by importing the package directly.
+    Returns a generator of violations.
+
+check_accurate_subpackage_star_imports()
+    If a package imports `__all__` from a subpackages, makes sure that that subpackage's
+    real `__all__` is a subset of the `__all__` declared in the type stub of the importing
+    package. Returns a generator of violations.
+
 """
 
-import ast
-import importlib
 import os
+import ast
+import importlib.util
 from pathlib import Path
-from typing import List
+from typing import Iterable, List
+from types import ModuleType
 
 
-def find_modules_with_all_references(file_path: str) -> list:
+def module_name_from_path(path: str) -> str:
+    return path.replace(os.path.sep, ".")
+
+
+def import_from_path(directory_path) -> ModuleType:
+    """Import a module from a specified directory path."""
+    module_name = module_name_from_path(directory_path)
+    spec = importlib.util.spec_from_file_location(
+        module_name, os.path.join(directory_path, "__init__.py")
+    )
+    assert (
+        spec is not None and spec.loader is not None
+    ), f"Module '{module_name}' was not found."
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def find_modules_with_all_references(package_path: str) -> list:
     """
-    Parses the given source code using the AST module to find all modules listed
-    in `submod_attrs` that reference `__all__`.
+    Parses the `__init__.py` file of the given package path using the
+    AST module to find all imports of subpackages that reference `__all__`.
 
     Parameters
     ----------
-    file_path : str
-        The file path of the Python source file to analyze.
+    package_path : str
+        The file path of the Python package to analyze.
 
     Returns
     -------
@@ -51,7 +76,7 @@ def find_modules_with_all_references(file_path: str) -> list:
     where module names are specified with an `__all__` reference.
     """
     modules_with_all = []
-    tree = ast.parse(Path(file_path).read_text())
+    tree = ast.parse((Path(package_path) / "__init__.py").read_text())
     for node in tree.body:
         if (
             isinstance(node, ast.Assign)
@@ -80,14 +105,15 @@ def find_modules_with_all_references(file_path: str) -> list:
     return modules_with_all
 
 
-def get_dunder_all_from_stub(file_path: str) -> List[str]:
+def get_dunder_all_from_stub(package_path: str) -> List[str]:
     """
-    Extracts the `__all__` symbols from a type stub (`.pyi`) file.
+    Extracts the `__all__` symbols from a type stub (`.pyi`) file,
+    given a path to the package containing it.
 
     Parameters
     ----------
-    file_path : str
-        The file path of the type stub file to parse.
+    package_path : str
+        The file path of package of the type stub file to parse.
 
     Returns
     -------
@@ -104,91 +130,70 @@ def get_dunder_all_from_stub(file_path: str) -> List[str]:
     This function specifically looks for assignments to `__all__` in the type
     stub file and returns a list of the symbols declared in it.
     """
-    tree = ast.parse(Path(file_path).read_text())
+    tree = ast.parse((Path(package_path) / "__init__.pyi").read_text())
     for node in tree.body:
         if isinstance(node, ast.Assign):
             for target in node.targets:
                 if isinstance(target, ast.Name) and target.id == "__all__":
                     if isinstance(node.value, ast.List):
                         return [
-                            elt.s
-                            for elt in node.value.elts
-                            if isinstance(elt, ast.Constant)
+                            element.s
+                            for element in node.value.elts
+                            if isinstance(element, ast.Constant)
                         ]
 
     raise Exception("__all__ could not be found")
 
 
-def check_accurate_all_imports(package: List[str]) -> List[str]:
+def get_eligible_package_paths() -> Iterable[str]:
     """
-    Recursively checks all subpackages in a given package to ensure that `__all__`
-    symbols in type stubs are consistent with imported symbols.
-
-    Parameters
-    ----------
-    package : list of str
-        The list representing the package hierarchy to check. The root package
-        name is the first element.
-
-    Returns
-    -------
-    list of str
-        A list of violations that can be printed after done.
-
-    Notes
-    -----
-    This function ensures consistency between type stubs (`.pyi` files) and
-    actual modules by verifying that symbols in `__all__` match across both.
-    It imports each subpackage to check the presence of expected attributes.
-
-    See Also
-    --------
-    find_modules_with_all_references : Identifies modules referencing `__all__`
-        in their `submod_attrs` dictionaries.
-    get_dunder_all_from_stub : Extracts `__all__` from type stubs.
+    Traverses the `hstrat` package directory and returns
+    the path for every directory that contains an `__init__.pyi`,
+    as these are the valid packages to run the following checks on.
     """
-    violations = []
-    package_path = os.path.join(*package)
-    subpackages = find_modules_with_all_references(
-        os.path.join(package_path, "__init__.py")
-    )
-    native_all_symbols = (
-        get_dunder_all_from_stub(os.path.join(package_path, "__init__.pyi"))
-        if subpackages
-        else []
-    )
-    for subpkg in subpackages:
-        check_accurate_all_imports(package + [subpkg])
-        symbols = get_dunder_all_from_stub(
-            os.path.join(package_path, subpkg, "__init__.pyi")
-        )
-        for s in symbols:
-            if not s in native_all_symbols:
-                violations.append(
-                    f"Symbol {s} from '{subpkg}' was imported by {'.'.join(package)} but not referenced in its __all__"
-                )
-        mod = importlib.import_module(
-            ".".join(package + [subpkg]), package="."
-        )
-        if not sorted(mod.__all__) == sorted(symbols):
-            violations.append(
-                f"Error with {'.'.join(package + [subpkg])}: type stub __all__ is inconsistent"
+    for path, _, files in os.walk("hstrat"):
+        if "__init__.pyi" in files:
+            yield path
+
+
+def check_accurate_all_declarations() -> Iterable[str]:
+    """
+    Check that the __all__ from a package is the same as that
+    defined in the type stub. Does this by reading the `__all__`
+    from the type stub, and comparing it an `__all__` imported
+    directly from the package.
+    """
+    for path in get_eligible_package_paths():
+        type_stub_all = get_dunder_all_from_stub(path)
+        other_all = getattr(import_from_path(path), "__all__")
+        if not sorted(type_stub_all) == sorted(other_all):
+            yield f"Package '{module_name_from_path(path)}' has a conflicting '__all__' between type stub and module."
+
+
+def check_accurate_subpackage_star_imports() -> Iterable[str]:
+    """
+    If a package imports `__all__` from a subpackages, makes sure that
+    that subpackage's real `__all__` is a subset of the `__all__` declared
+    in the type stub of the importing package.
+    """
+    for path in get_eligible_package_paths():
+        type_stub_all = get_dunder_all_from_stub(path)
+        for subpackage in find_modules_with_all_references(path):
+            subpackage_all = getattr(
+                import_from_path(os.path.join(path, subpackage)), "__all__"
             )
-    for subdir in os.listdir(package_path):
-        if (
-            subdir not in subpackages
-            and os.path.isdir(os.path.join(package_path, subdir))
-            and "__init__.py" in os.listdir(os.path.join(package_path, subdir))
-        ):
-            check_accurate_all_imports(package + [subdir])
-    return violations
+            if not all(sym in type_stub_all for sym in subpackage_all):
+                yield f"Type stub for '{module_name_from_path(path)}' declares '__all__' that does not contain symbols from subpackage '{subpackage}'."
 
 
 if __name__ == "__main__":
     os.chdir(Path(__file__).parent.parent.parent.resolve())
-    violations = check_accurate_all_imports(["hstrat"])
+    violations = [
+        *check_accurate_all_declarations(),
+        *check_accurate_subpackage_star_imports(),
+    ]
     if not violations:
-        exit(0)
-    for violation in violations:
-        print(f"ERROR: {violation }")
+        exit()
+    for v in violations:
+        print(v)
     raise Exception("Violations were found")
