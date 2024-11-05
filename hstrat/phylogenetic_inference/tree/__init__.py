@@ -15,14 +15,13 @@ __getattr__, __dir__, __all__ = lazy_attach(
         "_build_tree_trie_ensemble": ["build_tree_trie_ensemble"],
         "_build_tree_upgma": ["build_tree_upgma"],
     },
-    launder=True,
-    launder_names=[
+    should_launder=[
         "build_tree_nj",
         "build_tree_trie",
         "build_tree_trie_ensemble",
         "build_tree_upgma",
         "build_tree",
         "trie_postprocess",
-    ],
+    ].__contains__,
 )
 del lazy_attach

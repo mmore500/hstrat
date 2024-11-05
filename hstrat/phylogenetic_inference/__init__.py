@@ -13,5 +13,5 @@ __getattr__, __dir__, __all__ = lazy_attach(
         "priors": priors.__all__,
         "tree": tree.__all__,
     },
-    launder=False,
+    should_launder=[].__contains__,
 )

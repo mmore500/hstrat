@@ -20,6 +20,6 @@ __getattr__, __dir__, __all__ = lazy_attach(
         "stratum_retention_policy_parameterizers": stratum_retention_policy_parameterizers.__all__,
         "stratum_retention_policy_evaluators": stratum_retention_policy_evaluators.__all__,
     },
-    launder=False,
+    should_launder=[].__contains__,
 )
 del lazy_attach

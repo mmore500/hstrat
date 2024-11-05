@@ -11,6 +11,6 @@ __getattr__, __dir__, __all__ = lazy_attach(
         "ascii": ascii.__all__,
         "plot": plot.__all__,
     },
-    launder=False,
+    should_launder=[].__contains__,
 )
 del lazy_attach

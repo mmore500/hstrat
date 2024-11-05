@@ -5,6 +5,7 @@ from ._AnyTreeFastPostOrderIter import AnyTreeFastPostOrderIter
 from ._AnyTreeFastPreOrderIter import AnyTreeFastPreOrderIter
 from ._BioPhyloTree import BioPhyloTree
 from ._CopyableSeriesItemsIter import CopyableSeriesItemsIter
+from ._GetAttrLaunderShim import GetAttrLaunderShim
 from ._HereditaryStratigraphicArtifact import HereditaryStratigraphicArtifact
 from ._RecursionLimit import RecursionLimit
 from ._RngStateContext import RngStateContext
@@ -310,6 +311,7 @@ __all__ = [
     "get_hstrat_version",
     "get_nullable_mask",
     "get_nullable_vals",
+    "GetAttrLaunderShim",
     "give_len",
     "flag_last",
     "HereditaryStratigraphicArtifact",

@@ -14,11 +14,10 @@ __getattr__, __dir__, __all__ = lazy_attach(
             "HereditaryStratigraphicColumnBundle"
         ],
     },
-    launder=True,
-    launder_names=[
+    should_launder=[
         "HereditaryStratigraphicColumn",
         "HereditaryStratum",
         "HereditaryStratigraphicColumnBundle",
-    ],
+    ].__contains__,
 )
 del lazy_attach
