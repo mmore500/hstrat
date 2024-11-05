@@ -35,7 +35,7 @@ def __dir__() -> list:
 
 def __getattr__(name: str) -> object:
     """Allows for equivalent behavior to having `from mod import *`
-    in this file without the performance cost of star imports.
+    in this file without the load-time cost of star imports.
     Previously, this file eagerly imported every symbol from the
     below packages. Now, the symbol is only imported if determined
     to be in said package.

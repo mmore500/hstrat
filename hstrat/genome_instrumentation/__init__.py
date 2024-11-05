@@ -11,7 +11,7 @@ __getattr__, __dir__, __all__ = lazy_attach(
         "_HereditaryStratigraphicColumn": ["HereditaryStratigraphicColumn"],
         "_HereditaryStratum": ["HereditaryStratum"],
         "_HereditaryStratigraphicColumnBundle": [
-            "HereditaryStratigraphicColumnBundle"
+            "HereditaryStratigraphicColumnBundle",
         ],
     },
     should_launder=[

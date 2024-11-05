@@ -60,8 +60,8 @@ def lazy_attach_stub(
     --------
     ._lazy_attach : Provides an alternative lazy loading method,
         where submodules and attributes are declared directly in the
-        __init__.py file. This was used when there were `__all__` imports
-        from some subpackage, as lazy_loader does not support that.
+        __init__.py file. This was used where `__all__` imports are forwarded from
+        subpackages, as lazy_loader does not support that natively.
     ._launder_impl_modules : Implements laundering for module names
     in attributes.
     """
