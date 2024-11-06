@@ -22,7 +22,7 @@ class Record:
     ix_search_first_child_id: int = 0
     ix_search_next_sibling_id: int = 0
     ix_search_ancestor_id: int = 0
-    ix_ancestor_id: int = 0
+    ix_ancestor_id: int = 0  # represents parent in the build tree
     ix_differentia: int = 0
     ix_rank: int = 0
 
@@ -150,13 +150,13 @@ def consolidate_trie(
     next_rank: int,
     cur_node: int,
 ) -> None:
-    node_stack = [
-        inner_child
-        for inner_child in inner_children(records, cur_node)
-        if rank(records, inner_child) < next_rank
-    ]
-    if not node_stack:
-        return  # nothing to consolidate
+
+
+    next_child = next(inner_children(records, cur_node), None)  # type: ignore
+    if next_child is None or rank(records, next_child) >= next_rank:
+        return
+
+    node_stack = [*inner_children(records, cur_node)]
 
     # collapse away nodes with ranks that have been dropped
     while node_stack:
