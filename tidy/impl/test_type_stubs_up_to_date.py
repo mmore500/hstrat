@@ -192,8 +192,9 @@ if __name__ == "__main__":
         *check_accurate_all_declarations(),
         *check_accurate_subpackage_star_imports(),
     ]
-    if not violations:
-        exit()
+    print(f"{len(violations)} violations found.")
     for v in violations:
         print(v)
-    raise Exception("Violations were found")
+
+    exit_code = len(violations) > 0
+    exit(exit_code)

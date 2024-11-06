@@ -12,4 +12,4 @@ source "${tmpdir}/bin/activate"
 python3 -m pip install uv wheel
 python3 -m uv pip install .
 
-python3 ./tidy/impl/type_stubs_up_to_date.py
+python3 ./tidy/impl/test_type_stubs_up_to_date.py
