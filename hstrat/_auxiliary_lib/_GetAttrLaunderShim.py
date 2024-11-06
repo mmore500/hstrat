@@ -1,7 +1,5 @@
 import typing
 
-import opytional as opyt
-
 
 class GetAttrLaunderShim:
     """A functor shim to launder the __module__ attribute of an object to a
@@ -36,7 +34,7 @@ class GetAttrLaunderShim:
         """Wraps the __getattr__ function to launder the __module__ attribute
         of returned objects."""
         attr = self._wrapped_getattr(name, *args, **kwargs)
-        if opyt.apply_if(name, self._should_launder):
+        if self._should_launder(name):
             try:
                 attr.__module__ = self._module_name
             except (AttributeError, TypeError):
