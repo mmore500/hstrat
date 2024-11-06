@@ -28,12 +28,12 @@ check_accurate_subpackage_star_imports()
 
 """
 
-import os
 import ast
 import importlib.util
+import os
 from pathlib import Path
-from typing import Iterable, List
 from types import ModuleType
+from typing import Iterable, List
 
 
 def module_name_from_path(path: str) -> str:
