@@ -1,6 +1,3 @@
-"""Tools to create extant populations of hereditary stratigraph columns
-as if they had resulted from a given template phylogeny."""
-
 from ._descend_template_phylogeny import descend_template_phylogeny
 from ._descend_template_phylogeny_alifestd import (
     descend_template_phylogeny_alifestd,
@@ -29,8 +26,3 @@ __all__ = [
     "descend_template_phylogeny_networkx",
     "descend_template_phylogeny_posthoc",
 ]
-
-from ..._auxiliary_lib import launder_impl_modules as _launder
-
-_launder([eval(item) for item in __all__], __name__)
-del _launder  # prevent name from leaking

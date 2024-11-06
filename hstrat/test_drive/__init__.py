@@ -2,18 +2,24 @@
 hereditary stratigraph columns."""
 
 from . import (
-    descend_template_phylogeny,
+    descend_template_phylogeny_,
     generate_template_phylogeny,
     perfect_tracking,
 )
+from .._auxiliary_lib import lazy_attach
 
-# adapted from https://stackoverflow.com/a/31079085
-__all__ = (
-    descend_template_phylogeny.__all__
-    + generate_template_phylogeny.__all__
-    + perfect_tracking.__all__
+__getattr__, __dir__, __all__ = lazy_attach(
+    __name__,
+    submodules=[
+        "descend_template_phylogeny_",
+        "generate_template_phylogeny",
+        "perfect_tracking",
+    ],
+    submod_attrs={
+        "descend_template_phylogeny_": descend_template_phylogeny_.__all__,
+        "generate_template_phylogeny": generate_template_phylogeny.__all__,
+        "perfect_tracking": perfect_tracking.__all__,
+    },
+    should_launder=[].__contains__,
 )
-
-from .descend_template_phylogeny import *  # noqa: F401
-from .generate_template_phylogeny import *  # noqa: F401
-from .perfect_tracking import *  # noqa: F401
+del lazy_attach

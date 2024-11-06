@@ -1,49 +1,30 @@
 """Functions to reconstruct a phylogenetic tree from extant hereditary strata."""
 
+from ..._auxiliary_lib import lazy_attach
+
 from . import trie_postprocess
-from ._build_tree import build_tree
-from ._build_tree_nj import build_tree_nj
-from ._build_tree_searchtable import build_tree_searchtable
-from ._build_tree_searchtable_debug import build_tree_searchtable_debug
-from ._build_tree_trie import build_tree_trie
-from ._build_tree_trie_ensemble import build_tree_trie_ensemble
-from ._build_tree_upgma import build_tree_upgma
-from ._impl import (
-    MatrixColumn,
-    build_trie_from_artifacts,
-    build_trie_from_artifacts_matrix,
-    build_trie_from_artifacts_progressive,
-)
-from .trie_postprocess import *  # noqa: F401
-
-__all__ = [
-    "build_tree_nj",
-    "build_tree_trie",
-    "build_tree_trie_ensemble",
-    "build_tree_upgma",
-    "build_tree",
-    "build_tree_searchtable",
-    "build_tree_searchtable_debug",
-    "trie_postprocess",
-    "build_trie_from_artifacts_matrix",
-    "build_trie_from_artifacts_progressive",
-    "build_trie_from_artifacts",
-    "MatrixColumn",
-] + trie_postprocess.__all__
-
-from ..._auxiliary_lib import launder_impl_modules as _launder
-
-_launder(
-    [
-        build_tree_nj,
-        build_tree_searchtable,
-        build_tree_searchtable_debug,
-        build_tree_trie,
-        build_tree_trie_ensemble,
-        build_tree_upgma,
-        build_tree,
-        trie_postprocess,
-    ],
+__getattr__, __dir__, __all__ = lazy_attach(
     __name__,
+    submodules=["trie_postprocess"],
+    submod_attrs={
+        "trie_postprocess": trie_postprocess.__all__,
+        "_build_tree": ["build_tree"],
+        "_build_tree_nj": ["build_tree_nj"],
+        "_build_tree_searchtable": ["build_tree_searchtable"],
+        "_build_tree_searchtable_debug": ["build_tree_searchtable_debug"],
+        "_build_tree_trie": ["build_tree_trie"],
+        "_build_tree_trie_ensemble": ["build_tree_trie_ensemble"],
+        "_build_tree_upgma": ["build_tree_upgma"],
+    },
+    should_launder=[
+        "build_tree_nj",
+        "build_tree_searchtable",
+        "build_tree_searchtable_debug",
+        "build_tree_trie",
+        "build_tree_trie_ensemble",
+        "build_tree_upgma",
+        "build_tree",
+        "trie_postprocess",
+    ].__contains__,
 )
-del _launder  # prevent name from leaking
+del lazy_attach

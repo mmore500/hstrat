@@ -1,13 +1,6 @@
 """ASCII representations of retained strata."""
 
-from ._col_to_ascii import col_to_ascii
+from ..._auxiliary_lib import lazy_attach_stub
 
-# adapted from https://stackoverflow.com/a/31079085
-__all__ = [
-    "col_to_ascii",
-]
-
-from ..._auxiliary_lib import launder_impl_modules as _launder
-
-_launder([eval(item) for item in __all__], __name__)
-del _launder  # prevent name from leaking
+__getattr__, __dir__, __all__ = lazy_attach_stub(__name__, __file__)
+del lazy_attach_stub

@@ -1,29 +1,6 @@
 """Frozen representations of genome annotations for efficient postprocessing
 and analysis."""
+from .._auxiliary_lib import lazy_attach_stub
 
-from ._HereditaryStratigraphicAssemblage import (
-    HereditaryStratigraphicAssemblage,
-)
-from ._HereditaryStratigraphicAssemblageSpecimen import (
-    HereditaryStratigraphicAssemblageSpecimen,
-)
-from ._HereditaryStratigraphicSpecimen import HereditaryStratigraphicSpecimen
-
-# adapted from https://stackoverflow.com/a/31079085
-__all__ = [
-    "HereditaryStratigraphicAssemblage",
-    "HereditaryStratigraphicAssemblageSpecimen",
-    "HereditaryStratigraphicSpecimen",
-]
-
-from .._auxiliary_lib import launder_impl_modules as _launder
-
-_launder(
-    [
-        HereditaryStratigraphicAssemblage,
-        HereditaryStratigraphicAssemblageSpecimen,
-        HereditaryStratigraphicSpecimen,
-    ],
-    __name__,
-)
-del _launder  # prevent name from leaking
+__getattr__, __dir__, __all__ = lazy_attach_stub(__name__, __file__)
+del lazy_attach_stub

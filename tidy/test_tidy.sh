@@ -22,4 +22,5 @@ echo "(Including how to automatically generate tidyness fixes if tidyness enforc
 ./tidy/test_filename_whitespace.sh && echo "✔ filename whitespace ok" || exit 1
 ./tidy/test_modern_suffixes.sh && echo "✔ modern suffixes ok" || exit 1
 ./tidy/test_make_clean.sh && echo "✔ no compilation artifacts" || exit 1
+./tidy/test_type_stubs_up_to_date.sh && echo "✔ type stubs up to date" || exit 1
 ./tidy/test_lint.sh && echo "✔ no lint violations" || exit 1
