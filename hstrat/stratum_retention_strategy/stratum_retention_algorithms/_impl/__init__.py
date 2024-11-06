@@ -1,37 +1,8 @@
-from ._CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank import (
-    CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank,
-)
-from ._CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce import (
-    CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce,
-)
-from ._CalcMrcaUncertaintyAbsUpperBoundWorstCase import (
-    CalcMrcaUncertaintyAbsUpperBoundWorstCase,
-)
-from ._CalcMrcaUncertaintyRelExactFromAbs import (
-    CalcMrcaUncertaintyRelExactFromAbs,
-)
-from ._CalcMrcaUncertaintyRelUpperBoundAtPessimalRank import (
-    CalcMrcaUncertaintyRelUpperBoundAtPessimalRank,
-)
-from ._CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce import (
-    CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce,
-)
-from ._CalcMrcaUncertaintyRelUpperBoundWorstCase import (
-    CalcMrcaUncertaintyRelUpperBoundWorstCase,
-)
-from ._CalcNumStrataRetainedUpperBoundWorstCase import (
-    CalcNumStrataRetainedUpperBoundWorstCase,
-)
-from ._GenDropRanksFromPredKeepRank import GenDropRanksFromPredKeepRank
+from ...._auxiliary_lib import lazy_attach_stub
 
-__all__ = [
-    "CalcMrcaUncertaintyAbsUpperBoundAtPessimalRank",
-    "CalcMrcaUncertaintyAbsUpperBoundPessimalRankBruteForce",
-    "CalcMrcaUncertaintyRelExactFromAbs",
-    "CalcMrcaUncertaintyRelUpperBoundAtPessimalRank",
-    "CalcMrcaUncertaintyRelUpperBoundPessimalRankBruteForce",
-    "CalcMrcaUncertaintyAbsUpperBoundWorstCase",
-    "CalcMrcaUncertaintyRelUpperBoundWorstCase",
-    "CalcNumStrataRetainedUpperBoundWorstCase",
-    "GenDropRanksFromPredKeepRank",
-]
+__getattr__, __dir__, __all__ = lazy_attach_stub(
+    __name__,
+    __file__,
+    should_launder=[].__contains__,
+)
+del lazy_attach_stub

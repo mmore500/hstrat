@@ -260,7 +260,7 @@ class HereditaryStratigraphicColumn:
         # fallback to naive approach if IterRetainedRanks not available
         policy = self._stratum_retention_policy
         if policy.IterRetainedRanks is None or num_stratum_depositions <= 1:
-            for __ in range(num_stratum_depositions):
+            for _ in range(num_stratum_depositions):
                 self.DepositStratum()
             return
 

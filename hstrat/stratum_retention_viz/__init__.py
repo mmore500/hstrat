@@ -1,8 +1,16 @@
 """Visualizations for stratum retention policies."""
 
 from . import animate, ascii, plot
-from .animate import *  # noqa: F401
-from .ascii import *  # noqa: F401
-from .plot import *  # noqa: F401
+from .._auxiliary_lib import lazy_attach
 
-__all__ = animate.__all__ + ascii.__all__ + plot.__all__
+__getattr__, __dir__, __all__ = lazy_attach(
+    __name__,
+    submodules=["animate", "ascii", "plot"],
+    submod_attrs={
+        "animate": animate.__all__,
+        "ascii": ascii.__all__,
+        "plot": plot.__all__,
+    },
+    should_launder=[].__contains__,
+)
+del lazy_attach

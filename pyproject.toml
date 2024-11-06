@@ -25,6 +25,7 @@ dependencies = [
   "iterpop>=0.3.4",
   "interval_search>=0.3.1",
   "keyname>=0.4.1",
+  "lazy_loader>=0.4",
   "lru-dict>=1.1.7",
   "matplotlib>=3.5.2",
   "mmh3>=3.0.0",
@@ -84,7 +85,7 @@ requires = [
 # used to generated requirements in dev-requirements/
 [project.optional-dependencies]
 pinned_dependencies_py38 = [
-  "alifedata_phyloinformatics_convert==0.11.0",
+  "alifedata_phyloinformatics_convert==0.16.4",
   "anytree==2.8.0",
   "biopython==1.79",
   "bitarray==2.6.2",
@@ -94,6 +95,7 @@ pinned_dependencies_py38 = [
   "iterpop==0.4.1",
   "interval-search==0.3.1",
   "keyname==0.4.1",
+  "lazy_loader==0.4",
   "lru-dict==1.1.8",
   "matplotlib==3.5.2",
   "mmh3==3.0.0",
@@ -115,7 +117,7 @@ pinned_dependencies_py38 = [
   "tqdm==4.62.3",
 ]
 pinned_dependencies_py310 = [
-  "alifedata_phyloinformatics_convert==0.11.0",
+  "alifedata_phyloinformatics_convert==0.16.4",
   "anytree==2.8.0",
   "biopython==1.79",
   "bitarray==2.6.2",
@@ -125,6 +127,7 @@ pinned_dependencies_py310 = [
   "iterpop==0.4.1",
   "interval-search==0.3.1",
   "keyname==0.4.1",
+  "lazy_loader==0.4",
   "lru-dict==1.1.8",
   "matplotlib==3.6.3",
   "mmh3==3.0.0",
@@ -156,7 +159,7 @@ testing_py38 = [
   "mypy==0.991",
   "pytest-xdist==2.5.0",
   "pytest==7.1.2",
-  "pyyaml==5.3.1",
+  "pyyaml==6.0.1",
   "ruff==0.1.11",
   "safe-assert==0.2.0",
   "setuptools",
@@ -174,7 +177,7 @@ testing_py310 = [
   "mypy==0.991",
   "pytest-xdist==2.5.0",
   "pytest==7.1.2",
-  "pyyaml==5.3.1",
+  "pyyaml==6.0.1",
   "ruff==0.1.11",
   "safe-assert==0.2.0",
   "setuptools",
@@ -185,11 +188,11 @@ testing_py310 = [
 ]
 release = [
   "bumpver==2022.1120",
-  "twine==1.14.0",
-  "wheel==0.33.6",
   "pip==22.0.4",
-  "pip_tools==6.10.0",
   "setuptools==65.6.3",
+  "twine==1.14.0",
+  "uv==0.4.18",
+  "wheel==0.33.6",
 ]
 docs = [
   "ipython==8.12.3",

@@ -1,29 +1,6 @@
 """Strata storage implementations for use with HereditaryStratigraphicColumn."""
 
-from ..._auxiliary_lib import launder_impl_modules as _launder
-from ._HereditaryStratumOrderedStoreDict import (
-    HereditaryStratumOrderedStoreDict,
-)
-from ._HereditaryStratumOrderedStoreList import (
-    HereditaryStratumOrderedStoreList,
-)
-from ._HereditaryStratumOrderedStoreTree import (
-    HereditaryStratumOrderedStoreTree,
-)
+from ..._auxiliary_lib import lazy_attach_stub
 
-provided_stratum_ordered_stores = [
-    HereditaryStratumOrderedStoreDict,
-    HereditaryStratumOrderedStoreList,
-    HereditaryStratumOrderedStoreTree,
-]
-
-# adapted from https://stackoverflow.com/a/31079085
-__all__ = [
-    "HereditaryStratumOrderedStoreDict",
-    "HereditaryStratumOrderedStoreList",
-    "HereditaryStratumOrderedStoreTree",
-    "provided_stratum_ordered_stores",
-]
-
-_launder([eval(item) for item in __all__], __name__)
-del _launder  # prevent name from leaking
+__getattr__, __dir__, __all__ = lazy_attach_stub(__name__, __file__)
+del lazy_attach_stub

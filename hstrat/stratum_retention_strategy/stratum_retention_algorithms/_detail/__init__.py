@@ -1,13 +1,8 @@
-from ._PolicyCouplerBase import PolicyCouplerBase
-from ._PolicyCouplerFactory import PolicyCouplerFactory
-from ._PolicySpecBase import PolicySpecBase
-from ._UnsatisfiableParameterizationRequestError import (
-    UnsatisfiableParameterizationRequestError,
-)
+from ...._auxiliary_lib import lazy_attach_stub
 
-__all__ = [
-    "PolicyCouplerBase",
-    "PolicyCouplerFactory",
-    "PolicySpecBase",
-    "UnsatisfiableParameterizationRequestError",
-]
+__getattr__, __dir__, __all__ = lazy_attach_stub(
+    __name__,
+    __file__,
+    should_launder=[].__contains__,
+)
+del lazy_attach_stub

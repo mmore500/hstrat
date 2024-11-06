@@ -1,28 +1,23 @@
 """Data structures to annotate genomes with."""
 
 from . import stratum_ordered_stores
-from ._HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
-from ._HereditaryStratigraphicColumnBundle import (
-    HereditaryStratigraphicColumnBundle,
-)
-from ._HereditaryStratum import HereditaryStratum
-from .stratum_ordered_stores import *  # noqa: F401
+from .._auxiliary_lib import lazy_attach
 
-# adapted from https://stackoverflow.com/a/31079085
-__all__ = [
-    "HereditaryStratigraphicColumn",
-    "HereditaryStratigraphicColumnBundle",
-    "HereditaryStratum",
-] + stratum_ordered_stores.__all__
-
-from .._auxiliary_lib import launder_impl_modules as _launder
-
-_launder(
-    [
-        HereditaryStratigraphicColumn,
-        HereditaryStratigraphicColumnBundle,
-        HereditaryStratum,
-    ],
+__getattr__, __dir__, __all__ = lazy_attach(
     __name__,
+    submodules=["stratum_ordered_stores"],
+    submod_attrs={
+        "stratum_ordered_stores": stratum_ordered_stores.__all__,
+        "_HereditaryStratigraphicColumn": ["HereditaryStratigraphicColumn"],
+        "_HereditaryStratum": ["HereditaryStratum"],
+        "_HereditaryStratigraphicColumnBundle": [
+            "HereditaryStratigraphicColumnBundle",
+        ],
+    },
+    should_launder=[
+        "HereditaryStratigraphicColumn",
+        "HereditaryStratum",
+        "HereditaryStratigraphicColumnBundle",
+    ].__contains__,
 )
-del _launder  # prevent name from leaking
+del lazy_attach
