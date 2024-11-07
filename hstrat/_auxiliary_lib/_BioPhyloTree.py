@@ -12,7 +12,7 @@ try:
                 "ImportWarning: warnings from Biopython import were silenced.",
                 ImportWarning,
             )
-except ImportError:  # pragma: no cover
+except (ImportError, ValueError):  # pragma: no cover
     warnings.warn(
         "ImportWarning: Bio.Phylo.TreeConstruction import failed; "
         "inserting a no-op mock for BioPhyloTree."
