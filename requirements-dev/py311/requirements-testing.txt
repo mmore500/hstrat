@@ -205,7 +205,7 @@ scipy==1.9.3
     #   statsmodels
 seaborn==0.11.0
     # via hstrat (../../pyproject.toml)
-setuptools==75.2.0
+setuptools==75.3.0
     # via
     #   hstrat (../../pyproject.toml)
     #   dendropy
@@ -247,7 +247,7 @@ typing-inspect==0.9.0
     # via pandera
 validators==0.34.0
     # via alifedata-phyloinformatics-convert
-virtualenv==20.27.0
+virtualenv==20.27.1
     # via tox
 wcwidth==0.2.13
     # via prettytable
@@ -255,5 +255,5 @@ wrapt==1.16.0
     # via
     #   deprecated
     #   pandera
-yarl==1.17.0
+yarl==1.17.1
     # via alifedata-phyloinformatics-convert
