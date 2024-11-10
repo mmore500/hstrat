@@ -257,9 +257,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install -r requirements-dev/py310/requirements-release.txt
     - name: Build package
-      env:
-        SETUPTOOLS_SCM_PRETEND_VERSION_FOR_HSTRAT: ${{github.run_number}}
-      run: python setup.py sdist bdist_wheel
+      run: python setup.py egg_info --tag-build="${{github.run_number}}" sdist bdist_wheel
     - name: Test publish package
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
