@@ -31,7 +31,7 @@ bitarray==2.6.2
     # via hstrat (../../pyproject.toml)
 bitstring==3.1.9
     # via hstrat (../../pyproject.toml)
-bleach==6.1.0
+bleach==6.2.0
     # via nbconvert
 bumpver==2022.1120
     # via hstrat (../../pyproject.toml)
@@ -56,7 +56,7 @@ coverage==6.4.4
     # via hstrat (../../pyproject.toml)
 cycler==0.12.1
     # via matplotlib
-debugpy==1.8.7
+debugpy==1.8.8
     # via ipykernel
 decorator==5.1.1
     # via ipython
@@ -235,6 +235,7 @@ packaging==23.0
     #   nbconvert
     #   pandera
     #   pytest
+    #   setuptools-scm
     #   sphinx
     #   statsmodels
     #   tox
@@ -348,10 +349,12 @@ requests==2.32.3
     #   twine
 requests-toolbelt==1.0.0
     # via twine
-rpds-py==0.20.0
+rpds-py==0.21.0
     # via
     #   jsonschema
     #   referencing
+ruff==0.1.11
+    # via hstrat (../../pyproject.toml)
 safe-assert==0.2.0
     # via hstrat (../../pyproject.toml)
 scipy==1.9.3
@@ -366,12 +369,14 @@ setuptools==65.6.3
     #   hstrat (../../pyproject.toml)
     #   bumpver
     #   dendropy
+    #   setuptools-scm
     #   twine
+setuptools-scm==8.1.0
+    # via hstrat (../../pyproject.toml)
 six==1.16.0
     # via
     #   anytree
     #   asttokens
-    #   bleach
     #   pathlib2
     #   patsy
     #   python-dateutil
@@ -461,7 +466,7 @@ uv==0.4.18
     # via hstrat (../../pyproject.toml)
 validators==0.34.0
     # via alifedata-phyloinformatics-convert
-virtualenv==20.27.0
+virtualenv==20.27.1
     # via tox
 wcwidth==0.2.13
     # via
@@ -477,5 +482,5 @@ wrapt==1.16.0
     # via
     #   deprecated
     #   pandera
-yarl==1.17.0
+yarl==1.17.1
     # via alifedata-phyloinformatics-convert

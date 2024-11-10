@@ -139,7 +139,7 @@ scipy==1.14.1
     #   statsmodels
 seaborn==0.11.0
     # via hstrat (../../pyproject.toml)
-setuptools==75.2.0
+setuptools==75.3.0
     # via dendropy
 six==1.16.0
     # via
@@ -173,5 +173,5 @@ wrapt==1.16.0
     # via
     #   deprecated
     #   pandera
-yarl==1.17.0
+yarl==1.17.1
     # via alifedata-phyloinformatics-convert
