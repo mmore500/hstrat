@@ -201,6 +201,7 @@ jobs:
       - name: Test install
         run: |
           find . -type f -name '*.py' -exec rm {} \;
+          find . -type f -name '*.pyi' -exec rm {} \;
           python3 -c "import hstrat; print(hstrat.__version__)"
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
