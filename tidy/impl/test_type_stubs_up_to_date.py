@@ -230,7 +230,7 @@ def check_accurate_flat_namespace() -> Iterable[str]:
             )
             for sym in subpackage_all:
                 if sym not in type_stub_all:
-                    yield f"Type stub for flat namespace 'hstrat' does not contain symbol '{sym}' from '{subpackage}'."
+                    yield f"Type stub for flat namespace 'hstrat.hstrat' does not contain symbol '{sym}' from '{subpackage}'."
 
 
 if __name__ == "__main__":
