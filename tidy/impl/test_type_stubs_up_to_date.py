@@ -26,6 +26,9 @@ check_accurate_subpackage_star_imports()
     real `__all__` is a subset of the `__all__` declared in the type stub of the importing
     package. Returns a generator of violations.
 
+check_accurate_flat_namespace()
+    Checks the flat namespace `hstrat.hstrat` and assures that the `__all__` defined in its
+    `__init__.pyi` is accurate, containing all symbols from flattened submodules.
 """
 
 import ast
@@ -156,18 +159,48 @@ def get_eligible_package_paths() -> Iterable[str]:
             yield path
 
 
+def _symbol_not_in_stub(mod_path: str, sym: str):
+    """
+    Helper function for below to format a message in the case where
+    a symbol defined in the `__all__` of a module is not in the type stub.
+    """
+    return f"Package '{module_name_from_path(mod_path)}' includes '{sym}' but does not declare it in the type stub."
+
+
+def _symbol_not_in_module(mod_path: str, sym: str):
+    """
+    Helper function for below to format a message in the case where
+    a symbol defined in the `__all__` of a type stub is not in the module.
+    """
+    return f"Type stub for '{module_name_from_path(mod_path)}' declares '__all__' that contains '{sym}' while the package itself does not contain it."
+
+
 def check_accurate_all_declarations() -> Iterable[str]:
     """
-    Check that the __all__ from a package is the same as that
+    Check that the `__all__` from a package is the same as that
     defined in the type stub. Does this by reading the `__all__`
     from the type stub, and comparing it an `__all__` imported
     directly from the package.
     """
     for path in get_eligible_package_paths():
-        type_stub_all = get_dunder_all_from_stub(path)
-        other_all = getattr(import_from_path(path), "__all__")
-        if not sorted(type_stub_all) == sorted(other_all):
-            yield f"Package '{module_name_from_path(path)}' has a conflicting '__all__' between type stub and module."
+        type_stub_all = sorted(get_dunder_all_from_stub(path))
+        module_all = sorted(getattr(import_from_path(path), "__all__"))
+        i = j = 0
+        while i < len(type_stub_all) and j < len(module_all):
+            if type_stub_all[i] == module_all[j]:
+                i, j = i + 1, j + 1
+            elif type_stub_all[i] < module_all[j]:
+                yield _symbol_not_in_module(path, type_stub_all[i])
+                i += 1
+            else:
+                yield _symbol_not_in_stub(path, module_all[j])
+                j += 1
+        while i < len(type_stub_all):  # still symbols in the type stub all
+            yield _symbol_not_in_stub(path, type_stub_all[i])
+            i += 1
+        while j < len(module_all):  # still more symbols in the module all
+            yield _symbol_not_in_stub(path, module_all[j])
+            j += 1
 
 
 def check_accurate_subpackage_star_imports() -> Iterable[str]:
@@ -182,8 +215,30 @@ def check_accurate_subpackage_star_imports() -> Iterable[str]:
             subpackage_all = getattr(
                 import_from_path(os.path.join(path, subpackage)), "__all__"
             )
-            if not all(sym in type_stub_all for sym in subpackage_all):
-                yield f"Type stub for '{module_name_from_path(path)}' declares '__all__' that does not contain symbols from subpackage '{subpackage}'."
+            for sym in subpackage_all:
+                if sym not in type_stub_all:
+                    yield f"Type stub for '{module_name_from_path(path)}' declares '__all__' that does not contain symbol '{sym}' from subpackage '{subpackage}'."
+
+
+def check_accurate_flat_namespace() -> Iterable[str]:
+    """
+    Checks the flat namespace `hstrat.hstrat` and assures
+    that the `__all__` defined in its `__init__.pyi` is accurate,
+    containing all symbols from flattened submodules.
+    """
+    type_stub_all = get_dunder_all_from_stub(os.path.join("hstrat", "hstrat"))
+    for subpackage in os.listdir("hstrat"):
+        if (
+            subpackage != "hstrat"
+            and not subpackage.startswith("_")
+            and (Path("hstrat") / subpackage / "__init__.pyi").exists()
+        ):
+            subpackage_all = getattr(
+                import_from_path(os.path.join("hstrat", subpackage)), "__all__"
+            )
+            for sym in subpackage_all:
+                if sym not in type_stub_all:
+                    yield f"Type stub for flat namespace 'hstrat' does not contain symbol '{sym}' from '{subpackage}'."
 
 
 if __name__ == "__main__":
@@ -191,6 +246,7 @@ if __name__ == "__main__":
     violations = [
         *check_accurate_all_declarations(),
         *check_accurate_subpackage_star_imports(),
+        *check_accurate_flat_namespace(),
     ]
     print(f"{len(violations)} violations found.")
     for v in violations:

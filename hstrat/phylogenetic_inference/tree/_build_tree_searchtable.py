@@ -40,15 +40,6 @@ def has_search_parent(records: typing.List[Record], id_: int) -> bool:
     return records[id_].ix_search_ancestor_id != id_
 
 
-def inner_children(
-    records: typing.List[Record],
-    id_: int,
-) -> typing.Iterable[int]:
-    for child in children(records, id_):
-        if records[id_].ix_search_first_child_id != id_:
-            yield child
-
-
 def differentia(records: typing.List[Record], id_: int) -> int:
     return records[id_].ix_differentia
 
@@ -127,8 +118,9 @@ def collapse_indistinguishable_nodes(
     cur_node: int,
 ) -> None:
     # group nodes made indistinguishable by collapsed precursors...
+    print(*children(records, cur_node))
     groups = collections.defaultdict(list)
-    for child in inner_children(records, cur_node):
+    for child in children(records, cur_node):
         key = (rank(records, child), differentia(records, child))
         groups[key].append(child)
     for group in groups.values():
@@ -138,7 +130,7 @@ def collapse_indistinguishable_nodes(
             # reassign loser's children to winner
             # must grab a copy of inner children to prevent
             # iterator invalidation
-            for loser_child in [*inner_children(records, loser)]:
+            for loser_child in [*children(records, loser)]:
                 detach_search_parent(records, loser_child)
                 attach_search_parent(records, loser_child, winner)
             # detach loser from search trie
@@ -152,11 +144,11 @@ def consolidate_trie(
 ) -> None:
 
 
-    next_child = next(inner_children(records, cur_node), None)  # type: ignore
-    if next_child is None or rank(records, next_child) >= next_rank:
+    next_child = next(children(records, cur_node), None)  # type: ignore
+    if next_child is None or rank(records, next_child) == next_rank:
         return
 
-    node_stack = [*inner_children(records, cur_node)]
+    node_stack = [*children(records, cur_node)]
 
     # collapse away nodes with ranks that have been dropped
     while node_stack:
@@ -164,9 +156,10 @@ def consolidate_trie(
         detach_search_parent(records, pop_node)
         # must grab a copy of inner children to prevent iterator
         # invalidation
-        for grandchild in [*inner_children(records, pop_node)]:
+        for grandchild in [*children(records, pop_node)]:
             # reattach dropped's children
             if rank(records, grandchild) >= next_rank:
+                print("Found successful grandchild")
                 detach_search_parent(records, grandchild)
                 attach_search_parent(records, grandchild, cur_node)
             else:
@@ -181,7 +174,7 @@ def place_allele(
     next_rank: int,
     next_differentia: int,
 ) -> int:
-    for child in inner_children(records, cur_node):
+    for child in children(records, cur_node):
         # check immediate children for next allele
         rank_matches = rank(records, child) == next_rank
         differentia_matches = differentia(records, child) == next_differentia
