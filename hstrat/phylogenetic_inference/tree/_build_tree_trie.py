@@ -124,7 +124,7 @@ def build_tree_trie(
         trie_postprocessor = trie_postprocess.CompoundTriePostprocessor(
             postprocessors=[
                 trie_postprocess.SampleAncestralRollbacksTriePostprocessor(
-                    seed=1
+                    seed=1,
                 ),
                 trie_postprocess.AssignOriginTimeNaiveTriePostprocessor(),
             ],

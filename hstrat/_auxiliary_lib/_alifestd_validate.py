@@ -92,7 +92,12 @@ def _alifestd_validate(
         and all_unique(phylogeny_df["id"].to_numpy())
     )
     if not ids_valid:
-        warn("alifestd_validate: invalid id detected")
+        warn(
+            "alifestd_validate: invalid id detected, "
+            f"{phylogeny_df['id'].dtype=}, "
+            f"{(phylogeny_df['id'] >= 0).all()=}, "
+            f"{all_unique(phylogeny_df['id'].to_numpy())=}",
+        )
         return False
 
     ancestor_lists_syntax_valid = (

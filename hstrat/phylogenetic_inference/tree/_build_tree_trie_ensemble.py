@@ -23,6 +23,54 @@ def _finalize_trie(trie: TrieInnerNode) -> pd.DataFrame:
     )
 
 
+# TODO fixup or remove
+# def _build_tree_trie_ensemble_matrix(
+#     population: typing.Sequence[HereditaryStratigraphicArtifact],
+#     trie_postprocessors: typing.Iterable[typing.Callable],
+#     taxon_labels: typing.Optional[typing.Iterable],
+#     force_common_ancestry: bool,
+#     progress_wrap: typing.Callable,
+# ) -> typing.List[pd.DataFrame]:
+#     """Implementation detail for build_tree_trie_ensemble.
+
+#     See `build_tree_trie_ensemble` for parameter descriptions.
+#     """
+#     # for simplicity, return early for this special case
+#     if len(population) == 0:
+#         return alifestd_make_empty()
+
+#     taxon_labels = taxon_labels or [*range(len(population))]
+#     m = build_trie_from_artifacts_matrix(
+#         population, [*range(len(population))], progress_wrap
+#     )
+
+#     if force_common_ancestry:
+#         if (
+#             m[1][MatrixColumn.FIRST_CHILD_ID]
+#             != m[1][MatrixColumn.LAST_CHILD_ID]
+#         ):
+#             raise ValueError
+
+#     p_differentia_collision = calc_probability_differentia_collision_between(
+#         population[0], population[0]
+#     )
+
+#     res = []
+#     for is_last, postprocessor in flag_last(trie_postprocessors):
+#         res.append(
+#             _finalize_trie(
+#                 postprocessor(
+#                     root,
+#                     p_differentia_collision=p_differentia_collision,
+#                     mutate=is_last,
+#                     progress_wrap=progress_wrap,
+#                 )
+#             )
+#         )
+
+#     return res
+
+
 def _build_tree_trie_ensemble(
     population: typing.Sequence[HereditaryStratigraphicArtifact],
     trie_postprocessors: typing.Iterable[typing.Callable],
@@ -41,7 +89,6 @@ def _build_tree_trie_ensemble(
     root = build_trie_from_artifacts(
         population=population,
         taxon_labels=taxon_labels,
-        force_common_ancestry=force_common_ancestry,
         progress_wrap=progress_wrap,
     )
     if not force_common_ancestry:
