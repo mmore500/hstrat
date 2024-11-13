@@ -86,8 +86,8 @@ requires = [
 # additional dev requriements
 # used to generated requirements in dev-requirements/
 [project.optional-dependencies]
-jit = ["numba>=0.56.4"]
-pinned_jit = ["numba==0.56.4"]
+jit = ["numba>=0.60.0"]
+pinned_jit = ["numba==0.60.0"]
 testing = [
   "contexttimer==0.3.3",
   "coverage==6.4.4",

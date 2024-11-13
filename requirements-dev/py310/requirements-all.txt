@@ -163,7 +163,7 @@ lazy-loader==0.4
     #   downstream
 lexid==2021.1006
     # via bumpver
-llvmlite==0.39.1
+llvmlite==0.43.0
     # via numba
 lru-dict==1.3.0
     # via hstrat (../../pyproject.toml)
@@ -224,7 +224,7 @@ networkx==3.4.2
     #   alifedata-phyloinformatics-convert
 nh3==0.2.18
     # via readme-renderer
-numba==0.56.4
+numba==0.60.0
     # via hstrat (../../pyproject.toml)
 numpy==1.23.5
     # via
@@ -393,7 +393,6 @@ setuptools==75.5.0
     #   hstrat (../../pyproject.toml)
     #   bumpver
     #   dendropy
-    #   numba
     #   setuptools-scm
     #   twine
 setuptools-scm==8.1.0
