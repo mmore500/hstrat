@@ -78,7 +78,7 @@ namespaces = false
 build-backend = "setuptools.build_meta"
 requires = [
   "cython>=0.29",
-  "setuptools >= 35.0.2",
+  "setuptools >= 75.0.0",
   "setuptools_scm >= 2.0.0, <3",
 ]
 
@@ -99,7 +99,6 @@ testing = [
   "pyyaml==6.0.1",
   "ruff==0.1.11",
   "safe-assert==0.2.0",
-  "setuptools",
   "scipy==1.9.3",
   "teeplot==0.4.0",
   "tox==3.24.0",
@@ -108,7 +107,7 @@ testing = [
 release = [
   "bumpver==2022.1120",
   "pip==22.0.4",
-  "setuptools==65.6.3",
+  "setuptools==75.5.0",
   "setuptools-scm==8.1.0",
   "twine==1.14.0",
   "uv==0.4.18",

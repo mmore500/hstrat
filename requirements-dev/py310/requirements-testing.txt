@@ -222,9 +222,8 @@ scipy==1.9.3
     #   statsmodels
 seaborn==0.11.0
     # via hstrat (../../pyproject.toml)
-setuptools==75.3.0
+setuptools==75.5.0
     # via
-    #   hstrat (../../pyproject.toml)
     #   dendropy
     #   numba
 six==1.16.0
