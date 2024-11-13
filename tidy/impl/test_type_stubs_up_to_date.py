@@ -183,24 +183,12 @@ def check_accurate_all_declarations() -> Iterable[str]:
     directly from the package.
     """
     for path in get_eligible_package_paths():
-        type_stub_all = sorted(get_dunder_all_from_stub(path))
-        module_all = sorted(getattr(import_from_path(path), "__all__"))
-        i = j = 0
-        while i < len(type_stub_all) and j < len(module_all):
-            if type_stub_all[i] == module_all[j]:
-                i, j = i + 1, j + 1
-            elif type_stub_all[i] < module_all[j]:
-                yield _symbol_not_in_module(path, type_stub_all[i])
-                i += 1
-            else:
-                yield _symbol_not_in_stub(path, module_all[j])
-                j += 1
-        while i < len(type_stub_all):  # still symbols in the type stub all
-            yield _symbol_not_in_module(path, type_stub_all[i])
-            i += 1
-        while j < len(module_all):  # still more symbols in the module all
-            yield _symbol_not_in_stub(path, module_all[j])
-            j += 1
+        type_stub_all = set(get_dunder_all_from_stub(path))
+        module_all = set(getattr(import_from_path(path), "__all__"))
+        for sym in type_stub_all - module_all:
+            yield _symbol_not_in_module(path, sym)
+        for sym in module_all - type_stub_all:
+            yield _symbol_not_in_stub(path, sym)
 
 
 def check_accurate_subpackage_star_imports() -> Iterable[str]:
