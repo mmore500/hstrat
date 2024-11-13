@@ -196,7 +196,7 @@ def check_accurate_all_declarations() -> Iterable[str]:
                 yield _symbol_not_in_stub(path, module_all[j])
                 j += 1
         while i < len(type_stub_all):  # still symbols in the type stub all
-            yield _symbol_not_in_stub(path, type_stub_all[i])
+            yield _symbol_not_in_module(path, type_stub_all[i])
             i += 1
         while j < len(module_all):  # still more symbols in the module all
             yield _symbol_not_in_stub(path, module_all[j])
