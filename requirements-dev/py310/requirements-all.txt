@@ -508,7 +508,7 @@ webencodings==0.5.1
     # via
     #   bleach
     #   tinycss2
-wheel==0.33.6
+wheel==0.45.0
     # via hstrat (../../pyproject.toml)
 wrapt==1.16.0
     # via

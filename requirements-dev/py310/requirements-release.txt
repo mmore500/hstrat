@@ -255,7 +255,7 @@ validators==0.34.0
     # via alifedata-phyloinformatics-convert
 wcwidth==0.2.13
     # via prettytable
-wheel==0.33.6
+wheel==0.45.0
     # via hstrat (../../pyproject.toml)
 wrapt==1.16.0
     # via

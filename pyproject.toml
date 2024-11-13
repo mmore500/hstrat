@@ -111,7 +111,7 @@ release = [
   "setuptools-scm==8.1.0",
   "twine==1.14.0",
   "uv==0.4.18",
-  "wheel==0.33.6",
+  "wheel==0.45.0",
 ]
 docs = [
   "ipython==8.12.3",
