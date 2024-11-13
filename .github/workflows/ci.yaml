@@ -120,7 +120,7 @@ jobs:
         sudo apt-get update -o Acquire::Retries=3
         sudo apt-get install -y ffmpeg -o Acquire::Retries=3
         python -m pip install --upgrade pip setuptools
-        python -m pip install -r requirements-dev/py39/requirements-testing.txt
+        python -m pip install -r requirements-dev/py310/requirements-testing.txt
     - name: Log coverage configuration
       run: coverage debug sys
     - name: Run tests with coverage report
@@ -145,11 +145,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools
-        python -m pip install -r requirements-dev/py38/requirements-testing.txt
+        python -m pip install -r requirements-dev/py310/requirements-testing.txt
     - name: Test isort tidyness
       uses: jamescurtin/isort-action@master
       with:
-          requirementsFiles: "requirements-dev/py38/requirements-testing.txt"
+          requirementsFiles: "requirements-dev/py310/requirements-testing.txt"
     - name: Test Black tidyness
       uses: psf/black@27d20144a7517594e24a1649451177b2a11284be
       with:
