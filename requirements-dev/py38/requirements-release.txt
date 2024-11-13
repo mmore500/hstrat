@@ -29,8 +29,6 @@ click==8.1.7
     #   keyname
 colorama==0.4.6
     # via bumpver
-cppimport==22.8.2
-    # via hstrat (../../pyproject.toml)
 cycler==0.12.1
     # via matplotlib
 dendropy==4.5.2
@@ -45,8 +43,6 @@ docutils==0.20.1
     # via readme-renderer
 ete3==3.1.3
     # via alifedata-phyloinformatics-convert
-filelock==3.16.1
-    # via cppimport
 fonttools==4.54.1
     # via matplotlib
 idna==3.10
@@ -119,6 +115,7 @@ packaging==23.0
     #   lazy-loader
     #   matplotlib
     #   pandera
+    #   setuptools-scm
     #   statsmodels
 pandas==1.3.5
     # via
@@ -145,8 +142,6 @@ prettytable==3.5.0
     # via hstrat (../../pyproject.toml)
 propcache==0.2.0
     # via yarl
-pybind11==2.13.6
-    # via cppimport
 pydantic==2.9.2
     # via pandera
 pydantic-core==2.23.4
@@ -184,7 +179,10 @@ setuptools==65.6.3
     #   hstrat (../../pyproject.toml)
     #   bumpver
     #   dendropy
+    #   setuptools-scm
     #   twine
+setuptools-scm==8.1.0
+    # via hstrat (../../pyproject.toml)
 six==1.16.0
     # via
     #   anytree
@@ -201,6 +199,8 @@ text-unidecode==1.3
     # via python-slugify
 toml==0.10.2
     # via bumpver
+tomli==2.0.2
+    # via setuptools-scm
 tqdm==4.62.3
     # via
     #   hstrat (../../pyproject.toml)
@@ -215,6 +215,7 @@ typing-extensions==4.12.2
     #   multidict
     #   pydantic
     #   pydantic-core
+    #   setuptools-scm
     #   typing-inspect
 typing-inspect==0.9.0
     # via pandera
