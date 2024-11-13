@@ -151,7 +151,6 @@ def consolidate_trie(
     cur_node: int,
 ) -> None:
 
-
     next_child = next(inner_children(records, cur_node), None)  # type: ignore
     if next_child is None or rank(records, next_child) >= next_rank:
         return

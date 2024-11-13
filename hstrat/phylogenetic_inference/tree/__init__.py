@@ -1,8 +1,8 @@
 """Functions to reconstruct a phylogenetic tree from extant hereditary strata."""
 
+from . import trie_postprocess
 from ..._auxiliary_lib import lazy_attach
 
-from . import trie_postprocess
 __getattr__, __dir__, __all__ = lazy_attach(
     __name__,
     submodules=["trie_postprocess"],
