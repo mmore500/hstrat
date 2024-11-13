@@ -170,9 +170,11 @@ from test_drive import (
 )
 
 __all__ = [
+    # frozen_instrumentation
     "HereditaryStratigraphicAssemblage",
     "HereditaryStratigraphicAssemblageSpecimen",
     "HereditaryStratigraphicSpecimen",
+    # genome_instrumentation
     "stratum_ordered_stores",
     "HereditaryStratum",
     "HereditaryStratigraphicColumn",
@@ -181,6 +183,7 @@ __all__ = [
     "HereditaryStratumOrderedStoreList",
     "HereditaryStratumOrderedStoreTree",
     "provided_stratum_ordered_stores",
+    # juxtaposition
     "calc_definitive_max_rank_of_first_retained_disparity_between",
     "calc_definitive_max_rank_of_last_retained_commonality_between",
     "calc_definitive_min_ranks_since_first_retained_disparity_with",
@@ -194,6 +197,7 @@ __all__ = [
     "diff_retained_ranks",
     "get_last_common_stratum_between",
     "get_nth_common_rank_between",
+    # phylogenetic_inference
     "estimators",
     "pairwise",
     "population",
@@ -238,6 +242,7 @@ __all__ = [
     "build_tree_upgma",
     "build_tree",
     "trie_postprocess",
+    # serialization
     "AssignDestructionTimeYoungestPlusOneTriePostprocessor",
     "AssignOriginTimeExpectedValueTriePostprocessor",
     "AssignOriginTimeNaiveTriePostprocessor",
@@ -270,6 +275,7 @@ __all__ = [
     "unpack_differentiae",
     "unpack_differentiae_bytes",
     "unpack_differentiae_str",
+    # stratum_retention_strategy
     "stratum_retention_policy_parameterizers",
     "stratum_retention_algorithms",
     "stratum_retention_policy_evaluators",
@@ -295,6 +301,7 @@ __all__ = [
     "PropertyAtLeastParameterizer",
     "PropertyAtMostParameterizer",
     "PropertyExactlyParameterizer",
+    # stratum_retention_viz
     "animate",
     "ascii",
     "plot",
@@ -307,6 +314,7 @@ __all__ = [
     "strata_retained_frac_lineplot",
     "strata_retained_num_lineplot",
     "stratum_retention_dripplot",
+    # test_drive
     "descend_template_phylogeny_",
     "generate_template_phylogeny",
     "perfect_tracking",
