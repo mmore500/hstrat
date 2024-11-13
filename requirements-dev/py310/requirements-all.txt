@@ -278,8 +278,6 @@ pickleshare==0.7.5
     # via ipython
 pillow==11.0.0
     # via matplotlib
-pip==22.0.4
-    # via hstrat (../../pyproject.toml)
 pkginfo==1.11.2
     # via twine
 platformdirs==4.3.6

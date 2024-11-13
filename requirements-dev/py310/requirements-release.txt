@@ -141,8 +141,6 @@ phylotrackpy==0.2.2
     # via alifedata-phyloinformatics-convert
 pillow==11.0.0
     # via matplotlib
-pip==22.0.4
-    # via hstrat (../../pyproject.toml)
 pkginfo==1.11.2
     # via twine
 polars==1.13.0
