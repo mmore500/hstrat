@@ -227,9 +227,8 @@ def check_accurate_flat_namespace() -> Iterable[str]:
             subpackage_all = getattr(
                 import_from_path(os.path.join("hstrat", subpackage)), "__all__"
             )
-            for sym in subpackage_all:
-                if sym not in type_stub_all:
-                    yield f"Type stub for flat namespace 'hstrat.hstrat' does not contain symbol '{sym}' from '{subpackage}'."
+            for sym in set(subpackage_all) - set(type_stub_all):
+                yield f"Type stub for flat namespace 'hstrat.hstrat' does not contain symbol '{sym}' from '{subpackage}'."
 
 
 if __name__ == "__main__":
