@@ -28,7 +28,9 @@ click==8.1.7
     #   bumpver
     #   keyname
 colorama==0.4.6
-    # via bumpver
+    # via
+    #   bumpver
+    #   parallelbar
 contourpy==1.3.1
     # via matplotlib
 cppimport==22.8.2
@@ -47,7 +49,7 @@ deprecated==1.2.14
     #   alifedata-phyloinformatics-convert
 docutils==0.21.2
     # via readme-renderer
-downstream==1.1.0
+downstream==1.2.2
     # via hstrat (../../pyproject.toml)
 ete3==3.1.3
     # via alifedata-phyloinformatics-convert
@@ -111,12 +113,13 @@ networkx==3.4.2
     #   alifedata-phyloinformatics-convert
 nh3==0.2.18
     # via readme-renderer
-numpy==1.26.4
+numpy==2.1.3
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
     #   biopython
     #   contourpy
+    #   downstream
     #   matplotlib
     #   pandas
     #   pandera
@@ -128,6 +131,7 @@ opytional==0.1.0
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
+    #   downstream
 ordered-set==4.1.0
     # via hstrat (../../pyproject.toml)
 packaging==24.2
@@ -138,7 +142,7 @@ packaging==24.2
     #   pandera
     #   setuptools-scm
     #   statsmodels
-pandas==1.5.3
+pandas==2.2.3
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
@@ -147,6 +151,8 @@ pandas==1.5.3
     #   statsmodels
 pandera==0.20.4
     # via hstrat (../../pyproject.toml)
+parallelbar==2.4
+    # via downstream
 pathlib2==2.3.7.post1
     # via bumpver
 patsy==1.0.1
@@ -229,6 +235,7 @@ tqdm==4.67.0
     # via
     #   hstrat (../../pyproject.toml)
     #   joinem
+    #   parallelbar
     #   twine
 twine==1.14.0
     # via hstrat (../../pyproject.toml)
@@ -244,6 +251,8 @@ typing-extensions==4.12.2
     #   typing-inspect
 typing-inspect==0.9.0
     # via pandera
+tzdata==2024.2
+    # via pandas
 urllib3==2.2.3
     # via requests
 uv==0.4.18

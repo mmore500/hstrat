@@ -45,7 +45,9 @@ click==8.1.7
     #   bumpver
     #   keyname
 colorama==0.4.6
-    # via bumpver
+    # via
+    #   bumpver
+    #   parallelbar
 comm==0.2.2
     # via ipykernel
 contexttimer==0.3.3
@@ -80,7 +82,7 @@ docutils==0.17.1
     #   readme-renderer
     #   sphinx
     #   sphinx-rtd-theme
-downstream==1.1.0
+downstream==1.2.2
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
@@ -226,12 +228,13 @@ nh3==0.2.18
     # via readme-renderer
 numba==0.60.0
     # via hstrat (../../pyproject.toml)
-numpy==1.23.5
+numpy==2.0.2
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
     #   biopython
     #   contourpy
+    #   downstream
     #   matplotlib
     #   numba
     #   pandas
@@ -245,6 +248,7 @@ opytional==0.1.0
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
+    #   downstream
 ordered-set==4.1.0
     # via hstrat (../../pyproject.toml)
 packaging==24.2
@@ -260,7 +264,7 @@ packaging==24.2
     #   sphinx
     #   statsmodels
     #   tox
-pandas==1.5.3
+pandas==2.2.3
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
@@ -272,6 +276,8 @@ pandera==0.20.4
     # via hstrat (../../pyproject.toml)
 pandocfilters==1.5.1
     # via nbconvert
+parallelbar==2.4
+    # via downstream
 parso==0.8.4
     # via jedi
 pathlib2==2.3.7.post1
@@ -382,7 +388,7 @@ ruff==0.1.11
     # via hstrat (../../pyproject.toml)
 safe-assert==0.2.0
     # via hstrat (../../pyproject.toml)
-scipy==1.9.3
+scipy==1.14.1
     # via
     #   hstrat (../../pyproject.toml)
     #   statsmodels
@@ -462,6 +468,7 @@ tqdm==4.67.0
     # via
     #   hstrat (../../pyproject.toml)
     #   joinem
+    #   parallelbar
     #   twine
 traitlets==5.14.3
     # via
@@ -491,6 +498,8 @@ typing-extensions==4.12.2
     #   typing-inspect
 typing-inspect==0.9.0
     # via pandera
+tzdata==2024.2
+    # via pandas
 urllib3==2.2.3
     # via requests
 uv==0.4.18
