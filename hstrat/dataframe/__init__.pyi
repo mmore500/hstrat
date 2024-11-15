@@ -1,4 +1,4 @@
-from ._surface_unpack_reconstrct import surface__surface_unpack_reconstrct
+from ._surface_unpack_reconstruct import surface_unpack_reconstruct
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [

@@ -77,9 +77,6 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         'dstream_', will be forwarded from the input DataFrame.
     """
 
-
-
-
     num_rows = df.lazy().select(pl.len()).collect().item()
     with pl.Config() as cfg:
         cfg.set_tbl_cols(df.lazy().collect_schema().len())
