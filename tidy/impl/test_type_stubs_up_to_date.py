@@ -220,7 +220,7 @@ def check_accurate_flat_namespace() -> Iterable[str]:
             and not subpackage.startswith("_")
             and (
                 os.path.exists(
-                    os.path.join("hstrat", subpackage, "__init__.pyi")
+                    os.path.join("hstrat", subpackage, "__init__.pyi"),
                 )
             )
         ):
