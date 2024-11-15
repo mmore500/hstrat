@@ -203,9 +203,8 @@ def check_accurate_subpackage_star_imports() -> Iterable[str]:
             subpackage_all = getattr(
                 import_from_path(os.path.join(path, subpackage)), "__all__"
             )
-            for sym in subpackage_all:
-                if sym not in type_stub_all:
-                    yield f"Type stub for '{module_name_from_path(path)}' declares '__all__' that does not contain symbol '{sym}' from subpackage '{subpackage}'."
+            for sym in set(subpackage_all) - set(type_stub_all):
+                yield f"Type stub for '{module_name_from_path(path)}' declares '__all__' that does not contain symbol '{sym}' from subpackage '{subpackage}'."
 
 
 def check_accurate_flat_namespace() -> Iterable[str]:
