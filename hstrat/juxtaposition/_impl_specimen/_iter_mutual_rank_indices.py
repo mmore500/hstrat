@@ -32,10 +32,10 @@ def iter_mutual_rank_indices(
     order."""
     if compare:
         return _compare_differentia_at_common_ranks(
-            first.GetRankIndex(),
-            first.GetDifferentiaVals(),
-            second.GetRankIndex(),
-            second.GetDifferentiaVals(),
+            first.GetRankIndex().astype(np.uint64),  # numba compat
+            first.GetDifferentiaVals().astype(np.uint64),  # numba compat
+            second.GetRankIndex().astype(np.uint64),  # numba compat
+            second.GetDifferentiaVals().astype(np.uint64),  # numba compat
         )
 
     else:
