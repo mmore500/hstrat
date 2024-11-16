@@ -176,7 +176,7 @@ class HereditaryStratigraphicAssemblageSpecimen:
             A numpy array containing ranks of differentia entries, including
             null entries for differentia that are not retained.
         """
-        return self._data.index.array.to_numpy()
+        return self._data.index.array.to_numpy(copy=False)
 
     def GetRankAtColumnIndex(
         self: "HereditaryStratigraphicAssemblageSpecimen",
