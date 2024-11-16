@@ -6,6 +6,7 @@ from hstrat import hstrat
 from hstrat._auxiliary_lib import (
     AnyTreeAscendingIter,
     anytree_cardinality,
+    random_tree,
     seed_random,
 )
 import hstrat.phylogenetic_inference.tree._impl as impl
@@ -252,9 +253,7 @@ def test_unzip_fuzz(
 ):
 
     seed_random(tree_seed)
-    nx_tree = nx.random_tree(
-        n=tree_size, seed=tree_seed, create_using=nx.DiGraph
-    )
+    nx_tree = random_tree(n=tree_size, seed=tree_seed, create_using=nx.DiGraph)
     extant_population = hstrat.descend_template_phylogeny_networkx(
         nx_tree,
         seed_column=hstrat.HereditaryStratigraphicColumn(

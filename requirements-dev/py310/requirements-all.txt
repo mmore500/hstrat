@@ -202,7 +202,7 @@ nbsphinx==0.9.3
     # via hstrat (../../pyproject.toml)
 nest-asyncio==1.6.0
     # via ipykernel
-networkx==2.6.3
+networkx==3.4.2
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
