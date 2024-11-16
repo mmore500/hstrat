@@ -22,14 +22,22 @@ def specimens_mock_simple():
     second = MagicMock()
     first.GetStratumDifferentiaBitWidth.return_value = 8
     second.GetStratumDifferentiaBitWidth.return_value = 8
-    first.GetDifferentiaVals.return_value = np.array([5, 6, 7, 8, 9])
-    second.GetDifferentiaVals.return_value = np.array([5, 6, 7, 8, 9])
+    first.GetDifferentiaVals.return_value = np.array(
+        [5, 6, 7, 8, 9], dtype=np.uint32
+    )
+    second.GetDifferentiaVals.return_value = np.array(
+        [5, 6, 7, 8, 9], dtype=np.uint32
+    )
     first.GetNumStrataRetained.return_value = 5
     second.GetNumStrataRetained.return_value = 5
     first.GetNumStrataDeposited.return_value = 5
     second.GetNumStrataDeposited.return_value = 5
-    first.GetRankIndex.return_value = np.array([0, 1, 2, 3, 4])
-    second.GetRankIndex.return_value = np.array([0, 1, 2, 3, 4])
+    first.GetRankIndex.return_value = np.array(
+        [0, 1, 2, 3, 4], dtype=np.uint64
+    )
+    second.GetRankIndex.return_value = np.array(
+        [0, 1, 2, 3, 4], dtype=np.uint64
+    )
     return first, second
 
 
