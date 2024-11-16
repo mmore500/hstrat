@@ -70,7 +70,7 @@ dendropy==5.0.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
-deprecated==1.2.14
+deprecated==1.2.15
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
@@ -101,7 +101,7 @@ filelock==3.16.1
     #   virtualenv
 flake8==3.7.8
     # via hstrat (../../pyproject.toml)
-fonttools==4.54.1
+fonttools==4.55.0
     # via matplotlib
 idna==3.10
     # via
@@ -132,7 +132,7 @@ jinja2==3.1.4
     #   nbconvert
     #   nbsphinx
     #   sphinx
-joinem==0.8.1
+joinem==0.8.2
     # via
     #   hstrat (../../pyproject.toml)
     #   downstream
@@ -197,7 +197,7 @@ mpmath==1.3.0
     # via hstrat (../../pyproject.toml)
 multidict==6.1.0
     # via yarl
-multimethod==1.10
+multimethod==1.12
     # via pandera
 mypy==0.991
     # via hstrat (../../pyproject.toml)
@@ -286,7 +286,7 @@ patsy==1.0.1
     # via statsmodels
 pexpect==4.9.0
     # via ipython
-phylotrackpy==0.2.2
+phylotrackpy==0.2.4
     # via alifedata-phyloinformatics-convert
 pickleshare==0.7.5
     # via ipython
@@ -302,7 +302,7 @@ pluggy==1.5.0
     # via
     #   pytest
     #   tox
-polars==1.13.0
+polars==1.13.1
     # via
     #   downstream
     #   joinem

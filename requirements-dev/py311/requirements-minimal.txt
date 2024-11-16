@@ -34,7 +34,7 @@ dendropy==5.0.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
-deprecated==1.2.14
+deprecated==1.2.15
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
@@ -44,7 +44,7 @@ ete3==3.1.3
     # via alifedata-phyloinformatics-convert
 filelock==3.16.1
     # via cppimport
-fonttools==4.54.1
+fonttools==4.55.0
     # via matplotlib
 idna==3.10
     # via yarl
@@ -54,7 +54,7 @@ iterpop==0.4.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
-joinem==0.8.1
+joinem==0.8.2
     # via
     #   hstrat (../../pyproject.toml)
     #   downstream
@@ -86,7 +86,7 @@ mpmath==1.3.0
     # via hstrat (../../pyproject.toml)
 multidict==6.1.0
     # via yarl
-multimethod==1.10
+multimethod==1.12
     # via pandera
 mypy-extensions==1.0.0
     # via typing-inspect
@@ -137,11 +137,11 @@ parallelbar==2.4
     # via downstream
 patsy==1.0.1
     # via statsmodels
-phylotrackpy==0.2.2
+phylotrackpy==0.2.4
     # via alifedata-phyloinformatics-convert
 pillow==11.0.0
     # via matplotlib
-polars==1.13.0
+polars==1.13.1
     # via
     #   downstream
     #   joinem
