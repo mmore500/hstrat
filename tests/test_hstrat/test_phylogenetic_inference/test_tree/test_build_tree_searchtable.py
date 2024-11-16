@@ -15,6 +15,7 @@ from hstrat._auxiliary_lib import (
     alifestd_has_multiple_roots,
     alifestd_validate,
     generate_n,
+    random_tree,
     seed_random,
 )
 
@@ -288,7 +289,7 @@ def test_reconstructed_mrca_fuzz(
 ):
 
     seed_random(tree_seed)
-    nx_tree = nx.random_tree(
+    nx_tree = random_tree(
         n=tree_size, seed=tree_seed, create_using=nx.DiGraph
     )
 
