@@ -1,5 +1,6 @@
 import typing
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -13,7 +14,8 @@ from ._compile_phylogeny_from_lineage_iters import (
 # created a partial implementation of missing features before testing showed
 # it underperformed the GC tracker; left partial implementation here:
 # https://gist.github.com/mmore500/06a359e528f59f3feb0c72dfc01b8fef
-class DecantingPhyloTracker:
+@deprecated(version="1.13.0", reason="Incompatible with numpy v2")
+class DecantingPhyloTracker:   # pragma: no cover
     """Data structure to enable perfect tracking over a fixed-size population
     with synchronous generations.
 
@@ -96,6 +98,9 @@ class DecantingPhyloTracker:
             children of this dummy ancestor. If False, all initial
             population members will be recorded as having no parent.
         """
+
+        if np.lib.NumpyVersion(np.__version__) >= '2.0.0b1':
+            raise ImportError("This module is not compatible with numpy v2.")
 
         # initialize decanting buffer with all nan values
         self._decanting_buffer = np.full(

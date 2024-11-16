@@ -1,3 +1,6 @@
+# note: DecantingPhyloTracker has been deprecated
+# due to incompatibility with numpy v2.
+
 import collections
 import itertools as it
 
