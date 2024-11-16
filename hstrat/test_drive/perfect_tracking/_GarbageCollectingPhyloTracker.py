@@ -412,7 +412,7 @@ class GarbageCollectingPhyloTracker:
                     **{
                         "id": idx,
                         "ancestor_list": str(
-                            [parent_idx if parent_idx != idx else None]
+                            [int(parent_idx) if parent_idx != idx else None]
                         ),
                         "loc": loc,
                         "trait": trait,
