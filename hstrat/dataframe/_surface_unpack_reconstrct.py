@@ -2,7 +2,6 @@ import logging
 import sys
 
 from downstream import dataframe as dstream_dataframe
-import numpy as np
 import polars as pl
 from tqdm import tqdm
 
@@ -22,11 +21,11 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
     ----------
     df : pl.DataFrame
         The input DataFrame containing packed data with required columns, one
-        row per dstream buffer.
+        row per genome.
 
         Required schema:
             - 'data_hex' : pl.String
-                - Raw binary data, with serialized dstream buffer and counter.
+                - Raw genome data, with serialized dstream buffer and counter.
                 - Represented as a hexadecimal string.
             - 'dstream_algo' : pl.Categorical
                 - Name of downstream curation algorithm used.
@@ -45,6 +44,8 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         Optional schema:
             - 'downstream_version' : pl.Categorical
                 - Version of downstream library used to curate data items.
+            - 'dstream_data_id' : pl.UInt64
+                - Unique identifier for each data item.
 
     Returns
     -------
@@ -53,25 +54,23 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         alife standard format, with the following columns:
 
         - 'taxon_id' : pl.UInt64
-            - Unique identifier for each taxon.
-        - 'taxon_label' : pl.String
-            - Name of taxon.
+            - Unique identifier for each taxon (RE alife standard format).
         - 'ancestor_id' : pl.UInt64
-            - Unique identifier for ancestor taxon.
+            - Unique identifier for ancestor taxon  (RE alife standard format).
         - 'ancestor_list' : str
-            - List of ancestor taxon identifiers.
-        - 'origin_time' : pl.Float64
-            - Estimated origin time of phylogeny nodes.
-        - 'dstream_T_bitwidth' : pl.UInt64
-            - Size of annotation differentiae, in bits.
-        - 'dstream_data_id' : pl.UInt64
-            - Unique identifier for each data item.
-        - 'dstream_T' : pl.UInt64
-            - Num generations elapsed for tip taxon.
-        - 'dstream_Tbar' : pl.Float64
+            - List of ancestor taxon identifiers (RE alife standard format).
+        - 'origin_tme' : pl.UInt64
             - Num generations elapsed for ancestral differentia.
+            - RE alife standard format.
+            - a.k.a. "rank"
+                - Corresponds to`dstream_Tbar` for inner nodes.
+                - Corresponds `dstream_T` - 1 for leaf nodes
+        - 'differentia_bitwidth' : pl.UInt64
+            - Size of annotation differentiae, in bits.
+            - Corresponds to `dstream_value_bitwidth`.
         - 'dstream_data_id' : pl.UInt64
-            - Unique identifier for each data item.
+            - Unique identifier for each genome in source dataframe
+            - Set to source dataframe row index if not provided.
 
         User-defined columns, except some prefixed with 'downstream_' or
         'dstream_', will be forwarded from the input DataFrame.
@@ -107,7 +106,13 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
     logging.info("building tree...")
     # TODO pass whole columns to c++ implementation
     records = [Record(taxon_label=sys.maxsize)]
-    for frame in tqdm(long_df.iter_slices(64), total=len(long_df) // 64):
+    dstream_S = df.lazy().select("dstream_S").unique().limit(2).collect()
+    if len(dstream_S) > 1:
+        raise NotImplementedError(
+            "multiple differentia_bitwidths not yet supported",
+        )
+    S = dstream_S.item()
+    for frame in tqdm(long_df.iter_slices(S), total=len(long_df) // S):
         insert_artifact(
             records,
             frame["dstream_Tbar"],
@@ -118,24 +123,31 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
 
     logging.info("finalizing tree...")
     phylo_df = finalize_records(records, force_common_ancestry=True)
-    phylo_df["dstream_data_id"] = phylo_df["data_id"].astype(np.uint64)
 
     logging.info("joining frames...")
-    phylo_df = pl.from_pandas(phylo_df)
-    res = phylo_df.join(
-        df.select(pl.exclude("^dstream_*$", "^downstream_*$")).cast(
-            {"dstream_data_id": pl.UInt64},
-        ),
-        on="dstream_data_id",
-        how="left",
+    df = df.select(
+        pl.exclude("^dstream_.*$", "^downstream_.*$"),
+        pl.col("dstream_data_id").cast(pl.UInt64),
+    )
+    phylo_df = pl.from_pandas(phylo_df).cast({"dstream_data_id": pl.UInt64})
+    phylo_df = phylo_df.join(df, on="dstream_data_id", how="left")
+    bitwidths = (
+        long_df.lazy().select("dstream_value_bitwidth").unique().limit(2)
+    ).collect()
+    if len(bitwidths) > 1:
+        raise NotImplementedError(
+            "multiple differentia_bitwidths not yet supported",
+        )
+    phylo_df = phylo_df.with_columns(
+        pl.lit(bitwidths.item()).alias("differentia_bitwidth").cast(pl.UInt32),
     )
 
     logging.info("surface_unpack_reconstruct complete")
     with pl.Config() as cfg:
         cfg.set_tbl_cols(phylo_df.lazy().collect_schema().len())
         cfg.set_tbl_cols(phylo_df.width)
-        head = repr(phylo_df.lazy().head().collect())
+        head = repr(phylo_df.lazy().head(10).collect())
         message = " ".join(["reconst df:", str(num_rows), "rows\n", head])
         logging.info(message)
 
-    return res
+    return phylo_df

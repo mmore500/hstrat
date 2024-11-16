@@ -9,6 +9,7 @@ import pandas as pd
 
 from ..._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
+    alifestd_collapse_unifurcations,
     alifestd_make_empty,
     alifestd_try_add_ancestor_list_col,
     argsort,
@@ -233,7 +234,12 @@ def finalize_records(
     df["id"] = df["ix_id"]
     df["ancestor_id"] = df["ix_ancestor_id"]
     df["origin_time"] = df["ix_rank"]
-    df["data_id"] = df["taxon_label"]
+    df["dstream_data_id"] = df["taxon_label"]
+    df["taxon_label"] = df["taxon_label"].astype(str)
+
+    for col in df.columns:
+        if col.startswith("ix_"):
+            del df[col]
 
     multiple_true_roots = (
         (df["id"] != 0) & (df["ancestor_id"] == 0)
@@ -245,7 +251,9 @@ def finalize_records(
             "Consider setting force_common_ancestry=True.",
         )
 
-    return alifestd_try_add_ancestor_list_col(df, mutate=True)
+    df = alifestd_collapse_unifurcations(df, mutate=True)
+    df = alifestd_try_add_ancestor_list_col(df, mutate=True)
+    return df
 
 
 def build_tree_searchtable(
