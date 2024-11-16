@@ -55,7 +55,9 @@ def test_calc_rank_of_first_retained_disparity_between_mock_simple(
     )
 
     # Test case where there is disparity.
-    second.GetDifferentiaVals.return_value = np.array([5, 6, 3, 8, 9])
+    second.GetDifferentiaVals.return_value = np.array(
+        [5, 6, 3, 8, 9], dtype=np.uint32
+    )
     assert (
         calc_rank_of_first_retained_disparity_between(
             first, second, confidence_level=0.49
