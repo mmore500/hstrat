@@ -144,7 +144,7 @@ class HereditaryStratigraphicSpecimen:
         made. Changes to the returned array will propagate to the Series
         object's underlying values, and vice versa.
         """
-        return self._data.array.to_numpy(copy=False, dtype=np.uint64)
+        return self._data.array.to_numpy(copy=False)
 
     def GetRankIndex(
         self: "HereditaryStratigraphicSpecimen",
