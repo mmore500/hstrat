@@ -8,6 +8,9 @@ import pytest
 
 from hstrat import hstrat
 from hstrat._auxiliary_lib import alifestd_validate
+from hstrat.phylogenetic_inference.tree._build_tree_searchtable_debug import (
+    build_tree_searchtable_debug,
+)
 
 from . import _impl as impl
 
@@ -20,7 +23,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 )
 def test_empty_population(force_common_ancestry: bool):
     population = []
-    tree = hstrat.build_tree_searchtable_debug(
+    tree = build_tree_searchtable_debug(
         population, force_common_ancestry=force_common_ancestry
     )
 
@@ -36,12 +39,10 @@ def test_dual_population_no_mrca():
     names = ["foo", "bar"]
 
     with pytest.raises(ValueError):
-        tree = hstrat.build_tree_searchtable_debug(
-            population, taxon_labels=names
-        )
+        tree = build_tree_searchtable_debug(population, taxon_labels=names)
         print(tree)
 
-    tree = hstrat.build_tree_searchtable_debug(
+    tree = build_tree_searchtable_debug(
         population, taxon_labels=names, force_common_ancestry=True
     )
     assert alifestd_validate(tree)
@@ -71,7 +72,7 @@ def test_dual_population_with_mrca():
         parents = random.choices(population, k=len(population))
         population = [parent.CloneDescendant() for parent in parents]
 
-    tree = hstrat.build_tree_searchtable_debug(population, taxon_labels=names)
+    tree = build_tree_searchtable_debug(population, taxon_labels=names)
     assert alifestd_validate(tree)
     tree["name"] = tree["taxon_label"]
 
@@ -120,7 +121,7 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
         ).CloneNthDescendant(num_depositions),
     )
 
-    reconst_df = hstrat.build_tree_searchtable_debug(extant_population)
+    reconst_df = build_tree_searchtable_debug(extant_population)
     reconst_tree = apc.alife_dataframe_to_dendropy_tree(
         reconst_df,
         setup_edge_lengths=True,
@@ -196,10 +197,10 @@ def test_determinism(orig_tree, retention_policy, wrap):
         ).CloneNthDescendant(num_depositions),
     )
 
-    first_reconst = hstrat.build_tree_searchtable_debug(extant_population)
+    first_reconst = build_tree_searchtable_debug(extant_population)
     for _rep in range(3):
         _ = _rep
-        second_reconst = hstrat.build_tree_searchtable_debug(
+        second_reconst = build_tree_searchtable_debug(
             [wrap(col) for col in extant_population],
         )
         assert first_reconst.equals(second_reconst)
@@ -228,14 +229,14 @@ def test_reconstructed_taxon_labels(orig_tree, retention_policy):
     )
     taxon_labels = [str(id(x)) for x in extant_population]
 
-    reconst_df = hstrat.build_tree_searchtable_debug(
+    reconst_df = build_tree_searchtable_debug(
         extant_population,
         taxon_labels=taxon_labels,
     )
     assert "taxon_label" in reconst_df
     assert set(taxon_labels) < set(reconst_df["taxon_label"])
 
-    reconst_df = hstrat.build_tree_searchtable_debug(
+    reconst_df = build_tree_searchtable_debug(
         extant_population,
     )
     assert "taxon_label" in reconst_df

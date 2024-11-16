@@ -190,6 +190,7 @@ from ._parse_from_numeral_system import parse_from_numeral_system
 from ._popcount import popcount
 from ._raises import raises
 from ._random_choice_generator import random_choice_generator
+from ._random_tree import random_tree
 from ._release_cur_mpl_fig import release_cur_mpl_fig
 from ._render_to_base64url import render_to_base64url
 from ._render_to_numeral_system import render_to_numeral_system
@@ -365,6 +366,7 @@ __all__ = [
     "raises",
     "release_cur_mpl_fig",
     "random_choice_generator",
+    "random_tree",
     "render_to_base64url",
     "render_to_numeral_system",
     "reversed_enumerate",

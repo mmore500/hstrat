@@ -2,6 +2,7 @@ import itertools as it
 import typing
 
 from iterpop import iterpop as ip
+import numpy as np
 import pandas as pd
 
 from .._auxiliary_lib import as_nullable_type
@@ -71,7 +72,7 @@ class HereditaryStratigraphicAssemblage:
             self._assemblage_df = pd.DataFrame()
 
         assert not self._assemblage_df.index.isna().any()
-        self._assemblage_df.index = self._assemblage_df.index.astype("int64")
+        self._assemblage_df.index.astype(np.uint64, copy=False)
 
     def BuildSpecimens(
         self: "HereditaryStratigraphicAssemblage",

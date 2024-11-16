@@ -92,7 +92,7 @@ def _alifestd_coarsen_mask_sexual(
         res["id"]
         .map(new_ancestor_lists)
         .apply(np.unique)  # sort and prevent duplicate values
-        .apply(list)
+        .apply(np.ndarray.tolist)
         .apply(str)
         .replace("[]", root_token_str)
     )

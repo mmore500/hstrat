@@ -15,9 +15,7 @@ from hstrat import hstrat
         hstrat.fixed_resolution_algo.Policy(fixed_resolution=10),
     ],
 )
-def test_col_to_dataframe(
-    retention_policy,
-):
+def test_pop_to_dataframe(retention_policy):
     pop = [
         hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,

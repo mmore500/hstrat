@@ -13,7 +13,7 @@ def alifestd_make_ancestor_list_col(
     "[]". Default "none".
     """
 
-    res = ancestor_ids.map("[{}]".format).astype(str)  # specify for empty
+    res = ancestor_ids.map("[{!s}]".format).astype(str)  # specify for empty
     res[ids == ancestor_ids] = f"[{root_ancestor_token}]"
 
     return res

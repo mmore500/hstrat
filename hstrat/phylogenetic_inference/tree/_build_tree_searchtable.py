@@ -1,6 +1,7 @@
 import collections
 import dataclasses
 import itertools as it
+import sys
 import typing
 
 import opytional as opyt
@@ -8,6 +9,7 @@ import pandas as pd
 
 from ..._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
+    alifestd_collapse_unifurcations,
     alifestd_make_empty,
     alifestd_try_add_ancestor_list_col,
     argsort,
@@ -17,7 +19,7 @@ from ..._auxiliary_lib import (
 
 @dataclasses.dataclass(slots=True)
 class Record:
-    taxon_label: str
+    taxon_label: int
     ix_id: int = 0
     ix_search_first_child_id: int = 0
     ix_search_next_sibling_id: int = 0
@@ -101,7 +103,7 @@ def create_offspring(
     parent_id: int,
     differentia: int,
     rank: int,
-    taxon_label: str,
+    taxon_label: int,
 ) -> int:
     size = len(records)
 
@@ -151,7 +153,6 @@ def consolidate_trie(
     cur_node: int,
 ) -> None:
 
-
     next_child = next(inner_children(records, cur_node), None)  # type: ignore
     if next_child is None or rank(records, next_child) >= next_rank:
         return
@@ -194,7 +195,7 @@ def place_allele(
             parent_id=cur_node,
             differentia=next_differentia,
             rank=next_rank,
-            taxon_label=f"i{len(records)}",
+            taxon_label=sys.maxsize - len(records) - 1,
         )
 
 
@@ -202,7 +203,7 @@ def insert_artifact(
     records: typing.List[Record],
     ranks: typing.List[int],
     differentiae: typing.List[int],
-    label: str,
+    label: int,
     num_strata_deposited: int,
 ) -> None:
 
@@ -233,6 +234,12 @@ def finalize_records(
     df["id"] = df["ix_id"]
     df["ancestor_id"] = df["ix_ancestor_id"]
     df["origin_time"] = df["ix_rank"]
+    df["dstream_data_id"] = df["taxon_label"]
+    df["taxon_label"] = df["taxon_label"].astype(str)
+
+    for col in df.columns:
+        if col.startswith("ix_"):
+            del df[col]
 
     multiple_true_roots = (
         (df["id"] != 0) & (df["ancestor_id"] == 0)
@@ -244,7 +251,9 @@ def finalize_records(
             "Consider setting force_common_ancestry=True.",
         )
 
-    return alifestd_try_add_ancestor_list_col(df, mutate=True)
+    df = alifestd_collapse_unifurcations(df, mutate=True)
+    df = alifestd_try_add_ancestor_list_col(df, mutate=True)
+    return df
 
 
 def build_tree_searchtable(
@@ -261,7 +270,7 @@ def build_tree_searchtable(
     taxon_labels = list(
         opyt.or_value(
             taxon_labels,
-            map(str, range(len(population))),
+            map(int, range(len(population))),
         )
     )
 
@@ -269,7 +278,7 @@ def build_tree_searchtable(
     sorted_labels = [taxon_labels[i] for i in sort_order]
     sorted_population = [population[i] for i in sort_order]
 
-    records = [Record(taxon_label="root")]
+    records = [Record(taxon_label=sys.maxsize)]
 
     for label, artifact in progress_wrap(
         give_len(zip(sorted_labels, sorted_population), len(population)),
