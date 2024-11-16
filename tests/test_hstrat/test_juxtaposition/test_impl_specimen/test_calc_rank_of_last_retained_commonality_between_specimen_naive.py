@@ -76,8 +76,12 @@ def specimens_mock_complex():
     second.GetNumStrataRetained.return_value = 4
     first.GetNumStrataDeposited.return_value = 5
     second.GetNumStrataDeposited.return_value = 6
-    first.GetRankIndex.return_value = np.array([0, 10, 20, 30, 40])
-    second.GetRankIndex.return_value = np.array([0, 20, 40, 50])
+    first.GetRankIndex.return_value = np.array(
+        [0, 10, 20, 30, 40], dtype=np.uint64
+    )
+    second.GetRankIndex.return_value = np.array(
+        [0, 20, 40, 50], dtype=np.uint64
+    )
     return first, second
 
 
