@@ -57,6 +57,7 @@ class HereditaryStratigraphicSpecimen:
             "int64",
             "uint64",
         )
+        self._data.index.astype(np.uint64, copy=False)
 
     def GetStratumDifferentiaBitWidth(
         self: "HereditaryStratigraphicSpecimen",
