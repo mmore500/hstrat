@@ -101,7 +101,7 @@ mypy-extensions>=1.0.0
     #   typing-inspect
 nanto>=0.1.1
     # via alifedata-phyloinformatics-convert
-networkx>=2.6.3
+networkx>=3.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert

@@ -3,7 +3,7 @@ import networkx as nx
 import pytest
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import seed_random
+from hstrat._auxiliary_lib import random_tree, seed_random
 import hstrat.phylogenetic_inference.tree._impl as impl
 import hstrat.phylogenetic_inference.tree.trie_postprocess._detail as detail
 
@@ -155,9 +155,7 @@ def test_perfect_rank_equivalence(
     tree_seed, tree_size, differentia_width, retention_policy
 ):
     seed_random(tree_seed)
-    nx_tree = nx.random_tree(
-        n=tree_size, seed=tree_seed, create_using=nx.DiGraph
-    )
+    nx_tree = random_tree(n=tree_size, seed=tree_seed, create_using=nx.DiGraph)
 
     extant_population = hstrat.descend_template_phylogeny_networkx(
         nx_tree,
