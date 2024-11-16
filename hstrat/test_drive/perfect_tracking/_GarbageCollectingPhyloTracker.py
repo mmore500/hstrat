@@ -16,8 +16,8 @@ class GarbageCollectingPhyloTracker:
     Designed to provide low-overhead tracking. Instead of representing organism
     records as independent objects (which each require an independent
     allocations and, on lineage extinction, deletions), stores organism records
-    as rows within a numpy array. Partial garbage collection at regular intervals
-    compacts recent record entries to discard extinct lineages.
+    as rows within a numpy array. Partial garbage collection at regular
+    intervals compacts recent record entries to discard extinct lineages.
 
     Includes organism population loc and trait values in phylogenetic record.
     """
@@ -350,7 +350,7 @@ class GarbageCollectingPhyloTracker:
         preceding pasteovers that may have placed a new organism at that
         location during this operation.
 
-        No repeated entries are allosed in `copyto_locs`.
+        No repeated entries are allowed in `copyto_locs`.
         """
         assert len(copyto_locs) == count_unique(copyto_locs)
 
