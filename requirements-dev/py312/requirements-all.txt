@@ -45,9 +45,7 @@ click==8.1.7
     #   bumpver
     #   keyname
 colorama==0.4.6
-    # via
-    #   bumpver
-    #   parallelbar
+    # via bumpver
 comm==0.2.2
     # via ipykernel
 contexttimer==0.3.3
@@ -82,7 +80,7 @@ docutils==0.17.1
     #   readme-renderer
     #   sphinx
     #   sphinx-rtd-theme
-downstream==1.2.3
+downstream==1.2.4
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
@@ -276,8 +274,6 @@ pandera==0.21.0
     # via hstrat (../../pyproject.toml)
 pandocfilters==1.5.1
     # via nbconvert
-parallelbar==2.4
-    # via downstream
 parso==0.8.4
     # via jedi
 pathlib2==2.3.7.post1
@@ -465,7 +461,6 @@ tqdm==4.67.0
     # via
     #   hstrat (../../pyproject.toml)
     #   joinem
-    #   parallelbar
     #   twine
 traitlets==5.14.3
     # via

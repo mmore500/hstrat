@@ -40,8 +40,6 @@ click==8.1.7
     # via
     #   alifedata-phyloinformatics-convert
     #   keyname
-colorama==0.4.6
-    # via parallelbar
 comm==0.2.2
     # via ipykernel
 contourpy==1.3.1
@@ -71,7 +69,7 @@ docutils==0.17.1
     #   nbsphinx
     #   sphinx
     #   sphinx-rtd-theme
-downstream==1.2.3
+downstream==1.2.4
     # via hstrat (../../pyproject.toml)
 ete3==3.1.3
     # via alifedata-phyloinformatics-convert
@@ -231,8 +229,6 @@ pandera==0.21.0
     # via hstrat (../../pyproject.toml)
 pandocfilters==1.5.1
     # via nbconvert
-parallelbar==2.4
-    # via downstream
 parso==0.8.4
     # via jedi
 patsy==1.0.1
@@ -361,7 +357,6 @@ tqdm==4.67.0
     # via
     #   hstrat (../../pyproject.toml)
     #   joinem
-    #   parallelbar
 traitlets==5.14.3
     # via
     #   comm
