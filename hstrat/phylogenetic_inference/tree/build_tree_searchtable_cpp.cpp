@@ -3,6 +3,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <unordered_map>
+#include <chrono>
+#include <format>
 #include <algorithm>
 #include <iostream>
 #include <span>
@@ -228,21 +230,32 @@ void insert_artifact(
         create_offstring(records, cur_node, num_strata_deposited - 1, -1, data_id);
 }
 
+
+std::string timestamp() {
+    auto const time = std::chrono::current_zone()
+        ->to_local(std::chrono::system_clock::now());
+    return std::format("{:%Y-%m-%d %X}", time);
+}
+
+
 py::dict build_trie_searchtable(
         const std::vector<u64> &data_ids,
         const std::vector<u64> &num_strata_depositeds,
         const std::vector<u64> &ranks,
         const std::vector<u64> &differentiae
 ) {
-        std::cerr << "begin searchtable cpp" << std::endl;
         if (!data_ids.size()) {
                 return py::cast(std::unordered_map<std::string, std::vector<u64>>{});
         }
         assert(data_ids.size() == num_strata_depositeds.size() && data_ids.size() == ranks.size() && data_ids.size() == differentiae.size());
-        std::cerr << "ranks.size()" << ranks.size() << std::endl;
-        std::vector<Record> records{Record()};
+        std::cerr << "ranks.size() " << ranks.size() << std::endl;
+
+        std::cerr << timestamp() << " begin searchtable cpp" << std::endl;
+
+        std::vector<Record> records{Record()};  // root node
         records.reserve(data_ids.size());
         u64 start = 0, start_data_id = data_ids[0];
+        std::cerr << '.' << std::flush;
         for (u64 i = 1; i < ranks.size(); ++i) {
                 if (start_data_id != data_ids[i]) {
                         insert_artifact(
@@ -253,7 +266,9 @@ py::dict build_trie_searchtable(
                         );
                         start = i;
                         start_data_id = data_ids[start];
-                        std::cerr << '.' << std::flush;
+                        if ((i & ((1 << 16) - 1)) == 0) {
+                                std::cerr << '.' << std::flush;
+                        }
                 }
         }
         insert_artifact(
@@ -262,6 +277,8 @@ py::dict build_trie_searchtable(
                 std::span<const u64>(differentiae.begin() + start, differentiae.size() - start),
                 start_data_id, num_strata_depositeds[start]
         );
+        std::cerr << std::endl;
+        std::cerr << timestamp() << " end searchtable cpp" << std::endl;
         std::unordered_map<std::string, std::vector<u64>> ret;
         for (const Record &rec : records) {
                 ret["dstream_data_id"].push_back(rec.data_id);
@@ -273,7 +290,7 @@ py::dict build_trie_searchtable(
                 ret["differentia"].push_back(rec.differentia);
                 ret["rank"].push_back(rec.rank);
         }
-        std::cerr << "end searchtable cpp" << std::endl;
+        std::cerr << "exit searchtable cpp" << std::endl;
         return py::cast(ret);
 }
 
