@@ -152,7 +152,8 @@ void consolidate_trie(std::vector<Record> &records, const u64 &rank, const u64 n
                 node_stack.pop_back();
                 detach_search_parent(records, popped_node);
 
-                std::vector<u64> grandchildren;
+                thread_local std::vector<u64> grandchildren;
+                grandchildren.resize(0);
                 ChildrenIterator grandchild_iter(records, popped_node);
                 while ((grandchild = grandchild_iter.next())) {
                         grandchildren.push_back(grandchild);
@@ -240,6 +241,7 @@ py::dict build_trie_searchtable(
         assert(data_ids.size() == num_strata_depositeds.size() && data_ids.size() == ranks.size() && data_ids.size() == differentiae.size());
         std::cerr << "ranks.size()" << ranks.size() << std::endl;
         std::vector<Record> records{Record()};
+        records.reserve(data_ids.size());
         u64 start = 0, start_data_id = data_ids[0];
         for (u64 i = 1; i < ranks.size(); ++i) {
                 if (start_data_id != data_ids[i]) {
