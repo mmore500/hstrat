@@ -133,7 +133,7 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
             "ancestor_id": pl.UInt64,
             "differentia": pl.UInt64,
             "rank": pl.UInt64,
-        }
+        },
     )
     # phylo_df = finalize_records(records, force_common_ancestry=True)
 
