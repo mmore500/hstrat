@@ -3,6 +3,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <unordered_map>
+#include <cassert>
 #include <chrono>
 #include <format>
 #include <algorithm>
