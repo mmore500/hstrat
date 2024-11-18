@@ -1,6 +1,6 @@
 """Functions to reconstruct a phylogenetic tree from extant hereditary strata."""
 
-from cppimport import import_hook  # @MAM seems necessary, why??
+from cppimport import import_hook  # noqa: F401 to the cppimport
 from . import trie_postprocess
 from ..._auxiliary_lib import lazy_attach
 
