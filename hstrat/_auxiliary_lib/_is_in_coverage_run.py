@@ -1,7 +1,7 @@
 import sys
 
 
-def is_in_coverage_run():
+def is_in_coverage_run() -> bool:
     """Check whether test is run with coverage."""
     gettrace = getattr(sys, "gettrace", None)
 
