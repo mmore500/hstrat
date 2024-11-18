@@ -7,6 +7,7 @@
 #include <iostream>
 #include <ranges>
 #include <span>
+#include <unordered_map>
 #include <vector>
 
 #include <pybind11/pybind11.h>
