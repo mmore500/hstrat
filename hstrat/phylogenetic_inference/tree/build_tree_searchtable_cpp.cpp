@@ -233,11 +233,13 @@ py::dict build_trie_searchtable(
         const std::vector<u64> &ranks,
         const std::vector<u64> &differentiae
 ) {
+        std::cerr << "begin searchtable cpp" << std::endl;
         if (!data_ids.size()) {
                 return py::cast(std::unordered_map<std::string, std::vector<u64>>{});
         }
         assert(data_ids.size() == num_strata_depositeds.size() && data_ids.size() == ranks.size() && data_ids.size() == differentiae.size());
-        std::vector<Record> records = {Record()};
+        std::cerr << "ranks.size()" << ranks.size() << std::endl;
+        std::vector<Record> records{Record()};
         u64 start = 0, start_data_id = data_ids[0];
         for (u64 i = 1; i < ranks.size(); ++i) {
                 if (start_data_id != data_ids[i]) {
@@ -249,6 +251,7 @@ py::dict build_trie_searchtable(
                         );
                         start = i;
                         start_data_id = data_ids[start];
+                        std::cerr << '.' << std::flush;
                 }
         }
         insert_artifact(
@@ -259,15 +262,16 @@ py::dict build_trie_searchtable(
         );
         std::unordered_map<std::string, std::vector<u64>> ret;
         for (const Record &rec : records) {
-                ret["data_id"].push_back(rec.data_id);
+                ret["dstream_data_id"].push_back(rec.data_id);
                 ret["id"].push_back(rec.id);
-                ret["search_first_child_id"].push_back(rec.search_first_child_id);
-                ret["search_next_sibling_id"].push_back(rec.search_next_sibling_id);
-                ret["search_ancestor_id"].push_back(rec.search_ancestor_id);
+                // ret["search_first_child_id"].push_back(rec.search_first_child_id);
+                // ret["search_next_sibling_id"].push_back(rec.search_next_sibling_id);
+                // ret["search_ancestor_id"].push_back(rec.search_ancestor_id);
                 ret["ancestor_id"].push_back(rec.ancestor_id);
                 ret["differentia"].push_back(rec.differentia);
                 ret["rank"].push_back(rec.rank);
         }
+        std::cerr << "end searchtable cpp" << std::endl;
         return py::cast(ret);
 }
 
