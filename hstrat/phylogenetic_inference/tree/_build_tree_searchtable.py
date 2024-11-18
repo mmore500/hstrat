@@ -2,8 +2,8 @@ import collections
 import dataclasses
 import itertools as it
 import sys
-import typing
 from time import perf_counter
+import typing
 
 import opytional as opyt
 import pandas as pd
@@ -19,6 +19,7 @@ from ..._auxiliary_lib import (
 
 from cppimport import import_hook
 from .build_tree_searchtable_cpp import build as build_cpp
+
 
 @dataclasses.dataclass(slots=True)
 class Record:
@@ -250,6 +251,7 @@ def finalize_records_cpp(
 
     return alifestd_try_add_ancestor_list_col(df, mutate=True)
 
+
 def finalize_records(
     records: typing.List[Record],
     force_common_ancestry: bool,
@@ -285,7 +287,7 @@ def build_tree_searchtable(
     taxon_labels: typing.Optional[typing.Iterable] = None,
     progress_wrap: typing.Callable = lambda x: x,
     force_common_ancestry: bool = False,
-    use_cpp: bool = False
+    use_cpp: bool = False,
 ) -> pd.DataFrame:
     """TODO."""
     # for simplicity, return early for this special case
@@ -308,10 +310,34 @@ def build_tree_searchtable(
     if use_cpp:
         print("Using C++")
         args = (
-            sum(([i] * art.GetNumStrataRetained() for i, art in enumerate(sorted_population)), []),
-            sum(([art.GetNumStrataDeposited()] * art.GetNumStrataRetained() for art in sorted_population), []),
-            sum(([*map(int, art.IterRetainedRanks())] for art in sorted_population), []),
-            sum(([*map(int, art.IterRetainedDifferentia())] for art in sorted_population), []),
+            sum(
+                (
+                    [i] * art.GetNumStrataRetained()
+                    for i, art in enumerate(sorted_population)
+                ),
+                [],
+            ),
+            sum(
+                (
+                    [art.GetNumStrataDeposited()] * art.GetNumStrataRetained()
+                    for art in sorted_population
+                ),
+                [],
+            ),
+            sum(
+                (
+                    [*map(int, art.IterRetainedRanks())]
+                    for art in sorted_population
+                ),
+                [],
+            ),
+            sum(
+                (
+                    [*map(int, art.IterRetainedDifferentia())]
+                    for art in sorted_population
+                ),
+                [],
+            ),
         )
         start = perf_counter()
         res = build_cpp(*args)
