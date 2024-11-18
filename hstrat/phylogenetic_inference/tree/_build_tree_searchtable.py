@@ -3,6 +3,7 @@ import dataclasses
 import itertools as it
 import sys
 import typing
+from time import perf_counter
 
 import opytional as opyt
 import pandas as pd
@@ -16,6 +17,8 @@ from ..._auxiliary_lib import (
     give_len,
 )
 
+from cppimport import import_hook
+from .build_tree_searchtable_cpp import build as build_cpp
 
 @dataclasses.dataclass(slots=True)
 class Record:
@@ -226,6 +229,27 @@ def insert_artifact(
     )
 
 
+def finalize_records_cpp(
+    records: typing.Dict[str, typing.List[int]],
+    sorted_labels: typing.List[str],
+    force_common_ancestry: bool,
+) -> pd.DataFrame:
+    df = pd.DataFrame(records)
+    df["origin_time"] = df["rank"]
+    df["taxon_label"] = [sorted_labels[i] for i in df["data_id"]]
+
+    multiple_true_roots = (
+        (df["id"] != 0) & (df["ancestor_id"] == 0)
+    ).sum() > 1
+    if multiple_true_roots and not force_common_ancestry:
+        raise ValueError(
+            "Reconstruction resulted in multiple independent trees, "
+            "due to artifacts definitively sharing no common ancestor. "
+            "Consider setting force_common_ancestry=True.",
+        )
+
+    return alifestd_try_add_ancestor_list_col(df, mutate=True)
+
 def finalize_records(
     records: typing.List[Record],
     force_common_ancestry: bool,
@@ -261,6 +285,7 @@ def build_tree_searchtable(
     taxon_labels: typing.Optional[typing.Iterable] = None,
     progress_wrap: typing.Callable = lambda x: x,
     force_common_ancestry: bool = False,
+    use_cpp: bool = False
 ) -> pd.DataFrame:
     """TODO."""
     # for simplicity, return early for this special case
@@ -279,6 +304,19 @@ def build_tree_searchtable(
     sorted_population = [population[i] for i in sort_order]
 
     records = [Record(taxon_label=sys.maxsize)]
+
+    if use_cpp:
+        print("Using C++")
+        args = (
+            sum(([i] * art.GetNumStrataRetained() for i, art in enumerate(sorted_population)), []),
+            sum(([art.GetNumStrataDeposited()] * art.GetNumStrataRetained() for art in sorted_population), []),
+            sum(([*map(int, art.IterRetainedRanks())] for art in sorted_population), []),
+            sum(([*map(int, art.IterRetainedDifferentia())] for art in sorted_population), []),
+        )
+        start = perf_counter()
+        res = build_cpp(*args)
+        print(f"Real C++ time {perf_counter() - start:.2f}")
+        return finalize_records_cpp(res, sorted_labels, force_common_ancestry)
 
     for label, artifact in progress_wrap(
         give_len(zip(sorted_labels, sorted_population), len(population)),
