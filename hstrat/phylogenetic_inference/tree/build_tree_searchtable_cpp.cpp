@@ -1,15 +1,16 @@
 // cppimport
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <unordered_map>
+#include <algorithm>
 #include <cassert>
 #include <chrono>
 #include <format>
-#include <algorithm>
 #include <iostream>
+#include <ranges>
 #include <span>
 #include <vector>
+
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 namespace py = pybind11;
 
@@ -68,6 +69,91 @@ public:
         }
 };
 
+// Sentinel type to mark the end of iteration
+struct ChildrenSentinel {};
+
+// ChildrenIterator using the sentinel pattern
+template<typename RecordsBegin>
+struct ChildrenIterator2 {
+
+    // Iterator traits
+    using iterator_category = std::input_iterator_tag;
+    using value_type = u64;
+    using difference_type = std::ptrdiff_t;
+    using pointer = const u64*;
+    using reference = const u64&;
+
+    // Iterator to the vector's begin (or any offset for random access)
+    RecordsBegin records_begin;
+    u64 current_id;
+
+    // Constructor
+    ChildrenIterator2(const RecordsBegin records_begin, const u64 current_id)
+        : records_begin(records_begin), current_id(current_id) {}
+
+    // Dereference operator
+    u64 operator*() const { return current_id; }
+
+    // Pre-increment operator
+    ChildrenIterator2& operator++() {
+        assert(current_id);
+
+        const Record& current_record = *std::next(records_begin, current_id);
+        u64 next_sibling_id = current_record.search_next_sibling_id;
+
+        assert(next_sibling_id);
+        current_id = next_sibling_id == current_id ? 0 : next_sibling_id;
+        return *this;
+    }
+
+    // Post-increment operator
+    ChildrenIterator2 operator++(int) {
+        ChildrenIterator2 tmp = *this;
+        ++(*this);
+        return tmp;
+    }
+
+    // Equality comparison between iterators
+    bool operator==(const ChildrenIterator2& other) const {
+        return current_id == other.current_id;
+    }
+    bool operator!=(const ChildrenIterator2& other) const {
+        return current_id != other.current_id;
+    }
+
+};
+
+template<typename RecordsBegin>
+bool operator==(
+        const ChildrenSentinel&,
+        const ChildrenIterator2<RecordsBegin>& iter
+) {
+    return iter.current_id == 0;
+}
+
+template<typename RecordsBegin>
+class ChildrenRange
+        : public std::ranges::view_interface<ChildrenRange<RecordsBegin>> {
+
+    RecordsBegin records_begin;
+    u64 node_id;
+
+public:
+    ChildrenRange(const RecordsBegin records_begin, const u64 node_id)
+        : records_begin(records_begin), node_id(node_id) {}
+
+    ChildrenIterator2<RecordsBegin> begin() {
+        return ChildrenIterator2{records_begin, node_id};
+    }
+
+    ChildrenSentinel end() { return ChildrenSentinel{}; }
+};
+
+using RecordsBegin = decltype(std::vector<Record>().begin());
+
+static_assert(std::input_iterator<ChildrenIterator2<RecordsBegin>>);
+static_assert(std::sentinel_for<ChildrenSentinel, ChildrenIterator2<RecordsBegin>>);
+
 
 void detach_search_parent(std::vector<Record> &records, u64 node) {
         u64 parent = records[node].search_ancestor_id;
@@ -106,35 +192,75 @@ void attach_search_parent(std::vector<Record> &records, u64 node, u64 parent) {
         records[parent].search_first_child_id = node;
 }
 
-
-struct TupleHash {
-        u64 operator()(const std::tuple<u64, u64> &obj) const {
-                return std::get<0>(obj) ^ std::get<1>(obj);
-        }
-};
+// setup
+constexpr int ix_rank = 0;
+constexpr int ix_diff = 1;
+constexpr int ix_child = 2;
+constexpr int ix_gchild = 3;
+using item_t = std::tuple<u64, u64, u64, u64>;
 
 void collapse_indistinguishable_nodes(std::vector<Record> &records, const u64 node) {
-        std::unordered_map<std::tuple<u64, u64>, std::vector<u64>, TupleHash> groups;
-        ChildrenIterator iter(records, node);
 
-        u64 child;
-        while ((child = iter.next())) {  // consider what we are using as the key here
-                std::vector<u64> &items = groups[{records[child].rank, records[child].differentia}];
-                items.insert(std::lower_bound(items.begin(), items.end(), child), child);
-        }
-
-        for (auto [_, children] : groups) {
-                u64 winner = children[0];
-                for (u64 i = 1; i < children.size(); ++i) {
-                        u64 loser = children[i], loser_child;
-                        ChildrenIterator loser_children(records, loser);
-                        while ((loser_child = loser_children.next())) {
-                                detach_search_parent(records, children[1]);
-                                attach_search_parent(records, children[1], winner);
-                        }
-                        detach_search_parent(records, loser);
+        // extract all grandchildren
+        thread_local std::vector<item_t> grandchildren;
+        grandchildren.resize(0);
+        std::ranges::for_each(
+                ChildrenRange{records.cbegin(), node},
+                [&records](const u64 child) {
+                        std::ranges::transform(
+                                ChildrenRange{records.cbegin(), child},
+                                std::back_inserter(grandchildren),
+                                [&records, child](const u64 gchild) {
+                                        return item_t{
+                                                records[gchild].rank,
+                                                records[gchild].differentia,
+                                                child,
+                                                gchild
+                                        };
+                                }
+                        );
                 }
+        );
+        std::sort(std::begin(grandchildren), std::end(grandchildren));
+
+        // group by rank and differentia
+        auto groups = std::views::chunk_by(
+                grandchildren,
+                [](const item_t &a, const item_t &b) {
+                        return (
+                                std::get<ix_rank>(a) == std::get<ix_rank>(b)
+                                && std::get<ix_diff>(a) == std::get<ix_diff>(b)
+                        );
+                }
+        );
+        for (const auto &group : groups) {
+
+                // find the winner and losers
+                // reassign losers' children to winner
+                const u64 winner = std::get<ix_child>(group.front());
+
+
+                auto losers_view = std::views::drop_while(
+                        [&winner](const item_t &item) {
+                                return std::get<ix_child>(item) == winner;
+                        }
+                );
+                auto losers = group | losers_view;
+
+                u64 prev = 0;
+                for (const auto &gloser : losers) {
+                        const u64 loser = std::get<ix_child>(gloser);
+                        const u64 loser_child = std::get<ix_gchild>(gloser);
+                        detach_search_parent(records, loser_child);
+                        attach_search_parent(records, loser_child, winner);
+                        if (loser != prev) {
+                                detach_search_parent(records, loser);
+                                prev = loser;
+                        }
+                }
+
         }
+
 }
 
 
