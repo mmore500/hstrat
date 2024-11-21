@@ -29,7 +29,9 @@ def _is_topologically_sorted_compact(
 
 
 @jit(nopython=True)
-def _is_topologically_sorted(ids: np.ndarray, ancestor_ids: np.ndarray) -> bool:
+def _is_topologically_sorted(
+    ids: np.ndarray, ancestor_ids: np.ndarray
+) -> bool:
     seen_ancestor_ids = set()
     for id_, ancestor_id in zip(ids, ancestor_ids):
         if id_ in seen_ancestor_ids:
