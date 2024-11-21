@@ -19,8 +19,8 @@ from ._jit_numpy_int64_t import jit_numpy_int64_t
 
 @jit(nopython=True)
 def _collapse_unifurcations(
-    ancestor_ids: np.array,
-) -> typing.Tuple[np.array, np.array]:
+    ancestor_ids: np.ndarray,
+) -> typing.Tuple[np.ndarray, np.ndarray]:
     # assumes contiguous ids
 
     ref_counts = np.zeros(len(ancestor_ids), dtype=jit_numpy_int64_t)

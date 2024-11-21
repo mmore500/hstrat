@@ -5,7 +5,7 @@ from ...perfect_tracking import GarbageCollectingPhyloTracker
 
 
 def _apply_niche_invasions(
-    pop_arr: np.array,
+    pop_arr: np.ndarray,
     pop_tracker: GarbageCollectingPhyloTracker,
     num_islands: int,
     num_niches: int,

@@ -4,7 +4,7 @@ from ._jit import jit
 
 
 @jit(nopython=True)
-def indices_of_unique(array: np.array) -> np.array:
+def indices_of_unique(array: np.ndarray) -> np.ndarray:
     """Return the indices where the first occurance of each unique value in
     `array` occurs.
 

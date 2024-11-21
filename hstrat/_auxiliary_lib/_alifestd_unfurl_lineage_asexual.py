@@ -12,7 +12,7 @@ def alifestd_unfurl_lineage_asexual(
     phylogeny_df: pd.DataFrame,
     leaf_id: int,
     mutate: bool = False,
-) -> np.array:
+) -> np.ndarray:
     """List `leaf_id` and its ancestor id sequence through tree root.
 
     The provided dataframe must be asexual.

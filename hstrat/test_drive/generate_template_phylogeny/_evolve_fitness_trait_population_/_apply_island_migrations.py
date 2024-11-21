@@ -5,7 +5,7 @@ from ...perfect_tracking import GarbageCollectingPhyloTracker
 
 
 def _apply_island_migrations(
-    pop_arr: np.array,
+    pop_arr: np.ndarray,
     pop_tracker: GarbageCollectingPhyloTracker,
     num_niches: int,
     island_size: int,

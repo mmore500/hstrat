@@ -64,12 +64,12 @@ class DecantingPhyloTracker:
     # * new population loc id's are pasted over column 0,
     # * and rows shuffle/duplicate according to the selected parent indices
     #
-    _decanting_buffer: np.array  # [int]
+    _decanting_buffer: np.ndarray  # [int]
     _buffer_pos: int  # current start position of circular decanting buffer
 
     # permanent phylogeny storage after consolidation traversing decant buffer
     # using tuples instead of PerfectBacktrackHandle gives significant speedup
-    _decanted_tree_tips: np.array  # [typing.Tuple]
+    _decanted_tree_tips: np.ndarray  # [typing.Tuple]
 
     def __init__(
         self: "DecantingPhyloTracker",

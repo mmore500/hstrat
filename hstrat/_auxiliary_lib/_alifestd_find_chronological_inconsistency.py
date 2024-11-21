@@ -12,7 +12,7 @@ from ._jit_TypingError import jit_TypingError
 
 @jit(nopython=True)
 def _alifestd_find_chronological_inconsistency_contiguous(
-    ancestor_ids: np.array, origin_times: np.array
+    ancestor_ids: np.ndarray, origin_times: np.ndarray
 ) -> typing.Optional[int]:
     for id_, ancestor_id in enumerate(ancestor_ids):
         # self comparison ok for geneses
@@ -23,7 +23,7 @@ def _alifestd_find_chronological_inconsistency_contiguous(
 
 @jit(nopython=True)
 def _alifestd_find_chronological_inconsistency_compact(
-    ids: np.array, ancestor_ids: np.array, origin_times: np.array
+    ids: np.ndarray, ancestor_ids: np.ndarray, origin_times: np.ndarray
 ) -> typing.Optional[int]:
     origin_time_lookup = np.empty(len(ids))
     for id_, origin_time in zip(ids, origin_times):
@@ -38,7 +38,7 @@ def _alifestd_find_chronological_inconsistency_compact(
 
 @jit(nopython=True)
 def _alifestd_find_chronological_inconsistency_arbitrary(
-    ids: np.array, ancestor_ids: np.array, origin_times: np.array
+    ids: np.ndarray, ancestor_ids: np.ndarray, origin_times: np.ndarray
 ) -> typing.Optional[int]:
     origin_time_lookup = dict()
     for id_, origin_time in zip(ids, origin_times):

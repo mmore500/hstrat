@@ -8,10 +8,10 @@ from ...frozen_instrumentation import HereditaryStratigraphicSpecimen
 
 @jit(nopython=True)
 def _compare_differentia_at_common_ranks(
-    first_ranks: np.array,
-    first_differentiae: np.array,
-    second_ranks: np.array,
-    second_differentiae: np.array,
+    first_ranks: np.ndarray,
+    first_differentiae: np.ndarray,
+    second_ranks: np.ndarray,
+    second_differentiae: np.ndarray,
 ) -> typing.Iterator[typing.Tuple[typing.Tuple[int, int], bool]]:
     for pos1, pos2 in iter_monotonic_equivalencies(first_ranks, second_ranks):
         yield (

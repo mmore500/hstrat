@@ -5,7 +5,7 @@ from ._jit import jit
 
 @jit(nopython=True)
 def apply_swaps(
-    arr: np.array, swapfrom_idxs: np.array, swapto_idxs: np.array
+    arr: np.ndarray, swapfrom_idxs: np.ndarray, swapto_idxs: np.ndarray
 ) -> None:
     """Swap elements in `arr` at `swapfrom_idxs` indices with elements at
     `swapto_idxs` indices.

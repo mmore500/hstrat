@@ -12,9 +12,9 @@ from ._jit_numpy_int64_t import jit_numpy_int64_t
 
 @jit(nopython=True)
 def _reassign_ids(
-    ids: np.array,
-    ancestor_ids: np.array,
-) -> typing.Tuple[typing.Dict[int, int], np.array]:
+    ids: np.ndarray,
+    ancestor_ids: np.ndarray,
+) -> typing.Tuple[typing.Dict[int, int], np.ndarray]:
     reassignment = jit_numba_dict_t.empty(
         key_type=jit_numpy_int64_t,
         value_type=jit_numpy_int64_t,
