@@ -5,8 +5,8 @@ from ._jit import jit
 
 @jit(nopython=True)
 def unfurl_lineage_with_contiguous_ids(
-    ancestor_ids: np.array, leaf_id: int
-) -> np.array:
+    ancestor_ids: np.ndarray, leaf_id: int
+) -> np.ndarray:
     """List leaf id and its ancestor id sequence through tree root.
 
     Assumes that each organism's ancestor id is located at the index position

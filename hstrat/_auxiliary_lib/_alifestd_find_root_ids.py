@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def alifestd_find_root_ids(phylogeny_df: pd.DataFrame) -> np.array:  # int
+def alifestd_find_root_ids(phylogeny_df: pd.DataFrame) -> np.ndarray:  # int
     """What ids have an empty `ancestor_list`?
 
     Input dataframe is not mutated by this operation.

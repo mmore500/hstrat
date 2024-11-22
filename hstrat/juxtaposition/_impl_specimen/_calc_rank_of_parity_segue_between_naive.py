@@ -21,10 +21,10 @@ _reversed_range_jit = jit(nopython=True)(reversed_range)
 
 @jit(nopython=True)
 def _find_first_disparity_or_last_commonality(
-    first_ranks: np.array,
-    first_differentiae: np.array,
-    second_ranks: np.array,
-    second_differentiae: np.array,
+    first_ranks: np.ndarray,
+    first_differentiae: np.ndarray,
+    second_ranks: np.ndarray,
+    second_differentiae: np.ndarray,
 ) -> typing.Optional[typing.Tuple[int, int]]:
     for positions, comp in _compare_differentia_at_common_ranks(
         first_ranks, first_differentiae, second_ranks, second_differentiae
@@ -36,8 +36,8 @@ def _find_first_disparity_or_last_commonality(
 
 @jit(nopython=True)
 def _backtrack_n_equivalencies(
-    first_ranks: np.array,
-    second_ranks: np.array,
+    first_ranks: np.ndarray,
+    second_ranks: np.ndarray,
     start: typing.Tuple[int, int],
     n: int,
     strict: bool,

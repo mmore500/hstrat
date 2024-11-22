@@ -6,8 +6,8 @@ from ...._auxiliary_lib import is_in_unit_test
 def _select_parents(
     island_niche_size: int,
     tournament_size: int,
-    pop_arr: np.array,
-) -> np.array:
+    pop_arr: np.ndarray,
+) -> np.ndarray:
     """Perform tournament selection within island-niches.
 
     The population array `pop_arr` is not altered.
