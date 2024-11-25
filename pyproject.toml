@@ -19,7 +19,6 @@ dependencies = [
   "biopython>=1.79",
   "bitarray>=2.6.2",
   "bitstring>=3.1.9",
-  "cppimport>=22.8.2",
   "dendropy>=4.5.2",
   "Deprecated>=1.2.13",
   "downstream>=1.2.4",
@@ -86,6 +85,7 @@ requires = [
 # additional dev requriements
 # used to generated requirements in dev-requirements/
 [project.optional-dependencies]
+cpp = ["cppimport>=22.8.2"]
 jit = ["numba>=0.60.0"]
 pinned_jit = ["numba==0.60.0"]
 testing = [
