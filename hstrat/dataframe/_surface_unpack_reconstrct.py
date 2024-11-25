@@ -1,4 +1,5 @@
 import logging
+from copy import deepcopy
 
 import tqdm
 from downstream import dataframe as dstream_dataframe
@@ -115,10 +116,13 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
 
 
     logging.info("finalizing tree...")
-    phylo_df = pl.from_dict(
-        {
-            k: np.frombuffer(v, dtype=np.uint64)
-            for k, v in records.items()
+    phylo_df = pl.from_pandas(pl.from_dict(
+        {  # type: ignore
+            'dstream_data_id': np.frombuffer(records.dstream_data_id, dtype=np.uint64),
+            'id': np.frombuffer(records.id, dtype=np.uint64),
+            'ancestor_id': np.frombuffer(records.ancestor_id, dtype=np.uint64),
+            'rank': np.frombuffer(records.rank, dtype=np.uint64),
+            'differentia': np.frombuffer(records.differentia, dtype=np.uint64),
         },
         schema={
             "dstream_data_id": pl.UInt64,
@@ -127,7 +131,7 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
             "differentia": pl.UInt64,
             "rank": pl.UInt64,
         },
-    )
+    ).to_pandas())  # fastest found method of copying memoryview from records object
 
     logging.info("joining frames...")
     df = df.select(

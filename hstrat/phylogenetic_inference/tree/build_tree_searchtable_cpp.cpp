@@ -1,5 +1,7 @@
 // cppimport
 
+#include "pybind11/attr.h"
+#include "pybind11/detail/common.h"
 #include "pybind11/pytypes.h"
 #include <algorithm>
 #include <cassert>
@@ -409,7 +411,7 @@ void insert_artifact(
 }
 
 
-py::dict build_trie_searchtable(
+Records build_trie_searchtable(
         const py::array_t<u64> &data_ids,
         const py::array_t<u64> &num_strata_depositeds,
         const py::array_t<u64> &ranks,
@@ -417,16 +419,17 @@ py::dict build_trie_searchtable(
         std::optional<py::handle> tqdm_progress_bar = std::optional<py::handle>{}
 ) {
         const py::detail::str_attr_accessor logging_info = py::module::import("logging").attr("info");
-        static Records records;
         const std::optional<py::detail::str_attr_accessor> progress_bar_updater = tqdm_progress_bar.and_then(
                 [] (auto a) {return std::optional<py::detail::str_attr_accessor>(a.attr("update"));}
         );
 
+        Records records;
+        records.reset(data_ids.size());
         assert(data_ids.size() == num_strata_depositeds.size()
                && data_ids.size() == ranks.size()
                && data_ids.size() == differentiae.size());
         if (!data_ids.size()) {
-                return py::cast(std::unordered_map<std::string, std::vector<u64>>{});
+                return records;
         }
 
         const py::detail::unchecked_reference<u64, 1> data_ids_accessor = data_ids.unchecked<1>();
@@ -436,7 +439,6 @@ py::dict build_trie_searchtable(
 
         logging_info("begin searchtable cpp");
 
-        records.reset(data_ids.size());
         u64 start = 0, start_data_id = data_ids_accessor[0];
         for (u64 i = 1; i < ranks.size(); ++i) {
                 if (start_data_id != data_ids_accessor[i]) {
@@ -464,15 +466,17 @@ py::dict build_trie_searchtable(
                 tqdm_progress_bar.value().attr("close")();
         }
 
-        logging_info("end searchtable cpp");
-        std::unordered_map<std::string, py::memoryview> ret;
-        ret.insert({"dstream_data_id", py::memoryview::from_memory(records.data_id.data(), records.data_id.size() * sizeof(u64))});
-        ret.insert({"id", py::memoryview::from_memory(records.id.data(), records.id.size() * sizeof(u64))});
-        ret.insert({"ancestor_id", py::memoryview::from_memory(records.ancestor_id.data(), records.ancestor_id.size() * sizeof(u64))});
-        ret.insert({"differentia", py::memoryview::from_memory(records.differentia.data(), records.differentia.size() * sizeof(u64))});
-        ret.insert({"rank", py::memoryview::from_memory(records.rank.data(), records.rank.size() * sizeof(u64))});
-        logging_info("exit searchtable cpp");
-        return py::cast(ret);
+        return records;
+
+        // logging_info("end searchtable cpp");
+        // std::unordered_map<std::string, py::memoryview> ret;
+        // ret.insert({"dstream_data_id", py::memoryview::from_memory(records.data_id.data(), records.data_id.size() * sizeof(u64))});
+        // ret.insert({"id", py::memoryview::from_memory(records.id.data(), records.id.size() * sizeof(u64))});
+        // ret.insert({"ancestor_id", py::memoryview::from_memory(records.ancestor_id.data(), records.ancestor_id.size() * sizeof(u64))});
+        // ret.insert({"differentia", py::memoryview::from_memory(records.differentia.data(), records.differentia.size() * sizeof(u64))});
+        // ret.insert({"rank", py::memoryview::from_memory(records.rank.data(), records.rank.size() * sizeof(u64))});
+        // logging_info("exit searchtable cpp");
+        // return py::cast(ret);
 }
 
 
@@ -483,6 +487,22 @@ PYBIND11_MODULE(build_tree_searchtable_cpp, m) {
               py::arg("ranks"),
               py::arg("differentiae"),
               py::arg("tqdm_progress_bar") = std::optional<py::handle>{});
+        py::class_<Records>(m, "Records")
+                .def_property_readonly("differentia", [] (const Records &records) {
+                        return py::memoryview::from_memory(records.differentia.data(), records.differentia.size() * sizeof(u64));
+                }, py::return_value_policy::reference_internal)
+                .def_property_readonly("rank", [] (const Records &records) {
+                        return py::memoryview::from_memory(records.rank.data(), records.rank.size() * sizeof(u64));
+                }, py::return_value_policy::reference_internal)
+                .def_property_readonly("ancestor_id", [] (const Records &records) {
+                        return py::memoryview::from_memory(records.ancestor_id.data(), records.ancestor_id.size() * sizeof(u64));
+                }, py::return_value_policy::reference_internal)
+                .def_property_readonly("dstream_data_id", [] (const Records &records) {
+                        return py::memoryview::from_memory(records.data_id.data(), records.data_id.size() * sizeof(u64));
+                }, py::return_value_policy::reference_internal)
+                .def_property_readonly("id", [] (const Records &records) {
+                        return py::memoryview::from_memory(records.id.data(), records.id.size() * sizeof(u64));
+                }, py::return_value_policy::reference_internal);
 }
 
 
