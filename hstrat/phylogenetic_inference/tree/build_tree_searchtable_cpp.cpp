@@ -3,9 +3,6 @@
 #include "pybind11/pytypes.h"
 #include <algorithm>
 #include <cassert>
-#include <chrono>
-#include <format>
-#include <iostream>
 #include <optional>
 #include <ranges>
 #include <span>
@@ -24,17 +21,17 @@ typedef uint64_t u64;
 //
 // consider using std::span for iter
 
-struct Record {
-        u64 data_id;
-        u64 id;
-        u64 search_first_child_id;
-        u64 search_next_sibling_id;
-        u64 search_ancestor_id;
-        u64 ancestor_id;
-        u64 differentia;
-        u64 rank;
+struct Records {
+        std::vector<u64> data_id;
+        std::vector<u64> id;
+        std::vector<u64> search_first_child_id;
+        std::vector<u64> search_next_sibling_id;
+        std::vector<u64> search_ancestor_id;
+        std::vector<u64> ancestor_id;
+        std::vector<u64> differentia;
+        std::vector<u64> rank;
 
-        Record(
+        void addRecord(
                 u64 data_id = 0,
                 u64 id = 0,
                 u64 ancestor_id = 0,
@@ -43,27 +40,51 @@ struct Record {
                 u64 search_next_sibling_id = 0,
                 u64 rank = 0,
                 u64 differentia = 0
-       ) : data_id(data_id), id(id), search_first_child_id(search_first_child_id),
-           search_next_sibling_id(search_next_sibling_id), search_ancestor_id(search_ancestor_id),
-           ancestor_id(ancestor_id), differentia(differentia), rank(rank) {};
+        ) {
+                this->data_id.push_back(data_id);
+                this->id.push_back(id);
+                this->search_first_child_id.push_back(search_first_child_id);
+                this->search_next_sibling_id.push_back(search_next_sibling_id);
+                this->search_ancestor_id.push_back(search_ancestor_id);
+                this->ancestor_id.push_back(ancestor_id);
+                this->differentia.push_back(differentia);
+                this->rank.push_back(rank);
+        }
+
+        u64 size() const {
+                return this->data_id.size();
+        }
+
+        Records(u64 init_size) {
+                this->data_id.reserve(init_size);
+                this->id.reserve(init_size);
+                this->search_first_child_id.reserve(init_size);
+                this->search_next_sibling_id.reserve(init_size);
+                this->search_ancestor_id.reserve(init_size);
+                this->ancestor_id.reserve(init_size);
+                this->differentia.reserve(init_size);
+                this->rank.reserve(init_size);
+                this->addRecord();
+        }
 };
 
 
-class ChildrenIterator {
+
+class ChildrenGenerator {
 private:
-        const std::vector<Record> &records;
+        const Records &records;
         u64 prev;
         const u64 node;
 public:
-        ChildrenIterator(const std::vector<Record> &records, u64 node) :
+        ChildrenGenerator(const Records &records, u64 node) :
                 records(records), prev(0), node(node) {}
         u64 next() {  // potentially use a std::span arg instead of referencing the vector
                 u64 cur;
                 if (!this->prev) {
                         this->prev = node;
-                        cur = this->records[this->node].search_first_child_id;
+                        cur = this->records.search_first_child_id[this->node];
                 } else {
-                        cur = this->records[this->prev].search_next_sibling_id;
+                        cur = this->records.search_next_sibling_id[this->prev];
                 }
                 if (this->prev == cur) {
                         return 0;
@@ -78,7 +99,7 @@ struct ChildrenSentinel {};
 
 // ChildrenIterator using the sentinel pattern
 template<typename RecordsBegin>
-struct ChildrenIterator2 {
+struct ChildrenIterator {
 
     // Iterator traits
     using iterator_category = std::input_iterator_tag;
@@ -92,18 +113,17 @@ struct ChildrenIterator2 {
     u64 current_id;
 
     // Constructor
-    ChildrenIterator2(const RecordsBegin records_begin, const u64 current_id)
+    ChildrenIterator(const RecordsBegin records_begin, const u64 current_id)
         : records_begin(records_begin), current_id(current_id) {}
 
     // Dereference operator
     u64 operator*() const { return current_id; }
 
     // Pre-increment operator
-    ChildrenIterator2& operator++() {
+    ChildrenIterator& operator++() {
         assert(current_id);
 
-        const Record& current_record = *std::next(records_begin, current_id);
-        u64 next_sibling_id = current_record.search_next_sibling_id;
+        u64 next_sibling_id = *std::next(records_begin, current_id);
 
         assert(next_sibling_id);
         current_id = next_sibling_id == current_id ? 0 : next_sibling_id;
@@ -111,17 +131,17 @@ struct ChildrenIterator2 {
     }
 
     // Post-increment operator
-    ChildrenIterator2 operator++(int) {
-        ChildrenIterator2 tmp = *this;
+    ChildrenIterator operator++(int) {
+        ChildrenIterator tmp = *this;
         ++(*this);
         return tmp;
     }
 
     // Equality comparison between iterators
-    bool operator==(const ChildrenIterator2& other) const {
+    bool operator==(const ChildrenIterator& other) const {
         return current_id == other.current_id;
     }
-    bool operator!=(const ChildrenIterator2& other) const {
+    bool operator!=(const ChildrenIterator& other) const {
         return current_id != other.current_id;
     }
 
@@ -130,7 +150,7 @@ struct ChildrenIterator2 {
 template<typename RecordsBegin>
 bool operator==(
         const ChildrenSentinel&,
-        const ChildrenIterator2<RecordsBegin>& iter
+        const ChildrenIterator<RecordsBegin>& iter
 ) {
     return iter.current_id == 0;
 }
@@ -146,54 +166,54 @@ public:
     ChildrenRange(const RecordsBegin records_begin, const u64 node_id)
         : records_begin(records_begin), node_id(node_id) {}
 
-    ChildrenIterator2<RecordsBegin> begin() {
-        return ChildrenIterator2{records_begin, node_id};
+    ChildrenIterator<RecordsBegin> begin() {
+        return ChildrenIterator{records_begin, node_id};
     }
 
     ChildrenSentinel end() { return ChildrenSentinel{}; }
 };
 
-using RecordsBegin = decltype(std::vector<Record>().begin());
+using RecordsBegin = decltype(std::vector<u64>().begin());
 
-static_assert(std::input_iterator<ChildrenIterator2<RecordsBegin>>);
-static_assert(std::sentinel_for<ChildrenSentinel, ChildrenIterator2<RecordsBegin>>);
+static_assert(std::input_iterator<ChildrenIterator<RecordsBegin>>);
+static_assert(std::sentinel_for<ChildrenSentinel, ChildrenIterator<RecordsBegin>>);
 
 
-void detach_search_parent(std::vector<Record> &records, u64 node) {
-        u64 parent = records[node].search_ancestor_id;
-        u64 next_sibling = records[node].search_next_sibling_id;
+void detach_search_parent(Records &records, u64 node) {
+        u64 parent = records.search_ancestor_id[node];
+        u64 next_sibling = records.search_next_sibling_id[node];
         bool is_last_child = next_sibling == node;
 
-        if (records[parent].search_first_child_id == node) {
-                records[parent].search_first_child_id = is_last_child ? parent : next_sibling;
+        if (records.search_first_child_id[parent] == node) {
+                records.search_first_child_id[parent] = is_last_child ? parent : next_sibling;
         } else {
 
                 // removes from the linked list of children
-                ChildrenIterator iter1(records, parent), iter2(records, parent);
-                u64 child1, child2 = iter2.next();
-                while ((child1 = iter1.next()) && (child2 = iter2.next())) {
+                ChildrenGenerator gen1(records, parent), gen2(records, parent);
+                u64 child1, child2 = gen2.next();
+                while ((child1 = gen1.next()) && (child2 = gen2.next())) {
                         if (child2 == node) {
-                                records[child1].search_next_sibling_id = is_last_child ? child1 : next_sibling;
+                                records.search_next_sibling_id[child1] = is_last_child ? child1 : next_sibling;
                                 break;
                         }
                 }
         }
 
-        records[node].search_next_sibling_id = records[node].search_ancestor_id = node;
+        records.search_ancestor_id[node] = records.search_next_sibling_id[node] = node;
 }
 
 
-void attach_search_parent(std::vector<Record> &records, u64 node, u64 parent) {
-        if (records[node].search_ancestor_id == parent) {
+void attach_search_parent(Records &records, u64 node, u64 parent) {
+        if (records.search_ancestor_id[node] == parent) {
                 return;
         }
 
-        records[node].search_ancestor_id = parent;
+        records.search_ancestor_id[node] = parent;
 
-        u64 ancestor_first_child = records[parent].search_first_child_id;
+        u64 ancestor_first_child = records.search_first_child_id[parent];
         bool is_first_child = ancestor_first_child == parent;
-        records[node].search_next_sibling_id = is_first_child ? node : ancestor_first_child;
-        records[parent].search_first_child_id = node;
+        records.search_next_sibling_id[node] = is_first_child ? node : ancestor_first_child;
+        records.search_first_child_id[parent] = node;
 }
 
 // setup
@@ -203,21 +223,21 @@ constexpr int ix_child = 2;
 constexpr int ix_gchild = 3;
 using item_t = std::tuple<u64, u64, u64, u64>;
 
-void collapse_indistinguishable_nodes(std::vector<Record> &records, const u64 node) {
+void collapse_indistinguishable_nodes(Records &records, const u64 node) {
 
         // extract all grandchildren
         static std::vector<item_t> grandchildren;
         grandchildren.resize(0);
         std::ranges::for_each(
-                ChildrenRange{records.cbegin(), node},
+                ChildrenRange{records.search_next_sibling_id.cbegin(), node},
                 [&records](const u64 child) {
                         std::ranges::transform(
-                                ChildrenRange{records.cbegin(), child},
+                                ChildrenRange{records.search_next_sibling_id.cbegin(), child},
                                 std::back_inserter(grandchildren),
                                 [&records, child](const u64 gchild) {
                                         return item_t{
-                                                records[gchild].rank,
-                                                records[gchild].differentia,
+                                                records.rank[gchild],
+                                                records.differentia[gchild],
                                                 child,
                                                 gchild
                                         };
@@ -268,14 +288,14 @@ void collapse_indistinguishable_nodes(std::vector<Record> &records, const u64 no
 }
 
 
-void consolidate_trie(std::vector<Record> &records, const u64 &rank, const u64 node) {
-        ChildrenIterator iter(records, node);
-        u64 child = iter.next();
-        if (child == 0 || records[child].rank == rank) {
+void consolidate_trie(Records &records, const u64 &rank, const u64 node) {
+        ChildrenGenerator gen(records, node);
+        u64 child = gen.next();
+        if (child == 0 || records.rank[child] == rank) {
                 return;
         }
         std::vector<u64> node_stack = {child};
-        while ((child = iter.next())) {
+        while ((child = gen.next())) {
                 node_stack.push_back(child);
         }
 
@@ -287,12 +307,12 @@ void consolidate_trie(std::vector<Record> &records, const u64 &rank, const u64 n
 
                 static std::vector<u64> grandchildren;
                 grandchildren.resize(0);
-                ChildrenIterator grandchild_iter(records, popped_node);
-                while ((grandchild = grandchild_iter.next())) {
+                ChildrenGenerator grandchild_gen(records, popped_node);
+                while ((grandchild = grandchild_gen.next())) {
                         grandchildren.push_back(grandchild);
                 }
                 for (const u64 &grandchild : grandchildren) {
-                        if (records[grandchild].rank >= rank) {
+                        if (records.rank[grandchild] >= rank) {
                                 detach_search_parent(records, grandchild);
                                 attach_search_parent(records, grandchild, node);
                         } else {
@@ -305,14 +325,14 @@ void consolidate_trie(std::vector<Record> &records, const u64 &rank, const u64 n
 }
 
 u64 create_offstring(
-        std::vector<Record> &records,
+        Records &records,
         const u64 parent,
         const u64 rank,
         const u64 differentia,
         const u64 data_id
 ) {
         u64 node = records.size();
-        records.emplace_back(
+        records.addRecord(
                 data_id,
                 node,
                 parent,
@@ -327,15 +347,15 @@ u64 create_offstring(
 }
 
 u64 place_allele(
-        std::vector<Record> &records,
+        Records &records,
         u64 cur_node,
         const u64 rank,
         const u64 differentia
 ) {
         u64 child;
-        ChildrenIterator iter(records, cur_node);
-        while ((child = iter.next())) {
-                if (rank == records[child].rank && differentia == records[child].differentia) {
+        ChildrenGenerator gen(records, cur_node);
+        while ((child = gen.next())) {
+                if (rank == records.rank[child] && differentia == records.differentia[child]) {
                         return child;
                 }
         }
@@ -363,7 +383,7 @@ struct py_array_span {
 
 
 void insert_artifact(
-        std::vector<Record> &records,
+        Records &records,
         py_array_span<u64> &&ranks,
         py_array_span<u64> &&differentiae,  // ranks.size() == diff.size()
         const u64 data_id,
@@ -384,7 +404,7 @@ py::dict build_trie_searchtable(
         const py::array_t<u64> &num_strata_depositeds,
         const py::array_t<u64> &ranks,
         const py::array_t<u64> &differentiae,
-        std::optional<py::handle> tqdm_progress_bar
+        std::optional<py::handle> tqdm_progress_bar = std::optional<py::handle>{}
 ) {
         const static py::detail::str_attr_accessor logging_info = py::module::import("logging").attr("info");
         const std::optional<py::detail::str_attr_accessor> progress_bar_updater = tqdm_progress_bar.and_then(
@@ -405,8 +425,7 @@ py::dict build_trie_searchtable(
 
         logging_info("begin searchtable cpp");
 
-        std::vector<Record> records{Record()};  // root node
-        records.reserve(data_ids.size());
+        Records records(data_ids.size());
 
         u64 start = 0, start_data_id = data_ids_accessor[0];
         for (u64 i = 1; i < ranks.size(); ++i) {
@@ -436,21 +455,25 @@ py::dict build_trie_searchtable(
         }
 
         logging_info("end searchtable cpp");
-        std::unordered_map<std::string, std::vector<u64>> ret;
-        for (const Record &rec : records) {
-                ret["dstream_data_id"].push_back(rec.data_id);
-                ret["id"].push_back(rec.id);
-                ret["ancestor_id"].push_back(rec.ancestor_id);
-                ret["differentia"].push_back(rec.differentia);
-                ret["rank"].push_back(rec.rank);
-        }
+        std::unordered_map<std::string, std::vector<u64>> ret = {
+                {"dstream_data_id", std::move(records.data_id)},
+                {"id", std::move(records.id)},
+                {"ancestor_id", std::move(records.ancestor_id)},
+                {"differentia", std::move(records.differentia)},
+                {"rank", std::move(records.rank)},
+        };
         logging_info("exit searchtable cpp");
         return py::cast(ret);
 }
 
 
 PYBIND11_MODULE(build_tree_searchtable_cpp, m) {
-        m.def("build", &build_trie_searchtable, py::arg("data_ids"), py::arg("num_strata_depositeds"), py::arg("ranks"), py::arg("differentiae"), py::arg("tqdm_progress_bar"));
+        m.def("build", &build_trie_searchtable,
+              py::arg("data_ids"),
+              py::arg("num_strata_depositeds"),
+              py::arg("ranks"),
+              py::arg("differentiae"),
+              py::arg("tqdm_progress_bar") = std::optional<py::handle>{});
 }
 
 
