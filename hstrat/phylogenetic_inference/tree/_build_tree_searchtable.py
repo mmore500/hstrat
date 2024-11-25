@@ -237,7 +237,7 @@ def finalize_records_cpp(
 ) -> pd.DataFrame:
     df = pd.DataFrame(records)
     df["origin_time"] = df["rank"]
-    df["taxon_label"] = [sorted_labels[i] for i in df["data_id"]]
+    df["taxon_label"] = [str(sorted_labels[i]) for i in df["dstream_data_id"]]
 
     multiple_true_roots = (
         (df["id"] != 0) & (df["ancestor_id"] == 0)

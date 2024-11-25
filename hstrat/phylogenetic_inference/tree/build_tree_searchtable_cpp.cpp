@@ -204,7 +204,7 @@ using item_t = std::tuple<u64, u64, u64, u64>;
 void collapse_indistinguishable_nodes(std::vector<Record> &records, const u64 node) {
 
         // extract all grandchildren
-        thread_local std::vector<item_t> grandchildren;
+        static std::vector<item_t> grandchildren;
         grandchildren.resize(0);
         std::ranges::for_each(
                 ChildrenRange{records.cbegin(), node},
@@ -283,7 +283,7 @@ void consolidate_trie(std::vector<Record> &records, const u64 &rank, const u64 n
                 node_stack.pop_back();
                 detach_search_parent(records, popped_node);
 
-                thread_local std::vector<u64> grandchildren;
+                static std::vector<u64> grandchildren;
                 grandchildren.resize(0);
                 ChildrenIterator grandchild_iter(records, popped_node);
                 while ((grandchild = grandchild_iter.next())) {
