@@ -3,6 +3,7 @@ import logging
 import tqdm
 from downstream import dataframe as dstream_dataframe
 import polars as pl
+import numpy as np
 
 from .._auxiliary_lib import alifestd_make_empty
 from ..phylogenetic_inference.tree.build_tree_searchtable_cpp import (
@@ -115,7 +116,10 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
 
     logging.info("finalizing tree...")
     phylo_df = pl.from_dict(
-        records,
+        {
+            k: np.frombuffer(v, dtype=np.uint64)
+            for k, v in records.items()
+        },
         schema={
             "dstream_data_id": pl.UInt64,
             "id": pl.UInt64,

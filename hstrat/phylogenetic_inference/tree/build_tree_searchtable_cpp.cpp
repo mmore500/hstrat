@@ -55,7 +55,16 @@ struct Records {
                 return this->data_id.size();
         }
 
-        Records(u64 init_size) {
+        void reset(u64 init_size) {
+                this->data_id = std::vector<u64>{};
+                this->id = std::vector<u64>{};
+                this->search_first_child_id = std::vector<u64>{};
+                this->search_next_sibling_id = std::vector<u64>{};
+                this->search_ancestor_id = std::vector<u64>{};
+                this->ancestor_id = std::vector<u64>{};
+                this->differentia = std::vector<u64>{};
+                this->rank = std::vector<u64>{};
+
                 this->data_id.reserve(init_size);
                 this->id.reserve(init_size);
                 this->search_first_child_id.reserve(init_size);
@@ -64,6 +73,7 @@ struct Records {
                 this->ancestor_id.reserve(init_size);
                 this->differentia.reserve(init_size);
                 this->rank.reserve(init_size);
+
                 this->addRecord();
         }
 };
@@ -406,7 +416,8 @@ py::dict build_trie_searchtable(
         const py::array_t<u64> &differentiae,
         std::optional<py::handle> tqdm_progress_bar = std::optional<py::handle>{}
 ) {
-        const static py::detail::str_attr_accessor logging_info = py::module::import("logging").attr("info");
+        const py::detail::str_attr_accessor logging_info = py::module::import("logging").attr("info");
+        static Records records;
         const std::optional<py::detail::str_attr_accessor> progress_bar_updater = tqdm_progress_bar.and_then(
                 [] (auto a) {return std::optional<py::detail::str_attr_accessor>(a.attr("update"));}
         );
@@ -425,8 +436,7 @@ py::dict build_trie_searchtable(
 
         logging_info("begin searchtable cpp");
 
-        Records records(data_ids.size());
-
+        records.reset(data_ids.size());
         u64 start = 0, start_data_id = data_ids_accessor[0];
         for (u64 i = 1; i < ranks.size(); ++i) {
                 if (start_data_id != data_ids_accessor[i]) {
@@ -455,13 +465,12 @@ py::dict build_trie_searchtable(
         }
 
         logging_info("end searchtable cpp");
-        std::unordered_map<std::string, std::vector<u64>> ret = {
-                {"dstream_data_id", std::move(records.data_id)},
-                {"id", std::move(records.id)},
-                {"ancestor_id", std::move(records.ancestor_id)},
-                {"differentia", std::move(records.differentia)},
-                {"rank", std::move(records.rank)},
-        };
+        std::unordered_map<std::string, py::memoryview> ret;
+        ret.insert({"dstream_data_id", py::memoryview::from_memory(records.data_id.data(), records.data_id.size() * sizeof(u64))});
+        ret.insert({"id", py::memoryview::from_memory(records.id.data(), records.id.size() * sizeof(u64))});
+        ret.insert({"ancestor_id", py::memoryview::from_memory(records.ancestor_id.data(), records.ancestor_id.size() * sizeof(u64))});
+        ret.insert({"differentia", py::memoryview::from_memory(records.differentia.data(), records.differentia.size() * sizeof(u64))});
+        ret.insert({"rank", py::memoryview::from_memory(records.rank.data(), records.rank.size() * sizeof(u64))});
         logging_info("exit searchtable cpp");
         return py::cast(ret);
 }
