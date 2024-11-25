@@ -413,9 +413,6 @@ py::dict build_trie_searchtable(
                         );
                         start = i;
                         start_data_id = data_ids_accessor[start];
-                        if ((i & ((1 << 16) - 1)) == 0) {
-                                std::cerr << '.' << std::flush;
-                        }
                 }
         }
         insert_artifact(
@@ -437,7 +434,7 @@ py::dict build_trie_searchtable(
                 ret["differentia"].push_back(rec.differentia);
                 ret["rank"].push_back(rec.rank);
         }
-        std::cerr << "exit searchtable cpp" << std::endl;
+        logging_info("exit searchtable cpp");
         return py::cast(ret);
 }
 
