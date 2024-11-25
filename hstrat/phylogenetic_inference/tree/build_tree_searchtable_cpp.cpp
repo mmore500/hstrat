@@ -11,6 +11,7 @@
 #include <vector>
 
 #include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 
 namespace py = pybind11;
@@ -341,11 +342,28 @@ u64 place_allele(
         );
 }
 
+template <typename T>
+struct py_array_span {
+        const py::detail::unchecked_reference<T, 1> &data_accessor;
+        const u64 start;
+        const u64 end;
+
+        u64 size() const {
+                return this->end - this->start;
+        }
+        u64 operator[](u64 index) const {
+                return this->data_accessor[this->start + index];
+        }
+
+        py_array_span(const py::detail::unchecked_reference<T, 1> &data, const u64 start, const u64 end)
+          : data_accessor(data), start(start), end(end) { };
+};
+
 
 void insert_artifact(
         std::vector<Record> &records,
-        const std::span<const u64> ranks,
-        const std::span<const u64> differentiae,  // ranks.size() == diff.size()
+        py_array_span<u64> &&ranks,
+        py_array_span<u64> &&differentiae,  // ranks.size() == diff.size()
         const u64 data_id,
         u64 num_strata_deposited
 ) {
@@ -359,41 +377,42 @@ void insert_artifact(
 }
 
 
-std::string timestamp() {
-    auto const time = std::chrono::current_zone()
-        ->to_local(std::chrono::system_clock::now());
-    return std::format("{:%Y-%m-%d %X}", time);
-}
-
-
 py::dict build_trie_searchtable(
-        const std::vector<u64> &data_ids,
-        const std::vector<u64> &num_strata_depositeds,
-        const std::vector<u64> &ranks,
-        const std::vector<u64> &differentiae
+        const py::array_t<u64> &data_ids,
+        const py::array_t<u64> &num_strata_depositeds,
+        const py::array_t<u64> &ranks,
+        const py::array_t<u64> &differentiae
 ) {
+        const static py::detail::str_attr_accessor logging_info = py::module::import("logging").attr("info");
+
+        assert(data_ids.size() == num_strata_depositeds.size()
+               && data_ids.size() == ranks.size()
+               && data_ids.size() == differentiae.size());
         if (!data_ids.size()) {
                 return py::cast(std::unordered_map<std::string, std::vector<u64>>{});
         }
-        assert(data_ids.size() == num_strata_depositeds.size() && data_ids.size() == ranks.size() && data_ids.size() == differentiae.size());
-        std::cerr << "ranks.size() " << ranks.size() << std::endl;
 
-        std::cerr << timestamp() << " begin searchtable cpp" << std::endl;
+        const py::detail::unchecked_reference<u64, 1> data_ids_accessor = data_ids.unchecked<1>();
+        const py::detail::unchecked_reference<u64, 1> num_strata_depositeds_accessor = num_strata_depositeds.unchecked<1>();
+        const py::detail::unchecked_reference<u64, 1> ranks_accessor = ranks.unchecked<1>();
+        const py::detail::unchecked_reference<u64, 1> differentiae_accessor = differentiae.unchecked<1>();
+
+        logging_info("begin searchtable cpp");
 
         std::vector<Record> records{Record()};  // root node
         records.reserve(data_ids.size());
-        u64 start = 0, start_data_id = data_ids[0];
-        std::cerr << '.' << std::flush;
+
+        u64 start = 0, start_data_id = data_ids_accessor[0];
         for (u64 i = 1; i < ranks.size(); ++i) {
-                if (start_data_id != data_ids[i]) {
+                if (start_data_id != data_ids_accessor[i]) {
                         insert_artifact(
                                 records,
-                                std::span<const u64>(ranks.begin() + start, i - start),
-                                std::span<const u64>(differentiae.begin() + start, i - start),
-                                start_data_id, num_strata_depositeds[start]
+                                py_array_span<u64>(ranks_accessor, start, i),
+                                py_array_span<u64>(differentiae_accessor, start, i),
+                                start_data_id, num_strata_depositeds_accessor[start]
                         );
                         start = i;
-                        start_data_id = data_ids[start];
+                        start_data_id = data_ids_accessor[start];
                         if ((i & ((1 << 16) - 1)) == 0) {
                                 std::cerr << '.' << std::flush;
                         }
@@ -401,12 +420,12 @@ py::dict build_trie_searchtable(
         }
         insert_artifact(
                 records,
-                std::span<const u64>(ranks.begin() + start, ranks.size() - start),
-                std::span<const u64>(differentiae.begin() + start, differentiae.size() - start),
-                start_data_id, num_strata_depositeds[start]
+                py_array_span<u64>(ranks_accessor, start, ranks.size()),
+                py_array_span<u64>(differentiae_accessor, start, differentiae.size()),
+                start_data_id, num_strata_depositeds_accessor[start]
         );
-        std::cerr << std::endl;
-        std::cerr << timestamp() << " end searchtable cpp" << std::endl;
+
+        logging_info("end searchtable cpp");
         std::unordered_map<std::string, std::vector<u64>> ret;
         for (const Record &rec : records) {
                 ret["dstream_data_id"].push_back(rec.data_id);
