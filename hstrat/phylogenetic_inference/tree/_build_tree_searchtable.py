@@ -17,7 +17,7 @@ from ..._auxiliary_lib import (
     give_len,
 )
 
-from cppimport import import_hook
+from cppimport import import_hook  # noqa: F401
 from .build_tree_searchtable_cpp import build as build_cpp
 
 
@@ -308,7 +308,6 @@ def build_tree_searchtable(
     records = [Record(taxon_label=sys.maxsize)]
 
     if use_cpp:
-        print("Using C++")
         args = (
             sum(
                 (
@@ -339,9 +338,7 @@ def build_tree_searchtable(
                 [],
             ),
         )
-        start = perf_counter()
         res = build_cpp(*args)
-        print(f"Real C++ time {perf_counter() - start:.2f}")
         return finalize_records_cpp(res, sorted_labels, force_common_ancestry)
 
     for label, artifact in progress_wrap(

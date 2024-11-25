@@ -12,7 +12,7 @@ if __name__ == "__main__":
         level=logging.INFO,
     )
     dataframe_cli(
-        description="Unpack dstream buffer and counter from genome data  serialized into a single hexadecimal data field, TODO.",
+        description="Unpack dstream buffer and counter from genome data serialized into a single hexadecimal data field, TODO.",
         module="hstrat.dataframe.surface_unpack_reconstruct",
         version=get_hstrat_version(),
         output_dataframe_op=surface_unpack_reconstruct,

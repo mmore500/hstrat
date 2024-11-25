@@ -1,10 +1,12 @@
 // cppimport
 
+#include "pybind11/pytypes.h"
 #include <algorithm>
 #include <cassert>
 #include <chrono>
 #include <format>
 #include <iostream>
+#include <optional>
 #include <ranges>
 #include <span>
 #include <unordered_map>
@@ -381,9 +383,13 @@ py::dict build_trie_searchtable(
         const py::array_t<u64> &data_ids,
         const py::array_t<u64> &num_strata_depositeds,
         const py::array_t<u64> &ranks,
-        const py::array_t<u64> &differentiae
+        const py::array_t<u64> &differentiae,
+        std::optional<py::handle> tqdm_progress_bar
 ) {
         const static py::detail::str_attr_accessor logging_info = py::module::import("logging").attr("info");
+        const std::optional<py::detail::str_attr_accessor> progress_bar_updater = tqdm_progress_bar.and_then(
+                [] (auto a) {return std::optional<py::detail::str_attr_accessor>(a.attr("update"));}
+        );
 
         assert(data_ids.size() == num_strata_depositeds.size()
                && data_ids.size() == ranks.size()
@@ -413,6 +419,9 @@ py::dict build_trie_searchtable(
                         );
                         start = i;
                         start_data_id = data_ids_accessor[start];
+                        if (progress_bar_updater.has_value()) {
+                                progress_bar_updater.value()(1);
+                        }
                 }
         }
         insert_artifact(
@@ -421,15 +430,16 @@ py::dict build_trie_searchtable(
                 py_array_span<u64>(differentiae_accessor, start, differentiae.size()),
                 start_data_id, num_strata_depositeds_accessor[start]
         );
+        if (progress_bar_updater.has_value()) {
+                progress_bar_updater.value()(1);
+                tqdm_progress_bar.value().attr("close")();
+        }
 
         logging_info("end searchtable cpp");
         std::unordered_map<std::string, std::vector<u64>> ret;
         for (const Record &rec : records) {
                 ret["dstream_data_id"].push_back(rec.data_id);
                 ret["id"].push_back(rec.id);
-                // ret["search_first_child_id"].push_back(rec.search_first_child_id);
-                // ret["search_next_sibling_id"].push_back(rec.search_next_sibling_id);
-                // ret["search_ancestor_id"].push_back(rec.search_ancestor_id);
                 ret["ancestor_id"].push_back(rec.ancestor_id);
                 ret["differentia"].push_back(rec.differentia);
                 ret["rank"].push_back(rec.rank);
@@ -440,7 +450,7 @@ py::dict build_trie_searchtable(
 
 
 PYBIND11_MODULE(build_tree_searchtable_cpp, m) {
-        m.def("build", &build_trie_searchtable, py::arg("data_ids"), py::arg("num_strata_depositeds"), py::arg("ranks"), py::arg("differentiae"));
+        m.def("build", &build_trie_searchtable, py::arg("data_ids"), py::arg("num_strata_depositeds"), py::arg("ranks"), py::arg("differentiae"), py::arg("tqdm_progress_bar"));
 }
 
 

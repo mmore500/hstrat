@@ -1,11 +1,15 @@
 import logging
 
+import tqdm
 from downstream import dataframe as dstream_dataframe
 import polars as pl
 
 from .._auxiliary_lib import alifestd_make_empty
 from ..phylogenetic_inference.tree.build_tree_searchtable_cpp import (
     build as build_cpp,
+)
+from ..phylogenetic_inference.tree._build_tree_searchtable import (
+    finalize_records_cpp,
 )
 
 
@@ -100,33 +104,18 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         logging.info(message)
 
     logging.info("building tree...")
-    finalized_columns = build_cpp(
-        long_df["dstream_data_id"].to_list(),
-        long_df["dstream_T"].to_list(),
-        long_df["dstream_Tbar"].to_list(),
-        long_df["dstream_value"].to_list(),
+    records = build_cpp(
+        long_df["dstream_data_id"].to_numpy(),
+        long_df["dstream_T"].to_numpy(),
+        long_df["dstream_Tbar"].to_numpy(),
+        long_df["dstream_value"].to_numpy(),
+        tqdm.tqdm(total=len(df))
     )
 
-    # TODO pass whole columns to c++ implementation
-    # records = [Record(taxon_label=sys.maxsize)]
-    # dstream_S = df.lazy().select("dstream_S").unique().limit(2).collect()
-    # if len(dstream_S) > 1:
-    #     raise NotImplementedError(
-    #         "multiple differentia_bitwidths not yet supported",
-    #     )
-    # S = dstream_S.item()
-    # for frame in tqdm(long_df.iter_slices(S), total=len(long_df) // S):
-    #     insert_artifact(
-    #         records,
-    #         frame["dstream_Tbar"],
-    #         frame["dstream_value"],
-    #         frame["dstream_data_id"].first(),
-    #         frame["dstream_T"].first(),
-    #     )
 
     logging.info("finalizing tree...")
     phylo_df = pl.from_dict(
-        finalized_columns,
+        records,
         schema={
             "dstream_data_id": pl.UInt64,
             "id": pl.UInt64,
@@ -135,7 +124,6 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
             "rank": pl.UInt64,
         },
     )
-    # phylo_df = finalize_records(records, force_common_ancestry=True)
 
     logging.info("joining frames...")
     df = df.select(
