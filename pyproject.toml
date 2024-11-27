@@ -81,6 +81,7 @@ requires = [
   "cython>=0.29",
   "setuptools >= 75.0.0",
   "setuptools_scm >= 2.0.0, <3",
+  "pybind11==2.13.6",
 ]
 
 # additional dev requriements
