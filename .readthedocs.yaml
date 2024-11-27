@@ -8,11 +8,8 @@ build:
   tools:
     python: "3.11"
   commands:
-    - export CC=clang-19
-    - g++ --version
-    - alias g++=clang-19
     - pip install -r requirements-dev/requirements-docs.txt
-    - pip install . --no-deps
+    - CC=clang-19 pip install . --no-deps
     - make -C docs/ html
     - mkdir -p _readthedocs
     - rm -rf _readthedocs/html
