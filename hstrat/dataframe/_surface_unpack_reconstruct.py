@@ -6,7 +6,7 @@ import polars as pl
 import tqdm
 
 from .._auxiliary_lib import alifestd_make_empty
-from ..phylogenetic_inference.tree.build_tree_searchtable_cpp import (
+from ..phylogenetic_inference.tree._build_tree_searchtable_cpp import (
     build_exploded as build_cpp,
 )
 

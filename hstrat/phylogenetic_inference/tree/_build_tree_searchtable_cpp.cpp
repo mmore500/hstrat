@@ -404,7 +404,7 @@ Records build_trie_searchtable_exploded(
 }
 
 
-PYBIND11_MODULE(build_tree_searchtable_cpp, m) {
+PYBIND11_MODULE(_build_tree_searchtable_cpp, m) {
         m.def("build_exploded", &build_trie_searchtable_exploded,
               py::arg("data_ids"),
               py::arg("num_strata_depositeds"),

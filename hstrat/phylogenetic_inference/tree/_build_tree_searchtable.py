@@ -21,8 +21,8 @@ from ..._auxiliary_lib import (
     argsort,
     give_len,
 )
-from .build_tree_searchtable_cpp import Records
-from .build_tree_searchtable_cpp import build_normal as build_cpp
+from ._build_tree_searchtable_cpp import Records
+from ._build_tree_searchtable_cpp import build_normal as build_cpp
 
 
 @dataclasses.dataclass(slots=True)
