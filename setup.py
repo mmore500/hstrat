@@ -12,9 +12,9 @@ from setuptools import setup
 setup(
     ext_modules=[
         Pybind11Extension(
-            "hstrat.phylogenetic_inference.tree.build_tree_searchtable_cpp",
-            ["hstrat/phylogenetic_inference/tree/build_tree_searchtable_cpp.cpp"],
-            cxx_std=23
+            "hstrat.phylogenetic_inference.tree._build_tree_searchtable_cpp",
+            ["hstrat/phylogenetic_inference/tree/_build_tree_searchtable_cpp.cpp"],
+            cxx_std=20
         ),
     ],
     cmdclass={"build_ext": build_ext},
