@@ -31,6 +31,9 @@ RUN python3 -m pip install uv --break-system-packages \
         -r /app/requirements-dev/py312/requirements-jit.txt \
     && python3 -m uv pip install --system --break-system-packages "/app[jit]"
 
+# force cppimport build
+RUN python3 -m hstrat.dataframe.surface_unpack_reconstruct --help
+
 # Clean up
 RUN apt-get remove --purge -y python3-wheel python3-pip \
     && apt-get clean \
