@@ -5,7 +5,7 @@
 cd "${0%/*}"
 
 echo "generating requirements-all.txt"
-python3 -m uv pip compile --python-version=3.10 ../../pyproject.toml --extra docs --extra release --extra testing --extra pinned_jit -o requirements-all.txt
+python3 -m uv pip compile --python-version=3.10 ../../pyproject.toml --extra docs --extra release --extra testing --extra jit -o requirements-all.txt
 
 echo "generating requirements-docs.txt"
 python3 -m uv pip compile --python-version=3.10 ../../pyproject.toml --extra docs -o requirements-docs.txt
@@ -20,4 +20,4 @@ echo "generating requirements-release.txt"
 python3 -m uv pip compile --python-version=3.10  --allow-unsafe ../../pyproject.toml --extra release -o requirements-release.txt
 
 echo "generating requirements-testing.txt"
-python3 -m uv pip compile --python-version=3.10 ../../pyproject.toml --extra testing --extra pinned_jit -o requirements-testing.txt
+python3 -m uv pip compile --python-version=3.10 ../../pyproject.toml --extra testing --extra jit -o requirements-testing.txt

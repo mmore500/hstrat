@@ -22,6 +22,8 @@ click==8.1.7
     #   keyname
 contourpy==1.3.1
     # via matplotlib
+cppimport==22.8.2
+    # via hstrat (../../pyproject.toml)
 cycler==0.12.1
     # via matplotlib
 decorator==5.1.1
@@ -38,6 +40,8 @@ downstream==1.2.5
     # via hstrat (../../pyproject.toml)
 ete3==3.1.3
     # via alifedata-phyloinformatics-convert
+filelock==3.16.1
+    # via cppimport
 fonttools==4.55.0
     # via matplotlib
 idna==3.10
@@ -64,6 +68,10 @@ llvmlite==0.43.0
     # via numba
 lru-dict==1.3.0
     # via hstrat (../../pyproject.toml)
+mako==1.3.6
+    # via cppimport
+markupsafe==3.0.2
+    # via mako
 matplotlib==3.9.2
     # via
     #   hstrat (../../pyproject.toml)
@@ -136,6 +144,7 @@ pillow==11.0.0
     # via matplotlib
 polars==1.15.0
     # via
+    #   hstrat (../../pyproject.toml)
     #   downstream
     #   joinem
 prettytable==3.12.0
@@ -144,6 +153,8 @@ propcache==0.2.0
     # via yarl
 py==1.11.0
     # via retry
+pybind11==2.13.6
+    # via cppimport
 pydantic==2.10.2
     # via pandera
 pydantic-core==2.27.1

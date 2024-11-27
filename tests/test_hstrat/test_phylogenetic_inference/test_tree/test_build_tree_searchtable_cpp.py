@@ -40,13 +40,15 @@ def test_dual_population_no_mrca():
     names = ["foo", "bar"]
 
     with pytest.raises(ValueError):
-        tree = hstrat.build_tree_searchtable(population, taxon_labels=names, use_cpp=True)
+        tree = hstrat.build_tree_searchtable(
+            population, taxon_labels=names, use_cpp=True
+        )
 
     tree = hstrat.build_tree_searchtable(
         population,
         taxon_labels=names,
         force_common_ancestry=True,
-        use_cpp=True
+        use_cpp=True,
     )
     tree["name"] = tree["taxon_label"]
     assert not alifestd_has_multiple_roots(tree)
@@ -110,7 +112,9 @@ def test_handwritten_trees(orig_tree, retention_policy, wrap):
         ).CloneNthDescendant(10),
     )
 
-    reconst_df = hstrat.build_tree_searchtable([*map(wrap, extant_population)], use_cpp=True)
+    reconst_df = hstrat.build_tree_searchtable(
+        [*map(wrap, extant_population)], use_cpp=True
+    )
 
     assert alifestd_validate(reconst_df)
     reconst_tree = apc.alife_dataframe_to_dendropy_tree(
@@ -247,10 +251,12 @@ def test_col_specimen_consistency(orig_tree, retention_policy):
         ).CloneNthDescendant(num_depositions),
     )
 
-    reconst_df1 = hstrat.build_tree_searchtable(extant_population, use_cpp=True)
+    reconst_df1 = hstrat.build_tree_searchtable(
+        extant_population, use_cpp=True
+    )
     reconst_df2 = hstrat.build_tree_searchtable(
         [hstrat.col_to_specimen(col) for col in extant_population],
-        use_cpp=True
+        use_cpp=True,
     )
 
     assert reconst_df1[["id", "ancestor_list"]].equals(
@@ -453,12 +459,13 @@ def test_determinism(orig_tree, retention_policy, differentia_width, wrap):
         ).CloneNthDescendant(num_depositions),
     )
 
-    first_reconst = hstrat.build_tree_searchtable(extant_population, use_cpp=True)
+    first_reconst = hstrat.build_tree_searchtable(
+        extant_population, use_cpp=True
+    )
     for _rep in range(10):
         _ = _rep
         second_reconst = hstrat.build_tree_searchtable(
-            [wrap(col) for col in extant_population],
-            use_cpp=True
+            [wrap(col) for col in extant_population], use_cpp=True
         )
         assert first_reconst.equals(second_reconst)
 
@@ -496,14 +503,13 @@ def test_reconstructed_taxon_labels(orig_tree, retention_policy, wrap):
     reconst_df = hstrat.build_tree_searchtable(
         [*map(wrap, extant_population)],
         taxon_labels=taxon_labels,
-        use_cpp=True
+        use_cpp=True,
     )
     assert "taxon_label" in reconst_df
     assert set(taxon_labels) < set(reconst_df["taxon_label"])
 
     reconst_df = hstrat.build_tree_searchtable(
-        [*map(wrap, extant_population)],
-        use_cpp=True
+        [*map(wrap, extant_population)], use_cpp=True
     )
     assert "taxon_label" in reconst_df
     assert len(reconst_df["taxon_label"].unique()) == len(
