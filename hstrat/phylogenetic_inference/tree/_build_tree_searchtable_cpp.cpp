@@ -374,7 +374,7 @@ Records build_trie_searchtable_exploded(
                 : std::optional<py::detail::str_attr_accessor>(tqdm_progress_bar.attr("update"));
 
         u64 start = 0, start_data_id = data_ids_accessor[0];
-        for (u64 i = 1; i < ranks.size(); ++i) {
+        for (u64 i = 1; i < (u64) ranks.size(); ++i) {
                 if (start_data_id != data_ids_accessor[i]) {
                         insert_artifact<py_array_span<u64>>(
                                 records,
