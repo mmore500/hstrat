@@ -1,7 +1,6 @@
 // cppimport
 
-#include "pybind11/detail/common.h"
-#include "pybind11/pytypes.h"
+#include <iostream>
 #include <algorithm>
 #include <cassert>
 #include <optional>
@@ -9,12 +8,12 @@
 #include <span>
 #include <unordered_map>
 #include <vector>
-#include <iostream>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 
+using namespace pybind11::literals;
 namespace py = pybind11;
 
 typedef uint64_t u64;
@@ -294,12 +293,8 @@ Records build_trie_searchtable_normal(
         const std::vector<u64> &num_strata_depositeds,
         const std::vector<std::vector<u64>> &ranks,
         const std::vector<std::vector<u64>> &differentiae,
-        py::handle tqdm_progress_bar = py::none{}
+        const py::handle &tqdm_progress_ctor = py::none{}
 ) {
-        const py::detail::str_attr_accessor logging_info = py::module::import("logging").attr("info");
-        const auto progress_bar_updater = tqdm_progress_bar.is_none() ? std::optional<py::detail::str_attr_accessor>{}
-                                          : std::optional<py::detail::str_attr_accessor>(tqdm_progress_bar.attr("update"));
-
         Records records;
         records.reset(data_ids.size());
         assert(data_ids.size() == num_strata_depositeds.size()
@@ -309,7 +304,15 @@ Records build_trie_searchtable_normal(
                 return records;
         }
 
+
+        const py::detail::str_attr_accessor logging_info = py::module::import("logging").attr("info");
         logging_info("begin searchtable cpp");
+
+        const py::object tqdm_progress_bar = tqdm_progress_ctor.is_none() ? py::none{}
+                                             : tqdm_progress_ctor("total"_a=data_ids.size());
+        const auto progress_bar_updater =
+                tqdm_progress_bar.is_none() ? std::optional<py::detail::str_attr_accessor>{}
+                : std::optional<py::detail::str_attr_accessor>(tqdm_progress_bar.attr("update"));
 
         for (u64 i = 0; i < ranks.size(); ++i) {
                 insert_artifact<std::span<const u64>>(
@@ -329,17 +332,24 @@ Records build_trie_searchtable_normal(
         return records;
 }
 
+u64 count_unique_elements(const py::detail::unchecked_reference<u64, 1> &arr, const u64 n) {
+        u64 ele = arr[0], result = 1;
+        for (u64 i = 1; i < n; ++i) {
+                if (arr[i] != ele) {
+                        ele = arr[i];
+                        ++result;
+                }
+        }
+        return result;
+}
+
 Records build_trie_searchtable_exploded(
         const py::array_t<u64> &data_ids,
         const py::array_t<u64> &num_strata_depositeds,
         const py::array_t<u64> &ranks,
         const py::array_t<u64> &differentiae,
-        py::handle tqdm_progress_bar = py::none{}
+        const py::handle &tqdm_progress_ctor = py::none{}
 ) {
-        const py::detail::str_attr_accessor logging_info = py::module::import("logging").attr("info");
-        const auto progress_bar_updater = tqdm_progress_bar.is_none() ? std::optional<py::detail::str_attr_accessor>{}
-                                          : std::optional<py::detail::str_attr_accessor>(tqdm_progress_bar.attr("update"));
-
         Records records;
         records.reset(data_ids.size());
         assert(data_ids.size() == num_strata_depositeds.size()
@@ -354,7 +364,14 @@ Records build_trie_searchtable_exploded(
         const py::detail::unchecked_reference<u64, 1> ranks_accessor = ranks.unchecked<1>();
         const py::detail::unchecked_reference<u64, 1> differentiae_accessor = differentiae.unchecked<1>();
 
+        const py::detail::str_attr_accessor logging_info = py::module::import("logging").attr("info");
         logging_info("begin searchtable cpp");
+
+        const py::object tqdm_progress_bar = tqdm_progress_ctor.is_none() ? py::none{}
+                                             : tqdm_progress_ctor("total"_a=count_unique_elements(data_ids_accessor, data_ids.size()));
+        const auto progress_bar_updater =
+                tqdm_progress_bar.is_none() ? std::optional<py::detail::str_attr_accessor>{}
+                : std::optional<py::detail::str_attr_accessor>(tqdm_progress_bar.attr("update"));
 
         u64 start = 0, start_data_id = data_ids_accessor[0];
         for (u64 i = 1; i < ranks.size(); ++i) {

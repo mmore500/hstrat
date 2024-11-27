@@ -107,7 +107,7 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         long_df["dstream_T"].to_numpy(),
         long_df["dstream_Tbar"].to_numpy(),
         long_df["dstream_value"].to_numpy(),
-        tqdm.tqdm(total=len(df)),
+        tqdm.tqdm
     )
 
     logging.info("finalizing tree...")

@@ -326,7 +326,7 @@ def build_tree_searchtable(
             [x.GetNumStrataDeposited() for x in sorted_population],
             [[*x.IterRetainedRanks()] for x in sorted_population],
             [[*x.IterRetainedDifferentia()] for x in sorted_population],
-            (tqdm.tqdm() if isinstance(progress_wrap, tqdm.tqdm) else None),
+            (tqdm.tqdm if progress_wrap is tqdm.tqdm else None),
         )
         return finalize_records_cpp(res, sorted_labels, force_common_ancestry)
 
