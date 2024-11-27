@@ -15,6 +15,6 @@ def build(
     num_strata_depositeds: np.ndarray,
     ranks: np.ndarray,
     differentiae: np.ndarray,
-    tqdm_progress_bar: typing.Optional[tqdm.tqdm]
+    tqdm_progress_bar: typing.Optional[tqdm.tqdm],
 ) -> Records:
     pass

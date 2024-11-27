@@ -111,27 +111,34 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         long_df["dstream_T"].to_numpy(),
         long_df["dstream_Tbar"].to_numpy(),
         long_df["dstream_value"].to_numpy(),
-        tqdm.tqdm(total=len(df))
+        tqdm.tqdm(total=len(df)),
     )
 
-
     logging.info("finalizing tree...")
-    phylo_df = pl.from_pandas(pl.from_dict(
-        {  # type: ignore
-            'dstream_data_id': np.frombuffer(records.dstream_data_id, dtype=np.uint64),
-            'id': np.frombuffer(records.id, dtype=np.uint64),
-            'ancestor_id': np.frombuffer(records.ancestor_id, dtype=np.uint64),
-            'rank': np.frombuffer(records.rank, dtype=np.uint64),
-            'differentia': np.frombuffer(records.differentia, dtype=np.uint64),
-        },
-        schema={
-            "dstream_data_id": pl.UInt64,
-            "id": pl.UInt64,
-            "ancestor_id": pl.UInt64,
-            "differentia": pl.UInt64,
-            "rank": pl.UInt64,
-        },
-    ).to_pandas())  # fastest found method of copying memoryview from records object
+    phylo_df = pl.from_pandas(
+        pl.from_dict(
+            {  # type: ignore
+                "dstream_data_id": np.frombuffer(
+                    records.dstream_data_id, dtype=np.uint64
+                ),
+                "id": np.frombuffer(records.id, dtype=np.uint64),
+                "ancestor_id": np.frombuffer(
+                    records.ancestor_id, dtype=np.uint64
+                ),
+                "rank": np.frombuffer(records.rank, dtype=np.uint64),
+                "differentia": np.frombuffer(
+                    records.differentia, dtype=np.uint64
+                ),
+            },
+            schema={
+                "dstream_data_id": pl.UInt64,
+                "id": pl.UInt64,
+                "ancestor_id": pl.UInt64,
+                "differentia": pl.UInt64,
+                "rank": pl.UInt64,
+            },
+        ).to_pandas()
+    )  # fastest found method of copying memoryview from records object
 
     logging.info("joining frames...")
     df = df.select(
