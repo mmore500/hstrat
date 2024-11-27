@@ -1,17 +1,17 @@
-import logging
 from copy import deepcopy
+import logging
 
-import tqdm
 from downstream import dataframe as dstream_dataframe
-import polars as pl
 import numpy as np
+import polars as pl
+import tqdm
 
 from .._auxiliary_lib import alifestd_make_empty
-from ..phylogenetic_inference.tree.build_tree_searchtable_cpp import (
-    build as build_cpp,
-)
 from ..phylogenetic_inference.tree._build_tree_searchtable import (
     finalize_records_cpp,
+)
+from ..phylogenetic_inference.tree.build_tree_searchtable_cpp import (
+    build as build_cpp,
 )
 
 

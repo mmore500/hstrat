@@ -5,6 +5,7 @@ import sys
 from time import perf_counter
 import typing
 
+from cppimport import import_hook  # noqa: F401
 import opytional as opyt
 import pandas as pd
 
@@ -16,8 +17,6 @@ from ..._auxiliary_lib import (
     argsort,
     give_len,
 )
-
-from cppimport import import_hook  # noqa: F401
 from .build_tree_searchtable_cpp import build as build_cpp
 
 

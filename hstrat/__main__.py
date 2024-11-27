@@ -1,6 +1,5 @@
 from ._auxiliary_lib import get_hstrat_version
 
-
 if __name__ == "__main__":
     print(f"hstrat v{get_hstrat_version()}")
     print()

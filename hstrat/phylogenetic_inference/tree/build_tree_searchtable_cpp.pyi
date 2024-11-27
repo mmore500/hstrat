@@ -1,7 +1,7 @@
 import typing
 
-import tqdm
 import numpy as np
+import tqdm
 
 class Records:
     dstream_data_id: memoryview
