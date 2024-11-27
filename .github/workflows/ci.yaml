@@ -271,8 +271,7 @@ jobs:
       - name: Build and Push to GitHub Container Registry
         uses: docker/build-push-action@v1
         with:
-          # push: github.ref == 'refs/heads/master'
-          push: true
+          push: github.ref == 'refs/heads/master'
           tags: "latest,${{github.ref_name}}"
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
