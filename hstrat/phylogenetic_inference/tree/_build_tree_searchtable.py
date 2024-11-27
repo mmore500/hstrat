@@ -4,7 +4,10 @@ import itertools as it
 import sys
 import typing
 
-from cppimport import import_hook  # noqa: F401
+try:
+    from cppimport import import_hook  # noqa: F401
+except:
+    pass
 import opytional as opyt
 import pandas as pd
 import tqdm
@@ -17,8 +20,8 @@ from ..._auxiliary_lib import (
     argsort,
     give_len,
 )
-
-from .build_tree_searchtable_cpp import build_normal as build_cpp, Records
+from .build_tree_searchtable_cpp import Records
+from .build_tree_searchtable_cpp import build_normal as build_cpp
 
 
 @dataclasses.dataclass(slots=True)

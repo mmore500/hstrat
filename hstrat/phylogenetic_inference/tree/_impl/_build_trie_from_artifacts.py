@@ -6,7 +6,10 @@ import os
 import typing
 from typing import Iterable
 
-from cppimport import import_hook  # noqa: F401
+try:
+    from cppimport import import_hook  # noqa: F401
+except:
+    pass
 import numpy as np
 import opytional as opyt
 
