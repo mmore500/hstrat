@@ -325,7 +325,9 @@ py==1.11.0
     #   pytest-forked
     #   tox
 pybind11==2.13.6
-    # via cppimport
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   cppimport
 pycodestyle==2.5.0
     # via flake8
 pydantic==2.9.2
