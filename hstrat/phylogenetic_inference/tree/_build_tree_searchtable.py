@@ -4,9 +4,10 @@ import itertools as it
 import sys
 import typing
 
-import tqdm
+from cppimport import import_hook  # noqa: F401
 import opytional as opyt
 import pandas as pd
+import tqdm
 
 from ..._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
@@ -17,7 +18,6 @@ from ..._auxiliary_lib import (
     give_len,
 )
 
-from cppimport import import_hook  # noqa: F401
 from .build_tree_searchtable_cpp import build_normal as build_cpp, Records
 
 
