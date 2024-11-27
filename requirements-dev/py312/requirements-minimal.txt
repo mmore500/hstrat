@@ -131,6 +131,7 @@ pillow==11.0.0
     # via matplotlib
 polars==1.13.1
     # via
+    #   hstrat (../../pyproject.toml)
     #   downstream
     #   joinem
 prettytable==3.12.0

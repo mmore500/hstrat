@@ -300,6 +300,7 @@ pluggy==1.5.0
     #   tox
 polars==1.13.1
     # via
+    #   hstrat (../../pyproject.toml)
     #   downstream
     #   joinem
 prettytable==3.12.0
