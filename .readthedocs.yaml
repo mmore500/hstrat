@@ -9,8 +9,7 @@ build:
     python: "3.11"
   commands:
     - pip install -r requirements-dev/requirements-docs.txt
-    - export CC=clang-19
-    - python3 setup.py build_ext --inplace
+    - CC=clang-19 python3 setup.py build_ext --inplace
     - pip install . --no-deps
     - make -C docs/ html
     - mkdir -p _readthedocs
