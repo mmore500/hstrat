@@ -9,6 +9,7 @@
 #include <span>
 #include <unordered_map>
 #include <vector>
+#include <iostream>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -92,7 +93,7 @@ public:
         u64 next() {  // potentially use a std::span arg instead of referencing the vector
                 u64 cur;
                 if (!this->prev) {
-                        this->prev = node;
+                        this->prev = this->node;
                         cur = this->records.search_first_child_id[this->node];
                 } else {
                         cur = this->records.search_next_sibling_id[this->prev];
@@ -104,91 +105,6 @@ public:
                 return this->prev;
         }
 };
-
-// Sentinel type to mark the end of iteration
-struct ChildrenSentinel {};
-
-// ChildrenIterator using the sentinel pattern
-template<typename RecordsBegin>
-struct ChildrenIterator {
-
-    // Iterator traits
-    using iterator_category = std::input_iterator_tag;
-    using value_type = u64;
-    using difference_type = std::ptrdiff_t;
-    using pointer = const u64*;
-    using reference = const u64&;
-
-    // Iterator to the vector's begin (or any offset for random access)
-    RecordsBegin records_begin;
-    u64 current_id;
-
-    // Constructor
-    ChildrenIterator(const RecordsBegin records_begin, const u64 current_id)
-        : records_begin(records_begin), current_id(current_id) {}
-
-    // Dereference operator
-    u64 operator*() const { return current_id; }
-
-    // Pre-increment operator
-    ChildrenIterator& operator++() {
-        assert(current_id);
-
-        u64 next_sibling_id = *std::next(records_begin, current_id);
-
-        assert(next_sibling_id);
-        current_id = next_sibling_id == current_id ? 0 : next_sibling_id;
-        return *this;
-    }
-
-    // Post-increment operator
-    ChildrenIterator operator++(int) {
-        ChildrenIterator tmp = *this;
-        ++(*this);
-        return tmp;
-    }
-
-    // Equality comparison between iterators
-    bool operator==(const ChildrenIterator& other) const {
-        return current_id == other.current_id;
-    }
-    bool operator!=(const ChildrenIterator& other) const {
-        return current_id != other.current_id;
-    }
-
-};
-
-template<typename RecordsBegin>
-bool operator==(
-        const ChildrenSentinel&,
-        const ChildrenIterator<RecordsBegin>& iter
-) {
-    return iter.current_id == 0;
-}
-
-template<typename RecordsBegin>
-class ChildrenRange
-        : public std::ranges::view_interface<ChildrenRange<RecordsBegin>> {
-
-    RecordsBegin records_begin;
-    u64 node_id;
-
-public:
-    ChildrenRange(const RecordsBegin records_begin, const u64 node_id)
-        : records_begin(records_begin), node_id(node_id) {}
-
-    ChildrenIterator<RecordsBegin> begin() {
-        return ChildrenIterator{records_begin, node_id};
-    }
-
-    ChildrenSentinel end() { return ChildrenSentinel{}; }
-};
-
-using RecordsBegin = decltype(std::vector<u64>().begin());
-
-static_assert(std::input_iterator<ChildrenIterator<RecordsBegin>>);
-static_assert(std::sentinel_for<ChildrenSentinel, ChildrenIterator<RecordsBegin>>);
-
 
 void detach_search_parent(Records &records, u64 node) {
         u64 parent = records.search_ancestor_id[node];
@@ -227,75 +143,38 @@ void attach_search_parent(Records &records, u64 node, u64 parent) {
         records.search_first_child_id[parent] = node;
 }
 
-// setup
-constexpr int ix_rank = 0;
-constexpr int ix_diff = 1;
-constexpr int ix_child = 2;
-constexpr int ix_gchild = 3;
-using item_t = std::tuple<u64, u64, u64, u64>;
+
+struct TupleHash {
+        u64 operator()(const std::tuple<u64, u64> &obj) const {
+                return std::get<0>(obj) ^ std::get<1>(obj);
+        }
+};
 
 void collapse_indistinguishable_nodes(Records &records, const u64 node) {
-
-        // extract all grandchildren
-        static std::vector<item_t> grandchildren;
-        grandchildren.resize(0);
-        std::ranges::for_each(
-                ChildrenRange{records.search_next_sibling_id.cbegin(), node},
-                [&records](const u64 child) {
-                        std::ranges::transform(
-                                ChildrenRange{records.search_next_sibling_id.cbegin(), child},
-                                std::back_inserter(grandchildren),
-                                [&records, child](const u64 gchild) {
-                                        return item_t{
-                                                records.rank[gchild],
-                                                records.differentia[gchild],
-                                                child,
-                                                gchild
-                                        };
-                                }
-                        );
-                }
-        );
-        std::sort(std::begin(grandchildren), std::end(grandchildren));
-
-        // group by rank and differentia
-        auto groups = std::views::chunk_by(
-                grandchildren,
-                [](const item_t &a, const item_t &b) {
-                        return (
-                                std::get<ix_rank>(a) == std::get<ix_rank>(b)
-                                && std::get<ix_diff>(a) == std::get<ix_diff>(b)
-                        );
-                }
-        );
-        for (const auto &group : groups) {
-
-                // find the winner and losers
-                // reassign losers' children to winner
-                const u64 winner = std::get<ix_child>(group.front());
-
-
-                auto losers_view = std::views::drop_while(
-                        [&winner](const item_t &item) {
-                                return std::get<ix_child>(item) == winner;
-                        }
-                );
-                auto losers = group | losers_view;
-
-                u64 prev = 0;
-                for (const auto &gloser : losers) {
-                        const u64 loser = std::get<ix_child>(gloser);
-                        const u64 loser_child = std::get<ix_gchild>(gloser);
-                        detach_search_parent(records, loser_child);
-                        attach_search_parent(records, loser_child, winner);
-                        if (loser != prev) {
-                                detach_search_parent(records, loser);
-                                prev = loser;
-                        }
-                }
-
+        std::unordered_map<std::tuple<u64, u64>, std::vector<u64>, TupleHash> groups;
+        ChildrenGenerator gen(records, node);
+        u64 child;
+        while ((child = gen.next())) {  // consider what we are using as the key here
+                std::vector<u64> &items = groups[{records.rank[child], records.differentia[child]}];
+                items.insert(std::lower_bound(items.begin(), items.end(), child), child);
         }
+        for (auto [_, children] : groups) {
+                u64 winner = children[0];
+                for (u64 i = 1; i < children.size(); ++i) {
+                        u64 loser = children[i], loser_child;
 
+                        std::vector<u64> loser_children;
+                        ChildrenGenerator loser_children_gen(records, loser);
+                        while ((loser_child = loser_children_gen.next())) {
+                                loser_children.push_back(loser_child);
+                        }
+                        for (const u64 loser_child : loser_children) {
+                                detach_search_parent(records, loser_child);
+                                attach_search_parent(records, loser_child, winner);
+                        }
+                        detach_search_parent(records, loser);
+                }
+        }
 }
 
 
@@ -415,12 +294,11 @@ Records build_trie_searchtable_normal(
         const std::vector<u64> &num_strata_depositeds,
         const std::vector<std::vector<u64>> &ranks,
         const std::vector<std::vector<u64>> &differentiae,
-        std::optional<py::handle> tqdm_progress_bar = std::optional<py::handle>{}
+        py::handle tqdm_progress_bar = py::none{}
 ) {
         const py::detail::str_attr_accessor logging_info = py::module::import("logging").attr("info");
-        const std::optional<py::detail::str_attr_accessor> progress_bar_updater = tqdm_progress_bar.and_then(
-                [] (auto a) {return std::optional<py::detail::str_attr_accessor>(a.attr("update"));}
-        );
+        const auto progress_bar_updater = tqdm_progress_bar.is_none() ? std::optional<py::detail::str_attr_accessor>{}
+                                          : std::optional<py::detail::str_attr_accessor>(tqdm_progress_bar.attr("update"));
 
         Records records;
         records.reset(data_ids.size());
@@ -443,7 +321,7 @@ Records build_trie_searchtable_normal(
                 if (progress_bar_updater.has_value()) {
                         progress_bar_updater.value()(1);
                         if (i == ranks.size() - 1) {
-                                tqdm_progress_bar.value().attr("close")();
+                                tqdm_progress_bar.attr("close")();
                         }
                 }
         }
@@ -456,12 +334,11 @@ Records build_trie_searchtable_exploded(
         const py::array_t<u64> &num_strata_depositeds,
         const py::array_t<u64> &ranks,
         const py::array_t<u64> &differentiae,
-        std::optional<py::handle> tqdm_progress_bar = std::optional<py::handle>{}
+        py::handle tqdm_progress_bar = py::none{}
 ) {
         const py::detail::str_attr_accessor logging_info = py::module::import("logging").attr("info");
-        const std::optional<py::detail::str_attr_accessor> progress_bar_updater = tqdm_progress_bar.and_then(
-                [] (auto a) {return std::optional<py::detail::str_attr_accessor>(a.attr("update"));}
-        );
+        const auto progress_bar_updater = tqdm_progress_bar.is_none() ? std::optional<py::detail::str_attr_accessor>{}
+                                          : std::optional<py::detail::str_attr_accessor>(tqdm_progress_bar.attr("update"));
 
         Records records;
         records.reset(data_ids.size());
@@ -503,7 +380,7 @@ Records build_trie_searchtable_exploded(
         );
         if (progress_bar_updater.has_value()) {
                 progress_bar_updater.value()(1);
-                tqdm_progress_bar.value().attr("close")();
+                tqdm_progress_bar.attr("close")();
         }
 
         return records;
@@ -516,13 +393,13 @@ PYBIND11_MODULE(build_tree_searchtable_cpp, m) {
               py::arg("num_strata_depositeds"),
               py::arg("ranks"),
               py::arg("differentiae"),
-              py::arg("tqdm_progress_bar") = std::optional<py::handle>{});
+              py::arg("tqdm_progress_bar") = py::none{});
         m.def("build_normal", &build_trie_searchtable_normal,
               py::arg("data_ids"),
               py::arg("num_strata_depositeds"),
               py::arg("ranks"),
               py::arg("differentiae"),
-              py::arg("tqdm_progress_bar") = std::optional<py::handle>{});
+              py::arg("tqdm_progress_bar") = py::none{});
         py::class_<Records>(m, "Records")
                 .def_property_readonly("differentia", [] (const Records &records) {
                         return py::memoryview::from_memory(records.differentia.data(), records.differentia.size() * sizeof(u64));
@@ -544,7 +421,7 @@ PYBIND11_MODULE(build_tree_searchtable_cpp, m) {
 
 /*
 <%
-cfg['extra_compile_args'] = ['-std=c++23', '-O3']
+cfg['extra_compile_args'] = ['-std=c++20', '-O3']
 setup_pybind11(cfg)
 %>
 */

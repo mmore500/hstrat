@@ -8,6 +8,7 @@ try:
     from cppimport import import_hook  # noqa: F401
 except:
     pass
+import numpy as np
 import opytional as opyt
 import pandas as pd
 import tqdm
@@ -240,12 +241,12 @@ def finalize_records_cpp(
 ) -> pd.DataFrame:
     df = pd.DataFrame(
         {
-            "origin_time": records.rank,
-            "rank": records.rank,
-            "ancestor_id": records.ancestor_id,
-            "id": records.id,
-            "dstream_data_id": records.dstream_data_id,
-            "differentia": records.differentia,
+            "origin_time": np.frombuffer(records.rank, dtype=np.uint64),
+            "rank": np.frombuffer(records.rank, dtype=np.uint64),
+            "ancestor_id": np.frombuffer(records.ancestor_id, dtype=np.uint64),
+            "id": np.frombuffer(records.id, dtype=np.uint64),
+            "dstream_data_id": np.frombuffer(records.dstream_data_id, dtype=np.uint64),
+            "differentia": np.frombuffer(records.differentia, dtype=np.uint64),
         }
     )
     df["taxon_label"] = [str(sorted_labels[i]) for i in df["dstream_data_id"]]
