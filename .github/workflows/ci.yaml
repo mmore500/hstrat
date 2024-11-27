@@ -246,6 +246,22 @@ jobs:
           cd
           python3 -c "import hstrat; print(hstrat.__version__)"
 
+  deploy-ghcr:
+    name: Docker Image Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build and Push to GitHub Container Registry
+        uses: docker/build-push-action@v1
+        with:
+          push:
+          tags: "latest,${{github.ref_name}}"
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          repository: mmore500/hstat
+          registry: ghcr.io
+          add_git_labels: true
+
   deploy-test:
     runs-on: ubuntu-24.04
     steps:
