@@ -3,7 +3,7 @@ import logging
 from joinem import dataframe_cli
 
 from .._auxiliary_lib import get_hstrat_version
-from ._surface_unpack_reconstrct import surface_unpack_reconstruct
+from ._surface_unpack_reconstruct import surface_unpack_reconstruct
 
 if __name__ == "__main__":
     logging.basicConfig(

@@ -1,4 +1,3 @@
-from copy import deepcopy
 import logging
 
 from downstream import dataframe as dstream_dataframe
@@ -7,11 +6,8 @@ import polars as pl
 import tqdm
 
 from .._auxiliary_lib import alifestd_make_empty
-from ..phylogenetic_inference.tree._build_tree_searchtable import (
-    finalize_records_cpp,
-)
 from ..phylogenetic_inference.tree.build_tree_searchtable_cpp import (
-    build as build_cpp,
+    build_exploded as build_cpp,
 )
 
 

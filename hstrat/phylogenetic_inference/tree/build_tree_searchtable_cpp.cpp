@@ -393,14 +393,15 @@ struct py_array_span {
           : data_accessor(data), start(start), end(end) { };
 };
 
-
+template <typename span_type>
 void insert_artifact(
         Records &records,
-        py_array_span<u64> &&ranks,
-        py_array_span<u64> &&differentiae,  // ranks.size() == diff.size()
+        span_type &&ranks,
+        span_type &&differentiae,
         const u64 data_id,
         u64 num_strata_deposited
 ) {
+        assert(ranks.size() == differentiae.size());
         u64 cur_node = 0;
         for (u64 i = 0; i < ranks.size(); ++i) {
                 const u64 &r = ranks[i], &d = differentiae[i];
@@ -410,8 +411,48 @@ void insert_artifact(
         create_offstring(records, cur_node, num_strata_deposited - 1, -1, data_id);
 }
 
+Records build_trie_searchtable_normal(
+        const std::vector<u64> &data_ids,
+        const std::vector<u64> &num_strata_depositeds,
+        const std::vector<std::vector<u64>> &ranks,
+        const std::vector<std::vector<u64>> &differentiae,
+        std::optional<py::handle> tqdm_progress_bar = std::optional<py::handle>{}
+) {
+        const py::detail::str_attr_accessor logging_info = py::module::import("logging").attr("info");
+        const std::optional<py::detail::str_attr_accessor> progress_bar_updater = tqdm_progress_bar.and_then(
+                [] (auto a) {return std::optional<py::detail::str_attr_accessor>(a.attr("update"));}
+        );
 
-Records build_trie_searchtable(
+        Records records;
+        records.reset(data_ids.size());
+        assert(data_ids.size() == num_strata_depositeds.size()
+               && data_ids.size() == ranks.size()
+               && data_ids.size() == differentiae.size());
+        if (!data_ids.size()) {
+                return records;
+        }
+
+        logging_info("begin searchtable cpp");
+
+        for (u64 i = 0; i < ranks.size(); ++i) {
+                insert_artifact<std::span<const u64>>(
+                        records,
+                        std::span<const u64>(ranks[i]),
+                        std::span<const u64>(differentiae[i]),
+                        data_ids[i], num_strata_depositeds[i]
+                );
+                if (progress_bar_updater.has_value()) {
+                        progress_bar_updater.value()(1);
+                        if (i == ranks.size() - 1) {
+                                tqdm_progress_bar.value().attr("close")();
+                        }
+                }
+        }
+
+        return records;
+}
+
+Records build_trie_searchtable_exploded(
         const py::array_t<u64> &data_ids,
         const py::array_t<u64> &num_strata_depositeds,
         const py::array_t<u64> &ranks,
@@ -442,7 +483,7 @@ Records build_trie_searchtable(
         u64 start = 0, start_data_id = data_ids_accessor[0];
         for (u64 i = 1; i < ranks.size(); ++i) {
                 if (start_data_id != data_ids_accessor[i]) {
-                        insert_artifact(
+                        insert_artifact<py_array_span<u64>>(
                                 records,
                                 py_array_span<u64>(ranks_accessor, start, i),
                                 py_array_span<u64>(differentiae_accessor, start, i),
@@ -467,21 +508,17 @@ Records build_trie_searchtable(
         }
 
         return records;
-
-        // logging_info("end searchtable cpp");
-        // std::unordered_map<std::string, py::memoryview> ret;
-        // ret.insert({"dstream_data_id", py::memoryview::from_memory(records.data_id.data(), records.data_id.size() * sizeof(u64))});
-        // ret.insert({"id", py::memoryview::from_memory(records.id.data(), records.id.size() * sizeof(u64))});
-        // ret.insert({"ancestor_id", py::memoryview::from_memory(records.ancestor_id.data(), records.ancestor_id.size() * sizeof(u64))});
-        // ret.insert({"differentia", py::memoryview::from_memory(records.differentia.data(), records.differentia.size() * sizeof(u64))});
-        // ret.insert({"rank", py::memoryview::from_memory(records.rank.data(), records.rank.size() * sizeof(u64))});
-        // logging_info("exit searchtable cpp");
-        // return py::cast(ret);
 }
 
 
 PYBIND11_MODULE(build_tree_searchtable_cpp, m) {
-        m.def("build", &build_trie_searchtable,
+        m.def("build_exploded", &build_trie_searchtable_exploded,
+              py::arg("data_ids"),
+              py::arg("num_strata_depositeds"),
+              py::arg("ranks"),
+              py::arg("differentiae"),
+              py::arg("tqdm_progress_bar") = std::optional<py::handle>{});
+        m.def("build_normal", &build_trie_searchtable_normal,
               py::arg("data_ids"),
               py::arg("num_strata_depositeds"),
               py::arg("ranks"),

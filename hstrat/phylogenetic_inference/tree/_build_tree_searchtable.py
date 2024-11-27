@@ -2,10 +2,9 @@ import collections
 import dataclasses
 import itertools as it
 import sys
-from time import perf_counter
 import typing
 
-from cppimport import import_hook  # noqa: F401
+import tqdm
 import opytional as opyt
 import pandas as pd
 
@@ -17,7 +16,9 @@ from ..._auxiliary_lib import (
     argsort,
     give_len,
 )
-from .build_tree_searchtable_cpp import build as build_cpp
+
+from cppimport import import_hook  # noqa: F401
+from .build_tree_searchtable_cpp import build_normal as build_cpp, Records
 
 
 @dataclasses.dataclass(slots=True)
@@ -230,12 +231,18 @@ def insert_artifact(
 
 
 def finalize_records_cpp(
-    records: typing.Dict[str, typing.List[int]],
+    records: Records,
     sorted_labels: typing.List[str],
     force_common_ancestry: bool,
 ) -> pd.DataFrame:
-    df = pd.DataFrame(records)
-    df["origin_time"] = df["rank"]
+    df = pd.DataFrame({
+        "origin_time": records.rank,
+        "rank": records.rank,
+        "ancestor_id": records.ancestor_id,
+        "id": records.id,
+        "dstream_data_id": records.dstream_data_id,
+        "differentia": records.differentia
+    })
     df["taxon_label"] = [str(sorted_labels[i]) for i in df["dstream_data_id"]]
 
     multiple_true_roots = (
@@ -290,13 +297,14 @@ def build_tree_searchtable(
 ) -> pd.DataFrame:
     """TODO."""
     # for simplicity, return early for this special case
-    if len(population) == 0:
+    pop_len = len(population)
+    if pop_len == 0:
         return alifestd_make_empty()
 
     taxon_labels = list(
         opyt.or_value(
             taxon_labels,
-            map(int, range(len(population))),
+            map(int, range(pop_len)),
         )
     )
 
@@ -307,41 +315,17 @@ def build_tree_searchtable(
     records = [Record(taxon_label=sys.maxsize)]
 
     if use_cpp:
-        args = (
-            sum(
-                (
-                    [i] * art.GetNumStrataRetained()
-                    for i, art in enumerate(sorted_population)
-                ),
-                [],
-            ),
-            sum(
-                (
-                    [art.GetNumStrataDeposited()] * art.GetNumStrataRetained()
-                    for art in sorted_population
-                ),
-                [],
-            ),
-            sum(
-                (
-                    [*map(int, art.IterRetainedRanks())]
-                    for art in sorted_population
-                ),
-                [],
-            ),
-            sum(
-                (
-                    [*map(int, art.IterRetainedDifferentia())]
-                    for art in sorted_population
-                ),
-                [],
-            ),
+        res = build_cpp(
+            [*range(pop_len)],
+            [x.GetNumStrataDeposited() for x in sorted_population],
+            [[*x.IterRetainedRanks()] for x in sorted_population],
+            [[*x.IterRetainedDifferentia()] for x in sorted_population],
+            (tqdm.tqdm() if isinstance(progress_wrap, tqdm.tqdm) else None),
         )
-        res = build_cpp(*args)
         return finalize_records_cpp(res, sorted_labels, force_common_ancestry)
 
     for label, artifact in progress_wrap(
-        give_len(zip(sorted_labels, sorted_population), len(population)),
+        give_len(zip(sorted_labels, sorted_population), pop_len),
     ):
         insert_artifact(
             records,
