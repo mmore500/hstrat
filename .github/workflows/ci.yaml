@@ -258,7 +258,7 @@ jobs:
           tags: "latest,${{github.ref_name}}"
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          repository: mmore500/hstat
+          repository: mmore500/hstrat
           registry: ghcr.io
           add_git_labels: true
 
