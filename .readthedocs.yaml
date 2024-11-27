@@ -4,9 +4,11 @@ build:
   os: "ubuntu-22.04"
   apt_packages:
     - pandoc
+    - clang-19
   tools:
     python: "3.11"
   commands:
+    - export CC=clang-19
     - pip install -r requirements-dev/requirements-docs.txt
     - pip install . --no-deps
     - make -C docs/ html

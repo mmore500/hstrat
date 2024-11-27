@@ -1,6 +1,5 @@
 // cppimport
 
-#include "pybind11/attr.h"
 #include "pybind11/detail/common.h"
 #include "pybind11/pytypes.h"
 #include <algorithm>
