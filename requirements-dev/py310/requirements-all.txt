@@ -10,6 +10,10 @@ anytree==2.12.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
+appnope==0.1.4
+    # via
+    #   ipykernel
+    #   ipython
 asttokens==2.4.1
     # via stack-data
 attrs==24.2.0
@@ -74,7 +78,7 @@ deprecated==1.2.15
     #   alifedata-phyloinformatics-convert
 distlib==0.3.9
     # via virtualenv
-docutils==0.17.1
+docutils==0.21.2
     # via
     #   nbsphinx
     #   readme-renderer
@@ -415,12 +419,13 @@ sortedcontainers==2.4.0
     #   alifedata-phyloinformatics-convert
 soupsieve==2.6
     # via beautifulsoup4
-sphinx==4.4.0
+sphinx==8.1.3
     # via
     #   hstrat (../../pyproject.toml)
     #   nbsphinx
     #   sphinx-rtd-theme
-sphinx-rtd-theme==1.0.0
+    #   sphinxcontrib-jquery
+sphinx-rtd-theme==3.0.2
     # via hstrat (../../pyproject.toml)
 sphinxcontrib-applehelp==2.0.0
     # via sphinx
@@ -428,6 +433,8 @@ sphinxcontrib-devhelp==2.0.0
     # via sphinx
 sphinxcontrib-htmlhelp==2.1.0
     # via sphinx
+sphinxcontrib-jquery==4.1
+    # via sphinx-rtd-theme
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
 sphinxcontrib-qthelp==2.0.0
@@ -453,6 +460,7 @@ tomli==2.1.0
     #   mypy
     #   pytest
     #   setuptools-scm
+    #   sphinx
 tornado==6.4.1
     # via
     #   ipykernel
