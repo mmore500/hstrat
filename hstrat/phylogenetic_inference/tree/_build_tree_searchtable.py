@@ -235,14 +235,16 @@ def finalize_records_cpp(
     sorted_labels: typing.List[str],
     force_common_ancestry: bool,
 ) -> pd.DataFrame:
-    df = pd.DataFrame({
-        "origin_time": records.rank,
-        "rank": records.rank,
-        "ancestor_id": records.ancestor_id,
-        "id": records.id,
-        "dstream_data_id": records.dstream_data_id,
-        "differentia": records.differentia
-    })
+    df = pd.DataFrame(
+        {
+            "origin_time": records.rank,
+            "rank": records.rank,
+            "ancestor_id": records.ancestor_id,
+            "id": records.id,
+            "dstream_data_id": records.dstream_data_id,
+            "differentia": records.differentia,
+        }
+    )
     df["taxon_label"] = [str(sorted_labels[i]) for i in df["dstream_data_id"]]
 
     multiple_true_roots = (
