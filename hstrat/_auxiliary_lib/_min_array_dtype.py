@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def min_array_dtype(arr: np.array) -> np.dtype:
+def min_array_dtype(arr: np.ndarray) -> np.dtype:
     """Determine the most compact numpy dtype required to represent the values
     in the input array.
 

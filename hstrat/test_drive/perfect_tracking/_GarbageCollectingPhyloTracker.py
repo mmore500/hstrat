@@ -25,7 +25,7 @@ class GarbageCollectingPhyloTracker:
     _population_size: int
     _working_buffer_size: int
 
-    _parentage_buffer: np.array  # [int]
+    _parentage_buffer: np.ndarray  # [int]
     """1d array with entries representing individual organisms and stored
     value at each entry corresponding to index of entry representing that
     organism's parent."""
@@ -66,17 +66,17 @@ class GarbageCollectingPhyloTracker:
     #   garbage collected
     # * self-loop parent_row_idx's denotes no parent (i.e., lineage begin)
 
-    _loc_buffer: np.array  # [int]
+    _loc_buffer: np.ndarray  # [int]
     """Population position of each tracked organism; entries describe same
     organism as entry with corresponding row index in `_parentage_buffer`."""
 
-    _trait_buffer: np.array  # [float]
+    _trait_buffer: np.ndarray  # [float]
     """Phenotypic trait of each tracked organism; entries describe same
     organism as entry with corresponding row index in `_parentage_buffer`."""
 
     def __init__(
         self: "GarbageCollectingPhyloTracker",
-        initial_population: typing.Union[int, np.array],  # [float]
+        initial_population: typing.Union[int, np.ndarray],  # [float]
         working_buffer_size: typing.Optional[int] = None,
         share_common_ancestor: bool = True,
     ) -> None:
@@ -257,8 +257,8 @@ class GarbageCollectingPhyloTracker:
 
     def ElapseGeneration(
         self: "GarbageCollectingPhyloTracker",
-        parent_locs: typing.List[int],  # np.array ok
-        traits: typing.Optional[typing.List[float]] = None,  # np.array ok
+        parent_locs: typing.List[int],  # np.ndarray ok
+        traits: typing.Optional[typing.List[float]] = None,  # np.ndarray ok
     ) -> None:
         """Append generational turnover to the phylogenetic record.
 
@@ -299,8 +299,8 @@ class GarbageCollectingPhyloTracker:
 
     def ApplyLocSwaps(
         self: "GarbageCollectingPhyloTracker",
-        swapfrom_locs: np.array,  # [int]
-        swapto_locs: np.array,  # [int]
+        swapfrom_locs: np.ndarray,  # [int]
+        swapto_locs: np.ndarray,  # [int]
     ) -> None:
         """Swap organisms between population locations.
 
@@ -328,8 +328,8 @@ class GarbageCollectingPhyloTracker:
 
     def ApplyLocPasteovers(
         self: "GarbageCollectingPhyloTracker",
-        copyfrom_locs: np.array,  # [int]
-        copyto_locs: np.array,  # [int]
+        copyfrom_locs: np.ndarray,  # [int]
+        copyto_locs: np.ndarray,  # [int]
     ) -> None:
         """Replace organisms at `copyto_locs` locations with non-descendant
         clones of organisms at `copyfrom_locs` locations.

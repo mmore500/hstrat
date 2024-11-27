@@ -151,7 +151,7 @@ def evolve_fitness_trait_population(
     )
 
     def epoch_iterator(
-        pop_arr: np.array,
+        pop_arr: np.ndarray,
         pop_tracker: GarbageCollectingPhyloTracker,
     ) -> typing.Iterator[pd.DataFrame]:
         """Infinite iterator that yields cumulative phylogeny at evenly-spaced

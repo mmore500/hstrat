@@ -7,11 +7,11 @@ from ...._auxiliary_lib import jit, jit_numpy_bool_t
 # with nopython directive
 @jit(nopython=True)
 def _discern_referenced_rows(
-    parentage_buffer: np.array,
+    parentage_buffer: np.ndarray,
     num_records: int,
     population_size: int,
     below_row: int = 0,
-) -> np.array:
+) -> np.ndarray:
     """Return array of indices for all rows at or below `below_row` that
     represent organisms with extant lineages.
 

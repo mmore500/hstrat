@@ -3,7 +3,7 @@ import numpy as np
 from ._min_array_dtype import min_array_dtype
 
 
-def as_compact_type(array: np.array) -> np.array:
+def as_compact_type(array: np.ndarray) -> np.ndarray:
     """
     Given an input numpy array, this function returns a copy of the input array
     cast to the most compact possible numpy datatype that can hold the values in the input array without overflow.
