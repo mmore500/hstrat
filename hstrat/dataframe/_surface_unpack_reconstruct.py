@@ -1,9 +1,10 @@
 import logging
 
-from downstream import dataframe as dstream_dataframe
 import numpy as np
 import polars as pl
 import tqdm
+
+from downstream import dataframe as dstream_dataframe
 
 from .._auxiliary_lib import alifestd_make_empty
 from ..phylogenetic_inference.tree._build_tree_searchtable_cpp import (
@@ -107,7 +108,7 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         long_df["dstream_T"].to_numpy(),
         long_df["dstream_Tbar"].to_numpy(),
         long_df["dstream_value"].to_numpy(),
-        tqdm.tqdm
+        tqdm.tqdm,
     )
 
     logging.info("finalizing tree...")

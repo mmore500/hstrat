@@ -245,7 +245,9 @@ def finalize_records_cpp(
             "rank": np.frombuffer(records.rank, dtype=np.uint64),
             "ancestor_id": np.frombuffer(records.ancestor_id, dtype=np.uint64),
             "id": np.frombuffer(records.id, dtype=np.uint64),
-            "dstream_data_id": np.frombuffer(records.dstream_data_id, dtype=np.uint64),
+            "dstream_data_id": np.frombuffer(
+                records.dstream_data_id, dtype=np.uint64
+            ),
             "differentia": np.frombuffer(records.differentia, dtype=np.uint64),
         }
     )
