@@ -417,7 +417,7 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp, m) {
               py::arg("ranks"),
               py::arg("differentiae"),
               py::arg("tqdm_progress_bar") = py::none{});
-        py::class_<Records>(m, "Records")
+        py::class_<Records>(m, "RecordHolder_C")
                 .def_property_readonly("differentia", [] (const Records &records) {
                         return py::memoryview::from_memory(records.differentia.data(), records.differentia.size() * sizeof(u64));
                 }, py::return_value_policy::reference_internal)

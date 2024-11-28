@@ -4,6 +4,10 @@ import numpy as np
 import polars as pl
 import tqdm
 
+try:
+    from cppimport import import_hook  # noqa: F401
+except:
+    pass
 from downstream import dataframe as dstream_dataframe
 
 from .._auxiliary_lib import alifestd_make_empty

@@ -3,7 +3,7 @@ import typing
 import numpy as np
 import tqdm
 
-class Records:
+class RecordHolder_C:
     @property
     def dstream_data_id(self) -> memoryview: ...
     @property
@@ -21,11 +21,11 @@ def build_exploded(
     ranks: np.ndarray,
     differentiae: np.ndarray,
     tqdm_progress_bar: typing.Optional[typing.Type[tqdm.tqdm]] = None,
-) -> Records: ...
+) -> RecordHolder_C: ...
 def build_normal(
     data_ids: typing.List[int],
     num_strata_depositeds: typing.List[int],
     ranks: typing.List[typing.List[int]],
     differentiae: typing.List[typing.List[int]],
     tqdm_progress_bar: typing.Optional[typing.Type[tqdm.tqdm]] = None,
-) -> Records: ...
+) -> RecordHolder_C: ...

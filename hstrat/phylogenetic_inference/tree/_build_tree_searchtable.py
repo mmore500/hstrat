@@ -21,8 +21,8 @@ from ..._auxiliary_lib import (
     argsort,
     give_len,
 )
-from ._build_tree_searchtable_cpp import Records
-from ._build_tree_searchtable_cpp import build_normal as build_cpp
+if typing.TYPE_CHECKING:
+    from _build_tree_searchtable_cpp import RecordHolder_C
 
 
 @dataclasses.dataclass(slots=True)
@@ -209,8 +209,8 @@ def place_allele(
 
 def insert_artifact(
     records: typing.List[Record],
-    ranks: typing.List[int],
-    differentiae: typing.List[int],
+    ranks: typing.Iterable[int],
+    differentiae: typing.Iterable[int],
     label: int,
     num_strata_deposited: int,
 ) -> None:
@@ -233,9 +233,8 @@ def insert_artifact(
         taxon_label=label,
     )
 
-
 def finalize_records_cpp(
-    records: Records,
+    records: "RecordHolder_C",
     sorted_labels: typing.List[str],
     force_common_ancestry: bool,
 ) -> pd.DataFrame:
@@ -301,10 +300,13 @@ def build_tree_searchtable(
     taxon_labels: typing.Optional[typing.Iterable] = None,
     progress_wrap: typing.Callable = lambda x: x,
     force_common_ancestry: bool = False,
-    use_cpp: bool = False,
+    use_cpp: typing.Optional[bool] = None,
 ) -> pd.DataFrame:
-    """TODO."""
-    # for simplicity, return early for this special case
+    """
+    Uses the consolidated algorithm to build a tree, using a
+    searchtable to access elements thereof.
+    """
+
     pop_len = len(population)
     if pop_len == 0:
         return alifestd_make_empty()
@@ -315,33 +317,33 @@ def build_tree_searchtable(
             map(int, range(pop_len)),
         )
     )
-
     sort_order = argsort([x.GetNumStrataDeposited() for x in population])
     sorted_labels = [taxon_labels[i] for i in sort_order]
     sorted_population = [population[i] for i in sort_order]
 
+    if use_cpp != False:
+        try:
+            from ._build_tree_searchtable_cpp import build_normal as build_cpp
+            return finalize_records_cpp(build_cpp(
+                [*range(len(sorted_population))],
+                [x.GetNumStrataDeposited() for x in sorted_population],
+                [[*x.IterRetainedRanks()] for x in sorted_population],
+                [[*x.IterRetainedDifferentia()] for x in sorted_population],
+                (tqdm.tqdm if progress_wrap is tqdm.tqdm else None),
+            ), sorted_labels, force_common_ancestry)
+        except ImportError:
+            if use_cpp is not None:
+                raise RuntimeError("Could not import C++ module `_build_tree_searchtable_cpp`.")
+
     records = [Record(taxon_label=sys.maxsize)]
-
-    if use_cpp:
-        res = build_cpp(
-            [*range(pop_len)],
-            [x.GetNumStrataDeposited() for x in sorted_population],
-            [[*x.IterRetainedRanks()] for x in sorted_population],
-            [[*x.IterRetainedDifferentia()] for x in sorted_population],
-            (tqdm.tqdm if progress_wrap is tqdm.tqdm else None),
-        )
-        return finalize_records_cpp(res, sorted_labels, force_common_ancestry)
-
     for label, artifact in progress_wrap(
-        give_len(zip(sorted_labels, sorted_population), pop_len),
+        give_len(zip(sorted_labels, sorted_population), len(sorted_population)),
     ):
         insert_artifact(
             records,
-            # map int to make invariant to numpy input
-            [*map(int, artifact.IterRetainedRanks())],
-            [*map(int, artifact.IterRetainedDifferentia())],
+            artifact.IterRetainedRanks(),
+            artifact.IterRetainedDifferentia(),
             label,
             artifact.GetNumStrataDeposited(),
         )
-
     return finalize_records(records, force_common_ancestry)

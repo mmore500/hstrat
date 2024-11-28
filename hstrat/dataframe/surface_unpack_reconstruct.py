@@ -1,7 +1,7 @@
 import argparse
 import logging
 
-from joinem._dataframe_cli import _run_dataframe_cli, _add_parser_base
+from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 
 from .._auxiliary_lib import get_hstrat_version
 from ._surface_unpack_reconstruct import surface_unpack_reconstruct
