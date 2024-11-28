@@ -6,7 +6,7 @@ import typing
 
 try:
     from cppimport import import_hook  # noqa: F401
-except:
+except ImportError:
     pass
 import numpy as np
 import opytional as opyt
@@ -323,7 +323,7 @@ def build_tree_searchtable(
     sorted_labels = [taxon_labels[i] for i in sort_order]
     sorted_population = [population[i] for i in sort_order]
 
-    if use_cpp != False:
+    if use_cpp is not False:
         try:
             from ._build_tree_searchtable_cpp import build_normal as build_cpp
 
@@ -342,7 +342,7 @@ def build_tree_searchtable(
                 force_common_ancestry,
             )
         except ImportError:
-            if use_cpp == True:
+            if use_cpp is True:
                 raise ImportError(
                     "Could not import C++ module `_build_tree_searchtable_cpp`."
                     "Try compiling the module from source or use `use_cpp=False`."

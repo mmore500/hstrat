@@ -6,7 +6,7 @@ import tqdm
 
 try:
     from cppimport import import_hook  # noqa: F401
-except:
+except ImportError:
     pass
 from downstream import dataframe as dstream_dataframe
 

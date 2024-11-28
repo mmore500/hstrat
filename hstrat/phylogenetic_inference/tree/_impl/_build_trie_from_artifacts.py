@@ -8,7 +8,7 @@ from typing import Iterable
 
 try:
     from cppimport import import_hook  # noqa: F401
-except:
+except ImportError:
     pass
 import numpy as np
 import opytional as opyt

@@ -2,7 +2,7 @@
 
 try:
     from cppimport import import_hook  # noqa: F401 to the cppimport
-except:
+except ImportError:
     pass
 
 from . import trie_postprocess
