@@ -71,7 +71,7 @@ iterpop==0.4.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
-joinem==0.8.2
+joinem==0.9.1
     # via
     #   hstrat (../../pyproject.toml)
     #   downstream

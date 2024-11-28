@@ -134,7 +134,7 @@ jinja2==3.1.4
     #   nbconvert
     #   nbsphinx
     #   sphinx
-joinem==0.8.2
+joinem==0.9.1
     # via
     #   hstrat (../../pyproject.toml)
     #   downstream
