@@ -10,7 +10,10 @@ except:
     pass
 from downstream import dataframe as dstream_dataframe
 
-from .._auxiliary_lib import alifestd_make_empty
+from .._auxiliary_lib import (
+    alifestd_make_empty,
+    alifestd_try_add_ancestor_list_col_polars,
+)
 from ..phylogenetic_inference.tree._build_tree_searchtable_cpp import (
     build_exploded as build_cpp,
 )
@@ -116,30 +119,35 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
     )
 
     logging.info("finalizing tree...")
-    phylo_df = pl.from_pandas(
-        pl.from_dict(
-            {  # type: ignore
-                "dstream_data_id": np.frombuffer(
-                    records.dstream_data_id, dtype=np.uint64
-                ),
-                "id": np.frombuffer(records.id, dtype=np.uint64),
-                "ancestor_id": np.frombuffer(
-                    records.ancestor_id, dtype=np.uint64
-                ),
-                "rank": np.frombuffer(records.rank, dtype=np.uint64),
-                "differentia": np.frombuffer(
-                    records.differentia, dtype=np.uint64
-                ),
-            },
-            schema={
-                "dstream_data_id": pl.UInt64,
-                "id": pl.UInt64,
-                "ancestor_id": pl.UInt64,
-                "differentia": pl.UInt64,
-                "rank": pl.UInt64,
-            },
-        ).to_pandas()
-    )  # fastest found method of copying memoryview from records object
+
+    # even without alifestd_try_add_ancestor_list_col, the pl.DataFrame.to_pandas()
+    # and pl.from_pandas() are needed to ensure data in the np.frombuffer() are copied.
+    phylo_df = alifestd_try_add_ancestor_list_col_polars(
+        pl.from_pandas(
+            pl.from_dict(
+                {  # type: ignore
+                    "dstream_data_id": np.frombuffer(
+                        records.dstream_data_id, dtype=np.uint64
+                    ),
+                    "id": np.frombuffer(records.id, dtype=np.uint64),
+                    "ancestor_id": np.frombuffer(
+                        records.ancestor_id, dtype=np.uint64
+                    ),
+                    "rank": np.frombuffer(records.rank, dtype=np.uint64),
+                    "differentia": np.frombuffer(
+                        records.differentia, dtype=np.uint64
+                    ),
+                },
+                schema={
+                    "dstream_data_id": pl.UInt64,
+                    "id": pl.UInt64,
+                    "ancestor_id": pl.UInt64,
+                    "differentia": pl.UInt64,
+                    "rank": pl.UInt64,
+                },
+            ).to_pandas(),
+        ),
+    )
 
     logging.info("joining frames...")
     df = df.select(

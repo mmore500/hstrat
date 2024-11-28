@@ -1,11 +1,11 @@
-import pandas as pd
+import polars as pl
 
 
-def alifestd_make_ancestor_list_col(
-    ids: pd.Series,
-    ancestor_ids: pd.Series,
+def alifestd_make_ancestor_list_col_polars(
+    ids: pl.Series,
+    ancestor_ids: pl.Series,
     root_ancestor_token: str = "none",
-) -> pd.Series:
+) -> pl.Series:
     """Translate a column of integer ancestor id values into alife standard
     `ancestor_list` representation.
 
@@ -15,7 +15,6 @@ def alifestd_make_ancestor_list_col(
     "[]". Default "none".
     """
 
-    res = ancestor_ids.map("[{!s}]".format).astype(str)  # specify for empty
-    res[ids == ancestor_ids] = f"[{root_ancestor_token}]"
-
-    return res
+    res = ancestor_ids.cast(pl.String)
+    res[ids == ancestor_ids] = root_ancestor_token
+    return "[" + res + "]"
