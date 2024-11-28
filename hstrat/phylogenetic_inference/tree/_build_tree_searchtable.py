@@ -332,8 +332,9 @@ def build_tree_searchtable(
                 (tqdm.tqdm if progress_wrap is tqdm.tqdm else None),
             ), sorted_labels, force_common_ancestry)
         except ImportError:
-            if use_cpp is not None:
-                raise RuntimeError("Could not import C++ module `_build_tree_searchtable_cpp`.")
+            if use_cpp == True:
+                raise ImportError("Could not import C++ module `_build_tree_searchtable_cpp`."
+                                  "Try compiling the module from source or use `use_cpp=False`.")
 
     records = [Record(taxon_label=sys.maxsize)]
     for label, artifact in progress_wrap(
