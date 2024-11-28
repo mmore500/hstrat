@@ -277,7 +277,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           repository: mmore500/hstrat
           registry: ghcr.io
-          add_git_labels: true
+          add_git_labels: !endsWith(github.ref, 'merge')
 
   deploy-test:
     runs-on: ubuntu-24.04
