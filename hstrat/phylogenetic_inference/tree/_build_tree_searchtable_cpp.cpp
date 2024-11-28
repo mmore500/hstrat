@@ -1,6 +1,5 @@
 // cppimport
 
-#include <iostream>
 #include <algorithm>
 #include <cassert>
 #include <optional>
@@ -9,8 +8,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
 using namespace pybind11::literals;
