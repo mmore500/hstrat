@@ -21,6 +21,7 @@ from ..._auxiliary_lib import (
     argsort,
     give_len,
 )
+
 if typing.TYPE_CHECKING:
     from _build_tree_searchtable_cpp import RecordHolder_C
 
@@ -233,6 +234,7 @@ def insert_artifact(
         taxon_label=label,
     )
 
+
 def finalize_records_cpp(
     records: "RecordHolder_C",
     sorted_labels: typing.List[str],
@@ -324,21 +326,33 @@ def build_tree_searchtable(
     if use_cpp != False:
         try:
             from ._build_tree_searchtable_cpp import build_normal as build_cpp
-            return finalize_records_cpp(build_cpp(
-                [*range(len(sorted_population))],
-                [x.GetNumStrataDeposited() for x in sorted_population],
-                [[*x.IterRetainedRanks()] for x in sorted_population],
-                [[*x.IterRetainedDifferentia()] for x in sorted_population],
-                (tqdm.tqdm if progress_wrap is tqdm.tqdm else None),
-            ), sorted_labels, force_common_ancestry)
+
+            return finalize_records_cpp(
+                build_cpp(
+                    [*range(len(sorted_population))],
+                    [x.GetNumStrataDeposited() for x in sorted_population],
+                    [[*x.IterRetainedRanks()] for x in sorted_population],
+                    [
+                        [*x.IterRetainedDifferentia()]
+                        for x in sorted_population
+                    ],
+                    (tqdm.tqdm if progress_wrap is tqdm.tqdm else None),
+                ),
+                sorted_labels,
+                force_common_ancestry,
+            )
         except ImportError:
             if use_cpp == True:
-                raise ImportError("Could not import C++ module `_build_tree_searchtable_cpp`."
-                                  "Try compiling the module from source or use `use_cpp=False`.")
+                raise ImportError(
+                    "Could not import C++ module `_build_tree_searchtable_cpp`."
+                    "Try compiling the module from source or use `use_cpp=False`."
+                )
 
     records = [Record(taxon_label=sys.maxsize)]
     for label, artifact in progress_wrap(
-        give_len(zip(sorted_labels, sorted_population), len(sorted_population)),
+        give_len(
+            zip(sorted_labels, sorted_population), len(sorted_population)
+        ),
     ):
         insert_artifact(
             records,

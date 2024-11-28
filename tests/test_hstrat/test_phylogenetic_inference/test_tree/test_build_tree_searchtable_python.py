@@ -167,7 +167,9 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
         ).CloneNthDescendant(num_depositions),
     )
 
-    reconst_df = hstrat.build_tree_searchtable(extant_population, use_cpp=False)
+    reconst_df = hstrat.build_tree_searchtable(
+        extant_population, use_cpp=False
+    )
     assert "origin_time" in reconst_df
 
     assert alifestd_validate(reconst_df)

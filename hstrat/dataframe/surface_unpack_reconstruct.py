@@ -96,14 +96,15 @@ if __name__ == "__main__":
         format="%(asctime)s %(levelname)-8s %(message)s",
         level=logging.INFO,
     )
-    parser = argparse.ArgumentParser(description=help_message, formatter_class=SmartHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=help_message, formatter_class=SmartHelpFormatter
+    )
     _add_parser_base(
         parser=parser,
         dfcli_module="hstrat.dataframe.surface_unpack_reconstruct",
-        dfcli_version=get_hstrat_version()
+        dfcli_version=get_hstrat_version(),
     )
     _run_dataframe_cli(
         base_parser=parser,
         output_dataframe_op=surface_unpack_reconstruct,
     )
-
