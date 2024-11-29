@@ -50,7 +50,8 @@ foreach(CPP_FILE ${HSTRAT_CPP_FILES})
     string(REPLACE "/" "." MODULE_NAME ${REL_PATH})
     string(REPLACE "\\" "." MODULE_NAME ${MODULE_NAME}) # For Windows paths
     string(REPLACE ".cpp" "" MODULE_NAME ${MODULE_NAME})
-    string(PREPEND "hstrat." "" MODULE_NAME ${MODULE_NAME})
+    set(MODULE_NAME "hstrat.${MODULE_NAME}")
+    message(STATUS "MODULE_NAME: ${MODULE_NAME}")
 
     # Add the module
     # RE https://github.com/pybind/scikit_build_example/blob/550c09c1906c92f2709769cd8b859c941c575537/CMakeLists.txt
