@@ -12,7 +12,7 @@ from downstream import dataframe as dstream_dataframe
 
 from .._auxiliary_lib import (
     alifestd_make_empty,
-    alifestd_try_add_ancestor_list_col_polars,
+    alifestd_try_add_ancestor_list_col,
 )
 from ..phylogenetic_inference.tree._build_tree_searchtable_cpp import (
     build_exploded as build_cpp,
@@ -122,7 +122,7 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
 
     # even without alifestd_try_add_ancestor_list_col, the pl.DataFrame.to_pandas()
     # and pl.from_pandas() are needed to ensure data in the np.frombuffer() are copied.
-    phylo_df = alifestd_try_add_ancestor_list_col_polars(
+    phylo_df = alifestd_try_add_ancestor_list_col(
         pl.from_pandas(
             pl.from_dict(
                 {  # type: ignore

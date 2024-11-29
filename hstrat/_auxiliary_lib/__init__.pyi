@@ -59,9 +59,6 @@ from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_join_roots import alifestd_join_roots
 from ._alifestd_make_ancestor_id_col import alifestd_make_ancestor_id_col
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
-from ._alifestd_make_ancestor_list_col_polars import (
-    alifestd_make_ancestor_list_col_polars,
-)
 from ._alifestd_make_empty import alifestd_make_empty
 from ._alifestd_mark_leaves import alifestd_mark_leaves
 from ._alifestd_mark_num_children_asexual import (
@@ -95,9 +92,6 @@ from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_try_add_ancestor_list_col import (
     alifestd_try_add_ancestor_list_col,
-)
-from ._alifestd_try_add_ancestor_list_col_polars import (
-    alifestd_try_add_ancestor_list_col_polars,
 )
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
 from ._alifestd_validate import alifestd_validate
@@ -249,7 +243,6 @@ __all__ = [
     "alifestd_join_roots",
     "alifestd_make_ancestor_id_col",
     "alifestd_make_ancestor_list_col",
-    "alifestd_make_ancestor_list_col_polars",
     "alifestd_make_empty",
     "alifestd_mark_leaves",
     "alifestd_mark_num_children_asexual",
@@ -271,7 +264,6 @@ __all__ = [
     "alifestd_topological_sort",
     "alifestd_try_add_ancestor_id_col",
     "alifestd_try_add_ancestor_list_col",
-    "alifestd_try_add_ancestor_list_col_polars",
     "alifestd_unfurl_lineage_asexual",
     "alifestd_validate",
     "all_same",
