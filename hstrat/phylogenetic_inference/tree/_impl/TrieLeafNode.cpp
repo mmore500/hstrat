@@ -1,15 +1,13 @@
 #include <cstdlib>
-#include <sstream>
+#include <format>
 
 #include "TrieLeafNode.hpp"
 
 TrieLeafNode::TrieLeafNode() {
-  std::stringstream s;
-  s << random();
-  this->_taxon_label = s.str();
+  this->_taxon_label = std::format("{}", std::random());
 }
 
-TrieLeafNode::TrieLeafNode(std::string taxon_label) : _taxon_label(taxon_label) {};
+TrieLeafNode::TrieLeafNode(std::string taxon_label) : _taxon_label(taxon_label) {}
 
 bool TrieLeafNode::operator==(const TrieLeafNode &other) const {
   return this->_taxon_label == other._taxon_label;
