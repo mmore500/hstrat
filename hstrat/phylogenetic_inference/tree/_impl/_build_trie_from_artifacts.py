@@ -267,7 +267,7 @@ def build_trie_from_artifacts_progressive_multiprocess(
 
             # root, stage, target_artifacts = task
             stage, target_artifacts = task
-            rank, diff = alleles[stage]
+            _, diff = alleles[stage]
 
             for i, d in filter(
                 lambda x: x[0] in target_artifacts, enumerate(diff)

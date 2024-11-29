@@ -1,4 +1,3 @@
-from collections import defaultdict
 import copy
 import random
 import typing
@@ -27,11 +26,8 @@ class TrieInnerNode(anytree.NodeMixin):
     both types.
     """
 
-    _buildparent: typing.Optional["TrieInnerNode"]  # to restore build trie
-    # prevent detached children from being garbage collected
-    _buildchildren: typing.List["TrieInnerNode"]
-    _rank: int  # rank of represented allele
-    _differentia: int  # differentia of represented allele
+    _rank: typing.Optional[int]  # rank of represented allele
+    _differentia: typing.Optional[int]  # differentia of represented allele
     _tiebreaker: int  # random 128-bit integer used to break ties.
 
     def __init__(
@@ -55,8 +51,6 @@ class TrieInnerNode(anytree.NodeMixin):
             The parent node, or None for shim "ancestor of all geneses" root
             node.
         """
-        self._buildparent = parent
-        self._buildchildren = []
         self.parent = parent
         self._rank = rank
         self._differentia = differentia
@@ -154,7 +148,7 @@ class TrieInnerNode(anytree.NodeMixin):
                 deepest_origination = candidate_origination
                 deepest_taxon_allele_iter = copy.copy(taxon_allele_iter)
 
-            # If taxon has subsequent allele, search its origination
+            # If taxon has susbsequent allele, search its origination
             next_allele = next(taxon_allele_iter, None)
             if next_allele is not None:
                 node_stack.extend(
@@ -213,42 +207,6 @@ class TrieInnerNode(anytree.NodeMixin):
         for next_rank, next_differentia in taxon_allele_iter:
             assert next_rank is not None
             assert next_differentia is not None
-
-            ###################################################################
-            # BEGIN HANDLING SEARCH TREE CONSOLIDATION ########################
-
-            # collapse away nodes with ranks that have been dropped
-            node_stack = [*cur_node.inner_children]
-            while node_stack:
-                pop_node = node_stack.pop()
-                if pop_node._rank < next_rank:  # node has dropped rank
-                    # add ref to detached node to prevent garbage collection
-                    pop_node.parent._buildchildren.append(pop_node)
-                    pop_node.parent = None  # detach dropped from search trie
-                    node_stack.extend(pop_node.inner_children)  # search next
-                    for grandchild in pop_node.inner_children:
-                        # reattach dropped's children
-                        grandchild.parent = cur_node
-
-            # group nodes made indistinguishable by collapsed precursors...
-            groups = defaultdict(list)
-            for child in cur_node.inner_children:
-                groups[(child._rank, child._differentia)].append(child)
-                assert child._rank >= next_rank
-            # ... in order to keep only the tiebreak winner
-            for group in groups.values():
-                winner, *losers = sorted(group, key=lambda x: x._tiebreaker)
-                for loser in losers:  # keep only the 0th tiebreak winner
-                    loser.parent._buildchildren.append(loser)  # prevent gc
-                    # reassign loser's children to winner
-                    for loser_child in loser.inner_children:
-                        assert loser_child._rank >= next_rank
-                        loser_child.parent = winner
-                    loser.parent = None  # detach loser from search trie
-
-            # DONE HANDLING SEARCH TREE CONSOLIDATION #########################
-            ###################################################################
-
             for child in cur_node.inner_children:
                 # check immediate children for next allele
                 #
@@ -283,26 +241,6 @@ class TrieInnerNode(anytree.NodeMixin):
                 render_to_base64url(int(self._tiebreaker))
             }"""
 
-    # recursive check
-    def __eq__(self: "TrieInnerNode", other: object) -> bool:
-        if not isinstance(other, TrieInnerNode):
-            return False
-        if not (
-            self.rank == other.rank and self.differentia == other.differentia
-        ):
-            return False
-        if not sorted(
-            self.inner_children, key=lambda x: (x.differentia, x.rank)
-        ) == sorted(
-            other.inner_children, key=lambda x: (x.differentia, x.rank)
-        ):  # should be enough
-            return False
-        if not sorted(
-            self.outer_children, key=lambda x: x.taxon_label
-        ) == sorted(other.outer_children, key=lambda x: x.taxon_label):
-            return False
-        return True
-
     @property
     def taxon(self: "TrieInnerNode") -> str:
         """Alias for taxon_label."""
@@ -311,10 +249,6 @@ class TrieInnerNode(anytree.NodeMixin):
     @property
     def rank(self: "TrieInnerNode") -> int:
         return opyt.or_value(self._rank, 0)
-
-    @property
-    def differentia(self: "TrieInnerNode") -> int:
-        return opyt.or_value(self._differentia, 0)
 
     @property
     def inner_children(
