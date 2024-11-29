@@ -309,6 +309,8 @@ jobs:
           sudo apt-get install -y python3.12-dev python3-dev python3-pybind11 -o Acquire::Retries=3
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.21.3
+        env:
+          CIBW_TEST_COMMAND: python3 -m hstrat.dataframe.surface_unpack_reconstruct --help
       - uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
