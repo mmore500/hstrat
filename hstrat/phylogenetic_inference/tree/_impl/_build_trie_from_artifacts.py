@@ -6,10 +6,6 @@ import os
 import typing
 from typing import Iterable
 
-try:
-    from cppimport import import_hook  # noqa: F401
-except ImportError:
-    pass
 import numpy as np
 import opytional as opyt
 
@@ -23,10 +19,6 @@ from ...._auxiliary_lib import (
 from ._TrieInnerNode import TrieInnerNode
 from ._TrieLeafNode import TrieLeafNode
 from ._TrieSearchInnerNode import TrieSearchInnerNode
-from .build_trie_from_artifacts_cpp import (
-    TrieInnerNode_C,
-    build_trie_from_artifacts_sync,
-)
 
 
 class MatrixColumn(Enum):
@@ -227,13 +219,6 @@ def build_trie_from_artifacts_progressive_single_process(
 
     recursive_builder(root, 0, {*range(n)})
     return root
-
-
-def build_trie_from_artifacts_cpp_sync(
-    population: typing.List[typing.Tuple[typing.List[int], typing.List[int]]],
-    taxon_labels: typing.List[str],
-) -> TrieInnerNode_C:
-    return build_trie_from_artifacts_sync(population, taxon_labels)
 
 
 # proposed model: add a worker pool
