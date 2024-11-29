@@ -14,7 +14,7 @@ classifiers = [
 ]
 # end-user requirements
 dependencies = [
-  "alifedata_phyloinformatics_convert>=0.11.0",
+  "alifedata_phyloinformatics_convert>=0.17.0",
   "anytree>=2.8.0",
   "biopython>=1.79",
   "bitarray>=2.6.2",

@@ -2,7 +2,7 @@
 #    uv pip compile --python-version=3.10 ../../pyproject.toml --extra docs -o requirements-docs.txt
 alabaster==0.7.16
     # via sphinx
-alifedata-phyloinformatics-convert==0.16.4
+alifedata-phyloinformatics-convert==0.17.0
     # via hstrat (../../pyproject.toml)
 annotated-types==0.7.0
     # via pydantic
@@ -10,10 +10,6 @@ anytree==2.12.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
-appnope==0.1.4
-    # via
-    #   ipykernel
-    #   ipython
 asttokens==2.4.1
     # via stack-data
 attrs==24.2.0
@@ -232,8 +228,6 @@ patsy==1.0.1
     # via statsmodels
 pexpect==4.9.0
     # via ipython
-phylotrackpy==0.2.4
-    # via alifedata-phyloinformatics-convert
 pickleshare==0.7.5
     # via ipython
 pillow==11.0.0
