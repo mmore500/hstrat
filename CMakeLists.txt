@@ -47,11 +47,11 @@ foreach(CPP_FILE ${HSTRAT_CPP_FILES})
     file(RELATIVE_PATH REL_PATH ${CMAKE_SOURCE_DIR}/hstrat ${CPP_FILE})
 
     # Replace directory separators with dots for module naming
-    string(REPLACE "/" "." MODULE_NAME ${REL_PATH})
-    string(REPLACE "\\" "." MODULE_NAME ${MODULE_NAME}) # For Windows paths
-    string(REPLACE ".cpp" "" MODULE_NAME ${MODULE_NAME})
-    set(MODULE_NAME "hstrat.${MODULE_NAME}")
+    get_filename_component(MODULE_NAME ${CPP_FILE} NAME_WE)
     message(STATUS "MODULE_NAME: ${MODULE_NAME}")
+
+    # Get the directory component of the relative path
+    get_filename_component(REL_DIR ${REL_PATH} DIRECTORY)
 
     # Add the module
     # RE https://github.com/pybind/scikit_build_example/blob/550c09c1906c92f2709769cd8b859c941c575537/CMakeLists.txt
@@ -59,6 +59,6 @@ foreach(CPP_FILE ${HSTRAT_CPP_FILES})
     target_link_libraries(${MODULE_NAME} PRIVATE pybind11::headers)
     target_include_directories(${MODULE_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/hstrat)
 
-    install(TARGETS ${MODULE_NAME} LIBRARY DESTINATION .)
-
+    # Install the module into the corresponding directory in the wheel
+    install(TARGETS ${MODULE_NAME} LIBRARY DESTINATION hstrat/${REL_DIR})
 endforeach()
