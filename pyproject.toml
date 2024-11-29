@@ -76,13 +76,14 @@ exclude = ["tests", "tests.*"]
 namespaces = false
 
 # adapted from https://tox.wiki/en/latest/example/package.html
+# adapted from https://pybind11.readthedocs.io/en/stable/compiling.html
 [build-system]
-build-backend = "setuptools.build_meta"
+build-backend = "scikit_build_core.build"
 requires = [
-  "cython>=0.29",
-  "pybind11==2.13.6",
+  "scikit-build-core",
   "setuptools >= 75.0.0",
   "setuptools_scm >= 2.0.0, <3",
+  "pybind11",
 ]
 
 # additional dev requriements
