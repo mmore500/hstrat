@@ -115,6 +115,7 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
 
     # even without alifestd_try_add_ancestor_list_col, the .copy() are needed
     # to ensure data in the np.frombuffer() is not prematurely deallocated.
+    # TODO .copy() is slow, fix pybind11 lifetimes to avoid this
     phylo_df = pl.from_dict(
         {  # type: ignore
             "dstream_data_id": np.frombuffer(
