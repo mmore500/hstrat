@@ -306,7 +306,7 @@ jobs:
         run: |
           sudo sed -i 's/azure\.//' /etc/apt/sources.list
           sudo apt-get update -o Acquire::Retries=3
-          sudo apt-get install -y python3-dev -o Acquire::Retries=3
+          sudo apt-get install -y python3.12-dev python3-dev -o Acquire::Retries=3
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.21.3
       - uses: actions/upload-artifact@v4
