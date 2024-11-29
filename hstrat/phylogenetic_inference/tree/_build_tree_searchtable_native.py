@@ -14,14 +14,14 @@ while True:
         logging.info("native binaries not found, trying to compile them")
 
     try:
-        import cppimport
+        import cppimport.import_hook
 
-        bts = cppimport.imp(
-            "._build_tree_searchtable_cpp",
+        from ._build_tree_searchtable_cpp import (  # noqa: F401
+            RecordHolder_C,
+            build_exploded,
+            build_normal,
         )
-        build_exploded = bts.build_exploded  # noqa: F401
-        build_normal = bts.build_normal  # noqa: F401
-        RecordHolder_C = bts.RecordHolder_C  # noqa: F401
+
         break
     except ImportError as e:
         warnings.warn(
