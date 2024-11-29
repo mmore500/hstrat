@@ -1,5 +1,22 @@
-cmake_minimum_required(VERSION 3.15...3.22)
-set(CMAKE_CXX_STANDARD 20)
+cmake_minimum_required(VERSION 3.15...3.27)
+
+# Scikit-build-core sets these values for you, or you can just hard-code the
+# name and version.
+project(
+  ${SKBUILD_PROJECT_NAME}
+  VERSION ${SKBUILD_PROJECT_VERSION}
+  LANGUAGES CXX)
+
+# Find the module development requirements (requires FindPython from 3.17 or
+# scikit-build-core's built-in backport)
+# https://github.com/scikit-build/scikit-build/issues/506#issuecomment-706791791
+if(SKBUILD)
+  set(Python_EXECUTABLE "${PYTHON_EXECUTABLE}")
+  set(Python_INCLUDE_DIR "${PYTHON_INCLUDE_DIR}")
+  set(Python_LIBRARY "${PYTHON_LIBRARY}")
+endif()
+find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
+find_package(pybind11 CONFIG REQUIRED)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -8,6 +25,7 @@ endif()
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_STANDARD 20)
 
 find_package(Python 3.7 COMPONENTS Interpreter Development REQUIRED)
 find_package(pybind11 CONFIG REQUIRED)
@@ -27,8 +45,8 @@ foreach(CPP_FILE ${HSTRAT_CPP_FILES})
     string(REPLACE ".cpp" "" MODULE_NAME ${MODULE_NAME})
 
     # Add the module
-    pybind11_add_module(${MODULE_NAME} ${CPP_FILE})
-
-    # Optionally, set include directories for the module
+    # RE https://github.com/pybind/scikit_build_example/blob/550c09c1906c92f2709769cd8b859c941c575537/CMakeLists.txt
+    pybind11_add_module(${MODULE_NAME} ${CPP_FILE} WITH_SOABI)
+    target_link_libraries(${MODULE_NAME} PRIVATE pybind11::headers)
     target_include_directories(${MODULE_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/hstrat)
 endforeach()
