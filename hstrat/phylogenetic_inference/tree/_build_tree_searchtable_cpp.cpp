@@ -17,12 +17,26 @@ namespace py = pybind11;
 
 typedef uint64_t u64;
 
-// TODO:
-//
-// consider using std::span for iter
 
+/**
+ *  An object that holds all the information for building a
+ *  trie using the searchtable approach. Each record is stored
+ *  at one index in the member vectors. Storage details:
+ *    - The `dstream_data_id` represents that in the downstream
+ *      library, and is unique per artifact.
+ *    - Children for a node are stored as storing the index for
+ *      the first child in `search_first_child_id`, and storing
+ *      the rest of the children as a linked list in the first
+ *      child in `search_next_sibling_id`.
+ *    - `ancestor_id` and `search_ancestor_id` differ when the
+ *      records are consolidated. `ancestor_id` remains to save
+ *      the information, while `search_ancestor_id` changes.
+ *    - Parents have a higher `rank` than children.
+ *  @see build_trie_searchtable_normal
+ *  @see build_trie_searchtable_exploded
+ */
 struct Records {
-  std::vector<u64> data_id;
+  std::vector<u64> dstream_data_id;
   std::vector<u64> id;
   std::vector<u64> search_first_child_id;
   std::vector<u64> search_next_sibling_id;
@@ -35,7 +49,7 @@ struct Records {
                  u64 search_ancestor_id = 0, u64 search_first_child_id = 0,
                  u64 search_next_sibling_id = 0, u64 rank = 0,
                  u64 differentia = 0) {
-    this->data_id.push_back(data_id);
+    this->dstream_data_id.push_back(data_id);
     this->id.push_back(id);
     this->search_first_child_id.push_back(search_first_child_id);
     this->search_next_sibling_id.push_back(search_next_sibling_id);
@@ -45,10 +59,10 @@ struct Records {
     this->rank.push_back(rank);
   }
 
-  u64 size() const { return this->data_id.size(); }
+  u64 size() const { return this->dstream_data_id.size(); }
 
   void reset(u64 init_size) {
-    this->data_id = std::vector<u64>{};
+    this->dstream_data_id = std::vector<u64>{};
     this->id = std::vector<u64>{};
     this->search_first_child_id = std::vector<u64>{};
     this->search_next_sibling_id = std::vector<u64>{};
@@ -57,7 +71,7 @@ struct Records {
     this->differentia = std::vector<u64>{};
     this->rank = std::vector<u64>{};
 
-    this->data_id.reserve(init_size);
+    this->dstream_data_id.reserve(init_size);
     this->id.reserve(init_size);
     this->search_first_child_id.reserve(init_size);
     this->search_next_sibling_id.reserve(init_size);
@@ -70,17 +84,27 @@ struct Records {
   }
 };
 
-class ChildrenGenerator {
+
+/**
+ * A makeshift iterator for children, called like this:
+ *
+ *   ChildrenIterator iter(records, node);
+ *   while ((child = iter.next())) {
+ *     ...
+ *   }
+ *
+ * Returns a value of 0 when there is no more children.
+ */
+class ChildrenIterator {
 private:
   const Records &records;
   u64 prev;
   const u64 node;
 
 public:
-  ChildrenGenerator(const Records &records, u64 node)
+  ChildrenIterator(const Records &records, u64 node)
       : records(records), prev(0), node(node) {}
-  u64 next() { // potentially use a std::span arg instead of referencing the
-               // vector
+  u64 next() {
     u64 cur;
     if (!this->prev) {
       this->prev = this->node;
@@ -96,6 +120,14 @@ public:
   }
 };
 
+
+/**
+ * Removes `node` from the children of its parent. See the
+ * information on Records for how children are stored.
+ *
+ * @see attach_search_parent
+ * @see Records
+ */
 void detach_search_parent(Records &records, u64 node) {
   u64 parent = records.search_ancestor_id[node];
   u64 next_sibling = records.search_next_sibling_id[node];
@@ -107,7 +139,7 @@ void detach_search_parent(Records &records, u64 node) {
   } else {
 
     // removes from the linked list of children
-    ChildrenGenerator gen1(records, parent), gen2(records, parent);
+    ChildrenIterator gen1(records, parent), gen2(records, parent);
     u64 child1, child2 = gen2.next();
     while ((child1 = gen1.next()) && (child2 = gen2.next())) {
       if (child2 == node) {
@@ -122,6 +154,13 @@ void detach_search_parent(Records &records, u64 node) {
       node;
 }
 
+
+/**
+ * Attaches `node` to the children of `parent`.
+ *
+ * @see detach_search_parent
+ * @see Records
+ */
 void attach_search_parent(Records &records, u64 node, u64 parent) {
   if (records.search_ancestor_id[node] == parent) {
     return;
@@ -142,11 +181,20 @@ struct TupleHash {
   }
 };
 
+
+/**
+ * When consolidating a trie (see below), it may be the
+ * case that a parent has duplicate children. This function
+ * detects duplicates, chooses a winning duplicate, and
+ * attaches all of the losers' children to the winner.
+ *
+ * @see consolidate_trie
+ */
 void collapse_indistinguishable_nodes(Records &records, const u64 node) {
   std::unordered_map<std::tuple<u64, u64>, std::vector<u64>, TupleHash> groups;
-  ChildrenGenerator gen(records, node);
+  ChildrenIterator gen(records, node);
   u64 child;
-  while ((child = gen.next())) { // consider what we are using as the key here
+  while ((child = gen.next())) {  // consider what we are using as the key here
     std::vector<u64> &items =
         groups[{records.rank[child], records.differentia[child]}];
     items.insert(std::lower_bound(items.begin(), items.end(), child), child);
@@ -157,7 +205,7 @@ void collapse_indistinguishable_nodes(Records &records, const u64 node) {
       u64 loser = children[i], loser_child;
 
       std::vector<u64> loser_children;
-      ChildrenGenerator loser_children_gen(records, loser);
+      ChildrenIterator loser_children_gen(records, loser);
       while ((loser_child = loser_children_gen.next())) {
         loser_children.push_back(loser_child);
       }
@@ -170,8 +218,19 @@ void collapse_indistinguishable_nodes(Records &records, const u64 node) {
   }
 }
 
+/**
+ * Artifacts are sorted by number of strata deposited ascending,
+ * so when the function comes across a rank that has been dropped,
+ * we know it is irrelevant throughout the rest of the run. Therefore,
+ * this function drops all *search* children (note, true parent
+ * data is still stored in `ancestor_id`) and attaches the search
+ * children of those children to the node. Then, attaching children
+ * becomes much faster, avoiding deep searches.
+ *
+ * @see collapse_indistinguishable_nodes
+ */
 void consolidate_trie(Records &records, const u64 &rank, const u64 node) {
-  ChildrenGenerator gen(records, node);
+  ChildrenIterator gen(records, node);
   u64 child = gen.next();
   if (child == 0 || records.rank[child] == rank) {
     return;
@@ -189,7 +248,7 @@ void consolidate_trie(Records &records, const u64 &rank, const u64 node) {
 
     static std::vector<u64> grandchildren;
     grandchildren.resize(0);
-    ChildrenGenerator grandchild_gen(records, popped_node);
+    ChildrenIterator grandchild_gen(records, popped_node);
     while ((grandchild = grandchild_gen.next())) {
       grandchildren.push_back(grandchild);
     }
@@ -206,6 +265,10 @@ void consolidate_trie(Records &records, const u64 &rank, const u64 node) {
   collapse_indistinguishable_nodes(records, node);
 }
 
+/**
+ * Adds a record to the searchtable. Note that this
+ * is the only function that adds records.
+ */
 u64 create_offstring(Records &records, const u64 parent, const u64 rank,
                      const u64 differentia, const u64 data_id) {
   u64 node = records.size();
@@ -214,10 +277,15 @@ u64 create_offstring(Records &records, const u64 parent, const u64 rank,
   return node;
 }
 
+/**
+ * Inserts one rank-differentia pair into the trie.
+ *
+ * @see insert_artifact
+ */
 u64 place_allele(Records &records, u64 cur_node, const u64 rank,
                  const u64 differentia) {
   u64 child;
-  ChildrenGenerator gen(records, cur_node);
+  ChildrenIterator gen(records, cur_node);
   while ((child = gen.next())) {
     if (rank == records.rank[child] &&
         differentia == records.differentia[child]) {
@@ -229,6 +297,11 @@ u64 place_allele(Records &records, u64 cur_node, const u64 rank,
   );
 }
 
+/**
+ * A makeshift span over a pybind11::array_t using an
+ * unchecked_reference. Only supports the indexing and
+ * a .size() call.
+ */
 template <typename T> struct py_array_span {
   const py::detail::unchecked_reference<T, 1> &data_accessor;
   const u64 start;
@@ -244,6 +317,13 @@ template <typename T> struct py_array_span {
       : data_accessor(data), start(start), end(end) {};
 };
 
+/**
+ * Adds a single artifact (a.k.a specimen, column) to the
+ * searchtable. Accesses the artifact using a span.
+ *
+ * @see py_array_span
+ * @see place_allele
+ */
 template <typename span_type>
 void insert_artifact(Records &records, span_type &&ranks,
                      span_type &&differentiae, const u64 data_id,
@@ -258,6 +338,14 @@ void insert_artifact(Records &records, span_type &&ranks,
   create_offstring(records, cur_node, num_strata_deposited - 1, -1, data_id);
 }
 
+
+/**
+ * Constructs the trie in the case where each element in each
+ * of the below vectors represents a unique artifact. Includes
+ * logging and an optional tqdm progress bar.
+ *
+ * @see build_trie_searchtable_exploded
+ */
 Records build_trie_searchtable_normal(
     const std::vector<u64> &data_ids,
     const std::vector<u64> &num_strata_depositeds,
@@ -303,6 +391,10 @@ Records build_trie_searchtable_normal(
   return records;
 }
 
+/**
+ * A helper function to count the nunber of unique items in an
+ * array. This is similar to std::unique but does not mutate.
+ */
 u64 count_unique_elements(const py::detail::unchecked_reference<u64, 1> &arr,
                           const u64 n) {
   u64 ele = arr[0], result = 1;
@@ -315,6 +407,14 @@ u64 count_unique_elements(const py::detail::unchecked_reference<u64, 1> &arr,
   return result;
 }
 
+/**
+ * Constructs the trie in the case where each of the below
+ * arrays are 1-dimensional representing an exploded DataFrame.
+ * This is used in 'hstrat.dataframe.surface_unpack_reconstruct'.
+ * Includes logging and an optional tqdm progress bar.
+ *
+ * @see build_trie_searchtable_normal
+ */
 Records build_trie_searchtable_exploded(
     const py::array_t<u64> &data_ids,
     const py::array_t<u64> &num_strata_depositeds,
@@ -414,7 +514,7 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp, m) {
           "dstream_data_id",
           [](const Records &records) {
             return py::memoryview::from_memory(
-                records.data_id.data(), records.data_id.size() * sizeof(u64));
+                records.dstream_data_id.data(), records.dstream_data_id.size() * sizeof(u64));
           },
           py::return_value_policy::reference_internal)
       .def_property_readonly(
