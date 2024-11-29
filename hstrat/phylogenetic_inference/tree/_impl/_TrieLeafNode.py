@@ -69,3 +69,6 @@ class TrieLeafNode(anytree.NodeMixin):
         return f"""{self.taxon_label} @ {
             render_to_base64url(id(self) % 8192)
         }"""
+
+    def __hash__(self: "TrieLeafNode") -> int:
+        return hash(self.rank) + hash(self.differentia) + hash(self.taxon_label)
