@@ -4,17 +4,13 @@ import numpy as np
 import polars as pl
 import tqdm
 
-try:
-    from cppimport import import_hook  # noqa: F401
-except ImportError:
-    pass
 from downstream import dataframe as dstream_dataframe
 
 from .._auxiliary_lib import (
     alifestd_make_empty,
     alifestd_try_add_ancestor_list_col,
 )
-from ..phylogenetic_inference.tree._build_tree_searchtable_cpp import (
+from ..phylogenetic_inference.tree._build_tree_searchtable_native import (
     build_exploded as build_cpp,
 )
 
