@@ -60,11 +60,6 @@ def delegate_polars_implementation(
                 "\n\nThis function also accepts a polars.DataFrame, for which"
                 f"there is {'not ' if polars_func is None else ''}a seperate delegated function"
             )
-        for k, v in delegating_function.__annotations__.items():
-            if v is pd.DataFrame:
-                delegating_function.__annotations__[k] = DataFrame_T
-            elif v is pd.Series:
-                delegating_function.__annotations__[k] = Series_T
 
         return delegating_function
 
