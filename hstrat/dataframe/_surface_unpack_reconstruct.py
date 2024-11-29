@@ -95,7 +95,9 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         message = " ".join(["unpacked df:", str(num_rows), "rows\n", head])
         logging.info(message)
 
-    long_df = dstream_dataframe.explode_lookup_unpacked(df, value_type="uint64")
+    long_df = dstream_dataframe.explode_lookup_unpacked(
+        df, value_type="uint64"
+    )
     with pl.Config() as cfg:
         cfg.set_tbl_cols(long_df.lazy().collect_schema().len())
         head = repr(long_df.lazy().head().collect())
