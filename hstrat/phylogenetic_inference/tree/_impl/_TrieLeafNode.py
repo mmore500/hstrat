@@ -71,4 +71,6 @@ class TrieLeafNode(anytree.NodeMixin):
         }"""
 
     def __hash__(self: "TrieLeafNode") -> int:
-        return hash(self.rank) + hash(self.differentia) + hash(self.taxon_label)
+        return (
+            hash(self.rank) + hash(self.differentia) + hash(self.taxon_label)
+        )
