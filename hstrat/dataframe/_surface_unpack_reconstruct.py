@@ -1,10 +1,9 @@
 import logging
 
+from downstream import dataframe as dstream_dataframe
 import numpy as np
 import polars as pl
 import tqdm
-
-from downstream import dataframe as dstream_dataframe
 
 from .._auxiliary_lib import (
     alifestd_make_empty,

@@ -4,9 +4,9 @@ import warnings
 while True:
     try:
         from ._build_tree_searchtable_cpp import (  # noqa: F401
+            RecordHolder_C,
             build_exploded,
             build_normal,
-            RecordHolder_C,
         )
 
         break
