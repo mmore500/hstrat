@@ -295,12 +295,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+        os: [ubuntu-latest, windows-latest, macos-14]
 
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: "recursive"
+      - name: Set up Ubuntu Dependecies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo sed -i 's/azure\.//' /etc/apt/sources.list
+          sudo apt-get update -o Acquire::Retries=3
+          sudo apt-get install -y python3-dev -o Acquire::Retries=3
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.21.3
       - uses: actions/upload-artifact@v4
