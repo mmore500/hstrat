@@ -57,6 +57,6 @@ foreach(CPP_FILE ${HSTRAT_CPP_FILES})
     target_link_libraries(${MODULE_NAME} PRIVATE pybind11::headers)
     target_include_directories(${MODULE_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/hstrat)
 
-    install(TARGETS ${MODULE_NAME} DESTINATION .)
+    install(TARGETS ${MODULE_NAME} LIBRARY DESTINATION .)
 
 endforeach()
