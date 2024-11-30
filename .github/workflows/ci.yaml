@@ -279,7 +279,7 @@ jobs:
       - name: Build and Push to GitHub Container Registry
         uses: docker/build-push-action@v1
         with:
-          push: ${{ github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v') }}
+          push: true
           tags: ${{ env.TAGS }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
