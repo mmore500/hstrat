@@ -347,6 +347,9 @@ jobs:
         python-version: "3.10"
     - name: Install dependencies
       run: |
+        sudo sed -i 's/azure\.//' /etc/apt/sources.list
+        sudo apt-get update -o Acquire::Retries=3
+        sudo apt-get install -y tree -o Acquire::Retries=3
         python -m pip install --upgrade pip setuptools
         python -m pip install -r requirements-dev/py310/requirements-release.txt
     - uses: actions/download-artifact@v4
@@ -357,12 +360,16 @@ jobs:
         path: dist
         merge-multiple: true
     - run: |
+        ls *
+        tree dist
         for file in dist/hstrat-*; do
           echo "file ${file}"
           new_name="$(echo "${file}" | sed -E 's|^dist/hstrat-|dist/hstrat-${{ github.run_number }}|g')"
           echo "new_name ${new_name}"
           mv "${file}" "${new_name}"
         done
+        ls *
+        tree dist
     - name: Test publish package
       uses: pypa/gh-action-pypi-publish@release/v1
       with:

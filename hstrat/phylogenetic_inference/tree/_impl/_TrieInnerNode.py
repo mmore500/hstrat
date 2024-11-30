@@ -302,3 +302,6 @@ class TrieInnerNode(anytree.NodeMixin):
         }) @ {
             render_to_base64url(id(self) % 8192)
         }"""
+
+    def __hash__(self: "TrieInnerNode") -> int:
+        return hash((self._rank, self._differentia, self._tiebreaker))
