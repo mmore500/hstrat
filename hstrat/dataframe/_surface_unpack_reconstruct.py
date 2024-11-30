@@ -8,8 +8,8 @@ from .._auxiliary_lib import (
     alifestd_make_empty,
     alifestd_try_add_ancestor_list_col,
 )
-from ..phylogenetic_inference.tree._build_tree_searchtable_native import (
-    build_exploded as build_cpp,
+from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp import (
+    build_exploded as build_tree_searchtable_from_exploded,
 )
 
 
@@ -104,7 +104,7 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         logging.info(message)
 
     logging.info("building tree...")
-    records = build_cpp(
+    records = build_tree_searchtable_from_exploded(
         long_df["dstream_data_id"].to_numpy(),
         long_df["dstream_T"].to_numpy(),
         long_df["dstream_Tbar"].to_numpy(),
