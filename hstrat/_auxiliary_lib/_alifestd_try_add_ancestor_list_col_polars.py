@@ -8,6 +8,7 @@ from ._alifestd_make_ancestor_list_col_polars import (
 def alifestd_try_add_ancestor_list_col_polars(
     phylogeny_df: pl.DataFrame,
     root_ancestor_token: str = "none",
+    mutate: bool = False,
 ) -> pl.DataFrame:
     """Add an ancestor_list column to the input DataFrame if the column does
     not already exist.
@@ -20,6 +21,14 @@ def alifestd_try_add_ancestor_list_col_polars(
     --------
     alifestd_make_ancestor_list_col
     """
+
+    if mutate:
+        raise NotImplementedError(
+            f"Passed in {mutate=} to the polars implementation of"
+            f"{alifestd_make_ancestor_list_col_polars.__name__.removesuffix('_polars')}"
+            "when it does not have an effect on polars DataFrames."
+            "If mutation is required, use the pandas implementaton"
+        )
 
     if "ancestor_id" in phylogeny_df and "ancestor_list" not in phylogeny_df:
         return phylogeny_df.with_columns(

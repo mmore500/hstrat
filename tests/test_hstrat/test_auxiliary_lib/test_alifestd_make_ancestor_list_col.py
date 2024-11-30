@@ -8,7 +8,13 @@ from hstrat._auxiliary_lib import (
     alifestd_make_ancestor_list_col,
 )
 
+from ._impl import check_polars_implementation
+
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
+
+alifestd_make_ancestor_list_col = check_polars_implementation(
+    alifestd_make_ancestor_list_col
+)
 
 
 @pytest.mark.parametrize(

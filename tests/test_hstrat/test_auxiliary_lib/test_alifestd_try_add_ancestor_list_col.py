@@ -12,7 +12,14 @@ from hstrat._auxiliary_lib import (
     alifestd_validate,
 )
 
+from ._impl import check_polars_implementation
+
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
+
+
+alifestd_try_add_ancestor_list_col = check_polars_implementation(
+    alifestd_try_add_ancestor_list_col
+)
 
 
 @pytest.mark.parametrize(
@@ -71,7 +78,6 @@ def test_alifestd_try_add_ancestor_id_col_asexual(phylogeny_df, apply):
     res_df = alifestd_try_add_ancestor_list_col(
         phylogeny_df,
         root_ancestor_token="None",
-        mutate=True,
     )
     assert (
         res_df["ancestor_list"]
