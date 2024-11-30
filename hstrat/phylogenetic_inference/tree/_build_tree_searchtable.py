@@ -321,7 +321,9 @@ def build_tree_searchtable(
 
     if use_cpp is not False:
         try:
-            from ._build_tree_searchtable_cpp import build_normal as build_cpp
+            from ._build_tree_searchtable_native import (
+                build_normal as build_cpp,
+            )
 
             return finalize_records_cpp(
                 build_cpp(
