@@ -356,6 +356,13 @@ jobs:
         pattern: cibw-*
         path: dist
         merge-multiple: true
+    - run: |
+        for file in dist/hstrat-*; do
+          echo "file ${file}"
+          new_name="$(echo "${file}" | sed -E 's|^dist/hstrat-|dist/hstrat-${{ github.run_number }}|g')"
+          echo "new_name ${new_name}"
+          mv "${file}" "${new_name}"
+        done
     - name: Test publish package
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
