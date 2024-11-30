@@ -287,6 +287,53 @@ jobs:
           registry: ghcr.io
           add_git_labels: true
 
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    needs: []
+    # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest, macos-14]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+      - name: Set up Ubuntu Dependecies
+        if: matrix.os == 'ubuntu-24.04'
+        run: |
+          sudo sed -i 's/azure\.//' /etc/apt/sources.list
+          sudo apt-get update -o Acquire::Retries=3
+          sudo apt-get install -y python3.12-dev python3-dev python3-pybind11 -o Acquire::Retries=3
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.21.3
+        env:
+          CIBW_TEST_COMMAND: python3 -m hstrat.dataframe.surface_unpack_reconstruct --help
+          CIBW_TEST_SKIP: "*313-* pp* *win* *i686* *musllinux*"
+          CIBW_SKIP: "*-win32"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution
+    needs: []
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+      - name: Build sdist
+        run: pipx run build --sdist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-sdist
+          path: dist/*.tar.gz
+
   deploy-test:
     runs-on: ubuntu-24.04
     steps:
@@ -297,7 +344,7 @@ jobs:
         python-version: "3.10"
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip setuptools
+        python -m pip install --upgrade pip
         python -m pip install -r requirements-dev/py310/requirements-release.txt
     - name: Build package
       run: python setup.py egg_info --tag-build="${{github.run_number}}" sdist bdist_wheel
@@ -318,6 +365,8 @@ jobs:
   deploy:
     if: startsWith(github.ref, 'refs/tags/v')
     needs:
+      - build_sdist
+      - build_wheels
       - coverage
       - cli
       - deploy-test
@@ -338,7 +387,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip setuptools
         python -m pip install -r requirements-dev/py310/requirements-release.txt
-    - run: python setup.py sdist bdist_wheel
+    - uses: actions/download-artifact@v4
+      with:
+        # unpacks default artifact into dist/
+        # if `name: artifact` is omitted, the action will create extra parent dir
+        pattern: cibw-*
+        path: dist
+        merge-multiple: true
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@release/v1
       with:

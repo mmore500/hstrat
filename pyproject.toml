@@ -14,7 +14,7 @@ classifiers = [
 ]
 # end-user requirements
 dependencies = [
-  "alifedata_phyloinformatics_convert>=0.11.0",
+  "alifedata_phyloinformatics_convert>=0.17.0",
   "anytree>=2.8.0",
   "biopython>=1.79",
   "bitarray>=2.6.2",
@@ -41,7 +41,6 @@ dependencies = [
   "pandas>=2",
   "pandera>=0.21.0",
   "prettytable>=3.5.0",
-  "pyarrow>=18.0.0",
   "python-slugify>=6.1.2",
   "safe_assert>=0.2.0",
   "seaborn>=0.11.0",
@@ -56,7 +55,7 @@ name  =  "hstrat"
 keywords = [
   "hstrat",
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 version = "1.13.1"
 
 [project.readme]
@@ -76,13 +75,14 @@ exclude = ["tests", "tests.*"]
 namespaces = false
 
 # adapted from https://tox.wiki/en/latest/example/package.html
+# adapted from https://pybind11.readthedocs.io/en/stable/compiling.html
 [build-system]
-build-backend = "setuptools.build_meta"
+build-backend = "scikit_build_core.build"
 requires = [
-  "cython>=0.29",
-  "pybind11==2.13.6",
+  "scikit-build-core",
   "setuptools >= 75.0.0",
   "setuptools_scm >= 2.0.0, <3",
+  "pybind11",
 ]
 
 # additional dev requriements
@@ -97,7 +97,7 @@ testing = [
   "more-itertools==8.13.0",
   "mypy==0.991",
   "pytest-xdist==2.5.0",
-  "pytest==7.1.2",
+  "pytest==8.3.3",
   "pyyaml==6.0.1",
   "ruff==0.1.11",
   "safe-assert==0.2.0",

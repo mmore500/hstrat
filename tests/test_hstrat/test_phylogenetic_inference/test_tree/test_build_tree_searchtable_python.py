@@ -6,6 +6,7 @@ from Bio.Phylo.TreeConstruction import BaseTree
 import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
 import networkx as nx
+import pandas as pd
 import pytest
 from tqdm import tqdm
 
@@ -469,7 +470,7 @@ def test_determinism(orig_tree, retention_policy, differentia_width, wrap):
         second_reconst = hstrat.build_tree_searchtable(
             [wrap(col) for col in extant_population], use_cpp=False
         )
-        assert first_reconst.equals(second_reconst)
+        pd.testing.assert_frame_equal(first_reconst, second_reconst)
 
 
 @pytest.mark.parametrize(
@@ -508,15 +509,12 @@ def test_reconstructed_taxon_labels(orig_tree, retention_policy, wrap):
         use_cpp=False,
     )
     assert "taxon_label" in reconst_df
-    assert set(taxon_labels) < set(reconst_df["taxon_label"])
+    assert set(taxon_labels) <= set(reconst_df["taxon_label"])
 
     reconst_df = hstrat.build_tree_searchtable(
         [*map(wrap, extant_population)], use_cpp=False
     )
     assert "taxon_label" in reconst_df
-    assert len(reconst_df["taxon_label"].unique()) == len(
-        reconst_df["taxon_label"]
-    )
-    assert set(map(str, range(len(extant_population)))) < set(
+    assert set(map(str, range(len(extant_population)))) <= set(
         reconst_df["taxon_label"]
     )

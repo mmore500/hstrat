@@ -528,7 +528,7 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp, m) {
 
 /*
 <%
-cfg['extra_compile_args'] = ['-std=c++20', '-O3']
+cfg['extra_compile_args'] = ['-std=c++20', '-Wall', '-Wextra']
 setup_pybind11(cfg)
 %>
 */

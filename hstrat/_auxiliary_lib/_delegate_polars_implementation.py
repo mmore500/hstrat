@@ -1,12 +1,20 @@
 import functools
 import typing
-import warnings
 
 import pandas as pd
 import polars as pl
 
 DataFrame_T = typing.TypeVar("DataFrame_T", pd.DataFrame, pl.DataFrame)
 Series_T = typing.TypeVar("Series_T", pd.Series, pl.Series)
+
+
+def _coerce_to_pandas(obj: typing.Any) -> typing.Any:
+    if hasattr(obj, "__dataframe__"):
+        return pd.api.interchange.from_dataframe(obj, allow_copy=False)
+    elif hasattr(obj, "to_pandas"):
+        return obj.to_pandas()
+    else:
+        return obj
 
 
 def delegate_polars_implementation(
@@ -16,49 +24,30 @@ def delegate_polars_implementation(
         @functools.wraps(original_func)
         def delegating_function(*args, **kwargs):
 
-            using_polars: typing.Optional[bool] = None
-
-            def get_new_argument(
-                arg: typing.Any,
-            ) -> typing.Any:
-                nonlocal using_polars
-                if isinstance(arg, (pl.DataFrame, pl.Series)):
-                    if using_polars is False:
-                        raise ValueError(
-                            "Using Polars and Pandas arguments in the same function is not allowed"
-                        )
-                    using_polars = True
-                    if polars_func is None:
-                        return arg.to_pandas()
-                elif isinstance(arg, (pd.DataFrame, pd.Series)):
-                    if using_polars is True:
-                        raise ValueError(
-                            "Using Polars and Pandas arguments in the same function is not allowed"
-                        )
-                    using_polars = False
-                return arg
-
-            args = tuple(get_new_argument(arg) for arg in args)
-            kwargs = {kw: get_new_argument(arg) for kw, arg in kwargs.items()}
-
-            if using_polars is True:
-                if polars_func is None:
-                    warnings.warn(
-                        f"Function '{original_func.__name__}' does not have a delegated implementation for a polars DataFrame"
-                    )
-                    retval = original_func(*args, **kwargs)
-                    return (
-                        pl.from_pandas(retval)
-                        if isinstance(retval, (pd.DataFrame, pd.Series))
-                        else retval
-                    )
+            any_pandas = any(
+                isinstance(arg, (pd.DataFrame, pd.Series))
+                for arg in (*args, *kwargs.values())
+            )
+            any_polars = any(
+                isinstance(arg, (pl.DataFrame, pl.Series))
+                for arg in (*args, *kwargs.values())
+            )
+            if any_pandas and any_polars:
+                raise TypeError("mixing pandas and polars types is disallowed")
+            elif any_polars and polars_func is not None:
                 return polars_func(*args, **kwargs)
-            return original_func(*args, **kwargs)
+            else:
+                args = (*map(_coerce_to_pandas, args),)
+                kwargs = {
+                    kw: _coerce_to_pandas(arg) for kw, arg in kwargs.items()
+                }
+                return original_func(*args, **kwargs)
 
         if delegating_function.__doc__ is not None:
             delegating_function.__doc__ += (
-                "\n\nThis function also accepts a polars.DataFrame, for which"
-                f"there is {'not ' if polars_func is None else ''}a seperate delegated function"
+                "\n\nThis function also accepts a polars.DataFrame, for which "
+                f"there is {'not ' if polars_func is None else ''} a separate "
+                "delegated function."
             )
 
         return delegating_function

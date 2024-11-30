@@ -1,10 +1,5 @@
 """Functions to reconstruct a phylogenetic tree from extant hereditary strata."""
 
-try:
-    from cppimport import import_hook  # noqa: F401 to the cppimport
-except ImportError:
-    pass
-
 from . import trie_postprocess
 from ..._auxiliary_lib import lazy_attach
 

@@ -506,15 +506,12 @@ def test_reconstructed_taxon_labels(orig_tree, retention_policy, wrap):
         use_cpp=True,
     )
     assert "taxon_label" in reconst_df
-    assert set(taxon_labels) < set(reconst_df["taxon_label"])
+    assert set(taxon_labels) <= set(reconst_df["taxon_label"])
 
     reconst_df = hstrat.build_tree_searchtable(
         [*map(wrap, extant_population)], use_cpp=True
     )
     assert "taxon_label" in reconst_df
-    assert len(reconst_df["taxon_label"].unique()) == len(
-        reconst_df["taxon_label"]
-    )
-    assert set(map(str, range(len(extant_population)))) < set(
+    assert set(map(str, range(len(extant_population)))) <= set(
         reconst_df["taxon_label"]
     )

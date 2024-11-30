@@ -25,6 +25,12 @@ def tree_quartet_distance(x, y) -> float:
         assert taxon_label.strip()
 
     return tqdist.quartet_distance(
-        tree_a.as_string(schema="newick").strip(),
-        tree_b.as_string(schema="newick").strip(),
+        tree_a.as_string(schema="newick")
+        .removeprefix("[&R]")
+        .removeprefix("[&U]")
+        .strip(),
+        tree_b.as_string(schema="newick")
+        .removeprefix("[&R]")
+        .removeprefix("[&U]")
+        .strip(),
     )
