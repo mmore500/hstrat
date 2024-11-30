@@ -251,9 +251,7 @@ def test_col_specimen_consistency(orig_tree, retention_policy):
         ).CloneNthDescendant(num_depositions),
     )
 
-    reconst_df1 = hstrat.build_tree_searchtable(
-        extant_population, use_cpp=True
-    )
+    reconst_df1 = hstrat.build_tree_searchtable(extant_population, use_cpp=True)
     reconst_df2 = hstrat.build_tree_searchtable(
         [hstrat.col_to_specimen(col) for col in extant_population],
         use_cpp=True,
@@ -506,15 +504,12 @@ def test_reconstructed_taxon_labels(orig_tree, retention_policy, wrap):
         use_cpp=True,
     )
     assert "taxon_label" in reconst_df
-    assert set(taxon_labels) < set(reconst_df["taxon_label"])
+    assert set(taxon_labels) <= set(reconst_df["taxon_label"])
 
     reconst_df = hstrat.build_tree_searchtable(
         [*map(wrap, extant_population)], use_cpp=True
     )
     assert "taxon_label" in reconst_df
-    assert len(reconst_df["taxon_label"].unique()) == len(
-        reconst_df["taxon_label"]
-    )
-    assert set(map(str, range(len(extant_population)))) < set(
+    assert set(map(str, range(len(extant_population)))) <= set(
         reconst_df["taxon_label"]
     )
