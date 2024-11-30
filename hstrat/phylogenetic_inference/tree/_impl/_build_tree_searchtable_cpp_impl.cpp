@@ -1,5 +1,6 @@
 // cppimport
 
+#include "pybind11/pytypes.h"
 #include <algorithm>
 #include <cassert>
 #include <optional>
@@ -338,6 +339,37 @@ void insert_artifact(Records &records, span_type &&ranks,
   create_offstring(records, cur_node, num_strata_deposited - 1, -1, data_id);
 }
 
+template <typename Sequence>
+inline pybind11::array_t<typename Sequence::value_type> as_pyarray(Sequence &&seq) {
+    auto size                         = seq.size();
+    auto data                         = seq.data();
+    std::unique_ptr<Sequence> seq_ptr = std::make_unique<Sequence>(std::move(seq));
+    auto capsule = pybind11::capsule(seq_ptr.get(), [](void *p) { std::unique_ptr<Sequence>(reinterpret_cast<Sequence *>(p)); });
+    seq_ptr.release();
+    return pybind11::array({size}, {sizeof(typename Sequence::value_type)}, data, capsule);
+}
+
+py::dict records_to_dict(Records &records) {
+  std::unordered_map<std::string, py::array_t<u64>> return_mapping;
+  return_mapping.insert({"rank", as_pyarray(std::move(records.rank))});
+  return_mapping.insert({"differentia", as_pyarray(std::move(records.differentia))});
+  return_mapping.insert({"id", as_pyarray(std::move(records.id))});
+  return_mapping.insert({"ancestor_id", as_pyarray(std::move(records.ancestor_id))});
+  return_mapping.insert({"dstream_data_id", as_pyarray(std::move(records.dstream_data_id))});
+  return py::cast(return_mapping);
+}
+
+const py::object get_pbar(const py::handle &pbar_ctor, u64 len) {
+      return pbar_ctor.is_none() ? py::none{} : pbar_ctor("total"_a = len);
+}
+
+const std::optional<py::detail::str_attr_accessor> get_pbar_updater(const py::object &pbar) {
+      return pbar.is_none()
+          ? std::optional<py::detail::str_attr_accessor>{}
+          : std::optional<py::detail::str_attr_accessor>(
+                pbar.attr("update"));
+}
+
 
 /**
  * Constructs the trie in the case where each element in each
@@ -346,7 +378,7 @@ void insert_artifact(Records &records, span_type &&ranks,
  *
  * @see build_trie_searchtable_exploded
  */
-Records build_trie_searchtable_normal(
+py::dict build_trie_searchtable_normal(
     const std::vector<u64> &data_ids,
     const std::vector<u64> &num_strata_depositeds,
     const std::vector<std::vector<u64>> &ranks,
@@ -358,22 +390,15 @@ Records build_trie_searchtable_normal(
          data_ids.size() == ranks.size() &&
          data_ids.size() == differentiae.size());
   if (!data_ids.size()) {
-    return records;
+    return py::dict{};
   }
 
   const py::detail::str_attr_accessor logging_info =
       py::module::import("logging").attr("info");
   logging_info("begin searchtable cpp");
 
-  const py::object tqdm_progress_bar =
-      tqdm_progress_ctor.is_none()
-          ? py::none{}
-          : tqdm_progress_ctor("total"_a = data_ids.size());
-  const auto progress_bar_updater =
-      tqdm_progress_bar.is_none()
-          ? std::optional<py::detail::str_attr_accessor>{}
-          : std::optional<py::detail::str_attr_accessor>(
-                tqdm_progress_bar.attr("update"));
+  const py::object tqdm_progress_bar = get_pbar(tqdm_progress_ctor, data_ids.size());
+  const auto progress_bar_updater = get_pbar_updater(tqdm_progress_bar);
 
   for (u64 i = 0; i < ranks.size(); ++i) {
     insert_artifact<std::span<const u64>>(
@@ -388,8 +413,9 @@ Records build_trie_searchtable_normal(
     }
   }
 
-  return records;
+  return records_to_dict(records);
 }
+
 
 /**
  * A helper function to count the nunber of unique items in an
@@ -415,7 +441,7 @@ u64 count_unique_elements(const py::detail::unchecked_reference<u64, 1> &arr,
  *
  * @see build_trie_searchtable_normal
  */
-Records build_trie_searchtable_exploded(
+py::dict build_trie_searchtable_exploded(
     const py::array_t<u64> &data_ids,
     const py::array_t<u64> &num_strata_depositeds,
     const py::array_t<u64> &ranks, const py::array_t<u64> &differentiae,
@@ -426,7 +452,7 @@ Records build_trie_searchtable_exploded(
          data_ids.size() == ranks.size() &&
          data_ids.size() == differentiae.size());
   if (!data_ids.size()) {
-    return records;
+    return py::dict{};
   }
 
   const py::detail::unchecked_reference<u64, 1> data_ids_accessor =
@@ -442,16 +468,8 @@ Records build_trie_searchtable_exploded(
       py::module::import("logging").attr("info");
   logging_info("begin searchtable cpp");
 
-  const py::object tqdm_progress_bar =
-      tqdm_progress_ctor.is_none()
-          ? py::none{}
-          : tqdm_progress_ctor("total"_a = count_unique_elements(
-                                   data_ids_accessor, data_ids.size()));
-  const auto progress_bar_updater =
-      tqdm_progress_bar.is_none()
-          ? std::optional<py::detail::str_attr_accessor>{}
-          : std::optional<py::detail::str_attr_accessor>(
-                tqdm_progress_bar.attr("update"));
+  const py::object tqdm_progress_bar = get_pbar(tqdm_progress_ctor, count_unique_elements(data_ids_accessor, data_ids.size()));
+  const auto progress_bar_updater = get_pbar_updater(tqdm_progress_bar);
 
   u64 start = 0, start_data_id = data_ids_accessor[0];
   for (u64 i = 1; i < (u64)ranks.size(); ++i) {
@@ -475,18 +493,8 @@ Records build_trie_searchtable_exploded(
     progress_bar_updater.value()(1);
     tqdm_progress_bar.attr("close")();
   }
-
-  return records;
-}
-
-template <typename Sequence>
-inline pybind11::array_t<typename Sequence::value_type> as_pyarray(Sequence &&seq) {
-    auto size                         = seq.size();
-    auto data                         = seq.data();
-    std::unique_ptr<Sequence> seq_ptr = std::make_unique<Sequence>(std::move(seq));
-    auto capsule = pybind11::capsule(seq_ptr.get(), [](void *p) { std::unique_ptr<Sequence>(reinterpret_cast<Sequence *>(p)); });
-    seq_ptr.release();
-    return pybind11::array({size}, {sizeof(typename Sequence::value_type)}, data, capsule);
+  logging_info("done searchtable cpp");
+  return records_to_dict(records);
 }
 
 PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
@@ -496,32 +504,6 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
   m.def("build_normal", &build_trie_searchtable_normal, py::arg("data_ids"),
         py::arg("num_strata_depositeds"), py::arg("ranks"),
         py::arg("differentiae"), py::arg("tqdm_progress_bar") = py::none{});
-  py::class_<Records>(m, "RecordHolder_C")
-      .def(
-          "collect_differentia",
-          [](Records &records) {
-                return as_pyarray(std::move(records.differentia));
-          })
-      .def(
-          "collect_rank",
-          [](Records &records) {
-                return as_pyarray(std::move(records.rank));
-          })
-      .def(
-          "collect_ancestor_id",
-          [](Records &records) {
-                return as_pyarray(std::move(records.ancestor_id));
-          })
-      .def(
-          "collect_dstream_data_id",
-          [](Records &records) {
-                return as_pyarray(std::move(records.dstream_data_id));
-          })
-      .def(
-          "collect_id",
-          [](Records &records) {
-                return as_pyarray(std::move(records.id));
-          });
 }
 
 /*

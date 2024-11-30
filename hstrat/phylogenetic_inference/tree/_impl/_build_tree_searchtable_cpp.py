@@ -2,6 +2,7 @@ import logging
 import typing
 import warnings
 
+import numpy as np
 import opytional as opyt
 import pandas as pd
 import tqdm
@@ -16,7 +17,6 @@ from ...._auxiliary_lib import (
 while "make breakable":
     try:
         from ._build_tree_searchtable_cpp_impl import (  # noqa: F401
-            RecordHolder_C,
             build_exploded,
             build_normal,
         )
@@ -29,7 +29,6 @@ while "make breakable":
         import cppimport.import_hook  # noqa: F401
 
         from ._build_tree_searchtable_cpp_impl import (  # noqa: F401
-            RecordHolder_C,
             build_exploded,
             build_normal,
         )
@@ -47,19 +46,11 @@ while "make breakable":
 
 
 def _finalize_records(
-    records: "RecordHolder_C",
+    records: dict[str, np.ndarray],
     sorted_labels: typing.List[str],
     force_common_ancestry: bool,
 ) -> pd.DataFrame:
-    df = pd.DataFrame(
-        {
-            "rank": records.collect_rank(),
-            "ancestor_id": records.collect_ancestor_id(),
-            "id": records.collect_id(),
-            "dstream_data_id": records.collect_dstream_data_id(),
-            "differentia": records.collect_differentia(),
-        }
-    )
+    df = pd.DataFrame(records)
     df["origin_time"] = df["rank"]
     df["taxon_label"] = [str(sorted_labels[i]) for i in df["dstream_data_id"]]
 
