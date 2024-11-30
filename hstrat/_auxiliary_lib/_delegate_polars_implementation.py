@@ -1,6 +1,5 @@
 import functools
 import typing
-import warnings
 
 import pandas as pd
 import polars as pl

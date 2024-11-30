@@ -14,7 +14,7 @@ while True:
         logging.info("native binaries not found, trying to compile them")
 
     try:
-        import cppimport.import_hook
+        import cppimport.import_hook  # noqa: F401
 
         from ._build_tree_searchtable_cpp import (  # noqa: F401
             RecordHolder_C,
