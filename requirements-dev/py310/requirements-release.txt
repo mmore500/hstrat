@@ -161,7 +161,7 @@ propcache==0.2.0
 py==1.11.0
     # via retry
 pyarrow==18.1.0
-    # via hstrat (../../pyproject.toml)
+    # via polars
 pybind11==2.13.6
     # via hstrat (../../pyproject.toml)
 pydantic==2.10.2

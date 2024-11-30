@@ -321,7 +321,7 @@ py==1.11.0
     #   pytest-forked
     #   tox
 pyarrow==18.1.0
-    # via hstrat (../../pyproject.toml)
+    # via polars
 pybind11==2.13.6
     # via
     #   hstrat (../../pyproject.toml)
