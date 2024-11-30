@@ -251,7 +251,9 @@ def test_col_specimen_consistency(orig_tree, retention_policy):
         ).CloneNthDescendant(num_depositions),
     )
 
-    reconst_df1 = hstrat.build_tree_searchtable(extant_population, use_cpp=True)
+    reconst_df1 = hstrat.build_tree_searchtable(
+        extant_population, use_cpp=True
+    )
     reconst_df2 = hstrat.build_tree_searchtable(
         [hstrat.col_to_specimen(col) for col in extant_population],
         use_cpp=True,
