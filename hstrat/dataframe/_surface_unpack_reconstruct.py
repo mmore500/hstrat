@@ -119,13 +119,7 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
     # to ensure data in the np.frombuffer() is not prematurely deallocated.
     # TODO .copy() is slow, fix pybind11 lifetimes to avoid this
     phylo_df = pl.from_dict(
-        {  # type: ignore
-            "dstream_data_id": records.collect_dstream_data_id(),
-            "id": records.collect_id(),
-            "ancestor_id": records.collect_ancestor_id(),
-            "rank": records.collect_rank(),
-            "differentia": records.collect_differentia()
-        },
+        records,
         schema={
             "dstream_data_id": pl.UInt64,
             "id": pl.UInt64,

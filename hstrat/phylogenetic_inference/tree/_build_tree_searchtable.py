@@ -18,9 +18,6 @@ from ..._auxiliary_lib import (
     give_len,
 )
 
-if typing.TYPE_CHECKING:
-    from ._build_tree_searchtable_native import RecordHolder_C
-
 
 @dataclasses.dataclass(slots=True)
 class Record:
@@ -232,19 +229,11 @@ def insert_artifact(
 
 
 def finalize_records_cpp(
-    records: "RecordHolder_C",
+    records: dict[str, np.ndarray],
     sorted_labels: typing.List[str],
     force_common_ancestry: bool,
 ) -> pd.DataFrame:
-    df = pd.DataFrame(
-        {
-            "rank": records.collect_rank(),
-            "ancestor_id": records.collect_ancestor_id(),
-            "id": records.collect_id(),
-            "dstream_data_id": records.collect_dstream_data_id(),
-            "differentia": records.collect_differentia()
-        }
-    )
+    df = pd.DataFrame(records)
     df["origin_time"] = df["rank"]
     df["taxon_label"] = [str(sorted_labels[i]) for i in df["dstream_data_id"]]
 
