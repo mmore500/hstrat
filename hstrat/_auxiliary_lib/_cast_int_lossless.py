@@ -48,7 +48,7 @@ def cast_int_lossless(
         message = (
             "Precision loss in"
             + f" {context}".rstrip()
-            + f" conversion of {value} to int.",
+            + f" conversion of {value} to int."
         )
         if action == "warn":
             warnings.warn(message)
