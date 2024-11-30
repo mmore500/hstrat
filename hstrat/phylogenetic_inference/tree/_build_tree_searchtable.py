@@ -4,10 +4,6 @@ import itertools as it
 import sys
 import typing
 
-try:
-    from cppimport import import_hook  # noqa: F401
-except ImportError:
-    pass
 import numpy as np
 import opytional as opyt
 import pandas as pd
@@ -23,7 +19,7 @@ from ..._auxiliary_lib import (
 )
 
 if typing.TYPE_CHECKING:
-    from _build_tree_searchtable_cpp import RecordHolder_C
+    from ._build_tree_searchtable_native import RecordHolder_C
 
 
 @dataclasses.dataclass(slots=True)
