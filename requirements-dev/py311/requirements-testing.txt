@@ -187,6 +187,8 @@ py==1.11.0
     # via
     #   pytest-forked
     #   tox
+pyarrow==18.1.0
+    # via hstrat (../../pyproject.toml)
 pybind11==2.13.6
     # via cppimport
 pycodestyle==2.5.0
