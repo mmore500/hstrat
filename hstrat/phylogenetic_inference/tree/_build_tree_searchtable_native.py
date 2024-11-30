@@ -1,7 +1,7 @@
 import logging
 import warnings
 
-while True:
+while "breakable":
     try:
         from ._build_tree_searchtable_cpp import (  # noqa: F401
             RecordHolder_C,
@@ -29,4 +29,4 @@ while True:
         )
         raise e
 
-    assert False
+    assert not "reachable"
