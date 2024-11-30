@@ -1,7 +1,6 @@
 import logging
 
 from downstream import dataframe as dstream_dataframe
-import numpy as np
 import polars as pl
 import tqdm
 
@@ -124,7 +123,7 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
             "id": records.collect_id(),
             "ancestor_id": records.collect_ancestor_id(),
             "rank": records.collect_rank(),
-            "differentia": records.collect_differentia()
+            "differentia": records.collect_differentia(),
         },
         schema={
             "dstream_data_id": pl.UInt64,

@@ -19,15 +19,20 @@ from hstrat._auxiliary_lib import (
     random_tree,
     seed_random,
 )
+from hstrat.phylogenetic_inference.tree._impl import (
+    build_tree_searchtable_python,
+)
 
-from . import _impl as impl
+from .. import _impl as impl
 
-assets_path = os.path.join(os.path.dirname(__file__), "assets")
+assets_path = os.path.join(os.path.dirname(__file__), "..", "assets")
 
 
 def test_empty_population():
     population = []
-    tree = hstrat.build_tree_searchtable(population, use_cpp=False)
+    tree = build_tree_searchtable_python(
+        population,
+    )
 
     assert len(tree) == 0
     assert alifestd_validate(tree)
@@ -41,15 +46,15 @@ def test_dual_population_no_mrca():
     names = ["foo", "bar"]
 
     with pytest.raises(ValueError):
-        tree = hstrat.build_tree_searchtable(
-            population, taxon_labels=names, use_cpp=False
+        tree = build_tree_searchtable_python(
+            population,
+            taxon_labels=names,
         )
 
-    tree = hstrat.build_tree_searchtable(
+    tree = build_tree_searchtable_python(
         population,
         taxon_labels=names,
         force_common_ancestry=True,
-        use_cpp=False,
     )
     tree["name"] = tree["taxon_label"]
     assert not alifestd_has_multiple_roots(tree)
@@ -113,8 +118,8 @@ def test_handwritten_trees(orig_tree, retention_policy, wrap):
         ).CloneNthDescendant(10),
     )
 
-    reconst_df = hstrat.build_tree_searchtable(
-        [*map(wrap, extant_population)], use_cpp=False
+    reconst_df = build_tree_searchtable_python(
+        [*map(wrap, extant_population)],
     )
 
     assert alifestd_validate(reconst_df)
@@ -168,8 +173,8 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
         ).CloneNthDescendant(num_depositions),
     )
 
-    reconst_df = hstrat.build_tree_searchtable(
-        extant_population, use_cpp=False
+    reconst_df = build_tree_searchtable_python(
+        extant_population,
     )
     assert "origin_time" in reconst_df
 
@@ -254,12 +259,11 @@ def test_col_specimen_consistency(orig_tree, retention_policy):
         ).CloneNthDescendant(num_depositions),
     )
 
-    reconst_df1 = hstrat.build_tree_searchtable(
-        extant_population, use_cpp=False
+    reconst_df1 = build_tree_searchtable_python(
+        extant_population,
     )
-    reconst_df2 = hstrat.build_tree_searchtable(
+    reconst_df2 = build_tree_searchtable_python(
         [hstrat.col_to_specimen(col) for col in extant_population],
-        use_cpp=False,
     )
 
     assert reconst_df1[["id", "ancestor_list"]].equals(
@@ -310,10 +314,9 @@ def test_reconstructed_mrca_fuzz(
         ),
     )
 
-    reconst_df = hstrat.build_tree_searchtable(
+    reconst_df = build_tree_searchtable_python(
         extant_population,
         progress_wrap=tqdm,
-        use_cpp=False,
     )
     assert "origin_time" in reconst_df
 
@@ -462,13 +465,13 @@ def test_determinism(orig_tree, retention_policy, differentia_width, wrap):
         ).CloneNthDescendant(num_depositions),
     )
 
-    first_reconst = hstrat.build_tree_searchtable(
-        extant_population, use_cpp=False
+    first_reconst = build_tree_searchtable_python(
+        extant_population,
     )
     for _rep in range(10):
         _ = _rep
-        second_reconst = hstrat.build_tree_searchtable(
-            [wrap(col) for col in extant_population], use_cpp=False
+        second_reconst = build_tree_searchtable_python(
+            [wrap(col) for col in extant_population],
         )
         pd.testing.assert_frame_equal(first_reconst, second_reconst)
 
@@ -503,16 +506,15 @@ def test_reconstructed_taxon_labels(orig_tree, retention_policy, wrap):
     )
     taxon_labels = [str(id(x)) for x in extant_population]
 
-    reconst_df = hstrat.build_tree_searchtable(
+    reconst_df = build_tree_searchtable_python(
         [*map(wrap, extant_population)],
         taxon_labels=taxon_labels,
-        use_cpp=False,
     )
     assert "taxon_label" in reconst_df
     assert set(taxon_labels) <= set(reconst_df["taxon_label"])
 
-    reconst_df = hstrat.build_tree_searchtable(
-        [*map(wrap, extant_population)], use_cpp=False
+    reconst_df = build_tree_searchtable_python(
+        [*map(wrap, extant_population)],
     )
     assert "taxon_label" in reconst_df
     assert set(map(str, range(len(extant_population)))) <= set(

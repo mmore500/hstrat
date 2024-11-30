@@ -5,13 +5,8 @@ from ._TrieLeafNode import TrieLeafNode
 from ._TrieSearchInnerNode import TrieSearchInnerNode
 from ._append_genesis_organism import append_genesis_organism
 from ._build_tree_biopython_distance import build_tree_biopython_distance
-from ._build_trie_from_artifacts import (
-    MatrixColumn,
-    build_trie_from_artifacts,
-    build_trie_from_artifacts_consolidated,
-    build_trie_from_artifacts_matrix,
-    build_trie_from_artifacts_progressive,
-)
+from ._build_tree_searchtable_python import build_tree_searchtable_python
+from ._build_trie_from_artifacts import build_trie_from_artifacts
 from ._estimate_origin_times import estimate_origin_times
 from ._find_chronological_root import find_chronological_root
 from ._find_chronological_roots import find_chronological_roots
@@ -25,9 +20,7 @@ __all__ = [
     "append_genesis_organism",
     "build_tree_biopython_distance",
     "build_trie_from_artifacts",
-    "build_trie_from_artifacts_matrix",
-    "build_trie_from_artifacts_consolidated",
-    "build_trie_from_artifacts_progressive",
+    "build_tree_searchtable_python",
     "MatrixColumn",
     "estimate_origin_times",
     "find_chronological_root",
