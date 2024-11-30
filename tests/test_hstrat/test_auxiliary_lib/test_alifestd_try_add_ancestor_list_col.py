@@ -91,7 +91,6 @@ def test_alifestd_try_add_ancestor_id_col_asexual(phylogeny_df, apply):
     res_df = alifestd_try_add_ancestor_list_col(
         phylogeny_df,
         root_ancestor_token="None",
-        mutate=False,
     )
     assert (
         res_df["ancestor_list"]

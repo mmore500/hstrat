@@ -238,16 +238,14 @@ def finalize_records_cpp(
 ) -> pd.DataFrame:
     df = pd.DataFrame(
         {
-            "origin_time": np.frombuffer(records.rank, dtype=np.uint64),
-            "rank": np.frombuffer(records.rank, dtype=np.uint64),
-            "ancestor_id": np.frombuffer(records.ancestor_id, dtype=np.uint64),
-            "id": np.frombuffer(records.id, dtype=np.uint64),
-            "dstream_data_id": np.frombuffer(
-                records.dstream_data_id, dtype=np.uint64
-            ),
-            "differentia": np.frombuffer(records.differentia, dtype=np.uint64),
+            "rank": records.collect_rank(),
+            "ancestor_id": records.collect_ancestor_id(),
+            "id": records.collect_id(),
+            "dstream_data_id": records.collect_dstream_data_id(),
+            "differentia": records.collect_differentia()
         }
     )
+    df["origin_time"] = df["rank"]
     df["taxon_label"] = [str(sorted_labels[i]) for i in df["dstream_data_id"]]
 
     multiple_true_roots = (

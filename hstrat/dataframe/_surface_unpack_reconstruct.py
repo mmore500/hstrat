@@ -120,17 +120,11 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
     # TODO .copy() is slow, fix pybind11 lifetimes to avoid this
     phylo_df = pl.from_dict(
         {  # type: ignore
-            "dstream_data_id": np.frombuffer(
-                records.dstream_data_id, dtype=np.uint64
-            ).copy(),
-            "id": np.frombuffer(records.id, dtype=np.uint64).copy(),
-            "ancestor_id": np.frombuffer(
-                records.ancestor_id, dtype=np.uint64
-            ).copy(),
-            "rank": np.frombuffer(records.rank, dtype=np.uint64).copy(),
-            "differentia": np.frombuffer(
-                records.differentia, dtype=np.uint64
-            ).copy(),
+            "dstream_data_id": records.collect_dstream_data_id(),
+            "id": records.collect_id(),
+            "ancestor_id": records.collect_ancestor_id(),
+            "rank": records.collect_rank(),
+            "differentia": records.collect_differentia()
         },
         schema={
             "dstream_data_id": pl.UInt64,
@@ -140,6 +134,8 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
             "rank": pl.UInt64,
         },
     )
+
+    logging.info("adding ancestor list column...")
     phylo_df = alifestd_try_add_ancestor_list_col(phylo_df)
 
     logging.info("joining frames...")

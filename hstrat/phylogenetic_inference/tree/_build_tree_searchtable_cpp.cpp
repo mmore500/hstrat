@@ -479,6 +479,16 @@ Records build_trie_searchtable_exploded(
   return records;
 }
 
+template <typename Sequence>
+inline pybind11::array_t<typename Sequence::value_type> as_pyarray(Sequence &&seq) {
+    auto size                         = seq.size();
+    auto data                         = seq.data();
+    std::unique_ptr<Sequence> seq_ptr = std::make_unique<Sequence>(std::move(seq));
+    auto capsule = pybind11::capsule(seq_ptr.get(), [](void *p) { std::unique_ptr<Sequence>(reinterpret_cast<Sequence *>(p)); });
+    seq_ptr.release();
+    return pybind11::array({size}, {sizeof(typename Sequence::value_type)}, data, capsule);
+}
+
 PYBIND11_MODULE(_build_tree_searchtable_cpp, m) {
   m.def("build_exploded", &build_trie_searchtable_exploded, py::arg("data_ids"),
         py::arg("num_strata_depositeds"), py::arg("ranks"),
@@ -487,43 +497,31 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp, m) {
         py::arg("num_strata_depositeds"), py::arg("ranks"),
         py::arg("differentiae"), py::arg("tqdm_progress_bar") = py::none{});
   py::class_<Records>(m, "RecordHolder_C")
-      .def_property_readonly(
-          "differentia",
-          [](const Records &records) {
-            return py::memoryview::from_memory(records.differentia.data(),
-                                               records.differentia.size() *
-                                                   sizeof(u64));
-          },
-          py::return_value_policy::reference_internal)
-      .def_property_readonly(
-          "rank",
-          [](const Records &records) {
-            return py::memoryview::from_memory(
-                records.rank.data(), records.rank.size() * sizeof(u64));
-          },
-          py::return_value_policy::reference_internal)
-      .def_property_readonly(
-          "ancestor_id",
-          [](const Records &records) {
-            return py::memoryview::from_memory(records.ancestor_id.data(),
-                                               records.ancestor_id.size() *
-                                                   sizeof(u64));
-          },
-          py::return_value_policy::reference_internal)
-      .def_property_readonly(
-          "dstream_data_id",
-          [](const Records &records) {
-            return py::memoryview::from_memory(
-                records.dstream_data_id.data(), records.dstream_data_id.size() * sizeof(u64));
-          },
-          py::return_value_policy::reference_internal)
-      .def_property_readonly(
-          "id",
-          [](const Records &records) {
-            return py::memoryview::from_memory(records.id.data(),
-                                               records.id.size() * sizeof(u64));
-          },
-          py::return_value_policy::reference_internal);
+      .def(
+          "collect_differentia",
+          [](Records &records) {
+                return as_pyarray(std::move(records.differentia));
+          })
+      .def(
+          "collect_rank",
+          [](Records &records) {
+                return as_pyarray(std::move(records.rank));
+          })
+      .def(
+          "collect_ancestor_id",
+          [](Records &records) {
+                return as_pyarray(std::move(records.ancestor_id));
+          })
+      .def(
+          "collect_dstream_data_id",
+          [](Records &records) {
+                return as_pyarray(std::move(records.dstream_data_id));
+          })
+      .def(
+          "collect_id",
+          [](Records &records) {
+                return as_pyarray(std::move(records.id));
+          });
 }
 
 /*
