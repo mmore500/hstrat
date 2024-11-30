@@ -95,9 +95,9 @@ class TrieInnerNode(anytree.NodeMixin):
     def GetDeepestCongruousAlleleOrigination(
         self: "TrieInnerNode",
         taxon_allele_iter: typing.Iterator[typing.Tuple[int, int]],
-    ) -> (
-        typing.Tuple["TrieInnerNode", typing.Iterator[typing.Tuple[int, int]]]
-    ):
+    ) -> typing.Tuple[
+        "TrieInnerNode", typing.Iterator[typing.Tuple[int, int]]
+    ]:
         """Descends the subtrie to retrieve the deepest prefix consistent with
         the hereditary stratigraphic record of a query taxon.
 
