@@ -6,6 +6,7 @@ from Bio.Phylo.TreeConstruction import BaseTree
 import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
 import networkx as nx
+import pandas as pd
 import pytest
 from tqdm import tqdm
 
@@ -467,7 +468,7 @@ def test_determinism(orig_tree, retention_policy, differentia_width, wrap):
         second_reconst = hstrat.build_tree_searchtable(
             [wrap(col) for col in extant_population], use_cpp=False
         )
-        assert first_reconst.equals(second_reconst)
+        pd.testing.assert_frame_equal(first_reconst, second_reconst)
 
 
 @pytest.mark.parametrize(

@@ -24,7 +24,7 @@ if typing.TYPE_CHECKING:
 
 @dataclasses.dataclass(slots=True)
 class Record:
-    taxon_label: int
+    taxon_id: int
     ix_id: int = 0
     ix_search_first_child_id: int = 0
     ix_search_next_sibling_id: int = 0
@@ -108,12 +108,12 @@ def create_offspring(
     parent_id: int,
     differentia: int,
     rank: int,
-    taxon_label: int,
+    taxon_id: int,
 ) -> int:
     size = len(records)
 
     id_ = size
-    records.append(Record(taxon_label))
+    records.append(Record(taxon_id))
     record = records[id_]
     record.ix_id = id_
     record.ix_search_first_child_id = id_
@@ -200,7 +200,7 @@ def place_allele(
             parent_id=cur_node,
             differentia=next_differentia,
             rank=next_rank,
-            taxon_label=sys.maxsize - len(records) - 1,
+            taxon_id=sys.maxsize - len(records) - 1,
         )
 
 
@@ -208,7 +208,7 @@ def insert_artifact(
     records: typing.List[Record],
     ranks: typing.Iterable[int],
     differentiae: typing.Iterable[int],
-    label: int,
+    taxon_id: int,
     num_strata_deposited: int,
 ) -> None:
 
@@ -227,7 +227,7 @@ def insert_artifact(
         parent_id=cur_node,
         rank=num_strata_deposited - 1,
         differentia=-1,
-        taxon_label=label,
+        taxon_id=taxon_id,
     )
 
 
@@ -265,17 +265,20 @@ def finalize_records_cpp(
 
 def finalize_records(
     records: typing.List[Record],
+    taxon_labels: typing.List[str],
     force_common_ancestry: bool,
 ) -> pd.DataFrame:
     df = pd.DataFrame(map(dataclasses.asdict, records))
-    df["id"] = df["ix_id"]
-    df["ancestor_id"] = df["ix_ancestor_id"]
-    df["origin_time"] = df["ix_rank"]
-    df["dstream_data_id"] = df["taxon_label"]
-    df["taxon_label"] = df["taxon_label"].astype(str)
+    df["id"] = df["ix_id"].astype(np.uint64)
+    df["ancestor_id"] = df["ix_ancestor_id"].astype(np.uint64)
+    df["origin_time"] = df["ix_rank"].astype(np.uint64)
+    df["dstream_data_id"] = df["taxon_id"].astype(np.uint64)
+    df["taxon_label"] = df["taxon_id"].map(
+        lambda x: str(taxon_labels[x]) if x < len(taxon_labels) else str(x)
+    )
 
     for col in df.columns:
-        if col.startswith("ix_"):
+        if col.startswith("ix_") or col == "taxon_id":
             del df[col]
 
     multiple_true_roots = (
@@ -346,17 +349,15 @@ def build_tree_searchtable(
                     "Try compiling the module from source or use `use_cpp=False`."
                 )
 
-    records = [Record(taxon_label=sys.maxsize)]
-    for label, artifact in progress_wrap(
-        give_len(
-            zip(sorted_labels, sorted_population), len(sorted_population)
-        ),
+    records = [Record(taxon_id=sys.maxsize)]
+    for taxon_id, artifact in progress_wrap(
+        give_len(zip(sort_order, sorted_population), len(sorted_population)),
     ):
         insert_artifact(
             records,
             artifact.IterRetainedRanks(),
             artifact.IterRetainedDifferentia(),
-            label,
+            taxon_id,
             artifact.GetNumStrataDeposited(),
         )
-    return finalize_records(records, force_common_ancestry)
+    return finalize_records(records, taxon_labels, force_common_ancestry)
