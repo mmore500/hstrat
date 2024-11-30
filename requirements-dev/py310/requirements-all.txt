@@ -15,7 +15,6 @@ asttokens==2.4.1
 attrs==24.2.0
     # via
     #   jsonschema
-    #   pytest
     #   referencing
 babel==2.16.0
     # via sphinx
@@ -86,6 +85,8 @@ entrypoints==0.3
     # via flake8
 ete3==3.1.3
     # via alifedata-phyloinformatics-convert
+exceptiongroup==1.2.2
+    # via pytest
 execnet==2.1.1
     # via pytest-xdist
 executing==2.1.0
@@ -315,7 +316,6 @@ pure-eval==0.2.3
     # via stack-data
 py==1.11.0
     # via
-    #   pytest
     #   pytest-forked
     #   tox
 pybind11==2.13.6
@@ -338,7 +338,7 @@ pygments==2.18.0
     #   sphinx
 pyparsing==3.2.0
     # via matplotlib
-pytest==7.1.2
+pytest==8.3.3
     # via
     #   hstrat (../../pyproject.toml)
     #   pytest-forked
