@@ -13,6 +13,7 @@ RUN apt-get update \
         python3 \
         python3-dev \
         python3-pip \
+        python3-venv \
         python3-wheel \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -36,6 +37,5 @@ RUN python3 -m pip install uv --break-system-packages \
 RUN python3 -m hstrat.dataframe.surface_unpack_reconstruct --help
 
 # Clean up
-RUN apt-get remove --purge -y python3-wheel python3-pip \
-    && apt-get clean \
+RUN apt-get clean \
     && rm -rf /root/.cache /tmp/* /app
