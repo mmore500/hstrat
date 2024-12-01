@@ -40,6 +40,7 @@ find_package(pybind11 CONFIG REQUIRED)
 
 # Find all .cpp files in the hstrat directory
 file(GLOB_RECURSE HSTRAT_CPP_FILES ${CMAKE_SOURCE_DIR}/hstrat/*.cpp)
+list(FILTER HSTRAT_CPP_FILES EXCLUDE REGEX "\\.rendered.*\\.cpp")
 
 # Loop through each .cpp file and create a pybind11 module
 foreach(CPP_FILE ${HSTRAT_CPP_FILES})
