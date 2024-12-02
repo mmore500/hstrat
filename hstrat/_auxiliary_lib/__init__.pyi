@@ -123,6 +123,8 @@ from ._cast_int_lossless import cast_int_lossless
 from ._check_testing_requirements import check_testing_requirements
 from ._cmp import cmp
 from ._cmp_approx import cmp_approx
+from ._coerce_to_pandas import coerce_to_pandas
+from ._coerce_to_polars import coerce_to_polars
 from ._consume import consume
 from ._coshuffled import coshuffled
 from ._count_trailing_ones import count_trailing_ones
@@ -298,6 +300,8 @@ __all__ = [
     "check_testing_requirements",
     "cmp",
     "cmp_approx",
+    "coerce_to_pandas",
+    "coerce_to_polars",
     "consume",
     "CopyableSeriesItemsIter",
     "count_unique",

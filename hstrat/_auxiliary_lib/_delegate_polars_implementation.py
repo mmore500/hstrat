@@ -4,17 +4,11 @@ import typing
 import pandas as pd
 import polars as pl
 
+from ._coerce_to_pandas import coerce_to_pandas
+from ._coerce_to_polars import coerce_to_polars
+
 DataFrame_T = typing.TypeVar("DataFrame_T", pd.DataFrame, pl.DataFrame)
 Series_T = typing.TypeVar("Series_T", pd.Series, pl.Series)
-
-
-def _coerce_to_pandas(obj: typing.Any) -> typing.Any:
-    if hasattr(obj, "__dataframe__"):
-        return pd.api.interchange.from_dataframe(obj, allow_copy=False)
-    elif hasattr(obj, "to_pandas"):
-        return obj.to_pandas()
-    else:
-        return obj
 
 
 def delegate_polars_implementation(
@@ -37,11 +31,14 @@ def delegate_polars_implementation(
             elif any_polars and polars_func is not None:
                 return polars_func(*args, **kwargs)
             else:
-                args = (*map(_coerce_to_pandas, args),)
+                args = (*map(coerce_to_pandas, args),)
                 kwargs = {
-                    kw: _coerce_to_pandas(arg) for kw, arg in kwargs.items()
+                    kw: coerce_to_pandas(arg) for kw, arg in kwargs.items()
                 }
-                return original_func(*args, **kwargs)
+                pandas_retval = original_func(*args, **kwargs)
+                if any_polars:
+                    return coerce_to_polars(pandas_retval)
+                return pandas_retval
 
         if delegating_function.__doc__ is not None:
             delegating_function.__doc__ += (

@@ -10,6 +10,10 @@ anytree==2.12.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
+appnope==0.1.4
+    # via
+    #   ipykernel
+    #   ipython
 asttokens==2.4.1
     # via stack-data
 attrs==24.2.0
@@ -79,7 +83,7 @@ docutils==0.21.2
     #   readme-renderer
     #   sphinx
     #   sphinx-rtd-theme
-downstream==1.2.5
+downstream==1.2.6
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
@@ -318,6 +322,8 @@ py==1.11.0
     # via
     #   pytest-forked
     #   tox
+pyarrow==18.1.0
+    # via polars
 pybind11==2.13.6
     # via
     #   hstrat (../../pyproject.toml)
