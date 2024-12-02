@@ -1,7 +1,6 @@
 import logging
 
 from downstream import dataframe as dstream_dataframe
-import numpy as np
 import polars as pl
 import tqdm
 
@@ -9,8 +8,8 @@ from .._auxiliary_lib import (
     alifestd_make_empty,
     alifestd_try_add_ancestor_list_col,
 )
-from ..phylogenetic_inference.tree._build_tree_searchtable_native import (
-    build_exploded as build_cpp,
+from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp import (
+    build_exploded as build_tree_searchtable_from_exploded,
 )
 
 
@@ -105,7 +104,7 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         logging.info(message)
 
     logging.info("building tree...")
-    records = build_cpp(
+    records = build_tree_searchtable_from_exploded(
         long_df["dstream_data_id"].to_numpy(),
         long_df["dstream_T"].to_numpy(),
         long_df["dstream_Tbar"].to_numpy(),
@@ -115,9 +114,6 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
 
     logging.info("finalizing tree...")
 
-    # even without alifestd_try_add_ancestor_list_col, the .copy() are needed
-    # to ensure data in the np.frombuffer() is not prematurely deallocated.
-    # TODO .copy() is slow, fix pybind11 lifetimes to avoid this
     phylo_df = pl.from_dict(
         records,
         schema={

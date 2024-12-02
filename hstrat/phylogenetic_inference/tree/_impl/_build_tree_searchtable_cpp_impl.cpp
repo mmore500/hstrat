@@ -497,7 +497,7 @@ py::dict build_trie_searchtable_exploded(
   return records_to_dict(records);
 }
 
-PYBIND11_MODULE(_build_tree_searchtable_cpp, m) {
+PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
   m.def("build_exploded", &build_trie_searchtable_exploded, py::arg("data_ids"),
         py::arg("num_strata_depositeds"), py::arg("ranks"),
         py::arg("differentiae"), py::arg("tqdm_progress_bar") = py::none{});
