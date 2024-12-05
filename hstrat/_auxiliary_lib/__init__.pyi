@@ -90,6 +90,9 @@ from ._alifestd_sum_origin_time_deltas_asexual import (
 from ._alifestd_to_working_format import alifestd_to_working_format
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_try_add_ancestor_list_col import (
+    alifestd_try_add_ancestor_list_col,
+)
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
 from ._alifestd_validate import alifestd_validate
 from ._all_same import all_same
@@ -120,6 +123,8 @@ from ._cast_int_lossless import cast_int_lossless
 from ._check_testing_requirements import check_testing_requirements
 from ._cmp import cmp
 from ._cmp_approx import cmp_approx
+from ._coerce_to_pandas import coerce_to_pandas
+from ._coerce_to_polars import coerce_to_polars
 from ._consume import consume
 from ._coshuffled import coshuffled
 from ._count_trailing_ones import count_trailing_ones
@@ -260,6 +265,7 @@ __all__ = [
     "alifestd_to_working_format",
     "alifestd_topological_sort",
     "alifestd_try_add_ancestor_id_col",
+    "alifestd_try_add_ancestor_list_col",
     "alifestd_unfurl_lineage_asexual",
     "alifestd_validate",
     "all_same",
@@ -294,6 +300,8 @@ __all__ = [
     "check_testing_requirements",
     "cmp",
     "cmp_approx",
+    "coerce_to_pandas",
+    "coerce_to_polars",
     "consume",
     "CopyableSeriesItemsIter",
     "count_unique",
