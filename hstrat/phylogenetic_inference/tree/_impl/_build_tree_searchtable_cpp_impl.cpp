@@ -1,6 +1,5 @@
 // cppimport
 
-#include "pybind11/pytypes.h"
 #include <algorithm>
 #include <cassert>
 #include <optional>
