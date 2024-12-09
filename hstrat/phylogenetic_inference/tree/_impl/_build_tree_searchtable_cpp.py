@@ -1,6 +1,4 @@
-import logging
 import typing
-import warnings
 
 import numpy as np
 import opytional as opyt
@@ -14,35 +12,7 @@ from ...._auxiliary_lib import (
     argsort,
 )
 
-while "make breakable":
-    try:
-        from ._build_tree_searchtable_cpp_impl import (  # noqa: F401
-            build_exploded,
-            build_normal,
-        )
-
-        break
-    except ImportError:
-        logging.info("native binaries not found, trying to compile them.")
-
-    try:
-        import cppimport.import_hook  # noqa: F401
-
-        from ._build_tree_searchtable_cpp_impl import (  # noqa: F401
-            build_exploded,
-            build_normal,
-        )
-
-        logging.info("native binaries compiled successfully via cppimport.")
-
-        break
-    except ImportError as e:
-        warnings.warn(
-            "native binaries not found and cppimport fallback failed.",
-        )
-        raise e
-
-    assert not "reachable"
+from _build_tree_searchtable_cpp_native import build_normal
 
 
 def _finalize_records(

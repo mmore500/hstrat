@@ -135,6 +135,7 @@ from ._deep_listify import deep_listify
 from ._demark import demark
 from ._div_range import div_range
 from ._estimate_binomial_p import estimate_binomial_p
+from ._except_wrap import except_wrap
 from ._find_bounds import find_bounds
 from ._flag_last import flag_last
 from ._flat_len import flat_len
@@ -144,6 +145,7 @@ from ._get_hstrat_version import get_hstrat_version
 from ._get_nullable_mask import get_nullable_mask
 from ._get_nullable_vals import get_nullable_vals
 from ._give_len import give_len
+from ._import_cpp_impls import import_cpp_impls
 from ._indices_of_unique import indices_of_unique
 from ._intersect_ranges import intersect_ranges
 from ._is_base64 import is_base64
@@ -313,6 +315,7 @@ __all__ = [
     "demark",
     "div_range",
     "estimate_binomial_p",
+    "except_wrap",
     "find_bounds",
     "flat_len",
     "generate_n",
@@ -324,6 +327,7 @@ __all__ = [
     "give_len",
     "flag_last",
     "HereditaryStratigraphicArtifact",
+    "import_cpp_impls",
     "indices_of_unique",
     "intersect_ranges",
     "is_base64",
