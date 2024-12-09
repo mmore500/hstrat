@@ -42,12 +42,11 @@ def import_cpp_impls(
         A list of symbols to import from the module.
     """
 
-    normal_importer = lambda: _import_normal(
-        module_name, package, requested_symbols
-    )
-    cppimport_importer = lambda: _import_cppimport(
-        module_name, package, requested_symbols
-    )
+    def normal_importer():
+        return _import_normal(module_name, package, requested_symbols)
+
+    def cppimport_importer():
+        return _import_cppimport(module_name, package, requested_symbols)
 
     using_pytest = "PYTEST_CURRENT_TEST" in os.environ
     if "HSTRAT_USE_CPPIMPORT" in os.environ or using_pytest:
