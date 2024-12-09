@@ -91,7 +91,14 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
     with pl.Config() as cfg:
         cfg.set_tbl_cols(df.lazy().collect_schema().len())
         head = repr(df.lazy().head().collect())
-        message = " ".join(["unpacked df:", str(num_rows), "rows\n", head])
+        message = " ".join(
+            [
+                "unpacked df:",
+                str(df.lazy().select(pl.len()).collect().item()),
+                "rows\n",
+                head,
+            ]
+        )
         logging.info(message)
 
     long_df = dstream_dataframe.explode_lookup_unpacked(
@@ -100,7 +107,14 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
     with pl.Config() as cfg:
         cfg.set_tbl_cols(long_df.lazy().collect_schema().len())
         head = repr(long_df.lazy().head().collect())
-        message = " ".join(["exploded df:", str(num_rows), "rows\n", head])
+        message = " ".join(
+            [
+                "exploded df:",
+                str(long_df.lazy().select(pl.len()).collect().item()),
+                "rows\n",
+                head,
+            ]
+        )
         logging.info(message)
 
     logging.info("building tree...")
