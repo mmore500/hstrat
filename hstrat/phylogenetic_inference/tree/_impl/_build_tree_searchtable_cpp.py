@@ -19,6 +19,7 @@ def _finalize_records(
     sorted_labels: typing.List[str],
     force_common_ancestry: bool,
 ) -> pd.DataFrame:
+"""Collate as phylogeny dataframe in alife standard format."""
     df = pd.DataFrame(records)
     df["origin_time"] = df["rank"]
     df["taxon_label"] = [str(sorted_labels[i]) for i in df["dstream_data_id"]]
