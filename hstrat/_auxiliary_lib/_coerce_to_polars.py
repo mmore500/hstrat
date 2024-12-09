@@ -6,7 +6,7 @@ import polars as pl
 
 def coerce_to_polars(arg: typing.Any) -> typing.Any:
     """
-    If a Pandas type is detected, coerces it to a Polars type.
+    If a Pandas type is detected, coerce it to corresponding Polars type.
     """
     if isinstance(arg, (pd.Series, pd.DataFrame)):
         return pl.from_pandas(arg)
