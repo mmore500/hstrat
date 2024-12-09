@@ -57,6 +57,7 @@ def import_cpp_impls(
                 cppimport_importer,
                 {
                     ImportError: "Import using cppimport failed, trying native binaries",
+                    ModuleNotFoundError: "cppimport not found, trying native binaries",
                 },
             ),
             normal_importer,
