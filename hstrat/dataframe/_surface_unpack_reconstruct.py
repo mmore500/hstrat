@@ -8,7 +8,7 @@ from .._auxiliary_lib import (
     alifestd_make_empty,
     alifestd_try_add_ancestor_list_col,
 )
-from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp import (
+from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_native import (
     build_exploded as build_tree_searchtable_from_exploded,
 )
 
@@ -115,7 +115,7 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
     logging.info("finalizing tree...")
 
     phylo_df = pl.from_dict(
-        records,
+        records,  # type: ignore
         schema={
             "dstream_data_id": pl.UInt64,
             "id": pl.UInt64,
