@@ -21,7 +21,9 @@ def _import_importlib(module_name: str, package: str) -> types.ModuleType:
     return importlib.import_module(f".{module_name}", package=package)
 
 
-def delegate_cppimport_module(module_name: str, package: str) -> types.ModuleType:
+def delegate_cppimport_module(
+    module_name: str, package: str
+) -> types.ModuleType:
     r"""Imports module, delegating to cppimport if in unit test or requested
     by environment variable HSTRAT_USE_CPPIMPORT.
 

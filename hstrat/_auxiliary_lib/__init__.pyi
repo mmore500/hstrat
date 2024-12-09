@@ -133,6 +133,7 @@ from ._count_unique import count_unique
 from ._curried_binary_search_jit import curried_binary_search_jit
 from ._deep_listify import deep_listify
 from ._delegate_cppimport_module import delegate_cppimport_module
+from ._delegate_polars_implementation import delegate_polars_implementation
 from ._demark import demark
 from ._div_range import div_range
 from ._estimate_binomial_p import estimate_binomial_p
@@ -314,6 +315,7 @@ __all__ = [
     "curried_binary_search_jit",
     "deep_listify",
     "delegate_cppimport_module",
+    "delegate_polars_implementation",
     "demark",
     "div_range",
     "estimate_binomial_p",

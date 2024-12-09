@@ -8,6 +8,13 @@ from hstrat._auxiliary_lib import coerce_to_pandas, coerce_to_polars
 
 
 def check_polars_implementation(func: typing.Callable):
+    """
+    Takes in `func`, which was supposed to have been wrapped with
+    `_auxiliary_lib.delegate_polars_implementation`, asserts that
+    it returns the same result with the same Polars and Pandas
+    frames, and returns the Pandas result.
+    """
+
     @functools.wraps(func)
     def polars_equality_checker(*args, **kwargs):
         pl_args = tuple(coerce_to_polars(arg) for arg in args)

@@ -4,27 +4,78 @@ import typing
 import pandas as pd
 import polars as pl
 
-from ._coerce_to_pandas import coerce_to_pandas
+from ._coerce_to_pandas import (
+    _supported_iterables,
+    _supported_mappings,
+    coerce_to_pandas,
+)
 from ._coerce_to_polars import coerce_to_polars
 
 DataFrame_T = typing.TypeVar("DataFrame_T", pd.DataFrame, pl.DataFrame)
 Series_T = typing.TypeVar("Series_T", pd.Series, pl.Series)
 
 
+def any_pandas_arg(arg: typing.Any) -> bool:
+    """Implementation detail for delegate_polars_implementation."""
+    if isinstance(arg, str):  # edge case where iterating 'a' -> 'a' -> ...
+        return False
+    elif isinstance(arg, (pd.DataFrame, pd.Series)):
+        return True
+    elif isinstance(arg, typing.Mapping):
+        return any(any_pandas_arg(v) for v in arg.values())
+    elif isinstance(arg, typing.Iterable):
+        return any(any_pandas_arg(ele) for ele in arg)
+    return False
+
+
+def any_polars_arg(arg: typing.Any, polars_func_present: bool) -> bool:
+    """
+    Implementation detail for delegate_polars_implementation.
+    Because coercion to Pandas will be done if there is no Polars function
+    present, we must check for containers that contain Polars objects
+    for which coercion is not implemented.
+    """
+    if isinstance(arg, str):  # edge case where iterating 'a' -> 'a' -> ...
+        return False
+    elif isinstance(arg, (pl.DataFrame, pl.Series)):
+        return True
+    elif isinstance(arg, typing.Mapping):
+        result = any(
+            any_polars_arg(v, polars_func_present) for v in arg.values()
+        )
+        if result is True and not isinstance(arg, _supported_mappings):
+            raise NotImplementedError(
+                f"Coercion to Pandas not implemented for mapping type '{type(arg)}'"
+            )
+        return result
+    elif isinstance(arg, typing.Iterable):
+        result = any(any_polars_arg(ele, polars_func_present) for ele in arg)
+        if result is True and not isinstance(arg, _supported_iterables):
+            raise NotImplementedError(
+                f"Coercion to Pandas not implemented for iterable type '{type(arg)}'"
+            )
+        return result
+    return False
+
+
 def delegate_polars_implementation(
     polars_func: typing.Optional[typing.Callable] = None,
 ):
+    """
+    Returns a decorator for `original_func` using Pandas objects
+    (i.e. DataFrame or Series) that detects if Polars objects are
+    supplied instead. If they are, and `polars_func` is defined,
+    then `polars_func` is called instead. Otherwise, arguments
+    are coerced to Pandas and `original_func` is called.
+    """
+
     def decorator(original_func: typing.Callable):
         @functools.wraps(original_func)
         def delegating_function(*args, **kwargs):
 
-            any_pandas = any(
-                isinstance(arg, (pd.DataFrame, pd.Series))
-                for arg in (*args, *kwargs.values())
-            )
-            any_polars = any(
-                isinstance(arg, (pl.DataFrame, pl.Series))
-                for arg in (*args, *kwargs.values())
+            any_pandas = any_pandas_arg(args + tuple(kwargs.values()))
+            any_polars = any_polars_arg(
+                args + tuple(kwargs.values()), polars_func is not None
             )
             if any_pandas and any_polars:
                 raise TypeError("mixing pandas and polars types is disallowed")
