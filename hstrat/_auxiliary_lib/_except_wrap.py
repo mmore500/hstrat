@@ -20,4 +20,5 @@ def except_wrap(
                         warnings.warn(message)
                     return sentinel
             raise e
+
     return inner

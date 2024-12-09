@@ -53,19 +53,25 @@ def import_cpp_impls(
     if "HSTRAT_USE_CPPIMPORT" in os.environ or using_pytest:
         if using_pytest:
             logging.info("Pytest session detected -- applying cppimport")
-        primary, fallback = except_wrap(
-            cppimport_importer,
-            {
-                ImportError: "Import using cppimport failed, trying native binaries",
-            },
-        ), normal_importer
-    else:
-        primary, fallback = except_wrap(
+        primary, fallback = (
+            except_wrap(
+                cppimport_importer,
+                {
+                    ImportError: "Import using cppimport failed, trying native binaries",
+                },
+            ),
             normal_importer,
-            {
-                ImportError: "Native binaries not found, attempting to use cppimport",
-                AttributeError: "Requested symbols not found, attempting to update with cppimport",
-            },
-        ), cppimport_importer
+        )
+    else:
+        primary, fallback = (
+            except_wrap(
+                normal_importer,
+                {
+                    ImportError: "Native binaries not found, attempting to use cppimport",
+                    AttributeError: "Requested symbols not found, attempting to update with cppimport",
+                },
+            ),
+            cppimport_importer,
+        )
 
     return opyt.or_else(primary(), fallback)
