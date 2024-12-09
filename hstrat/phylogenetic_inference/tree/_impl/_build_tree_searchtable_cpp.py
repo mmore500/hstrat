@@ -1,6 +1,5 @@
 import typing
 
-from _build_tree_searchtable_cpp_native import build_normal
 import numpy as np
 import opytional as opyt
 import pandas as pd
@@ -12,6 +11,7 @@ from ...._auxiliary_lib import (
     alifestd_try_add_ancestor_list_col,
     argsort,
 )
+from ._build_tree_searchtable_cpp_native import build_normal
 
 
 def _finalize_records(
