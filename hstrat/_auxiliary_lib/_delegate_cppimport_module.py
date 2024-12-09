@@ -59,8 +59,8 @@ def delegate_cppimport_module(
             except_wrap_sentinel(
                 do_import_cppimport,
                 {
-                    ImportError: f"Import using cppimport for '{module_name}' in '{package}' failed, trying native binaries",
-                    ModuleNotFoundError: f"cppimport for '{module_name}' in '{package}' not found, trying native binaries",
+                    ImportError: f"Import using cppimport failed, trying native binaries for '{module_name}' in '{package}'",
+                    ModuleNotFoundError: f"cppimport not found, trying native binaries for '{module_name}' in '{package}'",
                 },
             ),
             do_import_importlib,
@@ -71,7 +71,6 @@ def delegate_cppimport_module(
                 do_import_importlib,
                 {
                     ImportError: f"Native binaries for '{module_name}' in '{package}' not found, attempting to use cppimport",
-                    AttributeError: f"Requested symbols for '{module_name}' in '{package}' not found, attempting to update with cppimport",
                 },
             ),
             do_import_cppimport,

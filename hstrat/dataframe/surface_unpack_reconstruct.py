@@ -3,32 +3,8 @@ import logging
 
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 
-from .._auxiliary_lib import get_hstrat_version
+from .._auxiliary_lib import SmartHelpFormatter, get_hstrat_version
 from ._surface_unpack_reconstruct import surface_unpack_reconstruct
-
-
-def lws(line):
-    prefix = line[: len(line) - len(line.lstrip())]
-    return len(prefix) + 3 * prefix.count("\t")
-
-
-class SmartHelpFormatter(argparse.HelpFormatter):
-    def _split_lines(self, text, width):
-        r = []
-        for line in text.split("\n"):
-            n = lws(line)
-            r.extend(
-                " " * n + s for s in super()._split_lines(line, width - n)
-            )
-        return r
-
-    def _fill_text(self, text, width, indent):
-        r = []
-        for line in text.splitlines():
-            n = lws(line)
-            r.append(super()._fill_text(line, width, indent + " " * n))
-        return "\n".join(r)
-
 
 help_message = """description:
   Raw interface to tree reconstruction for surface-based genome annotations.
