@@ -218,6 +218,7 @@ void collapse_indistinguishable_nodes(Records &records, const u64 node) {
   }
 }
 
+
 /**
  * Artifacts are sorted by number of strata deposited ascending,
  * so when the function comes across a rank that has been dropped,
@@ -265,6 +266,7 @@ void consolidate_trie(Records &records, const u64 &rank, const u64 node) {
   collapse_indistinguishable_nodes(records, node);
 }
 
+
 /**
  * Adds a record to the searchtable. Note that this
  * is the only function that adds records.
@@ -276,6 +278,7 @@ u64 create_offstring(Records &records, const u64 parent, const u64 rank,
   attach_search_parent(records, node, parent);
   return node;
 }
+
 
 /**
  * Inserts one rank-differentia pair into the trie.
@@ -297,6 +300,7 @@ u64 place_allele(Records &records, u64 cur_node, const u64 rank,
   );
 }
 
+
 /**
  * A makeshift span over a pybind11::array_t using an
  * unchecked_reference. Only supports the indexing and
@@ -316,6 +320,7 @@ template <typename T> struct py_array_span {
                 const u64 start, const u64 end)
       : data_accessor(data), start(start), end(end) {};
 };
+
 
 /**
  * Adds a single artifact (a.k.a specimen, column) to the
@@ -338,6 +343,7 @@ void insert_artifact(Records &records, span_type &&ranks,
   create_offstring(records, cur_node, num_strata_deposited - 1, -1, data_id);
 }
 
+
 template <typename Sequence>
 inline pybind11::array_t<typename Sequence::value_type> as_pyarray(Sequence &&seq) {
     auto size                         = seq.size();
@@ -347,6 +353,7 @@ inline pybind11::array_t<typename Sequence::value_type> as_pyarray(Sequence &&se
     seq_ptr.release();
     return pybind11::array({size}, {sizeof(typename Sequence::value_type)}, data, capsule);
 }
+
 
 py::dict records_to_dict(Records &records) {
   std::unordered_map<std::string, py::array_t<u64>> return_mapping;
@@ -358,9 +365,11 @@ py::dict records_to_dict(Records &records) {
   return py::cast(return_mapping);
 }
 
+
 const py::object get_pbar(const py::handle &pbar_ctor, u64 len) {
       return pbar_ctor.is_none() ? py::none{} : pbar_ctor("total"_a = len);
 }
+
 
 const std::optional<py::detail::str_attr_accessor> get_pbar_updater(const py::object &pbar) {
       return pbar.is_none()
@@ -432,6 +441,7 @@ u64 count_unique_elements(const py::detail::unchecked_reference<u64, 1> &arr,
   return result;
 }
 
+
 /**
  * Constructs the trie in the case where each of the below
  * arrays are 1-dimensional representing an exploded DataFrame.
@@ -496,6 +506,7 @@ py::dict build_trie_searchtable_exploded(
   return records_to_dict(records);
 }
 
+
 PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
   m.def("build_exploded", &build_trie_searchtable_exploded, py::arg("data_ids"),
         py::arg("num_strata_depositeds"), py::arg("ranks"),
@@ -504,6 +515,7 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
         py::arg("num_strata_depositeds"), py::arg("ranks"),
         py::arg("differentiae"), py::arg("tqdm_progress_bar") = py::none{});
 }
+
 
 /*
 <%
