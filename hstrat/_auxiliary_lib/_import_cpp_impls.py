@@ -21,13 +21,11 @@ def _import_importlib(module_name: str, package: str) -> types.ModuleType:
     return importlib.import_module(module_name, package=package)
 
 
-def import_cpp_impls(
-    module_name: str, package: str, requested_symbols: typing.List[str]
-) -> typing.List[typing.Any]:
+def import_cpp_impls(module_name: str, package: str) -> types.ModuleType:
     r"""Imports module, delegating to cppimport if in unit test or requested
     by environment variable HSTRAT_USE_CPPIMPORT.
 
-    Paramters
+    Parameters
     ---------
     module_name : str
         The name of the C++ module to import from.
@@ -36,15 +34,18 @@ def import_cpp_impls(
 
         Assuming this function is called in the same package as that, it should
         be something like `re.sub(r"\.[a-za-z0-9_]+$", '', __name__)`.
-    requested_symbols : list[str]
-        A list of symbols to import from the module.
+
+    Returns
+    -------
+    types.ModuleType
+        The imported module.
     """
 
     def do_import_importlib() -> types.ModuleType:
-        return _import_importlib(module_name, package, requested_symbols)
+        return _import_importlib(module_name, package)
 
     def do_import_cppimport() -> types.ModuleType:
-        return _import_cppimport(module_name, package, requested_symbols)
+        return _import_cppimport(module_name, package)
 
     using_pytest = "PYTEST_CURRENT_TEST" in os.environ
     if "HSTRAT_USE_CPPIMPORT" in os.environ or using_pytest:
