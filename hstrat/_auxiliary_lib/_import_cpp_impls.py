@@ -18,7 +18,7 @@ def _import_cppimport(module_name: str, package: str) -> types.ModuleType:
 
 def _import_importlib(module_name: str, package: str) -> types.ModuleType:
     """Implementation detail for import_cpp_impls"""
-    return importlib.import_module(f"{package}.{module_name}")
+    return importlib.import_module(f".{module_name}", package=package)
 
 
 def import_cpp_impls(module_name: str, package: str) -> types.ModuleType:
@@ -50,7 +50,9 @@ def import_cpp_impls(module_name: str, package: str) -> types.ModuleType:
     in_unit_test = is_in_unit_test()
     if "HSTRAT_USE_CPPIMPORT" in os.environ or in_unit_test:
         if in_unit_test:
-            logging.info("unit test session detected -- applying cppimport first")
+            logging.info(
+                "unit test session detected -- applying cppimport first"
+            )
         primary, fallback = (
             except_wrap(
                 do_import_cppimport,
