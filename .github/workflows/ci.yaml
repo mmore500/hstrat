@@ -100,7 +100,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v1
-    - run: ./build.sh
+    - run: |
+      sudo apt -y install python3-pybind11
+      ./build.sh
 
   coverage:
     runs-on: ubuntu-24.04
