@@ -13,7 +13,7 @@ def _import_cppimport(
 ) -> typing.List[typing.Any]:
     import cppimport
 
-    mod = cppimport.imp(f"{package}.{module_name}")
+    mod = cppimport.imp(f".{package}.{module_name}")
     return [getattr(mod, sym) for sym in requested_symbols]
 
 
