@@ -18,7 +18,7 @@ def _import_cppimport(module_name: str, package: str) -> types.ModuleType:
 
 def _import_importlib(module_name: str, package: str) -> types.ModuleType:
     """Implementation detail for import_cpp_impls"""
-    return importlib.import_module(module_name, package=package)
+    return importlib.import_module(f"{package}.{module_name}")
 
 
 def import_cpp_impls(module_name: str, package: str) -> types.ModuleType:
@@ -55,8 +55,8 @@ def import_cpp_impls(module_name: str, package: str) -> types.ModuleType:
             except_wrap(
                 do_import_cppimport,
                 {
-                    ImportError: "Import using cppimport failed, trying native binaries",
-                    ModuleNotFoundError: "cppimport not found, trying native binaries",
+                    ImportError: f"Import using cppimport for '{module_name}' in '{package}' failed, trying native binaries",
+                    ModuleNotFoundError: f"cppimport for '{module_name}' in '{package}' not found, trying native binaries",
                 },
             ),
             do_import_importlib,
@@ -66,8 +66,8 @@ def import_cpp_impls(module_name: str, package: str) -> types.ModuleType:
             except_wrap(
                 do_import_importlib,
                 {
-                    ImportError: "Native binaries not found, attempting to use cppimport",
-                    AttributeError: "Requested symbols not found, attempting to update with cppimport",
+                    ImportError: f"Native binaries for '{module_name}' in '{package}' not found, attempting to use cppimport",
+                    AttributeError: f"Requested symbols for '{module_name}' in '{package}' not found, attempting to update with cppimport",
                 },
             ),
             do_import_cppimport,
