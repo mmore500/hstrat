@@ -6,6 +6,7 @@ import types
 import opytional as opyt
 
 from ._except_wrap import except_wrap
+from ._is_in_unit_test import is_in_unit_test
 
 
 def _import_cppimport(module_name: str, package: str) -> types.ModuleType:
@@ -46,10 +47,10 @@ def import_cpp_impls(module_name: str, package: str) -> types.ModuleType:
     def do_import_cppimport() -> types.ModuleType:
         return _import_cppimport(module_name, package)
 
-    using_pytest = "PYTEST_CURRENT_TEST" in os.environ
-    if "HSTRAT_USE_CPPIMPORT" in os.environ or using_pytest:
-        if using_pytest:
-            logging.info("Pytest session detected -- applying cppimport")
+    in_unit_test = is_in_unit_test()
+    if "HSTRAT_USE_CPPIMPORT" in os.environ or in_unit_test:
+        if in_unit_test:
+            logging.info("unit test session detected -- applying cppimport first")
         primary, fallback = (
             except_wrap(
                 do_import_cppimport,
