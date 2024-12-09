@@ -96,6 +96,12 @@ jobs:
     - name: Run examples
       run: ./examples/run_all.sh
 
+  build-script:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v1
+    - run: ./build.sh
+
   coverage:
     runs-on: ubuntu-24.04
     strategy:
@@ -367,6 +373,7 @@ jobs:
     needs:
       - build_sdist
       - build_wheels
+      - build-script
       - coverage
       - cli
       - deploy-test
