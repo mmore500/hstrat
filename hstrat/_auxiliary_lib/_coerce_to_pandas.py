@@ -5,7 +5,7 @@ import pandas as pd
 
 def coerce_to_pandas(obj: typing.Any) -> typing.Any:
     """
-    If a Pandas type is detected, coerces it to a Polars type.
+    If a Polars type is detected, coerce it to corresponding Pandas type.
     """
     if hasattr(obj, "__dataframe__"):
         return pd.api.interchange.from_dataframe(obj, allow_copy=True)
