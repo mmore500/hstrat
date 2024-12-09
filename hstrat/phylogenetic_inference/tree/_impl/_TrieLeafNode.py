@@ -1,8 +1,11 @@
-from typing import Union
+import typing
 
 import anytree
 
 from ...._auxiliary_lib import render_to_base64url
+
+if typing.TYPE_CHECKING:
+    from ._TrieInnerNode import TrieInnerNode
 
 
 class TrieLeafNode(anytree.NodeMixin):
@@ -13,7 +16,7 @@ class TrieLeafNode(anytree.NodeMixin):
 
     Parameters
     ----------
-    parent : TrieInnerNode | TrieSearchInnerNode
+    parent : TrieInnerNode
         The parent node of this leaf node.
     taxon_label : str
         The taxon label for this leaf node.
@@ -30,14 +33,14 @@ class TrieLeafNode(anytree.NodeMixin):
 
     def __init__(
         self: "TrieLeafNode",
-        parent: Union["TrieInnerNode", "TrieSearchInnerNode"],  # noqa: F821
+        parent: "TrieInnerNode",
         taxon_label: str,
     ) -> None:
         """Initialize a new TrieLeafNode.
 
         Parameters
         ----------
-        parent : TrieInnerNode | TrieSearchInnerNode
+        parent : TrieInnerNode
             The parent node of this leaf node.
         taxon_label : str
             The taxon label for this leaf node.
@@ -56,12 +59,12 @@ class TrieLeafNode(anytree.NodeMixin):
         return self.taxon_label
 
     @property
-    def rank(self: "TrieLeafNode") -> int:
+    def rank(self: "TrieLeafNode") -> typing.Optional[int]:
         """Return the origin time for this leaf node."""
         return self.parent.rank
 
     @property
-    def differentia(self: "TrieLeafNode") -> int:
+    def differentia(self: "TrieLeafNode") -> typing.Optional[int]:
         return self.parent.differentia
 
     def __repr__(self: "TrieLeafNode") -> str:
