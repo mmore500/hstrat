@@ -11,7 +11,9 @@ from ...._auxiliary_lib import (
     alifestd_try_add_ancestor_list_col,
     argsort,
 )
-from ._build_tree_searchtable_cpp_native import build_normal
+from ._build_tree_searchtable_cpp_native import (
+    build_tree_searchtable_cpp_normal,
+)
 
 
 def _finalize_records(
@@ -19,7 +21,7 @@ def _finalize_records(
     sorted_labels: typing.List[str],
     force_common_ancestry: bool,
 ) -> pd.DataFrame:
-"""Collate as phylogeny dataframe in alife standard format."""
+    """Collate as phylogeny dataframe in alife standard format."""
     df = pd.DataFrame(records)
     df["origin_time"] = df["rank"]
     df["taxon_label"] = [str(sorted_labels[i]) for i in df["dstream_data_id"]]
@@ -62,7 +64,7 @@ def build_tree_searchtable_cpp(
     sorted_labels = [taxon_labels[i] for i in sort_order]
     sorted_population = [population[i] for i in sort_order]
 
-    records = build_normal(
+    records = build_tree_searchtable_cpp_normal(
         [*range(len(sorted_population))],
         [x.GetNumStrataDeposited() for x in sorted_population],
         [[*x.IterRetainedRanks()] for x in sorted_population],
