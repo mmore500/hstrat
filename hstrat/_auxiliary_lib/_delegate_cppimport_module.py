@@ -5,28 +5,28 @@ import types
 
 import opytional as opyt
 
-from ._except_wrap import except_wrap
+from ._except_wrap_sentinel import except_wrap_sentinel
 from ._is_in_unit_test import is_in_unit_test
 
 
 def _import_cppimport(module_name: str, package: str) -> types.ModuleType:
-    """Implementation detail for import_cpp_impls"""
+    """Implementation detail for delegate_cppimport_module"""
     import cppimport
 
     return cppimport.imp(f"{package}.{module_name}")
 
 
 def _import_importlib(module_name: str, package: str) -> types.ModuleType:
-    """Implementation detail for import_cpp_impls"""
+    """Implementation detail for delegate_cppimport_module"""
     return importlib.import_module(f".{module_name}", package=package)
 
 
-def import_cpp_impls(module_name: str, package: str) -> types.ModuleType:
+def delegate_cppimport_module(module_name: str, package: str) -> types.ModuleType:
     r"""Imports module, delegating to cppimport if in unit test or requested
     by environment variable HSTRAT_USE_CPPIMPORT.
 
     Parameters
-    ---------
+    ----------
     module_name : str
         The name of the C++ module to import from.
     package : str
@@ -54,7 +54,7 @@ def import_cpp_impls(module_name: str, package: str) -> types.ModuleType:
                 "unit test session detected -- applying cppimport first"
             )
         primary, fallback = (
-            except_wrap(
+            except_wrap_sentinel(
                 do_import_cppimport,
                 {
                     ImportError: f"Import using cppimport for '{module_name}' in '{package}' failed, trying native binaries",
@@ -65,7 +65,7 @@ def import_cpp_impls(module_name: str, package: str) -> types.ModuleType:
         )
     else:
         primary, fallback = (
-            except_wrap(
+            except_wrap_sentinel(
                 do_import_importlib,
                 {
                     ImportError: f"Native binaries for '{module_name}' in '{package}' not found, attempting to use cppimport",

@@ -132,10 +132,11 @@ from ._count_trailing_zeros import count_trailing_zeros
 from ._count_unique import count_unique
 from ._curried_binary_search_jit import curried_binary_search_jit
 from ._deep_listify import deep_listify
+from ._delegate_cppimport_module import delegate_cppimport_module
 from ._demark import demark
 from ._div_range import div_range
 from ._estimate_binomial_p import estimate_binomial_p
-from ._except_wrap import except_wrap
+from ._except_wrap_sentinel import except_wrap_sentinel
 from ._find_bounds import find_bounds
 from ._flag_last import flag_last
 from ._flat_len import flat_len
@@ -144,8 +145,8 @@ from ._generate_omission_subsets import generate_omission_subsets
 from ._get_hstrat_version import get_hstrat_version
 from ._get_nullable_mask import get_nullable_mask
 from ._get_nullable_vals import get_nullable_vals
+from ._get_package_name import get_package_name
 from ._give_len import give_len
-from ._import_cpp_impls import import_cpp_impls
 from ._indices_of_unique import indices_of_unique
 from ._intersect_ranges import intersect_ranges
 from ._is_base64 import is_base64
@@ -312,10 +313,11 @@ __all__ = [
     "count_trailing_zeros",
     "curried_binary_search_jit",
     "deep_listify",
+    "delegate_cppimport_module",
     "demark",
     "div_range",
     "estimate_binomial_p",
-    "except_wrap",
+    "except_wrap_sentinel",
     "find_bounds",
     "flat_len",
     "generate_n",
@@ -323,11 +325,11 @@ __all__ = [
     "get_hstrat_version",
     "get_nullable_mask",
     "get_nullable_vals",
+    "get_package_name",
     "GetAttrLaunderShim",
     "give_len",
     "flag_last",
     "HereditaryStratigraphicArtifact",
-    "import_cpp_impls",
     "indices_of_unique",
     "intersect_ranges",
     "is_base64",

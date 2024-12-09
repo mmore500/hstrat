@@ -3,7 +3,7 @@ import typing
 import warnings
 
 
-def except_wrap(
+def except_wrap_sentinel(
     func: typing.Callable,
     errors: dict[typing.Type[Exception], typing.Optional[str]],
     *,
