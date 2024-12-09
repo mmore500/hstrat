@@ -241,8 +241,12 @@ class TrieInnerNode(anytree.NodeMixin):
                 render_to_base64url(int(self._tiebreaker))
             }"""
 
-    # recursive check
+
     def __eq__(self: "TrieInnerNode", other: object) -> bool:
+        """
+        Recursively traverses the both nodes, checking for equality of rank
+        and differentia, as well as equality of children.
+        """
         if not isinstance(other, TrieInnerNode):
             return False
         if not (
