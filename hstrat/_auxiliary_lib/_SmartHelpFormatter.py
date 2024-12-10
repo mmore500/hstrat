@@ -23,7 +23,7 @@ class SmartHelpFormatter(argparse.HelpFormatter):
             )
         return r
 
-    def _fill_text(self, text: str, width: int, indent: str):
+    def _fill_text(self, text: str, width: int, indent: str) -> str:
         r = []
         for line in text.splitlines():
             n = leading_whitespace(line)
