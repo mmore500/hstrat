@@ -10,9 +10,7 @@ from ._coerce_to_pandas import (
     coerce_to_pandas,
 )
 from ._coerce_to_polars import coerce_to_polars
-
-DataFrame_T = typing.TypeVar("DataFrame_T", pd.DataFrame, pl.DataFrame)
-Series_T = typing.TypeVar("Series_T", pd.Series, pl.Series)
+from ._warn_once import warn_once
 
 
 def any_pandas_arg(arg: typing.Any) -> bool:
@@ -21,10 +19,14 @@ def any_pandas_arg(arg: typing.Any) -> bool:
         return False
     elif isinstance(arg, (pd.DataFrame, pd.Series)):
         return True
-    elif isinstance(arg, typing.Mapping):
+    elif isinstance(arg, _supported_mappings):
         return any(any_pandas_arg(v) for v in arg.values())
-    elif isinstance(arg, typing.Iterable):
+    elif isinstance(arg, _supported_iterables):
         return any(any_pandas_arg(ele) for ele in arg)
+    elif isinstance(arg, (typing.Mapping, typing.Iterable)):
+        warn_once(
+            f"Container type '{type(arg)}' cannot be checked for presence of Pandas"
+        )
     return False
 
 
@@ -39,22 +41,16 @@ def any_polars_arg(arg: typing.Any, polars_func_present: bool) -> bool:
         return False
     elif isinstance(arg, (pl.DataFrame, pl.Series)):
         return True
-    elif isinstance(arg, typing.Mapping):
-        result = any(
+    elif isinstance(arg, _supported_mappings):
+        return any(
             any_polars_arg(v, polars_func_present) for v in arg.values()
         )
-        if result is True and not isinstance(arg, _supported_mappings):
-            raise NotImplementedError(
-                f"Coercion to Pandas not implemented for mapping type '{type(arg)}'"
-            )
-        return result
-    elif isinstance(arg, typing.Iterable):
-        result = any(any_polars_arg(ele, polars_func_present) for ele in arg)
-        if result is True and not isinstance(arg, _supported_iterables):
-            raise NotImplementedError(
-                f"Coercion to Pandas not implemented for iterable type '{type(arg)}'"
-            )
-        return result
+    elif isinstance(arg, _supported_iterables):
+        return any(any_polars_arg(ele, polars_func_present) for ele in arg)
+    elif isinstance(arg, (typing.Mapping, typing.Iterable)):
+        warn_once(
+            f"Container type '{type(arg)}' cannot be checked for presence of Polars"
+        )
     return False
 
 
