@@ -213,7 +213,7 @@ def build_tree_searchtable_python(
     taxon_labels = [*map(taxon_labels.__getitem__, sort_order)]
 
     table = Searchtable()
-    for taxon_label, artifact in progress_wrap(
+    for taxon_label, artifact in opyt.or_value(progress_wrap, lambda x: x)(
         give_len(zip(taxon_labels, sorted_population), len(sorted_population)),
     ):
         _insert_artifact(
