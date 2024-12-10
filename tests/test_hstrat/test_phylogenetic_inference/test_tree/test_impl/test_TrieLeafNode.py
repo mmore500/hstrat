@@ -22,3 +22,11 @@ def test_taxon(inner_node):
 def test_parent(inner_node):
     leaf_node = impl.TrieLeafNode(inner_node, "taxon")
     assert leaf_node.parent is inner_node
+
+
+def test_eq(inner_node):
+    leaf_node = impl.TrieLeafNode(inner_node, "taxon")
+    other_node = impl.TrieLeafNode(inner_node, "taxon")
+    not_eq_node = impl.TrieLeafNode(inner_node, "other_taxon")
+    assert leaf_node == other_node
+    assert not_eq_node != leaf_node

@@ -2,11 +2,34 @@ import typing
 
 import numpy as np
 
-from ..._auxiliary_lib import iter_monotonic_equivalencies, jit
+from ..._auxiliary_lib import (
+    iter_monotonic_equivalencies,
+    jit,
+    jit_numba_uint8_arr_t,
+    jit_numba_uint16_arr_t,
+    jit_numba_uint32_arr_t,
+    jit_numba_uint64_arr_t,
+)
 from ...frozen_instrumentation import HereditaryStratigraphicSpecimen
 
 
-@jit(nopython=True)
+@jit(
+    [
+        (
+            jit_numba_uint64_arr_t,
+            differentia_array_t,
+            jit_numba_uint64_arr_t,
+            differentia_array_t,
+        )
+        for differentia_array_t in (
+            jit_numba_uint8_arr_t,
+            jit_numba_uint16_arr_t,
+            jit_numba_uint32_arr_t,
+            jit_numba_uint64_arr_t,
+        )
+    ],
+    nopython=True,
+)
 def _compare_differentia_at_common_ranks(
     first_ranks: np.ndarray,
     first_differentiae: np.ndarray,

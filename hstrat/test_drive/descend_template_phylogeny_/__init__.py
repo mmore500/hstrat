@@ -1,5 +1,5 @@
-"""Tools to extant populations of hereditary stratigraph columns corresponding
-to a template phylogeny."""
+"""Tools to create extant populations of hereditary stratigraph columns
+as if they had resulted from a given template phylogeny."""
 
 from ..._auxiliary_lib import lazy_attach_stub
 

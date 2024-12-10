@@ -45,7 +45,7 @@ def alifestd_aggregate_phylogenies(
                     .apply(
                         lambda ancestor_list_str: str(
                             [
-                                ancestor_id + aggregate_least_available_id
+                                int(ancestor_id + aggregate_least_available_id)
                                 for ancestor_id in alifestd_parse_ancestor_ids(
                                     ancestor_list_str
                                 )

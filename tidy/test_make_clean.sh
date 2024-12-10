@@ -9,7 +9,7 @@ set -e
 
 SOURCE_HASH=$( find -path ./third-party -prune -false -o -type f | sort | xargs cat | sha1sum )
 
-make clean
+make -C docs clean
 
 if [ "${SOURCE_HASH}" == "$( find -path ./third-party -prune -false -o -type f | sort | xargs cat | sha1sum )" ];
 then

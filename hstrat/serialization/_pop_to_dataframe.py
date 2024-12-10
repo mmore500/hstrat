@@ -1,4 +1,3 @@
-import itertools as it
 import typing
 
 import pandas as pd
@@ -24,10 +23,12 @@ def pop_to_dataframe(
 
         Pass tqdm or equivalent to display progress bars.
     """
+    columns = [*map(col_to_dataframe, progress_wrap(columns))]
     return (
         pd.concat(
-            map(col_to_dataframe, progress_wrap(columns)),
-            keys=it.count(),  # create multiindex, with outer as column id
+            columns,
+            # create multiindex, with outer as column id
+            keys=range(len(columns)),
         )
         .reset_index(  # drop original row-level index
             level=1,

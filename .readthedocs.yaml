@@ -5,7 +5,7 @@ build:
   apt_packages:
     - pandoc
   tools:
-    python: "3.8"
+    python: "3.11"
   commands:
     - pip install -r requirements-dev/requirements-docs.txt
     - pip install . --no-deps

@@ -1,5 +1,6 @@
 """Convenient library repack as a flat namespace."""
 
+from .. import dataframe as _dataframe
 from .. import frozen_instrumentation as _frozen_instrumentation
 from .. import genome_instrumentation as _genome_instrumentation
 from .. import juxtaposition as _juxtaposition
@@ -11,6 +12,7 @@ from .. import test_drive as _test_drive
 from .._auxiliary_lib import get_hstrat_version as _get_hstrat_version
 
 _top_level_modules = (
+    _dataframe,
     _frozen_instrumentation,
     _genome_instrumentation,
     _juxtaposition,
