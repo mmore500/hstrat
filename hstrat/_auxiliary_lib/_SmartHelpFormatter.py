@@ -1,7 +1,8 @@
 import argparse
 
 
-def lws(line: str) -> str:
+def leading_whitespace(line: str) -> int:
+    """Counts the leading whitespace of `line`, treating tabs as 4 spaces"""
     prefix = line[: len(line) - len(line.lstrip())]
     return len(prefix) + 3 * prefix.count("\t")
 
@@ -16,7 +17,7 @@ class SmartHelpFormatter(argparse.HelpFormatter):
     def _split_lines(self, text: str, width: int):
         r = []
         for line in text.split("\n"):
-            n = lws(line)
+            n = leading_whitespace(line)
             r.extend(
                 " " * n + s for s in super()._split_lines(line, width - n)
             )
@@ -25,6 +26,6 @@ class SmartHelpFormatter(argparse.HelpFormatter):
     def _fill_text(self, text: str, width: int, indent: str):
         r = []
         for line in text.splitlines():
-            n = lws(line)
+            n = leading_whitespace(line)
             r.append(super()._fill_text(line, width, indent + " " * n))
         return "\n".join(r)
