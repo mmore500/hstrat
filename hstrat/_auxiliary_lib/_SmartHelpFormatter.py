@@ -14,7 +14,7 @@ class SmartHelpFormatter(argparse.HelpFormatter):
     for the `--help` message that contains possible newlines.
     """
 
-    def _split_lines(self, text: str, width: int):
+    def _split_lines(self, text: str, width: int) -> str:
         r = []
         for line in text.split("\n"):
             n = leading_whitespace(line)
