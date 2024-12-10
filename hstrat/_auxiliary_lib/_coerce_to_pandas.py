@@ -11,7 +11,7 @@ def coerce_to_pandas(obj: typing.Any) -> typing.Any:
     If a Polars type is detected, coerce it to corresponding Pandas type.
     """
     if isinstance(obj, _supported_iterables):
-        return type(obj)(coerce_to_pandas(ele) for ele in obj)
+        return type(obj)(map(coerce_to_pandas, obj))
     elif isinstance(obj, _supported_mappings):  # includes defaultdict etc
         return type(obj)({k: coerce_to_pandas(v) for k, v in obj.items()})
     elif hasattr(obj, "__dataframe__"):
