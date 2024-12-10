@@ -3,5 +3,5 @@ import warnings
 
 
 @lru_cache(maxsize=None)
-def warn_once(msg: str):
+def warn_once(msg: str) -> None:
     warnings.warn(msg)
