@@ -6,8 +6,6 @@ import numpy as np
 import opytional as opyt
 import pandas as pd
 
-from ._Searchtable import Searchtable
-
 from ...._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
     alifestd_collapse_unifurcations,
@@ -18,6 +16,7 @@ from ...._auxiliary_lib import (
     argsort,
     give_len,
 )
+from ._Searchtable import Searchtable
 
 
 def _collapse_indistinguishable_children(
@@ -93,7 +92,9 @@ def _place_allele(
     for child in table.iter_inner_children_of(cur_node):
         # check immediate children for next allele
         rank_matches = table.get_rank_of(child) == next_rank
-        differentia_matches = table.get_differentia_of(child) == next_differentia
+        differentia_matches = (
+            table.get_differentia_of(child) == next_differentia
+        )
         if rank_matches and differentia_matches:
             return child
     else:
