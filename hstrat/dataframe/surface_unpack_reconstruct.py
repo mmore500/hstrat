@@ -110,7 +110,7 @@ if __name__ == "__main__":
     )
     _add_parser_base(
         parser=parser,
-        dfcli_module=__name__,
+        dfcli_module="hstrat.dataframe.surface_unpack_reconstruct",
         dfcli_version=get_hstrat_version(),
     )
     _run_dataframe_cli(
