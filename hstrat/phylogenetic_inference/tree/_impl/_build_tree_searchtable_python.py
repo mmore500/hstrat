@@ -226,6 +226,6 @@ def build_tree_searchtable_python(
         )
 
     return _finalize_records(
-        table.get_records(),
+        table.to_records(),
         force_common_ancestry=force_common_ancestry,
     )

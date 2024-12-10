@@ -34,7 +34,7 @@ class Searchtable:
         """Returns the rank of the given taxon."""
         return self._records[taxon_id].rank
 
-    def get_records(self: "Searchtable") -> typing.List[dict]:
+    def to_records(self: "Searchtable") -> typing.List[dict]:
         """Returns list of dictionaries corresponding to "build trie" nodes."""
         return [*map(dataclasses.asdict, self._records)]
 

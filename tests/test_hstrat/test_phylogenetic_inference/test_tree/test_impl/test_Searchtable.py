@@ -28,7 +28,7 @@ def populated_searchtable() -> Searchtable:
 
 
 def test_init(empty_searchtable: Searchtable):
-    records = empty_searchtable.get_records()
+    records = empty_searchtable.to_records()
     assert len(records) == 1
     assert records[0]["taxon_id"] == 0
     assert records[0]["taxon_label"] == "_root"
@@ -49,8 +49,8 @@ def test_get_rank_of(populated_searchtable: Searchtable):
     assert populated_searchtable.get_rank_of(3) == 2
 
 
-def test_get_records(populated_searchtable: Searchtable):
-    records = populated_searchtable.get_records()
+def test_to_records(populated_searchtable: Searchtable):
+    records = populated_searchtable.to_records()
     assert isinstance(records, list)
     assert all(isinstance(r, dict) for r in records)
     node_2 = records[2]
@@ -119,7 +119,7 @@ def test_attach_search_parent(empty_searchtable: Searchtable):
     assert empty_searchtable.has_search_parent(new_taxon_id)
 
     # Check the state with get_records
-    records = empty_searchtable.get_records()
+    records = empty_searchtable.to_records()
     attached_node = records[new_taxon_id]
     assert attached_node["search_ancestor_id"] == 0
     # The parent's first_child should now be new_taxon_id
@@ -136,7 +136,7 @@ def test_detach_search_parent(populated_searchtable: Searchtable):
     assert not populated_searchtable.has_search_parent(1)
 
     # Also check that the parent's first_child_id is updated
-    records = populated_searchtable.get_records()
+    records = populated_searchtable.to_records()
 
     # Previously, 0 had first_child_id as 1 or 2 (depending on insertion order).
     # After detaching 1, the parent's first_child_id should not be 1.
@@ -154,7 +154,7 @@ def test_create_offspring(empty_searchtable: Searchtable):
     cid1 = empty_searchtable.create_offspring(
         parent_id=0, differentia=10, rank=1, taxon_label="Child1"
     )
-    records = empty_searchtable.get_records()
+    records = empty_searchtable.to_records()
     child = records[cid1]
     assert child["ancestor_id"] == 0
     assert child["differentia"] == 10
@@ -172,7 +172,7 @@ def test_create_offspring(empty_searchtable: Searchtable):
     cid2 = empty_searchtable.create_offspring(
         parent_id=0, differentia=20, rank=1, taxon_label="Child2"
     )
-    records = empty_searchtable.get_records()
+    records = empty_searchtable.to_records()
     root = records[0]
     child1 = records[cid1]
     child2 = records[cid2]
