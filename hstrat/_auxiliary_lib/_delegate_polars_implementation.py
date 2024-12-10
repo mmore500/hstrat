@@ -12,6 +12,9 @@ from ._coerce_to_pandas import (
 from ._coerce_to_polars import coerce_to_polars
 from ._warn_once import warn_once
 
+DataFrame_T = typing.TypeVar("DataFrame_T", pd.DataFrame, pl.DataFrame)
+Series_T = typing.TypeVar("Series_T", pd.Series, pl.Series)
+
 
 def any_pandas_arg(arg: typing.Any) -> bool:
     """Implementation detail for delegate_polars_implementation."""
