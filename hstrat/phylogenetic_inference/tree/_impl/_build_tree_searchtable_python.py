@@ -25,7 +25,7 @@ def _collapse_indistinguishable_children(
     """Collapse that have been made collapsed-away precursors."""
     # group nodes made indistinguishable by collapsed precursors...
     groups = collections.defaultdict(list)
-    for child in table.iter_inner_children_of(cur_node):
+    for child in table.iter_inner_search_children_of(cur_node):
         key = (table.get_rank_of(child), table.get_differentia_of(child))
         groups[key].append(child)
     for group in groups.values():
@@ -34,7 +34,7 @@ def _collapse_indistinguishable_children(
             # reassign loser's children to winner
             # must grab a copy of inner children to prevent
             # iterator invalidation
-            for loser_child in [*table.iter_inner_children_of(loser)]:
+            for loser_child in [*table.iter_inner_search_children_of(loser)]:
                 table.detach_search_parent(loser_child)
                 table.attach_search_parent(
                     taxon_id=loser_child, parent_id=winner
@@ -53,11 +53,11 @@ def _consolidate_if_rank_dropped(
     a depth-first search to discover all nodes with ranks prior to `next_rank`.
     """
 
-    next_child = next(table.iter_inner_children_of(cur_node), None)  # type: ignore
+    next_child = next(table.iter_inner_search_children_of(cur_node), None)  # type: ignore
     if next_child is None or table.get_rank_of(next_child) >= next_rank:
         return
 
-    node_stack = [*table.iter_inner_children_of(cur_node)]
+    node_stack = [*table.iter_inner_search_children_of(cur_node)]
 
     # collapse away nodes with ranks that have been dropped
     while node_stack:
@@ -65,7 +65,7 @@ def _consolidate_if_rank_dropped(
         table.detach_search_parent(pop_node)
         # must grab a copy of inner children to prevent iterator
         # invalidation
-        for grandchild in [*table.iter_inner_children_of(pop_node)]:
+        for grandchild in [*table.iter_inner_search_children_of(pop_node)]:
             # reattach dropped's children
             if table.get_rank_of(grandchild) >= next_rank:
                 table.detach_search_parent(grandchild)
@@ -89,7 +89,7 @@ def _place_allele(
     consistent with the given rank/differentia combination, creating a new
     node if necessary."""
 
-    for child in table.iter_inner_children_of(cur_node):
+    for child in table.iter_inner_search_children_of(cur_node):
         # check immediate children for next allele
         rank_matches = table.get_rank_of(child) == next_rank
         differentia_matches = (
