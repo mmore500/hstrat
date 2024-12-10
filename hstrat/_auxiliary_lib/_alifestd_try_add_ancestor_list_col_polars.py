@@ -26,7 +26,7 @@ def alifestd_try_add_ancestor_list_col_polars(
         raise NotImplementedError(
             f"Passed kwarg {mutate=} to "
             f"{alifestd_make_ancestor_list_col_polars.__name__} "
-            "when it does not have an effect on polars DataFrames. "
+            "which does not have side effects on polars DataFrames. "
             "If mutation is required, use the pandas implementaton"
         )
 
