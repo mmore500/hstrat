@@ -297,8 +297,6 @@ jobs:
 
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
-    needs: []
-    # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -328,7 +326,6 @@ jobs:
 
   build_sdist:
     name: Build source distribution
-    needs: []
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
