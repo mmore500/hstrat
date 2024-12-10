@@ -1,9 +1,9 @@
 import typing
+from unittest import mock
 
 import numpy as np
 import opytional as opyt
 import pandas as pd
-import tqdm
 
 from ...._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
@@ -11,8 +11,8 @@ from ...._auxiliary_lib import (
     alifestd_try_add_ancestor_list_col,
     argsort,
 )
-from ._build_tree_searchtable_cpp_native import (
-    build_tree_searchtable_cpp_normal,
+from ._build_tree_searchtable_cpp_impl_stub import (
+    build_tree_searchtable_cpp_from_nested,
 )
 
 
@@ -42,14 +42,45 @@ def _finalize_records(
 def build_tree_searchtable_cpp(
     population: typing.Sequence[HereditaryStratigraphicArtifact],
     taxon_labels: typing.Optional[typing.Iterable] = None,
-    progress_wrap: typing.Callable = lambda x: x,
+    progress_wrap: typing.Optional[typing.Callable] = None,
     force_common_ancestry: bool = False,
 ) -> pd.DataFrame:
-    """
-    Uses the consolidated algorithm to build a tree, using a
-    searchtable to access elements thereof.
-    """
+    """C++-based implementation of `build_tree_searchtable`.
 
+    Parameters
+    ----------
+    population: Sequence[HereditaryStratigraphicArtifact]
+        Hereditary stratigraphic columns corresponding to extant population members.
+
+        Each member of population will correspond to a unique leaf node in the
+        reconstructed tree.
+    taxon_labels: Optional[Iterable], optional
+        How should leaf nodes representing extant hereditary stratigraphic
+        columns be named?
+
+        Label order should correspond to the order of corresponding hereditary
+        stratigraphic columns within `population`. If None, taxons will be
+        named according to their numerical index.
+    force_common_ancestry: bool, default False
+        How should columns that definitively share no common ancestry be
+        handled?
+
+        If set to True, treat columns with no common ancestry as if they
+        shared a common ancestor immediately before the genesis of the
+        lineages. If set to False, columns within `population` that
+        definitively do not share common ancestry will raise a ValueError.
+    progress_wrap : Callable, optional
+        Pass tqdm or equivalent to display a progress bar.
+
+    Returns
+    -------
+    pd.DataFrame
+        The reconstructed phylogenetic tree in alife standard format.
+
+    Notes
+    -----
+    See `build_tree_searchtable` for algorithm overview.
+    """
     pop_len = len(population)
     if pop_len == 0:
         return alifestd_make_empty()
@@ -64,12 +95,12 @@ def build_tree_searchtable_cpp(
     sorted_labels = [taxon_labels[i] for i in sort_order]
     sorted_population = [population[i] for i in sort_order]
 
-    records = build_tree_searchtable_cpp_normal(
+    records = build_tree_searchtable_cpp_from_nested(
         [*range(len(sorted_population))],
         [x.GetNumStrataDeposited() for x in sorted_population],
         [[*x.IterRetainedRanks()] for x in sorted_population],
         [[*x.IterRetainedDifferentia()] for x in sorted_population],
-        (tqdm.tqdm if progress_wrap is tqdm.tqdm else None),
+        opyt.or_value(progress_wrap, mock.Mock()),
     )
 
     return _finalize_records(
