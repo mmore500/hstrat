@@ -1,5 +1,7 @@
 """Implementation helpers."""
 
+from ._Searchtable import Searchtable
+from ._SearchtableRecord import SearchtableRecord
 from ._TrieInnerNode import TrieInnerNode
 from ._TrieLeafNode import TrieLeafNode
 from ._append_genesis_organism import append_genesis_organism
@@ -13,6 +15,8 @@ from ._time_calibrate_tree import time_calibrate_tree
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
+    "Searchtable",
+    "SearchtableRecord",
     "TrieInnerNode",
     "TrieLeafNode",
     "append_genesis_organism",
