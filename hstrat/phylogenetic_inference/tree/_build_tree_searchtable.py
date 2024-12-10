@@ -15,7 +15,7 @@ except ImportError:
 def build_tree_searchtable(
     population: typing.Sequence[HereditaryStratigraphicArtifact],
     taxon_labels: typing.Optional[typing.Iterable] = None,
-    progress_wrap: typing.Callable = lambda x: x,
+    progress_wrap: typing.Optional[typing.Callable] = None,
     force_common_ancestry: bool = False,
     use_impl: typing.Literal["cpp", "python", None] = None,
 ) -> pd.DataFrame:

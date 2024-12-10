@@ -1,4 +1,5 @@
 import typing
+from unittest import mock
 
 import numpy as np
 import opytional as opyt
@@ -11,8 +12,8 @@ from ...._auxiliary_lib import (
     alifestd_try_add_ancestor_list_col,
     argsort,
 )
-from ._build_tree_searchtable_cpp_native import (
-    build_tree_searchtable_cpp_normal,
+from ._build_tree_searchtable_cpp_impl_stub import (
+    build_tree_searchtable_cpp_from_nested,
 )
 
 
@@ -42,7 +43,7 @@ def _finalize_records(
 def build_tree_searchtable_cpp(
     population: typing.Sequence[HereditaryStratigraphicArtifact],
     taxon_labels: typing.Optional[typing.Iterable] = None,
-    progress_wrap: typing.Callable = lambda x: x,
+    progress_wrap: typing.Optional[typing.Callable] = None,
     force_common_ancestry: bool = False,
 ) -> pd.DataFrame:
     """
@@ -64,12 +65,12 @@ def build_tree_searchtable_cpp(
     sorted_labels = [taxon_labels[i] for i in sort_order]
     sorted_population = [population[i] for i in sort_order]
 
-    records = build_tree_searchtable_cpp_normal(
+    records = build_tree_searchtable_cpp_from_nested(
         [*range(len(sorted_population))],
         [x.GetNumStrataDeposited() for x in sorted_population],
         [[*x.IterRetainedRanks()] for x in sorted_population],
         [[*x.IterRetainedDifferentia()] for x in sorted_population],
-        (tqdm.tqdm if progress_wrap is tqdm.tqdm else None),
+        opyt.or_value(progress_wrap, mock.Mock()),
     )
 
     return _finalize_records(
