@@ -1,7 +1,7 @@
 import argparse
 
 
-def lws(line):
+def lws(line: str) -> str:
     prefix = line[: len(line) - len(line.lstrip())]
     return len(prefix) + 3 * prefix.count("\t")
 
