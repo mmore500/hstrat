@@ -21,9 +21,9 @@ from ...._auxiliary_lib import (
 
 
 def _collapse_indistinguishable_children(
-    table: Searchtable,
-    cur_node: int,
+    table: Searchtable, cur_node: int
 ) -> None:
+    """Collapse that have been made collapsed-away precursors."""
     # group nodes made indistinguishable by collapsed precursors...
     groups = collections.defaultdict(list)
     for child in table.iter_inner_children_of(cur_node):
@@ -43,12 +43,16 @@ def _collapse_indistinguishable_children(
             # detach loser from search trie
             table.detach_search_parent(loser)
 
+
 def _consolidate_if_rank_dropped(
-    table: Searchtable,
-    *,
-    cur_node: int,
-    next_rank: int,
+    table: Searchtable, *, cur_node: int, next_rank: int
 ) -> None:
+    """Collapse away a descendant nodes from "search trie" if their ranks have
+    been dropped by stratum retention policy.
+
+    Ranks are recognized as "dropped" if `next_rank` skips past them. Performs
+    a depth-first search to discover all nodes with ranks prior to `next_rank`.
+    """
 
     next_child = next(table.iter_inner_children_of(cur_node), None)  # type: ignore
     if next_child is None or table.get_rank_of(next_child) >= next_rank:
@@ -82,6 +86,10 @@ def _place_allele(
     next_rank: int,
     next_differentia: int,
 ) -> int:
+    """Descends the subtrie from `cur_node` to retrieve the child node
+    consistent with the given rank/differentia combination, creating a new
+    node if necessary."""
+
     for child in table.iter_inner_children_of(cur_node):
         # check immediate children for next allele
         rank_matches = table.get_rank_of(child) == next_rank
@@ -105,6 +113,10 @@ def _insert_artifact(
     taxon_label: int,
     num_strata_deposited: int,
 ) -> None:
+    """Insert a taxon into the trie, ultimately resulting in the creation
+    of an additional leaf node and --- if necessary --- a unifurcating chain of
+    inner nodes subtending it."""
+
     cur_node = 0  # root
     for next_rank, next_differentia in zip(ranks, differentiae):
         _consolidate_if_rank_dropped(
@@ -126,10 +138,9 @@ def _insert_artifact(
 
 
 def _finalize_records(
-    records: typing.List[dict],
-    *,
-    force_common_ancestry: bool,
+    records: typing.List[dict], *, force_common_ancestry: bool
 ) -> pd.DataFrame:
+    """Collate as phylogeny dataframe in alife standard format."""
     df = pd.DataFrame(records)
     df["id"] = df["taxon_id"].astype(np.uint64)
     df["ancestor_id"] = df["ancestor_id"].astype(np.uint64)
@@ -153,14 +164,45 @@ def _finalize_records(
 def build_tree_searchtable_python(
     population: typing.Sequence[HereditaryStratigraphicArtifact],
     taxon_labels: typing.Optional[typing.Iterable] = None,
-    progress_wrap: typing.Callable = lambda x: x,
+    progress_wrap: typing.Optional[typing.Callable] = None,
     force_common_ancestry: bool = False,
 ) -> pd.DataFrame:
-    """
-    Uses the consolidated algorithm to build a tree, using a
-    searchtable to access elements thereof.
-    """
+    """Pure-python implementation of `build_tree_searchtable`.
 
+    Parameters
+    ----------
+    population: Sequence[HereditaryStratigraphicArtifact]
+        Hereditary stratigraphic columns corresponding to extant population members.
+
+        Each member of population will correspond to a unique leaf node in the
+        reconstructed tree.
+    taxon_labels: Optional[Iterable], optional
+        How should leaf nodes representing extant hereditary stratigraphic
+        columns be named?
+
+        Label order should correspond to the order of corresponding hereditary
+        stratigraphic columns within `population`. If None, taxons will be
+        named according to their numerical index.
+    force_common_ancestry: bool, default False
+        How should columns that definitively share no common ancestry be
+        handled?
+
+        If set to True, treat columns with no common ancestry as if they
+        shared a common ancestor immediately before the genesis of the
+        lineages. If set to False, columns within `population` that
+        definitively do not share common ancestry will raise a ValueError.
+    progress_wrap : Callable, optional
+        Pass tqdm or equivalent to display a progress bar.
+
+    Returns
+    -------
+    pd.DataFrame
+        The reconstructed phylogenetic tree in alife standard format.
+
+    Notes
+    -----
+    See `build_tree_searchtable` for algorithm overview.
+    """
     pop_len = len(population)
     if pop_len == 0:
         return alifestd_make_empty()
