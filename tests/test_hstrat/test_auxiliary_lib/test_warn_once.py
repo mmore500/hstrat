@@ -2,6 +2,7 @@ import pytest
 
 from hstrat._auxiliary_lib import warn_once
 
+
 @pytest.mark.filterwarnings("error")
 def test_warn_once():
     msg1 = "asdf"
