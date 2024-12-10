@@ -60,7 +60,7 @@ class Searchtable:
     ) -> typing.Iterable[int]:
         """Filter `iter_search_children_of` to exclude leaf nodes."""
         for child in self.iter_search_children_of(taxon_id):
-            if self._records[taxon_id].search_first_child_id != taxon_id:
+            if self._records[child].search_first_child_id != child:
                 yield child
 
     def attach_search_parent(
