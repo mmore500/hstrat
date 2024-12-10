@@ -488,7 +488,7 @@ py::dict build_trie_searchtable_nested(
   logging_info("nested searchtable cpp begin");
 
   {
-    ProgressBar pbar{progress_ctor(ranks.size())};
+    ProgressBar pbar{progress_ctor("total"_a=ranks.size())};
 
     for (u64 i = 0; i < ranks.size(); ++i) {
       insert_artifact(
@@ -525,7 +525,7 @@ u64 count_unique_elements(ITER begin, ITER end) {
       last = item;
       return is_unique;
     }
-  );
+  ) + 1;
 
 }
 
@@ -569,7 +569,7 @@ py::dict build_trie_searchtable_exploded(
       };
       return count_unique_elements(span.begin(), span.end());
     }();
-    ProgressBar pbar{progress_ctor(total)};
+    ProgressBar pbar{progress_ctor("total"_a=total)};
 
     u64 end;
     for (u64 begin = 0; begin < static_cast<u64>(ranks.size()); begin = end) {
