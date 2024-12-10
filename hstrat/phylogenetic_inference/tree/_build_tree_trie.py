@@ -27,10 +27,11 @@ def build_tree_trie(
     ] = None,
 ) -> pd.DataFrame:
     """Estimate the phylogenetic history among hereditary stratigraphic
-    columns by building a trie (a.k.a. prefix tree) of the differentia
-    sequences of hereditary stratigraphic artifacts within a population.
+    artifacts by building a trie (a.k.a. prefix tree) of their differentiae
+    records.
 
-    Exhibits time complexity at most `O(nlog(n))` for population size `n`.
+    The `build_tree_searchtable` function should be preferred, as it applies
+    an equivalent, but more efficient, algorithm.
 
     Parameters
     ----------
@@ -106,6 +107,11 @@ def build_tree_trie(
     hereditary stratigraphic resolution is available. If overestimation of
     polytomies is problematic, external tools can be used to decompose
     polytomies into arbitrarily-arranged bifurcations.
+
+    See Also
+    --------
+    build_tree_searchtable :
+        Implementation using more efficient trie-based reconstruction algorithm.
     """
 
     # for simplicity, return early for this special case
