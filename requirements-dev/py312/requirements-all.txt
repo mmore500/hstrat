@@ -83,7 +83,7 @@ docutils==0.21.2
     #   readme-renderer
     #   sphinx
     #   sphinx-rtd-theme
-downstream==1.2.6
+downstream==1.3.0
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8

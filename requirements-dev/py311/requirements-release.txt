@@ -45,7 +45,7 @@ deprecated==1.2.15
     #   alifedata-phyloinformatics-convert
 docutils==0.21.2
     # via readme-renderer
-downstream==1.2.6
+downstream==1.3.0
     # via hstrat (../../pyproject.toml)
 ete3==3.1.3
     # via alifedata-phyloinformatics-convert
