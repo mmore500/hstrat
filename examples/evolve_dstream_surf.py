@@ -1,12 +1,15 @@
 #!/usr/bin/python3
 
 import argparse
+import functools
+import gc
 import os
 import random
 import types
 import typing
 import uuid
 
+import downstream
 from downstream import dstream
 import numpy as np
 import pandas as pd
@@ -19,15 +22,29 @@ except (ImportError, ModuleNotFoundError) as e:
     print("python3 -m pip install phylotrackpy")
     raise e
 
+def make_uuid4_fast() -> str:
+    return str(uuid.UUID(int=random.getrandbits(128), version=4))
 
-def evolve_drift_synchronous(population: typing.List) -> typing.List:
+
+def evolve_drift(population: typing.List) -> typing.List:
     """Simple asexual evolutionary algorithm under drift conditions."""
     selector = random.Random(1)  # ensure consistent true phylogeny
 
     # synchronous generations
-    for generation in tqdm(range(500)):
-        parents = selector.choices(population, k=len(population))
-        population = [parent.CreateOffspring() for parent in parents]
+    for generation in tqdm(range(2000)):
+        population = [
+            parent.CreateOffspring()
+            for parent in selector.choices(population, k=len(population))
+        ]
+
+    # asyncrhonous generations
+    nsplit = len(population) // 2
+    for generation in tqdm(range(2000)):
+        population[:nsplit] = [
+            parent.CreateOffspring()
+            for parent in selector.choices(population[:nsplit], k=nsplit)
+        ]
+        selector.shuffle(population)
 
     return population
 
@@ -50,12 +67,20 @@ def make_Organism(
 
     surface_bitwidth = differentia_bitwidth * surface_size
 
-    assign_site = dstream_algo.assign_storage_site
+    assign_site = functools.lru_cache(dstream_algo.assign_storage_site)
     algo_name = dstream_algo.__name__.split(".")[-1]
 
     class Organism:
         """Simple organism class, with instrumentation for both phylotrackpy
         and hstrat surface phylogeny tracking."""
+
+        __slots__ = [
+            "trait",
+            "uid",
+            "taxon",
+            "generation_count",
+            "hstrat_surface",
+        ]
 
         # primary simulation business --- arbitrary data in this simple example
         trait: float
@@ -82,17 +107,26 @@ def make_Organism(
             )
 
             # handle phylotrackpy instrumentation...
-            self.uid = str(uuid.uuid4())
+            self.uid = make_uuid4_fast()
             self.taxon = syst.add_org(self, parent_taxon)
 
             # handle hstrat surface instrumentation...
             self.generation_count = generation_count
             self.hstrat_surface = parent_hstrat_surface.copy()
             # ... deposit stratum...
+            assert dstream_algo.has_ingest_capacity(
+                surface_size, self.generation_count
+            )
             dstream_site = assign_site(surface_size, self.generation_count)
             if dstream_site != surface_size:  # handle skip/discard case
-                differentia_value = np.random.randint(2**differentia_bitwidth)
+                differentia_value = np.random.randint(
+                    2**differentia_bitwidth, dtype=surf_dtype
+                )
                 self.hstrat_surface[dstream_site] = differentia_value
+
+        def __del__(self: "Organism") -> None:
+            """Remove organism from phylotrackpy systematics."""
+            syst.remove_org(self.taxon)
 
         def CreateOffspring(self: "Organism") -> "Organism":
             """Create an offspring organism, with mutation and
@@ -124,6 +158,7 @@ def make_Organism(
         def ToRecord(self: "Organism") -> dict:
             """Serialize the organism to a dictionary."""
             return {
+                "downstream_version": downstream.__version__,
                 "data_hex": self.ToHex(),
                 "taxon_label": self.uid,
                 "generation_count": self.generation_count,
@@ -192,6 +227,7 @@ if __name__ == "__main__":
 
     # configure organism class
     syst = systematics.Systematics(lambda x: x.uid)  # each org is own taxon
+    syst.add_snapshot_fun(systematics.Taxon.get_info, "taxon_label")
     Organism = make_Organism(
         dstream_algo=dstream.tilted_algo,
         differentia_bitwidth=args.differentia_bitwidth,
@@ -202,7 +238,12 @@ if __name__ == "__main__":
     # do simulation
     common_ancestor = Organism()
     init_population = [common_ancestor.CreateOffspring() for _ in range(100)]
-    end_population = evolve_drift_synchronous(init_population)
+    end_population = evolve_drift(init_population)
+
+    # mark non-tip taxa extinct
+    del common_ancestor
+    del init_population
+    gc.collect()
 
     # write out the final population, including hstrat surface data
     genome_records = [*map(Organism.ToRecord, end_population)]

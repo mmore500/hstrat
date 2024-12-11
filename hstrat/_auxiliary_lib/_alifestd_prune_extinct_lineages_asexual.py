@@ -63,7 +63,7 @@ def alifestd_prune_extinct_lineages_asexual(
     for extant_id in phylogeny_df.loc[extant_mask, "id"]:
         for lineage_id in alifestd_unfurl_lineage_asexual(
             phylogeny_df,
-            extant_id,
+            int(extant_id),
             mutate=True,
         ):
             if phylogeny_df.loc[lineage_id, "has_extant_descendant"]:
