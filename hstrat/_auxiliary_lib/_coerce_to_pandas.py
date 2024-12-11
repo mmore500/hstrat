@@ -12,10 +12,15 @@ def coerce_to_pandas(obj: typing.Any, *, recurse: bool = False) -> typing.Any:
     """
     if recurse:
         if isinstance(obj, _supported_iterables):
-            return type(obj)(map(lambda x: coerce_to_pandas(x, recurse=recurse), obj))
+            return type(obj)(
+                map(lambda x: coerce_to_pandas(x, recurse=recurse), obj)
+            )
         elif isinstance(obj, _supported_mappings):  # includes defaultdict etc
             return type(obj)(
-                {k: coerce_to_pandas(v, recurse=recurse) for k, v in obj.items()}
+                {
+                    k: coerce_to_pandas(v, recurse=recurse)
+                    for k, v in obj.items()
+                }
             )
 
     if hasattr(obj, "__dataframe__"):
