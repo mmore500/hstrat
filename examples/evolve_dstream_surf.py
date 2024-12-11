@@ -22,6 +22,7 @@ except (ImportError, ModuleNotFoundError) as e:
     print("python3 -m pip install phylotrackpy")
     raise e
 
+
 def make_uuid4_fast() -> str:
     return str(uuid.UUID(int=random.getrandbits(128), version=4))
 
