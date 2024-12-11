@@ -82,6 +82,7 @@ def load_df(path: str) -> pd.DataFrame:
 def sample_reference_and_reconstruction(
     surface_size: int
 ) -> typing.Tuple[pd.DataFrame, pd.DataFrame]:
+    """Sample a reference phylogeny and corresponding reconstruction."""
     paths = subprocess.run(
         [
             "./end2end_tree_reconstruction_with_dstream_surf.sh",
@@ -96,7 +97,7 @@ def sample_reference_and_reconstruction(
     ).stdout.strip()
 
     vars = dict()
-    exec(paths, vars)
+    exec(paths, vars)  # hack to load paths from shell script
     true_phylo_df = load_df(vars["true_phylo_df_path"])
     reconst_phylo_df = load_df(vars["reconst_phylo_df_path"])
 
@@ -111,6 +112,7 @@ def sample_reference_and_reconstruction(
 def visualize_reconstruction(
     true_phylo_df: pd.DataFrame, reconst_phylo_df: pd.DataFrame
 ) -> None:
+    """Print a sample of the reference and reconstructed phylogenies."""
     show_taxa = (
         reconst_phylo_df["taxon_label"].dropna().sample(6, random_state=1)
     )
@@ -122,6 +124,7 @@ def visualize_reconstruction(
 
 
 def test_reconstruct_one(surface_size: int) -> float:
+    """Test the reconstruction of a single phylogeny."""
     print("=" * 80)
     print(f"surface_size: {surface_size}")
     print("differentia_bitwidth: ${differentia_bitwidth}")
@@ -142,11 +145,10 @@ def test_reconstruct_one(surface_size: int) -> float:
 
 
 if __name__ == "__main__":
-
     reconstruction_errors = [
         test_reconstruct_one(surface_size) for surface_size in (256, 64, 16)
     ]
-
+    # error should increase with decreasing surface size
     assert sorted(reconstruction_errors) == reconstruction_errors
 
 EOF
