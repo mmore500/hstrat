@@ -13,6 +13,7 @@ from ...._auxiliary_lib import (
 )
 from ._build_tree_searchtable_cpp_impl_stub import (
     build_tree_searchtable_cpp_from_nested,
+    build_tree_searchtable_cpp_from_exploded
 )
 
 
@@ -44,6 +45,7 @@ def build_tree_searchtable_cpp(
     taxon_labels: typing.Optional[typing.Iterable] = None,
     progress_wrap: typing.Optional[typing.Callable] = None,
     force_common_ancestry: bool = False,
+    _entry_point: typing.Literal["nested", "exploded"] = "nested"
 ) -> pd.DataFrame:
     """C++-based implementation of `build_tree_searchtable`.
 
@@ -71,6 +73,9 @@ def build_tree_searchtable_cpp(
         definitively do not share common ancestry will raise a ValueError.
     progress_wrap : Callable, optional
         Pass tqdm or equivalent to display a progress bar.
+    _from_exploded : bool, default False
+        Use the `build_tree_searchtable_cpp_from_exploded` function to build;
+        this should only be called for the sake of testing.
 
     Returns
     -------
@@ -95,13 +100,27 @@ def build_tree_searchtable_cpp(
     sorted_labels = [taxon_labels[i] for i in sort_order]
     sorted_population = [population[i] for i in sort_order]
 
-    records = build_tree_searchtable_cpp_from_nested(
-        [*range(len(sorted_population))],
-        [x.GetNumStrataDeposited() for x in sorted_population],
-        [[*x.IterRetainedRanks()] for x in sorted_population],
-        [[*x.IterRetainedDifferentia()] for x in sorted_population],
-        opyt.or_value(progress_wrap, mock.Mock()),
-    )
+    if _entry_point == "exploded":
+        args = (
+            [[i] * x.GetNumStrataRetained() for i, x in enumerate(sorted_population)],
+            [[x.GetNumStrataDeposited()] * x.GetNumStrataRetained() for x in sorted_population],
+            [[*x.IterRetainedRanks()] for x in sorted_population],
+            [[*x.IterRetainedDifferentia()] for x in sorted_population],
+        )
+        records = build_tree_searchtable_cpp_from_exploded(
+            *map(lambda x: sum(x, []), args),
+            opyt.or_value(progress_wrap, mock.Mock()),
+        )
+    elif _entry_point == "nested":
+        records = build_tree_searchtable_cpp_from_nested(
+            [*range(len(sorted_population))],
+            [x.GetNumStrataDeposited() for x in sorted_population],
+            [[*x.IterRetainedRanks()] for x in sorted_population],
+            [[*x.IterRetainedDifferentia()] for x in sorted_population],
+            opyt.or_value(progress_wrap, mock.Mock()),
+        )
+    else:
+        raise ValueError(f"Invalid entry point: {_entry_point}")
 
     return _finalize_records(
         records,

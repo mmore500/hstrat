@@ -27,15 +27,17 @@ from .. import _impl as impl
 assets_path = os.path.join(os.path.dirname(__file__), "..", "assets")
 
 
-def test_empty_population():
+@pytest.mark.parametrize("entry_point", ["nested", "exploded"])
+def test_empty_population(entry_point):
     population = []
-    tree = build_tree_searchtable_cpp(population)
+    tree = build_tree_searchtable_cpp(population, _entry_point=entry_point)
 
     assert len(tree) == 0
     assert alifestd_validate(tree)
 
 
-def test_dual_population_no_mrca():
+@pytest.mark.parametrize("entry_point", ["nested", "exploded"])
+def test_dual_population_no_mrca(entry_point):
     organism1 = hstrat.HereditaryStratigraphicColumn().CloneNthDescendant(100)
     organism2 = hstrat.HereditaryStratigraphicColumn().CloneNthDescendant(100)
 
@@ -43,12 +45,15 @@ def test_dual_population_no_mrca():
     names = ["foo", "bar"]
 
     with pytest.raises(ValueError):
-        tree = build_tree_searchtable_cpp(population, taxon_labels=names)
+        tree = build_tree_searchtable_cpp(
+            population, taxon_labels=names, _entry_point=entry_point
+        )
 
     tree = build_tree_searchtable_cpp(
         population,
         taxon_labels=names,
         force_common_ancestry=True,
+        _entry_point=entry_point,
     )
     tree["name"] = tree["taxon_label"]
     assert not alifestd_has_multiple_roots(tree)
@@ -104,7 +109,8 @@ def test_dual_population_no_mrca():
     ],
 )
 @pytest.mark.parametrize("wrap", [lambda x: x, hstrat.col_to_specimen])
-def test_handwritten_trees(orig_tree, retention_policy, wrap):
+@pytest.mark.parametrize("entry_point", ["nested", "exploded"])
+def test_handwritten_trees(orig_tree, retention_policy, wrap, entry_point):
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
         seed_column=hstrat.HereditaryStratigraphicColumn(
@@ -112,7 +118,9 @@ def test_handwritten_trees(orig_tree, retention_policy, wrap):
         ).CloneNthDescendant(10),
     )
 
-    reconst_df = build_tree_searchtable_cpp([*map(wrap, extant_population)])
+    reconst_df = build_tree_searchtable_cpp(
+        [*map(wrap, extant_population)], _entry_point=entry_point
+    )
 
     assert alifestd_validate(reconst_df)
     reconst_tree = apc.alife_dataframe_to_dendropy_tree(
@@ -155,7 +163,8 @@ def test_handwritten_trees(orig_tree, retention_policy, wrap):
         hstrat.fixed_resolution_algo.Policy(5),
     ],
 )
-def test_reconstructed_mrca(orig_tree, retention_policy):
+@pytest.mark.parametrize("entry_point", ["nested", "exploded"])
+def test_reconstructed_mrca(orig_tree, retention_policy, entry_point):
     num_depositions = 10
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
@@ -165,7 +174,9 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
         ).CloneNthDescendant(num_depositions),
     )
 
-    reconst_df = build_tree_searchtable_cpp(extant_population)
+    reconst_df = build_tree_searchtable_cpp(
+        extant_population, _entry_point=entry_point
+    )
     assert "origin_time" in reconst_df
 
     assert alifestd_validate(reconst_df)
@@ -239,7 +250,8 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
         hstrat.fixed_resolution_algo.Policy(5),
     ],
 )
-def test_col_specimen_consistency(orig_tree, retention_policy):
+@pytest.mark.parametrize("entry_point", ["nested", "exploded"])
+def test_col_specimen_consistency(orig_tree, retention_policy, entry_point):
     num_depositions = 10
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
@@ -249,9 +261,12 @@ def test_col_specimen_consistency(orig_tree, retention_policy):
         ).CloneNthDescendant(num_depositions),
     )
 
-    reconst_df1 = build_tree_searchtable_cpp(extant_population)
+    reconst_df1 = build_tree_searchtable_cpp(
+        extant_population, _entry_point=entry_point
+    )
     reconst_df2 = build_tree_searchtable_cpp(
         [hstrat.col_to_specimen(col) for col in extant_population],
+        _entry_point=entry_point,
     )
 
     assert reconst_df1[["id", "ancestor_list"]].equals(
@@ -287,8 +302,14 @@ def test_col_specimen_consistency(orig_tree, retention_policy):
     "exhaustive_check",
     [pytest.param(True, marks=pytest.mark.heavy), False],
 )
+@pytest.mark.parametrize("entry_point", ["nested", "exploded"])
 def test_reconstructed_mrca_fuzz(
-    tree_seed, tree_size, differentia_width, retention_policy, exhaustive_check
+    tree_seed,
+    tree_size,
+    differentia_width,
+    retention_policy,
+    exhaustive_check,
+    entry_point,
 ):
 
     seed_random(tree_seed)
@@ -303,8 +324,7 @@ def test_reconstructed_mrca_fuzz(
     )
 
     reconst_df = build_tree_searchtable_cpp(
-        extant_population,
-        progress_wrap=tqdm,
+        extant_population, progress_wrap=tqdm, _entry_point=entry_point
     )
     assert "origin_time" in reconst_df
 
@@ -442,7 +462,10 @@ def test_reconstructed_mrca_fuzz(
         hstrat.col_to_specimen,
     ],
 )
-def test_determinism(orig_tree, retention_policy, differentia_width, wrap):
+@pytest.mark.parametrize("entry_point", ["nested", "exploded"])
+def test_determinism(
+    orig_tree, retention_policy, differentia_width, wrap, entry_point
+):
     num_depositions = 10
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
@@ -453,11 +476,13 @@ def test_determinism(orig_tree, retention_policy, differentia_width, wrap):
         ).CloneNthDescendant(num_depositions),
     )
 
-    first_reconst = build_tree_searchtable_cpp(extant_population)
+    first_reconst = build_tree_searchtable_cpp(
+        extant_population, _entry_point=entry_point
+    )
     for _rep in range(10):
         _ = _rep
         second_reconst = build_tree_searchtable_cpp(
-            [wrap(col) for col in extant_population]
+            [wrap(col) for col in extant_population], _entry_point=entry_point
         )
         assert first_reconst.equals(second_reconst)
 
@@ -481,7 +506,10 @@ def test_determinism(orig_tree, retention_policy, differentia_width, wrap):
         hstrat.col_to_specimen,
     ],
 )
-def test_reconstructed_taxon_labels(orig_tree, retention_policy, wrap):
+@pytest.mark.parametrize("entry_point", ["nested", "exploded"])
+def test_reconstructed_taxon_labels(
+    orig_tree, retention_policy, wrap, entry_point
+):
     num_depositions = 10
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
@@ -495,11 +523,14 @@ def test_reconstructed_taxon_labels(orig_tree, retention_policy, wrap):
     reconst_df = build_tree_searchtable_cpp(
         [*map(wrap, extant_population)],
         taxon_labels=taxon_labels,
+        _entry_point=entry_point,
     )
     assert "taxon_label" in reconst_df
     assert set(taxon_labels) <= set(reconst_df["taxon_label"])
 
-    reconst_df = build_tree_searchtable_cpp([*map(wrap, extant_population)])
+    reconst_df = build_tree_searchtable_cpp(
+        [*map(wrap, extant_population)], _entry_point=entry_point
+    )
     assert "taxon_label" in reconst_df
     assert set(map(str, range(len(extant_population)))) <= set(
         reconst_df["taxon_label"]
