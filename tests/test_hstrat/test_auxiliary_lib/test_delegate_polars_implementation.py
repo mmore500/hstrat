@@ -15,10 +15,14 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 @delegate_polars_implementation()
 def dummy_func(
-    df: pd.DataFrame, series: pd.Series
-) -> typing.Tuple[pd.DataFrame, pd.Series]:
-    assert isinstance(df, pd.DataFrame) and isinstance(series, pd.Series)
-    return df, series
+    df_dict: dict[str, pd.DataFrame],
+    series_list_singleton: typing.List[pd.Series],
+    dummy_val: typing.Any,
+) -> typing.Tuple[pd.DataFrame, pd.Series, typing.Any]:
+    assert isinstance(df_dict["df"], pd.DataFrame) and isinstance(
+        series_list_singleton[0], pd.Series
+    )
+    return df_dict["df"], series_list_singleton[0], dummy_val
 
 
 @pytest.mark.parametrize(
@@ -65,9 +69,9 @@ def test_coercion_and_error(
         with pytest.raises(
             TypeError, match="mixing pandas and polars types is disallowed"
         ):
-            dummy_func(df, series)
+            dummy_func({"df": df}, [series], 1234)
     else:
-        new_df, new_series = dummy_func(df, series)
+        new_df, new_series, _ = dummy_func({"df": df}, [series], "asdf")
         assert type(new_df) == type(df)
         assert type(new_series) == type(series)
 
