@@ -24,7 +24,7 @@ def _finalize_records(
     """Collate as phylogeny dataframe in alife standard format."""
     df = pd.DataFrame(records)
     df["origin_time"] = df["rank"]
-    df["taxon_label"] = [str(sorted_labels[i]) for i in df["dstream_data_id"]]
+    df["taxon_label"] = [str(sorted_labels[i]) if i != (2**31 - 1) else '_inner_node' for i in df["dstream_data_id"]]
 
     multiple_true_roots = (
         (df["id"] != 0) & (df["ancestor_id"] == 0)
