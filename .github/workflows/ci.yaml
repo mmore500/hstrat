@@ -92,6 +92,10 @@ jobs:
     - name: Install Python dependencies
       uses: py-actions/py-dependency-install@v4
       with:
+        path: "requirements-dev/requirements-jit.txt"
+    - name: Install Python dependencies
+      uses: py-actions/py-dependency-install@v4
+      with:
         path: "requirements-dev/requirements-testing.txt"
     - name: Run examples
       run: ./examples/run_all.sh

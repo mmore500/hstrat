@@ -166,6 +166,8 @@ pandera==0.21.0
     # via hstrat (../../pyproject.toml)
 patsy==1.0.1
     # via statsmodels
+phylotrackpy==0.2.4
+    # via hstrat (../../pyproject.toml)
 pillow==11.0.0
     # via matplotlib
 platformdirs==4.3.6
