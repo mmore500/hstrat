@@ -115,7 +115,7 @@ def make_Organism(
             self.hstrat_surface = parent_hstrat_surface.copy()
             # ... deposit stratum...
             assert dstream_algo.has_ingest_capacity(
-                surface_size, self.generation_count
+                surface_size, self.generation_count + 1
             )
             dstream_site = assign_site(surface_size, self.generation_count)
             if dstream_site != surface_size:  # handle skip/discard case
