@@ -13,7 +13,7 @@ from ...._auxiliary_lib import (
 )
 from ._build_tree_searchtable_cpp_impl_stub import (
     build_tree_searchtable_cpp_from_nested,
-    build_tree_searchtable_cpp_from_exploded
+    build_tree_searchtable_cpp_from_exploded,
 )
 
 
@@ -45,7 +45,7 @@ def build_tree_searchtable_cpp(
     taxon_labels: typing.Optional[typing.Iterable] = None,
     progress_wrap: typing.Optional[typing.Callable] = None,
     force_common_ancestry: bool = False,
-    _entry_point: typing.Literal["nested", "exploded"] = "nested"
+    _entry_point: typing.Literal["nested", "exploded"] = "nested",
 ) -> pd.DataFrame:
     """C++-based implementation of `build_tree_searchtable`.
 
@@ -102,8 +102,14 @@ def build_tree_searchtable_cpp(
 
     if _entry_point == "exploded":
         args = (
-            [[i] * x.GetNumStrataRetained() for i, x in enumerate(sorted_population)],
-            [[x.GetNumStrataDeposited()] * x.GetNumStrataRetained() for x in sorted_population],
+            [
+                [i] * x.GetNumStrataRetained()
+                for i, x in enumerate(sorted_population)
+            ],
+            [
+                [x.GetNumStrataDeposited()] * x.GetNumStrataRetained()
+                for x in sorted_population
+            ],
             [[*x.IterRetainedRanks()] for x in sorted_population],
             [[*x.IterRetainedDifferentia()] for x in sorted_population],
         )
