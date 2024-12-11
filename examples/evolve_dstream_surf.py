@@ -125,8 +125,7 @@ def make_Organism(
                 "data_hex": self.ToHex(),
                 "taxon_label": self.uid,
                 "generation_count": self.generation_count,
-                "dstream_algo"
-                f"dstream.{dstream_algo.__name__}"
+                "dstream_algo": f"dstream.{dstream_algo.__name__}",
                 "dstream_storage_bitoffset": 32,
                 "dstream_storage_bitwidth": surface_bitwidth,
                 "dstream_T_bitoffset": 0,
