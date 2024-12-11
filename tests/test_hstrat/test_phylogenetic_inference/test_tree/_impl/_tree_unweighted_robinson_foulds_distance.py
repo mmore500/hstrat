@@ -2,7 +2,7 @@ import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
 
 
-def tree_unweighted_robinson_foulds_distance(x, y) -> float:
+def tree_unweighted_robinson_foulds_distance(x: object, y: object) -> float:
     tree_a = apc.RosettaTree(x).as_dendropy
     tree_b = apc.RosettaTree(y).as_dendropy
 
