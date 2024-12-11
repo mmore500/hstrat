@@ -51,6 +51,7 @@ def make_Organism(
     surface_bitwidth = differentia_bitwidth * surface_size
 
     assign_site = dstream_algo.assign_storage_site
+    algo_name = dstream_algo.__name__.split(".")[-1]
 
     class Organism:
         """Simple organism class, with instrumentation for both phylotrackpy
@@ -89,8 +90,9 @@ def make_Organism(
             self.hstrat_surface = parent_hstrat_surface.copy()
             # ... deposit stratum...
             dstream_site = assign_site(surface_size, self.generation_count)
-            differentia_value = np.random.randint(2**differentia_bitwidth)
-            self.hstrat_surface[dstream_site] = differentia_value
+            if dstream_site != surface_size:  # handle skip/discard case
+                differentia_value = np.random.randint(2**differentia_bitwidth)
+                self.hstrat_surface[dstream_site] = differentia_value
 
         def CreateOffspring(self: "Organism") -> "Organism":
             """Create an offspring organism, with mutation and
@@ -125,7 +127,7 @@ def make_Organism(
                 "data_hex": self.ToHex(),
                 "taxon_label": self.uid,
                 "generation_count": self.generation_count,
-                "dstream_algo": f"dstream.{dstream_algo.__name__}",
+                "dstream_algo": f"dstream.{algo_name}",
                 "dstream_storage_bitoffset": 32,
                 "dstream_storage_bitwidth": surface_bitwidth,
                 "dstream_T_bitoffset": 0,
@@ -156,6 +158,9 @@ def _parse_args() -> argparse.Namespace:
     args = parser.parse_args()
 
     if args.differentia_bitwidth not in (1, 8, 64):
+        raise NotImplementedError()
+
+    if args.surface_size < 8:
         raise NotImplementedError()
 
     if not args.phylo_df_path.endswith(".csv"):
