@@ -10,8 +10,14 @@ import uuid
 from downstream import dstream
 import numpy as np
 import pandas as pd
-from phylotrackpy import systematics
 from tqdm import tqdm
+
+try:
+    from phylotrackpy import systematics
+except (ImportError, ModuleNotFoundError) as e:
+    print("phylotrackpy required for dstream surf evolution example")
+    print("python3 -m pip install phylotrackpy")
+    raise e
 
 
 def evolve_drift_synchronous(population: typing.List) -> typing.List:
