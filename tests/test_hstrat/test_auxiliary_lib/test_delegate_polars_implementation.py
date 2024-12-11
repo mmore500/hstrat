@@ -13,7 +13,7 @@ from hstrat._auxiliary_lib import (
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
-@delegate_polars_implementation()
+@delegate_polars_implementation(recurse_type_checks=True)
 def dummy_func(
     df_dict: dict[str, pd.DataFrame],
     series_list_singleton: typing.List[pd.Series],
