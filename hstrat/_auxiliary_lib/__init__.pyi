@@ -10,7 +10,6 @@ from ._HereditaryStratigraphicArtifact import HereditaryStratigraphicArtifact
 from ._RecursionLimit import RecursionLimit
 from ._RngStateContext import RngStateContext
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
-from ._SmartHelpFormatter import SmartHelpFormatter
 from ._alifestd_aggregate_phylogenies import alifestd_aggregate_phylogenies
 from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
 from ._alifestd_assign_root_ancestor_token import (
@@ -404,7 +403,6 @@ __all__ = [
     "scale_luminosity",
     "ScalarFormatterFixedPrecision",
     "seed_random",
-    "SmartHelpFormatter",
     "splicewhile",
     "swap_rows_and_indices",
     "textwrap_respect_indents",
