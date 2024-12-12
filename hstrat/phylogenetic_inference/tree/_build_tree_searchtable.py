@@ -102,8 +102,8 @@ def build_tree_searchtable(
         )
 
     if build_tree_searchtable_impl is None:  # pragma: no cover
-        raise ValueError(
-            "Requested cpp build_tree_searchtable impl is unavailable.",
+        raise ImportError(
+            f"build_tree_searchtable impl '{use_impl}' is unavailable.",
         )
 
     return build_tree_searchtable_impl(
