@@ -141,8 +141,8 @@ def make_Organism(
 
         def ToHex(self: "Organism") -> str:
             """Serialize the organism to a hex string, for genome output."""
-            T_arr = np.asarray(self.generation_count, dtype=np.uint32)
-            T_bytes = T_arr.tobytes()
+            T_arr = np.asarray(self.generation_count + 1, dtype=np.uint32)
+            T_bytes = T_arr.astype(">u4").tobytes()
             T_hex = T_bytes.hex()
 
             pack_op = [lambda x: x, np.packbits][differentia_bitwidth == 1]
