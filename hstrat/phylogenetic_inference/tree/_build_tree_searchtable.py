@@ -8,7 +8,7 @@ from ._impl import build_tree_searchtable_python
 
 try:
     from ._impl._build_tree_searchtable_cpp import build_tree_searchtable_cpp
-except ImportError:
+except ImportError:  # pragma: no cover
     build_tree_searchtable_cpp = None
 
 
@@ -101,7 +101,7 @@ def build_tree_searchtable(
             "Expected one of 'cpp', 'python', or None.",
         )
 
-    if build_tree_searchtable_impl is None:
+    if build_tree_searchtable_impl is None:  # pragma: no cover
         raise ValueError(
             "Requested cpp build_tree_searchtable impl is unavailable.",
         )
