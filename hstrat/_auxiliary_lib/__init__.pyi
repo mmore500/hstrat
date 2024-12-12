@@ -132,6 +132,7 @@ from ._coerce_to_polars import coerce_to_polars
 from ._collapse_nonleading_whitespace import collapse_nonleading_whitespace
 from ._consume import consume
 from ._coshuffled import coshuffled
+from ._count_leading_blanks import count_leading_blanks
 from ._count_trailing_ones import count_trailing_ones
 from ._count_trailing_zeros import count_trailing_zeros
 from ._count_unique import count_unique
@@ -319,6 +320,7 @@ __all__ = [
     "CopyableSeriesItemsIter",
     "count_unique",
     "coshuffled",
+    "count_leading_blanks",
     "count_trailing_ones",
     "count_trailing_zeros",
     "curried_binary_search_jit",
