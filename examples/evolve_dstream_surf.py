@@ -12,6 +12,7 @@ import uuid
 import downstream
 from downstream import dstream
 import numpy as np
+import opytional as opyt
 import pandas as pd
 from tqdm import tqdm
 
@@ -115,15 +116,8 @@ def make_Organism(
             self.generation_count = generation_count
             self.hstrat_surface = parent_hstrat_surface.copy()
             # ... deposit stratum...
-            assert dstream_algo.has_ingest_capacity(
-                surface_size, self.generation_count + 1
-            )
-            dstream_site = assign_site(surface_size, self.generation_count)
-            if dstream_site != surface_size:  # handle skip/discard case
-                differentia_value = np.random.randint(
-                    2**differentia_bitwidth, dtype=surf_dtype
-                )
-                self.hstrat_surface[dstream_site] = differentia_value
+            differentia_value = random.randrange(2**differentia_bitwidth)
+            self.DepositStratum(differentia_value)
 
         def __del__(self: "Organism") -> None:
             """Remove organism from phylotrackpy systematics."""
@@ -138,6 +132,15 @@ def make_Organism(
                 generation_count=self.generation_count + 1,
                 trait=self.trait + np.random.uniform(-1, 1),
             )
+
+        def DepositStratum(self: "Organism", differentia_value: int) -> None:
+            assert dstream_algo.has_ingest_capacity(
+                surface_size, self.generation_count + 1
+            )
+
+            dstream_site = assign_site(surface_size, self.generation_count)
+            if dstream_site != surface_size:  # handle skip/discard case
+                self.hstrat_surface[dstream_site] = differentia_value
 
         def ToHex(self: "Organism") -> str:
             """Serialize the organism to a hex string, for genome output."""
@@ -177,6 +180,31 @@ def make_Organism(
             }
 
     return Organism
+
+
+def make_validation_record(
+    Organism: typing.Type,
+    n_gen: int,
+    differentia_override: typing.Callable,
+    validator_exploded: str,
+    validator_unpacked: str,
+) -> dict:
+    """Generate ephemeral validation data for quality assurance."""
+    organism = None
+    for T in range(n_gen):
+        organism = opyt.apply_if_or_else(
+            organism,
+            Organism.CreateOffspring,
+            Organism,
+        )
+        organism.DepositStratum(differentia_override(T))
+
+    return {
+        **organism.ToRecord(),
+        "downstream_exclude_exploded": True,
+        "downstream_validate_exploded": validator_exploded,
+        "downstream_validate_unpacked": validator_unpacked,
+    }
 
 
 def _parse_args() -> argparse.Namespace:
@@ -250,8 +278,47 @@ if __name__ == "__main__":
     del init_population
     gc.collect()
 
+    # set up validators to test during downstream processing
+    S = args.surface_size
+    checkerboard_validator = (
+        "pl.col('dstream_value') == pl.col('dstream_Tbar') % 2"
+    )
+    block_validator = (
+        f"pl.col('dstream_value') == pl.col('dstream_Tbar') // {S // 2 + 1}"
+    )
+
     # write out the final population, including hstrat surface data
-    genome_records = [*map(Organism.ToRecord, end_population)]
+    genome_records = [
+        *map(Organism.ToRecord, end_population),  # experiment data
+        make_validation_record(  # ephemeral validation data
+            Organism=Organism,
+            n_gen=S,
+            differentia_override=lambda T: T % 2,
+            validator_exploded=checkerboard_validator,
+            validator_unpacked=f"pl.col('dstream_T') == {S}",
+        ),
+        make_validation_record(  # ephemeral validation data
+            Organism=Organism,
+            n_gen=S + 1,
+            differentia_override=lambda T: T % 2,
+            validator_exploded=checkerboard_validator,
+            validator_unpacked=f"pl.col('dstream_T') == {S + 1}",
+        ),
+        make_validation_record(  # ephemeral validation data
+            Organism=Organism,
+            n_gen=S,
+            differentia_override=lambda T: T // (S // 2 + 1),
+            validator_exploded=block_validator,
+            validator_unpacked=f"pl.col('dstream_T') == {S}",
+        ),
+        make_validation_record(  # ephemeral validation data
+            Organism=Organism,
+            n_gen=S + 1,
+            differentia_override=lambda T: T // (S // 2 + 1),
+            validator_exploded=block_validator,
+            validator_unpacked=f"pl.col('dstream_T') == {S + 1}",
+        ),
+    ]
     genome_df = pd.DataFrame(genome_records)
     _get_df_save_handler(args.genome_df_path)(genome_df, args.genome_df_path)
 
