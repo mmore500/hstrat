@@ -56,7 +56,12 @@ def test_empty_population(use_impl: typing.Optional[str]):
     ],
 )
 @pytest.mark.parametrize("wrap", [lambda x: x, hstrat.col_to_specimen])
-def test_smoke(use_impl, orig_tree, retention_policy, wrap):
+def test_smoke(
+    use_impl: typing.Optional[str],
+    orig_tree: dp.Tree,
+    retention_policy: object,
+    wrap: typing.Callable,
+):
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
         seed_column=hstrat.HereditaryStratigraphicColumn(
