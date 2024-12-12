@@ -185,6 +185,9 @@ from ._jit_numba_integer_array_ts import (
 )
 from ._jit_numpy_bool_t import jit_numpy_bool_t
 from ._jit_numpy_int64_t import jit_numpy_int64_t
+from ._join_paragraphs_from_one_sentence_per_line import (
+    join_paragraphs_from_one_sentence_per_line,
+)
 from ._launder_impl_modules import launder_impl_modules
 from ._lazy_attach import lazy_attach
 from ._lazy_attach_stub import lazy_attach_stub
@@ -370,6 +373,7 @@ __all__ = [
     "jit_numpy_bool_t",
     "jit_numpy_int64_t",
     "jit_TypingError",
+    "join_paragraphs_from_one_sentence_per_line",
     "launder_impl_modules",
     "lazy_attach",
     "lazy_attach_stub",
