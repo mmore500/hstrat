@@ -576,7 +576,7 @@ py::dict build_trie_searchtable_exploded(
     for (u64 begin = 0; begin < static_cast<u64>(ranks.size()); begin = end) {
       for (end = begin; end < static_cast<u64>(ranks.size()); ++end) {
         if (data_ids_[begin] != data_ids_[end]) break;
-      }
+      }  // ... fast forward to end of segment with contiguous identical data_id values
 
       insert_artifact(
         records,
