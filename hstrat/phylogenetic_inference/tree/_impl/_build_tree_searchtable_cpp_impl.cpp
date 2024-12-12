@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <limits>
 #include <optional>
 #include <ranges>
 #include <span>
@@ -16,7 +17,7 @@ using namespace pybind11::literals;
 namespace py = pybind11;
 
 typedef uint64_t u64;
-
+constexpr u64 u64_max = std::numeric_limits<int32_t>::max();
 
 /**
  *  An object that holds all the information for building a
@@ -55,7 +56,7 @@ struct Records {
     this->differentia.reserve(init_size);
     this->rank.reserve(init_size);
 
-    this->addRecord(0, 0, 0, 0, 0, 0, 0, 0); // root node
+    this->addRecord(u64_max, 0, 0, 0, 0, 0, 0, 0); // root node
   }
 
   void addRecord(
@@ -309,7 +310,7 @@ u64 place_allele(
     );
     if (is_allele_match) { return child; }
   }
-  const u64 dummy_data_id{}; // doesn't matter, inner node
+  const u64 dummy_data_id{u64_max};
   return create_offstring(records, cur_node, rank, differentia, dummy_data_id);
 }
 
