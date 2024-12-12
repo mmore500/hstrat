@@ -129,6 +129,7 @@ from ._cmp import cmp
 from ._cmp_approx import cmp_approx
 from ._coerce_to_pandas import coerce_to_pandas
 from ._coerce_to_polars import coerce_to_polars
+from ._collapse_nonleading_whitespace import collapse_nonleading_whitespace
 from ._consume import consume
 from ._coshuffled import coshuffled
 from ._count_trailing_ones import count_trailing_ones
@@ -313,6 +314,7 @@ __all__ = [
     "cmp_approx",
     "coerce_to_pandas",
     "coerce_to_polars",
+    "collapse_nonleading_whitespace",
     "consume",
     "CopyableSeriesItemsIter",
     "count_unique",
