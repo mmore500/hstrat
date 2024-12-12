@@ -46,6 +46,15 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
                 - Version of downstream library used to curate data items.
             - 'dstream_data_id' : pl.UInt64
                 - Unique identifier for each data item.
+                - If not provided, row number will be used as identifier.
+            - 'downstream_exclude_exploded' : pl.Boolean
+                - Should row be dropped after exploding unpacked data?
+            - 'downstream_exclude_unpacked' : pl.Boolean
+                - Should row be dropped after unpacking packed data?
+            - 'downstream_validate_exploded' : pl.String, polars expression
+                - Polars expression to validate exploded data.
+            - 'downstream_validate_unpacked' : pl.String, polars expression
+                - Polars expression to validate unpacked data.
 
     Returns
     -------
