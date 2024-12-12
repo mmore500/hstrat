@@ -7,6 +7,7 @@ import tqdm
 from .._auxiliary_lib import (
     alifestd_make_empty,
     alifestd_try_add_ancestor_list_col,
+    render_polars_snapshot,
 )
 from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
     build_tree_searchtable_cpp_from_exploded,
@@ -84,47 +85,19 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         User-defined columns, except some prefixed with 'downstream_' or
         'dstream_', will be forwarded from the input DataFrame.
     """
-
-    num_rows = df.lazy().select(pl.len()).collect().item()
-    with pl.Config() as cfg:
-        cfg.set_tbl_cols(df.lazy().collect_schema().len())
-        head = repr(df.lazy().head().collect())
-        message = " ".join(["packed df:", str(num_rows), "rows\n", head])
-        logging.info(message)
+    render_polars_snapshot(df, "packed", logging.info)
 
     # for simplicity, return early for this special case
-    if num_rows == 0:
+    if df.lazy().limit(1).collect().is_empty() == 0:
         return pl.from_pandas(alifestd_make_empty())
 
     df = dstream_dataframe.unpack_data_packed(df)
-    with pl.Config() as cfg:
-        cfg.set_tbl_cols(df.lazy().collect_schema().len())
-        head = repr(df.lazy().head().collect())
-        message = " ".join(
-            [
-                "unpacked df:",
-                str(df.lazy().select(pl.len()).collect().item()),
-                "rows\n",
-                head,
-            ]
-        )
-        logging.info(message)
+    render_polars_snapshot(df, "unpacked", logging.info)
 
     long_df = dstream_dataframe.explode_lookup_unpacked(
         df, value_type="uint64"
     )
-    with pl.Config() as cfg:
-        cfg.set_tbl_cols(long_df.lazy().collect_schema().len())
-        head = repr(long_df.lazy().head().collect())
-        message = " ".join(
-            [
-                "exploded df:",
-                str(long_df.lazy().select(pl.len()).collect().item()),
-                "rows\n",
-                head,
-            ]
-        )
-        logging.info(message)
+    render_polars_snapshot(long_df, "exploded", logging.info)
 
     logging.info("building tree...")
     records = build_tree_searchtable_cpp_from_exploded(
@@ -169,11 +142,6 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
     )
 
     logging.info("surface_unpack_reconstruct complete")
-    with pl.Config() as cfg:
-        cfg.set_tbl_cols(phylo_df.lazy().collect_schema().len())
-        cfg.set_tbl_cols(phylo_df.width)
-        head = repr(phylo_df.lazy().head(10).collect())
-        message = " ".join(["reconst df:", str(num_rows), "rows\n", head])
-        logging.info(message)
+    render_polars_snapshot(phylo_df, "reconstruction", logging.info)
 
     return phylo_df

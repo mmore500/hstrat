@@ -202,6 +202,7 @@ from ._raises import raises
 from ._random_choice_generator import random_choice_generator
 from ._random_tree import random_tree
 from ._release_cur_mpl_fig import release_cur_mpl_fig
+from ._render_polars_snapshot import render_polars_snapshot
 from ._render_to_base64url import render_to_base64url
 from ._render_to_numeral_system import render_to_numeral_system
 from ._reversed_enumerate import reversed_enumerate
@@ -383,6 +384,7 @@ __all__ = [
     "RecursionLimit",
     "raises",
     "release_cur_mpl_fig",
+    "render_polars_snapshot",
     "random_choice_generator",
     "random_tree",
     "render_to_base64url",
