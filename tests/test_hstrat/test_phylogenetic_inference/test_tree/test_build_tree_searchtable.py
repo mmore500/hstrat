@@ -88,3 +88,27 @@ def test_smoke(use_impl, orig_tree, retention_policy, wrap):
         assert original_distance_matrix.distance(
             a, b
         ) == reconstructed_distance_matrix.distance(a, b)
+
+
+@pytest.mark.parametrize(
+    "orig_tree",
+    [
+        impl.setup_dendropy_tree(f"{assets_path}/grandchild_and_aunt.newick"),
+    ],
+)
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+    ],
+)
+def test_bad_use_impl(orig_tree: dp.Tree, retention_policy: object):
+    extant_population = hstrat.descend_template_phylogeny_dendropy(
+        orig_tree,
+        seed_column=hstrat.HereditaryStratigraphicColumn(
+            stratum_retention_policy=retention_policy,
+        ).CloneNthDescendant(10),
+    )
+
+    with pytest.raises(ValueError):
+        hstrat.build_tree_searchtable(extant_population, use_impl="foobar")
