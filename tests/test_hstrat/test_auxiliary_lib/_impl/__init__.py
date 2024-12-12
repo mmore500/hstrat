@@ -1,3 +1,3 @@
-from ._check_polars_implementation import check_polars_implementation
+from ._enforce_identical_polars_result import enforce_identical_polars_result
 
-__all__ = ["check_polars_implementation"]
+__all__ = ["enforce_identical_polars_result"]

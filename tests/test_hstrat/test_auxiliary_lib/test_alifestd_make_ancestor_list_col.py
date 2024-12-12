@@ -8,12 +8,12 @@ from hstrat._auxiliary_lib import (
     alifestd_make_ancestor_list_col,
 )
 
-from ._impl import check_polars_implementation
+from ._impl import enforce_identical_polars_result
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
-alifestd_make_ancestor_list_col = check_polars_implementation(
-    alifestd_make_ancestor_list_col
+alifestd_make_ancestor_list_col_ = enforce_identical_polars_result(
+    alifestd_make_ancestor_list_col,
 )
 
 
@@ -28,13 +28,13 @@ alifestd_make_ancestor_list_col = check_polars_implementation(
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_make_ancestor_list_col(phylogeny_df):
+def test_alifestd_make_ancestor_list_col(phylogeny_df: pd.DataFrame):
 
     phylogeny_df["ancestor_id"] = alifestd_make_ancestor_id_col(
         phylogeny_df["id"], phylogeny_df["ancestor_list"]
     )
     assert all(
-        alifestd_make_ancestor_list_col(
+        alifestd_make_ancestor_list_col_(
             phylogeny_df["id"], phylogeny_df["ancestor_id"]
         ).str.lower()
         == phylogeny_df["ancestor_list"].str.lower()
@@ -42,7 +42,7 @@ def test_alifestd_make_ancestor_list_col(phylogeny_df):
 
 
 def test_alifestd_make_ancestor_list_col_empty():
-    res = alifestd_make_ancestor_list_col(
+    res = alifestd_make_ancestor_list_col_(
         pd.Series(dtype=int), pd.Series(dtype=int)
     )
     assert len(res) == 0
@@ -50,7 +50,7 @@ def test_alifestd_make_ancestor_list_col_empty():
 
 
 def test_alifestd_make_ancestor_list_col_root_ancestor_token():
-    res = alifestd_make_ancestor_list_col(
+    res = alifestd_make_ancestor_list_col_(
         pd.Series([0]),
         pd.Series([0]),
         root_ancestor_token="boop",

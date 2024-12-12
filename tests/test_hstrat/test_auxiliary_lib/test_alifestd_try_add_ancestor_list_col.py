@@ -12,13 +12,13 @@ from hstrat._auxiliary_lib import (
     alifestd_validate,
 )
 
-from ._impl import check_polars_implementation
+from ._impl import enforce_identical_polars_result
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
-alifestd_try_add_ancestor_list_col = check_polars_implementation(
-    alifestd_try_add_ancestor_list_col
+alifestd_try_add_ancestor_list_col_ = enforce_identical_polars_result(
+    alifestd_try_add_ancestor_list_col,
 )
 
 
@@ -61,7 +61,7 @@ def test_alifestd_try_add_ancestor_id_col_asexual(phylogeny_df, apply):
     ).all(), phylogeny_df
     pd.testing.assert_frame_equal(phylogeny_df_, phylogeny_df)
 
-    res_df = alifestd_try_add_ancestor_list_col(
+    res_df = alifestd_try_add_ancestor_list_col_(
         phylogeny_df,
         root_ancestor_token="None",
     )
@@ -75,7 +75,7 @@ def test_alifestd_try_add_ancestor_id_col_asexual(phylogeny_df, apply):
     ).all()
     pd.testing.assert_frame_equal(phylogeny_df_, phylogeny_df)
 
-    res_df = alifestd_try_add_ancestor_list_col(
+    res_df = alifestd_try_add_ancestor_list_col_(
         phylogeny_df,
         root_ancestor_token="None",
     )
@@ -88,7 +88,7 @@ def test_alifestd_try_add_ancestor_id_col_asexual(phylogeny_df, apply):
         )
     ).all()
 
-    res_df = alifestd_try_add_ancestor_list_col(
+    res_df = alifestd_try_add_ancestor_list_col_(
         phylogeny_df,
         root_ancestor_token="None",
     )
@@ -104,7 +104,7 @@ def test_alifestd_try_add_ancestor_id_col_asexual(phylogeny_df, apply):
     res_df = res_df.copy()
     res_df.drop(columns="ancestor_list", inplace=True)
     assert "ancestor_list" not in res_df
-    res_df = alifestd_try_add_ancestor_list_col(
+    res_df = alifestd_try_add_ancestor_list_col_(
         res_df,
         root_ancestor_token="None",
     )
@@ -119,10 +119,10 @@ def test_alifestd_try_add_ancestor_id_col_asexual(phylogeny_df, apply):
 
     phylogeny_df.drop(columns="ancestor_id", inplace=True)
     assert "ancestor_id" not in phylogeny_df
-    res_df = alifestd_try_add_ancestor_list_col(phylogeny_df)
+    res_df = alifestd_try_add_ancestor_list_col_(phylogeny_df)
     pd.testing.assert_frame_equal(res_df, phylogeny_df)
 
     phylogeny_df.drop(columns="ancestor_list", inplace=True)
     assert "ancestor_list" not in phylogeny_df
-    res_df = alifestd_try_add_ancestor_list_col(phylogeny_df)
+    res_df = alifestd_try_add_ancestor_list_col_(phylogeny_df)
     pd.testing.assert_frame_equal(res_df, phylogeny_df)
