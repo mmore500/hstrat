@@ -53,24 +53,25 @@ def delegate_cppimport_module(
     if "HSTRAT_USE_CPPIMPORT" in os.environ or in_unit_test:
         if in_unit_test:
             logging.info(
-                "unit test session detected -- applying cppimport first"
+                "unit test session detected, preferring cppimport over precompiled binaries",
             )
         primary, fallback = (
             except_wrap_sentinel(
                 do_import_cppimport,
                 {
-                    ImportError: f"Import using cppimport failed, trying native binaries for '{module_name}' in '{package}'",
-                    ModuleNotFoundError: f"cppimport not found, trying native binaries for '{module_name}' in '{package}'",
+                    ImportError: f"cppimport failed, falling back to precompiled binaries for '{package}.{module_name}'",
+                    ModuleNotFoundError: f"cppimport not installed, falling back to native binaries for '{package}.{module_name}'",
                 },
             ),
             do_import_importlib,
+            sentinel=None,
         )
     else:
         primary, fallback = (
             except_wrap_sentinel(
                 do_import_importlib,
                 {
-                    ImportError: f"Native binaries for '{module_name}' in '{package}' not found, attempting to use cppimport",
+                    ImportError: f"precompiled binaries for '{package}.{module_name}' not found, falling back to cppimport",
                 },
             ),
             do_import_cppimport,
