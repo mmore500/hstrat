@@ -25,6 +25,7 @@ except (ImportError, ModuleNotFoundError) as e:
 
 
 def make_uuid4_fast() -> str:
+    """Fast UUID4 generator, using lower-quality randomness."""
     return str(uuid.UUID(int=random.getrandbits(128), version=4))
 
 
