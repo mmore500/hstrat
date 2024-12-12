@@ -14,5 +14,5 @@ def get_package_name(qual_name: str) -> str:
     qual_name : str
         The fully qualified module name, which usually should be `__name__`
     """
-    *package_names, module_name = qual_name.split(".")
+    *package_names, _module_name = qual_name.split(".")
     return ".".join(package_names)
