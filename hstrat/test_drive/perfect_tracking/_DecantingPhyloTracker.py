@@ -1,20 +1,22 @@
-import typing
+import typing  # pragma: no cover
 
-from deprecated.sphinx import deprecated
-import numpy as np
-import pandas as pd
+from deprecated.sphinx import deprecated  # pragma: no cover
+import numpy as np  # pragma: no cover
+import pandas as pd  # pragma: no cover
 
-from ..._auxiliary_lib import indices_of_unique
+from ..._auxiliary_lib import indices_of_unique  # pragma: no cover
 from ._compile_phylogeny_from_lineage_iters import (
     compile_phylogeny_from_lineage_iters,
-)
+)  # pragma: no cover
 
 
 # @MAM 02-04-2023
 # created a partial implementation of missing features before testing showed
 # it underperformed the GC tracker; left partial implementation here:
 # https://gist.github.com/mmore500/06a359e528f59f3feb0c72dfc01b8fef
-@deprecated(version="1.13.0", reason="Incompatible with numpy v2")
+@deprecated(
+    version="1.13.0", reason="Incompatible with numpy v2"
+)  # pragma: no cover
 class DecantingPhyloTracker:  # pragma: no cover
     """Data structure to enable perfect tracking over a fixed-size population
     with synchronous generations.
