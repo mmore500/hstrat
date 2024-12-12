@@ -62,9 +62,9 @@ def delegate_cppimport_module(
                     ImportError: f"cppimport failed, falling back to precompiled binaries for '{package}.{module_name}'",
                     ModuleNotFoundError: f"cppimport not installed, falling back to native binaries for '{package}.{module_name}'",
                 },
+                sentinel=None,
             ),
             do_import_importlib,
-            sentinel=None,
         )
     else:
         primary, fallback = (
