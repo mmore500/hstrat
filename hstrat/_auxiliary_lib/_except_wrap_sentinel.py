@@ -8,9 +8,8 @@ def except_wrap_sentinel(
     errors: dict[typing.Type[Exception], typing.Optional[str]],
     *,
     sentinel: typing.Any = None,
-):
-    """Wrap a function to catch specified exceptions and return a sentinel
-    value.
+) -> typing.Callable:
+    """Decorator to catch specified exceptions and return a sentinel value.
 
     Parameters
     ----------
