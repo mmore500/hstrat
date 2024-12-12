@@ -27,10 +27,11 @@ def build_tree_trie(
     ] = None,
 ) -> pd.DataFrame:
     """Estimate the phylogenetic history among hereditary stratigraphic
-    columns by building a trie (a.k.a. prefix tree) of the differentia
-    sequences of hereditary stratigraphic artifacts within a population.
+    artifacts by building a trie (a.k.a. prefix tree) of their differentiae
+    records.
 
-    Exhibits time complexity at most `O(nlog(n))` for population size `n`.
+    The `build_tree_searchtable` function should be preferred, as it applies
+    an equivalent, but more efficient, algorithm.
 
     Parameters
     ----------
@@ -90,6 +91,10 @@ def build_tree_trie(
         of the node's rank and the minimum rank among its children. See
         `AssignOriginTimeNaiveTriePostprocessor` for details.
 
+        If you want to use multiple postprocessors on the same tree, use the
+        `build_tree_trie_ensemble` function directly, which returns a list of
+        DataFrames resulting from the different postprocessors.
+
     Returns
     -------
     pd.DataFrame
@@ -106,6 +111,14 @@ def build_tree_trie(
     hereditary stratigraphic resolution is available. If overestimation of
     polytomies is problematic, external tools can be used to decompose
     polytomies into arbitrarily-arranged bifurcations.
+
+    See Also
+    --------
+    build_tree_searchtable :
+        Implementation using more efficient trie-based reconstruction algorithm.
+    build_tree_trie_ensemble :
+        Implementation function delegated to after postprocessors are determined.
+        For multiple postprocessors, use it directly.
     """
 
     # for simplicity, return early for this special case
@@ -116,15 +129,12 @@ def build_tree_trie(
         trie_postprocessor = (
             trie_postprocess.AssignOriginTimeNaiveTriePostprocessor()
         )
-    elif (
-        isinstance(bias_adjustment, str)
-        and bias_adjustment == "sample_ancestral_rollbacks"
-    ):
+    elif bias_adjustment == "sample_ancestral_rollbacks":
 
         trie_postprocessor = trie_postprocess.CompoundTriePostprocessor(
             postprocessors=[
                 trie_postprocess.SampleAncestralRollbacksTriePostprocessor(
-                    seed=1
+                    seed=1,
                 ),
                 trie_postprocess.AssignOriginTimeNaiveTriePostprocessor(),
             ],

@@ -149,7 +149,7 @@ def alifestd_collapse_unifurcations(
             # update referenced ancestor
             phylogeny_df.loc[id_, "ancestor_list"] = str(
                 [
-                    phylogeny_df.loc[ancestor_id, "id"]
+                    int(phylogeny_df.loc[ancestor_id, "id"])
                     for ancestor_id in ancestor_ids
                 ]
             )

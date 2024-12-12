@@ -12,7 +12,8 @@ def unfurl_lineage_with_contiguous_ids(
     Assumes that each organism's ancestor id is located at the index position
     in `ancestor_ids` corresponding to its own id.
     """
-    id_ = leaf_id
+    id_ = np.uint64(leaf_id)  # not sure why this type coercion is necessary
+    ancestor_ids = ancestor_ids.astype(np.uint64)
     res = list()
     while True:
         res.append(id_)
@@ -21,4 +22,4 @@ def unfurl_lineage_with_contiguous_ids(
             break
         id_ = next_id
 
-    return np.array(res)
+    return np.array(res, dtype=np.uint64)

@@ -1,6 +1,8 @@
 import typing
 
-from ..frozen_instrumentation import HereditaryStratigraphicAssemblage
+from ..frozen_instrumentation._HereditaryStratigraphicAssemblage import (
+    HereditaryStratigraphicAssemblage,
+)
 from ._impl import col_records_from_pop_records
 from ._specimen_from_records import specimen_from_records
 

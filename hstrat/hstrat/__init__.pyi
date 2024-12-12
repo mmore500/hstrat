@@ -1,3 +1,4 @@
+from dataframe import surface_unpack_reconstruct
 from frozen_instrumentation import (
     HereditaryStratigraphicAssemblage,
     HereditaryStratigraphicAssemblageSpecimen,
@@ -48,6 +49,7 @@ from phylogenetic_inference import (
     build_distance_matrix_numpy,
     build_tree,
     build_tree_nj,
+    build_tree_searchtable,
     build_tree_trie,
     build_tree_trie_ensemble,
     build_tree_upgma,
@@ -168,6 +170,8 @@ from test_drive import (
 )
 
 __all__ = [
+    # dataframe
+    "surface_unpack_reconstruct",
     # frozen_instrumentation
     "HereditaryStratigraphicAssemblage",
     "HereditaryStratigraphicAssemblageSpecimen",
@@ -233,6 +237,7 @@ __all__ = [
     "ExponentialPrior",
     "UniformPrior",
     "build_tree_nj",
+    "build_tree_searchtable",
     "build_tree_trie",
     "build_tree_trie_ensemble",
     "build_tree_upgma",

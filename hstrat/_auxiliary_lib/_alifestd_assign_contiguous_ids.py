@@ -58,7 +58,7 @@ def alifestd_assign_contiguous_ids(
         phylogeny_df["ancestor_list"] = phylogeny_df["ancestor_list"].map(
             lambda ancestor_list_str: str(
                 [
-                    reassignment[ancestor_id]
+                    int(reassignment[ancestor_id])
                     for ancestor_id in alifestd_parse_ancestor_ids(
                         ancestor_list_str
                     )

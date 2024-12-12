@@ -331,6 +331,79 @@ def test_taxon_and_taxon_label(subtrie):
         assert isinstance(node.taxon, str)
 
 
+def test_eq_empty():
+    n1 = impl.TrieInnerNode()
+    m1 = impl.TrieInnerNode()
+    assert n1 == m1
+
+
+def test_eq_equal():
+    n1 = impl.TrieInnerNode()
+    n2 = impl.TrieInnerNode(parent=n1, rank=12, differentia=50)
+    n3 = impl.TrieInnerNode(parent=n1, rank=2, differentia=36)
+    n4 = impl.TrieInnerNode(parent=n2, rank=30, differentia=145)
+    n5 = impl.TrieInnerNode(parent=n2, rank=6, differentia=101)
+    n6 = impl.TrieInnerNode(parent=n5, rank=7, differentia=43)
+    impl.TrieLeafNode(parent=n6, taxon_label="cat")
+    impl.TrieLeafNode(parent=n3, taxon_label="dog")
+    impl.TrieLeafNode(parent=n4, taxon_label="elephant")
+    impl.TrieLeafNode(parent=n4, taxon_label="rhino")
+
+    m1 = impl.TrieInnerNode()
+    m3 = impl.TrieInnerNode(parent=m1, rank=2, differentia=36)
+    m2 = impl.TrieInnerNode(parent=m1, rank=12, differentia=50)
+    m5 = impl.TrieInnerNode(parent=m2, rank=6, differentia=101)
+    m6 = impl.TrieInnerNode(parent=m5, rank=7, differentia=43)
+    m4 = impl.TrieInnerNode(parent=m2, rank=30, differentia=145)
+    impl.TrieLeafNode(parent=m3, taxon_label="dog")
+    impl.TrieLeafNode(parent=m4, taxon_label="rhino")
+    impl.TrieLeafNode(parent=m4, taxon_label="elephant")
+    impl.TrieLeafNode(parent=m6, taxon_label="cat")
+
+    assert m1 == n1
+
+
+def test_not_eq_lacking_leaf():
+    n1 = impl.TrieInnerNode()
+    n2 = impl.TrieInnerNode(parent=n1, rank=12, differentia=50)
+    n3 = impl.TrieInnerNode(parent=n1, rank=2, differentia=36)
+    impl.TrieLeafNode(parent=n2, taxon_label="rhino")
+    impl.TrieLeafNode(parent=n3, taxon_label="apple")
+
+    m1 = impl.TrieInnerNode()
+    m2 = impl.TrieInnerNode(parent=m1, rank=12, differentia=50)
+    impl.TrieInnerNode(parent=m1, rank=2, differentia=36)
+    impl.TrieLeafNode(parent=m2, taxon_label="rhino")
+    assert n1 != m1
+
+
+def test_not_eq_lacking_inner():
+    n1 = impl.TrieInnerNode()
+    n2 = impl.TrieInnerNode(parent=n1, rank=12, differentia=50)
+    impl.TrieLeafNode(parent=n2, taxon_label="rhino")
+
+    m1 = impl.TrieInnerNode()
+    m2 = impl.TrieInnerNode(parent=m1, rank=12, differentia=50)
+    impl.TrieInnerNode(parent=m1, rank=2, differentia=36)
+    impl.TrieLeafNode(parent=m2, taxon_label="rhino")
+    assert n1 != m1
+
+
+def test_not_eq_different_data():
+    n1 = impl.TrieInnerNode()
+    n2 = impl.TrieInnerNode(parent=n1, rank=12, differentia=50)
+    n3 = impl.TrieInnerNode(parent=n1, rank=1, differentia=35)
+    impl.TrieLeafNode(parent=n2, taxon_label="rhino")
+    impl.TrieLeafNode(parent=n3, taxon_label="apple")
+
+    m1 = impl.TrieInnerNode()
+    m2 = impl.TrieInnerNode(parent=m1, rank=12, differentia=50)
+    m3 = impl.TrieInnerNode(parent=m1, rank=2, differentia=36)
+    impl.TrieLeafNode(parent=m2, taxon_label="rhino")
+    impl.TrieLeafNode(parent=m3, taxon_label="apple")
+    assert n1 != m1
+
+
 def test_inner_children(subtrie):
     assert len([*subtrie.inner_children]) == 3
     assert len(set(map(id, subtrie.inner_children))) == 3

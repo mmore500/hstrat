@@ -112,6 +112,7 @@ def test_perfect_tracking(tree):
     tracked_tree = apc.alife_dataframe_to_dendropy_tree(
         alifedata_df,
     )
+    tracked_tree.is_rooted = tree.is_rooted
 
     max_level = max((node.level() for node in tree.leaf_node_iter()))
     extant_subtree = tree.extract_tree(
