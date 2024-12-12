@@ -140,7 +140,7 @@ def make_Organism(
             )
 
             dstream_site = assign_site(surface_size, self.generation_count)
-            if dstream_site != surface_size:  # handle skip/discard case
+            if dstream_site is not None:  # handle skip/discard case
                 self.hstrat_surface[dstream_site] = differentia_value
 
         def ToHex(self: "Organism") -> str:
