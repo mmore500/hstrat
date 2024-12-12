@@ -1,13 +1,18 @@
-import re
-
-
-def get_package_name(module_name: str) -> str:
+def get_package_name(qual_name: str) -> str:
     """
     Gets the package name given the fully qualified module name.
 
+    Examples
+    --------
+    >>> get_package_name("baz")
+    ''
+    >>> get_package_name("foo.bar")
+    'foo'
+
     Parameters
     ----------
-    module_name : str
+    qual_name : str
         The fully qualified module name, which usually should be `__name__`
     """
-    return re.sub(r"\.[a-zA-Z0-9_]+$", "", module_name)
+    *package_names, module_name = qual_name.split(".")
+    return ".".join(package_names)
