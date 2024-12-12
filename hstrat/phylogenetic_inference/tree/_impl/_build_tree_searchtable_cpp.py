@@ -76,9 +76,10 @@ def build_tree_searchtable_cpp(
         definitively do not share common ancestry will raise a ValueError.
     progress_wrap : Callable, optional
         Pass tqdm or equivalent to display a progress bar.
-    _from_exploded : bool, default False
-        Use the `build_tree_searchtable_cpp_from_exploded` function to build;
-        this should only be called for the sake of testing.
+    _entry_point : Literal["nested", "exploded"], default "nested"
+        Which implementation interface should be called?
+
+        For internal use in testing.
 
     Returns
     -------
@@ -103,29 +104,36 @@ def build_tree_searchtable_cpp(
     sorted_labels = [taxon_labels[i] for i in sort_order]
     sorted_population = [population[i] for i in sort_order]
 
-    if _entry_point == "exploded":
-        args = (
-            [
-                [i] * x.GetNumStrataRetained()
-                for i, x in enumerate(sorted_population)
-            ],
-            [
-                [x.GetNumStrataDeposited()] * x.GetNumStrataRetained()
-                for x in sorted_population
-            ],
-            [[*x.IterRetainedRanks()] for x in sorted_population],
-            [[*x.IterRetainedDifferentia()] for x in sorted_population],
-        )
-        records = build_tree_searchtable_cpp_from_exploded(
-            *map(lambda x: sum(x, []), args),
-            opyt.or_value(progress_wrap, mock.Mock()),
-        )
-    elif _entry_point == "nested":
+    if _entry_point == "nested":
         records = build_tree_searchtable_cpp_from_nested(
             [*range(len(sorted_population))],
-            [x.GetNumStrataDeposited() for x in sorted_population],
-            [[*x.IterRetainedRanks()] for x in sorted_population],
-            [[*x.IterRetainedDifferentia()] for x in sorted_population],
+            [ann.GetNumStrataDeposited() for ann in sorted_population],
+            [[*ann.IterRetainedRanks()] for ann in sorted_population],
+            [[*ann.IterRetainedDifferentia()] for ann in sorted_population],
+            opyt.or_value(progress_wrap, mock.Mock()),
+        )
+    elif _entry_point == "exploded":
+        records = build_tree_searchtable_cpp_from_exploded(
+            [
+                i
+                for i, ann in enumerate(sorted_population)
+                for __ in range(ann.GetNumStrataRetained())
+            ],
+            [
+                ann.GetNumStrataDeposited()
+                for ann in sorted_population
+                for __ in range(ann.GetNumStrataRetained())
+            ],
+            [
+                rank
+                for ann in sorted_population
+                for rank in ann.IterRetainedRanks()
+            ],
+            [
+                differentia
+                for ann in sorted_population
+                for differentia in ann.IterRetainedDifferentia()
+            ],
             opyt.or_value(progress_wrap, mock.Mock()),
         )
     else:
