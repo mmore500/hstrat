@@ -66,7 +66,7 @@ def any_polars_arg(arg: typing.Any, recurse: bool) -> bool:
 def delegate_polars_implementation(
     polars_func: typing.Optional[typing.Callable] = None,
     recurse_type_checks: bool = False,
-):
+) -> typing.Callable:
     """
     Returns a decorator for `original_func` using Pandas objects (i.e.
     DataFrame or Series) that detects if Polars objects are supplied
@@ -78,9 +78,10 @@ def delegate_polars_implementation(
     detection happens recursively, checking iterables and/or mappings.
     """
 
-    def decorator(original_func: typing.Callable):
+    def decorator(original_func: typing.Callable) -> typing.Callable:
+
         @functools.wraps(original_func)
-        def delegating_function(*args, **kwargs):
+        def delegating_function(*args, **kwargs) -> typing.Any:
 
             any_pandas, any_polars = (
                 any(
