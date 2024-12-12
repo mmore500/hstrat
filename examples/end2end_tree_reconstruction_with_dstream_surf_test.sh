@@ -112,7 +112,7 @@ def sample_reference_and_reconstruction(
     ).stdout.strip()
 
     vars = dict()
-    exec(paths, vars)  # hack to load paths from shell script
+    exec(paths, vars)  # hack to load paths from shell script output
     true_phylo_df = load_df(vars["true_phylo_df_path"])
     reconst_phylo_df = load_df(vars["reconst_phylo_df_path"])
 
