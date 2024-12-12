@@ -145,7 +145,7 @@ def make_Organism(
             T_bytes = T_arr.tobytes()
             T_hex = T_bytes.hex()
 
-            pack_op = [lambda x: x, np.packbits][surface_size == 1]
+            pack_op = [lambda x: x, np.packbits][differentia_bitwidth == 1]
             surface_bits = pack_op(self.hstrat_surface)
             surface_bytes = surface_bits.tobytes()
             surface_hex = surface_bytes.hex()
