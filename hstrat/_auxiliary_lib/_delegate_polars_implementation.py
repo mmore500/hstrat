@@ -1,5 +1,4 @@
 import functools
-import itertools
 import typing
 
 import pandas as pd
@@ -17,108 +16,106 @@ DataFrame_T = typing.TypeVar("DataFrame_T", pd.DataFrame, pl.DataFrame)
 Series_T = typing.TypeVar("Series_T", pd.Series, pl.Series)
 
 
-def any_pandas_arg(arg: typing.Any, recurse: bool) -> bool:
-    """Implementation detail for delegate_polars_implementation."""
+def _detect_pandas(arg: typing.Any, recurse: bool) -> bool:
+    """Implementation detail for delegate_polars_implementation.
+
+    If `recurse` is True, then this function will recursively check for Polars
+    members in mappings and iterables.
+    """
     if isinstance(arg, (pd.DataFrame, pd.Series)):
         return True
     elif isinstance(arg, (pl.DataFrame, pl.Series, str)):
         return False
+    elif recurse and isinstance(arg, _supported_mappings):
+        return any(_detect_pandas(v, recurse) for v in arg.values())
+    elif recurse and isinstance(arg, _supported_iterables):
+        return any(_detect_pandas(ele, recurse) for ele in arg)
+    elif isinstance(arg, (typing.Mapping, typing.Iterable)):
+        warn_once(
+            f"Arguments of type '{type(arg).__name__}' "
+            "cannot be checked for Polars members.",
+        )
+    else:
+        return False
 
-    if recurse:
-        if isinstance(arg, _supported_mappings):
-            return any(any_pandas_arg(v, recurse) for v in arg.values())
-        elif isinstance(arg, _supported_iterables):
-            return any(any_pandas_arg(ele, recurse) for ele in arg)
-        elif isinstance(arg, (typing.Mapping, typing.Iterable)):
-            warn_once(
-                f"Container type '{type(arg).__name__}' cannot be checked for presence of Pandas"
-            )
 
-    return False
+def _detect_polars(arg: typing.Any, recurse: bool) -> bool:
+    """Implementation detail for delegate_polars_implementation.
 
-
-def any_polars_arg(arg: typing.Any, recurse: bool) -> bool:
+    If `recurse` is True, then this function will recursively check for Polars
+    members in mappings and iterables.
     """
-    Implementation detail for delegate_polars_implementation.
-    Because coercion to Pandas will be done if there is no Polars function
-    present, we must check for containers that contain Polars objects
-    for which coercion is not implemented.
-    """
-
     if isinstance(arg, (pl.DataFrame, pl.Series)):
         return True
     elif isinstance(arg, (pd.DataFrame, pd.Series, str)):
         return False
-
-    if recurse:
-        if isinstance(arg, _supported_mappings):
-            return any(any_polars_arg(v, recurse) for v in arg.values())
-        elif isinstance(arg, _supported_iterables):
-            return any(any_polars_arg(ele, recurse) for ele in arg)
-        elif isinstance(arg, (typing.Mapping, typing.Iterable)):
-            warn_once(
-                f"Container type '{type(arg).__name__}' cannot be checked for presence of Polars"
-            )
-
-    return False
+    elif recurse and isinstance(arg, _supported_mappings):
+        return any(_detect_polars(v, recurse) for v in arg.values())
+    elif recurse and isinstance(arg, _supported_iterables):
+        return any(_detect_polars(ele, recurse) for ele in arg)
+    elif recurse and isinstance(arg, (typing.Mapping, typing.Iterable)):
+        warn_once(
+            f"Arguments of type '{type(arg).__name__}' "
+            "cannot be checked for Pandas members.",
+        )
+    else:
+        return False
 
 
 def delegate_polars_implementation(
-    polars_func: typing.Optional[typing.Callable] = None,
+    polars_impl: typing.Optional[typing.Callable] = None,
     recurse_type_checks: bool = False,
 ) -> typing.Callable:
-    """
-    Returns a decorator for `original_func` using Pandas objects (i.e.
-    DataFrame or Series) that detects if Polars objects are supplied
-    instead. If they are, and `polars_func` not None, then `polars_func`
-    is called instead. Otherwise, arguments are coerced to Pandas and
-    `original_func` is called.
+    """Decorates `pandas_impl` to either (1) dynamically dispatches calls using
+    polars arguments to a supplied polars implementation or (2) coerces
+    arguments to Pandas and calls `pandas_impl`.
+
+    Calls without Polars arguments are dispatched to `pandas_impl` without any
+    coercion.
 
     If `recurse_type_checks` is True, then coercion and Polars/Pandas
     detection happens recursively, checking iterables and/or mappings.
-    """
 
-    def decorator(original_func: typing.Callable) -> typing.Callable:
-        @functools.wraps(original_func)
+    Raises
+    ------
+    TypeError
+        If mixing Pandas and Polars arguments is detected.
+    """
+    recurse = recurse_type_checks
+    coerce_to_pandas_ = functools.partial(coerce_to_pandas, recurse=recurse)
+    coerce_to_polars_ = functools.partial(coerce_to_polars, recurse=recurse)
+    detect_pandas_ = functools.partial(_detect_pandas, recurse=recurse)
+    detect_polars_ = functools.partial(_detect_polars, recurse=recurse)
+
+    def decorator(pandas_impl: typing.Callable) -> typing.Callable:
+        @functools.wraps(pandas_impl)
         def delegating_function(*args, **kwargs) -> typing.Any:
 
-            any_pandas, any_polars = (
-                any(
-                    func(arg, recurse_type_checks)
-                    for arg in itertools.chain(args, kwargs.values())
-                )
-                for func in (any_pandas_arg, any_polars_arg)
-            )
+            any_pandas = any(map(detect_pandas_, (*args, *kwargs.values())))
+            any_polars = any(map(detect_polars_, (*args, *kwargs.values())))
 
             if any_pandas and any_polars:
                 raise TypeError("mixing pandas and polars types is disallowed")
-            elif any_polars and polars_func is not None:
-                return polars_func(*args, **kwargs)
+            elif any_polars and polars_impl is not None:
+                return polars_impl(*args, **kwargs)
             else:
-                args = (
-                    *map(
-                        lambda x: coerce_to_pandas(
-                            x, recurse=recurse_type_checks
-                        ),
-                        args,
-                    ),
-                )
+                args = [*map(coerce_to_pandas_, args)]
                 kwargs = {
-                    kw: coerce_to_pandas(arg, recurse=recurse_type_checks)
-                    for kw, arg in kwargs.items()
+                    kw: coerce_to_pandas_(arg) for kw, arg in kwargs.items()
                 }
-                pandas_retval = original_func(*args, **kwargs)
+
+                pandas_retval = pandas_impl(*args, **kwargs)
+
                 if any_polars:
-                    return coerce_to_polars(
-                        pandas_retval, recurse=recurse_type_checks
-                    )
-                return pandas_retval
+                    return coerce_to_polars_(pandas_retval)
+                else:
+                    return pandas_retval
 
         if delegating_function.__doc__ is not None:
             delegating_function.__doc__ += (
                 "\n\nThis function also accepts a polars.DataFrame, for which "
-                f"there is {'not ' if polars_func is None else ''} a separate "
-                "delegated function."
+                f"there is {'not ' if polars_impl is None else ''} a separate "
+                "delegated implementation."
             )
 
         return delegating_function
