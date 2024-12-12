@@ -88,7 +88,8 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
     render_polars_snapshot(df, "packed", logging.info)
 
     # for simplicity, return early for this special case
-    if df.lazy().limit(1).collect().is_empty() == 0:
+    if df.lazy().limit(1).collect().is_empty():
+        logging.info("empty input dataframe, returning empty result")
         return pl.from_pandas(alifestd_make_empty())
 
     df = dstream_dataframe.unpack_data_packed(df)
