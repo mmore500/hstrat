@@ -33,7 +33,7 @@ def evolve_drift(population: typing.List) -> typing.List:
     selector = random.Random(1)  # ensure consistent true phylogeny
 
     # synchronous generations
-    for generation in tqdm(range(2000)):
+    for generation in tqdm(range(500)):
         population = [
             parent.CreateOffspring()
             for parent in selector.choices(population, k=len(population))
@@ -41,7 +41,7 @@ def evolve_drift(population: typing.List) -> typing.List:
 
     # asyncrhonous generations
     nsplit = len(population) // 2
-    for generation in tqdm(range(2000)):
+    for generation in tqdm(range(500)):
         population[:nsplit] = [
             parent.CreateOffspring()
             for parent in selector.choices(population[:nsplit], k=nsplit)
@@ -270,7 +270,7 @@ if __name__ == "__main__":
 
     # do simulation
     common_ancestor = Organism()
-    init_population = [common_ancestor.CreateOffspring() for _ in range(100)]
+    init_population = [common_ancestor.CreateOffspring() for _ in range(50)]
     end_population = evolve_drift(init_population)
 
     # mark non-tip taxa extinct
