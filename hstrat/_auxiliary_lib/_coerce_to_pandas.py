@@ -18,12 +18,11 @@ def coerce_to_pandas(obj: typing.Any, *, recurse: bool = False) -> typing.Any:
         return type(obj)(
             map(lambda x: coerce_to_pandas(x, recurse=recurse), obj)
         )
-    elif recurse and isinstance(obj, _supported_mappings):  # includes defaultdict etc
+    elif recurse and isinstance(
+        obj, _supported_mappings
+    ):  # includes defaultdict etc
         return type(obj)(
-            {
-                k: coerce_to_pandas(v, recurse=recurse)
-                for k, v in obj.items()
-            },
+            {k: coerce_to_pandas(v, recurse=recurse) for k, v in obj.items()},
         )
     else:
         return obj

@@ -79,7 +79,6 @@ def delegate_polars_implementation(
     """
 
     def decorator(original_func: typing.Callable) -> typing.Callable:
-
         @functools.wraps(original_func)
         def delegating_function(*args, **kwargs) -> typing.Any:
 

@@ -5,9 +5,9 @@ import numpy as np  # pragma: no cover
 import pandas as pd  # pragma: no cover
 
 from ..._auxiliary_lib import indices_of_unique  # pragma: no cover
-from ._compile_phylogeny_from_lineage_iters import (
+from ._compile_phylogeny_from_lineage_iters import (  # pragma: no cover
     compile_phylogeny_from_lineage_iters,
-)  # pragma: no cover
+)
 
 
 # @MAM 02-04-2023

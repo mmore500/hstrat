@@ -12,8 +12,8 @@ from ...._auxiliary_lib import (
     argsort,
 )
 from ._build_tree_searchtable_cpp_impl_stub import (
-    build_tree_searchtable_cpp_from_nested,
     build_tree_searchtable_cpp_from_exploded,
+    build_tree_searchtable_cpp_from_nested,
 )
 
 
