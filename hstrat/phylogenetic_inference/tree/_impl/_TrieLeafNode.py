@@ -4,7 +4,7 @@ import anytree
 
 from ...._auxiliary_lib import render_to_base64url
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # runtime False, but considered True by type checkers
     from ._TrieInnerNode import TrieInnerNode
 
 
