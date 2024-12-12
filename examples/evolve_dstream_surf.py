@@ -263,7 +263,7 @@ if __name__ == "__main__":
     syst = systematics.Systematics(lambda x: x.uid)  # each org is own taxon
     syst.add_snapshot_fun(systematics.Taxon.get_info, "taxon_label")
     Organism = make_Organism(
-        dstream_algo=dstream.tilted_algo,
+        dstream_algo=dstream.steady_algo,
         differentia_bitwidth=args.differentia_bitwidth,
         surface_size=args.surface_size,
         syst=syst,
@@ -271,7 +271,7 @@ if __name__ == "__main__":
 
     # do simulation
     common_ancestor = Organism()
-    init_population = [common_ancestor.CreateOffspring() for _ in range(50)]
+    init_population = [common_ancestor.CreateOffspring() for _ in range(100)]
     end_population = evolve_drift(init_population)
 
     # mark non-tip taxa extinct

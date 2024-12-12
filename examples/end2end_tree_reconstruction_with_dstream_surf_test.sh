@@ -22,26 +22,41 @@ from hstrat._auxiliary_lib import (
 import numpy as np
 import pandas as pd
 
+try:
+    import tqdist
+except (ImportError, ModuleNotFoundError) as e:
+    print("tqdist required for dstream surf evolution example")
+    print("python3 -m pip install tqdist")
+    raise e
 
-# adapted from https://github.com/mmore500/hstrat/blob/d23917cf03ba59061ff2f9b951efe79e995eb4d8/tests/test_hstrat/test_phylogenetic_inference/test_tree/_impl/_tree_unweighted_robinson_foulds_distance.py
-def tree_unweighted_robinson_foulds_distance(ref: object, cmp: object) -> float:
-    """Calculate the unweighted Robinson-Foulds distance between two trees."""
-    tree_ref = apc.RosettaTree(ref).as_dendropy
-    tree_cmp = apc.RosettaTree(cmp).as_dendropy
 
-    common_namespace = dp.TaxonNamespace()
-    tree_ref.migrate_taxon_namespace(common_namespace)
-    tree_cmp.migrate_taxon_namespace(common_namespace)
+# adapted from https://github.com/mmore500/hstrat/blob/d23917cf03ba59061ff2f9b951efe79e995eb4d8/tests/test_hstrat/test_phylogenetic_inference/test_tree/_impl/_tree_quartet_distance.py
+def calc_triplet_distance(ref: pd.DataFrame, cmp: pd.DataFrame) -> float:
+    """Calculate the triplet distance between two trees."""
+    tree_a = apc.RosettaTree(ref).as_dendropy
+    tree_b = apc.RosettaTree(cmp).as_dendropy
 
-    tree_ref.encode_bipartitions()
-    for bp in tree_ref.bipartition_encoding:
-        bp.is_mutable = False
-    tree_cmp.encode_bipartitions()
-    for bp in tree_cmp.bipartition_encoding:
-        bp.is_mutable = False
+    # must suppress root unifurcations or tqdist barfs
+    # see https://github.com/uym2/tripVote/issues/15
+    tree_a.unassign_taxa(exclude_leaves=True)
+    tree_a.suppress_unifurcations()
+    tree_b.unassign_taxa(exclude_leaves=True)
+    tree_b.suppress_unifurcations()
 
-    return dp.calculate.treecompare.unweighted_robinson_foulds_distance(
-        tree_ref, tree_cmp, is_bipartitions_updated=True
+    tree_a_taxon_labels = [
+        leaf.taxon.label for leaf in tree_a.leaf_node_iter()
+    ]
+    tree_b_taxon_labels = [
+        leaf.taxon.label for leaf in tree_b.leaf_node_iter()
+    ]
+    assert {*tree_a_taxon_labels} == {*tree_b_taxon_labels}
+    for taxon_label in tree_a_taxon_labels:
+        assert taxon_label
+        assert taxon_label.strip()
+
+    return tqdist.triplet_distance(
+        tree_a.as_string(schema="newick").removeprefix("[&R]").strip(),
+        tree_b.as_string(schema="newick").removeprefix("[&R]").strip(),
     )
 
 
@@ -134,9 +149,8 @@ def test_reconstruct_one(surface_size: int) -> float:
     )
 
     visualize_reconstruction(true_phylo_df, reconst_phylo_df)
-
-    reconstruction_error = tree_unweighted_robinson_foulds_distance(
-        true_phylo_df, reconst_phylo_df
+    reconstruction_error = calc_triplet_distance(
+        alifestd_collapse_unifurcations(true_phylo_df), reconst_phylo_df
     )
     print(f"{reconstruction_error=}")
     assert reconstruction_error < alifestd_count_leaf_nodes(true_phylo_df)
