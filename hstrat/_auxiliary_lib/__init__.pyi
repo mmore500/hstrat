@@ -216,6 +216,7 @@ from ._scale_luminosity import scale_luminosity
 from ._seed_random import seed_random
 from ._splicewhile import splicewhile
 from ._swap_rows_and_indices import swap_rows_and_indices
+from ._textwrap_respect_indents import textwrap_respect_indents
 from ._to_tril import to_tril
 from ._unfurl_lineage_with_contiguous_ids import (
     unfurl_lineage_with_contiguous_ids,
@@ -406,6 +407,7 @@ __all__ = [
     "SmartHelpFormatter",
     "splicewhile",
     "swap_rows_and_indices",
+    "textwrap_respect_indents",
     "to_tril",
     "unfurl_lineage_with_contiguous_ids",
     "unpairwise",
