@@ -10,16 +10,15 @@ def coerce_to_polars(obj: typing.Any, *, recurse: bool = False) -> typing.Any:
     """
     If a Pandas type is detected, coerce it to corresponding Polars type.
     """
-    if recurse:
-        if isinstance(obj, _supported_iterables):
-            return type(obj)(
-                map(lambda x: coerce_to_polars(x, recurse=recurse), obj)
-            )
-        elif isinstance(obj, _supported_mappings):
-            return {
-                k: coerce_to_polars(v, recurse=recurse) for k, v in obj.items()
-            }
-
     if isinstance(obj, (pd.Series, pd.DataFrame)):
         return pl.from_pandas(obj)
-    return obj
+    elif recurse and isinstance(obj, _supported_iterables):
+        return type(obj)(
+            map(lambda x: coerce_to_polars(x, recurse=recurse), obj)
+        )
+    elif recurse and isinstance(obj, _supported_mappings):
+        return {
+            k: coerce_to_polars(v, recurse=recurse) for k, v in obj.items()
+        }
+    else:
+        return obj
