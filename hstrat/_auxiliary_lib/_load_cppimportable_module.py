@@ -10,22 +10,23 @@ from ._is_in_unit_test import is_in_unit_test
 
 
 def _import_cppimport(module_name: str, package: str) -> types.ModuleType:
-    """Implementation detail for delegate_cppimport_module"""
+    """Implementation detail for load_cppimportable_module"""
     import cppimport
 
     return cppimport.imp(f"{package}.{module_name}")
 
 
 def _import_importlib(module_name: str, package: str) -> types.ModuleType:
-    """Implementation detail for delegate_cppimport_module"""
+    """Implementation detail for load_cppimportable_module"""
     return importlib.import_module(f".{module_name}", package=package)
 
 
-def delegate_cppimport_module(
+def load_cppimportable_module(
     module_name: str, package: str
 ) -> types.ModuleType:
-    r"""Imports module, delegating to cppimport if in unit test or requested
-    by environment variable HSTRAT_USE_CPPIMPORT.
+    r"""Imports module, prioritizing cppimport if in unit test or requested
+    by environment variable HSTRAT_USE_CPPIMPORT; otherwise, pre-existing
+    precompiled binaries are prioritized.
 
     Parameters
     ----------

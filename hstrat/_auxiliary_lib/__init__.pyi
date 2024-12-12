@@ -136,7 +136,6 @@ from ._count_trailing_zeros import count_trailing_zeros
 from ._count_unique import count_unique
 from ._curried_binary_search_jit import curried_binary_search_jit
 from ._deep_listify import deep_listify
-from ._delegate_cppimport_module import delegate_cppimport_module
 from ._delegate_polars_implementation import delegate_polars_implementation
 from ._demark import demark
 from ._div_range import div_range
@@ -187,6 +186,7 @@ from ._jit_numpy_int64_t import jit_numpy_int64_t
 from ._launder_impl_modules import launder_impl_modules
 from ._lazy_attach import lazy_attach
 from ._lazy_attach_stub import lazy_attach_stub
+from ._load_cppimportable_module import load_cppimportable_module
 from ._log_once_in_a_row import log_once_in_a_row
 from ._make_intersecting_subsets import make_intersecting_subsets
 from ._memoize_generator import memoize_generator
@@ -321,7 +321,6 @@ __all__ = [
     "count_trailing_zeros",
     "curried_binary_search_jit",
     "deep_listify",
-    "delegate_cppimport_module",
     "delegate_polars_implementation",
     "demark",
     "div_range",
@@ -370,6 +369,7 @@ __all__ = [
     "launder_impl_modules",
     "lazy_attach",
     "lazy_attach_stub",
+    "load_cppimportable_module",
     "log_once_in_a_row",
     "make_intersecting_subsets",
     "memoize_generator",

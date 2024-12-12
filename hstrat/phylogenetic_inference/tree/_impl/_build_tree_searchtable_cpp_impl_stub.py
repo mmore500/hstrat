@@ -1,6 +1,6 @@
-from ...._auxiliary_lib import delegate_cppimport_module, get_package_name
+from ...._auxiliary_lib import get_package_name, load_cppimportable_module
 
-_impl_mod = delegate_cppimport_module(
+_impl_mod = load_cppimportable_module(
     "_build_tree_searchtable_cpp_impl", get_package_name(__name__)
 )
 build_tree_searchtable_cpp_from_exploded = (
