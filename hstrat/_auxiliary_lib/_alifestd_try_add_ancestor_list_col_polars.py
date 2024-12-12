@@ -17,19 +17,16 @@ def alifestd_try_add_ancestor_list_col_polars(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
 
+    Notes
+    -----
+    Even allowed by `mutate` flag, no side effects occur on input dataframe
+    under Polars implementation. Flag is included for API compatibility with
+    Pandas implementation.
+
     See Also
     --------
     alifestd_make_ancestor_list_col
     """
-
-    if mutate:
-        raise NotImplementedError(
-            f"Passed kwarg {mutate=} to "
-            f"{alifestd_make_ancestor_list_col_polars.__name__} "
-            "which does not have side effects on polars DataFrames. "
-            "If mutation is required, use the pandas implementation."
-        )
-
     if "ancestor_id" in phylogeny_df and "ancestor_list" not in phylogeny_df:
         return phylogeny_df.with_columns(
             alifestd_make_ancestor_list_col_polars(
