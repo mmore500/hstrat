@@ -316,9 +316,10 @@ u64 place_allele(
 
 
 /**
- * A makeshift span over a pybind11::array_t using an
- * unchecked_reference. Only supports the indexing and
- * a .size() call.
+ * A simple iterator over a py::array_t. For more details,
+ * view py_array_span.
+ *
+ * @see py_array_span
  */
 template <typename T> struct py_array_span_iter {
   const py::detail::unchecked_reference<T, 1> &data_accessor;
@@ -350,6 +351,12 @@ template <typename T> struct py_array_span_iter {
 };
 
 
+/**
+ * A makeshift span over a pybind11::array_t using an
+ * unchecked_reference. Only supports the indexing and
+ * a .size() call. The unchecked_reference is used for
+ * performance reasons, avoiding index validation.
+ */
 template <typename T> struct py_array_span {
 
   const py::detail::unchecked_reference<T, 1> &data_accessor;
@@ -402,6 +409,12 @@ void insert_artifact(
 }
 
 
+/**
+ * Consumes the given sequence and uses its data to create
+ * a py::array_t without needing to do any copy operations.
+ *
+ * https://github.com/pybind/pybind11/issues/1042#issuecomment-2262727578
+ */
 template <typename Sequence>
 inline pybind11::array_t<typename Sequence::value_type> as_pyarray(
   Sequence &&seq
