@@ -4,10 +4,7 @@ from downstream import dataframe as dstream_dataframe
 import polars as pl
 import tqdm
 
-from .._auxiliary_lib import (
-    alifestd_make_empty,
-    render_polars_snapshot,
-)
+from .._auxiliary_lib import alifestd_make_empty, render_polars_snapshot
 from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
     build_tree_searchtable_cpp_from_exploded,
 )
