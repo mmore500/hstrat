@@ -18,6 +18,7 @@ from hstrat._auxiliary_lib import (
     alifestd_count_leaf_nodes,
     alifestd_prune_extinct_lineages_asexual,
     alifestd_try_add_ancestor_id_col,
+    alifestd_try_add_ancestor_list_col,
 )
 import numpy as np
 import pandas as pd
@@ -114,7 +115,9 @@ def sample_reference_and_reconstruction(
     vars = dict()
     exec(paths, vars)  # hack to load paths from shell script output
     true_phylo_df = load_df(vars["true_phylo_df_path"])
-    reconst_phylo_df = load_df(vars["reconst_phylo_df_path"])
+    reconst_phylo_df = alifestd_try_add_ancestor_list_col(
+        load_df(vars["reconst_phylo_df_path"]),
+    )  # ancestor_list column must be added to comply with alife standard
 
     assert (
         alifestd_count_leaf_nodes(true_phylo_df)

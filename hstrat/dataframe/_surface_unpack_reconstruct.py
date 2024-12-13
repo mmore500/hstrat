@@ -67,8 +67,6 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
             - Unique identifier for each taxon (RE alife standard format).
         - 'ancestor_id' : pl.UInt64
             - Unique identifier for ancestor taxon  (RE alife standard format).
-        - 'ancestor_list' : str
-            - List of ancestor taxon identifiers (RE alife standard format).
         - 'origin_tme' : pl.UInt64
             - Num generations elapsed for ancestral differentia.
             - RE alife standard format.
@@ -84,6 +82,9 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
 
         User-defined columns, except some prefixed with 'downstream_' or
         'dstream_', will be forwarded from the input DataFrame.
+
+        Note that the alife-standard `ancestor_list` column is not included in
+        the output.
     """
     render_polars_snapshot(df, "packed", logging.info)
 
@@ -121,9 +122,6 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
             "rank": pl.UInt64,
         },
     )
-
-    logging.info("adding ancestor list column...")
-    phylo_df = alifestd_try_add_ancestor_list_col(phylo_df)
 
     logging.info("joining frames...")
     df = df.select(
