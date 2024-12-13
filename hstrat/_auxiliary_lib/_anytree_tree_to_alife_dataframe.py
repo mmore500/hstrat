@@ -1,5 +1,5 @@
 # copied from https://github.com/mmore500/alifedata-phyloinformatics-convert/blob/9287db7c101604cf49df16617fb32a632122fbd9/alifedata_phyloinformatics_convert/anytree_tree_to_alife_dataframe.py
-# with recursive iterators swapped for iterative implementatins
+# with recursive iterators swapped for iterative implementations
 
 
 import anytree

@@ -13,7 +13,6 @@ from ._TrieInnerNode import TrieInnerNode
 def build_trie_from_artifacts(
     population: typing.Sequence[HereditaryStratigraphicArtifact],
     taxon_labels: typing.Optional[typing.Iterable],
-    force_common_ancestry: bool,
     progress_wrap: typing.Callable,
 ) -> TrieInnerNode:
     """Implementation detail for build_tree_trie_ensemble.

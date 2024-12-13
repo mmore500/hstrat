@@ -8,19 +8,20 @@ on:
       - '*'
   pull_request:
     branches:
-    - master
+    - '*'
   schedule:
     - cron: '0 0 * * 1'  # weekly
   workflow_dispatch:
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8, 3.9, "3.10", 3.11]
+        python-version: ["3.10", "3.11", "3.12"]
         subdivision:
           - "test_auxiliary_lib"
+          - "test_dataframe"
           - "test_frozen_instrumentation"
           - "test_genome_instrumentation"
           - "test_juxtaposition"
@@ -56,21 +57,42 @@ jobs:
         sudo sed -i 's/azure\.//' /etc/apt/sources.list
         sudo apt-get update -o Acquire::Retries=3
         sudo apt-get install -y ffmpeg -o Acquire::Retries=3
-        python -m pip install --upgrade pip
+        python -m pip install --upgrade pip setuptools
         pip install tox tox-gh-actions
     - name: Test with tox
       run: |
         export HSTRAT_TESTS_SUBDIVISION=${{ matrix.subdivision }}
         tox
 
-  examples:
-    runs-on: ubuntu-22.04
+  cli:
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python 3.9
+    - name: Set up Python 3.10
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9
+        python-version: "3.10"
+    - name: Install Python dependencies
+      uses: py-actions/py-dependency-install@v4
+      with:
+        path: "requirements-dev/requirements-testing.txt"
+    - name: Run examples
+      run: |
+        python3 -m hstrat
+        python3 -m hstrat.dataframe.surface_unpack_reconstruct --help
+
+  examples:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.10"
+    - name: Install Python dependencies
+      uses: py-actions/py-dependency-install@v4
+      with:
+        path: "requirements-dev/requirements-jit.txt"
     - name: Install Python dependencies
       uses: py-actions/py-dependency-install@v4
       with:
@@ -78,13 +100,24 @@ jobs:
     - name: Run examples
       run: ./examples/run_all.sh
 
+  build-script:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v1
+    - run: |
+        sudo sed -i 's/azure\.//' /etc/apt/sources.list
+        sudo apt-get update -o Acquire::Retries=3
+        sudo apt-get install -y python3-pybind11 -o Acquire::Retries=3
+    - run: ./build.sh
+
   coverage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         subdivision:
           - "test_auxiliary_lib"
+          - "test_dataframe"
           - "test_frozen_instrumentation"
           - "test_genome_instrumentation"
           - "test_juxtaposition"
@@ -110,17 +143,17 @@ jobs:
           - "test_test_drive"
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python 3.9
+    - name: Set up Python 3.10
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9
+        python-version: "3.10"
     - name: Install dependencies
       run: |
         sudo sed -i 's/azure\.//' /etc/apt/sources.list
         sudo apt-get update -o Acquire::Retries=3
         sudo apt-get install -y ffmpeg -o Acquire::Retries=3
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements-dev/py39/requirements-testing.txt
+        python -m pip install --upgrade pip setuptools
+        python -m pip install -r requirements-dev/py310/requirements-testing.txt
     - name: Log coverage configuration
       run: coverage debug sys
     - name: Run tests with coverage report
@@ -133,23 +166,23 @@ jobs:
         verbose: true # optional (default = false)
 
   tidy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Install apt dependencies
       run: sudo apt-get install -y rename
     - uses: actions/checkout@v1
-    - name: Set up Python 3.8
+    - name: Set up Python 3.10
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: "3.10"
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements-dev/py38/requirements-testing.txt
+        python -m pip install --upgrade pip setuptools
+        python -m pip install -r requirements-dev/py310/requirements-testing.txt
     - name: Test isort tidyness
       uses: jamescurtin/isort-action@master
       with:
-          requirementsFiles: "requirements-dev/py38/requirements-testing.txt"
+          requirementsFiles: "requirements-dev/py310/requirements-testing.txt"
     - name: Test Black tidyness
       uses: psf/black@27d20144a7517594e24a1649451177b2a11284be
       with:
@@ -161,7 +194,7 @@ jobs:
       run: ./tidy/test_tidy.sh
 
   paper:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -182,7 +215,7 @@ jobs:
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
   packaging-bdist:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -206,7 +239,7 @@ jobs:
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
   packaging-sdist:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -230,7 +263,7 @@ jobs:
 
   # regression test for https://github.com/mmore500/hstrat/commit/c276530
   packaging-source:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -244,8 +277,76 @@ jobs:
           cd
           python3 -c "import hstrat; print(hstrat.__version__)"
 
+  deploy-ghcr:
+    name: Docker Image Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set Tags
+        id: set_tags
+        run: |
+          if [[ "${GITHUB_REF_NAME}" != *merge ]]; then
+            echo "TAGS=latest,${GITHUB_REF_NAME}" >> $GITHUB_ENV
+          else
+            echo "TAGS=latest" >> $GITHUB_ENV
+          fi
+      - name: Build and Push to GitHub Container Registry
+        uses: docker/build-push-action@v1
+        with:
+          push: ${{ github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v') }}
+          tags: ${{ env.TAGS }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          repository: mmore500/hstrat
+          registry: ghcr.io
+          add_git_labels: true
+
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest, macos-14]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+      - name: Set up Ubuntu Dependecies
+        if: matrix.os == 'ubuntu-24.04'
+        run: |
+          sudo sed -i 's/azure\.//' /etc/apt/sources.list
+          sudo apt-get update -o Acquire::Retries=3
+          sudo apt-get install -y python3.12-dev python3-dev python3-pybind11 -o Acquire::Retries=3
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.21.3
+        env:
+          CIBW_TEST_COMMAND: python3 -m hstrat.dataframe.surface_unpack_reconstruct --help
+          CIBW_TEST_SKIP: "*313-* pp* *win* *i686* *musllinux*"
+          CIBW_SKIP: "*-win32"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+      - name: Build sdist
+        run: pipx run build --sdist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-sdist
+          path: dist/*.tar.gz
+
   deploy-test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python 3.10
@@ -275,7 +376,11 @@ jobs:
   deploy:
     if: startsWith(github.ref, 'refs/tags/v')
     needs:
+      - build_sdist
+      - build_wheels
+      - build-script
       - coverage
+      - cli
       - deploy-test
       - examples
       - packaging-bdist
@@ -283,7 +388,7 @@ jobs:
       - packaging-source
       - test
       - tidy
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python 3.10
@@ -292,9 +397,15 @@ jobs:
         python-version: "3.10"
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
+        python -m pip install --upgrade pip setuptools
         python -m pip install -r requirements-dev/py310/requirements-release.txt
-    - run: python setup.py sdist bdist_wheel
+    - uses: actions/download-artifact@v4
+      with:
+        # unpacks default artifact into dist/
+        # if `name: artifact` is omitted, the action will create extra parent dir
+        pattern: cibw-*
+        path: dist
+        merge-multiple: true
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@release/v1
       with:

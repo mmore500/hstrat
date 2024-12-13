@@ -263,7 +263,6 @@ def test_unzip_fuzz(
     root = impl.build_trie_from_artifacts(
         extant_population,
         taxon_labels=None,
-        force_common_ancestry=False,
         progress_wrap=lambda x: x,
     )
 

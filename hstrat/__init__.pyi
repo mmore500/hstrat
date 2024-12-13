@@ -1,5 +1,6 @@
 from . import (
     _auxiliary_lib,
+    dataframe,
     frozen_instrumentation,
     genome_instrumentation,
     juxtaposition,
@@ -12,6 +13,7 @@ from . import (
 
 __all__ = [
     "_auxiliary_lib",
+    "dataframe",
     "frozen_instrumentation",
     "genome_instrumentation",
     "juxtaposition",

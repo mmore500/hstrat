@@ -23,8 +23,8 @@ def alifestd_unfurl_lineage_asexual(
     )
     if alifestd_has_contiguous_ids(phylogeny_df):
         return unfurl_lineage_with_contiguous_ids(
-            phylogeny_df["ancestor_id"].to_numpy(),
-            leaf_id,
+            phylogeny_df["ancestor_id"].to_numpy(dtype=np.uint64),
+            int(leaf_id),
         )
     else:
         ancestor_lookup = dict(

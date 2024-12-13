@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # note: temporarily disabled because failing on gh actions build as "cancelled"
 
 import gzip
@@ -26,7 +26,7 @@ if __name__ == "__main__":
         pop[target] = random.choice(pop).CloneDescendant()
 
     print(
-        "export population of hereditary stragitraphic columns "
+        "export population of hereditary stratigraphic columns "
         "to pandas dataframe"
     )
     print(hstrat.pop_to_dataframe(pop))

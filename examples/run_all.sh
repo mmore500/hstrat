@@ -12,3 +12,9 @@ for example in *.py; do
   echo "running example ${example}"
   python3 "${example}"
 done
+
+GLOBIGNORE="$(basename "$0")";
+for example in *.sh; do
+  echo "running example ${example}"
+  bash "${example}"
+done

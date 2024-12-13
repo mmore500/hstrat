@@ -48,9 +48,16 @@ class HereditaryStratigraphicSpecimen:
         self._stratum_differentia_bit_width = stratum_differentia_bit_width
 
         assert self._data.index.dtype in (
+            "int8",
+            "uint8",
+            "int16",
+            "uint16",
+            "int32",
+            "uint32",
             "int64",
             "uint64",
         )
+        self._data.index.astype(np.uint64, copy=False)
 
     def GetStratumDifferentiaBitWidth(
         self: "HereditaryStratigraphicSpecimen",
@@ -67,6 +74,12 @@ class HereditaryStratigraphicSpecimen:
         initialization.
         """
         assert self._data.index.dtype in (
+            "int8",
+            "uint8",
+            "int16",
+            "uint16",
+            "int32",
+            "uint32",
             "int64",
             "uint64",
         )
@@ -131,7 +144,7 @@ class HereditaryStratigraphicSpecimen:
         made. Changes to the returned array will propagate to the Series
         object's underlying values, and vice versa.
         """
-        return self._data.array.to_numpy()
+        return self._data.array.to_numpy(copy=False)
 
     def GetRankIndex(
         self: "HereditaryStratigraphicSpecimen",
@@ -145,7 +158,7 @@ class HereditaryStratigraphicSpecimen:
             A numpy array containing ranks of differentia entries, including
             null entries for differentia that are not retained.
         """
-        return self._data.index.array.to_numpy()
+        return self._data.index.array.to_numpy(copy=False, dtype=np.uint64)
 
     def GetRankAtColumnIndex(
         self: "HereditaryStratigraphicSpecimen",

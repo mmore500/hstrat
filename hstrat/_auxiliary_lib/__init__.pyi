@@ -28,6 +28,9 @@ from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
 from ._alifestd_convert_root_ancestor_token import (
     alifestd_convert_root_ancestor_token,
 )
+from ._alifestd_count_children_of_asexual import (
+    alifestd_count_children_of_asexual,
+)
 from ._alifestd_count_inner_nodes import alifestd_count_inner_nodes
 from ._alifestd_count_leaf_nodes import alifestd_count_leaf_nodes
 from ._alifestd_count_polytomies import alifestd_count_polytomies
@@ -90,6 +93,9 @@ from ._alifestd_sum_origin_time_deltas_asexual import (
 from ._alifestd_to_working_format import alifestd_to_working_format
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_try_add_ancestor_list_col import (
+    alifestd_try_add_ancestor_list_col,
+)
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
 from ._alifestd_validate import alifestd_validate
 from ._all_same import all_same
@@ -120,16 +126,22 @@ from ._cast_int_lossless import cast_int_lossless
 from ._check_testing_requirements import check_testing_requirements
 from ._cmp import cmp
 from ._cmp_approx import cmp_approx
+from ._coerce_to_pandas import coerce_to_pandas
+from ._coerce_to_polars import coerce_to_polars
+from ._collapse_nonleading_whitespace import collapse_nonleading_whitespace
 from ._consume import consume
 from ._coshuffled import coshuffled
+from ._count_leading_blanks import count_leading_blanks
 from ._count_trailing_ones import count_trailing_ones
 from ._count_trailing_zeros import count_trailing_zeros
 from ._count_unique import count_unique
 from ._curried_binary_search_jit import curried_binary_search_jit
 from ._deep_listify import deep_listify
+from ._delegate_polars_implementation import delegate_polars_implementation
 from ._demark import demark
 from ._div_range import div_range
 from ._estimate_binomial_p import estimate_binomial_p
+from ._except_wrap_sentinel import except_wrap_sentinel
 from ._find_bounds import find_bounds
 from ._flag_last import flag_last
 from ._flat_len import flat_len
@@ -138,6 +150,7 @@ from ._generate_omission_subsets import generate_omission_subsets
 from ._get_hstrat_version import get_hstrat_version
 from ._get_nullable_mask import get_nullable_mask
 from ._get_nullable_vals import get_nullable_vals
+from ._get_package_name import get_package_name
 from ._give_len import give_len
 from ._indices_of_unique import indices_of_unique
 from ._intersect_ranges import intersect_ranges
@@ -171,9 +184,13 @@ from ._jit_numba_integer_array_ts import (
 )
 from ._jit_numpy_bool_t import jit_numpy_bool_t
 from ._jit_numpy_int64_t import jit_numpy_int64_t
+from ._join_paragraphs_from_one_sentence_per_line import (
+    join_paragraphs_from_one_sentence_per_line,
+)
 from ._launder_impl_modules import launder_impl_modules
 from ._lazy_attach import lazy_attach
 from ._lazy_attach_stub import lazy_attach_stub
+from ._load_cppimportable_module import load_cppimportable_module
 from ._log_once_in_a_row import log_once_in_a_row
 from ._make_intersecting_subsets import make_intersecting_subsets
 from ._memoize_generator import memoize_generator
@@ -189,6 +206,7 @@ from ._raises import raises
 from ._random_choice_generator import random_choice_generator
 from ._random_tree import random_tree
 from ._release_cur_mpl_fig import release_cur_mpl_fig
+from ._render_polars_snapshot import render_polars_snapshot
 from ._render_to_base64url import render_to_base64url
 from ._render_to_numeral_system import render_to_numeral_system
 from ._reversed_enumerate import reversed_enumerate
@@ -197,12 +215,14 @@ from ._scale_luminosity import scale_luminosity
 from ._seed_random import seed_random
 from ._splicewhile import splicewhile
 from ._swap_rows_and_indices import swap_rows_and_indices
+from ._textwrap_respect_indents import textwrap_respect_indents
 from ._to_tril import to_tril
 from ._unfurl_lineage_with_contiguous_ids import (
     unfurl_lineage_with_contiguous_ids,
 )
 from ._unpairwise import unpairwise
 from ._unzip import unzip
+from ._warn_once import warn_once
 from ._with_omission import with_omission
 from ._with_rng_state_context import with_rng_state_context
 from ._zip_strict import zip_strict
@@ -217,6 +237,7 @@ __all__ = [
     "alifestd_coerce_chronological_consistency",
     "alifestd_collapse_unifurcations",
     "alifestd_calc_polytomic_index",
+    "alifestd_count_children_of_asexual",
     "alifestd_count_inner_nodes",
     "alifestd_count_leaf_nodes",
     "alifestd_count_root_nodes",
@@ -260,6 +281,7 @@ __all__ = [
     "alifestd_to_working_format",
     "alifestd_topological_sort",
     "alifestd_try_add_ancestor_id_col",
+    "alifestd_try_add_ancestor_list_col",
     "alifestd_unfurl_lineage_asexual",
     "alifestd_validate",
     "all_same",
@@ -294,27 +316,34 @@ __all__ = [
     "check_testing_requirements",
     "cmp",
     "cmp_approx",
+    "coerce_to_pandas",
+    "coerce_to_polars",
+    "collapse_nonleading_whitespace",
     "consume",
     "CopyableSeriesItemsIter",
     "count_unique",
     "coshuffled",
+    "count_leading_blanks",
     "count_trailing_ones",
     "count_trailing_zeros",
     "curried_binary_search_jit",
     "deep_listify",
+    "delegate_polars_implementation",
     "demark",
     "div_range",
     "estimate_binomial_p",
+    "except_wrap_sentinel",
     "find_bounds",
+    "flag_last",
     "flat_len",
     "generate_n",
     "generate_omission_subsets",
     "get_hstrat_version",
     "get_nullable_mask",
     "get_nullable_vals",
+    "get_package_name",
     "GetAttrLaunderShim",
     "give_len",
-    "flag_last",
     "HereditaryStratigraphicArtifact",
     "indices_of_unique",
     "intersect_ranges",
@@ -344,9 +373,11 @@ __all__ = [
     "jit_numpy_bool_t",
     "jit_numpy_int64_t",
     "jit_TypingError",
+    "join_paragraphs_from_one_sentence_per_line",
     "launder_impl_modules",
     "lazy_attach",
     "lazy_attach_stub",
+    "load_cppimportable_module",
     "log_once_in_a_row",
     "make_intersecting_subsets",
     "memoize_generator",
@@ -361,6 +392,7 @@ __all__ = [
     "RecursionLimit",
     "raises",
     "release_cur_mpl_fig",
+    "render_polars_snapshot",
     "random_choice_generator",
     "random_tree",
     "render_to_base64url",
@@ -373,10 +405,12 @@ __all__ = [
     "seed_random",
     "splicewhile",
     "swap_rows_and_indices",
+    "textwrap_respect_indents",
     "to_tril",
     "unfurl_lineage_with_contiguous_ids",
     "unpairwise",
     "unzip",
+    "warn_once",
     "with_omission",
     "with_rng_state_context",
     "zip_strict",
