@@ -127,8 +127,8 @@ struct children_sentinel {};
 class children_iterator {
 
   std::reference_wrapper<const Records> records;
-  u64 done;
   u64 current;
+  u64 done;
 
 public:
   using value_type = u64;
@@ -154,12 +154,10 @@ public:
   void operator++(int) { ++(*this); }
 
   friend bool operator==(const children_iterator &it, children_sentinel) {
-    const auto& records = it.records.get();
     return it.done;
   }
 
   friend bool operator==(children_sentinel, const children_iterator &it) {
-    const auto& records = it.records.get();
     return it.done;
   }
 };
