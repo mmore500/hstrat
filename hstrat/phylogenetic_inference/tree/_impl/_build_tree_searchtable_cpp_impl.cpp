@@ -122,6 +122,65 @@ public:
 
 };
 
+struct children_sentinel {};
+
+class children_iterator {
+
+  std::reference_wrapper<const Records> records;
+  u64 done;
+  u64 current;
+
+public:
+  using value_type = u64;
+  using difference_type = std::ptrdiff_t;
+  using iterator_category = std::input_iterator_tag;
+  using iterator_concept  = std::input_iterator_tag;
+
+  children_iterator(const Records& records, u64 parent)
+  : records(records)
+  , current(records.search_first_child_id[parent])
+  , done(false)
+  { }
+
+  u64 operator*() const { return current; }
+
+  children_iterator& operator++() {
+    const auto& records = this->records.get();
+    done = current == records.search_next_sibling_id[current];
+    current = records.search_next_sibling_id[current];
+    return *this;
+  }
+
+  void operator++(int) { ++(*this); }
+
+  friend bool operator==(const children_iterator &it, children_sentinel) {
+    const auto& records = it.records.get();
+    return it.done;
+  }
+
+  friend bool operator==(children_sentinel, const children_iterator &it) {
+    const auto& records = it.records.get();
+    return it.done;
+  }
+};
+
+// The view type that can be used with standard ranges
+struct children_view : public std::ranges::view_interface<children_view> {
+    children_view(const Records &records, const u64 parent)
+      : records(records), parent(parent) {}
+
+    children_iterator begin() { return children_iterator{records, parent}; }
+    children_sentinel end() { return {}; }
+
+private:
+    std::reference_wrapper<const Records> records;
+    u64 parent;
+};
+
+static_assert(std::input_iterator<children_iterator>);
+static_assert(std::sentinel_for<children_sentinel, children_iterator>);
+static_assert(std::ranges::range<children_view>);
+static_assert(std::ranges::input_range<children_view>);
 
 /**
  * Removes `node` from the children of its parent. See the
@@ -194,30 +253,75 @@ struct TupleHash {
  * @see consolidate_trie
  */
 void collapse_indistinguishable_nodes(Records &records, const u64 node) {
-  std::unordered_map<std::tuple<u64, u64>, std::vector<u64>, TupleHash> groups;
-  ChildrenIterator gen(records, node);
-  u64 child;
-  while ((child = gen.next())) {  // consider what we are using as the key here
-    std::vector<u64> &items = groups[
-      {records.rank[child], records.differentia[child]}
-    ];
-    items.insert(std::lower_bound(items.begin(), items.end(), child), child);
-  }
-  for (auto [_, children] : groups) {
-    u64 winner = children[0];
-    for (u64 i = 1; i < children.size(); ++i) {
-      u64 loser = children[i], loser_child;
+  // extract all grandchildren
+  struct item_t {
 
-      std::vector<u64> loser_children;
-      ChildrenIterator loser_children_gen(records, loser);
-      while ((loser_child = loser_children_gen.next())) {
-        loser_children.push_back(loser_child);
-      }
-      for (const u64 loser_child : loser_children) {
-        detach_search_parent(records, loser_child);
-        attach_search_parent(records, loser_child, winner);
-      }
-      detach_search_parent(records, loser);
+    u64 rank;
+    u64 differentia;
+    u64 child;
+    u64 gchild;
+
+    bool operator<(const item_t &other) const {
+      return std::tie(rank, differentia, child)
+        < std::tie(other.rank, other.differentia, other.child);
+    }
+
+  };
+  thread_local std::vector<item_t> grandchildren;
+  grandchildren.resize(0);
+  std::ranges::for_each(
+    children_view{records, node},
+    [&records](const u64 child) {
+      std::ranges::transform(
+        children_view{records, child},
+        std::back_inserter(grandchildren),
+        [&records, child](const u64 gchild) {
+          return item_t{
+            records.rank[child],
+            records.differentia[child],
+            child,
+            gchild
+          };
+        }
+      );
+    }
+  );
+  std::sort(std::begin(grandchildren), std::end(grandchildren));
+
+  // group by rank and differentia
+  u64 group_end;
+  const auto num_gchild = static_cast<u64>(grandchildren.size());
+  for (u64 group_begin = 0; group_begin < num_gchild; group_begin = group_end) {
+    u64 win_end;
+    for (win_end = group_begin; win_end < num_gchild; ++win_end) {
+      const auto& g1 = grandchildren[group_begin];
+      const auto& g2 = grandchildren[win_end];
+      if (
+        std::tie(g1.rank, g1.differentia, g1.child)
+        != std::tie(g2.rank, g2.differentia, g2.child)
+      ) break;
+    }
+
+    for (group_end = win_end; group_end < num_gchild; ++group_end) {
+      const auto& g1 = grandchildren[group_begin];
+      const auto& g2 = grandchildren[group_end];
+      if (
+        std::tie(g1.rank, g1.differentia) != std::tie(g2.rank, g2.differentia)
+      ) break;
+    }
+
+    for (u64 i = win_end; i < group_end; ++i) {
+      assert(i);
+
+      const auto winner = grandchildren[group_begin].child;
+      const auto loser_child = grandchildren[i].gchild;
+      detach_search_parent(records, loser_child);
+      attach_search_parent(records, loser_child, winner);
+
+      const auto loser = grandchildren[i].child;
+      const auto prev_loser = grandchildren[i - 1].child;
+      if (loser != prev_loser) { detach_search_parent(records, loser); }
+
     }
   }
 }
