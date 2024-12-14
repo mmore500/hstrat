@@ -256,17 +256,20 @@ void collapse_indistinguishable_nodes(Records &records, const u64 node) {
   // extract all grandchildren
   struct item_t {
 
-    u64 rank;
-    u64 differentia;
     u64 child;
     u64 gchild;
 
-    bool operator<(const item_t &other) const {
-      return std::tie(rank, differentia, child)
-        < std::tie(other.rank, other.differentia, other.child);
-    }
-
   };
+  const auto child = [&records](const item_t &item) {
+    return item.child;
+  };
+  const auto rank = [&records, &child](const item_t &item) {
+    return records.rank[child(item)];
+  };
+  const auto differentia = [&records, &child](const item_t &item) {
+    return records.differentia[child(item)];
+  };
+
   thread_local std::vector<item_t> grandchildren;
   grandchildren.resize(0);
   std::ranges::for_each(
@@ -277,8 +280,6 @@ void collapse_indistinguishable_nodes(Records &records, const u64 node) {
         std::back_inserter(grandchildren),
         [&records, child](const u64 gchild) {
           return item_t{
-            records.rank[child],
-            records.differentia[child],
             child,
             gchild
           };
@@ -286,7 +287,10 @@ void collapse_indistinguishable_nodes(Records &records, const u64 node) {
       );
     }
   );
-  std::sort(std::begin(grandchildren), std::end(grandchildren));
+  std::sort(std::begin(grandchildren), std::end(grandchildren), [&rank, &differentia, &child](const auto &a, const auto &b) {
+    return std::tuple{rank(a), differentia(a), child(a)}
+      < std::tuple{rank(b), differentia(b), child(b)};
+  });
 
   // group by rank and differentia
   u64 group_end;
@@ -297,8 +301,8 @@ void collapse_indistinguishable_nodes(Records &records, const u64 node) {
       const auto& g1 = grandchildren[group_begin];
       const auto& g2 = grandchildren[win_end];
       if (
-        std::tie(g1.rank, g1.differentia, g1.child)
-        != std::tie(g2.rank, g2.differentia, g2.child)
+        std::tuple{rank(g1), differentia(g1), child(g1)}
+        != std::tuple{rank(g2), differentia(g2), child(g2)}
       ) break;
     }
 
@@ -306,20 +310,21 @@ void collapse_indistinguishable_nodes(Records &records, const u64 node) {
       const auto& g1 = grandchildren[group_begin];
       const auto& g2 = grandchildren[group_end];
       if (
-        std::tie(g1.rank, g1.differentia) != std::tie(g2.rank, g2.differentia)
+        std::tuple{rank(g1), differentia(g1)}
+        != std::tuple{rank(g2), differentia(g2)}
       ) break;
     }
 
     for (u64 i = win_end; i < group_end; ++i) {
       assert(i);
 
-      const auto winner = grandchildren[group_begin].child;
+      const auto winner = child(grandchildren[group_begin]);
       const auto loser_child = grandchildren[i].gchild;
       detach_search_parent(records, loser_child);
       attach_search_parent(records, loser_child, winner);
 
-      const auto loser = grandchildren[i].child;
-      const auto prev_loser = grandchildren[i - 1].child;
+      const auto loser = child(grandchildren[i]);
+      const auto prev_loser = child(grandchildren[i - 1]);
       if (loser != prev_loser) { detach_search_parent(records, loser); }
 
     }
