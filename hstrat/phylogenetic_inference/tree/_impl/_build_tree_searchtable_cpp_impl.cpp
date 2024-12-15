@@ -262,16 +262,16 @@ struct TupleHash {
 template<size_t max_differentia>
 void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
   std::array<u64, max_differentia + 1> winners{};
-  thread_local std::vector<std::tuple<u64, u64>> losers;
-  losers.clear();
+  thread_local std::vector<std::tuple<u64, u64>> losers_with_differentiae;
+  losers_with_differentiae.clear();
 
   for (auto child : ChildrenView(records, node)) {
     const u64 differentia = records.differentia[child];
     auto& winner = winners[differentia];
     if (winner == 0 || child < winner) { std::swap(winner, child); }
-    if (child) losers.push_back({child, differentia});
+    if (child) losers_with_differentiae.push_back({child, differentia});
   }
-  for (const auto& [loser, differentia] : losers) {
+  for (const auto& [loser, differentia] : losers_with_differentiae) {
     const u64 winner = winners[differentia];
 
     thread_local std::vector<u64> loser_children;
