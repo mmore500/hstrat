@@ -202,7 +202,7 @@ void detach_search_parent(Records &records, const u64 node) {
   const bool is_last_child = next_sibling == node;
 
   if (records.search_first_child_id[parent] == node) {
-    const auto child_id = is_last_child ? parent : next_sibling;
+    const u64 child_id = is_last_child ? parent : next_sibling;
     records.search_first_child_id[parent] = child_id;
   } else {
     // removes from the linked list of children
@@ -239,11 +239,12 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
 
   const u64 ancestor_first_child = records.search_first_child_id[parent];
   const bool is_first_child = ancestor_first_child == parent;
-  const auto sibling_id = is_first_child ? node : ancestor_first_child;
+  const u64 sibling_id = is_first_child ? node : ancestor_first_child;
   records.search_next_sibling_id[node] = sibling_id;
   records.search_first_child_id[parent] = node;
 
 }
+
 
 struct TupleHash {
   u64 operator()(const std::tuple<u64, u64> &obj) const {
