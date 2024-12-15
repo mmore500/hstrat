@@ -183,7 +183,6 @@ private:
   std::reference_wrapper<const Records> records;
   u64 parent;
 };
-static_assert(std::input_iterator<ChildrenIterator>);
 static_assert(std::sentinel_for<ChildrenSentinel, ChildrenIterator>);
 static_assert(std::ranges::range<ChildrenView>);
 static_assert(std::ranges::input_range<ChildrenView>);
