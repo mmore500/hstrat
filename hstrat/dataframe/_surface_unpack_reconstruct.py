@@ -127,7 +127,7 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
     joined_columns = set(df.columns) - set(phylo_df.columns)
     if joined_columns:
         logging.info(f" - {len(joined_columns)} column to join")
-        logging.info(f" - joined columns: {[*joined_columns]}")
+        logging.info(f" - joining columns: {[*joined_columns]}")
         phylo_df = phylo_df.join(df, on="dstream_data_id", how="left")
     else:
         logging.info(" - no columns to join, skipping")
