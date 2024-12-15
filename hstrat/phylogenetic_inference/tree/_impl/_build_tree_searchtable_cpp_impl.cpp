@@ -91,21 +91,21 @@ struct Records {
 /**
  * A makeshift iterator for children, called like this:
  *
- *   ChildrenIterator iter(records, node);
+ *   ChildrenGenerator iter(records, node);
  *   while ((child = iter.next())) {
  *     ...
  *   }
  *
  * Returns a value of 0 when there is no more children.
  */
-class ChildrenIterator {
+class ChildrenGenerator {
 private:
   const Records &records;
   u64 prev;
   const u64 node;
 
 public:
-  ChildrenIterator(
+  ChildrenGenerator(
     const Records &records, const u64 node
   ) : records(records), prev(0), node(node) {}
 
@@ -128,15 +128,15 @@ public:
 
 
 /**
- * A sentinel type for the children_view range.
+ * A sentinel type for the ChildrenView range.
  */
-struct children_sentinel {};
+struct ChildrenSentinel {};
 
 
 /**
  * STL-compatible iterator for children of a node.
  */
-class children_iterator {
+class ChildrenIterator {
   std::reference_wrapper<const Records> records;
   u64 current;
 public:
@@ -144,7 +144,7 @@ public:
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::input_iterator_tag;
   using iterator_concept = std::input_iterator_tag;
-  children_iterator(const Records& records, u64 parent)
+  ChildrenIterator(const Records& records, u64 parent)
   : records(records)
   , current(
     records.search_first_child_id[parent] == parent
@@ -153,17 +153,17 @@ public:
   )
   { }
   u64 operator*() const { return current; }
-  children_iterator& operator++() {
+  ChildrenIterator& operator++() {
     const auto& records = this->records.get();
     const auto next = records.search_next_sibling_id[current];
     current = (next == current) ? 0 : next;
     return *this;
   }
   void operator++(int) { ++(*this); }
-  friend bool operator==(const children_iterator &it, children_sentinel) {
+  friend bool operator==(const ChildrenIterator &it, ChildrenSentinel) {
     return it.current == 0;
   }
-  friend bool operator==(children_sentinel, const children_iterator &it) {
+  friend bool operator==(ChildrenSentinel, const ChildrenIterator &it) {
     return it.current == 0;
   }
 };
@@ -172,21 +172,21 @@ public:
 /**
  * A STL-compatible range view over the children of a node.
  */
-struct children_view : public std::ranges::view_interface<children_view> {
-  children_view(const Records &records, const u64 parent)
+struct ChildrenView : public std::ranges::view_interface<ChildrenView> {
+  ChildrenView(const Records &records, const u64 parent)
     : records(records), parent(parent) {}
-  children_iterator begin() const {
-    return children_iterator{records, parent};
+  ChildrenIterator begin() const {
+    return ChildrenIterator{records, parent};
   }
-  children_sentinel end() const { return {}; }
+  ChildrenSentinel end() const { return {}; }
 private:
   std::reference_wrapper<const Records> records;
   u64 parent;
 };
-static_assert(std::input_iterator<children_iterator>);
-static_assert(std::sentinel_for<children_sentinel, children_iterator>);
-static_assert(std::ranges::range<children_view>);
-static_assert(std::ranges::input_range<children_view>);
+static_assert(std::input_iterator<ChildrenIterator>);
+static_assert(std::sentinel_for<ChildrenSentinel, ChildrenIterator>);
+static_assert(std::ranges::range<ChildrenView>);
+static_assert(std::ranges::input_range<ChildrenView>);
 
 
 /**
@@ -206,7 +206,7 @@ void detach_search_parent(Records &records, const u64 node) {
     records.search_first_child_id[parent] = child_id;
   } else {
     // removes from the linked list of children
-    const auto children_range = children_view(records, parent);
+    const auto children_range = ChildrenView(records, parent);
     const auto sibling = std::ranges::find_if(
       children_range,
       [node, &records](const u64 child) {
@@ -265,7 +265,7 @@ void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
   thread_local std::vector<std::tuple<u64, u64>> losers;
   losers.clear();
 
-  for (auto child : children_view(records, node)) {
+  for (auto child : ChildrenView(records, node)) {
     const u64 differentia = records.differentia[child];
     auto& winner = winners[differentia];
     if (winner == 0 || child < winner) { std::swap(winner, child); }
@@ -277,7 +277,7 @@ void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
     thread_local std::vector<u64> loser_children;
     loser_children.clear();
     std::ranges::copy(
-      children_view(records, loser), std::back_inserter(loser_children)
+      ChildrenView(records, loser), std::back_inserter(loser_children)
     );
     for (const u64 loser_child : loser_children) {
       detach_search_parent(records, loser_child);
@@ -293,7 +293,7 @@ void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
  */
 void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
   std::unordered_map<u64, std::vector<u64>> groups;
-  ChildrenIterator gen(records, node);
+  ChildrenGenerator gen(records, node);
   u64 child;
   while ((child = gen.next())) {  // consider what we are using as the key here
     std::vector<u64> &items = groups[records.differentia[child]];
@@ -306,7 +306,7 @@ void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
 
       thread_local std::vector<u64> loser_children;
       loser_children.clear();
-      ChildrenIterator loser_children_gen(records, loser);
+      ChildrenGenerator loser_children_gen(records, loser);
       while ((loser_child = loser_children_gen.next())) {
         loser_children.push_back(loser_child);
       }
@@ -379,7 +379,7 @@ void collapse_indistinguishable_nodes(Records & records, const u64 node) {
  * @see collapse_indistinguishable_nodes
  */
 void consolidate_trie(Records &records, const u64 &rank, const u64 node) {
-  const auto children_range = children_view(records, node);
+  const auto children_range = ChildrenView(records, node);
   if (
     children_range.begin() == children_range.end()
     || records.rank[*children_range.begin()] == rank
@@ -397,7 +397,7 @@ void consolidate_trie(Records &records, const u64 &rank, const u64 node) {
 
     thread_local std::vector<u64> grandchildren;
     grandchildren.clear();
-    const auto grandchildren_range = children_view(records, popped_node);
+    const auto grandchildren_range = ChildrenView(records, popped_node);
     std::ranges::copy(grandchildren_range, std::back_inserter(grandchildren));
 
     for (const u64 grandchild : grandchildren) {
@@ -443,7 +443,7 @@ u64 place_allele(
   const u64 rank,
   const u64 differentia
 ) {
-  const auto range = children_view(records, cur_node);
+  const auto range = ChildrenView(records, cur_node);
   const auto match = std::ranges::find_if(
     range,
     [rank, differentia, &records](const u64 child){
