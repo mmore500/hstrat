@@ -10,6 +10,22 @@ from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub i
 )
 
 
+def _get_sole_bitwidth(df: pl.DataFrame) -> int:
+    """Get dstream bitwidth value from DataFrame, ensuring it is unique."""
+    assert not df.lazy().collect().is_empty()
+    if (
+        not df.lazy()
+        .filter(pl.col("dstream_value_bitwidth").diff() != pl.lit(0))
+        .limit(1)
+        .collect()
+        .is_empty()
+    ):
+        raise NotImplementedError(
+            "multiple differentia_bitwidths not yet supported",
+        )
+    return df["dstream_value_bitwidth"].first()
+
+
 def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
     """Unpack dstream buffer and counter from genome data and construct an
     estimated phylogenetic tree for the genomes.
@@ -133,15 +149,9 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         logging.info(" - no columns to join, skipping")
 
     logging.info("adding differentia_bitwidth column...")
-    bitwidths = (
-        long_df.lazy().select("dstream_value_bitwidth").unique().limit(2)
-    ).collect()
-    if len(bitwidths) > 1:
-        raise NotImplementedError(
-            "multiple differentia_bitwidths not yet supported",
-        )
+    bitwidth = _get_sole_bitwidth(long_df)
     phylo_df = phylo_df.with_columns(
-        pl.lit(bitwidths.item()).alias("differentia_bitwidth").cast(pl.UInt32),
+        pl.lit(bitwidth).alias("differentia_bitwidth").cast(pl.UInt32),
     )
 
     logging.info("surface_unpack_reconstruct complete")
