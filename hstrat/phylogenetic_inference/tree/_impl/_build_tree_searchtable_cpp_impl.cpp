@@ -1,12 +1,14 @@
 // cppimport
 
 #include <algorithm>
+#include <bit>
 #include <cassert>
 #include <limits>
 #include <optional>
 #include <ranges>
 #include <span>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include <pybind11/numpy.h>
@@ -45,6 +47,7 @@ struct Records {
   std::vector<u64> ancestor_id;
   std::vector<u64> differentia;
   std::vector<u64> rank;
+  u64 max_differentia = 0;
 
   Records(const u64 init_size) {
     this->dstream_data_id.reserve(init_size);
@@ -77,6 +80,7 @@ struct Records {
     this->ancestor_id.push_back(ancestor_id);
     this->differentia.push_back(differentia);
     this->rank.push_back(rank);
+    max_differentia = std::max(max_differentia, differentia);
   }
 
   u64 size() const { return this->dstream_data_id.size(); }
@@ -122,63 +126,68 @@ public:
 
 };
 
+
+/**
+ * A sentinel type for the children_view range.
+ */
 struct children_sentinel {};
 
-class children_iterator {
 
+/**
+ * STL-compatible iterator for children of a node.
+ */
+class children_iterator {
   std::reference_wrapper<const Records> records;
   u64 current;
-  u64 done;
-
 public:
   using value_type = u64;
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::input_iterator_tag;
-  using iterator_concept  = std::input_iterator_tag;
-
+  using iterator_concept = std::input_iterator_tag;
   children_iterator(const Records& records, u64 parent)
   : records(records)
-  , current(records.search_first_child_id[parent])
-  , done(false)
+  , current(
+    records.search_first_child_id[parent] == parent
+    ? 0
+    : records.search_first_child_id[parent]
+  )
   { }
-
   u64 operator*() const { return current; }
-
   children_iterator& operator++() {
     const auto& records = this->records.get();
-    done = current == records.search_next_sibling_id[current];
-    current = records.search_next_sibling_id[current];
+    const auto next = records.search_next_sibling_id[current];
+    current = (next == current) ? 0 : next;
     return *this;
   }
-
   void operator++(int) { ++(*this); }
-
   friend bool operator==(const children_iterator &it, children_sentinel) {
-    return it.done;
+    return it.current == 0;
   }
-
   friend bool operator==(children_sentinel, const children_iterator &it) {
-    return it.done;
+    return it.current == 0;
   }
 };
 
-// The view type that can be used with standard ranges
+
+/**
+ * A STL-compatible range view over the children of a node.
+ */
 struct children_view : public std::ranges::view_interface<children_view> {
-    children_view(const Records &records, const u64 parent)
-      : records(records), parent(parent) {}
-
-    children_iterator begin() { return children_iterator{records, parent}; }
-    children_sentinel end() { return {}; }
-
+  children_view(const Records &records, const u64 parent)
+    : records(records), parent(parent) {}
+  children_iterator begin() const {
+    return children_iterator{records, parent};
+  }
+  children_sentinel end() const { return {}; }
 private:
-    std::reference_wrapper<const Records> records;
-    u64 parent;
+  std::reference_wrapper<const Records> records;
+  u64 parent;
 };
-
 static_assert(std::input_iterator<children_iterator>);
 static_assert(std::sentinel_for<children_sentinel, children_iterator>);
 static_assert(std::ranges::range<children_view>);
 static_assert(std::ranges::input_range<children_view>);
+
 
 /**
  * Removes `node` from the children of its parent. See the
@@ -243,89 +252,115 @@ struct TupleHash {
 
 
 /**
+ * Implementation of collapse_indistinguishable_nodes optimized for small
+ * differentia sizes (e.g., a byte or less).
+ *
+ * @see consolidate_trie
+ */
+template<size_t max_differentia>
+void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
+  std::array<u64, max_differentia + 1> winners{};
+  thread_local std::vector<std::tuple<u64, u64>> losers;
+  losers.clear();
+
+  for (auto child : children_view(records, node)) {
+    const u64 differentia = records.differentia[child];
+    auto& winner = winners[differentia];
+    if (winner == 0 || child < winner) { std::swap(winner, child); }
+    if (child) losers.push_back({child, differentia});
+  }
+  for (const auto& [loser, differentia] : losers) {
+    const u64 winner = winners[differentia];
+
+    thread_local std::vector<u64> loser_children;
+    loser_children.clear();
+    std::ranges::copy(
+      children_view(records, loser), std::back_inserter(loser_children)
+    );
+    for (const u64 loser_child : loser_children) {
+      detach_search_parent(records, loser_child);
+      attach_search_parent(records, loser_child, winner);
+    }
+    detach_search_parent(records, loser);
+  }
+}
+
+/**
+ * Implementation of collapse_indistinguishable_nodes optimized for large
+ * differentia sizes (e.g., larger than a byte).
+ */
+void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
+  std::unordered_map<u64, std::vector<u64>> groups;
+  ChildrenIterator gen(records, node);
+  u64 child;
+  while ((child = gen.next())) {  // consider what we are using as the key here
+    std::vector<u64> &items = groups[records.differentia[child]];
+    items.insert(std::lower_bound(items.begin(), items.end(), child), child);
+  }
+  for (auto [_, children] : groups) {
+    u64 winner = children[0];
+    for (u64 i = 1; i < children.size(); ++i) {
+      u64 loser = children[i], loser_child;
+
+      thread_local std::vector<u64> loser_children;
+      loser_children.clear();
+      ChildrenIterator loser_children_gen(records, loser);
+      while ((loser_child = loser_children_gen.next())) {
+        loser_children.push_back(loser_child);
+      }
+      for (const u64 loser_child : loser_children) {
+        detach_search_parent(records, loser_child);
+        attach_search_parent(records, loser_child, winner);
+      }
+      detach_search_parent(records, loser);
+    }
+  }
+}
+
+
+/**
+ * Returns the number of bits in the binary representation
+ * of `x`. This is used to determine which collapse function
+ * to use.
+ *
+ * Adapted from https://stackoverflow.com/a/74374791/17332200
+ */
+int bit_length(const u64 x) { return (8*sizeof x) - std::countl_zero(x); }
+
+
+/**
  * When consolidating a trie (see below), it may be the
  * case that a parent has duplicate children. This function
  * detects duplicates, chooses a winning duplicate, and
  * attaches all of the losers' children to the winner.
  *
+ * Dispatches to implementation functions based on the differentia size, as
+ * determined by the max_differentia field of the records.
+ *
  * @see consolidate_trie
+ *
  */
-void collapse_indistinguishable_nodes(Records &records, const u64 node) {
-  // extract all grandchildren
-  struct item_t {
-
-    u64 child;
-    u64 gchild;
-
-  };
-  const auto child = [&records](const item_t &item) {
-    return item.child;
-  };
-  const auto rank = [&records, &child](const item_t &item) {
-    return records.rank[child(item)];
-  };
-  const auto differentia = [&records, &child](const item_t &item) {
-    return records.differentia[child(item)];
-  };
-
-  thread_local std::vector<item_t> grandchildren;
-  grandchildren.resize(0);
-  std::ranges::for_each(
-    children_view{records, node},
-    [&records](const u64 child) {
-      std::ranges::transform(
-        children_view{records, child},
-        std::back_inserter(grandchildren),
-        [&records, child](const u64 gchild) {
-          return item_t{
-            child,
-            gchild
-          };
-        }
-      );
-    }
-  );
-  std::sort(std::begin(grandchildren), std::end(grandchildren), [&rank, &differentia, &child](const auto &a, const auto &b) {
-    return std::tuple{rank(a), differentia(a), child(a)}
-      < std::tuple{rank(b), differentia(b), child(b)};
-  });
-
-  // group by rank and differentia
-  u64 group_end;
-  const auto num_gchild = static_cast<u64>(grandchildren.size());
-  for (u64 group_begin = 0; group_begin < num_gchild; group_begin = group_end) {
-    u64 win_end;
-    for (win_end = group_begin; win_end < num_gchild; ++win_end) {
-      const auto& g1 = grandchildren[group_begin];
-      const auto& g2 = grandchildren[win_end];
-      if (
-        std::tuple{rank(g1), differentia(g1), child(g1)}
-        != std::tuple{rank(g2), differentia(g2), child(g2)}
-      ) break;
-    }
-
-    for (group_end = win_end; group_end < num_gchild; ++group_end) {
-      const auto& g1 = grandchildren[group_begin];
-      const auto& g2 = grandchildren[group_end];
-      if (
-        std::tuple{rank(g1), differentia(g1)}
-        != std::tuple{rank(g2), differentia(g2)}
-      ) break;
-    }
-
-    for (u64 i = win_end; i < group_end; ++i) {
-      assert(i);
-
-      const auto winner = child(grandchildren[group_begin]);
-      const auto loser_child = grandchildren[i].gchild;
-      detach_search_parent(records, loser_child);
-      attach_search_parent(records, loser_child, winner);
-
-      const auto loser = child(grandchildren[i]);
-      const auto prev_loser = child(grandchildren[i - 1]);
-      if (loser != prev_loser) { detach_search_parent(records, loser); }
-
-    }
+void collapse_indistinguishable_nodes(Records & records, const u64 node) {
+  switch (bit_length(records.max_differentia)) {
+    case 0:
+    case 1:  // single-bit case
+      collapse_indistinguishable_nodes_small<1>(records, node);
+      break;
+    case 2:  // two-bit case
+      collapse_indistinguishable_nodes_small<2>(records, node);
+      break;
+    case 3:
+    case 4:  // four-bit (hex value) case
+      collapse_indistinguishable_nodes_small<4>(records, node);
+      break;
+    case 5:
+    case 6:
+    case 7:
+    case 8:  // eight-bit (byte value) case
+      collapse_indistinguishable_nodes_small<8>(records, node);
+      break;
+    default:  // larger than a byte
+      collapse_indistinguishable_nodes_large(records, node);
   }
 }
 
