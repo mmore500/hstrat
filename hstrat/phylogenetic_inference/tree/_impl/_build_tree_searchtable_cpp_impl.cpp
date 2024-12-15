@@ -128,6 +128,15 @@ public:
 
 
 /**
+ * A more permissive declval.
+*/
+template<class T> T& permissive_declval() {
+  std::abort();
+  return *static_cast<T*>(nullptr);
+}
+
+
+/**
  * A sentinel type for the ChildrenView range.
  */
 struct ChildrenSentinel {};
@@ -144,6 +153,11 @@ public:
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::input_iterator_tag;
   using iterator_concept = std::input_iterator_tag;
+
+  // some compilers require iterators to be default-constructible...
+  // this should never actually be used
+  ChildrenIterator() : records(permissive_declval<Records>()) { }
+
   ChildrenIterator(const Records& records, u64 parent)
   : records(records)
   , current(
