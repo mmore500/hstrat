@@ -200,14 +200,14 @@ void detach_search_parent(Records &records, const u64 node) {
     records.search_first_child_id[parent] = child_id;
   } else {
     // removes from the linked list of children
+    const auto children_range = ChildrenView(records, parent);
     const auto sibling = std::ranges::find_if(
-      ChildrenIterator(records, parent),
-      ChildrenSentinel{},
+      children_range,
       [node, &records](const u64 child) {
         return records.search_next_sibling_id[child] == node;
       }
     );
-    if (sibling != ChildrenSentinel{}) {
+    if (sibling != children_range.end()) {
       const u64 sibling_id = is_last_child ? *sibling : next_sibling;
       records.search_next_sibling_id[*sibling] = sibling_id;
     }
@@ -264,9 +264,7 @@ void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
     thread_local std::vector<u64> loser_children;
     loser_children.clear();
     std::ranges::copy(
-      ChildrenIterator(records, loser),
-      ChildrenSentinel{},
-      std::back_inserter(loser_children)
+      ChildrenView(records, loser), std::back_inserter(loser_children)
     );
     for (const u64 loser_child : loser_children) {
       detach_search_parent(records, loser_child);
@@ -369,19 +367,15 @@ void collapse_indistinguishable_nodes(Records & records, const u64 node) {
  * @see collapse_indistinguishable_nodes
  */
 void consolidate_trie(Records &records, const u64 &rank, const u64 node) {
-  const auto children_begin = ChildrenIterator(records, node);
+  const auto children_range = ChildrenView(records, node);
   if (
-    children_begin == ChildrenSentinel{}
-    || records.rank[*children_begin] == rank
+    children_range.begin() == children_range.end()
+    || records.rank[*children_range.begin()] == rank
   ) return;
 
   thread_local std::vector<u64> node_stack;
   node_stack.clear();
-  std::ranges::copy(
-    children_begin,
-    ChildrenSentinel{},
-    std::back_inserter(node_stack)
-  );
+  std::ranges::copy(children_range, std::back_inserter(node_stack));
 
   // drop children and attach grandchildren
   while (!node_stack.empty()) {
@@ -391,11 +385,8 @@ void consolidate_trie(Records &records, const u64 &rank, const u64 node) {
 
     thread_local std::vector<u64> grandchildren;
     grandchildren.clear();
-    std::ranges::copy(
-      ChildrenIterator(records, popped_node),
-      ChildrenSentinel{},
-      std::back_inserter(grandchildren)
-    );
+    const auto grandchildren_range = ChildrenView(records, popped_node);
+    std::ranges::copy(grandchildren_range, std::back_inserter(grandchildren));
 
     for (const u64 grandchild : grandchildren) {
       if (records.rank[grandchild] >= rank) {
@@ -440,9 +431,9 @@ u64 place_allele(
   const u64 rank,
   const u64 differentia
 ) {
+  const auto range = ChildrenView(records, cur_node);
   const auto match = std::ranges::find_if(
-    ChildrenIterator(records, cur_node),
-    ChildrenSentinel{},
+    range,
     [rank, differentia, &records](const u64 child){
       return (
         rank == records.rank[child]
@@ -450,7 +441,7 @@ u64 place_allele(
       );
     }
   );
-  if (match != ChildrenSentinel{}) {
+  if (match != range.end()) {
     return *match;
   } else {
     const u64 dummy_data_id{u64_max};
