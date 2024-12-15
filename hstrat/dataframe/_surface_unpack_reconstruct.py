@@ -122,7 +122,10 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         tqdm.tqdm,
     )
 
-    logging.info("finalizing tree...")
+    bitwidth = _get_sole_bitwidth(long_df)
+    del long_df
+
+    logging.info("finalizing phylogeny dataframe...")
 
     phylo_df = pl.from_dict(
         records,  # type: ignore
@@ -134,8 +137,12 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
             "rank": pl.UInt64,
         },
     )
+    del records
+    phylo_df = phylo_df.with_columns(
+        pl.lit(bitwidth).alias("differentia_bitwidth").cast(pl.UInt32),
+    )
 
-    logging.info("joining frames...")
+    logging.info("joining user-defined columns...")
     df = df.select(
         pl.exclude("^dstream_.*$", "^downstream_.*$"),
         pl.col("dstream_data_id").cast(pl.UInt64),
@@ -147,12 +154,6 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         phylo_df = phylo_df.join(df, on="dstream_data_id", how="left")
     else:
         logging.info(" - no columns to join, skipping")
-
-    logging.info("adding differentia_bitwidth column...")
-    bitwidth = _get_sole_bitwidth(long_df)
-    phylo_df = phylo_df.with_columns(
-        pl.lit(bitwidth).alias("differentia_bitwidth").cast(pl.UInt32),
-    )
 
     logging.info("surface_unpack_reconstruct complete")
     render_polars_snapshot(phylo_df, "reconstruction", logging.info)
