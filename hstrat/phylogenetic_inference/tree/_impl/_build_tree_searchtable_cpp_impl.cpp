@@ -267,8 +267,7 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
 template<size_t max_differentia>
 void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
   std::array<u64, max_differentia + 1> winners{};
-  thread_local std::vector<std::tuple<u64, u64>> losers_with_differentiae;
-  losers_with_differentiae.clear();
+  std::vector<std::tuple<u64, u64>> losers_with_differentiae;
 
   for (auto child : ChildrenView(records, node)) {
     const u64 differentia = records.differentia[child];
@@ -279,8 +278,7 @@ void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
   for (const auto& [loser, differentia] : losers_with_differentiae) {
     const u64 winner = winners[differentia];
 
-    thread_local std::vector<u64> loser_children;
-    loser_children.clear();
+    std::vector<u64> loser_children;
     std::ranges::copy(
       ChildrenView(records, loser), std::back_inserter(loser_children)
     );
@@ -309,8 +307,7 @@ void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
     for (u64 i = 1; i < children.size(); ++i) {
       const u64 loser = children[i];
 
-      thread_local std::vector<u64> loser_children;
-      loser_children.clear();
+      std::vector<u64> loser_children;
       ChildrenGenerator loser_children_gen(records, loser);
       u64 loser_child;
       while ((loser_child = loser_children_gen.next())) {
@@ -391,8 +388,7 @@ void consolidate_trie(Records &records, const u64 &rank, const u64 node) {
     || records.rank[*children_range.begin()] == rank
   ) return;
 
-  thread_local std::vector<u64> node_stack;
-  node_stack.clear();
+  std::vector<u64> node_stack;
   std::ranges::copy(children_range, std::back_inserter(node_stack));
 
   // drop children and attach grandchildren
@@ -401,8 +397,7 @@ void consolidate_trie(Records &records, const u64 &rank, const u64 node) {
     node_stack.pop_back();
     detach_search_parent(records, popped_node);
 
-    thread_local std::vector<u64> grandchildren;
-    grandchildren.clear();
+    std::vector<u64> grandchildren;
     const auto grandchildren_range = ChildrenView(records, popped_node);
     std::ranges::copy(grandchildren_range, std::back_inserter(grandchildren));
 
