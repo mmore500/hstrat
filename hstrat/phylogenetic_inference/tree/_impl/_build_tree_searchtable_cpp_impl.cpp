@@ -246,13 +246,6 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
 }
 
 
-struct TupleHash {
-  u64 operator()(const std::tuple<u64, u64> &obj) const {
-    return std::get<0>(obj) ^ std::get<1>(obj);
-  }
-};
-
-
 /**
  * Implementation of collapse_indistinguishable_nodes optimized for small
  * differentia sizes (e.g., a byte or less).
