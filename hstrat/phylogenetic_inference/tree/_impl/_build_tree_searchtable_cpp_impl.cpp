@@ -300,13 +300,14 @@ void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
     items.insert(std::lower_bound(items.begin(), items.end(), child), child);
   }
   for (auto [_, children] : groups) {
-    u64 winner = children[0];
+    const u64 winner = children[0];
     for (u64 i = 1; i < children.size(); ++i) {
-      u64 loser = children[i], loser_child;
+      const u64 loser = children[i];
 
       thread_local std::vector<u64> loser_children;
       loser_children.clear();
       ChildrenGenerator loser_children_gen(records, loser);
+      u64 loser_child;
       while ((loser_child = loser_children_gen.next())) {
         loser_children.push_back(loser_child);
       }
