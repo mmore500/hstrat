@@ -175,9 +175,7 @@ public:
 struct ChildrenView : public std::ranges::view_interface<ChildrenView> {
   ChildrenView(const Records &records, const u64 parent)
     : records(records), parent(parent) {}
-  ChildrenIterator begin() const {
-    return ChildrenIterator{records, parent};
-  }
+  ChildrenIterator begin() const { return ChildrenIterator{records, parent}; }
   ChildrenSentinel end() const { return {}; }
 private:
   std::reference_wrapper<const Records> records;
