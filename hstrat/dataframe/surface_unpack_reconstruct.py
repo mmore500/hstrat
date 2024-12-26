@@ -8,6 +8,7 @@ from .._auxiliary_lib import (
     collapse_nonleading_whitespace,
     get_hstrat_version,
     join_paragraphs_from_one_sentence_per_line,
+    log_context_duration,
     textwrap_respect_indents,
 )
 from ._surface_unpack_reconstruct import surface_unpack_reconstruct
@@ -141,7 +142,10 @@ if __name__ == "__main__":
         dfcli_module="hstrat.dataframe.surface_unpack_reconstruct",
         dfcli_version=get_hstrat_version(),
     )
-    _run_dataframe_cli(
-        base_parser=parser,
-        output_dataframe_op=surface_unpack_reconstruct,
-    )
+    with log_context_duration(
+        "end-to-end surface_unpack_reconstruct", logging.info
+    ):
+        _run_dataframe_cli(
+            base_parser=parser,
+            output_dataframe_op=surface_unpack_reconstruct,
+        )

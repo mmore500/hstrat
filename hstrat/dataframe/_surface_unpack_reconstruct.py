@@ -4,7 +4,11 @@ from downstream import dataframe as dstream_dataframe
 import polars as pl
 import tqdm
 
-from .._auxiliary_lib import alifestd_make_empty, render_polars_snapshot
+from .._auxiliary_lib import (
+    alifestd_make_empty,
+    log_context_duration,
+    render_polars_snapshot,
+)
 from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
     build_tree_searchtable_cpp_from_exploded,
 )
@@ -105,22 +109,25 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         logging.info("empty input dataframe, returning empty result")
         return pl.from_pandas(alifestd_make_empty())
 
-    df = dstream_dataframe.unpack_data_packed(df)
+    with log_context_duration("unpack genome strings", logging.info):
+        df = dstream_dataframe.unpack_data_packed(df)
     render_polars_snapshot(df, "unpacked", logging.info)
 
-    long_df = dstream_dataframe.explode_lookup_unpacked(
-        df, value_type="uint64"
-    )
+    with log_context_duration("explode dstream records", logging.info):
+        long_df = dstream_dataframe.explode_lookup_unpacked(
+            df, value_type="uint64"
+        )
     render_polars_snapshot(long_df, "exploded", logging.info)
 
     logging.info("building tree...")
-    records = build_tree_searchtable_cpp_from_exploded(
-        long_df["dstream_data_id"].to_numpy(),
-        long_df["dstream_T"].to_numpy(),
-        long_df["dstream_Tbar"].to_numpy(),
-        long_df["dstream_value"].to_numpy(),
-        tqdm.tqdm,
-    )
+    with log_context_duration("build tree", logging.info):
+        records = build_tree_searchtable_cpp_from_exploded(
+            long_df["dstream_data_id"].to_numpy(),
+            long_df["dstream_T"].to_numpy(),
+            long_df["dstream_Tbar"].to_numpy(),
+            long_df["dstream_value"].to_numpy(),
+            tqdm.tqdm,
+        )
 
     bitwidth = _get_sole_bitwidth(long_df)
     del long_df
@@ -143,17 +150,18 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
     )
 
     logging.info("joining user-defined columns...")
-    df = df.select(
-        pl.exclude("^dstream_.*$", "^downstream_.*$"),
-        pl.col("dstream_data_id").cast(pl.UInt64),
-    )
-    joined_columns = set(df.columns) - set(phylo_df.columns)
-    if joined_columns:
-        logging.info(f" - {len(joined_columns)} column to join")
-        logging.info(f" - joining columns: {[*joined_columns]}")
-        phylo_df = phylo_df.join(df, on="dstream_data_id", how="left")
-    else:
-        logging.info(" - no columns to join, skipping")
+    with log_context_duration("join user-defined columns", logging.info):
+        df = df.select(
+            pl.exclude("^dstream_.*$", "^downstream_.*$"),
+            pl.col("dstream_data_id").cast(pl.UInt64),
+        )
+        joined_columns = set(df.columns) - set(phylo_df.columns)
+        if joined_columns:
+            logging.info(f" - {len(joined_columns)} column to join")
+            logging.info(f" - joining columns: {[*joined_columns]}")
+            phylo_df = phylo_df.join(df, on="dstream_data_id", how="left")
+        else:
+            logging.info(" - no columns to join, skipping")
 
     logging.info("surface_unpack_reconstruct complete")
     render_polars_snapshot(phylo_df, "reconstruction", logging.info)
