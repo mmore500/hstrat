@@ -191,6 +191,7 @@ from ._launder_impl_modules import launder_impl_modules
 from ._lazy_attach import lazy_attach
 from ._lazy_attach_stub import lazy_attach_stub
 from ._load_cppimportable_module import load_cppimportable_module
+from ._log_context_duration import log_context_duration
 from ._log_once_in_a_row import log_once_in_a_row
 from ._make_intersecting_subsets import make_intersecting_subsets
 from ._memoize_generator import memoize_generator
@@ -378,6 +379,7 @@ __all__ = [
     "lazy_attach",
     "lazy_attach_stub",
     "load_cppimportable_module",
+    "log_context_duration",
     "log_once_in_a_row",
     "make_intersecting_subsets",
     "memoize_generator",
