@@ -41,7 +41,7 @@ def _build_records_chunked(
     num_slices = math.ceil(len(df) / exploded_slice_size)
     logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
 
-    init_size = len(df) * df["dstream_S"].first()
+    init_size = len(df) * 4
     records = Records(init_size)
     for i, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
         logging.info(f"incorporating slice {i}/{num_slices}...")
@@ -159,7 +159,7 @@ def surface_unpack_reconstruct(
         dstream_value_bitwidth=(
             pl.col("dstream_storage_bitwidth") // pl.col("dstream_S")
         ),
-    )
+    ).select(pl.all().shrink_dtype())
     differentia_bitwidth = _get_sole_bitwidth(df)
     logging.info(f" - differentia bitwidth: {differentia_bitwidth}")
 
@@ -178,14 +178,14 @@ def surface_unpack_reconstruct(
     phylo_df = pl.from_dict(
         records_dict,  # type: ignore
         schema={
-            "dstream_data_id": pl.UInt64,
-            "id": pl.UInt64,
-            "ancestor_id": pl.UInt64,
-            "differentia": pl.UInt64,
-            "rank": pl.UInt64,
+            "dstream_data_id": pl.UInt32,
+            "id": pl.UInt32,
+            "ancestor_id": pl.UInt32,
+            "differentia": pl.UInt32,
+            "rank": pl.UInt32,
         },
     )
-    del records
+    del records, records_dict
     phylo_df = phylo_df.with_columns(
         pl.lit(differentia_bitwidth)
         .alias("differentia_bitwidth")
@@ -196,7 +196,7 @@ def surface_unpack_reconstruct(
     with log_context_duration("join user-defined columns", logging.info):
         df = df.select(
             pl.exclude("^dstream_.*$", "^downstream_.*$"),
-            pl.col("dstream_data_id").cast(pl.UInt64),
+            pl.col("dstream_data_id").cast(pl.UInt32),
         )
         joined_columns = set(df.columns) - set(phylo_df.columns)
         if joined_columns:

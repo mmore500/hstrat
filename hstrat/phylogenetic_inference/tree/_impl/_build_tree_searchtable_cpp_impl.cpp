@@ -18,8 +18,8 @@
 using namespace pybind11::literals;
 namespace py = pybind11;
 
-typedef uint64_t u64;
-constexpr u64 u64_max = std::numeric_limits<int32_t>::max();
+typedef uint32_t uint;
+constexpr uint uint_max = std::numeric_limits<uint>::max();
 
 /**
  *  An object that holds all the information for building a
@@ -40,17 +40,17 @@ constexpr u64 u64_max = std::numeric_limits<int32_t>::max();
  *  @see extend_trie_searchtable_exploded
  */
 struct Records {
-  std::vector<u64> dstream_data_id;
-  std::vector<u64> id;
-  std::vector<u64> search_first_child_id;
-  std::vector<u64> search_next_sibling_id;
-  std::vector<u64> search_ancestor_id;
-  std::vector<u64> ancestor_id;
-  std::vector<u64> differentia;
-  std::vector<u64> rank;
-  u64 max_differentia = 0;
+  std::vector<uint> dstream_data_id;
+  std::vector<uint> id;
+  std::vector<uint> search_first_child_id;
+  std::vector<uint> search_next_sibling_id;
+  std::vector<uint> search_ancestor_id;
+  std::vector<uint> ancestor_id;
+  std::vector<uint64_t> differentia;
+  std::vector<uint> rank;
+  uint64_t max_differentia = 0;
 
-  Records(const u64 init_size) {
+  Records(const uint init_size) {
     this->dstream_data_id.reserve(init_size);
     this->id.reserve(init_size);
     this->search_first_child_id.reserve(init_size);
@@ -60,7 +60,7 @@ struct Records {
     this->differentia.reserve(init_size);
     this->rank.reserve(init_size);
 
-    this->addRecord(u64_max, 0, 0, 0, 0, 0, 0, 0); // root node
+    this->addRecord(uint_max, 0, 0, 0, 0, 0, 0, 0); // root node
   }
 
   /** Move constructor. */
@@ -77,14 +77,14 @@ struct Records {
   }
 
   void addRecord(
-    const u64 data_id,
-    const u64 id,
-    const u64 ancestor_id,
-    const u64 search_ancestor_id,
-    const u64 search_first_child_id,
-    const u64 search_next_sibling_id,
-    const u64 rank,
-    const u64 differentia
+    const uint data_id,
+    const uint id,
+    const uint ancestor_id,
+    const uint search_ancestor_id,
+    const uint search_first_child_id,
+    const uint search_next_sibling_id,
+    const uint rank,
+    const uint64_t differentia
   ) {
     this->dstream_data_id.push_back(data_id);
     this->id.push_back(id);
@@ -97,7 +97,7 @@ struct Records {
     max_differentia = std::max(max_differentia, differentia);
   }
 
-  u64 size() const { return this->dstream_data_id.size(); }
+  uint size() const { return this->dstream_data_id.size(); }
 
 };
 
@@ -115,16 +115,16 @@ struct Records {
 class ChildrenGenerator {
 private:
   const Records &records;
-  u64 prev;
-  const u64 node;
+  uint prev;
+  const uint node;
 
 public:
   ChildrenGenerator(
-    const Records &records, const u64 node
+    const Records &records, const uint node
   ) : records(records), prev(0), node(node) {}
 
-  u64 next() {
-    u64 cur;
+  uint next() {
+    uint cur;
     if (!this->prev) {
       this->prev = this->node;
       cur = this->records.search_first_child_id[this->node];
@@ -161,9 +161,9 @@ struct ChildrenSentinel {};
  */
 class ChildrenIterator {
   std::reference_wrapper<const Records> records;
-  u64 current;
+  uint current;
 public:
-  using value_type = u64;
+  using value_type = uint;
   using difference_type = std::ptrdiff_t;
   using iterator_category = std::input_iterator_tag;
   using iterator_concept = std::input_iterator_tag;
@@ -172,7 +172,7 @@ public:
   // this should never actually be used
   ChildrenIterator() : records(permissive_declval<Records>()) { }
 
-  ChildrenIterator(const Records& records, u64 parent)
+  ChildrenIterator(const Records& records, uint parent)
   : records(records)
   , current(
     records.search_first_child_id[parent] == parent
@@ -180,7 +180,7 @@ public:
     : records.search_first_child_id[parent]
   )
   { }
-  u64 operator*() const { return current; }
+  uint operator*() const { return current; }
   ChildrenIterator& operator++() {
     const auto& records = this->records.get();
     const auto next = records.search_next_sibling_id[current];
@@ -201,13 +201,13 @@ public:
  * A STL-compatible range view over the children of a node.
  */
 struct ChildrenView : public std::ranges::view_interface<ChildrenView> {
-  ChildrenView(const Records &records, const u64 parent)
+  ChildrenView(const Records &records, const uint parent)
     : records(records), parent(parent) {}
   ChildrenIterator begin() const { return ChildrenIterator{records, parent}; }
   ChildrenSentinel end() const { return {}; }
 private:
   std::reference_wrapper<const Records> records;
-  u64 parent;
+  uint parent;
 };
 static_assert(std::input_iterator<ChildrenIterator>);
 static_assert(std::sentinel_for<ChildrenSentinel, ChildrenIterator>);
@@ -222,25 +222,25 @@ static_assert(std::ranges::input_range<ChildrenView>);
  * @see attach_search_parent
  * @see Records
  */
-void detach_search_parent(Records &records, const u64 node) {
-  const u64 parent = records.search_ancestor_id[node];
-  const u64 next_sibling = records.search_next_sibling_id[node];
+void detach_search_parent(Records &records, const uint node) {
+  const uint parent = records.search_ancestor_id[node];
+  const uint next_sibling = records.search_next_sibling_id[node];
   const bool is_last_child = next_sibling == node;
 
   if (records.search_first_child_id[parent] == node) {
-    const u64 child_id = is_last_child ? parent : next_sibling;
+    const uint child_id = is_last_child ? parent : next_sibling;
     records.search_first_child_id[parent] = child_id;
   } else {
     // removes from the linked list of children
     const auto children_range = ChildrenView(records, parent);
     const auto sibling = std::ranges::find_if(
       children_range,
-      [node, &records](const u64 child) {
+      [node, &records](const uint child) {
         return records.search_next_sibling_id[child] == node;
       }
     );
     if (sibling != children_range.end()) {
-      const u64 sibling_id = is_last_child ? *sibling : next_sibling;
+      const uint sibling_id = is_last_child ? *sibling : next_sibling;
       records.search_next_sibling_id[*sibling] = sibling_id;
     }
   }
@@ -256,16 +256,16 @@ void detach_search_parent(Records &records, const u64 node) {
  * @see detach_search_parent
  * @see Records
  */
-void attach_search_parent(Records &records, const u64 node, const u64 parent) {
+void attach_search_parent(Records &records, const uint node, const uint parent) {
   if (records.search_ancestor_id[node] == parent) {
     return;
   }
 
   records.search_ancestor_id[node] = parent;
 
-  const u64 ancestor_first_child = records.search_first_child_id[parent];
+  const uint ancestor_first_child = records.search_first_child_id[parent];
   const bool is_first_child = ancestor_first_child == parent;
-  const u64 sibling_id = is_first_child ? node : ancestor_first_child;
+  const uint sibling_id = is_first_child ? node : ancestor_first_child;
   records.search_next_sibling_id[node] = sibling_id;
   records.search_first_child_id[parent] = node;
 
@@ -279,24 +279,24 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
  * @see consolidate_trie
  */
 template<size_t max_differentia>
-void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
-  std::array<u64, max_differentia + 1> winners{};
-  std::vector<std::tuple<u64, u64>> losers_with_differentiae;
+void collapse_indistinguishable_nodes_small(Records &records, const uint node) {
+  std::array<uint, max_differentia + 1> winners{};
+  std::vector<std::tuple<uint, uint>> losers_with_differentiae;
 
   for (auto child : ChildrenView(records, node)) {
-    const u64 differentia = records.differentia[child];
+    const uint64_t differentia = records.differentia[child];
     auto& winner = winners[differentia];
     if (winner == 0 || child < winner) { std::swap(winner, child); }
     if (child) losers_with_differentiae.push_back({child, differentia});
   }
   for (const auto& [loser, differentia] : losers_with_differentiae) {
-    const u64 winner = winners[differentia];
+    const uint winner = winners[differentia];
 
-    std::vector<u64> loser_children;
+    std::vector<uint> loser_children;
     std::ranges::copy(
       ChildrenView(records, loser), std::back_inserter(loser_children)
     );
-    for (const u64 loser_child : loser_children) {
+    for (const uint loser_child : loser_children) {
       detach_search_parent(records, loser_child);
       attach_search_parent(records, loser_child, winner);
     }
@@ -308,26 +308,26 @@ void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
  * Implementation of collapse_indistinguishable_nodes optimized for large
  * differentia sizes (e.g., larger than a byte).
  */
-void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
-  std::unordered_map<u64, std::vector<u64>> groups;
+void collapse_indistinguishable_nodes_large(Records &records, const uint node) {
+  std::unordered_map<uint, std::vector<uint>> groups;
   ChildrenGenerator gen(records, node);
-  u64 child;
+  uint child;
   while ((child = gen.next())) {  // consider what we are using as the key here
-    std::vector<u64> &items = groups[records.differentia[child]];
+    std::vector<uint> &items = groups[records.differentia[child]];
     items.insert(std::lower_bound(items.begin(), items.end(), child), child);
   }
   for (auto [_, children] : groups) {
-    const u64 winner = children[0];
-    for (u64 i = 1; i < children.size(); ++i) {
-      const u64 loser = children[i];
+    const uint winner = children[0];
+    for (uint i = 1; i < children.size(); ++i) {
+      const uint loser = children[i];
 
-      std::vector<u64> loser_children;
+      std::vector<uint> loser_children;
       ChildrenGenerator loser_children_gen(records, loser);
-      u64 loser_child;
+      uint loser_child;
       while ((loser_child = loser_children_gen.next())) {
         loser_children.push_back(loser_child);
       }
-      for (const u64 loser_child : loser_children) {
+      for (const uint loser_child : loser_children) {
         detach_search_parent(records, loser_child);
         attach_search_parent(records, loser_child, winner);
       }
@@ -344,7 +344,7 @@ void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
  *
  * Adapted from https://stackoverflow.com/a/74374791/17332200
  */
-int bit_length(const u64 x) { return (8*sizeof x) - std::countl_zero(x); }
+int bit_length(const uint x) { return (8*sizeof x) - std::countl_zero(x); }
 
 
 /**
@@ -359,7 +359,7 @@ int bit_length(const u64 x) { return (8*sizeof x) - std::countl_zero(x); }
  * @see consolidate_trie
  *
  */
-void collapse_indistinguishable_nodes(Records & records, const u64 node) {
+void collapse_indistinguishable_nodes(Records & records, const uint node) {
   switch (bit_length(records.max_differentia)) {
     case 0:
     case 1:  // single-bit case
@@ -395,27 +395,27 @@ void collapse_indistinguishable_nodes(Records & records, const u64 node) {
  *
  * @see collapse_indistinguishable_nodes
  */
-void consolidate_trie(Records &records, const u64 &rank, const u64 node) {
+void consolidate_trie(Records &records, const uint &rank, const uint node) {
   const auto children_range = ChildrenView(records, node);
   if (
     children_range.begin() == children_range.end()
     || records.rank[*children_range.begin()] == rank
   ) return;
 
-  std::vector<u64> node_stack;
+  std::vector<uint> node_stack;
   std::ranges::copy(children_range, std::back_inserter(node_stack));
 
   // drop children and attach grandchildren
   while (!node_stack.empty()) {
-    const u64 popped_node = node_stack.back();
+    const uint popped_node = node_stack.back();
     node_stack.pop_back();
     detach_search_parent(records, popped_node);
 
-    std::vector<u64> grandchildren;
+    std::vector<uint> grandchildren;
     const auto grandchildren_range = ChildrenView(records, popped_node);
     std::ranges::copy(grandchildren_range, std::back_inserter(grandchildren));
 
-    for (const u64 grandchild : grandchildren) {
+    for (const uint grandchild : grandchildren) {
       if (records.rank[grandchild] >= rank) {
         detach_search_parent(records, grandchild);
         attach_search_parent(records, grandchild, node);
@@ -433,14 +433,14 @@ void consolidate_trie(Records &records, const u64 &rank, const u64 node) {
  * Adds a record to the searchtable. Note that this
  * is the only function that adds records.
  */
-u64 create_offstring(
+uint create_offstring(
   Records &records,
-  const u64 parent,
-  const u64 rank,
-  const u64 differentia,
-  const u64 data_id
+  const uint parent,
+  const uint rank,
+  const uint64_t differentia,
+  const uint data_id
 ) {
-  const u64 node = records.size();
+  const uint node = records.size();
   records.addRecord(data_id, node, parent, node, node, node, rank, differentia);
   attach_search_parent(records, node, parent);
   return node;
@@ -452,16 +452,16 @@ u64 create_offstring(
  *
  * @see insert_artifact
  */
-u64 place_allele(
+uint place_allele(
   Records &records,
-  const u64 cur_node,
-  const u64 rank,
-  const u64 differentia
+  const uint cur_node,
+  const uint rank,
+  const uint64_t differentia
 ) {
   const auto range = ChildrenView(records, cur_node);
   const auto match = std::ranges::find_if(
     range,
-    [rank, differentia, &records](const u64 child){
+    [rank, differentia, &records](const uint child){
       return (
         rank == records.rank[child]
         && differentia == records.differentia[child]
@@ -471,7 +471,7 @@ u64 place_allele(
   if (match != range.end()) {
     return *match;
   } else {
-    const u64 dummy_data_id{u64_max};
+    const uint dummy_data_id{uint_max};
     return create_offstring(
       records, cur_node, rank, differentia, dummy_data_id
     );
@@ -487,7 +487,7 @@ u64 place_allele(
  */
 template <typename T> struct py_array_span_iter {
   const py::detail::unchecked_reference<T, 1> &data_accessor;
-  u64 index;
+  uint index;
 
   using difference_type = std::ptrdiff_t;
   using value_type = T;
@@ -497,10 +497,10 @@ template <typename T> struct py_array_span_iter {
 
   py_array_span_iter(
     const py::detail::unchecked_reference<T, 1> &data_accessor,
-    const u64 index
+    const uint index
   ) : data_accessor(data_accessor), index(index) {}
 
-  u64 operator*() const { return this->data_accessor[this->index]; }
+  uint operator*() const { return this->data_accessor[this->index]; }
 
   py_array_span_iter & operator++() { ++this->index; return *this; }
 
@@ -524,12 +524,12 @@ template <typename T> struct py_array_span_iter {
 template <typename T> struct py_array_span {
 
   const py::detail::unchecked_reference<T, 1> &data_accessor;
-  const u64 begin_;
-  const u64 end_;
+  const uint begin_;
+  const uint end_;
 
-  u64 size() const { return this->end_ - this->begin_; }
+  uint size() const { return this->end_ - this->begin_; }
 
-  u64 operator[](const u64 index) const {
+  uint operator[](const uint index) const {
     return this->data_accessor[this->begin_ + index];
   }
 
@@ -539,8 +539,8 @@ template <typename T> struct py_array_span {
 
   py_array_span(
     const py::detail::unchecked_reference<T, 1> &data,
-    const u64 begin,
-    const u64 end
+    const uint begin,
+    const uint end
   ) : data_accessor(data), begin_(begin), end_(end) {};
 
 };
@@ -553,19 +553,19 @@ template <typename T> struct py_array_span {
  * @see py_array_span
  * @see place_allele
  */
-template <typename SPAN_T>
+template <typename T, typename U>
 void insert_artifact(
   Records &records,
-  SPAN_T &&ranks,
-  SPAN_T &&differentiae,
-  const u64 data_id,
-  const u64 num_strata_deposited
+  T &&ranks,  // span
+  U &&differentiae,  // span
+  const uint data_id,
+  const uint num_strata_deposited
 ) {
   assert(ranks.size() == differentiae.size());
-  u64 cur_node = 0;
-  for (u64 i = 0; i < ranks.size(); ++i) {
-    const u64 r = ranks[i];
-    const u64 d = differentiae[i];
+  uint cur_node = 0;
+  for (uint i = 0; i < ranks.size(); ++i) {
+    const uint r = ranks[i];
+    const uint d = differentiae[i];
     consolidate_trie(records, r, cur_node);
     cur_node = place_allele(records, cur_node, r, d);
   }
@@ -612,7 +612,7 @@ inline pybind11::array_t<typename Sequence::value_type> as_pyarray(
  * object is left in a valid but unspecified state.
  */
 py::dict records_to_dict(Records &records) {
-  std::unordered_map<std::string, py::array_t<u64>> return_mapping;
+  std::unordered_map<std::string, py::array_t<uint>> return_mapping;
   return_mapping.insert(
     {"rank", as_pyarray(std::move(records.rank))}
   );
@@ -653,13 +653,13 @@ struct ProgressBar {
  * @see build_trie_searchtable_exploded
  */
 py::dict build_trie_searchtable_nested(
-  const std::vector<u64> &data_ids,
-  const std::vector<u64> &num_strata_depositeds,
-  const std::vector<std::vector<u64>> &ranks,
-  const std::vector<std::vector<u64>> &differentiae,
+  const std::vector<uint> &data_ids,
+  const std::vector<uint> &num_strata_depositeds,
+  const std::vector<std::vector<uint>> &ranks,
+  const std::vector<std::vector<uint64_t>> &differentiae,
   const py::handle &progress_ctor
 ) {
-  Records records{static_cast<u64>(data_ids.size())};
+  Records records{static_cast<uint>(data_ids.size())};
   assert(
     data_ids.size() == num_strata_depositeds.size()
     && data_ids.size() == ranks.size()
@@ -674,11 +674,11 @@ py::dict build_trie_searchtable_nested(
   {
     ProgressBar pbar{progress_ctor("total"_a=ranks.size())};
 
-    for (u64 i = 0; i < ranks.size(); ++i) {
+    for (uint i = 0; i < ranks.size(); ++i) {
       insert_artifact(
         records,
-        std::span<const u64>(ranks[i]),
-        std::span<const u64>(differentiae[i]),
+        std::span<const uint>(ranks[i]),
+        std::span<const uint64_t>(differentiae[i]),
         data_ids[i],
         num_strata_depositeds[i]
       );
@@ -697,7 +697,7 @@ py::dict build_trie_searchtable_nested(
  * array. This is similar to std::unique but does not mutate.
  */
 template <typename ITER>
-u64 count_unique_elements(ITER begin, ITER end) {
+uint count_unique_elements(ITER begin, ITER end) {
 
   if (begin == end) { return 0; }
 
@@ -729,10 +729,10 @@ u64 count_unique_elements(ITER begin, ITER end) {
  */
 void extend_trie_searchtable_exploded(
   Records &records,
-  const py::array_t<u64> &data_ids,
-  const py::array_t<u64> &num_strata_depositeds,
-  const py::array_t<u64> &ranks,
-  const py::array_t<u64> &differentiae,
+  const py::array_t<uint> &data_ids,
+  const py::array_t<uint> &num_strata_depositeds,
+  const py::array_t<uint> &ranks,
+  const py::array_t<uint64_t> &differentiae,
   const py::handle &progress_ctor
 ) {
   assert(
@@ -752,24 +752,24 @@ void extend_trie_searchtable_exploded(
   logging_info("exploded searchtable cpp begin");
 
   {
-    const u64 total = [&data_ids_](){
-      py_array_span<u64> span{
-        data_ids_, 0, static_cast<u64>(data_ids_.size())
+    const uint total = [&data_ids_](){
+      py_array_span<uint> span{
+        data_ids_, 0, static_cast<uint>(data_ids_.size())
       };
       return count_unique_elements(span.begin(), span.end());
     }();
     ProgressBar pbar{progress_ctor("total"_a=total)};
 
-    u64 end;
-    for (u64 begin = 0; begin < static_cast<u64>(ranks.size()); begin = end) {
-      for (end = begin; end < static_cast<u64>(ranks.size()); ++end) {
+    uint end;
+    for (uint begin = 0; begin < static_cast<uint>(ranks.size()); begin = end) {
+      for (end = begin; end < static_cast<uint>(ranks.size()); ++end) {
         if (data_ids_[begin] != data_ids_[end]) break;
       }  // ... fast forward to end of segment with contiguous identical data_id values
 
       insert_artifact(
         records,
-        py_array_span<u64>(ranks_, begin, end),
-        py_array_span<u64>(differentiae_, begin, end),
+        py_array_span<uint>(ranks_, begin, end),
+        py_array_span<uint64_t>(differentiae_, begin, end),
         data_ids_[begin],
         num_strata_depositeds_[begin]
       );
@@ -794,13 +794,13 @@ void extend_trie_searchtable_exploded(
  * @see build_trie_searchtable_nested
  */
 py::dict build_trie_searchtable_exploded(
-  const py::array_t<u64> &data_ids,
-  const py::array_t<u64> &num_strata_depositeds,
-  const py::array_t<u64> &ranks,
-  const py::array_t<u64> &differentiae,
+  const py::array_t<uint> &data_ids,
+  const py::array_t<uint> &num_strata_depositeds,
+  const py::array_t<uint> &ranks,
+  const py::array_t<uint64_t> &differentiae,
   const py::handle &progress_ctor
 ) {
-  Records records{static_cast<u64>(data_ids.size())};
+  Records records{static_cast<uint>(data_ids.size())};
   extend_trie_searchtable_exploded(
     records, data_ids, num_strata_depositeds, ranks, differentiae, progress_ctor
   );
@@ -813,7 +813,7 @@ py::dict build_trie_searchtable_exploded(
 
 PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
   py::class_<Records>(m, "Records")
-      .def(py::init<u64>(), py::arg("init_size"));
+      .def(py::init<uint>(), py::arg("init_size"));
   m.def(
     "records_to_dict",
     &records_to_dict,
