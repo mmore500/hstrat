@@ -159,12 +159,17 @@ def surface_unpack_reconstruct(
         df = dstream_dataframe.unpack_data_packed(df)
     render_polars_snapshot(df, "unpacked", logging.info)
 
+    logging.info("extracting differentia bitwidth...")
+    df = df.with_columns(
+        dstream_value_bitwidth=(
+            pl.col("dstream_storage_bitwidth") // pl.col("dstream_S")
+        ),
+    )
+    bitwidth = _get_sole_bitwidth(df)
+    logging.info(f" - differentia bitwidth: {bitwidth}")
+
     logging.info("building tree searchtable chunkwise...")
     records = _build_records_chunked(df, exploded_slice_size)
-
-    logging.info("extracting differentia bitwidth...")
-    bitwidth = _get_sole_bitwidth(df)
-    del df
 
     logging.info("converting records to dict...")
     records_dict = records_to_dict(records)
