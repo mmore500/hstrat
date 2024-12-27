@@ -1,6 +1,5 @@
 import logging
 import math
-import typing
 
 from downstream import dataframe as dstream_dataframe
 import polars as pl
