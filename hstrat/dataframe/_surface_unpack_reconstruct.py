@@ -155,18 +155,18 @@ def surface_unpack_reconstruct(
         logging.info("empty input dataframe, returning empty result")
         return pl.from_pandas(alifestd_make_empty())
 
-    with log_context_duration("unpack genome strings", logging.info):
-        df = dstream_dataframe.unpack_data_packed(df)
-    render_polars_snapshot(df, "unpacked", logging.info)
-
     logging.info("extracting differentia bitwidth...")
     df = df.with_columns(
         dstream_value_bitwidth=(
             pl.col("dstream_storage_bitwidth") // pl.col("dstream_S")
         ),
     )
-    bitwidth = _get_sole_bitwidth(df)
-    logging.info(f" - differentia bitwidth: {bitwidth}")
+    differentia_bitwidth = _get_sole_bitwidth(df)
+    logging.info(f" - differentia bitwidth: {differentia_bitwidth}")
+
+    with log_context_duration("unpack genome strings", logging.info):
+        df = dstream_dataframe.unpack_data_packed(df)
+    render_polars_snapshot(df, "unpacked", logging.info)
 
     logging.info("building tree searchtable chunkwise...")
     records = _build_records_chunked(df, exploded_slice_size)
@@ -188,7 +188,9 @@ def surface_unpack_reconstruct(
     )
     del records
     phylo_df = phylo_df.with_columns(
-        pl.lit(bitwidth).alias("differentia_bitwidth").cast(pl.UInt32),
+        pl.lit(differentia_bitwidth)
+        .alias("differentia_bitwidth")
+        .cast(pl.UInt32),
     )
 
     logging.info("joining user-defined columns...")
