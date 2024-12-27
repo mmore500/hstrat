@@ -1,4 +1,5 @@
 import logging
+import math
 
 from downstream import dataframe as dstream_dataframe
 import polars as pl
@@ -32,7 +33,10 @@ def _get_sole_bitwidth(df: pl.DataFrame) -> int:
     return df["dstream_value_bitwidth"].first()
 
 
-def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
+def surface_unpack_reconstruct(
+    df: pl.DataFrame,
+    exploded_slice_size = 10_000_000,
+) -> pl.DataFrame:
     """Unpack dstream buffer and counter from genome data and construct an
     estimated phylogenetic tree for the genomes.
 
@@ -75,6 +79,9 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
             - 'downstream_validate_unpacked' : pl.String, polars expression
                 - Polars expression to validate unpacked data.
 
+    exploded_slice_size : int, default 10_000_000
+        Number of rows to process at once. Lower values reduce memory usage.
+
     Returns
     -------
     pl.DataFrame
@@ -115,11 +122,12 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         df = dstream_dataframe.unpack_data_packed(df)
     render_polars_snapshot(df, "unpacked", logging.info)
 
-    bitwidth = None
-    slice_size = 10_000_000
-    num_slices = (len(df) + slice_size - 1) // slice_size
+    num_slices = math.ceil(len(df) / exploded_slice_size)
+    logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
+
     records = Records(len(df) * df["dstream_S"].first())
-    for i, df_slice in enumerate(df.iter_slices(slice_size)):
+    bitwidth = None
+    for i, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
         logging.info(f"handling slice {i}/{num_slices}...")
 
         with log_context_duration(
@@ -132,7 +140,7 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         if i == 0:
             render_polars_snapshot(long_df, "exploded", logging.info)
 
-        logging.info(f"building tree, slice {i}...")
+        logging.info(f"extending tree, slice {i}...")
         with log_context_duration(f"build tree, slice {i}", logging.info):
             extend_tree_searchtable_cpp_from_exploded(
                 records,
