@@ -20,7 +20,7 @@ from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub i
 
 def _get_sole_bitwidth(df: pl.DataFrame) -> int:
     """Get dstream bitwidth value from DataFrame, ensuring it is unique."""
-    assert not df.lazy().collect().is_empty()
+    assert not df.lazy().limit(1).collect().is_empty()
     if (
         not df.lazy()
         .filter(pl.col("dstream_value_bitwidth").diff() != pl.lit(0))
@@ -31,7 +31,7 @@ def _get_sole_bitwidth(df: pl.DataFrame) -> int:
         raise NotImplementedError(
             "multiple differentia_bitwidths not yet supported",
         )
-    return df["dstream_value_bitwidth"].first()
+    return df.lazy().select("dstream_value_bitwidth").limit(1).collect().item()
 
 
 def _build_records_chunked(
