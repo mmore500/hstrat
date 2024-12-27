@@ -3,10 +3,10 @@ import os
 import polars as pl
 
 from hstrat._auxiliary_lib import (
-    alifestd_validate, alifestd_try_add_ancestor_list_col
+    alifestd_try_add_ancestor_list_col,
+    alifestd_validate,
 )
 from hstrat.dataframe import surface_unpack_reconstruct
-
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 

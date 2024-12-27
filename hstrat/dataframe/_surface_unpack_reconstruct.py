@@ -35,7 +35,7 @@ def _get_sole_bitwidth(df: pl.DataFrame) -> int:
 
 def surface_unpack_reconstruct(
     df: pl.DataFrame,
-    exploded_slice_size = 10_000_000,
+    exploded_slice_size=10_000_000,
 ) -> pl.DataFrame:
     """Unpack dstream buffer and counter from genome data and construct an
     estimated phylogenetic tree for the genomes.
