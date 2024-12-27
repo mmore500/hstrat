@@ -1,4 +1,6 @@
 import logging
+import math
+import typing
 
 from downstream import dataframe as dstream_dataframe
 import polars as pl
@@ -10,7 +12,9 @@ from .._auxiliary_lib import (
     render_polars_snapshot,
 )
 from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
-    build_tree_searchtable_cpp_from_exploded,
+    Records,
+    extend_tree_searchtable_cpp_from_exploded,
+    records_to_dict,
 )
 
 
@@ -30,7 +34,46 @@ def _get_sole_bitwidth(df: pl.DataFrame) -> int:
     return df["dstream_value_bitwidth"].first()
 
 
-def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
+def _build_records_chunked(
+    df: pl.DataFrame, exploded_slice_size: int
+) -> Records:
+    """Build tree searchtable from DataFrame, exploding in chunks to reduce
+    memory usage."""
+    num_slices = math.ceil(len(df) / exploded_slice_size)
+    logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
+
+    init_size = len(df) * df["dstream_S"].first()
+    records = Records(init_size)
+    for i, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
+        logging.info(f"incorporating slice {i}/{num_slices}...")
+
+        with log_context_duration(
+            f"explode dstream records, slice {i}", logging.info
+        ):
+            long_df = dstream_dataframe.explode_lookup_unpacked(
+                df_slice, value_type="uint64"
+            )
+
+        if i == 0:
+            render_polars_snapshot(long_df, "exploded", logging.info)
+
+        with log_context_duration(f"build tree, slice {i}", logging.info):
+            extend_tree_searchtable_cpp_from_exploded(
+                records,
+                long_df["dstream_data_id"].to_numpy(),
+                long_df["dstream_T"].to_numpy(),
+                long_df["dstream_Tbar"].to_numpy(),
+                long_df["dstream_value"].to_numpy(),
+                tqdm.tqdm,
+            )
+
+    return records
+
+
+def surface_unpack_reconstruct(
+    df: pl.DataFrame,
+    exploded_slice_size=10_000_000,
+) -> pl.DataFrame:
     """Unpack dstream buffer and counter from genome data and construct an
     estimated phylogenetic tree for the genomes.
 
@@ -73,6 +116,9 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
             - 'downstream_validate_unpacked' : pl.String, polars expression
                 - Polars expression to validate unpacked data.
 
+    exploded_slice_size : int, default 10_000_000
+        Number of rows to process at once. Lower values reduce memory usage.
+
     Returns
     -------
     pl.DataFrame
@@ -113,29 +159,20 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         df = dstream_dataframe.unpack_data_packed(df)
     render_polars_snapshot(df, "unpacked", logging.info)
 
-    with log_context_duration("explode dstream records", logging.info):
-        long_df = dstream_dataframe.explode_lookup_unpacked(
-            df, value_type="uint64"
-        )
-    render_polars_snapshot(long_df, "exploded", logging.info)
+    logging.info("building tree searchtable chunkwise...")
+    records = _build_records_chunked(df, exploded_slice_size)
 
-    logging.info("building tree...")
-    with log_context_duration("build tree", logging.info):
-        records = build_tree_searchtable_cpp_from_exploded(
-            long_df["dstream_data_id"].to_numpy(),
-            long_df["dstream_T"].to_numpy(),
-            long_df["dstream_Tbar"].to_numpy(),
-            long_df["dstream_value"].to_numpy(),
-            tqdm.tqdm,
-        )
+    logging.info("extracting differentia bitwidth...")
+    bitwidth = _get_sole_bitwidth(df)
+    del df
 
-    bitwidth = _get_sole_bitwidth(long_df)
-    del long_df
+    logging.info("converting records to dict...")
+    records_dict = records_to_dict(records)
 
     logging.info("finalizing phylogeny dataframe...")
 
     phylo_df = pl.from_dict(
-        records,  # type: ignore
+        records_dict,  # type: ignore
         schema={
             "dstream_data_id": pl.UInt64,
             "id": pl.UInt64,

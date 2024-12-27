@@ -37,6 +37,7 @@ constexpr u64 u64_max = std::numeric_limits<int32_t>::max();
  *    - Parents have a higher `rank` than children.
  *  @see build_trie_searchtable_nested
  *  @see build_trie_searchtable_exploded
+ *  @see extend_trie_searchtable_exploded
  */
 struct Records {
   std::vector<u64> dstream_data_id;
@@ -60,6 +61,19 @@ struct Records {
     this->rank.reserve(init_size);
 
     this->addRecord(u64_max, 0, 0, 0, 0, 0, 0, 0); // root node
+  }
+
+  /** Move constructor. */
+  Records(Records &&other) noexcept {
+    this->dstream_data_id = std::move(other.dstream_data_id);
+    this->id = std::move(other.id);
+    this->search_first_child_id = std::move(other.search_first_child_id);
+    this->search_next_sibling_id = std::move(other.search_next_sibling_id);
+    this->search_ancestor_id = std::move(other.search_ancestor_id);
+    this->ancestor_id = std::move(other.ancestor_id);
+    this->differentia = std::move(other.differentia);
+    this->rank = std::move(other.rank);
+    this->max_differentia = other.max_differentia;
   }
 
   void addRecord(
@@ -591,6 +605,12 @@ inline pybind11::array_t<typename Sequence::value_type> as_pyarray(
 }
 
 
+/**
+ * Converts a Records object to a py::dict of numpy arrays.
+ *
+ * Data is moved out of the Records object, so no copies are made. The Records
+ * object is left in a valid but unspecified state.
+ */
 py::dict records_to_dict(Records &records) {
   std::unordered_map<std::string, py::array_t<u64>> return_mapping;
   return_mapping.insert(
@@ -695,28 +715,33 @@ u64 count_unique_elements(ITER begin, ITER end) {
 
 
 /**
- * Constructs the trie in the case where each of the below
- * arrays are 1-dimensional representing an exploded DataFrame.
- * This is used in 'hstrat.dataframe.surface_unpack_reconstruct'.
+ * Extends a records object with new artifacts. This function allows for
+ * source data to be exploded in chunks, reducing memory pressure. The supplied
+ * records object is modified in place.
+ *
+ * Note that sequential calls to this function must be made with artifacts in
+ * ascending order by num_strata_deposited.
+ *
  * Includes logging and an optional tqdm progress bar.
  *
- * @see build_trie_searchtable_nested
+ * @see build_trie_searchtable_exploded : performs a one-pass (non-chunked)
+ * build
  */
-py::dict build_trie_searchtable_exploded(
+void extend_trie_searchtable_exploded(
+  Records &records,
   const py::array_t<u64> &data_ids,
   const py::array_t<u64> &num_strata_depositeds,
   const py::array_t<u64> &ranks,
   const py::array_t<u64> &differentiae,
   const py::handle &progress_ctor
 ) {
-  Records records{static_cast<u64>(data_ids.size())};
   assert(
     data_ids.size() == num_strata_depositeds.size()
     && data_ids.size() == ranks.size()
     && data_ids.size() == differentiae.size()
   );
 
-  if (!data_ids.size()) { return py::dict{}; }
+  if (!data_ids.size()) { return; }
 
   const auto data_ids_ = data_ids.unchecked<1>();
   const auto num_strata_depositeds_ = num_strata_depositeds.unchecked<1>();
@@ -754,12 +779,56 @@ py::dict build_trie_searchtable_exploded(
 
   }  // end progress bar scope
 
+  logging_info("exploded searchtable cpp extension complete");
+}
+
+
+/**
+ * Constructs a trie from 1-dimensional representing a complete exploded
+ * DataFrame. Unlike extend_trie_searchtable_exploded, this function creates and
+ * a new Records object internally and returns a py::dict with construction
+ * results.
+ *
+ * Includes logging and an optional tqdm progress bar.
+ *
+ * @see build_trie_searchtable_nested
+ */
+py::dict build_trie_searchtable_exploded(
+  const py::array_t<u64> &data_ids,
+  const py::array_t<u64> &num_strata_depositeds,
+  const py::array_t<u64> &ranks,
+  const py::array_t<u64> &differentiae,
+  const py::handle &progress_ctor
+) {
+  Records records{static_cast<u64>(data_ids.size())};
+  extend_trie_searchtable_exploded(
+    records, data_ids, num_strata_depositeds, ranks, differentiae, progress_ctor
+  );
+
+  const auto logging_info = py::module::import("logging").attr("info");
   logging_info("exploded searchtable cpp complete");
   return records_to_dict(records);
 }
 
 
 PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
+  py::class_<Records>(m, "Records")
+      .def(py::init<u64>(), py::arg("init_size"));
+  m.def(
+    "records_to_dict",
+    &records_to_dict,
+    py::arg("records")
+  );
+  m.def(
+    "extend_tree_searchtable_cpp_from_exploded",
+    &extend_trie_searchtable_exploded,
+    py::arg("records"),
+    py::arg("data_ids"),
+    py::arg("num_strata_depositeds"),
+    py::arg("ranks"),
+    py::arg("differentiae"),
+    py::arg("progress_bar")
+  );
   m.def(
     "build_tree_searchtable_cpp_from_exploded",
     &build_trie_searchtable_exploded,
