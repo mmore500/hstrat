@@ -1,5 +1,6 @@
 import logging
 import math
+import typing
 
 from downstream import dataframe as dstream_dataframe
 import polars as pl
@@ -31,6 +32,42 @@ def _get_sole_bitwidth(df: pl.DataFrame) -> int:
             "multiple differentia_bitwidths not yet supported",
         )
     return df["dstream_value_bitwidth"].first()
+
+
+def _build_records_chunked(
+    df: pl.DataFrame, exploded_slice_size: int
+) -> Records:
+    """Build tree searchtable from DataFrame, exploding in chunks to reduce
+    memory usage."""
+    num_slices = math.ceil(len(df) / exploded_slice_size)
+    logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
+
+    init_size = len(df) * df["dstream_S"].first()
+    records = Records(init_size)
+    for i, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
+        logging.info(f"incorporating slice {i}/{num_slices}...")
+
+        with log_context_duration(
+            f"explode dstream records, slice {i}", logging.info
+        ):
+            long_df = dstream_dataframe.explode_lookup_unpacked(
+                df_slice, value_type="uint64"
+            )
+
+        if i == 0:
+            render_polars_snapshot(long_df, "exploded", logging.info)
+
+        with log_context_duration(f"build tree, slice {i}", logging.info):
+            extend_tree_searchtable_cpp_from_exploded(
+                records,
+                long_df["dstream_data_id"].to_numpy(),
+                long_df["dstream_T"].to_numpy(),
+                long_df["dstream_Tbar"].to_numpy(),
+                long_df["dstream_value"].to_numpy(),
+                tqdm.tqdm,
+            )
+
+    return records
 
 
 def surface_unpack_reconstruct(
@@ -122,44 +159,12 @@ def surface_unpack_reconstruct(
         df = dstream_dataframe.unpack_data_packed(df)
     render_polars_snapshot(df, "unpacked", logging.info)
 
-    num_slices = math.ceil(len(df) / exploded_slice_size)
-    logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
+    logging.info("building tree searchtable chunkwise...")
+    records = _build_records_chunked(df, exploded_slice_size)
 
-    records = Records(len(df) * df["dstream_S"].first())
-    bitwidth = None
-    for i, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
-        logging.info(f"handling slice {i}/{num_slices}...")
-
-        with log_context_duration(
-            f"explode dstream records, slice {i}", logging.info
-        ):
-            long_df = dstream_dataframe.explode_lookup_unpacked(
-                df_slice, value_type="uint64"
-            )
-
-        if i == 0:
-            render_polars_snapshot(long_df, "exploded", logging.info)
-
-        logging.info(f"extending tree, slice {i}...")
-        with log_context_duration(f"build tree, slice {i}", logging.info):
-            extend_tree_searchtable_cpp_from_exploded(
-                records,
-                long_df["dstream_data_id"].to_numpy(),
-                long_df["dstream_T"].to_numpy(),
-                long_df["dstream_Tbar"].to_numpy(),
-                long_df["dstream_value"].to_numpy(),
-                tqdm.tqdm,
-            )
-
-        if bitwidth is None:
-            bitwidth = _get_sole_bitwidth(long_df)
-        elif bitwidth != _get_sole_bitwidth(long_df):
-            raise NotImplementedError(
-                "multiple differentia_bitwidths not yet supported",
-            )
-        else:
-            pass
-        del long_df
+    logging.info("extracting differentia bitwidth...")
+    bitwidth = _get_sole_bitwidth(df)
+    del df
 
     logging.info("converting records to dict...")
     records_dict = records_to_dict(records)
