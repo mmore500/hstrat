@@ -14,5 +14,5 @@ def log_context_duration(
     elapsed = time.time() - start
     logger(
         f"""exit log_seconds_elapsed for {what}
-!!! {{"{what}": "{elapsed}"}}""",
+!!! {{"{what}": {elapsed}}}""",
     )
