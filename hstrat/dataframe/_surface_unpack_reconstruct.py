@@ -10,7 +10,9 @@ from .._auxiliary_lib import (
     render_polars_snapshot,
 )
 from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
-    build_tree_searchtable_cpp_from_exploded,
+    Records,
+    extend_tree_searchtable_cpp_from_exploded,
+    records_to_dict,
 )
 
 
@@ -113,29 +115,51 @@ def surface_unpack_reconstruct(df: pl.DataFrame) -> pl.DataFrame:
         df = dstream_dataframe.unpack_data_packed(df)
     render_polars_snapshot(df, "unpacked", logging.info)
 
-    with log_context_duration("explode dstream records", logging.info):
-        long_df = dstream_dataframe.explode_lookup_unpacked(
-            df, value_type="uint64"
-        )
-    render_polars_snapshot(long_df, "exploded", logging.info)
+    bitwidth = None
+    slice_size = 10_000_000
+    num_slices = (len(df) + slice_size - 1) // slice_size
+    records = Records(len(df) * df["dstream_S"].first())
+    for i, df_slice in enumerate(df.iter_slices(slice_size)):
+        logging.info(f"handling slice {i}/{num_slices}...")
 
-    logging.info("building tree...")
-    with log_context_duration("build tree", logging.info):
-        records = build_tree_searchtable_cpp_from_exploded(
-            long_df["dstream_data_id"].to_numpy(),
-            long_df["dstream_T"].to_numpy(),
-            long_df["dstream_Tbar"].to_numpy(),
-            long_df["dstream_value"].to_numpy(),
-            tqdm.tqdm,
-        )
+        with log_context_duration(
+            f"explode dstream records, slice {i}", logging.info
+        ):
+            long_df = dstream_dataframe.explode_lookup_unpacked(
+                df_slice, value_type="uint64"
+            )
 
-    bitwidth = _get_sole_bitwidth(long_df)
-    del long_df
+        if i == 0:
+            render_polars_snapshot(long_df, "exploded", logging.info)
+
+        logging.info(f"building tree, slice {i}...")
+        with log_context_duration(f"build tree, slice {i}", logging.info):
+            extend_tree_searchtable_cpp_from_exploded(
+                records,
+                long_df["dstream_data_id"].to_numpy(),
+                long_df["dstream_T"].to_numpy(),
+                long_df["dstream_Tbar"].to_numpy(),
+                long_df["dstream_value"].to_numpy(),
+                tqdm.tqdm,
+            )
+
+        if bitwidth is None:
+            bitwidth = _get_sole_bitwidth(long_df)
+        elif bitwidth != _get_sole_bitwidth(long_df):
+            raise NotImplementedError(
+                "multiple differentia_bitwidths not yet supported",
+            )
+        else:
+            pass
+        del long_df
+
+    logging.info("converting records to dict...")
+    records_dict = records_to_dict(records)
 
     logging.info("finalizing phylogeny dataframe...")
 
     phylo_df = pl.from_dict(
-        records,  # type: ignore
+        records_dict,  # type: ignore
         schema={
             "dstream_data_id": pl.UInt64,
             "id": pl.UInt64,
