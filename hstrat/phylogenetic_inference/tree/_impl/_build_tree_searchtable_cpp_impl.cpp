@@ -308,7 +308,8 @@ Records collapse_dropped_unifurcations(Records &records) {
   );
 
   // create new record set
-  Records new_records(id_remap.size(), /* init_root= */ false);
+  const auto reserve_size = records.size() + records.size() / 2;  // 1.5x
+  Records new_records(reserve_size, /* init_root= */ false);
   assert(new_records.size() == 0);
   std::transform(
     std::begin(records.id),
