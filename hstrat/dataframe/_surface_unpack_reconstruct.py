@@ -12,6 +12,7 @@ from .._auxiliary_lib import (
 )
 from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
     Records,
+    collapse_dropped_unifurcations,
     extend_tree_searchtable_cpp_from_exploded,
     records_to_dict,
 )
@@ -65,6 +66,11 @@ def _build_records_chunked(
                 long_df["dstream_value"].to_numpy(),
                 tqdm.tqdm,
             )
+
+        with log_context_duration(
+            f"collapse dropped unifurcations, slice {i}", logging.info
+        ):
+            records = collapse_dropped_unifurcations(records)
 
     return records
 

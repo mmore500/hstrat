@@ -26,8 +26,16 @@ from .. import _impl as impl
 
 assets_path = os.path.join(os.path.dirname(__file__), "..", "assets")
 
+entry_points = [
+    "batched_small",
+    "batched_medium",
+    "batched_large",
+    "nested",
+    "exploded",
+]
 
-@pytest.mark.parametrize("entry_point", ["nested", "exploded"])
+
+@pytest.mark.parametrize("entry_point", entry_points)
 def test_empty_population(entry_point):
     population = []
     tree = build_tree_searchtable_cpp(population, _entry_point=entry_point)
@@ -36,7 +44,7 @@ def test_empty_population(entry_point):
     assert alifestd_validate(tree)
 
 
-@pytest.mark.parametrize("entry_point", ["nested", "exploded"])
+@pytest.mark.parametrize("entry_point", entry_points)
 def test_dual_population_no_mrca(entry_point):
     organism1 = hstrat.HereditaryStratigraphicColumn().CloneNthDescendant(100)
     organism2 = hstrat.HereditaryStratigraphicColumn().CloneNthDescendant(100)
@@ -109,7 +117,7 @@ def test_dual_population_no_mrca(entry_point):
     ],
 )
 @pytest.mark.parametrize("wrap", [lambda x: x, hstrat.col_to_specimen])
-@pytest.mark.parametrize("entry_point", ["nested", "exploded"])
+@pytest.mark.parametrize("entry_point", entry_points)
 def test_handwritten_trees(orig_tree, retention_policy, wrap, entry_point):
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
@@ -163,7 +171,7 @@ def test_handwritten_trees(orig_tree, retention_policy, wrap, entry_point):
         hstrat.fixed_resolution_algo.Policy(5),
     ],
 )
-@pytest.mark.parametrize("entry_point", ["nested", "exploded"])
+@pytest.mark.parametrize("entry_point", entry_points)
 def test_reconstructed_mrca(orig_tree, retention_policy, entry_point):
     num_depositions = 10
 
@@ -250,7 +258,7 @@ def test_reconstructed_mrca(orig_tree, retention_policy, entry_point):
         hstrat.fixed_resolution_algo.Policy(5),
     ],
 )
-@pytest.mark.parametrize("entry_point", ["nested", "exploded"])
+@pytest.mark.parametrize("entry_point", entry_points)
 def test_col_specimen_consistency(orig_tree, retention_policy, entry_point):
     num_depositions = 10
 
@@ -302,7 +310,7 @@ def test_col_specimen_consistency(orig_tree, retention_policy, entry_point):
     "exhaustive_check",
     [pytest.param(True, marks=pytest.mark.heavy), False],
 )
-@pytest.mark.parametrize("entry_point", ["nested", "exploded"])
+@pytest.mark.parametrize("entry_point", entry_points)
 def test_reconstructed_mrca_fuzz(
     tree_seed,
     tree_size,
@@ -462,7 +470,7 @@ def test_reconstructed_mrca_fuzz(
         hstrat.col_to_specimen,
     ],
 )
-@pytest.mark.parametrize("entry_point", ["nested", "exploded"])
+@pytest.mark.parametrize("entry_point", entry_points)
 def test_determinism(
     orig_tree, retention_policy, differentia_width, wrap, entry_point
 ):
@@ -506,7 +514,7 @@ def test_determinism(
         hstrat.col_to_specimen,
     ],
 )
-@pytest.mark.parametrize("entry_point", ["nested", "exploded"])
+@pytest.mark.parametrize("entry_point", entry_points)
 def test_reconstructed_taxon_labels(
     orig_tree, retention_policy, wrap, entry_point
 ):
