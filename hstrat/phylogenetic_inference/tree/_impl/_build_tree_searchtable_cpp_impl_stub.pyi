@@ -14,7 +14,7 @@ def extend_tree_searchtable_cpp_from_exploded(
     ranks: np.ndarray,
     differentiae: np.ndarray,
     tqdm_progress_bar: typing.Union[typing.Type[tqdm.tqdm], mock.Mock],
-) -> dict[str, np.ndarray]: ...
+) -> None: ...
 def build_tree_searchtable_cpp_from_exploded(
     data_ids: np.ndarray,
     num_strata_depositeds: np.ndarray,
