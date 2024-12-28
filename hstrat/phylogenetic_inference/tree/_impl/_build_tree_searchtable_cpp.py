@@ -26,7 +26,7 @@ def _finalize_records(
     df = pd.DataFrame(records)
     df["origin_time"] = df["rank"]
     df["taxon_label"] = [
-        str(sorted_labels[i]) if i != (2**31 - 1) else "_inner_node"
+        str(sorted_labels[i]) if i != (2**64 - 1) else "_inner_node"
         for i in df["dstream_data_id"]
     ]
 
