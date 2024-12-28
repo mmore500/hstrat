@@ -365,7 +365,7 @@ Records collapse_dropped_unifurcations(Records &records) {
   const auto logging_info = py::module::import("logging").attr("info");
   logging_info(
     std::format(
-      "collapsing dropped unifurcations removed {} of {} records, {} remain",
+      "collapsing dropped unifurcations removed {:d} of {:d} records, {:d} remain",
       records.size() - new_records.size(),
       records.size(),
       new_records.size()
@@ -1057,7 +1057,7 @@ void extend_trie_searchtable_exploded(
 
   logging_info(
     std::format(
-      "exploded searchtable cpp extension complete, num records is {}",
+      "exploded searchtable cpp extension complete, num records is {:d}",
       records.size()
     )
   );
