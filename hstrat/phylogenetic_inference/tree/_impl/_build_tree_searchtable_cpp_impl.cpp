@@ -223,6 +223,15 @@ struct Records {
 };
 
 
+/**
+ *  Removes record entries that are unifurcations and are associated with
+ *  dropped ranks (i.e., by current num_strata_deposited, differentiae at those
+ *  ranks have been purged. This function is used to save memory.
+ *
+ *  Note that detection of dropped ranks is incomplete, as it is based on the
+ *  reconfiguration of the search trie. A more comprehensive approach could
+ *  collate dropped ranks across all records.
+ */
 Records collapse_dropped_unifurcations(Records &records) {
   assert(std::equal(
     std::begin(records.id),
