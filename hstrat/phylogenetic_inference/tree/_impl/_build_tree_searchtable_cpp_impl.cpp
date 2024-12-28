@@ -1055,7 +1055,12 @@ void extend_trie_searchtable_exploded(
     assert(std::cmp_greater_equal(records.size(), total));
   }  // end progress bar scope
 
-  logging_info("exploded searchtable cpp extension complete");
+  logging_info(
+    std::format(
+      "exploded searchtable cpp extension complete, num records is {}",
+      records.size()
+    )
+  );
 }
 
 
