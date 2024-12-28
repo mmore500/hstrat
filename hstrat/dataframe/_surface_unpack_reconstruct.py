@@ -77,7 +77,7 @@ def _build_records_chunked(
 
 def surface_unpack_reconstruct(
     df: pl.DataFrame,
-    exploded_slice_size=100_000_000,
+    exploded_slice_size: int = 1_000_000,
 ) -> pl.DataFrame:
     """Unpack dstream buffer and counter from genome data and construct an
     estimated phylogenetic tree for the genomes.
@@ -121,7 +121,7 @@ def surface_unpack_reconstruct(
             - 'downstream_validate_unpacked' : pl.String, polars expression
                 - Polars expression to validate unpacked data.
 
-    exploded_slice_size : int, default 100_000_000
+    exploded_slice_size : int, default 1_000_000
         Number of rows to process at once. Lower values reduce memory usage.
 
     Returns

@@ -1,4 +1,5 @@
 import argparse
+import functools
 import logging
 import textwrap
 
@@ -142,10 +143,21 @@ if __name__ == "__main__":
         dfcli_module="hstrat.dataframe.surface_unpack_reconstruct",
         dfcli_version=get_hstrat_version(),
     )
+    parser.add_argument(
+        "--exploded-slice-size",
+        type=int,
+        default=1_000_000,
+        help="Number of rows to process at once. Low values reduce memory use.",
+    )
+    args, __ = parser.parse_known_args()
+
     with log_context_duration(
         "end-to-end surface_unpack_reconstruct", logging.info
     ):
         _run_dataframe_cli(
             base_parser=parser,
-            output_dataframe_op=surface_unpack_reconstruct,
+            output_dataframe_op=functools.partial(
+                surface_unpack_reconstruct,
+                exploded_slice_size=args.exploded_slice_size,
+            ),
         )

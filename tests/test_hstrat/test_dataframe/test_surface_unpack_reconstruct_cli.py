@@ -37,6 +37,8 @@ def test_surface_unpack_reconstruct_cli_parquet():
             "hstrat.dataframe.surface_unpack_reconstruct",
             "/tmp/hstrat_unpack_surface_reconstruct.pqt",
             "--shrink-dtypes",
+            "--exploded-slice-size",
+            "50_000_000",
         ],
         check=True,
         input=f"{assets}/packed.csv".encode(),
