@@ -720,7 +720,9 @@ u64 count_unique_elements(ITER begin, ITER end) {
  * records object is modified in place.
  *
  * Note that sequential calls to this function must be made with artifacts in
- * ascending order by num_strata_deposited.
+ * ascending order by num_strata_deposited and that the data_ids array must be
+ * partitioned cleanly across calls (i.e., no data_id should be split across
+ * calls).
  *
  * Includes logging and an optional tqdm progress bar.
  *
