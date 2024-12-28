@@ -1,9 +1,11 @@
 import typing
 from unittest import mock
 
+import more_itertools as mit
 import numpy as np
 import opytional as opyt
 import pandas as pd
+import polars as pl
 
 from ...._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
@@ -12,8 +14,11 @@ from ...._auxiliary_lib import (
     argsort,
 )
 from ._build_tree_searchtable_cpp_impl_stub import (
+    Records,
     build_tree_searchtable_cpp_from_exploded,
     build_tree_searchtable_cpp_from_nested,
+    extend_tree_searchtable_cpp_from_exploded,
+    records_to_dict,
 )
 
 
@@ -43,12 +48,55 @@ def _finalize_records(
     return alifestd_try_add_ancestor_list_col(df, mutate=True)
 
 
+def _explode_population(
+    sorted_population: typing.Sequence[HereditaryStratigraphicArtifact],
+) -> pl.DataFrame:
+    """Create DataFrame with one row for each retained stratum across all
+    population members."""
+    return pl.DataFrame(
+        {
+            "data_ids": [
+                i
+                for i, ann in enumerate(sorted_population)
+                for __ in range(ann.GetNumStrataRetained())
+            ],
+            "num_strata_depositeds": [
+                ann.GetNumStrataDeposited()
+                for ann in sorted_population
+                for __ in range(ann.GetNumStrataRetained())
+            ],
+            "ranks": [
+                rank
+                for ann in sorted_population
+                for rank in ann.IterRetainedRanks()
+            ],
+            "differentiae": [
+                differentia
+                for ann in sorted_population
+                for differentia in ann.IterRetainedDifferentia()
+            ],
+        },
+        schema={
+            "data_ids": pl.UInt64,
+            "num_strata_depositeds": pl.UInt64,
+            "ranks": pl.UInt64,
+            "differentiae": pl.UInt64,
+        },
+    )
+
+
 def build_tree_searchtable_cpp(
     population: typing.Sequence[HereditaryStratigraphicArtifact],
     taxon_labels: typing.Optional[typing.Iterable] = None,
     progress_wrap: typing.Optional[typing.Callable] = None,
     force_common_ancestry: bool = False,
-    _entry_point: typing.Literal["nested", "exploded"] = "nested",
+    _entry_point: typing.Literal[
+        "batched_small",
+        "batched_medium",
+        "batched_large",
+        "nested",
+        "exploded",
+    ] = "nested",
 ) -> pd.DataFrame:
     """C++-based implementation of `build_tree_searchtable`.
 
@@ -113,32 +161,39 @@ def build_tree_searchtable_cpp(
             opyt.or_value(progress_wrap, mock.Mock()),
         )
     elif _entry_point == "exploded":
+        exploded_df = _explode_population(sorted_population)
         records = build_tree_searchtable_cpp_from_exploded(
-            [
-                i
-                for i, ann in enumerate(sorted_population)
-                for __ in range(ann.GetNumStrataRetained())
-            ],
-            [
-                ann.GetNumStrataDeposited()
-                for ann in sorted_population
-                for __ in range(ann.GetNumStrataRetained())
-            ],
-            [
-                rank
-                for ann in sorted_population
-                for rank in ann.IterRetainedRanks()
-            ],
-            [
-                differentia
-                for ann in sorted_population
-                for differentia in ann.IterRetainedDifferentia()
-            ],
+            exploded_df["data_ids"].to_numpy(),
+            exploded_df["num_strata_depositeds"].to_numpy(),
+            exploded_df["ranks"].to_numpy(),
+            exploded_df["differentiae"].to_numpy(),
             opyt.or_value(progress_wrap, mock.Mock()),
         )
+    elif _entry_point.startswith("batched_"):
+        exploded_df = _explode_population(sorted_population)
+        batch_size = {
+            "batched_small": 10,
+            "batched_medium": 1_000,
+            "batched_large": 10_000_000,
+        }[_entry_point]
+        records = Records(len(exploded_df) * 4)
+        for partition_dfs in mit.sliced(
+            exploded_df.partition_by("data_ids"), batch_size
+        ):
+            slice_df = pl.concat(partition_dfs)
+            extend_tree_searchtable_cpp_from_exploded(
+                records,
+                slice_df["data_ids"].to_numpy(),
+                slice_df["num_strata_depositeds"].to_numpy(),
+                slice_df["ranks"].to_numpy(),
+                slice_df["differentiae"].to_numpy(),
+                opyt.or_value(progress_wrap, mock.Mock()),
+            )
+        records = records_to_dict(records)
     else:
         raise ValueError(f"Invalid entry point: {_entry_point}")
 
+    assert len(records["dstream_data_id"]) >= len(sorted_population) + 1
     return _finalize_records(
         records,
         sorted_labels,
