@@ -42,7 +42,7 @@ def _build_records_chunked(
     num_slices = math.ceil(len(df) / exploded_slice_size)
     logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
 
-    init_size = len(df) * df["dstream_S"].first()
+    init_size = len(df) * 8
     records = Records(init_size)
     for i, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
         logging.info(f"incorporating slice {i}/{num_slices}...")
@@ -77,7 +77,7 @@ def _build_records_chunked(
 
 def surface_unpack_reconstruct(
     df: pl.DataFrame,
-    exploded_slice_size=10_000_000,
+    exploded_slice_size=100_000_000,
 ) -> pl.DataFrame:
     """Unpack dstream buffer and counter from genome data and construct an
     estimated phylogenetic tree for the genomes.
@@ -121,7 +121,7 @@ def surface_unpack_reconstruct(
             - 'downstream_validate_unpacked' : pl.String, polars expression
                 - Polars expression to validate unpacked data.
 
-    exploded_slice_size : int, default 10_000_000
+    exploded_slice_size : int, default 100_000_000
         Number of rows to process at once. Lower values reduce memory usage.
 
     Returns
