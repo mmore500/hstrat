@@ -1,4 +1,7 @@
 // cppimport
+#ifdef DEBUG
+#undef NDEBUG
+#endif
 
 #include <algorithm>
 #include <bit>
@@ -854,7 +857,7 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
 
 /*
 <%
-cfg['extra_compile_args'] = ['-std=c++20', '-Wall', '-Wextra']
+cfg['extra_compile_args'] = ['-std=c++20', '-Wall', '-Wextra', '-DDEBUG']
 setup_pybind11(cfg)
 %>
 */
