@@ -17,6 +17,7 @@ from ._build_tree_searchtable_cpp_impl_stub import (
     Records,
     build_tree_searchtable_cpp_from_exploded,
     build_tree_searchtable_cpp_from_nested,
+    collapse_dropped_unifurcations,
     extend_tree_searchtable_cpp_from_exploded,
     records_to_dict,
 )
@@ -189,6 +190,7 @@ def build_tree_searchtable_cpp(
                 slice_df["differentiae"].to_numpy(),
                 opyt.or_value(progress_wrap, mock.Mock()),
             )
+            records = collapse_dropped_unifurcations(records)
         records = records_to_dict(records)
     else:
         raise ValueError(f"Invalid entry point: {_entry_point}")

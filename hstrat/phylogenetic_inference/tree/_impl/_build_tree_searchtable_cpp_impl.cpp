@@ -6,7 +6,9 @@
 #include <algorithm>
 #include <bit>
 #include <cassert>
+#include <functional>
 #include <limits>
+#include <numeric>
 #include <optional>
 #include <ranges>
 #include <span>
@@ -22,7 +24,116 @@ using namespace pybind11::literals;
 namespace py = pybind11;
 
 typedef uint64_t u64;
-constexpr u64 u64_max = std::numeric_limits<u64>::max();
+constexpr u64 u64_max = std::numeric_limits<uint64_t>::max();
+
+/** @brief Discard the output of functions that requires an output iterator */
+template<typename T> struct null_output_iterator {
+  // adapted from https://stackoverflow.com/a/73189051/17332200
+  using iterator_category = std::forward_iterator_tag;
+  using value_type = T;
+  using difference_type = T;
+  using pointer = T*;
+  using reference = T&;
+
+  /** @brief No-op assignment */
+  void operator=(T const&) {}
+
+  /** @brief Can be pre-incremented */
+  null_output_iterator& operator++() { return *this; }
+
+  /** @brief Can be post-incremented */
+  null_output_iterator operator++(int) { return *this; }
+
+  /** @brief Can be dereferenced */
+  null_output_iterator& operator*() { return *this; }
+};
+
+
+/**
+ *  An iterator that casts the value of another iterator to u64.
+ */
+template<typename T> struct as_u64_iterator {
+  using value_type = u64;
+  using pointer = u64*;
+  using reference = u64&;
+  using iterator_category = std::forward_iterator_tag;
+  using difference_type = int;
+
+  T iter;
+
+  as_u64_iterator(T iter) : iter(iter) {}
+
+  u64 operator*() const { return static_cast<u64>(*iter); }
+
+  as_u64_iterator& operator++() {
+    ++iter;
+    return *this;
+  }
+
+  as_u64_iterator operator++(int) {
+    auto res = *this;
+    ++iter;
+    return res;
+  }
+
+  bool operator==(const as_u64_iterator& other) const {
+    return iter == other.iter;
+  }
+
+  bool operator!=(const as_u64_iterator& other) const {
+    return iter != other.iter;
+  }
+};
+
+
+/**
+ *  An iterator that counts up from 0.
+ *  Adapted from https://github.com/mmore500/signalgp-lite/blob/6ec86f7fb189b299fee842b9231ca9711deafd11/include/sgpl/utility/CountingIterator.hpp
+ */
+template<typename T=size_t>
+class CountingIterator {
+
+  size_t idx{};
+
+public:
+  using value_type = T;
+  using pointer = value_type*;
+  using reference = value_type&;
+  using iterator_category = std::forward_iterator_tag;
+  using difference_type = int;
+
+  CountingIterator() = default;
+  CountingIterator(const T& t) : idx( t ) {}
+
+  value_type operator*() const { return idx; }
+
+  CountingIterator operator++(int) {
+    const auto res = *this;
+    ++idx;
+    return res;
+  }
+
+  CountingIterator& operator++() {
+    ++idx;
+    return *this;
+  }
+
+  CountingIterator operator+(const size_t rhs) {
+    CountingIterator res{ *this };
+    res.idx += rhs;
+    return res;
+  }
+
+  bool operator==(const CountingIterator& other) const {
+    return operator*() == other.operator*();
+  }
+
+  bool operator!=(const CountingIterator& other) const {
+    return operator*() != other.operator*();
+  }
+
+};
+
 
 /**
  *  An object that holds all the information for building a
@@ -53,7 +164,7 @@ struct Records {
   std::vector<u64> rank;
   u64 max_differentia = 0;
 
-  Records(const u64 init_size) {
+  Records(const u64 init_size, const bool init_root=true) {
     this->dstream_data_id.reserve(init_size);
     this->id.reserve(init_size);
     this->search_first_child_id.reserve(init_size);
@@ -63,20 +174,27 @@ struct Records {
     this->differentia.reserve(init_size);
     this->rank.reserve(init_size);
 
-    this->addRecord(u64_max, 0, 0, 0, 0, 0, 0, 0); // root node
+    if (init_root) this->addRecord(u64_max, 0, 0, 0, 0, 0, 0, 0); // root node
   }
 
+  /** Copy constructor. */
+  Records(const Records &other) = delete;
+
   /** Move constructor. */
-  Records(Records &&other) noexcept {
-    this->dstream_data_id = std::move(other.dstream_data_id);
-    this->id = std::move(other.id);
-    this->search_first_child_id = std::move(other.search_first_child_id);
-    this->search_next_sibling_id = std::move(other.search_next_sibling_id);
-    this->search_ancestor_id = std::move(other.search_ancestor_id);
-    this->ancestor_id = std::move(other.ancestor_id);
-    this->differentia = std::move(other.differentia);
-    this->rank = std::move(other.rank);
-    this->max_differentia = other.max_differentia;
+  Records(Records &&other) = default;
+
+  bool operator==(const Records &other) const = default;
+
+  void swap(Records &other) noexcept {
+    this->dstream_data_id.swap(other.dstream_data_id);
+    this->id.swap(other.id);
+    this->search_first_child_id.swap(other.search_first_child_id);
+    this->search_next_sibling_id.swap(other.search_next_sibling_id);
+    this->search_ancestor_id.swap(other.search_ancestor_id);
+    this->ancestor_id.swap(other.ancestor_id);
+    this->differentia.swap(other.differentia);
+    this->rank.swap(other.rank);
+    std::swap(this->max_differentia, other.max_differentia);
   }
 
   void addRecord(
@@ -104,6 +222,138 @@ struct Records {
 
 };
 
+
+Records collapse_dropped_unifurcations(Records &records) {
+  assert(std::equal(
+    std::begin(records.id),
+    std::end(records.id),
+    CountingIterator<u64>{}
+  ));
+
+  // how many entries have an entry as ancestor?
+  std::vector<uint8_t> ancestor_ref_counts(records.size());
+  std::for_each(
+    std::begin(records.id),
+    std::end(records.id),
+    [&ancestor_ref_counts, &records](const u64 id){
+      // note: want to count root as ref to self
+      const auto ancestor_id = records.ancestor_id[id];
+      assert(ancestor_id <= id);
+      auto& ref_count = ancestor_ref_counts[ancestor_id];
+      // increment preventing overflow
+      ref_count = std::min(ref_count + 1, 2);
+    }
+  );
+
+  // a.k.a. should_keeps; ref to save memory
+  auto& is_not_dropped_unifurcation = ancestor_ref_counts;
+  std::transform(
+    std::begin(records.id),
+    std::end(records.id),
+    std::begin(ancestor_ref_counts),
+    std::begin(is_not_dropped_unifurcation),  // output iterator
+    [&records](
+      const u64 id, const uint8_t ancestor_ref_count
+    ) {
+      const bool is_unifurcation = ancestor_ref_count == 1;
+      const bool is_dropped = (
+        records.ancestor_id[id] != id
+        and records.search_ancestor_id[id] == id
+      );
+      const bool is_dropped_unifurcation = is_unifurcation and is_dropped;
+      return !is_dropped_unifurcation;
+    }
+  );
+
+  // maps position [old id] to new, contiguously assigned id
+  std::vector<u64> id_remap;
+  id_remap.reserve(records.size());
+
+  // set up id_remap ansatz; number of preceding kept items
+  assert(!is_not_dropped_unifurcation.empty());
+  id_remap.push_back(0);
+  std::partial_sum(
+    as_u64_iterator(std::begin(is_not_dropped_unifurcation)),
+    as_u64_iterator(std::prev(std::end(is_not_dropped_unifurcation))),
+    std::back_inserter(id_remap),
+    std::plus<u64>{}
+  );
+
+  // fill id_remap with reassigned ids
+  std::transform(
+    std::begin(records.id),
+    std::end(records.id),
+    std::begin(id_remap),
+    std::begin(id_remap),
+    [&id_remap, &records, &is_not_dropped_unifurcation](
+      const u64 id, const u64 ansatz
+    ) {
+      const bool should_keep = is_not_dropped_unifurcation[id];
+      if (should_keep) return ansatz;
+      else {
+        const auto orig_ancestor_id = records.ancestor_id[id];
+        assert(orig_ancestor_id < id);
+        return id_remap[orig_ancestor_id];
+      }
+    }
+  );
+
+  // create new record set
+  Records new_records(id_remap.size(), /* init_root= */ false);
+  assert(new_records.size() == 0);
+  std::transform(
+    std::begin(records.id),
+    std::end(records.id),
+    std::begin(id_remap),
+    null_output_iterator<int>{},
+    [&is_not_dropped_unifurcation, &id_remap, &new_records, &records](
+      const u64 old_id, const u64 new_id
+    ) {
+        const bool should_keep = is_not_dropped_unifurcation[old_id];
+        if (should_keep) {
+          assert(new_id == new_records.size());
+          assert(new_id <= old_id);
+          assert(is_not_dropped_unifurcation[
+            records.search_ancestor_id[old_id]
+          ]);
+          assert(is_not_dropped_unifurcation[
+            records.search_first_child_id[old_id]
+          ]);
+          assert(is_not_dropped_unifurcation[
+            records.search_next_sibling_id[old_id]
+          ]);
+
+          new_records.addRecord(
+            records.dstream_data_id[old_id],  // dstream_data_id
+            new_id,  // id
+            id_remap[  // ancestor_id
+              records.ancestor_id[old_id]
+            ],
+            id_remap[  // search_ancestor_id
+              records.search_ancestor_id[old_id]
+            ],
+            id_remap[  // search_first_child_id
+              records.search_first_child_id[old_id]
+            ],
+            id_remap[  // search_next_sibling_id
+              records.search_next_sibling_id[old_id]
+            ],
+            records.rank[old_id],
+            records.differentia[old_id]
+        );
+      }
+      return int{}; // no-op return value
+    }
+  );
+
+  assert(std::equal(
+    std::begin(new_records.id),
+    std::end(new_records.id),
+    CountingIterator<u64>{}
+  ));
+
+  return new_records;
+}
 
 /**
  * A makeshift iterator for children, called like this:
@@ -784,6 +1034,7 @@ void extend_trie_searchtable_exploded(
 
   }  // end progress bar scope
 
+  assert(std::cmp_greater_equal(records.size(), data_ids.size()));
   logging_info("exploded searchtable cpp extension complete");
 }
 
@@ -819,6 +1070,11 @@ py::dict build_trie_searchtable_exploded(
 PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
   py::class_<Records>(m, "Records")
       .def(py::init<u64>(), py::arg("init_size"));
+  m.def(
+    "collapse_dropped_unifurcations",
+    &collapse_dropped_unifurcations,
+    py::arg("records")
+  );
   m.def(
     "records_to_dict",
     &records_to_dict,
