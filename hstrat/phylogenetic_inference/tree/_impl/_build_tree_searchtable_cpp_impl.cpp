@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <bit>
 #include <cassert>
-#include <format>
 #include <functional>
 #include <limits>
 #include <numeric>
@@ -364,8 +363,9 @@ Records collapse_dropped_unifurcations(Records &records) {
 
   const auto logging_info = py::module::import("logging").attr("info");
   logging_info(
-    std::format(
-      "collapsing dropped unifurcations removed {:d} of {:d} records, {:d} remain",
+    py::str(
+      "collapsing dropped unifurcations removed %d of %d records, %d remain"
+    ).format(
       records.size() - new_records.size(),
       records.size(),
       new_records.size()
@@ -1056,10 +1056,9 @@ void extend_trie_searchtable_exploded(
   }  // end progress bar scope
 
   logging_info(
-    std::format(
-      "exploded searchtable cpp extension complete, num records is {:d}",
-      records.size()
-    )
+    py::str(
+      "exploded searchtable cpp extension complete, num records is %d"
+    ).format(records.size())
   );
 }
 
