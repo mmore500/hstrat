@@ -164,7 +164,7 @@ struct Records {
   std::vector<u64> rank;
   u64 max_differentia = 0;
 
-  Records(const u64 init_size, const bool init_root=true) {
+  explicit Records(const u64 init_size, const bool init_root=true) {
     this->dstream_data_id.reserve(init_size);
     this->id.reserve(init_size);
     this->search_first_child_id.reserve(init_size);
