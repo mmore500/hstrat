@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <bit>
 #include <cassert>
+#include <format>
 #include <functional>
 #include <limits>
 #include <numeric>
@@ -360,6 +361,16 @@ Records collapse_dropped_unifurcations(Records &records) {
     std::end(new_records.id),
     CountingIterator<u64>{}
   ));
+
+  const auto logging_info = py::module::import("logging").attr("info");
+  logging_info(
+    std::format(
+      "collapsing dropped unifurcations removed {} of {} records, {} remain",
+      records.size() - new_records.size(),
+      records.size(),
+      new_records.size()
+    )
+  );
 
   return new_records;
 }
