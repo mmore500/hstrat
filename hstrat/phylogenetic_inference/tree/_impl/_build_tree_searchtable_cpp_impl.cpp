@@ -61,7 +61,7 @@ template<typename T> struct as_u64_iterator {
 
   T iter;
 
-  as_u64_iterator(T iter) : iter(iter) {}
+  explicit as_u64_iterator(const T& iter) : iter(iter) {}
 
   u64 operator*() const { return static_cast<u64>(*iter); }
 
@@ -103,7 +103,7 @@ public:
   using difference_type = int;
 
   CountingIterator() = default;
-  CountingIterator(const T& t) : idx( t ) {}
+  explicit CountingIterator(const T& t) : idx( t ) {}
 
   value_type operator*() const { return idx; }
 
