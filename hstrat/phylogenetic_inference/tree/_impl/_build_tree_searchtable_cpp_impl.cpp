@@ -19,7 +19,7 @@ using namespace pybind11::literals;
 namespace py = pybind11;
 
 typedef uint64_t u64;
-constexpr u64 u64_max = std::numeric_limits<int32_t>::max();
+constexpr u64 u64_max = std::numeric_limits<u64>::max();
 
 /**
  *  An object that holds all the information for building a
