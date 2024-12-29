@@ -16,7 +16,7 @@ def _alifestd_calc_node_depth_asexual_contiguous(
     ancestor_ids = ancestor_ids.astype(np.uint64)
     node_depths = np.full_like(ancestor_ids, -1, dtype=np.int64)
 
-    for id_ in range(len(ancestor_ids)):
+    for id_, _ in enumerate(ancestor_ids):
         ancestor_id = ancestor_ids[id_]
         ancestor_depth = node_depths[ancestor_id]
         node_depths[id_] = ancestor_depth + 1

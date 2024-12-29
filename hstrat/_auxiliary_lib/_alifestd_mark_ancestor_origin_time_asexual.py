@@ -17,7 +17,7 @@ def _alifestd_get_ancestor_origin_time_asexual_contiguous(
     ancestor_ids = ancestor_ids.astype(np.uint64)
     ancestor_origin_times = np.empty_like(origin_times)
 
-    for id_ in range(len(ancestor_ids)):
+    for id_, _ in enumerate(ancestor_ids):
         ancestor_id = ancestor_ids[id_]
         ancestor_origin_time = origin_times[ancestor_id]
         ancestor_origin_times[id_] = ancestor_origin_time

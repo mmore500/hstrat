@@ -60,7 +60,7 @@ def test_simple1(mutate: bool):
         {
             "id": [0, 1, 2],
             "ancestor_list": ["[None]", "[0]", "[1]"],
-        }
+        },
     )
     original_df = phylogeny_df.copy()
     result_df = alifestd_mark_node_depth_asexual(
@@ -81,7 +81,7 @@ def test_simple2(mutate: bool):
         {
             "id": [1, 0, 2, 3],
             "ancestor_list": ["[0]", "[None]", "[0]", "[1]"],
-        }
+        },
     )
     original_df = phylogeny_df.copy()
     result_df = alifestd_mark_node_depth_asexual(
@@ -104,7 +104,7 @@ def test_simple3(mutate: bool):
         {
             "id": [1, 0, 2, 3],
             "ancestor_list": ["[None]", "[None]", "[0]", "[1]"],
-        }
+        },
     )
     original_df = phylogeny_df.copy()
     result_df = alifestd_mark_node_depth_asexual(
