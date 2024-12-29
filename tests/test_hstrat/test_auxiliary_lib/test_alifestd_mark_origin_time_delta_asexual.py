@@ -36,7 +36,7 @@ def test_simple1(mutate: bool):
     )
     assert result_df.loc[0, "ancestor_origin_time"] == 0
     assert result_df.loc[1, "ancestor_origin_time"] == 0
-    assert result_df.loc[2, "ancestor_origin_timer"] == 10
+    assert result_df.loc[2, "ancestor_origin_time"] == 10
     assert result_df.loc[0, "origin_time_delta"] == 0
     assert result_df.loc[1, "origin_time_delta"] == 10
     assert result_df.loc[2, "origin_time_delta"] == 20
