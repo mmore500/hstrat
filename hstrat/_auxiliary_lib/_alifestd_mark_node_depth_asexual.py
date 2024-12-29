@@ -1,9 +1,27 @@
+import numpy as np
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._jit import jit
+
+
+@jit(nopython=True)
+def _alifestd_calc_node_depth_asexual_contiguous(
+    ancestor_ids: np.ndarray,
+) -> np.ndarray:
+    """Optimized implementation for asexual phylogenies with contiguous ids."""
+    ancestor_ids = ancestor_ids.astype(np.uint64)
+    node_depths = np.full_like(ancestor_ids, -1, dtype=np.int64)
+
+    for id_ in range(len(ancestor_ids)):
+        ancestor_id = ancestor_ids[id_]
+        ancestor_depth = node_depths[ancestor_id]
+        node_depths[id_] = ancestor_depth + 1
+
+    return node_depths
 
 
 def alifestd_mark_node_depth_asexual(
@@ -30,9 +48,15 @@ def alifestd_mark_node_depth_asexual(
         phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
 
     if alifestd_has_contiguous_ids(phylogeny_df):
-        phylogeny_df.reset_index(drop=True, inplace=True)
-    else:
-        phylogeny_df.index = phylogeny_df["id"]
+        # optimized implementation for contiguous ids
+        node_depths = _alifestd_calc_node_depth_asexual_contiguous(
+            phylogeny_df["ancestor_id"].values,
+        )
+        phylogeny_df["node_depth"] = node_depths
+        return phylogeny_df
+
+    # slower fallback implementation
+    phylogeny_df.index = phylogeny_df["id"]
 
     phylogeny_df["node_depth"] = -1
 
