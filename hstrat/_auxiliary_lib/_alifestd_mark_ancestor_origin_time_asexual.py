@@ -52,7 +52,7 @@ def alifestd_mark_ancestor_origin_time_asexual(
     if not alifestd_is_topologically_sorted(phylogeny_df):
         phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
 
-    if alifestd_has_contiguous_ids(phylogeny_df) and not df.empty:
+    if alifestd_has_contiguous_ids(phylogeny_df) and not phylogeny_df.empty:
         # optimized implementation for contiguous ids
         phylogeny_df[
             "ancestor_origin_time"
