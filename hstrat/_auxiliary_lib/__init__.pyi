@@ -63,6 +63,9 @@ from ._alifestd_join_roots import alifestd_join_roots
 from ._alifestd_make_ancestor_id_col import alifestd_make_ancestor_id_col
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_make_empty import alifestd_make_empty
+from ._alifestd_mark_ancestor_origin_time_asexual import (
+    alifestd_mark_ancestor_origin_time_asexual,
+)
 from ._alifestd_mark_leaves import alifestd_mark_leaves
 from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
 from ._alifestd_mark_num_children_asexual import (
@@ -264,6 +267,7 @@ __all__ = [
     "alifestd_make_ancestor_id_col",
     "alifestd_make_ancestor_list_col",
     "alifestd_make_empty",
+    "alifestd_mark_ancestor_origin_time_asexual",
     "alifestd_mark_leaves",
     "alifestd_mark_node_depth_asexual",
     "alifestd_mark_num_children_asexual",
