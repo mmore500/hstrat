@@ -11,6 +11,7 @@ from ._RecursionLimit import RecursionLimit
 from ._RngStateContext import RngStateContext
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
 from ._alifestd_aggregate_phylogenies import alifestd_aggregate_phylogenies
+from ._alifestd_as_newick_asexual import alifestd_as_newick_asexual
 from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
 from ._alifestd_assign_root_ancestor_token import (
     alifestd_assign_root_ancestor_token,
@@ -237,6 +238,7 @@ from ._zip_strict import zip_strict
 
 __all__ = [
     "alifestd_aggregate_phylogenies",
+    "alifestd_as_newick_asexual",
     "alifestd_assign_contiguous_ids",
     "alifestd_assign_root_ancestor_token",
     "alifestd_categorize_triplet_asexual",
