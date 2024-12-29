@@ -11,6 +11,7 @@ from ._RecursionLimit import RecursionLimit
 from ._RngStateContext import RngStateContext
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
 from ._alifestd_aggregate_phylogenies import alifestd_aggregate_phylogenies
+from ._alifestd_as_newick_asexual import alifestd_as_newick_asexual
 from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
 from ._alifestd_assign_root_ancestor_token import (
     alifestd_assign_root_ancestor_token,
@@ -63,7 +64,11 @@ from ._alifestd_join_roots import alifestd_join_roots
 from ._alifestd_make_ancestor_id_col import alifestd_make_ancestor_id_col
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_make_empty import alifestd_make_empty
+from ._alifestd_mark_ancestor_origin_time_asexual import (
+    alifestd_mark_ancestor_origin_time_asexual,
+)
 from ._alifestd_mark_leaves import alifestd_mark_leaves
+from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
 from ._alifestd_mark_num_children_asexual import (
     alifestd_mark_num_children_asexual,
 )
@@ -97,6 +102,9 @@ from ._alifestd_try_add_ancestor_list_col import (
     alifestd_try_add_ancestor_list_col,
 )
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
+from ._alifestd_unfurl_traversal_postorder_asexual import (
+    alifestd_unfurl_traversal_postorder_asexual,
+)
 from ._alifestd_validate import alifestd_validate
 from ._all_same import all_same
 from ._all_unique import all_unique
@@ -230,6 +238,7 @@ from ._zip_strict import zip_strict
 
 __all__ = [
     "alifestd_aggregate_phylogenies",
+    "alifestd_as_newick_asexual",
     "alifestd_assign_contiguous_ids",
     "alifestd_assign_root_ancestor_token",
     "alifestd_categorize_triplet_asexual",
@@ -263,7 +272,9 @@ __all__ = [
     "alifestd_make_ancestor_id_col",
     "alifestd_make_ancestor_list_col",
     "alifestd_make_empty",
+    "alifestd_mark_ancestor_origin_time_asexual",
     "alifestd_mark_leaves",
+    "alifestd_mark_node_depth_asexual",
     "alifestd_mark_num_children_asexual",
     "alifestd_mark_num_descendants_asexual",
     "alifestd_mark_num_leaves_asexual",
@@ -284,6 +295,7 @@ __all__ = [
     "alifestd_try_add_ancestor_id_col",
     "alifestd_try_add_ancestor_list_col",
     "alifestd_unfurl_lineage_asexual",
+    "alifestd_unfurl_traversal_postorder_asexual",
     "alifestd_validate",
     "all_same",
     "all_unique",

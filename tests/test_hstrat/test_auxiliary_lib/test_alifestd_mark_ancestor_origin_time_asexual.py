@@ -5,7 +5,7 @@ import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_make_empty,
-    alifestd_mark_origin_time_delta_asexual,
+    alifestd_mark_ancestor_origin_time_asexual,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
@@ -14,9 +14,8 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 def test_empty():
     mt = alifestd_make_empty()
     mt["origin_time"] = None
-    res = alifestd_mark_origin_time_delta_asexual(mt)
+    res = alifestd_mark_ancestor_origin_time_asexual(mt)
     assert "ancestor_origin_time" in res
-    assert "origin_time_delta" in res
     assert len(res) == 0
 
 
@@ -30,16 +29,13 @@ def test_simple1(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_origin_time_delta_asexual(
+    result_df = alifestd_mark_ancestor_origin_time_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     assert result_df.loc[0, "ancestor_origin_time"] == 0
     assert result_df.loc[1, "ancestor_origin_time"] == 0
     assert result_df.loc[2, "ancestor_origin_time"] == 10
-    assert result_df.loc[0, "origin_time_delta"] == 0
-    assert result_df.loc[1, "origin_time_delta"] == 10
-    assert result_df.loc[2, "origin_time_delta"] == 20
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -55,7 +51,7 @@ def test_simple2(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_origin_time_delta_asexual(
+    result_df = alifestd_mark_ancestor_origin_time_asexual(
         phylogeny_df,
         mutate=mutate,
     )
@@ -64,11 +60,6 @@ def test_simple2(mutate: bool):
     assert result_df.loc[0, "ancestor_origin_time"] == 10
     assert result_df.loc[2, "ancestor_origin_time"] == 10
     assert result_df.loc[3, "ancestor_origin_time"] == 20
-
-    assert result_df.loc[1, "origin_time_delta"] == 10
-    assert result_df.loc[0, "origin_time_delta"] == 0
-    assert result_df.loc[2, "origin_time_delta"] == 20
-    assert result_df.loc[3, "origin_time_delta"] == 25
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -84,7 +75,7 @@ def test_simple3(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_origin_time_delta_asexual(
+    result_df = alifestd_mark_ancestor_origin_time_asexual(
         phylogeny_df,
         mutate=mutate,
     )
@@ -93,10 +84,6 @@ def test_simple3(mutate: bool):
     assert result_df.loc[0, "ancestor_origin_time"] == 10
     assert result_df.loc[2, "ancestor_origin_time"] == 10
     assert result_df.loc[3, "ancestor_origin_time"] == 20
-    assert result_df.loc[1, "origin_time_delta"] == 0
-    assert result_df.loc[0, "origin_time_delta"] == 0
-    assert result_df.loc[2, "origin_time_delta"] == 20
-    assert result_df.loc[3, "origin_time_delta"] == 25
 
     if not mutate:
         assert original_df.equals(phylogeny_df)

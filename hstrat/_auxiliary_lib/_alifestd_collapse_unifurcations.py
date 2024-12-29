@@ -29,7 +29,7 @@ def _collapse_unifurcations(
 
     ids = np.arange(len(ancestor_ids))
 
-    for pos in range(len(ancestor_ids)):
+    for pos, _ in enumerate(ancestor_ids):
 
         ancestor_id = ancestor_ids[pos]
         id_ = ids[pos]
