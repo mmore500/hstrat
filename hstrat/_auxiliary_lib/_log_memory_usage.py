@@ -7,14 +7,17 @@ import typing
 def log_memory_usage(logger: typing.Callable = logging.info) -> None:
     """Log memory use."""
     try:
-        message = "memory usage:\n" + subprocess.check_output(
-            [
-                "free",
-                "--human",
-                "--total",
-            ],
-            shell=False,
-        ).decode()
+        message = (
+            "memory usage:\n"
+            + subprocess.check_output(
+                [
+                    "free",
+                    "--human",
+                    "--total",
+                ],
+                shell=False,
+            ).decode()
+        )
     except subprocess.CalledProcessError as e:
         message = f"logging memory use failed: {e}"
 
