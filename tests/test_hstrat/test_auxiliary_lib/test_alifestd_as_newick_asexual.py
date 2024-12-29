@@ -27,7 +27,6 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 def test_fuzz(phylogeny_df: pd.DataFrame):
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
     original = phylogeny_df.copy()
-    print(original)
 
     result = alifestd_as_newick_asexual(phylogeny_df)
     assert original.equals(phylogeny_df)
