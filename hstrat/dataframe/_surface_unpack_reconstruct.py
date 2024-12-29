@@ -8,6 +8,7 @@ import tqdm
 from .._auxiliary_lib import (
     alifestd_make_empty,
     log_context_duration,
+    log_memory_usage,
     render_polars_snapshot,
 )
 from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
@@ -71,6 +72,8 @@ def _build_records_chunked(
             f"collapse dropped unifurcations, slice {i}", logging.info
         ):
             records = collapse_dropped_unifurcations(records)
+
+        log_memory_usage(logging.info)
 
     return records
 
@@ -153,6 +156,9 @@ def surface_unpack_reconstruct(
         Note that the alife-standard `ancestor_list` column is not included in
         the output.
     """
+    logging.info("beginning surface_unpack_reconstruct")
+    log_memory_usage(logging.info)
+
     render_polars_snapshot(df, "packed", logging.info)
 
     # for simplicity, return early for this special case
