@@ -181,8 +181,8 @@ def test_simple6(mutate: bool):
         mutate=mutate,
     )
     result_df.index = result_df["id"]
-    assert result_df.loc[0, "node_depth"] == 1
-    assert result_df.loc[2, "node_depth"] == 0
+    assert result_df.loc[0, "node_depth"] == 0
+    assert result_df.loc[2, "node_depth"] == 1
     assert result_df.loc[3, "node_depth"] == 1
     assert result_df.loc[4, "node_depth"] == 0
 
