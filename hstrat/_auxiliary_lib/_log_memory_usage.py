@@ -7,7 +7,7 @@ import typing
 def log_memory_usage(logger: typing.Callable = logging.info) -> None:
     """Log memory use."""
     try:
-        message = subprocess.check_output(
+        message = "memory usage:\n" + subprocess.check_output(
             [
                 "free",
                 "--human",
