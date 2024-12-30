@@ -1,6 +1,5 @@
 from collections import defaultdict
 import logging
-import typing
 
 import more_itertools as mit
 import numpy as np
@@ -90,9 +89,11 @@ def alifestd_as_newick_asexual(
         phylogeny_df.loc[
             postorder_ids,
             ["id", "__hstrat_label", "origin_time_delta", "ancestor_id"],
-        ].astype(
+        ]
+        .astype(
             {"origin_time_delta": str},
-        ).to_numpy(),
+        )
+        .to_numpy(),
     ):
         newick_repr = _format_newick_repr(taxon_label, origin_time_delta)
 
