@@ -1,8 +1,10 @@
 from collections import defaultdict
 import logging
+import typing
 
 import more_itertools as mit
 import numpy as np
+import opytional as opyt
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
@@ -15,6 +17,26 @@ from ._alifestd_unfurl_traversal_postorder_asexual import (
 )
 
 _UNSAFE_SYMBOLS = (";", "(", ")", ",", "[", "]", ":", "'")
+
+
+def _format_newick_repr(
+    label: str,
+    children_reprs: typing.List[str],
+    origin_time_delta: float,
+) -> str:
+    # adapted from https://github.com/niemasd/TreeSwift/blob/63b8979fb5e616ba89079d44e594682683c1365e/treeswift/Node.py#L129
+    if any(c in label for c in _UNSAFE_SYMBOLS):
+        label = f"'{label}'"
+
+    if not np.isnan(origin_time_delta):
+        label = f"{label}:{origin_time_delta}"
+        if "." in label:
+            label = label.rstrip("0").rstrip(".")
+
+    if children_reprs:
+        label = f"({','.join(children_reprs)}){label}"
+
+    return label
 
 
 def alifestd_as_newick_asexual(
@@ -57,36 +79,28 @@ def alifestd_as_newick_asexual(
     logging.info("calculating postorder traversal order...")
     postorder_ids = alifestd_unfurl_traversal_postorder_asexual(phylogeny_df)
 
-    # adapted from https://github.com/niemasd/TreeSwift/blob/63b8979fb5e616ba89079d44e594682683c1365e/treeswift/Node.py#L129
+    logging.info("preparing labels...")
+    phylogeny_df["__hstrat_label"] = opyt.apply_if_or_value(
+        label_key, phylogeny_df.__getitem__, ""
+    )
+    phylogeny_df["__hstrat_label"] = phylogeny_df["__hstrat_label"].astype(str)
+
     logging.info("creating newick string...")
-    child_reps = defaultdict(list)
+    child_newick_reprs = defaultdict(list)
     for id_ in progress_wrap(postorder_ids):
-
-        if label_key is None:
-            label = ""
-        else:
-            label = (
-                id_ if label_key == "id" else phylogeny_df.at[id_, label_key]
-            )
-            label = f"{label}"
-            if any(c in label for c in _UNSAFE_SYMBOLS):
-                label = f"'{label}'"
-
+        taxon_label = phylogeny_df.at[id_, "__hstrat_label"]
         origin_time_delta = phylogeny_df.at[id_, "origin_time_delta"]
 
-        if not np.isnan(origin_time_delta):
-            label = f"{label}:{origin_time_delta}"
-            if "." in label:
-                label = label.rstrip("0").rstrip(".")
-
-        children = child_reps.pop(id_, tuple())
-        if children:
-            label = f"({','.join(children)}){label}"
+        newick_repr = _format_newick_repr(
+            taxon_label, child_newick_reprs.pop(id_, []), origin_time_delta
+        )
 
         ancestor_id = phylogeny_df.at[id_, "ancestor_id"]
-        child_reps[ancestor_id].append(label)
+        child_newick_reprs[ancestor_id].append(newick_repr)
 
-    logging.info(f"finalizing newick string for {len(child_reps)} trees...")
-    result = ";\n".join(map(mit.one, child_reps.values())) + ";"
+    logging.info(
+        f"finalizing newick string for {len(child_newick_reprs)} trees...",
+    )
+    result = ";\n".join(map(mit.one, child_newick_reprs.values())) + ";"
     logging.info(f"{len(result)=} {result[:20]=}")
     return result
