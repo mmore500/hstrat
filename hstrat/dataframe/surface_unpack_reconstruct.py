@@ -155,7 +155,7 @@ if __name__ == "__main__":
     args, __ = parser.parse_known_args()
 
     with log_context_duration(
-        "end-to-end surface_unpack_reconstruct", logging.info
+        "hstrat.dataframe.surface_unpack_reconstruct", logging.info
     ):
         _run_dataframe_cli(
             base_parser=parser,
