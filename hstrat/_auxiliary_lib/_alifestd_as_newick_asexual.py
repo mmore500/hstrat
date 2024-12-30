@@ -1,10 +1,15 @@
+import argparse
 from collections import defaultdict
 import logging
+import os
+import pathlib
+import typing
 
 import more_itertools as mit
 import numpy as np
 import opytional as opyt
 import pandas as pd
+from tqdm import tqdm
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_mark_origin_time_delta_asexual import (
@@ -14,6 +19,9 @@ from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_unfurl_traversal_postorder_asexual import (
     alifestd_unfurl_traversal_postorder_asexual,
 )
+from ._configure_prod_logging import configure_prod_logging
+from ._format_cli_description import format_cli_description
+from ._get_hstrat_version import get_hstrat_version
 from ._jit import jit
 
 _UNSAFE_SYMBOLS = (";", "(", ")", ",", "[", "]", ":", "'")
@@ -54,8 +62,8 @@ def alifestd_as_newick_asexual(
         Allow in-place mutations of the input dataframe, by default False.
     label_key : str, optional
         Column to use for taxon labels, by default None.
-    progress_wrap : typing.Callable, default lambda x: x
-        A callable to display progress, e.g., tqdm.
+    progress_wrap : typing.Callable, optional
+        Pass tqdm or equivalent to display a progress bar.
     """
 
     logging.info(
@@ -121,3 +129,63 @@ def alifestd_as_newick_asexual(
     result = ";\n".join(map(mit.one, child_newick_reprs.values())) + ";"
     logging.info(f"{len(result)=} {result[:20]=}")
     return result
+
+
+_raw_description = """Convert Alife standard phylogeny data to Newick format.
+
+Note that this CLI entrypoint is experimental and may be subject to change.
+"""
+
+
+def _make_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description=format_cli_description(_raw_description),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "--input-file",
+        "-i",
+        type=str,
+        help="Alife standard dataframe file to convert to Newick format.",
+    )
+    parser.add_argument(
+        "--output-file",
+        "-o",
+        type=str,
+        help="Path to write Newick-formatted output to.",
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=get_hstrat_version(),
+    )
+    return parser
+
+
+if __name__ == "__main__":
+    configure_prod_logging()
+
+    parser = _make_parser()
+    args = parser.parse_args()
+    input_ext = os.path.splitext(args.input_file)[1]
+
+    logging.info(
+        f"reading alife-standard {input_ext} phylogeny data from "
+        f"{args.input_file}...",
+    )
+    phylogeny_df = {
+        ".csv": pd.read_csv,
+        ".fea": pd.read_feather,
+        ".feather": pd.read_feather,
+        ".pqt": pd.read_parquet,
+        ".parquet": pd.read_parquet,
+    }[input_ext](args.input_file)
+
+    logging.info("converting to Newick format...")
+    newick_str = alifestd_as_newick_asexual(phylogeny_df, progress_wrap=tqdm)
+
+    logging.info(f"writing Newick-formatted data to {args.output_file}...")
+    pathlib.Path(args.output_file).write_text(newick_str)
+
+    logging.info("done!")
