@@ -41,10 +41,22 @@ def alifestd_as_newick_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
     *,
-    label_key: str = "id",
+    label_key: typing.Optional[str] = None,
     progress_wrap=lambda x: x,
 ) -> str:
-    """Convert phylogeny dataframe to Newick format."""
+    """Convert phylogeny dataframe to Newick format.
+
+    Parameters
+    ----------
+    phylogeny_df : pd.DataFrame
+        Phylogeny dataframe in Alife standard format.
+    mutate : bool, optional
+        Allow in-place mutations of the input dataframe, by default False.
+    label_key : str, optional
+        Column to use for taxon labels, by default None.
+    progress_wrap : typing.Callable, default lambda x: x
+        A callable to display progress, e.g., tqdm.
+    """
 
     logging.info(
         "creating newick string for alifestd df "
