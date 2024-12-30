@@ -87,15 +87,16 @@ def alifestd_as_newick_asexual(
 
     logging.info("creating newick string...")
     child_newick_reprs = defaultdict(list)
-    for id_ in progress_wrap(postorder_ids):
-        taxon_label = phylogeny_df.at[id_, "__hstrat_label"]
-        origin_time_delta = phylogeny_df.at[id_, "origin_time_delta"]
-
+    for id_, taxon_label, origin_time_delta, ancestor_id in progress_wrap(
+        phylogeny_df.loc[
+            postorder_ids,
+            ["id", "__hstrat_label", "origin_time_delta", "ancestor_id"],
+        ].to_numpy(),
+    ):
         newick_repr = _format_newick_repr(
             taxon_label, child_newick_reprs.pop(id_, []), origin_time_delta
         )
 
-        ancestor_id = phylogeny_df.at[id_, "ancestor_id"]
         child_newick_reprs[ancestor_id].append(newick_repr)
 
     logging.info(
