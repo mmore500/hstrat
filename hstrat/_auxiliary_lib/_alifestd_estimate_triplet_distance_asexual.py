@@ -51,8 +51,8 @@ def alifestd_estimate_triplet_distance_asexual(
     detail : bool, default False
         If True, returns a detailed result including the estimated distance,
         confidence interval, and sample size.
-    progress_wrap : typing.Callable, default lambda x: x
-        A callable to display progress, e.g., tqdm.
+    progress_wrap : typing.Callable, optional
+        Pass tqdm or equivalent to display a progress bar.
     mutate : bool, default False
         If True, allows mutation of input DataFrames.
 

@@ -38,8 +38,8 @@ def alifestd_sample_triplet_comparisons_asexual(
         The number of samples to take.
 
         Corresponds to number of rows in the returned DataFrame.
-    progress_wrap : typing.Callable, default lambda x: x
-        A callable to display progress, e.g., tqdm.
+    progress_wrap : typing.Callable, optional
+        Pass tqdm or equivalent to display a progress bar.
     mutate : bool, default False
         If True, allows mutation of input DataFrames.
 

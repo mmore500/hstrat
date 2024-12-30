@@ -63,7 +63,7 @@ def build_tree(
         shared a common ancestor immediately before the genesis of the
         lineages. If set to False, columns within `population` that
         definitively do not share common ancestry will raise a ValueError.
-    progress_wrap : Callable, default identity function
+    progress_wrap : Callable, optional
         Pass tqdm or equivalent to display progress bars.
 
     Returns

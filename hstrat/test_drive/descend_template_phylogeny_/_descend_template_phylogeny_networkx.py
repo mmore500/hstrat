@@ -42,7 +42,7 @@ def descend_template_phylogeny_networkx(
         If None, hereditary stratigraphic columns will be created for all
         phylogenetic leaves (organisms without offspring) in order of
         appearance in `tree.nodes`.
-    progress_wrap : Callable, default identity function
+    progress_wrap : Callable, optional
         Wrapper applied around generation iterator and row generator for final
         phylogeny compilation process.
 

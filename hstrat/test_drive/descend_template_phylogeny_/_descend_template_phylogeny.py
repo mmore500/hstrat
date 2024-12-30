@@ -69,7 +69,7 @@ def descend_template_phylogeny(
         If default, will use runtime type information to make a reasonable
         guess. Passing a custom value allows bypass of this slow type
         inspection.
-    progress_wrap : Callable, default identity function
+    progress_wrap : Callable, optional
         Wrapper applied around generation iterator and row generator for final
         phylogeny compilation process.
 

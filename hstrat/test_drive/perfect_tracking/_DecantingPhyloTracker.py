@@ -225,7 +225,7 @@ class DecantingPhyloTracker:  # pragma: no cover
 
         Parameters
         ----------
-        progress_wrap : Callable, default identity function
+        progress_wrap : Callable, optional
             Wrapper applied around record row iterator; pass tqdm or equivalent
             to display progress bar for compilation process.
 
