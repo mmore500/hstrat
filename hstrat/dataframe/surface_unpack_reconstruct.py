@@ -1,17 +1,14 @@
 import argparse
 import functools
 import logging
-import textwrap
 
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 
 from .._auxiliary_lib import (
-    collapse_nonleading_whitespace,
     configure_prod_logging,
+    format_cli_description,
     get_hstrat_version,
-    join_paragraphs_from_one_sentence_per_line,
     log_context_duration,
-    textwrap_respect_indents,
 )
 from ._surface_unpack_reconstruct import surface_unpack_reconstruct
 
@@ -120,18 +117,9 @@ Environment variables POLARS_MAX_THREADS and NUMBA_NUM_THREADS may be used to tu
 """
 
 
-def _format_message(message: str) -> str:
-    """Fix whitespace to pretty-print description message on CLI."""
-    message = join_paragraphs_from_one_sentence_per_line(message)
-    message = collapse_nonleading_whitespace(message)
-    message = textwrap_respect_indents(message)
-    message = textwrap.indent(message, prefix="  ")
-    return message
-
-
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description=_format_message(raw_message),
+        description=format_cli_description(raw_message),
         formatter_class=argparse.RawTextHelpFormatter,
     )
     _add_parser_base(
