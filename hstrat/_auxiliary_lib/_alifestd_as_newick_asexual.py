@@ -19,7 +19,7 @@ from ._jit import jit
 _UNSAFE_SYMBOLS = (";", "(", ")", ",", "[", "]", ":", "'")
 
 
-@jit
+@jit("unicode_type(unicode_type, unicode_type)", cache=True)
 def _format_newick_repr(taxon_label: str, origin_time_delta: str) -> str:
     # adapted from https://github.com/niemasd/TreeSwift/blob/63b8979fb5e616ba89079d44e594682683c1365e/treeswift/Node.py#L129
     label = taxon_label
