@@ -7,6 +7,7 @@ from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 
 from .._auxiliary_lib import (
     collapse_nonleading_whitespace,
+    configure_prod_logging,
     get_hstrat_version,
     join_paragraphs_from_one_sentence_per_line,
     log_context_duration,
@@ -128,12 +129,7 @@ def _format_message(message: str) -> str:
     return message
 
 
-if __name__ == "__main__":
-    logging.basicConfig(
-        datefmt="%Y-%m-%d %H:%M:%S",
-        format="%(asctime)s %(levelname)-8s %(message)s",
-        level=logging.INFO,
-    )
+def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=_format_message(raw_message),
         formatter_class=argparse.RawTextHelpFormatter,
@@ -149,6 +145,13 @@ if __name__ == "__main__":
         default=1_000_000,
         help="Number of rows to process at once. Low values reduce memory use.",
     )
+    return parser
+
+
+if __name__ == "__main__":
+    configure_prod_logging()
+
+    parser = _create_parser()
     args, __ = parser.parse_known_args()
 
     with log_context_duration(
