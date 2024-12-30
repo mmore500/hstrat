@@ -105,6 +105,7 @@ def _join_user_defined_columns(
 
 def surface_unpack_reconstruct(
     df: pl.DataFrame,
+    *,
     exploded_slice_size: int = 1_000_000,
 ) -> pl.DataFrame:
     """Unpack dstream buffer and counter from genome data and construct an
