@@ -31,9 +31,9 @@ def _format_newick_repr(taxon_label: str, origin_time_delta: str) -> str:
             break
 
     if origin_time_delta != "nan":
+        if "." in origin_time_delta:
+            origin_time_delta = origin_time_delta.rstrip("0").rstrip(".")
         label = f"{label}:{origin_time_delta}"
-        if "." in label:
-            label = label.rstrip("0").rstrip(".")
 
     return label
 
