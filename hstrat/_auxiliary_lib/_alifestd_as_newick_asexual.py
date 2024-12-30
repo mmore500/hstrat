@@ -15,26 +15,25 @@ from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_unfurl_traversal_postorder_asexual import (
     alifestd_unfurl_traversal_postorder_asexual,
 )
+from ._jit import jit
 
 _UNSAFE_SYMBOLS = (";", "(", ")", ",", "[", "]", ":", "'")
 
 
-def _format_newick_repr(
-    label: str,
-    children_reprs: typing.List[str],
-    origin_time_delta: float,
-) -> str:
+@jit
+def _format_newick_repr(taxon_label: str, origin_time_delta: str) -> str:
     # adapted from https://github.com/niemasd/TreeSwift/blob/63b8979fb5e616ba89079d44e594682683c1365e/treeswift/Node.py#L129
-    if any(c in label for c in _UNSAFE_SYMBOLS):
-        label = f"'{label}'"
+    label = taxon_label
 
-    if not np.isnan(origin_time_delta):
+    for c in _UNSAFE_SYMBOLS:
+        if c in label:
+            label = label.join("''")
+            break
+
+    if origin_time_delta != "nan":
         label = f"{label}:{origin_time_delta}"
         if "." in label:
             label = label.rstrip("0").rstrip(".")
-
-    if children_reprs:
-        label = f"({','.join(children_reprs)}){label}"
 
     return label
 
@@ -91,11 +90,15 @@ def alifestd_as_newick_asexual(
         phylogeny_df.loc[
             postorder_ids,
             ["id", "__hstrat_label", "origin_time_delta", "ancestor_id"],
-        ].to_numpy(),
+        ].astype(
+            {"origin_time_delta": str},
+        ).to_numpy(),
     ):
-        newick_repr = _format_newick_repr(
-            taxon_label, child_newick_reprs.pop(id_, []), origin_time_delta
-        )
+        newick_repr = _format_newick_repr(taxon_label, origin_time_delta)
+
+        children_reprs = child_newick_reprs.pop(id_, [])
+        if children_reprs:
+            newick_repr = f"({','.join(children_reprs)}){newick_repr}"
 
         child_newick_reprs[ancestor_id].append(newick_repr)
 
