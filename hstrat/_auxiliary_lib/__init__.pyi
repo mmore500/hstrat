@@ -154,6 +154,7 @@ from ._except_wrap_sentinel import except_wrap_sentinel
 from ._find_bounds import find_bounds
 from ._flag_last import flag_last
 from ._flat_len import flat_len
+from ._format_cli_description import format_cli_description
 from ._generate_n import generate_n
 from ._generate_omission_subsets import generate_omission_subsets
 from ._get_hstrat_version import get_hstrat_version
@@ -352,6 +353,7 @@ __all__ = [
     "find_bounds",
     "flag_last",
     "flat_len",
+    "format_cli_description",
     "generate_n",
     "generate_omission_subsets",
     "get_hstrat_version",
