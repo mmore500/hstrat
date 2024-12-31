@@ -28,7 +28,7 @@ def test_alifestd_as_newick_asexual_cli_version():
     ],
 )
 def test_alifestd_as_newick_asexual_cli_csv(input_file: str):
-    output_file = f"/tmp/{input_file}.newick"
+    output_file = f"/tmp/hstrat-{input_file}.newick"
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
@@ -38,8 +38,8 @@ def test_alifestd_as_newick_asexual_cli_csv(input_file: str):
             "--input-file",
             f"{assets}/{input_file}",
             "-o",
-            "/tmp/hstrat_unpack_surface_reconstruct.csv",
+            output_file,
         ],
         check=True,
     )
-    assert os.path.exists("/tmp/hstrat_unpack_surface_reconstruct.csv")
+    assert os.path.exists(output_file)
