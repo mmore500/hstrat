@@ -25,6 +25,7 @@ from ._alifestd_coarsen_mask import alifestd_coarsen_mask
 from ._alifestd_coerce_chronological_consistency import (
     alifestd_coerce_chronological_consistency,
 )
+from ._alifestd_collapse_trunk_asexual import alifestd_collapse_trunk_asexual
 from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
 from ._alifestd_convert_root_ancestor_token import (
     alifestd_convert_root_ancestor_token,
@@ -249,6 +250,7 @@ __all__ = [
     "alifestd_chronological_sort",
     "alifestd_coarsen_mask",
     "alifestd_coerce_chronological_consistency",
+    "alifestd_collapse_trunk_asexual",
     "alifestd_collapse_unifurcations",
     "alifestd_calc_polytomic_index",
     "alifestd_count_children_of_asexual",
