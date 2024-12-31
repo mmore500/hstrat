@@ -1,3 +1,5 @@
+import logging
+
 import polars as pl
 
 from ._alifestd_make_ancestor_list_col_polars import (
@@ -28,12 +30,19 @@ def alifestd_try_add_ancestor_list_col_polars(
     alifestd_make_ancestor_list_col
     """
     if "ancestor_id" in phylogeny_df and "ancestor_list" not in phylogeny_df:
+        logging.info("ancestor_id column present, adding ancestor_list column")
         return phylogeny_df.with_columns(
             alifestd_make_ancestor_list_col_polars(
                 phylogeny_df["id"],
                 phylogeny_df["ancestor_id"],
                 root_ancestor_token=root_ancestor_token,
             ).alias("ancestor_list")
+        )
+    elif "ancestor_list" in phylogeny_df:
+        logging.info("ancestor_list column already present, skipping addition")
+    else:
+        logging.info(
+            "no ancestor_id column available, skipping ancestor_list addition",
         )
 
     return phylogeny_df

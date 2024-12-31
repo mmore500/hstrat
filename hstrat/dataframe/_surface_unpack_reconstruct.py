@@ -159,16 +159,14 @@ def surface_unpack_reconstruct(
         The output DataFrame containing the estimated phylogenetic tree in
         alife standard format, with the following columns:
 
-        - 'taxon_id' : pl.UInt64
+        - 'id' : pl.UInt64
             - Unique identifier for each taxon (RE alife standard format).
         - 'ancestor_id' : pl.UInt64
             - Unique identifier for ancestor taxon  (RE alife standard format).
-        - 'origin_tme' : pl.UInt64
+        - 'rank' : pl.UInt64
             - Num generations elapsed for ancestral differentia.
-            - RE alife standard format.
-            - a.k.a. "rank"
-                - Corresponds to`dstream_Tbar` for inner nodes.
-                - Corresponds `dstream_T` - 1 for leaf nodes
+            - Corresponds to`dstream_Tbar` for inner nodes.
+            - Corresponds `dstream_T` - 1 for leaf nodes
         - 'differentia_bitwidth' : pl.UInt64
             - Size of annotation differentiae, in bits.
             - Corresponds to `dstream_value_bitwidth`.

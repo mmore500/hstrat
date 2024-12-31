@@ -68,17 +68,14 @@ Internal tree nodes will take null values in user-provided columns.
 
 Output Schema
 =============
-'taxon_id' : integer
+'id' : integer
     Unique identifier for each taxon (RE alife standard format).
 
 'ancestor_id' : integer
     Unique identifier for ancestor taxon (RE alife standard format).
 
-'ancestor_list' : string
-    List of ancestor taxon identifiers (RE alife standard format).
-
-'origin_time' : floating point or integer
-    Num generations elapsed for ancestral differentia (a.k.a. rank), RE alife standard format.
+'rank' : floating point or integer
+    Num generations elapsed for ancestral differentia (a.k.a. rank).
     Corresponds to `dstream_Tbar` for inner nodes.
     Corresponds `dstream_T` - 1 for leaf nodes.
 

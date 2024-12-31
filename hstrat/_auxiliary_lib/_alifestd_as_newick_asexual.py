@@ -21,6 +21,7 @@ from ._alifestd_unfurl_traversal_postorder_asexual import (
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
+from ._log_context_duration import log_context_duration
 
 # adapted from https://stackoverflow.com/a/3939381/17332200
 _UNSAFE_SYMBOLS = ";(),[]:'"
@@ -148,7 +149,7 @@ Note that this CLI entrypoint is experimental and may be subject to change.
 """
 
 
-def _make_parser() -> argparse.ArgumentParser:
+def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=format_cli_description(_raw_description),
         formatter_class=argparse.RawTextHelpFormatter,
@@ -177,7 +178,7 @@ def _make_parser() -> argparse.ArgumentParser:
 if __name__ == "__main__":
     configure_prod_logging()
 
-    parser = _make_parser()
+    parser = _create_parser()
     args = parser.parse_args()
     input_ext = os.path.splitext(args.input_file)[1]
 
@@ -193,8 +194,13 @@ if __name__ == "__main__":
         ".parquet": pd.read_parquet,
     }[input_ext](args.input_file)
 
-    logging.info("converting to Newick format...")
-    newick_str = alifestd_as_newick_asexual(phylogeny_df, progress_wrap=tqdm)
+    with log_context_duration(
+        "hstrat._auxiliary_lib.alifestd_as_newick_asexual", logging.info
+    ):
+        logging.info("converting to Newick format...")
+        newick_str = alifestd_as_newick_asexual(
+            phylogeny_df, progress_wrap=tqdm
+        )
 
     logging.info(f"writing Newick-formatted data to {args.output_file}...")
     pathlib.Path(args.output_file).write_text(newick_str)
