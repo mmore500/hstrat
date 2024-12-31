@@ -8,6 +8,9 @@ if __name__ == "__main__":
     print()
     print("Available commands (experimental API):")
     print("$ python3 -m hstrat._auxiliary_lib._alifestd_as_newick_asexual")
+    print(
+        "$ python3 -m hstrat._auxiliary_lib._alifestd_try_add_ancestor_list_col"
+    )
     print()
     print(
         "For information on a command, " "invoke it with the --help flag.",
