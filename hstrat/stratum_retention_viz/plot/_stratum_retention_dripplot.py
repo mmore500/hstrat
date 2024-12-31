@@ -37,7 +37,7 @@ def stratum_retention_dripplot(
     ax : matplotlib/pylab axes, optional
         If a valid matplotlib.axes.Axes instance, the plot is drawn in that
         Axes. By default (None), a new axes is created.
-    progress_wrap : Callable, default identity function
+    progress_wrap : Callable, optional
         Wrapper applied around generation iterator and row generator for final
         phylogeny compilation process.
 

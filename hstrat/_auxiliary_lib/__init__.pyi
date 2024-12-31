@@ -137,6 +137,7 @@ from ._cmp_approx import cmp_approx
 from ._coerce_to_pandas import coerce_to_pandas
 from ._coerce_to_polars import coerce_to_polars
 from ._collapse_nonleading_whitespace import collapse_nonleading_whitespace
+from ._configure_prod_logging import configure_prod_logging
 from ._consume import consume
 from ._coshuffled import coshuffled
 from ._count_leading_blanks import count_leading_blanks
@@ -153,6 +154,7 @@ from ._except_wrap_sentinel import except_wrap_sentinel
 from ._find_bounds import find_bounds
 from ._flag_last import flag_last
 from ._flat_len import flat_len
+from ._format_cli_description import format_cli_description
 from ._generate_n import generate_n
 from ._generate_omission_subsets import generate_omission_subsets
 from ._get_hstrat_version import get_hstrat_version
@@ -333,6 +335,7 @@ __all__ = [
     "coerce_to_pandas",
     "coerce_to_polars",
     "collapse_nonleading_whitespace",
+    "configure_prod_logging",
     "consume",
     "CopyableSeriesItemsIter",
     "count_unique",
@@ -350,6 +353,7 @@ __all__ = [
     "find_bounds",
     "flag_last",
     "flat_len",
+    "format_cli_description",
     "generate_n",
     "generate_omission_subsets",
     "get_hstrat_version",

@@ -28,7 +28,7 @@ def test_fuzz(phylogeny_df: pd.DataFrame):
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
     original = phylogeny_df.copy()
 
-    result = alifestd_as_newick_asexual(phylogeny_df)
+    result = alifestd_as_newick_asexual(phylogeny_df, label_key="id")
     assert original.equals(phylogeny_df)
 
     rosetta_tree = apc.RosettaTree.from_newick(result)
@@ -128,6 +128,7 @@ def test_simple4(mutate: bool):
     result = alifestd_as_newick_asexual(
         phylogeny_df,
         mutate=mutate,
+        label_key="id",
     )
 
     assert result == "(4:90,2:2,(3:4)1:1)0:0;"

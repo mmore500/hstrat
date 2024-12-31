@@ -113,7 +113,7 @@ def evolve_fitness_trait_population(
 
         The dummy ancestor's trait value is recorded as NaN and population
         loc is recorded as 0.
-    progress_wrap : Callable, default identity function
+    progress_wrap : Callable, optional
         Wrapper applied around generation iterator and row generator for final
         phylogeny compilation process.
 

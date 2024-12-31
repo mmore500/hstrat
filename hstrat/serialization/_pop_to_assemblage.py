@@ -16,7 +16,7 @@ def pop_to_assemblage(
     ----------
     columns : iterable of HereditaryStratigraphicColumn
         Data to serialize.
-    progress_wrap : Callable, default identity function
+    progress_wrap : Callable, optional
         Wrapper applied around generation iterator and row generator for final
         phylogeny compilation process.
 

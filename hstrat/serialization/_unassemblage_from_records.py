@@ -18,7 +18,7 @@ def unassemblage_from_records(
     ----------
     records : dict
         Data to deserialize.
-    progress_wrap : Callable, default identity function
+    progress_wrap : Callable, optional
         Wrapper applied around generation iterator and row generator for final
         phylogeny compilation process.
 

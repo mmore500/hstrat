@@ -46,10 +46,11 @@ def _build_records_chunked(
     init_size = len(df) * 8
     records = Records(init_size)
     for i, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
-        logging.info(f"incorporating slice {i}/{num_slices}...")
+        logging.info(f"incorporating slice {i + 1}/{num_slices}...")
 
         with log_context_duration(
-            f"explode dstream records, slice {i}", logging.info
+            f"dstream.dataframe.explode_lookup_unpacked ({i + 1}/{num_slices})",
+            logging.info,
         ):
             long_df = dstream_dataframe.explode_lookup_unpacked(
                 df_slice, value_type="uint64"
@@ -58,7 +59,10 @@ def _build_records_chunked(
         if i == 0:
             render_polars_snapshot(long_df, "exploded", logging.info)
 
-        with log_context_duration(f"build tree, slice {i}", logging.info):
+        with log_context_duration(
+            f"extend_tree_searchtable_cpp_from_exploded ({i + 1}/{num_slices})",
+            logging.info,
+        ):
             extend_tree_searchtable_cpp_from_exploded(
                 records,
                 long_df["dstream_data_id"].to_numpy(),
@@ -69,7 +73,8 @@ def _build_records_chunked(
             )
 
         with log_context_duration(
-            f"collapse dropped unifurcations, slice {i}", logging.info
+            f"collapse_dropped_unifurcations ({i + 1}/{num_slices})",
+            logging.info,
         ):
             records = collapse_dropped_unifurcations(records)
 
@@ -78,8 +83,29 @@ def _build_records_chunked(
     return records
 
 
+def _join_user_defined_columns(
+    df: pl.DataFrame, phylo_df: pl.DataFrame
+) -> pl.DataFrame:
+    """Join user-defined columns from input data onto reconstructed tree
+    dataframe."""
+    df = df.select(
+        pl.exclude("^dstream_.*$", "^downstream_.*$"),
+        pl.col("dstream_data_id").cast(pl.UInt64),
+    )
+    joined_columns = set(df.columns) - set(phylo_df.columns)
+    if joined_columns:
+        logging.info(f" - {len(joined_columns)} column to join")
+        logging.info(f" - joining columns: {[*joined_columns]}")
+        phylo_df = phylo_df.join(df, on="dstream_data_id", how="left")
+    else:
+        logging.info(" - no columns to join, skipping")
+
+    return phylo_df
+
+
 def surface_unpack_reconstruct(
     df: pl.DataFrame,
+    *,
     exploded_slice_size: int = 1_000_000,
 ) -> pl.DataFrame:
     """Unpack dstream buffer and counter from genome data and construct an
@@ -175,7 +201,9 @@ def surface_unpack_reconstruct(
     differentia_bitwidth = _get_sole_bitwidth(df)
     logging.info(f" - differentia bitwidth: {differentia_bitwidth}")
 
-    with log_context_duration("unpack genome strings", logging.info):
+    with log_context_duration(
+        "dstream.dataframe.unpack_data_packed", logging.info
+    ):
         df = dstream_dataframe.unpack_data_packed(df)
     render_polars_snapshot(df, "unpacked", logging.info)
 
@@ -205,18 +233,8 @@ def surface_unpack_reconstruct(
     )
 
     logging.info("joining user-defined columns...")
-    with log_context_duration("join user-defined columns", logging.info):
-        df = df.select(
-            pl.exclude("^dstream_.*$", "^downstream_.*$"),
-            pl.col("dstream_data_id").cast(pl.UInt64),
-        )
-        joined_columns = set(df.columns) - set(phylo_df.columns)
-        if joined_columns:
-            logging.info(f" - {len(joined_columns)} column to join")
-            logging.info(f" - joining columns: {[*joined_columns]}")
-            phylo_df = phylo_df.join(df, on="dstream_data_id", how="left")
-        else:
-            logging.info(" - no columns to join, skipping")
+    with log_context_duration("_join_user_defined_columns", logging.info):
+        phylo_df = _join_user_defined_columns(df, phylo_df)
 
     logging.info("surface_unpack_reconstruct complete")
     render_polars_snapshot(phylo_df, "reconstruction", logging.info)
