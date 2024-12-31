@@ -4,6 +4,7 @@ import os
 import pathlib
 import typing
 
+import more_itertools as mit
 import numpy as np
 import opytional as opyt
 import pandas as pd
@@ -20,20 +21,18 @@ from ._alifestd_unfurl_traversal_postorder_asexual import (
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
-from ._jit import jit
 
-_UNSAFE_SYMBOLS = (";", "(", ")", ",", "[", "]", ":", "'")
+# adapted from https://stackoverflow.com/a/3939381/17332200
+_UNSAFE_SYMBOLS = ";(),[]:'"
+_UNSAFE_TRANSLATION_TABLE = str.maketrans("", "", _UNSAFE_SYMBOLS)
 
 
-@jit("unicode_type(unicode_type, unicode_type)", cache=True)
 def _format_newick_repr(taxon_label: str, origin_time_delta: str) -> str:
     # adapted from https://github.com/niemasd/TreeSwift/blob/63b8979fb5e616ba89079d44e594682683c1365e/treeswift/Node.py#L129
     label = taxon_label
 
-    for c in _UNSAFE_SYMBOLS:
-        if c in label:
-            label = label.join("''")
-            break
+    if label.translate(_UNSAFE_TRANSLATION_TABLE) != label:
+        label = label.join("''")
 
     if origin_time_delta != "nan":
         if "." in origin_time_delta:
@@ -48,20 +47,23 @@ def _build_newick_string(
     labels: np.ndarray,
     origin_time_deltas: np.ndarray,
     ancestor_ids: np.ndarray,
+    *,
+    progress_wrap: typing.Callable,
 ) -> str:
     child_newick_reprs = dict()
-    for id_, taxon_label, origin_time_delta, ancestor_id in tqdm(
+    for id_, taxon_label, origin_time_delta, ancestor_id in progress_wrap(
         zip(ids, labels, origin_time_deltas, ancestor_ids)
     ):
         newick_repr = _format_newick_repr(taxon_label, origin_time_delta)
 
-        children_reprs = child_newick_reprs.pop(id_, [])
-        if children_reprs:
+        children_reprs = child_newick_reprs.pop(id_, None)
+        if children_reprs is not None:
             newick_repr = f"({','.join(children_reprs)}){newick_repr}"
 
         child_newick_reprs.setdefault(ancestor_id, []).append(newick_repr)
 
-    return ";\n".join(x for (x,) in child_newick_reprs.values()) + ";"
+    logging.info(f"finalizing {len(child_newick_reprs)} subtrees...")
+    return ";\n".join(map(mit.one, child_newick_reprs.values())) + ";"
 
 
 def alifestd_as_newick_asexual(
@@ -122,18 +124,19 @@ def alifestd_as_newick_asexual(
     )
     phylogeny_df["__hstrat_label"] = phylogeny_df["__hstrat_label"].astype(str)
 
-    logging.info("creating newick string...")
-    result = _build_newick_string(
-        *phylogeny_df.loc[
+    logging.info("reshaping data...")
+    reshaped = (
+        phylogeny_df.loc[
             postorder_ids,
             ["id", "__hstrat_label", "origin_time_delta", "ancestor_id"],
         ]
-        .astype(
-            {"origin_time_delta": str},
-        )
+        .astype({"origin_time_delta": str})
         .to_numpy()
-        .T,
+        .T
     )
+
+    logging.info("creating newick string...")
+    result = _build_newick_string(*reshaped, progress_wrap=progress_wrap)
 
     logging.info(f"{len(result)=} {result[:20]=}")
     return result
