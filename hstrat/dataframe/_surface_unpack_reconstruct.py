@@ -85,7 +85,7 @@ def _build_records_chunked(
 
 def _join_user_defined_columns(
     df: pl.DataFrame, phylo_df: pl.DataFrame
-) -> pl.DatFrame:
+) -> pl.DataFrame:
     """Join user-defined columns from input data onto reconstructed tree
     dataframe."""
     df = df.select(
