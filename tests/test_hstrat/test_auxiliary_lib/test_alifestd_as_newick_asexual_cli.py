@@ -32,7 +32,7 @@ def test_alifestd_as_newick_asexual_cli_csv(input_file: str):
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
-            "python3.10",
+            "python3",
             "-m",
             "hstrat._auxiliary_lib._alifestd_as_newick_asexual",
             "--input-file",
