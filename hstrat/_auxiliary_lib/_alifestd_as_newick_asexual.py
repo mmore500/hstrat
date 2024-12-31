@@ -1,11 +1,9 @@
 import argparse
-from collections import defaultdict
 import logging
 import os
 import pathlib
 import typing
 
-import more_itertools as mit
 import numpy as np
 import opytional as opyt
 import pandas as pd
@@ -43,6 +41,27 @@ def _format_newick_repr(taxon_label: str, origin_time_delta: str) -> str:
         label = f"{label}:{origin_time_delta}"
 
     return label
+
+
+def _build_newick_string(
+    ids: np.ndarray,
+    labels: np.ndarray,
+    origin_time_deltas: np.ndarray,
+    ancestor_ids: np.ndarray,
+) -> str:
+    child_newick_reprs = dict()
+    for id_, taxon_label, origin_time_delta, ancestor_id in tqdm(
+        zip(ids, labels, origin_time_deltas, ancestor_ids)
+    ):
+        newick_repr = _format_newick_repr(taxon_label, origin_time_delta)
+
+        children_reprs = child_newick_reprs.pop(id_, [])
+        if children_reprs:
+            newick_repr = f"({','.join(children_reprs)}){newick_repr}"
+
+        child_newick_reprs.setdefault(ancestor_id, []).append(newick_repr)
+
+    return ";\n".join(x for (x,) in child_newick_reprs.values()) + ";"
 
 
 def alifestd_as_newick_asexual(
@@ -104,29 +123,18 @@ def alifestd_as_newick_asexual(
     phylogeny_df["__hstrat_label"] = phylogeny_df["__hstrat_label"].astype(str)
 
     logging.info("creating newick string...")
-    child_newick_reprs = defaultdict(list)
-    for id_, taxon_label, origin_time_delta, ancestor_id in progress_wrap(
-        phylogeny_df.loc[
+    result = _build_newick_string(
+        *phylogeny_df.loc[
             postorder_ids,
             ["id", "__hstrat_label", "origin_time_delta", "ancestor_id"],
         ]
         .astype(
             {"origin_time_delta": str},
         )
-        .to_numpy(),
-    ):
-        newick_repr = _format_newick_repr(taxon_label, origin_time_delta)
-
-        children_reprs = child_newick_reprs.pop(id_, [])
-        if children_reprs:
-            newick_repr = f"({','.join(children_reprs)}){newick_repr}"
-
-        child_newick_reprs[ancestor_id].append(newick_repr)
-
-    logging.info(
-        f"finalizing newick string for {len(child_newick_reprs)} trees...",
+        .to_numpy()
+        .T,
     )
-    result = ";\n".join(map(mit.one, child_newick_reprs.values())) + ";"
+
     logging.info(f"{len(result)=} {result[:20]=}")
     return result
 
