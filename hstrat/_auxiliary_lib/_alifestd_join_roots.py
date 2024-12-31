@@ -1,5 +1,6 @@
 import pandas as pd
 
+from ._alifestd_mark_oldest_root import alifestd_mark_oldest_root
 from ._alifestd_mark_roots import alifestd_mark_roots
 
 
@@ -17,33 +18,30 @@ def alifestd_join_roots(
         phylogeny_df = phylogeny_df.copy()
 
     phylogeny_df = alifestd_mark_roots(phylogeny_df, mutate=True)
+    phylogeny_df = alifestd_mark_oldest_root(phylogeny_df, mutate=True)
+
     if len(phylogeny_df) <= 1:
         return phylogeny_df
 
-    phylogeny_df.reset_index(drop=True, inplace=True)
-    idxmin: int
-    if "origin_time" in phylogeny_df.columns:
-        idxmin = (
-            phylogeny_df.loc[phylogeny_df["is_root"]]
-            .sort_values(by=["origin_time", "id"])
-            .index[0]
-        )
-    else:
-        idxmin = phylogeny_df.loc[phylogeny_df["is_root"], "id"].idxmin()
-
-    global_root_id = phylogeny_df.loc[idxmin, "id"]
+    global_root_id = phylogeny_df.loc[
+        phylogeny_df["is_oldest_root"].idxmax(), "id"
+    ]
 
     if "ancestor_id" in phylogeny_df:
         phylogeny_df.loc[
             phylogeny_df["is_root"], "ancestor_id"
         ] = global_root_id
 
-    phylogeny_df.loc[
-        phylogeny_df["is_root"], "ancestor_list"
-    ] = f"[{global_root_id}]"
+    if "ancestor_list" in phylogeny_df:
+        phylogeny_df.loc[
+            phylogeny_df["is_root"], "ancestor_list"
+        ] = f"[{global_root_id}]"
+
     phylogeny_df["is_root"] = False
 
-    phylogeny_df.loc[idxmin, "ancestor_list"] = "[none]"
-    phylogeny_df.loc[idxmin, "is_root"] = True
+    phylogeny_df.loc[
+        phylogeny_df["is_oldest_root"], "ancestor_list"
+    ] = "[none]"
+    phylogeny_df.loc[phylogeny_df["is_oldest_root"], "is_root"] = True
 
     return phylogeny_df
