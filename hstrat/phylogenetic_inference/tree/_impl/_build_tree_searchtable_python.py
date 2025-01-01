@@ -114,7 +114,7 @@ def _insert_artifact(
     *,
     ranks: typing.Iterable[int],
     differentiae: typing.Iterable[int],
-    taxon_label: int,
+    taxon_label: typing.Any,
     num_strata_deposited: int,
 ) -> None:
     """Insert a taxon into the trie, ultimately resulting in the creation

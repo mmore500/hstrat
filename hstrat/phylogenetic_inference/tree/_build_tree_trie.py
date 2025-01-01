@@ -133,7 +133,6 @@ def build_tree_trie(
             trie_postprocess.AssignOriginTimeNaiveTriePostprocessor()
         )
     elif bias_adjustment == "sample_ancestral_rollbacks":
-
         trie_postprocessor = trie_postprocess.CompoundTriePostprocessor(
             postprocessors=[
                 trie_postprocess.SampleAncestralRollbacksTriePostprocessor(
