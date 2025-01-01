@@ -163,6 +163,7 @@ from ._get_hstrat_version import get_hstrat_version
 from ._get_nullable_mask import get_nullable_mask
 from ._get_nullable_vals import get_nullable_vals
 from ._get_package_name import get_package_name
+from ._get_sole_scalar_value_polars import get_sole_scalar_value_polars
 from ._give_len import give_len
 from ._indices_of_unique import indices_of_unique
 from ._intersect_ranges import intersect_ranges
@@ -365,6 +366,7 @@ __all__ = [
     "get_nullable_mask",
     "get_nullable_vals",
     "get_package_name",
+    "get_sole_scalar_value_polars",
     "GetAttrLaunderShim",
     "give_len",
     "HereditaryStratigraphicArtifact",

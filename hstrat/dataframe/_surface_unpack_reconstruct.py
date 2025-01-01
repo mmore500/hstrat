@@ -7,6 +7,7 @@ import tqdm
 
 from .._auxiliary_lib import (
     alifestd_make_empty,
+    get_sole_scalar_value_polars,
     log_context_duration,
     log_memory_usage,
     render_polars_snapshot,
@@ -17,22 +18,6 @@ from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub i
     extend_tree_searchtable_cpp_from_exploded,
     records_to_dict,
 )
-
-
-def _get_sole_bitwidth(df: pl.DataFrame) -> int:
-    """Get dstream bitwidth value from DataFrame, ensuring it is unique."""
-    assert not df.lazy().limit(1).collect().is_empty()
-    if (
-        not df.lazy()
-        .filter(pl.col("dstream_value_bitwidth").diff() != pl.lit(0))
-        .limit(1)
-        .collect()
-        .is_empty()
-    ):
-        raise NotImplementedError(
-            "multiple differentia_bitwidths not yet supported",
-        )
-    return df.lazy().select("dstream_value_bitwidth").limit(1).collect().item()
 
 
 def _build_records_chunked(
@@ -199,14 +184,21 @@ def surface_unpack_reconstruct(
         logging.info("empty input dataframe, returning empty result")
         return pl.from_pandas(alifestd_make_empty())
 
-    logging.info("extracting differentia bitwidth...")
-    df = df.with_columns(
-        dstream_value_bitwidth=(
-            pl.col("dstream_storage_bitwidth") // pl.col("dstream_S")
-        ),
+    logging.info("extracting metadata..")
+    dstream_storage_bitwidth = get_sole_scalar_value_polars(
+        df, "dstream_storage_bitwidth"
     )
-    differentia_bitwidth = _get_sole_bitwidth(df)
-    logging.info(f" - differentia bitwidth: {differentia_bitwidth}")
+    logging.info(f" - dstream storage bitwidth: {dstream_storage_bitwidth}")
+
+    dstream_S = get_sole_scalar_value_polars(df, "dstream_S")
+    logging.info(f" - dstream S: {dstream_S}")
+
+    if not dstream_storage_bitwidth % dstream_S == 0:
+        raise ValueError(
+            "dstream_storage_bitwidth must be a multiple of dstream_S, "
+            "cannot calculate differentia_bitwidth",
+        )
+    differentia_bitwidth = dstream_storage_bitwidth // dstream_S
 
     with log_context_duration(
         "dstream.dataframe.unpack_data_packed", logging.info
