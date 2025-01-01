@@ -2,6 +2,7 @@ import logging
 import math
 
 from downstream import dataframe as dstream_dataframe
+import pandas as pd
 import polars as pl
 import tqdm
 
@@ -208,7 +209,12 @@ def surface_unpack_reconstruct(
     # for simplicity, return early for this special case
     if df.lazy().limit(1).collect().is_empty():
         logging.info("empty input dataframe, returning empty result")
-        return pl.from_pandas(alifestd_make_empty())
+        res = alifestd_make_empty()
+        res["taxon_label"] = None
+        res["rank"] = pd.Series(dtype=int)
+        res["differentia_bitwidth"] = pd.Series(dtype=int)
+        res["dstream_S"] = pd.Series(dtype=int)
+        return pl.from_pandas(res)
 
     logging.info("extracting metadata..")
     dstream_storage_bitwidth = get_sole_scalar_value_polars(
