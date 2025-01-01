@@ -4,6 +4,8 @@ import random
 import typing
 
 import opytional as opyt
+import pandas as pd
+import polars as pl
 
 from ...._auxiliary_lib import (
     AnyTreeFastPreOrderIter,
@@ -18,19 +20,15 @@ from .._impl import TrieInnerNode
 from ._detail import TriePostprocessorBase
 
 
-def _sample_ancestral_rollbacks(
+def _call_anytree(
     trie: TrieInnerNode,
     p_differentia_collision: float,
-    mutate: bool = False,
-    progress_wrap: typing.Callable = lambda x: x,
+    progress_wrap: typing.Callable,
 ) -> TrieInnerNode:
     """Implementation detail for `SampleAncestralRollbacks.__call__`.
 
     See `SampleAncestralRollbacks.__call__` for parameter descriptions.
     """
-    if not mutate:
-        trie = anytree_iterative_deepcopy(trie, progress_wrap=progress_wrap)
-
     eligible_nodes = {
         id(node): node
         for node in AnyTreeFastPreOrderIter(trie)
@@ -224,9 +222,17 @@ class SampleAncestralRollbacksTriePostprocessor(
             RngStateContext,
             contextlib.nullcontext(),
         ):
-            return _sample_ancestral_rollbacks(
-                trie=trie,
-                p_differentia_collision=p_differentia_collision,
-                mutate=mutate,
-                progress_wrap=progress_wrap,
-            )
+            if isinstance(trie, TrieInnerNode):
+                if not mutate:
+                    trie = anytree_iterative_deepcopy(
+                        trie, progress_wrap=progress_wrap
+                    )
+                return _call_anytree(
+                    trie,
+                    p_differentia_collision,
+                    progress_wrap=progress_wrap,
+                )
+            elif isinstance(trie, (pl.DataFrame, pd.DataFrame)):
+                raise NotImplementedError
+            else:
+                raise TypeError

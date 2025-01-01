@@ -1,6 +1,8 @@
 import typing
 
-from ...._auxiliary_lib import anytree_iterative_deepcopy
+import pandas as pd
+import polars as pl
+
 from .._impl import TrieInnerNode
 from ._detail import TriePostprocessorBase
 
@@ -29,16 +31,16 @@ class CompoundTriePostprocessor(TriePostprocessorBase):
 
     def __call__(
         self: "CompoundTriePostprocessor",
-        trie: TrieInnerNode,
+        trie: typing.Union[TrieInnerNode, pd.DataFrame, pl.DataFrame],
         p_differentia_collision: float,
         mutate: bool = False,
         progress_wrap: typing.Callable = lambda x: x,
-    ) -> TrieInnerNode:
+    ) -> typing.Union[TrieInnerNode, pd.DataFrame, pl.DataFrame]:
         """Apply stored postprocessors in sequence.
 
         Parameters
         ----------
-        trie : TrieInnerNode
+        trie : TrieInnerNode or pd.DataFrame or pl.DataFrame
             The input trie to be postprocessed.
         p_differentia_collision : float
             Probability of a randomly-generated differentia matching an
@@ -52,19 +54,14 @@ class CompoundTriePostprocessor(TriePostprocessorBase):
 
         Returns
         -------
-        TrieInnerNode
+        TrieInnerNode or pd.DataFrame or pl.DataFrame
             The postprocessed trie after applying all stored postprocessors.
         """
-        if not mutate:
-            trie = anytree_iterative_deepcopy(
-                trie, progress_wrap=progress_wrap
-            )
-
-        for postprocessor in self._postprocessors:
+        for i, postprocessor in enumerate(self._postprocessors):
             trie = postprocessor(
                 trie=trie,
                 p_differentia_collision=p_differentia_collision,
-                mutate=True,
+                mutate=i > 0 or mutate,
                 progress_wrap=progress_wrap,
             )
 

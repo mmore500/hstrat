@@ -1,11 +1,25 @@
 import typing
 
+import pandas as pd
+import polars as pl
+
 from ...._auxiliary_lib import (
     AnyTreeFastPreOrderIter,
     anytree_iterative_deepcopy,
 )
 from .._impl import TrieInnerNode
 from ._detail import TriePostprocessorBase
+
+
+def _call_anytree(
+    ftor: "AssignOriginTimeNodeRankTriePostprocessor",
+    trie: TrieInnerNode,
+    progress_wrap: typing.Callable,
+) -> TrieInnerNode:
+    for node in progress_wrap(AnyTreeFastPreOrderIter(trie)):
+        setattr(node, ftor._assigned_property, node.rank)
+
+    return trie
 
 
 class AssignOriginTimeNodeRankTriePostprocessor(TriePostprocessorBase):
@@ -53,12 +67,17 @@ class AssignOriginTimeNodeRankTriePostprocessor(TriePostprocessorBase):
         TrieInnerNode
             The postprocessed trie with assigned origin times.
         """
-        if not mutate:
-            trie = anytree_iterative_deepcopy(
-                trie, progress_wrap=progress_wrap
+        if isinstance(trie, TrieInnerNode):
+            if not mutate:
+                trie = anytree_iterative_deepcopy(
+                    trie, progress_wrap=progress_wrap
+                )
+            return _call_anytree(
+                self,
+                trie,
+                progress_wrap=progress_wrap,
             )
-
-        for node in progress_wrap(AnyTreeFastPreOrderIter(trie)):
-            setattr(node, self._assigned_property, node.rank)
-
-        return trie
+        elif isinstance(trie, (pl.DataFrame, pd.DataFrame)):
+            raise NotImplementedError  # pragma: no cover
+        else:
+            raise TypeError  # pragma: no cover

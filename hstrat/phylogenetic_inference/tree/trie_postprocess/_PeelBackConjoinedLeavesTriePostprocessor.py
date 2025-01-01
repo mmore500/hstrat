@@ -1,5 +1,8 @@
 import typing
 
+import pandas as pd
+import polars as pl
+
 from ...._auxiliary_lib import (
     AnyTreeFastLeafIter,
     anytree_iterative_deepcopy,
@@ -7,6 +10,17 @@ from ...._auxiliary_lib import (
 )
 from .._impl import TrieInnerNode
 from ._detail import TriePostprocessorBase
+
+
+def _call_anytree(
+    trie: TrieInnerNode,
+    progress_wrap: typing.Callable,
+) -> TrieInnerNode:
+    for leaf in progress_wrap(AnyTreeFastLeafIter(trie)):
+        if sum(1 for __ in leaf.parent.outer_children) > 1:
+            anytree_peel_sibling_to_cousin(leaf)
+
+    return trie
 
 
 class PeelBackConjoinedLeavesTriePostprocessor(TriePostprocessorBase):
@@ -55,13 +69,16 @@ class PeelBackConjoinedLeavesTriePostprocessor(TriePostprocessorBase):
         TrieInnerNode
             The postprocessed trie.
         """
-        if not mutate:
-            trie = anytree_iterative_deepcopy(
-                trie, progress_wrap=progress_wrap
+        if isinstance(trie, TrieInnerNode):
+            if not mutate:
+                trie = anytree_iterative_deepcopy(
+                    trie, progress_wrap=progress_wrap
+                )
+            return _call_anytree(
+                trie,
+                progress_wrap=progress_wrap,
             )
-
-        for leaf in progress_wrap(AnyTreeFastLeafIter(trie)):
-            if sum(1 for __ in leaf.parent.outer_children) > 1:
-                anytree_peel_sibling_to_cousin(leaf)
-
-        return trie
+        elif isinstance(trie, (pl.DataFrame, pd.DataFrame)):
+            raise NotImplementedError
+        else:
+            raise TypeError
