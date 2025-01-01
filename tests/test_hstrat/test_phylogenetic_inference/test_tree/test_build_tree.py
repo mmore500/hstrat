@@ -7,7 +7,10 @@ import alifedata_phyloinformatics_convert as apc
 import pytest
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import alifestd_validate
+from hstrat._auxiliary_lib import (
+    alifestd_is_chronologically_ordered,
+    alifestd_validate,
+)
 
 from . import _impl as impl
 
@@ -27,6 +30,7 @@ def test_empty_population(version_pin):
 
     assert len(tree) == 0
     assert alifestd_validate(tree)
+    assert alifestd_is_chronologically_ordered(tree)
 
 
 @pytest.mark.parametrize(
@@ -47,6 +51,7 @@ def test_dual_population_no_mrca(version_pin):
         population, version_pin, taxon_labels=names, force_common_ancestry=True
     )
     assert alifestd_validate(tree)
+    assert alifestd_is_chronologically_ordered(tree)
     tree.loc[:, "name"] = tree["taxon_label"]
 
     root_clade = BaseTree.Clade(name="Inner1")
@@ -83,6 +88,7 @@ def test_dual_population_with_mrca(version_pin):
         population, version_pin=version_pin, taxon_labels=names
     )
     assert alifestd_validate(tree)
+    assert alifestd_is_chronologically_ordered(tree)
     tree["name"] = tree["taxon_label"]
 
     root_clade = BaseTree.Clade(name="Inner")

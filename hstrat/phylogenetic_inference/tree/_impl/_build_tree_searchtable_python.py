@@ -209,7 +209,10 @@ def build_tree_searchtable_python(
     """
     pop_len = len(population)
     if pop_len == 0:
-        return alifestd_make_empty()
+        res = alifestd_make_empty()
+        res["origin_time"] = pd.Series(dtype=int)
+        res["taxon_label"] = None
+        return res
 
     taxon_labels = [*opyt.or_value(taxon_labels, map(str, range(pop_len)))]
     sort_order = argsort([x.GetNumStrataDeposited() for x in population])

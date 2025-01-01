@@ -36,7 +36,10 @@ def _build_tree_trie_ensemble(
     """
     # for simplicity, return early for this special case
     if len(population) == 0:
-        return alifestd_make_empty()
+        res = alifestd_make_empty()
+        res["origin_time"] = pd.Series(dtype=int)
+        res["taxon_label"] = None
+        return res
 
     root = build_trie_from_artifacts(
         population=population,

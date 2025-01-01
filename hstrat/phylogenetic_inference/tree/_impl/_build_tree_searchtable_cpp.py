@@ -141,7 +141,10 @@ def build_tree_searchtable_cpp(
     """
     pop_len = len(population)
     if pop_len == 0:
-        return alifestd_make_empty()
+        res = alifestd_make_empty()
+        res["origin_time"] = pd.Series(dtype=int)
+        res["taxon_label"] = None
+        return res
 
     taxon_labels = list(
         opyt.or_value(

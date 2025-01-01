@@ -14,6 +14,7 @@ from hstrat import hstrat
 from hstrat._auxiliary_lib import (
     alifestd_collapse_unifurcations,
     alifestd_has_multiple_roots,
+    alifestd_is_chronologically_ordered,
     alifestd_validate,
     generate_n,
     random_tree,
@@ -36,6 +37,7 @@ def test_empty_population():
 
     assert len(tree) == 0
     assert alifestd_validate(tree)
+    assert alifestd_is_chronologically_ordered(tree)
 
 
 def test_dual_population_no_mrca():
@@ -59,6 +61,7 @@ def test_dual_population_no_mrca():
     tree["name"] = tree["taxon_label"]
     assert not alifestd_has_multiple_roots(tree)
     assert alifestd_validate(tree)
+    assert alifestd_is_chronologically_ordered(tree)
 
     root_clade = BaseTree.Clade(name="Inner1")
     root_clade.clades = [
@@ -123,6 +126,7 @@ def test_handwritten_trees(orig_tree, retention_policy, wrap):
     )
 
     assert alifestd_validate(reconst_df)
+    assert alifestd_is_chronologically_ordered(reconst_df)
     reconst_tree = apc.alife_dataframe_to_dendropy_tree(
         reconst_df,
         setup_edge_lengths=True,
@@ -179,6 +183,7 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
     assert "origin_time" in reconst_df
 
     assert alifestd_validate(reconst_df)
+    assert alifestd_is_chronologically_ordered(reconst_df)
     reconst_tree = apc.alife_dataframe_to_dendropy_tree(
         reconst_df,
         setup_edge_lengths=True,
@@ -321,6 +326,7 @@ def test_reconstructed_mrca_fuzz(
     assert "origin_time" in reconst_df
 
     assert alifestd_validate(reconst_df)
+    assert alifestd_is_chronologically_ordered(reconst_df)
     reconst_tree = apc.alife_dataframe_to_dendropy_tree(
         reconst_df,
         setup_edge_lengths=True,

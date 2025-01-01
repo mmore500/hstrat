@@ -123,7 +123,10 @@ def build_tree_trie(
 
     # for simplicity, return early for this special case
     if len(population) == 0:
-        return alifestd_make_empty()
+        res = alifestd_make_empty()
+        res["origin_time"] = pd.Series(dtype=int)
+        res["taxon_label"] = None
+        return res
 
     if bias_adjustment is None:
         trie_postprocessor = (
