@@ -103,6 +103,7 @@ def _construct_result_dataframe(
     differentia_bitwidth: int,
     dstream_S: int,
 ) -> pl.DataFrame:
+    """Convert tree searchtable records to DataFrame."""
     logging.info("converting records to dict...")
     records_dict = records_to_dict(records)
 
