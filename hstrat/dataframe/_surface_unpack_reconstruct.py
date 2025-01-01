@@ -97,6 +97,32 @@ def _join_user_defined_columns(
     return phylo_df
 
 
+def _construct_result_dataframe(
+    records: Records,
+    differentia_bitwidth: int,
+    dstream_S: int,
+) -> pl.DataFrame:
+    logging.info("converting records to dict...")
+    records_dict = records_to_dict(records)
+
+    logging.info("converting dict to dataframe...")
+    return pl.from_dict(
+        records_dict,  # type: ignore
+        schema={
+            "dstream_data_id": pl.UInt64,
+            "id": pl.UInt64,
+            "ancestor_id": pl.UInt64,
+            "differentia": pl.UInt64,
+            "rank": pl.UInt64,
+        },
+    ).with_columns(
+        pl.lit(differentia_bitwidth)
+        .alias("differentia_bitwidth")
+        .cast(pl.UInt32),
+        pl.lit(dstream_S).alias("dstream_S").cast(pl.UInt32),
+    )
+
+
 def surface_unpack_reconstruct(
     df: pl.DataFrame,
     *,
@@ -204,32 +230,21 @@ def surface_unpack_reconstruct(
         "dstream.dataframe.unpack_data_packed", logging.info
     ):
         df = dstream_dataframe.unpack_data_packed(df)
+
     render_polars_snapshot(df, "unpacked", logging.info)
 
     logging.info("building tree searchtable chunkwise...")
     records = _build_records_chunked(df, exploded_slice_size)
 
-    logging.info("converting records to dict...")
-    records_dict = records_to_dict(records)
+    with log_context_duration("_construct_result_dataframe", logging.info):
+        phylo_df = _construct_result_dataframe(
+            records,
+            differentia_bitwidth=differentia_bitwidth,
+            dstream_S=dstream_S,
+        )
 
-    logging.info("finalizing phylogeny dataframe...")
-
-    phylo_df = pl.from_dict(
-        records_dict,  # type: ignore
-        schema={
-            "dstream_data_id": pl.UInt64,
-            "id": pl.UInt64,
-            "ancestor_id": pl.UInt64,
-            "differentia": pl.UInt64,
-            "rank": pl.UInt64,
-        },
-    )
     del records
-    phylo_df = phylo_df.with_columns(
-        pl.lit(differentia_bitwidth)
-        .alias("differentia_bitwidth")
-        .cast(pl.UInt32),
-    )
+    render_polars_snapshot(phylo_df, "converted", logging.info)
 
     logging.info("joining user-defined columns...")
     with log_context_duration("_join_user_defined_columns", logging.info):
