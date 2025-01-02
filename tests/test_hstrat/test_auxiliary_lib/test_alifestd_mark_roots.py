@@ -1,4 +1,5 @@
 import os
+import typing
 
 import pandas as pd
 import pytest
@@ -7,12 +8,16 @@ from hstrat._auxiliary_lib import (
     alifestd_find_root_ids,
     alifestd_make_empty,
     alifestd_mark_roots,
+    alifestd_try_add_ancestor_id_col,
     alifestd_validate,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
+@pytest.mark.parametrize(
+    "apply", [alifestd_try_add_ancestor_id_col, lambda x: x]
+)
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
@@ -24,7 +29,8 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_fuzz(phylogeny_df: pd.DataFrame):
+def test_fuzz(apply: typing.Callable, phylogeny_df: pd.DataFrame):
+    phylogeny_df = apply(phylogeny_df)
     original = phylogeny_df.copy()
 
     result = alifestd_mark_roots(phylogeny_df)
@@ -41,20 +47,27 @@ def test_fuzz(phylogeny_df: pd.DataFrame):
     assert all(result["is_root"] <= 1)
 
 
-def test_empty():
-    res = alifestd_mark_roots(alifestd_make_empty())
+@pytest.mark.parametrize(
+    "apply", [alifestd_try_add_ancestor_id_col, lambda x: x]
+)
+def test_empty(apply: typing.Callable):
+    res = alifestd_mark_roots(apply(alifestd_make_empty()))
     assert "is_root" in res
     assert len(res) == 0
 
 
+@pytest.mark.parametrize(
+    "apply", [alifestd_try_add_ancestor_id_col, lambda x: x]
+)
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple1(mutate: bool):
+def test_simple(apply: typing.Callable, mutate: bool):
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 2],
             "ancestor_list": ["[None]", "[0]", "[1]"],
         }
     )
+    phylogeny_df = apply(phylogeny_df)
     original_df = phylogeny_df.copy()
     result_df = alifestd_mark_roots(
         phylogeny_df,
@@ -68,14 +81,18 @@ def test_simple1(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
+@pytest.mark.parametrize(
+    "apply", [alifestd_try_add_ancestor_id_col, lambda x: x]
+)
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple2(mutate: bool):
+def test_simple2(apply: typing.Callable, mutate: bool):
     phylogeny_df = pd.DataFrame(
         {
             "id": [1, 0, 2, 3],
             "ancestor_list": ["[0]", "[None]", "[0]", "[1]"],
         }
     )
+    phylogeny_df = apply(phylogeny_df)
     original_df = phylogeny_df.copy()
     result_df = alifestd_mark_roots(
         phylogeny_df,
@@ -91,14 +108,18 @@ def test_simple2(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
+@pytest.mark.parametrize(
+    "apply", [alifestd_try_add_ancestor_id_col, lambda x: x]
+)
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple3(mutate: bool):
+def test_simple3(apply: typing.Callable, mutate: bool):
     phylogeny_df = pd.DataFrame(
         {
             "id": [1, 0, 2, 3],
-            "ancestor_list": ["[None]", "[None]", "[0]", "[1]"],
+            "ancestor_list": ["[None]", "[None]", "[0]", "[0, 1]"],
         }
     )
+    phylogeny_df = apply(phylogeny_df)
     original_df = phylogeny_df.copy()
     result_df = alifestd_mark_roots(
         phylogeny_df,

@@ -8,10 +8,15 @@ def alifestd_find_root_ids(phylogeny_df: pd.DataFrame) -> np.ndarray:  # int
     Input dataframe is not mutated by this operation.
     """
 
-    root_df = phylogeny_df[
-        phylogeny_df["ancestor_list"]
-        .astype(str)
-        .str.lower()
-        .isin(("[none]", "[]"))
-    ]
-    return root_df["id"].to_numpy().copy()
+    root_mask = (
+        (phylogeny_df["ancestor_id"] == phylogeny_df["id"])
+        if "ancestor_id" in phylogeny_df
+        else (
+            phylogeny_df["ancestor_list"]
+            .astype(str)
+            .str.lower()
+            .isin(("[none]", "[]"))
+        )
+    )
+
+    return phylogeny_df.loc[root_mask, "id"].to_numpy().copy()
