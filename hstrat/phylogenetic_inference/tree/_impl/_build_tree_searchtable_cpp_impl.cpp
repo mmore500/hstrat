@@ -937,6 +937,8 @@ struct ProgressBar {
  * of the below vectors represents a unique artifact. Includes
  * logging and an optional tqdm progress bar.
  *
+ * Note that ranks must be in ascending order within each stratum.
+ *
  * @see build_trie_searchtable_exploded
  */
 py::dict build_trie_searchtable_nested(
@@ -1009,7 +1011,7 @@ u64 count_unique_elements(ITER begin, ITER end) {
  * Note that sequential calls to this function must be made with artifacts in
  * ascending order by num_strata_deposited and that the data_ids array must be
  * partitioned cleanly across calls (i.e., no data_id should be split across
- * calls).
+ * calls). Within each artifact, ranks must be in ascending order.
  *
  * Includes logging and an optional tqdm progress bar.
  *
@@ -1084,6 +1086,8 @@ void extend_trie_searchtable_exploded(
  * DataFrame. Unlike extend_trie_searchtable_exploded, this function creates and
  * a new Records object internally and returns a py::dict with construction
  * results.
+ *
+ * Note that ranks must be in ascending order within each stratum.
  *
  * Includes logging and an optional tqdm progress bar.
  *
