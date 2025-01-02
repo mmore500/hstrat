@@ -22,6 +22,23 @@ def _call_anytree(
     return trie
 
 
+def _call_pandas(
+    ftor: "AssignOriginTimeNodeRankTriePostprocessor",
+    trie: pd.DataFrame,
+    progress_wrap: typing.Callable,
+) -> TrieInnerNode:
+    trie[ftor._assigned_property] = trie["rank"]
+    return trie
+
+
+def _call_polars(
+    ftor: "AssignOriginTimeNodeRankTriePostprocessor",
+    trie: pl.DataFrame,
+    progress_wrap: typing.Callable,
+) -> TrieInnerNode:
+    return trie.with_columns(pl.col("rank").alias(ftor._assigned_property))
+
+
 class AssignOriginTimeNodeRankTriePostprocessor(TriePostprocessorBase):
     """Functor to assign trie nodes' rank as their the origin time."""
 
@@ -77,7 +94,20 @@ class AssignOriginTimeNodeRankTriePostprocessor(TriePostprocessorBase):
                 trie,
                 progress_wrap=progress_wrap,
             )
-        elif isinstance(trie, (pl.DataFrame, pd.DataFrame)):
-            raise NotImplementedError  # pragma: no cover
+        elif isinstance(trie, pd.DataFrame):
+            if not mutate:
+                trie = trie.copy()
+            return _call_pandas(
+                self,
+                trie,
+                progress_wrap=progress_wrap,
+            )
+        elif isinstance(trie, pl.DataFrame):
+            # clone not needed for polars RE mutate
+            return _call_polars(
+                self,
+                trie,
+                progress_wrap=progress_wrap,
+            )
         else:
             raise TypeError  # pragma: no cover
