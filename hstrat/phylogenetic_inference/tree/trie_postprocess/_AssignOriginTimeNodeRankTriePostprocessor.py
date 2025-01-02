@@ -25,7 +25,6 @@ def _call_anytree(
 def _call_pandas(
     ftor: "AssignOriginTimeNodeRankTriePostprocessor",
     trie: pd.DataFrame,
-    progress_wrap: typing.Callable,
 ) -> TrieInnerNode:
     trie[ftor._assigned_property] = trie["rank"]
     return trie
@@ -34,7 +33,6 @@ def _call_pandas(
 def _call_polars(
     ftor: "AssignOriginTimeNodeRankTriePostprocessor",
     trie: pl.DataFrame,
-    progress_wrap: typing.Callable,
 ) -> TrieInnerNode:
     return trie.with_columns(pl.col("rank").alias(ftor._assigned_property))
 
