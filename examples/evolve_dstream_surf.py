@@ -81,7 +81,7 @@ def make_Organism(
             "trait",
             "uid",
             "taxon",
-            "generation_count",
+            "dstream_T",
             "hstrat_surface",
         ]
 
@@ -93,32 +93,28 @@ def make_Organism(
         taxon: systematics.Taxon
 
         # instrumentation: approximate tracking with hstrat surface
-        generation_count: int
+        dstream_T: int
         hstrat_surface: np.ndarray
-
-        @property
-        def dstream_T(self: "Organism") -> int:
-            return self.generation_count + len(self.hstrat_surface)
 
         @staticmethod
         def create_founder() -> "Organism":
-            return Organism(
-                parent_taxon=None,
-                parent_hstrat_surface=np.random.randint(
-                    2**differentia_bitwidth,
-                    size=surface_size,
-                    dtype=surf_dtype,
-                ),  # ^^^ initialize with random differentia as if S were added
-                generation_count=0,
-                trait=0.0,
-            )
+            """Create a founder organism, with hstrat surface initailized."""
+            founder = None
+            for T in range(surface_size):
+                founder = opyt.apply_if_or_else(
+                    founder,
+                    Organism.CreateOffspring,
+                    Organism,
+                )
+            assert founder.dstream_T == 64
+            return founder
 
         def __init__(
             self: "Organism",
-            parent_taxon: typing.Optional[systematics.Taxon],
-            parent_hstrat_surface: np.ndarray,
-            generation_count: int,
-            trait: float,
+            parent_taxon: typing.Optional[systematics.Taxon] = None,
+            parent_hstrat_surface: np.ndarray = empty_surface,
+            parent_dstream_T: int = 0,
+            trait: float = 0.0,
         ) -> None:
             """Initialize organism, by default as root organism."""
             # handle primary simulation business...
@@ -131,11 +127,11 @@ def make_Organism(
             self.taxon = syst.add_org(self, parent_taxon)
 
             # handle hstrat surface instrumentation...
-            self.generation_count = generation_count
             self.hstrat_surface = parent_hstrat_surface.copy()
             # ... deposit stratum...
             differentia_value = random.randrange(2**differentia_bitwidth)
-            self.DepositStratum(differentia_value)
+            self.DepositStratum(differentia_value, parent_dstream_T)
+            self.dstream_T = parent_dstream_T + 1
 
         def __del__(self: "Organism") -> None:
             """Remove organism from phylotrackpy systematics."""
@@ -147,22 +143,26 @@ def make_Organism(
             return Organism(
                 parent_taxon=self.taxon,
                 parent_hstrat_surface=self.hstrat_surface.copy(),
-                generation_count=self.generation_count + 1,
+                parent_dstream_T=self.dstream_T,
                 trait=self.trait + np.random.uniform(-1, 1),
             )
 
-        def DepositStratum(self: "Organism", differentia_value: int) -> None:
+        def DepositStratum(
+            self: "Organism",
+            differentia_value: int,
+            dstream_T: int,
+        ) -> None:
             assert dstream_algo.has_ingest_capacity(
-                surface_size, self.generation_count + 1
+                surface_size, dstream_T + 1
             )
 
-            dstream_site = assign_site(surface_size, self.dstream_T)
+            dstream_site = assign_site(surface_size, dstream_T)
             if dstream_site is not None:  # handle skip/discard case
                 self.hstrat_surface[dstream_site] = differentia_value
 
         def ToHex(self: "Organism") -> str:
             """Serialize the organism to a hex string, for genome output."""
-            T_arr = np.asarray(self.generation_count + 1, dtype=np.uint32)
+            T_arr = np.asarray(self.dstream_T, dtype=np.uint32)
             T_bytes = T_arr.astype(">u4").tobytes()  # big-endian u32
             T_hex = T_bytes.hex()
 
@@ -187,7 +187,6 @@ def make_Organism(
                 "downstream_version": downstream.__version__,
                 "data_hex": self.ToHex(),
                 "taxon_label": self.uid,
-                "generation_count": self.generation_count,
                 "dstream_algo": f"dstream.{algo_name}",
                 "dstream_storage_bitoffset": 32,
                 "dstream_storage_bitwidth": surface_bitwidth,
@@ -213,9 +212,9 @@ def make_validation_record(
         organism = opyt.apply_if_or_else(
             organism,
             Organism.CreateOffspring,
-            Organism.create_founder,
+            Organism,
         )
-        organism.DepositStratum(differentia_override(T))
+        organism.DepositStratum(differentia_override(T), T)
 
     return {
         **organism.ToRecord(),
