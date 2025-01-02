@@ -46,7 +46,7 @@ def surface_postprocess_trie(
                   format).
             - 'hstrat_rank' : pl.UInt64
                 - Num generations elapsed for ancestral differentia.
-                - Corresponds to`dstream_Tbar` for inner nodes.
+                - Corresponds to `dstream_Tbar` for inner nodes.
                 - Corresponds `dstream_T` - 1 for leaf nodes
             - 'hstrat_differentia_bitwidth' : pl.UInt32
                 - Size of annotation differentiae, in bits.

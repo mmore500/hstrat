@@ -74,7 +74,7 @@ Output Schema
 'ancestor_id' : integer
     Unique identifier for ancestor taxon (RE alife standard format).
 
-'rank' : floating point or integer
+'hstrat_rank' : floating point or integer
     Num generations elapsed for ancestral differentia (a.k.a. rank).
     Corresponds to `dstream_Tbar` for inner nodes.
     Corresponds `dstream_T` - 1 for leaf nodes.
@@ -87,7 +87,7 @@ Output Schema
     Unique identifier for each genome in source dataframe.
     Set to source dataframe row index if not provided by end user.
 
-- 'dstream_S' : pl.UInt32
+'dstream_S' : pl.UInt32
     Capacity of dstream buffer used for hstrat surface, in number of data items (i.e., differentia values).
 
 

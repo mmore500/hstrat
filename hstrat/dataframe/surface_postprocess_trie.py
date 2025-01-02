@@ -30,7 +30,7 @@ Input Schema: Required Columns
     - Unique identifier for ancestor taxon  (RE alife standard format).
 'hstrat_rank' : integer
     - Num generations elapsed for ancestral differentia.
-    - Corresponds to`dstream_Tbar` for inner nodes.
+    - Corresponds to `dstream_Tbar` for inner nodes.
     - Corresponds `dstream_T` - 1 for leaf nodes
 'hstrat_differentia_bitwidth' : integer
     - Size of annotation differentiae, in bits.
