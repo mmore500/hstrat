@@ -96,12 +96,29 @@ def make_Organism(
         generation_count: int
         hstrat_surface: np.ndarray
 
+        @property
+        def dstream_T(self: "Organism") -> int:
+            return self.generation_count + len(self.hstrat_surface)
+
+        @staticmethod
+        def create_founder() -> "Organism":
+            return Organism(
+                parent_taxon=None,
+                parent_hstrat_surface=np.random.randint(
+                    2**differentia_bitwidth,
+                    size=surface_size,
+                    dtype=surf_dtype,
+                ),  # ^^^ initialize with random differentia as if S were added
+                generation_count=0,
+                trait=0.0,
+            )
+
         def __init__(
             self: "Organism",
-            parent_taxon: typing.Optional[systematics.Taxon] = None,
-            parent_hstrat_surface: np.ndarray = empty_surface,
-            generation_count: int = 0,
-            trait: float = 0.0,
+            parent_taxon: typing.Optional[systematics.Taxon],
+            parent_hstrat_surface: np.ndarray,
+            generation_count: int,
+            trait: float,
         ) -> None:
             """Initialize organism, by default as root organism."""
             # handle primary simulation business...
@@ -139,7 +156,7 @@ def make_Organism(
                 surface_size, self.generation_count + 1
             )
 
-            dstream_site = assign_site(surface_size, self.generation_count)
+            dstream_site = assign_site(surface_size, self.dstream_T)
             if dstream_site is not None:  # handle skip/discard case
                 self.hstrat_surface[dstream_site] = differentia_value
 
@@ -196,7 +213,7 @@ def make_validation_record(
         organism = opyt.apply_if_or_else(
             organism,
             Organism.CreateOffspring,
-            Organism,
+            Organism.create_founder,
         )
         organism.DepositStratum(differentia_override(T))
 
@@ -270,7 +287,7 @@ if __name__ == "__main__":
     )
 
     # do simulation
-    common_ancestor = Organism()
+    common_ancestor = Organism.create_founder()
     init_population = [common_ancestor.CreateOffspring() for _ in range(100)]
     end_population = evolve_drift(init_population)
 
