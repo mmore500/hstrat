@@ -114,7 +114,7 @@ def _insert_artifact(
     *,
     ranks: typing.Iterable[int],
     differentiae: typing.Iterable[int],
-    taxon_label: int,
+    taxon_label: typing.Any,
     num_strata_deposited: int,
 ) -> None:
     """Insert a taxon into the trie, ultimately resulting in the creation
@@ -209,7 +209,10 @@ def build_tree_searchtable_python(
     """
     pop_len = len(population)
     if pop_len == 0:
-        return alifestd_make_empty()
+        res = alifestd_make_empty()
+        res["origin_time"] = pd.Series(dtype=int)
+        res["taxon_label"] = None
+        return res
 
     taxon_labels = [*opyt.or_value(taxon_labels, map(str, range(pop_len)))]
     sort_order = argsort([x.GetNumStrataDeposited() for x in population])

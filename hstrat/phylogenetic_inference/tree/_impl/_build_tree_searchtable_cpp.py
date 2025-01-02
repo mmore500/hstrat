@@ -19,6 +19,7 @@ from ._build_tree_searchtable_cpp_impl_stub import (
     build_tree_searchtable_cpp_from_nested,
     collapse_dropped_unifurcations,
     extend_tree_searchtable_cpp_from_exploded,
+    placeholder_value,
     records_to_dict,
 )
 
@@ -32,7 +33,7 @@ def _finalize_records(
     df = pd.DataFrame(records)
     df["origin_time"] = df["rank"]
     df["taxon_label"] = [
-        str(sorted_labels[i]) if i != (2**64 - 1) else "_inner_node"
+        str(sorted_labels[i]) if i != placeholder_value else "_inner_node"
         for i in df["dstream_data_id"]
     ]
 
@@ -141,7 +142,10 @@ def build_tree_searchtable_cpp(
     """
     pop_len = len(population)
     if pop_len == 0:
-        return alifestd_make_empty()
+        res = alifestd_make_empty()
+        res["origin_time"] = pd.Series(dtype=int)
+        res["taxon_label"] = None
+        return res
 
     taxon_labels = list(
         opyt.or_value(

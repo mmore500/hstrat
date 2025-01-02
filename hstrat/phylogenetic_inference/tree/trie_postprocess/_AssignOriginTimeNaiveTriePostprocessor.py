@@ -1,5 +1,8 @@
 import typing
 
+import pandas as pd
+import polars as pl
+
 from ...._auxiliary_lib import (
     AnyTreeFastPreOrderIter,
     anytree_iterative_deepcopy,
@@ -8,6 +11,46 @@ from ...priors import ArbitraryPrior
 from ...priors._detail import PriorBase
 from .._impl import TrieInnerNode, TrieLeafNode
 from ._detail import TriePostprocessorBase
+
+
+def _call_anytree(
+    ftor: "AssignOriginTimeNaiveTriePostprocessor",
+    trie: TrieInnerNode,
+    progress_wrap: typing.Callable,
+) -> TrieInnerNode:
+    for node in progress_wrap(AnyTreeFastPreOrderIter(trie)):
+        if node.is_leaf:
+            setattr(node, ftor._assigned_property, node.rank)
+            assert isinstance(node, TrieLeafNode)
+        elif node.parent is None:
+            setattr(node, ftor._assigned_property, 0)
+        else:
+            interval_mean = ftor._prior.CalcIntervalConditionedMean(
+                node.rank,
+                min(
+                    (
+                        child.rank
+                        for child in node.children
+                        if not child.is_leaf
+                    ),
+                    default=node.rank + 1,
+                ),  # endpoint is exclusive
+            )
+            setattr(
+                node,
+                ftor._assigned_property,
+                min(
+                    interval_mean,
+                    min(
+                        (child.rank for child in node.children),
+                        default=interval_mean,
+                    ),
+                ),
+            )
+
+        assert hasattr(node, ftor._assigned_property)
+
+    return trie
 
 
 class AssignOriginTimeNaiveTriePostprocessor(TriePostprocessorBase):
@@ -68,41 +111,17 @@ class AssignOriginTimeNaiveTriePostprocessor(TriePostprocessorBase):
         TrieInnerNode
             The postprocessed trie with assigned origin times.
         """
-        if not mutate:
-            trie = anytree_iterative_deepcopy(
-                trie, progress_wrap=progress_wrap
+        if isinstance(trie, TrieInnerNode):
+            if not mutate:
+                trie = anytree_iterative_deepcopy(
+                    trie, progress_wrap=progress_wrap
+                )
+            return _call_anytree(
+                self,
+                trie,
+                progress_wrap=progress_wrap,
             )
-
-        for node in progress_wrap(AnyTreeFastPreOrderIter(trie)):
-            if node.is_leaf:
-                setattr(node, self._assigned_property, node.rank)
-                assert isinstance(node, TrieLeafNode)
-            elif node.parent is None:
-                setattr(node, self._assigned_property, 0)
-            else:
-                interval_mean = self._prior.CalcIntervalConditionedMean(
-                    node.rank,
-                    min(
-                        (
-                            child.rank
-                            for child in node.children
-                            if not child.is_leaf
-                        ),
-                        default=node.rank + 1,
-                    ),  # endpoint is exclusive
-                )
-                setattr(
-                    node,
-                    self._assigned_property,
-                    min(
-                        interval_mean,
-                        min(
-                            (child.rank for child in node.children),
-                            default=interval_mean,
-                        ),
-                    ),
-                )
-
-            assert hasattr(node, self._assigned_property)
-
-        return trie
+        elif isinstance(trie, (pl.DataFrame, pd.DataFrame)):
+            raise NotImplementedError  # pragma: no cover
+        else:
+            raise TypeError  # pragma: no cover

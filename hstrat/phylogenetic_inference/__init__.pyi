@@ -44,6 +44,7 @@ from tree import (
     AssignOriginTimeNodeRankTriePostprocessor,
     AssignOriginTimeSampleNaiveTriePostprocessor,
     CompoundTriePostprocessor,
+    NopTriePostprocessor,
     PeelBackConjoinedLeavesTriePostprocessor,
     SampleAncestralRollbacksTriePostprocessor,
     build_tree,
@@ -107,6 +108,7 @@ __all__ = [
     "AssignOriginTimeNodeRankTriePostprocessor",
     "AssignOriginTimeSampleNaiveTriePostprocessor",
     "CompoundTriePostprocessor",
+    "NopTriePostprocessor",
     "PeelBackConjoinedLeavesTriePostprocessor",
     "SampleAncestralRollbacksTriePostprocessor",
 ]

@@ -29,13 +29,14 @@ def test_assign_trie_origin_times_node_rank_two_leaves():
     inner = impl.TrieInnerNode(rank=0, differentia=0, parent=root)
     leaf1 = impl.TrieLeafNode(parent=inner, taxon_label="A")
     leaf2 = impl.TrieLeafNode(parent=inner, taxon_label="B")
-    root = hstrat.AssignOriginTimeNodeRankTriePostprocessor()(
+    root.t0_, inner.t0_, leaf1.t0_, leaf2.t0_ = 1, 1, 1, 1
+    root = hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0="t0_")(
         root, p_differentia_collision=0.5, mutate=True
     )
-    assert root.origin_time == 0
-    assert inner.origin_time == 0
-    assert leaf1.origin_time == 0
-    assert leaf2.origin_time == 0
+    assert root.origin_time == 0 - 1
+    assert inner.origin_time == 0 - 1
+    assert leaf1.origin_time == 0 - 1
+    assert leaf2.origin_time == 0 - 1
 
 
 def test_assign_trie_origin_times_node_rank1():
@@ -94,18 +95,18 @@ def test_assign_trie_origin_times_node_rank_complex():
     leaf2a_a = impl.TrieLeafNode(parent=inner2a, taxon_label="leaf2a_a")
     leaf2a_b = impl.TrieLeafNode(parent=inner2a, taxon_label="leaf2a_b")
 
-    root = hstrat.AssignOriginTimeNodeRankTriePostprocessor()(
+    root = hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0=1)(
         root, p_differentia_collision=0.5, mutate=True
     )
 
-    assert root.origin_time == 0
-    assert inner1.origin_time == 0
-    assert inner2.origin_time == 4
-    assert inner3.origin_time == 7
-    assert inner2a.origin_time == 1
-    assert leaf2a_a.origin_time == 1
-    assert leaf2a_b.origin_time == 1
-    assert leaf3_a.origin_time == 7
+    assert root.origin_time == 0 - 1
+    assert inner1.origin_time == 0 - 1
+    assert inner2.origin_time == 4 - 1
+    assert inner3.origin_time == 7 - 1
+    assert inner2a.origin_time == 1 - 1
+    assert leaf2a_a.origin_time == 1 - 1
+    assert leaf2a_b.origin_time == 1 - 1
+    assert leaf3_a.origin_time == 7 - 1
 
 
 def test_assign_trie_origin_times_node_rank_assigned_property():

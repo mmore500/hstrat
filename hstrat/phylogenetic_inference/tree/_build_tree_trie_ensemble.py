@@ -36,7 +36,10 @@ def _build_tree_trie_ensemble(
     """
     # for simplicity, return early for this special case
     if len(population) == 0:
-        return alifestd_make_empty()
+        res = alifestd_make_empty()
+        res["origin_time"] = pd.Series(dtype=int)
+        res["taxon_label"] = None
+        return res
 
     root = build_trie_from_artifacts(
         population=population,
@@ -112,7 +115,7 @@ def build_tree_trie_ensemble(
         Must take `trie` of type `TrieInnerNode`, `p_differentia_collision` of
         type `float`, `mutate` of type `bool`, and `progress_wrap` of type
         `Callable` params. Must returned postprocessed trie (type
-        `TrieInnerNode`). Several
+        `TrieInnerNode`).
 
         Each postprocess will be called indpendently to produce a returned
         postprocessed variant. Use `CompoundTriePostprocessor` to chain

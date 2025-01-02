@@ -7,7 +7,10 @@ import dendropy as dp
 import pytest
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import alifestd_validate
+from hstrat._auxiliary_lib import (
+    alifestd_is_chronologically_ordered,
+    alifestd_validate,
+)
 
 from . import _impl as impl
 
@@ -21,6 +24,7 @@ def test_empty_population(use_impl: typing.Optional[str]):
 
     assert len(tree) == 0
     assert alifestd_validate(tree)
+    assert alifestd_is_chronologically_ordered(tree)
 
 
 @pytest.mark.parametrize("use_impl", ["cpp", "python", None])
@@ -74,6 +78,7 @@ def test_smoke(
     )
 
     assert alifestd_validate(reconst_df)
+    assert alifestd_is_chronologically_ordered(reconst_df)
     reconst_tree = apc.alife_dataframe_to_dendropy_tree(
         reconst_df,
         setup_edge_lengths=True,

@@ -123,14 +123,16 @@ def build_tree_trie(
 
     # for simplicity, return early for this special case
     if len(population) == 0:
-        return alifestd_make_empty()
+        res = alifestd_make_empty()
+        res["origin_time"] = pd.Series(dtype=int)
+        res["taxon_label"] = None
+        return res
 
     if bias_adjustment is None:
         trie_postprocessor = (
             trie_postprocess.AssignOriginTimeNaiveTriePostprocessor()
         )
     elif bias_adjustment == "sample_ancestral_rollbacks":
-
         trie_postprocessor = trie_postprocess.CompoundTriePostprocessor(
             postprocessors=[
                 trie_postprocess.SampleAncestralRollbacksTriePostprocessor(

@@ -1,12 +1,40 @@
 import math
 import typing
 
+import pandas as pd
+import polars as pl
+
 from ...._auxiliary_lib import (
     AnyTreeFastPreOrderIter,
     anytree_iterative_deepcopy,
 )
 from .._impl import TrieInnerNode, TrieLeafNode
 from ._detail import TriePostprocessorBase
+
+
+def _call_anytree(
+    ftor: "AssignDestructionTimeYoungestPlusOneTriePostprocessor",
+    trie: TrieInnerNode,
+    progress_wrap: typing.Callable = lambda x: x,
+) -> TrieInnerNode:
+    """Implementation detail."""
+    for node in progress_wrap(AnyTreeFastPreOrderIter(trie)):
+        if node.is_leaf:
+            setattr(node, ftor._assigned_property, math.inf)
+            assert isinstance(node, TrieLeafNode)
+        else:
+            destruction_time = (
+                min(
+                    getattr(child, ftor._origin_time_property)
+                    for child in node.children
+                )
+                + 1
+            )
+            setattr(node, ftor._assigned_property, destruction_time)
+
+        assert hasattr(node, ftor._assigned_property)
+
+    return trie
 
 
 class AssignDestructionTimeYoungestPlusOneTriePostprocessor(
@@ -68,25 +96,17 @@ class AssignDestructionTimeYoungestPlusOneTriePostprocessor(
         TrieInnerNode
             The postprocessed trie with assigned destruction times.
         """
-        if not mutate:
-            trie = anytree_iterative_deepcopy(
-                trie, progress_wrap=progress_wrap
-            )
-
-        for node in progress_wrap(AnyTreeFastPreOrderIter(trie)):
-            if node.is_leaf:
-                setattr(node, self._assigned_property, math.inf)
-                assert isinstance(node, TrieLeafNode)
-            else:
-                destruction_time = (
-                    min(
-                        getattr(child, self._origin_time_property)
-                        for child in node.children
-                    )
-                    + 1
+        if isinstance(trie, TrieInnerNode):
+            if not mutate:
+                trie = anytree_iterative_deepcopy(
+                    trie, progress_wrap=progress_wrap
                 )
-                setattr(node, self._assigned_property, destruction_time)
-
-            assert hasattr(node, self._assigned_property)
-
-        return trie
+            return _call_anytree(
+                self,
+                trie,
+                progress_wrap=progress_wrap,
+            )
+        elif isinstance(trie, (pl.DataFrame, pd.DataFrame)):
+            raise NotImplementedError  # pragma: no cover
+        else:
+            raise TypeError  # pragma: no cover

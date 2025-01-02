@@ -12,12 +12,12 @@ from .._auxiliary_lib import (
 )
 from ._surface_unpack_reconstruct import surface_unpack_reconstruct
 
-raw_message = """Raw interface to tree reconstruction for surface-based genome annotations.
+raw_message = """First component of raw interface to tree reconstruction for surface-based genome annotations.
 Reads raw genome data from tabular data file(s) and writes reconstructed phylogeny data to output file in alife standard format.
 
 
 End-users are recommended to prefer `hstrat.dataframe.build_tree`.
-Uses naive method to estimate taxon `origin_time`s and performs no post-processing operations.
+Performs no post-processing operations, including taxon `origin_time` estimation.
 Surface-only implementation --- not compatible with HereditaryStratigraphicColumn genome annotations.
 
 
@@ -74,7 +74,7 @@ Output Schema
 'ancestor_id' : integer
     Unique identifier for ancestor taxon (RE alife standard format).
 
-'rank' : floating point or integer
+'hstrat_rank' : floating point or integer
     Num generations elapsed for ancestral differentia (a.k.a. rank).
     Corresponds to `dstream_Tbar` for inner nodes.
     Corresponds `dstream_T` - 1 for leaf nodes.
@@ -86,6 +86,18 @@ Output Schema
 'dstream_data_id' : integer
     Unique identifier for each genome in source dataframe.
     Set to source dataframe row index if not provided by end user.
+
+'dstream_S' : pl.UInt32
+    Capacity of dstream buffer used for hstrat surface, in number of data items (i.e., differentia values).
+
+
+See Also
+========
+-m hstrat.dataframe.surface_postprocess_trie :
+    Post-processes raw phylogeny data, including collapsing superfluous internal nodes and estimating taxon origin times.
+
+-m hstrat._auxiliary_lib._alifestd_try_add_ancestor_list_col :
+    Adds alife-standard `ancestor_list` column to phylogeny data.
 
 
 Additional Notes
@@ -109,6 +121,7 @@ For details, see `python3 -m downstream.dataframe.explode_lookup_unpacked --help
 
 
 To streamline memory and disk usage, consider using CLI flags to cast string columns with repeated data values to categorical, shrink data types, or drop superfluous columns.
+The `--exploded-slice-size` flag may also be used to control memory usage during trie reconstruction.
 Dataframe operations are conducted using polars and downstream operations may employ numba, both of which are capable of thread-based parallelism.
 Environment variables POLARS_MAX_THREADS and NUMBA_NUM_THREADS may be used to tune thread usage.
 """

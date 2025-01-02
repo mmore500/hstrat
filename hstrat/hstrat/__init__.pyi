@@ -1,4 +1,4 @@
-from dataframe import surface_unpack_reconstruct
+from dataframe import surface_postprocess_trie, surface_unpack_reconstruct
 from frozen_instrumentation import (
     HereditaryStratigraphicAssemblage,
     HereditaryStratigraphicAssemblageSpecimen,
@@ -39,6 +39,7 @@ from phylogenetic_inference import (
     CompoundTriePostprocessor,
     ExponentialPrior,
     GeometricPrior,
+    NopTriePostprocessor,
     PeelBackConjoinedLeavesTriePostprocessor,
     SampleAncestralRollbacksTriePostprocessor,
     UniformPrior,
@@ -171,6 +172,7 @@ from test_drive import (
 
 __all__ = [
     # dataframe
+    "surface_postprocess_trie",
     "surface_unpack_reconstruct",
     # frozen_instrumentation
     "HereditaryStratigraphicAssemblage",
@@ -243,15 +245,16 @@ __all__ = [
     "build_tree_upgma",
     "build_tree",
     "trie_postprocess",
-    # serialization
     "AssignDestructionTimeYoungestPlusOneTriePostprocessor",
     "AssignOriginTimeExpectedValueTriePostprocessor",
     "AssignOriginTimeNaiveTriePostprocessor",
     "AssignOriginTimeNodeRankTriePostprocessor",
     "AssignOriginTimeSampleNaiveTriePostprocessor",
     "CompoundTriePostprocessor",
+    "NopTriePostprocessor",
     "PeelBackConjoinedLeavesTriePostprocessor",
     "SampleAncestralRollbacksTriePostprocessor",
+    # serialization
     "assemblage_from_records",
     "col_from_int",
     "col_from_packet",

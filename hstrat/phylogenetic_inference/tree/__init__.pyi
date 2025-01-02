@@ -12,6 +12,7 @@ from .trie_postprocess import (
     AssignOriginTimeNodeRankTriePostprocessor,
     AssignOriginTimeSampleNaiveTriePostprocessor,
     CompoundTriePostprocessor,
+    NopTriePostprocessor,
     PeelBackConjoinedLeavesTriePostprocessor,
     SampleAncestralRollbacksTriePostprocessor,
 )
@@ -30,6 +31,7 @@ __all__ = [
     "AssignOriginTimeNodeRankTriePostprocessor",
     "AssignOriginTimeSampleNaiveTriePostprocessor",
     "CompoundTriePostprocessor",
+    "NopTriePostprocessor",
     "PeelBackConjoinedLeavesTriePostprocessor",
     "SampleAncestralRollbacksTriePostprocessor",
 ]

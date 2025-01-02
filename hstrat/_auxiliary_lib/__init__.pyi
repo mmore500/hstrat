@@ -25,6 +25,7 @@ from ._alifestd_coarsen_mask import alifestd_coarsen_mask
 from ._alifestd_coerce_chronological_consistency import (
     alifestd_coerce_chronological_consistency,
 )
+from ._alifestd_collapse_trunk_asexual import alifestd_collapse_trunk_asexual
 from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
 from ._alifestd_convert_root_ancestor_token import (
     alifestd_convert_root_ancestor_token,
@@ -37,6 +38,7 @@ from ._alifestd_count_leaf_nodes import alifestd_count_leaf_nodes
 from ._alifestd_count_polytomies import alifestd_count_polytomies
 from ._alifestd_count_root_nodes import alifestd_count_root_nodes
 from ._alifestd_count_unifurcations import alifestd_count_unifurcations
+from ._alifestd_delete_trunk_asexual import alifestd_delete_trunk_asexual
 from ._alifestd_downsample_tips_asexual import alifestd_downsample_tips_asexual
 from ._alifestd_estimate_triplet_distance_asexual import (
     alifestd_estimate_triplet_distance_asexual,
@@ -76,6 +78,7 @@ from ._alifestd_mark_num_descendants_asexual import (
     alifestd_mark_num_descendants_asexual,
 )
 from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
+from ._alifestd_mark_oldest_root import alifestd_mark_oldest_root
 from ._alifestd_mark_origin_time_delta_asexual import (
     alifestd_mark_origin_time_delta_asexual,
 )
@@ -161,6 +164,7 @@ from ._get_hstrat_version import get_hstrat_version
 from ._get_nullable_mask import get_nullable_mask
 from ._get_nullable_vals import get_nullable_vals
 from ._get_package_name import get_package_name
+from ._get_sole_scalar_value_polars import get_sole_scalar_value_polars
 from ._give_len import give_len
 from ._indices_of_unique import indices_of_unique
 from ._intersect_ranges import intersect_ranges
@@ -218,6 +222,7 @@ from ._raises import raises
 from ._random_choice_generator import random_choice_generator
 from ._random_tree import random_tree
 from ._release_cur_mpl_fig import release_cur_mpl_fig
+from ._render_pandas_snapshot import render_pandas_snapshot
 from ._render_polars_snapshot import render_polars_snapshot
 from ._render_to_base64url import render_to_base64url
 from ._render_to_numeral_system import render_to_numeral_system
@@ -248,6 +253,7 @@ __all__ = [
     "alifestd_chronological_sort",
     "alifestd_coarsen_mask",
     "alifestd_coerce_chronological_consistency",
+    "alifestd_collapse_trunk_asexual",
     "alifestd_collapse_unifurcations",
     "alifestd_calc_polytomic_index",
     "alifestd_count_children_of_asexual",
@@ -256,6 +262,7 @@ __all__ = [
     "alifestd_count_root_nodes",
     "alifestd_count_polytomies",
     "alifestd_count_unifurcations",
+    "alifestd_delete_trunk_asexual",
     "alifestd_downsample_tips_asexual",
     "alifestd_estimate_triplet_distance_asexual",
     "alifestd_find_chronological_inconsistency",
@@ -281,8 +288,9 @@ __all__ = [
     "alifestd_mark_num_children_asexual",
     "alifestd_mark_num_descendants_asexual",
     "alifestd_mark_num_leaves_asexual",
-    "alifestd_mark_ot_mrca_asexual",
+    "alifestd_mark_oldest_root",
     "alifestd_mark_origin_time_delta_asexual",
+    "alifestd_mark_ot_mrca_asexual",
     "alifestd_mark_root_id",
     "alifestd_mark_roots",
     "alifestd_parse_ancestor_id",
@@ -360,6 +368,7 @@ __all__ = [
     "get_nullable_mask",
     "get_nullable_vals",
     "get_package_name",
+    "get_sole_scalar_value_polars",
     "GetAttrLaunderShim",
     "give_len",
     "HereditaryStratigraphicArtifact",
@@ -412,6 +421,7 @@ __all__ = [
     "RecursionLimit",
     "raises",
     "release_cur_mpl_fig",
+    "render_pandas_snapshot",
     "render_polars_snapshot",
     "random_choice_generator",
     "random_tree",

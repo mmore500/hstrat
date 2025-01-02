@@ -1,4 +1,5 @@
 import functools
+import logging
 import typing
 
 import pandas as pd
@@ -93,20 +94,27 @@ def delegate_polars_implementation(
 
             any_pandas = any(map(detect_pandas_, (*args, *kwargs.values())))
             any_polars = any(map(detect_polars_, (*args, *kwargs.values())))
+            logging.info("begin delgate_polars_implementation")
+            logging.info("- detected {any_pandas=} {any_polars=}")
 
             if any_pandas and any_polars:
                 raise TypeError("mixing pandas and polars types is disallowed")
             elif any_polars and polars_impl is not None:
+                logging.info("- delegating to polars implementation")
                 return polars_impl(*args, **kwargs)
             else:
+                logging.info("- coercing args to pandas (possible no-op)")
                 args = [*map(coerce_to_pandas_, args)]
+                logging.info("- coercing kwargs to pandas (possible no-op)")
                 kwargs = {
                     kw: coerce_to_pandas_(arg) for kw, arg in kwargs.items()
                 }
 
+                logging.info("- dispatching to pandas implementation")
                 pandas_retval = pandas_impl(*args, **kwargs)
 
                 if any_polars:
+                    logging.info("- coercing return value to polars")
                     return coerce_to_polars_(pandas_retval)
                 else:
                     return pandas_retval
