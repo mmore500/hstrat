@@ -81,10 +81,10 @@ def surface_postprocess_trie(
             - Unique identifier for each taxon (RE alife standard format).
         - 'ancestor_id' : pl.UInt64
             - Unique identifier for ancestor taxon  (RE alife standard format).
-        - 'hstrat_rank' : pl.UInt64
+        - 'hstrat_rank_from_t0' : pl.UInt64
             - Num generations elapsed for ancestral differentia.
-            - Corresponds to`dstream_Tbar` for inner nodes.
-            - Corresponds `dstream_T` - 1 for leaf nodes
+            - Corresponds to `dstream_Tbar` - `dstream_S` for inner nodes.
+            - Corresponds `dstream_T` - 1 - `dstream_S` for leaf nodes
 
         Optional schema:
         - 'origin_tme' : pl.UInt64
@@ -156,11 +156,16 @@ def surface_postprocess_trie(
             progress_wrap=tqdm,
         )
         df = df.rename(columns={"rank": "hstrat_rank"})
+
     render_pandas_snapshot(df, "with trie postprocessing", logging.info)
 
+    logging.info("setting up hstrat_rank_from_t0...")
+    df["hstrat_rank_from_t0"] = df["hstrat_rank"] - df["dstream_S"]
+
     to_keep = {*original_columns} - {
-        "hstrat_differentia_bitwidth",
         "dstream_S",
+        "hstrat_differentia_bitwidth",
+        "hstrat_rank",
     }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")

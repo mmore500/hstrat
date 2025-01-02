@@ -45,16 +45,17 @@ def test_assign_trie_origin_times_node_rank_two_leaves(df_type: typing.Type):
             "rank": [0, 0, 0, 0],
             "taxon_label": [None, None, "A", "B"],
             "differentia": [None, 0, None, None],
+            "t0_": [1, 1, 1, 1],
         },
     )
-    df = hstrat.AssignOriginTimeNodeRankTriePostprocessor()(
+    df = hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0="t0_")(
         df, p_differentia_collision=0.5, mutate=True
     )
     df = coerce_to_pandas(df)
-    assert df.loc[0, "origin_time"] == 0
-    assert df.loc[1, "origin_time"] == 0
-    assert df.loc[2, "origin_time"] == 0
-    assert df.loc[3, "origin_time"] == 0
+    assert df.loc[0, "origin_time"] == 0 - 1
+    assert df.loc[1, "origin_time"] == 0 - 1
+    assert df.loc[2, "origin_time"] == 0 - 1
+    assert df.loc[3, "origin_time"] == 0 - 1
 
 
 @pytest.mark.parametrize("df_type", [pd.DataFrame, pl.DataFrame])
@@ -131,18 +132,18 @@ def test_assign_trie_origin_times_node_rank_complex(df_type: typing.Type):
             "differentia": [None, 0, 10, 7, 1, None, None, None],
         },
     )
-    df = hstrat.AssignOriginTimeNodeRankTriePostprocessor()(
+    df = hstrat.AssignOriginTimeNodeRankTriePostprocessor(t0=-1)(
         df, p_differentia_collision=0.5, mutate=True
     )
     df = coerce_to_pandas(df)
-    assert df.loc[0, "origin_time"] == 0
-    assert df.loc[1, "origin_time"] == 0
-    assert df.loc[2, "origin_time"] == 4
-    assert df.loc[3, "origin_time"] == 7
-    assert df.loc[4, "origin_time"] == 4
-    assert df.loc[5, "origin_time"] == 7
-    assert df.loc[6, "origin_time"] == 10
-    assert df.loc[7, "origin_time"] == 10
+    assert df.loc[0, "origin_time"] == 0 + 1
+    assert df.loc[1, "origin_time"] == 0 + 1
+    assert df.loc[2, "origin_time"] == 4 + 1
+    assert df.loc[3, "origin_time"] == 7 + 1
+    assert df.loc[4, "origin_time"] == 4 + 1
+    assert df.loc[5, "origin_time"] == 7 + 1
+    assert df.loc[6, "origin_time"] == 10 + 1
+    assert df.loc[7, "origin_time"] == 10 + 1
 
 
 @pytest.mark.parametrize("df_type", [pd.DataFrame, pl.DataFrame])

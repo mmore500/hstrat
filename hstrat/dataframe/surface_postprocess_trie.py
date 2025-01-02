@@ -64,10 +64,10 @@ Output Schema: Required Columns
 'ancestor_id' : integer
     Unique identifier for ancestor taxon (RE alife standard format).
 
-'hstrat_rank' : integer
+'hstrat_rank_from_t0' : integer
     - Num generations elapsed for ancestral differentia.
-    - Corresponds to`dstream_Tbar` for inner nodes.
-    - Corresponds `dstream_T` - 1 for leaf nodes
+    - Corresponds to `dstream_Tbar` - `dstream_S` for inner nodes.
+    - Corresponds `dstream_T` - 1 - `dstream_S` for leaf nodes
 
 
 Output Schema: Optional Columns

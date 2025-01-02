@@ -17,7 +17,8 @@ def _call_anytree(
     progress_wrap: typing.Callable,
 ) -> TrieInnerNode:
     for node in progress_wrap(AnyTreeFastPreOrderIter(trie)):
-        setattr(node, ftor._assigned_property, node.rank)
+        t0 = getattr(node, ftor._t0) if isinstance(ftor._t0, str) else ftor._t0
+        setattr(node, ftor._assigned_property, node.rank - t0)
 
     return trie
 
@@ -26,7 +27,8 @@ def _call_pandas(
     ftor: "AssignOriginTimeNodeRankTriePostprocessor",
     trie: pd.DataFrame,
 ) -> TrieInnerNode:
-    trie[ftor._assigned_property] = trie["rank"]
+    t0 = trie[ftor._t0] if isinstance(ftor._t0, str) else ftor._t0
+    trie[ftor._assigned_property] = trie["rank"] - t0
     return trie
 
 
@@ -34,17 +36,23 @@ def _call_polars(
     ftor: "AssignOriginTimeNodeRankTriePostprocessor",
     trie: pl.DataFrame,
 ) -> TrieInnerNode:
-    return trie.with_columns(pl.col("rank").alias(ftor._assigned_property))
+    t0 = pl.col(ftor._t0) if isinstance(ftor._t0, str) else pl.lit(ftor._t0)
+    return trie.with_columns(
+        (pl.col("rank") - t0).alias(ftor._assigned_property),
+    )
 
 
 class AssignOriginTimeNodeRankTriePostprocessor(TriePostprocessorBase):
     """Functor to assign trie nodes' rank as their the origin time."""
 
     _assigned_property: str
+    _t0: int
 
     def __init__(
         self: "AssignOriginTimeNodeRankTriePostprocessor",
         assigned_property: str = "origin_time",
+        *,
+        t0: typing.Union[int, str] = 0,
     ) -> None:
         """Initialize functor instance.
 
@@ -52,8 +60,11 @@ class AssignOriginTimeNodeRankTriePostprocessor(TriePostprocessorBase):
         ----------
         assigned_property : str, default "origin_time"
             The property name for the assigned origin time.
+        t0 : int or str, default 0
+            The property name or constant value for the origin time offset.
         """
         self._assigned_property = assigned_property
+        self._t0 = t0
 
     def __call__(
         self: "AssignOriginTimeNodeRankTriePostprocessor",
