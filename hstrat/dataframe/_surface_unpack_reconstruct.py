@@ -264,7 +264,7 @@ def surface_unpack_reconstruct(
         res["dstream_S"] = pd.Series(dtype=int)
         return pl.from_pandas(res)
 
-    logging.info("extracting metadata..")
+    logging.info("extracting metadata...")
     dstream_storage_bitwidth = get_sole_scalar_value_polars(
         df, "dstream_storage_bitwidth"
     )
