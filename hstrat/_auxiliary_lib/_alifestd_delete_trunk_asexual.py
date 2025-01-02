@@ -6,15 +6,15 @@ from ._alifestd_mark_oldest_root import alifestd_mark_oldest_root
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
-def alifestd_collapse_trunk_asexual(
+def alifestd_delete_trunk_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
 ) -> pd.DataFrame:
-    """Collapse entries masked by `is_trunk` column, keeping only the oldest
-    root.
+    """Delete entries masked by `is_trunk` column.
 
     Masked entries must be contiguous, meaning that no non-trunk entry can
-    be an ancestor of a trunk entry.
+    be an ancestor of a trunk entry. Children of deleted entries will become
+    roots.
 
     Input dataframe is not mutated by this operation unless `mutate` set True.
     If mutate set True, operation does not occur in place; still use return
@@ -22,7 +22,7 @@ def alifestd_collapse_trunk_asexual(
 
     See Also
     --------
-    alifestd_delete_trunk_asexual
+    alifestd_collapse_trunk_asexual
     """
     if "is_trunk" not in phylogeny_df:
         raise ValueError(
@@ -46,27 +46,23 @@ def alifestd_collapse_trunk_asexual(
     if np.any(phylogeny_df["is_trunk"] & ~phylogeny_df["ancestor_is_trunk"]):
         raise ValueError("specified trunk is non-contiguous")
 
-    if phylogeny_df["is_trunk"].sum() <= 1:
+    if phylogeny_df["is_trunk"].sum() == 0:
         return phylogeny_df
 
     trunk_df = phylogeny_df.loc[phylogeny_df["is_trunk"]]
     trunk_df = alifestd_mark_oldest_root(trunk_df, mutate=True)
-    collapsed_root_id = trunk_df.loc[trunk_df["is_oldest_root"].idxmax(), "id"]
 
     if "ancestor_id" in phylogeny_df:
         phylogeny_df.loc[
             phylogeny_df["ancestor_is_trunk"], "ancestor_id"
-        ] = collapsed_root_id
+        ] = phylogeny_df.loc[phylogeny_df["ancestor_is_trunk"], "id"]
 
     if "ancestor_list" in phylogeny_df:
         phylogeny_df.loc[
             phylogeny_df["ancestor_is_trunk"], "ancestor_list"
-        ] = f"[{collapsed_root_id}]"
-        phylogeny_df.loc[collapsed_root_id, "ancestor_list"] = "[none]"
+        ] = "[none]"
 
-    res = phylogeny_df.loc[
-        ~phylogeny_df["is_trunk"] | (phylogeny_df["id"] == collapsed_root_id)
-    ].reset_index(drop=True)
+    res = phylogeny_df.loc[~phylogeny_df["is_trunk"]].reset_index(drop=True)
 
-    assert res["is_trunk"].sum() <= 1
+    assert res["is_trunk"].sum() == 0
     return res
