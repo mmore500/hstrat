@@ -40,7 +40,14 @@ def _build_records_chunked(
         ):
             long_df = dstream_dataframe.explode_lookup_unpacked(
                 df_slice, value_type="uint64"
-            ).select(
+            )
+
+        with log_context_duration(
+            '.sort_by("dstream_Tbar").over(partition_by="dstream_data_id") '
+            f"({i + 1}/{num_slices})",
+            logging.info,
+        ):
+            long_df = long_df.select(
                 pl.col(
                     "dstream_data_id",
                     "dstream_T",
