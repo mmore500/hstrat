@@ -44,6 +44,7 @@ from tree import (
     AssignOriginTimeNodeRankTriePostprocessor,
     AssignOriginTimeSampleNaiveTriePostprocessor,
     CompoundTriePostprocessor,
+    NopTriePostprocessor,
     PeelBackConjoinedLeavesTriePostprocessor,
     SampleAncestralRollbacksTriePostprocessor,
     build_tree,

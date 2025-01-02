@@ -12,6 +12,7 @@ from .trie_postprocess import (
     AssignOriginTimeNodeRankTriePostprocessor,
     AssignOriginTimeSampleNaiveTriePostprocessor,
     CompoundTriePostprocessor,
+    NopTriePostprocessor,
     PeelBackConjoinedLeavesTriePostprocessor,
     SampleAncestralRollbacksTriePostprocessor,
 )
