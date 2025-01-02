@@ -40,6 +40,15 @@ def test_regression_original():
                 dtype=pl.UInt64,
             ),
         },
+    ).select(
+        pl.col(
+            "dstream_data_id",
+            "dstream_T",
+            "dstream_Tbar",
+            "dstream_value",
+        )
+        .sort_by("dstream_Tbar")
+        .over(partition_by="dstream_data_id"),
     )
     res = build_tree_searchtable_cpp_from_exploded(
         exploded["dstream_data_id"].to_numpy(),
@@ -92,6 +101,15 @@ def test_regression_distilled():
                 dtype=pl.UInt64,
             ),
         },
+    ).select(
+        pl.col(
+            "dstream_data_id",
+            "dstream_T",
+            "dstream_Tbar",
+            "dstream_value",
+        )
+        .sort_by("dstream_Tbar")
+        .over(partition_by="dstream_data_id"),
     )
     res = build_tree_searchtable_cpp_from_exploded(
         exploded["dstream_data_id"].to_numpy(),
