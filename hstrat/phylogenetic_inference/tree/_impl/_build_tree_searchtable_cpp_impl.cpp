@@ -207,6 +207,8 @@ struct Records {
     const u64 rank,
     const u64 differentia
   ) {
+    assert(this->size() == 0 || ancestor_id != id);
+    assert(this->size() == 0 || this->rank[ancestor_id] <= rank);
     this->dstream_data_id.push_back(data_id);
     this->id.push_back(id);
     this->search_first_child_id.push_back(search_first_child_id);
@@ -216,6 +218,7 @@ struct Records {
     this->differentia.push_back(differentia);
     this->rank.push_back(rank);
     max_differentia = std::max(max_differentia, differentia);
+    assert(this->size() == 0 || this->rank[search_ancestor_id] <= rank);
   }
 
   u64 size() const { return this->dstream_data_id.size(); }
@@ -715,7 +718,16 @@ u64 create_offstring(
   const u64 data_id
 ) {
   const u64 node = records.size();
-  records.addRecord(data_id, node, parent, node, node, node, rank, differentia);
+  records.addRecord(
+    data_id,  // data_id
+    node,  // id
+    parent,  // ancestor_id
+    node,  // search_ancestor_id (note! search parent attached next below)
+    node,  // search_first_child_id
+    node,  // search_next_sibling_id
+    rank,  // rank
+    differentia  // differentia
+  );
   attach_search_parent(records, node, parent);
   return node;
 }
@@ -732,6 +744,7 @@ u64 place_allele(
   const u64 rank,
   const u64 differentia
 ) {
+  assert(records.rank[cur_node] <= rank);
   const auto range = ChildrenView(records, cur_node);
   const auto match = std::ranges::find_if(
     range,
@@ -924,6 +937,8 @@ struct ProgressBar {
  * of the below vectors represents a unique artifact. Includes
  * logging and an optional tqdm progress bar.
  *
+ * Note that ranks must be in ascending order within each stratum.
+ *
  * @see build_trie_searchtable_exploded
  */
 py::dict build_trie_searchtable_nested(
@@ -996,7 +1011,7 @@ u64 count_unique_elements(ITER begin, ITER end) {
  * Note that sequential calls to this function must be made with artifacts in
  * ascending order by num_strata_deposited and that the data_ids array must be
  * partitioned cleanly across calls (i.e., no data_id should be split across
- * calls).
+ * calls). Within each artifact, ranks must be in ascending order.
  *
  * Includes logging and an optional tqdm progress bar.
  *
@@ -1040,7 +1055,9 @@ void extend_trie_searchtable_exploded(
     for (u64 begin = 0; begin < static_cast<u64>(ranks.size()); begin = end) {
       for (end = begin; end < static_cast<u64>(ranks.size()); ++end) {
         if (data_ids_[begin] != data_ids_[end]) break;
-      }  // ... fast forward to end of segment with contiguous identical data_id values
+        // ranks must be in ascending order
+        else assert(begin == end || ranks_[end - 1] < ranks_[end]);
+      }  // ... fast fwd to end of seg w/ contiguous identical data_id values
 
       insert_artifact(
         records,
@@ -1069,6 +1086,8 @@ void extend_trie_searchtable_exploded(
  * DataFrame. Unlike extend_trie_searchtable_exploded, this function creates and
  * a new Records object internally and returns a py::dict with construction
  * results.
+ *
+ * Note that ranks must be in ascending order within each stratum.
  *
  * Includes logging and an optional tqdm progress bar.
  *

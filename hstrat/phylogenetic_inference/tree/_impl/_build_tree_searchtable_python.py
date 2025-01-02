@@ -91,6 +91,7 @@ def _place_allele(
     consistent with the given rank/differentia combination, creating a new
     node if necessary."""
 
+    assert table.get_rank_of(cur_node) <= next_rank
     for child in table.iter_inner_search_children_of(cur_node):
         # check immediate children for next allele
         rank_matches = table.get_rank_of(child) == next_rank
