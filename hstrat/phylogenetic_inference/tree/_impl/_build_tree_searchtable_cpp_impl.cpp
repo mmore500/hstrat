@@ -207,6 +207,8 @@ struct Records {
     const u64 rank,
     const u64 differentia
   ) {
+    assert(this->size() == 0 || ancestor_id != id);
+    assert(this->size() == 0 || this->rank[ancestor_id] <= rank);
     this->dstream_data_id.push_back(data_id);
     this->id.push_back(id);
     this->search_first_child_id.push_back(search_first_child_id);
@@ -216,6 +218,7 @@ struct Records {
     this->differentia.push_back(differentia);
     this->rank.push_back(rank);
     max_differentia = std::max(max_differentia, differentia);
+    assert(this->size() == 0 || this->rank[search_ancestor_id] <= rank);
   }
 
   u64 size() const { return this->dstream_data_id.size(); }
@@ -732,6 +735,7 @@ u64 place_allele(
   const u64 rank,
   const u64 differentia
 ) {
+  assert(records.rank[cur_node] <= rank);
   const auto range = ChildrenView(records, cur_node);
   const auto match = std::ranges::find_if(
     range,
@@ -1040,6 +1044,8 @@ void extend_trie_searchtable_exploded(
     for (u64 begin = 0; begin < static_cast<u64>(ranks.size()); begin = end) {
       for (end = begin; end < static_cast<u64>(ranks.size()); ++end) {
         if (data_ids_[begin] != data_ids_[end]) break;
+        // ranks must be in ascending order
+        else assert(begin == end || ranks_[end - 1] < ranks_[end]);
       }  // ... fast forward to end of segment with contiguous identical data_id values
 
       insert_artifact(
