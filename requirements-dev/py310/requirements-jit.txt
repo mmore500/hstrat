@@ -36,7 +36,7 @@ deprecated==1.2.15
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
-downstream==1.4.0
+downstream==1.5.1
     # via hstrat (../../pyproject.toml)
 ete3==3.1.3
     # via alifedata-phyloinformatics-convert
@@ -145,6 +145,8 @@ polars==1.16.0
     #   hstrat (../../pyproject.toml)
     #   downstream
     #   joinem
+polars-u64-idx==1.18.0
+    # via hstrat (../../pyproject.toml)
 prettytable==3.12.0
     # via hstrat (../../pyproject.toml)
 propcache==0.2.0
