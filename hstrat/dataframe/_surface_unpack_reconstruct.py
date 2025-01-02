@@ -125,6 +125,39 @@ def _construct_result_dataframe(
     )
 
 
+def _surface_unpacked_reconstruct(
+    df: pl.DataFrame,
+    *,
+    differentia_bitwidth: int,
+    dstream_S: int,
+    exploded_slice_size: int,
+) -> pl.DataFrame:
+    """Reconstruct phylogenetic tree from unpacked dstream data."""
+    render_polars_snapshot(df, "unpacked", logging.info)
+
+    logging.info("building tree searchtable chunkwise...")
+    records = _build_records_chunked(df, exploded_slice_size)
+
+    with log_context_duration("_construct_result_dataframe", logging.info):
+        phylo_df = _construct_result_dataframe(
+            records,
+            differentia_bitwidth=differentia_bitwidth,
+            dstream_S=dstream_S,
+        )
+
+    del records
+    render_polars_snapshot(phylo_df, "converted", logging.info)
+
+    logging.info("joining user-defined columns...")
+    with log_context_duration("_join_user_defined_columns", logging.info):
+        phylo_df = _join_user_defined_columns(df, phylo_df)
+
+    logging.info("surface_unpack_reconstruct complete")
+    render_polars_snapshot(phylo_df, "reconstruction", logging.info)
+
+    return phylo_df
+
+
 def surface_unpack_reconstruct(
     df: pl.DataFrame,
     *,
@@ -232,32 +265,16 @@ def surface_unpack_reconstruct(
             "cannot calculate differentia_bitwidth",
         )
     differentia_bitwidth = dstream_storage_bitwidth // dstream_S
+    logging.info(f" - differentia bitwidth: {differentia_bitwidth}")
 
     with log_context_duration(
         "dstream.dataframe.unpack_data_packed", logging.info
     ):
         df = dstream_dataframe.unpack_data_packed(df)
 
-    render_polars_snapshot(df, "unpacked", logging.info)
-
-    logging.info("building tree searchtable chunkwise...")
-    records = _build_records_chunked(df, exploded_slice_size)
-
-    with log_context_duration("_construct_result_dataframe", logging.info):
-        phylo_df = _construct_result_dataframe(
-            records,
-            differentia_bitwidth=differentia_bitwidth,
-            dstream_S=dstream_S,
-        )
-
-    del records
-    render_polars_snapshot(phylo_df, "converted", logging.info)
-
-    logging.info("joining user-defined columns...")
-    with log_context_duration("_join_user_defined_columns", logging.info):
-        phylo_df = _join_user_defined_columns(df, phylo_df)
-
-    logging.info("surface_unpack_reconstruct complete")
-    render_polars_snapshot(phylo_df, "reconstruction", logging.info)
-
-    return phylo_df
+    return _surface_unpacked_reconstruct(
+        df,
+        differentia_bitwidth=differentia_bitwidth,
+        dstream_S=dstream_S,
+        exploded_slice_size=exploded_slice_size,
+    )
