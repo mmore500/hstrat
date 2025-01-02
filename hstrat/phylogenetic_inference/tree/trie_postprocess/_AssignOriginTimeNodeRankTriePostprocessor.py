@@ -98,15 +98,13 @@ class AssignOriginTimeNodeRankTriePostprocessor(TriePostprocessorBase):
             return _call_pandas(
                 self,
                 trie,
-                progress_wrap=progress_wrap,
-            )
+            )  # no progress wrap
         elif isinstance(trie, pl.DataFrame):
             if not mutate:
                 trie = trie.clone()
             return _call_polars(
                 self,
                 trie,
-                progress_wrap=progress_wrap,
-            )
+            )  # no progress wrap
         else:
             raise TypeError  # pragma: no cover
