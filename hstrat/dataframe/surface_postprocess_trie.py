@@ -115,7 +115,7 @@ def _create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--trie-postprocessor",
         type=str,
-        default="hstrat.NopTrieProcessor()",
+        default="hstrat.NopTriePostprocessor()",
         help=(
             "Functor to apply to finalize postprocessed phylogeny. "
             "Will be `eval`-ed as Python code before use."
