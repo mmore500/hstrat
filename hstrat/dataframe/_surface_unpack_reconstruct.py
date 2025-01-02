@@ -108,20 +108,24 @@ def _construct_result_dataframe(
     records_dict = records_to_dict(records)
 
     logging.info("converting dict to dataframe...")
-    return pl.from_dict(
-        records_dict,  # type: ignore
-        schema={
-            "dstream_data_id": pl.UInt64,
-            "id": pl.UInt64,
-            "ancestor_id": pl.UInt64,
-            "differentia": pl.UInt64,
-            "rank": pl.UInt64,
-        },
-    ).with_columns(
-        pl.lit(differentia_bitwidth)
-        .alias("differentia_bitwidth")
-        .cast(pl.UInt32),
-        pl.lit(dstream_S).alias("dstream_S").cast(pl.UInt32),
+    del records_dict["differentia"]
+    return (
+        pl.from_dict(
+            records_dict,  # type: ignore
+            schema={
+                "dstream_data_id": pl.UInt64,
+                "id": pl.UInt64,
+                "ancestor_id": pl.UInt64,
+                "rank": pl.UInt64,
+            },
+        )
+        .with_columns(
+            pl.lit(differentia_bitwidth)
+            .alias("hstrat_differentia_bitwidth")
+            .cast(pl.UInt32),
+            pl.lit(dstream_S).alias("dstream_S").cast(pl.UInt32),
+        )
+        .rename({"rank": "hstrat_rank"})
     )
 
 
@@ -218,11 +222,11 @@ def surface_unpack_reconstruct(
             - Unique identifier for each taxon (RE alife standard format).
         - 'ancestor_id' : pl.UInt64
             - Unique identifier for ancestor taxon  (RE alife standard format).
-        - 'rank' : pl.UInt64
+        - 'hstrat_rank' : pl.UInt64
             - Num generations elapsed for ancestral differentia.
             - Corresponds to`dstream_Tbar` for inner nodes.
             - Corresponds `dstream_T` - 1 for leaf nodes
-        - 'differentia_bitwidth' : pl.UInt64
+        - 'hstrat_differentia_bitwidth' : pl.UInt64
             - Size of annotation differentiae, in bits.
             - Corresponds to `dstream_value_bitwidth`.
         - 'dstream_S' : pl.UInt32
@@ -255,8 +259,8 @@ def surface_unpack_reconstruct(
         logging.info("empty input dataframe, returning empty result")
         res = alifestd_make_empty()
         res["taxon_label"] = None
-        res["rank"] = pd.Series(dtype=int)
-        res["differentia_bitwidth"] = pd.Series(dtype=int)
+        res["hstrat_rank"] = pd.Series(dtype=int)
+        res["hstrat_differentia_bitwidth"] = pd.Series(dtype=int)
         res["dstream_S"] = pd.Series(dtype=int)
         return pl.from_pandas(res)
 

@@ -21,6 +21,6 @@ def test_smoke():
     )
     assert alifestd_is_chronologically_ordered(
         alifestd_try_add_ancestor_list_col(
-            res.with_columns(origin_time=pl.col("rank")).to_pandas(),
+            res.with_columns(origin_time=pl.col("hstrat_rank")).to_pandas(),
         ),
     )

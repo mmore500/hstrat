@@ -44,11 +44,11 @@ def surface_postprocess_trie(
             - 'ancestor_id' : pl.UInt64
                 - Unique identifier for ancestor taxon  (RE alife standard
                   format).
-            - 'rank' : pl.UInt64
+            - 'hstrat_rank' : pl.UInt64
                 - Num generations elapsed for ancestral differentia.
                 - Corresponds to`dstream_Tbar` for inner nodes.
                 - Corresponds `dstream_T` - 1 for leaf nodes
-            - 'differentia_bitwidth' : pl.UInt32
+            - 'hstrat_differentia_bitwidth' : pl.UInt32
                 - Size of annotation differentiae, in bits.
                 - Corresponds to `dstream_value_bitwidth`.
             - 'dstream_S' : pl.UInt32
@@ -81,6 +81,10 @@ def surface_postprocess_trie(
             - Unique identifier for each taxon (RE alife standard format).
         - 'ancestor_id' : pl.UInt64
             - Unique identifier for ancestor taxon  (RE alife standard format).
+        - 'hstrat_rank' : pl.UInt64
+            - Num generations elapsed for ancestral differentia.
+            - Corresponds to`dstream_Tbar` for inner nodes.
+            - Corresponds `dstream_T` - 1 for leaf nodes
 
         Optional schema:
         - 'origin_tme' : pl.UInt64
@@ -117,7 +121,7 @@ def surface_postprocess_trie(
 
     logging.info("extracting differentia bitwidth")
     differentia_bitwidth = get_sole_scalar_value_polars(
-        df, "differentia_bitwidth"
+        df, "hstrat_differentia_bitwidth"
     )
     logging.info(f" - differentia bitwidth: {differentia_bitwidth}")
 
@@ -128,7 +132,7 @@ def surface_postprocess_trie(
     log_memory_usage(logging.info)
 
     with log_context_duration("alifestd_collapse_trunk_asexual", logging.info):
-        df["is_trunk"] = df["rank"] < df["dstream_S"]
+        df["is_trunk"] = df["hstrat_rank"] < df["dstream_S"]
         render_pandas_snapshot(df[5:], display=print)
         df = alifestd_collapse_trunk_asexual(df, mutate=True)
 
@@ -144,15 +148,20 @@ def surface_postprocess_trie(
 
     with log_context_duration("trie_postprocessor", logging.info):
         pre_postprocessor_columns = {*df.columns}
+        df = df.rename(columns={"hstrat_rank": "rank"})
         df = trie_postprocessor(
             df,
             p_differentia_collision=2**-differentia_bitwidth,
             mutate=True,
             progress_wrap=tqdm,
         )
+        df = df.rename(columns={"rank": "hstrat_rank"})
     render_pandas_snapshot(df, "with trie postprocessing", logging.info)
 
-    to_keep = {*original_columns} - {"differentia_bitwidth", "dstream_S"}
+    to_keep = {*original_columns} - {
+        "hstrat_differentia_bitwidth",
+        "dstream_S",
+    }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df.drop(columns=[*to_drop], inplace=True)

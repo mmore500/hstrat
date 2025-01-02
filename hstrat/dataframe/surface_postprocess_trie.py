@@ -28,11 +28,11 @@ Input Schema: Required Columns
     - Unique identifier for each taxon (RE alife standard format).
 'ancestor_id' : integer
     - Unique identifier for ancestor taxon  (RE alife standard format).
-'rank' : integer
+'hstrat_rank' : integer
     - Num generations elapsed for ancestral differentia.
     - Corresponds to`dstream_Tbar` for inner nodes.
     - Corresponds `dstream_T` - 1 for leaf nodes
-'differentia_bitwidth' : integer
+'hstrat_differentia_bitwidth' : integer
     - Size of annotation differentiae, in bits.
     - Corresponds to `dstream_value_bitwidth`.
 'dstream_S' : integer
@@ -63,6 +63,11 @@ Output Schema: Required Columns
 
 'ancestor_id' : integer
     Unique identifier for ancestor taxon (RE alife standard format).
+
+'hstrat_rank' : integer
+    - Num generations elapsed for ancestral differentia.
+    - Corresponds to`dstream_Tbar` for inner nodes.
+    - Corresponds `dstream_T` - 1 for leaf nodes
 
 
 Output Schema: Optional Columns
