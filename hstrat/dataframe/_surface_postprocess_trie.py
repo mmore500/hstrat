@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from .._auxiliary_lib import (
     alifestd_assign_contiguous_ids,
-    alifestd_collapse_trunk_asexual,
+    alifestd_delete_trunk_asexual,
     alifestd_collapse_unifurcations,
     get_sole_scalar_value_polars,
     log_context_duration,
@@ -27,7 +27,7 @@ def surface_postprocess_trie(
     finalized estimate of phylogenetic history.
 
     Perfoms the following operations:
-    - Collapse trunk nodes with rank less than `dstream_S`.
+    - Delete trunk nodes with rank less than `dstream_S`.
     - Collapse unifurcations.
     - Assign contiguous IDs to nodes.
     - Apply supplied `trie_postprocessor` functor.
@@ -131,9 +131,9 @@ def surface_postprocess_trie(
     render_pandas_snapshot(df, "as pandas", logging.info)
     log_memory_usage(logging.info)
 
-    with log_context_duration("alifestd_collapse_trunk_asexual", logging.info):
+    with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
         df["is_trunk"] = df["hstrat_rank"] < df["dstream_S"]
-        df = alifestd_collapse_trunk_asexual(df, mutate=True)
+        df = alifestd_delete_trunk_asexual(df, mutate=True)
 
     with log_context_duration("alifestd_collapse_unifurcations", logging.info):
         df = alifestd_collapse_unifurcations(df, mutate=True)

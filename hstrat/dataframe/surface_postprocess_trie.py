@@ -92,13 +92,13 @@ See Also
 Additional Notes
 ================
 Behind the scenes, the following postprocessing steps occur:
-1. Trunk nodes with rank less than `dstream_S` are collapsed.
+1. Trunk nodes with rank less than `dstream_S` are deleted.
 
 2. Internal unifurcations are collapsed.
 
 3. Taxon `id` values are reassigned.
 
-4. Supplied `trie_postprocessor` functor is applied
+4. Supplied `trie_postprocessor` functor is applied.
 """
 
 
