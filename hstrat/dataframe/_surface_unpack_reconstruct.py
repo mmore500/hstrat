@@ -225,6 +225,8 @@ def surface_unpack_reconstruct(
         - 'differentia_bitwidth' : pl.UInt64
             - Size of annotation differentiae, in bits.
             - Corresponds to `dstream_value_bitwidth`.
+        - 'dstream_S' : pl.UInt32
+            - Capacity of dstream buffer, in number of data items.
         - 'dstream_data_id' : pl.UInt64
             - Unique identifier for each genome in source dataframe
             - Set to source dataframe row index if not provided.
@@ -234,6 +236,14 @@ def surface_unpack_reconstruct(
 
         Note that the alife-standard `ancestor_list` column is not included in
         the output.
+
+    See Also
+    --------
+    surface_postprocess_trie :
+        Post-processes raw phylogeny data, including collapsing superfluous
+        internal nodes and estimating taxon origin times.
+    alifestd_try_add_ancestor_list_col :
+        Adds alife-standard `ancestor_list` column to phylogeny data.
     """
     logging.info("beginning surface_unpack_reconstruct")
     log_memory_usage(logging.info)
