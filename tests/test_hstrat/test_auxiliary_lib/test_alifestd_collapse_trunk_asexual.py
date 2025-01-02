@@ -170,7 +170,7 @@ def test_alifestd_collapse_trunk_asexual_noncontiguous_trunk(mutate: bool):
     df = pd.DataFrame(
         {
             "id": [0, 1, 2],
-            "ancestor_list": ["[]", "[0]", "[1]"],
+            "ancestor_list": ["[None]", "[0]", "[1]"],
             "is_trunk": [True, False, True],
         }
     )

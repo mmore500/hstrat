@@ -10,19 +10,15 @@ def alifestd_collapse_trunk_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
 ) -> pd.DataFrame:
-    """TODO.
+    """Collapse entries masked by `is_trunk` column, keeping only the oldest
+    root.
 
-    Parameters
-    ----------
-    phylogeny_df : pd.DataFrame
-        Phylogeny dataframe in Alife standard format.
+    Masked entries must be contiguous, meaning that no non-trunk entry can
+    be an ancestor of a trunk entry.
 
-    Returns
-    -------
-    pd.DataFrame
-        TODO
-
-    Support for missing ancestor_list column. If present it will be updated.
+    Input dataframe is not mutated by this operation unless `mutate` set True.
+    If mutate set True, operation does not occur in place; still use return
+    value to get transformed phylogeny dataframe.
     """
     if "is_trunk" not in phylogeny_df:
         raise ValueError(
