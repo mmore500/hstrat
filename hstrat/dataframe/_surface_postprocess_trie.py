@@ -133,7 +133,6 @@ def surface_postprocess_trie(
 
     with log_context_duration("alifestd_collapse_trunk_asexual", logging.info):
         df["is_trunk"] = df["hstrat_rank"] < df["dstream_S"]
-        render_pandas_snapshot(df[5:], display=print)
         df = alifestd_collapse_trunk_asexual(df, mutate=True)
 
     with log_context_duration("alifestd_collapse_unifurcations", logging.info):
