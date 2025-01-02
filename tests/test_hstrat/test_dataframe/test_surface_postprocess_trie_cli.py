@@ -35,7 +35,7 @@ def test_surface_postprocess_trie_cli_csv():
             "/tmp/hstrat_surface_postprocess_trie.csv",
         ],
         check=True,
-        input="/tmp/hstrat_unpack_surface_reconstruct_.pqt".encode(),
+        input="/tmp/hstrat_unpack_surface_reconstruct_.csv".encode(),
     )
 
 
