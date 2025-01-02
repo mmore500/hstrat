@@ -143,6 +143,7 @@ def surface_postprocess_trie(
     render_pandas_snapshot(df, "reassigned tree", logging.info)
 
     with log_context_duration("trie_postprocessor", logging.info):
+        pre_postprocessor_columns = {*df.columns}
         df = trie_postprocessor(
             df,
             p_differentia_collision=2**-differentia_bitwidth,
@@ -152,7 +153,7 @@ def surface_postprocess_trie(
     render_pandas_snapshot(df, "with trie postprocessing", logging.info)
 
     to_keep = {*original_columns} - {"differentia_bitwidth", "dstream_S"}
-    to_drop = {*df.columns} - to_keep
+    to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df.drop(columns=[*to_drop], inplace=True)
 
