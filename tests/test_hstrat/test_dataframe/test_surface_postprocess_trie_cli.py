@@ -4,19 +4,19 @@ import subprocess
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
-def test_surface_postproceass_trie_cli_version():
+def test_surface_postprocess_trie_cli_version():
     subprocess.run(
         [
             "python3",
             "-m",
-            "hstrat.dataframe.surface_postproceass_trie",
+            "hstrat.dataframe.surface_postprocess_trie",
             "--version",
         ],
         check=True,
     )
 
 
-def test_surface_postproceass_trie_cli_csv():
+def test_surface_postprocess_trie_cli_csv():
     subprocess.run(
         [
             "python3",
@@ -31,7 +31,7 @@ def test_surface_postproceass_trie_cli_csv():
         [
             "python3",
             "-m",
-            "hstrat.dataframe.surface_postproceass_trie",
+            "hstrat.dataframe.surface_postprocess_trie",
             "/tmp/hstrat_surface_postprocess_trie.csv",
         ],
         check=True,
@@ -39,7 +39,7 @@ def test_surface_postproceass_trie_cli_csv():
     )
 
 
-def test_surface_postproceass_trie_cli_parquet():
+def test_surface_postprocess_trie_cli_parquet():
     subprocess.run(
         [
             "python3",
@@ -57,7 +57,7 @@ def test_surface_postproceass_trie_cli_parquet():
         [
             "python3",
             "-m",
-            "hstrat.dataframe.surface_postproceass_trie",
+            "hstrat.dataframe.surface_postprocess_trie",
             "/tmp/hstrat_surface_postprocess_trie.pqt",
             "--shrink-dtypes",
             "--trie-postprocessor",
