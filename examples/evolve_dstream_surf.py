@@ -106,7 +106,7 @@ def make_Organism(
                     Organism.CreateOffspring,
                     Organism,
                 )
-            assert founder.dstream_T == 64
+            assert founder.dstream_T == surface_size
             return founder
 
         def __init__(
