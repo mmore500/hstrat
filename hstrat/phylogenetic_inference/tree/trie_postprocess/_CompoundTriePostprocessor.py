@@ -4,6 +4,7 @@ import pandas as pd
 import polars as pl
 
 from .._impl import TrieInnerNode
+from ._NopTriePostprocessor import NopTriePostprocessor
 from ._detail import TriePostprocessorBase
 
 
@@ -28,6 +29,9 @@ class CompoundTriePostprocessor(TriePostprocessorBase):
             The sequence of postprocess functors to be applied.
         """
         self._postprocessors = postprocessors
+        if not postprocessors:
+            # ensure copy made if mutate is False
+            self._postprocessors.append(NopTriePostprocessor())
 
     def __call__(
         self: "CompoundTriePostprocessor",

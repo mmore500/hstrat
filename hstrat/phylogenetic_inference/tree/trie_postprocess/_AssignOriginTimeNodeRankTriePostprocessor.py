@@ -101,7 +101,8 @@ class AssignOriginTimeNodeRankTriePostprocessor(TriePostprocessorBase):
                 progress_wrap=progress_wrap,
             )
         elif isinstance(trie, pl.DataFrame):
-            # clone not needed for polars RE mutate
+            if not mutate:
+                trie = trie.clone()
             return _call_polars(
                 self,
                 trie,
