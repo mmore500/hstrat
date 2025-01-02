@@ -54,6 +54,15 @@ def _build_records_chunked(
         ):
             long_df = dstream_dataframe.explode_lookup_unpacked(
                 df_slice, value_type="uint64"
+            ).select(
+                pl.col(
+                    "dstream_data_id",
+                    "dstream_T",
+                    "dstream_Tbar",
+                    "dstream_value",
+                )
+                .sort_by("dstream_Tbar")
+                .over(partition_by="dstream_data_id"),
             )
 
         if i == 0:
