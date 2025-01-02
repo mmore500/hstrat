@@ -123,7 +123,7 @@ def surface_postprocess_trie(
 
     logging.info("converting DataFrame to Pandas...")
     with log_context_duration("pl.DataFrame.to_pandas", logging.info):
-        df = df.to_pandas()
+        df = df.lazy().collect().to_pandas()
     render_pandas_snapshot(df, "as pandas", logging.info)
     log_memory_usage(logging.info)
 
