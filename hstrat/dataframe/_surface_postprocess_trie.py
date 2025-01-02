@@ -6,8 +6,8 @@ from tqdm import tqdm
 
 from .._auxiliary_lib import (
     alifestd_assign_contiguous_ids,
-    alifestd_delete_trunk_asexual,
     alifestd_collapse_unifurcations,
+    alifestd_delete_trunk_asexual,
     get_sole_scalar_value_polars,
     log_context_duration,
     log_memory_usage,
