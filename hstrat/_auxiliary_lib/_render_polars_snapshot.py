@@ -26,7 +26,7 @@ def render_polars_snapshot(
         The rendered DataFrame, as a string, if `display` is not used.
     """
     with pl.Config() as cfg:
-        cfg.set_tbl_cols(df.lazy().collect_schema().len())
+        cfg.set_tbl_cols(-1)
         head = repr(df.lazy().head().collect())
         message = " ".join(
             [
