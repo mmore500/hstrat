@@ -115,7 +115,7 @@ def build_tree_trie_ensemble(
         Must take `trie` of type `TrieInnerNode`, `p_differentia_collision` of
         type `float`, `mutate` of type `bool`, and `progress_wrap` of type
         `Callable` params. Must returned postprocessed trie (type
-        `TrieInnerNode`). Several
+        `TrieInnerNode`).
 
         Each postprocess will be called indpendently to produce a returned
         postprocessed variant. Use `CompoundTriePostprocessor` to chain
