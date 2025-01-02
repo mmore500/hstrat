@@ -24,7 +24,7 @@ using namespace pybind11::literals;
 namespace py = pybind11;
 
 typedef uint64_t u64;
-constexpr u64 u64_max = std::numeric_limits<uint64_t>::max();
+constexpr u64 placeholder_value = std::numeric_limits<int64_t>::max();
 
 /** @brief Discard the output of functions that requires an output iterator */
 template<typename T> struct null_output_iterator {
@@ -174,7 +174,9 @@ struct Records {
     this->differentia.reserve(init_size);
     this->rank.reserve(init_size);
 
-    if (init_root) this->addRecord(u64_max, 0, 0, 0, 0, 0, 0, 0); // root node
+    if (init_root) {
+      this->addRecord(placeholder_value, 0, 0, 0, 0, 0, 0, 0); // root node
+    }
   }
 
   /** Copy constructor. */
@@ -758,7 +760,7 @@ u64 place_allele(
   if (match != range.end()) {
     return *match;
   } else {
-    const u64 dummy_data_id{u64_max};
+    const u64 dummy_data_id{placeholder_value};
     return create_offstring(
       records, cur_node, rank, differentia, dummy_data_id
     );
@@ -1112,6 +1114,7 @@ py::dict build_trie_searchtable_exploded(
 
 
 PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
+  m.attr("placeholder_value") = py::int_(placeholder_value);
   py::class_<Records>(m, "Records")
       .def(py::init<u64>(), py::arg("init_size"));
   m.def(
