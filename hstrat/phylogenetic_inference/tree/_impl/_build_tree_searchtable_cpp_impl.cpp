@@ -718,7 +718,16 @@ u64 create_offstring(
   const u64 data_id
 ) {
   const u64 node = records.size();
-  records.addRecord(data_id, node, parent, node, node, node, rank, differentia);
+  records.addRecord(
+    data_id,  // data_id
+    node,  // id
+    parent,  // ancestor_id
+    node,  // search_ancestor_id (note! search parent attached next below)
+    node,  // search_first_child_id
+    node,  // search_next_sibling_id
+    rank,  // rank
+    differentia  // differentia
+  );
   attach_search_parent(records, node, parent);
   return node;
 }
@@ -1046,7 +1055,7 @@ void extend_trie_searchtable_exploded(
         if (data_ids_[begin] != data_ids_[end]) break;
         // ranks must be in ascending order
         else assert(begin == end || ranks_[end - 1] < ranks_[end]);
-      }  // ... fast forward to end of segment with contiguous identical data_id values
+      }  // ... fast fwd to end of seg w/ contiguous identical data_id values
 
       insert_artifact(
         records,
