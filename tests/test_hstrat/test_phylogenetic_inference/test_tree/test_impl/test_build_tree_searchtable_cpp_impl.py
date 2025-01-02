@@ -74,7 +74,11 @@ def test_regression_distilled():
             ),
             "dstream_value_bitwidth": pl.Series(
                 "dstream_value_bitwidth",
-                [8, 8, 8,],
+                [
+                    8,
+                    8,
+                    8,
+                ],
                 dtype=pl.UInt32,
             ),
             "dstream_value": pl.Series(
