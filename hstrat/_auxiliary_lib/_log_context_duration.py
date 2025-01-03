@@ -1,4 +1,5 @@
 import contextlib
+import json
 import logging
 import time
 import typing
@@ -14,5 +15,5 @@ def log_context_duration(
     elapsed = time.time() - start
     logger(
         f"""exit log_seconds_elapsed for {what}
-!!! {{"{what}": {elapsed}}}""",
+!!! {{{json.dumps(what)}: {elapsed}}}""",
     )
