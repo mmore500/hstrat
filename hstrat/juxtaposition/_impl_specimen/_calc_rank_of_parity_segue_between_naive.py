@@ -16,10 +16,10 @@ from .._impl_column._calc_rank_of_parity_segue_between import (
 )
 from ._iter_mutual_rank_indices import _compare_differentia_at_common_ranks
 
-_reversed_range_jit = jit(nopython=True)(reversed_range)
+_reversed_range_jit = jit(cache=False, nopython=True)(reversed_range)
 
 
-@jit(nopython=True)
+@jit(cache=False, nopython=True)
 def _find_first_disparity_or_last_commonality(
     first_ranks: np.ndarray,
     first_differentiae: np.ndarray,
@@ -34,7 +34,7 @@ def _find_first_disparity_or_last_commonality(
     return positions
 
 
-@jit(nopython=True)
+@jit(cache=False, nopython=True)
 def _backtrack_n_equivalencies(
     first_ranks: np.ndarray,
     second_ranks: np.ndarray,

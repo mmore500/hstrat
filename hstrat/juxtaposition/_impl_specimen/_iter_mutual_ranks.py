@@ -28,6 +28,7 @@ from ...frozen_instrumentation import HereditaryStratigraphicSpecimen
             jit_numba_uint64_arr_t,
         )
     ],
+    cache=False,
     nopython=True,
 )
 def _compare_differentia_at_common_ranks(

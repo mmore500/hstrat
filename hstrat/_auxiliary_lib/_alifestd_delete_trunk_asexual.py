@@ -1,8 +1,9 @@
+import logging
+
 import numpy as np
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
-from ._alifestd_mark_oldest_root import alifestd_mark_oldest_root
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
@@ -34,35 +35,52 @@ def alifestd_delete_trunk_asexual(
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
 
-    if alifestd_has_contiguous_ids(phylogeny_df):
+    has_contiguous_ids = alifestd_has_contiguous_ids(phylogeny_df)
+    if has_contiguous_ids:
         phylogeny_df.reset_index(drop=True, inplace=True)
     else:
         phylogeny_df.index = phylogeny_df["id"]
 
-    phylogeny_df["ancestor_is_trunk"] = phylogeny_df.loc[
-        phylogeny_df["ancestor_id"], "is_trunk"
-    ].to_numpy()
+    logging.info(
+        "- alifestd_delete_trunk_asexual: marking ancestor_is_trunk...",
+    )
+    if has_contiguous_ids:
+        phylogeny_df["ancestor_is_trunk"] = phylogeny_df[
+            "is_trunk"
+        ].to_numpy()[phylogeny_df["ancestor_id"]]
+    else:
+        phylogeny_df["ancestor_is_trunk"] = phylogeny_df.loc[
+            phylogeny_df["ancestor_id"], "is_trunk"
+        ].to_numpy()
 
+    logging.info("- alifestd_delete_trunk_asexual: testing special cases...")
     if np.any(phylogeny_df["is_trunk"] & ~phylogeny_df["ancestor_is_trunk"]):
         raise ValueError("specified trunk is non-contiguous")
 
     if phylogeny_df["is_trunk"].sum() == 0:
         return phylogeny_df
 
-    trunk_df = phylogeny_df.loc[phylogeny_df["is_trunk"]]
-    trunk_df = alifestd_mark_oldest_root(trunk_df, mutate=True)
-
     if "ancestor_id" in phylogeny_df:
+        logging.info(
+            "- alifestd_delete_trunk_asexual: updating ancestor_id...",
+        )
         phylogeny_df.loc[
             phylogeny_df["ancestor_is_trunk"], "ancestor_id"
-        ] = phylogeny_df.loc[phylogeny_df["ancestor_is_trunk"], "id"]
+        ] = phylogeny_df.loc[
+            phylogeny_df["ancestor_is_trunk"], "id"
+        ].to_numpy()
 
     if "ancestor_list" in phylogeny_df:
+        logging.info(
+            "- alifestd_delete_trunk_asexual: updating ancestor_list...",
+        )
         phylogeny_df.loc[
             phylogeny_df["ancestor_is_trunk"], "ancestor_list"
         ] = "[none]"
 
-    res = phylogeny_df.loc[~phylogeny_df["is_trunk"]].reset_index(drop=True)
+    logging.info("- alifestd_delete_trunk_asexual: filtering should_keep...")
+    should_keep = ~phylogeny_df["is_trunk"]
+    res = phylogeny_df.loc[should_keep].reset_index(drop=True)
 
     assert res["is_trunk"].sum() == 0
     return res

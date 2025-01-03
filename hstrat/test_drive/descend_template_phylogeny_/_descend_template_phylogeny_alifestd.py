@@ -14,7 +14,9 @@ from ..._auxiliary_lib import (
     give_len,
     unfurl_lineage_with_contiguous_ids,
 )
-from ..._auxiliary_lib._alifestd_assign_contiguous_ids import _reassign_ids
+from ..._auxiliary_lib._alifestd_assign_contiguous_ids import (
+    _reassign_ids_asexual,
+)
 from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._descend_template_phylogeny import descend_template_phylogeny
 
@@ -79,7 +81,7 @@ def descend_template_phylogeny_alifestd(
         if not alifestd_is_topologically_sorted(phylogeny_df):
             phylogeny_df = alifestd_topological_sort(phylogeny_df)
 
-        __, extant_ids = _reassign_ids(
+        extant_ids = _reassign_ids_asexual(
             phylogeny_df["id"].to_numpy(), np.fromiter(extant_ids, int)
         )
 

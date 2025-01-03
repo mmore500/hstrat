@@ -11,10 +11,33 @@ from ._jit_numpy_int64_t import jit_numpy_int64_t
 
 
 @jit(nopython=True)
-def _reassign_ids(
+def _reassign_ids_asexual(
     ids: np.ndarray,
     ancestor_ids: np.ndarray,
-) -> typing.Tuple[typing.Dict[int, int], np.ndarray]:
+) -> np.ndarray:
+    max_id = np.max(ids)
+
+    if max_id > len(ids) * 5:
+        reassignment = jit_numba_dict_t.empty(
+            key_type=jit_numpy_int64_t,
+            value_type=jit_numpy_int64_t,
+        )
+        for id_ in ids:
+            reassignment[id_] = len(reassignment)
+        return np.array(
+            [reassignment[ancestor_id] for ancestor_id in ancestor_ids]
+        )
+    else:
+        reassignment = np.empty(max_id + 1, dtype=np.int64)
+        for i, id_ in enumerate(ids):
+            reassignment[id_] = i
+        return np.array(
+            [reassignment[ancestor_id] for ancestor_id in ancestor_ids]
+        )
+
+
+@jit(nopython=True)
+def _reassign_ids_sexual(ids: np.ndarray) -> typing.Dict[int, int]:
     reassignment = jit_numba_dict_t.empty(
         key_type=jit_numpy_int64_t,
         value_type=jit_numpy_int64_t,
@@ -22,9 +45,7 @@ def _reassign_ids(
     for id_ in ids:
         reassignment[id_] = len(reassignment)
 
-    return reassignment, np.array(
-        [reassignment[ancestor_id] for ancestor_id in ancestor_ids]
-    )
+    return reassignment
 
 
 def alifestd_assign_contiguous_ids(
@@ -40,22 +61,19 @@ def alifestd_assign_contiguous_ids(
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
-    reassignment, ancestor_ids = _reassign_ids(
-        phylogeny_df["id"].to_numpy(dtype=np.int64),
-        phylogeny_df["ancestor_id"].to_numpy(dtype=np.int64)
-        if "ancestor_id" in phylogeny_df
-        else np.array([], dtype=int),
-    )
-
+    original_ids = phylogeny_df["id"].to_numpy(dtype=np.int64).copy()
     phylogeny_df["id"] = np.arange(len(phylogeny_df))
 
-    if len(ancestor_ids):
-        phylogeny_df["ancestor_id"] = ancestor_ids
+    if "ancestor_id" in phylogeny_df.columns:
+        phylogeny_df["ancestor_id"] = _reassign_ids_asexual(
+            original_ids, phylogeny_df["ancestor_id"].to_numpy(dtype=np.int64)
+        )
         if "ancestor_list" in phylogeny_df:
             phylogeny_df["ancestor_list"] = alifestd_make_ancestor_list_col(
                 phylogeny_df["id"], phylogeny_df["ancestor_id"]
             )
     else:
+        reassignment = _reassign_ids_sexual(original_ids)
         phylogeny_df["ancestor_list"] = phylogeny_df["ancestor_list"].map(
             lambda ancestor_list_str: str(
                 [

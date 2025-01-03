@@ -117,7 +117,6 @@ def surface_postprocess_trie(
     logging.info("beginning surface_postprocess_trie")
     log_memory_usage(logging.info)
     render_polars_snapshot(df, "raw tree", logging.info)
-    original_columns = df.columns
 
     logging.info("extracting differentia bitwidth")
     differentia_bitwidth = get_sole_scalar_value_polars(
@@ -130,10 +129,17 @@ def surface_postprocess_trie(
         df = df.lazy().collect().to_pandas()
     render_pandas_snapshot(df, "as pandas", logging.info)
     log_memory_usage(logging.info)
+    original_columns = df.columns
+
+    with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
+        df = alifestd_assign_contiguous_ids(df, mutate=True)
 
     with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
         df["is_trunk"] = df["hstrat_rank"] < df["dstream_S"]
         df = alifestd_delete_trunk_asexual(df, mutate=True)
+
+    with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
+        df = alifestd_assign_contiguous_ids(df, mutate=True)
 
     with log_context_duration("alifestd_collapse_unifurcations", logging.info):
         df = alifestd_collapse_unifurcations(df, mutate=True)
