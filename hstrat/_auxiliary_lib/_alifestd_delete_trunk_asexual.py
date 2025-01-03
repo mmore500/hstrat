@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
-from ._alifestd_mark_oldest_root import alifestd_mark_oldest_root
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
@@ -56,7 +55,9 @@ def alifestd_delete_trunk_asexual(
         return phylogeny_df
 
     if "ancestor_id" in phylogeny_df:
-        logging.info("- alifestd_delete_trunk_asexual: updating ancestor_id...")
+        logging.info(
+            "- alifestd_delete_trunk_asexual: updating ancestor_id...",
+        )
         phylogeny_df.loc[
             phylogeny_df["ancestor_is_trunk"], "ancestor_id"
         ] = phylogeny_df.loc[phylogeny_df["ancestor_is_trunk"], "id"]
