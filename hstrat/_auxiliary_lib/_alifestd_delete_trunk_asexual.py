@@ -49,7 +49,7 @@ def alifestd_delete_trunk_asexual(
             "is_trunk"
         ].to_numpy()[phylogeny_df["ancestor_id"]]
     else:
-        phylogeny_df["ancestor_is_trunk"] = phylogeny_df[
+        phylogeny_df["ancestor_is_trunk"] = phylogeny_df.loc[
             phylogeny_df["ancestor_id"], "is_trunk"
         ].to_numpy()
 
