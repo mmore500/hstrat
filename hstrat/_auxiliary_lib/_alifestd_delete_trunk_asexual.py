@@ -35,7 +35,8 @@ def alifestd_delete_trunk_asexual(
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
 
-    if alifestd_has_contiguous_ids(phylogeny_df):
+    has_contiguous_ids = alifestd_has_contiguous_ids(phylogeny_df)
+    if has_contiguous_ids:
         phylogeny_df.reset_index(drop=True, inplace=True)
     else:
         phylogeny_df.index = phylogeny_df["id"]
@@ -43,9 +44,14 @@ def alifestd_delete_trunk_asexual(
     logging.info(
         "- alifestd_delete_trunk_asexual: marking ancestor_is_trunk...",
     )
-    phylogeny_df["ancestor_is_trunk"] = phylogeny_df.loc[
-        phylogeny_df["ancestor_id"], "is_trunk"
-    ].to_numpy()
+    if has_contiguous_ids:
+        phylogeny_df["ancestor_is_trunk"] = phylogeny_df[
+            "is_trunk"
+        ].to_numpy()[phylogeny_df["ancestor_id"]]
+    else:
+        phylogeny_df["ancestor_is_trunk"] = phylogeny_df[
+            phylogeny_df["ancestor_id"], "is_trunk"
+        ].to_numpy()
 
     logging.info("- alifestd_delete_trunk_asexual: testing special cases...")
     if np.any(phylogeny_df["is_trunk"] & ~phylogeny_df["ancestor_is_trunk"]):
@@ -60,7 +66,9 @@ def alifestd_delete_trunk_asexual(
         )
         phylogeny_df.loc[
             phylogeny_df["ancestor_is_trunk"], "ancestor_id"
-        ] = phylogeny_df.loc[phylogeny_df["ancestor_is_trunk"], "id"]
+        ] = phylogeny_df.loc[
+            phylogeny_df["ancestor_is_trunk"], "id"
+        ].to_numpy()
 
     if "ancestor_list" in phylogeny_df:
         logging.info(
