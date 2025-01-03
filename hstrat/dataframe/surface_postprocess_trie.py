@@ -82,7 +82,7 @@ Note that the alife-standard `ancestor_list` column is not included in output sc
 
 See Also
 ========
--m hstrat.dataframe.surface_postprocess_trie :
+-m hstrat.dataframe.surface_surface_unpack_reconstruct :
     Creates raw phylogeny data postprocessed here.
 
 -m hstrat._auxiliary_lib._alifestd_try_add_ancestor_list_col :
@@ -118,6 +118,9 @@ def _create_parser() -> argparse.ArgumentParser:
         default="hstrat.NopTriePostprocessor()",
         help=(
             "Functor to apply to finalize postprocessed phylogeny. "
+            "Postprocessors are available to estimate taxon `origin_time`, "
+            "apply topological corrections for systematic overestimation of "
+            "relatedness, etc. "
             "Will be `eval`-ed as Python code before use."
             "Must support Pandas dataframe input."
         ),

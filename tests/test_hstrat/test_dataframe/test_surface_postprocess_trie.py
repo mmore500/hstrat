@@ -23,7 +23,9 @@ def test_smoke():
     raw = surface_unpack_reconstruct(df)
     res = surface_postprocess_trie(
         raw,
-        trie_postprocessor=AssignOriginTimeNodeRankTriePostprocessor(),
+        trie_postprocessor=AssignOriginTimeNodeRankTriePostprocessor(
+            t0="dstream_S",
+        ),
     )
     assert "origin_time" in res.columns
     assert len(res) <= len(raw)
