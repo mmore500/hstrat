@@ -1,4 +1,5 @@
 import os
+import pathlib
 import subprocess
 
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
@@ -17,6 +18,8 @@ def test_surface_postprocess_trie_cli_version():
 
 
 def test_surface_postprocess_trie_cli_csv():
+    output_file = "/tmp/hstrat_surface_postprocess_trie.csv"
+    pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
             "python3",
@@ -32,14 +35,17 @@ def test_surface_postprocess_trie_cli_csv():
             "python3",
             "-m",
             "hstrat.dataframe.surface_postprocess_trie",
-            "/tmp/hstrat_surface_postprocess_trie.csv",
+            output_file,
         ],
         check=True,
         input="/tmp/hstrat_unpack_surface_reconstruct_.csv".encode(),
     )
+    assert os.path.exists(output_file)
 
 
 def test_surface_postprocess_trie_cli_parquet():
+    output_file = "/tmp/hstrat_surface_postprocess_trie.pqt"
+    pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
             "python3",
@@ -58,7 +64,7 @@ def test_surface_postprocess_trie_cli_parquet():
             "python3",
             "-m",
             "hstrat.dataframe.surface_postprocess_trie",
-            "/tmp/hstrat_surface_postprocess_trie.pqt",
+            output_file,
             "--shrink-dtypes",
             "--trie-postprocessor",
             "hstrat.NopTriePostprocessor()",
@@ -66,3 +72,4 @@ def test_surface_postprocess_trie_cli_parquet():
         check=True,
         input="/tmp/hstrat_unpack_surface_reconstruct_.pqt".encode(),
     )
+    assert os.path.exists(output_file)
