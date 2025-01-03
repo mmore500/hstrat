@@ -5,7 +5,7 @@ import numpy as np
 from ._jit import jit
 
 
-@jit(nopython=True)
+@jit(cache=False, nopython=True)
 def iter_monotonic_equivalencies(
     first: np.ndarray,
     second: np.ndarray,
