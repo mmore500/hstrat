@@ -74,7 +74,7 @@ def _alifestd_collapse_unifurcations_asexual(
     keep_filter, ancestor_ids = _collapse_unifurcations(
         phylogeny_df["ancestor_id"].to_numpy()
     )
-    phylogeny_df = phylogeny_df[keep_filter]
+    phylogeny_df = phylogeny_df[keep_filter].copy()
     phylogeny_df["id"] = original_ids[keep_filter]
     phylogeny_df["ancestor_id"] = original_ids[ancestor_ids[keep_filter]]
     if "ancestor_list" in phylogeny_df:

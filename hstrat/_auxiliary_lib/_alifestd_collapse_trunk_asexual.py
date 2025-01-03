@@ -49,9 +49,10 @@ def alifestd_collapse_trunk_asexual(
     if phylogeny_df["is_trunk"].sum() <= 1:
         return phylogeny_df
 
-    trunk_df = phylogeny_df.loc[phylogeny_df["is_trunk"]]
+    trunk_df = phylogeny_df.loc[phylogeny_df["is_trunk"]].copy()
     trunk_df = alifestd_mark_oldest_root(trunk_df, mutate=True)
     collapsed_root_id = trunk_df.loc[trunk_df["is_oldest_root"].idxmax(), "id"]
+    del trunk_df
 
     if "ancestor_id" in phylogeny_df:
         phylogeny_df.loc[

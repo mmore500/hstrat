@@ -49,9 +49,6 @@ def alifestd_delete_trunk_asexual(
     if phylogeny_df["is_trunk"].sum() == 0:
         return phylogeny_df
 
-    trunk_df = phylogeny_df.loc[phylogeny_df["is_trunk"]]
-    trunk_df = alifestd_mark_oldest_root(trunk_df, mutate=True)
-
     if "ancestor_id" in phylogeny_df:
         phylogeny_df.loc[
             phylogeny_df["ancestor_is_trunk"], "ancestor_id"
