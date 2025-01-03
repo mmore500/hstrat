@@ -34,7 +34,7 @@ def _find_first_disparity_or_last_commonality(
     return positions
 
 
-@jit(nopython=True)
+@jit(cache=False, nopython=True)
 def _backtrack_n_equivalencies(
     first_ranks: np.ndarray,
     second_ranks: np.ndarray,
