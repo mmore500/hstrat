@@ -1,4 +1,8 @@
-from dataframe import surface_postprocess_trie, surface_unpack_reconstruct
+from dataframe import (
+    surface_build_tree,
+    surface_postprocess_trie,
+    surface_unpack_reconstruct,
+)
 from frozen_instrumentation import (
     HereditaryStratigraphicAssemblage,
     HereditaryStratigraphicAssemblageSpecimen,
@@ -172,6 +176,7 @@ from test_drive import (
 
 __all__ = [
     # dataframe
+    "surface_build_tree",
     "surface_postprocess_trie",
     "surface_unpack_reconstruct",
     # frozen_instrumentation
