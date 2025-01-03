@@ -5,26 +5,26 @@ import subprocess
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
-def test_surface_unpack_reconstruct_cli_version():
+def test_surface_build_tree_cli_version():
     subprocess.run(
         [
             "python3",
             "-m",
-            "hstrat.dataframe.surface_unpack_reconstruct",
+            "hstrat.dataframe.surface_build_tree",
             "--version",
         ],
         check=True,
     )
 
 
-def test_surface_unpack_reconstruct_cli_csv():
-    output_file = "/tmp/hstrat_unpack_surface_reconstruct.csv"
+def test_surface_build_tree_cli_csv():
+    output_file = "/tmp/hstrat_surface_build_tree.pqt"
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
             "python3",
             "-m",
-            "hstrat.dataframe.surface_unpack_reconstruct",
+            "hstrat.dataframe.surface_build_tree",
             output_file,
         ],
         check=True,
@@ -33,14 +33,14 @@ def test_surface_unpack_reconstruct_cli_csv():
     assert os.path.exists(output_file)
 
 
-def test_surface_unpack_reconstruct_cli_parquet():
-    output_file = "/tmp/hstrat_unpack_surface_reconstruct.pqt"
+def test_surface_build_tree_cli_parquet():
+    output_file = "/tmp/hstrat_surface_build_tree.pqt"
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
             "python3",
             "-m",
-            "hstrat.dataframe.surface_unpack_reconstruct",
+            "hstrat.dataframe.surface_build_tree",
             output_file,
             "--shrink-dtypes",
             "--exploded-slice-size",

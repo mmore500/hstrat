@@ -16,7 +16,7 @@ raw_message = """First component of raw interface to tree reconstruction for sur
 Reads raw genome data from tabular data file(s) and writes reconstructed phylogeny data to output file in alife standard format.
 
 
-End-users are recommended to prefer `hstrat.dataframe.build_tree`.
+End-users are recommended to prefer `hstrat.dataframe.surface_build_tree`.
 Performs no post-processing operations, including taxon `origin_time` estimation.
 Surface-only implementation --- not compatible with HereditaryStratigraphicColumn genome annotations.
 

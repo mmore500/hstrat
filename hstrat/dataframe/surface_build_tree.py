@@ -11,43 +11,44 @@ from .._auxiliary_lib import (
     get_hstrat_version,
     log_context_duration,
 )
-from ._surface_postprocess_trie import surface_postprocess_trie
+from ._surface_build_tree import surface_build_tree
 
-raw_message = """Second component of raw interface to tree reconstruction for surface-based genome annotations.
-Reads raw phylogeny reconstruction data from reconstruction in tabular data file(s) and writes postprocessed phylogeny data to output file in alife standard format.
+raw_message = """End-to-end interface to tree reconstruction for surface-based genome annotations.
+Reads raw hex genome data from tabular data file(s) and writes postprocessed phylogeny data to output file in alife standard format.
 
 
-End-users are recommended to prefer `hstrat.dataframe.surface_build_tree` for end-to-end processing.
 Surface-only implementation --- not compatible with HereditaryStratigraphicColumn genome annotations.
 
 
 Input Schema: Required Columns
 ==============================
-'id' : integer
-    - Unique identifier for each taxon (RE alife standard format).
-'ancestor_id' : integer
-    - Unique identifier for ancestor taxon  (RE alife standard format).
-'hstrat_rank' : integer
-    - Num generations elapsed for ancestral differentia.
-    - Corresponds to `dstream_Tbar` for inner nodes.
-    - Corresponds `dstream_T` - 1 for leaf nodes
-'hstrat_differentia_bitwidth' : integer
-    - Size of annotation differentiae, in bits.
-    - Corresponds to `dstream_value_bitwidth`.
+'data_hex' : string
+    Raw genome data, with serialized dstream buffer and counter.
+    Represented as a hexadecimal string.
+
+'dstream_algo' : string or categorical
+    Name of downstream curation algorithm used (e.g., 'dstream.steady_algo').
+
+'dstream_storage_bitoffset' : integer
+    Position of dstream buffer field in 'data_hex'.
+
+'dstream_storage_bitwidth' : integer
+    Size of dstream buffer field in 'data_hex'.
+
+'dstream_T_bitoffset' : integer
+    Position of dstream counter field ("rank”) in 'data_hex'.
+
+'dstream_T_bitwidth' : integer
+    Size of dstream counter field in 'data_hex'.
+
 'dstream_S' : integer
-    - Capacity of dstream buffer used for hstrat surface, in number
-        of data items (i.e., differentia values).
+    Capacity of dstream buffer, in number of data items (i.e., num differentia stored per annotation).
 
 
 If required columns are not included in raw data, they must be created through CLI flags.
 For example,
-    --with-column 'pl.lit(16).alias("dstream_S")'
-
-
-Input Schema: Optional Columns
-==============================
-'dstream_data_id' : integer
-    Unique identifier for each taxon from source genome dataframe.
+    --with-column 'pl.lit("dstream.tilted_algo").alias("dstream_algo").cast(pl.Categorical)'”
+    --with-column 'pl.lit("genome_string").alias("data_hex")'
 
 
 Additional user-provided columns will be forwarded to phylogeny output.
@@ -81,23 +82,14 @@ Note that the alife-standard `ancestor_list` column is not included in output sc
 
 See Also
 ========
--m hstrat.dataframe.surface_surface_unpack_reconstruct :
-    Creates raw phylogeny data postprocessed here.
+-m hstrat.dataframe.surface_unpack_reconstrct :
+-m hstrat.dataframe.surface_postprocess_trie :
+    Low-level CLI interface for phylogeny reconstruction.
+    See their docstrings/help messages for technical details on reconstruction
+    and postprocessing operations.
 
 -m hstrat._auxiliary_lib._alifestd_try_add_ancestor_list_col :
     Adds alife-standard `ancestor_list` column to phylogeny data.
-
-
-Additional Notes
-================
-Behind the scenes, the following postprocessing steps occur:
-1. Trunk nodes with rank less than `dstream_S` are deleted.
-
-2. Internal unifurcations are collapsed.
-
-3. Taxon `id` values are reassigned.
-
-4. Supplied `trie_postprocessor` functor is applied.
 """
 
 
@@ -108,8 +100,14 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     _add_parser_base(
         parser=parser,
-        dfcli_module="hstrat.dataframe.surface_postprocess_trie",
+        dfcli_module="hstrat.dataframe.surface_build_tree",
         dfcli_version=get_hstrat_version(),
+    )
+    parser.add_argument(
+        "--exploded-slice-size",
+        type=int,
+        default=1_000_000,
+        help="Number of rows to process at once. Low values reduce memory use.",
     )
     parser.add_argument(
         "--trie-postprocessor",
@@ -140,12 +138,13 @@ if __name__ == "__main__":
     trie_postprocessor = eval(args.trie_postprocessor, {"hstrat": hstrat})
 
     with log_context_duration(
-        "hstrat.dataframe.surface_postprocess_trie", logging.info
+        "hstrat.dataframe.surface_build_tree", logging.info
     ):
         _run_dataframe_cli(
             base_parser=parser,
             output_dataframe_op=functools.partial(
-                surface_postprocess_trie,
+                surface_build_tree,
+                exploded_slice_size=args.exploded_slice_size,
                 trie_postprocessor=trie_postprocessor,
             ),
         )
