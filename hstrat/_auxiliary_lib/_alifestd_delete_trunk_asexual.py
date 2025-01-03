@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import pandas as pd
 
@@ -39,10 +41,14 @@ def alifestd_delete_trunk_asexual(
     else:
         phylogeny_df.index = phylogeny_df["id"]
 
+    logging.info(
+        "- alifestd_delete_trunk_asexual: marking ancestor_is_trunk...",
+    )
     phylogeny_df["ancestor_is_trunk"] = phylogeny_df.loc[
         phylogeny_df["ancestor_id"], "is_trunk"
     ].to_numpy()
 
+    logging.info("- alifestd_delete_trunk_asexual: testing special cases...")
     if np.any(phylogeny_df["is_trunk"] & ~phylogeny_df["ancestor_is_trunk"]):
         raise ValueError("specified trunk is non-contiguous")
 
@@ -50,16 +56,22 @@ def alifestd_delete_trunk_asexual(
         return phylogeny_df
 
     if "ancestor_id" in phylogeny_df:
+        logging.info("- alifestd_delete_trunk_asexual: updating ancestor_id...")
         phylogeny_df.loc[
             phylogeny_df["ancestor_is_trunk"], "ancestor_id"
         ] = phylogeny_df.loc[phylogeny_df["ancestor_is_trunk"], "id"]
 
     if "ancestor_list" in phylogeny_df:
+        logging.info(
+            "- alifestd_delete_trunk_asexual: updating ancestor_list...",
+        )
         phylogeny_df.loc[
             phylogeny_df["ancestor_is_trunk"], "ancestor_list"
         ] = "[none]"
 
-    res = phylogeny_df.loc[~phylogeny_df["is_trunk"]].reset_index(drop=True)
+    logging.info("- alifestd_delete_trunk_asexual: filtering should_keep...")
+    should_keep = ~phylogeny_df["is_trunk"]
+    res = phylogeny_df.loc[should_keep].reset_index(drop=True)
 
     assert res["is_trunk"].sum() == 0
     return res

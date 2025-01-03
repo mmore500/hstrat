@@ -1,4 +1,5 @@
 from collections import Counter
+import logging
 import typing
 import warnings
 
@@ -71,9 +72,12 @@ def _alifestd_collapse_unifurcations_asexual(
             phylogeny_df, mutate=True
         )
 
+    logging.info("- alifestd_collapse_unifurcaitons: calculating reindex...")
     keep_filter, ancestor_ids = _collapse_unifurcations(
-        phylogeny_df["ancestor_id"].to_numpy()
+        phylogeny_df["ancestor_id"].to_numpy(),
     )
+
+    logging.info("- alifestd_collapse_unifurcaitons: applying reindex...")
     phylogeny_df = phylogeny_df[keep_filter].copy()
     phylogeny_df["id"] = original_ids[keep_filter]
     phylogeny_df["ancestor_id"] = original_ids[ancestor_ids[keep_filter]]
