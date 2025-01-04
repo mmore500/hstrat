@@ -18,10 +18,9 @@ def alifestd_find_leaf_ids(phylogeny_df: pd.DataFrame) -> np.ndarray:
         if "ancestor_id" in phylogeny_df:
 
             # root is self ref, but must exclude to handle only-root phylo
-            internal_node_idxs = phylogeny_df.loc[
-                phylogeny_df["ancestor_id"] != phylogeny_df["id"],
-                "ancestor_id",
-            ].to_numpy()
+            internal_node_idxs = phylogeny_df["ancestor_id"].to_numpy()[
+                phylogeny_df["ancestor_id"] != phylogeny_df["id"]
+            ]
 
             leaf_pos_filter = np.ones(len(phylogeny_df), dtype=np.bool_)
             leaf_pos_filter[internal_node_idxs] = False
