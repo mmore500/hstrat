@@ -1,6 +1,7 @@
 import argparse
 import functools
 import logging
+import sys
 import typing
 
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
@@ -105,6 +106,7 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "-n",
+        default=sys.maxsize,
         type=int,
         help="Number of tips to subsample.",
     )
