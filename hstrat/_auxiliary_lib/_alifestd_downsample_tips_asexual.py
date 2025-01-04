@@ -40,8 +40,9 @@ def alifestd_downsample_tips_asexual(
     mutate: bool = False,
     seed: typing.Optional[int] = None,
 ) -> pd.DataFrame:
-    """Subsample phylogeny containing `num_tips` tips. If `num_tips` is greater
-    than the number of tips in the phylogeny, the whole phylogeny is returned.
+    """Create a subsample phylogeny containing `num_tips` tips. If `num_tips`
+    is greater than the number of tips in the phylogeny, the whole phylogeny is
+    returned.
 
     Only supports asexual phylogenies.
     """
