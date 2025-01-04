@@ -2,7 +2,11 @@ import argparse
 import logging
 import warnings
 
-from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
+from joinem._dataframe_cli import (
+    _add_parser_base,
+    _add_parser_core,
+    _run_dataframe_cli,
+)
 import pandas as pd
 import polars as pl
 
@@ -77,11 +81,12 @@ def _create_parser() -> argparse.ArgumentParser:
         description=format_cli_description(_raw_description),
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    _add_parser_base(
+    parser = _add_parser_base(
         parser=parser,
         dfcli_module="hstrat._auxiliary_lib._alifestd_try_add_ancestor_list_col",
         dfcli_version=get_hstrat_version(),
     )
+    parser = _add_parser_core(parser=parser)
     return parser
 
 

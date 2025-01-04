@@ -2,7 +2,11 @@ import argparse
 import functools
 import logging
 
-from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
+from joinem._dataframe_cli import (
+    _add_parser_base,
+    _add_parser_core,
+    _run_dataframe_cli,
+)
 
 from .. import hstrat
 from .._auxiliary_lib import (
@@ -98,11 +102,12 @@ def _create_parser() -> argparse.ArgumentParser:
         description=format_cli_description(raw_message),
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    _add_parser_base(
+    parser = _add_parser_base(
         parser=parser,
         dfcli_module="hstrat.dataframe.surface_build_tree",
         dfcli_version=get_hstrat_version(),
     )
+    parser = _add_parser_core(parser=parser)
     parser.add_argument(
         "--exploded-slice-size",
         type=int,
