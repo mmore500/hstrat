@@ -100,7 +100,7 @@ def test_alifestd_find_leaf_ids_singleton(phylogeny_df, apply):
     phylogeny_df = apply(phylogeny_df)
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
 
-    assert alifestd_find_leaf_ids(phylogeny_df.iloc[0:1, :]) == [
+    assert alifestd_find_leaf_ids(phylogeny_df.iloc[0:1, :]).tolist() == [
         phylogeny_df.iloc[0].at["id"]
     ]
 
@@ -120,14 +120,14 @@ def test_alifestd_find_leaf_ids_tworoots():
                 phylo2.iloc[0:1, :],
             ]
         )
-    ) == [phylo1.iloc[0].at["id"]] + [phylo2.iloc[0].at["id"]]
+    ).tolist() == [phylo1.iloc[0].at["id"]] + [phylo2.iloc[0].at["id"]]
 
 
 def test_alifestd_find_leaf_ids_empty2():
     phylo1 = pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
-    assert alifestd_find_leaf_ids(phylo1[-1:0]) == []
+    assert alifestd_find_leaf_ids(phylo1[-1:0]).tolist() == []
     phylo1["ancestor_id"] = 0
-    assert alifestd_find_leaf_ids(phylo1[-1:0]) == []
+    assert alifestd_find_leaf_ids(phylo1[-1:0]).tolist() == []
 
 
 def _test_alifestd_find_leaf_ids_impl(phylogeny_df):
@@ -141,10 +141,10 @@ def _test_alifestd_find_leaf_ids_impl(phylogeny_df):
         ]
         leaf_ids.sort(key=phylogeny_df_.index.get_loc)
 
-        assert leaf_ids == alifestd_find_leaf_ids(phylogeny_df)
+        assert leaf_ids == alifestd_find_leaf_ids(phylogeny_df).tolist()
     else:
         # sexual phylogenies
-        leaf_ids = alifestd_find_leaf_ids(phylogeny_df)
+        leaf_ids = alifestd_find_leaf_ids(phylogeny_df).tolist()
         assert sorted(leaf_ids, key=phylogeny_df_.index.get_loc) == leaf_ids
 
         all_ids = set(phylogeny_df["id"])

@@ -28,7 +28,7 @@ def alifestd_find_leaf_ids(phylogeny_df: pd.DataFrame) -> typing.List[int]:
             leaf_pos_filter = np.ones(len(phylogeny_df), dtype=np.bool_)
             leaf_pos_filter[internal_node_idxs] = False
 
-            return phylogeny_df.loc[leaf_pos_filter, "id"].to_list()
+            return np.flatnonzero(leaf_pos_filter)
 
     all_ids = ods.OrderedSet(phylogeny_df["id"])
     internal_ids = (
@@ -50,4 +50,4 @@ def alifestd_find_leaf_ids(phylogeny_df: pd.DataFrame) -> typing.List[int]:
             ]
         )
     )
-    return list(all_ids - internal_ids)
+    return np.fromiter(all_ids - internal_ids, dtype=int)
