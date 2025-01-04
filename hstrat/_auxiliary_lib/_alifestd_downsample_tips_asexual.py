@@ -129,5 +129,5 @@ if __name__ == "__main__":
                     seed=args.seed,
                 ),
             ),
-            overriden_arguments="ignore",  # seed is overridden
+            overridden_arguments="ignore",  # seed is overridden
         )
