@@ -1,5 +1,3 @@
-import typing
-
 import numpy as np
 import ordered_set as ods
 import pandas as pd
