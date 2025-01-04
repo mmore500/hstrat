@@ -6,6 +6,7 @@ import pandas as pd
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
+from ._jit import jit
 from ._unfurl_lineage_with_contiguous_ids import (
     unfurl_lineage_with_contiguous_ids,
 )
@@ -32,13 +33,14 @@ def _create_has_estant_descendant_noncontiguous(
     return phylogeny_df["has_extant_descendant"]
 
 
+@jit(nopython=True)
 def _create_has_extant_descendant_contiguous(
     ancestor_ids: np.ndarray,
     extant_mask: np.ndarray,
 ) -> np.ndarray:
     """Implementation detail for alifestd_prune_extinct_lineages_asexual."""
 
-    has_extant_descendant = np.zeros_like(ancestor_ids, dtype=bool)
+    has_extant_descendant = np.zeros_like(extant_mask)
     for extant_id in np.flatnonzero(extant_mask):
         for lineage_id in unfurl_lineage_with_contiguous_ids(
             ancestor_ids,
@@ -106,7 +108,7 @@ def alifestd_prune_extinct_lineages_asexual(
     has_extant_descendant = (
         _create_has_extant_descendant_contiguous(
             phylogeny_df["ancestor_id"].to_numpy(dtype=np.uint64),
-            extant_mask,
+            extant_mask.to_numpy(dtype=bool),
         )
         if alifestd_has_contiguous_ids(phylogeny_df)
         else _create_has_estant_descendant_noncontiguous(
