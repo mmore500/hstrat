@@ -5,16 +5,16 @@ import subprocess
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
-# def test_alifestd_downsample_tips_asexual_cli_help():
-#     subprocess.run(
-#         [
-#             "python3",
-#             "-m",
-#             "hstrat._auxiliary_lib._alifestd_downsample_tips_asexual",
-#             "--help",
-#         ],
-#         check=True,
-#     )
+def test_alifestd_downsample_tips_asexual_cli_help():
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_downsample_tips_asexual",
+            "--help",
+        ],
+        check=True,
+    )
 
 
 def test_alifestd_downsample_tips_asexual_cli_version():
