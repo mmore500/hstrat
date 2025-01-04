@@ -121,7 +121,6 @@ if __name__ == "__main__":
         "hstrat._auxiliary_lib._alifestd_downsample_tips_asexual", logging.info
     ):
         _run_dataframe_cli(
-            allow_overridden_arguments=True,  # seed is overridden
             base_parser=parser,
             output_dataframe_op=delegate_polars_implementation()(
                 functools.partial(
@@ -130,4 +129,5 @@ if __name__ == "__main__":
                     seed=args.seed,
                 ),
             ),
+            overriden_arguments="ignore",  # seed is overridden
         )
