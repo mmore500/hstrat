@@ -9,7 +9,7 @@ from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
-def alifestd_find_leaf_ids(phylogeny_df: pd.DataFrame) -> typing.List[int]:
+def alifestd_find_leaf_ids(phylogeny_df: pd.DataFrame) -> np.ndarray:
     """What ids are not listed in any `ancestor_list`?
 
     Input dataframe is not mutated by this operation.
