@@ -3,8 +3,53 @@ import operator
 import numpy as np
 import pandas as pd
 
+from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
+from ._unfurl_lineage_with_contiguous_ids import (
+    unfurl_lineage_with_contiguous_ids,
+)
+
+
+def _create_has_estant_descendant_noncontiguous(
+    phylogeny_df: pd.DataFrame,
+    extant_mask: np.ndarray,
+) -> np.ndarray:
+    """Implementation detail for alifestd_prune_extinct_lineages_asexual."""
+
+    phylogeny_df["has_extant_descendant"] = False
+    for extant_id in phylogeny_df.loc[extant_mask, "id"]:
+        for lineage_id in alifestd_unfurl_lineage_asexual(
+            phylogeny_df,
+            int(extant_id),
+            mutate=True,
+        ):
+            if phylogeny_df.loc[lineage_id, "has_extant_descendant"]:
+                break
+
+            phylogeny_df.loc[lineage_id, "has_extant_descendant"] = True
+
+    return phylogeny_df["has_extant_descendant"]
+
+
+def _create_has_extant_descendant_contiguous(
+    ancestor_ids: np.ndarray,
+    extant_mask: np.ndarray,
+) -> np.ndarray:
+    """Implementation detail for alifestd_prune_extinct_lineages_asexual."""
+
+    has_extant_descendant = np.zeros_like(ancestor_ids, dtype=bool)
+    for extant_id in np.flatnonzero(extant_mask):
+        for lineage_id in unfurl_lineage_with_contiguous_ids(
+            ancestor_ids,
+            int(extant_id),
+        ):
+            if has_extant_descendant[lineage_id]:
+                break
+
+            has_extant_descendant[lineage_id] = True
+
+    return has_extant_descendant
 
 
 def alifestd_prune_extinct_lineages_asexual(
@@ -58,22 +103,20 @@ def alifestd_prune_extinct_lineages_asexual(
     else:
         raise ValueError('Need "extant" or "destruction_time" column.')
 
-    phylogeny_df["has_extant_descendant"] = False
-
-    for extant_id in phylogeny_df.loc[extant_mask, "id"]:
-        for lineage_id in alifestd_unfurl_lineage_asexual(
+    has_extant_descendant = (
+        _create_has_extant_descendant_contiguous(
+            phylogeny_df["ancestor_id"].to_numpy(dtype=np.uint64),
+            extant_mask,
+        )
+        if alifestd_has_contiguous_ids(phylogeny_df)
+        else _create_has_estant_descendant_noncontiguous(
             phylogeny_df,
-            int(extant_id),
-            mutate=True,
-        ):
-            if phylogeny_df.loc[lineage_id, "has_extant_descendant"]:
-                break
-
-            phylogeny_df.loc[lineage_id, "has_extant_descendant"] = True
-
-    drop_filter = ~phylogeny_df["has_extant_descendant"]
-    phylogeny_df.drop(
-        phylogeny_df.index[drop_filter], inplace=True, axis="rows"
+            extant_mask,
+        )
     )
-    phylogeny_df.drop("has_extant_descendant", inplace=True, axis="columns")
-    return phylogeny_df.reset_index(drop=True)
+
+    phylogeny_df = phylogeny_df[has_extant_descendant].reset_index(drop=True)
+    phylogeny_df.drop(
+        columns="has_extant_descendant", errors="ignore", inplace=True
+    )
+    return phylogeny_df
