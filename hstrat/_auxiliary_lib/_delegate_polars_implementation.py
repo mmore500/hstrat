@@ -95,7 +95,7 @@ def delegate_polars_implementation(
             any_pandas = any(map(detect_pandas_, (*args, *kwargs.values())))
             any_polars = any(map(detect_polars_, (*args, *kwargs.values())))
             logging.info("begin delgate_polars_implementation")
-            logging.info("- detected {any_pandas=} {any_polars=}")
+            logging.info(f"- detected {any_pandas=} {any_polars=}")
 
             if any_pandas and any_polars:
                 raise TypeError("mixing pandas and polars types is disallowed")
