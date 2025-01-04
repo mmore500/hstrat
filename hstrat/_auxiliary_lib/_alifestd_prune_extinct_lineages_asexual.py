@@ -12,7 +12,7 @@ from ._unfurl_lineage_with_contiguous_ids import (
 )
 
 
-def _create_has_estant_descendant_noncontiguous(
+def _create_has_extant_descendant_noncontiguous(
     phylogeny_df: pd.DataFrame,
     extant_mask: np.ndarray,
 ) -> np.ndarray:
@@ -105,17 +105,16 @@ def alifestd_prune_extinct_lineages_asexual(
     else:
         raise ValueError('Need "extant" or "destruction_time" column.')
 
-    has_extant_descendant = (
-        _create_has_extant_descendant_contiguous(
+    if alifestd_has_contiguous_ids(phylogeny_df):
+        has_extant_descendant = _create_has_extant_descendant_contiguous(
             phylogeny_df["ancestor_id"].to_numpy(dtype=np.uint64),
             extant_mask.to_numpy(dtype=bool),
         )
-        if alifestd_has_contiguous_ids(phylogeny_df)
-        else _create_has_estant_descendant_noncontiguous(
+    else:
+        has_extant_descendant = _create_has_extant_descendant_noncontiguous(
             phylogeny_df,
             extant_mask,
         )
-    )
 
     phylogeny_df = phylogeny_df[has_extant_descendant].reset_index(drop=True)
     phylogeny_df.drop(
