@@ -5,13 +5,13 @@ import subprocess
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
-def test_surface_unpack_reconstruct_cli_helper():
+def test_surface_unpack_reconstruct_cli_help():
     subprocess.run(
         [
             "python3",
             "-m",
             "hstrat.dataframe.surface_unpack_reconstruct",
-            "--helper",
+            "--help",
         ],
         check=True,
     )
