@@ -107,7 +107,7 @@ def test_descend_template_phylogeny(
     )
     assert [n.id for n in sorted_leaf_nodes] == alifestd_find_leaf_ids(
         phylogeny_df
-    )
+    ).tolist()
     for extant_ids, sorted_extant_nodes in (
         (None, sorted_leaf_nodes),
         (map(lambda node: node.id, sampled_tree_nodes), sampled_tree_nodes),
