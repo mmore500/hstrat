@@ -5,6 +5,18 @@ import subprocess
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
+def test_surface_postprocess_trie_cli_help():
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_postprocess_trie",
+            "--help",
+        ],
+        check=True,
+    )
+
+
 def test_surface_postprocess_trie_cli_version():
     subprocess.run(
         [

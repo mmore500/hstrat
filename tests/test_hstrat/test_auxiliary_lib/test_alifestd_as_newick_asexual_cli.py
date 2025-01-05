@@ -7,6 +7,18 @@ import pytest
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
+def test_alifestd_as_newick_asexual_cli_help():
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_as_newick_asexual",
+            "--help",
+        ],
+        check=True,
+    )
+
+
 def test_alifestd_as_newick_asexual_cli_version():
     subprocess.run(
         [

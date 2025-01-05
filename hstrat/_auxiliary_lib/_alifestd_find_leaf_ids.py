@@ -1,5 +1,3 @@
-import typing
-
 import numpy as np
 import ordered_set as ods
 import pandas as pd
@@ -9,7 +7,7 @@ from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
-def alifestd_find_leaf_ids(phylogeny_df: pd.DataFrame) -> typing.List[int]:
+def alifestd_find_leaf_ids(phylogeny_df: pd.DataFrame) -> np.ndarray:
     """What ids are not listed in any `ancestor_list`?
 
     Input dataframe is not mutated by this operation.
@@ -20,15 +18,14 @@ def alifestd_find_leaf_ids(phylogeny_df: pd.DataFrame) -> typing.List[int]:
         if "ancestor_id" in phylogeny_df:
 
             # root is self ref, but must exclude to handle only-root phylo
-            internal_node_idxs = phylogeny_df.loc[
-                phylogeny_df["ancestor_id"] != phylogeny_df["id"],
-                "ancestor_id",
-            ].to_numpy()
+            internal_node_idxs = phylogeny_df["ancestor_id"].to_numpy()[
+                phylogeny_df["ancestor_id"] != phylogeny_df["id"]
+            ]
 
             leaf_pos_filter = np.ones(len(phylogeny_df), dtype=np.bool_)
             leaf_pos_filter[internal_node_idxs] = False
 
-            return phylogeny_df.loc[leaf_pos_filter, "id"].to_list()
+            return np.flatnonzero(leaf_pos_filter)
 
     all_ids = ods.OrderedSet(phylogeny_df["id"])
     internal_ids = (
@@ -50,4 +47,4 @@ def alifestd_find_leaf_ids(phylogeny_df: pd.DataFrame) -> typing.List[int]:
             ]
         )
     )
-    return list(all_ids - internal_ids)
+    return np.fromiter(all_ids - internal_ids, dtype=int)

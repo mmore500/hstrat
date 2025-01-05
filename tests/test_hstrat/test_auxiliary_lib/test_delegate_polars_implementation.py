@@ -38,6 +38,15 @@ def dummy_func(
         coerce_to_polars(
             pd.read_csv(f"{assets_path}/nk_tournamentselection.csv")
         ),
+        coerce_to_polars(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
+        ).lazy(),
+        coerce_to_polars(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
+        ).lazy(),
+        coerce_to_polars(
+            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv")
+        ).lazy(),
     ],
 )
 @pytest.mark.parametrize(
@@ -72,8 +81,10 @@ def test_coercion_and_error(
             dummy_func({"df": df}, [series], 1234)
     else:
         new_df, new_series, _ = dummy_func({"df": df}, [series], "asdf")
-        assert type(new_df) == type(df)
-        assert type(new_series) == type(series)
+        assert isinstance(new_df, type(df)) or isinstance(
+            new_df, type(df.collect())
+        )
+        assert isinstance(new_series, type(series))
 
 
 SignalException = type("", (Exception,), {})

@@ -74,6 +74,7 @@ Otherwise, no action is taken.
 def _create_parser() -> argparse.ArgumentParser:
     """Create parser for CLI entrypoint."""
     parser = argparse.ArgumentParser(
+        add_help=False,
         description=format_cli_description(_raw_description),
         formatter_class=argparse.RawTextHelpFormatter,
     )

@@ -13,7 +13,9 @@ from ._coerce_to_pandas import (
 from ._coerce_to_polars import coerce_to_polars
 from ._warn_once import warn_once
 
-DataFrame_T = typing.TypeVar("DataFrame_T", pd.DataFrame, pl.DataFrame)
+DataFrame_T = typing.TypeVar(
+    "DataFrame_T", pd.DataFrame, pl.DataFrame, pl.LazyFrame
+)
 Series_T = typing.TypeVar("Series_T", pd.Series, pl.Series)
 
 
@@ -25,7 +27,7 @@ def _detect_pandas(arg: typing.Any, recurse: bool) -> bool:
     """
     if isinstance(arg, (pd.DataFrame, pd.Series)):
         return True
-    elif isinstance(arg, (pl.DataFrame, pl.Series, str)):
+    elif isinstance(arg, (pl.DataFrame, pl.LazyFrame, pl.Series, str)):
         return False
     elif recurse and isinstance(arg, _supported_mappings):
         return any(_detect_pandas(v, recurse) for v in arg.values())
@@ -46,7 +48,7 @@ def _detect_polars(arg: typing.Any, recurse: bool) -> bool:
     If `recurse` is True, then this function will recursively check for Polars
     members in mappings and iterables.
     """
-    if isinstance(arg, (pl.DataFrame, pl.Series)):
+    if isinstance(arg, (pl.DataFrame, pl.LazyFrame, pl.Series)):
         return True
     elif isinstance(arg, (pd.DataFrame, pd.Series, str)):
         return False
@@ -95,7 +97,7 @@ def delegate_polars_implementation(
             any_pandas = any(map(detect_pandas_, (*args, *kwargs.values())))
             any_polars = any(map(detect_polars_, (*args, *kwargs.values())))
             logging.info("begin delgate_polars_implementation")
-            logging.info("- detected {any_pandas=} {any_polars=}")
+            logging.info(f"- detected {any_pandas=} {any_polars=}")
 
             if any_pandas and any_polars:
                 raise TypeError("mixing pandas and polars types is disallowed")

@@ -5,6 +5,18 @@ import subprocess
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
+def test_surface_build_tree_cli_help():
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_build_tree",
+            "--help",
+        ],
+        check=True,
+    )
+
+
 def test_surface_build_tree_cli_version():
     subprocess.run(
         [
@@ -18,7 +30,7 @@ def test_surface_build_tree_cli_version():
 
 
 def test_surface_build_tree_cli_csv():
-    output_file = "/tmp/hstrat_surface_build_tree.pqt"
+    output_file = "/tmp/hstrat_surface_build_tree.csv"
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [

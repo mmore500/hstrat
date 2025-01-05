@@ -95,6 +95,7 @@ See Also
 
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
+        add_help=False,
         description=format_cli_description(raw_message),
         formatter_class=argparse.RawTextHelpFormatter,
     )
@@ -132,7 +133,7 @@ if __name__ == "__main__":
     args, __ = parser.parse_known_args()
 
     logging.info(
-        f"instantiating trie postprocess functor: "
+        "instantiating trie postprocess functor: "
         f"`{args.trie_postprocessor}`",
     )
     trie_postprocessor = eval(args.trie_postprocessor, {"hstrat": hstrat})
