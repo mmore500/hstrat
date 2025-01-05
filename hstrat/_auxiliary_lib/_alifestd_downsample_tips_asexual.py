@@ -28,7 +28,7 @@ def _alifestd_downsample_tips_asexual_impl(
 ) -> pd.DataFrame:
     """Implementation detail for alifestd_downsample_tips_asexual."""
     tips = alifestd_find_leaf_ids(phylogeny_df)
-    kept = np.random.choice(tips, min(n_downsample, len(tips)))
+    kept = np.random.choice(tips, min(n_downsample, len(tips)), replace=False)
     if alifestd_has_contiguous_ids(phylogeny_df):
         extant = np.zeros(len(phylogeny_df), dtype=bool)
         extant[kept] = True
