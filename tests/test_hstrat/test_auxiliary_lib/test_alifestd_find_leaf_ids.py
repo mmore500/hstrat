@@ -56,7 +56,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 def test_alifestd_find_leaf_ids_empty(phylogeny_df, apply):
     phylogeny_df = phylogeny_df.copy()
     phylogeny_df = apply(phylogeny_df)
-    assert alifestd_find_leaf_ids(phylogeny_df.iloc[-1:0, :]) == []
+    assert alifestd_find_leaf_ids(phylogeny_df.iloc[-1:0, :]).tolist() == []
 
 
 @pytest.mark.parametrize(
