@@ -32,6 +32,12 @@ _hstrat_ enables phylogenetic inference on distributed digital evolution populat
 
 `python3 -m pip install hstrat`
 
+A containerized release of `hstrat` is available via <ghcr.io>
+
+```bash
+singularity exec docker://ghcr.io/mmore500/hstrat:v1.17.2 python3 -m hstrat --help
+```
+
 ## Features
 
 _hstrat_ serves to enable **robust, efficient extraction of evolutionary history** from evolutionary simulations where centralized, direct phylogenetic tracking is not feasible.
