@@ -1,9 +1,11 @@
 import argparse
 import functools
 import logging
+import os
 import sys
 import typing
 
+import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
 import pandas as pd
@@ -75,7 +77,9 @@ def alifestd_downsample_tips_asexual(
     return impl(phylogeny_df, n_downsample)
 
 
-_raw_description = """Create a subsample phylogeny containing `num_tips` tips.
+_raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
+
+Create a subsample phylogeny containing `num_tips` tips.
 
 If `num_tips` is greater than the number of tips in the phylogeny, the whole phylogeny is returned.
 

@@ -1,7 +1,9 @@
 import argparse
 import functools
 import logging
+import os
 
+import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 
 from .. import hstrat
@@ -13,7 +15,9 @@ from .._auxiliary_lib import (
 )
 from ._surface_postprocess_trie import surface_postprocess_trie
 
-raw_message = """Second component of raw interface to tree reconstruction for surface-based genome annotations.
+raw_message = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
+
+Second component of raw interface to tree reconstruction for surface-based genome annotations.
 Reads raw phylogeny reconstruction data from reconstruction in tabular data file(s) and writes postprocessed phylogeny data to output file in alife standard format.
 
 
