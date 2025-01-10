@@ -1,7 +1,9 @@
 import argparse
 import logging
+import os
 import warnings
 
+import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import pandas as pd
 import polars as pl
@@ -58,7 +60,9 @@ def alifestd_try_add_ancestor_list_col(
     return phylogeny_df
 
 
-_raw_description = """Create 'ancestor_list' column, if not already present, to comply with Alife standard phylogeny data format.
+_raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
+
+Create 'ancestor_list' column, if not already present, to comply with Alife standard phylogeny data format.
 
 Additional Notes
 ================

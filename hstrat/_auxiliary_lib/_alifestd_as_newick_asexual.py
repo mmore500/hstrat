@@ -143,7 +143,9 @@ def alifestd_as_newick_asexual(
     return result
 
 
-_raw_description = """Convert Alife standard phylogeny data to Newick format.
+_raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()})
+
+Convert Alife standard phylogeny data to Newick format.
 
 Note that this CLI entrypoint is experimental and may be subject to change.
 """

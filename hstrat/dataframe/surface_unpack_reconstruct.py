@@ -1,7 +1,9 @@
 import argparse
 import functools
 import logging
+import os
 
+import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 
 from .._auxiliary_lib import (
@@ -12,7 +14,9 @@ from .._auxiliary_lib import (
 )
 from ._surface_unpack_reconstruct import surface_unpack_reconstruct
 
-raw_message = """First component of raw interface to tree reconstruction for surface-based genome annotations.
+raw_message = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
+
+First component of raw interface to tree reconstruction for surface-based genome annotations.
 Reads raw genome data from tabular data file(s) and writes reconstructed phylogeny data to output file in alife standard format.
 
 
