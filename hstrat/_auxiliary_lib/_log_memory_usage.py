@@ -18,7 +18,7 @@ def log_memory_usage(logger: typing.Callable = logging.info) -> None:
                 shell=False,
             ).decode()
         )
-    except subprocess.CalledProcessError as e:
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
         message = f"logging memory use failed: {e}"
 
     logger(message)
