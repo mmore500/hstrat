@@ -10,6 +10,10 @@ anytree==2.12.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
+appnope==0.1.4
+    # via
+    #   ipykernel
+    #   ipython
 asttokens==2.4.1
     # via stack-data
 attrs==24.2.0
@@ -23,9 +27,7 @@ backcall==0.2.0
 beautifulsoup4==4.12.3
     # via nbconvert
 biopython==1.84
-    # via
-    #   hstrat (../../pyproject.toml)
-    #   alifedata-phyloinformatics-convert
+    # via alifedata-phyloinformatics-convert
 bitarray==3.0.0
     # via hstrat (../../pyproject.toml)
 bitstring==4.0.2

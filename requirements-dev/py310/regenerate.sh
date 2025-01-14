@@ -13,6 +13,9 @@ python3 -m uv pip compile --python-version=3.10 ../../pyproject.toml --extra doc
 echo "generating requirements-jit.txt"
 python3 -m uv pip compile --python-version=3.10 ../../pyproject.toml --extra jit -o requirements-jit.txt
 
+echo "generating requirements-phylo-extra.txt"
+python3 -m uv pip compile --python-version=3.10 ../../pyproject.toml --extra phylo-extra -o requirements-phylo-extra.txt
+
 echo "generating requirements-minimal.txt"
 python3 -m uv pip compile --python-version=3.10 ../../pyproject.toml -o requirements-minimal.txt
 

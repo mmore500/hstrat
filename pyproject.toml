@@ -16,7 +16,6 @@ classifiers = [
 dependencies = [
   "alifedata_phyloinformatics_convert>=0.17.0",
   "anytree>=2.8.0",
-  "biopython>=1.79",
   "bitarray>=2.6.2",
   "bitstring>=3.1.9",
   "dendropy>=4.5.2",
@@ -90,7 +89,12 @@ requires = [
 # used to generated requirements in dev-requirements/
 [project.optional-dependencies]
 jit = ["cppimport>=22.8.2", "numba>=0.60.0"]
+phylo-extra = [
+  "biopython>=1.79",
+  "phylotrackpy==0.2.4",
+]
 testing = [
+  "biopython>=1.79",
   "contexttimer==0.3.3",
   "coverage==6.4.4",
   "flake8==3.7.8",
