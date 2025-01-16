@@ -14,7 +14,7 @@ try:
             )
 except ModuleNotFoundError:
     warnings.warn(
-        "Biopython not found (use `pip install \"hstrat[phylo-extra]\"` to install it); "
+        'Biopython not found (use `pip install "hstrat[phylo-extra]"` to install it); '
         "inserting a no-op mock for BioPhyloTree."
     )
     BioPhyloTree = MagicMock()
