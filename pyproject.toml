@@ -91,7 +91,7 @@ requires = [
 jit = ["cppimport>=22.8.2", "numba>=0.60.0"]
 phylo-extra = [
   "biopython>=1.79",
-  "phylotrackpy==0.2.4",
+  "phylotrackpy>=0.2.4",
 ]
 testing = [
   "biopython>=1.79",
