@@ -9,9 +9,7 @@ anytree==2.12.1
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
 biopython==1.84
-    # via
-    #   hstrat (../../pyproject.toml)
-    #   alifedata-phyloinformatics-convert
+    # via alifedata-phyloinformatics-convert
 bitarray==3.0.0
     # via hstrat (../../pyproject.toml)
 bitstring==4.0.2
