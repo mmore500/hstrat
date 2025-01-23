@@ -29,7 +29,8 @@ def _build_records_chunked(
     num_slices = math.ceil(len(df) / exploded_slice_size)
     logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
 
-    init_size = len(df) * 8
+    init_size = exploded_slice_size * df["dstream_S"].max() * 2
+    logging.info(f"{init_size=}")
     records = Records(init_size)
     for i, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
         logging.info(f"incorporating slice {i + 1}/{num_slices}...")
