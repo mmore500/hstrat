@@ -169,6 +169,13 @@ def _create_parser() -> argparse.ArgumentParser:
         help="Path to write Newick-formatted output to.",
     )
     parser.add_argument(
+        "-l",
+        "--label-key",
+        type=str,
+        help="Name of column to use as taxon label.",
+        required=False
+    )
+    parser.add_argument(
         "-v",
         "--version",
         action="version",
@@ -201,7 +208,7 @@ if __name__ == "__main__":
     ):
         logging.info("converting to Newick format...")
         newick_str = alifestd_as_newick_asexual(
-            phylogeny_df, progress_wrap=tqdm
+            phylogeny_df, progress_wrap=tqdm, label_key=args.label_key
         )
 
     logging.info(f"writing Newick-formatted data to {args.output_file}...")
