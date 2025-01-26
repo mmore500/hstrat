@@ -71,7 +71,7 @@ def alifestd_as_newick_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
     *,
-    label_key: typing.Optional[str] = None,
+    taxon_label: typing.Optional[str] = None,
     progress_wrap=lambda x: x,
 ) -> str:
     """Convert phylogeny dataframe to Newick format.
@@ -82,7 +82,7 @@ def alifestd_as_newick_asexual(
         Phylogeny dataframe in Alife standard format.
     mutate : bool, optional
         Allow in-place mutations of the input dataframe, by default False.
-    label_key : str, optional
+    taxon_label : str, optional
         Column to use for taxon labels, by default None.
     progress_wrap : typing.Callable, optional
         Pass tqdm or equivalent to display a progress bar.
@@ -121,7 +121,7 @@ def alifestd_as_newick_asexual(
 
     logging.info("preparing labels...")
     phylogeny_df["__hstrat_label"] = opyt.apply_if_or_value(
-        label_key, phylogeny_df.__getitem__, ""
+        taxon_label, phylogeny_df.__getitem__, ""
     )
     phylogeny_df["__hstrat_label"] = phylogeny_df["__hstrat_label"].astype(str)
 
@@ -170,10 +170,10 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "-l",
-        "--label-key",
+        "--taxon-label",
         type=str,
         help="Name of column to use as taxon label.",
-        required=False
+        required=False,
     )
     parser.add_argument(
         "-v",
@@ -208,7 +208,7 @@ if __name__ == "__main__":
     ):
         logging.info("converting to Newick format...")
         newick_str = alifestd_as_newick_asexual(
-            phylogeny_df, progress_wrap=tqdm, label_key=args.label_key
+            phylogeny_df, progress_wrap=tqdm, taxon_label=args.taxon_label
         )
 
     logging.info(f"writing Newick-formatted data to {args.output_file}...")
