@@ -45,27 +45,32 @@ def _build_records_chunked(
 
         if "dstream_Tbar_argv" in long_df.columns:
             with log_context_duration(
-                f'.gather("dstream_Tbar_argv") ({i + 1}/{num_slices})',
+                f"gather_indices ({i + 1}/{num_slices})",
                 logging.info,
             ):
-                long_df = (
-                    long_df.lazy()
-                    .with_columns(
-                        pl.col("dstream_Tbar_argv").cast(pl.UInt64)
+                gather_indices = (
+                    long_df.select(
+                        col=pl.col("dstream_Tbar_argv").cast(pl.UInt64)
                         + pl.int_range(pl.len(), dtype=pl.UInt64)
                         - pl.int_range(pl.len(), dtype=pl.UInt64).over(
                             "dstream_data_id",
-                        )
+                        ),
                     )
-                    .select(
-                        pl.col(
-                            "dstream_data_id",
-                            "dstream_T",
-                            "dstream_Tbar",
-                            "dstream_value",
-                        ).gather("dstream_Tbar_argv")
-                    )
-                    .collect()
+                    .get_column("col")
+                    .to_numpy()
+                )
+
+            with log_context_duration(
+                f".gather(gather_indices) ({i + 1}/{num_slices})",
+                logging.info,
+            ):
+                long_df = long_df.select(
+                    pl.col(
+                        "dstream_data_id",
+                        "dstream_T",
+                        "dstream_Tbar",
+                        "dstream_value",
+                    ).gather(gather_indices),
                 )
         else:
             with log_context_duration(
