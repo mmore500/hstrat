@@ -157,6 +157,7 @@ struct Records {
   std::vector<u64> dstream_data_id;
   std::vector<u64> id;
   std::vector<u64> search_first_child_id;
+  std::vector<u64> search_prev_sibling_id;
   std::vector<u64> search_next_sibling_id;
   std::vector<u64> search_ancestor_id;
   std::vector<u64> ancestor_id;
@@ -168,6 +169,7 @@ struct Records {
     this->dstream_data_id.reserve(init_size);
     this->id.reserve(init_size);
     this->search_first_child_id.reserve(init_size);
+    this->search_prev_sibling_id.reserve(init_size);
     this->search_next_sibling_id.reserve(init_size);
     this->search_ancestor_id.reserve(init_size);
     this->ancestor_id.reserve(init_size);
@@ -175,7 +177,7 @@ struct Records {
     this->rank.reserve(init_size);
 
     if (init_root) {
-      this->addRecord(placeholder_value, 0, 0, 0, 0, 0, 0, 0); // root node
+      this->addRecord(placeholder_value, 0, 0, 0, 0, 0, 0, 0, 0); // root node
     }
   }
 
@@ -205,6 +207,7 @@ struct Records {
     const u64 ancestor_id,
     const u64 search_ancestor_id,
     const u64 search_first_child_id,
+    const u64 search_prev_sibling_id,
     const u64 search_next_sibling_id,
     const u64 rank,
     const u64 differentia
@@ -214,6 +217,7 @@ struct Records {
     this->dstream_data_id.push_back(data_id);
     this->id.push_back(id);
     this->search_first_child_id.push_back(search_first_child_id);
+    this->search_prev_sibling_id.push_back(search_prev_sibling_id);
     this->search_next_sibling_id.push_back(search_next_sibling_id);
     this->search_ancestor_id.push_back(search_ancestor_id);
     this->ancestor_id.push_back(ancestor_id);
@@ -349,6 +353,9 @@ Records collapse_dropped_unifurcations(Records &records) {
             ],
             id_remap[  // search_first_child_id
               records.search_first_child_id[old_id]
+            ],
+            id_remap[  // search_prev_sibling_id
+              records.search_prev_sibling_id[old_id]
             ],
             id_remap[  // search_next_sibling_id
               records.search_next_sibling_id[old_id]
@@ -509,22 +516,18 @@ void detach_search_parent(Records &records, const u64 node) {
   if (records.search_first_child_id[parent] == node) {
     const u64 child_id = is_last_child ? parent : next_sibling;
     records.search_first_child_id[parent] = child_id;
+  } else if (records.search_next_sibling_id[node] == node) {
+    const u64 prev_sibling = records.search_prev_sibling_id[node];
+    records.search_next_sibling_id[prev_sibling] = prev_sibling;
   } else {
-    // removes from the linked list of children
-    const auto children_range = ChildrenView(records, parent);
-    const auto sibling = std::ranges::find_if(
-      children_range,
-      [node, &records](const u64 child) {
-        return records.search_next_sibling_id[child] == node;
-      }
-    );
-    if (sibling != children_range.end()) {
-      const u64 sibling_id = is_last_child ? *sibling : next_sibling;
-      records.search_next_sibling_id[*sibling] = sibling_id;
-    }
+    const u64 prev_sibling = records.search_prev_sibling_id[node];
+    const u64 next_sibling = records.search_next_sibling_id[node];
+    records.search_next_sibling_id[prev_sibling] = next_sibling;
+    records.search_prev_sibling_id[next_sibling] = prev_sibling;
   }
 
   records.search_ancestor_id[node] = node;
+  records.search_prev_sibling_id[node] = node;
   records.search_next_sibling_id[node] = node;
 }
 
@@ -546,6 +549,7 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
   const bool is_first_child = ancestor_first_child == parent;
   const u64 sibling_id = is_first_child ? node : ancestor_first_child;
   records.search_next_sibling_id[node] = sibling_id;
+  records.search_prev_sibling_id[sibling_id] = node;
   records.search_first_child_id[parent] = node;
 
 }
@@ -726,6 +730,7 @@ u64 create_offstring(
     parent,  // ancestor_id
     node,  // search_ancestor_id (note! search parent attached next below)
     node,  // search_first_child_id
+    node,  // search_prev_sibling_id
     node,  // search_next_sibling_id
     rank,  // rank
     differentia  // differentia
