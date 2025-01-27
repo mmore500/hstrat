@@ -52,8 +52,10 @@ def _build_records_chunked(
                     long_df.lazy()
                     .with_columns(
                         pl.col("dstream_Tbar_argv").cast(pl.UInt64)
-                        + pl.int_range(pl.len())
-                        - pl.int_range(pl.len()).over("dstream_data_id")
+                        + pl.int_range(pl.len(), dtype=pl.UInt64)
+                        - pl.int_range(pl.len(), dtype=pl.UInt64).over(
+                            "dstream_data_id",
+                        )
                     )
                     .select(
                         pl.col(
