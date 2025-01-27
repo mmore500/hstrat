@@ -43,21 +43,39 @@ def _build_records_chunked(
                 df_slice, value_type="uint64"
             )
 
-        with log_context_duration(
-            '.sort_by("dstream_Tbar").over(partition_by="dstream_data_id") '
-            f"({i + 1}/{num_slices})",
-            logging.info,
-        ):
-            long_df = long_df.select(
-                pl.col(
-                    "dstream_data_id",
-                    "dstream_T",
-                    "dstream_Tbar",
-                    "dstream_value",
+        if "dstream_Tbar_argv" in long_df.columns:
+            with log_context_duration(
+                f'.gather("dstream_Tbar_argv") ({i + 1}/{num_slices})',
+                logging.info,
+            ):
+                long_df = long_df.with_columns(
+                    pl.col("dstream_Tbar_argv").cast(pl.UInt64)
+                    + pl.int_range(pl.len())
+                    - pl.int_range(pl.len()).over("dstream_data_id")
+                ).select(
+                    pl.col(
+                        "dstream_data_id",
+                        "dstream_T",
+                        "dstream_Tbar",
+                        "dstream_value",
+                    ).gather("dstream_Tbar_argv")
                 )
-                .sort_by("dstream_Tbar")
-                .over(partition_by="dstream_data_id"),
-            )
+        else:
+            with log_context_duration(
+                '.sort_by("dstream_Tbar").over(partition_by="dstream_data_id") '
+                f"({i + 1}/{num_slices})",
+                logging.info,
+            ):
+                long_df = long_df.select(
+                    pl.col(
+                        "dstream_data_id",
+                        "dstream_T",
+                        "dstream_Tbar",
+                        "dstream_value",
+                    )
+                    .sort_by("dstream_Tbar")
+                    .over(partition_by="dstream_data_id"),
+                )
 
         if i == 0:
             render_polars_snapshot(long_df, "exploded", logging.info)
