@@ -359,7 +359,7 @@ __all__ = [
     "div_range",
     "estimate_binomial_p",
     "except_wrap_sentinel",
-    "fill_zeros_wth_last",
+    "fill_zeros_with_last",
     "find_bounds",
     "flag_last",
     "flat_len",
