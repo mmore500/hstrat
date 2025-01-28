@@ -153,7 +153,7 @@ def _build_records_chunked(
 
         log_memory_usage(logging.info)
 
-        producer.join()
+    producer.join()
 
     return records
 
