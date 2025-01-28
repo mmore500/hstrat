@@ -28,7 +28,7 @@ def test_fuzz(phylogeny_df: pd.DataFrame):
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
     original = phylogeny_df.copy()
 
-    result = alifestd_as_newick_asexual(phylogeny_df, label_key="id")
+    result = alifestd_as_newick_asexual(phylogeny_df, taxon_label="id")
     assert original.equals(phylogeny_df)
 
     rosetta_tree = apc.RosettaTree.from_newick(result)
@@ -65,7 +65,7 @@ def test_simple1(mutate: bool):
     original_df = phylogeny_df.copy()
     result = alifestd_as_newick_asexual(
         phylogeny_df,
-        label_key=None,
+        taxon_label=None,
         mutate=mutate,
     )
     assert result == "((:1):4):3.1;"
@@ -85,7 +85,7 @@ def test_simple2(mutate: bool):
     original_df = phylogeny_df.copy()
     result = alifestd_as_newick_asexual(
         phylogeny_df,
-        label_key=None,
+        taxon_label=None,
         mutate=mutate,
     )
     assert result == "(,());"
@@ -106,7 +106,7 @@ def test_simple3(mutate: bool):
     original_df = phylogeny_df.copy()
     result = alifestd_as_newick_asexual(
         phylogeny_df,
-        label_key="label",
+        taxon_label="label",
         mutate=mutate,
     )
     assert result == "(D)A;\n(C)B;"
@@ -128,7 +128,7 @@ def test_simple4(mutate: bool):
     result = alifestd_as_newick_asexual(
         phylogeny_df,
         mutate=mutate,
-        label_key="id",
+        taxon_label="id",
     )
 
     assert result == "(4:90,2:2,(3:4)1:1)0:0;"
