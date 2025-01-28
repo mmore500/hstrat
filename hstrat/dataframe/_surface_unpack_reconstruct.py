@@ -120,7 +120,13 @@ def _build_records_chunked(
     logging.info(f"{init_size=}")
     records = Records(init_size)
 
-    mp_context = multiprocessing.get_context("spawn")  # RE polars threading
+    try:  # RE https://docs.pola.rs/user-guide/misc/multiprocessing/
+        logging.info("attempting to use multiprocessing forkserver context")
+        mp_context = multiprocessing.get_context("forkserver")
+    except ValueError:  # forkserver available on unix only
+        logging.info("attempting to use multiprocessing spawn context")
+        mp_context = multiprocessing.get_context("spawn")
+
     logging.info("creating work queue")
     queue = mp_context.JoinableQueue()
     logging.info("spawning exploded df worker")
