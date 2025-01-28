@@ -1,6 +1,5 @@
 import time
 
-import more_itertools as mit
 import pandas as pd
 
 from hstrat._auxiliary_lib import log_context_duration
@@ -11,7 +10,7 @@ def test_log_context_duration():
     with log_context_duration("my_test_context", logger=log.append):
         time.sleep(0.05)
 
-    logged_message = mit.one(log)
+    logged_message = log[-1]
     assert "my_test_context" in logged_message
 
     timing_records = {
@@ -41,7 +40,7 @@ def test_log_context_duration_escape():
     with log_context_duration('"my_test_context"', logger=log.append):
         time.sleep(0.05)
 
-    logged_message = mit.one(log)
+    logged_message = log[-1]
     assert "my_test_context" in logged_message
 
     timing_records = {
