@@ -1,6 +1,7 @@
+import itertools as it
 import logging
 import math
-import typing
+import multiprocessing
 
 from downstream import dataframe as dstream_dataframe
 import pandas as pd
@@ -23,10 +24,11 @@ from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub i
 
 
 def _produce_exploded_slices(
+    queue: multiprocessing.JoinableQueue,
     df: pl.DataFrame,
     exploded_slice_size: int,
-) -> typing.Iterator[pl.DataFrame]:
-    """Yield exploded DataFrame in chunks."""
+) -> None:
+    """Produce exploded DataFrame in chunks."""
     num_slices = math.ceil(len(df) / exploded_slice_size)
     logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
 
@@ -95,7 +97,10 @@ def _produce_exploded_slices(
         if i == 0:
             render_polars_snapshot(long_df, "exploded", logging.info)
 
-        yield long_df
+        queue.put((long_df,))  # wrap in tuple to patch == compare w/ None
+        queue.join()  # wait produced item to be consumed
+
+    queue.put(None)  # send sentinel value to signal completion
 
 
 def _build_records_chunked(
@@ -112,8 +117,18 @@ def _build_records_chunked(
     logging.info(f"{init_size=}")
     records = Records(init_size)
 
-    producer = _produce_exploded_slices(df, exploded_slice_size)
-    for i, long_df in enumerate(producer):
+    mp_context = multiprocessing.get_context("spawn")  # RE polars threading
+    queue = mp_context.JoinableQueue()
+    producer = mp_context.Process(
+        target=_produce_exploded_slices,
+        args=(queue, df, exploded_slice_size),
+    )
+    producer.start()
+    del df
+
+    for i, (long_df,) in enumerate(iter(queue.get, None)):
+        logging.info(f"taking exploded df off queue {i + 1}/{num_slices}...")
+        queue.task_done()  # release producer to prepare next exploded df
         logging.info(f"incorporating slice {i + 1}/{num_slices}...")
 
         with log_context_duration(
@@ -137,6 +152,8 @@ def _build_records_chunked(
                 records = collapse_dropped_unifurcations(records)
 
         log_memory_usage(logging.info)
+
+        producer.join()
 
     return records
 
