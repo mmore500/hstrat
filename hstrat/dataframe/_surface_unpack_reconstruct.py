@@ -97,10 +97,14 @@ def _produce_exploded_slices(
         if i == 0:
             render_polars_snapshot(long_df, "exploded", logging.info)
 
+        logging.info("worker putting exploded data")
         queue.put((long_df,))  # wrap in tuple to patch == compare w/ None
+        logging.info("worker waiting for consumption")
         queue.join()  # wait produced item to be consumed
 
+    logging.info("worker putting sentinel value")
     queue.put(None)  # send sentinel value to signal completion
+    logging.info("worker complete")
 
 
 def _build_records_chunked(
@@ -118,19 +122,23 @@ def _build_records_chunked(
     records = Records(init_size)
 
     mp_context = multiprocessing.get_context("spawn")  # RE polars threading
+    logging.info("creating work queue")
     queue = mp_context.JoinableQueue()
+    logging.info("spawning exploded df worker")
     producer = mp_context.Process(
         target=_produce_exploded_slices,
         args=(queue, df, exploded_slice_size),
     )
+    logging.info("starting exploded df worker")
     producer.start()
     del df
 
+    logging.info("consuming from exploded df worker")
     for i, (long_df,) in enumerate(iter(queue.get, None)):
         logging.info(f"taking exploded df off queue {i + 1}/{num_slices}...")
         queue.task_done()  # release producer to prepare next exploded df
-        logging.info(f"incorporating slice {i + 1}/{num_slices}...")
 
+        logging.info(f"incorporating slice {i + 1}/{num_slices}...")
         with log_context_duration(
             f"extend_tree_searchtable_cpp_from_exploded ({i + 1}/{num_slices})",
             logging.info,
@@ -153,7 +161,10 @@ def _build_records_chunked(
 
         log_memory_usage(logging.info)
 
+    logging.info("consumer got sentinel value from queue")
+    logging.info("joining producer")
     producer.join()
+    logging.info("produce joined")
 
     return records
 
