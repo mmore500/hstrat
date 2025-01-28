@@ -55,6 +55,8 @@ def test_surface_build_tree_cli_parquet():
             "hstrat.dataframe.surface_build_tree",
             output_file,
             "--shrink-dtypes",
+            "--collapse-unif-freq",
+            "0",
             "--exploded-slice-size",
             "50_000_000",
         ],

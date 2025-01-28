@@ -11,6 +11,7 @@ from ._surface_unpack_reconstruct import surface_unpack_reconstruct
 def surface_build_tree(
     df: pl.DataFrame,
     *,
+    collapse_unif_freq: int = 1,
     exploded_slice_size: int = 1_000_000,
     trie_postprocessor: typing.Callable = NopTriePostprocessor(),
     # ^^^ NopTriePostprocessor is stateless, so is safe as default value
@@ -63,6 +64,9 @@ def surface_build_tree(
             - 'downstream_validate_unpacked' : pl.String, polars expression
                 - Polars expression to validate unpacked data.
 
+    collapse_unif_freq : int, default 1
+        How often should dropped unifurcations be garbage collected?
+
     exploded_slice_size : int, default 1_000_000
         Number of rows to process at once. Lower values reduce memory usage.
 
@@ -110,7 +114,9 @@ def surface_build_tree(
 
     logging.info("surface_build_tree running surface_unpack_reconstruct...")
     df = surface_unpack_reconstruct(
-        df, exploded_slice_size=exploded_slice_size
+        df,
+        collapse_unif_freq=collapse_unif_freq,
+        exploded_slice_size=exploded_slice_size,
     )
 
     logging.info("surface_build_tree running surface_postprocess_trie...")

@@ -109,6 +109,12 @@ def _create_parser() -> argparse.ArgumentParser:
         dfcli_version=get_hstrat_version(),
     )
     parser.add_argument(
+        "--collapse-unif-freq",
+        type=int,
+        default=1,
+        help="How often should dropped unifurcations be garbage collected?",
+    )
+    parser.add_argument(
         "--exploded-slice-size",
         type=int,
         default=1_000_000,
@@ -149,6 +155,7 @@ if __name__ == "__main__":
             base_parser=parser,
             output_dataframe_op=functools.partial(
                 surface_build_tree,
+                collapse_unif_freq=args.collapse_unif_freq,
                 exploded_slice_size=args.exploded_slice_size,
                 trie_postprocessor=trie_postprocessor,
             ),

@@ -19,6 +19,7 @@ def test_smoke():
     df = pl.read_csv(f"{assets_path}/packed.csv")
     res = surface_build_tree(
         df,
+        collapse_unif_freq=0,
         trie_postprocessor=AssignOriginTimeNodeRankTriePostprocessor(
             t0="dstream_S",
         ),

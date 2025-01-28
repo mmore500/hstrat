@@ -22,7 +22,9 @@ from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub i
 
 
 def _build_records_chunked(
-    df: pl.DataFrame, exploded_slice_size: int
+    df: pl.DataFrame,
+    collapse_unif_freq: int,
+    exploded_slice_size: int,
 ) -> Records:
     """Build tree searchtable from DataFrame, exploding in chunks to reduce
     memory usage."""
@@ -112,11 +114,12 @@ def _build_records_chunked(
                 tqdm.tqdm,
             )
 
-        with log_context_duration(
-            f"collapse_dropped_unifurcations ({i + 1}/{num_slices})",
-            logging.info,
-        ):
-            records = collapse_dropped_unifurcations(records)
+        if collapse_unif_freq and (i + 1) % collapse_unif_freq == 0:
+            with log_context_duration(
+                f"collapse_dropped_unifurcations ({i + 1}/{num_slices})",
+                logging.info,
+            ):
+                records = collapse_dropped_unifurcations(records)
 
         log_memory_usage(logging.info)
 
@@ -177,6 +180,7 @@ def _construct_result_dataframe(
 def _surface_unpacked_reconstruct(
     df: pl.DataFrame,
     *,
+    collapse_unif_freq: int,
     differentia_bitwidth: int,
     dstream_S: int,
     exploded_slice_size: int,
@@ -185,7 +189,11 @@ def _surface_unpacked_reconstruct(
     render_polars_snapshot(df, "unpacked", logging.info)
 
     logging.info("building tree searchtable chunkwise...")
-    records = _build_records_chunked(df, exploded_slice_size)
+    records = _build_records_chunked(
+        df,
+        collapse_unif_freq=collapse_unif_freq,
+        exploded_slice_size=exploded_slice_size,
+    )
 
     with log_context_duration("_construct_result_dataframe", logging.info):
         phylo_df = _construct_result_dataframe(
@@ -210,6 +218,7 @@ def _surface_unpacked_reconstruct(
 def surface_unpack_reconstruct(
     df: pl.DataFrame,
     *,
+    collapse_unif_freq: int = 1,
     exploded_slice_size: int = 1_000_000,
 ) -> pl.DataFrame:
     """Unpack dstream buffer and counter from genome data and construct an
@@ -253,6 +262,11 @@ def surface_unpack_reconstruct(
                 - Polars expression to validate exploded data.
             - 'downstream_validate_unpacked' : pl.String, polars expression
                 - Polars expression to validate unpacked data.
+
+    collapse_unif_freq : int, default 1
+        Frequency of unifurcation collapse, in number of slices.
+
+        Set to 0 to disable.
 
     exploded_slice_size : int, default 1_000_000
         Number of rows to process at once. Lower values reduce memory usage.
@@ -333,6 +347,7 @@ def surface_unpack_reconstruct(
 
     return _surface_unpacked_reconstruct(
         df,
+        collapse_unif_freq=collapse_unif_freq,
         differentia_bitwidth=differentia_bitwidth,
         dstream_S=dstream_S,
         exploded_slice_size=exploded_slice_size,
