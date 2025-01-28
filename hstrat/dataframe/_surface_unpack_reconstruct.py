@@ -2,12 +2,14 @@ import logging
 import math
 
 from downstream import dataframe as dstream_dataframe
+import numpy as np
 import pandas as pd
 import polars as pl
 import tqdm
 
 from .._auxiliary_lib import (
     alifestd_make_empty,
+    fill_zeros_with_last,
     get_sole_scalar_value_polars,
     log_context_duration,
     log_memory_usage,
@@ -43,21 +45,48 @@ def _build_records_chunked(
                 df_slice, value_type="uint64"
             )
 
-        with log_context_duration(
-            '.sort_by("dstream_Tbar").over(partition_by="dstream_data_id") '
-            f"({i + 1}/{num_slices})",
-            logging.info,
-        ):
-            long_df = long_df.select(
-                pl.col(
-                    "dstream_data_id",
-                    "dstream_T",
-                    "dstream_Tbar",
-                    "dstream_value",
+        if "dstream_Tbar_argv" in long_df.columns:
+            with log_context_duration(
+                f"gather_indices ({i + 1}/{num_slices})",
+                logging.info,
+            ):
+                dstream_data_id = long_df["dstream_data_id"].to_numpy()
+                group_offsets = fill_zeros_with_last(
+                    np.arange(len(long_df))
+                    * (np.diff(dstream_data_id, prepend=0) != 0)
                 )
-                .sort_by("dstream_Tbar")
-                .over(partition_by="dstream_data_id"),
-            )
+                gather_indices = (
+                    long_df["dstream_Tbar_argv"].to_numpy() + group_offsets
+                )
+
+            with log_context_duration(
+                f".gather(gather_indices) ({i + 1}/{num_slices})",
+                logging.info,
+            ):
+                long_df = long_df.select(
+                    pl.col(
+                        "dstream_data_id",
+                        "dstream_T",
+                        "dstream_Tbar",
+                        "dstream_value",
+                    ).gather(gather_indices),
+                )
+        else:
+            with log_context_duration(
+                '.sort_by("dstream_Tbar").over(partition_by="dstream_data_id") '
+                f"({i + 1}/{num_slices})",
+                logging.info,
+            ):
+                long_df = long_df.select(
+                    pl.col(
+                        "dstream_data_id",
+                        "dstream_T",
+                        "dstream_Tbar",
+                        "dstream_value",
+                    )
+                    .sort_by("dstream_Tbar")
+                    .over(partition_by="dstream_data_id"),
+                )
 
         if i == 0:
             render_polars_snapshot(long_df, "exploded", logging.info)

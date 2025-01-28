@@ -154,6 +154,7 @@ from ._demark import demark
 from ._div_range import div_range
 from ._estimate_binomial_p import estimate_binomial_p
 from ._except_wrap_sentinel import except_wrap_sentinel
+from ._fill_zeros_with_last import fill_zeros_with_last
 from ._find_bounds import find_bounds
 from ._flag_last import flag_last
 from ._flat_len import flat_len
@@ -358,6 +359,7 @@ __all__ = [
     "div_range",
     "estimate_binomial_p",
     "except_wrap_sentinel",
+    "fill_zeros_with_last",
     "find_bounds",
     "flag_last",
     "flat_len",
