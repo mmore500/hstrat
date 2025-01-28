@@ -2,14 +2,12 @@ import logging
 import math
 
 from downstream import dataframe as dstream_dataframe
-import numpy as np
 import pandas as pd
 import polars as pl
 import tqdm
 
 from .._auxiliary_lib import (
     alifestd_make_empty,
-    fill_zeros_with_last,
     get_sole_scalar_value_polars,
     log_context_duration,
     log_memory_usage,
@@ -47,16 +45,21 @@ def _build_records_chunked(
 
         if "dstream_Tbar_argv" in long_df.columns:
             with log_context_duration(
-                f"gather_indices ({i + 1}/{num_slices})",
+                f"group_offsets ({i + 1}/{num_slices})",
                 logging.info,
             ):
-                dstream_data_id = long_df["dstream_data_id"].to_numpy()
-                group_offsets = fill_zeros_with_last(
-                    np.arange(len(long_df))
-                    * (np.diff(dstream_data_id, prepend=0) != 0)
-                )
-                gather_indices = (
-                    long_df["dstream_Tbar_argv"].to_numpy() + group_offsets
+                logging.info(" - marking group boundaries")
+                long_df = long_df.with_columns(
+                    gather_indices=pl.when(
+                        pl.col("dstream_data_id").shift(
+                            fill_value=long_df["dstream_data_id"].first() + 1,
+                        )
+                        != pl.col("dstream_data_id")
+                    )
+                    .then(pl.int_range(len(long_df)))
+                    .otherwise(None)
+                    .forward_fill()
+                    + pl.col("dstream_Tbar_argv"),
                 )
 
             with log_context_duration(
@@ -69,7 +72,9 @@ def _build_records_chunked(
                         "dstream_T",
                         "dstream_Tbar",
                         "dstream_value",
-                    ).gather(gather_indices),
+                    ).gather(
+                        pl.col("gather_indices").cast(pl.UInt64),
+                    ),
                 )
         else:
             with log_context_duration(
