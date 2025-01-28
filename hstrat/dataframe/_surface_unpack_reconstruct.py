@@ -49,17 +49,22 @@ def _build_records_chunked(
                 logging.info,
             ):
                 logging.info(" - marking group boundaries")
-                long_df = long_df.with_columns(
-                    gather_indices=pl.when(
-                        pl.col("dstream_data_id").shift(
-                            fill_value=long_df["dstream_data_id"].first() + 1,
+                gather_indices = (
+                    long_df.select(
+                        gather_indices=pl.when(
+                            pl.col("dstream_data_id").shift(
+                                fill_value=long_df["dstream_data_id"].first()
+                                + 1,
+                            )
+                            != pl.col("dstream_data_id")
                         )
-                        != pl.col("dstream_data_id")
+                        .then(pl.int_range(len(long_df)))
+                        .otherwise(None)
+                        .forward_fill()
+                        .add(pl.col("dstream_Tbar_argv")),
                     )
-                    .then(pl.int_range(len(long_df)))
-                    .otherwise(None)
-                    .forward_fill()
-                    + pl.col("dstream_Tbar_argv"),
+                    .to_series()
+                    .to_numpy()
                 )
 
             with log_context_duration(
@@ -72,9 +77,7 @@ def _build_records_chunked(
                         "dstream_T",
                         "dstream_Tbar",
                         "dstream_value",
-                    ).gather(
-                        pl.col("gather_indices").cast(pl.UInt64),
-                    ),
+                    ).gather(gather_indices),
                 )
         else:
             with log_context_duration(
