@@ -9,6 +9,7 @@ import tqdm
 
 from .._auxiliary_lib import (
     alifestd_make_empty,
+    fill_zeros_with_last,
     get_sole_scalar_value_polars,
     log_context_duration,
     log_memory_usage,
@@ -20,16 +21,6 @@ from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub i
     extend_tree_searchtable_cpp_from_exploded,
     records_to_dict,
 )
-
-
-# adapted from https://stackoverflow.com/a/30489294/17332200
-# TODO refactor to auxlib
-def _fill_zeros_with_last(arr: np.ndarray) -> np.ndarray:
-    """Replace zeros in array with the nearest preceding non-zero value."""
-    prev = np.arange(len(arr))
-    prev[arr == 0] = 0
-    prev = np.maximum.accumulate(prev)
-    return arr[prev]
 
 
 def _build_records_chunked(
@@ -60,12 +51,12 @@ def _build_records_chunked(
                 logging.info,
             ):
                 dstream_data_id = long_df["dstream_data_id"].to_numpy()
-                group_starts = _fill_zeros_with_last(
+                group_offsets = fill_zeros_with_last(
                     np.arange(len(long_df))
                     * (np.diff(dstream_data_id, prepend=0) != 0)
                 )
                 gather_indices = (
-                    long_df["dstream_Tbar_argv"].to_numpy() + group_starts
+                    long_df["dstream_Tbar_argv"].to_numpy() + group_offsets
                 )
 
             with log_context_duration(
