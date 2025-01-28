@@ -181,6 +181,8 @@ polars==1.16.0
     #   hstrat (../../pyproject.toml)
     #   downstream
     #   joinem
+polars-u64-idx==1.18.0
+    # via hstrat (../../pyproject.toml)
 prettytable==3.12.0
     # via hstrat (../../pyproject.toml)
 propcache==0.2.0
