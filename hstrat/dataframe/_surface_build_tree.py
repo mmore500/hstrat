@@ -13,6 +13,7 @@ def surface_build_tree(
     *,
     collapse_unif_freq: int = 1,
     exploded_slice_size: int = 1_000_000,
+    mp_context: str = "spawn",
     trie_postprocessor: typing.Callable = NopTriePostprocessor(),
     # ^^^ NopTriePostprocessor is stateless, so is safe as default value
 ) -> pl.DataFrame:
@@ -70,6 +71,9 @@ def surface_build_tree(
     exploded_slice_size : int, default 1_000_000
         Number of rows to process at once. Lower values reduce memory usage.
 
+    mp_context : str, default 'spawn'
+        Multiprocessing context to use for parallel processing.
+
     trie_postprocessor : Callable, default `hstrat.NopTriePostprocessor()`
         Tree postprocess functor.
 
@@ -117,6 +121,7 @@ def surface_build_tree(
         df,
         collapse_unif_freq=collapse_unif_freq,
         exploded_slice_size=exploded_slice_size,
+        mp_context=mp_context,
     )
 
     logging.info("surface_build_tree running surface_postprocess_trie...")

@@ -110,6 +110,7 @@ def _build_records_chunked(
     df: pl.DataFrame,
     collapse_unif_freq: int,
     exploded_slice_size: int,
+    mp_context: str,
 ) -> Records:
     """Build tree searchtable from DataFrame, exploding in chunks to reduce
     memory usage."""
@@ -121,8 +122,8 @@ def _build_records_chunked(
     records = Records(init_size)
 
     try:  # RE https://docs.pola.rs/user-guide/misc/multiprocessing/
-        logging.info("attempting to use multiprocessing forkserver context")
-        mp_context = multiprocessing.get_context("forkserver")
+        logging.info(f"attempting to use multiprocessing {mp_context} context")
+        mp_context = multiprocessing.get_context(mp_context)
     except ValueError:  # forkserver available on unix only
         logging.info("attempting to use multiprocessing spawn context")
         mp_context = multiprocessing.get_context("spawn")
@@ -232,6 +233,7 @@ def _surface_unpacked_reconstruct(
     differentia_bitwidth: int,
     dstream_S: int,
     exploded_slice_size: int,
+    mp_context: str,
 ) -> pl.DataFrame:
     """Reconstruct phylogenetic tree from unpacked dstream data."""
     render_polars_snapshot(df, "unpacked", logging.info)
@@ -241,6 +243,7 @@ def _surface_unpacked_reconstruct(
         df,
         collapse_unif_freq=collapse_unif_freq,
         exploded_slice_size=exploded_slice_size,
+        mp_context=mp_context,
     )
 
     with log_context_duration("_construct_result_dataframe", logging.info):
@@ -268,6 +271,7 @@ def surface_unpack_reconstruct(
     *,
     collapse_unif_freq: int = 1,
     exploded_slice_size: int = 1_000_000,
+    mp_context: str = "spawn",
 ) -> pl.DataFrame:
     """Unpack dstream buffer and counter from genome data and construct an
     estimated phylogenetic tree for the genomes.
@@ -318,6 +322,9 @@ def surface_unpack_reconstruct(
 
     exploded_slice_size : int, default 1_000_000
         Number of rows to process at once. Lower values reduce memory usage.
+
+    mp_context : str, default 'spawn'
+        Multiprocessing context to use for parallel processing.
 
     Returns
     -------
@@ -399,4 +406,5 @@ def surface_unpack_reconstruct(
         differentia_bitwidth=differentia_bitwidth,
         dstream_S=dstream_S,
         exploded_slice_size=exploded_slice_size,
+        mp_context=mp_context,
     )

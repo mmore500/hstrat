@@ -1,7 +1,9 @@
 import argparse
 import functools
 import logging
+import multiprocessing
 import os
+import sys
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
@@ -157,7 +159,7 @@ def _create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-if __name__ == "__main__":
+def _main(mp_context: str) -> None:
     configure_prod_logging()
 
     parser = _create_parser()
@@ -172,5 +174,30 @@ if __name__ == "__main__":
                 surface_unpack_reconstruct,
                 collapse_unif_freq=args.collapse_unif_freq,
                 exploded_slice_size=args.exploded_slice_size,
+                mp_context=mp_context,
             ),
         )
+
+
+def _launch_main() -> None:
+    # see https://stackoverflow.com/a/30149635/17332200
+    sys.stdin = os.fdopen(0)  # forward stdin to child process
+    _main("forkserver")
+
+
+if __name__ == "__main__":
+    configure_prod_logging()
+
+    try:  # RE https://docs.pola.rs/user-guide/misc/multiprocessing/
+        logging.info("attempting to use multiprocessing forkserver context")
+        mp_context = multiprocessing.get_context("forkserver")
+        logging.info("launching main process")
+        process = mp_context.Process(target=_launch_main)
+        process.start()
+        logging.info("main process started")
+        process.join()
+        logging.info("main process joined")
+
+    except ValueError:  # forkserver available on unix only
+        logging.info("falling back to direct dispatch")
+        _main("spawn")
