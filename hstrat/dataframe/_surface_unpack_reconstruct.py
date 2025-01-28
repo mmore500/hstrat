@@ -1,5 +1,6 @@
 import logging
 import math
+import typing
 
 from downstream import dataframe as dstream_dataframe
 import pandas as pd
@@ -21,22 +22,15 @@ from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub i
 )
 
 
-def _build_records_chunked(
+def _produce_exploded_slices(
     df: pl.DataFrame,
-    collapse_unif_freq: int,
     exploded_slice_size: int,
-) -> Records:
-    """Build tree searchtable from DataFrame, exploding in chunks to reduce
-    memory usage."""
+) -> typing.Iterator[pl.DataFrame]:
+    """Yield exploded DataFrame in chunks."""
     num_slices = math.ceil(len(df) / exploded_slice_size)
     logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
 
-    init_size = exploded_slice_size * df["dstream_S"].max() * 2
-    logging.info(f"{init_size=}")
-    records = Records(init_size)
     for i, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
-        logging.info(f"incorporating slice {i + 1}/{num_slices}...")
-
         with log_context_duration(
             f"dstream.dataframe.explode_lookup_unpacked ({i + 1}/{num_slices})",
             logging.info,
@@ -100,6 +94,27 @@ def _build_records_chunked(
 
         if i == 0:
             render_polars_snapshot(long_df, "exploded", logging.info)
+
+        yield long_df
+
+
+def _build_records_chunked(
+    df: pl.DataFrame,
+    collapse_unif_freq: int,
+    exploded_slice_size: int,
+) -> Records:
+    """Build tree searchtable from DataFrame, exploding in chunks to reduce
+    memory usage."""
+    num_slices = math.ceil(len(df) / exploded_slice_size)
+    logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
+
+    init_size = exploded_slice_size * df["dstream_S"].max() * 2
+    logging.info(f"{init_size=}")
+    records = Records(init_size)
+
+    producer = _produce_exploded_slices(df, exploded_slice_size)
+    for i, long_df in enumerate(producer):
+        logging.info(f"incorporating slice {i + 1}/{num_slices}...")
 
         with log_context_duration(
             f"extend_tree_searchtable_cpp_from_exploded ({i + 1}/{num_slices})",
