@@ -42,7 +42,7 @@ def _build_records_chunked(
             logging.info,
         ):
             long_df = dstream_dataframe.explode_lookup_unpacked(
-                df_slice, value_type="uint64"
+                df_slice, calc_Tbar_argv=True, value_type="uint64"
             )
 
         if "dstream_Tbar_argv" in long_df.columns:
