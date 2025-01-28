@@ -31,7 +31,10 @@ COPY . /app
 RUN python3 -m pip install uv --break-system-packages \
     && python3 -m uv pip install --system --break-system-packages \
         -r /app/requirements-dev/py312/requirements-jit.txt \
-    && python3 -m uv pip install --system --break-system-packages "/app[jit]"
+    && python3 -m uv pip install --system --break-system-packages "/app[jit]" \
+    && python3 -m uv pip uninstall --system --break-system-packages polars \
+    && python3 -m uv pip install --system --break-system-packages \
+        polars-u64-idx==0.19.0
 
 # force cppimport build
 RUN python3 -m hstrat.dataframe.surface_unpack_reconstruct --help
