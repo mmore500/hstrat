@@ -2,12 +2,12 @@ import logging
 import math
 import multiprocessing
 import uuid
+import os
 
 from downstream import dataframe as dstream_dataframe
-import os
 import pandas as pd
-import pyarrow as pa
 import polars as pl
+import pyarrow as pa
 import tqdm
 
 from .._auxiliary_lib import (
