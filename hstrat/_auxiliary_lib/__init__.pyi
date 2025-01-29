@@ -214,7 +214,6 @@ from ._memoize_generator import memoize_generator
 from ._min_array_dtype import min_array_dtype
 from ._numpy_fromiter_polyfill import numpy_fromiter_polyfill
 from ._numpy_index import numpy_index
-from ._numpy_index_flat import numpy_index_flat
 from ._omit_last import omit_last
 from ._pairwise import pairwise
 from ._parse_from_numeral_system import parse_from_numeral_system
@@ -415,7 +414,6 @@ __all__ = [
     "min_array_dtype",
     "numpy_fromiter_polyfill",
     "numpy_index",
-    "numpy_index_flat",
     "omit_last",
     "pairwise",
     "parse_from_numeral_system",
