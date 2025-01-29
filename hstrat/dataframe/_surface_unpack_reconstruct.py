@@ -14,8 +14,8 @@ import tqdm
 
 from .._auxiliary_lib import (
     alifestd_make_empty,
-    give_len,
     get_sole_scalar_value_polars,
+    give_len,
     log_context_duration,
     log_memory_usage,
     render_polars_snapshot,
