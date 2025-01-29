@@ -39,6 +39,8 @@ def test_alifestd_as_newick_asexual_cli_version():
         "nk_lexicaseselection.csv",
         "nk_tournamentselection.csv",
     ],
+)
+@pytest.mark.parametrize(
     "taxon_label",
     [
         None,
