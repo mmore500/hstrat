@@ -303,7 +303,7 @@ def _generate_slices_mp(
     try:
         yield give_len(
             iter(lambda: (queue.get(), queue.task_done())[0], None),
-            df.select(pl.len()).collect().item() // exploded_slice_size,
+            df.lazy().select(pl.len()).collect().item() // exploded_slice_size,
         )
     finally:
         producer.join()
