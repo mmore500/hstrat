@@ -1,8 +1,8 @@
 import logging
 import math
 import multiprocessing
-import uuid
 import os
+import uuid
 
 from downstream import dataframe as dstream_dataframe
 import pandas as pd
