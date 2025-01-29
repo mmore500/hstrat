@@ -14,6 +14,7 @@ import tqdm
 
 from .._auxiliary_lib import (
     alifestd_make_empty,
+    give_len,
     get_sole_scalar_value_polars,
     log_context_duration,
     log_memory_usage,
@@ -146,15 +147,20 @@ def _build_records_chunked(
 
     logging.info("consuming from exploded df worker")
     for i, inpath in enumerate(slices):
-        logging.info(f"taking exploded df off queue {i}...")
+        logging.info(
+            f"taking exploded df off queue ({i + 1} / {len(slices)})...",
+        )
 
-        logging.info(f"opening slice {i} from {inpath}...")
+        logging.info(
+            f"opening slice ({i + 1} / {len(slices)}) from {inpath}...",
+        )
         with pa.memory_map(inpath, "rb") as source:
             pa_array = pa.ipc.open_file(source).read_all()
 
-            logging.info(f"incorporating slice {i}...")
+            logging.info(f"incorporating slice ({i + 1} / {len(slices)})...")
             with log_context_duration(
-                f"extend_tree_searchtable_cpp_from_exploded ({i})",
+                "extend_tree_searchtable_cpp_from_exploded "
+                f"({i + 1} / {len(slices)})",
                 logging.info,
             ):
                 extend_tree_searchtable_cpp_from_exploded(
@@ -166,12 +172,12 @@ def _build_records_chunked(
                     tqdm.tqdm,
                 )
 
-        logging.info(f"unlinking slice {i}...")
+        logging.info(f"unlinking slice {i + 1} / {len(slices)}...")
         os.unlink(inpath)
 
         if collapse_unif_freq and (i + 1) % collapse_unif_freq == 0:
             with log_context_duration(
-                f"collapse_dropped_unifurcations ({i})",
+                f"collapse_dropped_unifurcations ({i + 1} / {len(slices)})",
                 logging.info,
             ):
                 records = collapse_dropped_unifurcations(records)
@@ -294,7 +300,10 @@ def _generate_slices_mp(
     producer.start()
 
     try:
-        yield iter(lambda: (queue.get(), queue.task_done())[0], None)
+        yield give_len(
+            iter(lambda: (queue.get(), queue.task_done())[0], None),
+            df.select(pl.len()).collect().item() // exploded_slice_size,
+        )
     finally:
         producer.join()
 
