@@ -1,9 +1,12 @@
 import logging
 import math
 import multiprocessing
+import uuid
 
 from downstream import dataframe as dstream_dataframe
+import os
 import pandas as pd
+import pyarrow as pa
 import polars as pl
 import tqdm
 
@@ -97,7 +100,12 @@ def _produce_exploded_slices(
             render_polars_snapshot(long_df, "exploded", logging.info)
 
         logging.info("worker putting exploded data")
-        queue.put((long_df,))  # wrap in tuple to patch == compare w/ None
+        outpath = f"/tmp/{uuid.uuid4()}.arrow"
+        long_df.select(pl.all().shrink_dtype()).write_ipc(
+            outpath, compression="uncompressed"
+        )
+        del long_df
+        queue.put(outpath)
         logging.info("worker waiting for consumption")
         queue.join()  # wait produced item to be consumed
 
@@ -140,23 +148,30 @@ def _build_records_chunked(
     del df
 
     logging.info("consuming from exploded df worker")
-    for i, (long_df,) in enumerate(iter(queue.get, None)):
+    for i, inpath in enumerate(iter(queue.get, None)):
         logging.info(f"taking exploded df off queue {i + 1}/{num_slices}...")
         queue.task_done()  # release producer to prepare next exploded df
 
-        logging.info(f"incorporating slice {i + 1}/{num_slices}...")
-        with log_context_duration(
-            f"extend_tree_searchtable_cpp_from_exploded ({i + 1}/{num_slices})",
-            logging.info,
-        ):
-            extend_tree_searchtable_cpp_from_exploded(
-                records,
-                long_df["dstream_data_id"].to_numpy(),
-                long_df["dstream_T"].to_numpy(),
-                long_df["dstream_Tbar"].to_numpy(),
-                long_df["dstream_value"].to_numpy(),
-                tqdm.tqdm,
-            )
+        logging.info(f"opening slice {i + 1}/{num_slices} from {inpath}...")
+        with pa.memory_map(inpath, "rb") as source:
+            pa_array = pa.ipc.open_file(source).read_all()
+
+            logging.info(f"incorporating slice {i + 1}/{num_slices}...")
+            with log_context_duration(
+                f"extend_tree_searchtable_cpp_from_exploded ({i + 1}/{num_slices})",
+                logging.info,
+            ):
+                extend_tree_searchtable_cpp_from_exploded(
+                    records,
+                    pa_array["dstream_data_id"].to_numpy(),
+                    pa_array["dstream_T"].to_numpy(),
+                    pa_array["dstream_Tbar"].to_numpy(),
+                    pa_array["dstream_value"].to_numpy(),
+                    tqdm.tqdm,
+                )
+
+        logging.info(f"unlinking slice {i + 1}/{num_slices}...")
+        os.unlink(inpath)
 
         if collapse_unif_freq and (i + 1) % collapse_unif_freq == 0:
             with log_context_duration(

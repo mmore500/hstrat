@@ -143,7 +143,9 @@ propcache==0.2.1
 py==1.11.0
     # via retry
 pyarrow==18.1.0
-    # via polars
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   polars
 pydantic==2.10.5
     # via pandera
 pydantic-core==2.27.2
