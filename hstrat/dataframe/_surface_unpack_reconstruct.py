@@ -124,9 +124,10 @@ def _produce_exploded_slices(
             outpath, compression="uncompressed"
         )
         del long_df
+        if i > 0:
+            queue.join()  # wait produced item to be consumed
         queue.put(outpath)
         logging.info("worker waiting for consumption")
-        queue.join()  # wait produced item to be consumed
 
     logging.info("worker putting sentinel value")
     queue.put(None)  # send sentinel value to signal completion
