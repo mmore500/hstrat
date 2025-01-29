@@ -130,6 +130,12 @@ def _produce_exploded_slices(
     exploded_slice_size: int,
 ) -> None:
     """Produce exploded DataFrame in chunks."""
+    # ensure genomes sorted by generations elapsed in ascending order
+    with log_context_duration('.sort("dstream_T")', logging.info):
+        df = df.sort("dstream_T", descending=False, maintain_order=True)
+
+    render_polars_snapshot(df, "sorted", logging.info)
+
     with log_context_duration(
         "dstream.dataframe.unpack_data_packed", logging.info
     ):
