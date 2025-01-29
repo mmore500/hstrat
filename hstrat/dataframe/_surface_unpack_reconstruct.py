@@ -28,72 +28,97 @@ from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub i
 )
 
 
-def _explode_slice(
-    i: int,
+def _sort_Tbar_argv(
+    long_df: pl.DataFrame,
     num_slices: int,
+    slice_index: int,
+) -> pl.DataFrame:
+    with log_context_duration(
+        f"group_offsets ({slice_index + 1}/{num_slices})",
+        logging.info,
+    ):
+        logging.info(" - marking group boundaries")
+        gather_indices = (
+            long_df.select(
+                gather_indices=pl.when(
+                    pl.col("dstream_data_id").shift(
+                        fill_value=long_df["dstream_data_id"].first() + 1,
+                    )
+                    != pl.col("dstream_data_id")
+                )
+                .then(pl.int_range(len(long_df)))
+                .otherwise(None)
+                .forward_fill()
+                .add(pl.col("dstream_Tbar_argv")),
+            )
+            .to_series()
+            .to_numpy()
+        )
+
+    with log_context_duration(
+        f".gather(gather_indices) ({slice_index + 1}/{num_slices})",
+        logging.info,
+    ):
+        long_df = long_df.select(
+            pl.col(
+                "dstream_data_id",
+                "dstream_T",
+                "dstream_Tbar",
+                "dstream_value",
+            ).gather(gather_indices),
+        )
+
+    return long_df
+
+
+def _sort_Tbar(
+    long_df: pl.DataFrame,
+    num_slices: int,
+    slice_index: int,
+) -> pl.DataFrame:
+    with log_context_duration(
+        '.sort_by("dstream_Tbar").over(partition_by="dstream_data_id") '
+        f"({slice_index + 1}/{num_slices})",
+        logging.info,
+    ):
+        long_df = long_df.select(
+            pl.col(
+                "dstream_data_id",
+                "dstream_T",
+                "dstream_Tbar",
+                "dstream_value",
+            )
+            .sort_by("dstream_Tbar")
+            .over(partition_by="dstream_data_id"),
+        )
+
+    return long_df
+
+
+def _explode_slice(
     df_slice: pl.DataFrame,
+    num_slices: int,
+    slice_index: int,
 ) -> None:
     with log_context_duration(
-        f"dstream.dataframe.explode_lookup_unpacked ({i + 1}/{num_slices})",
+        "dstream.dataframe.explode_lookup_unpacked "
+        f"({slice_index + 1}/{num_slices})",
         logging.info,
     ):
         long_df = dstream_dataframe.explode_lookup_unpacked(
             df_slice, calc_Tbar_argv=True, value_type="uint64"
         )
 
-    if "dstream_Tbar_argv" in long_df.columns:
-        with log_context_duration(
-            f"group_offsets ({i + 1}/{num_slices})",
-            logging.info,
-        ):
-            logging.info(" - marking group boundaries")
-            gather_indices = (
-                long_df.select(
-                    gather_indices=pl.when(
-                        pl.col("dstream_data_id").shift(
-                            fill_value=long_df["dstream_data_id"].first() + 1,
-                        )
-                        != pl.col("dstream_data_id")
-                    )
-                    .then(pl.int_range(len(long_df)))
-                    .otherwise(None)
-                    .forward_fill()
-                    .add(pl.col("dstream_Tbar_argv")),
-                )
-                .to_series()
-                .to_numpy()
-            )
+    long_df = [  # ensure strata are sorted chronologically
+        _sort_Tbar,
+        _sort_Tbar_argv,
+    ]["dstream_Tbar_argv" in long_df.columns](
+        long_df=long_df,
+        num_slices=num_slices,
+        slice_index=slice_index,
+    )
 
-        with log_context_duration(
-            f".gather(gather_indices) ({i + 1}/{num_slices})",
-            logging.info,
-        ):
-            long_df = long_df.select(
-                pl.col(
-                    "dstream_data_id",
-                    "dstream_T",
-                    "dstream_Tbar",
-                    "dstream_value",
-                ).gather(gather_indices),
-            )
-    else:
-        with log_context_duration(
-            '.sort_by("dstream_Tbar").over(partition_by="dstream_data_id") '
-            f"({i + 1}/{num_slices})",
-            logging.info,
-        ):
-            long_df = long_df.select(
-                pl.col(
-                    "dstream_data_id",
-                    "dstream_T",
-                    "dstream_Tbar",
-                    "dstream_value",
-                )
-                .sort_by("dstream_Tbar")
-                .over(partition_by="dstream_data_id"),
-            )
-
-    if i == 0:
+    if slice_index == 0:
         render_polars_snapshot(long_df, "exploded", logging.info)
 
     return long_df
@@ -115,8 +140,12 @@ def _produce_exploded_slices(
     num_slices = math.ceil(len(df) / exploded_slice_size)
     logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
 
-    for i, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
-        long_df = _explode_slice(i, num_slices, df_slice)
+    for slice_idx, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
+        long_df = _explode_slice(
+            df_slice=df_slice,
+            num_slices=num_slices,
+            slice_index=slice_idx,
+        )
 
         logging.info("worker putting exploded data")
         outpath = f"/tmp/{uuid.uuid4()}.arrow"
@@ -124,7 +153,7 @@ def _produce_exploded_slices(
             outpath, compression="uncompressed"
         )
         del long_df
-        if i > 0:
+        if slice_idx > 0:
             queue.join()  # wait produced item to be consumed
         queue.put(outpath)
         logging.info("worker waiting for consumption")
