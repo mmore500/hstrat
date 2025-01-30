@@ -212,6 +212,7 @@ struct Records {
     const u64 rank,
     const u64 differentia
   ) {
+    assert(search_first_child_id >= id);
     assert(this->size() == 0 || ancestor_id != id);
     assert(this->size() == 0 || this->rank[ancestor_id] <= rank);
     this->dstream_data_id.push_back(data_id);
@@ -224,7 +225,7 @@ struct Records {
     this->differentia.push_back(differentia);
     this->rank.push_back(rank);
     max_differentia = std::max(max_differentia, differentia);
-    assert(this->size() == 0 || this->rank[search_ancestor_id] <= rank);
+    assert(this->rank[search_ancestor_id] <= rank);
   }
 
   u64 size() const { return this->dstream_data_id.size(); }
@@ -340,6 +341,15 @@ Records collapse_dropped_unifurcations(Records &records) {
           ]);
           assert(is_not_dropped_unifurcation[
             records.search_next_sibling_id[old_id]
+          ]);
+
+          assert(records.search_ancestor_id[old_id] <= old_id);
+          assert(id_remap[records.search_ancestor_id[old_id]] <= new_id);
+          assert(records.rank[old_id] >= records.rank[
+            records.search_ancestor_id[old_id]
+          ]);
+          assert(records.rank[old_id] >= new_records.rank[
+            id_remap[records.search_ancestor_id[old_id]]
           ]);
 
           new_records.addRecord(
@@ -544,6 +554,8 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
   }
 
   records.search_ancestor_id[node] = parent;
+  assert(parent <= node);
+  assert(records.rank[parent] <= records.rank[node]);
 
   const u64 ancestor_first_child = records.search_first_child_id[parent];
   const bool is_first_child = ancestor_first_child == parent;
@@ -563,17 +575,21 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
  */
 template<size_t max_differentia>
 void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
-  std::array<u64, max_differentia + 1> winners{};
-  std::vector<std::tuple<u64, u64>> losers_with_differentiae;
+  std::unordered_map<u64, std::array<u64, max_differentia + 1>> winners{};
+  std::vector<u64> losers;
 
   for (auto child : ChildrenView(records, node)) {
     const u64 differentia = records.differentia[child];
-    auto& winner = winners[differentia];
+    const u64 rank = records.rank[child];
+    auto& winner = winners[rank][differentia];
     if (winner == 0 || child < winner) { std::swap(winner, child); }
-    if (child) losers_with_differentiae.push_back({child, differentia});
+    if (child) losers.push_back(child);
   }
-  for (const auto& [loser, differentia] : losers_with_differentiae) {
-    const u64 winner = winners[differentia];
+
+  for (const auto loser : losers) {
+    const u64 differentia = records.differentia[loser];
+    const u64 rank = records.rank[loser];
+    const u64 winner = winners[rank][differentia];
 
     std::vector<u64> loser_children;
     std::ranges::copy(
@@ -587,16 +603,25 @@ void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
   }
 }
 
+// adapted from https://stackoverflow.com/a/20602159/17332200
+struct pairhash {
+  size_t operator()(const std::pair<u64, u64>& arr) const {
+    return std::hash<u64>{}(arr.first) ^ std::hash<u64>{}(arr.second);
+  }
+};
+
 /**
  * Implementation of collapse_indistinguishable_nodes optimized for large
  * differentia sizes (e.g., larger than a byte).
  */
 void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
-  std::unordered_map<u64, std::vector<u64>> groups;
+  std::unordered_map<std::pair<u64, u64>, std::vector<u64>, pairhash> groups;
   ChildrenGenerator gen(records, node);
   u64 child;
-  while ((child = gen.next())) {  // consider what we are using as the key here
-    std::vector<u64> &items = groups[records.differentia[child]];
+  while ((child = gen.next())) {
+    std::vector<u64> &items = groups[
+      std::pair{records.rank[child], records.differentia[child]}
+    ];
     items.insert(std::lower_bound(items.begin(), items.end(), child), child);
   }
   for (auto [_, children] : groups) {
