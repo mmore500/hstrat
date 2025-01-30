@@ -26,17 +26,27 @@ trap err ERR
 wget -O "${genomes}" https://osf.io/gnkbc/download \
     > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
-# unpack and reconstruct reference
-ls -1 "${genomes}" \
-    | python3 -O -m hstrat.dataframe.surface_unpack_reconstruct "${reference}" \
-    ${HSTRAT_TESTS_CLI_HEAD:-} \
-    > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
+for opt in \
+    "" \
+    "--collapse-unif-freq=0" \
+    "--exploded-slice-size=100_000_000" \
+; do
 
-# unpack and reconstruct alternate
-ls -1 "${genomes}" \
-    | python3 -O -m hstrat.dataframe.surface_unpack_reconstruct "${alternate}" \
-    ${HSTRAT_TESTS_CLI_HEAD:-} \
-    > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
+    echo "opt=${opt}"
 
-cmp "${reference}" "${alternate}"  \
-    && echo "PASS $0"
+    # unpack and reconstruct reference
+    ls -1 "${genomes}" \
+        | python3 -O -m hstrat.dataframe.surface_unpack_reconstruct "${reference}" \
+        ${HSTRAT_TESTS_CLI_HEAD:-} ${opt} \
+        > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
+
+    # unpack and reconstruct alternate
+    ls -1 "${genomes}" \
+        | python3 -O -m hstrat.dataframe.surface_unpack_reconstruct "${alternate}" \
+        ${HSTRAT_TESTS_CLI_HEAD:-} ${opt} \
+        > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
+
+    cmp "${reference}" "${alternate}"  \
+        && echo "PASS $0"
+
+done
