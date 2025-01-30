@@ -195,7 +195,7 @@ def _build_records_chunked(
     memory usage."""
     init_size = exploded_slice_size * dstream_S * 2
     logging.info(f"{init_size=}")
-    records = Records(init_size)
+    records = Records(init_size)  # handle for C++ tree-building data
 
     logging.info("consuming from exploded df worker")
     for i, inpath in enumerate(slices):
@@ -206,7 +206,7 @@ def _build_records_chunked(
         logging.info(
             f"opening slice ({i + 1} / {len(slices)}) from {inpath}...",
         )
-        with pa.memory_map(inpath, "rb") as source:
+        with pa.memory_map(inpath, "rb") as source:  # use pyarrow fast reader
             pa_array = pa.ipc.open_file(source).read_all()
 
             logging.info(f"incorporating slice ({i + 1} / {len(slices)})...")
@@ -215,6 +215,7 @@ def _build_records_chunked(
                 f"({i + 1} / {len(slices)})",
                 logging.info,
             ):
+                # dispatch to C++ tree-building implementation
                 extend_tree_searchtable_cpp_from_exploded(
                     records,
                     pa_array["dstream_data_id"].to_numpy(),
