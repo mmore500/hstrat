@@ -8,10 +8,13 @@ cd "${0%/*}"
 
 # adapted from https://unix.stackexchange.com/a/556639
 GLOBIGNORE='_*';
+# adapted from https://stackoverflow.com/a/34195247/17332200
+if compgen -G "*.py"; then
 for example in *.py; do
   echo "running example ${example}"
   python3 "${example}"
 done
+fi
 
 GLOBIGNORE="$(basename "$0")";
 for example in *.sh; do
