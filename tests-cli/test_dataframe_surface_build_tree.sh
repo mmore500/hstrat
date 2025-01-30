@@ -29,7 +29,7 @@ wget -O "${genomes}" https://osf.io/gnkbc/download \
 for opt in \
     "" \
     "--collapse-unif-freq=0" \
-    "--exploded-slice-size=100_000_000" \
+    "--exploded-slice-size=4_000_000" \
 ; do
 
     echo "opt=${opt}"
