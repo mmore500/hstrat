@@ -30,7 +30,7 @@ wget -O "${genomes}" https://osf.io/gnkbc/download \
 
 # unpack and reconstruct
 ls -1 "${genomes}" \
-    | python3 -O -m hstrat.dataframe.surface_build_tree "${trie}" \
+    | python3 -O -m hstrat.dataframe.surface_unpack_reconstruct "${trie}" \
     ${HSTRAT_TESTS_CLI_HEAD:-} \
     >${HSTRAT_TESTS_CLI_STDOUT}
 
