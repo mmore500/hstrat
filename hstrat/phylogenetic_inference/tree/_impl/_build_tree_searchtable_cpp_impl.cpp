@@ -330,52 +330,52 @@ Records collapse_dropped_unifurcations(Records &records) {
       const u64 old_id, const u64 new_id
     ) {
         const bool should_keep = is_not_dropped_unifurcation[old_id];
-        if (should_keep) {
-          assert(new_id == new_records.size());
-          assert(new_id <= old_id);
-          assert(is_not_dropped_unifurcation[
-            records.search_ancestor_id[old_id]
-          ]);
-          assert(is_not_dropped_unifurcation[
-            records.search_first_child_id[old_id]
-          ]);
-          assert(is_not_dropped_unifurcation[
-            records.search_next_sibling_id[old_id]
-          ]);
+        if (!should_keep) return int{}; // no-op return value
 
-          assert(records.search_ancestor_id[old_id] <= old_id);
-          assert(id_remap[records.search_ancestor_id[old_id]] <= new_id);
-          assert(records.rank[old_id] >= records.rank[
-            records.search_ancestor_id[old_id]
-          ]);
-
-          new_records.addRecord(
-            records.dstream_data_id[old_id],  // dstream_data_id
-            new_id,  // id
-            id_remap[  // ancestor_id
-              records.ancestor_id[old_id]
-            ],
-            id_remap[  // search_ancestor_id
-              records.search_ancestor_id[old_id]
-            ],
-            id_remap[  // search_first_child_id
-              records.search_first_child_id[old_id]
-            ],
-            id_remap[  // search_prev_sibling_id
-              records.search_prev_sibling_id[old_id]
-            ],
-            id_remap[  // search_next_sibling_id
-              records.search_next_sibling_id[old_id]
-            ],
-            records.rank[old_id],
-            records.differentia[old_id]
-        );
-
-        assert(records.rank[old_id] >= new_records.rank[
-          id_remap[records.search_ancestor_id[old_id]]
+        assert(new_id == new_records.size());
+        assert(new_id <= old_id);
+        assert(is_not_dropped_unifurcation[
+          records.search_ancestor_id[old_id]
+        ]);
+        assert(is_not_dropped_unifurcation[
+          records.search_first_child_id[old_id]
+        ]);
+        assert(is_not_dropped_unifurcation[
+          records.search_next_sibling_id[old_id]
         ]);
 
-      }
+        assert(records.search_ancestor_id[old_id] <= old_id);
+        assert(id_remap[records.search_ancestor_id[old_id]] <= new_id);
+        assert(records.rank[old_id] >= records.rank[
+          records.search_ancestor_id[old_id]
+        ]);
+
+        new_records.addRecord(
+          records.dstream_data_id[old_id],  // dstream_data_id
+          new_id,  // id
+          id_remap[  // ancestor_id
+            records.ancestor_id[old_id]
+          ],
+          id_remap[  // search_ancestor_id
+            records.search_ancestor_id[old_id]
+          ],
+          id_remap[  // search_first_child_id
+            records.search_first_child_id[old_id]
+          ],
+          id_remap[  // search_prev_sibling_id
+            records.search_prev_sibling_id[old_id]
+          ],
+          id_remap[  // search_next_sibling_id
+            records.search_next_sibling_id[old_id]
+          ],
+          records.rank[old_id],
+          records.differentia[old_id]
+      );
+
+      assert(records.rank[old_id] >= new_records.rank[
+        id_remap[records.search_ancestor_id[old_id]]
+      ]);
+
       return int{}; // no-op return value
     }
   );
