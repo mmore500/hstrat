@@ -122,6 +122,8 @@ jobs:
       with:
         path: "requirements-dev/requirements-testing.txt"
     - name: Run examples
+      env:
+        HSTRAT_TESTS_CLI_STDOUT: "/dev/stdout"
       run: ./tests-cli/run_all.sh
 
   build-script:
