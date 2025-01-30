@@ -157,7 +157,9 @@ def _produce_exploded_slices(
     logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
 
     for slice_idx, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
-        logging.info(f"- worker exploding slice {slice_idx + 1} / {num_slices}")
+        logging.info(
+            f"- worker exploding slice {slice_idx + 1} / {num_slices}"
+        )
         # apply explode transformation
         long_df = _make_exploded_slice(
             df_slice=df_slice,
@@ -248,7 +250,9 @@ def _join_user_defined_columns(
         pl.exclude("^dstream_.*$", "^downstream_.*$"),
         pl.col("dstream_data_id").cast(pl.UInt64),
     )
-    joined_columns = {*df.columns} - {*phylo_df.lazy().collect_schema().names()}
+    joined_columns = {*df.columns} - {
+        *phylo_df.lazy().collect_schema().names()
+    }
     if joined_columns:
         logging.info(f" - {len(joined_columns)} column to join")
         logging.info(f" - joining columns: {[*joined_columns]}")
