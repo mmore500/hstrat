@@ -33,23 +33,24 @@ def _sort_Tbar_argv(
     num_slices: int,
     slice_index: int,
 ) -> pl.DataFrame:
+    """Fast chronological sort within dstream data id groups, when Tbar_argv
+    is available."""
     with log_context_duration(
-        f"group_offsets ({slice_index + 1}/{num_slices})",
+        f"gather_indices ({slice_index + 1}/{num_slices})",
         logging.info,
     ):
-        logging.info(" - marking group boundaries")
-        gather_indices = (
+        gather_indices = (  # argsort: what index should this row be sorted to?
             long_df.select(
-                gather_indices=pl.when(
+                gather_indices=pl.when(  # where do data id's transition?
                     pl.col("dstream_data_id").shift(
                         fill_value=long_df["dstream_data_id"].first() + 1,
                     )
                     != pl.col("dstream_data_id")
                 )
-                .then(pl.int_range(len(long_df)))
+                .then(pl.int_range(len(long_df)))  # mark transition indices
                 .otherwise(None)
-                .forward_fill()
-                .add(pl.col("dstream_Tbar_argv")),
+                .forward_fill()  # fill first index across entire data id group
+                .add(pl.col("dstream_Tbar_argv")),  # add Tbar_argv offset
             )
             .to_series()
             .to_numpy()
@@ -59,7 +60,7 @@ def _sort_Tbar_argv(
         f".gather(gather_indices) ({slice_index + 1}/{num_slices})",
         logging.info,
     ):
-        long_df = long_df.select(
+        long_df = long_df.select(  # apply argsort
             pl.col(
                 "dstream_data_id",
                 "dstream_T",
@@ -76,6 +77,8 @@ def _sort_Tbar(
     num_slices: int,
     slice_index: int,
 ) -> pl.DataFrame:
+    """Fallback chronological sort within dstream data id groups, when
+    Tbar_argv is not available."""
     with log_context_duration(
         '.sort_by("dstream_Tbar").over(partition_by="dstream_data_id") '
         f"({slice_index + 1}/{num_slices})",
@@ -95,11 +98,15 @@ def _sort_Tbar(
     return long_df
 
 
-def _explode_slice(
+def _make_exploded_slice(
     df_slice: pl.DataFrame,
     num_slices: int,
     slice_index: int,
-) -> None:
+) -> pl.DataFrame:
+    """Explode dstream buffers to 1 differentia per row, calculating Tbar for
+    each and ensuring strata are chronological within data id groups."""
+
+    # explode dstream buffer to 1 differentia per row, calculating Tbar for each
     with log_context_duration(
         "dstream.dataframe.explode_lookup_unpacked "
         f"({slice_index + 1}/{num_slices})",
@@ -109,7 +116,9 @@ def _explode_slice(
             df_slice, calc_Tbar_argv=True, value_type="uint64"
         )
 
-    long_df = [  # ensure strata are sorted chronologically
+    # ensure strata are chronological within data id groups
+    # (i.e., within groups of differentia from same buffer)
+    long_df = [  # dispatch to sort method based on available columns
         _sort_Tbar,
         _sort_Tbar_argv,
     ]["dstream_Tbar_argv" in long_df.columns](
@@ -129,7 +138,7 @@ def _produce_exploded_slices(
     df: typing.Union[pl.DataFrame, pl.LazyFrame],
     exploded_slice_size: int,
 ) -> None:
-    """Produce exploded DataFrame in chunks."""
+    """Exploded DataFrame in chunks, passed to queue for consumption."""
     with log_context_duration(
         "dstream.dataframe.unpack_data_packed", logging.info
     ):
@@ -148,26 +157,30 @@ def _produce_exploded_slices(
     logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
 
     for slice_idx, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
-        long_df = _explode_slice(
+        logging.info(f"- worker exploding slice {slice_idx + 1} / {num_slices}")
+        # apply explode transformation
+        long_df = _make_exploded_slice(
             df_slice=df_slice,
             num_slices=num_slices,
             slice_index=slice_idx,
         )
 
-        logging.info("worker putting exploded data")
+        # pass exploded data to consumer through queue via tmpfile
+        # (better performing for fast read than passing directly through queue)
+        logging.info("- worker putting exploded data")
         outpath = f"/tmp/{uuid.uuid4()}.arrow"
         long_df.select(pl.all().shrink_dtype()).write_ipc(
             outpath, compression="uncompressed"
         )
-        del long_df
-        if slice_idx > 0:
-            queue.join()  # wait produced item to be consumed
+        del long_df  # clear memory
         queue.put(outpath)
-        logging.info("worker waiting for consumption")
+        logging.info("- worker waiting for consumption")
+        queue.join()  # wait for produced item to be consumed
+        logging.info("- worker wait complete")
 
-    logging.info("worker putting sentinel value")
+    logging.info("- worker putting sentinel value to signal completion")
     queue.put(None)  # send sentinel value to signal completion
-    logging.info("worker complete")
+    logging.info(" - worker complete")
 
 
 def _build_records_chunked(
@@ -235,7 +248,7 @@ def _join_user_defined_columns(
         pl.exclude("^dstream_.*$", "^downstream_.*$"),
         pl.col("dstream_data_id").cast(pl.UInt64),
     )
-    joined_columns = set(df.columns) - set(phylo_df.columns)
+    joined_columns = {*df.columns} - {*phylo_df.lazy().collect_schema().names()}
     if joined_columns:
         logging.info(f" - {len(joined_columns)} column to join")
         logging.info(f" - joining columns: {[*joined_columns]}")
@@ -303,7 +316,7 @@ def _surface_unpacked_reconstruct(
             dstream_S=dstream_S,
         )
 
-    del records
+    del records  # clear memory
     render_polars_snapshot(phylo_df, "converted", logging.info)
 
     logging.info("surface_unpack_reconstruct complete")
@@ -313,11 +326,13 @@ def _surface_unpacked_reconstruct(
 
 
 @contextlib.contextmanager
-def _generate_slices_mp(
+def _generate_exploded_slices_mp(
     df: typing.Union[pl.LazyFrame, pl.DataFrame],
     exploded_slice_size: int,
     mp_context: str,
 ) -> typing.Iterator[typing.Iterator[str]]:
+    """Generator wrapping genreation of exploded data frame slices via
+    parallel multiprocess producer."""
     try:  # RE https://docs.pola.rs/user-guide/misc/multiprocessing/
         logging.info(f"attempting to use multiprocessing {mp_context} context")
         mp_context = multiprocessing.get_context(mp_context)
@@ -331,18 +346,23 @@ def _generate_slices_mp(
     logging.info("spawning exploded df worker")
     producer = mp_context.Process(
         target=_produce_exploded_slices,
-        args=(queue, df, exploded_slice_size),
+        args=(queue, df, exploded_slice_size),  # lazyframe is cheap to send
     )
     logging.info("starting exploded df worker")
     producer.start()
 
-    try:
-        yield give_len(
-            iter(lambda: (queue.get(), queue.task_done())[0], None),
-            df.lazy().select(pl.len()).collect().item() // exploded_slice_size,
-        )
-    finally:
-        producer.join()
+    num_slices = (
+        df.lazy().select(pl.len()).collect().item() // exploded_slice_size
+    )
+    yield give_len(  # enable len() on generator for nice logging
+        # yield generated slices until sentinel value None is received,
+        # immediately marking items as consumed (`task_done`) to trigger
+        # the next item to be produced if queue has been emptied
+        iter(lambda: (queue.get(), queue.task_done())[0], None),
+        num_slices,
+    )
+
+    producer.join()  # wait for producer to finish (no effect, but good form)
 
 
 def surface_unpack_reconstruct(
@@ -476,7 +496,9 @@ def surface_unpack_reconstruct(
     logging.info(f" - differentia bitwidth: {differentia_bitwidth}")
 
     logging.info("dispatching to surface_unpacked_reconstruct")
-    with _generate_slices_mp(df, exploded_slice_size, mp_context) as slices:
+    with _generate_exploded_slices_mp(
+        df, exploded_slice_size, mp_context
+    ) as slices:
         phylo_df = _surface_unpacked_reconstruct(
             slices,
             collapse_unif_freq=collapse_unif_freq,
