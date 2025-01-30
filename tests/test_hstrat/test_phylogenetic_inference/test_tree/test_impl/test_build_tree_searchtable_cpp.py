@@ -165,6 +165,13 @@ def test_handwritten_trees(orig_tree, retention_policy, wrap, entry_point):
         ),
         impl.setup_dendropy_tree(f"{assets_path}/nk_lexicaseselection.csv"),
         impl.setup_dendropy_tree(f"{assets_path}/nk_tournamentselection.csv"),
+        impl.setup_dendropy_tree(
+            f"{assets_path}/nk_lexicaseselection.csv", add_inner_leaves=True
+        ),
+        impl.setup_dendropy_tree(
+            f"{assets_path}/nk_tournamentselection.csv",
+            add_inner_leaves=True,
+        ),
     ],
 )
 @pytest.mark.parametrize(
