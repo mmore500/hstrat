@@ -17,6 +17,11 @@ function cleanup {
 }
 trap cleanup EXIT
 
+err() {
+    echo "FAIL line $(caller)" >&2
+}
+trap err ERR
+
 # get example genome data
 wget -O "${genomes}" https://osf.io/gnkbc/download \
     > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
@@ -32,5 +37,4 @@ ls -1 "${genomes}" \
     > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
 cmp "${reference}" "${alternate}"  \
-    && echo "PASS $0" \
-    || echo "FAIL: $0" && exit 1
+    && echo "PASS $0"
