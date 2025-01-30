@@ -250,7 +250,7 @@ def _join_user_defined_columns(
         pl.exclude("^dstream_.*$", "^downstream_.*$"),
         pl.col("dstream_data_id").cast(pl.UInt64),
     )
-    joined_columns = {*df.columns} - {
+    joined_columns = {*df.lazy().collect_schema().names()} - {
         *phylo_df.lazy().collect_schema().names()
     }
     if joined_columns:
