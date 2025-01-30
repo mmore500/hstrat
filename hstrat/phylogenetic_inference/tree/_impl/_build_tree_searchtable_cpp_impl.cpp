@@ -248,6 +248,7 @@ Records collapse_dropped_unifurcations(Records &records) {
     std::end(records.id),
     CountingIterator<u64>{}
   ));
+  if (records.size() == 0) return Records(0, /* init_root= */ false);
 
   // how many entries have an entry as ancestor?
   std::vector<uint8_t> ancestor_ref_counts(records.size());
