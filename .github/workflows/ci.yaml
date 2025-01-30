@@ -107,6 +107,10 @@ jobs:
 
   test-cli:
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        head: ["", "--head 10000"]
     steps:
     - name: Cleanup pre-installed tools
       run: |
@@ -130,6 +134,7 @@ jobs:
     - run: python3 -m pip freeze
     - name: Run examples
       env:
+        HSTRAT_TESTS_CLI_HEAD: "${{ matrix.head }}"
         HSTRAT_TESTS_CLI_STDOUT: "/dev/stdout"
       run: ./tests-cli/run_all.sh
 
