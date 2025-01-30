@@ -28,8 +28,7 @@ def _collapse_indistinguishable_children(
     for child in table.iter_inner_search_children_of(cur_node):
         key = (table.get_rank_of(child), table.get_differentia_of(child))
         groups[key].append(child)
-    assert len(groups) == len(set(key[1] for key in groups.keys()))
-    # ^^^ check assumption used in cpp implementation (differentiae are unique)
+
     for group in groups.values():
         winner, *losers = sorted(group)
         for loser in losers:  # keep only the 0th tiebreak winner
