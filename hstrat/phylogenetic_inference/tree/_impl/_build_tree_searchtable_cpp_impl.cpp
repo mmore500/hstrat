@@ -928,27 +928,71 @@ inline pybind11::array_t<typename Sequence::value_type> as_pyarray(
 
 
 /**
+ * Nondestructively converts a Records object to a py::dict of lists.
+ */
+py::dict copy_records_to_dict(Records &records) {
+  std::unordered_map<std::string, std::vector<u64>> return_mapping;
+  return_mapping.insert({"dstream_data_id", records.dstream_data_id});
+  return_mapping.insert({"id", records.id});
+  return_mapping.insert(
+    {"search_first_child_id", records.search_first_child_id}
+  );
+  return_mapping.insert(
+    {"search_prev_sibling_id", records.search_prev_sibling_id}
+  );
+  return_mapping.insert(
+    {"search_next_sibling_id", records.search_next_sibling_id}
+  );
+  return_mapping.insert({"search_ancestor_id", records.search_ancestor_id});
+  return_mapping.insert({"ancestor_id", records.ancestor_id});
+  return_mapping.insert({"rank", records.rank});
+  return_mapping.insert({"differentia", records.differentia});
+  return py::cast(return_mapping);
+}
+
+
+/**
  * Converts a Records object to a py::dict of numpy arrays.
  *
  * Data is moved out of the Records object, so no copies are made. The Records
  * object is left in a valid but unspecified state.
  */
-py::dict records_to_dict(Records &records) {
+py::dict extract_records_to_dict(Records &records) {
   std::unordered_map<std::string, py::array_t<u64>> return_mapping;
   return_mapping.insert(
-    {"rank", as_pyarray(std::move(records.rank))}
-  );
-  return_mapping.insert(
-    {"differentia", as_pyarray(std::move(records.differentia))}
+    {"dstream_data_id", as_pyarray(std::move(records.dstream_data_id))}
   );
   return_mapping.insert(
     {"id", as_pyarray(std::move(records.id))}
   );
   return_mapping.insert(
+    {"search_first_child_id", as_pyarray(
+      std::move(records.search_first_child_id)
+    )}
+  );
+  return_mapping.insert(
+    {"search_prev_sibling_id", as_pyarray(
+      std::move(records.search_prev_sibling_id)
+    )}
+  );
+  return_mapping.insert(
+    {"search_next_sibling_id", as_pyarray(
+      std::move(records.search_next_sibling_id)
+    )}
+  );
+  return_mapping.insert(
+    {"search_ancestor_id", as_pyarray(
+      std::move(records.search_ancestor_id)
+    )}
+  );
+  return_mapping.insert(
     {"ancestor_id", as_pyarray(std::move(records.ancestor_id))}
   );
   return_mapping.insert(
-    {"dstream_data_id", as_pyarray(std::move(records.dstream_data_id))}
+    {"rank", as_pyarray(std::move(records.rank))}
+  );
+  return_mapping.insert(
+    {"differentia", as_pyarray(std::move(records.differentia))}
   );
   return py::cast(return_mapping);
 }
@@ -1012,7 +1056,7 @@ py::dict build_trie_searchtable_nested(
   }  // end progress bar scope
 
   logging_info("nested searchtable cpp complete");
-  return records_to_dict(records);
+  return extract_records_to_dict(records);
 }
 
 
@@ -1142,7 +1186,7 @@ py::dict build_trie_searchtable_exploded(
 
   const auto logging_info = py::module::import("logging").attr("info");
   logging_info("exploded searchtable cpp complete");
-  return records_to_dict(records);
+  return extract_records_to_dict(records);
 }
 
 
@@ -1156,8 +1200,13 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
     py::arg("records")
   );
   m.def(
-    "records_to_dict",
-    &records_to_dict,
+    "copy_records_to_dict",
+    &copy_records_to_dict,
+    py::arg("records")
+  );
+  m.def(
+    "extract_records_to_dict",
+    &extract_records_to_dict,
     py::arg("records")
   );
   m.def(

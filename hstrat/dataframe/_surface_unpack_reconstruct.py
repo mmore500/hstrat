@@ -21,7 +21,7 @@ from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub i
     Records,
     collapse_dropped_unifurcations,
     extend_tree_searchtable_cpp_from_exploded,
-    records_to_dict,
+    extract_records_to_dict,
 )
 
 
@@ -217,19 +217,20 @@ def _construct_result_dataframe(
 ) -> pl.DataFrame:
     """Convert tree searchtable records to DataFrame."""
     logging.info("converting records to dict...")
-    records_dict = records_to_dict(records)
+    records_dict = extract_records_to_dict(records)
 
     logging.info("converting dict to dataframe...")
-    del records_dict["differentia"]
+    schema = {
+        "dstream_data_id": pl.UInt64,
+        "id": pl.UInt64,
+        "ancestor_id": pl.UInt64,
+        "rank": pl.UInt64,
+    }
+    records_dict = {k: records_dict[k] for k in schema}
     return (
         pl.from_dict(
             records_dict,  # type: ignore
-            schema={
-                "dstream_data_id": pl.UInt64,
-                "id": pl.UInt64,
-                "ancestor_id": pl.UInt64,
-                "rank": pl.UInt64,
-            },
+            schema=schema,
         )
         .with_columns(
             pl.lit(differentia_bitwidth)
