@@ -10,6 +10,13 @@ genomes="$(mktemp).pqt"
 reference="$(mktemp).pqt"
 alternate="$(mktemp).pqt"
 
+function cleanup {
+    rm -f "${genomes}"
+    rm -f "${reference}"
+    rm -f "${alternate}"
+}
+trap cleanup EXIT
+
 # get example genome data
 wget -O "${genomes}" https://osf.io/gnkbc/download \
     > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
@@ -17,14 +24,12 @@ wget -O "${genomes}" https://osf.io/gnkbc/download \
 # unpack and reconstruct reference
 ls -1 "${genomes}" \
     | python3 -O -m hstrat.dataframe.surface_unpack_reconstruct "${reference}" \
-    > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1 &
+    > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
 # unpack and reconstruct alternate
 ls -1 "${genomes}" \
     | python3 -O -m hstrat.dataframe.surface_unpack_reconstruct "${alternate}" \
-    > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1 &
-
-wait
+    > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
 cmp "${reference}" "${alternate}"  \
     && echo "PASS $0" \
