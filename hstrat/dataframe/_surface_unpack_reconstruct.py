@@ -1,7 +1,9 @@
+import contextlib
 import logging
 import math
 import multiprocessing
 import os
+import typing
 import uuid
 
 from downstream import dataframe as dstream_dataframe
@@ -13,6 +15,7 @@ import tqdm
 from .._auxiliary_lib import (
     alifestd_make_empty,
     get_sole_scalar_value_polars,
+    give_len,
     log_context_duration,
     log_memory_usage,
     render_polars_snapshot,
@@ -25,142 +28,194 @@ from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub i
 )
 
 
+def _sort_Tbar_argv(
+    long_df: pl.DataFrame,
+    num_slices: int,
+    slice_index: int,
+) -> pl.DataFrame:
+    """Fast chronological sort within dstream data id groups, when Tbar_argv
+    is available."""
+    with log_context_duration(
+        f"gather_indices ({slice_index + 1}/{num_slices})",
+        logging.info,
+    ):
+        gather_indices = (  # argsort: what index should this row be sorted to?
+            long_df.select(
+                gather_indices=pl.when(  # where do data id's transition?
+                    pl.col("dstream_data_id").shift(
+                        fill_value=long_df["dstream_data_id"].first() + 1,
+                    )
+                    != pl.col("dstream_data_id")
+                )
+                .then(pl.int_range(len(long_df)))  # mark transition indices
+                .otherwise(None)
+                .forward_fill()  # fill first index across entire data id group
+                .add(pl.col("dstream_Tbar_argv")),  # add Tbar_argv offset
+            )
+            .to_series()
+            .to_numpy()
+        )
+
+    with log_context_duration(
+        f".gather(gather_indices) ({slice_index + 1}/{num_slices})",
+        logging.info,
+    ):
+        long_df = long_df.select(  # apply argsort
+            pl.col(
+                "dstream_data_id",
+                "dstream_T",
+                "dstream_Tbar",
+                "dstream_value",
+            ).gather(gather_indices),
+        )
+
+    return long_df
+
+
+def _sort_Tbar(
+    long_df: pl.DataFrame,
+    num_slices: int,
+    slice_index: int,
+) -> pl.DataFrame:
+    """Fallback chronological sort within dstream data id groups, when
+    Tbar_argv is not available."""
+    with log_context_duration(
+        '.sort_by("dstream_Tbar").over(partition_by="dstream_data_id") '
+        f"({slice_index + 1}/{num_slices})",
+        logging.info,
+    ):
+        long_df = long_df.select(
+            pl.col(
+                "dstream_data_id",
+                "dstream_T",
+                "dstream_Tbar",
+                "dstream_value",
+            )
+            .sort_by("dstream_Tbar")
+            .over(partition_by="dstream_data_id"),
+        )
+
+    return long_df
+
+
+def _make_exploded_slice(
+    df_slice: pl.DataFrame,
+    num_slices: int,
+    slice_index: int,
+) -> pl.DataFrame:
+    """Explode dstream buffers to 1 differentia per row, calculating Tbar for
+    each and ensuring strata are chronological within data id groups."""
+
+    # explode dstream buffer to 1 differentia per row, calculating Tbar for each
+    with log_context_duration(
+        "dstream.dataframe.explode_lookup_unpacked "
+        f"({slice_index + 1}/{num_slices})",
+        logging.info,
+    ):
+        long_df = dstream_dataframe.explode_lookup_unpacked(
+            df_slice, calc_Tbar_argv=True, value_type="uint64"
+        )
+
+    # ensure strata are chronological within data id groups
+    # (i.e., within groups of differentia from same buffer)
+    long_df = [  # dispatch to sort method based on available columns
+        _sort_Tbar,
+        _sort_Tbar_argv,
+    ]["dstream_Tbar_argv" in long_df.columns](
+        long_df=long_df,
+        num_slices=num_slices,
+        slice_index=slice_index,
+    )
+
+    if slice_index == 0:
+        render_polars_snapshot(long_df, "exploded", logging.info)
+
+    return long_df
+
+
 def _produce_exploded_slices(
     queue: multiprocessing.JoinableQueue,
-    df: pl.DataFrame,
+    df: typing.Union[pl.DataFrame, pl.LazyFrame],
     exploded_slice_size: int,
 ) -> None:
-    """Produce exploded DataFrame in chunks."""
+    """Exploded DataFrame in chunks, passed to queue for consumption."""
+    with log_context_duration(
+        "dstream.dataframe.unpack_data_packed", logging.info
+    ):
+        df = dstream_dataframe.unpack_data_packed(df)
+
+    render_polars_snapshot(df, "unpacked", logging.info)
+
+    # ensure genomes sorted by generations elapsed in ascending order
+    # AFTER dstream_T has been unpacked, but before exploded
+    with log_context_duration('.sort("dstream_T")', logging.info):
+        df = df.sort("dstream_T", descending=False, maintain_order=True)
+
+    render_polars_snapshot(df, "sorted", logging.info)
+
     num_slices = math.ceil(len(df) / exploded_slice_size)
     logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
 
-    for i, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
-        with log_context_duration(
-            f"dstream.dataframe.explode_lookup_unpacked ({i + 1}/{num_slices})",
-            logging.info,
-        ):
-            long_df = dstream_dataframe.explode_lookup_unpacked(
-                df_slice, calc_Tbar_argv=True, value_type="uint64"
-            )
+    for slice_idx, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
+        logging.info(
+            f"- worker exploding slice {slice_idx + 1} / {num_slices}"
+        )
+        # apply explode transformation
+        long_df = _make_exploded_slice(
+            df_slice=df_slice,
+            num_slices=num_slices,
+            slice_index=slice_idx,
+        )
 
-        if "dstream_Tbar_argv" in long_df.columns:
-            with log_context_duration(
-                f"group_offsets ({i + 1}/{num_slices})",
-                logging.info,
-            ):
-                logging.info(" - marking group boundaries")
-                gather_indices = (
-                    long_df.select(
-                        gather_indices=pl.when(
-                            pl.col("dstream_data_id").shift(
-                                fill_value=long_df["dstream_data_id"].first()
-                                + 1,
-                            )
-                            != pl.col("dstream_data_id")
-                        )
-                        .then(pl.int_range(len(long_df)))
-                        .otherwise(None)
-                        .forward_fill()
-                        .add(pl.col("dstream_Tbar_argv")),
-                    )
-                    .to_series()
-                    .to_numpy()
-                )
-
-            with log_context_duration(
-                f".gather(gather_indices) ({i + 1}/{num_slices})",
-                logging.info,
-            ):
-                long_df = long_df.select(
-                    pl.col(
-                        "dstream_data_id",
-                        "dstream_T",
-                        "dstream_Tbar",
-                        "dstream_value",
-                    ).gather(gather_indices),
-                )
-        else:
-            with log_context_duration(
-                '.sort_by("dstream_Tbar").over(partition_by="dstream_data_id") '
-                f"({i + 1}/{num_slices})",
-                logging.info,
-            ):
-                long_df = long_df.select(
-                    pl.col(
-                        "dstream_data_id",
-                        "dstream_T",
-                        "dstream_Tbar",
-                        "dstream_value",
-                    )
-                    .sort_by("dstream_Tbar")
-                    .over(partition_by="dstream_data_id"),
-                )
-
-        if i == 0:
-            render_polars_snapshot(long_df, "exploded", logging.info)
-
-        logging.info("worker putting exploded data")
+        # pass exploded data to consumer through queue via tmpfile
+        # (better performing for fast read than passing directly through queue)
+        logging.info("- worker putting exploded data")
         outpath = f"/tmp/{uuid.uuid4()}.arrow"
         long_df.select(pl.all().shrink_dtype()).write_ipc(
             outpath, compression="uncompressed"
         )
-        del long_df
+        del long_df  # clear memory
         queue.put(outpath)
-        logging.info("worker waiting for consumption")
-        queue.join()  # wait produced item to be consumed
+        logging.info("- worker waiting for consumption")
+        queue.join()  # wait for produced item to be consumed
+        logging.info("- worker wait complete")
 
-    logging.info("worker putting sentinel value")
+    logging.info("- worker putting sentinel value to signal completion")
     queue.put(None)  # send sentinel value to signal completion
-    logging.info("worker complete")
+    logging.info(" - worker complete")
 
 
 def _build_records_chunked(
-    df: pl.DataFrame,
+    slices: typing.Iterator[str],
     collapse_unif_freq: int,
+    dstream_S: int,
     exploded_slice_size: int,
-    mp_context: str,
 ) -> Records:
     """Build tree searchtable from DataFrame, exploding in chunks to reduce
     memory usage."""
-    num_slices = math.ceil(len(df) / exploded_slice_size)
-    logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
-
-    init_size = exploded_slice_size * df["dstream_S"].max() * 2
+    init_size = exploded_slice_size * dstream_S * 2
     logging.info(f"{init_size=}")
-    records = Records(init_size)
-
-    try:  # RE https://docs.pola.rs/user-guide/misc/multiprocessing/
-        logging.info(f"attempting to use multiprocessing {mp_context} context")
-        mp_context = multiprocessing.get_context(mp_context)
-    except ValueError:  # forkserver available on unix only
-        logging.info("attempting to use multiprocessing spawn context")
-        mp_context = multiprocessing.get_context("spawn")
-
-    logging.info("creating work queue")
-    queue = mp_context.JoinableQueue()
-    logging.info("spawning exploded df worker")
-    producer = mp_context.Process(
-        target=_produce_exploded_slices,
-        args=(queue, df, exploded_slice_size),
-    )
-    logging.info("starting exploded df worker")
-    producer.start()
-    del df
+    records = Records(init_size)  # handle for C++ tree-building data
 
     logging.info("consuming from exploded df worker")
-    for i, inpath in enumerate(iter(queue.get, None)):
-        logging.info(f"taking exploded df off queue {i + 1}/{num_slices}...")
-        queue.task_done()  # release producer to prepare next exploded df
+    for i, inpath in enumerate(slices):
+        logging.info(
+            f"taking exploded df off queue ({i + 1} / {len(slices)})...",
+        )
 
-        logging.info(f"opening slice {i + 1}/{num_slices} from {inpath}...")
-        with pa.memory_map(inpath, "rb") as source:
+        logging.info(
+            f"opening slice ({i + 1} / {len(slices)}) from {inpath}...",
+        )
+        with pa.memory_map(inpath, "rb") as source:  # use pyarrow fast reader
             pa_array = pa.ipc.open_file(source).read_all()
 
-            logging.info(f"incorporating slice {i + 1}/{num_slices}...")
+            logging.info(f"incorporating slice ({i + 1} / {len(slices)})...")
             with log_context_duration(
-                f"extend_tree_searchtable_cpp_from_exploded ({i + 1}/{num_slices})",
+                "extend_tree_searchtable_cpp_from_exploded "
+                f"({i + 1} / {len(slices)})",
                 logging.info,
             ):
+                # dispatch to C++ tree-building implementation
                 extend_tree_searchtable_cpp_from_exploded(
                     records,
                     pa_array["dstream_data_id"].to_numpy(),
@@ -170,22 +225,19 @@ def _build_records_chunked(
                     tqdm.tqdm,
                 )
 
-        logging.info(f"unlinking slice {i + 1}/{num_slices}...")
+        logging.info(f"unlinking slice {i + 1} / {len(slices)}...")
         os.unlink(inpath)
 
         if collapse_unif_freq and (i + 1) % collapse_unif_freq == 0:
             with log_context_duration(
-                f"collapse_dropped_unifurcations ({i + 1}/{num_slices})",
+                f"collapse_dropped_unifurcations ({i + 1} / {len(slices)})",
                 logging.info,
             ):
                 records = collapse_dropped_unifurcations(records)
 
         log_memory_usage(logging.info)
 
-    logging.info("consumer got sentinel value from queue")
-    logging.info("joining producer")
-    producer.join()
-    logging.info("produce joined")
+    logging.info("slices complete")
 
     return records
 
@@ -199,11 +251,15 @@ def _join_user_defined_columns(
         pl.exclude("^dstream_.*$", "^downstream_.*$"),
         pl.col("dstream_data_id").cast(pl.UInt64),
     )
-    joined_columns = set(df.columns) - set(phylo_df.columns)
+    joined_columns = {*df.lazy().collect_schema().names()} - {
+        *phylo_df.lazy().collect_schema().names()
+    }
     if joined_columns:
         logging.info(f" - {len(joined_columns)} column to join")
         logging.info(f" - joining columns: {[*joined_columns]}")
-        phylo_df = phylo_df.join(df, on="dstream_data_id", how="left")
+        phylo_df = phylo_df.join(
+            df.lazy().collect(), on="dstream_data_id", how="left"
+        )
     else:
         logging.info(" - no columns to join, skipping")
 
@@ -242,23 +298,20 @@ def _construct_result_dataframe(
 
 
 def _surface_unpacked_reconstruct(
-    df: pl.DataFrame,
+    slices: typing.Iterator[str],
     *,
     collapse_unif_freq: int,
     differentia_bitwidth: int,
     dstream_S: int,
     exploded_slice_size: int,
-    mp_context: str,
 ) -> pl.DataFrame:
     """Reconstruct phylogenetic tree from unpacked dstream data."""
-    render_polars_snapshot(df, "unpacked", logging.info)
-
     logging.info("building tree searchtable chunkwise...")
     records = _build_records_chunked(
-        df,
+        slices,
         collapse_unif_freq=collapse_unif_freq,
+        dstream_S=dstream_S,
         exploded_slice_size=exploded_slice_size,
-        mp_context=mp_context,
     )
 
     with log_context_duration("_construct_result_dataframe", logging.info):
@@ -268,12 +321,8 @@ def _surface_unpacked_reconstruct(
             dstream_S=dstream_S,
         )
 
-    del records
+    del records  # clear memory
     render_polars_snapshot(phylo_df, "converted", logging.info)
-
-    logging.info("joining user-defined columns...")
-    with log_context_duration("_join_user_defined_columns", logging.info):
-        phylo_df = _join_user_defined_columns(df, phylo_df)
 
     logging.info("surface_unpack_reconstruct complete")
     render_polars_snapshot(phylo_df, "reconstruction", logging.info)
@@ -281,8 +330,48 @@ def _surface_unpacked_reconstruct(
     return phylo_df
 
 
+@contextlib.contextmanager
+def _generate_exploded_slices_mp(
+    df: typing.Union[pl.LazyFrame, pl.DataFrame],
+    exploded_slice_size: int,
+    mp_context: str,
+) -> typing.Iterator[typing.Iterator[str]]:
+    """Generator wrapping genreation of exploded data frame slices via
+    parallel multiprocess producer."""
+    try:  # RE https://docs.pola.rs/user-guide/misc/multiprocessing/
+        logging.info(f"attempting to use multiprocessing {mp_context} context")
+        mp_context = multiprocessing.get_context(mp_context)
+    except ValueError:  # forkserver available on unix only
+        logging.info("attempting to use multiprocessing spawn context")
+        mp_context = multiprocessing.get_context("spawn")
+
+    logging.info("creating work queue")
+    queue = mp_context.JoinableQueue()
+
+    logging.info("spawning exploded df worker")
+    producer = mp_context.Process(
+        target=_produce_exploded_slices,
+        args=(queue, df, exploded_slice_size),  # lazyframe is cheap to send
+    )
+    logging.info("starting exploded df worker")
+    producer.start()
+
+    num_slices = (
+        df.lazy().select(pl.len()).collect().item() // exploded_slice_size
+    )
+    yield give_len(  # enable len() on generator for nice logging
+        # yield generated slices until sentinel value None is received,
+        # immediately marking items as consumed (`task_done`) to trigger
+        # the next item to be produced if queue has been emptied
+        iter(lambda: (queue.get(), queue.task_done())[0], None),
+        num_slices,
+    )
+
+    producer.join()  # wait for producer to finish (no effect, but good form)
+
+
 def surface_unpack_reconstruct(
-    df: pl.DataFrame,
+    df: typing.Union[pl.DataFrame, pl.LazyFrame],
     *,
     collapse_unif_freq: int = 1,
     exploded_slice_size: int = 1_000_000,
@@ -382,6 +471,7 @@ def surface_unpack_reconstruct(
     log_memory_usage(logging.info)
 
     render_polars_snapshot(df, "packed", logging.info)
+    logging.info(f"packed {type(df)=}")
 
     # for simplicity, return early for this special case
     if df.lazy().limit(1).collect().is_empty():
@@ -410,16 +500,26 @@ def surface_unpack_reconstruct(
     differentia_bitwidth = dstream_storage_bitwidth // dstream_S
     logging.info(f" - differentia bitwidth: {differentia_bitwidth}")
 
-    with log_context_duration(
-        "dstream.dataframe.unpack_data_packed", logging.info
-    ):
-        df = dstream_dataframe.unpack_data_packed(df)
+    logging.info("dispatching to surface_unpacked_reconstruct")
+    with _generate_exploded_slices_mp(
+        df, exploded_slice_size, mp_context
+    ) as slices:
+        phylo_df = _surface_unpacked_reconstruct(
+            slices,
+            collapse_unif_freq=collapse_unif_freq,
+            differentia_bitwidth=differentia_bitwidth,
+            dstream_S=dstream_S,
+            exploded_slice_size=exploded_slice_size,
+        )
 
-    return _surface_unpacked_reconstruct(
-        df,
-        collapse_unif_freq=collapse_unif_freq,
-        differentia_bitwidth=differentia_bitwidth,
-        dstream_S=dstream_S,
-        exploded_slice_size=exploded_slice_size,
-        mp_context=mp_context,
-    )
+    logging.info("joining user-defined columns...")
+    with log_context_duration("_join_user_defined_columns", logging.info):
+        try:
+            phylo_df = _join_user_defined_columns(df, phylo_df)
+        except pl.exceptions.ColumnNotFoundError:
+            phylo_df = _join_user_defined_columns(
+                df.with_row_index("dstream_data_id"),
+                phylo_df,
+            )
+
+    return phylo_df
