@@ -348,9 +348,6 @@ Records collapse_dropped_unifurcations(Records &records) {
           assert(records.rank[old_id] >= records.rank[
             records.search_ancestor_id[old_id]
           ]);
-          assert(records.rank[old_id] >= new_records.rank[
-            id_remap[records.search_ancestor_id[old_id]]
-          ]);
 
           new_records.addRecord(
             records.dstream_data_id[old_id],  // dstream_data_id
@@ -373,6 +370,11 @@ Records collapse_dropped_unifurcations(Records &records) {
             records.rank[old_id],
             records.differentia[old_id]
         );
+
+        assert(records.rank[old_id] >= new_records.rank[
+          id_remap[records.search_ancestor_id[old_id]]
+        ]);
+
       }
       return int{}; // no-op return value
     }
