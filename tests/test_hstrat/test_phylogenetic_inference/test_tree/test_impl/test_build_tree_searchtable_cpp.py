@@ -483,7 +483,7 @@ def test_reconstructed_mrca_fuzz(
     ],
 )
 @pytest.mark.parametrize("entry_point", entry_points)
-def test_determinism(
+def test_determinism1(
     orig_tree, retention_policy, differentia_width, wrap, entry_point
 ):
     num_depositions = 10
@@ -503,6 +503,54 @@ def test_determinism(
         _ = _rep
         second_reconst = build_tree_searchtable_cpp(
             [wrap(col) for col in extant_population], _entry_point=entry_point
+        )
+        assert first_reconst.equals(second_reconst)
+
+
+@pytest.mark.parametrize(
+    "orig_tree",
+    [
+        pytest.param(
+            impl.setup_dendropy_tree(f"{assets_path}/nk_ecoeaselection.csv"),
+            marks=pytest.mark.heavy,
+        ),
+        impl.setup_dendropy_tree(f"{assets_path}/nk_lexicaseselection.csv"),
+        impl.setup_dendropy_tree(f"{assets_path}/nk_tournamentselection.csv"),
+    ],
+)
+@pytest.mark.parametrize(
+    "retention_policy",
+    [
+        hstrat.perfect_resolution_algo.Policy(),
+        hstrat.recency_proportional_resolution_algo.Policy(3),
+        hstrat.fixed_resolution_algo.Policy(5),
+    ],
+)
+@pytest.mark.parametrize(
+    "differentia_width",
+    [
+        1,
+        8,
+        64,
+    ],
+)
+def test_determinism2(orig_tree, retention_policy, differentia_width):
+    num_depositions = 10
+
+    extant_population = hstrat.descend_template_phylogeny_dendropy(
+        orig_tree,
+        seed_column=hstrat.HereditaryStratigraphicColumn(
+            stratum_differentia_bit_width=differentia_width,
+            stratum_retention_policy=retention_policy,
+        ).CloneNthDescendant(num_depositions),
+    )
+
+    first_reconst = build_tree_searchtable_cpp(
+        extant_population, _entry_point="batched_small_nocollapse"
+    )
+    for entry_point in "batched_medium_nocollapse", "batched_large_nocollapse":
+        second_reconst = build_tree_searchtable_cpp(
+            extant_population, _entry_point=entry_point
         )
         assert first_reconst.equals(second_reconst)
 

@@ -98,6 +98,9 @@ def build_tree_searchtable_cpp(
         "batched_small",
         "batched_medium",
         "batched_large",
+        "batched_small_nocollapse",
+        "batched_medium_nocollapse",
+        "batched_large_nocollapse",
         "nested",
         "exploded",
     ] = "nested",
@@ -128,7 +131,7 @@ def build_tree_searchtable_cpp(
         definitively do not share common ancestry will raise a ValueError.
     progress_wrap : Callable, optional
         Pass tqdm or equivalent to display a progress bar.
-    _entry_point : Literal["nested", "exploded"], default "nested"
+    _entry_point : Literal, default "nested"
         Which implementation interface should be called?
 
         For internal use in testing.
@@ -182,6 +185,9 @@ def build_tree_searchtable_cpp(
             "batched_small": 10,
             "batched_medium": 1_000,
             "batched_large": 10_000_000,
+            "batched_small_nocollapse": 10,
+            "batched_medium_nocollapse": 1_000,
+            "batched_large_nocollapse": 10_000_000,
         }[_entry_point]
         records = Records(len(exploded_df) * 4)
         for partition_dfs in mit.sliced(
@@ -196,7 +202,8 @@ def build_tree_searchtable_cpp(
                 slice_df["differentiae"].to_numpy(),
                 opyt.or_value(progress_wrap, mock.Mock()),
             )
-            records = collapse_dropped_unifurcations(records)
+            if not _entry_point.endswith("_nocollapse"):
+                records = collapse_dropped_unifurcations(records)
         records = extract_records_to_dict(records)
     else:
         raise ValueError(f"Invalid entry point: {_entry_point}")
