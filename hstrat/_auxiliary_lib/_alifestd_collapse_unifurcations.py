@@ -15,7 +15,7 @@ from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._jit import jit
-from ._jit_numpy_int64_t import jit_numpy_int64_t
+from ._jit_numpy_uint8_t import jit_numpy_uint8_t
 
 
 @jit(nopython=True)
@@ -24,9 +24,10 @@ def _collapse_unifurcations(
 ) -> typing.Tuple[np.ndarray, np.ndarray]:
     # assumes contiguous ids
 
-    ref_counts = np.zeros(len(ancestor_ids), dtype=jit_numpy_int64_t)
+    ref_counts = np.zeros(len(ancestor_ids), dtype=jit_numpy_uint8_t)
     for ancestor_id in ancestor_ids:
-        ref_counts[ancestor_id] += 1
+        # cap to prevent overflow
+        ref_counts[ancestor_id] = min(1 + ref_counts[ancestor_id], 2)
 
     ids = np.arange(len(ancestor_ids))
 

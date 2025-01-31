@@ -406,6 +406,7 @@ __all__ = [
     "jit_numba_dict_t",
     "jit_numpy_bool_t",
     "jit_numpy_int64_t",
+    "jit_numpy_uint8_t",
     "jit_TypingError",
     "join_paragraphs_from_one_sentence_per_line",
     "launder_impl_modules",
