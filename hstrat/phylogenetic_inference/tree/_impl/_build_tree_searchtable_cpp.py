@@ -19,8 +19,8 @@ from ._build_tree_searchtable_cpp_impl_stub import (
     build_tree_searchtable_cpp_from_nested,
     collapse_unifurcations,
     extend_tree_searchtable_cpp_from_exploded,
+    extract_records_to_dict,
     placeholder_value,
-    records_to_dict,
 )
 
 
@@ -30,7 +30,9 @@ def _finalize_records(
     force_common_ancestry: bool,
 ) -> pd.DataFrame:
     """Collate as phylogeny dataframe in alife standard format."""
-    df = pd.DataFrame(records)
+    df = pd.DataFrame(
+        {k: v for k, v in records.items() if not k.startswith("search_")},
+    )
     df["origin_time"] = df["rank"]
     df["taxon_label"] = [
         str(sorted_labels[i]) if i != placeholder_value else "_inner_node"
@@ -195,7 +197,7 @@ def build_tree_searchtable_cpp(
                 opyt.or_value(progress_wrap, mock.Mock()),
             )
             records = collapse_unifurcations(records)
-        records = records_to_dict(records)
+        records = extract_records_to_dict(records)
     else:
         raise ValueError(f"Invalid entry point: {_entry_point}")
 

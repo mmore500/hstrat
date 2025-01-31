@@ -212,6 +212,7 @@ struct Records {
     const u64 rank,
     const u64 differentia
   ) {
+    assert(search_first_child_id >= id);
     assert(this->size() == 0 || ancestor_id != id);
     assert(this->size() == 0 || this->rank[ancestor_id] <= rank);
     this->dstream_data_id.push_back(data_id);
@@ -224,7 +225,7 @@ struct Records {
     this->differentia.push_back(differentia);
     this->rank.push_back(rank);
     max_differentia = std::max(max_differentia, differentia);
-    assert(this->size() == 0 || this->rank[search_ancestor_id] <= rank);
+    assert(this->rank[search_ancestor_id] <= rank);
   }
 
   u64 size() const { return this->dstream_data_id.size(); }
@@ -247,6 +248,7 @@ Records collapse_unifurcations(Records &records, bool dropped_only = true) {
     std::end(records.id),
     CountingIterator<u64>{}
   ));
+  if (records.size() == 0) return Records(0, /* init_root= */ false);
 
   // how many entries have an entry as ancestor?
   std::vector<uint8_t> ancestor_ref_counts(records.size());
@@ -329,43 +331,54 @@ Records collapse_unifurcations(Records &records, bool dropped_only = true) {
       const u64 old_id, const u64 new_id
     ) {
         const bool should_keep = is_not_selected_unifurcation[old_id];
-        if (should_keep) {
-          assert(new_id == new_records.size());
-          assert(new_id <= old_id);
-          if (dropped_only) {
-            assert(is_not_selected_unifurcation[
-              records.search_ancestor_id[old_id]
-            ]);
-            assert(is_not_selected_unifurcation[
-              records.search_first_child_id[old_id]
-            ]);
-            assert(is_not_selected_unifurcation[
-              records.search_next_sibling_id[old_id]
-            ]);
-          }
+        if (!should_keep) return int{}; // no-op return value
 
-          new_records.addRecord(
-            records.dstream_data_id[old_id],  // dstream_data_id
-            new_id,  // id
-            id_remap[  // ancestor_id
-              records.ancestor_id[old_id]
-            ],
-            id_remap[  // search_ancestor_id
-              records.search_ancestor_id[old_id]
-            ],
-            id_remap[  // search_first_child_id
-              records.search_first_child_id[old_id]
-            ],
-            id_remap[  // search_prev_sibling_id
-              records.search_prev_sibling_id[old_id]
-            ],
-            id_remap[  // search_next_sibling_id
-              records.search_next_sibling_id[old_id]
-            ],
-            records.rank[old_id],
-            records.differentia[old_id]
-        );
-      }
+        assert(new_id == new_records.size());
+        assert(new_id <= old_id);
+
+        if (dropped_only) {
+          assert(is_not_selected_unifurcation[
+            records.search_ancestor_id[old_id]
+          ]);
+          assert(is_not_selected_unifurcation[
+            records.search_first_child_id[old_id]
+          ]);
+          assert(is_not_selected_unifurcation[
+            records.search_next_sibling_id[old_id]
+          ]);
+        }
+
+        assert(records.search_ancestor_id[old_id] <= old_id);
+        assert(id_remap[records.search_ancestor_id[old_id]] <= new_id);
+        assert(records.rank[old_id] >= records.rank[
+          records.search_ancestor_id[old_id]
+        ]);
+
+        new_records.addRecord(
+          records.dstream_data_id[old_id],  // dstream_data_id
+          new_id,  // id
+          id_remap[  // ancestor_id
+            records.ancestor_id[old_id]
+          ],
+          id_remap[  // search_ancestor_id
+            records.search_ancestor_id[old_id]
+          ],
+          id_remap[  // search_first_child_id
+            records.search_first_child_id[old_id]
+          ],
+          id_remap[  // search_prev_sibling_id
+            records.search_prev_sibling_id[old_id]
+          ],
+          id_remap[  // search_next_sibling_id
+            records.search_next_sibling_id[old_id]
+          ],
+          records.rank[old_id],
+          records.differentia[old_id]
+      );
+
+      assert(records.rank[old_id] >= new_records.rank[
+        id_remap[records.search_ancestor_id[old_id]]
+      ]);
       return int{}; // no-op return value
     }
   );
@@ -546,6 +559,8 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
   }
 
   records.search_ancestor_id[node] = parent;
+  assert(parent <= node);
+  assert(records.rank[parent] <= records.rank[node]);
 
   const u64 ancestor_first_child = records.search_first_child_id[parent];
   const bool is_first_child = ancestor_first_child == parent;
@@ -565,17 +580,21 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
  */
 template<size_t max_differentia>
 void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
-  std::array<u64, max_differentia + 1> winners{};
-  std::vector<std::tuple<u64, u64>> losers_with_differentiae;
+  std::unordered_map<u64, std::array<u64, max_differentia + 1>> winners{};
+  std::vector<u64> losers;
 
   for (auto child : ChildrenView(records, node)) {
     const u64 differentia = records.differentia[child];
-    auto& winner = winners[differentia];
+    const u64 rank = records.rank[child];
+    auto& winner = winners[rank][differentia];
     if (winner == 0 || child < winner) { std::swap(winner, child); }
-    if (child) losers_with_differentiae.push_back({child, differentia});
+    if (child) losers.push_back(child);
   }
-  for (const auto& [loser, differentia] : losers_with_differentiae) {
-    const u64 winner = winners[differentia];
+
+  for (const auto loser : losers) {
+    const u64 differentia = records.differentia[loser];
+    const u64 rank = records.rank[loser];
+    const u64 winner = winners[rank][differentia];
 
     std::vector<u64> loser_children;
     std::ranges::copy(
@@ -589,16 +608,25 @@ void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
   }
 }
 
+// adapted from https://stackoverflow.com/a/20602159/17332200
+struct pairhash {
+  size_t operator()(const std::pair<u64, u64>& arr) const {
+    return std::hash<u64>{}(arr.first) ^ std::hash<u64>{}(arr.second);
+  }
+};
+
 /**
  * Implementation of collapse_indistinguishable_nodes optimized for large
  * differentia sizes (e.g., larger than a byte).
  */
 void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
-  std::unordered_map<u64, std::vector<u64>> groups;
+  std::unordered_map<std::pair<u64, u64>, std::vector<u64>, pairhash> groups;
   ChildrenGenerator gen(records, node);
   u64 child;
-  while ((child = gen.next())) {  // consider what we are using as the key here
-    std::vector<u64> &items = groups[records.differentia[child]];
+  while ((child = gen.next())) {
+    std::vector<u64> &items = groups[
+      std::pair{records.rank[child], records.differentia[child]}
+    ];
     items.insert(std::lower_bound(items.begin(), items.end(), child), child);
   }
   for (auto [_, children] : groups) {
@@ -902,27 +930,71 @@ inline pybind11::array_t<typename Sequence::value_type> as_pyarray(
 
 
 /**
+ * Nondestructively converts a Records object to a py::dict of lists.
+ */
+py::dict copy_records_to_dict(Records &records) {
+  std::unordered_map<std::string, std::vector<u64>> return_mapping;
+  return_mapping.insert({"dstream_data_id", records.dstream_data_id});
+  return_mapping.insert({"id", records.id});
+  return_mapping.insert(
+    {"search_first_child_id", records.search_first_child_id}
+  );
+  return_mapping.insert(
+    {"search_prev_sibling_id", records.search_prev_sibling_id}
+  );
+  return_mapping.insert(
+    {"search_next_sibling_id", records.search_next_sibling_id}
+  );
+  return_mapping.insert({"search_ancestor_id", records.search_ancestor_id});
+  return_mapping.insert({"ancestor_id", records.ancestor_id});
+  return_mapping.insert({"rank", records.rank});
+  return_mapping.insert({"differentia", records.differentia});
+  return py::cast(return_mapping);
+}
+
+
+/**
  * Converts a Records object to a py::dict of numpy arrays.
  *
  * Data is moved out of the Records object, so no copies are made. The Records
  * object is left in a valid but unspecified state.
  */
-py::dict records_to_dict(Records &records) {
+py::dict extract_records_to_dict(Records &records) {
   std::unordered_map<std::string, py::array_t<u64>> return_mapping;
   return_mapping.insert(
-    {"rank", as_pyarray(std::move(records.rank))}
-  );
-  return_mapping.insert(
-    {"differentia", as_pyarray(std::move(records.differentia))}
+    {"dstream_data_id", as_pyarray(std::move(records.dstream_data_id))}
   );
   return_mapping.insert(
     {"id", as_pyarray(std::move(records.id))}
   );
   return_mapping.insert(
+    {"search_first_child_id", as_pyarray(
+      std::move(records.search_first_child_id)
+    )}
+  );
+  return_mapping.insert(
+    {"search_prev_sibling_id", as_pyarray(
+      std::move(records.search_prev_sibling_id)
+    )}
+  );
+  return_mapping.insert(
+    {"search_next_sibling_id", as_pyarray(
+      std::move(records.search_next_sibling_id)
+    )}
+  );
+  return_mapping.insert(
+    {"search_ancestor_id", as_pyarray(
+      std::move(records.search_ancestor_id)
+    )}
+  );
+  return_mapping.insert(
     {"ancestor_id", as_pyarray(std::move(records.ancestor_id))}
   );
   return_mapping.insert(
-    {"dstream_data_id", as_pyarray(std::move(records.dstream_data_id))}
+    {"rank", as_pyarray(std::move(records.rank))}
+  );
+  return_mapping.insert(
+    {"differentia", as_pyarray(std::move(records.differentia))}
   );
   return py::cast(return_mapping);
 }
@@ -986,7 +1058,7 @@ py::dict build_trie_searchtable_nested(
   }  // end progress bar scope
 
   logging_info("nested searchtable cpp complete");
-  return records_to_dict(records);
+  return extract_records_to_dict(records);
 }
 
 
@@ -1116,7 +1188,7 @@ py::dict build_trie_searchtable_exploded(
 
   const auto logging_info = py::module::import("logging").attr("info");
   logging_info("exploded searchtable cpp complete");
-  return records_to_dict(records);
+  return extract_records_to_dict(records);
 }
 
 
@@ -1131,8 +1203,13 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
     py::arg("dropped_only") = true
   );
   m.def(
-    "records_to_dict",
-    &records_to_dict,
+    "copy_records_to_dict",
+    &copy_records_to_dict,
+    py::arg("records")
+  );
+  m.def(
+    "extract_records_to_dict",
+    &extract_records_to_dict,
     py::arg("records")
   );
   m.def(
