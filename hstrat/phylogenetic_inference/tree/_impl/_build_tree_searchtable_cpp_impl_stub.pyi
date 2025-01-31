@@ -6,6 +6,18 @@ import tqdm
 
 class Records:
     def __init__(self, init_size: int) -> None: ...
+    def addRecord(
+        self,
+        data_id: int,
+        id: int,
+        ancestor_id: int,
+        search_ancestor_id: int,
+        search_first_child_id: int,
+        search_prev_sibling_id: int,
+        search_next_sibling_id: int,
+        rank: int,
+        differentia: int
+    ) -> None: ...
 
 placeholder_value: int
 

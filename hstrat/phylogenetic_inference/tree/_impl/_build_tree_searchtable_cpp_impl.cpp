@@ -1195,7 +1195,8 @@ py::dict build_trie_searchtable_exploded(
 PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
   m.attr("placeholder_value") = py::int_(placeholder_value);
   py::class_<Records>(m, "Records")
-      .def(py::init<u64>(), py::arg("init_size"));
+      .def(py::init<u64>(), py::arg("init_size"))
+      .def("addRecord", &Records::addRecord);
   m.def(
     "collapse_unifurcations",
     &collapse_unifurcations,
