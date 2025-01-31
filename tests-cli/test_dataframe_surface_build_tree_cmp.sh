@@ -32,7 +32,7 @@ for opt in \
     "--exploded-slice-size=4_000_000" \
 ; do
 
-    echo "opt=${opt}"
+    echo "   - begin opt=${opt}"
 
     # unpack and reconstruct reference
     ls -1 "${genomes}" \
@@ -47,6 +47,8 @@ for opt in \
         > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
     cmp "${reference}" "${alternate}" \
-        && echo "PASS $0"
+        && echo "   + PASS $0"
 
 done
+
+echo "SUCCESS $0"
