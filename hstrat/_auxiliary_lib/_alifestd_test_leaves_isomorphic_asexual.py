@@ -134,7 +134,7 @@ if __name__ == "__main__":
         ".parquet": pd.read_parquet,
     }[os.path.splitext(args.first_phylogeny)[1]](args.first_phylogeny)
 
-    logging.info(f"reading first phylogeny from {args.second_phylogeny}...")
+    logging.info(f"reading second phylogeny from {args.second_phylogeny}...")
     second_df = {
         ".csv": pd.read_csv,
         ".fea": pd.read_feather,
