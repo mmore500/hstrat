@@ -138,7 +138,7 @@ jobs:
     - name: Run examples
       env:
         HSTRAT_TESTS_CLI_HEAD: "${{ matrix.head }}"
-        HSTRAT_TESTS_CLI_STDOUT: "/dev/stdout"
+        HSTRAT_TESTS_CLI_STDOUT: "/dev/null"
       run: ./tests-cli/run_all.sh
 
   build-script:
