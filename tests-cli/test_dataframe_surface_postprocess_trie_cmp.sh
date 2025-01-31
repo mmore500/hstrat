@@ -36,6 +36,8 @@ ls -1 "${genomes}" \
 
 rm -f "${genomes}"
 
+echo "BEGIN $0"
+
 # postproccess reference
 ls -1 "${trie}" \
     | python3 -O -m hstrat.dataframe.surface_postprocess_trie "${reference}" \
@@ -47,4 +49,6 @@ ls -1 "${trie}" \
     >${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
 cmp "${reference}" "${alternate}"  \
-    && echo "PASS $0"
+    && echo "   + PASS"
+
+echo "SUCCESS $0"
