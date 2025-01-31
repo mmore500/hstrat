@@ -371,8 +371,9 @@ def _generate_exploded_slices_mp(
     producer.start()
 
     num_slices = (
-        df.lazy().select(pl.len()).collect().item() // exploded_slice_size
-    )
+        df.lazy().select(pl.len()).collect().item() + (exploded_slice_size - 1)
+    ) // exploded_slice_size
+
     yield give_len(  # enable len() on generator for nice logging
         # yield generated slices until sentinel value None is received,
         # immediately marking items as consumed (`task_done`) to trigger
