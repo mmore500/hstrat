@@ -49,7 +49,7 @@ for opt in \
         > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
     cmp "${reference}" "${alternate}" \
-        && echo "   + PASS $opt"
+        && echo "   + PASS"
 
 done
 
