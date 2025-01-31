@@ -111,7 +111,7 @@ jobs:
       fail-fast: false
       matrix:
         head:
-          # - "" (runs out of memory on GitHub Actions)
+          - ""
           - "--head 10_000"
           - "--head 1_000_000"
     steps:
