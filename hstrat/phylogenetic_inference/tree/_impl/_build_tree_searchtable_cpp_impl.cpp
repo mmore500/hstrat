@@ -241,7 +241,7 @@ struct Records {
  *  reconfiguration of the search trie. A more comprehensive approach could
  *  collate dropped ranks across all records.
  */
-Records collapse_dropped_unifurcations(Records &records) {
+Records collapse_unifurcations(Records &records, bool dropped_only = true) {
   assert(std::equal(
     std::begin(records.id),
     std::end(records.id),
@@ -264,13 +264,13 @@ Records collapse_dropped_unifurcations(Records &records) {
   );
 
   // a.k.a. should_keeps; ref to save memory
-  auto& is_not_dropped_unifurcation = ancestor_ref_counts;
+  auto& is_not_selected_unifurcation = ancestor_ref_counts;
   std::transform(
     std::begin(records.id),
     std::end(records.id),
     std::begin(ancestor_ref_counts),
-    std::begin(is_not_dropped_unifurcation),  // output iterator
-    [&records](
+    std::begin(is_not_selected_unifurcation),  // output iterator
+    [&records, dropped_only](
       const u64 id, const uint8_t ancestor_ref_count
     ) {
       const bool is_unifurcation = ancestor_ref_count == 1;
@@ -278,8 +278,8 @@ Records collapse_dropped_unifurcations(Records &records) {
         records.ancestor_id[id] != id
         and records.search_ancestor_id[id] == id
       );
-      const bool is_dropped_unifurcation = is_unifurcation and is_dropped;
-      return !is_dropped_unifurcation;
+      const bool is_selected_unifurcation = is_unifurcation and (!dropped_only || is_dropped);
+      return !is_selected_unifurcation;
     }
   );
 
@@ -288,11 +288,11 @@ Records collapse_dropped_unifurcations(Records &records) {
   id_remap.reserve(records.size());
 
   // set up id_remap ansatz; number of preceding kept items
-  assert(!is_not_dropped_unifurcation.empty());
+  assert(!is_not_selected_unifurcation.empty());
   id_remap.push_back(0);
   std::partial_sum(
-    as_u64_iterator(std::begin(is_not_dropped_unifurcation)),
-    as_u64_iterator(std::prev(std::end(is_not_dropped_unifurcation))),
+    as_u64_iterator(std::begin(is_not_selected_unifurcation)),
+    as_u64_iterator(std::prev(std::end(is_not_selected_unifurcation))),
     std::back_inserter(id_remap),
     std::plus<u64>{}
   );
@@ -303,10 +303,10 @@ Records collapse_dropped_unifurcations(Records &records) {
     std::end(records.id),
     std::begin(id_remap),
     std::begin(id_remap),
-    [&id_remap, &records, &is_not_dropped_unifurcation](
+    [&id_remap, &records, &is_not_selected_unifurcation](
       const u64 id, const u64 ansatz
     ) {
-      const bool should_keep = is_not_dropped_unifurcation[id];
+      const bool should_keep = is_not_selected_unifurcation[id];
       if (should_keep) return ansatz;
       else {
         const auto orig_ancestor_id = records.ancestor_id[id];
@@ -325,22 +325,24 @@ Records collapse_dropped_unifurcations(Records &records) {
     std::end(records.id),
     std::begin(id_remap),
     null_output_iterator<int>{},
-    [&is_not_dropped_unifurcation, &id_remap, &new_records, &records](
+    [&is_not_selected_unifurcation, &id_remap, &new_records, &records, dropped_only](
       const u64 old_id, const u64 new_id
     ) {
-        const bool should_keep = is_not_dropped_unifurcation[old_id];
+        const bool should_keep = is_not_selected_unifurcation[old_id];
         if (should_keep) {
           assert(new_id == new_records.size());
           assert(new_id <= old_id);
-          assert(is_not_dropped_unifurcation[
-            records.search_ancestor_id[old_id]
-          ]);
-          assert(is_not_dropped_unifurcation[
-            records.search_first_child_id[old_id]
-          ]);
-          assert(is_not_dropped_unifurcation[
-            records.search_next_sibling_id[old_id]
-          ]);
+          if (dropped_only) {
+            assert(is_not_selected_unifurcation[
+              records.search_ancestor_id[old_id]
+            ]);
+            assert(is_not_selected_unifurcation[
+              records.search_first_child_id[old_id]
+            ]);
+            assert(is_not_selected_unifurcation[
+              records.search_next_sibling_id[old_id]
+            ]);
+          }
 
           new_records.addRecord(
             records.dstream_data_id[old_id],  // dstream_data_id
@@ -1123,9 +1125,10 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
   py::class_<Records>(m, "Records")
       .def(py::init<u64>(), py::arg("init_size"));
   m.def(
-    "collapse_dropped_unifurcations",
-    &collapse_dropped_unifurcations,
-    py::arg("records")
+    "collapse_unifurcations",
+    &collapse_unifurcations,
+    py::arg("records"),
+    py::arg("dropped_only") = true
   );
   m.def(
     "records_to_dict",

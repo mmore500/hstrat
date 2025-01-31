@@ -22,7 +22,7 @@ from .._auxiliary_lib import (
 )
 from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
     Records,
-    collapse_dropped_unifurcations,
+    collapse_unifurcations,
     extend_tree_searchtable_cpp_from_exploded,
     records_to_dict,
 )
@@ -230,16 +230,17 @@ def _build_records_chunked(
 
         if collapse_unif_freq and (i + 1) % collapse_unif_freq == 0:
             with log_context_duration(
-                f"collapse_dropped_unifurcations ({i + 1} / {len(slices)})",
+                f"collapse_unifurcations (dropped only) ({i + 1} / {len(slices)})",
                 logging.info,
             ):
-                records = collapse_dropped_unifurcations(records)
+                records = collapse_unifurcations(records)
 
         log_memory_usage(logging.info)
 
     logging.info("slices complete")
 
-    return records
+    logging.info("collapse_unifurcations")
+    return collapse_unifurcations(records, dropped_only=False)
 
 
 def _join_user_defined_columns(
