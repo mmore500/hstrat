@@ -275,16 +275,13 @@ Records collapse_dropped_unifurcations(Records &records) {
     [&records](
       const u64 id, const uint8_t ancestor_ref_count
     ) {
-      // records entry zero is "fake" root...
-      // keep "true" quasi-roots subtending the "fake" root
-      const bool is_quasi_root = records.ancestor_id[id] == 0;
       const bool is_unifurcation = ancestor_ref_count == 1;
       const bool is_dropped = (
         records.ancestor_id[id] != id
         and records.search_ancestor_id[id] == id
       );
       const bool is_dropped_unifurcation = is_unifurcation and is_dropped;
-      return is_quasi_root or !is_dropped_unifurcation;
+      return !is_dropped_unifurcation;
     }
   );
 
