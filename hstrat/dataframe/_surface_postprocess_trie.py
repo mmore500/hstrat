@@ -1,3 +1,4 @@
+import gc
 import logging
 import typing
 
@@ -134,12 +135,18 @@ def surface_postprocess_trie(
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
         df = alifestd_assign_contiguous_ids(df, mutate=True)
 
+    gc.collect()
+
     with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
         df["is_trunk"] = df["hstrat_rank"] < df["dstream_S"]
         df = alifestd_delete_trunk_asexual(df, mutate=True)
 
+    gc.collect()
+
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
         df = alifestd_assign_contiguous_ids(df, mutate=True)
+
+    gc.collect()
 
     with log_context_duration("alifestd_collapse_unifurcations", logging.info):
         df = alifestd_collapse_unifurcations(df, mutate=True)

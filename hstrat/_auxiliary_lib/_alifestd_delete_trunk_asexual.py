@@ -1,3 +1,4 @@
+import gc
 import logging
 
 import numpy as np
@@ -77,6 +78,8 @@ def alifestd_delete_trunk_asexual(
         phylogeny_df.loc[
             phylogeny_df["ancestor_is_trunk"], "ancestor_list"
         ] = "[none]"
+
+    gc.collect()
 
     logging.info("- alifestd_delete_trunk_asexual: filtering should_keep...")
     should_keep = ~phylogeny_df["is_trunk"]
