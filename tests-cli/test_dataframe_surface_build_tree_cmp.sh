@@ -26,6 +26,8 @@ trap err ERR
 wget -O "${genomes}" https://osf.io/gnkbc/download \
     > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
+echo "BEGIN $0"
+
 for opt in \
     "" \
     "--collapse-unif-freq=0" \
@@ -47,7 +49,7 @@ for opt in \
         > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
     cmp "${reference}" "${alternate}" \
-        && echo "   + PASS $0"
+        && echo "   + PASS $opt"
 
 done
 
