@@ -6,7 +6,6 @@ from tqdm import tqdm
 
 from .._auxiliary_lib import (
     alifestd_assign_contiguous_ids,
-    alifestd_collapse_trunk_asexual,
     alifestd_collapse_unifurcations,
     alifestd_delete_trunk_asexual,
     get_sole_scalar_value_polars,
@@ -136,15 +135,8 @@ def surface_postprocess_trie(
         df = alifestd_assign_contiguous_ids(df, mutate=True)
 
     with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
-        df["is_trunk"] = df["id"] == 0  # "fake" root
-        df = alifestd_delete_trunk_asexual(df, mutate=True)
-
-    with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = alifestd_assign_contiguous_ids(df, mutate=True)
-
-    with log_context_duration("alifestd_collapse_trunk_asexual", logging.info):
         df["is_trunk"] = df["hstrat_rank"] < df["dstream_S"]
-        df = alifestd_collapse_trunk_asexual(df, mutate=True)
+        df = alifestd_delete_trunk_asexual(df, mutate=True)
 
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
         df = alifestd_assign_contiguous_ids(df, mutate=True)
