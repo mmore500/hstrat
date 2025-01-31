@@ -46,9 +46,44 @@ def test_mutate():
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_fuzz_positive(phylogeny_df: pd.DataFrame):
+def test_fuzz_positive1(phylogeny_df: pd.DataFrame):
 
     phylogeny_df["taxon_label"] = phylogeny_df["id"]
+    assert alifestd_test_leaves_isomorphic_asexual(
+        phylogeny_df, phylogeny_df, "taxon_label"
+    )
+    assert alifestd_test_leaves_isomorphic_asexual(
+        phylogeny_df,
+        alifestd_collapse_unifurcations(phylogeny_df),
+        "taxon_label",
+    )
+    assert alifestd_test_leaves_isomorphic_asexual(
+        phylogeny_df,
+        phylogeny_df.sample(frac=1).reset_index(drop=True),
+        "taxon_label",
+    )
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df",
+    [
+        pd.read_csv(
+            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+        ),
+        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
+        ),
+        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+    ],
+)
+def test_fuzz_positive2(phylogeny_df: pd.DataFrame):
+
+    phylogeny_df["taxon_label"] = phylogeny_df["id"].astype(str)
     assert alifestd_test_leaves_isomorphic_asexual(
         phylogeny_df, phylogeny_df, "taxon_label"
     )
@@ -75,6 +110,6 @@ def test_negative1():
 def test_negative2():
     df1 = pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
     df2 = pd.read_csv(f"{assets_path}/nk_ecoeaselection_tweaked.csv")
-    df1["taxon_label"] = df1["id"]
-    df2["taxon_label"] = df2["id"]
+    df1["taxon_label"] = df1["id"].astype(str)
+    df2["taxon_label"] = df2["id"].astype(str)
     assert not alifestd_test_leaves_isomorphic_asexual(df1, df2, "taxon_label")
