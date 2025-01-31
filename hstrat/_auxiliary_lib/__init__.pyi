@@ -203,6 +203,7 @@ from ._jit_numba_integer_array_ts import (
 )
 from ._jit_numpy_bool_t import jit_numpy_bool_t
 from ._jit_numpy_int64_t import jit_numpy_int64_t
+from ._jit_numpy_uint8_t import jit_numpy_uint8_t
 from ._join_paragraphs_from_one_sentence_per_line import (
     join_paragraphs_from_one_sentence_per_line,
 )
