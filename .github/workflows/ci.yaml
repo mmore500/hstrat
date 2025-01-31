@@ -114,7 +114,8 @@ jobs:
           # - "" exceeds memory on actions runner
           - "--head 10_000"
           - "--head 1_000_000"
-          - "--head 1_500_000"
+          - "--sample 10_000 --seed 1"
+          - "--sample 1_000_000 --seed 1"
     steps:
     - name: Cleanup pre-installed tools
       run: |
