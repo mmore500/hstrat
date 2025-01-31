@@ -50,8 +50,6 @@ for opt in \
 
     python3 -m hstrat._auxiliary_lib._alifestd_test_leaves_isomorphic_asexual \
         --taxon-label "dstream_data_id" \
-        "${reference}" "${alternate}" python3 -m hstrat._auxiliary_lib._alifestd_test_leaves_isomorphic_asexual \
-        --taxon-label "dstream_data_id" \
         "${reference}" "${alternate}" \
         > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1 \
         && echo "PASS $0"
