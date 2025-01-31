@@ -135,7 +135,7 @@ jobs:
       with:
         path: "requirements-dev/requirements-testing.txt"
     - run: python3 -m pip freeze
-    - name: Run examples
+    - name: Run tests
       env:
         HSTRAT_TESTS_CLI_HEAD: "${{ matrix.head }}"
         HSTRAT_TESTS_CLI_STDOUT: "/dev/null"
