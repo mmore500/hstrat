@@ -111,7 +111,7 @@ jobs:
       fail-fast: false
       matrix:
         head:
-          - ""
+          # - "" exceeds memory on actions runner
           - "--head 10_000"
           - "--head 1_000_000"
     steps:
