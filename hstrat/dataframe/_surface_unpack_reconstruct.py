@@ -238,15 +238,7 @@ def _build_records_chunked(
                 f"collapse_dropped_unifurcations ({i + 1} / {len(slices)})",
                 logging.info,
             ):
-                records = collapse_dropped_unifurcations(
-                    records,
-                    # setting rank_lb prevents pruning within "trunk" of
-                    # tree from obfuscating whether clades have true
-                    # independent origins
-                    # (i.e., interaction with alifestd_delete_trunk_asexual
-                    # in surface_postprocess_trie)
-                    rank_lb=dstream_S,
-                )
+                records = collapse_dropped_unifurcations(records)
 
         log_memory_usage(logging.info)
 

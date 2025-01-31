@@ -203,10 +203,7 @@ def build_tree_searchtable_cpp(
                 opyt.or_value(progress_wrap, mock.Mock()),
             )
             if not _entry_point.endswith("_nocollapse"):
-                records = collapse_dropped_unifurcations(
-                    records,
-                    rank_lb=0,
-                )
+                records = collapse_dropped_unifurcations(records)
         records = extract_records_to_dict(records)
     else:
         raise ValueError(f"Invalid entry point: {_entry_point}")

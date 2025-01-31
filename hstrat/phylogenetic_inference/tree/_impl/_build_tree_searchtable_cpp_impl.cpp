@@ -242,10 +242,7 @@ struct Records {
  *  reconfiguration of the search trie. A more comprehensive approach could
  *  collate dropped ranks across all records.
  */
-Records collapse_dropped_unifurcations(
-  Records &records,
-  const u64 rank_lb
-) {
+Records collapse_dropped_unifurcations(Records &records) {
   assert(std::equal(
     std::begin(records.id),
     std::end(records.id),
@@ -275,19 +272,16 @@ Records collapse_dropped_unifurcations(
     std::end(records.id),
     std::begin(ancestor_ref_counts),
     std::begin(is_not_dropped_unifurcation),  // output iterator
-    [rank_lb, &records](
+    [&records](
       const u64 id, const uint8_t ancestor_ref_count
     ) {
-      const bool is_above_lb = records.rank[id] >= rank_lb;
       const bool is_unifurcation = ancestor_ref_count == 1;
       const bool is_dropped = (
         records.ancestor_id[id] != id
         and records.search_ancestor_id[id] == id
       );
-      const bool is_valid_dropped_unifurcation = (
-        is_above_lb and is_unifurcation and is_dropped
-      );
-      return !is_valid_dropped_unifurcation;
+      const bool is_dropped_unifurcation = is_unifurcation and is_dropped;
+      return !is_dropped_unifurcation;
     }
   );
 
@@ -1203,8 +1197,7 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
   m.def(
     "collapse_dropped_unifurcations",
     &collapse_dropped_unifurcations,
-    py::arg("records"),
-    py::arg("rank_lb")
+    py::arg("records")
   );
   m.def(
     "copy_records_to_dict",
