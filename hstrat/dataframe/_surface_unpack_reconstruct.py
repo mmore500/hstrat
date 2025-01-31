@@ -246,7 +246,7 @@ def _build_records_chunked(
 
     if collapse_unif_freq == -1:
         with log_context_duration(
-            f"collapse_dropped_unifurcations (finalize)",
+            "collapse_dropped_unifurcations (finalize)",
             logging.info,
         ):
             records = collapse_dropped_unifurcations(records)
