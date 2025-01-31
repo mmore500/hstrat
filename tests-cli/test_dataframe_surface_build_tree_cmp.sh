@@ -26,13 +26,15 @@ trap err ERR
 wget -O "${genomes}" https://osf.io/gnkbc/download \
     > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
+echo "BEGIN $0"
+
 for opt in \
     "" \
     "--collapse-unif-freq=0" \
     "--exploded-slice-size=4_000_000" \
 ; do
 
-    echo "opt=${opt}"
+    echo "   - begin opt=${opt}"
 
     # unpack and reconstruct reference
     ls -1 "${genomes}" \
@@ -47,6 +49,8 @@ for opt in \
         > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
     cmp "${reference}" "${alternate}" \
-        && echo "PASS $0"
+        && echo "   + PASS"
 
 done
+
+echo "SUCCESS $0"

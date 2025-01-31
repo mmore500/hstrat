@@ -32,6 +32,8 @@ ls -1 "${genomes}" \
     ${HSTRAT_TESTS_CLI_HEAD:-} --collapse-unif-freq=0 \
     > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
+echo "BEGIN $0"
+
 for opt in \
     "--collapse-unif-freq=-1" \
     "--exploded-slice-size=4_000_000 --collapse-unif-freq=0" \
@@ -40,7 +42,7 @@ for opt in \
     "--exploded-slice-size=1_000_000" \
     "--exploded-slice-size=4_000_000" \
 ; do
-    echo "opt=${opt}"
+    echo "   - opt=${opt}"
 
     # unpack and reconstruct alternate
     ls -1 "${genomes}" \
@@ -52,6 +54,8 @@ for opt in \
         --taxon-label "dstream_data_id" \
         "${reference}" "${alternate}" \
         > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1 \
-        && echo "PASS $0"
+        && echo "   + PASS"
 
 done
+
+echo "SUCCESS $0"
