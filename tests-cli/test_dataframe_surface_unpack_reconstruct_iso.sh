@@ -33,6 +33,7 @@ ls -1 "${genomes}" \
     > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
 for opt in \
+    "--collapse-unif-freq=-1" \
     "--exploded-slice-size=1_000_000" \
     "--exploded-slice-size=4_000_000" \
     "" \

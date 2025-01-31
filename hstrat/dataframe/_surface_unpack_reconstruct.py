@@ -233,7 +233,7 @@ def _build_records_chunked(
         logging.info(f"unlinking slice {i + 1} / {len(slices)}...")
         os.unlink(inpath)
 
-        if collapse_unif_freq and (i + 1) % collapse_unif_freq == 0:
+        if collapse_unif_freq > 0 and (i + 1) % collapse_unif_freq == 0:
             with log_context_duration(
                 f"collapse_dropped_unifurcations ({i + 1} / {len(slices)})",
                 logging.info,
@@ -243,6 +243,13 @@ def _build_records_chunked(
         log_memory_usage(logging.info)
 
     logging.info("slices complete")
+
+    if collapse_unif_freq == -1:
+        with log_context_duration(
+            f"collapse_dropped_unifurcations (finalize)",
+            logging.info,
+        ):
+            records = collapse_dropped_unifurcations(records)
 
     return records
 
