@@ -26,8 +26,19 @@ trap err ERR
 wget -O "${genomes}" https://osf.io/gnkbc/download \
     > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
-while read -r opt1 opt2; do
+opts=(
+    "--collapse-unif-freq=0" # opt1
+    "--collapse-unif-freq=0" # opt2
 
+    "--exploded-slice-size=4_000_000" # opt1
+    "--exploded-slice-size=4_000_000" # opt2
+
+    "--exploded-slice-size=4_000_000 --collapse-unif-freq=0" # opt1
+    "--exploded-slice-size=1_000 --collapse-unif-freq=0" # opt2
+)
+for (( i=0; i<${#opts[@]} ; i+=2 )); do
+    opt1="${opts[i]}"
+    opt2="${opts[i+1]}"
     echo "opt1=${opt1} opt2=${opt2}"
 
     # unpack and reconstruct reference
@@ -45,14 +56,4 @@ while read -r opt1 opt2; do
     cmp "${reference}" "${alternate}"  \
         && echo "PASS $0"
 
-done< <(
-    echo \
-    \
-    "--exploded-slice-size=4_000_000 --collapse-unif-freq=0" \
-        "--exploded-slice-size=1_000 --collapse-unif-freq=0" \
-    "--collapse-unif-freq=0" "--collapse-unif-freq=0" \
-    \
-    "--exploded-slice-size=4_000_000" "--exploded-slice-size=4_000_000" \
-    \
-    | xargs -n2
-)
+done

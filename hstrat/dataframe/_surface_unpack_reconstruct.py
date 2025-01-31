@@ -34,6 +34,11 @@ def _produce_exploded_slices(
     num_slices = math.ceil(len(df) / exploded_slice_size)
     logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
 
+    if "dstream_data_id" not in df.columns:
+        logging.info(" - adding dstream_data_id column")
+        # ensure chunking doesn't affect data ids
+        df = df.with_row_index("dstream_data_id")
+
     for i, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
         with log_context_duration(
             f"dstream.dataframe.explode_lookup_unpacked ({i + 1}/{num_slices})",
