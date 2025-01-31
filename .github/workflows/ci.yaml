@@ -110,7 +110,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        head: ["", "--head 10000"]
+        head: ["", "--head 10_000", "--head 1_000_000"]
     steps:
     - name: Cleanup pre-installed tools
       run: |
