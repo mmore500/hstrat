@@ -52,6 +52,8 @@ for opt in \
         --taxon-label "dstream_data_id" \
         "${reference}" "${alternate}" \
         > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1 \
-        && echo "PASS $0"
+        && echo "   - PASS $0 ${opt}"
 
 done
+
+echo "SUCCESS $0"
