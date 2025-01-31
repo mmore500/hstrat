@@ -32,19 +32,19 @@ wget -O "${genomes}" https://osf.io/gnkbc/download \
 ls -1 "${genomes}" \
     | python3 -O -m hstrat.dataframe.surface_unpack_reconstruct "${trie}" \
     ${HSTRAT_TESTS_CLI_HEAD:-} \
-    >${HSTRAT_TESTS_CLI_STDOUT}
+    >${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
 rm -f "${genomes}"
 
 # postproccess reference
 ls -1 "${trie}" \
     | python3 -O -m hstrat.dataframe.surface_postprocess_trie "${reference}" \
-    >${HSTRAT_TESTS_CLI_STDOUT}
+    >${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
 # postprocess alternate
 ls -1 "${trie}" \
     | python3 -O -m hstrat.dataframe.surface_postprocess_trie "${alternate}" \
-    >${HSTRAT_TESTS_CLI_STDOUT}
+    >${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
 cmp "${reference}" "${alternate}"  \
     && echo "PASS $0"
