@@ -188,10 +188,10 @@ def surface_postprocess_trie(
     log_memory_usage(logging.info)
     original_columns = df.columns
 
+    df = _do_collapse_unifurcations(df)
+
     if delete_trunk:
         df = _do_delete_trunk(df)
-
-    df = _do_collapse_unifurcations(df)
 
     df = _do_assign_contiguous_ids(df)
 
