@@ -35,6 +35,11 @@ ls -1 "${genomes}" \
 echo "BEGIN $0"
 EXIT_CODE=0
 
+echo "      ! info: reference num root nodes $( \
+    python3 -m hstrat._auxiliary_lib._alifestd_count_root_nodes \
+    "${reference}" \
+)"
+
 for opt in \
     "--collapse-unif-freq=-1" \
     "--exploded-slice-size=4_000_000 --collapse-unif-freq=0" \
@@ -50,6 +55,11 @@ for opt in \
         | python3 -O -m hstrat.dataframe.surface_build_tree "${alternate}" \
         ${HSTRAT_TESTS_CLI_HEAD:-} ${opt} \
         > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
+
+    echo "      ! info: alternate num root nodes $( \
+        python3 -m hstrat._auxiliary_lib._alifestd_count_root_nodes \
+        "${alternate}" \
+    )"
 
     if python3 \
         -m hstrat._auxiliary_lib._alifestd_test_leaves_isomorphic_asexual \
