@@ -67,6 +67,7 @@ def _do_delete_trunk(
         )
 
     del df["is_trunk"]
+    del df["ancestor_is_trunk"]
     del df["origin_time"]
     gc.collect()
 
