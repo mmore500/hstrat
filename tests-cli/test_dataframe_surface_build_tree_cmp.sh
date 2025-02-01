@@ -41,13 +41,13 @@ for opt in \
 
     # unpack and reconstruct reference
     ls -1 "${genomes}" \
-        | python3 -O -m hstrat.dataframe.surface_build_tree "${reference}" \
+        | python3 -m hstrat.dataframe.surface_build_tree "${reference}" \
         ${HSTRAT_TESTS_CLI_HEAD:-} ${opt} \
         > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
     # unpack and reconstruct alternate
     ls -1 "${genomes}" \
-        | python3 -O -m hstrat.dataframe.surface_build_tree "${alternate}" \
+        | python3 -m hstrat.dataframe.surface_build_tree "${alternate}" \
         ${HSTRAT_TESTS_CLI_HEAD:-} ${opt} \
         > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 

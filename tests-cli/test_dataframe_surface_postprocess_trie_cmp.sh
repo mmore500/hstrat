@@ -43,12 +43,12 @@ EXIT_CODE=0
 
 # postproccess reference
 ls -1 "${trie}" \
-    | python3 -O -m hstrat.dataframe.surface_postprocess_trie "${reference}" \
+    | python3 -m hstrat.dataframe.surface_postprocess_trie "${reference}" \
     >${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
 # postprocess alternate
 ls -1 "${trie}" \
-    | python3 -O -m hstrat.dataframe.surface_postprocess_trie "${alternate}" \
+    | python3 -m hstrat.dataframe.surface_postprocess_trie "${alternate}" \
     >${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
 if cmp "${reference}" "${alternate}"; then
