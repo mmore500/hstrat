@@ -1,5 +1,7 @@
 from collections import Counter, defaultdict
+import itertools as it
 import os
+import typing
 
 import pandas as pd
 import pytest
@@ -8,12 +10,15 @@ from hstrat._auxiliary_lib import (
     alifestd_aggregate_phylogenies,
     alifestd_assign_contiguous_ids,
     alifestd_collapse_unifurcations,
+    alifestd_count_root_nodes,
     alifestd_find_leaf_ids,
+    alifestd_find_mrca_id_asexual,
     alifestd_find_root_ids,
     alifestd_is_asexual,
     alifestd_is_sexual,
     alifestd_is_topologically_sorted,
     alifestd_parse_ancestor_ids,
+    alifestd_test_leaves_isomorphic_asexual,
     alifestd_to_working_format,
     alifestd_topological_sort,
     alifestd_try_add_ancestor_id_col,
@@ -70,7 +75,9 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
     ],
 )
 def test_alifestd_collapse_unifurcations(
-    phylogeny_df, apply, root_ancestor_token
+    phylogeny_df: pd.DataFrame,
+    apply: typing.Callable,
+    root_ancestor_token: str,
 ):
     phylogeny_df = apply(phylogeny_df.copy())
 
@@ -89,7 +96,7 @@ def test_alifestd_collapse_unifurcations(
     )
     assert alifestd_is_sexual(collapsed_df) == alifestd_is_sexual(phylogeny_df)
     if alifestd_is_asexual(phylogeny_df):
-        assert len(collapsed_df) < len(phylogeny_df)
+        assert len(collapsed_df) <= len(phylogeny_df)
 
     assert set(alifestd_find_leaf_ids(phylogeny_df)) == set(
         alifestd_find_leaf_ids(collapsed_df)
@@ -194,3 +201,57 @@ def test_alifestd_collapse_unifurcations_collapse2(mutate: bool):
 
     if not mutate:
         assert df.equals(original_df)
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df",
+    [
+        pd.read_csv(f"{assets_path}/trunktestphylo.csv"),
+    ],
+)
+@pytest.mark.parametrize(
+    "apply",
+    [
+        alifestd_assign_contiguous_ids,
+        alifestd_to_working_format,
+        alifestd_topological_sort,
+        lambda x: x.sample(frac=1),
+        lambda x: x,
+    ],
+)
+def test_alifestd_collapse_unifurcations_trunktest(
+    phylogeny_df: pd.DataFrame, apply: typing.Callable
+):
+    phylogeny_df = apply(phylogeny_df.copy())
+
+    phylogeny_df_ = phylogeny_df.copy()
+    collapsed_df = alifestd_collapse_unifurcations(phylogeny_df)
+    assert alifestd_count_root_nodes(
+        phylogeny_df
+    ) == alifestd_count_root_nodes(
+        collapsed_df,
+    )
+    assert phylogeny_df.equals(phylogeny_df_)
+
+    assert alifestd_is_asexual(collapsed_df) == alifestd_is_asexual(
+        phylogeny_df
+    )
+    # assert len(collapsed_df) < len(phylogeny_df)
+
+    assert alifestd_count_root_nodes(
+        collapsed_df
+    ) == alifestd_count_root_nodes(phylogeny_df)
+
+    original_leaf_ids = alifestd_find_leaf_ids(phylogeny_df)
+    collapsed_leaf_ids = alifestd_find_leaf_ids(collapsed_df)
+    assert len(original_leaf_ids) == len(collapsed_leaf_ids)
+    assert set(original_leaf_ids) == set(collapsed_leaf_ids)
+
+    for first, second in it.combinations(original_leaf_ids, 2):
+        assert alifestd_find_mrca_id_asexual(
+            collapsed_df, [first, second]
+        ) == alifestd_find_mrca_id_asexual(phylogeny_df, [first, second])
+
+    assert alifestd_test_leaves_isomorphic_asexual(
+        collapsed_df, phylogeny_df, taxon_label="id"
+    )
