@@ -30,7 +30,7 @@ def test_alifestd_downsample_tips_asexual_cli_version():
 
 
 def test_alifestd_downsample_tips_asexual_cli_csv():
-    output_file = "/tmp/hstrat_alifestd_downsample_tips_asexual.pqt"
+    output_file = "/tmp/hstrat_alifestd_downsample_tips_asexual.csv"
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
