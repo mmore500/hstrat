@@ -37,6 +37,8 @@ ls -1 "${genomes}" \
 rm -f "${genomes}"
 
 echo "BEGIN $0"
+echo "/ HSTRAT_TESTS_CLI_STDOUT=${HSTRAT_TESTS_CLI_STDOUT}"
+echo "/ HSTRAT_TESTS_CLI_HEAD=${HSTRAT_TESTS_CLI_HEAD:-}"
 EXIT_CODE=0
 
 # postproccess reference

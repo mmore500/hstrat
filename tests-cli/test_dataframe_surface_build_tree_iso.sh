@@ -33,6 +33,8 @@ ls -1 "${genomes}" \
     > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
 echo "BEGIN $0"
+echo "/ HSTRAT_TESTS_CLI_STDOUT=${HSTRAT_TESTS_CLI_STDOUT}"
+echo "/ HSTRAT_TESTS_CLI_HEAD=${HSTRAT_TESTS_CLI_HEAD:-}"
 EXIT_CODE=0
 
 echo "      ! info: reference num root nodes $( \

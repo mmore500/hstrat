@@ -27,6 +27,8 @@ wget -O "${genomes}" https://osf.io/gnkbc/download \
     > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
 echo "BEGIN $0"
+echo "/ HSTRAT_TESTS_CLI_STDOUT=${HSTRAT_TESTS_CLI_STDOUT}"
+echo "/ HSTRAT_TESTS_CLI_HEAD=${HSTRAT_TESTS_CLI_HEAD:-}"
 EXIT_CODE=0
 
 for opt in \
