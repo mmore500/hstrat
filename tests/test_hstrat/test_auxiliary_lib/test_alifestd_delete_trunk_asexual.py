@@ -1,10 +1,16 @@
+import os
+
 import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
+    alifestd_collapse_unifurcations,
     alifestd_delete_trunk_asexual,
+    alifestd_test_leaves_isomorphic_asexual,
     alifestd_validate,
 )
+
+assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
 @pytest.mark.parametrize("mutate", [True, False])
@@ -180,3 +186,36 @@ def test_alifestd_delete_trunk_asexual_noncontiguous_trunk(mutate: bool):
 
     if not mutate:
         assert df.equals(original_df)
+
+
+def test_alifestd_delete_trunk_asexual_unifurcation():
+    phylo = pd.read_csv(f"{assets}/trunktestphylo.csv")
+    phylo["is_trunk"] = phylo["hstrat_rank"] < 64
+    assert alifestd_test_leaves_isomorphic_asexual(
+        phylo, phylo, taxon_label="dstream_data_id"
+    )
+    assert alifestd_test_leaves_isomorphic_asexual(
+        phylo,
+        alifestd_collapse_unifurcations(phylo),
+        taxon_label="dstream_data_id",
+    )
+    assert alifestd_test_leaves_isomorphic_asexual(
+        phylo,
+        alifestd_collapse_unifurcations(phylo),
+        taxon_label="dstream_data_id",
+    )
+    assert alifestd_test_leaves_isomorphic_asexual(
+        alifestd_delete_trunk_asexual(phylo),
+        alifestd_delete_trunk_asexual(phylo),
+        taxon_label="dstream_data_id",
+    )
+    assert alifestd_test_leaves_isomorphic_asexual(
+        alifestd_collapse_unifurcations(alifestd_delete_trunk_asexual(phylo)),
+        alifestd_delete_trunk_asexual(phylo),
+        taxon_label="dstream_data_id",
+    )
+    assert alifestd_test_leaves_isomorphic_asexual(
+        alifestd_delete_trunk_asexual(alifestd_collapse_unifurcations(phylo)),
+        alifestd_delete_trunk_asexual(phylo),
+        taxon_label="dstream_data_id",
+    )
