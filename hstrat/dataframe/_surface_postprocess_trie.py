@@ -57,6 +57,9 @@ def _do_delete_trunk(
     with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
         df = alifestd_delete_trunk_asexual(df, mutate=True)
 
+    with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
+        df = alifestd_assign_contiguous_ids(df, mutate=True)
+
     with log_context_duration("alifestd_prefix_roots", logging.info):
         # extend newly-clipped roots all the way back to dstream_S boundary
         df = alifestd_prefix_roots(
