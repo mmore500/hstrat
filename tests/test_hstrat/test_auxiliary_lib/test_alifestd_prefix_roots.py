@@ -135,3 +135,87 @@ def test_warn_on_origin_time_delta(mutate: bool):
         alifestd_prefix_roots(df, origin_time=5, mutate=mutate)
     if not mutate:
         pdt.assert_frame_equal(df, original)
+
+
+@pytest.mark.parametrize("mutate", [False, True])
+def test_fast_path_single_root(mutate: bool):
+    df = pd.DataFrame(
+        {
+            "id": [0, 1, 2],
+            "origin_time": [10, 9, 8],
+            "ancestor_id": [0, 0, 1],
+            "is_root": [True, False, False],
+        },
+    )
+    original = df.copy()
+    result = alifestd_prefix_roots(
+        df,
+        allow_id_reassign=True,
+        origin_time=5,
+        mutate=mutate,
+    )
+    if not mutate:
+        pdt.assert_frame_equal(df, original)
+
+    expected = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3],
+            "origin_time": [5, 10, 9, 8],
+            "ancestor_id": [0, 0, 1, 2],
+        }
+    )
+    pdt.assert_frame_equal(
+        result.reset_index(drop=True), expected, check_like=True
+    )
+
+
+@pytest.mark.parametrize("mutate", [False, True])
+def test_fast_path_multiple_roots(mutate: bool):
+    df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6],
+            "origin_time": [15, 22, 29, 28, 8, 9, 10],
+            "ancestor_id": [0, 0, 1, 1, 4, 4, 4],
+        },
+    )
+    original = df.copy()
+    result = alifestd_prefix_roots(
+        df,
+        allow_id_reassign=True,
+        origin_time=10,
+        mutate=mutate,
+    )
+    if not mutate:
+        pdt.assert_frame_equal(df, original)
+
+    expected = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6, 7],
+            "origin_time": [10, 15, 22, 29, 28, 8, 9, 10],
+            "ancestor_id": [0, 0, 1, 2, 2, 5, 5, 5],
+        },
+    )
+    pdt.assert_frame_equal(
+        result.reset_index(drop=True), expected, check_like=True
+    )
+
+
+@pytest.mark.parametrize("mutate", [False, True])
+def test_fast_path_no_eligible_roots(mutate: bool):
+    df = pd.DataFrame(
+        {
+            "id": [0, 1, 2],
+            "origin_time": [5, 4, 3],
+            "ancestor_id": [0, 0, 1],
+        }
+    )
+    original = df.copy()
+    result = alifestd_prefix_roots(
+        df,
+        allow_id_reassign=True,
+        origin_time=10,
+        mutate=mutate,
+    )
+    if not mutate:
+        pdt.assert_frame_equal(df, original)
+    pdt.assert_frame_equal(result, original)

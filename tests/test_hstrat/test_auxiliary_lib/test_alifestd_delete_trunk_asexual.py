@@ -217,25 +217,57 @@ def test_alifestd_delete_trunk_asexual_unifurcation():
         taxon_label="dstream_data_id",
     )
 
-    def clean(df: pd.DataFrame) -> pd.DataFrame:
+    def clean(df: pd.DataFrame, allow_id_reassign: bool) -> pd.DataFrame:
         return alifestd_to_working_format(
             alifestd_collapse_unifurcations(
                 alifestd_prefix_roots(
                     df,
+                    allow_id_reassign=allow_id_reassign,
                     origin_time=64,
                 ),
             ),
         )
 
     phylo["origin_time"] = phylo["hstrat_rank"]
-    assert alifestd_test_leaves_isomorphic_asexual(
-        clean(
-            alifestd_delete_trunk_asexual(phylo),
-        ),
-        clean(
-            alifestd_delete_trunk_asexual(
-                alifestd_collapse_unifurcations(phylo),
+    for allow_id_reassign in [True, False]:
+        assert alifestd_test_leaves_isomorphic_asexual(
+            clean(
+                alifestd_delete_trunk_asexual(phylo),
+                allow_id_reassign=allow_id_reassign,
             ),
-        ),
-        taxon_label="dstream_data_id",
-    )
+            clean(
+                alifestd_delete_trunk_asexual(
+                    alifestd_collapse_unifurcations(phylo),
+                ),
+                allow_id_reassign=allow_id_reassign,
+            ),
+            taxon_label="dstream_data_id",
+        )
+
+        assert alifestd_test_leaves_isomorphic_asexual(
+            clean(
+                alifestd_delete_trunk_asexual(phylo),
+                allow_id_reassign=allow_id_reassign,
+            ),
+            clean(
+                alifestd_delete_trunk_asexual(
+                    alifestd_collapse_unifurcations(phylo),
+                ),
+                allow_id_reassign=True,
+            ),
+            taxon_label="dstream_data_id",
+        )
+
+        assert alifestd_test_leaves_isomorphic_asexual(
+            clean(
+                alifestd_delete_trunk_asexual(phylo),
+                allow_id_reassign=False,
+            ),
+            clean(
+                alifestd_delete_trunk_asexual(
+                    alifestd_collapse_unifurcations(phylo),
+                ),
+                allow_id_reassign=allow_id_reassign,
+            ),
+            taxon_label="dstream_data_id",
+        )
