@@ -5,7 +5,7 @@ from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_mark_leaves import alifestd_mark_leaves
 
 
-def alifestd_add_inner_leaves(
+def alifestd_add_inner_leaves_asexual(
     phylogeny_df: pd.DataFrame, mutate: bool = False
 ) -> pd.DataFrame:
     """Create a zero-length branch with leaf node for each inner node.
