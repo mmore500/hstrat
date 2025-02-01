@@ -6,7 +6,9 @@ import pytest
 from hstrat._auxiliary_lib import (
     alifestd_collapse_unifurcations,
     alifestd_delete_trunk_asexual,
+    alifestd_prefix_roots,
     alifestd_test_leaves_isomorphic_asexual,
+    alifestd_to_working_format,
     alifestd_validate,
 )
 
@@ -214,8 +216,26 @@ def test_alifestd_delete_trunk_asexual_unifurcation():
         alifestd_delete_trunk_asexual(phylo),
         taxon_label="dstream_data_id",
     )
+
+    def clean(df: pd.DataFrame) -> pd.DataFrame:
+        return alifestd_to_working_format(
+            alifestd_collapse_unifurcations(
+                alifestd_prefix_roots(
+                    df,
+                    origin_time=64,
+                ),
+            ),
+        )
+
+    phylo["origin_time"] = phylo["hstrat_rank"]
     assert alifestd_test_leaves_isomorphic_asexual(
-        alifestd_delete_trunk_asexual(alifestd_collapse_unifurcations(phylo)),
-        alifestd_delete_trunk_asexual(phylo),
+        clean(
+            alifestd_delete_trunk_asexual(phylo),
+        ),
+        clean(
+            alifestd_delete_trunk_asexual(
+                alifestd_collapse_unifurcations(phylo),
+            ),
+        ),
         taxon_label="dstream_data_id",
     )
