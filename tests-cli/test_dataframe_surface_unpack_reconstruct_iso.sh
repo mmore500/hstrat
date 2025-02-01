@@ -32,6 +32,9 @@ ls -1 "${genomes}" \
     ${HSTRAT_TESTS_CLI_HEAD:-} --collapse-unif-freq=0 \
     > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
+echo "BEGIN $0"
+EXIT_CODE=0
+
 for opt in \
     "--collapse-unif-freq=-1" \
     "--exploded-slice-size=1_000_000" \
@@ -48,12 +51,23 @@ for opt in \
         ${HSTRAT_TESTS_CLI_HEAD:-} ${opt} \
         > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
-    python3 -m hstrat._auxiliary_lib._alifestd_test_leaves_isomorphic_asexual \
+    if python3 -m hstrat._auxiliary_lib._alifestd_test_leaves_isomorphic_asexual \
         --taxon-label "dstream_data_id" \
         "${reference}" "${alternate}" \
         > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1 \
-        && echo "   + PASS"
+    ; then
+        echo "   + PASS"
+    else
+        EXIT_CODE=1
+        echo "   x FAIL"
+    fi
 
 done
 
-echo "SUCCESS $0"
+if [ ${EXIT_CODE} -eq 0 ]; then
+    echo "SUCCESS $0"
+else
+    echo "FAIL $0"
+fi
+
+exit ${EXIT_CODE}

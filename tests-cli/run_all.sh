@@ -12,17 +12,32 @@ EXIT_CODE=0
 GLOBIGNORE='_*';
 # adapted from https://stackoverflow.com/a/34195247/17332200
 if compgen -G "*.py"; then
-for example in *.py; do
-  echo "running example ${example}"
-  python3 "${example}" || EXIT_CODE=1
+for test in *.py; do
+  echo "running test ${test}..."
+  if python3 "${test}"; then
+    echo "... ok!"
+  else
+    EXIT_CODE=1
+    echo "... fail!"
+  fi
 done
 fi
 
 GLOBIGNORE="$(basename "$0")";
-for example in *.sh; do
-  echo "running example ${example}"
-  bash "${example}" || EXIT_CODE=1
+for test in *.sh; do
+  echo "running test ${test}..."
+  if bash "${test}"; then
+    echo "... ok!"
+  else
+    EXIT_CODE=1
+    echo "... fail!"
+  fi
 done
 
-echo "exiting with exit code ${EXIT_CODE}"
+if [ ${EXIT_CODE} -eq 0 ]; then
+    echo "RUN ALL SUCCESS $0"
+else
+    echo "RUN ALL FAIL $0"
+fi
+
 exit ${EXIT_CODE}

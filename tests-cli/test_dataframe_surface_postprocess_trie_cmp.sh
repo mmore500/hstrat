@@ -37,6 +37,7 @@ ls -1 "${genomes}" \
 rm -f "${genomes}"
 
 echo "BEGIN $0"
+EXIT_CODE=0
 
 # postproccess reference
 ls -1 "${trie}" \
@@ -48,7 +49,17 @@ ls -1 "${trie}" \
     | python3 -O -m hstrat.dataframe.surface_postprocess_trie "${alternate}" \
     >${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
-cmp "${reference}" "${alternate}"  \
-    && echo "   + PASS"
+if cmp "${reference}" "${alternate}"; then
+    echo "   + PASS"
+else
+    EXIT_CODE=1
+    echo "   x FAIL"
+fi
 
-echo "SUCCESS $0"
+if [ ${EXIT_CODE} -eq 0 ]; then
+    echo "SUCCESS $0"
+else
+    echo "FAIL $0"
+fi
+
+exit ${EXIT_CODE}

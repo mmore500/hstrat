@@ -27,6 +27,7 @@ wget -O "${genomes}" https://osf.io/gnkbc/download \
     > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
 echo "BEGIN $0"
+EXIT_CODE=0
 
 opts=(
     "--collapse-unif-freq=0" # opt1
@@ -55,9 +56,19 @@ for (( i=0; i<${#opts[@]} ; i+=2 )); do
         ${HSTRAT_TESTS_CLI_HEAD:-} ${opt2} \
         > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
-    cmp "${reference}" "${alternate}"  \
-        && echo "   + PASS"
+    if cmp "${reference}" "${alternate}"; then
+        echo "   + PASS"
+    else
+        echo "   x FAIL"
+        EXIT_CODE=1
+    fi
 
 done
 
-echo "SUCCESS $0"
+if [ ${EXIT_CODE} -eq 0 ]; then
+    echo "SUCCESS $0"
+else
+    echo "FAIL $0"
+fi
+
+exit ${EXIT_CODE}
