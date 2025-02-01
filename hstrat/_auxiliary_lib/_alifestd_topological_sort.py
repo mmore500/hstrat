@@ -3,6 +3,9 @@ from collections import Counter
 import pandas as pd
 
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
+from ._alifestd_try_add_ancestor_list_col import (
+    alifestd_try_add_ancestor_list_col,
+)
 
 
 def alifestd_topological_sort(
@@ -18,6 +21,11 @@ def alifestd_topological_sort(
 
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
+
+    if "ancestor_list" not in phylogeny_df:
+        phylogeny_df = alifestd_try_add_ancestor_list_col(
+            phylogeny_df, mutate=True
+        )
 
     phylogeny_df.set_index("id", drop=False, inplace=True)
 
