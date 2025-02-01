@@ -38,8 +38,7 @@ def _create_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawTextHelpFormatter,
     )
     parser.add_argument(
-        "--input-file",
-        "-i",
+        "phylogeny_file",
         type=str,
         help="Alife standard dataframe file to process.",
     )
@@ -55,11 +54,11 @@ def _create_parser() -> argparse.ArgumentParser:
 if __name__ == "__main__":
     parser = _create_parser()
     args = parser.parse_args()
-    input_ext = os.path.splitext(args.input_file)[1]
+    input_ext = os.path.splitext(args.phylogeny_file)[1]
 
     logging.info(
         f"reading alife-standard {input_ext} phylogeny data from "
-        f"{args.input_file}...",
+        f"{args.phylogeny_file}...",
     )
     phylogeny_df = {
         ".csv": pd.read_csv,
@@ -67,7 +66,7 @@ if __name__ == "__main__":
         ".feather": pd.read_feather,
         ".pqt": pd.read_parquet,
         ".parquet": pd.read_parquet,
-    }[input_ext](args.input_file)
+    }[input_ext](args.phylogeny_file)
 
     with log_context_duration(
         "hstrat._auxiliary_lib.alifestd_count_root_nodes", logging.info

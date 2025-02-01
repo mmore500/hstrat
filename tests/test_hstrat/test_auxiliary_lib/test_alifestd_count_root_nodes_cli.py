@@ -44,7 +44,6 @@ def test_alifestd_count_root_nodes_cli_csv1(input_file: str):
         "python3",
         "-m",
         "hstrat._auxiliary_lib._alifestd_count_root_nodes",
-        "--input-file",
         f"{assets}/{input_file}",
     ]
     result = subprocess.run(cmd, capture_output=True, check=True, text=True)
@@ -62,7 +61,6 @@ def test_alifestd_count_root_nodes_cli_csv2(input_file: str):
         "python3",
         "-m",
         "hstrat._auxiliary_lib._alifestd_count_root_nodes",
-        "--input-file",
         f"{assets}/{input_file}",
     ]
     result = subprocess.run(cmd, capture_output=True, check=True, text=True)
