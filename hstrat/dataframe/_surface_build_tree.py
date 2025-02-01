@@ -14,6 +14,7 @@ def surface_build_tree(
     collapse_unif_freq: int = 1,
     exploded_slice_size: int = 1_000_000,
     mp_context: str = "spawn",
+    delete_trunk: bool = True,
     trie_postprocessor: typing.Callable = NopTriePostprocessor(),
     # ^^^ NopTriePostprocessor is stateless, so is safe as default value
 ) -> pl.DataFrame:
@@ -74,6 +75,13 @@ def surface_build_tree(
     mp_context : str, default 'spawn'
         Multiprocessing context to use for parallel processing.
 
+    delete_trunk : bool, default `True`
+        Should trunk nodes with rank less than `dstream_S` be deleted?
+
+        Trunk deletion accounts for "dummy" strata added to fill hstrat surface
+        for founding ancestor(s), by segregating subtrees with distinct
+        founding strata into independent trees.
+
     trie_postprocessor : Callable, default `hstrat.NopTriePostprocessor()`
         Tree postprocess functor.
 
@@ -125,7 +133,11 @@ def surface_build_tree(
     )
 
     logging.info("surface_build_tree running surface_postprocess_trie...")
-    df = surface_postprocess_trie(df, trie_postprocessor=trie_postprocessor)
+    df = surface_postprocess_trie(
+        df,
+        delete_trunk=delete_trunk,
+        trie_postprocessor=trie_postprocessor,
+    )
 
     logging.info("surface_build_tree complete")
     return df
