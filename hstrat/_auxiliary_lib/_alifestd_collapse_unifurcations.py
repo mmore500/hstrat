@@ -47,7 +47,7 @@ def _collapse_unifurcations(
             # update referenced ancestor
             ancestor_ids[pos] = ids[ancestor_id]
 
-    keep_filter = ref_counts != 1 | (ancestor_ids == ids)
+    keep_filter = (ref_counts != 1) | (ancestor_ids == ids)
 
     return keep_filter, ancestor_ids
 

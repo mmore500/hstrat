@@ -136,3 +136,61 @@ def test_alifestd_collapse_unifurcations(
     for id_, descendants in collapsed_descendants_lookup.items():
         assert descendants <= phylogeny_descendants_lookup[id_]
         assert descendants == (phylogeny_descendants_lookup[id_] - dropped_ids)
+
+
+@pytest.mark.parametrize("mutate", [True, False])
+def test_alifestd_collapse_unifurcations_collapse1(mutate: bool):
+    # 0 -> 1 -> 2 -> 4
+    #        -> 3
+    # 5
+    df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 4, 3, 5],
+            "ancestor_id": [0, 0, 1, 2, 1, 5],
+            "taxon_label": ["0", "1", "2", "4", "3", "5"],
+        },
+    )
+    original_df = df.copy()
+    result = alifestd_collapse_unifurcations(df)
+    print(result)
+
+    expected = pd.DataFrame(
+        {
+            "id": [0, 1, 4, 3, 5],
+            "ancestor_id": [0, 0, 1, 1, 5],
+            "taxon_label": ["0", "1", "4", "3", "5"],
+        },
+    )
+    pd.testing.assert_frame_equal(
+        result[expected.columns].reset_index(drop=True),
+        expected.reset_index(drop=True),
+    )
+
+    if not mutate:
+        assert df.equals(original_df)
+
+
+@pytest.mark.parametrize("mutate", [True, False])
+def test_alifestd_collapse_unifurcations_collapse2(mutate: bool):
+    df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6],
+            "ancestor_id": [0, 0, 1, 0, 0, 2, 3],
+        },
+    )
+    original_df = df.copy()
+    result = alifestd_collapse_unifurcations(df)
+
+    expected = pd.DataFrame(
+        {
+            "id": [0, 4, 5, 6],
+            "ancestor_id": [0, 0, 0, 0],
+        },
+    )
+    pd.testing.assert_frame_equal(
+        result[expected.columns].reset_index(drop=True),
+        expected.reset_index(drop=True),
+    )
+
+    if not mutate:
+        assert df.equals(original_df)
