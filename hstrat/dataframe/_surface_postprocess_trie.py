@@ -10,6 +10,7 @@ from .._auxiliary_lib import (
     alifestd_assign_contiguous_ids,
     alifestd_collapse_unifurcations,
     alifestd_delete_trunk_asexual,
+    alifestd_prefix_roots,
     get_sole_scalar_value_polars,
     log_context_duration,
     log_memory_usage,
@@ -45,10 +46,25 @@ def _do_delete_trunk(
 
     gc.collect()
 
+    with log_context_duration(
+        "df['dstream_S'].unique().squeeze()", logging.info
+    ):
+        dstream_S = df["dstream_S"].unique().squeeze()
+
+    df["is_trunk"] = df["hstrat_rank"] < df["dstream_S"]
+    df["origin_time"] = df["hstrat_rank"]
+
     with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
-        df["is_trunk"] = df["hstrat_rank"] < df["dstream_S"]
         df = alifestd_delete_trunk_asexual(df, mutate=True)
 
+    with log_context_duration("alifestd_prefix_roots", logging.info):
+        # extend newly-clipped roots all the way back to dstream_S boundary
+        df = alifestd_prefix_roots(
+            df, allow_id_reassign=True, origin_time=dstream_S, mutate=True
+        )
+
+    del df["is_trunk"]
+    del df["origin_time"]
     gc.collect()
 
     return df
@@ -189,10 +205,10 @@ def surface_postprocess_trie(
     log_memory_usage(logging.info)
     original_columns = df.columns
 
-    df = _do_collapse_unifurcations(df)
-
     if delete_trunk:
         df = _do_delete_trunk(df)
+
+    df = _do_collapse_unifurcations(df)
 
     df = _do_assign_contiguous_ids(df)
 
