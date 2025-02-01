@@ -2,6 +2,7 @@ import gc
 import logging
 import typing
 
+import pandas as pd
 import polars as pl
 from tqdm import tqdm
 
@@ -19,8 +20,8 @@ from ..phylogenetic_inference.tree.trie_postprocess import NopTriePostprocessor
 
 
 def _do_collapse_unifurcations(
-    df: pl.DataFrame,
-) -> pl.DataFrame:
+    df: pd.DataFrame,
+) -> pd.DataFrame:
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
         df = alifestd_assign_contiguous_ids(df, mutate=True)
 
@@ -37,8 +38,8 @@ def _do_collapse_unifurcations(
 
 
 def _do_delete_trunk(
-    df: pl.DataFrame,
-) -> pl.DataFrame:
+    df: pd.DataFrame,
+) -> pd.DataFrame:
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
         df = alifestd_assign_contiguous_ids(df, mutate=True)
 
@@ -54,8 +55,8 @@ def _do_delete_trunk(
 
 
 def _do_assign_contiguous_ids(
-    df: pl.DataFrame,
-) -> pl.DataFrame:
+    df: pd.DataFrame,
+) -> pd.DataFrame:
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
         df = alifestd_assign_contiguous_ids(df, mutate=True)
 
