@@ -88,6 +88,7 @@ from ._alifestd_mark_root_id import alifestd_mark_root_id
 from ._alifestd_mark_roots import alifestd_mark_roots
 from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
+from ._alifestd_prefix_roots import alifestd_prefix_roots
 from ._alifestd_prune_extinct_lineages_asexual import (
     alifestd_prune_extinct_lineages_asexual,
 )
@@ -301,6 +302,7 @@ __all__ = [
     "alifestd_mark_roots",
     "alifestd_parse_ancestor_id",
     "alifestd_parse_ancestor_ids",
+    "alifestd_prefix_roots",
     "alifestd_prune_extinct_lineages_asexual",
     "alifestd_reroot_at_id_asexual",
     "alifestd_convert_root_ancestor_token",
