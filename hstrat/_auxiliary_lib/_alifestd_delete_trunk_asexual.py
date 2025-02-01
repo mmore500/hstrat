@@ -36,7 +36,8 @@ def alifestd_delete_trunk_asexual(
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
 
-    has_contiguous_ids = alifestd_has_contiguous_ids(phylogeny_df)
+    has_contiguous_ids = bool(alifestd_has_contiguous_ids(phylogeny_df))
+    logging.info(f"- alifestd_delete_trunk_asexual: {has_contiguous_ids=}")
     if has_contiguous_ids:
         phylogeny_df.reset_index(drop=True, inplace=True)
     else:
