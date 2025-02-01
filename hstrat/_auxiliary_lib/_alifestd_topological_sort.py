@@ -22,7 +22,8 @@ def alifestd_topological_sort(
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
-    if "ancestor_list" not in phylogeny_df:
+    has_ancestor_list = "ancestor_list" in phylogeny_df
+    if not has_ancestor_list:
         phylogeny_df = alifestd_try_add_ancestor_list_col(
             phylogeny_df, mutate=True
         )
@@ -59,4 +60,10 @@ def alifestd_topological_sort(
                 internal_ids_set.remove(leaf_parent_id)
                 del internal_ids_refcounts[leaf_parent_id]
 
-    return phylogeny_df.loc[reverse_sorted_ids[::-1], :].reset_index(drop=True)
+    assert set(reverse_sorted_ids) == set(phylogeny_df["id"])
+    res = phylogeny_df.loc[reverse_sorted_ids[::-1], :].reset_index(drop=True)
+
+    if not has_ancestor_list:
+        res.drop(columns=["ancestor_list"], inplace=True)
+
+    return res
