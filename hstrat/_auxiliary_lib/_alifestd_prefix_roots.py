@@ -30,6 +30,10 @@ def alifestd_prefix_roots(
             "alifestd_prepend_roots_at_origin_time_asexual ignores "
             "origin_time_delta values",
         )
+    if origin_time is not None and "origin_time" not in phylogeny_df:
+        raise ValueError(
+            "origin_time specified but not present in phylogeny dataframe",
+        )
 
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
