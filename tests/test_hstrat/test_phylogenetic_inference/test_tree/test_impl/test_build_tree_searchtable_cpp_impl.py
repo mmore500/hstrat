@@ -30,12 +30,12 @@ def test_collapse_all_unifurcations_linear_tree():
     records.addRecord(4, 4, 3, 3, 5, 4, 4, 4, 4)
     records.addRecord(5, 5, 4, 4, 6, 5, 5, 5, 5)
     records.addRecord(6, 6, 5, 5, 7, 6, 6, 6, 6)
-    records.addRecord(7, 7, 6, 6, 8, 7, 7, 7, 7)
+    records.addRecord(7, 7, 6, 6, 7, 7, 7, 7, 7)
+
     records = collapse_unifurcations(records, dropped_only=False)
     assert len(records) == 2
 
     result = copy_records_to_dict(records)
-    print(result)
 
     # 0 <- 7(1)
     expected = {
