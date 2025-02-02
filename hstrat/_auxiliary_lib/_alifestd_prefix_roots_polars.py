@@ -93,9 +93,8 @@ def alifestd_prefix_roots_polars(
     prepended_roots = prepended_roots.with_columns(
         id=pl.int_range(len(prepended_roots)),
         ancestor_id=pl.int_range(len(prepended_roots)),
+    ).cast(  # ensure concat compatibility
+        phylogeny_df.collect_schema(),
     )
 
-    with pl.StringCache():
-        return pl.concat(
-            [prepended_roots, phylogeny_df], how="diagonal_relaxed"
-        )
+    return pl.concat([prepended_roots, phylogeny_df], how="diagonal")
