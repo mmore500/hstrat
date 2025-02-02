@@ -16,12 +16,14 @@ class Records:
         search_prev_sibling_id: int,
         search_next_sibling_id: int,
         rank: int,
-        differentia: int
+        differentia: int,
     ) -> None: ...
 
 placeholder_value: int
 
-def collapse_unifurcations(records: Records, dropped_only: bool = True) -> Records: ...
+def collapse_unifurcations(
+    records: Records, dropped_only: bool = True
+) -> Records: ...
 def copy_records_to_dict(records: Records) -> dict[str, np.ndarray]: ...
 def extract_records_to_dict(records: Records) -> dict[str, np.ndarray]: ...
 def extend_tree_searchtable_cpp_from_exploded(
