@@ -1,11 +1,14 @@
 import os
 
 import pandas as pd
+import pandas.testing as pdt
+import polars as pl
 import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_collapse_unifurcations,
     alifestd_delete_trunk_asexual,
+    alifestd_delete_trunk_asexual_polars,
     alifestd_prefix_roots,
     alifestd_test_leaves_isomorphic_asexual,
     alifestd_to_working_format,
@@ -25,6 +28,8 @@ def test_alifestd_delete_trunk_asexual_no_trunk_column(mutate: bool):
     )
     with pytest.raises(ValueError):
         alifestd_delete_trunk_asexual(df, mutate=mutate)
+    with pytest.raises(ValueError):
+        alifestd_delete_trunk_asexual_polars(pl.from_pandas(df))
 
 
 @pytest.mark.parametrize("mutate", [True, False])
@@ -43,6 +48,15 @@ def test_alifestd_delete_trunk_asexual_single_trunk(mutate: bool):
 
     if not mutate:
         assert original_df.equals(df)
+
+    df.drop(columns=["ancestor_list"], inplace=True)
+    result.drop(columns=["ancestor_list"], inplace=True)
+    df["ancestor_id"] = [0]
+    pdt.assert_frame_equal(
+        result,
+        alifestd_delete_trunk_asexual_polars(pl.from_pandas(df)).to_pandas(),
+        check_dtype=False,
+    )
 
 
 @pytest.mark.parametrize("mutate", [True, False])
@@ -73,6 +87,11 @@ def test_alifestd_delete_trunk_asexual_no_collapse_needed1(mutate: bool):
     if not mutate:
         assert original_df.equals(df)
 
+    df.drop(columns=["ancestor_list"], inplace=True)
+    result.drop(columns=["ancestor_list"], inplace=True)
+    with pytest.raises(NotImplementedError):
+        alifestd_delete_trunk_asexual_polars(pl.from_pandas(df)).to_pandas(),
+
 
 @pytest.mark.parametrize("mutate", [True, False])
 def test_alifestd_delete_trunk_asexual_no_collapse_needed2(mutate: bool):
@@ -90,6 +109,15 @@ def test_alifestd_delete_trunk_asexual_no_collapse_needed2(mutate: bool):
 
     if not mutate:
         assert original_df.equals(df)
+
+    df.drop(columns=["ancestor_list"], inplace=True)
+    result.drop(columns=["ancestor_list"], inplace=True)
+    df["ancestor_id"] = [0, 0]
+    pdt.assert_frame_equal(
+        result,
+        alifestd_delete_trunk_asexual_polars(pl.from_pandas(df)).to_pandas(),
+        check_dtype=False,
+    )
 
 
 @pytest.mark.parametrize("mutate", [True, False])
@@ -109,6 +137,14 @@ def test_alifestd_delete_trunk_asexual_no_collapse_needed3(mutate: bool):
 
     if not mutate:
         assert df.equals(original_df)
+
+    df.drop(columns=["ancestor_list"], inplace=True)
+    result.drop(columns=["ancestor_list"], inplace=True)
+    pdt.assert_frame_equal(
+        result,
+        alifestd_delete_trunk_asexual_polars(pl.from_pandas(df)).to_pandas(),
+        check_dtype=False,
+    )
 
 
 @pytest.mark.parametrize("mutate", [True, False])
@@ -172,6 +208,15 @@ def test_alifestd_delete_trunk_asexual_collapse2(mutate: bool):
     if not mutate:
         assert df.equals(original_df)
 
+    df.drop(columns=["ancestor_list"], inplace=True)
+    result.drop(columns=["ancestor_list"], inplace=True)
+    df["ancestor_id"] = [0, 0, 1, 0, 0, 2, 3]
+    pdt.assert_frame_equal(
+        result,
+        alifestd_delete_trunk_asexual_polars(pl.from_pandas(df)).to_pandas(),
+        check_dtype=False,
+    )
+
 
 @pytest.mark.parametrize("mutate", [True, False])
 def test_alifestd_delete_trunk_asexual_noncontiguous_trunk(mutate: bool):
@@ -188,6 +233,11 @@ def test_alifestd_delete_trunk_asexual_noncontiguous_trunk(mutate: bool):
 
     if not mutate:
         assert df.equals(original_df)
+
+    df.drop(columns=["ancestor_list"], inplace=True)
+    df["ancestor_id"] = [0, 0, 1]
+    with pytest.raises(ValueError):
+        alifestd_delete_trunk_asexual_polars(pl.from_pandas(df))
 
 
 def test_alifestd_delete_trunk_asexual_unifurcation():
@@ -215,6 +265,14 @@ def test_alifestd_delete_trunk_asexual_unifurcation():
         alifestd_collapse_unifurcations(alifestd_delete_trunk_asexual(phylo)),
         alifestd_delete_trunk_asexual(phylo),
         taxon_label="dstream_data_id",
+    )
+
+    pdt.assert_frame_equal(
+        alifestd_delete_trunk_asexual(phylo),
+        alifestd_delete_trunk_asexual_polars(
+            pl.from_pandas(phylo)
+        ).to_pandas(),
+        check_dtype=False,
     )
 
     def clean(df: pd.DataFrame, allow_id_reassign: bool) -> pd.DataFrame:
