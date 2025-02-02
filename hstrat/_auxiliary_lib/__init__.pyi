@@ -31,6 +31,9 @@ from ._alifestd_coerce_chronological_consistency import (
 )
 from ._alifestd_collapse_trunk_asexual import alifestd_collapse_trunk_asexual
 from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
+from ._alifestd_collapse_unifurcations_polars import (
+    alifestd_collapse_unifurcations_polars,
+)
 from ._alifestd_convert_root_ancestor_token import (
     alifestd_convert_root_ancestor_token,
 )
@@ -266,6 +269,7 @@ __all__ = [
     "alifestd_coerce_chronological_consistency",
     "alifestd_collapse_trunk_asexual",
     "alifestd_collapse_unifurcations",
+    "alifestd_collapse_unifurcations_polars",
     "alifestd_calc_polytomic_index",
     "alifestd_count_children_of_asexual",
     "alifestd_count_inner_nodes",
