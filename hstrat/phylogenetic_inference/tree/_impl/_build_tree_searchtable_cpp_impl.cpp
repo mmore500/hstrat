@@ -224,7 +224,10 @@ struct Records {
     this->differentia.push_back(differentia);
     this->rank.push_back(rank);
     max_differentia = std::max(max_differentia, differentia);
-    assert(this->rank[search_ancestor_id] <= rank);
+    assert(
+      search_ancestor_id == placeholder_value
+      || this->rank[search_ancestor_id] <= rank
+    );
   }
 
   u64 size() const { return this->dstream_data_id.size(); }
@@ -368,18 +371,18 @@ Records collapse_unifurcations(Records &records, const bool dropped_only) {
           id_remap[  // ancestor_id
             records.ancestor_id[old_id]
           ],
-          id_remap[  // search_ancestor_id
+          dropped_only ? id_remap[  // search_ancestor_id
             records.search_ancestor_id[old_id]
-          ],
-          id_remap[  // search_first_child_id
+          ] : placeholder_value,
+          dropped_only ? id_remap[  // search_first_child_id
             records.search_first_child_id[old_id]
-          ],
-          id_remap[  // search_prev_sibling_id
+          ] : placeholder_value,
+          dropped_only ? id_remap[  // search_prev_sibling_id
             records.search_prev_sibling_id[old_id]
-          ],
-          id_remap[  // search_next_sibling_id
+          ] : placeholder_value,
+          dropped_only ? id_remap[  // search_next_sibling_id
             records.search_next_sibling_id[old_id]
-          ],
+          ] : placeholder_value,
           records.rank[old_id],
           records.differentia[old_id]
       );
@@ -488,11 +491,12 @@ public:
     ? 0
     : records.search_first_child_id[parent]
   )
-  { }
+  { assert(this->current != placeholder_value); }
   u64 operator*() const { return current; }
   ChildrenIterator& operator++() {
     const auto& records = this->records.get();
     const auto next = records.search_next_sibling_id[current];
+    assert(next != placeholder_value);
     current = (next == current) ? 0 : next;
     return *this;
   }
@@ -533,6 +537,7 @@ static_assert(std::ranges::input_range<ChildrenView>);
  */
 void detach_search_parent(Records &records, const u64 node) {
   const u64 parent = records.search_ancestor_id[node];
+  assert(parent != placeholder_value);
   const u64 next_sibling = records.search_next_sibling_id[node];
   const bool is_last_child = next_sibling == node;
 
@@ -562,6 +567,7 @@ void detach_search_parent(Records &records, const u64 node) {
  * @see Records
  */
 void attach_search_parent(Records &records, const u64 node, const u64 parent) {
+  assert(records.search_ancestor_id[node] != placeholder_value);
   if (records.search_ancestor_id[node] == parent) {
     return;
   }
@@ -571,6 +577,7 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
   assert(records.rank[parent] <= records.rank[node]);
 
   const u64 ancestor_first_child = records.search_first_child_id[parent];
+  assert(ancestor_first_child != placeholder_value);
   const bool is_first_child = ancestor_first_child == parent;
   const u64 sibling_id = is_first_child ? node : ancestor_first_child;
   records.search_next_sibling_id[node] = sibling_id;
