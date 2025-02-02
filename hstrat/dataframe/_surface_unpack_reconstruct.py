@@ -153,6 +153,11 @@ def _produce_exploded_slices(
 
     render_polars_snapshot(df, "sorted", logging.info)
 
+    if "dstream_data_id" not in df.columns:
+        logging.info(" - adding dstream_data_id column")
+        # ensure chunking doesn't affect data ids
+        df = df.with_row_index("dstream_data_id")
+
     num_slices = math.ceil(len(df) / exploded_slice_size)
     logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
 
@@ -228,7 +233,7 @@ def _build_records_chunked(
         logging.info(f"unlinking slice {i + 1} / {len(slices)}...")
         os.unlink(inpath)
 
-        if collapse_unif_freq and (i + 1) % collapse_unif_freq == 0:
+        if collapse_unif_freq > 0 and (i + 1) % collapse_unif_freq == 0:
             with log_context_duration(
                 f"collapse_dropped_unifurcations ({i + 1} / {len(slices)})",
                 logging.info,
@@ -238,6 +243,13 @@ def _build_records_chunked(
         log_memory_usage(logging.info)
 
     logging.info("slices complete")
+
+    if collapse_unif_freq == -1:
+        with log_context_duration(
+            "collapse_dropped_unifurcations (finalize)",
+            logging.info,
+        ):
+            records = collapse_dropped_unifurcations(records)
 
     return records
 
@@ -358,8 +370,9 @@ def _generate_exploded_slices_mp(
     producer.start()
 
     num_slices = (
-        df.lazy().select(pl.len()).collect().item() // exploded_slice_size
-    )
+        df.lazy().select(pl.len()).collect().item() + (exploded_slice_size - 1)
+    ) // exploded_slice_size
+
     yield give_len(  # enable len() on generator for nice logging
         # yield generated slices until sentinel value None is received,
         # immediately marking items as consumed (`task_done`) to trigger

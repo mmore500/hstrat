@@ -7,7 +7,10 @@ from hstrat._auxiliary_lib import (
 
 
 def test_empty_df():
-    assert alifestd_count_root_nodes(alifestd_make_empty()) == 0
+    df = alifestd_make_empty()
+    assert alifestd_count_root_nodes(df) == 0
+    df["ancestor_id"] = []
+    assert alifestd_count_root_nodes(df) == 0
 
 
 def test_singleton_df():
@@ -17,6 +20,9 @@ def test_singleton_df():
             "ancestor_list": [[None]],
         }
     )
+    assert alifestd_count_root_nodes(df) == 1
+
+    df["ancestor_id"] = [0]
     assert alifestd_count_root_nodes(df) == 1
 
 
@@ -59,6 +65,9 @@ def test_multiple_trees_df1():
     )
     assert alifestd_count_root_nodes(df) == 2
 
+    df["ancestor_id"] = [0, 1, 0, 2, 2, 3]
+    assert alifestd_count_root_nodes(df) == 2
+
 
 def test_multiple_trees_df2():
     df = pd.DataFrame(
@@ -67,6 +76,9 @@ def test_multiple_trees_df2():
             "ancestor_list": [[None], [None], [0], [1], [2], [3]],
         }
     )
+    assert alifestd_count_root_nodes(df) == 2
+
+    df["ancestor_id"] = [0, 1, 0, 1, 2, 3]
     assert alifestd_count_root_nodes(df) == 2
 
 
@@ -87,6 +99,9 @@ def test_multiple_trees_df3():
     )
     assert alifestd_count_root_nodes(df) == 3
 
+    df["ancestor_id"] = [0, 1, 0, 1, 2, 3, 6]
+    assert alifestd_count_root_nodes(df) == 3
+
 
 def test_multiple_trees_df4():
     df = pd.DataFrame(
@@ -105,6 +120,9 @@ def test_multiple_trees_df4():
     )
     assert alifestd_count_root_nodes(df) == 3
 
+    df["ancestor_id"] = [0, 1, 0, 1, 2, 3, 6]
+    assert alifestd_count_root_nodes(df) == 3
+
 
 def test_strictly_bifurcating_df1():
     df = pd.DataFrame(
@@ -113,6 +131,9 @@ def test_strictly_bifurcating_df1():
             "ancestor_list": [[None], [0], [0], [1], [1]],
         }
     )
+    assert alifestd_count_root_nodes(df) == 1
+
+    df["ancestor_id"] = [0, 0, 0, 1, 1]
     assert alifestd_count_root_nodes(df) == 1
 
 
@@ -125,12 +146,5 @@ def test_strictly_bifurcating_df2():
     )
     assert alifestd_count_root_nodes(df) == 1
 
-
-def test_strictly_bifurcating_df3():
-    df = pd.DataFrame(
-        {
-            "id": [0, 1, 2, 3, 4],
-            "ancestor_list": ["[0]", "[0]", "[1]", "[1]", "[None]"],
-        }
-    )
+    df["ancestor_id"] = [0, 0, 0, 1, 1]
     assert alifestd_count_root_nodes(df) == 1

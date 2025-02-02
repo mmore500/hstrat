@@ -95,6 +95,7 @@ phylo-extra = [
   "phylotrackpy>=0.2.4",
 ]
 testing = [
+  "black==22.10.0",
   "biopython>=1.79",
   "contexttimer==0.3.3",
   "coverage==6.4.4",

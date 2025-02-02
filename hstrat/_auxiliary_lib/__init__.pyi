@@ -10,6 +10,7 @@ from ._HereditaryStratigraphicArtifact import HereditaryStratigraphicArtifact
 from ._RecursionLimit import RecursionLimit
 from ._RngStateContext import RngStateContext
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
+from ._alifestd_add_inner_leaves import alifestd_add_inner_leaves
 from ._alifestd_aggregate_phylogenies import alifestd_aggregate_phylogenies
 from ._alifestd_as_newick_asexual import alifestd_as_newick_asexual
 from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
@@ -87,6 +88,7 @@ from ._alifestd_mark_root_id import alifestd_mark_root_id
 from ._alifestd_mark_roots import alifestd_mark_roots
 from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
+from ._alifestd_prefix_roots import alifestd_prefix_roots
 from ._alifestd_prune_extinct_lineages_asexual import (
     alifestd_prune_extinct_lineages_asexual,
 )
@@ -97,6 +99,9 @@ from ._alifestd_sample_triplet_comparisons_asexual import (
 from ._alifestd_splay_polytomies import alifestd_splay_polytomies
 from ._alifestd_sum_origin_time_deltas_asexual import (
     alifestd_sum_origin_time_deltas_asexual,
+)
+from ._alifestd_test_leaves_isomorphic_asexual import (
+    alifestd_test_leaves_isomorphic_asexual,
 )
 from ._alifestd_to_working_format import alifestd_to_working_format
 from ._alifestd_topological_sort import alifestd_topological_sort
@@ -199,6 +204,7 @@ from ._jit_numba_integer_array_ts import (
 )
 from ._jit_numpy_bool_t import jit_numpy_bool_t
 from ._jit_numpy_int64_t import jit_numpy_int64_t
+from ._jit_numpy_uint8_t import jit_numpy_uint8_t
 from ._join_paragraphs_from_one_sentence_per_line import (
     join_paragraphs_from_one_sentence_per_line,
 )
@@ -245,6 +251,7 @@ from ._with_rng_state_context import with_rng_state_context
 from ._zip_strict import zip_strict
 
 __all__ = [
+    "alifestd_add_inner_leaves",
     "alifestd_aggregate_phylogenies",
     "alifestd_as_newick_asexual",
     "alifestd_assign_contiguous_ids",
@@ -295,12 +302,14 @@ __all__ = [
     "alifestd_mark_roots",
     "alifestd_parse_ancestor_id",
     "alifestd_parse_ancestor_ids",
+    "alifestd_prefix_roots",
     "alifestd_prune_extinct_lineages_asexual",
     "alifestd_reroot_at_id_asexual",
     "alifestd_convert_root_ancestor_token",
     "alifestd_sample_triplet_comparisons_asexual",
     "alifestd_splay_polytomies",
     "alifestd_sum_origin_time_deltas_asexual",
+    "alifestd_test_leaves_isomorphic_asexual",
     "alifestd_to_working_format",
     "alifestd_topological_sort",
     "alifestd_try_add_ancestor_id_col",
@@ -400,6 +409,7 @@ __all__ = [
     "jit_numba_dict_t",
     "jit_numpy_bool_t",
     "jit_numpy_int64_t",
+    "jit_numpy_uint8_t",
     "jit_TypingError",
     "join_paragraphs_from_one_sentence_per_line",
     "launder_impl_modules",

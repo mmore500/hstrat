@@ -10,10 +10,6 @@ anytree==2.12.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
-appnope==0.1.4
-    # via
-    #   ipykernel
-    #   ipython
 asttokens==2.4.1
     # via stack-data
 attrs==24.2.0
@@ -34,6 +30,8 @@ bitarray==3.0.0
     # via hstrat (../../pyproject.toml)
 bitstring==4.0.2
     # via hstrat (../../pyproject.toml)
+black==22.10.0
+    # via hstrat (../../pyproject.toml)
 bleach==6.2.0
     # via nbconvert
 bumpver==2022.1120
@@ -45,6 +43,7 @@ charset-normalizer==3.4.0
 click==8.1.7
     # via
     #   alifedata-phyloinformatics-convert
+    #   black
     #   bumpver
     #   keyname
 colorama==0.4.6
@@ -206,6 +205,7 @@ mypy==0.991
     # via hstrat (../../pyproject.toml)
 mypy-extensions==1.0.0
     # via
+    #   black
     #   mypy
     #   typing-inspect
 nanto==0.1.1
@@ -283,6 +283,8 @@ parso==0.8.4
     # via jedi
 pathlib2==2.3.7.post1
     # via bumpver
+pathspec==0.12.1
+    # via black
 patsy==1.0.1
     # via statsmodels
 pexpect==4.9.0
@@ -297,6 +299,7 @@ pkginfo==1.11.2
     # via twine
 platformdirs==4.3.6
     # via
+    #   black
     #   jupyter-core
     #   virtualenv
 pluggy==1.5.0
@@ -465,6 +468,7 @@ toml==0.10.2
     #   tox
 tomli==2.2.1
     # via
+    #   black
     #   mypy
     #   pytest
     #   setuptools-scm

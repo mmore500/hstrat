@@ -16,9 +16,12 @@ bitarray==3.0.0
     # via hstrat (../../pyproject.toml)
 bitstring==4.0.2
     # via hstrat (../../pyproject.toml)
+black==22.10.0
+    # via hstrat (../../pyproject.toml)
 click==8.1.7
     # via
     #   alifedata-phyloinformatics-convert
+    #   black
     #   keyname
 contexttimer==0.3.3
     # via hstrat (../../pyproject.toml)
@@ -114,6 +117,7 @@ mypy==0.991
     # via hstrat (../../pyproject.toml)
 mypy-extensions==1.0.0
     # via
+    #   black
     #   mypy
     #   typing-inspect
 nanto==0.1.1
@@ -166,6 +170,8 @@ pandas==2.2.3
     #   teeplot
 pandera==0.21.0
     # via hstrat (../../pyproject.toml)
+pathspec==0.12.1
+    # via black
 patsy==1.0.1
     # via statsmodels
 phylotrackpy==0.2.4
@@ -173,7 +179,9 @@ phylotrackpy==0.2.4
 pillow==11.0.0
     # via matplotlib
 platformdirs==4.3.6
-    # via virtualenv
+    # via
+    #   black
+    #   virtualenv
 pluggy==1.5.0
     # via
     #   pytest
@@ -261,6 +269,7 @@ toml==0.10.2
     # via tox
 tomli==2.2.1
     # via
+    #   black
     #   mypy
     #   pytest
 tox==3.24.0
