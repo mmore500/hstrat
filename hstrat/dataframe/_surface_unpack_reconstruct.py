@@ -235,21 +235,36 @@ def _build_records_chunked(
 
         if collapse_unif_freq > 0 and (i + 1) % collapse_unif_freq == 0:
             with log_context_duration(
-                f"collapse_unifurcations (dropped only) ({i + 1} / {len(slices)})",
+                "collapse_unifurcations(dropped_only=True) "
+                f"({i + 1} / {len(slices)})",
                 logging.info,
             ):
-                records = collapse_unifurcations(records)
+                records = collapse_unifurcations(
+                    records, dropped_only=True
+                )
 
         log_memory_usage(logging.info)
 
     logging.info("slices complete")
 
+    # redundant w/ below (just here for testing)
     if collapse_unif_freq == -1:
         with log_context_duration(
-            "collapse_unifurcations (finalize)",
+            "collapse_unifurcations(dropped_only=True) "
+            "(finalize)",
             logging.info,
         ):
-            return collapse_unifurcations(records, dropped_only=False)
+            records = collapse_unifurcations(records, dropped_only=True)
+
+    # collapse all unifs, to reduce subsequent memory pressure
+    with log_context_duration(
+        "collapse_unifurcations(dropped_only=False)",
+        logging.info,
+    ):
+        records = collapse_unifurcations(records, dropped_only=False)
+
+    log_memory_usage(logging.info)
+
     return records
 
 
