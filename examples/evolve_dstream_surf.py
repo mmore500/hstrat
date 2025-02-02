@@ -30,7 +30,11 @@ def make_uuid4_fast() -> str:
     return str(uuid.UUID(int=random.getrandbits(128), version=4))
 
 
-def evolve_drift(population: typing.List, fossil_interval: typing.Optional[int] = None) -> typing.List:
+def evolve_drift(
+    population: typing.List,
+    fossil_interval: typing.Optional[int] = None,
+    fossil_sample_percentage: float = 0.1
+) -> typing.List:
     """Simple asexual evolutionary algorithm under drift conditions."""
     selector = random.Random(1)  # ensure consistent true phylogeny
 
@@ -42,7 +46,7 @@ def evolve_drift(population: typing.List, fossil_interval: typing.Optional[int] 
             for parent in selector.choices(population, k=len(population))
         ]
         if fossil_interval and generation % fossil_interval == 0:
-            fossils.extend(population)
+            fossils.extend(selector.sample(population, k=int(len(population) * fossil_sample_percentage)))
 
     # asyncrhonous generations
     nsplit = len(population) // 2
@@ -52,7 +56,7 @@ def evolve_drift(population: typing.List, fossil_interval: typing.Optional[int] 
             for parent in selector.choices(population[:nsplit], k=nsplit)
         ]
         if fossil_interval and generation % fossil_interval == 0:
-            fossils.extend(population)
+            fossils.extend(selector.sample(population, k=int(len(population) * fossil_sample_percentage)))
         selector.shuffle(population)
 
     return fossils + population
@@ -245,6 +249,10 @@ def _parse_args() -> argparse.Namespace:
         type=str,
         default="/tmp/phylo-evolve_surf_dstream.csv",
     )
+    parser.add_argument(
+        "--fossil-interval",
+        type=int,
+    )
 
     args = parser.parse_args()
 
@@ -294,7 +302,7 @@ if __name__ == "__main__":
     # do simulation
     common_ancestor = Organism.create_founder()
     init_population = [common_ancestor.CreateOffspring() for _ in range(100)]
-    end_population = evolve_drift(init_population)
+    end_population = evolve_drift(init_population, fossil_interval=args.fossil_interval)
 
     # mark non-tip taxa extinct
     del common_ancestor
