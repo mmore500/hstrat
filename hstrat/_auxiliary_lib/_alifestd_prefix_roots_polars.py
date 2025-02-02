@@ -96,4 +96,6 @@ def alifestd_prefix_roots_polars(
     )
 
     with pl.StringCache():
-        return pl.concat([prepended_roots, phylogeny_df], how="diagonal_relaxed")
+        return pl.concat(
+            [prepended_roots, phylogeny_df], how="diagonal_relaxed"
+        )
