@@ -248,7 +248,7 @@ struct Records {
  *  be called if no more records will be added to the trie (i.e., reconstruction
  *  is complete).
  */
-Records collapse_unifurcations(Records &records, bool dropped_only = true) {
+Records collapse_unifurcations(Records &records, const bool dropped_only) {
   assert(std::equal(
     std::begin(records.id),
     std::end(records.id),
