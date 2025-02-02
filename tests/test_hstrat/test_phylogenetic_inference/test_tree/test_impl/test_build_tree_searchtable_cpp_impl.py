@@ -10,6 +10,8 @@ from hstrat.phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_s
     Records,
     build_tree_searchtable_cpp_from_exploded,
     collapse_unifurcations,
+    copy_records_to_dict,
+    placeholder_value,
 )
 
 
@@ -20,29 +22,74 @@ def test_collapse_unifurcations_singleton():
 
 
 def test_collapse_all_unifurcations_linear_tree():
+    # 0 <- 1 <- 2 <- 3 <- 4 <- 5 <- 6 <- 7
     records = Records(8)
-    records.addRecord(0, 1, 0, 0, 2, 1, 1, 1, 1)
-    records.addRecord(1, 2, 1, 1, 3, 2, 2, 2, 2)
-    records.addRecord(2, 3, 2, 2, 4, 3, 3, 3, 3)
-    records.addRecord(3, 4, 3, 3, 5, 4, 4, 4, 4)
-    records.addRecord(4, 5, 4, 4, 6, 5, 5, 5, 5)
-    records.addRecord(5, 6, 5, 5, 7, 6, 6, 6, 6)
-    records.addRecord(6, 7, 6, 6, 8, 7, 7, 7, 7)
+    records.addRecord(1, 1, 0, 0, 2, 1, 1, 1, 1)
+    records.addRecord(2, 2, 1, 1, 3, 2, 2, 2, 2)
+    records.addRecord(3, 3, 2, 2, 4, 3, 3, 3, 3)
+    records.addRecord(4, 4, 3, 3, 5, 4, 4, 4, 4)
+    records.addRecord(5, 5, 4, 4, 6, 5, 5, 5, 5)
+    records.addRecord(6, 6, 5, 5, 7, 6, 6, 6, 6)
+    records.addRecord(7, 7, 6, 6, 8, 7, 7, 7, 7)
     records = collapse_unifurcations(records, dropped_only=False)
     assert len(records) == 2
 
+    result = copy_records_to_dict(records)
+    print(result)
+
+    # 0 <- 7(1)
+    expected = {
+        "dstream_data_id": [placeholder_value, 7],
+        "id": [0, 1],
+        "ancestor_id": [0, 0],
+        "search_ancestor_id": [0, 0],
+        "search_first_child_id": [0, 1],
+        "search_prev_sibling_id": [0, 1],
+        "search_next_sibling_id": [0, 1],
+        "rank": [0, 7],
+        "differentia": [0, 7],
+    }
+
+    for key in expected:
+        expected_value = expected[key]
+        assert result[key] == expected_value, key
+
 
 def test_collapse_all_unifurcations_branched_tree():
+    # 0 <- 1 <- 3
+    #  \ <- 2 <- 4 <- 5 <- 6
+    #                  \ <- 7
     records = Records(8)
-    records.addRecord(0, 1, 0, 0, 3, 1, 2, 1, 1)
-    records.addRecord(1, 2, 0, 0, 4, 1, 2, 1, 2)
-    records.addRecord(2, 3, 1, 1, 3, 3, 3, 2, 1)
-    records.addRecord(3, 4, 2, 2, 5, 4, 4, 2, 1)
-    records.addRecord(4, 5, 4, 4, 5, 5, 5, 3, 0)
-    records.addRecord(5, 6, 5, 5, 6, 6, 7, 4, 1)
-    records.addRecord(6, 7, 5, 5, 7, 6, 7, 4, 2)
+    records.addRecord(1, 1, 0, 0, 3, 1, 2, 1, 1)
+    records.addRecord(2, 2, 0, 0, 4, 1, 2, 1, 2)
+    records.addRecord(3, 3, 1, 1, 3, 3, 3, 2, 1)
+    records.addRecord(4, 4, 2, 2, 5, 4, 4, 2, 1)
+    records.addRecord(5, 5, 4, 4, 5, 5, 5, 3, 0)
+    records.addRecord(6, 6, 5, 5, 6, 6, 7, 4, 1)
+    records.addRecord(7, 7, 5, 5, 7, 6, 7, 4, 2)
     records = collapse_unifurcations(records, dropped_only=False)
     assert len(records) == 5
+
+    result = copy_records_to_dict(records)
+
+    # 0 <- 3(1)
+    #  \ <- 5(2) <- 6(3)
+    #         \  <- 7(4)
+    expected = {
+        "dstream_data_id": [placeholder_value, 3, 5, 6, 7],
+        "id": [0, 1, 2, 3, 4],
+        "ancestor_id": [0, 0, 0, 2, 2],
+        "search_ancestor_id": [0, 0, 0, 2, 2],
+        "search_first_child_id": [0, 1, 2, 3, 4],
+        "search_prev_sibling_id": [0, 1, 2, 3, 3],
+        "search_next_sibling_id": [0, 1, 2, 4, 4],
+        "rank": [0, 2, 3, 4, 4],
+        "differentia": [0, 1, 0, 1, 2],
+    }
+
+    for key, value in result.items():
+        expected_value = expected[key]
+        assert value == expected_value, key
 
 
 def test_regression_original():
