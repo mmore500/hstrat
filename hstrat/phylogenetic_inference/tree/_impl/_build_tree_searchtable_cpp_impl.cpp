@@ -287,7 +287,8 @@ Records collapse_unifurcations(Records &records, bool dropped_only = true) {
         records.ancestor_id[id] != id
         and records.search_ancestor_id[id] == id
       );
-      const bool is_selected_unifurcation = is_unifurcation and (!dropped_only || is_dropped);
+      const bool is_selected = dropped_only ? is_dropped : true;
+      const bool is_selected_unifurcation = is_unifurcation and is_selected;
       return !is_selected_unifurcation;
     }
   );
