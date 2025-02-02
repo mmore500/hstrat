@@ -5,7 +5,7 @@ _impl_mod = load_cppimportable_module(
 )
 placeholder_value = _impl_mod.placeholder_value
 Records = _impl_mod.Records
-collapse_dropped_unifurcations = _impl_mod.collapse_dropped_unifurcations
+collapse_unifurcations = _impl_mod.collapse_unifurcations
 copy_records_to_dict = _impl_mod.copy_records_to_dict
 extract_records_to_dict = _impl_mod.extract_records_to_dict
 extend_tree_searchtable_cpp_from_exploded = (
