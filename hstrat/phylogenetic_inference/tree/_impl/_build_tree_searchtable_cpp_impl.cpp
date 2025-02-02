@@ -233,13 +233,20 @@ struct Records {
 
 
 /**
- *  Removes record entries that are unifurcations and are associated with
- *  dropped ranks (i.e., by current num_strata_deposited, differentiae at those
- *  ranks have been purged. This function is used to save memory.
+ *  Delete records w/ one parent and one child (unifurcations) to save memory.
+ *
+ *  If dropped_only=True, removes record entries that are unifurcations and are
+ *  associated with dropped ranks (i.e., by current num_strata_deposited,
+ *  differentiae at those ranks have been purged. This operation may be called
+ *  at any point(s) during trie construction.
  *
  *  Note that detection of dropped ranks is incomplete, as it is based on the
  *  reconfiguration of the search trie. A more comprehensive approach could
  *  collate dropped ranks across all records.
+ *
+ *  If dropped_only=False, removes all unifurcations. Note that this should only
+ *  be called if no more records will be added to the trie (i.e., reconstruction
+ *  is complete).
  */
 Records collapse_unifurcations(Records &records, bool dropped_only = true) {
   assert(std::equal(
