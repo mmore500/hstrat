@@ -1,7 +1,6 @@
 FROM ubuntu:24.04
 
-ENV DEBIAN_FRONTEND=noninteractive PYTHONUNBUFFERED=1
-ENV TQDM_MININTERVAL=5
+ENV DEBIAN_FRONTEND=noninteractive PYTHONUNBUFFERED=1 TQDM_MININTERVAL=5
 
 # Install build tools and GCC 13
 # https://unix.stackexchange.com/a/752016/605206 RE python3-launchpadlib
