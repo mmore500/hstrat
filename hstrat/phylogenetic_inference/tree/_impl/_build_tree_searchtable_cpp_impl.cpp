@@ -248,6 +248,7 @@ Records collapse_unifurcations(Records &records, bool dropped_only = true) {
     CountingIterator<u64>{}
   ));
   if (records.size() == 0) return Records(0, /* init_root= */ false);
+  else if (records.size() == 1) return Records(1, /* init_root= */ true);
 
   // how many entries have an entry as ancestor?
   std::vector<uint8_t> ancestor_ref_counts(records.size());
@@ -1196,7 +1197,17 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
   py::class_<Records>(m, "Records")
       .def(py::init<u64>(), py::arg("init_size"))
       .def_property_readonly("size", &Records::size)
-      .def("addRecord", &Records::addRecord);
+      .def("addRecord", &Records::addRecord,
+        py::arg("data_id"),
+        py::arg("id"),
+        py::arg("ancestor_id"),
+        py::arg("search_ancestor_id"),
+        py::arg("search_first_child_id"),
+        py::arg("search_prev_sibling_id"),
+        py::arg("search_next_sibling_id"),
+        py::arg("rank"),
+        py::arg("differentia")
+  );
   m.def(
     "collapse_unifurcations",
     &collapse_unifurcations,
