@@ -10,7 +10,7 @@ from hstrat.phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_s
     Records,
     build_tree_searchtable_cpp_from_exploded,
     collapse_unifurcations,
-    placeholder_value
+    placeholder_value,
 )
 
 
