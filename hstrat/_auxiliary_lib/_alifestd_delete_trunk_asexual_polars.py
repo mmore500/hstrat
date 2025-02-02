@@ -33,10 +33,9 @@ def alifestd_delete_trunk_asexual_polars(
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
 
-    has_contiguous_ids = (
-        phylogeny_df.select(pl.col("id").diff() == 1).to_series().all()
-        and phylogeny_df["id"].first() == 0
-    )
+    has_contiguous_ids = phylogeny_df.select(
+        pl.col("id").diff() == 1
+    ).to_series().all() and (phylogeny_df["id"].first() == 0)
     if not has_contiguous_ids:
         raise NotImplementedError("non-contiguous ids not yet supported")
 
