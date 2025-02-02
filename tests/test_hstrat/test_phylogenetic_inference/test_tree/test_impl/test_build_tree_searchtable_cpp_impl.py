@@ -14,13 +14,13 @@ from hstrat.phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_s
 )
 
 
-def test_collapse_unifurcations_empty():
+def test_collapse_unifurcations_singleton():
     records = Records(1)
     records = collapse_unifurcations(records, dropped_only=False)
     assert len(records) == 1
 
 
-def test_collapse_unifurcations_all_unifurcation():
+def test_collapse_all_unifurcations_linear_tree():
     records = Records(8)
     records.addRecord(placeholder_value, 1, 0, 0, 2, 1, 1, 1, 1)
     records.addRecord(placeholder_value, 2, 1, 1, 3, 2, 2, 2, 2)
@@ -33,7 +33,7 @@ def test_collapse_unifurcations_all_unifurcation():
     assert len(records) == 2
 
 
-def test_collapse_unifurcations():
+def test_collapse_all_unifurcations_branched_tree():
     records = Records(8)
     records.addRecord(placeholder_value, 1, 0, 0, 3, 1, 2, 1, 1)
     records.addRecord(placeholder_value, 2, 0, 0, 4, 1, 2, 1, 2)
