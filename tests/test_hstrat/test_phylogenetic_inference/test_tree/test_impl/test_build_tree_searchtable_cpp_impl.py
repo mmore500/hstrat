@@ -10,7 +10,6 @@ from hstrat.phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_s
     Records,
     build_tree_searchtable_cpp_from_exploded,
     collapse_unifurcations,
-    placeholder_value,
 )
 
 
@@ -22,26 +21,26 @@ def test_collapse_unifurcations_singleton():
 
 def test_collapse_all_unifurcations_linear_tree():
     records = Records(8)
-    records.addRecord(placeholder_value, 1, 0, 0, 2, 1, 1, 1, 1)
-    records.addRecord(placeholder_value, 2, 1, 1, 3, 2, 2, 2, 2)
-    records.addRecord(placeholder_value, 3, 2, 2, 4, 3, 3, 3, 3)
-    records.addRecord(placeholder_value, 4, 3, 3, 5, 4, 4, 4, 4)
-    records.addRecord(placeholder_value, 5, 4, 4, 6, 5, 5, 5, 5)
-    records.addRecord(placeholder_value, 6, 5, 5, 7, 6, 6, 6, 6)
-    records.addRecord(placeholder_value, 7, 6, 6, 8, 7, 7, 7, 7)
+    records.addRecord(0, 1, 0, 0, 2, 1, 1, 1, 1)
+    records.addRecord(1, 2, 1, 1, 3, 2, 2, 2, 2)
+    records.addRecord(2, 3, 2, 2, 4, 3, 3, 3, 3)
+    records.addRecord(3, 4, 3, 3, 5, 4, 4, 4, 4)
+    records.addRecord(4, 5, 4, 4, 6, 5, 5, 5, 5)
+    records.addRecord(5, 6, 5, 5, 7, 6, 6, 6, 6)
+    records.addRecord(6, 7, 6, 6, 8, 7, 7, 7, 7)
     records = collapse_unifurcations(records, dropped_only=False)
     assert len(records) == 2
 
 
 def test_collapse_all_unifurcations_branched_tree():
     records = Records(8)
-    records.addRecord(placeholder_value, 1, 0, 0, 3, 1, 2, 1, 1)
-    records.addRecord(placeholder_value, 2, 0, 0, 4, 1, 2, 1, 2)
-    records.addRecord(placeholder_value, 3, 1, 1, 3, 3, 3, 2, 1)
-    records.addRecord(placeholder_value, 4, 2, 2, 5, 4, 4, 2, 1)
-    records.addRecord(placeholder_value, 5, 4, 4, 5, 5, 5, 3, 0)
-    records.addRecord(placeholder_value, 6, 5, 5, 6, 6, 7, 4, 1)
-    records.addRecord(placeholder_value, 7, 5, 5, 7, 6, 7, 4, 2)
+    records.addRecord(0, 1, 0, 0, 3, 1, 2, 1, 1)
+    records.addRecord(1, 2, 0, 0, 4, 1, 2, 1, 2)
+    records.addRecord(2, 3, 1, 1, 3, 3, 3, 2, 1)
+    records.addRecord(3, 4, 2, 2, 5, 4, 4, 2, 1)
+    records.addRecord(4, 5, 4, 4, 5, 5, 5, 3, 0)
+    records.addRecord(5, 6, 5, 5, 6, 6, 7, 4, 1)
+    records.addRecord(6, 7, 5, 5, 7, 6, 7, 4, 2)
     records = collapse_unifurcations(records, dropped_only=False)
     assert len(records) == 5
 
