@@ -129,6 +129,17 @@ def _create_parser() -> argparse.ArgumentParser:
             "Must support Pandas dataframe input."
         ),
     )
+    parser.add_argument(
+        "--delete-trunk",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "Should trunk nodes with rank less than `dstream_S` be deleted? "
+            "Trunk deletion accounts for 'dummy' strata added to fill hstrat "
+            "surface for founding ancestor(s), by segregating subtrees with "
+            "distinct founding strata into independent trees."
+        ),
+    )
     return parser
 
 
@@ -151,6 +162,7 @@ if __name__ == "__main__":
             base_parser=parser,
             output_dataframe_op=functools.partial(
                 surface_postprocess_trie,
+                delete_trunk=args.delete_trunk,
                 trie_postprocessor=trie_postprocessor,
             ),
         )

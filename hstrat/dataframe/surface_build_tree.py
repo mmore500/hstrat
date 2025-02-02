@@ -121,6 +121,17 @@ def _create_parser() -> argparse.ArgumentParser:
         help="Number of rows to process at once. Low values reduce memory use.",
     )
     parser.add_argument(
+        "--delete-trunk",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "Should trunk nodes with rank less than `dstream_S` be deleted? "
+            "Trunk deletion accounts for 'dummy' strata added to fill hstrat "
+            "surface for founding ancestor(s), by segregating subtrees with "
+            "distinct founding strata into independent trees."
+        ),
+    )
+    parser.add_argument(
         "--trie-postprocessor",
         type=str,
         default="hstrat.NopTriePostprocessor()",
@@ -154,6 +165,7 @@ def _main(mp_context: str) -> None:
             output_dataframe_op=functools.partial(
                 surface_build_tree,
                 collapse_unif_freq=args.collapse_unif_freq,
+                delete_trunk=args.delete_trunk,
                 exploded_slice_size=args.exploded_slice_size,
                 mp_context=mp_context,
                 trie_postprocessor=trie_postprocessor,

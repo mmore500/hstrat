@@ -15,7 +15,7 @@ from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._jit import jit
-from ._jit_numpy_int64_t import jit_numpy_int64_t
+from ._jit_numpy_uint8_t import jit_numpy_uint8_t
 
 
 @jit(nopython=True)
@@ -24,29 +24,23 @@ def _collapse_unifurcations(
 ) -> typing.Tuple[np.ndarray, np.ndarray]:
     # assumes contiguous ids
 
-    ref_counts = np.zeros(len(ancestor_ids), dtype=jit_numpy_int64_t)
+    ref_counts = np.zeros(len(ancestor_ids), dtype=jit_numpy_uint8_t)
     for ancestor_id in ancestor_ids:
-        ref_counts[ancestor_id] += 1
+        # cap to prevent overflow
+        ref_counts[ancestor_id] = min(ref_counts[ancestor_id] + 1, 2)
 
     ids = np.arange(len(ancestor_ids))
 
-    for pos, _ in enumerate(ancestor_ids):
-
-        ancestor_id = ancestor_ids[pos]
+    for pos, ancestor_id in enumerate(ancestor_ids):
         id_ = ids[pos]
         assert id_ == pos
         assert ancestor_id <= id_
-        ref_count = ref_counts[pos]
 
-        if ref_count == 1 and id_ != ancestor_id:
+        if ref_counts[ancestor_id] == 1:  # root ok
             # percolate ancestor over self
             ancestor_ids[pos] = ancestor_ids[ancestor_id]
-            ids[pos] = ids[ancestor_id]
-        else:
-            # update referenced ancestor
-            ancestor_ids[pos] = ids[ancestor_id]
 
-    keep_filter = ref_counts != 1 | (ancestor_ids == ids)
+    keep_filter = (ref_counts != 1) | (ancestor_ids == ids)
 
     return keep_filter, ancestor_ids
 
@@ -72,13 +66,14 @@ def _alifestd_collapse_unifurcations_asexual(
             phylogeny_df, mutate=True
         )
 
-    logging.info("- alifestd_collapse_unifurcaitons: calculating reindex...")
+    logging.info("- alifestd_collapse_unifurcations: calculating reindex...")
+    assert (phylogeny_df["id"] >= phylogeny_df["ancestor_id"]).all()
     keep_filter, ancestor_ids = _collapse_unifurcations(
         phylogeny_df["ancestor_id"].to_numpy(),
     )
 
-    logging.info("- alifestd_collapse_unifurcaitons: applying reindex...")
-    phylogeny_df = phylogeny_df[keep_filter].copy()
+    logging.info("- alifestd_collapse_unifurcations: applying reindex...")
+    phylogeny_df = phylogeny_df.loc[keep_filter].copy()
     phylogeny_df["id"] = original_ids[keep_filter]
     phylogeny_df["ancestor_id"] = original_ids[ancestor_ids[keep_filter]]
     if "ancestor_list" in phylogeny_df:

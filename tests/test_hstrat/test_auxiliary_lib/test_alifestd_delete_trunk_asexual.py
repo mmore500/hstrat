@@ -1,10 +1,18 @@
+import os
+
 import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
+    alifestd_collapse_unifurcations,
     alifestd_delete_trunk_asexual,
+    alifestd_prefix_roots,
+    alifestd_test_leaves_isomorphic_asexual,
+    alifestd_to_working_format,
     alifestd_validate,
 )
+
+assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
 @pytest.mark.parametrize("mutate", [True, False])
@@ -180,3 +188,86 @@ def test_alifestd_delete_trunk_asexual_noncontiguous_trunk(mutate: bool):
 
     if not mutate:
         assert df.equals(original_df)
+
+
+def test_alifestd_delete_trunk_asexual_unifurcation():
+    phylo = pd.read_csv(f"{assets}/trunktestphylo.csv")
+    phylo["is_trunk"] = phylo["hstrat_rank"] < 64
+    assert alifestd_test_leaves_isomorphic_asexual(
+        phylo, phylo, taxon_label="dstream_data_id"
+    )
+    assert alifestd_test_leaves_isomorphic_asexual(
+        phylo,
+        alifestd_collapse_unifurcations(phylo),
+        taxon_label="dstream_data_id",
+    )
+    assert alifestd_test_leaves_isomorphic_asexual(
+        phylo,
+        alifestd_collapse_unifurcations(phylo),
+        taxon_label="dstream_data_id",
+    )
+    assert alifestd_test_leaves_isomorphic_asexual(
+        alifestd_delete_trunk_asexual(phylo),
+        alifestd_delete_trunk_asexual(phylo),
+        taxon_label="dstream_data_id",
+    )
+    assert alifestd_test_leaves_isomorphic_asexual(
+        alifestd_collapse_unifurcations(alifestd_delete_trunk_asexual(phylo)),
+        alifestd_delete_trunk_asexual(phylo),
+        taxon_label="dstream_data_id",
+    )
+
+    def clean(df: pd.DataFrame, allow_id_reassign: bool) -> pd.DataFrame:
+        return alifestd_to_working_format(
+            alifestd_collapse_unifurcations(
+                alifestd_prefix_roots(
+                    df,
+                    allow_id_reassign=allow_id_reassign,
+                    origin_time=64,
+                ),
+            ),
+        )
+
+    phylo["origin_time"] = phylo["hstrat_rank"]
+    for allow_id_reassign in [True, False]:
+        assert alifestd_test_leaves_isomorphic_asexual(
+            clean(
+                alifestd_delete_trunk_asexual(phylo),
+                allow_id_reassign=allow_id_reassign,
+            ),
+            clean(
+                alifestd_delete_trunk_asexual(
+                    alifestd_collapse_unifurcations(phylo),
+                ),
+                allow_id_reassign=allow_id_reassign,
+            ),
+            taxon_label="dstream_data_id",
+        )
+
+        assert alifestd_test_leaves_isomorphic_asexual(
+            clean(
+                alifestd_delete_trunk_asexual(phylo),
+                allow_id_reassign=allow_id_reassign,
+            ),
+            clean(
+                alifestd_delete_trunk_asexual(
+                    alifestd_collapse_unifurcations(phylo),
+                ),
+                allow_id_reassign=True,
+            ),
+            taxon_label="dstream_data_id",
+        )
+
+        assert alifestd_test_leaves_isomorphic_asexual(
+            clean(
+                alifestd_delete_trunk_asexual(phylo),
+                allow_id_reassign=False,
+            ),
+            clean(
+                alifestd_delete_trunk_asexual(
+                    alifestd_collapse_unifurcations(phylo),
+                ),
+                allow_id_reassign=allow_id_reassign,
+            ),
+            taxon_label="dstream_data_id",
+        )
