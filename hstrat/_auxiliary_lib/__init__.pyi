@@ -14,6 +14,9 @@ from ._alifestd_add_inner_leaves import alifestd_add_inner_leaves
 from ._alifestd_aggregate_phylogenies import alifestd_aggregate_phylogenies
 from ._alifestd_as_newick_asexual import alifestd_as_newick_asexual
 from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
+from ._alifestd_assign_contiguous_ids_polars import (
+    alifestd_assign_contiguous_ids_polars,
+)
 from ._alifestd_assign_root_ancestor_token import (
     alifestd_assign_root_ancestor_token,
 )
@@ -255,6 +258,7 @@ __all__ = [
     "alifestd_aggregate_phylogenies",
     "alifestd_as_newick_asexual",
     "alifestd_assign_contiguous_ids",
+    "alifestd_assign_contiguous_ids_polars",
     "alifestd_assign_root_ancestor_token",
     "alifestd_categorize_triplet_asexual",
     "alifestd_chronological_sort",
