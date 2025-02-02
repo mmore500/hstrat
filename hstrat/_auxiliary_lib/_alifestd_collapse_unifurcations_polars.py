@@ -56,7 +56,8 @@ def alifestd_collapse_unifurcations_polars(
         "- alifestd_collapse_unifurcations_polars: calculating reindex...",
     )
     keep_filter, ancestor_ids = _collapse_unifurcations(
-        phylogeny_df["ancestor_id"].cast(pl.Int64).to_numpy(),
+        # must copy to remove read-only flag for numba compatibility
+        phylogeny_df["ancestor_id"].to_numpy().copy(),
     )
 
     logging.info(
