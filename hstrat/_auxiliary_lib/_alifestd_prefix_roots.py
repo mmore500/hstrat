@@ -16,17 +16,16 @@ def _alifestd_prefix_roots_fast(
 ) -> pd.DataFrame:
     """Fast path for cases with ancestor_id column present and id reassignemnt
     is allowed."""
-
-    prepended_roots["id"] = np.arange(len(prepended_roots))
-    prepended_roots["ancestor_id"] = prepended_roots["id"]
-
     phylogeny_df.reset_index(drop=True, inplace=True)
     phylogeny_df["id"] += len(prepended_roots)
     phylogeny_df["ancestor_id"] += len(prepended_roots)
     phylogeny_df.loc[
         prepended_roots["id"],
         "ancestor_id",
-    ] = prepended_roots["id"].values
+    ] = np.arange(len(prepended_roots))
+
+    prepended_roots["id"] = np.arange(len(prepended_roots))
+    prepended_roots["ancestor_id"] = prepended_roots["id"]
 
     return pd.concat([prepended_roots, phylogeny_df], ignore_index=True)
 
