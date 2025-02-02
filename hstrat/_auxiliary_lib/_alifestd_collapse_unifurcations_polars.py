@@ -1,6 +1,7 @@
 import logging
 import warnings
 
+import numpy as np
 import pandas as pd
 import polars as pl
 
@@ -57,7 +58,7 @@ def alifestd_collapse_unifurcations_polars(
         "- alifestd_collapse_unifurcations_polars: calculating reindex...",
     )
     keep_filter, ancestor_ids = _collapse_unifurcations(
-        phylogeny_df["ancestor_id"].to_numpy(),
+        phylogeny_df["ancestor_id"].cast(pl.Int64).to_numpy(),
     )
 
     logging.info(
