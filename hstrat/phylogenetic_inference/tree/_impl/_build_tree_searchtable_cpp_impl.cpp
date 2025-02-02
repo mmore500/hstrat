@@ -1220,7 +1220,7 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
     "collapse_unifurcations",
     &collapse_unifurcations,
     py::arg("records"),
-    py::arg("dropped_only") = true
+    py::arg("dropped_only")
   );
   m.def(
     "copy_records_to_dict",
