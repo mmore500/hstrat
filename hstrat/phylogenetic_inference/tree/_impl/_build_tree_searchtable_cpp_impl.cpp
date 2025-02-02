@@ -9,7 +9,6 @@
 #include <functional>
 #include <limits>
 #include <numeric>
-#include <optional>
 #include <ranges>
 #include <span>
 #include <unordered_map>
@@ -260,7 +259,7 @@ Records collapse_unifurcations(Records &records, bool dropped_only = true) {
       const auto ancestor_id = records.ancestor_id[id];
       assert(ancestor_id <= id);
       auto& ref_count = ancestor_ref_counts[ancestor_id];
-      // increment preventing overflow
+      // increment preventing overflow (anything past 2 is equivalent)
       ref_count = std::min(ref_count + 1, 2);
     }
   );
@@ -1196,6 +1195,7 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
   m.attr("placeholder_value") = py::int_(placeholder_value);
   py::class_<Records>(m, "Records")
       .def(py::init<u64>(), py::arg("init_size"))
+      .def_property_readonly("size", &Records::size)
       .def("addRecord", &Records::addRecord);
   m.def(
     "collapse_unifurcations",

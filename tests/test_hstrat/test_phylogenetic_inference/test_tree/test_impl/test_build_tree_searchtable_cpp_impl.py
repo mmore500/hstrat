@@ -7,9 +7,21 @@ from hstrat._auxiliary_lib import (
     alifestd_validate,
 )
 from hstrat.phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
+    Records,
     build_tree_searchtable_cpp_from_exploded,
+    collapse_unifurcations,
+    placeholder_value
 )
 
+
+def test_collapse_unifurcations():
+    records = Records(5)
+    records.addRecord(placeholder_value, 0, 0, 0, 1, 0, 0, 0, 0)
+    records.addRecord(placeholder_value, 1, 0, 0, 3, 1, 2, 1, 1)
+    records.addRecord(placeholder_value, 2, 0, 0, 4, 1, 2, 1, 2)
+    records.addRecord(placeholder_value, 3, 1, 1, 3, 3, 3, 2, 1)
+    records.addRecord(placeholder_value, 4, 2, 2, 4, 4, 4, 2, 1)
+    records = collapse_unifurcations(records, dropped_only=False)
 
 def test_regression_original():
     exploded = pl.DataFrame(

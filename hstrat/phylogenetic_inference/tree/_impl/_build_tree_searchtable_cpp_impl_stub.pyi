@@ -18,6 +18,8 @@ class Records:
         rank: int,
         differentia: int,
     ) -> None: ...
+    @property
+    def size(self) -> int: ...
 
 placeholder_value: int
 
