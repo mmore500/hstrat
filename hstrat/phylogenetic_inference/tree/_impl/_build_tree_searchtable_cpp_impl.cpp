@@ -1196,7 +1196,7 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
   m.attr("placeholder_value") = py::int_(placeholder_value);
   py::class_<Records>(m, "Records")
       .def(py::init<u64>(), py::arg("init_size"))
-      .def_property_readonly("size", &Records::size)
+      .def("__len__", &Records::size)
       .def("addRecord", &Records::addRecord,
         py::arg("data_id"),
         py::arg("id"),

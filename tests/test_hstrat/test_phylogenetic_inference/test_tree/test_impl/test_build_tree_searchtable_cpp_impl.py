@@ -17,7 +17,7 @@ from hstrat.phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_s
 def test_collapse_unifurcations_empty():
     records = Records(1)
     records = collapse_unifurcations(records, dropped_only=False)
-    assert records.size == 1
+    assert len(records) == 1
 
 
 def test_collapse_unifurcations_all_unifurcation():
@@ -30,7 +30,7 @@ def test_collapse_unifurcations_all_unifurcation():
     records.addRecord(placeholder_value, 6, 5, 5, 7, 6, 6, 6, 6)
     records.addRecord(placeholder_value, 7, 6, 6, 8, 7, 7, 7, 7)
     records = collapse_unifurcations(records, dropped_only=False)
-    assert records.size == 2
+    assert len(records) == 2
 
 
 def test_collapse_unifurcations():
@@ -43,7 +43,7 @@ def test_collapse_unifurcations():
     records.addRecord(placeholder_value, 6, 5, 5, 6, 6, 7, 4, 1)
     records.addRecord(placeholder_value, 7, 5, 5, 7, 6, 7, 4, 2)
     records = collapse_unifurcations(records, dropped_only=False)
-    assert records.size == 5
+    assert len(records) == 5
 
 
 def test_regression_original():
