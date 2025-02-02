@@ -1,37 +1,43 @@
+import functools
 import gc
 import logging
+import os
 import typing
+import warnings
 
-import pandas as pd
 import polars as pl
+from polars import testing as plt
 from tqdm import tqdm
 
 from .._auxiliary_lib import (
-    alifestd_assign_contiguous_ids,
-    alifestd_collapse_unifurcations,
-    alifestd_delete_trunk_asexual,
-    alifestd_prefix_roots,
+    alifestd_assign_contiguous_ids_polars,
+    alifestd_collapse_unifurcations_polars,
+    alifestd_delete_trunk_asexual_polars,
+    alifestd_prefix_roots_polars,
     get_sole_scalar_value_polars,
+    is_in_unit_test,
     log_context_duration,
     log_memory_usage,
-    render_pandas_snapshot,
     render_polars_snapshot,
 )
 from ..phylogenetic_inference.tree.trie_postprocess import NopTriePostprocessor
+from ._surface_postprocess_trie_via_pandas import (
+    _surface_postprocess_trie_via_pandas,
+)
 
 
 def _do_collapse_unifurcations(
-    df: pd.DataFrame,
-) -> pd.DataFrame:
+    df: pl.DataFrame,
+) -> pl.DataFrame:
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = alifestd_assign_contiguous_ids(df, mutate=True)
+        df = alifestd_assign_contiguous_ids_polars(df)
 
     gc.collect()
 
     with log_context_duration("alifestd_collapse_unifurcations", logging.info):
-        df = alifestd_collapse_unifurcations(df, mutate=True)
+        df = alifestd_collapse_unifurcations_polars(df)
 
-    render_pandas_snapshot(df, "collapsed tree", logging.info)
+    render_polars_snapshot(df, "collapsed tree", logging.info)
 
     gc.collect()
 
@@ -39,54 +45,73 @@ def _do_collapse_unifurcations(
 
 
 def _do_delete_trunk(
-    df: pd.DataFrame,
-) -> pd.DataFrame:
+    df: pl.DataFrame,
+) -> pl.DataFrame:
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = alifestd_assign_contiguous_ids(df, mutate=True)
+        df = alifestd_assign_contiguous_ids_polars(df)
 
     gc.collect()
 
-    with log_context_duration(
-        "df['dstream_S'].unique().squeeze()", logging.info
-    ):
-        dstream_S = df["dstream_S"].unique().squeeze()
+    with log_context_duration("get_sole_scalar_value_polars", logging.info):
+        dstream_S = get_sole_scalar_value_polars(df, "dstream_S")
 
-    df["is_trunk"] = df["hstrat_rank"] < df["dstream_S"]
-    df["origin_time"] = df["hstrat_rank"]
+    df = df.with_columns(
+        is_trunk=pl.col("hstrat_rank") < dstream_S,
+        origin_time=pl.col("hstrat_rank"),
+    )
 
     with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
-        df = alifestd_delete_trunk_asexual(df, mutate=True)
+        df = alifestd_delete_trunk_asexual_polars(df)
 
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = alifestd_assign_contiguous_ids(df, mutate=True)
+        df = alifestd_assign_contiguous_ids_polars(df)
 
     with log_context_duration("alifestd_prefix_roots", logging.info):
         # extend newly-clipped roots all the way back to dstream_S boundary
-        df = alifestd_prefix_roots(
-            df, allow_id_reassign=True, origin_time=dstream_S, mutate=True
+        df = alifestd_prefix_roots_polars(
+            df, allow_id_reassign=True, origin_time=dstream_S
         )
 
-    del df["is_trunk"]
-    del df["ancestor_is_trunk"]
-    del df["origin_time"]
     gc.collect()
 
-    return df
+    return df.drop(
+        ["is_trunk", "ancestor_is_trunk", "origin_time"], strict=False
+    )
 
 
 def _do_assign_contiguous_ids(
-    df: pd.DataFrame,
-) -> pd.DataFrame:
+    df: pl.DataFrame,
+) -> pl.DataFrame:
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = alifestd_assign_contiguous_ids(df, mutate=True)
+        df = alifestd_assign_contiguous_ids_polars(df)
 
     gc.collect()
 
-    render_pandas_snapshot(df, "reassigned tree", logging.info)
+    render_polars_snapshot(df, "reassigned tree", logging.info)
 
     return df
 
 
+def _validate_against_via_pandas(func: typing.Callable) -> typing.Callable:
+    """Decorator to validate Polars impl against equivalent Pandas impl."""
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs) -> pl.DataFrame:
+        result = func(*args, **kwargs)
+        if "CI" in os.environ or is_in_unit_test():
+            warnings.warn(
+                "CI environment detected, performing extra validation tests",
+            )
+            expected = _surface_postprocess_trie_via_pandas(*args, **kwargs)
+            plt.assert_frame_equal(
+                result, expected, check_column_order=False, check_dtypes=False
+            )
+        return result
+
+    return wrapper
+
+
+@_validate_against_via_pandas
 def surface_postprocess_trie(
     df: pl.DataFrame,
     *,
@@ -143,7 +168,7 @@ def surface_postprocess_trie(
         Must take `trie` of type `pandas.DataFrame`,
         `p_differentia_collision` of type `float`, `mutate` of type `bool`, and
         `progress_wrap` of type `Callable` params. Must returned postprocessed
-        trie (type `pd.DataFrame`).
+        trie (type `pl.DataFrame`).
 
         To apply multiple postprocessors, use
         `hstrat.CompoundTriePostprocessor`.
@@ -202,11 +227,6 @@ def surface_postprocess_trie(
     )
     logging.info(f" - differentia bitwidth: {differentia_bitwidth}")
 
-    logging.info("converting DataFrame to Pandas...")
-    with log_context_duration("pl.DataFrame.to_pandas", logging.info):
-        df = df.lazy().collect().to_pandas()
-    render_pandas_snapshot(df, "as pandas", logging.info)
-    log_memory_usage(logging.info)
     original_columns = df.columns
 
     if delete_trunk:
@@ -218,19 +238,21 @@ def surface_postprocess_trie(
 
     with log_context_duration("trie_postprocessor", logging.info):
         pre_postprocessor_columns = {*df.columns}
-        df = df.rename(columns={"hstrat_rank": "rank"})
+        df = df.rename({"hstrat_rank": "rank"})
         df = trie_postprocessor(
             df,
             p_differentia_collision=2**-differentia_bitwidth,
             mutate=True,
             progress_wrap=tqdm,
         )
-        df = df.rename(columns={"rank": "hstrat_rank"})
+        df = df.rename({"rank": "hstrat_rank"})
 
-    render_pandas_snapshot(df, "with trie postprocessing", logging.info)
+    render_polars_snapshot(df, "with trie postprocessing", logging.info)
 
     logging.info("setting up hstrat_rank_from_t0...")
-    df["hstrat_rank_from_t0"] = df["hstrat_rank"] - df["dstream_S"]
+    df = df.with_columns(
+        hstrat_rank_from_t0=pl.col("hstrat_rank") - pl.col("dstream_S"),
+    )
 
     to_keep = {*original_columns} - {
         "dstream_S",
@@ -239,14 +261,10 @@ def surface_postprocess_trie(
     }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
-    df.drop(columns=[*to_drop], inplace=True)
-    gc.collect()
+    df = df.drop(*to_drop)
 
-    logging.info("converting DataFrame to Polars...")
-    with log_context_duration("pl.from_pandas", logging.info):
-        df = pl.from_pandas(df)
-    gc.collect()
     render_polars_snapshot(df, "as polars", logging.info)
+    gc.collect()
     log_memory_usage(logging.info)
 
     return df
