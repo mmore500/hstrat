@@ -14,6 +14,7 @@ from downstream import dstream
 import numpy as np
 import opytional as opyt
 import pandas as pd
+from pandas._libs.lib import generate_slices
 from tqdm import tqdm
 
 try:
@@ -29,16 +30,19 @@ def make_uuid4_fast() -> str:
     return str(uuid.UUID(int=random.getrandbits(128), version=4))
 
 
-def evolve_drift(population: typing.List) -> typing.List:
+def evolve_drift(population: typing.List, fossil_interval: typing.Optional[int] = None) -> typing.List:
     """Simple asexual evolutionary algorithm under drift conditions."""
     selector = random.Random(1)  # ensure consistent true phylogeny
 
     # synchronous generations
+    fossils = []
     for generation in tqdm(range(500)):
         population = [
             parent.CreateOffspring()
             for parent in selector.choices(population, k=len(population))
         ]
+        if fossil_interval and generation % fossil_interval == 0:
+            fossils.extend(population)
 
     # asyncrhonous generations
     nsplit = len(population) // 2
@@ -47,9 +51,11 @@ def evolve_drift(population: typing.List) -> typing.List:
             parent.CreateOffspring()
             for parent in selector.choices(population[:nsplit], k=nsplit)
         ]
+        if fossil_interval and generation % fossil_interval == 0:
+            fossils.extend(population)
         selector.shuffle(population)
 
-    return population
+    return fossils + population
 
 
 def make_Organism(
