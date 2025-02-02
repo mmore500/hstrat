@@ -239,9 +239,7 @@ def _build_records_chunked(
                 f"({i + 1} / {len(slices)})",
                 logging.info,
             ):
-                records = collapse_unifurcations(
-                    records, dropped_only=True
-                )
+                records = collapse_unifurcations(records, dropped_only=True)
 
         log_memory_usage(logging.info)
 
@@ -250,8 +248,7 @@ def _build_records_chunked(
     # redundant w/ below (just here for testing)
     if collapse_unif_freq == -1:
         with log_context_duration(
-            "collapse_unifurcations(dropped_only=True) "
-            "(finalize)",
+            "collapse_unifurcations(dropped_only=True) (finalize)",
             logging.info,
         ):
             records = collapse_unifurcations(records, dropped_only=True)
