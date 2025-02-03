@@ -157,7 +157,7 @@ class HereditaryStratigraphicColumn:
 
     def __eq__(
         self: "HereditaryStratigraphicColumn",
-        other: "HereditaryStratigraphicColumn",
+        other: typing.Any,
     ) -> bool:
         """Compare for value-wise equality."""
         # adapted from https://stackoverflow.com/a/4522896
