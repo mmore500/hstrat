@@ -66,6 +66,6 @@ def alifestd_collapse_unifurcations_polars(
         "- alifestd_collapse_unifurcations_polars: applying reindex...",
     )
     return phylogeny_df.filter(keep_filter).with_columns(
-        id=original_ids.filter(keep_filter),
+        id=original_ids.to_numpy()[keep_filter],
         ancestor_id=original_ids.gather(ancestor_ids[keep_filter]),
     )
