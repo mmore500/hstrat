@@ -68,7 +68,7 @@ def evolve_drift(
             )
         selector.shuffle(population)
 
-    return fossils + population
+    return [*fossils, *population]
 
 
 def make_Organism(
@@ -318,8 +318,8 @@ if __name__ == "__main__":
     del init_population
     gc.collect()
 
-    print(syst.get_total_orgs())
-    print(len(end_population))
+    print("num organisms retained in exact tracker:", syst.get_total_orgs())
+    print("final population size:", len(end_population))
 
 
     # set up validators to test during downstream processing
