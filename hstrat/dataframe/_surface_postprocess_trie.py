@@ -5,8 +5,8 @@ import os
 import typing
 import warnings
 
+from pandas import testing as pdt
 import polars as pl
-from polars import testing as plt
 from tqdm import tqdm
 
 from .._auxiliary_lib import (
@@ -103,8 +103,12 @@ def _validate_against_via_pandas(func: typing.Callable) -> typing.Callable:
                 "CI environment detected, performing extra validation tests",
             )
             expected = _surface_postprocess_trie_via_pandas(*args, **kwargs)
-            plt.assert_frame_equal(
-                result, expected, check_column_order=False, check_dtypes=False
+            # convert to pandas to avoid Polars StringCache issues
+            pdt.assert_frame_equal(
+                result.to_pandas(),
+                expected.to_pandas(),
+                check_dtype=False,
+                check_like=True,
             )
         return result
 
