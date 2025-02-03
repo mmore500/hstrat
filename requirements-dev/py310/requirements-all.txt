@@ -3,13 +3,19 @@
 alabaster==1.0.0
     # via sphinx
 alifedata-phyloinformatics-convert==0.17.0
-    # via hstrat (../../pyproject.toml)
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   colorclade
 annotated-types==0.7.0
     # via pydantic
 anytree==2.12.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
+appnope==0.1.4
+    # via
+    #   ipykernel
+    #   ipython
 asttokens==2.4.1
     # via stack-data
 attrs==24.2.0
@@ -26,6 +32,7 @@ biopython==1.84
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
+    #   colorclade
 bitarray==3.0.0
     # via hstrat (../../pyproject.toml)
 bitstring==4.0.2
@@ -48,6 +55,8 @@ click==8.1.7
     #   keyname
 colorama==0.4.6
     # via bumpver
+colorclade==0.2.0
+    # via hstrat (../../pyproject.toml)
 comm==0.2.2
     # via ipykernel
 contexttimer==0.3.3
@@ -181,6 +190,7 @@ markupsafe==3.0.2
 matplotlib==3.9.2
     # via
     #   hstrat (../../pyproject.toml)
+    #   colorclade
     #   seaborn
     #   teeplot
 matplotlib-inline==0.1.7
@@ -236,6 +246,7 @@ numpy==2.0.2
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
     #   biopython
+    #   colorclade
     #   contourpy
     #   downstream
     #   matplotlib
@@ -251,6 +262,7 @@ opytional==0.1.0
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
+    #   colorclade
     #   downstream
 ordered-set==4.1.0
     # via hstrat (../../pyproject.toml)
@@ -405,7 +417,9 @@ scipy==1.14.1
     #   hstrat (../../pyproject.toml)
     #   statsmodels
 seaborn==0.13.2
-    # via hstrat (../../pyproject.toml)
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   colorclade
 setuptools==75.5.0
     # via
     #   hstrat (../../pyproject.toml)

@@ -97,6 +97,7 @@ phylo-extra = [
 testing = [
   "black==22.10.0",
   "biopython>=1.79",
+  "colorclade>=0.2.0",
   "contexttimer==0.3.3",
   "coverage==6.4.4",
   "flake8==3.7.8",
