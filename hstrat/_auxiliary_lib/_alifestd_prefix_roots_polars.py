@@ -1,3 +1,4 @@
+import logging
 import numbers
 import typing
 import warnings
@@ -45,6 +46,7 @@ def alifestd_prefix_roots_polars(
 
     phylogeny_df = phylogeny_df.drop("is_root", strict=False)
 
+    logging.info("- alifestd_prefix_roots: marking eligible roots...")
     eligible_roots = (
         phylogeny_df.lazy()
         .with_columns(
@@ -60,6 +62,7 @@ def alifestd_prefix_roots_polars(
         .to_series()
     )
 
+    logging.info("- alifestd_prefix_roots: filtering prepended roots...")
     prepended_roots = (
         phylogeny_df.lazy()
         .filter(
@@ -74,10 +77,12 @@ def alifestd_prefix_roots_polars(
     )
 
     if "origin_time" in prepended_roots:
+        logging.info("- alifestd_prefix_roots: setting origin time...")
         prepended_roots = prepended_roots.with_columns(
             origin_time=pl.lit(opyt.or_value(origin_time, 0))
         )
 
+    logging.info("- alifestd_prefix_roots: updating phylogeny_df...")
     phylogeny_df = phylogeny_df.with_columns(
         id=pl.col("id") + pl.lit(len(prepended_roots)),
         ancestor_id=pl.col("ancestor_id") + pl.lit(len(prepended_roots)),
@@ -90,6 +95,7 @@ def alifestd_prefix_roots_polars(
         ancestor_id=pl.Series(ancestor_ids),
     )
 
+    logging.info("- alifestd_prefix_roots: updating prepended roots...")
     prepended_roots = prepended_roots.with_columns(
         id=pl.int_range(len(prepended_roots)),
         ancestor_id=pl.int_range(len(prepended_roots)),
@@ -101,11 +107,14 @@ def alifestd_prefix_roots_polars(
         },
     )
 
+    logging.info("- alifestd_prefix_roots: creating gather_indices...")
     gather_indices = np.empty(
         len(phylogeny_df) + len(prepended_roots), dtype=np.int64
     )
     gather_indices[: len(prepended_roots)] = np.arange(len(prepended_roots))
     gather_indices[len(prepended_roots) :] = np.arange(len(phylogeny_df))
+
+    logging.info("- alifestd_prefix_roots: gathering and updating...")
     return (
         phylogeny_df.lazy()
         .select(pl.all().gather(gather_indices))
