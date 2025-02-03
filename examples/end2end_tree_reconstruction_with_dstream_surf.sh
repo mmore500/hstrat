@@ -1,12 +1,19 @@
 #!/bin/bash
 
-set -euo pipefail
+set -eo pipefail
 
 has_cppimport="$(python3 -m pip freeze | grep '^cppimport==' | wc -l)"
 if [ "${has_cppimport}" -eq 0 ]; then
     echo "cppimport required for $(basename "$0") but not installed."
     echo "python3 -m pip install cppimport"
     exit 1
+fi
+
+vis=1
+if [ "$1" = "--skip-visualization" ]; then
+  echo "skipping visualization..."
+  shift 1
+  vis=0
 fi
 
 cd "$(dirname "$0")"
@@ -30,13 +37,17 @@ ls "${genome_df_path}" | python3 -m \
     >/dev/null 2>&1
 
 # convert dataframes to images
-python3 ./_visualize_phylogenies.py \
-  --true-df-path "${true_phylo_df_path}" \
-  --reconst-df-path "${reconst_phylo_df_path}" \
-  --img-path "${img_path}"
+if [ $vis -eq 1 ]; then
+  python3 ./_visualize_phylogenies.py \
+    --true-df-path "${true_phylo_df_path}" \
+    --reconst-df-path "${reconst_phylo_df_path}" \
+    --img-path "${img_path}"
+fi
 
 # log output paths
 echo "genome_df_path = '${genome_df_path}'"
 echo "true_phylo_df_path = '${true_phylo_df_path}'"
 echo "reconst_phylo_df_path = '${reconst_phylo_df_path}'"
-echo "visualized_phylogenies_path = '${img_path}'"
+if [ $vis -eq 1 ]; then
+  echo "visualized_phylogenies_path = '${img_path}'"
+fi
