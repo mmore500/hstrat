@@ -46,7 +46,12 @@ def evolve_drift(
             for parent in selector.choices(population, k=len(population))
         ]
         if fossil_interval and generation % fossil_interval == 0:
-            fossils.extend(selector.sample(population, k=int(len(population) * fossil_sample_percentage)))
+            fossils.extend(
+                [
+                    parent.CreateOffspring() for parent in
+                    selector.sample(population, k=int(len(population) * fossil_sample_percentage))
+                ]
+            )
 
     # asyncrhonous generations
     nsplit = len(population) // 2
@@ -56,7 +61,12 @@ def evolve_drift(
             for parent in selector.choices(population[:nsplit], k=nsplit)
         ]
         if fossil_interval and generation % fossil_interval == 0:
-            fossils.extend(selector.sample(population, k=int(len(population) * fossil_sample_percentage)))
+            fossils.extend(
+                [
+                    parent.CreateOffspring() for parent in
+                    selector.sample(population, k=int(len(population) * fossil_sample_percentage))
+                ]
+            )
         selector.shuffle(population)
 
     return fossils + population
@@ -308,6 +318,10 @@ if __name__ == "__main__":
     del common_ancestor
     del init_population
     gc.collect()
+
+    print(syst.get_total_orgs())
+    print(len(end_population))
+
 
     # set up validators to test during downstream processing
     S = args.surface_size
