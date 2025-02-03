@@ -11,4 +11,5 @@ Contributors
 ------------
 
 * Connor Yang
+* Santiago Rodriguez-Papa
 * Vivaan Singhvi
