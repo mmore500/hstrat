@@ -4,12 +4,15 @@ import os
 import typing
 
 import pandas as pd
+import pandas.testing as pdt
+import polars as pl
 import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_aggregate_phylogenies,
     alifestd_assign_contiguous_ids,
     alifestd_collapse_unifurcations,
+    alifestd_collapse_unifurcations_polars,
     alifestd_count_root_nodes,
     alifestd_find_leaf_ids,
     alifestd_find_mrca_id_asexual,
@@ -101,6 +104,21 @@ def test_alifestd_collapse_unifurcations(
     assert set(alifestd_find_leaf_ids(phylogeny_df)) == set(
         alifestd_find_leaf_ids(collapsed_df)
     )
+
+    if alifestd_is_asexual(phylogeny_df):
+        pdt.assert_frame_equal(
+            collapsed_df.drop(
+                "ancestor_list", axis=1, errors="ignore"
+            ).reset_index(drop=True),
+            alifestd_collapse_unifurcations_polars(
+                pl.from_pandas(
+                    alifestd_try_add_ancestor_id_col(collapsed_df).drop(
+                        "ancestor_list", axis=1, errors="ignore"
+                    )
+                )
+            ).to_pandas(),
+            check_dtype=False,
+        )
 
     phylogeny_df_ = phylogeny_df.set_index("id", drop=False)
     for _idx, row in collapsed_df.iterrows():
