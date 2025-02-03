@@ -65,18 +65,10 @@ def alifestd_prefix_roots_polars(
         .filter(
             eligible_roots,
         )
-        .with_columns(
-            **{
-                col: pl.lit(None, dtype=dtype)
-                for col, dtype in phylogeny_df.collect_schema().items()
-                if col
-                not in (
-                    "id",
-                    "origin_time",
-                    "ancestor_id",
-                    "ancestor_list",
-                )
-            },
+        .select(
+            "id",
+            "origin_time",
+            "ancestor_id",
         )
         .collect()
     )
@@ -101,6 +93,30 @@ def alifestd_prefix_roots_polars(
     prepended_roots = prepended_roots.with_columns(
         id=pl.int_range(len(prepended_roots)),
         ancestor_id=pl.int_range(len(prepended_roots)),
-    ).cast(phylogeny_df.collect_schema())
+    ).cast(
+        {
+            k: v
+            for k, v in phylogeny_df.collect_schema().items()
+            if k in prepended_roots.collect_schema()
+        },
+    )
 
-    return pl.concat([prepended_roots, phylogeny_df], how="vertical")
+    gather_indices = np.empty(
+        len(phylogeny_df) + len(prepended_roots), dtype=np.int64
+    )
+    gather_indices[: len(prepended_roots)] = np.arange(len(prepended_roots))
+    gather_indices[len(prepended_roots) :] = np.arange(len(phylogeny_df))
+    return (
+        phylogeny_df.lazy()
+        .select(pl.all().gather(gather_indices))
+        .with_row_index()
+        .with_columns(
+            pl.when(pl.col("index") < len(prepended_roots))
+            .then(None)
+            .otherwise(pl.all())
+            .name.keep()
+        )
+        .drop("index")
+        .update(prepended_roots.lazy())
+        .collect()
+    )
