@@ -3,13 +3,14 @@ import subprocess
 import typing
 
 import alifedata_phyloinformatics_convert as apc
+import pandas as pd
+
 from hstrat._auxiliary_lib import (
     alifestd_collapse_unifurcations,
     alifestd_count_leaf_nodes,
     alifestd_prune_extinct_lineages_asexual,
     alifestd_try_add_ancestor_list_col,
 )
-import pandas as pd
 
 try:
     import tqdist
