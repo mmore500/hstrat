@@ -318,7 +318,7 @@ if __name__ == "__main__":
     del init_population
     gc.collect()
 
-    print(syst.get_total_orgs())
+    print("num organisms retained in exact tracker:", syst.get_total_orgs())
     print(len(end_population))
 
 
