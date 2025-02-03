@@ -21,6 +21,9 @@ from ._alifestd_assign_root_ancestor_token import (
     alifestd_assign_root_ancestor_token,
 )
 from ._alifestd_calc_polytomic_index import alifestd_calc_polytomic_index
+from ._alifestd_calc_triplet_distance_asexual import (
+    alifestd_calc_triplet_distance_asexual,
+)
 from ._alifestd_categorize_triplet_asexual import (
     alifestd_categorize_triplet_asexual,
 )
@@ -275,6 +278,7 @@ __all__ = [
     "alifestd_collapse_unifurcations",
     "alifestd_collapse_unifurcations_polars",
     "alifestd_calc_polytomic_index",
+    "alifestd_calc_triplet_distance_asexual",
     "alifestd_count_children_of_asexual",
     "alifestd_count_inner_nodes",
     "alifestd_count_leaf_nodes",
