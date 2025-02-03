@@ -10,4 +10,6 @@ Development Lead
 Contributors
 ------------
 
-None yet. Why not be the first?
+* Connor Yang
+* Santiago Rodriguez-Papa
+* Vivaan Singhvi

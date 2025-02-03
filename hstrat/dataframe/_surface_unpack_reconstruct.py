@@ -278,7 +278,7 @@ def _join_user_defined_columns(
         *phylo_df.lazy().collect_schema().names()
     }
     if joined_columns:
-        logging.info(f" - {len(joined_columns)} column to join")
+        logging.info(f" - {len(joined_columns)} column(s) to join")
         logging.info(f" - joining columns: {[*joined_columns]}")
         phylo_df = phylo_df.join(
             df.lazy().collect(), on="dstream_data_id", how="left"

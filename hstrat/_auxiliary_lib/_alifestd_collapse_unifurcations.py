@@ -103,7 +103,10 @@ def alifestd_collapse_unifurcations(
     value to get transformed phylogeny dataframe.
     """
 
-    if "branch_length" in phylogeny_df or "edge_length" in phylogeny_df:
+    if any(
+        col in phylogeny_df
+        for col in ["branch_length", "edge_length", "origin_time_delta"]
+    ):
         warnings.warn(
             "alifestd_collapse_unifurcations does not update branch length "
             "columns. Use `origin_time` to recalculate branch lengths for "

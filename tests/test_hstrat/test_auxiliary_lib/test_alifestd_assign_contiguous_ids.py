@@ -3,11 +3,14 @@ import os
 
 import alifedata_phyloinformatics_convert as apc
 import pandas as pd
+from pandas import testing as pdt
+import polars as pl
 import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_aggregate_phylogenies,
     alifestd_assign_contiguous_ids,
+    alifestd_assign_contiguous_ids_polars,
     alifestd_find_leaf_ids,
     alifestd_has_contiguous_ids,
     alifestd_is_asexual,
@@ -76,6 +79,19 @@ def test_alifestd_assign_contiguous_ids(phylogeny_df, apply):
                 phylogeny_df["ancestor_list"],
             )
         ).all()
+        pdt.assert_frame_equal(
+            reassigned_df.drop(
+                "ancestor_list", axis=1, errors="ignore"
+            ).reset_index(drop=True),
+            alifestd_assign_contiguous_ids_polars(
+                pl.from_pandas(
+                    phylogeny_df_.drop(
+                        "ancestor_list", axis=1, errors="ignore"
+                    )
+                )
+            ).to_pandas(),
+            check_dtype=False,
+        )
 
     if alifestd_is_asexual(phylogeny_df):
         phylogeny_trees = apc.alife_dataframe_to_dendropy_trees(phylogeny_df)

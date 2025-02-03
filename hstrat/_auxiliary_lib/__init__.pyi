@@ -14,6 +14,9 @@ from ._alifestd_add_inner_leaves import alifestd_add_inner_leaves
 from ._alifestd_aggregate_phylogenies import alifestd_aggregate_phylogenies
 from ._alifestd_as_newick_asexual import alifestd_as_newick_asexual
 from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
+from ._alifestd_assign_contiguous_ids_polars import (
+    alifestd_assign_contiguous_ids_polars,
+)
 from ._alifestd_assign_root_ancestor_token import (
     alifestd_assign_root_ancestor_token,
 )
@@ -28,6 +31,9 @@ from ._alifestd_coerce_chronological_consistency import (
 )
 from ._alifestd_collapse_trunk_asexual import alifestd_collapse_trunk_asexual
 from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
+from ._alifestd_collapse_unifurcations_polars import (
+    alifestd_collapse_unifurcations_polars,
+)
 from ._alifestd_convert_root_ancestor_token import (
     alifestd_convert_root_ancestor_token,
 )
@@ -40,6 +46,9 @@ from ._alifestd_count_polytomies import alifestd_count_polytomies
 from ._alifestd_count_root_nodes import alifestd_count_root_nodes
 from ._alifestd_count_unifurcations import alifestd_count_unifurcations
 from ._alifestd_delete_trunk_asexual import alifestd_delete_trunk_asexual
+from ._alifestd_delete_trunk_asexual_polars import (
+    alifestd_delete_trunk_asexual_polars,
+)
 from ._alifestd_downsample_tips_asexual import alifestd_downsample_tips_asexual
 from ._alifestd_estimate_triplet_distance_asexual import (
     alifestd_estimate_triplet_distance_asexual,
@@ -89,6 +98,7 @@ from ._alifestd_mark_roots import alifestd_mark_roots
 from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_prefix_roots import alifestd_prefix_roots
+from ._alifestd_prefix_roots_polars import alifestd_prefix_roots_polars
 from ._alifestd_prune_extinct_lineages_asexual import (
     alifestd_prune_extinct_lineages_asexual,
 )
@@ -255,6 +265,7 @@ __all__ = [
     "alifestd_aggregate_phylogenies",
     "alifestd_as_newick_asexual",
     "alifestd_assign_contiguous_ids",
+    "alifestd_assign_contiguous_ids_polars",
     "alifestd_assign_root_ancestor_token",
     "alifestd_categorize_triplet_asexual",
     "alifestd_chronological_sort",
@@ -262,6 +273,7 @@ __all__ = [
     "alifestd_coerce_chronological_consistency",
     "alifestd_collapse_trunk_asexual",
     "alifestd_collapse_unifurcations",
+    "alifestd_collapse_unifurcations_polars",
     "alifestd_calc_polytomic_index",
     "alifestd_count_children_of_asexual",
     "alifestd_count_inner_nodes",
@@ -270,6 +282,7 @@ __all__ = [
     "alifestd_count_polytomies",
     "alifestd_count_unifurcations",
     "alifestd_delete_trunk_asexual",
+    "alifestd_delete_trunk_asexual_polars",
     "alifestd_downsample_tips_asexual",
     "alifestd_estimate_triplet_distance_asexual",
     "alifestd_find_chronological_inconsistency",
@@ -303,6 +316,7 @@ __all__ = [
     "alifestd_parse_ancestor_id",
     "alifestd_parse_ancestor_ids",
     "alifestd_prefix_roots",
+    "alifestd_prefix_roots_polars",
     "alifestd_prune_extinct_lineages_asexual",
     "alifestd_reroot_at_id_asexual",
     "alifestd_convert_root_ancestor_token",
