@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eo pipefail
+set -euo pipefail
 
 has_cppimport="$(python3 -m pip freeze | grep '^cppimport==' | wc -l)"
 if [ "${has_cppimport}" -eq 0 ]; then
@@ -10,7 +10,7 @@ if [ "${has_cppimport}" -eq 0 ]; then
 fi
 
 vis=1
-if [ "$1" = "--skip-visualization" ]; then
+if [ "${1:-}" = "--skip-visualization" ]; then
   shift 1
   vis=0
 fi
