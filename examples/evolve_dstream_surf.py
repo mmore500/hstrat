@@ -68,7 +68,7 @@ def evolve_drift(
             )
         selector.shuffle(population)
 
-    return fossils + population
+    return [*fossils, *population]
 
 
 def make_Organism(
