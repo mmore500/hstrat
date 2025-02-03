@@ -11,7 +11,6 @@ fi
 
 vis=1
 if [ "$1" = "--skip-visualization" ]; then
-  echo "skipping visualization..."
   shift 1
   vis=0
 fi

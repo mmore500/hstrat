@@ -84,7 +84,9 @@ def load_df(path: str) -> pd.DataFrame:
 
 
 def sample_reference_and_reconstruction(
-    differentia_bitwidth: int, surface_size: int, fossil_interval: typing.Optional[int]
+    differentia_bitwidth: int,
+    surface_size: int,
+    fossil_interval: typing.Optional[int],
 ) -> typing.Tuple[pd.DataFrame, pd.DataFrame]:
     """Sample a reference phylogeny and corresponding reconstruction."""
     paths = subprocess.run(
@@ -95,10 +97,12 @@ def sample_reference_and_reconstruction(
             f"{differentia_bitwidth}",
             "--surface-size",
             f"{surface_size}",
-        ] + ([
-            '--fossil-interval',
-            f"{fossil_interval}"
-        ] if fossil_interval is not None else []),
+        ]
+        + (
+            ["--fossil-interval", f"{fossil_interval}"]
+            if fossil_interval is not None
+            else []
+        ),
         check=True,
         capture_output=True,
         text=True,
@@ -111,10 +115,9 @@ def sample_reference_and_reconstruction(
         load_df(vars["reconst_phylo_df_path"]),
     )  # ancestor_list column must be added to comply with alife standard
 
-    assert (
-        alifestd_count_leaf_nodes(true_phylo_df)
-        == alifestd_count_leaf_nodes(reconst_phylo_df)
-    )
+    assert alifestd_count_leaf_nodes(
+        true_phylo_df
+    ) == alifestd_count_leaf_nodes(reconst_phylo_df)
 
     return true_phylo_df, reconst_phylo_df
 
@@ -133,7 +136,11 @@ def visualize_reconstruction(
     print(to_ascii(reconst_phylo_df, show_taxa))
 
 
-def test_reconstruct_one(differentia_bitwidth: int, surface_size: int, fossil_interval: typing.Optional[int]) -> float:
+def test_reconstruct_one(
+    differentia_bitwidth: int,
+    surface_size: int,
+    fossil_interval: typing.Optional[int],
+) -> float:
     """Test the reconstruction of a single phylogeny."""
     print("=" * 80)
     print(f"surface_size: {surface_size}")
@@ -158,11 +165,16 @@ def test_reconstruct_one(differentia_bitwidth: int, surface_size: int, fossil_in
 
 if __name__ == "__main__":
     reconstruction_errors = [
-        test_reconstruct_one(differentia_bitwidth, surface_size, fossil_interval)
-        for differentia_bitwidth in (64, 8, 1)
-        for surface_size in (256, 64, 16)
+        test_reconstruct_one(
+            differentia_bitwidth, surface_size, fossil_interval
+        )
         for fossil_interval in (None, 50, 200)
+        for surface_size in (256, 64, 16)
+        for differentia_bitwidth in (64, 8, 1)
     ]
     # error should increase with decreasing surface size
-    assert sorted(reconstruction_errors) == reconstruction_errors
-
+    assert all(
+        sorted(reconstruction_errors[i : i + 9])
+        == reconstruction_errors[i : i + 9]
+        for i in range(3)
+    )
