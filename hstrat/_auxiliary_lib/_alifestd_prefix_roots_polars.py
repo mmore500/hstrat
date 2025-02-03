@@ -60,19 +60,25 @@ def alifestd_prefix_roots_polars(
         .to_series()
     )
 
-    prepended_roots = phylogeny_df.filter(
-        eligible_roots,
-    ).with_columns(
-        **{
-            col: pl.lit(None, dtype=dtype)
-            for col, dtype in phylogeny_df.collect_schema().items()
-            if col not in (
-                "id",
-                "origin_time",
-                "ancestor_id",
-                "ancestor_list",
-            )
-        },
+    prepended_roots = (
+        phylogeny_df.lazy()
+        .filter(
+            eligible_roots,
+        )
+        .with_columns(
+            **{
+                col: pl.lit(None, dtype=dtype)
+                for col, dtype in phylogeny_df.collect_schema().items()
+                if col
+                not in (
+                    "id",
+                    "origin_time",
+                    "ancestor_id",
+                    "ancestor_list",
+                )
+            },
+        )
+        .collect()
     )
 
     if "origin_time" in prepended_roots:
@@ -95,6 +101,6 @@ def alifestd_prefix_roots_polars(
     prepended_roots = prepended_roots.with_columns(
         id=pl.int_range(len(prepended_roots)),
         ancestor_id=pl.int_range(len(prepended_roots)),
-    )
+    ).cast(phylogeny_df.collect_schema())
 
     return pl.concat([prepended_roots, phylogeny_df], how="vertical")
