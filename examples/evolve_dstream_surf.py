@@ -319,7 +319,7 @@ if __name__ == "__main__":
     gc.collect()
 
     print("num organisms retained in exact tracker:", syst.get_total_orgs())
-    print(len(end_population))
+    print("final population size:", len(end_population))
 
 
     # set up validators to test during downstream processing
