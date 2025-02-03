@@ -3,15 +3,12 @@ import subprocess
 import typing
 
 import alifedata_phyloinformatics_convert as apc
-import dendropy as dp
 from hstrat._auxiliary_lib import (
     alifestd_collapse_unifurcations,
     alifestd_count_leaf_nodes,
     alifestd_prune_extinct_lineages_asexual,
-    alifestd_try_add_ancestor_id_col,
     alifestd_try_add_ancestor_list_col,
 )
-import numpy as np
 import pandas as pd
 
 try:

@@ -14,6 +14,7 @@ cd "$(dirname "$0")"
 genome_df_path="/tmp/end2end-raw-genome-evolve_surf_dstream.pqt"
 true_phylo_df_path="/tmp/end2end-true-phylo-evolve_surf_dstream.csv"
 reconst_phylo_df_path="/tmp/end2end-reconst-phylo-evolve_surf_dstream.pqt"
+img_path="/tmp/end2end-visualized-phylogenies-evolve_surf_dstream.png"
 
 # generate data
 ./evolve_dstream_surf.py \
@@ -28,8 +29,14 @@ ls "${genome_df_path}" | python3 -m \
     "${reconst_phylo_df_path}" \
     >/dev/null 2>&1
 
+# convert dataframes to images
+python3 ./_visualize_phylogenies.py \
+  --true-df-path "${true_phylo_df_path}" \
+  --reconst-df-path "${reconst_phylo_df_path}" \
+  --img-path "${img_path}"
 
 # log output paths
 echo "genome_df_path = '${genome_df_path}'"
 echo "true_phylo_df_path = '${true_phylo_df_path}'"
 echo "reconst_phylo_df_path = '${reconst_phylo_df_path}'"
+echo "visualized_phylogenies_path = '${img_path}'"

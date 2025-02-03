@@ -14,7 +14,6 @@ from downstream import dstream
 import numpy as np
 import opytional as opyt
 import pandas as pd
-from pandas._libs.lib import generate_slices
 from tqdm import tqdm
 
 try:
