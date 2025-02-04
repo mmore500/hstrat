@@ -35,14 +35,6 @@ ls "${genome_df_path}" | python3 -m \
     "${reconst_phylo_df_path}" \
     >/dev/null 2>&1
 
-# convert dataframes to images
-if [ $vis -eq 1 ]; then
-  python3 ./_visualize_phylogenies.py \
-    --true-df-path "${true_phylo_df_path}" \
-    --reconst-df-path "${reconst_phylo_df_path}" \
-    --img-path "${img_path}"
-fi
-
 # log output paths
 echo "genome_df_path = '${genome_df_path}'"
 echo "true_phylo_df_path = '${true_phylo_df_path}'"

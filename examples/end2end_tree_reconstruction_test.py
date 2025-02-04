@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
+import argparse
 import os
 import subprocess
+import sys
 import typing
 
 import alifedata_phyloinformatics_convert as apc
+from colorclade import draw_colorclade_tree
+import matplotlib.pyplot as plt
 import pandas as pd
+from teeplot import teeplot as tp
 
 from hstrat._auxiliary_lib import (
     alifestd_calc_triplet_distance_asexual,
@@ -89,8 +94,64 @@ def sample_reference_and_reconstruction(
     return true_phylo_df, reconst_phylo_df
 
 
+def colorclade_plotter(true_df: pd.DataFrame, reconst_df: pd.DataFrame):
+    fig, axes = plt.subplots(1, 2)
+    draw_colorclade_tree(
+        true_df,
+        taxon_name_key="taxon_label",
+        ax=axes.flat[0],
+        backend="biopython",
+        label_tips=True,
+    )
+    draw_colorclade_tree(
+        reconst_df,
+        taxon_name_key="taxon_label",
+        ax=axes.flat[1],
+        backend="biopython",
+        label_tips=False,
+    )
+    axes.flat[0].set_xscale(
+        "function", functions=(lambda x: x**10, lambda x: x**0.1)
+    )
+    axes.flat[0].set_xlim(0, len(true_df["depth"].unique()) + 5)
+    axes.flat[1].set_xlim(reversed(axes.flat[1].get_xlim()))
+    fig.set_size_inches(20, 20)
+    plt.tight_layout()
+
+
+def generate_phylogeny_images(
+    true_df: pd.DataFrame, reconst_df: pd.DataFrame
+) -> None:
+    fig, axes = plt.subplots(1, 2)
+    draw_colorclade_tree(
+        true_df,
+        taxon_name_key="taxon_label",
+        ax=axes.flat[0],
+        backend="biopython",
+        label_tips=True,
+    )
+    draw_colorclade_tree(
+        reconst_df,
+        taxon_name_key="taxon_label",
+        ax=axes.flat[1],
+        backend="biopython",
+        label_tips=False,
+    )
+    axes.flat[0].set_xscale(
+        "function", functions=(lambda x: x**10, lambda x: x**0.1)
+    )
+    axes.flat[0].set_xlim(0, len(true_df["depth"].unique()) + 5)
+    axes.flat[1].set_xlim(reversed(axes.flat[1].get_xlim()))
+    fig.set_size_inches(20, 20)
+    plt.tight_layout()
+
+
 def visualize_reconstruction(
-    true_phylo_df: pd.DataFrame, reconst_phylo_df: pd.DataFrame
+    true_phylo_df: pd.DataFrame,
+    reconst_phylo_df: pd.DataFrame,
+    *,
+    visualize: bool,
+    **kwargs,
 ) -> None:
     """Print a sample of the reference and reconstructed phylogenies."""
     show_taxa = (
@@ -102,11 +163,28 @@ def visualize_reconstruction(
     print("reconstructed phylogeny sample:")
     print(to_ascii(reconst_phylo_df, show_taxa))
 
+    if visualize:
+        true_phylo_df["taxon_label"] = true_phylo_df["taxon_label"].apply(
+            lambda x: x[:5]
+        )
+        reconst_phylo_df["taxon_label"] = reconst_phylo_df[
+            "taxon_label"
+        ].apply(lambda x: x and x[:5])
+        tp.tee(
+            generate_phylogeny_images,
+            alifestd_try_add_ancestor_list_col(true_phylo_df),
+            alifestd_try_add_ancestor_list_col(reconst_phylo_df),
+            teeplot_outattrs=kwargs,
+            teeplot_outdir="/tmp",
+        )
+
 
 def test_reconstruct_one(
     differentia_bitwidth: int,
     surface_size: int,
     fossil_interval: typing.Optional[int],
+    *,
+    visualize: bool,
 ) -> float:
     """Test the reconstruction of a single phylogeny."""
     print("=" * 80)
@@ -120,7 +198,14 @@ def test_reconstruct_one(
         fossil_interval,
     )
 
-    visualize_reconstruction(true_phylo_df, reconst_phylo_df)
+    visualize_reconstruction(
+        true_phylo_df,
+        reconst_phylo_df,
+        differentia_bitwidth=differentia_bitwidth,
+        surface_size=surface_size,
+        fossil_interval=fossil_interval,
+        visualize=visualize,
+    )
     reconstruction_error = alifestd_calc_triplet_distance_asexual(
         alifestd_collapse_unifurcations(true_phylo_df), reconst_phylo_df
     )
@@ -130,10 +215,21 @@ def test_reconstruct_one(
     return reconstruction_error
 
 
+def _parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--visualize", action="store_true")
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
+    sys.setrecursionlimit(100000)
+    args = _parse_args()
     reconstruction_errors = [
         test_reconstruct_one(
-            differentia_bitwidth, surface_size, fossil_interval
+            differentia_bitwidth,
+            surface_size,
+            fossil_interval,
+            visualize=args.visualize,
         )
         for fossil_interval in (None, 50, 200)
         for surface_size in (256, 64, 16)
