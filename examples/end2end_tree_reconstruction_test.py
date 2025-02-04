@@ -71,12 +71,11 @@ def sample_reference_and_reconstruction(
             f"{differentia_bitwidth}",
             "--surface-size",
             f"{surface_size}",
-        ]
-        + (
-            ["--fossil-interval", f"{fossil_interval}"]
-            if fossil_interval is not None
-            else []
-        ),
+            *(
+                ["--fossil-interval", f"{fossil_interval}"]
+                * (fossil_interval is not None)
+            ),
+        ],
         check=True,
         capture_output=True,
         text=True,
