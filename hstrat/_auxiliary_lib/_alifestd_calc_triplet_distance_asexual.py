@@ -4,6 +4,7 @@ import tqdist
 from . import (
     alifestd_as_newick_asexual,
     alifestd_collapse_unifurcations,
+    alifestd_count_root_nodes,
 )
 
 
@@ -21,6 +22,14 @@ def alifestd_calc_triplet_distance_asexual(
     for taxon_label in ref_labels:
         assert taxon_label
         assert taxon_label.strip()
+
+    if (
+        alifestd_count_root_nodes(ref) > 1
+        or alifestd_count_root_nodes(cmp) > 1
+    ):
+        raise ValueError(
+            f"Cannot have disjunct trees in `{alifestd_calc_triplet_distance_asexual.__name__}`"
+        )
 
     return tqdist.triplet_distance(
         alifestd_as_newick_asexual(ref).removeprefix("[&R]").strip(),
