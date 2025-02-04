@@ -38,7 +38,8 @@ def evolve_drift(
     Simple asexual evolutionary algorithm under drift conditions.
     Fossils refer to organisms saved in the middle of the process
     of evolution, when normally they would have been deleted for
-    the next generation.
+    the next generation. Fossils supplement the final population
+    and may make reconstruction easier.
     """
     selector = random.Random(1)  # ensure consistent true phylogeny
 
