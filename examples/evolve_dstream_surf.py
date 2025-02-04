@@ -32,7 +32,7 @@ def make_uuid4_fast() -> str:
 def evolve_drift(
     population: typing.List,
     fossil_interval: typing.Optional[int] = None,
-    fossil_sample_percentage: float = 0.1
+    fossil_sample_percentage: float = 0.1,
 ) -> typing.List:
     """
     Simple asexual evolutionary algorithm under drift conditions.
@@ -52,8 +52,11 @@ def evolve_drift(
         if fossil_interval and generation % fossil_interval == 0:
             fossils.extend(
                 [
-                    parent.CreateOffspring() for parent in
-                    selector.sample(population, k=int(len(population) * fossil_sample_percentage))
+                    parent.CreateOffspring()
+                    for parent in selector.sample(
+                        population,
+                        k=int(len(population) * fossil_sample_percentage),
+                    )
                 ]
             )
 
@@ -67,8 +70,11 @@ def evolve_drift(
         if fossil_interval and generation % fossil_interval == 0:
             fossils.extend(
                 [
-                    parent.CreateOffspring() for parent in
-                    selector.sample(population, k=int(len(population) * fossil_sample_percentage))
+                    parent.CreateOffspring()
+                    for parent in selector.sample(
+                        population,
+                        k=int(len(population) * fossil_sample_percentage),
+                    )
                 ]
             )
         selector.shuffle(population)
@@ -316,7 +322,9 @@ if __name__ == "__main__":
     # do simulation
     common_ancestor = Organism.create_founder()
     init_population = [common_ancestor.CreateOffspring() for _ in range(100)]
-    end_population = evolve_drift(init_population, fossil_interval=args.fossil_interval)
+    end_population = evolve_drift(
+        init_population, fossil_interval=args.fossil_interval
+    )
 
     # mark non-tip taxa extinct
     del common_ancestor
@@ -325,7 +333,6 @@ if __name__ == "__main__":
 
     print("num organisms retained in exact tracker:", syst.get_total_orgs())
     print("final population size:", len(end_population))
-
 
     # set up validators to test during downstream processing
     S = args.surface_size
