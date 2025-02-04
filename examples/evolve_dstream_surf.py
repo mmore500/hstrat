@@ -88,7 +88,10 @@ def make_Organism(
     surface_size: int,
     syst: systematics.Systematics,
 ) -> typing.Type:
-    """Factory function to configure Organism class."""
+    """
+    Factory function to configure Organism class using `differentia_bitwidth`
+    and `surface_size`, with `syst` to track phylogenies.
+    """
 
     surf_dtype = {
         1: np.uint8,
@@ -236,7 +239,11 @@ def make_validation_record(
     validator_exploded: str,
     validator_unpacked: str,
 ) -> dict:
-    """Generate ephemeral validation data for quality assurance."""
+    """
+    Generate ephemeral validation data for quality assurance. This
+    helps ensure data is being written and read in the proper format
+    in case of different endianness or other scenarios.
+    """
     organism = None
     for T in range(n_gen):
         organism = opyt.apply_if_or_else(
