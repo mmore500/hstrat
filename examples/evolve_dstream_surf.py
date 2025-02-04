@@ -39,7 +39,7 @@ def evolve_drift(
     Fossils refer to organisms saved in the middle of the process
     of evolution, when normally they would have been deleted for
     the next generation. Fossils supplement the final population
-    and may make reconstruction easier.
+    to add a sampling of historical, extinct taxa as phylogeny tips.
     """
     selector = random.Random(1)  # ensure consistent true phylogeny
 
@@ -53,7 +53,7 @@ def evolve_drift(
         if fossil_interval and generation % fossil_interval == 0:
             # note: we extract CreateOffspring() instead of the parent itself,
             # beause parents with surviving children are not treated as leaf
-            # nodes by phylotrackpy
+            # nodes by phylotrackpy; simplifies true/reconst phylo comparison
             fossils.extend(
                 [
                     parent.CreateOffspring()
