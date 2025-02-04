@@ -5,6 +5,7 @@ from . import (
     alifestd_as_newick_asexual,
     alifestd_collapse_unifurcations,
     alifestd_count_root_nodes,
+    alifestd_mark_leaves,
 )
 
 
@@ -14,11 +15,16 @@ def alifestd_calc_triplet_distance_asexual(
 ) -> float:
     """Calculate the triplet distance between two trees."""
 
-    ref = alifestd_collapse_unifurcations(ref)
-    cmp = alifestd_collapse_unifurcations(cmp)
+    ref = alifestd_mark_leaves(alifestd_collapse_unifurcations(ref))
+    cmp = alifestd_mark_leaves(alifestd_collapse_unifurcations(cmp))
 
-    ref_labels = {*ref["taxon_label"]}
-    assert ref_labels == {*cmp["taxon_label"]}
+    ref.loc[~ref["is_leaf"], "taxon_label"] = ""
+    cmp.loc[~cmp["is_leaf"], "taxon_label"] = ""
+
+    ref_labels = {*ref["taxon_label"][ref["is_leaf"]]}
+    cmp_labels = {*cmp["taxon_label"][cmp["is_leaf"]]}
+
+    assert ref_labels == cmp_labels
     for taxon_label in ref_labels:
         assert taxon_label
         assert taxon_label.strip()
@@ -32,6 +38,6 @@ def alifestd_calc_triplet_distance_asexual(
         )
 
     return tqdist.triplet_distance(
-        alifestd_as_newick_asexual(ref).removeprefix("[&R]").strip(),
-        alifestd_as_newick_asexual(cmp).removeprefix("[&R]").strip(),
+        alifestd_as_newick_asexual(ref, taxon_label="taxon_label").removeprefix("[&R]").strip(),
+        alifestd_as_newick_asexual(cmp, taxon_label="taxon_label").removeprefix("[&R]").strip(),
     )
