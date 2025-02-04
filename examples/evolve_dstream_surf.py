@@ -333,7 +333,7 @@ if __name__ == "__main__":
     # do simulation
     common_ancestor = Organism.create_founder()
     init_population = [common_ancestor.CreateOffspring() for _ in range(100)]
-    end_population = evolve_drift(
+    sampled_genomes = evolve_drift(
         init_population, fossil_interval=args.fossil_interval
     )
 
@@ -343,7 +343,7 @@ if __name__ == "__main__":
     gc.collect()
 
     print("num organisms retained in exact tracker:", syst.get_total_orgs())
-    print("final population size:", len(end_population))
+    print("final population size:", len(sampled_genomes))
 
     # set up validators to test during downstream processing
     S = args.surface_size
@@ -356,7 +356,7 @@ if __name__ == "__main__":
 
     # write out the final population, including hstrat surface data
     genome_records = [
-        *map(Organism.ToRecord, end_population),  # experiment data
+        *map(Organism.ToRecord, sampled_genomes),  # experiment data
         make_validation_record(  # ephemeral validation data
             Organism=Organism,
             n_gen=S,

@@ -95,32 +95,7 @@ def sample_reference_and_reconstruction(
     return true_phylo_df, reconst_phylo_df
 
 
-def colorclade_plotter(true_df: pd.DataFrame, reconst_df: pd.DataFrame):
-    fig, axes = plt.subplots(1, 2)
-    draw_colorclade_tree(
-        true_df,
-        taxon_name_key="taxon_label",
-        ax=axes.flat[0],
-        backend="biopython",
-        label_tips=True,
-    )
-    draw_colorclade_tree(
-        reconst_df,
-        taxon_name_key="taxon_label",
-        ax=axes.flat[1],
-        backend="biopython",
-        label_tips=False,
-    )
-    axes.flat[0].set_xscale(
-        "function", functions=(lambda x: x**10, lambda x: x**0.1)
-    )
-    axes.flat[0].set_xlim(0, len(true_df["depth"].unique()) + 5)
-    axes.flat[1].set_xlim(reversed(axes.flat[1].get_xlim()))
-    fig.set_size_inches(20, 20)
-    plt.tight_layout()
-
-
-def generate_phylogeny_images(
+def plot_colorclade_comparison(
     true_df: pd.DataFrame, reconst_df: pd.DataFrame
 ) -> None:
     fig, axes = plt.subplots(1, 2)
@@ -172,7 +147,7 @@ def visualize_reconstruction(
             "taxon_label"
         ].apply(lambda x: x and x[:5])
         tp.tee(
-            generate_phylogeny_images,
+            plot_colorclade_comparison,
             alifestd_try_add_ancestor_list_col(true_phylo_df),
             alifestd_try_add_ancestor_list_col(reconst_phylo_df),
             teeplot_outattrs=kwargs,
