@@ -34,7 +34,12 @@ def evolve_drift(
     fossil_interval: typing.Optional[int] = None,
     fossil_sample_percentage: float = 0.1
 ) -> typing.List:
-    """Simple asexual evolutionary algorithm under drift conditions."""
+    """
+    Simple asexual evolutionary algorithm under drift conditions.
+    Fossils refer to organisms saved in the middle of the process
+    of evolution, when normally they would have been deleted for
+    the next generation.
+    """
     selector = random.Random(1)  # ensure consistent true phylogeny
 
     # synchronous generations
