@@ -66,7 +66,6 @@ def sample_reference_and_reconstruction(
         [
             f"{os.path.dirname(__file__)}/"
             "end2end_tree_reconstruction_with_dstream_surf.sh",
-            "--skip-visualization",
             "--differentia-bitwidth",
             f"{differentia_bitwidth}",
             "--surface-size",
