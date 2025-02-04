@@ -50,6 +50,9 @@ def evolve_drift(
             for parent in selector.choices(population, k=len(population))
         ]
         if fossil_interval and generation % fossil_interval == 0:
+            # note: we extract CreateOffspring() instead of the parent itself,
+            # beause parents with surviving children are not treated as leaf
+            # nodes by phylotrackpy
             fossils.extend(
                 [
                     parent.CreateOffspring()
@@ -68,6 +71,7 @@ def evolve_drift(
             for parent in selector.choices(population[:nsplit], k=nsplit)
         ]
         if fossil_interval and generation % fossil_interval == 0:
+            # see above
             fossils.extend(
                 [
                     parent.CreateOffspring()
