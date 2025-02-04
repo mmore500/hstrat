@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+from itertools import product
 import os
 import subprocess
 import sys
@@ -185,7 +186,7 @@ def test_reconstruct_one(
     fossil_interval: typing.Optional[int],
     *,
     visualize: bool,
-) -> float:
+) -> dict[str, typing.Union[int, float, None]]:
     """Test the reconstruction of a single phylogeny."""
     print("=" * 80)
     print(f"surface_size: {surface_size}")
@@ -212,7 +213,12 @@ def test_reconstruct_one(
     print(f"{reconstruction_error=}")
     assert reconstruction_error < alifestd_count_leaf_nodes(true_phylo_df)
 
-    return reconstruction_error
+    return {
+        "differentia_bitwidth": differentia_bitwidth,
+        "surface_size": surface_size,
+        "fossil_interval": fossil_interval,
+        "error": reconstruction_error,
+    }
 
 
 def _parse_args():
@@ -224,20 +230,29 @@ def _parse_args():
 if __name__ == "__main__":
     sys.setrecursionlimit(100000)
     args = _parse_args()
-    reconstruction_errors = [
-        test_reconstruct_one(
-            differentia_bitwidth,
-            surface_size,
-            fossil_interval,
-            visualize=args.visualize,
-        )
-        for fossil_interval in (None, 50, 200)
-        for surface_size in (256, 64, 16)
-        for differentia_bitwidth in (64, 8, 1)
-    ]
+    reconstruction_errors = pd.DataFrame(
+        [
+            test_reconstruct_one(
+                differentia_bitwidth,
+                surface_size,
+                fossil_interval,
+                visualize=args.visualize,
+            )
+            for (
+                fossil_interval,
+                surface_size,
+                differentia_bitwidth,
+            ) in product((None, 50, 200), (256, 64, 16), (64, 8, 1))
+        ]
+    )
+
+    reconstruction_errors.to_csv("/tmp/end2end-reconstruction-error.csv")
+
     # error should increase with decreasing surface size
-    assert all(
-        sorted(reconstruction_errors[i : i + 9])
-        == reconstruction_errors[i : i + 9]
-        for i in range(3)
+    assert (
+        reconstruction_errors.sort_values(
+            ["surface_size", "differentia_bitwidth"], ascending=False
+        )
+        .groupby("fossil_interval", dropna=False)["error"]
+        .is_monotonic_increasing.all()
     )
