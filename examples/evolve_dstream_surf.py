@@ -151,12 +151,13 @@ def make_Organism(
         def create_founder() -> "Organism":
             """Create a founder organism, with hstrat surface initailized."""
             founder = None
-            for T in range(surface_size):
-                founder = opyt.apply_if_or_else(
-                    founder,
-                    Organism.CreateOffspring,
-                    Organism,
-                )
+            with SaveRandomState():
+                for T in range(surface_size):
+                    founder = opyt.apply_if_or_else(
+                        founder,
+                        Organism.CreateOffspring,
+                        Organism,
+                    )
             assert founder.dstream_T == surface_size
             return founder
 
