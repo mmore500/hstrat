@@ -4,6 +4,7 @@ import argparse
 import functools
 import gc
 import os
+from pathlib import Path
 import random
 import types
 import typing
@@ -56,7 +57,7 @@ def evolve_drift(
             # nodes by phylotrackpy; simplifies true/reconst phylo comparison
             fossils.extend(
                 [
-                    parent.CreateOffspring()
+                    parent.CreateOffspring(fossil=True)
                     for parent in selector.sample(
                         population,
                         k=int(len(population) * fossil_sample_percentage),
@@ -75,7 +76,7 @@ def evolve_drift(
             # see above
             fossils.extend(
                 [
-                    parent.CreateOffspring()
+                    parent.CreateOffspring(fossil=True)
                     for parent in selector.sample(
                         population,
                         k=int(len(population) * fossil_sample_percentage),
@@ -121,6 +122,7 @@ def make_Organism(
             "taxon",
             "dstream_T",
             "hstrat_surface",
+            "is_fossil",
         ]
 
         # primary simulation business --- arbitrary data in this simple example
@@ -133,6 +135,9 @@ def make_Organism(
         # instrumentation: approximate tracking with hstrat surface
         dstream_T: int
         hstrat_surface: np.ndarray
+
+        # keep track of whether or not this Organism is a fossil
+        is_fossil: bool
 
         @staticmethod
         def create_founder() -> "Organism":
@@ -153,6 +158,7 @@ def make_Organism(
             parent_hstrat_surface: np.ndarray = empty_surface,
             parent_dstream_T: int = 0,
             trait: float = 0.0,
+            is_fossil: bool = False,
         ) -> None:
             """Initialize organism, by default as root organism."""
             # handle primary simulation business...
@@ -170,12 +176,15 @@ def make_Organism(
             differentia_value = random.randrange(2**differentia_bitwidth)
             self.DepositStratum(differentia_value, parent_dstream_T)
             self.dstream_T = parent_dstream_T + 1
+            self.is_fossil = is_fossil
 
         def __del__(self: "Organism") -> None:
             """Remove organism from phylotrackpy systematics."""
             syst.remove_org(self.taxon)
 
-        def CreateOffspring(self: "Organism") -> "Organism":
+        def CreateOffspring(
+            self: "Organism", *, fossil: bool = False
+        ) -> "Organism":
             """Create an offspring organism, with mutation and
             generation-updated instrumentation."""
             return Organism(
@@ -183,6 +192,7 @@ def make_Organism(
                 parent_hstrat_surface=self.hstrat_surface.copy(),
                 parent_dstream_T=self.dstream_T,
                 trait=self.trait + np.random.uniform(-1, 1),
+                is_fossil=fossil,
             )
 
         def DepositStratum(
@@ -232,6 +242,7 @@ def make_Organism(
                 "dstream_T_bitwidth": 32,
                 "dstream_S": surface_size,
                 "trait": self.trait,
+                "is_fossil": self.is_fossil,
             }
 
     return Organism
