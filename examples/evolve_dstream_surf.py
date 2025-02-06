@@ -4,7 +4,6 @@ import argparse
 import functools
 import gc
 import os
-from pathlib import Path
 import random
 import types
 import typing
@@ -25,15 +24,38 @@ except (ImportError, ModuleNotFoundError) as e:
     raise e
 
 
+class SaveRandomState:
+
+    def __enter__(self):
+        self.st = random.getstate()
+        self.np_st = np.random.get_state()
+
+    def __exit__(self, *args):
+        random.setstate(self.st)
+        np.random.set_state(self.np_st)
+
+
 def make_uuid4_fast() -> str:
     """Fast UUID4 generator, using lower-quality randomness."""
     return str(uuid.UUID(int=random.getrandbits(128), version=4))
 
 
+def extract_fossils(
+    pop: typing.List,
+    fossil_sample_percentage: float = 0.1,
+) -> typing.List:
+    return [
+        parent.CreateOffspring(fossil=True)
+        for parent in random.sample(
+            pop,
+            k=int(len(pop) * fossil_sample_percentage),
+        )
+    ]
+
+
 def evolve_drift(
     population: typing.List,
     fossil_interval: typing.Optional[int] = None,
-    fossil_sample_percentage: float = 0.1,
 ) -> typing.List:
     """
     Simple asexual evolutionary algorithm under drift conditions.
@@ -49,21 +71,14 @@ def evolve_drift(
     for generation in tqdm(range(500)):
         population = [
             parent.CreateOffspring()
-            for parent in selector.choices(population, k=len(population))
+            for parent in random.choices(population, k=len(population))
         ]
         if fossil_interval and generation % fossil_interval == 0:
-            # note: we extract CreateOffspring() instead of the parent itself,
-            # beause parents with surviving children are not treated as leaf
-            # nodes by phylotrackpy; simplifies true/reconst phylo comparison
-            fossils.extend(
-                [
-                    parent.CreateOffspring(fossil=True)
-                    for parent in selector.sample(
-                        population,
-                        k=int(len(population) * fossil_sample_percentage),
-                    )
-                ]
-            )
+            with SaveRandomState():
+                # note: we extract CreateOffspring() instead of the parent itself,
+                # beause parents with surviving children are not treated as leaf
+                # nodes by phylotrackpy; simplifies true/reconst phylo comparison
+                fossils.extend(extract_fossils(population))
 
     # asyncrhonous generations
     nsplit = len(population) // 2
@@ -73,16 +88,9 @@ def evolve_drift(
             for parent in selector.choices(population[:nsplit], k=nsplit)
         ]
         if fossil_interval and generation % fossil_interval == 0:
-            # see above
-            fossils.extend(
-                [
-                    parent.CreateOffspring(fossil=True)
-                    for parent in selector.sample(
-                        population,
-                        k=int(len(population) * fossil_sample_percentage),
-                    )
-                ]
-            )
+            with SaveRandomState():
+                # see above
+                fossils.extend(extract_fossils(population))
         selector.shuffle(population)
 
     return [*fossils, *population]

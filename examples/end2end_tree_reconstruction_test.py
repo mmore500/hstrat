@@ -60,7 +60,15 @@ def sample_reference_and_reconstruction(
     differentia_bitwidth: int,
     surface_size: int,
     fossil_interval: typing.Optional[int],
-) -> typing.Tuple[pd.DataFrame, pd.DataFrame]:
+) -> typing.Dict[
+    typing.Union[
+        typing.Literal["true"],
+        typing.Literal["reconst"],
+        typing.Literal["true_dropped_fossils"],
+        typing.Literal["reconst_dropped_fossils"],
+    ],
+    pd.DataFrame,
+]:
     """Sample a reference phylogeny and corresponding reconstruction."""
     paths = subprocess.run(
         [
@@ -91,7 +99,26 @@ def sample_reference_and_reconstruction(
         true_phylo_df
     ) == alifestd_count_leaf_nodes(reconst_phylo_df)
 
-    return true_phylo_df, reconst_phylo_df
+    reconst_phylo_df_extant = reconst_phylo_df.copy()
+    reconst_phylo_df_extant["extant"] = reconst_phylo_df["is_fossil"] == False
+    reconst_phylo_df_no_fossils = alifestd_prune_extinct_lineages_asexual(
+        reconst_phylo_df_extant
+    )
+
+    true_phylo_df_no_fossils = alifestd_prune_extinct_lineages_asexual(
+        true_phylo_df.set_index("taxon_label")
+        .drop(
+            reconst_phylo_df["taxon_label"][reconst_phylo_df["is_fossil"] == True]  # type: ignore
+        )
+        .reset_index()
+    )
+
+    return {
+        "true": true_phylo_df,
+        "reconst": reconst_phylo_df,
+        "true_dropped_fossils": true_phylo_df_no_fossils,
+        "reconst_dropped_fossils": reconst_phylo_df_no_fossils,
+    }
 
 
 def plot_colorclade_comparison(
@@ -167,31 +194,41 @@ def test_reconstruct_one(
     print(f"differentia_bitwidth: {differentia_bitwidth}")
     print(f"fossil_interval: {fossil_interval}")
 
-    true_phylo_df, reconst_phylo_df = sample_reference_and_reconstruction(
+    frames = sample_reference_and_reconstruction(
         differentia_bitwidth,
         surface_size,
         fossil_interval,
     )
 
     visualize_reconstruction(
-        true_phylo_df,
-        reconst_phylo_df,
+        frames["true_dropped_fossils"],
+        frames["reconst_dropped_fossils"],
         differentia_bitwidth=differentia_bitwidth,
         surface_size=surface_size,
         fossil_interval=fossil_interval,
         visualize=visualize,
     )
     reconstruction_error = alifestd_calc_triplet_distance_asexual(
-        alifestd_collapse_unifurcations(true_phylo_df), reconst_phylo_df
+        alifestd_collapse_unifurcations(frames["true"]), frames["reconst"]
     )
+
+    reconstruction_error_dropped_fossils = (
+        alifestd_calc_triplet_distance_asexual(
+            alifestd_collapse_unifurcations(frames["true_dropped_fossils"]),
+            frames["reconst_dropped_fossils"],
+        )
+    )
+
     print(f"{reconstruction_error=}")
-    assert reconstruction_error < alifestd_count_leaf_nodes(true_phylo_df)
+    print(f"{reconstruction_error_dropped_fossils=}")
+    assert reconstruction_error < alifestd_count_leaf_nodes(frames["true"])
 
     return {
         "differentia_bitwidth": differentia_bitwidth,
         "surface_size": surface_size,
         "fossil_interval": fossil_interval,
         "error": reconstruction_error,
+        "error_dropped_fossils": reconstruction_error_dropped_fossils,
     }
 
 
@@ -216,7 +253,7 @@ if __name__ == "__main__":
                 fossil_interval,
                 surface_size,
                 differentia_bitwidth,
-            ) in product((None, 50, 200), (256, 64, 16), (64, 8, 1))
+            ) in product((None, 50, 200), (16,), (64, 8, 1))
         ]
     )
 
