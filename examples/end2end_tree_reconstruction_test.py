@@ -253,7 +253,7 @@ if __name__ == "__main__":
                 fossil_interval,
                 surface_size,
                 differentia_bitwidth,
-            ) in product((None, 50, 200), (16,), (64, 8, 1))
+            ) in product((None, 50, 200), (256, 64, 16), (64, 8, 1))
         ]
     )
 
