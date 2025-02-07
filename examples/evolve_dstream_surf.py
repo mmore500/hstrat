@@ -71,7 +71,7 @@ def evolve_drift(
     for generation in tqdm(range(500)):
         population = [
             parent.CreateOffspring()
-            for parent in random.choices(population, k=len(population))
+            for parent in selector.choices(population, k=len(population))
         ]
         if fossil_interval and generation % fossil_interval == 0:
             with SaveRandomState():
