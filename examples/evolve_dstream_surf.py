@@ -182,7 +182,8 @@ def make_Organism(
             # handle hstrat surface instrumentation...
             self.hstrat_surface = parent_hstrat_surface.copy()
             # ... deposit stratum...
-            differentia_value = random.randrange(2**differentia_bitwidth)
+            with SaveRandomState():
+                differentia_value = random.randrange(2**differentia_bitwidth)
             self.DepositStratum(differentia_value, parent_dstream_T)
             self.dstream_T = parent_dstream_T + 1
             self.is_fossil = is_fossil
@@ -270,13 +271,14 @@ def make_validation_record(
     in case of different endianness or other scenarios.
     """
     organism = None
-    for T in range(n_gen):
-        organism = opyt.apply_if_or_else(
-            organism,
-            Organism.CreateOffspring,
-            Organism,
-        )
-        organism.DepositStratum(differentia_override(T), T)
+    with SaveRandomState():
+        for T in range(n_gen):
+            organism = opyt.apply_if_or_else(
+                organism,
+                Organism.CreateOffspring,
+                Organism,
+            )
+            organism.DepositStratum(differentia_override(T), T)
 
     return {
         **organism.ToRecord(),
