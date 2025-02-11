@@ -7,6 +7,7 @@ import subprocess
 import sys
 import typing
 
+from PIL.Image import new
 import alifedata_phyloinformatics_convert as apc
 from colorclade import draw_colorclade_tree
 import matplotlib.pyplot as plt
@@ -17,9 +18,11 @@ from hstrat._auxiliary_lib import (
     alifestd_calc_triplet_distance_asexual,
     alifestd_collapse_unifurcations,
     alifestd_count_leaf_nodes,
+    alifestd_mark_node_depth_asexual,
     alifestd_prune_extinct_lineages_asexual,
     alifestd_try_add_ancestor_list_col,
 )
+from hstrat._auxiliary_lib._alifestd_collapse_unifurcations import _collapse_unifurcations
 
 
 def to_ascii(
@@ -124,13 +127,24 @@ def sample_reference_and_reconstruction(
 def plot_colorclade_comparison(
     true_df: pd.DataFrame, reconst_df: pd.DataFrame
 ) -> None:
-    fig, axes = plt.subplots(1, 2)
+    plt.style.use('dark_background')
+    fig, axes = plt.subplots(2, 2)
+
+    new_depths = alifestd_mark_node_depth_asexual(alifestd_collapse_unifurcations(true_df))
+    new_depths["depth"] = new_depths["node_depth"]
     draw_colorclade_tree(
         true_df,
         taxon_name_key="taxon_label",
         ax=axes.flat[0],
         backend="biopython",
         label_tips=True,
+    )
+    draw_colorclade_tree(
+        new_depths,
+        taxon_name_key="taxon_label",
+        ax=axes.flat[2],
+        backend="biopython",
+        label_tips=False,
     )
     draw_colorclade_tree(
         reconst_df,
@@ -145,6 +159,9 @@ def plot_colorclade_comparison(
     axes.flat[0].set_xlim(0, len(true_df["depth"].unique()) + 5)
     axes.flat[1].set_xlim(reversed(axes.flat[1].get_xlim()))
     fig.set_size_inches(20, 20)
+    axes.flat[0].set_title("True Phylogeny")
+    axes.flat[1].set_title("Reconstructed Phylogeny")
+    axes.flat[2].set_title("True Phylogeny Unifurcations Dropped")
     plt.tight_layout()
 
 
