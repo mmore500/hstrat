@@ -25,10 +25,12 @@ except (ImportError, ModuleNotFoundError) as e:
     print("python3 -m pip install phylotrackpy")
     raise e
 
+evolution_selector = random.Random(1)  # ensure consistent true phylogeny
 
-def make_uuid4_fast() -> str:
+
+def make_uuid4_fast(use_selector: bool) -> str:
     """Fast UUID4 generator, using lower-quality randomness."""
-    return str(uuid.UUID(int=random.getrandbits(128), version=4))
+    return str(uuid.UUID(int=(evolution_selector if use_selector else random).getrandbits(128), version=4))
 
 
 def extract_fossils(
@@ -55,14 +57,12 @@ def evolve_drift(
     the next generation. Fossils supplement the final population
     to add a sampling of historical, extinct taxa as phylogeny tips.
     """
-    selector = random.Random(1)  # ensure consistent true phylogeny
-
     # synchronous generations
     fossils = []
     for generation in tqdm(range(500)):
         population = [
             parent.CreateOffspring()
-            for parent in selector.choices(population, k=len(population))
+            for parent in evolution_selector.choices(population, k=len(population))
         ]
         if fossil_interval and generation % fossil_interval == 0:
             with RngStateContext(random.randint(1, 100000)):
@@ -76,13 +76,13 @@ def evolve_drift(
     for generation in tqdm(range(500)):
         population[:nsplit] = [
             parent.CreateOffspring()
-            for parent in selector.choices(population[:nsplit], k=nsplit)
+            for parent in evolution_selector.choices(population[:nsplit], k=nsplit)
         ]
         if fossil_interval and generation % fossil_interval == 0:
             with RngStateContext(random.randint(1, 100000)):
                 # see above
                 fossils.extend(extract_fossils(population))
-        selector.shuffle(population)
+        evolution_selector.shuffle(population)
 
     return [*fossils, *population]
 
@@ -167,14 +167,16 @@ def make_Organism(
             )
 
             # handle phylotrackpy instrumentation...
-            self.uid = make_uuid4_fast()
+            self.uid = make_uuid4_fast(use_selector=not is_fossil)
             self.taxon = syst.add_org(self, parent_taxon)
 
             # handle hstrat surface instrumentation...
             self.hstrat_surface = parent_hstrat_surface.copy()
             # ... deposit stratum...
             # hack to avoid varying ranges give different random states
-            differentia_value = random.randrange(2**64) & ((1 << differentia_bitwidth) - 1)
+            differentia_value = random.randrange(2**64) & (
+                (1 << differentia_bitwidth) - 1
+            )
             self.DepositStratum(differentia_value, parent_dstream_T)
             self.dstream_T = parent_dstream_T + 1
             self.is_fossil = is_fossil
