@@ -65,7 +65,7 @@ def evolve_drift(
             for parent in selector.choices(population, k=len(population))
         ]
         if fossil_interval and generation % fossil_interval == 0:
-            with RngStateContext(1):
+            with RngStateContext(random.randint(1, 100000)):
                 # note: we extract CreateOffspring() instead of the parent itself,
                 # beause parents with surviving children are not treated as leaf
                 # nodes by phylotrackpy; simplifies true/reconst phylo comparison
@@ -79,7 +79,7 @@ def evolve_drift(
             for parent in selector.choices(population[:nsplit], k=nsplit)
         ]
         if fossil_interval and generation % fossil_interval == 0:
-            with RngStateContext(1):
+            with RngStateContext(random.randint(1, 100000)):
                 # see above
                 fossils.extend(extract_fossils(population))
         selector.shuffle(population)
@@ -142,7 +142,7 @@ def make_Organism(
         def create_founder() -> "Organism":
             """Create a founder organism, with hstrat surface initailized."""
             founder = None
-            with RngStateContext(1):
+            with RngStateContext(random.randint(1, 100000)):
                 for T in range(surface_size):
                     founder = opyt.apply_if_or_else(
                         founder,
@@ -262,7 +262,7 @@ def make_validation_record(
     in case of different endianness or other scenarios.
     """
     organism = None
-    with RngStateContext(1):
+    with RngStateContext(random.randint(1, 100000)):
         for T in range(n_gen):
             organism = opyt.apply_if_or_else(
                 organism,
