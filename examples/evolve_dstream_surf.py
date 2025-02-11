@@ -16,23 +16,14 @@ import opytional as opyt
 import pandas as pd
 from tqdm import tqdm
 
+from hstrat._auxiliary_lib import RngStateContext
+
 try:
     from phylotrackpy import systematics
 except (ImportError, ModuleNotFoundError) as e:
     print("phylotrackpy required for dstream surf evolution example")
     print("python3 -m pip install phylotrackpy")
     raise e
-
-
-class SaveRandomState:
-
-    def __enter__(self):
-        self.st = random.getstate()
-        self.np_st = np.random.get_state()
-
-    def __exit__(self, *args):
-        random.setstate(self.st)
-        np.random.set_state(self.np_st)
 
 
 def make_uuid4_fast() -> str:
@@ -74,7 +65,7 @@ def evolve_drift(
             for parent in selector.choices(population, k=len(population))
         ]
         if fossil_interval and generation % fossil_interval == 0:
-            with SaveRandomState():
+            with RngStateContext(1):
                 # note: we extract CreateOffspring() instead of the parent itself,
                 # beause parents with surviving children are not treated as leaf
                 # nodes by phylotrackpy; simplifies true/reconst phylo comparison
@@ -88,7 +79,7 @@ def evolve_drift(
             for parent in selector.choices(population[:nsplit], k=nsplit)
         ]
         if fossil_interval and generation % fossil_interval == 0:
-            with SaveRandomState():
+            with RngStateContext(1):
                 # see above
                 fossils.extend(extract_fossils(population))
         selector.shuffle(population)
@@ -151,7 +142,7 @@ def make_Organism(
         def create_founder() -> "Organism":
             """Create a founder organism, with hstrat surface initailized."""
             founder = None
-            with SaveRandomState():
+            with RngStateContext(1):
                 for T in range(surface_size):
                     founder = opyt.apply_if_or_else(
                         founder,
@@ -182,8 +173,8 @@ def make_Organism(
             # handle hstrat surface instrumentation...
             self.hstrat_surface = parent_hstrat_surface.copy()
             # ... deposit stratum...
-            with SaveRandomState():
-                differentia_value = random.randrange(2**differentia_bitwidth)
+            # hack to avoid varying ranges give different random states
+            differentia_value = random.randrange(2**64) & ((1 << differentia_bitwidth) - 1)
             self.DepositStratum(differentia_value, parent_dstream_T)
             self.dstream_T = parent_dstream_T + 1
             self.is_fossil = is_fossil
@@ -271,7 +262,7 @@ def make_validation_record(
     in case of different endianness or other scenarios.
     """
     organism = None
-    with SaveRandomState():
+    with RngStateContext(1):
         for T in range(n_gen):
             organism = opyt.apply_if_or_else(
                 organism,
