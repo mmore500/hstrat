@@ -108,12 +108,18 @@ def sample_reference_and_reconstruction(
         reconst_phylo_df_extant
     )
 
-    true_phylo_df_no_fossils = alifestd_prune_extinct_lineages_asexual(
+    new_df = (
         true_phylo_df.set_index("taxon_label")
         .drop(
             reconst_phylo_df["taxon_label"][reconst_phylo_df["is_fossil"] == True]  # type: ignore
         )
         .reset_index()
+    )
+
+    # true_phylo_df.to_csv("1.csv")
+    # new_df.to_csv("2.csv")
+    true_phylo_df_no_fossils = alifestd_prune_extinct_lineages_asexual(
+        new_df
     )
 
     return {
@@ -131,7 +137,9 @@ def plot_colorclade_comparison(
     fig, axes = plt.subplots(2, 2)
 
     new_depths = alifestd_mark_node_depth_asexual(alifestd_collapse_unifurcations(true_df))
-    new_depths["depth"] = new_depths["node_depth"]
+    old_reconst_df = reconst_df.copy()
+    reconst_df["origin_time"] = reconst_df["hstrat_rank"]
+    new_depths["origin_time"] = new_depths["node_depth"]
     draw_colorclade_tree(
         true_df,
         taxon_name_key="taxon_label",
@@ -153,15 +161,29 @@ def plot_colorclade_comparison(
         backend="biopython",
         label_tips=False,
     )
+    draw_colorclade_tree(
+        old_reconst_df,
+        taxon_name_key="taxon_label",
+        ax=axes.flat[3],
+        backend="biopython",
+        label_tips=False,
+    )
     axes.flat[0].set_xscale(
         "function", functions=(lambda x: x**10, lambda x: x**0.1)
     )
-    axes.flat[0].set_xlim(0, len(true_df["depth"].unique()) + 5)
+    axes.flat[0].set_xlim(0, max(true_df["depth"].unique()) + 5)
+    axes.flat[1].set_xscale(
+        "function", functions=(lambda x: x**10, lambda x: x**0.1)
+    )
+    axes.flat[1].set_xlim(0, max(reconst_df["origin_time"].unique()) + 5)
+
     axes.flat[1].set_xlim(reversed(axes.flat[1].get_xlim()))
+    axes.flat[3].set_xlim(reversed(axes.flat[3].get_xlim()))
     fig.set_size_inches(20, 20)
     axes.flat[0].set_title("True Phylogeny")
     axes.flat[1].set_title("Reconstructed Phylogeny")
-    axes.flat[2].set_title("True Phylogeny Unifurcations Dropped")
+    axes.flat[2].set_title("True Phylogeny Constant Branch Lengths")
+    axes.flat[3].set_title("Reconstructed Phylogeny Constant Branch Lengths")
     plt.tight_layout()
 
 
