@@ -7,7 +7,6 @@ import subprocess
 import sys
 import typing
 
-from PIL.Image import new
 import alifedata_phyloinformatics_convert as apc
 from colorclade import draw_colorclade_tree
 import matplotlib.pyplot as plt
@@ -22,7 +21,16 @@ from hstrat._auxiliary_lib import (
     alifestd_prune_extinct_lineages_asexual,
     alifestd_try_add_ancestor_list_col,
 )
-from hstrat._auxiliary_lib._alifestd_collapse_unifurcations import _collapse_unifurcations
+
+ReconstructionResult = typing.Dict[
+    typing.Union[
+        typing.Literal["true"],
+        typing.Literal["reconst"],
+        typing.Literal["true_dropped_fossils"],
+        typing.Literal["reconst_dropped_fossils"],
+    ],
+    pd.DataFrame,
+]
 
 
 def to_ascii(
@@ -63,15 +71,7 @@ def sample_reference_and_reconstruction(
     differentia_bitwidth: int,
     surface_size: int,
     fossil_interval: typing.Optional[int],
-) -> typing.Dict[
-    typing.Union[
-        typing.Literal["true"],
-        typing.Literal["reconst"],
-        typing.Literal["true_dropped_fossils"],
-        typing.Literal["reconst_dropped_fossils"],
-    ],
-    pd.DataFrame,
-]:
+) -> ReconstructionResult:
     """Sample a reference phylogeny and corresponding reconstruction."""
     paths = subprocess.run(
         [
@@ -118,9 +118,7 @@ def sample_reference_and_reconstruction(
 
     # true_phylo_df.to_csv("1.csv")
     # new_df.to_csv("2.csv")
-    true_phylo_df_no_fossils = alifestd_prune_extinct_lineages_asexual(
-        new_df
-    )
+    true_phylo_df_no_fossils = alifestd_prune_extinct_lineages_asexual(new_df)
 
     return {
         "true": true_phylo_df,
@@ -131,94 +129,128 @@ def sample_reference_and_reconstruction(
 
 
 def plot_colorclade_comparison(
-    true_df: pd.DataFrame, reconst_df: pd.DataFrame
+    frames: ReconstructionResult, *, fossils: bool
 ) -> None:
-    plt.style.use('dark_background')
-    fig, axes = plt.subplots(2, 2)
+    plt.style.use("dark_background")
+    fig, axes = plt.subplots(3 if fossils else 2, 2)
 
-    true_df = alifestd_collapse_unifurcations(true_df)
-    new_depths = alifestd_mark_node_depth_asexual(true_df)
+    frames["true"] = alifestd_collapse_unifurcations(frames["true"])
+    true_df_no_lengths = alifestd_mark_node_depth_asexual(frames["true"])
 
-    old_reconst_df = reconst_df.copy()
-    true_df["origin_time"] = true_df["depth"]
-    reconst_df["origin_time"] = reconst_df["hstrat_rank"]
-    new_depths["origin_time"] = new_depths["node_depth"]
+    reconst_df_no_lengths = frames["reconst"].copy()
+    frames["true"]["origin_time"] = frames["true"]["depth"]
+    frames["reconst"]["origin_time"] = frames["reconst"]["hstrat_rank"]
+    true_df_no_lengths["origin_time"] = true_df_no_lengths["node_depth"]
+
+    if fossils:
+        frames["true_dropped_fossils"] = alifestd_collapse_unifurcations(
+            frames["true_dropped_fossils"]
+        )
+        frames["true_dropped_fossils"]["origin_time"] = frames[
+            "true_dropped_fossils"
+        ]["depth"]
+        frames["reconst_dropped_fossils"]["origin_time"] = frames[
+            "reconst_dropped_fossils"
+        ]["hstrat_rank"]
+
+        draw_colorclade_tree(
+            frames["true_dropped_fossils"],
+            taxon_name_key="taxon_label",
+            ax=axes.flat[0],
+            backend="biopython",
+            label_tips=False,
+        )
+        draw_colorclade_tree(
+            frames["reconst_dropped_fossils"],
+            taxon_name_key="taxon_label",
+            ax=axes.flat[1],
+            backend="biopython",
+            label_tips=False,
+        )
+
 
     draw_colorclade_tree(
-        true_df,
+        frames["true"],
         taxon_name_key="taxon_label",
-        ax=axes.flat[0],
-        backend="biopython",
-        label_tips=True,
-    )
-    draw_colorclade_tree(
-        new_depths,
-        taxon_name_key="taxon_label",
-        ax=axes.flat[2],
+        ax=axes.flat[-4],
         backend="biopython",
         label_tips=False,
     )
     draw_colorclade_tree(
-        reconst_df,
+        frames["reconst"],
         taxon_name_key="taxon_label",
-        ax=axes.flat[1],
+        ax=axes.flat[-3],
+        backend="biopython",
+        label_tips=False,
+    )
+
+    draw_colorclade_tree(
+        true_df_no_lengths,
+        taxon_name_key="taxon_label",
+        ax=axes.flat[-2],
         backend="biopython",
         label_tips=False,
     )
     draw_colorclade_tree(
-        old_reconst_df,
+        reconst_df_no_lengths,
         taxon_name_key="taxon_label",
-        ax=axes.flat[3],
+        ax=axes.flat[-1],
         backend="biopython",
         label_tips=False,
     )
+
     axes.flat[0].set_xscale(
         "function", functions=(lambda x: x**10, lambda x: x**0.1)
     )
-    axes.flat[0].set_xlim(0, max(true_df["depth"].unique()) + 5)
+    axes.flat[0].set_xlim(0, max(frames["true"]["origin_time"].unique()) + 5)
     axes.flat[1].set_xscale(
         "function", functions=(lambda x: x**10, lambda x: x**0.1)
     )
-    axes.flat[1].set_xlim(0, max(reconst_df["origin_time"].unique()) + 5)
+    axes.flat[1].set_xlim(0, max(frames["reconst"]["origin_time"].unique()) + 5)
 
     axes.flat[1].set_xlim(reversed(axes.flat[1].get_xlim()))
     axes.flat[3].set_xlim(reversed(axes.flat[3].get_xlim()))
-    fig.set_size_inches(20, 20)
-    axes.flat[0].set_title("True Phylogeny")
-    axes.flat[1].set_title("Reconstructed Phylogeny")
-    axes.flat[2].set_title("True Phylogeny Constant Branch Lengths")
-    axes.flat[3].set_title("Reconstructed Phylogeny Constant Branch Lengths")
+    if fossils:
+        axes.flat[5].set_xlim(reversed(axes.flat[5].get_xlim()))
+
+    fig.set_size_inches(20, 20 + 10 * fossils)
+    if fossils:
+        axes.flat[0].set_title("True Phylogeny Dropped Fossils")
+        axes.flat[1].set_title("Reconstructed Phylogeny Dropped Fossils")
+
+    axes.flat[-4].set_title("True Phylogeny")
+    axes.flat[-3].set_title("Reconstructed Phylogeny")
+    axes.flat[-2].set_title("True Phylogeny Constant Branch Lengths")
+    axes.flat[-1].set_title("Reconstructed Phylogeny Constant Branch Lengths")
     plt.tight_layout()
 
 
 def visualize_reconstruction(
-    true_phylo_df: pd.DataFrame,
-    reconst_phylo_df: pd.DataFrame,
+    frames: ReconstructionResult,
     *,
     visualize: bool,
     **kwargs,
 ) -> None:
     """Print a sample of the reference and reconstructed phylogenies."""
     show_taxa = (
-        reconst_phylo_df["taxon_label"].dropna().sample(6, random_state=1)
+        frames["reconst_dropped_fossils"]["taxon_label"].dropna().sample(6, random_state=1)
     )
     print("ground-truth phylogeny sample:")
-    print(to_ascii(true_phylo_df, show_taxa))
+    print(to_ascii(frames["true_dropped_fossils"], show_taxa))
     print()
     print("reconstructed phylogeny sample:")
-    print(to_ascii(reconst_phylo_df, show_taxa))
+    print(to_ascii(frames["reconst_dropped_fossils"], show_taxa))
 
     if visualize:
-        true_phylo_df["taxon_label"] = true_phylo_df["taxon_label"].apply(
-            lambda x: x[:5]
-        )
-        reconst_phylo_df["taxon_label"] = reconst_phylo_df[
-            "taxon_label"
-        ].apply(lambda x: x and x[:5])
+        for df in frames.values():
+            df["taxon_label"] = df["taxon_label"].apply(lambda x: x and x[:6])
         tp.tee(
             plot_colorclade_comparison,
-            alifestd_try_add_ancestor_list_col(true_phylo_df),
-            alifestd_try_add_ancestor_list_col(reconst_phylo_df),
+            {
+                k: alifestd_try_add_ancestor_list_col(v)
+                for k, v in frames.items()
+            },
+            fossils=kwargs["fossil_interval"] is not None,
             teeplot_outattrs=kwargs,
             teeplot_outdir="/tmp",
         )
@@ -230,7 +262,7 @@ def test_reconstruct_one(
     fossil_interval: typing.Optional[int],
     *,
     visualize: bool,
-) -> dict[str, typing.Union[int, float, None]]:
+) -> typing.Dict[str, typing.Union[int, float, None]]:
     """Test the reconstruction of a single phylogeny."""
     print("=" * 80)
     print(f"surface_size: {surface_size}")
@@ -244,8 +276,7 @@ def test_reconstruct_one(
     )
 
     visualize_reconstruction(
-        frames["true_dropped_fossils"],
-        frames["reconst_dropped_fossils"],
+        frames,
         differentia_bitwidth=differentia_bitwidth,
         surface_size=surface_size,
         fossil_interval=fossil_interval,
@@ -296,7 +327,8 @@ if __name__ == "__main__":
                 fossil_interval,
                 surface_size,
                 differentia_bitwidth,
-            ) in product((None, 50, 200), (256, 64, 16), (64, 8, 1))
+            ) in product((None, 50, 200), (64,), (8,))
+            # ) in product((None, 50, 200), (256, 64, 16), (64, 8, 1))
         ]
     )
 
