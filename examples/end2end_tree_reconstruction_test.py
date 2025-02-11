@@ -136,10 +136,14 @@ def plot_colorclade_comparison(
     plt.style.use('dark_background')
     fig, axes = plt.subplots(2, 2)
 
-    new_depths = alifestd_mark_node_depth_asexual(alifestd_collapse_unifurcations(true_df))
+    true_df = alifestd_collapse_unifurcations(true_df)
+    new_depths = alifestd_mark_node_depth_asexual(true_df)
+
     old_reconst_df = reconst_df.copy()
+    true_df["origin_time"] = true_df["depth"]
     reconst_df["origin_time"] = reconst_df["hstrat_rank"]
     new_depths["origin_time"] = new_depths["node_depth"]
+
     draw_colorclade_tree(
         true_df,
         taxon_name_key="taxon_label",
