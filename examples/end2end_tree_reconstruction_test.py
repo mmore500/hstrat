@@ -9,6 +9,7 @@ import typing
 
 import alifedata_phyloinformatics_convert as apc
 from colorclade import draw_colorclade_tree
+from matplotlib import matplotlib_fname
 import matplotlib.pyplot as plt
 import pandas as pd
 from teeplot import teeplot as tp
@@ -131,6 +132,12 @@ def sample_reference_and_reconstruction(
 def plot_colorclade_comparison(
     frames: ReconstructionResult, *, fossils: bool
 ) -> None:
+    plotter_kwargs = {
+        "taxon_name_key": "taxon_label",
+        "backend": "biopython",
+        "label_tips": False,
+        "line_width": 2.5
+    }
     plt.style.use("dark_background")
     fig, axes = plt.subplots(3 if fossils else 2, 2)
 
@@ -155,48 +162,35 @@ def plot_colorclade_comparison(
 
         draw_colorclade_tree(
             frames["true_dropped_fossils"],
-            taxon_name_key="taxon_label",
             ax=axes.flat[0],
-            backend="biopython",
-            label_tips=False,
+            **plotter_kwargs
         )
         draw_colorclade_tree(
             frames["reconst_dropped_fossils"],
-            taxon_name_key="taxon_label",
             ax=axes.flat[1],
-            backend="biopython",
-            label_tips=False,
+            **plotter_kwargs
         )
 
 
     draw_colorclade_tree(
         frames["true"],
-        taxon_name_key="taxon_label",
         ax=axes.flat[-4],
-        backend="biopython",
-        label_tips=False,
+        **plotter_kwargs
     )
     draw_colorclade_tree(
         frames["reconst"],
-        taxon_name_key="taxon_label",
         ax=axes.flat[-3],
-        backend="biopython",
-        label_tips=False,
+        **plotter_kwargs
     )
-
     draw_colorclade_tree(
         true_df_no_lengths,
-        taxon_name_key="taxon_label",
         ax=axes.flat[-2],
-        backend="biopython",
-        label_tips=False,
+        **plotter_kwargs
     )
     draw_colorclade_tree(
         reconst_df_no_lengths,
-        taxon_name_key="taxon_label",
         ax=axes.flat[-1],
-        backend="biopython",
-        label_tips=False,
+        **plotter_kwargs
     )
 
     axes.flat[0].set_xscale(
@@ -208,10 +202,8 @@ def plot_colorclade_comparison(
     )
     axes.flat[1].set_xlim(0, max(frames["reconst"]["origin_time"].unique()) + 5)
 
-    axes.flat[1].set_xlim(reversed(axes.flat[1].get_xlim()))
-    axes.flat[3].set_xlim(reversed(axes.flat[3].get_xlim()))
-    if fossils:
-        axes.flat[5].set_xlim(reversed(axes.flat[5].get_xlim()))
+    for i in range(1, len(axes.flat), 2):
+        axes.flat[i].set_xlim(reversed(axes.flat[i].get_xlim()))
 
     fig.set_size_inches(20, 20 + 10 * fossils)
     if fossils:
@@ -251,6 +243,7 @@ def visualize_reconstruction(
                 for k, v in frames.items()
             },
             fossils=kwargs["fossil_interval"] is not None,
+            teeplot_dpi=100,
             teeplot_outattrs=kwargs,
             teeplot_outdir="/tmp",
         )
