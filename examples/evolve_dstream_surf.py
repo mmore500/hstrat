@@ -30,7 +30,14 @@ evolution_selector = random.Random(1)  # ensure consistent true phylogeny
 
 def make_uuid4_fast(use_selector: bool) -> str:
     """Fast UUID4 generator, using lower-quality randomness."""
-    return str(uuid.UUID(int=(evolution_selector if use_selector else random).getrandbits(128), version=4))
+    return str(
+        uuid.UUID(
+            int=(evolution_selector if use_selector else random).getrandbits(
+                128
+            ),
+            version=4,
+        )
+    )
 
 
 def extract_fossils(
@@ -62,7 +69,9 @@ def evolve_drift(
     for generation in tqdm(range(500)):
         population = [
             parent.CreateOffspring()
-            for parent in evolution_selector.choices(population, k=len(population))
+            for parent in evolution_selector.choices(
+                population, k=len(population)
+            )
         ]
         if fossil_interval and generation % fossil_interval == 0:
             with RngStateContext(random.randint(1, 100000)):
@@ -76,7 +85,9 @@ def evolve_drift(
     for generation in tqdm(range(500)):
         population[:nsplit] = [
             parent.CreateOffspring()
-            for parent in evolution_selector.choices(population[:nsplit], k=nsplit)
+            for parent in evolution_selector.choices(
+                population[:nsplit], k=nsplit
+            )
         ]
         if fossil_interval and generation % fossil_interval == 0:
             with RngStateContext(random.randint(1, 100000)):

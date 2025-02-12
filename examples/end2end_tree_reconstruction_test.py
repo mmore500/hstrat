@@ -141,7 +141,7 @@ def plot_colorclade_comparison(
         "taxon_name_key": "taxon_label",
         "backend": "biopython",
         "label_tips": False,
-        "line_width": 2.5
+        "line_width": 2.5,
     }
     plt.style.use("dark_background")
     fig, axes = plt.subplots(3 if fossils else 2, 2)
@@ -166,36 +166,21 @@ def plot_colorclade_comparison(
         ]["hstrat_rank"]
 
         draw_colorclade_tree(
-            frames["true_dropped_fossils"],
-            ax=axes.flat[0],
-            **plotter_kwargs
+            frames["true_dropped_fossils"], ax=axes.flat[0], **plotter_kwargs
         )
         draw_colorclade_tree(
             frames["reconst_dropped_fossils"],
             ax=axes.flat[1],
-            **plotter_kwargs
+            **plotter_kwargs,
         )
 
-
+    draw_colorclade_tree(frames["true"], ax=axes.flat[-4], **plotter_kwargs)
+    draw_colorclade_tree(frames["reconst"], ax=axes.flat[-3], **plotter_kwargs)
     draw_colorclade_tree(
-        frames["true"],
-        ax=axes.flat[-4],
-        **plotter_kwargs
+        true_df_no_lengths, ax=axes.flat[-2], **plotter_kwargs
     )
     draw_colorclade_tree(
-        frames["reconst"],
-        ax=axes.flat[-3],
-        **plotter_kwargs
-    )
-    draw_colorclade_tree(
-        true_df_no_lengths,
-        ax=axes.flat[-2],
-        **plotter_kwargs
-    )
-    draw_colorclade_tree(
-        reconst_df_no_lengths,
-        ax=axes.flat[-1],
-        **plotter_kwargs
+        reconst_df_no_lengths, ax=axes.flat[-1], **plotter_kwargs
     )
 
     axes.flat[0].set_xscale(
@@ -205,7 +190,9 @@ def plot_colorclade_comparison(
     axes.flat[1].set_xscale(
         "function", functions=(lambda x: x**10, lambda x: x**0.1)
     )
-    axes.flat[1].set_xlim(0, max(frames["reconst"]["origin_time"].unique()) + 5)
+    axes.flat[1].set_xlim(
+        0, max(frames["reconst"]["origin_time"].unique()) + 5
+    )
 
     for i in range(1, len(axes.flat), 2):
         axes.flat[i].set_xlim(reversed(axes.flat[i].get_xlim()))
@@ -230,7 +217,9 @@ def visualize_reconstruction(
 ) -> None:
     """Print a sample of the reference and reconstructed phylogenies."""
     show_taxa = (
-        frames["reconst_dropped_fossils"]["taxon_label"].dropna().sample(6, random_state=1)
+        frames["reconst_dropped_fossils"]["taxon_label"]
+        .dropna()
+        .sample(6, random_state=1)
     )
     print("ground-truth phylogeny sample:")
     print(to_ascii(frames["true_dropped_fossils"], show_taxa))
