@@ -74,23 +74,28 @@ def sample_reference_and_reconstruction(
     fossil_interval: typing.Optional[int],
 ) -> ReconstructionResult:
     """Sample a reference phylogeny and corresponding reconstruction."""
-    paths = subprocess.run(
-        [
-            f"{os.path.dirname(__file__)}/"
-            "end2end_tree_reconstruction_with_dstream_surf.sh",
-            "--differentia-bitwidth",
-            f"{differentia_bitwidth}",
-            "--surface-size",
-            f"{surface_size}",
-            *(
-                ["--fossil-interval", f"{fossil_interval}"]
-                * (fossil_interval is not None)
-            ),
-        ],
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.strip()
+    try:
+        paths = subprocess.run(
+            [
+                f"{os.path.dirname(__file__)}/"
+                "end2end_tree_reconstruction_with_dstream_surf.sh",
+                "--differentia-bitwidth",
+                f"{differentia_bitwidth}",
+                "--surface-size",
+                f"{surface_size}",
+                *(
+                    ["--fossil-interval", f"{fossil_interval}"]
+                    * (fossil_interval is not None)
+                ),
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+    except subprocess.CalledProcessError as e:
+        print(f"\033[33m{e.stdout}\033[0m")
+        print(f"\033[31m{e.stderr}\033[0m")
+        raise e
 
     vars = dict()
     exec(paths, vars)  # hack to load paths from shell script output
@@ -320,8 +325,7 @@ if __name__ == "__main__":
                 fossil_interval,
                 surface_size,
                 differentia_bitwidth,
-            ) in product((None, 50, 200), (64,), (8,))
-            # ) in product((None, 50, 200), (256, 64, 16), (64, 8, 1))
+            ) in product((None, 50, 200), (256, 64, 16), (64, 8, 1))
         ]
     )
 
