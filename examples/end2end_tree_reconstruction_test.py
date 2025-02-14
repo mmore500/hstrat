@@ -140,9 +140,13 @@ def plot_colorclade_comparison(
     plotter_kwargs = {
         "taxon_name_key": "taxon_label",
         "backend": "biopython",
-        "label_tips": False,
+        "color_labels": "white",
         "line_width": 2.5,
     }
+    label_func = lambda node: (
+        " " + node.name if hash(node.name) % 12 == 0 else ""
+    )
+
     plt.style.use("dark_background")
     fig, axes = plt.subplots(3 if fossils else 2, 2)
 
@@ -166,21 +170,41 @@ def plot_colorclade_comparison(
         ]["hstrat_rank"]
 
         draw_colorclade_tree(
-            frames["true_dropped_fossils"], ax=axes.flat[0], **plotter_kwargs
+            frames["true_dropped_fossils"],
+            ax=axes.flat[0],
+            **plotter_kwargs,
+            label_tips=label_func,
         )
         draw_colorclade_tree(
             frames["reconst_dropped_fossils"],
             ax=axes.flat[1],
             **plotter_kwargs,
+            label_tips=False,
         )
 
-    draw_colorclade_tree(frames["true"], ax=axes.flat[-4], **plotter_kwargs)
-    draw_colorclade_tree(frames["reconst"], ax=axes.flat[-3], **plotter_kwargs)
     draw_colorclade_tree(
-        true_df_no_lengths, ax=axes.flat[-2], **plotter_kwargs
+        frames["true"],
+        ax=axes.flat[-4],
+        **plotter_kwargs,
+        label_tips=label_func,
     )
     draw_colorclade_tree(
-        reconst_df_no_lengths, ax=axes.flat[-1], **plotter_kwargs
+        frames["reconst"],
+        ax=axes.flat[-3],
+        **plotter_kwargs,
+        label_tips=False,
+    )
+    draw_colorclade_tree(
+        true_df_no_lengths,
+        ax=axes.flat[-2],
+        **plotter_kwargs,
+        label_tips=label_func,
+    )
+    draw_colorclade_tree(
+        reconst_df_no_lengths,
+        ax=axes.flat[-1],
+        **plotter_kwargs,
+        label_tips=False,
     )
 
     axes.flat[0].set_xscale(

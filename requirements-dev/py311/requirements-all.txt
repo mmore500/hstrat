@@ -55,7 +55,7 @@ click==8.1.7
     #   keyname
 colorama==0.4.6
     # via bumpver
-colorclade==0.2.0
+colorclade==0.3.0
     # via hstrat (../../pyproject.toml)
 comm==0.2.2
     # via ipykernel
