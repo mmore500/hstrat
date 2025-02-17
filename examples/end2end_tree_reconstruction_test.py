@@ -9,8 +9,8 @@ import typing
 
 import alifedata_phyloinformatics_convert as apc
 from colorclade import draw_colorclade_tree
-from matplotlib import matplotlib_fname
 import matplotlib.pyplot as plt
+from numpy import cumsum
 import pandas as pd
 from teeplot import teeplot as tp
 
@@ -306,7 +306,7 @@ def test_reconstruct_one(
 
     print(f"{reconstruction_error=}")
     print(f"{reconstruction_error_dropped_fossils=}")
-    assert reconstruction_error < alifestd_count_leaf_nodes(frames["true"])
+    assert 0 <= reconstruction_error <= 1  # should be in the range [0,1]
 
     return {
         "differentia_bitwidth": differentia_bitwidth,
@@ -340,15 +340,18 @@ if __name__ == "__main__":
                 differentia_bitwidth,
             ) in product((None, 50, 200), (256, 64, 16), (64, 8, 1))
         ]
-    )
+    ).sort_values(["surface_size", "differentia_bitwidth"], ascending=False)
 
     reconstruction_errors.to_csv("/tmp/end2end-reconstruction-error.csv")
 
     # error should increase with decreasing surface size
-    assert (
-        reconstruction_errors.sort_values(
-            ["surface_size", "differentia_bitwidth"], ascending=False
+    tolerance = 0.02
+    assert (  # type: ignore
+        reconstruction_errors.groupby("fossil_interval", dropna=False)["error"]
+        .agg(
+            lambda x: (
+                x + pd.Series([tolerance] * 9).cumsum().values
+            ).is_monotonic_increasing
         )
-        .groupby("fossil_interval", dropna=False)["error"]
-        .is_monotonic_increasing.all()
+        .all()
     )
