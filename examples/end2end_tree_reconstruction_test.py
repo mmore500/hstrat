@@ -10,7 +10,6 @@ import typing
 import alifedata_phyloinformatics_convert as apc
 from colorclade import draw_colorclade_tree
 import matplotlib.pyplot as plt
-from numpy import cumsum
 import pandas as pd
 from teeplot import teeplot as tp
 
@@ -97,11 +96,11 @@ def sample_reference_and_reconstruction(
         print(f"\033[31m{e.stderr}\033[0m")
         raise e
 
-    vars = dict()
-    exec(paths, vars)  # hack to load paths from shell script output
-    true_phylo_df = load_df(vars["true_phylo_df_path"])
+    path_vars = dict()
+    exec(paths, path_vars)  # hack to load paths from shell script output
+    true_phylo_df = load_df(path_vars["true_phylo_df_path"])
     reconst_phylo_df = alifestd_try_add_ancestor_list_col(
-        load_df(vars["reconst_phylo_df_path"]),
+        load_df(path_vars["reconst_phylo_df_path"]),
     )  # ancestor_list column must be added to comply with alife standard
 
     assert alifestd_count_leaf_nodes(
