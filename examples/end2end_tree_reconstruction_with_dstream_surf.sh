@@ -28,7 +28,6 @@ ls "${genome_df_path}" | python3 -m \
     "${reconst_phylo_df_path}" \
     >/dev/null 2>&1
 
-
 # log output paths
 echo "genome_df_path = '${genome_df_path}'"
 echo "true_phylo_df_path = '${true_phylo_df_path}'"
