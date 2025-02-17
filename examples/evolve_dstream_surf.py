@@ -342,8 +342,8 @@ def _get_df_save_handler(path: str) -> typing.Callable:
 
 
 if __name__ == "__main__":
-    np.random.seed(1)  # ensure reproducibility
-    random.seed(1)
+    np.random.seed(2)  # ensure reproducibility
+    random.seed(2)
 
     args = _parse_args()
 
