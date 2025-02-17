@@ -7,6 +7,7 @@ import subprocess
 import sys
 import typing
 
+from Bio.Phylo.BaseTree import Clade as BioClade
 import alifedata_phyloinformatics_convert as apc
 from colorclade import draw_colorclade_tree
 import matplotlib.pyplot as plt
@@ -107,8 +108,11 @@ def sample_reference_and_reconstruction(
         true_phylo_df
     ) == alifestd_count_leaf_nodes(reconst_phylo_df)
 
+    # we use == False and == True here because there are NaN values as well
     reconst_phylo_df_extant = reconst_phylo_df.copy()
-    reconst_phylo_df_extant["extant"] = reconst_phylo_df["is_fossil"] == False
+    reconst_phylo_df_extant["extant"] = (
+        reconst_phylo_df["is_fossil"] == False
+    )  # noqa: E712
     reconst_phylo_df_no_fossils = alifestd_prune_extinct_lineages_asexual(
         reconst_phylo_df_extant
     )
@@ -116,7 +120,9 @@ def sample_reference_and_reconstruction(
     new_df = (
         true_phylo_df.set_index("taxon_label")
         .drop(
-            reconst_phylo_df["taxon_label"][reconst_phylo_df["is_fossil"] == True]  # type: ignore
+            reconst_phylo_df["taxon_label"][
+                reconst_phylo_df["is_fossil"] == True
+            ]  # noqa: E712
         )
         .reset_index()
     )
@@ -133,6 +139,10 @@ def sample_reference_and_reconstruction(
     }
 
 
+def _label_func(node: BioClade):
+    return " " + node.name if node.name and hash(node.name) % 12 == 0 else ""
+
+
 def plot_colorclade_comparison(
     frames: ReconstructionResult, *, fossils: bool
 ) -> None:
@@ -142,9 +152,6 @@ def plot_colorclade_comparison(
         "color_labels": "white",
         "line_width": 2.5,
     }
-    label_func = lambda node: (
-        " " + node.name if hash(node.name) % 12 == 0 else ""
-    )
 
     plt.style.use("dark_background")
     fig, axes = plt.subplots(3 if fossils else 2, 2)
@@ -172,7 +179,7 @@ def plot_colorclade_comparison(
             frames["true_dropped_fossils"],
             ax=axes.flat[0],
             **plotter_kwargs,
-            label_tips=label_func,
+            label_tips=_label_func,
         )
         draw_colorclade_tree(
             frames["reconst_dropped_fossils"],
@@ -185,7 +192,7 @@ def plot_colorclade_comparison(
         frames["true"],
         ax=axes.flat[-4],
         **plotter_kwargs,
-        label_tips=label_func,
+        label_tips=_label_func,
     )
     draw_colorclade_tree(
         frames["reconst"],
@@ -197,7 +204,7 @@ def plot_colorclade_comparison(
         true_df_no_lengths,
         ax=axes.flat[-2],
         **plotter_kwargs,
-        label_tips=label_func,
+        label_tips=_label_func,
     )
     draw_colorclade_tree(
         reconst_df_no_lengths,
