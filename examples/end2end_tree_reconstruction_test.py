@@ -308,18 +308,9 @@ if __name__ == "__main__":
                 differentia_bitwidth,
             ) in itertools.product((None, 50, 200), (256, 64, 16), (64, 8, 1))
         ]
-    ).sort_values(["surface_size", "differentia_bitwidth"], ascending=False)
+    ).sort_values(["fossil_interval", "surface_size", "differentia_bitwidth"], ascending=False)
 
     reconstruction_errors.to_csv("/tmp/end2end-reconstruction-error.csv")
 
     # error should increase with decreasing surface size
-    tolerance = 0.02
-    for fossil_interval, group in reconstruction_errors.groupby(
-        "fossil_interval", dropna=False
-    ):
-        for (fi, first), (si, second) in itertools.pairwise(group.iterrows()):
-            if first > second:
-                print(
-                    f"Expected monotonically increasing error, but error for {second} is less than {first}"
-                )
-            assert second["error"] - first["error"] >= -tolerance
+    assert reconstruction_errors.groupby("fossil_interval")["error"].is_monotonic_increasing.all()
