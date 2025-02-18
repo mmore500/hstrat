@@ -5,6 +5,7 @@ import functools
 import gc
 import os
 import random
+import sys
 import types
 import typing
 import uuid
@@ -28,13 +29,13 @@ except (ImportError, ModuleNotFoundError) as e:
 evolution_selector = random.Random(1)  # ensure consistent true phylogeny
 
 
-def make_uuid4_fast(random_generator: typing.Union[types.ModuleType, random.Random]) -> str:
+def make_uuid4_fast(
+    random_generator: typing.Union[types.ModuleType, random.Random]
+) -> str:
     """Fast UUID4 generator, using lower-quality randomness."""
     return str(
         uuid.UUID(
-            int=random_generator.getrandbits(
-                128
-            ),
+            int=random_generator.getrandbits(128),
             version=4,
         )
     )
@@ -42,13 +43,18 @@ def make_uuid4_fast(random_generator: typing.Union[types.ModuleType, random.Rand
 
 def extract_fossils(
     pop: typing.List,
-    fossil_sample_percentage: float = 0.1,
+    fossil_sample_proportion: float = 0.1,
 ) -> typing.List:
+    """
+    We extract CreateOffspring() instead of the parent itself, becauase
+    parents with surviving children are not treated as leaf nodes by
+    phylotrackpy; this simplifies true/reconst phylo comparison
+    """
     return [
         parent.CreateOffspring(fossil=True)
         for parent in random.sample(
             pop,
-            k=int(len(pop) * fossil_sample_percentage),
+            k=int(len(pop) * fossil_sample_proportion),
         )
     ]
 
@@ -74,10 +80,7 @@ def evolve_drift(
             )
         ]
         if fossil_interval and generation % fossil_interval == 0:
-            with RngStateContext(random.randint(1, 100000)):
-                # note: we extract CreateOffspring() instead of the parent itself,
-                # beause parents with surviving children are not treated as leaf
-                # nodes by phylotrackpy; simplifies true/reconst phylo comparison
+            with RngStateContext(random.randint(1, sys.maxsize)):
                 fossils.extend(extract_fossils(population))
 
     # asyncrhonous generations
@@ -90,8 +93,7 @@ def evolve_drift(
             )
         ]
         if fossil_interval and generation % fossil_interval == 0:
-            with RngStateContext(random.randint(1, 100000)):
-                # see above
+            with RngStateContext(random.randint(1, sys.maxsize)):
                 fossils.extend(extract_fossils(population))
         evolution_selector.shuffle(population)
 
@@ -153,7 +155,7 @@ def make_Organism(
         def create_founder() -> "Organism":
             """Create a founder organism, with hstrat surface initailized."""
             founder = None
-            with RngStateContext(random.randint(1, 100000)):
+            with RngStateContext(random.randint(1, sys.maxsize)):
                 for T in range(surface_size):
                     founder = opyt.apply_if_or_else(
                         founder,
@@ -178,7 +180,9 @@ def make_Organism(
             )
 
             # handle phylotrackpy instrumentation...
-            self.uid = make_uuid4_fast(random if is_fossil else evolution_selector)
+            self.uid = make_uuid4_fast(
+                random if is_fossil else evolution_selector
+            )
             self.taxon = syst.add_org(self, parent_taxon)
 
             # handle hstrat surface instrumentation...
@@ -275,7 +279,7 @@ def make_validation_record(
     in case of different endianness or other scenarios.
     """
     organism = None
-    with RngStateContext(random.randint(1, 100000)):
+    with RngStateContext(random.randint(1, sys.maxsize)):
         for T in range(n_gen):
             organism = opyt.apply_if_or_else(
                 organism,
