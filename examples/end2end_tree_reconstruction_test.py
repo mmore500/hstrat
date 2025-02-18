@@ -130,105 +130,75 @@ def _label_func(node: BioClade):
     return " " + node.name if node.name and hash(node.name) % 12 == 0 else ""
 
 
-def plot_colorclade_comparison(
-    frames: typing.Dict[str, pd.DataFrame], *, show_fossils: bool
-) -> None:
+def plot_colorclade_comparison(frames: typing.Dict[str, pd.DataFrame]) -> None:
     plotter_kwargs = {
         "taxon_name_key": "taxon_label",
         "backend": "biopython",
         "color_labels": "white",
         "line_width": 2.5,
     }
-
     plt.style.use("dark_background")
-    fig, axes = plt.subplots(3 if show_fossils else 2, 2)
+    fig, axes = plt.subplots(3, 2)
 
     frames["exact"] = alifestd_collapse_unifurcations(frames["exact"])
-    true_df_no_lengths = alifestd_mark_node_depth_asexual(frames["exact"])
-
-    reconst_df_no_lengths = frames["reconst"].copy()
     frames["exact"]["origin_time"] = frames["exact"]["depth"]
     frames["reconst"]["origin_time"] = frames["reconst"]["hstrat_rank"]
+
+    frames["exact_dropped_fossils"] = alifestd_collapse_unifurcations(
+        frames["exact_dropped_fossils"],
+    )
+    frames["exact_dropped_fossils"]["origin_time"] = frames[
+        "exact_dropped_fossils"
+    ]["depth"]
+    frames["reconst_dropped_fossils"]["origin_time"] = frames[
+        "reconst_dropped_fossils"
+    ]["hstrat_rank"]
+
+    true_df_no_lengths = alifestd_mark_node_depth_asexual(frames["exact"])
+    reconst_df_no_lengths = alifestd_mark_node_depth_asexual(frames["reconst"])
     true_df_no_lengths["origin_time"] = true_df_no_lengths["node_depth"]
+    reconst_df_no_lengths["origin_time"] = reconst_df_no_lengths["node_depth"]
 
-    if show_fossils:
-        frames["exact_dropped_fossils"] = alifestd_collapse_unifurcations(
+    for i, frame in enumerate(
+        (
             frames["exact_dropped_fossils"],
-        )
-        frames["exact_dropped_fossils"]["origin_time"] = frames[
-            "exact_dropped_fossils"
-        ]["depth"]
-        frames["reconst_dropped_fossils"]["origin_time"] = frames[
-            "reconst_dropped_fossils"
-        ]["hstrat_rank"]
-
-        draw_colorclade_tree(
-            frames["exact_dropped_fossils"],
-            ax=axes.flat[0],
-            **plotter_kwargs,
-            label_tips=_label_func,
-        )
-        draw_colorclade_tree(
             frames["reconst_dropped_fossils"],
-            ax=axes.flat[1],
-            **plotter_kwargs,
-            label_tips=False,
+            frames["exact"],
+            frames["reconst"],
+            true_df_no_lengths,
+            reconst_df_no_lengths,
         )
-
-    draw_colorclade_tree(
-        frames["exact"],
-        ax=axes.flat[-4],
-        **plotter_kwargs,
-        label_tips=_label_func,
-    )
-    draw_colorclade_tree(
-        frames["reconst"],
-        ax=axes.flat[-3],
-        **plotter_kwargs,
-        label_tips=False,
-    )
-    draw_colorclade_tree(
-        true_df_no_lengths,
-        ax=axes.flat[-2],
-        **plotter_kwargs,
-        label_tips=_label_func,
-    )
-    draw_colorclade_tree(
-        reconst_df_no_lengths,
-        ax=axes.flat[-1],
-        **plotter_kwargs,
-        label_tips=False,
-    )
+    ):
+        draw_colorclade_tree(
+            frame,
+            ax=axes.flat[i],
+            **plotter_kwargs,
+            label_tips=_label_func if i % 2 == 0 else False,
+        )
+        axes.flat[i].set_xlim(0, max(frame["origin_time"].unique()))
 
     # apply a polynomial scale to first two plots, which effectively cause
     # more of the graph to focus on recent data
-    axes.flat[0].set_xscale(
-        "function", functions=(lambda x: x**10, lambda x: x**0.1)
-    )
-    axes.flat[0].set_xlim(0, max(frames["exact"]["origin_time"].unique()) + 5)
-    axes.flat[1].set_xscale(
-        "function", functions=(lambda x: x**10, lambda x: x**0.1)
-    )
-    axes.flat[1].set_xlim(
-        0, max(frames["reconst"]["origin_time"].unique()) + 5
-    )
+    receny_scale_funcs = (lambda x: x**10, lambda x: x**0.1)
+    axes.flat[0].set_xscale("function", functions=receny_scale_funcs)
+    axes.flat[1].set_xscale("function", functions=receny_scale_funcs)
 
     # flip orientation of right-hand panels
     for i in range(1, len(axes.flat), 2):
         axes.flat[i].set_xlim(reversed(axes.flat[i].get_xlim()))
 
     fig.set_size_inches(10 * axes.shape[1], 10 * axes.shape[0])
-    if show_fossils:
-        axes.flat[0].set_title("True Phylogeny Dropped Fossils Recency Scaled")
-        axes.flat[1].set_title(
-            "Reconstructed Phylogeny Dropped Fossils Recency Scaled"
+    for i, title in enumerate(
+        (
+            "True Phylogeny Dropped Fossils Recency Scaled",
+            "Reconstructed Phylogeny Dropped Fossils Recency Scaled",
+            "True Phylogeny Time Scaled",
+            "Reconstructed Phylogeny Time Scaled",
+            "True Phylogeny Topology Only",
+            "Reconstructed Phylogeny Topology Only",
         )
-
-    middle_descriptor = "Time Scaled" if show_fossils else "Recency Scaled"
-    axes.flat[-4].set_title(f"True Phylogeny {middle_descriptor}")
-    axes.flat[-3].set_title(f"Reconstructed Phylogeny {middle_descriptor}")
-    axes.flat[-2].set_title("True Phylogeny Topology Only")
-    axes.flat[-1].set_title("Reconstructed Phylogeny Topology Only")
+    ):
+        axes.flat[i].set_title(title)
     plt.tight_layout()
 
 
@@ -259,7 +229,6 @@ def display_reconstruction(
                 k: alifestd_try_add_ancestor_list_col(v)
                 for k, v in frames.items()
             },
-            show_fossils=kwargs["fossil_interval"] is not None,
             teeplot_dpi=100,
             teeplot_outattrs=kwargs,
             teeplot_outdir="/tmp/end2end-visualizations",
