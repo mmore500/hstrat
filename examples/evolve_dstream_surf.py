@@ -29,6 +29,18 @@ except (ImportError, ModuleNotFoundError) as e:
 evolution_selector = random.Random(1)  # ensure consistent true phylogeny
 
 
+def consistent_state_randrange(bitwidth: int):
+    """A wrapper for randrange that preserves state regardless of bitwidth
+
+    Motivation: the random state after randrange(2**64) was different
+    than that of randrange(2**8), and we wanted to keep things like
+    extracted fossils and generated UUIDs consistent between runs
+    regardless of parameters like `differentia_bitwidth`. Therefore,
+    we use this to avoid random state changing differently across runs.
+    """
+    return random.randrange(2**64) & ((1 << bitwidth) - 1)
+
+
 def make_uuid4_fast(
     random_generator: typing.Union[types.ModuleType, random.Random]
 ) -> str:
@@ -189,8 +201,8 @@ def make_Organism(
             self.hstrat_surface = parent_hstrat_surface.copy()
             # ... deposit stratum...
             # hack to avoid varying ranges give different random states
-            differentia_value = random.randrange(2**64) & (
-                (1 << differentia_bitwidth) - 1
+            differentia_value = consistent_state_randrange(
+                bitwidth=differentia_bitwidth
             )
             self.DepositStratum(differentia_value, parent_dstream_T)
             self.dstream_T = parent_dstream_T + 1

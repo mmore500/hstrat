@@ -107,13 +107,12 @@ def sample_reference_and_reconstruction(
         reconst_phylo_df_extant,
     )
 
+    taxa_to_drop = reconst_phylo_df["taxon_label"][
+        reconst_phylo_df["is_fossil"] == True
+    ]  # noqa: E712
     new_df = (
         true_phylo_df.set_index("taxon_label")
-        .drop(
-            reconst_phylo_df["taxon_label"][
-                reconst_phylo_df["is_fossil"] == True  # type: ignore
-            ]  # noqa: E712
-        )
+        .drop(taxa_to_drop)  # type: ignore
         .reset_index()
     )
 
@@ -221,9 +220,11 @@ def plot_colorclade_comparison(
     fig.set_size_inches(10 * axes.shape[1], 10 * axes.shape[0])
     if show_fossils:
         axes.flat[0].set_title("True Phylogeny Dropped Fossils Recency Scaled")
-        axes.flat[1].set_title("Reconstructed Phylogeny Dropped Fossils Recency Scaled")
+        axes.flat[1].set_title(
+            "Reconstructed Phylogeny Dropped Fossils Recency Scaled"
+        )
 
-    middle_descriptor = 'Time Scaled' if show_fossils else 'Recency Scaled'
+    middle_descriptor = "Time Scaled" if show_fossils else "Recency Scaled"
     axes.flat[-4].set_title(f"True Phylogeny {middle_descriptor}")
     axes.flat[-3].set_title(f"Reconstructed Phylogeny {middle_descriptor}")
     axes.flat[-2].set_title("True Phylogeny Topology Only")
