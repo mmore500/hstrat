@@ -24,10 +24,11 @@ def alifestd_calc_triplet_distance_asexual(
     ref_labels = {*ref["taxon_label"][ref["is_leaf"]]}
     cmp_labels = {*cmp["taxon_label"][cmp["is_leaf"]]}
 
-    assert ref_labels == cmp_labels
+    if ref_labels != cmp_labels:
+        raise ValueError("Taxon labels must match between trees")
     for taxon_label in ref_labels:
-        assert taxon_label
-        assert taxon_label.strip()
+        if not taxon_label.strip():
+            raise ValueError("Cannot have empty taxon labels")
 
     if (
         alifestd_count_root_nodes(ref) > 1
