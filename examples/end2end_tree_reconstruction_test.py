@@ -269,7 +269,7 @@ def visualize_reconstruction(
             fossils=kwargs["fossil_interval"] is not None,
             teeplot_dpi=100,
             teeplot_outattrs=kwargs,
-            teeplot_outdir="/tmp",
+            teeplot_outdir="/tmp/end2end-visualizations",
         )
 
 
