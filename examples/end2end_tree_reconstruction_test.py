@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-from itertools import product
+import itertools
 import os
 import subprocess
 import sys
@@ -306,7 +306,7 @@ if __name__ == "__main__":
                 fossil_interval,
                 surface_size,
                 differentia_bitwidth,
-            ) in product((None, 50, 200), (256, 64, 16), (64, 8, 1))
+            ) in itertools.product((None, 50, 200), (256, 64, 16), (64, 8, 1))
         ]
     ).sort_values(["surface_size", "differentia_bitwidth"], ascending=False)
 
@@ -314,12 +314,12 @@ if __name__ == "__main__":
 
     # error should increase with decreasing surface size
     tolerance = 0.02
-    assert (  # type: ignore
-        reconstruction_errors.groupby("fossil_interval", dropna=False)["error"]
-        .agg(
-            lambda x: (
-                x + pd.Series([tolerance] * 9).cumsum().values
-            ).is_monotonic_increasing
-        )
-        .all()
-    )
+    for fossil_interval, group in reconstruction_errors.groupby(
+        "fossil_interval", dropna=False
+    ):
+        for (fi, first), (si, second) in itertools.pairwise(group.iterrows()):
+            if first > second:
+                print(
+                    f"Expected monotonically increasing error, but error for {second} is less than {first}"
+                )
+            assert second["error"] - first["error"] >= -tolerance

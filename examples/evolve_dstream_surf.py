@@ -171,7 +171,7 @@ def make_Organism(
                 for T in range(surface_size):
                     founder = opyt.apply_if_or_else(
                         founder,
-                        Organism.CreateOffspring,
+                        lambda x: x.CreateOffspring(fossil=True),
                         Organism,
                     )
             assert founder.dstream_T == surface_size

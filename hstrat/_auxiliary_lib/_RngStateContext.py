@@ -18,8 +18,6 @@ class RngStateContext:
         seed: int
             The seed value to use for reseeding the RNG temporarily.
         """
-        self._saved_state = None
-        self._saved_np_state = None
         self.seed = seed
 
     def __enter__(self) -> None:
