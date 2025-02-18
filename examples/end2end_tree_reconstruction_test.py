@@ -325,7 +325,7 @@ def test_reconstruct_one(
 
 def _parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--visualize", action="store_true")
+    parser.add_argument("--skip-visualization", action="store_true")
     return parser.parse_args()
 
 
@@ -338,7 +338,7 @@ if __name__ == "__main__":
                 differentia_bitwidth,
                 surface_size,
                 fossil_interval,
-                visualize=args.visualize,
+                visualize=not args.skip_visualization,
             )
             for (
                 fossil_interval,

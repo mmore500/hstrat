@@ -104,6 +104,12 @@ jobs:
         path: "requirements-dev/requirements-testing.txt"
     - name: Run examples
       run: ./examples/run_all.sh
+    - name: Save visualization artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: end2end-results
+        path: "/tmp"
+        overwrite: true
 
   test-cli:
     runs-on: ubuntu-24.04
