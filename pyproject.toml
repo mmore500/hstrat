@@ -111,7 +111,7 @@ testing = [
   "ruff==0.1.11",
   "safe-assert==0.2.0",
   "scipy==1.14.1",
-  "teeplot==0.4.0",
+  "teeplot>=1.2.0",
   "tox==3.24.0",
   "tqdist==1.0",
 ]
