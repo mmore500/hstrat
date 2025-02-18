@@ -142,7 +142,7 @@ def _label_func(node: BioClade):
 
 
 def plot_colorclade_comparison(
-    frames: ReconstructionResult, *, fossils: bool
+    frames: ReconstructionResult, *, show_fossils: bool
 ) -> None:
     plotter_kwargs = {
         "taxon_name_key": "taxon_label",
@@ -152,7 +152,7 @@ def plot_colorclade_comparison(
     }
 
     plt.style.use("dark_background")
-    fig, axes = plt.subplots(3 if fossils else 2, 2)
+    fig, axes = plt.subplots(3 if show_fossils else 2, 2)
 
     frames["true"] = alifestd_collapse_unifurcations(frames["true"])
     true_df_no_lengths = alifestd_mark_node_depth_asexual(frames["true"])
@@ -162,7 +162,7 @@ def plot_colorclade_comparison(
     frames["reconst"]["origin_time"] = frames["reconst"]["hstrat_rank"]
     true_df_no_lengths["origin_time"] = true_df_no_lengths["node_depth"]
 
-    if fossils:
+    if show_fossils:
         frames["true_dropped_fossils"] = alifestd_collapse_unifurcations(
             frames["true_dropped_fossils"],
         )
@@ -227,7 +227,7 @@ def plot_colorclade_comparison(
         axes.flat[i].set_xlim(reversed(axes.flat[i].get_xlim()))
 
     fig.set_size_inches(10 * axes.shape[1], 10 * axes.shape[0])
-    if fossils:
+    if show_fossils:
         axes.flat[0].set_title("True Phylogeny Dropped Fossils")
         axes.flat[1].set_title("Reconstructed Phylogeny Dropped Fossils")
 
