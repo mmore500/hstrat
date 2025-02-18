@@ -28,11 +28,11 @@ except (ImportError, ModuleNotFoundError) as e:
 evolution_selector = random.Random(1)  # ensure consistent true phylogeny
 
 
-def make_uuid4_fast(use_selector: bool) -> str:
+def make_uuid4_fast(random_generator: typing.Union[types.ModuleType, random.Random]) -> str:
     """Fast UUID4 generator, using lower-quality randomness."""
     return str(
         uuid.UUID(
-            int=(evolution_selector if use_selector else random).getrandbits(
+            int=random_generator.getrandbits(
                 128
             ),
             version=4,
@@ -178,7 +178,7 @@ def make_Organism(
             )
 
             # handle phylotrackpy instrumentation...
-            self.uid = make_uuid4_fast(use_selector=not is_fossil)
+            self.uid = make_uuid4_fast(random if is_fossil else evolution_selector)
             self.taxon = syst.add_org(self, parent_taxon)
 
             # handle hstrat surface instrumentation...

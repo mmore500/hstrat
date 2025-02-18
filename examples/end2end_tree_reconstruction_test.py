@@ -201,6 +201,8 @@ def plot_colorclade_comparison(
         label_tips=False,
     )
 
+    # apply a polynomial scale to first two plots, which effectively cause
+    # more of the graph to focus on recent data
     axes.flat[0].set_xscale(
         "function", functions=(lambda x: x**10, lambda x: x**0.1)
     )
@@ -218,20 +220,21 @@ def plot_colorclade_comparison(
 
     fig.set_size_inches(10 * axes.shape[1], 10 * axes.shape[0])
     if show_fossils:
-        axes.flat[0].set_title("True Phylogeny Dropped Fossils")
-        axes.flat[1].set_title("Reconstructed Phylogeny Dropped Fossils")
+        axes.flat[0].set_title("True Phylogeny Dropped Fossils Recency Scaled")
+        axes.flat[1].set_title("Reconstructed Phylogeny Dropped Fossils Recency Scaled")
 
-    axes.flat[-4].set_title("True Phylogeny")
-    axes.flat[-3].set_title("Reconstructed Phylogeny")
-    axes.flat[-2].set_title("True Phylogeny Constant Branch Lengths")
-    axes.flat[-1].set_title("Reconstructed Phylogeny Constant Branch Lengths")
+    middle_descriptor = 'Time Scaled' if show_fossils else 'Recency Scaled'
+    axes.flat[-4].set_title(f"True Phylogeny {middle_descriptor}")
+    axes.flat[-3].set_title(f"Reconstructed Phylogeny {middle_descriptor}")
+    axes.flat[-2].set_title("True Phylogeny Topology Only")
+    axes.flat[-1].set_title("Reconstructed Phylogeny Topology Only")
     plt.tight_layout()
 
 
-def visualize_reconstruction(
+def display_reconstruction(
     frames: typing.Dict[str, pd.DataFrame],
     *,
-    visualize: bool,
+    create_plots: bool,
     **kwargs,
 ) -> None:
     """Print a sample of the reference and reconstructed phylogenies."""
@@ -246,7 +249,7 @@ def visualize_reconstruction(
     print("reconstructed phylogeny sample:")
     print(to_ascii(frames["reconst_dropped_fossils"], show_taxa))
 
-    if visualize:
+    if create_plots:
         for df in frames.values():
             df["taxon_label"] = df["taxon_label"].apply(lambda x: x and x[:6])
         tp.tee(
@@ -255,7 +258,7 @@ def visualize_reconstruction(
                 k: alifestd_try_add_ancestor_list_col(v)
                 for k, v in frames.items()
             },
-            fossils=kwargs["fossil_interval"] is not None,
+            show_fossils=kwargs["fossil_interval"] is not None,
             teeplot_dpi=100,
             teeplot_outattrs=kwargs,
             teeplot_outdir="/tmp/end2end-visualizations",
@@ -281,12 +284,12 @@ def test_reconstruct_one(
         fossil_interval,
     )
 
-    visualize_reconstruction(
+    display_reconstruction(
         frames,
         differentia_bitwidth=differentia_bitwidth,
         surface_size=surface_size,
         fossil_interval=fossil_interval,
-        visualize=visualize,
+        create_plots=visualize,
     )
     reconstruction_error = alifestd_calc_triplet_distance_asexual(
         alifestd_collapse_unifurcations(frames["exact"]), frames["reconst"]
