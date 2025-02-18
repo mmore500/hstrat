@@ -93,11 +93,11 @@ def sample_reference_and_reconstruction(
             text=True,
         ).stdout.strip()
     except subprocess.CalledProcessError as e:
-        print(f"\033[33m{e.stdout}\033[0m")
+        print(f"\033[33m{e.stdout}\033[0m")   # color error message red
         print(f"\033[31m{e.stderr}\033[0m")
         raise e
 
-    path_vars = dict()
+    path_vars = dict()  # outparam for exec
     exec(paths, path_vars)  # hack to load paths from shell script output
     true_phylo_df = load_df(path_vars["true_phylo_df_path"])
     reconst_phylo_df = alifestd_try_add_ancestor_list_col(
@@ -114,7 +114,7 @@ def sample_reference_and_reconstruction(
         reconst_phylo_df["is_fossil"] == False
     )  # noqa: E712
     reconst_phylo_df_no_fossils = alifestd_prune_extinct_lineages_asexual(
-        reconst_phylo_df_extant
+        reconst_phylo_df_extant,
     )
 
     new_df = (
@@ -127,8 +127,6 @@ def sample_reference_and_reconstruction(
         .reset_index()
     )
 
-    # true_phylo_df.to_csv("1.csv")
-    # new_df.to_csv("2.csv")
     true_phylo_df_no_fossils = alifestd_prune_extinct_lineages_asexual(new_df)
 
     return {
@@ -166,7 +164,7 @@ def plot_colorclade_comparison(
 
     if fossils:
         frames["true_dropped_fossils"] = alifestd_collapse_unifurcations(
-            frames["true_dropped_fossils"]
+            frames["true_dropped_fossils"],
         )
         frames["true_dropped_fossils"]["origin_time"] = frames[
             "true_dropped_fossils"
@@ -224,10 +222,11 @@ def plot_colorclade_comparison(
         0, max(frames["reconst"]["origin_time"].unique()) + 5
     )
 
+    # flip orientation of right-hand panels
     for i in range(1, len(axes.flat), 2):
         axes.flat[i].set_xlim(reversed(axes.flat[i].get_xlim()))
 
-    fig.set_size_inches(20, 20 + 10 * fossils)
+    fig.set_size_inches(10 * axes.shape[1], 10 * axes.shape[0])
     if fossils:
         axes.flat[0].set_title("True Phylogeny Dropped Fossils")
         axes.flat[1].set_title("Reconstructed Phylogeny Dropped Fossils")
