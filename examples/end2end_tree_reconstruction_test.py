@@ -102,15 +102,15 @@ def sample_reference_and_reconstruction(
     # we use == False and == True here because there are NaN values as well
     reconst_phylo_df_extant = reconst_phylo_df.copy()
     reconst_phylo_df_extant["extant"] = (
-        reconst_phylo_df["is_fossil"] == False
-    )  # noqa: E712
+        reconst_phylo_df["is_fossil"] == False  # noqa: E712
+    )
     reconst_phylo_df_no_fossils = alifestd_prune_extinct_lineages_asexual(
         reconst_phylo_df_extant,
     )
 
     taxa_to_drop = reconst_phylo_df["taxon_label"][
-        reconst_phylo_df["is_fossil"] == True
-    ]  # noqa: E712
+        reconst_phylo_df["is_fossil"] == True  # noqa: E712
+    ]
     new_df = (
         true_phylo_df.set_index("taxon_label")
         .drop(taxa_to_drop)  # type: ignore
