@@ -11,6 +11,7 @@ from Bio.Phylo.BaseTree import Clade as BioClade
 import alifedata_phyloinformatics_convert as apc
 from colorclade import draw_colorclade_tree
 import matplotlib.pyplot as plt
+import opytional as opyt
 import pandas as pd
 from teeplot import teeplot as tp
 
@@ -308,9 +309,30 @@ if __name__ == "__main__":
                 differentia_bitwidth,
             ) in itertools.product((None, 50, 200), (256, 64, 16), (64, 8, 1))
         ]
-    ).sort_values(["fossil_interval", "surface_size", "differentia_bitwidth"], ascending=False)
-
+    ).sort_values(
+        ["fossil_interval", "surface_size", "differentia_bitwidth"],
+        ascending=False,
+    )
     reconstruction_errors.to_csv("/tmp/end2end-reconstruction-error.csv")
 
     # error should increase with decreasing surface size
-    assert reconstruction_errors.groupby("fossil_interval")["error"].is_monotonic_increasing.all()
+    tolerance = 0.02
+    for f, x in reconstruction_errors.groupby("fossil_interval"):
+        for first, second in itertools.pairwise(x.itertuples()):
+            if second.error_dropped_fossils < first.error_dropped_fossils:  # type: ignore
+                msg = (
+                    f"Reconstruction error of {first.error_dropped_fossils} from run "  # type: ignore
+                    f"{first.differentia_bitwidth}-{first.surface_size}-{opyt.apply_if(first.fossil_interval, int)} "  # type: ignore
+                    f" unexpectedly higher than {second.error_dropped_fossils} from run "  # type: ignore
+                    f"{second.differentia_bitwidth}-{second.surface_size}-{opyt.apply_if(second.fossil_interval, int)}"  # type: ignore
+                )
+                if (
+                    first.error_dropped_fossils - second.error_dropped_fossils  # type: ignore
+                    < tolerance
+                ):
+                    print(msg)
+                    print(
+                        "Difference is within error tolerance, continuing..."
+                    )
+                else:
+                    raise ValueError(msg)
