@@ -17,30 +17,9 @@ OrderedStore = typing.Union[
 
 
 class HereditaryStratigraphicSurface:
-    """Genetic annotation to enable phylogenetic inference.
-
-    Primary end-user facing interface for hstrat library. Should be bundled with
-    digital genomes and propagated via the CloneDescendant method when passing
-    those genomes from parent to offspring. Provides basis for phylogenetic
-    analysis of distributed digital evolution populations.
-
-    Naming conventions are derived by analogy to Geological "Stratigraphy"
-    (i.e., <https://en.wikipedia.org/wiki/Stratigraphy>). The "hereditary
-    stratigraphy" system provided by this software works by associating an
-    identifier, referred to as a "stratum," with each elapsed generation along
-    a line of descent. This allows two "columns" to be aligned to detect the
-    generation of their most recent common ancestor: strata before the MRCA
-    will be identical and strata after will differ.
-
-    Stratum retention policy and stratum differentia bit width can be configured
-    to tune the time and space complexity of the column, trading-off with
-    uncertainty induced on estimates of phylogenetic distance back to the most
-    common recent ancestor of two columns.
-
-    Arbitrary user-defined data can be associated with strata by optional
-    argument to the CloneDescendant method. (Note that a first stratum is
-    deposited during column initialization, so an optional annotation argument
-    may also be provided then.)
+    """
+    A wrapper around `downstream.dsurf.Surface` that supports the same
+    interface as `HereditaryStratigraphicColumn`.
     """
 
     __slots__ = (
