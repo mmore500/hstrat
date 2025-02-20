@@ -1,6 +1,7 @@
 """Data structures to annotate genomes with."""
 
 from _HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
+from _HereditaryStratigraphicSurface import HereditaryStratigraphicSurface
 from _HereditaryStratigraphicColumnBundle import (
     HereditaryStratigraphicColumnBundle,
 )
@@ -19,6 +20,7 @@ __all__ = [
     "HereditaryStratum",
     "HereditaryStratigraphicColumn",
     "HereditaryStratigraphicColumnBundle",
+    "HereditaryStratigraphicSurface",
     "HereditaryStratumOrderedStoreDict",
     "HereditaryStratumOrderedStoreList",
     "HereditaryStratumOrderedStoreTree",
