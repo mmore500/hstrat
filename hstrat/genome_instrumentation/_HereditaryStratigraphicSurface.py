@@ -16,7 +16,7 @@ OrderedStore = typing.Union[
 ]
 
 
-class HereditaryStratigraphicColumn:
+class HereditaryStratigraphicSurface:
     """Genetic annotation to enable phylogenetic inference.
 
     Primary end-user facing interface for hstrat library. Should be bundled with
@@ -56,7 +56,7 @@ class HereditaryStratigraphicColumn:
     _surface: dsurf.Surface[int]
 
     def __init__(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
         dstream_surface: dsurf.Surface[int],
         *,
         stratum_differentia_bit_width: int = 64,
@@ -79,7 +79,7 @@ class HereditaryStratigraphicColumn:
         self.DepositStrata(self._surface.S)
 
     def __eq__(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
         other: typing.Any,
     ) -> bool:
         """Compare for value-wise equality."""
@@ -98,19 +98,19 @@ class HereditaryStratigraphicColumn:
         )
 
     def _CreateStratum(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
     ) -> int:
         """Create a hereditary stratum with stored configuration attributes."""
         return random.randrange(2**self._differentia_bit_width)
 
     def DepositStratum(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
     ) -> None:
         """Elapse a generation by depositing a differentia value."""
         self._surface.ingest(self._CreateStratum())
 
     def DepositStrata(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
         num_stratum_depositions: int,
     ) -> None:
         """Elapse n generations.
@@ -125,7 +125,7 @@ class HereditaryStratigraphicColumn:
         )
 
     def IterRetainedRanks(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
     ) -> typing.Iterator[int]:
         """Iterate over deposition ranks of strata stored in the column.
 
@@ -139,7 +139,7 @@ class HereditaryStratigraphicColumn:
         )
 
     def IterRetainedStrata(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
     ) -> typing.Iterator[HereditaryStratum]:
         """Iterate over strata stored in the column.
         Strata yielded from most ancient to most recent.
@@ -155,7 +155,7 @@ class HereditaryStratigraphicColumn:
         )
 
     def IterRetainedDifferentia(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
     ) -> typing.Iterator[int]:
         """Iterate over differentia of strata stored in the column.
 
@@ -164,7 +164,7 @@ class HereditaryStratigraphicColumn:
         return (v for _, v in sorted(self._surface.enumerate_retained()))
 
     def IterRankDifferentiaZip(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
         copyable: bool = False,
     ) -> typing.Iterator[typing.Tuple[int, int]]:
         """Iterate over ranks of retained strata and their differentia.
@@ -184,12 +184,12 @@ class HereditaryStratigraphicColumn:
         return res
 
     def HasAnyAnnotations(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
     ) -> bool:
         """Do any retained strata have annotations?"""
         return False
 
-    def GetNumStrataRetained(self: "HereditaryStratigraphicColumn") -> int:
+    def GetNumStrataRetained(self: "HereditaryStratigraphicSurface") -> int:
         """How many strata are currently stored within the column?
 
         May be fewer than the number of strata deposited if strata have been
@@ -197,7 +197,7 @@ class HereditaryStratigraphicColumn:
         """
         return len([*self._surface.lookup_retained()])
 
-    def GetNumStrataDeposited(self: "HereditaryStratigraphicColumn") -> int:
+    def GetNumStrataDeposited(self: "HereditaryStratigraphicSurface") -> int:
         """How many strata have been depostited on the column?
 
         Note that a first stratum is deposited on the column during
@@ -206,7 +206,7 @@ class HereditaryStratigraphicColumn:
         return self._surface.T
 
     def GetStratumAtColumnIndex(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
         index: int,
     ) -> HereditaryStratum:
         """Get the stratum positioned at index i among retained strata.
@@ -216,7 +216,7 @@ class HereditaryStratigraphicColumn:
         return [*self.IterRetainedStrata()][index]
 
     def GetStratumAtRank(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
         rank: int,
     ) -> typing.Optional[HereditaryStratum]:
         """Get the stratum deposited at generation g.
@@ -229,7 +229,7 @@ class HereditaryStratigraphicColumn:
         return None
 
     def GetRankAtColumnIndex(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
         index: int,
     ) -> int:
         """Map column position to generation of deposition.
@@ -241,7 +241,7 @@ class HereditaryStratigraphicColumn:
         return [*self.IterRetainedRanks()][index]
 
     def GetColumnIndexOfRank(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
         rank: int,
     ) -> typing.Optional[int]:
         """Map generation of deposition to column position.
@@ -256,7 +256,7 @@ class HereditaryStratigraphicColumn:
         return None
 
     def GetNumDiscardedStrata(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
     ) -> int:
         """How many deposited strata have been discarded?
 
@@ -266,20 +266,20 @@ class HereditaryStratigraphicColumn:
         return self.GetNumStrataDeposited() - self.GetNumStrataRetained()
 
     def GetStratumDifferentiaBitWidth(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
     ) -> int:
         """How many bits wide are the differentia of strata?"""
         return self._differentia_bit_width
 
     def HasDiscardedStrata(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
     ) -> bool:
         """Have any deposited strata been discarded?"""
         return self.GetNumDiscardedStrata() > 0
 
     def Clone(
-        self: "HereditaryStratigraphicColumn",
-    ) -> "HereditaryStratigraphicColumn":
+        self: "HereditaryStratigraphicSurface",
+    ) -> "HereditaryStratigraphicSurface":
         """Create an independent copy of the column.
 
         Contains identical data but may be freely altered without affecting
@@ -288,8 +288,8 @@ class HereditaryStratigraphicColumn:
         return deepcopy(self)
 
     def CloneDescendant(
-        self: "HereditaryStratigraphicColumn",
-    ) -> "HereditaryStratigraphicColumn":
+        self: "HereditaryStratigraphicSurface",
+    ) -> "HereditaryStratigraphicSurface":
         """Return a cloned column that has had an additional stratum deposited.
 
         Does not alter self.
@@ -299,9 +299,9 @@ class HereditaryStratigraphicColumn:
         return new
 
     def CloneNthDescendant(
-        self: "HereditaryStratigraphicColumn",
+        self: "HereditaryStratigraphicSurface",
         num_stratum_depositions: int,
-    ) -> "HereditaryStratigraphicColumn":
+    ) -> "HereditaryStratigraphicSurface":
         """Return a cloned column that has had n additional strata deposited.
 
         Does not alter self.
