@@ -10,6 +10,7 @@ from frozen_instrumentation import (
 )
 from genome_instrumentation import (
     HereditaryStratigraphicColumn,
+    HereditaryStratigraphicSurface,
     HereditaryStratigraphicColumnBundle,
     HereditaryStratum,
     HereditaryStratumOrderedStoreDict,
@@ -187,6 +188,7 @@ __all__ = [
     "stratum_ordered_stores",
     "HereditaryStratum",
     "HereditaryStratigraphicColumn",
+    "HereditaryStratigraphicSurface",
     "HereditaryStratigraphicColumnBundle",
     "HereditaryStratumOrderedStoreDict",
     "HereditaryStratumOrderedStoreList",
