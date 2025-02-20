@@ -17,7 +17,7 @@ class HereditaryStratum:
         "_annotation",
     )
 
-    _deposition_rank: int
+    _deposition_rank: typing.Optional[int]
     # random "fingerprint" generated at initialization
     _differentia: int
     # optional arbitrary user-provided data
@@ -58,7 +58,7 @@ class HereditaryStratum:
         self._annotation = annotation
         self._deposition_rank = deposition_rank
 
-    def __eq__(self: "HereditaryStratum", other: "HereditaryStratum") -> bool:
+    def __eq__(self: "HereditaryStratum", other: typing.Any) -> bool:
         """Compare for value-wise equality."""
         # adapted from https://stackoverflow.com/a/4522896
         return (
@@ -82,10 +82,7 @@ class HereditaryStratum:
         self. Deposition rank may not be stored if the stratum retention policy
         supports calculation of deposition rank from column index.
         """
-        if hasattr(self, "_deposition_rank"):
-            return self._deposition_rank
-        else:
-            return None
+        return self._deposition_rank
 
     def GetDifferentia(self: "HereditaryStratum") -> int:
         """Access differentia.
