@@ -86,7 +86,7 @@ class HereditaryStratigraphicSurface:
         self: "HereditaryStratigraphicSurface",
     ) -> None:
         """Elapse a generation by depositing a differentia value."""
-        self._surface.ingest(self._CreateStratum())
+        self._surface.ingest_one(self._CreateStratum())
 
     def DepositStrata(
         self: "HereditaryStratigraphicSurface",
@@ -99,7 +99,7 @@ class HereditaryStratigraphicSurface:
         num_stratum_depositions: int
             How many generations to elapse?
         """
-        self._surface.ingest_multiple(
+        self._surface.ingest_many(
             num_stratum_depositions, lambda _: self._CreateStratum()
         )
 
@@ -114,7 +114,7 @@ class HereditaryStratigraphicSurface:
         """
         return (
             t - self._surface.S
-            for t in sorted(self._surface.lookup_retained())
+            for t in sorted(self._surface.lookup(include_empty=False))
         )
 
     def IterRetainedStrata(
@@ -130,7 +130,7 @@ class HereditaryStratigraphicSurface:
                 differentia_bit_width=self._differentia_bit_width,
                 differentia=v,
             )
-            for t, v in sorted(self._surface.enumerate_retained())
+            for t, v in sorted(self._surface.lookup_zip_items(include_empty=False))
         )
 
     def IterRetainedDifferentia(
@@ -140,7 +140,7 @@ class HereditaryStratigraphicSurface:
 
         Differentia yielded from most ancient to most recent.
         """
-        return (v for _, v in sorted(self._surface.enumerate_retained()))
+        return (v for _, v in sorted(self._surface.lookup_zip_items(include_empty=False)))
 
     def IterRankDifferentiaZip(
         self: "HereditaryStratigraphicSurface",
@@ -156,7 +156,7 @@ class HereditaryStratigraphicSurface:
         """
         res = (
             (t - self._surface.S, v)
-            for t, v in sorted(self._surface.enumerate_retained())
+            for t, v in sorted(self._surface.lookup_zip_items(include_empty=False))
         )
         if copyable:
             return iter([*res])
@@ -174,7 +174,7 @@ class HereditaryStratigraphicSurface:
         May be fewer than the number of strata deposited if strata have been
         discarded as part of the configured stratum retention policy.
         """
-        return len([*self._surface.lookup_retained()])
+        return len([*self._surface.lookup(include_empty=False)])
 
     def GetNumStrataDeposited(self: "HereditaryStratigraphicSurface") -> int:
         """How many strata have been depostited on the column?
