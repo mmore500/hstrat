@@ -67,7 +67,6 @@ def iter_mutual_ranks(
 
     first_start_rank = first.GetRankAtColumnIndex(first_start_idx)
     second_start_rank = second.GetRankAtColumnIndex(second_start_idx)
-
     while first_cur_rank < first_start_rank:
         first_cur_rank, first_cur_differentia = next(first_iter)
     while second_cur_rank < second_start_rank:

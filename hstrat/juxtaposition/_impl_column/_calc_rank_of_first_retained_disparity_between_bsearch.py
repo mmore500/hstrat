@@ -2,7 +2,17 @@ import typing
 
 from interval_search import binary_search
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from hstrat.frozen_instrumentation._HereditaryStratigraphicSpecimen import (
+    HereditaryStratigraphicSpecimen,
+)
+from hstrat.genome_instrumentation._HereditaryStratigraphicColumn import (
+    HereditaryStratigraphicColumn,
+)
+from hstrat.genome_instrumentation._HereditaryStratigraphicSurface import (
+    HereditaryStratigraphicSurface,
+)
+
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from .._calc_min_implausible_spurious_consecutive_differentia_collisions_between import (
     calc_min_implausible_spurious_consecutive_differentia_collisions_between,
 )
@@ -12,8 +22,8 @@ from ._calc_rank_of_first_retained_disparity_between_generic import (
 
 
 def calc_rank_of_first_retained_disparity_between_bsearch(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
     confidence_level: float,
 ) -> typing.Optional[int]:
     """Find first mismatching strata between columns.
@@ -22,6 +32,13 @@ def calc_rank_of_first_retained_disparity_between_bsearch(
     case where both self and second use the perfect resolution stratum
     retention policy.
     """
+    if isinstance(first, HereditaryStratigraphicSpecimen) or isinstance(
+        second, HereditaryStratigraphicSpecimen
+    ):
+        raise ValueError(
+            f"HereditaryStratigraphicSpecimen not supported for {calc_rank_of_first_retained_disparity_between_bsearch.__name__}"
+        )
+
     # both must have (effectively) used the perfect resolution policy
     assert not first.HasDiscardedStrata() and not second.HasDiscardedStrata()
 
@@ -35,7 +52,9 @@ def calc_rank_of_first_retained_disparity_between_bsearch(
     assert lower_bound <= upper_bound
 
     def differentia_at(
-        which: HereditaryStratigraphicColumn,
+        which: typing.Union[
+            HereditaryStratigraphicColumn, HereditaryStratigraphicSurface
+        ],
         idx: int,
     ) -> int:
         return which.GetStratumAtColumnIndex(idx).GetDifferentia()
