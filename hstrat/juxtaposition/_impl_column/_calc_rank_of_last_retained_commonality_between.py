@@ -27,25 +27,23 @@ def calc_rank_of_last_retained_commonality_between(
     """
 
     if (
-        isinstance(first, HereditaryStratigraphicColumn)
-        and isinstance(second, HereditaryStratigraphicColumn)
-        and (
-            first.HasDiscardedStrata()
-            or second.HasDiscardedStrata()
-            # for performance reasons
-            # only apply binary search to stores that support random access
-            or not hasattr(first, "_stratum_ordered_store")
-            or not isinstance(
-                first._stratum_ordered_store, HereditaryStratumOrderedStoreList
-            )
-            or not hasattr(second, "_stratum_ordered_store")
-            or not isinstance(
-                second._stratum_ordered_store,
-                HereditaryStratumOrderedStoreList,
-            )
-            # binary search currently requires no spurious collisions
-            or first.GetStratumDifferentiaBitWidth() < 64
+        not isinstance(first, HereditaryStratigraphicColumn)
+        or not isinstance(second, HereditaryStratigraphicColumn)
+        or first.HasDiscardedStrata()
+        or second.HasDiscardedStrata()
+        # for performance reasons
+        # only apply binary search to stores that support random access
+        or not hasattr(first, "_stratum_ordered_store")
+        or not isinstance(
+            first._stratum_ordered_store, HereditaryStratumOrderedStoreList
         )
+        or not hasattr(second, "_stratum_ordered_store")
+        or not isinstance(
+            second._stratum_ordered_store,
+            HereditaryStratumOrderedStoreList,
+        )
+        # binary search currently requires no spurious collisions
+        or first.GetStratumDifferentiaBitWidth() < 64
     ):
         return calc_rank_of_last_retained_commonality_between_generic(
             first,
