@@ -1,12 +1,13 @@
 import typing
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from hstrat._auxiliary_lib import HereditaryStratigraphicArtifact
+
 from ._iter_mutual_ranks import iter_mutual_ranks
 
 
 def iter_ranks_of_retained_commonality_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
     *,
     first_start_idx: int = 0,
     second_start_idx: int = 0,
