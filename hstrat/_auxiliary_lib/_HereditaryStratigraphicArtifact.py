@@ -1,8 +1,14 @@
 import typing
 
-# use string alias due to circular module initialization issue
+if typing.TYPE_CHECKING:
+    from ..frozen_instrumentation import HereditaryStratigraphicSpecimen
+    from ..genome_instrumentation import (
+        HereditaryStratigraphicColumn,
+        HereditaryStratigraphicSurface,
+    )
+
 HereditaryStratigraphicArtifact = typing.Union[
-    "HereditaryStratigraphicColumn",  # noqa: F821
-    "HereditaryStratigraphicSurface",  # noqa: F821
-    "HereditaryStratigraphicSpecimen",  # noqa: F821
+    "HereditaryStratigraphicColumn",
+    "HereditaryStratigraphicSurface",
+    "HereditaryStratigraphicSpecimen",
 ]
