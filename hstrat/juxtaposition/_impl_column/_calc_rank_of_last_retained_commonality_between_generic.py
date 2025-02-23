@@ -54,5 +54,4 @@ def calc_rank_of_last_retained_commonality_between_generic(
     else:
         # discount collision_implausibility_threshold - 1 common strata
         # as potential spurious differentia collisions
-        assert preceding_common_strata_ranks[0] >= 0
         return preceding_common_strata_ranks[0]
