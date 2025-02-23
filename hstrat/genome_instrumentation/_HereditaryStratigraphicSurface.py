@@ -61,19 +61,11 @@ class HereditaryStratigraphicSurface:
         self: "HereditaryStratigraphicSurface",
         other: typing.Any,
     ) -> bool:
-        """Compare for value-wise equality."""
+        if not isinstance(other, HereditaryStratigraphicSurface):
+            return False
         return (
-            isinstance(
-                other,
-                self.__class__,
-            )
-            and self.__slots__ == other.__slots__
-            and all(
-                getter(self) == getter(other)
-                for getter in [
-                    operator.attrgetter(attr) for attr in self.__slots__
-                ]
-            )
+            self._surface == other._surface
+            and self._differentia_bit_width == other._differentia_bit_width
         )
 
     def _CreateStratum(
@@ -130,7 +122,9 @@ class HereditaryStratigraphicSurface:
                 differentia_bit_width=self._differentia_bit_width,
                 differentia=v,
             )
-            for t, v in sorted(self._surface.lookup_zip_items(include_empty=False))
+            for t, v in sorted(
+                self._surface.lookup_zip_items(include_empty=False)
+            )
         )
 
     def IterRetainedDifferentia(
@@ -140,7 +134,12 @@ class HereditaryStratigraphicSurface:
 
         Differentia yielded from most ancient to most recent.
         """
-        return (v for _, v in sorted(self._surface.lookup_zip_items(include_empty=False)))
+        return (
+            v
+            for _, v in sorted(
+                self._surface.lookup_zip_items(include_empty=False)
+            )
+        )
 
     def IterRankDifferentiaZip(
         self: "HereditaryStratigraphicSurface",
@@ -156,7 +155,9 @@ class HereditaryStratigraphicSurface:
         """
         res = (
             (t - self._surface.S, v)
-            for t, v in sorted(self._surface.lookup_zip_items(include_empty=False))
+            for t, v in sorted(
+                self._surface.lookup_zip_items(include_empty=False)
+            )
         )
         if copyable:
             return iter([*res])
