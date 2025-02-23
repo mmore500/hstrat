@@ -1,78 +1,53 @@
 import typing
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ...genome_instrumentation import HereditaryStratigraphicSurface
+
 
 @typing.overload
 def iter_mutual_ranks(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
-    *,
-    first_start_idx: int = 0,
-    second_start_idx: int = 0,
+    first: HereditaryStratigraphicSurface,
+    second: HereditaryStratigraphicSurface,
 ) -> typing.Iterator[int]: ...
 
 
 @typing.overload
 def iter_mutual_ranks(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicSurface,
+    second: HereditaryStratigraphicSurface,
     compare: typing.Literal[False],
-    *,
-    first_start_idx: int = 0,
-    second_start_idx: int = 0,
 ) -> typing.Iterator[int]: ...
 
 
 @typing.overload
 def iter_mutual_ranks(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicSurface,
+    second: HereditaryStratigraphicSurface,
     compare: typing.Literal[True],
-    *,
-    first_start_idx: int = 0,
-    second_start_idx: int = 0,
 ) -> typing.Iterator[typing.Tuple[int, bool]]: ...
 
 
 @typing.overload
 def iter_mutual_ranks(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicSurface,
+    second: HereditaryStratigraphicSurface,
     compare: bool = False,
-    *,
-    first_start_idx: int = 0,
-    second_start_idx: int = 0,
 ) -> typing.Iterator[typing.Union[typing.Tuple[int, bool], int]]: ...
 
 
-
 def iter_mutual_ranks(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicSurface,
+    second: HereditaryStratigraphicSurface,
     compare: bool = False,
-    *,
-    first_start_idx: int = 0,
-    second_start_idx: int = 0,
 ) -> typing.Iterator[typing.Union[typing.Tuple[int, bool], int]]:
     """Iterate over ranks with matching strata between columns in ascending
     order."""
     # helper setup
-    try:
-        first_iter = first._stratum_ordered_store.IterRankDifferentiaZip(
-            get_rank_at_column_index=first.GetRankAtColumnIndex,
-            start_column_index=first_start_idx,
-        )
-        second_iter = second._stratum_ordered_store.IterRankDifferentiaZip(
-            get_rank_at_column_index=second.GetRankAtColumnIndex,
-            start_column_index=second_start_idx,
-        )
-    except AttributeError:
-        first_iter = zip(
-            first.IterRetainedRanks(), first.IterRetainedDifferentia()
-        )
-        second_iter = zip(
-            second.IterRetainedRanks(), second.IterRetainedDifferentia()
-        )
+    first_iter = zip(
+        first.IterRetainedRanks(), first.IterRetainedDifferentia()
+    )
+    second_iter = zip(
+        second.IterRetainedRanks(), second.IterRetainedDifferentia()
+    )
     first_cur_rank, first_cur_differentia = next(first_iter)
     second_cur_rank, second_cur_differentia = next(second_iter)
 
@@ -96,9 +71,13 @@ def iter_mutual_ranks(
                 else:
                     # mismatching differentiae at the same rank
                     yield (
-                        first_cur_rank,
-                        False,
-                    ) if compare else first_cur_rank
+                        (
+                            first_cur_rank,
+                            False,
+                        )
+                        if compare
+                        else first_cur_rank
+                    )
             elif first_cur_rank < second_cur_rank:
                 # current stratum on first column older than on second column
                 # advance to next-newer stratum on first column
