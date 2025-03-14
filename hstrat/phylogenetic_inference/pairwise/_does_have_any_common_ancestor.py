@@ -1,5 +1,7 @@
 import typing
 
+from hstrat.genome_instrumentation._HereditaryStratigraphicSurface import HereditaryStratigraphicSurface
+
 from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ...juxtaposition import calc_rank_of_first_retained_disparity_between
 from ._calc_rank_of_earliest_detectable_mrca_between import (
@@ -33,14 +35,12 @@ def does_have_any_common_ancestor(
         Can we definitively conclude that first and second share no common
         ancestor?
     """
-    if (
-        calc_rank_of_earliest_detectable_mrca_between(
-            first,
-            second,
-            confidence_level=confidence_level,
-        )
-        is None
-    ):
+    rank = calc_rank_of_earliest_detectable_mrca_between(
+        first,
+        second,
+        confidence_level=confidence_level,
+    )
+    if rank is None:
         return None
 
     first_disparity = calc_rank_of_first_retained_disparity_between(
@@ -48,4 +48,4 @@ def does_have_any_common_ancestor(
         second,
         confidence_level=confidence_level,
     )
-    return True if first_disparity is None else first_disparity > 0
+    return True if first_disparity is None else first_disparity > rank

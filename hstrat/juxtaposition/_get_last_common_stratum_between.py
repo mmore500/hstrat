@@ -4,6 +4,7 @@ from iterpop import iterpop as ip
 
 from ..genome_instrumentation import (
     HereditaryStratigraphicColumn,
+    HereditaryStratigraphicSurface,
     HereditaryStratum,
 )
 from ._calc_rank_of_last_retained_commonality_between import (
@@ -12,8 +13,12 @@ from ._calc_rank_of_last_retained_commonality_between import (
 
 
 def get_last_common_stratum_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: typing.Union[
+        HereditaryStratigraphicColumn, HereditaryStratigraphicSurface
+    ],
+    second: typing.Union[
+        HereditaryStratigraphicColumn, HereditaryStratigraphicSurface
+    ],
     confidence_level: float = 0.95,
 ) -> typing.Optional[HereditaryStratum]:
     """Get the most recent stratum in common between first and second, if any.
@@ -36,11 +41,6 @@ def get_last_common_stratum_between(
         confidence_level=confidence_level,
     )
     if rank is not None:
-        index = ip.popsingleton(
-            index
-            for index in range(first.GetNumStrataRetained())
-            if rank == first.GetRankAtColumnIndex(index)
-        )
-        return first.GetStratumAtColumnIndex(index)
+        return first.GetStratumAtRank(rank)
     else:
         return None
