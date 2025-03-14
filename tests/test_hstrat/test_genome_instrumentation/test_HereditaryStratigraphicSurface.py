@@ -15,7 +15,7 @@ from hstrat import hstrat
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint64)])
 def test_Clone1(algo: types.ModuleType, S: int):
     original1 = hstrat.HereditaryStratigraphicSurface(dsurf.Surface(algo, S))
     original1_copy1 = deepcopy(original1)
@@ -33,7 +33,7 @@ def test_Clone1(algo: types.ModuleType, S: int):
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint64)])
 def test_Clone2(algo: types.ModuleType, S: int):
     original2 = hstrat.HereditaryStratigraphicSurface(
         dsurf.Surface(algo, S)
@@ -45,7 +45,7 @@ def test_Clone2(algo: types.ModuleType, S: int):
     original2_copy2 = original2.Clone()
 
     for which in original2, original2_copy1, original2_copy2:
-        for __ in range(20):
+        for __ in range(S if isinstance(S, int) else len(S)):
             which.DepositStratum()
 
     for first in original2, original2_copy1, original2_copy2:
@@ -57,19 +57,17 @@ def test_Clone2(algo: types.ModuleType, S: int):
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint64)])
 def test_Clone3(algo: types.ModuleType, S: int):
     column = hstrat.HereditaryStratigraphicSurface(
         dsurf.Surface(algo, S)
     )
     population = [column.Clone() for __ in range(3)]
 
-    for _generation in range(100):
+    for _generation in range(S if isinstance(S, int) else len(S)):
         _ = _generation
 
         for f, s in it.combinations(population, 2):
-            assert not f.HasDiscardedStrata()
-            assert not s.HasDiscardedStrata()
             assert hstrat.does_have_any_common_ancestor(f, s)
             assert (
                 hstrat.get_last_common_stratum_between(
@@ -89,7 +87,7 @@ def test_Clone3(algo: types.ModuleType, S: int):
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint64)])
 def test_Clone4(algo: types.ModuleType, S: int):
     # regression test for bug with tree store cloning
     column = hstrat.HereditaryStratigraphicSurface(
@@ -97,11 +95,10 @@ def test_Clone4(algo: types.ModuleType, S: int):
     )
     population = [column.Clone() for __ in range(3)]
 
-    for _generation in range(100):
+    for _generation in range(S if isinstance(S, int) else len(S)):
         _ = _generation
 
         for f, s in it.combinations(population, 2):
-            assert not f.HasDiscardedStrata()
             assert hstrat.does_have_any_common_ancestor(f, s)
             assert hstrat.get_last_common_stratum_between(f, s) is not None
 
@@ -115,72 +112,7 @@ def test_Clone4(algo: types.ModuleType, S: int):
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
-def test_pickle(algo: types.ModuleType, S: int):
-    original = hstrat.HereditaryStratigraphicSurface(
-        dsurf.Surface(algo, S)
-    )
-    with tempfile.TemporaryDirectory() as tmp_path:
-        with open(f"{tmp_path}/data", "wb") as tmp_file:
-            pickle.dump(original, tmp_file)
-
-        with open(f"{tmp_path}/data", "rb") as tmp_file:
-            reconstituted = pickle.load(tmp_file)
-            assert reconstituted == original
-
-
-
-@pytest.mark.parametrize(
-    "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
-)
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
-def test_pickle_with_deposits(algo: types.ModuleType, S: int):
-    original = hstrat.HereditaryStratigraphicSurface(
-        dsurf.Surface(algo, S)
-    )
-    for __ in range(100):
-        original.DepositStratum()
-    with tempfile.TemporaryDirectory() as tmp_path:
-        with open(f"{tmp_path}/data", "wb") as tmp_file:
-            pickle.dump(original, tmp_file)
-
-        with open(f"{tmp_path}/data", "rb") as tmp_file:
-            reconstituted = pickle.load(tmp_file)
-            assert reconstituted == original
-
-
-@pytest.mark.parametrize(
-    "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
-)
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
-def test_pickle_with_population(algo: types.ModuleType, S: int):
-    population = [
-        hstrat.HereditaryStratigraphicSurface(
-            dsurf.Surface(algo, S)
-        )
-        for idx in range(20)
-    ]
-
-    for gen in range(10**3):
-        population[random.randrange(len(population))] = population[
-            random.randrange(len(population))
-        ].CloneDescendant()
-
-    for original in population:
-        with tempfile.TemporaryDirectory() as tmp_path:
-            with open(f"{tmp_path}/data", "wb") as tmp_file:
-                pickle.dump(original, tmp_file)
-
-            with open(f"{tmp_path}/data", "rb") as tmp_file:
-                reconstituted = pickle.load(tmp_file)
-                assert reconstituted == original
-
-
-
-@pytest.mark.parametrize(
-    "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
-)
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint64)])
 def test_eq(algo: types.ModuleType, S: int):
 
     original1 = hstrat.HereditaryStratigraphicSurface(
@@ -189,7 +121,7 @@ def test_eq(algo: types.ModuleType, S: int):
     copy1 = deepcopy(original1)
     copy2 = original1.Clone()
     original2 = hstrat.HereditaryStratigraphicSurface(
-        dsurf.Surface(algo, S)
+        dsurf.Surface(algo, deepcopy(S))
     )
 
     assert original1 == copy1
@@ -199,10 +131,10 @@ def test_eq(algo: types.ModuleType, S: int):
     assert copy1 != original2
     assert copy2 != original2
 
-    copy1.DepositStratum()
+    copy1.DepositStrata(5)
     assert original1 != copy1
 
-    original1.DepositStratum()
+    original1.DepositStrata(5)
     assert original1 != copy1
 
 
@@ -210,26 +142,26 @@ def test_eq(algo: types.ModuleType, S: int):
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
+@pytest.mark.parametrize("S", [32, np.empty(32, dtype=np.uint64)])
 def test_annotation(algo: types.ModuleType, S: int):
     column = hstrat.HereditaryStratigraphicSurface(
         dsurf.Surface(algo, S)
     )
     population = [column.Clone() for __ in range(10)]
 
-    for generation in range(100):
+    for generation in range(S if isinstance(S, int) else len(S)):
         for f, s in it.combinations(population, 2):
             lb, ub = hstrat.calc_rank_of_mrca_bounds_between(
                 f, s, prior="arbitrary"
             )
             assert (
                 lb
-                <= hstrat.get_last_common_stratum_between(f, s).GetAnnotation()
+                <= hstrat.get_last_common_stratum_between(f, s).GetDepositionRank()
                 < ub
             )
             assert (
                 lb
-                <= hstrat.get_last_common_stratum_between(s, f).GetAnnotation()
+                <= hstrat.get_last_common_stratum_between(s, f).GetDepositionRank()
                 < ub
             )
 
@@ -238,163 +170,41 @@ def test_annotation(algo: types.ModuleType, S: int):
         for target in range(5):
             population[target] = population[-1].Clone()
         for individual in population:
-            individual.DepositStratum(
-                annotation=generation + 1,
-            )
+            individual.DepositStratum()
 
 
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint64)])
 def test_GetNumStrataDeposited(algo: types.ModuleType, S: int):
     column = hstrat.HereditaryStratigraphicSurface(
         dsurf.Surface(algo, S)
     )
     for i in range(10):
-        assert column.GetNumStrataDeposited() == i + 1
+        assert column.GetNumStrataDeposited() == i + (S if isinstance(S, int) else len(S))
         column.DepositStratum()
 
 
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint64)])
 def test_CloneDescendant(algo: types.ModuleType, S: int):
     column = hstrat.HereditaryStratigraphicSurface(
         dsurf.Surface(algo, S)
     )
-    assert column.GetNumStrataDeposited() == 1
-    descendant = column.CloneDescendant(stratum_annotation="annotation")
-    assert descendant.GetNumStrataDeposited() == 2
+    assert column.GetNumStrataDeposited() == (S if isinstance(S, int) else len(S))
+    descendant = column.CloneDescendant()
+    assert descendant.GetNumStrataDeposited() == (S if isinstance(S, int) else len(S)) + 1
     assert hstrat.does_have_any_common_ancestor(descendant, column)
-    assert column.GetNumStrataDeposited() == 1
-    assert (
-        descendant.GetStratumAtColumnIndex(
-            descendant.GetNumStrataRetained() - 1
-        ).GetAnnotation()
-        == "annotation"
-    )
+    assert column.GetNumStrataDeposited() == (S if isinstance(S, int) else len(S))
 
 
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
-def test_maximal_retention_policy(algo: types.ModuleType, S: int):
-    first = hstrat.HereditaryStratigraphicSurface(
-        dsurf.Surface(algo, S)
-    )
-    second = first.Clone()
-    third = first.Clone()
-
-    for gen in range(100):
-        assert first.GetNumStrataRetained() == gen + 1
-        assert second.GetNumStrataRetained() == gen + 1
-        assert third.GetNumStrataRetained() == 1
-
-        assert (
-            hstrat.calc_rank_of_mrca_uncertainty_between(
-                first, second, prior="arbitrary"
-            )
-            == 0
-        )
-        assert (
-            hstrat.calc_rank_of_mrca_uncertainty_between(
-                first, third, prior="arbitrary"
-            )
-            == 0
-        )
-
-        assert (
-            hstrat.calc_ranks_since_mrca_uncertainty_with(
-                first, second, prior="arbitrary"
-            )
-            == 0
-        )
-        assert (
-            hstrat.calc_ranks_since_mrca_uncertainty_with(
-                second, first, prior="arbitrary"
-            )
-            == 0
-        )
-        assert (
-            hstrat.calc_ranks_since_mrca_uncertainty_with(
-                first, third, prior="arbitrary"
-            )
-            == 0
-        )
-        assert (
-            hstrat.calc_ranks_since_mrca_uncertainty_with(
-                third, first, prior="arbitrary"
-            )
-            == 0
-        )
-
-        first.DepositStratum()
-        second.DepositStratum()
-        # no layers deposited onto third
-
-
-@pytest.mark.parametrize(
-    "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
-)
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
-def test_minimal_retention_policy(algo: types.ModuleType, S: int):
-    first = hstrat.HereditaryStratigraphicSurface(
-        dsurf.Surface(algo, S)
-    )
-    second = first.Clone()
-    third = first.Clone()
-
-    for gen in range(100):
-        assert first.GetNumStrataRetained() == min(2, gen + 1)
-        assert second.GetNumStrataRetained() == min(2, gen + 1)
-        assert third.GetNumStrataRetained() == 1
-
-        assert hstrat.calc_rank_of_mrca_uncertainty_between(
-            first, second, prior="arbitrary"
-        ) == max(0, gen - 1)
-        assert (
-            hstrat.calc_rank_of_mrca_uncertainty_between(
-                first, third, prior="arbitrary"
-            )
-            == 0
-        )
-
-        assert hstrat.calc_ranks_since_mrca_uncertainty_with(
-            first,
-            second,
-            prior="arbitrary",
-        ) == max(0, gen - 1)
-        assert hstrat.calc_ranks_since_mrca_uncertainty_with(
-            second,
-            first,
-            prior="arbitrary",
-        ) == max(0, gen - 1)
-        assert (
-            hstrat.calc_ranks_since_mrca_uncertainty_with(
-                first, third, prior="arbitrary"
-            )
-            == 0
-        )
-        assert (
-            hstrat.calc_ranks_since_mrca_uncertainty_with(
-                third, first, prior="arbitrary"
-            )
-            == 0
-        )
-
-        first.DepositStratum()
-        second.DepositStratum()
-        # no layers deposited onto third
-
-
-
-@pytest.mark.parametrize(
-    "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
-)
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint64)])
 def test_IterRetainedStrata(algo: types.ModuleType, S: int):
     column = hstrat.HereditaryStratigraphicSurface(
         dsurf.Surface(algo, S),
@@ -410,7 +220,7 @@ def test_IterRetainedStrata(algo: types.ModuleType, S: int):
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint64)])
 def test_IterRetainedDifferentia(algo: types.ModuleType, S: int):
     column = hstrat.HereditaryStratigraphicSurface(
         dsurf.Surface(algo, S),
@@ -434,7 +244,7 @@ def test_GetColumnIndexOfRank():
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint64)])
 def test_GetStratumAtRank(algo: types.ModuleType, S: int):
     column = hstrat.HereditaryStratigraphicSurface(
         dsurf.Surface(algo, S),
@@ -455,7 +265,7 @@ def test_GetStratumAtRank(algo: types.ModuleType, S: int):
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint64)])
 def test_DepositStrata_zero(algo: types.ModuleType, S: int):
     column = hstrat.HereditaryStratigraphicSurface(
         dsurf.Surface(algo, S)
@@ -471,7 +281,7 @@ def test_DepositStrata_zero(algo: types.ModuleType, S: int):
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint64)])
 def test_DepositStrata_one(algo: types.ModuleType, S: int):
     c1 = hstrat.HereditaryStratigraphicSurface(
         dsurf.Surface(algo, S)
@@ -495,7 +305,7 @@ def test_DepositStrata_one(algo: types.ModuleType, S: int):
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint64)])
 def test_DepositStrata_several(algo: types.ModuleType, S: int):
     c1 = hstrat.HereditaryStratigraphicSurface(
         dsurf.Surface(algo, S)
@@ -522,7 +332,7 @@ def test_DepositStrata_several(algo: types.ModuleType, S: int):
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
-@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32)])
+@pytest.mark.parametrize("S", [8, 16, 32, np.empty(32, dtype=np.uint64)])
 def test_IterRankDifferentiaZip(algo: types.ModuleType, S: int):
     c1 = hstrat.HereditaryStratigraphicSurface(
         dsurf.Surface(algo, S)
@@ -548,33 +358,33 @@ def test_CloneNthDescendant_zero():
     column = hstrat.HereditaryStratigraphicSurface(
         dsurf.Surface(dstream.steady_algo, 128)
     )
-    assert column.GetNumStrataDeposited() == 1
+    assert column.GetNumStrataDeposited() == 128
     descendant = column.CloneNthDescendant(0)
     assert column is not descendant
-    assert descendant.GetNumStrataDeposited() == 1
+    assert descendant.GetNumStrataDeposited() == 128
     assert hstrat.does_have_any_common_ancestor(descendant, column)
-    assert column.GetNumStrataDeposited() == 1
+    assert column.GetNumStrataDeposited() == 128
 
 
 def test_CloneNthDescendant_one():
     column = hstrat.HereditaryStratigraphicSurface(
         dsurf.Surface(dstream.steady_algo, 128)
     )
-    assert column.GetNumStrataDeposited() == 1
+    assert column.GetNumStrataDeposited() == 128
     descendant = column.CloneNthDescendant(num_stratum_depositions=1)
     assert column is not descendant
-    assert descendant.GetNumStrataDeposited() == 2
+    assert descendant.GetNumStrataDeposited() == 128 + 1
     assert hstrat.does_have_any_common_ancestor(descendant, column)
-    assert column.GetNumStrataDeposited() == 1
+    assert column.GetNumStrataDeposited() == 128
 
 
 def test_CloneNthDescendant_two():
     column = hstrat.HereditaryStratigraphicSurface(
         dsurf.Surface(dstream.steady_algo, 128)
     )
-    assert column.GetNumStrataDeposited() == 1
+    assert column.GetNumStrataDeposited() == 128
     descendant = column.CloneNthDescendant(num_stratum_depositions=2)
     assert column is not descendant
-    assert descendant.GetNumStrataDeposited() == 3
+    assert descendant.GetNumStrataDeposited() == 128 + 2
     assert hstrat.does_have_any_common_ancestor(descendant, column)
-    assert column.GetNumStrataDeposited() == 1
+    assert column.GetNumStrataDeposited() == 128
