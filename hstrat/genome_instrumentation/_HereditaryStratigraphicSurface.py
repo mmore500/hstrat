@@ -1,6 +1,7 @@
 from copy import deepcopy
 import operator
 import random
+from re import L
 import typing
 
 from downstream import dsurf
@@ -56,6 +57,10 @@ class HereditaryStratigraphicSurface:
         self._surface = dstream_surface
         self._differentia_bit_width = stratum_differentia_bit_width
         self.DepositStrata(self._surface.S)
+
+    @property
+    def S(self):
+        return self._surface.S
 
     def __eq__(
         self: "HereditaryStratigraphicSurface",
