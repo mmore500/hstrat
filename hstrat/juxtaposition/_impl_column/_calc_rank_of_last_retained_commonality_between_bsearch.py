@@ -2,10 +2,12 @@ import typing
 
 from interval_search import binary_search
 
-from hstrat._auxiliary_lib import HereditaryStratigraphicArtifact
-from hstrat.frozen_instrumentation import HereditaryStratigraphicSpecimen
-
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
+from ...frozen_instrumentation import HereditaryStratigraphicSpecimen
+from ...genome_instrumentation import (
+    HereditaryStratigraphicColumn,
+    HereditaryStratigraphicSurface,
+)
 from .._calc_min_implausible_spurious_consecutive_differentia_collisions_between import (
     calc_min_implausible_spurious_consecutive_differentia_collisions_between,
 )
@@ -46,7 +48,9 @@ def calc_rank_of_last_retained_commonality_between_bsearch(
     assert lower_bound <= upper_bound
 
     def differentia_at(
-        which: HereditaryStratigraphicArtifact,
+        which: typing.Union[
+            HereditaryStratigraphicColumn, HereditaryStratigraphicSurface
+        ],
         idx: int,
     ) -> int:
         return which.GetStratumAtColumnIndex(idx).GetDifferentia()

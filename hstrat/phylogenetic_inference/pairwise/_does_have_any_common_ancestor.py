@@ -1,7 +1,5 @@
 import typing
 
-from hstrat.genome_instrumentation._HereditaryStratigraphicSurface import HereditaryStratigraphicSurface
-
 from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ...juxtaposition import calc_rank_of_first_retained_disparity_between
 from ._calc_rank_of_earliest_detectable_mrca_between import (

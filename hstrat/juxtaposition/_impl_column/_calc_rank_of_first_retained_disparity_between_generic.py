@@ -123,9 +123,6 @@ def calc_rank_of_first_retained_disparity_between_generic(
         # conservatively assume mismatch will be with next rank of second
         assert second_iter is None
         assert second_prev_rank is not None
-        # assert second_prev_rank + 1 == min(
-        #     first.GetNumStrataDeposited(), second.GetNumStrataDeposited()
-        # )
         preceding_common_ranks.appendleft(second_prev_rank + 1)
         res = preceding_common_ranks[-1]
         assert 0 <= res <= first.GetNumStrataDeposited()
@@ -137,9 +134,6 @@ def calc_rank_of_first_retained_disparity_between_generic(
         # conservatively assume mismatch will be with next rank
         assert first_iter is None
         assert first_prev_rank is not None
-        # assert first_prev_rank + 1 == min(
-        #     first.GetNumStrataDeposited(), second.GetNumStrataDeposited()
-        # )
         preceding_common_ranks.appendleft(first_prev_rank + 1)
         res = preceding_common_ranks[-1]
         assert 0 <= res <= first.GetNumStrataDeposited()

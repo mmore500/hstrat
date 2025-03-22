@@ -1,6 +1,6 @@
 import typing
 
-from hstrat._auxiliary_lib import HereditaryStratigraphicArtifact
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 
 from ._calc_rank_of_first_retained_disparity_between import (
     calc_rank_of_first_retained_disparity_between,

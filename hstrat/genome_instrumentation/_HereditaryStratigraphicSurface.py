@@ -1,7 +1,5 @@
 from copy import deepcopy
-import operator
 import random
-from re import L
 import typing
 
 from downstream import dsurf

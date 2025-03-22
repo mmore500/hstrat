@@ -2,17 +2,12 @@ import typing
 
 from interval_search import binary_search
 
-from hstrat.frozen_instrumentation._HereditaryStratigraphicSpecimen import (
-    HereditaryStratigraphicSpecimen,
-)
-from hstrat.genome_instrumentation._HereditaryStratigraphicColumn import (
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
+from ...frozen_instrumentation import HereditaryStratigraphicSpecimen
+from ...genome_instrumentation import (
     HereditaryStratigraphicColumn,
-)
-from hstrat.genome_instrumentation._HereditaryStratigraphicSurface import (
     HereditaryStratigraphicSurface,
 )
-
-from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from .._calc_min_implausible_spurious_consecutive_differentia_collisions_between import (
     calc_min_implausible_spurious_consecutive_differentia_collisions_between,
 )
