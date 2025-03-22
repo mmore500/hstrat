@@ -36,7 +36,7 @@ deprecated==1.2.15
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
-downstream==1.6.12
+downstream==1.7.0
     # via hstrat (../../pyproject.toml)
 ete3==3.1.3
     # via alifedata-phyloinformatics-convert

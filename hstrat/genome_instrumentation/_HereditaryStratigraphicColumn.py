@@ -157,7 +157,7 @@ class HereditaryStratigraphicColumn:
 
     def __eq__(
         self: "HereditaryStratigraphicColumn",
-        other: "HereditaryStratigraphicColumn",
+        other: typing.Any,
     ) -> bool:
         """Compare for value-wise equality."""
         # adapted from https://stackoverflow.com/a/4522896
@@ -213,7 +213,7 @@ class HereditaryStratigraphicColumn:
             annotation=annotation,
             deposition_rank=(
                 # don't store deposition rank if we know how to
-                # calcualte it from stratum's position in column
+                # calculate it from stratum's position in column
                 None
                 if self._ShouldOmitStratumDepositionRank()
                 else deposition_rank

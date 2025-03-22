@@ -1,6 +1,6 @@
 import typing
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ._calc_rank_of_first_retained_disparity_between import (
     calc_rank_of_first_retained_disparity_between,
 )
@@ -10,8 +10,8 @@ from ._calc_rank_of_last_retained_commonality_between import (
 
 
 def calc_rank_of_parity_segue_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
     confidence_level_commonality: float,
     confidence_level_disparity: float,
 ) -> typing.Tuple[typing.Optional[int], typing.Optional[int]]:
@@ -22,14 +22,18 @@ def calc_rank_of_parity_segue_between(
     """
 
     return (
-        calc_rank_of_last_retained_commonality_between(
-            first, second, confidence_level_commonality
-        )
-        if confidence_level_commonality is not None
-        else None,
-        calc_rank_of_first_retained_disparity_between(
-            first, second, confidence_level_disparity
-        )
-        if confidence_level_disparity is not None
-        else None,
+        (
+            calc_rank_of_last_retained_commonality_between(
+                first, second, confidence_level_commonality
+            )
+            if confidence_level_commonality is not None
+            else None
+        ),
+        (
+            calc_rank_of_first_retained_disparity_between(
+                first, second, confidence_level_disparity
+            )
+            if confidence_level_disparity is not None
+            else None
+        ),
     )

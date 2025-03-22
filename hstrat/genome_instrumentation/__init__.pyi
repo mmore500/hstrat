@@ -4,6 +4,7 @@ from _HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
 from _HereditaryStratigraphicColumnBundle import (
     HereditaryStratigraphicColumnBundle,
 )
+from _HereditaryStratigraphicSurface import HereditaryStratigraphicSurface
 from _HereditaryStratum import HereditaryStratum
 from stratum_ordered_stores import (
     HereditaryStratumOrderedStoreDict,
@@ -19,6 +20,7 @@ __all__ = [
     "HereditaryStratum",
     "HereditaryStratigraphicColumn",
     "HereditaryStratigraphicColumnBundle",
+    "HereditaryStratigraphicSurface",
     "HereditaryStratumOrderedStoreDict",
     "HereditaryStratumOrderedStoreList",
     "HereditaryStratumOrderedStoreTree",
