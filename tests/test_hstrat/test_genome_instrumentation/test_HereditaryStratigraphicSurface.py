@@ -11,7 +11,6 @@ import pytest
 from hstrat import hstrat
 
 
-
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
