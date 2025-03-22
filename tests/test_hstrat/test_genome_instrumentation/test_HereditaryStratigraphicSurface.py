@@ -2,14 +2,12 @@ from copy import copy, deepcopy
 import itertools as it
 import random
 import types
-import typing
 
 from downstream import dstream, dsurf
 import numpy as np
 import pytest
 
 from hstrat import hstrat
-
 
 
 @pytest.mark.parametrize(

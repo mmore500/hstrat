@@ -1,10 +1,10 @@
 """Data structures to annotate genomes with."""
 
 from _HereditaryStratigraphicColumn import HereditaryStratigraphicColumn
-from _HereditaryStratigraphicSurface import HereditaryStratigraphicSurface
 from _HereditaryStratigraphicColumnBundle import (
     HereditaryStratigraphicColumnBundle,
 )
+from _HereditaryStratigraphicSurface import HereditaryStratigraphicSurface
 from _HereditaryStratum import HereditaryStratum
 from stratum_ordered_stores import (
     HereditaryStratumOrderedStoreDict,

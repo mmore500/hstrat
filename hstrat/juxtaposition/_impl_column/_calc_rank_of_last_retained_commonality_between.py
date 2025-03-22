@@ -1,7 +1,6 @@
 import typing
 
 from ..._auxiliary_lib import HereditaryStratigraphicArtifact
-
 from ...genome_instrumentation import (
     HereditaryStratigraphicColumn,
     HereditaryStratumOrderedStoreList,

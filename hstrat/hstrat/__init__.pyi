@@ -10,8 +10,8 @@ from frozen_instrumentation import (
 )
 from genome_instrumentation import (
     HereditaryStratigraphicColumn,
-    HereditaryStratigraphicSurface,
     HereditaryStratigraphicColumnBundle,
+    HereditaryStratigraphicSurface,
     HereditaryStratum,
     HereditaryStratumOrderedStoreDict,
     HereditaryStratumOrderedStoreList,

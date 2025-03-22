@@ -1,7 +1,6 @@
 import typing
 
 from ..._auxiliary_lib import HereditaryStratigraphicArtifact
-
 from ._iter_mutual_ranks import iter_mutual_ranks
 
 

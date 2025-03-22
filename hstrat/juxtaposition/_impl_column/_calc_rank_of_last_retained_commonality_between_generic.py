@@ -2,7 +2,6 @@ from collections import deque
 import typing
 
 from ..._auxiliary_lib import HereditaryStratigraphicArtifact
-
 from .._calc_min_implausible_spurious_consecutive_differentia_collisions_between import (
     calc_min_implausible_spurious_consecutive_differentia_collisions_between,
 )
