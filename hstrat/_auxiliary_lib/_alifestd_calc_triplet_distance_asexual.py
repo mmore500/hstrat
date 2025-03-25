@@ -11,18 +11,18 @@ from . import (
 
 # adapted from https://github.com/mmore500/hstrat/blob/d23917cf03ba59061ff2f9b951efe79e995eb4d8/tests/test_hstrat/test_phylogenetic_inference/test_tree/_impl/_tree_quartet_distance.py
 def alifestd_calc_triplet_distance_asexual(
-    ref: pd.DataFrame, cmp: pd.DataFrame
+    ref: pd.DataFrame, cmp: pd.DataFrame, taxon_label_key: str = "taxon_label",
 ) -> float:
     """Calculate the triplet distance between two trees."""
 
     ref = alifestd_mark_leaves(alifestd_collapse_unifurcations(ref))
     cmp = alifestd_mark_leaves(alifestd_collapse_unifurcations(cmp))
 
-    ref.loc[~ref["is_leaf"], "taxon_label"] = ""
-    cmp.loc[~cmp["is_leaf"], "taxon_label"] = ""
+    ref.loc[~ref["is_leaf"], taxon_label_key] = ""
+    cmp.loc[~cmp["is_leaf"], taxon_label_key] = ""
 
-    ref_labels = {*ref["taxon_label"][ref["is_leaf"]]}
-    cmp_labels = {*cmp["taxon_label"][cmp["is_leaf"]]}
+    ref_labels = {*ref[taxon_label_key][ref["is_leaf"]]}
+    cmp_labels = {*cmp[taxon_label_key][cmp["is_leaf"]]}
 
     if ref_labels != cmp_labels:
         raise ValueError("Taxon labels must match between trees")
