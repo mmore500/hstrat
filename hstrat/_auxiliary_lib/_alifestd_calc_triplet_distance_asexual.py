@@ -39,10 +39,10 @@ def alifestd_calc_triplet_distance_asexual(
         )
 
     return tqdist.triplet_distance(
-        alifestd_as_newick_asexual(ref, taxon_label="taxon_label")
+        alifestd_as_newick_asexual(ref, taxon_label=taxon_label_key)
         .removeprefix("[&R]")
         .strip(),
-        alifestd_as_newick_asexual(cmp, taxon_label="taxon_label")
+        alifestd_as_newick_asexual(cmp, taxon_label=taxon_label_key)
         .removeprefix("[&R]")
         .strip(),
     )
