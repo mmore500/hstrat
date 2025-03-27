@@ -104,6 +104,18 @@ jobs:
         path: "requirements-dev/requirements-testing.txt"
     - name: Run examples
       run: ./examples/run_all.sh
+    - name: Save end2end reconstruction error artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: end2end-reconstruction-error
+        path: "/tmp/end2end-reconstruction-error.csv"
+        overwrite: true
+    - name: Save end2end visualization artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: end2end-visualizations
+        path: "/tmp/end2end-visualizations"
+        overwrite: true
 
   test-cli:
     runs-on: ubuntu-24.04
