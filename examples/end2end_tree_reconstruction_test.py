@@ -313,7 +313,9 @@ if __name__ == "__main__":
         ["fossil_interval", "surface_size", "differentia_bitwidth"],
         ascending=False,
     )
-    reconstruction_error_results.to_csv("/tmp/end2end-reconstruction-error.csv")
+    reconstruction_error_results.to_csv(
+        "/tmp/end2end-reconstruction-error.csv",
+    )
 
     # error should increase with decreasing surface size
     tolerance = 0.02
