@@ -313,11 +313,11 @@ if __name__ == "__main__":
         ["fossil_interval", "surface_size", "differentia_bitwidth"],
         ascending=False,
     )
-    reconstruction_errors.to_csv("/tmp/end2end-reconstruction-error.csv")
+    reconstruction_error_results.to_csv("/tmp/end2end-reconstruction-error.csv")
 
     # error should increase with decreasing surface size
     tolerance = 0.02
-    for f, x in reconstruction_errors.groupby("fossil_interval"):
+    for f, x in reconstruction_error_results.groupby("fossil_interval"):
         for first, second in itertools.pairwise(x.itertuples()):
             if second.error_dropped_fossils < first.error_dropped_fossils:  # type: ignore
                 msg = (
