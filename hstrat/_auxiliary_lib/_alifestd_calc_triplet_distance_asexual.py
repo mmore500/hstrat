@@ -50,5 +50,4 @@ def alifestd_calc_triplet_distance_asexual(
         .removeprefix("[&R]")
         .strip()
     )
-    print(ref_newick, cmp_newick)
     return tqdist.triplet_distance(ref_newick, cmp_newick)
