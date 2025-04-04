@@ -1,4 +1,5 @@
 import os
+import typing
 
 import pandas as pd
 import pytest
@@ -9,6 +10,7 @@ from hstrat._auxiliary_lib import (
     alifestd_make_empty,
     alifestd_mark_node_depth_asexual,
     alifestd_splay_polytomies,
+    alifestd_to_working_format,
     alifestd_unfurl_traversal_inorder_asexual,
 )
 
@@ -52,8 +54,9 @@ def test_empty():
     assert len(res) == 0
 
 
+@pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple1(mutate: bool):
+def test_simple1(apply: typing.Callable, mutate: bool):
     # Chain tree: 0 -> 1 -> 2
     phylogeny_df = pd.DataFrame(
         {
@@ -61,6 +64,7 @@ def test_simple1(mutate: bool):
             "ancestor_list": ["[None]", "[0]", "[1]"],
         },
     )
+    phylogeny_df = apply(phylogeny_df)
     original_df = phylogeny_df.copy()
     with pytest.raises(ValueError):
         alifestd_unfurl_traversal_inorder_asexual(
@@ -102,8 +106,9 @@ def test_simple2(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
+@pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple4(mutate: bool):
+def test_simple4(apply: typing.Callable, mutate: bool):
     # Tree structure:
     #         0
     #       /   \
@@ -126,6 +131,7 @@ def test_simple4(mutate: bool):
             ],
         },
     )
+    phylogeny_df = apply(phylogeny_df)
     original_df = phylogeny_df.copy()
     result = alifestd_unfurl_traversal_inorder_asexual(
         phylogeny_df,
@@ -147,8 +153,9 @@ def test_simple4(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
+@pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple5(mutate: bool):
+def test_simple5(apply: typing.Callable, mutate: bool):
     # Tree structure:
     #         0
     #       /   \
@@ -172,6 +179,7 @@ def test_simple5(mutate: bool):
             ],
         },
     )
+    phylogeny_df = apply(phylogeny_df)
     original_df = phylogeny_df.copy()
     result = alifestd_unfurl_traversal_inorder_asexual(
         phylogeny_df,
