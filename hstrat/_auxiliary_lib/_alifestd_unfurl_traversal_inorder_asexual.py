@@ -15,26 +15,10 @@ from ._alifestd_mark_num_descendants_asexual import (
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
-def alifestd_unfurl_traversal_inorder_asexual(
+def _alifestd_unfurl_traversal_inorder_asexual_slow_path(
     phylogeny_df: pd.DataFrame,
-    mutate: bool = False,
 ) -> np.ndarray:
-    """List `id` values in inorder traversal order.
-
-    The provided dataframe must be asexual and strictly bifurcating.
-    """
-    if not mutate:
-        phylogeny_df = phylogeny_df.copy()
-
-    if alifestd_has_multiple_roots(phylogeny_df):
-        raise ValueError(
-            "Phylogeny must have a single root for inorder traversal."
-        )
-    if not alifestd_is_strictly_bifurcating_asexual(phylogeny_df):
-        raise ValueError(
-            "Phylogeny must be strictly bifurcating for inorder traversal.",
-        )
-
+    """Implementation detail for phylogenies not in working format."""
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
     if "id_bak" in phylogeny_df:
         raise ValueError("Phylogeny dataframe already has `id_bak` column.")
@@ -102,3 +86,28 @@ def alifestd_unfurl_traversal_inorder_asexual(
     for id_, assigned_site in site_assignments.items():
         result[assigned_site] = restore_id[id_]
     return result
+
+
+def alifestd_unfurl_traversal_inorder_asexual(
+    phylogeny_df: pd.DataFrame,
+    mutate: bool = False,
+) -> np.ndarray:
+    """List `id` values in inorder traversal order.
+
+    The provided dataframe must be asexual and strictly bifurcating.
+    """
+    if not mutate:
+        phylogeny_df = phylogeny_df.copy()
+
+    if alifestd_has_multiple_roots(phylogeny_df):
+        raise ValueError(
+            "Phylogeny must have a single root for inorder traversal."
+        )
+    if not alifestd_is_strictly_bifurcating_asexual(phylogeny_df):
+        raise ValueError(
+            "Phylogeny must be strictly bifurcating for inorder traversal.",
+        )
+
+    return _alifestd_unfurl_traversal_inorder_asexual_slow_path(
+        phylogeny_df,
+    )
