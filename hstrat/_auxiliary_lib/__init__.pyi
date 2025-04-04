@@ -74,6 +74,9 @@ from ._alifestd_is_chronologically_sorted import (
     alifestd_is_chronologically_sorted,
 )
 from ._alifestd_is_sexual import alifestd_is_sexual
+from ._alifestd_is_strictly_bifurcating_asexual import (
+    alifestd_is_strictly_bifurcating_asexual,
+)
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_join_roots import alifestd_join_roots
 from ._alifestd_make_ancestor_id_col import alifestd_make_ancestor_id_col
@@ -301,6 +304,7 @@ __all__ = [
     "alifestd_is_chronologically_ordered",
     "alifestd_is_chronologically_sorted",
     "alifestd_is_sexual",
+    "alifestd_is_strictly_bifurcating_asexual",
     "alifestd_is_topologically_sorted",
     "alifestd_join_roots",
     "alifestd_make_ancestor_id_col",
