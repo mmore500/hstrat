@@ -1,5 +1,6 @@
 import itertools as it
 import typing
+import uuid
 
 import numpy as np
 import pandas as pd
@@ -20,10 +21,9 @@ def _alifestd_unfurl_traversal_inorder_asexual_slow_path(
 ) -> np.ndarray:
     """Implementation detail for phylogenies not in working format."""
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
-    if "id_bak" in phylogeny_df:
-        raise ValueError("Phylogeny dataframe already has `id_bak` column.")
 
-    phylogeny_df["id_bak"] = phylogeny_df["id"]
+    id_bak = str(uuid.uuid4())
+    phylogeny_df[id_bak] = phylogeny_df["id"]
     phylogeny_df = alifestd_mark_num_descendants_asexual(
         phylogeny_df, mutate=True
     )
@@ -82,7 +82,7 @@ def _alifestd_unfurl_traversal_inorder_asexual_slow_path(
     assert len(site_assignments) == len(set(site_assignments.values()))
 
     result = np.empty(len(phylogeny_df), dtype=int)
-    restore_id = dict(zip(phylogeny_df["id"], phylogeny_df["id_bak"]))
+    restore_id = dict(zip(phylogeny_df["id"], phylogeny_df[id_bak]))
     for id_, assigned_site in site_assignments.items():
         result[assigned_site] = restore_id[id_]
     return result
