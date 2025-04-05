@@ -20,6 +20,9 @@ def alifestd_mark_num_preceding_leaves_asexual(
     """Add column `num_preceding_leaves` with count of all leaves occuring
     before the present node in an inorder traversal.
 
+    For internal nodes, the number of leaf nodes prior to the traversal of
+    first (i.e., leftmost) descendant is marked.
+
     A topological sort will be applied if `phylogeny_df` is not topologically
     sorted. Dataframe reindexing (e.g., df.index) may be applied.
 
