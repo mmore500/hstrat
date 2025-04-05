@@ -8,7 +8,6 @@ from hstrat._auxiliary_lib import (
     alifestd_collapse_unifurcations,
     alifestd_delete_unifurcating_roots_asexual,
     alifestd_make_empty,
-    alifestd_mark_node_depth_asexual,
     alifestd_splay_polytomies,
     alifestd_to_working_format,
     alifestd_unfurl_traversal_inorder_asexual,
