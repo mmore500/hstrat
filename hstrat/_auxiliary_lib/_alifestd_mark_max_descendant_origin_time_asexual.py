@@ -6,11 +6,11 @@ from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
-def alifestd_mark_num_descendants_asexual(
+def alifestd_mark_max_descendant_origin_time_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
 ) -> pd.DataFrame:
-    """Add column `num_descendants`, excluding self.
+    """Add column `max_descendant_origin_time`, excluding self.
 
     A topological sort will be applied if `phylogeny_df` is not topologically
     sorted. Dataframe reindexing (e.g., df.index) may be applied.
@@ -33,16 +33,18 @@ def alifestd_mark_num_descendants_asexual(
     else:
         phylogeny_df.index = phylogeny_df["id"]
 
-    phylogeny_df["num_descendants"] = 0
+    phylogeny_df["max_descendant_origin_time"] = phylogeny_df["origin_time"]
 
     for idx in reversed(phylogeny_df.index):
         ancestor_id = phylogeny_df.loc[idx, "ancestor_id"]
         if ancestor_id == idx:
-            continue  # handle genesis cases
+            continue  # handle root cases
 
-        own_num_descendants = phylogeny_df.loc[idx, "num_descendants"]
+        own_max = phylogeny_df.loc[idx, "max_descendant_origin_time"]
 
-        delta = own_num_descendants + 1
-        phylogeny_df.loc[ancestor_id, "num_descendants"] += delta
+        phylogeny_df.loc[ancestor_id, "max_descendant_origin_time"] = max(
+            own_max,
+            phylogeny_df.loc[ancestor_id, "max_descendant_origin_time"],
+        )
 
     return phylogeny_df

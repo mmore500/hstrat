@@ -52,6 +52,9 @@ from ._alifestd_delete_trunk_asexual import alifestd_delete_trunk_asexual
 from ._alifestd_delete_trunk_asexual_polars import (
     alifestd_delete_trunk_asexual_polars,
 )
+from ._alifestd_delete_unifurcating_roots_asexual import (
+    alifestd_delete_unifurcating_roots_asexual,
+)
 from ._alifestd_downsample_tips_asexual import alifestd_downsample_tips_asexual
 from ._alifestd_estimate_triplet_distance_asexual import (
     alifestd_estimate_triplet_distance_asexual,
@@ -74,7 +77,13 @@ from ._alifestd_is_chronologically_sorted import (
     alifestd_is_chronologically_sorted,
 )
 from ._alifestd_is_sexual import alifestd_is_sexual
+from ._alifestd_is_strictly_bifurcating_asexual import (
+    alifestd_is_strictly_bifurcating_asexual,
+)
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
+from ._alifestd_is_working_format_asexual import (
+    alifestd_is_working_format_asexual,
+)
 from ._alifestd_join_roots import alifestd_join_roots
 from ._alifestd_make_ancestor_id_col import alifestd_make_ancestor_id_col
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
@@ -83,6 +92,10 @@ from ._alifestd_mark_ancestor_origin_time_asexual import (
     alifestd_mark_ancestor_origin_time_asexual,
 )
 from ._alifestd_mark_leaves import alifestd_mark_leaves
+from ._alifestd_mark_left_child_asexual import alifestd_mark_left_child_asexual
+from ._alifestd_mark_max_descendant_origin_time_asexual import (
+    alifestd_mark_max_descendant_origin_time_asexual,
+)
 from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
 from ._alifestd_mark_num_children_asexual import (
     alifestd_mark_num_children_asexual,
@@ -96,6 +109,9 @@ from ._alifestd_mark_origin_time_delta_asexual import (
     alifestd_mark_origin_time_delta_asexual,
 )
 from ._alifestd_mark_ot_mrca_asexual import alifestd_mark_ot_mrca_asexual
+from ._alifestd_mark_right_child_asexual import (
+    alifestd_mark_right_child_asexual,
+)
 from ._alifestd_mark_root_id import alifestd_mark_root_id
 from ._alifestd_mark_roots import alifestd_mark_roots
 from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
@@ -123,6 +139,9 @@ from ._alifestd_try_add_ancestor_list_col import (
     alifestd_try_add_ancestor_list_col,
 )
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
+from ._alifestd_unfurl_traversal_inorder_asexual import (
+    alifestd_unfurl_traversal_inorder_asexual,
+)
 from ._alifestd_unfurl_traversal_postorder_asexual import (
     alifestd_unfurl_traversal_postorder_asexual,
 )
@@ -287,6 +306,7 @@ __all__ = [
     "alifestd_count_unifurcations",
     "alifestd_delete_trunk_asexual",
     "alifestd_delete_trunk_asexual_polars",
+    "alifestd_delete_unifurcating_roots_asexual",
     "alifestd_downsample_tips_asexual",
     "alifestd_estimate_triplet_distance_asexual",
     "alifestd_find_chronological_inconsistency",
@@ -301,13 +321,17 @@ __all__ = [
     "alifestd_is_chronologically_ordered",
     "alifestd_is_chronologically_sorted",
     "alifestd_is_sexual",
+    "alifestd_is_strictly_bifurcating_asexual",
     "alifestd_is_topologically_sorted",
+    "alifestd_is_working_format_asexual",
     "alifestd_join_roots",
     "alifestd_make_ancestor_id_col",
     "alifestd_make_ancestor_list_col",
     "alifestd_make_empty",
     "alifestd_mark_ancestor_origin_time_asexual",
     "alifestd_mark_leaves",
+    "alifestd_mark_left_child_asexual",
+    "alifestd_mark_max_descendant_origin_time_asexual",
     "alifestd_mark_node_depth_asexual",
     "alifestd_mark_num_children_asexual",
     "alifestd_mark_num_descendants_asexual",
@@ -315,6 +339,7 @@ __all__ = [
     "alifestd_mark_oldest_root",
     "alifestd_mark_origin_time_delta_asexual",
     "alifestd_mark_ot_mrca_asexual",
+    "alifestd_mark_right_child_asexual",
     "alifestd_mark_root_id",
     "alifestd_mark_roots",
     "alifestd_parse_ancestor_id",
@@ -333,6 +358,7 @@ __all__ = [
     "alifestd_try_add_ancestor_id_col",
     "alifestd_try_add_ancestor_list_col",
     "alifestd_unfurl_lineage_asexual",
+    "alifestd_unfurl_traversal_inorder_asexual",
     "alifestd_unfurl_traversal_postorder_asexual",
     "alifestd_validate",
     "all_same",
