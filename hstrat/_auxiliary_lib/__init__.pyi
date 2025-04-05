@@ -94,6 +94,9 @@ from ._alifestd_mark_ancestor_origin_time_asexual import (
 from ._alifestd_mark_is_left_child_asexual import (
     alifestd_mark_is_left_child_asexual,
 )
+from ._alifestd_mark_is_right_child_asexual import (
+    alifestd_mark_is_right_child_asexual,
+)
 from ._alifestd_mark_leaves import alifestd_mark_leaves
 from ._alifestd_mark_left_child_asexual import alifestd_mark_left_child_asexual
 from ._alifestd_mark_max_descendant_origin_time_asexual import (
@@ -333,6 +336,7 @@ __all__ = [
     "alifestd_make_empty",
     "alifestd_mark_ancestor_origin_time_asexual",
     "alifestd_mark_is_left_child_asexual",
+    "alifestd_mark_is_right_child_asexual",
     "alifestd_mark_leaves",
     "alifestd_mark_left_child_asexual",
     "alifestd_mark_max_descendant_origin_time_asexual",
