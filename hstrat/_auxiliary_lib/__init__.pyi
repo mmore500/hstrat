@@ -106,6 +106,9 @@ from ._alifestd_mark_origin_time_delta_asexual import (
     alifestd_mark_origin_time_delta_asexual,
 )
 from ._alifestd_mark_ot_mrca_asexual import alifestd_mark_ot_mrca_asexual
+from ._alifestd_mark_right_child_asexual import (
+    alifestd_mark_right_child_asexual,
+)
 from ._alifestd_mark_root_id import alifestd_mark_root_id
 from ._alifestd_mark_roots import alifestd_mark_roots
 from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
@@ -332,6 +335,7 @@ __all__ = [
     "alifestd_mark_oldest_root",
     "alifestd_mark_origin_time_delta_asexual",
     "alifestd_mark_ot_mrca_asexual",
+    "alifestd_mark_right_child_asexual",
     "alifestd_mark_root_id",
     "alifestd_mark_roots",
     "alifestd_parse_ancestor_id",
