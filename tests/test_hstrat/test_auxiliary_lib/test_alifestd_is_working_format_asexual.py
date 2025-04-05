@@ -1,20 +1,13 @@
-from collections import Counter
 import os
 
-import alifedata_phyloinformatics_convert as apc
 import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_aggregate_phylogenies,
-    alifestd_find_leaf_ids,
-    alifestd_has_contiguous_ids,
     alifestd_is_asexual,
-    alifestd_is_topologically_sorted,
     alifestd_is_working_format_asexual,
-    alifestd_parse_ancestor_ids,
     alifestd_to_working_format,
-    alifestd_validate,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
