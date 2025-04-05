@@ -91,6 +91,12 @@ from ._alifestd_make_empty import alifestd_make_empty
 from ._alifestd_mark_ancestor_origin_time_asexual import (
     alifestd_mark_ancestor_origin_time_asexual,
 )
+from ._alifestd_mark_is_left_child_asexual import (
+    alifestd_mark_is_left_child_asexual,
+)
+from ._alifestd_mark_is_right_child_asexual import (
+    alifestd_mark_is_right_child_asexual,
+)
 from ._alifestd_mark_leaves import alifestd_mark_leaves
 from ._alifestd_mark_left_child_asexual import alifestd_mark_left_child_asexual
 from ._alifestd_mark_max_descendant_origin_time_asexual import (
@@ -104,6 +110,9 @@ from ._alifestd_mark_num_descendants_asexual import (
     alifestd_mark_num_descendants_asexual,
 )
 from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
+from ._alifestd_mark_num_preceding_leaves_asexual import (
+    alifestd_mark_num_preceding_leaves_asexual,
+)
 from ._alifestd_mark_oldest_root import alifestd_mark_oldest_root
 from ._alifestd_mark_origin_time_delta_asexual import (
     alifestd_mark_origin_time_delta_asexual,
@@ -139,6 +148,9 @@ from ._alifestd_try_add_ancestor_list_col import (
     alifestd_try_add_ancestor_list_col,
 )
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
+from ._alifestd_unfurl_traversal_inorder_asexual import (
+    alifestd_unfurl_traversal_inorder_asexual,
+)
 from ._alifestd_unfurl_traversal_postorder_asexual import (
     alifestd_unfurl_traversal_postorder_asexual,
 )
@@ -329,6 +341,8 @@ __all__ = [
     "alifestd_make_ancestor_list_col",
     "alifestd_make_empty",
     "alifestd_mark_ancestor_origin_time_asexual",
+    "alifestd_mark_is_left_child_asexual",
+    "alifestd_mark_is_right_child_asexual",
     "alifestd_mark_leaves",
     "alifestd_mark_left_child_asexual",
     "alifestd_mark_max_descendant_origin_time_asexual",
@@ -336,6 +350,7 @@ __all__ = [
     "alifestd_mark_num_children_asexual",
     "alifestd_mark_num_descendants_asexual",
     "alifestd_mark_num_leaves_asexual",
+    "alifestd_mark_num_preceding_leaves_asexual",
     "alifestd_mark_oldest_root",
     "alifestd_mark_origin_time_delta_asexual",
     "alifestd_mark_ot_mrca_asexual",
@@ -358,6 +373,7 @@ __all__ = [
     "alifestd_try_add_ancestor_id_col",
     "alifestd_try_add_ancestor_list_col",
     "alifestd_unfurl_lineage_asexual",
+    "alifestd_unfurl_traversal_inorder_asexual",
     "alifestd_unfurl_traversal_postorder_asexual",
     "alifestd_unfurl_traversal_semiorder_asexual",
     "alifestd_validate",
