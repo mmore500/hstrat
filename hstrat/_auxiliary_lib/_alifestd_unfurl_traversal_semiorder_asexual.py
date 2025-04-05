@@ -156,9 +156,10 @@ def alifestd_unfurl_traversal_semiorder_asexual(
         )
 
     if alifestd_is_working_format_asexual(phylogeny_df, mutate=True):
-        phylogeny_df = alifestd_mark_num_descendants_asexual(
-            phylogeny_df, mutate=True
-        )
+        if "num_descendants" not in phylogeny_df.columns:
+            phylogeny_df = alifestd_mark_num_descendants_asexual(
+                phylogeny_df, mutate=True
+            )
         return _alifestd_unfurl_traversal_semiorder_asexual_fast_path(
             phylogeny_df["ancestor_id"].to_numpy(),
             phylogeny_df["num_descendants"].to_numpy(),
