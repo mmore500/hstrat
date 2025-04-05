@@ -78,7 +78,6 @@ from ._alifestd_is_strictly_bifurcating_asexual import (
     alifestd_is_strictly_bifurcating_asexual,
 )
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
-from ._alifestd_is_working_format import alifestd_is_working_format
 from ._alifestd_is_working_format_asexual import (
     alifestd_is_working_format_asexual,
 )
