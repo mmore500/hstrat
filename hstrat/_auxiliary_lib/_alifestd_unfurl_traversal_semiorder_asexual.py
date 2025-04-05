@@ -65,6 +65,7 @@ def _alifestd_unfurl_traversal_semiorder_asexual_fast_path(
 
 def _alifestd_unfurl_traversal_semiorder_asexual_slow_path(
     phylogeny_df: pd.DataFrame,
+    leaf_ids: np.ndarray,
 ) -> np.ndarray:
     """Implementation detail for phylogenies not in working format."""
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
@@ -79,7 +80,6 @@ def _alifestd_unfurl_traversal_semiorder_asexual_slow_path(
     num_descendants_lookup = dict(
         zip(phylogeny_df["id"], phylogeny_df["num_descendants"]),
     )
-    leaves = alifestd_find_leaf_ids(phylogeny_df)
 
     def iter_lineage(leaf_id: int) -> typing.Iterator[int]:
         current_id = leaf_id
@@ -91,7 +91,7 @@ def _alifestd_unfurl_traversal_semiorder_asexual_slow_path(
 
     site_assignments = dict()
     visited = set()
-    for leaf_id in leaves:
+    for leaf_id in leaf_ids:
 
         # find offset of closest visited ancestor, if any
         visited_ancestor = next(
@@ -167,4 +167,5 @@ def alifestd_unfurl_traversal_semiorder_asexual(
     else:
         return _alifestd_unfurl_traversal_semiorder_asexual_slow_path(
             phylogeny_df,
+            alifestd_find_leaf_ids(phylogeny_df),
         )

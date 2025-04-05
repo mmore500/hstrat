@@ -148,6 +148,9 @@ from ._alifestd_try_add_ancestor_list_col import (
     alifestd_try_add_ancestor_list_col,
 )
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
+from ._alifestd_unfurl_traversal_inorder_asexual import (
+    alifestd_unfurl_traversal_inorder_asexual,
+)
 from ._alifestd_unfurl_traversal_postorder_asexual import (
     alifestd_unfurl_traversal_postorder_asexual,
 )
@@ -370,6 +373,7 @@ __all__ = [
     "alifestd_try_add_ancestor_id_col",
     "alifestd_try_add_ancestor_list_col",
     "alifestd_unfurl_lineage_asexual",
+    "alifestd_unfurl_traversal_inorder_asexual",
     "alifestd_unfurl_traversal_postorder_asexual",
     "alifestd_unfurl_traversal_semiorder_asexual",
     "alifestd_validate",
