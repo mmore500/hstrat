@@ -14,7 +14,7 @@ def alifestd_mark_num_children_asexual(
     is parent to.
 
     A topological sort will be applied if `phylogeny_df` is not topologically
-    sorted. Reindexing may be applied.
+    sorted. Dataframe reindexing (e.g., df.index) may be applied.
 
     Input dataframe is not mutated by this operation unless `mutate` set True.
     If mutate set True, operation does not occur in place; still use return
