@@ -20,7 +20,7 @@ from ._jit import jit
 
 
 @jit(nopython=True)
-def _alifestd_unfurl_traversal_inorder_asexual_fast_path(
+def _alifestd_unfurl_traversal_semiorder_asexual_fast_path(
     ancestor_ids: np.ndarray,
     num_descendants: np.ndarray,
     leaf_ids: np.ndarray,
@@ -63,7 +63,7 @@ def _alifestd_unfurl_traversal_inorder_asexual_fast_path(
     return result
 
 
-def _alifestd_unfurl_traversal_inorder_asexual_slow_path(
+def _alifestd_unfurl_traversal_semiorder_asexual_slow_path(
     phylogeny_df: pd.DataFrame,
 ) -> np.ndarray:
     """Implementation detail for phylogenies not in working format."""
@@ -132,11 +132,14 @@ def _alifestd_unfurl_traversal_inorder_asexual_slow_path(
     return result
 
 
-def alifestd_unfurl_traversal_inorder_asexual(
+def alifestd_unfurl_traversal_semiorder_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
 ) -> np.ndarray:
-    """List `id` values in inorder traversal order.
+    """List `id` values in semiorder traversal order.
+
+    An inorder traversal where either left child (smaller id) or right child
+    (larger id) may be visited first.
 
     The provided dataframe must be asexual and strictly bifurcating.
     """
@@ -156,12 +159,12 @@ def alifestd_unfurl_traversal_inorder_asexual(
         phylogeny_df = alifestd_mark_num_descendants_asexual(
             phylogeny_df, mutate=True
         )
-        return _alifestd_unfurl_traversal_inorder_asexual_fast_path(
+        return _alifestd_unfurl_traversal_semiorder_asexual_fast_path(
             phylogeny_df["ancestor_id"].to_numpy(),
             phylogeny_df["num_descendants"].to_numpy(),
             alifestd_find_leaf_ids(phylogeny_df),
         )
     else:
-        return _alifestd_unfurl_traversal_inorder_asexual_slow_path(
+        return _alifestd_unfurl_traversal_semiorder_asexual_slow_path(
             phylogeny_df,
         )
