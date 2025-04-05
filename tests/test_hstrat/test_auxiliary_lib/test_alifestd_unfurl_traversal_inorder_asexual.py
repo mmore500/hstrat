@@ -5,8 +5,8 @@ import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
-    alifestd_collapse_trunk_asexual,
     alifestd_collapse_unifurcations,
+    alifestd_delete_unifurcating_roots_asexual,
     alifestd_make_empty,
     alifestd_mark_node_depth_asexual,
     alifestd_splay_polytomies,
@@ -29,14 +29,9 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
     ],
 )
 def test_fuzz(phylogeny_df: pd.DataFrame):
-    phylogeny_df = alifestd_collapse_unifurcations(phylogeny_df)
-    phylogeny_df = alifestd_mark_node_depth_asexual(
-        phylogeny_df,
-    )
-    phylogeny_df["is_trunk"] = phylogeny_df["node_depth"] <= 1
-    phylogeny_df = alifestd_collapse_trunk_asexual(phylogeny_df)
     phylogeny_df = alifestd_splay_polytomies(phylogeny_df)
     phylogeny_df = alifestd_collapse_unifurcations(phylogeny_df)
+    phylogeny_df = alifestd_delete_unifurcating_roots_asexual(phylogeny_df)
     original = phylogeny_df.copy()
 
     result = alifestd_unfurl_traversal_inorder_asexual(phylogeny_df)

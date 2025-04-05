@@ -52,6 +52,9 @@ from ._alifestd_delete_trunk_asexual import alifestd_delete_trunk_asexual
 from ._alifestd_delete_trunk_asexual_polars import (
     alifestd_delete_trunk_asexual_polars,
 )
+from ._alifestd_delete_unifurcating_roots_asexual import (
+    alifestd_delete_unifurcating_roots_asexual,
+)
 from ._alifestd_downsample_tips_asexual import alifestd_downsample_tips_asexual
 from ._alifestd_estimate_triplet_distance_asexual import (
     alifestd_estimate_triplet_distance_asexual,
@@ -303,6 +306,7 @@ __all__ = [
     "alifestd_count_unifurcations",
     "alifestd_delete_trunk_asexual",
     "alifestd_delete_trunk_asexual_polars",
+    "alifestd_delete_unifurcating_roots_asexual",
     "alifestd_downsample_tips_asexual",
     "alifestd_estimate_triplet_distance_asexual",
     "alifestd_find_chronological_inconsistency",

@@ -93,6 +93,9 @@ def alifestd_collapse_unifurcations(
 ) -> pd.DataFrame:
     """Pare record to bypass organisms with one ancestor and one descendant.
 
+    May leave a root unifurcation present. See
+    `alifestd_delete_unifurcating_roots_asexual`.
+
     The option `root_ancestor_token` will be sandwiched in brackets to create
     the ancestor list entry for genesis organisms. For example, the token
     "None" will yield the entry "[None]" and the token "" will yield the entry
