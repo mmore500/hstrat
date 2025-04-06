@@ -37,13 +37,13 @@ def alifestd_mark_num_leaves_asexual(
     phylogeny_df["num_leaves"] = 0
 
     for idx in reversed(phylogeny_df.index):
-        ancestor_id = phylogeny_df.loc[idx, "ancestor_id"]
+        ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
 
-        if phylogeny_df.loc[idx, "num_leaves"] == 0:
-            phylogeny_df.loc[idx, "num_leaves"] = 1
+        if phylogeny_df.at[idx, "num_leaves"] == 0:
+            phylogeny_df.at[idx, "num_leaves"] = 1
 
-        delta = phylogeny_df.loc[idx, "num_leaves"]
+        delta = phylogeny_df.at[idx, "num_leaves"]
         if ancestor_id != idx:  # exclude genesis case
-            phylogeny_df.loc[ancestor_id, "num_leaves"] += delta
+            phylogeny_df.at[ancestor_id, "num_leaves"] += delta
 
     return phylogeny_df

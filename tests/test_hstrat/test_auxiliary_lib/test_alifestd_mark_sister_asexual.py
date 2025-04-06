@@ -3,14 +3,14 @@ import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_make_empty,
-    alifestd_mark_is_left_child_asexual,
+    alifestd_mark_sister_asexual,
 )
 
 
 def test_empty():
     mt = alifestd_make_empty()
-    res = alifestd_mark_is_left_child_asexual(mt)
-    assert "left_child" in res
+    res = alifestd_mark_sister_asexual(mt)
+    assert "sister" in res
     assert len(res) == 0
 
 
@@ -24,13 +24,13 @@ def test_simple1(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_is_left_child_asexual(
+    result_df = alifestd_mark_sister_asexual(
         phylogeny_df,
         mutate=mutate,
     )
-    assert not result_df.loc[0, "is_left_child"]
-    assert result_df.loc[1, "is_left_child"]
-    assert not result_df.loc[2, "is_left_child"]
+    assert result_df.loc[0, "sister"] == 0
+    assert result_df.loc[1, "sister"] == 2
+    assert result_df.loc[2, "sister"] == 1
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -47,7 +47,7 @@ def test_simple2(mutate: bool):
     )
     original_df = phylogeny_df.copy()
     with pytest.raises(ValueError):
-        alifestd_mark_is_left_child_asexual(
+        alifestd_mark_sister_asexual(
             phylogeny_df,
             mutate=mutate,
         )
@@ -67,7 +67,7 @@ def test_simple3(mutate: bool):
     )
     original_df = phylogeny_df.copy()
     with pytest.raises(ValueError):
-        alifestd_mark_is_left_child_asexual(
+        alifestd_mark_sister_asexual(
             phylogeny_df,
             mutate=mutate,
         )
@@ -86,13 +86,13 @@ def test_simple4(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_is_left_child_asexual(
+    result_df = alifestd_mark_sister_asexual(
         phylogeny_df,
         mutate=mutate,
     )
-    assert not result_df.loc[0, "is_left_child"]
-    assert result_df.loc[1, "is_left_child"]
-    assert not result_df.loc[2, "is_left_child"]
+    assert result_df.loc[0, "sister"] == 0
+    assert result_df.loc[1, "sister"] == 2
+    assert result_df.loc[2, "sister"] == 1
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -107,16 +107,16 @@ def test_simple5(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_is_left_child_asexual(
+    result_df = alifestd_mark_sister_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     result_df.index = result_df["id"]
-    assert result_df.loc[1, "is_left_child"]
-    assert not result_df.loc[0, "is_left_child"]
-    assert not result_df.loc[2, "is_left_child"]
-    assert result_df.loc[3, "is_left_child"]
-    assert not result_df.loc[4, "is_left_child"]
+    assert result_df.loc[1, "sister"] == 2
+    assert result_df.loc[0, "sister"] == 0
+    assert result_df.loc[2, "sister"] == 1
+    assert result_df.loc[3, "sister"] == 4
+    assert result_df.loc[4, "sister"] == 3
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -131,13 +131,13 @@ def test_simple6(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_is_left_child_asexual(
+    result_df = alifestd_mark_sister_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     result_df.index = result_df["id"]
-    assert not result_df.loc[1, "is_left_child"]
-    assert not result_df.loc[0, "is_left_child"]
+    assert result_df.loc[1, "sister"] == 1
+    assert result_df.loc[0, "sister"] == 0
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -154,7 +154,7 @@ def test_simple7(mutate: bool):
     )
     original_df = phylogeny_df.copy()
     with pytest.raises(ValueError):
-        alifestd_mark_is_left_child_asexual(
+        alifestd_mark_sister_asexual(
             phylogeny_df,
             mutate=mutate,
         )

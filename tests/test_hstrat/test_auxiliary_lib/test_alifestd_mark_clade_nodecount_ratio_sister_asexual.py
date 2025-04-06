@@ -5,13 +5,15 @@ import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_make_empty,
-    alifestd_mark_num_preceding_leaves_asexual,
+    alifestd_mark_clade_nodecount_ratio_sister_asexual,
     alifestd_to_working_format,
 )
 
 
 def test_empty():
-    res = alifestd_mark_num_preceding_leaves_asexual(alifestd_make_empty())
+    res = alifestd_mark_clade_nodecount_ratio_sister_asexual(
+        alifestd_make_empty()
+    )
     assert len(res) == 0
 
 
@@ -28,7 +30,7 @@ def test_simple1(apply: typing.Callable, mutate: bool):
     phylogeny_df = apply(phylogeny_df)
     original_df = phylogeny_df.copy()
     with pytest.raises(ValueError):
-        alifestd_mark_num_preceding_leaves_asexual(
+        alifestd_mark_clade_nodecount_ratio_sister_asexual(
             phylogeny_df,
             mutate=mutate,
         )
@@ -51,16 +53,16 @@ def test_simple2(mutate: bool):
         },
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_num_preceding_leaves_asexual(
+    result_df = alifestd_mark_clade_nodecount_ratio_sister_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     result_df.index = result_df["id"]
-    assert result_df.loc[3, "num_preceding_leaves"] == 0
-    assert result_df.loc[0, "num_preceding_leaves"] == 0
-    assert result_df.loc[1, "num_preceding_leaves"] == 0
-    assert result_df.loc[2, "num_preceding_leaves"] == 2
-    assert result_df.loc[4, "num_preceding_leaves"] == 1
+    assert result_df.loc[3, "clade_nodecount_ratio_sister"] == 1
+    assert result_df.loc[0, "clade_nodecount_ratio_sister"] == 3
+    assert result_df.loc[1, "clade_nodecount_ratio_sister"] == 1
+    assert result_df.loc[2, "clade_nodecount_ratio_sister"] == 1 / 3
+    assert result_df.loc[4, "clade_nodecount_ratio_sister"] == 1
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -93,18 +95,18 @@ def test_simple4(apply: typing.Callable, mutate: bool):
     )
     phylogeny_df = apply(phylogeny_df)
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_num_preceding_leaves_asexual(
+    result_df = alifestd_mark_clade_nodecount_ratio_sister_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     result_df.index = result_df["id"]
-    assert result_df.loc[0, "num_preceding_leaves"] == 0
-    assert result_df.loc[1, "num_preceding_leaves"] == 0
-    assert result_df.loc[2, "num_preceding_leaves"] == 2
-    assert result_df.loc[3, "num_preceding_leaves"] == 0
-    assert result_df.loc[4, "num_preceding_leaves"] == 1
-    assert result_df.loc[5, "num_preceding_leaves"] == 2
-    assert result_df.loc[6, "num_preceding_leaves"] == 3
+    assert result_df.loc[0, "clade_nodecount_ratio_sister"] == 1
+    assert result_df.loc[1, "clade_nodecount_ratio_sister"] == 1
+    assert result_df.loc[2, "clade_nodecount_ratio_sister"] == 1
+    assert result_df.loc[3, "clade_nodecount_ratio_sister"] == 1
+    assert result_df.loc[4, "clade_nodecount_ratio_sister"] == 1
+    assert result_df.loc[5, "clade_nodecount_ratio_sister"] == 1
+    assert result_df.loc[6, "clade_nodecount_ratio_sister"] == 1
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -138,18 +140,18 @@ def test_simple5(apply: typing.Callable, mutate: bool):
     )
     phylogeny_df = apply(phylogeny_df)
     phylogeny_df.copy()
-    result_df = alifestd_mark_num_preceding_leaves_asexual(
+    result_df = alifestd_mark_clade_nodecount_ratio_sister_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     result_df.index = result_df["id"]
-    assert result_df.loc[0, "num_preceding_leaves"] == 0
-    assert result_df.loc[1, "num_preceding_leaves"] == 0
-    assert result_df.loc[2, "num_preceding_leaves"] == 3
-    assert result_df.loc[3, "num_preceding_leaves"] == 0
-    assert result_df.loc[4, "num_preceding_leaves"] == 1
-    assert result_df.loc[5, "num_preceding_leaves"] == 1
-    assert result_df.loc[6, "num_preceding_leaves"] == 2
+    assert result_df.loc[0, "clade_nodecount_ratio_sister"] == 1
+    assert result_df.loc[1, "clade_nodecount_ratio_sister"] == 5
+    assert result_df.loc[2, "clade_nodecount_ratio_sister"] == 1 / 5
+    assert result_df.loc[3, "clade_nodecount_ratio_sister"] == 1 / 3
+    assert result_df.loc[4, "clade_nodecount_ratio_sister"] == 3
+    assert result_df.loc[5, "clade_nodecount_ratio_sister"] == 1
+    assert result_df.loc[6, "clade_nodecount_ratio_sister"] == 1
 
 
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
@@ -164,12 +166,12 @@ def test_simple6(apply: typing.Callable, mutate: bool):
     )
     phylogeny_df = apply(phylogeny_df)
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_num_preceding_leaves_asexual(
+    result_df = alifestd_mark_clade_nodecount_ratio_sister_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     result_df.index = result_df["id"]
-    assert result_df.loc[0, "num_preceding_leaves"] == 0
+    assert result_df.loc[0, "clade_nodecount_ratio_sister"] == 1
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -206,21 +208,21 @@ def test_simple7(apply: typing.Callable, mutate: bool):
     )
     phylogeny_df = apply(phylogeny_df)
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_num_preceding_leaves_asexual(
+    result_df = alifestd_mark_clade_nodecount_ratio_sister_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     result_df.index = result_df["id"]
-    assert result_df.loc[0, "num_preceding_leaves"] == 0
-    assert result_df.loc[1, "num_preceding_leaves"] == 0
-    assert result_df.loc[2, "num_preceding_leaves"] == 3
-    assert result_df.loc[3, "num_preceding_leaves"] == 0
-    assert result_df.loc[4, "num_preceding_leaves"] == 1
-    assert result_df.loc[5, "num_preceding_leaves"] == 1
-    assert result_df.loc[6, "num_preceding_leaves"] == 2
-    assert result_df.loc[7, "num_preceding_leaves"] == 0
-    assert result_df.loc[8, "num_preceding_leaves"] == 0
-    assert result_df.loc[9, "num_preceding_leaves"] == 1
+    assert result_df.loc[0, "clade_nodecount_ratio_sister"] == 1
+    assert result_df.loc[1, "clade_nodecount_ratio_sister"] == 5
+    assert result_df.loc[2, "clade_nodecount_ratio_sister"] == 1 / 5
+    assert result_df.loc[3, "clade_nodecount_ratio_sister"] == 1 / 3
+    assert result_df.loc[4, "clade_nodecount_ratio_sister"] == 3
+    assert result_df.loc[5, "clade_nodecount_ratio_sister"] == 1
+    assert result_df.loc[6, "clade_nodecount_ratio_sister"] == 1
+    assert result_df.loc[7, "clade_nodecount_ratio_sister"] == 1
+    assert result_df.loc[8, "clade_nodecount_ratio_sister"] == 1
+    assert result_df.loc[9, "clade_nodecount_ratio_sister"] == 1
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -236,12 +238,12 @@ def test_simple8(mutate: bool):
         },
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_num_preceding_leaves_asexual(
+    result_df = alifestd_mark_clade_nodecount_ratio_sister_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     result_df.index = result_df["id"]
-    assert result_df.loc[1, "num_preceding_leaves"] == 0
+    assert result_df.loc[1, "clade_nodecount_ratio_sister"] == 1
 
     if not mutate:
         assert original_df.equals(phylogeny_df)

@@ -4,19 +4,20 @@ from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_strictly_bifurcating_asexual import (
     alifestd_is_strictly_bifurcating_asexual,
 )
-from ._alifestd_mark_left_child_asexual import alifestd_mark_left_child_asexual
-from ._alifestd_mark_roots import alifestd_mark_roots
-from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_mark_num_descendants_asexual import (
+    alifestd_mark_num_descendants_asexual,
+)
+from ._alifestd_mark_sister_asexual import alifestd_mark_sister_asexual
 
 
-def alifestd_mark_is_left_child_asexual(
+def alifestd_mark_clade_nodecount_ratio_sister_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
 ) -> pd.DataFrame:
-    """Add column `is_left_child`, containing for each node whether it is the
-    smaller-id child.
+    """Add column `clade_nodecount_ratio_sister`, containing the ratio of each
+    clade size to that of its sister.
 
-    Root nodes will be marked False. Tree must be strictly bifurcating.
+    Root nodes will have ratio 1. Tree must be strictly bifurcating.
 
     Dataframe reindexing (e.g., df.index) may be applied.
 
@@ -31,24 +32,23 @@ def alifestd_mark_is_left_child_asexual(
     if not alifestd_is_strictly_bifurcating_asexual(phylogeny_df):
         raise ValueError("phylogeny_df must be strictly bifurcating")
 
-    phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
+    if "sister" not in phylogeny_df.columns:
+        phylogeny_df = alifestd_mark_sister_asexual(phylogeny_df, mutate=True)
 
-    if "left_child" not in phylogeny_df.columns:
-        phylogeny_df = alifestd_mark_left_child_asexual(
+    if "num_descendants" not in phylogeny_df.columns:
+        phylogeny_df = alifestd_mark_num_descendants_asexual(
             phylogeny_df, mutate=True
         )
-
-    if "is_root" not in phylogeny_df.columns:
-        phylogeny_df = alifestd_mark_roots(phylogeny_df, mutate=True)
 
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df.reset_index(drop=True, inplace=True)
     else:
         phylogeny_df.index = phylogeny_df["id"]
 
-    phylogeny_df["is_left_child"] = (
-        phylogeny_df.loc[phylogeny_df["ancestor_id"], "left_child"].values
-        == phylogeny_df["id"].values
-    ) & ~phylogeny_df["is_root"].values
+    phylogeny_df["clade_nodecount_ratio_sister"] = (
+        phylogeny_df["num_descendants"].values + 1
+    ) / (
+        phylogeny_df.loc[phylogeny_df["sister"], "num_descendants"].values + 1
+    )
 
     return phylogeny_df

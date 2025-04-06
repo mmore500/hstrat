@@ -140,7 +140,7 @@ def alifestd_collapse_unifurcations(
 
     for id_ in phylogeny_df["id"]:
         ancestor_ids = alifestd_parse_ancestor_ids(
-            phylogeny_df.loc[id_, "ancestor_list"]
+            phylogeny_df.at[id_, "ancestor_list"]
         )
         if len(ancestor_ids) == 1 and ref_counts[id_] == 1:
             # percolate ancestor over self
@@ -148,15 +148,15 @@ def alifestd_collapse_unifurcations(
             phylogeny_df.loc[id_] = phylogeny_df.loc[ancestor_id]
         elif len(ancestor_ids):
             # update referenced ancestor
-            phylogeny_df.loc[id_, "ancestor_list"] = str(
+            phylogeny_df.at[id_, "ancestor_list"] = str(
                 [
-                    int(phylogeny_df.loc[ancestor_id, "id"])
+                    int(phylogeny_df.at[ancestor_id, "id"])
                     for ancestor_id in ancestor_ids
                 ]
             )
         else:
             assert not ancestor_ids
-            phylogeny_df.loc[id_, "ancestor_list"] = f"[{root_ancestor_token}]"
+            phylogeny_df.at[id_, "ancestor_list"] = f"[{root_ancestor_token}]"
 
     assert "ancestor_id" not in phylogeny_df
 

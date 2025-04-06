@@ -36,13 +36,13 @@ def alifestd_mark_num_descendants_asexual(
     phylogeny_df["num_descendants"] = 0
 
     for idx in reversed(phylogeny_df.index):
-        ancestor_id = phylogeny_df.loc[idx, "ancestor_id"]
+        ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
         if ancestor_id == idx:
             continue  # handle genesis cases
 
-        own_num_descendants = phylogeny_df.loc[idx, "num_descendants"]
+        own_num_descendants = phylogeny_df.at[idx, "num_descendants"]
 
         delta = own_num_descendants + 1
-        phylogeny_df.loc[ancestor_id, "num_descendants"] += delta
+        phylogeny_df.at[ancestor_id, "num_descendants"] += delta
 
     return phylogeny_df

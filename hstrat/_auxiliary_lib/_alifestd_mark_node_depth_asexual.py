@@ -61,8 +61,8 @@ def alifestd_mark_node_depth_asexual(
     phylogeny_df["node_depth"] = -1
 
     for idx in phylogeny_df.index:
-        ancestor_id = phylogeny_df.loc[idx, "ancestor_id"]
-        ancestor_depth = phylogeny_df.loc[ancestor_id, "node_depth"]
-        phylogeny_df.loc[idx, "node_depth"] = ancestor_depth + 1
+        ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
+        ancestor_depth = phylogeny_df.at[ancestor_id, "node_depth"]
+        phylogeny_df.at[idx, "node_depth"] = ancestor_depth + 1
 
     return phylogeny_df

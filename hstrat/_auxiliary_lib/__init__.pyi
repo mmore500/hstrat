@@ -91,6 +91,24 @@ from ._alifestd_make_empty import alifestd_make_empty
 from ._alifestd_mark_ancestor_origin_time_asexual import (
     alifestd_mark_ancestor_origin_time_asexual,
 )
+from ._alifestd_mark_clade_duration_asexual import (
+    alifestd_mark_clade_duration_asexual,
+)
+from ._alifestd_mark_clade_duration_ratio_sister_asexual import (
+    alifestd_mark_clade_duration_ratio_sister_asexual,
+)
+from ._alifestd_mark_clade_leafcount_ratio_sister_asexual import (
+    alifestd_mark_clade_leafcount_ratio_sister_asexual,
+)
+from ._alifestd_mark_clade_logistic_growth_children_asexual import (
+    alifestd_mark_clade_logistic_growth_children_asexual,
+)
+from ._alifestd_mark_clade_logistic_growth_sister_asexual import (
+    alifestd_mark_clade_logistic_growth_sister_asexual,
+)
+from ._alifestd_mark_clade_nodecount_ratio_sister_asexual import (
+    alifestd_mark_clade_nodecount_ratio_sister_asexual,
+)
 from ._alifestd_mark_is_left_child_asexual import (
     alifestd_mark_is_left_child_asexual,
 )
@@ -123,6 +141,7 @@ from ._alifestd_mark_right_child_asexual import (
 )
 from ._alifestd_mark_root_id import alifestd_mark_root_id
 from ._alifestd_mark_roots import alifestd_mark_roots
+from ._alifestd_mark_sister_asexual import alifestd_mark_sister_asexual
 from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_prefix_roots import alifestd_prefix_roots
@@ -341,6 +360,12 @@ __all__ = [
     "alifestd_make_ancestor_list_col",
     "alifestd_make_empty",
     "alifestd_mark_ancestor_origin_time_asexual",
+    "alifestd_mark_clade_duration_asexual",
+    "alifestd_mark_clade_duration_ratio_sister_asexual",
+    "alifestd_mark_clade_leafcount_ratio_sister_asexual",
+    "alifestd_mark_clade_logistic_growth_children_asexual",
+    "alifestd_mark_clade_logistic_growth_sister_asexual",
+    "alifestd_mark_clade_nodecount_ratio_sister_asexual",
     "alifestd_mark_is_left_child_asexual",
     "alifestd_mark_is_right_child_asexual",
     "alifestd_mark_leaves",
@@ -357,6 +382,7 @@ __all__ = [
     "alifestd_mark_right_child_asexual",
     "alifestd_mark_root_id",
     "alifestd_mark_roots",
+    "alifestd_mark_sister_asexual",
     "alifestd_parse_ancestor_id",
     "alifestd_parse_ancestor_ids",
     "alifestd_prefix_roots",

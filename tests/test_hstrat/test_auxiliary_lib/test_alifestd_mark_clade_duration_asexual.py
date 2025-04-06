@@ -3,15 +3,15 @@ import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_make_empty,
-    alifestd_mark_max_descendant_origin_time_asexual,
+    alifestd_mark_clade_duration_asexual,
 )
 
 
 def test_empty():
     mt = alifestd_make_empty()
     mt["origin_time"] = None
-    res = alifestd_mark_max_descendant_origin_time_asexual(mt)
-    assert "max_descendant_origin_time" in res
+    res = alifestd_mark_clade_duration_asexual(mt)
+    assert "clade_duration" in res
     assert len(res) == 0
 
 
@@ -25,13 +25,13 @@ def test_simple1(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_max_descendant_origin_time_asexual(
+    result_df = alifestd_mark_clade_duration_asexual(
         phylogeny_df,
         mutate=mutate,
     )
-    assert result_df.loc[0, "max_descendant_origin_time"] == 30
-    assert result_df.loc[1, "max_descendant_origin_time"] == 30
-    assert result_df.loc[2, "max_descendant_origin_time"] == 30
+    assert result_df.loc[0, "clade_duration"] == 30
+    assert result_df.loc[1, "clade_duration"] == 20
+    assert result_df.loc[2, "clade_duration"] == 0
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -47,15 +47,15 @@ def test_simple2(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_max_descendant_origin_time_asexual(
+    result_df = alifestd_mark_clade_duration_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     result_df.index = result_df["id"]
-    assert result_df.loc[1, "max_descendant_origin_time"] == 45
-    assert result_df.loc[0, "max_descendant_origin_time"] == 45
-    assert result_df.loc[2, "max_descendant_origin_time"] == 30
-    assert result_df.loc[3, "max_descendant_origin_time"] == 45
+    assert result_df.loc[1, "clade_duration"] == 25
+    assert result_df.loc[0, "clade_duration"] == 35
+    assert result_df.loc[2, "clade_duration"] == 0
+    assert result_df.loc[3, "clade_duration"] == 0
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -71,15 +71,15 @@ def test_simple3(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_max_descendant_origin_time_asexual(
+    result_df = alifestd_mark_clade_duration_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     result_df.index = result_df["id"]
-    assert result_df.loc[1, "max_descendant_origin_time"] == 45
-    assert result_df.loc[0, "max_descendant_origin_time"] == 30
-    assert result_df.loc[2, "max_descendant_origin_time"] == 30
-    assert result_df.loc[4, "max_descendant_origin_time"] == 45
+    assert result_df.loc[1, "clade_duration"] == 25
+    assert result_df.loc[0, "clade_duration"] == 20
+    assert result_df.loc[2, "clade_duration"] == 0
+    assert result_df.loc[4, "clade_duration"] == 0
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -95,13 +95,13 @@ def test_simple4(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_max_descendant_origin_time_asexual(
+    result_df = alifestd_mark_clade_duration_asexual(
         phylogeny_df,
         mutate=mutate,
     )
-    assert result_df.loc[0, "max_descendant_origin_time"] == 30
-    assert result_df.loc[1, "max_descendant_origin_time"] == 10
-    assert result_df.loc[2, "max_descendant_origin_time"] == 30
+    assert result_df.loc[0, "clade_duration"] == 30
+    assert result_df.loc[1, "clade_duration"] == 0
+    assert result_df.loc[2, "clade_duration"] == 0
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
