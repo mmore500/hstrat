@@ -2,7 +2,6 @@ import math
 import os
 import typing
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -12,7 +11,6 @@ from hstrat._auxiliary_lib import (
     alifestd_join_roots,
     alifestd_make_empty,
     alifestd_mark_clade_logistic_growth_sister_asexual,
-    alifestd_mark_roots,
     alifestd_splay_polytomies,
     alifestd_to_working_format,
 )
