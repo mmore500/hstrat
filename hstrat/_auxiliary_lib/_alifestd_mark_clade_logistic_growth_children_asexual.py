@@ -12,6 +12,7 @@ from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
 from ._alifestd_unfurl_traversal_inorder_asexual import (
     alifestd_unfurl_traversal_inorder_asexual,
 )
+from ._warn_once import warn_once
 
 
 def alifestd_mark_clade_logistic_growth_children_asexual(
@@ -126,7 +127,10 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
 
         model = sklearn.linear_model.LogisticRegression()
         model.fit(X=X, y=y, sample_weight=w)
-        return model.coef_[0][0]
+        res = model.coef_[0][0]
+        if np.isnan(res):
+            warn_once("clade logistic growth regression produced NaN")
+        return res
 
     # scikit wants threading backend
     # see https://scikit-learn.org/stable/computing/parallelism.html#higher-level-parallelism-with-joblib
