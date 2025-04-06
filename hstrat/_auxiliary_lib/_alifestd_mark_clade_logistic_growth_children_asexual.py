@@ -126,7 +126,7 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
 
         model = sklearn.linear_model.LogisticRegression()
         model.fit(X=X, y=y, sample_weight=w)
-        return model.coef_[0]
+        return model.coef_[0][0]
 
     # scikit wants threading backend
     # see https://scikit-learn.org/stable/computing/parallelism.html#higher-level-parallelism-with-joblib
@@ -138,7 +138,7 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
 
     assert len(results) == len(node_depths)
     phylogeny_df["clade_logistic_growth_children"] = pd.Series(
-        results, index=inorder_traversal
+        results, index=inorder_traversal, dtype=float
     )
 
     return phylogeny_df
