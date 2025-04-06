@@ -88,6 +88,11 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
         arr.flags.writeable = False
 
     def fit_logistic_regression(target_idx: int) -> float:
+
+        target_neighborhood = slice(max(target_idx - 1, 0), target_idx + 2)
+        if max(node_depths[target_neighborhood]) == node_depths[target_idx]:
+            return np.nan  # fast path for leaf nodes...
+
         target_depth = node_depths[target_idx]
         lb_exclusive = next(
             (
@@ -109,9 +114,7 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
         slice_ = slice(lb_inclusive, ub_exclusive)
         sliced_target = target_idx - slice_.start
 
-        if ub_exclusive - lb_inclusive <= 1:
-            return np.nan
-
+        # leaf nodes should be handled on fast path above
         assert lb_inclusive < target_idx < ub_exclusive - 1
 
         # predictor values; reshape to (N x 1) array for sklearn
