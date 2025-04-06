@@ -111,18 +111,18 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
             ),
             len(node_depths),
         )
-        slice_ = slice(lb_inclusive, ub_exclusive)
-        sliced_target = target_idx - slice_.start
+        descendant_slice = slice(lb_inclusive, ub_exclusive)
+        sliced_target = target_idx - descendant_slice.start
 
         # leaf nodes should be handled on fast path above
         assert lb_inclusive < target_idx < ub_exclusive - 1
 
         # predictor values; reshape to (N x 1) array for sklearn
-        X = origin_times[slice_].reshape(-1, 1, copy=False)
+        X = origin_times[descendant_slice].reshape(-1, 1, copy=False)
 
         # sample weights; exclude target node and internal nodes
         assert leaves[target_idx] == 0.0
-        w = leaves[slice_]
+        w = leaves[descendant_slice]
 
         # classification target (response); 0 for left clade, 1 for right clade
         y = np.zeros(len(X), dtype=int)
