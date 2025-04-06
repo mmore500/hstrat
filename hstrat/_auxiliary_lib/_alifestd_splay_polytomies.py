@@ -76,7 +76,7 @@ def alifestd_splay_polytomies(
             splayed_from_id = splay_to_lookup[ancestor_id]
             splayed_to_id = next(new_id_generator)
 
-            phylogeny_df.loc[id_, "ancestor_id"] = splayed_to_id
+            phylogeny_df.at[id_, "ancestor_id"] = splayed_to_id
             new_row = phylogeny_df.loc[ancestor_id].copy()
             new_row["id"] = splayed_to_id
             new_row["ancestor_id"] = splayed_from_id

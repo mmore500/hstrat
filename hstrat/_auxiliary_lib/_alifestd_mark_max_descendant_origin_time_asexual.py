@@ -36,15 +36,15 @@ def alifestd_mark_max_descendant_origin_time_asexual(
     phylogeny_df["max_descendant_origin_time"] = phylogeny_df["origin_time"]
 
     for idx in reversed(phylogeny_df.index):
-        ancestor_id = phylogeny_df.loc[idx, "ancestor_id"]
+        ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
         if ancestor_id == idx:
             continue  # handle root cases
 
-        own_max = phylogeny_df.loc[idx, "max_descendant_origin_time"]
+        own_max = phylogeny_df.at[idx, "max_descendant_origin_time"]
 
-        phylogeny_df.loc[ancestor_id, "max_descendant_origin_time"] = max(
+        phylogeny_df.at[ancestor_id, "max_descendant_origin_time"] = max(
             own_max,
-            phylogeny_df.loc[ancestor_id, "max_descendant_origin_time"],
+            phylogeny_df.at[ancestor_id, "max_descendant_origin_time"],
         )
 
     return phylogeny_df

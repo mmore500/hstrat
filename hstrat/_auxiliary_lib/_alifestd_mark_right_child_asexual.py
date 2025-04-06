@@ -38,12 +38,12 @@ def alifestd_mark_right_child_asexual(
     phylogeny_df["right_child"] = phylogeny_df["id"]
 
     for idx in phylogeny_df.index:
-        ancestor_id = phylogeny_df.loc[idx, "ancestor_id"]
+        ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
         if ancestor_id == idx:
             continue  # handle genesis cases
 
-        cur_right_child = phylogeny_df.loc[ancestor_id, "right_child"]
+        cur_right_child = phylogeny_df.at[ancestor_id, "right_child"]
         if cur_right_child == ancestor_id or idx > cur_right_child:
-            phylogeny_df.loc[ancestor_id, "right_child"] = idx
+            phylogeny_df.at[ancestor_id, "right_child"] = idx
 
     return phylogeny_df

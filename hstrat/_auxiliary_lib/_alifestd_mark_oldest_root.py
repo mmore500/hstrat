@@ -33,6 +33,6 @@ def alifestd_mark_oldest_root(
         idxmin = phylogeny_df.loc[phylogeny_df["is_root"], "id"].idxmin()
 
     phylogeny_df["is_oldest_root"] = False
-    phylogeny_df.loc[idxmin, "is_oldest_root"] = True
+    phylogeny_df.at[idxmin, "is_oldest_root"] = True
 
     return phylogeny_df

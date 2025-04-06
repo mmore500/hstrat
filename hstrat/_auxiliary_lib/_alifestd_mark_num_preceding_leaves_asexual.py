@@ -62,14 +62,14 @@ def alifestd_mark_num_preceding_leaves_asexual(
     phylogeny_df["num_preceding_leaves"] = 0
 
     for idx in phylogeny_df.index:
-        ancestor_id = phylogeny_df.loc[idx, "ancestor_id"]
-        phylogeny_df.loc[idx, "num_preceding_leaves"] = (
-            phylogeny_df.loc[ancestor_id, "num_preceding_leaves"]
+        ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
+        phylogeny_df.at[idx, "num_preceding_leaves"] = (
+            phylogeny_df.at[ancestor_id, "num_preceding_leaves"]
             + (
-                phylogeny_df.loc[ancestor_id, "num_leaves"]
-                - phylogeny_df.loc[idx, "num_leaves"]
+                phylogeny_df.at[ancestor_id, "num_leaves"]
+                - phylogeny_df.at[idx, "num_leaves"]
             )
-            * phylogeny_df.loc[idx, "is_right_child"]
+            * phylogeny_df.at[idx, "is_right_child"]
         )
 
     return phylogeny_df
