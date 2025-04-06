@@ -19,12 +19,12 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
     mutate: bool = False,
 ) -> pd.DataFrame:
     """Add column `clade_logistic_growth_children`, containing the coefficient
-    of a logestic regression fit to origin times of the leaf descendants of
+    of a logistic regression fit to origin times of the leaf descendants of
     each node.
 
-    Clades with left/right child clades with equal growth rates will have value
-    0.0. If left child clade has greater growth rate, value will be negative.
-    If right child clade has greater growth rate, value will be positive.
+    Nodes with left/right child clades with equal growth rates will have value
+    approximately 0.0. If left child clade has greater growth rate, value will
+    be negative. If right child clade has greater growth rate, value will be positive.
 
     Leaf nodes will have value NaN.
 
