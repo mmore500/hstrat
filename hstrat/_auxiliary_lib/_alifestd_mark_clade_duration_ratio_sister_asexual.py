@@ -35,11 +35,6 @@ def alifestd_mark_clade_duration_ratio_sister_asexual(
     if not alifestd_is_strictly_bifurcating_asexual(phylogeny_df):
         raise ValueError("phylogeny_df must be strictly bifurcating")
 
-    if alifestd_has_contiguous_ids(phylogeny_df):
-        phylogeny_df.reset_index(drop=True, inplace=True)
-    else:
-        phylogeny_df.index = phylogeny_df["id"]
-
     if "sister" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_sister_asexual(phylogeny_df, mutate=True)
 
@@ -47,6 +42,11 @@ def alifestd_mark_clade_duration_ratio_sister_asexual(
         phylogeny_df = alifestd_mark_clade_duration_asexual(
             phylogeny_df, mutate=True
         )
+
+    if alifestd_has_contiguous_ids(phylogeny_df):
+        phylogeny_df.reset_index(drop=True, inplace=True)
+    else:
+        phylogeny_df.index = phylogeny_df["id"]
 
     phylogeny_df["clade_duration_ratio_sister"] = (
         phylogeny_df["clade_duration"].values

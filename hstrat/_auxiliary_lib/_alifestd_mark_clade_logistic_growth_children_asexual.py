@@ -58,11 +58,6 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
     if "origin_time" not in phylogeny_df.columns:
         raise ValueError("phylogeny_df must contain `origin_time` column")
 
-    if alifestd_has_contiguous_ids(phylogeny_df):
-        phylogeny_df.reset_index(drop=True, inplace=True)
-    else:
-        phylogeny_df.index = phylogeny_df["id"]
-
     if "node_depth" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_node_depth_asexual(
             phylogeny_df, mutate=True
@@ -70,6 +65,11 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
 
     if "is_leaf" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_leaves(phylogeny_df, mutate=True)
+
+    if alifestd_has_contiguous_ids(phylogeny_df):
+        phylogeny_df.reset_index(drop=True, inplace=True)
+    else:
+        phylogeny_df.index = phylogeny_df["id"]
 
     inorder_traversal = alifestd_unfurl_traversal_inorder_asexual(
         phylogeny_df, mutate=True

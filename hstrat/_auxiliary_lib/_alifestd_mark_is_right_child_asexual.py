@@ -35,11 +35,6 @@ def alifestd_mark_is_right_child_asexual(
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
 
-    if alifestd_has_contiguous_ids(phylogeny_df):
-        phylogeny_df.reset_index(drop=True, inplace=True)
-    else:
-        phylogeny_df.index = phylogeny_df["id"]
-
     if "right_child" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_right_child_asexual(
             phylogeny_df, mutate=True
@@ -47,6 +42,11 @@ def alifestd_mark_is_right_child_asexual(
 
     if "is_root" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_roots(phylogeny_df, mutate=True)
+
+    if alifestd_has_contiguous_ids(phylogeny_df):
+        phylogeny_df.reset_index(drop=True, inplace=True)
+    else:
+        phylogeny_df.index = phylogeny_df["id"]
 
     phylogeny_df["is_right_child"] = (
         phylogeny_df.loc[phylogeny_df["ancestor_id"], "right_child"].values

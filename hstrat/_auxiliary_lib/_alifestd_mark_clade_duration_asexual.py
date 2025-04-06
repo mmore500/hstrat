@@ -33,8 +33,8 @@ def alifestd_mark_clade_duration_asexual(
         )
 
     phylogeny_df["clade_duration"] = (
-        phylogeny_df["max_descendant_origin_time"]
-        - phylogeny_df["origin_time"]
+        phylogeny_df["max_descendant_origin_time"].values
+        - phylogeny_df["origin_time"].values
     )
 
     return phylogeny_df
