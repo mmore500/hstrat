@@ -1,4 +1,3 @@
-import os
 import typing
 
 import pandas as pd
@@ -9,8 +8,6 @@ from hstrat._auxiliary_lib import (
     alifestd_mark_clade_size_ratio_sister_asexual,
     alifestd_to_working_format,
 )
-
-assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
 def test_empty():

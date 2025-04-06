@@ -1,5 +1,3 @@
-import os
-
 import pandas as pd
 import pytest
 
@@ -7,8 +5,6 @@ from hstrat._auxiliary_lib import (
     alifestd_make_empty,
     alifestd_mark_is_right_child_asexual,
 )
-
-assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
 def test_empty():

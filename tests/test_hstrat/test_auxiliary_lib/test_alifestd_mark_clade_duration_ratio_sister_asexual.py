@@ -1,5 +1,4 @@
 import math
-import os
 
 import pandas as pd
 import pytest
@@ -8,8 +7,6 @@ from hstrat._auxiliary_lib import (
     alifestd_make_empty,
     alifestd_mark_clade_duration_ratio_sister_asexual,
 )
-
-assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
 def test_empty():
