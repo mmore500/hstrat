@@ -118,7 +118,7 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
         assert lb_inclusive < target_idx < ub_exclusive - 1
 
         # predictor values; reshape to (N x 1) array for sklearn
-        X = origin_times[descendant_slice].reshape(-1, 1, copy=False)
+        X = origin_times[descendant_slice].reshape(-1, 1)
 
         # sample weights; exclude target node and internal nodes
         assert leaves[target_idx] == 0.0
