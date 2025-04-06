@@ -498,7 +498,7 @@ def test_simple14(mutate: bool):
 
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple4(apply: typing.Callable, mutate: bool):
+def test_simple15(apply: typing.Callable, mutate: bool):
     # Tree structure:
     #         0
     #       /   \
