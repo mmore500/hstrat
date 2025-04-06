@@ -10,12 +10,12 @@ from ._alifestd_mark_num_descendants_asexual import (
 from ._alifestd_mark_sister_asexual import alifestd_mark_sister_asexual
 
 
-def alifestd_mark_clade_size_ratio_sister_asexual(
+def alifestd_mark_clade_nodecount_ratio_sister_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
 ) -> pd.DataFrame:
-    """Add column `clade_size_ratio_sister`, containing the ratio of each clade
-    size to that of its sister.
+    """Add column `clade_nodecount_ratio_sister`, containing the ratio of each
+    clade size to that of its sister.
 
     Root nodes will have ratio 1. Tree must be strictly bifurcating.
 
@@ -45,7 +45,7 @@ def alifestd_mark_clade_size_ratio_sister_asexual(
             phylogeny_df, mutate=True
         )
 
-    phylogeny_df["clade_size_ratio_sister"] = (
+    phylogeny_df["clade_nodecount_ratio_sister"] = (
         phylogeny_df["num_descendants"] + 1
     ) / (
         phylogeny_df.loc[phylogeny_df["sister"], "num_descendants"].values + 1
