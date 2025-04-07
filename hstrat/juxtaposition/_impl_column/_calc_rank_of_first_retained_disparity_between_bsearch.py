@@ -31,7 +31,7 @@ def calc_rank_of_first_retained_disparity_between_bsearch(
         second, HereditaryStratigraphicSpecimen
     ):
         raise ValueError(
-            f"HereditaryStratigraphicSpecimen not supported for {calc_rank_of_first_retained_disparity_between_bsearch.__name__}"
+            "HereditaryStratigraphicSpecimen not yet supported",
         )
 
     # both must have (effectively) used the perfect resolution policy
