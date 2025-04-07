@@ -20,6 +20,12 @@ from ._alifestd_assign_contiguous_ids_polars import (
 from ._alifestd_assign_root_ancestor_token import (
     alifestd_assign_root_ancestor_token,
 )
+from ._alifestd_calc_clade_trait_count_asexual import (
+    alifestd_calc_clade_trait_count_asexual,
+)
+from ._alifestd_calc_clade_trait_frequency_asexual import (
+    alifestd_calc_clade_trait_frequency_asexual,
+)
 from ._alifestd_calc_polytomic_index import alifestd_calc_polytomic_index
 from ._alifestd_calc_triplet_distance_asexual import (
     alifestd_calc_triplet_distance_asexual,
@@ -152,6 +158,12 @@ from ._alifestd_prune_extinct_lineages_asexual import (
 from ._alifestd_reroot_at_id_asexual import alifestd_reroot_at_id_asexual
 from ._alifestd_sample_triplet_comparisons_asexual import (
     alifestd_sample_triplet_comparisons_asexual,
+)
+from ._alifestd_screen_trait_defined_clades_fisher_asexual import (
+    alifestd_screen_trait_defined_clades_fisher_asexual,
+)
+from ._alifestd_screen_trait_defined_clades_naive_asexual import (
+    alifestd_screen_trait_defined_clades_naive_asexual,
 )
 from ._alifestd_splay_polytomies import alifestd_splay_polytomies
 from ._alifestd_sum_origin_time_deltas_asexual import (
@@ -320,6 +332,8 @@ __all__ = [
     "alifestd_assign_contiguous_ids",
     "alifestd_assign_contiguous_ids_polars",
     "alifestd_assign_root_ancestor_token",
+    "alifestd_calc_clade_trait_count_asexual",
+    "alifestd_calc_clade_trait_frequency_asexual",
     "alifestd_categorize_triplet_asexual",
     "alifestd_chronological_sort",
     "alifestd_coarsen_mask",
@@ -391,6 +405,8 @@ __all__ = [
     "alifestd_reroot_at_id_asexual",
     "alifestd_convert_root_ancestor_token",
     "alifestd_sample_triplet_comparisons_asexual",
+    "alifestd_screen_trait_defined_clades_fisher_asexual",
+    "alifestd_screen_trait_defined_clades_naive_asexual",
     "alifestd_splay_polytomies",
     "alifestd_sum_origin_time_deltas_asexual",
     "alifestd_test_leaves_isomorphic_asexual",

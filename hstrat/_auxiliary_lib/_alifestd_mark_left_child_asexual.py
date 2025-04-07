@@ -35,15 +35,15 @@ def alifestd_mark_left_child_asexual(
     else:
         phylogeny_df.index = phylogeny_df["id"]
 
-    phylogeny_df["left_child"] = phylogeny_df["id"]
+    phylogeny_df["left_child_id"] = phylogeny_df["id"]
 
     for idx in phylogeny_df.index:
         ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
         if ancestor_id == idx:
             continue  # handle genesis cases
 
-        cur_left_child = phylogeny_df.at[ancestor_id, "left_child"]
+        cur_left_child = phylogeny_df.at[ancestor_id, "left_child_id"]
         if cur_left_child == ancestor_id or idx < cur_left_child:
-            phylogeny_df.at[ancestor_id, "left_child"] = idx
+            phylogeny_df.at[ancestor_id, "left_child_id"] = idx
 
     return phylogeny_df

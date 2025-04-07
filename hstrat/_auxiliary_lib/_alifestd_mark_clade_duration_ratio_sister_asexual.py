@@ -35,7 +35,7 @@ def alifestd_mark_clade_duration_ratio_sister_asexual(
     if not alifestd_is_strictly_bifurcating_asexual(phylogeny_df):
         raise ValueError("phylogeny_df must be strictly bifurcating")
 
-    if "sister" not in phylogeny_df.columns:
+    if "sister_id" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_sister_asexual(phylogeny_df, mutate=True)
 
     if "clade_duration" not in phylogeny_df.columns:
@@ -50,6 +50,6 @@ def alifestd_mark_clade_duration_ratio_sister_asexual(
 
     phylogeny_df["clade_duration_ratio_sister"] = (
         phylogeny_df["clade_duration"].values
-    ) / (phylogeny_df.loc[phylogeny_df["sister"], "clade_duration"].values)
+    ) / (phylogeny_df.loc[phylogeny_df["sister_id"], "clade_duration"].values)
 
     return phylogeny_df

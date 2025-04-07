@@ -41,11 +41,11 @@ def alifestd_mark_sister_asexual(
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
 
-    if "left_child" not in phylogeny_df.columns:
+    if "left_child_id" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_left_child_asexual(
             phylogeny_df, mutate=True
         )
-    if "right_child" not in phylogeny_df.columns:
+    if "right_child_id" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_right_child_asexual(
             phylogeny_df, mutate=True
         )
@@ -63,10 +63,10 @@ def alifestd_mark_sister_asexual(
     else:
         phylogeny_df.index = phylogeny_df["id"]
 
-    phylogeny_df["sister"] = (
-        phylogeny_df.loc[phylogeny_df["ancestor_id"], "right_child"].values
+    phylogeny_df["sister_id"] = (
+        phylogeny_df.loc[phylogeny_df["ancestor_id"], "right_child_id"].values
         * phylogeny_df["is_left_child"].values
-        + phylogeny_df.loc[phylogeny_df["ancestor_id"], "left_child"].values
+        + phylogeny_df.loc[phylogeny_df["ancestor_id"], "left_child_id"].values
         * phylogeny_df["is_right_child"].values
         + phylogeny_df["id"].values
         * (phylogeny_df["ancestor_id"].values == phylogeny_df["id"].values)

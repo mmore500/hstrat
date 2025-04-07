@@ -110,6 +110,8 @@ filelock==3.16.1
     #   cppimport
     #   tox
     #   virtualenv
+fishersrc==0.1.15
+    # via hstrat (../../pyproject.toml)
 flake8==3.7.8
     # via hstrat (../../pyproject.toml)
 fonttools==4.55.0
@@ -255,6 +257,7 @@ numpy==2.0.2
     #   colorclade
     #   contourpy
     #   downstream
+    #   fishersrc
     #   matplotlib
     #   numba
     #   pandas

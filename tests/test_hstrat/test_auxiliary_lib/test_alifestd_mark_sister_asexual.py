@@ -10,7 +10,7 @@ from hstrat._auxiliary_lib import (
 def test_empty():
     mt = alifestd_make_empty()
     res = alifestd_mark_sister_asexual(mt)
-    assert "sister" in res
+    assert "sister_id" in res
     assert len(res) == 0
 
 
@@ -28,9 +28,9 @@ def test_simple1(mutate: bool):
         phylogeny_df,
         mutate=mutate,
     )
-    assert result_df.loc[0, "sister"] == 0
-    assert result_df.loc[1, "sister"] == 2
-    assert result_df.loc[2, "sister"] == 1
+    assert result_df.loc[0, "sister_id"] == 0
+    assert result_df.loc[1, "sister_id"] == 2
+    assert result_df.loc[2, "sister_id"] == 1
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -90,9 +90,9 @@ def test_simple4(mutate: bool):
         phylogeny_df,
         mutate=mutate,
     )
-    assert result_df.loc[0, "sister"] == 0
-    assert result_df.loc[1, "sister"] == 2
-    assert result_df.loc[2, "sister"] == 1
+    assert result_df.loc[0, "sister_id"] == 0
+    assert result_df.loc[1, "sister_id"] == 2
+    assert result_df.loc[2, "sister_id"] == 1
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -112,11 +112,11 @@ def test_simple5(mutate: bool):
         mutate=mutate,
     )
     result_df.index = result_df["id"]
-    assert result_df.loc[1, "sister"] == 2
-    assert result_df.loc[0, "sister"] == 0
-    assert result_df.loc[2, "sister"] == 1
-    assert result_df.loc[3, "sister"] == 4
-    assert result_df.loc[4, "sister"] == 3
+    assert result_df.loc[1, "sister_id"] == 2
+    assert result_df.loc[0, "sister_id"] == 0
+    assert result_df.loc[2, "sister_id"] == 1
+    assert result_df.loc[3, "sister_id"] == 4
+    assert result_df.loc[4, "sister_id"] == 3
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -136,8 +136,8 @@ def test_simple6(mutate: bool):
         mutate=mutate,
     )
     result_df.index = result_df["id"]
-    assert result_df.loc[1, "sister"] == 1
-    assert result_df.loc[0, "sister"] == 0
+    assert result_df.loc[1, "sister_id"] == 1
+    assert result_df.loc[0, "sister_id"] == 0
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
