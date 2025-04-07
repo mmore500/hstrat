@@ -110,6 +110,8 @@ filelock==3.16.1
     #   cppimport
     #   tox
     #   virtualenv
+fisher @ git+https://github.com/brentp/fishers_exact_test.git@84e6e32110a9219e4b22a398360e24d0b8f2face
+    # via hstrat (../../pyproject.toml)
 flake8==3.7.8
     # via hstrat (../../pyproject.toml)
 fonttools==4.55.0
@@ -255,6 +257,7 @@ numpy==2.0.2
     #   colorclade
     #   contourpy
     #   downstream
+    #   fisher
     #   matplotlib
     #   numba
     #   pandas
