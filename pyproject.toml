@@ -21,7 +21,7 @@ dependencies = [
   "dendropy>=4.5.2",
   "Deprecated>=1.2.13",
   "downstream>=1.6.12",
-  "fisher @ git+https://github.com/brentp/fishers_exact_test.git@v0.1.15",
+  "fishersrc>=0.1.15",
   "iterpop>=0.3.4",
   "interval_search>=0.3.1",
   "joblib>=1.0.0",

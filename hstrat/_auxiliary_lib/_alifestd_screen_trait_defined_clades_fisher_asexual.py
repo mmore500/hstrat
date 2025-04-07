@@ -1,4 +1,4 @@
-from fisher import pvalue_npy as fisher_pvalue_npy
+from fishersrc import pvalue_npy as fisher_pvalue_npy
 import numpy as np
 import pandas as pd
 

@@ -73,7 +73,7 @@ executing==2.1.0
     # via stack-data
 fastjsonschema==2.21.0
     # via nbformat
-fisher @ git+https://github.com/brentp/fishers_exact_test.git@84e6e32110a9219e4b22a398360e24d0b8f2face
+fishersrc==0.1.15
     # via hstrat (../../pyproject.toml)
 fonttools==4.55.0
     # via matplotlib
@@ -191,7 +191,7 @@ numpy==2.1.3
     #   biopython
     #   contourpy
     #   downstream
-    #   fisher
+    #   fishersrc
     #   matplotlib
     #   pandas
     #   pandera
