@@ -23,6 +23,9 @@ from ._alifestd_assign_root_ancestor_token import (
 from ._alifestd_calc_clade_trait_count_asexual import (
     alifestd_calc_clade_trait_count_asexual,
 )
+from ._alifestd_calc_clade_trait_frequency_asexual import (
+    alifestd_calc_clade_trait_frequency_asexual,
+)
 from ._alifestd_calc_polytomic_index import alifestd_calc_polytomic_index
 from ._alifestd_calc_triplet_distance_asexual import (
     alifestd_calc_triplet_distance_asexual,
@@ -324,6 +327,7 @@ __all__ = [
     "alifestd_assign_contiguous_ids_polars",
     "alifestd_assign_root_ancestor_token",
     "alifestd_calc_clade_trait_count_asexual",
+    "alifestd_calc_clade_trait_frequency_asexual",
     "alifestd_categorize_triplet_asexual",
     "alifestd_chronological_sort",
     "alifestd_coarsen_mask",
