@@ -30,7 +30,7 @@ def calc_rank_of_first_retained_disparity_between_bsearch(
     if isinstance(first, HereditaryStratigraphicSpecimen) or isinstance(
         second, HereditaryStratigraphicSpecimen
     ):
-        raise ValueError(
+        raise NotImplementedError(
             "HereditaryStratigraphicSpecimen not yet supported",
         )
 
