@@ -10,7 +10,7 @@ from hstrat._auxiliary_lib import (
 def test_empty():
     mt = alifestd_make_empty()
     res = alifestd_mark_is_left_child_asexual(mt)
-    assert "left_child" in res
+    assert "left_child_id" in res
     assert len(res) == 0
 
 

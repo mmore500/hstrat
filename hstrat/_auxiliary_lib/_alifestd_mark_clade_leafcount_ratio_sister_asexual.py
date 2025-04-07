@@ -30,7 +30,7 @@ def alifestd_mark_clade_leafcount_ratio_sister_asexual(
     if not alifestd_is_strictly_bifurcating_asexual(phylogeny_df):
         raise ValueError("phylogeny_df must be strictly bifurcating")
 
-    if "sister" not in phylogeny_df.columns:
+    if "sister_id" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_sister_asexual(phylogeny_df, mutate=True)
 
     if "num_leaves" not in phylogeny_df.columns:
@@ -45,6 +45,6 @@ def alifestd_mark_clade_leafcount_ratio_sister_asexual(
 
     phylogeny_df["clade_leafcount_ratio_sister"] = (
         phylogeny_df["num_leaves"].values
-    ) / (phylogeny_df.loc[phylogeny_df["sister"], "num_leaves"].values)
+    ) / (phylogeny_df.loc[phylogeny_df["sister_id"], "num_leaves"].values)
 
     return phylogeny_df

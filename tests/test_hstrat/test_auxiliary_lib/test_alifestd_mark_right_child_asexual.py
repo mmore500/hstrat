@@ -14,7 +14,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 def test_empty():
     mt = alifestd_make_empty()
     res = alifestd_mark_right_child_asexual(mt)
-    assert "right_child" in res
+    assert "right_child_id" in res
     assert len(res) == 0
 
 
@@ -32,9 +32,9 @@ def test_simple1(mutate: bool):
         phylogeny_df,
         mutate=mutate,
     )
-    assert result_df.loc[0, "right_child"] == 2
-    assert result_df.loc[1, "right_child"] == 1
-    assert result_df.loc[2, "right_child"] == 2
+    assert result_df.loc[0, "right_child_id"] == 2
+    assert result_df.loc[1, "right_child_id"] == 1
+    assert result_df.loc[2, "right_child_id"] == 2
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -94,9 +94,9 @@ def test_simple4(mutate: bool):
         phylogeny_df,
         mutate=mutate,
     )
-    assert result_df.loc[0, "right_child"] == 2
-    assert result_df.loc[1, "right_child"] == 1
-    assert result_df.loc[2, "right_child"] == 2
+    assert result_df.loc[0, "right_child_id"] == 2
+    assert result_df.loc[1, "right_child_id"] == 1
+    assert result_df.loc[2, "right_child_id"] == 2
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -116,11 +116,11 @@ def test_simple5(mutate: bool):
         mutate=mutate,
     )
     result_df.index = result_df["id"]
-    assert result_df.loc[1, "right_child"] == 4
-    assert result_df.loc[0, "right_child"] == 2
-    assert result_df.loc[2, "right_child"] == 2
-    assert result_df.loc[3, "right_child"] == 3
-    assert result_df.loc[4, "right_child"] == 4
+    assert result_df.loc[1, "right_child_id"] == 4
+    assert result_df.loc[0, "right_child_id"] == 2
+    assert result_df.loc[2, "right_child_id"] == 2
+    assert result_df.loc[3, "right_child_id"] == 3
+    assert result_df.loc[4, "right_child_id"] == 4
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -140,8 +140,8 @@ def test_simple6(mutate: bool):
         mutate=mutate,
     )
     result_df.index = result_df["id"]
-    assert result_df.loc[1, "right_child"] == 1
-    assert result_df.loc[0, "right_child"] == 0
+    assert result_df.loc[1, "right_child_id"] == 1
+    assert result_df.loc[0, "right_child_id"] == 0
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
