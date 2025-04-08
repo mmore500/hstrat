@@ -153,12 +153,11 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
             warn_once("clade logistic growth regression produced NaN")
         return res
 
-    # scikit wants threading backend
+    # use multiprocessing backend, although scikit suggests threading backend
     # see https://scikit-learn.org/stable/computing/parallelism.html#higher-level-parallelism-with-joblib
-    with parallel_backend("threading", n_jobs=-1):
-        results = Parallel(n_jobs=-1)(
-            delayed(fit_logistic_regression)(i)
-            for i in range(len(node_depths))
+    with parallel_backend("loky", n_jobs=-1):
+        results = Parallel(batch_size=1000, n_jobs=-1)(
+            delayed(fit_logistic_regression)(i) for i in range(len(node_depths))
         )
 
     assert len(results) == len(node_depths)
