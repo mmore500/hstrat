@@ -90,7 +90,7 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
     def fit_logistic_regression(target_idx: int) -> float:
 
         target_neighborhood = slice(max(target_idx - 1, 0), target_idx + 2)
-        if max(node_depths[target_neighborhood]) == node_depths[target_idx]:
+        if node_depths[target_neighborhood].max() == node_depths[target_idx]:
             return np.nan  # fast path for leaf nodes...
 
         target_depth = node_depths[target_idx]
