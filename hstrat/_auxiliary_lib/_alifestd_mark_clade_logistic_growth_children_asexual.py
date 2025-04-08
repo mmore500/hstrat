@@ -135,7 +135,18 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
         y = np.zeros(len(X), dtype=int)
         y[sliced_target:] = 1
 
-        model = sklearn.linear_model.LogisticRegression()
+        if np.ptp(X) < 1e-3:  # sklearn defaults handle singular case better
+            model = sklearn.linear_model.LogisticRegression()
+        else:
+            model = sklearn.linear_model.LogisticRegression(
+                fit_intercept=False,  # disable for perf (not used)
+                # scikit docs: for small datasets, ‘liblinear’ is a good choice
+                # whereas ‘sag’ and ‘saga’ are faster for large ones
+                solver=["liblinear", "sag"][
+                    ub_exclusive_ - lb_inclusive_ > 10000  # arbitrary thresh
+                ],
+            )
+
         model.fit(X=X, y=y, sample_weight=w)
         res = model.coef_[0][0]
         if np.isnan(res):
