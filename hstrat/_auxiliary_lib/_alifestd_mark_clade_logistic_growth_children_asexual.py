@@ -1,3 +1,5 @@
+import typing
+
 from joblib import Parallel, delayed, parallel_backend
 import numpy as np
 import pandas as pd
@@ -87,35 +89,40 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
     for arr in (leaves, node_depths, origin_times):  # probably not needed?
         arr.flags.writeable = False
 
+    # precompute slices for each node
+    def calc_boundaries(
+        node_depths: np.ndarray, indices: typing.Iterable[int], default: int
+    ) -> np.ndarray:
+        """Iterate over the provided 'indices' and at each index 'i' find the
+        most recent index that satisfies:
+
+        node_depths[j] <= node_depths[i]
+        """
+        result = np.empty_like(node_depths, dtype=int)
+        stack = []
+        for i in indices:
+            while stack and node_depths[stack[-1]] > node_depths[i]:
+                stack.pop()
+            result[i] = stack[-1] if stack else default
+            stack.append(i)
+
+        return result
+
+    n = len(node_depths)
+    lb_exclusive = calc_boundaries(node_depths, range(n), default=-1)
+    ub_exclusive = calc_boundaries(node_depths, reversed(range(n)), default=n)
+    lb_inclusive = lb_exclusive + 1
+
     def fit_logistic_regression(target_idx: int) -> float:
+        lb_inclusive_ = lb_inclusive[target_idx]
+        ub_exclusive_ = ub_exclusive[target_idx]
 
-        target_neighborhood = slice(max(target_idx - 1, 0), target_idx + 2)
-        if node_depths[target_neighborhood].max() == node_depths[target_idx]:
-            return np.nan  # fast path for leaf nodes...
+        # fast path to handle leaf nodes
+        if not lb_inclusive_ < target_idx < ub_exclusive_ - 1:
+            return np.nan
 
-        target_depth = node_depths[target_idx]
-        lb_exclusive = next(
-            (
-                i
-                for i in reversed(range(0, target_idx))
-                if node_depths[i] <= target_depth
-            ),
-            -1,
-        )
-        lb_inclusive = lb_exclusive + 1
-        ub_exclusive = next(
-            (
-                i
-                for i in range(target_idx + 1, len(node_depths))
-                if node_depths[i] <= target_depth
-            ),
-            len(node_depths),
-        )
-        descendant_slice = slice(lb_inclusive, ub_exclusive)
+        descendant_slice = slice(lb_inclusive_, ub_exclusive_)
         sliced_target = target_idx - descendant_slice.start
-
-        # leaf nodes should be handled on fast path above
-        assert lb_inclusive < target_idx < ub_exclusive - 1
 
         # predictor values; reshape to (N x 1) array for sklearn
         X = origin_times[descendant_slice].reshape(-1, 1)
