@@ -164,6 +164,7 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
 
     sparse_mask = ~leaves_mask
     if work_mask is not None:
+        work_mask = np.asarray(work_mask, dtype=bool)
         sparse_mask &= work_mask
 
     results = np.full_like(node_depths, np.nan, dtype=float)
