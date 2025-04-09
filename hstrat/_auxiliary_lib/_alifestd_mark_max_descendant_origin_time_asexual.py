@@ -73,11 +73,11 @@ def alifestd_mark_max_descendant_origin_time_asexual(
         phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
 
     if alifestd_has_contiguous_ids(phylogeny_df):
-        phylogeny_df["max_descendant_origin_time"] = (
-            alifestd_mark_max_descendant_origin_time_asexual_fast_path(
-                phylogeny_df["ancestor_id"].to_numpy(),
-                phylogeny_df["origin_time"].to_numpy(),
-            )
+        phylogeny_df[
+            "max_descendant_origin_time"
+        ] = alifestd_mark_max_descendant_origin_time_asexual_fast_path(
+            phylogeny_df["ancestor_id"].to_numpy(),
+            phylogeny_df["origin_time"].to_numpy(),
         )
         return phylogeny_df
     else:
