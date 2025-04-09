@@ -207,4 +207,12 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
         results, index=inorder_traversal, dtype=float
     )
 
+    phylogeny_df.drop(
+        columns=[
+            "alifestd_mark_clade_logistic_growth_children_asexual_mask",
+        ],
+        errors="ignore",
+        inplace=True,
+    )
+
     return phylogeny_df
