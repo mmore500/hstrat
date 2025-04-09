@@ -70,10 +70,10 @@ def alifestd_mark_num_descendants_asexual(
         phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
 
     if alifestd_has_contiguous_ids(phylogeny_df):
-        phylogeny_df["num_descendants"] = (
-            alifestd_mark_num_descendants_asexual_fast_path(
-                phylogeny_df["ancestor_id"].to_numpy()
-            )
+        phylogeny_df[
+            "num_descendants"
+        ] = alifestd_mark_num_descendants_asexual_fast_path(
+            phylogeny_df["ancestor_id"].to_numpy()
         )
         return phylogeny_df
     else:
