@@ -15,7 +15,28 @@ from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
 from ._alifestd_unfurl_traversal_inorder_asexual import (
     alifestd_unfurl_traversal_inorder_asexual,
 )
+from ._jit import jit
 from ._warn_once import warn_once
+
+
+@jit(nopython=True)
+def _calc_boundaries(
+    node_depths: np.ndarray, indices: typing.Iterable[int], default: int
+) -> np.ndarray:
+    """Iterate over the provided 'indices' and at each index 'i' find the
+    most recent index that satisfies:
+
+    node_depths[j] <= node_depths[i]
+    """
+    result = np.empty_like(node_depths)
+    stack = []
+    for i in indices:
+        while stack and node_depths[stack[-1]] > node_depths[i]:
+            stack.pop()
+        result[i] = stack[-1] if stack else default
+        stack.append(i)
+
+    return result
 
 
 def alifestd_mark_clade_logistic_growth_children_asexual(
@@ -93,28 +114,10 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
     origin_times = phylogeny_df.loc[inorder_traversal, "origin_time"].values
     origin_times = origin_times.astype(float, copy=True)  # contiguous for perf
 
-    # precompute slices for each node
-    def calc_boundaries(
-        node_depths: np.ndarray, indices: typing.Iterable[int], default: int
-    ) -> np.ndarray:
-        """Iterate over the provided 'indices' and at each index 'i' find the
-        most recent index that satisfies:
-
-        node_depths[j] <= node_depths[i]
-        """
-        result = np.empty_like(node_depths, dtype=int)
-        stack = []
-        for i in indices:
-            while stack and node_depths[stack[-1]] > node_depths[i]:
-                stack.pop()
-            result[i] = stack[-1] if stack else default
-            stack.append(i)
-
-        return result
-
     n = len(node_depths)
-    lb_exclusive = calc_boundaries(node_depths, range(n), default=-1)
-    ub_exclusive = calc_boundaries(node_depths, reversed(range(n)), default=n)
+    range_n = np.arange(n)
+    lb_exclusive = _calc_boundaries(node_depths, range_n, default=-1)
+    ub_exclusive = _calc_boundaries(node_depths, range_n[::-1], default=n)
     lb_inclusive = lb_exclusive + 1
 
     for arr in (leaves, node_depths, origin_times, ub_exclusive, lb_inclusive):
