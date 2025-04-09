@@ -5,8 +5,10 @@ from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._jit import jit
 
 
+@jit(nopython=True)
 def alifestd_mark_max_descendant_origin_time_asexual_fast_path(
     ancestor_ids: np.ndarray,
     origin_times: np.ndarray,
@@ -76,8 +78,8 @@ def alifestd_mark_max_descendant_origin_time_asexual(
         phylogeny_df[
             "max_descendant_origin_time"
         ] = alifestd_mark_max_descendant_origin_time_asexual_fast_path(
-            phylogeny_df["ancestor_id"].to_numpy(),
-            phylogeny_df["origin_time"].to_numpy(),
+            pd.to_numeric(phylogeny_df["ancestor_id"]).to_numpy(),
+            pd.to_numeric(phylogeny_df["origin_time"]).to_numpy(),
         )
         return phylogeny_df
     else:
