@@ -69,11 +69,11 @@ def test_simple2(mutate: bool):
         mutate=mutate,
     )
     result_df.index = result_df["id"]
-    assert result_df.loc[3, "clade_logistic_growth_sister"]
-    assert result_df.loc[0, "clade_logistic_growth_sister"]
+    assert result_df.loc[3, "clade_logistic_growth_sister"] > 0
+    assert result_df.loc[0, "clade_logistic_growth_sister"] > 0
     assert math.isnan(result_df.loc[1, "clade_logistic_growth_sister"])
-    assert result_df.loc[2, "clade_logistic_growth_sister"]
-    assert result_df.loc[4, "clade_logistic_growth_sister"]
+    assert result_df.loc[2, "clade_logistic_growth_sister"] < 0
+    assert result_df.loc[4, "clade_logistic_growth_sister"] < 0
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
