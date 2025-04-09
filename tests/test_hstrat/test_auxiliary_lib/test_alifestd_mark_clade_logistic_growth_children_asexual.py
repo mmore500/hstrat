@@ -658,6 +658,59 @@ def test_simple16(
         assert original_df.equals(phylogeny_df)
 
 
+@pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
+@pytest.mark.parametrize("mutate", [True, False])
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple17(
+    apply: typing.Callable,
+    mutate: bool,
+    parallel_backend: typing.Optional[str],
+):
+    # Tree structure:
+    #         0
+    #       /   \
+    #      1     2
+    #     / \
+    #    3   4
+    #       / \
+    #      5   6
+
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6],
+            "ancestor_list": [
+                "[None]",
+                "[0]",
+                "[0]",
+                "[1]",
+                "[1]",
+                "[4]",
+                "[4]",
+            ],
+            "origin_time": [0, 10, 200, 30, 40, 50, 60],
+        },
+    )
+    phylogeny_df = apply(phylogeny_df)
+    original_df = phylogeny_df.copy()
+    result_df = alifestd_mark_clade_logistic_growth_children_asexual(
+        phylogeny_df,
+        mutate=mutate,
+        parallel_backend=parallel_backend,
+        work_mask=[True, True, False, False, False, False, False],
+    )
+    result_df.index = result_df["id"]
+    assert result_df.loc[0, "clade_logistic_growth_children"] > 0
+    assert result_df.loc[1, "clade_logistic_growth_children"] > 0
+    assert math.isnan(result_df.loc[2, "clade_logistic_growth_children"])
+    assert math.isnan(result_df.loc[3, "clade_logistic_growth_children"])
+    assert math.isnan(result_df.loc[4, "clade_logistic_growth_children"])
+    assert math.isnan(result_df.loc[5, "clade_logistic_growth_children"])
+    assert math.isnan(result_df.loc[6, "clade_logistic_growth_children"])
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
