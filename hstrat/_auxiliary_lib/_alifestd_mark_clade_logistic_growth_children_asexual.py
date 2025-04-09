@@ -157,7 +157,8 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
     # see https://scikit-learn.org/stable/computing/parallelism.html#higher-level-parallelism-with-joblib
     with parallel_backend("loky", n_jobs=-1):
         results = Parallel(batch_size=1000, n_jobs=-1)(
-            delayed(fit_logistic_regression)(i) for i in range(len(node_depths))
+            delayed(fit_logistic_regression)(i)
+            for i in range(len(node_depths))
         )
 
     assert len(results) == len(node_depths)

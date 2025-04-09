@@ -5,6 +5,7 @@ import pandas as pd
 from ._alifestd_calc_clade_trait_count_asexual import (
     alifestd_calc_clade_trait_count_asexual,
 )
+from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_strictly_bifurcating_asexual import (
     alifestd_is_strictly_bifurcating_asexual,
 )
@@ -68,6 +69,11 @@ def alifestd_screen_trait_defined_clades_fisher_asexual(
     phylogeny_df[
         "alifestd_screen_trait_defined_clades_fisher_asexual_present"
     ] = trait_count_present
+
+    if alifestd_has_contiguous_ids(phylogeny_df):
+        phylogeny_df.reset_index(drop=True, inplace=True)
+    else:
+        phylogeny_df.set_index("id", drop=False, inplace=True)
 
     sister = phylogeny_df["sister_id"].values
     sister_trait_count_absent = phylogeny_df.loc[
