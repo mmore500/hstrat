@@ -81,7 +81,7 @@ def alifestd_calc_clade_trait_count_asexual(
 
     if alifestd_is_working_format_asexual(phylogeny_df):
         return _alifestd_calc_clade_trait_count_asexual_fast_path(
-            phylogeny_df["ancestor_id"].to_numpy(dtype=int),
+            pd.to_numeric(phylogeny_df["ancestor_id"]).to_numpy(),
             phylogeny_df["alifestd_calc_trait_count_asexual"].to_numpy(),
         )
     else:
