@@ -1,3 +1,5 @@
+import typing
+
 import numpy as np
 import pandas as pd
 
@@ -18,6 +20,9 @@ from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 def alifestd_mark_clade_logistic_growth_sister_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
+    *,
+    parallel_backend: typing.Optional[str] = None,
+    work_mask: typing.Optional[np.ndarray] = None,
 ) -> pd.DataFrame:
     """Add column `clade_logistic_growth_children`, containing the coefficient
     of a logistic regression fit to origin times of this clade's descendant
@@ -28,7 +33,10 @@ def alifestd_mark_clade_logistic_growth_sister_asexual(
     than 0.0. Clades growing slower than their sister clade will have value
     less than 0.0.
 
-    Root nodes will have value NaN.
+    Pass "loky" to `parallel_backend` to use joblib with loky backend.
+
+    Root nodes will have value NaN. If provided, any nodes not included in
+    `work_mask` will also have value NaN.
 
     Tree must be strictly bifurcating and single-rooted.
 
@@ -52,6 +60,10 @@ def alifestd_mark_clade_logistic_growth_sister_asexual(
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
+    if work_mask is not None:
+        work_mask = np.asarray(work_mask, dtype=bool)
+        nowork_ids = phylogeny_df.loc[~work_mask, "id"].values
+
     if not alifestd_is_strictly_bifurcating_asexual(phylogeny_df):
         raise ValueError("phylogeny_df must be strictly bifurcating")
 
@@ -59,8 +71,21 @@ def alifestd_mark_clade_logistic_growth_sister_asexual(
     assert "ancestor_id" in phylogeny_df.columns
 
     if "clade_logistic_growth_children" not in phylogeny_df.columns:
+        if work_mask is not None:
+            work_ancestor_ids = phylogeny_df.loc[
+                work_mask, "ancestor_id"
+            ].values
+            if alifestd_has_contiguous_ids(phylogeny_df):
+                work_mask[:] = False
+                work_mask[work_ancestor_ids] = True
+            else:
+                work_mask = phylogeny_df["id"].isin(work_ancestor_ids).values
+
         phylogeny_df = alifestd_mark_clade_logistic_growth_children_asexual(
-            phylogeny_df, mutate=True
+            phylogeny_df,
+            mutate=True,
+            parallel_backend=parallel_backend,
+            work_mask=work_mask,
         )
 
     if "is_left_child" not in phylogeny_df.columns:
@@ -83,5 +108,8 @@ def alifestd_mark_clade_logistic_growth_sister_asexual(
     phylogeny_df.loc[
         phylogeny_df["is_root"].values, "clade_logistic_growth_sister"
     ] = np.nan
+
+    if work_mask is not None:
+        phylogeny_df.loc[nowork_ids, "clade_logistic_growth_sister"] = np.nan
 
     return phylogeny_df
