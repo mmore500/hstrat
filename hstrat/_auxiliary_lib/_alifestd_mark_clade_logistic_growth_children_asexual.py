@@ -85,6 +85,11 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
     if not alifestd_is_strictly_bifurcating_asexual(phylogeny_df):
         raise ValueError("phylogeny_df must be strictly bifurcating")
 
+    if work_mask is not None:
+        phylogeny_df[
+            "alifestd_mark_clade_logistic_growth_children_asexual_mask"
+        ] = work_mask
+
     if "origin_time" not in phylogeny_df.columns:
         raise ValueError("phylogeny_df must contain `origin_time` column")
 
@@ -96,14 +101,20 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
     if "is_leaf" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_leaves(phylogeny_df, mutate=True)
 
+    inorder_traversal = alifestd_unfurl_traversal_inorder_asexual(
+        phylogeny_df, mutate=True
+    )
+
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df.reset_index(drop=True, inplace=True)
     else:
         phylogeny_df.index = phylogeny_df["id"]
 
-    inorder_traversal = alifestd_unfurl_traversal_inorder_asexual(
-        phylogeny_df, mutate=True
-    )
+    if work_mask is not None:
+        work_mask = phylogeny_df.loc[
+            inorder_traversal,
+            "alifestd_mark_clade_logistic_growth_children_asexual_mask",
+        ].values
 
     leaves_mask = phylogeny_df.loc[inorder_traversal, "is_leaf"].values
     leaves = leaves_mask.astype(float, copy=True)  # contiguous for perf
@@ -164,11 +175,6 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
 
     sparse_mask = ~leaves_mask
     if work_mask is not None:
-        work_mask = (
-            pd.Series(work_mask, index=phylogeny_df.index, dtype=bool)
-            .loc[inorder_traversal]
-            .values
-        )
         sparse_mask &= work_mask
 
     results = np.full_like(node_depths, np.nan, dtype=float)

@@ -711,6 +711,39 @@ def test_simple17(
         assert original_df.equals(phylogeny_df)
 
 
+@pytest.mark.parametrize("mutate", [True, False])
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple18(mutate: bool, parallel_backend: typing.Optional[str]):
+    # Tree structure:
+    #        |---- 4
+    #   |--- 0 --- 3
+    #   1
+    #   |--- 2
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [3, 0, 1, 2, 4],
+            "ancestor_list": ["[0]", "[1]", "[None]", "[1]", "[0]"],
+            "origin_time": [50, 20, 10, 30, 40],
+        },
+    )
+    original_df = phylogeny_df.copy()
+    result_df = alifestd_mark_clade_logistic_growth_children_asexual(
+        phylogeny_df,
+        mutate=mutate,
+        parallel_backend=parallel_backend,
+        work_mask=np.array([False, False, True, False, False]),
+    )
+    result_df.index = result_df["id"]
+    assert math.isnan(result_df.loc[3, "clade_logistic_growth_children"])
+    assert math.isnan(result_df.loc[0, "clade_logistic_growth_children"])
+    assert result_df.loc[1, "clade_logistic_growth_children"] < 0
+    assert math.isnan(result_df.loc[2, "clade_logistic_growth_children"])
+    assert math.isnan(result_df.loc[4, "clade_logistic_growth_children"])
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
