@@ -1,6 +1,7 @@
+import contextlib
 import typing
 
-from joblib import Parallel, delayed, parallel_backend
+import joblib
 import numpy as np
 import pandas as pd
 import sklearn
@@ -20,6 +21,9 @@ from ._warn_once import warn_once
 def alifestd_mark_clade_logistic_growth_children_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
+    *,
+    parallel_backend: typing.Optional[str] = None,
+    work_mask: typing.Optional[np.ndarray] = None,
 ) -> pd.DataFrame:
     """Add column `clade_logistic_growth_children`, containing the coefficient
     of a logistic regression fit to origin times of the leaf descendants of
@@ -29,7 +33,10 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
     approximately 0.0. If left child clade has greater growth rate, value will
     be negative. If right child clade has greater growth rate, value will be positive.
 
-    Leaf nodes will have value NaN.
+    Pass "loky" to `parallel_backend` to use joblib with loky backend.
+
+    Leaf nodes will have value NaN. If provided, any nodes not included in
+    `work_mask` will also have value NaN.
 
     Tree must be strictly bifurcating and single-rooted.
 
@@ -77,17 +84,14 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
         phylogeny_df, mutate=True
     )
 
-    leaves = phylogeny_df.loc[inorder_traversal, "is_leaf"].values
-    leaves = leaves.astype(float, copy=True)  # contiguous for perf
+    leaves_mask = phylogeny_df.loc[inorder_traversal, "is_leaf"].values
+    leaves = leaves_mask.astype(float, copy=True)  # contiguous for perf
 
     node_depths = phylogeny_df.loc[inorder_traversal, "node_depth"].values
     node_depths = node_depths.copy()  # contiguous for perf
 
     origin_times = phylogeny_df.loc[inorder_traversal, "origin_time"].values
     origin_times = origin_times.astype(float, copy=True)  # contiguous for perf
-
-    for arr in (leaves, node_depths, origin_times):  # probably not needed?
-        arr.flags.writeable = False
 
     # precompute slices for each node
     def calc_boundaries(
@@ -113,13 +117,15 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
     ub_exclusive = calc_boundaries(node_depths, reversed(range(n)), default=n)
     lb_inclusive = lb_exclusive + 1
 
+    for arr in (leaves, node_depths, origin_times, ub_exclusive, lb_inclusive):
+        arr.flags.writeable = False  # probably not needed?
+
+    @(joblib.delayed if parallel_backend else lambda x: x)
     def fit_logistic_regression(target_idx: int) -> float:
         lb_inclusive_ = lb_inclusive[target_idx]
         ub_exclusive_ = ub_exclusive[target_idx]
-
-        # fast path to handle leaf nodes
-        if not lb_inclusive_ < target_idx < ub_exclusive_ - 1:
-            return np.nan
+        # leaf case should be masked out
+        assert lb_inclusive_ < target_idx < ub_exclusive_ - 1
 
         descendant_slice = slice(lb_inclusive_, ub_exclusive_)
         sliced_target = target_idx - descendant_slice.start
@@ -153,13 +159,34 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
             warn_once("clade logistic growth regression produced NaN")
         return res
 
-    # use multiprocessing backend, although scikit suggests threading backend
-    # see https://scikit-learn.org/stable/computing/parallelism.html#higher-level-parallelism-with-joblib
-    with parallel_backend("loky", n_jobs=-1):
-        results = Parallel(batch_size=1000, n_jobs=-1)(
-            delayed(fit_logistic_regression)(i)
-            for i in range(len(node_depths))
+    sparse_mask = ~leaves_mask
+    if work_mask is not None:
+        sparse_mask &= work_mask
+
+    results = np.full_like(node_depths, np.nan, dtype=float)
+    if sparse_mask.any():
+        sparse_operands = np.arange(len(node_depths))[sparse_mask]
+
+        # use multiprocessing backend, although scikit suggests threading backend
+        # see https://scikit-learn.org/stable/computing/parallelism.html#higher-level-parallelism-with-joblib
+        context = (
+            joblib.parallel_backend(parallel_backend, n_jobs=-1)
+            if parallel_backend
+            else contextlib.nullcontext()
         )
+        with context:
+            collect = (
+                joblib.Parallel(batch_size=1000, n_jobs=-1)
+                if parallel_backend
+                else lambda x: np.fromiter(
+                    x, dtype=float, count=len(sparse_operands)
+                )
+            )
+            sparse_results = collect(
+                map(fit_logistic_regression, sparse_operands),
+            )
+
+        results[sparse_mask] = sparse_results
 
     assert len(results) == len(node_depths)
     phylogeny_df["clade_logistic_growth_children"] = pd.Series(

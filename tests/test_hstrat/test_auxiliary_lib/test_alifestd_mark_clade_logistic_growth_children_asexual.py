@@ -2,6 +2,7 @@ import math
 import os
 import typing
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -29,7 +30,12 @@ def test_empty():
 
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple1(apply: typing.Callable, mutate: bool):
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple1(
+    apply: typing.Callable,
+    mutate: bool,
+    parallel_backend: typing.Optional[str],
+):
     # Chain tree: 0 -> 1 -> 2
     phylogeny_df = pd.DataFrame(
         {
@@ -43,6 +49,7 @@ def test_simple1(apply: typing.Callable, mutate: bool):
         alifestd_mark_clade_logistic_growth_children_asexual(
             phylogeny_df,
             mutate=mutate,
+            parallel_backend=parallel_backend,
         )
 
     if not mutate:
@@ -50,7 +57,8 @@ def test_simple1(apply: typing.Callable, mutate: bool):
 
 
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple2(mutate: bool):
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple2(mutate: bool, parallel_backend: typing.Optional[str]):
     # Tree structure:
     #        |---- 4
     #   |--- 0 --- 3
@@ -67,6 +75,7 @@ def test_simple2(mutate: bool):
     result_df = alifestd_mark_clade_logistic_growth_children_asexual(
         phylogeny_df,
         mutate=mutate,
+        parallel_backend=parallel_backend,
     )
     result_df.index = result_df["id"]
     assert math.isnan(result_df.loc[3, "clade_logistic_growth_children"])
@@ -81,7 +90,12 @@ def test_simple2(mutate: bool):
 
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple4(apply: typing.Callable, mutate: bool):
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple4(
+    apply: typing.Callable,
+    mutate: bool,
+    parallel_backend: typing.Optional[str],
+):
     # Tree structure:
     #         0
     #       /   \
@@ -110,6 +124,7 @@ def test_simple4(apply: typing.Callable, mutate: bool):
     result_df = alifestd_mark_clade_logistic_growth_children_asexual(
         phylogeny_df,
         mutate=mutate,
+        parallel_backend=parallel_backend,
     )
     result_df.index = result_df["id"]
     assert result_df.loc[0, "clade_logistic_growth_children"] > 0
@@ -126,7 +141,12 @@ def test_simple4(apply: typing.Callable, mutate: bool):
 
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple5(apply: typing.Callable, mutate: bool):
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple5(
+    apply: typing.Callable,
+    mutate: bool,
+    parallel_backend: typing.Optional[str],
+):
     # Tree structure:
     #         0
     #       /   \
@@ -156,6 +176,7 @@ def test_simple5(apply: typing.Callable, mutate: bool):
     result_df = alifestd_mark_clade_logistic_growth_children_asexual(
         phylogeny_df,
         mutate=mutate,
+        parallel_backend=parallel_backend,
     )
     result_df.index = result_df["id"]
     assert result_df.loc[0, "clade_logistic_growth_children"] > 0
@@ -169,7 +190,12 @@ def test_simple5(apply: typing.Callable, mutate: bool):
 
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple6(apply: typing.Callable, mutate: bool):
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple6(
+    apply: typing.Callable,
+    mutate: bool,
+    parallel_backend: typing.Optional[str],
+):
     # Chain tree: 0
     phylogeny_df = pd.DataFrame(
         {
@@ -183,6 +209,7 @@ def test_simple6(apply: typing.Callable, mutate: bool):
     result_df = alifestd_mark_clade_logistic_growth_children_asexual(
         phylogeny_df,
         mutate=mutate,
+        parallel_backend=parallel_backend,
     )
     result_df.index = result_df["id"]
     assert math.isnan(result_df.loc[0, "clade_logistic_growth_children"])
@@ -193,7 +220,12 @@ def test_simple6(apply: typing.Callable, mutate: bool):
 
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple7(apply: typing.Callable, mutate: bool):
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple7(
+    apply: typing.Callable,
+    mutate: bool,
+    parallel_backend: typing.Optional[str],
+):
     # Tree structure:
     #         0
     #       /   \
@@ -231,6 +263,7 @@ def test_simple7(apply: typing.Callable, mutate: bool):
     result_df = alifestd_mark_clade_logistic_growth_children_asexual(
         phylogeny_df,
         mutate=mutate,
+        parallel_backend=parallel_backend,
     )
     result_df.index = result_df["id"]
     assert result_df.loc[0, "clade_logistic_growth_children"] < 0
@@ -246,7 +279,8 @@ def test_simple7(apply: typing.Callable, mutate: bool):
 
 
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple8(mutate: bool):
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple8(mutate: bool, parallel_backend: typing.Optional[str]):
     # Chain tree: 0
     phylogeny_df = pd.DataFrame(
         {
@@ -259,6 +293,7 @@ def test_simple8(mutate: bool):
     result_df = alifestd_mark_clade_logistic_growth_children_asexual(
         phylogeny_df,
         mutate=mutate,
+        parallel_backend=parallel_backend,
     )
     result_df.index = result_df["id"]
     assert math.isnan(result_df.loc[1, "clade_logistic_growth_children"])
@@ -269,7 +304,12 @@ def test_simple8(mutate: bool):
 
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple9(apply: typing.Callable, mutate: bool):
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple9(
+    apply: typing.Callable,
+    mutate: bool,
+    parallel_backend: typing.Optional[str],
+):
     # Tree structure:
     #         0
     #       /   \
@@ -299,6 +339,7 @@ def test_simple9(apply: typing.Callable, mutate: bool):
     result_df = alifestd_mark_clade_logistic_growth_children_asexual(
         phylogeny_df,
         mutate=mutate,
+        parallel_backend=parallel_backend,
     )
     result_df.index = result_df["id"]
     assert result_df.loc[0, "clade_logistic_growth_children"] < 0
@@ -312,7 +353,12 @@ def test_simple9(apply: typing.Callable, mutate: bool):
 
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple10(apply: typing.Callable, mutate: bool):
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple10(
+    apply: typing.Callable,
+    mutate: bool,
+    parallel_backend: typing.Optional[str],
+):
     # Tree structure:
     #         0
     #       /   \
@@ -350,6 +396,7 @@ def test_simple10(apply: typing.Callable, mutate: bool):
     result_df = alifestd_mark_clade_logistic_growth_children_asexual(
         phylogeny_df,
         mutate=mutate,
+        parallel_backend=parallel_backend,
     )
     result_df.index = result_df["id"]
     _0 = pytest.approx(0, abs=1e-3)
@@ -367,7 +414,12 @@ def test_simple10(apply: typing.Callable, mutate: bool):
 
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple11(apply: typing.Callable, mutate: bool):
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple11(
+    apply: typing.Callable,
+    mutate: bool,
+    parallel_backend: typing.Optional[str],
+):
     # Tree structure:
     #         0             7
     #       /   \          / \
@@ -400,6 +452,7 @@ def test_simple11(apply: typing.Callable, mutate: bool):
         alifestd_mark_clade_logistic_growth_children_asexual(
             phylogeny_df,
             mutate=mutate,
+            parallel_backend=parallel_backend,
         )
 
     if not mutate:
@@ -407,7 +460,8 @@ def test_simple11(apply: typing.Callable, mutate: bool):
 
 
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple12(mutate: bool):
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple12(mutate: bool, parallel_backend: typing.Optional[str]):
     # Tree structure:
     #        |---- 4
     #   |--- 0 --- 3
@@ -424,6 +478,7 @@ def test_simple12(mutate: bool):
     result_df = alifestd_mark_clade_logistic_growth_children_asexual(
         phylogeny_df,
         mutate=mutate,
+        parallel_backend=parallel_backend,
     )
     result_df.index = result_df["id"]
     assert math.isnan(result_df.loc[3, "clade_logistic_growth_children"])
@@ -437,7 +492,8 @@ def test_simple12(mutate: bool):
 
 
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple13(mutate: bool):
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple13(mutate: bool, parallel_backend: typing.Optional[str]):
     # Tree structure:
     #        |---- 4
     #   |--- 0 --- 3
@@ -454,6 +510,7 @@ def test_simple13(mutate: bool):
     result_df = alifestd_mark_clade_logistic_growth_children_asexual(
         phylogeny_df,
         mutate=mutate,
+        parallel_backend=parallel_backend,
     )
     result_df.index = result_df["id"]
     assert math.isnan(result_df.loc[3, "clade_logistic_growth_children"])
@@ -467,7 +524,8 @@ def test_simple13(mutate: bool):
 
 
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple14(mutate: bool):
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple14(mutate: bool, parallel_backend: typing.Optional[str]):
     # Tree structure:
     #        |---- 4
     #   |--- 100 --- 3
@@ -484,6 +542,7 @@ def test_simple14(mutate: bool):
     result_df = alifestd_mark_clade_logistic_growth_children_asexual(
         phylogeny_df,
         mutate=mutate,
+        parallel_backend=parallel_backend,
     )
     result_df.index = result_df["id"]
     assert math.isnan(result_df.loc[3, "clade_logistic_growth_children"])
@@ -498,7 +557,12 @@ def test_simple14(mutate: bool):
 
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
-def test_simple15(apply: typing.Callable, mutate: bool):
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple15(
+    apply: typing.Callable,
+    mutate: bool,
+    parallel_backend: typing.Optional[str],
+):
     # Tree structure:
     #         0
     #       /   \
@@ -527,11 +591,64 @@ def test_simple15(apply: typing.Callable, mutate: bool):
     result_df = alifestd_mark_clade_logistic_growth_children_asexual(
         phylogeny_df,
         mutate=mutate,
+        parallel_backend=parallel_backend,
     )
     result_df.index = result_df["id"]
     assert result_df.loc[0, "clade_logistic_growth_children"] > 0
     assert result_df.loc[1, "clade_logistic_growth_children"] > 0
     assert result_df.loc[2, "clade_logistic_growth_children"] > 0
+    assert math.isnan(result_df.loc[3, "clade_logistic_growth_children"])
+    assert math.isnan(result_df.loc[4, "clade_logistic_growth_children"])
+    assert math.isnan(result_df.loc[5, "clade_logistic_growth_children"])
+    assert math.isnan(result_df.loc[6, "clade_logistic_growth_children"])
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
+@pytest.mark.parametrize("mutate", [True, False])
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_simple16(
+    apply: typing.Callable,
+    mutate: bool,
+    parallel_backend: typing.Optional[str],
+):
+    # Tree structure:
+    #         0
+    #       /   \
+    #      1     2
+    #     / \   / \
+    #    3   4 5   6
+    #
+
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6],
+            "ancestor_list": [
+                "[None]",
+                "[0]",
+                "[0]",
+                "[1]",
+                "[1]",
+                "[2]",
+                "[2]",
+            ],
+            "origin_time": [0, 10, 20, 30, 40, 50, 60],
+        },
+    )
+    phylogeny_df = apply(phylogeny_df)
+    original_df = phylogeny_df.copy()
+    result_df = alifestd_mark_clade_logistic_growth_children_asexual(
+        phylogeny_df,
+        mutate=mutate,
+        parallel_backend=parallel_backend,
+        work_mask=np.array([False, True, False, False, True, False, False]),
+    )
+    result_df.index = result_df["id"]
+    assert math.isnan(result_df.loc[0, "clade_logistic_growth_children"])
+    assert result_df.loc[1, "clade_logistic_growth_children"] > 0
+    assert math.isnan(result_df.loc[2, "clade_logistic_growth_children"])
     assert math.isnan(result_df.loc[3, "clade_logistic_growth_children"])
     assert math.isnan(result_df.loc[4, "clade_logistic_growth_children"])
     assert math.isnan(result_df.loc[5, "clade_logistic_growth_children"])
@@ -552,7 +669,10 @@ def test_simple15(apply: typing.Callable, mutate: bool):
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_fuzz(phylogeny_df: pd.DataFrame):
+@pytest.mark.parametrize("parallel_backend", [None, "loky"])
+def test_fuzz(
+    phylogeny_df: pd.DataFrame, parallel_backend: typing.Optional[str]
+):
     if "origin_time" not in phylogeny_df.columns:
         phylogeny_df["origin_time"] = phylogeny_df["id"]
 
@@ -562,7 +682,8 @@ def test_fuzz(phylogeny_df: pd.DataFrame):
     original = phylogeny_df.copy()
 
     result_df = alifestd_mark_clade_logistic_growth_children_asexual(
-        phylogeny_df
+        phylogeny_df,
+        parallel_backend=parallel_backend,
     )
 
     # Confirm that the input dataframe is not mutated.
