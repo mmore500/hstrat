@@ -1,12 +1,10 @@
 import numpy as np
 import pandas as pd
 
-from hstrat._auxiliary_lib import (
-    alifestd_has_contiguous_ids,
-    alifestd_is_topologically_sorted,
-    alifestd_topological_sort,
-    alifestd_try_add_ancestor_id_col,
-)
+from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
+from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
+from ._alifestd_topological_sort import alifestd_topological_sort
+from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
 def alifestd_mask_descendants_asexual(
