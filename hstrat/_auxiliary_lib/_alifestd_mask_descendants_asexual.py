@@ -5,6 +5,35 @@ from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._jit import jit
+
+
+@jit(nopython=True)
+def alifestd_mask_descendants_asexual_fast_path(
+    ancestor_ids: np.ndarray,
+    ancestor_mask: np.ndarray,
+) -> np.ndarray:
+    """Implementation detail for `alifestd_mask_descendants_asexual`."""
+    for idx, ancestor_id in enumerate(ancestor_ids):
+        ancestor_mask[idx] = ancestor_mask[ancestor_id] | ancestor_mask[idx]
+
+    return ancestor_mask
+
+
+def alifestd_mask_descendants_asexual_slow_path(
+    phylogeny_df: pd.DataFrame,
+) -> pd.DataFrame:
+    phylogeny_df.index = phylogeny_df["id"]
+
+    for idx in phylogeny_df.index:
+        ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
+
+        phylogeny_df.at[idx, "alifestd_mask_descendants_asexual"] = (
+            phylogeny_df.at[ancestor_id, "alifestd_mask_descendants_asexual"]
+            | phylogeny_df.at[idx, "alifestd_mask_descendants_asexual"]
+        )
+
+    return phylogeny_df
 
 
 def alifestd_mask_descendants_asexual(
@@ -41,16 +70,12 @@ def alifestd_mask_descendants_asexual(
         phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
 
     if alifestd_has_contiguous_ids(phylogeny_df):
-        phylogeny_df.reset_index(drop=True, inplace=True)
-    else:
-        phylogeny_df.index = phylogeny_df["id"]
-
-    for idx in phylogeny_df.index:
-        ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
-
-        phylogeny_df.at[idx, "alifestd_mask_descendants_asexual"] = (
-            phylogeny_df.at[ancestor_id, "alifestd_mask_descendants_asexual"]
-            | phylogeny_df.at[idx, "alifestd_mask_descendants_asexual"]
+        phylogeny_df[
+            "alifestd_mask_descendants_asexual"
+        ] = alifestd_mask_descendants_asexual_fast_path(
+            phylogeny_df["ancestor_id"].to_numpy(),
+            phylogeny_df["alifestd_mask_descendants_asexual"].to_numpy(),
         )
-
-    return phylogeny_df
+        return phylogeny_df
+    else:
+        return alifestd_mask_descendants_asexual_slow_path(phylogeny_df)
