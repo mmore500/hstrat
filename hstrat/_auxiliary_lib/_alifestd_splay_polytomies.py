@@ -112,8 +112,9 @@ def alifestd_splay_polytomies(
     appendum_df = pd.DataFrame(new_rows.values())
     phylogeny_df = pd.concat([phylogeny_df, appendum_df], ignore_index=True)
 
-    phylogeny_df["ancestor_list"] = alifestd_make_ancestor_list_col(
-        phylogeny_df["id"], phylogeny_df["ancestor_id"]
-    )
+    if "ancestor_list" in phylogeny_df:
+        phylogeny_df["ancestor_list"] = alifestd_make_ancestor_list_col(
+            phylogeny_df["id"], phylogeny_df["ancestor_id"]
+        )
 
     return phylogeny_df.reset_index(drop=True)
