@@ -83,11 +83,18 @@ def alifestd_screen_trait_defined_clades_fisher_asexual(
         sister, "alifestd_screen_trait_defined_clades_fisher_asexual_present"
     ].values
 
-    return fisher_pvalue_npy(
-        a_true=trait_count_present,
-        a_false=trait_count_absent,
-        b_true=sister_trait_count_present,
-        b_false=sister_trait_count_absent,
+    sparse_mask = trait_count_present != 0
+
+    sparse_result = fisher_pvalue_npy(
+        a_true=trait_count_present[sparse_mask],
+        a_false=trait_count_absent[sparse_mask],
+        b_true=sister_trait_count_present[sparse_mask],
+        b_false=sister_trait_count_absent[sparse_mask],
     )[
         1
     ]  # one-tailed p-value
+
+    result = np.ones_like(mask_trait_absent, dtype=float)
+    result[sparse_mask] = sparse_result
+
+    return result

@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
@@ -11,6 +12,50 @@ from ._alifestd_mark_is_right_child_asexual import (
 from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._jit import jit
+
+
+@jit(nopython=True)
+def alifestd_mark_num_preceding_leaves_asexual_fast_path(
+    ancestor_ids: np.ndarray,
+    num_leaves: np.ndarray,
+    is_right_child: np.ndarray,
+) -> np.ndarray:
+    """Implementation detail for
+    `alifestd_mark_num_preceding_leaves_asexual`."""
+
+    num_preceding_leaves = np.zeros_like(ancestor_ids)
+    for idx, ancestor_id in enumerate(ancestor_ids):
+        num_preceding_leaves[idx] = (
+            num_preceding_leaves[ancestor_id]
+            + (num_leaves[ancestor_id] - num_leaves[idx]) * is_right_child[idx]
+        )
+
+    return num_preceding_leaves
+
+
+def alifestd_mark_num_preceding_leaves_asexual_slow_path(
+    phylogeny_df: pd.DataFrame,
+) -> pd.DataFrame:
+    """Implementation detail for
+    `alifestd_mark_num_preceding_leaves_asexual`."""
+
+    phylogeny_df.index = phylogeny_df["id"]
+
+    phylogeny_df["num_preceding_leaves"] = 0
+
+    for idx in phylogeny_df.index:
+        ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
+        phylogeny_df.at[idx, "num_preceding_leaves"] = (
+            phylogeny_df.at[ancestor_id, "num_preceding_leaves"]
+            + (
+                phylogeny_df.at[ancestor_id, "num_leaves"]
+                - phylogeny_df.at[idx, "num_leaves"]
+            )
+            * phylogeny_df.at[idx, "is_right_child"]
+        )
+
+    return phylogeny_df
 
 
 def alifestd_mark_num_preceding_leaves_asexual(
@@ -44,11 +89,6 @@ def alifestd_mark_num_preceding_leaves_asexual(
     if not alifestd_is_topologically_sorted(phylogeny_df):
         phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
 
-    if alifestd_has_contiguous_ids(phylogeny_df):
-        phylogeny_df.reset_index(drop=True, inplace=True)
-    else:
-        phylogeny_df.index = phylogeny_df["id"]
-
     if "num_leaves" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_num_leaves_asexual(
             phylogeny_df, mutate=True
@@ -59,17 +99,16 @@ def alifestd_mark_num_preceding_leaves_asexual(
             phylogeny_df, mutate=True
         )
 
-    phylogeny_df["num_preceding_leaves"] = 0
-
-    for idx in phylogeny_df.index:
-        ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
-        phylogeny_df.at[idx, "num_preceding_leaves"] = (
-            phylogeny_df.at[ancestor_id, "num_preceding_leaves"]
-            + (
-                phylogeny_df.at[ancestor_id, "num_leaves"]
-                - phylogeny_df.at[idx, "num_leaves"]
-            )
-            * phylogeny_df.at[idx, "is_right_child"]
+    if alifestd_has_contiguous_ids(phylogeny_df):
+        phylogeny_df[
+            "num_preceding_leaves"
+        ] = alifestd_mark_num_preceding_leaves_asexual_fast_path(
+            phylogeny_df["ancestor_id"].to_numpy(),
+            phylogeny_df["num_leaves"].to_numpy(),
+            phylogeny_df["is_right_child"].to_numpy(),
         )
-
-    return phylogeny_df
+        return phylogeny_df
+    else:
+        return alifestd_mark_num_preceding_leaves_asexual_slow_path(
+            phylogeny_df,
+        )

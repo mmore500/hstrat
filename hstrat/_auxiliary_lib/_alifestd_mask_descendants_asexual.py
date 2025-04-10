@@ -9,47 +9,47 @@ from ._jit import jit
 
 
 @jit(nopython=True)
-def alifestd_mark_num_leaves_asexual_fast_path(
+def alifestd_mask_descendants_asexual_fast_path(
     ancestor_ids: np.ndarray,
+    ancestor_mask: np.ndarray,
 ) -> np.ndarray:
-    """Implementation detail for `alifestd_mark_num_leaves_asexual`."""
+    """Implementation detail for `alifestd_mask_descendants_asexual`."""
+    for idx, ancestor_id in enumerate(ancestor_ids):
+        ancestor_mask[idx] = ancestor_mask[ancestor_id] | ancestor_mask[idx]
 
-    num_leaves = np.zeros_like(ancestor_ids)
-    for idx_r, ancestor_id in enumerate(ancestor_ids[::-1]):
-        idx = len(ancestor_ids) - 1 - idx_r
-        num_leaves[idx] = max(num_leaves[idx], 1)
-        if ancestor_id != idx:  # exclude genesis cases
-            num_leaves[ancestor_id] += num_leaves[idx]
-    return num_leaves
+    return ancestor_mask
 
 
-def alifestd_mark_num_leaves_asexual_slow_path(
+def alifestd_mask_descendants_asexual_slow_path(
     phylogeny_df: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Implementation detail for `alifestd_mark_num_leaves_asexual`."""
     phylogeny_df.index = phylogeny_df["id"]
 
-    phylogeny_df["num_leaves"] = 0
-
-    for idx in reversed(phylogeny_df.index):
+    for idx in phylogeny_df.index:
         ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
 
-        if phylogeny_df.at[idx, "num_leaves"] == 0:
-            phylogeny_df.at[idx, "num_leaves"] = 1
-
-        delta = phylogeny_df.at[idx, "num_leaves"]
-        if ancestor_id != idx:  # exclude genesis case
-            phylogeny_df.at[ancestor_id, "num_leaves"] += delta
+        phylogeny_df.at[idx, "alifestd_mask_descendants_asexual"] = (
+            phylogeny_df.at[ancestor_id, "alifestd_mask_descendants_asexual"]
+            | phylogeny_df.at[idx, "alifestd_mask_descendants_asexual"]
+        )
 
     return phylogeny_df
 
 
-def alifestd_mark_num_leaves_asexual(
+def alifestd_mask_descendants_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
+    *,
+    ancestor_mask: np.ndarray,
 ) -> pd.DataFrame:
-    """Add column `num_leaves` with count of all descendant leaves, including
-    self if a leaf.
+    """For given ancestor nodes, create a mask identifying those nodes and all
+    descendants.
+
+    Ancestral nodes are identified by `ancestor_mask` corresponding to rows
+    in `phylogeny_df`.
+
+    The mask is returned as a new column `alifestd_mask_descendants_asexual` in
+    the output DataFrame.
 
     A topological sort will be applied if `phylogeny_df` is not topologically
     sorted. Dataframe reindexing (e.g., df.index) may be applied.
@@ -64,15 +64,18 @@ def alifestd_mark_num_leaves_asexual(
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
 
+    phylogeny_df["alifestd_mask_descendants_asexual"] = ancestor_mask
+
     if not alifestd_is_topologically_sorted(phylogeny_df):
         phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
 
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df[
-            "num_leaves"
-        ] = alifestd_mark_num_leaves_asexual_fast_path(
-            phylogeny_df["ancestor_id"].to_numpy()
+            "alifestd_mask_descendants_asexual"
+        ] = alifestd_mask_descendants_asexual_fast_path(
+            phylogeny_df["ancestor_id"].to_numpy(),
+            phylogeny_df["alifestd_mask_descendants_asexual"].to_numpy(),
         )
         return phylogeny_df
     else:
-        return alifestd_mark_num_leaves_asexual_slow_path(phylogeny_df)
+        return alifestd_mask_descendants_asexual_slow_path(phylogeny_df)
