@@ -35,6 +35,29 @@ class HereditaryStratigraphicSurface:
     # stores the actual downstream surface
     _surface: dsurf.Surface[int]
 
+    @staticmethod
+    def from_hex(
+        hex_string: str,
+        dstream_storage_bitoffset: int,
+        dstream_storage_bitwidth: int,
+        dstream_T_bitoffset: int,
+        dstream_T_bitwidth: int,
+        dstream_S: int,
+    ) -> "HereditaryStratigraphicSurface":
+        return HereditaryStratigraphicSurface(
+            dsurf.Surface.from_hex(
+                hex_string,
+                dstream_storage_bitoffset,
+                dstream_storage_bitwidth,
+                dstream_T_bitoffset,
+                dstream_T_bitwidth,
+                dstream_S,
+            )
+        )
+
+    def to_hex(self) -> str:
+        return self._surface.to_hex(self._differentia_bit_width)
+
     def __init__(
         self: "HereditaryStratigraphicSurface",
         dstream_surface: dsurf.Surface[int],
