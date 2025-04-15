@@ -22,7 +22,8 @@ def alifestd_mark_ot_mrca_asexual(
     giving information about mrca of extant organisms at organism `origin_time`.
 
     A chronological sort will be applied if `phylogeny_df` is not
-    chronologically sorted. Reindexing may be applied.
+    chronologically sorted. Dataframe reindexing (e.g., df.index) may be
+    applied.
 
     Input dataframe is not mutated by this operation unless `mutate` set True.
     If mutate set True, operation does not occur in place; still use return

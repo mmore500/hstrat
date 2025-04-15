@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import typing
 
 import pandas as pd
@@ -12,7 +12,10 @@ from hstrat._auxiliary_lib import (
     alifestd_try_add_ancestor_id_col,
 )
 
-dt_epoch = datetime.utcfromtimestamp
+
+# see https://blog.miguelgrinberg.com/post/it-s-time-for-a-change-datetime-utcnow-is-now-deprecated
+def dt_epoch(ts: int) -> datetime:
+    return datetime.fromtimestamp(ts, tz=timezone.utc).replace(tzinfo=None)
 
 
 def _is_chronological_inconsistency(

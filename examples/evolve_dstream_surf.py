@@ -5,6 +5,7 @@ import functools
 import gc
 import os
 import random
+import sys
 import types
 import typing
 import uuid
@@ -16,6 +17,8 @@ import opytional as opyt
 import pandas as pd
 from tqdm import tqdm
 
+from hstrat._auxiliary_lib import RngStateContext
+
 try:
     from phylotrackpy import systematics
 except (ImportError, ModuleNotFoundError) as e:
@@ -23,33 +26,90 @@ except (ImportError, ModuleNotFoundError) as e:
     print("python3 -m pip install phylotrackpy")
     raise e
 
+evolution_selector = random.Random(1)  # ensure consistent true phylogeny
 
-def make_uuid4_fast() -> str:
+
+def consistent_state_randrange(bitwidth: int):
+    """A wrapper for randrange that preserves state regardless of bitwidth
+
+    Motivation: the random state after randrange(2**64) was different
+    than that of randrange(2**8), and we wanted to keep things like
+    extracted fossils and generated UUIDs consistent between runs
+    regardless of parameters like `differentia_bitwidth`. Therefore,
+    we use this to avoid random state changing differently across runs.
+    """
+    return random.randrange(2**64) & ((1 << bitwidth) - 1)
+
+
+def make_uuid4_fast(
+    random_generator: typing.Union[types.ModuleType, random.Random]
+) -> str:
     """Fast UUID4 generator, using lower-quality randomness."""
-    return str(uuid.UUID(int=random.getrandbits(128), version=4))
+    return str(
+        uuid.UUID(
+            int=random_generator.getrandbits(128),
+            version=4,
+        )
+    )
 
 
-def evolve_drift(population: typing.List) -> typing.List:
-    """Simple asexual evolutionary algorithm under drift conditions."""
-    selector = random.Random(1)  # ensure consistent true phylogeny
+def extract_fossils(
+    pop: typing.List,
+    fossil_sample_proportion: float = 0.1,
+) -> typing.List:
+    """
+    We extract CreateOffspring() instead of the parent itself, becauase
+    parents with surviving children are not treated as leaf nodes by
+    phylotrackpy; this simplifies true/reconst phylo comparison
+    """
+    return [
+        parent.CreateOffspring(fossil=True)
+        for parent in random.sample(
+            pop,
+            k=int(len(pop) * fossil_sample_proportion),
+        )
+    ]
 
+
+def evolve_drift(
+    population: typing.List,
+    fossil_interval: typing.Optional[int] = None,
+) -> typing.List:
+    """
+    Simple asexual evolutionary algorithm under drift conditions.
+    Fossils refer to organisms saved in the middle of the process
+    of evolution, when normally they would have been deleted for
+    the next generation. Fossils supplement the final population
+    to add a sampling of historical, extinct taxa as phylogeny tips.
+    """
     # synchronous generations
+    fossils = []
     for generation in tqdm(range(500)):
         population = [
             parent.CreateOffspring()
-            for parent in selector.choices(population, k=len(population))
+            for parent in evolution_selector.choices(
+                population, k=len(population)
+            )
         ]
+        if fossil_interval and generation % fossil_interval == 0:
+            with RngStateContext(random.randint(1, sys.maxsize)):
+                fossils.extend(extract_fossils(population))
 
     # asyncrhonous generations
     nsplit = len(population) // 2
     for generation in tqdm(range(500)):
         population[:nsplit] = [
             parent.CreateOffspring()
-            for parent in selector.choices(population[:nsplit], k=nsplit)
+            for parent in evolution_selector.choices(
+                population[:nsplit], k=nsplit
+            )
         ]
-        selector.shuffle(population)
+        if fossil_interval and generation % fossil_interval == 0:
+            with RngStateContext(random.randint(1, sys.maxsize)):
+                fossils.extend(extract_fossils(population))
+        evolution_selector.shuffle(population)
 
-    return population
+    return [*fossils, *population]
 
 
 def make_Organism(
@@ -58,7 +118,10 @@ def make_Organism(
     surface_size: int,
     syst: systematics.Systematics,
 ) -> typing.Type:
-    """Factory function to configure Organism class."""
+    """
+    Factory function to configure Organism class using `differentia_bitwidth`
+    and `surface_size`, with `syst` to track phylogenies.
+    """
 
     surf_dtype = {
         1: np.uint8,
@@ -83,6 +146,7 @@ def make_Organism(
             "taxon",
             "dstream_T",
             "hstrat_surface",
+            "is_fossil",
         ]
 
         # primary simulation business --- arbitrary data in this simple example
@@ -96,16 +160,20 @@ def make_Organism(
         dstream_T: int
         hstrat_surface: np.ndarray
 
+        # keep track of whether or not this Organism is a fossil
+        is_fossil: bool
+
         @staticmethod
         def create_founder() -> "Organism":
             """Create a founder organism, with hstrat surface initailized."""
             founder = None
-            for T in range(surface_size):
-                founder = opyt.apply_if_or_else(
-                    founder,
-                    Organism.CreateOffspring,
-                    Organism,
-                )
+            with RngStateContext(random.randint(1, sys.maxsize)):
+                for T in range(surface_size):
+                    founder = opyt.apply_if_or_else(
+                        founder,
+                        lambda x: x.CreateOffspring(fossil=True),
+                        Organism,
+                    )
             assert founder.dstream_T == surface_size
             return founder
 
@@ -115,6 +183,7 @@ def make_Organism(
             parent_hstrat_surface: np.ndarray = empty_surface,
             parent_dstream_T: int = 0,
             trait: float = 0.0,
+            is_fossil: bool = False,
         ) -> None:
             """Initialize organism, by default as root organism."""
             # handle primary simulation business...
@@ -123,21 +192,29 @@ def make_Organism(
             )
 
             # handle phylotrackpy instrumentation...
-            self.uid = make_uuid4_fast()
+            self.uid = make_uuid4_fast(
+                random if is_fossil else evolution_selector
+            )
             self.taxon = syst.add_org(self, parent_taxon)
 
             # handle hstrat surface instrumentation...
             self.hstrat_surface = parent_hstrat_surface.copy()
             # ... deposit stratum...
-            differentia_value = random.randrange(2**differentia_bitwidth)
+            # hack to avoid varying ranges give different random states
+            differentia_value = consistent_state_randrange(
+                bitwidth=differentia_bitwidth
+            )
             self.DepositStratum(differentia_value, parent_dstream_T)
             self.dstream_T = parent_dstream_T + 1
+            self.is_fossil = is_fossil
 
         def __del__(self: "Organism") -> None:
             """Remove organism from phylotrackpy systematics."""
             syst.remove_org(self.taxon)
 
-        def CreateOffspring(self: "Organism") -> "Organism":
+        def CreateOffspring(
+            self: "Organism", *, fossil: bool = False
+        ) -> "Organism":
             """Create an offspring organism, with mutation and
             generation-updated instrumentation."""
             return Organism(
@@ -145,6 +222,7 @@ def make_Organism(
                 parent_hstrat_surface=self.hstrat_surface.copy(),
                 parent_dstream_T=self.dstream_T,
                 trait=self.trait + np.random.uniform(-1, 1),
+                is_fossil=fossil,
             )
 
         def DepositStratum(
@@ -194,6 +272,7 @@ def make_Organism(
                 "dstream_T_bitwidth": 32,
                 "dstream_S": surface_size,
                 "trait": self.trait,
+                "is_fossil": self.is_fossil,
             }
 
     return Organism
@@ -206,15 +285,20 @@ def make_validation_record(
     validator_exploded: str,
     validator_unpacked: str,
 ) -> dict:
-    """Generate ephemeral validation data for quality assurance."""
+    """
+    Generate ephemeral validation data for quality assurance. This
+    helps ensure data is being written and read in the proper format
+    in case of different endianness or other scenarios.
+    """
     organism = None
-    for T in range(n_gen):
-        organism = opyt.apply_if_or_else(
-            organism,
-            Organism.CreateOffspring,
-            Organism,
-        )
-        organism.DepositStratum(differentia_override(T), T)
+    with RngStateContext(random.randint(1, sys.maxsize)):
+        for T in range(n_gen):
+            organism = opyt.apply_if_or_else(
+                organism,
+                Organism.CreateOffspring,
+                Organism,
+            )
+            organism.DepositStratum(differentia_override(T), T)
 
     return {
         **organism.ToRecord(),
@@ -238,6 +322,10 @@ def _parse_args() -> argparse.Namespace:
         "--phylo-df-path",
         type=str,
         default="/tmp/phylo-evolve_surf_dstream.csv",
+    )
+    parser.add_argument(
+        "--fossil-interval",
+        type=int,
     )
 
     args = parser.parse_args()
@@ -270,8 +358,8 @@ def _get_df_save_handler(path: str) -> typing.Callable:
 
 
 if __name__ == "__main__":
-    np.random.seed(1)  # ensure reproducibility
-    random.seed(1)
+    np.random.seed(2)  # ensure reproducibility
+    random.seed(2)
 
     args = _parse_args()
 
@@ -288,12 +376,17 @@ if __name__ == "__main__":
     # do simulation
     common_ancestor = Organism.create_founder()
     init_population = [common_ancestor.CreateOffspring() for _ in range(100)]
-    end_population = evolve_drift(init_population)
+    sampled_genomes = evolve_drift(
+        init_population, fossil_interval=args.fossil_interval
+    )
 
     # mark non-tip taxa extinct
     del common_ancestor
     del init_population
     gc.collect()
+
+    print("num organisms retained in exact tracker:", syst.get_total_orgs())
+    print("final population size:", len(sampled_genomes))
 
     # set up validators to test during downstream processing
     S = args.surface_size
@@ -306,7 +399,7 @@ if __name__ == "__main__":
 
     # write out the final population, including hstrat surface data
     genome_records = [
-        *map(Organism.ToRecord, end_population),  # experiment data
+        *map(Organism.ToRecord, sampled_genomes),  # experiment data
         make_validation_record(  # ephemeral validation data
             Organism=Organism,
             n_gen=S,
