@@ -3,7 +3,7 @@ import typing
 from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 
 
-@typing.overload
+@typing.overload  # type-hinting helper --- no runtime side-effects
 def iter_mutual_ranks(
     first: HereditaryStratigraphicArtifact,
     second: HereditaryStratigraphicArtifact,
@@ -13,7 +13,7 @@ def iter_mutual_ranks(
 ) -> typing.Iterator[int]: ...
 
 
-@typing.overload
+@typing.overload  # type-hinting helper --- no runtime side-effects
 def iter_mutual_ranks(
     first: HereditaryStratigraphicArtifact,
     second: HereditaryStratigraphicArtifact,
@@ -24,7 +24,7 @@ def iter_mutual_ranks(
 ) -> typing.Iterator[int]: ...
 
 
-@typing.overload
+@typing.overload  # type-hinting helper --- no runtime side-effects
 def iter_mutual_ranks(
     first: HereditaryStratigraphicArtifact,
     second: HereditaryStratigraphicArtifact,
@@ -35,7 +35,7 @@ def iter_mutual_ranks(
 ) -> typing.Iterator[typing.Tuple[int, bool]]: ...
 
 
-@typing.overload
+@typing.overload  # type-hinting helper --- no runtime side-effects
 def iter_mutual_ranks(
     first: HereditaryStratigraphicArtifact,
     second: HereditaryStratigraphicArtifact,
