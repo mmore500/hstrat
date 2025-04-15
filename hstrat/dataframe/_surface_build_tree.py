@@ -122,7 +122,7 @@ def surface_build_tree(
 
         Note that the alife-standard `ancestor_list` column is not included in
         the output.
-        """
+    """
     logging.info("surface_build_tree begin")
 
     logging.info("surface_build_tree running surface_unpack_reconstruct...")

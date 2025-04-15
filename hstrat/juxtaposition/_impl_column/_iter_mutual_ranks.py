@@ -10,7 +10,8 @@ def iter_mutual_ranks(
     *,
     first_start_idx: int = 0,
     second_start_idx: int = 0,
-) -> typing.Iterator[int]: ...
+) -> typing.Iterator[int]:
+    ...
 
 
 @typing.overload  # type-hinting helper --- no runtime side-effects
@@ -21,7 +22,8 @@ def iter_mutual_ranks(
     *,
     first_start_idx: int = 0,
     second_start_idx: int = 0,
-) -> typing.Iterator[int]: ...
+) -> typing.Iterator[int]:
+    ...
 
 
 @typing.overload  # type-hinting helper --- no runtime side-effects
@@ -32,7 +34,8 @@ def iter_mutual_ranks(
     *,
     first_start_idx: int = 0,
     second_start_idx: int = 0,
-) -> typing.Iterator[typing.Tuple[int, bool]]: ...
+) -> typing.Iterator[typing.Tuple[int, bool]]:
+    ...
 
 
 @typing.overload  # type-hinting helper --- no runtime side-effects
@@ -43,7 +46,8 @@ def iter_mutual_ranks(
     *,
     first_start_idx: int = 0,
     second_start_idx: int = 0,
-) -> typing.Iterator[typing.Union[typing.Tuple[int, bool], int]]: ...
+) -> typing.Iterator[typing.Union[typing.Tuple[int, bool], int]]:
+    ...
 
 
 def iter_mutual_ranks(

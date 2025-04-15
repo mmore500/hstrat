@@ -30,7 +30,9 @@ def dispatch_impl(first: object, second: object) -> types.ModuleType:
         HereditaryStratigraphicColumn or HereditaryStratigraphicSpecimen.
     """
     assert type(first) == type(second)
-    if isinstance(first, (HereditaryStratigraphicColumn, HereditaryStratigraphicSurface)):
+    if isinstance(
+        first, (HereditaryStratigraphicColumn, HereditaryStratigraphicSurface)
+    ):
         return _impl_column
     elif isinstance(first, HereditaryStratigraphicSpecimen):
         return _impl_specimen
