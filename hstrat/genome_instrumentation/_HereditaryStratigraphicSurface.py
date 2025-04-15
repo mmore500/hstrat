@@ -62,6 +62,10 @@ class HereditaryStratigraphicSurface:
     def S(self):
         return self._surface.S
 
+    @property
+    def T(self):
+        return self._surface.T
+
     def __eq__(
         self: "HereditaryStratigraphicSurface",
         other: typing.Any,
@@ -223,7 +227,8 @@ class HereditaryStratigraphicSurface:
         among retained strata? Index order is from most ancient (index 0) to
         most recent.
         """
-        return [*self._surface.lookup(include_empty=True)][index]
+        r = [*self._surface.lookup(include_empty=True)][index]
+        return r if r is None else r - self._surface.S
 
     def GetRankAtColumnIndex(
         self: "HereditaryStratigraphicSurface",
@@ -248,7 +253,7 @@ class HereditaryStratigraphicSurface:
         within the store.
         """
         for i, r in enumerate(self._surface.lookup(include_empty=True)):
-            if r is not None and r == rank:
+            if r is not None and r == rank + self._surface.S:
                 return i
         return None
 
