@@ -87,7 +87,7 @@ def surface_build_tree(
 
         Must take `trie` of type `pandas.DataFrame`,
         `p_differentia_collision` of type `float`, `mutate` of type `bool`, and
-        `progress_wrap` of type `Callable` params. Must returned postprocessed
+        `progress_wrap` of type `Callable` params. Must return postprocessed
         trie (type `pd.DataFrame`).
 
         To apply multiple postprocessors, use
@@ -107,12 +107,12 @@ def surface_build_tree(
         - 'hstrat_rank_from_t0' : pl.UInt64
             - Num generations elapsed for ancestral differentia.
             - Corresponds to `dstream_Tbar` - `dstream_S` for inner nodes.
-            - Corresponds `dstream_T` - 1 - `dstream_S` for leaf nodes
+            - Corresponds to `dstream_T` - 1 - `dstream_S` for leaf nodes.
 
         Optional schema:
         - 'origin_tme' : pl.UInt64
             - Estimated origin time for phylogeny nodes, in generations elapsed
-              since fouding ancestor.
+              since founding ancestor.
 
               Value depends on the trie postprocessor used.
 
@@ -121,7 +121,8 @@ def surface_build_tree(
         included.
 
         Note that the alife-standard `ancestor_list` column is not included in
-        the output."""
+        the output.
+        """
     logging.info("surface_build_tree begin")
 
     logging.info("surface_build_tree running surface_unpack_reconstruct...")
