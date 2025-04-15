@@ -213,6 +213,18 @@ class HereditaryStratigraphicSurface:
                 return s
         return None
 
+    def GetRankAtStorageIndex(
+        self: "HereditaryStratigraphicSurface",
+        index: int,
+    ) -> typing.Optional[int]:
+        """Map column position to generation of deposition.
+
+        What is the deposition rank of the stratum positioned at index i
+        among retained strata? Index order is from most ancient (index 0) to
+        most recent.
+        """
+        return [*self._surface.lookup(include_empty=True)][index]
+
     def GetRankAtColumnIndex(
         self: "HereditaryStratigraphicSurface",
         index: int,
@@ -224,6 +236,21 @@ class HereditaryStratigraphicSurface:
         most recent.
         """
         return [*self.IterRetainedRanks()][index]
+
+    def GetStorageIndexOfRank(
+        self: "HereditaryStratigraphicSurface",
+        rank: int,
+    ) -> typing.Optional[int]:
+        """Map generation of deposition to position within surface storage.
+
+        What is the surface position within retained strata of the stratum
+        deposited at rank r? Returns None if no stratum with rank r is present
+        within the store.
+        """
+        for i, r in enumerate(self._surface.lookup(include_empty=True)):
+            if r is not None and r == rank:
+                return i
+        return None
 
     def GetColumnIndexOfRank(
         self: "HereditaryStratigraphicSurface",
