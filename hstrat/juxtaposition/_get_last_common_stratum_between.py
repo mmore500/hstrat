@@ -1,7 +1,5 @@
 import typing
 
-from iterpop import iterpop as ip
-
 from ..genome_instrumentation import (
     HereditaryStratigraphicColumn,
     HereditaryStratigraphicSurface,
