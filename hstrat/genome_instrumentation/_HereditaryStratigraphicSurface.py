@@ -97,7 +97,8 @@ class HereditaryStratigraphicSurface:
         The hex layout used is:
 
             0x...
-              ########**************************************************        ^                                                    ^
+              ########**************************************************
+              ^                                                    ^
            dstream_T, length = `dstream_T_bitwidth` / 4            |
                                                                    |
               dstream_storage, length = `item_bitwidth` / 4 * dstream_S
