@@ -85,10 +85,6 @@ class HereditaryStratigraphicSurface:
     def S(self):
         return self._surface.S
 
-    @property
-    def T(self):
-        return self._surface.T
-
     def __eq__(
         self: "HereditaryStratigraphicSurface",
         other: typing.Any,
