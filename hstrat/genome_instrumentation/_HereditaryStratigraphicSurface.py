@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 import random
+import types
 import typing
 
 from downstream import dsurf
@@ -30,6 +31,8 @@ class HereditaryStratigraphicSurface:
     @staticmethod
     def from_hex(
         hex_string: str,
+        algo: types.ModuleType,
+        *,
         dstream_storage_bitoffset: int,
         dstream_storage_bitwidth: int,
         dstream_T_bitoffset: int,
@@ -39,16 +42,20 @@ class HereditaryStratigraphicSurface:
         return HereditaryStratigraphicSurface(
             dsurf.Surface.from_hex(
                 hex_string,
-                dstream_storage_bitoffset,
-                dstream_storage_bitwidth,
-                dstream_T_bitoffset,
-                dstream_T_bitwidth,
-                dstream_S,
+                algo,
+                storage_bitoffset=dstream_storage_bitoffset,
+                storage_bitwidth=dstream_storage_bitwidth,
+                T_bitoffset=dstream_T_bitoffset,
+                T_bitwidth=dstream_T_bitwidth,
+                S=dstream_S,
             )
         )
 
-    def to_hex(self) -> str:
-        return self._surface.to_hex(self._differentia_bit_width)
+    def to_hex(self, *, dstream_T_bitwidth: int = 32) -> str:
+        return self._surface.to_hex(
+            item_bitwidth=self._differentia_bit_width,
+            T_bitwidth=dstream_T_bitwidth,
+        )
 
     def __init__(
         self: "HereditaryStratigraphicSurface",
