@@ -85,7 +85,7 @@ class HereditaryStratigraphicSurface:
                 storage_bitwidth=dstream_storage_bitwidth,
                 T_bitoffset=dstream_T_bitoffset,
                 T_bitwidth=dstream_T_bitwidth,
-            )
+            ),
         )
 
     def to_hex(self, *, dstream_T_bitwidth: int = 32) -> str:
@@ -211,10 +211,7 @@ class HereditaryStratigraphicSurface:
         invalidation, although subsequent updates will not be reflected in the
         iterator.
         """
-        return (
-            T - self._surface.S
-            for T in sorted(self._surface.lookup(include_empty=False))
-        )
+        return (r for r, __ in self.IterRankDifferentiaZip())
 
     def IterRetainedStrata(
         self: "HereditaryStratigraphicSurface",
@@ -225,13 +222,11 @@ class HereditaryStratigraphicSurface:
         return (
             HereditaryStratum(
                 annotation=None,
-                deposition_rank=t - self._surface.S,
+                deposition_rank=r,
                 differentia_bit_width=self._differentia_bit_width,
-                differentia=v,
+                differentia=d,
             )
-            for t, v in sorted(
-                self._surface.lookup_zip_items(include_empty=False)
-            )
+            for r, d in self.IterRankDifferentiaZip()
         )
 
     def IterRetainedDifferentia(
@@ -241,12 +236,7 @@ class HereditaryStratigraphicSurface:
 
         Differentia yielded from most ancient to most recent.
         """
-        return (
-            v
-            for _, v in sorted(
-                self._surface.lookup_zip_items(include_empty=False)
-            )
-        )
+        return (d for __, d in self.IterRankDifferentiaZip())
 
     def IterRankDifferentiaZip(
         self: "HereditaryStratigraphicSurface",
@@ -260,15 +250,13 @@ class HereditaryStratigraphicSurface:
         Equivalent to `zip(col.IterRetainedRanks(),
         col.IterRetainedDifferentia())`, but may be more efficient.
         """
-        res = (
-            (t - self._surface.S, v)
-            for t, v in sorted(
-                self._surface.lookup_zip_items(include_empty=False)
-            )
+
+        return iter(
+            sorted(
+                (T - self._surface.S, v)
+                for T, v in self._surface.lookup_zip_items(include_empty=False)
+            ),
         )
-        if copyable:
-            return iter([*res])
-        return res
 
     def HasAnyAnnotations(
         self: "HereditaryStratigraphicSurface",
