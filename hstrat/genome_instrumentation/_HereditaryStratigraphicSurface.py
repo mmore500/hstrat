@@ -7,14 +7,6 @@ import typing
 from downstream import dsurf
 
 from ._HereditaryStratum import HereditaryStratum
-from .stratum_ordered_stores._detail import HereditaryStratumOrderedStoreBase
-
-# define type alias for ordered stores
-OrderedStore = typing.Union[
-    typing.Callable[..., HereditaryStratumOrderedStoreBase],
-    typing.Tuple[HereditaryStratumOrderedStoreBase, int],
-    None,
-]
 
 
 class HereditaryStratigraphicSurface:
