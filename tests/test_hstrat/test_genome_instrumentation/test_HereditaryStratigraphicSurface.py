@@ -392,6 +392,7 @@ def test_StorageIndex():
 @pytest.mark.parametrize("n", [1, 5, 25, 100])
 def test_GetNumStrataDiscarded(algo: types.ModuleType, S: int, n: int):
     surf = hstrat.HereditaryStratigraphicSurface(dsurf.Surface(algo, S))
+    assert not surf.HasDiscardedStrata()
     surf.DepositStrata(n)
     assert surf.HasDiscardedStrata()
     assert surf.GetNumDiscardedStrata() == n
