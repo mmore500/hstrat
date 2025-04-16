@@ -2,7 +2,10 @@ import types
 
 from .. import _impl_column, _impl_specimen
 from ...frozen_instrumentation import HereditaryStratigraphicSpecimen
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ...genome_instrumentation import (
+    HereditaryStratigraphicColumn,
+    HereditaryStratigraphicSurface,
+)
 
 
 def dispatch_impl(first: object, second: object) -> types.ModuleType:
@@ -27,7 +30,9 @@ def dispatch_impl(first: object, second: object) -> types.ModuleType:
         HereditaryStratigraphicColumn or HereditaryStratigraphicSpecimen.
     """
     assert type(first) == type(second)
-    if isinstance(first, HereditaryStratigraphicColumn):
+    if isinstance(
+        first, (HereditaryStratigraphicColumn, HereditaryStratigraphicSurface)
+    ):
         return _impl_column
     elif isinstance(first, HereditaryStratigraphicSpecimen):
         return _impl_specimen

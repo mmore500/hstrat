@@ -9,15 +9,17 @@ __getattr__, __dir__, __all__ = lazy_attach(
     submod_attrs={
         "stratum_ordered_stores": stratum_ordered_stores.__all__,
         "_HereditaryStratigraphicColumn": ["HereditaryStratigraphicColumn"],
-        "_HereditaryStratum": ["HereditaryStratum"],
         "_HereditaryStratigraphicColumnBundle": [
             "HereditaryStratigraphicColumnBundle",
         ],
+        "_HereditaryStratigraphicSurface": ["HereditaryStratigraphicSurface"],
+        "_HereditaryStratum": ["HereditaryStratum"],
     },
     should_launder=[
         "HereditaryStratigraphicColumn",
-        "HereditaryStratum",
         "HereditaryStratigraphicColumnBundle",
+        "HereditaryStratigraphicSurface",
+        "HereditaryStratum",
     ].__contains__,
 )
 del lazy_attach

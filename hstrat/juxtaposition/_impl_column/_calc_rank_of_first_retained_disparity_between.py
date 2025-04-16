@@ -1,5 +1,6 @@
 import typing
 
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ...genome_instrumentation import (
     HereditaryStratigraphicColumn,
     HereditaryStratumOrderedStoreList,
@@ -13,8 +14,8 @@ from ._calc_rank_of_first_retained_disparity_between_generic import (
 
 
 def calc_rank_of_first_retained_disparity_between(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
     confidence_level: float,
 ) -> typing.Optional[int]:
     """Find first mismatching strata between columns.
@@ -25,7 +26,9 @@ def calc_rank_of_first_retained_disparity_between(
     """
 
     if (
-        first.HasDiscardedStrata()
+        not isinstance(first, HereditaryStratigraphicColumn)
+        or not isinstance(second, HereditaryStratigraphicColumn)
+        or first.HasDiscardedStrata()
         or second.HasDiscardedStrata()
         # for performance reasons
         # only apply binary search to stores that support random access
@@ -35,7 +38,8 @@ def calc_rank_of_first_retained_disparity_between(
         )
         or not hasattr(second, "_stratum_ordered_store")
         or not isinstance(
-            second._stratum_ordered_store, HereditaryStratumOrderedStoreList
+            second._stratum_ordered_store,
+            HereditaryStratumOrderedStoreList,
         )
         # binary search currently requires no spurious collisions
         or first.GetStratumDifferentiaBitWidth() < 64

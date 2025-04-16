@@ -1,7 +1,7 @@
 from collections import deque
 import typing
 
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from .._calc_min_implausible_spurious_consecutive_differentia_collisions_between import (
     calc_min_implausible_spurious_consecutive_differentia_collisions_between,
 )
@@ -11,8 +11,8 @@ from ._iter_ranks_of_retained_commonality_between import (
 
 
 def calc_rank_of_last_retained_commonality_between_generic(
-    first: HereditaryStratigraphicColumn,
-    second: HereditaryStratigraphicColumn,
+    first: HereditaryStratigraphicArtifact,
+    second: HereditaryStratigraphicArtifact,
     *,
     first_start_idx: int = 0,
     second_start_idx: int = 0,
@@ -53,5 +53,4 @@ def calc_rank_of_last_retained_commonality_between_generic(
     else:
         # discount collision_implausibility_threshold - 1 common strata
         # as potential spurious differentia collisions
-        assert preceding_common_strata_ranks[0] >= 0
         return preceding_common_strata_ranks[0]

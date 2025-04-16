@@ -12,6 +12,10 @@ anytree==2.12.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
+appnope==0.1.4
+    # via
+    #   ipykernel
+    #   ipython
 asttokens==2.4.1
     # via stack-data
 attrs==24.2.0
@@ -91,7 +95,7 @@ docutils==0.21.2
     #   readme-renderer
     #   sphinx
     #   sphinx-rtd-theme
-downstream==1.6.12
+downstream==1.12.0
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
