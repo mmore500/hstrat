@@ -153,7 +153,10 @@ class HereditaryStratigraphicSurface:
         """
         self._surface = dstream_surface
         self._differentia_bit_width = stratum_differentia_bit_width
-        self.DepositStrata(self._surface.S)
+        if dstream_surface.T == 0:
+            self.DepositStrata(self._surface.S)
+        elif dstream_surface.T < self._surface.S:
+            raise ValueError("Partially-initialized Surface provided.")
 
     @property
     def S(self):
