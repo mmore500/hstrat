@@ -270,7 +270,7 @@ class HereditaryStratigraphicSurface:
         May be fewer than the number of strata deposited if strata have been
         discarded as part of the configured stratum retention policy.
         """
-        return len([*self._surface.lookup(include_empty=False)])
+        return min(self._surface.T, self._surface.S)
 
     def GetNumStrataDeposited(self: "HereditaryStratigraphicSurface") -> int:
         """How many strata have been depostited on the column?
