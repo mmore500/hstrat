@@ -110,7 +110,7 @@ def surface_build_tree(
             - Corresponds to `dstream_T` - 1 - `dstream_S` for leaf nodes.
 
         Optional schema:
-        - 'origin_tme' : pl.UInt64
+        - 'origin_time' : pl.UInt64
             - Estimated origin time for phylogeny nodes, in generations elapsed
               since founding ancestor.
 
@@ -122,7 +122,7 @@ def surface_build_tree(
 
         Note that the alife-standard `ancestor_list` column is not included in
         the output.
-        """
+    """
     logging.info("surface_build_tree begin")
 
     logging.info("surface_build_tree running surface_unpack_reconstruct...")
