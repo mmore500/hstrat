@@ -31,27 +31,98 @@ class HereditaryStratigraphicSurface:
     @staticmethod
     def from_hex(
         hex_string: str,
-        algo: types.ModuleType,
+        dstream_algo: types.ModuleType,
         *,
+        dstream_S: int,
         dstream_storage_bitoffset: int,
         dstream_storage_bitwidth: int,
         dstream_T_bitoffset: int,
         dstream_T_bitwidth: int,
-        dstream_S: int,
     ) -> "HereditaryStratigraphicSurface":
+        """
+        Deserialize a HereditaryStratigraphicSurface object from a hex string
+        representation.
+
+        Hex string representation needs exactly two contiguous parts:
+        1. dstream_T (which is the number of depositions elapsed), and
+        2. dstream_storage (which holds all the stored differentiae).
+
+        Data in hex string representation should use big-endian byte order.
+
+        Parameters
+        ----------
+        hex_string: str
+            Hex string to be parsed, which can be uppercase or lowercase.
+        dstream_algo: module
+            Dstream algorithm for curation of retained differentia.
+        dstream_storage_bitoffset: int
+            Number of bits before the storage.
+        dstream_storage_bitwidth: int
+            Number of bits used for storage.
+        dstream_T_bitoffset: int
+            Number of bits before dstream_T.
+        dstream_T_bitwidth: int
+            Number of bits used to store dstream_T.
+        dstream_S: int
+            Number of buffer sites available to store differentiae.
+
+            Determines how many differentiae are unpacked from storage.
+
+        See Also
+        --------
+        HereditaryStratigraphicSurface.to_hex()
+            Serialize a surface into a hex string.
+        """
         return HereditaryStratigraphicSurface(
             dsurf.Surface.from_hex(
                 hex_string,
-                algo,
+                dstream_algo,
+                S=dstream_S,
                 storage_bitoffset=dstream_storage_bitoffset,
                 storage_bitwidth=dstream_storage_bitwidth,
                 T_bitoffset=dstream_T_bitoffset,
                 T_bitwidth=dstream_T_bitwidth,
-                S=dstream_S,
             )
         )
 
     def to_hex(self, *, dstream_T_bitwidth: int = 32) -> str:
+        """
+        Serialize a HereditaryStratigraphicSurface object into a hex string
+        representation.
+
+        Serialized data comprises two components:
+            1. dstream_T (the number of depositions elapsed) and
+            2. dstream_storage (binary data of differentia values).
+
+        The hex layout used is:
+
+            0x...
+              ########**************************************************        ^                                                    ^
+           dstream_T, length = `dstream_T_bitwidth` / 4            |
+                                                                   |
+              dstream_storage, length = `item_bitwidth` / 4 * dstream_S
+
+        This hex string can be reconstituted into a
+        HereditaryStratigraphicSurface object by calling
+        `HereditaryStratigraphicSurface.from_hex()` with the following
+        parameters:
+            - `dstream_T_bitoffset` = 0
+            - `dstream_T_bitwidth` = `dstream_T_bitwidth`
+            - `dstream_storage_bitoffset` = `dstream_T_bitwidth`
+            - `dstream_storage_bitwidth` = `self.S * item_bitwidth`
+
+        Parameters
+        ----------
+        item_bitwidth: int
+            Number of storage bits used per differentia.
+        dstream_T_bitwidth: int, default 32
+            Number of bits used to store count of elapsed depositions.
+
+        See Also
+        --------
+        Surface.from_hex()
+            Deserialize a surface from a hex string.
+        """
         return self._surface.to_hex(
             item_bitwidth=self._differentia_bit_width,
             T_bitwidth=dstream_T_bitwidth,
@@ -82,12 +153,14 @@ class HereditaryStratigraphicSurface:
 
     @property
     def S(self):
+        """Number of buffer sites available to store differentiae."""
         return self._surface.S
 
     def __eq__(
         self: "HereditaryStratigraphicSurface",
         other: typing.Any,
     ) -> bool:
+        """Compare two HereditaryStratigraphicSurface objects by value."""
         if not isinstance(other, HereditaryStratigraphicSurface):
             return False
         return (
@@ -194,7 +267,7 @@ class HereditaryStratigraphicSurface:
         self: "HereditaryStratigraphicSurface",
     ) -> bool:
         """Do any retained strata have annotations?"""
-        return False
+        return False  # annotation feature not supported
 
     def GetNumStrataRetained(self: "HereditaryStratigraphicSurface") -> int:
         """How many strata are currently stored within the column?
