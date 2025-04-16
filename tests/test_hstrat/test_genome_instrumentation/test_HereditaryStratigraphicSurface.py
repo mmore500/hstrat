@@ -219,12 +219,26 @@ def test_IterRetainedDifferentia(algo: types.ModuleType, S: int):
         ]
 
 
-def test_GetsurfIndexOfRank():
+def test_GetColumnIndexOfRank():
     assert (
         hstrat.HereditaryStratigraphicSurface(
             dsurf.Surface(dstream.steady_algo, 128)
         ).GetColumnIndexOfRank(1)
         is None
+    )
+
+
+def test_GetColumnIndexOfRank2():
+    surf = hstrat.HereditaryStratigraphicSurface(
+        dsurf.Surface(dstream.steady_algo, 32)
+    )
+    surf.DepositStrata(64)
+    col_indices = [
+        surf.GetColumnIndexOfRank(x) for x in surf.IterRetainedRanks()
+    ]
+    assert all(x is not None for x in col_indices)
+    assert all(
+        first < second for first, second in zip(col_indices, col_indices[1:])
     )
 
 
