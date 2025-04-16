@@ -11,9 +11,12 @@ from ._HereditaryStratum import HereditaryStratum
 
 
 class HereditaryStratigraphicSurface:
-    """
-    A wrapper around `downstream.dsurf.Surface` that supports the same
+    """Wrapper around `downstream.dsurf.Surface` that supports the same
     interface as `HereditaryStratigraphicColumn`.
+
+    Assumes that surface is initialized filled with differentiae, meaning that
+    dstream T values are offset from rank/number of items deposited by surface
+    size S. This also means that preinitialized-differentia have negative rank.
     """
 
     __slots__ = (
@@ -206,8 +209,8 @@ class HereditaryStratigraphicSurface:
         iterator.
         """
         return (
-            t - self._surface.S
-            for t in sorted(self._surface.lookup(include_empty=False))
+            T - self._surface.S
+            for T in sorted(self._surface.lookup(include_empty=False))
         )
 
     def IterRetainedStrata(
