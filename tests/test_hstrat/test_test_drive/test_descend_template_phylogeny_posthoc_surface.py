@@ -5,6 +5,7 @@ import random
 
 import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
+from downstream import dstream, dsurf
 import pandas as pd
 import pytest
 from tqdm import tqdm
@@ -150,10 +151,8 @@ def test_descend_template_phylogeny_posthoc(
         collapse_unrooted_basal_bifurcation=False,
     )
 
-    # setup seed column
-    seed_column = hstrat.HereditaryStratigraphicColumn(
-        stratum_retention_policy=retention_policy,
-        always_store_rank_in_stratum=always_store_rank_in_stratum,
+    seed_column = hstrat.HereditaryStratigraphicSurface(
+        dsurf.Surface(dstream.steady_algo, 16)
     )
     seed_column.DepositStrata(num_stratum_depositions=num_predeposits)
 
@@ -179,25 +178,12 @@ def test_descend_template_phylogeny_posthoc(
         for extant_node in iter_extant_nodes(tree)
     ]
     assert extant_depths == [
-        column.GetNumStrataDeposited() - 1 for column in extant_population
+        column.GetNumStrataDeposited() - column.S for column in extant_population
     ]
 
     assert all(
-        column.GetNumStrataRetained()
-        == column._stratum_retention_policy.CalcNumStrataRetainedExact(
-            column.GetNumStrataDeposited()
-        )
+        column.GetNumStrataRetained() == column.S
         for column in extant_population
-    )
-    assert all(
-        a == b
-        for column in extant_population
-        for a, b in zip(
-            column.IterRetainedRanks(),
-            column._stratum_retention_policy.IterRetainedRanks(
-                column.GetNumStrataDeposited()
-            ),
-        )
     )
 
     sampled_product = it.permutations(
@@ -249,7 +235,10 @@ def test_descend_template_phylogeny_posthoc(
                 (mrca,) = mrca.child_nodes()
 
         if not lb <= mrca.distance_from_root() < ub:
+            print()
+            print(lb, ub)
             print(mrca)
+            print(c1._surface, c2._surface, sep='\n')
             print(n1, n1.child_nodes())
             print(n2, n2.child_nodes())
         assert lb <= mrca.distance_from_root() < ub

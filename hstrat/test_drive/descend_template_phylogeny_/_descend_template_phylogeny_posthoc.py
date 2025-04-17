@@ -2,11 +2,16 @@ from collections import defaultdict
 from functools import lru_cache
 import typing
 
+from downstream import dstream, dsurf
 import more_itertools as mit
+import opytional as opyt
+
+from hstrat.genome_instrumentation import stratum_ordered_stores
 
 from ..._auxiliary_lib import demark
 from ...genome_instrumentation import (
     HereditaryStratigraphicColumn,
+    HereditaryStratigraphicSurface,
     HereditaryStratum,
     HereditaryStratumOrderedStoreList,
 )
@@ -39,9 +44,68 @@ def _calc_node_depths(
     return node_depth_lookup
 
 
+def _educe_surface_object(
+    seed_surface: HereditaryStratigraphicSurface,
+    deposition_count_lookup: typing.Dict[int, int],
+    ascending_lineage_iterable: typing.Iterable,
+    stem_strata_lookup: typing.Dict[int, typing.Callable[[int], int]],
+    demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
+) -> HereditaryStratigraphicSurface:
+    """Prepare strata required by one extant lineage member, using cache lookup
+    to ensure that identical strata are provided where common ancestry is
+    shared with previously processed extant lineage members."""
+
+    try:
+        extant_node = ascending_lineage_iterable[0]
+    except TypeError:
+        # usage ensures ascending_lineage_iterable not empty
+        (extant_node,), ascending_lineage_iterable = mit.spy(
+            ascending_lineage_iterable
+        )
+
+    extant_deposition_count = deposition_count_lookup[demark(extant_node)]
+
+    rising_required_ranks_iterator = sorted(
+        seed_surface._surface.algo.lookup_ingest_times(
+            seed_surface.S,
+            extant_deposition_count,
+        )
+    )
+
+    # pairwise ensures we exclude root node
+    storage = [None] * seed_surface.S
+    try:
+        descending_lineage_iterator = iter(
+            reversed(ascending_lineage_iterable)
+        )
+    except TypeError:
+        descending_lineage_iterator = iter(
+            reversed([*ascending_lineage_iterable])
+        )
+
+    cur_node = next(descending_lineage_iterator)
+
+    for rank in rising_required_ranks_iterator:
+        while rank >= deposition_count_lookup[demark(cur_node)]:
+            cur_node = next(descending_lineage_iterator)
+
+        rank_stratum_lookup = stem_strata_lookup[demark(cur_node)]
+        storage[
+            seed_surface._surface.algo.assign_storage_site(
+                seed_surface.S, rank
+            )
+        ] = rank_stratum_lookup(rank - seed_surface.S)
+
+    return HereditaryStratigraphicSurface(
+        dsurf.Surface(
+            seed_surface._surface.algo, storage, extant_deposition_count
+        )
+    )
+
+
 def _educe_stratum_ordered_store(
     ascending_lineage_iterable: typing.Iterable,
-    deposition_count_lookup: typing.Dict[int, int],
+    deposition_count_lookup: typing.Dict[typing.Hashable, int],
     stem_strata_lookup: typing.Dict[
         int, typing.Callable[[int], HereditaryStratum]
     ],
@@ -94,15 +158,44 @@ def _educe_stratum_ordered_store(
     return stratum_ordered_store, extant_deposition_count
 
 
+@typing.overload
 def descend_template_phylogeny_posthoc(
     ascending_lineage_iterables: typing.Iterable[typing.Iterable],
     descending_tree_iterable: typing.Iterable,
     get_parent: typing.Callable[[typing.Any], typing.Any],
     get_stem_length: typing.Callable[[typing.Any], int],
-    seed_column: HereditaryStratigraphicColumn,
+    seed_instrumentation: HereditaryStratigraphicSurface,
     demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
     progress_wrap: typing.Callable = lambda x: x,
-) -> typing.List[HereditaryStratigraphicColumn]:
+) -> typing.List[HereditaryStratigraphicSurface]: ...
+
+
+@typing.overload
+def descend_template_phylogeny_posthoc(
+    ascending_lineage_iterables: typing.Iterable[typing.Iterable],
+    descending_tree_iterable: typing.Iterable,
+    get_parent: typing.Callable[[typing.Any], typing.Any],
+    get_stem_length: typing.Callable[[typing.Any], int],
+    seed_instrumentation: HereditaryStratigraphicColumn,
+    demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
+    progress_wrap: typing.Callable = lambda x: x,
+) -> typing.List[HereditaryStratigraphicColumn]: ...
+
+
+def descend_template_phylogeny_posthoc(
+    ascending_lineage_iterables: typing.Iterable[typing.Iterable],
+    descending_tree_iterable: typing.Iterable,
+    get_parent: typing.Callable[[typing.Any], typing.Any],
+    get_stem_length: typing.Callable[[typing.Any], int],
+    seed_instrumentation: typing.Union[
+        HereditaryStratigraphicSurface, HereditaryStratigraphicColumn
+    ],
+    demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
+    progress_wrap: typing.Callable = lambda x: x,
+) -> typing.Union[
+    typing.List[HereditaryStratigraphicSurface],
+    typing.List[HereditaryStratigraphicColumn],
+]:
     """Generate a population of hereditary stratigraphic columns that could
     have resulted from the template phylogeny.
 
@@ -119,9 +212,6 @@ def descend_template_phylogeny_posthoc(
     are met. See `descend_template_phylogeny` for parameter and return value details.
     """
 
-    stratum_retention_policy = seed_column._stratum_retention_policy
-    assert stratum_retention_policy.IterRetainedRanks is not None
-
     tree_depth_lookup = _calc_node_depths(
         descending_tree_iterable,
         get_parent,
@@ -130,36 +220,69 @@ def descend_template_phylogeny_posthoc(
         demark=demark,
     )
     deposition_count_lookup = {
-        k: v + seed_column.GetNumStrataDeposited()
+        k: v + seed_instrumentation.GetNumStrataDeposited()
         for k, v in tree_depth_lookup.items()
     }
 
-    stem_strata_lookup = defaultdict(
-        # use lru_cache as defaultdict with default factory conditioned on key
-        lambda: lru_cache(maxsize=None)(
-            lambda rank: (
-                # if applicable, use stratum from seed column
-                # otherwise, create new stratum
-                seed_column.GetStratumAtRank(rank)
-                if rank < seed_column.GetNumStrataDeposited()
-                else seed_column._CreateStratum(rank)
+    if isinstance(seed_instrumentation, HereditaryStratigraphicColumn):
+        stem_strata_lookup = defaultdict(
+            # use lru_cache as defaultdict with default factory conditioned on key
+            lambda: lru_cache(maxsize=None)(
+                lambda rank: (
+                    # if applicable, use stratum from seed column
+                    # otherwise, create new stratum
+                    seed_instrumentation.GetStratumAtRank(rank)
+                    if rank < seed_instrumentation.GetNumStrataDeposited()
+                    else (seed_instrumentation._CreateStratum(rank))
+                )
             )
         )
-    )
-
-    extant_population = [
-        HereditaryStratigraphicColumn(
-            always_store_rank_in_stratum=seed_column._always_store_rank_in_stratum,
-            stratum_retention_policy=stratum_retention_policy,
-            stratum_differentia_bit_width=seed_column.GetStratumDifferentiaBitWidth(),
-            stratum_ordered_store=_educe_stratum_ordered_store(
-                iter_,
-                deposition_count_lookup,
-                stem_strata_lookup,
-                stratum_retention_policy,
-                demark=demark,
-            ),
+        stratum_retention_policy = (
+            seed_instrumentation._stratum_retention_policy
         )
-        for iter_ in progress_wrap(ascending_lineage_iterables)
-    ]
-    return extant_population
+        assert stratum_retention_policy.IterRetainedRanks is not None
+        return [
+            HereditaryStratigraphicColumn(
+                always_store_rank_in_stratum=seed_instrumentation._always_store_rank_in_stratum,
+                stratum_retention_policy=stratum_retention_policy,
+                stratum_differentia_bit_width=seed_instrumentation.GetStratumDifferentiaBitWidth(),
+                stratum_ordered_store=_educe_stratum_ordered_store(
+                    iter_,
+                    deposition_count_lookup,
+                    stem_strata_lookup,
+                    stratum_retention_policy,
+                    demark=demark,
+                ),
+            )
+            for iter_ in progress_wrap(ascending_lineage_iterables)
+        ]
+    elif isinstance(seed_instrumentation, HereditaryStratigraphicSurface):
+        stem_strata_lookup = defaultdict(
+            # use lru_cache as defaultdict with default factory conditioned on key
+            lambda: lru_cache(maxsize=None)(
+                lambda rank: (
+                    # if applicable, use stratum from seed column
+                    # otherwise, create new stratum
+                    opyt.apply_if_or_else(
+                        seed_instrumentation.GetStratumAtRank(rank),
+                        lambda x: x._differentia,
+                        seed_instrumentation._CreateStratum,
+                    )
+                    if rank < seed_instrumentation.GetNumStrataDeposited()
+                    else (seed_instrumentation._CreateStratum())
+                )
+            )
+        )
+        return [
+            _educe_surface_object(
+                seed_instrumentation,
+                deposition_count_lookup,
+                iter_,
+                stem_strata_lookup,
+                demark=demark,
+            )
+            for iter_ in progress_wrap(ascending_lineage_iterables)
+        ]
+    raise ValueError(
+        "`return_type` must be one of `HereditaryStratigraphicSurface` or `HereditaryStratigraphicColumn`"
+    )
