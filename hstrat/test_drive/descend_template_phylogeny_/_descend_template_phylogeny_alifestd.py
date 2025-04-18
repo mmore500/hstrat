@@ -3,6 +3,10 @@ import typing
 import numpy as np
 import pandas as pd
 
+from hstrat._auxiliary_lib._HereditaryStratigraphicInstrumentation import (
+    HereditaryStratigraphicInstrumentation_T,
+)
+
 from ..._auxiliary_lib import (
     alifestd_find_leaf_ids,
     alifestd_has_contiguous_ids,
@@ -17,16 +21,15 @@ from ..._auxiliary_lib import (
 from ..._auxiliary_lib._alifestd_assign_contiguous_ids import (
     _reassign_ids_asexual,
 )
-from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._descend_template_phylogeny import descend_template_phylogeny
 
 
 def descend_template_phylogeny_alifestd(
     phylogeny_df: pd.DataFrame,
-    seed_column: HereditaryStratigraphicColumn,
+    seed_column: HereditaryStratigraphicInstrumentation_T,
     extant_ids: typing.Optional[typing.Iterable[int]] = None,
     progress_wrap: typing.Callable = lambda x: x,
-) -> typing.List[HereditaryStratigraphicColumn]:
+) -> typing.List[HereditaryStratigraphicInstrumentation_T]:
     """Generate a population of hereditary stratigraphic columns that could
     have resulted from the template phylogeny.
 

@@ -2,11 +2,11 @@ from collections import defaultdict
 from functools import lru_cache
 import typing
 
-from downstream import dstream, dsurf
+from downstream import dsurf
 import more_itertools as mit
 import opytional as opyt
 
-from hstrat.genome_instrumentation import stratum_ordered_stores
+from hstrat._auxiliary_lib import HereditaryStratigraphicInstrumentation_T
 
 from ..._auxiliary_lib import demark
 from ...genome_instrumentation import (
@@ -158,44 +158,15 @@ def _educe_stratum_ordered_store(
     return stratum_ordered_store, extant_deposition_count
 
 
-@typing.overload
 def descend_template_phylogeny_posthoc(
     ascending_lineage_iterables: typing.Iterable[typing.Iterable],
     descending_tree_iterable: typing.Iterable,
     get_parent: typing.Callable[[typing.Any], typing.Any],
     get_stem_length: typing.Callable[[typing.Any], int],
-    seed_instrumentation: HereditaryStratigraphicSurface,
+    seed_instrumentation: HereditaryStratigraphicInstrumentation_T,
     demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
     progress_wrap: typing.Callable = lambda x: x,
-) -> typing.List[HereditaryStratigraphicSurface]: ...
-
-
-@typing.overload
-def descend_template_phylogeny_posthoc(
-    ascending_lineage_iterables: typing.Iterable[typing.Iterable],
-    descending_tree_iterable: typing.Iterable,
-    get_parent: typing.Callable[[typing.Any], typing.Any],
-    get_stem_length: typing.Callable[[typing.Any], int],
-    seed_instrumentation: HereditaryStratigraphicColumn,
-    demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
-    progress_wrap: typing.Callable = lambda x: x,
-) -> typing.List[HereditaryStratigraphicColumn]: ...
-
-
-def descend_template_phylogeny_posthoc(
-    ascending_lineage_iterables: typing.Iterable[typing.Iterable],
-    descending_tree_iterable: typing.Iterable,
-    get_parent: typing.Callable[[typing.Any], typing.Any],
-    get_stem_length: typing.Callable[[typing.Any], int],
-    seed_instrumentation: typing.Union[
-        HereditaryStratigraphicSurface, HereditaryStratigraphicColumn
-    ],
-    demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
-    progress_wrap: typing.Callable = lambda x: x,
-) -> typing.Union[
-    typing.List[HereditaryStratigraphicSurface],
-    typing.List[HereditaryStratigraphicColumn],
-]:
+) -> typing.List[HereditaryStratigraphicInstrumentation_T]:
     """Generate a population of hereditary stratigraphic columns that could
     have resulted from the template phylogeny.
 

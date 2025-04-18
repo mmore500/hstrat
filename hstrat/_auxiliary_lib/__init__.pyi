@@ -7,6 +7,10 @@ from ._BioPhyloTree import BioPhyloTree
 from ._CopyableSeriesItemsIter import CopyableSeriesItemsIter
 from ._GetAttrLaunderShim import GetAttrLaunderShim
 from ._HereditaryStratigraphicArtifact import HereditaryStratigraphicArtifact
+from ._HereditaryStratigraphicInstrumentation import (
+    HereditaryStratigraphicInstrumentation,
+    HereditaryStratigraphicInstrumentation_T,
+)
 from ._RecursionLimit import RecursionLimit
 from ._RngStateContext import RngStateContext
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
@@ -500,6 +504,8 @@ __all__ = [
     "GetAttrLaunderShim",
     "give_len",
     "HereditaryStratigraphicArtifact",
+    "HereditaryStratigraphicInstrumentation",
+    "HereditaryStratigraphicInstrumentation_T",
     "indices_of_unique",
     "intersect_ranges",
     "is_base64",
