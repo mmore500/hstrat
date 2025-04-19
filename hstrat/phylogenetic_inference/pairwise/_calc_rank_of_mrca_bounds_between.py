@@ -4,6 +4,11 @@ import warnings
 
 import opytional as opyt
 
+from hstrat.genome_instrumentation import (
+    HereditaryStratigraphicColumn,
+    HereditaryStratigraphicSurface,
+)
+
 from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ...juxtaposition._impl import dispatch_impl
 from ._calc_rank_of_earliest_detectable_mrca_between import (
@@ -128,13 +133,33 @@ def calc_rank_of_mrca_bounds_between(
             confidence_level_commonality=confidence_level,
             confidence_level_disparity=0.49,  # 0.49 i.e., definitive max
         )
-        assert (
-            first_disparity is not None
-            or first.GetNumStrataDeposited() == second.GetNumStrataDeposited()
-        )
+
+        # change in logic to handle surfaces potentially ignoring ranks
+        if isinstance(first, HereditaryStratigraphicColumn) and isinstance(
+            second, HereditaryStratigraphicColumn
+        ):
+            assert (
+                first_disparity is not None
+                or first.GetNumStrataDeposited()
+                == second.GetNumStrataDeposited()
+            )
+        if first_disparity is None:
+            print("in here")
+            max_rank_first = first.GetNumStrataDeposited() + (
+                first.S
+                if isinstance(first, HereditaryStratigraphicSurface)
+                else 0
+            )
+            max_rank_second = second.GetNumStrataDeposited() + (
+                second.S
+                if isinstance(second, HereditaryStratigraphicSurface)
+                else 0
+            )
+            first_disparity = min(max_rank_first, max_rank_second)
+
         return (
             opyt.or_value(last_commonality, 0),
-            opyt.or_value(first_disparity, first.GetNumStrataDeposited()),
+            first_disparity,
         )
     else:
         return None

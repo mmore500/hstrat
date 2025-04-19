@@ -1,7 +1,9 @@
 import typing
 
-from ..._auxiliary_lib import demark
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import (
+    HereditaryStratigraphicInstrumentation_T,
+    demark,
+)
 
 
 def descend_template_phylogeny_naive(
@@ -9,10 +11,10 @@ def descend_template_phylogeny_naive(
     descending_tree_iterable: typing.Iterable,
     get_parent: typing.Callable[[typing.Any], typing.Any],
     get_stem_length: typing.Callable[[typing.Any], int],
-    seed_column: HereditaryStratigraphicColumn,
+    seed_column: HereditaryStratigraphicInstrumentation_T,
     demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
     progress_wrap: typing.Callable = lambda x: x,
-) -> typing.List[HereditaryStratigraphicColumn]:
+) -> typing.List[HereditaryStratigraphicInstrumentation_T]:
     """Generate a population of hereditary stratigraphic columns that could
     have resulted from the template phylogeny.
 
