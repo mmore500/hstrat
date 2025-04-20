@@ -35,6 +35,10 @@ from ._alifestd_categorize_triplet_asexual import (
 )
 from ._alifestd_chronological_sort import alifestd_chronological_sort
 from ._alifestd_coarsen_mask import alifestd_coarsen_mask
+from ._alifestd_coarsen_taxa_asexual import (
+    alifestd_coarsen_taxa_asexual,
+    alifestd_coarsen_taxa_asexual_make_agg,
+)
 from ._alifestd_coerce_chronological_consistency import (
     alifestd_coerce_chronological_consistency,
 )
@@ -349,6 +353,8 @@ __all__ = [
     "alifestd_categorize_triplet_asexual",
     "alifestd_chronological_sort",
     "alifestd_coarsen_mask",
+    "alifestd_coarsen_taxa_asexual",
+    "alifestd_coarsen_taxa_asexual_make_agg",
     "alifestd_coerce_chronological_consistency",
     "alifestd_collapse_trunk_asexual",
     "alifestd_collapse_unifurcations",
