@@ -76,12 +76,10 @@ def test_singleton_coarsen(mutate: bool):
 
 @pytest.mark.parametrize("mutate", [True, False])
 def test_chain_coarsen(mutate: bool):
-    """
-    Chain 0 -> 1 -> 2, all rows share dummy=0, so you get
-      • one taxon at the root (id=0),
-      • one taxon for the chain below (id=2, since we take 'last' for id).
-    branch_length is summed, origin_time takes the first.
-    """
+    # Chain 0 -> 1 -> 2, all rows share dummy=0, so you get
+    #   - one taxon at the root (id=0),
+    #   - one taxon for the chain below (id=2, since we take 'last' for id).
+    # branch_length is summed, origin_time takes the first.
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 2],
@@ -118,11 +116,9 @@ def test_chain_coarsen(mutate: bool):
 
 @pytest.mark.parametrize("mutate", [True, False])
 def test_star_coarsen(mutate: bool):
-    """
-    Star tree 0 -> {1,2}, all share dummy=0.
-    Depth=1 means each child winds up its own cluster,
-    so you get three rows back, with branch_length identical.
-    """
+    # Star tree 0 -> {1,2}, all share dummy=0.
+    # Depth=1 means each child winds up its own cluster,
+    # so you get three rows back, with branch_length identical.
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 2],
@@ -150,9 +146,7 @@ def test_star_coarsen(mutate: bool):
 
 @pytest.mark.parametrize("mutate", [True, False])
 def test_group_by_sequence(mutate: bool):
-    """
-    Supplying `by` as a sequence should behave same as single key.
-    """
+    # Supplying `by` as a sequence should behave same as single key.
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 2],
@@ -184,13 +178,11 @@ def test_group_by_sequence(mutate: bool):
 
 @pytest.mark.parametrize("mutate", [True, False])
 def test_chain_coarsen_with_overrides(mutate: bool):
-    """
-    Chain 0 -> 1 -> 2, all share group=0. Check that:
-      - branch_length is summed
-      - edge_length is summed
-      - origin_time takes the first
-      - destruction_time takes the last
-    """
+    # Chain 0 -> 1 -> 2, all share group=0. Check that:
+    #   - branch_length is summed
+    #   - edge_length is summed
+    #   - origin_time takes the first
+    #   - destruction_time takes the last
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 2],
@@ -230,10 +222,8 @@ def test_chain_coarsen_with_overrides(mutate: bool):
 
 @pytest.mark.parametrize("mutate", [True, False])
 def test_multiple_independent_chains(mutate: bool):
-    """
-    Two disjoint chains with group=0 or group=1.
-    Each chain collapses into two clusters.
-    """
+    # Two disjoint chains with group=0 or group=1.
+    # Each chain collapses into two clusters.
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 2, 3, 4, 5],
@@ -272,14 +262,12 @@ def test_multiple_independent_chains(mutate: bool):
 
 @pytest.mark.parametrize("mutate", [True, False])
 def test_chain_two_group_keys(mutate: bool):
-    """
-    Chain 0 -> 1 -> 2, grouped by TWO keys:
-      • g1 is constant
-      • g2 flips from 0 → 1 at node 1
-    So we should break into two clusters:
-      - cluster at 0 alone
-      - cluster of [1,2] together
-    """
+    # Chain 0 -> 1 -> 2, grouped by TWO keys:
+    #   - g1 is constant
+    #   - g2 flips from 0 → 1 at node 1
+    # So we should break into two clusters:
+    #   - cluster at 0 alone
+    #   - cluster of [1,2] together
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 2],
