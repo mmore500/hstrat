@@ -8,6 +8,7 @@ from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_mark_roots import alifestd_mark_roots
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._jit import jit
 
 
 def alifestd_coarsen_taxa_asexual_make_agg(
@@ -126,6 +127,74 @@ def alifestd_coarsen_taxa_asexual(
         phylogeny_df["is_root"].values
     )
 
+    if alifestd_has_contiguous_ids(phylogeny_df):
+        (
+            phylogeny_df["ancestor_id"],
+            phylogeny_df["alifestd_coarsen_taxa_asexual_taxon_founder_id"],
+        ) = _alifestd_coarsen_taxa_asexual_fast_path(
+            phylogeny_df["ancestor_id"].values,
+            phylogeny_df[
+                "alifestd_coarsen_taxa_asexual_is_taxon_founder"
+            ].values,
+            phylogeny_df["is_root"].values,
+        )
+    else:
+        phylogeny_df = _alifestd_coarsen_taxa_asexual_slow_path(
+            phylogeny_df,
+        )
+
+    phylogeny_df = phylogeny_df.groupby(
+        "alifestd_coarsen_taxa_asexual_taxon_founder_id",
+        as_index=False,
+        observed=True,
+    ).agg(agg)
+
+    return phylogeny_df.drop(
+        [
+            "alifestd_coarsen_taxa_asexual_taxon_ancestor_id",
+            "alifestd_coarsen_taxa_asexual_taxon_founder_id",
+            "alifestd_coarsen_taxa_asexual_is_taxon_founder",
+        ],
+        axis="columns",
+        errors="ignore",
+    ).reset_index(drop=True)
+
+
+@jit(nopython=True)
+def _alifestd_coarsen_taxa_asexual_fast_path(
+    ancestor_ids: np.ndarray,
+    is_taxon_founder: np.ndarray,
+    is_root: np.ndarray,
+) -> typing.Tuple[np.ndarray, np.ndarray]:
+    """Implementation detail for
+    `alifestd_mark_num_preceding_leaves_asexual`."""
+    new_ancestor_ids = np.empty_like(ancestor_ids)
+    founder_ids = np.empty_like(ancestor_ids)
+    for i, ancestor_id in enumerate(ancestor_ids):
+        if is_taxon_founder[i]:
+            # start a new taxon here
+            founder_ids[i] = i
+            new_ancestor_ids[i] = ancestor_id
+        else:
+            parent = ancestor_id
+            # inherit founder
+            founder_ids[i] = founder_ids[parent]
+            # inherit taxon-ancestor, but reset if that ancestor is a root
+            ta = new_ancestor_ids[parent]
+            if is_root[ta]:
+                new_ancestor_ids[i] = i
+            else:
+                new_ancestor_ids[i] = ta
+    return new_ancestor_ids, founder_ids
+
+
+def _alifestd_coarsen_taxa_asexual_slow_path(
+    phylogeny_df: pd.DataFrame,
+) -> pd.DataFrame:
+    """Implementation detail for
+    `alifestd_mark_num_preceding_leaves_asexual`."""
+    phylogeny_df.set_index("id", drop=False, inplace=True)
+
     phylogeny_df[
         "alifestd_coarsen_taxa_asexual_taxon_ancestor_id"
     ] = phylogeny_df["ancestor_id"]
@@ -157,18 +226,4 @@ def alifestd_coarsen_taxa_asexual(
             else idx
         )
 
-    phylogeny_df = phylogeny_df.groupby(
-        "alifestd_coarsen_taxa_asexual_taxon_founder_id",
-        as_index=False,
-        observed=True,
-    ).agg(agg)
-
-    return phylogeny_df.drop(
-        [
-            "alifestd_coarsen_taxa_asexual_taxon_ancestor_id",
-            "alifestd_coarsen_taxa_asexual_taxon_founder_id",
-            "alifestd_coarsen_taxa_asexual_is_taxon_founder",
-        ],
-        axis="columns",
-        errors="ignore",
-    ).reset_index(drop=True)
+    return phylogeny_df
