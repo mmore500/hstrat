@@ -131,7 +131,7 @@ def alifestd_splay_polytomies(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
 ) -> pd.DataFrame:
-    """Use a simple splay strategy to resolve polytomies, converting them into
+    r"""Use a simple splay strategy to resolve polytomies, converting them into
     bifurcations.
 
     For example,
