@@ -83,8 +83,6 @@ def alifestd_coarsen_taxa_asexual(
     optional `agg` kwarg, a dict mapping column names to a Pandas GroupBy
     aggregation operations (e.g., "first", "min", "max", etc.).
 
-    The root ancestor token will be adopted from phylogeny_df.
-
     Input dataframe is not mutated by this operation unless `mutate` set True.
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
@@ -169,7 +167,6 @@ def alifestd_coarsen_taxa_asexual(
         phylogeny_df.loc[:, "ancestor_list"] = alifestd_make_ancestor_list_col(
             phylogeny_df["id"],
             phylogeny_df["ancestor_id"],
-            root_ancestor_token=root_ancestor_token,
         )
 
     return phylogeny_df.drop(
