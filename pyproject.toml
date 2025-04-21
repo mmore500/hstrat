@@ -60,7 +60,7 @@ keywords = [
   "hstrat",
 ]
 requires-python = ">=3.10"
-version = "1.19.7"
+version = "1.19.8"
 
 [project.readme]
 file = "README.md"
