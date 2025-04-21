@@ -5,6 +5,7 @@ import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
+from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_mark_roots import alifestd_mark_roots
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
@@ -163,6 +164,13 @@ def alifestd_coarsen_taxa_asexual(
         as_index=False,
         observed=True,
     ).agg(agg)
+
+    if "ancestor_list" in phylogeny_df:
+        phylogeny_df.loc[:, "ancestor_list"] = alifestd_make_ancestor_list_col(
+            phylogeny_df["id"],
+            phylogeny_df["ancestor_id"],
+            root_ancestor_token=root_ancestor_token,
+        )
 
     return phylogeny_df.drop(
         [
