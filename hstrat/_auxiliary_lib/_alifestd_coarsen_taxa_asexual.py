@@ -80,7 +80,7 @@ def alifestd_coarsen_taxa_asexual(
     The manner in which consecutive nodes with identical traits are
     condensed may be fine-tuned on a column-by-column basis through the
     optional `agg` kwarg, a dict mapping column names to a Pandas GroupBy
-    aggregation operations (e.g., "first", "min", "max", etc.).
+    aggregation operation (e.g., "first", "min", "max", etc.).
 
     The root ancestor token will be adopted from phylogeny_df.
 
