@@ -74,13 +74,27 @@ def alifestd_coarsen_taxa_asexual(
     agg: typing.Optional[typing.Dict[str, str]] = None,
     by: typing.Union[str, typing.Sequence[str]],
 ) -> pd.DataFrame:
-    """Pare record to bypass organisms outside mask.
+    """Condense consecutive phylogeny nodes sharing identical trait values,
+    according to values in `by` column(s).
+
+    The manner in which consecutive nodes with identical traits are
+    condensed may be fine-tuned on a column-by-column basis through the
+    optional `agg` kwarg, a dict mapping column names to a Pandas GroupBy
+    aggregation operations (e.g., "first", "min", "max", etc.).
 
     The root ancestor token will be adopted from phylogeny_df.
 
     Input dataframe is not mutated by this operation unless `mutate` set True.
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
+
+    Dataframe reindexing (e.g., df.index) may be applied.
+
+    See Also
+    --------
+    alifestd_coarsen_taxa_asexual_make_agg :
+        Helper function to generate default `agg` dict, which may be customized
+        before being passed to `alifestd_coarsen_taxa_asexual`.
     """
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
