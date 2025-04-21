@@ -36,16 +36,20 @@ def test_empty_df():
 
 def test_overrides_and_defaults(sample_phylogeny_df):
     agg = alifestd_coarsen_taxa_asexual_make_agg(sample_phylogeny_df)
-    # the four override columns should map to their override values
-    assert agg["branch_length"] == "sum"
+    # the override columns should map to their override values
     assert agg["destruction_time"] == "last"
-    assert agg["edge_length"] == "sum"
     assert agg["origin_time"] == "first"
     # other columns not in overrides should use the default
     assert agg["foo"] == "first"
     assert agg["bar"] == "first"
     # ensure excluded cols are not present
-    for excluded in ("id", "ancestor_id", "ancestor_list"):
+    for excluded in (
+        "id",
+        "ancestor_id",
+        "ancestor_list",
+        "branch_length",
+        "edge_length",
+    ):
         assert excluded not in agg
 
 
@@ -56,9 +60,9 @@ def test_custom_default(sample_phylogeny_df):
         default_agg="last",
     )
     # overrides stay the same
-    assert agg["branch_length"] == "sum"
+    assert "branch_length" not in agg
     assert agg["destruction_time"] == "last"
-    assert agg["edge_length"] == "sum"
+    assert "edge_length" not in agg
     assert agg["origin_time"] == "first"
     # foo/bar now pick up the new default
     assert agg["foo"] == "last"

@@ -31,16 +31,16 @@ def alifestd_coarsen_taxa_asexual_make_agg(
         Mapping of column name to aggregation method. Four columns are
         overridden as follows:
 
-        - "branch_length": "sum"
-        - "destruction_time": "last"
-        - "edge_length": "sum"
+        - "destruction_time": "max"
         - "is_root": "first"
-        - "origin_time": "first"
+        - "origin_time": "min"
 
         Columns named
 
         - "ancestor_id"
         - "ancestor_list"
+        - "branch_length"
+        - "edge_length"
         - "id"
         - "is_leaf"
 
@@ -48,9 +48,7 @@ def alifestd_coarsen_taxa_asexual_make_agg(
         `default_agg`.
     """
     overrides = {
-        "branch_length": "sum",
         "destruction_time": "last",
-        "edge_length": "sum",
         "is_root": "first",
         "origin_time": "first",
     }
@@ -61,6 +59,8 @@ def alifestd_coarsen_taxa_asexual_make_agg(
         not in (
             "ancestor_id",
             "ancestor_list",
+            "branch_length",
+            "edge_length",
             "id",
             "is_leaf",
         )
@@ -93,7 +93,7 @@ def alifestd_coarsen_taxa_asexual(
 
     if "id" in agg:
         raise ValueError("agg for `id` column may not be overwritten")
-    agg["id"] = "last"
+    agg["id"] = "first"
 
     if "ancestor_id" in agg:
         raise ValueError("agg for `ancestor_id` column may not be overwritten")
@@ -103,7 +103,8 @@ def alifestd_coarsen_taxa_asexual(
         raise ValueError(
             "agg for `ancestor_list` column may not be overwritten"
         )
-    agg["ancestor_list"] = "first"
+    if "ancestor_list" in phylogeny_df:
+        agg["ancestor_list"] = "first"
 
     if isinstance(by, str):
         by = (by,)
@@ -151,7 +152,6 @@ def alifestd_coarsen_taxa_asexual(
 
     return phylogeny_df.drop(
         [
-            "alifestd_coarsen_taxa_asexual_taxon_ancestor_id",
             "alifestd_coarsen_taxa_asexual_taxon_founder_id",
             "alifestd_coarsen_taxa_asexual_is_taxon_founder",
         ],
@@ -168,24 +168,14 @@ def _alifestd_coarsen_taxa_asexual_fast_path(
 ) -> typing.Tuple[np.ndarray, np.ndarray]:
     """Implementation detail for
     `alifestd_mark_num_preceding_leaves_asexual`."""
-    new_ancestor_ids = np.empty_like(ancestor_ids)
-    founder_ids = np.empty_like(ancestor_ids)
-    for i, ancestor_id in enumerate(ancestor_ids):
-        if is_taxon_founder[i]:
-            # start a new taxon here
-            founder_ids[i] = i
-            new_ancestor_ids[i] = ancestor_id
+    founder_ids = np.arange(len(ancestor_ids))
+    for idx, ancestor_id in enumerate(ancestor_ids):
+        if is_taxon_founder[idx]:
+            ancestor_ids[idx] = founder_ids[ancestor_id]
         else:
-            parent = ancestor_id
-            # inherit founder
-            founder_ids[i] = founder_ids[parent]
-            # inherit taxon-ancestor, but reset if that ancestor is a root
-            ta = new_ancestor_ids[parent]
-            if is_root[ta]:
-                new_ancestor_ids[i] = i
-            else:
-                new_ancestor_ids[i] = ta
-    return new_ancestor_ids, founder_ids
+            founder_ids[idx] = founder_ids[ancestor_id]
+            ancestor_ids[idx] = ancestor_ids[ancestor_id]
+    return ancestor_ids, founder_ids
 
 
 def _alifestd_coarsen_taxa_asexual_slow_path(
@@ -196,34 +186,25 @@ def _alifestd_coarsen_taxa_asexual_slow_path(
     phylogeny_df.set_index("id", drop=False, inplace=True)
 
     phylogeny_df[
-        "alifestd_coarsen_taxa_asexual_taxon_ancestor_id"
-    ] = phylogeny_df["ancestor_id"]
-    phylogeny_df[
         "alifestd_coarsen_taxa_asexual_taxon_founder_id"
     ] = phylogeny_df["id"]
 
     for idx in phylogeny_df.index:
+        ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
         if phylogeny_df.at[
             idx, "alifestd_coarsen_taxa_asexual_is_taxon_founder"
         ]:
-            continue
-
-        ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
-        phylogeny_df.at[
-            idx, "alifestd_coarsen_taxa_asexual_taxon_founder_id"
-        ] = phylogeny_df.at[
-            ancestor_id, "alifestd_coarsen_taxa_asexual_taxon_founder_id"
-        ]
-
-        ancestor_taxon_ancestor_id = phylogeny_df.at[
-            ancestor_id, "alifestd_coarsen_taxa_asexual_taxon_ancestor_id"
-        ]
-        phylogeny_df.at[
-            idx, "alifestd_coarsen_taxa_asexual_taxon_ancestor_id"
-        ] = (
-            ancestor_taxon_ancestor_id
-            if not phylogeny_df.at[ancestor_taxon_ancestor_id, "is_root"]
-            else idx
-        )
+            phylogeny_df.at[idx, "ancestor_id"] = phylogeny_df.at[
+                ancestor_id, "alifestd_coarsen_taxa_asexual_taxon_founder_id"
+            ]
+        else:
+            phylogeny_df.at[
+                idx, "alifestd_coarsen_taxa_asexual_taxon_founder_id"
+            ] = phylogeny_df.at[
+                ancestor_id, "alifestd_coarsen_taxa_asexual_taxon_founder_id"
+            ]
+            phylogeny_df.at[idx, "ancestor_id"] = phylogeny_df.at[
+                ancestor_id, "ancestor_id"
+            ]
 
     return phylogeny_df
