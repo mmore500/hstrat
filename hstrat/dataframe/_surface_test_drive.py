@@ -97,17 +97,17 @@ def surface_test_drive(
     dstream_T_bitoffset = 0
     hex_encodings = [surf.to_hex() for surf in surfaces]
     origin_times = [surf.GetNumStrataDeposited() - surf.S for surf in surfaces]
+
+    nrow = len(surfaces)
     return pl.DataFrame(
         {
             "origin_time": origin_times,
             "data_hex": hex_encodings,
-            "dstream_storage_bitwidth": [dstream_storage_bitwidth]
-            * len(surfaces),
-            "dstream_storage_bitoffset": [dstream_storage_bitoffset]
-            * len(surfaces),
-            "dstream_T_bitwidth": [dstream_T_bitwidth] * len(surfaces),
-            "dstream_T_bitoffset": [dstream_T_bitoffset] * len(surfaces),
-            "dstream_S": [dstream_S] * len(surfaces),
-            "dstream_algo": [dstream_algo] * len(surfaces),
+            "dstream_storage_bitwidth": [dstream_storage_bitwidth] * nrow,
+            "dstream_storage_bitoffset": [dstream_storage_bitoffset] * nrow,
+            "dstream_T_bitwidth": [dstream_T_bitwidth] * nrow,
+            "dstream_T_bitoffset": [dstream_T_bitoffset] * nrow,
+            "dstream_S": [dstream_S] * nrow,
+            "dstream_algo": [dstream_algo] * nrow,
         }
     )
