@@ -1,6 +1,7 @@
 from dataframe import (
     surface_build_tree,
     surface_postprocess_trie,
+    surface_test_drive,
     surface_unpack_reconstruct,
 )
 from frozen_instrumentation import (
@@ -179,6 +180,7 @@ __all__ = [
     # dataframe
     "surface_build_tree",
     "surface_postprocess_trie",
+    "surface_test_drive",
     "surface_unpack_reconstruct",
     # frozen_instrumentation
     "HereditaryStratigraphicAssemblage",
