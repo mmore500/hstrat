@@ -256,6 +256,8 @@ def descend_template_phylogeny_posthoc(
             )
             for iter_ in progress_wrap(ascending_lineage_iterables)
         ]
-    raise ValueError(
-        "`return_type` must be one of `HereditaryStratigraphicSurface` or `HereditaryStratigraphicColumn`"
-    )
+    else:
+        raise ValueError(
+            "`seed_instrument` must be one of `HereditaryStratigraphicSurface`"
+            " or `HereditaryStratigraphicColumn`",
+        )
