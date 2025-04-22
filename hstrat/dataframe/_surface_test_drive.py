@@ -81,14 +81,16 @@ def surface_test_drive(
         Additional user-defined columns will be forwarded from the input
         DataFrame.
     """
+    ancestor_instrument = HereditaryStratigraphicSurface(
+        dstream_surface=dsurf.Surface(
+            algo=eval(dstream_algo, {"dstream": dstream}),
+            storage=dstream_S,
+        ),
+        stratum_differentia_bit_width=stratum_differentia_bit_width,
+    )
     surfaces = hstrat.descend_template_phylogeny_alifestd(
         df.lazy().collect().to_pandas(),
-        HereditaryStratigraphicSurface(
-            dsurf.Surface(
-                eval(dstream_algo, {"dstream": dstream}),
-                dstream_S,
-            )
-        ),
+        ancestor_instrument,
     )
 
     dstream_storage_bitwidth = dstream_S * stratum_differentia_bit_width
