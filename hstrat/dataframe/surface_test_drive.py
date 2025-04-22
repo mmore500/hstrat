@@ -96,19 +96,19 @@ def _create_parser() -> argparse.ArgumentParser:
         "--stratum-differentia-bit-width",
         type=int,
         default=64,
-        help="The number of bits a differentia can take up.",
+        help="Number of bits used per differentia.",
     )
     parser.add_argument(
         "--dstream-algo",
         type=str,
         default="dstream.steady_algo",
-        help="The downstream algorithm to use when creating children.",
+        help="Downstream algorithm to curate differentia retention.",
     )
     parser.add_argument(
         "--dstream-S",
         type=int,
         default=128,
-        help="The size of the surface to deposit differentiae on.",
+        help="Number of differentiae to store per surface (usually power of 2).",
     )
     return parser
 
