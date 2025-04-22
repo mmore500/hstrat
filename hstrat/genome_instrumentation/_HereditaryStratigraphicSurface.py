@@ -6,6 +6,7 @@ import types
 import typing
 
 from downstream import dsurf
+import opytional as opyt
 
 from ._HereditaryStratum import HereditaryStratum
 
@@ -196,7 +197,7 @@ class HereditaryStratigraphicSurface:
                 f"{self._differentia_bit_width} bit width.",
             )
         self._surface.ingest_one(
-            self._CreateStratum() if differentia is None else differentia
+            opyt.or_else(differentia, self._CreateStratum),
         )
 
     def DepositStrata(
