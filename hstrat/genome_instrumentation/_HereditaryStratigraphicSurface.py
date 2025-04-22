@@ -257,7 +257,7 @@ class HereditaryStratigraphicSurface:
 
     def IterRankDifferentiaZip(
         self: "HereditaryStratigraphicSurface",
-        copyable: bool = False,
+        copyable: bool = False,  # noqa: ARG001 ... no-op for interface compat
     ) -> typing.Iterator[typing.Tuple[int, int]]:
         """Iterate over ranks of retained strata and their differentia.
 
