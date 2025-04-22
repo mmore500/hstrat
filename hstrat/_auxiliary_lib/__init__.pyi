@@ -504,7 +504,6 @@ __all__ = [
     "give_len",
     "HereditaryStratigraphicArtifact",
     "HereditaryStratigraphicInstrument",
-    "HereditaryStratigraphicInstrument",
     "indices_of_unique",
     "intersect_ranges",
     "is_base64",
