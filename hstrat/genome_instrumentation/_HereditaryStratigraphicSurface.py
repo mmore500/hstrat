@@ -191,7 +191,10 @@ class HereditaryStratigraphicSurface:
         Differentia may be provided (useful for testing) or, by default,
         randomly generated.
         """
-        if int(differentia).bit_length() > self._differentia_bit_width:
+        if (
+            differentia is not None
+            and int(differentia).bit_length() > self._differentia_bit_width
+        ):
             raise ValueError(
                 f"Differentia {differentia} is too large for "
                 f"{self._differentia_bit_width} bit width.",
