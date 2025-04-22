@@ -22,15 +22,15 @@ def surface_test_drive(
     dstream_S: int,
     stratum_differentia_bit_width: int,
 ) -> pl.DataFrame:
-    """Reads alife standard phylogeny dataframe to create a population of hstrat surface
-    annotations corresponding to the phylogeny tips, "as-if" they had evolved according
-    to the provided phylogeny history.
+    """Reads alife standard phylogeny dataframe to create a population of
+    hstrat surface annotations corresponding to the phylogeny tips, "as-if"
+    they had evolved according to the provided phylogeny history.
 
     Parameters
     ----------
     df : pl.DataFrame
-        The input DataFrame containing alife standard phylogeny with required columns, one
-        row per taxon.
+        The input DataFrame containing alife standard phylogeny with required
+        columns, one row per taxon.
 
         Note that the alife-standard `ancestor_list` column is not required.
 
@@ -47,10 +47,12 @@ def surface_test_drive(
                 - Determines branch lengths.
                 - Otherwise, all branches are assumed to be length 1.
             - 'extant' : pl.Boolean
-                - Should an entry corresponding to this phylogeny taxon be included in
-                  the output population?
-                - Otherwise, all tips are considered extant and all inner nodes are not.
-            - Additional user-defined columns will be forwarded to the output DataFrame.
+                - Should an entry corresponding to this phylogeny taxon be
+                  included in the output population?
+                - Otherwise, all tips are considered extant and all inner nodes
+                  are not.
+            - Additional user-defined columns will be forwarded to the output
+              DataFrame.
 
     dstream_algo : str
         Name of downstream curation algorithm to use.
