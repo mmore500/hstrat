@@ -1,4 +1,4 @@
-from downstream import dstream, dsurf  # noqa: F401
+from downstream import dstream, dsurf
 import polars as pl
 
 from .. import hstrat
@@ -87,7 +87,10 @@ def surface_test_drive(
             df.lazy().collect().to_pandas()
         ),  # maybe don't need this
         HereditaryStratigraphicSurface(
-            dsurf.Surface(eval(dstream_algo), dstream_S)
+            dsurf.Surface(
+                eval(dstream_algo, globals={"dstream": dstream}),
+                dstream_S,
+            )
         ),
     )
 
