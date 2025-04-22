@@ -177,12 +177,14 @@ def descend_template_phylogeny_posthoc(
     ranks. Uses cache lookup to ensure that identical strata are provided where
     extant lineage members share common ancestry.
 
-    Requires `seed_column`'s stratum retention policy to provide
-    `IterRetainedRanks()` method.
+    Requires `seed_instrument` to be `HereditaryStratigraphicSurface` or
+    to be a `HereditaryStratigraphicColumn` with a stratum retention policy
+    that provides `IterRetainedRanks()`.
 
     Prefer to use `descend_template_phylogeny`, which will automatically
     delegate to posthoc implementation if stratum retention policy requirements
-    are met. See `descend_template_phylogeny` for parameter and return value details.
+    are met. See `descend_template_phylogeny` for parameter and return value
+    details.
     """
 
     tree_depth_lookup = _calc_node_depths(
