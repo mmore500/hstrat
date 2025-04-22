@@ -88,7 +88,7 @@ def surface_test_drive(
         ),  # maybe don't need this
         HereditaryStratigraphicSurface(
             dsurf.Surface(
-                eval(dstream_algo, globals={"dstream": dstream}),
+                eval(dstream_algo, {"dstream": dstream}),
                 dstream_S,
             )
         ),
