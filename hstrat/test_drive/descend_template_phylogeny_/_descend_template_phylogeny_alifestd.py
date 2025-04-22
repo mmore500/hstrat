@@ -3,8 +3,8 @@ import typing
 import numpy as np
 import pandas as pd
 
-from hstrat._auxiliary_lib._HereditaryStratigraphicInstrumentation import (
-    HereditaryStratigraphicInstrumentation_T,
+from hstrat._auxiliary_lib._HereditaryStratigraphicInstrument import (
+    HereditaryStratigraphicInstrument,
 )
 
 from ..._auxiliary_lib import (
@@ -26,10 +26,10 @@ from ._descend_template_phylogeny import descend_template_phylogeny
 
 def descend_template_phylogeny_alifestd(
     phylogeny_df: pd.DataFrame,
-    seed_column: HereditaryStratigraphicInstrumentation_T,
+    seed_column: HereditaryStratigraphicInstrument,
     extant_ids: typing.Optional[typing.Iterable[int]] = None,
     progress_wrap: typing.Callable = lambda x: x,
-) -> typing.List[HereditaryStratigraphicInstrumentation_T]:
+) -> typing.List[HereditaryStratigraphicInstrument]:
     """Generate a population of hereditary stratigraphic columns that could
     have resulted from the template phylogeny.
 

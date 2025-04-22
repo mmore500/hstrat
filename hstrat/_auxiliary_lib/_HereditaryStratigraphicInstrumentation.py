@@ -6,13 +6,13 @@ if typing.TYPE_CHECKING:  # False at runtime
         HereditaryStratigraphicSurface,
     )
 
-HereditaryStratigraphicInstrumentation = typing.Union[
-    "HereditaryStratigraphicColumn",
-    "HereditaryStratigraphicSurface",
-]
-
-HereditaryStratigraphicInstrumentation_T = typing.TypeVar(
-    "HereditaryStratigraphicInstrumentation_T",  # name
+# using TypeVar as opposed to Union constrains multiple
+# instances of the annotation in the same signature to be
+# of the same type
+# (e.g., must all be HereditaryStratigraphicColumn or
+# all be HereditaryStratigraphicSurface)
+HereditaryStratigraphicInstrument = typing.TypeVar(
+    "HereditaryStratigraphicInstrument",  # name
     "HereditaryStratigraphicColumn",  # constraints
     "HereditaryStratigraphicSurface",
 )

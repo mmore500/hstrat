@@ -6,7 +6,7 @@ from downstream import dsurf
 import more_itertools as mit
 import opytional as opyt
 
-from hstrat._auxiliary_lib import HereditaryStratigraphicInstrumentation_T
+from hstrat._auxiliary_lib import HereditaryStratigraphicInstrument
 
 from ..._auxiliary_lib import demark
 from ...genome_instrumentation import (
@@ -163,10 +163,10 @@ def descend_template_phylogeny_posthoc(
     descending_tree_iterable: typing.Iterable,
     get_parent: typing.Callable[[typing.Any], typing.Any],
     get_stem_length: typing.Callable[[typing.Any], int],
-    seed_instrumentation: HereditaryStratigraphicInstrumentation_T,
+    seed_instrumentation: HereditaryStratigraphicInstrument,
     demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
     progress_wrap: typing.Callable = lambda x: x,
-) -> typing.List[HereditaryStratigraphicInstrumentation_T]:
+) -> typing.List[HereditaryStratigraphicInstrument]:
     """Generate a population of hereditary stratigraphic columns that could
     have resulted from the template phylogeny.
 
