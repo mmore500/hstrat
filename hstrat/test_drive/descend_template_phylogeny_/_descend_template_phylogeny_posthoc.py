@@ -163,7 +163,7 @@ def descend_template_phylogeny_posthoc(
     descending_tree_iterable: typing.Iterable,
     get_parent: typing.Callable[[typing.Any], typing.Any],
     get_stem_length: typing.Callable[[typing.Any], int],
-    seed_instrumentation: HereditaryStratigraphicInstrument,
+    seed_instrument: HereditaryStratigraphicInstrument,
     demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
     progress_wrap: typing.Callable = lambda x: x,
 ) -> typing.List[HereditaryStratigraphicInstrument]:
@@ -191,32 +191,30 @@ def descend_template_phylogeny_posthoc(
         demark=demark,
     )
     deposition_count_lookup = {
-        k: v + seed_instrumentation.GetNumStrataDeposited()
+        k: v + seed_instrument.GetNumStrataDeposited()
         for k, v in tree_depth_lookup.items()
     }
 
-    if isinstance(seed_instrumentation, HereditaryStratigraphicColumn):
+    if isinstance(seed_instrument, HereditaryStratigraphicColumn):
         stem_strata_lookup = defaultdict(
             # use lru_cache as defaultdict with default factory conditioned on key
             lambda: lru_cache(maxsize=None)(
                 lambda rank: (
                     # if applicable, use stratum from seed column
                     # otherwise, create new stratum
-                    seed_instrumentation.GetStratumAtRank(rank)
-                    if rank < seed_instrumentation.GetNumStrataDeposited()
-                    else (seed_instrumentation._CreateStratum(rank))
+                    seed_instrument.GetStratumAtRank(rank)
+                    if rank < seed_instrument.GetNumStrataDeposited()
+                    else (seed_instrument._CreateStratum(rank))
                 )
             )
         )
-        stratum_retention_policy = (
-            seed_instrumentation._stratum_retention_policy
-        )
+        stratum_retention_policy = seed_instrument._stratum_retention_policy
         assert stratum_retention_policy.IterRetainedRanks is not None
         return [
             HereditaryStratigraphicColumn(
-                always_store_rank_in_stratum=seed_instrumentation._always_store_rank_in_stratum,
+                always_store_rank_in_stratum=seed_instrument._always_store_rank_in_stratum,
                 stratum_retention_policy=stratum_retention_policy,
-                stratum_differentia_bit_width=seed_instrumentation.GetStratumDifferentiaBitWidth(),
+                stratum_differentia_bit_width=seed_instrument.GetStratumDifferentiaBitWidth(),
                 stratum_ordered_store=_educe_stratum_ordered_store(
                     iter_,
                     deposition_count_lookup,
@@ -227,7 +225,7 @@ def descend_template_phylogeny_posthoc(
             )
             for iter_ in progress_wrap(ascending_lineage_iterables)
         ]
-    elif isinstance(seed_instrumentation, HereditaryStratigraphicSurface):
+    elif isinstance(seed_instrument, HereditaryStratigraphicSurface):
         stem_strata_lookup = defaultdict(
             # use lru_cache as defaultdict with default factory conditioned on key
             lambda: lru_cache(maxsize=None)(
@@ -235,18 +233,18 @@ def descend_template_phylogeny_posthoc(
                     # if applicable, use stratum from seed column
                     # otherwise, create new stratum
                     opyt.apply_if_or_else(
-                        seed_instrumentation.GetStratumAtRank(rank),
+                        seed_instrument.GetStratumAtRank(rank),
                         lambda x: x._differentia,
-                        seed_instrumentation._CreateStratum,
+                        seed_instrument._CreateStratum,
                     )
-                    if rank < seed_instrumentation.GetNumStrataDeposited()
-                    else (seed_instrumentation._CreateStratum())
+                    if rank < seed_instrument.GetNumStrataDeposited()
+                    else (seed_instrument._CreateStratum())
                 )
             )
         )
         return [
             _educe_surface_object(
-                seed_instrumentation,
+                seed_instrument,
                 deposition_count_lookup,
                 iter_,
                 stem_strata_lookup,

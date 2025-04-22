@@ -168,7 +168,7 @@ def test_descend_template_phylogeny_posthoc(
         descending_tree_iterable=tree.levelorder_node_iter(),
         get_parent=lambda node: node.parent_node,
         get_stem_length=lambda node: node.edge_length,
-        seed_instrumentation=seed_column,
+        seed_instrument=seed_column,
         progress_wrap=functools.partial(tqdm, disable=True),
     )
 
@@ -381,7 +381,7 @@ def test_descend_template_phylogeny_posthoc_surface(
         descending_tree_iterable=tree.levelorder_node_iter(),
         get_parent=lambda node: node.parent_node,
         get_stem_length=lambda node: node.edge_length,
-        seed_instrumentation=seed_surface,
+        seed_instrument=seed_surface,
         progress_wrap=functools.partial(tqdm, disable=True),
     )
 
