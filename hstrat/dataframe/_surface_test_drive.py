@@ -83,9 +83,7 @@ def surface_test_drive(
         DataFrame.
     """
     surfaces = hstrat.descend_template_phylogeny_alifestd(
-        alifestd_try_add_ancestor_list_col(
-            df.lazy().collect().to_pandas()
-        ),  # maybe don't need this
+        df.lazy().collect().to_pandas(),
         HereditaryStratigraphicSurface(
             dsurf.Surface(
                 eval(dstream_algo, {"dstream": dstream}),
