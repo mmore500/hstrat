@@ -221,7 +221,7 @@ class HereditaryStratigraphicSurface:
     def IterRetainedRanks(
         self: "HereditaryStratigraphicSurface",
     ) -> typing.Iterator[int]:
-        """Iterate over deposition ranks of strata stored in the column.
+        """Iterate over deposition ranks of strata stored in the surface.
 
         The store may be altered during iteration without iterator
         invalidation, although subsequent updates will not be reflected in the
@@ -232,8 +232,9 @@ class HereditaryStratigraphicSurface:
     def IterRetainedStrata(
         self: "HereditaryStratigraphicSurface",
     ) -> typing.Iterator[HereditaryStratum]:
-        """Iterate over strata stored in the column.
-        Strata yielded from most ancient to most recent.
+        """Iterate over strata stored in the surface.
+
+        Strata are yielded from most ancient to most recent.
         """
         return (
             HereditaryStratum(
@@ -248,7 +249,7 @@ class HereditaryStratigraphicSurface:
     def IterRetainedDifferentia(
         self: "HereditaryStratigraphicSurface",
     ) -> typing.Iterator[int]:
-        """Iterate over differentia of strata stored in the column.
+        """Iterate over differentia of strata stored in the surface.
 
         Differentia yielded from most ancient to most recent.
         """
@@ -263,8 +264,8 @@ class HereditaryStratigraphicSurface:
         If `copyable`, return an iterator that can be copied to produce a new
         fully-independent iterator at the same position.
 
-        Equivalent to `zip(col.IterRetainedRanks(),
-        col.IterRetainedDifferentia())`, but may be more efficient.
+        Equivalent to `zip(surf.IterRetainedRanks(),
+        surf.IterRetainedDifferentia())`.
         """
 
         return iter(
@@ -281,7 +282,7 @@ class HereditaryStratigraphicSurface:
         return False  # annotation feature not supported
 
     def GetNumStrataRetained(self: "HereditaryStratigraphicSurface") -> int:
-        """How many strata are currently stored within the column?
+        """How many strata are currently stored within the surface?
 
         May be fewer than the number of strata deposited if strata have been
         discarded as part of the configured stratum retention policy.
@@ -289,9 +290,9 @@ class HereditaryStratigraphicSurface:
         return min(self._surface.T, self._surface.S)
 
     def GetNumStrataDeposited(self: "HereditaryStratigraphicSurface") -> int:
-        """How many strata have been depostited on the column?
+        """How many strata have been depostited on the surface?
 
-        Note that a first stratum is deposited on the column during
+        Note that a first `S` strata may be deposited on the surface during
         initialization.
         """
         return self._surface.T
@@ -399,17 +400,17 @@ class HereditaryStratigraphicSurface:
     def Clone(
         self: "HereditaryStratigraphicSurface",
     ) -> "HereditaryStratigraphicSurface":
-        """Create an independent copy of the column.
+        """Create an independent copy of the surface.
 
         Contains identical data but may be freely altered without affecting
-        data within this column.
+        data within this surface.
         """
         return deepcopy(self)
 
     def CloneDescendant(
         self: "HereditaryStratigraphicSurface",
     ) -> "HereditaryStratigraphicSurface":
-        """Return a cloned column that has had an additional stratum deposited.
+        """Return a cloned surface that has had an additional stratum deposited.
 
         Does not alter self.
         """
@@ -421,14 +422,14 @@ class HereditaryStratigraphicSurface:
         self: "HereditaryStratigraphicSurface",
         num_stratum_depositions: int,
     ) -> "HereditaryStratigraphicSurface":
-        """Return a cloned column that has had n additional strata deposited.
+        """Return a cloned surface that has had n additional strata deposited.
 
         Does not alter self.
 
         Parameters
         ----------
         num_stratum_depositions: int
-            How many generations should clone column be descended?
+            How many generations should clone surface be descended?
         """
         new = self.Clone()
         new.DepositStrata(num_stratum_depositions)
