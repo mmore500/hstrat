@@ -1,9 +1,7 @@
 import typing
 
 from ..._auxiliary_lib import HereditaryStratigraphicInstrumentation_T, demark
-from ...genome_instrumentation import (
-    HereditaryStratigraphicSurface,
-)
+from ...genome_instrumentation import HereditaryStratigraphicSurface
 from ._descend_template_phylogeny_naive import descend_template_phylogeny_naive
 from ._descend_template_phylogeny_posthoc import (
     descend_template_phylogeny_posthoc,

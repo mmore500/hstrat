@@ -1,9 +1,6 @@
 import typing
 
-from ..._auxiliary_lib import (
-    HereditaryStratigraphicInstrumentation_T,
-    demark,
-)
+from ..._auxiliary_lib import HereditaryStratigraphicInstrumentation_T, demark
 
 
 def descend_template_phylogeny_naive(
