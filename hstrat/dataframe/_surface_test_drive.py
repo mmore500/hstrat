@@ -2,7 +2,6 @@ from downstream import dstream, dsurf
 import polars as pl
 
 from .. import hstrat
-from .._auxiliary_lib import alifestd_try_add_ancestor_list_col
 from ..genome_instrumentation import HereditaryStratigraphicSurface
 
 
