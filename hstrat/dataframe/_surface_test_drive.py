@@ -82,10 +82,9 @@ def surface_test_drive(
         Additional user-defined columns will be forwarded from the input
         DataFrame.
     """
-
     surfaces = hstrat.descend_template_phylogeny_alifestd(
         alifestd_try_add_ancestor_list_col(
-            df.collect().to_pandas()
+            df.lazy().collect().to_pandas()
         ),  # maybe don't need this
         HereditaryStratigraphicSurface(
             dsurf.Surface(eval(dstream_algo), dstream_S)
