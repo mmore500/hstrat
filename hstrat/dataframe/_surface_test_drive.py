@@ -1,18 +1,9 @@
-import types
-
-from downstream import dstream, dsurf
+from downstream import dstream, dsurf  # noqa: F401
 import polars as pl
 
 from .. import hstrat
 from .._auxiliary_lib import alifestd_try_add_ancestor_list_col
 from ..genome_instrumentation import HereditaryStratigraphicSurface
-
-
-def get_dstream_algo(algo_str: str) -> types.ModuleType:
-    ds, algo_name = algo_str.split(".")
-    assert ds == "dstream"
-    assert algo_name.isidentifier() and algo_name in dir(dstream)
-    return getattr(dstream, algo_name)
 
 
 def surface_test_drive(
@@ -97,7 +88,7 @@ def surface_test_drive(
             df.collect().to_pandas()
         ),  # maybe don't need this
         HereditaryStratigraphicSurface(
-            dsurf.Surface(get_dstream_algo(dstream_algo), dstream_S)
+            dsurf.Surface(eval(dstream_algo), dstream_S)
         ),
     )
 
