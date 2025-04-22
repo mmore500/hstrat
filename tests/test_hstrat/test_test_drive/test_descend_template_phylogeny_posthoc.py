@@ -393,7 +393,7 @@ def test_descend_template_phylogeny_posthoc_surface(
         for extant_node in iter_extant_nodes(tree)
     ]
     assert extant_depths == [
-        surf.GetNumStrataDeposited() - surf.S - 1for surf in extant_population
+        surf.GetNumStrataDeposited() - surf.S - 1 for surf in extant_population
     ]
 
     assert all(

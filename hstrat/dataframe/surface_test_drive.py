@@ -108,7 +108,7 @@ def _create_parser() -> argparse.ArgumentParser:
         "--dstream-S",
         type=int,
         default=128,
-        help="The size of the surface to deposit differentiae on."
+        help="The size of the surface to deposit differentiae on.",
     )
     return parser
 

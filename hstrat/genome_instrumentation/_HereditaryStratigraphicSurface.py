@@ -183,10 +183,12 @@ class HereditaryStratigraphicSurface:
 
     def DepositStratum(
         self: "HereditaryStratigraphicSurface",
-        differentia: typing.Optional[int] = None
+        differentia: typing.Optional[int] = None,
     ) -> None:
         """Elapse a generation by depositing a differentia value."""
-        self._surface.ingest_one(self._CreateStratum() if differentia is None else differentia)
+        self._surface.ingest_one(
+            self._CreateStratum() if differentia is None else differentia
+        )
 
     def DepositStrata(
         self: "HereditaryStratigraphicSurface",
