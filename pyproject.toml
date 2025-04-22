@@ -16,6 +16,7 @@ classifiers = [
 dependencies = [
   "alifedata_phyloinformatics_convert>=0.17.0",
   "anytree>=2.8.0",
+  "astropy>=5.3.4",
   "bitarray>=2.6.2",
   "bitstring>=3.1.9",
   "dendropy>=4.5.2",

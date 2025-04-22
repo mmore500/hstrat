@@ -2,6 +2,7 @@ from collections import defaultdict
 from functools import lru_cache
 import typing
 
+from astropy.utils.decorators import deprecated_renamed_argument
 from downstream import dsurf
 import more_itertools as mit
 import opytional as opyt
@@ -158,6 +159,7 @@ def _educe_stratum_ordered_store(
     return stratum_ordered_store, extant_deposition_count
 
 
+@deprecated_renamed_argument("seed_column", "seed_instrument", since="1.20.0")
 def descend_template_phylogeny_posthoc(
     ascending_lineage_iterables: typing.Iterable[typing.Iterable],
     descending_tree_iterable: typing.Iterable,

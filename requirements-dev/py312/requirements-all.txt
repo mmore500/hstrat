@@ -12,6 +12,10 @@ anytree==2.12.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
+astropy==7.0.1
+    # via hstrat (../../pyproject.toml)
+astropy-iers-data==0.2025.4.21.0.37.6
+    # via astropy
 asttokens==2.4.1
     # via stack-data
 attrs==24.2.0
@@ -251,6 +255,7 @@ numpy==2.0.2
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
+    #   astropy
     #   biopython
     #   colorclade
     #   contourpy
@@ -261,6 +266,7 @@ numpy==2.0.2
     #   pandas
     #   pandera
     #   patsy
+    #   pyerfa
     #   scikit-learn
     #   scipy
     #   seaborn
@@ -276,6 +282,7 @@ ordered-set==4.1.0
 packaging==24.2
     # via
     #   hstrat (../../pyproject.toml)
+    #   astropy
     #   ipykernel
     #   lazy-loader
     #   matplotlib
@@ -362,6 +369,8 @@ pydantic==2.10.2
     # via pandera
 pydantic-core==2.27.1
     # via pydantic
+pyerfa==2.0.1.5
+    # via astropy
 pyflakes==2.1.1
     # via flake8
 pygments==2.18.0
@@ -393,7 +402,9 @@ python-slugify==8.0.4
 pytz==2024.2
     # via pandas
 pyyaml==6.0.1
-    # via hstrat (../../pyproject.toml)
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   astropy
 pyzmq==26.2.0
     # via
     #   ipykernel
