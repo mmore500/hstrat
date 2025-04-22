@@ -185,7 +185,16 @@ class HereditaryStratigraphicSurface:
         self: "HereditaryStratigraphicSurface",
         differentia: typing.Optional[int] = None,
     ) -> None:
-        """Elapse a generation by depositing a differentia value."""
+        """Elapse a generation by depositing a differentia value.
+
+        Differentia may be provided (useful for testing) or, by default,
+        randomly generated.
+        """
+        if int(differentia).bit_length() > self._differentia_bit_width:
+            raise ValueError(
+                f"Differentia {differentia} is too large for "
+                f"{self._differentia_bit_width} bit width.",
+            )
         self._surface.ingest_one(
             self._CreateStratum() if differentia is None else differentia
         )
