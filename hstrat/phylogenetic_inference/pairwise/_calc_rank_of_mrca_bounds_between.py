@@ -144,7 +144,6 @@ def calc_rank_of_mrca_bounds_between(
                 == second.GetNumStrataDeposited()
             )
         if first_disparity is None:
-            print("in here")
             max_rank_first = first.GetNumStrataDeposited() + (
                 first.S
                 if isinstance(first, HereditaryStratigraphicSurface)

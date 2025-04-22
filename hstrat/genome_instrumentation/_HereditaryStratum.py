@@ -58,8 +58,14 @@ class HereditaryStratum:
         self._annotation = annotation
         self._deposition_rank = deposition_rank
 
-    def __repr__(self) -> str:
-        return f"HereditaryStratum(annotation={self._annotation}, deposition_rank={self._deposition_rank}, differentia={self._differentia})"
+    def __repr__(self: "HereditaryStratum") -> str:
+        return (
+            "HereditaryStratum("
+            f"annotation={self._annotation}, "
+            f"deposition_rank={self._deposition_rank}, "
+            f"differentia={self._differentia}"
+            ")"
+        )
 
     def __eq__(self: "HereditaryStratum", other: typing.Any) -> bool:
         """Compare for value-wise equality."""
