@@ -1,21 +1,22 @@
 import typing
 
+from astropy.utils.decorators import deprecated_renamed_argument
 from iterpop import iterpop as ip
 import networkx as nx
 import opytional as opyt
 
-from ..._auxiliary_lib import unpairwise
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import HereditaryStratigraphicInstrument, unpairwise
 from ._descend_template_phylogeny import descend_template_phylogeny
 
 
+@deprecated_renamed_argument("seed_column", "seed_instrument", since="1.20.0")
 def descend_template_phylogeny_networkx(
     tree: nx.DiGraph,
-    seed_column: HereditaryStratigraphicColumn,
+    seed_instrument: HereditaryStratigraphicInstrument,
     extant_nodes: typing.Optional[typing.Iterable[typing.Any]] = None,
     progress_wrap: typing.Callable = lambda x: x,
-) -> typing.List[HereditaryStratigraphicColumn]:
-    """Generate a population of hereditary stratigraphic columns that could
+) -> typing.List[HereditaryStratigraphicInstrument]:
+    """Generate a population of hereditary stratigraphic instruments that could
     have resulted from the template phylogeny.
 
     Parameters
@@ -25,21 +26,23 @@ def descend_template_phylogeny_networkx(
 
         Assumes directed edges point from ancestor to descendant. Does not
         support non-unit edge length.
-    seed_column : HereditaryStratigraphicColumn
-        Hereditary stratigraphic column to seed at root node of phylogeny.
+    seed_instrument : HereditaryStratigraphicInstrument
+        Hereditary stratigraphic instrument to seed at root node of phylogeny.
 
-        Returned hereditary stratigraphic column population will be generated
-        as if repeatedly calling `CloneDescendant()` on `seed_column`. As such,
-        specifies configuration (i.e., differentia bit width and stratum
-        retention policy) for returned columns. May already have strata
-        deposited, which will be incorporated into generated extant population.
+        Returned hereditary stratigraphic instrument population will be
+        generated as if repeatedly calling `CloneDescendant()` on
+        `seed_instrument`. As such, specifies configuration (i.e., differentia
+        bit width and stratum retention policy) for returned instruments. May
+        already have strata deposited, which will be incorporated into generated
+        extant population.
     extant_nodes : optional list of networkx nodes
-        Which organisms should hereditary stratigraphic columns be created for?
+        Which organisms should hereditary stratigraphic instruments be created
+        for?
 
         Designates content and order of returned list of hereditary
-        stratigraphic column.
+        stratigraphic instrument.
 
-        If None, hereditary stratigraphic columns will be created for all
+        If None, hereditary stratigraphic instruments will be created for all
         phylogenetic leaves (organisms without offspring) in order of
         appearance in `tree.nodes`.
     progress_wrap : Callable, optional
@@ -50,12 +53,12 @@ def descend_template_phylogeny_networkx(
 
     Returns
     -------
-    list of HereditaryStratigraphicColumn
-        Population of hereditary stratigraphic columns for extant lineage
+    list of HereditaryStratigraphicInstrument
+        Population of hereditary stratigraphic instruments for extant lineage
         members (i.e., phylogeny leaf nodes).
 
-        Columns ordered in order of appearance of corresponding extant organism
-        id.
+        Instruments ordered in order of appearance of corresponding extant
+        organism id.
     """
 
     # handle empty case
@@ -82,7 +85,7 @@ def descend_template_phylogeny_networkx(
         ),
         get_parent=lambda node: ip.poursingleton(reversed_tree[node]),
         get_stem_length=lambda node: 1,
-        seed_column=seed_column,
+        seed_instrument=seed_instrument,
         demark=lambda x: x,
         progress_wrap=progress_wrap,
     )

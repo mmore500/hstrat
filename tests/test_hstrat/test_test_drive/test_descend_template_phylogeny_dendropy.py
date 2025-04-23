@@ -125,7 +125,7 @@ def test_descend_template_phylogeny(
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         tree,
-        seed_column=seed_column,
+        seed_instrument=seed_column,
     )
 
     num_tips = len(tree)
@@ -282,7 +282,7 @@ def test_descend_template_phylogeny_extant_ids(
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         tree,
-        seed_column=seed_column,
+        seed_instrument=seed_column,
         extant_nodes=extant_nodes,
         progress_wrap=functools.partial(tqdm, disable=True),
     )

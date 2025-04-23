@@ -59,7 +59,7 @@ def test_tree_internal_extant_nodes():
     tree.add_edges_from([(0, 1), (1, 2), (1, 3), (3, 4)])
     seed_column = hstrat.HereditaryStratigraphicColumn().CloneNthDescendant(1)
     result = hstrat.descend_template_phylogeny_networkx(
-        tree, seed_column, extant_nodes=[2, 3, 4]
+        tree, seed_instrument=seed_column, extant_nodes=[2, 3, 4]
     )
     assert len(result) == 3
 

@@ -124,7 +124,7 @@ def test_dual_population_no_mrca(entry_point):
 def test_handwritten_trees(orig_tree, retention_policy, wrap, entry_point):
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn(
+        seed_instrument=hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,
         ).CloneNthDescendant(10),
     )
@@ -188,7 +188,7 @@ def test_reconstructed_mrca(orig_tree, retention_policy, entry_point):
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn(
+        seed_instrument=hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,
         ).CloneNthDescendant(num_depositions),
     )
@@ -275,7 +275,7 @@ def test_col_specimen_consistency(orig_tree, retention_policy, entry_point):
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn(
+        seed_instrument=hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,
         ).CloneNthDescendant(num_depositions),
     )
@@ -336,7 +336,7 @@ def test_reconstructed_mrca_fuzz(
 
     extant_population = hstrat.descend_template_phylogeny_networkx(
         nx_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn(
+        seed_instrument=hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,
             stratum_differentia_bit_width=differentia_width,
         ),
@@ -490,7 +490,7 @@ def test_determinism1(
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn(
+        seed_instrument=hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=differentia_width,
             stratum_retention_policy=retention_policy,
         ).CloneNthDescendant(num_depositions),
@@ -539,7 +539,7 @@ def test_determinism2(orig_tree, retention_policy, differentia_width):
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn(
+        seed_instrument=hstrat.HereditaryStratigraphicColumn(
             stratum_differentia_bit_width=differentia_width,
             stratum_retention_policy=retention_policy,
         ).CloneNthDescendant(num_depositions),
@@ -582,7 +582,7 @@ def test_reconstructed_taxon_labels(
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn(
+        seed_instrument=hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,
         ).CloneNthDescendant(num_depositions),
     )

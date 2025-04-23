@@ -135,7 +135,7 @@ def test_descend_template_phylogeny(
         descending_tree_iterable=tree.levelorder_node_iter(),
         get_parent=lambda node: node.parent_node,
         get_stem_length=lambda node: node.edge_length,
-        seed_column=seed_column,
+        seed_instrument=seed_column,
         progress_wrap=functools.partial(tqdm, disable=True),
     )
 

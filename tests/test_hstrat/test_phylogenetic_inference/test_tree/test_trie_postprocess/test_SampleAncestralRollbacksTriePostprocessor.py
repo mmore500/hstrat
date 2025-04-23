@@ -256,7 +256,7 @@ def test_unzip_fuzz(
     nx_tree = random_tree(n=tree_size, seed=tree_seed, create_using=nx.DiGraph)
     extant_population = hstrat.descend_template_phylogeny_networkx(
         nx_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn(
+        seed_instrument=hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,
         ),
     )

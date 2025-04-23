@@ -144,7 +144,7 @@ def test_template_phylogeny_descent_deterministic(
             descending_tree_iterable=tree.levelorder_node_iter(),
             get_parent=lambda node: node.parent_node,
             get_stem_length=lambda node: node.edge_length,
-            seed_column=seed_column,
+            seed_instrument=seed_column,
         )
 
         derived_column_populations.append(extant_population)
@@ -171,7 +171,7 @@ def test_template_phylogeny_descent_deterministic(
             descending_tree_iterable=tree.levelorder_node_iter(),
             get_parent=lambda node: node.parent_node,
             get_stem_length=lambda node: node.edge_length,
-            seed_column=seed_column,
+            seed_instrument=seed_column,
         )
 
         derived_column_populations.append(extant_population)

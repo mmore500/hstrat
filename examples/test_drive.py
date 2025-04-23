@@ -27,7 +27,7 @@ if __name__ == "__main__":
     print("simulated hstrat column inheritance along template phylogeny:")
     extant_population = hstrat.descend_template_phylogeny_biopython(
         template_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn(
+        seed_instrument=hstrat.HereditaryStratigraphicColumn(
             hstrat.recency_proportional_resolution_algo.Policy(5)
         ),
     )
