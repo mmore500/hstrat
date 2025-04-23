@@ -139,8 +139,8 @@ class HereditaryStratigraphicSurface:
         *,
         stratum_differentia_bit_width: int = 64,
     ) -> None:
-        """A wrapper around the downstream Surface object to fit the
-        `hstrat` interface.
+        """A wrapper around the downstream Surface object to match the
+        `hstrat.HereditaryStratigraphicColumn` interface.
 
         Initially depoists `S + 1` strata, where `S` is the surface size.
 
@@ -148,9 +148,8 @@ class HereditaryStratigraphicSurface:
         ----------
         dstream_surface: downstream.dsurf.Surface
             The surface to use to store annotations.
-        stratum_differentia_bit_width : int, optional
-            The bit width of the generated differentia. Default 64, allowing
-            for 2^64 distinct values.
+        stratum_differentia_bit_width : int, default 64
+            The bit width for generated differentia.
         """
         self._surface = dstream_surface
         self._differentia_bit_width = stratum_differentia_bit_width
