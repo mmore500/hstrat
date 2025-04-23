@@ -62,6 +62,29 @@ def test_surface_test_drive_cli_parquet():
     assert os.path.exists(output_file)
 
 
+def test_surface_test_drive_cli_flags():
+    output_file = "/tmp/hstrat_surface_test_drive_flags.pqt"
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_test_drive",
+            output_file,
+            "--shrink-dtypes",
+            "--stratum-differentia-bit-width",
+            "8",
+            "--dstream-algo",
+            "dstream.primed_4pad0_tiltedxtc_algo",
+            "--dstream-S",
+            "36",
+        ],
+        check=True,
+        input=f"{assets}/nk_ecoeaselection.csv".encode(),
+    )
+    assert os.path.exists(output_file)
+
+
 def test_surface_test_drive_cli_pipe_reconstruct():
     output_file = "/tmp/hstrat_surface_test_drive_reconstruct.pqt"
     pathlib.Path(output_file).unlink(missing_ok=True)
