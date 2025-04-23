@@ -60,3 +60,38 @@ def test_surface_test_drive_cli_parquet():
         input=f"{assets}/nk_ecoeaselection.csv".encode(),
     )
     assert os.path.exists(output_file)
+
+
+def test_surface_test_drive_cli_pipe_reconstruct():
+    output_file = "/tmp/hstrat_surface_test_drive_reconstruct.pqt"
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    td = subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_test_drive",
+            "/dev/stdout",
+            "--shrink-dtypes",
+            "--output-filetype",
+            "parquet",
+            "--write-kwarg",
+            "compression='uncompressed'",
+        ],
+        capture_output=True,
+        check=True,
+        input=f"{assets}/nk_ecoeaselection.csv".encode(),
+    )
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_build_tree",
+            output_file,
+            "--stdin",
+            "--input-filetype",
+            "parquet",
+        ],
+        check=True,
+        input=td.stdout,
+    )
+    assert os.path.exists(output_file)
