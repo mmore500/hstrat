@@ -10,6 +10,7 @@ def surface_test_drive(
     *,
     dstream_algo: str,
     dstream_S: int,
+    dstream_T_bitwidth: int = 32,
     stratum_differentia_bit_width: int,
 ) -> pl.DataFrame:
     """Reads alife standard phylogeny dataframe to create a population of
@@ -95,8 +96,8 @@ def surface_test_drive(
     )
 
     dstream_storage_bitwidth = dstream_S * stratum_differentia_bit_width
-    dstream_storage_bitoffset = 32
-    dstream_T_bitwidth = 32
+    dstream_storage_bitoffset = dstream_T_bitwidth
+    dstream_T_bitwidth = dstream_T_bitwidth
     dstream_T_bitoffset = 0
     hex_encodings = [surf.to_hex() for surf in surfaces]
     origin_times = [surf.GetNextRank() for surf in surfaces]

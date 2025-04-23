@@ -78,6 +78,8 @@ def test_surface_test_drive_cli_flags():
             "dstream.primed_4pad0_tiltedxtc_algo",
             "--dstream-S",
             "36",
+            "--dstream-T-bitwidth",
+            "64",
         ],
         check=True,
         input=f"{assets}/nk_ecoeaselection.csv".encode(),

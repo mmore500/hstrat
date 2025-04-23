@@ -108,7 +108,13 @@ def _create_parser() -> argparse.ArgumentParser:
         "--dstream-S",
         type=int,
         default=64,
-        help="Number of differentiae to store per surface (usually power of 2).",
+        help="Number differentiae to store per surface (usually power of 2).",
+    )
+    parser.add_argument(
+        "--dstream-T-bitwidth",
+        type=int,
+        default=32,
+        help="Number of bits for generation (dstream T) counter.",
     )
     return parser
 
