@@ -52,5 +52,5 @@ def calc_rank_of_first_retained_disparity_between(
     )
 
     res = impl(first, second, confidence_level=confidence_level)
-    res = opyt.apply_if(res, lambda x: max(x, 1))  # handle negative rank case
+    res = opyt.apply_if(res, lambda x: max(x, 0))  # handle negative rank case
     return res

@@ -346,9 +346,14 @@ def test_descend_template_phylogeny_posthoc(
     ],
 )
 @pytest.mark.parametrize(
-    "algo", [dstream.steady_algo, dstream.tilted_algo, dstream.stretched_algo]
+    "algo",
+    [
+        dstream.primed_8pad0_steady_algo,
+        dstream.primed_8pad0_tiltedxtc_algo,
+        dstream.primed_8pad0_stretchedxtc_algo,
+    ],
 )
-@pytest.mark.parametrize("S", [32, 64])
+@pytest.mark.parametrize("S", [40, 72])
 @pytest.mark.parametrize("stratum_differentia_bit_width", [32, 64])
 def test_descend_template_phylogeny_posthoc_surface(
     iter_extant_nodes: typing.Callable,
