@@ -348,6 +348,30 @@ def test_IterRankDifferentiaZip(algo: types.ModuleType, S: int):
         ]
 
 
+def test_predeposit_strata():
+    assert (
+        hstrat.HereditaryStratigraphicSurface(
+            dsurf.Surface(dstream.steady_algo, 128),
+            predeposit_strata=0,
+        ).GetNumStrataDeposited()
+        == 128 + 0
+    )
+    assert (
+        hstrat.HereditaryStratigraphicSurface(
+            dsurf.Surface(dstream.steady_algo, 128),
+            predeposit_strata=1,
+        ).GetNumStrataDeposited()
+        == 128 + 1
+    )
+    assert (
+        hstrat.HereditaryStratigraphicSurface(
+            dsurf.Surface(dstream.steady_algo, 128),
+            predeposit_strata=42,
+        ).GetNumStrataDeposited()
+        == 128 + 42
+    )
+
+
 def test_CloneNthDescendant_zero():
     surf = hstrat.HereditaryStratigraphicSurface(
         dsurf.Surface(dstream.steady_algo, 128)

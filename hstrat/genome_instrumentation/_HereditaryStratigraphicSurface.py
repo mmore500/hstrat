@@ -137,27 +137,41 @@ class HereditaryStratigraphicSurface:
         self: "HereditaryStratigraphicSurface",
         dstream_surface: dsurf.Surface[int],
         *,
+        predeposit_strata: typing.Optional[int] = None,
         stratum_differentia_bit_width: int = 64,
     ) -> None:
         """A wrapper around the downstream Surface object to match the
         `hstrat.HereditaryStratigraphicColumn` interface.
 
-        Initially depoists `S + 1` strata, where `S` is the surface size.
+        Initially depoists `S + predeposit_strata` strata, where `S` is the
+        surface size. If surface is already initialized, `predeposit_strata` is
+        ignored and a ValueError is raised if `predeposit_strata` is not None.
 
         Parameters
         ----------
         dstream_surface: downstream.dsurf.Surface
             The surface to use to store annotations.
+        predeposit_strata: int, default 1
+            The number of strata to deposit on the surface during
+            initialization. Default 1 matches behavior of
+            HereditaryStratigraphicColumn.
         stratum_differentia_bit_width : int, default 64
             The bit width for generated differentia.
         """
         self._surface = dstream_surface
         self._differentia_bit_width = stratum_differentia_bit_width
         if dstream_surface.T == 0:
-            self.DepositStrata(self._surface.S + 1)  # +1 matches col behavior
-            assert self.GetNextRank() == 1
+            predeposit_strata = opyt.or_value(predeposit_strata, 1)
+            self.DepositStrata(self._surface.S + predeposit_strata)
+            assert self.GetNextRank() == predeposit_strata
         elif dstream_surface.T < self._surface.S:
             raise ValueError("Partially-initialized Surface provided.")
+        elif predeposit_strata is not None:
+            raise ValueError(
+                "Predeposit strata provided to already-initialized "
+                "Surface. Predeposit strata should only be provided to "
+                "uninitialized surfaces."
+            )
 
     @property
     def S(self):
