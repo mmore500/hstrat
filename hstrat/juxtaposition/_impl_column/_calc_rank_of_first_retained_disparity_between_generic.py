@@ -125,16 +125,10 @@ def calc_rank_of_first_retained_disparity_between_generic(
         # conservatively assume mismatch will be with next rank of second
         assert second_iter is None
         assert second_prev_rank is not None
-        preceding_common_ranks.appendleft(second_prev_rank + 1)
-        res = second.GetNextRank()
+        preceding_common_ranks.appendleft(second.GetNextRank())
+        res = preceding_common_ranks[-1]
         assert res <= first.GetNumStrataDeposited()
         assert res <= second.GetNumStrataDeposited()
-        assert res <= first.GetNextRank()
-        assert res <= second.GetNextRank()
-        assert (
-            preceding_common_ranks[-1] is None
-            or res >= preceding_common_ranks[-1]
-        )
         return res
     elif second_iter is not None:
         # although no mismatching strata found between second and first
@@ -142,16 +136,10 @@ def calc_rank_of_first_retained_disparity_between_generic(
         # conservatively assume mismatch will be with next rank
         assert first_iter is None
         assert first_prev_rank is not None
-        preceding_common_ranks.appendleft(first_prev_rank + 1)
-        res = first.GetNextRank()
+        preceding_common_ranks.appendleft(first.GetNextRank())
+        res = preceding_common_ranks[-1]
         assert res <= first.GetNumStrataDeposited()
         assert res <= second.GetNumStrataDeposited()
-        assert res <= first.GetNextRank()
-        assert res <= second.GetNextRank()
-        assert (
-            preceding_common_ranks[-1] is None
-            or res >= preceding_common_ranks[-1]
-        )
         return res
     else:
         # no disparate strata found
