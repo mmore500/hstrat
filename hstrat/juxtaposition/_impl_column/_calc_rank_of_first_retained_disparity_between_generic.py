@@ -97,7 +97,7 @@ def calc_rank_of_first_retained_disparity_between_generic(
             else:
                 # mismatching differentiae at the same rank
                 preceding_common_ranks.appendleft(first_cur_rank)
-                assert 0 <= first_cur_rank < first.GetNumStrataDeposited()
+                assert first_cur_rank < first.GetNextRank()
 
                 # discount collision_implausibility_threshold - 1 common
                 # ranks due to potential spurious differentia collisions;
@@ -124,9 +124,15 @@ def calc_rank_of_first_retained_disparity_between_generic(
         assert second_iter is None
         assert second_prev_rank is not None
         preceding_common_ranks.appendleft(second_prev_rank + 1)
-        res = preceding_common_ranks[-1]
-        assert 0 <= res <= first.GetNumStrataDeposited()
-        assert 0 <= res <= second.GetNumStrataDeposited()
+        res = second.GetNextRank()
+        assert res <= first.GetNumStrataDeposited()
+        assert res <= second.GetNumStrataDeposited()
+        assert res <= first.GetNextRank()
+        assert res <= second.GetNextRank()
+        assert (
+            preceding_common_ranks[-1] is None
+            or res >= preceding_common_ranks[-1]
+        )
         return res
     elif second_iter is not None:
         # although no mismatching strata found between second and first
@@ -135,17 +141,24 @@ def calc_rank_of_first_retained_disparity_between_generic(
         assert first_iter is None
         assert first_prev_rank is not None
         preceding_common_ranks.appendleft(first_prev_rank + 1)
-        res = preceding_common_ranks[-1]
-        assert 0 <= res <= first.GetNumStrataDeposited()
-        assert 0 <= res <= second.GetNumStrataDeposited()
+        res = first.GetNextRank()
+        assert res <= first.GetNumStrataDeposited()
+        assert res <= second.GetNumStrataDeposited()
+        assert res <= first.GetNextRank()
+        assert res <= second.GetNextRank()
+        assert (
+            preceding_common_ranks[-1] is None
+            or res >= preceding_common_ranks[-1]
+        )
         return res
     else:
         # no disparate strata found
         # and first and second have the same newest rank
         assert first_iter is None and second_iter is None
         preceding_common_ranks.appendleft(None)
+        res = min(first.GetNextRank(), second.GetNextRank())
         assert (
             preceding_common_ranks[-1] is None
-            or preceding_common_ranks[-1] >= 0
+            or res >= preceding_common_ranks[-1]
         )
-        return preceding_common_ranks[-1]
+        return res

@@ -142,7 +142,7 @@ class HereditaryStratigraphicSurface:
         """A wrapper around the downstream Surface object to fit the
         `hstrat` interface.
 
-        Initially depoists `S` strata, where `S` is the surface size.
+        Initially depoists `S + 1` strata, where `S` is the surface size.
 
         Parameters
         ----------
@@ -155,7 +155,8 @@ class HereditaryStratigraphicSurface:
         self._surface = dstream_surface
         self._differentia_bit_width = stratum_differentia_bit_width
         if dstream_surface.T == 0:
-            self.DepositStrata(self._surface.S)
+            self.DepositStrata(self._surface.S + 1)  # +1 matches col behavior
+            assert self.GetNextRank() == 1
         elif dstream_surface.T < self._surface.S:
             raise ValueError("Partially-initialized Surface provided.")
 
@@ -281,6 +282,14 @@ class HereditaryStratigraphicSurface:
         """Do any retained strata have annotations?"""
         return False  # annotation feature not supported
 
+    def GetNextRank(self: "HereditaryStratigraphicSurface") -> int:
+        """Get the rank of the next stratum to be deposited.
+
+        This is the rank of the next stratum to be deposited, not the rank of
+        the most recent stratum.
+        """
+        return self._surface.T - self._surface.S
+
     def GetNumStrataRetained(self: "HereditaryStratigraphicSurface") -> int:
         """How many strata are currently stored within the surface?
 
@@ -381,9 +390,14 @@ class HereditaryStratigraphicSurface:
         """How many deposited strata have been discarded?
 
         Determined by number of generations elapsed and the configured column
-        retention policy.
+        retention policy. Does not include `S` initialization strata.
         """
-        return self.GetNumStrataDeposited() - self.GetNumStrataRetained()
+        return max(
+            self.GetNumStrataDeposited()
+            - self.GetNumStrataRetained()
+            - self.S,
+            0,
+        )
 
     def GetStratumDifferentiaBitWidth(
         self: "HereditaryStratigraphicSurface",
@@ -394,7 +408,9 @@ class HereditaryStratigraphicSurface:
     def HasDiscardedStrata(
         self: "HereditaryStratigraphicSurface",
     ) -> bool:
-        """Have any deposited strata been discarded?"""
+        """Have any deposited strata been discarded?
+
+        Does not include `S` initialization strata."""
         return self.GetNumDiscardedStrata() > 0
 
     def Clone(

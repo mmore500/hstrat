@@ -2,6 +2,7 @@ import functools
 import itertools as it
 import os
 import random
+import typing
 
 import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
@@ -249,13 +250,13 @@ def test_descend_template_phylogeny_posthoc(
             while mrca.num_child_nodes() == 1:
                 (mrca,) = mrca.child_nodes()
 
-        # if not lb <= mrca.distance_from_root() < ub:
-        print(lb, ub)
-        print(mrca)
-        print("ranks:", *c1.IterRankDifferentiaZip())
-        print("ranks:", *c2.IterRankDifferentiaZip())
-        print(n1, n1.child_nodes())
-        print(n2, n2.child_nodes())
+        if not lb <= mrca.distance_from_root() < ub:
+            print(lb, ub)
+            print(mrca)
+            print("ranks:", *c1.IterRankDifferentiaZip())
+            print("ranks:", *c2.IterRankDifferentiaZip())
+            print(n1, n1.child_nodes())
+            print(n2, n2.child_nodes())
         assert lb <= mrca.distance_from_root() < ub
 
 
@@ -348,8 +349,15 @@ def test_descend_template_phylogeny_posthoc(
     "algo", [dstream.steady_algo, dstream.tilted_algo, dstream.stretched_algo]
 )
 @pytest.mark.parametrize("S", [32, 64])
+@pytest.mark.parametrize("stratum_differentia_bit_width", [32, 64])
 def test_descend_template_phylogeny_posthoc_surface(
-    iter_extant_nodes, num_predeposits, set_stem_length, tree, algo, S
+    iter_extant_nodes: typing.Callable,
+    num_predeposits: int,
+    set_stem_length: typing.Callable,
+    tree: dp.Tree,
+    algo: object,
+    S: int,
+    stratum_differentia_bit_width: int,
 ):
     # setup tree
     for node in tree:
@@ -366,9 +374,9 @@ def test_descend_template_phylogeny_posthoc_surface(
     )
 
     seed_surface = hstrat.HereditaryStratigraphicSurface(
-        dsurf.Surface(algo, S)
+        dstream_surface=dsurf.Surface(algo=algo, storage=S),
+        stratum_differentia_bit_width=stratum_differentia_bit_width,
     )
-    seed_surface.DepositStratum()
     seed_surface.DepositStrata(num_stratum_depositions=num_predeposits)
 
     extant_population = hstrat.descend_template_phylogeny_posthoc(
@@ -393,7 +401,7 @@ def test_descend_template_phylogeny_posthoc_surface(
         for extant_node in iter_extant_nodes(tree)
     ]
     assert extant_depths == [
-        surf.GetNumStrataDeposited() - surf.S - 1 for surf in extant_population
+        surf.GetNextRank() - 1 for surf in extant_population
     ]
 
     assert all(
@@ -414,7 +422,7 @@ def test_descend_template_phylogeny_posthoc_surface(
 
     for (c1, n1), (c2, n2) in it.chain(sampled_product, spliced_product):
         lb, ub = hstrat.calc_rank_of_mrca_bounds_between(
-            c1, c2, prior="arbitrary"
+            c1, c2, prior="arbitrary", strict=False
         )
         if n1 == n2:
             mrca = n1

@@ -92,6 +92,16 @@ class HereditaryStratigraphicColumnBundle:
                 annotation=annotation,
             )
 
+    def GetNextRank(self: "HereditaryStratigraphicColumnBundle") -> int:
+        """Get the next rank to be deposited on all constituent columns.
+
+        Returns
+        -------
+        int
+            The next rank to be deposited on all constituent columns.
+        """
+        return next(iter(self._columns.values())).GetNextRank()
+
     def GetNumStrataDeposited(
         self: "HereditaryStratigraphicColumnBundle",
     ) -> int:

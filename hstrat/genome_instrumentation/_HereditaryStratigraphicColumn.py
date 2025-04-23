@@ -311,6 +311,16 @@ class HereditaryStratigraphicColumn:
             get_column_index_of_rank=self.GetColumnIndexOfRank,
         )
 
+    def GetNextRank(self: "HereditaryStratigraphicColumn") -> int:
+        """Get the next rank to be deposited on the column.
+
+        Returns
+        -------
+        int
+            The next rank to be deposited on the column.
+        """
+        return self.GetNumStrataDeposited()
+
     def IterRetainedRanks(
         self: "HereditaryStratigraphicColumn",
     ) -> typing.Iterator[int]:
