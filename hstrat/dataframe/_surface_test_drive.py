@@ -86,6 +86,7 @@ def surface_test_drive(
             algo=eval(dstream_algo, {"dstream": dstream}),
             storage=dstream_S,
         ),
+        predeposit_strata=0,
         stratum_differentia_bit_width=stratum_differentia_bit_width,
     )
     surfaces = hstrat.descend_template_phylogeny_alifestd(
@@ -98,7 +99,7 @@ def surface_test_drive(
     dstream_T_bitwidth = 32
     dstream_T_bitoffset = 0
     hex_encodings = [surf.to_hex() for surf in surfaces]
-    origin_times = [surf.GetNumStrataDeposited() - surf.S for surf in surfaces]
+    origin_times = [surf.GetNextRank() for surf in surfaces]
 
     nrow = len(surfaces)
     return pl.DataFrame(
