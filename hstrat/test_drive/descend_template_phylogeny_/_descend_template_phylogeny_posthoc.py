@@ -210,7 +210,7 @@ def descend_template_phylogeny_posthoc(
                 # otherwise, create new stratum
                 seed_instrument.GetStratumAtRank(rank)
                 if rank < seed_instrument.GetNextRank()
-                else seed_instrument._CreateStratum()
+                else seed_instrument._CreateStratum(deposition_rank=rank)
             )
         )
     )

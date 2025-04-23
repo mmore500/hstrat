@@ -179,9 +179,16 @@ class HereditaryStratigraphicSurface:
 
     def _CreateStratum(
         self: "HereditaryStratigraphicSurface",
+        deposition_rank: typing.Optional[int] = None,  # noqa: ARG001
+        # ^ no-op for column interface compat
+        *,
+        differentia: typing.Optional[int] = None,
     ) -> int:
         """Create a hereditary stratum with stored configuration attributes."""
-        return random.randrange(2**self._differentia_bit_width)
+        return opyt.or_value(
+            differentia,
+            random.randrange(2**self._differentia_bit_width),
+        )
 
     def DepositStratum(
         self: "HereditaryStratigraphicSurface",
