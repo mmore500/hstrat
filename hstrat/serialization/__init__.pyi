@@ -18,6 +18,8 @@ from ._pop_to_assemblage import pop_to_assemblage
 from ._pop_to_dataframe import pop_to_dataframe
 from ._pop_to_records import pop_to_records
 from ._specimen_from_records import specimen_from_records
+from ._surf_from_hex import surf_from_hex
+from ._surf_to_hex import surf_to_hex
 from ._unassemblage_from_records import unassemblage_from_records
 from ._unpack_differentiae import unpack_differentiae
 from ._unpack_differentiae_bytes import unpack_differentiae_bytes
@@ -45,6 +47,8 @@ __all__ = [
     "pop_to_dataframe",
     "pop_to_records",
     "specimen_from_records",
+    "surf_from_hex",
+    "surf_to_hex",
     "unassemblage_from_records",
     "unpack_differentiae",
     "unpack_differentiae_bytes",

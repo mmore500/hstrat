@@ -99,7 +99,7 @@ def surface_test_drive(
     dstream_storage_bitoffset = dstream_T_bitwidth
     dstream_T_bitwidth = dstream_T_bitwidth
     dstream_T_bitoffset = 0
-    hex_encodings = [surf.to_hex() for surf in surfaces]
+    hex_encodings = [hstrat.surf_to_hex(surf) for surf in surfaces]
     origin_times = [surf.GetNextRank() for surf in surfaces]
 
     nrow = len(surfaces)
