@@ -1,43 +1,49 @@
 import typing
 
 from Bio import Phylo as BioPhylo
+from astropy.utils.decorators import deprecated_renamed_argument
 import opytional as opyt
 
-from ..._auxiliary_lib import cast_int_lossless
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from ..._auxiliary_lib import (
+    HereditaryStratigraphicInstrument,
+    cast_int_lossless,
+)
 from ._descend_template_phylogeny import descend_template_phylogeny
 
 
+@deprecated_renamed_argument("seed_column", "seed_instrument", since="1.20.0")
 def descend_template_phylogeny_biopython(
     tree: BioPhylo.BaseTree.Tree,
-    seed_column: HereditaryStratigraphicColumn,
+    seed_instrument: HereditaryStratigraphicInstrument,
     extant_nodes: typing.Optional[
         typing.Iterable[BioPhylo.BaseTree.Clade]
     ] = None,
     progress_wrap: typing.Callable = lambda x: x,
-) -> typing.List[HereditaryStratigraphicColumn]:
-    """Generate a population of hereditary stratigraphic columns that could
+) -> typing.List[HereditaryStratigraphicInstrument]:
+    """Generate a population of hereditary stratigraphic instruments that could
     have resulted from the template phylogeny.
 
     Parameters
     ----------
     tree : biopython Tree
         Phylogeny record as a biopython Tree.
-    seed_column : HereditaryStratigraphicColumn
-        Hereditary stratigraphic column to seed at root node of phylogeny.
+    seed_instrument : HereditaryStratigraphicInstrument
+        Hereditary stratigraphic instrument to seed at root node of phylogeny.
 
-        Returned hereditary stratigraphic column population will be generated
-        as if repeatedly calling `CloneDescendant()` on `seed_column`. As such,
-        specifies configuration (i.e., differentia bit width and stratum
-        retention policy) for returned columns. May already have strata
-        deposited, which will be incorporated into generated extant population.
+        Returned hereditary stratigraphic instrument population will be
+        generated as if repeatedly calling `CloneDescendant()` on
+        `seed_instrument`. As such, specifies configuration (i.e., differentia
+        bit width and stratum retention policy) for returned instruments. May
+        already have strata deposited, which will be incorporated into generated
+        extant population.
     extant_nodes : optional list of biopython Clade
-        Which organisms should hereditary stratigraphic columns be created for?
+        Which organisms should hereditary stratigraphic instruments be created
+        for?
 
         Designates content and order of returned list of hereditary
-        stratigraphic column.
+        stratigraphic instrument.
 
-        If None, hereditary stratigraphic columns will be created for all
+        If None, hereditary stratigraphic instruments will be created for all
         phylogenetic leaves (organisms without offspring) in order of
         appearance in `tree.leaf_node_iter()`.
     progress_wrap : Callable, optional
@@ -48,12 +54,12 @@ def descend_template_phylogeny_biopython(
 
     Returns
     -------
-    list of HereditaryStratigraphicColumn
-        Population of hereditary stratigraphic columns for extant lineage
+    list of HereditaryStratigraphicInstrument
+        Population of hereditary stratigraphic instruments for extant lineage
         members (i.e., phylogeny leaf nodes).
 
-        Columns ordered in order of appearance of corresponding extant organism
-        id.
+        Instruments ordered in order of appearance of corresponding extant
+        organism id.
     """
 
     # adapted from https://biopython.org/wiki/Phylo_cookbook
@@ -80,7 +86,7 @@ def descend_template_phylogeny_biopython(
             action="warn",
             context="branch length",
         ),
-        seed_column=seed_column,
+        seed_instrument=seed_instrument,
         demark=id,
         progress_wrap=progress_wrap,
     )

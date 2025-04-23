@@ -414,6 +414,13 @@ def test_always_store_rank_in_stratum(retention_policy, ordered_store):
         second.DepositStratum()
 
 
+def test_GetNextRank():
+    column = hstrat.HereditaryStratigraphicColumn()
+    for i in range(10):
+        assert column.GetNextRank() == i + 1
+        column.DepositStratum()
+
+
 def test_GetNumStrataDeposited():
     column = hstrat.HereditaryStratigraphicColumn()
     for i in range(10):

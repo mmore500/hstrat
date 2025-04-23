@@ -10,6 +10,10 @@ anytree==2.12.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
+astropy==6.1.7
+    # via hstrat (../../pyproject.toml)
+astropy-iers-data==0.2025.4.21.0.37.6
+    # via astropy
 biopython==1.84
     # via
     #   hstrat (../../pyproject.toml)
@@ -52,7 +56,7 @@ distlib==0.3.9
     # via virtualenv
 distutils-strtobool==0.1.0
     # via teeplot
-downstream==1.12.0
+downstream==1.14.0
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
@@ -150,6 +154,7 @@ numpy==2.0.2
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
+    #   astropy
     #   biopython
     #   colorclade
     #   contourpy
@@ -160,6 +165,7 @@ numpy==2.0.2
     #   pandas
     #   pandera
     #   patsy
+    #   pyerfa
     #   scikit-learn
     #   scipy
     #   seaborn
@@ -175,6 +181,7 @@ ordered-set==4.1.0
 packaging==24.2
     # via
     #   hstrat (../../pyproject.toml)
+    #   astropy
     #   lazy-loader
     #   matplotlib
     #   pandera
@@ -234,6 +241,8 @@ pydantic==2.10.2
     # via pandera
 pydantic-core==2.27.1
     # via pydantic
+pyerfa==2.0.1.5
+    # via astropy
 pyflakes==2.1.1
     # via flake8
 pyparsing==3.2.0
@@ -258,7 +267,9 @@ python-slugify==8.0.4
 pytz==2024.2
     # via pandas
 pyyaml==6.0.1
-    # via hstrat (../../pyproject.toml)
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   astropy
 retry==0.9.2
     # via keyname
 ruff==0.1.11

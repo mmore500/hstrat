@@ -159,7 +159,7 @@ def test_perfect_rank_equivalence(
 
     extant_population = hstrat.descend_template_phylogeny_networkx(
         nx_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn(
+        seed_instrument=hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,
             stratum_differentia_bit_width=differentia_width,
         ),

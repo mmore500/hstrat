@@ -1,22 +1,25 @@
 import typing
 
-from ..._auxiliary_lib import demark
-from ...genome_instrumentation import HereditaryStratigraphicColumn
+from astropy.utils.decorators import deprecated_renamed_argument
+
+from ..._auxiliary_lib import HereditaryStratigraphicInstrument, demark
+from ...genome_instrumentation import HereditaryStratigraphicSurface
 from ._descend_template_phylogeny_naive import descend_template_phylogeny_naive
 from ._descend_template_phylogeny_posthoc import (
     descend_template_phylogeny_posthoc,
 )
 
 
+@deprecated_renamed_argument("seed_column", "seed_instrument", since="1.20.0")
 def descend_template_phylogeny(
     ascending_lineage_iterables: typing.Iterable[typing.Iterable],
     descending_tree_iterable: typing.Iterable,
     get_parent: typing.Callable[[typing.Any], typing.Any],
     get_stem_length: typing.Callable[[typing.Any], int],
-    seed_column: HereditaryStratigraphicColumn,
+    seed_instrument: HereditaryStratigraphicInstrument,
     demark: typing.Callable[[typing.Any], typing.Hashable] = demark,
     progress_wrap: typing.Callable = lambda x: x,
-) -> typing.List[HereditaryStratigraphicColumn]:
+) -> typing.List[HereditaryStratigraphicInstrument]:
     """Generate a population of hereditary stratigraphic columns that could
     have resulted from the template phylogeny.
 
@@ -52,11 +55,11 @@ def descend_template_phylogeny(
 
         For phylogenies including all ancestors as distinct nodes, `lambda
         node: 1` can be specified.
-    seed_column : HereditaryStratigraphicColumn
+    seed_instrument : HereditaryStratigraphicColumn
         Hereditary stratigraphic column to seed at root node of phylogeny.
 
-        Returned hereditary stratigraphic column population will be generated
-        as if repeatedly calling `CloneDescendant()` on `seed_column`. As such,
+        Returned hereditary stratigraphic column population will be generated as
+        if repeatedly calling `CloneDescendant()` on `seed_instrument`. As such,
         specifies configuration (i.e., differentia bit width and stratum
         retention policy) for returned columns. May already have strata
         deposited, which will be incorporated into generated extant population.
@@ -90,14 +93,16 @@ def descend_template_phylogeny(
     `n` nodes to a single node with stem length `n`).
 
     Delegates to `descend_template_phylogeny_naive` or
-    `descend_template_phylogeny_posthoc`, depending on whether retained ranks
-    at an arbitrary generation can be calculated by the `seed_column`'s stratum
+    `descend_template_phylogeny_posthoc`, depending on whether retained ranks at
+    an arbitrary generation can be calculated by the `seed_instrument`'s stratum
     retention policy.
     """
 
     impl = (
         descend_template_phylogeny_posthoc
-        if seed_column._stratum_retention_policy.IterRetainedRanks is not None
+        if isinstance(seed_instrument, HereditaryStratigraphicSurface)
+        or seed_instrument._stratum_retention_policy.IterRetainedRanks
+        is not None
         else descend_template_phylogeny_naive
     )
 
@@ -106,7 +111,7 @@ def descend_template_phylogeny(
         descending_tree_iterable,
         get_parent,
         get_stem_length,
-        seed_column,
+        seed_instrument=seed_instrument,
         demark=demark,
         progress_wrap=progress_wrap,
     )

@@ -142,6 +142,38 @@ class TestHereditaryStratigraphicColumnBundle(unittest.TestCase):
             "control": 64,
         }
 
+    def test_GetNextRank(self):
+        bundle = hstrat.HereditaryStratigraphicColumnBundle(
+            {
+                "test": hstrat.HereditaryStratigraphicColumn(
+                    stratum_retention_policy=hstrat.nominal_resolution_algo.Policy(),
+                    stratum_differentia_bit_width=1,
+                ),
+                "control": hstrat.HereditaryStratigraphicColumn(
+                    stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
+                ),
+            }
+        )
+        for i in range(10):
+            assert bundle.GetNextRank() == i + 1
+            bundle.DepositStratum()
+
+    def test_GetNumStrataDeposited(self):
+        bundle = hstrat.HereditaryStratigraphicColumnBundle(
+            {
+                "test": hstrat.HereditaryStratigraphicColumn(
+                    stratum_retention_policy=hstrat.nominal_resolution_algo.Policy(),
+                    stratum_differentia_bit_width=1,
+                ),
+                "control": hstrat.HereditaryStratigraphicColumn(
+                    stratum_retention_policy=hstrat.perfect_resolution_algo.Policy(),
+                ),
+            }
+        )
+        for i in range(10):
+            assert bundle.GetNumStrataDeposited() == i + 1
+            bundle.DepositStratum()
+
 
 if __name__ == "__main__":
     unittest.main()

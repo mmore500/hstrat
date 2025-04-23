@@ -130,7 +130,7 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn(
+        seed_instrument=hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,
         ).CloneNthDescendant(num_depositions),
     )
@@ -210,7 +210,7 @@ def test_determinism(orig_tree, retention_policy, wrap, version_pin):
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn(
+        seed_instrument=hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,
         ).CloneNthDescendant(num_depositions),
     )
@@ -245,7 +245,7 @@ def test_reconstructed_taxon_labels(version_pin, orig_tree, retention_policy):
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn(
+        seed_instrument=hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,
         ).CloneNthDescendant(num_depositions),
     )

@@ -68,7 +68,7 @@ def test_smoke(
 ):
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn(
+        seed_instrument=hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,
         ).CloneNthDescendant(10),
     )
@@ -115,7 +115,7 @@ def test_smoke(
 def test_bad_use_impl(orig_tree: dp.Tree, retention_policy: object):
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn(
+        seed_instrument=hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,
         ).CloneNthDescendant(10),
     )

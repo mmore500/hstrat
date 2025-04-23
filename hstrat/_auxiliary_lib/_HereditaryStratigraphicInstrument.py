@@ -1,7 +1,6 @@
 import typing
 
-if typing.TYPE_CHECKING:
-    from ..frozen_instrumentation import HereditaryStratigraphicSpecimen
+if typing.TYPE_CHECKING:  # False at runtime
     from ..genome_instrumentation import (
         HereditaryStratigraphicColumn,
         HereditaryStratigraphicSurface,
@@ -12,9 +11,8 @@ if typing.TYPE_CHECKING:
 # of the same type
 # (e.g., must all be HereditaryStratigraphicColumn or
 # all be HereditaryStratigraphicSurface)
-HereditaryStratigraphicArtifact = typing.TypeVar(
-    "HereditaryStratigraphicArtifact",  # name
+HereditaryStratigraphicInstrument = typing.TypeVar(
+    "HereditaryStratigraphicInstrument",  # name
     "HereditaryStratigraphicColumn",  # constraints
     "HereditaryStratigraphicSurface",
-    "HereditaryStratigraphicSpecimen",
 )

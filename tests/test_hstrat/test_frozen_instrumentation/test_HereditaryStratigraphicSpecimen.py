@@ -90,3 +90,17 @@ def test_IterRankDifferentiaZip(retention_policy):
         assert [*iter_] == [
             *zip(s1.IterRetainedRanks(), s1.IterRetainedDifferentia())
         ]
+
+
+def test_GetNextRank():
+    col = hstrat.HereditaryStratigraphicColumn()
+    for i in range(10):
+        assert hstrat.col_to_specimen(col).GetNextRank() == i + 1
+        col.DepositStratum()
+
+
+def test_GetNumStrataDeposited():
+    col = hstrat.HereditaryStratigraphicColumn()
+    for i in range(10):
+        assert hstrat.col_to_specimen(col).GetNumStrataDeposited() == i + 1
+        col.DepositStratum()

@@ -97,7 +97,7 @@ def calc_rank_of_first_retained_disparity_between_generic(
             else:
                 # mismatching differentiae at the same rank
                 preceding_common_ranks.appendleft(first_cur_rank)
-                assert 0 <= first_cur_rank < first.GetNumStrataDeposited()
+                assert first_cur_rank < first.GetNextRank()
 
                 # discount collision_implausibility_threshold - 1 common
                 # ranks due to potential spurious differentia collisions;
@@ -123,10 +123,10 @@ def calc_rank_of_first_retained_disparity_between_generic(
         # conservatively assume mismatch will be with next rank of second
         assert second_iter is None
         assert second_prev_rank is not None
-        preceding_common_ranks.appendleft(second_prev_rank + 1)
+        preceding_common_ranks.appendleft(second.GetNextRank())
         res = preceding_common_ranks[-1]
-        assert 0 <= res <= first.GetNumStrataDeposited()
-        assert 0 <= res <= second.GetNumStrataDeposited()
+        assert res <= first.GetNumStrataDeposited()
+        assert res <= second.GetNumStrataDeposited()
         return res
     elif second_iter is not None:
         # although no mismatching strata found between second and first
@@ -134,18 +134,18 @@ def calc_rank_of_first_retained_disparity_between_generic(
         # conservatively assume mismatch will be with next rank
         assert first_iter is None
         assert first_prev_rank is not None
-        preceding_common_ranks.appendleft(first_prev_rank + 1)
+        preceding_common_ranks.appendleft(first.GetNextRank())
         res = preceding_common_ranks[-1]
-        assert 0 <= res <= first.GetNumStrataDeposited()
-        assert 0 <= res <= second.GetNumStrataDeposited()
+        assert res <= first.GetNumStrataDeposited()
+        assert res <= second.GetNumStrataDeposited()
         return res
     else:
         # no disparate strata found
-        # and first and second have the same newest rank
         assert first_iter is None and second_iter is None
-        preceding_common_ranks.appendleft(None)
-        assert (
-            preceding_common_ranks[-1] is None
-            or preceding_common_ranks[-1] >= 0
+        fallback_value = (
+            min(first.GetNextRank(), second.GetNextRank())
+            if first.GetNextRank() != second.GetNextRank()
+            else None
         )
+        preceding_common_ranks.appendleft(fallback_value)
         return preceding_common_ranks[-1]

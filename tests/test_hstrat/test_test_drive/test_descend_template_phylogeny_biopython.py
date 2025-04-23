@@ -113,7 +113,7 @@ def test_descend_template_phylogeny(
 
     extant_population = hstrat.descend_template_phylogeny_biopython(
         bp_tree,
-        seed_column=seed_column,
+        seed_instrument=seed_column,
         progress_wrap=functools.partial(tqdm, disable=True),
     )
 
@@ -130,7 +130,7 @@ def test_descend_template_phylogeny(
 
     extant_population_dp = hstrat.descend_template_phylogeny_dendropy(
         tree,
-        seed_column=seed_column,
+        seed_instrument=seed_column,
         progress_wrap=functools.partial(tqdm, disable=True),
     )
 
@@ -149,7 +149,7 @@ def test_descend_template_phylogeny(
     )
     extant_population = hstrat.descend_template_phylogeny_biopython(
         bp_tree,
-        seed_column=seed_column,
+        seed_instrument=seed_column,
         extant_nodes=extant_nodes,
         progress_wrap=functools.partial(tqdm, disable=True),
     )

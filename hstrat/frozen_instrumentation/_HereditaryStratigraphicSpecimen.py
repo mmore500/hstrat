@@ -65,6 +65,16 @@ class HereditaryStratigraphicSpecimen:
         """How many bits wide are the differentia of strata?"""
         return self._stratum_differentia_bit_width
 
+    def GetNextRank(self: "HereditaryStratigraphicSpecimen") -> int:
+        """Get the next rank that would be be deposited on the column.
+
+        Returns
+        -------
+        int
+            The next rank that would be deposited on the column.
+        """
+        return self.GetNumStrataDeposited()
+
     def GetNumStrataDeposited(
         self: "HereditaryStratigraphicSpecimen",
     ) -> int:

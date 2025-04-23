@@ -33,7 +33,7 @@ def test_postprocessing_consistency(orig_tree, retention_policy):
 
     extant_population = hstrat.descend_template_phylogeny_dendropy(
         orig_tree,
-        seed_column=hstrat.HereditaryStratigraphicColumn(
+        seed_instrument=hstrat.HereditaryStratigraphicColumn(
             stratum_retention_policy=retention_policy,
             stratum_differentia_bit_width=1,
         ).CloneNthDescendant(num_depositions),

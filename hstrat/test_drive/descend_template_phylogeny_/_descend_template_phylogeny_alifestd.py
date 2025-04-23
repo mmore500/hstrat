@@ -1,7 +1,10 @@
 import typing
 
+from astropy.utils.decorators import deprecated_renamed_argument
 import numpy as np
 import pandas as pd
+
+from hstrat._auxiliary_lib import HereditaryStratigraphicInstrument
 
 from ..._auxiliary_lib import (
     alifestd_find_leaf_ids,
@@ -17,39 +20,40 @@ from ..._auxiliary_lib import (
 from ..._auxiliary_lib._alifestd_assign_contiguous_ids import (
     _reassign_ids_asexual,
 )
-from ...genome_instrumentation import HereditaryStratigraphicColumn
 from ._descend_template_phylogeny import descend_template_phylogeny
 
 
+@deprecated_renamed_argument("seed_column", "seed_instrument", since="1.20.0")
 def descend_template_phylogeny_alifestd(
     phylogeny_df: pd.DataFrame,
-    seed_column: HereditaryStratigraphicColumn,
+    seed_instrument: HereditaryStratigraphicInstrument,
     extant_ids: typing.Optional[typing.Iterable[int]] = None,
     progress_wrap: typing.Callable = lambda x: x,
-) -> typing.List[HereditaryStratigraphicColumn]:
-    """Generate a population of hereditary stratigraphic columns that could
+) -> typing.List[HereditaryStratigraphicInstrument]:
+    """Generate a population of hereditary stratigraphic instruments that could
     have resulted from the template phylogeny.
 
     Parameters
     ----------
     phylogeny_df : pandas.DataFrame
         Phylogeny record as an alife-standard DataFrame.
-    seed_column : HereditaryStratigraphicColumn
-        Hereditary stratigraphic column to seed at root node of phylogeny.
+    seed_instrument : HereditaryStratigraphicInstrument
+        Hereditary stratigraphic instrument to seed at root node of phylogeny.
 
         Returned hereditary stratigraphic column population will be generated
-        as if repeatedly calling `CloneDescendant()` on `seed_column`. As such,
-        specifies configuration (i.e., differentia bit width and stratum
+        as if repeatedly calling `CloneDescendant()` on `seed_instrument`. As
+        such, specifies configuration (i.e., differentia bit width and stratum
         retention policy) for returned columns. May already have strata
         deposited, which will be incorporated into generated extant population.
     extant_ids : optional list of int
-        Which organisms should hereditary stratigraphic columns be created for?
+        Which organisms should hereditary stratigraphic instruments be created
+        for?
 
         Designates content and order of returned list of hereditary
-        stratigraphic column, with id values corresponding to "id" column in
-        `phylogeny_df`.
+        stratigraphic instrument, with id values corresponding to "id"
+        instrument in `phylogeny_df`.
 
-        If None, hereditary stratigraphic columns will be created for all
+        If None, hereditary stratigraphic instruments will be created for all
         phylogenetic leaves (organisms without offspring) in order of
         appearance in `phylogeny_df`.
     progress_wrap : Callable, optional
@@ -60,12 +64,12 @@ def descend_template_phylogeny_alifestd(
 
     Returns
     -------
-    list of HereditaryStratigraphicColumn
-        Population of hereditary stratigraphic columns for extant lineage
+    list of HereditaryStratigraphicInstrument
+        Population of hereditary stratigraphic instruments for extant lineage
         members (i.e., phylogeny leaf nodes).
 
-        Columns ordered in order of appearance of corresponding extant organism
-        id.
+        Instruments ordered in order of appearance of corresponding extant
+        organism id.
     """
 
     assert not alifestd_has_multiple_roots(phylogeny_df)
@@ -129,7 +133,7 @@ def descend_template_phylogeny_alifestd(
         working_df["id"].to_numpy(),  # descending_tree_iterable
         lookup_ancestor_id,
         get_stem_length,
-        seed_column,
+        seed_instrument=seed_instrument,
         demark=lambda x: x,
         progress_wrap=progress_wrap,
     )

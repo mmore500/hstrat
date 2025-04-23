@@ -130,11 +130,13 @@ def calc_rank_of_mrca_bounds_between(
         )
         assert (
             first_disparity is not None
-            or first.GetNumStrataDeposited() == second.GetNumStrataDeposited()
+            or first.GetNextRank() == second.GetNextRank()
         )
-        return (
+        res = (
             opyt.or_value(last_commonality, 0),
-            opyt.or_value(first_disparity, first.GetNumStrataDeposited()),
+            opyt.or_value(first_disparity, first.GetNextRank()),
         )
+        assert res[0] < res[1]
+        return res
     else:
         return None
