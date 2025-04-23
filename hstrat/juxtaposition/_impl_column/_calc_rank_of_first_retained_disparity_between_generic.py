@@ -1,8 +1,6 @@
 from collections import deque
 import typing
 
-import opytional as opyt
-
 from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from .._calc_min_implausible_spurious_consecutive_differentia_collisions_between import (
     calc_min_implausible_spurious_consecutive_differentia_collisions_between,
@@ -144,10 +142,10 @@ def calc_rank_of_first_retained_disparity_between_generic(
     else:
         # no disparate strata found
         assert first_iter is None and second_iter is None
-        preceding_common_ranks.appendleft(None)
         fallback_value = (
             min(first.GetNextRank(), second.GetNextRank())
             if first.GetNextRank() != second.GetNextRank()
             else None
         )
-        return opyt.or_value(preceding_common_ranks[-1], fallback_value)
+        preceding_common_ranks.appendleft(fallback_value)
+        return preceding_common_ranks[-1]
