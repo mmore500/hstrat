@@ -423,6 +423,24 @@ def test_StorageIndex():
             assert surf.GetRankAtStorageIndex(idx) == i
 
 
+def test_GetNextRank():
+    surf = hstrat.HereditaryStratigraphicSurface(
+        dsurf.Surface(dstream.steady_algo, 128)
+    )
+    for i in range(10):
+        assert surf.GetNextRank() == i + 1
+        surf.DepositStratum()
+
+
+def test_GetNumStrataDeposited():
+    surf = hstrat.HereditaryStratigraphicSurface(
+        dsurf.Surface(dstream.steady_algo, 128)
+    )
+    for i in range(10):
+        assert surf.GetNumStrataDeposited() == 128 + i + 1
+        surf.DepositStratum()
+
+
 @pytest.mark.parametrize(
     "algo", [dstream.steady_algo, dstream.stretched_algo, dstream.tilted_algo]
 )
