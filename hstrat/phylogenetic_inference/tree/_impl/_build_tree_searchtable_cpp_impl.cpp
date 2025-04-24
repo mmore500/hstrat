@@ -22,6 +22,7 @@
 using namespace pybind11::literals;
 namespace py = pybind11;
 
+typedef int64_t i64;
 typedef uint64_t u64;
 constexpr u64 placeholder_value = std::numeric_limits<int64_t>::max();
 
@@ -161,7 +162,7 @@ struct Records {
   std::vector<u64> search_ancestor_id;
   std::vector<u64> ancestor_id;
   std::vector<u64> differentia;
-  std::vector<u64> rank;
+  std::vector<i64> rank;
   u64 max_differentia = 0;
 
   explicit Records(const u64 init_size, const bool init_root=true) {
@@ -208,7 +209,7 @@ struct Records {
     const u64 search_first_child_id,
     const u64 search_prev_sibling_id,
     const u64 search_next_sibling_id,
-    const u64 rank,
+    const i64 rank,
     const u64 differentia
   ) {
     assert(search_first_child_id >= id);
@@ -595,12 +596,12 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
  */
 template<size_t max_differentia>
 void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
-  std::unordered_map<u64, std::array<u64, max_differentia + 1>> winners{};
+  std::unordered_map<i64, std::array<u64, max_differentia + 1>> winners{};
   std::vector<u64> losers;
 
   for (auto child : ChildrenView(records, node)) {
     const u64 differentia = records.differentia[child];
-    const u64 rank = records.rank[child];
+    const i64 rank = records.rank[child];
     auto& winner = winners[rank][differentia];
     if (winner == 0 || child < winner) { std::swap(winner, child); }
     if (child) losers.push_back(child);
@@ -608,7 +609,7 @@ void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
 
   for (const auto loser : losers) {
     const u64 differentia = records.differentia[loser];
-    const u64 rank = records.rank[loser];
+    const i64 rank = records.rank[loser];
     const u64 winner = winners[rank][differentia];
 
     std::vector<u64> loser_children;
@@ -635,7 +636,7 @@ struct pairhash {
  * differentia sizes (e.g., larger than a byte).
  */
 void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
-  std::unordered_map<std::pair<u64, u64>, std::vector<u64>, pairhash> groups;
+  std::unordered_map<std::pair<i64, u64>, std::vector<u64>, pairhash> groups;
   ChildrenGenerator gen(records, node);
   u64 child;
   while ((child = gen.next())) {
@@ -723,7 +724,7 @@ void collapse_indistinguishable_nodes(Records & records, const u64 node) {
  *
  * @see collapse_indistinguishable_nodes
  */
-void consolidate_trie(Records &records, const u64 &rank, const u64 node) {
+void consolidate_trie(Records &records, const i64 rank, const u64 node) {
   const auto children_range = ChildrenView(records, node);
   if (
     children_range.begin() == children_range.end()
@@ -764,7 +765,7 @@ void consolidate_trie(Records &records, const u64 &rank, const u64 node) {
 u64 create_offstring(
   Records &records,
   const u64 parent,
-  const u64 rank,
+  const i64 rank,
   const u64 differentia,
   const u64 data_id
 ) {
@@ -793,7 +794,7 @@ u64 create_offstring(
 u64 place_allele(
   Records &records,
   const u64 cur_node,
-  const u64 rank,
+  const i64 rank,
   const u64 differentia
 ) {
   assert(records.rank[cur_node] <= rank);
@@ -892,18 +893,18 @@ template <typename T> struct py_array_span {
  * @see py_array_span
  * @see place_allele
  */
-template <typename SPAN_T>
+template <typename ISPAN_T, typename USPAN_T>
 void insert_artifact(
   Records &records,
-  SPAN_T &&ranks,
-  SPAN_T &&differentiae,
+  ISPAN_T &&ranks,
+  USPAN_T &&differentiae,
   const u64 data_id,
   const u64 num_strata_deposited
 ) {
   assert(ranks.size() == differentiae.size());
   u64 cur_node = 0;
   for (u64 i = 0; i < ranks.size(); ++i) {
-    const u64 r = ranks[i];
+    const i64 r = ranks[i];
     const u64 d = differentiae[i];
     consolidate_trie(records, r, cur_node);
     cur_node = place_allele(records, cur_node, r, d);
@@ -962,9 +963,10 @@ py::dict copy_records_to_dict(Records &records) {
   );
   return_mapping.insert({"search_ancestor_id", records.search_ancestor_id});
   return_mapping.insert({"ancestor_id", records.ancestor_id});
-  return_mapping.insert({"rank", records.rank});
   return_mapping.insert({"differentia", records.differentia});
-  return py::cast(return_mapping);
+  py::dict res = py::cast(return_mapping);
+  res["rank"] = records.rank;
+  return res;
 }
 
 
@@ -1006,12 +1008,11 @@ py::dict extract_records_to_dict(Records &records) {
     {"ancestor_id", as_pyarray(std::move(records.ancestor_id))}
   );
   return_mapping.insert(
-    {"rank", as_pyarray(std::move(records.rank))}
-  );
-  return_mapping.insert(
     {"differentia", as_pyarray(std::move(records.differentia))}
   );
-  return py::cast(return_mapping);
+  py::dict res = py::cast(return_mapping);
+  res["rank"] = as_pyarray(std::move(records.rank));
+  return res;
 }
 
 
@@ -1040,7 +1041,7 @@ struct ProgressBar {
 py::dict build_trie_searchtable_nested(
   const std::vector<u64> &data_ids,
   const std::vector<u64> &num_strata_depositeds,
-  const std::vector<std::vector<u64>> &ranks,
+  const std::vector<std::vector<i64>> &ranks,
   const std::vector<std::vector<u64>> &differentiae,
   const py::handle &progress_ctor
 ) {
@@ -1062,7 +1063,7 @@ py::dict build_trie_searchtable_nested(
     for (u64 i = 0; i < ranks.size(); ++i) {
       insert_artifact(
         records,
-        std::span<const u64>(ranks[i]),
+        std::span<const i64>(ranks[i]),
         std::span<const u64>(differentiae[i]),
         data_ids[i],
         num_strata_depositeds[i]
@@ -1118,7 +1119,7 @@ void extend_trie_searchtable_exploded(
   Records &records,
   const py::array_t<u64> &data_ids,
   const py::array_t<u64> &num_strata_depositeds,
-  const py::array_t<u64> &ranks,
+  const py::array_t<i64> &ranks,
   const py::array_t<u64> &differentiae,
   const py::handle &progress_ctor
 ) {
@@ -1157,7 +1158,7 @@ void extend_trie_searchtable_exploded(
 
       insert_artifact(
         records,
-        py_array_span<u64>(ranks_, begin, end),
+        py_array_span<i64>(ranks_, begin, end),
         py_array_span<u64>(differentiae_, begin, end),
         data_ids_[begin],
         num_strata_depositeds_[begin]
@@ -1192,7 +1193,7 @@ void extend_trie_searchtable_exploded(
 py::dict build_trie_searchtable_exploded(
   const py::array_t<u64> &data_ids,
   const py::array_t<u64> &num_strata_depositeds,
-  const py::array_t<u64> &ranks,
+  const py::array_t<i64> &ranks,
   const py::array_t<u64> &differentiae,
   const py::handle &progress_ctor
 ) {
