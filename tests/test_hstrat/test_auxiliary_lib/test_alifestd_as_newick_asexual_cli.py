@@ -50,7 +50,10 @@ def test_alifestd_as_newick_asexual_cli_version():
 def test_alifestd_as_newick_asexual_cli_csv(
     input_file: str, taxon_label: typing.Optional[str]
 ):
-    output_file = f"/tmp/hstrat-{input_file}.newick"
+    output_file = (
+        "/tmp/hstrat-as_newick_asexual_cli-"
+        f"{taxon_label}-{input_file}.newick"
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     cmd = [
         "python3",
