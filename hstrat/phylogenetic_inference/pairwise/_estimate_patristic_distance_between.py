@@ -56,9 +56,7 @@ def estimate_patristic_distance_between(
         estimator=estimator,
         prior=prior,
     )
-    max_patristic_distance = (
-        first.GetNumStrataDeposited() - 1 + second.GetNumStrataDeposited() - 1
-    )
+    max_patristic_distance = first.GetNextRank() - 1 + second.GetNextRank() - 1
 
     return opyt.apply_if(
         est_rank_of_mrca_between,

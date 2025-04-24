@@ -29,8 +29,8 @@ def extract_common_retained_ranks_through_first_retained_disparity(
         ),
         lambda: ip.pophomogeneous(
             (
-                first.GetNumStrataDeposited(),
-                second.GetNumStrataDeposited(),
+                first.GetNextRank(),
+                second.GetNextRank(),
             )
         ),
     )

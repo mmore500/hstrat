@@ -42,7 +42,7 @@ def calc_ranks_since_last_retained_commonality_with(
     if last_common_rank is None:
         return None
     else:
-        assert focal.GetNumStrataDeposited()
-        res = focal.GetNumStrataDeposited() - 1 - last_common_rank
-        assert 0 <= res < focal.GetNumStrataDeposited()
+        assert focal.GetNextRank()
+        res = focal.GetNextRank() - 1 - last_common_rank
+        assert 0 <= res < focal.GetNextRank()
         return res

@@ -98,8 +98,8 @@ def calc_rank_of_parity_segue_between_naive(
     first_pos, second_pos = _find_first_disparity_or_last_commonality(
         first_ranks, first_vals, second_ranks, second_vals
     )
-    assert 0 <= first_pos < first.GetNumStrataRetained()
-    assert 0 <= second_pos < second.GetNumStrataRetained()
+    assert 0 <= first_pos < first.GetNextRank()
+    assert 0 <= second_pos < second.GetNextRank()
 
     def calc_disparity(first_pos, second_pos):
         collision_plausibility_threshold = (
@@ -114,15 +114,12 @@ def calc_rank_of_parity_segue_between_naive(
 
         if first_vals[first_pos] == second_vals[second_pos]:
             if collision_plausibility_threshold == 0:
-                if (
-                    first.GetNumStrataDeposited()
-                    == second.GetNumStrataDeposited()
-                ):
+                if first.GetNextRank() == second.GetNextRank():
                     return None
                 else:
                     return min(
-                        first.GetNumStrataDeposited(),
-                        second.GetNumStrataDeposited(),
+                        first.GetNextRank(),
+                        second.GetNextRank(),
                     )
             else:
                 num_backtrack -= 1
@@ -136,8 +133,8 @@ def calc_rank_of_parity_segue_between_naive(
                 n=num_backtrack,
                 strict=False,
             )
-            assert 0 <= first_pos < first.GetNumStrataRetained()
-            assert 0 <= second_pos < second.GetNumStrataRetained()
+            assert 0 <= first_pos < first.GetNextRank()
+            assert 0 <= second_pos < second.GetNextRank()
 
         assert first_ranks[first_pos] == second_ranks[second_pos]
         # must convert to Python int; although integral,
@@ -176,8 +173,8 @@ def calc_rank_of_parity_segue_between_naive(
             return res
         else:
             first_pos, second_pos = res
-            assert 0 <= first_pos < first.GetNumStrataRetained()
-            assert 0 <= second_pos < second.GetNumStrataRetained()
+            assert 0 <= first_pos < first.GetNextRank()
+            assert 0 <= second_pos < second.GetNextRank()
             assert first_ranks[first_pos] == second_ranks[second_pos]
             # must convert to Python int; although integral,
             # numpy ints are experiencing unwanted conversion to floats

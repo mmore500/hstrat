@@ -65,7 +65,7 @@ def _explode_population(
                 for __ in range(ann.GetNumStrataRetained())
             ],
             "num_strata_depositeds": [
-                ann.GetNumStrataDeposited()
+                ann.GetNextRank()
                 for ann in sorted_population
                 for __ in range(ann.GetNumStrataRetained())
             ],
@@ -83,7 +83,7 @@ def _explode_population(
         schema={
             "data_ids": pl.UInt64,
             "num_strata_depositeds": pl.UInt64,
-            "ranks": pl.UInt64,
+            "ranks": pl.Int64,
             "differentiae": pl.UInt64,
         },
     )
@@ -110,7 +110,8 @@ def build_tree_searchtable_cpp(
     Parameters
     ----------
     population: Sequence[HereditaryStratigraphicArtifact]
-        Hereditary stratigraphic columns corresponding to extant population members.
+        Hereditary stratigraphic columns corresponding to extant population
+        members.
 
         Each member of population will correspond to a unique leaf node in the
         reconstructed tree.
@@ -165,7 +166,7 @@ def build_tree_searchtable_cpp(
     if _entry_point == "nested":
         records = build_tree_searchtable_cpp_from_nested(
             [*range(len(sorted_population))],
-            [ann.GetNumStrataDeposited() for ann in sorted_population],
+            [ann.GetNextRank() for ann in sorted_population],
             [[*ann.IterRetainedRanks()] for ann in sorted_population],
             [[*ann.IterRetainedDifferentia()] for ann in sorted_population],
             opyt.or_value(progress_wrap, mock.Mock()),

@@ -58,7 +58,7 @@ def calc_patristic_distance_bounds_between(
     )
     inclusive_exclusive_ub_lb_switch_correction = 2
     max_patristic_distance = (
-        first.GetNumStrataDeposited() - 1 + second.GetNumStrataDeposited() - 1
+        first.GetNextRank() - 1 + second.GetNextRank() - 1
     ) + inclusive_exclusive_ub_lb_switch_correction
 
     return opyt.apply_if(

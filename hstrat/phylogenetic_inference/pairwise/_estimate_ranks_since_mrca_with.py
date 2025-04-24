@@ -61,13 +61,11 @@ def estimate_ranks_since_mrca_with(
     )
     res = opyt.apply_if(
         est_rank_of_mrca_between,
-        lambda est: focal.GetNumStrataDeposited()
-        - 1
-        - est_rank_of_mrca_between,
+        lambda est: focal.GetNextRank() - 1 - est,
     )
     if res is not None:
         assert 0 <= res or math.isclose(0, res, abs_tol=10e-6)
-        assert res <= focal.GetNumStrataDeposited() or math.isclose(
-            res, focal.GetNumStrataDeposited()
+        assert res <= focal.GetNextRank() or math.isclose(
+            res, focal.GetNextRank()
         )
     return res
