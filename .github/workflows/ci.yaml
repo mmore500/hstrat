@@ -414,20 +414,21 @@ jobs:
         python -m pip install -r requirements-dev/py310/requirements-release.txt
     - name: Build package
       run: python setup.py egg_info --tag-build="${{github.run_number}}" sdist bdist_wheel
-    - name: Test publish package
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        repository-url: https://test.pypi.org/legacy/
-        verbose: true
-    - name: Install from test PyPI
-      run: |
-        rm -rf *
-        python3 -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ hstrat
-    - name: Test install
-      run: |
-        python3 -c "import hstrat; print(hstrat.__version__)"
+    # @MAM disabled April 23, 2025 due to test pypi outage
+    # - name: Test publish package
+    #   uses: pypa/gh-action-pypi-publish@release/v1
+    #   with:
+    #     user: __token__
+    #     password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+    #     repository-url: https://test.pypi.org/legacy/
+    #     verbose: true
+    # - name: Install from test PyPI
+    #   run: |
+    #     rm -rf *
+    #     python3 -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ hstrat
+    # - name: Test install
+    #   run: |
+    #     python3 -c "import hstrat; print(hstrat.__version__)"
 
   deploy:
     if: startsWith(github.ref, 'refs/tags/v')
