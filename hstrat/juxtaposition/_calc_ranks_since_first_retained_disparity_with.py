@@ -48,7 +48,7 @@ def calc_ranks_since_first_retained_disparity_with(
     if first_disparate_rank is None:
         return None
     else:
-        assert focal.GetNumStrataDeposited()
-        res = focal.GetNumStrataDeposited() - 1 - first_disparate_rank
-        assert -1 <= res < focal.GetNumStrataDeposited()
+        assert focal.GetNextRank()
+        res = focal.GetNextRank() - 1 - first_disparate_rank
+        assert -1 <= res < focal.GetNextRank()
         return res

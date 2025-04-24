@@ -79,8 +79,8 @@ def build_distance_matrix_numpy(
             )
         elif patristic_distance is None and force_common_ancestry:
             max_patristic_distance = (
-                population[a].GetNumStrataDeposited()
-                + population[b].GetNumStrataDeposited()
+                population[a].GetNextRank()
+                + population[b].GetNextRank()
             )
             matrix[a][b] = max_patristic_distance
             matrix[b][a] = max_patristic_distance

@@ -37,5 +37,5 @@ def calc_ranks_since_earliest_detectable_mrca_with(
             other,
             confidence_level=confidence_level,
         ),
-        lambda rank: focal.GetNumStrataDeposited() - 1 - rank,
+        lambda rank: focal.GetNextRank() - 1 - rank,
     )

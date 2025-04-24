@@ -65,7 +65,7 @@ def _explode_population(
                 for __ in range(ann.GetNumStrataRetained())
             ],
             "num_strata_depositeds": [
-                ann.GetNumStrataDeposited()
+                ann.GetNextRank()
                 for ann in sorted_population
                 for __ in range(ann.GetNumStrataRetained())
             ],
@@ -165,7 +165,7 @@ def build_tree_searchtable_cpp(
     if _entry_point == "nested":
         records = build_tree_searchtable_cpp_from_nested(
             [*range(len(sorted_population))],
-            [ann.GetNumStrataDeposited() for ann in sorted_population],
+            [ann.GetNextRank() for ann in sorted_population],
             [[*ann.IterRetainedRanks()] for ann in sorted_population],
             [[*ann.IterRetainedDifferentia()] for ann in sorted_population],
             opyt.or_value(progress_wrap, mock.Mock()),

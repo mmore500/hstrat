@@ -76,7 +76,7 @@ def build_tree_biopython_distance(
     col_lookup = dict(zip(taxon_labels, population))
 
     leaf_origin_times = {
-        id_lookup[taxon_label]: col_lookup[taxon_label].GetNumStrataDeposited()
+        id_lookup[taxon_label]: col_lookup[taxon_label].GetNextRank()
         - 1
         for taxon_label in taxon_labels
     }
