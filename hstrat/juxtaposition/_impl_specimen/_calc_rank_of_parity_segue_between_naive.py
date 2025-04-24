@@ -114,10 +114,7 @@ def calc_rank_of_parity_segue_between_naive(
 
         if first_vals[first_pos] == second_vals[second_pos]:
             if collision_plausibility_threshold == 0:
-                if (
-                    first.GetNextRank()
-                    == second.GetNextRank()
-                ):
+                if first.GetNextRank() == second.GetNextRank():
                     return None
                 else:
                     return min(
