@@ -110,7 +110,8 @@ def build_tree_searchtable_cpp(
     Parameters
     ----------
     population: Sequence[HereditaryStratigraphicArtifact]
-        Hereditary stratigraphic columns corresponding to extant population members.
+        Hereditary stratigraphic columns corresponding to extant population
+        members.
 
         Each member of population will correspond to a unique leaf node in the
         reconstructed tree.
