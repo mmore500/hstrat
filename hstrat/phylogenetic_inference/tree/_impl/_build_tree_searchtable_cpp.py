@@ -83,7 +83,7 @@ def _explode_population(
         schema={
             "data_ids": pl.UInt64,
             "num_strata_depositeds": pl.UInt64,
-            "ranks": pl.UInt64,
+            "ranks": pl.Int64,
             "differentiae": pl.UInt64,
         },
     )
