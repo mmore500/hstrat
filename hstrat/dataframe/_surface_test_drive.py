@@ -80,6 +80,8 @@ def surface_test_drive(
                 - Capacity of dstream buffer, in number of data items.
             - 'origin_time' : pl.UInt64
                 - Number of generations elapsed since the founding ancestor.
+            - 'source_id' : pl.UInt64
+                - Corresponding taxon identifier in source phylogeny.
 
         Additional user-defined columns will be forwarded from the input
         DataFrame.
@@ -113,15 +115,15 @@ def surface_test_drive(
     )
 
     data = {
-        "template_id": extant_ids,
-        "origin_time": [surf.GetNextRank() for surf in surfaces],
         "data_hex": [surf_to_hex(surf) for surf in surfaces],
+        "dstream_algo": dstream_algo,
         "dstream_storage_bitwidth": dstream_S * stratum_differentia_bit_width,
         "dstream_storage_bitoffset": dstream_T_bitwidth,
         "dstream_T_bitwidth": dstream_T_bitwidth,
         "dstream_T_bitoffset": 0,
         "dstream_S": dstream_S,
-        "dstream_algo": dstream_algo,
+        "origin_time": [surf.GetNextRank() for surf in surfaces],
+        "source_id": extant_ids,
     }
     return pl.concat(
         (
