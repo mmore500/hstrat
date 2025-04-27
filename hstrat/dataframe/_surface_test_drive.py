@@ -68,13 +68,13 @@ def surface_test_drive(
             - 'dstream_algo' : pl.Categorical
                 - Name of downstream curation algorithm used.
                 - e.g., 'dstream.steady_algo'
-            - 'dstream_storage_bitoffset' : pl.UInt64
+            - 'dstream_storage_bitoffset' : pl.UInt32
                 - Position of dstream buffer field in 'data_hex'.
-            - 'dstream_storage_bitwidth' : pl.UInt64
+            - 'dstream_storage_bitwidth' : pl.UInt32
                 - Size of dstream buffer field in 'data_hex'.
-            - 'dstream_T_bitoffset' : pl.UInt64
+            - 'dstream_T_bitoffset' : pl.UInt32
                 - Position of dstream counter field in 'data_hex'.
-            - 'dstream_T_bitwidth' : pl.UInt64
+            - 'dstream_T_bitwidth' : pl.UInt32
                 - Size of dstream counter field in 'data_hex'.
             - 'dstream_S' : pl.Uint32
                 - Capacity of dstream buffer, in number of data items.
@@ -125,9 +125,20 @@ def surface_test_drive(
         "origin_time": [surf.GetNextRank() for surf in surfaces],
         "source_id": extant_ids,
     }
+    schema = {
+        "data_hex": pl.Utf8,
+        "dstream_algo": pl.Categorical,
+        "dstream_storage_bitwidth": pl.UInt32,
+        "dstream_storage_bitoffset": pl.UInt32,
+        "dstream_T_bitwidth": pl.UInt32,
+        "dstream_T_bitoffset": pl.UInt32,
+        "dstream_S": pl.UInt32,
+        "origin_time": pl.UInt64,
+        "source_id": pl.UInt64,
+    }
     return pl.concat(
         (
-            pl.DataFrame(data),
+            pl.DataFrame(data, schema=schema),
             df.select(
                 pl.exclude("id", "ancestor_id", "ancestor_list", *data.keys()),
             ).filter(df_pd["extant"].values),
