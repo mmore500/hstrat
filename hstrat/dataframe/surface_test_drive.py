@@ -5,6 +5,7 @@ import os
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
+from tqdm import tqdm
 
 from hstrat.dataframe._surface_test_drive import surface_test_drive
 
@@ -133,6 +134,7 @@ def _main() -> None:
                 stratum_differentia_bit_width=args.stratum_differentia_bit_width,
                 dstream_algo=args.dstream_algo,
                 dstream_S=args.dstream_S,
+                progress_wrap=tqdm,
             ),
         )
 

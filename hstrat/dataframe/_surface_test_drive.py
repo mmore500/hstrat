@@ -1,3 +1,5 @@
+import typing
+
 from downstream import dstream, dsurf
 import polars as pl
 
@@ -13,6 +15,7 @@ def surface_test_drive(
     dstream_algo: str,
     dstream_S: int,
     dstream_T_bitwidth: int = 32,
+    progress_wrap: typing.Callable = lambda x: x,
     stratum_differentia_bit_width: int,
 ) -> pl.DataFrame:
     """Reads alife standard phylogeny dataframe to create a population of
@@ -52,6 +55,9 @@ def surface_test_drive(
 
     dstream_S : int
         Capacity of annotation dstream buffer, in number of data items.
+
+    progress_wrap : Callable, optional
+        Pass tqdm or equivalent to display a progress bar.
 
     stratum_differentia_bit_width : int
         The bit width of the generated differentia.
@@ -112,6 +118,7 @@ def surface_test_drive(
         df_pd,
         extant_ids=extant_ids,
         seed_instrument=ancestor_instrument,
+        progress_wrap=progress_wrap,
     )
 
     data = {
