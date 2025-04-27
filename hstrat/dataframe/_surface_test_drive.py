@@ -83,6 +83,12 @@ def surface_test_drive(
 
         Additional user-defined columns will be forwarded from the input
         DataFrame.
+
+    Notes
+    -----
+    - Input columns "id", "ancestor_id", and "ancestor_list" are not forwarded
+      to output, to avoid conflicts with the output schema for subsequent
+      phylogeny reconstruction.
     """
     df = df.lazy().collect()
 
@@ -121,7 +127,7 @@ def surface_test_drive(
         (
             pl.DataFrame(data),
             df.select(
-                pl.exclude("id", "ancestor_id", *data.keys()),
+                pl.exclude("id", "ancestor_id", "ancestor_list", *data.keys()),
             ).filter(df_pd["extant"].values),
         ),
         how="horizontal",
