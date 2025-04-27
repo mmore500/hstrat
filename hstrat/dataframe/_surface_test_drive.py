@@ -1,5 +1,6 @@
 import typing
 
+import downstream
 from downstream import dstream, dsurf
 import polars as pl
 
@@ -71,6 +72,8 @@ def surface_test_drive(
             - 'data_hex' : pl.String
                 - Raw genome data, with serialized dstream buffer and counter.
                 - Represented as a hexadecimal string.
+            - 'downstream_version' : pl.Categorical
+                - Version of downstream library used.
             - 'dstream_algo' : pl.Categorical
                 - Name of downstream curation algorithm used.
                 - e.g., 'dstream.steady_algo'
@@ -123,6 +126,7 @@ def surface_test_drive(
 
     data = {
         "data_hex": [surf_to_hex(surf) for surf in surfaces],
+        "downstream_version": downstream.__version__,
         "dstream_algo": dstream_algo,
         "dstream_storage_bitwidth": dstream_S * stratum_differentia_bit_width,
         "dstream_storage_bitoffset": dstream_T_bitwidth,
@@ -136,6 +140,7 @@ def surface_test_drive(
         "data_hex": pl.Utf8,
         "dstream_algo": pl.Categorical,
         "dstream_storage_bitwidth": pl.UInt32,
+        "downstream_version": pl.Categorical,
         "dstream_storage_bitoffset": pl.UInt32,
         "dstream_T_bitwidth": pl.UInt32,
         "dstream_T_bitoffset": pl.UInt32,

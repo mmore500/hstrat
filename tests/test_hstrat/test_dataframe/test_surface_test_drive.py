@@ -26,6 +26,7 @@ def test_smoke():
     assert "dstream_T_bitoffset" in pop.columns
     assert "dstream_S" in pop.columns
     assert "dstream_algo" in pop.columns
+    assert "downstream_version" in pop.columns
     assert "foo" in pop.columns
     assert "td_source_id" in pop.columns
     assert set(zip(pop["td_source_id"], pop["origin_time"])) <= set(
