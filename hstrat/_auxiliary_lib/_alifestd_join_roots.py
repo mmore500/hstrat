@@ -39,9 +39,9 @@ def alifestd_join_roots(
     ]
 
     if "ancestor_id" in phylogeny_df:
-        phylogeny_df.loc[phylogeny_df["is_root"], "ancestor_id"] = (
-            global_root_id
-        )
+        phylogeny_df.loc[
+            phylogeny_df["is_root"], "ancestor_id"
+        ] = global_root_id
 
     if "ancestor_list" in phylogeny_df:
         phylogeny_df.loc[
