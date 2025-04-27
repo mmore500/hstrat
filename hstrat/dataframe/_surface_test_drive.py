@@ -1,3 +1,6 @@
+import typing
+
+import downstream
 from downstream import dstream, dsurf
 import polars as pl
 
@@ -13,6 +16,7 @@ def surface_test_drive(
     dstream_algo: str,
     dstream_S: int,
     dstream_T_bitwidth: int = 32,
+    progress_wrap: typing.Callable = lambda x: x,
     stratum_differentia_bit_width: int,
 ) -> pl.DataFrame:
     """Reads alife standard phylogeny dataframe to create a population of
@@ -53,6 +57,9 @@ def surface_test_drive(
     dstream_S : int
         Capacity of annotation dstream buffer, in number of data items.
 
+    progress_wrap : Callable, optional
+        Pass tqdm or equivalent to display a progress bar.
+
     stratum_differentia_bit_width : int
         The bit width of the generated differentia.
 
@@ -65,6 +72,8 @@ def surface_test_drive(
             - 'data_hex' : pl.String
                 - Raw genome data, with serialized dstream buffer and counter.
                 - Represented as a hexadecimal string.
+            - 'downstream_version' : pl.Categorical
+                - Version of downstream library used.
             - 'dstream_algo' : pl.Categorical
                 - Name of downstream curation algorithm used.
                 - e.g., 'dstream.steady_algo'
@@ -112,10 +121,12 @@ def surface_test_drive(
         df_pd,
         extant_ids=extant_ids,
         seed_instrument=ancestor_instrument,
+        progress_wrap=progress_wrap,
     )
 
     data = {
         "data_hex": [surf_to_hex(surf) for surf in surfaces],
+        "downstream_version": downstream.__version__,
         "dstream_algo": dstream_algo,
         "dstream_storage_bitwidth": dstream_S * stratum_differentia_bit_width,
         "dstream_storage_bitoffset": dstream_T_bitwidth,
@@ -129,6 +140,7 @@ def surface_test_drive(
         "data_hex": pl.Utf8,
         "dstream_algo": pl.Categorical,
         "dstream_storage_bitwidth": pl.UInt32,
+        "downstream_version": pl.Categorical,
         "dstream_storage_bitoffset": pl.UInt32,
         "dstream_T_bitwidth": pl.UInt32,
         "dstream_T_bitoffset": pl.UInt32,
