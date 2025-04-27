@@ -27,7 +27,7 @@ def test_smoke():
     assert "dstream_S" in pop.columns
     assert "dstream_algo" in pop.columns
     assert "foo" in pop.columns
-    assert "source_id" in pop.columns
-    assert set(zip(pop["source_id"], pop["origin_time"])) <= set(
+    assert "td_source_id" in pop.columns
+    assert set(zip(pop["td_source_id"], pop["origin_time"])) <= set(
         zip(df["id"], df["origin_time"]),
     )
