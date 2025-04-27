@@ -84,6 +84,8 @@ def surface_test_drive(
         Additional user-defined columns will be forwarded from the input
         DataFrame.
     """
+    df = df.lazy().collect()
+
     ancestor_instrument = HereditaryStratigraphicSurface(
         dstream_surface=dsurf.Surface(
             algo=eval(dstream_algo, {"dstream": dstream}),
@@ -92,7 +94,7 @@ def surface_test_drive(
         predeposit_strata=0,
         stratum_differentia_bit_width=stratum_differentia_bit_width,
     )
-    df_pd = df.lazy().collect().to_pandas()
+    df_pd = df.to_pandas()
     if "extant" not in df_pd.columns:
         df_pd = alifestd_mark_leaves(df_pd, mutate=True)
         df_pd["extant"] = df_pd["is_leaf"].values
