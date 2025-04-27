@@ -1,4 +1,5 @@
 import os
+import typing
 
 import pandas as pd
 import pytest
@@ -7,6 +8,7 @@ from hstrat._auxiliary_lib import (
     alifestd_aggregate_phylogenies,
     alifestd_has_multiple_roots,
     alifestd_parse_ancestor_ids,
+    alifestd_to_working_format,
     swap_rows_and_indices,
 )
 
@@ -21,7 +23,12 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_has_multiple_roots_empty(phylogeny_df):
+@pytest.mark.parametrize("apply", [alifestd_to_working_format, lambda x: x])
+def test_alifestd_has_multiple_roots_empty(
+    phylogeny_df: pd.DataFrame,
+    apply: typing.Callable,
+):
+    phylogeny_df = apply(phylogeny_df)
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
 
     assert not alifestd_has_multiple_roots(phylogeny_df.iloc[-1:0, :])
@@ -67,8 +74,13 @@ def test_alifestd_has_multiple_roots_tworoots():
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_has_multiple_roots_twolineages(phylogeny_df):
+@pytest.mark.parametrize("apply", [alifestd_to_working_format, lambda x: x])
+def test_alifestd_has_multiple_roots_twolineages(
+    phylogeny_df: pd.DataFrame,
+    apply: typing.Callable,
+):
 
+    phylogeny_df = apply(phylogeny_df)
     phylogeny_df.sort_values("id", ascending=True, inplace=True)
     phylogeny_df.reset_index(inplace=True)
 
@@ -137,7 +149,12 @@ def test_alifestd_has_multiple_roots_twolineages(phylogeny_df):
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_has_multiple_roots_false(phylogeny_df):
+@pytest.mark.parametrize("apply", [alifestd_to_working_format, lambda x: x])
+def test_alifestd_has_multiple_roots_false(
+    phylogeny_df: pd.DataFrame,
+    apply: typing.Callable,
+):
+    phylogeny_df = apply(phylogeny_df)
     phylogeny_df.sort_values("id", ascending=False, inplace=True)
     phylogeny_df.set_index("id", drop=False, inplace=True)
 
@@ -169,7 +186,12 @@ def test_alifestd_has_multiple_roots_false(phylogeny_df):
         ),
     ],
 )
-def test_alifestd_has_multiple_roots_true(phylogeny_df):
+@pytest.mark.parametrize("apply", [alifestd_to_working_format, lambda x: x])
+def test_alifestd_has_multiple_roots_true(
+    phylogeny_df: pd.DataFrame,
+    apply: typing.Callable,
+):
+    phylogeny_df = apply(phylogeny_df)
     phylogeny_df.sort_values("id", ascending=False, inplace=True)
     phylogeny_df.set_index("id", drop=False, inplace=True)
 
