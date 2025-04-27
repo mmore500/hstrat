@@ -10,6 +10,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 def test_smoke():
     df = pl.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
+    df = df.with_columns(foo=pl.lit("bar"))
     pop = surface_test_drive(
         df,
         dstream_algo="dstream.steady_algo",
@@ -25,3 +26,4 @@ def test_smoke():
     assert "dstream_T_bitoffset" in pop.columns
     assert "dstream_S" in pop.columns
     assert "dstream_algo" in pop.columns
+    assert "foo" in pop.columns

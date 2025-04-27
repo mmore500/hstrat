@@ -1,8 +1,10 @@
 from downstream import dstream, dsurf
 import polars as pl
 
-from .. import hstrat
+from .._auxiliary_lib import alifestd_mark_leaves
 from ..genome_instrumentation import HereditaryStratigraphicSurface
+from ..serialization import surf_to_hex
+from ..test_drive import descend_template_phylogeny_alifestd
 
 
 def surface_test_drive(
@@ -90,28 +92,35 @@ def surface_test_drive(
         predeposit_strata=0,
         stratum_differentia_bit_width=stratum_differentia_bit_width,
     )
-    surfaces = hstrat.descend_template_phylogeny_alifestd(
-        df.lazy().collect().to_pandas(),
-        ancestor_instrument,
+    df_pd = df.lazy().collect().to_pandas()
+    if "extant" not in df_pd.columns:
+        df_pd = alifestd_mark_leaves(df_pd, mutate=True)
+        df_pd["extant"] = df_pd["is_leaf"].values
+
+    extant_ids = df_pd.loc[df_pd["extant"].values, "id"].values
+    surfaces = descend_template_phylogeny_alifestd(
+        df_pd,
+        extant_ids=extant_ids,
+        seed_instrument=ancestor_instrument,
     )
 
-    dstream_storage_bitwidth = dstream_S * stratum_differentia_bit_width
-    dstream_storage_bitoffset = dstream_T_bitwidth
-    dstream_T_bitwidth = dstream_T_bitwidth
-    dstream_T_bitoffset = 0
-    hex_encodings = [hstrat.surf_to_hex(surf) for surf in surfaces]
-    origin_times = [surf.GetNextRank() for surf in surfaces]
-
-    nrow = len(surfaces)
-    return pl.DataFrame(
-        {
-            "origin_time": origin_times,
-            "data_hex": hex_encodings,
-            "dstream_storage_bitwidth": [dstream_storage_bitwidth] * nrow,
-            "dstream_storage_bitoffset": [dstream_storage_bitoffset] * nrow,
-            "dstream_T_bitwidth": [dstream_T_bitwidth] * nrow,
-            "dstream_T_bitoffset": [dstream_T_bitoffset] * nrow,
-            "dstream_S": [dstream_S] * nrow,
-            "dstream_algo": [dstream_algo] * nrow,
-        },
+    data = {
+        "template_id": extant_ids,
+        "origin_time": [surf.GetNextRank() for surf in surfaces],
+        "data_hex": [surf_to_hex(surf) for surf in surfaces],
+        "dstream_storage_bitwidth": dstream_S * stratum_differentia_bit_width,
+        "dstream_storage_bitoffset": dstream_T_bitwidth,
+        "dstream_T_bitwidth": dstream_T_bitwidth,
+        "dstream_T_bitoffset": 0,
+        "dstream_S": dstream_S,
+        "dstream_algo": dstream_algo,
+    }
+    return pl.concat(
+        (
+            pl.DataFrame(data),
+            df.select(
+                pl.exclude("id", "ancestor_id", *data.keys()),
+            ).filter(df_pd["extant"].values),
+        ),
+        how="horizontal",
     )
