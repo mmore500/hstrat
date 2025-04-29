@@ -1,4 +1,5 @@
 from collections import defaultdict
+from copy import deepcopy
 from functools import lru_cache
 import typing
 
@@ -66,32 +67,38 @@ def _educe_surface_object(
     extant_deposition_count = deposition_count_lookup[demark(extant_node)]
     assert extant_deposition_count >= seed_surface.GetNextRank()
 
-    rising_required_ranks_iterator = filter(
-        lambda rank: rank >= 0,
-        seed_surface.CloneNthDescendant(
-            extant_deposition_count - seed_surface.GetNextRank(),
-        ).IterRetainedRanks(),
+    algo = seed_surface._surface.algo
+    lookup = getattr(
+        algo, "lookup_ingest_times_eager", algo.lookup_ingest_times
     )
+    # adjust T for surface init fill of S items
+    T = extant_deposition_count + seed_surface.S
+    rising_required_ranks_iterator = sorted(lookup(seed_surface.S, T))
 
     try:
         descending_lineage_iterator = iter(
-            reversed(ascending_lineage_iterable)
+            reversed(ascending_lineage_iterable),
         )
     except TypeError:
         descending_lineage_iterator = iter(
-            reversed([*ascending_lineage_iterable])
+            reversed([*ascending_lineage_iterable]),
         )
 
     cur_node = next(descending_lineage_iterator)
 
-    res_storage = seed_surface.Clone()._surface._storage
-    for rank in rising_required_ranks_iterator:
+    res_storage = deepcopy(seed_surface._surface._storage)
+    for T in rising_required_ranks_iterator:
+        rank = T - seed_surface.S  # adjust for surface init fill of S items
+        if rank < 0:
+            continue
+
         while rank >= deposition_count_lookup[demark(cur_node)]:
             # why isn't this running?
             cur_node = next(descending_lineage_iterator)
 
         rank_stratum_lookup = stem_strata_lookup[demark(cur_node)]
         res_storage[
+            # could optimize to use assign_storage_site_batched if available
             seed_surface._surface.algo.assign_storage_site(
                 seed_surface.S, rank + seed_surface.S
             )
