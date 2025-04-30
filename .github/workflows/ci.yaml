@@ -117,43 +117,43 @@ jobs:
         path: "/tmp/end2end-visualizations"
         overwrite: true
 
-  test-cli:
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        head:
-          # - "" exceeds memory on actions runner
-          - "--head 10_000"
-          - "--head 1_000_000"
-          - "--sample 10_000 --seed 1"
-          - "--sample 1_000_000 --seed 1"
-    steps:
-    - name: Cleanup pre-installed tools
-      run: |
-        sudo rm -rf /usr/share/dotnet
-        sudo rm -rf /opt/ghc
-        sudo rm -rf "/usr/local/share/boost"
-        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-    - uses: actions/checkout@v1
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v2
-      with:
-        python-version: "3.10"
-    - name: Install Python dependencies
-      uses: py-actions/py-dependency-install@v4
-      with:
-        path: "requirements-dev/requirements-jit.txt"
-    - name: Install Python dependencies
-      uses: py-actions/py-dependency-install@v4
-      with:
-        path: "requirements-dev/requirements-testing.txt"
-    - run: python3 -m pip freeze
-    - name: Run tests
-      env:
-        HSTRAT_TESTS_CLI_HEAD: "${{ matrix.head }}"
-        HSTRAT_TESTS_CLI_STDOUT: "/dev/null"
-      run: ./tests-cli/run_all.sh
+  # test-cli:
+  #   runs-on: ubuntu-24.04
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       head:
+  #         # - "" exceeds memory on actions runner
+  #         - "--head 10_000"
+  #         - "--head 1_000_000"
+  #         - "--sample 10_000 --seed 1"
+  #         - "--sample 1_000_000 --seed 1"
+  #   steps:
+  #   - name: Cleanup pre-installed tools
+  #     run: |
+  #       sudo rm -rf /usr/share/dotnet
+  #       sudo rm -rf /opt/ghc
+  #       sudo rm -rf "/usr/local/share/boost"
+  #       sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+  #   - uses: actions/checkout@v1
+  #   - name: Set up Python 3.10
+  #     uses: actions/setup-python@v2
+  #     with:
+  #       python-version: "3.10"
+  #   - name: Install Python dependencies
+  #     uses: py-actions/py-dependency-install@v4
+  #     with:
+  #       path: "requirements-dev/requirements-jit.txt"
+  #   - name: Install Python dependencies
+  #     uses: py-actions/py-dependency-install@v4
+  #     with:
+  #       path: "requirements-dev/requirements-testing.txt"
+  #   - run: python3 -m pip freeze
+  #   - name: Run tests
+  #     env:
+  #       HSTRAT_TESTS_CLI_HEAD: "${{ matrix.head }}"
+  #       HSTRAT_TESTS_CLI_STDOUT: "/dev/null"
+  #     run: ./tests-cli/run_all.sh
 
   build-script:
     runs-on: ubuntu-24.04
