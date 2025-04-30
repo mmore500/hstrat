@@ -9,34 +9,16 @@ from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_strictly_bifurcating_asexual import (
     alifestd_is_strictly_bifurcating_asexual,
 )
+from ._alifestd_mark_clade_logistic_growth_children_asexual import (
+    _calc_boundaries,
+)
 from ._alifestd_mark_leaves import alifestd_mark_leaves
 from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
 from ._alifestd_unfurl_traversal_inorder_asexual import (
     alifestd_unfurl_traversal_inorder_asexual,
 )
 from ._fit_fblr import fit_fblr
-from ._jit import jit
 from ._warn_once import warn_once
-
-
-@jit(nopython=True)
-def _calc_boundaries(
-    node_depths: np.ndarray, indices: typing.Iterable[int], default: int
-) -> np.ndarray:
-    """Iterate over the provided 'indices' and at each index 'i' find the
-    most recent index that satisfies:
-
-    node_depths[j] <= node_depths[i]
-    """
-    result = np.empty_like(node_depths)
-    stack = []
-    for i in indices:
-        while stack and node_depths[stack[-1]] > node_depths[i]:
-            stack.pop()
-        result[i] = stack[-1] if stack else default
-        stack.append(i)
-
-    return result
 
 
 def alifestd_mark_clade_fblr_growth_children_asexual(
