@@ -5,6 +5,7 @@ import typing
 import numpy as np
 import pandas as pd
 import pytest
+from tqdm import tqdm
 
 from hstrat._auxiliary_lib import (
     alifestd_collapse_unifurcations,
@@ -770,6 +771,7 @@ def test_fuzz(
     result_df = alifestd_mark_clade_logistic_growth_children_asexual(
         phylogeny_df,
         parallel_backend=parallel_backend,
+        progress_wrap=tqdm,
     )
 
     # Confirm that the input dataframe is not mutated.
