@@ -22,6 +22,7 @@ def alifestd_mark_clade_logistic_growth_sister_asexual(
     mutate: bool = False,
     *,
     parallel_backend: typing.Optional[str] = None,
+    progress_wrap: typing.Callable = lambda x: x,
     work_mask: typing.Optional[np.ndarray] = None,
 ) -> pd.DataFrame:
     """Add column `clade_logistic_growth_children`, containing the coefficient
@@ -85,6 +86,7 @@ def alifestd_mark_clade_logistic_growth_sister_asexual(
             phylogeny_df,
             mutate=True,
             parallel_backend=parallel_backend,
+            progress_wrap=progress_wrap,
             work_mask=work_mask,
         )
 

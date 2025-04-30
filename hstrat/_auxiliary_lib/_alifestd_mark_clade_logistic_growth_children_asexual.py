@@ -44,6 +44,7 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
     mutate: bool = False,
     *,
     parallel_backend: typing.Optional[str] = None,
+    progress_wrap: typing.Callable = lambda x: x,
     work_mask: typing.Optional[np.ndarray] = None,
 ) -> pd.DataFrame:
     """Add column `clade_logistic_growth_children`, containing the coefficient
@@ -197,7 +198,7 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
                 )
             )
             sparse_results = collect(
-                map(fit_logistic_regression, sparse_operands),
+                map(fit_logistic_regression, progress_wrap(sparse_operands)),
             )
 
         results[sparse_mask] = sparse_results
