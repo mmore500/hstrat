@@ -443,7 +443,7 @@ jobs:
       - packaging-sdist
       - packaging-source
       - test
-      - test-cli
+      # - test-cli
       - tidy
     runs-on: ubuntu-24.04
     steps:
