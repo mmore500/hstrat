@@ -43,9 +43,9 @@ def alifestd_mark_clade_fblr_growth_sister_asexual(
 
     Dataframe reindexing (e.g., df.index) may be applied.
 
-    Input dataframe is not mutated by this operation unless `mutate` set True.
-    If mutate set True, operation does not occur in place; still use return
-    value to get transformed phylogeny dataframe.
+    Input `phylogeny_df` and `work_mask` are not mutated by this operation
+    unless `mutate` set True. If mutate set True, operation does not occur in
+    place; still use return value to get transformed phylogeny dataframe.
 
     References
     ----------
