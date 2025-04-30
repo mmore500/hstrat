@@ -28,7 +28,7 @@ def _fit_fblr(
     n = X_train.shape[0]
     d = X_train.shape[1]
 
-    I = np.identity(d)
+    I = np.identity(d)  # noqa: E741
 
     beta = 1e-8
     A = (X_train.T).dot(X_train) + beta * I
