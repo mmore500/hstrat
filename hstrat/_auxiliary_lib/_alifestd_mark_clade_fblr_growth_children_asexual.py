@@ -3,6 +3,7 @@ import typing
 
 import joblib
 import numpy as np
+import opytional as opyt
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
@@ -67,6 +68,7 @@ def alifestd_mark_clade_fblr_growth_children_asexual(
 
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
+        work_mask = opyt.apply_if(work_mask, np.copy)
 
     if not alifestd_is_strictly_bifurcating_asexual(phylogeny_df):
         raise ValueError("phylogeny_df must be strictly bifurcating")
