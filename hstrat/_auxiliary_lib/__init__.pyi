@@ -173,6 +173,9 @@ from ._alifestd_mark_sister_asexual import alifestd_mark_sister_asexual
 from ._alifestd_mask_descendants_asexual import (
     alifestd_mask_descendants_asexual,
 )
+from ._alifestd_mask_monomorphic_clades_asexual import (
+    alifestd_mask_monomorphic_clades_asexual,
+)
 from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_prefix_roots import alifestd_prefix_roots
@@ -431,6 +434,7 @@ __all__ = [
     "alifestd_mark_roots",
     "alifestd_mark_sister_asexual",
     "alifestd_mask_descendants_asexual",
+    "alifestd_mask_monomorphic_clades_asexual",
     "alifestd_parse_ancestor_id",
     "alifestd_parse_ancestor_ids",
     "alifestd_prefix_roots",
