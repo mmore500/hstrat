@@ -7,8 +7,8 @@ from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_strictly_bifurcating_asexual import (
     alifestd_is_strictly_bifurcating_asexual,
 )
-from ._alifestd_mark_clade_logistic_growth_children_asexual import (
-    alifestd_mark_clade_logistic_growth_children_asexual,
+from ._alifestd_mark_clade_fblr_growth_children_asexual import (
+    alifestd_mark_clade_fblr_growth_children_asexual,
 )
 from ._alifestd_mark_is_left_child_asexual import (
     alifestd_mark_is_left_child_asexual,
@@ -17,7 +17,7 @@ from ._alifestd_mark_roots import alifestd_mark_roots
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
-def alifestd_mark_clade_logistic_growth_sister_asexual(
+def alifestd_mark_clade_fblr_growth_sister_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
     *,
@@ -25,8 +25,8 @@ def alifestd_mark_clade_logistic_growth_sister_asexual(
     progress_wrap: typing.Callable = lambda x: x,
     work_mask: typing.Optional[np.ndarray] = None,
 ) -> pd.DataFrame:
-    """Add column `clade_logistic_growth_children`, containing the coefficient
-    of a logistic regression fit to origin times of this clade's descendant
+    """Add column `clade_fblr_growth_children`, containing the coefficient
+    of a fblr regression fit to origin times of this clade's descendant
     leaves versus those of its sister clade.
 
     Clades with equal growth rate to their sister will have value approximately
@@ -57,6 +57,9 @@ def alifestd_mark_clade_logistic_growth_sister_asexual(
     Volz, E. Fitness, growth and transmissibility of SARS-CoV-2 genetic
         variants. Nat Rev Genet 24, 724-734 (2023).
         https://doi.org/10.1038/s41576-023-00610-z
+
+    Saran NA, Nar F. 2025. Fast binary logistic regression. PeerJ Computer
+        Science 11:e2579 https://doi.org/10.7717/peerj-cs.2579
     """
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
@@ -71,7 +74,7 @@ def alifestd_mark_clade_logistic_growth_sister_asexual(
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
     assert "ancestor_id" in phylogeny_df.columns
 
-    if "clade_logistic_growth_children" not in phylogeny_df.columns:
+    if "clade_fblr_growth_children" not in phylogeny_df.columns:
         if work_mask is not None:
             work_ancestor_ids = phylogeny_df.loc[
                 work_mask, "ancestor_id"
@@ -82,7 +85,7 @@ def alifestd_mark_clade_logistic_growth_sister_asexual(
             else:
                 work_mask = phylogeny_df["id"].isin(work_ancestor_ids).values
 
-        phylogeny_df = alifestd_mark_clade_logistic_growth_children_asexual(
+        phylogeny_df = alifestd_mark_clade_fblr_growth_children_asexual(
             phylogeny_df,
             mutate=True,
             parallel_backend=parallel_backend,
@@ -103,15 +106,15 @@ def alifestd_mark_clade_logistic_growth_sister_asexual(
     else:
         phylogeny_df.index = phylogeny_df["id"]
 
-    phylogeny_df["clade_logistic_growth_sister"] = phylogeny_df.loc[
-        phylogeny_df["ancestor_id"], "clade_logistic_growth_children"
+    phylogeny_df["clade_fblr_growth_sister"] = phylogeny_df.loc[
+        phylogeny_df["ancestor_id"], "clade_fblr_growth_children"
     ].values * (1 - 2 * phylogeny_df["is_left_child"].values)
 
     phylogeny_df.loc[
-        phylogeny_df["is_root"].values, "clade_logistic_growth_sister"
+        phylogeny_df["is_root"].values, "clade_fblr_growth_sister"
     ] = np.nan
 
     if work_mask is not None:
-        phylogeny_df.loc[nowork_ids, "clade_logistic_growth_sister"] = np.nan
+        phylogeny_df.loc[nowork_ids, "clade_fblr_growth_sister"] = np.nan
 
     return phylogeny_df

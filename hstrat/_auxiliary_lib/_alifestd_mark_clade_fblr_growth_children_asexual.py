@@ -5,42 +5,24 @@ import joblib
 import numpy as np
 import opytional as opyt
 import pandas as pd
-import sklearn
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_strictly_bifurcating_asexual import (
     alifestd_is_strictly_bifurcating_asexual,
+)
+from ._alifestd_mark_clade_logistic_growth_children_asexual import (
+    _calc_boundaries,
 )
 from ._alifestd_mark_leaves import alifestd_mark_leaves
 from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
 from ._alifestd_unfurl_traversal_inorder_asexual import (
     alifestd_unfurl_traversal_inorder_asexual,
 )
-from ._jit import jit
+from ._fit_fblr import fit_fblr
 from ._warn_once import warn_once
 
 
-@jit(nopython=True)
-def _calc_boundaries(
-    node_depths: np.ndarray, indices: typing.Iterable[int], default: int
-) -> np.ndarray:
-    """Iterate over the provided 'indices' and at each index 'i' find the
-    most recent index that satisfies:
-
-    node_depths[j] <= node_depths[i]
-    """
-    result = np.empty_like(node_depths)
-    stack = []
-    for i in indices:
-        while stack and node_depths[stack[-1]] > node_depths[i]:
-            stack.pop()
-        result[i] = stack[-1] if stack else default
-        stack.append(i)
-
-    return result
-
-
-def alifestd_mark_clade_logistic_growth_children_asexual(
+def alifestd_mark_clade_fblr_growth_children_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
     *,
@@ -48,8 +30,8 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
     progress_wrap: typing.Callable = lambda x: x,
     work_mask: typing.Optional[np.ndarray] = None,
 ) -> pd.DataFrame:
-    """Add column `clade_logistic_growth_children`, containing the coefficient
-    of a logistic regression fit to origin times of the leaf descendants of
+    """Add column `clade_fblr_growth_children`, containing the coefficient
+    of a fblr regression fit to origin times of the leaf descendants of
     each node.
 
     Nodes with left/right child clades with equal growth rates will have value
@@ -79,6 +61,9 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
     Volz, E. Fitness, growth and transmissibility of SARS-CoV-2 genetic
         variants. Nat Rev Genet 24, 724-734 (2023).
         https://doi.org/10.1038/s41576-023-00610-z
+
+    Saran NA, Nar F. 2025. Fast binary logistic regression. PeerJ Computer
+        Science 11:e2579 https://doi.org/10.7717/peerj-cs.2579
     """
 
     if not mutate:
@@ -90,7 +75,7 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
 
     if work_mask is not None:
         phylogeny_df[
-            "alifestd_mark_clade_logistic_growth_children_asexual_mask"
+            "alifestd_mark_clade_fblr_growth_children_asexual_mask"
         ] = work_mask
 
     if "origin_time" not in phylogeny_df.columns:
@@ -116,11 +101,11 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
     if work_mask is not None:
         work_mask = phylogeny_df.loc[
             inorder_traversal,
-            "alifestd_mark_clade_logistic_growth_children_asexual_mask",
+            "alifestd_mark_clade_fblr_growth_children_asexual_mask",
         ].values
 
     leaves_mask = phylogeny_df.loc[inorder_traversal, "is_leaf"].values
-    leaves = leaves_mask.astype(float, copy=True)  # contiguous for perf
+    leaves = leaves_mask.copy()
 
     node_depths = phylogeny_df.loc[inorder_traversal, "node_depth"].values
     node_depths = node_depths.copy()  # contiguous for perf
@@ -138,7 +123,7 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
         arr.flags.writeable = False  # probably not needed?
 
     @(joblib.delayed if parallel_backend else lambda x: x)
-    def fit_logistic_regression(target_idx: int) -> float:
+    def fit_flbr_regression(target_idx: int) -> float:
         lb_inclusive_ = lb_inclusive[target_idx]
         ub_exclusive_ = ub_exclusive[target_idx]
         # leaf case should be masked out
@@ -158,22 +143,9 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
         y = np.zeros(len(X), dtype=int)
         y[sliced_target:] = 1
 
-        if np.ptp(X) < 1e-3:  # sklearn defaults handle singular case better
-            model = sklearn.linear_model.LogisticRegression()
-        else:
-            model = sklearn.linear_model.LogisticRegression(
-                fit_intercept=False,  # disable for perf (not used)
-                # scikit docs: for small datasets, ‘liblinear’ is a good choice
-                # whereas ‘sag’ and ‘saga’ are faster for large ones
-                solver=["liblinear", "sag"][
-                    ub_exclusive_ - lb_inclusive_ > 10000  # arbitrary thresh
-                ],
-            )
-
-        model.fit(X=X, y=y, sample_weight=w)
-        res = model.coef_[0][0]
+        (res,) = fit_fblr(X_train=X[w], y_train=y[w])
         if np.isnan(res):
-            warn_once("clade logistic growth regression produced NaN")
+            warn_once("clade flbr growth regression produced NaN")
         return res
 
     sparse_mask = ~leaves_mask
@@ -200,19 +172,19 @@ def alifestd_mark_clade_logistic_growth_children_asexual(
                 )
             )
             sparse_results = collect(
-                map(fit_logistic_regression, progress_wrap(sparse_operands)),
+                map(fit_flbr_regression, progress_wrap(sparse_operands)),
             )
 
         results[sparse_mask] = sparse_results
 
     assert len(results) == len(node_depths)
-    phylogeny_df["clade_logistic_growth_children"] = pd.Series(
+    phylogeny_df["clade_fblr_growth_children"] = pd.Series(
         results, index=inorder_traversal, dtype=float
     )
 
     phylogeny_df.drop(
         columns=[
-            "alifestd_mark_clade_logistic_growth_children_asexual_mask",
+            "alifestd_mark_clade_fblr_growth_children_asexual_mask",
         ],
         errors="ignore",
         inplace=True,

@@ -110,6 +110,12 @@ from ._alifestd_mark_clade_duration_asexual import (
 from ._alifestd_mark_clade_duration_ratio_sister_asexual import (
     alifestd_mark_clade_duration_ratio_sister_asexual,
 )
+from ._alifestd_mark_clade_fblr_growth_children_asexual import (
+    alifestd_mark_clade_fblr_growth_children_asexual,
+)
+from ._alifestd_mark_clade_fblr_growth_sister_asexual import (
+    alifestd_mark_clade_fblr_growth_sister_asexual,
+)
 from ._alifestd_mark_clade_leafcount_ratio_sister_asexual import (
     alifestd_mark_clade_leafcount_ratio_sister_asexual,
 )
@@ -255,6 +261,7 @@ from ._estimate_binomial_p import estimate_binomial_p
 from ._except_wrap_sentinel import except_wrap_sentinel
 from ._fill_zeros_with_last import fill_zeros_with_last
 from ._find_bounds import find_bounds
+from ._fit_fblr import fit_fblr
 from ._flag_last import flag_last
 from ._flat_len import flat_len
 from ._format_cli_description import format_cli_description
@@ -397,6 +404,8 @@ __all__ = [
     "alifestd_mark_ancestor_origin_time_asexual",
     "alifestd_mark_clade_duration_asexual",
     "alifestd_mark_clade_duration_ratio_sister_asexual",
+    "alifestd_mark_clade_fblr_growth_children_asexual",
+    "alifestd_mark_clade_fblr_growth_sister_asexual",
     "alifestd_mark_clade_leafcount_ratio_sister_asexual",
     "alifestd_mark_clade_logistic_growth_children_asexual",
     "alifestd_mark_clade_logistic_growth_sister_asexual",
@@ -496,6 +505,7 @@ __all__ = [
     "except_wrap_sentinel",
     "fill_zeros_with_last",
     "find_bounds",
+    "fit_fblr",
     "flag_last",
     "flat_len",
     "format_cli_description",
