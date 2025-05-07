@@ -120,8 +120,8 @@ def surface_postprocess_trie(
     df: pl.DataFrame,
     *,
     trie_postprocessor: typing.Callable = NopTriePostprocessor(),
-    delete_trunk: bool = True,
     # ^^^ NopTriePostprocessor is stateless, so is safe as default value
+    delete_trunk: bool = True,
 ) -> pl.DataFrame:
     """Postprocess raw phylogenetic tree reconstruction output data to create
     finalized estimate of phylogenetic history.
