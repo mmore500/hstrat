@@ -734,7 +734,7 @@ void consolidate_trie(Records &records, const i64 rank, const u64 node) {
     [&records, rank](const u64 node){ return records.rank[node] < rank; }
   );
 
- if (node_stack.empty()) [[likely]] return;
+  if (node_stack.empty()) [[likely]] return;
 
   // drop children and attach grandchildren
   while (!node_stack.empty()) {
