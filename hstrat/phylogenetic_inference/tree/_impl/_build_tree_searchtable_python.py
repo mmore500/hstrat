@@ -55,10 +55,14 @@ def _consolidate_if_rank_dropped(
     """
 
     next_child = next(table.iter_inner_search_children_of(cur_node), None)  # type: ignore
-    if next_child is None or table.get_rank_of(next_child) >= next_rank:
+    if next_child is None:
         return
 
-    node_stack = [*table.iter_inner_search_children_of(cur_node)]
+    node_stack = [
+        n
+        for n in table.iter_inner_search_children_of(cur_node)
+        if table.get_rank_of(n) < next_rank
+    ]
 
     # collapse away nodes with ranks that have been dropped
     while node_stack:
