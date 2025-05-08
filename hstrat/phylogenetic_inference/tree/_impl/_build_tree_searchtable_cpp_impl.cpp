@@ -732,8 +732,11 @@ void consolidate_trie(Records &records, const i64 rank, const u64 node) {
   )) return;
 
   std::vector<u64> node_stack;
-  std::ranges::copy_if(children_range, std::back_inserter(node_stack),
-                       [&records, rank](const u64 node){ return records.rank[node] < rank; });
+  std::ranges::copy_if(
+    children_range,
+    std::back_inserter(node_stack),
+    [&records, rank](const u64 node){ return records.rank[node] < rank; }
+  );
 
   assert(!node_stack.empty());
 
