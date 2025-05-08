@@ -729,7 +729,7 @@ void consolidate_trie(Records &records, const i64 rank, const u64 node) {
   if (std::ranges::all_of(
     children_range,
     [&records, rank](const u64 child){ return records.rank[child] >= rank; }
-  )) return;
+  )) [[likely]] return;
 
   std::vector<u64> node_stack;
   std::ranges::copy_if(
