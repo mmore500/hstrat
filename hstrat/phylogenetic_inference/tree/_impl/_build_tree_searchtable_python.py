@@ -129,6 +129,10 @@ def _insert_artifact(
         _consolidate_if_rank_dropped(
             table=table, cur_node=cur_node, next_rank=next_rank
         )
+        assert all(
+            table.get_rank_of(n) >= next_rank
+            for n in table.iter_inner_search_children_of(cur_node)
+        )
         cur_node = _place_allele(
             table,
             cur_node=cur_node,
