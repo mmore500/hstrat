@@ -726,10 +726,6 @@ void collapse_indistinguishable_nodes(Records & records, const u64 node) {
  */
 void consolidate_trie(Records &records, const i64 rank, const u64 node) {
   const auto children_range = ChildrenView(records, node);
-  if (std::ranges::all_of(
-    children_range,
-    [&records, rank](const u64 child){ return records.rank[child] >= rank; }
-  )) [[likely]] return;
 
   std::vector<u64> node_stack;
   std::ranges::copy_if(
@@ -738,7 +734,7 @@ void consolidate_trie(Records &records, const i64 rank, const u64 node) {
     [&records, rank](const u64 node){ return records.rank[node] < rank; }
   );
 
-  assert(!node_stack.empty());
+ if (node_stack.empty()) [[likely]] return;
 
   // drop children and attach grandchildren
   while (!node_stack.empty()) {
