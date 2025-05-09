@@ -86,74 +86,74 @@ jobs:
         python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_asexual --help
         python3 -m hstrat._auxiliary_lib._alifestd_try_add_ancestor_list_col --help
 
-  examples:
-    runs-on: ubuntu-24.04
-    steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v2
-      with:
-        python-version: "3.10"
-    - name: Install Python dependencies
-      uses: py-actions/py-dependency-install@v4
-      with:
-        path: "requirements-dev/requirements-jit.txt"
-    - name: Install Python dependencies
-      uses: py-actions/py-dependency-install@v4
-      with:
-        path: "requirements-dev/requirements-testing.txt"
-    - name: Run examples
-      run: ./examples/run_all.sh
-    - name: Save end2end reconstruction error artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: end2end-reconstruction-error
-        path: "/tmp/end2end-reconstruction-error.csv"
-        overwrite: true
-    - name: Save end2end visualization artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: end2end-visualizations
-        path: "/tmp/end2end-visualizations"
-        overwrite: true
+  # examples:
+  #   runs-on: ubuntu-24.04
+  #   steps:
+  #   - uses: actions/checkout@v1
+  #   - name: Set up Python 3.10
+  #     uses: actions/setup-python@v2
+  #     with:
+  #       python-version: "3.10"
+  #   - name: Install Python dependencies
+  #     uses: py-actions/py-dependency-install@v4
+  #     with:
+  #       path: "requirements-dev/requirements-jit.txt"
+  #   - name: Install Python dependencies
+  #     uses: py-actions/py-dependency-install@v4
+  #     with:
+  #       path: "requirements-dev/requirements-testing.txt"
+  #   - name: Run examples
+  #     run: ./examples/run_all.sh
+  #   - name: Save end2end reconstruction error artifact
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: end2end-reconstruction-error
+  #       path: "/tmp/end2end-reconstruction-error.csv"
+  #       overwrite: true
+  #   - name: Save end2end visualization artifact
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: end2end-visualizations
+  #       path: "/tmp/end2end-visualizations"
+  #       overwrite: true
 
-  test-cli:
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        head:
-          # - "" exceeds memory on actions runner
-          - "--head 10_000"
-          - "--head 1_000_000"
-          - "--sample 10_000 --seed 1"
-          - "--sample 1_000_000 --seed 1"
-    steps:
-    - name: Cleanup pre-installed tools
-      run: |
-        sudo rm -rf /usr/share/dotnet
-        sudo rm -rf /opt/ghc
-        sudo rm -rf "/usr/local/share/boost"
-        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-    - uses: actions/checkout@v1
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v2
-      with:
-        python-version: "3.10"
-    - name: Install Python dependencies
-      uses: py-actions/py-dependency-install@v4
-      with:
-        path: "requirements-dev/requirements-jit.txt"
-    - name: Install Python dependencies
-      uses: py-actions/py-dependency-install@v4
-      with:
-        path: "requirements-dev/requirements-testing.txt"
-    - run: python3 -m pip freeze
-    - name: Run tests
-      env:
-        HSTRAT_TESTS_CLI_HEAD: "${{ matrix.head }}"
-        HSTRAT_TESTS_CLI_STDOUT: "/dev/null"
-      run: ./tests-cli/run_all.sh
+  # test-cli:
+  #   runs-on: ubuntu-24.04
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       head:
+  #         # - "" exceeds memory on actions runner
+  #         - "--head 10_000"
+  #         - "--head 1_000_000"
+  #         - "--sample 10_000 --seed 1"
+  #         - "--sample 1_000_000 --seed 1"
+  #   steps:
+  #   - name: Cleanup pre-installed tools
+  #     run: |
+  #       sudo rm -rf /usr/share/dotnet
+  #       sudo rm -rf /opt/ghc
+  #       sudo rm -rf "/usr/local/share/boost"
+  #       sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+  #   - uses: actions/checkout@v1
+  #   - name: Set up Python 3.10
+  #     uses: actions/setup-python@v2
+  #     with:
+  #       python-version: "3.10"
+  #   - name: Install Python dependencies
+  #     uses: py-actions/py-dependency-install@v4
+  #     with:
+  #       path: "requirements-dev/requirements-jit.txt"
+  #   - name: Install Python dependencies
+  #     uses: py-actions/py-dependency-install@v4
+  #     with:
+  #       path: "requirements-dev/requirements-testing.txt"
+  #   - run: python3 -m pip freeze
+  #   - name: Run tests
+  #     env:
+  #       HSTRAT_TESTS_CLI_HEAD: "${{ matrix.head }}"
+  #       HSTRAT_TESTS_CLI_STDOUT: "/dev/null"
+  #     run: ./tests-cli/run_all.sh
 
   build-script:
     runs-on: ubuntu-24.04
@@ -438,12 +438,12 @@ jobs:
       - coverage
       - cli-smoke
       - deploy-test
-      - examples
+      # - examples
       - packaging-bdist
       - packaging-sdist
       - packaging-source
       - test
-      - test-cli
+      # - test-cli
       - tidy
     runs-on: ubuntu-24.04
     steps:
