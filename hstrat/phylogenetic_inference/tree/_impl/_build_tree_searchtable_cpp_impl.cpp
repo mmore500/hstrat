@@ -478,8 +478,8 @@ class ChildrenIterator {
 public:
   using value_type = u64;
   using difference_type = std::ptrdiff_t;
-  using iterator_category = std::input_iterator_tag;
-  using iterator_concept = std::input_iterator_tag;
+  using iterator_category = std::forward_iterator_tag;
+  using iterator_concept = std::forward_iterator_tag;
 
   // some compilers require iterators to be default-constructible...
   // this should never actually be used
@@ -493,6 +493,14 @@ public:
     : records.search_first_child_id[parent]
   )
   { assert(this->current != placeholder_value); }
+
+  bool operator==(const ChildrenIterator &it) const {
+    return this->current == it.current;
+  }
+  bool operator!=(const ChildrenIterator &it) const {
+    return this->current != it.current;
+  }
+
   u64 operator*() const { return current; }
   ChildrenIterator& operator++() {
     const auto& records = this->records.get();
@@ -501,12 +509,23 @@ public:
     current = (next == current) ? 0 : next;
     return *this;
   }
-  void operator++(int) { ++(*this); }
+  ChildrenIterator operator++(int) {
+    ChildrenIterator tmp = *this;
+    ++(*this);
+    return tmp;
+  }
+
   friend bool operator==(const ChildrenIterator &it, ChildrenSentinel) {
     return it.current == 0;
   }
   friend bool operator==(ChildrenSentinel, const ChildrenIterator &it) {
     return it.current == 0;
+  }
+  friend bool operator!=(const ChildrenIterator &it, ChildrenSentinel) {
+    return it.current != 0;
+  }
+  friend bool operator!=(ChildrenSentinel, const ChildrenIterator &it) {
+    return it.current != 0;
   }
 };
 
@@ -523,10 +542,10 @@ private:
   std::reference_wrapper<const Records> records;
   u64 parent;
 };
-static_assert(std::input_iterator<ChildrenIterator>);
+
+static_assert(std::forward_iterator<ChildrenIterator>);
 static_assert(std::sentinel_for<ChildrenSentinel, ChildrenIterator>);
-static_assert(std::ranges::range<ChildrenView>);
-static_assert(std::ranges::input_range<ChildrenView>);
+static_assert(std::ranges::forward_range<ChildrenView>);
 
 
 /**
@@ -579,11 +598,51 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
 
   const u64 ancestor_first_child = records.search_first_child_id[parent];
   assert(ancestor_first_child != placeholder_value);
-  const bool is_first_child = ancestor_first_child == parent;
-  const u64 sibling_id = is_first_child ? node : ancestor_first_child;
-  records.search_next_sibling_id[node] = sibling_id;
-  records.search_prev_sibling_id[sibling_id] = node;
-  records.search_first_child_id[parent] = node;
+
+  // insert node into the list of children, choosing its position in order
+  // to keep the list in ascending order by rank
+  const i64 rank = records.rank[node];
+  const auto siblings = ChildrenView(records, parent);
+  u64 precursor_id = parent;
+  const auto next_sibling_it = std::ranges::find_if(
+    siblings,
+    [&records, &precursor_id, rank](const u64 sibling){
+      const bool res = records.rank[sibling] >= rank;
+      if (!res) precursor_id = sibling;
+      return res;
+    }
+  );
+
+  const bool has_next_sibling = next_sibling_it != siblings.end();
+  const bool has_prev_sibling = next_sibling_it != siblings.begin();
+
+  if (has_prev_sibling) {
+    assert(
+      !has_next_sibling
+      || records.search_prev_sibling_id[*next_sibling_it] == precursor_id
+    );
+    assert(precursor_id != parent);
+    records.search_next_sibling_id[precursor_id] = node;
+    records.search_prev_sibling_id[node] = precursor_id;
+  } else {
+    assert(precursor_id == parent);
+    records.search_first_child_id[parent] = node;
+    records.search_prev_sibling_id[node] = node;
+  }
+
+  if (has_next_sibling) {
+    records.search_prev_sibling_id[*next_sibling_it] = node;
+    records.search_next_sibling_id[node] = *next_sibling_it;
+  } else {
+    records.search_next_sibling_id[node] = node;
+  }
+
+  assert(std::ranges::is_sorted(
+    ChildrenView(records, parent),
+    [&records](const u64 lhs, const u64 rhs) {
+      return records.rank[lhs] < records.rank[rhs];
+    }
+  ));
 
 }
 
@@ -726,10 +785,16 @@ void collapse_indistinguishable_nodes(Records & records, const u64 node) {
  */
 void consolidate_trie(Records &records, const i64 rank, const u64 node) {
   const auto children_range = ChildrenView(records, node);
-  if (std::ranges::all_of(
-    children_range,
-    [&records, rank](const u64 child){ return records.rank[child] >= rank; }
-  )) [[likely]] return;
+  if (
+    children_range.begin() == children_range.end()
+    || records.rank[*children_range.begin()] == rank
+  ) [[likely]] {
+    assert(std::ranges::all_of(
+      children_range,
+      [&records, rank](const u64 child){ return records.rank[child] >= rank; }
+    ));
+    return;
+  }
 
   std::vector<u64> node_stack;
   std::ranges::copy_if(
