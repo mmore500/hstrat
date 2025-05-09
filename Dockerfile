@@ -1,8 +1,6 @@
 FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive PYTHONUNBUFFERED=1 TQDM_MININTERVAL=5
-# switch to mimalloc for perf
-ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libmimalloc.so
 
 # Install build tools and GCC 13
 # https://unix.stackexchange.com/a/752016/605206 RE python3-launchpadlib
@@ -13,7 +11,6 @@ RUN apt-get update \
         cmake \
         git \
         gcc \
-        libmimalloc-dev \
         python3 \
         python3-dev \
         python3-pip \
