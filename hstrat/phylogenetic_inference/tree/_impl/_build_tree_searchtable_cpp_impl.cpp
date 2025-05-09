@@ -785,8 +785,14 @@ void collapse_indistinguishable_nodes(Records & records, const u64 node) {
  */
 void consolidate_trie(Records &records, const i64 rank, const u64 node) {
   const auto children_range = ChildrenView(records, node);
+  assert(std::ranges::all_of(
+    children_range,
+    [&records, rank](const u64 child){ return records.rank[child] <= rank; }
+  ));
+
   if (
     children_range.begin() == children_range.end()
+    // chidlren are stored in ascending order by rank
     || records.rank[*children_range.begin()] == rank
   ) [[likely]] {
     assert(std::ranges::all_of(
@@ -796,11 +802,16 @@ void consolidate_trie(Records &records, const i64 rank, const u64 node) {
     return;
   }
 
+  // children are stored in ascending order by rank, so this is equivalent
+  // to copy_if < rank
   std::vector<u64> node_stack;
-  std::ranges::copy_if(
+  const auto copy_end = std::ranges::find_if(
     children_range,
-    std::back_inserter(node_stack),
-    [&records, rank](const u64 node){ return records.rank[node] < rank; }
+    [&records, rank](const u64 node){ return records.rank[node] == rank; }
+  );
+  std::ranges::copy(
+    std::ranges::subrange(children_range.begin(), copy_end),
+    std::back_inserter(node_stack)
   );
 
   assert(!node_stack.empty());
