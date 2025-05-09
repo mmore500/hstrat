@@ -791,7 +791,7 @@ void consolidate_trie(Records &records, const i64 rank, const u64 node) {
   ) [[likely]] {
     assert(std::ranges::all_of(
       children_range,
-      [&records, rank](const u64 child){ return records.rank[child] >= rank; }
+      [&records, rank](const u64 child){ return records.rank[child] == rank; }
     ));
     return;
   }
