@@ -98,5 +98,4 @@ if __name__ == "__main__":
             output_dataframe_op=delegate_polars_implementation()(
                 alifestd_to_working_format,
             ),
-            overridden_arguments="ignore",  # seed is overridden
         )
