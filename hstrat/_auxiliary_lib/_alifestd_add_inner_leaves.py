@@ -2,9 +2,9 @@ import argparse
 import logging
 import os
 
-import numpy as np
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
+import numpy as np
 import pandas as pd
 
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
