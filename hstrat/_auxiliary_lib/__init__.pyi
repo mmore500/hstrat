@@ -13,7 +13,13 @@ from ._HereditaryStratigraphicInstrument import (
 from ._RecursionLimit import RecursionLimit
 from ._RngStateContext import RngStateContext
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
+from ._alifestd_add_inner_knuckles_asexual import (
+    alifestd_add_inner_knuckles_asexual,
+)
 from ._alifestd_add_inner_leaves import alifestd_add_inner_leaves
+from ._alifestd_add_inner_niblings_asexual import (
+    alifestd_add_inner_niblings_asexual,
+)
 from ._alifestd_aggregate_phylogenies import alifestd_aggregate_phylogenies
 from ._alifestd_as_newick_asexual import alifestd_as_newick_asexual
 from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
@@ -355,7 +361,9 @@ from ._with_rng_state_context import with_rng_state_context
 from ._zip_strict import zip_strict
 
 __all__ = [
+    "alifestd_add_inner_knuckles_asexual",
     "alifestd_add_inner_leaves",
+    "alifestd_add_inner_niblings_asexual",
     "alifestd_aggregate_phylogenies",
     "alifestd_as_newick_asexual",
     "alifestd_assign_contiguous_ids",
