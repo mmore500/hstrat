@@ -66,6 +66,9 @@ from ._alifestd_count_inner_nodes import alifestd_count_inner_nodes
 from ._alifestd_count_leaf_nodes import alifestd_count_leaf_nodes
 from ._alifestd_count_polytomies import alifestd_count_polytomies
 from ._alifestd_count_root_nodes import alifestd_count_root_nodes
+from ._alifestd_count_unifurcating_roots_asexual import (
+    alifestd_count_unifurcating_roots_asexual,
+)
 from ._alifestd_count_unifurcations import alifestd_count_unifurcations
 from ._alifestd_delete_trunk_asexual import alifestd_delete_trunk_asexual
 from ._alifestd_delete_trunk_asexual_polars import (
@@ -387,6 +390,7 @@ __all__ = [
     "alifestd_count_leaf_nodes",
     "alifestd_count_root_nodes",
     "alifestd_count_polytomies",
+    "alifestd_count_unifurcating_roots_asexual",
     "alifestd_count_unifurcations",
     "alifestd_delete_trunk_asexual",
     "alifestd_delete_trunk_asexual_polars",

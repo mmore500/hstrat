@@ -2,7 +2,6 @@ import argparse
 import logging
 import os
 
-import numpy as np
 import pandas as pd
 
 from ._format_cli_description import format_cli_description
@@ -10,7 +9,7 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
-def alifestd_count_root_nodes(phylogeny_df: pd.DataFrame) -> np.ndarray:  # int
+def alifestd_count_root_nodes(phylogeny_df: pd.DataFrame) -> int:
     """How many root nodes are contained in phylogeny?"""
     if "ancestor_id" in phylogeny_df.columns:
         return (phylogeny_df["ancestor_id"] == phylogeny_df["id"]).sum()
