@@ -29,6 +29,12 @@ from ._alifestd_assign_contiguous_ids_polars import (
 from ._alifestd_assign_root_ancestor_token import (
     alifestd_assign_root_ancestor_token,
 )
+from ._alifestd_calc_clade_lookback_n_asexual import (
+    alifestd_calc_clade_lookback_n_asexual,
+)
+from ._alifestd_calc_clade_lookback_origin_time_delta_asexual import (
+    alifestd_calc_clade_lookback_origin_time_delta_asexual,
+)
 from ._alifestd_calc_clade_trait_count_asexual import (
     alifestd_calc_clade_trait_count_asexual,
 )
@@ -372,6 +378,8 @@ __all__ = [
     "alifestd_assign_contiguous_ids",
     "alifestd_assign_contiguous_ids_polars",
     "alifestd_assign_root_ancestor_token",
+    "alifestd_calc_clade_lookback_n_asexual",
+    "alifestd_calc_clade_lookback_origin_time_delta_asexual",
     "alifestd_calc_clade_trait_count_asexual",
     "alifestd_calc_clade_trait_frequency_asexual",
     "alifestd_categorize_triplet_asexual",
