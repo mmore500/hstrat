@@ -37,6 +37,7 @@ def alifestd_mark_clade_faithpd_asexual_slow_path(
     """Implementation detail for `alifestd_mark_clade_faithpd_asexual`."""
     phylogeny_df.index = phylogeny_df["id"]
 
+    phylogeny_df["clade_faithpd"] = phylogeny_df["origin_time_delta"].copy()
     phylogeny_df["clade_faithpd"] = 0
 
     for idx in reversed(phylogeny_df.index):
@@ -82,6 +83,14 @@ def alifestd_mark_clade_faithpd_asexual(
         phylogeny_df = alifestd_mark_origin_time_delta_asexual(
             phylogeny_df, mutate=True
         )
+
+    if (
+        pd.api.types.is_integer_dtype(phylogeny_df["origin_time_delta"].dtype)
+        and phylogeny_df["origin_time_delta"].dtype != np.uint64
+    ):
+        phylogeny_df["origin_time_delta_"] = phylogeny_df[
+            "origin_time_delta"
+        ].astype(np.int64)
 
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df[
