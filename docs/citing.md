@@ -35,6 +35,7 @@ MLA:
 
 >Moreno, Matthew Andres et al. "hstrat: A Python Package for Phylogenetic Inference on Distributed Digital Evolution Populations." Journal of Open Source Software 7.80 (2022): 4866. https://doi.org/10.21105/joss.04866.
 
+If you use a "surface" data structure to store genome annotations, please also [cite downstream](https://mmore500.github.io/downstream/citing) as it provides underlying algorithm implementations for this feature.
 
 ### Methodology
 
