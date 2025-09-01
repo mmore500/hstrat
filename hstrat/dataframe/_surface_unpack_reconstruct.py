@@ -1,4 +1,5 @@
 import contextlib
+from enum import Enum
 import logging
 import math
 import multiprocessing
@@ -6,7 +7,12 @@ import os
 import typing
 import uuid
 
+import downstream as dstream
 from downstream import dataframe as dstream_dataframe
+from downstream.dataframe._unpack_data_packed import (
+    _drop_excluded_rows,
+    _perform_validations,
+)
 import pandas as pd
 import polars as pl
 import pyarrow as pa
@@ -20,12 +26,19 @@ from .._auxiliary_lib import (
     log_memory_usage,
     render_polars_snapshot,
 )
+from ..phylogenetic_inference.tree import build_tree_trie
 from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
     Records,
     collapse_unifurcations,
     extend_tree_searchtable_cpp_from_exploded,
     extract_records_to_dict,
 )
+from ..serialization import surf_from_hex
+
+
+class ReconstructionAlgorithm(Enum):
+    NAIVE = "naive"
+    SHORTCUT = "shortcut"
 
 
 def _sort_Tbar_argv(
@@ -331,6 +344,7 @@ def _surface_unpacked_reconstruct(
 ) -> pl.DataFrame:
     """Reconstruct phylogenetic tree from unpacked dstream data."""
     logging.info("building tree searchtable chunkwise...")
+
     records = _build_records_chunked(
         slices,
         collapse_unif_freq=collapse_unif_freq,
@@ -401,6 +415,7 @@ def surface_unpack_reconstruct(
     collapse_unif_freq: int = 1,
     exploded_slice_size: int = 1_000_000,
     mp_context: str = "spawn",
+    reconstruction_algorithm: ReconstructionAlgorithm = ReconstructionAlgorithm.SHORTCUT,
 ) -> pl.DataFrame:
     """Unpack dstream buffer and counter from genome data and construct an
     estimated phylogenetic tree for the genomes.
@@ -454,6 +469,11 @@ def surface_unpack_reconstruct(
 
     mp_context : str, default 'spawn'
         Multiprocessing context to use for parallel processing.
+
+    reconstruction_algorithm : ReconstructionAlgorithm, default SHORTCUT
+        Reconstruction algorithm to use. ReconstructionAlgorithm.SHORTCUT
+        should nearly always be used, but ReconstructionAlgorithm.NAIVE
+        is also supported for benchmarking and evaluation purposes.
 
     Returns
     -------
@@ -524,18 +544,63 @@ def surface_unpack_reconstruct(
         )
     differentia_bitwidth = dstream_storage_bitwidth // dstream_S
     logging.info(f" - differentia bitwidth: {differentia_bitwidth}")
-
-    logging.info("dispatching to surface_unpacked_reconstruct")
-    with _generate_exploded_slices_mp(
-        df, exploded_slice_size, mp_context
-    ) as slices:
-        phylo_df = _surface_unpacked_reconstruct(
-            slices,
-            collapse_unif_freq=collapse_unif_freq,
-            differentia_bitwidth=differentia_bitwidth,
-            dstream_S=dstream_S,
-            exploded_slice_size=exploded_slice_size,
+    if reconstruction_algorithm == ReconstructionAlgorithm.NAIVE:
+        if "downstream_exclude_exploded" in df.columns:
+            df = df.filter(
+                pl.col("downstream_exclude_exploded").not_().fill_null(True)
+            ).drop("downstream_exclude_exploded")
+        if "dstream_data_id" not in df.columns:
+            df = df.with_row_index("dstream_data_id").with_columns(
+                pl.col("dstream_data_id").cast(pl.UInt64)
+            )
+        population = [
+            surf_from_hex(
+                hex,
+                eval(algo, {"dstream": dstream.dstream}),
+                dstream_S=S,
+                dstream_T_bitwidth=T_bitwidth,
+                dstream_T_bitoffset=T_bitoffset,
+                dstream_storage_bitwidth=storage_bitwidth,
+                dstream_storage_bitoffset=storage_bitoffset,
+            )
+            for hex, algo, S, T_bitwidth, T_bitoffset, storage_bitwidth, storage_bitoffset in df.lazy()
+            .select(
+                [
+                    "data_hex",
+                    "dstream_algo",
+                    "dstream_S",
+                    "dstream_T_bitwidth",
+                    "dstream_T_bitoffset",
+                    "dstream_storage_bitwidth",
+                    "dstream_storage_bitoffset",
+                ]
+            )
+            .collect()
+            .iter_rows()
+        ]
+        phylo_df = pl.from_pandas(
+            build_tree_trie(
+                population,
+                [*df.lazy().collect()["taxon_label"]],
+                force_common_ancestry=True,
+            )
+        ).join(
+            df.select(["taxon_label", "dstream_data_id"]).lazy().collect(),
+            on="taxon_label",
+            how="left",
         )
+    else:
+        logging.info("dispatching to surface_unpacked_reconstruct")
+        with _generate_exploded_slices_mp(
+            df, exploded_slice_size, mp_context
+        ) as slices:
+            phylo_df = _surface_unpacked_reconstruct(
+                slices,
+                collapse_unif_freq=collapse_unif_freq,
+                differentia_bitwidth=differentia_bitwidth,
+                dstream_S=dstream_S,
+                exploded_slice_size=exploded_slice_size,
+            )
 
     logging.info("joining user-defined columns...")
     with log_context_duration("_join_user_defined_columns", logging.info):
