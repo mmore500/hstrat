@@ -35,8 +35,9 @@ def to_ascii(
         phylogeny_df, mutate=True
     ).drop(columns=["extant"])
     phylogeny_df = alifestd_collapse_unifurcations(phylogeny_df, mutate=True)
-
     dp_tree = apc.RosettaTree(phylogeny_df).as_dendropy
+    if dp_tree is None:
+        return "Tree is empty after visualization preprocessing"
     for nd in dp_tree.preorder_node_iter():
         nd._child_nodes.sort(
             key=lambda nd: max(leaf.taxon.label for leaf in nd.leaf_iter()),
@@ -63,6 +64,8 @@ def sample_reference_and_reconstruction(
     differentia_bitwidth: int,
     surface_size: int,
     fossil_interval: typing.Optional[int],
+    *,
+    no_preset_randomness: bool,
 ) -> typing.Dict[str, pd.DataFrame]:
     """Sample a reference phylogeny and corresponding reconstruction."""
     try:
@@ -78,7 +81,8 @@ def sample_reference_and_reconstruction(
                     ["--fossil-interval", f"{fossil_interval}"]
                     * (fossil_interval is not None)
                 ),
-            ],
+            ]
+            + (["--no-preset-randomness"] if no_preset_randomness else []),
             check=True,
             capture_output=True,
             text=True,
@@ -212,6 +216,11 @@ def display_reconstruction(
     """Print a sample of the reference and reconstructed phylogenies."""
     show_taxa = (
         frames["reconst_dropped_fossils"]["taxon_label"]
+        .apply(
+            lambda x: (
+                pd.NA if not isinstance(x, str) or x.startswith("Inner") else x
+            )
+        )
         .dropna()
         .sample(6, random_state=1)
     )
@@ -242,6 +251,7 @@ def test_reconstruct_one(
     fossil_interval: typing.Optional[int],
     *,
     visualize: bool,
+    no_preset_randomness: bool,
 ) -> typing.Dict[str, typing.Union[int, float, None]]:
     """Test the reconstruction of a single phylogeny."""
     print("=" * 80)
@@ -253,6 +263,7 @@ def test_reconstruct_one(
         differentia_bitwidth,
         surface_size,
         fossil_interval,
+        no_preset_randomness=no_preset_randomness,
     )
 
     display_reconstruction(
@@ -289,6 +300,7 @@ def test_reconstruct_one(
 def _parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--skip-visualization", action="store_true")
+    parser.add_argument("--no-preset-randomness", action="store_true")
     return parser.parse_args()
 
 
@@ -302,12 +314,15 @@ if __name__ == "__main__":
                 surface_size,
                 fossil_interval,
                 visualize=not args.skip_visualization,
+                no_preset_randomness=args.no_preset_randomness,
             )
             for (
                 fossil_interval,
                 surface_size,
                 differentia_bitwidth,
-            ) in itertools.product((None, 50, 200), (256, 64, 16), (64, 8, 1))
+            ) in itertools.product(
+                (None, 200, 50), (256, 128, 64, 32, 16), (64, 16, 8, 1)
+            )
         ]
     ).sort_values(
         ["fossil_interval", "surface_size", "differentia_bitwidth"],

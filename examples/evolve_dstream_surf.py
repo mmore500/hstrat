@@ -26,7 +26,7 @@ except (ImportError, ModuleNotFoundError) as e:
     print("python3 -m pip install phylotrackpy")
     raise e
 
-evolution_selector = random.Random(1)  # ensure consistent true phylogeny
+evolution_selector: random.Random
 
 
 def consistent_state_randrange(bitwidth: int):
@@ -126,6 +126,7 @@ def make_Organism(
     surf_dtype = {
         1: np.uint8,
         8: np.uint8,
+        16: np.uint16,
         64: np.uint64,
     }[differentia_bitwidth]
     empty_surface = np.empty(surface_size, dtype=surf_dtype)
@@ -327,10 +328,14 @@ def _parse_args() -> argparse.Namespace:
         "--fossil-interval",
         type=int,
     )
+    parser.add_argument(
+        "--no-preset-randomness",
+        action="store_true",
+    )
 
     args = parser.parse_args()
 
-    if args.differentia_bitwidth not in (1, 8, 64):
+    if args.differentia_bitwidth not in (1, 8, 16, 64):
         raise NotImplementedError()
 
     if args.surface_size < 8:
@@ -358,10 +363,15 @@ def _get_df_save_handler(path: str) -> typing.Callable:
 
 
 if __name__ == "__main__":
-    np.random.seed(2)  # ensure reproducibility
-    random.seed(2)
-
     args = _parse_args()
+
+    if args.no_preset_randomness:
+        evolution_selector = random.Random()
+    else:
+        # ensure consistent true phylogeny
+        evolution_selector = random.Random(1)
+        np.random.seed(2)  # ensure reproducibility
+        random.seed(2)
 
     # configure organism class
     syst = systematics.Systematics(lambda x: x.uid)  # each org is own taxon
