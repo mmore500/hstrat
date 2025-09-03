@@ -23,6 +23,7 @@ from hstrat._auxiliary_lib import (
     alifestd_prune_extinct_lineages_asexual,
     alifestd_try_add_ancestor_list_col,
 )
+from hstrat.dataframe._surface_unpack_reconstruct import ReconstructionAlgorithm
 
 
 def to_ascii(
@@ -66,11 +67,14 @@ def sample_reference_and_reconstruction(
     fossil_interval: typing.Optional[int],
     *,
     no_preset_randomness: bool,
+    reconstruction_algorithm: ReconstructionAlgorithm,
 ) -> typing.Dict[str, pd.DataFrame]:
     """Sample a reference phylogeny and corresponding reconstruction."""
     try:
         paths = subprocess.run(
             [
+                "env",
+                f"HSTRAT_RECONSTRUCTION_ALGO={reconstruction_algorithm.value}",
                 f"{os.path.dirname(__file__)}/"
                 "end2end_tree_reconstruction_with_dstream_surf.sh",
                 "--differentia-bitwidth",
@@ -252,6 +256,7 @@ def test_reconstruct_one(
     *,
     visualize: bool,
     no_preset_randomness: bool,
+    reconstruction_algorithm: ReconstructionAlgorithm,
 ) -> typing.Dict[str, typing.Union[int, float, None]]:
     """Test the reconstruction of a single phylogeny."""
     print("=" * 80)
@@ -264,6 +269,7 @@ def test_reconstruct_one(
         surface_size,
         fossil_interval,
         no_preset_randomness=no_preset_randomness,
+        reconstruction_algorithm=reconstruction_algorithm,
     )
 
     display_reconstruction(
@@ -301,6 +307,12 @@ def _parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--skip-visualization", action="store_true")
     parser.add_argument("--no-preset-randomness", action="store_true")
+    parser.add_argument(
+        "--reconstruction-algorithm",
+        type=ReconstructionAlgorithm,
+        default=ReconstructionAlgorithm.SHORTCUT,
+        choices=list(ReconstructionAlgorithm),
+    )
     return parser.parse_args()
 
 
@@ -315,6 +327,7 @@ if __name__ == "__main__":
                 fossil_interval,
                 visualize=not args.skip_visualization,
                 no_preset_randomness=args.no_preset_randomness,
+                reconstruction_algorithm=args.reconstruction_algorithm,
             )
             for (
                 fossil_interval,

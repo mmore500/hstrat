@@ -26,7 +26,7 @@ reconst_phylo_df_path="/tmp/end2end-reconst-phylo-evolve_surf_dstream.pqt"
 ls "${genome_df_path}" | python3 -m \
     hstrat.dataframe.surface_unpack_reconstruct \
     "${reconst_phylo_df_path}" \
-    --reconstruction-algorithm shortcut \
+    --reconstruction-algorithm ${HSTRAT_RECONSTRUCTION_ALGO:-shortcut} \
     >/dev/null 2>&1
 
 # log output paths
