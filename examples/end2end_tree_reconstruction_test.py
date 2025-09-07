@@ -23,7 +23,9 @@ from hstrat._auxiliary_lib import (
     alifestd_prune_extinct_lineages_asexual,
     alifestd_try_add_ancestor_list_col,
 )
-from hstrat.dataframe._surface_unpack_reconstruct import ReconstructionAlgorithm
+from hstrat.dataframe._surface_unpack_reconstruct import (
+    ReconstructionAlgorithm,
+)
 
 
 def to_ascii(
@@ -307,13 +309,13 @@ def _parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--skip-visualization", action="store_true")
     parser.add_argument("--no-preset-randomness", action="store_true")
-    parser.add_argument(
-        "--reconstruction-algorithm",
-        type=ReconstructionAlgorithm,
-        default=ReconstructionAlgorithm.SHORTCUT,
-        choices=list(ReconstructionAlgorithm),
-    )
-    return parser.parse_args()
+    parser.add_argument("--repeats", type=int, default=1)
+    args = parser.parse_args()
+    if args.repeats > 1 and not args.no_preset_randomness:
+        raise ValueError(
+            "No point in having more than 1 repeat if using preset random seeds."
+        )
+    return args
 
 
 if __name__ == "__main__":
@@ -327,15 +329,20 @@ if __name__ == "__main__":
                 fossil_interval,
                 visualize=not args.skip_visualization,
                 no_preset_randomness=args.no_preset_randomness,
-                reconstruction_algorithm=args.reconstruction_algorithm,
+                reconstruction_algorithm=reconstruction_algorithm,
             )
             for (
                 fossil_interval,
                 surface_size,
                 differentia_bitwidth,
+                reconstruction_algorithm,
             ) in itertools.product(
-                (None, 200, 50), (256, 128, 64, 32, 16), (64, 16, 8, 1)
+                (None, 200, 50),
+                (256, 128, 64, 32, 16),
+                (64, 16, 8, 1),
+                list(ReconstructionAlgorithm),
             )
+            for _ in range(args.repeats)
         ]
     ).sort_values(
         ["fossil_interval", "surface_size", "differentia_bitwidth"],
