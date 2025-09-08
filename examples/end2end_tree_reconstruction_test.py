@@ -19,6 +19,7 @@ from hstrat._auxiliary_lib import (
     alifestd_calc_triplet_distance_asexual,
     alifestd_collapse_unifurcations,
     alifestd_count_leaf_nodes,
+    alifestd_delete_unifurcating_roots_asexual,
     alifestd_mark_node_depth_asexual,
     alifestd_prune_extinct_lineages_asexual,
     alifestd_try_add_ancestor_list_col,
@@ -282,13 +283,28 @@ def test_reconstruct_one(
         create_plots=visualize,
     )
     reconstruction_error = alifestd_calc_triplet_distance_asexual(
-        alifestd_collapse_unifurcations(frames["exact"]), frames["reconst"]
+        alifestd_delete_unifurcating_roots_asexual(
+            alifestd_collapse_unifurcations(frames["exact"])
+        ),
+        alifestd_delete_unifurcating_roots_asexual(
+            alifestd_collapse_unifurcations(frames["reconst"])
+        ),
+        taxon_label_key="taxon_label",
     )
 
     reconstruction_error_dropped_fossils = (
         alifestd_calc_triplet_distance_asexual(
-            alifestd_collapse_unifurcations(frames["exact_dropped_fossils"]),
-            frames["reconst_dropped_fossils"],
+            alifestd_delete_unifurcating_roots_asexual(
+                alifestd_collapse_unifurcations(
+                    frames["exact_dropped_fossils"]
+                )
+            ),
+            alifestd_delete_unifurcating_roots_asexual(
+                alifestd_collapse_unifurcations(
+                    frames["reconst_dropped_fossils"]
+                )
+            ),
+            taxon_label_key="taxon_label",
         )
     )
 
