@@ -326,6 +326,29 @@ def _parse_args():
     parser.add_argument("--skip-visualization", action="store_true")
     parser.add_argument("--no-preset-randomness", action="store_true")
     parser.add_argument("--repeats", type=int, default=1)
+    parser.add_argument(
+        "--reconstruction-algorithm",
+        type=ReconstructionAlgorithm,
+        choices=list(ReconstructionAlgorithm),
+        nargs="+",
+        default=(ReconstructionAlgorithm.SHORTCUT,),
+    )
+    parser.add_argument(
+        "--fossil-interval",
+        type=lambda val: val if val == "None" else int(val),
+        nargs="+",
+        default=(None, 200, 50),
+    )
+    parser.add_argument(
+        "--surface-size", type=int, nargs="+", default=(256, 64, 16)
+    )
+    parser.add_argument(
+        "--differentia-bitwidth",
+        type=int,
+        nargs="+",
+        choices=(64, 16, 8, 1),
+        default=(64, 8, 1),
+    )
     args = parser.parse_args()
     if args.repeats > 1 and not args.no_preset_randomness:
         raise ValueError(
@@ -353,10 +376,10 @@ if __name__ == "__main__":
                 differentia_bitwidth,
                 reconstruction_algorithm,
             ) in itertools.product(
-                (None, 200, 50),
-                (256, 128, 64, 32, 16),
-                (64, 16, 8, 1),
-                list(ReconstructionAlgorithm),
+                args.fossil_interval,
+                args.surface_size,
+                args.differentia_bitwidth,
+                args.reconstruction_algorithm,
             )
             for _ in range(args.repeats)
         ]
