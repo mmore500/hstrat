@@ -260,7 +260,7 @@ def test_reconstruct_one(
     visualize: bool,
     no_preset_randomness: bool,
     reconstruction_algorithm: ReconstructionAlgorithm,
-) -> typing.Dict[str, typing.Union[int, float, None]]:
+) -> typing.Dict[str, typing.Union[int, float, str, None]]:
     """Test the reconstruction of a single phylogeny."""
     print("=" * 80)
     print(f"surface_size: {surface_size}")
@@ -318,6 +318,7 @@ def test_reconstruct_one(
         "fossil_interval": fossil_interval,
         "error": reconstruction_error,
         "error_dropped_fossils": reconstruction_error_dropped_fossils,
+        "reconstruction_algorithm": reconstruction_algorithm.value,
     }
 
 
