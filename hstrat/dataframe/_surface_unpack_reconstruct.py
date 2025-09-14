@@ -9,10 +9,6 @@ import uuid
 
 import downstream as dstream
 from downstream import dataframe as dstream_dataframe
-from downstream.dataframe._unpack_data_packed import (
-    _drop_excluded_rows,
-    _perform_validations,
-)
 import pandas as pd
 import polars as pl
 import pyarrow as pa
