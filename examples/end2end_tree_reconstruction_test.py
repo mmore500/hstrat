@@ -396,7 +396,7 @@ if __name__ == "__main__":
         ["fossil_interval", "surface_size", "differentia_bitwidth"],
         ascending=False,
     )
-    reconstruction_error_results.to_csv(args.output_path)
+    reconstruction_error_results.to_csv(args.output_path, index=False)
 
     # if there is a preset random seed, we need to make sure that the
     # error increases with decreasing surface size and differentia bitwidth
