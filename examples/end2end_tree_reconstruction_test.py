@@ -339,7 +339,7 @@ def _parse_args():
     )
     parser.add_argument(
         "--fossil-interval",
-        type=lambda val: val if val == "None" else int(val),
+        type=lambda val: None if val == "None" else int(val),
         nargs="+",
         default=(None, 200, 50),
     )

@@ -15,6 +15,7 @@ for i in $(seq 1 $2); do
     --skip-vis \
     --no-preset-random \
     --repeats 1 \
+    --fossil-interval None 200 50 \
     --reconstruction-algo shortcut naive \
     --differentia-bitwidth 64 8 1 \
     --surface-size 256 32 16 \
