@@ -106,7 +106,8 @@ def sample_reference_and_reconstruction(
         load_df(path_vars["reconst_phylo_df_path"]),
     )  # ancestor_list column must be added to comply with alife standard
     for fp in path_vars.values():  # these are temporary anyways
-        os.remove(fp)
+        if isinstance(fp, str) and os.path.exists(fp):
+            os.remove(fp)
 
     assert alifestd_count_leaf_nodes(
         true_phylo_df
