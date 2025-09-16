@@ -105,6 +105,8 @@ def sample_reference_and_reconstruction(
     reconst_phylo_df = alifestd_try_add_ancestor_list_col(
         load_df(path_vars["reconst_phylo_df_path"]),
     )  # ancestor_list column must be added to comply with alife standard
+    for fp in path_vars.values():  # these are temporary anyways
+        os.remove(fp)
 
     assert alifestd_count_leaf_nodes(
         true_phylo_df
@@ -350,6 +352,11 @@ def _parse_args():
         choices=(64, 16, 8, 1),
         default=(64, 8, 1),
     )
+    parser.add_argument(
+        "--output-path",
+        type=str,
+        default="/tmp/end2end-reconstruction-error.csv",
+    )
     args = parser.parse_args()
     if args.repeats > 1 and not args.no_preset_randomness:
         raise ValueError(
@@ -388,28 +395,28 @@ if __name__ == "__main__":
         ["fossil_interval", "surface_size", "differentia_bitwidth"],
         ascending=False,
     )
-    reconstruction_error_results.to_csv(
-        "/tmp/end2end-reconstruction-error.csv",
-    )
+    reconstruction_error_results.to_csv(args.output_path)
 
-    # error should increase with decreasing surface size
-    tolerance = 0.02
-    for f, x in reconstruction_error_results.groupby("fossil_interval"):
-        for first, second in itertools.pairwise(x.itertuples()):
-            if second.error_dropped_fossils < first.error_dropped_fossils:  # type: ignore
-                msg = (
-                    f"Reconstruction error of {first.error_dropped_fossils} from run "  # type: ignore
-                    f"{first.differentia_bitwidth}-{first.surface_size}-{opyt.apply_if(first.fossil_interval, int)} "  # type: ignore
-                    f" unexpectedly higher than {second.error_dropped_fossils} from run "  # type: ignore
-                    f"{second.differentia_bitwidth}-{second.surface_size}-{opyt.apply_if(second.fossil_interval, int)}"  # type: ignore
-                )
-                if (
-                    first.error_dropped_fossils - second.error_dropped_fossils  # type: ignore
-                    < tolerance
-                ):
-                    print(msg)
-                    print(
-                        "Difference is within error tolerance, continuing..."
+    # if there is a preset random seed, we need to make sure that the
+    # error increases with decreasing surface size and differentia bitwidth
+    if not args.no_preset_randomness:
+        tolerance = 0.02
+        for f, x in reconstruction_error_results.groupby("fossil_interval"):
+            for first, second in itertools.pairwise(x.itertuples()):
+                if second.error_dropped_fossils < first.error_dropped_fossils:  # type: ignore
+                    msg = (
+                        f"Reconstruction error of {first.error_dropped_fossils} from run "  # type: ignore
+                        f"{first.differentia_bitwidth}-{first.surface_size}-{opyt.apply_if(first.fossil_interval, int)} "  # type: ignore
+                        f" unexpectedly higher than {second.error_dropped_fossils} from run "  # type: ignore
+                        f"{second.differentia_bitwidth}-{second.surface_size}-{opyt.apply_if(second.fossil_interval, int)}"  # type: ignore
                     )
-                else:
-                    raise ValueError(msg)
+                    if (
+                        first.error_dropped_fossils - second.error_dropped_fossils  # type: ignore
+                        < tolerance
+                    ):
+                        print(msg)
+                        print(
+                            "Difference is within error tolerance, continuing..."
+                        )
+                    else:
+                        raise ValueError(msg)

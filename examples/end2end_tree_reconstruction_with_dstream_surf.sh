@@ -11,9 +11,10 @@ fi
 
 cd "$(dirname "$0")"
 
-genome_df_path="/tmp/end2end-raw-genome-evolve_surf_dstream.pqt"
-true_phylo_df_path="/tmp/end2end-true-phylo-evolve_surf_dstream.csv"
-reconst_phylo_df_path="/tmp/end2end-reconst-phylo-evolve_surf_dstream.pqt"
+id="$(date +"%H-%M-%S")-$(uuidgen)"
+genome_df_path="/tmp/end2end-raw-genome-evolve_surf_dstream_$id.pqt"
+true_phylo_df_path="/tmp/end2end-true-phylo-evolve_surf_dstream_$id.csv"
+reconst_phylo_df_path="/tmp/end2end-reconst-phylo-evolve_surf_dstream_$id.pqt"
 
 # generate data
 ./evolve_dstream_surf.py \
