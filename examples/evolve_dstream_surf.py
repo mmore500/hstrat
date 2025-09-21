@@ -315,6 +315,13 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--differentia-bitwidth", type=int, default=1)
     parser.add_argument("--surface-size", type=int, default=64)
     parser.add_argument(
+        "--fossil-interval",
+        type=int,
+    )
+    parser.add_argument(
+        "--retention-algo", type=str, default="dstream.steady_algo"
+    )
+    parser.add_argument(
         "--genome-df-path",
         type=str,
         default="/tmp/genome-evolve_surf_dstream.pqt",
@@ -323,10 +330,6 @@ def _parse_args() -> argparse.Namespace:
         "--phylo-df-path",
         type=str,
         default="/tmp/phylo-evolve_surf_dstream.csv",
-    )
-    parser.add_argument(
-        "--fossil-interval",
-        type=int,
     )
     parser.add_argument(
         "--no-preset-randomness",
@@ -377,7 +380,7 @@ if __name__ == "__main__":
     syst = systematics.Systematics(lambda x: x.uid)  # each org is own taxon
     syst.add_snapshot_fun(systematics.Taxon.get_info, "taxon_label")
     Organism = make_Organism(
-        dstream_algo=dstream.steady_algo,
+        dstream_algo=eval(args.retention_algo, {"dstream": dstream}),
         differentia_bitwidth=args.differentia_bitwidth,
         surface_size=args.surface_size,
         syst=syst,

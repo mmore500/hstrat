@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set -e              # stop running if something errs (ex. a KB interrupt)
 trap "kill 0" EXIT  # kill background processes if script exits
 
@@ -17,6 +19,7 @@ for i in $(seq 1 $2); do
     --repeats 1 \
     --fossil-interval None 200 50 \
     --reconstruction-algo shortcut naive \
+    --retention-algo dstream.steady_algo dstream.tilted_algo dstream.stretched_algo \
     --differentia-bitwidth 64 8 1 \
     --surface-size 256 32 16 \
     --output-path end2end-reconstruction-error-$i.csv \

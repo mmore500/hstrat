@@ -10,6 +10,7 @@ import typing
 from Bio.Phylo.BaseTree import Clade as BioClade
 import alifedata_phyloinformatics_convert as apc
 from colorclade import draw_colorclade_tree
+from downstream import dstream
 import matplotlib.pyplot as plt
 import opytional as opyt
 import pandas as pd
@@ -71,6 +72,7 @@ def sample_reference_and_reconstruction(
     *,
     no_preset_randomness: bool,
     reconstruction_algorithm: ReconstructionAlgorithm,
+    retention_algo: str,
 ) -> typing.Dict[str, pd.DataFrame]:
     """Sample a reference phylogeny and corresponding reconstruction."""
     try:
@@ -88,6 +90,8 @@ def sample_reference_and_reconstruction(
                     ["--fossil-interval", f"{fossil_interval}"]
                     * (fossil_interval is not None)
                 ),
+                "--retention-algo",
+                f"{retention_algo}"
             ]
             + (["--no-preset-randomness"] if no_preset_randomness else []),
             check=True,
@@ -263,12 +267,15 @@ def test_reconstruct_one(
     visualize: bool,
     no_preset_randomness: bool,
     reconstruction_algorithm: ReconstructionAlgorithm,
+    retention_algo: str,
 ) -> typing.Dict[str, typing.Union[int, float, str, None]]:
     """Test the reconstruction of a single phylogeny."""
     print("=" * 80)
     print(f"surface_size: {surface_size}")
     print(f"differentia_bitwidth: {differentia_bitwidth}")
     print(f"fossil_interval: {fossil_interval}")
+    print(f"reconstruction_algorithm: {reconstruction_algorithm}")
+    print(f"retention_algo: {retention_algo}")
 
     frames = sample_reference_and_reconstruction(
         differentia_bitwidth,
@@ -276,6 +283,7 @@ def test_reconstruct_one(
         fossil_interval,
         no_preset_randomness=no_preset_randomness,
         reconstruction_algorithm=reconstruction_algorithm,
+        retention_algo=retention_algo,
     )
 
     display_reconstruction(
@@ -354,6 +362,13 @@ def _parse_args():
         default=(64, 8, 1),
     )
     parser.add_argument(
+        "--retention-algo",
+        type=str,
+        nargs="+",
+        choices=[f"dstream.{x}" for x in dir(dstream) if x.endswith("algo")],
+        default=("dstream.steady_algo",),
+    )
+    parser.add_argument(
         "--output-path",
         type=str,
         default="/tmp/end2end-reconstruction-error.csv",
@@ -378,17 +393,20 @@ if __name__ == "__main__":
                 visualize=not args.skip_visualization,
                 no_preset_randomness=args.no_preset_randomness,
                 reconstruction_algorithm=reconstruction_algorithm,
+                retention_algo=retention_algo
             )
             for (
                 fossil_interval,
                 surface_size,
                 differentia_bitwidth,
                 reconstruction_algorithm,
+                retention_algo,
             ) in itertools.product(
                 args.fossil_interval,
                 args.surface_size,
                 args.differentia_bitwidth,
                 args.reconstruction_algorithm,
+                args.retention_algo,
             )
             for _ in range(args.repeats)
         ]
