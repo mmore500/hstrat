@@ -330,6 +330,7 @@ def test_reconstruct_one(
         "error": reconstruction_error,
         "error_dropped_fossils": reconstruction_error_dropped_fossils,
         "reconstruction_algorithm": reconstruction_algorithm.value,
+        "retention_algorithm": retention_algo,
     }
 
 
