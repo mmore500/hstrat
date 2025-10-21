@@ -56,6 +56,10 @@ For example,
     --with-column 'pl.lit("genome_string").alias("data_hex")'
 
 
+To work with genome data in raw binary format (e.g., pl.Binary),
+    --with-column 'pl.col("data_bin").bin.encode("hex").alias("data_hex")'
+
+
 Input Schema: Optional Columns
 ==============================
 'downstream_version' : string or categorical

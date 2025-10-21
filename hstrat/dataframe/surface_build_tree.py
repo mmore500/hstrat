@@ -55,6 +55,10 @@ For example,
     --with-column 'pl.lit("genome_string").alias("data_hex")'
 
 
+To work with genome data in raw binary format (e.g., pl.Binary),
+    --with-column 'pl.col("data_bin").bin.encode("hex").alias("data_hex")'
+
+
 Additional user-provided columns will be forwarded to phylogeny output.
 For these columns, output rows for tip nodes are assigned values from corresponding genome row in original data.
 
