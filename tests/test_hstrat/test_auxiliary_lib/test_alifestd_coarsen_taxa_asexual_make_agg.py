@@ -23,7 +23,7 @@ def sample_phylogeny_df() -> pd.DataFrame:
         "foo",
         "bar",
     ]
-    # create an “empty” DataFrame with just the columns
+    # create an empty DataFrame with just the columns
     return pd.DataFrame({col: [0] for col in cols})
 
 

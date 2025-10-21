@@ -44,7 +44,7 @@ Input Schema: Required Columns
     Size of dstream buffer field in 'data_hex'.
 
 'dstream_T_bitoffset' : integer
-    Position of dstream counter field ("rank”) in 'data_hex'.
+    Position of dstream counter field ("rank") in 'data_hex'.
 
 'dstream_T_bitwidth' : integer
     Size of dstream counter field in 'data_hex'.
@@ -55,8 +55,12 @@ Input Schema: Required Columns
 
 If required columns are not included in raw data, they must be created through CLI flags.
 For example,
-    --with-column 'pl.lit("dstream.tilted_algo").alias("dstream_algo").cast(pl.Categorical)'”
+    --with-column 'pl.lit("dstream.tilted_algo").alias("dstream_algo").cast(pl.Categorical)'
     --with-column 'pl.lit("genome_string").alias("data_hex")'
+
+
+To work with genome data in raw binary format (e.g., pl.Binary),
+    --with-column 'pl.col("data_bin").bin.encode("hex").alias("data_hex")'
 
 
 Input Schema: Optional Columns

@@ -61,7 +61,7 @@ keywords = [
   "hstrat",
 ]
 requires-python = ">=3.10"
-version = "1.20.13"
+version = "1.20.14"
 
 [project.readme]
 file = "README.md"
@@ -93,7 +93,7 @@ requires = [
 # additional dev requriements
 # used to generated requirements in dev-requirements/
 [project.optional-dependencies]
-jit = ["cppimport>=22.8.2", "numba>=0.60.0"]
+jit = ["cppimport>=22.8.2", "numba>=0.60.0,<0.62.0"]
 phylo-extra = [
   "biopython>=1.79",
   "phylotrackpy>=0.2.4",

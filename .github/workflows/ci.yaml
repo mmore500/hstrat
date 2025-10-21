@@ -377,6 +377,11 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.21.3
         env:
+          # workaround pyarrow wheel issue
+          CIBW_BEFORE_TEST: |
+            python -m pip install --upgrade pip
+            python -m pip --version
+            python -m pip install "pyarrow==19.0.1"
           CIBW_TEST_COMMAND: python3 -m hstrat.dataframe.surface_unpack_reconstruct --help
           CIBW_TEST_SKIP: "*313-* pp* *win* *i686* *musllinux*"
           CIBW_SKIP: "*-win32"

@@ -5,22 +5,22 @@
 cd "${0%/*}"
 
 echo "generating requirements-all.txt"
-python3 -m uv pip compile --python-version=3.12 ../../pyproject.toml --extra docs --extra release --extra testing --extra jit -o requirements-all.txt
+python3 -m uv pip compile --python-version=3.12 ../../pyproject.toml --extra docs --extra release --extra testing --extra jit -o requirements-all.txt --upgrade
 
 echo "generating requirements-docs.txt"
-python3 -m uv pip compile --python-version=3.12 ../../pyproject.toml --extra docs -o requirements-docs.txt
+python3 -m uv pip compile --python-version=3.12 ../../pyproject.toml --extra docs -o requirements-docs.txt --upgrade
 
 echo "generating requirements-jit.txt"
-python3 -m uv pip compile --python-version=3.12 ../../pyproject.toml --extra jit -o requirements-jit.txt
+python3 -m uv pip compile --python-version=3.12 ../../pyproject.toml --extra jit -o requirements-jit.txt --upgrade
 
 echo "generating requirements-phylo-extra.txt"
-python3 -m uv pip compile --python-version=3.12 ../../pyproject.toml --extra phylo-extra -o requirements-phylo-extra.txt
+python3 -m uv pip compile --python-version=3.12 ../../pyproject.toml --extra phylo-extra -o requirements-phylo-extra.txt --upgrade
 
 echo "generating requirements-minimal.txt"
-python3 -m uv pip compile --python-version=3.12 ../../pyproject.toml -o requirements-minimal.txt
+python3 -m uv pip compile --python-version=3.12 ../../pyproject.toml -o requirements-minimal.txt --upgrade
 
 echo "generating requirements-release.txt"
-python3 -m uv pip compile --python-version=3.12  --allow-unsafe ../../pyproject.toml --extra release -o requirements-release.txt
+python3 -m uv pip compile --python-version=3.12  --allow-unsafe ../../pyproject.toml --extra release -o requirements-release.txt --upgrade
 
 echo "generating requirements-testing.txt"
-python3 -m uv pip compile --python-version=3.12 ../../pyproject.toml --extra testing --extra jit -o requirements-testing.txt
+python3 -m uv pip compile --python-version=3.12 ../../pyproject.toml --extra testing --extra jit -o requirements-testing.txt --upgrade

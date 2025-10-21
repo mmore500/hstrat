@@ -125,7 +125,7 @@ def _create_parser() -> argparse.ArgumentParser:
             "Postprocessors are available to estimate taxon `origin_time`, "
             "apply topological corrections for systematic overestimation of "
             "relatedness, etc. "
-            "Will be `eval`-ed as Python code before use."
+            "Will be `eval`-ed as Python code before use. "
             "Must support Pandas dataframe input."
         ),
     )
