@@ -395,6 +395,7 @@ def _parse_args():
 if __name__ == "__main__":
     sys.setrecursionlimit(100000)
     args = _parse_args()
+    print(args)
     reconstruction_error_results = pd.DataFrame(
         [
             test_reconstruct_one(
