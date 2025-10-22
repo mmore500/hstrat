@@ -1,12 +1,18 @@
 #!/bin/bash
 
-set -e              # stop running if something errs (ex. a KB interrupt)
+set -euo pipefail   # stop running if something errs (ex. a KB interrupt)
 trap "kill 0" EXIT  # kill background processes if script exits
 
 if [[ $# -ne 2 ]]; then
   echo "Must pass in a two arguments, the first denoting the maximum number of jobs running at a time and the second denoting the number of samples"
   exit
 fi
+
+echo "which python3 $(which python3)"
+python3 --version
+python3 examples/end2end_tree_reconstruction_test.py --help
+python3 examples/end2end_tree_reconstruction_test.py --help &
+wait
 
 for i in $(seq 1 $2); do
   while [[ $(jobs | wc -l) -ge $1 ]]; do
@@ -23,9 +29,10 @@ for i in $(seq 1 $2); do
     --differentia-bitwidth 64 8 1 \
     --surface-size 256 32 16 \
     --output-path end2end-reconstruction-error-$i.csv \
-    >/dev/null 2>run-$i.log &
+    2>&1 | tee "run-$i.log" &
 done
 
 wait
 
 zip data.zip end2end-reconstruction-error-*.csv
+zip archive.zip run-*.log
