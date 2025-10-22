@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import opytional as opyt
 import pandas as pd
 from teeplot import teeplot as tp
+from tqdm import tqdm
 
 from hstrat._auxiliary_lib import (
     alifestd_calc_triplet_distance_asexual,
@@ -409,7 +410,7 @@ if __name__ == "__main__":
                 args.reconstruction_algorithm,
                 args.retention_algo,
             )
-            for _ in range(args.repeats)
+            for _ in tqdm(range(args.repeats))
         ]
     ).sort_values(
         ["fossil_interval", "surface_size", "differentia_bitwidth"],
