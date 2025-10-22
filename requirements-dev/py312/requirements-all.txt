@@ -14,7 +14,7 @@ anytree==2.13.0
     #   alifedata-phyloinformatics-convert
 astropy==7.1.1
     # via hstrat (../../pyproject.toml)
-astropy-iers-data==0.2025.10.13.0.37.17
+astropy-iers-data==0.2025.10.20.0.39.8
     # via astropy
 asttokens==3.0.0
     # via stack-data
@@ -97,7 +97,7 @@ docutils==0.21.2
     #   readme-renderer
     #   sphinx
     #   sphinx-rtd-theme
-downstream==1.15.3
+downstream==1.15.4
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
@@ -308,7 +308,7 @@ pathlib2==2.3.7.post1
     # via bumpver
 pathspec==0.12.1
     # via black
-patsy==1.0.1
+patsy==1.0.2
     # via statsmodels
 pexpect==4.9.0
     # via ipython
@@ -344,7 +344,7 @@ prompt-toolkit==3.0.52
     # via ipython
 propcache==0.4.1
     # via yarl
-psutil==7.1.0
+psutil==7.1.1
     # via ipykernel
 ptyprocess==0.7.0
     # via pexpect

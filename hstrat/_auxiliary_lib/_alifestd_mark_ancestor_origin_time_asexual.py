@@ -70,6 +70,6 @@ def alifestd_mark_ancestor_origin_time_asexual(
     for idx in reversed(phylogeny_df.index):
         ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
         ancestor_origin_time = phylogeny_df.at[ancestor_id, "origin_time"]
-        phylogeny_df.at[idx, "ancestor_origin_time"] = ancestor_origin_time
+        phylogeny_df.at[idx, "ancestor_origin_time"] = int(ancestor_origin_time)
 
     return phylogeny_df

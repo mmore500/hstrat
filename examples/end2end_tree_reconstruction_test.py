@@ -10,18 +10,24 @@ import typing
 from Bio.Phylo.BaseTree import Clade as BioClade
 import alifedata_phyloinformatics_convert as apc
 from colorclade import draw_colorclade_tree
+from downstream import dstream
 import matplotlib.pyplot as plt
 import opytional as opyt
 import pandas as pd
 from teeplot import teeplot as tp
+from tqdm import tqdm
 
 from hstrat._auxiliary_lib import (
     alifestd_calc_triplet_distance_asexual,
     alifestd_collapse_unifurcations,
     alifestd_count_leaf_nodes,
+    alifestd_delete_unifurcating_roots_asexual,
     alifestd_mark_node_depth_asexual,
     alifestd_prune_extinct_lineages_asexual,
     alifestd_try_add_ancestor_list_col,
+)
+from hstrat.dataframe._surface_unpack_reconstruct import (
+    ReconstructionAlgorithm,
 )
 
 
@@ -35,8 +41,9 @@ def to_ascii(
         phylogeny_df, mutate=True
     ).drop(columns=["extant"])
     phylogeny_df = alifestd_collapse_unifurcations(phylogeny_df, mutate=True)
-
     dp_tree = apc.RosettaTree(phylogeny_df).as_dendropy
+    if dp_tree is None:
+        return "Tree is empty after visualization preprocessing"
     for nd in dp_tree.preorder_node_iter():
         nd._child_nodes.sort(
             key=lambda nd: max(leaf.taxon.label for leaf in nd.leaf_iter()),
@@ -63,8 +70,19 @@ def sample_reference_and_reconstruction(
     differentia_bitwidth: int,
     surface_size: int,
     fossil_interval: typing.Optional[int],
+    *,
+    no_preset_randomness: bool,
+    reconstruction_algorithm: ReconstructionAlgorithm,
+    retention_algo: str,
 ) -> typing.Dict[str, pd.DataFrame]:
     """Sample a reference phylogeny and corresponding reconstruction."""
+    print("sample_reference_and_reconstruction subprocess...", flush=True)
+    print(f"  differentia_bitwidth: {differentia_bitwidth}", flush=True)
+    print(f"  surface_size: {surface_size}", flush=True)
+    print(f"  fossil_interval: {fossil_interval}", flush=True)
+    print(f"  no_preset_randomness: {no_preset_randomness}", flush=True)
+    print(f"  reconst algo: {reconstruction_algorithm.value}", flush=True)
+    print(f"  retention_algo: {retention_algo}", flush=True)
     try:
         paths = subprocess.run(
             [
@@ -78,14 +96,22 @@ def sample_reference_and_reconstruction(
                     ["--fossil-interval", f"{fossil_interval}"]
                     * (fossil_interval is not None)
                 ),
+                "--retention-algo",
+                f"{retention_algo}",
+                *(["--no-preset-randomness"] if no_preset_randomness else []),
             ],
             check=True,
-            capture_output=True,
+            env=dict(
+                os.environ,
+                HSTRAT_RECONSTRUCTION_ALGO=reconstruction_algorithm.value,
+            ),
+            stderr=None,
+            stdout=subprocess.PIPE,
             text=True,
         ).stdout.strip()
     except subprocess.CalledProcessError as e:
-        print(f"\033[33m{e.stdout}\033[0m")  # color yellow
-        print(f"\033[31m{e.stderr}\033[0m")  # color red
+        print(f"\033[33m{e.stdout}\033[0m", flush=True)  # color yellow
+        print(f"\033[31m{e.stderr}\033[0m", flush=True)  # color red
         raise e
 
     path_vars = dict()  # outparam for exec
@@ -94,6 +120,9 @@ def sample_reference_and_reconstruction(
     reconst_phylo_df = alifestd_try_add_ancestor_list_col(
         load_df(path_vars["reconst_phylo_df_path"]),
     )  # ancestor_list column must be added to comply with alife standard
+    for fp in path_vars.values():  # these are temporary anyways
+        if isinstance(fp, str) and os.path.exists(fp):
+            os.remove(fp)
 
     assert alifestd_count_leaf_nodes(
         true_phylo_df
@@ -212,14 +241,19 @@ def display_reconstruction(
     """Print a sample of the reference and reconstructed phylogenies."""
     show_taxa = (
         frames["reconst_dropped_fossils"]["taxon_label"]
+        .apply(
+            lambda x: (
+                pd.NA if not isinstance(x, str) or x.startswith("Inner") else x
+            )
+        )
         .dropna()
         .sample(6, random_state=1)
     )
-    print("ground-truth phylogeny sample:")
-    print(to_ascii(frames["exact_dropped_fossils"], show_taxa))
-    print()
-    print("reconstructed phylogeny sample:")
-    print(to_ascii(frames["reconst_dropped_fossils"], show_taxa))
+    print("ground-truth phylogeny sample:", flush=True)
+    print(to_ascii(frames["exact_dropped_fossils"], show_taxa), flush=True)
+    print(flush=True)
+    print("reconstructed phylogeny sample:", flush=True)
+    print(to_ascii(frames["reconst_dropped_fossils"], show_taxa), flush=True)
 
     if create_plots:
         for df in frames.values():
@@ -242,17 +276,25 @@ def test_reconstruct_one(
     fossil_interval: typing.Optional[int],
     *,
     visualize: bool,
-) -> typing.Dict[str, typing.Union[int, float, None]]:
+    no_preset_randomness: bool,
+    reconstruction_algorithm: ReconstructionAlgorithm,
+    retention_algo: str,
+) -> typing.Dict[str, typing.Union[int, float, str, None]]:
     """Test the reconstruction of a single phylogeny."""
-    print("=" * 80)
-    print(f"surface_size: {surface_size}")
-    print(f"differentia_bitwidth: {differentia_bitwidth}")
-    print(f"fossil_interval: {fossil_interval}")
+    print("=" * 80, flush=True)
+    print(f"surface_size: {surface_size}", flush=True)
+    print(f"differentia_bitwidth: {differentia_bitwidth}", flush=True)
+    print(f"fossil_interval: {fossil_interval}", flush=True)
+    print(f"reconstruction_algorithm: {reconstruction_algorithm}", flush=True)
+    print(f"retention_algo: {retention_algo}", flush=True)
 
     frames = sample_reference_and_reconstruction(
         differentia_bitwidth,
         surface_size,
         fossil_interval,
+        no_preset_randomness=no_preset_randomness,
+        reconstruction_algorithm=reconstruction_algorithm,
+        retention_algo=retention_algo,
     )
 
     display_reconstruction(
@@ -263,18 +305,33 @@ def test_reconstruct_one(
         create_plots=visualize,
     )
     reconstruction_error = alifestd_calc_triplet_distance_asexual(
-        alifestd_collapse_unifurcations(frames["exact"]), frames["reconst"]
+        alifestd_delete_unifurcating_roots_asexual(
+            alifestd_collapse_unifurcations(frames["exact"])
+        ),
+        alifestd_delete_unifurcating_roots_asexual(
+            alifestd_collapse_unifurcations(frames["reconst"])
+        ),
+        taxon_label_key="taxon_label",
     )
 
     reconstruction_error_dropped_fossils = (
         alifestd_calc_triplet_distance_asexual(
-            alifestd_collapse_unifurcations(frames["exact_dropped_fossils"]),
-            frames["reconst_dropped_fossils"],
+            alifestd_delete_unifurcating_roots_asexual(
+                alifestd_collapse_unifurcations(
+                    frames["exact_dropped_fossils"]
+                )
+            ),
+            alifestd_delete_unifurcating_roots_asexual(
+                alifestd_collapse_unifurcations(
+                    frames["reconst_dropped_fossils"]
+                )
+            ),
+            taxon_label_key="taxon_label",
         )
     )
 
-    print(f"{reconstruction_error=}")
-    print(f"{reconstruction_error_dropped_fossils=}")
+    print(f"{reconstruction_error=}", flush=True)
+    print(f"{reconstruction_error_dropped_fossils=}", flush=True)
     assert 0 <= reconstruction_error <= 1  # should be in the range [0,1]
 
     return {
@@ -283,18 +340,63 @@ def test_reconstruct_one(
         "fossil_interval": fossil_interval,
         "error": reconstruction_error,
         "error_dropped_fossils": reconstruction_error_dropped_fossils,
+        "reconstruction_algorithm": reconstruction_algorithm.value,
+        "retention_algorithm": retention_algo,
     }
 
 
 def _parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--skip-visualization", action="store_true")
-    return parser.parse_args()
+    parser.add_argument("--no-preset-randomness", action="store_true")
+    parser.add_argument("--repeats", type=int, default=1)
+    parser.add_argument(
+        "--reconstruction-algorithm",
+        type=ReconstructionAlgorithm,
+        choices=list(ReconstructionAlgorithm),
+        nargs="+",
+        default=(ReconstructionAlgorithm.SHORTCUT,),
+    )
+    parser.add_argument(
+        "--fossil-interval",
+        type=lambda val: None if val == "None" else int(val),
+        nargs="+",
+        default=(None, 200, 50),
+    )
+    parser.add_argument(
+        "--surface-size", type=int, nargs="+", default=(256, 64, 16)
+    )
+    parser.add_argument(
+        "--differentia-bitwidth",
+        type=int,
+        nargs="+",
+        choices=(64, 16, 8, 1),
+        default=(64, 8, 1),
+    )
+    parser.add_argument(
+        "--retention-algo",
+        type=str,
+        nargs="+",
+        choices=[f"dstream.{x}" for x in dir(dstream) if x.endswith("algo")],
+        default=("dstream.steady_algo",),
+    )
+    parser.add_argument(
+        "--output-path",
+        type=str,
+        default="/tmp/end2end-reconstruction-error.csv",
+    )
+    args = parser.parse_args()
+    if args.repeats > 1 and not args.no_preset_randomness:
+        raise ValueError(
+            "No point in having more than 1 repeat if using preset random seeds."
+        )
+    return args
 
 
 if __name__ == "__main__":
     sys.setrecursionlimit(100000)
     args = _parse_args()
+    print(args, flush=True)
     reconstruction_error_results = pd.DataFrame(
         [
             test_reconstruct_one(
@@ -302,39 +404,52 @@ if __name__ == "__main__":
                 surface_size,
                 fossil_interval,
                 visualize=not args.skip_visualization,
+                no_preset_randomness=args.no_preset_randomness,
+                reconstruction_algorithm=reconstruction_algorithm,
+                retention_algo=retention_algo
             )
             for (
                 fossil_interval,
                 surface_size,
                 differentia_bitwidth,
-            ) in itertools.product((None, 50, 200), (256, 64, 16), (64, 8, 1))
+                reconstruction_algorithm,
+                retention_algo,
+            ) in tqdm(itertools.product(
+                args.fossil_interval,
+                args.surface_size,
+                args.differentia_bitwidth,
+                args.reconstruction_algorithm,
+                args.retention_algo,
+            ))
+            for _ in tqdm(range(args.repeats))
         ]
     ).sort_values(
         ["fossil_interval", "surface_size", "differentia_bitwidth"],
         ascending=False,
     )
-    reconstruction_error_results.to_csv(
-        "/tmp/end2end-reconstruction-error.csv",
-    )
+    reconstruction_error_results.to_csv(args.output_path, index=False)
 
-    # error should increase with decreasing surface size
-    tolerance = 0.02
-    for f, x in reconstruction_error_results.groupby("fossil_interval"):
-        for first, second in itertools.pairwise(x.itertuples()):
-            if second.error_dropped_fossils < first.error_dropped_fossils:  # type: ignore
-                msg = (
-                    f"Reconstruction error of {first.error_dropped_fossils} from run "  # type: ignore
-                    f"{first.differentia_bitwidth}-{first.surface_size}-{opyt.apply_if(first.fossil_interval, int)} "  # type: ignore
-                    f" unexpectedly higher than {second.error_dropped_fossils} from run "  # type: ignore
-                    f"{second.differentia_bitwidth}-{second.surface_size}-{opyt.apply_if(second.fossil_interval, int)}"  # type: ignore
-                )
-                if (
-                    first.error_dropped_fossils - second.error_dropped_fossils  # type: ignore
-                    < tolerance
-                ):
-                    print(msg)
-                    print(
-                        "Difference is within error tolerance, continuing..."
+    # if there is a preset random seed, we need to make sure that the
+    # error increases with decreasing surface size and differentia bitwidth
+    if not args.no_preset_randomness:
+        tolerance = 0.02
+        for f, x in reconstruction_error_results.groupby("fossil_interval"):
+            for first, second in itertools.pairwise(x.itertuples()):
+                if second.error_dropped_fossils < first.error_dropped_fossils:  # type: ignore
+                    msg = (
+                        f"Reconstruction error of {first.error_dropped_fossils} from run "  # type: ignore
+                        f"{first.differentia_bitwidth}-{first.surface_size}-{opyt.apply_if(first.fossil_interval, int)} "  # type: ignore
+                        f" unexpectedly higher than {second.error_dropped_fossils} from run "  # type: ignore
+                        f"{second.differentia_bitwidth}-{second.surface_size}-{opyt.apply_if(second.fossil_interval, int)}"  # type: ignore
                     )
-                else:
-                    raise ValueError(msg)
+                    if (
+                        first.error_dropped_fossils - second.error_dropped_fossils  # type: ignore
+                        < tolerance
+                    ):
+                        print(msg, flush=True)
+                        print(
+                            "Difference within error tolerance, continuing...",
+                            flush=True,
+                        )
+                    else:
+                        raise ValueError(msg)
