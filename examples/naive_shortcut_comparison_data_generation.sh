@@ -10,8 +10,8 @@ fi
 echo "which python3 $(which python3)"
 python3 --version
 python3 -m pip show downstream
-python3 examples/end2end_tree_reconstruction_test.py --help | head -20
-python3 examples/end2end_tree_reconstruction_test.py --help  | head -20 &
+python3 examples/end2end_tree_reconstruction_test.py --help 2>&1 | head -n 4
+python3 examples/end2end_tree_reconstruction_test.py --help  2>&1 | head -n 4 &
 wait
 
 for i in $(seq 1 $2); do
