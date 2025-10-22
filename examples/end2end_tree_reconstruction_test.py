@@ -76,11 +76,16 @@ def sample_reference_and_reconstruction(
     retention_algo: str,
 ) -> typing.Dict[str, pd.DataFrame]:
     """Sample a reference phylogeny and corresponding reconstruction."""
+    print("running sample_reference_and_reconstruction subprocess...")
+    print(f"  differentia_bitwidth: {differentia_bitwidth}")
+    print(f"  surface_size: {surface_size}")
+    print(f"  fossil_interval: {fossil_interval}")
+    print(f"  no_preset_randomness: {no_preset_randomness}")
+    print(f"  reconstruction_algorithm: {reconstruction_algorithm.value}")
+    print(f"  retention_algo: {retention_algo}")
     try:
         paths = subprocess.run(
             [
-                "env",
-                f"HSTRAT_RECONSTRUCTION_ALGO={reconstruction_algorithm.value}",
                 f"{os.path.dirname(__file__)}/"
                 "end2end_tree_reconstruction_with_dstream_surf.sh",
                 "--differentia-bitwidth",
@@ -92,11 +97,15 @@ def sample_reference_and_reconstruction(
                     * (fossil_interval is not None)
                 ),
                 "--retention-algo",
-                f"{retention_algo}"
-            ]
-            + (["--no-preset-randomness"] if no_preset_randomness else []),
+                f"{retention_algo}",
+                *(["--no-preset-randomness"] if no_preset_randomness else []),
+            ],
             check=True,
             capture_output=True,
+            env=dict(
+                os.environ,
+                HSTRAT_RECONSTRUCTION_ALGO=reconstruction_algorithm.value,
+            ),
             text=True,
         ).stdout.strip()
     except subprocess.CalledProcessError as e:
