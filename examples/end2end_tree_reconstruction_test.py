@@ -403,13 +403,13 @@ if __name__ == "__main__":
                 differentia_bitwidth,
                 reconstruction_algorithm,
                 retention_algo,
-            ) in itertools.product(
+            ) in tqdm(itertools.product(
                 args.fossil_interval,
                 args.surface_size,
                 args.differentia_bitwidth,
                 args.reconstruction_algorithm,
                 args.retention_algo,
-            )
+            ))
             for _ in tqdm(range(args.repeats))
         ]
     ).sort_values(
