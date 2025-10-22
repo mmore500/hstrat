@@ -31,6 +31,6 @@ ls "${genome_df_path}" | python3 -m \
     >&2
 
 # log output paths
-echo "genome_df_path = '${genome_df_path}'" >&2
-echo "true_phylo_df_path = '${true_phylo_df_path}'" >&2
-echo "reconst_phylo_df_path = '${reconst_phylo_df_path}'" >&2
+echo "genome_df_path = '${genome_df_path}'"
+echo "true_phylo_df_path = '${true_phylo_df_path}'"
+echo "reconst_phylo_df_path = '${reconst_phylo_df_path}'"
