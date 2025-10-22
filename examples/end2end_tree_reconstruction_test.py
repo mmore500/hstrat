@@ -101,11 +101,12 @@ def sample_reference_and_reconstruction(
                 *(["--no-preset-randomness"] if no_preset_randomness else []),
             ],
             check=True,
-            capture_output=True,
             env=dict(
                 os.environ,
                 HSTRAT_RECONSTRUCTION_ALGO=reconstruction_algorithm.value,
             ),
+            stderr=None,
+            stdout=subprocess.PIPE,
             text=True,
         ).stdout.strip()
     except subprocess.CalledProcessError as e:
