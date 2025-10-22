@@ -76,13 +76,13 @@ def sample_reference_and_reconstruction(
     retention_algo: str,
 ) -> typing.Dict[str, pd.DataFrame]:
     """Sample a reference phylogeny and corresponding reconstruction."""
-    print("running sample_reference_and_reconstruction subprocess...")
-    print(f"  differentia_bitwidth: {differentia_bitwidth}")
-    print(f"  surface_size: {surface_size}")
-    print(f"  fossil_interval: {fossil_interval}")
-    print(f"  no_preset_randomness: {no_preset_randomness}")
-    print(f"  reconstruction_algorithm: {reconstruction_algorithm.value}")
-    print(f"  retention_algo: {retention_algo}")
+    print("sample_reference_and_reconstruction subprocess...", flush=True)
+    print(f"  differentia_bitwidth: {differentia_bitwidth}", flush=True)
+    print(f"  surface_size: {surface_size}", flush=True)
+    print(f"  fossil_interval: {fossil_interval}", flush=True)
+    print(f"  no_preset_randomness: {no_preset_randomness}", flush=True)
+    print(f"  reconst algo: {reconstruction_algorithm.value}", flush=True)
+    print(f"  retention_algo: {retention_algo}", flush=True)
     try:
         paths = subprocess.run(
             [
@@ -109,8 +109,8 @@ def sample_reference_and_reconstruction(
             text=True,
         ).stdout.strip()
     except subprocess.CalledProcessError as e:
-        print(f"\033[33m{e.stdout}\033[0m")  # color yellow
-        print(f"\033[31m{e.stderr}\033[0m")  # color red
+        print(f"\033[33m{e.stdout}\033[0m", flush=True)  # color yellow
+        print(f"\033[31m{e.stderr}\033[0m", flush=True)  # color red
         raise e
 
     path_vars = dict()  # outparam for exec
@@ -248,11 +248,11 @@ def display_reconstruction(
         .dropna()
         .sample(6, random_state=1)
     )
-    print("ground-truth phylogeny sample:")
-    print(to_ascii(frames["exact_dropped_fossils"], show_taxa))
-    print()
-    print("reconstructed phylogeny sample:")
-    print(to_ascii(frames["reconst_dropped_fossils"], show_taxa))
+    print("ground-truth phylogeny sample:", flush=True)
+    print(to_ascii(frames["exact_dropped_fossils"], show_taxa), flush=True)
+    print(flush=True)
+    print("reconstructed phylogeny sample:", flush=True)
+    print(to_ascii(frames["reconst_dropped_fossils"], show_taxa), flush=True)
 
     if create_plots:
         for df in frames.values():
@@ -280,12 +280,12 @@ def test_reconstruct_one(
     retention_algo: str,
 ) -> typing.Dict[str, typing.Union[int, float, str, None]]:
     """Test the reconstruction of a single phylogeny."""
-    print("=" * 80)
-    print(f"surface_size: {surface_size}")
-    print(f"differentia_bitwidth: {differentia_bitwidth}")
-    print(f"fossil_interval: {fossil_interval}")
-    print(f"reconstruction_algorithm: {reconstruction_algorithm}")
-    print(f"retention_algo: {retention_algo}")
+    print("=" * 80, flush=True)
+    print(f"surface_size: {surface_size}", flush=True)
+    print(f"differentia_bitwidth: {differentia_bitwidth}", flush=True)
+    print(f"fossil_interval: {fossil_interval}", flush=True)
+    print(f"reconstruction_algorithm: {reconstruction_algorithm}", flush=True)
+    print(f"retention_algo: {retention_algo}", flush=True)
 
     frames = sample_reference_and_reconstruction(
         differentia_bitwidth,
@@ -329,8 +329,8 @@ def test_reconstruct_one(
         )
     )
 
-    print(f"{reconstruction_error=}")
-    print(f"{reconstruction_error_dropped_fossils=}")
+    print(f"{reconstruction_error=}", flush=True)
+    print(f"{reconstruction_error_dropped_fossils=}", flush=True)
     assert 0 <= reconstruction_error <= 1  # should be in the range [0,1]
 
     return {
@@ -395,7 +395,7 @@ def _parse_args():
 if __name__ == "__main__":
     sys.setrecursionlimit(100000)
     args = _parse_args()
-    print(args)
+    print(args, flush=True)
     reconstruction_error_results = pd.DataFrame(
         [
             test_reconstruct_one(
@@ -445,9 +445,10 @@ if __name__ == "__main__":
                         first.error_dropped_fossils - second.error_dropped_fossils  # type: ignore
                         < tolerance
                     ):
-                        print(msg)
+                        print(msg, flush=True)
                         print(
-                            "Difference is within error tolerance, continuing..."
+                            "Difference within error tolerance, continuing...",
+                            flush=True,
                         )
                     else:
                         raise ValueError(msg)
