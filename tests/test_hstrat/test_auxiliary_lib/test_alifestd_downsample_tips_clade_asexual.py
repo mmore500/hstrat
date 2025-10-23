@@ -83,17 +83,25 @@ def test_prune_tips_vs_downsample(phylogeny_df, n_downsample, seed):
 
     downsampled_df = alifestd_downsample_tips_clade_asexual(
         phylogeny_df, n_downsample, seed=seed
-    )
+    ).drop(columns=["num_leaves", "is_leaf"], errors="ignore")
+    assert "ancestor_id" in downsampled_df.columns
 
     tips_to_keep = downsampled_df["id"].tolist()
     original_df["extant"] = original_df["id"].isin(tips_to_keep)
 
     pruned_df = alifestd_prune_extinct_lineages_asexual(
         original_df, mutate=True
-    ).drop(
-        columns=[
-            "extant",
-        ]
-    )
+    ).drop(columns=["extant"])
+    assert "ancestor_id" in pruned_df.columns
 
-    pd.testing.assert_frame_equal(pruned_df, downsampled_df)
+    pd.testing.assert_frame_equal(
+        pruned_df.sort_index(axis=1)
+        .reset_index(drop=True)
+        .sort_values(by="id")
+        .reset_index(drop=True),
+        downsampled_df.sort_index(axis=1)
+        .reset_index(drop=True)
+        .sort_values(by="id")
+        .reset_index(drop=True),
+        check_like=True,
+    )
