@@ -6,7 +6,7 @@ import pytest
 from hstrat._auxiliary_lib import (
     alifestd_aggregate_phylogenies,
     alifestd_count_leaf_nodes,
-    alifestd_downsample_tips_asexual,
+    alifestd_downsample_tips_clade_asexual,
     alifestd_prune_extinct_lineages_asexual,
 )
 
@@ -30,12 +30,12 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 @pytest.mark.parametrize("n_downsample", [1, 5, 10, 100000000])
 @pytest.mark.parametrize("mutate", [True, False])
 @pytest.mark.parametrize("seed", [1, 42])
-def test_alifestd_downsample_tips_asexual(
+def test_alifestd_downsample_tips_clade_asexual(
     phylogeny_df, n_downsample, mutate, seed
 ):
     original_df = phylogeny_df.copy()
 
-    result_df = alifestd_downsample_tips_asexual(
+    result_df = alifestd_downsample_tips_clade_asexual(
         phylogeny_df, n_downsample, mutate, seed
     )
 
@@ -52,10 +52,12 @@ def test_alifestd_downsample_tips_asexual(
 
 
 @pytest.mark.parametrize("n_downsample", [0, 1])
-def test_alifestd_downsample_tips_asexual_with_zero_tips(n_downsample):
+def test_alifestd_downsample_tips_clade_asexual_with_zero_tips(n_downsample):
     phylogeny_df = pd.DataFrame({"id": [], "parent_id": [], "ancestor_id": []})
 
-    result_df = alifestd_downsample_tips_asexual(phylogeny_df, n_downsample)
+    result_df = alifestd_downsample_tips_clade_asexual(
+        phylogeny_df, n_downsample
+    )
 
     assert result_df.empty
 
@@ -79,7 +81,7 @@ def test_alifestd_downsample_tips_asexual_with_zero_tips(n_downsample):
 def test_prune_tips_vs_downsample(phylogeny_df, n_downsample, seed):
     original_df = phylogeny_df.copy()
 
-    downsampled_df = alifestd_downsample_tips_asexual(
+    downsampled_df = alifestd_downsample_tips_clade_asexual(
         phylogeny_df, n_downsample, seed=seed
     )
 
