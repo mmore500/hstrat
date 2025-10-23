@@ -11,15 +11,15 @@ import numpy as np
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
-from ._alifestd_prune_extinct_lineages_asexual import (
-    alifestd_prune_extinct_lineages_asexual,
-)
-from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_mark_leaves import alifestd_mark_leaves
 from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
 from ._alifestd_mask_descendants_asexual import (
     alifestd_mask_descendants_asexual,
 )
+from ._alifestd_prune_extinct_lineages_asexual import (
+    alifestd_prune_extinct_lineages_asexual,
+)
+from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._configure_prod_logging import configure_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
