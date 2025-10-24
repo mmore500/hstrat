@@ -45,7 +45,9 @@ def alifestd_screen_trait_defined_clades_fitch_asexual(
         raise ValueError("phylogeny_df must be strictly bifurcating")
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
-    phylogeny_df["fitch_trait_set"] = mask_trait_absent + 2 * mask_trait_present
+    phylogeny_df["fitch_trait_set"] = (
+        mask_trait_absent + 2 * mask_trait_present
+    )
 
     if "node_depth" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_node_depth_asexual(
@@ -98,7 +100,9 @@ def alifestd_screen_trait_defined_clades_fitch_asexual(
         traitless_mask = ft_set == 0
         common_trait = ft_set & ft_set[ancestor_iloc]
         # inherit shared trait
-        inherit_mask = layer_mask & (common_trait.astype(bool) | traitless_mask)
+        inherit_mask = layer_mask & (
+            common_trait.astype(bool) | traitless_mask
+        )
         ft_set[inherit_mask] = common_trait[inherit_mask]
         assert (np.bitwise_count(ft_set[layer_mask]) == 1).all()
 
