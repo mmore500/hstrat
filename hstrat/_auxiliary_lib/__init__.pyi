@@ -211,6 +211,9 @@ from ._alifestd_sample_triplet_comparisons_asexual import (
 from ._alifestd_screen_trait_defined_clades_fisher_asexual import (
     alifestd_screen_trait_defined_clades_fisher_asexual,
 )
+from ._alifestd_screen_trait_defined_clades_fitch_asexual import (
+    alifestd_screen_trait_defined_clades_fitch_asexual,
+)
 from ._alifestd_screen_trait_defined_clades_naive_asexual import (
     alifestd_screen_trait_defined_clades_naive_asexual,
 )
@@ -472,6 +475,7 @@ __all__ = [
     "alifestd_convert_root_ancestor_token",
     "alifestd_sample_triplet_comparisons_asexual",
     "alifestd_screen_trait_defined_clades_fisher_asexual",
+    "alifestd_screen_trait_defined_clades_fitch_asexual",
     "alifestd_screen_trait_defined_clades_naive_asexual",
     "alifestd_splay_polytomies",
     "alifestd_sum_origin_time_deltas_asexual",

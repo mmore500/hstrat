@@ -41,38 +41,34 @@ def _alifestd_downsample_tips_clade_asexual_impl(
             phylogeny_df, mutate=True
         )
 
-    is_candidate = (
-        phylogeny_df["num_leaves"].to_numpy(copy=False) <= n_downsample
-    )
+    is_candidate = phylogeny_df["num_leaves"].values <= n_downsample
     if is_candidate.all():
         return phylogeny_df
 
     if alifestd_has_contiguous_ids(phylogeny_df):
         is_candidate &= (
-            phylogeny_df["num_leaves"].to_numpy(copy=False)[
-                phylogeny_df["ancestor_id"].to_numpy(copy=False)
+            phylogeny_df["num_leaves"].values[
+                phylogeny_df["ancestor_id"].values
             ]
             > n_downsample
         )
     else:
         phylogeny_df.set_index("id", drop=False, inplace=True)
         is_candidate &= (
-            phylogeny_df.loc[
-                phylogeny_df["ancestor_id"], "num_leaves"
-            ].to_numpy(copy=False)
+            phylogeny_df.loc[phylogeny_df["ancestor_id"], "num_leaves"].values
             > n_downsample
         )
 
     weighted_candidates = np.repeat(
-        phylogeny_df.loc[is_candidate, "id"].to_numpy(copy=False),
-        phylogeny_df.loc[is_candidate, "num_leaves"].to_numpy(copy=False),
+        phylogeny_df.loc[is_candidate, "id"].values,
+        phylogeny_df.loc[is_candidate, "num_leaves"].values,
     )
     sampled = weighted_candidates[np.random.randint(len(weighted_candidates))]
 
     phylogeny_df = alifestd_mask_descendants_asexual(
         phylogeny_df,
         mutate=True,
-        ancestor_mask=phylogeny_df["id"].to_numpy(copy=False) == sampled,
+        ancestor_mask=phylogeny_df["id"].values == sampled,
     )
     phylogeny_df["extant"] = phylogeny_df["alifestd_mask_descendants_asexual"]
 
