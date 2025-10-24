@@ -69,7 +69,7 @@ def alifestd_screen_trait_defined_clades_fitch_asexual(
     node_depth = phylogeny_df["node_depth"].to_numpy(copy=False)
 
     # bottom-up pass
-    for __ in range(max_depth):
+    for __ in range(max_depth + 1):
         ft_intersect[:] = 3
         # at each parent, calculate intersection of children's trait sets
         np.bitwise_and.at(
