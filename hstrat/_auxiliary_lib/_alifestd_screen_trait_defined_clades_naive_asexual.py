@@ -39,6 +39,11 @@ def alifestd_screen_trait_defined_clades_naive_asexual(
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
+    mask_trait_absent = np.asarray(mask_trait_absent, dtype=bool)
+    mask_trait_present = np.asarray(mask_trait_present, dtype=bool)
+    if (mask_trait_absent & mask_trait_present).any():
+        raise ValueError("conflicting trait presence/absence masks")
+
     if not alifestd_is_strictly_bifurcating_asexual(phylogeny_df):
         raise ValueError("phylogeny_df must be strictly bifurcating")
 

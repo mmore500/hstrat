@@ -35,6 +35,9 @@ def alifestd_screen_trait_defined_clades_fitch_asexual(
 
     mask_trait_absent = np.asarray(mask_trait_absent, dtype=bool)
     mask_trait_present = np.asarray(mask_trait_present, dtype=bool)
+    if (mask_trait_absent & mask_trait_present).any():
+        raise ValueError("conflicting trait presence/absence masks")
+
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
