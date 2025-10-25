@@ -1,3 +1,5 @@
+import typing
+
 import numpy as np
 import pandas as pd
 
@@ -15,6 +17,7 @@ def alifestd_screen_trait_defined_clades_fitch_asexual(
     *,
     mask_trait_absent: np.ndarray,  # 1D boolean array
     mask_trait_present: np.ndarray,  # 1D boolean array
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> np.ndarray:  # 1D boolean array
     """Perform a maximum parsimony screen for trait-defined clades using
     Fitch's algorithm.
@@ -22,6 +25,8 @@ def alifestd_screen_trait_defined_clades_fitch_asexual(
     The `mask_trait_absent` parameter can be used to exclude nodes from
     consideration, for instance &'ing with `alifestd_mark_leaves` can be used
     to only consider traits on leaves.
+
+    Pass tqdm or equivalent as `progress_wrap` to display a progress bar.
 
     Default root state is assumed to be False.
 
@@ -71,7 +76,7 @@ def alifestd_screen_trait_defined_clades_fitch_asexual(
     node_depth = phylogeny_df["node_depth"].to_numpy(copy=False)
 
     # bottom-up pass
-    for __ in range(max_depth + 1):
+    for __ in progress_wrap(range(max_depth + 1), desc="bottom-up pass"):
         ft_intersect[:] = 3
         # at each parent, calculate intersection of children's trait sets
         np.bitwise_and.at(
@@ -95,7 +100,7 @@ def alifestd_screen_trait_defined_clades_fitch_asexual(
     default_root = 1  # root assumed to be trait absent
     ambiguous_root_mask = (node_depth == 0) & (ft_set == 3)
     ft_set[ambiguous_root_mask] = default_root
-    for depth in range(1, max_depth + 1):
+    for depth in progress_wrap(range(1, max_depth + 1), desc="top-down pass"):
         layer_mask = node_depth == depth
         traitless_mask = ft_set == 0
         common_trait = ft_set & ft_set[ancestor_iloc]
