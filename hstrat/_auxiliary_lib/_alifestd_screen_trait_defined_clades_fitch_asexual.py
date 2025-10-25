@@ -83,14 +83,27 @@ def alifestd_screen_trait_defined_clades_fitch_asexual(
             np.where(node_depth == 0, 3, ft_set),  # handle roof self-loop
         )
 
+        # at each parent, calculate counts of children's trait sets
+        ft_num0s = np.zeros(len(phylogeny_df), dtype=int)
+        ft_num1s = np.zeros(len(phylogeny_df), dtype=int)
+        np.add.at(ft_num0s, ancestor_iloc, (ft_set & 1))
+        np.add.at(ft_num1s, ancestor_iloc, (ft_set & 2) >> 1)
+
         # at each parent, calculate union of children's trait sets
         np.bitwise_or.at(ft_union, ancestor_iloc, ft_set)
 
-        # trait set is intersection if nonempty, else union
+        # if majority of children have trait absent/present, set that trait
+        proposed_update = np.where(
+            ft_num0s == ft_num1s,
+            # trait set is intersection if nonempty, else union
+            np.where(ft_intersect == 0, ft_union, ft_intersect),
+            (ft_num0s > ft_num1s) + 2 * (ft_num1s > ft_num0s),
+        )
+
         # only update trait set if not already set
         ft_set = np.where(
             ft_set == 0,
-            np.where(ft_intersect == 0, ft_union, ft_intersect),
+            proposed_update,
             ft_set,
         )
 

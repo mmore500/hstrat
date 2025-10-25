@@ -36,13 +36,14 @@ def test_simple1(apply: typing.Callable, mutate: bool):
     )
     phylogeny_df = apply(phylogeny_df)
     original_df = phylogeny_df.copy()
-    with pytest.raises(ValueError):
-        alifestd_screen_trait_defined_clades_fitch_asexual(
-            phylogeny_df,
-            mutate=mutate,
-            mask_trait_absent=[True, False, False],
-            mask_trait_present=[False, False, True],
-        )
+    result = alifestd_screen_trait_defined_clades_fitch_asexual(
+        phylogeny_df,
+        mutate=mutate,
+        mask_trait_absent=[True, False, False],
+        mask_trait_present=[False, False, True],
+    )
+    assert not result[0]
+    assert result[1] or result[2]
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -865,6 +866,254 @@ def test_simple19(apply: typing.Callable, mutate: bool):
     assert not result[4]
     assert not result[5]
     assert not result[6]
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
+@pytest.mark.parametrize("mutate", [True, False])
+def test_simple20(apply: typing.Callable, mutate: bool):
+    # Tree structure:
+    #         0-----
+    #       /   \   \
+    #      1+    2-  7-
+    #     / \   / \
+    #    3   4 5   6
+    #    -   - +   -
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6, 7],
+            "ancestor_list": [
+                "[None]",
+                "[0]",
+                "[0]",
+                "[1]",
+                "[1]",
+                "[2]",
+                "[2]",
+                "[0]",
+            ],
+            "origin_time": [0, 10, 20, 40, 30, 50, 60, 5],
+        },
+    )
+    phylogeny_df = apply(phylogeny_df)
+    original_df = phylogeny_df.copy()
+    result = alifestd_screen_trait_defined_clades_fitch_asexual(
+        phylogeny_df,
+        mutate=mutate,
+        mask_trait_absent=[False, False, True, True, True, False, True, True],
+        mask_trait_present=[
+            False,
+            True,
+            False,
+            False,
+            False,
+            True,
+            False,
+            False,
+        ],
+    )
+    assert not result[0]
+    assert result[1]
+    assert not result[2]
+    assert not result[3]
+    assert not result[4]
+    assert result[5]
+    assert not result[6]
+    assert not result[7]
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
+@pytest.mark.parametrize("mutate", [True, False])
+def test_simple21(apply: typing.Callable, mutate: bool):
+    # Tree structure:
+    #         0-----
+    #       /   \   \
+    #      1+    2-  7+
+    #     / \   / \
+    #    3   4 5   6
+    #    -   - +   -
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6, 7],
+            "ancestor_list": [
+                "[None]",
+                "[0]",
+                "[0]",
+                "[1]",
+                "[1]",
+                "[2]",
+                "[2]",
+                "[0]",
+            ],
+            "origin_time": [0, 10, 20, 40, 30, 50, 60, 5],
+        },
+    )
+    phylogeny_df = apply(phylogeny_df)
+    original_df = phylogeny_df.copy()
+    result = alifestd_screen_trait_defined_clades_fitch_asexual(
+        phylogeny_df,
+        mutate=mutate,
+        mask_trait_absent=[False, False, True, True, True, False, True, False],
+        mask_trait_present=[
+            False,
+            True,
+            False,
+            False,
+            False,
+            True,
+            False,
+            True,
+        ],
+    )
+    assert not result[0]
+    assert not result[1]
+    assert not result[2]
+    assert not result[3]
+    assert not result[4]
+    assert result[5]
+    assert not result[6]
+    assert not result[7]
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
+@pytest.mark.parametrize("mutate", [True, False])
+def test_simple22(apply: typing.Callable, mutate: bool):
+    # Tree structure:
+    #         0---------
+    #       /   \   \   \
+    #      1+    2-  7+  8
+    #     / \   / \
+    #    3   4 5   6
+    #    -   - +   -
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            "ancestor_list": [
+                "[None]",
+                "[0]",
+                "[0]",
+                "[1]",
+                "[1]",
+                "[2]",
+                "[2]",
+                "[0]",
+                "[0]",
+            ],
+            "origin_time": [0, 10, 20, 40, 30, 50, 60, 5, 2],
+        },
+    )
+    phylogeny_df = apply(phylogeny_df)
+    original_df = phylogeny_df.copy()
+    result = alifestd_screen_trait_defined_clades_fitch_asexual(
+        phylogeny_df,
+        mutate=mutate,
+        mask_trait_absent=[
+            False,
+            False,
+            True,
+            True,
+            True,
+            False,
+            True,
+            False,
+            False,
+        ],
+        mask_trait_present=[
+            False,
+            True,
+            False,
+            False,
+            False,
+            True,
+            False,
+            True,
+            False,
+        ],
+    )
+    assert not result[0]
+    assert not result[1]
+    assert not result[2]
+    assert not result[3]
+    assert not result[4]
+    assert result[5]
+    assert not result[6]
+    assert not result[7]
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
+@pytest.mark.parametrize("mutate", [True, False])
+def test_simple23(apply: typing.Callable, mutate: bool):
+    # Tree structure:
+    #         0---------
+    #       /   \   \   \
+    #      1+    2-  7+  8-
+    #     / \   / \
+    #    3   4 5   6
+    #    -   - +   -
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            "ancestor_list": [
+                "[None]",
+                "[0]",
+                "[0]",
+                "[1]",
+                "[1]",
+                "[2]",
+                "[2]",
+                "[0]",
+                "[0]",
+            ],
+            "origin_time": [0, 10, 20, 40, 30, 50, 60, 5, 2],
+        },
+    )
+    phylogeny_df = apply(phylogeny_df)
+    original_df = phylogeny_df.copy()
+    result = alifestd_screen_trait_defined_clades_fitch_asexual(
+        phylogeny_df,
+        mutate=mutate,
+        mask_trait_absent=[
+            False,
+            False,
+            True,
+            True,
+            True,
+            False,
+            True,
+            False,
+            True,
+        ],
+        mask_trait_present=[
+            False,
+            True,
+            False,
+            False,
+            False,
+            True,
+            False,
+            True,
+            False,
+        ],
+    )
+    assert not result[0]
+    assert result[1]
+    assert not result[2]
+    assert not result[3]
+    assert not result[4]
+    assert result[5]
+    assert not result[6]
+    assert result[7]
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
