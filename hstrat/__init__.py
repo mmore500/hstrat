@@ -2,7 +2,7 @@
 
 __author__ = "Matthew Andres Moreno"
 __email__ = "m.more500@gmail.com"
-__version__ = "1.20.18"
+__version__ = "1.20.19"
 
 
 from ._auxiliary_lib import lazy_attach_stub
