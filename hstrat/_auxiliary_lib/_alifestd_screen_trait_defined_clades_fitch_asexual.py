@@ -4,9 +4,6 @@ import numpy as np
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
-from ._alifestd_is_strictly_bifurcating_asexual import (
-    alifestd_is_strictly_bifurcating_asexual,
-)
 from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
