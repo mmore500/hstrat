@@ -46,9 +46,6 @@ def alifestd_screen_trait_defined_clades_fitch_asexual(
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
-    if not alifestd_is_strictly_bifurcating_asexual(phylogeny_df):
-        raise ValueError("phylogeny_df must be strictly bifurcating")
-
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
     phylogeny_df["fitch_trait_set"] = (
         mask_trait_absent + 2 * mask_trait_present
