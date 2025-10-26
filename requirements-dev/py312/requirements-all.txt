@@ -97,7 +97,7 @@ docutils==0.21.2
     #   readme-renderer
     #   sphinx
     #   sphinx-rtd-theme
-downstream==1.15.4
+downstream==1.15.5
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
@@ -203,7 +203,7 @@ matplotlib==3.10.7
     #   colorclade
     #   seaborn
     #   teeplot
-matplotlib-inline==0.1.7
+matplotlib-inline==0.2.1
     # via
     #   ipykernel
     #   ipython
@@ -344,7 +344,7 @@ prompt-toolkit==3.0.52
     # via ipython
 propcache==0.4.1
     # via yarl
-psutil==7.1.1
+psutil==7.1.2
     # via ipykernel
 ptyprocess==0.7.0
     # via pexpect
@@ -355,7 +355,7 @@ py==1.11.0
     #   pytest-forked
     #   retry
     #   tox
-pyarrow==21.0.0
+pyarrow==22.0.0
     # via
     #   hstrat (../../pyproject.toml)
     #   polars
@@ -424,7 +424,7 @@ requests-toolbelt==1.0.0
     # via twine
 retry==0.9.2
     # via keyname
-rpds-py==0.27.1
+rpds-py==0.28.0
     # via
     #   jsonschema
     #   referencing

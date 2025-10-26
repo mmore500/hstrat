@@ -84,6 +84,9 @@ from ._alifestd_delete_unifurcating_roots_asexual import (
     alifestd_delete_unifurcating_roots_asexual,
 )
 from ._alifestd_downsample_tips_asexual import alifestd_downsample_tips_asexual
+from ._alifestd_downsample_tips_clade_asexual import (
+    alifestd_downsample_tips_clade_asexual,
+)
 from ._alifestd_estimate_triplet_distance_asexual import (
     alifestd_estimate_triplet_distance_asexual,
 )
@@ -207,6 +210,9 @@ from ._alifestd_sample_triplet_comparisons_asexual import (
 )
 from ._alifestd_screen_trait_defined_clades_fisher_asexual import (
     alifestd_screen_trait_defined_clades_fisher_asexual,
+)
+from ._alifestd_screen_trait_defined_clades_fitch_asexual import (
+    alifestd_screen_trait_defined_clades_fitch_asexual,
 )
 from ._alifestd_screen_trait_defined_clades_naive_asexual import (
     alifestd_screen_trait_defined_clades_naive_asexual,
@@ -407,6 +413,7 @@ __all__ = [
     "alifestd_delete_trunk_asexual_polars",
     "alifestd_delete_unifurcating_roots_asexual",
     "alifestd_downsample_tips_asexual",
+    "alifestd_downsample_tips_clade_asexual",
     "alifestd_estimate_triplet_distance_asexual",
     "alifestd_find_chronological_inconsistency",
     "alifestd_find_leaf_ids",
@@ -468,6 +475,7 @@ __all__ = [
     "alifestd_convert_root_ancestor_token",
     "alifestd_sample_triplet_comparisons_asexual",
     "alifestd_screen_trait_defined_clades_fisher_asexual",
+    "alifestd_screen_trait_defined_clades_fitch_asexual",
     "alifestd_screen_trait_defined_clades_naive_asexual",
     "alifestd_splay_polytomies",
     "alifestd_sum_origin_time_deltas_asexual",

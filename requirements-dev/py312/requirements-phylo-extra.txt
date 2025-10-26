@@ -40,7 +40,7 @@ deprecated==1.2.18
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
-downstream==1.15.4
+downstream==1.15.5
     # via hstrat (../../pyproject.toml)
 ete3==3.1.3
     # via alifedata-phyloinformatics-convert
@@ -157,7 +157,7 @@ propcache==0.4.1
     # via yarl
 py==1.11.0
     # via retry
-pyarrow==21.0.0
+pyarrow==22.0.0
     # via
     #   hstrat (../../pyproject.toml)
     #   polars

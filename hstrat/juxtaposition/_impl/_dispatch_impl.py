@@ -29,7 +29,7 @@ def dispatch_impl(first: object, second: object) -> types.ModuleType:
         If the input target is not an instance of either
         HereditaryStratigraphicColumn or HereditaryStratigraphicSpecimen.
     """
-    assert type(first) == type(second)
+    assert type(first) is type(second)
     if isinstance(
         first, (HereditaryStratigraphicColumn, HereditaryStratigraphicSurface)
     ):
