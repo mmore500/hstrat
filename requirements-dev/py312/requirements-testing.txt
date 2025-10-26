@@ -12,7 +12,7 @@ anytree==2.13.0
     #   alifedata-phyloinformatics-convert
 astropy==7.1.1
     # via hstrat (../../pyproject.toml)
-astropy-iers-data==0.2025.10.13.0.37.17
+astropy-iers-data==0.2025.10.20.0.39.8
     # via astropy
 biopython==1.85
     # via
@@ -58,7 +58,7 @@ distlib==0.4.0
     # via virtualenv
 distutils-strtobool==0.1.0
     # via teeplot
-downstream==1.15.3
+downstream==1.15.5
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
@@ -195,7 +195,7 @@ pandera==0.26.1
     # via hstrat (../../pyproject.toml)
 pathspec==0.12.1
     # via black
-patsy==1.0.1
+patsy==1.0.2
     # via statsmodels
 phylotrackpy==0.2.4
     # via hstrat (../../pyproject.toml)
@@ -227,7 +227,7 @@ py==1.11.0
     #   pytest-forked
     #   retry
     #   tox
-pyarrow==21.0.0
+pyarrow==22.0.0
     # via
     #   hstrat (../../pyproject.toml)
     #   polars
