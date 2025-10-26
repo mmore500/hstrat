@@ -12,7 +12,10 @@ from .._auxiliary_lib import (
     get_hstrat_version,
     log_context_duration,
 )
-from ._surface_unpack_reconstruct import surface_unpack_reconstruct
+from ._surface_unpack_reconstruct import (
+    ReconstructionAlgorithm,
+    surface_unpack_reconstruct,
+)
 
 raw_message = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
 
@@ -158,12 +161,19 @@ def _create_parser() -> argparse.ArgumentParser:
         default=1_000_000,
         help="Number of rows to process at once. Low values reduce memory use.",
     )
+    parser.add_argument(
+        "--reconstruction-algorithm",
+        type=ReconstructionAlgorithm,
+        default=ReconstructionAlgorithm.SHORTCUT,
+        choices=list(ReconstructionAlgorithm),
+        help='Phylogenetic tree reconstruction algorithm to use. "shortcut" should be used unless benchmarking naive approach.',
+    )
     return parser
 
 
 def _main(mp_context: str) -> None:
     parser = _create_parser()
-    args, __ = parser.parse_known_args()
+    args, _ = parser.parse_known_args()
 
     with log_context_duration(
         "hstrat.dataframe.surface_unpack_reconstruct", logging.info
@@ -174,6 +184,7 @@ def _main(mp_context: str) -> None:
                 surface_unpack_reconstruct,
                 collapse_unif_freq=args.collapse_unif_freq,
                 exploded_slice_size=args.exploded_slice_size,
+                reconstruction_algorithm=args.reconstruction_algorithm,
                 mp_context=mp_context,
             ),
         )
