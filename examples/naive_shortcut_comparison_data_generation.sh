@@ -19,16 +19,6 @@ for i in $(seq 1 $2); do
     sleep 1
   done
   echo "Spawning job $i"
-  echo python3 examples/end2end_tree_reconstruction_test.py \
-    --skip-vis \
-    --no-preset-random \
-    --repeats 1 \
-    --fossil-interval None 200 50 \
-    --reconstruction-algo shortcut naive \
-    --retention-algo dstream.hybrid_0_steady_1_tilted_2_algo \
-    --differentia-bitwidth 64 8 1 \
-    --surface-size 256 32 16 \
-    --output-path "end2end-reconstruction-error-$i.csv"
   python3 examples/end2end_tree_reconstruction_test.py \
     --skip-vis \
     --no-preset-random \
