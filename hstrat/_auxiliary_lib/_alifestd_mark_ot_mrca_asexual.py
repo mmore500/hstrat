@@ -18,8 +18,25 @@ def alifestd_mark_ot_mrca_asexual(
     mutate: bool = False,
     progress_wrap: typing.Callable = lambda x: x,
 ) -> pd.DataFrame:
-    """Add columns `ot_mrca_id`, `ot_mrca_time_of`, and `ot_mrca_time_since`,
-    giving information about mrca of extant organisms at organism `origin_time`.
+    """Appends columns characterizing the Most Recent Common Ancestor (MRCA) of the
+    entire extant population at each taxon's `origin_time`.
+
+    The extant population is defined in terms of active lineages: any branch of the
+    tree existing at an `origin_time` which contains at least one descendant at or
+    after that time.
+
+    New Columns:
+    ------------
+    ot_mrca_id : int
+        The unique identifier of the MRCA for the population that was extant at
+        this organism's `origin_time`.
+
+    ot_mrca_time_of : int or float
+        The `origin_time` of that MRCA.
+
+    ot_mrca_time_since : int or float
+        The duration elapsed between the MRCA's `origin_time` and this taxon's
+        `origin_time`.
 
     A chronological sort will be applied if `phylogeny_df` is not
     chronologically sorted. Dataframe reindexing (e.g., df.index) may be
