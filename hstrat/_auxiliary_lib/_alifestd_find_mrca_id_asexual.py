@@ -1,8 +1,10 @@
 import typing
+import warnings
 
 import pandas as pd
 import sortedcontainers as sc
 
+from ._alifestd_count_root_nodes import alifestd_count_root_nodes
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_mark_num_descendants_asexual import (
@@ -23,6 +25,13 @@ def alifestd_find_mrca_id_asexual(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
+
+    if alifestd_count_root_nodes(phylogeny_df) > 1:
+        # could fix this case to return -1 or None later if needed
+        warnings.warn(
+            "MRCA finding not yet implemented for forests (multiple roots); "
+            "lookup may hang if leaf_ids span multiple trees.",
+        )
 
     if not mutate:
         phylogeny_df = phylogeny_df.copy()

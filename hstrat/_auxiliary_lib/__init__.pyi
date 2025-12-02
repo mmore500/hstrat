@@ -41,6 +41,9 @@ from ._alifestd_calc_clade_trait_count_asexual import (
 from ._alifestd_calc_clade_trait_frequency_asexual import (
     alifestd_calc_clade_trait_frequency_asexual,
 )
+from ._alifestd_calc_mrca_id_matrix_asexual import (
+    alifestd_calc_mrca_id_matrix_asexual,
+)
 from ._alifestd_calc_polytomic_index import alifestd_calc_polytomic_index
 from ._alifestd_calc_triplet_distance_asexual import (
     alifestd_calc_triplet_distance_asexual,
@@ -391,6 +394,9 @@ __all__ = [
     "alifestd_calc_clade_lookback_origin_time_delta_asexual",
     "alifestd_calc_clade_trait_count_asexual",
     "alifestd_calc_clade_trait_frequency_asexual",
+    "alifestd_calc_mrca_id_matrix_asexual",
+    "alifestd_calc_polytomic_index",
+    "alifestd_calc_triplet_distance_asexual",
     "alifestd_categorize_triplet_asexual",
     "alifestd_chronological_sort",
     "alifestd_coarsen_mask",
@@ -400,8 +406,6 @@ __all__ = [
     "alifestd_collapse_trunk_asexual",
     "alifestd_collapse_unifurcations",
     "alifestd_collapse_unifurcations_polars",
-    "alifestd_calc_polytomic_index",
-    "alifestd_calc_triplet_distance_asexual",
     "alifestd_count_children_of_asexual",
     "alifestd_count_inner_nodes",
     "alifestd_count_leaf_nodes",
