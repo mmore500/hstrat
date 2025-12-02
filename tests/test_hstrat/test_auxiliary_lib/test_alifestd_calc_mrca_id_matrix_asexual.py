@@ -58,7 +58,11 @@ def test_big1(phylogeny_df: pd.DataFrame, mutate: bool):
     original_df = phylogeny_df.copy()
 
     expected = make_expected(phylogeny_df.copy())
-    actual = alifestd_calc_mrca_id_matrix_asexual(phylogeny_df, mutate=mutate)
+    actual = alifestd_calc_mrca_id_matrix_asexual(
+        phylogeny_df,
+        mutate=mutate,
+        progress_wrap=tqdm,
+    )
 
     np.testing.assert_array_equal(expected, actual)
     if not mutate:

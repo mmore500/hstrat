@@ -1,3 +1,5 @@
+import typing
+
 import numpy as np
 import pandas as pd
 
@@ -11,11 +13,15 @@ from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 def alifestd_calc_mrca_id_matrix_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
+    *,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> np.ndarray:
     """Calculate the Most Recent Common Ancestor (MRCA) taxon id for each pair
     of taxa.
 
     Taxa sharing no common ancestor will have MRCA id -1.
+
+    Pass tqdm or equivalent as `progress_wrap` to display a progress bar.
 
     Input dataframe is not mutated by this operation unless `mutate` set True.
     """
@@ -44,7 +50,7 @@ def alifestd_calc_mrca_id_matrix_asexual(
     cur_positions = phylogeny_df["id"].to_numpy().copy()
     assert np.all(cur_positions == np.arange(len(phylogeny_df)))
 
-    for depth in reversed(range(max_depth + 1)):
+    for depth in progress_wrap(reversed(range(max_depth + 1))):
         depth_mask = node_depths[cur_positions] == depth
 
         ansatz = -np.ones_like(result)
