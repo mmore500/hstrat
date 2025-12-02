@@ -36,7 +36,7 @@ def alifestd_calc_mrca_id_matrix_asexual(
 
     ancestor_ids = phylogeny_df["ancestor_id"].to_numpy()
     node_depths = phylogeny_df["node_depth"].to_numpy()
-    cur_positions = phylogeny_df["id"].to_numpy()
+    cur_positions = phylogeny_df["id"].to_numpy().copy()
     assert np.all(cur_positions == np.arange(len(phylogeny_df)))
 
     for depth in reversed(range(max_depth + 1)):
