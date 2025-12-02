@@ -13,7 +13,12 @@ def alifestd_calc_mrca_id_matrix_asexual(
     mutate: bool = False,
 ) -> np.ndarray:
     """Calculate the Most Recent Common Ancestor (MRCA) taxon id for each pair
-    of taxa."""
+    of taxa.
+
+    Taxa sharing no common ancestor will have MRCA id -1.
+
+    Input dataframe is not mutated by this operation unless `mutate` set True.
+    """
 
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
@@ -28,7 +33,7 @@ def alifestd_calc_mrca_id_matrix_asexual(
     phylogeny_df = alifestd_mark_node_depth_asexual(phylogeny_df, mutate=True)
 
     n = len(phylogeny_df)
-    result = np.zeros((n, n), dtype=np.uint64)
+    result = -np.ones((n, n), dtype=np.int64)
     if n == 0:
         return result
 
@@ -42,14 +47,14 @@ def alifestd_calc_mrca_id_matrix_asexual(
     for depth in reversed(range(max_depth + 1)):
         depth_mask = node_depths[cur_positions] == depth
 
-        ansatz = np.zeros_like(result)
+        ansatz = -np.ones_like(result)
 
         ansatz[:, depth_mask] = cur_positions[depth_mask]
         ansatz[depth_mask, :] = cur_positions[depth_mask, None]
-        ansatz[~depth_mask, :] = 0
-        ansatz[:, ~depth_mask] = 0
+        ansatz[~depth_mask, :] = -1
+        ansatz[:, ~depth_mask] = -1
 
-        ansatz[ansatz != ansatz.T] = 0
+        ansatz[ansatz != ansatz.T] = -1
 
         result = np.maximum(result, ansatz)
         cur_positions[depth_mask] = ancestor_ids[cur_positions[depth_mask]]
