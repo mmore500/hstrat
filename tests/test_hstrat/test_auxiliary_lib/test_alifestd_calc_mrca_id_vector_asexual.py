@@ -30,6 +30,13 @@ def make_actual(
         for i in tqdm(range(len(phylogeny_df)))
     ]
     if len(res) == 0:
+        with pytest.raises(ValueError):
+            alifestd_calc_mrca_id_vector_asexual(
+                phylogeny_df,
+                mutate=mutate,
+                progress_wrap=tqdm,
+                target_id=0,
+            )
         return np.zeros((0, 0), dtype=np.int64)
     else:
         return np.stack(res, axis=0)

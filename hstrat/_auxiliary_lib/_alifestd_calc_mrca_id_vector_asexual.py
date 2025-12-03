@@ -39,10 +39,12 @@ def alifestd_calc_mrca_id_vector_asexual(
 
     phylogeny_df = alifestd_mark_node_depth_asexual(phylogeny_df, mutate=True)
 
+    if target_id >= len(phylogeny_df):
+        raise ValueError(f"{target_id=} out of bounds")
+
     n = len(phylogeny_df)
+    assert n
     result = -np.ones(n, dtype=np.int64)
-    if n == 0:
-        return result
 
     max_depth = int(phylogeny_df["node_depth"].max())
 
