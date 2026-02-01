@@ -92,10 +92,10 @@ def test_simple_chain(mutate: bool):
 
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple_bifurcating_balanced(mutate: bool):
-    """Test a balanced bifurcating tree.
+    r"""Test a balanced bifurcating tree.
 
           0
-         / \\
+         / \
         1   2
 
     Each leaf has 1 leaf, so |1-1| = 0 at root.
@@ -124,12 +124,12 @@ def test_simple_bifurcating_balanced(mutate: bool):
 
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple_bifurcating_imbalanced(mutate: bool):
-    """Test an imbalanced bifurcating tree.
+    r"""Test an imbalanced bifurcating tree.
 
           0
-         / \\
+         / \
         1   2
-           / \\
+           / \
           3   4
 
     Node 0: children are 1 (1 leaf) and 2 (2 leaves), |1-2| = 1
@@ -167,14 +167,14 @@ def test_simple_bifurcating_imbalanced(mutate: bool):
 
 @pytest.mark.parametrize("mutate", [True, False])
 def test_caterpillar_tree(mutate: bool):
-    """Test a caterpillar/comb tree (maximally imbalanced).
+    r"""Test a caterpillar/comb tree (maximally imbalanced).
 
           0
-         / \\
+         / \
         1   2
-           / \\
+           / \
           3   4
-             / \\
+             / \
             5   6
 
     Node 4: |1-1| = 0
@@ -224,10 +224,10 @@ def test_caterpillar_tree(mutate: bool):
 
 @pytest.mark.parametrize("mutate", [True, False])
 def test_polytomy_balanced(mutate: bool):
-    """Test a tree with balanced polytomy (more than 2 children).
+    r"""Test a tree with balanced polytomy (more than 2 children).
 
           0
-        / | \\
+        / | \
        1  2  3
 
     For polytomy with k children having n1, n2, ..., nk leaves:
@@ -262,12 +262,12 @@ def test_polytomy_balanced(mutate: bool):
 
 @pytest.mark.parametrize("mutate", [True, False])
 def test_polytomy_imbalanced(mutate: bool):
-    """Test a tree with imbalanced polytomy.
+    r"""Test a tree with imbalanced polytomy.
 
             0
-          / | \\
+          / | \
          1  2  3
-              / \\
+              / \
              4   5
 
     Structure:
@@ -311,10 +311,10 @@ def test_polytomy_imbalanced(mutate: bool):
 
 @pytest.mark.parametrize("mutate", [True, False])
 def test_large_polytomy(mutate: bool):
-    """Test a tree with large polytomy (4 children).
+    r"""Test a tree with large polytomy (4 children).
 
             0
-         / | | \\
+         / | | \
         1  2 3  4
 
     All balanced with 1 leaf each.
@@ -349,10 +349,10 @@ def test_large_polytomy(mutate: bool):
 
 @pytest.mark.parametrize("mutate", [True, False])
 def test_large_polytomy_imbalanced(mutate: bool):
-    """Test a tree with large imbalanced polytomy.
+    r"""Test a tree with large imbalanced polytomy.
 
               0
-         / | | \\
+         / | | \
         1  2 3  4
                 |
                 5
@@ -519,16 +519,16 @@ def test_multiple_roots(mutate: bool):
 
 @pytest.mark.parametrize("mutate", [True, False])
 def test_larger_imbalanced_tree(mutate: bool):
-    """Test a larger imbalanced tree.
+    r"""Test a larger imbalanced tree.
 
               0
-             / \\
+             / \
             1   2
-               / \\
+               / \
               3   4
-                 / \\
+                 / \
                 5   6
-                   / \\
+                   / \
                   7   8
 
     Colless contributions:

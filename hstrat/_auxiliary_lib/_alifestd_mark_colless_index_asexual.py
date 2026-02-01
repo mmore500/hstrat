@@ -1,3 +1,5 @@
+import typing
+
 import numpy as np
 import pandas as pd
 
@@ -6,6 +8,76 @@ from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+
+
+def alifestd_mark_colless_index_asexual_fast_path(
+    ancestor_ids: np.ndarray,
+    num_leaves: np.ndarray,
+) -> np.ndarray:
+    """Implementation detail for `alifestd_mark_colless_index_asexual`."""
+    n = len(ancestor_ids)
+    colless_index = np.zeros(n, dtype=np.int64)
+
+    # Collect children's leaf counts for each parent
+    children_leaves: typing.List[typing.List[int]] = [[] for _ in range(n)]
+    for idx, ancestor_id in enumerate(ancestor_ids):
+        if ancestor_id != idx:  # Not a root
+            children_leaves[ancestor_id].append(num_leaves[idx])
+
+    # Compute local Colless for each node (|L - R| for bifurcating nodes)
+    local_colless = np.zeros(n, dtype=np.int64)
+    for idx, child_counts in enumerate(children_leaves):
+        if len(child_counts) == 2:
+            # Classic Colless: |left - right|
+            local_colless[idx] = abs(child_counts[0] - child_counts[1])
+
+    # Accumulate subtree Colless (bottom-up)
+    for idx_r, ancestor_id in enumerate(ancestor_ids[::-1]):
+        idx = n - 1 - idx_r  # Reverse order (leaves to root)
+        colless_index[idx] += local_colless[idx]
+        if ancestor_id != idx:  # Not a root
+            colless_index[ancestor_id] += colless_index[idx]
+
+    return colless_index
+
+
+def alifestd_mark_colless_index_asexual_slow_path(
+    phylogeny_df: pd.DataFrame,
+) -> pd.DataFrame:
+    """Implementation detail for `alifestd_mark_colless_index_asexual`."""
+    phylogeny_df.index = phylogeny_df["id"]
+    ids = phylogeny_df["id"].values
+
+    # Build children mapping
+    children_leaves: typing.Dict[int, typing.List[int]] = {
+        id_: [] for id_ in ids
+    }
+    for idx, row in phylogeny_df.iterrows():
+        node_id = row["id"]
+        ancestor_id = row["ancestor_id"]
+        if ancestor_id != node_id:  # Not a root
+            children_leaves[ancestor_id].append(row["num_leaves"])
+
+    # Compute local Colless for each node
+    local_colless = {}
+    for node_id, child_counts in children_leaves.items():
+        if len(child_counts) == 2:
+            local_colless[node_id] = abs(child_counts[0] - child_counts[1])
+        else:
+            local_colless[node_id] = 0
+
+    # Initialize colless_index with local values
+    colless_dict = {node_id: local_colless[node_id] for node_id in ids}
+
+    # Accumulate subtree Colless (bottom-up via reversed iteration)
+    for idx in reversed(phylogeny_df.index):
+        node_id = phylogeny_df.at[idx, "id"]
+        ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
+        if ancestor_id != node_id:  # Not a root
+            colless_dict[ancestor_id] += colless_dict[node_id]
+
+    phylogeny_df["colless_index"] = phylogeny_df["id"].map(colless_dict)
+    return phylogeny_df
 
 
 def alifestd_mark_colless_index_asexual(
@@ -53,7 +125,6 @@ def alifestd_mark_colless_index_asexual(
     alifestd_mark_colless_index_generalized_asexual :
         Generalized Colless index that supports polytomies.
     """
-
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
@@ -71,77 +142,14 @@ def alifestd_mark_colless_index_asexual(
             phylogeny_df, mutate=True
         )
 
-    # Use contiguous indexing for efficient array operations
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df.reset_index(drop=True, inplace=True)
-        use_contiguous = True
+        phylogeny_df[
+            "colless_index"
+        ] = alifestd_mark_colless_index_asexual_fast_path(
+            phylogeny_df["ancestor_id"].to_numpy(),
+            phylogeny_df["num_leaves"].to_numpy(),
+        )
+        return phylogeny_df
     else:
-        phylogeny_df.index = phylogeny_df["id"]
-        use_contiguous = False
-
-    n = len(phylogeny_df)
-    colless_index = np.zeros(n, dtype=np.int64)
-
-    if use_contiguous:
-        ancestor_ids = phylogeny_df["ancestor_id"].values
-        num_leaves = phylogeny_df["num_leaves"].values
-
-        # Collect children's leaf counts for each parent
-        # For bifurcating: only need first two children
-        children_leaves = [[] for _ in range(n)]
-        for idx in range(n):
-            ancestor_id = ancestor_ids[idx]
-            if ancestor_id != idx:  # Not a root
-                children_leaves[ancestor_id].append(num_leaves[idx])
-
-        # Compute local Colless for each node (|L - R| for bifurcating nodes)
-        local_colless = np.zeros(n, dtype=np.int64)
-        for idx in range(n):
-            child_counts = children_leaves[idx]
-            if len(child_counts) == 2:
-                # Classic Colless: |left - right|
-                local_colless[idx] = abs(child_counts[0] - child_counts[1])
-
-        # Accumulate subtree Colless (bottom-up)
-        for idx_r in range(n):
-            idx = n - 1 - idx_r  # Reverse order (leaves to root)
-            ancestor_id = ancestor_ids[idx]
-            colless_index[idx] += local_colless[idx]
-            if ancestor_id != idx:  # Not a root
-                colless_index[ancestor_id] += colless_index[idx]
-
-        phylogeny_df["colless_index"] = colless_index
-    else:
-        # Slow path for non-contiguous IDs
-        ids = phylogeny_df["id"].values
-
-        # Build children mapping
-        children_leaves = {id_: [] for id_ in ids}
-        for idx, row in phylogeny_df.iterrows():
-            node_id = row["id"]
-            ancestor_id = row["ancestor_id"]
-            if ancestor_id != node_id:  # Not a root
-                children_leaves[ancestor_id].append(row["num_leaves"])
-
-        # Compute local Colless for each node
-        local_colless = {}
-        for node_id in ids:
-            child_counts = children_leaves[node_id]
-            if len(child_counts) == 2:
-                local_colless[node_id] = abs(child_counts[0] - child_counts[1])
-            else:
-                local_colless[node_id] = 0
-
-        # Initialize colless_index with local values
-        colless_dict = {node_id: local_colless[node_id] for node_id in ids}
-
-        # Accumulate subtree Colless (bottom-up via reversed iteration)
-        for idx in reversed(phylogeny_df.index):
-            node_id = phylogeny_df.at[idx, "id"]
-            ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
-            if ancestor_id != node_id:  # Not a root
-                colless_dict[ancestor_id] += colless_dict[node_id]
-
-        phylogeny_df["colless_index"] = phylogeny_df["id"].map(colless_dict)
-
-    return phylogeny_df
+        return alifestd_mark_colless_index_asexual_slow_path(phylogeny_df)
