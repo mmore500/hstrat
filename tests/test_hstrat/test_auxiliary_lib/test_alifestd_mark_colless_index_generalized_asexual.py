@@ -55,7 +55,9 @@ def test_fuzz(phylogeny_df: pd.DataFrame):
 
 
 def test_empty():
-    res = alifestd_mark_colless_index_generalized_asexual(alifestd_make_empty())
+    res = alifestd_mark_colless_index_generalized_asexual(
+        alifestd_make_empty()
+    )
     assert "colless_index" in res
     assert len(res) == 0
 
