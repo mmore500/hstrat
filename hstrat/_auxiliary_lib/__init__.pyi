@@ -187,6 +187,9 @@ from ._alifestd_mark_clade_subtended_duration_asexual import (
 from ._alifestd_mark_clade_subtended_duration_ratio_sister_asexual import (
     alifestd_mark_clade_subtended_duration_ratio_sister_asexual,
 )
+from ._alifestd_mark_colless_index_asexual import (
+    alifestd_mark_colless_index_asexual,
+)
 from ._alifestd_mark_is_left_child_asexual import (
     alifestd_mark_is_left_child_asexual,
 )
@@ -517,6 +520,7 @@ __all__ = [
     "alifestd_mark_clade_nodecount_ratio_sister_asexual",
     "alifestd_mark_clade_subtended_duration_asexual",
     "alifestd_mark_clade_subtended_duration_ratio_sister_asexual",
+    "alifestd_mark_colless_index_asexual",
     "alifestd_mark_is_left_child_asexual",
     "alifestd_mark_is_right_child_asexual",
     "alifestd_mark_leaves",
