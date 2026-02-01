@@ -8,7 +8,7 @@ from hstrat._auxiliary_lib import (
     alifestd_find_root_ids,
     alifestd_has_multiple_roots,
     alifestd_make_empty,
-    alifestd_mark_colless_index_asexual,
+    alifestd_mark_colless_index_generalized_asexual,
     alifestd_validate,
 )
 
@@ -29,7 +29,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 def test_fuzz(phylogeny_df: pd.DataFrame):
     original = phylogeny_df.copy()
 
-    result = alifestd_mark_colless_index_asexual(phylogeny_df)
+    result = alifestd_mark_colless_index_generalized_asexual(phylogeny_df)
 
     assert alifestd_validate(result)
     assert original.equals(phylogeny_df)
@@ -55,7 +55,7 @@ def test_fuzz(phylogeny_df: pd.DataFrame):
 
 
 def test_empty():
-    res = alifestd_mark_colless_index_asexual(alifestd_make_empty())
+    res = alifestd_mark_colless_index_generalized_asexual(alifestd_make_empty())
     assert "colless_index" in res
     assert len(res) == 0
 
@@ -73,7 +73,7 @@ def test_simple_chain(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_index_asexual(
+    result_df = alifestd_mark_colless_index_generalized_asexual(
         phylogeny_df,
         mutate=mutate,
     )
@@ -105,7 +105,7 @@ def test_simple_bifurcating_balanced(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_index_asexual(
+    result_df = alifestd_mark_colless_index_generalized_asexual(
         phylogeny_df,
         mutate=mutate,
     )
@@ -141,7 +141,7 @@ def test_simple_bifurcating_imbalanced(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_index_asexual(
+    result_df = alifestd_mark_colless_index_generalized_asexual(
         phylogeny_df,
         mutate=mutate,
     )
@@ -195,7 +195,7 @@ def test_caterpillar_tree(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_index_asexual(
+    result_df = alifestd_mark_colless_index_generalized_asexual(
         phylogeny_df,
         mutate=mutate,
     )
@@ -221,14 +221,17 @@ def test_caterpillar_tree(mutate: bool):
 
 
 @pytest.mark.parametrize("mutate", [True, False])
-def test_polytomy_ignored(mutate: bool):
-    """Test that polytomies (>2 children) have local contribution 0.
+def test_polytomy_balanced(mutate: bool):
+    """Test a tree with balanced polytomy (more than 2 children).
 
           0
         / | \\
        1  2  3
 
-    For bifurcating Colless, nodes with != 2 children contribute 0.
+    For polytomy with k children having n1, n2, ..., nk leaves:
+    Colless contribution = sum of |ni - nj| for all pairs i < j
+
+    Here: |1-1| + |1-1| + |1-1| = 0
     """
     phylogeny_df = pd.DataFrame(
         {
@@ -237,7 +240,7 @@ def test_polytomy_ignored(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_index_asexual(
+    result_df = alifestd_mark_colless_index_generalized_asexual(
         phylogeny_df,
         mutate=mutate,
     )
@@ -248,7 +251,7 @@ def test_polytomy_ignored(mutate: bool):
     assert result_df.loc[2, "colless_index"] == 0
     assert result_df.loc[3, "colless_index"] == 0
 
-    # Root with 3 children -> local contribution = 0 (not bifurcating)
+    # Root with 3 balanced children -> 0
     assert result_df.loc[0, "colless_index"] == 0
 
     if not mutate:
@@ -256,8 +259,8 @@ def test_polytomy_ignored(mutate: bool):
 
 
 @pytest.mark.parametrize("mutate", [True, False])
-def test_polytomy_with_bifurcating_subtree(mutate: bool):
-    """Test tree with polytomy at root but bifurcating subtree.
+def test_polytomy_imbalanced(mutate: bool):
+    """Test a tree with imbalanced polytomy.
 
             0
           / | \\
@@ -265,9 +268,14 @@ def test_polytomy_with_bifurcating_subtree(mutate: bool):
               / \\
              4   5
 
-    Node 3 is bifurcating: |1-1| = 0
-    Node 0 has 3 children: local contribution = 0 (not bifurcating)
-    Total: 0
+    Structure:
+    - 1 is a leaf (1 leaf)
+    - 2 is a leaf (1 leaf)
+    - 3 has children 4, 5, so 3 has 2 leaves
+
+    Node 3: children 4, 5 both have 1 leaf -> |1-1| = 0
+    Node 0: children 1 (1 leaf), 2 (1 leaf), 3 (2 leaves)
+    Pairs for generalized Colless: |1-1| + |1-2| + |1-2| = 0 + 1 + 1 = 2
     """
     phylogeny_df = pd.DataFrame(
         {
@@ -276,24 +284,126 @@ def test_polytomy_with_bifurcating_subtree(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_index_asexual(
+    result_df = alifestd_mark_colless_index_generalized_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     result_df.index = result_df["id"]
 
-    # Leaves have Colless = 0
+    # Leaves: 1, 2, 4, 5 have Colless = 0
     assert result_df.loc[1, "colless_index"] == 0
     assert result_df.loc[2, "colless_index"] == 0
     assert result_df.loc[4, "colless_index"] == 0
     assert result_df.loc[5, "colless_index"] == 0
 
-    # Node 3: bifurcating with balanced children -> 0
+    # Node 3: children 4, 5 both have 1 leaf -> |1-1| = 0
     assert result_df.loc[3, "colless_index"] == 0
 
-    # Node 0: 3 children -> local = 0 (polytomy ignored)
-    # Subtree colless from children = 0
+    # Node 0: children 1 (1 leaf), 2 (1 leaf), 3 (2 leaves)
+    # Pairs: |1-1| + |1-2| + |1-2| = 0 + 1 + 1 = 2
+    assert result_df.loc[0, "colless_index"] == 2
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize("mutate", [True, False])
+def test_large_polytomy(mutate: bool):
+    """Test a tree with large polytomy (4 children).
+
+            0
+         / | | \\
+        1  2 3  4
+
+    All balanced with 1 leaf each.
+    Pairs: (1,2), (1,3), (1,4), (2,3), (2,4), (3,4) = 6 pairs
+    All differences are 0, so total = 0.
+    """
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4],
+            "ancestor_list": ["[None]", "[0]", "[0]", "[0]", "[0]"],
+        }
+    )
+    original_df = phylogeny_df.copy()
+    result_df = alifestd_mark_colless_index_generalized_asexual(
+        phylogeny_df,
+        mutate=mutate,
+    )
+    result_df.index = result_df["id"]
+
+    # All leaves have Colless = 0
+    assert result_df.loc[1, "colless_index"] == 0
+    assert result_df.loc[2, "colless_index"] == 0
+    assert result_df.loc[3, "colless_index"] == 0
+    assert result_df.loc[4, "colless_index"] == 0
+
+    # Root with 4 balanced children -> 0
     assert result_df.loc[0, "colless_index"] == 0
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize("mutate", [True, False])
+def test_large_polytomy_imbalanced(mutate: bool):
+    """Test a tree with large imbalanced polytomy.
+
+              0
+         / | | \\
+        1  2 3  4
+                |
+                5
+
+    Children of 0: 1 (1), 2 (1), 3 (1), 4 (1)
+    Pairs: all have 1 leaf, so 0.
+
+    Wait, 4 has child 5, so 4 has 1 leaf (just 5).
+    All children of 0 have 1 leaf each -> 0.
+
+    Let me make a more interesting case:
+    """
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6],
+            "ancestor_list": [
+                "[None]",
+                "[0]",
+                "[0]",
+                "[0]",
+                "[0]",
+                "[4]",
+                "[4]",
+            ],
+        }
+    )
+    original_df = phylogeny_df.copy()
+    result_df = alifestd_mark_colless_index_generalized_asexual(
+        phylogeny_df,
+        mutate=mutate,
+    )
+    result_df.index = result_df["id"]
+
+    # Structure:
+    #            0
+    #       / | | \
+    #      1  2 3  4
+    #             / \
+    #            5   6
+
+    # Leaves: 1, 2, 3, 5, 6 have Colless = 0
+    assert result_df.loc[1, "colless_index"] == 0
+    assert result_df.loc[2, "colless_index"] == 0
+    assert result_df.loc[3, "colless_index"] == 0
+    assert result_df.loc[5, "colless_index"] == 0
+    assert result_df.loc[6, "colless_index"] == 0
+
+    # Node 4: children 5, 6 both have 1 leaf -> |1-1| = 0
+    assert result_df.loc[4, "colless_index"] == 0
+
+    # Node 0: children 1 (1), 2 (1), 3 (1), 4 (2)
+    # Pairs: |1-1| + |1-1| + |1-2| + |1-1| + |1-2| + |1-2| = 0+0+1+0+1+1 = 3
+    assert result_df.loc[0, "colless_index"] == 3
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -309,7 +419,7 @@ def test_non_contiguous_ids(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_index_asexual(
+    result_df = alifestd_mark_colless_index_generalized_asexual(
         phylogeny_df,
         mutate=mutate,
     )
@@ -338,6 +448,47 @@ def test_non_contiguous_ids(mutate: bool):
 
 
 @pytest.mark.parametrize("mutate", [True, False])
+def test_non_contiguous_ids_polytomy(mutate: bool):
+    """Test polytomy with non-contiguous IDs to exercise slow path."""
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [10, 20, 30, 40, 50, 60],
+            "ancestor_list": [
+                "[None]",
+                "[10]",
+                "[10]",
+                "[10]",
+                "[40]",
+                "[40]",
+            ],
+        }
+    )
+    original_df = phylogeny_df.copy()
+    result_df = alifestd_mark_colless_index_generalized_asexual(
+        phylogeny_df,
+        mutate=mutate,
+    )
+    result_df.index = result_df["id"]
+
+    # Structure:
+    #        10
+    #      / | \
+    #    20 30 40
+    #          / \
+    #        50   60
+
+    # Node 40: children 50, 60 both have 1 leaf -> |1-1| = 0
+    assert result_df.loc[40, "colless_index"] == 0
+
+    # Node 10: children 20 (1), 30 (1), 40 (2)
+    # Pairs: |1-1| + |1-2| + |1-2| = 0 + 1 + 1 = 2
+    assert result_df.loc[10, "colless_index"] == 2
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize("mutate", [True, False])
 def test_multiple_roots(mutate: bool):
     """Test with multiple roots (forest)."""
     phylogeny_df = pd.DataFrame(
@@ -347,7 +498,7 @@ def test_multiple_roots(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_index_asexual(
+    result_df = alifestd_mark_colless_index_generalized_asexual(
         phylogeny_df,
         mutate=mutate,
     )
@@ -403,7 +554,7 @@ def test_larger_imbalanced_tree(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_index_asexual(
+    result_df = alifestd_mark_colless_index_generalized_asexual(
         phylogeny_df,
         mutate=mutate,
     )

@@ -8,20 +8,24 @@ from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
-def alifestd_mark_colless_index_asexual(
+def alifestd_mark_colless_index_generalized_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
 ) -> pd.DataFrame:
-    """Add column `colless_index` with Colless imbalance index for each subtree.
+    """Add column `colless_index` with generalized Colless index for each
+    subtree.
 
-    Computes the classic Colless index for strictly bifurcating trees. For each
-    internal node with exactly two children, the local contribution is |L - R|
-    where L and R are leaf counts in left and right subtrees. The value at each
-    node represents the total Colless index for the subtree rooted at that node.
+    Computes a generalized Colless imbalance index that supports polytomies.
+    For each internal node, it computes the sum of pairwise absolute differences
+    in leaf counts among all children. The value at each node represents the
+    total Colless index for the subtree rooted at that node.
 
-    Nodes with fewer or more than 2 children (unifurcations, polytomies) have
-    local contribution of 0. For trees with polytomies, consider using
-    `alifestd_mark_colless_index_generalized_asexual` instead.
+    For a node with k children having n_1, n_2, ..., n_k leaves respectively,
+    the local contribution is sum_{i<j} |n_i - n_j|.
+
+    For strictly bifurcating trees (k=2), this reduces to the classic Colless
+    index |L - R|. For trees known to be strictly bifurcating, consider using
+    `alifestd_mark_colless_index_asexual` for slightly better performance.
 
     Leaf nodes will have Colless index 0 (no imbalance in subtree of size 1).
     The root node contains the Colless index for the entire tree.
@@ -45,13 +49,13 @@ def alifestd_mark_colless_index_asexual(
     -------
     pd.DataFrame
         Phylogeny DataFrame with an additional column "colless_index"
-        containing the Colless imbalance index for the subtree rooted at each
-        node.
+        containing the generalized Colless imbalance index for the subtree
+        rooted at each node.
 
     See Also
     --------
-    alifestd_mark_colless_index_generalized_asexual :
-        Generalized Colless index that supports polytomies.
+    alifestd_mark_colless_index_asexual :
+        Classic Colless index for strictly bifurcating trees.
     """
 
     if not mutate:
@@ -87,20 +91,23 @@ def alifestd_mark_colless_index_asexual(
         num_leaves = phylogeny_df["num_leaves"].values
 
         # Collect children's leaf counts for each parent
-        # For bifurcating: only need first two children
         children_leaves = [[] for _ in range(n)]
         for idx in range(n):
             ancestor_id = ancestor_ids[idx]
             if ancestor_id != idx:  # Not a root
                 children_leaves[ancestor_id].append(num_leaves[idx])
 
-        # Compute local Colless for each node (|L - R| for bifurcating nodes)
+        # Compute local Colless for each node (sum of pairwise |n_i - n_j|)
         local_colless = np.zeros(n, dtype=np.int64)
         for idx in range(n):
             child_counts = children_leaves[idx]
-            if len(child_counts) == 2:
-                # Classic Colless: |left - right|
-                local_colless[idx] = abs(child_counts[0] - child_counts[1])
+            if len(child_counts) >= 2:
+                # Sum of all pairwise absolute differences
+                for i in range(len(child_counts)):
+                    for j in range(i + 1, len(child_counts)):
+                        local_colless[idx] += abs(
+                            child_counts[i] - child_counts[j]
+                        )
 
         # Accumulate subtree Colless (bottom-up)
         for idx_r in range(n):
@@ -127,10 +134,12 @@ def alifestd_mark_colless_index_asexual(
         local_colless = {}
         for node_id in ids:
             child_counts = children_leaves[node_id]
-            if len(child_counts) == 2:
-                local_colless[node_id] = abs(child_counts[0] - child_counts[1])
-            else:
-                local_colless[node_id] = 0
+            local_val = 0
+            if len(child_counts) >= 2:
+                for i in range(len(child_counts)):
+                    for j in range(i + 1, len(child_counts)):
+                        local_val += abs(child_counts[i] - child_counts[j])
+            local_colless[node_id] = local_val
 
         # Initialize colless_index with local values
         colless_dict = {node_id: local_colless[node_id] for node_id in ids}
