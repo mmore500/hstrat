@@ -32,7 +32,9 @@ def alifestd_mark_sackin_index_asexual_fast_path(
         if ancestor_id != idx:  # Not a root
             # Only accumulate if parent is bifurcating
             if num_children[ancestor_id] == 2:
-                sackin_index[ancestor_id] += sackin_index[idx] + num_leaves[idx]
+                sackin_index[ancestor_id] += (
+                    sackin_index[idx] + num_leaves[idx]
+                )
 
     return sackin_index
 
