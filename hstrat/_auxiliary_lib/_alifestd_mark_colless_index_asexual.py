@@ -4,6 +4,9 @@ import numpy as np
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
+from ._alifestd_is_strictly_bifurcating_asexual import (
+    alifestd_is_strictly_bifurcating_asexual,
+)
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
 from ._alifestd_topological_sort import alifestd_topological_sort
@@ -91,9 +94,8 @@ def alifestd_mark_colless_index_asexual(
     where L and R are leaf counts in left and right subtrees. The value at each
     node represents the total Colless index for the subtree rooted at that node.
 
-    Nodes with fewer or more than 2 children (unifurcations, polytomies) have
-    local contribution of 0. For trees with polytomies, consider using
-    `alifestd_mark_colless_index_generalized_asexual` instead.
+    Raises ValueError if the tree is not strictly bifurcating. For trees with
+    polytomies, use `alifestd_mark_colless_index_generalized_asexual` instead.
 
     Leaf nodes will have Colless index 0 (no imbalance in subtree of size 1).
     The root node contains the Colless index for the entire tree.
@@ -120,6 +122,11 @@ def alifestd_mark_colless_index_asexual(
         containing the Colless imbalance index for the subtree rooted at each
         node.
 
+    Raises
+    ------
+    ValueError
+        If phylogeny_df is not strictly bifurcating.
+
     See Also
     --------
     alifestd_mark_colless_index_generalized_asexual :
@@ -131,6 +138,13 @@ def alifestd_mark_colless_index_asexual(
     if len(phylogeny_df) == 0:
         phylogeny_df["colless_index"] = pd.Series(dtype=int)
         return phylogeny_df
+
+    if not alifestd_is_strictly_bifurcating_asexual(phylogeny_df):
+        raise ValueError(
+            "phylogeny_df must be strictly bifurcating; "
+            "consider using alifestd_mark_colless_index_generalized_asexual "
+            "for trees with polytomies"
+        )
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
 
