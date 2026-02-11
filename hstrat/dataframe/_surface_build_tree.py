@@ -14,6 +14,7 @@ def surface_build_tree(
     collapse_unif_freq: int = 1,
     exploded_slice_size: int = 1_000_000,
     mp_context: str = "spawn",
+    pa_source_type: str = "memory_map",
     delete_trunk: bool = True,
     trie_postprocessor: typing.Callable = NopTriePostprocessor(),
     # ^^^ NopTriePostprocessor is stateless, so is safe as default value
@@ -75,6 +76,10 @@ def surface_build_tree(
     mp_context : str, default 'spawn'
         Multiprocessing context to use for parallel processing.
 
+    pa_source_type : str, default 'memory_map'
+        PyArrow type to use for exploded chunks (i.e., "memory_map" or
+        "OSFile").
+
     delete_trunk : bool, default `True`
         Should trunk nodes with rank less than `dstream_S` be deleted?
 
@@ -131,6 +136,7 @@ def surface_build_tree(
         collapse_unif_freq=collapse_unif_freq,
         exploded_slice_size=exploded_slice_size,
         mp_context=mp_context,
+        pa_source_type=pa_source_type,
     )
 
     logging.info("surface_build_tree running surface_postprocess_trie...")

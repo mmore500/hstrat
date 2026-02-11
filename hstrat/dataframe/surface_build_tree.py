@@ -148,6 +148,16 @@ def _create_parser() -> argparse.ArgumentParser:
             "Must support Pandas dataframe input."
         ),
     )
+    parser.add_argument(
+        "--pa-source-type",
+        type=str,
+        default="memory_map",
+        help=(
+            "PyArrow type to use for exploded chunks "
+            """(i.e., "memory_map" or "OSFile")."""
+        ),
+    )
+
     return parser
 
 
@@ -172,6 +182,7 @@ def _main(mp_context: str) -> None:
                 delete_trunk=args.delete_trunk,
                 exploded_slice_size=args.exploded_slice_size,
                 mp_context=mp_context,
+                pa_source_type=args.pa_source_type,
                 trie_postprocessor=trie_postprocessor,
             ),
         )
