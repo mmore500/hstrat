@@ -158,6 +158,15 @@ def _create_parser() -> argparse.ArgumentParser:
         default=1_000_000,
         help="Number of rows to process at once. Low values reduce memory use.",
     )
+    parser.add_argument(
+        "--pa-source-type",
+        type=str,
+        default="memory_map",
+        help=(
+            "PyArrow type to use for exploded chunks "
+            """(i.e., "memory_map" or "OSFile")."""
+        ),
+    )
     return parser
 
 
@@ -175,6 +184,7 @@ def _main(mp_context: str) -> None:
                 collapse_unif_freq=args.collapse_unif_freq,
                 exploded_slice_size=args.exploded_slice_size,
                 mp_context=mp_context,
+                pa_source_type=args.pa_source_type,
             ),
         )
 

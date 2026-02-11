@@ -195,6 +195,7 @@ def _build_records_chunked(
     collapse_unif_freq: int,
     dstream_S: int,
     exploded_slice_size: int,
+    pa_source_type: str,
 ) -> Records:
     """Build tree searchtable from DataFrame, exploding in chunks to reduce
     memory usage."""
@@ -209,12 +210,31 @@ def _build_records_chunked(
         )
 
         logging.info(
-            f"opening slice ({i + 1} / {len(slices)}) from {inpath}...",
+            f"opening slice ({i + 1} / {len(slices)}) from {inpath} "
+            f" using {pa_source_type=}...",
         )
-        with pa.memory_map(inpath, "rb") as source:  # use pyarrow fast reader
-            pa_array = pa.ipc.open_file(source).read_all()
+        with getattr(pa, pa_source_type)(inpath, "rb") as source:
+            with log_context_duration(
+                "pa.ipc.open_file(source).read_all()",
+                logging.info,
+            ):
+                pa_array = pa.ipc.open_file(source).read_all()
+
+            np_array = {
+                "dstream_data_id": None,
+                "dstream_T": None,
+                "dstream_Tbar": None,
+                "dstream_value": None,
+            }
+            for col in np_array:
+                with log_context_duration(
+                    f"pa_array['{col}'].to_numpy()",
+                    logging.info,
+                ):
+                    np_array[col] = pa_array[col].to_numpy()
 
             logging.info(f"incorporating slice ({i + 1} / {len(slices)})...")
+
             with log_context_duration(
                 "extend_tree_searchtable_cpp_from_exploded "
                 f"({i + 1} / {len(slices)})",
@@ -223,10 +243,10 @@ def _build_records_chunked(
                 # dispatch to C++ tree-building implementation
                 extend_tree_searchtable_cpp_from_exploded(
                     records,
-                    pa_array["dstream_data_id"].to_numpy(),
-                    pa_array["dstream_T"].to_numpy(),
-                    pa_array["dstream_Tbar"].to_numpy(),
-                    pa_array["dstream_value"].to_numpy(),
+                    np_array["dstream_data_id"],
+                    np_array["dstream_T"],
+                    np_array["dstream_Tbar"],
+                    np_array["dstream_value"],
                     tqdm.tqdm,
                 )
 
@@ -328,6 +348,7 @@ def _surface_unpacked_reconstruct(
     differentia_bitwidth: int,
     dstream_S: int,
     exploded_slice_size: int,
+    pa_source_type: str,
 ) -> pl.DataFrame:
     """Reconstruct phylogenetic tree from unpacked dstream data."""
     logging.info("building tree searchtable chunkwise...")
@@ -336,6 +357,7 @@ def _surface_unpacked_reconstruct(
         collapse_unif_freq=collapse_unif_freq,
         dstream_S=dstream_S,
         exploded_slice_size=exploded_slice_size,
+        pa_source_type=pa_source_type,
     )
 
     with log_context_duration("_construct_result_dataframe", logging.info):
@@ -401,6 +423,7 @@ def surface_unpack_reconstruct(
     collapse_unif_freq: int = 1,
     exploded_slice_size: int = 1_000_000,
     mp_context: str = "spawn",
+    pa_source_type: str = "memory_map",
 ) -> pl.DataFrame:
     """Unpack dstream buffer and counter from genome data and construct an
     estimated phylogenetic tree for the genomes.
@@ -454,6 +477,10 @@ def surface_unpack_reconstruct(
 
     mp_context : str, default 'spawn'
         Multiprocessing context to use for parallel processing.
+
+    pa_source_type : str, default 'memory_map'
+        PyArrow type to use for exploded chunks (i.e., "memory_map" or
+        "OSFile").
 
     Returns
     -------
@@ -535,6 +562,7 @@ def surface_unpack_reconstruct(
             differentia_bitwidth=differentia_bitwidth,
             dstream_S=dstream_S,
             exploded_slice_size=exploded_slice_size,
+            pa_source_type=pa_source_type,
         )
 
     logging.info("joining user-defined columns...")
