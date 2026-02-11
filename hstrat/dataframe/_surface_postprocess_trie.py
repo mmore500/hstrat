@@ -29,11 +29,14 @@ from ._surface_postprocess_trie_via_pandas import (
 def _do_collapse_unifurcations(
     df: pl.DataFrame,
 ) -> pl.DataFrame:
+    logging.info("begin _do_collapse_unifurcations")
+    logging.info(f" - len(df): {df.select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
         df = alifestd_assign_contiguous_ids_polars(df)
 
     gc.collect()
 
+    logging.info(f" - len(df): {df.select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_collapse_unifurcations", logging.info):
         df = alifestd_collapse_unifurcations_polars(df)
 
@@ -47,6 +50,8 @@ def _do_collapse_unifurcations(
 def _do_delete_trunk(
     df: pl.DataFrame,
 ) -> pl.DataFrame:
+    logging.info("begin _do_delete_trunk")
+    logging.info(f" - len(df): {df.select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
         df = alifestd_assign_contiguous_ids_polars(df)
 
@@ -60,12 +65,15 @@ def _do_delete_trunk(
         origin_time=pl.col("hstrat_rank"),
     )
 
+    logging.info(f" - len(df): {df.select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
         df = alifestd_delete_trunk_asexual_polars(df)
 
+    logging.info(f" - len(df): {df.select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
         df = alifestd_assign_contiguous_ids_polars(df)
 
+    logging.info(f" - len(df): {df.select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_prefix_roots", logging.info):
         # extend newly-clipped roots all the way back to dstream_S boundary
         df = alifestd_prefix_roots_polars(
@@ -74,6 +82,7 @@ def _do_delete_trunk(
 
     gc.collect()
 
+    logging.info(f" - len(df): {df.select(pl.len()).collect().item()}")
     return df.drop(
         ["is_trunk", "ancestor_is_trunk", "origin_time"], strict=False
     )
@@ -82,6 +91,8 @@ def _do_delete_trunk(
 def _do_assign_contiguous_ids(
     df: pl.DataFrame,
 ) -> pl.DataFrame:
+    logging.info("begin _do_assign_contiguous_ids")
+    logging.info(f" - len(df): {df.select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
         df = alifestd_assign_contiguous_ids_polars(df)
 
@@ -240,6 +251,8 @@ def surface_postprocess_trie(
 
     df = _do_assign_contiguous_ids(df)
 
+    logging.info("applying trie postprocessor...")
+    logging.info(f" - len(df): {df.select(pl.len()).collect().item()}")
     with log_context_duration("trie_postprocessor", logging.info):
         pre_postprocessor_columns = {*df.columns}
         df = df.rename({"hstrat_rank": "rank"})
