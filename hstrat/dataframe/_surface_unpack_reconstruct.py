@@ -212,9 +212,27 @@ def _build_records_chunked(
             f"opening slice ({i + 1} / {len(slices)}) from {inpath}...",
         )
         with pa.memory_map(inpath, "rb") as source:  # use pyarrow fast reader
-            pa_array = pa.ipc.open_file(source).read_all()
+            with log_context_duration(
+                "pa.ipc.open_file(source).read_all()",
+                logging.info,
+            ):
+                pa_array = pa.ipc.open_file(source).read_all()
+
+            np_array = {
+                "dstream_data_id": None,
+                "dstream_T": None,
+                "dstream_Tbar": None,
+                "dstream_value": None,
+            }
+            for col in np_array:
+                with log_context_duration(
+                    f"pa_array['{col}'].to_numpy()",
+                    logging.info,
+                ):
+                    np_array[col] = pa_array[col].to_numpy()
 
             logging.info(f"incorporating slice ({i + 1} / {len(slices)})...")
+
             with log_context_duration(
                 "extend_tree_searchtable_cpp_from_exploded "
                 f"({i + 1} / {len(slices)})",
@@ -223,10 +241,10 @@ def _build_records_chunked(
                 # dispatch to C++ tree-building implementation
                 extend_tree_searchtable_cpp_from_exploded(
                     records,
-                    pa_array["dstream_data_id"].to_numpy(),
-                    pa_array["dstream_T"].to_numpy(),
-                    pa_array["dstream_Tbar"].to_numpy(),
-                    pa_array["dstream_value"].to_numpy(),
+                    np_array["dstream_data_id"],
+                    np_array["dstream_T"],
+                    np_array["dstream_Tbar"],
+                    np_array["dstream_value"],
                     tqdm.tqdm,
                 )
 
