@@ -38,7 +38,8 @@ def alifestd_try_add_ancestor_list_col_polars(
     --------
     alifestd_make_ancestor_list_col
     """
-    if "ancestor_id" in phylogeny_df and "ancestor_list" not in phylogeny_df:
+    schema_names = phylogeny_df.lazy().collect_schema().names()
+    if "ancestor_id" in schema_names and "ancestor_list" not in schema_names:
         logging.info("ancestor_id column present, adding ancestor_list column")
         return phylogeny_df.with_columns(
             alifestd_make_ancestor_list_col_polars(
@@ -47,7 +48,7 @@ def alifestd_try_add_ancestor_list_col_polars(
                 root_ancestor_token=root_ancestor_token,
             ).alias("ancestor_list")
         )
-    elif "ancestor_list" in phylogeny_df:
+    elif "ancestor_list" in schema_names:
         logging.info("ancestor_list column already present, skipping addition")
     else:
         logging.info(

@@ -8,7 +8,7 @@ def alifestd_try_add_ancestor_id_col(
     asexual and the column does not already exist.
     """
 
-    if "ancestor_id" in phylogeny_df.columns or (
+    if "ancestor_id" in phylogeny_df.lazy().collect_schema().names() or (
         phylogeny_df.select(
             pl.col("ancestor_list").str.contains(",").any(),
         )

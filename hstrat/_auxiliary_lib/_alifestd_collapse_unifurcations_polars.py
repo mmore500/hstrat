@@ -18,6 +18,7 @@ def alifestd_collapse_unifurcations_polars(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
+    phylogeny_df = phylogeny_df.lazy().collect()  # lazy not yet implemented
 
     if any(
         col in phylogeny_df
