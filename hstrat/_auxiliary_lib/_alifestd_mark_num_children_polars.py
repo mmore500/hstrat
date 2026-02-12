@@ -39,16 +39,18 @@ def alifestd_mark_num_children_polars(
         phylogeny_df = alifestd_mark_roots_polars(phylogeny_df)
 
     return (
-        phylogeny_df.with_row_index("_alifestd_idx")  # polars knows sorted
+        phylogeny_df.with_row_index(
+            "_alifestd_mark_num_children_idx"
+        )  # polars knows sorted
         .join(
             phylogeny_df.filter(~pl.col("is_root"))
             .group_by("ancestor_id")
             .len()
             .rename({"len": "num_children"}),
-            left_on="_alifestd_idx",
+            left_on="_alifestd_mark_num_children_idx",
             right_on="ancestor_id",
             how="left",
         )
         .fill_null(0)
-        .drop("_alifestd_idx")
+        .drop("_alifestd_mark_num_children_idx")
     )
