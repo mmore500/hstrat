@@ -521,7 +521,7 @@ __all__ = [
     "alifestd_try_add_ancestor_id_col",
     "alifestd_try_add_ancestor_id_col_polars",
     "alifestd_try_add_ancestor_list_col",
-    "alifestd_try_add_ancestor_list_col_poalrs",
+    "alifestd_try_add_ancestor_list_col_polars",
     "alifestd_unfurl_lineage_asexual",
     "alifestd_unfurl_traversal_inorder_asexual",
     "alifestd_unfurl_traversal_postorder_asexual",
