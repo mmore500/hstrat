@@ -36,7 +36,7 @@ def alifestd_prefix_roots_polars(
         raise NotImplementedError
     if not allow_id_reassign:
         raise NotImplementedError
-    if phylogeny_df.is_empty():
+    if phylogeny_df.lazy().limit(1).collect().is_empty():
         raise NotImplementedError
     has_contiguous_ids = phylogeny_df.select(
         pl.col("id").diff() == 1
