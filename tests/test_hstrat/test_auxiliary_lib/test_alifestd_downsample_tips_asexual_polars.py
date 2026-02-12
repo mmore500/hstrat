@@ -1,6 +1,5 @@
 import os
 
-import numpy as np
 import pandas as pd
 import polars as pl
 import pytest
@@ -8,12 +7,10 @@ import pytest
 from hstrat._auxiliary_lib import (
     alifestd_aggregate_phylogenies,
     alifestd_assign_contiguous_ids,
-    alifestd_count_leaf_nodes,
     alifestd_downsample_tips_asexual,
     alifestd_downsample_tips_asexual_polars,
     alifestd_topological_sort,
     alifestd_try_add_ancestor_id_col,
-    alifestd_validate,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")

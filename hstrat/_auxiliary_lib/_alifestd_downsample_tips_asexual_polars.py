@@ -12,9 +12,6 @@ from ._with_rng_state_context import with_rng_state_context
 
 def _find_leaf_ids_polars(phylogeny_df: pl.DataFrame) -> np.ndarray:
     """Find leaf ids using contiguous id assumption (id == row index)."""
-    ancestor_ids = phylogeny_df["ancestor_id"]
-    ids = phylogeny_df["id"]
-
     # internal nodes are those that appear as ancestor_id of some other node
     # (exclude root self-references: ancestor_id == id)
     internal_node_ids = (
