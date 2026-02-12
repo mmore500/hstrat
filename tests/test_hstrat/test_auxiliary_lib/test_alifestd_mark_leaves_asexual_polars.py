@@ -6,7 +6,6 @@ import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_assign_contiguous_ids,
-    alifestd_find_leaf_ids,
     alifestd_mark_leaves,
     alifestd_topological_sort,
     alifestd_try_add_ancestor_id_col,
