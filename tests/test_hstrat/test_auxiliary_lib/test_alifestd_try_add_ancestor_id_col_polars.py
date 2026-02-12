@@ -29,11 +29,10 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 )
 def test_alifestd_try_add_ancestor_id_col_polars_asexual(phylogeny_df):
     """Verify ancestor_id column is correctly added for asexual phylogenies."""
-    phylogeny_df_pl = pl.from_pandas(phylogeny_df).lazy()
+    df = pl.from_pandas(phylogeny_df).lazy()
 
-    result = alifestd_try_add_ancestor_id_col_polars(phylogeny_df_pl)
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
 
-    result_df = result.collect()
     assert "ancestor_id" in result_df.columns
     assert len(result_df) == len(phylogeny_df)
 
@@ -53,13 +52,10 @@ def test_alifestd_try_add_ancestor_id_col_polars_matches_pandas(
     phylogeny_df,
 ):
     """Verify polars result matches pandas result."""
-    phylogeny_df_pd = phylogeny_df.copy()
-    result_pd = alifestd_try_add_ancestor_id_col(phylogeny_df_pd)
+    result_pd = alifestd_try_add_ancestor_id_col(phylogeny_df.copy())
 
-    phylogeny_df_pl = pl.from_pandas(phylogeny_df).lazy()
-    result_pl = alifestd_try_add_ancestor_id_col_polars(
-        phylogeny_df_pl,
-    ).collect()
+    df = pl.from_pandas(phylogeny_df).lazy()
+    result_pl = alifestd_try_add_ancestor_id_col_polars(df).collect()
 
     assert "ancestor_id" in result_pd.columns
     assert "ancestor_id" in result_pl.columns
@@ -79,11 +75,10 @@ def test_alifestd_try_add_ancestor_id_col_polars_matches_pandas(
 )
 def test_alifestd_try_add_ancestor_id_col_polars_sexual(phylogeny_df):
     """Verify ancestor_id is NOT added for sexual phylogenies."""
-    phylogeny_df_pl = pl.from_pandas(phylogeny_df).lazy()
+    df = pl.from_pandas(phylogeny_df).lazy()
 
-    result = alifestd_try_add_ancestor_id_col_polars(phylogeny_df_pl)
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
 
-    result_df = result.collect()
     assert "ancestor_id" not in result_df.columns
 
 
@@ -97,9 +92,8 @@ def test_alifestd_try_add_ancestor_id_col_polars_already_has_ancestor_id():
         }
     ).lazy()
 
-    result = alifestd_try_add_ancestor_id_col_polars(df)
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
 
-    result_df = result.collect()
     assert result_df["ancestor_id"].to_list() == [0, 0, 1]
 
 
@@ -112,9 +106,8 @@ def test_alifestd_try_add_ancestor_id_col_polars_simple_chain():
         }
     ).lazy()
 
-    result = alifestd_try_add_ancestor_id_col_polars(df)
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
 
-    result_df = result.collect()
     assert "ancestor_id" in result_df.columns
     assert result_df["ancestor_id"].to_list() == [0, 0, 1]
 
@@ -136,9 +129,8 @@ def test_alifestd_try_add_ancestor_id_col_polars_simple_tree():
         }
     ).lazy()
 
-    result = alifestd_try_add_ancestor_id_col_polars(df)
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
 
-    result_df = result.collect()
     assert result_df["ancestor_id"].to_list() == [0, 0, 0, 1, 1]
 
 
@@ -151,11 +143,9 @@ def test_alifestd_try_add_ancestor_id_col_polars_single_node():
         }
     ).lazy()
 
-    result = alifestd_try_add_ancestor_id_col_polars(df)
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
 
-    result_df = result.collect()
     assert "ancestor_id" in result_df.columns
-    # Root node should have ancestor_id == id
     assert result_df["ancestor_id"].to_list() == [0]
 
 
@@ -168,9 +158,8 @@ def test_alifestd_try_add_ancestor_id_col_polars_two_roots():
         }
     ).lazy()
 
-    result = alifestd_try_add_ancestor_id_col_polars(df)
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
 
-    result_df = result.collect()
     assert "ancestor_id" in result_df.columns
     assert result_df["ancestor_id"].to_list() == [0, 1, 0, 1]
 
@@ -182,9 +171,8 @@ def test_alifestd_try_add_ancestor_id_col_polars_empty():
         schema={"id": pl.Int64, "ancestor_list": pl.String},
     ).lazy()
 
-    result = alifestd_try_add_ancestor_id_col_polars(df)
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
 
-    result_df = result.collect()
     assert "ancestor_id" in result_df.columns
     assert result_df.is_empty()
 
@@ -200,9 +188,8 @@ def test_alifestd_try_add_ancestor_id_col_polars_preserves_columns():
         }
     ).lazy()
 
-    result = alifestd_try_add_ancestor_id_col_polars(df)
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
 
-    result_df = result.collect()
     assert "ancestor_id" in result_df.columns
     assert "origin_time" in result_df.columns
     assert "taxon_label" in result_df.columns
