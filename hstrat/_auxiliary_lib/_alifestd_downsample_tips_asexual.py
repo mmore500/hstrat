@@ -94,6 +94,11 @@ Otherwise, no action is taken.
 - Use `--eager-read` if modifying data file inplace.
 
 - This CLI entrypoint is experimental and may be subject to change.
+
+See Also
+========
+hstrat._auxiliary_lib._alifestd_downsample_tips_polars :
+    Entrypoint for high-performance Polars-based implementation.
 """
 
 
@@ -125,38 +130,21 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    from ._alifestd_downsample_tips_asexual_polars import (
-        alifestd_downsample_tips_asexual_polars,
-    )
-
     configure_prod_logging()
 
     parser = _create_parser()
     args, __ = parser.parse_known_args()
-
-    _pandas_fallback = delegate_polars_implementation()(
-        functools.partial(
-            alifestd_downsample_tips_asexual,
-            n_downsample=args.n,
-            seed=args.seed,
-        ),
-    )
-
-    def _try_polars_op(df):
-        try:
-            return alifestd_downsample_tips_asexual_polars(
-                df, n_downsample=args.n, seed=args.seed
-            )
-        except NotImplementedError:
-            logging.info("- polars not supported, falling back to pandas")
-            return _pandas_fallback(df)
-
     with log_context_duration(
-        "hstrat._auxiliary_lib._alifestd_downsample_tips_asexual",
-        logging.info,
+        "hstrat._auxiliary_lib._alifestd_downsample_tips_asexual", logging.info
     ):
         _run_dataframe_cli(
             base_parser=parser,
-            output_dataframe_op=_try_polars_op,
+            output_dataframe_op=delegate_polars_implementation()(
+                functools.partial(
+                    alifestd_downsample_tips_asexual,
+                    n_downsample=args.n,
+                    seed=args.seed,
+                ),
+            ),
             overridden_arguments="ignore",  # seed is overridden
         )
