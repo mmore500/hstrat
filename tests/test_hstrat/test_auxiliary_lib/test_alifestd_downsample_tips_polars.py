@@ -24,26 +24,12 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 @pytest.fixture(
     params=[
-        pytest.param(False, id="DataFrame"),
-        pytest.param(True, id="LazyFrame"),
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ]
 )
-def lazy(request):
+def apply(request):
     return request.param
-
-
-def _apply_lazy(df: pl.DataFrame, lazy: bool):
-    """Return DataFrame or LazyFrame depending on fixture."""
-    if lazy:
-        return df.lazy()
-    return df
-
-
-def _collect(result):
-    """Collect LazyFrame to DataFrame for assertions."""
-    if isinstance(result, pl.LazyFrame):
-        return result.collect()
-    return result
 
 
 def _prepare_polars(phylogeny_df_pd: pd.DataFrame) -> pl.DataFrame:
@@ -91,25 +77,29 @@ def test_alifestd_downsample_tips_polars(
     phylogeny_df,
     n_downsample,
     seed,
-    lazy,
+    apply,
 ):
-    phylogeny_df_pl = _apply_lazy(_prepare_polars(phylogeny_df), lazy)
+    phylogeny_df_pl = apply(_prepare_polars(phylogeny_df))
 
-    original_len = len(_collect(phylogeny_df_pl))
-    original_num_tips = _count_leaf_nodes_polars(_collect(phylogeny_df_pl))
+    original_len = len(phylogeny_df_pl.lazy().collect())
+    original_num_tips = _count_leaf_nodes_polars(
+        phylogeny_df_pl.lazy().collect()
+    )
 
-    result_df = _collect(
+    result_df = (
         alifestd_downsample_tips_polars(
             phylogeny_df_pl,
             n_downsample,
             seed=seed,
         )
+        .lazy()
+        .collect()
     )
 
     assert len(result_df) <= original_len
     assert "extant" not in result_df.columns
     assert set(result_df["id"].to_list()).issubset(
-        set(_collect(phylogeny_df_pl)["id"].to_list())
+        set(phylogeny_df_pl.lazy().collect()["id"].to_list())
     )
     assert _count_leaf_nodes_polars(result_df) == min(
         original_num_tips, n_downsample
@@ -117,20 +107,21 @@ def test_alifestd_downsample_tips_polars(
 
 
 @pytest.mark.parametrize("n_downsample", [0, 1])
-def test_alifestd_downsample_tips_polars_empty(n_downsample, lazy):
-    phylogeny_df = _apply_lazy(
+def test_alifestd_downsample_tips_polars_empty(n_downsample, apply):
+    phylogeny_df = apply(
         pl.DataFrame(
             {"id": [], "ancestor_id": []},
             schema={"id": pl.Int64, "ancestor_id": pl.Int64},
         ),
-        lazy,
     )
 
-    result_df = _collect(
+    result_df = (
         alifestd_downsample_tips_polars(
             phylogeny_df,
             n_downsample,
         )
+        .lazy()
+        .collect()
     )
 
     assert result_df.is_empty()
@@ -156,14 +147,14 @@ def test_alifestd_downsample_tips_polars_matches_pandas(
     phylogeny_df,
     n_downsample,
     seed,
-    lazy,
+    apply,
 ):
     """Verify polars result has same structure as pandas result."""
     phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df.copy())
     phylogeny_df_pd = alifestd_topological_sort(phylogeny_df_pd)
     phylogeny_df_pd = alifestd_assign_contiguous_ids(phylogeny_df_pd)
 
-    phylogeny_df_pl = _apply_lazy(pl.from_pandas(phylogeny_df_pd), lazy)
+    phylogeny_df_pl = apply(pl.from_pandas(phylogeny_df_pd))
 
     alifestd_downsample_tips_asexual(
         phylogeny_df_pd,
@@ -171,12 +162,14 @@ def test_alifestd_downsample_tips_polars_matches_pandas(
         mutate=False,
         seed=seed,
     )
-    result_pl = _collect(
+    result_pl = (
         alifestd_downsample_tips_polars(
             phylogeny_df_pl,
             n_downsample,
             seed=seed,
         )
+        .lazy()
+        .collect()
     )
 
     assert _count_leaf_nodes_polars(result_pl) == min(
@@ -184,7 +177,7 @@ def test_alifestd_downsample_tips_polars_matches_pandas(
         _count_leaf_nodes_polars(pl.from_pandas(phylogeny_df_pd)),
     )
     assert set(result_pl["id"].to_list()).issubset(
-        set(_collect(phylogeny_df_pl)["id"].to_list())
+        set(phylogeny_df_pl.lazy().collect()["id"].to_list())
     )
 
 
@@ -200,38 +193,41 @@ def test_alifestd_downsample_tips_polars_matches_pandas(
 def test_alifestd_downsample_tips_polars_deterministic(
     phylogeny_df,
     seed,
-    lazy,
+    apply,
 ):
     """Verify same seed produces same result."""
-    phylogeny_df_pl = _apply_lazy(_prepare_polars(phylogeny_df), lazy)
+    phylogeny_df_pl = apply(_prepare_polars(phylogeny_df))
 
-    result1 = _collect(
+    result1 = (
         alifestd_downsample_tips_polars(
             phylogeny_df_pl,
             5,
             seed=seed,
         )
+        .lazy()
+        .collect()
     )
-    result2 = _collect(
+    result2 = (
         alifestd_downsample_tips_polars(
             phylogeny_df_pl,
             5,
             seed=seed,
         )
+        .lazy()
+        .collect()
     )
 
     assert result1["id"].to_list() == result2["id"].to_list()
 
 
-def test_alifestd_downsample_tips_polars_no_ancestor_id(lazy):
-    df = _apply_lazy(
+def test_alifestd_downsample_tips_polars_no_ancestor_id(apply):
+    df = apply(
         pl.DataFrame(
             {
                 "id": [0, 1, 2],
                 "ancestor_list": ["[none]", "[0]", "[1]"],
             }
         ),
-        lazy,
     )
     with pytest.raises(NotImplementedError):
         alifestd_downsample_tips_polars(df, 1)
@@ -250,13 +246,13 @@ def test_alifestd_downsample_tips_polars_does_not_mutate():
     original_len = len(df)
     original_cols = df.columns
 
-    _ = _collect(alifestd_downsample_tips_polars(df, 2, seed=1))
+    _ = alifestd_downsample_tips_polars(df, 2, seed=1).lazy().collect()
 
     assert len(df) == original_len
     assert df.columns == original_cols
 
 
-def test_alifestd_downsample_tips_polars_simple(lazy):
+def test_alifestd_downsample_tips_polars_simple(apply):
     """Test a simple hand-crafted tree.
 
     Tree structure:
@@ -268,7 +264,7 @@ def test_alifestd_downsample_tips_polars_simple(lazy):
 
     Downsample to 1 tip should keep exactly one leaf and its lineage.
     """
-    df = _apply_lazy(
+    df = apply(
         pl.DataFrame(
             {
                 "id": [0, 1, 2, 3, 4],
@@ -276,18 +272,17 @@ def test_alifestd_downsample_tips_polars_simple(lazy):
                 "destruction_time": [float("inf")] * 5,
             }
         ),
-        lazy,
     )
 
-    result = _collect(alifestd_downsample_tips_polars(df, 1, seed=1))
+    result = alifestd_downsample_tips_polars(df, 1, seed=1).lazy().collect()
 
     assert _count_leaf_nodes_polars(result) == 1
     assert 0 in result["id"].to_list()  # root must be present
 
 
-def test_alifestd_downsample_tips_polars_all_tips(lazy):
+def test_alifestd_downsample_tips_polars_all_tips(apply):
     """Requesting more tips than exist should return the full phylogeny."""
-    df = _apply_lazy(
+    df = apply(
         pl.DataFrame(
             {
                 "id": [0, 1, 2, 3, 4],
@@ -295,15 +290,16 @@ def test_alifestd_downsample_tips_polars_all_tips(lazy):
                 "destruction_time": [float("inf")] * 5,
             }
         ),
-        lazy,
     )
 
-    result = _collect(
+    result = (
         alifestd_downsample_tips_polars(
             df,
             100000,
             seed=1,
         )
+        .lazy()
+        .collect()
     )
 
     assert len(result) == 5

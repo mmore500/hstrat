@@ -23,26 +23,12 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 @pytest.fixture(
     params=[
-        pytest.param(False, id="DataFrame"),
-        pytest.param(True, id="LazyFrame"),
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ]
 )
-def lazy(request):
+def apply(request):
     return request.param
-
-
-def _apply_lazy(df: pl.DataFrame, lazy: bool):
-    """Return DataFrame or LazyFrame depending on fixture."""
-    if lazy:
-        return df.lazy()
-    return df
-
-
-def _collect(result):
-    """Collect LazyFrame to DataFrame for assertions."""
-    if isinstance(result, pl.LazyFrame):
-        return result.collect()
-    return result
 
 
 def _prepare_polars(phylogeny_df_pd: pd.DataFrame) -> pl.DataFrame:
@@ -64,12 +50,12 @@ def _prepare_polars(phylogeny_df_pd: pd.DataFrame) -> pl.DataFrame:
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_mark_roots_polars_fuzz(phylogeny_df, lazy):
+def test_alifestd_mark_roots_polars_fuzz(phylogeny_df, apply):
     """Verify is_root marks match known root ids."""
     df_prepared = _prepare_polars(phylogeny_df)
-    df_pl = _apply_lazy(df_prepared, lazy)
+    df_pl = apply(df_prepared)
 
-    result = _collect(alifestd_mark_roots_polars(df_pl))
+    result = alifestd_mark_roots_polars(df_pl).lazy().collect()
 
     assert "is_root" in result.columns
     assert len(result) == len(df_prepared)
@@ -98,7 +84,7 @@ def test_alifestd_mark_roots_polars_fuzz(phylogeny_df, lazy):
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_mark_roots_polars_matches_pandas(phylogeny_df, lazy):
+def test_alifestd_mark_roots_polars_matches_pandas(phylogeny_df, apply):
     """Verify polars result matches pandas result."""
     phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df.copy())
     phylogeny_df_pd = alifestd_topological_sort(phylogeny_df_pd)
@@ -106,8 +92,8 @@ def test_alifestd_mark_roots_polars_matches_pandas(phylogeny_df, lazy):
 
     result_pd = alifestd_mark_roots(phylogeny_df_pd, mutate=False)
 
-    df_pl = _apply_lazy(pl.from_pandas(phylogeny_df_pd), lazy)
-    result_pl = _collect(alifestd_mark_roots_polars(df_pl))
+    df_pl = apply(pl.from_pandas(phylogeny_df_pd))
+    result_pl = alifestd_mark_roots_polars(df_pl).lazy().collect()
 
     root_ids_pd = set(
         result_pd[result_pd["is_root"]]["id"],
@@ -118,24 +104,23 @@ def test_alifestd_mark_roots_polars_matches_pandas(phylogeny_df, lazy):
     assert root_ids_pd == root_ids_pl
 
 
-def test_alifestd_mark_roots_polars_simple(lazy):
+def test_alifestd_mark_roots_polars_simple(apply):
     """Test simple chain: only node 0 is root."""
-    df = _apply_lazy(
+    df = apply(
         pl.DataFrame(
             {
                 "id": [0, 1, 2],
                 "ancestor_id": [0, 0, 1],
             }
         ),
-        lazy,
     )
 
-    result = _collect(alifestd_mark_roots_polars(df))
+    result = alifestd_mark_roots_polars(df).lazy().collect()
 
     assert result["is_root"].to_list() == [True, False, False]
 
 
-def test_alifestd_mark_roots_polars_simple_tree(lazy):
+def test_alifestd_mark_roots_polars_simple_tree(apply):
     """Test a simple tree.
 
     Tree structure:
@@ -145,106 +130,100 @@ def test_alifestd_mark_roots_polars_simple_tree(lazy):
         |   +-- 4
         +-- 2
     """
-    df = _apply_lazy(
+    df = apply(
         pl.DataFrame(
             {
                 "id": [0, 1, 2, 3, 4],
                 "ancestor_id": [0, 0, 0, 1, 1],
             }
         ),
-        lazy,
     )
 
-    result = _collect(alifestd_mark_roots_polars(df))
+    result = alifestd_mark_roots_polars(df).lazy().collect()
 
     assert result["is_root"].to_list() == [True, False, False, False, False]
 
 
-def test_alifestd_mark_roots_polars_two_roots(lazy):
+def test_alifestd_mark_roots_polars_two_roots(apply):
     """Two independent root nodes."""
-    df = _apply_lazy(
+    df = apply(
         pl.DataFrame(
             {
                 "id": [0, 1, 2, 3],
                 "ancestor_id": [0, 1, 0, 1],
             }
         ),
-        lazy,
     )
 
-    result = _collect(alifestd_mark_roots_polars(df))
+    result = alifestd_mark_roots_polars(df).lazy().collect()
 
     assert result["is_root"].to_list() == [True, True, False, False]
 
 
-def test_alifestd_mark_roots_polars_all_roots(lazy):
+def test_alifestd_mark_roots_polars_all_roots(apply):
     """All self-referencing nodes are roots."""
-    df = _apply_lazy(
+    df = apply(
         pl.DataFrame(
             {
                 "id": [0, 1, 2],
                 "ancestor_id": [0, 1, 2],
             }
         ),
-        lazy,
     )
 
-    result = _collect(alifestd_mark_roots_polars(df))
+    result = alifestd_mark_roots_polars(df).lazy().collect()
 
     assert result["is_root"].to_list() == [True, True, True]
 
 
-def test_alifestd_mark_roots_polars_single_node(lazy):
+def test_alifestd_mark_roots_polars_single_node(apply):
     """A single root node."""
-    df = _apply_lazy(
+    df = apply(
         pl.DataFrame(
             {
                 "id": [0],
                 "ancestor_id": [0],
             }
         ),
-        lazy,
     )
 
-    result = _collect(alifestd_mark_roots_polars(df))
+    result = alifestd_mark_roots_polars(df).lazy().collect()
 
     assert result["is_root"].to_list() == [True]
 
 
-def test_alifestd_mark_roots_polars_empty(lazy):
+def test_alifestd_mark_roots_polars_empty(apply):
     """Empty dataframe gets is_root column."""
-    df = _apply_lazy(
+    df = apply(
         pl.DataFrame(
             {"id": [], "ancestor_id": []},
             schema={"id": pl.Int64, "ancestor_id": pl.Int64},
         ),
-        lazy,
     )
 
-    result = _collect(alifestd_mark_roots_polars(df))
+    result = alifestd_mark_roots_polars(df).lazy().collect()
 
     assert "is_root" in result.columns
     assert result.is_empty()
 
 
-def test_alifestd_mark_roots_polars_no_ancestor_id(lazy):
+def test_alifestd_mark_roots_polars_no_ancestor_id(apply):
     """Verify NotImplementedError for missing ancestor_id."""
-    df = _apply_lazy(
+    df = apply(
         pl.DataFrame(
             {
                 "id": [0, 1, 2],
                 "ancestor_list": ["[none]", "[0]", "[1]"],
             }
         ),
-        lazy,
     )
     with pytest.raises(NotImplementedError):
-        _collect(alifestd_mark_roots_polars(df))
+        alifestd_mark_roots_polars(df).lazy().collect()
 
 
-def test_alifestd_mark_roots_polars_preserves_columns(lazy):
+def test_alifestd_mark_roots_polars_preserves_columns(apply):
     """Verify original columns are preserved."""
-    df = _apply_lazy(
+    df = apply(
         pl.DataFrame(
             {
                 "id": [0, 1, 2],
@@ -253,10 +232,9 @@ def test_alifestd_mark_roots_polars_preserves_columns(lazy):
                 "taxon_label": ["a", "b", "c"],
             }
         ),
-        lazy,
     )
 
-    result = _collect(alifestd_mark_roots_polars(df))
+    result = alifestd_mark_roots_polars(df).lazy().collect()
 
     assert "is_root" in result.columns
     assert "origin_time" in result.columns
@@ -265,7 +243,7 @@ def test_alifestd_mark_roots_polars_preserves_columns(lazy):
     assert result["taxon_label"].to_list() == ["a", "b", "c"]
 
 
-def test_alifestd_mark_roots_polars_does_not_mutate(lazy):
+def test_alifestd_mark_roots_polars_does_not_mutate(apply):
     """Verify the input dataframe is not mutated."""
     df_eager = pl.DataFrame(
         {
@@ -273,12 +251,12 @@ def test_alifestd_mark_roots_polars_does_not_mutate(lazy):
             "ancestor_id": [0, 0, 1],
         }
     )
-    df = _apply_lazy(df_eager, lazy)
+    df = apply(df_eager)
 
     original_cols = df_eager.columns[:]
     original_len = len(df_eager)
 
-    _ = _collect(alifestd_mark_roots_polars(df))
+    _ = alifestd_mark_roots_polars(df).lazy().collect()
 
     assert len(df_eager) == original_len
     assert df_eager.columns == original_cols
