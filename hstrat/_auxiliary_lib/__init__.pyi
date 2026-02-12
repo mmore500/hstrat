@@ -242,6 +242,9 @@ from ._alifestd_test_leaves_isomorphic_asexual import (
 from ._alifestd_to_working_format import alifestd_to_working_format
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_try_add_ancestor_id_col_polars import (
+    alifestd_try_add_ancestor_id_col_polars,
+)
 from ._alifestd_try_add_ancestor_list_col import (
     alifestd_try_add_ancestor_list_col,
 )
@@ -506,6 +509,7 @@ __all__ = [
     "alifestd_to_working_format",
     "alifestd_topological_sort",
     "alifestd_try_add_ancestor_id_col",
+    "alifestd_try_add_ancestor_id_col_polars",
     "alifestd_try_add_ancestor_list_col",
     "alifestd_try_add_ancestor_list_col_poalrs",
     "alifestd_unfurl_lineage_asexual",
