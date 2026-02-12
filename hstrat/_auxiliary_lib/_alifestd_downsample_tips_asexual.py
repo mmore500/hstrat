@@ -133,24 +133,30 @@ if __name__ == "__main__":
 
     parser = _create_parser()
     args, __ = parser.parse_known_args()
+
+    _pandas_fallback = delegate_polars_implementation()(
+        functools.partial(
+            alifestd_downsample_tips_asexual,
+            n_downsample=args.n,
+            seed=args.seed,
+        ),
+    )
+
+    def _try_polars_op(df):
+        try:
+            return alifestd_downsample_tips_asexual_polars(
+                df, n_downsample=args.n, seed=args.seed
+            )
+        except NotImplementedError:
+            logging.info("- polars not supported, falling back to pandas")
+            return _pandas_fallback(df)
+
     with log_context_duration(
         "hstrat._auxiliary_lib._alifestd_downsample_tips_asexual",
         logging.info,
     ):
         _run_dataframe_cli(
             base_parser=parser,
-            output_dataframe_op=delegate_polars_implementation(
-                functools.partial(
-                    alifestd_downsample_tips_asexual_polars,
-                    n_downsample=args.n,
-                    seed=args.seed,
-                ),
-            )(
-                functools.partial(
-                    alifestd_downsample_tips_asexual,
-                    n_downsample=args.n,
-                    seed=args.seed,
-                ),
-            ),
+            output_dataframe_op=_try_polars_op,
             overridden_arguments="ignore",  # seed is overridden
         )

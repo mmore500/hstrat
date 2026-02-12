@@ -73,6 +73,17 @@ def _create_parser() -> argparse.ArgumentParser:
 if __name__ == "__main__":
     configure_prod_logging()
 
+    _pandas_fallback = delegate_polars_implementation()(
+        alifestd_mark_leaves,
+    )
+
+    def _try_polars_op(df):
+        try:
+            return alifestd_mark_leaves_asexual_polars(df)
+        except NotImplementedError:
+            logging.info("- polars not supported, falling back to pandas")
+            return _pandas_fallback(df)
+
     parser = _create_parser()
     args, __ = parser.parse_known_args()
     with log_context_duration(
@@ -80,9 +91,5 @@ if __name__ == "__main__":
     ):
         _run_dataframe_cli(
             base_parser=parser,
-            output_dataframe_op=delegate_polars_implementation(
-                alifestd_mark_leaves_asexual_polars,
-            )(
-                alifestd_mark_leaves,
-            ),
+            output_dataframe_op=_try_polars_op,
         )
