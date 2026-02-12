@@ -188,6 +188,9 @@ from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
 from ._alifestd_mark_num_children_asexual import (
     alifestd_mark_num_children_asexual,
 )
+from ._alifestd_mark_num_children_polars import (
+    alifestd_mark_num_children_polars,
+)
 from ._alifestd_mark_num_descendants_asexual import (
     alifestd_mark_num_descendants_asexual,
 )
@@ -487,6 +490,7 @@ __all__ = [
     "alifestd_mark_max_descendant_origin_time_asexual",
     "alifestd_mark_node_depth_asexual",
     "alifestd_mark_num_children_asexual",
+    "alifestd_mark_num_children_polars",
     "alifestd_mark_num_descendants_asexual",
     "alifestd_mark_num_leaves_asexual",
     "alifestd_mark_num_leaves_sibling_asexual",
