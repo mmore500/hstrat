@@ -117,10 +117,10 @@ def test_alifestd_try_add_ancestor_id_col_polars_simple_tree():
 
     Tree structure:
         0 (root)
-        ├── 1
-        │   ├── 3
-        │   └── 4
-        └── 2
+        +-- 1
+        |   +-- 3
+        |   +-- 4
+        +-- 2
     """
     df = pl.DataFrame(
         {

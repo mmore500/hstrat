@@ -32,15 +32,13 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 def test_alifestd_try_add_ancestor_list_col_polars_adds_col(phylogeny_df):
     """Verify ancestor_list is added when ancestor_id is present."""
     phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df.copy())
-    phylogeny_df_pl = pl.from_pandas(
-        phylogeny_df_pd[["id", "ancestor_id"]],
-    )
+    df = pl.from_pandas(phylogeny_df_pd[["id", "ancestor_id"]])
 
-    assert "ancestor_list" not in phylogeny_df_pl.columns
-    result = alifestd_try_add_ancestor_list_col_polars(phylogeny_df_pl)
+    assert "ancestor_list" not in df.columns
+    result = alifestd_try_add_ancestor_list_col_polars(df)
 
     assert "ancestor_list" in result.columns
-    assert len(result) == len(phylogeny_df_pl)
+    assert len(result) == len(df)
 
 
 @pytest.mark.parametrize(
@@ -57,11 +55,9 @@ def test_alifestd_try_add_ancestor_list_col_polars_adds_col(phylogeny_df):
 def test_alifestd_try_add_ancestor_list_col_polars_correctness(phylogeny_df):
     """Verify generated ancestor_list matches expected values."""
     phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df.copy())
-    phylogeny_df_pl = pl.from_pandas(
-        phylogeny_df_pd[["id", "ancestor_id"]],
-    )
+    df = pl.from_pandas(phylogeny_df_pd[["id", "ancestor_id"]])
 
-    result = alifestd_try_add_ancestor_list_col_polars(phylogeny_df_pl)
+    result = alifestd_try_add_ancestor_list_col_polars(df)
 
     expected = alifestd_make_ancestor_list_col_polars(
         result["id"],
@@ -166,10 +162,10 @@ def test_alifestd_try_add_ancestor_list_col_polars_simple_tree():
 
     Tree structure:
         0 (root)
-        ├── 1
-        │   ├── 3
-        │   └── 4
-        └── 2
+        +-- 1
+        |   +-- 3
+        |   +-- 4
+        +-- 2
     """
     df = pl.DataFrame(
         {
