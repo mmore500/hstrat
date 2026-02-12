@@ -10,7 +10,7 @@ from hstrat._auxiliary_lib import (
     alifestd_assign_contiguous_ids,
     alifestd_find_leaf_ids,
     alifestd_prune_extinct_lineages_asexual,
-    alifestd_prune_extinct_lineages_asexual_polars,
+    alifestd_prune_extinct_lineages_polars,
     alifestd_topological_sort,
     alifestd_try_add_ancestor_id_col,
 )
@@ -43,12 +43,12 @@ def _prepare_polars(phylogeny_df_pd: pd.DataFrame) -> pl.DataFrame:
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_prune_extinct_lineages_asexual_polars_destruction_time_nop(
+def test_alifestd_prune_extinct_lineages_polars_destruction_time_nop(
     phylogeny_df,
 ):
     phylogeny_df_pl = _prepare_polars(phylogeny_df)
 
-    pruned_df = alifestd_prune_extinct_lineages_asexual_polars(phylogeny_df_pl)
+    pruned_df = alifestd_prune_extinct_lineages_polars(phylogeny_df_pl)
 
     assert len(phylogeny_df_pl) == len(pruned_df)
 
@@ -67,7 +67,7 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_destruction_time_nop(
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_prune_extinct_lineages_asexual_polars_extant(phylogeny_df):
+def test_alifestd_prune_extinct_lineages_polars_extant(phylogeny_df):
     phylogeny_df_pl = _prepare_polars(phylogeny_df)
 
     np.random.seed(1)
@@ -76,7 +76,7 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_extant(phylogeny_df):
         extant=pl.Series(extant_mask),
     )
 
-    pruned_df = alifestd_prune_extinct_lineages_asexual_polars(phylogeny_df_pl)
+    pruned_df = alifestd_prune_extinct_lineages_polars(phylogeny_df_pl)
     assert len(pruned_df) < len(phylogeny_df_pl)
 
     # all extant organisms must be in result
@@ -99,7 +99,7 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_extant(phylogeny_df):
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_prune_extinct_lineages_asexual_polars_matches_pandas(
+def test_alifestd_prune_extinct_lineages_polars_matches_pandas(
     phylogeny_df,
 ):
     """Verify polars result matches pandas result for same prepared input."""
@@ -118,7 +118,7 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_matches_pandas(
     pruned_pd = alifestd_prune_extinct_lineages_asexual(
         phylogeny_df_pd, mutate=False
     )
-    pruned_pl = alifestd_prune_extinct_lineages_asexual_polars(phylogeny_df_pl)
+    pruned_pl = alifestd_prune_extinct_lineages_polars(phylogeny_df_pl)
 
     # Compare the ids that are retained
     assert set(pruned_pd["id"]) == set(pruned_pl["id"].to_list())
@@ -139,7 +139,7 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_matches_pandas(
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_prune_extinct_lineages_asexual_polars_independent_trees(
+def test_alifestd_prune_extinct_lineages_polars_independent_trees(
     phylogeny_df,
 ):
     phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df.copy())
@@ -158,7 +158,7 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_independent_trees(
 
     aggregated_pl = pl.from_pandas(aggregated)
 
-    pruned_df = alifestd_prune_extinct_lineages_asexual_polars(aggregated_pl)
+    pruned_df = alifestd_prune_extinct_lineages_polars(aggregated_pl)
     assert len(pruned_df) == len(phylogeny_df)
 
 
@@ -170,17 +170,17 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_independent_trees(
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_prune_extinct_lineages_asexual_polars_ambiguous_extant(
+def test_alifestd_prune_extinct_lineages_polars_ambiguous_extant(
     phylogeny_df,
 ):
     phylogeny_df_pl = _prepare_polars(phylogeny_df)
     phylogeny_df_pl = phylogeny_df_pl.drop("destruction_time")
 
     with pytest.raises(ValueError):
-        alifestd_prune_extinct_lineages_asexual_polars(phylogeny_df_pl)
+        alifestd_prune_extinct_lineages_polars(phylogeny_df_pl)
 
 
-def test_alifestd_prune_extinct_lineages_asexual_polars_no_ancestor_id():
+def test_alifestd_prune_extinct_lineages_polars_no_ancestor_id():
     df = pl.DataFrame(
         {
             "id": [0, 1, 2],
@@ -189,10 +189,10 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_no_ancestor_id():
         }
     )
     with pytest.raises(NotImplementedError):
-        alifestd_prune_extinct_lineages_asexual_polars(df)
+        alifestd_prune_extinct_lineages_polars(df)
 
 
-def test_alifestd_prune_extinct_lineages_asexual_polars_noncontiguous():
+def test_alifestd_prune_extinct_lineages_polars_noncontiguous():
     df = pl.DataFrame(
         {
             "id": [0, 2, 5],
@@ -201,10 +201,10 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_noncontiguous():
         }
     )
     with pytest.raises(NotImplementedError):
-        alifestd_prune_extinct_lineages_asexual_polars(df)
+        alifestd_prune_extinct_lineages_polars(df)
 
 
-def test_alifestd_prune_extinct_lineages_asexual_polars_not_sorted():
+def test_alifestd_prune_extinct_lineages_polars_not_sorted():
     df = pl.DataFrame(
         {
             "id": [0, 1, 2],
@@ -213,10 +213,10 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_not_sorted():
         }
     )
     with pytest.raises(NotImplementedError):
-        alifestd_prune_extinct_lineages_asexual_polars(df)
+        alifestd_prune_extinct_lineages_polars(df)
 
 
-def test_alifestd_prune_extinct_lineages_asexual_polars_simple():
+def test_alifestd_prune_extinct_lineages_polars_simple():
     """Test a simple hand-crafted tree.
 
     Tree structure:
@@ -237,13 +237,13 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_simple():
         }
     )
 
-    pruned = alifestd_prune_extinct_lineages_asexual_polars(df)
+    pruned = alifestd_prune_extinct_lineages_polars(df)
 
     assert set(pruned["id"].to_list()) == {0, 1, 3}
     assert len(pruned) == 3
 
 
-def test_alifestd_prune_extinct_lineages_asexual_polars_all_extant():
+def test_alifestd_prune_extinct_lineages_polars_all_extant():
     """When all nodes are extant, nothing should be pruned."""
     df = pl.DataFrame(
         {
@@ -253,12 +253,12 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_all_extant():
         }
     )
 
-    pruned = alifestd_prune_extinct_lineages_asexual_polars(df)
+    pruned = alifestd_prune_extinct_lineages_polars(df)
 
     assert len(pruned) == 4
 
 
-def test_alifestd_prune_extinct_lineages_asexual_polars_none_extant():
+def test_alifestd_prune_extinct_lineages_polars_none_extant():
     """When no nodes are extant, everything should be pruned."""
     df = pl.DataFrame(
         {
@@ -268,12 +268,12 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_none_extant():
         }
     )
 
-    pruned = alifestd_prune_extinct_lineages_asexual_polars(df)
+    pruned = alifestd_prune_extinct_lineages_polars(df)
 
     assert len(pruned) == 0
 
 
-def test_alifestd_prune_extinct_lineages_asexual_polars_does_not_mutate():
+def test_alifestd_prune_extinct_lineages_polars_does_not_mutate():
     """Verify the input dataframe is not mutated."""
     df = pl.DataFrame(
         {
@@ -286,7 +286,7 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_does_not_mutate():
     original_len = len(df)
     original_cols = df.columns
 
-    _ = alifestd_prune_extinct_lineages_asexual_polars(df)
+    _ = alifestd_prune_extinct_lineages_polars(df)
 
     assert len(df) == original_len
     assert df.columns == original_cols

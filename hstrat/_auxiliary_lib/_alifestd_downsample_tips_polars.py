@@ -7,23 +7,22 @@ import typing
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
-import numpy as np
 import polars as pl
 
 from ._alifestd_mark_leaves_polars import alifestd_mark_leaves_polars
-from ._alifestd_prune_extinct_lineages_asexual_polars import (
-    alifestd_prune_extinct_lineages_asexual_polars,
+from ._alifestd_prune_extinct_lineages_polars import (
+    alifestd_prune_extinct_lineages_polars,
 )
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
-from ._with_rng_state_context import with_rng_state_context
 
 
 def _alifestd_downsample_tips_polars_impl(
     phylogeny_df: pl.DataFrame,
     n_downsample: int,
+    seed: int,
 ) -> pl.DataFrame:
     """Implementation detail for alifestd_downsample_tips_polars."""
 
@@ -35,12 +34,14 @@ def _alifestd_downsample_tips_polars_impl(
     logging.info(
         "- alifestd_downsample_tips_polars: sampling tips...",
     )
-    shuffle_seed = int(np.random.randint(0, 2**31 - 1))
+    n_downsample = min(
+        marked_df.lazy().select(pl.col("is_leaf").sum()).collect().item(),
+        n_downsample,
+    )
     kept_leaf_ids = (
         marked_df.lazy()
         .filter(pl.col("is_leaf"))
-        .select(pl.col("id").shuffle(seed=shuffle_seed))
-        .head(n_downsample)
+        .select(pl.col("id").sample(n=n_downsample, seed=seed))
     )
 
     phylogeny_df = (
@@ -57,9 +58,7 @@ def _alifestd_downsample_tips_polars_impl(
     logging.info(
         "- alifestd_downsample_tips_polars: pruning...",
     )
-    return alifestd_prune_extinct_lineages_asexual_polars(
-        phylogeny_df,
-    ).drop("extant")
+    return alifestd_prune_extinct_lineages_polars(phylogeny_df).drop("extant")
 
 
 def alifestd_downsample_tips_polars(
@@ -89,10 +88,6 @@ def alifestd_downsample_tips_polars(
     ------
     NotImplementedError
         If `phylogeny_df` has no "ancestor_id" column.
-    NotImplementedError
-        If `phylogeny_df` has non-contiguous ids.
-    NotImplementedError
-        If `phylogeny_df` is not topologically sorted.
 
     Returns
     -------
@@ -104,18 +99,16 @@ def alifestd_downsample_tips_polars(
     alifestd_downsample_tips_asexual :
         Pandas-based implementation.
     """
-    if isinstance(phylogeny_df, pl.LazyFrame):
-        phylogeny_df = phylogeny_df.collect()
-
-    if "ancestor_id" not in phylogeny_df.columns:
+    if "ancestor_id" not in phylogeny_df.lazy().collect_schema().names():
         raise NotImplementedError("ancestor_id column required")
 
-    if phylogeny_df.is_empty():
+    if phylogeny_df.lazy().limit(1).collect().is_empty():
         return phylogeny_df
 
-    wrapper = with_rng_state_context(seed) if seed is not None else lambda x: x
-    return wrapper(_alifestd_downsample_tips_polars_impl)(
-        phylogeny_df, n_downsample
+    return _alifestd_downsample_tips_polars_impl(
+        phylogeny_df,
+        n_downsample,
+        seed=seed,
     )
 
 

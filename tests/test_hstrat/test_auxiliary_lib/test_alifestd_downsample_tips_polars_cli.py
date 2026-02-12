@@ -29,9 +29,7 @@ def test_alifestd_downsample_tips_polars_cli_version():
 
 
 def test_alifestd_downsample_tips_polars_cli_csv(tmp_path):
-    output_file = str(
-        tmp_path / "hstrat_alifestd_downsample_tips_polars.csv"
-    )
+    output_file = str(tmp_path / "hstrat_alifestd_downsample_tips_polars.csv")
     subprocess.run(  # nosec B603
         [
             "python3",
@@ -39,6 +37,7 @@ def test_alifestd_downsample_tips_polars_cli_csv(tmp_path):
             "hstrat._auxiliary_lib._alifestd_downsample_tips_polars",
             "-n",
             "4",
+            "--eager-write",
             output_file,
         ],
         check=True,
@@ -48,9 +47,7 @@ def test_alifestd_downsample_tips_polars_cli_csv(tmp_path):
 
 
 def test_alifestd_downsample_tips_polars_cli_empty(tmp_path):
-    output_file = str(
-        tmp_path / "hstrat_alifestd_downsample_tips_polars.csv"
-    )
+    output_file = str(tmp_path / "hstrat_alifestd_downsample_tips_polars.csv")
     subprocess.run(  # nosec B603
         [
             "python3",

@@ -7,6 +7,12 @@ from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
 import polars as pl
 
+from ._alifestd_has_contiguous_ids_polars import (
+    alifestd_has_contiguous_ids_polars,
+)
+from ._alifestd_is_topologically_sorted_polars import (
+    alifestd_is_topologically_sorted_polars,
+)
 from ._alifestd_prune_extinct_lineages_asexual import (
     _create_has_extant_descendant_contiguous_sorted,
 )
@@ -16,7 +22,7 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
-def alifestd_prune_extinct_lineages_asexual_polars(
+def alifestd_prune_extinct_lineages_polars(
     phylogeny_df: pl.DataFrame,
 ) -> pl.DataFrame:
     """Drop taxa without extant descendants.
@@ -47,71 +53,80 @@ def alifestd_prune_extinct_lineages_asexual_polars(
     polars.DataFrame
         The pruned phylogeny in alife standard format.
     """
-    if isinstance(phylogeny_df, pl.LazyFrame):
-        phylogeny_df = phylogeny_df.collect()
+    schema_names = phylogeny_df.lazy().collect_schema().names()
+    if "ancestor_id" not in schema_names:
+        raise NotImplementedError("ancestor_id column required")
 
-    if "ancestor_id" not in phylogeny_df.columns:
-        raise NotImplementedError(
-            "ancestor_id column required; ancestor_list not supported"
-        )
-
-    if phylogeny_df.is_empty():
+    if phylogeny_df.lazy().limit(1).collect().is_empty():
         return phylogeny_df
 
     logging.info(
-        "- alifestd_prune_extinct_lineages_asexual_polars: "
+        "- alifestd_prune_extinct_lineages_polars: "
         "checking contiguous ids...",
     )
-    has_contiguous_ids = phylogeny_df.select(
-        pl.col("id").diff() == 1
-    ).to_series().all() and (phylogeny_df["id"].first() == 0)
-    if not has_contiguous_ids:
+    if not alifestd_has_contiguous_ids_polars(phylogeny_df):
         raise NotImplementedError("non-contiguous ids not yet supported")
 
     logging.info(
-        "- alifestd_prune_extinct_lineages_asexual_polars: "
+        "- alifestd_prune_extinct_lineages_polars: "
         "checking topological sort...",
     )
-    if (
-        not phylogeny_df.select(pl.col("ancestor_id") <= pl.col("id"))
-        .to_series()
-        .all()
-    ):
+    if not alifestd_is_topologically_sorted_polars(phylogeny_df):
         raise NotImplementedError(
             "polars topological sort not yet implemented"
         )
 
     logging.info(
-        "- alifestd_prune_extinct_lineages_asexual_polars: "
+        "- alifestd_prune_extinct_lineages_polars: "
         "determining extant mask...",
     )
     if "extant" in phylogeny_df.columns:
-        extant_mask = phylogeny_df["extant"].to_numpy().astype(bool)
+        extant_mask = phylogeny_df.lazy().select("extant")
     elif "destruction_time" in phylogeny_df.columns:
-        destruction_time = phylogeny_df["destruction_time"]
-        extant_mask = (
-            destruction_time.is_nan() | destruction_time.is_infinite()
-        ).to_numpy()
+        extant_mask = phylogeny_df.lazy().select(
+            ~pl.col("destruction_time").is_finite()
+        )
     else:
         raise ValueError('Need "extant" or "destruction_time" column.')
 
     logging.info(
-        "- alifestd_prune_extinct_lineages_asexual_polars: "
-        "calculating has_extant_descendant...",
+        "- alifestd_prune_extinct_lineages_polars: "
+        "collecting extant mask...",
     )
-    # must copy to remove read-only flag for numba compatibility
+    extant_mask = extant_mask.cast(pl.Boolean).collect().to_series().to_numpy()
+
+    logging.info(
+        "- alifestd_prune_extinct_lineages_polars: "
+        "collecting ancestor_ids...",
+    )
     ancestor_ids = (
-        phylogeny_df["ancestor_id"].to_numpy().astype(np.uint64).copy()
-    )
-    has_extant_descendant = _create_has_extant_descendant_contiguous_sorted(
-        ancestor_ids,
-        extant_mask.copy(),
+        phylogeny_df.lazy()
+        .select("ancestor_id")
+        .cast(pl.UInt64)
+        .collect()
+        .to_series()
+        .to_numpy()
     )
 
     logging.info(
-        "- alifestd_prune_extinct_lineages_asexual_polars: filtering...",
+        "- alifestd_prune_extinct_lineages_polars: "
+        "calculating has_extant_descendant...",
     )
-    return phylogeny_df.filter(pl.Series(has_extant_descendant))
+    has_extant_descendant = _create_has_extant_descendant_contiguous_sorted(
+        ancestor_ids.copy(),  # must copy to remove read-only flag...
+        extant_mask.copy(),  # ... for numba compatibility
+    )
+
+    logging.info(
+        "- alifestd_prune_extinct_lineages_polars: filtering...",
+    )
+    return (
+        phylogeny_df.with_columns(
+            alifestd_has_extant_descendant=has_extant_descendant
+        )
+        .filter(pl.col("alifestd_has_extant_descendant"))
+        .drop("alifestd_has_extant_descendant")
+    )
 
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
@@ -150,7 +165,7 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     parser = _add_parser_base(
         parser=parser,
-        dfcli_module="hstrat._auxiliary_lib._alifestd_prune_extinct_lineages_asexual_polars",
+        dfcli_module="hstrat._auxiliary_lib._alifestd_prune_extinct_lineages_polars",
         dfcli_version=get_hstrat_version(),
     )
     return parser
@@ -164,12 +179,12 @@ if __name__ == "__main__":
 
     try:
         with log_context_duration(
-            "hstrat._auxiliary_lib._alifestd_prune_extinct_lineages_asexual_polars",
+            "hstrat._auxiliary_lib._alifestd_prune_extinct_lineages_polars",
             logging.info,
         ):
             _run_dataframe_cli(
                 base_parser=parser,
-                output_dataframe_op=alifestd_prune_extinct_lineages_asexual_polars,
+                output_dataframe_op=alifestd_prune_extinct_lineages_polars,
             )
     except NotImplementedError as e:
         logging.error(
