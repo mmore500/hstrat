@@ -25,28 +25,37 @@ def _alifestd_downsample_tips_polars_impl(
     phylogeny_df: pl.DataFrame,
     n_downsample: int,
 ) -> pl.DataFrame:
-    """Implementation detail for alifestd_downsample_tips_asexual_polars."""
+    """Implementation detail for alifestd_downsample_tips_polars."""
 
     logging.info(
-        "- alifestd_downsample_tips_asexual_polars: finding leaf ids...",
+        "- alifestd_downsample_tips_polars: finding leaf ids...",
     )
     marked_df = alifestd_mark_leaves_polars(phylogeny_df)
-    tips = np.flatnonzero(marked_df["is_leaf"].to_numpy())
 
     logging.info(
-        "- alifestd_downsample_tips_asexual_polars: sampling tips...",
+        "- alifestd_downsample_tips_polars: sampling tips...",
     )
-    kept = np.random.choice(tips, min(n_downsample, len(tips)), replace=False)
+    shuffle_seed = int(np.random.randint(0, 2**31 - 1))
+    kept_leaf_ids = (
+        marked_df.lazy()
+        .filter(pl.col("is_leaf"))
+        .select(pl.col("id").shuffle(seed=shuffle_seed))
+        .head(n_downsample)
+    )
 
-    extant = np.zeros(len(phylogeny_df), dtype=bool)
-    extant[kept] = True
-
-    phylogeny_df = phylogeny_df.with_columns(
-        extant=pl.Series(extant),
+    phylogeny_df = (
+        phylogeny_df.lazy()
+        .join(
+            kept_leaf_ids.with_columns(_kept=pl.lit(True)),
+            on="id",
+            how="left",
+        )
+        .with_columns(extant=pl.col("_kept").fill_null(False))
+        .drop("_kept")
     )
 
     logging.info(
-        "- alifestd_downsample_tips_asexual_polars: pruning...",
+        "- alifestd_downsample_tips_polars: pruning...",
     )
     return alifestd_prune_extinct_lineages_asexual_polars(
         phylogeny_df,
