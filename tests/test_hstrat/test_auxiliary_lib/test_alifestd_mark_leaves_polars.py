@@ -15,10 +15,6 @@ from hstrat._auxiliary_lib._alifestd_mark_leaves_polars import (
     alifestd_mark_leaves_polars,
 )
 
-pytestmark = pytest.mark.filterwarnings(
-    "ignore::polars.exceptions.PerformanceWarning"
-)
-
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 

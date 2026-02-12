@@ -9,10 +9,6 @@ from hstrat._auxiliary_lib import (
     alifestd_try_add_ancestor_id_col_polars,
 )
 
-pytestmark = pytest.mark.filterwarnings(
-    "ignore::polars.exceptions.PerformanceWarning"
-)
-
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 

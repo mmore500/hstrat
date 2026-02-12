@@ -16,10 +16,6 @@ from hstrat._auxiliary_lib._alifestd_downsample_tips_polars import (
     alifestd_downsample_tips_polars,
 )
 
-pytestmark = pytest.mark.filterwarnings(
-    "ignore::polars.exceptions.PerformanceWarning"
-)
-
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 

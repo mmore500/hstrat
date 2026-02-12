@@ -10,10 +10,6 @@ from hstrat._auxiliary_lib._alifestd_has_contiguous_ids_polars import (
     alifestd_has_contiguous_ids_polars,
 )
 
-pytestmark = pytest.mark.filterwarnings(
-    "ignore::polars.exceptions.PerformanceWarning"
-)
-
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
