@@ -1,7 +1,6 @@
 import logging
 import warnings
 
-import pandas as pd
 import polars as pl
 
 from ._alifestd_assign_contiguous_ids_polars import (
@@ -11,8 +10,8 @@ from ._alifestd_collapse_unifurcations import _collapse_unifurcations
 
 
 def alifestd_collapse_unifurcations_polars(
-    phylogeny_df: pd.DataFrame,
-) -> pd.DataFrame:
+    phylogeny_df: pl.DataFrame,
+) -> pl.DataFrame:
     """Pare record to bypass organisms with one ancestor and one descendant.
 
     Input dataframe is not mutated by this operation unless `mutate` set True.
