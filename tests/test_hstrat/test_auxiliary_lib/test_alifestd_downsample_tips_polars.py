@@ -1,4 +1,5 @@
 import os
+import typing
 
 import pandas as pd
 import polars as pl
@@ -71,10 +72,10 @@ def _count_leaf_nodes_polars(phylogeny_df: pl.DataFrame) -> int:
     ],
 )
 def test_alifestd_downsample_tips_polars(
-    phylogeny_df,
-    n_downsample,
-    seed,
-    apply,
+    phylogeny_df: pd.DataFrame,
+    n_downsample: int,
+    seed: int,
+    apply: typing.Callable,
 ):
     phylogeny_df_pl = apply(_prepare_polars(phylogeny_df))
 
@@ -111,7 +112,9 @@ def test_alifestd_downsample_tips_polars(
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_downsample_tips_polars_empty(n_downsample, apply):
+def test_alifestd_downsample_tips_polars_empty(
+    n_downsample: int, apply: typing.Callable
+):
     phylogeny_df = apply(
         pl.DataFrame(
             {"id": [], "ancestor_id": []},
@@ -155,10 +158,10 @@ def test_alifestd_downsample_tips_polars_empty(n_downsample, apply):
     ],
 )
 def test_alifestd_downsample_tips_polars_matches_pandas(
-    phylogeny_df,
-    n_downsample,
-    seed,
-    apply,
+    phylogeny_df: pd.DataFrame,
+    n_downsample: int,
+    seed: int,
+    apply: typing.Callable,
 ):
     """Verify polars result has same structure as pandas result."""
     phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df.copy())
@@ -209,9 +212,9 @@ def test_alifestd_downsample_tips_polars_matches_pandas(
     ],
 )
 def test_alifestd_downsample_tips_polars_deterministic(
-    phylogeny_df,
-    seed,
-    apply,
+    phylogeny_df: pd.DataFrame,
+    seed: int,
+    apply: typing.Callable,
 ):
     """Verify same seed produces same result."""
     phylogeny_df_pl = apply(_prepare_polars(phylogeny_df))
@@ -245,7 +248,9 @@ def test_alifestd_downsample_tips_polars_deterministic(
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_downsample_tips_polars_no_ancestor_id(apply):
+def test_alifestd_downsample_tips_polars_no_ancestor_id(
+    apply: typing.Callable,
+):
     df = apply(
         pl.DataFrame(
             {
@@ -284,7 +289,7 @@ def test_alifestd_downsample_tips_polars_does_not_mutate():
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_downsample_tips_polars_simple(apply):
+def test_alifestd_downsample_tips_polars_simple(apply: typing.Callable):
     """Test a simple hand-crafted tree.
 
     Tree structure:
@@ -319,7 +324,7 @@ def test_alifestd_downsample_tips_polars_simple(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_downsample_tips_polars_all_tips(apply):
+def test_alifestd_downsample_tips_polars_all_tips(apply: typing.Callable):
     """Requesting more tips than exist should return the full phylogeny."""
     df = apply(
         pl.DataFrame(

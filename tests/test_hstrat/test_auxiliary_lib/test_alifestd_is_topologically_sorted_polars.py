@@ -1,4 +1,5 @@
 import os
+import typing
 
 import pandas as pd
 import polars as pl
@@ -50,7 +51,9 @@ def _prepare_polars(phylogeny_df_pd: pd.DataFrame) -> pl.DataFrame:
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_is_topologically_sorted_polars_true(phylogeny_df, apply):
+def test_alifestd_is_topologically_sorted_polars_true(
+    phylogeny_df: pd.DataFrame, apply: typing.Callable
+):
     """Topologically sorted + contiguous ids should return True."""
     df = apply(_prepare_polars(phylogeny_df))
     assert alifestd_is_topologically_sorted_polars(df)
@@ -72,7 +75,7 @@ def test_alifestd_is_topologically_sorted_polars_true(phylogeny_df, apply):
     ],
 )
 def test_alifestd_is_topologically_sorted_polars_false(
-    ids, ancestor_ids, apply
+    ids: typing.List, ancestor_ids: typing.List, apply: typing.Callable
 ):
     """Data with sorted ids but invalid topological order should be False."""
     df = apply(
@@ -100,7 +103,7 @@ def test_alifestd_is_topologically_sorted_polars_false(
     ],
 )
 def test_alifestd_is_topologically_sorted_polars_matches_pandas(
-    phylogeny_df, apply
+    phylogeny_df: pd.DataFrame, apply: typing.Callable
 ):
     """Verify polars result matches pandas result for sorted input."""
     phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df.copy())
@@ -122,7 +125,9 @@ def test_alifestd_is_topologically_sorted_polars_matches_pandas(
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_is_topologically_sorted_polars_simple_sorted(apply):
+def test_alifestd_is_topologically_sorted_polars_simple_sorted(
+    apply: typing.Callable,
+):
     """Simple chain 0 -> 1 -> 2 is topologically sorted."""
     df = apply(
         pl.DataFrame(
@@ -142,7 +147,9 @@ def test_alifestd_is_topologically_sorted_polars_simple_sorted(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_is_topologically_sorted_polars_simple_unsorted(apply):
+def test_alifestd_is_topologically_sorted_polars_simple_unsorted(
+    apply: typing.Callable,
+):
     """Node 1 has ancestor_id 2 which is > 1, so not topologically sorted."""
     df = apply(
         pl.DataFrame(
@@ -162,7 +169,9 @@ def test_alifestd_is_topologically_sorted_polars_simple_unsorted(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_is_topologically_sorted_polars_simple_tree(apply):
+def test_alifestd_is_topologically_sorted_polars_simple_tree(
+    apply: typing.Callable,
+):
     """Test a simple tree.
 
     Tree structure:
@@ -190,7 +199,9 @@ def test_alifestd_is_topologically_sorted_polars_simple_tree(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_is_topologically_sorted_polars_single_node(apply):
+def test_alifestd_is_topologically_sorted_polars_single_node(
+    apply: typing.Callable,
+):
     """A single root node is topologically sorted."""
     df = apply(
         pl.DataFrame(
@@ -210,7 +221,9 @@ def test_alifestd_is_topologically_sorted_polars_single_node(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_is_topologically_sorted_polars_two_roots(apply):
+def test_alifestd_is_topologically_sorted_polars_two_roots(
+    apply: typing.Callable,
+):
     """Two independent roots, sorted."""
     df = apply(
         pl.DataFrame(
@@ -230,7 +243,9 @@ def test_alifestd_is_topologically_sorted_polars_two_roots(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_is_topologically_sorted_polars_all_roots(apply):
+def test_alifestd_is_topologically_sorted_polars_all_roots(
+    apply: typing.Callable,
+):
     """All self-referencing roots are topologically sorted."""
     df = apply(
         pl.DataFrame(
@@ -250,7 +265,7 @@ def test_alifestd_is_topologically_sorted_polars_all_roots(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_is_topologically_sorted_polars_empty(apply):
+def test_alifestd_is_topologically_sorted_polars_empty(apply: typing.Callable):
     """Empty dataframe is topologically sorted."""
     df = apply(
         pl.DataFrame(
@@ -268,7 +283,9 @@ def test_alifestd_is_topologically_sorted_polars_empty(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_is_topologically_sorted_polars_no_ancestor_id(apply):
+def test_alifestd_is_topologically_sorted_polars_no_ancestor_id(
+    apply: typing.Callable,
+):
     """Verify NotImplementedError for missing ancestor_id."""
     df = apply(
         pl.DataFrame(
@@ -289,7 +306,9 @@ def test_alifestd_is_topologically_sorted_polars_no_ancestor_id(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_is_topologically_sorted_polars_unsorted_ids(apply):
+def test_alifestd_is_topologically_sorted_polars_unsorted_ids(
+    apply: typing.Callable,
+):
     """Verify NotImplementedError for unsorted id values."""
     df = apply(
         pl.DataFrame(

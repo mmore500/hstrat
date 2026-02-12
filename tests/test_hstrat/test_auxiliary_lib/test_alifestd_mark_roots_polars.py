@@ -1,4 +1,5 @@
 import os
+import typing
 
 import pandas as pd
 import polars as pl
@@ -47,7 +48,9 @@ def _prepare_polars(phylogeny_df_pd: pd.DataFrame) -> pl.DataFrame:
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_roots_polars_fuzz(phylogeny_df, apply):
+def test_alifestd_mark_roots_polars_fuzz(
+    phylogeny_df: pd.DataFrame, apply: typing.Callable
+):
     """Verify is_root marks match known root ids."""
     df_prepared = _prepare_polars(phylogeny_df)
     df_pl = apply(df_prepared)
@@ -88,7 +91,9 @@ def test_alifestd_mark_roots_polars_fuzz(phylogeny_df, apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_roots_polars_matches_pandas(phylogeny_df, apply):
+def test_alifestd_mark_roots_polars_matches_pandas(
+    phylogeny_df: pd.DataFrame, apply: typing.Callable
+):
     """Verify polars result matches pandas result."""
     phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df.copy())
     phylogeny_df_pd = alifestd_topological_sort(phylogeny_df_pd)
@@ -115,7 +120,7 @@ def test_alifestd_mark_roots_polars_matches_pandas(phylogeny_df, apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_roots_polars_simple(apply):
+def test_alifestd_mark_roots_polars_simple(apply: typing.Callable):
     """Test simple chain: only node 0 is root."""
     df = apply(
         pl.DataFrame(
@@ -138,7 +143,7 @@ def test_alifestd_mark_roots_polars_simple(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_roots_polars_simple_tree(apply):
+def test_alifestd_mark_roots_polars_simple_tree(apply: typing.Callable):
     """Test a simple tree.
 
     Tree structure:
@@ -169,7 +174,7 @@ def test_alifestd_mark_roots_polars_simple_tree(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_roots_polars_two_roots(apply):
+def test_alifestd_mark_roots_polars_two_roots(apply: typing.Callable):
     """Two independent root nodes."""
     df = apply(
         pl.DataFrame(
@@ -192,7 +197,7 @@ def test_alifestd_mark_roots_polars_two_roots(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_roots_polars_all_roots(apply):
+def test_alifestd_mark_roots_polars_all_roots(apply: typing.Callable):
     """All self-referencing nodes are roots."""
     df = apply(
         pl.DataFrame(
@@ -215,7 +220,7 @@ def test_alifestd_mark_roots_polars_all_roots(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_roots_polars_single_node(apply):
+def test_alifestd_mark_roots_polars_single_node(apply: typing.Callable):
     """A single root node."""
     df = apply(
         pl.DataFrame(
@@ -238,7 +243,7 @@ def test_alifestd_mark_roots_polars_single_node(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_roots_polars_empty(apply):
+def test_alifestd_mark_roots_polars_empty(apply: typing.Callable):
     """Empty dataframe gets is_root column."""
     df = apply(
         pl.DataFrame(
@@ -260,7 +265,7 @@ def test_alifestd_mark_roots_polars_empty(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_roots_polars_no_ancestor_id(apply):
+def test_alifestd_mark_roots_polars_no_ancestor_id(apply: typing.Callable):
     """Verify NotImplementedError for missing ancestor_id."""
     df = apply(
         pl.DataFrame(
@@ -281,7 +286,7 @@ def test_alifestd_mark_roots_polars_no_ancestor_id(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_roots_polars_preserves_columns(apply):
+def test_alifestd_mark_roots_polars_preserves_columns(apply: typing.Callable):
     """Verify original columns are preserved."""
     df = apply(
         pl.DataFrame(
@@ -310,7 +315,7 @@ def test_alifestd_mark_roots_polars_preserves_columns(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_roots_polars_does_not_mutate(apply):
+def test_alifestd_mark_roots_polars_does_not_mutate(apply: typing.Callable):
     """Verify the input dataframe is not mutated."""
     df_eager = pl.DataFrame(
         {

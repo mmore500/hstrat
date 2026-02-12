@@ -1,4 +1,5 @@
 import os
+import typing
 
 import pandas as pd
 import polars as pl
@@ -50,7 +51,9 @@ def _prepare_polars(phylogeny_df_pd: pd.DataFrame) -> pl.DataFrame:
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_num_children_polars_fuzz(phylogeny_df, apply):
+def test_alifestd_mark_num_children_polars_fuzz(
+    phylogeny_df: pd.DataFrame, apply: typing.Callable
+):
     """Verify num_children column is correctly added."""
     df_prepared = _prepare_polars(phylogeny_df)
     df_pl = apply(df_prepared)
@@ -101,7 +104,9 @@ def test_alifestd_mark_num_children_polars_fuzz(phylogeny_df, apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_num_children_polars_matches_pandas(phylogeny_df, apply):
+def test_alifestd_mark_num_children_polars_matches_pandas(
+    phylogeny_df: pd.DataFrame, apply: typing.Callable
+):
     """Verify polars result matches pandas result."""
     phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df.copy())
     phylogeny_df_pd = alifestd_topological_sort(phylogeny_df_pd)
@@ -126,7 +131,9 @@ def test_alifestd_mark_num_children_polars_matches_pandas(phylogeny_df, apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_num_children_polars_simple_chain(apply):
+def test_alifestd_mark_num_children_polars_simple_chain(
+    apply: typing.Callable,
+):
     """Test a simple chain: 0 -> 1 -> 2."""
     df_pl = apply(
         pl.DataFrame(
@@ -149,7 +156,7 @@ def test_alifestd_mark_num_children_polars_simple_chain(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_num_children_polars_simple_tree(apply):
+def test_alifestd_mark_num_children_polars_simple_tree(apply: typing.Callable):
     """Test a simple tree.
 
     Tree structure:
@@ -180,7 +187,7 @@ def test_alifestd_mark_num_children_polars_simple_tree(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_num_children_polars_two_roots(apply):
+def test_alifestd_mark_num_children_polars_two_roots(apply: typing.Callable):
     """Two independent roots with children."""
     df_pl = apply(
         pl.DataFrame(
@@ -203,7 +210,7 @@ def test_alifestd_mark_num_children_polars_two_roots(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_num_children_polars_all_roots(apply):
+def test_alifestd_mark_num_children_polars_all_roots(apply: typing.Callable):
     """All self-referencing roots have 0 children."""
     df_pl = apply(
         pl.DataFrame(
@@ -226,7 +233,7 @@ def test_alifestd_mark_num_children_polars_all_roots(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_num_children_polars_single_node(apply):
+def test_alifestd_mark_num_children_polars_single_node(apply: typing.Callable):
     """A single root node has 0 children."""
     df_pl = apply(
         pl.DataFrame(
@@ -249,7 +256,7 @@ def test_alifestd_mark_num_children_polars_single_node(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_num_children_polars_empty(apply):
+def test_alifestd_mark_num_children_polars_empty(apply: typing.Callable):
     """Empty dataframe gets num_children column."""
     df_pl = apply(
         pl.DataFrame(
@@ -271,7 +278,9 @@ def test_alifestd_mark_num_children_polars_empty(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_num_children_polars_preserves_columns(apply):
+def test_alifestd_mark_num_children_polars_preserves_columns(
+    apply: typing.Callable,
+):
     """Verify original columns are preserved."""
     df_pl = apply(
         pl.DataFrame(
@@ -300,7 +309,9 @@ def test_alifestd_mark_num_children_polars_preserves_columns(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_num_children_polars_does_not_mutate(apply):
+def test_alifestd_mark_num_children_polars_does_not_mutate(
+    apply: typing.Callable,
+):
     """Verify the input dataframe is not mutated."""
     df_eager = pl.DataFrame(
         {
@@ -326,7 +337,9 @@ def test_alifestd_mark_num_children_polars_does_not_mutate(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_num_children_polars_with_preexisting_is_root(apply):
+def test_alifestd_mark_num_children_polars_with_preexisting_is_root(
+    apply: typing.Callable,
+):
     """If is_root already exists, it should be used directly."""
     df_pl = apply(
         pl.DataFrame(
@@ -350,7 +363,9 @@ def test_alifestd_mark_num_children_polars_with_preexisting_is_root(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_num_children_polars_non_contiguous_ids(apply):
+def test_alifestd_mark_num_children_polars_non_contiguous_ids(
+    apply: typing.Callable,
+):
     """Verify NotImplementedError for non-contiguous ids."""
     df_pl = apply(
         pl.DataFrame(
@@ -371,7 +386,7 @@ def test_alifestd_mark_num_children_polars_non_contiguous_ids(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_num_children_polars_unsorted(apply):
+def test_alifestd_mark_num_children_polars_unsorted(apply: typing.Callable):
     """Verify NotImplementedError for topologically unsorted data."""
     df_pl = apply(
         pl.DataFrame(
@@ -392,7 +407,9 @@ def test_alifestd_mark_num_children_polars_unsorted(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_num_children_polars_star_topology(apply):
+def test_alifestd_mark_num_children_polars_star_topology(
+    apply: typing.Callable,
+):
     """Root with many direct children."""
     df_pl = apply(
         pl.DataFrame(

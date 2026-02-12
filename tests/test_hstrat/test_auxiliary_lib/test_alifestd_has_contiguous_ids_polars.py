@@ -1,4 +1,5 @@
 import os
+import typing
 
 import pandas as pd
 import polars as pl
@@ -37,7 +38,9 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_has_contiguous_ids_polars_true(phylogeny_df, apply):
+def test_alifestd_has_contiguous_ids_polars_true(
+    phylogeny_df: pd.DataFrame, apply: typing.Callable
+):
     """Verify returns True for datasets with contiguous ids."""
     df = apply(pl.from_pandas(phylogeny_df))
     assert alifestd_has_contiguous_ids_polars(df)
@@ -58,7 +61,9 @@ def test_alifestd_has_contiguous_ids_polars_true(phylogeny_df, apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_has_contiguous_ids_polars_false(phylogeny_df, apply):
+def test_alifestd_has_contiguous_ids_polars_false(
+    phylogeny_df: pd.DataFrame, apply: typing.Callable
+):
     """Verify returns False for datasets with non-contiguous ids."""
     df = apply(pl.from_pandas(phylogeny_df))
     assert not alifestd_has_contiguous_ids_polars(df)
@@ -86,7 +91,7 @@ def test_alifestd_has_contiguous_ids_polars_false(phylogeny_df, apply):
     ],
 )
 def test_alifestd_has_contiguous_ids_polars_matches_pandas(
-    phylogeny_df, apply
+    phylogeny_df: pd.DataFrame, apply: typing.Callable
 ):
     """Verify polars result matches pandas result."""
     result_pd = alifestd_has_contiguous_ids(phylogeny_df)
@@ -102,7 +107,9 @@ def test_alifestd_has_contiguous_ids_polars_matches_pandas(
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_has_contiguous_ids_polars_simple_true(apply):
+def test_alifestd_has_contiguous_ids_polars_simple_true(
+    apply: typing.Callable,
+):
     """Ids 0, 1, 2 are contiguous."""
     df = apply(pl.DataFrame({"id": [0, 1, 2]}))
     assert alifestd_has_contiguous_ids_polars(df)
@@ -115,7 +122,9 @@ def test_alifestd_has_contiguous_ids_polars_simple_true(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_has_contiguous_ids_polars_simple_false_gap(apply):
+def test_alifestd_has_contiguous_ids_polars_simple_false_gap(
+    apply: typing.Callable,
+):
     """Ids 0, 2, 4 have gaps."""
     df = apply(pl.DataFrame({"id": [0, 2, 4]}))
     assert not alifestd_has_contiguous_ids_polars(df)
@@ -128,7 +137,9 @@ def test_alifestd_has_contiguous_ids_polars_simple_false_gap(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_has_contiguous_ids_polars_simple_false_start(apply):
+def test_alifestd_has_contiguous_ids_polars_simple_false_start(
+    apply: typing.Callable,
+):
     """Ids starting at 1 are not contiguous (must start at 0)."""
     df = apply(pl.DataFrame({"id": [1, 2, 3]}))
     assert not alifestd_has_contiguous_ids_polars(df)
@@ -141,7 +152,9 @@ def test_alifestd_has_contiguous_ids_polars_simple_false_start(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_has_contiguous_ids_polars_single_node(apply):
+def test_alifestd_has_contiguous_ids_polars_single_node(
+    apply: typing.Callable,
+):
     """Single node with id 0."""
     df = apply(pl.DataFrame({"id": [0]}))
     assert alifestd_has_contiguous_ids_polars(df)
@@ -154,7 +167,9 @@ def test_alifestd_has_contiguous_ids_polars_single_node(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_has_contiguous_ids_polars_single_node_nonzero(apply):
+def test_alifestd_has_contiguous_ids_polars_single_node_nonzero(
+    apply: typing.Callable,
+):
     """Single node with id != 0."""
     df = apply(pl.DataFrame({"id": [5]}))
     assert not alifestd_has_contiguous_ids_polars(df)
@@ -167,7 +182,7 @@ def test_alifestd_has_contiguous_ids_polars_single_node_nonzero(apply):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_has_contiguous_ids_polars_empty(apply):
+def test_alifestd_has_contiguous_ids_polars_empty(apply: typing.Callable):
     """Empty dataframe."""
     df = apply(pl.DataFrame({"id": []}, schema={"id": pl.Int64}))
     assert alifestd_has_contiguous_ids_polars(df)
