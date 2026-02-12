@@ -4,26 +4,13 @@ import typing
 import numpy as np
 import polars as pl
 
+from ._alifestd_mark_leaves_asexual_polars import (
+    alifestd_mark_leaves_asexual_polars,
+)
 from ._alifestd_prune_extinct_lineages_asexual_polars import (
     alifestd_prune_extinct_lineages_asexual_polars,
 )
 from ._with_rng_state_context import with_rng_state_context
-
-
-def _find_leaf_ids_polars(phylogeny_df: pl.DataFrame) -> np.ndarray:
-    """Find leaf ids using contiguous id assumption (id == row index)."""
-    # internal nodes are those that appear as ancestor_id of some other node
-    # (exclude root self-references: ancestor_id == id)
-    internal_node_ids = (
-        phylogeny_df.filter(pl.col("ancestor_id") != pl.col("id"))
-        .select("ancestor_id")
-        .to_series()
-    )
-
-    leaf_mask = np.ones(len(phylogeny_df), dtype=np.bool_)
-    leaf_mask[internal_node_ids.to_numpy()] = False
-
-    return np.flatnonzero(leaf_mask)
 
 
 def _alifestd_downsample_tips_asexual_polars_impl(
@@ -34,7 +21,8 @@ def _alifestd_downsample_tips_asexual_polars_impl(
     logging.info(
         "- alifestd_downsample_tips_asexual_polars: finding leaf ids...",
     )
-    tips = _find_leaf_ids_polars(phylogeny_df)
+    marked_df = alifestd_mark_leaves_asexual_polars(phylogeny_df)
+    tips = np.flatnonzero(marked_df["is_leaf"].to_numpy())
 
     logging.info(
         "- alifestd_downsample_tips_asexual_polars: sampling tips...",
