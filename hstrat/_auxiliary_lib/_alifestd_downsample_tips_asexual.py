@@ -125,16 +125,27 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
+    from ._alifestd_downsample_tips_asexual_polars import (
+        alifestd_downsample_tips_asexual_polars,
+    )
+
     configure_prod_logging()
 
     parser = _create_parser()
     args, __ = parser.parse_known_args()
     with log_context_duration(
-        "hstrat._auxiliary_lib._alifestd_downsample_tips_asexual", logging.info
+        "hstrat._auxiliary_lib._alifestd_downsample_tips_asexual",
+        logging.info,
     ):
         _run_dataframe_cli(
             base_parser=parser,
-            output_dataframe_op=delegate_polars_implementation()(
+            output_dataframe_op=delegate_polars_implementation(
+                functools.partial(
+                    alifestd_downsample_tips_asexual_polars,
+                    n_downsample=args.n,
+                    seed=args.seed,
+                ),
+            )(
                 functools.partial(
                     alifestd_downsample_tips_asexual,
                     n_downsample=args.n,
