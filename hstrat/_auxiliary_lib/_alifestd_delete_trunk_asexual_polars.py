@@ -1,14 +1,13 @@
 import logging
 
-import pandas as pd
 import polars as pl
 
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
 def alifestd_delete_trunk_asexual_polars(
-    phylogeny_df: pd.DataFrame,
-) -> pd.DataFrame:
+    phylogeny_df: pl.DataFrame,
+) -> pl.DataFrame:
     """Delete entries masked by `is_trunk` column.
 
     Masked entries must be contiguous, meaning that no non-trunk entry can
