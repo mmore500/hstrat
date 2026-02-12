@@ -6,10 +6,8 @@ import polars as pl
 import pytest
 
 from hstrat._auxiliary_lib import (
-    alifestd_assign_contiguous_ids,
     alifestd_is_topologically_sorted,
-    alifestd_topological_sort,
-    alifestd_try_add_ancestor_id_col,
+    alifestd_to_working_format,
 )
 from hstrat._auxiliary_lib._alifestd_is_topologically_sorted_polars import (
     alifestd_is_topologically_sorted_polars,
@@ -18,26 +16,23 @@ from hstrat._auxiliary_lib._alifestd_is_topologically_sorted_polars import (
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
-def _prepare_polars(phylogeny_df_pd: pd.DataFrame) -> pl.DataFrame:
-    """Prepare a pandas phylogeny dataframe for the polars implementation.
-
-    Ensures contiguous ids, topological sort, and ancestor_id column.
-    """
-    phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df_pd.copy())
-    phylogeny_df_pd = alifestd_topological_sort(phylogeny_df_pd)
-    phylogeny_df_pd = alifestd_assign_contiguous_ids(phylogeny_df_pd)
-    return pl.from_pandas(phylogeny_df_pd)
-
-
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
-        pd.read_csv(
-            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+        alifestd_to_working_format(
+            pd.read_csv(
+                f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+            )
         ),
-        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv")
+        ),
     ],
 )
 @pytest.mark.parametrize(
@@ -51,7 +46,7 @@ def test_alifestd_is_topologically_sorted_polars_true(
     phylogeny_df: pd.DataFrame, apply: typing.Callable
 ):
     """Topologically sorted + contiguous ids should return True."""
-    df = apply(_prepare_polars(phylogeny_df))
+    df = apply(pl.from_pandas(phylogeny_df))
     assert alifestd_is_topologically_sorted_polars(df)
 
 
@@ -83,12 +78,20 @@ def test_alifestd_is_topologically_sorted_polars_false(
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
-        pd.read_csv(
-            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+        alifestd_to_working_format(
+            pd.read_csv(
+                f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+            )
         ),
-        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv")
+        ),
     ],
 )
 @pytest.mark.parametrize(
@@ -102,13 +105,9 @@ def test_alifestd_is_topologically_sorted_polars_matches_pandas(
     phylogeny_df: pd.DataFrame, apply: typing.Callable
 ):
     """Verify polars result matches pandas result for sorted input."""
-    phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df.copy())
-    phylogeny_df_pd = alifestd_topological_sort(phylogeny_df_pd)
-    phylogeny_df_pd = alifestd_assign_contiguous_ids(phylogeny_df_pd)
+    result_pd = alifestd_is_topologically_sorted(phylogeny_df)
 
-    result_pd = alifestd_is_topologically_sorted(phylogeny_df_pd)
-
-    df = apply(pl.from_pandas(phylogeny_df_pd))
+    df = apply(pl.from_pandas(phylogeny_df))
     result_pl = alifestd_is_topologically_sorted_polars(df)
 
     assert result_pd == result_pl

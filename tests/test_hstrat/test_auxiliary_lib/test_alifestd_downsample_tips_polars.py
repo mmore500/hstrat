@@ -7,27 +7,14 @@ import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_aggregate_phylogenies,
-    alifestd_assign_contiguous_ids,
     alifestd_downsample_tips_asexual,
-    alifestd_topological_sort,
-    alifestd_try_add_ancestor_id_col,
+    alifestd_to_working_format,
 )
 from hstrat._auxiliary_lib._alifestd_downsample_tips_polars import (
     alifestd_downsample_tips_polars,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
-
-
-def _prepare_polars(phylogeny_df_pd: pd.DataFrame) -> pl.DataFrame:
-    """Prepare a pandas phylogeny dataframe for the polars implementation.
-
-    Ensures contiguous ids, topological sort, and ancestor_id column.
-    """
-    phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df_pd.copy())
-    phylogeny_df_pd = alifestd_topological_sort(phylogeny_df_pd)
-    phylogeny_df_pd = alifestd_assign_contiguous_ids(phylogeny_df_pd)
-    return pl.from_pandas(phylogeny_df_pd)
 
 
 def _count_leaf_nodes_polars(phylogeny_df: pl.DataFrame) -> int:
@@ -47,15 +34,23 @@ def _count_leaf_nodes_polars(phylogeny_df: pl.DataFrame) -> int:
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
-        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-        alifestd_aggregate_phylogenies(
-            [
-                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-            ]
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
         ),
-        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
+        ),
+        alifestd_to_working_format(
+            alifestd_aggregate_phylogenies(
+                [
+                    pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+                    pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+                ]
+            )
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv")
+        ),
     ],
 )
 @pytest.mark.parametrize("n_downsample", [1, 5, 10, 100000000])
@@ -73,7 +68,7 @@ def test_alifestd_downsample_tips_polars(
     seed: int,
     apply: typing.Callable,
 ):
-    phylogeny_df_pl = apply(_prepare_polars(phylogeny_df))
+    phylogeny_df_pl = apply(pl.from_pandas(phylogeny_df))
 
     original_len = len(phylogeny_df_pl.lazy().collect())
     original_num_tips = _count_leaf_nodes_polars(
@@ -133,15 +128,23 @@ def test_alifestd_downsample_tips_polars_empty(
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
-        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-        alifestd_aggregate_phylogenies(
-            [
-                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-            ]
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
         ),
-        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
+        ),
+        alifestd_to_working_format(
+            alifestd_aggregate_phylogenies(
+                [
+                    pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+                    pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+                ]
+            )
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv")
+        ),
     ],
 )
 @pytest.mark.parametrize("n_downsample", [1, 5, 10])
@@ -160,14 +163,10 @@ def test_alifestd_downsample_tips_polars_matches_pandas(
     apply: typing.Callable,
 ):
     """Verify polars result has same structure as pandas result."""
-    phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df.copy())
-    phylogeny_df_pd = alifestd_topological_sort(phylogeny_df_pd)
-    phylogeny_df_pd = alifestd_assign_contiguous_ids(phylogeny_df_pd)
-
-    phylogeny_df_pl = apply(pl.from_pandas(phylogeny_df_pd))
+    phylogeny_df_pl = apply(pl.from_pandas(phylogeny_df))
 
     alifestd_downsample_tips_asexual(
-        phylogeny_df_pd,
+        phylogeny_df,
         n_downsample,
         mutate=False,
         seed=seed,
@@ -184,7 +183,7 @@ def test_alifestd_downsample_tips_polars_matches_pandas(
 
     assert _count_leaf_nodes_polars(result_pl) == min(
         n_downsample,
-        _count_leaf_nodes_polars(pl.from_pandas(phylogeny_df_pd)),
+        _count_leaf_nodes_polars(pl.from_pandas(phylogeny_df)),
     )
     assert set(result_pl["id"].to_list()).issubset(
         set(phylogeny_df_pl.lazy().collect()["id"].to_list())
@@ -194,9 +193,15 @@ def test_alifestd_downsample_tips_polars_matches_pandas(
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
-        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv")
+        ),
     ],
 )
 @pytest.mark.parametrize("seed", [1, 42])
@@ -213,7 +218,7 @@ def test_alifestd_downsample_tips_polars_deterministic(
     apply: typing.Callable,
 ):
     """Verify same seed produces same result."""
-    phylogeny_df_pl = apply(_prepare_polars(phylogeny_df))
+    phylogeny_df_pl = apply(pl.from_pandas(phylogeny_df))
 
     result1 = (
         alifestd_downsample_tips_polars(

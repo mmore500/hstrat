@@ -6,10 +6,8 @@ import polars as pl
 import pytest
 
 from hstrat._auxiliary_lib import (
-    alifestd_assign_contiguous_ids,
     alifestd_mark_roots,
-    alifestd_topological_sort,
-    alifestd_try_add_ancestor_id_col,
+    alifestd_to_working_format,
 )
 from hstrat._auxiliary_lib._alifestd_mark_roots_polars import (
     alifestd_mark_roots_polars,
@@ -18,23 +16,23 @@ from hstrat._auxiliary_lib._alifestd_mark_roots_polars import (
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
-def _prepare_polars(phylogeny_df_pd: pd.DataFrame) -> pl.DataFrame:
-    """Prepare a pandas phylogeny dataframe for the polars implementation."""
-    phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df_pd.copy())
-    phylogeny_df_pd = alifestd_topological_sort(phylogeny_df_pd)
-    phylogeny_df_pd = alifestd_assign_contiguous_ids(phylogeny_df_pd)
-    return pl.from_pandas(phylogeny_df_pd)
-
-
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
-        pd.read_csv(
-            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+        alifestd_to_working_format(
+            pd.read_csv(
+                f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+            )
         ),
-        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv")
+        ),
     ],
 )
 @pytest.mark.parametrize(
@@ -48,7 +46,7 @@ def test_alifestd_mark_roots_polars_fuzz(
     phylogeny_df: pd.DataFrame, apply: typing.Callable
 ):
     """Verify is_root marks match known root ids."""
-    df_prepared = _prepare_polars(phylogeny_df)
+    df_prepared = pl.from_pandas(phylogeny_df)
     df_pl = apply(df_prepared)
 
     result = alifestd_mark_roots_polars(df_pl).lazy().collect()
@@ -72,12 +70,20 @@ def test_alifestd_mark_roots_polars_fuzz(
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
-        pd.read_csv(
-            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+        alifestd_to_working_format(
+            pd.read_csv(
+                f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+            )
         ),
-        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv")
+        ),
     ],
 )
 @pytest.mark.parametrize(
@@ -91,13 +97,9 @@ def test_alifestd_mark_roots_polars_matches_pandas(
     phylogeny_df: pd.DataFrame, apply: typing.Callable
 ):
     """Verify polars result matches pandas result."""
-    phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df.copy())
-    phylogeny_df_pd = alifestd_topological_sort(phylogeny_df_pd)
-    phylogeny_df_pd = alifestd_assign_contiguous_ids(phylogeny_df_pd)
+    result_pd = alifestd_mark_roots(phylogeny_df, mutate=False)
 
-    result_pd = alifestd_mark_roots(phylogeny_df_pd, mutate=False)
-
-    df_pl = apply(pl.from_pandas(phylogeny_df_pd))
+    df_pl = apply(pl.from_pandas(phylogeny_df))
     result_pl = alifestd_mark_roots_polars(df_pl).lazy().collect()
 
     root_ids_pd = set(

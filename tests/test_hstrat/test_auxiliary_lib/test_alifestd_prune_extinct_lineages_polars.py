@@ -11,6 +11,7 @@ from hstrat._auxiliary_lib import (
     alifestd_find_leaf_ids,
     alifestd_prune_extinct_lineages_asexual,
     alifestd_prune_extinct_lineages_polars,
+    alifestd_to_working_format,
     alifestd_topological_sort,
     alifestd_try_add_ancestor_id_col,
 )
@@ -18,35 +19,32 @@ from hstrat._auxiliary_lib import (
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
-def _prepare_polars(phylogeny_df_pd: pd.DataFrame) -> pl.DataFrame:
-    """Prepare a pandas phylogeny dataframe for the polars implementation.
-
-    Ensures contiguous ids, topological sort, and ancestor_id column.
-    """
-    phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df_pd.copy())
-    phylogeny_df_pd = alifestd_topological_sort(phylogeny_df_pd)
-    phylogeny_df_pd = alifestd_assign_contiguous_ids(phylogeny_df_pd)
-    return pl.from_pandas(phylogeny_df_pd)
-
-
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
-        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-        alifestd_aggregate_phylogenies(
-            [
-                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-            ]
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
         ),
-        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
+        ),
+        alifestd_to_working_format(
+            alifestd_aggregate_phylogenies(
+                [
+                    pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+                    pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+                ]
+            )
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv")
+        ),
     ],
 )
 def test_alifestd_prune_extinct_lineages_polars_destruction_time_nop(
     phylogeny_df,
 ):
-    phylogeny_df_pl = _prepare_polars(phylogeny_df)
+    phylogeny_df_pl = pl.from_pandas(phylogeny_df)
 
     pruned_df = alifestd_prune_extinct_lineages_polars(phylogeny_df_pl)
 
@@ -56,19 +54,27 @@ def test_alifestd_prune_extinct_lineages_polars_destruction_time_nop(
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
-        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-        alifestd_aggregate_phylogenies(
-            [
-                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-            ]
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
         ),
-        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
+        ),
+        alifestd_to_working_format(
+            alifestd_aggregate_phylogenies(
+                [
+                    pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+                    pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+                ]
+            )
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv")
+        ),
     ],
 )
 def test_alifestd_prune_extinct_lineages_polars_extant(phylogeny_df):
-    phylogeny_df_pl = _prepare_polars(phylogeny_df)
+    phylogeny_df_pl = pl.from_pandas(phylogeny_df)
 
     np.random.seed(1)
     extant_mask = np.random.choice([True, False], size=len(phylogeny_df_pl))
@@ -88,35 +94,38 @@ def test_alifestd_prune_extinct_lineages_polars_extant(phylogeny_df):
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
-        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-        alifestd_aggregate_phylogenies(
-            [
-                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-            ]
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
         ),
-        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
+        ),
+        alifestd_to_working_format(
+            alifestd_aggregate_phylogenies(
+                [
+                    pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+                    pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+                ]
+            )
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv")
+        ),
     ],
 )
 def test_alifestd_prune_extinct_lineages_polars_matches_pandas(
     phylogeny_df,
 ):
     """Verify polars result matches pandas result for same prepared input."""
-    # Prepare the same way for both
-    phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df.copy())
-    phylogeny_df_pd = alifestd_topological_sort(phylogeny_df_pd)
-    phylogeny_df_pd = alifestd_assign_contiguous_ids(phylogeny_df_pd)
-
     np.random.seed(1)
-    extant_mask = np.random.choice([True, False], size=len(phylogeny_df_pd))
-    phylogeny_df_pd["extant"] = extant_mask
+    extant_mask = np.random.choice([True, False], size=len(phylogeny_df))
+    phylogeny_df["extant"] = extant_mask
 
-    phylogeny_df_pl = pl.from_pandas(phylogeny_df_pd)
+    phylogeny_df_pl = pl.from_pandas(phylogeny_df)
 
     # Run both implementations
     pruned_pd = alifestd_prune_extinct_lineages_asexual(
-        phylogeny_df_pd, mutate=False
+        phylogeny_df, mutate=False
     )
     pruned_pl = alifestd_prune_extinct_lineages_polars(phylogeny_df_pl)
 
@@ -165,15 +174,21 @@ def test_alifestd_prune_extinct_lineages_polars_independent_trees(
 @pytest.mark.parametrize(
     "phylogeny_df",
     [
-        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_tournamentselection.csv")
+        ),
     ],
 )
 def test_alifestd_prune_extinct_lineages_polars_ambiguous_extant(
     phylogeny_df,
 ):
-    phylogeny_df_pl = _prepare_polars(phylogeny_df)
+    phylogeny_df_pl = pl.from_pandas(phylogeny_df)
     phylogeny_df_pl = phylogeny_df_pl.drop("destruction_time")
 
     with pytest.raises(ValueError):
