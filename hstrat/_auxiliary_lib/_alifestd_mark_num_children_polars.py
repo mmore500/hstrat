@@ -19,15 +19,13 @@ def alifestd_mark_num_children_polars(
     """
 
     logging.info(
-        "- alifestd_mark_num_children_polars: "
-        "checking contiguous ids...",
+        "- alifestd_mark_num_children_polars: " "checking contiguous ids...",
     )
     if not alifestd_has_contiguous_ids_polars(phylogeny_df):
         raise NotImplementedError("non-contiguous ids not yet supported")
 
     logging.info(
-        "- alifestd_mark_num_children_polars: "
-        "checking topological sort...",
+        "- alifestd_mark_num_children_polars: " "checking topological sort...",
     )
     if not alifestd_is_topologically_sorted_polars(phylogeny_df):
         raise NotImplementedError(
