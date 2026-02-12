@@ -38,16 +38,19 @@ def alifestd_try_add_ancestor_list_col_polars(
     alifestd_try_add_ancestor_list_col :
         Pandas-based implementation.
     """
+    is_lazy = isinstance(phylogeny_df, pl.LazyFrame)
     schema_names = phylogeny_df.lazy().collect_schema().names()
     if "ancestor_id" in schema_names and "ancestor_list" not in schema_names:
         logging.info("ancestor_id column present, adding ancestor_list column")
-        return phylogeny_df.with_columns(
+        df_eager = phylogeny_df.lazy().collect()
+        result = df_eager.with_columns(
             alifestd_make_ancestor_list_col_polars(
-                phylogeny_df["id"],
-                phylogeny_df["ancestor_id"],
+                df_eager["id"],
+                df_eager["ancestor_id"],
                 root_ancestor_token=root_ancestor_token,
             ).alias("ancestor_list")
         )
+        return result.lazy() if is_lazy else result
     elif "ancestor_list" in schema_names:
         logging.info("ancestor_list column already present, skipping addition")
     else:
