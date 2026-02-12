@@ -50,9 +50,11 @@ def alifestd_prefix_roots_polars(
     eligible_roots = (
         phylogeny_df.lazy()
         .with_columns(
-            is_eligible=pl.col("origin_time") > origin_time
-            if origin_time is not None
-            else True,
+            is_eligible=(
+                pl.col("origin_time") > origin_time
+                if origin_time is not None
+                else True
+            ),
             is_root=pl.col("id") == pl.col("ancestor_id"),
         )
         .select(
