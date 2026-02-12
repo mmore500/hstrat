@@ -80,9 +80,7 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_extant(phylogeny_df):
     assert len(pruned_df) < len(phylogeny_df_pl)
 
     # all extant organisms must be in result
-    extant_ids = set(
-        phylogeny_df_pl.filter(pl.col("extant"))["id"].to_list()
-    )
+    extant_ids = set(phylogeny_df_pl.filter(pl.col("extant"))["id"].to_list())
     pruned_ids = set(pruned_df["id"].to_list())
     assert pruned_ids >= extant_ids
 
@@ -120,9 +118,7 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_matches_pandas(
     pruned_pd = alifestd_prune_extinct_lineages_asexual(
         phylogeny_df_pd, mutate=False
     )
-    pruned_pl = alifestd_prune_extinct_lineages_asexual_polars(
-        phylogeny_df_pl
-    )
+    pruned_pl = alifestd_prune_extinct_lineages_asexual_polars(phylogeny_df_pl)
 
     # Compare the ids that are retained
     assert set(pruned_pd["id"]) == set(pruned_pl["id"].to_list())

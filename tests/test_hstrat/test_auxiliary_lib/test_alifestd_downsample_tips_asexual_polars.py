@@ -66,7 +66,9 @@ def test_alifestd_downsample_tips_asexual_polars(
     original_num_tips = _count_leaf_nodes_polars(phylogeny_df_pl)
 
     result_df = alifestd_downsample_tips_asexual_polars(
-        phylogeny_df_pl, n_downsample, seed=seed,
+        phylogeny_df_pl,
+        n_downsample,
+        seed=seed,
     )
 
     assert len(result_df) <= original_len
@@ -87,7 +89,8 @@ def test_alifestd_downsample_tips_asexual_polars_empty(n_downsample):
     )
 
     result_df = alifestd_downsample_tips_asexual_polars(
-        phylogeny_df, n_downsample,
+        phylogeny_df,
+        n_downsample,
     )
 
     assert result_df.is_empty()
@@ -110,7 +113,9 @@ def test_alifestd_downsample_tips_asexual_polars_empty(n_downsample):
 @pytest.mark.parametrize("n_downsample", [1, 5, 10])
 @pytest.mark.parametrize("seed", [1, 42])
 def test_alifestd_downsample_tips_asexual_polars_matches_pandas(
-    phylogeny_df, n_downsample, seed,
+    phylogeny_df,
+    n_downsample,
+    seed,
 ):
     """Verify polars result matches pandas result for same prepared input."""
     phylogeny_df_pd = alifestd_try_add_ancestor_id_col(phylogeny_df.copy())
@@ -120,10 +125,15 @@ def test_alifestd_downsample_tips_asexual_polars_matches_pandas(
     phylogeny_df_pl = pl.from_pandas(phylogeny_df_pd)
 
     result_pd = alifestd_downsample_tips_asexual(
-        phylogeny_df_pd, n_downsample, mutate=False, seed=seed,
+        phylogeny_df_pd,
+        n_downsample,
+        mutate=False,
+        seed=seed,
     )
     result_pl = alifestd_downsample_tips_asexual_polars(
-        phylogeny_df_pl, n_downsample, seed=seed,
+        phylogeny_df_pl,
+        n_downsample,
+        seed=seed,
     )
 
     assert set(result_pd["id"]) == set(result_pl["id"].to_list())
@@ -140,16 +150,21 @@ def test_alifestd_downsample_tips_asexual_polars_matches_pandas(
 )
 @pytest.mark.parametrize("seed", [1, 42])
 def test_alifestd_downsample_tips_asexual_polars_deterministic(
-    phylogeny_df, seed,
+    phylogeny_df,
+    seed,
 ):
     """Verify same seed produces same result."""
     phylogeny_df_pl = _prepare_polars(phylogeny_df)
 
     result1 = alifestd_downsample_tips_asexual_polars(
-        phylogeny_df_pl, 5, seed=seed,
+        phylogeny_df_pl,
+        5,
+        seed=seed,
     )
     result2 = alifestd_downsample_tips_asexual_polars(
-        phylogeny_df_pl, 5, seed=seed,
+        phylogeny_df_pl,
+        5,
+        seed=seed,
     )
 
     assert result1["id"].to_list() == result2["id"].to_list()
@@ -222,7 +237,9 @@ def test_alifestd_downsample_tips_asexual_polars_all_tips():
     )
 
     result = alifestd_downsample_tips_asexual_polars(
-        df, 100000, seed=1,
+        df,
+        100000,
+        seed=1,
     )
 
     assert len(result) == len(df)
