@@ -1,7 +1,6 @@
 import argparse
 import logging
 import os
-import warnings
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
@@ -93,26 +92,6 @@ def _create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _checked_alifestd_try_add_ancestor_list_col_polars(
-    df: pl.DataFrame,
-) -> pl.DataFrame:
-    """Wrapper that checks for required columns, preventing silent failure."""
-    if isinstance(df, pl.LazyFrame):
-        df = df.collect()
-
-    schema_names = df.collect_schema().names()
-    if (
-        "ancestor_id" not in schema_names
-        and "ancestor_list" not in schema_names
-    ):
-        warnings.warn(
-            "Creating 'ancestor_list' column requires 'ancestor_id' column, "
-            "but it is not provided.",
-        )
-
-    return alifestd_try_add_ancestor_list_col_polars(df)
-
-
 if __name__ == "__main__":
     configure_prod_logging()
 
@@ -125,5 +104,5 @@ if __name__ == "__main__":
     ):
         _run_dataframe_cli(
             base_parser=parser,
-            output_dataframe_op=_checked_alifestd_try_add_ancestor_list_col_polars,
+            output_dataframe_op=alifestd_try_add_ancestor_list_col_polars,
         )
