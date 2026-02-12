@@ -22,16 +22,6 @@ pytestmark = pytest.mark.filterwarnings(
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
-@pytest.fixture(
-    params=[
-        pytest.param(lambda x: x, id="DataFrame"),
-        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
-    ]
-)
-def apply(request):
-    return request.param
-
-
 def _prepare_polars(phylogeny_df_pd: pd.DataFrame) -> pl.DataFrame:
     """Prepare a pandas phylogeny dataframe for the polars implementation.
 
@@ -73,6 +63,13 @@ def _count_leaf_nodes_polars(phylogeny_df: pl.DataFrame) -> int:
 )
 @pytest.mark.parametrize("n_downsample", [1, 5, 10, 100000000])
 @pytest.mark.parametrize("seed", [1, 42])
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
 def test_alifestd_downsample_tips_polars(
     phylogeny_df,
     n_downsample,
@@ -107,6 +104,13 @@ def test_alifestd_downsample_tips_polars(
 
 
 @pytest.mark.parametrize("n_downsample", [0, 1])
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
 def test_alifestd_downsample_tips_polars_empty(n_downsample, apply):
     phylogeny_df = apply(
         pl.DataFrame(
@@ -143,6 +147,13 @@ def test_alifestd_downsample_tips_polars_empty(n_downsample, apply):
 )
 @pytest.mark.parametrize("n_downsample", [1, 5, 10])
 @pytest.mark.parametrize("seed", [1, 42])
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
 def test_alifestd_downsample_tips_polars_matches_pandas(
     phylogeny_df,
     n_downsample,
@@ -190,6 +201,13 @@ def test_alifestd_downsample_tips_polars_matches_pandas(
     ],
 )
 @pytest.mark.parametrize("seed", [1, 42])
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
 def test_alifestd_downsample_tips_polars_deterministic(
     phylogeny_df,
     seed,
@@ -220,6 +238,13 @@ def test_alifestd_downsample_tips_polars_deterministic(
     assert result1["id"].to_list() == result2["id"].to_list()
 
 
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
 def test_alifestd_downsample_tips_polars_no_ancestor_id(apply):
     df = apply(
         pl.DataFrame(
@@ -252,6 +277,13 @@ def test_alifestd_downsample_tips_polars_does_not_mutate():
     assert df.columns == original_cols
 
 
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
 def test_alifestd_downsample_tips_polars_simple(apply):
     """Test a simple hand-crafted tree.
 
@@ -280,6 +312,13 @@ def test_alifestd_downsample_tips_polars_simple(apply):
     assert 0 in result["id"].to_list()  # root must be present
 
 
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
 def test_alifestd_downsample_tips_polars_all_tips(apply):
     """Requesting more tips than exist should return the full phylogeny."""
     df = apply(
