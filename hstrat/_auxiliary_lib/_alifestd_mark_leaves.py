@@ -8,9 +8,7 @@ import pandas as pd
 
 from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
-from ._alifestd_mark_leaves_asexual_polars import (
-    alifestd_mark_leaves_asexual_polars,
-)
+from ._alifestd_mark_leaves_polars import alifestd_mark_leaves_polars
 from ._configure_prod_logging import configure_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
@@ -79,7 +77,7 @@ if __name__ == "__main__":
 
     def _try_polars_op(df):
         try:
-            return alifestd_mark_leaves_asexual_polars(df)
+            return alifestd_mark_leaves_polars(df)
         except NotImplementedError:
             logging.info("- polars not supported, falling back to pandas")
             return _pandas_fallback(df)
