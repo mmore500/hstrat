@@ -221,11 +221,11 @@ def test_alifestd_prune_extinct_lineages_asexual_polars_simple():
 
     Tree structure:
         0 (root)
-        ├── 1
-        │   ├── 3 (extant)
-        │   └── 4
-        └── 2
-            └── 5
+        +-- 1
+        |   +-- 3 (extant)
+        |   +-- 4
+        +-- 2
+            +-- 5
 
     Only node 3 is extant, so nodes 0, 1, 3 should be kept.
     """

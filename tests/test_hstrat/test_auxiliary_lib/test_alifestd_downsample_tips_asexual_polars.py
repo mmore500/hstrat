@@ -205,10 +205,10 @@ def test_alifestd_downsample_tips_asexual_polars_simple():
 
     Tree structure:
         0 (root)
-        ├── 1
-        │   ├── 3 (leaf)
-        │   └── 4 (leaf)
-        └── 2 (leaf)
+        +-- 1
+        |   +-- 3 (leaf)
+        |   +-- 4 (leaf)
+        +-- 2 (leaf)
 
     Downsample to 1 tip should keep exactly one leaf and its lineage.
     """
