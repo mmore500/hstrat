@@ -36,7 +36,8 @@ def alifestd_try_add_ancestor_list_col_polars(
 
     See Also
     --------
-    alifestd_make_ancestor_list_col
+    alifestd_try_add_ancestor_list_col :
+        Pandas-based implementation.
     """
     schema_names = phylogeny_df.lazy().collect_schema().names()
     if "ancestor_id" in schema_names and "ancestor_list" not in schema_names:

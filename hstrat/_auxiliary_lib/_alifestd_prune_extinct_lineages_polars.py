@@ -52,6 +52,11 @@ def alifestd_prune_extinct_lineages_polars(
     -------
     polars.DataFrame
         The pruned phylogeny in alife standard format.
+
+    See Also
+    --------
+    alifestd_prune_extinct_lineages_asexual :
+        Pandas-based implementation.
     """
     schema_names = phylogeny_df.lazy().collect_schema().names()
     if "ancestor_id" not in schema_names:

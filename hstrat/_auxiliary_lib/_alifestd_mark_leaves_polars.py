@@ -31,6 +31,11 @@ def alifestd_mark_leaves_polars(
     -------
     polars.DataFrame
         The phylogeny with an added `is_leaf` boolean column.
+
+    See Also
+    --------
+    alifestd_mark_leaves :
+        Pandas-based implementation.
     """
     if phylogeny_df.lazy().limit(1).collect().is_empty():
         return phylogeny_df.with_columns(
