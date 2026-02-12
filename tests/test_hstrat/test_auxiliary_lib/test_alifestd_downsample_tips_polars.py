@@ -165,7 +165,7 @@ def test_alifestd_downsample_tips_polars_matches_pandas(
 
     phylogeny_df_pl = _apply_lazy(pl.from_pandas(phylogeny_df_pd), lazy)
 
-    _result_pd = alifestd_downsample_tips_asexual(
+    alifestd_downsample_tips_asexual(
         phylogeny_df_pd,
         n_downsample,
         mutate=False,
