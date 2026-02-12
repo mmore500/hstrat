@@ -210,6 +210,9 @@ from ._alifestd_prefix_roots_polars import alifestd_prefix_roots_polars
 from ._alifestd_prune_extinct_lineages_asexual import (
     alifestd_prune_extinct_lineages_asexual,
 )
+from ._alifestd_prune_extinct_lineages_asexual_polars import (
+    alifestd_prune_extinct_lineages_asexual_polars,
+)
 from ._alifestd_reroot_at_id_asexual import alifestd_reroot_at_id_asexual
 from ._alifestd_sample_triplet_comparisons_asexual import (
     alifestd_sample_triplet_comparisons_asexual,
@@ -479,6 +482,7 @@ __all__ = [
     "alifestd_prefix_roots",
     "alifestd_prefix_roots_polars",
     "alifestd_prune_extinct_lineages_asexual",
+    "alifestd_prune_extinct_lineages_asexual_polars",
     "alifestd_reroot_at_id_asexual",
     "alifestd_convert_root_ancestor_token",
     "alifestd_sample_triplet_comparisons_asexual",
