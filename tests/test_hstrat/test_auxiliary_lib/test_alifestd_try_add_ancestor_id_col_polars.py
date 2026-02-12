@@ -4,9 +4,9 @@ import pandas as pd
 import polars as pl
 import pytest
 
-from hstrat._auxiliary_lib import alifestd_try_add_ancestor_id_col
-from hstrat._auxiliary_lib._alifestd_try_add_ancestor_id_col_polars import (
-    alifestd_try_add_ancestor_id_col as alifestd_try_add_ancestor_id_col_polars,
+from hstrat._auxiliary_lib import (
+    alifestd_try_add_ancestor_id_col,
+    alifestd_try_add_ancestor_id_col_polars,
 )
 
 pytestmark = pytest.mark.filterwarnings(

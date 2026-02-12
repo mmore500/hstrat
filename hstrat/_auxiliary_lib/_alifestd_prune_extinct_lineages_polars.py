@@ -77,7 +77,7 @@ def alifestd_prune_extinct_lineages_polars(
     )
     if not alifestd_is_topologically_sorted_polars(phylogeny_df):
         raise NotImplementedError(
-            "polars topological sort not yet implemented"
+            "polars topological sort not yet implemented",
         )
 
     logging.info(

@@ -19,14 +19,14 @@ def alifestd_mark_num_children_polars(
     """
 
     logging.info(
-        "- alifestd_mark_num_children_asexual_polars: "
+        "- alifestd_mark_num_children_polars: "
         "checking contiguous ids...",
     )
     if not alifestd_has_contiguous_ids_polars(phylogeny_df):
         raise NotImplementedError("non-contiguous ids not yet supported")
 
     logging.info(
-        "- alifestd_mark_num_children_asexual_polars: "
+        "- alifestd_mark_num_children_polars: "
         "checking topological sort...",
     )
     if not alifestd_is_topologically_sorted_polars(phylogeny_df):
@@ -36,7 +36,7 @@ def alifestd_mark_num_children_polars(
 
     if "is_root" not in phylogeny_df.lazy().collect_schema().names():
         logging.info(
-            "- alifestd_mark_num_children_asexual_polars: marking roots...",
+            "- alifestd_mark_num_children_polars: marking roots...",
         )
         phylogeny_df = alifestd_mark_roots_polars(phylogeny_df)
 

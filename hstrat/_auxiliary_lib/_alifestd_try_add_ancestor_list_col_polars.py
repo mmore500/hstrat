@@ -100,7 +100,8 @@ def _checked_alifestd_try_add_ancestor_list_col_polars(
     if isinstance(df, pl.LazyFrame):
         df = df.collect()
 
-    if "ancestor_id" not in df and "ancestor_list" not in df:
+    schema_names = df.collect_schema().names()
+    if "ancestor_id" not in schema_names and "ancestor_list" not in schema_names:
         warnings.warn(
             "Creating 'ancestor_list' column requires 'ancestor_id' column, "
             "but it is not provided.",
