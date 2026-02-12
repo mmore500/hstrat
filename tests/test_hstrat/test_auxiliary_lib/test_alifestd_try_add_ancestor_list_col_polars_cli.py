@@ -37,6 +37,7 @@ def test_alifestd_try_add_ancestor_list_col_polars_cli_csv(tmp_path):
             "python3",
             "-m",
             "hstrat._auxiliary_lib._alifestd_try_add_ancestor_list_col_polars",
+            "--eager-write",
             output_file,
         ],
         check=True,

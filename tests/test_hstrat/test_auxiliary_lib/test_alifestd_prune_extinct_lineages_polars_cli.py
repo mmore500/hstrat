@@ -37,6 +37,7 @@ def test_alifestd_prune_extinct_lineages_polars_cli_csv(tmp_path):
             "python3",
             "-m",
             "hstrat._auxiliary_lib._alifestd_prune_extinct_lineages_polars",
+            "--eager-write",
             output_file,
         ],
         check=True,
