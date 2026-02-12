@@ -81,9 +81,7 @@ def test_alifestd_has_contiguous_ids_polars_false(phylogeny_df, lazy):
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_has_contiguous_ids_polars_matches_pandas(
-    phylogeny_df, lazy
-):
+def test_alifestd_has_contiguous_ids_polars_matches_pandas(phylogeny_df, lazy):
     """Verify polars result matches pandas result."""
     result_pd = alifestd_has_contiguous_ids(phylogeny_df)
     df = _apply_lazy(pl.from_pandas(phylogeny_df), lazy)
@@ -123,7 +121,5 @@ def test_alifestd_has_contiguous_ids_polars_single_node_nonzero(lazy):
 
 def test_alifestd_has_contiguous_ids_polars_empty(lazy):
     """Empty dataframe."""
-    df = _apply_lazy(
-        pl.DataFrame({"id": []}, schema={"id": pl.Int64}), lazy
-    )
+    df = _apply_lazy(pl.DataFrame({"id": []}, schema={"id": pl.Int64}), lazy)
     assert alifestd_has_contiguous_ids_polars(df)
