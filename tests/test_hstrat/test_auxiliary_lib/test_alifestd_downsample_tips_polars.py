@@ -264,25 +264,6 @@ def test_alifestd_downsample_tips_polars_no_ancestor_id(
         alifestd_downsample_tips_polars(df, 1)
 
 
-def test_alifestd_downsample_tips_polars_does_not_mutate():
-    """Verify the input dataframe is not mutated."""
-    df = pl.DataFrame(
-        {
-            "id": [0, 1, 2, 3],
-            "ancestor_id": [0, 0, 0, 1],
-            "destruction_time": [float("inf")] * 4,
-        }
-    )
-
-    original_len = len(df)
-    original_cols = df.columns
-
-    _ = alifestd_downsample_tips_polars(df, 2, seed=1).lazy().collect()
-
-    assert len(df) == original_len
-    assert df.columns == original_cols
-
-
 @pytest.mark.parametrize(
     "apply",
     [

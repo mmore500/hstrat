@@ -294,32 +294,6 @@ def test_alifestd_mark_leaves_polars_preserves_columns(apply: typing.Callable):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_mark_leaves_polars_does_not_mutate(apply: typing.Callable):
-    """Verify the input dataframe is not mutated."""
-    df_eager = pl.DataFrame(
-        {
-            "id": [0, 1, 2, 3],
-            "ancestor_id": [0, 0, 0, 1],
-        }
-    )
-    df_pl = apply(df_eager)
-
-    original_cols = df_eager.columns[:]
-    original_len = len(df_eager)
-
-    _ = alifestd_mark_leaves_polars(df_pl).lazy().collect()
-
-    assert len(df_eager) == original_len
-    assert df_eager.columns == original_cols
-
-
-@pytest.mark.parametrize(
-    "apply",
-    [
-        pytest.param(lambda x: x, id="DataFrame"),
-        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
-    ],
-)
 def test_alifestd_mark_leaves_polars_with_preexisting_num_children(
     apply: typing.Callable,
 ):

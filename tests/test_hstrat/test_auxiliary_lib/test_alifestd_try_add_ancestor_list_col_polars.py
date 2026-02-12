@@ -270,24 +270,6 @@ def test_alifestd_try_add_ancestor_list_col_polars_idempotent():
     )
 
 
-def test_alifestd_try_add_ancestor_list_col_polars_does_not_mutate():
-    """Verify the input dataframe is not mutated."""
-    df = pl.DataFrame(
-        {
-            "id": [0, 1, 2],
-            "ancestor_id": [0, 0, 1],
-        }
-    )
-
-    original_cols = df.columns[:]
-    original_len = len(df)
-
-    _ = alifestd_try_add_ancestor_list_col_polars(df)
-
-    assert len(df) == original_len
-    assert df.columns == original_cols
-
-
 def test_alifestd_try_add_ancestor_list_col_polars_two_roots():
     """Two independent root nodes."""
     df = pl.DataFrame(

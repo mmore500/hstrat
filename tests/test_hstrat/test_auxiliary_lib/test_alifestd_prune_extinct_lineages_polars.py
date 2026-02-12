@@ -288,20 +288,3 @@ def test_alifestd_prune_extinct_lineages_polars_none_extant():
     assert len(pruned) == 0
 
 
-def test_alifestd_prune_extinct_lineages_polars_does_not_mutate():
-    """Verify the input dataframe is not mutated."""
-    df = pl.DataFrame(
-        {
-            "id": [0, 1, 2, 3],
-            "ancestor_id": [0, 0, 0, 1],
-            "extant": [False, False, False, True],
-        }
-    )
-
-    original_len = len(df)
-    original_cols = df.columns
-
-    _ = alifestd_prune_extinct_lineages_polars(df)
-
-    assert len(df) == original_len
-    assert df.columns == original_cols

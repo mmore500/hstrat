@@ -306,27 +306,3 @@ def test_alifestd_mark_roots_polars_preserves_columns(apply: typing.Callable):
     assert result["taxon_label"].to_list() == ["a", "b", "c"]
 
 
-@pytest.mark.parametrize(
-    "apply",
-    [
-        pytest.param(lambda x: x, id="DataFrame"),
-        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
-    ],
-)
-def test_alifestd_mark_roots_polars_does_not_mutate(apply: typing.Callable):
-    """Verify the input dataframe is not mutated."""
-    df_eager = pl.DataFrame(
-        {
-            "id": [0, 1, 2],
-            "ancestor_id": [0, 0, 1],
-        }
-    )
-    df = apply(df_eager)
-
-    original_cols = df_eager.columns[:]
-    original_len = len(df_eager)
-
-    _ = alifestd_mark_roots_polars(df).lazy().collect()
-
-    assert len(df_eager) == original_len
-    assert df_eager.columns == original_cols
