@@ -15,12 +15,16 @@ $ python3 -m hstrat._auxiliary_lib._alifestd_as_newick_asexual
 $ python3 -m hstrat._auxiliary_lib._alifestd_count_root_nodes
 $ python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_asexual
 $ python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_clade_asexual
+$ python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_polars
 $ python3 -m hstrat._auxiliary_lib._alifestd_join_roots
 $ python3 -m hstrat._auxiliary_lib._alifestd_mark_leaves
+$ python3 -m hstrat._auxiliary_lib._alifestd_mark_leaves_polars
 $ python3 -m hstrat._auxiliary_lib._alifestd_prune_extinct_lineages_asexual
+$ python3 -m hstrat._auxiliary_lib._alifestd_prune_extinct_lineages_asexual_polars
 $ python3 -m hstrat._auxiliary_lib._alifestd_test_leaves_isomorphic_asexual
 $ python3 -m hstrat._auxiliary_lib._alifestd_to_working_format
 $ python3 -m hstrat._auxiliary_lib._alifestd_try_add_ancestor_list_col
+$ python3 -m hstrat._auxiliary_lib._alifestd_try_add_ancestor_list_col_polars
 
 For information on a command, invoke it with the --help flag.
 """,
