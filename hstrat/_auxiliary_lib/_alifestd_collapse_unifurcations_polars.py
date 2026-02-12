@@ -49,7 +49,7 @@ def alifestd_collapse_unifurcations_polars(
         .all()
     ):
         raise NotImplementedError(
-            "polars topological sort not yet implemented"
+            "polars topological sort not yet implemented",
         )
 
     logging.info(
