@@ -47,12 +47,18 @@ def _alifestd_downsample_tips_polars_impl(
     phylogeny_df = (
         phylogeny_df.lazy()
         .join(
-            kept_leaf_ids.with_columns(_kept=pl.lit(True)),
+            kept_leaf_ids.with_columns(
+                _alifestd_downsample_tips_asexual_kept=pl.lit(True)
+            ),
             on="id",
             how="left",
         )
-        .with_columns(extant=pl.col("_kept").fill_null(False))
-        .drop("_kept")
+        .with_columns(
+            extant=pl.col("_alifestd_downsample_tips_asexual_kept").fill_null(
+                False
+            )
+        )
+        .drop("_alifestd_downsample_tips_asexual_kept")
     )
 
     logging.info(
