@@ -107,6 +107,9 @@ from ._alifestd_find_mrca_id_asexual import alifestd_find_mrca_id_asexual
 from ._alifestd_find_root_ids import alifestd_find_root_ids
 from ._alifestd_has_compact_ids import alifestd_has_compact_ids
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
+from ._alifestd_has_contiguous_ids_polars import (
+    alifestd_has_contiguous_ids_polars,
+)
 from ._alifestd_has_increasing_ids import alifestd_has_increasing_ids
 from ._alifestd_has_multiple_roots import alifestd_has_multiple_roots
 from ._alifestd_is_asexual import alifestd_is_asexual
@@ -445,6 +448,7 @@ __all__ = [
     "alifestd_find_root_ids",
     "alifestd_has_compact_ids",
     "alifestd_has_contiguous_ids",
+    "alifestd_has_contiguous_ids_polars",
     "alifestd_has_increasing_ids",
     "alifestd_has_multiple_roots",
     "alifestd_is_asexual",
