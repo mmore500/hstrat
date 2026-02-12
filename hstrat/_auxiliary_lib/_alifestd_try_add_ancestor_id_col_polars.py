@@ -1,7 +1,7 @@
 import polars as pl
 
 
-def alifestd_try_add_ancestor_id_col(
+def alifestd_try_add_ancestor_id_col_polars(
     phylogeny_df: pl.DataFrame,
 ) -> pl.DataFrame:
     """Add an ancestor_id column to the input DataFrame if the phylogeny is
@@ -9,7 +9,8 @@ def alifestd_try_add_ancestor_id_col(
     """
 
     if "ancestor_id" in phylogeny_df.lazy().collect_schema().names() or (
-        phylogeny_df.select(
+        phylogeny_df.lazy()
+        .select(
             pl.col("ancestor_list").str.contains(",").any(),
         )
         .collect()

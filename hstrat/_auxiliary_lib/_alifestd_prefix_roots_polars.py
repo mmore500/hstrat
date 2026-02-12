@@ -5,16 +5,15 @@ import warnings
 
 import numpy as np
 import opytional as opyt
-import pandas as pd
 import polars as pl
 
 
 def alifestd_prefix_roots_polars(
-    phylogeny_df: pd.DataFrame,
+    phylogeny_df: pl.DataFrame,
     *,
     allow_id_reassign: bool = False,
     origin_time: typing.Optional[numbers.Real] = None,
-) -> pd.DataFrame:
+) -> pl.DataFrame:
     """Add new roots to the phylogeny, prefixing existing roots.
 
     An origin time may be specified, in which case only roots with origin times
