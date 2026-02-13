@@ -25,6 +25,11 @@ def alifestd_collapse_unifurcations_polars(
     Input dataframe is not mutated by this operation unless `mutate` set True.
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
+
+    See Also
+    --------
+    alifestd_collapse_unifurcations :
+        Pandas-based implementation.
     """
     phylogeny_df = phylogeny_df.lazy().collect()  # lazy not yet implemented
 

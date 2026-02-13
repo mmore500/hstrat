@@ -29,9 +29,7 @@ def test_alifestd_collapse_unifurcations_cli_version():
 
 
 def test_alifestd_collapse_unifurcations_cli_csv(tmp_path):
-    output_file = str(
-        tmp_path / "hstrat_alifestd_collapse_unifurcations.csv"
-    )
+    output_file = str(tmp_path / "hstrat_alifestd_collapse_unifurcations.csv")
     subprocess.run(  # nosec B603
         [
             "python3",
@@ -47,9 +45,7 @@ def test_alifestd_collapse_unifurcations_cli_csv(tmp_path):
 
 
 def test_alifestd_collapse_unifurcations_cli_parquet(tmp_path):
-    output_file = str(
-        tmp_path / "hstrat_alifestd_collapse_unifurcations.pqt"
-    )
+    output_file = str(tmp_path / "hstrat_alifestd_collapse_unifurcations.pqt")
     subprocess.run(  # nosec B603
         [
             "python3",

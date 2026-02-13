@@ -113,6 +113,11 @@ def alifestd_collapse_unifurcations(
     Input dataframe is not mutated by this operation unless `mutate` set True.
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
+
+    See Also
+    --------
+    alifestd_collapse_unifurcations_polars :
+        Polars-based implementation.
     """
 
     if any(
