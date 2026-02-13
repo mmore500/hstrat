@@ -84,9 +84,9 @@ def alifestd_prune_extinct_lineages_polars(
         "- alifestd_prune_extinct_lineages_polars: "
         "determining extant mask...",
     )
-    if "extant" in phylogeny_df.columns:
+    if "extant" in schema_names:
         extant_mask = phylogeny_df.lazy().select("extant")
-    elif "destruction_time" in phylogeny_df.columns:
+    elif "destruction_time" in schema_names:
         extant_mask = phylogeny_df.lazy().select(
             ~pl.col("destruction_time").is_finite()
         )
