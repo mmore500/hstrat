@@ -32,7 +32,7 @@ def _alifestd_downsample_tips_polars_impl(
     marked_df = alifestd_mark_leaves_polars(phylogeny_df)
 
     logging.info(
-        "- alifestd_downsample_tips_polars: collecting leaf_ids",
+        "- alifestd_downsample_tips_polars: collecting leaf ids...",
     )
     leaf_ids = (
         marked_df.lazy()
