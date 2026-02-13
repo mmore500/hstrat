@@ -5,11 +5,11 @@ import polars as pl
 from ._alifestd_has_contiguous_ids_polars import (
     alifestd_has_contiguous_ids_polars,
 )
-from ._alifestd_mark_num_children_asexual import (
-    _alifestd_mark_num_children_asexual_fast_path,
-)
 from ._alifestd_is_topologically_sorted_polars import (
     alifestd_is_topologically_sorted_polars,
+)
+from ._alifestd_mark_num_children_asexual import (
+    _alifestd_mark_num_children_asexual_fast_path,
 )
 from ._alifestd_mark_roots_polars import alifestd_mark_roots_polars
 
