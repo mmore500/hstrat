@@ -6,7 +6,7 @@ def alifestd_is_topologically_sorted_polars(
 ) -> bool:
     """Are all organisms listed after members of their `ancestor_list`?"""
 
-    if "ancestor_id" not in phylogeny_df.columns:
+    if "ancestor_id" not in phylogeny_df.lazy().collect_schema().names():
         raise NotImplementedError("ancestor_id column required")
 
     if (
