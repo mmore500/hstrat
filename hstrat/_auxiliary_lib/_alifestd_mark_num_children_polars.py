@@ -5,6 +5,9 @@ import polars as pl
 from ._alifestd_has_contiguous_ids_polars import (
     alifestd_has_contiguous_ids_polars,
 )
+from ._alifestd_mark_num_children_asexual import (
+    _alifestd_mark_num_children_asexual_fast_path,
+)
 from ._alifestd_is_topologically_sorted_polars import (
     alifestd_is_topologically_sorted_polars,
 )
@@ -38,18 +41,14 @@ def alifestd_mark_num_children_polars(
         )
         phylogeny_df = alifestd_mark_roots_polars(phylogeny_df)
 
-    return (
-        phylogeny_df.with_row_index("_alifestd_mark_num_children_idx")
-        .cast({"_alifestd_mark_num_children_idx": pl.Int64})
-        .join(
-            phylogeny_df.filter(~pl.col("is_root"))
-            .group_by("ancestor_id")
-            .len()
-            .rename({"len": "num_children"}),
-            left_on="_alifestd_mark_num_children_idx",
-            right_on="ancestor_id",
-            how="left",
-        )
-        .fill_null(0)
-        .drop("_alifestd_mark_num_children_idx")
+    child_counts = _alifestd_mark_num_children_asexual_fast_path(
+        phylogeny_df.lazy()
+        .select("ancestor_id")
+        .collect()
+        .to_series()
+        .to_numpy(),
+    )
+
+    return phylogeny_df.with_columns(
+        num_children=child_counts,
     )
