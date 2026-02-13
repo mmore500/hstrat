@@ -12,6 +12,8 @@ $ python3 -m hstrat.dataframe.surface_postprocess_trie
 Available commands (experimental API):
 $ python3 -m hstrat._auxiliary_lib._alifestd_add_inner_leaves
 $ python3 -m hstrat._auxiliary_lib._alifestd_as_newick_asexual
+$ python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations
+$ python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars
 $ python3 -m hstrat._auxiliary_lib._alifestd_count_root_nodes
 $ python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_asexual
 $ python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_clade_asexual
