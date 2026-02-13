@@ -416,45 +416,6 @@ Records collapse_unifurcations(Records &records, const bool dropped_only) {
 }
 
 /**
- * A makeshift iterator for children, called like this:
- *
- *   ChildrenGenerator iter(records, node);
- *   while ((child = iter.next())) {
- *     ...
- *   }
- *
- * Returns a value of 0 when there is no more children.
- */
-class ChildrenGenerator {
-private:
-  const Records &records;
-  u64 prev;
-  const u64 node;
-
-public:
-  ChildrenGenerator(
-    const Records &records, const u64 node
-  ) : records(records), prev(0), node(node) {}
-
-  u64 next() {
-    u64 cur;
-    if (!this->prev) {
-      this->prev = this->node;
-      cur = this->records.search_first_child_id[this->node];
-    } else {
-      cur = this->records.search_next_sibling_id[this->prev];
-    }
-    if (this->prev == cur) {
-      return 0;
-    }
-    this->prev = cur;
-    return this->prev;
-  }
-
-};
-
-
-/**
  * A more permissive declval.
 */
 template<class T> T& permissive_declval() {
@@ -595,9 +556,7 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
   records.search_ancestor_id[node] = parent;
   assert(parent <= node);
   assert(records.rank[parent] <= records.rank[node]);
-
-  const u64 ancestor_first_child = records.search_first_child_id[parent];
-  assert(ancestor_first_child != placeholder_value);
+  assert(records.search_first_child_id[parent] != placeholder_value);
 
   // insert node into the list of children, choosing its position in order
   // to keep the list in ascending order by rank
@@ -696,9 +655,7 @@ struct pairhash {
  */
 void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
   std::unordered_map<std::pair<i64, u64>, std::vector<u64>, pairhash> groups;
-  ChildrenGenerator gen(records, node);
-  u64 child;
-  while ((child = gen.next())) {
+  for (u64 child : ChildrenView(records, node)) {
     std::vector<u64> &items = groups[
       std::pair{records.rank[child], records.differentia[child]}
     ];
@@ -710,9 +667,7 @@ void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
       const u64 loser = children[i];
 
       std::vector<u64> loser_children;
-      ChildrenGenerator loser_children_gen(records, loser);
-      u64 loser_child;
-      while ((loser_child = loser_children_gen.next())) {
+      for (u64 loser_child : ChildrenView(records, loser)) {
         loser_children.push_back(loser_child);
       }
       for (const u64 loser_child : loser_children) {
