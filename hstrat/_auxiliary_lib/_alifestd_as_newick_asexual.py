@@ -53,7 +53,7 @@ def _build_newick_string(
 ) -> str:
     child_newick_reprs = dict()
     for id_, taxon_label, origin_time_delta, ancestor_id in progress_wrap(
-        zip(ids, labels, origin_time_deltas, ancestor_ids)
+        zip(ids, labels, origin_time_deltas.astype(str), ancestor_ids)
     ):
         newick_repr = _format_newick_repr(taxon_label, origin_time_delta)
 
@@ -131,7 +131,6 @@ def alifestd_as_newick_asexual(
             postorder_ids,
             ["id", "__hstrat_label", "origin_time_delta", "ancestor_id"],
         ]
-        .astype({"origin_time_delta": str})
         .to_numpy()
         .T
     )
