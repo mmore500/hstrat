@@ -32,11 +32,16 @@ def _alifestd_downsample_tips_polars_impl(
     marked_df = alifestd_mark_leaves_polars(phylogeny_df)
 
     logging.info(
-        "- alifestd_downsample_tips_polars: sampling tips...",
+        "- alifestd_downsample_tips_polars: calculating sample size...",
     )
     n_downsample = min(
         marked_df.lazy().select(pl.col("is_leaf").sum()).collect().item(),
         n_downsample,
+    )
+
+    logging.info(
+        "- alifestd_downsample_tips_polars: "
+        f"choosing {n_downsample} kept ids...",
     )
     kept_leaf_ids = (
         marked_df.lazy()
@@ -44,6 +49,9 @@ def _alifestd_downsample_tips_polars_impl(
         .select(pl.col("id").sample(n=n_downsample, seed=seed))
     )
 
+    logging.info(
+        "- alifestd_downsample_tips_polars: performing join...",
+    )
     phylogeny_df = (
         phylogeny_df.lazy()
         .join(
