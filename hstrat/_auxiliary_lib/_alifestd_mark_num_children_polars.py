@@ -39,9 +39,8 @@ def alifestd_mark_num_children_polars(
         phylogeny_df = alifestd_mark_roots_polars(phylogeny_df)
 
     return (
-        phylogeny_df.with_row_index(
-            "_alifestd_mark_num_children_idx"
-        )  # polars knows sorted
+        phylogeny_df.with_row_index("_alifestd_mark_num_children_idx")
+        .cast({"_alifestd_mark_num_children_idx": pl.Int64})
         .join(
             phylogeny_df.filter(~pl.col("is_root"))
             .group_by("ancestor_id")
