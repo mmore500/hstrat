@@ -304,5 +304,3 @@ def test_alifestd_mark_roots_polars_preserves_columns(apply: typing.Callable):
     assert "taxon_label" in result.columns
     assert result["origin_time"].to_list() == [0.0, 1.0, 2.0]
     assert result["taxon_label"].to_list() == ["a", "b", "c"]
-
-

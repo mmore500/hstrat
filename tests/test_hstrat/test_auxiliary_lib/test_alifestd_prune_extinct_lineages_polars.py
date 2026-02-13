@@ -286,5 +286,3 @@ def test_alifestd_prune_extinct_lineages_polars_none_extant():
     pruned = alifestd_prune_extinct_lineages_polars(df)
 
     assert len(pruned) == 0
-
-

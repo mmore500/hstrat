@@ -107,9 +107,7 @@ def test_alifestd_mark_num_children_polars_matches_pandas(
     phylogeny_df: pd.DataFrame, apply: typing.Callable
 ):
     """Verify polars result matches pandas result."""
-    result_pd = alifestd_mark_num_children_asexual(
-        phylogeny_df, mutate=False
-    )
+    result_pd = alifestd_mark_num_children_asexual(phylogeny_df, mutate=False)
 
     df_pl = apply(pl.from_pandas(phylogeny_df))
     result_pl = alifestd_mark_num_children_polars(df_pl).lazy().collect()
