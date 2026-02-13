@@ -41,13 +41,21 @@ def alifestd_mark_num_children_polars(
         )
         phylogeny_df = alifestd_mark_roots_polars(phylogeny_df)
 
-    child_counts = _alifestd_mark_num_children_asexual_fast_path(
+    logging.info(
+        "- alifestd_mark_num_children_polars: extracting ancestor ids...",
+    )
+    ancestor_ids = (
         phylogeny_df.lazy()
         .select("ancestor_id")
         .collect()
         .to_series()
-        .to_numpy(),
+        .to_numpy()
     )
+
+    logging.info(
+        "- alifestd_mark_num_children_polars: tabulating child counts...",
+    )
+    child_counts = _alifestd_mark_num_children_asexual_fast_path(ancestor_ids)
 
     return phylogeny_df.with_columns(
         num_children=child_counts,
