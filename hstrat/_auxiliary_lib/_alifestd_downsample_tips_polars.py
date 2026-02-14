@@ -52,7 +52,7 @@ def _alifestd_downsample_tips_polars_impl(
         "- alifestd_downsample_tips_polars: finding extant...",
     )
     phylogeny_df = phylogeny_df.with_columns(
-        extant=pl.int_range(0, pl.len()).is_in(leaf_ids)
+        extant=pl.int_range(0, pl.len()).is_in(leaf_ids)  # contiguous ids
     )
 
     logging.info(
@@ -114,9 +114,9 @@ def alifestd_downsample_tips_polars(
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
 
-Create a subsample phylogeny containing `num_tips` tips.
+Create a subsample phylogeny containing `-n` tips.
 
-If `num_tips` is greater than the number of tips in the phylogeny, the whole phylogeny is returned.
+If `-n` is greater than the number of tips in the phylogeny, the whole phylogeny is returned.
 
 Data is assumed to be in alife standard format.
 Only supports asexual phylogenies.

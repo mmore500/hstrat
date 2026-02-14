@@ -45,7 +45,7 @@ def alifestd_prune_extinct_lineages_polars(
     NotImplementedError
         If `phylogeny_df` is not topologically sorted.
     ValueError
-        If `phylogeny_df` has neither "extant" or "destruction_time" columns.
+        If `phylogeny_df` has neither "extant" nor "destruction_time" columns.
 
     Returns
     -------

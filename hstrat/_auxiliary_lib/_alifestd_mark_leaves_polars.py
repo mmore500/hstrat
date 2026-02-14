@@ -39,7 +39,7 @@ def alifestd_mark_leaves_polars(
     """
     if phylogeny_df.lazy().limit(1).collect().is_empty():
         return phylogeny_df.with_columns(
-            is_leaf=pl.Series("is_leaf", [], dtype=pl.Boolean),
+            is_leaf=pl.lit(False),  # sets Boolean dtype, but no values
         )
 
     if "num_children" not in phylogeny_df.lazy().collect_schema().names():
