@@ -11,6 +11,9 @@ from ._alifestd_assign_contiguous_ids_polars import (
     alifestd_assign_contiguous_ids_polars,
 )
 from ._alifestd_collapse_unifurcations import _collapse_unifurcations
+from ._alifestd_has_contiguous_ids_polars import (
+    alifestd_has_contiguous_ids_polars,
+)
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
@@ -56,14 +59,7 @@ def alifestd_collapse_unifurcations_polars(
         "- alifestd_collapse_unifurcations_polars: "
         "checking contiguous ids...",
     )
-    has_contiguous_ids = (
-        phylogeny_df.lazy()
-        .select(pl.col("id").diff() == 1)
-        .collect()
-        .to_series()
-        .all()
-    ) and (original_ids.first() == 0)
-    if not has_contiguous_ids:
+    if not alifestd_has_contiguous_ids_polars(phylogeny_df):
         logging.info(
             "- alifestd_collapse_unifurcations_polars: assigning ids...",
         )
