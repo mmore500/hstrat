@@ -1,4 +1,5 @@
 import os
+import typing
 
 import pandas as pd
 import polars as pl
@@ -23,11 +24,21 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_try_add_ancestor_id_col_polars_asexual(phylogeny_df):
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
+def test_alifestd_try_add_ancestor_id_col_polars_asexual(
+    phylogeny_df, apply: typing.Callable
+):
     """Verify ancestor_id column is correctly added for asexual phylogenies."""
-    df = pl.from_pandas(phylogeny_df).lazy()
+    df_prepared = pl.from_pandas(phylogeny_df)
+    df = apply(df_prepared)
 
-    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).lazy().collect()
 
     assert "ancestor_id" in result_df.columns
     assert len(result_df) == len(phylogeny_df)
@@ -44,14 +55,21 @@ def test_alifestd_try_add_ancestor_id_col_polars_asexual(phylogeny_df):
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
 def test_alifestd_try_add_ancestor_id_col_polars_matches_pandas(
-    phylogeny_df,
+    phylogeny_df, apply: typing.Callable
 ):
     """Verify polars result matches pandas result."""
     result_pd = alifestd_try_add_ancestor_id_col(phylogeny_df.copy())
 
-    df = pl.from_pandas(phylogeny_df).lazy()
-    result_pl = alifestd_try_add_ancestor_id_col_polars(df).collect()
+    df = apply(pl.from_pandas(phylogeny_df))
+    result_pl = alifestd_try_add_ancestor_id_col_polars(df).lazy().collect()
 
     assert "ancestor_id" in result_pd.columns
     assert "ancestor_id" in result_pl.columns
@@ -69,46 +87,86 @@ def test_alifestd_try_add_ancestor_id_col_polars_matches_pandas(
         ),
     ],
 )
-def test_alifestd_try_add_ancestor_id_col_polars_sexual(phylogeny_df):
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
+def test_alifestd_try_add_ancestor_id_col_polars_sexual(
+    phylogeny_df, apply: typing.Callable
+):
     """Verify ancestor_id is NOT added for sexual phylogenies."""
-    df = pl.from_pandas(phylogeny_df).lazy()
+    df = apply(pl.from_pandas(phylogeny_df))
 
-    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).lazy().collect()
 
     assert "ancestor_id" not in result_df.columns
 
 
-def test_alifestd_try_add_ancestor_id_col_polars_already_has_ancestor_id():
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
+def test_alifestd_try_add_ancestor_id_col_polars_already_has_ancestor_id(
+    apply: typing.Callable,
+):
     """Verify no change when ancestor_id column already exists."""
-    df = pl.DataFrame(
-        {
-            "id": [0, 1, 2],
-            "ancestor_list": ["[none]", "[0]", "[1]"],
-            "ancestor_id": [0, 0, 1],
-        }
-    ).lazy()
+    df = apply(
+        pl.DataFrame(
+            {
+                "id": [0, 1, 2],
+                "ancestor_list": ["[none]", "[0]", "[1]"],
+                "ancestor_id": [0, 0, 1],
+            }
+        )
+    )
 
-    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).lazy().collect()
 
     assert result_df["ancestor_id"].to_list() == [0, 0, 1]
 
 
-def test_alifestd_try_add_ancestor_id_col_polars_simple_chain():
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
+def test_alifestd_try_add_ancestor_id_col_polars_simple_chain(
+    apply: typing.Callable,
+):
     """Test a simple chain: 0 -> 1 -> 2."""
-    df = pl.DataFrame(
-        {
-            "id": [0, 1, 2],
-            "ancestor_list": ["[]", "[0]", "[1]"],
-        }
-    ).lazy()
+    df = apply(
+        pl.DataFrame(
+            {
+                "id": [0, 1, 2],
+                "ancestor_list": ["[]", "[0]", "[1]"],
+            }
+        )
+    )
 
-    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).lazy().collect()
 
     assert "ancestor_id" in result_df.columns
     assert result_df["ancestor_id"].to_list() == [0, 0, 1]
 
 
-def test_alifestd_try_add_ancestor_id_col_polars_simple_tree():
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
+def test_alifestd_try_add_ancestor_id_col_polars_simple_tree(
+    apply: typing.Callable,
+):
     """Test a simple tree.
 
     Tree structure:
@@ -118,73 +176,119 @@ def test_alifestd_try_add_ancestor_id_col_polars_simple_tree():
         |   +-- 4
         +-- 2
     """
-    df = pl.DataFrame(
-        {
-            "id": [0, 1, 2, 3, 4],
-            "ancestor_list": ["[None]", "[0]", "[0]", "[1]", "[1]"],
-        }
-    ).lazy()
+    df = apply(
+        pl.DataFrame(
+            {
+                "id": [0, 1, 2, 3, 4],
+                "ancestor_list": ["[None]", "[0]", "[0]", "[1]", "[1]"],
+            }
+        )
+    )
 
-    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).lazy().collect()
 
     assert result_df["ancestor_id"].to_list() == [0, 0, 0, 1, 1]
 
 
-def test_alifestd_try_add_ancestor_id_col_polars_single_node():
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
+def test_alifestd_try_add_ancestor_id_col_polars_single_node(
+    apply: typing.Callable,
+):
     """A single root node."""
-    df = pl.DataFrame(
-        {
-            "id": [0],
-            "ancestor_list": ["[none]"],
-        }
-    ).lazy()
+    df = apply(
+        pl.DataFrame(
+            {
+                "id": [0],
+                "ancestor_list": ["[none]"],
+            }
+        )
+    )
 
-    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).lazy().collect()
 
     assert "ancestor_id" in result_df.columns
     assert result_df["ancestor_id"].to_list() == [0]
 
 
-def test_alifestd_try_add_ancestor_id_col_polars_two_roots():
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
+def test_alifestd_try_add_ancestor_id_col_polars_two_roots(
+    apply: typing.Callable,
+):
     """Two independent root nodes."""
-    df = pl.DataFrame(
-        {
-            "id": [0, 1, 2, 3],
-            "ancestor_list": ["[none]", "[none]", "[0]", "[1]"],
-        }
-    ).lazy()
+    df = apply(
+        pl.DataFrame(
+            {
+                "id": [0, 1, 2, 3],
+                "ancestor_list": ["[none]", "[none]", "[0]", "[1]"],
+            }
+        )
+    )
 
-    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).lazy().collect()
 
     assert "ancestor_id" in result_df.columns
     assert result_df["ancestor_id"].to_list() == [0, 1, 0, 1]
 
 
-def test_alifestd_try_add_ancestor_id_col_polars_empty():
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
+def test_alifestd_try_add_ancestor_id_col_polars_empty(
+    apply: typing.Callable,
+):
     """Verify empty dataframe gets ancestor_id column."""
-    df = pl.DataFrame(
-        {"id": [], "ancestor_list": []},
-        schema={"id": pl.Int64, "ancestor_list": pl.String},
-    ).lazy()
+    df = apply(
+        pl.DataFrame(
+            {"id": [], "ancestor_list": []},
+            schema={"id": pl.Int64, "ancestor_list": pl.String},
+        )
+    )
 
-    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).lazy().collect()
 
     assert "ancestor_id" in result_df.columns
     assert result_df.is_empty()
 
 
-def test_alifestd_try_add_ancestor_id_col_polars_preserves_columns():
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
+def test_alifestd_try_add_ancestor_id_col_polars_preserves_columns(
+    apply: typing.Callable,
+):
     """Verify original columns are preserved."""
-    df = pl.DataFrame(
-        {
-            "id": [0, 1, 2],
-            "ancestor_list": ["[none]", "[0]", "[1]"],
-            "origin_time": [0.0, 1.0, 2.0],
-            "taxon_label": ["a", "b", "c"],
-        }
-    ).lazy()
+    df = apply(
+        pl.DataFrame(
+            {
+                "id": [0, 1, 2],
+                "ancestor_list": ["[none]", "[0]", "[1]"],
+                "origin_time": [0.0, 1.0, 2.0],
+                "taxon_label": ["a", "b", "c"],
+            }
+        )
+    )
 
-    result_df = alifestd_try_add_ancestor_id_col_polars(df).collect()
+    result_df = alifestd_try_add_ancestor_id_col_polars(df).lazy().collect()
 
     assert "ancestor_id" in result_df.columns
     assert "origin_time" in result_df.columns
@@ -193,18 +297,31 @@ def test_alifestd_try_add_ancestor_id_col_polars_preserves_columns():
     assert result_df["taxon_label"].to_list() == ["a", "b", "c"]
 
 
-def test_alifestd_try_add_ancestor_id_col_polars_idempotent():
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
+def test_alifestd_try_add_ancestor_id_col_polars_idempotent(
+    apply: typing.Callable,
+):
     """Calling twice should produce the same result."""
-    df = pl.DataFrame(
-        {
-            "id": [0, 1, 2],
-            "ancestor_list": ["[none]", "[0]", "[1]"],
-        }
-    ).lazy()
+    df = apply(
+        pl.DataFrame(
+            {
+                "id": [0, 1, 2],
+                "ancestor_list": ["[none]", "[0]", "[1]"],
+            }
+        )
+    )
 
-    result1 = alifestd_try_add_ancestor_id_col_polars(df).collect()
-    result2 = alifestd_try_add_ancestor_id_col_polars(
-        result1.lazy(),
-    ).collect()
+    result1 = alifestd_try_add_ancestor_id_col_polars(df).lazy().collect()
+    result2 = (
+        alifestd_try_add_ancestor_id_col_polars(apply(result1))
+        .lazy()
+        .collect()
+    )
 
     assert result1["ancestor_id"].to_list() == result2["ancestor_id"].to_list()
