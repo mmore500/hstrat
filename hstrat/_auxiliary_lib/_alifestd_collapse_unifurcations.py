@@ -78,7 +78,7 @@ def _alifestd_collapse_unifurcations_asexual(
     logging.info("- alifestd_collapse_unifurcations: calculating reindex...")
     assert (phylogeny_df["id"] >= phylogeny_df["ancestor_id"]).all()
     keep_filter, ancestor_ids = _collapse_unifurcations(
-        phylogeny_df["ancestor_id"].to_numpy(),
+        phylogeny_df["ancestor_id"].to_numpy().copy(),
     )
 
     logging.info("- alifestd_collapse_unifurcations: applying reindex...")
@@ -211,10 +211,6 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    from ._alifestd_collapse_unifurcations_polars import (
-        alifestd_collapse_unifurcations_polars,
-    )
-
     configure_prod_logging()
 
     parser = _create_parser()
@@ -225,9 +221,7 @@ if __name__ == "__main__":
     ):
         _run_dataframe_cli(
             base_parser=parser,
-            output_dataframe_op=delegate_polars_implementation(
-                alifestd_collapse_unifurcations_polars,
-            )(
+            output_dataframe_op=delegate_polars_implementation()(
                 alifestd_collapse_unifurcations,
             ),
         )
