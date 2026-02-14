@@ -31,11 +31,11 @@ def alifestd_collapse_unifurcations_polars(
     alifestd_collapse_unifurcations :
         Pandas-based implementation.
     """
-    phylogeny_df = phylogeny_df.lazy().collect()  # lazy not yet implemented
+    schema_names = phylogeny_df.lazy().collect_schema().names()
 
     if any(
-        col in phylogeny_df
-        for col in ["branch_length", "edge_length", "origin_time_delta"]
+        col in schema_names
+        for col in ("branch_length", "edge_length", "origin_time_delta")
     ):
         warnings.warn(
             "alifestd_collapse_unifurcations does not update branch length "
@@ -43,36 +43,66 @@ def alifestd_collapse_unifurcations_polars(
             "collapsed phylogeny."
         )
 
-    if "ancestor_list" in phylogeny_df:
+    if "ancestor_list" in schema_names:
         raise NotImplementedError
 
-    original_ids = phylogeny_df["id"]
-    has_contiguous_ids = phylogeny_df.select(
-        pl.col("id").diff() == 1
-    ).to_series().all() and (phylogeny_df["id"].first() == 0)
+    logging.info(
+        "- alifestd_collapse_unifurcations_polars: "
+        "collecting original ids...",
+    )
+    original_ids = phylogeny_df.lazy().select("id").collect().to_series()
+
+    logging.info(
+        "- alifestd_collapse_unifurcations_polars: "
+        "checking contiguous ids...",
+    )
+    has_contiguous_ids = (
+        phylogeny_df.lazy()
+        .select(pl.col("id").diff() == 1)
+        .collect()
+        .to_series()
+        .all()
+    ) and (original_ids.first() == 0)
     if not has_contiguous_ids:
         logging.info(
             "- alifestd_collapse_unifurcations_polars: assigning ids...",
         )
         phylogeny_df = alifestd_assign_contiguous_ids_polars(phylogeny_df)
 
-    if (
-        not phylogeny_df.select(pl.col("ancestor_id") <= pl.col("id"))
+    logging.info(
+        "- alifestd_collapse_unifurcations_polars: "
+        "checking topological sort...",
+    )
+    is_sorted = (
+        phylogeny_df.lazy()
+        .select(pl.col("ancestor_id") <= pl.col("id"))
+        .collect()
         .to_series()
         .all()
-    ):
+    )
+    if not is_sorted:
         raise NotImplementedError(
             "polars topological sort not yet implemented",
         )
 
     logging.info(
+        "- alifestd_collapse_unifurcations_polars: "
+        "collecting ancestor_ids...",
+    )
+    ancestor_ids = (
+        phylogeny_df.lazy()
+        .select("ancestor_id")
+        .collect()
+        .to_series()
+        .to_numpy()
+    )
+
+    logging.info(
         "- alifestd_collapse_unifurcations_polars: calculating reindex...",
     )
     keep_filter, ancestor_ids = _collapse_unifurcations(
-        # must copy to remove read-only flag for numba compatibility
-        phylogeny_df["ancestor_id"]
-        .to_numpy()
-        .copy(),
+        ancestor_ids.copy(),  # must copy to remove read-only flag...
+        # ... for numba compatibility
     )
 
     logging.info(
