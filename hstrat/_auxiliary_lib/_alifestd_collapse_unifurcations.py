@@ -78,7 +78,7 @@ def _alifestd_collapse_unifurcations_asexual(
     logging.info("- alifestd_collapse_unifurcations: calculating reindex...")
     assert (phylogeny_df["id"] >= phylogeny_df["ancestor_id"]).all()
     keep_filter, ancestor_ids = _collapse_unifurcations(
-        phylogeny_df["ancestor_id"].to_numpy().copy(),
+        phylogeny_df["ancestor_id"].to_numpy(),
     )
 
     logging.info("- alifestd_collapse_unifurcations: applying reindex...")
