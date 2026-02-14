@@ -56,7 +56,7 @@ def alifestd_collapse_unifurcations_polars(
         "- alifestd_collapse_unifurcations_polars: "
         "collecting original ids...",
     )
-    original_ids = phylogeny_df.lazy().select("id").collect().to_series()
+    original_ids = phylogeny_df.lazy().select("id").collect().to_series().to_numpy()
 
     logging.info(
         "- alifestd_collapse_unifurcations_polars: "
@@ -101,8 +101,8 @@ def alifestd_collapse_unifurcations_polars(
         "- alifestd_collapse_unifurcations_polars: applying reindex...",
     )
     return phylogeny_df.filter(keep_filter).with_columns(
-        id=original_ids.to_numpy()[keep_filter],
-        ancestor_id=original_ids.gather(ancestor_ids[keep_filter]),
+        id=original_ids[keep_filter],
+        ancestor_id=original_ids[ancestor_ids[keep_filter]],
     )
 
 
