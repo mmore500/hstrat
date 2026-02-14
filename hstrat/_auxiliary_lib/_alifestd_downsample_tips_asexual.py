@@ -130,10 +130,6 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    from ._alifestd_downsample_tips_polars import (
-        alifestd_downsample_tips_polars,
-    )
-
     configure_prod_logging()
 
     parser = _create_parser()
@@ -143,13 +139,7 @@ if __name__ == "__main__":
     ):
         _run_dataframe_cli(
             base_parser=parser,
-            output_dataframe_op=delegate_polars_implementation(
-                functools.partial(
-                    alifestd_downsample_tips_polars,
-                    n_downsample=args.n,
-                    seed=args.seed,
-                ),
-            )(
+            output_dataframe_op=delegate_polars_implementation()(
                 functools.partial(
                     alifestd_downsample_tips_asexual,
                     n_downsample=args.n,
