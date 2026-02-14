@@ -332,6 +332,32 @@ def test_alifestd_prune_extinct_lineages_polars_not_sorted(
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
+def test_alifestd_prune_extinct_lineages_polars_empty(
+    apply: typing.Callable,
+):
+    """Empty dataframe should return empty."""
+    df = apply(
+        pl.DataFrame(
+            {"id": [], "ancestor_id": [], "destruction_time": []},
+            schema={
+                "id": pl.Int64,
+                "ancestor_id": pl.Int64,
+                "destruction_time": pl.Float64,
+            },
+        ),
+    )
+
+    result = alifestd_prune_extinct_lineages_polars(df).lazy().collect()
+    assert result.is_empty()
+
+
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
 def test_alifestd_prune_extinct_lineages_polars_simple(
     apply: typing.Callable,
 ):
