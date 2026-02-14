@@ -10,25 +10,17 @@ from hstrat._auxiliary_lib import (
     alifestd_downsample_tips_asexual,
     alifestd_to_working_format,
 )
+from hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars import (
+    alifestd_assign_contiguous_ids_polars,
+)
 from hstrat._auxiliary_lib._alifestd_downsample_tips_polars import (
     alifestd_downsample_tips_polars,
 )
+from hstrat._auxiliary_lib._alifestd_mark_leaves_polars import (
+    alifestd_mark_leaves_polars,
+)
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
-
-
-def _count_leaf_nodes_polars(phylogeny_df: pl.DataFrame) -> int:
-    """Count leaf nodes in a polars dataframe (works with any ids)."""
-    all_ids = set(phylogeny_df["id"].to_list())
-    # internal nodes are those that appear as ancestor_id of some other node
-    # (exclude root self-references)
-    internal_ids = set(
-        phylogeny_df.filter(pl.col("ancestor_id") != pl.col("id"))
-        .select("ancestor_id")
-        .to_series()
-        .to_list()
-    )
-    return len(all_ids - internal_ids)
 
 
 @pytest.mark.parametrize(
@@ -71,8 +63,12 @@ def test_alifestd_downsample_tips_polars(
     phylogeny_df_pl = apply(pl.from_pandas(phylogeny_df))
 
     original_len = len(phylogeny_df_pl.lazy().collect())
-    original_num_tips = _count_leaf_nodes_polars(
-        phylogeny_df_pl.lazy().collect()
+    original_num_tips = (
+        alifestd_mark_leaves_polars(phylogeny_df_pl)
+        .lazy()
+        .select(pl.col("is_leaf").sum())
+        .collect()
+        .item()
     )
 
     result_df = (
@@ -90,9 +86,18 @@ def test_alifestd_downsample_tips_polars(
     assert set(result_df["id"].to_list()).issubset(
         set(phylogeny_df_pl.lazy().collect()["id"].to_list())
     )
-    assert _count_leaf_nodes_polars(result_df) == min(
-        original_num_tips, n_downsample
+    result_num_tips = (
+        alifestd_mark_leaves_polars(
+            alifestd_assign_contiguous_ids_polars(
+                result_df.select("id", "ancestor_id"),
+            ),
+        )
+        .lazy()
+        .select(pl.col("is_leaf").sum())
+        .collect()
+        .item()
     )
+    assert result_num_tips == min(original_num_tips, n_downsample)
 
 
 @pytest.mark.parametrize("n_downsample", [0, 1])
@@ -181,10 +186,25 @@ def test_alifestd_downsample_tips_polars_matches_pandas(
         .collect()
     )
 
-    assert _count_leaf_nodes_polars(result_pl) == min(
-        n_downsample,
-        _count_leaf_nodes_polars(pl.from_pandas(phylogeny_df)),
+    result_num_tips = (
+        alifestd_mark_leaves_polars(
+            alifestd_assign_contiguous_ids_polars(
+                result_pl.select("id", "ancestor_id"),
+            ),
+        )
+        .lazy()
+        .select(pl.col("is_leaf").sum())
+        .collect()
+        .item()
     )
+    original_num_tips = (
+        alifestd_mark_leaves_polars(pl.from_pandas(phylogeny_df))
+        .lazy()
+        .select(pl.col("is_leaf").sum())
+        .collect()
+        .item()
+    )
+    assert result_num_tips == min(n_downsample, original_num_tips)
     assert set(result_pl["id"].to_list()).issubset(
         set(phylogeny_df_pl.lazy().collect()["id"].to_list())
     )
@@ -295,7 +315,18 @@ def test_alifestd_downsample_tips_polars_simple(apply: typing.Callable):
 
     result = alifestd_downsample_tips_polars(df, 1, seed=1).lazy().collect()
 
-    assert _count_leaf_nodes_polars(result) == 1
+    result_num_tips = (
+        alifestd_mark_leaves_polars(
+            alifestd_assign_contiguous_ids_polars(
+                result.select("id", "ancestor_id"),
+            ),
+        )
+        .lazy()
+        .select(pl.col("is_leaf").sum())
+        .collect()
+        .item()
+    )
+    assert result_num_tips == 1
     assert 0 in result["id"].to_list()  # root must be present
 
 
