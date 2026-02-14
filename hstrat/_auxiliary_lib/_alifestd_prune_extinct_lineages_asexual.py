@@ -198,6 +198,10 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
+    from ._alifestd_prune_extinct_lineages_polars import (
+        alifestd_prune_extinct_lineages_polars,
+    )
+
     configure_prod_logging()
 
     parser = _create_parser()
@@ -208,7 +212,9 @@ if __name__ == "__main__":
     ):
         _run_dataframe_cli(
             base_parser=parser,
-            output_dataframe_op=delegate_polars_implementation()(
+            output_dataframe_op=delegate_polars_implementation(
+                alifestd_prune_extinct_lineages_polars,
+            )(
                 alifestd_prune_extinct_lineages_asexual,
             ),
         )

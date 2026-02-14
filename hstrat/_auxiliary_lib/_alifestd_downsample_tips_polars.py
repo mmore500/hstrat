@@ -52,7 +52,7 @@ def _alifestd_downsample_tips_polars_impl(
         "- alifestd_downsample_tips_polars: finding extant...",
     )
     phylogeny_df = phylogeny_df.with_columns(
-        extant=pl.int_range(0, pl.len()).is_in(leaf_ids)
+        extant=pl.col("id").is_in(leaf_ids)
     )
 
     logging.info(

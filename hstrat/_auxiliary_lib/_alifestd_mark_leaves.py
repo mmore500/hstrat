@@ -73,6 +73,8 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
+    from ._alifestd_mark_leaves_polars import alifestd_mark_leaves_polars
+
     configure_prod_logging()
 
     parser = _create_parser()
@@ -82,7 +84,9 @@ if __name__ == "__main__":
     ):
         _run_dataframe_cli(
             base_parser=parser,
-            output_dataframe_op=delegate_polars_implementation()(
+            output_dataframe_op=delegate_polars_implementation(
+                alifestd_mark_leaves_polars,
+            )(
                 alifestd_mark_leaves,
             ),
         )
