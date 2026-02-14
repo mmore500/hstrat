@@ -98,7 +98,7 @@ def test_alifestd_try_add_ancestor_id_col_polars_simple_chain():
     df = pl.DataFrame(
         {
             "id": [0, 1, 2],
-            "ancestor_list": ["[none]", "[0]", "[1]"],
+            "ancestor_list": ["[]", "[0]", "[1]"],
         }
     ).lazy()
 
@@ -121,7 +121,7 @@ def test_alifestd_try_add_ancestor_id_col_polars_simple_tree():
     df = pl.DataFrame(
         {
             "id": [0, 1, 2, 3, 4],
-            "ancestor_list": ["[none]", "[0]", "[0]", "[1]", "[1]"],
+            "ancestor_list": ["[None]", "[0]", "[0]", "[1]", "[1]"],
         }
     ).lazy()
 
