@@ -1,0 +1,166 @@
+import os
+
+import pandas as pd
+import pytest
+
+from hstrat._auxiliary_lib import (
+    alifestd_aggregate_phylogenies,
+    alifestd_count_leaf_nodes,
+    alifestd_find_leaf_ids,
+    alifestd_prune_extinct_lineages_asexual,
+    alifestd_to_working_format,
+    alifestd_topological_sort,
+    alifestd_try_add_ancestor_id_col,
+    alifestd_validate,
+)
+from hstrat._auxiliary_lib._alifestd_prune_canopy_asexual import (
+    alifestd_prune_canopy_asexual,
+)
+
+assets_path = os.path.join(os.path.dirname(__file__), "assets")
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df",
+    [
+        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
+        ),
+        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+    ],
+)
+@pytest.mark.parametrize("num_tips", [1, 5, 10, 100000000])
+@pytest.mark.parametrize("mutate", [True, False])
+def test_alifestd_prune_canopy_asexual(phylogeny_df, num_tips, mutate):
+    original_df = phylogeny_df.copy()
+
+    result_df = alifestd_prune_canopy_asexual(
+        phylogeny_df, num_tips, mutate
+    )
+
+    assert len(result_df) <= len(original_df)
+    assert "extant" not in result_df.columns
+
+    if not mutate:
+        pd.testing.assert_frame_equal(phylogeny_df, original_df)
+
+    assert all(result_df["id"].isin(original_df["id"]))
+    assert alifestd_count_leaf_nodes(result_df) == min(
+        alifestd_count_leaf_nodes(original_df), num_tips
+    )
+
+
+@pytest.mark.parametrize("num_tips", [0, 1])
+def test_alifestd_prune_canopy_asexual_with_zero_tips(num_tips):
+    phylogeny_df = pd.DataFrame(
+        {"id": [], "parent_id": [], "ancestor_id": []}
+    )
+
+    result_df = alifestd_prune_canopy_asexual(phylogeny_df, num_tips)
+
+    assert result_df.empty
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df",
+    [
+        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        alifestd_aggregate_phylogenies(
+            [
+                pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+                pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+            ]
+        ),
+        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+    ],
+)
+@pytest.mark.parametrize("num_tips", [1, 5, 10])
+def test_prune_canopy_vs_manual(phylogeny_df, num_tips):
+    """Verify canopy prune matches manually marking top tips as extant and
+    then pruning extinct lineages."""
+    import numpy as np
+
+    original_df = phylogeny_df.copy()
+    canopy_df = alifestd_prune_canopy_asexual(
+        phylogeny_df, num_tips, mutate=False
+    )
+
+    # manually replicate: find top tips, mark extant, prune
+    tips = alifestd_find_leaf_ids(original_df)
+    tips_sorted = np.sort(tips)
+    kept = tips_sorted[-num_tips:]
+
+    original_df = alifestd_try_add_ancestor_id_col(original_df)
+    original_df["extant"] = original_df["id"].isin(kept)
+    manual_df = alifestd_prune_extinct_lineages_asexual(
+        original_df, mutate=True
+    ).drop(columns=["extant"])
+
+    pd.testing.assert_frame_equal(canopy_df, manual_df)
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df",
+    [
+        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+    ],
+)
+def test_alifestd_prune_canopy_asexual_retains_highest_ids(phylogeny_df):
+    """Verify that the retained tips are the ones with the highest ids."""
+    num_tips = 5
+    result_df = alifestd_prune_canopy_asexual(phylogeny_df, num_tips)
+
+    original_tips = alifestd_find_leaf_ids(phylogeny_df)
+    expected_kept = set(sorted(original_tips)[-num_tips:])
+
+    result_tips = set(alifestd_find_leaf_ids(result_df))
+    assert result_tips == expected_kept
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df",
+    [
+        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
+    ],
+)
+def test_alifestd_prune_canopy_asexual_validates(phylogeny_df):
+    num_tips = 5
+    result_df = alifestd_prune_canopy_asexual(phylogeny_df, num_tips)
+    assert alifestd_validate(result_df)
+
+
+def test_alifestd_prune_canopy_asexual_simple():
+    """Test a simple hand-crafted tree.
+
+    Tree structure:
+        0 (root)
+        +-- 1
+        |   +-- 3 (leaf)
+        |   +-- 4 (leaf)
+        +-- 2 (leaf)
+
+    With num_tips=2, keep leaves 3 and 4 (highest ids), result is 0, 1, 3, 4.
+    With num_tips=1, keep leaf 4 (highest id), result is 0, 1, 4.
+    """
+    df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4],
+            "ancestor_list": ["[none]", "[0]", "[0]", "[1]", "[1]"],
+        }
+    )
+
+    result2 = alifestd_prune_canopy_asexual(df, 2)
+    assert set(result2["id"]) == {0, 1, 3, 4}
+
+    result1 = alifestd_prune_canopy_asexual(df, 1)
+    assert set(result1["id"]) == {0, 1, 4}
