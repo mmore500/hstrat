@@ -217,9 +217,7 @@ def test_alifestd_prune_extinct_lineages_polars_independent_trees(
     aggregated_pl = apply(pl.from_pandas(aggregated))
 
     pruned_df = (
-        alifestd_prune_extinct_lineages_polars(aggregated_pl)
-        .lazy()
-        .collect()
+        alifestd_prune_extinct_lineages_polars(aggregated_pl).lazy().collect()
     )
     assert len(pruned_df) == len(phylogeny_df)
 
@@ -253,7 +251,9 @@ def test_alifestd_prune_extinct_lineages_polars_ambiguous_extant(
     )
 
     with pytest.raises(ValueError):
-        alifestd_prune_extinct_lineages_polars(phylogeny_df_pl).lazy().collect()
+        alifestd_prune_extinct_lineages_polars(
+            phylogeny_df_pl
+        ).lazy().collect()
 
 
 @pytest.mark.parametrize(

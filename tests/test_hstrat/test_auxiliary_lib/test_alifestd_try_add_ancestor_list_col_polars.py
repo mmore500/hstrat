@@ -287,14 +287,20 @@ def test_alifestd_try_add_ancestor_list_col_polars_root_ancestor_token(
         )
     )
 
-    result = alifestd_try_add_ancestor_list_col_polars(
-        df, root_ancestor_token="None"
-    ).lazy().collect()
+    result = (
+        alifestd_try_add_ancestor_list_col_polars(
+            df, root_ancestor_token="None"
+        )
+        .lazy()
+        .collect()
+    )
     assert result["ancestor_list"].to_list() == ["[None]", "[0]", "[1]"]
 
-    result2 = alifestd_try_add_ancestor_list_col_polars(
-        df, root_ancestor_token=""
-    ).lazy().collect()
+    result2 = (
+        alifestd_try_add_ancestor_list_col_polars(df, root_ancestor_token="")
+        .lazy()
+        .collect()
+    )
     assert result2["ancestor_list"].to_list() == ["[]", "[0]", "[1]"]
 
 

@@ -56,7 +56,9 @@ def alifestd_collapse_unifurcations_polars(
         "- alifestd_collapse_unifurcations_polars: "
         "collecting original ids...",
     )
-    original_ids = phylogeny_df.lazy().select("id").collect().to_series().to_numpy()
+    original_ids = (
+        phylogeny_df.lazy().select("id").collect().to_series().to_numpy()
+    )
 
     logging.info(
         "- alifestd_collapse_unifurcations_polars: "
