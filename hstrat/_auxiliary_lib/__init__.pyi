@@ -93,6 +93,7 @@ from ._alifestd_downsample_tips_asexual import alifestd_downsample_tips_asexual
 from ._alifestd_downsample_tips_clade_asexual import (
     alifestd_downsample_tips_clade_asexual,
 )
+from ._alifestd_downsample_tips_polars import alifestd_downsample_tips_polars
 from ._alifestd_estimate_triplet_distance_asexual import (
     alifestd_estimate_triplet_distance_asexual,
 )
@@ -104,6 +105,9 @@ from ._alifestd_find_mrca_id_asexual import alifestd_find_mrca_id_asexual
 from ._alifestd_find_root_ids import alifestd_find_root_ids
 from ._alifestd_has_compact_ids import alifestd_has_compact_ids
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
+from ._alifestd_has_contiguous_ids_polars import (
+    alifestd_has_contiguous_ids_polars,
+)
 from ._alifestd_has_increasing_ids import alifestd_has_increasing_ids
 from ._alifestd_has_multiple_roots import alifestd_has_multiple_roots
 from ._alifestd_is_asexual import alifestd_is_asexual
@@ -118,6 +122,9 @@ from ._alifestd_is_strictly_bifurcating_asexual import (
     alifestd_is_strictly_bifurcating_asexual,
 )
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
+from ._alifestd_is_topologically_sorted_polars import (
+    alifestd_is_topologically_sorted_polars,
+)
 from ._alifestd_is_working_format_asexual import (
     alifestd_is_working_format_asexual,
 )
@@ -168,6 +175,7 @@ from ._alifestd_mark_is_right_child_asexual import (
     alifestd_mark_is_right_child_asexual,
 )
 from ._alifestd_mark_leaves import alifestd_mark_leaves
+from ._alifestd_mark_leaves_polars import alifestd_mark_leaves_polars
 from ._alifestd_mark_left_child_asexual import alifestd_mark_left_child_asexual
 from ._alifestd_mark_max_descendant_origin_time_asexual import (
     alifestd_mark_max_descendant_origin_time_asexual,
@@ -175,6 +183,9 @@ from ._alifestd_mark_max_descendant_origin_time_asexual import (
 from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
 from ._alifestd_mark_num_children_asexual import (
     alifestd_mark_num_children_asexual,
+)
+from ._alifestd_mark_num_children_polars import (
+    alifestd_mark_num_children_polars,
 )
 from ._alifestd_mark_num_descendants_asexual import (
     alifestd_mark_num_descendants_asexual,
@@ -196,6 +207,7 @@ from ._alifestd_mark_right_child_asexual import (
 )
 from ._alifestd_mark_root_id import alifestd_mark_root_id
 from ._alifestd_mark_roots import alifestd_mark_roots
+from ._alifestd_mark_roots_polars import alifestd_mark_roots_polars
 from ._alifestd_mark_sister_asexual import alifestd_mark_sister_asexual
 from ._alifestd_mask_descendants_asexual import (
     alifestd_mask_descendants_asexual,
@@ -209,6 +221,9 @@ from ._alifestd_prefix_roots import alifestd_prefix_roots
 from ._alifestd_prefix_roots_polars import alifestd_prefix_roots_polars
 from ._alifestd_prune_extinct_lineages_asexual import (
     alifestd_prune_extinct_lineages_asexual,
+)
+from ._alifestd_prune_extinct_lineages_polars import (
+    alifestd_prune_extinct_lineages_polars,
 )
 from ._alifestd_reroot_at_id_asexual import alifestd_reroot_at_id_asexual
 from ._alifestd_sample_triplet_comparisons_asexual import (
@@ -233,8 +248,14 @@ from ._alifestd_test_leaves_isomorphic_asexual import (
 from ._alifestd_to_working_format import alifestd_to_working_format
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_try_add_ancestor_id_col_polars import (
+    alifestd_try_add_ancestor_id_col_polars,
+)
 from ._alifestd_try_add_ancestor_list_col import (
     alifestd_try_add_ancestor_list_col,
+)
+from ._alifestd_try_add_ancestor_list_col_polars import (
+    alifestd_try_add_ancestor_list_col_polars,
 )
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
 from ._alifestd_unfurl_traversal_inorder_asexual import (
@@ -422,6 +443,7 @@ __all__ = [
     "alifestd_delete_unifurcating_roots_asexual",
     "alifestd_downsample_tips_asexual",
     "alifestd_downsample_tips_clade_asexual",
+    "alifestd_downsample_tips_polars",
     "alifestd_estimate_triplet_distance_asexual",
     "alifestd_find_chronological_inconsistency",
     "alifestd_find_leaf_ids",
@@ -429,6 +451,7 @@ __all__ = [
     "alifestd_find_root_ids",
     "alifestd_has_compact_ids",
     "alifestd_has_contiguous_ids",
+    "alifestd_has_contiguous_ids_polars",
     "alifestd_has_increasing_ids",
     "alifestd_has_multiple_roots",
     "alifestd_is_asexual",
@@ -437,6 +460,7 @@ __all__ = [
     "alifestd_is_sexual",
     "alifestd_is_strictly_bifurcating_asexual",
     "alifestd_is_topologically_sorted",
+    "alifestd_is_topologically_sorted_polars",
     "alifestd_is_working_format_asexual",
     "alifestd_join_roots",
     "alifestd_make_ancestor_id_col",
@@ -457,10 +481,12 @@ __all__ = [
     "alifestd_mark_is_left_child_asexual",
     "alifestd_mark_is_right_child_asexual",
     "alifestd_mark_leaves",
+    "alifestd_mark_leaves_polars",
     "alifestd_mark_left_child_asexual",
     "alifestd_mark_max_descendant_origin_time_asexual",
     "alifestd_mark_node_depth_asexual",
     "alifestd_mark_num_children_asexual",
+    "alifestd_mark_num_children_polars",
     "alifestd_mark_num_descendants_asexual",
     "alifestd_mark_num_leaves_asexual",
     "alifestd_mark_num_leaves_sibling_asexual",
@@ -471,6 +497,7 @@ __all__ = [
     "alifestd_mark_right_child_asexual",
     "alifestd_mark_root_id",
     "alifestd_mark_roots",
+    "alifestd_mark_roots_polars",
     "alifestd_mark_sister_asexual",
     "alifestd_mask_descendants_asexual",
     "alifestd_mask_monomorphic_clades_asexual",
@@ -479,6 +506,7 @@ __all__ = [
     "alifestd_prefix_roots",
     "alifestd_prefix_roots_polars",
     "alifestd_prune_extinct_lineages_asexual",
+    "alifestd_prune_extinct_lineages_polars",
     "alifestd_reroot_at_id_asexual",
     "alifestd_convert_root_ancestor_token",
     "alifestd_sample_triplet_comparisons_asexual",
@@ -491,7 +519,9 @@ __all__ = [
     "alifestd_to_working_format",
     "alifestd_topological_sort",
     "alifestd_try_add_ancestor_id_col",
+    "alifestd_try_add_ancestor_id_col_polars",
     "alifestd_try_add_ancestor_list_col",
+    "alifestd_try_add_ancestor_list_col_polars",
     "alifestd_unfurl_lineage_asexual",
     "alifestd_unfurl_traversal_inorder_asexual",
     "alifestd_unfurl_traversal_postorder_asexual",

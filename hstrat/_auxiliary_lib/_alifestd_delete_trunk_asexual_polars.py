@@ -22,9 +22,11 @@ def alifestd_delete_trunk_asexual_polars(
     --------
     alifestd_collapse_trunk_asexual
     """
+    phylogeny_df = phylogeny_df.lazy().collect()  # lazy not yet implemented
+
     if "is_trunk" not in phylogeny_df:
         raise ValueError(
-            "`is_trunk` column not provided, trunk is unspecified"
+            "`is_trunk` column not provided, trunk is unspecified",
         )
 
     if "ancestor_list" in phylogeny_df:

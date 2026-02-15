@@ -79,9 +79,9 @@ def alifestd_downsample_tips_asexual(
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
 
-Create a subsample phylogeny containing `num_tips` tips.
+Create a subsample phylogeny containing `-n` tips.
 
-If `num_tips` is greater than the number of tips in the phylogeny, the whole phylogeny is returned.
+If `-n` is greater than the number of tips in the phylogeny, the whole phylogeny is returned.
 
 Data is assumed to be in alife standard format.
 Only supports asexual phylogenies.
@@ -94,6 +94,11 @@ Otherwise, no action is taken.
 - Use `--eager-read` if modifying data file inplace.
 
 - This CLI entrypoint is experimental and may be subject to change.
+
+See Also
+========
+hstrat._auxiliary_lib._alifestd_downsample_tips_polars :
+    Entrypoint for high-performance Polars-based implementation.
 """
 
 

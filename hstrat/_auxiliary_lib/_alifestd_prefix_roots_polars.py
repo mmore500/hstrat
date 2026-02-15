@@ -35,7 +35,7 @@ def alifestd_prefix_roots_polars(
         raise NotImplementedError
     if not allow_id_reassign:
         raise NotImplementedError
-    if phylogeny_df.is_empty():
+    if phylogeny_df.lazy().limit(1).collect().is_empty():
         raise NotImplementedError
     has_contiguous_ids = phylogeny_df.select(
         pl.col("id").diff() == 1
@@ -49,9 +49,11 @@ def alifestd_prefix_roots_polars(
     eligible_roots = (
         phylogeny_df.lazy()
         .with_columns(
-            is_eligible=pl.col("origin_time") > origin_time
-            if origin_time is not None
-            else True,
+            is_eligible=(
+                pl.col("origin_time") > origin_time
+                if origin_time is not None
+                else True
+            ),
             is_root=pl.col("id") == pl.col("ancestor_id"),
         )
         .select(
