@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -38,7 +39,7 @@ def test_alifestd_prune_canopy_asexual(phylogeny_df, num_tips, mutate):
     original_df = phylogeny_df.copy()
 
     result_df = alifestd_prune_canopy_asexual(
-        phylogeny_df, num_tips, mutate
+        phylogeny_df, num_tips, mutate, criterion="id"
     )
 
     assert len(result_df) <= len(original_df)
@@ -59,7 +60,9 @@ def test_alifestd_prune_canopy_asexual_with_zero_tips(num_tips):
         {"id": [], "parent_id": [], "ancestor_id": []}
     )
 
-    result_df = alifestd_prune_canopy_asexual(phylogeny_df, num_tips)
+    result_df = alifestd_prune_canopy_asexual(
+        phylogeny_df, num_tips, criterion="id"
+    )
 
     assert result_df.empty
 
@@ -82,11 +85,9 @@ def test_alifestd_prune_canopy_asexual_with_zero_tips(num_tips):
 def test_prune_canopy_vs_manual(phylogeny_df, num_tips):
     """Verify canopy prune matches manually marking top tips as extant and
     then pruning extinct lineages."""
-    import numpy as np
-
     original_df = phylogeny_df.copy()
     canopy_df = alifestd_prune_canopy_asexual(
-        phylogeny_df, num_tips, mutate=False
+        phylogeny_df, num_tips, mutate=False, criterion="id"
     )
 
     # manually replicate: find top tips, mark extant, prune
@@ -114,7 +115,9 @@ def test_prune_canopy_vs_manual(phylogeny_df, num_tips):
 def test_alifestd_prune_canopy_asexual_retains_highest_ids(phylogeny_df):
     """Verify that the retained tips are the ones with the highest ids."""
     num_tips = 5
-    result_df = alifestd_prune_canopy_asexual(phylogeny_df, num_tips)
+    result_df = alifestd_prune_canopy_asexual(
+        phylogeny_df, num_tips, criterion="id"
+    )
 
     original_tips = alifestd_find_leaf_ids(phylogeny_df)
     expected_kept = set(sorted(original_tips)[-num_tips:])
@@ -133,7 +136,9 @@ def test_alifestd_prune_canopy_asexual_retains_highest_ids(phylogeny_df):
 )
 def test_alifestd_prune_canopy_asexual_validates(phylogeny_df):
     num_tips = 5
-    result_df = alifestd_prune_canopy_asexual(phylogeny_df, num_tips)
+    result_df = alifestd_prune_canopy_asexual(
+        phylogeny_df, num_tips, criterion="id"
+    )
     assert alifestd_validate(result_df)
 
 
@@ -157,8 +162,21 @@ def test_alifestd_prune_canopy_asexual_simple():
         }
     )
 
-    result2 = alifestd_prune_canopy_asexual(df, 2)
+    result2 = alifestd_prune_canopy_asexual(df, 2, criterion="id")
     assert set(result2["id"]) == {0, 1, 3, 4}
 
-    result1 = alifestd_prune_canopy_asexual(df, 1)
+    result1 = alifestd_prune_canopy_asexual(df, 1, criterion="id")
     assert set(result1["id"]) == {0, 1, 4}
+
+
+def test_alifestd_prune_canopy_asexual_missing_criterion():
+    """Verify ValueError when criterion column is missing."""
+    df = pd.DataFrame(
+        {
+            "id": [0, 1, 2],
+            "ancestor_list": ["[none]", "[0]", "[0]"],
+        }
+    )
+
+    with pytest.raises(ValueError, match="criterion column"):
+        alifestd_prune_canopy_asexual(df, 1, criterion="nonexistent")

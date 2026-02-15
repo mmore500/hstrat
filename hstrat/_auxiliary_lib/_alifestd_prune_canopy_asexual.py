@@ -6,11 +6,9 @@ import sys
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
-import numpy as np
 import pandas as pd
 
 from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
-from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_prune_extinct_lineages_asexual import (
     alifestd_prune_extinct_lineages_asexual,
 )
@@ -26,9 +24,10 @@ def alifestd_prune_canopy_asexual(
     phylogeny_df: pd.DataFrame,
     num_tips: int,
     mutate: bool = False,
+    criterion: str = "origin_time",
 ) -> pd.DataFrame:
-    """Retain the `num_tips` leaves with the highest ids and prune extinct
-    lineages.
+    """Retain the `num_tips` leaves with the largest `criterion` values and
+    prune extinct lineages.
 
     If `num_tips` is greater than or equal to the number of leaves in the
     phylogeny, the whole phylogeny is returned.
@@ -45,12 +44,25 @@ def alifestd_prune_canopy_asexual(
         Number of tips to retain.
     mutate : bool, default False
         Are side effects on the input argument `phylogeny_df` allowed?
+    criterion : str, default "origin_time"
+        Column name used to rank leaves. The `num_tips` leaves with the
+        largest values in this column are retained.
+
+    Raises
+    ------
+    ValueError
+        If `criterion` is not a column in `phylogeny_df`.
 
     Returns
     -------
     pandas.DataFrame
         The pruned phylogeny in alife standard format.
     """
+    if criterion not in phylogeny_df.columns:
+        raise ValueError(
+            f"criterion column {criterion!r} not found in phylogeny_df",
+        )
+
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
@@ -65,14 +77,9 @@ def alifestd_prune_canopy_asexual(
         return phylogeny_df
 
     tips = alifestd_find_leaf_ids(phylogeny_df)
-    tips_sorted = np.sort(tips)
-    kept = tips_sorted[-num_tips:]  # highest ids
-    if alifestd_has_contiguous_ids(phylogeny_df):
-        extant = np.zeros(len(phylogeny_df), dtype=bool)
-        extant[kept] = True
-        phylogeny_df["extant"] = extant
-    else:
-        phylogeny_df["extant"] = phylogeny_df["id"].isin(kept)
+    leaf_df = phylogeny_df.loc[phylogeny_df["id"].isin(tips)]
+    kept = leaf_df.nlargest(num_tips, criterion)["id"]
+    phylogeny_df["extant"] = phylogeny_df["id"].isin(kept)
 
     return alifestd_prune_extinct_lineages_asexual(
         phylogeny_df, mutate=True
@@ -81,7 +88,7 @@ def alifestd_prune_canopy_asexual(
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
 
-Retain the `-n` leaves with the highest ids and prune extinct lineages.
+Retain the `-n` leaves with the largest `--criterion` values and prune extinct lineages.
 
 If `-n` is greater than or equal to the number of leaves in the phylogeny, the whole phylogeny is returned.
 
@@ -121,6 +128,12 @@ def _create_parser() -> argparse.ArgumentParser:
         type=int,
         help="Number of tips to retain.",
     )
+    parser.add_argument(
+        "--criterion",
+        default="origin_time",
+        type=str,
+        help="Column name used to rank leaves (default: origin_time).",
+    )
     return parser
 
 
@@ -138,6 +151,7 @@ if __name__ == "__main__":
                 functools.partial(
                     alifestd_prune_canopy_asexual,
                     num_tips=args.n,
+                    criterion=args.criterion,
                 ),
             ),
         )

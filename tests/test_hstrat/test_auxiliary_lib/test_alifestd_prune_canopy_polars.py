@@ -66,6 +66,7 @@ def test_alifestd_prune_canopy_polars(
     result_df = alifestd_prune_canopy_polars(
         phylogeny_df_pl,
         num_tips,
+        criterion="id",
     )
 
     assert len(result_df) <= original_len
@@ -85,7 +86,9 @@ def test_alifestd_prune_canopy_polars_empty(num_tips: int):
         schema={"id": pl.Int64, "ancestor_id": pl.Int64},
     )
 
-    result_df = alifestd_prune_canopy_polars(phylogeny_df, num_tips)
+    result_df = alifestd_prune_canopy_polars(
+        phylogeny_df, num_tips, criterion="id"
+    )
 
     assert result_df.is_empty()
 
@@ -121,9 +124,11 @@ def test_alifestd_prune_canopy_polars_matches_pandas(
     phylogeny_df_pl = pl.from_pandas(phylogeny_df)
 
     result_pd = alifestd_prune_canopy_asexual(
-        phylogeny_df, num_tips, mutate=False
+        phylogeny_df, num_tips, mutate=False, criterion="id"
     )
-    result_pl = alifestd_prune_canopy_polars(phylogeny_df_pl, num_tips)
+    result_pl = alifestd_prune_canopy_polars(
+        phylogeny_df_pl, num_tips, criterion="id"
+    )
 
     assert set(result_pd["id"]) == set(result_pl["id"].to_list())
     assert len(result_pd) == len(result_pl)
@@ -149,7 +154,9 @@ def test_alifestd_prune_canopy_polars_retains_highest_ids(
     """Verify that the retained tips are the ones with the highest ids."""
     num_tips = 5
     phylogeny_df_pl = pl.from_pandas(phylogeny_df)
-    result_df = alifestd_prune_canopy_polars(phylogeny_df_pl, num_tips)
+    result_df = alifestd_prune_canopy_polars(
+        phylogeny_df_pl, num_tips, criterion="id"
+    )
 
     original_tips = alifestd_find_leaf_ids(phylogeny_df)
     expected_kept = set(sorted(original_tips)[-num_tips:])
@@ -174,7 +181,7 @@ def test_alifestd_prune_canopy_polars_no_ancestor_id():
         }
     )
     with pytest.raises(NotImplementedError):
-        alifestd_prune_canopy_polars(df, 1)
+        alifestd_prune_canopy_polars(df, 1, criterion="id")
 
 
 def test_alifestd_prune_canopy_polars_simple():
@@ -198,10 +205,10 @@ def test_alifestd_prune_canopy_polars_simple():
         }
     )
 
-    result2 = alifestd_prune_canopy_polars(df, 2)
+    result2 = alifestd_prune_canopy_polars(df, 2, criterion="id")
     assert set(result2["id"].to_list()) == {0, 1, 3, 4}
 
-    result1 = alifestd_prune_canopy_polars(df, 1)
+    result1 = alifestd_prune_canopy_polars(df, 1, criterion="id")
     assert set(result1["id"].to_list()) == {0, 1, 4}
 
 
@@ -215,6 +222,19 @@ def test_alifestd_prune_canopy_polars_all_tips():
         }
     )
 
-    result = alifestd_prune_canopy_polars(df, 100000)
+    result = alifestd_prune_canopy_polars(df, 100000, criterion="id")
 
     assert len(result) == 5
+
+
+def test_alifestd_prune_canopy_polars_missing_criterion():
+    """Verify ValueError when criterion column is missing."""
+    df = pl.DataFrame(
+        {
+            "id": [0, 1, 2],
+            "ancestor_id": [0, 0, 0],
+        }
+    )
+
+    with pytest.raises(ValueError, match="criterion column"):
+        alifestd_prune_canopy_polars(df, 1, criterion="nonexistent")

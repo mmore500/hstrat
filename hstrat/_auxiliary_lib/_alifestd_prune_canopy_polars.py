@@ -21,9 +21,10 @@ from ._log_context_duration import log_context_duration
 def alifestd_prune_canopy_polars(
     phylogeny_df: pl.DataFrame,
     num_tips: int,
+    criterion: str = "origin_time",
 ) -> pl.DataFrame:
-    """Retain the `num_tips` leaves with the highest ids and prune extinct
-    lineages.
+    """Retain the `num_tips` leaves with the largest `criterion` values and
+    prune extinct lineages.
 
     If `num_tips` is greater than or equal to the number of leaves in the
     phylogeny, the whole phylogeny is returned.
@@ -38,11 +39,16 @@ def alifestd_prune_canopy_polars(
         Must represent an asexual phylogeny.
     num_tips : int
         Number of tips to retain.
+    criterion : str, default "origin_time"
+        Column name used to rank leaves. The `num_tips` leaves with the
+        largest values in this column are retained.
 
     Raises
     ------
     NotImplementedError
         If `phylogeny_df` has no "ancestor_id" column.
+    ValueError
+        If `criterion` is not a column in `phylogeny_df`.
 
     Returns
     -------
@@ -54,7 +60,13 @@ def alifestd_prune_canopy_polars(
     alifestd_prune_canopy_asexual :
         Pandas-based implementation.
     """
-    if "ancestor_id" not in phylogeny_df.lazy().collect_schema().names():
+    schema_names = phylogeny_df.lazy().collect_schema().names()
+    if criterion not in schema_names:
+        raise ValueError(
+            f"criterion column {criterion!r} not found in phylogeny_df",
+        )
+
+    if "ancestor_id" not in schema_names:
         raise NotImplementedError("ancestor_id column required")
 
     if phylogeny_df.lazy().limit(1).collect().is_empty():
@@ -66,27 +78,23 @@ def alifestd_prune_canopy_polars(
     marked_df = alifestd_mark_leaves_polars(phylogeny_df)
 
     logging.info(
-        "- alifestd_prune_canopy_polars: collecting leaf ids...",
+        "- alifestd_prune_canopy_polars: selecting top leaf_ids...",
     )
     leaf_ids = (
         marked_df.lazy()
         .filter(pl.col("is_leaf"))
+        .sort(criterion, descending=True)
+        .head(num_tips)
         .select(pl.col("id"))
         .collect()
         .to_series()
-        .set_sorted()
     )
-
-    logging.info(
-        "- alifestd_prune_canopy_polars: selecting top leaf_ids...",
-    )
-    leaf_ids = leaf_ids.sort(descending=True).head(num_tips)
 
     logging.info(
         "- alifestd_prune_canopy_polars: marking extant...",
     )
     phylogeny_df = phylogeny_df.with_columns(
-        extant=pl.int_range(0, pl.len()).is_in(leaf_ids)  # contiguous ids
+        extant=pl.col("id").is_in(leaf_ids),
     )
 
     logging.info(
@@ -97,7 +105,7 @@ def alifestd_prune_canopy_polars(
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
 
-Retain the `-n` leaves with the highest ids and prune extinct lineages.
+Retain the `-n` leaves with the largest `--criterion` values and prune extinct lineages.
 
 If `-n` is greater than or equal to the number of leaves in the phylogeny, the whole phylogeny is returned.
 
@@ -137,6 +145,12 @@ def _create_parser() -> argparse.ArgumentParser:
         type=int,
         help="Number of tips to retain.",
     )
+    parser.add_argument(
+        "--criterion",
+        default="origin_time",
+        type=str,
+        help="Column name used to rank leaves (default: origin_time).",
+    )
     return parser
 
 
@@ -156,6 +170,7 @@ if __name__ == "__main__":
                 output_dataframe_op=functools.partial(
                     alifestd_prune_canopy_polars,
                     num_tips=args.n,
+                    criterion=args.criterion,
                 ),
             )
     except NotImplementedError as e:
