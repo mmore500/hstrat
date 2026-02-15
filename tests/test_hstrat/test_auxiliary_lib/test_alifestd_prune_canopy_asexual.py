@@ -8,8 +8,6 @@ from hstrat._auxiliary_lib import (
     alifestd_count_leaf_nodes,
     alifestd_find_leaf_ids,
     alifestd_prune_extinct_lineages_asexual,
-    alifestd_to_working_format,
-    alifestd_topological_sort,
     alifestd_try_add_ancestor_id_col,
     alifestd_validate,
 )
