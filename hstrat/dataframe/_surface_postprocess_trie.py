@@ -61,7 +61,7 @@ def _do_delete_trunk(
         dstream_S = get_sole_scalar_value_polars(df, "dstream_S")
 
     df = df.with_columns(
-        is_trunk=pl.col("hstrat_rank") < dstream_S - 1,
+        is_trunk=pl.col("hstrat_rank") < dstream_S,
         origin_time=pl.col("hstrat_rank"),
     )
 
