@@ -30,7 +30,7 @@ def test_alifestd_downsample_tips_clade_asexual_cli_version():
 
 
 def test_alifestd_downsample_tips_clade_asexual_cli_csv():
-    output_file = "/tmp/hstrat_alifestd_downsample_tips_clade_asexual.csv"
+    output_file = "/tmp/hstrat_alifestd_downsample_tips_clade_asexual.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
@@ -48,7 +48,7 @@ def test_alifestd_downsample_tips_clade_asexual_cli_csv():
 
 
 def test_alifestd_downsample_tips_clade_asexual_cli_parquet():
-    output_file = "/tmp/hstrat_alifestd_downsample_tips_clade_asexual.pqt"
+    output_file = "/tmp/hstrat_alifestd_downsample_tips_clade_asexual.pqt"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [

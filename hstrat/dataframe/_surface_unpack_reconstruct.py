@@ -175,7 +175,7 @@ def _produce_exploded_slices(
         # pass exploded data to consumer through queue via tmpfile
         # (better performing for fast read than passing directly through queue)
         logging.info("- worker putting exploded data")
-        outpath = f"/tmp/{uuid.uuid4()}.arrow"
+        outpath = f"/tmp/{uuid.uuid4()}.arrow"  # nosec B108
         long_df.select(pl.all().shrink_dtype()).write_ipc(
             outpath, compression="uncompressed"
         )
