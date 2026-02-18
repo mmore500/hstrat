@@ -39,13 +39,45 @@ def alifestd_collapse_unifurcations_polars(
     """
     schema_names = phylogeny_df.lazy().collect_schema().names()
 
-    if any(
-        col in schema_names
-        for col in ("branch_length", "edge_length", "origin_time_delta")
-    ):
+    warned_cols = [
+        "ancestor_origin_time",
+        "branch_length",
+        "clade_duration",
+        "clade_duration_ratio_sister",
+        "clade_fblr_growth_children",
+        "clade_fblr_growth_sister",
+        "clade_faithpd",
+        "clade_leafcount_ratio_sister",
+        "clade_logistic_growth_children",
+        "clade_logistic_growth_sister",
+        "clade_nodecount_ratio_sister",
+        "clade_subtended_duration",
+        "clade_subtended_duration_ratio_sister",
+        "edge_length",
+        "is_left_child",
+        "is_right_child",
+        "left_child_id",
+        "max_descendant_origin_time",
+        "node_depth",
+        "num_children",
+        "num_descendants",
+        "num_leaves",
+        "num_leaves_sibling",
+        "num_preceding_leaves",
+        "origin_time_delta",
+        "ot_mrca_id",
+        "ot_mrca_time_of",
+        "ot_mrca_time_since",
+        "right_child_id",
+        "sister_id",
+    ]
+    present_warned = [col for col in warned_cols if col in schema_names]
+    if present_warned:
         warnings.warn(
-            "alifestd_collapse_unifurcations does not update branch length "
-            "columns. Use `origin_time` to recalculate branch lengths for "
+            "alifestd_collapse_unifurcations does not update topology-"
+            "dependent columns, which may be invalidated: "
+            f"{present_warned}. "
+            "Use `origin_time` to recalculate branch lengths for "
             "collapsed phylogeny."
         )
 
