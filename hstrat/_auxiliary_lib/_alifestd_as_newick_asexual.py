@@ -27,6 +27,7 @@ from ._log_context_duration import log_context_duration
 
 
 def _eval_kwargs(kwargs_list: typing.List[str]) -> typing.Dict:
+    # https://github.com/mmore500/joinem/blob/v0.11.1/joinem/_dataframe_cli.py#L120
     to_eval = f"dict({','.join(kwargs_list)})"
     try:
         return eval(to_eval)
