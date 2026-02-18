@@ -2,6 +2,9 @@ import typing
 
 import polars as pl
 
+from ._alifestd_check_topological_sensitivity_polars import (
+    alifestd_check_topological_sensitivity_polars,
+)
 from ._alifestd_warn_topological_sensitivity import (
     _alifestd_warn_topological_sensitivity,
 )
@@ -39,7 +42,12 @@ def alifestd_warn_topological_sensitivity_polars(
         Pandas-based implementation.
     """
     _alifestd_warn_topological_sensitivity(
-        phylogeny_df.lazy().collect_schema().names(),
+        alifestd_check_topological_sensitivity_polars(
+            phylogeny_df,
+            insert=insert,
+            delete=delete,
+            update=update,
+        ),
         caller,
         insert=insert,
         delete=delete,

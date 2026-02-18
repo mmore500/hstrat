@@ -3,22 +3,20 @@ import warnings
 
 import pandas as pd
 
-from ._alifestd_check_topological_sensitivity import _get_sensitive_cols
+from ._alifestd_check_topological_sensitivity import (
+    alifestd_check_topological_sensitivity,
+)
 
 
 def _alifestd_warn_topological_sensitivity(
-    columns: typing.Sequence[str],
+    invalidated: typing.List[str],
     caller: str,
     *,
     insert: bool,
     delete: bool,
     update: bool,
 ) -> None:
-    """Private helper: emit a warning if any column names may be
-    invalidated by topological operations."""
-    sensitive = _get_sensitive_cols(insert, delete, update)
-    invalidated = [col for col in columns if col in sensitive]
-
+    """Private helper: emit a warning listing invalidated columns."""
     if invalidated:
         ops = "/".join(
             name
@@ -71,7 +69,12 @@ def alifestd_warn_topological_sensitivity(
         Polars-based implementation.
     """
     _alifestd_warn_topological_sensitivity(
-        phylogeny_df.columns,
+        alifestd_check_topological_sensitivity(
+            phylogeny_df,
+            insert=insert,
+            delete=delete,
+            update=update,
+        ),
         caller,
         insert=insert,
         delete=delete,
