@@ -13,6 +13,7 @@ from ._HereditaryStratigraphicInstrument import (
 from ._RecursionLimit import RecursionLimit
 from ._RngStateContext import RngStateContext
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
+from ._alifestd_add_global_root import alifestd_add_global_root
 from ._alifestd_add_inner_knuckles_asexual import (
     alifestd_add_inner_knuckles_asexual,
 )
@@ -424,6 +425,7 @@ from ._with_rng_state_context import with_rng_state_context
 from ._zip_strict import zip_strict
 
 __all__ = [
+    "alifestd_add_global_root",
     "alifestd_add_inner_knuckles_asexual",
     "alifestd_add_inner_leaves",
     "alifestd_add_inner_niblings_asexual",
