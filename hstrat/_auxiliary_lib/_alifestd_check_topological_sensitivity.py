@@ -3,7 +3,7 @@ import typing
 import pandas as pd
 
 # Columns that describe the node-to-parent relationship or position in the
-# existing hierarchy.  These are ONLY invalidated by update operations
+# existing hierarchy. These are ONLY invalidated by update operations
 # (changing ancestor relationships), NOT by pure insert (adding new nodes)
 # or pure delete (removing entire contiguous branches).
 _update_only_sensitive_cols = frozenset((
