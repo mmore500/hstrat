@@ -30,7 +30,7 @@ def alifestd_prune_canopy_asexual(
     prune extinct lineages.
 
     If `num_tips` is greater than or equal to the number of leaves in the
-    phylogeny, the whole phylogeny is returned.
+    phylogeny, the whole phylogeny is returned. Ties are broken arbitrarily.
 
     Only supports asexual phylogenies.
 
@@ -46,7 +46,8 @@ def alifestd_prune_canopy_asexual(
         Are side effects on the input argument `phylogeny_df` allowed?
     criterion : str, default "origin_time"
         Column name used to rank leaves. The `num_tips` leaves with the
-        largest values in this column are retained.
+        largest values in this column are retained. Ties are broken
+        arbitrarily.
 
     Raises
     ------
@@ -90,7 +91,7 @@ _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_versi
 
 Retain the `-n` leaves with the largest `--criterion` values and prune extinct lineages.
 
-If `-n` is greater than or equal to the number of leaves in the phylogeny, the whole phylogeny is returned.
+If `-n` is greater than or equal to the number of leaves in the phylogeny, the whole phylogeny is returned. Ties are broken arbitrarily.
 
 Data is assumed to be in alife standard format.
 Only supports asexual phylogenies.
@@ -132,7 +133,7 @@ def _create_parser() -> argparse.ArgumentParser:
         "--criterion",
         default="origin_time",
         type=str,
-        help="Column name used to rank leaves (default: origin_time).",
+        help="Column name used to rank leaves; ties broken arbitrarily (default: origin_time).",
     )
     return parser
 

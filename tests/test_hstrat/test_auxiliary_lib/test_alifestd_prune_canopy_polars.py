@@ -227,6 +227,23 @@ def test_alifestd_prune_canopy_polars_all_tips():
     assert len(result) == 5
 
 
+def test_alifestd_prune_canopy_polars_tied_criterion():
+    """When all leaves share the same criterion value, exactly num_tips
+    should still be retained (ties broken arbitrarily)."""
+    df = pl.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4],
+            "ancestor_id": [0, 0, 0, 1, 1],
+            "destruction_time": [float("inf")] * 5,
+            "time": [0, 0, 0, 0, 0],
+        }
+    )
+    # leaves are 2, 3, 4 — all have time=0
+    for num_tips in (1, 2, 3):
+        result = alifestd_prune_canopy_polars(df, num_tips, criterion="time")
+        assert _count_leaf_nodes_polars(result) == num_tips
+
+
 def test_alifestd_prune_canopy_polars_missing_criterion():
     """Verify ValueError when criterion column is missing."""
     df = pl.DataFrame(

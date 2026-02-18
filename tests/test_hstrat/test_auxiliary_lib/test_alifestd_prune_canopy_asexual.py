@@ -167,6 +167,22 @@ def test_alifestd_prune_canopy_asexual_simple():
     assert set(result1["id"]) == {0, 1, 4}
 
 
+def test_alifestd_prune_canopy_asexual_tied_criterion():
+    """When all leaves share the same criterion value, exactly num_tips
+    should still be retained (ties broken arbitrarily)."""
+    df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4],
+            "ancestor_list": ["[none]", "[0]", "[0]", "[1]", "[1]"],
+            "time": [0, 0, 0, 0, 0],
+        }
+    )
+    # leaves are 2, 3, 4 — all have time=0
+    for num_tips in (1, 2, 3):
+        result = alifestd_prune_canopy_asexual(df, num_tips, criterion="time")
+        assert alifestd_count_leaf_nodes(result) == num_tips
+
+
 def test_alifestd_prune_canopy_asexual_missing_criterion():
     """Verify ValueError when criterion column is missing."""
     df = pd.DataFrame(
