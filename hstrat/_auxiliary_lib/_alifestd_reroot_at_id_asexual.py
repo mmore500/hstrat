@@ -40,7 +40,8 @@ def alifestd_reroot_at_id_asexual(
     """
 
     alifestd_warn_topological_sensitivity(
-        phylogeny_df, "alifestd_reroot_at_id_asexual"
+        phylogeny_df, "alifestd_reroot_at_id_asexual",
+        insert=False, delete=False, update=True,
     )
 
     if not mutate:

@@ -123,7 +123,8 @@ def alifestd_collapse_unifurcations(
     """
 
     alifestd_warn_topological_sensitivity(
-        phylogeny_df, "alifestd_collapse_unifurcations"
+        phylogeny_df, "alifestd_collapse_unifurcations",
+        insert=False, delete=True, update=True,
     )
 
     # special optimized handling for asexual phylogenies

@@ -42,7 +42,8 @@ def alifestd_collapse_unifurcations_polars(
     schema_names = phylogeny_df.lazy().collect_schema().names()
 
     alifestd_warn_topological_sensitivity_polars(
-        phylogeny_df, "alifestd_collapse_unifurcations_polars"
+        phylogeny_df, "alifestd_collapse_unifurcations_polars",
+        insert=False, delete=True, update=True,
     )
 
     if "ancestor_list" in schema_names:

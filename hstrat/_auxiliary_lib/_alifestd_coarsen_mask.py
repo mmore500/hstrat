@@ -121,7 +121,8 @@ def alifestd_coarsen_mask(
     """
 
     alifestd_warn_topological_sensitivity(
-        phylogeny_df, "alifestd_coarsen_mask"
+        phylogeny_df, "alifestd_coarsen_mask",
+        insert=False, delete=True, update=True,
     )
 
     if not mutate:

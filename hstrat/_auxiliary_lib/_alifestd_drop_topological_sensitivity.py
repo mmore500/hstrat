@@ -19,9 +19,26 @@ from ._log_context_duration import log_context_duration
 def alifestd_drop_topological_sensitivity(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
+    *,
+    insert: bool = True,
+    delete: bool = True,
+    update: bool = True,
 ) -> pd.DataFrame:
     """Drop columns from `phylogeny_df` that may be invalidated by
     topological operations such as collapsing unifurcations.
+
+    Parameters
+    ----------
+    phylogeny_df : pandas.DataFrame
+        The phylogeny as a dataframe in alife standard format.
+    mutate : bool, default False
+        Are side effects on the input argument allowed?
+    insert : bool, default True
+        Drop columns sensitive to node insertion.
+    delete : bool, default True
+        Drop columns sensitive to node deletion.
+    update : bool, default True
+        Drop columns sensitive to ancestor relationship updates.
 
     Input dataframe is not mutated by this operation unless `mutate` set True.
     If mutate set True, operation does not occur in place; still use return
@@ -32,7 +49,9 @@ def alifestd_drop_topological_sensitivity(
     alifestd_drop_topological_sensitivity_polars :
         Polars-based implementation.
     """
-    to_drop = alifestd_check_topological_sensitivity(phylogeny_df)
+    to_drop = alifestd_check_topological_sensitivity(
+        phylogeny_df, insert=insert, delete=delete, update=update,
+    )
 
     if not mutate:
         phylogeny_df = phylogeny_df.copy()

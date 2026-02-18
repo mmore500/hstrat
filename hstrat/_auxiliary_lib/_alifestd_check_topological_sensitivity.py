@@ -2,9 +2,20 @@ import typing
 
 import pandas as pd
 
-_topologically_sensitive_cols = frozenset((
+# Columns that describe the node-to-parent relationship or position in the
+# existing hierarchy.  These are NOT invalidated by pure insert operations
+# (adding new nodes without changing existing ancestry), but ARE invalidated
+# by delete or update operations.
+_insert_insensitive_cols = frozenset((
     "ancestor_origin_time",
     "branch_length",
+    "edge_length",
+    "node_depth",
+    "origin_time_delta",
+))
+
+# All columns that may be invalidated by topological operations.
+_topologically_sensitive_cols = _insert_insensitive_cols | frozenset((
     "clade_duration",
     "clade_duration_ratio_sister",
     "clade_fblr_growth_children",
@@ -16,18 +27,15 @@ _topologically_sensitive_cols = frozenset((
     "clade_nodecount_ratio_sister",
     "clade_subtended_duration",
     "clade_subtended_duration_ratio_sister",
-    "edge_length",
     "is_left_child",
     "is_right_child",
     "left_child_id",
     "max_descendant_origin_time",
-    "node_depth",
     "num_children",
     "num_descendants",
     "num_leaves",
     "num_leaves_sibling",
     "num_preceding_leaves",
-    "origin_time_delta",
     "ot_mrca_id",
     "ot_mrca_time_of",
     "ot_mrca_time_since",
@@ -36,11 +44,41 @@ _topologically_sensitive_cols = frozenset((
 ))
 
 
+def _get_sensitive_cols(
+    insert: bool,
+    delete: bool,
+    update: bool,
+) -> frozenset:
+    """Return the set of sensitive column names for the given operation
+    types."""
+    if delete or update:
+        return _topologically_sensitive_cols
+    elif insert:
+        return _topologically_sensitive_cols - _insert_insensitive_cols
+    else:
+        return frozenset()
+
+
 def alifestd_check_topological_sensitivity(
     phylogeny_df: pd.DataFrame,
+    *,
+    insert: bool,
+    delete: bool,
+    update: bool,
 ) -> typing.List[str]:
     """Return names of columns present in `phylogeny_df` that may be
     invalidated by topological operations such as collapsing unifurcations.
+
+    Parameters
+    ----------
+    phylogeny_df : pandas.DataFrame
+        The phylogeny as a dataframe in alife standard format.
+    insert : bool
+        Whether the operation inserts new nodes.
+    delete : bool
+        Whether the operation deletes nodes.
+    update : bool
+        Whether the operation updates ancestor relationships.
 
     Input dataframe is not mutated by this operation.
 
@@ -49,7 +87,8 @@ def alifestd_check_topological_sensitivity(
     alifestd_check_topological_sensitivity_polars :
         Polars-based implementation.
     """
+    sensitive = _get_sensitive_cols(insert, delete, update)
     return [
         col for col in phylogeny_df.columns
-        if col in _topologically_sensitive_cols
+        if col in sensitive
     ]

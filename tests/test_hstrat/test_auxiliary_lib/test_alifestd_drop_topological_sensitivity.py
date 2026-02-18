@@ -3,6 +3,7 @@ import pytest
 
 from hstrat._auxiliary_lib import alifestd_drop_topological_sensitivity
 from hstrat._auxiliary_lib._alifestd_check_topological_sensitivity import (
+    _insert_insensitive_cols,
     _topologically_sensitive_cols,
 )
 
@@ -83,3 +84,57 @@ def test_empty():
     assert "branch_length" not in result.columns
     assert "id" in result.columns
     assert len(result) == 0
+
+
+@pytest.mark.parametrize("col", sorted(_insert_insensitive_cols))
+def test_insert_only_preserves_insert_insensitive(base_df, col):
+    df = base_df.copy()
+    df[col] = 0
+    result = alifestd_drop_topological_sensitivity(
+        df, insert=True, delete=False, update=False,
+    )
+    assert col in result.columns
+
+
+@pytest.mark.parametrize(
+    "col",
+    sorted(_topologically_sensitive_cols - _insert_insensitive_cols),
+)
+def test_insert_only_drops_insert_sensitive(base_df, col):
+    df = base_df.copy()
+    df[col] = 0
+    result = alifestd_drop_topological_sensitivity(
+        df, insert=True, delete=False, update=False,
+    )
+    assert col not in result.columns
+
+
+@pytest.mark.parametrize("col", sorted(_topologically_sensitive_cols))
+def test_delete_drops_all(base_df, col):
+    df = base_df.copy()
+    df[col] = 0
+    result = alifestd_drop_topological_sensitivity(
+        df, insert=False, delete=True, update=False,
+    )
+    assert col not in result.columns
+
+
+@pytest.mark.parametrize("col", sorted(_topologically_sensitive_cols))
+def test_update_drops_all(base_df, col):
+    df = base_df.copy()
+    df[col] = 0
+    result = alifestd_drop_topological_sensitivity(
+        df, insert=False, delete=False, update=True,
+    )
+    assert col not in result.columns
+
+
+def test_no_ops_drops_nothing(base_df):
+    df = base_df.copy()
+    df["branch_length"] = 0.0
+    df["sister_id"] = 0
+    result = alifestd_drop_topological_sensitivity(
+        df, insert=False, delete=False, update=False,
+    )
+    assert "branch_length" in result.columns
+    assert "sister_id" in result.columns
