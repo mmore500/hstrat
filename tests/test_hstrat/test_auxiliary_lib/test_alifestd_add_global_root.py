@@ -1,7 +1,6 @@
 import warnings
 
 import pandas as pd
-import pandas.testing as pdt
 import pytest
 
 from hstrat._auxiliary_lib import (
@@ -146,6 +145,184 @@ def test_multiple_roots_ancestor_id(mutate: bool):
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize("mutate", [False, True])
+def test_ancestor_id_only(mutate: bool):
+    """Test with ancestor_id but no ancestor_list column."""
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2],
+            "ancestor_id": [0, 0, 0],
+        }
+    )
+    original_df = phylogeny_df.copy()
+
+    result_df = alifestd_add_global_root(phylogeny_df, mutate=mutate)
+
+    assert len(result_df) == 4
+    assert "ancestor_list" not in result_df.columns
+
+    new_root_id = result_df["id"].max()
+    assert new_root_id == 3
+
+    root_row = result_df[result_df["id"] == new_root_id].iloc[0]
+    assert root_row["ancestor_id"] == new_root_id
+
+    # Old root should now point to new root
+    old_root = result_df[result_df["id"] == 0].iloc[0]
+    assert old_root["ancestor_id"] == new_root_id
+
+    # Non-root nodes unchanged
+    node_1 = result_df[result_df["id"] == 1].iloc[0]
+    assert node_1["ancestor_id"] == 0
+    node_2 = result_df[result_df["id"] == 2].iloc[0]
+    assert node_2["ancestor_id"] == 0
+
+    root_ids = alifestd_find_root_ids(result_df)
+    assert len(root_ids) == 1
+    assert root_ids[0] == new_root_id
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize("mutate", [False, True])
+def test_ancestor_id_only_multiple_roots(mutate: bool):
+    """Test ancestor_id only with multiple roots."""
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3],
+            "ancestor_id": [0, 0, 2, 2],
+        }
+    )
+    original_df = phylogeny_df.copy()
+
+    result_df = alifestd_add_global_root(phylogeny_df, mutate=mutate)
+
+    assert len(result_df) == 5
+
+    new_root_id = result_df["id"].max()
+
+    # Both old roots should point to new root
+    old_root_0 = result_df[result_df["id"] == 0].iloc[0]
+    old_root_2 = result_df[result_df["id"] == 2].iloc[0]
+    assert old_root_0["ancestor_id"] == new_root_id
+    assert old_root_2["ancestor_id"] == new_root_id
+
+    # Non-root nodes unchanged
+    node_1 = result_df[result_df["id"] == 1].iloc[0]
+    node_3 = result_df[result_df["id"] == 3].iloc[0]
+    assert node_1["ancestor_id"] == 0
+    assert node_3["ancestor_id"] == 2
+
+    root_ids = alifestd_find_root_ids(result_df)
+    assert len(root_ids) == 1
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize("mutate", [False, True])
+def test_sexual_ancestor_list(mutate: bool):
+    """Test with sexual phylogeny (multiple ancestors in ancestor_list)."""
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3],
+            "ancestor_list": ["[none]", "[none]", "[0,1]", "[0,1]"],
+        }
+    )
+    original_df = phylogeny_df.copy()
+
+    result_df = alifestd_add_global_root(phylogeny_df, mutate=mutate)
+
+    assert len(result_df) == 5
+
+    new_root_id = result_df["id"].max()
+    assert new_root_id == 4
+
+    # Old roots should point to new root
+    old_root_0 = result_df[result_df["id"] == 0].iloc[0]
+    old_root_1 = result_df[result_df["id"] == 1].iloc[0]
+    assert old_root_0["ancestor_list"] == f"[{new_root_id}]"
+    assert old_root_1["ancestor_list"] == f"[{new_root_id}]"
+
+    # Sexual nodes should be unchanged
+    node_2 = result_df[result_df["id"] == 2].iloc[0]
+    node_3 = result_df[result_df["id"] == 3].iloc[0]
+    assert node_2["ancestor_list"] == "[0,1]"
+    assert node_3["ancestor_list"] == "[0,1]"
+
+    # New root is valid
+    root_row = result_df[result_df["id"] == new_root_id].iloc[0]
+    assert root_row["ancestor_list"] == "[none]"
+
+    root_ids = alifestd_find_root_ids(result_df)
+    assert len(root_ids) == 1
+    assert root_ids[0] == new_root_id
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize("mutate", [False, True])
+def test_sexual_ancestor_list_single_root(mutate: bool):
+    """Test sexual phylogeny with a single root."""
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3],
+            "ancestor_list": ["[none]", "[0]", "[0]", "[1,2]"],
+        }
+    )
+    original_df = phylogeny_df.copy()
+
+    result_df = alifestd_add_global_root(phylogeny_df, mutate=mutate)
+
+    assert len(result_df) == 5
+
+    new_root_id = result_df["id"].max()
+
+    # Old root should point to new root
+    old_root = result_df[result_df["id"] == 0].iloc[0]
+    assert old_root["ancestor_list"] == f"[{new_root_id}]"
+
+    # Sexual node should be unchanged
+    node_3 = result_df[result_df["id"] == 3].iloc[0]
+    assert node_3["ancestor_list"] == "[1,2]"
+
+    # Non-root asexual nodes unchanged
+    node_1 = result_df[result_df["id"] == 1].iloc[0]
+    assert node_1["ancestor_list"] == "[0]"
+
+    root_ids = alifestd_find_root_ids(result_df)
+    assert len(root_ids) == 1
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize("mutate", [False, True])
+def test_sexual_with_empty_bracket_roots(mutate: bool):
+    """Test sexual phylogeny where roots use [] instead of [none]."""
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2],
+            "ancestor_list": ["[]", "[0]", "[0,1]"],
+        }
+    )
+
+    result_df = alifestd_add_global_root(phylogeny_df, mutate=mutate)
+
+    assert len(result_df) == 4
+
+    new_root_id = result_df["id"].max()
+
+    old_root = result_df[result_df["id"] == 0].iloc[0]
+    assert old_root["ancestor_list"] == f"[{new_root_id}]"
+
+    # Sexual node unchanged
+    node_2 = result_df[result_df["id"] == 2].iloc[0]
+    assert node_2["ancestor_list"] == "[0,1]"
 
 
 @pytest.mark.parametrize("mutate", [False, True])

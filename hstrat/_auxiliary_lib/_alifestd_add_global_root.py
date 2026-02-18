@@ -111,8 +111,8 @@ def alifestd_add_global_root(
     if "ancestor_list" in phylogeny_df:
         phylogeny_df.loc[root_mask, "ancestor_list"] = f"[{new_root_id}]"
 
-    # Append the new root row
+    # Append the new root row (vertical concat; mismatched columns get NaN)
     new_root_df = pd.DataFrame([new_root])
-    res = pd.concat([phylogeny_df, new_root_df], ignore_index=True)
+    res = pd.concat([phylogeny_df, new_root_df], axis=0, ignore_index=True)
 
     return res
