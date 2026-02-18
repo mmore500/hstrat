@@ -96,9 +96,21 @@ def _create_parser() -> argparse.ArgumentParser:
         ),
         dfcli_version=get_hstrat_version(),
     )
-    add_bool_arg(parser, "insert", default=True)
-    add_bool_arg(parser, "delete", default=True)
-    add_bool_arg(parser, "update", default=True)
+    add_bool_arg(
+        parser, "insert", default=True,
+        help="drop columns sensitive to node insertion (default: True)",
+    )
+    add_bool_arg(
+        parser, "delete", default=True,
+        help="drop columns sensitive to node deletion (default: True)",
+    )
+    add_bool_arg(
+        parser, "update", default=True,
+        help=(
+            "drop columns sensitive to ancestor relationship updates"
+            " (default: True)"
+        ),
+    )
     return parser
 
 

@@ -38,9 +38,5 @@ def alifestd_check_topological_sensitivity_polars(
         Pandas-based implementation.
     """
     sensitive = _get_sensitive_cols(insert, delete, update)
-    columns = (
-        phylogeny_df.collect_schema().names()
-        if isinstance(phylogeny_df, pl.LazyFrame)
-        else phylogeny_df.columns
-    )
+    columns = phylogeny_df.lazy().collect_schema().names()
     return [col for col in columns if col in sensitive]

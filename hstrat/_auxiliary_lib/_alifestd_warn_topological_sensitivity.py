@@ -1,14 +1,21 @@
+import typing
 import warnings
 
 import pandas as pd
+import polars as pl
 
 from ._alifestd_check_topological_sensitivity import (
     alifestd_check_topological_sensitivity,
 )
+from ._alifestd_check_topological_sensitivity_polars import (
+    alifestd_check_topological_sensitivity_polars,
+)
 
 
 def _alifestd_warn_topological_sensitivity(
-    phylogeny_df,
+    phylogeny_df: typing.Union[
+        pd.DataFrame, pl.DataFrame, pl.LazyFrame,
+    ],
     caller: str,
     *,
     insert: bool,
@@ -20,18 +27,7 @@ def _alifestd_warn_topological_sensitivity(
 
     Accepts both pandas and polars DataFrames/LazyFrames.
     """
-    try:
-        import polars as pl
-
-        is_polars = isinstance(phylogeny_df, (pl.DataFrame, pl.LazyFrame))
-    except ImportError:
-        is_polars = False
-
-    if is_polars:
-        from ._alifestd_check_topological_sensitivity_polars import (
-            alifestd_check_topological_sensitivity_polars,
-        )
-
+    if isinstance(phylogeny_df, (pl.DataFrame, pl.LazyFrame)):
         present_warned = alifestd_check_topological_sensitivity_polars(
             phylogeny_df, insert=insert, delete=delete, update=update,
         )
