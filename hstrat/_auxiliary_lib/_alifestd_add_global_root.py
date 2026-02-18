@@ -30,20 +30,39 @@ def alifestd_add_global_root(
         Column values to set on the new global root row, e.g.,
         ``{"origin_time": 0.0, "taxon_label": "root"}``.
 
+        Keys ``"id"``, ``"ancestor_id"``, and ``"ancestor_list"`` are
+        reserved and may not be specified; a `ValueError` is raised if
+        any are present.
+
     Returns
     -------
     pd.DataFrame
         The phylogeny dataframe with a new global root added.
 
+    Raises
+    ------
+    ValueError
+        If `root_attrs` contains reserved keys.
+
     Input dataframe is not mutated by this operation unless `mutate` set True.
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
+    _reserved = {"id", "ancestor_id", "ancestor_list"}
+    bad_keys = _reserved & root_attrs.keys()
+    if bad_keys:
+        raise ValueError(
+            f"root_attrs must not contain reserved keys {bad_keys}; "
+            "these are set automatically"
+        )
+
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
-    if len(phylogeny_df) == 0:
-        return phylogeny_df
+    # Create new root id
+    new_root_id = (
+        phylogeny_df["id"].max() + 1 if len(phylogeny_df) else 0
+    )
 
     alifestd_warn_topological_sensitivity(
         phylogeny_df,
@@ -52,9 +71,6 @@ def alifestd_add_global_root(
         delete=False,
         update=True,
     )
-
-    # Create new root id
-    new_root_id = phylogeny_df["id"].max() + 1
 
     # Build the new root row with only applicable columns
     new_root = {"id": new_root_id}

@@ -13,7 +13,41 @@ from hstrat._auxiliary_lib import (
 
 def test_empty():
     res = alifestd_add_global_root(alifestd_make_empty())
-    assert len(res) == 0
+    assert len(res) == 1
+    assert alifestd_validate(res)
+    root_ids = alifestd_find_root_ids(res)
+    assert len(root_ids) == 1
+    assert res.iloc[0]["id"] == 0
+    assert res.iloc[0]["ancestor_list"] == "[none]"
+
+
+def test_empty_with_ancestor_id():
+    res = alifestd_add_global_root(alifestd_make_empty(ancestor_id=True))
+    assert len(res) == 1
+    assert alifestd_validate(res)
+    assert res.iloc[0]["id"] == 0
+    assert res.iloc[0]["ancestor_id"] == 0
+    assert res.iloc[0]["ancestor_list"] == "[none]"
+
+
+def test_empty_with_root_attrs():
+    res = alifestd_add_global_root(
+        alifestd_make_empty(), root_attrs={"origin_time": 42.0},
+    )
+    assert len(res) == 1
+    assert res.iloc[0]["origin_time"] == 42.0
+
+
+@pytest.mark.parametrize("key", ["id", "ancestor_id", "ancestor_list"])
+def test_root_attrs_reserved_key_raises(key: str):
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1],
+            "ancestor_list": ["[none]", "[0]"],
+        }
+    )
+    with pytest.raises(ValueError, match="reserved"):
+        alifestd_add_global_root(phylogeny_df, root_attrs={key: 999})
 
 
 @pytest.mark.parametrize("mutate", [False, True])
