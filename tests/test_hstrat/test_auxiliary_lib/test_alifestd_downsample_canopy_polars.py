@@ -9,11 +9,11 @@ from hstrat._auxiliary_lib import (
     alifestd_find_leaf_ids,
     alifestd_to_working_format,
 )
-from hstrat._auxiliary_lib._alifestd_prune_canopy_asexual import (
-    alifestd_prune_canopy_asexual,
+from hstrat._auxiliary_lib._alifestd_downsample_canopy_asexual import (
+    alifestd_downsample_canopy_asexual,
 )
-from hstrat._auxiliary_lib._alifestd_prune_canopy_polars import (
-    alifestd_prune_canopy_polars,
+from hstrat._auxiliary_lib._alifestd_downsample_canopy_polars import (
+    alifestd_downsample_canopy_polars,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
@@ -54,7 +54,7 @@ def _count_leaf_nodes_polars(phylogeny_df: pl.DataFrame) -> int:
     ],
 )
 @pytest.mark.parametrize("num_tips", [1, 5, 10, 100000000])
-def test_alifestd_prune_canopy_polars(
+def test_alifestd_downsample_canopy_polars(
     phylogeny_df: pd.DataFrame,
     num_tips: int,
 ):
@@ -63,7 +63,7 @@ def test_alifestd_prune_canopy_polars(
     original_len = len(phylogeny_df_pl)
     original_num_tips = _count_leaf_nodes_polars(phylogeny_df_pl)
 
-    result_df = alifestd_prune_canopy_polars(
+    result_df = alifestd_downsample_canopy_polars(
         phylogeny_df_pl,
         num_tips,
         criterion="id",
@@ -80,13 +80,13 @@ def test_alifestd_prune_canopy_polars(
 
 
 @pytest.mark.parametrize("num_tips", [0, 1])
-def test_alifestd_prune_canopy_polars_empty(num_tips: int):
+def test_alifestd_downsample_canopy_polars_empty(num_tips: int):
     phylogeny_df = pl.DataFrame(
         {"id": [], "ancestor_id": []},
         schema={"id": pl.Int64, "ancestor_id": pl.Int64},
     )
 
-    result_df = alifestd_prune_canopy_polars(
+    result_df = alifestd_downsample_canopy_polars(
         phylogeny_df, num_tips, criterion="id"
     )
 
@@ -116,17 +116,17 @@ def test_alifestd_prune_canopy_polars_empty(num_tips: int):
     ],
 )
 @pytest.mark.parametrize("num_tips", [1, 5, 10])
-def test_alifestd_prune_canopy_polars_matches_pandas(
+def test_alifestd_downsample_canopy_polars_matches_pandas(
     phylogeny_df: pd.DataFrame,
     num_tips: int,
 ):
     """Verify polars result matches pandas result for same prepared input."""
     phylogeny_df_pl = pl.from_pandas(phylogeny_df)
 
-    result_pd = alifestd_prune_canopy_asexual(
+    result_pd = alifestd_downsample_canopy_asexual(
         phylogeny_df, num_tips, mutate=False, criterion="id"
     )
-    result_pl = alifestd_prune_canopy_polars(
+    result_pl = alifestd_downsample_canopy_polars(
         phylogeny_df_pl, num_tips, criterion="id"
     )
 
@@ -148,13 +148,13 @@ def test_alifestd_prune_canopy_polars_matches_pandas(
         ),
     ],
 )
-def test_alifestd_prune_canopy_polars_retains_highest_ids(
+def test_alifestd_downsample_canopy_polars_retains_highest_ids(
     phylogeny_df: pd.DataFrame,
 ):
     """Verify that the retained tips are the ones with the highest ids."""
     num_tips = 5
     phylogeny_df_pl = pl.from_pandas(phylogeny_df)
-    result_df = alifestd_prune_canopy_polars(
+    result_df = alifestd_downsample_canopy_polars(
         phylogeny_df_pl, num_tips, criterion="id"
     )
 
@@ -173,7 +173,7 @@ def test_alifestd_prune_canopy_polars_retains_highest_ids(
     assert result_tips == expected_kept
 
 
-def test_alifestd_prune_canopy_polars_no_ancestor_id():
+def test_alifestd_downsample_canopy_polars_no_ancestor_id():
     df = pl.DataFrame(
         {
             "id": [0, 1, 2],
@@ -181,10 +181,10 @@ def test_alifestd_prune_canopy_polars_no_ancestor_id():
         }
     )
     with pytest.raises(NotImplementedError):
-        alifestd_prune_canopy_polars(df, 1, criterion="id")
+        alifestd_downsample_canopy_polars(df, 1, criterion="id")
 
 
-def test_alifestd_prune_canopy_polars_simple():
+def test_alifestd_downsample_canopy_polars_simple():
     """Test a simple hand-crafted tree.
 
     Tree structure:
@@ -205,14 +205,14 @@ def test_alifestd_prune_canopy_polars_simple():
         }
     )
 
-    result2 = alifestd_prune_canopy_polars(df, 2, criterion="id")
+    result2 = alifestd_downsample_canopy_polars(df, 2, criterion="id")
     assert set(result2["id"].to_list()) == {0, 1, 3, 4}
 
-    result1 = alifestd_prune_canopy_polars(df, 1, criterion="id")
+    result1 = alifestd_downsample_canopy_polars(df, 1, criterion="id")
     assert set(result1["id"].to_list()) == {0, 1, 4}
 
 
-def test_alifestd_prune_canopy_polars_all_tips():
+def test_alifestd_downsample_canopy_polars_all_tips():
     """Requesting more tips than exist should return the full phylogeny."""
     df = pl.DataFrame(
         {
@@ -222,12 +222,12 @@ def test_alifestd_prune_canopy_polars_all_tips():
         }
     )
 
-    result = alifestd_prune_canopy_polars(df, 100000, criterion="id")
+    result = alifestd_downsample_canopy_polars(df, 100000, criterion="id")
 
     assert len(result) == 5
 
 
-def test_alifestd_prune_canopy_polars_tied_criterion():
+def test_alifestd_downsample_canopy_polars_tied_criterion():
     """When all leaves share the same criterion value, exactly num_tips
     should still be retained (ties broken arbitrarily)."""
     df = pl.DataFrame(
@@ -240,11 +240,13 @@ def test_alifestd_prune_canopy_polars_tied_criterion():
     )
     # leaves are 2, 3, 4 — all have time=0
     for num_tips in (1, 2, 3):
-        result = alifestd_prune_canopy_polars(df, num_tips, criterion="time")
+        result = alifestd_downsample_canopy_polars(
+            df, num_tips, criterion="time"
+        )
         assert _count_leaf_nodes_polars(result) == num_tips
 
 
-def test_alifestd_prune_canopy_polars_missing_criterion():
+def test_alifestd_downsample_canopy_polars_missing_criterion():
     """Verify ValueError when criterion column is missing."""
     df = pl.DataFrame(
         {
@@ -254,4 +256,4 @@ def test_alifestd_prune_canopy_polars_missing_criterion():
     )
 
     with pytest.raises(ValueError, match="criterion column"):
-        alifestd_prune_canopy_polars(df, 1, criterion="nonexistent")
+        alifestd_downsample_canopy_polars(df, 1, criterion="nonexistent")

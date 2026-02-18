@@ -6,26 +6,23 @@ import sys
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
-import pandas as pd
+import polars as pl
 
-from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
-from ._alifestd_prune_extinct_lineages_asexual import (
-    alifestd_prune_extinct_lineages_asexual,
+from ._alifestd_mark_leaves_polars import alifestd_mark_leaves_polars
+from ._alifestd_prune_extinct_lineages_polars import (
+    alifestd_prune_extinct_lineages_polars,
 )
-from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._configure_prod_logging import configure_prod_logging
-from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
-def alifestd_prune_canopy_asexual(
-    phylogeny_df: pd.DataFrame,
+def alifestd_downsample_canopy_polars(
+    phylogeny_df: pl.DataFrame,
     num_tips: int,
-    mutate: bool = False,
     criterion: str = "origin_time",
-) -> pd.DataFrame:
+) -> pl.DataFrame:
     """Retain the `num_tips` leaves with the largest `criterion` values and
     prune extinct lineages.
 
@@ -36,14 +33,12 @@ def alifestd_prune_canopy_asexual(
 
     Parameters
     ----------
-    phylogeny_df : pandas.DataFrame
+    phylogeny_df : polars.DataFrame
         The phylogeny as a dataframe in alife standard format.
 
         Must represent an asexual phylogeny.
     num_tips : int
         Number of tips to retain.
-    mutate : bool, default False
-        Are side effects on the input argument `phylogeny_df` allowed?
     criterion : str, default "origin_time"
         Column name used to rank leaves. The `num_tips` leaves with the
         largest values in this column are retained. Ties are broken
@@ -51,40 +46,62 @@ def alifestd_prune_canopy_asexual(
 
     Raises
     ------
+    NotImplementedError
+        If `phylogeny_df` has no "ancestor_id" column.
     ValueError
         If `criterion` is not a column in `phylogeny_df`.
 
     Returns
     -------
-    pandas.DataFrame
+    polars.DataFrame
         The pruned phylogeny in alife standard format.
+
+    See Also
+    --------
+    alifestd_downsample_canopy_asexual :
+        Pandas-based implementation.
     """
-    if criterion not in phylogeny_df.columns:
+    schema_names = phylogeny_df.lazy().collect_schema().names()
+    if criterion not in schema_names:
         raise ValueError(
             f"criterion column {criterion!r} not found in phylogeny_df",
         )
 
-    if not mutate:
-        phylogeny_df = phylogeny_df.copy()
+    if "ancestor_id" not in schema_names:
+        raise NotImplementedError("ancestor_id column required")
 
-    phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
-    if "ancestor_id" not in phylogeny_df.columns:
-        raise ValueError(
-            "alifestd_prune_canopy_asexual only supports "
-            "asexual phylogenies.",
-        )
-
-    if phylogeny_df.empty:
+    if phylogeny_df.lazy().limit(1).collect().is_empty():
         return phylogeny_df
 
-    tips = alifestd_find_leaf_ids(phylogeny_df)
-    leaf_df = phylogeny_df.loc[phylogeny_df["id"].isin(tips)]
-    kept = leaf_df.nlargest(num_tips, criterion)["id"]
-    phylogeny_df["extant"] = phylogeny_df["id"].isin(kept)
+    logging.info(
+        "- alifestd_downsample_canopy_polars: finding leaf ids...",
+    )
+    marked_df = alifestd_mark_leaves_polars(phylogeny_df)
 
-    return alifestd_prune_extinct_lineages_asexual(
-        phylogeny_df, mutate=True
-    ).drop(columns=["extant"])
+    logging.info(
+        "- alifestd_downsample_canopy_polars: selecting top leaf_ids...",
+    )
+    leaf_ids = (
+        marked_df.lazy()
+        .filter(pl.col("is_leaf"))
+        .sort(criterion, descending=True)
+        .head(num_tips)
+        .select(pl.col("id"))
+        .collect()
+        .to_series()
+    )
+
+    logging.info(
+        "- alifestd_downsample_canopy_polars: marking extant...",
+    )
+    phylogeny_df = phylogeny_df.with_columns(
+        extant=pl.col("id").is_in(leaf_ids),
+    )
+
+    logging.info(
+        "- alifestd_downsample_canopy_polars: pruning...",
+    )
+    return alifestd_prune_extinct_lineages_polars(phylogeny_df).drop("extant")
 
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
@@ -107,8 +124,8 @@ Otherwise, no action is taken.
 
 See Also
 ========
-hstrat._auxiliary_lib._alifestd_prune_canopy_polars :
-    Entrypoint for high-performance Polars-based implementation.
+hstrat._auxiliary_lib._alifestd_downsample_canopy_asexual :
+    CLI entrypoint for Pandas-based implementation.
 """
 
 
@@ -120,7 +137,7 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     parser = _add_parser_base(
         parser=parser,
-        dfcli_module="hstrat._auxiliary_lib._alifestd_prune_canopy_asexual",
+        dfcli_module="hstrat._auxiliary_lib._alifestd_downsample_canopy_polars",
         dfcli_version=get_hstrat_version(),
     )
     parser.add_argument(
@@ -143,16 +160,22 @@ if __name__ == "__main__":
 
     parser = _create_parser()
     args, __ = parser.parse_known_args()
-    with log_context_duration(
-        "hstrat._auxiliary_lib._alifestd_prune_canopy_asexual", logging.info
-    ):
-        _run_dataframe_cli(
-            base_parser=parser,
-            output_dataframe_op=delegate_polars_implementation()(
-                functools.partial(
-                    alifestd_prune_canopy_asexual,
+
+    try:
+        with log_context_duration(
+            "hstrat._auxiliary_lib._alifestd_downsample_canopy_polars",
+            logging.info,
+        ):
+            _run_dataframe_cli(
+                base_parser=parser,
+                output_dataframe_op=functools.partial(
+                    alifestd_downsample_canopy_polars,
                     num_tips=args.n,
                     criterion=args.criterion,
                 ),
-            ),
+            )
+    except NotImplementedError as e:
+        logging.error(
+            "- polars op not yet implemented, use pandas op CLI instead",
         )
+        raise e
