@@ -326,7 +326,7 @@ def test_sexual_with_empty_bracket_roots(mutate: bool):
 
 
 @pytest.mark.parametrize("mutate", [False, True])
-def test_origin_time_kwarg(mutate: bool):
+def test_root_attrs_origin_time(mutate: bool):
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1],
@@ -336,7 +336,7 @@ def test_origin_time_kwarg(mutate: bool):
     )
 
     result_df = alifestd_add_global_root(
-        phylogeny_df, mutate=mutate, origin_time=5,
+        phylogeny_df, mutate=mutate, root_attrs={"origin_time": 5},
     )
 
     assert len(result_df) == 3
@@ -346,7 +346,7 @@ def test_origin_time_kwarg(mutate: bool):
 
 
 @pytest.mark.parametrize("mutate", [False, True])
-def test_origin_time_kwarg_no_column(mutate: bool):
+def test_root_attrs_new_column(mutate: bool):
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1],
@@ -355,7 +355,7 @@ def test_origin_time_kwarg_no_column(mutate: bool):
     )
 
     result_df = alifestd_add_global_root(
-        phylogeny_df, mutate=mutate, origin_time=5,
+        phylogeny_df, mutate=mutate, root_attrs={"origin_time": 5},
     )
 
     assert len(result_df) == 3
@@ -365,7 +365,31 @@ def test_origin_time_kwarg_no_column(mutate: bool):
 
 
 @pytest.mark.parametrize("mutate", [False, True])
-def test_origin_time_none_no_column(mutate: bool):
+def test_root_attrs_multiple(mutate: bool):
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1],
+            "ancestor_list": ["[none]", "[0]"],
+            "origin_time": [10, 20],
+            "taxon_label": ["A", "B"],
+        }
+    )
+
+    result_df = alifestd_add_global_root(
+        phylogeny_df,
+        mutate=mutate,
+        root_attrs={"origin_time": 0, "taxon_label": "root"},
+    )
+
+    assert len(result_df) == 3
+    new_root_id = result_df["id"].max()
+    root_row = result_df[result_df["id"] == new_root_id].iloc[0]
+    assert root_row["origin_time"] == 0
+    assert root_row["taxon_label"] == "root"
+
+
+@pytest.mark.parametrize("mutate", [False, True])
+def test_root_attrs_empty(mutate: bool):
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1],
@@ -380,7 +404,7 @@ def test_origin_time_none_no_column(mutate: bool):
 
 
 @pytest.mark.parametrize("mutate", [False, True])
-def test_origin_time_none_with_column(mutate: bool):
+def test_root_attrs_empty_with_existing_column(mutate: bool):
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1],
@@ -394,7 +418,7 @@ def test_origin_time_none_with_column(mutate: bool):
     assert len(result_df) == 3
     new_root_id = result_df["id"].max()
     root_row = result_df[result_df["id"] == new_root_id].iloc[0]
-    # origin_time not set when kwarg is None, so NaN from concat
+    # origin_time not in root_attrs, so NaN from concat
     assert pd.isna(root_row["origin_time"])
 
 
@@ -511,7 +535,7 @@ def test_new_root_has_only_applicable_columns(mutate: bool):
     )
 
     result_df = alifestd_add_global_root(
-        phylogeny_df, mutate=mutate, origin_time=0,
+        phylogeny_df, mutate=mutate, root_attrs={"origin_time": 0},
     )
 
     new_root_id = result_df["id"].max()

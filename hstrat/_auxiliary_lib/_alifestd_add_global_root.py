@@ -1,3 +1,4 @@
+import types
 import typing
 import warnings
 
@@ -43,13 +44,13 @@ _warned_columns = (
 def alifestd_add_global_root(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
-    origin_time: typing.Optional[float] = None,
+    root_attrs: typing.Mapping[str, typing.Any] = types.MappingProxyType({}),
 ) -> pd.DataFrame:
     """Add a new global root node that all existing roots point to.
 
-    The new root node will only have columns `id`, `ancestor_id` (if
-    applicable), `ancestor_list` (if applicable), and `origin_time` (if
-    applicable). All other columns will be NaN for the new root row.
+    The new root node will have columns `id`, `ancestor_id` (if applicable),
+    `ancestor_list` (if applicable), and any columns specified in
+    `root_attrs`. All other columns will be NaN for the new root row.
 
     Parameters
     ----------
@@ -57,8 +58,9 @@ def alifestd_add_global_root(
         Phylogeny dataframe in alife standard format.
     mutate : bool, default False
         If True, allows mutation of the input dataframe.
-    origin_time : float or None, default None
-        If provided, sets the `origin_time` of the new global root node.
+    root_attrs : Mapping[str, Any], default frozendict()
+        Column values to set on the new global root row, e.g.,
+        ``{"origin_time": 0.0, "taxon_label": "root"}``.
 
     Returns
     -------
@@ -98,8 +100,7 @@ def alifestd_add_global_root(
     if "ancestor_list" in phylogeny_df:
         new_root["ancestor_list"] = "[none]"
 
-    if origin_time is not None:
-        new_root["origin_time"] = origin_time
+    new_root.update(root_attrs)
 
     # Point existing roots to the new global root
     root_ids = alifestd_find_root_ids(phylogeny_df)
