@@ -71,6 +71,9 @@ def alifestd_warn_topological_sensitivity(
         Polars-based implementation.
     """
     _alifestd_warn_topological_sensitivity(
-        phylogeny_df.columns, caller,
-        insert=insert, delete=delete, update=update,
+        phylogeny_df.columns,
+        caller,
+        insert=insert,
+        delete=delete,
+        update=update,
     )
