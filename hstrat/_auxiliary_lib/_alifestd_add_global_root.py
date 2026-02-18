@@ -1,43 +1,11 @@
 import types
 import typing
-import warnings
 
 import pandas as pd
 
 from ._alifestd_find_root_ids import alifestd_find_root_ids
-
-
-_warned_columns = (
-    "ancestor_origin_time",
-    "branch_length",
-    "clade_duration",
-    "clade_duration_ratio_sister",
-    "clade_fblr_growth_children",
-    "clade_fblr_growth_sister",
-    "clade_faithpd",
-    "clade_leafcount_ratio_sister",
-    "clade_logistic_growth_children",
-    "clade_logistic_growth_sister",
-    "clade_nodecount_ratio_sister",
-    "clade_subtended_duration",
-    "clade_subtended_duration_ratio_sister",
-    "edge_length",
-    "is_left_child",
-    "is_right_child",
-    "left_child_id",
-    "max_descendant_origin_time",
-    "node_depth",
-    "num_children",
-    "num_descendants",
-    "num_leaves",
-    "num_leaves_sibling",
-    "num_preceding_leaves",
-    "origin_time_delta",
-    "ot_mrca_id",
-    "ot_mrca_time_of",
-    "ot_mrca_time_since",
-    "right_child_id",
-    "sister_id",
+from ._alifestd_warn_topological_sensitivity import (
+    alifestd_warn_topological_sensitivity,
 )
 
 
@@ -58,7 +26,7 @@ def alifestd_add_global_root(
         Phylogeny dataframe in alife standard format.
     mutate : bool, default False
         If True, allows mutation of the input dataframe.
-    root_attrs : Mapping[str, Any], default frozendict()
+    root_attrs : Mapping[str, Any], default {}
         Column values to set on the new global root row, e.g.,
         ``{"origin_time": 0.0, "taxon_label": "root"}``.
 
@@ -77,16 +45,13 @@ def alifestd_add_global_root(
     if len(phylogeny_df) == 0:
         return phylogeny_df
 
-    # Warn about columns that may become invalid
-    present_warned = [
-        col for col in _warned_columns if col in phylogeny_df
-    ]
-    if present_warned:
-        warnings.warn(
-            "alifestd_add_global_root does not update columns "
-            f"{present_warned}. These columns may become invalid after "
-            "adding a global root."
-        )
+    alifestd_warn_topological_sensitivity(
+        phylogeny_df,
+        "alifestd_add_global_root",
+        insert=True,
+        delete=False,
+        update=True,
+    )
 
     # Create new root id
     new_root_id = phylogeny_df["id"].max() + 1

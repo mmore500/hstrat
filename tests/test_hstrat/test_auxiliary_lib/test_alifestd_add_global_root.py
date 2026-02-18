@@ -422,12 +422,17 @@ def test_root_attrs_empty_with_existing_column(mutate: bool):
     assert pd.isna(root_row["origin_time"])
 
 
-def test_warns_on_branch_length_columns():
+@pytest.mark.parametrize(
+    "col",
+    ["branch_length", "edge_length", "origin_time_delta", "node_depth",
+     "num_descendants", "num_children", "num_leaves"],
+)
+def test_warns_on_sensitive_column(col: str):
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1],
             "ancestor_list": ["[none]", "[0]"],
-            "branch_length": [0.0, 1.0],
+            col: [0.0, 1.0],
         }
     )
 
@@ -435,55 +440,9 @@ def test_warns_on_branch_length_columns():
         warnings.simplefilter("always")
         alifestd_add_global_root(phylogeny_df)
         assert len(w) == 1
-        assert "branch_length" in str(w[0].message)
-
-
-def test_warns_on_edge_length_columns():
-    phylogeny_df = pd.DataFrame(
-        {
-            "id": [0, 1],
-            "ancestor_list": ["[none]", "[0]"],
-            "edge_length": [0.0, 1.0],
-        }
-    )
-
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        alifestd_add_global_root(phylogeny_df)
-        assert len(w) == 1
-        assert "edge_length" in str(w[0].message)
-
-
-def test_warns_on_origin_time_delta():
-    phylogeny_df = pd.DataFrame(
-        {
-            "id": [0, 1],
-            "ancestor_list": ["[none]", "[0]"],
-            "origin_time_delta": [0.0, 1.0],
-        }
-    )
-
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        alifestd_add_global_root(phylogeny_df)
-        assert len(w) == 1
-        assert "origin_time_delta" in str(w[0].message)
-
-
-def test_warns_on_node_depth():
-    phylogeny_df = pd.DataFrame(
-        {
-            "id": [0, 1],
-            "ancestor_list": ["[none]", "[0]"],
-            "node_depth": [0, 1],
-        }
-    )
-
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        alifestd_add_global_root(phylogeny_df)
-        assert len(w) == 1
-        assert "node_depth" in str(w[0].message)
+        msg = str(w[0].message)
+        assert col in msg
+        assert "topology-dependent" in msg
 
 
 def test_warns_on_multiple_columns():
