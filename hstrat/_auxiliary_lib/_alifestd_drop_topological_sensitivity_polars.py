@@ -6,6 +6,7 @@ import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import polars as pl
 
+from ._add_bool_arg import add_bool_arg
 from ._alifestd_check_topological_sensitivity_polars import (
     alifestd_check_topological_sensitivity_polars,
 )
@@ -82,6 +83,9 @@ def _create_parser() -> argparse.ArgumentParser:
         ),
         dfcli_version=get_hstrat_version(),
     )
+    add_bool_arg(parser, "insert", default=True)
+    add_bool_arg(parser, "delete", default=True)
+    add_bool_arg(parser, "update", default=True)
     return parser
 
 
@@ -100,7 +104,12 @@ if __name__ == "__main__":
             _run_dataframe_cli(
                 base_parser=parser,
                 output_dataframe_op=(
-                    alifestd_drop_topological_sensitivity_polars
+                    lambda df: alifestd_drop_topological_sensitivity_polars(
+                        df,
+                        insert=args.insert,
+                        delete=args.delete,
+                        update=args.update,
+                    )
                 ),
             )
     except NotImplementedError as e:

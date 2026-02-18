@@ -17,6 +17,8 @@ def alifestd_check_topological_sensitivity_polars(
 
     Accepts polars DataFrames and LazyFrames.
 
+    If no such columns exist, returns an empty list.
+
     Parameters
     ----------
     phylogeny_df : polars.DataFrame or polars.LazyFrame
@@ -36,8 +38,9 @@ def alifestd_check_topological_sensitivity_polars(
         Pandas-based implementation.
     """
     sensitive = _get_sensitive_cols(insert, delete, update)
-    if isinstance(phylogeny_df, pl.LazyFrame):
-        columns = phylogeny_df.collect_schema().names()
-    else:
-        columns = phylogeny_df.columns
+    columns = (
+        phylogeny_df.collect_schema().names()
+        if isinstance(phylogeny_df, pl.LazyFrame)
+        else phylogeny_df.columns
+    )
     return [col for col in columns if col in sensitive]

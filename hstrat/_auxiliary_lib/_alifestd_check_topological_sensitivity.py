@@ -4,8 +4,8 @@ import pandas as pd
 
 # Columns that describe the node-to-parent relationship or position in the
 # existing hierarchy.  These are ONLY invalidated by update operations
-# (changing ancestor relationships), NOT by insert (adding new nodes) or
-# delete (removing entire contiguous branches without re-parenting).
+# (changing ancestor relationships), NOT by pure insert (adding new nodes)
+# or pure delete (removing entire contiguous branches).
 _update_only_sensitive_cols = frozenset((
     "ancestor_origin_time",
     "branch_length",
@@ -68,6 +68,8 @@ def alifestd_check_topological_sensitivity(
 ) -> typing.List[str]:
     """Return names of columns present in `phylogeny_df` that may be
     invalidated by topological operations such as collapsing unifurcations.
+
+    If no such columns exist, returns an empty list.
 
     Parameters
     ----------
