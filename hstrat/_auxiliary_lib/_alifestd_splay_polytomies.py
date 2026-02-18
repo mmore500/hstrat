@@ -1,11 +1,13 @@
 import itertools as it
-import warnings
 
 import numpy as np
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_asexual import alifestd_is_asexual
+from ._alifestd_warn_topological_sensitivity import (
+    alifestd_warn_topological_sensitivity,
+)
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._jit import jit
@@ -161,12 +163,9 @@ def alifestd_splay_polytomies(
     value to get transformed phylogeny dataframe.
     """
 
-    if "branch_length" in phylogeny_df or "edge_length" in phylogeny_df:
-        warnings.warn(
-            "alifestd_splay_polytomies does not update branch length columns. "
-            "Use `origin_time` to recalculate branch lengths for collapsed "
-            "phylogeny."
-        )
+    alifestd_warn_topological_sensitivity(
+        phylogeny_df, "alifestd_splay_polytomies"
+    )
 
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
