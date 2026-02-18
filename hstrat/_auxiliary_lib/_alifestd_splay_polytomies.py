@@ -164,8 +164,11 @@ def alifestd_splay_polytomies(
     """
 
     alifestd_warn_topological_sensitivity(
-        phylogeny_df, "alifestd_splay_polytomies",
-        insert=True, delete=False, update=True,
+        phylogeny_df,
+        "alifestd_splay_polytomies",
+        insert=True,
+        delete=False,
+        update=True,
     )
 
     if not mutate:

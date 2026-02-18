@@ -26,7 +26,10 @@ def base_df():
 
 def test_none_present(base_df: pd.DataFrame):
     result = alifestd_check_topological_sensitivity(
-        base_df, insert=True, delete=True, update=True,
+        base_df,
+        insert=True,
+        delete=True,
+        update=True,
     )
     assert result == []
 
@@ -36,7 +39,10 @@ def test_single_sensitive_col(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_check_topological_sensitivity(
-        df, insert=True, delete=True, update=True,
+        df,
+        insert=True,
+        delete=True,
+        update=True,
     )
     assert result == [col]
 
@@ -47,7 +53,10 @@ def test_multiple_sensitive_cols(base_df: pd.DataFrame):
     df["node_depth"] = 0
     df["sister_id"] = 0
     result = alifestd_check_topological_sensitivity(
-        df, insert=True, delete=True, update=True,
+        df,
+        insert=True,
+        delete=True,
+        update=True,
     )
     assert set(result) == {"branch_length", "node_depth", "sister_id"}
 
@@ -57,7 +66,10 @@ def test_non_sensitive_cols_ignored(base_df: pd.DataFrame):
     df["taxon_label"] = "x"
     df["extant"] = True
     result = alifestd_check_topological_sensitivity(
-        df, insert=True, delete=True, update=True,
+        df,
+        insert=True,
+        delete=True,
+        update=True,
     )
     assert result == []
 
@@ -69,7 +81,10 @@ def test_mixed_sensitive_and_non_sensitive(base_df: pd.DataFrame):
     df["extant"] = True
     df["ancestor_origin_time"] = 0
     result = alifestd_check_topological_sensitivity(
-        df, insert=True, delete=True, update=True,
+        df,
+        insert=True,
+        delete=True,
+        update=True,
     )
     assert set(result) == {"ancestor_origin_time", "branch_length"}
 
@@ -79,7 +94,10 @@ def test_no_mutation(base_df: pd.DataFrame):
     df["branch_length"] = 0
     original = df.copy()
     alifestd_check_topological_sensitivity(
-        df, insert=True, delete=True, update=True,
+        df,
+        insert=True,
+        delete=True,
+        update=True,
     )
     pd.testing.assert_frame_equal(df, original)
 
@@ -91,9 +109,15 @@ def test_empty_dataframe():
             "ancestor_id": pd.Series([], dtype=int),
         }
     )
-    assert alifestd_check_topological_sensitivity(
-        df, insert=True, delete=True, update=True,
-    ) == []
+    assert (
+        alifestd_check_topological_sensitivity(
+            df,
+            insert=True,
+            delete=True,
+            update=True,
+        )
+        == []
+    )
 
 
 def test_empty_dataframe_with_sensitive():
@@ -104,7 +128,10 @@ def test_empty_dataframe_with_sensitive():
         }
     )
     assert alifestd_check_topological_sensitivity(
-        df, insert=True, delete=True, update=True,
+        df,
+        insert=True,
+        delete=True,
+        update=True,
     ) == ["branch_length"]
 
 
@@ -113,7 +140,10 @@ def test_insert_only_excludes_update_only(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_check_topological_sensitivity(
-        df, insert=True, delete=False, update=False,
+        df,
+        insert=True,
+        delete=False,
+        update=False,
     )
     assert col not in result
 
@@ -122,11 +152,16 @@ def test_insert_only_excludes_update_only(base_df: pd.DataFrame, col: str):
     "col",
     sorted(_topologically_sensitive_cols - _update_only_sensitive_cols),
 )
-def test_insert_only_includes_structure_sensitive(base_df: pd.DataFrame, col: str):
+def test_insert_only_includes_structure_sensitive(
+    base_df: pd.DataFrame, col: str
+):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_check_topological_sensitivity(
-        df, insert=True, delete=False, update=False,
+        df,
+        insert=True,
+        delete=False,
+        update=False,
     )
     assert result == [col]
 
@@ -136,7 +171,10 @@ def test_delete_only_excludes_update_only(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_check_topological_sensitivity(
-        df, insert=False, delete=True, update=False,
+        df,
+        insert=False,
+        delete=True,
+        update=False,
     )
     assert col not in result
 
@@ -145,11 +183,16 @@ def test_delete_only_excludes_update_only(base_df: pd.DataFrame, col: str):
     "col",
     sorted(_topologically_sensitive_cols - _update_only_sensitive_cols),
 )
-def test_delete_only_includes_structure_sensitive(base_df: pd.DataFrame, col: str):
+def test_delete_only_includes_structure_sensitive(
+    base_df: pd.DataFrame, col: str
+):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_check_topological_sensitivity(
-        df, insert=False, delete=True, update=False,
+        df,
+        insert=False,
+        delete=True,
+        update=False,
     )
     assert result == [col]
 
@@ -159,7 +202,10 @@ def test_update_includes_all(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_check_topological_sensitivity(
-        df, insert=False, delete=False, update=True,
+        df,
+        insert=False,
+        delete=False,
+        update=True,
     )
     assert result == [col]
 
@@ -169,7 +215,10 @@ def test_no_ops_returns_empty(base_df: pd.DataFrame):
     for col in sorted(_topologically_sensitive_cols):
         df[col] = 0
     result = alifestd_check_topological_sensitivity(
-        df, insert=False, delete=False, update=False,
+        df,
+        insert=False,
+        delete=False,
+        update=False,
     )
     assert result == []
 
@@ -180,8 +229,11 @@ def test_warn_topological_sensitivity_warns(base_df: pd.DataFrame):
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         alifestd_warn_topological_sensitivity(
-            df, "test_caller",
-            insert=False, delete=True, update=True,
+            df,
+            "test_caller",
+            insert=False,
+            delete=True,
+            update=True,
         )
         assert len(w) == 1
         assert "test_caller" in str(w[0].message)
@@ -196,8 +248,11 @@ def test_warn_topological_sensitivity_silent(base_df: pd.DataFrame):
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         alifestd_warn_topological_sensitivity(
-            base_df, "test_caller",
-            insert=True, delete=True, update=True,
+            base_df,
+            "test_caller",
+            insert=True,
+            delete=True,
+            update=True,
         )
         assert len(w) == 0
 
@@ -208,8 +263,11 @@ def test_warn_topological_sensitivity_ops_in_message(base_df: pd.DataFrame):
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         alifestd_warn_topological_sensitivity(
-            df, "test_caller",
-            insert=True, delete=False, update=True,
+            df,
+            "test_caller",
+            insert=True,
+            delete=False,
+            update=True,
         )
         assert len(w) == 1
         assert "insert/update" in str(w[0].message)

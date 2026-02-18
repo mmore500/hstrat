@@ -51,7 +51,10 @@ def alifestd_drop_topological_sensitivity(
         Polars-based implementation.
     """
     to_drop = alifestd_check_topological_sensitivity(
-        phylogeny_df, insert=insert, delete=delete, update=update,
+        phylogeny_df,
+        insert=insert,
+        delete=delete,
+        update=update,
     )
 
     if not mutate:
@@ -91,21 +94,26 @@ def _create_parser() -> argparse.ArgumentParser:
     parser = _add_parser_base(
         parser=parser,
         dfcli_module=(
-            "hstrat._auxiliary_lib"
-            "._alifestd_drop_topological_sensitivity"
+            "hstrat._auxiliary_lib" "._alifestd_drop_topological_sensitivity"
         ),
         dfcli_version=get_hstrat_version(),
     )
     add_bool_arg(
-        parser, "insert", default=True,
+        parser,
+        "insert",
+        default=True,
         help="drop columns sensitive to node insertion (default: True)",
     )
     add_bool_arg(
-        parser, "delete", default=True,
+        parser,
+        "delete",
+        default=True,
         help="drop columns sensitive to node deletion (default: True)",
     )
     add_bool_arg(
-        parser, "update", default=True,
+        parser,
+        "update",
+        default=True,
         help=(
             "drop columns sensitive to ancestor relationship updates"
             " (default: True)"
@@ -120,8 +128,7 @@ if __name__ == "__main__":
     parser = _create_parser()
     args, __ = parser.parse_known_args()
     with log_context_duration(
-        "hstrat._auxiliary_lib"
-        "._alifestd_drop_topological_sensitivity",
+        "hstrat._auxiliary_lib" "._alifestd_drop_topological_sensitivity",
         logging.info,
     ):
         _run_dataframe_cli(

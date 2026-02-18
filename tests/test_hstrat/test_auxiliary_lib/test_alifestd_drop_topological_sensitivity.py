@@ -55,7 +55,11 @@ def test_preserves_non_sensitive(base_df: pd.DataFrame):
     df["branch_length"] = 0.0
     result = alifestd_drop_topological_sensitivity(df)
     expected_cols = {
-        "id", "ancestor_id", "origin_time", "taxon_label", "extant",
+        "id",
+        "ancestor_id",
+        "origin_time",
+        "taxon_label",
+        "extant",
     }
     assert set(result.columns) == expected_cols
 
@@ -91,7 +95,10 @@ def test_insert_only_preserves_update_only(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_drop_topological_sensitivity(
-        df, insert=True, delete=False, update=False,
+        df,
+        insert=True,
+        delete=False,
+        update=False,
     )
     assert col in result.columns
 
@@ -100,11 +107,16 @@ def test_insert_only_preserves_update_only(base_df: pd.DataFrame, col: str):
     "col",
     sorted(_topologically_sensitive_cols - _update_only_sensitive_cols),
 )
-def test_insert_only_drops_structure_sensitive(base_df: pd.DataFrame, col: str):
+def test_insert_only_drops_structure_sensitive(
+    base_df: pd.DataFrame, col: str
+):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_drop_topological_sensitivity(
-        df, insert=True, delete=False, update=False,
+        df,
+        insert=True,
+        delete=False,
+        update=False,
     )
     assert col not in result.columns
 
@@ -114,7 +126,10 @@ def test_delete_only_preserves_update_only(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_drop_topological_sensitivity(
-        df, insert=False, delete=True, update=False,
+        df,
+        insert=False,
+        delete=True,
+        update=False,
     )
     assert col in result.columns
 
@@ -123,11 +138,16 @@ def test_delete_only_preserves_update_only(base_df: pd.DataFrame, col: str):
     "col",
     sorted(_topologically_sensitive_cols - _update_only_sensitive_cols),
 )
-def test_delete_only_drops_structure_sensitive(base_df: pd.DataFrame, col: str):
+def test_delete_only_drops_structure_sensitive(
+    base_df: pd.DataFrame, col: str
+):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_drop_topological_sensitivity(
-        df, insert=False, delete=True, update=False,
+        df,
+        insert=False,
+        delete=True,
+        update=False,
     )
     assert col not in result.columns
 
@@ -137,7 +157,10 @@ def test_update_drops_all(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_drop_topological_sensitivity(
-        df, insert=False, delete=False, update=True,
+        df,
+        insert=False,
+        delete=False,
+        update=True,
     )
     assert col not in result.columns
 
@@ -147,7 +170,10 @@ def test_no_ops_drops_nothing(base_df: pd.DataFrame):
     df["branch_length"] = 0.0
     df["sister_id"] = 0
     result = alifestd_drop_topological_sensitivity(
-        df, insert=False, delete=False, update=False,
+        df,
+        insert=False,
+        delete=False,
+        update=False,
     )
     assert "branch_length" in result.columns
     assert "sister_id" in result.columns

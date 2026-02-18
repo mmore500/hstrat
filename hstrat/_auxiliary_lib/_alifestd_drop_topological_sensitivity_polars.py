@@ -43,7 +43,10 @@ def alifestd_drop_topological_sensitivity_polars(
         Pandas-based implementation.
     """
     to_drop = alifestd_check_topological_sensitivity_polars(
-        phylogeny_df, insert=insert, delete=delete, update=update,
+        phylogeny_df,
+        insert=insert,
+        delete=delete,
+        update=update,
     )
     return phylogeny_df.drop(to_drop)
 
@@ -84,15 +87,21 @@ def _create_parser() -> argparse.ArgumentParser:
         dfcli_version=get_hstrat_version(),
     )
     add_bool_arg(
-        parser, "insert", default=True,
+        parser,
+        "insert",
+        default=True,
         help="drop columns sensitive to node insertion (default: True)",
     )
     add_bool_arg(
-        parser, "delete", default=True,
+        parser,
+        "delete",
+        default=True,
         help="drop columns sensitive to node deletion (default: True)",
     )
     add_bool_arg(
-        parser, "update", default=True,
+        parser,
+        "update",
+        default=True,
         help=(
             "drop columns sensitive to ancestor relationship updates"
             " (default: True)"
