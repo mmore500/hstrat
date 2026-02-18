@@ -15,7 +15,8 @@ _update_only_sensitive_cols = frozenset((
 ))
 
 # All columns that may be invalidated by topological operations.
-_topologically_sensitive_cols = _update_only_sensitive_cols | frozenset((
+_topologically_sensitive_cols = frozenset((
+    *_update_only_sensitive_cols,
     "clade_duration",
     "clade_duration_ratio_sister",
     "clade_fblr_growth_children",
