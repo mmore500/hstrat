@@ -3,8 +3,8 @@ import pytest
 
 from hstrat._auxiliary_lib import alifestd_drop_topological_sensitivity
 from hstrat._auxiliary_lib._alifestd_check_topological_sensitivity import (
-    _insert_insensitive_cols,
     _topologically_sensitive_cols,
+    _update_only_sensitive_cols,
 )
 
 
@@ -86,8 +86,8 @@ def test_empty():
     assert len(result) == 0
 
 
-@pytest.mark.parametrize("col", sorted(_insert_insensitive_cols))
-def test_insert_only_preserves_insert_insensitive(base_df, col):
+@pytest.mark.parametrize("col", sorted(_update_only_sensitive_cols))
+def test_insert_only_preserves_update_only(base_df, col):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_drop_topological_sensitivity(
@@ -98,9 +98,9 @@ def test_insert_only_preserves_insert_insensitive(base_df, col):
 
 @pytest.mark.parametrize(
     "col",
-    sorted(_topologically_sensitive_cols - _insert_insensitive_cols),
+    sorted(_topologically_sensitive_cols - _update_only_sensitive_cols),
 )
-def test_insert_only_drops_insert_sensitive(base_df, col):
+def test_insert_only_drops_structure_sensitive(base_df, col):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_drop_topological_sensitivity(
@@ -109,8 +109,21 @@ def test_insert_only_drops_insert_sensitive(base_df, col):
     assert col not in result.columns
 
 
-@pytest.mark.parametrize("col", sorted(_topologically_sensitive_cols))
-def test_delete_drops_all(base_df, col):
+@pytest.mark.parametrize("col", sorted(_update_only_sensitive_cols))
+def test_delete_only_preserves_update_only(base_df, col):
+    df = base_df.copy()
+    df[col] = 0
+    result = alifestd_drop_topological_sensitivity(
+        df, insert=False, delete=True, update=False,
+    )
+    assert col in result.columns
+
+
+@pytest.mark.parametrize(
+    "col",
+    sorted(_topologically_sensitive_cols - _update_only_sensitive_cols),
+)
+def test_delete_only_drops_structure_sensitive(base_df, col):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_drop_topological_sensitivity(

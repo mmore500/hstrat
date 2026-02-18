@@ -3,10 +3,10 @@ import typing
 import pandas as pd
 
 # Columns that describe the node-to-parent relationship or position in the
-# existing hierarchy.  These are NOT invalidated by pure insert operations
-# (adding new nodes without changing existing ancestry), but ARE invalidated
-# by delete or update operations.
-_insert_insensitive_cols = frozenset((
+# existing hierarchy.  These are ONLY invalidated by update operations
+# (changing ancestor relationships), NOT by insert (adding new nodes) or
+# delete (removing entire contiguous branches without re-parenting).
+_update_only_sensitive_cols = frozenset((
     "ancestor_origin_time",
     "branch_length",
     "edge_length",
@@ -15,7 +15,7 @@ _insert_insensitive_cols = frozenset((
 ))
 
 # All columns that may be invalidated by topological operations.
-_topologically_sensitive_cols = _insert_insensitive_cols | frozenset((
+_topologically_sensitive_cols = _update_only_sensitive_cols | frozenset((
     "clade_duration",
     "clade_duration_ratio_sister",
     "clade_fblr_growth_children",
@@ -51,10 +51,10 @@ def _get_sensitive_cols(
 ) -> frozenset:
     """Return the set of sensitive column names for the given operation
     types."""
-    if delete or update:
+    if update:
         return _topologically_sensitive_cols
-    elif insert:
-        return _topologically_sensitive_cols - _insert_insensitive_cols
+    elif insert or delete:
+        return _topologically_sensitive_cols - _update_only_sensitive_cols
     else:
         return frozenset()
 

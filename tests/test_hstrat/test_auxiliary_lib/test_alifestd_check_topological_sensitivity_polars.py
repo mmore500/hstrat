@@ -8,8 +8,8 @@ from hstrat._auxiliary_lib import (
     alifestd_warn_topological_sensitivity_polars,
 )
 from hstrat._auxiliary_lib._alifestd_check_topological_sensitivity import (
-    _insert_insensitive_cols,
     _topologically_sensitive_cols,
+    _update_only_sensitive_cols,
 )
 
 
@@ -109,8 +109,8 @@ def test_lazyframe_none_present(base_df):
     assert result == []
 
 
-@pytest.mark.parametrize("col", sorted(_insert_insensitive_cols))
-def test_insert_only_excludes_insert_insensitive(base_df, col):
+@pytest.mark.parametrize("col", sorted(_update_only_sensitive_cols))
+def test_insert_only_excludes_update_only(base_df, col):
     df = base_df.with_columns(pl.lit(0).alias(col))
     result = alifestd_check_topological_sensitivity_polars(
         df, insert=True, delete=False, update=False,
@@ -120,9 +120,9 @@ def test_insert_only_excludes_insert_insensitive(base_df, col):
 
 @pytest.mark.parametrize(
     "col",
-    sorted(_topologically_sensitive_cols - _insert_insensitive_cols),
+    sorted(_topologically_sensitive_cols - _update_only_sensitive_cols),
 )
-def test_insert_only_includes_insert_sensitive(base_df, col):
+def test_insert_only_includes_structure_sensitive(base_df, col):
     df = base_df.with_columns(pl.lit(0).alias(col))
     result = alifestd_check_topological_sensitivity_polars(
         df, insert=True, delete=False, update=False,
@@ -130,8 +130,20 @@ def test_insert_only_includes_insert_sensitive(base_df, col):
     assert result == [col]
 
 
-@pytest.mark.parametrize("col", sorted(_topologically_sensitive_cols))
-def test_delete_includes_all(base_df, col):
+@pytest.mark.parametrize("col", sorted(_update_only_sensitive_cols))
+def test_delete_only_excludes_update_only(base_df, col):
+    df = base_df.with_columns(pl.lit(0).alias(col))
+    result = alifestd_check_topological_sensitivity_polars(
+        df, insert=False, delete=True, update=False,
+    )
+    assert col not in result
+
+
+@pytest.mark.parametrize(
+    "col",
+    sorted(_topologically_sensitive_cols - _update_only_sensitive_cols),
+)
+def test_delete_only_includes_structure_sensitive(base_df, col):
     df = base_df.with_columns(pl.lit(0).alias(col))
     result = alifestd_check_topological_sensitivity_polars(
         df, insert=False, delete=True, update=False,
@@ -157,7 +169,7 @@ def test_no_ops_returns_empty(base_df):
     assert result == []
 
 
-@pytest.mark.parametrize("col", sorted(_insert_insensitive_cols))
+@pytest.mark.parametrize("col", sorted(_update_only_sensitive_cols))
 def test_insert_only_lazyframe_excludes(base_df, col):
     lazy = base_df.with_columns(pl.lit(0).alias(col)).lazy()
     result = alifestd_check_topological_sensitivity_polars(
