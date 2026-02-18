@@ -68,3 +68,83 @@ def test_alifestd_as_newick_asexual_cli_csv(
         cmd.extend(["--taxon-label", taxon_label])
     subprocess.run(cmd, check=True)
     assert os.path.exists(output_file)
+
+
+@pytest.mark.parametrize(
+    "input_file",
+    [
+        "nk_ecoeaselection.csv",
+        "nk_lexicaseselection.csv",
+        "nk_tournamentselection.csv",
+    ],
+)
+@pytest.mark.parametrize(
+    "taxon_label",
+    [
+        None,
+        "id",
+    ],
+)
+@pytest.mark.parametrize(
+    "input_engine",
+    [
+        "pandas",
+        "polars",
+    ],
+)
+def test_alifestd_as_newick_asexual_cli_csv_engine(
+    input_file: str,
+    taxon_label: typing.Optional[str],
+    input_engine: str,
+):
+    output_file = (
+        "/tmp/hstrat-as_newick_asexual_cli-"
+        f"{input_engine}-{taxon_label}-{input_file}.newick"
+    )
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    cmd = [
+        "python3",
+        "-m",
+        "hstrat._auxiliary_lib._alifestd_as_newick_asexual",
+        "--input-file",
+        f"{assets}/{input_file}",
+        "--input-engine",
+        input_engine,
+        "-o",
+        output_file,
+    ]
+    if taxon_label is not None:
+        cmd.extend(["--taxon-label", taxon_label])
+    subprocess.run(cmd, check=True)
+    assert os.path.exists(output_file)
+
+
+@pytest.mark.parametrize(
+    "input_file",
+    [
+        "nk_ecoeaselection.csv",
+        "nk_tournamentselection.csv",
+    ],
+)
+def test_alifestd_as_newick_asexual_cli_csv_input_kwarg(
+    input_file: str,
+):
+    output_file = (
+        "/tmp/hstrat-as_newick_asexual_cli-" f"kwarg-{input_file}.newick"
+    )
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    cmd = [
+        "python3",
+        "-m",
+        "hstrat._auxiliary_lib._alifestd_as_newick_asexual",
+        "--input-file",
+        f"{assets}/{input_file}",
+        "--input-engine",
+        "polars",
+        "--input-kwarg",
+        "infer_schema_length=None",
+        "-o",
+        output_file,
+    ]
+    subprocess.run(cmd, check=True)
+    assert os.path.exists(output_file)
