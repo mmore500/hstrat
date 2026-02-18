@@ -45,11 +45,7 @@ _topologically_sensitive_cols = frozenset((
 ))
 
 
-def _get_sensitive_cols(
-    insert: bool,
-    delete: bool,
-    update: bool,
-) -> frozenset:
+def _get_sensitive_cols(insert: bool, delete: bool, update: bool) -> frozenset:
     """Return the set of sensitive column names for the given operation
     types."""
     if update:
