@@ -1,5 +1,4 @@
 import typing
-import warnings
 
 import numpy as np
 import pandas as pd
@@ -10,6 +9,9 @@ from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_warn_topological_sensitivity import (
+    alifestd_warn_topological_sensitivity,
+)
 
 
 def _alifestd_coarsen_mask_asexual(
@@ -118,12 +120,13 @@ def alifestd_coarsen_mask(
     value to get transformed phylogeny dataframe.
     """
 
-    if "branch_length" in phylogeny_df or "edge_length" in phylogeny_df:
-        warnings.warn(
-            "alifestd_coarsen_mask does not update branch length columns. "
-            "Use `origin_time` to recalculate branch lengths for coarsened "
-            "phylogeny."
-        )
+    alifestd_warn_topological_sensitivity(
+        phylogeny_df,
+        "alifestd_coarsen_mask",
+        insert=False,
+        delete=True,
+        update=True,
+    )
 
     if not mutate:
         phylogeny_df = phylogeny_df.copy()

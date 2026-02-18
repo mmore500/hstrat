@@ -3,7 +3,6 @@ from collections import Counter
 import logging
 import os
 import typing
-import warnings
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
@@ -18,6 +17,9 @@ from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_warn_topological_sensitivity import (
+    alifestd_warn_topological_sensitivity,
+)
 from ._configure_prod_logging import configure_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
@@ -120,15 +122,13 @@ def alifestd_collapse_unifurcations(
         Polars-based implementation.
     """
 
-    if any(
-        col in phylogeny_df
-        for col in ["branch_length", "edge_length", "origin_time_delta"]
-    ):
-        warnings.warn(
-            "alifestd_collapse_unifurcations does not update branch length "
-            "columns. Use `origin_time` to recalculate branch lengths for "
-            "collapsed phylogeny."
-        )
+    alifestd_warn_topological_sensitivity(
+        phylogeny_df,
+        "alifestd_collapse_unifurcations",
+        insert=False,
+        delete=True,
+        update=True,
+    )
 
     # special optimized handling for asexual phylogenies
     if alifestd_is_asexual(phylogeny_df):

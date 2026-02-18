@@ -1,7 +1,6 @@
 import argparse
 import logging
 import os
-import warnings
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
@@ -16,6 +15,9 @@ from ._alifestd_has_contiguous_ids_polars import (
 )
 from ._alifestd_is_topologically_sorted_polars import (
     alifestd_is_topologically_sorted_polars,
+)
+from ._alifestd_warn_topological_sensitivity_polars import (
+    alifestd_warn_topological_sensitivity_polars,
 )
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
@@ -39,15 +41,13 @@ def alifestd_collapse_unifurcations_polars(
     """
     schema_names = phylogeny_df.lazy().collect_schema().names()
 
-    if any(
-        col in schema_names
-        for col in ("branch_length", "edge_length", "origin_time_delta")
-    ):
-        warnings.warn(
-            "alifestd_collapse_unifurcations does not update branch length "
-            "columns. Use `origin_time` to recalculate branch lengths for "
-            "collapsed phylogeny."
-        )
+    alifestd_warn_topological_sensitivity_polars(
+        phylogeny_df,
+        "alifestd_collapse_unifurcations_polars",
+        insert=False,
+        delete=True,
+        update=True,
+    )
 
     if "ancestor_list" in schema_names:
         raise NotImplementedError
