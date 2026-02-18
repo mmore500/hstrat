@@ -38,7 +38,8 @@ def alifestd_warn_topological_sensitivity_polars(
     alifestd_warn_topological_sensitivity :
         Pandas-based implementation.
     """
+    columns = phylogeny_df.lazy().collect_schema().names()
     _alifestd_warn_topological_sensitivity(
-        phylogeny_df, caller,
+        columns, caller,
         insert=insert, delete=delete, update=update,
     )

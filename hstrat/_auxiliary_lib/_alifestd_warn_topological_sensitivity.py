@@ -2,31 +2,21 @@ import typing
 import warnings
 
 import pandas as pd
-import polars as pl
 
 from ._alifestd_check_topological_sensitivity import _get_sensitive_cols
 
 
 def _alifestd_warn_topological_sensitivity(
-    phylogeny_df: typing.Union[
-        pd.DataFrame, pl.DataFrame, pl.LazyFrame,
-    ],
+    columns: typing.Sequence[str],
     caller: str,
     *,
     insert: bool,
     delete: bool,
     update: bool,
 ) -> None:
-    """Private helper: emit a warning if `phylogeny_df` contains columns
-    that may be invalidated by topological operations.
-
-    Accepts both pandas and polars DataFrames/LazyFrames.
-    """
+    """Private helper: emit a warning if any column names may be
+    invalidated by topological operations."""
     sensitive = _get_sensitive_cols(insert, delete, update)
-    if isinstance(phylogeny_df, (pl.DataFrame, pl.LazyFrame)):
-        columns = phylogeny_df.lazy().collect_schema().names()
-    else:
-        columns = phylogeny_df.columns
     invalidated = [col for col in columns if col in sensitive]
 
     if invalidated:
@@ -81,6 +71,6 @@ def alifestd_warn_topological_sensitivity(
         Polars-based implementation.
     """
     _alifestd_warn_topological_sensitivity(
-        phylogeny_df, caller,
+        phylogeny_df.columns, caller,
         insert=insert, delete=delete, update=update,
     )
