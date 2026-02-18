@@ -24,7 +24,7 @@ def base_df():
     )
 
 
-def test_none_present(base_df):
+def test_none_present(base_df: pd.DataFrame):
     result = alifestd_check_topological_sensitivity(
         base_df, insert=True, delete=True, update=True,
     )
@@ -32,7 +32,7 @@ def test_none_present(base_df):
 
 
 @pytest.mark.parametrize("col", sorted(_topologically_sensitive_cols))
-def test_single_sensitive_col(base_df, col):
+def test_single_sensitive_col(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_check_topological_sensitivity(
@@ -41,7 +41,7 @@ def test_single_sensitive_col(base_df, col):
     assert result == [col]
 
 
-def test_multiple_sensitive_cols(base_df):
+def test_multiple_sensitive_cols(base_df: pd.DataFrame):
     df = base_df.copy()
     df["branch_length"] = 0
     df["node_depth"] = 0
@@ -52,7 +52,7 @@ def test_multiple_sensitive_cols(base_df):
     assert set(result) == {"branch_length", "node_depth", "sister_id"}
 
 
-def test_non_sensitive_cols_ignored(base_df):
+def test_non_sensitive_cols_ignored(base_df: pd.DataFrame):
     df = base_df.copy()
     df["taxon_label"] = "x"
     df["extant"] = True
@@ -62,7 +62,7 @@ def test_non_sensitive_cols_ignored(base_df):
     assert result == []
 
 
-def test_mixed_sensitive_and_non_sensitive(base_df):
+def test_mixed_sensitive_and_non_sensitive(base_df: pd.DataFrame):
     df = base_df.copy()
     df["taxon_label"] = "x"
     df["branch_length"] = 0.0
@@ -74,7 +74,7 @@ def test_mixed_sensitive_and_non_sensitive(base_df):
     assert set(result) == {"ancestor_origin_time", "branch_length"}
 
 
-def test_no_mutation(base_df):
+def test_no_mutation(base_df: pd.DataFrame):
     df = base_df.copy()
     df["branch_length"] = 0
     original = df.copy()
@@ -109,7 +109,7 @@ def test_empty_dataframe_with_sensitive():
 
 
 @pytest.mark.parametrize("col", sorted(_update_only_sensitive_cols))
-def test_insert_only_excludes_update_only(base_df, col):
+def test_insert_only_excludes_update_only(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_check_topological_sensitivity(
@@ -122,7 +122,7 @@ def test_insert_only_excludes_update_only(base_df, col):
     "col",
     sorted(_topologically_sensitive_cols - _update_only_sensitive_cols),
 )
-def test_insert_only_includes_structure_sensitive(base_df, col):
+def test_insert_only_includes_structure_sensitive(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_check_topological_sensitivity(
@@ -132,7 +132,7 @@ def test_insert_only_includes_structure_sensitive(base_df, col):
 
 
 @pytest.mark.parametrize("col", sorted(_update_only_sensitive_cols))
-def test_delete_only_excludes_update_only(base_df, col):
+def test_delete_only_excludes_update_only(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_check_topological_sensitivity(
@@ -145,7 +145,7 @@ def test_delete_only_excludes_update_only(base_df, col):
     "col",
     sorted(_topologically_sensitive_cols - _update_only_sensitive_cols),
 )
-def test_delete_only_includes_structure_sensitive(base_df, col):
+def test_delete_only_includes_structure_sensitive(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_check_topological_sensitivity(
@@ -155,7 +155,7 @@ def test_delete_only_includes_structure_sensitive(base_df, col):
 
 
 @pytest.mark.parametrize("col", sorted(_topologically_sensitive_cols))
-def test_update_includes_all(base_df, col):
+def test_update_includes_all(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_check_topological_sensitivity(
@@ -164,7 +164,7 @@ def test_update_includes_all(base_df, col):
     assert result == [col]
 
 
-def test_no_ops_returns_empty(base_df):
+def test_no_ops_returns_empty(base_df: pd.DataFrame):
     df = base_df.copy()
     for col in sorted(_topologically_sensitive_cols):
         df[col] = 0
@@ -174,7 +174,7 @@ def test_no_ops_returns_empty(base_df):
     assert result == []
 
 
-def test_warn_topological_sensitivity_warns(base_df):
+def test_warn_topological_sensitivity_warns(base_df: pd.DataFrame):
     df = base_df.copy()
     df["branch_length"] = 0
     with warnings.catch_warnings(record=True) as w:
@@ -192,7 +192,7 @@ def test_warn_topological_sensitivity_warns(base_df):
         )
 
 
-def test_warn_topological_sensitivity_silent(base_df):
+def test_warn_topological_sensitivity_silent(base_df: pd.DataFrame):
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         alifestd_warn_topological_sensitivity(
@@ -202,7 +202,7 @@ def test_warn_topological_sensitivity_silent(base_df):
         assert len(w) == 0
 
 
-def test_warn_topological_sensitivity_ops_in_message(base_df):
+def test_warn_topological_sensitivity_ops_in_message(base_df: pd.DataFrame):
     df = base_df.copy()
     df["sister_id"] = 0
     with warnings.catch_warnings(record=True) as w:

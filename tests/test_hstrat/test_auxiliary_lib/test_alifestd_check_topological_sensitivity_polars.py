@@ -24,7 +24,7 @@ def base_df():
     )
 
 
-def test_none_present(base_df):
+def test_none_present(base_df: pl.DataFrame):
     result = alifestd_check_topological_sensitivity_polars(
         base_df, insert=True, delete=True, update=True,
     )
@@ -32,7 +32,7 @@ def test_none_present(base_df):
 
 
 @pytest.mark.parametrize("col", sorted(_topologically_sensitive_cols))
-def test_single_sensitive_col(base_df, col):
+def test_single_sensitive_col(base_df: pl.DataFrame, col: str):
     df = base_df.with_columns(pl.lit(0).alias(col))
     result = alifestd_check_topological_sensitivity_polars(
         df, insert=True, delete=True, update=True,
@@ -40,7 +40,7 @@ def test_single_sensitive_col(base_df, col):
     assert result == [col]
 
 
-def test_multiple_sensitive_cols(base_df):
+def test_multiple_sensitive_cols(base_df: pl.DataFrame):
     df = base_df.with_columns(
         pl.lit(0).alias("branch_length"),
         pl.lit(0).alias("node_depth"),
@@ -52,7 +52,7 @@ def test_multiple_sensitive_cols(base_df):
     assert set(result) == {"branch_length", "node_depth", "sister_id"}
 
 
-def test_non_sensitive_cols_ignored(base_df):
+def test_non_sensitive_cols_ignored(base_df: pl.DataFrame):
     df = base_df.with_columns(
         pl.lit("x").alias("taxon_label"),
         pl.lit(True).alias("extant"),
@@ -63,7 +63,7 @@ def test_non_sensitive_cols_ignored(base_df):
     assert result == []
 
 
-def test_no_mutation(base_df):
+def test_no_mutation(base_df: pl.DataFrame):
     df = base_df.with_columns(pl.lit(0).alias("branch_length"))
     original = df.clone()
     alifestd_check_topological_sensitivity_polars(
@@ -92,7 +92,7 @@ def test_empty_dataframe_with_sensitive():
 
 
 @pytest.mark.parametrize("col", sorted(_topologically_sensitive_cols))
-def test_lazyframe(base_df, col):
+def test_lazyframe(base_df: pl.DataFrame, col: str):
     df = base_df.with_columns(pl.lit(0).alias(col))
     lazy = df.lazy()
     result = alifestd_check_topological_sensitivity_polars(
@@ -101,7 +101,7 @@ def test_lazyframe(base_df, col):
     assert result == [col]
 
 
-def test_lazyframe_none_present(base_df):
+def test_lazyframe_none_present(base_df: pl.DataFrame):
     lazy = base_df.lazy()
     result = alifestd_check_topological_sensitivity_polars(
         lazy, insert=True, delete=True, update=True,
@@ -110,7 +110,7 @@ def test_lazyframe_none_present(base_df):
 
 
 @pytest.mark.parametrize("col", sorted(_update_only_sensitive_cols))
-def test_insert_only_excludes_update_only(base_df, col):
+def test_insert_only_excludes_update_only(base_df: pl.DataFrame, col: str):
     df = base_df.with_columns(pl.lit(0).alias(col))
     result = alifestd_check_topological_sensitivity_polars(
         df, insert=True, delete=False, update=False,
@@ -122,7 +122,7 @@ def test_insert_only_excludes_update_only(base_df, col):
     "col",
     sorted(_topologically_sensitive_cols - _update_only_sensitive_cols),
 )
-def test_insert_only_includes_structure_sensitive(base_df, col):
+def test_insert_only_includes_structure_sensitive(base_df: pl.DataFrame, col: str):
     df = base_df.with_columns(pl.lit(0).alias(col))
     result = alifestd_check_topological_sensitivity_polars(
         df, insert=True, delete=False, update=False,
@@ -131,7 +131,7 @@ def test_insert_only_includes_structure_sensitive(base_df, col):
 
 
 @pytest.mark.parametrize("col", sorted(_update_only_sensitive_cols))
-def test_delete_only_excludes_update_only(base_df, col):
+def test_delete_only_excludes_update_only(base_df: pl.DataFrame, col: str):
     df = base_df.with_columns(pl.lit(0).alias(col))
     result = alifestd_check_topological_sensitivity_polars(
         df, insert=False, delete=True, update=False,
@@ -143,7 +143,7 @@ def test_delete_only_excludes_update_only(base_df, col):
     "col",
     sorted(_topologically_sensitive_cols - _update_only_sensitive_cols),
 )
-def test_delete_only_includes_structure_sensitive(base_df, col):
+def test_delete_only_includes_structure_sensitive(base_df: pl.DataFrame, col: str):
     df = base_df.with_columns(pl.lit(0).alias(col))
     result = alifestd_check_topological_sensitivity_polars(
         df, insert=False, delete=True, update=False,
@@ -152,7 +152,7 @@ def test_delete_only_includes_structure_sensitive(base_df, col):
 
 
 @pytest.mark.parametrize("col", sorted(_topologically_sensitive_cols))
-def test_update_includes_all(base_df, col):
+def test_update_includes_all(base_df: pl.DataFrame, col: str):
     df = base_df.with_columns(pl.lit(0).alias(col))
     result = alifestd_check_topological_sensitivity_polars(
         df, insert=False, delete=False, update=True,
@@ -160,7 +160,7 @@ def test_update_includes_all(base_df, col):
     assert result == [col]
 
 
-def test_no_ops_returns_empty(base_df):
+def test_no_ops_returns_empty(base_df: pl.DataFrame):
     cols = [pl.lit(0).alias(col) for col in _topologically_sensitive_cols]
     df = base_df.with_columns(cols)
     result = alifestd_check_topological_sensitivity_polars(
@@ -170,7 +170,7 @@ def test_no_ops_returns_empty(base_df):
 
 
 @pytest.mark.parametrize("col", sorted(_update_only_sensitive_cols))
-def test_insert_only_lazyframe_excludes(base_df, col):
+def test_insert_only_lazyframe_excludes(base_df: pl.DataFrame, col: str):
     lazy = base_df.with_columns(pl.lit(0).alias(col)).lazy()
     result = alifestd_check_topological_sensitivity_polars(
         lazy, insert=True, delete=False, update=False,
@@ -178,7 +178,7 @@ def test_insert_only_lazyframe_excludes(base_df, col):
     assert col not in result
 
 
-def test_warn_topological_sensitivity_polars_warns(base_df):
+def test_warn_topological_sensitivity_polars_warns(base_df: pl.DataFrame):
     df = base_df.with_columns(pl.lit(0).alias("branch_length"))
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
@@ -190,12 +190,12 @@ def test_warn_topological_sensitivity_polars_warns(base_df):
         assert "test_caller" in str(w[0].message)
         assert "branch_length" in str(w[0].message)
         assert "delete/update" in str(w[0].message)
-        assert "alifestd_drop_topological_sensitivity_polars" in str(
+        assert "alifestd_drop_topological_sensitivity" in str(
             w[0].message,
         )
 
 
-def test_warn_topological_sensitivity_polars_silent(base_df):
+def test_warn_topological_sensitivity_polars_silent(base_df: pl.DataFrame):
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         alifestd_warn_topological_sensitivity_polars(
@@ -205,7 +205,7 @@ def test_warn_topological_sensitivity_polars_silent(base_df):
         assert len(w) == 0
 
 
-def test_warn_topological_sensitivity_polars_lazyframe(base_df):
+def test_warn_topological_sensitivity_polars_lazyframe(base_df: pl.DataFrame):
     lazy = base_df.with_columns(
         pl.lit(0).alias("edge_length"),
     ).lazy()
@@ -219,7 +219,7 @@ def test_warn_topological_sensitivity_polars_lazyframe(base_df):
         assert "edge_length" in str(w[0].message)
 
 
-def test_warn_topological_sensitivity_polars_ops_in_message(base_df):
+def test_warn_topological_sensitivity_polars_ops_in_message(base_df: pl.DataFrame):
     df = base_df.with_columns(pl.lit(0).alias("sister_id"))
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")

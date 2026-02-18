@@ -19,14 +19,14 @@ def base_df():
     )
 
 
-def test_drop_none(base_df):
+def test_drop_none(base_df: pd.DataFrame):
     original = base_df.copy()
     result = alifestd_drop_topological_sensitivity(base_df)
     assert set(result.columns) == set(original.columns)
 
 
 @pytest.mark.parametrize("col", sorted(_topologically_sensitive_cols))
-def test_drop_single(base_df, col):
+def test_drop_single(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_drop_topological_sensitivity(df)
@@ -34,7 +34,7 @@ def test_drop_single(base_df, col):
     assert "id" in result.columns
 
 
-def test_drop_multiple(base_df):
+def test_drop_multiple(base_df: pd.DataFrame):
     df = base_df.copy()
     df["branch_length"] = 0.0
     df["node_depth"] = 0
@@ -48,7 +48,7 @@ def test_drop_multiple(base_df):
     assert "id" in result.columns
 
 
-def test_preserves_non_sensitive(base_df):
+def test_preserves_non_sensitive(base_df: pd.DataFrame):
     df = base_df.copy()
     df["taxon_label"] = "x"
     df["extant"] = True
@@ -61,7 +61,7 @@ def test_preserves_non_sensitive(base_df):
 
 
 @pytest.mark.parametrize("mutate", [False, True])
-def test_mutate(base_df, mutate):
+def test_mutate(base_df: pd.DataFrame, mutate: bool):
     df = base_df.copy()
     df["branch_length"] = 0.0
     original = df.copy()
@@ -87,7 +87,7 @@ def test_empty():
 
 
 @pytest.mark.parametrize("col", sorted(_update_only_sensitive_cols))
-def test_insert_only_preserves_update_only(base_df, col):
+def test_insert_only_preserves_update_only(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_drop_topological_sensitivity(
@@ -100,7 +100,7 @@ def test_insert_only_preserves_update_only(base_df, col):
     "col",
     sorted(_topologically_sensitive_cols - _update_only_sensitive_cols),
 )
-def test_insert_only_drops_structure_sensitive(base_df, col):
+def test_insert_only_drops_structure_sensitive(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_drop_topological_sensitivity(
@@ -110,7 +110,7 @@ def test_insert_only_drops_structure_sensitive(base_df, col):
 
 
 @pytest.mark.parametrize("col", sorted(_update_only_sensitive_cols))
-def test_delete_only_preserves_update_only(base_df, col):
+def test_delete_only_preserves_update_only(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_drop_topological_sensitivity(
@@ -123,7 +123,7 @@ def test_delete_only_preserves_update_only(base_df, col):
     "col",
     sorted(_topologically_sensitive_cols - _update_only_sensitive_cols),
 )
-def test_delete_only_drops_structure_sensitive(base_df, col):
+def test_delete_only_drops_structure_sensitive(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_drop_topological_sensitivity(
@@ -133,7 +133,7 @@ def test_delete_only_drops_structure_sensitive(base_df, col):
 
 
 @pytest.mark.parametrize("col", sorted(_topologically_sensitive_cols))
-def test_update_drops_all(base_df, col):
+def test_update_drops_all(base_df: pd.DataFrame, col: str):
     df = base_df.copy()
     df[col] = 0
     result = alifestd_drop_topological_sensitivity(
@@ -142,7 +142,7 @@ def test_update_drops_all(base_df, col):
     assert col not in result.columns
 
 
-def test_no_ops_drops_nothing(base_df):
+def test_no_ops_drops_nothing(base_df: pd.DataFrame):
     df = base_df.copy()
     df["branch_length"] = 0.0
     df["sister_id"] = 0

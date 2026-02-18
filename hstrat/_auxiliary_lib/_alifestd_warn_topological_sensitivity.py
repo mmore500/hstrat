@@ -4,12 +4,7 @@ import warnings
 import pandas as pd
 import polars as pl
 
-from ._alifestd_check_topological_sensitivity import (
-    alifestd_check_topological_sensitivity,
-)
-from ._alifestd_check_topological_sensitivity_polars import (
-    alifestd_check_topological_sensitivity_polars,
-)
+from ._alifestd_check_topological_sensitivity import _get_sensitive_cols
 
 
 def _alifestd_warn_topological_sensitivity(
@@ -27,18 +22,14 @@ def _alifestd_warn_topological_sensitivity(
 
     Accepts both pandas and polars DataFrames/LazyFrames.
     """
+    sensitive = _get_sensitive_cols(insert, delete, update)
     if isinstance(phylogeny_df, (pl.DataFrame, pl.LazyFrame)):
-        present_warned = alifestd_check_topological_sensitivity_polars(
-            phylogeny_df, insert=insert, delete=delete, update=update,
-        )
-        drop_fn = "alifestd_drop_topological_sensitivity_polars"
+        columns = phylogeny_df.lazy().collect_schema().names()
     else:
-        present_warned = alifestd_check_topological_sensitivity(
-            phylogeny_df, insert=insert, delete=delete, update=update,
-        )
-        drop_fn = "alifestd_drop_topological_sensitivity"
+        columns = phylogeny_df.columns
+    invalidated = [col for col in columns if col in sensitive]
 
-    if present_warned:
+    if invalidated:
         ops = "/".join(
             name
             for flag, name in [
@@ -51,10 +42,10 @@ def _alifestd_warn_topological_sensitivity(
         warnings.warn(
             f"{caller} performs {ops} operations that do not update "
             f"topology-dependent columns, which may be invalidated: "
-            f"{present_warned}. "
+            f"{invalidated}. "
             "Use `origin_time` to recalculate branch lengths for "
-            f"collapsed phylogeny. To silence this warning, use "
-            f"{drop_fn}."
+            "collapsed phylogeny. To silence this warning, use "
+            "alifestd_drop_topological_sensitivity{_polars}."
         )
 
 
