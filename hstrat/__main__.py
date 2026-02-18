@@ -18,6 +18,8 @@ $ python3 -m hstrat._auxiliary_lib._alifestd_count_root_nodes
 $ python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_asexual
 $ python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_clade_asexual
 $ python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_polars
+$ python3 -m hstrat._auxiliary_lib._alifestd_drop_topological_sensitivity
+$ python3 -m hstrat._auxiliary_lib._alifestd_drop_topological_sensitivity_polars
 $ python3 -m hstrat._auxiliary_lib._alifestd_join_roots
 $ python3 -m hstrat._auxiliary_lib._alifestd_mark_leaves
 $ python3 -m hstrat._auxiliary_lib._alifestd_mark_leaves_polars

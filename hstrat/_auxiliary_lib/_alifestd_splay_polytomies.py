@@ -5,11 +5,11 @@ import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_asexual import alifestd_is_asexual
+from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
+from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_warn_topological_sensitivity import (
     alifestd_warn_topological_sensitivity,
 )
-from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
-from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._jit import jit
 from ._jit_numba_dict_t import jit_numba_dict_t
 from ._jit_numpy_int64_t import jit_numpy_int64_t

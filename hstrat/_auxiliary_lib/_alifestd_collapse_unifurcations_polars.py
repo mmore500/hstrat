@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import polars as pl
@@ -8,15 +9,15 @@ import polars as pl
 from ._alifestd_assign_contiguous_ids_polars import (
     alifestd_assign_contiguous_ids_polars,
 )
-from ._alifestd_warn_topological_sensitivity import (
-    alifestd_warn_topological_sensitivity,
-)
 from ._alifestd_collapse_unifurcations import _collapse_unifurcations
 from ._alifestd_has_contiguous_ids_polars import (
     alifestd_has_contiguous_ids_polars,
 )
 from ._alifestd_is_topologically_sorted_polars import (
     alifestd_is_topologically_sorted_polars,
+)
+from ._alifestd_warn_topological_sensitivity_polars import (
+    alifestd_warn_topological_sensitivity_polars,
 )
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
@@ -40,7 +41,7 @@ def alifestd_collapse_unifurcations_polars(
     """
     schema_names = phylogeny_df.lazy().collect_schema().names()
 
-    alifestd_warn_topological_sensitivity(
+    alifestd_warn_topological_sensitivity_polars(
         phylogeny_df, "alifestd_collapse_unifurcations_polars"
     )
 

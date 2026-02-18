@@ -1,7 +1,8 @@
 import typing
 
+import pandas as pd
 
-_topologically_sensitive_cols = [
+_topologically_sensitive_cols = frozenset((
     "ancestor_origin_time",
     "branch_length",
     "clade_duration",
@@ -32,18 +33,23 @@ _topologically_sensitive_cols = [
     "ot_mrca_time_since",
     "right_child_id",
     "sister_id",
-]
+))
 
 
 def alifestd_check_topological_sensitivity(
-    phylogeny_df: typing.Any,
+    phylogeny_df: pd.DataFrame,
 ) -> typing.List[str]:
     """Return names of columns present in `phylogeny_df` that may be
     invalidated by topological operations such as collapsing unifurcations.
 
-    Accepts pandas or polars DataFrames.
-
     Input dataframe is not mutated by this operation.
+
+    See Also
+    --------
+    alifestd_check_topological_sensitivity_polars :
+        Polars-based implementation.
     """
-    columns = phylogeny_df.columns
-    return [col for col in _topologically_sensitive_cols if col in columns]
+    return [
+        col for col in phylogeny_df.columns
+        if col in _topologically_sensitive_cols
+    ]

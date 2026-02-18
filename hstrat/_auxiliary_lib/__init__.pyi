@@ -57,6 +57,9 @@ from ._alifestd_categorize_triplet_asexual import (
 from ._alifestd_check_topological_sensitivity import (
     alifestd_check_topological_sensitivity,
 )
+from ._alifestd_check_topological_sensitivity_polars import (
+    alifestd_check_topological_sensitivity_polars,
+)
 from ._alifestd_chronological_sort import alifestd_chronological_sort
 from ._alifestd_coarsen_mask import alifestd_coarsen_mask
 from ._alifestd_coarsen_taxa_asexual import (
@@ -280,6 +283,9 @@ from ._alifestd_validate import alifestd_validate
 from ._alifestd_warn_topological_sensitivity import (
     alifestd_warn_topological_sensitivity,
 )
+from ._alifestd_warn_topological_sensitivity_polars import (
+    alifestd_warn_topological_sensitivity_polars,
+)
 from ._all_same import all_same
 from ._all_unique import all_unique
 from ._anynode_deepcopy_except_neighbors import (
@@ -436,6 +442,7 @@ __all__ = [
     "alifestd_calc_triplet_distance_asexual",
     "alifestd_categorize_triplet_asexual",
     "alifestd_check_topological_sensitivity",
+    "alifestd_check_topological_sensitivity_polars",
     "alifestd_chronological_sort",
     "alifestd_coarsen_mask",
     "alifestd_coarsen_taxa_asexual",
@@ -543,6 +550,7 @@ __all__ = [
     "alifestd_unfurl_traversal_semiorder_asexual",
     "alifestd_validate",
     "alifestd_warn_topological_sensitivity",
+    "alifestd_warn_topological_sensitivity_polars",
     "all_same",
     "all_unique",
     "anynode_deepcopy_except_neighbors",

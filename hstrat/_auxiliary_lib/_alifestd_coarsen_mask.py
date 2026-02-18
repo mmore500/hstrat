@@ -4,14 +4,14 @@ import numpy as np
 import pandas as pd
 
 from ._alifestd_is_asexual import alifestd_is_asexual
-from ._alifestd_warn_topological_sensitivity import (
-    alifestd_warn_topological_sensitivity,
-)
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_warn_topological_sensitivity import (
+    alifestd_warn_topological_sensitivity,
+)
 
 
 def _alifestd_coarsen_mask_asexual(

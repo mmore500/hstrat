@@ -3,15 +3,13 @@ from collections import Counter
 import logging
 import os
 import typing
+
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
 import pandas as pd
 
 from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
-from ._alifestd_warn_topological_sensitivity import (
-    alifestd_warn_topological_sensitivity,
-)
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_asexual import alifestd_is_asexual
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
@@ -19,6 +17,9 @@ from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_warn_topological_sensitivity import (
+    alifestd_warn_topological_sensitivity,
+)
 from ._configure_prod_logging import configure_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
