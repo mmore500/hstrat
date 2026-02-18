@@ -56,9 +56,7 @@ def test_alifestd_prune_canopy_asexual(phylogeny_df, num_tips, mutate):
 
 @pytest.mark.parametrize("num_tips", [0, 1])
 def test_alifestd_prune_canopy_asexual_with_zero_tips(num_tips):
-    phylogeny_df = pd.DataFrame(
-        {"id": [], "parent_id": [], "ancestor_id": []}
-    )
+    phylogeny_df = pd.DataFrame({"id": [], "parent_id": [], "ancestor_id": []})
 
     result_df = alifestd_prune_canopy_asexual(
         phylogeny_df, num_tips, criterion="id"

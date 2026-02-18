@@ -88,7 +88,9 @@ def test_surface_test_drive_cli_flags():
 
 
 def test_surface_test_drive_cli_pipe_reconstruct():
-    output_file = "/tmp/hstrat_surface_test_drive_reconstruct.pqt"  # nosec B108
+    output_file = (
+        "/tmp/hstrat_surface_test_drive_reconstruct.pqt"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     td = subprocess.run(
         [

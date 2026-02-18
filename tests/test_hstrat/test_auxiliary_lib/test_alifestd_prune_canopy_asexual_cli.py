@@ -29,9 +29,7 @@ def test_alifestd_prune_canopy_asexual_cli_version():
 
 
 def test_alifestd_prune_canopy_asexual_cli_csv(tmp_path):
-    output_file = str(
-        tmp_path / "hstrat_alifestd_prune_canopy_asexual.csv"
-    )
+    output_file = str(tmp_path / "hstrat_alifestd_prune_canopy_asexual.csv")
     subprocess.run(  # nosec B603
         [
             "python3",
@@ -50,9 +48,7 @@ def test_alifestd_prune_canopy_asexual_cli_csv(tmp_path):
 
 
 def test_alifestd_prune_canopy_asexual_cli_parquet(tmp_path):
-    output_file = str(
-        tmp_path / "hstrat_alifestd_prune_canopy_asexual.pqt"
-    )
+    output_file = str(tmp_path / "hstrat_alifestd_prune_canopy_asexual.pqt")
     subprocess.run(  # nosec B603
         [
             "python3",
