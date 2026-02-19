@@ -361,3 +361,120 @@ def test_single_root():
     )
     result_df.index = result_df["id"]
     assert result_df.loc[0, "colless_index_corrected"] == 0.0
+
+
+def _make_comb_tree(n_leaves: int) -> pd.DataFrame:
+    """Build a comb/caterpillar tree with `n_leaves` leaves.
+
+    Structure (e.g. n_leaves=4):
+          0
+         / \
+        1   2
+           / \
+          3   4
+             / \
+            5   6
+    Internal nodes: 0, 2, 4, ...  Leaves: 1, 3, 5, 6
+    """
+    ids = []
+    ancestors = []
+    node_id = 0
+    ids.append(node_id)
+    ancestors.append("[None]")
+    for i in range(n_leaves - 1):
+        parent = node_id
+        # left child (leaf)
+        node_id += 1
+        ids.append(node_id)
+        ancestors.append(f"[{parent}]")
+        if i < n_leaves - 2:
+            # right child (internal, continues the chain)
+            node_id += 1
+            ids.append(node_id)
+            ancestors.append(f"[{parent}]")
+        else:
+            # last split: right child is also a leaf
+            node_id += 1
+            ids.append(node_id)
+            ancestors.append(f"[{parent}]")
+    return pd.DataFrame({"id": ids, "ancestor_list": ancestors})
+
+
+def _make_balanced_tree(depth: int) -> pd.DataFrame:
+    """Build a perfectly balanced bifurcating tree of given depth.
+
+    depth=1 -> 1 node (root only, n=1)
+    depth=2 -> 3 nodes (root + 2 leaves, n=2)
+    depth=3 -> 7 nodes (n=4 leaves)
+    """
+    ids = [0]
+    ancestors = ["[None]"]
+    next_id = 1
+    queue = [0]
+    for _ in range(depth - 1):
+        next_queue = []
+        for parent in queue:
+            for _ in range(2):
+                ids.append(next_id)
+                ancestors.append(f"[{parent}]")
+                next_queue.append(next_id)
+                next_id += 1
+        queue = next_queue
+    return pd.DataFrame({"id": ids, "ancestor_list": ancestors})
+
+
+@pytest.mark.parametrize("n_leaves", [3, 4, 5, 8, 10, 16, 32, 50])
+def test_comb_tree_corrected_is_one(n_leaves: int):
+    """Comb trees are maximally imbalanced; root IC should be 1.0."""
+    phylogeny_df = _make_comb_tree(n_leaves)
+    result_df = alifestd_mark_colless_index_corrected_asexual(
+        phylogeny_df,
+    )
+
+    # All values should be in [0, 1]
+    assert all(result_df["colless_index_corrected"] >= 0.0)
+    assert all(result_df["colless_index_corrected"] <= 1.0 + 1e-10)
+
+    # Root IC should be exactly 1.0 for a comb tree
+    result_df.index = result_df["id"]
+    assert result_df.loc[0, "colless_index_corrected"] == pytest.approx(
+        1.0,
+    )
+
+
+@pytest.mark.parametrize("depth", [2, 3, 4, 5, 6, 7])
+def test_balanced_tree_corrected_is_zero(depth: int):
+    """Balanced trees are minimally imbalanced; root IC should be 0."""
+    phylogeny_df = _make_balanced_tree(depth)
+    result_df = alifestd_mark_colless_index_corrected_asexual(
+        phylogeny_df,
+    )
+
+    # All values should be in [0, 1]
+    assert all(result_df["colless_index_corrected"] >= 0.0)
+    assert all(result_df["colless_index_corrected"] <= 1.0 + 1e-10)
+
+    # Every node should have IC = 0 in a perfectly balanced tree
+    assert all(result_df["colless_index_corrected"] == 0.0)
+
+
+@pytest.mark.parametrize("n_leaves", [3, 4, 5, 8, 10, 16, 32, 50])
+def test_comb_tree_all_subtrees_bounded(n_leaves: int):
+    """Every subtree in a comb tree should have IC in [0, 1]."""
+    phylogeny_df = _make_comb_tree(n_leaves)
+    result_df = alifestd_mark_colless_index_corrected_asexual(
+        phylogeny_df,
+    )
+
+    vals = result_df["colless_index_corrected"]
+    assert all(vals >= -1e-10)
+    assert all(vals <= 1.0 + 1e-10)
+
+    # Internal nodes with n>2 leaves should have IC == 1.0
+    # (every internal node in a comb is maximally imbalanced)
+    result_df.index = result_df["id"]
+    for _, row in result_df.iterrows():
+        if "num_leaves" in result_df.columns and row["num_leaves"] > 2:
+            assert row["colless_index_corrected"] == pytest.approx(
+                1.0,
+            )
