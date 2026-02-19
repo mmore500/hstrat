@@ -5,8 +5,8 @@ import os
 import sys
 import typing
 
-import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
+import joinem
 import numpy as np
 import pandas as pd
 

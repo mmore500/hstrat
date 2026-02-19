@@ -4,12 +4,12 @@ import os
 import pathlib
 import typing
 
+from tqdm import tqdm
 import more_itertools as mit
 import numpy as np
 import opytional as opyt
 import pandas as pd
 import polars as pl
-from tqdm import tqdm
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_mark_origin_time_delta_asexual import (

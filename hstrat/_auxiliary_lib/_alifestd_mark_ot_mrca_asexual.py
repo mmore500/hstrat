@@ -1,7 +1,12 @@
+import argparse
 import itertools as it
+import logging
+import os
 import typing
 import warnings
 
+from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
+import joinem
 import pandas as pd
 import sortedcontainers as sc
 
@@ -11,6 +16,11 @@ from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_mark_leaves import alifestd_mark_leaves
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._configure_prod_logging import configure_prod_logging
+from ._delegate_polars_implementation import delegate_polars_implementation
+from ._format_cli_description import format_cli_description
+from ._get_hstrat_version import get_hstrat_version
+from ._log_context_duration import log_context_duration
 
 
 def alifestd_mark_ot_mrca_asexual(
@@ -121,3 +131,46 @@ def alifestd_mark_ot_mrca_asexual(
     df.loc[indices, "ot_mrca_time_since"] = ot_mrca_times_since
     df.drop("bwd_origin_time", axis=1, inplace=True)
     return df
+
+
+_raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
+
+Append columns characterizing the Most Recent Common Ancestor (MRCA) of the entire extant population at each taxon's `origin_time`.
+
+Data is assumed to be in alife standard format.
+
+Additional Notes
+================
+- Use `--eager-read` if modifying data file inplace.
+
+- This CLI entrypoint is experimental and may be subject to change.
+"""
+
+def _create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        add_help=False,
+        description=format_cli_description(_raw_description),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser = _add_parser_base(
+        parser=parser,
+        dfcli_module="hstrat._auxiliary_lib._alifestd_mark_ot_mrca_asexual",
+        dfcli_version=get_hstrat_version(),
+    )
+    return parser
+
+
+if __name__ == "__main__":
+    configure_prod_logging()
+
+    parser = _create_parser()
+    args, __ = parser.parse_known_args()
+    with log_context_duration(
+        "hstrat._auxiliary_lib._alifestd_mark_ot_mrca_asexual", logging.info
+    ):
+        _run_dataframe_cli(
+            base_parser=parser,
+            output_dataframe_op=delegate_polars_implementation()(
+                alifestd_mark_ot_mrca_asexual,
+            ),
+        )
