@@ -2,8 +2,8 @@ import argparse
 import logging
 import os
 
-from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import joinem
+from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import pandas as pd
 
 from ._alifestd_find_root_ids import alifestd_find_root_ids
@@ -51,6 +51,7 @@ Additional Notes
 
 - This CLI entrypoint is experimental and may be subject to change.
 """
+
 
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(

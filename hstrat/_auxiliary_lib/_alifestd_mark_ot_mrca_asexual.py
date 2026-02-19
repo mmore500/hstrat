@@ -5,8 +5,8 @@ import os
 import typing
 import warnings
 
-from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import joinem
+from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import pandas as pd
 import sortedcontainers as sc
 
@@ -145,6 +145,7 @@ Additional Notes
 
 - This CLI entrypoint is experimental and may be subject to change.
 """
+
 
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(

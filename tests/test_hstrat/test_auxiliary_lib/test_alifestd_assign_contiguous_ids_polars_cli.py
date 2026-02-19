@@ -30,7 +30,9 @@ def test_alifestd_assign_contiguous_ids_polars_cli_version():
 
 
 def test_alifestd_assign_contiguous_ids_polars_cli_csv():
-    output_file = "/tmp/hstrat_alifestd_assign_contiguous_ids_polars.csv"  # nosec B108
+    output_file = (
+        "/tmp/hstrat_alifestd_assign_contiguous_ids_polars.csv"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -47,7 +49,9 @@ def test_alifestd_assign_contiguous_ids_polars_cli_csv():
 
 
 def test_alifestd_assign_contiguous_ids_polars_cli_parquet():
-    output_file = "/tmp/hstrat_alifestd_assign_contiguous_ids_polars.pqt"  # nosec B108
+    output_file = (
+        "/tmp/hstrat_alifestd_assign_contiguous_ids_polars.pqt"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [

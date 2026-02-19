@@ -3,8 +3,8 @@ import logging
 import os
 import sys
 
-from tqdm import tqdm
 import pandas as pd
+from tqdm import tqdm
 
 from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids

@@ -2,8 +2,8 @@ import argparse
 import logging
 import os
 
-from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import joinem
+from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import polars as pl
 
 from ._alifestd_make_ancestor_list_col_polars import (

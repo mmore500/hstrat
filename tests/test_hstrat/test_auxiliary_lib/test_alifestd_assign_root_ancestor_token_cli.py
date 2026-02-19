@@ -30,14 +30,17 @@ def test_alifestd_assign_root_ancestor_token_cli_version():
 
 
 def test_alifestd_assign_root_ancestor_token_cli_csv():
-    output_file = "/tmp/hstrat_alifestd_assign_root_ancestor_token.csv"  # nosec B108
+    output_file = (
+        "/tmp/hstrat_alifestd_assign_root_ancestor_token.csv"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
             "hstrat._auxiliary_lib._alifestd_assign_root_ancestor_token",
-            "--root-ancestor-token", "none",
+            "--root-ancestor-token",
+            "none",
             output_file,
         ],
         check=True,
@@ -47,14 +50,17 @@ def test_alifestd_assign_root_ancestor_token_cli_csv():
 
 
 def test_alifestd_assign_root_ancestor_token_cli_parquet():
-    output_file = "/tmp/hstrat_alifestd_assign_root_ancestor_token.pqt"  # nosec B108
+    output_file = (
+        "/tmp/hstrat_alifestd_assign_root_ancestor_token.pqt"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
             "hstrat._auxiliary_lib._alifestd_assign_root_ancestor_token",
-            "--root-ancestor-token", "none",
+            "--root-ancestor-token",
+            "none",
             output_file,
         ],
         check=True,

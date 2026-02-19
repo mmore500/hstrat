@@ -2,8 +2,8 @@ import argparse
 import logging
 import os
 
-from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import joinem
+from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import polars as pl
 
 from ._configure_prod_logging import configure_prod_logging
@@ -35,6 +35,7 @@ Additional Notes
 
 - This CLI entrypoint is experimental and may be subject to change.
 """
+
 
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(

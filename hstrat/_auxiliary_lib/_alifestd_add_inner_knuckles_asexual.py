@@ -3,8 +3,8 @@ import functools
 import logging
 import os
 
-from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import joinem
+from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import pandas as pd
 
 from ._add_bool_arg import add_bool_arg
@@ -93,6 +93,7 @@ Additional Notes
 - This CLI entrypoint is experimental and may be subject to change.
 """
 
+
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
@@ -125,7 +126,8 @@ if __name__ == "__main__":
     parser = _create_parser()
     args, __ = parser.parse_known_args()
     with log_context_duration(
-        "hstrat._auxiliary_lib._alifestd_add_inner_knuckles_asexual", logging.info
+        "hstrat._auxiliary_lib._alifestd_add_inner_knuckles_asexual",
+        logging.info,
     ):
         _run_dataframe_cli(
             base_parser=parser,
