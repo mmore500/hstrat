@@ -1,10 +1,12 @@
 import pandas as pd
 
+from ._alifestd_make_empty import alifestd_make_empty
+
 
 def alifestd_make_comb(n_leaves: int) -> pd.DataFrame:
     r"""Build a comb/caterpillar tree with `n_leaves` leaves.
 
-    Structure (e.g. n_leaves=4):
+    Structure (e.g., n_leaves=4):
 
     .. code-block:: text
 
@@ -28,7 +30,17 @@ def alifestd_make_comb(n_leaves: int) -> pd.DataFrame:
     pd.DataFrame
         Alife-standard phylogeny dataframe with 'id' and 'ancestor_list'
         columns.
+
+    Raises
+    ------
+    ValueError
+        If n_leaves is negative.
     """
+    if n_leaves < 0:
+        raise ValueError("n_leaves must be non-negative")
+    if n_leaves == 0:
+        return alifestd_make_empty()
+
     ids = []
     ancestors = []
     node_id = 0

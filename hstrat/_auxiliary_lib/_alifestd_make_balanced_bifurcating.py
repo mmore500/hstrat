@@ -1,5 +1,7 @@
 import pandas as pd
 
+from ._alifestd_make_empty import alifestd_make_empty
+
 
 def alifestd_make_balanced_bifurcating(depth: int) -> pd.DataFrame:
     """Build a perfectly balanced bifurcating tree of given depth.
@@ -9,6 +11,7 @@ def alifestd_make_balanced_bifurcating(depth: int) -> pd.DataFrame:
     depth : int
         Depth of the tree, where depth=1 is a single root node.
 
+        - depth=0 -> empty tree (no nodes)
         - depth=1 -> 1 node (root only)
         - depth=2 -> 3 nodes (root + 2 leaves)
         - depth=3 -> 7 nodes (4 leaves)
@@ -19,7 +22,17 @@ def alifestd_make_balanced_bifurcating(depth: int) -> pd.DataFrame:
     pd.DataFrame
         Alife-standard phylogeny dataframe with 'id' and 'ancestor_list'
         columns.
+
+    Raises
+    ------
+    ValueError
+        If depth is negative.
     """
+    if depth < 0:
+        raise ValueError("depth must be non-negative")
+    if depth == 0:
+        return alifestd_make_empty()
+
     ids = [0]
     ancestors = ["[None]"]
     next_id = 1

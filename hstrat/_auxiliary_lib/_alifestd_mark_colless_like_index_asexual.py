@@ -1,5 +1,4 @@
 import math
-import statistics
 
 import numpy as np
 import pandas as pd
@@ -13,6 +12,7 @@ from ._alifestd_try_add_ancestor_id_col import (
     alifestd_try_add_ancestor_id_col,
 )
 from ._jit import jit
+from ._reversed_range import reversed_range_jit
 
 
 @jit(nopython=True)
@@ -39,13 +39,13 @@ def _colless_like_fast_path(
 
     # Compute f-size bottom-up
     # f(k) = ln(k + e), so f(0) = ln(e) = 1.0
-    # δ_f(T_v) = f(deg(v)) + sum of δ_f(T_c) for children c
+    # delta_f(T_v) = f(deg(v)) + sum of delta_f(T_c) for children c
     f_size = np.zeros(n, dtype=np.float64)
     for idx, k in enumerate(num_children):
         f_size[idx] = math.log(k + math.e)
 
     # Accumulate f-size bottom-up (add children's f-sizes to parent)
-    for idx in reversed(range(n)):
+    for idx in reversed_range_jit(n):
         ancestor_id = ancestor_ids[idx]
         if ancestor_id != idx:
             f_size[ancestor_id] += f_size[idx]
@@ -72,15 +72,16 @@ def _colless_like_fast_path(
         start = offsets[idx]
         end = offsets[idx + 1]
 
-        vals = children_fsize[start:end].copy()
-        vals.sort()
+        vals = children_fsize[start:end]
 
         if diss_type == 0:  # MDM
-            # Compute median
+            # Sort needed for median computation
+            sorted_vals = vals.copy()
+            sorted_vals.sort()
             if k % 2 == 1:
-                median = vals[k // 2]
+                median = sorted_vals[k // 2]
             else:
-                median = (vals[k // 2 - 1] + vals[k // 2]) / 2.0
+                median = (sorted_vals[k // 2 - 1] + sorted_vals[k // 2]) / 2.0
 
             # MDM = (1/k) * sum |x_i - median|
             total = 0.0
@@ -116,7 +117,7 @@ def _colless_like_fast_path(
 
     # Accumulate subtree Colless-like index bottom-up
     colless_like = np.zeros(n, dtype=np.float64)
-    for idx in reversed(range(n)):
+    for idx in reversed_range_jit(n):
         colless_like[idx] += local_balance[idx]
         ancestor_id = ancestor_ids[idx]
         if ancestor_id != idx:
@@ -159,15 +160,15 @@ def _colless_like_slow_path(
             local_balance[node_id] = 0.0
             continue
 
-        vals = [f_size[c] for c in children_of[node_id]]
+        vals = np.array([f_size[c] for c in children_of[node_id]])
 
         if diss_type == "mdm":
-            med = statistics.median(vals)
-            local_balance[node_id] = sum(abs(v - med) for v in vals) / k
+            med = np.median(vals)
+            local_balance[node_id] = np.sum(np.abs(vals - med)) / k
         elif diss_type == "var":
-            local_balance[node_id] = statistics.variance(vals)
+            local_balance[node_id] = np.var(vals, ddof=1)
         elif diss_type == "sd":
-            local_balance[node_id] = statistics.stdev(vals)
+            local_balance[node_id] = np.std(vals, ddof=1)
         else:
             assert False
 
@@ -180,10 +181,6 @@ def _colless_like_slow_path(
             colless_dict[ancestor_id] += colless_dict[node_id]
 
     return phylogeny_df["id"].map(colless_dict).values
-
-
-# Mapping from string dissimilarity names to numba-compatible int codes
-_DISS_STR_TO_INT = {"mdm": 0, "var": 1, "sd": 2}
 
 
 def _alifestd_mark_colless_like_index_asexual_impl(
@@ -221,7 +218,7 @@ def _alifestd_mark_colless_like_index_asexual_impl(
         phylogeny_df.reset_index(drop=True, inplace=True)
         phylogeny_df[col_name] = _colless_like_fast_path(
             phylogeny_df["ancestor_id"].to_numpy(),
-            _DISS_STR_TO_INT[diss_type],
+            ["mdm", "var", "sd"].index(diss_type),
         )
     else:
         phylogeny_df[col_name] = _colless_like_slow_path(

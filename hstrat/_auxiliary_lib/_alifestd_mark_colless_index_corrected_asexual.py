@@ -91,9 +91,9 @@ def alifestd_mark_colless_index_corrected_asexual(
     n = phylogeny_df["num_leaves"].to_numpy(dtype=np.float64)
     c = phylogeny_df["colless_index"].to_numpy(dtype=np.float64)
 
-    denom = np.maximum((n - 1.0) * (n - 2.0), 1.0)
-    phylogeny_df["colless_index_corrected"] = np.where(
-        n > 2, 2.0 * c / denom, 0.0
-    )
+    result = np.zeros_like(n)
+    mask = n > 2
+    result[mask] = 2.0 * c[mask] / ((n[mask] - 1.0) * (n[mask] - 2.0))
+    phylogeny_df["colless_index_corrected"] = result
 
     return phylogeny_df

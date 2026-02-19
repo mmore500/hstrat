@@ -1,5 +1,7 @@
 import typing
 
+from ._jit import jit
+
 
 def reversed_range(
     start: int, stop: typing.Optional[int] = None
@@ -14,3 +16,6 @@ def reversed_range(
     while cur > last:
         cur -= 1
         yield cur
+
+
+reversed_range_jit = jit(nopython=True)(reversed_range)
