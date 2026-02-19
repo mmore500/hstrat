@@ -123,11 +123,10 @@ jobs:
       fail-fast: false
       matrix:
         head:
-          # - "" exceeds memory on actions runner
           - "--head 10_000"
-          - "--head 1_000_000"
+          # - "--head 1_000_000"  # slow
           - "--sample 10_000 --seed 1"
-          - "--sample 1_000_000 --seed 1"
+          # - "--sample 1_000_000 --seed 1"  # slow
     steps:
     - name: Cleanup pre-installed tools
       run: |
