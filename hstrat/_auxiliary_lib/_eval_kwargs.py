@@ -1,5 +1,3 @@
-import logging
-import sys
 import typing
 
 
@@ -23,10 +21,7 @@ def eval_kwargs(kwargs_list: typing.List[str]) -> typing.Dict:
     try:
         return eval(to_eval)
     except Exception as e:
-        logging.error(
-            "Failed to parse kwarg expressions `%s` via `%s`" " error: %s",
-            kwargs_list,
-            to_eval,
-            e,
-        )
-        sys.exit(1)
+        raise ValueError(
+            f"Failed to parse kwarg expressions {kwargs_list!r} "
+            f"via {to_eval!r}"
+        ) from e

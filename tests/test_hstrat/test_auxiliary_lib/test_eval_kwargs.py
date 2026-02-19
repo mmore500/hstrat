@@ -35,6 +35,6 @@ def test_bool():
     assert eval_kwargs(["flag=False"]) == {"flag": False}
 
 
-def test_invalid_exits():
-    with pytest.raises(SystemExit):
+def test_invalid_raises():
+    with pytest.raises(ValueError, match="Failed to parse"):
         eval_kwargs(["not valid python!!!"])
