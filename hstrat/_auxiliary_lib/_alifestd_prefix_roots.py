@@ -8,8 +8,8 @@ import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_mark_roots import alifestd_mark_roots
-from ._alifestd_warn_topological_sensitivity import (
-    alifestd_warn_topological_sensitivity,
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
 )
 
 
@@ -33,6 +33,9 @@ def _alifestd_prefix_roots_fast(
     return pd.concat([prepended_roots, phylogeny_df], ignore_index=True)
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=True, delete=False, update=True,
+)
 def alifestd_prefix_roots(
     phylogeny_df: pd.DataFrame,
     *,
@@ -50,14 +53,6 @@ def alifestd_prefix_roots(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
-    alifestd_warn_topological_sensitivity(
-        phylogeny_df,
-        "alifestd_prefix_roots",
-        insert=True,
-        delete=False,
-        update=True,
-    )
-
     if "origin_time_delta" in phylogeny_df:
         warnings.warn("alifestd_prefix_roots ignores origin_time_delta values")
     if origin_time is not None and "origin_time" not in phylogeny_df:

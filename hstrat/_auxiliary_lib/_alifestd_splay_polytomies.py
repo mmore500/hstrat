@@ -7,8 +7,8 @@ from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_asexual import alifestd_is_asexual
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
-from ._alifestd_warn_topological_sensitivity import (
-    alifestd_warn_topological_sensitivity,
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
 )
 from ._jit import jit
 from ._jit_numba_dict_t import jit_numba_dict_t
@@ -129,6 +129,9 @@ def _alifestd_splay_polytomies_slow_path(
     return phylogeny_df.reset_index(drop=True)
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=True, delete=False, update=True,
+)
 def alifestd_splay_polytomies(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -162,15 +165,6 @@ def alifestd_splay_polytomies(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
-
-    alifestd_warn_topological_sensitivity(
-        phylogeny_df,
-        "alifestd_splay_polytomies",
-        insert=True,
-        delete=False,
-        update=True,
-    )
-
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 

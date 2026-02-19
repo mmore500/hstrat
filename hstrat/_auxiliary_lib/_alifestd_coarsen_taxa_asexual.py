@@ -9,8 +9,8 @@ from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_mark_roots import alifestd_mark_roots
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
-from ._alifestd_warn_topological_sensitivity import (
-    alifestd_warn_topological_sensitivity,
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
 )
 from ._jit import jit
 
@@ -71,6 +71,9 @@ def alifestd_coarsen_taxa_asexual_make_agg(
     }
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=False, delete=True, update=True,
+)
 def alifestd_coarsen_taxa_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -98,14 +101,6 @@ def alifestd_coarsen_taxa_asexual(
         Helper function to generate default `agg` dict, which may be customized
         before being passed to `alifestd_coarsen_taxa_asexual`.
     """
-    alifestd_warn_topological_sensitivity(
-        phylogeny_df,
-        "alifestd_coarsen_taxa_asexual",
-        insert=False,
-        delete=True,
-        update=True,
-    )
-
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 

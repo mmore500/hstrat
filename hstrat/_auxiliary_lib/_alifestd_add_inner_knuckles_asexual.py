@@ -2,12 +2,15 @@ import pandas as pd
 
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_mark_leaves import alifestd_mark_leaves
-from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
-from ._alifestd_warn_topological_sensitivity import (
-    alifestd_warn_topological_sensitivity,
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
 )
+from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=True, delete=False, update=True,
+)
 def alifestd_add_inner_knuckles_asexual(
     phylogeny_df: pd.DataFrame, mutate: bool = False
 ) -> pd.DataFrame:
@@ -17,14 +20,6 @@ def alifestd_add_inner_knuckles_asexual(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
-    alifestd_warn_topological_sensitivity(
-        phylogeny_df,
-        "alifestd_add_inner_knuckles_asexual",
-        insert=True,
-        delete=False,
-        update=True,
-    )
-
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 

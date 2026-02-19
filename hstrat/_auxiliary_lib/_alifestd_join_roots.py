@@ -8,8 +8,8 @@ import pandas as pd
 
 from ._alifestd_mark_oldest_root import alifestd_mark_oldest_root
 from ._alifestd_mark_roots import alifestd_mark_roots
-from ._alifestd_warn_topological_sensitivity import (
-    alifestd_warn_topological_sensitivity,
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
 )
 from ._configure_prod_logging import configure_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
@@ -18,6 +18,9 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=False, delete=False, update=True,
+)
 def alifestd_join_roots(
     phylogeny_df: pd.DataFrame, mutate: bool = False
 ) -> pd.DataFrame:
@@ -28,14 +31,6 @@ def alifestd_join_roots(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
-    alifestd_warn_topological_sensitivity(
-        phylogeny_df,
-        "alifestd_join_roots",
-        insert=False,
-        delete=False,
-        update=True,
-    )
-
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 

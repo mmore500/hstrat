@@ -12,8 +12,8 @@ from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
-from ._alifestd_warn_topological_sensitivity import (
-    alifestd_warn_topological_sensitivity,
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
 )
 from ._configure_prod_logging import configure_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
@@ -82,6 +82,9 @@ def _create_has_extant_descendant_contiguous_sorted(
     return has_extant_descendant
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=False, delete=True, update=False,
+)
 def alifestd_prune_extinct_lineages_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -115,14 +118,6 @@ def alifestd_prune_extinct_lineages_asexual(
     pandas.DataFrame
         The rerooted phylogeny in alife standard format.
     """
-    alifestd_warn_topological_sensitivity(
-        phylogeny_df,
-        "alifestd_prune_extinct_lineages_asexual",
-        insert=False,
-        delete=True,
-        update=False,
-    )
-
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 

@@ -13,8 +13,8 @@ from ._alifestd_mark_leaves_polars import alifestd_mark_leaves_polars
 from ._alifestd_prune_extinct_lineages_polars import (
     alifestd_prune_extinct_lineages_polars,
 )
-from ._alifestd_warn_topological_sensitivity_polars import (
-    alifestd_warn_topological_sensitivity_polars,
+from ._alifestd_topological_sensitivity_warned_polars import (
+    alifestd_topological_sensitivity_warned_polars,
 )
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
@@ -64,6 +64,9 @@ def _alifestd_downsample_tips_polars_impl(
     return alifestd_prune_extinct_lineages_polars(phylogeny_df).drop("extant")
 
 
+@alifestd_topological_sensitivity_warned_polars(
+    insert=False, delete=True, update=False,
+)
 def alifestd_downsample_tips_polars(
     phylogeny_df: pl.DataFrame,
     n_downsample: int,
@@ -102,14 +105,6 @@ def alifestd_downsample_tips_polars(
     alifestd_downsample_tips_asexual :
         Pandas-based implementation.
     """
-    alifestd_warn_topological_sensitivity_polars(
-        phylogeny_df,
-        "alifestd_downsample_tips_polars",
-        insert=False,
-        delete=True,
-        update=False,
-    )
-
     if "ancestor_id" not in phylogeny_df.lazy().collect_schema().names():
         raise NotImplementedError("ancestor_id column required")
 

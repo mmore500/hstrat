@@ -20,8 +20,8 @@ from ._alifestd_prune_extinct_lineages_asexual import (
     alifestd_prune_extinct_lineages_asexual,
 )
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
-from ._alifestd_warn_topological_sensitivity import (
-    alifestd_warn_topological_sensitivity,
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
 )
 from ._configure_prod_logging import configure_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
@@ -80,6 +80,9 @@ def _alifestd_downsample_tips_clade_asexual_impl(
     ).drop(columns=["extant", "alifestd_mask_descendants_asexual"])
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=False, delete=True, update=False,
+)
 def alifestd_downsample_tips_clade_asexual(
     phylogeny_df: pd.DataFrame,
     n_downsample: int,
@@ -95,14 +98,6 @@ def alifestd_downsample_tips_clade_asexual(
 
     Only supports asexual phylogenies.
     """
-    alifestd_warn_topological_sensitivity(
-        phylogeny_df,
-        "alifestd_downsample_tips_clade_asexual",
-        insert=False,
-        delete=True,
-        update=False,
-    )
-
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 

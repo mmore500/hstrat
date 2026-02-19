@@ -16,8 +16,8 @@ from ._alifestd_has_contiguous_ids_polars import (
 from ._alifestd_is_topologically_sorted_polars import (
     alifestd_is_topologically_sorted_polars,
 )
-from ._alifestd_warn_topological_sensitivity_polars import (
-    alifestd_warn_topological_sensitivity_polars,
+from ._alifestd_topological_sensitivity_warned_polars import (
+    alifestd_topological_sensitivity_warned_polars,
 )
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
@@ -25,6 +25,9 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@alifestd_topological_sensitivity_warned_polars(
+    insert=False, delete=True, update=True,
+)
 def alifestd_collapse_unifurcations_polars(
     phylogeny_df: pl.DataFrame,
 ) -> pl.DataFrame:
@@ -40,14 +43,6 @@ def alifestd_collapse_unifurcations_polars(
         Pandas-based implementation.
     """
     schema_names = phylogeny_df.lazy().collect_schema().names()
-
-    alifestd_warn_topological_sensitivity_polars(
-        phylogeny_df,
-        "alifestd_collapse_unifurcations_polars",
-        insert=False,
-        delete=True,
-        update=True,
-    )
 
     if "ancestor_list" in schema_names:
         raise NotImplementedError
