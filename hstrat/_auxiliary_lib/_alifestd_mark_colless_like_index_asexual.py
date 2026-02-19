@@ -93,7 +93,7 @@ def _colless_like_fast_path(
     for idx in reversed_range_jit(n):
         colless_like[idx] += local_balance[idx]
         ancestor_id = ancestor_ids[idx]
-        if ancestor_id != idx:
+        if ancestor_id != idx:  # is not root
             colless_like[ancestor_id] += colless_like[idx]
 
     return colless_like
