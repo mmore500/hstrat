@@ -30,9 +30,7 @@ def test_alifestd_collapse_unifurcations_polars_cli_version():
 
 
 def test_alifestd_collapse_unifurcations_polars_cli_csv():
-    output_file = (
-        "/tmp/hstrat_alifestd_collapse_unifurcations_polars.csv"
-    )
+    output_file = "/tmp/hstrat_alifestd_collapse_unifurcations_polars.csv"
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -49,9 +47,7 @@ def test_alifestd_collapse_unifurcations_polars_cli_csv():
 
 
 def test_alifestd_collapse_unifurcations_polars_cli_parquet():
-    output_file = (
-        "/tmp/hstrat_alifestd_collapse_unifurcations_polars.pqt"
-    )
+    output_file = "/tmp/hstrat_alifestd_collapse_unifurcations_polars.pqt"
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -88,9 +84,7 @@ def test_alifestd_collapse_unifurcations_polars_cli_ignore_topological_sensitivi
 
 
 def test_alifestd_collapse_unifurcations_polars_cli_drop_topological_sensitivity():
-    output_file = (
-        "/tmp/hstrat_alifestd_collapse_unifurcations_polars_drop.csv"
-    )
+    output_file = "/tmp/hstrat_alifestd_collapse_unifurcations_polars_drop.csv"
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [

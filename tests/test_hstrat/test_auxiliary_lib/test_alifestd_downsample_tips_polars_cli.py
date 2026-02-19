@@ -67,9 +67,7 @@ def test_alifestd_downsample_tips_polars_cli_empty():
 
 
 def test_alifestd_downsample_tips_polars_cli_ignore_topological_sensitivity():
-    output_file = (
-        "/tmp/hstrat_alifestd_downsample_tips_polars_ignore.csv"
-    )
+    output_file = "/tmp/hstrat_alifestd_downsample_tips_polars_ignore.csv"
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -89,9 +87,7 @@ def test_alifestd_downsample_tips_polars_cli_ignore_topological_sensitivity():
 
 
 def test_alifestd_downsample_tips_polars_cli_drop_topological_sensitivity():
-    output_file = (
-        "/tmp/hstrat_alifestd_downsample_tips_polars_drop.csv"
-    )
+    output_file = "/tmp/hstrat_alifestd_downsample_tips_polars_drop.csv"
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [

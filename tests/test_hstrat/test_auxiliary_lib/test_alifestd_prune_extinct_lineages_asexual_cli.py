@@ -30,9 +30,7 @@ def test_alifestd_prune_extinct_lineages_asexual_cli_version():
 
 
 def test_alifestd_prune_extinct_lineages_asexual_cli_csv():
-    output_file = (
-        "/tmp/hstrat_alifestd_prune_extinct_lineages_asexual.csv"
-    )
+    output_file = "/tmp/hstrat_alifestd_prune_extinct_lineages_asexual.csv"
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -48,9 +46,7 @@ def test_alifestd_prune_extinct_lineages_asexual_cli_csv():
 
 
 def test_alifestd_prune_extinct_lineages_asexual_cli_parquet():
-    output_file = (
-        "/tmp/hstrat_alifestd_prune_extinct_lineages_asexual.pqt"
-    )
+    output_file = "/tmp/hstrat_alifestd_prune_extinct_lineages_asexual.pqt"
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [

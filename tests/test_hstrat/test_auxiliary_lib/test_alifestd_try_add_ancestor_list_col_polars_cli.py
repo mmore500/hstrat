@@ -30,9 +30,7 @@ def test_alifestd_try_add_ancestor_list_col_polars_cli_version():
 
 
 def test_alifestd_try_add_ancestor_list_col_polars_cli_csv():
-    output_file = (
-        "/tmp/hstrat_alifestd_try_add_ancestor_list_col_polars.csv"
-    )
+    output_file = "/tmp/hstrat_alifestd_try_add_ancestor_list_col_polars.csv"
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
