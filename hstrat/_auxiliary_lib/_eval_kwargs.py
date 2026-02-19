@@ -23,5 +23,5 @@ def eval_kwargs(kwargs_list: typing.List[str]) -> typing.Dict:
     except Exception as e:
         raise ValueError(
             f"Failed to parse kwarg expressions {kwargs_list!r} "
-            f"via {to_eval!r}"
+            f"via {to_eval!r}",
         ) from e
