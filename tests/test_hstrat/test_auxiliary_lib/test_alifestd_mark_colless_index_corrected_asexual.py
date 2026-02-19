@@ -1,14 +1,13 @@
 import os
 
-import numpy as np
 import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_find_leaf_ids,
-    alifestd_find_root_ids,
-    alifestd_has_multiple_roots,
     alifestd_is_strictly_bifurcating_asexual,
+    alifestd_make_balanced_bifurcating,
+    alifestd_make_comb,
     alifestd_make_empty,
     alifestd_mark_colless_index_corrected_asexual,
     alifestd_validate,
@@ -363,70 +362,10 @@ def test_single_root():
     assert result_df.loc[0, "colless_index_corrected"] == 0.0
 
 
-def _make_comb_tree(n_leaves: int) -> pd.DataFrame:
-    """Build a comb/caterpillar tree with `n_leaves` leaves.
-
-    Structure (e.g. n_leaves=4):
-          0
-         / \
-        1   2
-           / \
-          3   4
-             / \
-            5   6
-    Internal nodes: 0, 2, 4, ...  Leaves: 1, 3, 5, 6
-    """
-    ids = []
-    ancestors = []
-    node_id = 0
-    ids.append(node_id)
-    ancestors.append("[None]")
-    for i in range(n_leaves - 1):
-        parent = node_id
-        # left child (leaf)
-        node_id += 1
-        ids.append(node_id)
-        ancestors.append(f"[{parent}]")
-        if i < n_leaves - 2:
-            # right child (internal, continues the chain)
-            node_id += 1
-            ids.append(node_id)
-            ancestors.append(f"[{parent}]")
-        else:
-            # last split: right child is also a leaf
-            node_id += 1
-            ids.append(node_id)
-            ancestors.append(f"[{parent}]")
-    return pd.DataFrame({"id": ids, "ancestor_list": ancestors})
-
-
-def _make_balanced_tree(depth: int) -> pd.DataFrame:
-    """Build a perfectly balanced bifurcating tree of given depth.
-
-    depth=1 -> 1 node (root only, n=1)
-    depth=2 -> 3 nodes (root + 2 leaves, n=2)
-    depth=3 -> 7 nodes (n=4 leaves)
-    """
-    ids = [0]
-    ancestors = ["[None]"]
-    next_id = 1
-    queue = [0]
-    for _ in range(depth - 1):
-        next_queue = []
-        for parent in queue:
-            for _ in range(2):
-                ids.append(next_id)
-                ancestors.append(f"[{parent}]")
-                next_queue.append(next_id)
-                next_id += 1
-        queue = next_queue
-    return pd.DataFrame({"id": ids, "ancestor_list": ancestors})
-
-
 @pytest.mark.parametrize("n_leaves", [3, 4, 5, 8, 10, 16, 32, 50])
 def test_comb_tree_corrected_is_one(n_leaves: int):
     """Comb trees are maximally imbalanced; root IC should be 1.0."""
-    phylogeny_df = _make_comb_tree(n_leaves)
+    phylogeny_df = alifestd_make_comb(n_leaves)
     result_df = alifestd_mark_colless_index_corrected_asexual(
         phylogeny_df,
     )
@@ -445,7 +384,7 @@ def test_comb_tree_corrected_is_one(n_leaves: int):
 @pytest.mark.parametrize("depth", [2, 3, 4, 5, 6, 7])
 def test_balanced_tree_corrected_is_zero(depth: int):
     """Balanced trees are minimally imbalanced; root IC should be 0."""
-    phylogeny_df = _make_balanced_tree(depth)
+    phylogeny_df = alifestd_make_balanced_bifurcating(depth)
     result_df = alifestd_mark_colless_index_corrected_asexual(
         phylogeny_df,
     )
@@ -461,7 +400,7 @@ def test_balanced_tree_corrected_is_zero(depth: int):
 @pytest.mark.parametrize("n_leaves", [3, 4, 5, 8, 10, 16, 32, 50])
 def test_comb_tree_all_subtrees_bounded(n_leaves: int):
     """Every subtree in a comb tree should have IC in [0, 1]."""
-    phylogeny_df = _make_comb_tree(n_leaves)
+    phylogeny_df = alifestd_make_comb(n_leaves)
     result_df = alifestd_mark_colless_index_corrected_asexual(
         phylogeny_df,
     )
@@ -478,3 +417,225 @@ def test_comb_tree_all_subtrees_bounded(n_leaves: int):
             assert row["colless_index_corrected"] == pytest.approx(
                 1.0,
             )
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df, expected_ic",
+    [
+        # R treebalance::collessI(, "corrected") reference values.
+        # treestats::colless_corr agrees for n>2; returns NaN for n=2.
+        # IC(T) = 2*C(T)/((n-1)*(n-2)) for n>2, 0 otherwise.
+        # 2-leaf balanced: n=2, IC=0
+        (alifestd_make_balanced_bifurcating(2), 0.0),
+        # 4-leaf balanced: C=0, IC=0
+        (alifestd_make_balanced_bifurcating(3), 0.0),
+        # 8-leaf balanced: C=0, IC=0
+        (alifestd_make_balanced_bifurcating(4), 0.0),
+        # 3-leaf caterpillar: n=3, C=1, IC=2*1/(2*1)=1.0
+        (alifestd_make_comb(3), 1.0),
+        # 4-leaf caterpillar: n=4, C=3, IC=2*3/(3*2)=1.0
+        (alifestd_make_comb(4), 1.0),
+        # 5-leaf caterpillar: n=5, C=6, IC=2*6/(4*3)=1.0
+        (alifestd_make_comb(5), 1.0),
+        # 7-leaf caterpillar: n=7, C=15, IC=2*15/(6*5)=1.0
+        (alifestd_make_comb(7), 1.0),
+    ],
+)
+def test_against_r_treebalance_corrected_colless(
+    phylogeny_df: pd.DataFrame, expected_ic: float
+):
+    """Test corrected Colless index against values computed with R
+    treebalance::collessI(, "corrected") and treestats::colless_corr."""
+    result_df = alifestd_mark_colless_index_corrected_asexual(phylogeny_df)
+    result_df.index = result_df["id"]
+    root_id = result_df[result_df["id"] == result_df["ancestor_id"]][
+        "id"
+    ].iloc[0]
+    assert result_df.loc[root_id, "colless_index_corrected"] == pytest.approx(
+        expected_ic
+    )
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df, expected_ic",
+    [
+        # R treebalance::collessI(, "corrected") reference values for
+        # nontrivial bifurcating trees.
+        # IC(T) = 2*C(T)/((n-1)*(n-2)) for n>2, 0 otherwise.
+        # ((A,B),(C,(D,E))): n=5, C=2, IC=4/12=1/3
+        (
+            pd.DataFrame(
+                {
+                    "id": range(9),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[6]",
+                        "[6]",
+                    ],
+                }
+            ),
+            1 / 3,
+        ),
+        # ((A,(B,C)),(D,E)): n=5, C=2, IC=4/12=1/3
+        (
+            pd.DataFrame(
+                {
+                    "id": range(9),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[4]",
+                        "[4]",
+                    ],
+                }
+            ),
+            1 / 3,
+        ),
+        # (((A,B),C),((D,E),F)): n=6, C=2, IC=4/20=0.2
+        (
+            pd.DataFrame(
+                {
+                    "id": range(11),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[3]",
+                        "[3]",
+                        "[5]",
+                        "[5]",
+                    ],
+                }
+            ),
+            0.2,
+        ),
+        # (((A,B),(C,D)),(E,F)): n=6, C=2, IC=4/20=0.2
+        (
+            pd.DataFrame(
+                {
+                    "id": range(11),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[3]",
+                        "[3]",
+                        "[4]",
+                        "[4]",
+                    ],
+                }
+            ),
+            0.2,
+        ),
+        # ((A,(B,(C,D))),(E,(F,G))): n=7, C=5, IC=10/30=1/3
+        (
+            pd.DataFrame(
+                {
+                    "id": range(13),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[4]",
+                        "[4]",
+                        "[6]",
+                        "[6]",
+                        "[8]",
+                        "[8]",
+                    ],
+                }
+            ),
+            1 / 3,
+        ),
+        # (((A,B),(C,(D,E))),((F,G),(H,I))): n=9, C=3, IC=6/56=3/28
+        (
+            pd.DataFrame(
+                {
+                    "id": range(17),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[3]",
+                        "[3]",
+                        "[4]",
+                        "[4]",
+                        "[5]",
+                        "[5]",
+                        "[6]",
+                        "[6]",
+                        "[10]",
+                        "[10]",
+                    ],
+                }
+            ),
+            3 / 28,
+        ),
+        # ((A,B),((C,D),((E,F),(G,H)))): n=8, C=6, IC=12/42=2/7
+        (
+            pd.DataFrame(
+                {
+                    "id": range(15),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[5]",
+                        "[5]",
+                        "[6]",
+                        "[6]",
+                        "[9]",
+                        "[9]",
+                        "[10]",
+                        "[10]",
+                    ],
+                }
+            ),
+            2 / 7,
+        ),
+    ],
+)
+def test_against_r_nontrivial_trees_corrected_colless(
+    phylogeny_df: pd.DataFrame, expected_ic: float
+):
+    """Test corrected Colless index against R treebalance::collessI(,
+    "corrected") values for nontrivial bifurcating trees."""
+    result_df = alifestd_mark_colless_index_corrected_asexual(phylogeny_df)
+    result_df.index = result_df["id"]
+    root_id = result_df[result_df["id"] == result_df["ancestor_id"]][
+        "id"
+    ].iloc[0]
+    assert result_df.loc[root_id, "colless_index_corrected"] == pytest.approx(
+        expected_ic
+    )

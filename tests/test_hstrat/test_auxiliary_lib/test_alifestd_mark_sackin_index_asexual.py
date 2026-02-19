@@ -7,6 +7,8 @@ from hstrat._auxiliary_lib import (
     alifestd_find_leaf_ids,
     alifestd_find_root_ids,
     alifestd_has_multiple_roots,
+    alifestd_make_balanced_bifurcating,
+    alifestd_make_comb,
     alifestd_make_empty,
     alifestd_mark_sackin_index_asexual,
     alifestd_validate,
@@ -560,3 +562,258 @@ def test_larger_imbalanced_tree(mutate: bool):
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df, expected_sackin",
+    [
+        # R treebalance::sackinI and treestats::sackin reference values
+        # 2-leaf balanced: (A,B) -> Sackin = 2
+        (alifestd_make_balanced_bifurcating(2), 2),
+        # 4-leaf balanced: ((A,B),(C,D)) -> Sackin = 8
+        (alifestd_make_balanced_bifurcating(3), 8),
+        # 8-leaf balanced: (((A,B),(C,D)),((E,F),(G,H))) -> Sackin = 24
+        (alifestd_make_balanced_bifurcating(4), 24),
+        # 3-leaf caterpillar: (A,(B,C)) -> Sackin = 5
+        (alifestd_make_comb(3), 5),
+        # 4-leaf caterpillar: (A,(B,(C,D))) -> Sackin = 9
+        (alifestd_make_comb(4), 9),
+        # 5-leaf caterpillar: (A,(B,(C,(D,E)))) -> Sackin = 14
+        (alifestd_make_comb(5), 14),
+        # 7-leaf caterpillar -> Sackin = 27
+        (alifestd_make_comb(7), 27),
+    ],
+)
+def test_against_r_treebalance_sackin(
+    phylogeny_df: pd.DataFrame, expected_sackin: int
+):
+    """Test Sackin index against values computed with R treebalance::sackinI
+    and treestats::sackin packages (both agreed on all values)."""
+    result_df = alifestd_mark_sackin_index_asexual(phylogeny_df)
+    result_df.index = result_df["id"]
+    root_id = result_df[result_df["id"] == result_df["ancestor_id"]][
+        "id"
+    ].iloc[0]
+    assert result_df.loc[root_id, "sackin_index"] == expected_sackin
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df, expected_sackin",
+    [
+        # R treebalance::sackinI reference values for nontrivial trees
+        # (neither purely balanced nor purely comb/caterpillar).
+        # ((A,B),(C,(D,E))) -> Sackin = 12
+        (
+            pd.DataFrame(
+                {
+                    "id": range(9),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[6]",
+                        "[6]",
+                    ],
+                }
+            ),
+            12,
+        ),
+        # ((A,(B,C)),(D,E)) -> Sackin = 12
+        (
+            pd.DataFrame(
+                {
+                    "id": range(9),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[4]",
+                        "[4]",
+                    ],
+                }
+            ),
+            12,
+        ),
+        # (((A,B),C),((D,E),F)) -> Sackin = 16
+        (
+            pd.DataFrame(
+                {
+                    "id": range(11),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[3]",
+                        "[3]",
+                        "[5]",
+                        "[5]",
+                    ],
+                }
+            ),
+            16,
+        ),
+        # (((A,B),(C,D)),(E,F)) -> Sackin = 16
+        (
+            pd.DataFrame(
+                {
+                    "id": range(11),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[3]",
+                        "[3]",
+                        "[4]",
+                        "[4]",
+                    ],
+                }
+            ),
+            16,
+        ),
+        # ((A,(B,(C,D))),(E,(F,G))) -> Sackin = 21
+        (
+            pd.DataFrame(
+                {
+                    "id": range(13),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[4]",
+                        "[4]",
+                        "[6]",
+                        "[6]",
+                        "[8]",
+                        "[8]",
+                    ],
+                }
+            ),
+            21,
+        ),
+        # (((A,B),(C,(D,E))),((F,G),(H,I))) -> Sackin = 29
+        (
+            pd.DataFrame(
+                {
+                    "id": range(17),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[3]",
+                        "[3]",
+                        "[4]",
+                        "[4]",
+                        "[5]",
+                        "[5]",
+                        "[6]",
+                        "[6]",
+                        "[10]",
+                        "[10]",
+                    ],
+                }
+            ),
+            29,
+        ),
+        # ((A,B),((C,D),((E,F),(G,H)))) -> Sackin = 26
+        (
+            pd.DataFrame(
+                {
+                    "id": range(15),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[5]",
+                        "[5]",
+                        "[6]",
+                        "[6]",
+                        "[9]",
+                        "[9]",
+                        "[10]",
+                        "[10]",
+                    ],
+                }
+            ),
+            26,
+        ),
+        # Polytomy: (A,B,(C,(D,E))) -> Sackin = 10
+        (
+            pd.DataFrame(
+                {
+                    "id": range(8),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[0]",
+                        "[3]",
+                        "[3]",
+                        "[5]",
+                        "[5]",
+                    ],
+                }
+            ),
+            10,
+        ),
+        # Polytomy: ((A,B,C),(D,(E,F))) -> Sackin = 14
+        (
+            pd.DataFrame(
+                {
+                    "id": range(10),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[7]",
+                        "[7]",
+                    ],
+                }
+            ),
+            14,
+        ),
+    ],
+)
+def test_against_r_nontrivial_trees_sackin(
+    phylogeny_df: pd.DataFrame, expected_sackin: int
+):
+    """Test Sackin index against R treebalance::sackinI values for nontrivial
+    trees (neither purely balanced nor purely comb/caterpillar)."""
+    result_df = alifestd_mark_sackin_index_asexual(phylogeny_df)
+    result_df.index = result_df["id"]
+    root_id = result_df[result_df["id"] == result_df["ancestor_id"]][
+        "id"
+    ].iloc[0]
+    assert result_df.loc[root_id, "sackin_index"] == expected_sackin

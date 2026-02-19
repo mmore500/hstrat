@@ -150,6 +150,10 @@ from ._alifestd_is_working_format_asexual import (
 from ._alifestd_join_roots import alifestd_join_roots
 from ._alifestd_make_ancestor_id_col import alifestd_make_ancestor_id_col
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
+from ._alifestd_make_balanced_bifurcating import (
+    alifestd_make_balanced_bifurcating,
+)
+from ._alifestd_make_comb import alifestd_make_comb
 from ._alifestd_make_empty import alifestd_make_empty
 from ._alifestd_mark_ancestor_origin_time_asexual import (
     alifestd_mark_ancestor_origin_time_asexual,
@@ -522,6 +526,8 @@ __all__ = [
     "alifestd_join_roots",
     "alifestd_make_ancestor_id_col",
     "alifestd_make_ancestor_list_col",
+    "alifestd_make_balanced_bifurcating",
+    "alifestd_make_comb",
     "alifestd_make_empty",
     "alifestd_mark_ancestor_origin_time_asexual",
     "alifestd_mark_clade_duration_asexual",

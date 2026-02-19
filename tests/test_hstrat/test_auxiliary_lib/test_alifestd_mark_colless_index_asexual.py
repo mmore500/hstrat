@@ -8,6 +8,8 @@ from hstrat._auxiliary_lib import (
     alifestd_find_root_ids,
     alifestd_has_multiple_roots,
     alifestd_is_strictly_bifurcating_asexual,
+    alifestd_make_balanced_bifurcating,
+    alifestd_make_comb,
     alifestd_make_empty,
     alifestd_mark_colless_index_asexual,
     alifestd_validate,
@@ -400,3 +402,220 @@ def test_larger_imbalanced_tree(mutate: bool):
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df, expected_colless",
+    [
+        # R treebalance::collessI(, "original") and treestats::colless
+        # reference values
+        # 2-leaf balanced: (A,B) -> Colless = 0
+        (alifestd_make_balanced_bifurcating(2), 0),
+        # 4-leaf balanced: ((A,B),(C,D)) -> Colless = 0
+        (alifestd_make_balanced_bifurcating(3), 0),
+        # 8-leaf balanced -> Colless = 0
+        (alifestd_make_balanced_bifurcating(4), 0),
+        # 3-leaf caterpillar: (A,(B,C)) -> Colless = 1
+        (alifestd_make_comb(3), 1),
+        # 4-leaf caterpillar: (A,(B,(C,D))) -> Colless = 3
+        (alifestd_make_comb(4), 3),
+        # 5-leaf caterpillar -> Colless = 6
+        (alifestd_make_comb(5), 6),
+        # 7-leaf caterpillar -> Colless = 15
+        (alifestd_make_comb(7), 15),
+    ],
+)
+def test_against_r_treebalance_colless(
+    phylogeny_df: pd.DataFrame, expected_colless: int
+):
+    """Test Colless index against values computed with R
+    treebalance::collessI(, "original") and treestats::colless packages
+    (both agreed on all values)."""
+    result_df = alifestd_mark_colless_index_asexual(phylogeny_df)
+    result_df.index = result_df["id"]
+    root_id = result_df[result_df["id"] == result_df["ancestor_id"]][
+        "id"
+    ].iloc[0]
+    assert result_df.loc[root_id, "colless_index"] == expected_colless
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df, expected_colless",
+    [
+        # R treebalance::collessI(, "original") reference values for
+        # nontrivial bifurcating trees.
+        # ((A,B),(C,(D,E))) -> Colless = 2
+        (
+            pd.DataFrame(
+                {
+                    "id": range(9),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[6]",
+                        "[6]",
+                    ],
+                }
+            ),
+            2,
+        ),
+        # ((A,(B,C)),(D,E)) -> Colless = 2
+        (
+            pd.DataFrame(
+                {
+                    "id": range(9),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[4]",
+                        "[4]",
+                    ],
+                }
+            ),
+            2,
+        ),
+        # (((A,B),C),((D,E),F)) -> Colless = 2
+        (
+            pd.DataFrame(
+                {
+                    "id": range(11),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[3]",
+                        "[3]",
+                        "[5]",
+                        "[5]",
+                    ],
+                }
+            ),
+            2,
+        ),
+        # (((A,B),(C,D)),(E,F)) -> Colless = 2
+        (
+            pd.DataFrame(
+                {
+                    "id": range(11),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[3]",
+                        "[3]",
+                        "[4]",
+                        "[4]",
+                    ],
+                }
+            ),
+            2,
+        ),
+        # ((A,(B,(C,D))),(E,(F,G))) -> Colless = 5
+        (
+            pd.DataFrame(
+                {
+                    "id": range(13),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[4]",
+                        "[4]",
+                        "[6]",
+                        "[6]",
+                        "[8]",
+                        "[8]",
+                    ],
+                }
+            ),
+            5,
+        ),
+        # (((A,B),(C,(D,E))),((F,G),(H,I))) -> Colless = 3
+        (
+            pd.DataFrame(
+                {
+                    "id": range(17),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[3]",
+                        "[3]",
+                        "[4]",
+                        "[4]",
+                        "[5]",
+                        "[5]",
+                        "[6]",
+                        "[6]",
+                        "[10]",
+                        "[10]",
+                    ],
+                }
+            ),
+            3,
+        ),
+        # ((A,B),((C,D),((E,F),(G,H)))) -> Colless = 6
+        (
+            pd.DataFrame(
+                {
+                    "id": range(15),
+                    "ancestor_list": [
+                        "[None]",
+                        "[0]",
+                        "[0]",
+                        "[1]",
+                        "[1]",
+                        "[2]",
+                        "[2]",
+                        "[5]",
+                        "[5]",
+                        "[6]",
+                        "[6]",
+                        "[9]",
+                        "[9]",
+                        "[10]",
+                        "[10]",
+                    ],
+                }
+            ),
+            6,
+        ),
+    ],
+)
+def test_against_r_nontrivial_trees_colless(
+    phylogeny_df: pd.DataFrame, expected_colless: int
+):
+    """Test Colless index against R treebalance::collessI(, "original")
+    values for nontrivial bifurcating trees."""
+    result_df = alifestd_mark_colless_index_asexual(phylogeny_df)
+    result_df.index = result_df["id"]
+    root_id = result_df[result_df["id"] == result_df["ancestor_id"]][
+        "id"
+    ].iloc[0]
+    assert result_df.loc[root_id, "colless_index"] == expected_colless
