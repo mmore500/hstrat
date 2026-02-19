@@ -101,7 +101,8 @@ def alifestd_mark_colless_index_asexual(
 
     Raises ValueError if the tree is not strictly bifurcating. For
     trees with polytomies, use
-    `alifestd_mark_colless_index_generalized_asexual` instead.
+    `alifestd_mark_colless_like_index_asexual` for the Colless-like
+    index instead.
 
     Leaf nodes will have Colless index 0 (no imbalance in subtree of
     size 1). The root node contains the Colless index for the entire
@@ -139,8 +140,8 @@ def alifestd_mark_colless_index_asexual(
 
     See Also
     --------
-    alifestd_mark_colless_index_generalized_asexual :
-        Generalized Colless index that supports polytomies.
+    alifestd_mark_colless_like_index_asexual :
+        Colless-like index that supports polytomies.
     """
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
@@ -153,8 +154,8 @@ def alifestd_mark_colless_index_asexual(
         raise ValueError(
             "phylogeny_df must be strictly bifurcating; "
             "consider using "
-            "alifestd_mark_colless_index_generalized_asexual "
-            "for trees with polytomies"
+            "alifestd_mark_colless_like_index_asexual "
+            "for the Colless-like index for trees with polytomies"
         )
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)

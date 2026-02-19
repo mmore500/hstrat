@@ -97,8 +97,8 @@ def alifestd_mark_sackin_index_asexual(
     --------
     alifestd_mark_colless_index_asexual :
         Colless index for strictly bifurcating trees.
-    alifestd_mark_colless_index_generalized_asexual :
-        Generalized Colless index that supports polytomies.
+    alifestd_mark_colless_like_index_asexual :
+        Colless-like index that supports polytomies.
     """
     if not mutate:
         phylogeny_df = phylogeny_df.copy()

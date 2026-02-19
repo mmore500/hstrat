@@ -33,6 +33,7 @@ _topologically_sensitive_cols = frozenset(
         "clade_subtended_duration_ratio_sister",
         "colless_index",
         "colless_index_corrected",
+        "colless_like_index",
         "is_left_child",
         "is_right_child",
         "left_child_id",
