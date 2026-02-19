@@ -8,9 +8,13 @@ import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import polars as pl
 
+from ._add_bool_arg import add_bool_arg
 from ._alifestd_mark_leaves_polars import alifestd_mark_leaves_polars
 from ._alifestd_prune_extinct_lineages_polars import (
     alifestd_prune_extinct_lineages_polars,
+)
+from ._alifestd_topological_sensitivity_warned_polars import (
+    alifestd_topological_sensitivity_warned_polars,
 )
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
@@ -18,6 +22,11 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@alifestd_topological_sensitivity_warned_polars(
+    insert=False,
+    delete=True,
+    update=False,
+)
 def alifestd_downsample_canopy_polars(
     phylogeny_df: pl.DataFrame,
     num_tips: int,
@@ -152,6 +161,18 @@ def _create_parser() -> argparse.ArgumentParser:
         type=str,
         help="Column name used to rank leaves; ties broken arbitrarily (default: origin_time).",
     )
+    add_bool_arg(
+        parser,
+        "ignore-topological-sensitivity",
+        default=False,
+        help="suppress topological sensitivity warning (default: False)",
+    )
+    add_bool_arg(
+        parser,
+        "drop-topological-sensitivity",
+        default=False,
+        help="drop topology-sensitive columns from output (default: False)",
+    )
     return parser
 
 
@@ -172,6 +193,8 @@ if __name__ == "__main__":
                     alifestd_downsample_canopy_polars,
                     num_tips=args.n,
                     criterion=args.criterion,
+                    ignore_topological_sensitivity=args.ignore_topological_sensitivity,
+                    drop_topological_sensitivity=args.drop_topological_sensitivity,
                 ),
             )
     except NotImplementedError as e:

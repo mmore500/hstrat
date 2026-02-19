@@ -8,9 +8,13 @@ import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import pandas as pd
 
+from ._add_bool_arg import add_bool_arg
 from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
 from ._alifestd_prune_extinct_lineages_asexual import (
     alifestd_prune_extinct_lineages_asexual,
+)
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
 )
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._configure_prod_logging import configure_prod_logging
@@ -20,6 +24,11 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=False,
+    delete=True,
+    update=False,
+)
 def alifestd_downsample_canopy_asexual(
     phylogeny_df: pd.DataFrame,
     num_tips: int,
@@ -135,6 +144,18 @@ def _create_parser() -> argparse.ArgumentParser:
         type=str,
         help="Column name used to rank leaves; ties broken arbitrarily (default: origin_time).",
     )
+    add_bool_arg(
+        parser,
+        "ignore-topological-sensitivity",
+        default=False,
+        help="suppress topological sensitivity warning (default: False)",
+    )
+    add_bool_arg(
+        parser,
+        "drop-topological-sensitivity",
+        default=False,
+        help="drop topology-sensitive columns from output (default: False)",
+    )
     return parser
 
 
@@ -154,6 +175,8 @@ if __name__ == "__main__":
                     alifestd_downsample_canopy_asexual,
                     num_tips=args.n,
                     criterion=args.criterion,
+                    ignore_topological_sensitivity=args.ignore_topological_sensitivity,
+                    drop_topological_sensitivity=args.drop_topological_sensitivity,
                 ),
             ),
         )
