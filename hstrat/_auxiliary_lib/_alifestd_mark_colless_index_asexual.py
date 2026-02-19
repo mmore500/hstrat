@@ -8,6 +8,9 @@ from ._alifestd_is_strictly_bifurcating_asexual import (
 from ._alifestd_is_topologically_sorted import (
     alifestd_is_topologically_sorted,
 )
+from ._alifestd_mark_left_child_asexual import (
+    alifestd_mark_left_child_asexual_fast_path,
+)
 from ._alifestd_mark_num_leaves_asexual import (
     alifestd_mark_num_leaves_asexual,
 )
@@ -29,24 +32,18 @@ def alifestd_mark_colless_index_asexual_fast_path(
     """
     n = len(ancestor_ids)
 
-    # For strictly bifurcating trees, track first child's leaf count
-    # Use -1 as sentinel for "no child seen yet"
-    first_child_leaves = np.full(n, -1, dtype=np.int64)
-    local_colless = np.zeros(n, dtype=np.int64)
+    # Get left child for each node (leaf nodes point to themselves)
+    left_child_id = alifestd_mark_left_child_asexual_fast_path(ancestor_ids)
 
-    # Forward pass: record children leaf counts, compute local colless
-    for idx, ancestor_id in enumerate(ancestor_ids):
-        if ancestor_id != idx:  # Not a root
-            if first_child_leaves[ancestor_id] == -1:
-                # First child seen
-                first_child_leaves[ancestor_id] = num_leaves[idx]
-            elif first_child_leaves[ancestor_id] >= 1:
-                # Second child - compute local colless as |L - R|
-                local_colless[ancestor_id] = abs(
-                    first_child_leaves[ancestor_id] - num_leaves[idx]
-                )
-            else:
-                assert False
+    # Compute local colless for each internal node
+    # For bifurcating: right_leaves = num_leaves[node] - num_leaves[left_child]
+    local_colless = np.zeros(n, dtype=np.int64)
+    for idx in range(n):
+        left_child = left_child_id[idx]
+        if left_child != idx:  # Has children (internal node)
+            left_leaves = num_leaves[left_child]
+            right_leaves = num_leaves[idx] - left_leaves
+            local_colless[idx] = abs(left_leaves - right_leaves)
 
     # Reverse pass: accumulate subtree colless bottom-up
     colless_index = np.zeros(n, dtype=np.int64)
