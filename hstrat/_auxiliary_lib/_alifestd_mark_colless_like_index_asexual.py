@@ -83,9 +83,7 @@ def _colless_like_fast_path(
                 local_balance[idx] = np.var(vals) * k / (k - 1)
 
             elif diss_type == 2:  # Standard deviation (ddof=1)
-                local_balance[idx] = math.sqrt(
-                    np.var(vals) * k / (k - 1)
-                )
+                local_balance[idx] = math.sqrt(np.var(vals) * k / (k - 1))
 
     # Accumulate subtree Colless-like index bottom-up
     colless_like = np.zeros(n, dtype=np.float64)

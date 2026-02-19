@@ -49,7 +49,7 @@ def alifestd_make_comb(n_leaves: int) -> pd.DataFrame:
     ids.append(root)
     ancestors.append("[None]")
     parent = root
-    for i in range(n_leaves - 1):
+    for _ in range(n_leaves - 1):
         child_leaf = next(node_id)
         ids.append(child_leaf)
         ancestors.append(f"[{parent}]")
