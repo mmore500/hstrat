@@ -1,5 +1,3 @@
-import typing
-
 import numpy as np
 import pandas as pd
 
@@ -11,33 +9,41 @@ from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._jit import jit
 
 
+@jit(nopython=True)
 def alifestd_mark_colless_index_asexual_fast_path(
     ancestor_ids: np.ndarray,
     num_leaves: np.ndarray,
 ) -> np.ndarray:
     """Implementation detail for `alifestd_mark_colless_index_asexual`."""
     n = len(ancestor_ids)
-    colless_index = np.zeros(n, dtype=np.int64)
 
-    # Collect children's leaf counts for each parent
-    children_leaves: typing.List[typing.List[int]] = [[] for _ in range(n)]
-    for idx, ancestor_id in enumerate(ancestor_ids):
-        if ancestor_id != idx:  # Not a root
-            children_leaves[ancestor_id].append(num_leaves[idx])
-
-    # Compute local Colless for each node (|L - R| for bifurcating nodes)
+    # For strictly bifurcating trees, track first child's leaf count
+    # Use -1 as sentinel for "no child seen yet"
+    first_child_leaves = np.full(n, -1, dtype=np.int64)
     local_colless = np.zeros(n, dtype=np.int64)
-    for idx, child_counts in enumerate(children_leaves):
-        if len(child_counts) == 2:
-            # Classic Colless: |left - right|
-            local_colless[idx] = abs(child_counts[0] - child_counts[1])
 
-    # Accumulate subtree Colless (bottom-up)
-    for idx_r, ancestor_id in enumerate(ancestor_ids[::-1]):
+    # Forward pass: record children leaf counts, compute local colless
+    for idx in range(n):
+        ancestor_id = ancestor_ids[idx]
+        if ancestor_id != idx:  # Not a root
+            if first_child_leaves[ancestor_id] == -1:
+                # First child seen
+                first_child_leaves[ancestor_id] = num_leaves[idx]
+            else:
+                # Second child - compute local colless as |L - R|
+                local_colless[ancestor_id] = abs(
+                    first_child_leaves[ancestor_id] - num_leaves[idx]
+                )
+
+    # Reverse pass: accumulate subtree colless bottom-up
+    colless_index = np.zeros(n, dtype=np.int64)
+    for idx_r in range(n):
         idx = n - 1 - idx_r  # Reverse order (leaves to root)
         colless_index[idx] += local_colless[idx]
+        ancestor_id = ancestor_ids[idx]
         if ancestor_id != idx:  # Not a root
             colless_index[ancestor_id] += colless_index[idx]
 
@@ -52,9 +58,7 @@ def alifestd_mark_colless_index_asexual_slow_path(
     ids = phylogeny_df["id"].values
 
     # Build children mapping
-    children_leaves: typing.Dict[int, typing.List[int]] = {
-        id_: [] for id_ in ids
-    }
+    children_leaves = {id_: [] for id_ in ids}
     for idx, row in phylogeny_df.iterrows():
         node_id = row["id"]
         ancestor_id = row["ancestor_id"]

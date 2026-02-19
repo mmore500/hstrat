@@ -1,5 +1,3 @@
-import typing
-
 import numpy as np
 import pandas as pd
 
@@ -8,24 +6,24 @@ from ._alifestd_is_strictly_bifurcating_asexual import (
     alifestd_is_strictly_bifurcating_asexual,
 )
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
+from ._alifestd_mark_num_children_asexual import (
+    alifestd_mark_num_children_asexual,
+)
 from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._jit import jit
 
 
+@jit(nopython=True)
 def alifestd_mark_sackin_index_asexual_fast_path(
     ancestor_ids: np.ndarray,
     num_leaves: np.ndarray,
+    num_children: np.ndarray,
 ) -> np.ndarray:
     """Implementation detail for `alifestd_mark_sackin_index_asexual`."""
     n = len(ancestor_ids)
     sackin_index = np.zeros(n, dtype=np.int64)
-
-    # Count children for each node to identify bifurcating nodes
-    num_children: typing.List[int] = [0] * n
-    for idx, ancestor_id in enumerate(ancestor_ids):
-        if ancestor_id != idx:  # Not a root
-            num_children[ancestor_id] += 1
 
     # Accumulate Sackin index (bottom-up)
     # sackin[node] = sum over children c of (sackin[c] + num_leaves[c])
@@ -49,16 +47,11 @@ def alifestd_mark_sackin_index_asexual_slow_path(
     phylogeny_df.index = phylogeny_df["id"]
     ids = phylogeny_df["id"].values
 
-    # Count children for each node
-    num_children: typing.Dict[int, int] = {id_: 0 for id_ in ids}
-    for idx, row in phylogeny_df.iterrows():
-        node_id = row["id"]
-        ancestor_id = row["ancestor_id"]
-        if ancestor_id != node_id:  # Not a root
-            num_children[ancestor_id] += 1
+    # Use num_children column from DataFrame
+    num_children = phylogeny_df.set_index("id")["num_children"].to_dict()
 
     # Initialize Sackin index
-    sackin_dict: typing.Dict[int, int] = {id_: 0 for id_ in ids}
+    sackin_dict = {id_: 0 for id_ in ids}
 
     # Accumulate Sackin index (bottom-up)
     for idx in reversed(phylogeny_df.index):
@@ -147,6 +140,11 @@ def alifestd_mark_sackin_index_asexual(
             phylogeny_df, mutate=True
         )
 
+    if "num_children" not in phylogeny_df.columns:
+        phylogeny_df = alifestd_mark_num_children_asexual(
+            phylogeny_df, mutate=True
+        )
+
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df.reset_index(drop=True, inplace=True)
         phylogeny_df[
@@ -154,6 +152,7 @@ def alifestd_mark_sackin_index_asexual(
         ] = alifestd_mark_sackin_index_asexual_fast_path(
             phylogeny_df["ancestor_id"].to_numpy(),
             phylogeny_df["num_leaves"].to_numpy(),
+            phylogeny_df["num_children"].to_numpy(),
         )
         return phylogeny_df
     else:

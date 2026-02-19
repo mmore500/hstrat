@@ -1,5 +1,3 @@
-import typing
-
 import numpy as np
 import pandas as pd
 
@@ -8,8 +6,10 @@ from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._jit import jit
 
 
+@jit(nopython=True)
 def alifestd_mark_colless_index_generalized_asexual_fast_path(
     ancestor_ids: np.ndarray,
     num_leaves: np.ndarray,
@@ -18,27 +18,44 @@ def alifestd_mark_colless_index_generalized_asexual_fast_path(
     `alifestd_mark_colless_index_generalized_asexual`.
     """
     n = len(ancestor_ids)
-    colless_index = np.zeros(n, dtype=np.int64)
 
-    # Collect children's leaf counts for each parent
-    children_leaves: typing.List[typing.List[int]] = [[] for _ in range(n)]
-    for idx, ancestor_id in enumerate(ancestor_ids):
+    # Count children per node
+    num_children = np.zeros(n, dtype=np.int64)
+    for idx in range(n):
+        if ancestor_ids[idx] != idx:  # Not a root
+            num_children[ancestor_ids[idx]] += 1
+
+    # Build CSR-like offsets
+    offsets = np.zeros(n + 1, dtype=np.int64)
+    for i in range(n):
+        offsets[i + 1] = offsets[i] + num_children[i]
+
+    # Fill flat children_leaves array
+    total_children = offsets[n]
+    children_leaves = np.zeros(total_children, dtype=np.int64)
+    fill_pos = np.zeros(n, dtype=np.int64)
+    for idx in range(n):
+        ancestor_id = ancestor_ids[idx]
         if ancestor_id != idx:  # Not a root
-            children_leaves[ancestor_id].append(num_leaves[idx])
+            pos = offsets[ancestor_id] + fill_pos[ancestor_id]
+            children_leaves[pos] = num_leaves[idx]
+            fill_pos[ancestor_id] += 1
 
-    # Compute local Colless for each node (sum of pairwise |n_i - n_j|)
+    # Compute local colless (sum of pairwise |c_i - c_j|)
     local_colless = np.zeros(n, dtype=np.int64)
-    for idx, child_counts in enumerate(children_leaves):
-        if len(child_counts) >= 2:
-            # Sum of all pairwise absolute differences
-            for i, count_i in enumerate(child_counts):
-                for count_j in child_counts[i + 1 :]:
-                    local_colless[idx] += abs(count_i - count_j)
+    for idx in range(n):
+        start = offsets[idx]
+        end = offsets[idx + 1]
+        for i in range(start, end):
+            for j in range(i + 1, end):
+                local_colless[idx] += abs(children_leaves[i] - children_leaves[j])
 
-    # Accumulate subtree Colless (bottom-up)
-    for idx_r, ancestor_id in enumerate(ancestor_ids[::-1]):
+    # Accumulate subtree colless bottom-up
+    colless_index = np.zeros(n, dtype=np.int64)
+    for idx_r in range(n):
         idx = n - 1 - idx_r  # Reverse order (leaves to root)
         colless_index[idx] += local_colless[idx]
+        ancestor_id = ancestor_ids[idx]
         if ancestor_id != idx:  # Not a root
             colless_index[ancestor_id] += colless_index[idx]
 
@@ -55,9 +72,7 @@ def alifestd_mark_colless_index_generalized_asexual_slow_path(
     ids = phylogeny_df["id"].values
 
     # Build children mapping
-    children_leaves: typing.Dict[int, typing.List[int]] = {
-        id_: [] for id_ in ids
-    }
+    children_leaves = {id_: [] for id_ in ids}
     for idx, row in phylogeny_df.iterrows():
         node_id = row["id"]
         ancestor_id = row["ancestor_id"]

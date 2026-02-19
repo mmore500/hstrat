@@ -1,5 +1,3 @@
-import typing
-
 import numpy as np
 import pandas as pd
 
@@ -8,8 +6,10 @@ from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._jit import jit
 
 
+@jit(nopython=True)
 def alifestd_mark_sackin_index_generalized_asexual_fast_path(
     ancestor_ids: np.ndarray,
     num_leaves: np.ndarray,
@@ -40,7 +40,7 @@ def alifestd_mark_sackin_index_generalized_asexual_slow_path(
     ids = phylogeny_df["id"].values
 
     # Initialize Sackin index
-    sackin_dict: typing.Dict[int, int] = {id_: 0 for id_ in ids}
+    sackin_dict = {id_: 0 for id_ in ids}
 
     # Accumulate Sackin index (bottom-up)
     for idx in reversed(phylogeny_df.index):
