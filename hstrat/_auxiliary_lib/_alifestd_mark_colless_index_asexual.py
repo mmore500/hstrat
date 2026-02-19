@@ -19,7 +19,7 @@ from ._alifestd_try_add_ancestor_id_col import (
     alifestd_try_add_ancestor_id_col,
 )
 from ._jit import jit
-from ._reversed_range import reversed_range_jit
+from ._reversed_enumerate import reversed_enumerate_jit
 
 
 @jit(nopython=True)
@@ -45,9 +45,8 @@ def alifestd_mark_colless_index_asexual_fast_path(
 
     # Reverse pass: accumulate subtree colless bottom-up
     colless_index = np.zeros(n, dtype=np.int64)
-    for idx in reversed_range_jit(n):
+    for idx, ancestor_id in reversed_enumerate_jit(ancestor_ids):
         colless_index[idx] += local_colless[idx]
-        ancestor_id = ancestor_ids[idx]
         if ancestor_id != idx:  # Not a root
             colless_index[ancestor_id] += colless_index[idx]
 

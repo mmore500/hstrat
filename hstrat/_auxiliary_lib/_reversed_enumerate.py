@@ -1,5 +1,7 @@
 import typing
 
+from ._jit import jit
+
 
 def reversed_enumerate(
     sequence: typing.Sequence,
@@ -32,3 +34,6 @@ def reversed_enumerate(
     # numba jit doesn't support yield from or reversed (fully)
     for t in zip(range(len(sequence) - 1, -1, -1), sequence[::-1]):
         yield t
+
+
+reversed_enumerate_jit = jit(nopython=True)(reversed_enumerate)
