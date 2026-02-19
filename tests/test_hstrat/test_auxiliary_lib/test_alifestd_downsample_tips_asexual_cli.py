@@ -65,3 +65,41 @@ def test_alifestd_downsample_tips_asexual_cli_parquet():
         input=f"{assets}/example-standard-toy-asexual-phylogeny.csv".encode(),
     )
     assert os.path.exists(output_file)
+
+
+def test_alifestd_downsample_tips_asexual_cli_ignore_topological_sensitivity():
+    output_file = "/tmp/hstrat_alifestd_downsample_tips_asexual_ignore.csv"
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_downsample_tips_asexual",
+            "-n",
+            "1",
+            "--ignore-topological-sensitivity",
+            output_file,
+        ],
+        check=True,
+        input=f"{assets}/example-standard-toy-asexual-phylogeny.csv".encode(),
+    )
+    assert os.path.exists(output_file)
+
+
+def test_alifestd_downsample_tips_asexual_cli_drop_topological_sensitivity():
+    output_file = "/tmp/hstrat_alifestd_downsample_tips_asexual_drop.csv"
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_downsample_tips_asexual",
+            "-n",
+            "1",
+            "--drop-topological-sensitivity",
+            output_file,
+        ],
+        check=True,
+        input=f"{assets}/example-standard-toy-asexual-phylogeny.csv".encode(),
+    )
+    assert os.path.exists(output_file)

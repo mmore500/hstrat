@@ -1,4 +1,5 @@
 import argparse
+import functools
 import logging
 import os
 
@@ -6,6 +7,7 @@ import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import polars as pl
 
+from ._add_bool_arg import add_bool_arg
 from ._alifestd_assign_contiguous_ids_polars import (
     alifestd_assign_contiguous_ids_polars,
 )
@@ -16,8 +18,8 @@ from ._alifestd_has_contiguous_ids_polars import (
 from ._alifestd_is_topologically_sorted_polars import (
     alifestd_is_topologically_sorted_polars,
 )
-from ._alifestd_warn_topological_sensitivity_polars import (
-    alifestd_warn_topological_sensitivity_polars,
+from ._alifestd_topological_sensitivity_warned_polars import (
+    alifestd_topological_sensitivity_warned_polars,
 )
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
@@ -25,6 +27,11 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@alifestd_topological_sensitivity_warned_polars(
+    insert=False,
+    delete=True,
+    update=True,
+)
 def alifestd_collapse_unifurcations_polars(
     phylogeny_df: pl.DataFrame,
 ) -> pl.DataFrame:
@@ -40,14 +47,6 @@ def alifestd_collapse_unifurcations_polars(
         Pandas-based implementation.
     """
     schema_names = phylogeny_df.lazy().collect_schema().names()
-
-    alifestd_warn_topological_sensitivity_polars(
-        phylogeny_df,
-        "alifestd_collapse_unifurcations_polars",
-        insert=False,
-        delete=True,
-        update=True,
-    )
 
     if "ancestor_list" in schema_names:
         raise NotImplementedError
@@ -141,6 +140,18 @@ def _create_parser() -> argparse.ArgumentParser:
         dfcli_module="hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars",
         dfcli_version=get_hstrat_version(),
     )
+    add_bool_arg(
+        parser,
+        "ignore-topological-sensitivity",
+        default=False,
+        help="suppress topological sensitivity warning (default: False)",
+    )
+    add_bool_arg(
+        parser,
+        "drop-topological-sensitivity",
+        default=False,
+        help="drop topology-sensitive columns from output (default: False)",
+    )
     return parser
 
 
@@ -157,7 +168,11 @@ if __name__ == "__main__":
         ):
             _run_dataframe_cli(
                 base_parser=parser,
-                output_dataframe_op=alifestd_collapse_unifurcations_polars,
+                output_dataframe_op=functools.partial(
+                    alifestd_collapse_unifurcations_polars,
+                    ignore_topological_sensitivity=args.ignore_topological_sensitivity,
+                    drop_topological_sensitivity=args.drop_topological_sensitivity,
+                ),
             )
     except NotImplementedError as e:
         logging.error(

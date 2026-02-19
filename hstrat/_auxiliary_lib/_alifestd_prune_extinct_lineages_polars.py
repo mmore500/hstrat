@@ -1,4 +1,5 @@
 import argparse
+import functools
 import logging
 import os
 
@@ -6,6 +7,7 @@ import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import polars as pl
 
+from ._add_bool_arg import add_bool_arg
 from ._alifestd_has_contiguous_ids_polars import (
     alifestd_has_contiguous_ids_polars,
 )
@@ -15,12 +17,20 @@ from ._alifestd_is_topologically_sorted_polars import (
 from ._alifestd_prune_extinct_lineages_asexual import (
     _create_has_extant_descendant_contiguous_sorted,
 )
+from ._alifestd_topological_sensitivity_warned_polars import (
+    alifestd_topological_sensitivity_warned_polars,
+)
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@alifestd_topological_sensitivity_warned_polars(
+    insert=False,
+    delete=True,
+    update=False,
+)
 def alifestd_prune_extinct_lineages_polars(
     phylogeny_df: pl.DataFrame,
 ) -> pl.DataFrame:
@@ -172,6 +182,18 @@ def _create_parser() -> argparse.ArgumentParser:
         dfcli_module="hstrat._auxiliary_lib._alifestd_prune_extinct_lineages_polars",
         dfcli_version=get_hstrat_version(),
     )
+    add_bool_arg(
+        parser,
+        "ignore-topological-sensitivity",
+        default=False,
+        help="suppress topological sensitivity warning (default: False)",
+    )
+    add_bool_arg(
+        parser,
+        "drop-topological-sensitivity",
+        default=False,
+        help="drop topology-sensitive columns from output (default: False)",
+    )
     return parser
 
 
@@ -188,7 +210,11 @@ if __name__ == "__main__":
         ):
             _run_dataframe_cli(
                 base_parser=parser,
-                output_dataframe_op=alifestd_prune_extinct_lineages_polars,
+                output_dataframe_op=functools.partial(
+                    alifestd_prune_extinct_lineages_polars,
+                    ignore_topological_sensitivity=args.ignore_topological_sensitivity,
+                    drop_topological_sensitivity=args.drop_topological_sensitivity,
+                ),
             )
     except NotImplementedError as e:
         logging.error(

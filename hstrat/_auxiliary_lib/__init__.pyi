@@ -259,6 +259,12 @@ from ._alifestd_test_leaves_isomorphic_asexual import (
     alifestd_test_leaves_isomorphic_asexual,
 )
 from ._alifestd_to_working_format import alifestd_to_working_format
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
+)
+from ._alifestd_topological_sensitivity_warned_polars import (
+    alifestd_topological_sensitivity_warned_polars,
+)
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_try_add_ancestor_id_col_polars import (
@@ -542,6 +548,8 @@ __all__ = [
     "alifestd_sum_origin_time_deltas_asexual",
     "alifestd_test_leaves_isomorphic_asexual",
     "alifestd_to_working_format",
+    "alifestd_topological_sensitivity_warned",
+    "alifestd_topological_sensitivity_warned_polars",
     "alifestd_topological_sort",
     "alifestd_try_add_ancestor_id_col",
     "alifestd_try_add_ancestor_id_col_polars",

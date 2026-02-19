@@ -7,7 +7,16 @@ import numpy as np
 import opytional as opyt
 import polars as pl
 
+from ._alifestd_topological_sensitivity_warned_polars import (
+    alifestd_topological_sensitivity_warned_polars,
+)
 
+
+@alifestd_topological_sensitivity_warned_polars(
+    insert=True,
+    delete=False,
+    update=True,
+)
 def alifestd_prefix_roots_polars(
     phylogeny_df: pl.DataFrame,
     *,

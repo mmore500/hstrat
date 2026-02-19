@@ -1,4 +1,5 @@
 import argparse
+import functools
 import logging
 import operator
 import os
@@ -8,8 +9,12 @@ from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
 import pandas as pd
 
+from ._add_bool_arg import add_bool_arg
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
+)
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
 from ._configure_prod_logging import configure_prod_logging
@@ -79,6 +84,11 @@ def _create_has_extant_descendant_contiguous_sorted(
     return has_extant_descendant
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=False,
+    delete=True,
+    update=False,
+)
 def alifestd_prune_extinct_lineages_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -112,7 +122,6 @@ def alifestd_prune_extinct_lineages_asexual(
     pandas.DataFrame
         The rerooted phylogeny in alife standard format.
     """
-
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
@@ -194,6 +203,18 @@ def _create_parser() -> argparse.ArgumentParser:
         dfcli_module="hstrat._auxiliary_lib._alifestd_prune_extinct_lineages_asexual",
         dfcli_version=get_hstrat_version(),
     )
+    add_bool_arg(
+        parser,
+        "ignore-topological-sensitivity",
+        default=False,
+        help="suppress topological sensitivity warning (default: False)",
+    )
+    add_bool_arg(
+        parser,
+        "drop-topological-sensitivity",
+        default=False,
+        help="drop topology-sensitive columns from output (default: False)",
+    )
     return parser
 
 
@@ -209,6 +230,10 @@ if __name__ == "__main__":
         _run_dataframe_cli(
             base_parser=parser,
             output_dataframe_op=delegate_polars_implementation()(
-                alifestd_prune_extinct_lineages_asexual,
+                functools.partial(
+                    alifestd_prune_extinct_lineages_asexual,
+                    ignore_topological_sensitivity=args.ignore_topological_sensitivity,
+                    drop_topological_sensitivity=args.drop_topological_sensitivity,
+                ),
             ),
         )
