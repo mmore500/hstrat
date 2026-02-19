@@ -86,17 +86,14 @@ def alifestd_mark_colless_index_asexual_slow_path(
         else:
             assert False
 
-    # Initialize colless_index with local values
-    colless_dict = {node_id: local_colless[node_id] for node_id in ids}
-
     # Accumulate subtree Colless (bottom-up via reversed iteration)
-    for idx in reversed(phylogeny_df.index):
-        node_id = phylogeny_df.at[idx, "id"]
-        ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
+    # Since index is set to id, node_id == idx
+    for node_id in reversed(phylogeny_df.index):
+        ancestor_id = phylogeny_df.at[node_id, "ancestor_id"]
         if ancestor_id != node_id:  # Not a root
-            colless_dict[ancestor_id] += colless_dict[node_id]
+            local_colless[ancestor_id] += local_colless[node_id]
 
-    return phylogeny_df["id"].map(colless_dict).values
+    return phylogeny_df["id"].map(local_colless).values
 
 
 def alifestd_mark_colless_index_asexual(
@@ -169,6 +166,13 @@ def alifestd_mark_colless_index_asexual(
         phylogeny_df["colless_index"] = pd.Series(dtype=int)
         return phylogeny_df
 
+    phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
+    if "ancestor_id" not in phylogeny_df.columns:
+        raise ValueError(
+            "alifestd_mark_colless_index_asexual only supports "
+            "asexual phylogenies.",
+        )
+
     if not alifestd_is_strictly_bifurcating_asexual(phylogeny_df):
         raise ValueError(
             "phylogeny_df must be strictly bifurcating; "
@@ -176,8 +180,6 @@ def alifestd_mark_colless_index_asexual(
             "alifestd_mark_colless_like_index_mdm_asexual "
             "for the Colless-like index for trees with polytomies",
         )
-
-    phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
 
     if not alifestd_is_topologically_sorted(phylogeny_df):
         phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
