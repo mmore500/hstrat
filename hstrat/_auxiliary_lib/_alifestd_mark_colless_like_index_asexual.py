@@ -74,47 +74,21 @@ def _colless_like_fast_path(
             vals = children_fsize[start:end]
 
             if diss_type == 0:  # MDM
-                # Sort needed for median computation
-                sorted_vals = vals.copy()
-                sorted_vals.sort()
-                if k % 2 == 1:
-                    median = sorted_vals[k // 2]
-                else:
-                    median = (
-                        sorted_vals[k // 2 - 1] + sorted_vals[k // 2]
-                    ) / 2.0
-
+                median = np.median(vals)
                 # MDM = (1/k) * sum |x_i - median|
                 total = 0.0
                 for i in range(k):
                     total += abs(vals[i] - median)
                 local_balance[idx] = total / k
 
-            elif diss_type == 1:  # Variance
-                # var = (1/(k-1)) * sum (x_i - mean)^2
-                mean = 0.0
-                for i in range(k):
-                    mean += vals[i]
-                mean /= k
+            elif diss_type == 1:  # Variance (ddof=1)
+                # np.var uses ddof=0; apply Bessel correction
+                local_balance[idx] = np.var(vals) * k / (k - 1)
 
-                total = 0.0
-                for i in range(k):
-                    diff = vals[i] - mean
-                    total += diff * diff
-                local_balance[idx] = total / (k - 1)
-
-            elif diss_type == 2:  # Standard deviation
-                # sd = sqrt(var)
-                mean = 0.0
-                for i in range(k):
-                    mean += vals[i]
-                mean /= k
-
-                total = 0.0
-                for i in range(k):
-                    diff = vals[i] - mean
-                    total += diff * diff
-                local_balance[idx] = math.sqrt(total / (k - 1))
+            elif diss_type == 2:  # Standard deviation (ddof=1)
+                local_balance[idx] = math.sqrt(
+                    np.var(vals) * k / (k - 1)
+                )
 
     # Accumulate subtree Colless-like index bottom-up
     colless_like = np.zeros(n, dtype=np.float64)
