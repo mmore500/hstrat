@@ -19,6 +19,7 @@ from ._alifestd_is_topologically_sorted_polars import (
 from ._alifestd_topological_sensitivity_warned_polars import (
     alifestd_topological_sensitivity_warned_polars,
 )
+from ._add_bool_arg import add_bool_arg
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
@@ -136,6 +137,18 @@ def _create_parser() -> argparse.ArgumentParser:
         dfcli_module="hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars",
         dfcli_version=get_hstrat_version(),
     )
+    add_bool_arg(
+        parser,
+        "ignore-topological-sensitivity",
+        default=False,
+        help="suppress topological sensitivity warning (default: False)",
+    )
+    add_bool_arg(
+        parser,
+        "drop-topological-sensitivity",
+        default=False,
+        help="drop topology-sensitive columns from output (default: False)",
+    )
     return parser
 
 
@@ -152,7 +165,11 @@ if __name__ == "__main__":
         ):
             _run_dataframe_cli(
                 base_parser=parser,
-                output_dataframe_op=alifestd_collapse_unifurcations_polars,
+                output_dataframe_op=lambda df: alifestd_collapse_unifurcations_polars(
+                    df,
+                    ignore_topological_sensitivity=args.ignore_topological_sensitivity,
+                    drop_topological_sensitivity=args.drop_topological_sensitivity,
+                ),
             )
     except NotImplementedError as e:
         logging.error(

@@ -23,6 +23,7 @@ from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_topological_sensitivity_warned import (
     alifestd_topological_sensitivity_warned,
 )
+from ._add_bool_arg import add_bool_arg
 from ._configure_prod_logging import configure_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
@@ -167,6 +168,18 @@ def _create_parser() -> argparse.ArgumentParser:
         help="Integer seed for deterministic behavior.",
         type=int,
     )
+    add_bool_arg(
+        parser,
+        "ignore-topological-sensitivity",
+        default=False,
+        help="suppress topological sensitivity warning (default: False)",
+    )
+    add_bool_arg(
+        parser,
+        "drop-topological-sensitivity",
+        default=False,
+        help="drop topology-sensitive columns from output (default: False)",
+    )
     return parser
 
 
@@ -186,6 +199,8 @@ if __name__ == "__main__":
                     alifestd_downsample_tips_clade_asexual,
                     n_downsample=args.n,
                     seed=args.seed,
+                    ignore_topological_sensitivity=args.ignore_topological_sensitivity,
+                    drop_topological_sensitivity=args.drop_topological_sensitivity,
                 ),
             ),
             overridden_arguments="ignore",  # seed is overridden

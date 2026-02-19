@@ -16,6 +16,7 @@ from ._alifestd_prune_extinct_lineages_polars import (
 from ._alifestd_topological_sensitivity_warned_polars import (
     alifestd_topological_sensitivity_warned_polars,
 )
+from ._add_bool_arg import add_bool_arg
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
@@ -167,6 +168,18 @@ def _create_parser() -> argparse.ArgumentParser:
         help="Integer seed for deterministic behavior.",
         type=int,
     )
+    add_bool_arg(
+        parser,
+        "ignore-topological-sensitivity",
+        default=False,
+        help="suppress topological sensitivity warning (default: False)",
+    )
+    add_bool_arg(
+        parser,
+        "drop-topological-sensitivity",
+        default=False,
+        help="drop topology-sensitive columns from output (default: False)",
+    )
     return parser
 
 
@@ -187,6 +200,8 @@ if __name__ == "__main__":
                     alifestd_downsample_tips_polars,
                     n_downsample=args.n,
                     seed=args.seed,
+                    ignore_topological_sensitivity=args.ignore_topological_sensitivity,
+                    drop_topological_sensitivity=args.drop_topological_sensitivity,
                 ),
                 overridden_arguments="ignore",  # seed is overridden
             )
