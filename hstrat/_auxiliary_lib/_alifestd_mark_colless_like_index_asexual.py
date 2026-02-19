@@ -49,7 +49,7 @@ def _colless_like_fast_path(
 
     # Accumulate f-size bottom-up (add children's f-sizes to parent)
     for idx, ancestor_id in reversed_enumerate_jit(ancestor_ids):
-        if ancestor_id != idx:
+        if ancestor_id != idx:  # Not a root
             f_size[ancestor_id] += f_size[idx]
 
     # Build CSR-like structure of children f-sizes per parent
@@ -61,7 +61,7 @@ def _colless_like_fast_path(
     children_fsize = np.zeros(total_children, dtype=np.float64)
     fill_pos = np.zeros(n, dtype=np.int64)
     for idx, ancestor_id in enumerate(ancestor_ids):
-        if ancestor_id != idx:
+        if ancestor_id != idx:  # Not a root
             pos = offsets[ancestor_id] + fill_pos[ancestor_id]
             children_fsize[pos] = f_size[idx]
             fill_pos[ancestor_id] += 1
@@ -91,7 +91,7 @@ def _colless_like_fast_path(
     colless_like = np.zeros(n, dtype=np.float64)
     for idx, ancestor_id in reversed_enumerate_jit(ancestor_ids):
         colless_like[idx] += local_balance[idx]
-        if ancestor_id != idx:
+        if ancestor_id != idx:  # Not a root
             colless_like[ancestor_id] += colless_like[idx]
 
     return colless_like

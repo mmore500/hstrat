@@ -42,18 +42,14 @@ def alifestd_make_comb(n_leaves: int) -> pd.DataFrame:
     elif n_leaves == 0:
         return alifestd_make_empty()
 
-    ids = []
-    ancestors = []
-    node_id = it.count()
-    root = next(node_id)
-    ids.append(root)
-    ancestors.append("[None]")
-    parent = root
+    node_counter = it.count()
+    ids, ancestors = [next(node_counter)], ["[None]"]
+    (parent,) = ids
     for _ in range(n_leaves - 1):
-        child_leaf = next(node_id)
+        child_leaf = next(node_counter)
         ids.append(child_leaf)
         ancestors.append(f"[{parent}]")
-        child_internal = next(node_id)
+        child_internal = next(node_counter)
         ids.append(child_internal)
         ancestors.append(f"[{parent}]")
         parent = child_internal
