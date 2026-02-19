@@ -396,8 +396,6 @@ def test_symmetric_tree_is_zero():
     assert result_df["colless_like_index_mdm"].to_list() == pytest.approx(
         [0.0] * len(result_df),
     )
-<<<<<<< HEAD:tests/test_hstrat/test_auxiliary_lib/test_alifestd_mark_colless_like_index_mdm_asexual.py
-=======
 
     # Symmetric trifurcating tree (3 leaves)
     phylogeny_df2 = pd.DataFrame(
@@ -406,10 +404,10 @@ def test_symmetric_tree_is_zero():
             "ancestor_list": ["[None]", "[0]", "[0]", "[0]"],
         }
     )
-    result_df2 = alifestd_mark_colless_like_index_asexual(
+    result_df2 = alifestd_mark_colless_like_index_mdm_asexual(
         phylogeny_df2,
     )
-    assert result_df2["colless_like_index"].to_list() == pytest.approx(
+    assert result_df2["colless_like_index_mdm"].to_list() == pytest.approx(
         [0.0] * len(result_df2),
     )
 
@@ -460,12 +458,12 @@ def test_against_r_treebalance_colless_like(
     k=2), the R values are exactly 2x the correct MDM values, so we
     divide by 2 to get the correct expected values per Mir et al. (2018).
     """
-    result_df = alifestd_mark_colless_like_index_asexual(phylogeny_df)
+    result_df = alifestd_mark_colless_like_index_mdm_asexual(phylogeny_df)
     result_df.index = result_df["id"]
     root_id = result_df[result_df["id"] == result_df["ancestor_id"]][
         "id"
     ].iloc[0]
-    assert result_df.loc[root_id, "colless_like_index"] == pytest.approx(
+    assert result_df.loc[root_id, "colless_like_index_mdm"] == pytest.approx(
         expected_cl,
     )
 
@@ -498,14 +496,14 @@ def test_colless_like_trifurcation_mixed():
             ],
         }
     )
-    result_df = alifestd_mark_colless_like_index_asexual(phylogeny_df)
+    result_df = alifestd_mark_colless_like_index_mdm_asexual(phylogeny_df)
     result_df.index = result_df["id"]
 
     # R treebalance gives 2.551444714 (buggy sum, not divided by k=3)
     r_buggy_value = 2.551444713932051
     # Correct MDM value: R_value / 3 (since root has k=3)
     expected_root = r_buggy_value / 3.0
-    assert result_df.loc[0, "colless_like_index"] == pytest.approx(
+    assert result_df.loc[0, "colless_like_index_mdm"] == pytest.approx(
         expected_root,
     )
 
@@ -729,12 +727,11 @@ def test_against_r_nontrivial_trees_colless_like(
     """Test Colless-like index against values derived from R
     treebalance::collesslikeI for nontrivial trees (neither purely
     balanced nor purely comb/caterpillar), corrected for the R MDM bug."""
-    result_df = alifestd_mark_colless_like_index_asexual(phylogeny_df)
+    result_df = alifestd_mark_colless_like_index_mdm_asexual(phylogeny_df)
     result_df.index = result_df["id"]
     root_id = result_df[result_df["id"] == result_df["ancestor_id"]][
         "id"
     ].iloc[0]
-    assert result_df.loc[root_id, "colless_like_index"] == pytest.approx(
+    assert result_df.loc[root_id, "colless_like_index_mdm"] == pytest.approx(
         expected_cl,
     )
->>>>>>> 9f04a219 (Test against R implementations):tests/test_hstrat/test_auxiliary_lib/test_alifestd_mark_colless_like_index_asexual.py

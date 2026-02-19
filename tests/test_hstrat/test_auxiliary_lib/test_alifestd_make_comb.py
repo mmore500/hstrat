@@ -42,9 +42,7 @@ def test_bifurcating_structure(n_leaves: int):
     leaf_ids = set(alifestd_find_leaf_ids(df))
     for _, row in df.iterrows():
         if row["id"] not in leaf_ids:
-            children = df[
-                df["ancestor_list"] == f"[{row['id']}]"
-            ]
+            children = df[df["ancestor_list"] == f"[{row['id']}]"]
             assert len(children) == 2
 
 
@@ -74,6 +72,7 @@ def test_comb_shape(n_leaves: int):
     df = alifestd_make_comb(n_leaves)
     leaf_ids = set(alifestd_find_leaf_ids(df))
     # Internal nodes should form a chain: 0, 2, 4, ...
-    internal_ids = [row["id"] for _, row in df.iterrows()
-                    if row["id"] not in leaf_ids]
+    internal_ids = [
+        row["id"] for _, row in df.iterrows() if row["id"] not in leaf_ids
+    ]
     assert internal_ids == list(range(0, 2 * (n_leaves - 1), 2))

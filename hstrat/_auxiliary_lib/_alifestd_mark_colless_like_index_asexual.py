@@ -18,6 +18,7 @@ _DISS_MDM = 0
 _DISS_VAR = 1
 _DISS_SD = 2
 
+
 @jit(nopython=True)
 def _colless_like_fast_path(
     ancestor_ids: np.ndarray,

@@ -43,9 +43,7 @@ def test_bifurcating_structure(depth: int):
     leaf_ids = set(alifestd_find_leaf_ids(df))
     for _, row in df.iterrows():
         if row["id"] not in leaf_ids:
-            children = df[
-                df["ancestor_list"] == f"[{row['id']}]"
-            ]
+            children = df[df["ancestor_list"] == f"[{row['id']}]"]
             assert len(children) == 2
 
 
