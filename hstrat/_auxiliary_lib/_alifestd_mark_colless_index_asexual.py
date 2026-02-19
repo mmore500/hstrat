@@ -186,8 +186,6 @@ def alifestd_mark_colless_index_asexual(
         )
 
     if alifestd_has_contiguous_ids(phylogeny_df):
-        # Fast path indexes by position; align df index to id values
-        phylogeny_df.reset_index(drop=True, inplace=True)
         phylogeny_df[
             "colless_index"
         ] = alifestd_mark_colless_index_asexual_fast_path(

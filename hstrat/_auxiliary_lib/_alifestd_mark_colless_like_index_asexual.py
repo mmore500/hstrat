@@ -215,7 +215,6 @@ def _alifestd_mark_colless_like_index_asexual_impl(
         phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
 
     if alifestd_has_contiguous_ids(phylogeny_df):
-        phylogeny_df.reset_index(drop=True, inplace=True)
         phylogeny_df[col_name] = _colless_like_fast_path(
             phylogeny_df["ancestor_id"].to_numpy(),
             ["mdm", "var", "sd"].index(diss_type),

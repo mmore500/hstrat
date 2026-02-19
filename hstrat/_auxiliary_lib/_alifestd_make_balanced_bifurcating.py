@@ -1,5 +1,6 @@
 import itertools as it
 
+import more_itertools as mit
 import pandas as pd
 
 from ._alifestd_make_empty import alifestd_make_empty
@@ -41,11 +42,10 @@ def alifestd_make_balanced_bifurcating(depth: int) -> pd.DataFrame:
     queue = [0]
     for _ in range(depth - 1):
         next_queue = []
-        for parent in queue:
-            for _ in range(2):
-                child = next(next_id)
-                ids.append(child)
-                ancestors.append(f"[{parent}]")
-                next_queue.append(child)
+        for parent in mit.repeat_each(queue, 2):
+            child = next(next_id)
+            ids.append(child)
+            ancestors.append(f"[{parent}]")
+            next_queue.append(child)
         queue = next_queue
     return pd.DataFrame({"id": ids, "ancestor_list": ancestors})

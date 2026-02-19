@@ -408,8 +408,6 @@ def test_fast_slow_path_direct_comparison():
         phylogeny_df,
         mutate=True,
     )
-    phylogeny_df.reset_index(drop=True, inplace=True)
-
     fast_result = _colless_like_fast_path(
         phylogeny_df["ancestor_id"].to_numpy(),
         1,
