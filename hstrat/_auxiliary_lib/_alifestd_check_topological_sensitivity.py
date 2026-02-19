@@ -31,6 +31,11 @@ _topologically_sensitive_cols = frozenset(
         "clade_nodecount_ratio_sister",
         "clade_subtended_duration",
         "clade_subtended_duration_ratio_sister",
+        "colless_index",
+        "colless_index_corrected",
+        "colless_like_index_mdm",
+        "colless_like_index_sd",
+        "colless_like_index_var",
         "is_left_child",
         "is_right_child",
         "left_child_id",
@@ -44,6 +49,7 @@ _topologically_sensitive_cols = frozenset(
         "ot_mrca_time_of",
         "ot_mrca_time_since",
         "right_child_id",
+        "sackin_index",
         "sister_id",
     )
 )

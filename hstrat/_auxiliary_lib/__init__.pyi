@@ -150,6 +150,10 @@ from ._alifestd_is_working_format_asexual import (
 from ._alifestd_join_roots import alifestd_join_roots
 from ._alifestd_make_ancestor_id_col import alifestd_make_ancestor_id_col
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
+from ._alifestd_make_balanced_bifurcating import (
+    alifestd_make_balanced_bifurcating,
+)
+from ._alifestd_make_comb import alifestd_make_comb
 from ._alifestd_make_empty import alifestd_make_empty
 from ._alifestd_mark_ancestor_origin_time_asexual import (
     alifestd_mark_ancestor_origin_time_asexual,
@@ -186,6 +190,21 @@ from ._alifestd_mark_clade_subtended_duration_asexual import (
 )
 from ._alifestd_mark_clade_subtended_duration_ratio_sister_asexual import (
     alifestd_mark_clade_subtended_duration_ratio_sister_asexual,
+)
+from ._alifestd_mark_colless_index_asexual import (
+    alifestd_mark_colless_index_asexual,
+)
+from ._alifestd_mark_colless_index_corrected_asexual import (
+    alifestd_mark_colless_index_corrected_asexual,
+)
+from ._alifestd_mark_colless_like_index_mdm_asexual import (
+    alifestd_mark_colless_like_index_mdm_asexual,
+)
+from ._alifestd_mark_colless_like_index_sd_asexual import (
+    alifestd_mark_colless_like_index_sd_asexual,
+)
+from ._alifestd_mark_colless_like_index_var_asexual import (
+    alifestd_mark_colless_like_index_var_asexual,
 )
 from ._alifestd_mark_is_left_child_asexual import (
     alifestd_mark_is_left_child_asexual,
@@ -227,6 +246,9 @@ from ._alifestd_mark_right_child_asexual import (
 from ._alifestd_mark_root_id import alifestd_mark_root_id
 from ._alifestd_mark_roots import alifestd_mark_roots
 from ._alifestd_mark_roots_polars import alifestd_mark_roots_polars
+from ._alifestd_mark_sackin_index_asexual import (
+    alifestd_mark_sackin_index_asexual,
+)
 from ._alifestd_mark_sister_asexual import alifestd_mark_sister_asexual
 from ._alifestd_mask_descendants_asexual import (
     alifestd_mask_descendants_asexual,
@@ -504,6 +526,8 @@ __all__ = [
     "alifestd_join_roots",
     "alifestd_make_ancestor_id_col",
     "alifestd_make_ancestor_list_col",
+    "alifestd_make_balanced_bifurcating",
+    "alifestd_make_comb",
     "alifestd_make_empty",
     "alifestd_mark_ancestor_origin_time_asexual",
     "alifestd_mark_clade_duration_asexual",
@@ -517,6 +541,11 @@ __all__ = [
     "alifestd_mark_clade_nodecount_ratio_sister_asexual",
     "alifestd_mark_clade_subtended_duration_asexual",
     "alifestd_mark_clade_subtended_duration_ratio_sister_asexual",
+    "alifestd_mark_colless_index_asexual",
+    "alifestd_mark_colless_index_corrected_asexual",
+    "alifestd_mark_colless_like_index_mdm_asexual",
+    "alifestd_mark_colless_like_index_sd_asexual",
+    "alifestd_mark_colless_like_index_var_asexual",
     "alifestd_mark_is_left_child_asexual",
     "alifestd_mark_is_right_child_asexual",
     "alifestd_mark_leaves",
@@ -537,6 +566,7 @@ __all__ = [
     "alifestd_mark_root_id",
     "alifestd_mark_roots",
     "alifestd_mark_roots_polars",
+    "alifestd_mark_sackin_index_asexual",
     "alifestd_mark_sister_asexual",
     "alifestd_mask_descendants_asexual",
     "alifestd_mask_monomorphic_clades_asexual",
