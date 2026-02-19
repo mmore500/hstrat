@@ -7,6 +7,9 @@ from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_topologically_sorted import (
     alifestd_is_topologically_sorted,
 )
+from ._alifestd_mark_num_children_asexual import (
+    alifestd_mark_num_children_asexual,
+)
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import (
     alifestd_try_add_ancestor_id_col,
@@ -102,57 +105,50 @@ def _colless_like_slow_path(
 ) -> np.ndarray:
     """Implementation detail for Colless-like index functions."""
     phylogeny_df.index = phylogeny_df["id"]
-    ids = phylogeny_df["id"].values
 
-    # Build children mapping and compute out-degrees
-    # TODO: simplify once https://github.com/mmore500/hstrat/issues/286 is
-    # complete (could use .at with num_children column)
-    children_of = {id_: [] for id_ in ids}
-    for idx, row in phylogeny_df.iterrows():
-        node_id = row["id"]
-        ancestor_id = row["ancestor_id"]
-        if ancestor_id != node_id:
+    # Build children mapping
+    children_of = {id_: [] for id_ in phylogeny_df.index}
+    for node_id in phylogeny_df.index:
+        ancestor_id = phylogeny_df.at[node_id, "ancestor_id"]
+        if ancestor_id != node_id:  # Not a root
             children_of[ancestor_id].append(node_id)
-
-    num_children = {id_: len(children_of[id_]) for id_ in ids}
 
     # Compute f-size bottom-up
     f_size = {}
-    for idx in reversed(phylogeny_df.index):
-        node_id = phylogeny_df.at[idx, "id"]
-        f_size[node_id] = math.log(num_children[node_id] + math.e) + sum(
+    for node_id in reversed(phylogeny_df.index):
+        k = phylogeny_df.at[node_id, "num_children"]
+        f_size[node_id] = math.log(k + math.e) + sum(
             f_size[c] for c in children_of[node_id]
         )
 
     # Compute local balance using selected dissimilarity
     local_balance = {}
-    for node_id in ids:
-        k = num_children[node_id]
-        if k < 2:
-            local_balance[node_id] = 0.0
-            continue
+    for node_id in phylogeny_df.index:
+        k = phylogeny_df.at[node_id, "num_children"]
+        if k >= 2:
+            vals = np.array(
+                [f_size[c] for c in children_of[node_id]],
+            )
 
-        vals = np.array([f_size[c] for c in children_of[node_id]])
-
-        if diss_type == "mdm":
-            med = np.median(vals)
-            local_balance[node_id] = np.sum(np.abs(vals - med)) / k
-        elif diss_type == "var":
-            local_balance[node_id] = np.var(vals, ddof=1)
-        elif diss_type == "sd":
-            local_balance[node_id] = np.std(vals, ddof=1)
+            if diss_type == "mdm":
+                med = np.median(vals)
+                local_balance[node_id] = np.sum(np.abs(vals - med)) / k
+            elif diss_type == "var":
+                local_balance[node_id] = np.var(vals, ddof=1)
+            elif diss_type == "sd":
+                local_balance[node_id] = np.std(vals, ddof=1)
+            else:
+                assert False
         else:
-            assert False
+            local_balance[node_id] = 0.0
 
     # Accumulate bottom-up
-    colless_dict = {id_: local_balance[id_] for id_ in ids}
-    for idx in reversed(phylogeny_df.index):
-        node_id = phylogeny_df.at[idx, "id"]
-        ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
-        if ancestor_id != node_id:
-            colless_dict[ancestor_id] += colless_dict[node_id]
+    for node_id in reversed(phylogeny_df.index):
+        ancestor_id = phylogeny_df.at[node_id, "ancestor_id"]
+        if ancestor_id != node_id:  # Not a root
+            local_balance[ancestor_id] += local_balance[node_id]
 
-    return phylogeny_df["id"].map(colless_dict).values
+    return phylogeny_df["id"].map(local_balance).values
 
 
 def _alifestd_mark_colless_like_index_asexual_impl(
@@ -192,6 +188,11 @@ def _alifestd_mark_colless_like_index_asexual_impl(
             ["mdm", "var", "sd"].index(diss_type),
         )
     else:
+        if "num_children" not in phylogeny_df.columns:
+            phylogeny_df = alifestd_mark_num_children_asexual(
+                phylogeny_df,
+                mutate=True,
+            )
         phylogeny_df[col_name] = _colless_like_slow_path(
             phylogeny_df,
             diss_type,

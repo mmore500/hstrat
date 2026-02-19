@@ -67,7 +67,11 @@ def alifestd_mark_colless_index_corrected_asexual(
     alifestd_mark_colless_index_asexual :
         Unnormalized Colless index for strictly bifurcating trees.
     alifestd_mark_colless_like_index_mdm_asexual :
-        Colless-like index that supports polytomies.
+        Colless-like index (MDM) that supports polytomies.
+    alifestd_mark_colless_like_index_var_asexual :
+        Colless-like index (variance) that supports polytomies.
+    alifestd_mark_colless_like_index_sd_asexual :
+        Colless-like index (std dev) that supports polytomies.
     """
     if not mutate:
         phylogeny_df = phylogeny_df.copy()

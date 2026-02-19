@@ -11,6 +11,7 @@ from hstrat._auxiliary_lib import (
     alifestd_has_multiple_roots,
     alifestd_make_empty,
     alifestd_mark_colless_like_index_var_asexual,
+    alifestd_mark_num_children_asexual,
     alifestd_try_add_ancestor_id_col,
     alifestd_validate,
 )
@@ -405,6 +406,10 @@ def test_fast_slow_path_direct_comparison():
         }
     )
     phylogeny_df = alifestd_try_add_ancestor_id_col(
+        phylogeny_df,
+        mutate=True,
+    )
+    phylogeny_df = alifestd_mark_num_children_asexual(
         phylogeny_df,
         mutate=True,
     )

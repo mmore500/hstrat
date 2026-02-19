@@ -21,6 +21,9 @@ from hstrat._auxiliary_lib._alifestd_mark_colless_index_asexual import (
     alifestd_mark_colless_index_asexual_fast_path,
     alifestd_mark_colless_index_asexual_slow_path,
 )
+from hstrat._auxiliary_lib._alifestd_mark_left_child_asexual import (
+    alifestd_mark_left_child_asexual,
+)
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
@@ -652,10 +655,15 @@ def test_fast_slow_path_direct_comparison():
         phylogeny_df,
         mutate=True,
     )
+    phylogeny_df = alifestd_mark_left_child_asexual(
+        phylogeny_df,
+        mutate=True,
+    )
 
     fast_result = alifestd_mark_colless_index_asexual_fast_path(
         phylogeny_df["ancestor_id"].to_numpy(),
         phylogeny_df["num_leaves"].to_numpy(),
+        phylogeny_df["left_child_id"].to_numpy(),
     )
     slow_result = alifestd_mark_colless_index_asexual_slow_path(
         phylogeny_df.copy(),

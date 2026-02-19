@@ -9,7 +9,7 @@ from ._alifestd_is_topologically_sorted import (
     alifestd_is_topologically_sorted,
 )
 from ._alifestd_mark_left_child_asexual import (
-    alifestd_mark_left_child_asexual_fast_path,
+    alifestd_mark_left_child_asexual,
 )
 from ._alifestd_mark_num_leaves_asexual import (
     alifestd_mark_num_leaves_asexual,
@@ -26,20 +26,18 @@ from ._reversed_range import reversed_range_jit
 def alifestd_mark_colless_index_asexual_fast_path(
     ancestor_ids: np.ndarray,
     num_leaves: np.ndarray,
+    left_child_ids: np.ndarray,
 ) -> np.ndarray:
     """Implementation detail for
     `alifestd_mark_colless_index_asexual`.
     """
     n = len(ancestor_ids)
 
-    # Get left child for each node (leaf nodes point to themselves)
-    left_child_id = alifestd_mark_left_child_asexual_fast_path(ancestor_ids)
-
     # Compute local colless for each internal node
-    # For bifurcating: right_leaves = num_leaves[node] - num_leaves[left_child]
+    # For bifurcating: right_leaves = num_leaves[node] - num_leaves[left]
     local_colless = np.zeros(n, dtype=np.int64)
     for idx in range(n):
-        left_child = left_child_id[idx]
+        left_child = left_child_ids[idx]
         if left_child != idx:  # Has children (internal node)
             left_leaves = num_leaves[left_child]
             right_leaves = num_leaves[idx] - left_leaves
@@ -63,28 +61,19 @@ def alifestd_mark_colless_index_asexual_slow_path(
     `alifestd_mark_colless_index_asexual`.
     """
     phylogeny_df.index = phylogeny_df["id"]
-    ids = phylogeny_df["id"].values
 
-    # Build children mapping
-    children_leaves = {id_: [] for id_ in ids}
-    for idx, row in phylogeny_df.iterrows():
-        node_id = row["id"]
-        ancestor_id = row["ancestor_id"]
-        if ancestor_id != node_id:  # Not a root
-            children_leaves[ancestor_id].append(row["num_leaves"])
-
-    # Compute local Colless for each node
+    # Compute local colless using left_child approach
     local_colless = {}
-    for node_id, child_counts in children_leaves.items():
-        if len(child_counts) == 2:
-            local_colless[node_id] = abs(child_counts[0] - child_counts[1])
-        elif len(child_counts) < 2:
-            local_colless[node_id] = 0
+    for node_id in phylogeny_df.index:
+        left_child = phylogeny_df.at[node_id, "left_child_id"]
+        if left_child != node_id:  # Has children (internal node)
+            left_leaves = phylogeny_df.at[left_child, "num_leaves"]
+            right_leaves = phylogeny_df.at[node_id, "num_leaves"] - left_leaves
+            local_colless[node_id] = abs(left_leaves - right_leaves)
         else:
-            assert False
+            local_colless[node_id] = 0
 
     # Accumulate subtree Colless (bottom-up via reversed iteration)
-    # Since index is set to id, node_id == idx
     for node_id in reversed(phylogeny_df.index):
         ancestor_id = phylogeny_df.at[node_id, "ancestor_id"]
         if ancestor_id != node_id:  # Not a root
@@ -186,12 +175,19 @@ def alifestd_mark_colless_index_asexual(
             phylogeny_df, mutate=True
         )
 
+    if "left_child_id" not in phylogeny_df.columns:
+        phylogeny_df = alifestd_mark_left_child_asexual(
+            phylogeny_df,
+            mutate=True,
+        )
+
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df[
             "colless_index"
         ] = alifestd_mark_colless_index_asexual_fast_path(
             phylogeny_df["ancestor_id"].to_numpy(),
             phylogeny_df["num_leaves"].to_numpy(),
+            phylogeny_df["left_child_id"].to_numpy(),
         )
     else:
         phylogeny_df[
