@@ -15,6 +15,9 @@ from ._alifestd_is_topologically_sorted_polars import (
 from ._alifestd_prune_extinct_lineages_asexual import (
     _create_has_extant_descendant_contiguous_sorted,
 )
+from ._alifestd_warn_topological_sensitivity_polars import (
+    alifestd_warn_topological_sensitivity_polars,
+)
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
@@ -57,6 +60,14 @@ def alifestd_prune_extinct_lineages_polars(
     alifestd_prune_extinct_lineages_asexual :
         Pandas-based implementation.
     """
+    alifestd_warn_topological_sensitivity_polars(
+        phylogeny_df,
+        "alifestd_prune_extinct_lineages_polars",
+        insert=False,
+        delete=True,
+        update=False,
+    )
+
     schema_names = phylogeny_df.lazy().collect_schema().names()
     if "ancestor_id" not in schema_names:
         raise NotImplementedError("ancestor_id column required")

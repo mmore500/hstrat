@@ -8,6 +8,9 @@ from ._alifestd_mark_num_children_asexual import (
 )
 from ._alifestd_mark_roots import alifestd_mark_roots
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_warn_topological_sensitivity import (
+    alifestd_warn_topological_sensitivity,
+)
 
 
 def alifestd_delete_unifurcating_roots_asexual(
@@ -30,6 +33,13 @@ def alifestd_delete_unifurcating_roots_asexual(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
+    alifestd_warn_topological_sensitivity(
+        phylogeny_df,
+        "alifestd_delete_unifurcating_roots_asexual",
+        insert=False,
+        delete=True,
+        update=True,
+    )
 
     if not mutate:
         phylogeny_df = phylogeny_df.copy()

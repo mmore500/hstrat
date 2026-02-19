@@ -7,6 +7,10 @@ import numpy as np
 import opytional as opyt
 import polars as pl
 
+from ._alifestd_warn_topological_sensitivity_polars import (
+    alifestd_warn_topological_sensitivity_polars,
+)
+
 
 def alifestd_prefix_roots_polars(
     phylogeny_df: pl.DataFrame,
@@ -24,6 +28,14 @@ def alifestd_prefix_roots_polars(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
+    alifestd_warn_topological_sensitivity_polars(
+        phylogeny_df,
+        "alifestd_prefix_roots_polars",
+        insert=True,
+        delete=False,
+        update=True,
+    )
+
     if "origin_time_delta" in phylogeny_df:
         warnings.warn("alifestd_prefix_roots ignores origin_time_delta values")
     if origin_time is not None and "origin_time" not in phylogeny_df:

@@ -4,6 +4,9 @@ import pandas as pd
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_mark_oldest_root import alifestd_mark_oldest_root
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_warn_topological_sensitivity import (
+    alifestd_warn_topological_sensitivity,
+)
 
 
 def alifestd_collapse_trunk_asexual(
@@ -24,6 +27,14 @@ def alifestd_collapse_trunk_asexual(
     --------
     alifestd_delete_trunk_asexual
     """
+    alifestd_warn_topological_sensitivity(
+        phylogeny_df,
+        "alifestd_collapse_trunk_asexual",
+        insert=False,
+        delete=True,
+        update=True,
+    )
+
     if "is_trunk" not in phylogeny_df:
         raise ValueError(
             "`is_trunk` column not provided, trunk is unspecified"
