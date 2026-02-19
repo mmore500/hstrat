@@ -40,13 +40,11 @@ def alifestd_mark_colless_index_asexual_fast_path(
             if first_child_leaves[ancestor_id] == -1:
                 # First child seen
                 first_child_leaves[ancestor_id] = num_leaves[idx]
-            elif first_child_leaves[ancestor_id] >= 1:
+            else:
                 # Second child - compute local colless as |L - R|
                 local_colless[ancestor_id] = abs(
                     first_child_leaves[ancestor_id] - num_leaves[idx]
                 )
-            else:
-                assert False
 
     # Reverse pass: accumulate subtree colless bottom-up
     colless_index = np.zeros(n, dtype=np.int64)
@@ -153,8 +151,14 @@ def alifestd_mark_colless_index_asexual(
 
     See Also
     --------
+    alifestd_mark_colless_index_corrected_asexual :
+        Normalized Colless index (corrected for tree size).
     alifestd_mark_colless_like_index_mdm_asexual :
-        Colless-like index that supports polytomies.
+        Colless-like index (MDM) that supports polytomies.
+    alifestd_mark_colless_like_index_var_asexual :
+        Colless-like index (variance) that supports polytomies.
+    alifestd_mark_colless_like_index_sd_asexual :
+        Colless-like index (std dev) that supports polytomies.
     """
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
@@ -182,6 +186,7 @@ def alifestd_mark_colless_index_asexual(
         )
 
     if alifestd_has_contiguous_ids(phylogeny_df):
+        # Fast path indexes by position; align df index to id values
         phylogeny_df.reset_index(drop=True, inplace=True)
         phylogeny_df[
             "colless_index"

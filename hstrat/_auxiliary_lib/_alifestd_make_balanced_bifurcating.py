@@ -1,3 +1,5 @@
+import itertools as it
+
 import pandas as pd
 
 from ._alifestd_make_empty import alifestd_make_empty
@@ -30,20 +32,20 @@ def alifestd_make_balanced_bifurcating(depth: int) -> pd.DataFrame:
     """
     if depth < 0:
         raise ValueError("depth must be non-negative")
-    if depth == 0:
+    elif depth == 0:
         return alifestd_make_empty()
 
     ids = [0]
     ancestors = ["[None]"]
-    next_id = 1
+    next_id = it.count(1)
     queue = [0]
     for _ in range(depth - 1):
         next_queue = []
         for parent in queue:
             for _ in range(2):
-                ids.append(next_id)
+                child = next(next_id)
+                ids.append(child)
                 ancestors.append(f"[{parent}]")
-                next_queue.append(next_id)
-                next_id += 1
+                next_queue.append(child)
         queue = next_queue
     return pd.DataFrame({"id": ids, "ancestor_list": ancestors})

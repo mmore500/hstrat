@@ -1,3 +1,5 @@
+import itertools as it
+
 import pandas as pd
 
 from ._alifestd_make_empty import alifestd_make_empty
@@ -6,19 +8,8 @@ from ._alifestd_make_empty import alifestd_make_empty
 def alifestd_make_comb(n_leaves: int) -> pd.DataFrame:
     r"""Build a comb/caterpillar tree with `n_leaves` leaves.
 
-    Structure (e.g., n_leaves=4):
-
-    .. code-block:: text
-
-              0
-             / \
-            1   2
-               / \
-              3   4
-                 / \
-                5   6
-
-    Internal nodes: 0, 2, 4, ...  Leaves: 1, 3, 5, 6
+    Internal nodes: 0, 2, 4, ...
+    Leaves: 1, 3, 5, ...
 
     Parameters
     ----------
@@ -43,15 +34,17 @@ def alifestd_make_comb(n_leaves: int) -> pd.DataFrame:
 
     ids = []
     ancestors = []
-    node_id = 0
-    ids.append(node_id)
+    node_id = it.count()
+    root = next(node_id)
+    ids.append(root)
     ancestors.append("[None]")
+    parent = root
     for i in range(n_leaves - 1):
-        parent = node_id
-        node_id += 1
-        ids.append(node_id)
+        child_leaf = next(node_id)
+        ids.append(child_leaf)
         ancestors.append(f"[{parent}]")
-        node_id += 1
-        ids.append(node_id)
+        child_internal = next(node_id)
+        ids.append(child_internal)
         ancestors.append(f"[{parent}]")
+        parent = child_internal
     return pd.DataFrame({"id": ids, "ancestor_list": ancestors})
