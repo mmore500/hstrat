@@ -1,7 +1,6 @@
 import pandas as pd
 
 from ._alifestd_mark_colless_like_index_asexual import (
-    _DISS_SD,
     _alifestd_mark_colless_like_index_asexual_impl,
 )
 
@@ -75,6 +74,6 @@ def alifestd_mark_colless_like_index_sd_asexual(
     return _alifestd_mark_colless_like_index_asexual_impl(
         phylogeny_df,
         "colless_like_index_sd",
-        _DISS_SD,
+        "sd",
         mutate=mutate,
     )

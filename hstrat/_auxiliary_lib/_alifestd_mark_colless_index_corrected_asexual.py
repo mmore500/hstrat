@@ -72,7 +72,7 @@ def alifestd_mark_colless_index_corrected_asexual(
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
-    if len(phylogeny_df) == 0:
+    if phylogeny_df.empty:
         phylogeny_df["colless_index_corrected"] = pd.Series(
             dtype=float,
         )
@@ -91,9 +91,9 @@ def alifestd_mark_colless_index_corrected_asexual(
     n = phylogeny_df["num_leaves"].to_numpy(dtype=np.float64)
     c = phylogeny_df["colless_index"].to_numpy(dtype=np.float64)
 
-    denom = (n - 1.0) * (n - 2.0)
-    safe_denom = np.where(denom > 0, denom, 1.0)
-    corrected = np.where(n > 2, 2.0 * c / safe_denom, 0.0)
-    phylogeny_df["colless_index_corrected"] = corrected
+    denom = np.maximum((n - 1.0) * (n - 2.0), 1.0)
+    phylogeny_df["colless_index_corrected"] = np.where(
+        n > 2, 2.0 * c / denom, 0.0
+    )
 
     return phylogeny_df

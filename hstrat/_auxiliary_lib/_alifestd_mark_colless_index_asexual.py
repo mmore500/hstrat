@@ -5,10 +5,16 @@ from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_strictly_bifurcating_asexual import (
     alifestd_is_strictly_bifurcating_asexual,
 )
-from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
-from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
+from ._alifestd_is_topologically_sorted import (
+    alifestd_is_topologically_sorted,
+)
+from ._alifestd_mark_num_leaves_asexual import (
+    alifestd_mark_num_leaves_asexual,
+)
 from ._alifestd_topological_sort import alifestd_topological_sort
-from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_try_add_ancestor_id_col import (
+    alifestd_try_add_ancestor_id_col,
+)
 from ._jit import jit
 
 
@@ -17,7 +23,9 @@ def alifestd_mark_colless_index_asexual_fast_path(
     ancestor_ids: np.ndarray,
     num_leaves: np.ndarray,
 ) -> np.ndarray:
-    """Implementation detail for `alifestd_mark_colless_index_asexual`."""
+    """Implementation detail for
+    `alifestd_mark_colless_index_asexual`.
+    """
     n = len(ancestor_ids)
 
     # For strictly bifurcating trees, track first child's leaf count
@@ -26,22 +34,22 @@ def alifestd_mark_colless_index_asexual_fast_path(
     local_colless = np.zeros(n, dtype=np.int64)
 
     # Forward pass: record children leaf counts, compute local colless
-    for idx in range(n):
-        ancestor_id = ancestor_ids[idx]
+    for idx, ancestor_id in enumerate(ancestor_ids):
         if ancestor_id != idx:  # Not a root
             if first_child_leaves[ancestor_id] == -1:
                 # First child seen
                 first_child_leaves[ancestor_id] = num_leaves[idx]
-            else:
+            elif first_child_leaves[ancestor_id] >= 1:
                 # Second child - compute local colless as |L - R|
                 local_colless[ancestor_id] = abs(
                     first_child_leaves[ancestor_id] - num_leaves[idx]
                 )
+            else:
+                assert False
 
     # Reverse pass: accumulate subtree colless bottom-up
     colless_index = np.zeros(n, dtype=np.int64)
-    for idx_r in range(n):
-        idx = n - 1 - idx_r  # Reverse order (leaves to root)
+    for idx in reversed(range(n)):
         colless_index[idx] += local_colless[idx]
         ancestor_id = ancestor_ids[idx]
         if ancestor_id != idx:  # Not a root
@@ -53,7 +61,9 @@ def alifestd_mark_colless_index_asexual_fast_path(
 def alifestd_mark_colless_index_asexual_slow_path(
     phylogeny_df: pd.DataFrame,
 ) -> np.ndarray:
-    """Implementation detail for `alifestd_mark_colless_index_asexual`."""
+    """Implementation detail for
+    `alifestd_mark_colless_index_asexual`.
+    """
     phylogeny_df.index = phylogeny_df["id"]
     ids = phylogeny_df["id"].values
 
@@ -70,8 +80,10 @@ def alifestd_mark_colless_index_asexual_slow_path(
     for node_id, child_counts in children_leaves.items():
         if len(child_counts) == 2:
             local_colless[node_id] = abs(child_counts[0] - child_counts[1])
-        else:
+        elif len(child_counts) < 2:
             local_colless[node_id] = 0
+        else:
+            assert False
 
     # Initialize colless_index with local values
     colless_dict = {node_id: local_colless[node_id] for node_id in ids}
@@ -90,8 +102,8 @@ def alifestd_mark_colless_index_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
 ) -> pd.DataFrame:
-    """Add column `colless_index` with Colless imbalance index for each
-    subtree.
+    """Add column `colless_index` with Colless imbalance index for
+    each subtree.
 
     Computes the classic Colless index for strictly bifurcating trees.
     For each internal node with exactly two children, the local
@@ -146,7 +158,7 @@ def alifestd_mark_colless_index_asexual(
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
-    if len(phylogeny_df) == 0:
+    if phylogeny_df.empty:
         phylogeny_df["colless_index"] = pd.Series(dtype=int)
         return phylogeny_df
 

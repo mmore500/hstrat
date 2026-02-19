@@ -1,6 +1,7 @@
 import math
 import os
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -10,15 +11,15 @@ from hstrat._auxiliary_lib import (
     alifestd_has_multiple_roots,
     alifestd_make_empty,
     alifestd_mark_colless_like_index_var_asexual,
+    alifestd_try_add_ancestor_id_col,
     alifestd_validate,
+)
+from hstrat._auxiliary_lib._alifestd_mark_colless_like_index_asexual import (
+    _colless_like_fast_path,
+    _colless_like_slow_path,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
-
-
-def _f(k):
-    """Weight function f(k) = ln(k + e)."""
-    return math.log(k + math.e)
 
 
 @pytest.mark.parametrize(
@@ -156,8 +157,8 @@ def test_simple_bifurcating_imbalanced(mutate: bool):
     )
 
     # var(a, b) = (a - b)^2 / 2  (sample variance with k=2)
-    fsize_1 = _f(0)
-    fsize_2 = _f(2) + 2 * _f(0)
+    fsize_1 = math.log(0 + math.e)
+    fsize_2 = math.log(2 + math.e) + 2 * math.log(0 + math.e)
     expected_var = (fsize_2 - fsize_1) ** 2 / 2.0
     assert result_df.loc[0, "colless_like_index_var"] == pytest.approx(
         expected_var,
@@ -237,7 +238,7 @@ def test_polytomy_imbalanced(mutate: bool):
         0.0,
     )
 
-    fsize_3 = _f(2) + 2 * _f(0)
+    fsize_3 = math.log(2 + math.e) + 2 * math.log(0 + math.e)
     vals = [1.0, 1.0, fsize_3]
     mean = sum(vals) / 3
     expected_var = sum((v - mean) ** 2 for v in vals) / 2
@@ -271,8 +272,8 @@ def test_non_contiguous_ids(mutate: bool):
     )
     result_df.index = result_df["id"]
 
-    fsize_20 = _f(0)
-    fsize_30 = _f(2) + 2 * _f(0)
+    fsize_20 = math.log(0 + math.e)
+    fsize_30 = math.log(2 + math.e) + 2 * math.log(0 + math.e)
     expected_var = (fsize_30 - fsize_20) ** 2 / 2.0
     assert result_df.loc[10, "colless_like_index_var"] == pytest.approx(
         expected_var,
@@ -385,3 +386,34 @@ def test_relationship_var_mdm_bifurcating():
     mdm_val = result_mdm.loc[0, "colless_like_index_mdm"]
     var_val = result_var.loc[0, "colless_like_index_var"]
     assert var_val == pytest.approx(2.0 * mdm_val**2)
+
+
+def test_fast_slow_path_direct_comparison():
+    """Directly call fast and slow paths and compare results."""
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6],
+            "ancestor_list": [
+                "[None]",
+                "[0]",
+                "[0]",
+                "[0]",
+                "[0]",
+                "[4]",
+                "[4]",
+            ],
+        }
+    )
+    phylogeny_df = alifestd_try_add_ancestor_id_col(
+        phylogeny_df,
+        mutate=True,
+    )
+    phylogeny_df.reset_index(drop=True, inplace=True)
+
+    fast_result = _colless_like_fast_path(
+        phylogeny_df["ancestor_id"].to_numpy(),
+        1,
+    )
+    slow_result = _colless_like_slow_path(phylogeny_df.copy(), "var")
+
+    np.testing.assert_allclose(fast_result, slow_result)

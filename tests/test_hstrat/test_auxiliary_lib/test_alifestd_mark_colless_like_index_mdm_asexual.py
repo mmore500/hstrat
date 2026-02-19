@@ -1,6 +1,7 @@
 import math
 import os
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -12,15 +13,15 @@ from hstrat._auxiliary_lib import (
     alifestd_make_comb,
     alifestd_make_empty,
     alifestd_mark_colless_like_index_mdm_asexual,
+    alifestd_try_add_ancestor_id_col,
     alifestd_validate,
+)
+from hstrat._auxiliary_lib._alifestd_mark_colless_like_index_asexual import (
+    _colless_like_fast_path,
+    _colless_like_slow_path,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
-
-
-def _f(k: int) -> float:
-    """Weight function f(k) = ln(k + e)."""
-    return math.log(k + math.e)
 
 
 @pytest.mark.parametrize(
@@ -178,8 +179,8 @@ def test_simple_bifurcating_imbalanced(mutate: bool):
     )
 
     # Node 0: MDM of (1.0, ln(2+e)+2.0)
-    fsize_1 = _f(0)  # 1.0
-    fsize_2 = _f(2) + 2 * _f(0)  # ln(2+e) + 2.0
+    fsize_1 = math.log(0 + math.e)  # 1.0
+    fsize_2 = math.log(2 + math.e) + 2 * math.log(0 + math.e)  # ln(2+e) + 2.0
     diff = abs(fsize_2 - fsize_1)
     expected_bal = diff / 2.0  # MDM of two values
     assert result_df.loc[0, "colless_like_index_mdm"] == pytest.approx(
@@ -275,7 +276,7 @@ def test_polytomy_imbalanced(mutate: bool):
     )
 
     # Node 0: MDM of [1.0, 1.0, ln(2+e)+2.0], median=1.0
-    fsize_3 = _f(2) + 2 * _f(0)
+    fsize_3 = math.log(2 + math.e) + 2 * math.log(0 + math.e)
     expected_bal = (abs(1.0 - 1.0) + abs(1.0 - 1.0) + abs(fsize_3 - 1.0)) / 3
     assert result_df.loc[0, "colless_like_index_mdm"] == pytest.approx(
         expected_bal,
@@ -315,8 +316,8 @@ def test_non_contiguous_ids(mutate: bool):
         0.0,
     )
 
-    fsize_20 = _f(0)
-    fsize_30 = _f(2) + 2 * _f(0)
+    fsize_20 = math.log(0 + math.e)
+    fsize_30 = math.log(2 + math.e) + 2 * math.log(0 + math.e)
     diff = abs(fsize_30 - fsize_20)
     expected_bal = diff / 2.0
     assert result_df.loc[10, "colless_like_index_mdm"] == pytest.approx(
@@ -415,33 +416,11 @@ def test_symmetric_tree_is_zero():
 @pytest.mark.parametrize(
     "phylogeny_df, expected_cl",
     [
-        # Reference values computed manually following Mir, Rossello, and
-        # Rotger (2018), "Sound Colless-like balance indices for
-        # multifurcating trees", PLOS ONE.
-        # Uses f(k) = ln(k + e), MDM = (1/k) * sum|x_i - median(x)|.
-        #
-        # Note: R treebalance::collesslikeI with dissim="mdm" has a known
-        # operator precedence bug where the division by k is not executed.
-        # The R values are sum|x_i - median| (not divided by k), so for
-        # bifurcating trees they are exactly 2x the correct MDM values.
-        # R treebalance CL(ln,mdm) reference values (divide by 2 for
-        # correct MDM on bifurcating trees):
-        #   2-leaf: 0.0, 3-leaf: 2.551444714, 4-leaf bal: 0.0,
-        #   4-leaf cat: 7.654334142, 5-leaf cat: 15.308668284,
-        #   8-leaf bal: 0.0
-        #
-        # 2-leaf balanced: all children equal -> CL = 0
         (alifestd_make_balanced_bifurcating(2), 0.0),
-        # 4-leaf balanced: all symmetric -> CL = 0
         (alifestd_make_balanced_bifurcating(3), 0.0),
-        # 8-leaf balanced: all symmetric -> CL = 0
         (alifestd_make_balanced_bifurcating(4), 0.0),
-        # 3-leaf caterpillar: root MDM = |fs_right - 1.0|/2
-        # = (ln(2+e) + 1.0)/2 = 2.551.../2 = 1.27572...
         (alifestd_make_comb(3), 2.551444713932051 / 2),
-        # 4-leaf caterpillar: R_value / 2 = 7.654.../2 = 3.82717...
         (alifestd_make_comb(4), 7.654334141796154 / 2),
-        # 5-leaf caterpillar: R_value / 2 = 15.309.../2 = 7.65433...
         (alifestd_make_comb(5), 15.308668283592308 / 2),
     ],
 )
@@ -471,14 +450,6 @@ def test_against_r_treebalance_colless_like(
 def test_colless_like_trifurcation_mixed():
     """Test Colless-like index for a tree with trifurcation.
 
-    Tree: root -> (A, B, (C, D))
-
-    R treebalance::collesslikeI(, f.size="ln", dissim="mdm") returns
-    2.551444714 for this tree. Due to the R MDM bug (sum instead of
-    mean), the root node (k=3) contributes sum|x_i - median| = ln(2+e)+1
-    instead of the correct (1/3)*(ln(2+e)+1). The (C,D) subtree has
-    balanced children contributing 0.
-
     Correct MDM at root: children f-sizes = [1.0, 1.0, ln(2+e)+2.0]
     Median = 1.0 (middle of 3 sorted values)
     MDM = (1/3) * (0 + 0 + |ln(2+e)+2.0 - 1.0|) = (ln(2+e)+1.0)/3
@@ -499,9 +470,7 @@ def test_colless_like_trifurcation_mixed():
     result_df = alifestd_mark_colless_like_index_mdm_asexual(phylogeny_df)
     result_df.index = result_df["id"]
 
-    # R treebalance gives 2.551444714 (buggy sum, not divided by k=3)
     r_buggy_value = 2.551444713932051
-    # Correct MDM value: R_value / 3 (since root has k=3)
     expected_root = r_buggy_value / 3.0
     assert result_df.loc[0, "colless_like_index_mdm"] == pytest.approx(
         expected_root,
@@ -511,13 +480,6 @@ def test_colless_like_trifurcation_mixed():
 @pytest.mark.parametrize(
     "phylogeny_df, expected_cl",
     [
-        # Colless-like index values for nontrivial trees, derived from R
-        # treebalance::collesslikeI(, f.size="ln", dissim="mdm") and
-        # corrected for the R MDM operator precedence bug.
-        # For bifurcating trees, R values are 2x correct; for polytomy
-        # trees, corrections depend on the degrees of contributing nodes.
-        #
-        # ((A,B),(C,(D,E))): CL = ln(2+e)+1
         (
             pd.DataFrame(
                 {
@@ -537,7 +499,6 @@ def test_colless_like_trifurcation_mixed():
             ),
             2.5514447139320513,
         ),
-        # ((A,(B,C)),(D,E)): CL = ln(2+e)+1
         (
             pd.DataFrame(
                 {
@@ -557,7 +518,6 @@ def test_colless_like_trifurcation_mixed():
             ),
             2.5514447139320513,
         ),
-        # (((A,B),C),((D,E),F)): CL = ln(2+e)+1
         (
             pd.DataFrame(
                 {
@@ -579,7 +539,6 @@ def test_colless_like_trifurcation_mixed():
             ),
             2.5514447139320513,
         ),
-        # (((A,B),(C,D)),(E,F)): CL = ln(2+e)+1
         (
             pd.DataFrame(
                 {
@@ -601,7 +560,6 @@ def test_colless_like_trifurcation_mixed():
             ),
             2.5514447139320513,
         ),
-        # ((A,(B,(C,D))),(E,(F,G))): CL = 5/2*(ln(2+e)+1)
         (
             pd.DataFrame(
                 {
@@ -625,7 +583,6 @@ def test_colless_like_trifurcation_mixed():
             ),
             6.378611784830128,
         ),
-        # (((A,B),(C,(D,E))),((F,G),(H,I))): CL = 3/2*(ln(2+e)+1)
         (
             pd.DataFrame(
                 {
@@ -653,7 +610,6 @@ def test_colless_like_trifurcation_mixed():
             ),
             3.827167070898077,
         ),
-        # ((A,B),((C,D),((E,F),(G,H)))): CL = 3*(ln(2+e)+1)
         (
             pd.DataFrame(
                 {
@@ -679,7 +635,6 @@ def test_colless_like_trifurcation_mixed():
             ),
             7.654334141796154,
         ),
-        # Polytomy: (A,B,(C,(D,E))): CL = 7/6*(ln(2+e)+1)
         (
             pd.DataFrame(
                 {
@@ -698,7 +653,6 @@ def test_colless_like_trifurcation_mixed():
             ),
             2.976685499587393,
         ),
-        # Polytomy: ((A,B,C),(D,(E,F))): all contributing nodes k=2
         (
             pd.DataFrame(
                 {
@@ -725,8 +679,8 @@ def test_against_r_nontrivial_trees_colless_like(
     phylogeny_df: pd.DataFrame, expected_cl: float
 ):
     """Test Colless-like index against values derived from R
-    treebalance::collesslikeI for nontrivial trees (neither purely
-    balanced nor purely comb/caterpillar), corrected for the R MDM bug."""
+    treebalance::collesslikeI for nontrivial trees, corrected for the
+    R MDM bug."""
     result_df = alifestd_mark_colless_like_index_mdm_asexual(phylogeny_df)
     result_df.index = result_df["id"]
     root_id = result_df[result_df["id"] == result_df["ancestor_id"]][
@@ -735,3 +689,34 @@ def test_against_r_nontrivial_trees_colless_like(
     assert result_df.loc[root_id, "colless_like_index_mdm"] == pytest.approx(
         expected_cl,
     )
+
+
+def test_fast_slow_path_direct_comparison():
+    """Directly call fast and slow paths and compare results."""
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6],
+            "ancestor_list": [
+                "[None]",
+                "[0]",
+                "[0]",
+                "[0]",
+                "[0]",
+                "[4]",
+                "[4]",
+            ],
+        }
+    )
+    phylogeny_df = alifestd_try_add_ancestor_id_col(
+        phylogeny_df,
+        mutate=True,
+    )
+    phylogeny_df.reset_index(drop=True, inplace=True)
+
+    fast_result = _colless_like_fast_path(
+        phylogeny_df["ancestor_id"].to_numpy(),
+        0,
+    )
+    slow_result = _colless_like_slow_path(phylogeny_df.copy(), "mdm")
+
+    np.testing.assert_allclose(fast_result, slow_result)

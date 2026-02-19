@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -12,7 +13,13 @@ from hstrat._auxiliary_lib import (
     alifestd_make_comb,
     alifestd_make_empty,
     alifestd_mark_colless_index_asexual,
+    alifestd_mark_num_leaves_asexual,
+    alifestd_try_add_ancestor_id_col,
     alifestd_validate,
+)
+from hstrat._auxiliary_lib._alifestd_mark_colless_index_asexual import (
+    alifestd_mark_colless_index_asexual_fast_path,
+    alifestd_mark_colless_index_asexual_slow_path,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
@@ -619,3 +626,40 @@ def test_against_r_nontrivial_trees_colless(
         "id"
     ].iloc[0]
     assert result_df.loc[root_id, "colless_index"] == expected_colless
+
+
+def test_fast_slow_path_direct_comparison():
+    """Directly call fast and slow paths and compare results."""
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6],
+            "ancestor_list": [
+                "[None]",
+                "[0]",
+                "[0]",
+                "[2]",
+                "[2]",
+                "[4]",
+                "[4]",
+            ],
+        }
+    )
+    phylogeny_df = alifestd_try_add_ancestor_id_col(
+        phylogeny_df,
+        mutate=True,
+    )
+    phylogeny_df = alifestd_mark_num_leaves_asexual(
+        phylogeny_df,
+        mutate=True,
+    )
+    phylogeny_df.reset_index(drop=True, inplace=True)
+
+    fast_result = alifestd_mark_colless_index_asexual_fast_path(
+        phylogeny_df["ancestor_id"].to_numpy(),
+        phylogeny_df["num_leaves"].to_numpy(),
+    )
+    slow_result = alifestd_mark_colless_index_asexual_slow_path(
+        phylogeny_df.copy(),
+    )
+
+    np.testing.assert_array_equal(fast_result, slow_result)
