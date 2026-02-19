@@ -8,9 +8,10 @@ import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import pandas as pd
 
+from ._add_bool_arg import add_bool_arg
 from ._alifestd_find_root_ids import alifestd_find_root_ids
-from ._alifestd_warn_topological_sensitivity import (
-    alifestd_warn_topological_sensitivity,
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
 )
 from ._configure_prod_logging import configure_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
@@ -20,6 +21,11 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=True,
+    delete=False,
+    update=True,
+)
 def alifestd_add_global_root(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -68,14 +74,6 @@ def alifestd_add_global_root(
             f"root_attrs must not contain reserved keys {bad_keys}; "
             "these are set automatically"
         )
-
-    alifestd_warn_topological_sensitivity(
-        phylogeny_df,
-        "alifestd_add_global_root",
-        insert=True,
-        delete=False,
-        update=True,
-    )
 
     # Create new root id
     new_root_id = phylogeny_df["id"].max() + 1 if not phylogeny_df.empty else 0
@@ -152,6 +150,18 @@ def _create_parser() -> argparse.ArgumentParser:
             "Example: --root-attr 'origin_time=0.0'"
         ),
     )
+    add_bool_arg(
+        parser,
+        "ignore-topological-sensitivity",
+        default=False,
+        help="suppress topological sensitivity warning (default: False)",
+    )
+    add_bool_arg(
+        parser,
+        "drop-topological-sensitivity",
+        default=False,
+        help="drop topology-sensitive columns from output (default: False)",
+    )
     return parser
 
 
@@ -172,6 +182,8 @@ if __name__ == "__main__":
                 functools.partial(
                     alifestd_add_global_root,
                     root_attrs=eval_kwargs(args.root_attrs),
+                    ignore_topological_sensitivity=args.ignore_topological_sensitivity,
+                    drop_topological_sensitivity=args.drop_topological_sensitivity,
                 ),
             ),
         )
