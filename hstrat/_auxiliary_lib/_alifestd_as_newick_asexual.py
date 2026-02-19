@@ -2,7 +2,6 @@ import argparse
 import logging
 import os
 import pathlib
-import sys
 import typing
 
 import more_itertools as mit
@@ -21,25 +20,10 @@ from ._alifestd_unfurl_traversal_postorder_asexual import (
     alifestd_unfurl_traversal_postorder_asexual,
 )
 from ._configure_prod_logging import configure_prod_logging
+from ._eval_kwargs import eval_kwargs
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
-
-
-def _eval_kwargs(kwargs_list: typing.List[str]) -> typing.Dict:
-    # adapted from https://github.com/mmore500/joinem/blob/v0.11.1/joinem/_dataframe_cli.py#L120
-    to_eval = f"dict({','.join(kwargs_list)})"
-    try:
-        return eval(to_eval)
-    except Exception as e:
-        logging.error(
-            "Failed to parse kwarg expressions `%s` via `%s`" " error: %s",
-            kwargs_list,
-            to_eval,
-            e,
-        )
-        sys.exit(1)
-
 
 # adapted from https://stackoverflow.com/a/3939381/17332200
 _UNSAFE_SYMBOLS = ";(),[]:'"
@@ -247,7 +231,7 @@ if __name__ == "__main__":
     )
     phylogeny_df = dispatch_reader[f"{args.input_engine}+{input_ext}"](
         args.input_file,
-        **_eval_kwargs(args.input_kwargs),
+        **eval_kwargs(args.input_kwargs),
     )
 
     if args.input_engine == "polars":

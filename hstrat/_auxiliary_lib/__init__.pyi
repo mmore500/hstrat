@@ -13,6 +13,7 @@ from ._HereditaryStratigraphicInstrument import (
 from ._RecursionLimit import RecursionLimit
 from ._RngStateContext import RngStateContext
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
+from ._alifestd_add_global_root import alifestd_add_global_root
 from ._alifestd_add_inner_knuckles_asexual import (
     alifestd_add_inner_knuckles_asexual,
 )
@@ -330,6 +331,7 @@ from ._delegate_polars_implementation import delegate_polars_implementation
 from ._demark import demark
 from ._div_range import div_range
 from ._estimate_binomial_p import estimate_binomial_p
+from ._eval_kwargs import eval_kwargs
 from ._except_wrap_sentinel import except_wrap_sentinel
 from ._fill_zeros_with_last import fill_zeros_with_last
 from ._find_bounds import find_bounds
@@ -424,6 +426,7 @@ from ._with_rng_state_context import with_rng_state_context
 from ._zip_strict import zip_strict
 
 __all__ = [
+    "alifestd_add_global_root",
     "alifestd_add_inner_knuckles_asexual",
     "alifestd_add_inner_leaves",
     "alifestd_add_inner_niblings_asexual",
@@ -600,6 +603,7 @@ __all__ = [
     "demark",
     "div_range",
     "estimate_binomial_p",
+    "eval_kwargs",
     "except_wrap_sentinel",
     "fill_zeros_with_last",
     "find_bounds",
