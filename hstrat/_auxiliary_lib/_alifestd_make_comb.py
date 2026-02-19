@@ -8,6 +8,16 @@ from ._alifestd_make_empty import alifestd_make_empty
 def alifestd_make_comb(n_leaves: int) -> pd.DataFrame:
     r"""Build a comb/caterpillar tree with `n_leaves` leaves.
 
+    Structure (e.g., n_leaves=4)::
+
+              0
+             / \
+            1   2
+               / \
+              3   4
+                 / \
+                5   6
+
     Internal nodes: 0, 2, 4, ...
     Leaves: 1, 3, 5, ...
 
@@ -29,7 +39,7 @@ def alifestd_make_comb(n_leaves: int) -> pd.DataFrame:
     """
     if n_leaves < 0:
         raise ValueError("n_leaves must be non-negative")
-    if n_leaves == 0:
+    elif n_leaves == 0:
         return alifestd_make_empty()
 
     ids = []

@@ -76,10 +76,7 @@ def _colless_like_fast_path(
             if diss_type == 0:  # MDM
                 median = np.median(vals)
                 # MDM = (1/k) * sum |x_i - median|
-                total = 0.0
-                for i in range(k):
-                    total += abs(vals[i] - median)
-                local_balance[idx] = total / k
+                local_balance[idx] = np.sum(np.abs(vals - median)) / k
 
             elif diss_type == 1:  # Variance (ddof=1)
                 # np.var uses ddof=0; apply Bessel correction
@@ -110,6 +107,8 @@ def _colless_like_slow_path(
     ids = phylogeny_df["id"].values
 
     # Build children mapping and compute out-degrees
+    # TODO: simplify once https://github.com/mmore500/hstrat/issues/286 is
+    # complete (could use .at with num_children column)
     children_of = {id_: [] for id_ in ids}
     for idx, row in phylogeny_df.iterrows():
         node_id = row["id"]

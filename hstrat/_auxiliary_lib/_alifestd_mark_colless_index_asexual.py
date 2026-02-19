@@ -40,11 +40,13 @@ def alifestd_mark_colless_index_asexual_fast_path(
             if first_child_leaves[ancestor_id] == -1:
                 # First child seen
                 first_child_leaves[ancestor_id] = num_leaves[idx]
-            else:
+            elif first_child_leaves[ancestor_id] >= 1:
                 # Second child - compute local colless as |L - R|
                 local_colless[ancestor_id] = abs(
                     first_child_leaves[ancestor_id] - num_leaves[idx]
                 )
+            else:
+                assert False
 
     # Reverse pass: accumulate subtree colless bottom-up
     colless_index = np.zeros(n, dtype=np.int64)
@@ -172,7 +174,7 @@ def alifestd_mark_colless_index_asexual(
             "phylogeny_df must be strictly bifurcating; "
             "consider using "
             "alifestd_mark_colless_like_index_mdm_asexual "
-            "for the Colless-like index for trees with polytomies"
+            "for the Colless-like index for trees with polytomies",
         )
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
