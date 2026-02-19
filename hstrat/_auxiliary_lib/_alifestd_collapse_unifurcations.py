@@ -1,5 +1,6 @@
 import argparse
 from collections import Counter
+import functools
 import logging
 import os
 import typing
@@ -220,8 +221,6 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    import functools
-
     configure_prod_logging()
 
     parser = _create_parser()

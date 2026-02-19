@@ -1,4 +1,5 @@
 import argparse
+import functools
 import logging
 import os
 
@@ -155,8 +156,6 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    import functools
-
     configure_prod_logging()
 
     parser = _create_parser()
