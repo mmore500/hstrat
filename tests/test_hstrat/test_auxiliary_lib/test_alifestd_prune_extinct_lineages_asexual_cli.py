@@ -1,4 +1,5 @@
 import os
+import pathlib
 import subprocess
 
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
@@ -28,10 +29,11 @@ def test_alifestd_prune_extinct_lineages_asexual_cli_version():
     )
 
 
-def test_alifestd_prune_extinct_lineages_asexual_cli_csv(tmp_path):
-    output_file = str(
-        tmp_path / "hstrat_alifestd_prune_extinct_lineages_asexual.csv"
+def test_alifestd_prune_extinct_lineages_asexual_cli_csv():
+    output_file = (
+        "/tmp/hstrat_alifestd_prune_extinct_lineages_asexual.csv"
     )
+    pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
             "python3",
@@ -45,10 +47,11 @@ def test_alifestd_prune_extinct_lineages_asexual_cli_csv(tmp_path):
     assert os.path.exists(output_file)
 
 
-def test_alifestd_prune_extinct_lineages_asexual_cli_parquet(tmp_path):
-    output_file = str(
-        tmp_path / "hstrat_alifestd_prune_extinct_lineages_asexual.pqt"
+def test_alifestd_prune_extinct_lineages_asexual_cli_parquet():
+    output_file = (
+        "/tmp/hstrat_alifestd_prune_extinct_lineages_asexual.pqt"
     )
+    pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
             "python3",
@@ -62,10 +65,11 @@ def test_alifestd_prune_extinct_lineages_asexual_cli_parquet(tmp_path):
     assert os.path.exists(output_file)
 
 
-def test_alifestd_prune_extinct_lineages_asexual_cli_ignore_topological_sensitivity(
-    tmp_path,
-):
-    output_file = str(tmp_path / "output.csv")
+def test_alifestd_prune_extinct_lineages_asexual_cli_ignore_topological_sensitivity():
+    output_file = (
+        "/tmp/hstrat_alifestd_prune_extinct_lineages_asexual_ignore.csv"
+    )
+    pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
             "python3",
@@ -80,10 +84,11 @@ def test_alifestd_prune_extinct_lineages_asexual_cli_ignore_topological_sensitiv
     assert os.path.exists(output_file)
 
 
-def test_alifestd_prune_extinct_lineages_asexual_cli_drop_topological_sensitivity(
-    tmp_path,
-):
-    output_file = str(tmp_path / "output.csv")
+def test_alifestd_prune_extinct_lineages_asexual_cli_drop_topological_sensitivity():
+    output_file = (
+        "/tmp/hstrat_alifestd_prune_extinct_lineages_asexual_drop.csv"
+    )
+    pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
             "python3",
