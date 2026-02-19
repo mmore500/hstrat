@@ -7,6 +7,7 @@ from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._jit import jit
+from ._reversed_enumerate import reversed_enumerate_jit
 
 
 @jit(nopython=True)
@@ -20,8 +21,7 @@ def alifestd_mark_sackin_index_asexual_fast_path(
 
     # Accumulate Sackin index (bottom-up)
     # sackin[node] = sum over children c of (sackin[c] + num_leaves[c])
-    for idx_r, ancestor_id in enumerate(ancestor_ids[::-1]):
-        idx = n - 1 - idx_r  # Reverse order (leaves to root)
+    for idx, ancestor_id in reversed_enumerate_jit(ancestor_ids):
         if ancestor_id != idx:  # Not a root
             sackin_index[ancestor_id] += sackin_index[idx] + num_leaves[idx]
 
@@ -33,17 +33,15 @@ def alifestd_mark_sackin_index_asexual_slow_path(
 ) -> np.ndarray:
     """Implementation detail for `alifestd_mark_sackin_index_asexual`."""
     phylogeny_df.index = phylogeny_df["id"]
-    ids = phylogeny_df["id"].values
 
     # Initialize Sackin index
-    sackin_dict = {id_: 0 for id_ in ids}
+    sackin_dict = {id_: 0 for id_ in phylogeny_df.index}
 
     # Accumulate Sackin index (bottom-up)
-    for idx in reversed(phylogeny_df.index):
-        node_id = phylogeny_df.at[idx, "id"]
-        ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
+    for node_id in reversed(phylogeny_df.index):
+        ancestor_id = phylogeny_df.at[node_id, "ancestor_id"]
         if ancestor_id != node_id:  # Not a root
-            node_leaves = phylogeny_df.at[idx, "num_leaves"]
+            node_leaves = phylogeny_df.at[node_id, "num_leaves"]
             sackin_dict[ancestor_id] += sackin_dict[node_id] + node_leaves
 
     return phylogeny_df["id"].map(sackin_dict).values
