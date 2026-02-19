@@ -27,7 +27,7 @@ from ._log_context_duration import log_context_duration
     delete=True,
     update=False,
 )
-def alifestd_downsample_canopy_polars(
+def alifestd_downsample_tips_canopy_polars(
     phylogeny_df: pl.DataFrame,
     num_tips: int,
     criterion: str = "origin_time",
@@ -67,7 +67,7 @@ def alifestd_downsample_canopy_polars(
 
     See Also
     --------
-    alifestd_downsample_canopy_asexual :
+    alifestd_downsample_tips_canopy_asexual :
         Pandas-based implementation.
     """
     schema_names = phylogeny_df.lazy().collect_schema().names()
@@ -83,12 +83,12 @@ def alifestd_downsample_canopy_polars(
         return phylogeny_df
 
     logging.info(
-        "- alifestd_downsample_canopy_polars: finding leaf ids...",
+        "- alifestd_downsample_tips_canopy_polars: finding leaf ids...",
     )
     marked_df = alifestd_mark_leaves_polars(phylogeny_df)
 
     logging.info(
-        "- alifestd_downsample_canopy_polars: selecting top leaf_ids...",
+        "- alifestd_downsample_tips_canopy_polars: selecting top leaf_ids...",
     )
     leaf_ids = (
         marked_df.lazy()
@@ -101,14 +101,14 @@ def alifestd_downsample_canopy_polars(
     )
 
     logging.info(
-        "- alifestd_downsample_canopy_polars: marking extant...",
+        "- alifestd_downsample_tips_canopy_polars: marking extant...",
     )
     phylogeny_df = phylogeny_df.with_columns(
         extant=pl.col("id").is_in(leaf_ids),
     )
 
     logging.info(
-        "- alifestd_downsample_canopy_polars: pruning...",
+        "- alifestd_downsample_tips_canopy_polars: pruning...",
     )
     return alifestd_prune_extinct_lineages_polars(phylogeny_df).drop("extant")
 
@@ -133,7 +133,7 @@ Otherwise, no action is taken.
 
 See Also
 ========
-hstrat._auxiliary_lib._alifestd_downsample_canopy_asexual :
+hstrat._auxiliary_lib._alifestd_downsample_tips_canopy_asexual :
     CLI entrypoint for Pandas-based implementation.
 """
 
@@ -146,7 +146,7 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     parser = _add_parser_base(
         parser=parser,
-        dfcli_module="hstrat._auxiliary_lib._alifestd_downsample_canopy_polars",
+        dfcli_module="hstrat._auxiliary_lib._alifestd_downsample_tips_canopy_polars",
         dfcli_version=get_hstrat_version(),
     )
     parser.add_argument(
@@ -184,13 +184,13 @@ if __name__ == "__main__":
 
     try:
         with log_context_duration(
-            "hstrat._auxiliary_lib._alifestd_downsample_canopy_polars",
+            "hstrat._auxiliary_lib._alifestd_downsample_tips_canopy_polars",
             logging.info,
         ):
             _run_dataframe_cli(
                 base_parser=parser,
                 output_dataframe_op=functools.partial(
-                    alifestd_downsample_canopy_polars,
+                    alifestd_downsample_tips_canopy_polars,
                     num_tips=args.n,
                     criterion=args.criterion,
                     ignore_topological_sensitivity=args.ignore_topological_sensitivity,

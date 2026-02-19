@@ -12,8 +12,8 @@ from hstrat._auxiliary_lib import (
     alifestd_try_add_ancestor_id_col,
     alifestd_validate,
 )
-from hstrat._auxiliary_lib._alifestd_downsample_canopy_asexual import (
-    alifestd_downsample_canopy_asexual,
+from hstrat._auxiliary_lib._alifestd_downsample_tips_canopy_asexual import (
+    alifestd_downsample_tips_canopy_asexual,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
@@ -35,10 +35,10 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 )
 @pytest.mark.parametrize("num_tips", [1, 5, 10, 100000000])
 @pytest.mark.parametrize("mutate", [True, False])
-def test_alifestd_downsample_canopy_asexual(phylogeny_df, num_tips, mutate):
+def test_alifestd_downsample_tips_canopy_asexual(phylogeny_df, num_tips, mutate):
     original_df = phylogeny_df.copy()
 
-    result_df = alifestd_downsample_canopy_asexual(
+    result_df = alifestd_downsample_tips_canopy_asexual(
         phylogeny_df, num_tips, mutate, criterion="id"
     )
 
@@ -55,10 +55,10 @@ def test_alifestd_downsample_canopy_asexual(phylogeny_df, num_tips, mutate):
 
 
 @pytest.mark.parametrize("num_tips", [0, 1])
-def test_alifestd_downsample_canopy_asexual_with_zero_tips(num_tips):
+def test_alifestd_downsample_tips_canopy_asexual_with_zero_tips(num_tips):
     phylogeny_df = pd.DataFrame({"id": [], "parent_id": [], "ancestor_id": []})
 
-    result_df = alifestd_downsample_canopy_asexual(
+    result_df = alifestd_downsample_tips_canopy_asexual(
         phylogeny_df, num_tips, criterion="id"
     )
 
@@ -84,7 +84,7 @@ def test_downsample_canopy_vs_manual(phylogeny_df, num_tips):
     """Verify canopy prune matches manually marking top tips as extant and
     then pruning extinct lineages."""
     original_df = phylogeny_df.copy()
-    canopy_df = alifestd_downsample_canopy_asexual(
+    canopy_df = alifestd_downsample_tips_canopy_asexual(
         phylogeny_df, num_tips, mutate=False, criterion="id"
     )
 
@@ -110,10 +110,10 @@ def test_downsample_canopy_vs_manual(phylogeny_df, num_tips):
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_downsample_canopy_asexual_retains_highest_ids(phylogeny_df):
+def test_alifestd_downsample_tips_canopy_asexual_retains_highest_ids(phylogeny_df):
     """Verify that the retained tips are the ones with the highest ids."""
     num_tips = 5
-    result_df = alifestd_downsample_canopy_asexual(
+    result_df = alifestd_downsample_tips_canopy_asexual(
         phylogeny_df, num_tips, criterion="id"
     )
 
@@ -132,15 +132,15 @@ def test_alifestd_downsample_canopy_asexual_retains_highest_ids(phylogeny_df):
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_downsample_canopy_asexual_validates(phylogeny_df):
+def test_alifestd_downsample_tips_canopy_asexual_validates(phylogeny_df):
     num_tips = 5
-    result_df = alifestd_downsample_canopy_asexual(
+    result_df = alifestd_downsample_tips_canopy_asexual(
         phylogeny_df, num_tips, criterion="id"
     )
     assert alifestd_validate(result_df)
 
 
-def test_alifestd_downsample_canopy_asexual_simple():
+def test_alifestd_downsample_tips_canopy_asexual_simple():
     """Test a simple hand-crafted tree.
 
     Tree structure:
@@ -160,14 +160,14 @@ def test_alifestd_downsample_canopy_asexual_simple():
         }
     )
 
-    result2 = alifestd_downsample_canopy_asexual(df, 2, criterion="id")
+    result2 = alifestd_downsample_tips_canopy_asexual(df, 2, criterion="id")
     assert set(result2["id"]) == {0, 1, 3, 4}
 
-    result1 = alifestd_downsample_canopy_asexual(df, 1, criterion="id")
+    result1 = alifestd_downsample_tips_canopy_asexual(df, 1, criterion="id")
     assert set(result1["id"]) == {0, 1, 4}
 
 
-def test_alifestd_downsample_canopy_asexual_all_tips():
+def test_alifestd_downsample_tips_canopy_asexual_all_tips():
     """Requesting more tips than exist should return the full phylogeny."""
     df = pd.DataFrame(
         {
@@ -176,11 +176,11 @@ def test_alifestd_downsample_canopy_asexual_all_tips():
         }
     )
 
-    result = alifestd_downsample_canopy_asexual(df, 100000, criterion="id")
+    result = alifestd_downsample_tips_canopy_asexual(df, 100000, criterion="id")
     assert len(result) == 5
 
 
-def test_alifestd_downsample_canopy_asexual_tied_criterion():
+def test_alifestd_downsample_tips_canopy_asexual_tied_criterion():
     """When all leaves share the same criterion value, exactly num_tips
     should still be retained (ties broken arbitrarily)."""
     df = pd.DataFrame(
@@ -192,13 +192,13 @@ def test_alifestd_downsample_canopy_asexual_tied_criterion():
     )
     # leaves are 2, 3, 4 — all have time=0
     for num_tips in (1, 2, 3):
-        result = alifestd_downsample_canopy_asexual(
+        result = alifestd_downsample_tips_canopy_asexual(
             df, num_tips, criterion="time"
         )
         assert alifestd_count_leaf_nodes(result) == num_tips
 
 
-def test_alifestd_downsample_canopy_asexual_missing_criterion():
+def test_alifestd_downsample_tips_canopy_asexual_missing_criterion():
     """Verify ValueError when criterion column is missing."""
     df = pd.DataFrame(
         {
@@ -208,4 +208,4 @@ def test_alifestd_downsample_canopy_asexual_missing_criterion():
     )
 
     with pytest.raises(ValueError, match="criterion column"):
-        alifestd_downsample_canopy_asexual(df, 1, criterion="nonexistent")
+        alifestd_downsample_tips_canopy_asexual(df, 1, criterion="nonexistent")
