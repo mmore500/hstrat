@@ -35,6 +35,6 @@ def test_bool():
     assert eval_kwargs(["flag=False"]) == {"flag": False}
 
 
-def test_invalid_exits(monkeypatch):
+def test_invalid_exits():
     with pytest.raises(SystemExit):
         eval_kwargs(["not valid python!!!"])
