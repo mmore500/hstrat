@@ -125,13 +125,11 @@ def alifestd_mark_sackin_index_asexual(
             phylogeny_df["ancestor_id"].to_numpy(),
             phylogeny_df["num_leaves"].to_numpy(),
         )
-    elif not alifestd_has_contiguous_ids(phylogeny_df):
+    else:
         phylogeny_df[
             "sackin_index"
         ] = alifestd_mark_sackin_index_asexual_slow_path(
             phylogeny_df,
         )
-    else:
-        assert False
 
     return phylogeny_df

@@ -16,7 +16,7 @@ from hstrat._auxiliary_lib import (
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
-def _f(k):
+def _f(k: int) -> float:
     """Weight function f(k) = ln(k + e)."""
     return math.log(k + math.e)
 

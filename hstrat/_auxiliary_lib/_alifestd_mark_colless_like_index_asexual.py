@@ -18,7 +18,6 @@ _DISS_MDM = 0
 _DISS_VAR = 1
 _DISS_SD = 2
 
-
 @jit(nopython=True)
 def _colless_like_fast_path(
     ancestor_ids: np.ndarray,
@@ -238,12 +237,10 @@ def _alifestd_mark_colless_like_index_asexual_impl(
             phylogeny_df["ancestor_id"].to_numpy(),
             diss_type,
         )
-    elif not alifestd_has_contiguous_ids(phylogeny_df):
+    else:
         phylogeny_df[col_name] = _colless_like_slow_path(
             phylogeny_df,
             diss_type,
         )
-    else:
-        assert False
 
     return phylogeny_df
