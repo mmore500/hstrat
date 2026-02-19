@@ -96,6 +96,12 @@ from ._alifestd_delete_trunk_asexual_polars import (
 from ._alifestd_delete_unifurcating_roots_asexual import (
     alifestd_delete_unifurcating_roots_asexual,
 )
+from ._alifestd_downsample_canopy_asexual import (
+    alifestd_downsample_canopy_asexual,
+)
+from ._alifestd_downsample_canopy_polars import (
+    alifestd_downsample_canopy_polars,
+)
 from ._alifestd_downsample_tips_asexual import alifestd_downsample_tips_asexual
 from ._alifestd_downsample_tips_clade_asexual import (
     alifestd_downsample_tips_clade_asexual,
@@ -232,12 +238,6 @@ from ._alifestd_parse_ancestor_id import alifestd_parse_ancestor_id
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_prefix_roots import alifestd_prefix_roots
 from ._alifestd_prefix_roots_polars import alifestd_prefix_roots_polars
-from ._alifestd_downsample_canopy_asexual import (
-    alifestd_downsample_canopy_asexual,
-)
-from ._alifestd_downsample_canopy_polars import (
-    alifestd_downsample_canopy_polars,
-)
 from ._alifestd_prune_extinct_lineages_asexual import (
     alifestd_prune_extinct_lineages_asexual,
 )
@@ -476,6 +476,8 @@ __all__ = [
     "alifestd_delete_trunk_asexual",
     "alifestd_delete_trunk_asexual_polars",
     "alifestd_delete_unifurcating_roots_asexual",
+    "alifestd_downsample_canopy_asexual",
+    "alifestd_downsample_canopy_polars",
     "alifestd_downsample_tips_asexual",
     "alifestd_downsample_tips_clade_asexual",
     "alifestd_downsample_tips_polars",
@@ -542,8 +544,6 @@ __all__ = [
     "alifestd_parse_ancestor_ids",
     "alifestd_prefix_roots",
     "alifestd_prefix_roots_polars",
-    "alifestd_downsample_canopy_asexual",
-    "alifestd_downsample_canopy_polars",
     "alifestd_prune_extinct_lineages_asexual",
     "alifestd_prune_extinct_lineages_polars",
     "alifestd_reroot_at_id_asexual",
