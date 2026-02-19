@@ -197,6 +197,8 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
+    import functools
+
     configure_prod_logging()
 
     parser = _create_parser()
@@ -209,8 +211,8 @@ if __name__ == "__main__":
         ):
             _run_dataframe_cli(
                 base_parser=parser,
-                output_dataframe_op=lambda df: alifestd_prune_extinct_lineages_polars(
-                    df,
+                output_dataframe_op=functools.partial(
+                    alifestd_prune_extinct_lineages_polars,
                     ignore_topological_sensitivity=args.ignore_topological_sensitivity,
                     drop_topological_sensitivity=args.drop_topological_sensitivity,
                 ),

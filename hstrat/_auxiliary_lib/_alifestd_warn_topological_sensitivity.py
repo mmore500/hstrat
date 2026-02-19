@@ -40,7 +40,7 @@ def _alifestd_warn_topological_sensitivity(
             "collapsed phylogeny. To silence this warning, use "
             "alifestd_drop_topological_sensitivity{_polars} or set "
             "HSTRAT_ALIFESTD_WARN_TOPOLOGICAL_SENSITIVITY_SUPPRESS "
-            "in environ."
+            "environment variable."
         )
 
 

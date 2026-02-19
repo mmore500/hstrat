@@ -48,17 +48,17 @@ def alifestd_join_roots(
     ]
 
     if "ancestor_id" in phylogeny_df:
-        phylogeny_df.loc[phylogeny_df["is_root"], "ancestor_id"] = (
-            global_root_id
-        )
+        phylogeny_df.loc[
+            phylogeny_df["is_root"], "ancestor_id"
+        ] = global_root_id
 
     if "ancestor_list" in phylogeny_df:
-        phylogeny_df.loc[phylogeny_df["is_root"], "ancestor_list"] = (
-            f"[{global_root_id}]"
-        )
-        phylogeny_df.loc[phylogeny_df["is_oldest_root"], "ancestor_list"] = (
-            "[none]"
-        )
+        phylogeny_df.loc[
+            phylogeny_df["is_root"], "ancestor_list"
+        ] = f"[{global_root_id}]"
+        phylogeny_df.loc[
+            phylogeny_df["is_oldest_root"], "ancestor_list"
+        ] = "[none]"
 
     phylogeny_df["is_root"] = False
     phylogeny_df.loc[phylogeny_df["is_oldest_root"], "is_root"] = True
@@ -107,6 +107,8 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
+    import functools
+
     configure_prod_logging()
 
     parser = _create_parser()
@@ -117,8 +119,8 @@ if __name__ == "__main__":
         _run_dataframe_cli(
             base_parser=parser,
             output_dataframe_op=delegate_polars_implementation()(
-                lambda df: alifestd_join_roots(
-                    df,
+                functools.partial(
+                    alifestd_join_roots,
                     ignore_topological_sensitivity=args.ignore_topological_sensitivity,
                     drop_topological_sensitivity=args.drop_topological_sensitivity,
                 ),

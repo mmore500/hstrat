@@ -74,11 +74,11 @@ def alifestd_delete_trunk_asexual(
         logging.info(
             "- alifestd_delete_trunk_asexual: updating ancestor_id...",
         )
-        phylogeny_df.loc[phylogeny_df["ancestor_is_trunk"], "ancestor_id"] = (
-            phylogeny_df.loc[
-                phylogeny_df["ancestor_is_trunk"], "id"
-            ].to_numpy()
-        )
+        phylogeny_df.loc[
+            phylogeny_df["ancestor_is_trunk"], "ancestor_id"
+        ] = phylogeny_df.loc[
+            phylogeny_df["ancestor_is_trunk"], "id"
+        ].to_numpy()
 
     if "ancestor_list" in phylogeny_df:
         logging.info(

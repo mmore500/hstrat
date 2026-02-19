@@ -220,6 +220,8 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
+    import functools
+
     configure_prod_logging()
 
     parser = _create_parser()
@@ -231,8 +233,8 @@ if __name__ == "__main__":
         _run_dataframe_cli(
             base_parser=parser,
             output_dataframe_op=delegate_polars_implementation()(
-                lambda df: alifestd_collapse_unifurcations(
-                    df,
+                functools.partial(
+                    alifestd_collapse_unifurcations,
                     ignore_topological_sensitivity=args.ignore_topological_sensitivity,
                     drop_topological_sensitivity=args.drop_topological_sensitivity,
                 ),

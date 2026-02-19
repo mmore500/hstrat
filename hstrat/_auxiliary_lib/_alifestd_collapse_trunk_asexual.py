@@ -63,9 +63,9 @@ def alifestd_collapse_trunk_asexual(
     del trunk_df
 
     if "ancestor_id" in phylogeny_df:
-        phylogeny_df.loc[phylogeny_df["ancestor_is_trunk"], "ancestor_id"] = (
-            collapsed_root_id
-        )
+        phylogeny_df.loc[
+            phylogeny_df["ancestor_is_trunk"], "ancestor_id"
+        ] = collapsed_root_id
 
     if "ancestor_list" in phylogeny_df:
         phylogeny_df.loc[
