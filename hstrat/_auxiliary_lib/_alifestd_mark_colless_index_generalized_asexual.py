@@ -48,7 +48,9 @@ def alifestd_mark_colless_index_generalized_asexual_fast_path(
         end = offsets[idx + 1]
         for i in range(start, end):
             for j in range(i + 1, end):
-                local_colless[idx] += abs(children_leaves[i] - children_leaves[j])
+                local_colless[idx] += abs(
+                    children_leaves[i] - children_leaves[j]
+                )
 
     # Accumulate subtree colless bottom-up
     colless_index = np.zeros(n, dtype=np.int64)
@@ -64,7 +66,7 @@ def alifestd_mark_colless_index_generalized_asexual_fast_path(
 
 def alifestd_mark_colless_index_generalized_asexual_slow_path(
     phylogeny_df: pd.DataFrame,
-) -> pd.DataFrame:
+) -> np.ndarray:
     """Implementation detail for
     `alifestd_mark_colless_index_generalized_asexual`.
     """
@@ -99,8 +101,7 @@ def alifestd_mark_colless_index_generalized_asexual_slow_path(
         if ancestor_id != node_id:  # Not a root
             colless_dict[ancestor_id] += colless_dict[node_id]
 
-    phylogeny_df["colless_index"] = phylogeny_df["id"].map(colless_dict)
-    return phylogeny_df
+    return phylogeny_df["id"].map(colless_dict).values
 
 
 def alifestd_mark_colless_index_generalized_asexual(
@@ -177,8 +178,13 @@ def alifestd_mark_colless_index_generalized_asexual(
             phylogeny_df["ancestor_id"].to_numpy(),
             phylogeny_df["num_leaves"].to_numpy(),
         )
-        return phylogeny_df
-    else:
-        return alifestd_mark_colless_index_generalized_asexual_slow_path(
+    elif not alifestd_has_contiguous_ids(phylogeny_df):
+        phylogeny_df[
+            "colless_index"
+        ] = alifestd_mark_colless_index_generalized_asexual_slow_path(
             phylogeny_df,
         )
+    else:
+        assert False
+
+    return phylogeny_df

@@ -52,7 +52,7 @@ def alifestd_mark_colless_index_asexual_fast_path(
 
 def alifestd_mark_colless_index_asexual_slow_path(
     phylogeny_df: pd.DataFrame,
-) -> pd.DataFrame:
+) -> np.ndarray:
     """Implementation detail for `alifestd_mark_colless_index_asexual`."""
     phylogeny_df.index = phylogeny_df["id"]
     ids = phylogeny_df["id"].values
@@ -69,12 +69,16 @@ def alifestd_mark_colless_index_asexual_slow_path(
     local_colless = {}
     for node_id, child_counts in children_leaves.items():
         if len(child_counts) == 2:
-            local_colless[node_id] = abs(child_counts[0] - child_counts[1])
+            local_colless[node_id] = abs(
+                child_counts[0] - child_counts[1]
+            )
         else:
             local_colless[node_id] = 0
 
     # Initialize colless_index with local values
-    colless_dict = {node_id: local_colless[node_id] for node_id in ids}
+    colless_dict = {
+        node_id: local_colless[node_id] for node_id in ids
+    }
 
     # Accumulate subtree Colless (bottom-up via reversed iteration)
     for idx in reversed(phylogeny_df.index):
@@ -83,48 +87,54 @@ def alifestd_mark_colless_index_asexual_slow_path(
         if ancestor_id != node_id:  # Not a root
             colless_dict[ancestor_id] += colless_dict[node_id]
 
-    phylogeny_df["colless_index"] = phylogeny_df["id"].map(colless_dict)
-    return phylogeny_df
+    return phylogeny_df["id"].map(colless_dict).values
 
 
 def alifestd_mark_colless_index_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
 ) -> pd.DataFrame:
-    """Add column `colless_index` with Colless imbalance index for each subtree.
+    """Add column `colless_index` with Colless imbalance index for each
+    subtree.
 
-    Computes the classic Colless index for strictly bifurcating trees. For each
-    internal node with exactly two children, the local contribution is |L - R|
-    where L and R are leaf counts in left and right subtrees. The value at each
-    node represents the total Colless index for the subtree rooted at that node.
+    Computes the classic Colless index for strictly bifurcating trees.
+    For each internal node with exactly two children, the local
+    contribution is |L - R| where L and R are leaf counts in left and
+    right subtrees. The value at each node represents the total Colless
+    index for the subtree rooted at that node.
 
-    Raises ValueError if the tree is not strictly bifurcating. For trees with
-    polytomies, use `alifestd_mark_colless_index_generalized_asexual` instead.
+    Raises ValueError if the tree is not strictly bifurcating. For
+    trees with polytomies, use
+    `alifestd_mark_colless_index_generalized_asexual` instead.
 
-    Leaf nodes will have Colless index 0 (no imbalance in subtree of size 1).
-    The root node contains the Colless index for the entire tree.
+    Leaf nodes will have Colless index 0 (no imbalance in subtree of
+    size 1). The root node contains the Colless index for the entire
+    tree.
 
-    A topological sort will be applied if `phylogeny_df` is not topologically
-    sorted. Dataframe reindexing (e.g., df.index) may be applied.
+    A topological sort will be applied if `phylogeny_df` is not
+    topologically sorted. Dataframe reindexing (e.g., df.index) may
+    be applied.
 
-    Input dataframe is not mutated by this operation unless `mutate` set True.
-    If mutate set True, operation does not occur in place; still use return
-    value to get transformed phylogeny dataframe.
+    Input dataframe is not mutated by this operation unless `mutate`
+    set True. If mutate set True, operation does not occur in place;
+    still use return value to get transformed phylogeny dataframe.
 
     Parameters
     ----------
     phylogeny_df : pd.DataFrame
-        Alife standard DataFrame containing the phylogenetic relationships.
+        Alife standard DataFrame containing the phylogenetic
+        relationships.
 
     mutate : bool, optional
-        If True, modify the input DataFrame in place. Default is False.
+        If True, modify the input DataFrame in place. Default is
+        False.
 
     Returns
     -------
     pd.DataFrame
         Phylogeny DataFrame with an additional column "colless_index"
-        containing the Colless imbalance index for the subtree rooted at each
-        node.
+        containing the Colless imbalance index for the subtree rooted
+        at each node.
 
     Raises
     ------
@@ -146,14 +156,19 @@ def alifestd_mark_colless_index_asexual(
     if not alifestd_is_strictly_bifurcating_asexual(phylogeny_df):
         raise ValueError(
             "phylogeny_df must be strictly bifurcating; "
-            "consider using alifestd_mark_colless_index_generalized_asexual "
+            "consider using "
+            "alifestd_mark_colless_index_generalized_asexual "
             "for trees with polytomies"
         )
 
-    phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
+    phylogeny_df = alifestd_try_add_ancestor_id_col(
+        phylogeny_df, mutate=True
+    )
 
     if not alifestd_is_topologically_sorted(phylogeny_df):
-        phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
+        phylogeny_df = alifestd_topological_sort(
+            phylogeny_df, mutate=True
+        )
 
     if "num_leaves" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_num_leaves_asexual(
@@ -168,6 +183,13 @@ def alifestd_mark_colless_index_asexual(
             phylogeny_df["ancestor_id"].to_numpy(),
             phylogeny_df["num_leaves"].to_numpy(),
         )
-        return phylogeny_df
+    elif not alifestd_has_contiguous_ids(phylogeny_df):
+        phylogeny_df[
+            "colless_index"
+        ] = alifestd_mark_colless_index_asexual_slow_path(
+            phylogeny_df,
+        )
     else:
-        return alifestd_mark_colless_index_asexual_slow_path(phylogeny_df)
+        assert False
+
+    return phylogeny_df

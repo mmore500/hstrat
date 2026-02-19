@@ -32,7 +32,7 @@ def alifestd_mark_sackin_index_generalized_asexual_fast_path(
 
 def alifestd_mark_sackin_index_generalized_asexual_slow_path(
     phylogeny_df: pd.DataFrame,
-) -> pd.DataFrame:
+) -> np.ndarray:
     """Implementation detail for
     `alifestd_mark_sackin_index_generalized_asexual`.
     """
@@ -48,10 +48,11 @@ def alifestd_mark_sackin_index_generalized_asexual_slow_path(
         ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
         if ancestor_id != node_id:  # Not a root
             node_leaves = phylogeny_df.at[idx, "num_leaves"]
-            sackin_dict[ancestor_id] += sackin_dict[node_id] + node_leaves
+            sackin_dict[ancestor_id] += (
+                sackin_dict[node_id] + node_leaves
+            )
 
-    phylogeny_df["sackin_index"] = phylogeny_df["id"].map(sackin_dict)
-    return phylogeny_df
+    return phylogeny_df["id"].map(sackin_dict).values
 
 
 def alifestd_mark_sackin_index_generalized_asexual(
@@ -128,8 +129,13 @@ def alifestd_mark_sackin_index_generalized_asexual(
             phylogeny_df["ancestor_id"].to_numpy(),
             phylogeny_df["num_leaves"].to_numpy(),
         )
-        return phylogeny_df
-    else:
-        return alifestd_mark_sackin_index_generalized_asexual_slow_path(
+    elif not alifestd_has_contiguous_ids(phylogeny_df):
+        phylogeny_df[
+            "sackin_index"
+        ] = alifestd_mark_sackin_index_generalized_asexual_slow_path(
             phylogeny_df,
         )
+    else:
+        assert False
+
+    return phylogeny_df
