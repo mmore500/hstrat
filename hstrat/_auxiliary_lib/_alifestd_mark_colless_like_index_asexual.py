@@ -13,15 +13,25 @@ from ._alifestd_try_add_ancestor_id_col import (
 )
 from ._jit import jit
 
-_LN_E = 1.0  # ln(e) = 1.0, used as f(0)
+# Dissimilarity type constants (for numba compatibility)
+_DISS_MDM = 0
+_DISS_VAR = 1
+_DISS_SD = 2
 
 
 @jit(nopython=True)
-def alifestd_mark_colless_like_index_asexual_fast_path(
+def _colless_like_fast_path(
     ancestor_ids: np.ndarray,
+    diss_type: int,
 ) -> np.ndarray:
-    """Implementation detail for
-    `alifestd_mark_colless_like_index_asexual`.
+    """Implementation detail for Colless-like index functions.
+
+    Parameters
+    ----------
+    ancestor_ids : np.ndarray
+        Array of ancestor IDs (contiguous, topologically sorted).
+    diss_type : int
+        Dissimilarity type: 0=MDM, 1=variance, 2=std dev.
     """
     n = len(ancestor_ids)
 
@@ -60,7 +70,7 @@ def alifestd_mark_colless_like_index_asexual_fast_path(
             children_fsize[pos] = f_size[idx]
             fill_pos[ancestor_id] += 1
 
-    # Compute local balance: MDM of children f-sizes
+    # Compute local balance using selected dissimilarity
     local_balance = np.zeros(n, dtype=np.float64)
     for idx in range(n):
         k = num_children[idx]
@@ -69,21 +79,47 @@ def alifestd_mark_colless_like_index_asexual_fast_path(
         start = offsets[idx]
         end = offsets[idx + 1]
 
-        # Sort children f-sizes for median computation
         vals = children_fsize[start:end].copy()
         vals.sort()
 
-        # Compute median
-        if k % 2 == 1:
-            median = vals[k // 2]
-        else:
-            median = (vals[k // 2 - 1] + vals[k // 2]) / 2.0
+        if diss_type == 0:  # MDM
+            # Compute median
+            if k % 2 == 1:
+                median = vals[k // 2]
+            else:
+                median = (vals[k // 2 - 1] + vals[k // 2]) / 2.0
 
-        # MDM = (1/k) * sum |x_i - median|
-        total = 0.0
-        for i in range(k):
-            total += abs(vals[i] - median)
-        local_balance[idx] = total / k
+            # MDM = (1/k) * sum |x_i - median|
+            total = 0.0
+            for i in range(k):
+                total += abs(vals[i] - median)
+            local_balance[idx] = total / k
+
+        elif diss_type == 1:  # Variance
+            # var = (1/(k-1)) * sum (x_i - mean)^2
+            mean = 0.0
+            for i in range(k):
+                mean += vals[i]
+            mean /= k
+
+            total = 0.0
+            for i in range(k):
+                diff = vals[i] - mean
+                total += diff * diff
+            local_balance[idx] = total / (k - 1)
+
+        elif diss_type == 2:  # Standard deviation
+            # sd = sqrt(var)
+            mean = 0.0
+            for i in range(k):
+                mean += vals[i]
+            mean /= k
+
+            total = 0.0
+            for i in range(k):
+                diff = vals[i] - mean
+                total += diff * diff
+            local_balance[idx] = math.sqrt(total / (k - 1))
 
     # Accumulate subtree Colless-like index bottom-up
     colless_like = np.zeros(n, dtype=np.float64)
@@ -97,12 +133,11 @@ def alifestd_mark_colless_like_index_asexual_fast_path(
     return colless_like
 
 
-def alifestd_mark_colless_like_index_asexual_slow_path(
+def _colless_like_slow_path(
     phylogeny_df: pd.DataFrame,
+    diss_type: int,
 ) -> np.ndarray:
-    """Implementation detail for
-    `alifestd_mark_colless_like_index_asexual`.
-    """
+    """Implementation detail for Colless-like index functions."""
     phylogeny_df.index = phylogeny_df["id"]
     ids = phylogeny_df["id"].values
 
@@ -127,20 +162,33 @@ def alifestd_mark_colless_like_index_asexual_slow_path(
             f_size[c] for c in children_of[node_id]
         )
 
-    # Compute local balance (MDM of children f-sizes)
+    # Compute local balance using selected dissimilarity
     local_balance = {}
     for node_id in ids:
         k = num_children[node_id]
         if k < 2:
             local_balance[node_id] = 0.0
             continue
+
         vals = sorted(f_size[c] for c in children_of[node_id])
-        if k % 2 == 1:
-            median = vals[k // 2]
-        else:
-            median = (vals[k // 2 - 1] + vals[k // 2]) / 2.0
-        total = sum(abs(v - median) for v in vals)
-        local_balance[node_id] = total / k
+
+        if diss_type == _DISS_MDM:
+            if k % 2 == 1:
+                median = vals[k // 2]
+            else:
+                median = (vals[k // 2 - 1] + vals[k // 2]) / 2.0
+            total = sum(abs(v - median) for v in vals)
+            local_balance[node_id] = total / k
+
+        elif diss_type == _DISS_VAR:
+            mean = sum(vals) / k
+            total = sum((v - mean) ** 2 for v in vals)
+            local_balance[node_id] = total / (k - 1)
+
+        elif diss_type == _DISS_SD:
+            mean = sum(vals) / k
+            total = sum((v - mean) ** 2 for v in vals)
+            local_balance[node_id] = math.sqrt(total / (k - 1))
 
     # Accumulate bottom-up
     colless_dict = {id_: local_balance[id_] for id_ in ids}
@@ -153,76 +201,30 @@ def alifestd_mark_colless_like_index_asexual_slow_path(
     return phylogeny_df["id"].map(colless_dict).values
 
 
-def alifestd_mark_colless_like_index_asexual(
+def _alifestd_mark_colless_like_index_asexual_impl(
     phylogeny_df: pd.DataFrame,
+    col_name: str,
+    diss_type: int,
     mutate: bool = False,
 ) -> pd.DataFrame:
-    """Add column `colless_like_index` with Colless-like index for
-    each subtree.
-
-    Computes the Colless-like balance index from Mir, Rossello, and
-    Rotger (2018) that supports polytomies. Uses weight function
-    f(k) = ln(k + e) and the mean deviation from the median (MDM)
-    as dissimilarity.
-
-    For each internal node v with children v_1, ..., v_k:
-        bal(v) = MDM(delta_f(T_v1), ..., delta_f(T_vk))
-
-    where delta_f(T) is the f-size of subtree T, defined as the sum
-    of f(deg(u)) over all nodes u in T, and MDM is the mean deviation
-    from the median.
-
-    The Colless-like index at a node is the sum of balance values
-    across all internal nodes in its subtree.
-
-    For strictly bifurcating trees, consider using
-    `alifestd_mark_colless_index_asexual` for the classic Colless
-    index.
-
-    Leaf nodes will have Colless-like index 0. The root node contains
-    the Colless-like index for the entire tree.
-
-    A topological sort will be applied if `phylogeny_df` is not
-    topologically sorted. Dataframe reindexing (e.g., df.index) may
-    be applied.
-
-    Input dataframe is not mutated by this operation unless `mutate`
-    set True. If mutate set True, operation does not occur in place;
-    still use return value to get transformed phylogeny dataframe.
+    """Common implementation for Colless-like index variants.
 
     Parameters
     ----------
     phylogeny_df : pd.DataFrame
-        Alife standard DataFrame containing the phylogenetic
-        relationships.
-
+        Alife standard DataFrame.
+    col_name : str
+        Name of the output column.
+    diss_type : int
+        Dissimilarity type: _DISS_MDM, _DISS_VAR, or _DISS_SD.
     mutate : bool, optional
-        If True, modify the input DataFrame in place. Default is
-        False.
-
-    Returns
-    -------
-    pd.DataFrame
-        Phylogeny DataFrame with an additional column
-        "colless_like_index" containing the Colless-like imbalance
-        index for the subtree rooted at each node.
-
-    References
-    ----------
-    Mir, A., Rossello, F., & Rotger, L. (2018). Sound Colless-like
-    balance indices for multifurcating trees. PLOS ONE, 13(9),
-    e0203401. https://doi.org/10.1371/journal.pone.0203401
-
-    See Also
-    --------
-    alifestd_mark_colless_index_asexual :
-        Classic Colless index for strictly bifurcating trees.
+        If True, modify the input DataFrame in place.
     """
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
     if len(phylogeny_df) == 0:
-        phylogeny_df["colless_like_index"] = pd.Series(dtype=float)
+        phylogeny_df[col_name] = pd.Series(dtype=float)
         return phylogeny_df
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
@@ -232,16 +234,14 @@ def alifestd_mark_colless_like_index_asexual(
 
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df.reset_index(drop=True, inplace=True)
-        phylogeny_df[
-            "colless_like_index"
-        ] = alifestd_mark_colless_like_index_asexual_fast_path(
+        phylogeny_df[col_name] = _colless_like_fast_path(
             phylogeny_df["ancestor_id"].to_numpy(),
+            diss_type,
         )
     elif not alifestd_has_contiguous_ids(phylogeny_df):
-        phylogeny_df[
-            "colless_like_index"
-        ] = alifestd_mark_colless_like_index_asexual_slow_path(
+        phylogeny_df[col_name] = _colless_like_slow_path(
             phylogeny_df,
+            diss_type,
         )
     else:
         assert False

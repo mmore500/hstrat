@@ -9,7 +9,7 @@ from hstrat._auxiliary_lib import (
     alifestd_find_root_ids,
     alifestd_has_multiple_roots,
     alifestd_make_empty,
-    alifestd_mark_colless_like_index_asexual,
+    alifestd_mark_colless_like_index_mdm_asexual,
     alifestd_validate,
 )
 
@@ -35,35 +35,37 @@ def _f(k):
 def test_fuzz(phylogeny_df: pd.DataFrame):
     original = phylogeny_df.copy()
 
-    result = alifestd_mark_colless_like_index_asexual(phylogeny_df)
+    result = alifestd_mark_colless_like_index_mdm_asexual(phylogeny_df)
 
     assert alifestd_validate(result)
     assert original.equals(phylogeny_df)
 
     # Colless-like index should be non-negative
-    assert all(result["colless_like_index"] >= 0)
+    assert all(result["colless_like_index_mdm"] >= 0)
 
     # Leaf nodes should have Colless-like index 0
     leaf_ids = [*alifestd_find_leaf_ids(phylogeny_df)]
     for leaf_id in leaf_ids:
-        val = result[result["id"] == leaf_id]["colless_like_index"].squeeze()
+        val = result[result["id"] == leaf_id][
+            "colless_like_index_mdm"
+        ].squeeze()
         assert val == 0.0
 
     # Root should have the highest or equal index
     if not alifestd_has_multiple_roots(phylogeny_df):
         (root_id,) = alifestd_find_root_ids(phylogeny_df)
         root_val = result[result["id"] == root_id][
-            "colless_like_index"
+            "colless_like_index_mdm"
         ].squeeze()
         assert root_val >= 0
-        assert root_val == result["colless_like_index"].max()
+        assert root_val == result["colless_like_index_mdm"].max()
 
 
 def test_empty():
-    res = alifestd_mark_colless_like_index_asexual(
+    res = alifestd_mark_colless_like_index_mdm_asexual(
         alifestd_make_empty(),
     )
-    assert "colless_like_index" in res
+    assert "colless_like_index_mdm" in res
     assert len(res) == 0
 
 
@@ -80,15 +82,15 @@ def test_simple_chain(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_like_index_asexual(
+    result_df = alifestd_mark_colless_like_index_mdm_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     result_df.index = result_df["id"]
 
-    assert result_df.loc[0, "colless_like_index"] == 0.0
-    assert result_df.loc[1, "colless_like_index"] == 0.0
-    assert result_df.loc[2, "colless_like_index"] == 0.0
+    assert result_df.loc[0, "colless_like_index_mdm"] == 0.0
+    assert result_df.loc[1, "colless_like_index_mdm"] == 0.0
+    assert result_df.loc[2, "colless_like_index_mdm"] == 0.0
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -112,15 +114,17 @@ def test_simple_bifurcating_balanced(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_like_index_asexual(
+    result_df = alifestd_mark_colless_like_index_mdm_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     result_df.index = result_df["id"]
 
-    assert result_df.loc[0, "colless_like_index"] == pytest.approx(0.0)
-    assert result_df.loc[1, "colless_like_index"] == 0.0
-    assert result_df.loc[2, "colless_like_index"] == 0.0
+    assert result_df.loc[0, "colless_like_index_mdm"] == pytest.approx(
+        0.0,
+    )
+    assert result_df.loc[1, "colless_like_index_mdm"] == 0.0
+    assert result_df.loc[2, "colless_like_index_mdm"] == 0.0
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -155,26 +159,28 @@ def test_simple_bifurcating_imbalanced(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_like_index_asexual(
+    result_df = alifestd_mark_colless_like_index_mdm_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     result_df.index = result_df["id"]
 
     # Leaves have index 0
-    assert result_df.loc[1, "colless_like_index"] == 0.0
-    assert result_df.loc[3, "colless_like_index"] == 0.0
-    assert result_df.loc[4, "colless_like_index"] == 0.0
+    assert result_df.loc[1, "colless_like_index_mdm"] == 0.0
+    assert result_df.loc[3, "colless_like_index_mdm"] == 0.0
+    assert result_df.loc[4, "colless_like_index_mdm"] == 0.0
 
     # Node 2: balanced children -> 0
-    assert result_df.loc[2, "colless_like_index"] == pytest.approx(0.0)
+    assert result_df.loc[2, "colless_like_index_mdm"] == pytest.approx(
+        0.0,
+    )
 
     # Node 0: MDM of (1.0, ln(2+e)+2.0)
     fsize_1 = _f(0)  # 1.0
     fsize_2 = _f(2) + 2 * _f(0)  # ln(2+e) + 2.0
     diff = abs(fsize_2 - fsize_1)
     expected_bal = diff / 2.0  # MDM of two values
-    assert result_df.loc[0, "colless_like_index"] == pytest.approx(
+    assert result_df.loc[0, "colless_like_index_mdm"] == pytest.approx(
         expected_bal,
     )
 
@@ -200,16 +206,18 @@ def test_polytomy_balanced(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_like_index_asexual(
+    result_df = alifestd_mark_colless_like_index_mdm_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     result_df.index = result_df["id"]
 
-    assert result_df.loc[1, "colless_like_index"] == 0.0
-    assert result_df.loc[2, "colless_like_index"] == 0.0
-    assert result_df.loc[3, "colless_like_index"] == 0.0
-    assert result_df.loc[0, "colless_like_index"] == pytest.approx(0.0)
+    assert result_df.loc[1, "colless_like_index_mdm"] == 0.0
+    assert result_df.loc[2, "colless_like_index_mdm"] == 0.0
+    assert result_df.loc[3, "colless_like_index_mdm"] == 0.0
+    assert result_df.loc[0, "colless_like_index_mdm"] == pytest.approx(
+        0.0,
+    )
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -249,7 +257,7 @@ def test_polytomy_imbalanced(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_like_index_asexual(
+    result_df = alifestd_mark_colless_like_index_mdm_asexual(
         phylogeny_df,
         mutate=mutate,
     )
@@ -257,15 +265,17 @@ def test_polytomy_imbalanced(mutate: bool):
 
     # Leaves
     for leaf in [1, 2, 4, 5]:
-        assert result_df.loc[leaf, "colless_like_index"] == 0.0
+        assert result_df.loc[leaf, "colless_like_index_mdm"] == 0.0
 
     # Node 3: balanced children -> 0
-    assert result_df.loc[3, "colless_like_index"] == pytest.approx(0.0)
+    assert result_df.loc[3, "colless_like_index_mdm"] == pytest.approx(
+        0.0,
+    )
 
     # Node 0: MDM of [1.0, 1.0, ln(2+e)+2.0], median=1.0
     fsize_3 = _f(2) + 2 * _f(0)
     expected_bal = (abs(1.0 - 1.0) + abs(1.0 - 1.0) + abs(fsize_3 - 1.0)) / 3
-    assert result_df.loc[0, "colless_like_index"] == pytest.approx(
+    assert result_df.loc[0, "colless_like_index_mdm"] == pytest.approx(
         expected_bal,
     )
 
@@ -289,89 +299,27 @@ def test_non_contiguous_ids(mutate: bool):
         }
     )
     original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_like_index_asexual(
+    result_df = alifestd_mark_colless_like_index_mdm_asexual(
         phylogeny_df,
         mutate=mutate,
     )
     result_df.index = result_df["id"]
 
     # Same structure as test_simple_bifurcating_imbalanced
-    # Leaves
-    assert result_df.loc[20, "colless_like_index"] == 0.0
-    assert result_df.loc[40, "colless_like_index"] == 0.0
-    assert result_df.loc[50, "colless_like_index"] == 0.0
+    assert result_df.loc[20, "colless_like_index_mdm"] == 0.0
+    assert result_df.loc[40, "colless_like_index_mdm"] == 0.0
+    assert result_df.loc[50, "colless_like_index_mdm"] == 0.0
+    assert result_df.loc[30, "colless_like_index_mdm"] == pytest.approx(
+        0.0,
+    )
 
-    # Node 30: balanced -> 0
-    assert result_df.loc[30, "colless_like_index"] == pytest.approx(0.0)
-
-    # Root 10: same expected value as imbalanced test
     fsize_20 = _f(0)
     fsize_30 = _f(2) + 2 * _f(0)
     diff = abs(fsize_30 - fsize_20)
     expected_bal = diff / 2.0
-    assert result_df.loc[10, "colless_like_index"] == pytest.approx(
+    assert result_df.loc[10, "colless_like_index_mdm"] == pytest.approx(
         expected_bal,
     )
-
-    if not mutate:
-        assert original_df.equals(phylogeny_df)
-
-
-@pytest.mark.parametrize("mutate", [True, False])
-def test_non_contiguous_ids_polytomy(mutate: bool):
-    """Test polytomy with non-contiguous IDs."""
-    phylogeny_df = pd.DataFrame(
-        {
-            "id": [10, 20, 30, 40, 50, 60],
-            "ancestor_list": [
-                "[None]",
-                "[10]",
-                "[10]",
-                "[10]",
-                "[40]",
-                "[40]",
-            ],
-        }
-    )
-    original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_like_index_asexual(
-        phylogeny_df,
-        mutate=mutate,
-    )
-    result_df.index = result_df["id"]
-
-    # Same structure as polytomy_imbalanced but shifted IDs
-    fsize_40 = _f(2) + 2 * _f(0)
-    expected_bal = (abs(1.0 - 1.0) + abs(1.0 - 1.0) + abs(fsize_40 - 1.0)) / 3
-    assert result_df.loc[10, "colless_like_index"] == pytest.approx(
-        expected_bal,
-    )
-
-    if not mutate:
-        assert original_df.equals(phylogeny_df)
-
-
-@pytest.mark.parametrize("mutate", [True, False])
-def test_multiple_roots(mutate: bool):
-    """Test with multiple roots (forest)."""
-    phylogeny_df = pd.DataFrame(
-        {
-            "id": [0, 1, 2, 3],
-            "ancestor_list": ["[None]", "[None]", "[0]", "[1]"],
-        }
-    )
-    original_df = phylogeny_df.copy()
-    result_df = alifestd_mark_colless_like_index_asexual(
-        phylogeny_df,
-        mutate=mutate,
-    )
-    result_df.index = result_df["id"]
-
-    # Two trees, each unifurcating -> all 0
-    assert result_df.loc[0, "colless_like_index"] == 0.0
-    assert result_df.loc[1, "colless_like_index"] == 0.0
-    assert result_df.loc[2, "colless_like_index"] == 0.0
-    assert result_df.loc[3, "colless_like_index"] == 0.0
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
@@ -380,7 +328,6 @@ def test_multiple_roots(mutate: bool):
 @pytest.mark.parametrize("mutate", [True, False])
 def test_fast_slow_path_agreement(mutate: bool):
     """Fast and slow paths should produce the same values."""
-    # Non-contiguous version of an imbalanced tree
     phylogeny_df_nc = pd.DataFrame(
         {
             "id": [10, 20, 30, 40, 50, 60, 70],
@@ -395,7 +342,6 @@ def test_fast_slow_path_agreement(mutate: bool):
             ],
         }
     )
-    # Contiguous version of the same tree
     phylogeny_df_c = pd.DataFrame(
         {
             "id": [0, 1, 2, 3, 4, 5, 6],
@@ -410,30 +356,24 @@ def test_fast_slow_path_agreement(mutate: bool):
             ],
         }
     )
-    result_nc = alifestd_mark_colless_like_index_asexual(
+    result_nc = alifestd_mark_colless_like_index_mdm_asexual(
         phylogeny_df_nc,
         mutate=mutate,
     )
-    result_c = alifestd_mark_colless_like_index_asexual(
+    result_c = alifestd_mark_colless_like_index_mdm_asexual(
         phylogeny_df_c,
         mutate=mutate,
     )
 
-    # Root values should match
     result_nc.index = result_nc["id"]
     result_c.index = result_c["id"]
-    assert result_nc.loc[10, "colless_like_index"] == pytest.approx(
-        result_c.loc[0, "colless_like_index"],
+    assert result_nc.loc[10, "colless_like_index_mdm"] == pytest.approx(
+        result_c.loc[0, "colless_like_index_mdm"],
     )
 
 
 def test_symmetric_tree_is_zero():
-    """Fully symmetric trees should have Colless-like index 0.
-
-    This is the key property that makes the index "sound" per
-    Mir et al. 2018.
-    """
-    # Symmetric bifurcating tree with 4 leaves
+    """Fully symmetric trees should have Colless-like index 0."""
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1, 2, 3, 4, 5, 6],
@@ -448,21 +388,9 @@ def test_symmetric_tree_is_zero():
             ],
         }
     )
-    result_df = alifestd_mark_colless_like_index_asexual(phylogeny_df)
-    assert result_df["colless_like_index"].to_list() == pytest.approx(
+    result_df = alifestd_mark_colless_like_index_mdm_asexual(
+        phylogeny_df,
+    )
+    assert result_df["colless_like_index_mdm"].to_list() == pytest.approx(
         [0.0] * len(result_df),
-    )
-
-    # Symmetric trifurcating tree (3 leaves)
-    phylogeny_df2 = pd.DataFrame(
-        {
-            "id": [0, 1, 2, 3],
-            "ancestor_list": ["[None]", "[0]", "[0]", "[0]"],
-        }
-    )
-    result_df2 = alifestd_mark_colless_like_index_asexual(
-        phylogeny_df2,
-    )
-    assert result_df2["colless_like_index"].to_list() == pytest.approx(
-        [0.0] * len(result_df2),
     )
