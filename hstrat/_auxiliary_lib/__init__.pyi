@@ -331,6 +331,7 @@ from ._delegate_polars_implementation import delegate_polars_implementation
 from ._demark import demark
 from ._div_range import div_range
 from ._estimate_binomial_p import estimate_binomial_p
+from ._eval_kwargs import eval_kwargs
 from ._except_wrap_sentinel import except_wrap_sentinel
 from ._fill_zeros_with_last import fill_zeros_with_last
 from ._find_bounds import find_bounds
@@ -602,6 +603,7 @@ __all__ = [
     "demark",
     "div_range",
     "estimate_binomial_p",
+    "eval_kwargs",
     "except_wrap_sentinel",
     "fill_zeros_with_last",
     "find_bounds",

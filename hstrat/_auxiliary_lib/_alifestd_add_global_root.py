@@ -14,6 +14,7 @@ from ._alifestd_warn_topological_sensitivity import (
 )
 from ._configure_prod_logging import configure_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
+from ._eval_kwargs import eval_kwargs
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
@@ -141,10 +142,26 @@ def _create_parser() -> argparse.ArgumentParser:
         dfcli_module="hstrat._auxiliary_lib._alifestd_add_global_root",
         dfcli_version=get_hstrat_version(),
     )
+    parser.add_argument(
+        "--root-attr",
+        action="append",
+        dest="root_attrs",
+        type=str,
+        default=[],
+        help=(
+            "Column value to set on the new root row. "
+            "Provide as 'key=value'. "
+            "Specify multiple attrs by using this flag multiple times. "
+            "Arguments will be evaluated as Python expressions. "
+            "Example: --root-attr 'origin_time=0.0'"
+        ),
+    )
     return parser
 
 
 if __name__ == "__main__":
+    import functools
+
     configure_prod_logging()
 
     parser = _create_parser()
@@ -156,6 +173,9 @@ if __name__ == "__main__":
         _run_dataframe_cli(
             base_parser=parser,
             output_dataframe_op=delegate_polars_implementation()(
-                alifestd_add_global_root,
+                functools.partial(
+                    alifestd_add_global_root,
+                    root_attrs=eval_kwargs(args.root_attrs),
+                ),
             ),
         )
