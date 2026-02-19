@@ -18,9 +18,7 @@ def _alifestd_warn_topological_sensitivity(
     update: bool,
 ) -> None:
     """Private helper: emit a warning listing invalidated columns."""
-    if "HSTRAT_ALIFESTD_WARN_TOPOLOGICAL_SENSITIVITY_SUPPRESS" in os.environ:
-        return
-    if invalidated:
+    if invalidated and "HSTRAT_ALIFESTD_WARN_TOPOLOGICAL_SENSITIVITY_SUPPRESS" not in os.environ:
         ops = "/".join(
             name
             for flag, name in [
