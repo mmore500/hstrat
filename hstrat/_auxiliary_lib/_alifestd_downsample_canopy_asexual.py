@@ -6,10 +6,12 @@ import sys
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
+import numpy as np
 import pandas as pd
 
 from ._add_bool_arg import add_bool_arg
 from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
+from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_prune_extinct_lineages_asexual import (
     alifestd_prune_extinct_lineages_asexual,
 )
@@ -86,10 +88,20 @@ def alifestd_downsample_canopy_asexual(
     if phylogeny_df.empty:
         return phylogeny_df
 
-    tips = alifestd_find_leaf_ids(phylogeny_df)
-    leaf_df = phylogeny_df.loc[phylogeny_df["id"].isin(tips)]
-    kept = leaf_df.nlargest(num_tips, criterion)["id"]
-    phylogeny_df["extant"] = phylogeny_df["id"].isin(kept)
+    if alifestd_has_contiguous_ids(phylogeny_df):
+        # With contiguous IDs, id == row index so we can use direct
+        # numpy array indexing instead of expensive .isin() calls.
+        leaf_positions = alifestd_find_leaf_ids(phylogeny_df)
+        leaf_df = phylogeny_df.iloc[leaf_positions]
+        kept_ids = leaf_df.nlargest(num_tips, criterion)["id"]
+        extant_mask = np.zeros(len(phylogeny_df), dtype=np.bool_)
+        extant_mask[kept_ids.to_numpy()] = True
+        phylogeny_df["extant"] = extant_mask
+    else:
+        tips = alifestd_find_leaf_ids(phylogeny_df)
+        leaf_df = phylogeny_df.loc[phylogeny_df["id"].isin(tips)]
+        kept_ids = leaf_df.nlargest(num_tips, criterion)["id"]
+        phylogeny_df["extant"] = phylogeny_df["id"].isin(kept_ids)
 
     return alifestd_prune_extinct_lineages_asexual(
         phylogeny_df, mutate=True
