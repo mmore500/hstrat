@@ -5,42 +5,43 @@ import subprocess
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
-def test_alifestd_downsample_tips_asexual_cli_help():
-    subprocess.run(
+def test_alifestd_downsample_canopy_asexual_cli_help():
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
-            "hstrat._auxiliary_lib._alifestd_downsample_tips_asexual",
+            "hstrat._auxiliary_lib._alifestd_downsample_canopy_asexual",
             "--help",
         ],
         check=True,
     )
 
 
-def test_alifestd_downsample_tips_asexual_cli_version():
-    subprocess.run(
+def test_alifestd_downsample_canopy_asexual_cli_version():
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
-            "hstrat._auxiliary_lib._alifestd_downsample_tips_asexual",
+            "hstrat._auxiliary_lib._alifestd_downsample_canopy_asexual",
             "--version",
         ],
         check=True,
     )
 
 
-def test_alifestd_downsample_tips_asexual_cli_csv():
-    output_file = (
-        "/tmp/hstrat_alifestd_downsample_tips_asexual.csv"  # nosec B108
+def test_alifestd_downsample_canopy_asexual_cli_csv(tmp_path):
+    output_file = str(
+        tmp_path / "hstrat_alifestd_downsample_canopy_asexual.csv"
     )
-    pathlib.Path(output_file).unlink(missing_ok=True)
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
-            "hstrat._auxiliary_lib._alifestd_downsample_tips_asexual",
+            "hstrat._auxiliary_lib._alifestd_downsample_canopy_asexual",
             "-n",
             "1",
+            "--criterion",
+            "id",
             output_file,
         ],
         check=True,
@@ -49,20 +50,19 @@ def test_alifestd_downsample_tips_asexual_cli_csv():
     assert os.path.exists(output_file)
 
 
-def test_alifestd_downsample_tips_asexual_cli_parquet():
-    output_file = (
-        "/tmp/hstrat_alifestd_downsample_tips_asexual.pqt"  # nosec B108
+def test_alifestd_downsample_canopy_asexual_cli_parquet(tmp_path):
+    output_file = str(
+        tmp_path / "hstrat_alifestd_downsample_canopy_asexual.pqt"
     )
-    pathlib.Path(output_file).unlink(missing_ok=True)
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
-            "hstrat._auxiliary_lib._alifestd_downsample_tips_asexual",
+            "hstrat._auxiliary_lib._alifestd_downsample_canopy_asexual",
             "-n",
             "1",
-            "--seed",
-            "50_000_000",
+            "--criterion",
+            "id",
             output_file,
         ],
         check=True,
@@ -71,16 +71,18 @@ def test_alifestd_downsample_tips_asexual_cli_parquet():
     assert os.path.exists(output_file)
 
 
-def test_alifestd_downsample_tips_asexual_cli_ignore_topological_sensitivity():
-    output_file = "/tmp/hstrat_alifestd_downsample_tips_asexual_ignore.csv"
+def test_alifestd_downsample_canopy_asexual_cli_ignore_topological_sensitivity():  # noqa: E501
+    output_file = "/tmp/hstrat_alifestd_downsample_canopy_asexual_ignore.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
-            "hstrat._auxiliary_lib._alifestd_downsample_tips_asexual",
+            "hstrat._auxiliary_lib._alifestd_downsample_canopy_asexual",
             "-n",
             "1",
+            "--criterion",
+            "id",
             "--ignore-topological-sensitivity",
             output_file,
         ],
@@ -90,16 +92,20 @@ def test_alifestd_downsample_tips_asexual_cli_ignore_topological_sensitivity():
     assert os.path.exists(output_file)
 
 
-def test_alifestd_downsample_tips_asexual_cli_drop_topological_sensitivity():
-    output_file = "/tmp/hstrat_alifestd_downsample_tips_asexual_drop.csv"
+def test_alifestd_downsample_canopy_asexual_cli_drop_topological_sensitivity():
+    output_file = (
+        "/tmp/hstrat_alifestd_downsample_canopy_asexual_drop.csv"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
-            "hstrat._auxiliary_lib._alifestd_downsample_tips_asexual",
+            "hstrat._auxiliary_lib._alifestd_downsample_canopy_asexual",
             "-n",
             "1",
+            "--criterion",
+            "id",
             "--drop-topological-sensitivity",
             output_file,
         ],

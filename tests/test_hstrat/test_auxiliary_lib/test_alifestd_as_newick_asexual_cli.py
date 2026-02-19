@@ -51,7 +51,7 @@ def test_alifestd_as_newick_asexual_cli_csv(
     input_file: str, taxon_label: typing.Optional[str]
 ):
     output_file = (
-        "/tmp/hstrat-as_newick_asexual_cli-"
+        "/tmp/hstrat-as_newick_asexual_cli-"  # nosec B108
         f"{taxon_label}-{input_file}.newick"
     )
     pathlib.Path(output_file).unlink(missing_ok=True)
