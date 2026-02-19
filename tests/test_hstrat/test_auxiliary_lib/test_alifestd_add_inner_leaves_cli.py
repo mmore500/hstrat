@@ -59,3 +59,37 @@ def test_alifestd_add_inner_leaves_cli_parquet():
         input=f"{assets}/example-standard-toy-asexual-phylogeny.csv".encode(),
     )
     assert os.path.exists(output_file)
+
+
+def test_alifestd_add_inner_leaves_cli_ignore_topological_sensitivity():
+    output_file = "/tmp/hstrat_alifestd_add_inner_leaves_ignore.csv"
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_add_inner_leaves",
+            "--ignore-topological-sensitivity",
+            output_file,
+        ],
+        check=True,
+        input=f"{assets}/example-standard-toy-asexual-phylogeny.csv".encode(),
+    )
+    assert os.path.exists(output_file)
+
+
+def test_alifestd_add_inner_leaves_cli_drop_topological_sensitivity():
+    output_file = "/tmp/hstrat_alifestd_add_inner_leaves_drop.csv"
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_add_inner_leaves",
+            "--drop-topological-sensitivity",
+            output_file,
+        ],
+        check=True,
+        input=f"{assets}/example-standard-toy-asexual-phylogeny.csv".encode(),
+    )
+    assert os.path.exists(output_file)

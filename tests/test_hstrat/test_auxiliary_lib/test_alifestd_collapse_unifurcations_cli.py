@@ -58,3 +58,41 @@ def test_alifestd_collapse_unifurcations_cli_parquet(tmp_path):
         input=f"{assets}/collapse_unifurcations_testphylo.csv".encode(),
     )
     assert os.path.exists(output_file)
+
+
+def test_alifestd_collapse_unifurcations_cli_ignore_topological_sensitivity(
+    tmp_path,
+):
+    output_file = str(tmp_path / "output.csv")
+    subprocess.run(  # nosec B603
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_collapse_unifurcations",
+            "--ignore-topological-sensitivity",
+            "--eager-write",
+            output_file,
+        ],
+        check=True,
+        input=f"{assets}/collapse_unifurcations_testphylo.csv".encode(),
+    )
+    assert os.path.exists(output_file)
+
+
+def test_alifestd_collapse_unifurcations_cli_drop_topological_sensitivity(
+    tmp_path,
+):
+    output_file = str(tmp_path / "output.csv")
+    subprocess.run(  # nosec B603
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_collapse_unifurcations",
+            "--drop-topological-sensitivity",
+            "--eager-write",
+            output_file,
+        ],
+        check=True,
+        input=f"{assets}/collapse_unifurcations_testphylo.csv".encode(),
+    )
+    assert os.path.exists(output_file)

@@ -60,3 +60,39 @@ def test_alifestd_prune_extinct_lineages_asexual_cli_parquet(tmp_path):
         input=f"{assets}/nk_ecoeaselection.csv".encode(),
     )
     assert os.path.exists(output_file)
+
+
+def test_alifestd_prune_extinct_lineages_asexual_cli_ignore_topological_sensitivity(
+    tmp_path,
+):
+    output_file = str(tmp_path / "output.csv")
+    subprocess.run(  # nosec B603
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_prune_extinct_lineages_asexual",
+            "--ignore-topological-sensitivity",
+            output_file,
+        ],
+        check=True,
+        input=f"{assets}/nk_ecoeaselection.csv".encode(),
+    )
+    assert os.path.exists(output_file)
+
+
+def test_alifestd_prune_extinct_lineages_asexual_cli_drop_topological_sensitivity(
+    tmp_path,
+):
+    output_file = str(tmp_path / "output.csv")
+    subprocess.run(  # nosec B603
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_prune_extinct_lineages_asexual",
+            "--drop-topological-sensitivity",
+            output_file,
+        ],
+        check=True,
+        input=f"{assets}/nk_ecoeaselection.csv".encode(),
+    )
+    assert os.path.exists(output_file)

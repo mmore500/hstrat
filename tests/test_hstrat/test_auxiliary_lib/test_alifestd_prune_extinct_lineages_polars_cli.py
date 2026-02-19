@@ -61,3 +61,41 @@ def test_alifestd_prune_extinct_lineages_polars_cli_empty(tmp_path):
         input=f"{assets}/empty.csv".encode(),
     )
     assert os.path.exists(output_file)
+
+
+def test_alifestd_prune_extinct_lineages_polars_cli_ignore_topological_sensitivity(
+    tmp_path,
+):
+    output_file = str(tmp_path / "output.csv")
+    subprocess.run(  # nosec B603
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_prune_extinct_lineages_polars",
+            "--ignore-topological-sensitivity",
+            "--eager-write",
+            output_file,
+        ],
+        check=True,
+        input=f"{assets}/prunetestphylo.csv".encode(),
+    )
+    assert os.path.exists(output_file)
+
+
+def test_alifestd_prune_extinct_lineages_polars_cli_drop_topological_sensitivity(
+    tmp_path,
+):
+    output_file = str(tmp_path / "output.csv")
+    subprocess.run(  # nosec B603
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_prune_extinct_lineages_polars",
+            "--drop-topological-sensitivity",
+            "--eager-write",
+            output_file,
+        ],
+        check=True,
+        input=f"{assets}/prunetestphylo.csv".encode(),
+    )
+    assert os.path.exists(output_file)
