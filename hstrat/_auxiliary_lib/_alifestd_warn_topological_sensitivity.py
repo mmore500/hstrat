@@ -1,3 +1,4 @@
+import os
 import typing
 import warnings
 
@@ -17,6 +18,10 @@ def _alifestd_warn_topological_sensitivity(
     update: bool,
 ) -> None:
     """Private helper: emit a warning listing invalidated columns."""
+    if os.environ.get(
+        "HSTRAT_ALIFESTD_WARN_TOPOLOGICAL_SENSITIVITY_SUPPRESS",
+    ):
+        return
     if invalidated:
         ops = "/".join(
             name
@@ -33,7 +38,9 @@ def _alifestd_warn_topological_sensitivity(
             f"{invalidated}. "
             "Use `origin_time` to recalculate branch lengths for "
             "collapsed phylogeny. To silence this warning, use "
-            "alifestd_drop_topological_sensitivity{_polars}."
+            "alifestd_drop_topological_sensitivity{_polars} or set "
+            "HSTRAT_ALIFESTD_WARN_TOPOLOGICAL_SENSITIVITY_SUPPRESS "
+            "in environ."
         )
 
 
