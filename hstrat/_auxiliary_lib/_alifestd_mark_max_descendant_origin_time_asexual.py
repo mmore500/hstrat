@@ -9,7 +9,7 @@ from ._jit import jit
 
 
 @jit(nopython=True)
-def alifestd_mark_max_descendant_origin_time_asexual_fast_path(
+def _alifestd_mark_max_descendant_origin_time_asexual_fast_path(
     ancestor_ids: np.ndarray,
     origin_times: np.ndarray,
 ) -> np.ndarray:
@@ -29,7 +29,7 @@ def alifestd_mark_max_descendant_origin_time_asexual_fast_path(
     return max_descendant_origin_times
 
 
-def alifestd_mark_max_descendant_origin_time_asexual_slow_path(
+def _alifestd_mark_max_descendant_origin_time_asexual_slow_path(
     phylogeny_df: pd.DataFrame,
 ) -> pd.DataFrame:
     """Implementation detail for `alifestd_mark_max_descendant_origin_time_asexual`."""
@@ -77,12 +77,12 @@ def alifestd_mark_max_descendant_origin_time_asexual(
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df[
             "max_descendant_origin_time"
-        ] = alifestd_mark_max_descendant_origin_time_asexual_fast_path(
+        ] = _alifestd_mark_max_descendant_origin_time_asexual_fast_path(
             pd.to_numeric(phylogeny_df["ancestor_id"]).to_numpy(),
             pd.to_numeric(phylogeny_df["origin_time"]).to_numpy(),
         )
         return phylogeny_df
     else:
-        return alifestd_mark_max_descendant_origin_time_asexual_slow_path(
+        return _alifestd_mark_max_descendant_origin_time_asexual_slow_path(
             phylogeny_df,
         )

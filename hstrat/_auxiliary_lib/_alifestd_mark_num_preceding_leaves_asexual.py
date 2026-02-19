@@ -16,7 +16,7 @@ from ._jit import jit
 
 
 @jit(nopython=True)
-def alifestd_mark_num_preceding_leaves_asexual_fast_path(
+def _alifestd_mark_num_preceding_leaves_asexual_fast_path(
     ancestor_ids: np.ndarray,
     num_leaves: np.ndarray,
     is_right_child: np.ndarray,
@@ -34,7 +34,7 @@ def alifestd_mark_num_preceding_leaves_asexual_fast_path(
     return num_preceding_leaves
 
 
-def alifestd_mark_num_preceding_leaves_asexual_slow_path(
+def _alifestd_mark_num_preceding_leaves_asexual_slow_path(
     phylogeny_df: pd.DataFrame,
 ) -> pd.DataFrame:
     """Implementation detail for
@@ -102,13 +102,13 @@ def alifestd_mark_num_preceding_leaves_asexual(
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df[
             "num_preceding_leaves"
-        ] = alifestd_mark_num_preceding_leaves_asexual_fast_path(
+        ] = _alifestd_mark_num_preceding_leaves_asexual_fast_path(
             phylogeny_df["ancestor_id"].to_numpy(),
             phylogeny_df["num_leaves"].to_numpy(),
             phylogeny_df["is_right_child"].to_numpy(),
         )
         return phylogeny_df
     else:
-        return alifestd_mark_num_preceding_leaves_asexual_slow_path(
+        return _alifestd_mark_num_preceding_leaves_asexual_slow_path(
             phylogeny_df,
         )
