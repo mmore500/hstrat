@@ -7,7 +7,6 @@ from hstrat._auxiliary_lib import (
     alifestd_find_leaf_ids,
     alifestd_find_root_ids,
     alifestd_has_multiple_roots,
-    alifestd_is_strictly_bifurcating_asexual,
     alifestd_make_empty,
     alifestd_mark_sackin_index_asexual,
     alifestd_validate,
@@ -30,12 +29,6 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 def test_fuzz(phylogeny_df: pd.DataFrame):
     original = phylogeny_df.copy()
 
-    # Skip non-bifurcating phylogenies (they should raise ValueError)
-    if not alifestd_is_strictly_bifurcating_asexual(phylogeny_df):
-        with pytest.raises(ValueError, match="strictly bifurcating"):
-            alifestd_mark_sackin_index_asexual(phylogeny_df)
-        return
-
     result = alifestd_mark_sackin_index_asexual(phylogeny_df)
 
     assert alifestd_validate(result)
@@ -50,11 +43,12 @@ def test_fuzz(phylogeny_df: pd.DataFrame):
         sackin = result[result["id"] == leaf_id]["sackin_index"].squeeze()
         assert sackin == 0
 
-    # Root Sackin index should be non-negative and max for strictly bifurcating
+    # Root should have the highest or equal Sackin index
     if not alifestd_has_multiple_roots(phylogeny_df):
         (root_id,) = alifestd_find_root_ids(phylogeny_df)
         root_sackin = result[result["id"] == root_id]["sackin_index"].squeeze()
         assert root_sackin >= 0
+        # Root sackin should be >= all other nodes' sackin
         assert root_sackin == result["sackin_index"].max()
 
 
@@ -64,10 +58,13 @@ def test_empty():
     assert len(res) == 0
 
 
-def test_simple_chain_raises():
+@pytest.mark.parametrize("mutate", [True, False])
+def test_simple_chain(mutate: bool):
     """Test a simple chain/caterpillar tree: 0 -> 1 -> 2.
 
-    Unifurcating chain is not strictly bifurcating, should raise ValueError.
+    Sackin index accumulates through all nodes.
+    Node 1: sackin = 0 + 1 = 1 (from leaf 2)
+    Node 0: sackin = 1 + 1 = 2 (from node 1)
     """
     phylogeny_df = pd.DataFrame(
         {
@@ -75,8 +72,24 @@ def test_simple_chain_raises():
             "ancestor_list": ["[None]", "[0]", "[1]"],
         }
     )
-    with pytest.raises(ValueError, match="strictly bifurcating"):
-        alifestd_mark_sackin_index_asexual(phylogeny_df)
+    original_df = phylogeny_df.copy()
+    result_df = alifestd_mark_sackin_index_asexual(
+        phylogeny_df,
+        mutate=mutate,
+    )
+    result_df.index = result_df["id"]
+
+    # Leaf has Sackin = 0
+    assert result_df.loc[2, "sackin_index"] == 0
+
+    # Node 1: 0 + 1 = 1
+    assert result_df.loc[1, "sackin_index"] == 1
+
+    # Node 0: 1 + 1 = 2
+    assert result_df.loc[0, "sackin_index"] == 2
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
 
 
 @pytest.mark.parametrize("mutate", [True, False])
@@ -217,14 +230,16 @@ def test_caterpillar_tree(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-def test_polytomy_raises():
-    r"""Test that polytomies (>2 children) raise ValueError.
+@pytest.mark.parametrize("mutate", [True, False])
+def test_polytomy_balanced(mutate: bool):
+    r"""Test a tree with balanced polytomy (more than 2 children).
 
           0
         / | \
        1  2  3
 
-    Polytomies are not strictly bifurcating, should raise ValueError.
+    Sackin index handles polytomies.
+    Node 0: (0+1) + (0+1) + (0+1) = 3
     """
     phylogeny_df = pd.DataFrame(
         {
@@ -232,12 +247,28 @@ def test_polytomy_raises():
             "ancestor_list": ["[None]", "[0]", "[0]", "[0]"],
         }
     )
-    with pytest.raises(ValueError, match="strictly bifurcating"):
-        alifestd_mark_sackin_index_asexual(phylogeny_df)
+    original_df = phylogeny_df.copy()
+    result_df = alifestd_mark_sackin_index_asexual(
+        phylogeny_df,
+        mutate=mutate,
+    )
+    result_df.index = result_df["id"]
+
+    # Leaves have Sackin = 0
+    assert result_df.loc[1, "sackin_index"] == 0
+    assert result_df.loc[2, "sackin_index"] == 0
+    assert result_df.loc[3, "sackin_index"] == 0
+
+    # Root with 3 children: (0+1) + (0+1) + (0+1) = 3
+    assert result_df.loc[0, "sackin_index"] == 3
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
 
 
-def test_polytomy_with_bifurcating_subtree_raises():
-    r"""Test tree with polytomy at root raises ValueError.
+@pytest.mark.parametrize("mutate", [True, False])
+def test_polytomy_imbalanced(mutate: bool):
+    r"""Test a tree with imbalanced polytomy.
 
             0
           / | \
@@ -245,7 +276,11 @@ def test_polytomy_with_bifurcating_subtree_raises():
               / \
              4   5
 
-    Tree has polytomy at root, should raise ValueError.
+    Node 3: (0+1) + (0+1) = 2
+    Node 0: (0+1) + (0+1) + (2+2) = 6
+
+    Leaves: 1 (depth 1), 2 (depth 1), 4 (depth 2), 5 (depth 2)
+    Total Sackin = 1 + 1 + 2 + 2 = 6
     """
     phylogeny_df = pd.DataFrame(
         {
@@ -253,8 +288,118 @@ def test_polytomy_with_bifurcating_subtree_raises():
             "ancestor_list": ["[None]", "[0]", "[0]", "[0]", "[3]", "[3]"],
         }
     )
-    with pytest.raises(ValueError, match="strictly bifurcating"):
-        alifestd_mark_sackin_index_asexual(phylogeny_df)
+    original_df = phylogeny_df.copy()
+    result_df = alifestd_mark_sackin_index_asexual(
+        phylogeny_df,
+        mutate=mutate,
+    )
+    result_df.index = result_df["id"]
+
+    # Leaves have Sackin = 0
+    assert result_df.loc[1, "sackin_index"] == 0
+    assert result_df.loc[2, "sackin_index"] == 0
+    assert result_df.loc[4, "sackin_index"] == 0
+    assert result_df.loc[5, "sackin_index"] == 0
+
+    # Node 3: (0+1) + (0+1) = 2
+    assert result_df.loc[3, "sackin_index"] == 2
+
+    # Node 0: (0+1) + (0+1) + (2+2) = 6
+    assert result_df.loc[0, "sackin_index"] == 6
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize("mutate", [True, False])
+def test_large_polytomy(mutate: bool):
+    r"""Test a tree with large polytomy (4 children).
+
+            0
+         / | | \
+        1  2 3  4
+
+    All leaves at depth 1.
+    Node 0: (0+1) + (0+1) + (0+1) + (0+1) = 4
+    """
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4],
+            "ancestor_list": ["[None]", "[0]", "[0]", "[0]", "[0]"],
+        }
+    )
+    original_df = phylogeny_df.copy()
+    result_df = alifestd_mark_sackin_index_asexual(
+        phylogeny_df,
+        mutate=mutate,
+    )
+    result_df.index = result_df["id"]
+
+    # All leaves have Sackin = 0
+    assert result_df.loc[1, "sackin_index"] == 0
+    assert result_df.loc[2, "sackin_index"] == 0
+    assert result_df.loc[3, "sackin_index"] == 0
+    assert result_df.loc[4, "sackin_index"] == 0
+
+    # Root with 4 children: 4 * 1 = 4
+    assert result_df.loc[0, "sackin_index"] == 4
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize("mutate", [True, False])
+def test_large_polytomy_imbalanced(mutate: bool):
+    r"""Test a tree with large imbalanced polytomy.
+
+              0
+         / | | \
+        1  2 3  4
+               / \
+              5   6
+
+    Node 4: (0+1) + (0+1) = 2
+    Node 0: (0+1) + (0+1) + (0+1) + (2+2) = 7
+
+    Leaves: 1,2,3 (depth 1), 5,6 (depth 2)
+    Total Sackin = 1 + 1 + 1 + 2 + 2 = 7
+    """
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6],
+            "ancestor_list": [
+                "[None]",
+                "[0]",
+                "[0]",
+                "[0]",
+                "[0]",
+                "[4]",
+                "[4]",
+            ],
+        }
+    )
+    original_df = phylogeny_df.copy()
+    result_df = alifestd_mark_sackin_index_asexual(
+        phylogeny_df,
+        mutate=mutate,
+    )
+    result_df.index = result_df["id"]
+
+    # Leaves have Sackin = 0
+    assert result_df.loc[1, "sackin_index"] == 0
+    assert result_df.loc[2, "sackin_index"] == 0
+    assert result_df.loc[3, "sackin_index"] == 0
+    assert result_df.loc[5, "sackin_index"] == 0
+    assert result_df.loc[6, "sackin_index"] == 0
+
+    # Node 4: (0+1) + (0+1) = 2
+    assert result_df.loc[4, "sackin_index"] == 2
+
+    # Node 0: (0+1) + (0+1) + (0+1) + (2+2) = 7
+    assert result_df.loc[0, "sackin_index"] == 7
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
 
 
 @pytest.mark.parametrize("mutate", [True, False])
@@ -289,26 +434,20 @@ def test_non_contiguous_ids(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-def test_multiple_roots_unifurcating_raises():
-    """Test with multiple roots (forest) with unifurcating structure raises."""
-    phylogeny_df = pd.DataFrame(
-        {
-            "id": [0, 1, 2, 3],
-            "ancestor_list": ["[None]", "[None]", "[0]", "[1]"],
-        }
-    )
-    # Unifurcating roots are not strictly bifurcating
-    with pytest.raises(ValueError, match="strictly bifurcating"):
-        alifestd_mark_sackin_index_asexual(phylogeny_df)
-
-
 @pytest.mark.parametrize("mutate", [True, False])
-def test_multiple_roots_bifurcating(mutate: bool):
-    """Test with multiple roots (forest) where each tree is bifurcating."""
+def test_non_contiguous_ids_polytomy(mutate: bool):
+    """Test polytomy with non-contiguous IDs to exercise slow path."""
     phylogeny_df = pd.DataFrame(
         {
-            "id": [0, 1, 2, 3, 4, 5],
-            "ancestor_list": ["[None]", "[None]", "[0]", "[0]", "[1]", "[1]"],
+            "id": [10, 20, 30, 40, 50, 60],
+            "ancestor_list": [
+                "[None]",
+                "[10]",
+                "[10]",
+                "[10]",
+                "[40]",
+                "[40]",
+            ],
         }
     )
     original_df = phylogeny_df.copy()
@@ -318,15 +457,38 @@ def test_multiple_roots_bifurcating(mutate: bool):
     )
     result_df.index = result_df["id"]
 
-    # Two separate balanced bifurcating trees
-    # Each root has 2 children with 1 leaf each -> (0+1) + (0+1) = 2
-    assert result_df.loc[0, "sackin_index"] == 2
-    assert result_df.loc[1, "sackin_index"] == 2
-    # Leaves have Sackin = 0
-    assert result_df.loc[2, "sackin_index"] == 0
-    assert result_df.loc[3, "sackin_index"] == 0
-    assert result_df.loc[4, "sackin_index"] == 0
-    assert result_df.loc[5, "sackin_index"] == 0
+    # Node 40: (0+1) + (0+1) = 2
+    assert result_df.loc[40, "sackin_index"] == 2
+
+    # Node 10: (0+1) + (0+1) + (2+2) = 6
+    assert result_df.loc[10, "sackin_index"] == 6
+
+    if not mutate:
+        assert original_df.equals(phylogeny_df)
+
+
+@pytest.mark.parametrize("mutate", [True, False])
+def test_multiple_roots(mutate: bool):
+    """Test with multiple roots (forest)."""
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3],
+            "ancestor_list": ["[None]", "[None]", "[0]", "[1]"],
+        }
+    )
+    original_df = phylogeny_df.copy()
+    result_df = alifestd_mark_sackin_index_asexual(
+        phylogeny_df,
+        mutate=mutate,
+    )
+    result_df.index = result_df["id"]
+
+    # Two separate trees, each with one child (unifurcating)
+    # Generalized handles unifurcations
+    assert result_df.loc[2, "sackin_index"] == 0  # leaf
+    assert result_df.loc[3, "sackin_index"] == 0  # leaf
+    assert result_df.loc[0, "sackin_index"] == 1  # 0 + 1 from child 2
+    assert result_df.loc[1, "sackin_index"] == 1  # 0 + 1 from child 3
 
     if not mutate:
         assert original_df.equals(phylogeny_df)
