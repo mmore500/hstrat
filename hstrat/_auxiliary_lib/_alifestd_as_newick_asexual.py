@@ -25,7 +25,6 @@ from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
-
 # adapted from https://stackoverflow.com/a/3939381/17332200
 _UNSAFE_SYMBOLS = ";(),[]:'"
 _UNSAFE_TRANSLATION_TABLE = str.maketrans("", "", _UNSAFE_SYMBOLS)

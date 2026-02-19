@@ -32,7 +32,8 @@ def test_empty_with_ancestor_id():
 
 def test_empty_with_root_attrs():
     res = alifestd_add_global_root(
-        alifestd_make_empty(), root_attrs={"origin_time": 42.0},
+        alifestd_make_empty(),
+        root_attrs={"origin_time": 42.0},
     )
     assert len(res) == 1
     assert res.iloc[0]["origin_time"] == 42.0
@@ -370,7 +371,9 @@ def test_root_attrs_origin_time(mutate: bool):
     )
 
     result_df = alifestd_add_global_root(
-        phylogeny_df, mutate=mutate, root_attrs={"origin_time": 5},
+        phylogeny_df,
+        mutate=mutate,
+        root_attrs={"origin_time": 5},
     )
 
     assert len(result_df) == 3
@@ -389,7 +392,9 @@ def test_root_attrs_new_column(mutate: bool):
     )
 
     result_df = alifestd_add_global_root(
-        phylogeny_df, mutate=mutate, root_attrs={"origin_time": 5},
+        phylogeny_df,
+        mutate=mutate,
+        root_attrs={"origin_time": 5},
     )
 
     assert len(result_df) == 3
@@ -458,8 +463,15 @@ def test_root_attrs_empty_with_existing_column(mutate: bool):
 
 @pytest.mark.parametrize(
     "col",
-    ["branch_length", "edge_length", "origin_time_delta", "node_depth",
-     "num_descendants", "num_children", "num_leaves"],
+    [
+        "branch_length",
+        "edge_length",
+        "origin_time_delta",
+        "node_depth",
+        "num_descendants",
+        "num_children",
+        "num_leaves",
+    ],
 )
 def test_warns_on_sensitive_column(col: str):
     phylogeny_df = pd.DataFrame(
@@ -528,7 +540,9 @@ def test_new_root_has_only_applicable_columns(mutate: bool):
     )
 
     result_df = alifestd_add_global_root(
-        phylogeny_df, mutate=mutate, root_attrs={"origin_time": 0},
+        phylogeny_df,
+        mutate=mutate,
+        root_attrs={"origin_time": 0},
     )
 
     new_root_id = result_df["id"].max()

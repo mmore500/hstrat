@@ -78,11 +78,7 @@ def alifestd_add_global_root(
     )
 
     # Create new root id
-    new_root_id = (
-        phylogeny_df["id"].max() + 1
-        if not phylogeny_df.empty
-        else 0
-    )
+    new_root_id = phylogeny_df["id"].max() + 1 if not phylogeny_df.empty else 0
 
     # Build the new root row
     new_root = {
