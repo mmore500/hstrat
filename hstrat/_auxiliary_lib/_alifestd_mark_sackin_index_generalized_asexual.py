@@ -48,9 +48,7 @@ def alifestd_mark_sackin_index_generalized_asexual_slow_path(
         ancestor_id = phylogeny_df.at[idx, "ancestor_id"]
         if ancestor_id != node_id:  # Not a root
             node_leaves = phylogeny_df.at[idx, "num_leaves"]
-            sackin_dict[ancestor_id] += (
-                sackin_dict[node_id] + node_leaves
-            )
+            sackin_dict[ancestor_id] += sackin_dict[node_id] + node_leaves
 
     return phylogeny_df["id"].map(sackin_dict).values
 

@@ -69,16 +69,12 @@ def alifestd_mark_colless_index_asexual_slow_path(
     local_colless = {}
     for node_id, child_counts in children_leaves.items():
         if len(child_counts) == 2:
-            local_colless[node_id] = abs(
-                child_counts[0] - child_counts[1]
-            )
+            local_colless[node_id] = abs(child_counts[0] - child_counts[1])
         else:
             local_colless[node_id] = 0
 
     # Initialize colless_index with local values
-    colless_dict = {
-        node_id: local_colless[node_id] for node_id in ids
-    }
+    colless_dict = {node_id: local_colless[node_id] for node_id in ids}
 
     # Accumulate subtree Colless (bottom-up via reversed iteration)
     for idx in reversed(phylogeny_df.index):
@@ -161,14 +157,10 @@ def alifestd_mark_colless_index_asexual(
             "for trees with polytomies"
         )
 
-    phylogeny_df = alifestd_try_add_ancestor_id_col(
-        phylogeny_df, mutate=True
-    )
+    phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
 
     if not alifestd_is_topologically_sorted(phylogeny_df):
-        phylogeny_df = alifestd_topological_sort(
-            phylogeny_df, mutate=True
-        )
+        phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
 
     if "num_leaves" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_num_leaves_asexual(

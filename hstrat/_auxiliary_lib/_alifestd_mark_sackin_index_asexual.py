@@ -61,9 +61,7 @@ def alifestd_mark_sackin_index_asexual_slow_path(
             # Only accumulate if parent is bifurcating
             if num_children[ancestor_id] == 2:
                 node_leaves = phylogeny_df.at[idx, "num_leaves"]
-                sackin_dict[ancestor_id] += (
-                    sackin_dict[node_id] + node_leaves
-                )
+                sackin_dict[ancestor_id] += sackin_dict[node_id] + node_leaves
 
     return phylogeny_df["id"].map(sackin_dict).values
 
