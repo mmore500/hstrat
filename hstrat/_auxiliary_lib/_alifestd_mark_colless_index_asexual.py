@@ -176,7 +176,6 @@ def alifestd_mark_colless_index_asexual(
     if "left_child_id" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_left_child_asexual(
             phylogeny_df, mutate=True
-
         )
 
     if alifestd_has_contiguous_ids(phylogeny_df):
