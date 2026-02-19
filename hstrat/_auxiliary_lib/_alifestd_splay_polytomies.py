@@ -6,10 +6,10 @@ import pandas as pd
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_asexual import alifestd_is_asexual
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
-from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_topological_sensitivity_warned import (
     alifestd_topological_sensitivity_warned,
 )
+from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._jit import jit
 from ._jit_numba_dict_t import jit_numba_dict_t
 from ._jit_numpy_int64_t import jit_numpy_int64_t
@@ -130,7 +130,9 @@ def _alifestd_splay_polytomies_slow_path(
 
 
 @alifestd_topological_sensitivity_warned(
-    insert=True, delete=False, update=True,
+    insert=True,
+    delete=False,
+    update=True,
 )
 def alifestd_splay_polytomies(
     phylogeny_df: pd.DataFrame,

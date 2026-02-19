@@ -7,10 +7,10 @@ from ._alifestd_is_asexual import alifestd_is_asexual
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
-from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_topological_sensitivity_warned import (
     alifestd_topological_sensitivity_warned,
 )
+from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
@@ -106,7 +106,9 @@ def _alifestd_coarsen_mask_sexual(
 
 
 @alifestd_topological_sensitivity_warned(
-    insert=False, delete=True, update=True,
+    insert=False,
+    delete=True,
+    update=True,
 )
 def alifestd_coarsen_mask(
     phylogeny_df: pd.DataFrame,

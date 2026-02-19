@@ -6,12 +6,12 @@ import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import pandas as pd
 
+from ._add_bool_arg import add_bool_arg
 from ._alifestd_mark_oldest_root import alifestd_mark_oldest_root
 from ._alifestd_mark_roots import alifestd_mark_roots
 from ._alifestd_topological_sensitivity_warned import (
     alifestd_topological_sensitivity_warned,
 )
-from ._add_bool_arg import add_bool_arg
 from ._configure_prod_logging import configure_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
@@ -20,7 +20,9 @@ from ._log_context_duration import log_context_duration
 
 
 @alifestd_topological_sensitivity_warned(
-    insert=False, delete=False, update=True,
+    insert=False,
+    delete=False,
+    update=True,
 )
 def alifestd_join_roots(
     phylogeny_df: pd.DataFrame, mutate: bool = False
@@ -46,17 +48,17 @@ def alifestd_join_roots(
     ]
 
     if "ancestor_id" in phylogeny_df:
-        phylogeny_df.loc[
-            phylogeny_df["is_root"], "ancestor_id"
-        ] = global_root_id
+        phylogeny_df.loc[phylogeny_df["is_root"], "ancestor_id"] = (
+            global_root_id
+        )
 
     if "ancestor_list" in phylogeny_df:
-        phylogeny_df.loc[
-            phylogeny_df["is_root"], "ancestor_list"
-        ] = f"[{global_root_id}]"
-        phylogeny_df.loc[
-            phylogeny_df["is_oldest_root"], "ancestor_list"
-        ] = "[none]"
+        phylogeny_df.loc[phylogeny_df["is_root"], "ancestor_list"] = (
+            f"[{global_root_id}]"
+        )
+        phylogeny_df.loc[phylogeny_df["is_oldest_root"], "ancestor_list"] = (
+            "[none]"
+        )
 
     phylogeny_df["is_root"] = False
     phylogeny_df.loc[phylogeny_df["is_oldest_root"], "is_root"] = True

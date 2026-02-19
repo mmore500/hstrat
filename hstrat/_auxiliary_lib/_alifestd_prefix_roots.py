@@ -34,7 +34,9 @@ def _alifestd_prefix_roots_fast(
 
 
 @alifestd_topological_sensitivity_warned(
-    insert=True, delete=False, update=True,
+    insert=True,
+    delete=False,
+    update=True,
 )
 def alifestd_prefix_roots(
     phylogeny_df: pd.DataFrame,

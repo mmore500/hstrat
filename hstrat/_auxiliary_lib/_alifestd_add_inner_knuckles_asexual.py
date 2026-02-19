@@ -9,7 +9,9 @@ from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
 @alifestd_topological_sensitivity_warned(
-    insert=True, delete=False, update=True,
+    insert=True,
+    delete=False,
+    update=True,
 )
 def alifestd_add_inner_knuckles_asexual(
     phylogeny_df: pd.DataFrame, mutate: bool = False

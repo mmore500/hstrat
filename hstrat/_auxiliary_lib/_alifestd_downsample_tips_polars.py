@@ -9,6 +9,7 @@ import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import polars as pl
 
+from ._add_bool_arg import add_bool_arg
 from ._alifestd_mark_leaves_polars import alifestd_mark_leaves_polars
 from ._alifestd_prune_extinct_lineages_polars import (
     alifestd_prune_extinct_lineages_polars,
@@ -16,7 +17,6 @@ from ._alifestd_prune_extinct_lineages_polars import (
 from ._alifestd_topological_sensitivity_warned_polars import (
     alifestd_topological_sensitivity_warned_polars,
 )
-from ._add_bool_arg import add_bool_arg
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
@@ -66,7 +66,9 @@ def _alifestd_downsample_tips_polars_impl(
 
 
 @alifestd_topological_sensitivity_warned_polars(
-    insert=False, delete=True, update=False,
+    insert=False,
+    delete=True,
+    update=False,
 )
 def alifestd_downsample_tips_polars(
     phylogeny_df: pl.DataFrame,

@@ -7,12 +7,12 @@ from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
 import pandas as pd
 
+from ._add_bool_arg import add_bool_arg
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_mark_leaves import alifestd_mark_leaves
 from ._alifestd_topological_sensitivity_warned import (
     alifestd_topological_sensitivity_warned,
 )
-from ._add_bool_arg import add_bool_arg
 from ._configure_prod_logging import configure_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
@@ -21,7 +21,9 @@ from ._log_context_duration import log_context_duration
 
 
 @alifestd_topological_sensitivity_warned(
-    insert=True, delete=False, update=False,
+    insert=True,
+    delete=False,
+    update=False,
 )
 def alifestd_add_inner_leaves(
     phylogeny_df: pd.DataFrame, mutate: bool = False

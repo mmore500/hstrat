@@ -3,14 +3,16 @@ import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_mark_oldest_root import alifestd_mark_oldest_root
-from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_topological_sensitivity_warned import (
     alifestd_topological_sensitivity_warned,
 )
+from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
 @alifestd_topological_sensitivity_warned(
-    insert=False, delete=True, update=True,
+    insert=False,
+    delete=True,
+    update=True,
 )
 def alifestd_collapse_trunk_asexual(
     phylogeny_df: pd.DataFrame,
@@ -61,9 +63,9 @@ def alifestd_collapse_trunk_asexual(
     del trunk_df
 
     if "ancestor_id" in phylogeny_df:
-        phylogeny_df.loc[
-            phylogeny_df["ancestor_is_trunk"], "ancestor_id"
-        ] = collapsed_root_id
+        phylogeny_df.loc[phylogeny_df["ancestor_is_trunk"], "ancestor_id"] = (
+            collapsed_root_id
+        )
 
     if "ancestor_list" in phylogeny_df:
         phylogeny_df.loc[

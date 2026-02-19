@@ -13,7 +13,9 @@ from ._alifestd_topological_sensitivity_warned_polars import (
 
 
 @alifestd_topological_sensitivity_warned_polars(
-    insert=True, delete=False, update=True,
+    insert=True,
+    delete=False,
+    update=True,
 )
 def alifestd_prefix_roots_polars(
     phylogeny_df: pl.DataFrame,

@@ -7,14 +7,16 @@ from ._alifestd_mark_num_children_asexual import (
     alifestd_mark_num_children_asexual,
 )
 from ._alifestd_mark_roots import alifestd_mark_roots
-from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_topological_sensitivity_warned import (
     alifestd_topological_sensitivity_warned,
 )
+from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
 @alifestd_topological_sensitivity_warned(
-    insert=False, delete=True, update=True,
+    insert=False,
+    delete=True,
+    update=True,
 )
 def alifestd_delete_unifurcating_roots_asexual(
     phylogeny_df: pd.DataFrame,

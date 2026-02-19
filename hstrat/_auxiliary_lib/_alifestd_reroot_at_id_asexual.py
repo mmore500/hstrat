@@ -3,16 +3,18 @@ import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
-from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
-from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
 from ._alifestd_topological_sensitivity_warned import (
     alifestd_topological_sensitivity_warned,
 )
+from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
 from ._pairwise import pairwise
 
 
 @alifestd_topological_sensitivity_warned(
-    insert=False, delete=False, update=True,
+    insert=False,
+    delete=False,
+    update=True,
 )
 def alifestd_reroot_at_id_asexual(
     phylogeny_df: pd.DataFrame,

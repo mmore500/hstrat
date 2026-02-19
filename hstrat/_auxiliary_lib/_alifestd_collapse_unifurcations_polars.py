@@ -6,6 +6,7 @@ import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import polars as pl
 
+from ._add_bool_arg import add_bool_arg
 from ._alifestd_assign_contiguous_ids_polars import (
     alifestd_assign_contiguous_ids_polars,
 )
@@ -19,7 +20,6 @@ from ._alifestd_is_topologically_sorted_polars import (
 from ._alifestd_topological_sensitivity_warned_polars import (
     alifestd_topological_sensitivity_warned_polars,
 )
-from ._add_bool_arg import add_bool_arg
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
@@ -27,7 +27,9 @@ from ._log_context_duration import log_context_duration
 
 
 @alifestd_topological_sensitivity_warned_polars(
-    insert=False, delete=True, update=True,
+    insert=False,
+    delete=True,
+    update=True,
 )
 def alifestd_collapse_unifurcations_polars(
     phylogeny_df: pl.DataFrame,

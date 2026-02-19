@@ -10,16 +10,16 @@ from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
 import pandas as pd
 
+from ._add_bool_arg import add_bool_arg
 from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_prune_extinct_lineages_asexual import (
     alifestd_prune_extinct_lineages_asexual,
 )
-from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_topological_sensitivity_warned import (
     alifestd_topological_sensitivity_warned,
 )
-from ._add_bool_arg import add_bool_arg
+from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._configure_prod_logging import configure_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
@@ -48,7 +48,9 @@ def _alifestd_downsample_tips_asexual_impl(
 
 
 @alifestd_topological_sensitivity_warned(
-    insert=False, delete=True, update=False,
+    insert=False,
+    delete=True,
+    update=False,
 )
 def alifestd_downsample_tips_asexual(
     phylogeny_df: pd.DataFrame,
