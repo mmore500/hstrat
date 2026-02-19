@@ -1,5 +1,8 @@
 import pandas as pd
 
+from ._alifestd_chronological_sensitivity_warned import (
+    alifestd_chronological_sensitivity_warned,
+)
 from ._alifestd_find_chronological_inconsistency import (
     alifestd_find_chronological_inconsistency,
 )
@@ -8,6 +11,11 @@ from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_topological_sort import alifestd_topological_sort
 
 
+@alifestd_chronological_sensitivity_warned(
+    shift=False,
+    rescale=False,
+    reassign=True,
+)
 def alifestd_coerce_chronological_consistency(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
