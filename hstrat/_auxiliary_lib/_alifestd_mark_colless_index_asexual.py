@@ -36,8 +36,7 @@ def alifestd_mark_colless_index_asexual_fast_path(
     # Compute local colless for each internal node
     # For bifurcating: right_leaves = num_leaves[node] - num_leaves[left]
     local_colless = np.zeros(n, dtype=np.int64)
-    for idx in range(n):
-        left_child = left_child_ids[idx]
+    for idx, left_child in enumerate(left_child_ids):
         if left_child != idx:  # Has children (internal node)
             left_leaves = num_leaves[left_child]
             right_leaves = num_leaves[idx] - left_leaves
