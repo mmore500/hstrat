@@ -39,7 +39,7 @@ def surface_test_drive(
                 - Own 'id' if root.
 
         Optional schema:
-            - 'origin_time' : pl.UInt64
+            - 'origin_time' : pl.Int64
                 - Number of generations elapsed from ancestor.
                 - Determines branch lengths.
                 - Otherwise, all branches are assumed to be length 1.
@@ -87,7 +87,7 @@ def surface_test_drive(
                 - Size of dstream counter field in 'data_hex'.
             - 'dstream_S' : pl.Uint32
                 - Capacity of dstream buffer, in number of data items.
-            - 'origin_time' : pl.UInt64
+            - 'origin_time' : pl.Int64
                 - Number of generations elapsed since the founding ancestor.
             - 'td_source_id' : pl.UInt64
                 - Corresponding taxon identifier in source phylogeny.
@@ -145,7 +145,7 @@ def surface_test_drive(
         "dstream_T_bitwidth": pl.UInt32,
         "dstream_T_bitoffset": pl.UInt32,
         "dstream_S": pl.UInt32,
-        "origin_time": pl.UInt64,
+        "origin_time": pl.Int64,
         "td_source_id": pl.UInt64,
     }
     return pl.concat(
