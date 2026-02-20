@@ -48,6 +48,10 @@ def alifestd_mark_node_depth_asexual_polars(
     alifestd_mark_node_depth_asexual :
         Pandas-based implementation.
     """
+    logging.info(
+        "- alifestd_mark_node_depth_asexual_polars: "
+        "adding ancestor_id col...",
+    )
     phylogeny_df = alifestd_try_add_ancestor_id_col_polars(phylogeny_df)
 
     if phylogeny_df.lazy().limit(1).collect().is_empty():
@@ -55,16 +59,28 @@ def alifestd_mark_node_depth_asexual_polars(
             node_depth=pl.lit(0).cast(pl.Int64),
         )
 
+    logging.info(
+        "- alifestd_mark_node_depth_asexual_polars: "
+        "checking contiguous ids...",
+    )
     if not alifestd_has_contiguous_ids_polars(phylogeny_df):
         raise NotImplementedError(
             "non-contiguous ids not yet supported",
         )
 
+    logging.info(
+        "- alifestd_mark_node_depth_asexual_polars: "
+        "checking topological sort...",
+    )
     if not alifestd_is_topologically_sorted_polars(phylogeny_df):
         raise NotImplementedError(
             "topologically unsorted rows not yet supported",
         )
 
+    logging.info(
+        "- alifestd_mark_node_depth_asexual_polars: "
+        "extracting ancestor ids...",
+    )
     ancestor_ids = (
         phylogeny_df.lazy()
         .select("ancestor_id")
@@ -73,6 +89,10 @@ def alifestd_mark_node_depth_asexual_polars(
         .to_numpy()
     )
 
+    logging.info(
+        "- alifestd_mark_node_depth_asexual_polars: "
+        "calculating node depths...",
+    )
     node_depths = _alifestd_calc_node_depth_asexual_contiguous(ancestor_ids)
 
     return phylogeny_df.with_columns(
