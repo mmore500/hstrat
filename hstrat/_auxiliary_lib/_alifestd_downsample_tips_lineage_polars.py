@@ -150,18 +150,24 @@ def alifestd_downsample_tips_lineage_polars(
         "- alifestd_downsample_tips_lineage_polars: "
         "selecting target leaf...",
     )
-    leaf_df = (
+    leaf_ids = (
         phylogeny_df.lazy()
         .filter(pl.col("is_leaf"))
-        .select("id", criterion_target)
+        .select("id")
         .collect()
+        .to_series()
     )
-    max_target = leaf_df.select(pl.col(criterion_target).max()).item()
-    candidates = leaf_df.filter(
-        pl.col(criterion_target) == max_target,
-    ).select("id")
+    leaf_target_values = (
+        phylogeny_df.lazy()
+        .filter(pl.col("is_leaf"))
+        .select(criterion_target)
+        .collect()
+        .to_series()
+    )
+    max_target = leaf_target_values.max()
+    candidate_ids = leaf_ids.filter(leaf_target_values == max_target)
     target_id = int(
-        candidates.sample(n=1, seed=seed).item(),
+        candidate_ids.sample(n=1, seed=seed).item(),
     )
 
     logging.info(
@@ -210,13 +216,12 @@ def alifestd_downsample_tips_lineage_polars(
     eligible_ids = ids[is_eligible]
     eligible_deltas = off_lineage_delta[is_eligible]
     kept_ids = (
-        pl.DataFrame(
+        pl.LazyFrame(
             {
                 "id": eligible_ids,
                 _delta_col: eligible_deltas,
             }
         )
-        .lazy()
         .sort(_delta_col)
         .head(num_tips)
         .select("id")
