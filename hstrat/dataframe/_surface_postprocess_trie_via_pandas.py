@@ -2,7 +2,6 @@ import gc
 import logging
 import typing
 
-import numpy as np
 import pandas as pd
 import polars as pl
 from tqdm import tqdm
@@ -52,8 +51,8 @@ def _do_delete_trunk(
     ):
         dstream_S = df["dstream_S"].unique().squeeze()
 
-    df["is_trunk"] = df["hstrat_rank"] < df["dstream_S"] - 1
-    df["origin_time"] = df["hstrat_rank"].astype(np.int64)
+    df["is_trunk"] = df["hstrat_rank"] < df["dstream_S"]
+    df["origin_time"] = df["hstrat_rank"]
 
     with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
         df = alifestd_delete_trunk_asexual(df, mutate=True)
@@ -135,7 +134,7 @@ def _surface_postprocess_trie_via_pandas(
     render_pandas_snapshot(df, "with trie postprocessing", logging.info)
 
     logging.info("setting up hstrat_rank_from_t0...")
-    df["hstrat_rank_from_t0"] = df["hstrat_rank"].astype(np.int64) - df["dstream_S"]
+    df["hstrat_rank_from_t0"] = df["hstrat_rank"] - df["dstream_S"]
 
     to_keep = {*original_columns} - {
         "dstream_S",

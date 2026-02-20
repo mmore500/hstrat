@@ -109,13 +109,13 @@ def surface_build_tree(
             - Unique identifier for each taxon (RE alife standard format).
         - 'ancestor_id' : pl.UInt64
             - Unique identifier for ancestor taxon  (RE alife standard format).
-        - 'hstrat_rank_from_t0' : pl.Int64
+        - 'hstrat_rank_from_t0' : pl.UInt64
             - Num generations elapsed for ancestral differentia.
             - Corresponds to `dstream_Tbar` - `dstream_S` for inner nodes.
             - Corresponds to `dstream_T` - 1 - `dstream_S` for leaf nodes.
 
         Optional schema:
-        - 'origin_time' : pl.Int64
+        - 'origin_time' : pl.UInt64
             - Estimated origin time for phylogeny nodes, in generations elapsed
               since founding ancestor.
 

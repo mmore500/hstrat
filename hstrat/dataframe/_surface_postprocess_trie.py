@@ -61,8 +61,8 @@ def _do_delete_trunk(
         dstream_S = get_sole_scalar_value_polars(df, "dstream_S")
 
     df = df.with_columns(
-        is_trunk=pl.col("hstrat_rank") < dstream_S - 1,
-        origin_time=pl.col("hstrat_rank").cast(pl.Int64),
+        is_trunk=pl.col("hstrat_rank") < dstream_S,
+        origin_time=pl.col("hstrat_rank"),
     )
 
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
@@ -199,7 +199,7 @@ def surface_postprocess_trie(
             - Unique identifier for each taxon (RE alife standard format).
         - 'ancestor_id' : pl.UInt64
             - Unique identifier for ancestor taxon  (RE alife standard format).
-        - 'hstrat_rank_from_t0' : pl.Int64
+        - 'hstrat_rank_from_t0' : pl.UInt64
             - Num generations elapsed for ancestral differentia.
             - Corresponds to `dstream_Tbar` - `dstream_S` for inner nodes.
             - Corresponds to `dstream_T` - 1 - `dstream_S` for leaf nodes.
@@ -268,7 +268,7 @@ def surface_postprocess_trie(
 
     logging.info("setting up hstrat_rank_from_t0...")
     df = df.with_columns(
-        hstrat_rank_from_t0=pl.col("hstrat_rank").cast(pl.Int64) - pl.col("dstream_S"),
+        hstrat_rank_from_t0=pl.col("hstrat_rank") - pl.col("dstream_S"),
     )
 
     to_keep = {*original_columns} - {

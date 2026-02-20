@@ -1,6 +1,5 @@
 import typing
 
-import numpy as np
 import pandas as pd
 import polars as pl
 
@@ -18,7 +17,8 @@ def _call_anytree(
     progress_wrap: typing.Callable,
 ) -> TrieInnerNode:
     for node in progress_wrap(AnyTreeFastPreOrderIter(trie)):
-        setattr(node, ftor._assigned_property, node.rank - ftor._t0(node))
+        t0 = getattr(node, ftor._t0) if isinstance(ftor._t0, str) else ftor._t0
+        setattr(node, ftor._assigned_property, node.rank - t0)
 
     return trie
 
@@ -27,7 +27,8 @@ def _call_pandas(
     ftor: "AssignOriginTimeNodeRankTriePostprocessor",
     trie: pd.DataFrame,
 ) -> TrieInnerNode:
-    trie[ftor._assigned_property] = trie["rank"].astype(np.int64) - ftor._t0(trie)
+    t0 = trie[ftor._t0] if isinstance(ftor._t0, str) else ftor._t0
+    trie[ftor._assigned_property] = trie["rank"] - t0
     return trie
 
 
@@ -35,8 +36,9 @@ def _call_polars(
     ftor: "AssignOriginTimeNodeRankTriePostprocessor",
     trie: pl.DataFrame,
 ) -> TrieInnerNode:
+    t0 = pl.col(ftor._t0) if isinstance(ftor._t0, str) else pl.lit(ftor._t0)
     return trie.with_columns(
-        (pl.col("rank").cast(pl.Int64) - ftor._t0(trie)).alias(ftor._assigned_property),
+        (pl.col("rank") - t0).alias(ftor._assigned_property),
     )
 
 
@@ -44,14 +46,13 @@ class AssignOriginTimeNodeRankTriePostprocessor(TriePostprocessorBase):
     """Functor to assign trie nodes' rank as their the origin time."""
 
     _assigned_property: str
-    _t0: typing.Callable
+    _t0: int
 
     def __init__(
         self: "AssignOriginTimeNodeRankTriePostprocessor",
         assigned_property: str = "origin_time",
         *,
         t0: typing.Union[int, str] = 0,
-        t0_func: typing.Optional[typing.Callable] = None
     ) -> None:
         """Initialize functor instance.
 
@@ -59,19 +60,11 @@ class AssignOriginTimeNodeRankTriePostprocessor(TriePostprocessorBase):
         ----------
         assigned_property : str, default "origin_time"
             The property name for the assigned origin time.
-        t0 : Callable
-            Function that takes in a DataFrame (polars or pandas) and returns
-            the origin time offset (as a scalar or series).
-
-            Example function: lambda df: pl.col("dstream_S") - 1 if isinstance(df, pl.DataFrame) else df["dstream_S"] - 1
+        t0 : int or str, default 0
+            The property name or constant value for the origin time offset.
         """
         self._assigned_property = assigned_property
-        if t0_func is not None:
-            self._t0 = t0_func
-        elif isinstance(t0, str):
-            self._t0 = lambda df: pl.col(t0) if isinstance(df, pl.DataFrame) else df[t0] if isinstance(df, pd.DataFrame) else getattr(df, t0)
-        else:
-            self._t0 = lambda _: t0
+        self._t0 = t0
 
     def __call__(
         self: "AssignOriginTimeNodeRankTriePostprocessor",
