@@ -1,5 +1,6 @@
 import typing
 
+import numpy as np
 import pandas as pd
 import polars as pl
 
@@ -28,7 +29,7 @@ def _call_pandas(
     trie: pd.DataFrame,
 ) -> TrieInnerNode:
     t0 = trie[ftor._t0] if isinstance(ftor._t0, str) else ftor._t0
-    trie[ftor._assigned_property] = trie["rank"] - t0
+    trie[ftor._assigned_property] = trie["rank"].astype(np.int64) - t0
     return trie
 
 
@@ -38,7 +39,7 @@ def _call_polars(
 ) -> TrieInnerNode:
     t0 = pl.col(ftor._t0) if isinstance(ftor._t0, str) else pl.lit(ftor._t0)
     return trie.with_columns(
-        (pl.col("rank") - t0).alias(ftor._assigned_property),
+        (pl.col("rank").cast(pl.Int64) - t0).alias(ftor._assigned_property),
     )
 
 

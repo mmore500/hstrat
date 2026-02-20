@@ -35,7 +35,7 @@ df : pl.DataFrame
             - Own 'id' if root.
 
     Optional schema:
-        - 'origin_time' : pl.UInt64
+        - 'origin_time' : pl.Int64
             - Number of generations elapsed from ancestor.
             - Determines branch lengths.
             - Otherwise, all branches are assumed to be length 1.
@@ -75,7 +75,7 @@ pl.DataFrame
             - Size of dstream counter field in 'data_hex'.
         - 'dstream_S' : pl.Uint32
             - Capacity of dstream buffer, in number of data items.
-        - 'origin_time' : pl.UInt64
+        - 'origin_time' : pl.Int64
             - Number of generations elapsed since the founding ancestor.
 
     Additional user-defined columns will be forwarded from the input DataFrame.
