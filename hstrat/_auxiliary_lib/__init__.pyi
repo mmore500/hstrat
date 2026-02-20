@@ -109,6 +109,9 @@ from ._alifestd_downsample_tips_canopy_polars import (
 from ._alifestd_downsample_tips_clade_asexual import (
     alifestd_downsample_tips_clade_asexual,
 )
+from ._alifestd_downsample_tips_lineage_asexual import (
+    alifestd_downsample_tips_lineage_asexual,
+)
 from ._alifestd_downsample_tips_polars import alifestd_downsample_tips_polars
 from ._alifestd_drop_topological_sensitivity import (
     alifestd_drop_topological_sensitivity,
@@ -509,6 +512,7 @@ __all__ = [
     "alifestd_downsample_tips_canopy_polars",
     "alifestd_downsample_tips_asexual",
     "alifestd_downsample_tips_clade_asexual",
+    "alifestd_downsample_tips_lineage_asexual",
     "alifestd_downsample_tips_polars",
     "alifestd_drop_topological_sensitivity",
     "alifestd_drop_topological_sensitivity_polars",
