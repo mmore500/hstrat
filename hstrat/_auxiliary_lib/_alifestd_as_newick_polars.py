@@ -29,7 +29,7 @@ from ._log_context_duration import log_context_duration
 
 
 def alifestd_as_newick_polars(
-    phylogeny_df: typing.Union[pl.DataFrame, pl.LazyFrame],
+    phylogeny_df: pl.DataFrame,
     *,
     taxon_label: typing.Optional[str] = None,
     progress_wrap: typing.Callable = lambda x: x,
@@ -40,7 +40,7 @@ def alifestd_as_newick_polars(
 
     Parameters
     ----------
-    phylogeny_df : polars.DataFrame or polars.LazyFrame
+    phylogeny_df : polars.DataFrame
         Phylogeny dataframe in Alife standard format.
     taxon_label : str, optional
         Column to use for taxon labels, by default None.
