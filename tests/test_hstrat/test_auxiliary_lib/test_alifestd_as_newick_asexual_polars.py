@@ -15,18 +15,10 @@ from hstrat._auxiliary_lib import (
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
-@pytest.mark.parametrize(
-    "phylogeny_df",
-    [
-        pd.read_csv(
-            f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
-        ),
-        pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
-        pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
-    ],
-)
-def test_fuzz(phylogeny_df: pd.DataFrame):
+def test_fuzz():
+    phylogeny_df = pd.read_csv(
+        f"{assets_path}/example-standard-toy-asexual-phylogeny.csv"
+    )
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
     phylogeny_pl = pl.from_pandas(phylogeny_df)
 
@@ -77,21 +69,21 @@ def test_simple1():
     assert result == "((:1):4):3.1;"
 
 
-def test_simple2():
+def test_simple2_non_contiguous():
     phylogeny_df = pl.DataFrame(
         {
             "id": [3, 0, 1, 2],
             "ancestor_list": ["[0]", "[1]", "[None]", "[1]"],
         },
     )
-    result = alifestd_as_newick_asexual_polars(
-        phylogeny_df,
-        taxon_label=None,
-    )
-    assert result == "(,());"
+    with pytest.raises(NotImplementedError):
+        alifestd_as_newick_asexual_polars(
+            phylogeny_df,
+            taxon_label=None,
+        )
 
 
-def test_simple3():
+def test_simple3_non_contiguous():
     phylogeny_df = pl.DataFrame(
         {
             "id": [4, 0, 2, 3],
@@ -99,11 +91,11 @@ def test_simple3():
             "label": ["A", "B", "C", "D"],
         },
     )
-    result = alifestd_as_newick_asexual_polars(
-        phylogeny_df,
-        taxon_label="label",
-    )
-    assert result == "(D)A;\n(C)B;"
+    with pytest.raises(NotImplementedError):
+        alifestd_as_newick_asexual_polars(
+            phylogeny_df,
+            taxon_label="label",
+        )
 
 
 def test_simple4():
@@ -205,7 +197,7 @@ def test_with_ancestor_id_col():
 
 
 def test_non_contiguous_ids():
-    """Test with non-contiguous IDs."""
+    """Test that non-contiguous IDs raise NotImplementedError."""
     phylogeny_df = pl.DataFrame(
         {
             "id": [10, 20, 30],
@@ -213,15 +205,15 @@ def test_non_contiguous_ids():
             "origin_time_delta": [3.1, 4.0, 1.0],
         },
     )
-    result = alifestd_as_newick_asexual_polars(
-        phylogeny_df,
-        taxon_label=None,
-    )
-    assert result == "((:1):4):3.1;"
+    with pytest.raises(NotImplementedError):
+        alifestd_as_newick_asexual_polars(
+            phylogeny_df,
+            taxon_label=None,
+        )
 
 
 def test_non_topologically_sorted():
-    """Test with data that is not in topological order."""
+    """Test that non-topologically-sorted data raises NotImplementedError."""
     phylogeny_df = pl.DataFrame(
         {
             "id": [0, 1, 2],
@@ -229,8 +221,8 @@ def test_non_topologically_sorted():
             "origin_time_delta": [1.0, 3.1, 4.0],
         },
     )
-    result = alifestd_as_newick_asexual_polars(
-        phylogeny_df,
-        taxon_label=None,
-    )
-    assert result == "((:4):1):3.1;"
+    with pytest.raises(NotImplementedError):
+        alifestd_as_newick_asexual_polars(
+            phylogeny_df,
+            taxon_label=None,
+        )

@@ -9,7 +9,6 @@ from ._alifestd_has_contiguous_ids_polars import (
     alifestd_has_contiguous_ids_polars,
 )
 from ._alifestd_is_topologically_sorted import (
-    _is_topologically_sorted,
     _is_topologically_sorted_contiguous,
 )
 from ._alifestd_mark_node_depth_asexual import (
@@ -18,55 +17,6 @@ from ._alifestd_mark_node_depth_asexual import (
 from ._alifestd_try_add_ancestor_id_col_polars import (
     alifestd_try_add_ancestor_id_col_polars,
 )
-
-
-def _calc_node_depth_general(
-    ids: np.ndarray,
-    ancestor_ids: np.ndarray,
-) -> np.ndarray:
-    """Compute node depths for non-contiguous IDs in topological order."""
-    id_to_idx = {}
-    for idx, id_val in enumerate(ids):
-        id_to_idx[int(id_val)] = idx
-
-    node_depths = np.empty(len(ids), dtype=np.int64)
-    for idx, ancestor_id in enumerate(ancestor_ids):
-        ancestor_idx = id_to_idx[int(ancestor_id)]
-        node_depths[idx] = node_depths[ancestor_idx] + 1
-
-    return node_depths
-
-
-def _topological_sort_general(
-    ids: np.ndarray,
-    ancestor_ids: np.ndarray,
-) -> np.ndarray:
-    """Return row indices in topological order for non-contiguous IDs."""
-    id_to_idx = {}
-    children = {}
-    roots = []
-
-    for idx, (id_val, anc_val) in enumerate(zip(ids, ancestor_ids)):
-        id_val = int(id_val)
-        anc_val = int(anc_val)
-        id_to_idx[id_val] = idx
-        if id_val == anc_val:
-            roots.append(idx)
-        else:
-            children.setdefault(anc_val, []).append(idx)
-
-    sorted_indices = []
-    queue = list(roots)
-    head = 0
-    while head < len(queue):
-        idx = queue[head]
-        head += 1
-        sorted_indices.append(idx)
-        id_val = int(ids[idx])
-        if id_val in children:
-            queue.extend(children[id_val])
-
-    return np.array(sorted_indices, dtype=np.intp)
 
 
 def alifestd_as_newick_asexual_polars(
@@ -109,23 +59,16 @@ def alifestd_as_newick_asexual_polars(
         pl.col("ancestor_id").cast(pl.Int64),
     )
 
+    if not alifestd_has_contiguous_ids_polars(phylogeny_df):
+        raise NotImplementedError("non-contiguous ids not yet supported")
+
     ids = phylogeny_df["id"].to_numpy()
     ancestor_ids = phylogeny_df["ancestor_id"].to_numpy()
-    is_contiguous = alifestd_has_contiguous_ids_polars(phylogeny_df)
 
-    logging.info("ensuring topological sort...")
-    is_sorted = (
-        _is_topologically_sorted_contiguous(ancestor_ids)
-        if is_contiguous
-        else _is_topologically_sorted(ids, ancestor_ids)
-    )
-
-    if not is_sorted:
-        sorted_indices = _topological_sort_general(ids, ancestor_ids)
-        phylogeny_df = phylogeny_df[sorted_indices]
-        ids = phylogeny_df["id"].to_numpy()
-        ancestor_ids = phylogeny_df["ancestor_id"].to_numpy()
-        is_contiguous = alifestd_has_contiguous_ids_polars(phylogeny_df)
+    if not _is_topologically_sorted_contiguous(ancestor_ids):
+        raise NotImplementedError(
+            "polars topological sort not yet implemented",
+        )
 
     logging.info("setting up `origin_time_delta`...")
     schema_names = phylogeny_df.lazy().collect_schema().names()
@@ -136,31 +79,16 @@ def alifestd_as_newick_asexual_polars(
         )
     elif "origin_time" in schema_names:
         logging.info("... calculating from `origin_time`...")
-        if is_contiguous:
-            origin_times = phylogeny_df["origin_time"].to_numpy().astype(float)
-            origin_time_deltas = (
-                origin_times - origin_times[ancestor_ids.astype(int)]
-            )
-        else:
-            id_to_idx = {}
-            for idx, id_val in enumerate(ids):
-                id_to_idx[int(id_val)] = idx
-            origin_times = phylogeny_df["origin_time"].to_numpy().astype(float)
-            ancestor_origin_times = np.array(
-                [origin_times[id_to_idx[int(a)]] for a in ancestor_ids],
-            )
-            origin_time_deltas = origin_times - ancestor_origin_times
+        origin_times = phylogeny_df["origin_time"].to_numpy().astype(float)
+        origin_time_deltas = (
+            origin_times - origin_times[ancestor_ids.astype(int)]
+        )
     else:
         logging.info("... marking null")
         origin_time_deltas = np.full(len(phylogeny_df), np.nan)
 
     logging.info("calculating node depth...")
-    if is_contiguous:
-        node_depths = _alifestd_calc_node_depth_asexual_contiguous(
-            ancestor_ids,
-        )
-    else:
-        node_depths = _calc_node_depth_general(ids, ancestor_ids)
+    node_depths = _alifestd_calc_node_depth_asexual_contiguous(ancestor_ids)
 
     logging.info("calculating postorder traversal order...")
     postorder_index = np.lexsort((ancestor_ids, node_depths))[::-1]
