@@ -217,9 +217,9 @@ def alifestd_downsample_tips_lineage_polars(
         "- alifestd_downsample_tips_lineage_polars: marking extant...",
     )
     n = len(ids)
-    extant = np.bincount(kept_ids, minlength=n).astype(bool)
+    is_extant = np.bincount(kept_ids, minlength=n).astype(bool)
     phylogeny_df = phylogeny_df.with_columns(
-        extant=pl.Series("extant", extant),
+        extant=is_extant,
     )
 
     logging.info(
