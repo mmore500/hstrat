@@ -20,7 +20,7 @@ def working_format_csv(tmp_path):
 
 
 def test_alifestd_downsample_tips_lineage_asexual_cli_help():
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -32,7 +32,7 @@ def test_alifestd_downsample_tips_lineage_asexual_cli_help():
 
 
 def test_alifestd_downsample_tips_lineage_asexual_cli_version():
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -49,7 +49,7 @@ def test_alifestd_downsample_tips_lineage_asexual_cli_csv(
     output_file = str(
         tmp_path / "hstrat_alifestd_downsample_tips_lineage_asexual.csv"
     )
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -74,7 +74,7 @@ def test_alifestd_downsample_tips_lineage_asexual_cli_parquet(
     output_file = str(
         tmp_path / "hstrat_alifestd_downsample_tips_lineage_asexual.pqt"
     )
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -95,7 +95,7 @@ def test_alifestd_downsample_tips_lineage_asexual_cli_ignore_topological_sensiti
     output_file = str(
         tmp_path / "hstrat_alifestd_downsample_tips_lineage_asexual_ignore.csv"
     )
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -117,7 +117,7 @@ def test_alifestd_downsample_tips_lineage_asexual_cli_drop_topological_sensitivi
     output_file = str(
         tmp_path / "hstrat_alifestd_downsample_tips_lineage_asexual_drop.csv"
     )
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
