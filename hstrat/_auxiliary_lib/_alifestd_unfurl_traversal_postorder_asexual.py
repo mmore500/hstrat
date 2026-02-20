@@ -1,8 +1,31 @@
 import numpy as np
 import pandas as pd
 
-from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
+from ._alifestd_mark_node_depth_asexual import (
+    _alifestd_calc_node_depth_asexual_contiguous,
+    alifestd_mark_node_depth_asexual,
+)
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+
+
+def _unfurl_traversal_postorder_asexual_contiguous(
+    ancestor_ids: np.ndarray,
+) -> np.ndarray:
+    """Return postorder traversal indices for contiguous, sorted phylogeny.
+
+    Parameters
+    ----------
+    ancestor_ids : np.ndarray
+        Array of ancestor IDs, assumed contiguous (ids == row indices)
+        and topologically sorted.
+
+    Returns
+    -------
+    np.ndarray
+        Index array giving postorder traversal order.
+    """
+    node_depths = _alifestd_calc_node_depth_asexual_contiguous(ancestor_ids)
+    return np.lexsort((ancestor_ids, node_depths))[::-1]
 
 
 def alifestd_unfurl_traversal_postorder_asexual(

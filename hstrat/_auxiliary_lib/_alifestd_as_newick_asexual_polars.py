@@ -11,11 +11,11 @@ from ._alifestd_has_contiguous_ids_polars import (
 from ._alifestd_is_topologically_sorted import (
     _is_topologically_sorted_contiguous,
 )
-from ._alifestd_mark_node_depth_asexual import (
-    _alifestd_calc_node_depth_asexual_contiguous,
-)
 from ._alifestd_try_add_ancestor_id_col_polars import (
     alifestd_try_add_ancestor_id_col_polars,
+)
+from ._alifestd_unfurl_traversal_postorder_asexual import (
+    _unfurl_traversal_postorder_asexual_contiguous,
 )
 
 
@@ -85,11 +85,10 @@ def alifestd_as_newick_asexual_polars(
         logging.info("... marking null")
         origin_time_deltas = np.full(len(phylogeny_df), np.nan)
 
-    logging.info("calculating node depth...")
-    node_depths = _alifestd_calc_node_depth_asexual_contiguous(ancestor_ids)
-
     logging.info("calculating postorder traversal order...")
-    postorder_index = np.lexsort((ancestor_ids, node_depths))[::-1]
+    postorder_index = _unfurl_traversal_postorder_asexual_contiguous(
+        ancestor_ids,
+    )
 
     logging.info("preparing labels...")
     if taxon_label is not None:
