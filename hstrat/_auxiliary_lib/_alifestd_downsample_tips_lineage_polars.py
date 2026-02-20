@@ -10,6 +10,7 @@ import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import polars as pl
 
+from ._RngStateContext import RngStateContext
 from ._add_bool_arg import add_bool_arg
 from ._alifestd_calc_mrca_id_vector_asexual_polars import (
     alifestd_calc_mrca_id_vector_asexual_polars,
@@ -38,7 +39,6 @@ from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
-from ._RngStateContext import RngStateContext
 
 
 @alifestd_topological_sensitivity_warned_polars(
@@ -159,11 +159,7 @@ def alifestd_downsample_tips_lineage_polars(
         "computing lineage downsample...",
     )
     is_leaf = (
-        phylogeny_df.lazy()
-        .select("is_leaf")
-        .collect()
-        .to_series()
-        .to_numpy()
+        phylogeny_df.lazy().select("is_leaf").collect().to_series().to_numpy()
     )
     target_values = (
         phylogeny_df.lazy()
@@ -180,7 +176,9 @@ def alifestd_downsample_tips_lineage_polars(
         .to_numpy()
     )
 
-    rng_ctx = RngStateContext(seed) if seed is not None else contextlib.nullcontext()
+    rng_ctx = (
+        RngStateContext(seed) if seed is not None else contextlib.nullcontext()
+    )
     with rng_ctx:
         target_id = _alifestd_downsample_tips_lineage_select_target_id(
             is_leaf, target_values

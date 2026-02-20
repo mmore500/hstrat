@@ -10,6 +10,7 @@ import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import pandas as pd
 
+from ._RngStateContext import RngStateContext
 from ._add_bool_arg import add_bool_arg
 from ._alifestd_calc_mrca_id_vector_asexual import (
     alifestd_calc_mrca_id_vector_asexual,
@@ -32,7 +33,6 @@ from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
-from ._RngStateContext import RngStateContext
 
 
 @alifestd_topological_sensitivity_warned(
@@ -133,7 +133,9 @@ def alifestd_downsample_tips_lineage_asexual(
     target_values = phylogeny_df[criterion_target].to_numpy()
     criterion_values = phylogeny_df[criterion_delta].to_numpy()
 
-    rng_ctx = RngStateContext(seed) if seed is not None else contextlib.nullcontext()
+    rng_ctx = (
+        RngStateContext(seed) if seed is not None else contextlib.nullcontext()
+    )
     with rng_ctx:
         target_id = _alifestd_downsample_tips_lineage_select_target_id(
             is_leaf, target_values
