@@ -48,6 +48,9 @@ from ._alifestd_calc_mrca_id_matrix_asexual import (
 from ._alifestd_calc_mrca_id_vector_asexual import (
     alifestd_calc_mrca_id_vector_asexual,
 )
+from ._alifestd_calc_mrca_id_vector_asexual_polars import (
+    alifestd_calc_mrca_id_vector_asexual_polars,
+)
 from ._alifestd_calc_polytomic_index import alifestd_calc_polytomic_index
 from ._alifestd_calc_triplet_distance_asexual import (
     alifestd_calc_triplet_distance_asexual,
@@ -96,18 +99,21 @@ from ._alifestd_delete_trunk_asexual_polars import (
 from ._alifestd_delete_unifurcating_roots_asexual import (
     alifestd_delete_unifurcating_roots_asexual,
 )
-from ._alifestd_downsample_canopy_asexual import (
-    alifestd_downsample_canopy_asexual,
-)
-from ._alifestd_downsample_canopy_polars import (
-    alifestd_downsample_canopy_polars,
-)
 from ._alifestd_downsample_tips_asexual import alifestd_downsample_tips_asexual
+from ._alifestd_downsample_tips_canopy_asexual import (
+    alifestd_downsample_tips_canopy_asexual,
+)
+from ._alifestd_downsample_tips_canopy_polars import (
+    alifestd_downsample_tips_canopy_polars,
+)
 from ._alifestd_downsample_tips_clade_asexual import (
     alifestd_downsample_tips_clade_asexual,
 )
 from ._alifestd_downsample_tips_lineage_asexual import (
     alifestd_downsample_tips_lineage_asexual,
+)
+from ._alifestd_downsample_tips_lineage_polars import (
+    alifestd_downsample_tips_lineage_polars,
 )
 from ._alifestd_downsample_tips_polars import alifestd_downsample_tips_polars
 from ._alifestd_drop_topological_sensitivity import (
@@ -222,6 +228,9 @@ from ._alifestd_mark_max_descendant_origin_time_asexual import (
     alifestd_mark_max_descendant_origin_time_asexual,
 )
 from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
+from ._alifestd_mark_node_depth_asexual_polars import (
+    alifestd_mark_node_depth_asexual_polars,
+)
 from ._alifestd_mark_num_children_asexual import (
     alifestd_mark_num_children_asexual,
 )
@@ -478,6 +487,7 @@ __all__ = [
     "alifestd_calc_clade_trait_frequency_asexual",
     "alifestd_calc_mrca_id_matrix_asexual",
     "alifestd_calc_mrca_id_vector_asexual",
+    "alifestd_calc_mrca_id_vector_asexual_polars",
     "alifestd_calc_polytomic_index",
     "alifestd_calc_triplet_distance_asexual",
     "alifestd_categorize_triplet_asexual",
@@ -501,11 +511,12 @@ __all__ = [
     "alifestd_delete_trunk_asexual",
     "alifestd_delete_trunk_asexual_polars",
     "alifestd_delete_unifurcating_roots_asexual",
-    "alifestd_downsample_canopy_asexual",
-    "alifestd_downsample_canopy_polars",
+    "alifestd_downsample_tips_canopy_asexual",
+    "alifestd_downsample_tips_canopy_polars",
     "alifestd_downsample_tips_asexual",
     "alifestd_downsample_tips_clade_asexual",
     "alifestd_downsample_tips_lineage_asexual",
+    "alifestd_downsample_tips_lineage_polars",
     "alifestd_downsample_tips_polars",
     "alifestd_drop_topological_sensitivity",
     "alifestd_drop_topological_sensitivity_polars",
@@ -557,6 +568,7 @@ __all__ = [
     "alifestd_mark_left_child_asexual",
     "alifestd_mark_max_descendant_origin_time_asexual",
     "alifestd_mark_node_depth_asexual",
+    "alifestd_mark_node_depth_asexual_polars",
     "alifestd_mark_num_children_asexual",
     "alifestd_mark_num_children_polars",
     "alifestd_mark_num_descendants_asexual",

@@ -1,0 +1,137 @@
+import os
+import subprocess
+
+import pandas as pd
+import pytest
+
+from hstrat._auxiliary_lib import alifestd_to_working_format
+
+assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+
+
+@pytest.fixture
+def working_format_csv(tmp_path):
+    """Create a working-format CSV from the NK dataset."""
+    df = pd.read_csv(f"{assets}/nk_ecoeaselection.csv")
+    wf = alifestd_to_working_format(df)
+    path = str(tmp_path / "working_format_input.csv")
+    wf.to_csv(path, index=False)
+    return path
+
+
+def test_alifestd_downsample_tips_lineage_polars_cli_help():
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_polars",
+            "--help",
+        ],
+        check=True,
+    )
+
+
+def test_alifestd_downsample_tips_lineage_polars_cli_version():
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_polars",
+            "--version",
+        ],
+        check=True,
+    )
+
+
+def test_alifestd_downsample_tips_lineage_polars_cli_csv(
+    tmp_path, working_format_csv
+):
+    output_file = str(
+        tmp_path / "hstrat_alifestd_downsample_tips_lineage_polars.csv"
+    )
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_polars",
+            "-n",
+            "1",
+            "--criterion-delta",
+            "origin_time",
+            "--criterion-target",
+            "origin_time",
+            "--eager-write",
+            output_file,
+        ],
+        check=True,
+        input=working_format_csv.encode(),
+    )
+    assert os.path.exists(output_file)
+
+
+def test_alifestd_downsample_tips_lineage_polars_cli_parquet(
+    tmp_path, working_format_csv
+):
+    output_file = str(
+        tmp_path / "hstrat_alifestd_downsample_tips_lineage_polars.pqt"
+    )
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_polars",
+            "-n",
+            "1",
+            "--eager-write",
+            output_file,
+        ],
+        check=True,
+        input=working_format_csv.encode(),
+    )
+    assert os.path.exists(output_file)
+
+
+def test_alifestd_downsample_tips_lineage_polars_cli_ignore_topological_sensitivity(  # noqa: E501
+    tmp_path, working_format_csv
+):
+    output_file = str(
+        tmp_path / "hstrat_alifestd_downsample_tips_lineage_polars_ignore.csv"
+    )
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_polars",
+            "-n",
+            "1",
+            "--ignore-topological-sensitivity",
+            "--eager-write",
+            output_file,
+        ],
+        check=True,
+        input=working_format_csv.encode(),
+    )
+    assert os.path.exists(output_file)
+
+
+def test_alifestd_downsample_tips_lineage_polars_cli_drop_topological_sensitivity(  # noqa: E501
+    tmp_path, working_format_csv
+):
+    output_file = str(
+        tmp_path / "hstrat_alifestd_downsample_tips_lineage_polars_drop.csv"
+    )
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_polars",
+            "-n",
+            "1",
+            "--drop-topological-sensitivity",
+            "--eager-write",
+            output_file,
+        ],
+        check=True,
+        input=working_format_csv.encode(),
+    )
+    assert os.path.exists(output_file)

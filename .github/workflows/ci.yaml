@@ -123,11 +123,10 @@ jobs:
       fail-fast: false
       matrix:
         head:
-          # - "" exceeds memory on actions runner
           - "--head 10_000"
-          - "--head 1_000_000"
+          # - "--head 1_000_000"  # slow
           - "--sample 10_000 --seed 1"
-          - "--sample 1_000_000 --seed 1"
+          # - "--sample 1_000_000 --seed 1"  # slow
     steps:
     - name: Cleanup pre-installed tools
       run: |
@@ -140,6 +139,11 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: "3.10"
+    - name: Cache OSF genome data
+      uses: actions/cache@v4
+      with:
+        path: /tmp/hstrat-gnkbc.pqt
+        key: osf-gnkbc
     - name: Install Python dependencies
       uses: py-actions/py-dependency-install@v4
       with:
