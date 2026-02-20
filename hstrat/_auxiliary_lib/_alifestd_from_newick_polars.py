@@ -1,8 +1,17 @@
+import argparse
+import logging
+import os
+import pathlib
+
 import numpy as np
 import polars as pl
 
-from ._alifestd_from_newick import _extract_labels
-from ._alifestd_from_newick import _parse_newick
+from ._alifestd_from_newick import _extract_labels, _parse_newick
+from ._configure_prod_logging import configure_prod_logging
+from ._eval_kwargs import eval_kwargs
+from ._format_cli_description import format_cli_description
+from ._get_hstrat_version import get_hstrat_version
+from ._log_context_duration import log_context_duration
 
 
 def alifestd_from_newick_polars(
@@ -69,7 +78,94 @@ def alifestd_from_newick_polars(
             "ancestor_list": pl.Series(ancestor_list, dtype=pl.Utf8),
             "ancestor_id": pl.Series(ancestor_ids, dtype=pl.Int64),
             "taxon_label": pl.Series(labels.tolist(), dtype=pl.Utf8),
-            "origin_time_delta": pl.Series(origin_time_deltas, dtype=pl.Float64),
+            "origin_time_delta": pl.Series(
+                origin_time_deltas, dtype=pl.Float64
+            ),
             "branch_length": pl.Series(branch_lengths, dtype=pl.Float64),
         }
     )
+
+
+_raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()})
+
+Convert Newick format phylogeny data to Alife standard format (Polars).
+
+Note that this CLI entrypoint is experimental and may be subject to change.
+"""
+
+
+def _create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description=format_cli_description(_raw_description),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "-i",
+        "--input-file",
+        type=str,
+        help="Newick file to convert to Alife standard dataframe format.",
+    )
+    parser.add_argument(
+        "-o",
+        "--output-file",
+        type=str,
+        help="Path to write Alife standard dataframe output to.",
+    )
+    parser.add_argument(
+        "--output-kwarg",
+        action="append",
+        dest="output_kwargs",
+        type=str,
+        default=[],
+        help=(
+            "Additional keyword arguments to pass to output engine call. "
+            "Provide as 'key=value'. "
+            "Specify multiple kwargs by using this flag multiple times. "
+            "Arguments will be evaluated as Python expressions. "
+            "Example: 'include_header=False'"
+        ),
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=get_hstrat_version(),
+    )
+    return parser
+
+
+if __name__ == "__main__":
+    configure_prod_logging()
+
+    parser = _create_parser()
+    args = parser.parse_args()
+
+    logging.info(f"reading Newick data from {args.input_file}...")
+    newick_str = pathlib.Path(args.input_file).read_text()
+
+    with log_context_duration(
+        "hstrat._auxiliary_lib.alifestd_from_newick_polars", logging.info
+    ):
+        logging.info("converting from Newick format...")
+        phylogeny_df = alifestd_from_newick_polars(newick_str)
+
+    output_ext = os.path.splitext(args.output_file)[1]
+    dispatch_writer = {
+        ".csv": lambda df, p, **kw: df.write_csv(p, **kw),
+        ".fea": lambda df, p, **kw: df.write_ipc(p, **kw),
+        ".feather": lambda df, p, **kw: df.write_ipc(p, **kw),
+        ".pqt": lambda df, p, **kw: df.write_parquet(p, **kw),
+        ".parquet": lambda df, p, **kw: df.write_parquet(p, **kw),
+    }
+
+    logging.info(
+        f"writing alife-standard {output_ext} phylogeny data to "
+        f"{args.output_file}...",
+    )
+    dispatch_writer[output_ext](
+        phylogeny_df,
+        args.output_file,
+        **eval_kwargs(args.output_kwargs),
+    )
+
+    logging.info("done!")

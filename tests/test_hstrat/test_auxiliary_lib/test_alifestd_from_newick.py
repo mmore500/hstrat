@@ -125,8 +125,7 @@ def test_branch_lengths():
 
     # internal node with branch length 7
     internal = result[
-        (result["taxon_label"] == "")
-        & (result["ancestor_id"] != result["id"])
+        (result["taxon_label"] == "") & (result["ancestor_id"] != result["id"])
     ]
     assert len(internal) == 1
     assert internal["branch_length"].iloc[0] == pytest.approx(7.0)
@@ -267,9 +266,7 @@ def test_roundtrip(phylogeny_df: pd.DataFrame):
     assert len(reconstructed) == len(phylogeny_df)
 
     # build parent mapping from reconstructed data using taxon_labels as ids
-    taxon_labels = dict(
-        zip(reconstructed["id"], reconstructed["taxon_label"])
-    )
+    taxon_labels = dict(zip(reconstructed["id"], reconstructed["taxon_label"]))
     reconstructed_edges = set()
     for _, row in reconstructed.iterrows():
         child_label = row["taxon_label"]

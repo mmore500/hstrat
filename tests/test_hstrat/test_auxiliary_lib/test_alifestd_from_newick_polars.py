@@ -44,9 +44,7 @@ def test_twins():
 
 
 def test_branch_lengths():
-    result = alifestd_from_newick_polars(
-        "(ant:17,(bat:31,cow:22):7,dog:22);"
-    )
+    result = alifestd_from_newick_polars("(ant:17,(bat:31,cow:22):7,dog:22);")
     # root + ant + internal + bat + cow + dog = 6
     assert len(result) == 6
 
