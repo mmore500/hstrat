@@ -46,9 +46,7 @@ def alifestd_as_newick_asexual_polars(
         f"with shape {phylogeny_df.shape}",
     )
 
-    phylogeny_df = phylogeny_df.lazy().collect()
-
-    if phylogeny_df.is_empty():
+    if phylogeny_df.lazy().limit(1).collect().is_empty():
         return ";"
 
     logging.info("adding ancestor id column, if not present")
