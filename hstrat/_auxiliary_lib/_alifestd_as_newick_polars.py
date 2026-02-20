@@ -12,8 +12,8 @@ from ._alifestd_as_newick_asexual import _build_newick_string
 from ._alifestd_has_contiguous_ids_polars import (
     alifestd_has_contiguous_ids_polars,
 )
-from ._alifestd_is_topologically_sorted import (
-    _is_topologically_sorted_contiguous,
+from ._alifestd_is_topologically_sorted_polars import (
+    alifestd_is_topologically_sorted_polars,
 )
 from ._alifestd_try_add_ancestor_id_col_polars import (
     alifestd_try_add_ancestor_id_col_polars,
@@ -70,13 +70,11 @@ def alifestd_as_newick_polars(
     if not alifestd_has_contiguous_ids_polars(phylogeny_df):
         raise NotImplementedError("non-contiguous ids not yet supported")
 
-    ids = (
-        phylogeny_df.lazy()
-        .select("id")
-        .collect()
-        .to_series()
-        .to_numpy()
-    )
+    if not alifestd_is_topologically_sorted_polars(phylogeny_df):
+        raise NotImplementedError(
+            "polars topological sort not yet implemented",
+        )
+
     ancestor_ids = (
         phylogeny_df.lazy()
         .select("ancestor_id")
@@ -84,11 +82,8 @@ def alifestd_as_newick_polars(
         .to_series()
         .to_numpy()
     )
-
-    if not _is_topologically_sorted_contiguous(ancestor_ids):
-        raise NotImplementedError(
-            "polars topological sort not yet implemented",
-        )
+    n = len(ancestor_ids)
+    ids = np.arange(n)
 
     logging.info("setting up `origin_time_delta`...")
     schema_names = phylogeny_df.lazy().collect_schema().names()
