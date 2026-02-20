@@ -1,12 +1,22 @@
+import argparse
+import logging
+import os
+import pathlib
 import typing
 
 import numpy as np
 import pandas as pd
+import polars as pl
 
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
+from ._configure_prod_logging import configure_prod_logging
+from ._eval_kwargs import eval_kwargs
+from ._format_cli_description import format_cli_description
+from ._get_hstrat_version import get_hstrat_version
 from ._jit import jit
 from ._jit_numba_dict_t import jit_numba_dict_t
 from ._jit_numpy_int64_t import jit_numpy_int64_t
+from ._log_context_duration import log_context_duration
 
 
 @jit(nopython=True)
@@ -19,7 +29,7 @@ def _parse_newick(
     Implementation detail for `alifestd_from_newick`.
 
     Adapted from
-    https://github.com/niemasd/TreeSwift/blob/63b8979fb5e616ba89079d44e594682683c1365e/treeswift/Tree.py#L1439
+    https://github.com/niemasd/TreeSwift/blob/v1.1.45/treeswift/Tree.py#L1439
 
     Parameters
     ----------
@@ -45,15 +55,15 @@ def _parse_newick(
     label_stops = np.empty(n, dtype=np.int64)
 
     # character codes
-    LPAREN = np.uint8(40)   # '('
-    RPAREN = np.uint8(41)   # ')'
-    COMMA = np.uint8(44)    # ','
-    COLON = np.uint8(58)    # ':'
-    SEMI = np.uint8(59)     # ';'
-    SQUOTE = np.uint8(39)   # "'"
-    SPACE = np.uint8(32)    # ' '
-    LBRACKET = np.uint8(91) # '['
-    RBRACKET = np.uint8(93) # ']'
+    LPAREN = np.uint8(40)  # '('
+    RPAREN = np.uint8(41)  # ')'
+    COMMA = np.uint8(44)  # ','
+    COLON = np.uint8(58)  # ':'
+    SEMI = np.uint8(59)  # ';'
+    SQUOTE = np.uint8(39)  # "'"
+    SPACE = np.uint8(32)  # ' '
+    LBRACKET = np.uint8(91)  # '['
+    RBRACKET = np.uint8(93)  # ']'
 
     num_nodes = 0
     # create root node
@@ -125,18 +135,19 @@ def _parse_newick(
 
         elif parse_length:
             ls_start = i
-            while i < n and chars[i] != COMMA and chars[i] != RPAREN and chars[i] != SEMI and chars[i] != LBRACKET:
+            while (
+                i < n
+                and chars[i] != COMMA
+                and chars[i] != RPAREN
+                and chars[i] != SEMI
+                and chars[i] != LBRACKET
+            ):
                 i += 1
             # parse the accumulated length string
             # manually parse float from chars[ls_start:i]
-            length = 0.0
-            frac_part = 0.0
-            frac_divisor = 1.0
-            is_negative = False
-            in_frac = False
-            in_exp = False
+            length, frac_part, frac_divisor = 0.0, 0.0, 1.0
+            is_negative, in_frac, in_exp, exp_neg = False, False, False, False
             exp_val = 0
-            exp_neg = False
             j = ls_start
             if j < i and chars[j] == np.uint8(45):  # '-'
                 is_negative = True
@@ -169,9 +180,9 @@ def _parse_newick(
                 length = -length
             if in_exp:
                 if exp_neg:
-                    length = length / (10.0 ** exp_val)
+                    length = length / (10.0**exp_val)
                 else:
-                    length = length * (10.0 ** exp_val)
+                    length = length * (10.0**exp_val)
             branch_lengths[cur] = length
             has_branch_length[cur] = 1
             i -= 1  # will be incremented at end of loop
@@ -248,9 +259,7 @@ def _extract_labels(
     """
     num_nodes = len(label_start_stops)
     labels = np.empty(num_nodes, dtype=object)
-    for k in range(num_nodes):
-        start = label_start_stops[k, 0]
-        stop = label_start_stops[k, 1]
+    for k, (start, stop) in enumerate(label_start_stops):
         if start == stop:
             labels[k] = ""
         else:
@@ -329,3 +338,110 @@ def alifestd_from_newick(
     )
 
     return phylogeny_df
+
+
+_raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()})
+
+Convert Newick format phylogeny data to Alife standard format.
+
+Note that this CLI entrypoint is experimental and may be subject to change.
+"""
+
+
+def _create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description=format_cli_description(_raw_description),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "-i",
+        "--input-file",
+        type=str,
+        help="Newick file to convert to Alife standard dataframe format.",
+    )
+    parser.add_argument(
+        "-o",
+        "--output-file",
+        type=str,
+        help="Path to write Alife standard dataframe output to.",
+    )
+    parser.add_argument(
+        "--output-engine",
+        type=str,
+        choices=["pandas", "polars"],
+        default="pandas",
+        help="DataFrame engine to use for writing the output file. Defaults to 'pandas'.",
+    )
+    parser.add_argument(
+        "--output-kwarg",
+        action="append",
+        dest="output_kwargs",
+        type=str,
+        default=[],
+        help=(
+            "Additional keyword arguments to pass to output engine call. "
+            "Provide as 'key=value'. "
+            "Specify multiple kwargs by using this flag multiple times. "
+            "Arguments will be evaluated as Python expressions. "
+            "Example: 'index=False'"
+        ),
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=get_hstrat_version(),
+    )
+    return parser
+
+
+if __name__ == "__main__":
+    configure_prod_logging()
+
+    parser = _create_parser()
+    args = parser.parse_args()
+
+    logging.info(f"reading Newick data from {args.input_file}...")
+    newick_str = pathlib.Path(args.input_file).read_text()
+
+    with log_context_duration(
+        "hstrat._auxiliary_lib.alifestd_from_newick", logging.info
+    ):
+        logging.info("converting from Newick format...")
+        phylogeny_df = alifestd_from_newick(newick_str)
+
+    output_ext = os.path.splitext(args.output_file)[1]
+    dispatch_writer = {
+        "pandas+.csv": lambda df, p, **kw: df.to_csv(p, index=False, **kw),
+        "pandas+.fea": lambda df, p, **kw: df.to_feather(p, **kw),
+        "pandas+.feather": lambda df, p, **kw: df.to_feather(p, **kw),
+        "pandas+.pqt": lambda df, p, **kw: df.to_parquet(p, **kw),
+        "pandas+.parquet": lambda df, p, **kw: df.to_parquet(p, **kw),
+        "polars+.csv": lambda df, p, **kw: pl.from_pandas(df).write_csv(
+            p, **kw
+        ),
+        "polars+.fea": lambda df, p, **kw: pl.from_pandas(df).write_ipc(
+            p, **kw
+        ),
+        "polars+.feather": lambda df, p, **kw: pl.from_pandas(df).write_ipc(
+            p, **kw
+        ),
+        "polars+.pqt": lambda df, p, **kw: pl.from_pandas(df).write_parquet(
+            p, **kw
+        ),
+        "polars+.parquet": lambda df, p, **kw: pl.from_pandas(
+            df
+        ).write_parquet(p, **kw),
+    }
+
+    logging.info(
+        f"writing alife-standard {output_ext} phylogeny data to "
+        f"{args.output_file}...",
+    )
+    dispatch_writer[f"{args.output_engine}+{output_ext}"](
+        phylogeny_df,
+        args.output_file,
+        **eval_kwargs(args.output_kwargs),
+    )
+
+    logging.info("done!")
