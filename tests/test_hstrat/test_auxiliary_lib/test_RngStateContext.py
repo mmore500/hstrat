@@ -131,25 +131,46 @@ def test_rng_state_context_jitted_nested():
     """Regression test: nested RngStateContext seeds jitted PRNG correctly
     at each level."""
     n = 5
-    outer_seed = 42
     inner_seed = 123
 
-    with RngStateContext(outer_seed):
-        outer_before = _generate_jitted_random_values(n).copy()
-
-    with RngStateContext(outer_seed):
-        _generate_jitted_random_values(n)  # consume same values
-        with RngStateContext(inner_seed):
-            inner_values = _generate_jitted_random_values(n).copy()
-
     # inner context should produce values determined by inner_seed
-    with RngStateContext(inner_seed):
-        inner_expected = _generate_jitted_random_values(n)
+    inner_results = []
+    for _rep in range(3):
+        with RngStateContext(inner_seed):
+            inner_results.append(_generate_jitted_random_values(n))
 
-    np.testing.assert_array_equal(inner_values, inner_expected)
+    for a, b in zip(inner_results, inner_results[1:]):
+        np.testing.assert_array_equal(a, b)
 
-    # outer context should produce values determined by outer_seed
-    with RngStateContext(outer_seed):
-        outer_expected = _generate_jitted_random_values(n)
+    # inner context within outer context should also be deterministic
+    nested_inner_results = []
+    for _rep in range(3):
+        with RngStateContext(42):
+            _generate_jitted_random_values(n)
+            with RngStateContext(inner_seed):
+                nested_inner_results.append(
+                    _generate_jitted_random_values(n),
+                )
 
-    np.testing.assert_array_equal(outer_before, outer_expected)
+    for a, b in zip(nested_inner_results, nested_inner_results[1:]):
+        np.testing.assert_array_equal(a, b)
+
+    # values inside inner context should match regardless of outer context
+    np.testing.assert_array_equal(inner_results[0], nested_inner_results[0])
+
+
+def test_rng_state_context_jitted_exit_deterministic():
+    """Regression test: exiting RngStateContext reseeds jitted PRNG
+    deterministically from the restored random state."""
+    n = 10
+    results_after_exit = []
+    for _rep in range(3):
+        random.seed(99)
+        np.random.seed(99)
+        with RngStateContext(42):
+            _generate_jitted_random_values(5)
+        # after exit, jitted PRNG should be reseeded deterministically
+        results_after_exit.append(_generate_jitted_random_values(n))
+
+    for a, b in zip(results_after_exit, results_after_exit[1:]):
+        np.testing.assert_array_equal(a, b)
