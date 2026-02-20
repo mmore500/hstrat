@@ -144,13 +144,18 @@ def alifestd_downsample_tips_lineage_polars(
     logging.info(
         "- alifestd_downsample_tips_lineage_polars: marking leaves...",
     )
-    marked_df = alifestd_mark_leaves_polars(phylogeny_df)
+    phylogeny_df = alifestd_mark_leaves_polars(phylogeny_df)
 
     logging.info(
         "- alifestd_downsample_tips_lineage_polars: "
         "selecting target leaf...",
     )
-    leaf_df = marked_df.lazy().filter(pl.col("is_leaf")).collect()
+    leaf_df = (
+        phylogeny_df.lazy()
+        .filter(pl.col("is_leaf"))
+        .select("id", criterion_target)
+        .collect()
+    )
     max_target = leaf_df.select(pl.col(criterion_target).max()).item()
     candidates = leaf_df.filter(
         pl.col(criterion_target) == max_target,
@@ -180,7 +185,7 @@ def alifestd_downsample_tips_lineage_polars(
         .to_numpy()
     )
     is_leaf = (
-        marked_df.lazy().select("is_leaf").collect().to_series().to_numpy()
+        phylogeny_df.lazy().select("is_leaf").collect().to_series().to_numpy()
     )
 
     # Taxa with no common ancestor (different tree) get -1 from MRCA calc;
@@ -194,24 +199,25 @@ def alifestd_downsample_tips_lineage_polars(
         criterion_values - criterion_values[safe_mrca],
     )
 
-    eligible = is_leaf & ~no_mrca_mask
+    is_eligible = is_leaf & ~no_mrca_mask
 
     logging.info(
         "- alifestd_downsample_tips_lineage_polars: "
         "selecting top leaves...",
     )
-    # Build a frame of eligible leaves with their deltas, pick smallest
-    eligible_ids = ids[eligible]
-    eligible_deltas = off_lineage_delta[eligible]
-    selection_df = pl.DataFrame(
-        {
-            "id": eligible_ids,
-            "_delta": eligible_deltas,
-        }
-    )
+    # Pick eligible leaves with the smallest off-lineage deltas
+    _delta_col = "_alifestd_downsample_tips_lineage_polars_delta"
+    eligible_ids = ids[is_eligible]
+    eligible_deltas = off_lineage_delta[is_eligible]
     kept_ids = (
-        selection_df.lazy()
-        .sort("_delta")
+        pl.DataFrame(
+            {
+                "id": eligible_ids,
+                _delta_col: eligible_deltas,
+            }
+        )
+        .lazy()
+        .sort(_delta_col)
         .head(num_tips)
         .select("id")
         .collect()
