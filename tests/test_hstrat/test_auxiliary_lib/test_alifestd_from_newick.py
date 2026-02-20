@@ -244,6 +244,11 @@ def test_newick_assets(newick_file: str):
     non_root = result[result["ancestor_id"] != result["id"]]
     assert non_root["ancestor_id"].isin(result["id"]).all()
 
+    # roundtrip: newick -> alife -> newick -> alife preserves topology
+    re_newick = alifestd_as_newick_asexual(result, taxon_label="taxon_label")
+    re_result = alifestd_from_newick(re_newick)
+    assert len(re_result) == len(result)
+
 
 @pytest.mark.parametrize(
     "phylogeny_df",

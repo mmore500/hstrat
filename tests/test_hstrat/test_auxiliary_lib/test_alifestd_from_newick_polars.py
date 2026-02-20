@@ -5,6 +5,7 @@ import polars as pl
 import pytest
 
 from hstrat._auxiliary_lib import (
+    alifestd_as_newick_asexual,
     alifestd_from_newick,
     alifestd_from_newick_polars,
 )
@@ -128,3 +129,31 @@ def test_column_dtypes():
     assert result["ancestor_list"].dtype == pl.Utf8
     assert result["origin_time_delta"].dtype == pl.Float64
     assert result["branch_length"].dtype == pl.Float64
+
+
+@pytest.mark.parametrize(
+    "newick_file",
+    [
+        "grandchild.newick",
+        "grandchild_and_aunt.newick",
+        "justroot.newick",
+        "onlychild.newick",
+        "triplets.newick",
+        "twins.newick",
+    ],
+)
+def test_roundtrip(newick_file: str):
+    """Test roundtrip: newick -> polars alife -> newick -> polars alife."""
+    newick_path = os.path.join(
+        os.path.dirname(__file__), "..", "assets", newick_file
+    )
+    newick = pathlib.Path(newick_path).read_text().strip()
+    result = alifestd_from_newick_polars(newick)
+
+    # use pandas variant for alifestd_as_newick_asexual roundtrip
+    pd_result = alifestd_from_newick(newick)
+    re_newick = alifestd_as_newick_asexual(
+        pd_result, taxon_label="taxon_label"
+    )
+    re_result = alifestd_from_newick_polars(re_newick)
+    assert len(re_result) == len(result)
