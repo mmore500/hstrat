@@ -142,7 +142,7 @@ def alifestd_downsample_tips_lineage_asexual(
     )
 
     col = "_alifestd_downsample_tips_lineage_asexual_off_lineage_delta"
-    phylogeny_df[col] = (
+    phylogeny_df[col] = np.abs(
         phylogeny_df[criterion_delta].to_numpy()
         - phylogeny_df.loc[safe_mrca, criterion_delta].to_numpy()
     )
