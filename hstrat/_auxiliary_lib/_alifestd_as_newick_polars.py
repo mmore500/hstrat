@@ -36,7 +36,6 @@ def alifestd_as_newick_polars(
 ) -> str:
     """Convert phylogeny dataframe to Newick format.
 
-
     Parameters
     ----------
     phylogeny_df : polars.DataFrame
