@@ -25,15 +25,13 @@ def _calc_node_depth_general(
     ancestor_ids: np.ndarray,
 ) -> np.ndarray:
     """Compute node depths for non-contiguous IDs in topological order."""
-    n = len(ids)
     id_to_idx = {}
-    for idx in range(n):
-        id_to_idx[int(ids[idx])] = idx
+    for idx, id_val in enumerate(ids):
+        id_to_idx[int(id_val)] = idx
 
-    node_depths = np.empty(n, dtype=np.int64)
-    for idx in range(n):
-        ancestor_id = int(ancestor_ids[idx])
-        ancestor_idx = id_to_idx[ancestor_id]
+    node_depths = np.empty(len(ids), dtype=np.int64)
+    for idx, ancestor_id in enumerate(ancestor_ids):
+        ancestor_idx = id_to_idx[int(ancestor_id)]
         node_depths[idx] = node_depths[ancestor_idx] + 1
 
     return node_depths
@@ -44,14 +42,13 @@ def _topological_sort_general(
     ancestor_ids: np.ndarray,
 ) -> np.ndarray:
     """Return row indices in topological order for non-contiguous IDs."""
-    n = len(ids)
     id_to_idx = {}
     children = {}
     roots = []
 
-    for idx in range(n):
-        id_val = int(ids[idx])
-        anc_val = int(ancestor_ids[idx])
+    for idx, (id_val, anc_val) in enumerate(zip(ids, ancestor_ids)):
+        id_val = int(id_val)
+        anc_val = int(anc_val)
         id_to_idx[id_val] = idx
         if id_val == anc_val:
             roots.append(idx)
@@ -146,8 +143,8 @@ def alifestd_as_newick_asexual_polars(
             )
         else:
             id_to_idx = {}
-            for idx in range(len(ids)):
-                id_to_idx[int(ids[idx])] = idx
+            for idx, id_val in enumerate(ids):
+                id_to_idx[int(id_val)] = idx
             origin_times = phylogeny_df["origin_time"].to_numpy().astype(float)
             ancestor_origin_times = np.array(
                 [origin_times[id_to_idx[int(a)]] for a in ancestor_ids],
