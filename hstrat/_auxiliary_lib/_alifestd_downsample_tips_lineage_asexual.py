@@ -131,7 +131,12 @@ def alifestd_downsample_tips_lineage_asexual(
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df.reset_index(drop=True, inplace=True)
     else:
-        phylogeny_df.index = phylogeny_df["id"]
+        # non-contiguous id branch not tested because
+        # alifestd_calc_mrca_id_vector_asexual doesn't support it
+        # phylogeny_df.index = phylogeny_df["id"]
+        raise NotImplementedError(
+            "non-contiguous ids not yet supported",
+        )
 
     # Taxa with no common ancestor (different tree) get -1 from MRCA calc;
     # replace with the taxon's own id so the lookup doesn't fail, then
