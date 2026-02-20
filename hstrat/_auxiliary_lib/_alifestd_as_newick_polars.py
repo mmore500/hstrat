@@ -60,6 +60,9 @@ def alifestd_as_newick_polars(
     logging.info("adding ancestor id column, if not present")
     phylogeny_df = alifestd_try_add_ancestor_id_col_polars(phylogeny_df)
 
+    if "ancestor_id" not in phylogeny_df.lazy().collect_schema().names():
+        raise NotImplementedError("ancestor_id column required")
+
     if not alifestd_has_contiguous_ids_polars(phylogeny_df):
         raise NotImplementedError("non-contiguous ids not yet supported")
 
