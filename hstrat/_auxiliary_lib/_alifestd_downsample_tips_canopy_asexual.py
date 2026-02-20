@@ -31,7 +31,7 @@ from ._log_context_duration import log_context_duration
     delete=True,
     update=False,
 )
-def alifestd_downsample_canopy_asexual(
+def alifestd_downsample_tips_canopy_asexual(
     phylogeny_df: pd.DataFrame,
     num_tips: int,
     mutate: bool = False,
@@ -81,7 +81,7 @@ def alifestd_downsample_canopy_asexual(
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
     if "ancestor_id" not in phylogeny_df.columns:
         raise ValueError(
-            "alifestd_downsample_canopy_asexual only supports "
+            "alifestd_downsample_tips_canopy_asexual only supports "
             "asexual phylogenies.",
         )
 
@@ -128,7 +128,7 @@ Otherwise, no action is taken.
 
 See Also
 ========
-hstrat._auxiliary_lib._alifestd_downsample_canopy_polars :
+hstrat._auxiliary_lib._alifestd_downsample_tips_canopy_polars :
     Entrypoint for high-performance Polars-based implementation.
 """
 
@@ -141,7 +141,7 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     parser = _add_parser_base(
         parser=parser,
-        dfcli_module="hstrat._auxiliary_lib._alifestd_downsample_canopy_asexual",
+        dfcli_module="hstrat._auxiliary_lib._alifestd_downsample_tips_canopy_asexual",
         dfcli_version=get_hstrat_version(),
     )
     parser.add_argument(
@@ -177,14 +177,14 @@ if __name__ == "__main__":
     parser = _create_parser()
     args, __ = parser.parse_known_args()
     with log_context_duration(
-        "hstrat._auxiliary_lib._alifestd_downsample_canopy_asexual",
+        "hstrat._auxiliary_lib._alifestd_downsample_tips_canopy_asexual",
         logging.info,
     ):
         _run_dataframe_cli(
             base_parser=parser,
             output_dataframe_op=delegate_polars_implementation()(
                 functools.partial(
-                    alifestd_downsample_canopy_asexual,
+                    alifestd_downsample_tips_canopy_asexual,
                     num_tips=args.n,
                     criterion=args.criterion,
                     ignore_topological_sensitivity=args.ignore_topological_sensitivity,
