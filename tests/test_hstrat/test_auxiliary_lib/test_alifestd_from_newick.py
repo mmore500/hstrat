@@ -316,3 +316,81 @@ def test_scientific_notation():
     b = result[result["taxon_label"] == "B"]
     assert a["branch_length"].iloc[0] == pytest.approx(1.5e-3)
     assert b["branch_length"].iloc[0] == pytest.approx(2e4)
+
+
+@pytest.mark.parametrize(
+    "phylogeny_csv",
+    [
+        "example-standard-toy-asexual-phylogeny.csv",
+        "example-standard-toy-asexual-phylogeny-noncompact1.csv",
+        "example-standard-toy-asexual-phylogeny-noncompact2.csv",
+        "example-standard-toy-asexual-phylogeny-uniq.csv",
+        "nk_ecoeaselection.csv",
+        "nk_lexicaseselection.csv",
+        "nk_tournamentselection.csv",
+        "prunetestphylo.csv",
+        "collapse_unifurcations_testphylo.csv",
+    ],
+)
+@pytest.mark.parametrize("taxon_label", [None, "id"])
+@pytest.mark.parametrize("with_branch_length", [True, False])
+def test_alifestd_asset_roundtrip(
+    phylogeny_csv, taxon_label, with_branch_length
+):
+    """Test roundtrip: alifestd -> newick -> alifestd using asset files."""
+    phylogeny_df = pd.read_csv(f"{assets_path}/{phylogeny_csv}")
+    phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
+
+    if with_branch_length:
+        if (
+            "origin_time_delta" not in phylogeny_df.columns
+            and "origin_time" not in phylogeny_df.columns
+        ):
+            phylogeny_df["origin_time_delta"] = np.arange(
+                len(phylogeny_df), dtype=float
+            )
+    else:
+        phylogeny_df = phylogeny_df.drop(
+            columns=["origin_time", "origin_time_delta"],
+            errors="ignore",
+        )
+
+    newick = alifestd_as_newick_asexual(
+        phylogeny_df,
+        taxon_label=taxon_label,
+    )
+    reconstructed = alifestd_from_newick(newick)
+
+    assert len(reconstructed) == len(phylogeny_df)
+
+    # verify single root
+    roots = reconstructed[reconstructed["ancestor_id"] == reconstructed["id"]]
+    assert len(roots) == 1
+
+    if taxon_label == "id":
+        # verify exact topology via edge matching
+        taxon_labels = dict(
+            zip(reconstructed["id"], reconstructed["taxon_label"])
+        )
+        reconstructed_edges = set()
+        for _, row in reconstructed.iterrows():
+            child_label = row["taxon_label"]
+            if row["ancestor_id"] != row["id"]:
+                parent_label = taxon_labels[row["ancestor_id"]]
+                reconstructed_edges.add((int(child_label), int(parent_label)))
+            else:
+                reconstructed_edges.add((int(child_label), int(child_label)))
+
+        original_edges = set()
+        for _, row in phylogeny_df.iterrows():
+            original_edges.add((int(row["id"]), int(row["ancestor_id"])))
+
+        assert reconstructed_edges == original_edges
+
+    if with_branch_length:
+        # verify branch lengths are present (not all NaN)
+        assert not reconstructed["branch_length"].isna().all()
+        assert (
+            reconstructed["origin_time_delta"].dropna()
+            == reconstructed["branch_length"].dropna()
+        ).all()
