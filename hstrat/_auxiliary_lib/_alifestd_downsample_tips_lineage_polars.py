@@ -248,7 +248,11 @@ _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_versi
 
 Retain the `-n` leaves closest to the lineage of a target leaf.
 
-The target leaf is chosen as the leaf with the largest `--criterion-target` value. For each leaf, the off-lineage delta is the absolute difference between the leaf's `--criterion-delta` value and its MRCA's `--criterion-delta` value with respect to the target. The `-n` leaves with the smallest deltas are retained.
+The target leaf is chosen as the leaf with the largest
+`--criterion-target` value. For each leaf, the off-lineage delta is
+the absolute difference between the leaf's `--criterion-delta` value
+and its MRCA's `--criterion-delta` value with respect to the target.
+The `-n` leaves with the smallest deltas are retained.
 
 If `-n` is greater than or equal to the number of leaves in the phylogeny, the whole phylogeny is returned. Ties are broken arbitrarily.
 

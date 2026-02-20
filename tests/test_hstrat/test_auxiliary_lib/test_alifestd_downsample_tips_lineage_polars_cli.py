@@ -1,26 +1,12 @@
 import os
+import pathlib
 import subprocess
-
-import pandas as pd
-import pytest
-
-from hstrat._auxiliary_lib import alifestd_to_working_format
 
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
-@pytest.fixture
-def working_format_csv(tmp_path):
-    """Create a working-format CSV from the NK dataset."""
-    df = pd.read_csv(f"{assets}/nk_ecoeaselection.csv")
-    wf = alifestd_to_working_format(df)
-    path = str(tmp_path / "working_format_input.csv")
-    wf.to_csv(path, index=False)
-    return path
-
-
 def test_alifestd_downsample_tips_lineage_polars_cli_help():
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -32,7 +18,7 @@ def test_alifestd_downsample_tips_lineage_polars_cli_help():
 
 
 def test_alifestd_downsample_tips_lineage_polars_cli_version():
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -43,13 +29,12 @@ def test_alifestd_downsample_tips_lineage_polars_cli_version():
     )
 
 
-def test_alifestd_downsample_tips_lineage_polars_cli_csv(
-    tmp_path, working_format_csv
-):
-    output_file = str(
-        tmp_path / "hstrat_alifestd_downsample_tips_lineage_polars.csv"
+def test_alifestd_downsample_tips_lineage_polars_cli_csv():
+    output_file = (
+        "/tmp/hstrat_alifestd_downsample_tips_lineage_polars.csv"  # nosec B108
     )
-    subprocess.run(
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -64,18 +49,17 @@ def test_alifestd_downsample_tips_lineage_polars_cli_csv(
             output_file,
         ],
         check=True,
-        input=working_format_csv.encode(),
+        input=(f"{assets}/nk_ecoeaselection-workingformat.csv".encode()),
     )
     assert os.path.exists(output_file)
 
 
-def test_alifestd_downsample_tips_lineage_polars_cli_parquet(
-    tmp_path, working_format_csv
-):
-    output_file = str(
-        tmp_path / "hstrat_alifestd_downsample_tips_lineage_polars.pqt"
+def test_alifestd_downsample_tips_lineage_polars_cli_parquet():
+    output_file = (
+        "/tmp/hstrat_alifestd_downsample_tips_lineage_polars.pqt"  # nosec B108
     )
-    subprocess.run(
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -86,18 +70,15 @@ def test_alifestd_downsample_tips_lineage_polars_cli_parquet(
             output_file,
         ],
         check=True,
-        input=working_format_csv.encode(),
+        input=(f"{assets}/nk_ecoeaselection-workingformat.csv".encode()),
     )
     assert os.path.exists(output_file)
 
 
-def test_alifestd_downsample_tips_lineage_polars_cli_ignore_topological_sensitivity(  # noqa: E501
-    tmp_path, working_format_csv
-):
-    output_file = str(
-        tmp_path / "hstrat_alifestd_downsample_tips_lineage_polars_ignore.csv"
-    )
-    subprocess.run(
+def test_alifestd_downsample_tips_lineage_polars_cli_ignore_topological_sensitivity():  # noqa: E501
+    output_file = "/tmp/hstrat_alifestd_downsample_tips_lineage_polars_ignore.csv"  # nosec B108
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -109,18 +90,15 @@ def test_alifestd_downsample_tips_lineage_polars_cli_ignore_topological_sensitiv
             output_file,
         ],
         check=True,
-        input=working_format_csv.encode(),
+        input=(f"{assets}/nk_ecoeaselection-workingformat.csv".encode()),
     )
     assert os.path.exists(output_file)
 
 
-def test_alifestd_downsample_tips_lineage_polars_cli_drop_topological_sensitivity(  # noqa: E501
-    tmp_path, working_format_csv
-):
-    output_file = str(
-        tmp_path / "hstrat_alifestd_downsample_tips_lineage_polars_drop.csv"
-    )
-    subprocess.run(
+def test_alifestd_downsample_tips_lineage_polars_cli_drop_topological_sensitivity():  # noqa: E501
+    output_file = "/tmp/hstrat_alifestd_downsample_tips_lineage_polars_drop.csv"  # nosec B108
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -132,6 +110,6 @@ def test_alifestd_downsample_tips_lineage_polars_cli_drop_topological_sensitivit
             output_file,
         ],
         check=True,
-        input=working_format_csv.encode(),
+        input=(f"{assets}/nk_ecoeaselection-workingformat.csv".encode()),
     )
     assert os.path.exists(output_file)
