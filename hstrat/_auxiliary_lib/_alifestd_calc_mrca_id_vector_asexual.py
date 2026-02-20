@@ -10,30 +10,14 @@ from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
-def _calc_mrca_id_vector_from_numpy(
+def _alifestd_calc_mrca_id_vector_asexual_fast_path(
     ancestor_ids: np.ndarray,
     node_depths: np.ndarray,
     target_id: int,
-    progress_wrap: typing.Callable = lambda x: x,
+    progress_wrap: typing.Callable,
 ) -> np.ndarray:
-    """Core MRCA vector calculation operating on numpy arrays.
-
-    Parameters
-    ----------
-    ancestor_ids : numpy.ndarray
-        Array of ancestor ids, indexed by contiguous organism id.
-    node_depths : numpy.ndarray
-        Array of node depths, indexed by contiguous organism id.
-    target_id : int
-        The target organism id to compute MRCA against.
-    progress_wrap : callable, optional
-        Wrapper for progress display (e.g., tqdm).
-
-    Returns
-    -------
-    numpy.ndarray
-        Array of MRCA ids for each organism with the target.
-    """
+    """Implementation detail for
+    `alifestd_calc_mrca_id_vector_asexual`."""
     n = len(ancestor_ids)
     assert n
     result = -np.ones(n, dtype=np.int64)
@@ -99,6 +83,6 @@ def alifestd_calc_mrca_id_vector_asexual(
         phylogeny_df["id"].to_numpy() == np.arange(len(phylogeny_df))
     )
 
-    return _calc_mrca_id_vector_from_numpy(
+    return _alifestd_calc_mrca_id_vector_asexual_fast_path(
         ancestor_ids, node_depths, target_id, progress_wrap
     )

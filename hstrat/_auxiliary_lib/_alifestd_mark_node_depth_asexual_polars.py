@@ -49,9 +49,8 @@ def alifestd_mark_node_depth_asexual_polars(
         Pandas-based implementation.
     """
     phylogeny_df = alifestd_try_add_ancestor_id_col_polars(phylogeny_df)
-    phylogeny_df = phylogeny_df.lazy().collect()
 
-    if phylogeny_df.is_empty():
+    if phylogeny_df.lazy().limit(1).collect().is_empty():
         return phylogeny_df.with_columns(
             node_depth=pl.lit(0).cast(pl.Int64),
         )
