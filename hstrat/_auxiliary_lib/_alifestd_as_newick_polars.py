@@ -19,7 +19,7 @@ from ._alifestd_try_add_ancestor_id_col_polars import (
     alifestd_try_add_ancestor_id_col_polars,
 )
 from ._alifestd_unfurl_traversal_postorder_asexual import (
-    _unfurl_traversal_postorder_asexual_contiguous,
+    _alifestd_unfurl_traversal_postorder_asexual_fast_path,
 )
 from ._configure_prod_logging import configure_prod_logging
 from ._eval_kwargs import eval_kwargs
@@ -62,11 +62,6 @@ def alifestd_as_newick_polars(
     logging.info("adding ancestor id column, if not present")
     phylogeny_df = alifestd_try_add_ancestor_id_col_polars(phylogeny_df)
 
-    # ensure ancestor_id is integer typed for numpy indexing
-    phylogeny_df = phylogeny_df.with_columns(
-        pl.col("ancestor_id").cast(pl.Int64),
-    )
-
     if not alifestd_has_contiguous_ids_polars(phylogeny_df):
         raise NotImplementedError("non-contiguous ids not yet supported")
 
@@ -77,7 +72,7 @@ def alifestd_as_newick_polars(
 
     ancestor_ids = (
         phylogeny_df.lazy()
-        .select("ancestor_id")
+        .select(pl.col("ancestor_id").cast(pl.Int64))
         .collect()
         .to_series()
         .to_numpy()
@@ -115,7 +110,7 @@ def alifestd_as_newick_polars(
         origin_time_deltas = np.full(len(ids), np.nan)
 
     logging.info("calculating postorder traversal order...")
-    postorder_index = _unfurl_traversal_postorder_asexual_contiguous(
+    postorder_index = _alifestd_unfurl_traversal_postorder_asexual_fast_path(
         ancestor_ids,
     )
 
