@@ -56,9 +56,13 @@ def alifestd_from_newick_polars(
     chars = np.frombuffer(newick.encode("ascii"), dtype=np.uint8)
     n = len(chars)
 
-    ids, ancestor_ids, branch_lengths, has_branch_length, label_start_stops = (
-        _parse_newick(chars, n)
-    )
+    (
+        ids,
+        ancestor_ids,
+        branch_lengths,
+        has_branch_length,
+        label_start_stops,
+    ) = _parse_newick(chars, n)
 
     labels = _extract_labels(newick, chars, label_start_stops)
 

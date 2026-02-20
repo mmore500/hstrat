@@ -14,8 +14,6 @@ from ._eval_kwargs import eval_kwargs
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._jit import jit
-from ._jit_numba_dict_t import jit_numba_dict_t
-from ._jit_numpy_int64_t import jit_numpy_int64_t
 from ._log_context_duration import log_context_duration
 
 
@@ -313,9 +311,13 @@ def alifestd_from_newick(
     chars = np.frombuffer(newick.encode("ascii"), dtype=np.uint8)
     n = len(chars)
 
-    ids, ancestor_ids, branch_lengths, has_branch_length, label_start_stops = (
-        _parse_newick(chars, n)
-    )
+    (
+        ids,
+        ancestor_ids,
+        branch_lengths,
+        has_branch_length,
+        label_start_stops,
+    ) = _parse_newick(chars, n)
 
     labels = _extract_labels(newick, chars, label_start_stops)
 

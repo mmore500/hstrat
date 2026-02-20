@@ -1,4 +1,5 @@
 import os
+import pathlib
 
 import numpy as np
 import pandas as pd
@@ -7,7 +8,6 @@ import pytest
 from hstrat._auxiliary_lib import (
     alifestd_as_newick_asexual,
     alifestd_from_newick,
-    alifestd_make_empty,
     alifestd_try_add_ancestor_id_col,
 )
 
@@ -228,7 +228,7 @@ def test_newick_assets(newick_file: str):
     newick_path = os.path.join(
         os.path.dirname(__file__), "..", "assets", newick_file
     )
-    newick = open(newick_path).read().strip()
+    newick = pathlib.Path(newick_path).read_text().strip()
     result = alifestd_from_newick(newick)
 
     assert "id" in result.columns
