@@ -1,9 +1,20 @@
 import random
 import typing
 
+import numpy as np
 import pytest
 
 from hstrat._auxiliary_lib import RngStateContext
+from hstrat._auxiliary_lib._jit import jit
+
+
+@jit(nopython=True)
+def _generate_jitted_random_values(n: int) -> np.ndarray:
+    """Generate random values from within a jitted context."""
+    result = np.empty(n)
+    for i in range(n):
+        result[i] = np.random.random()
+    return result
 
 
 @pytest.fixture
@@ -88,3 +99,57 @@ def test_reseeded_rng_exception(seed_values):
             assert random.random() == expected_value
             raise ValueError()
     assert random.random() != expected_value
+
+
+def test_rng_state_context_jitted_deterministic():
+    """Regression test: RngStateContext must seed numba's internal PRNG so
+    that jitted code within the context produces deterministic values."""
+    n = 10
+    results = []
+    for _rep in range(3):
+        with RngStateContext(42):
+            results.append(_generate_jitted_random_values(n))
+
+    for a, b in zip(results, results[1:]):
+        np.testing.assert_array_equal(a, b)
+
+
+def test_rng_state_context_jitted_different_seeds():
+    """Regression test: different seeds in RngStateContext produce different
+    jitted random values."""
+    n = 10
+    results = []
+    for seed in range(3):
+        with RngStateContext(seed):
+            results.append(_generate_jitted_random_values(n))
+
+    for a, b in zip(results, results[1:]):
+        assert not np.array_equal(a, b)
+
+
+def test_rng_state_context_jitted_nested():
+    """Regression test: nested RngStateContext seeds jitted PRNG correctly
+    at each level."""
+    n = 5
+    outer_seed = 42
+    inner_seed = 123
+
+    with RngStateContext(outer_seed):
+        outer_before = _generate_jitted_random_values(n).copy()
+
+    with RngStateContext(outer_seed):
+        _generate_jitted_random_values(n)  # consume same values
+        with RngStateContext(inner_seed):
+            inner_values = _generate_jitted_random_values(n).copy()
+
+    # inner context should produce values determined by inner_seed
+    with RngStateContext(inner_seed):
+        inner_expected = _generate_jitted_random_values(n)
+
+    np.testing.assert_array_equal(inner_values, inner_expected)
+
+    # outer context should produce values determined by outer_seed
+    with RngStateContext(outer_seed):
+        outer_expected = _generate_jitted_random_values(n)
+
+    np.testing.assert_array_equal(outer_before, outer_expected)
