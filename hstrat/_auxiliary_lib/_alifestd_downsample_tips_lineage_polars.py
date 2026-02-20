@@ -1,4 +1,5 @@
 import argparse
+import contextlib
 import functools
 import logging
 import os
@@ -7,12 +8,16 @@ import typing
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
-import numpy as np
 import polars as pl
 
+from ._RngStateContext import RngStateContext
 from ._add_bool_arg import add_bool_arg
 from ._alifestd_calc_mrca_id_vector_asexual_polars import (
     alifestd_calc_mrca_id_vector_asexual_polars,
+)
+from ._alifestd_downsample_tips_lineage_impl import (
+    _alifestd_downsample_tips_lineage_impl,
+    _alifestd_downsample_tips_lineage_select_target_id,
 )
 from ._alifestd_has_contiguous_ids_polars import (
     alifestd_has_contiguous_ids_polars,
@@ -151,37 +156,17 @@ def alifestd_downsample_tips_lineage_polars(
 
     logging.info(
         "- alifestd_downsample_tips_lineage_polars: "
-        "selecting target leaf...",
+        "computing lineage downsample...",
     )
     is_leaf = (
         phylogeny_df.lazy().select("is_leaf").collect().to_series().to_numpy()
     )
-    ids = np.arange(len(is_leaf))
-    leaf_ids = ids[is_leaf]
-    leaf_target_values = (
+    target_values = (
         phylogeny_df.lazy()
         .select(criterion_target)
         .collect()
         .to_series()
         .to_numpy()
-    )[is_leaf]
-    max_target = leaf_target_values.max()
-    candidate_ids = leaf_ids[leaf_target_values == max_target]
-    rng = np.random.default_rng(seed)
-    target_id = int(rng.choice(candidate_ids))
-
-    logging.info(
-        "- alifestd_downsample_tips_lineage_polars: "
-        "computing mrca vector...",
-    )
-    mrca_vector = alifestd_calc_mrca_id_vector_asexual_polars(
-        phylogeny_df,
-        target_id=target_id,
-    )
-
-    logging.info(
-        "- alifestd_downsample_tips_lineage_polars: "
-        "computing off-lineage deltas...",
     )
     criterion_values = (
         phylogeny_df.lazy()
@@ -191,39 +176,29 @@ def alifestd_downsample_tips_lineage_polars(
         .to_numpy()
     )
 
-    # Taxa with no common ancestor (different tree) get -1 from MRCA calc;
-    # replace with the taxon's own id so the lookup doesn't fail, then
-    # exclude these taxa from selection below.
-    no_mrca_mask = mrca_vector == -1
-    safe_mrca = np.where(no_mrca_mask, ids, mrca_vector)
-
-    off_lineage_delta = np.abs(
-        criterion_values - criterion_values[safe_mrca],
+    rng_ctx = (
+        RngStateContext(seed) if seed is not None else contextlib.nullcontext()
     )
+    with rng_ctx:
+        target_id = _alifestd_downsample_tips_lineage_select_target_id(
+            is_leaf, target_values
+        )
 
-    is_eligible = is_leaf & ~no_mrca_mask
-
-    logging.info(
-        "- alifestd_downsample_tips_lineage_polars: "
-        "selecting top leaves...",
+    mrca_vector = alifestd_calc_mrca_id_vector_asexual_polars(
+        phylogeny_df, target_id=target_id
     )
-    # Pick eligible leaves with the smallest off-lineage deltas
-    eligible_ids = ids[is_eligible]
-    eligible_deltas = off_lineage_delta[is_eligible]
-    order = np.argsort(eligible_deltas, kind="stable")
-    kept_ids = eligible_ids[order[:num_tips]]
-
-    logging.info(
-        "- alifestd_downsample_tips_lineage_polars: marking extant...",
-    )
-    n = len(ids)
-    is_extant = np.bincount(kept_ids, minlength=n).astype(bool)
-    phylogeny_df = phylogeny_df.with_columns(
-        extant=is_extant,
+    is_extant = _alifestd_downsample_tips_lineage_impl(
+        is_leaf=is_leaf,
+        criterion_values=criterion_values,
+        num_tips=num_tips,
+        mrca_vector=mrca_vector,
     )
 
     logging.info(
         "- alifestd_downsample_tips_lineage_polars: pruning...",
+    )
+    phylogeny_df = phylogeny_df.with_columns(
+        extant=is_extant,
     )
     return alifestd_prune_extinct_lineages_polars(phylogeny_df).drop(
         "extant",

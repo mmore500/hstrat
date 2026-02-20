@@ -1,4 +1,5 @@
 import argparse
+import contextlib
 import functools
 import logging
 import os
@@ -7,12 +8,16 @@ import typing
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
-import numpy as np
 import pandas as pd
 
+from ._RngStateContext import RngStateContext
 from ._add_bool_arg import add_bool_arg
 from ._alifestd_calc_mrca_id_vector_asexual import (
     alifestd_calc_mrca_id_vector_asexual,
+)
+from ._alifestd_downsample_tips_lineage_impl import (
+    _alifestd_downsample_tips_lineage_impl,
+    _alifestd_downsample_tips_lineage_select_target_id,
 )
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_mark_leaves import alifestd_mark_leaves
@@ -115,56 +120,38 @@ def alifestd_downsample_tips_lineage_asexual(
     if "is_leaf" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_leaves(phylogeny_df)
 
-    leaf_df = phylogeny_df.loc[phylogeny_df["is_leaf"]]
-
-    target_id = (
-        leaf_df.loc[
-            leaf_df[criterion_target] == leaf_df[criterion_target].max(),
-            "id",
-        ]
-        .sample(n=1, random_state=seed)
-        .item()
-    )
-
-    mrca_vector = alifestd_calc_mrca_id_vector_asexual(
-        phylogeny_df, target_id=target_id
-    )
-
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df.reset_index(drop=True, inplace=True)
     else:
         # non-contiguous id branch not tested because
         # alifestd_calc_mrca_id_vector_asexual doesn't support it
-        # phylogeny_df.index = phylogeny_df["id"]
         raise NotImplementedError(
             "non-contiguous ids not yet supported",
         )
 
-    # Taxa with no common ancestor (different tree) get -1 from MRCA calc;
-    # replace with the taxon's own id so the lookup doesn't fail, then
-    # exclude these taxa from selection below.
-    no_mrca_mask = mrca_vector == -1
-    safe_mrca = np.where(
-        no_mrca_mask, phylogeny_df["id"].to_numpy(), mrca_vector
+    is_leaf = phylogeny_df["is_leaf"].to_numpy()
+    target_values = phylogeny_df[criterion_target].to_numpy()
+    criterion_values = phylogeny_df[criterion_delta].to_numpy()
+
+    rng_ctx = (
+        RngStateContext(seed) if seed is not None else contextlib.nullcontext()
+    )
+    with rng_ctx:
+        target_id = _alifestd_downsample_tips_lineage_select_target_id(
+            is_leaf, target_values
+        )
+
+    mrca_vector = alifestd_calc_mrca_id_vector_asexual(
+        phylogeny_df, target_id=target_id
+    )
+    is_extant = _alifestd_downsample_tips_lineage_impl(
+        is_leaf=is_leaf,
+        criterion_values=criterion_values,
+        num_tips=num_tips,
+        mrca_vector=mrca_vector,
     )
 
-    col = "_alifestd_downsample_tips_lineage_asexual_off_lineage_delta"
-    phylogeny_df[col] = np.abs(
-        phylogeny_df[criterion_delta].to_numpy()
-        - phylogeny_df.loc[safe_mrca, criterion_delta].to_numpy()
-    )
-
-    is_eligible = phylogeny_df["is_leaf"] & ~pd.Series(
-        no_mrca_mask, index=phylogeny_df.index
-    )
-    phylogeny_df["extant"] = False
-    phylogeny_df.loc[
-        phylogeny_df.loc[is_eligible].nsmallest(num_tips, col).index,
-        "extant",
-    ] = True
-
-    phylogeny_df.drop(columns=[col], inplace=True)
-
+    phylogeny_df["extant"] = is_extant
     return alifestd_prune_extinct_lineages_asexual(
         phylogeny_df, mutate=True
     ).drop(columns=["extant"])
