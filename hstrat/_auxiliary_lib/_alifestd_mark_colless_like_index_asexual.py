@@ -15,7 +15,6 @@ from ._alifestd_try_add_ancestor_id_col import (
     alifestd_try_add_ancestor_id_col,
 )
 from ._jit import jit
-from ._reversed_enumerate import reversed_enumerate_jit
 
 
 @jit(nopython=True)
@@ -36,7 +35,8 @@ def _colless_like_fast_path(
 
     # Compute out-degree (number of children) for each node
     num_children = np.zeros(n, dtype=np.int64)
-    for idx, ancestor_id in enumerate(ancestor_ids):
+    for idx in range(n):
+        ancestor_id = ancestor_ids[idx]
         if ancestor_id != idx:  # Not a root
             num_children[ancestor_id] += 1
 
@@ -44,23 +44,25 @@ def _colless_like_fast_path(
     # f(k) = ln(k + e), so f(0) = ln(e) = 1.0
     # delta_f(T_v) = f(deg(v)) + sum of delta_f(T_c) for children c
     f_size = np.zeros(n, dtype=np.float64)
-    for idx, k in enumerate(num_children):
-        f_size[idx] = math.log(k + math.e)
+    for idx in range(n):
+        f_size[idx] = math.log(num_children[idx] + math.e)
 
     # Accumulate f-size bottom-up (add children's f-sizes to parent)
-    for idx, ancestor_id in reversed_enumerate_jit(ancestor_ids):
-        if ancestor_id != idx:  # Not a root
-            f_size[ancestor_id] += f_size[idx]
+    for i in range(n - 1, -1, -1):
+        ancestor_id = ancestor_ids[i]
+        if ancestor_id != i:  # Not a root
+            f_size[ancestor_id] += f_size[i]
 
     # Build CSR-like structure of children f-sizes per parent
     offsets = np.zeros(n + 1, dtype=np.int64)
-    for i, k in enumerate(num_children):
-        offsets[i + 1] = offsets[i] + k
+    for i in range(n):
+        offsets[i + 1] = offsets[i] + num_children[i]
 
     total_children = offsets[n]
     children_fsize = np.zeros(total_children, dtype=np.float64)
     fill_pos = np.zeros(n, dtype=np.int64)
-    for idx, ancestor_id in enumerate(ancestor_ids):
+    for idx in range(n):
+        ancestor_id = ancestor_ids[idx]
         if ancestor_id != idx:  # Not a root
             pos = offsets[ancestor_id] + fill_pos[ancestor_id]
             children_fsize[pos] = f_size[idx]
@@ -68,7 +70,8 @@ def _colless_like_fast_path(
 
     # Compute local balance using selected dissimilarity
     local_balance = np.zeros(n, dtype=np.float64)
-    for idx, k in enumerate(num_children):
+    for idx in range(n):
+        k = num_children[idx]
         if k >= 2:
             start = offsets[idx]
             end = offsets[idx + 1]
@@ -89,10 +92,11 @@ def _colless_like_fast_path(
 
     # Accumulate subtree Colless-like index bottom-up
     colless_like = np.zeros(n, dtype=np.float64)
-    for idx, ancestor_id in reversed_enumerate_jit(ancestor_ids):
-        colless_like[idx] += local_balance[idx]
-        if ancestor_id != idx:  # Not a root
-            colless_like[ancestor_id] += colless_like[idx]
+    for i in range(n - 1, -1, -1):
+        ancestor_id = ancestor_ids[i]
+        colless_like[i] += local_balance[i]
+        if ancestor_id != i:  # Not a root
+            colless_like[ancestor_id] += colless_like[i]
 
     return colless_like
 

@@ -1,3 +1,9 @@
+import argparse
+import logging
+import os
+
+import joinem
+from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
 import pandas as pd
 
@@ -18,8 +24,12 @@ from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import (
     alifestd_try_add_ancestor_id_col,
 )
+from ._configure_prod_logging import configure_prod_logging
+from ._delegate_polars_implementation import delegate_polars_implementation
+from ._format_cli_description import format_cli_description
+from ._get_hstrat_version import get_hstrat_version
 from ._jit import jit
-from ._reversed_enumerate import reversed_enumerate_jit
+from ._log_context_duration import log_context_duration
 
 
 @jit(nopython=True)
@@ -36,7 +46,8 @@ def alifestd_mark_colless_index_asexual_fast_path(
     # Compute local colless for each internal node
     # For bifurcating: right_leaves = num_leaves[node] - num_leaves[left]
     local_colless = np.zeros(n, dtype=np.int64)
-    for idx, left_child in enumerate(left_child_ids):
+    for idx in range(n):
+        left_child = left_child_ids[idx]
         if left_child != idx:  # Has children (internal node)
             left_leaves = num_leaves[left_child]
             right_leaves = num_leaves[idx] - left_leaves
@@ -44,10 +55,11 @@ def alifestd_mark_colless_index_asexual_fast_path(
 
     # Reverse pass: accumulate subtree colless bottom-up
     colless_index = np.zeros(n, dtype=np.int64)
-    for idx, ancestor_id in reversed_enumerate_jit(ancestor_ids):
-        colless_index[idx] += local_colless[idx]
-        if ancestor_id != idx:  # Not a root
-            colless_index[ancestor_id] += colless_index[idx]
+    for i in range(n - 1, -1, -1):
+        ancestor_id = ancestor_ids[i]
+        colless_index[i] += local_colless[i]
+        if ancestor_id != i:  # Not a root
+            colless_index[ancestor_id] += colless_index[i]
 
     return colless_index
 
@@ -194,3 +206,54 @@ def alifestd_mark_colless_index_asexual(
         )
 
     return phylogeny_df
+
+
+_raw_description = f"""\
+{os.path.basename(__file__)} | \
+(hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
+
+Add column `colless_index` with Colless imbalance index for each subtree.
+
+Requires strictly bifurcating trees.
+
+Data is assumed to be in alife standard format.
+
+Additional Notes
+================
+- Use `--eager-read` if modifying data file inplace.
+
+- This CLI entrypoint is experimental and may be subject to change.
+"""
+
+
+def _create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        add_help=False,
+        description=format_cli_description(_raw_description),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser = _add_parser_base(
+        parser=parser,
+        dfcli_module=(
+            "hstrat._auxiliary_lib._alifestd_mark_colless_index_asexual"
+        ),
+        dfcli_version=get_hstrat_version(),
+    )
+    return parser
+
+
+if __name__ == "__main__":
+    configure_prod_logging()
+
+    parser = _create_parser()
+    args, __ = parser.parse_known_args()
+    with log_context_duration(
+        "hstrat._auxiliary_lib._alifestd_mark_colless_index_asexual",
+        logging.info,
+    ):
+        _run_dataframe_cli(
+            base_parser=parser,
+            output_dataframe_op=delegate_polars_implementation()(
+                alifestd_mark_colless_index_asexual,
+            ),
+        )

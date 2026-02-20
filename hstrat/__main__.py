@@ -47,6 +47,7 @@ $ python3 -m hstrat._auxiliary_lib._alifestd_mark_clade_logistic_growth_sister_a
 $ python3 -m hstrat._auxiliary_lib._alifestd_mark_clade_nodecount_ratio_sister_asexual
 $ python3 -m hstrat._auxiliary_lib._alifestd_mark_clade_subtended_duration_asexual
 $ python3 -m hstrat._auxiliary_lib._alifestd_mark_clade_subtended_duration_ratio_sister_asexual
+$ python3 -m hstrat._auxiliary_lib._alifestd_mark_colless_index_asexual
 $ python3 -m hstrat._auxiliary_lib._alifestd_mark_colless_index_corrected_asexual
 $ python3 -m hstrat._auxiliary_lib._alifestd_mark_colless_like_index_mdm_asexual
 $ python3 -m hstrat._auxiliary_lib._alifestd_mark_colless_like_index_sd_asexual
@@ -72,6 +73,7 @@ $ python3 -m hstrat._auxiliary_lib._alifestd_mark_right_child_asexual
 $ python3 -m hstrat._auxiliary_lib._alifestd_mark_root_id
 $ python3 -m hstrat._auxiliary_lib._alifestd_mark_roots
 $ python3 -m hstrat._auxiliary_lib._alifestd_mark_roots_polars
+$ python3 -m hstrat._auxiliary_lib._alifestd_mark_sackin_index_asexual
 $ python3 -m hstrat._auxiliary_lib._alifestd_mark_sister_asexual
 $ python3 -m hstrat._auxiliary_lib._alifestd_prefix_roots
 $ python3 -m hstrat._auxiliary_lib._alifestd_prefix_roots_polars
