@@ -134,6 +134,8 @@ from ._alifestd_find_pair_mrca_id_polars import (
     alifestd_find_pair_mrca_id_polars,
 )
 from ._alifestd_find_root_ids import alifestd_find_root_ids
+from ._alifestd_from_newick import alifestd_from_newick
+from ._alifestd_from_newick_polars import alifestd_from_newick_polars
 from ._alifestd_has_compact_ids import alifestd_has_compact_ids
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_has_contiguous_ids_polars import (
@@ -529,6 +531,8 @@ __all__ = [
     "alifestd_find_pair_mrca_id_asexual",
     "alifestd_find_pair_mrca_id_polars",
     "alifestd_find_root_ids",
+    "alifestd_from_newick",
+    "alifestd_from_newick_polars",
     "alifestd_has_compact_ids",
     "alifestd_has_contiguous_ids",
     "alifestd_has_contiguous_ids_polars",
