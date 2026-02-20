@@ -15,6 +15,7 @@ from ._alifestd_calc_mrca_id_vector_asexual import (
 )
 from ._alifestd_downsample_tips_lineage_impl import (
     _alifestd_downsample_tips_lineage_impl,
+    _select_target_id,
 )
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_mark_leaves import alifestd_mark_leaves
@@ -127,25 +128,26 @@ def alifestd_downsample_tips_lineage_asexual(
             "non-contiguous ids not yet supported",
         )
 
-    impl = (
-        with_rng_state_context(seed)(
-            _alifestd_downsample_tips_lineage_impl,
-        )
-        if seed is not None
-        else _alifestd_downsample_tips_lineage_impl
-    )
+    is_leaf = phylogeny_df["is_leaf"].to_numpy()
+    target_values = phylogeny_df[criterion_target].to_numpy()
+    criterion_values = phylogeny_df[criterion_delta].to_numpy()
 
-    is_extant = impl(
-        is_leaf=phylogeny_df["is_leaf"].to_numpy(),
-        target_values=phylogeny_df[criterion_target].to_numpy(),
-        criterion_values=phylogeny_df[criterion_delta].to_numpy(),
-        num_tips=num_tips,
-        calc_mrca_vector=lambda target_id: (
-            alifestd_calc_mrca_id_vector_asexual(
-                phylogeny_df, target_id=target_id
-            )
-        ),
-    )
+    def _run():
+        target_id = _select_target_id(is_leaf, target_values)
+        mrca_vector = alifestd_calc_mrca_id_vector_asexual(
+            phylogeny_df, target_id=target_id
+        )
+        return _alifestd_downsample_tips_lineage_impl(
+            is_leaf=is_leaf,
+            criterion_values=criterion_values,
+            num_tips=num_tips,
+            mrca_vector=mrca_vector,
+        )
+
+    if seed is not None:
+        is_extant = with_rng_state_context(seed)(_run)()
+    else:
+        is_extant = _run()
 
     phylogeny_df["extant"] = is_extant
     return alifestd_prune_extinct_lineages_asexual(
