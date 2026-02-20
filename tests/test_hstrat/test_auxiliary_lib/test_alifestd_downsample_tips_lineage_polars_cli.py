@@ -93,8 +93,7 @@ def test_alifestd_downsample_tips_lineage_polars_cli_ignore_topological_sensitiv
     tmp_path, working_format_csv
 ):
     output_file = str(
-        tmp_path
-        / "hstrat_alifestd_downsample_tips_lineage_polars_ignore.csv"
+        tmp_path / "hstrat_alifestd_downsample_tips_lineage_polars_ignore.csv"
     )
     subprocess.run(
         [

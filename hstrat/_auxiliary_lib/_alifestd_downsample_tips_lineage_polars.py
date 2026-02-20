@@ -164,7 +164,8 @@ def alifestd_downsample_tips_lineage_polars(
         "computing mrca vector...",
     )
     mrca_vector = alifestd_calc_mrca_id_vector_asexual_polars(
-        phylogeny_df, target_id=target_id,
+        phylogeny_df,
+        target_id=target_id,
     )
 
     logging.info(
@@ -179,11 +180,7 @@ def alifestd_downsample_tips_lineage_polars(
         .to_numpy()
     )
     is_leaf = (
-        marked_df.lazy()
-        .select("is_leaf")
-        .collect()
-        .to_series()
-        .to_numpy()
+        marked_df.lazy().select("is_leaf").collect().to_series().to_numpy()
     )
 
     # Taxa with no common ancestor (different tree) get -1 from MRCA calc;
@@ -206,10 +203,12 @@ def alifestd_downsample_tips_lineage_polars(
     # Build a frame of eligible leaves with their deltas, pick smallest
     eligible_ids = ids[eligible]
     eligible_deltas = off_lineage_delta[eligible]
-    selection_df = pl.DataFrame({
-        "id": eligible_ids,
-        "_delta": eligible_deltas,
-    })
+    selection_df = pl.DataFrame(
+        {
+            "id": eligible_ids,
+            "_delta": eligible_deltas,
+        }
+    )
     kept_ids = (
         selection_df.lazy()
         .sort("_delta")

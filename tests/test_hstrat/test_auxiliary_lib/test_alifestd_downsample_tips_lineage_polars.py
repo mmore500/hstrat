@@ -204,9 +204,7 @@ def test_alifestd_downsample_tips_lineage_polars_with_ancestor_id(
         ),
     )
     result = (
-        alifestd_downsample_tips_lineage_polars(df, 1, seed=1)
-        .lazy()
-        .collect()
+        alifestd_downsample_tips_lineage_polars(df, 1, seed=1).lazy().collect()
     )
     assert len(result) >= 1
 
@@ -344,9 +342,7 @@ def test_alifestd_downsample_tips_lineage_polars_simple(
     )
 
     result = (
-        alifestd_downsample_tips_lineage_polars(df, 1, seed=1)
-        .lazy()
-        .collect()
+        alifestd_downsample_tips_lineage_polars(df, 1, seed=1).lazy().collect()
     )
 
     result_num_tips = (
@@ -417,7 +413,9 @@ def test_alifestd_downsample_tips_lineage_polars_no_temp_cols(
 
     result_df = (
         alifestd_downsample_tips_lineage_polars(
-            phylogeny_df_pl, 5, seed=1,
+            phylogeny_df_pl,
+            5,
+            seed=1,
         )
         .lazy()
         .collect()
