@@ -220,7 +220,7 @@ def alifestd_downsample_tips_lineage_polars(
             {
                 "id": eligible_ids,
                 _delta_col: eligible_deltas,
-            }
+            },
         )
         .sort(_delta_col)
         .head(num_tips)
