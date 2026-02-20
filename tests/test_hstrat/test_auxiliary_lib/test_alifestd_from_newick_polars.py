@@ -1,6 +1,6 @@
 import os
+import pathlib
 
-import numpy as np
 import polars as pl
 import pytest
 
@@ -86,7 +86,7 @@ def test_newick_assets(newick_file: str):
     newick_path = os.path.join(
         os.path.dirname(__file__), "..", "assets", newick_file
     )
-    newick = open(newick_path).read().strip()
+    newick = pathlib.Path(newick_path).read_text().strip()
     result = alifestd_from_newick_polars(newick)
 
     assert isinstance(result, pl.DataFrame)
