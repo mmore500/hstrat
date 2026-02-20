@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def _select_target_id(
+def _alifestd_downsample_tips_lineage_select_target_id(
     is_leaf: np.ndarray,
     target_values: np.ndarray,
 ) -> int:

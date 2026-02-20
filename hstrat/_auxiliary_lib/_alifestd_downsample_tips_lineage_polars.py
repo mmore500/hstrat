@@ -15,7 +15,7 @@ from ._alifestd_calc_mrca_id_vector_asexual_polars import (
 )
 from ._alifestd_downsample_tips_lineage_impl import (
     _alifestd_downsample_tips_lineage_impl,
-    _select_target_id,
+    _alifestd_downsample_tips_lineage_select_target_id,
 )
 from ._alifestd_has_contiguous_ids_polars import (
     alifestd_has_contiguous_ids_polars,
@@ -179,22 +179,24 @@ def alifestd_downsample_tips_lineage_polars(
         .to_numpy()
     )
 
-    def _run():
-        target_id = _select_target_id(is_leaf, target_values)
-        mrca_vector = alifestd_calc_mrca_id_vector_asexual_polars(
-            phylogeny_df, target_id=target_id
+    select_target = (
+        with_rng_state_context(seed)(
+            _alifestd_downsample_tips_lineage_select_target_id,
         )
-        return _alifestd_downsample_tips_lineage_impl(
-            is_leaf=is_leaf,
-            criterion_values=criterion_values,
-            num_tips=num_tips,
-            mrca_vector=mrca_vector,
-        )
+        if seed is not None
+        else _alifestd_downsample_tips_lineage_select_target_id
+    )
+    target_id = select_target(is_leaf, target_values)
 
-    if seed is not None:
-        is_extant = with_rng_state_context(seed)(_run)()
-    else:
-        is_extant = _run()
+    mrca_vector = alifestd_calc_mrca_id_vector_asexual_polars(
+        phylogeny_df, target_id=target_id
+    )
+    is_extant = _alifestd_downsample_tips_lineage_impl(
+        is_leaf=is_leaf,
+        criterion_values=criterion_values,
+        num_tips=num_tips,
+        mrca_vector=mrca_vector,
+    )
 
     logging.info(
         "- alifestd_downsample_tips_lineage_polars: pruning...",
