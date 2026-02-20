@@ -75,8 +75,11 @@ def _alifestd_downsample_tips_lineage_impl(
     is_eligible = is_leaf & ~no_mrca_mask
     eligible_ids = ids[is_eligible]
     eligible_deltas = off_lineage_delta[is_eligible]
-    order = np.argsort(eligible_deltas, kind="stable")
-    kept_ids = eligible_ids[order[:num_tips]]
+    if num_tips >= len(eligible_deltas):
+        kept_ids = eligible_ids
+    else:
+        partition_idx = np.argpartition(eligible_deltas, num_tips)[:num_tips]
+        kept_ids = eligible_ids[partition_idx]
 
     # Build extant mask
     return np.bincount(kept_ids, minlength=len(ids)).astype(bool)
