@@ -51,7 +51,7 @@ def _do_delete_trunk(
     ):
         dstream_S = df["dstream_S"].unique().squeeze()
 
-    df["is_trunk"] = df["hstrat_rank"] < df["dstream_S"]
+    df["is_trunk"] = df["hstrat_rank"] < df["dstream_S"] - 1
     df["origin_time"] = df["hstrat_rank"]
 
     with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
