@@ -95,10 +95,9 @@ def alifestd_calc_mrca_id_vector_asexual_polars(
     )
 
     n = len(ancestor_ids)
-    if n == 0:
-        raise ValueError(f"{target_id=} out of bounds")
     if target_id >= n:
         raise ValueError(f"{target_id=} out of bounds")
+    assert n
 
     logging.info(
         "- alifestd_calc_mrca_id_vector_asexual_polars: "
