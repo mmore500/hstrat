@@ -133,6 +133,7 @@ def alifestd_downsample_tips_lineage_asexual(
     else:
         # non-contiguous id branch not tested because
         # alifestd_calc_mrca_id_vector_asexual doesn't support it
+        # phylogeny_df.index = phylogeny_df["id"]
         raise NotImplementedError(
             "non-contiguous ids not yet supported",
         )
