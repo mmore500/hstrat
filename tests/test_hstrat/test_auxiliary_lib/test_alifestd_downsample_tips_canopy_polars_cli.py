@@ -95,9 +95,7 @@ def test_alifestd_downsample_tips_canopy_polars_cli_ignore_topological_sensitivi
 
 
 def test_alifestd_downsample_tips_canopy_polars_cli_drop_topological_sensitivity():
-    output_file = (
-        "/tmp/hstrat_alifestd_downsample_tips_canopy_polars_drop.csv"  # nosec B108
-    )
+    output_file = "/tmp/hstrat_alifestd_downsample_tips_canopy_polars_drop.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [

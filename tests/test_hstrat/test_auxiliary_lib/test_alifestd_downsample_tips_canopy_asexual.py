@@ -35,7 +35,9 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 )
 @pytest.mark.parametrize("num_tips", [1, 5, 10, 100000000])
 @pytest.mark.parametrize("mutate", [True, False])
-def test_alifestd_downsample_tips_canopy_asexual(phylogeny_df, num_tips, mutate):
+def test_alifestd_downsample_tips_canopy_asexual(
+    phylogeny_df, num_tips, mutate
+):
     original_df = phylogeny_df.copy()
 
     result_df = alifestd_downsample_tips_canopy_asexual(
@@ -110,7 +112,9 @@ def test_downsample_canopy_vs_manual(phylogeny_df, num_tips):
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-def test_alifestd_downsample_tips_canopy_asexual_retains_highest_ids(phylogeny_df):
+def test_alifestd_downsample_tips_canopy_asexual_retains_highest_ids(
+    phylogeny_df,
+):
     """Verify that the retained tips are the ones with the highest ids."""
     num_tips = 5
     result_df = alifestd_downsample_tips_canopy_asexual(
@@ -176,7 +180,9 @@ def test_alifestd_downsample_tips_canopy_asexual_all_tips():
         }
     )
 
-    result = alifestd_downsample_tips_canopy_asexual(df, 100000, criterion="id")
+    result = alifestd_downsample_tips_canopy_asexual(
+        df, 100000, criterion="id"
+    )
     assert len(result) == 5
 
 
