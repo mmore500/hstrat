@@ -60,7 +60,7 @@ def alifestd_from_newick_polars(
         ids,
         ancestor_ids,
         branch_lengths,
-        has_branch_length,
+        _,  # has_branch_length
         label_start_stops,
     ) = _parse_newick(chars, n)
 
