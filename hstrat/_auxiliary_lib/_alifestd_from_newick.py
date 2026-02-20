@@ -414,36 +414,34 @@ if __name__ == "__main__":
 
     output_ext = os.path.splitext(args.output_file)[1]
     dispatch_writer = {
-        "pandas+.csv": lambda df, p, **kw: df.to_csv(p, index=False, **kw),
-        "pandas+.fea": lambda df, p, **kw: df.to_feather(p, **kw),
-        "pandas+.feather": lambda df, p, **kw: df.to_feather(p, **kw),
-        "pandas+.pqt": lambda df, p, **kw: df.to_parquet(p, **kw),
-        "pandas+.parquet": lambda df, p, **kw: df.to_parquet(p, **kw),
-        "polars+.csv": lambda df, p, **kw: pl.from_pandas(df).write_csv(
-            p, **kw
-        ),
-        "polars+.fea": lambda df, p, **kw: pl.from_pandas(df).write_ipc(
-            p, **kw
-        ),
-        "polars+.feather": lambda df, p, **kw: pl.from_pandas(df).write_ipc(
-            p, **kw
-        ),
-        "polars+.pqt": lambda df, p, **kw: pl.from_pandas(df).write_parquet(
-            p, **kw
-        ),
-        "polars+.parquet": lambda df, p, **kw: pl.from_pandas(
-            df
-        ).write_parquet(p, **kw),
+        "pandas+.csv": pd.DataFrame.to_csv,
+        "pandas+.fea": pd.DataFrame.to_feather,
+        "pandas+.feather": pd.DataFrame.to_feather,
+        "pandas+.pqt": pd.DataFrame.to_parquet,
+        "pandas+.parquet": pd.DataFrame.to_parquet,
     }
 
     logging.info(
         f"writing alife-standard {output_ext} phylogeny data to "
         f"{args.output_file}...",
     )
+    output_kwargs = eval_kwargs(args.output_kwargs)
+    if args.output_engine == "polars":
+        phylogeny_df = pl.from_pandas(phylogeny_df)
+        dispatch_writer = {
+            "polars+.csv": pl.DataFrame.write_csv,
+            "polars+.fea": pl.DataFrame.write_ipc,
+            "polars+.feather": pl.DataFrame.write_ipc,
+            "polars+.pqt": pl.DataFrame.write_parquet,
+            "polars+.parquet": pl.DataFrame.write_parquet,
+        }
+    elif output_ext == ".csv":
+        output_kwargs.setdefault("index", False)
+
     dispatch_writer[f"{args.output_engine}+{output_ext}"](
         phylogeny_df,
         args.output_file,
-        **eval_kwargs(args.output_kwargs),
+        **output_kwargs,
     )
 
     logging.info("done!")

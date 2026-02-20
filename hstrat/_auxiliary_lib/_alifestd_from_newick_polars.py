@@ -155,11 +155,11 @@ if __name__ == "__main__":
 
     output_ext = os.path.splitext(args.output_file)[1]
     dispatch_writer = {
-        ".csv": lambda df, p, **kw: df.write_csv(p, **kw),
-        ".fea": lambda df, p, **kw: df.write_ipc(p, **kw),
-        ".feather": lambda df, p, **kw: df.write_ipc(p, **kw),
-        ".pqt": lambda df, p, **kw: df.write_parquet(p, **kw),
-        ".parquet": lambda df, p, **kw: df.write_parquet(p, **kw),
+        ".csv": pl.DataFrame.write_csv,
+        ".fea": pl.DataFrame.write_ipc,
+        ".feather": pl.DataFrame.write_ipc,
+        ".pqt": pl.DataFrame.write_parquet,
+        ".parquet": pl.DataFrame.write_parquet,
     }
 
     logging.info(
