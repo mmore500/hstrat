@@ -21,7 +21,7 @@ def test_smoke():
         df,
         collapse_unif_freq=0,
         trie_postprocessor=AssignOriginTimeNodeRankTriePostprocessor(
-            t0="dstream_S",
+            t0_func=lambda df: pl.col("dstream_S") - 1 if isinstance(df, pl.DataFrame) else df["dstream_S"] - 1
         ),
     )
     assert "origin_time" in res.columns
