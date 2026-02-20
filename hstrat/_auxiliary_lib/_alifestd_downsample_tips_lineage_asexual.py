@@ -151,14 +151,13 @@ def alifestd_downsample_tips_lineage_asexual(
         phylogeny_df[criterion_delta].to_numpy()
         - phylogeny_df.loc[safe_mrca, criterion_delta].to_numpy()
     )
-    phylogeny_df[col] = phylogeny_df[col].abs()
 
-    eligible = phylogeny_df["is_leaf"] & ~pd.Series(
+    is_eligible = phylogeny_df["is_leaf"] & ~pd.Series(
         no_mrca_mask, index=phylogeny_df.index
     )
     phylogeny_df["extant"] = False
     phylogeny_df.loc[
-        phylogeny_df.loc[eligible].nsmallest(num_tips, col).index,
+        phylogeny_df.loc[is_eligible].nsmallest(num_tips, col).index,
         "extant",
     ] = True
 
@@ -173,7 +172,11 @@ _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_versi
 
 Retain the `-n` leaves closest to the lineage of a target leaf.
 
-The target leaf is chosen as the leaf with the largest `--criterion-target` value. For each leaf, the off-lineage delta is the absolute difference between the leaf's `--criterion-delta` value and its MRCA's `--criterion-delta` value with respect to the target. The `-n` leaves with the smallest deltas are retained.
+The target leaf is chosen as the leaf with the largest
+`--criterion-target` value. For each leaf, the off-lineage delta is
+the absolute difference between the leaf's `--criterion-delta` value
+and its MRCA's `--criterion-delta` value with respect to the target.
+The `-n` leaves with the smallest deltas are retained.
 
 If `-n` is greater than or equal to the number of leaves in the phylogeny, the whole phylogeny is returned. Ties are broken arbitrarily.
 
