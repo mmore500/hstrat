@@ -30,9 +30,7 @@ def test_fuzz(phylogeny_df: pd.DataFrame):
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
     phylogeny_pl = pl.from_pandas(phylogeny_df)
 
-    result = alifestd_as_newick_asexual_polars(
-        phylogeny_pl, taxon_label="id"
-    )
+    result = alifestd_as_newick_asexual_polars(phylogeny_pl, taxon_label="id")
 
     rosetta_tree = apc.RosettaTree.from_newick(result)
     reconstructed = rosetta_tree.as_alife
@@ -44,9 +42,7 @@ def test_fuzz(phylogeny_df: pd.DataFrame):
 
     assert len(reconstructed) == len(phylogeny_df)
 
-    taxon_labels = dict(
-        zip(reconstructed["id"], reconstructed["taxon_label"])
-    )
+    taxon_labels = dict(zip(reconstructed["id"], reconstructed["taxon_label"]))
     assert set(zip(phylogeny_df["id"], phylogeny_df["ancestor_id"])) == set(
         zip(
             reconstructed["taxon_label"],
@@ -135,9 +131,7 @@ def test_matches_pandas_contiguous():
     phylogeny_pd = alifestd_try_add_ancestor_id_col(phylogeny_pd)
     phylogeny_pl = pl.from_pandas(phylogeny_pd)
 
-    result_pd = alifestd_as_newick_asexual(
-        phylogeny_pd, taxon_label="id"
-    )
+    result_pd = alifestd_as_newick_asexual(phylogeny_pd, taxon_label="id")
     result_pl = alifestd_as_newick_asexual_polars(
         phylogeny_pl, taxon_label="id"
     )

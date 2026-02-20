@@ -140,9 +140,7 @@ def alifestd_as_newick_asexual_polars(
     elif "origin_time" in schema_names:
         logging.info("... calculating from `origin_time`...")
         if is_contiguous:
-            origin_times = (
-                phylogeny_df["origin_time"].to_numpy().astype(float)
-            )
+            origin_times = phylogeny_df["origin_time"].to_numpy().astype(float)
             origin_time_deltas = (
                 origin_times - origin_times[ancestor_ids.astype(int)]
             )
@@ -150,9 +148,7 @@ def alifestd_as_newick_asexual_polars(
             id_to_idx = {}
             for idx in range(len(ids)):
                 id_to_idx[int(ids[idx])] = idx
-            origin_times = (
-                phylogeny_df["origin_time"].to_numpy().astype(float)
-            )
+            origin_times = phylogeny_df["origin_time"].to_numpy().astype(float)
             ancestor_origin_times = np.array(
                 [origin_times[id_to_idx[int(a)]] for a in ancestor_ids],
             )
