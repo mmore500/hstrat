@@ -60,7 +60,9 @@ def alifestd_as_newick_polars(
     logging.info("adding ancestor id column, if not present")
     phylogeny_df = alifestd_try_add_ancestor_id_col_polars(phylogeny_df)
 
-    if "ancestor_id" not in phylogeny_df.lazy().collect_schema().names():
+    schema_names = phylogeny_df.lazy().collect_schema().names()
+
+    if "ancestor_id" not in schema_names:
         raise ValueError("only asexual phylogenies supported")
 
     if not alifestd_has_contiguous_ids_polars(phylogeny_df):
@@ -82,7 +84,6 @@ def alifestd_as_newick_polars(
     ids = np.arange(n)
 
     logging.info("setting up `origin_time_delta`...")
-    schema_names = phylogeny_df.lazy().collect_schema().names()
     if "origin_time_delta" in schema_names:
         logging.info("... already present!")
         origin_time_deltas = (
