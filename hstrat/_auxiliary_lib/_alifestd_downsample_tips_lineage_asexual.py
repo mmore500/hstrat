@@ -78,7 +78,9 @@ def alifestd_downsample_tips_lineage_asexual(
         its MRCA's value in this column.
     criterion_target : str, default "origin_time"
         Column name used to select the target leaf. The leaf with the
-        largest value in this column is chosen as the target.
+        largest value in this column is chosen as the target. Note that
+        ties are broken by random sample, allowing a seed to be
+        provided.
 
     Raises
     ------

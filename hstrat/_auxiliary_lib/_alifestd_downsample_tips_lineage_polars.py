@@ -81,7 +81,9 @@ def alifestd_downsample_tips_lineage_polars(
         its MRCA's value in this column.
     criterion_target : str, default "origin_time"
         Column name used to select the target leaf. The leaf with the
-        largest value in this column is chosen as the target.
+        largest value in this column is chosen as the target. Note that
+        ties are broken by random sample, allowing a seed to be
+        provided.
 
     Raises
     ------
@@ -117,7 +119,8 @@ def alifestd_downsample_tips_lineage_polars(
         "adding ancestor_id col...",
     )
     phylogeny_df = alifestd_try_add_ancestor_id_col_polars(phylogeny_df)
-    if "ancestor_id" not in phylogeny_df.lazy().collect_schema().names():
+    schema_names = phylogeny_df.lazy().collect_schema().names()
+    if "ancestor_id" not in schema_names:
         raise NotImplementedError(
             "alifestd_downsample_tips_lineage_polars only supports "
             "asexual phylogenies.",
@@ -150,25 +153,22 @@ def alifestd_downsample_tips_lineage_polars(
         "- alifestd_downsample_tips_lineage_polars: "
         "selecting target leaf...",
     )
-    leaf_ids = (
-        phylogeny_df.lazy()
-        .filter(pl.col("is_leaf"))
-        .select("id")
-        .collect()
-        .to_series()
+    is_leaf = (
+        phylogeny_df.lazy().select("is_leaf").collect().to_series().to_numpy()
     )
+    ids = np.arange(len(is_leaf))
+    leaf_ids = ids[is_leaf]
     leaf_target_values = (
         phylogeny_df.lazy()
-        .filter(pl.col("is_leaf"))
         .select(criterion_target)
         .collect()
         .to_series()
-    )
+        .to_numpy()
+    )[is_leaf]
     max_target = leaf_target_values.max()
-    candidate_ids = leaf_ids.filter(leaf_target_values == max_target)
-    target_id = int(
-        candidate_ids.sample(n=1, seed=seed).item(),
-    )
+    candidate_ids = leaf_ids[leaf_target_values == max_target]
+    rng = np.random.default_rng(seed)
+    target_id = int(rng.choice(candidate_ids))
 
     logging.info(
         "- alifestd_downsample_tips_lineage_polars: "
@@ -190,15 +190,11 @@ def alifestd_downsample_tips_lineage_polars(
         .to_series()
         .to_numpy()
     )
-    is_leaf = (
-        phylogeny_df.lazy().select("is_leaf").collect().to_series().to_numpy()
-    )
 
     # Taxa with no common ancestor (different tree) get -1 from MRCA calc;
     # replace with the taxon's own id so the lookup doesn't fail, then
     # exclude these taxa from selection below.
     no_mrca_mask = mrca_vector == -1
-    ids = np.arange(len(mrca_vector))
     safe_mrca = np.where(no_mrca_mask, ids, mrca_vector)
 
     off_lineage_delta = np.abs(
@@ -212,28 +208,18 @@ def alifestd_downsample_tips_lineage_polars(
         "selecting top leaves...",
     )
     # Pick eligible leaves with the smallest off-lineage deltas
-    _delta_col = "_alifestd_downsample_tips_lineage_polars_delta"
     eligible_ids = ids[is_eligible]
     eligible_deltas = off_lineage_delta[is_eligible]
-    kept_ids = (
-        pl.LazyFrame(
-            {
-                "id": eligible_ids,
-                _delta_col: eligible_deltas,
-            },
-        )
-        .sort(_delta_col)
-        .head(num_tips)
-        .select("id")
-        .collect()
-        .to_series()
-    )
+    order = np.argsort(eligible_deltas, kind="stable")
+    kept_ids = eligible_ids[order[:num_tips]]
 
     logging.info(
         "- alifestd_downsample_tips_lineage_polars: marking extant...",
     )
+    n = len(ids)
+    extant = np.bincount(kept_ids, minlength=n).astype(bool)
     phylogeny_df = phylogeny_df.with_columns(
-        extant=pl.col("id").is_in(kept_ids),
+        extant=pl.Series("extant", extant),
     )
 
     logging.info(
