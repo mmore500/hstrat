@@ -6,7 +6,6 @@ import polars as pl
 import pytest
 
 from hstrat._auxiliary_lib import (
-    alifestd_aggregate_phylogenies,
     alifestd_downsample_tips_lineage_asexual,
     alifestd_to_working_format,
 )
