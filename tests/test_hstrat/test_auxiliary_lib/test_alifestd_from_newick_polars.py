@@ -215,17 +215,18 @@ def test_alifestd_asset_roundtrip(
     assert len(roots) == 1
 
     if taxon_label == "id":
-        # verify exact topology via pandas for easier iteration
-        pd_result = alifestd_from_newick(newick)
-        taxon_labels = dict(zip(pd_result["id"], pd_result["taxon_label"]))
+        # extract columns from polars result
+        r_ids = reconstructed["id"].to_list()
+        r_ancestor_ids = reconstructed["ancestor_id"].to_list()
+        r_labels = reconstructed["taxon_label"].to_list()
+        id_to_label = dict(zip(r_ids, r_labels))
         reconstructed_edges = set()
-        for _, row in pd_result.iterrows():
-            child_label = row["taxon_label"]
-            if row["ancestor_id"] != row["id"]:
-                parent_label = taxon_labels[row["ancestor_id"]]
-                reconstructed_edges.add((int(child_label), int(parent_label)))
+        for rid, raid, label in zip(r_ids, r_ancestor_ids, r_labels):
+            if rid != raid:
+                parent_label = id_to_label[raid]
+                reconstructed_edges.add((int(label), int(parent_label)))
             else:
-                reconstructed_edges.add((int(child_label), int(child_label)))
+                reconstructed_edges.add((int(label), int(label)))
 
         original_edges = set()
         for _, row in phylogeny_df.iterrows():
