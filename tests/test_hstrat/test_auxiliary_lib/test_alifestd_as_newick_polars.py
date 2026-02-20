@@ -8,7 +8,7 @@ import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_as_newick_asexual,
-    alifestd_as_newick_asexual_polars,
+    alifestd_as_newick_polars,
     alifestd_try_add_ancestor_id_col,
 )
 
@@ -22,7 +22,7 @@ def test_fuzz():
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
     phylogeny_pl = pl.from_pandas(phylogeny_df)
 
-    result = alifestd_as_newick_asexual_polars(phylogeny_pl, taxon_label="id")
+    result = alifestd_as_newick_polars(phylogeny_pl, taxon_label="id")
 
     rosetta_tree = apc.RosettaTree.from_newick(result)
     reconstructed = rosetta_tree.as_alife
@@ -50,7 +50,7 @@ def test_empty():
             "ancestor_list": pl.Series([], dtype=pl.Utf8),
         },
     )
-    res = alifestd_as_newick_asexual_polars(phylogeny_pl)
+    res = alifestd_as_newick_polars(phylogeny_pl)
     assert res == ";"
 
 
@@ -62,7 +62,7 @@ def test_simple1():
             "origin_time_delta": [3.1, 4.0, 1.0],
         },
     )
-    result = alifestd_as_newick_asexual_polars(
+    result = alifestd_as_newick_polars(
         phylogeny_df,
         taxon_label=None,
     )
@@ -77,7 +77,7 @@ def test_simple2_non_contiguous():
         },
     )
     with pytest.raises(NotImplementedError):
-        alifestd_as_newick_asexual_polars(
+        alifestd_as_newick_polars(
             phylogeny_df,
             taxon_label=None,
         )
@@ -92,7 +92,7 @@ def test_simple3_non_contiguous():
         },
     )
     with pytest.raises(NotImplementedError):
-        alifestd_as_newick_asexual_polars(
+        alifestd_as_newick_polars(
             phylogeny_df,
             taxon_label="label",
         )
@@ -106,7 +106,7 @@ def test_simple4():
             "origin_time": [0, 1, 2, 5, 90],
         },
     )
-    result = alifestd_as_newick_asexual_polars(
+    result = alifestd_as_newick_polars(
         phylogeny_df,
         taxon_label="id",
     )
@@ -124,7 +124,7 @@ def test_matches_pandas_contiguous():
     phylogeny_pl = pl.from_pandas(phylogeny_pd)
 
     result_pd = alifestd_as_newick_asexual(phylogeny_pd, taxon_label="id")
-    result_pl = alifestd_as_newick_asexual_polars(
+    result_pl = alifestd_as_newick_polars(
         phylogeny_pl, taxon_label="id"
     )
 
@@ -153,7 +153,7 @@ def test_no_polars_to_pandas_conversion():
                 "polars Series-to-pandas conversion should not occur"
             ),
         ):
-            result = alifestd_as_newick_asexual_polars(
+            result = alifestd_as_newick_polars(
                 phylogeny_df,
                 taxon_label="id",
             )
@@ -172,7 +172,7 @@ def test_input_not_mutated():
     )
     original = phylogeny_df.clone()
 
-    alifestd_as_newick_asexual_polars(
+    alifestd_as_newick_polars(
         phylogeny_df,
         taxon_label="id",
     )
@@ -189,7 +189,7 @@ def test_with_ancestor_id_col():
             "origin_time": [0, 1, 2, 5, 90],
         },
     )
-    result = alifestd_as_newick_asexual_polars(
+    result = alifestd_as_newick_polars(
         phylogeny_df,
         taxon_label="id",
     )
@@ -206,7 +206,7 @@ def test_non_contiguous_ids():
         },
     )
     with pytest.raises(NotImplementedError):
-        alifestd_as_newick_asexual_polars(
+        alifestd_as_newick_polars(
             phylogeny_df,
             taxon_label=None,
         )
@@ -222,7 +222,38 @@ def test_non_topologically_sorted():
         },
     )
     with pytest.raises(NotImplementedError):
-        alifestd_as_newick_asexual_polars(
+        alifestd_as_newick_polars(
             phylogeny_df,
             taxon_label=None,
         )
+
+
+def test_lazyframe_input():
+    """Test that LazyFrame input works correctly."""
+    phylogeny_df = pl.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4],
+            "ancestor_list": ["[None]", "[0]", "[0]", "[1]", "[0]"],
+            "origin_time": [0, 1, 2, 5, 90],
+        },
+    )
+    lazy_df = phylogeny_df.lazy()
+
+    result = alifestd_as_newick_polars(
+        lazy_df,
+        taxon_label="id",
+    )
+
+    assert result == "(4:90,2:2,(3:4)1:1)0:0;"
+
+
+def test_lazyframe_empty():
+    """Test that empty LazyFrame returns ';'."""
+    phylogeny_pl = pl.DataFrame(
+        {
+            "id": pl.Series([], dtype=pl.Int64),
+            "ancestor_list": pl.Series([], dtype=pl.Utf8),
+        },
+    ).lazy()
+    res = alifestd_as_newick_polars(phylogeny_pl)
+    assert res == ";"
