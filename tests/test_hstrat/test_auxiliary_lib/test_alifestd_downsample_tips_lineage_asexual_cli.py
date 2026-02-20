@@ -1,5 +1,4 @@
 import os
-import pathlib
 import subprocess
 
 import pandas as pd
@@ -57,7 +56,7 @@ def test_alifestd_downsample_tips_lineage_asexual_cli_csv(
             "hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_asexual",
             "-n",
             "1",
-            "--criterion-relatedness",
+            "--criterion-delta",
             "origin_time",
             "--criterion-target",
             "origin_time",
@@ -94,8 +93,7 @@ def test_alifestd_downsample_tips_lineage_asexual_cli_ignore_topological_sensiti
     tmp_path, working_format_csv
 ):
     output_file = str(
-        tmp_path
-        / "hstrat_alifestd_downsample_tips_lineage_asexual_ignore.csv"
+        tmp_path / "hstrat_alifestd_downsample_tips_lineage_asexual_ignore.csv"
     )
     subprocess.run(
         [
@@ -117,8 +115,7 @@ def test_alifestd_downsample_tips_lineage_asexual_cli_drop_topological_sensitivi
     tmp_path, working_format_csv
 ):
     output_file = str(
-        tmp_path
-        / "hstrat_alifestd_downsample_tips_lineage_asexual_drop.csv"
+        tmp_path / "hstrat_alifestd_downsample_tips_lineage_asexual_drop.csv"
     )
     subprocess.run(
         [
