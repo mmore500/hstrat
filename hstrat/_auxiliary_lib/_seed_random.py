@@ -7,7 +7,7 @@ from ._jit import jit
 
 
 @jit(nopython=True)
-def _seed_random_jitted(seed: int) -> bool:
+def _seed_random_jitted(seed: int) -> None:
     """Seed numba-internal random state.
 
     Implementation detail. Numba maintains its own PRNG state separate
@@ -19,7 +19,7 @@ def _seed_random_jitted(seed: int) -> bool:
     return True
 
 
-def seed_random(seed: int) -> bool:
+def seed_random(seed: int) -> None:
     """Seed all random sources used by hstrat library.
 
     Ensures reproducible execution.
