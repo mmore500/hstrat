@@ -16,7 +16,6 @@ def _seed_random_jitted(seed: int) -> None:
     """
     np.random.seed(seed)
     random.seed(seed)
-    return True
 
 
 def seed_random(seed: int) -> None:
