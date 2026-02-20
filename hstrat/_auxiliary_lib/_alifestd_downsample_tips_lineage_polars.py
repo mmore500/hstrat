@@ -1,4 +1,5 @@
 import argparse
+import contextlib
 import functools
 import logging
 import os
@@ -37,7 +38,7 @@ from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
-from ._with_rng_state_context import with_rng_state_context
+from ._RngStateContext import RngStateContext
 
 
 @alifestd_topological_sensitivity_warned_polars(
@@ -179,14 +180,11 @@ def alifestd_downsample_tips_lineage_polars(
         .to_numpy()
     )
 
-    select_target = (
-        with_rng_state_context(seed)(
-            _alifestd_downsample_tips_lineage_select_target_id,
+    rng_ctx = RngStateContext(seed) if seed is not None else contextlib.nullcontext()
+    with rng_ctx:
+        target_id = _alifestd_downsample_tips_lineage_select_target_id(
+            is_leaf, target_values
         )
-        if seed is not None
-        else _alifestd_downsample_tips_lineage_select_target_id
-    )
-    target_id = select_target(is_leaf, target_values)
 
     mrca_vector = alifestd_calc_mrca_id_vector_asexual_polars(
         phylogeny_df, target_id=target_id
