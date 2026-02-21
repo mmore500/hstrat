@@ -216,8 +216,8 @@ polars==1.38.1
     #   joinem
 polars-runtime-32==1.38.1
     # via polars
-polars-u64-idx==1.33.1
-    # via hstrat (../../pyproject.toml)
+polars-runtime-64==1.38.1
+    # via polars
 prettytable==3.17.0
     # via hstrat (../../pyproject.toml)
 propcache==0.4.1
