@@ -8,7 +8,7 @@ assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
 def test_surface_unpack_reconstruct_cli_help():
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -20,7 +20,7 @@ def test_surface_unpack_reconstruct_cli_help():
 
 
 def test_surface_unpack_reconstruct_cli_version():
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -34,7 +34,7 @@ def test_surface_unpack_reconstruct_cli_version():
 def test_surface_unpack_reconstruct_cli_csv():
     output_file = "/tmp/hstrat_unpack_surface_reconstruct.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -50,7 +50,7 @@ def test_surface_unpack_reconstruct_cli_csv():
 def test_surface_unpack_reconstruct_cli_parquet():
     output_file = "/tmp/hstrat_unpack_surface_reconstruct.pqt"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",

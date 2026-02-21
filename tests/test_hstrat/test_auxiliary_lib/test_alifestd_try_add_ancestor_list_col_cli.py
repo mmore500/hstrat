@@ -8,7 +8,7 @@ assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
 def test_alifestd_try_add_ancestor_list_col_cli_version():
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -30,7 +30,7 @@ def test_alifestd_try_add_ancestor_list_col_cli_version():
 def test_alifestd_try_add_ancestor_list_col_cli_csv(input_file: str):
     output_file = f"/tmp/hstrat-{input_file}.pqt"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
