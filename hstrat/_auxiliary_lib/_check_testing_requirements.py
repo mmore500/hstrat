@@ -1,14 +1,15 @@
+import importlib.metadata
 import os
 
-import pkg_resources
+from packaging.requirements import InvalidRequirement
+from packaging.requirements import Requirement
 
 
-# Adapted from https://stackoverflow.com/a/3787989
 def check_testing_requirements() -> None:
     """Are all testing requirements available?
 
-    If dependencies are missing, will raise pkg_resources.DistributionNotFound
-    or pkg_resources.VersionConflict warning.
+    If dependencies are missing, will raise
+    importlib.metadata.PackageNotFoundError or ValueError.
     """
 
     testing_requirements_path = os.path.abspath(
@@ -20,6 +21,17 @@ def check_testing_requirements() -> None:
             "requirements-testing.txt",
         )
     )
-    with open(testing_requirements_path, "r") as testing_requirements:
-        # adapted from https://stackoverflow.com/a/16298328
-        pkg_resources.require(testing_requirements)
+    with open(testing_requirements_path, "r") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            try:
+                req = Requirement(line)
+            except InvalidRequirement:
+                continue
+            version = importlib.metadata.version(req.name)
+            if req.specifier and not req.specifier.contains(version):
+                raise ValueError(
+                    f"{req.name} {version} does not satisfy {req}"
+                )
