@@ -249,7 +249,7 @@ networkx==3.6.1
     #   alifedata-phyloinformatics-convert
 nh3==0.3.3
     # via readme-renderer
-numba==0.64.0
+numba==0.63.1
     # via hstrat (../../pyproject.toml)
 numpy==2.2.6
     # via
@@ -292,7 +292,7 @@ packaging==26.0
     #   sphinx
     #   statsmodels
     #   tox
-pandas==3.0.1
+pandas==2.3.3
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
@@ -399,6 +399,8 @@ python-slugify==8.0.4
     # via
     #   hstrat (../../pyproject.toml)
     #   teeplot
+pytz==2025.2
+    # via pandas
 pyyaml==6.0.1
     # via
     #   hstrat (../../pyproject.toml)
@@ -549,6 +551,8 @@ typing-inspect==0.9.0
     # via pandera
 typing-inspection==0.4.2
     # via pydantic
+tzdata==2025.3
+    # via pandas
 urllib3==2.6.3
     # via requests
 uv==0.4.18

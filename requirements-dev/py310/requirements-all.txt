@@ -251,7 +251,7 @@ networkx==3.4.2
     #   alifedata-phyloinformatics-convert
 nh3==0.3.3
     # via readme-renderer
-numba==0.64.0
+numba==0.63.1
     # via hstrat (../../pyproject.toml)
 numpy==2.2.6
     # via

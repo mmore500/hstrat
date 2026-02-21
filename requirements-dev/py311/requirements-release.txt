@@ -144,7 +144,7 @@ packaging==26.0
     #   pandera
     #   setuptools-scm
     #   statsmodels
-pandas==3.0.1
+pandas==2.3.3
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
@@ -197,6 +197,8 @@ python-dateutil==2.9.0.post0
     #   pandas
 python-slugify==8.0.4
     # via hstrat (../../pyproject.toml)
+pytz==2025.2
+    # via pandas
 pyyaml==6.0.3
     # via astropy
 readme-renderer==44.0
@@ -269,6 +271,8 @@ typing-inspect==0.9.0
     # via pandera
 typing-inspection==0.4.2
     # via pydantic
+tzdata==2025.3
+    # via pandas
 urllib3==2.6.3
     # via requests
 uv==0.4.18
