@@ -92,7 +92,7 @@ def test_surface_build_tree_cli_no_drop_dstream_metadata():
 def test_surface_build_tree_cli_drop_dstream_metadata_fails():
     output_file = "/tmp/hstrat_surface_build_tree_drop.pqt"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
-    result = subprocess.run(
+    result = subprocess.run(  # nosec B603
         [
             "python3",
             "-m",

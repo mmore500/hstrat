@@ -67,7 +67,9 @@ def test_surface_unpack_reconstruct_cli_parquet():
 
 
 def test_surface_unpack_reconstruct_cli_no_drop_dstream_metadata():
-    output_file = "/tmp/hstrat_unpack_surface_reconstruct_no_drop.pqt"  # nosec B108
+    output_file = (
+        "/tmp/hstrat_unpack_surface_reconstruct_no_drop.pqt"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
@@ -88,9 +90,11 @@ def test_surface_unpack_reconstruct_cli_no_drop_dstream_metadata():
 
 
 def test_surface_unpack_reconstruct_cli_drop_dstream_metadata_fails():
-    output_file = "/tmp/hstrat_unpack_surface_reconstruct_drop.pqt"  # nosec B108
+    output_file = (
+        "/tmp/hstrat_unpack_surface_reconstruct_drop.pqt"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
-    result = subprocess.run(
+    result = subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
