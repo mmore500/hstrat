@@ -1,6 +1,6 @@
 import pandas as pd
 
-from ._alifestd_mark_colless_like_index_asexual import (
+from ._alifestd_mark_colless_like_index_mdm_asexual import (
     _alifestd_mark_colless_like_index_asexual_impl,
 )
 

@@ -4,7 +4,6 @@ import os
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
-import numpy as np
 import polars as pl
 
 from ._alifestd_has_contiguous_ids_polars import (
@@ -13,30 +12,16 @@ from ._alifestd_has_contiguous_ids_polars import (
 from ._alifestd_is_topologically_sorted_polars import (
     alifestd_is_topologically_sorted_polars,
 )
+from ._alifestd_mark_node_depth_asexual import (
+    _alifestd_calc_node_depth_asexual_contiguous,
+)
 from ._alifestd_try_add_ancestor_id_col_polars import (
     alifestd_try_add_ancestor_id_col_polars,
 )
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
-from ._jit import jit
 from ._log_context_duration import log_context_duration
-
-
-@jit(nopython=True)
-def _alifestd_calc_node_depth_asexual_contiguous(
-    ancestor_ids: np.ndarray,
-) -> np.ndarray:
-    """Optimized implementation for asexual phylogenies with contiguous ids."""
-    ancestor_ids = ancestor_ids.astype(np.uint64)
-    node_depths = np.full_like(ancestor_ids, -1, dtype=np.int64)
-
-    for id_, _ in enumerate(ancestor_ids):
-        ancestor_id = ancestor_ids[id_]
-        ancestor_depth = node_depths[ancestor_id]
-        node_depths[id_] = ancestor_depth + 1
-
-    return node_depths
 
 
 def alifestd_mark_node_depth_polars(
