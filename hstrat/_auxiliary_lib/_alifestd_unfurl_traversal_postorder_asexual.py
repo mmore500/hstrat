@@ -7,7 +7,6 @@ from ._alifestd_mark_node_depth_asexual import (
     _alifestd_calc_node_depth_asexual_contiguous,
     alifestd_mark_node_depth_asexual,
 )
-from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
@@ -59,10 +58,9 @@ def alifestd_unfurl_traversal_postorder_asexual(
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
 
-    if not alifestd_is_topologically_sorted(phylogeny_df):
-        phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
-
-    if alifestd_has_contiguous_ids(phylogeny_df):
+    if alifestd_has_contiguous_ids(
+        phylogeny_df,
+    ) and alifestd_is_topologically_sorted(phylogeny_df):
         return _alifestd_unfurl_traversal_postorder_asexual_fast_path(
             phylogeny_df["ancestor_id"].to_numpy(),
         )
