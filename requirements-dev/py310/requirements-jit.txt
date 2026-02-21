@@ -202,8 +202,10 @@ scipy==1.15.3
     #   statsmodels
 seaborn==0.13.2
     # via hstrat (../../pyproject.toml)
-setuptools==82.0.0
-    # via dendropy
+setuptools==80.10.2
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   dendropy
 six==1.17.0
     # via python-dateutil
 sortedcontainers==2.4.0
