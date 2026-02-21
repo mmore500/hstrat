@@ -56,12 +56,14 @@ def test_drop_dstream_metadata_false():
     assert "origin_time" in res.columns
     assert "hstrat_rank" in res.columns
     assert len(df) <= len(res)
-    # dstream columns from input should be forwarded
+    # dstream columns from input should be forwarded, except for columns
+    # consumed internally by surface_postprocess_trie
+    postprocess_consumed = {"dstream_S", "hstrat_differentia_bitwidth"}
     input_dstream_cols = {
         c
         for c in df.columns
         if re.match(r"^dstream_", c) or re.match(r"^downstream_", c)
-    }
+    } - postprocess_consumed
     output_dstream_cols = {
         c
         for c in res.columns
