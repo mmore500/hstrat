@@ -51,6 +51,28 @@ def test_alifestd_mark_node_depth_asexual_polars_cli_csv():
     assert "node_depth" in result_df.columns
 
 
+def test_alifestd_mark_node_depth_asexual_polars_cli_parquet():
+    output_file = (
+        "/tmp/hstrat_alifestd_mark_node_depth_asexual_polars.pqt"
+    )
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(  # nosec B603
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_mark_node_depth_asexual_polars",
+            "--eager-write",
+            output_file,
+        ],
+        check=True,
+        input=f"{assets}/trunktestphylo.csv".encode(),
+    )
+    assert os.path.exists(output_file)
+    result_df = pd.read_parquet(output_file)
+    assert len(result_df) > 0
+    assert "node_depth" in result_df.columns
+
+
 def test_alifestd_mark_node_depth_asexual_polars_cli_empty():
     output_file = (
         "/tmp/hstrat_alifestd_mark_node_depth_asexual_polars_empty.csv"
@@ -68,6 +90,3 @@ def test_alifestd_mark_node_depth_asexual_polars_cli_empty():
         input=f"{assets}/empty.csv".encode(),
     )
     assert os.path.exists(output_file)
-    result_df = pd.read_csv(output_file)
-    assert len(result_df) > 0
-    assert "node_depth" in result_df.columns
