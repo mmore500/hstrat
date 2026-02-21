@@ -102,7 +102,7 @@ testing = [
   "biopython>=1.79",
   "colorclade>=0.3.0",
   "contexttimer==0.3.3",
-  "coverage==6.4.4",
+  "coverage>=7.6.1",
   "flake8==3.7.8",
   "iterify==0.1.0",
   "more-itertools>=8.13.0",
