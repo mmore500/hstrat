@@ -11,6 +11,7 @@ from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
 import opytional as opyt
 import pandas as pd
+from tqdm import tqdm
 
 from ._RngStateContext import RngStateContext
 from ._add_bool_arg import add_bool_arg
@@ -130,6 +131,7 @@ def alifestd_downsample_tips_lineage_asexual(
     *,
     criterion_delta: str = "origin_time",
     criterion_target: str = "origin_time",
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> pd.DataFrame:
     """Retain the `num_tips` leaves closest to the lineage of a target leaf.
 
@@ -168,6 +170,8 @@ def alifestd_downsample_tips_lineage_asexual(
         largest value in this column is chosen as the target. Note that
         ties are broken by random sample, allowing a seed to be
         provided.
+    progress_wrap : Callable, optional
+        Pass tqdm or equivalent to display a progress bar.
 
     Raises
     ------
@@ -192,6 +196,10 @@ def alifestd_downsample_tips_lineage_asexual(
     if phylogeny_df.empty:
         return phylogeny_df
 
+    logging.info(
+        "- alifestd_downsample_tips_lineage_asexual: "
+        "adding ancestor_id col...",
+    )
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
     if "ancestor_id" not in phylogeny_df.columns:
         raise ValueError(
@@ -199,9 +207,16 @@ def alifestd_downsample_tips_lineage_asexual(
             "asexual phylogenies.",
         )
 
+    logging.info(
+        "- alifestd_downsample_tips_lineage_asexual: marking leaves...",
+    )
     if "is_leaf" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_leaves(phylogeny_df)
 
+    logging.info(
+        "- alifestd_downsample_tips_lineage_asexual: "
+        "checking contiguous ids...",
+    )
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df.reset_index(drop=True, inplace=True)
     else:
@@ -220,8 +235,17 @@ def alifestd_downsample_tips_lineage_asexual(
             is_leaf, target_values
         )
 
+    logging.info(
+        "- alifestd_downsample_tips_lineage_asexual: "
+        "computing mrca vector...",
+    )
     mrca_vector = alifestd_calc_mrca_id_vector_asexual(
-        phylogeny_df, target_id=target_id
+        phylogeny_df, target_id=target_id, progress_wrap=progress_wrap
+    )
+
+    logging.info(
+        "- alifestd_downsample_tips_lineage_asexual: "
+        "computing lineage downsample...",
     )
     is_extant = _alifestd_downsample_tips_lineage_impl(
         is_leaf=is_leaf,
@@ -230,6 +254,9 @@ def alifestd_downsample_tips_lineage_asexual(
         mrca_vector=mrca_vector,
     )
 
+    logging.info(
+        "- alifestd_downsample_tips_lineage_asexual: pruning...",
+    )
     phylogeny_df["extant"] = is_extant
     return alifestd_prune_extinct_lineages_asexual(
         phylogeny_df, mutate=True
@@ -331,6 +358,7 @@ if __name__ == "__main__":
                     seed=args.seed,
                     criterion_delta=args.criterion_delta,
                     criterion_target=args.criterion_target,
+                    progress_wrap=tqdm,
                     ignore_topological_sensitivity=args.ignore_topological_sensitivity,
                     drop_topological_sensitivity=args.drop_topological_sensitivity,
                 ),
