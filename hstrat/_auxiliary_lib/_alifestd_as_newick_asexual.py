@@ -74,7 +74,7 @@ def alifestd_as_newick_asexual(
     mutate: bool = False,
     *,
     taxon_label: typing.Optional[str] = None,
-    progress_wrap=lambda x: x,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> str:
     """Convert phylogeny dataframe to Newick format.
 
