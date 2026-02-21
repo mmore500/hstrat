@@ -162,7 +162,7 @@ def _create_parser() -> argparse.ArgumentParser:
         default=None,
         help=(
             "Should dstream/downstream columns be dropped from the output? "
-            "Omit for default behavior (drop). "
+            "Omit for default behavior (drop some metadata). "
             "Use --no-drop-dstream-metadata to retain. "
             "Passing --drop-dstream-metadata raises NotImplementedError."
         ),
