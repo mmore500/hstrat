@@ -63,7 +63,6 @@ def alifestd_unfurl_traversal_postorder_asexual(
         phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
 
     if alifestd_has_contiguous_ids(phylogeny_df):
-        ancestor_ids = phylogeny_df["ancestor_id"].to_numpy()
         postorder_index = (
             _alifestd_unfurl_traversal_postorder_asexual_fast_path(
                 ancestor_ids,
