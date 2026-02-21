@@ -76,7 +76,7 @@ def surface_build_tree(
 
         - If None, some dstream/downstream columns are dropped (default behavior).
         - If False, dstream/downstream columns are retained in the output.
-        - If True, raises NotImplementedError (not yet supported).
+        - If True, drop all dstream metadata.
 
     exploded_slice_size : int, default 1_000_000
         Number of rows to process at once. Lower values reduce memory usage.
