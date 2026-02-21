@@ -80,7 +80,9 @@ def test_alifestd_downsample_tips_asexual_cli_parquet():
 
 
 def test_alifestd_downsample_tips_asexual_cli_ignore_topological_sensitivity():
-    output_file = "/tmp/hstrat_alifestd_downsample_tips_asexual_ignore.csv"
+    output_file = (
+        "/tmp/hstrat_alifestd_downsample_tips_asexual_ignore.csv"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
@@ -99,7 +101,9 @@ def test_alifestd_downsample_tips_asexual_cli_ignore_topological_sensitivity():
 
 
 def test_alifestd_downsample_tips_asexual_cli_drop_topological_sensitivity():
-    output_file = "/tmp/hstrat_alifestd_downsample_tips_asexual_drop.csv"
+    output_file = (
+        "/tmp/hstrat_alifestd_downsample_tips_asexual_drop.csv"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [

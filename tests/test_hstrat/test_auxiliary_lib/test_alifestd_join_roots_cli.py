@@ -70,7 +70,7 @@ def test_alifestd_join_roots_cli_parquet():
 
 
 def test_alifestd_join_roots_cli_ignore_topological_sensitivity():
-    output_file = "/tmp/hstrat_alifestd_join_roots_ignore.csv"
+    output_file = "/tmp/hstrat_alifestd_join_roots_ignore.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
@@ -87,7 +87,7 @@ def test_alifestd_join_roots_cli_ignore_topological_sensitivity():
 
 
 def test_alifestd_join_roots_cli_drop_topological_sensitivity():
-    output_file = "/tmp/hstrat_alifestd_join_roots_drop.csv"
+    output_file = "/tmp/hstrat_alifestd_join_roots_drop.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [

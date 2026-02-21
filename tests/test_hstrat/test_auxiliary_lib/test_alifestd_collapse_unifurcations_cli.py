@@ -32,7 +32,9 @@ def test_alifestd_collapse_unifurcations_cli_version():
 
 
 def test_alifestd_collapse_unifurcations_cli_csv():
-    output_file = "/tmp/hstrat_alifestd_collapse_unifurcations.csv"
+    output_file = (
+        "/tmp/hstrat_alifestd_collapse_unifurcations.csv"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -52,7 +54,9 @@ def test_alifestd_collapse_unifurcations_cli_csv():
 
 
 def test_alifestd_collapse_unifurcations_cli_parquet():
-    output_file = "/tmp/hstrat_alifestd_collapse_unifurcations.pqt"
+    output_file = (
+        "/tmp/hstrat_alifestd_collapse_unifurcations.pqt"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -72,7 +76,9 @@ def test_alifestd_collapse_unifurcations_cli_parquet():
 
 
 def test_alifestd_collapse_unifurcations_cli_ignore_topological_sensitivity():
-    output_file = "/tmp/hstrat_alifestd_collapse_unifurcations_ignore.csv"
+    output_file = (
+        "/tmp/hstrat_alifestd_collapse_unifurcations_ignore.csv"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -90,7 +96,9 @@ def test_alifestd_collapse_unifurcations_cli_ignore_topological_sensitivity():
 
 
 def test_alifestd_collapse_unifurcations_cli_drop_topological_sensitivity():
-    output_file = "/tmp/hstrat_alifestd_collapse_unifurcations_drop.csv"
+    output_file = (
+        "/tmp/hstrat_alifestd_collapse_unifurcations_drop.csv"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [

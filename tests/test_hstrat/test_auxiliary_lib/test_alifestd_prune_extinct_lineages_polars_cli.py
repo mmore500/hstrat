@@ -32,7 +32,9 @@ def test_alifestd_prune_extinct_lineages_polars_cli_version():
 
 
 def test_alifestd_prune_extinct_lineages_polars_cli_csv():
-    output_file = "/tmp/hstrat_alifestd_prune_extinct_lineages_polars.csv"
+    output_file = (
+        "/tmp/hstrat_alifestd_prune_extinct_lineages_polars.csv"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -52,7 +54,9 @@ def test_alifestd_prune_extinct_lineages_polars_cli_csv():
 
 
 def test_alifestd_prune_extinct_lineages_polars_cli_parquet():
-    output_file = "/tmp/hstrat_alifestd_prune_extinct_lineages_polars.pqt"
+    output_file = (
+        "/tmp/hstrat_alifestd_prune_extinct_lineages_polars.pqt"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -72,9 +76,7 @@ def test_alifestd_prune_extinct_lineages_polars_cli_parquet():
 
 
 def test_alifestd_prune_extinct_lineages_polars_cli_empty():
-    output_file = (
-        "/tmp/hstrat_alifestd_prune_extinct_lineages_polars_empty.csv"
-    )
+    output_file = "/tmp/hstrat_alifestd_prune_extinct_lineages_polars_empty.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -90,9 +92,7 @@ def test_alifestd_prune_extinct_lineages_polars_cli_empty():
 
 
 def test_alifestd_prune_extinct_lineages_polars_cli_ignore_topological_sensitivity():
-    output_file = (
-        "/tmp/hstrat_alifestd_prune_extinct_lineages_polars_ignore.csv"
-    )
+    output_file = "/tmp/hstrat_alifestd_prune_extinct_lineages_polars_ignore.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -110,7 +110,7 @@ def test_alifestd_prune_extinct_lineages_polars_cli_ignore_topological_sensitivi
 
 
 def test_alifestd_prune_extinct_lineages_polars_cli_drop_topological_sensitivity():
-    output_file = "/tmp/hstrat_alifestd_prune_extinct_lineages_polars_drop.csv"
+    output_file = "/tmp/hstrat_alifestd_prune_extinct_lineages_polars_drop.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [

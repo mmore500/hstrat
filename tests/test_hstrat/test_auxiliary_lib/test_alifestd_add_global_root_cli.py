@@ -32,7 +32,7 @@ def test_alifestd_add_global_root_cli_version():
 
 
 def test_alifestd_add_global_root_cli_csv():
-    output_file = "/tmp/hstrat_alifestd_add_global_root.csv"
+    output_file = "/tmp/hstrat_alifestd_add_global_root.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -52,7 +52,7 @@ def test_alifestd_add_global_root_cli_csv():
 
 
 def test_alifestd_add_global_root_cli_parquet():
-    output_file = "/tmp/hstrat_alifestd_add_global_root.pqt"
+    output_file = "/tmp/hstrat_alifestd_add_global_root.pqt"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -72,7 +72,9 @@ def test_alifestd_add_global_root_cli_parquet():
 
 
 def test_alifestd_add_global_root_cli_ignore_topological_sensitivity():
-    output_file = "/tmp/hstrat_alifestd_add_global_root_ignore.csv"
+    output_file = (
+        "/tmp/hstrat_alifestd_add_global_root_ignore.csv"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -90,7 +92,7 @@ def test_alifestd_add_global_root_cli_ignore_topological_sensitivity():
 
 
 def test_alifestd_add_global_root_cli_drop_topological_sensitivity():
-    output_file = "/tmp/hstrat_alifestd_add_global_root_drop.csv"
+    output_file = "/tmp/hstrat_alifestd_add_global_root_drop.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [

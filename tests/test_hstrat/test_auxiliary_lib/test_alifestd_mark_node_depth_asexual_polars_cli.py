@@ -32,7 +32,9 @@ def test_alifestd_mark_node_depth_asexual_polars_cli_version():
 
 
 def test_alifestd_mark_node_depth_asexual_polars_cli_csv():
-    output_file = "/tmp/hstrat_alifestd_mark_node_depth_asexual_polars.csv"
+    output_file = (
+        "/tmp/hstrat_alifestd_mark_node_depth_asexual_polars.csv"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -52,7 +54,9 @@ def test_alifestd_mark_node_depth_asexual_polars_cli_csv():
 
 
 def test_alifestd_mark_node_depth_asexual_polars_cli_parquet():
-    output_file = "/tmp/hstrat_alifestd_mark_node_depth_asexual_polars.pqt"
+    output_file = (
+        "/tmp/hstrat_alifestd_mark_node_depth_asexual_polars.pqt"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -72,9 +76,7 @@ def test_alifestd_mark_node_depth_asexual_polars_cli_parquet():
 
 
 def test_alifestd_mark_node_depth_asexual_polars_cli_empty():
-    output_file = (
-        "/tmp/hstrat_alifestd_mark_node_depth_asexual_polars_empty.csv"
-    )
+    output_file = "/tmp/hstrat_alifestd_mark_node_depth_asexual_polars_empty.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
