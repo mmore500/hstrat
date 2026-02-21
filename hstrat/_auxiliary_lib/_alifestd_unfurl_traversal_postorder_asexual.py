@@ -4,8 +4,10 @@ import pandas as pd
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_mark_node_depth_asexual import (
-    _alifestd_calc_node_depth_asexual_contiguous,
     alifestd_mark_node_depth_asexual,
+)
+from ._alifestd_mark_node_depth_polars import (
+    _alifestd_calc_node_depth_asexual_contiguous,
 )
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 

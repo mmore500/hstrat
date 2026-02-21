@@ -9,8 +9,8 @@ from hstrat._auxiliary_lib import (
     alifestd_mark_node_depth_asexual,
     alifestd_to_working_format,
 )
-from hstrat._auxiliary_lib._alifestd_mark_node_depth_asexual_polars import (
-    alifestd_mark_node_depth_asexual_polars,
+from hstrat._auxiliary_lib._alifestd_mark_node_depth_polars import (
+    alifestd_mark_node_depth_polars,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
@@ -49,7 +49,7 @@ def test_fuzz_matches_pandas(
     result_pd = alifestd_mark_node_depth_asexual(phylogeny_df, mutate=False)
 
     df_pl = apply(pl.from_pandas(phylogeny_df))
-    result_pl = alifestd_mark_node_depth_asexual_polars(df_pl).lazy().collect()
+    result_pl = alifestd_mark_node_depth_polars(df_pl).lazy().collect()
 
     expected = result_pd["node_depth"].tolist()
     actual = result_pl["node_depth"].to_list()
@@ -73,7 +73,7 @@ def test_simple_chain(apply: typing.Callable):
             }
         )
     )
-    result = alifestd_mark_node_depth_asexual_polars(df_pl).lazy().collect()
+    result = alifestd_mark_node_depth_polars(df_pl).lazy().collect()
     assert result["node_depth"].to_list() == [0, 1, 2]
 
 
@@ -94,7 +94,7 @@ def test_simple_tree(apply: typing.Callable):
             }
         )
     )
-    result = alifestd_mark_node_depth_asexual_polars(df_pl).lazy().collect()
+    result = alifestd_mark_node_depth_polars(df_pl).lazy().collect()
     assert result["node_depth"].to_list() == [0, 1, 1, 2]
 
 
@@ -115,7 +115,7 @@ def test_multiple_roots(apply: typing.Callable):
             }
         )
     )
-    result = alifestd_mark_node_depth_asexual_polars(df_pl).lazy().collect()
+    result = alifestd_mark_node_depth_polars(df_pl).lazy().collect()
     assert result["node_depth"].to_list() == [0, 0, 0]
 
 
@@ -136,7 +136,7 @@ def test_single_node(apply: typing.Callable):
             }
         )
     )
-    result = alifestd_mark_node_depth_asexual_polars(df_pl).lazy().collect()
+    result = alifestd_mark_node_depth_polars(df_pl).lazy().collect()
     assert result["node_depth"].to_list() == [0]
 
 
@@ -155,7 +155,7 @@ def test_empty(apply: typing.Callable):
             schema={"id": pl.Int64, "ancestor_id": pl.Int64},
         )
     )
-    result = alifestd_mark_node_depth_asexual_polars(df_pl).lazy().collect()
+    result = alifestd_mark_node_depth_polars(df_pl).lazy().collect()
     assert "node_depth" in result.columns
     assert result.is_empty()
 
@@ -179,7 +179,7 @@ def test_preserves_columns(apply: typing.Callable):
             }
         )
     )
-    result = alifestd_mark_node_depth_asexual_polars(df_pl).lazy().collect()
+    result = alifestd_mark_node_depth_polars(df_pl).lazy().collect()
     assert "node_depth" in result.columns
     assert "origin_time" in result.columns
     assert "taxon_label" in result.columns
@@ -204,7 +204,7 @@ def test_with_ancestor_list_col(apply: typing.Callable):
             }
         )
     )
-    result = alifestd_mark_node_depth_asexual_polars(df_pl).lazy().collect()
+    result = alifestd_mark_node_depth_polars(df_pl).lazy().collect()
     assert result["node_depth"].to_list() == [0, 1, 1, 2]
 
 
@@ -225,7 +225,7 @@ def test_does_not_mutate_input(apply: typing.Callable):
     )
     original_data = df_pl.clone()
 
-    alifestd_mark_node_depth_asexual_polars(apply(df_pl))
+    alifestd_mark_node_depth_polars(apply(df_pl))
 
     assert df_pl.columns == original_data.columns
     assert df_pl.equals(original_data)

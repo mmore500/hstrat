@@ -1,27 +1,12 @@
-import numpy as np
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
+from ._alifestd_mark_node_depth_polars import (
+    _alifestd_calc_node_depth_asexual_contiguous,
+)
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
-from ._jit import jit
-
-
-@jit(nopython=True)
-def _alifestd_calc_node_depth_asexual_contiguous(
-    ancestor_ids: np.ndarray,
-) -> np.ndarray:
-    """Optimized implementation for asexual phylogenies with contiguous ids."""
-    ancestor_ids = ancestor_ids.astype(np.uint64)
-    node_depths = np.full_like(ancestor_ids, -1, dtype=np.int64)
-
-    for id_, _ in enumerate(ancestor_ids):
-        ancestor_id = ancestor_ids[id_]
-        ancestor_depth = node_depths[ancestor_id]
-        node_depths[id_] = ancestor_depth + 1
-
-    return node_depths
 
 
 def alifestd_mark_node_depth_asexual(
