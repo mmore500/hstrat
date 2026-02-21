@@ -101,7 +101,6 @@ def alifestd_as_newick_polars(
             .collect()
             .to_series()
             .to_numpy()
-            .astype(float)
         )
         origin_time_deltas = (
             origin_times - origin_times[ancestor_ids.astype(int)]
