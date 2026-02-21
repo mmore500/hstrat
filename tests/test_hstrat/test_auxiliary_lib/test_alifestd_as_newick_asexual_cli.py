@@ -3,6 +3,7 @@ import pathlib
 import subprocess
 import typing
 
+import pandas as pd
 import pytest
 
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
@@ -68,6 +69,7 @@ def test_alifestd_as_newick_asexual_cli_csv(
         cmd.extend(["--taxon-label", taxon_label])
     subprocess.run(cmd, check=True)
     assert os.path.exists(output_file)
+    assert os.path.getsize(output_file) > 0
 
 
 @pytest.mark.parametrize(
@@ -117,6 +119,7 @@ def test_alifestd_as_newick_asexual_cli_csv_engine(
         cmd.extend(["--taxon-label", taxon_label])
     subprocess.run(cmd, check=True)
     assert os.path.exists(output_file)
+    assert os.path.getsize(output_file) > 0
 
 
 @pytest.mark.parametrize(
@@ -148,3 +151,4 @@ def test_alifestd_as_newick_asexual_cli_csv_input_kwarg(
     ]
     subprocess.run(cmd, check=True)
     assert os.path.exists(output_file)
+    assert os.path.getsize(output_file) > 0
