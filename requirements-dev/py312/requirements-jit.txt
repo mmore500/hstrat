@@ -104,9 +104,9 @@ networkx==3.6.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
-numba==0.63.1
+numba==0.64.0
     # via hstrat (../../pyproject.toml)
-numpy==2.3.5
+numpy==2.4.2
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
