@@ -16,7 +16,7 @@ from ._add_bool_arg import add_bool_arg
 from ._alifestd_calc_mrca_id_vector_asexual_polars import (
     alifestd_calc_mrca_id_vector_asexual_polars,
 )
-from ._alifestd_downsample_tips_lineage_impl import (
+from ._alifestd_downsample_tips_lineage_asexual import (
     _alifestd_downsample_tips_lineage_impl,
     _alifestd_downsample_tips_lineage_select_target_id,
 )
