@@ -35,16 +35,8 @@ def test_smoke():
     assert alifestd_is_chronologically_ordered(res.to_pandas())
 
 
-def test_hstrat_rank_retained():
-    """hstrat_rank should be retained in output alongside hstrat_rank_from_t0."""
+def test_hstrat_rank_in_unpack_reconstruct():
+    """hstrat_rank should be present after surface_unpack_reconstruct."""
     df = pl.read_csv(f"{assets_path}/packed.csv")
     raw = surface_unpack_reconstruct(df)
     assert "hstrat_rank" in raw.columns
-    res = surface_postprocess_trie(
-        raw,
-        trie_postprocessor=AssignOriginTimeNodeRankTriePostprocessor(
-            t0="dstream_S",
-        ),
-    )
-    assert "hstrat_rank" in res.columns
-    assert "hstrat_rank_from_t0" in res.columns

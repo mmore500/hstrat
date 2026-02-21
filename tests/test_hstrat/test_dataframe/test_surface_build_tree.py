@@ -27,7 +27,6 @@ def test_smoke():
         ),
     )
     assert "origin_time" in res.columns
-    assert "hstrat_rank" in res.columns
     assert len(df) <= len(res)
     assert alifestd_validate(
         alifestd_try_add_ancestor_list_col(res.to_pandas()),
@@ -54,7 +53,6 @@ def test_drop_dstream_metadata_false():
         ),
     )
     assert "origin_time" in res.columns
-    assert "hstrat_rank" in res.columns
     assert len(df) <= len(res)
     # dstream columns from input should be forwarded, except for columns
     # consumed internally by surface_postprocess_trie

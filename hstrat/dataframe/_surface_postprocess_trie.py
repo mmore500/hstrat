@@ -203,10 +203,6 @@ def surface_postprocess_trie(
             - Num generations elapsed for ancestral differentia.
             - Corresponds to `dstream_Tbar` - `dstream_S` for inner nodes.
             - Corresponds to `dstream_T` - 1 - `dstream_S` for leaf nodes.
-        - 'hstrat_rank' : pl.UInt64
-            - Num generations elapsed for ancestral differentia.
-            - Corresponds to `dstream_Tbar` for inner nodes.
-            - Corresponds to `dstream_T` - 1 for leaf nodes.
 
         Optional schema:
         - 'origin_time' : pl.UInt64
@@ -278,6 +274,7 @@ def surface_postprocess_trie(
     to_keep = {*original_columns} - {
         "dstream_S",
         "hstrat_differentia_bitwidth",
+        "hstrat_rank",
     }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
