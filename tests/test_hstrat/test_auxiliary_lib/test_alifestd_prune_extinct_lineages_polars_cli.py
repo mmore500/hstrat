@@ -52,9 +52,7 @@ def test_alifestd_prune_extinct_lineages_polars_cli_csv():
 
 
 def test_alifestd_prune_extinct_lineages_polars_cli_parquet():
-    output_file = (
-        "/tmp/hstrat_alifestd_prune_extinct_lineages_polars.pqt"
-    )
+    output_file = "/tmp/hstrat_alifestd_prune_extinct_lineages_polars.pqt"
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [

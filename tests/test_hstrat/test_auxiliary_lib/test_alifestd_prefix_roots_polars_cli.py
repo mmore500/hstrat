@@ -34,9 +34,7 @@ def test_alifestd_prefix_roots_polars_cli_version():
 
 @pytest.mark.xfail(reason="polars implementation not yet available")
 def test_alifestd_prefix_roots_polars_cli_csv():
-    output_file = (
-        "/tmp/hstrat_alifestd_prefix_roots_polars.csv"  # nosec B108
-    )
+    output_file = "/tmp/hstrat_alifestd_prefix_roots_polars.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -57,9 +55,7 @@ def test_alifestd_prefix_roots_polars_cli_csv():
 
 @pytest.mark.xfail(reason="polars implementation not yet available")
 def test_alifestd_prefix_roots_polars_cli_parquet():
-    output_file = (
-        "/tmp/hstrat_alifestd_prefix_roots_polars.pqt"  # nosec B108
-    )
+    output_file = "/tmp/hstrat_alifestd_prefix_roots_polars.pqt"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
