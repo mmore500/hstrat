@@ -63,13 +63,9 @@ def alifestd_unfurl_traversal_postorder_asexual(
         phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
 
     if alifestd_has_contiguous_ids(phylogeny_df):
-        postorder_index = (
-            _alifestd_unfurl_traversal_postorder_asexual_fast_path(
-                phylogeny_df["ancestor_id"].to_numpy(),
-            )
+        return _alifestd_unfurl_traversal_postorder_asexual_fast_path(
+            phylogeny_df["ancestor_id"].to_numpy(),
         )
-        id_loc = phylogeny_df.columns.get_loc("id")
-        return phylogeny_df.iloc[postorder_index, id_loc].to_numpy()
     else:
         return _alifestd_unfurl_traversal_postorder_asexual_slow_path(
             phylogeny_df,
