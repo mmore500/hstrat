@@ -61,6 +61,7 @@ To work with genome data in raw binary format (e.g., pl.Binary),
 
 Additional user-provided columns will be forwarded to phylogeny output.
 For these columns, output rows for tip nodes are assigned values from corresponding genome row in original data.
+Internal tree nodes will take null values in user-provided columns.
 
 
 Output Schema: Required Columns

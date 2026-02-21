@@ -205,7 +205,7 @@ def surface_postprocess_trie(
             - Corresponds to `dstream_T` - 1 - `dstream_S` for leaf nodes.
 
         Optional schema:
-        - 'origin_tme' : pl.UInt64
+        - 'origin_time' : pl.UInt64
             - Estimated origin time for phylogeny nodes, in generations elapsed
               since founding ancestor.
 

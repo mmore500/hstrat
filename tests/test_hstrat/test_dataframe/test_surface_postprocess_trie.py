@@ -33,3 +33,10 @@ def test_smoke():
         alifestd_try_add_ancestor_list_col(res.to_pandas()),
     )
     assert alifestd_is_chronologically_ordered(res.to_pandas())
+
+
+def test_hstrat_rank_in_unpack_reconstruct():
+    """hstrat_rank should be present after surface_unpack_reconstruct."""
+    df = pl.read_csv(f"{assets_path}/packed.csv")
+    raw = surface_unpack_reconstruct(df)
+    assert "hstrat_rank" in raw.columns
