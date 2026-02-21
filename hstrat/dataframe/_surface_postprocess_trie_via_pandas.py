@@ -139,7 +139,6 @@ def _surface_postprocess_trie_via_pandas(
     to_keep = {*original_columns} - {
         "dstream_S",
         "hstrat_differentia_bitwidth",
-        "hstrat_rank",
     }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")

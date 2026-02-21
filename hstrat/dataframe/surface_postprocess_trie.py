@@ -75,6 +75,10 @@ Output Schema: Required Columns
 
 Output Schema: Optional Columns
 ===============================
+'hstrat_rank' : integer
+    Num generations elapsed for ancestral differentia (a.k.a. rank).
+    Present when the input contains 'hstrat_rank'.
+
 'origin_time' : floating point or integer
     Estimated num generations elapsed from founding ancestor.
     Value depends on the trie postprocessor used.
