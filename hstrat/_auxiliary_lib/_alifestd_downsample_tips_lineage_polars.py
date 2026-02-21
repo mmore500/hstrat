@@ -54,6 +54,7 @@ def alifestd_downsample_tips_lineage_polars(
     *,
     criterion_delta: str = "origin_time",
     criterion_target: str = "origin_time",
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> pl.DataFrame:
     """Retain the `num_tips` leaves closest to the lineage of a target leaf.
 
@@ -90,6 +91,8 @@ def alifestd_downsample_tips_lineage_polars(
         largest value in this column is chosen as the target. Note that
         ties are broken by random sample, allowing a seed to be
         provided.
+    progress_wrap : Callable, optional
+        Pass tqdm or equivalent to display a progress bar.
 
     Raises
     ------
@@ -182,8 +185,12 @@ def alifestd_downsample_tips_lineage_polars(
             is_leaf, target_values
         )
 
+    logging.info(
+        "- alifestd_downsample_tips_lineage_polars: "
+        "computing mrca vector...",
+    )
     mrca_vector = alifestd_calc_mrca_id_vector_asexual_polars(
-        phylogeny_df, target_id=target_id
+        phylogeny_df, target_id=target_id, progress_wrap=progress_wrap
     )
     is_extant = _alifestd_downsample_tips_lineage_impl(
         is_leaf=is_leaf,
@@ -288,6 +295,8 @@ def _create_parser() -> argparse.ArgumentParser:
 if __name__ == "__main__":
     configure_prod_logging()
 
+    from tqdm import tqdm
+
     parser = _create_parser()
     args, __ = parser.parse_known_args()
 
@@ -304,6 +313,7 @@ if __name__ == "__main__":
                     seed=args.seed,
                     criterion_delta=args.criterion_delta,
                     criterion_target=args.criterion_target,
+                    progress_wrap=tqdm,
                     ignore_topological_sensitivity=args.ignore_topological_sensitivity,
                     drop_topological_sensitivity=args.drop_topological_sensitivity,
                 ),

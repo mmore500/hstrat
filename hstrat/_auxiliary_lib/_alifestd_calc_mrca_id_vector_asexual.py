@@ -1,3 +1,4 @@
+import logging
 import typing
 
 import numpy as np
@@ -65,6 +66,9 @@ def alifestd_calc_mrca_id_vector_asexual(
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
+    logging.info(
+        "- alifestd_calc_mrca_id_vector_asexual: " "adding ancestor_id col...",
+    )
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
 
     if not alifestd_is_working_format_asexual(phylogeny_df, mutate=True):
@@ -72,6 +76,10 @@ def alifestd_calc_mrca_id_vector_asexual(
             "current implementation requires phylogeny_df in working format",
         )
 
+    logging.info(
+        "- alifestd_calc_mrca_id_vector_asexual: "
+        "calculating node depths...",
+    )
     phylogeny_df = alifestd_mark_node_depth_asexual(phylogeny_df, mutate=True)
 
     if target_id >= len(phylogeny_df):
@@ -83,6 +91,9 @@ def alifestd_calc_mrca_id_vector_asexual(
         phylogeny_df["id"].to_numpy() == np.arange(len(phylogeny_df))
     )
 
+    logging.info(
+        "- alifestd_calc_mrca_id_vector_asexual: computing mrca ids...",
+    )
     return _alifestd_calc_mrca_id_vector_asexual_fast_path(
         ancestor_ids, node_depths, target_id, progress_wrap
     )
