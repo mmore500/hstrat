@@ -47,7 +47,7 @@ def test_alifestd_mark_ot_mrca_asexual_cli_csv():
     assert os.path.exists(output_file)
     result_df = pd.read_csv(output_file)
     assert len(result_df) > 0
-    assert "ot_mrca" in result_df.columns
+    assert "ot_mrca_id" in result_df.columns
 
 
 def test_alifestd_mark_ot_mrca_asexual_cli_parquet():
@@ -66,4 +66,4 @@ def test_alifestd_mark_ot_mrca_asexual_cli_parquet():
     assert os.path.exists(output_file)
     result_df = pd.read_parquet(output_file)
     assert len(result_df) > 0
-    assert "ot_mrca" in result_df.columns
+    assert "ot_mrca_id" in result_df.columns
