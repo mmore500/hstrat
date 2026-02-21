@@ -74,7 +74,7 @@ def surface_build_tree(
     drop_dstream_metadata : bool or None, default None
         Should dstream/downstream columns be dropped from the output?
 
-        - If None, dstream/downstream columns are dropped (default behavior).
+        - If None, some dstream/downstream columns are dropped (default behavior).
         - If False, dstream/downstream columns are retained in the output.
         - If True, raises NotImplementedError (not yet supported).
 
