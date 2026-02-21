@@ -2,6 +2,8 @@ import os
 import pathlib
 import subprocess
 
+import pandas as pd
+
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
@@ -45,6 +47,9 @@ def test_alifestd_mark_sackin_index_asexual_cli_csv():
         input=f"{assets}/nk_ecoeaselection.csv".encode(),
     )
     assert os.path.exists(output_file)
+    result_df = pd.read_csv(output_file)
+    assert len(result_df) > 0
+    assert "sackin_index" in result_df.columns
 
 
 def test_alifestd_mark_sackin_index_asexual_cli_parquet():
@@ -63,3 +68,6 @@ def test_alifestd_mark_sackin_index_asexual_cli_parquet():
         input=f"{assets}/nk_ecoeaselection.csv".encode(),
     )
     assert os.path.exists(output_file)
+    result_df = pd.read_parquet(output_file)
+    assert len(result_df) > 0
+    assert "sackin_index" in result_df.columns

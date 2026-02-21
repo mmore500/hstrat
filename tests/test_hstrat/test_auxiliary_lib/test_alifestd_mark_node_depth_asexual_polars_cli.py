@@ -2,6 +2,8 @@ import os
 import pathlib
 import subprocess
 
+import pandas as pd
+
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
@@ -44,6 +46,9 @@ def test_alifestd_mark_node_depth_asexual_polars_cli_csv():
         input=f"{assets}/trunktestphylo.csv".encode(),
     )
     assert os.path.exists(output_file)
+    result_df = pd.read_csv(output_file)
+    assert len(result_df) > 0
+    assert "node_depth" in result_df.columns
 
 
 def test_alifestd_mark_node_depth_asexual_polars_cli_empty():
@@ -63,3 +68,6 @@ def test_alifestd_mark_node_depth_asexual_polars_cli_empty():
         input=f"{assets}/empty.csv".encode(),
     )
     assert os.path.exists(output_file)
+    result_df = pd.read_csv(output_file)
+    assert len(result_df) > 0
+    assert "node_depth" in result_df.columns
