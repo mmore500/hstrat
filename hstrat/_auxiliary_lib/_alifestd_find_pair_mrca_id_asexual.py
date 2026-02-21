@@ -11,7 +11,7 @@ from ._jit import jit
 
 
 @jit(nopython=True)
-def _find_pair_mrca_id_asexual_contiguous(
+def _alifestd_find_pair_mrca_id_asexual_fast_path(
     ancestor_ids: np.ndarray,
     first: int,
     second: int,
@@ -106,25 +106,29 @@ def alifestd_find_pair_mrca_id_asexual(
         phylogeny_df = phylogeny_df.copy()
 
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
+    if "ancestor_id" not in phylogeny_df.columns:
+        raise ValueError(
+            "alifestd_find_pair_mrca_id_asexual requires ancestor_id column",
+        )
 
-    if not opyt.or_value(
+    if not opyt.or_else(
         is_topologically_sorted,
-        alifestd_is_topologically_sorted(phylogeny_df),
+        lambda: alifestd_is_topologically_sorted(phylogeny_df),
     ):
         raise NotImplementedError(
             "topologically unsorted rows not yet supported",
         )
 
-    if not opyt.or_value(
+    if not opyt.or_else(
         has_contiguous_ids,
-        alifestd_has_contiguous_ids(phylogeny_df),
+        lambda: alifestd_has_contiguous_ids(phylogeny_df),
     ):
         raise NotImplementedError(
             "non-contiguous ids not yet supported",
         )
 
     ancestor_ids = phylogeny_df["ancestor_id"].to_numpy()
-    result = _find_pair_mrca_id_asexual_contiguous(ancestor_ids, first, second)
-    if result == -1:
-        return None
-    return int(result)
+    result = _alifestd_find_pair_mrca_id_asexual_fast_path(
+        ancestor_ids, first, second,
+    )
+    return None if result == -1 else int(result)

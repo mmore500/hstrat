@@ -4,7 +4,7 @@ import opytional as opyt
 import polars as pl
 
 from ._alifestd_find_pair_mrca_id_asexual import (
-    _find_pair_mrca_id_asexual_contiguous,
+    _alifestd_find_pair_mrca_id_asexual_fast_path,
 )
 from ._alifestd_has_contiguous_ids_polars import (
     alifestd_has_contiguous_ids_polars,
@@ -58,17 +58,17 @@ def alifestd_find_pair_mrca_id_polars(
     """
     phylogeny_df = alifestd_try_add_ancestor_id_col_polars(phylogeny_df)
 
-    if not opyt.or_value(
+    if not opyt.or_else(
         has_contiguous_ids,
-        alifestd_has_contiguous_ids_polars(phylogeny_df),
+        lambda: alifestd_has_contiguous_ids_polars(phylogeny_df),
     ):
         raise NotImplementedError(
             "non-contiguous ids not yet supported",
         )
 
-    if not opyt.or_value(
+    if not opyt.or_else(
         is_topologically_sorted,
-        alifestd_is_topologically_sorted_polars(phylogeny_df),
+        lambda: alifestd_is_topologically_sorted_polars(phylogeny_df),
     ):
         raise NotImplementedError(
             "topologically unsorted rows not yet supported",
@@ -82,7 +82,7 @@ def alifestd_find_pair_mrca_id_polars(
         .to_numpy()
     )
 
-    result = _find_pair_mrca_id_asexual_contiguous(ancestor_ids, first, second)
-    if result == -1:
-        return None
-    return int(result)
+    result = _alifestd_find_pair_mrca_id_asexual_fast_path(
+        ancestor_ids, first, second,
+    )
+    return None if result == -1 else int(result)
