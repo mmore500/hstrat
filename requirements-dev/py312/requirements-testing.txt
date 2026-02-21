@@ -284,7 +284,9 @@ seaborn==0.13.2
     #   hstrat (../../pyproject.toml)
     #   colorclade
 setuptools==82.0.0
-    # via dendropy
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   dendropy
 six==1.17.0
     # via
     #   python-dateutil
