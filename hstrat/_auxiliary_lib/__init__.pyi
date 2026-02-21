@@ -23,6 +23,9 @@ from ._alifestd_add_inner_niblings_asexual import (
 )
 from ._alifestd_aggregate_phylogenies import alifestd_aggregate_phylogenies
 from ._alifestd_as_newick_asexual import alifestd_as_newick_asexual
+from ._alifestd_as_newick_polars import (
+    alifestd_as_newick_polars,
+)
 from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
 from ._alifestd_assign_contiguous_ids_polars import (
     alifestd_assign_contiguous_ids_polars,
@@ -472,6 +475,7 @@ __all__ = [
     "alifestd_add_inner_niblings_asexual",
     "alifestd_aggregate_phylogenies",
     "alifestd_as_newick_asexual",
+    "alifestd_as_newick_polars",
     "alifestd_assign_contiguous_ids",
     "alifestd_assign_contiguous_ids_polars",
     "alifestd_assign_root_ancestor_token",
