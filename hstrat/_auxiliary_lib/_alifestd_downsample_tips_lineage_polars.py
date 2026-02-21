@@ -10,6 +10,7 @@ import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import opytional as opyt
 import polars as pl
+from tqdm import tqdm
 
 from ._RngStateContext import RngStateContext
 from ._add_bool_arg import add_bool_arg
@@ -294,8 +295,6 @@ def _create_parser() -> argparse.ArgumentParser:
 
 if __name__ == "__main__":
     configure_prod_logging()
-
-    from tqdm import tqdm
 
     parser = _create_parser()
     args, __ = parser.parse_known_args()
