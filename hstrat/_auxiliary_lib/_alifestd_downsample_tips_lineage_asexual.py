@@ -8,6 +8,7 @@ import typing
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
+import opytional as opyt
 import pandas as pd
 
 from ._RngStateContext import RngStateContext
@@ -133,10 +134,7 @@ def alifestd_downsample_tips_lineage_asexual(
     target_values = phylogeny_df[criterion_target].to_numpy()
     criterion_values = phylogeny_df[criterion_delta].to_numpy()
 
-    rng_ctx = (
-        RngStateContext(seed) if seed is not None else contextlib.nullcontext()
-    )
-    with rng_ctx:
+    with opyt.apply_if_or_else(seed, RngStateContext, contextlib.nullcontext):
         target_id = _alifestd_downsample_tips_lineage_select_target_id(
             is_leaf, target_values
         )
