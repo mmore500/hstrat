@@ -1,10 +1,10 @@
 """Configuration file for pytest."""
 
-import importlib.metadata
 import random
 import warnings
 
 import numpy as np
+import pkg_resources
 import pytest
 
 
@@ -19,8 +19,8 @@ def pytest_configure(config):
         check_testing_requirements()
     except (
         ModuleNotFoundError,
-        importlib.metadata.PackageNotFoundError,
-        ValueError,
+        pkg_resources.DistributionNotFound,
+        pkg_resources.VersionConflict,
     ) as exception:
         warnings.warn(
             "Missing some testing requirements. "
