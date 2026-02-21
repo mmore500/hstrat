@@ -13,6 +13,8 @@ Available commands (experimental API):
 $ python3 -m hstrat._auxiliary_lib._alifestd_add_global_root
 $ python3 -m hstrat._auxiliary_lib._alifestd_add_inner_leaves
 $ python3 -m hstrat._auxiliary_lib._alifestd_as_newick_asexual
+$ python3 -m hstrat._auxiliary_lib._alifestd_from_newick
+$ python3 -m hstrat._auxiliary_lib._alifestd_from_newick_polars
 $ python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations
 $ python3 -m hstrat._auxiliary_lib._alifestd_collapse_unifurcations_polars
 $ python3 -m hstrat._auxiliary_lib._alifestd_count_root_nodes
