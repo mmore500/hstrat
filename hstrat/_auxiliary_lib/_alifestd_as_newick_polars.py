@@ -92,7 +92,6 @@ def alifestd_as_newick_polars(
             .collect()
             .to_series()
             .to_numpy()
-            .astype(float)
         )
     elif "origin_time" in schema_names:
         logging.info("... calculating from `origin_time`...")
