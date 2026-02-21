@@ -3,7 +3,6 @@ import pathlib
 import subprocess
 import typing
 
-import pandas as pd
 import pytest
 
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
