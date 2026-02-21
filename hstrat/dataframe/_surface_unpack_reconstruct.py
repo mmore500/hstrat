@@ -288,21 +288,21 @@ def _build_records_chunked(
 def _join_user_defined_columns(
     df: pl.DataFrame,
     phylo_df: pl.DataFrame,
-    drop_dstream_metadata: typing.Optional[bool] = None,
+    drop_dstream_metadata: typing.Optional[bool],
 ) -> pl.DataFrame:
     """Join user-defined columns from input data onto reconstructed tree
     dataframe."""
-    if drop_dstream_metadata is True:
+    if drop_dstream_metadata is None:  # default behavior
+        df = df.select(
+            pl.exclude("^dstream_.*$", "^downstream_.*$"),
+            pl.col("dstream_data_id").cast(pl.UInt64),
+        )
+    elif bool(drop_dstream_metadata):
         raise NotImplementedError(
             "explicit --drop-dstream-metadata is not yet supported"
         )
-    elif drop_dstream_metadata is False:
+    else:
         df = df.with_columns(
-            pl.col("dstream_data_id").cast(pl.UInt64),
-        )
-    else:  # None --- default behavior
-        df = df.select(
-            pl.exclude("^dstream_.*$", "^downstream_.*$"),
             pl.col("dstream_data_id").cast(pl.UInt64),
         )
     joined_columns = {*df.lazy().collect_schema().names()} - {
@@ -487,7 +487,8 @@ def surface_unpack_reconstruct(
     drop_dstream_metadata : bool or None, default None
         Should dstream/downstream columns be dropped from the output?
 
-        - If None, dstream/downstream columns are dropped (default behavior).
+        - If None, some dstream/downstream columns are dropped
+          (default behavior).
         - If False, dstream/downstream columns are retained in the output.
         - If True, raises NotImplementedError (not yet supported).
 

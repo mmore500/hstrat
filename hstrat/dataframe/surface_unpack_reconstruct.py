@@ -167,10 +167,9 @@ def _create_parser() -> argparse.ArgumentParser:
         "drop-dstream-metadata",
         default=None,
         help=(
-            "Should dstream/downstream columns be dropped from the output? "
-            "Omit for default behavior (drop). "
-            "Use --no-drop-dstream-metadata to retain. "
-            "Passing --drop-dstream-metadata raises NotImplementedError."
+            "Drop all dstream/downstream columns from the output? "
+            "Omit for default behavior (drop some metadata). "
+            "Use --no-drop-dstream-metadata to retain."
         ),
     )
     parser.add_argument(

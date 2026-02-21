@@ -81,13 +81,12 @@ Output Schema: Required Columns
     - Corresponds to `dstream_Tbar` - `dstream_S` for inner nodes.
     - Corresponds `dstream_T` - 1 - `dstream_S` for leaf nodes
 
+'hstrat_rank' : integer
+    Num generations elapsed for ancestral differentia (a.k.a. rank).
+
 
 Output Schema: Optional Columns
 ===============================
-'hstrat_rank' : integer
-    Num generations elapsed for ancestral differentia (a.k.a. rank).
-    Present when the input contains 'hstrat_rank' (i.e., via surface_unpack_reconstruct).
-
 'origin_time' : floating point or integer
     Estimated num generations elapsed from founding ancestor.
     Value depends on the trie postprocessor used.
@@ -161,10 +160,9 @@ def _create_parser() -> argparse.ArgumentParser:
         "drop-dstream-metadata",
         default=None,
         help=(
-            "Should dstream/downstream columns be dropped from the output? "
+            "Drop all dstream/downstream columns from the output? "
             "Omit for default behavior (drop some metadata). "
-            "Use --no-drop-dstream-metadata to retain. "
-            "Passing --drop-dstream-metadata raises NotImplementedError."
+            "Use --no-drop-dstream-metadata to retain."
         ),
     )
     parser.add_argument(
