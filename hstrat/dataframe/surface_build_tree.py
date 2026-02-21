@@ -13,7 +13,6 @@ from .._auxiliary_lib import (
     get_hstrat_version,
     log_context_duration,
 )
-from .._auxiliary_lib._add_bool_arg import add_bool_arg
 from ._surface_build_tree import surface_build_tree
 
 raw_message = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
@@ -62,9 +61,7 @@ To work with genome data in raw binary format (e.g., pl.Binary),
 
 Additional user-provided columns will be forwarded to phylogeny output.
 For these columns, output rows for tip nodes are assigned values from corresponding genome row in original data.
-
-By default, columns prefixed with 'dstream_' or 'downstream_' are dropped from output (except 'dstream_data_id' and 'dstream_S').
-Use --no-drop-dstream-metadata to retain these columns.
+Internal tree nodes will take null values in user-provided columns.
 
 
 Output Schema: Required Columns
@@ -152,16 +149,6 @@ def _create_parser() -> argparse.ArgumentParser:
             "Must support Pandas dataframe input."
         ),
     )
-    add_bool_arg(
-        parser,
-        "drop-dstream-metadata",
-        default=None,
-        help=(
-            "Drop all dstream/downstream columns from the output? "
-            "Omit for default behavior (drop some metadata). "
-            "Use --no-drop-dstream-metadata to retain."
-        ),
-    )
     parser.add_argument(
         "--pa-source-type",
         type=str,
@@ -194,7 +181,6 @@ def _main(mp_context: str) -> None:
                 surface_build_tree,
                 collapse_unif_freq=args.collapse_unif_freq,
                 delete_trunk=args.delete_trunk,
-                drop_dstream_metadata=args.drop_dstream_metadata,
                 exploded_slice_size=args.exploded_slice_size,
                 mp_context=mp_context,
                 pa_source_type=args.pa_source_type,

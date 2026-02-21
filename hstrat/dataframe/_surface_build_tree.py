@@ -12,7 +12,6 @@ def surface_build_tree(
     df: pl.DataFrame,
     *,
     collapse_unif_freq: int = 1,
-    drop_dstream_metadata: typing.Optional[bool] = None,
     exploded_slice_size: int = 1_000_000,
     mp_context: str = "spawn",
     pa_source_type: str = "memory_map",
@@ -70,13 +69,6 @@ def surface_build_tree(
 
     collapse_unif_freq : int, default 1
         How often should dropped unifurcations be garbage collected?
-
-    drop_dstream_metadata : bool or None, default None
-        Should dstream/downstream columns be dropped from the output?
-
-        - If None, some dstream/downstream columns are dropped (default behavior).
-        - If False, dstream/downstream columns are retained in the output.
-        - If True, drop all dstream metadata.
 
     exploded_slice_size : int, default 1_000_000
         Number of rows to process at once. Lower values reduce memory usage.
@@ -142,7 +134,6 @@ def surface_build_tree(
     df = surface_unpack_reconstruct(
         df,
         collapse_unif_freq=collapse_unif_freq,
-        drop_dstream_metadata=drop_dstream_metadata,
         exploded_slice_size=exploded_slice_size,
         mp_context=mp_context,
         pa_source_type=pa_source_type,
