@@ -48,7 +48,7 @@ def _colless_like_fast_path(
         f_size[idx] = math.log(num_children[idx] + math.e)
 
     # Accumulate f-size bottom-up (add children's f-sizes to parent)
-    for i in range(n - 1, -1, -1):
+    for i in range(n - 1, -1, -1):  # reversed enumerate
         ancestor_id = ancestor_ids[i]
         if ancestor_id != i:  # Not a root
             f_size[ancestor_id] += f_size[i]
@@ -90,7 +90,7 @@ def _colless_like_fast_path(
 
     # Accumulate subtree Colless-like index bottom-up
     colless_like = np.zeros(n, dtype=np.float64)
-    for i in range(n - 1, -1, -1):
+    for i in range(n - 1, -1, -1):  # reversed enumerate
         ancestor_id = ancestor_ids[i]
         colless_like[i] += local_balance[i]
         if ancestor_id != i:  # Not a root

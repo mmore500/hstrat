@@ -31,7 +31,7 @@ def alifestd_mark_sackin_index_asexual_fast_path(
 
     # Accumulate Sackin index (bottom-up)
     # sackin[node] = sum over children c of (sackin[c] + num_leaves[c])
-    for i in range(n - 1, -1, -1):
+    for i in range(n - 1, -1, -1):  # reversed enumerate
         ancestor_id = ancestor_ids[i]
         if ancestor_id != i:  # Not a root
             sackin_index[ancestor_id] += sackin_index[i] + num_leaves[i]

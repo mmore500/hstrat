@@ -55,7 +55,7 @@ def alifestd_mark_colless_index_asexual_fast_path(
 
     # Reverse pass: accumulate subtree colless bottom-up
     colless_index = np.zeros(n, dtype=np.int64)
-    for i in range(n - 1, -1, -1):
+    for i in range(n - 1, -1, -1):  # reversed enumerate
         ancestor_id = ancestor_ids[i]
         colless_index[i] += local_colless[i]
         if ancestor_id != i:  # Not a root
