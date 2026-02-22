@@ -1,7 +1,7 @@
 import argparse
+from collections import Counter
 import logging
 import os
-from collections import Counter
 
 import pandas as pd
 
