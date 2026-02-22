@@ -32,8 +32,9 @@ def reversed_enumerate(
     [(3, "r"), (2, "a"), (1, "t"), (0, "s")]
     """
     # numba jit doesn't support yield from or reversed (fully)
-    for t in zip(range(len(sequence) - 1, -1, -1), sequence[::-1]):
-        yield t
+    # avoid zip to work around numba generator-in-zip KeyError bug
+    for i in range(len(sequence) - 1, -1, -1):
+        yield (i, sequence[i])
 
 
 reversed_enumerate_jit = jit(nopython=True)(reversed_enumerate)

@@ -2,6 +2,7 @@ import os
 import pathlib
 import subprocess
 
+import pandas as pd
 import pytest
 
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
@@ -41,3 +42,6 @@ def test_alifestd_try_add_ancestor_list_col_cli_csv(input_file: str):
         input=f"{assets}/{input_file}".encode(),
     )
     assert os.path.exists(output_file)
+    result_df = pd.read_parquet(output_file)
+    assert len(result_df) > 0
+    assert "ancestor_list" in result_df.columns
