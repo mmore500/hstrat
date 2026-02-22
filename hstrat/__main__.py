@@ -5,6 +5,7 @@ if __name__ == "__main__":
     print(
         """
 Available commands (stabilized API):
+$ python3 -m hstrat.dataframe.alifestd_validate_trie
 $ python3 -m hstrat.dataframe.surface_build_tree
 $ python3 -m hstrat.dataframe.surface_unpack_reconstruct
 $ python3 -m hstrat.dataframe.surface_postprocess_trie
