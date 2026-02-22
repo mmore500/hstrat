@@ -18,3 +18,23 @@ if __name__ == "__main__":
             col.DepositStratum()
 
         print(hstrat.col_to_ascii(col))
+
+    for policy in (
+        hstrat.fixed_resolution_algo.Policy(3),
+        hstrat.recency_proportional_resolution_algo.Policy(3),
+    ):
+        print()
+        print(policy)
+
+        cols = [
+            hstrat.HereditaryStratigraphicColumn(
+                stratum_retention_policy=policy,
+            )
+            for __ in range(3)
+        ]
+        for col in cols:
+            for __ in range(20):
+                col.DepositStratum()
+
+        assemblage = hstrat.pop_to_assemblage(cols)
+        print(hstrat.assemblage_to_ascii(assemblage))
