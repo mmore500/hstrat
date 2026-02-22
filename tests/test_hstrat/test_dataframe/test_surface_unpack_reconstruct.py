@@ -10,6 +10,7 @@ from hstrat._auxiliary_lib import (
     alifestd_validate,
 )
 from hstrat.dataframe import surface_unpack_reconstruct
+from hstrat.dataframe.surface_unpack_reconstruct import _create_parser
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
@@ -51,6 +52,30 @@ def test_drop_dstream_metadata_true_raises():
     df = pl.read_csv(f"{assets_path}/packed.csv")
     with pytest.raises(NotImplementedError):
         surface_unpack_reconstruct(df, drop_dstream_metadata=True)
+
+
+def test_parser_no_prefix_matching_drop():
+    """Regression: --drop must not prefix-match --drop-dstream-metadata.
+
+    The parser uses parse_known_args before joinem registers --drop.
+    Without allow_abbrev=False, argparse prefix-matches --drop to
+    --drop-dstream-metadata, causing conflicts when both --drop and
+    --no-drop-dstream-metadata appear on the same command line.
+    """
+    parser = _create_parser()
+    # --drop is not registered on this parser (joinem adds it later),
+    # so it should pass through as an unknown arg
+    args, remaining = parser.parse_known_args(
+        [
+            "--no-drop-dstream-metadata",
+            "--drop",
+            "awoo",
+            "/dev/null",
+        ],
+    )
+    assert args.drop_dstream_metadata is False
+    assert "--drop" in remaining
+    assert "awoo" in remaining
 
 
 def test_drop_dstream_metadata_false():

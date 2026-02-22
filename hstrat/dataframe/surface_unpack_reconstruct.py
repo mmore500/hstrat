@@ -142,6 +142,7 @@ Environment variables POLARS_MAX_THREADS and NUMBA_NUM_THREADS may be used to tu
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
+        allow_abbrev=False,
         description=format_cli_description(raw_message),
         formatter_class=argparse.RawTextHelpFormatter,
     )
