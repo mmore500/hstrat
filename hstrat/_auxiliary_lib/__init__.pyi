@@ -526,6 +526,8 @@ __all__ = [
     "alifestd_find_chronological_inconsistency",
     "alifestd_find_leaf_ids",
     "alifestd_find_mrca_id_asexual",
+    "alifestd_find_pair_mrca_id_asexual",
+    "alifestd_find_pair_mrca_id_polars",
     "alifestd_find_root_ids",
     "alifestd_has_compact_ids",
     "alifestd_has_contiguous_ids",
