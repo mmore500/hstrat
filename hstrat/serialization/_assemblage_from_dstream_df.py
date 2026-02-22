@@ -8,7 +8,7 @@ from ._surf_from_hex import surf_from_hex
 from ._surf_to_specimen import surf_to_specimen
 
 # columns required to deserialize surfaces from data_hex
-_deserialization_columns = (
+_required_columns = (
     "data_hex",
     "dstream_algo",
     "dstream_storage_bitoffset",
@@ -79,7 +79,7 @@ def assemblage_from_dstream_df(
     assemblage_from_records :
         Deserialize an assemblage from a dict of builtin types.
     """
-    missing = sorted(set(_deserialization_columns) - set(df.columns))
+    missing = sorted(set(_required_columns) - set(df.columns))
     if missing:
         raise ValueError(
             "assemblage_from_dstream_df: missing required columns "

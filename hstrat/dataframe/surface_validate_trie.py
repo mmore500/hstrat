@@ -23,12 +23,7 @@ Checks performed:
   1. Required dstream/downstream columns for surface deserialization from data_hex are present.
   2. Taxon ids are contiguous (i.e., match row indices 0, 1, ..., n-1).
   3. Data is topologically sorted (each ancestor appears before its descendants).
-  4. Samples random leaf-node pairs and compares each pair's first retained
-     disparity rank (computed from deserialized surfaces) to the MRCA node's
-     dstream_rank - dstream_S in the trie (converting from raw dstream T space
-     to hstrat rank space). A violation occurs when
-     first_disparity_rank < mrca_rank: the surfaces prove divergence earlier
-     than the trie records.
+  4. Samples random leaf-node pairs and compares each pair's first retained disparity rank (computed from deserialized surfaces) to the MRCA node's dstream_rank - dstream_S in the trie (converting from raw dstream T space to hstrat rank space). A violation occurs when first_disparity_rank < mrca_rank: the surfaces prove divergence earlier than the trie records.
 
 Intended for use after `surface_unpack_reconstruct --no-drop-dstream-metadata`.
 
@@ -83,9 +78,11 @@ def _create_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawTextHelpFormatter,
     )
     parser.add_argument(
-        "trie_file",
+        "-i",
+        "--input-file",
+        dest="trie_file",
         type=str,
-        help="Trie reconstruction dataframe file to validate (.csv, .pqt, .parquet).",
+        help="Trie reconstruction dataframe file to validate (.csv, .fea, .feather, .pqt, .parquet).",
     )
     parser.add_argument(
         "-v",
@@ -136,6 +133,8 @@ if __name__ == "__main__":
     )
     df = {
         ".csv": pl.read_csv,
+        ".fea": pl.read_ipc,
+        ".feather": pl.read_ipc,
         ".pqt": pl.read_parquet,
         ".parquet": pl.read_parquet,
     }[input_ext](args.trie_file)

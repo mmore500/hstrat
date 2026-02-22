@@ -12,10 +12,6 @@ def surf_to_specimen(
     """Convert a `HereditaryStratigraphicSurface` to a
     `HereditaryStratigraphicSpecimen`.
 
-    Unlike `col_to_specimen`, handles surfaces with negative ranks
-    (pre-initialization strata) by using signed integer dtypes for the
-    rank index.
-
     Parameters
     ----------
     surface : HereditaryStratigraphicSurface
