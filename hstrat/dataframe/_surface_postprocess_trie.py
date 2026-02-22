@@ -61,8 +61,8 @@ def _do_delete_trunk(
         dstream_S = get_sole_scalar_value_polars(df, "dstream_S")
 
     df = df.with_columns(
-        is_trunk=pl.col("hstrat_rank") < dstream_S,
-        origin_time=pl.col("hstrat_rank"),
+        is_trunk=pl.col("dstream_rank") < dstream_S,
+        origin_time=pl.col("dstream_rank"),
     )
 
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
@@ -155,7 +155,7 @@ def surface_postprocess_trie(
             - 'ancestor_id' : pl.UInt64
                 - Unique identifier for ancestor taxon  (RE alife standard
                   format).
-            - 'hstrat_rank' : pl.UInt64
+            - 'dstream_rank' : pl.UInt64
                 - Num generations elapsed for ancestral differentia.
                 - Corresponds to `dstream_Tbar` for inner nodes.
                 - Corresponds to `dstream_T` - 1 for leaf nodes.
@@ -255,26 +255,26 @@ def surface_postprocess_trie(
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("trie_postprocessor", logging.info):
         pre_postprocessor_columns = {*df.columns}
-        df = df.rename({"hstrat_rank": "rank"})
+        df = df.rename({"dstream_rank": "rank"})
         df = trie_postprocessor(
             df,
             p_differentia_collision=2**-differentia_bitwidth,
             mutate=True,
             progress_wrap=tqdm,
         )
-        df = df.rename({"rank": "hstrat_rank"})
+        df = df.rename({"rank": "dstream_rank"})
 
     render_polars_snapshot(df, "with trie postprocessing", logging.info)
 
     logging.info("setting up hstrat_rank_from_t0...")
     df = df.with_columns(
-        hstrat_rank_from_t0=pl.col("hstrat_rank") - pl.col("dstream_S"),
+        hstrat_rank_from_t0=pl.col("dstream_rank") - pl.col("dstream_S"),
     )
 
     to_keep = {*original_columns} - {
         "dstream_S",
         "hstrat_differentia_bitwidth",
-        "hstrat_rank",
+        "dstream_rank",
     }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")

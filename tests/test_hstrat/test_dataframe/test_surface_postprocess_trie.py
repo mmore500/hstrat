@@ -35,8 +35,8 @@ def test_smoke():
     assert alifestd_is_chronologically_ordered(res.to_pandas())
 
 
-def test_hstrat_rank_in_unpack_reconstruct():
-    """hstrat_rank should be present after surface_unpack_reconstruct."""
+def test_dstream_rank_in_unpack_reconstruct():
+    """dstream_rank should be present after surface_unpack_reconstruct."""
     df = pl.read_csv(f"{assets_path}/packed.csv")
     raw = surface_unpack_reconstruct(df)
-    assert "hstrat_rank" in raw.columns
+    assert "dstream_rank" in raw.columns

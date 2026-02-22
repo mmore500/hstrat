@@ -86,7 +86,7 @@ Output Schema
 'ancestor_id' : integer
     Unique identifier for ancestor taxon (RE alife standard format).
 
-'hstrat_rank' : floating point or integer
+'dstream_rank' : floating point or integer
     Num generations elapsed for ancestral differentia (a.k.a. rank).
     Corresponds to `dstream_Tbar` for inner nodes.
     Corresponds `dstream_T` - 1 for leaf nodes.

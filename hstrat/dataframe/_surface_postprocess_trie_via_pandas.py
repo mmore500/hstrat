@@ -51,8 +51,8 @@ def _do_delete_trunk(
     ):
         dstream_S = df["dstream_S"].unique().squeeze()
 
-    df["is_trunk"] = df["hstrat_rank"] < df["dstream_S"]
-    df["origin_time"] = df["hstrat_rank"]
+    df["is_trunk"] = df["dstream_rank"] < df["dstream_S"]
+    df["origin_time"] = df["dstream_rank"]
 
     with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
         df = alifestd_delete_trunk_asexual(df, mutate=True)
@@ -122,24 +122,24 @@ def _surface_postprocess_trie_via_pandas(
 
     with log_context_duration("trie_postprocessor", logging.info):
         pre_postprocessor_columns = {*df.columns}
-        df = df.rename(columns={"hstrat_rank": "rank"})
+        df = df.rename(columns={"dstream_rank": "rank"})
         df = trie_postprocessor(
             df,
             p_differentia_collision=2**-differentia_bitwidth,
             mutate=True,
             progress_wrap=tqdm,
         )
-        df = df.rename(columns={"rank": "hstrat_rank"})
+        df = df.rename(columns={"rank": "dstream_rank"})
 
     render_pandas_snapshot(df, "with trie postprocessing", logging.info)
 
     logging.info("setting up hstrat_rank_from_t0...")
-    df["hstrat_rank_from_t0"] = df["hstrat_rank"] - df["dstream_S"]
+    df["hstrat_rank_from_t0"] = df["dstream_rank"] - df["dstream_S"]
 
     to_keep = {*original_columns} - {
         "dstream_S",
         "hstrat_differentia_bitwidth",
-        "hstrat_rank",
+        "dstream_rank",
     }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")

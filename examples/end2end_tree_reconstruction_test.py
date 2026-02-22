@@ -143,7 +143,7 @@ def plot_colorclade_comparison(frames: typing.Dict[str, pd.DataFrame]) -> None:
 
     frames["exact"] = alifestd_collapse_unifurcations(frames["exact"])
     frames["exact"]["origin_time"] = frames["exact"]["depth"]
-    frames["reconst"]["origin_time"] = frames["reconst"]["hstrat_rank"]
+    frames["reconst"]["origin_time"] = frames["reconst"]["dstream_rank"]
 
     frames["exact_dropped_fossils"] = alifestd_collapse_unifurcations(
         frames["exact_dropped_fossils"],
@@ -153,7 +153,7 @@ def plot_colorclade_comparison(frames: typing.Dict[str, pd.DataFrame]) -> None:
     ]["depth"]
     frames["reconst_dropped_fossils"]["origin_time"] = frames[
         "reconst_dropped_fossils"
-    ]["hstrat_rank"]
+    ]["dstream_rank"]
 
     true_df_no_lengths = alifestd_mark_node_depth_asexual(frames["exact"])
     reconst_df_no_lengths = alifestd_mark_node_depth_asexual(frames["reconst"])

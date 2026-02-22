@@ -1,4 +1,4 @@
-dstream_data_id,id,ancestor_id,hstrat_rank,hstrat_differentia_bitwidth,dstream_S,data_hex,dstream_algo,downstream_version,dstream_storage_bitoffset,dstream_storage_bitwidth,dstream_T_bitoffset,dstream_T_bitwidth,dstream_S_right
+dstream_data_id,id,ancestor_id,dstream_rank,hstrat_differentia_bitwidth,dstream_S,data_hex,dstream_algo,downstream_version,dstream_storage_bitoffset,dstream_storage_bitwidth,dstream_T_bitoffset,dstream_T_bitwidth,dstream_S_right
 9223372036854775807,0,0,0,8,8,,,,,,,,
 9223372036854775807,1,0,80,8,8,,,,,,,,
 0,2,1,107,8,8,0000006c6779d5ba9373e03f,dstream.steady_algo,1.16.5,32,64,0,32,8

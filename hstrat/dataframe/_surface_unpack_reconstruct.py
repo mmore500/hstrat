@@ -348,7 +348,7 @@ def _construct_result_dataframe(
             .cast(pl.UInt32),
             pl.lit(dstream_S).alias("dstream_S").cast(pl.UInt32),
         )
-        .rename({"rank": "hstrat_rank"})
+        .rename({"rank": "dstream_rank"})
     )
 
 
@@ -512,7 +512,7 @@ def surface_unpack_reconstruct(
             - Unique identifier for each taxon (RE alife standard format).
         - 'ancestor_id' : pl.UInt64
             - Unique identifier for ancestor taxon  (RE alife standard format).
-        - 'hstrat_rank' : pl.UInt64
+        - 'dstream_rank' : pl.UInt64
             - Num generations elapsed for ancestral differentia.
             - Corresponds to`dstream_Tbar` for inner nodes.
             - Corresponds `dstream_T` - 1 for leaf nodes
@@ -550,7 +550,7 @@ def surface_unpack_reconstruct(
         logging.info("empty input dataframe, returning empty result")
         res = alifestd_make_empty()
         res["taxon_label"] = None
-        res["hstrat_rank"] = pd.Series(dtype=int)
+        res["dstream_rank"] = pd.Series(dtype=int)
         res["hstrat_differentia_bitwidth"] = pd.Series(dtype=int)
         res["dstream_S"] = pd.Series(dtype=int)
         return pl.from_pandas(res)
