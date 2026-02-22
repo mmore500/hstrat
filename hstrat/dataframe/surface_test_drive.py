@@ -85,6 +85,7 @@ pl.DataFrame
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
+        allow_abbrev=False,
         description=format_cli_description(raw_message),
         formatter_class=argparse.RawTextHelpFormatter,
     )
