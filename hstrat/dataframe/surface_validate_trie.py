@@ -78,9 +78,7 @@ def _create_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawTextHelpFormatter,
     )
     parser.add_argument(
-        "-i",
-        "--input-file",
-        dest="trie_file",
+        "trie_file",
         type=str,
         help="Trie reconstruction dataframe file to validate (.csv, .fea, .feather, .pqt, .parquet).",
     )
