@@ -90,6 +90,7 @@ from phylogenetic_inference import (
     trie_postprocess,
 )
 from serialization import (
+    assemblage_from_dstream_df,
     assemblage_from_records,
     col_from_int,
     col_from_packet,
@@ -266,6 +267,7 @@ __all__ = [
     "PeelBackConjoinedLeavesTriePostprocessor",
     "SampleAncestralRollbacksTriePostprocessor",
     # serialization
+    "assemblage_from_dstream_df",
     "assemblage_from_records",
     "col_from_int",
     "col_from_packet",

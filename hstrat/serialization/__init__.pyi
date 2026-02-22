@@ -1,3 +1,4 @@
+from ._assemblage_from_dstream_df import assemblage_from_dstream_df
 from ._assemblage_from_records import assemblage_from_records
 from ._col_from_int import col_from_int
 from ._col_from_packet import col_from_packet
@@ -27,6 +28,7 @@ from ._unpack_differentiae_str import unpack_differentiae_str
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
+    "assemblage_from_dstream_df",
     "assemblage_from_records",
     "col_from_int",
     "col_from_packet",
