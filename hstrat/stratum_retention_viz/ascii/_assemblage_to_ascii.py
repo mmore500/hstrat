@@ -1,5 +1,3 @@
-import typing
-
 from prettytable import ALL as prettytable_ALL
 from prettytable import PrettyTable
 
@@ -47,7 +45,11 @@ def assemblage_to_ascii(
         row = [str(int(rank))]
         for col_idx in range(len(specimens)):
             val = df.iloc[:, col_idx].loc[rank]
-            if _is_null(val):
+            try:
+                is_null = not bool(val == val)
+            except (TypeError, ValueError):
+                is_null = True
+            if is_null:
                 row.append("".join("░" for __ in field_names[col_idx + 1]))
             else:
                 row.append(f"{int(val):x}*")
@@ -71,15 +73,3 @@ def assemblage_to_ascii(
         res += "\n░: missing stratum"
 
     return res
-
-
-def _is_null(val: typing.Any) -> bool:
-    """Check if a value is null/NA, handling both pandas NA and numpy nan."""
-    try:
-        import pandas as pd
-
-        if pd.isna(val):
-            return True
-    except (TypeError, ValueError):
-        pass
-    return False
