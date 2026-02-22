@@ -37,8 +37,8 @@ def alifestd_as_newick_polars(
     """Convert phylogeny dataframe to Newick format.
 
     Benchmarks on a 200k-node caterpillar tree show serialization
-    ~40x slower than dendropy and ~2x slower than treeswift. At 200k
-    nodes: ~28s vs dendropy ~0.7s vs treeswift ~12s.
+    ~16x slower than dendropy and ~2x slower than treeswift. At 200k
+    nodes: ~10s vs dendropy ~0.6s vs treeswift ~5s.
 
     Parameters
     ----------
