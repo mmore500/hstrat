@@ -11,7 +11,7 @@ from .._auxiliary_lib import (
     get_hstrat_version,
     log_context_duration,
 )
-from ._alifestd_validate_trie import alifestd_validate_trie
+from ._surface_validate_trie import surface_validate_trie
 
 raw_message = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
 
@@ -68,7 +68,7 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     _add_parser_base(
         parser=parser,
-        dfcli_module="hstrat.dataframe.alifestd_validate_trie",
+        dfcli_module="hstrat.dataframe.surface_validate_trie",
         dfcli_version=get_hstrat_version(),
     )
     return parser
@@ -81,9 +81,9 @@ if __name__ == "__main__":
     args, __ = parser.parse_known_args()
 
     with log_context_duration(
-        "hstrat.dataframe.alifestd_validate_trie", logging.info
+        "hstrat.dataframe.surface_validate_trie", logging.info
     ):
         _run_dataframe_cli(
             base_parser=parser,
-            output_dataframe_op=alifestd_validate_trie,
+            output_dataframe_op=surface_validate_trie,
         )

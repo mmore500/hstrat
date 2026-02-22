@@ -6,9 +6,9 @@ if __name__ == "__main__":
         """
 Available commands (stabilized API):
 $ python3 -m hstrat.dataframe.surface_build_tree
-$ python3 -m hstrat.dataframe.surface_unpack_reconstruct
 $ python3 -m hstrat.dataframe.surface_postprocess_trie
-$ python3 -m hstrat.dataframe.alifestd_validate_trie
+$ python3 -m hstrat.dataframe.surface_unpack_reconstruct
+$ python3 -m hstrat.dataframe.surface_validate_trie
 
 Available commands (experimental API):
 $ python3 -m hstrat._auxiliary_lib._alifestd_add_global_root

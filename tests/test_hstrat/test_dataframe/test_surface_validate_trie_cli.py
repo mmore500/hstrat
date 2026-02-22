@@ -5,31 +5,31 @@ import subprocess
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
-def test_alifestd_validate_trie_cli_help():
+def test_surface_validate_trie_cli_help():
     subprocess.run(
         [
             "python3",
             "-m",
-            "hstrat.dataframe.alifestd_validate_trie",
+            "hstrat.dataframe.surface_validate_trie",
             "--help",
         ],
         check=True,
     )
 
 
-def test_alifestd_validate_trie_cli_version():
+def test_surface_validate_trie_cli_version():
     subprocess.run(
         [
             "python3",
             "-m",
-            "hstrat.dataframe.alifestd_validate_trie",
+            "hstrat.dataframe.surface_validate_trie",
             "--version",
         ],
         check=True,
     )
 
 
-def test_alifestd_validate_trie_cli_pipe_from_unpack_reconstruct():
+def test_surface_validate_trie_cli_pipe_from_unpack_reconstruct():
     trie_file = (
         "/tmp/hstrat_validate_trie_unpack.pqt"  # nosec B108
     )
@@ -58,7 +58,7 @@ def test_alifestd_validate_trie_cli_pipe_from_unpack_reconstruct():
         [
             "python3",
             "-m",
-            "hstrat.dataframe.alifestd_validate_trie",
+            "hstrat.dataframe.surface_validate_trie",
             output_file,
         ],
         check=True,
@@ -67,7 +67,7 @@ def test_alifestd_validate_trie_cli_pipe_from_unpack_reconstruct():
     assert os.path.exists(output_file)
 
 
-def test_alifestd_validate_trie_cli_csv():
+def test_surface_validate_trie_cli_csv():
     trie_file = (
         "/tmp/hstrat_validate_trie_unpack.csv"  # nosec B108
     )
@@ -96,7 +96,7 @@ def test_alifestd_validate_trie_cli_csv():
         [
             "python3",
             "-m",
-            "hstrat.dataframe.alifestd_validate_trie",
+            "hstrat.dataframe.surface_validate_trie",
             output_file,
         ],
         check=True,
@@ -105,7 +105,7 @@ def test_alifestd_validate_trie_cli_csv():
     assert os.path.exists(output_file)
 
 
-def test_alifestd_validate_trie_cli_fails_without_metadata():
+def test_surface_validate_trie_cli_fails_without_metadata():
     """Validate CLI fails when dstream metadata is dropped (default)."""
     trie_file = (
         "/tmp/hstrat_validate_trie_no_meta.pqt"  # nosec B108
@@ -134,7 +134,7 @@ def test_alifestd_validate_trie_cli_fails_without_metadata():
         [
             "python3",
             "-m",
-            "hstrat.dataframe.alifestd_validate_trie",
+            "hstrat.dataframe.surface_validate_trie",
             output_file,
         ],
         input=trie_file.encode(),

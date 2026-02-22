@@ -19,7 +19,7 @@ _deserialization_columns = (
 )
 
 
-def alifestd_validate_trie(df: pl.DataFrame) -> pl.DataFrame:
+def surface_validate_trie(df: pl.DataFrame) -> pl.DataFrame:
     """Validate trie reconstruction output data, checking that required
     columns are present, ids are contiguous, and data is topologically sorted.
 
@@ -65,21 +65,21 @@ def alifestd_validate_trie(df: pl.DataFrame) -> pl.DataFrame:
     """
     columns = set(df.lazy().collect_schema().names())
 
-    logging.info("alifestd_validate_trie: checking required columns...")
+    logging.info("surface_validate_trie: checking required columns...")
     missing = [c for c in _deserialization_columns if c not in columns]
     if missing:
         raise ValueError(
-            "alifestd_validate_trie: missing deserialization columns "
+            "surface_validate_trie: missing deserialization columns "
             f"{missing}; use --no-drop-dstream-metadata to retain",
         )
 
     for col in ("id", "ancestor_id"):
         if col not in columns:
             raise ValueError(
-                f"alifestd_validate_trie: missing required column '{col}'",
+                f"surface_validate_trie: missing required column '{col}'",
             )
 
-    logging.info("alifestd_validate_trie: counting tips...")
+    logging.info("surface_validate_trie: counting tips...")
     # a tip is a node whose id does not appear as ancestor_id of another node
     non_root_ancestor_ids = (
         df.lazy()
@@ -94,19 +94,19 @@ def alifestd_validate_trie(df: pl.DataFrame) -> pl.DataFrame:
         .collect()
         .item()
     )
-    logging.info(f"alifestd_validate_trie: {num_tips} tips")
+    logging.info(f"surface_validate_trie: {num_tips} tips")
 
-    logging.info("alifestd_validate_trie: checking contiguous ids...")
+    logging.info("surface_validate_trie: checking contiguous ids...")
     if not alifestd_has_contiguous_ids_polars(df):
         raise ValueError(
-            "alifestd_validate_trie: ids are not contiguous",
+            "surface_validate_trie: ids are not contiguous",
         )
 
-    logging.info("alifestd_validate_trie: checking topological sort...")
+    logging.info("surface_validate_trie: checking topological sort...")
     if not alifestd_is_topologically_sorted_polars(df):
         raise ValueError(
-            "alifestd_validate_trie: data is not topologically sorted",
+            "surface_validate_trie: data is not topologically sorted",
         )
 
-    logging.info("alifestd_validate_trie: validation passed")
+    logging.info("surface_validate_trie: validation passed")
     return df
