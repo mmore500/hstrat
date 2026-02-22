@@ -2,7 +2,7 @@ import os
 import types
 
 from downstream import dstream, dsurf
-import polars as pl
+import pandas as pd
 import pytest
 
 from hstrat import hstrat
@@ -18,7 +18,7 @@ def _make_dstream_df(
     stratum_differentia_bit_width,
     dstream_T_bitwidth=32,
 ):
-    """Build a Polars DataFrame with dstream metadata from surfaces."""
+    """Build a pandas DataFrame with dstream metadata from surfaces."""
     rows = []
     for surf in surfaces:
         hex_string = hstrat.surf_to_hex(
@@ -36,7 +36,7 @@ def _make_dstream_df(
                 "dstream_S": surf.S,
             },
         )
-    return pl.DataFrame(rows)
+    return pd.DataFrame(rows)
 
 
 # -------------------------------------------------------------------
@@ -153,7 +153,7 @@ def test_missing_column_raises():
     surf.DepositStrata(10)
 
     df = _make_dstream_df([surf], algo, bit_width)
-    stripped = df.drop("data_hex")
+    stripped = df.drop(columns=["data_hex"])
     with pytest.raises(ValueError, match="missing required columns"):
         hstrat.assemblage_from_dstream_df(stripped)
 
@@ -171,7 +171,7 @@ def test_missing_multiple_columns_raises():
     surf.DepositStrata(10)
 
     df = _make_dstream_df([surf], algo, bit_width)
-    stripped = df.drop("data_hex", "dstream_algo")
+    stripped = df.drop(columns=["data_hex", "dstream_algo"])
     with pytest.raises(ValueError, match="missing required columns"):
         hstrat.assemblage_from_dstream_df(stripped)
 
@@ -183,7 +183,7 @@ def test_missing_multiple_columns_raises():
 
 def test_from_packed_csv():
     """Smoke test: deserialize assemblage from packed_simple.csv asset."""
-    df = pl.read_csv(f"{assets_path}/packed_simple.csv")
+    df = pd.read_csv(f"{assets_path}/packed_simple.csv")
     assemblage = hstrat.assemblage_from_dstream_df(df)
     specimens = list(assemblage.BuildSpecimens())
     assert len(specimens) == 2  # packed_simple.csv has 2 rows

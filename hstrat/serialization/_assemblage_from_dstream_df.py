@@ -3,7 +3,6 @@ import typing
 from downstream import dstream
 import numpy as np
 import pandas as pd
-import polars as pl
 
 from .._auxiliary_lib import numpy_fromiter_polyfill
 from ..frozen_instrumentation import (
@@ -51,10 +50,10 @@ def _surf_to_specimen(surface):
 
 
 def assemblage_from_dstream_df(
-    df: pl.DataFrame,
+    df: pd.DataFrame,
     progress_wrap: typing.Callable = lambda x: x,
 ) -> HereditaryStratigraphicAssemblage:
-    """Deserialize a `HereditaryStratigraphicAssemblage` from a Polars
+    """Deserialize a `HereditaryStratigraphicAssemblage` from a pandas
     DataFrame containing dstream surface data.
 
     Each row of the DataFrame represents a single hereditary stratigraphic
@@ -64,7 +63,7 @@ def assemblage_from_dstream_df(
 
     Parameters
     ----------
-    df : pl.DataFrame
+    df : pd.DataFrame
         DataFrame with dstream surface data.
 
         Required schema:
@@ -110,9 +109,7 @@ def assemblage_from_dstream_df(
     assemblage_from_records :
         Deserialize an assemblage from a dict of builtin types.
     """
-    columns = set(df.lazy().collect_schema().names())
-
-    missing = [c for c in _deserialization_columns if c not in columns]
+    missing = [c for c in _deserialization_columns if c not in df.columns]
     if missing:
         raise ValueError(
             "assemblage_from_dstream_df: missing required columns "
@@ -120,7 +117,7 @@ def assemblage_from_dstream_df(
         )
 
     def _iter_specimens():
-        for row in progress_wrap(df.iter_rows(named=True)):
+        for _idx, row in progress_wrap(df.iterrows()):
             surface = surf_from_hex(
                 hex_string=row["data_hex"],
                 dstream_algo=eval(row["dstream_algo"], {"dstream": dstream}),
