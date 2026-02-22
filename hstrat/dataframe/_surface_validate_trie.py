@@ -6,6 +6,7 @@ import typing
 
 from downstream import dstream
 import more_itertools as mit
+import numpy as np
 import opytional as opyt
 import polars as pl
 
@@ -183,6 +184,7 @@ def surface_validate_trie(
         .collect()
         .to_series()
         .to_numpy()
+        .astype(np.intp)
     )
     logging.info(
         f"surface_validate_trie: collected {len(ancestor_ids)=}",

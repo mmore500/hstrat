@@ -3,6 +3,7 @@ from dataframe import (
     surface_postprocess_trie,
     surface_test_drive,
     surface_unpack_reconstruct,
+    surface_validate_trie,
 )
 from frozen_instrumentation import (
     HereditaryStratigraphicAssemblage,
@@ -184,6 +185,7 @@ __all__ = [
     "surface_postprocess_trie",
     "surface_test_drive",
     "surface_unpack_reconstruct",
+    "surface_validate_trie",
     # frozen_instrumentation
     "HereditaryStratigraphicAssemblage",
     "HereditaryStratigraphicAssemblageSpecimen",
