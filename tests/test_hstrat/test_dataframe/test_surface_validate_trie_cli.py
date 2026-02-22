@@ -5,7 +5,7 @@ assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
 def test_surface_validate_trie_cli_help():
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -17,7 +17,7 @@ def test_surface_validate_trie_cli_help():
 
 
 def test_surface_validate_trie_cli_version():
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -30,7 +30,7 @@ def test_surface_validate_trie_cli_version():
 
 def test_surface_validate_trie_cli_csv():
     """Validates a well-formed trie CSV and prints violation count."""
-    result = subprocess.run(
+    result = subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -51,7 +51,7 @@ def test_surface_validate_trie_cli_parquet():
 
     pl.read_csv(f"{assets}/trie.csv").write_parquet(trie_pqt)
 
-    result = subprocess.run(
+    result = subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -67,7 +67,7 @@ def test_surface_validate_trie_cli_parquet():
 
 def test_surface_validate_trie_cli_long():
     """Validates a late-divergence trie (lrc=47, mrca=55)."""
-    result = subprocess.run(
+    result = subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -111,7 +111,7 @@ def test_surface_validate_trie_cli_fails_on_invalid_trie():
 
 def test_surface_validate_trie_cli_max_num_checks_zero():
     """With --max-num-checks 0, no leaf-pair checks run; always passes."""
-    result = subprocess.run(
+    result = subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -129,7 +129,7 @@ def test_surface_validate_trie_cli_max_num_checks_zero():
 
 def test_surface_validate_trie_cli_max_violations():
     """--max-violations controls the threshold before exit-on-error."""
-    result = subprocess.run(
+    result = subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -150,7 +150,7 @@ def test_surface_validate_trie_cli_seed():
     """--seed flag is accepted and produces reproducible results."""
     results = []
     for _ in range(2):
-        r = subprocess.run(
+        r = subprocess.run(  # nosec B603
             [
                 "python3",
                 "-m",

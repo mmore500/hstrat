@@ -39,15 +39,16 @@ for opt in \
     echo "   - begin opt=${opt}"
 
     # unpack and reconstruct, keeping dstream metadata for validation
+    # shellcheck disable=SC2086
     ls -1 "${genomes}" \
         | python3 -m hstrat.dataframe.surface_unpack_reconstruct "${trie}" \
         ${HSTRAT_TESTS_CLI_HEAD:-} ${opt} --no-drop-dstream-metadata \
-        > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
+        > "${HSTRAT_TESTS_CLI_STDOUT}" 2>&1
 
     # validate trie
     if python3 -m hstrat.dataframe.surface_validate_trie "${trie}" \
         --max-num-checks 10_000 \
-        > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1 \
+        > "${HSTRAT_TESTS_CLI_STDOUT}" 2>&1 \
     ; then
         echo "   + PASS"
     else

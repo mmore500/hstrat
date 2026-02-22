@@ -178,7 +178,11 @@ def surface_validate_trie(
 
     logging.info("surface_validate_trie: collecting ancestor ids...")
     ancestor_ids = (
-        df.lazy().select(pl.col("ancestor_id")).collect().to_series().to_numpy()
+        df.lazy()
+        .select(pl.col("ancestor_id"))
+        .collect()
+        .to_series()
+        .to_numpy()
     )
     logging.info(
         f"surface_validate_trie: collected {len(ancestor_ids)=}",
