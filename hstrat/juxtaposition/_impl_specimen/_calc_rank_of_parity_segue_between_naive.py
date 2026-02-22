@@ -3,9 +3,7 @@ import typing
 import numpy as np
 
 from ..._auxiliary_lib import (
-    iter_monotonic_equivalencies_reverse,
     jit,
-    reversed_range,
 )
 from ...frozen_instrumentation import HereditaryStratigraphicSpecimen
 from .._calc_min_implausible_spurious_consecutive_differentia_collisions_between import (
@@ -14,9 +12,6 @@ from .._calc_min_implausible_spurious_consecutive_differentia_collisions_between
 from .._impl_column._calc_rank_of_parity_segue_between import (
     calc_rank_of_parity_segue_between,
 )
-from ._iter_mutual_rank_indices import _compare_differentia_at_common_ranks
-
-_reversed_range_jit = jit(cache=False, nopython=True)(reversed_range)
 
 
 @jit(cache=False, nopython=True)
@@ -26,11 +21,23 @@ def _find_first_disparity_or_last_commonality(
     second_ranks: np.ndarray,
     second_differentiae: np.ndarray,
 ) -> typing.Optional[typing.Tuple[int, int]]:
-    for positions, comp in _compare_differentia_at_common_ranks(
-        first_ranks, first_differentiae, second_ranks, second_differentiae
-    ):
-        if not comp:
-            return positions
+    # Inlined iter_monotonic_equivalencies + differentia comparison
+    # to work around numba generator-in-zip KeyError bug
+    idx1, idx2 = 0, 0
+    positions = (0, 0)
+    while idx1 < len(first_ranks) and idx2 < len(second_ranks):
+        val1 = first_ranks[idx1]
+        val2 = second_ranks[idx2]
+        if val1 < val2:
+            idx1 += 1
+        elif val1 > val2:
+            idx2 += 1
+        else:  # val1 == val2
+            positions = (idx1, idx2)
+            if first_differentiae[idx1] != second_differentiae[idx2]:
+                return positions
+            idx1 += 1
+            idx2 += 1
     return positions
 
 
@@ -42,16 +49,31 @@ def _backtrack_n_equivalencies(
     n: int,
     strict: bool,
 ) -> typing.Tuple[int, int]:
+    # Inlined enumerate + iter_monotonic_equivalencies_reverse
+    # to work around numba generator-in-zip KeyError bug
+    idx1, idx2 = start
+    if idx1 < 0:
+        idx1 += len(first_ranks)
+    if idx2 < 0:
+        idx2 += len(second_ranks)
 
-    for i, positions in enumerate(
-        iter_monotonic_equivalencies_reverse(
-            first_ranks,
-            second_ranks,
-            start=start,
-        )
-    ):
-        if i == n:
-            return positions
+    i = 0
+    positions = (0, 0)
+    while idx1 >= 0 and idx2 >= 0:
+        val1 = first_ranks[idx1]
+        val2 = second_ranks[idx2]
+        if val1 > val2:
+            idx1 -= 1
+        elif val1 < val2:
+            idx2 -= 1
+        else:  # val1 == val2
+            positions = (idx1, idx2)
+            if i == n:
+                return positions
+            i += 1
+            idx1 -= 1
+            idx2 -= 1
+
     if strict:
         return None
     else:
