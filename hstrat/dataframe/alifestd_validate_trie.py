@@ -19,7 +19,7 @@ Validate trie reconstruction output data.
 
 Checks that dstream/downstream columns necessary to deserialize surfaces from data_hex are present, logs the number of tip nodes, and checks that data is topologically sorted with contiguous ids.
 
-Intended for use downstream of `surface_unpack_reconstruct --no-drop-dstream-metadata`.
+Intended for use after `surface_unpack_reconstruct --no-drop-dstream-metadata`.
 
 
 Input Schema: Required Columns
@@ -53,17 +53,10 @@ Input Schema: Required Columns
     Capacity of dstream buffer, in number of data items (i.e., num differentia stored per annotation).
 
 
-Additional Notes
-================
-- Use `--eager-read` if modifying data file inplace.
-
-- This CLI entrypoint is experimental and may be subject to change.
-
-
 See Also
 ========
 -m hstrat.dataframe.surface_unpack_reconstruct :
-    Produces trie reconstruction data validated here.
+    Produces trie reconstruction data to be validated here.
 """
 
 
