@@ -88,13 +88,31 @@ from ._alifestd_count_children_of_asexual import (
     alifestd_count_children_of_asexual,
 )
 from ._alifestd_count_inner_nodes import alifestd_count_inner_nodes
+from ._alifestd_count_inner_nodes_polars import (
+    alifestd_count_inner_nodes_polars,
+)
 from ._alifestd_count_leaf_nodes import alifestd_count_leaf_nodes
+from ._alifestd_count_leaf_nodes_polars import (
+    alifestd_count_leaf_nodes_polars,
+)
 from ._alifestd_count_polytomies import alifestd_count_polytomies
+from ._alifestd_count_polytomies_polars import (
+    alifestd_count_polytomies_polars,
+)
 from ._alifestd_count_root_nodes import alifestd_count_root_nodes
+from ._alifestd_count_root_nodes_polars import (
+    alifestd_count_root_nodes_polars,
+)
 from ._alifestd_count_unifurcating_roots_asexual import (
     alifestd_count_unifurcating_roots_asexual,
 )
+from ._alifestd_count_unifurcating_roots_polars import (
+    alifestd_count_unifurcating_roots_polars,
+)
 from ._alifestd_count_unifurcations import alifestd_count_unifurcations
+from ._alifestd_count_unifurcations_polars import (
+    alifestd_count_unifurcations_polars,
+)
 from ._alifestd_delete_trunk_asexual import alifestd_delete_trunk_asexual
 from ._alifestd_delete_trunk_asexual_polars import (
     alifestd_delete_trunk_asexual_polars,
@@ -512,6 +530,12 @@ __all__ = [
     "alifestd_count_polytomies",
     "alifestd_count_unifurcating_roots_asexual",
     "alifestd_count_unifurcations",
+    "alifestd_count_inner_nodes_polars",
+    "alifestd_count_leaf_nodes_polars",
+    "alifestd_count_polytomies_polars",
+    "alifestd_count_root_nodes_polars",
+    "alifestd_count_unifurcating_roots_polars",
+    "alifestd_count_unifurcations_polars",
     "alifestd_delete_trunk_asexual",
     "alifestd_delete_trunk_asexual_polars",
     "alifestd_delete_unifurcating_roots_asexual",
