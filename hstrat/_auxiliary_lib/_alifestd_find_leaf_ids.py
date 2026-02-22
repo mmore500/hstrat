@@ -10,13 +10,12 @@ from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 def _alifestd_find_leaf_ids_asexual_fast_path(
     ancestor_ids: np.ndarray,
 ) -> np.ndarray:
-    ids = np.arange(len(ancestor_ids))
-    # exclude self-referencing roots, then mark ancestor positions
-    non_root_mask = ancestor_ids != ids
-    internal_node_ids = ancestor_ids[non_root_mask]
-    leaf_pos_filter = np.ones(len(ancestor_ids), dtype=np.bool_)
-    leaf_pos_filter[internal_node_ids] = False
-    return np.flatnonzero(leaf_pos_filter)
+    child_counts = np.bincount(
+        # root is self ref, but must exclude to handle only-root phylo
+        ancestor_ids[ancestor_ids != np.arange(len(ancestor_ids))],
+        minlength=len(ancestor_ids),
+    )
+    return np.flatnonzero(child_counts == 0)
 
 
 def alifestd_find_leaf_ids(phylogeny_df: pd.DataFrame) -> np.ndarray:
