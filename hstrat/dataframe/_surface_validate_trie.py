@@ -122,7 +122,8 @@ def surface_validate_trie(
         randomly without replacement from all possible pairs.
     max_violations : int (default 1)
         Maximum number of MRCA-rank violations tolerated before returning
-        early.
+        early. Callers should treat a return value exceeding this
+        threshold as a validation failure.
     progress_wrap : callable, optional
         Wrapper applied to the pair-check iterator, e.g., ``tqdm.tqdm`` for a
         progress bar. Must accept and return an iterable. Default is the
@@ -151,10 +152,10 @@ def surface_validate_trie(
     columns = set(df.lazy().collect_schema().names())
 
     logging.info("surface_validate_trie: checking required columns...")
-    missing = [c for c in _deserialization_columns if c not in columns]
+    missing = sorted(set(_deserialization_columns) - columns)
     if missing:
         raise ValueError(
-            "surface_validate_trie: missing deserialization columns "
+            "surface_validate_trie: missing downstream metadata columns "
             f"{missing}; use --no-drop-dstream-metadata to retain",
         )
 
@@ -172,6 +173,7 @@ def surface_validate_trie(
 
     logging.info("surface_validate_trie: checking topological sort...")
     # required by _alifestd_find_leaf_ids_asexual_fast_path
+    # and _alifestd_find_pair_mrca_id_asexual_fast_path
     if not alifestd_is_topologically_sorted_polars(df):
         raise ValueError(
             "surface_validate_trie: data is not topologically sorted",
@@ -184,7 +186,7 @@ def surface_validate_trie(
         .collect()
         .to_series()
         .to_numpy()
-        .astype(np.intp)
+        .astype(np.int64)
     )
     logging.info(
         f"surface_validate_trie: collected {len(ancestor_ids)=}",
@@ -218,7 +220,7 @@ def surface_validate_trie(
         first_disparity_rank = calc_rank_of_first_retained_disparity_between(
             surface_a,
             surface_b,
-            confidence_level=0.49,
+            confidence_level=0.49,  # threshold for single-bit mismatch
         )
 
         mrca_id = _alifestd_find_pair_mrca_id_asexual_fast_path(
@@ -232,19 +234,36 @@ def surface_validate_trie(
             .row(0, named=True)
         )
         # dstream_rank is in raw dstream T space; disparity ranks from
-        # calc_rank_of_first_retained_disparity_between are in hstrat rank
-        # space (T - S).  Convert mrca_rank to hstrat rank space.
+        # calc_rank_of_first_retained_disparity_between are in hstrat
+        # space (T - S).  Convert mrca_rank to hstrat space.
         mrca_rank = mrca_row["dstream_rank"] - mrca_row["dstream_S"]
+
+        # if None, no disparity was found — surfaces are compatible up
+        # to min(leaf_a, leaf_b) dstream_rank; use that as the bound
+        if first_disparity_rank is None:
+            leaf_a_dstream_rank = (
+                df.lazy()
+                .filter(pl.col("id") == leaf_a)
+                .select(pl.col("dstream_rank"))
+                .collect()
+                .item()
+            )
+            leaf_b_dstream_rank = (
+                df.lazy()
+                .filter(pl.col("id") == leaf_b)
+                .select(pl.col("dstream_rank"))
+                .collect()
+                .item()
+            )
+            first_disparity_rank = (
+                min(leaf_a_dstream_rank, leaf_b_dstream_rank)
+                - dstream_S[leaf_a]
+            )
 
         # violation: surfaces prove divergence no later than
         # first_disparity_rank, which precedes mrca_rank — trie places
         # MRCA more recently than the surface data allows
-        # (None first_disparity_rank means no disparity found, so no
-        # violation can be established)
-        is_violation = (
-            first_disparity_rank is not None
-            and first_disparity_rank < mrca_rank
-        )
+        is_violation = first_disparity_rank < mrca_rank
         if is_violation:
             leaf_a_rank = (
                 df.lazy()
