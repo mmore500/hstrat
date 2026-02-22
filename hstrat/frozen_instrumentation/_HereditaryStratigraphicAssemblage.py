@@ -72,7 +72,7 @@ class HereditaryStratigraphicAssemblage:
             self._assemblage_df = pd.DataFrame()
 
         assert not self._assemblage_df.index.isna().any()
-        self._assemblage_df.index.astype(np.uint64, copy=False)
+        self._assemblage_df.index.astype(np.int64, copy=False)
 
     def BuildSpecimens(
         self: "HereditaryStratigraphicAssemblage",

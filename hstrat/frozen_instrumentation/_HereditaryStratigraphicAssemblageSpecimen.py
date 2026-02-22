@@ -52,7 +52,7 @@ class HereditaryStratigraphicAssemblageSpecimen:
         (potentially sparse) sequence of rank-indexed differentia and a
         differentia bit width."""
         self._data = stratum_differentia_series
-        self._data.index.astype(np.uint64, copy=False)
+        self._data.index.astype(np.int64, copy=False)
 
         self._stratum_differentia_bit_width = stratum_differentia_bit_width
 
@@ -176,7 +176,7 @@ class HereditaryStratigraphicAssemblageSpecimen:
             A numpy array containing ranks of differentia entries, including
             null entries for differentia that are not retained.
         """
-        return self._data.index.array.to_numpy(copy=False, dtype=np.uint64)
+        return self._data.index.array.to_numpy(copy=False, dtype=np.int64)
 
     def GetRankAtColumnIndex(
         self: "HereditaryStratigraphicAssemblageSpecimen",
