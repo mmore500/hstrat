@@ -655,7 +655,7 @@ struct pairhash {
  */
 void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
   std::unordered_map<std::pair<i64, u64>, std::vector<u64>, pairhash> groups;
-  for (u64 child : ChildrenView(records, node)) {
+  for (const u64 child : ChildrenView(records, node)) {
     std::vector<u64> &items = groups[
       std::pair{records.rank[child], records.differentia[child]}
     ];
@@ -667,7 +667,7 @@ void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
       const u64 loser = children[i];
 
       std::vector<u64> loser_children;
-      for (u64 loser_child : ChildrenView(records, loser)) {
+      for (const u64 loser_child : ChildrenView(records, loser)) {
         loser_children.push_back(loser_child);
       }
       for (const u64 loser_child : loser_children) {
