@@ -18,7 +18,6 @@ from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._jit import jit
 from ._log_context_duration import log_context_duration
-from ._reversed_enumerate import reversed_enumerate_jit
 
 
 @jit(nopython=True)
@@ -32,10 +31,8 @@ def alifestd_mark_sackin_index_asexual_fast_path(
 
     # Accumulate Sackin index (bottom-up)
     # sackin[node] = sum over children c of (sackin[c] + num_leaves[c])
-    for tup in reversed_enumerate_jit(ancestor_ids):
-        # workaround: unpack inside loop body to avoid numba
-        # generator-in-zip KeyError bug with `for a, b in generator`
-        idx, ancestor_id = tup
+    for idx in range(n - 1, -1, -1):  # reversed enumerate
+        ancestor_id = ancestor_ids[idx]
         if ancestor_id != idx:  # Not a root
             sackin_index[ancestor_id] += sackin_index[idx] + num_leaves[idx]
 

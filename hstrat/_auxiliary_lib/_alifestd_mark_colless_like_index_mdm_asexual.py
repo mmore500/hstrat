@@ -25,7 +25,6 @@ from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._jit import jit
 from ._log_context_duration import log_context_duration
-from ._reversed_enumerate import reversed_enumerate_jit
 
 
 @jit(nopython=True)
@@ -64,10 +63,8 @@ def _colless_like_fast_path(
         f_size[idx] = math.log(k + math.e)
 
     # Accumulate f-size bottom-up (add children's f-sizes to parent)
-    for tup in reversed_enumerate_jit(ancestor_ids):
-        # workaround: unpack inside loop body to avoid numba
-        # generator-in-zip KeyError bug with `for a, b in generator`
-        idx, ancestor_id = tup
+    for idx in range(n - 1, -1, -1):  # reversed enumerate
+        ancestor_id = ancestor_ids[idx]
         if ancestor_id != idx:  # Not a root
             f_size[ancestor_id] += f_size[idx]
 
@@ -117,10 +114,8 @@ def _colless_like_fast_path(
 
     # Accumulate subtree Colless-like index bottom-up
     colless_like = np.zeros(n, dtype=np.float64)
-    for tup in reversed_enumerate_jit(ancestor_ids):
-        # workaround: unpack inside loop body to avoid numba
-        # generator-in-zip KeyError bug with `for a, b in generator`
-        idx, ancestor_id = tup
+    for idx in range(n - 1, -1, -1):  # reversed enumerate
+        ancestor_id = ancestor_ids[idx]
         colless_like[idx] += local_balance[idx]
         if ancestor_id != idx:  # Not a root
             colless_like[ancestor_id] += colless_like[idx]
