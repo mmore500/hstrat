@@ -36,35 +36,17 @@ def _alifestd_find_pair_mrca_id_asexual_fast_path(
         The id of the most recent common ancestor, or -1 if no common
         ancestor exists.
     """
-    ancestor_ids = ancestor_ids.astype(np.uint64)
-    # walk both lineages towards the root, always advancing the deeper
-    # (higher-id) node first; when both reach the same node, that is
-    # the MRCA
-    a = first
-    b = second
+    # walk both lineages towards the root
+    # by advancing the deeper (higher-id) node first
+    a, b = first, second
     while a != b:
-        if a > b:
-            next_a = ancestor_ids[a]
-            if next_a == a:
-                # a is a root; walk b up to see if it reaches a
-                while b != a:
-                    next_b = ancestor_ids[b]
-                    if next_b == b:
-                        return -1  # b is also a root, disjoint trees
-                    b = next_b
-                return a
-            a = next_a
-        else:
-            next_b = ancestor_ids[b]
-            if next_b == b:
-                # b is a root; walk a up to see if it reaches b
-                while a != b:
-                    next_a = ancestor_ids[a]
-                    if next_a == a:
-                        return -1  # a is also a root, disjoint trees
-                    a = next_a
-                return b
-            b = next_b
+        a, b = min(a, b), max(a, b)
+        next_b = ancestor_ids[b]
+        if next_b == b:
+            assert a != b
+            return -1  # b is a root, disjoint trees
+        b = next_b
+    assert a == b
     return a
 
 
@@ -123,12 +105,12 @@ def alifestd_find_pair_mrca_id_asexual(
         has_contiguous_ids,
         lambda: alifestd_has_contiguous_ids(phylogeny_df),
     ):
-        raise NotImplementedError(
-            "non-contiguous ids not yet supported",
-        )
+        raise NotImplementedError("non-contiguous ids not yet supported")
 
     ancestor_ids = phylogeny_df["ancestor_id"].to_numpy()
     result = _alifestd_find_pair_mrca_id_asexual_fast_path(
-        ancestor_ids, first, second,
+        ancestor_ids,
+        first,
+        second,
     )
     return None if result == -1 else int(result)
