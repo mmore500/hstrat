@@ -30,6 +30,7 @@ from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._jit import jit
 from ._log_context_duration import log_context_duration
+from ._reversed_enumerate import reversed_enumerate_jit
 
 
 @jit(nopython=True)
@@ -46,8 +47,10 @@ def alifestd_mark_colless_index_asexual_fast_path(
     # Compute local colless for each internal node
     # For bifurcating: right_leaves = num_leaves[node] - num_leaves[left]
     local_colless = np.zeros(n, dtype=np.int64)
-    for idx in range(n):
-        left_child = left_child_ids[idx]
+    for tup in enumerate(left_child_ids):
+        # workaround: unpack inside loop body to avoid numba
+        # generator-in-zip KeyError bug with `for a, b in generator`
+        idx, left_child = tup
         if left_child != idx:  # Has children (internal node)
             left_leaves = num_leaves[left_child]
             right_leaves = num_leaves[idx] - left_leaves
@@ -55,11 +58,13 @@ def alifestd_mark_colless_index_asexual_fast_path(
 
     # Reverse pass: accumulate subtree colless bottom-up
     colless_index = np.zeros(n, dtype=np.int64)
-    for i in range(n - 1, -1, -1):  # reversed enumerate
-        ancestor_id = ancestor_ids[i]
-        colless_index[i] += local_colless[i]
-        if ancestor_id != i:  # Not a root
-            colless_index[ancestor_id] += colless_index[i]
+    for tup in reversed_enumerate_jit(ancestor_ids):
+        # workaround: unpack inside loop body to avoid numba
+        # generator-in-zip KeyError bug with `for a, b in generator`
+        idx, ancestor_id = tup
+        colless_index[idx] += local_colless[idx]
+        if ancestor_id != idx:  # Not a root
+            colless_index[ancestor_id] += colless_index[idx]
 
     return colless_index
 

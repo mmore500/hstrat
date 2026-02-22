@@ -3,6 +3,8 @@ import typing
 import numpy as np
 
 from ..._auxiliary_lib import (
+    iter_monotonic_equivalencies,
+    iter_monotonic_equivalencies_reverse,
     jit,
 )
 from ...frozen_instrumentation import HereditaryStratigraphicSpecimen
@@ -21,23 +23,13 @@ def _find_first_disparity_or_last_commonality(
     second_ranks: np.ndarray,
     second_differentiae: np.ndarray,
 ) -> typing.Optional[typing.Tuple[int, int]]:
-    # Inlined iter_monotonic_equivalencies + differentia comparison
-    # to work around numba generator-in-zip KeyError bug
-    idx1, idx2 = 0, 0
-    positions = (0, 0)
-    while idx1 < len(first_ranks) and idx2 < len(second_ranks):
-        val1 = first_ranks[idx1]
-        val2 = second_ranks[idx2]
-        if val1 < val2:
-            idx1 += 1
-        elif val1 > val2:
-            idx2 += 1
-        else:  # val1 == val2
-            positions = (idx1, idx2)
-            if first_differentiae[idx1] != second_differentiae[idx2]:
-                return positions
-            idx1 += 1
-            idx2 += 1
+    for tup in iter_monotonic_equivalencies(first_ranks, second_ranks):
+        # workaround: unpack inside loop body to avoid numba
+        # generator-in-zip KeyError bug with `for a, b in generator`
+        pos1, pos2 = tup
+        positions = (pos1, pos2)
+        if first_differentiae[pos1] != second_differentiae[pos2]:
+            return positions
     return positions
 
 
@@ -49,31 +41,19 @@ def _backtrack_n_equivalencies(
     n: int,
     strict: bool,
 ) -> typing.Tuple[int, int]:
-    # Inlined enumerate + iter_monotonic_equivalencies_reverse
-    # to work around numba generator-in-zip KeyError bug
-    idx1, idx2 = start
-    if idx1 < 0:
-        idx1 += len(first_ranks)
-    if idx2 < 0:
-        idx2 += len(second_ranks)
 
     i = 0
-    positions = (0, 0)
-    while idx1 >= 0 and idx2 >= 0:
-        val1 = first_ranks[idx1]
-        val2 = second_ranks[idx2]
-        if val1 > val2:
-            idx1 -= 1
-        elif val1 < val2:
-            idx2 -= 1
-        else:  # val1 == val2
-            positions = (idx1, idx2)
-            if i == n:
-                return positions
-            i += 1
-            idx1 -= 1
-            idx2 -= 1
-
+    for tup in iter_monotonic_equivalencies_reverse(
+        first_ranks,
+        second_ranks,
+        start=start,
+    ):
+        # workaround: unpack inside loop body to avoid numba
+        # generator-in-zip KeyError bug with `for i, x in enumerate(generator)`
+        positions = tup
+        if i == n:
+            return positions
+        i += 1
     if strict:
         return None
     else:
