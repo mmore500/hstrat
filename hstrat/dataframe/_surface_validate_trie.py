@@ -81,7 +81,8 @@ def surface_validate_trie(
        descendants).
     5. Samples random leaf-node pairs and compares each pair's first retained
        disparity rank (computed from deserialized surfaces) to the MRCA
-       node's ``hstrat_rank`` in the trie. A violation occurs when
+       node's ``hstrat_rank - dstream_S`` in the trie (converting from raw
+       dstream T space to external rank space). A violation occurs when
        ``first_disparity_rank < mrca_rank``: the surfaces prove divergence
        earlier than the trie records.
 
@@ -204,6 +205,10 @@ def surface_validate_trie(
     with opyt.apply_if_or_else(seed, RngStateContext, contextlib.nullcontext):
         combo_indices = random.sample(range(num_combinations), num_checks)
 
+    logging.info("surface_validate_trie: collecting dstream_S values...")
+    dstream_S_values = df.lazy().select(pl.col("dstream_S")).collect()
+    dstream_S = dstream_S_values.to_series().to_numpy()
+
     logging.info("surface_validate_trie: checking for violations...")
     num_violations = 0
     for leaf_a, leaf_b in progress_wrap(
@@ -220,13 +225,17 @@ def surface_validate_trie(
         mrca_id = _alifestd_find_pair_mrca_id_asexual_fast_path(
             ancestor_ids, leaf_a, leaf_b
         )
-        mrca_rank = (
+        mrca_row = (
             df.lazy()
             .filter(pl.col("id") == mrca_id)
-            .select(pl.col("hstrat_rank"))
+            .select(pl.col("hstrat_rank"), pl.col("dstream_S"))
             .collect()
-            .item()
+            .row(0, named=True)
         )
+        # hstrat_rank is in raw dstream T space; disparity ranks from
+        # calc_rank_of_first_retained_disparity_between are in external
+        # space (T - S).  Convert mrca_rank to external space.
+        mrca_rank = mrca_row["hstrat_rank"] - mrca_row["dstream_S"]
 
         # violation: surfaces prove divergence no later than
         # first_disparity_rank, which precedes mrca_rank — trie places
@@ -243,14 +252,14 @@ def surface_validate_trie(
                 .select(pl.col("hstrat_rank"))
                 .collect()
                 .item()
-            )
+            ) - dstream_S[leaf_a]
             leaf_b_rank = (
                 df.lazy()
                 .filter(pl.col("id") == leaf_b)
                 .select(pl.col("hstrat_rank"))
                 .collect()
                 .item()
-            )
+            ) - dstream_S[leaf_b]
             logging.debug(
                 "\n"
                 "===========================================================\n"
