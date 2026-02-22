@@ -5,8 +5,8 @@ import random
 import typing
 
 from downstream import dstream
-import opytional as opyt
 import more_itertools as mit
+import opytional as opyt
 import polars as pl
 
 from .._auxiliary_lib import (
