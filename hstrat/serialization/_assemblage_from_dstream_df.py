@@ -1,15 +1,11 @@
 import typing
 
 from downstream import dstream
-import numpy as np
 import pandas as pd
 
-from .._auxiliary_lib import numpy_fromiter_polyfill
-from ..frozen_instrumentation import (
-    HereditaryStratigraphicAssemblage,
-    HereditaryStratigraphicSpecimen,
-)
+from ..frozen_instrumentation import HereditaryStratigraphicAssemblage
 from ._surf_from_hex import surf_from_hex
+from ._surf_to_specimen import surf_to_specimen
 
 # columns required to deserialize surfaces from data_hex
 _deserialization_columns = (
@@ -21,32 +17,6 @@ _deserialization_columns = (
     "dstream_T_bitwidth",
     "dstream_S",
 )
-
-
-def _surf_to_specimen(surface):
-    """Convert a HereditaryStratigraphicSurface to a
-    HereditaryStratigraphicSpecimen.
-
-    Unlike col_to_specimen, handles surfaces with negative ranks
-    (pre-initialization strata) by using signed integer dtypes.
-    """
-    differentia = numpy_fromiter_polyfill(
-        surface.IterRetainedDifferentia(),
-        dtype=np.min_scalar_type(
-            2 ** surface.GetStratumDifferentiaBitWidth() - 1
-        ),
-    )
-    ranks = numpy_fromiter_polyfill(
-        surface.IterRetainedRanks(),
-        dtype=np.int64,
-    )
-
-    return HereditaryStratigraphicSpecimen(
-        stratum_differentia_series=pd.Series(data=differentia, index=ranks),
-        stratum_differentia_bit_width=(
-            surface.GetStratumDifferentiaBitWidth()
-        ),
-    )
 
 
 def assemblage_from_dstream_df(
@@ -127,6 +97,6 @@ def assemblage_from_dstream_df(
                 dstream_T_bitoffset=row["dstream_T_bitoffset"],
                 dstream_T_bitwidth=row["dstream_T_bitwidth"],
             )
-            yield _surf_to_specimen(surface)
+            yield surf_to_specimen(surface)
 
     return HereditaryStratigraphicAssemblage(_iter_specimens())
