@@ -150,6 +150,7 @@ from stratum_retention_strategy import (
 from stratum_retention_viz import (
     animate,
     ascii,
+    assemblage_to_ascii,
     col_to_ascii,
     mrca_uncertainty_absolute_barplot,
     mrca_uncertainty_relative_barplot,
@@ -328,6 +329,7 @@ __all__ = [
     "animate",
     "ascii",
     "plot",
+    "assemblage_to_ascii",
     "col_to_ascii",
     "stratum_retention_animate",
     "policy_panel_animate",
