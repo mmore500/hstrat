@@ -35,6 +35,8 @@ def test_alifestd_count_inner_nodes_polars_cli_csv():
         "hstrat._auxiliary_lib._alifestd_count_inner_nodes_polars",
         f"{assets}/trunktestphylo.csv",
     ]
-    result = subprocess.run(cmd, capture_output=True, check=True, text=True)  # nosec B603
+    result = subprocess.run(
+        cmd, capture_output=True, check=True, text=True
+    )  # nosec B603
     count = int(result.stdout.strip())
     assert count >= 0
