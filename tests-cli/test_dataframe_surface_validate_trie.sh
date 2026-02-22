@@ -47,7 +47,7 @@ for opt in \
 
     # validate trie
     if python3 -m hstrat.dataframe.surface_validate_trie "${trie}" \
-        --max-num-checks 10_000 \
+        --max-num-checks 10_000 --seed 1 \
         > "${HSTRAT_TESTS_CLI_STDOUT}" 2>&1 \
     ; then
         echo "   + PASS"

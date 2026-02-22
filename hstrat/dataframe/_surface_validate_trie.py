@@ -82,7 +82,7 @@ def surface_validate_trie(
     5. Samples random leaf-node pairs and compares each pair's first retained
        disparity rank (computed from deserialized surfaces) to the MRCA
        node's ``dstream_rank - dstream_S`` in the trie (converting from raw
-       dstream T space to external rank space). A violation occurs when
+       dstream T space to hstrat rank space). A violation occurs when
        ``first_disparity_rank < mrca_rank``: the surfaces prove divergence
        earlier than the trie records.
 
@@ -122,14 +122,13 @@ def surface_validate_trie(
         randomly without replacement from all possible pairs.
     max_violations : int (default 1)
         Maximum number of MRCA-rank violations tolerated before returning
-        early. Default 1. Callers should treat a return value exceeding this
-        threshold as a validation failure.
+        early.
     progress_wrap : callable, optional
-        Wrapper applied to the pair-check iterator, e.g. ``tqdm.tqdm`` for a
+        Wrapper applied to the pair-check iterator, e.g., ``tqdm.tqdm`` for a
         progress bar. Must accept and return an iterable. Default is the
         identity function (no wrapping).
-    seed : int, optional
-        Random seed used when sampling leaf pairs. Default None.
+    seed : int, default None
+        Random seed used when sampling leaf pairs.
 
     Returns
     -------
@@ -233,14 +232,15 @@ def surface_validate_trie(
             .row(0, named=True)
         )
         # dstream_rank is in raw dstream T space; disparity ranks from
-        # calc_rank_of_first_retained_disparity_between are in external
-        # space (T - S).  Convert mrca_rank to external space.
+        # calc_rank_of_first_retained_disparity_between are in hstrat rank
+        # space (T - S).  Convert mrca_rank to hstrat rank space.
         mrca_rank = mrca_row["dstream_rank"] - mrca_row["dstream_S"]
 
         # violation: surfaces prove divergence no later than
         # first_disparity_rank, which precedes mrca_rank — trie places
-        # MRCA more recently than the surface data allows;
-        # None means undetermined (not a violation)
+        # MRCA more recently than the surface data allows
+        # (None first_disparity_rank means no disparity found, so no
+        # violation can be established)
         is_violation = (
             first_disparity_rank is not None
             and first_disparity_rank < mrca_rank

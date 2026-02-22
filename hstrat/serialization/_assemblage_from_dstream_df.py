@@ -79,7 +79,7 @@ def assemblage_from_dstream_df(
     assemblage_from_records :
         Deserialize an assemblage from a dict of builtin types.
     """
-    missing = [c for c in _deserialization_columns if c not in df.columns]
+    missing = sorted(set(_deserialization_columns) - set(df.columns))
     if missing:
         raise ValueError(
             "assemblage_from_dstream_df: missing required columns "

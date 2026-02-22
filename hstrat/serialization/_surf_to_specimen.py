@@ -44,7 +44,5 @@ def surf_to_specimen(
 
     return HereditaryStratigraphicSpecimen(
         stratum_differentia_series=pd.Series(data=differentia, index=ranks),
-        stratum_differentia_bit_width=(
-            surface.GetStratumDifferentiaBitWidth()
-        ),
+        stratum_differentia_bit_width=surface.GetStratumDifferentiaBitWidth(),
     )
