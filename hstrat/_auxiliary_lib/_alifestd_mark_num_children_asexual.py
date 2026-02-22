@@ -15,25 +15,19 @@ from ._configure_prod_logging import configure_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
-from ._jit import jit
 from ._log_context_duration import log_context_duration
 
 
-@jit(nopython=True)
 def _alifestd_mark_num_children_asexual_fast_path(
     ancestor_ids: np.ndarray,
 ) -> np.ndarray:
     """Implementation detail for `alifestd_mark_num_children_asexual`."""
-
-    num_children = np.zeros_like(ancestor_ids)
-    for idx_r, ancestor_id in enumerate(ancestor_ids[::-1]):
-        idx = len(ancestor_ids) - 1 - idx_r
-        if ancestor_id == idx:
-            continue  # handle genesis cases
-
-        num_children[ancestor_id] += 1
-
-    return num_children
+    child_counts = np.bincount(
+        # root is self ref, but must exclude to handle only-root phylo
+        ancestor_ids,
+        minlength=len(ancestor_ids),
+    ) - (ancestor_ids == np.arange(len(ancestor_ids)))
+    return child_counts
 
 
 def _alifestd_mark_num_children_asexual_slow_path(

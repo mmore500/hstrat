@@ -3,6 +3,9 @@ import ordered_set as ods
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
+from ._alifestd_mark_num_children_asexual import (
+    _alifestd_mark_num_children_asexual_fast_path,
+)
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
@@ -10,11 +13,7 @@ from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 def _alifestd_find_leaf_ids_asexual_fast_path(
     ancestor_ids: np.ndarray,
 ) -> np.ndarray:
-    child_counts = np.bincount(
-        # root is self ref, but must exclude to handle only-root phylo
-        ancestor_ids[ancestor_ids != np.arange(len(ancestor_ids))],
-        minlength=len(ancestor_ids),
-    )
+    child_counts = _alifestd_mark_num_children_asexual_fast_path(ancestor_ids)
     return np.flatnonzero(child_counts == 0)
 
 
