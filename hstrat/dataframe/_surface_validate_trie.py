@@ -166,6 +166,8 @@ def surface_validate_trie(
             )
 
     logging.info("surface_validate_trie: checking contiguous ids...")
+    # required by _alifestd_find_leaf_ids_asexual_fast_path
+    # and _alifestd_find_pair_mrca_id_asexual_fast_path
     if not alifestd_has_contiguous_ids_polars(df):
         raise ValueError(
             "surface_validate_trie: ids are not contiguous",
