@@ -16,12 +16,15 @@ from ._log_context_duration import log_context_duration
 
 def alifestd_from_newick_polars(
     newick: str,
+    *,
+    create_ancestor_list: bool = False,
 ) -> pl.DataFrame:
     """Convert a Newick format string to a phylogeny dataframe.
 
     Parses a Newick tree string and returns a polars DataFrame in alife
-    standard format with columns: id, ancestor_list, ancestor_id,
-    taxon_label, origin_time_delta, and branch_length.
+    standard format with columns: id, ancestor_id, taxon_label,
+    origin_time_delta, and branch_length. Optionally includes
+    ancestor_list.
 
     Benchmarks on a 200k-node caterpillar tree (JIT-warmed) show
     deserialization ~2x faster than dendropy and ~6x slower than
@@ -31,6 +34,8 @@ def alifestd_from_newick_polars(
     ----------
     newick : str
         A phylogeny in Newick format.
+    create_ancestor_list : bool, default False
+        If True, include an ``ancestor_list`` column in the result.
 
     Returns
     -------
@@ -46,16 +51,16 @@ def alifestd_from_newick_polars(
     """
     newick = newick.strip()
     if not newick:
-        return pl.DataFrame(
-            {
-                "id": pl.Series([], dtype=pl.Int64),
-                "ancestor_list": pl.Series([], dtype=pl.Utf8),
-                "ancestor_id": pl.Series([], dtype=pl.Int64),
-                "taxon_label": pl.Series([], dtype=pl.Utf8),
-                "origin_time_delta": pl.Series([], dtype=pl.Float64),
-                "branch_length": pl.Series([], dtype=pl.Float64),
-            }
-        )
+        columns = {
+            "id": pl.Series([], dtype=pl.Int64),
+            "ancestor_id": pl.Series([], dtype=pl.Int64),
+            "taxon_label": pl.Series([], dtype=pl.Utf8),
+            "origin_time_delta": pl.Series([], dtype=pl.Float64),
+            "branch_length": pl.Series([], dtype=pl.Float64),
+        }
+        if create_ancestor_list:
+            columns["ancestor_list"] = pl.Series([], dtype=pl.Utf8)
+        return pl.DataFrame(columns)
 
     chars = np.frombuffer(newick.encode("ascii"), dtype=np.uint8)
     n = len(chars)
@@ -72,26 +77,24 @@ def alifestd_from_newick_polars(
 
     origin_time_deltas = branch_lengths.copy()
 
-    # build ancestor_list column
-    ancestor_list = []
-    for id_, anc_id in zip(ids, ancestor_ids):
-        if id_ == anc_id:
-            ancestor_list.append("[none]")
-        else:
-            ancestor_list.append(f"[{anc_id}]")
+    columns = {
+        "id": pl.Series(ids, dtype=pl.Int64),
+        "ancestor_id": pl.Series(ancestor_ids, dtype=pl.Int64),
+        "taxon_label": pl.Series(labels.tolist(), dtype=pl.Utf8),
+        "origin_time_delta": pl.Series(origin_time_deltas, dtype=pl.Float64),
+        "branch_length": pl.Series(branch_lengths, dtype=pl.Float64),
+    }
 
-    return pl.DataFrame(
-        {
-            "id": pl.Series(ids, dtype=pl.Int64),
-            "ancestor_list": pl.Series(ancestor_list, dtype=pl.Utf8),
-            "ancestor_id": pl.Series(ancestor_ids, dtype=pl.Int64),
-            "taxon_label": pl.Series(labels.tolist(), dtype=pl.Utf8),
-            "origin_time_delta": pl.Series(
-                origin_time_deltas, dtype=pl.Float64
-            ),
-            "branch_length": pl.Series(branch_lengths, dtype=pl.Float64),
-        }
-    )
+    if create_ancestor_list:
+        ancestor_list = []
+        for id_, anc_id in zip(ids, ancestor_ids):
+            if id_ == anc_id:
+                ancestor_list.append("[none]")
+            else:
+                ancestor_list.append(f"[{anc_id}]")
+        columns["ancestor_list"] = pl.Series(ancestor_list, dtype=pl.Utf8)
+
+    return pl.DataFrame(columns)
 
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()})

@@ -271,12 +271,15 @@ def _extract_labels(
 
 def alifestd_from_newick(
     newick: str,
+    *,
+    create_ancestor_list: bool = False,
 ) -> pd.DataFrame:
     """Convert a Newick format string to a phylogeny dataframe.
 
     Parses a Newick tree string and returns a pandas DataFrame in alife
-    standard format with columns: id, ancestor_list, ancestor_id,
-    taxon_label, origin_time_delta, and branch_length.
+    standard format with columns: id, ancestor_id, taxon_label,
+    origin_time_delta, and branch_length. Optionally includes
+    ancestor_list.
 
     Benchmarks on a 200k-node caterpillar tree (JIT-warmed) show
     deserialization ~2x faster than dendropy and ~6x slower than
@@ -286,6 +289,8 @@ def alifestd_from_newick(
     ----------
     newick : str
         A phylogeny in Newick format.
+    create_ancestor_list : bool, default False
+        If True, include an ``ancestor_list`` column in the result.
 
     Returns
     -------
@@ -301,16 +306,16 @@ def alifestd_from_newick(
     """
     newick = newick.strip()
     if not newick:
-        return pd.DataFrame(
-            {
-                "id": pd.Series(dtype=int),
-                "ancestor_list": pd.Series(dtype=str),
-                "ancestor_id": pd.Series(dtype=int),
-                "taxon_label": pd.Series(dtype=str),
-                "origin_time_delta": pd.Series(dtype=float),
-                "branch_length": pd.Series(dtype=float),
-            }
-        )
+        columns = {
+            "id": pd.Series(dtype=int),
+            "ancestor_id": pd.Series(dtype=int),
+            "taxon_label": pd.Series(dtype=str),
+            "origin_time_delta": pd.Series(dtype=float),
+            "branch_length": pd.Series(dtype=float),
+        }
+        if create_ancestor_list:
+            columns["ancestor_list"] = pd.Series(dtype=str)
+        return pd.DataFrame(columns)
 
     chars = np.frombuffer(newick.encode("ascii"), dtype=np.uint8)
     n = len(chars)
@@ -338,10 +343,11 @@ def alifestd_from_newick(
         },
     )
 
-    phylogeny_df["ancestor_list"] = alifestd_make_ancestor_list_col(
-        phylogeny_df["id"],
-        phylogeny_df["ancestor_id"],
-    )
+    if create_ancestor_list:
+        phylogeny_df["ancestor_list"] = alifestd_make_ancestor_list_col(
+            phylogeny_df["id"],
+            phylogeny_df["ancestor_id"],
+        )
 
     return phylogeny_df
 

@@ -18,15 +18,18 @@ def test_empty():
     result = alifestd_from_newick("")
     assert len(result) == 0
     assert "id" in result.columns
-    assert "ancestor_list" in result.columns
+    assert "ancestor_list" not in result.columns
     assert "ancestor_id" in result.columns
     assert "taxon_label" in result.columns
     assert "origin_time_delta" in result.columns
     assert "branch_length" in result.columns
 
+    result_with_al = alifestd_from_newick("", create_ancestor_list=True)
+    assert "ancestor_list" in result_with_al.columns
+
 
 def test_just_root():
-    result = alifestd_from_newick("root;")
+    result = alifestd_from_newick("root;", create_ancestor_list=True)
     assert len(result) == 1
     assert result["id"].iloc[0] == 0
     assert result["ancestor_id"].iloc[0] == 0  # root is own ancestor
@@ -166,7 +169,7 @@ def test_mixed_branch_lengths():
 
 
 def test_ancestor_list_col():
-    result = alifestd_from_newick("(A,B)C;")
+    result = alifestd_from_newick("(A,B)C;", create_ancestor_list=True)
     root = result[result["taxon_label"] == "C"]
     a = result[result["taxon_label"] == "A"]
     b = result[result["taxon_label"] == "B"]
@@ -174,6 +177,9 @@ def test_ancestor_list_col():
     assert root["ancestor_list"].iloc[0] == "[none]"
     assert a["ancestor_list"].iloc[0] == f"[{root['id'].iloc[0]}]"
     assert b["ancestor_list"].iloc[0] == f"[{root['id'].iloc[0]}]"
+
+    result_no_al = alifestd_from_newick("(A,B)C;")
+    assert "ancestor_list" not in result_no_al.columns
 
 
 def test_example_newick():
@@ -229,7 +235,7 @@ def test_newick_assets(newick_file: str):
         os.path.dirname(__file__), "..", "assets", newick_file
     )
     newick = pathlib.Path(newick_path).read_text().strip()
-    result = alifestd_from_newick(newick)
+    result = alifestd_from_newick(newick, create_ancestor_list=True)
 
     assert "id" in result.columns
     assert "ancestor_list" in result.columns

@@ -20,15 +20,18 @@ def test_empty():
     result = alifestd_from_newick_polars("")
     assert len(result) == 0
     assert "id" in result.columns
-    assert "ancestor_list" in result.columns
+    assert "ancestor_list" not in result.columns
     assert "ancestor_id" in result.columns
     assert "taxon_label" in result.columns
     assert "origin_time_delta" in result.columns
     assert "branch_length" in result.columns
 
+    result_with_al = alifestd_from_newick_polars("", create_ancestor_list=True)
+    assert "ancestor_list" in result_with_al.columns
+
 
 def test_just_root():
-    result = alifestd_from_newick_polars("root;")
+    result = alifestd_from_newick_polars("root;", create_ancestor_list=True)
     assert len(result) == 1
     assert result["id"][0] == 0
     assert result["ancestor_id"][0] == 0
@@ -93,7 +96,7 @@ def test_newick_assets(newick_file: str):
         os.path.dirname(__file__), "..", "assets", newick_file
     )
     newick = pathlib.Path(newick_path).read_text().strip()
-    result = alifestd_from_newick_polars(newick)
+    result = alifestd_from_newick_polars(newick, create_ancestor_list=True)
 
     assert isinstance(result, pl.DataFrame)
     assert "id" in result.columns
@@ -108,8 +111,8 @@ def test_newick_assets(newick_file: str):
 def test_matches_pandas():
     """Verify polars output matches pandas output."""
     newick = "(ant:17,(bat:31,cow:22):7,dog:22,(elk:33,fox:12):40);"
-    pd_result = alifestd_from_newick(newick)
-    pl_result = alifestd_from_newick_polars(newick)
+    pd_result = alifestd_from_newick(newick, create_ancestor_list=True)
+    pl_result = alifestd_from_newick_polars(newick, create_ancestor_list=True)
 
     assert len(pd_result) == len(pl_result)
 
@@ -127,7 +130,9 @@ def test_matches_pandas():
 
 
 def test_column_dtypes():
-    result = alifestd_from_newick_polars("(A:1,B:2)C;")
+    result = alifestd_from_newick_polars(
+        "(A:1,B:2)C;", create_ancestor_list=True
+    )
     assert result["id"].dtype == pl.Int64
     assert result["ancestor_id"].dtype == pl.Int64
     assert result["taxon_label"].dtype == pl.Utf8
