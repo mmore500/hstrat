@@ -62,7 +62,7 @@ def alifestd_validate_trie(df: pl.DataFrame) -> pl.DataFrame:
     See Also
     --------
     surface_unpack_reconstruct :
-        Produces trie reconstruction data validated here.
+        Produces trie reconstruction data to be validated here.
     """
     columns = set(df.lazy().collect_schema().names())
 
