@@ -39,7 +39,11 @@ def test_drop_dstream_metadata_default():
         if re.match(r"^dstream_", c) or re.match(r"^downstream_", c)
     ]
     # only dstream_data_id, dstream_S, and dstream_rank should survive
-    assert set(dstream_cols) == {"dstream_data_id", "dstream_S", "dstream_rank"}
+    assert set(dstream_cols) == {
+        "dstream_data_id",
+        "dstream_S",
+        "dstream_rank",
+    }
 
 
 def test_drop_dstream_metadata_true_raises():
