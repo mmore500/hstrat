@@ -30,7 +30,9 @@ def test_alifestd_mark_node_depth_polars_cli_version():
 
 
 def test_alifestd_mark_node_depth_polars_cli_csv():
-    output_file = "/tmp/hstrat_alifestd_mark_node_depth_polars.csv"  # nosec B108
+    output_file = (
+        "/tmp/hstrat_alifestd_mark_node_depth_polars.csv"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
@@ -47,7 +49,9 @@ def test_alifestd_mark_node_depth_polars_cli_csv():
 
 
 def test_alifestd_mark_node_depth_polars_cli_empty():
-    output_file = "/tmp/hstrat_alifestd_mark_node_depth_polars_empty.csv"  # nosec B108
+    output_file = (
+        "/tmp/hstrat_alifestd_mark_node_depth_polars_empty.csv"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
