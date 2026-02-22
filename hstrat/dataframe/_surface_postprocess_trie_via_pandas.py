@@ -133,8 +133,8 @@ def _surface_postprocess_trie_via_pandas(
 
     render_pandas_snapshot(df, "with trie postprocessing", logging.info)
 
-    logging.info("setting up hstrat_rank_from_t0...")
-    df["hstrat_rank_from_t0"] = df["dstream_rank"] - df["dstream_S"]
+    logging.info("setting up dstream_rank_from_t0...")
+    df["dstream_rank_from_t0"] = df["dstream_rank"] - df["dstream_S"]
 
     to_keep = {*original_columns} - {
         "dstream_S",
