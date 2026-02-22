@@ -4,6 +4,7 @@ import os
 import sys
 
 import polars as pl
+from tqdm import tqdm
 
 from .._auxiliary_lib import (
     configure_prod_logging,
@@ -144,6 +145,7 @@ if __name__ == "__main__":
             df,
             max_num_checks=args.max_num_checks,
             max_violations=args.max_violations,
+            progress_wrap=tqdm,
             seed=args.seed,
         )
 
