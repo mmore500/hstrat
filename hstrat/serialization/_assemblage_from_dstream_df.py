@@ -86,9 +86,9 @@ def assemblage_from_dstream_df(
             f"{missing}",
         )
 
-    def _iter_specimens():
-        for _idx, row in progress_wrap(df.iterrows()):
-            surface = surf_from_hex(
+    return HereditaryStratigraphicAssemblage(
+        surf_to_specimen(
+            surf_from_hex(
                 hex_string=row["data_hex"],
                 dstream_algo=eval(row["dstream_algo"], {"dstream": dstream}),
                 dstream_S=row["dstream_S"],
@@ -96,7 +96,7 @@ def assemblage_from_dstream_df(
                 dstream_storage_bitwidth=row["dstream_storage_bitwidth"],
                 dstream_T_bitoffset=row["dstream_T_bitoffset"],
                 dstream_T_bitwidth=row["dstream_T_bitwidth"],
-            )
-            yield surf_to_specimen(surface)
-
-    return HereditaryStratigraphicAssemblage(_iter_specimens())
+            ),
+        )
+        for _idx, row in progress_wrap(df.iterrows())
+    )
