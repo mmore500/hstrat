@@ -17,7 +17,7 @@ from hstrat._auxiliary_lib import (
     alifestd_try_add_ancestor_id_col,
     alifestd_validate,
 )
-from hstrat._auxiliary_lib._alifestd_mark_colless_like_index_asexual import (
+from hstrat._auxiliary_lib._alifestd_mark_colless_like_index_mdm_asexual import (
     _colless_like_fast_path,
     _colless_like_slow_path,
 )

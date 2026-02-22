@@ -7,40 +7,40 @@ import pandas as pd
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
-def test_alifestd_mark_node_depth_asexual_polars_cli_help():
+def test_alifestd_mark_node_depth_polars_cli_help():
     subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
-            "hstrat._auxiliary_lib._alifestd_mark_node_depth_asexual_polars",
+            "hstrat._auxiliary_lib._alifestd_mark_node_depth_polars",
             "--help",
         ],
         check=True,
     )
 
 
-def test_alifestd_mark_node_depth_asexual_polars_cli_version():
+def test_alifestd_mark_node_depth_polars_cli_version():
     subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
-            "hstrat._auxiliary_lib._alifestd_mark_node_depth_asexual_polars",
+            "hstrat._auxiliary_lib._alifestd_mark_node_depth_polars",
             "--version",
         ],
         check=True,
     )
 
 
-def test_alifestd_mark_node_depth_asexual_polars_cli_csv():
+def test_alifestd_mark_node_depth_polars_cli_csv():
     output_file = (
-        "/tmp/hstrat_alifestd_mark_node_depth_asexual_polars.csv"  # nosec B108
+        "/tmp/hstrat_alifestd_mark_node_depth_polars.csv"  # nosec B108
     )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
-            "hstrat._auxiliary_lib._alifestd_mark_node_depth_asexual_polars",
+            "hstrat._auxiliary_lib._alifestd_mark_node_depth_polars",
             "--eager-write",
             output_file,
         ],
@@ -53,16 +53,16 @@ def test_alifestd_mark_node_depth_asexual_polars_cli_csv():
     assert "node_depth" in result_df.columns
 
 
-def test_alifestd_mark_node_depth_asexual_polars_cli_parquet():
+def test_alifestd_mark_node_depth_polars_cli_parquet():
     output_file = (
-        "/tmp/hstrat_alifestd_mark_node_depth_asexual_polars.pqt"  # nosec B108
+        "/tmp/hstrat_alifestd_mark_node_depth_polars.pqt"  # nosec B108
     )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
-            "hstrat._auxiliary_lib._alifestd_mark_node_depth_asexual_polars",
+            "hstrat._auxiliary_lib._alifestd_mark_node_depth_polars",
             "--eager-write",
             output_file,
         ],
@@ -75,14 +75,16 @@ def test_alifestd_mark_node_depth_asexual_polars_cli_parquet():
     assert "node_depth" in result_df.columns
 
 
-def test_alifestd_mark_node_depth_asexual_polars_cli_empty():
-    output_file = "/tmp/hstrat_alifestd_mark_node_depth_asexual_polars_empty.csv"  # nosec B108
+def test_alifestd_mark_node_depth_polars_cli_empty():
+    output_file = (
+        "/tmp/hstrat_alifestd_mark_node_depth_polars_empty.csv"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
-            "hstrat._auxiliary_lib._alifestd_mark_node_depth_asexual_polars",
+            "hstrat._auxiliary_lib._alifestd_mark_node_depth_polars",
             "--eager-write",
             output_file,
         ],

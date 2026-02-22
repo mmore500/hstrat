@@ -92,7 +92,7 @@ requires = [
 # additional dev requriements
 # used to generated requirements in dev-requirements/
 [project.optional-dependencies]
-jit = ["cppimport>=22.8.2", "numba>=0.60.0,!=0.62.0,<0.64", "setuptools>=75.0.0,<81"]
+jit = ["cppimport>=22.8.2", "numba>=0.60.0,!=0.62.0", "setuptools>=75.0.0,<81"]
 phylo-extra = [
   "biopython>=1.79",
   "phylotrackpy>=0.2.4",
