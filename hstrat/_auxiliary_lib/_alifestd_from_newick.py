@@ -289,8 +289,8 @@ def alifestd_from_newick(
     ancestor_list.
 
     Benchmarks on a 200k-node caterpillar tree (JIT-warmed) show
-    deserialization ~7x faster than dendropy and comparable to
-    treeswift. At 200k nodes: dendropy ~10s vs treeswift ~0.7s.
+    deserialization ~2x slower than treeswift. At 200k nodes (with
+    branch lengths): ~2.4s vs treeswift ~1.3s.
 
     Parameters
     ----------
