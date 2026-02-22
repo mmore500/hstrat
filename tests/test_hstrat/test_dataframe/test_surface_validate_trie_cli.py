@@ -30,12 +30,8 @@ def test_surface_validate_trie_cli_version():
 
 
 def test_surface_validate_trie_cli_pipe_from_unpack_reconstruct():
-    trie_file = (
-        "/tmp/hstrat_validate_trie_unpack.pqt"  # nosec B108
-    )
-    output_file = (
-        "/tmp/hstrat_validate_trie_output.pqt"  # nosec B108
-    )
+    trie_file = "/tmp/hstrat_validate_trie_unpack.pqt"  # nosec B108
+    output_file = "/tmp/hstrat_validate_trie_output.pqt"  # nosec B108
     pathlib.Path(trie_file).unlink(missing_ok=True)
     pathlib.Path(output_file).unlink(missing_ok=True)
 
@@ -68,12 +64,8 @@ def test_surface_validate_trie_cli_pipe_from_unpack_reconstruct():
 
 
 def test_surface_validate_trie_cli_csv():
-    trie_file = (
-        "/tmp/hstrat_validate_trie_unpack.csv"  # nosec B108
-    )
-    output_file = (
-        "/tmp/hstrat_validate_trie_output.csv"  # nosec B108
-    )
+    trie_file = "/tmp/hstrat_validate_trie_unpack.csv"  # nosec B108
+    output_file = "/tmp/hstrat_validate_trie_output.csv"  # nosec B108
     pathlib.Path(trie_file).unlink(missing_ok=True)
     pathlib.Path(output_file).unlink(missing_ok=True)
 
@@ -107,12 +99,8 @@ def test_surface_validate_trie_cli_csv():
 
 def test_surface_validate_trie_cli_fails_without_metadata():
     """Validate CLI fails when dstream metadata is dropped (default)."""
-    trie_file = (
-        "/tmp/hstrat_validate_trie_no_meta.pqt"  # nosec B108
-    )
-    output_file = (
-        "/tmp/hstrat_validate_trie_no_meta_out.pqt"  # nosec B108
-    )
+    trie_file = "/tmp/hstrat_validate_trie_no_meta.pqt"  # nosec B108
+    output_file = "/tmp/hstrat_validate_trie_no_meta_out.pqt"  # nosec B108
     pathlib.Path(trie_file).unlink(missing_ok=True)
     pathlib.Path(output_file).unlink(missing_ok=True)
 
