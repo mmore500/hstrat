@@ -7,7 +7,6 @@ from .._auxiliary_lib import (
     alifestd_is_topologically_sorted_polars,
 )
 
-
 # columns required to deserialize surfaces from data_hex
 _deserialization_columns = (
     "data_hex",
