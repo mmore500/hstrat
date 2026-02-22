@@ -1,5 +1,4 @@
 import os
-import pathlib
 import subprocess
 
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
@@ -29,102 +28,140 @@ def test_surface_validate_trie_cli_version():
     )
 
 
-def test_surface_validate_trie_cli_pipe_from_unpack_reconstruct():
-    trie_file = "/tmp/hstrat_validate_trie_unpack.pqt"  # nosec B108
-    output_file = "/tmp/hstrat_validate_trie_output.pqt"  # nosec B108
-    pathlib.Path(trie_file).unlink(missing_ok=True)
-    pathlib.Path(output_file).unlink(missing_ok=True)
-
-    # first, unpack reconstruct with --no-drop-dstream-metadata
-    subprocess.run(
-        [
-            "python3",
-            "-m",
-            "hstrat.dataframe.surface_unpack_reconstruct",
-            trie_file,
-            "--no-drop-dstream-metadata",
-        ],
-        check=True,
-        input=f"{assets}/packed.csv".encode(),
-    )
-    assert os.path.exists(trie_file)
-
-    # then, validate the trie output
-    subprocess.run(
-        [
-            "python3",
-            "-m",
-            "hstrat.dataframe.surface_validate_trie",
-            output_file,
-        ],
-        check=True,
-        input=trie_file.encode(),
-    )
-    assert os.path.exists(output_file)
-
-
 def test_surface_validate_trie_cli_csv():
-    trie_file = "/tmp/hstrat_validate_trie_unpack.csv"  # nosec B108
-    output_file = "/tmp/hstrat_validate_trie_output.csv"  # nosec B108
-    pathlib.Path(trie_file).unlink(missing_ok=True)
-    pathlib.Path(output_file).unlink(missing_ok=True)
-
-    # first, unpack reconstruct with --no-drop-dstream-metadata
-    subprocess.run(
-        [
-            "python3",
-            "-m",
-            "hstrat.dataframe.surface_unpack_reconstruct",
-            trie_file,
-            "--no-drop-dstream-metadata",
-        ],
-        check=True,
-        input=f"{assets}/packed.csv".encode(),
-    )
-    assert os.path.exists(trie_file)
-
-    # then, validate the trie output
-    subprocess.run(
+    """Validates a well-formed trie CSV and prints violation count."""
+    result = subprocess.run(
         [
             "python3",
             "-m",
             "hstrat.dataframe.surface_validate_trie",
-            output_file,
+            f"{assets}/trie.csv",
         ],
         check=True,
-        input=trie_file.encode(),
+        capture_output=True,
+        text=True,
     )
-    assert os.path.exists(output_file)
+    assert result.stdout.strip() == "0"
+
+
+def test_surface_validate_trie_cli_parquet():
+    """Validates a well-formed trie from a Parquet file."""
+    trie_pqt = "/tmp/hstrat_validate_trie_input.pqt"  # nosec B108
+    import polars as pl
+
+    pl.read_csv(f"{assets}/trie.csv").write_parquet(trie_pqt)
+
+    result = subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_validate_trie",
+            trie_pqt,
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert result.stdout.strip() == "0"
+
+
+def test_surface_validate_trie_cli_long():
+    """Validates a late-divergence trie (lrc=47, mrca=55)."""
+    result = subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_validate_trie",
+            f"{assets}/trie_long.csv",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert result.stdout.strip() == "0"
 
 
 def test_surface_validate_trie_cli_fails_without_metadata():
-    """Validate CLI fails when dstream metadata is dropped (default)."""
-    trie_file = "/tmp/hstrat_validate_trie_no_meta.pqt"  # nosec B108
-    output_file = "/tmp/hstrat_validate_trie_no_meta_out.pqt"  # nosec B108
-    pathlib.Path(trie_file).unlink(missing_ok=True)
-    pathlib.Path(output_file).unlink(missing_ok=True)
-
-    # unpack reconstruct with default metadata dropping
-    subprocess.run(
-        [
-            "python3",
-            "-m",
-            "hstrat.dataframe.surface_unpack_reconstruct",
-            trie_file,
-        ],
-        check=True,
-        input=f"{assets}/packed.csv".encode(),
-    )
-    assert os.path.exists(trie_file)
-
-    # validation should fail due to missing columns
+    """CLI exits non-zero when dstream metadata columns are absent."""
     result = subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
             "hstrat.dataframe.surface_validate_trie",
-            output_file,
+            f"{assets}/trie_no_meta.csv",
         ],
-        input=trie_file.encode(),
     )
     assert result.returncode != 0
+
+
+def test_surface_validate_trie_cli_fails_on_invalid_trie():
+    """CLI exits non-zero when trie has MRCA rank violations."""
+    result = subprocess.run(  # nosec B603
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_validate_trie",
+            f"{assets}/trie_long_invalid.csv",
+            "--max-violations",
+            "0",
+        ],
+    )
+    assert result.returncode != 0
+
+
+def test_surface_validate_trie_cli_max_num_checks_zero():
+    """With --max-num-checks 0, no leaf-pair checks run; always passes."""
+    result = subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_validate_trie",
+            f"{assets}/trie_long_invalid.csv",
+            "--max-num-checks",
+            "0",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert result.stdout.strip() == "0"
+
+
+def test_surface_validate_trie_cli_max_violations():
+    """--max-violations controls the threshold before exit-on-error."""
+    result = subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_validate_trie",
+            f"{assets}/trie_long_invalid.csv",
+            "--max-violations",
+            "9999",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    # violation count is printed even when within tolerance
+    assert result.stdout.strip().isdigit()
+
+
+def test_surface_validate_trie_cli_seed():
+    """--seed flag is accepted and produces reproducible results."""
+    results = []
+    for _ in range(2):
+        r = subprocess.run(
+            [
+                "python3",
+                "-m",
+                "hstrat.dataframe.surface_validate_trie",
+                f"{assets}/trie.csv",
+                "--seed",
+                "42",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        results.append(r.stdout.strip())
+    assert results[0] == results[1]

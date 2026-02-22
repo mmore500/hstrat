@@ -1,9 +1,9 @@
 import argparse
 import logging
 import os
+import sys
 
-import joinem
-from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
+import polars as pl
 
 from .._auxiliary_lib import (
     configure_prod_logging,
@@ -13,13 +13,22 @@ from .._auxiliary_lib import (
 )
 from ._surface_validate_trie import surface_validate_trie
 
-raw_message = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
+_raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()})
 
 Validate trie reconstruction output data.
 
-Checks that dstream/downstream columns necessary to deserialize surfaces from data_hex are present, logs the number of tip nodes, and checks that data is topologically sorted with contiguous ids.
+Performs structural checks and pairwise leaf-node validation to confirm that the trie correctly encodes the hereditary stratigraphic surface data.
+
+Checks performed:
+  1. Required dstream/downstream columns for surface deserialization from data_hex are present.
+  2. Taxon ids are contiguous (i.e., match row indices 0, 1, ..., n-1).
+  3. Data is topologically sorted (each ancestor appears before its descendants).
+  4. Samples random leaf-node pairs and compares each pair's first retained disparity rank (computed from deserialized surfaces) to the MRCA node's hstrat_rank in the trie. A violation occurs when first_disparity_rank < mrca_rank: the surfaces prove divergence earlier than the trie records.
 
 Intended for use after `surface_unpack_reconstruct --no-drop-dstream-metadata`.
+
+Prints the number of detected violations to stdout.
+Exits with a non-zero status if structural checks fail or if detected violations exceed --max-violations.
 
 
 Input Schema: Required Columns
@@ -29,6 +38,9 @@ Input Schema: Required Columns
 
 'ancestor_id' : integer
     Unique identifier for ancestor taxon (RE alife standard format).
+
+'hstrat_rank' : integer
+    Rank stored at this node (number of generations elapsed).
 
 'data_hex' : string
     Raw genome data, with serialized dstream buffer and counter.
@@ -62,14 +74,47 @@ See Also
 
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        add_help=False,
-        description=format_cli_description(raw_message),
+        description=format_cli_description(_raw_description),
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    _add_parser_base(
-        parser=parser,
-        dfcli_module="hstrat.dataframe.surface_validate_trie",
-        dfcli_version=get_hstrat_version(),
+    parser.add_argument(
+        "trie_file",
+        type=str,
+        help="Trie reconstruction dataframe file to validate (.csv, .pqt, .parquet).",
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=get_hstrat_version(),
+    )
+    parser.add_argument(
+        "--max-num-checks",
+        type=int,
+        default=1_000,
+        help=(
+            "Maximum number of leaf-pair MRCA comparisons to perform. "
+            "Pairs are sampled randomly without replacement. "
+            "Default: 1000."
+        ),
+    )
+    parser.add_argument(
+        "--max-violations",
+        type=int,
+        default=1,
+        help=(
+            "Maximum number of MRCA-rank violations tolerated. "
+            "Exits with a non-zero status if detected violations exceed this "
+            "threshold. "
+            "Default: 1."
+        ),
+    )
+    parser.add_argument(
+        "--seed",
+        default=None,
+        dest="seed",
+        help="Integer seed for deterministic behavior.",
+        type=int,
     )
     return parser
 
@@ -78,12 +123,37 @@ if __name__ == "__main__":
     configure_prod_logging()
 
     parser = _create_parser()
-    args, __ = parser.parse_known_args()
+    args = parser.parse_args()
+
+    input_ext = os.path.splitext(args.trie_file)[1]
+    logging.info(
+        f"reading trie reconstruction data from {args.trie_file}...",
+    )
+    df = {
+        ".csv": pl.read_csv,
+        ".pqt": pl.read_parquet,
+        ".parquet": pl.read_parquet,
+    }[input_ext](args.trie_file)
 
     with log_context_duration(
         "hstrat.dataframe.surface_validate_trie", logging.info
     ):
-        _run_dataframe_cli(
-            base_parser=parser,
-            output_dataframe_op=surface_validate_trie,
+        num_violations = surface_validate_trie(
+            df,
+            max_num_checks=args.max_num_checks,
+            max_violations=args.max_violations,
+            seed=args.seed,
         )
+
+    print(num_violations)
+
+    if num_violations > args.max_violations:
+        logging.error(
+            "surface_validate_trie: %d violations detected "
+            "(exceeds --max-violations %d); exiting with error",
+            num_violations,
+            args.max_violations,
+        )
+        sys.exit(1)
+
+    logging.info("done!")
