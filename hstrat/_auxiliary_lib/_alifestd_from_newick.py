@@ -18,40 +18,29 @@ from ._log_context_duration import log_context_duration
 
 
 @jit(nopython=True)
-def _parse_newick(
+def _parse_newick_jit(
     chars: np.ndarray,
     n: int,
-) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Parse newick string characters into parallel arrays.
+    ids: np.ndarray,
+    ancestor_ids: np.ndarray,
+    label_starts: np.ndarray,
+    label_stops: np.ndarray,
+    bl_starts: np.ndarray,
+    bl_stops: np.ndarray,
+    bl_node_ids: np.ndarray,
+) -> typing.Tuple[int, int]:
+    """Inner JIT kernel for newick parsing.
 
-    Implementation detail for `alifestd_from_newick`.
+    Populates pre-allocated arrays with tree structure and records
+    branch-length substring positions for external float conversion.
 
-    Adapted from
-    https://github.com/niemasd/TreeSwift/blob/v1.1.45/treeswift/Tree.py#L1439
-
-    Parameters
-    ----------
-    chars : np.ndarray
-        Array of uint8 character codes for the newick string.
-    n : int
-        Length of chars array.
+    Implementation detail for `_parse_newick`.
 
     Returns
     -------
-    tuple of np.ndarray
-        (ids, ancestor_ids, branch_lengths, has_branch_length,
-         label_start_stops) where label_start_stops has shape (num_nodes, 2)
-        giving the start (inclusive) and stop (exclusive) index into `chars`
-        for each node's label.
+    tuple of int
+        (num_nodes, num_bls) counts of nodes and branch lengths found.
     """
-    # pre-allocate arrays at maximum possible size (n nodes)
-    ids = np.empty(n, dtype=np.int64)
-    ancestor_ids = np.empty(n, dtype=np.int64)
-    branch_lengths = np.empty(n, dtype=np.float64)
-    has_branch_length = np.zeros(n, dtype=np.int64)
-    label_starts = np.empty(n, dtype=np.int64)
-    label_stops = np.empty(n, dtype=np.int64)
-
     # character codes
     LPAREN = np.uint8(40)  # '('
     RPAREN = np.uint8(41)  # ')'
@@ -64,11 +53,12 @@ def _parse_newick(
     RBRACKET = np.uint8(93)  # ']'
 
     num_nodes = 0
+    num_bls = 0
+
     # create root node
     root_id = num_nodes
     ids[root_id] = root_id
     ancestor_ids[root_id] = root_id  # root is its own ancestor
-    branch_lengths[root_id] = np.nan
     label_starts[root_id] = 0
     label_stops[root_id] = 0
     num_nodes += 1
@@ -90,7 +80,6 @@ def _parse_newick(
             child_id = num_nodes
             ids[child_id] = child_id
             ancestor_ids[child_id] = cur
-            branch_lengths[child_id] = np.nan
             label_starts[child_id] = 0
             label_stops[child_id] = 0
             num_nodes += 1
@@ -106,7 +95,6 @@ def _parse_newick(
             child_id = num_nodes
             ids[child_id] = child_id
             ancestor_ids[child_id] = parent
-            branch_lengths[child_id] = np.nan
             label_starts[child_id] = 0
             label_stops[child_id] = 0
             num_nodes += 1
@@ -127,7 +115,7 @@ def _parse_newick(
                 i += 1
             i -= 1  # will be incremented at end of loop
 
-        # edge length
+        # edge length — record substring position for external conversion
         elif not parse_label and c == COLON:
             parse_length = True
 
@@ -141,48 +129,10 @@ def _parse_newick(
                 and chars[i] != LBRACKET
             ):
                 i += 1
-            # parse the accumulated length string
-            # manually parse float from chars[ls_start:i]
-            length, frac_part, frac_divisor = 0.0, 0.0, 1.0
-            is_negative, in_frac, in_exp, exp_neg = False, False, False, False
-            exp_val = 0
-            j = ls_start
-            if j < i and chars[j] == np.uint8(45):  # '-'
-                is_negative = True
-                j += 1
-            if j < i and chars[j] == np.uint8(43):  # '+'
-                j += 1
-            while j < i:
-                ch = chars[j]
-                if ch == np.uint8(46):  # '.'
-                    in_frac = True
-                elif ch == np.uint8(101) or ch == np.uint8(69):  # 'e' or 'E'
-                    in_exp = True
-                    j += 1
-                    if j < i and chars[j] == np.uint8(45):
-                        exp_neg = True
-                        j += 1
-                    elif j < i and chars[j] == np.uint8(43):
-                        j += 1
-                    continue
-                elif in_exp:
-                    exp_val = exp_val * 10 + (ch - np.uint8(48))
-                elif in_frac:
-                    frac_divisor *= 10.0
-                    frac_part += (ch - np.uint8(48)) / frac_divisor
-                else:
-                    length = length * 10.0 + (ch - np.uint8(48))
-                j += 1
-            length = length + frac_part
-            if is_negative:
-                length = -length
-            if in_exp:
-                if exp_neg:
-                    length = length / (10.0**exp_val)
-                else:
-                    length = length * (10.0**exp_val)
-            branch_lengths[cur] = length
-            has_branch_length[cur] = 1
+            bl_starts[num_bls] = ls_start
+            bl_stops[num_bls] = i
+            bl_node_ids[num_bls] = cur
+            num_bls += 1
             i -= 1  # will be incremented at end of loop
             parse_length = False
 
@@ -225,23 +175,80 @@ def _parse_newick(
 
         i += 1
 
-    # trim to actual size
-    ids_out = ids[:num_nodes].copy()
-    ancestor_ids_out = ancestor_ids[:num_nodes].copy()
-    branch_lengths_out = branch_lengths[:num_nodes].copy()
-    has_branch_length_out = has_branch_length[:num_nodes].copy()
+    return num_nodes, num_bls
+
+
+def _parse_newick(
+    newick: str,
+    chars: np.ndarray,
+    n: int,
+) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Parse newick string characters into parallel arrays.
+
+    Implementation detail for `alifestd_from_newick`.
+
+    Uses a two-phase approach: an inner numba JIT kernel handles structural
+    parsing and records branch-length substring positions, then float
+    conversion is performed externally via Python's built-in ``float()``.
+
+    Adapted from
+    https://github.com/niemasd/TreeSwift/blob/v1.1.45/treeswift/Tree.py#L1439
+
+    Parameters
+    ----------
+    newick : str
+        The newick string (used for substring extraction).
+    chars : np.ndarray
+        Array of uint8 character codes for the newick string.
+    n : int
+        Length of chars array.
+
+    Returns
+    -------
+    tuple of np.ndarray
+        (ids, ancestor_ids, branch_lengths, has_branch_length,
+         label_start_stops) where label_start_stops has shape (num_nodes, 2)
+        giving the start (inclusive) and stop (exclusive) index into `chars`
+        for each node's label.
+    """
+    # pre-allocate arrays at maximum possible size
+    ids = np.empty(n, dtype=np.int64)
+    ancestor_ids = np.empty(n, dtype=np.int64)
+    label_starts = np.empty(n, dtype=np.int64)
+    label_stops = np.empty(n, dtype=np.int64)
+    bl_starts = np.empty(n, dtype=np.int64)
+    bl_stops = np.empty(n, dtype=np.int64)
+    bl_node_ids = np.empty(n, dtype=np.int64)
+
+    num_nodes, num_bls = _parse_newick_jit(
+        chars, n,
+        ids, ancestor_ids, label_starts, label_stops,
+        bl_starts, bl_stops, bl_node_ids,
+    )
+
+    # trim to actual sizes
+    ids = ids[:num_nodes]
+    ancestor_ids = ancestor_ids[:num_nodes]
+
+    # branch lengths: batch-convert substrings via Python float()
+    branch_lengths = np.full(num_nodes, np.nan)
+    has_branch_length = np.zeros(num_nodes, dtype=np.int64)
+    for k in range(num_bls):
+        branch_lengths[bl_node_ids[k]] = float(
+            newick[bl_starts[k]:bl_stops[k]]
+        )
+        has_branch_length[bl_node_ids[k]] = 1
 
     # pack label start/stops into a 2D array
-    label_start_stops = np.empty((num_nodes, 2), dtype=np.int64)
-    for k in range(num_nodes):
-        label_start_stops[k, 0] = label_starts[k]
-        label_start_stops[k, 1] = label_stops[k]
+    label_start_stops = np.column_stack(
+        (label_starts[:num_nodes], label_stops[:num_nodes])
+    )
 
     return (
-        ids_out,
-        ancestor_ids_out,
-        branch_lengths_out,
-        has_branch_length_out,
+        ids,
+        ancestor_ids,
+        branch_lengths,
+        has_branch_length,
         label_start_stops,
     )
 
@@ -282,8 +289,8 @@ def alifestd_from_newick(
     ancestor_list.
 
     Benchmarks on a 200k-node caterpillar tree (JIT-warmed) show
-    deserialization ~7x faster than dendropy and ~2x slower than
-    treeswift. At 200k nodes: ~1.5s vs dendropy ~10s vs treeswift ~0.7s.
+    deserialization ~7x faster than dendropy and comparable to
+    treeswift. At 200k nodes: dendropy ~10s vs treeswift ~0.7s.
 
     Parameters
     ----------
@@ -326,7 +333,7 @@ def alifestd_from_newick(
         branch_lengths,
         _,  # has_branch_length
         label_start_stops,
-    ) = _parse_newick(chars, n)
+    ) = _parse_newick(newick, chars, n)
 
     labels = _extract_labels(newick, chars, label_start_stops)
 

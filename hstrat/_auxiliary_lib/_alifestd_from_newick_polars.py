@@ -27,8 +27,8 @@ def alifestd_from_newick_polars(
     ancestor_list.
 
     Benchmarks on a 200k-node caterpillar tree (JIT-warmed) show
-    deserialization ~7x faster than dendropy and ~2x slower than
-    treeswift. At 200k nodes: ~1.5s vs dendropy ~10s vs treeswift ~0.7s.
+    deserialization ~7x faster than dendropy and comparable to
+    treeswift. At 200k nodes: dendropy ~10s vs treeswift ~0.7s.
 
     Parameters
     ----------
@@ -71,7 +71,7 @@ def alifestd_from_newick_polars(
         branch_lengths,
         _,  # has_branch_length
         label_start_stops,
-    ) = _parse_newick(chars, n)
+    ) = _parse_newick(newick, chars, n)
 
     labels = _extract_labels(newick, chars, label_start_stops)
 
