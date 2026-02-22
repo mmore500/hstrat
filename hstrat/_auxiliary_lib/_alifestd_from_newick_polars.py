@@ -23,10 +23,9 @@ def alifestd_from_newick_polars(
     standard format with columns: id, ancestor_list, ancestor_id,
     taxon_label, origin_time_delta, and branch_length.
 
-    Benchmarks on synthetic birth-death trees show deserialization at
-    ~4x slower than dendropy and ~15x slower than treeswift, with
-    overhead dominated by DataFrame construction rather than parsing.
-    At 10k nodes: ~450ms vs dendropy ~120ms vs treeswift ~30ms.
+    Benchmarks on a 200k-node caterpillar tree (JIT-warmed) show
+    deserialization ~2x faster than dendropy and ~6x slower than
+    treeswift. At 200k nodes: ~4s vs dendropy ~9s vs treeswift ~0.6s.
 
     Parameters
     ----------

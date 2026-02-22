@@ -78,9 +78,9 @@ def alifestd_as_newick_asexual(
 ) -> str:
     """Convert phylogeny dataframe to Newick format.
 
-    Benchmarks on synthetic birth-death trees show serialization
-    competitive with dendropy and ~2x slower than treeswift. At 10k
-    nodes: ~27ms vs dendropy ~40ms vs treeswift ~12ms.
+    Benchmarks on a 200k-node caterpillar tree show serialization
+    ~38x slower than dendropy and ~2x slower than treeswift. At 200k
+    nodes: ~27s vs dendropy ~0.7s vs treeswift ~12s.
 
     Parameters
     ----------
