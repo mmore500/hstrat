@@ -1,28 +1,32 @@
 import argparse
 import logging
 import os
-from collections import Counter
 
-import pandas as pd
+import polars as pl
 
-from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._alifestd_mark_num_children_polars import (
+    alifestd_mark_num_children_polars,
+)
+from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
-def alifestd_count_polytomies(phylogeny_df: pd.DataFrame) -> int:
+def alifestd_count_polytomies_polars(phylogeny_df: pl.DataFrame) -> int:
     """Count how many inner nodes have more than two descendant nodes.
 
     Only supports asexual phylogenies.
     """
-    phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
-    if "ancestor_id" not in phylogeny_df.columns:
-        raise ValueError(
-            "alifestd_count_polytomies only supports asexual phylogenies.",
-        )
-    ancestor_counts = Counter(phylogeny_df["ancestor_id"])
-    return sum(v > 2 for v in ancestor_counts.values())
+    if "num_children" not in phylogeny_df.lazy().collect_schema().names():
+        phylogeny_df = alifestd_mark_num_children_polars(phylogeny_df)
+
+    return (
+        phylogeny_df.lazy()
+        .select((pl.col("num_children") > 2).sum())
+        .collect()
+        .item()
+    )
 
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()})
@@ -53,6 +57,8 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
+    configure_prod_logging()
+
     parser = _create_parser()
     args = parser.parse_args()
     input_ext = os.path.splitext(args.phylogeny_file)[1]
@@ -62,17 +68,17 @@ if __name__ == "__main__":
         f"{args.phylogeny_file}...",
     )
     phylogeny_df = {
-        ".csv": pd.read_csv,
-        ".fea": pd.read_feather,
-        ".feather": pd.read_feather,
-        ".pqt": pd.read_parquet,
-        ".parquet": pd.read_parquet,
+        ".csv": pl.read_csv,
+        ".fea": pl.read_ipc,
+        ".feather": pl.read_ipc,
+        ".pqt": pl.read_parquet,
+        ".parquet": pl.read_parquet,
     }[input_ext](args.phylogeny_file)
 
     with log_context_duration(
-        "hstrat._auxiliary_lib.alifestd_count_polytomies", logging.info
+        "hstrat._auxiliary_lib.alifestd_count_polytomies_polars", logging.info
     ):
-        count = alifestd_count_polytomies(phylogeny_df)
+        count = alifestd_count_polytomies_polars(phylogeny_df)
 
     print(count)
 
