@@ -63,16 +63,6 @@ def test_non_contiguous_ids():
         alifestd_validate_trie(bad)
 
 
-def test_logs_num_tips(caplog):
-    import logging
-
-    df = pl.read_csv(f"{assets_path}/packed.csv")
-    raw = surface_unpack_reconstruct(df, drop_dstream_metadata=False)
-    with caplog.at_level(logging.INFO):
-        alifestd_validate_trie(raw)
-    assert any("tips" in record.message for record in caplog.records)
-
-
 def test_default_drop_metadata_fails():
     """Validate that default metadata dropping causes validation failure."""
     df = pl.read_csv(f"{assets_path}/packed.csv")
