@@ -83,6 +83,8 @@ def alifestd_find_pair_mrca_id_polars(
     )
 
     result = _alifestd_find_pair_mrca_id_asexual_fast_path(
-        ancestor_ids, first, second,
+        ancestor_ids,
+        first,
+        second,
     )
     return None if result == -1 else int(result)
