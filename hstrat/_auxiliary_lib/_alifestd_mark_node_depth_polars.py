@@ -49,8 +49,7 @@ def alifestd_mark_node_depth_polars(
         Pandas-based implementation.
     """
     logging.info(
-        "- alifestd_mark_node_depth_polars: "
-        "adding ancestor_id col...",
+        "- alifestd_mark_node_depth_polars: adding ancestor_id col...",
     )
     phylogeny_df = alifestd_try_add_ancestor_id_col_polars(phylogeny_df)
 
@@ -60,8 +59,7 @@ def alifestd_mark_node_depth_polars(
         )
 
     logging.info(
-        "- alifestd_mark_node_depth_polars: "
-        "checking contiguous ids...",
+        "- alifestd_mark_node_depth_polars: checking contiguous ids...",
     )
     if not alifestd_has_contiguous_ids_polars(phylogeny_df):
         raise NotImplementedError(
@@ -69,8 +67,7 @@ def alifestd_mark_node_depth_polars(
         )
 
     logging.info(
-        "- alifestd_mark_node_depth_polars: "
-        "checking topological sort...",
+        "- alifestd_mark_node_depth_polars: checking topological sort...",
     )
     if not alifestd_is_topologically_sorted_polars(phylogeny_df):
         raise NotImplementedError(
@@ -78,8 +75,7 @@ def alifestd_mark_node_depth_polars(
         )
 
     logging.info(
-        "- alifestd_mark_node_depth_polars: "
-        "extracting ancestor ids...",
+        "- alifestd_mark_node_depth_polars: extracting ancestor ids...",
     )
     ancestor_ids = (
         phylogeny_df.lazy()
@@ -90,8 +86,7 @@ def alifestd_mark_node_depth_polars(
     )
 
     logging.info(
-        "- alifestd_mark_node_depth_polars: "
-        "calculating node depths...",
+        "- alifestd_mark_node_depth_polars: calculating node depths...",
     )
     node_depths = _alifestd_calc_node_depth_asexual_contiguous(ancestor_ids)
 
@@ -148,8 +143,7 @@ if __name__ == "__main__":
 
     try:
         with log_context_duration(
-            "hstrat._auxiliary_lib"
-            "._alifestd_mark_node_depth_polars",
+            "hstrat._auxiliary_lib._alifestd_mark_node_depth_polars",
             logging.info,
         ):
             _run_dataframe_cli(
