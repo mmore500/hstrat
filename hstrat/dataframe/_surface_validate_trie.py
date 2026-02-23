@@ -156,7 +156,7 @@ def surface_validate_trie(
     missing = sorted(set(_deserialization_columns) - columns)
     if missing:
         raise ValueError(
-            "surface_validate_trie: missing deserialization columns "
+            "surface_validate_trie: missing downstream metadata columns "
             f"{missing}; use --no-drop-dstream-metadata to retain",
         )
 
