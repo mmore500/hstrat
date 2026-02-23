@@ -1,4 +1,5 @@
 import os
+import typing
 
 import pandas as pd
 import pytest
@@ -31,7 +32,10 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 @pytest.mark.parametrize("mutate", [True, False])
 @pytest.mark.parametrize("seed", [1, 42])
 def test_alifestd_downsample_tips_lineage_partition_asexual(
-    phylogeny_df, n_tips, mutate, seed
+    phylogeny_df: pd.DataFrame,
+    n_tips: typing.Optional[int],
+    mutate: bool,
+    seed: int,
 ):
     original_df = phylogeny_df.copy()
 
@@ -49,7 +53,9 @@ def test_alifestd_downsample_tips_lineage_partition_asexual(
 
 
 @pytest.mark.parametrize("n_tips", [None, 1])
-def test_alifestd_downsample_tips_lineage_partition_asexual_empty(n_tips):
+def test_alifestd_downsample_tips_lineage_partition_asexual_empty(
+    n_tips: typing.Optional[int],
+):
     phylogeny_df = pd.DataFrame(
         {"id": [], "parent_id": [], "ancestor_id": [], "origin_time": []}
     )
@@ -77,7 +83,7 @@ def test_alifestd_downsample_tips_lineage_partition_asexual_empty(n_tips):
 )
 @pytest.mark.parametrize("seed", [1, 42])
 def test_alifestd_downsample_tips_lineage_partition_asexual_seed_reproducibility(
-    phylogeny_df, seed
+    phylogeny_df: pd.DataFrame, seed: int
 ):
     result1 = alifestd_downsample_tips_lineage_partition_asexual(
         phylogeny_df, 5, seed=seed
@@ -101,7 +107,7 @@ def test_alifestd_downsample_tips_lineage_partition_asexual_seed_reproducibility
     ],
 )
 def test_alifestd_downsample_tips_lineage_partition_asexual_none_keeps_all_partitions(
-    phylogeny_df,
+    phylogeny_df: pd.DataFrame,
 ):
     """With n_tips=None, one tip per distinct partition value is retained."""
     result_df = alifestd_downsample_tips_lineage_partition_asexual(
@@ -124,7 +130,7 @@ def test_alifestd_downsample_tips_lineage_partition_asexual_none_keeps_all_parti
     ],
 )
 def test_alifestd_downsample_tips_lineage_partition_asexual_large_n(
-    phylogeny_df,
+    phylogeny_df: pd.DataFrame,
 ):
     """n_tips larger than distinct values should match n_tips=None."""
     result_none = alifestd_downsample_tips_lineage_partition_asexual(
@@ -171,7 +177,7 @@ def test_alifestd_downsample_tips_lineage_partition_asexual_missing_criterion():
     ],
 )
 def test_alifestd_downsample_tips_lineage_partition_asexual_custom_criterion(
-    phylogeny_df,
+    phylogeny_df: pd.DataFrame,
 ):
     result_df = alifestd_downsample_tips_lineage_partition_asexual(
         phylogeny_df,
