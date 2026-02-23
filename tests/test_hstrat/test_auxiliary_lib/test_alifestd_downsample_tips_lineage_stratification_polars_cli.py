@@ -49,7 +49,7 @@ def test_alifestd_downsample_tips_lineage_stratification_polars_cli_csv(
             output_file,
         ],
         check=True,
-        input=f"{assets}/nk_ecoeaselection.csv".encode(),
+        input=f"{assets}/nk_ecoeaselection-workingformat.csv".encode(),
     )
     assert os.path.exists(output_file)
     result_df = pd.read_csv(output_file)
@@ -75,7 +75,7 @@ def test_alifestd_downsample_tips_lineage_stratification_polars_cli_parquet(
             output_file,
         ],
         check=True,
-        input=f"{assets}/nk_ecoeaselection.csv".encode(),
+        input=f"{assets}/nk_ecoeaselection-workingformat.csv".encode(),
     )
     assert os.path.exists(output_file)
     result_df = pd.read_parquet(output_file)
@@ -98,7 +98,7 @@ def test_alifestd_downsample_tips_lineage_stratification_polars_cli_ignore_topol
             output_file,
         ],
         check=True,
-        input=f"{assets}/nk_ecoeaselection.csv".encode(),
+        input=f"{assets}/nk_ecoeaselection-workingformat.csv".encode(),
     )
     assert os.path.exists(output_file)
 
@@ -118,6 +118,6 @@ def test_alifestd_downsample_tips_lineage_stratification_polars_cli_drop_topolog
             output_file,
         ],
         check=True,
-        input=f"{assets}/nk_ecoeaselection.csv".encode(),
+        input=f"{assets}/nk_ecoeaselection-workingformat.csv".encode(),
     )
     assert os.path.exists(output_file)
