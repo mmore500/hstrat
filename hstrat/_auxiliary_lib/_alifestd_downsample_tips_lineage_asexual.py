@@ -96,13 +96,11 @@ def _alifestd_downsample_tips_lineage_impl(
     numpy.ndarray
         Boolean array of length ``len(is_leaf)`` marking retained taxa.
     """
-    ids = np.arange(len(is_leaf))
-
     # Taxa with no common ancestor (different tree) get -1 from MRCA
-    # calc; replace with the taxon's own id so the lookup doesn't fail,
+    # calc; replace with a safe dummy id (0) so the lookup doesn't fail,
     # then exclude these taxa from selection below.
     no_mrca_mask = mrca_vector == -1
-    safe_mrca = np.where(no_mrca_mask, ids, mrca_vector)
+    safe_mrca = np.where(no_mrca_mask, 0, mrca_vector)
 
     logging.info(
         "_alifestd_downsample_tips_lineage_impl: "
@@ -118,7 +116,7 @@ def _alifestd_downsample_tips_lineage_impl(
         "filtering leaf eligibility...",
     )
     is_eligible = is_leaf & ~no_mrca_mask
-    eligible_ids = ids[is_eligible]
+    eligible_ids = np.flatnonzero(is_eligible)
     eligible_deltas = off_lineage_delta[is_eligible]
 
     logging.info(
@@ -135,7 +133,7 @@ def _alifestd_downsample_tips_lineage_impl(
         "_alifestd_downsample_tips_lineage_impl: "
         "building extant mask...",
     )
-    return np.bincount(kept_ids, minlength=len(ids)).astype(bool)
+    return np.bincount(kept_ids, minlength=len(is_leaf)).astype(bool)
 
 
 @alifestd_topological_sensitivity_warned(
