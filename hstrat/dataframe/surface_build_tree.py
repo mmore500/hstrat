@@ -61,6 +61,7 @@ To work with genome data in raw binary format (e.g., pl.Binary),
 
 Additional user-provided columns will be forwarded to phylogeny output.
 For these columns, output rows for tip nodes are assigned values from corresponding genome row in original data.
+Internal tree nodes will take null values in user-provided columns.
 
 
 Output Schema: Required Columns
@@ -75,7 +76,7 @@ Output Schema: Required Columns
 'hstrat_rank_from_t0' : integer
     - Num generations elapsed for ancestral differentia.
     - Corresponds to `dstream_Tbar` - `dstream_S` for inner nodes.
-    - Corresponds `dstream_T` - 1 - `dstream_S` for leaf nodes
+    - Corresponds `dstream_T` - 1 - `dstream_S` for leaf nodes.
 
 
 Output Schema: Optional Columns
@@ -104,6 +105,7 @@ See Also
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
+        allow_abbrev=False,
         description=format_cli_description(raw_message),
         formatter_class=argparse.RawTextHelpFormatter,
     )

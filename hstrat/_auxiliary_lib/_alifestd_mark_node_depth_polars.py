@@ -24,7 +24,7 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
-def alifestd_mark_node_depth_asexual_polars(
+def alifestd_mark_node_depth_polars(
     phylogeny_df: pl.DataFrame,
 ) -> pl.DataFrame:
     """Add column `node_depth`, counting the number of nodes between a
@@ -49,8 +49,7 @@ def alifestd_mark_node_depth_asexual_polars(
         Pandas-based implementation.
     """
     logging.info(
-        "- alifestd_mark_node_depth_asexual_polars: "
-        "adding ancestor_id col...",
+        "- alifestd_mark_node_depth_polars: adding ancestor_id col...",
     )
     phylogeny_df = alifestd_try_add_ancestor_id_col_polars(phylogeny_df)
 
@@ -60,8 +59,7 @@ def alifestd_mark_node_depth_asexual_polars(
         )
 
     logging.info(
-        "- alifestd_mark_node_depth_asexual_polars: "
-        "checking contiguous ids...",
+        "- alifestd_mark_node_depth_polars: checking contiguous ids...",
     )
     if not alifestd_has_contiguous_ids_polars(phylogeny_df):
         raise NotImplementedError(
@@ -69,8 +67,7 @@ def alifestd_mark_node_depth_asexual_polars(
         )
 
     logging.info(
-        "- alifestd_mark_node_depth_asexual_polars: "
-        "checking topological sort...",
+        "- alifestd_mark_node_depth_polars: checking topological sort...",
     )
     if not alifestd_is_topologically_sorted_polars(phylogeny_df):
         raise NotImplementedError(
@@ -78,8 +75,7 @@ def alifestd_mark_node_depth_asexual_polars(
         )
 
     logging.info(
-        "- alifestd_mark_node_depth_asexual_polars: "
-        "extracting ancestor ids...",
+        "- alifestd_mark_node_depth_polars: extracting ancestor ids...",
     )
     ancestor_ids = (
         phylogeny_df.lazy()
@@ -90,8 +86,7 @@ def alifestd_mark_node_depth_asexual_polars(
     )
 
     logging.info(
-        "- alifestd_mark_node_depth_asexual_polars: "
-        "calculating node depths...",
+        "- alifestd_mark_node_depth_polars: calculating node depths...",
     )
     node_depths = _alifestd_calc_node_depth_asexual_contiguous(ancestor_ids)
 
@@ -133,7 +128,7 @@ def _create_parser() -> argparse.ArgumentParser:
     parser = _add_parser_base(
         parser=parser,
         dfcli_module=(
-            "hstrat._auxiliary_lib._alifestd_mark_node_depth_asexual_polars"
+            "hstrat._auxiliary_lib._alifestd_mark_node_depth_polars"
         ),
         dfcli_version=get_hstrat_version(),
     )
@@ -148,13 +143,12 @@ if __name__ == "__main__":
 
     try:
         with log_context_duration(
-            "hstrat._auxiliary_lib"
-            "._alifestd_mark_node_depth_asexual_polars",
+            "hstrat._auxiliary_lib._alifestd_mark_node_depth_polars",
             logging.info,
         ):
             _run_dataframe_cli(
                 base_parser=parser,
-                output_dataframe_op=(alifestd_mark_node_depth_asexual_polars),
+                output_dataframe_op=(alifestd_mark_node_depth_polars),
             )
     except NotImplementedError as e:
         logging.error(

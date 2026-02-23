@@ -12,28 +12,28 @@ anytree==2.13.0
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
-astropy==7.1.1
+astropy==7.2.0
     # via hstrat (../../pyproject.toml)
-astropy-iers-data==0.2025.10.20.0.39.8
+astropy-iers-data==0.2026.2.16.0.48.25
     # via astropy
-asttokens==3.0.0
+asttokens==3.0.1
     # via stack-data
 attrs==25.4.0
     # via
     #   jsonschema
     #   referencing
-babel==2.17.0
+babel==2.18.0
     # via sphinx
 backcall==0.2.0
     # via ipython
-beautifulsoup4==4.14.2
+beautifulsoup4==4.14.3
     # via nbconvert
-biopython==1.85
+biopython==1.86
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
     #   colorclade
-bitarray==3.7.2
+bitarray==3.8.0
     # via
     #   hstrat (../../pyproject.toml)
     #   bitstring
@@ -41,15 +41,15 @@ bitstring==4.3.1
     # via hstrat (../../pyproject.toml)
 black==22.10.0
     # via hstrat (../../pyproject.toml)
-bleach==6.2.0
+bleach==6.3.0
     # via nbconvert
 bumpver==2022.1120
     # via hstrat (../../pyproject.toml)
-certifi==2025.10.5
+certifi==2026.1.4
     # via requests
 charset-normalizer==3.4.4
     # via requests
-click==8.3.0
+click==8.3.1
     # via
     #   alifedata-phyloinformatics-convert
     #   black
@@ -65,13 +65,13 @@ contexttimer==0.3.3
     # via hstrat (../../pyproject.toml)
 contourpy==1.3.3
     # via matplotlib
-coverage==6.4.4
+coverage==7.13.4
     # via hstrat (../../pyproject.toml)
 cppimport==22.8.2
     # via hstrat (../../pyproject.toml)
 cycler==0.12.1
     # via matplotlib
-debugpy==1.8.17
+debugpy==1.8.20
     # via ipykernel
 decorator==5.2.1
     # via
@@ -83,7 +83,7 @@ dendropy==5.0.8
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
-deprecated==1.2.18
+deprecated==1.3.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
@@ -97,19 +97,19 @@ docutils==0.21.2
     #   readme-renderer
     #   sphinx
     #   sphinx-rtd-theme
-downstream==1.15.5
+downstream==1.16.5
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
 ete3==3.1.3
     # via alifedata-phyloinformatics-convert
-execnet==2.1.1
+execnet==2.1.2
     # via pytest-xdist
 executing==2.2.1
     # via stack-data
 fastjsonschema==2.21.2
     # via nbformat
-filelock==3.20.0
+filelock==3.24.3
     # via
     #   cppimport
     #   tox
@@ -118,7 +118,7 @@ fishersrc==0.1.15
     # via hstrat (../../pyproject.toml)
 flake8==3.7.8
     # via hstrat (../../pyproject.toml)
-fonttools==4.60.1
+fonttools==4.61.1
     # via matplotlib
 idna==3.11
     # via
@@ -149,7 +149,7 @@ jinja2==3.1.6
     #   nbconvert
     #   nbsphinx
     #   sphinx
-joblib==1.5.2
+joblib==1.5.3
     # via
     #   hstrat (../../pyproject.toml)
     #   scikit-learn
@@ -157,11 +157,11 @@ joinem==0.11.1
     # via
     #   hstrat (../../pyproject.toml)
     #   downstream
-jsonschema==4.25.1
+jsonschema==4.26.0
     # via nbformat
 jsonschema-specifications==2025.9.1
     # via jsonschema
-jupyter-client==8.6.3
+jupyter-client==8.8.0
     # via
     #   ipykernel
     #   nbclient
@@ -186,9 +186,9 @@ lazy-loader==0.4
     #   downstream
 lexid==2021.1006
     # via bumpver
-llvmlite==0.44.0
+llvmlite==0.46.0
     # via numba
-lru-dict==1.3.0
+lru-dict==1.4.1
     # via hstrat (../../pyproject.toml)
 mako==1.3.10
     # via cppimport
@@ -197,7 +197,7 @@ markupsafe==3.0.3
     #   jinja2
     #   mako
     #   nbconvert
-matplotlib==3.10.7
+matplotlib==3.10.8
     # via
     #   hstrat (../../pyproject.toml)
     #   colorclade
@@ -209,7 +209,7 @@ matplotlib-inline==0.2.1
     #   ipython
 mccabe==0.6.1
     # via flake8
-mistune==3.1.4
+mistune==3.2.0
     # via nbconvert
 mmh3==5.2.0
     # via hstrat (../../pyproject.toml)
@@ -219,7 +219,7 @@ more-itertools==10.8.0
     #   keyname
 mpmath==1.3.0
     # via hstrat (../../pyproject.toml)
-multidict==6.7.0
+multidict==6.7.1
     # via yarl
 mypy==0.991
     # via hstrat (../../pyproject.toml)
@@ -230,9 +230,9 @@ mypy-extensions==1.1.0
     #   typing-inspect
 nanto==0.1.1
     # via alifedata-phyloinformatics-convert
-nbclient==0.10.2
+nbclient==0.10.4
     # via nbconvert
-nbconvert==7.16.6
+nbconvert==7.17.0
     # via nbsphinx
 nbformat==5.10.4
     # via
@@ -243,13 +243,13 @@ nbsphinx==0.9.3
     # via hstrat (../../pyproject.toml)
 nest-asyncio==1.6.0
     # via ipykernel
-networkx==3.5
+networkx==3.6.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
-nh3==0.3.1
+nh3==0.3.3
     # via readme-renderer
-numba==0.61.2
+numba==0.64.0
     # via hstrat (../../pyproject.toml)
 numpy==2.2.6
     # via
@@ -278,7 +278,7 @@ opytional==0.1.0
     #   downstream
 ordered-set==4.1.0
     # via hstrat (../../pyproject.toml)
-packaging==25.0
+packaging==26.0
     # via
     #   hstrat (../../pyproject.toml)
     #   astropy
@@ -298,15 +298,15 @@ pandas==2.3.3
     #   alifedata-phyloinformatics-convert
     #   seaborn
     #   statsmodels
-pandera==0.26.1
+pandera==0.29.0
     # via hstrat (../../pyproject.toml)
 pandocfilters==1.5.1
     # via nbconvert
-parso==0.8.5
+parso==0.8.6
     # via jedi
 pathlib2==2.3.7.post1
     # via bumpver
-pathspec==0.12.1
+pathspec==1.0.4
     # via black
 patsy==1.0.2
     # via statsmodels
@@ -316,11 +316,11 @@ phylotrackpy==0.2.4
     # via hstrat (../../pyproject.toml)
 pickleshare==0.7.5
     # via ipython
-pillow==12.0.0
+pillow==12.1.1
     # via matplotlib
 pkginfo==1.12.1.2
     # via twine
-platformdirs==4.5.0
+platformdirs==4.9.2
     # via
     #   black
     #   jupyter-core
@@ -329,22 +329,22 @@ pluggy==1.6.0
     # via
     #   pytest
     #   tox
-polars==1.34.0
+polars==1.37.1
     # via
     #   hstrat (../../pyproject.toml)
     #   downstream
     #   joinem
-polars-runtime-32==1.34.0
+polars-runtime-32==1.37.1
     # via polars
-polars-u64-idx==1.33.1
-    # via hstrat (../../pyproject.toml)
-prettytable==3.16.0
+polars-runtime-64==1.37.1
+    # via polars
+prettytable==3.17.0
     # via hstrat (../../pyproject.toml)
 prompt-toolkit==3.0.52
     # via ipython
 propcache==0.4.1
     # via yarl
-psutil==7.1.2
+psutil==7.2.2
     # via ipykernel
 ptyprocess==0.7.0
     # via pexpect
@@ -355,7 +355,7 @@ py==1.11.0
     #   pytest-forked
     #   retry
     #   tox
-pyarrow==22.0.0
+pyarrow==23.0.1
     # via
     #   hstrat (../../pyproject.toml)
     #   polars
@@ -365,9 +365,9 @@ pybind11==2.13.6
     #   cppimport
 pycodestyle==2.5.0
     # via flake8
-pydantic==2.12.3
+pydantic==2.12.5
     # via pandera
-pydantic-core==2.41.4
+pydantic-core==2.41.5
     # via pydantic
 pyerfa==2.0.1.5
     # via astropy
@@ -379,7 +379,7 @@ pygments==2.19.2
     #   nbconvert
     #   readme-renderer
     #   sphinx
-pyparsing==3.2.5
+pyparsing==3.3.2
     # via matplotlib
 pytest==8.3.3
     # via
@@ -424,7 +424,7 @@ requests-toolbelt==1.0.0
     # via twine
 retry==0.9.2
     # via keyname
-rpds-py==0.28.0
+rpds-py==0.30.0
     # via
     #   jsonschema
     #   referencing
@@ -432,7 +432,7 @@ ruff==0.1.11
     # via hstrat (../../pyproject.toml)
 safe-assert==0.2.0
     # via hstrat (../../pyproject.toml)
-scikit-learn==1.7.2
+scikit-learn==1.8.0
     # via hstrat (../../pyproject.toml)
 scipy==1.14.1
     # via
@@ -463,7 +463,7 @@ sortedcontainers==2.4.0
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
-soupsieve==2.8
+soupsieve==2.8.3
     # via beautifulsoup4
 sphinx==8.1.3
     # via
@@ -489,7 +489,7 @@ sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
 stack-data==0.6.3
     # via ipython
-statsmodels==0.14.5
+statsmodels==0.14.6
     # via hstrat (../../pyproject.toml)
 teeplot==1.4.2
     # via hstrat (../../pyproject.toml)
@@ -503,7 +503,7 @@ toml==0.10.2
     # via
     #   bumpver
     #   tox
-tornado==6.5.2
+tornado==6.5.4
     # via
     #   ipykernel
     #   jupyter-client
@@ -511,7 +511,7 @@ tox==3.24.0
     # via hstrat (../../pyproject.toml)
 tqdist==1.0
     # via hstrat (../../pyproject.toml)
-tqdm==4.67.1
+tqdm==4.67.3
     # via
     #   hstrat (../../pyproject.toml)
     #   joinem
@@ -531,7 +531,7 @@ treeswift==1.1.45
     # via alifedata-phyloinformatics-convert
 twine==1.14.0
     # via hstrat (../../pyproject.toml)
-typeguard==4.4.4
+typeguard==4.5.1
     # via pandera
 typing-extensions==4.15.0
     # via
@@ -551,17 +551,17 @@ typing-inspect==0.9.0
     # via pandera
 typing-inspection==0.4.2
     # via pydantic
-tzdata==2025.2
+tzdata==2025.3
     # via pandas
-urllib3==2.5.0
+urllib3==2.6.3
     # via requests
 uv==0.4.18
     # via hstrat (../../pyproject.toml)
 validators==0.35.0
     # via alifedata-phyloinformatics-convert
-virtualenv==20.35.3
+virtualenv==20.38.0
     # via tox
-wcwidth==0.2.14
+wcwidth==0.6.0
     # via
     #   prettytable
     #   prompt-toolkit
@@ -571,7 +571,7 @@ webencodings==0.5.1
     #   tinycss2
 wheel==0.45.0
     # via hstrat (../../pyproject.toml)
-wrapt==1.17.3
+wrapt==2.1.1
     # via deprecated
 yarl==1.22.0
     # via alifedata-phyloinformatics-convert

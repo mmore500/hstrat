@@ -12,6 +12,7 @@ from .._auxiliary_lib import (
     get_hstrat_version,
     log_context_duration,
 )
+from .._auxiliary_lib._add_bool_arg import add_bool_arg
 from ._surface_unpack_reconstruct import surface_unpack_reconstruct
 
 raw_message = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
@@ -72,6 +73,9 @@ Input Schema: Optional Columns
 Additional user-provided columns will be forwarded to phylogeny output.
 For these columns, output rows for tip nodes are assigned values from corresponding genome row in original data.
 Internal tree nodes will take null values in user-provided columns.
+
+By default, columns prefixed with 'dstream_' or 'downstream_' are dropped from output (except 'dstream_data_id' and 'dstream_S').
+Use --no-drop-dstream-metadata to retain these columns.
 
 
 Output Schema
@@ -138,6 +142,7 @@ Environment variables POLARS_MAX_THREADS and NUMBA_NUM_THREADS may be used to tu
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
+        allow_abbrev=False,
         description=format_cli_description(raw_message),
         formatter_class=argparse.RawTextHelpFormatter,
     )
@@ -157,6 +162,16 @@ def _create_parser() -> argparse.ArgumentParser:
         type=int,
         default=1_000_000,
         help="Number of rows to process at once. Low values reduce memory use.",
+    )
+    add_bool_arg(
+        parser,
+        "drop-dstream-metadata",
+        default=None,
+        help=(
+            "Drop all dstream/downstream columns from the output? "
+            "Omit for default behavior (drop some metadata). "
+            "Use --no-drop-dstream-metadata to retain."
+        ),
     )
     parser.add_argument(
         "--pa-source-type",
@@ -182,6 +197,7 @@ def _main(mp_context: str) -> None:
             output_dataframe_op=functools.partial(
                 surface_unpack_reconstruct,
                 collapse_unif_freq=args.collapse_unif_freq,
+                drop_dstream_metadata=args.drop_dstream_metadata,
                 exploded_slice_size=args.exploded_slice_size,
                 mp_context=mp_context,
                 pa_source_type=args.pa_source_type,

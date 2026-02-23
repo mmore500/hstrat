@@ -38,10 +38,9 @@ dependencies = [
   "mpmath>=1.1.0",
   "opytional>=0.1.0",
   "ordered_set>=4.1.0",
-  "polars[pyarrow]>=1.10.0",
-  "polars-u64-idx>=1.10.0",
+  "polars[pyarrow,rt64]>=1.10.0,!=1.38.1",
   "packaging>=23.0",
-  "pandas>=2",
+  "pandas>=2,<3",
   "pandera>=0.21.0",
   "prettytable>=3.5.0",
   "pyarrow>=16.0.0",
@@ -93,7 +92,7 @@ requires = [
 # additional dev requriements
 # used to generated requirements in dev-requirements/
 [project.optional-dependencies]
-jit = ["cppimport>=22.8.2", "numba>=0.60.0,<0.62.0"]
+jit = ["cppimport>=22.8.2", "numba>=0.60.0,!=0.62.0", "setuptools>=75.0.0,<81"]
 phylo-extra = [
   "biopython>=1.79",
   "phylotrackpy>=0.2.4",
@@ -103,7 +102,7 @@ testing = [
   "biopython>=1.79",
   "colorclade>=0.3.0",
   "contexttimer==0.3.3",
-  "coverage==6.4.4",
+  "coverage>=7.6.1",
   "flake8==3.7.8",
   "iterify==0.1.0",
   "more-itertools>=8.13.0",
@@ -115,6 +114,7 @@ testing = [
   "ruff==0.1.11",
   "safe-assert==0.2.0",
   "scipy==1.14.1",
+  "setuptools>=75.0.0,<81",
   "teeplot>=1.2.0",
   "tox==3.24.0",
   "tqdist==1.0",

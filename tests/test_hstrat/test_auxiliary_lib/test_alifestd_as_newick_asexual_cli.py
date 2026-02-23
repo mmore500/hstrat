@@ -68,6 +68,7 @@ def test_alifestd_as_newick_asexual_cli_csv(
         cmd.extend(["--taxon-label", taxon_label])
     subprocess.run(cmd, check=True)  # nosec B603
     assert os.path.exists(output_file)
+    assert os.path.getsize(output_file) > 0
 
 
 @pytest.mark.parametrize(
@@ -98,7 +99,7 @@ def test_alifestd_as_newick_asexual_cli_csv_engine(
     input_engine: str,
 ):
     output_file = (
-        "/tmp/hstrat-as_newick_asexual_cli-"
+        "/tmp/hstrat-as_newick_asexual_cli-"  # nosec B108
         f"{input_engine}-{taxon_label}-{input_file}.newick"
     )
     pathlib.Path(output_file).unlink(missing_ok=True)
@@ -117,6 +118,7 @@ def test_alifestd_as_newick_asexual_cli_csv_engine(
         cmd.extend(["--taxon-label", taxon_label])
     subprocess.run(cmd, check=True)  # nosec B603
     assert os.path.exists(output_file)
+    assert os.path.getsize(output_file) > 0
 
 
 @pytest.mark.parametrize(
@@ -130,7 +132,8 @@ def test_alifestd_as_newick_asexual_cli_csv_input_kwarg(
     input_file: str,
 ):
     output_file = (
-        "/tmp/hstrat-as_newick_asexual_cli-" f"kwarg-{input_file}.newick"
+        "/tmp/hstrat-as_newick_asexual_cli-"  # nosec B108
+        f"kwarg-{input_file}.newick"
     )
     pathlib.Path(output_file).unlink(missing_ok=True)
     cmd = [
@@ -148,3 +151,4 @@ def test_alifestd_as_newick_asexual_cli_csv_input_kwarg(
     ]
     subprocess.run(cmd, check=True)  # nosec B603
     assert os.path.exists(output_file)
+    assert os.path.getsize(output_file) > 0

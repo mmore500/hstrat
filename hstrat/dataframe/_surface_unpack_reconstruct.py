@@ -286,14 +286,25 @@ def _build_records_chunked(
 
 
 def _join_user_defined_columns(
-    df: pl.DataFrame, phylo_df: pl.DataFrame
+    df: pl.DataFrame,
+    phylo_df: pl.DataFrame,
+    drop_dstream_metadata: typing.Optional[bool],
 ) -> pl.DataFrame:
     """Join user-defined columns from input data onto reconstructed tree
     dataframe."""
-    df = df.select(
-        pl.exclude("^dstream_.*$", "^downstream_.*$"),
-        pl.col("dstream_data_id").cast(pl.UInt64),
-    )
+    if drop_dstream_metadata is None:  # default behavior
+        df = df.select(
+            pl.exclude("^dstream_.*$", "^downstream_.*$"),
+            pl.col("dstream_data_id").cast(pl.UInt64),
+        )
+    elif bool(drop_dstream_metadata):
+        raise NotImplementedError(
+            "explicit --drop-dstream-metadata is not yet supported"
+        )
+    else:
+        df = df.with_columns(
+            pl.col("dstream_data_id").cast(pl.UInt64),
+        )
     joined_columns = {*df.lazy().collect_schema().names()} - {
         *phylo_df.lazy().collect_schema().names()
     }
@@ -421,6 +432,7 @@ def surface_unpack_reconstruct(
     df: typing.Union[pl.DataFrame, pl.LazyFrame],
     *,
     collapse_unif_freq: int = 1,
+    drop_dstream_metadata: typing.Optional[bool] = None,
     exploded_slice_size: int = 1_000_000,
     mp_context: str = "spawn",
     pa_source_type: str = "memory_map",
@@ -471,6 +483,14 @@ def surface_unpack_reconstruct(
         Frequency of unifurcation collapse, in number of slices.
 
         Set to 0 to disable.
+
+    drop_dstream_metadata : bool or None, default None
+        Should dstream/downstream columns be dropped from the output?
+
+        - If None, some dstream/downstream columns are dropped
+          (default behavior).
+        - If False, dstream/downstream columns are retained in the output.
+        - If True, raises NotImplementedError (not yet supported).
 
     exploded_slice_size : int, default 1_000_000
         Number of rows to process at once. Lower values reduce memory usage.
@@ -568,11 +588,14 @@ def surface_unpack_reconstruct(
     logging.info("joining user-defined columns...")
     with log_context_duration("_join_user_defined_columns", logging.info):
         try:
-            phylo_df = _join_user_defined_columns(df, phylo_df)
+            phylo_df = _join_user_defined_columns(
+                df, phylo_df, drop_dstream_metadata
+            )
         except pl.exceptions.ColumnNotFoundError:
             phylo_df = _join_user_defined_columns(
                 df.with_row_index("dstream_data_id"),
                 phylo_df,
+                drop_dstream_metadata,
             )
 
     return phylo_df
