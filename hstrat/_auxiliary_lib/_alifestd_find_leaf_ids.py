@@ -3,8 +3,18 @@ import ordered_set as ods
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
+from ._alifestd_mark_num_children_asexual import (
+    _alifestd_mark_num_children_asexual_fast_path,
+)
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+
+
+def _alifestd_find_leaf_ids_asexual_fast_path(
+    ancestor_ids: np.ndarray,
+) -> np.ndarray:
+    child_counts = _alifestd_mark_num_children_asexual_fast_path(ancestor_ids)
+    return np.flatnonzero(child_counts == 0)
 
 
 def alifestd_find_leaf_ids(phylogeny_df: pd.DataFrame) -> np.ndarray:
@@ -16,16 +26,9 @@ def alifestd_find_leaf_ids(phylogeny_df: pd.DataFrame) -> np.ndarray:
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
         if "ancestor_id" in phylogeny_df:
-
-            # root is self ref, but must exclude to handle only-root phylo
-            internal_node_idxs = phylogeny_df["ancestor_id"].to_numpy()[
-                phylogeny_df["ancestor_id"] != phylogeny_df["id"]
-            ]
-
-            leaf_pos_filter = np.ones(len(phylogeny_df), dtype=np.bool_)
-            leaf_pos_filter[internal_node_idxs] = False
-
-            return np.flatnonzero(leaf_pos_filter)
+            return _alifestd_find_leaf_ids_asexual_fast_path(
+                phylogeny_df["ancestor_id"].to_numpy(),
+            )
 
     all_ids = ods.OrderedSet(phylogeny_df["id"])
     internal_ids = (

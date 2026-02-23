@@ -1,4 +1,4 @@
-dstream_data_id,id,ancestor_id,hstrat_rank,hstrat_differentia_bitwidth,dstream_S,data_hex,is_extant,layer,position,genomeFlavor
+dstream_data_id,id,ancestor_id,dstream_rank,hstrat_differentia_bitwidth,dstream_S,data_hex,is_extant,layer,position,genomeFlavor
 9223372036854775807,0,0,0,1,64,,,,,
 9223372036854775807,1,0,3,1,64,,,,,
 9223372036854775807,2,1,7,1,64,,,,,

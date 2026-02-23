@@ -5,6 +5,7 @@ import numpy as np
 from ..._auxiliary_lib import (
     iter_monotonic_equivalencies,
     jit,
+    jit_numba_int64_arr_t,
     jit_numba_uint8_arr_t,
     jit_numba_uint16_arr_t,
     jit_numba_uint32_arr_t,
@@ -16,10 +17,14 @@ from ...frozen_instrumentation import HereditaryStratigraphicSpecimen
 @jit(
     [
         (
-            jit_numba_uint64_arr_t,
+            rank_array_t,
             differentia_array_t,
-            jit_numba_uint64_arr_t,
+            rank_array_t,
             differentia_array_t,
+        )
+        for rank_array_t in (
+            jit_numba_int64_arr_t,
+            jit_numba_uint64_arr_t,
         )
         for differentia_array_t in (
             jit_numba_uint8_arr_t,

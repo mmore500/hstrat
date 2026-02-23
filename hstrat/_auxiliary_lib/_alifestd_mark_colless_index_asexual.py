@@ -11,19 +11,11 @@ from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_strictly_bifurcating_asexual import (
     alifestd_is_strictly_bifurcating_asexual,
 )
-from ._alifestd_is_topologically_sorted import (
-    alifestd_is_topologically_sorted,
-)
-from ._alifestd_mark_left_child_asexual import (
-    alifestd_mark_left_child_asexual,
-)
-from ._alifestd_mark_num_leaves_asexual import (
-    alifestd_mark_num_leaves_asexual,
-)
+from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
+from ._alifestd_mark_left_child_asexual import alifestd_mark_left_child_asexual
+from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
 from ._alifestd_topological_sort import alifestd_topological_sort
-from ._alifestd_try_add_ancestor_id_col import (
-    alifestd_try_add_ancestor_id_col,
-)
+from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._configure_prod_logging import configure_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description

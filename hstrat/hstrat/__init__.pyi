@@ -3,6 +3,7 @@ from dataframe import (
     surface_postprocess_trie,
     surface_test_drive,
     surface_unpack_reconstruct,
+    surface_validate_trie,
 )
 from frozen_instrumentation import (
     HereditaryStratigraphicAssemblage,
@@ -90,6 +91,7 @@ from phylogenetic_inference import (
     trie_postprocess,
 )
 from serialization import (
+    assemblage_from_dstream_df,
     assemblage_from_records,
     col_from_int,
     col_from_packet,
@@ -112,6 +114,7 @@ from serialization import (
     specimen_from_records,
     surf_from_hex,
     surf_to_hex,
+    surf_to_specimen,
     unassemblage_from_records,
     unpack_differentiae,
     unpack_differentiae_bytes,
@@ -185,6 +188,7 @@ __all__ = [
     "surface_postprocess_trie",
     "surface_test_drive",
     "surface_unpack_reconstruct",
+    "surface_validate_trie",
     # frozen_instrumentation
     "HereditaryStratigraphicAssemblage",
     "HereditaryStratigraphicAssemblageSpecimen",
@@ -267,6 +271,7 @@ __all__ = [
     "PeelBackConjoinedLeavesTriePostprocessor",
     "SampleAncestralRollbacksTriePostprocessor",
     # serialization
+    "assemblage_from_dstream_df",
     "assemblage_from_records",
     "col_from_int",
     "col_from_packet",
@@ -289,6 +294,7 @@ __all__ = [
     "specimen_from_records",
     "surf_from_hex",
     "surf_to_hex",
+    "surf_to_specimen",
     "unassemblage_from_records",
     "unpack_differentiae",
     "unpack_differentiae_bytes",

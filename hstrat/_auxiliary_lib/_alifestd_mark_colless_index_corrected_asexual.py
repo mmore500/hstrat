@@ -10,9 +10,7 @@ import pandas as pd
 from ._alifestd_mark_colless_index_asexual import (
     alifestd_mark_colless_index_asexual,
 )
-from ._alifestd_mark_num_leaves_asexual import (
-    alifestd_mark_num_leaves_asexual,
-)
+from ._alifestd_mark_num_leaves_asexual import alifestd_mark_num_leaves_asexual
 from ._configure_prod_logging import configure_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
