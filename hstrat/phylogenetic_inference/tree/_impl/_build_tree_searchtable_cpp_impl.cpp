@@ -952,7 +952,7 @@ void insert_artifact(
     consolidate_trie(records, r, cur_node);
     cur_node = place_allele(records, cur_node, r, d);
   }
-  create_offstring(records, cur_node, num_strata_deposited - 1, -1, data_id);
+  create_offstring(records, cur_node, num_strata_deposited - 1, 0, data_id);
 }
 
 
