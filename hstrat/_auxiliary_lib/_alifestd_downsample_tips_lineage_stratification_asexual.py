@@ -1,65 +1,149 @@
 import argparse
 import contextlib
 import functools
-import gc
 import logging
 import os
 import typing
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
+import numpy as np
 import opytional as opyt
-import polars as pl
+import pandas as pd
 from tqdm import tqdm
 
 from ._RngStateContext import RngStateContext
 from ._add_bool_arg import add_bool_arg
-from ._alifestd_calc_mrca_id_vector_asexual_polars import (
-    alifestd_calc_mrca_id_vector_asexual_polars,
+from ._alifestd_calc_mrca_id_vector_asexual import (
+    alifestd_calc_mrca_id_vector_asexual,
 )
 from ._alifestd_downsample_tips_lineage_asexual import (
     _alifestd_downsample_tips_lineage_select_target_id,
 )
-from ._alifestd_downsample_tips_lineage_partition_asexual import (
-    _alifestd_downsample_tips_lineage_partition_impl,
+from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
+from ._alifestd_mark_leaves import alifestd_mark_leaves
+from ._alifestd_prune_extinct_lineages_asexual import (
+    alifestd_prune_extinct_lineages_asexual,
 )
-from ._alifestd_has_contiguous_ids_polars import (
-    alifestd_has_contiguous_ids_polars,
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
 )
-from ._alifestd_is_topologically_sorted_polars import (
-    alifestd_is_topologically_sorted_polars,
-)
-from ._alifestd_mark_leaves_polars import alifestd_mark_leaves_polars
-from ._alifestd_prune_extinct_lineages_polars import (
-    alifestd_prune_extinct_lineages_polars,
-)
-from ._alifestd_topological_sensitivity_warned_polars import (
-    alifestd_topological_sensitivity_warned_polars,
-)
-from ._alifestd_try_add_ancestor_id_col_polars import (
-    alifestd_try_add_ancestor_id_col_polars,
-)
+from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._configure_prod_logging import configure_prod_logging
+from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
-@alifestd_topological_sensitivity_warned_polars(
+def _alifestd_downsample_tips_lineage_stratification_impl(
+    is_leaf: np.ndarray,
+    criterion_values: np.ndarray,
+    stratification_values: np.ndarray,
+    mrca_vector: np.ndarray,
+    n_tips: typing.Optional[int] = None,
+) -> np.ndarray:
+    """Shared numpy implementation for partition-based lineage tip
+    downsampling.
+
+    Computes off-lineage deltas from a pre-computed MRCA vector and
+    returns a boolean extant mask, selecting the one leaf with the
+    smallest delta per stratification group.
+
+    When `n_tips` is an integer, stratification values are coarsened by
+    ranking and integer-dividing so that exactly `n_tips` groups are
+    formed.  When `n_tips` is ``None``, each distinct stratification value
+    defines its own group.
+
+    Parameters
+    ----------
+    is_leaf : numpy.ndarray
+        Boolean array indicating which taxa are leaves.
+    criterion_values : numpy.ndarray
+        Values used to compute off-lineage delta (all taxa).
+    stratification_values : numpy.ndarray
+        Values used to stratify leaves into groups (all taxa).
+    mrca_vector : numpy.ndarray
+        Integer array of MRCA ids for each taxon with respect to the
+        target leaf.  Taxa in a different tree should have ``-1``.
+    n_tips : int, optional
+        Desired number of stratification groups (and thus retained tips).
+        If ``None``, every distinct stratification value forms its own group.
+
+    Returns
+    -------
+    numpy.ndarray
+        Boolean array of length ``len(is_leaf)`` marking retained taxa.
+    """
+    # Taxa with no common ancestor (different tree) get -1 from MRCA
+    # calc; replace with a safe dummy id (0) so the lookup doesn't fail,
+    # then exclude these taxa from selection below.
+    no_mrca_mask = mrca_vector == -1
+    safe_mrca = np.where(no_mrca_mask, 0, mrca_vector)
+
+    logging.info(
+        "_alifestd_downsample_tips_lineage_stratification_impl: "
+        "calculating off lineage delta...",
+    )
+    off_lineage_delta = np.abs(
+        criterion_values - criterion_values[safe_mrca],
+    )
+
+    # Select eligible leaves
+    logging.info(
+        "_alifestd_downsample_tips_lineage_stratification_impl: "
+        "filtering leaf eligibility...",
+    )
+    is_eligible = is_leaf & ~no_mrca_mask
+    eligible_ids = np.flatnonzero(is_eligible)
+    eligible_deltas = off_lineage_delta[is_eligible]
+    eligible_stratifications = stratification_values[is_eligible]
+
+    # Coarsen stratification values if n_tips is specified
+    if n_tips is not None:
+        unique_sorted = np.unique(eligible_stratifications)
+        n_unique = len(unique_sorted)
+        ranks = np.searchsorted(unique_sorted, eligible_stratifications)
+        eligible_stratifications = ranks * n_tips // n_unique
+        assert len(np.unique(eligible_stratifications)) == min(
+            n_tips, n_unique
+        )
+
+    # Per-stratification selection: for each group keep the leaf with the
+    # smallest delta.  Sort by (stratification, delta) then take the first
+    # occurrence of each unique stratification value.
+    logging.info(
+        "_alifestd_downsample_tips_lineage_stratification_impl: "
+        "selecting kept ids per stratification...",
+    )
+    sort_idx = np.lexsort((eligible_deltas, eligible_stratifications))
+    sorted_stratifications = eligible_stratifications[sort_idx]
+    _, first_occurrence = np.unique(sorted_stratifications, return_index=True)
+    kept_ids = eligible_ids[sort_idx[first_occurrence]]
+
+    logging.info(
+        "_alifestd_downsample_tips_lineage_stratification_impl: "
+        "building extant mask...",
+    )
+    return np.bincount(kept_ids, minlength=len(is_leaf)).astype(bool)
+
+
+@alifestd_topological_sensitivity_warned(
     insert=False,
     delete=True,
     update=False,
 )
-def alifestd_downsample_tips_lineage_partition_polars(
-    phylogeny_df: pl.DataFrame,
+def alifestd_downsample_tips_lineage_stratification_asexual(
+    phylogeny_df: pd.DataFrame,
     n_tips: typing.Optional[int] = None,
+    mutate: bool = False,
     seed: typing.Optional[int] = None,
     *,
     criterion_delta: str = "origin_time",
     criterion_stratification: str = "origin_time",
     criterion_target: str = "origin_time",
     progress_wrap: typing.Callable = lambda x: x,
-) -> pl.DataFrame:
+) -> pd.DataFrame:
     """Retain one leaf per stratification group, chosen by proximity to the
     lineage of a target leaf.
 
@@ -80,7 +164,7 @@ def alifestd_downsample_tips_lineage_partition_polars(
 
     Parameters
     ----------
-    phylogeny_df : polars.DataFrame or polars.LazyFrame
+    phylogeny_df : pandas.DataFrame
         The phylogeny as a dataframe in alife standard format.
 
         Must represent an asexual phylogeny.
@@ -88,6 +172,8 @@ def alifestd_downsample_tips_lineage_partition_polars(
         Desired number of stratification groups (and thus retained tips).
         If ``None``, every distinct ``criterion_stratification`` value forms
         its own group.
+    mutate : bool, default False
+        Are side effects on the input argument `phylogeny_df` allowed?
     seed : int, optional
         Random seed for reproducible target-leaf selection when there are
         ties in `criterion_target`.
@@ -107,137 +193,85 @@ def alifestd_downsample_tips_lineage_partition_polars(
 
     Raises
     ------
-    NotImplementedError
-        If `phylogeny_df` has no "ancestor_id" column or if ids are
-        non-contiguous or not topologically sorted.
     ValueError
         If `criterion_delta`, `criterion_stratification`, or
         `criterion_target` is not a column in `phylogeny_df`.
 
     Returns
     -------
-    polars.DataFrame
+    pandas.DataFrame
         The pruned phylogeny in alife standard format.
-
-    See Also
-    --------
-    alifestd_downsample_tips_lineage_partition_asexual :
-        Pandas-based implementation.
     """
-    schema_names = phylogeny_df.lazy().collect_schema().names()
     for criterion in (
         criterion_delta,
         criterion_stratification,
         criterion_target,
     ):
-        if criterion not in schema_names:
+        if criterion not in phylogeny_df.columns:
             raise ValueError(
                 f"criterion column {criterion!r} not found in phylogeny_df",
             )
 
-    if phylogeny_df.lazy().limit(1).collect().is_empty():
+    if not mutate:
+        phylogeny_df = phylogeny_df.copy()
+
+    if phylogeny_df.empty:
         return phylogeny_df
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_partition_polars: "
+        "- alifestd_downsample_tips_lineage_stratification_asexual: "
         "adding ancestor_id col...",
     )
-    phylogeny_df = alifestd_try_add_ancestor_id_col_polars(phylogeny_df)
-    schema_names = phylogeny_df.lazy().collect_schema().names()
-    if "ancestor_id" not in schema_names:
-        raise NotImplementedError(
-            "alifestd_downsample_tips_lineage_partition_polars only "
+    phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
+    if "ancestor_id" not in phylogeny_df.columns:
+        raise ValueError(
+            "alifestd_downsample_tips_lineage_stratification_asexual only "
             "supports asexual phylogenies.",
         )
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_partition_polars: "
+        "- alifestd_downsample_tips_lineage_stratification_asexual: "
+        "marking leaves...",
+    )
+    if "is_leaf" not in phylogeny_df.columns:
+        phylogeny_df = alifestd_mark_leaves(phylogeny_df)
+
+    logging.info(
+        "- alifestd_downsample_tips_lineage_stratification_asexual: "
         "checking contiguous ids...",
     )
-    if not alifestd_has_contiguous_ids_polars(phylogeny_df):
+    if alifestd_has_contiguous_ids(phylogeny_df):
+        phylogeny_df.reset_index(drop=True, inplace=True)
+    else:
+        # non-contiguous id branch not tested because
+        # alifestd_calc_mrca_id_vector_asexual doesn't support it
         raise NotImplementedError(
             "non-contiguous ids not yet supported",
         )
 
-    logging.info(
-        "- alifestd_downsample_tips_lineage_partition_polars: "
-        "checking topological sort...",
-    )
-    if not alifestd_is_topologically_sorted_polars(phylogeny_df):
-        raise NotImplementedError(
-            "topologically unsorted rows not yet supported",
-        )
+    is_leaf = phylogeny_df["is_leaf"].to_numpy()
+    target_values = phylogeny_df[criterion_target].to_numpy()
+    criterion_values = phylogeny_df[criterion_delta].to_numpy()
+    stratification_values = phylogeny_df[criterion_stratification].to_numpy()
 
-    logging.info(
-        "- alifestd_downsample_tips_lineage_partition_polars: "
-        "marking leaves...",
-    )
-    phylogeny_df = alifestd_mark_leaves_polars(phylogeny_df)
-
-    logging.info(
-        "- alifestd_downsample_tips_lineage_partition_polars: "
-        "collecting is_leaf values...",
-    )
-    is_leaf = (
-        phylogeny_df.lazy().select("is_leaf").collect().to_series().to_numpy()
-    )
-
-    logging.info(
-        "- alifestd_downsample_tips_lineage_partition_polars: "
-        "collecting criterion_target values...",
-    )
-    target_values = (
-        phylogeny_df.lazy()
-        .select(criterion_target)
-        .collect()
-        .to_series()
-        .to_numpy()
-    )
-
-    logging.info(
-        "- alifestd_downsample_tips_lineage_partition_polars: "
-        "selecting target leaf...",
-    )
     with opyt.apply_if_or_else(seed, RngStateContext, contextlib.nullcontext):
         target_id = _alifestd_downsample_tips_lineage_select_target_id(
             is_leaf, target_values
         )
 
-    del target_values
-    gc.collect()
-
     logging.info(
-        "- alifestd_downsample_tips_lineage_partition_polars: "
-        "collecting criterion_delta values...",
+        "- alifestd_downsample_tips_lineage_stratification_asexual: "
+        "computing mrca vector...",
     )
-    criterion_values = (
-        phylogeny_df.lazy()
-        .select(criterion_delta)
-        .collect()
-        .to_series()
-        .to_numpy()
-    )
-
-    logging.info(
-        "- alifestd_downsample_tips_lineage_partition_polars: "
-        "collecting criterion_stratification values...",
-    )
-    stratification_values = (
-        phylogeny_df.lazy()
-        .select(criterion_stratification)
-        .collect()
-        .to_series()
-        .to_numpy()
-    )
-
-    logging.info(
-        "- alifestd_downsample_tips_lineage_partition_polars: "
-        f"computing mrca vector for {target_id=}...",
-    )
-    mrca_vector = alifestd_calc_mrca_id_vector_asexual_polars(
+    mrca_vector = alifestd_calc_mrca_id_vector_asexual(
         phylogeny_df, target_id=target_id, progress_wrap=progress_wrap
     )
-    is_extant = _alifestd_downsample_tips_lineage_partition_impl(
+
+    logging.info(
+        "- alifestd_downsample_tips_lineage_stratification_asexual: "
+        "computing lineage partition downsample...",
+    )
+    is_extant = _alifestd_downsample_tips_lineage_stratification_impl(
         is_leaf=is_leaf,
         criterion_values=criterion_values,
         stratification_values=stratification_values,
@@ -246,14 +280,12 @@ def alifestd_downsample_tips_lineage_partition_polars(
     )
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_partition_polars: pruning...",
+        "- alifestd_downsample_tips_lineage_stratification_asexual: pruning...",
     )
-    phylogeny_df = phylogeny_df.with_columns(
-        extant=is_extant,
-    )
-    return alifestd_prune_extinct_lineages_polars(phylogeny_df).drop(
-        "extant",
-    )
+    phylogeny_df["extant"] = is_extant
+    return alifestd_prune_extinct_lineages_asexual(
+        phylogeny_df, mutate=True
+    ).drop(columns=["extant"])
 
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
@@ -281,11 +313,6 @@ Otherwise, no action is taken.
 - Use `--eager-read` if modifying data file inplace.
 
 - This CLI entrypoint is experimental and may be subject to change.
-
-See Also
-========
-hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_partition_asexual :
-    CLI entrypoint for Pandas-based implementation.
 """
 
 
@@ -297,7 +324,7 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     parser = _add_parser_base(
         parser=parser,
-        dfcli_module="hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_partition_polars",
+        dfcli_module="hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratification_asexual",
         dfcli_version=get_hstrat_version(),
     )
     parser.add_argument(
@@ -351,16 +378,15 @@ if __name__ == "__main__":
 
     parser = _create_parser()
     args, __ = parser.parse_known_args()
-
-    try:
-        with log_context_duration(
-            "hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_partition_polars",
-            logging.info,
-        ):
-            _run_dataframe_cli(
-                base_parser=parser,
-                output_dataframe_op=functools.partial(
-                    alifestd_downsample_tips_lineage_partition_polars,
+    with log_context_duration(
+        "hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratification_asexual",
+        logging.info,
+    ):
+        _run_dataframe_cli(
+            base_parser=parser,
+            output_dataframe_op=delegate_polars_implementation()(
+                functools.partial(
+                    alifestd_downsample_tips_lineage_stratification_asexual,
                     n_tips=args.n,
                     seed=args.seed,
                     criterion_delta=args.criterion_delta,
@@ -370,10 +396,6 @@ if __name__ == "__main__":
                     ignore_topological_sensitivity=args.ignore_topological_sensitivity,
                     drop_topological_sensitivity=args.drop_topological_sensitivity,
                 ),
-                overridden_arguments="ignore",  # seed is overridden
-            )
-    except NotImplementedError as e:
-        logging.error(
-            "- polars op not yet implemented, use pandas op CLI instead",
+            ),
+            overridden_arguments="ignore",  # seed is overridden
         )
-        raise e

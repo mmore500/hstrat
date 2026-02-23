@@ -90,17 +90,11 @@ from ._alifestd_count_inner_nodes_polars import (
     alifestd_count_inner_nodes_polars,
 )
 from ._alifestd_count_leaf_nodes import alifestd_count_leaf_nodes
-from ._alifestd_count_leaf_nodes_polars import (
-    alifestd_count_leaf_nodes_polars,
-)
+from ._alifestd_count_leaf_nodes_polars import alifestd_count_leaf_nodes_polars
 from ._alifestd_count_polytomies import alifestd_count_polytomies
-from ._alifestd_count_polytomies_polars import (
-    alifestd_count_polytomies_polars,
-)
+from ._alifestd_count_polytomies_polars import alifestd_count_polytomies_polars
 from ._alifestd_count_root_nodes import alifestd_count_root_nodes
-from ._alifestd_count_root_nodes_polars import (
-    alifestd_count_root_nodes_polars,
-)
+from ._alifestd_count_root_nodes_polars import alifestd_count_root_nodes_polars
 from ._alifestd_count_unifurcating_roots_asexual import (
     alifestd_count_unifurcating_roots_asexual,
 )
@@ -131,14 +125,14 @@ from ._alifestd_downsample_tips_clade_asexual import (
 from ._alifestd_downsample_tips_lineage_asexual import (
     alifestd_downsample_tips_lineage_asexual,
 )
-from ._alifestd_downsample_tips_lineage_partition_asexual import (
-    alifestd_downsample_tips_lineage_partition_asexual,
-)
-from ._alifestd_downsample_tips_lineage_partition_polars import (
-    alifestd_downsample_tips_lineage_partition_polars,
-)
 from ._alifestd_downsample_tips_lineage_polars import (
     alifestd_downsample_tips_lineage_polars,
+)
+from ._alifestd_downsample_tips_lineage_stratification_asexual import (
+    alifestd_downsample_tips_lineage_stratification_asexual,
+)
+from ._alifestd_downsample_tips_lineage_stratification_polars import (
+    alifestd_downsample_tips_lineage_stratification_polars,
 )
 from ._alifestd_downsample_tips_polars import alifestd_downsample_tips_polars
 from ._alifestd_drop_topological_sensitivity import (
@@ -552,8 +546,8 @@ __all__ = [
     "alifestd_downsample_tips_asexual",
     "alifestd_downsample_tips_clade_asexual",
     "alifestd_downsample_tips_lineage_asexual",
-    "alifestd_downsample_tips_lineage_partition_asexual",
-    "alifestd_downsample_tips_lineage_partition_polars",
+    "alifestd_downsample_tips_lineage_stratification_asexual",
+    "alifestd_downsample_tips_lineage_stratification_polars",
     "alifestd_downsample_tips_lineage_polars",
     "alifestd_downsample_tips_polars",
     "alifestd_drop_topological_sensitivity",

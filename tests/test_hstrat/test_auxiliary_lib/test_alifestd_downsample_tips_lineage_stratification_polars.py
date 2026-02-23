@@ -6,14 +6,14 @@ import polars as pl
 import pytest
 
 from hstrat._auxiliary_lib import (
-    alifestd_downsample_tips_lineage_partition_asexual,
+    alifestd_downsample_tips_lineage_stratification_asexual,
     alifestd_to_working_format,
 )
 from hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars import (
     alifestd_assign_contiguous_ids_polars,
 )
-from hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_partition_polars import (
-    alifestd_downsample_tips_lineage_partition_polars,
+from hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratification_polars import (
+    alifestd_downsample_tips_lineage_stratification_polars,
 )
 from hstrat._auxiliary_lib._alifestd_mark_leaves_polars import (
     alifestd_mark_leaves_polars,
@@ -45,7 +45,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_downsample_tips_lineage_partition_polars(
+def test_alifestd_downsample_tips_lineage_stratification_polars(
     phylogeny_df: pd.DataFrame,
     n_tips: typing.Optional[int],
     seed: int,
@@ -56,7 +56,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars(
     original_len = len(phylogeny_df_pl.lazy().collect())
 
     result_df = (
-        alifestd_downsample_tips_lineage_partition_polars(
+        alifestd_downsample_tips_lineage_stratification_polars(
             phylogeny_df_pl,
             n_tips,
             seed=seed,
@@ -80,7 +80,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars(
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_downsample_tips_lineage_partition_polars_empty(
+def test_alifestd_downsample_tips_lineage_stratification_polars_empty(
     n_tips: typing.Optional[int], apply: typing.Callable
 ):
     phylogeny_df = apply(
@@ -99,7 +99,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_empty(
     )
 
     result_df = (
-        alifestd_downsample_tips_lineage_partition_polars(
+        alifestd_downsample_tips_lineage_stratification_polars(
             phylogeny_df,
             n_tips,
         )
@@ -132,7 +132,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_empty(
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_downsample_tips_lineage_partition_polars_deterministic(
+def test_alifestd_downsample_tips_lineage_stratification_polars_deterministic(
     phylogeny_df: pd.DataFrame,
     seed: int,
     apply: typing.Callable,
@@ -141,7 +141,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_deterministic(
     phylogeny_df_pl = apply(pl.from_pandas(phylogeny_df))
 
     result1 = (
-        alifestd_downsample_tips_lineage_partition_polars(
+        alifestd_downsample_tips_lineage_stratification_polars(
             phylogeny_df_pl,
             5,
             seed=seed,
@@ -150,7 +150,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_deterministic(
         .collect()
     )
     result2 = (
-        alifestd_downsample_tips_lineage_partition_polars(
+        alifestd_downsample_tips_lineage_stratification_polars(
             phylogeny_df_pl,
             5,
             seed=seed,
@@ -169,7 +169,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_deterministic(
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_downsample_tips_lineage_partition_polars_with_ancestor_id(
+def test_alifestd_downsample_tips_lineage_stratification_polars_with_ancestor_id(
     apply: typing.Callable,
 ):
     """Test with explicit ancestor_id column."""
@@ -184,7 +184,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_with_ancestor_id(
         ),
     )
     result = (
-        alifestd_downsample_tips_lineage_partition_polars(df, seed=1)
+        alifestd_downsample_tips_lineage_stratification_polars(df, seed=1)
         .lazy()
         .collect()
     )
@@ -198,7 +198,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_with_ancestor_id(
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_downsample_tips_lineage_partition_polars_missing_criterion(
+def test_alifestd_downsample_tips_lineage_stratification_polars_missing_criterion(
     apply: typing.Callable,
 ):
     df = apply(
@@ -211,12 +211,12 @@ def test_alifestd_downsample_tips_lineage_partition_polars_missing_criterion(
         ),
     )
     with pytest.raises(ValueError, match="criterion column"):
-        alifestd_downsample_tips_lineage_partition_polars(
+        alifestd_downsample_tips_lineage_stratification_polars(
             df, criterion_delta="nonexistent"
         )
 
     with pytest.raises(ValueError, match="criterion column"):
-        alifestd_downsample_tips_lineage_partition_polars(
+        alifestd_downsample_tips_lineage_stratification_polars(
             df, criterion_stratification="nonexistent"
         )
 
@@ -240,7 +240,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_missing_criterion(
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_downsample_tips_lineage_partition_polars_matches_pandas(
+def test_alifestd_downsample_tips_lineage_stratification_polars_matches_pandas(
     phylogeny_df: pd.DataFrame,
     seed: int,
     apply: typing.Callable,
@@ -248,14 +248,14 @@ def test_alifestd_downsample_tips_lineage_partition_polars_matches_pandas(
     """Verify polars result has same structure as pandas result."""
     phylogeny_df_pl = apply(pl.from_pandas(phylogeny_df))
 
-    result_pd = alifestd_downsample_tips_lineage_partition_asexual(
+    result_pd = alifestd_downsample_tips_lineage_stratification_asexual(
         phylogeny_df,
         5,
         mutate=False,
         seed=seed,
     )
     result_pl = (
-        alifestd_downsample_tips_lineage_partition_polars(
+        alifestd_downsample_tips_lineage_stratification_polars(
             phylogeny_df_pl,
             5,
             seed=seed,
@@ -292,7 +292,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_matches_pandas(
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_downsample_tips_lineage_partition_polars_simple(
+def test_alifestd_downsample_tips_lineage_stratification_polars_simple(
     apply: typing.Callable,
 ):
     """Test a simple hand-crafted tree.
@@ -319,7 +319,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_simple(
     )
 
     result = (
-        alifestd_downsample_tips_lineage_partition_polars(df, seed=1)
+        alifestd_downsample_tips_lineage_stratification_polars(df, seed=1)
         .lazy()
         .collect()
     )
@@ -346,7 +346,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_simple(
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_downsample_tips_lineage_partition_polars_n_tips_coarsening(
+def test_alifestd_downsample_tips_lineage_stratification_polars_n_tips_coarsening(
     apply: typing.Callable,
 ):
     """Test that n_tips coarsens partition values via rank + integer division.
@@ -375,7 +375,9 @@ def test_alifestd_downsample_tips_lineage_partition_polars_n_tips_coarsening(
     )
 
     result3 = (
-        alifestd_downsample_tips_lineage_partition_polars(df, n_tips=3, seed=1)
+        alifestd_downsample_tips_lineage_stratification_polars(
+            df, n_tips=3, seed=1
+        )
         .lazy()
         .collect()
     )
@@ -393,7 +395,9 @@ def test_alifestd_downsample_tips_lineage_partition_polars_n_tips_coarsening(
     assert result3_num_tips == 3
 
     result2 = (
-        alifestd_downsample_tips_lineage_partition_polars(df, n_tips=2, seed=1)
+        alifestd_downsample_tips_lineage_stratification_polars(
+            df, n_tips=2, seed=1
+        )
         .lazy()
         .collect()
     )
@@ -411,7 +415,9 @@ def test_alifestd_downsample_tips_lineage_partition_polars_n_tips_coarsening(
     assert result2_num_tips == 2
 
     result1 = (
-        alifestd_downsample_tips_lineage_partition_polars(df, n_tips=1, seed=1)
+        alifestd_downsample_tips_lineage_stratification_polars(
+            df, n_tips=1, seed=1
+        )
         .lazy()
         .collect()
     )
@@ -436,7 +442,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_n_tips_coarsening(
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_downsample_tips_lineage_partition_polars_shared_partition(
+def test_alifestd_downsample_tips_lineage_stratification_polars_shared_partition(
     apply: typing.Callable,
 ):
     """Test where multiple leaves share the same partition value.
@@ -463,7 +469,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_shared_partition(
     )
 
     result_none = (
-        alifestd_downsample_tips_lineage_partition_polars(df, seed=1)
+        alifestd_downsample_tips_lineage_stratification_polars(df, seed=1)
         .lazy()
         .collect()
     )
@@ -481,7 +487,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_shared_partition(
     assert result_none_num_tips == 1
 
     result_big = (
-        alifestd_downsample_tips_lineage_partition_polars(
+        alifestd_downsample_tips_lineage_stratification_polars(
             df, n_tips=100, seed=1
         )
         .lazy()
@@ -508,7 +514,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_shared_partition(
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_downsample_tips_lineage_partition_polars_all_tips(
+def test_alifestd_downsample_tips_lineage_stratification_polars_all_tips(
     apply: typing.Callable,
 ):
     """n_tips larger than distinct values should keep all leaves."""
@@ -524,7 +530,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_all_tips(
     )
 
     result = (
-        alifestd_downsample_tips_lineage_partition_polars(
+        alifestd_downsample_tips_lineage_stratification_polars(
             df,
             100000,
             seed=1,
@@ -543,7 +549,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_all_tips(
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
-def test_alifestd_downsample_tips_lineage_partition_polars_no_temp_cols(
+def test_alifestd_downsample_tips_lineage_stratification_polars_no_temp_cols(
     apply: typing.Callable,
 ):
     """Ensure no internal temporary columns leak into the output."""
@@ -553,7 +559,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_no_temp_cols(
     phylogeny_df_pl = apply(pl.from_pandas(phylogeny_df))
 
     result_df = (
-        alifestd_downsample_tips_lineage_partition_polars(
+        alifestd_downsample_tips_lineage_stratification_polars(
             phylogeny_df_pl,
             5,
             seed=1,
@@ -578,13 +584,13 @@ def test_alifestd_downsample_tips_lineage_partition_polars_no_temp_cols(
         ),
     ],
 )
-def test_alifestd_downsample_tips_lineage_partition_polars_custom_criterion(
+def test_alifestd_downsample_tips_lineage_stratification_polars_custom_criterion(
     phylogeny_df,
 ):
     phylogeny_df_pl = pl.from_pandas(phylogeny_df)
 
     result_df = (
-        alifestd_downsample_tips_lineage_partition_polars(
+        alifestd_downsample_tips_lineage_stratification_polars(
             phylogeny_df_pl,
             5,
             seed=1,
