@@ -33,7 +33,7 @@ def alifestd_try_add_ancestor_id_col_polars(
         ancestor_id=pl.col("ancestor_list")
         .str.extract(r"(\d+)", 1)
         .cast(pl.Int64, strict=False)
-        .fill_null(pl.col("id"))
+        .fill_null(pl.col("id").cast(pl.Int64))
     )
 
 
