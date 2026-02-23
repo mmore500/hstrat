@@ -181,6 +181,10 @@ def alifestd_downsample_tips_lineage_polars(
         .to_numpy()
     )
 
+    logging.info(
+        "- alifestd_downsample_tips_lineage_polars: "
+        "selecting target leaf...",
+    )
     with opyt.apply_if_or_else(seed, RngStateContext, contextlib.nullcontext):
         target_id = _alifestd_downsample_tips_lineage_select_target_id(
             is_leaf, target_values
@@ -188,7 +192,7 @@ def alifestd_downsample_tips_lineage_polars(
 
     logging.info(
         "- alifestd_downsample_tips_lineage_polars: "
-        "computing mrca vector...",
+        f"computing mrca vector for {target_id=}...",
     )
     mrca_vector = alifestd_calc_mrca_id_vector_asexual_polars(
         phylogeny_df, target_id=target_id, progress_wrap=progress_wrap
