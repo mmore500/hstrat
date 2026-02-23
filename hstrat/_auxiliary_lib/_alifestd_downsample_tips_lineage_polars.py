@@ -1,6 +1,7 @@
 import argparse
 import contextlib
 import functools
+import gc
 import logging
 import os
 import sys
@@ -161,21 +162,19 @@ def alifestd_downsample_tips_lineage_polars(
 
     logging.info(
         "- alifestd_downsample_tips_lineage_polars: "
-        "computing lineage downsample...",
+        "collecting is_leaf values...",
     )
     is_leaf = (
         phylogeny_df.lazy().select("is_leaf").collect().to_series().to_numpy()
     )
+
+    logging.info(
+        "- alifestd_downsample_tips_lineage_polars: "
+        "collecting criterion_target values...",
+    )
     target_values = (
         phylogeny_df.lazy()
         .select(criterion_target)
-        .collect()
-        .to_series()
-        .to_numpy()
-    )
-    criterion_values = (
-        phylogeny_df.lazy()
-        .select(criterion_delta)
         .collect()
         .to_series()
         .to_numpy()
@@ -190,6 +189,20 @@ def alifestd_downsample_tips_lineage_polars(
             is_leaf, target_values
         )
 
+    del target_values
+    gc.collect()
+
+    logging.info(
+        "- alifestd_downsample_tips_lineage_polars: "
+        "collecting criterion_delta values...",
+    )
+    criterion_values = (
+        phylogeny_df.lazy()
+        .select(criterion_delta)
+        .collect()
+        .to_series()
+        .to_numpy()
+    )
     logging.info(
         "- alifestd_downsample_tips_lineage_polars: "
         f"computing mrca vector for {target_id=}...",
