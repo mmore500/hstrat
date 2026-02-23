@@ -525,6 +525,9 @@ void detach_search_parent(Records &records, const u64 node) {
   if (records.search_first_child_id[parent] == node) {
     const u64 child_id = is_last_child ? parent : next_sibling;
     records.search_first_child_id[parent] = child_id;
+    // mark next sibling as new first child (otherwise harmlessly mark self)
+    if (is_last_child) assert(next_sibling == node);
+    records.search_prev_sibling_id[next_sibling] = next_sibling;
   } else if (records.search_next_sibling_id[node] == node) {
     const u64 prev_sibling = records.search_prev_sibling_id[node];
     records.search_next_sibling_id[prev_sibling] = prev_sibling;
