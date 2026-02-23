@@ -120,8 +120,7 @@ def _alifestd_downsample_tips_lineage_impl(
     eligible_deltas = off_lineage_delta[is_eligible]
 
     logging.info(
-        "_alifestd_downsample_tips_lineage_impl: "
-        "selecting kept ids...",
+        "_alifestd_downsample_tips_lineage_impl: " "selecting kept ids...",
     )
     if num_tips >= len(eligible_deltas):
         kept_ids = eligible_ids
@@ -130,8 +129,7 @@ def _alifestd_downsample_tips_lineage_impl(
         kept_ids = eligible_ids[partition_idx]
 
     logging.info(
-        "_alifestd_downsample_tips_lineage_impl: "
-        "building extant mask...",
+        "_alifestd_downsample_tips_lineage_impl: " "building extant mask...",
     )
     return np.bincount(kept_ids, minlength=len(is_leaf)).astype(bool)
 
