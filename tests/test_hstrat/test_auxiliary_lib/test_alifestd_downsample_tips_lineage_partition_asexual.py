@@ -161,7 +161,7 @@ def test_alifestd_downsample_tips_lineage_partition_asexual_missing_criterion():
 
     with pytest.raises(ValueError, match="criterion column"):
         alifestd_downsample_tips_lineage_partition_asexual(
-            phylogeny_df, criterion_partition="nonexistent"
+            phylogeny_df, criterion_stratification="nonexistent"
         )
 
 
@@ -184,7 +184,7 @@ def test_alifestd_downsample_tips_lineage_partition_asexual_custom_criterion(
         5,
         seed=1,
         criterion_delta="origin_time",
-        criterion_partition="origin_time",
+        criterion_stratification="origin_time",
         criterion_target="origin_time",
     )
 
@@ -234,7 +234,7 @@ def test_alifestd_downsample_tips_lineage_partition_asexual_simple():
         |   +-- 4 (leaf, origin_time=4)
         +-- 2 (leaf, origin_time=2)
 
-    With criterion_partition=origin_time and n_tips=None,
+    With criterion_stratification=origin_time and n_tips=None,
     each unique origin_time among leaves forms its own group.
     Leaves are at origin_time 2, 3, 4 => 3 groups => 3 leaves.
     """

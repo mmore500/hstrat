@@ -56,11 +56,11 @@ def alifestd_downsample_tips_lineage_partition_polars(
     seed: typing.Optional[int] = None,
     *,
     criterion_delta: str = "origin_time",
-    criterion_partition: str = "origin_time",
+    criterion_stratification: str = "origin_time",
     criterion_target: str = "origin_time",
     progress_wrap: typing.Callable = lambda x: x,
 ) -> pl.DataFrame:
-    """Retain one leaf per partition group, chosen by proximity to the
+    """Retain one leaf per stratification group, chosen by proximity to the
     lineage of a target leaf.
 
     Selects a target leaf as the leaf with the largest `criterion_target`
@@ -69,10 +69,10 @@ def alifestd_downsample_tips_lineage_partition_polars(
     delta" is computed as the absolute difference between the leaf's
     `criterion_delta` value and its MRCA's `criterion_delta` value.
 
-    Leaves are grouped by their `criterion_partition` value. When
-    `n_tips` is an integer, partition values are coarsened by ranking and
-    integer-dividing to form exactly `n_tips` groups. When `n_tips` is
-    ``None``, each distinct partition value forms its own group. Within
+    Leaves are grouped by their `criterion_stratification` value. When
+    `n_tips` is an integer, stratification values are coarsened by ranking
+    and integer-dividing to form exactly `n_tips` groups. When `n_tips` is
+    ``None``, each distinct stratification value forms its own group. Within
     each group, the single leaf with the smallest off-lineage delta is
     retained.
 
@@ -85,8 +85,8 @@ def alifestd_downsample_tips_lineage_partition_polars(
 
         Must represent an asexual phylogeny.
     n_tips : int, optional
-        Desired number of partition groups (and thus retained tips).
-        If ``None``, every distinct ``criterion_partition`` value forms
+        Desired number of stratification groups (and thus retained tips).
+        If ``None``, every distinct ``criterion_stratification`` value forms
         its own group.
     seed : int, optional
         Random seed for reproducible target-leaf selection when there are
@@ -95,8 +95,8 @@ def alifestd_downsample_tips_lineage_partition_polars(
         Column name used to compute the off-lineage delta for each leaf.
         The delta is the absolute difference between a leaf's value and
         its MRCA's value in this column.
-    criterion_partition : str, default "origin_time"
-        Column name used to partition leaves into groups.
+    criterion_stratification : str, default "origin_time"
+        Column name used to stratify leaves into groups.
     criterion_target : str, default "origin_time"
         Column name used to select the target leaf. The leaf with the
         largest value in this column is chosen as the target. Note that
@@ -111,7 +111,7 @@ def alifestd_downsample_tips_lineage_partition_polars(
         If `phylogeny_df` has no "ancestor_id" column or if ids are
         non-contiguous or not topologically sorted.
     ValueError
-        If `criterion_delta`, `criterion_partition`, or
+        If `criterion_delta`, `criterion_stratification`, or
         `criterion_target` is not a column in `phylogeny_df`.
 
     Returns
@@ -127,7 +127,7 @@ def alifestd_downsample_tips_lineage_partition_polars(
     schema_names = phylogeny_df.lazy().collect_schema().names()
     for criterion in (
         criterion_delta,
-        criterion_partition,
+        criterion_stratification,
         criterion_target,
     ):
         if criterion not in schema_names:
@@ -220,11 +220,11 @@ def alifestd_downsample_tips_lineage_partition_polars(
 
     logging.info(
         "- alifestd_downsample_tips_lineage_partition_polars: "
-        "collecting criterion_partition values...",
+        "collecting criterion_stratification values...",
     )
-    partition_values = (
+    stratification_values = (
         phylogeny_df.lazy()
-        .select(criterion_partition)
+        .select(criterion_stratification)
         .collect()
         .to_series()
         .to_numpy()
@@ -240,7 +240,7 @@ def alifestd_downsample_tips_lineage_partition_polars(
     is_extant = _alifestd_downsample_tips_lineage_partition_impl(
         is_leaf=is_leaf,
         criterion_values=criterion_values,
-        partition_values=partition_values,
+        stratification_values=stratification_values,
         mrca_vector=mrca_vector,
         n_tips=n_tips,
     )
@@ -258,17 +258,17 @@ def alifestd_downsample_tips_lineage_partition_polars(
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
 
-Retain one leaf per partition group, chosen by proximity to the
+Retain one leaf per stratification group, chosen by proximity to the
 lineage of a target leaf.
 
 The target leaf is chosen as the leaf with the largest
 `--criterion-target` value. For each leaf, the off-lineage delta is
 the absolute difference between the leaf's `--criterion-delta` value
 and its MRCA's `--criterion-delta` value with respect to the target.
-Leaves are grouped by their `--criterion-partition` value. When `-n`
-is given, partition values are coarsened into `-n` groups by ranking
-and integer division. Within each group, the leaf with the smallest
-delta is retained.
+Leaves are grouped by their `--criterion-stratification` value. When
+`-n` is given, stratification values are coarsened into `-n` groups
+by ranking and integer division. Within each group, the leaf with the
+smallest delta is retained.
 
 Data is assumed to be in alife standard format.
 Only supports asexual phylogenies.
@@ -313,10 +313,10 @@ def _create_parser() -> argparse.ArgumentParser:
         help="Column used to compute off-lineage delta (default: origin_time).",
     )
     parser.add_argument(
-        "--criterion-partition",
+        "--criterion-stratification",
         default="origin_time",
         type=str,
-        help="Column used to partition leaves (default: origin_time).",
+        help="Column used to stratify leaves (default: origin_time).",
     )
     parser.add_argument(
         "--criterion-target",
@@ -364,7 +364,7 @@ if __name__ == "__main__":
                     n_tips=args.n,
                     seed=args.seed,
                     criterion_delta=args.criterion_delta,
-                    criterion_partition=args.criterion_partition,
+                    criterion_stratification=args.criterion_stratification,
                     criterion_target=args.criterion_target,
                     progress_wrap=tqdm,
                     ignore_topological_sensitivity=args.ignore_topological_sensitivity,

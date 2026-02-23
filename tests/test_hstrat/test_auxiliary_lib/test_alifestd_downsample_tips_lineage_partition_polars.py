@@ -217,7 +217,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_missing_criterion(
 
     with pytest.raises(ValueError, match="criterion column"):
         alifestd_downsample_tips_lineage_partition_polars(
-            df, criterion_partition="nonexistent"
+            df, criterion_stratification="nonexistent"
         )
 
 
@@ -589,7 +589,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_custom_criterion(
             5,
             seed=1,
             criterion_delta="origin_time",
-            criterion_partition="origin_time",
+            criterion_stratification="origin_time",
             criterion_target="origin_time",
         )
         .lazy()
