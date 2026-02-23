@@ -705,21 +705,21 @@ int bit_length(const u64 x) { return (8*sizeof x) - std::countl_zero(x); }
 void collapse_indistinguishable_nodes(Records & records, const u64 node) {
   switch (bit_length(records.max_differentia)) {
     case 0:
-    case 1:  // single-bit case
+    case 1:  // single-bit case: values 0-1
       collapse_indistinguishable_nodes_small<1>(records, node);
       break;
-    case 2:  // two-bit case
-      collapse_indistinguishable_nodes_small<2>(records, node);
+    case 2:  // two-bit case: values 0-3
+      collapse_indistinguishable_nodes_small<3>(records, node);
       break;
     case 3:
-    case 4:  // four-bit (hex value) case
-      collapse_indistinguishable_nodes_small<4>(records, node);
+    case 4:  // four-bit (hex value) case: values 0-15
+      collapse_indistinguishable_nodes_small<15>(records, node);
       break;
     case 5:
     case 6:
     case 7:
-    case 8:  // eight-bit (byte value) case
-      collapse_indistinguishable_nodes_small<8>(records, node);
+    case 8:  // eight-bit (byte value) case: values 0-255
+      collapse_indistinguishable_nodes_small<255>(records, node);
       break;
     default:  // larger than a byte
       collapse_indistinguishable_nodes_large(records, node);
