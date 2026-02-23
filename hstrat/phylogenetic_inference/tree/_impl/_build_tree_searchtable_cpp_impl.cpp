@@ -818,7 +818,9 @@ u64 create_offstring(
     rank,  // rank
     differentia  // differentia
   );
-  attach_search_parent(records, node, parent);
+  if (data_id == placeholder_value) {
+    attach_search_parent(records, node, parent);
+  }
   return node;
 }
 
