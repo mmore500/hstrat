@@ -7,43 +7,42 @@ import pandas as pd
 from ._alifestd_is_working_format_asexual import (
     alifestd_is_working_format_asexual,
 )
-from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._jit import jit
 
 
+@jit(nopython=True)
 def _alifestd_calc_mrca_id_vector_asexual_fast_path(
     ancestor_ids: np.ndarray,
-    node_depths: np.ndarray,
     target_id: int,
-    progress_wrap: typing.Callable,
 ) -> np.ndarray:
     """Implementation detail for
     `alifestd_calc_mrca_id_vector_asexual`."""
+    ancestor_ids = ancestor_ids.astype(np.int64)
     n = len(ancestor_ids)
-    assert n
-    result = -np.ones(n, dtype=np.int64)
+    assert n > 0
 
-    max_depth = int(node_depths.max())
+    mrca_ids = ancestor_ids.copy()
 
-    cur_positions = np.arange(n)
-    target_depth = node_depths[target_id]
+    # Mark roots (self-ancestors) as -1
+    for i in range(n):
+        if ancestor_ids[i] == i:
+            mrca_ids[i] = np.int64(-1)
 
-    for depth in progress_wrap(reversed(range(max_depth + 1))):
-        if depth <= target_depth:
-            target_position = cur_positions[target_id]
-            result = np.maximum(
-                result,
-                np.where(
-                    cur_positions == target_position,
-                    target_position,
-                    -1,
-                ),
-            )
+    # Pass 1: Target Lineage Tracing
+    curr = np.int64(target_id)
+    while ancestor_ids[curr] != curr:
+        mrca_ids[curr] = curr
+        curr = np.int64(ancestor_ids[curr])
+    mrca_ids[curr] = curr
 
-        depth_mask = node_depths[cur_positions] == depth
-        cur_positions[depth_mask] = ancestor_ids[cur_positions[depth_mask]]
+    # Pass 2: Left-to-Right MRCA Propagation
+    for i in range(n):
+        if mrca_ids[i] != i:
+            parent = np.int64(ancestor_ids[i])
+            mrca_ids[i] = mrca_ids[parent]
 
-    return result
+    return mrca_ids
 
 
 def alifestd_calc_mrca_id_vector_asexual(
@@ -76,17 +75,10 @@ def alifestd_calc_mrca_id_vector_asexual(
             "current implementation requires phylogeny_df in working format",
         )
 
-    logging.info(
-        "- alifestd_calc_mrca_id_vector_asexual: "
-        "calculating node depths...",
-    )
-    phylogeny_df = alifestd_mark_node_depth_asexual(phylogeny_df, mutate=True)
-
     if target_id >= len(phylogeny_df):
         raise ValueError(f"{target_id=} out of bounds")
 
     ancestor_ids = phylogeny_df["ancestor_id"].to_numpy()
-    node_depths = phylogeny_df["node_depth"].to_numpy()
     assert np.all(
         phylogeny_df["id"].to_numpy() == np.arange(len(phylogeny_df))
     )
@@ -95,5 +87,5 @@ def alifestd_calc_mrca_id_vector_asexual(
         "- alifestd_calc_mrca_id_vector_asexual: computing mrca ids...",
     )
     return _alifestd_calc_mrca_id_vector_asexual_fast_path(
-        ancestor_ids, node_depths, target_id, progress_wrap
+        ancestor_ids, target_id
     )

@@ -13,9 +13,6 @@ from ._alifestd_has_contiguous_ids_polars import (
 from ._alifestd_is_topologically_sorted_polars import (
     alifestd_is_topologically_sorted_polars,
 )
-from ._alifestd_mark_node_depth_asexual import (
-    _alifestd_calc_node_depth_asexual_contiguous,
-)
 from ._alifestd_try_add_ancestor_id_col_polars import (
     alifestd_try_add_ancestor_id_col_polars,
 )
@@ -101,16 +98,8 @@ def alifestd_calc_mrca_id_vector_asexual_polars(
 
     logging.info(
         "- alifestd_calc_mrca_id_vector_asexual_polars: "
-        "calculating node depths...",
-    )
-    node_depths = _alifestd_calc_node_depth_asexual_contiguous(
-        ancestor_ids,
-    )
-
-    logging.info(
-        "- alifestd_calc_mrca_id_vector_asexual_polars: "
         "computing mrca ids...",
     )
     return _alifestd_calc_mrca_id_vector_asexual_fast_path(
-        ancestor_ids, node_depths, target_id, progress_wrap
+        ancestor_ids, target_id
     )
