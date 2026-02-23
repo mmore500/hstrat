@@ -55,11 +55,8 @@ def _alifestd_downsample_tips_lineage_select_target_id(
     int
         The id of the selected target leaf.
     """
-    ids = np.arange(len(is_leaf))
-    leaf_ids = ids[is_leaf]
-    leaf_target_values = target_values[is_leaf]
-    max_target = leaf_target_values.max()
-    candidate_ids = leaf_ids[leaf_target_values == max_target]
+    max_target = target_values[is_leaf].max()
+    candidate_ids = np.flatnonzero(is_leaf & (target_values == max_target))
     return int(np.random.choice(candidate_ids))
 
 
