@@ -53,7 +53,7 @@ from ._log_context_duration import log_context_duration
 )
 def alifestd_downsample_tips_lineage_partition_polars(
     phylogeny_df: pl.DataFrame,
-    n_partition: int = 1,
+    n_tips_per_partition: int = 1,
     seed: typing.Optional[int] = None,
     *,
     criterion_delta: str = "origin_time",
@@ -61,7 +61,7 @@ def alifestd_downsample_tips_lineage_partition_polars(
     criterion_target: str = "origin_time",
     progress_wrap: typing.Callable = lambda x: x,
 ) -> pl.DataFrame:
-    """Retain up to `n_partition` leaves per partition group, chosen by
+    """Retain up to `n_tips_per_partition` leaves per partition group, chosen by
     proximity to the lineage of a target leaf.
 
     Selects a target leaf as the leaf with the largest `criterion_target`
@@ -71,10 +71,10 @@ def alifestd_downsample_tips_lineage_partition_polars(
     `criterion_delta` value and its MRCA's `criterion_delta` value.
 
     Leaves are then grouped by their `criterion_partition` value. Within
-    each group, the `n_partition` leaves with the smallest off-lineage
+    each group, the `n_tips_per_partition` leaves with the smallest off-lineage
     deltas are retained.
 
-    If `n_partition` is greater than or equal to the number of leaves in
+    If `n_tips_per_partition` is greater than or equal to the number of leaves in
     any partition group, all leaves in that group are retained. Ties in
     off-lineage delta are broken arbitrarily.
 
@@ -86,7 +86,7 @@ def alifestd_downsample_tips_lineage_partition_polars(
         The phylogeny as a dataframe in alife standard format.
 
         Must represent an asexual phylogeny.
-    n_partition : int, default 1
+    n_tips_per_partition : int, default 1
         Number of tips to retain per partition group.
     seed : int, optional
         Random seed for reproducible target-leaf selection when there are
@@ -97,7 +97,7 @@ def alifestd_downsample_tips_lineage_partition_polars(
         its MRCA's value in this column.
     criterion_partition : str, default "origin_time"
         Column name used to partition leaves into groups. Up to
-        `n_partition` leaves are retained per unique value in this column.
+        `n_tips_per_partition` leaves are retained per unique value in this column.
     criterion_target : str, default "origin_time"
         Column name used to select the target leaf. The leaf with the
         largest value in this column is chosen as the target. Note that
@@ -126,7 +126,11 @@ def alifestd_downsample_tips_lineage_partition_polars(
         Pandas-based implementation.
     """
     schema_names = phylogeny_df.lazy().collect_schema().names()
-    for criterion in (criterion_delta, criterion_partition, criterion_target):
+    for criterion in (
+        criterion_delta,
+        criterion_partition,
+        criterion_target,
+    ):
         if criterion not in schema_names:
             raise ValueError(
                 f"criterion column {criterion!r} not found in phylogeny_df",
@@ -238,7 +242,7 @@ def alifestd_downsample_tips_lineage_partition_polars(
         is_leaf=is_leaf,
         criterion_values=criterion_values,
         partition_values=partition_values,
-        n_partition=n_partition,
+        n_tips_per_partition=n_tips_per_partition,
         mrca_vector=mrca_vector,
     )
 
@@ -356,7 +360,7 @@ if __name__ == "__main__":
                 base_parser=parser,
                 output_dataframe_op=functools.partial(
                     alifestd_downsample_tips_lineage_partition_polars,
-                    n_partition=args.n,
+                    n_tips_per_partition=args.n,
                     seed=args.seed,
                     criterion_delta=args.criterion_delta,
                     criterion_partition=args.criterion_partition,

@@ -27,16 +27,16 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         ),
     ],
 )
-@pytest.mark.parametrize("n_partition", [1, 5, 10])
+@pytest.mark.parametrize("n_tips_per_partition", [1, 5, 10])
 @pytest.mark.parametrize("mutate", [True, False])
 @pytest.mark.parametrize("seed", [1, 42])
 def test_alifestd_downsample_tips_lineage_partition_asexual(
-    phylogeny_df, n_partition, mutate, seed
+    phylogeny_df, n_tips_per_partition, mutate, seed
 ):
     original_df = phylogeny_df.copy()
 
     result_df = alifestd_downsample_tips_lineage_partition_asexual(
-        phylogeny_df, n_partition, mutate=mutate, seed=seed
+        phylogeny_df, n_tips_per_partition, mutate=mutate, seed=seed
     )
 
     assert len(result_df) <= len(original_df)
@@ -48,16 +48,16 @@ def test_alifestd_downsample_tips_lineage_partition_asexual(
     assert all(result_df["id"].isin(original_df["id"]))
 
 
-@pytest.mark.parametrize("n_partition", [0, 1])
+@pytest.mark.parametrize("n_tips_per_partition", [0, 1])
 def test_alifestd_downsample_tips_lineage_partition_asexual_empty(
-    n_partition,
+    n_tips_per_partition,
 ):
     phylogeny_df = pd.DataFrame(
         {"id": [], "parent_id": [], "ancestor_id": [], "origin_time": []}
     )
 
     result_df = alifestd_downsample_tips_lineage_partition_asexual(
-        phylogeny_df, n_partition
+        phylogeny_df, n_tips_per_partition
     )
 
     assert result_df.empty
@@ -112,7 +112,7 @@ def test_alifestd_downsample_tips_lineage_partition_asexual_single_per_partition
         phylogeny_df, 1, seed=1
     )
 
-    # With n_partition=1 and default partition by origin_time,
+    # With n_tips_per_partition=1 and default partition by origin_time,
     # each unique origin_time among leaves should have at most 1 leaf
     assert alifestd_count_leaf_nodes(result_df) >= 1
 
@@ -230,7 +230,7 @@ def test_alifestd_downsample_tips_lineage_partition_asexual_simple():
         |   +-- 4 (leaf, origin_time=4)
         +-- 2 (leaf, origin_time=2)
 
-    With criterion_partition=origin_time and n_partition=1,
+    With criterion_partition=origin_time and n_tips_per_partition=1,
     each unique origin_time among leaves should retain at most 1 leaf.
     Leaves are at origin_time 2, 3, 4 => 3 partitions, 1 each => 3 leaves.
     """
@@ -261,8 +261,8 @@ def test_alifestd_downsample_tips_lineage_partition_asexual_shared_partition():
         |   +-- 4 (leaf, origin_time=2)
         +-- 2 (leaf, origin_time=2)
 
-    All leaves share origin_time=2, so with n_partition=1 only 1 leaf
-    should be retained. With n_partition=2, 2 leaves should be retained.
+    All leaves share origin_time=2, so with n_tips_per_partition=1 only 1 leaf
+    should be retained. With n_tips_per_partition=2, 2 leaves should be retained.
     """
     phylogeny_df = pd.DataFrame(
         {

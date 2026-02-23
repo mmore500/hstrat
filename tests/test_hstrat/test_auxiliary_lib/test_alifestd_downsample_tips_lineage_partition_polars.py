@@ -36,7 +36,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         ),
     ],
 )
-@pytest.mark.parametrize("n_partition", [1, 5, 10])
+@pytest.mark.parametrize("n_tips_per_partition", [1, 5, 10])
 @pytest.mark.parametrize("seed", [1, 42])
 @pytest.mark.parametrize(
     "apply",
@@ -47,7 +47,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 )
 def test_alifestd_downsample_tips_lineage_partition_polars(
     phylogeny_df: pd.DataFrame,
-    n_partition: int,
+    n_tips_per_partition: int,
     seed: int,
     apply: typing.Callable,
 ):
@@ -58,7 +58,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars(
     result_df = (
         alifestd_downsample_tips_lineage_partition_polars(
             phylogeny_df_pl,
-            n_partition,
+            n_tips_per_partition,
             seed=seed,
         )
         .lazy()
@@ -72,7 +72,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars(
     )
 
 
-@pytest.mark.parametrize("n_partition", [0, 1])
+@pytest.mark.parametrize("n_tips_per_partition", [0, 1])
 @pytest.mark.parametrize(
     "apply",
     [
@@ -81,7 +81,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars(
     ],
 )
 def test_alifestd_downsample_tips_lineage_partition_polars_empty(
-    n_partition: int, apply: typing.Callable
+    n_tips_per_partition: int, apply: typing.Callable
 ):
     phylogeny_df = apply(
         pl.DataFrame(
@@ -101,7 +101,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_empty(
     result_df = (
         alifestd_downsample_tips_lineage_partition_polars(
             phylogeny_df,
-            n_partition,
+            n_tips_per_partition,
         )
         .lazy()
         .collect()
@@ -304,7 +304,7 @@ def test_alifestd_downsample_tips_lineage_partition_polars_simple(
         |   +-- 4 (leaf, origin_time=4)
         +-- 2 (leaf, origin_time=2)
 
-    All leaves have distinct origin_times, so with n_partition=1 per
+    All leaves have distinct origin_times, so with n_tips_per_partition=1 per
     partition all 3 leaves should be retained.
     """
     df = apply(
@@ -358,8 +358,8 @@ def test_alifestd_downsample_tips_lineage_partition_polars_shared_partition(
         |   +-- 4 (leaf, origin_time=2)
         +-- 2 (leaf, origin_time=2)
 
-    All leaves share origin_time=2, so with n_partition=1 only 1 leaf
-    should be retained. With n_partition=2, 2 leaves should be retained.
+    All leaves share origin_time=2, so with n_tips_per_partition=1 only 1 leaf
+    should be retained. With n_tips_per_partition=2, 2 leaves should be retained.
     """
     df = apply(
         pl.DataFrame(
