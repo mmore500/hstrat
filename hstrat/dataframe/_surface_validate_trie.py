@@ -61,7 +61,7 @@ def _load_surface(
 def surface_validate_trie(
     df: pl.DataFrame,
     max_num_checks: int = 1_000,
-    max_violations: int = 1,
+    max_violations: int = 0,
     progress_wrap: typing.Callable = lambda x: x,
     seed: typing.Optional[int] = None,
 ) -> int:

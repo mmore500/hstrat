@@ -102,12 +102,12 @@ def _create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--max-violations",
         type=int,
-        default=1,
+        default=0,
         help=(
             "Maximum number of MRCA-rank violations tolerated. "
             "Exits with a non-zero status if detected violations exceed this "
             "threshold. "
-            "Default: 1."
+            "Default: 0."
         ),
     )
     parser.add_argument(
