@@ -38,7 +38,9 @@ def test_missing_deserialization_columns():
     """Raises if dstream metadata columns are absent."""
     df = pl.read_csv(f"{assets_path}/trie.csv")
     stripped = df.drop("data_hex")
-    with pytest.raises(ValueError, match="missing downstream metadata columns"):
+    with pytest.raises(
+        ValueError, match="missing downstream metadata columns"
+    ):
         surface_validate_trie(stripped)
 
 
@@ -74,7 +76,9 @@ def test_non_contiguous_ids():
 def test_no_meta_raises():
     """Trie without dstream metadata columns fails validation."""
     df = pl.read_csv(f"{assets_path}/trie_no_meta.csv")
-    with pytest.raises(ValueError, match="missing downstream metadata columns"):
+    with pytest.raises(
+        ValueError, match="missing downstream metadata columns"
+    ):
         surface_validate_trie(df)
 
 
