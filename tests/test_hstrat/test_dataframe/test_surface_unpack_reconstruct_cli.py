@@ -102,7 +102,7 @@ def test_surface_unpack_reconstruct_cli_drop_with_no_drop_dstream_metadata():
         "/tmp/hstrat_unpack_surface_reconstruct_drop_col.pqt"  # nosec B108
     )
     pathlib.Path(output_file).unlink(missing_ok=True)
-    result = subprocess.run(
+    result = subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
