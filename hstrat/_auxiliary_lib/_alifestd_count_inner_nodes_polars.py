@@ -4,7 +4,9 @@ import os
 
 import polars as pl
 
-from ._alifestd_count_leaf_nodes_polars import alifestd_count_leaf_nodes_polars
+from ._alifestd_count_leaf_nodes_polars import (
+    alifestd_count_leaf_nodes_polars,
+)
 from ._configure_prod_logging import configure_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
