@@ -14,7 +14,6 @@ from hstrat.phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_t
     _test_mod as _cpp,
 )
 
-
 # ---------------------------------------------------------------------------
 # Records
 # ---------------------------------------------------------------------------
