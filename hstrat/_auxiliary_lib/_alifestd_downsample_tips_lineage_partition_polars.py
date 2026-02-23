@@ -52,7 +52,7 @@ from ._log_context_duration import log_context_duration
 )
 def alifestd_downsample_tips_lineage_partition_polars(
     phylogeny_df: pl.DataFrame,
-    n_tips_per_partition: int = 1,
+    n_tips: typing.Optional[int] = None,
     seed: typing.Optional[int] = None,
     *,
     criterion_delta: str = "origin_time",
@@ -60,8 +60,8 @@ def alifestd_downsample_tips_lineage_partition_polars(
     criterion_target: str = "origin_time",
     progress_wrap: typing.Callable = lambda x: x,
 ) -> pl.DataFrame:
-    """Retain up to `n_tips_per_partition` leaves per partition group, chosen by
-    proximity to the lineage of a target leaf.
+    """Retain one leaf per partition group, chosen by proximity to the
+    lineage of a target leaf.
 
     Selects a target leaf as the leaf with the largest `criterion_target`
     value (ties broken randomly). For each leaf, the most recent common
@@ -69,13 +69,12 @@ def alifestd_downsample_tips_lineage_partition_polars(
     delta" is computed as the absolute difference between the leaf's
     `criterion_delta` value and its MRCA's `criterion_delta` value.
 
-    Leaves are then grouped by their `criterion_partition` value. Within
-    each group, the `n_tips_per_partition` leaves with the smallest off-lineage
-    deltas are retained.
-
-    If `n_tips_per_partition` is greater than or equal to the number of leaves in
-    any partition group, all leaves in that group are retained. Ties in
-    off-lineage delta are broken arbitrarily.
+    Leaves are grouped by their `criterion_partition` value. When
+    `n_tips` is an integer, partition values are coarsened by ranking and
+    integer-dividing to form exactly `n_tips` groups. When `n_tips` is
+    ``None``, each distinct partition value forms its own group. Within
+    each group, the single leaf with the smallest off-lineage delta is
+    retained.
 
     Only supports asexual phylogenies.
 
@@ -85,8 +84,10 @@ def alifestd_downsample_tips_lineage_partition_polars(
         The phylogeny as a dataframe in alife standard format.
 
         Must represent an asexual phylogeny.
-    n_tips_per_partition : int, default 1
-        Number of tips to retain per partition group.
+    n_tips : int, optional
+        Desired number of partition groups (and thus retained tips).
+        If ``None``, every distinct ``criterion_partition`` value forms
+        its own group.
     seed : int, optional
         Random seed for reproducible target-leaf selection when there are
         ties in `criterion_target`.
@@ -95,8 +96,7 @@ def alifestd_downsample_tips_lineage_partition_polars(
         The delta is the absolute difference between a leaf's value and
         its MRCA's value in this column.
     criterion_partition : str, default "origin_time"
-        Column name used to partition leaves into groups. Up to
-        `n_tips_per_partition` leaves are retained per unique value in this column.
+        Column name used to partition leaves into groups.
     criterion_target : str, default "origin_time"
         Column name used to select the target leaf. The leaf with the
         largest value in this column is chosen as the target. Note that
@@ -241,8 +241,8 @@ def alifestd_downsample_tips_lineage_partition_polars(
         is_leaf=is_leaf,
         criterion_values=criterion_values,
         partition_values=partition_values,
-        n_tips_per_partition=n_tips_per_partition,
         mrca_vector=mrca_vector,
+        n_tips=n_tips,
     )
 
     logging.info(
@@ -258,15 +258,17 @@ def alifestd_downsample_tips_lineage_partition_polars(
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
 
-Retain up to `-n` leaves per partition group, chosen by proximity to
-the lineage of a target leaf.
+Retain one leaf per partition group, chosen by proximity to the
+lineage of a target leaf.
 
 The target leaf is chosen as the leaf with the largest
 `--criterion-target` value. For each leaf, the off-lineage delta is
 the absolute difference between the leaf's `--criterion-delta` value
 and its MRCA's `--criterion-delta` value with respect to the target.
-Leaves are grouped by their `--criterion-partition` value, and the
-top `-n` leaves with the smallest deltas are retained per group.
+Leaves are grouped by their `--criterion-partition` value. When `-n`
+is given, partition values are coarsened into `-n` groups by ranking
+and integer division. Within each group, the leaf with the smallest
+delta is retained.
 
 Data is assumed to be in alife standard format.
 Only supports asexual phylogenies.
@@ -300,9 +302,9 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "-n",
-        default=1,
+        default=None,
         type=int,
-        help="Number of tips to retain per partition group (default: 1).",
+        help="Number of partition groups (default: one per distinct value).",
     )
     parser.add_argument(
         "--criterion-delta",
@@ -359,7 +361,7 @@ if __name__ == "__main__":
                 base_parser=parser,
                 output_dataframe_op=functools.partial(
                     alifestd_downsample_tips_lineage_partition_polars,
-                    n_tips_per_partition=args.n,
+                    n_tips=args.n,
                     seed=args.seed,
                     criterion_delta=args.criterion_delta,
                     criterion_partition=args.criterion_partition,

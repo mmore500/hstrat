@@ -40,15 +40,20 @@ def _alifestd_downsample_tips_lineage_partition_impl(
     is_leaf: np.ndarray,
     criterion_values: np.ndarray,
     partition_values: np.ndarray,
-    n_tips_per_partition: int,
     mrca_vector: np.ndarray,
+    n_tips: typing.Optional[int] = None,
 ) -> np.ndarray:
     """Shared numpy implementation for partition-based lineage tip
     downsampling.
 
     Computes off-lineage deltas from a pre-computed MRCA vector and
-    returns a boolean extant mask, selecting up to `n_tips_per_partition` leaves
-    with the smallest delta per unique partition value.
+    returns a boolean extant mask, selecting the one leaf with the
+    smallest delta per partition group.
+
+    When `n_tips` is an integer, partition values are coarsened by
+    ranking and integer-dividing so that exactly `n_tips` groups are
+    formed.  When `n_tips` is ``None``, each distinct partition value
+    defines its own group.
 
     Parameters
     ----------
@@ -58,11 +63,12 @@ def _alifestd_downsample_tips_lineage_partition_impl(
         Values used to compute off-lineage delta (all taxa).
     partition_values : numpy.ndarray
         Values used to partition leaves into groups (all taxa).
-    n_tips_per_partition : int
-        Number of tips to retain per partition group.
     mrca_vector : numpy.ndarray
         Integer array of MRCA ids for each taxon with respect to the
         target leaf.  Taxa in a different tree should have ``-1``.
+    n_tips : int, optional
+        Desired number of partition groups (and thus retained tips).
+        If ``None``, every distinct partition value forms its own group.
 
     Returns
     -------
@@ -93,8 +99,15 @@ def _alifestd_downsample_tips_lineage_partition_impl(
     eligible_deltas = off_lineage_delta[is_eligible]
     eligible_partitions = partition_values[is_eligible]
 
-    # Per-partition selection: for each unique partition value,
-    # select up to n_tips_per_partition leaves with the smallest deltas.
+    # Coarsen partition values if n_tips is specified
+    if n_tips is not None:
+        unique_sorted = np.unique(eligible_partitions)
+        n_unique = len(unique_sorted)
+        ranks = np.searchsorted(unique_sorted, eligible_partitions)
+        eligible_partitions = ranks * n_tips // n_unique
+
+    # Per-partition selection: for each group, keep the one leaf
+    # with the smallest delta.
     logging.info(
         "_alifestd_downsample_tips_lineage_partition_impl: "
         "selecting kept ids per partition...",
@@ -105,20 +118,14 @@ def _alifestd_downsample_tips_lineage_partition_impl(
         mask = eligible_partitions == part
         group_ids = eligible_ids[mask]
         group_deltas = eligible_deltas[mask]
-        if n_tips_per_partition >= len(group_deltas):
-            kept_ids_list.append(group_ids)
-        else:
-            partition_idx = np.argpartition(
-                group_deltas, n_tips_per_partition
-            )[:n_tips_per_partition]
-            kept_ids_list.append(group_ids[partition_idx])
+        kept_ids_list.append(group_ids[np.argmin(group_deltas)])
 
     logging.info(
         "_alifestd_downsample_tips_lineage_partition_impl: "
         "building extant mask...",
     )
     if kept_ids_list:
-        kept_ids = np.concatenate(kept_ids_list)
+        kept_ids = np.array(kept_ids_list, dtype=int)
     else:
         kept_ids = np.array([], dtype=int)
     return np.bincount(kept_ids, minlength=len(is_leaf)).astype(bool)
@@ -131,7 +138,7 @@ def _alifestd_downsample_tips_lineage_partition_impl(
 )
 def alifestd_downsample_tips_lineage_partition_asexual(
     phylogeny_df: pd.DataFrame,
-    n_tips_per_partition: int = 1,
+    n_tips: typing.Optional[int] = None,
     mutate: bool = False,
     seed: typing.Optional[int] = None,
     *,
@@ -140,8 +147,8 @@ def alifestd_downsample_tips_lineage_partition_asexual(
     criterion_target: str = "origin_time",
     progress_wrap: typing.Callable = lambda x: x,
 ) -> pd.DataFrame:
-    """Retain up to `n_tips_per_partition` leaves per partition group, chosen by
-    proximity to the lineage of a target leaf.
+    """Retain one leaf per partition group, chosen by proximity to the
+    lineage of a target leaf.
 
     Selects a target leaf as the leaf with the largest `criterion_target`
     value (ties broken randomly). For each leaf, the most recent common
@@ -149,13 +156,12 @@ def alifestd_downsample_tips_lineage_partition_asexual(
     delta" is computed as the absolute difference between the leaf's
     `criterion_delta` value and its MRCA's `criterion_delta` value.
 
-    Leaves are then grouped by their `criterion_partition` value. Within
-    each group, the `n_tips_per_partition` leaves with the smallest off-lineage
-    deltas are retained.
-
-    If `n_tips_per_partition` is greater than or equal to the number of leaves in
-    any partition group, all leaves in that group are retained. Ties in
-    off-lineage delta are broken arbitrarily.
+    Leaves are grouped by their `criterion_partition` value. When
+    `n_tips` is an integer, partition values are coarsened by ranking and
+    integer-dividing to form exactly `n_tips` groups. When `n_tips` is
+    ``None``, each distinct partition value forms its own group. Within
+    each group, the single leaf with the smallest off-lineage delta is
+    retained.
 
     Only supports asexual phylogenies.
 
@@ -165,8 +171,10 @@ def alifestd_downsample_tips_lineage_partition_asexual(
         The phylogeny as a dataframe in alife standard format.
 
         Must represent an asexual phylogeny.
-    n_tips_per_partition : int, default 1
-        Number of tips to retain per partition group.
+    n_tips : int, optional
+        Desired number of partition groups (and thus retained tips).
+        If ``None``, every distinct ``criterion_partition`` value forms
+        its own group.
     mutate : bool, default False
         Are side effects on the input argument `phylogeny_df` allowed?
     seed : int, optional
@@ -177,8 +185,7 @@ def alifestd_downsample_tips_lineage_partition_asexual(
         The delta is the absolute difference between a leaf's value and
         its MRCA's value in this column.
     criterion_partition : str, default "origin_time"
-        Column name used to partition leaves into groups. Up to
-        `n_tips_per_partition` leaves are retained per unique value in this column.
+        Column name used to partition leaves into groups.
     criterion_target : str, default "origin_time"
         Column name used to select the target leaf. The leaf with the
         largest value in this column is chosen as the target. Note that
@@ -271,8 +278,8 @@ def alifestd_downsample_tips_lineage_partition_asexual(
         is_leaf=is_leaf,
         criterion_values=criterion_values,
         partition_values=partition_values,
-        n_tips_per_partition=n_tips_per_partition,
         mrca_vector=mrca_vector,
+        n_tips=n_tips,
     )
 
     logging.info(
@@ -286,15 +293,17 @@ def alifestd_downsample_tips_lineage_partition_asexual(
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
 
-Retain up to `-n` leaves per partition group, chosen by proximity to
-the lineage of a target leaf.
+Retain one leaf per partition group, chosen by proximity to the
+lineage of a target leaf.
 
 The target leaf is chosen as the leaf with the largest
 `--criterion-target` value. For each leaf, the off-lineage delta is
 the absolute difference between the leaf's `--criterion-delta` value
 and its MRCA's `--criterion-delta` value with respect to the target.
-Leaves are grouped by their `--criterion-partition` value, and the
-top `-n` leaves with the smallest deltas are retained per group.
+Leaves are grouped by their `--criterion-partition` value. When `-n`
+is given, partition values are coarsened into `-n` groups by ranking
+and integer division. Within each group, the leaf with the smallest
+delta is retained.
 
 Data is assumed to be in alife standard format.
 Only supports asexual phylogenies.
@@ -323,9 +332,9 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "-n",
-        default=1,
+        default=None,
         type=int,
-        help="Number of tips to retain per partition group (default: 1).",
+        help="Number of partition groups (default: one per distinct value).",
     )
     parser.add_argument(
         "--criterion-delta",
@@ -381,7 +390,7 @@ if __name__ == "__main__":
             output_dataframe_op=delegate_polars_implementation()(
                 functools.partial(
                     alifestd_downsample_tips_lineage_partition_asexual,
-                    n_tips_per_partition=args.n,
+                    n_tips=args.n,
                     seed=args.seed,
                     criterion_delta=args.criterion_delta,
                     criterion_partition=args.criterion_partition,
