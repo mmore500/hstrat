@@ -520,13 +520,17 @@ def test_multi_clade_tree_with_cascading_sparsity():
 
     Non-branching ("filler") ranks all have differentia = 10.
 
-    Sparse newcomers (all older, higher T -> inserted after dense):
+    Sparse newcomers (all older, higher T -> inserted after dense).
+    Insertion order: T=48 artifacts first (ascending max-rank along any shared
+    trie path), then T=64 artifacts.  This satisfies the algorithm requirement
+    that consolidate_trie is never called at a rank lower than any previously
+    consolidated rank on the same trie path.
       sparse_a  (200, T=48)  alpha lineage  retains {0,4,8,12,15}
-      sparse_b  (201, T=48)  delta lineage  retains {0,4,8,14}
-      sparse_c  (202, T=64)  beta lineage   retains {0,4,12,15} - skips r8
       sparse_d  (203, T=48)  RL lineage, diverges at r12 (diff=50)
                               retains {0,4,8,12} - all branch points present
+      sparse_b  (201, T=48)  delta lineage  retains {0,4,8,14}
       sparse_e  (204, T=48)  delta lineage  retains {0,8,14} - skips r4!
+      sparse_c  (202, T=64)  beta lineage   retains {0,4,12,15} - skips r8
     """
     FILLER = 10
 
@@ -552,6 +556,8 @@ def test_multi_clade_tree_with_cascading_sparsity():
         _dense(104, 16, make_diffs(branch_defs["epsilon"])),
         _dense(105, 16, make_diffs(branch_defs["zeta"])),
         # --- 5 sparse newcomers (higher T, fewer retained ranks) ---
+        # T=48 artifacts first (ascending max-rank along shared R-clade path),
+        # then T=64 artifact.
         # sparse_a: alpha lineage, retains all branch points
         _sparse(
             200,
@@ -564,29 +570,8 @@ def test_multi_clade_tree_with_cascading_sparsity():
                 (15, FILLER),
             ],
         ),
-        # sparse_b: delta lineage, retains all branch points
-        _sparse(
-            201,
-            48,
-            [
-                (0, 12),
-                (4, 20),
-                (8, 25),
-                (14, FILLER),
-            ],
-        ),
-        # sparse_c: beta lineage, skips r8 (no branch in LL at r8)
-        _sparse(
-            202,
-            64,
-            [
-                (0, 5),
-                (4, 3),
-                (12, 9),
-                (15, FILLER),
-            ],
-        ),
         # sparse_d: RL lineage through r8=25, diverges at r12 with diff=50
+        # (max retained rank 12 on R-clade path; must precede sparse_b)
         _sparse(
             203,
             48,
@@ -597,6 +582,17 @@ def test_multi_clade_tree_with_cascading_sparsity():
                 (12, 50),
             ],
         ),
+        # sparse_b: delta lineage, retains branch points + rank 14
+        _sparse(
+            201,
+            48,
+            [
+                (0, 12),
+                (4, 20),
+                (8, 25),
+                (14, FILLER),
+            ],
+        ),
         # sparse_e: delta lineage, skips r4 branching point!
         _sparse(
             204,
@@ -605,6 +601,17 @@ def test_multi_clade_tree_with_cascading_sparsity():
                 (0, 12),
                 (8, 25),
                 (14, FILLER),
+            ],
+        ),
+        # sparse_c: beta lineage, skips r8 (no branch in LL at r8); T=64 last
+        _sparse(
+            202,
+            64,
+            [
+                (0, 5),
+                (4, 3),
+                (12, 9),
+                (15, FILLER),
             ],
         ),
     ]
