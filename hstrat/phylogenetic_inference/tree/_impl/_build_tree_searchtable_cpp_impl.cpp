@@ -821,7 +821,8 @@ u64 create_offstring(
     rank,  // rank
     differentia  // differentia
   );
-  if (data_id == placeholder_value) {
+  const u64 dummy_data_id{placeholder_value};
+  if (data_id == dummy_data_id) {  // i.e., not a leaf node
     attach_search_parent(records, node, parent);
   }
   return node;
