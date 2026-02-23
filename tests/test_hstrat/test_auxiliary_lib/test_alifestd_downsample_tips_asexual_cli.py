@@ -8,7 +8,7 @@ assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
 def test_alifestd_downsample_tips_asexual_cli_help():
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -20,7 +20,7 @@ def test_alifestd_downsample_tips_asexual_cli_help():
 
 
 def test_alifestd_downsample_tips_asexual_cli_version():
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -36,7 +36,7 @@ def test_alifestd_downsample_tips_asexual_cli_csv():
         "/tmp/hstrat_alifestd_downsample_tips_asexual.csv"  # nosec B108
     )
     pathlib.Path(output_file).unlink(missing_ok=True)
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -59,7 +59,7 @@ def test_alifestd_downsample_tips_asexual_cli_parquet():
         "/tmp/hstrat_alifestd_downsample_tips_asexual.pqt"  # nosec B108
     )
     pathlib.Path(output_file).unlink(missing_ok=True)
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -84,7 +84,7 @@ def test_alifestd_downsample_tips_asexual_cli_ignore_topological_sensitivity():
         "/tmp/hstrat_alifestd_downsample_tips_asexual_ignore.csv"  # nosec B108
     )
     pathlib.Path(output_file).unlink(missing_ok=True)
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -105,7 +105,7 @@ def test_alifestd_downsample_tips_asexual_cli_drop_topological_sensitivity():
         "/tmp/hstrat_alifestd_downsample_tips_asexual_drop.csv"  # nosec B108
     )
     pathlib.Path(output_file).unlink(missing_ok=True)
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",

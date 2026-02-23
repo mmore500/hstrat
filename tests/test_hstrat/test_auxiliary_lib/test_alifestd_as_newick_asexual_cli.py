@@ -9,7 +9,7 @@ assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
 def test_alifestd_as_newick_asexual_cli_help():
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -21,7 +21,7 @@ def test_alifestd_as_newick_asexual_cli_help():
 
 
 def test_alifestd_as_newick_asexual_cli_version():
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -66,7 +66,7 @@ def test_alifestd_as_newick_asexual_cli_csv(
     ]
     if taxon_label is not None:
         cmd.extend(["--taxon-label", taxon_label])
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, check=True)  # nosec B603
     assert os.path.exists(output_file)
     assert os.path.getsize(output_file) > 0
 
@@ -116,7 +116,7 @@ def test_alifestd_as_newick_asexual_cli_csv_engine(
     ]
     if taxon_label is not None:
         cmd.extend(["--taxon-label", taxon_label])
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, check=True)  # nosec B603
     assert os.path.exists(output_file)
     assert os.path.getsize(output_file) > 0
 
@@ -149,6 +149,6 @@ def test_alifestd_as_newick_asexual_cli_csv_input_kwarg(
         "-o",
         output_file,
     ]
-    subprocess.run(cmd, check=True)
+    subprocess.run(cmd, check=True)  # nosec B603
     assert os.path.exists(output_file)
     assert os.path.getsize(output_file) > 0

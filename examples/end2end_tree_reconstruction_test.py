@@ -66,7 +66,7 @@ def sample_reference_and_reconstruction(
 ) -> typing.Dict[str, pd.DataFrame]:
     """Sample a reference phylogeny and corresponding reconstruction."""
     try:
-        paths = subprocess.run(
+        paths = subprocess.run(  # nosec B603
             [
                 f"{os.path.dirname(__file__)}/"
                 "end2end_tree_reconstruction_with_dstream_surf.sh",
