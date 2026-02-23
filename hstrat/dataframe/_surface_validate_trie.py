@@ -14,6 +14,7 @@ from .._auxiliary_lib import (
     RngStateContext,
     alifestd_has_contiguous_ids_polars,
     alifestd_is_topologically_sorted_polars,
+    get_sole_scalar_value_polars,
 )
 from .._auxiliary_lib._alifestd_find_leaf_ids import (
     _alifestd_find_leaf_ids_asexual_fast_path,
@@ -208,9 +209,8 @@ def surface_validate_trie(
     with opyt.apply_if_or_else(seed, RngStateContext, contextlib.nullcontext):
         combo_indices = random.sample(range(num_combinations), num_checks)
 
-    logging.info("surface_validate_trie: collecting dstream_S values...")
-    dstream_S_values = df.lazy().select(pl.col("dstream_S")).collect()
-    dstream_S = dstream_S_values.to_series().to_numpy()
+    logging.info("surface_validate_trie: collecting dstream_S value...")
+    dstream_S = get_sole_scalar_value_polars(df, "dstream_S")
 
     logging.info("surface_validate_trie: checking for violations...")
     num_violations = 0
@@ -225,47 +225,49 @@ def surface_validate_trie(
             confidence_level=0.49,  # threshold for single-bit mismatch
         )
 
-        mrca_id = _alifestd_find_pair_mrca_id_asexual_fast_path(
-            ancestor_ids, leaf_a, leaf_b
-        )
-        mrca_row = (
-            df.lazy()
-            .filter(pl.col("id") == mrca_id)
-            .select(pl.col("dstream_rank"), pl.col("dstream_S"))
-            .collect()
-            .row(0, named=True)
-        )
-        # dstream_rank is in raw dstream T space; disparity ranks from
-        # calc_rank_of_first_retained_disparity_between are in hstrat
-        # space (T - S).  Convert mrca_rank to hstrat space.
-        mrca_rank = mrca_row["dstream_rank"] - mrca_row["dstream_S"]
-
-        # if None, no disparity was found — surfaces are compatible up
+        # if None, no disparity was found --- surfaces are compatible up
         # to min(leaf_a, leaf_b) dstream_rank; use that as the bound
-        if first_disparity_rank is None:
-            leaf_a_dstream_rank = (
+        mrca_rank_bound = opyt.or_else(
+            first_disparity_rank,
+            lambda: min(
                 df.lazy()
                 .filter(pl.col("id") == leaf_a)
                 .select(pl.col("dstream_rank"))
                 .collect()
-                .item()
-            )
-            leaf_b_dstream_rank = (
+                .item(),
                 df.lazy()
                 .filter(pl.col("id") == leaf_b)
                 .select(pl.col("dstream_rank"))
                 .collect()
-                .item()
+                .item(),
             )
-            first_disparity_rank = (
-                min(leaf_a_dstream_rank, leaf_b_dstream_rank)
-                - dstream_S[leaf_a]
+            - dstream_S,  # dstream rank --> hstrat rank
+        )
+        assert mrca_rank_bound >= 0
+
+        mrca_id = _alifestd_find_pair_mrca_id_asexual_fast_path(
+            ancestor_ids, leaf_a, leaf_b
+        )
+
+        trie_mrca_rank = (
+            max(
+                df.lazy()
+                .filter(pl.col("id") == mrca_id)
+                .select(pl.col("dstream_rank"))
+                .collect()
+                .item(),
+                dstream_S,
             )
+            - dstream_S
+        )  # dstream rank --> hstrat rank
+        assert trie_mrca_rank >= 0
 
         # violation: surfaces prove divergence no later than
         # first_disparity_rank, which precedes mrca_rank — trie places
         # MRCA more recently than the surface data allows
-        is_violation = first_disparity_rank < mrca_rank
+        is_violation = trie_mrca_rank >= mrca_rank_bound + (
+            mrca_rank_bound == 0  # @mmore500: uncertain about this edge case
+        )
         if is_violation:
             leaf_a_rank = (
                 df.lazy()
@@ -273,24 +275,25 @@ def surface_validate_trie(
                 .select(pl.col("dstream_rank"))
                 .collect()
                 .item()
-            ) - dstream_S[leaf_a]
+            ) - dstream_S
             leaf_b_rank = (
                 df.lazy()
                 .filter(pl.col("id") == leaf_b)
                 .select(pl.col("dstream_rank"))
                 .collect()
                 .item()
-            ) - dstream_S[leaf_b]
-            logging.debug(
+            ) - dstream_S
+            logging.info(
                 "\n"
                 "===========================================================\n"
                 f"surface_validate_trie: violation found for leaf pair "
                 f"({leaf_a}, {leaf_b}):\n"
                 "-----------------------------------------------------------\n"
-                f"    delta={first_disparity_rank - mrca_rank}\n"
-                f"    {mrca_rank=}\n"
+                f"    delta={mrca_rank_bound - trie_mrca_rank}\n"
+                f"    {trie_mrca_rank=}\n"
+                f"    {mrca_rank_bound=}\n"
                 f"    {first_disparity_rank=}\n"
-                f"    {leaf_a_rank=} {leaf_b_rank=}\n",
+                f"    {leaf_a_rank=} {leaf_b_rank=}\n"
                 "===========================================================",
             )
         num_violations += is_violation

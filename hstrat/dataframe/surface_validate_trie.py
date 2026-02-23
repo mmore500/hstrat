@@ -153,10 +153,8 @@ if __name__ == "__main__":
 
     if num_violations > args.max_violations:
         logging.error(
-            "surface_validate_trie: %d violations detected "
-            "(exceeds --max-violations %d); exiting with error",
-            num_violations,
-            args.max_violations,
+            f"surface_validate_trie: {num_violations=} detected "
+            f"(exceeds {args.max_violations=}); exiting with error",
         )
         sys.exit(1)
 
