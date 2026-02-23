@@ -8,8 +8,6 @@ identifying file and line), which pybind11 converts to RuntimeError here.
 No new dependencies are required beyond what is already used by the project.
 """
 
-import pytest
-
 from hstrat.phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_test_stub import (
     _test_mod as _cpp,
 )
