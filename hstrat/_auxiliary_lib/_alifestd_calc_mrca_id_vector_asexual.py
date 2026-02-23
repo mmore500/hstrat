@@ -77,7 +77,7 @@ def alifestd_calc_mrca_id_vector_asexual(
     if target_id >= len(phylogeny_df):
         raise ValueError(f"{target_id=} out of bounds")
 
-    ancestor_ids = phylogeny_df["ancestor_id"].to_numpy().astype(np.int64)
+    ancestor_ids = phylogeny_df["ancestor_id"].to_numpy()
     assert np.all(
         phylogeny_df["id"].to_numpy() == np.arange(len(phylogeny_df))
     )

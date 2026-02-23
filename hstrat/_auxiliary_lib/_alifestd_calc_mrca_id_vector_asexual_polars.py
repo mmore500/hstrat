@@ -89,7 +89,6 @@ def alifestd_calc_mrca_id_vector_asexual_polars(
         .collect()
         .to_series()
         .to_numpy()
-        .astype(np.int64)
     )
 
     n = len(ancestor_ids)
