@@ -18,7 +18,6 @@ def _alifestd_calc_mrca_id_vector_asexual_fast_path(
 ) -> np.ndarray:
     """Implementation detail for
     `alifestd_calc_mrca_id_vector_asexual`."""
-    ancestor_ids = ancestor_ids.astype(np.int64)
     n = len(ancestor_ids)
     assert n > 0
 
@@ -27,19 +26,19 @@ def _alifestd_calc_mrca_id_vector_asexual_fast_path(
     # Mark roots (self-ancestors) as -1
     for i in range(n):
         if ancestor_ids[i] == i:
-            mrca_ids[i] = np.int64(-1)
+            mrca_ids[i] = -1
 
     # Pass 1: Target Lineage Tracing
-    curr = np.int64(target_id)
+    curr = target_id
     while ancestor_ids[curr] != curr:
         mrca_ids[curr] = curr
-        curr = np.int64(ancestor_ids[curr])
+        curr = ancestor_ids[curr]
     mrca_ids[curr] = curr
 
     # Pass 2: Left-to-Right MRCA Propagation
     for i in range(n):
         if mrca_ids[i] != i:
-            parent = np.int64(ancestor_ids[i])
+            parent = ancestor_ids[i]
             mrca_ids[i] = mrca_ids[parent]
 
     return mrca_ids
@@ -78,7 +77,7 @@ def alifestd_calc_mrca_id_vector_asexual(
     if target_id >= len(phylogeny_df):
         raise ValueError(f"{target_id=} out of bounds")
 
-    ancestor_ids = phylogeny_df["ancestor_id"].to_numpy()
+    ancestor_ids = phylogeny_df["ancestor_id"].to_numpy().astype(np.int64)
     assert np.all(
         phylogeny_df["id"].to_numpy() == np.arange(len(phylogeny_df))
     )
