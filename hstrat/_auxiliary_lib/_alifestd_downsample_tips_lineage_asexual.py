@@ -56,7 +56,15 @@ def _alifestd_downsample_tips_lineage_select_target_id(
         The id of the selected target leaf.
     """
     max_target = target_values[is_leaf].max()
+    logging.info(
+        "_alifestd_downsample_tips_lineage_select_target_id: "
+        f"max target criterion {max_target=}",
+    )
     candidate_ids = np.flatnonzero(is_leaf & (target_values == max_target))
+    logging.info(
+        "_alifestd_downsample_tips_lineage_select_target_id: "
+        f"selecting from {len(candidate_ids)=}",
+    )
     return int(np.random.choice(candidate_ids))
 
 
@@ -96,22 +104,37 @@ def _alifestd_downsample_tips_lineage_impl(
     no_mrca_mask = mrca_vector == -1
     safe_mrca = np.where(no_mrca_mask, ids, mrca_vector)
 
-    # Off-lineage delta
+    logging.info(
+        "_alifestd_downsample_tips_lineage_impl: "
+        "calculating off lineage delta...",
+    )
     off_lineage_delta = np.abs(
         criterion_values - criterion_values[safe_mrca],
     )
 
     # Select eligible leaves with the smallest deltas
+    logging.info(
+        "_alifestd_downsample_tips_lineage_impl: "
+        "filtering leaf eligibility...",
+    )
     is_eligible = is_leaf & ~no_mrca_mask
     eligible_ids = ids[is_eligible]
     eligible_deltas = off_lineage_delta[is_eligible]
+
+    logging.info(
+        "_alifestd_downsample_tips_lineage_impl: "
+        "selecting kept ids...",
+    )
     if num_tips >= len(eligible_deltas):
         kept_ids = eligible_ids
     else:
         partition_idx = np.argpartition(eligible_deltas, num_tips)[:num_tips]
         kept_ids = eligible_ids[partition_idx]
 
-    # Build extant mask
+    logging.info(
+        "_alifestd_downsample_tips_lineage_impl: "
+        "building extant mask...",
+    )
     return np.bincount(kept_ids, minlength=len(ids)).astype(bool)
 
 
