@@ -743,19 +743,30 @@ void collapse_indistinguishable_nodes(Records & records, const u64 node) {
  */
 void consolidate_trie(Records &records, const i64 rank, const u64 node) {
   const auto children_range = ChildrenView(records, node);
+  // Allele nodes (dstream_data_id == placeholder_value) must have rank <= target.
+  // Leaf nodes (dstream_data_id != placeholder_value) may have rank > target when
+  // they were promoted here by a previous consolidation of a deeper allele node.
   assert(std::ranges::all_of(
     children_range,
-    [&records, rank](const u64 child){ return records.rank[child] <= rank; }
+    [&records, rank](const u64 child){
+      return records.rank[child] <= rank
+          || records.dstream_data_id[child] != placeholder_value;
+    }
   ));
 
   if (
     children_range.begin() == children_range.end()
-    // chidlren are stored in ascending order by rank
-    || records.rank[*children_range.begin()] == rank
+    // children are stored in ascending order by rank; if the first (lowest-rank)
+    // child already meets or exceeds the target rank, no promotion is needed --
+    // allele children are at target and any leaf children are above target
+    || records.rank[*children_range.begin()] >= rank
   ) [[likely]] {
     assert(std::ranges::all_of(
       children_range,
-      [&records, rank](const u64 child){ return records.rank[child] == rank; }
+      [&records, rank](const u64 child){
+        return records.rank[child] == rank
+            || records.dstream_data_id[child] != placeholder_value;
+      }
     ));
     return;
   }
@@ -1248,6 +1259,7 @@ py::dict build_trie_searchtable_exploded(
 }
 
 
+#ifndef HSTRAT_SEARCHTABLE_IMPL_INCLUDE_ONLY
 PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
   m.attr("placeholder_value") = py::int_(placeholder_value);
   py::class_<Records>(m, "Records")
@@ -1309,6 +1321,7 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
     py::arg("progress_bar")
   );
 }
+#endif  // HSTRAT_SEARCHTABLE_IMPL_INCLUDE_ONLY
 
 
 /*
