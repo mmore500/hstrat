@@ -35,6 +35,19 @@ from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub i
     check_trie_invariant_single_root,
     check_trie_invariant_topologically_sorted,
     collapse_unifurcations,
+    copy_records_to_dict,
+    diagnose_trie_invariant_ancestor_bounds,
+    diagnose_trie_invariant_chronologically_sorted,
+    diagnose_trie_invariant_contiguous_ids,
+    diagnose_trie_invariant_data_nodes_are_leaves,
+    diagnose_trie_invariant_no_indistinguishable_nodes,
+    diagnose_trie_invariant_ranks_nonnegative,
+    diagnose_trie_invariant_root_at_zero,
+    diagnose_trie_invariant_search_children_sorted,
+    diagnose_trie_invariant_search_children_valid,
+    diagnose_trie_invariant_search_lineage_compatible,
+    diagnose_trie_invariant_single_root,
+    diagnose_trie_invariant_topologically_sorted,
     extend_tree_searchtable_cpp_from_exploded,
     extract_records_to_dict,
 )
@@ -202,55 +215,107 @@ def _produce_exploded_slices(
     logging.info(" - worker complete")
 
 
+def _dump_records(records: Records, name: str, context: str) -> str:
+    """Dump records to a pickle file and return the file path."""
+    import pickle  # noqa: PLC0415
+
+    dump_path = f"/tmp/hstrat_trie_invariant_fail_{name}_{uuid.uuid4()}.pkl"  # nosec B108
+    with open(dump_path, "wb") as f:
+        pickle.dump(copy_records_to_dict(records), f)
+    logging.error(
+        f"records dumped to {dump_path} ({context})",
+    )
+    return dump_path
+
+
 def _run_trie_invariant_checks(records: Records, context: str) -> None:
     """Run all trie invariant checks, raising AssertionError on failure.
+
+    On failure, logs diagnostic information from the corresponding
+    ``diagnose_trie_invariant_*`` function, dumps the records to a file,
+    and raises ``AssertionError``.
 
     Uses explicit ``raise AssertionError(...)`` rather than ``assert`` so
     checks are not stripped in optimized mode (``python -O``).
     """
     _checks = [
-        ("contiguous_ids", check_trie_invariant_contiguous_ids),
-        ("topologically_sorted", check_trie_invariant_topologically_sorted),
+        (
+            "contiguous_ids",
+            check_trie_invariant_contiguous_ids,
+            diagnose_trie_invariant_contiguous_ids,
+        ),
+        (
+            "topologically_sorted",
+            check_trie_invariant_topologically_sorted,
+            diagnose_trie_invariant_topologically_sorted,
+        ),
         (
             "chronologically_sorted",
             check_trie_invariant_chronologically_sorted,
+            diagnose_trie_invariant_chronologically_sorted,
         ),
-        ("single_root", check_trie_invariant_single_root),
+        (
+            "single_root",
+            check_trie_invariant_single_root,
+            diagnose_trie_invariant_single_root,
+        ),
         (
             "search_children_valid",
             check_trie_invariant_search_children_valid,
+            diagnose_trie_invariant_search_children_valid,
         ),
         (
             "search_children_sorted",
             check_trie_invariant_search_children_sorted,
+            diagnose_trie_invariant_search_children_sorted,
         ),
         (
             "no_indistinguishable_nodes",
             check_trie_invariant_no_indistinguishable_nodes,
+            diagnose_trie_invariant_no_indistinguishable_nodes,
         ),
         (
             "data_nodes_are_leaves",
             check_trie_invariant_data_nodes_are_leaves,
+            diagnose_trie_invariant_data_nodes_are_leaves,
         ),
         (
             "search_lineage_compatible",
             check_trie_invariant_search_lineage_compatible,
+            diagnose_trie_invariant_search_lineage_compatible,
         ),
-        ("ancestor_bounds", check_trie_invariant_ancestor_bounds),
-        ("root_at_zero", check_trie_invariant_root_at_zero),
+        (
+            "ancestor_bounds",
+            check_trie_invariant_ancestor_bounds,
+            diagnose_trie_invariant_ancestor_bounds,
+        ),
+        (
+            "root_at_zero",
+            check_trie_invariant_root_at_zero,
+            diagnose_trie_invariant_root_at_zero,
+        ),
         (
             "nonroot_ranks_positive",
             check_trie_invariant_ranks_nonnegative,
+            diagnose_trie_invariant_ranks_nonnegative,
         ),
     ]
-    for i, (name, check_fn) in enumerate(_checks, 1):
+    for i, (name, check_fn, diagnose_fn) in enumerate(_checks, 1):
         logging.info(
             f"checking trie invariant {i} of {len(_checks)}: "
             f"{name} ({context})...",
         )
         if not check_fn(records):
+            diagnostic = diagnose_fn(records)
+            logging.error(
+                f"trie invariant check failed: {name} ({context})\n"
+                f"{diagnostic}",
+            )
+            dump_path = _dump_records(records, name, context)
             raise AssertionError(
-                f"Trie invariant check failed: {name} ({context})"
+                f"Trie invariant check failed: {name} ({context})\n"
+                f"{diagnostic}\n"
+                f"Records dumped to: {dump_path}"
             )
     logging.info(f"all trie invariant checks passed ({context})")
 

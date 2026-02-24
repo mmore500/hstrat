@@ -11,6 +11,8 @@
 #include <numeric>
 #include <ranges>
 #include <span>
+#include <sstream>
+#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -1313,6 +1315,26 @@ bool _has_search_trie(const Records& records) {
 
 
 /**
+ * Returns a generic summary string describing the records state.
+ * Used as a header for diagnostic messages.
+ */
+std::string _records_summary(const Records& records) {
+  std::ostringstream oss;
+  oss << "Records(size=" << records.size()
+      << ", max_differentia=" << records.max_differentia
+      << ", has_search_trie="
+      << (_has_search_trie(records) ? "true" : "false");
+  if (records.size() > 0) {
+    oss << ", root: {rank=" << records.rank[0]
+        << ", ancestor_id=" << records.ancestor_id[0]
+        << ", dstream_data_id=" << records.dstream_data_id[0] << "}";
+  }
+  oss << ")";
+  return oss.str();
+}
+
+
+/**
  * Checks that record ids are contiguously assigned 0, 1, ..., n-1.
  */
 bool check_trie_invariant_contiguous_ids(const Records& records) {
@@ -1362,6 +1384,87 @@ bool check_trie_invariant_single_root(const Records& records) {
 
 
 /**
+ * Shared implementation for search_children_valid check.
+ * Returns empty string on pass, diagnostic string on failure.
+ */
+std::string _check_search_children_valid_impl(const Records& records) {
+  for (u64 i = 0; i < records.size(); ++i) {
+    const u64 first_child = records.search_first_child_id[i];
+    if (first_child == placeholder_value) {
+      std::ostringstream oss;
+      oss << "search_first_child_id[" << i << "] is placeholder_value";
+      return oss.str();
+    }
+
+    if (first_child == i) continue;  // no children, OK
+
+    if (first_child >= records.size()) {
+      std::ostringstream oss;
+      oss << "search_first_child_id[" << i << "] = " << first_child
+          << " >= size " << records.size();
+      return oss.str();
+    }
+
+    // first child's prev_sibling should be itself (signals head of list)
+    if (records.search_prev_sibling_id[first_child] != first_child) {
+      std::ostringstream oss;
+      oss << "first child " << first_child << " of node " << i
+          << " has prev_sibling "
+          << records.search_prev_sibling_id[first_child] << " != itself";
+      return oss.str();
+    }
+
+    // walk the sibling list
+    u64 cur = first_child;
+    u64 count = 0;
+    while (true) {
+      if (cur >= records.size()) {
+        std::ostringstream oss;
+        oss << "sibling " << cur << " in children of node " << i
+            << " >= size " << records.size();
+        return oss.str();
+      }
+
+      // child's search_ancestor should point back to parent
+      if (records.search_ancestor_id[cur] != i) {
+        std::ostringstream oss;
+        oss << "child " << cur << " has search_ancestor "
+            << records.search_ancestor_id[cur] << " != parent " << i;
+        return oss.str();
+      }
+
+      const u64 next = records.search_next_sibling_id[cur];
+      if (next == cur) break;  // last sibling, OK
+
+      if (next >= records.size()) {
+        std::ostringstream oss;
+        oss << "next_sibling[" << cur << "] = " << next << " >= size "
+            << records.size();
+        return oss.str();
+      }
+
+      // backward pointer consistency
+      if (records.search_prev_sibling_id[next] != cur) {
+        std::ostringstream oss;
+        oss << "backward pointer mismatch: prev_sibling[" << next << "] = "
+            << records.search_prev_sibling_id[next] << " != " << cur;
+        return oss.str();
+      }
+
+      cur = next;
+      ++count;
+      if (count > records.size()) {
+        std::ostringstream oss;
+        oss << "cycle detected in sibling list of node " << i;
+        return oss.str();
+      }
+    }
+  }
+  return "";
+}
+
+
+/**
  * Checks that search child linked lists are well-formed:
  *   - first child's prev_sibling points to itself
  *   - last child's next_sibling points to itself
@@ -1372,53 +1475,15 @@ bool check_trie_invariant_single_root(const Records& records) {
  */
 bool check_trie_invariant_search_children_valid(const Records& records) {
   if (!_has_search_trie(records)) return true;
-
-  for (u64 i = 0; i < records.size(); ++i) {
-    const u64 first_child = records.search_first_child_id[i];
-    if (first_child == placeholder_value) return false;
-
-    if (first_child == i) continue;  // no children, OK
-
-    if (first_child >= records.size()) return false;
-
-    // first child's prev_sibling should be itself (signals head of list)
-    if (records.search_prev_sibling_id[first_child] != first_child) {
-      return false;
-    }
-
-    // walk the sibling list
-    u64 cur = first_child;
-    u64 count = 0;
-    while (true) {
-      if (cur >= records.size()) return false;
-
-      // child's search_ancestor should point back to parent
-      if (records.search_ancestor_id[cur] != i) return false;
-
-      const u64 next = records.search_next_sibling_id[cur];
-      if (next == cur) break;  // last sibling, OK
-
-      if (next >= records.size()) return false;
-
-      // backward pointer consistency
-      if (records.search_prev_sibling_id[next] != cur) return false;
-
-      cur = next;
-      ++count;
-      if (count > records.size()) return false;  // cycle detection
-    }
-  }
-  return true;
+  return _check_search_children_valid_impl(records).empty();
 }
 
 
 /**
- * Checks that search children are sorted by rank in ascending order.
- * Skips check if search trie is not present.
+ * Shared implementation for search_children_sorted check.
+ * Returns empty string on pass, diagnostic string on failure.
  */
-bool check_trie_invariant_search_children_sorted(const Records& records) {
-  if (!_has_search_trie(records)) return true;
-
+std::string _check_search_children_sorted_impl(const Records& records) {
   for (u64 i = 0; i < records.size(); ++i) {
     const u64 first_child = records.search_first_child_id[i];
     if (first_child == i) continue;  // no children
@@ -1429,23 +1494,36 @@ bool check_trie_invariant_search_children_sorted(const Records& records) {
       const u64 next = records.search_next_sibling_id[cur];
       if (next == cur) break;
 
-      if (records.rank[next] < prev_rank) return false;
+      if (records.rank[next] < prev_rank) {
+        std::ostringstream oss;
+        oss << "children of node " << i << " not sorted: child " << next
+            << " has rank " << records.rank[next]
+            << " < previous sibling " << cur << " rank " << prev_rank;
+        return oss.str();
+      }
       prev_rank = records.rank[next];
       cur = next;
     }
   }
-  return true;
+  return "";
 }
 
 
 /**
- * Checks that no two children of the same parent share the same
- * (rank, differentia) pair.
+ * Checks that search children are sorted by rank in ascending order.
  * Skips check if search trie is not present.
  */
-bool check_trie_invariant_no_indistinguishable_nodes(const Records& records) {
+bool check_trie_invariant_search_children_sorted(const Records& records) {
   if (!_has_search_trie(records)) return true;
+  return _check_search_children_sorted_impl(records).empty();
+}
 
+
+/**
+ * Shared implementation for no_indistinguishable_nodes check.
+ * Returns empty string on pass, diagnostic string on failure.
+ */
+std::string _check_no_indistinguishable_nodes_impl(const Records& records) {
   for (u64 i = 0; i < records.size(); ++i) {
     const u64 first_child = records.search_first_child_id[i];
     if (first_child == i) continue;
@@ -1458,9 +1536,26 @@ bool check_trie_invariant_no_indistinguishable_nodes(const Records& records) {
 
     std::ranges::sort(child_pairs);
     const auto dup = std::ranges::adjacent_find(child_pairs);
-    if (dup != child_pairs.end()) return false;
+    if (dup != child_pairs.end()) {
+      std::ostringstream oss;
+      oss << "parent " << i << " has indistinguishable children with"
+          << " rank=" << dup->first
+          << ", differentia=" << dup->second;
+      return oss.str();
+    }
   }
-  return true;
+  return "";
+}
+
+
+/**
+ * Checks that no two children of the same parent share the same
+ * (rank, differentia) pair.
+ * Skips check if search trie is not present.
+ */
+bool check_trie_invariant_no_indistinguishable_nodes(const Records& records) {
+  if (!_has_search_trie(records)) return true;
+  return _check_no_indistinguishable_nodes_impl(records).empty();
 }
 
 
@@ -1483,16 +1578,10 @@ bool check_trie_invariant_data_nodes_are_leaves(const Records& records) {
 
 
 /**
- * Checks that search ancestors are compatible with the lineage trie.
- * For each node with a valid search_ancestor_id, walking up the lineage
- * trie via ancestor_id should find a node that is indistinguishable
- * from (i.e., same rank and differentia as) the search ancestor.
- *
- * Skips check if search trie is not present.
+ * Shared implementation for search_lineage_compatible check.
+ * Returns empty string on pass, diagnostic string on failure.
  */
-bool check_trie_invariant_search_lineage_compatible(const Records& records) {
-  if (!_has_search_trie(records)) return true;
-
+std::string _check_search_lineage_compatible_impl(const Records& records) {
   for (u64 i = 0; i < records.size(); ++i) {
     // only consider tips
     if (records.dstream_data_id[i] == placeholder_value) continue;
@@ -1504,7 +1593,16 @@ bool check_trie_invariant_search_lineage_compatible(const Records& records) {
       const auto rank_a = records.rank[a];
       const auto rank_s = records.rank[s];
       if (rank_a == rank_s) {
-        if (records.differentia[a] != records.differentia[s]) return false;
+        if (records.differentia[a] != records.differentia[s]) {
+          std::ostringstream oss;
+          oss << "node " << i << ": lineage node " << a
+              << " (rank=" << rank_a
+              << ", differentia=" << records.differentia[a]
+              << ") incompatible with search node " << s
+              << " (rank=" << rank_s
+              << ", differentia=" << records.differentia[s] << ")";
+          return oss.str();
+        }
       } else if (rank_a > rank_s) {
         a = records.ancestor_id[a];
         assert(records.rank[a] >= rank_s);
@@ -1518,7 +1616,21 @@ bool check_trie_invariant_search_lineage_compatible(const Records& records) {
     }
   }
 
-  return true;
+  return "";
+}
+
+
+/**
+ * Checks that search ancestors are compatible with the lineage trie.
+ * For each node with a valid search_ancestor_id, walking up the lineage
+ * trie via ancestor_id should find a node that is indistinguishable
+ * from (i.e., same rank and differentia as) the search ancestor.
+ *
+ * Skips check if search trie is not present.
+ */
+bool check_trie_invariant_search_lineage_compatible(const Records& records) {
+  if (!_has_search_trie(records)) return true;
+  return _check_search_lineage_compatible_impl(records).empty();
 }
 
 
@@ -1557,6 +1669,164 @@ bool check_trie_invariant_ranks_nonnegative(const Records& records) {
       return records.rank[id] >= 0;
     }
   );
+}
+
+
+// ============================================================
+// Diagnose functions: return diagnostic string (empty = pass).
+// On failure, the string starts with a generic records summary.
+// ============================================================
+
+std::string diagnose_trie_invariant_contiguous_ids(const Records& records) {
+  for (u64 i = 0; i < records.size(); ++i) {
+    if (records.id[i] != i) {
+      std::ostringstream oss;
+      oss << _records_summary(records)
+          << "\ncontiguous_ids: id[" << i << "] = " << records.id[i]
+          << ", expected " << i;
+      return oss.str();
+    }
+  }
+  return "";
+}
+
+std::string diagnose_trie_invariant_topologically_sorted(
+    const Records& records) {
+  for (const u64 id : records.id) {
+    if (records.ancestor_id[id] > id) {
+      std::ostringstream oss;
+      oss << _records_summary(records)
+          << "\ntopologically_sorted: ancestor_id[" << id << "] = "
+          << records.ancestor_id[id] << " > " << id;
+      return oss.str();
+    }
+  }
+  return "";
+}
+
+std::string diagnose_trie_invariant_chronologically_sorted(
+    const Records& records) {
+  for (const u64 id : records.id) {
+    const u64 anc = records.ancestor_id[id];
+    if (records.rank[anc] > records.rank[id]) {
+      std::ostringstream oss;
+      oss << _records_summary(records)
+          << "\nchronologically_sorted: node " << id
+          << " (rank=" << records.rank[id]
+          << ") has ancestor " << anc
+          << " (rank=" << records.rank[anc] << ")";
+      return oss.str();
+    }
+  }
+  return "";
+}
+
+std::string diagnose_trie_invariant_single_root(const Records& records) {
+  if (records.size() == 0) return "";
+  std::vector<u64> roots;
+  for (const u64 id : records.id) {
+    if (records.ancestor_id[id] == id) {
+      roots.push_back(id);
+    }
+  }
+  if (roots.size() == 1) return "";
+  std::ostringstream oss;
+  oss << _records_summary(records)
+      << "\nsingle_root: found " << roots.size() << " root(s) at id(s): ";
+  for (size_t j = 0; j < roots.size() && j < 10; ++j) {
+    if (j) oss << ", ";
+    oss << roots[j];
+  }
+  if (roots.size() > 10) oss << ", ...";
+  return oss.str();
+}
+
+std::string diagnose_trie_invariant_search_children_valid(
+    const Records& records) {
+  if (!_has_search_trie(records)) return "";
+  auto diag = _check_search_children_valid_impl(records);
+  if (diag.empty()) return "";
+  return _records_summary(records) + "\nsearch_children_valid: " + diag;
+}
+
+std::string diagnose_trie_invariant_search_children_sorted(
+    const Records& records) {
+  if (!_has_search_trie(records)) return "";
+  auto diag = _check_search_children_sorted_impl(records);
+  if (diag.empty()) return "";
+  return _records_summary(records) + "\nsearch_children_sorted: " + diag;
+}
+
+std::string diagnose_trie_invariant_no_indistinguishable_nodes(
+    const Records& records) {
+  if (!_has_search_trie(records)) return "";
+  auto diag = _check_no_indistinguishable_nodes_impl(records);
+  if (diag.empty()) return "";
+  return _records_summary(records)
+      + "\nno_indistinguishable_nodes: " + diag;
+}
+
+std::string diagnose_trie_invariant_data_nodes_are_leaves(
+    const Records& records) {
+  if (!_has_search_trie(records)) return "";
+  for (const u64 id : records.id) {
+    if (records.dstream_data_id[id] != placeholder_value
+        && records.search_first_child_id[id] != id) {
+      std::ostringstream oss;
+      oss << _records_summary(records)
+          << "\ndata_nodes_are_leaves: data node " << id
+          << " (dstream_data_id=" << records.dstream_data_id[id]
+          << ") has search children (first_child="
+          << records.search_first_child_id[id] << ")";
+      return oss.str();
+    }
+  }
+  return "";
+}
+
+std::string diagnose_trie_invariant_search_lineage_compatible(
+    const Records& records) {
+  if (!_has_search_trie(records)) return "";
+  auto diag = _check_search_lineage_compatible_impl(records);
+  if (diag.empty()) return "";
+  return _records_summary(records)
+      + "\nsearch_lineage_compatible: " + diag;
+}
+
+std::string diagnose_trie_invariant_ancestor_bounds(const Records& records) {
+  for (const u64 id : records.id) {
+    if (records.ancestor_id[id] >= records.size()) {
+      std::ostringstream oss;
+      oss << _records_summary(records)
+          << "\nancestor_bounds: ancestor_id[" << id << "] = "
+          << records.ancestor_id[id] << " >= size " << records.size();
+      return oss.str();
+    }
+  }
+  return "";
+}
+
+std::string diagnose_trie_invariant_root_at_zero(const Records& records) {
+  if (records.size() == 0) return "";
+  if (records.ancestor_id[0] == 0 && records.rank[0] == 0) return "";
+  std::ostringstream oss;
+  oss << _records_summary(records)
+      << "\nroot_at_zero: node 0 has ancestor_id=" << records.ancestor_id[0]
+      << " (expected 0), rank=" << records.rank[0] << " (expected 0)";
+  return oss.str();
+}
+
+std::string diagnose_trie_invariant_ranks_nonnegative(
+    const Records& records) {
+  for (const u64 id : records.id) {
+    if (records.rank[id] < 0) {
+      std::ostringstream oss;
+      oss << _records_summary(records)
+          << "\nranks_nonnegative: rank[" << id << "] = " << records.rank[id];
+      return oss.str();
+    }
+  }
+  return "";
 }
 
 
@@ -1682,6 +1952,71 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
   m.def(
     "check_trie_invariant_ranks_nonnegative",
     &check_trie_invariant_ranks_nonnegative,
+    py::arg("records")
+  );
+  m.def(
+    "_records_summary",
+    &_records_summary,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_contiguous_ids",
+    &diagnose_trie_invariant_contiguous_ids,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_topologically_sorted",
+    &diagnose_trie_invariant_topologically_sorted,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_chronologically_sorted",
+    &diagnose_trie_invariant_chronologically_sorted,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_single_root",
+    &diagnose_trie_invariant_single_root,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_search_children_valid",
+    &diagnose_trie_invariant_search_children_valid,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_search_children_sorted",
+    &diagnose_trie_invariant_search_children_sorted,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_no_indistinguishable_nodes",
+    &diagnose_trie_invariant_no_indistinguishable_nodes,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_data_nodes_are_leaves",
+    &diagnose_trie_invariant_data_nodes_are_leaves,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_search_lineage_compatible",
+    &diagnose_trie_invariant_search_lineage_compatible,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_ancestor_bounds",
+    &diagnose_trie_invariant_ancestor_bounds,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_root_at_zero",
+    &diagnose_trie_invariant_root_at_zero,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_ranks_nonnegative",
+    &diagnose_trie_invariant_ranks_nonnegative,
     py::arg("records")
   );
 }

@@ -49,3 +49,40 @@ check_trie_invariant_root_at_zero = _impl_mod.check_trie_invariant_root_at_zero
 check_trie_invariant_ranks_nonnegative = (
     _impl_mod.check_trie_invariant_ranks_nonnegative
 )
+records_summary = _impl_mod._records_summary
+diagnose_trie_invariant_contiguous_ids = (
+    _impl_mod.diagnose_trie_invariant_contiguous_ids
+)
+diagnose_trie_invariant_topologically_sorted = (
+    _impl_mod.diagnose_trie_invariant_topologically_sorted
+)
+diagnose_trie_invariant_chronologically_sorted = (
+    _impl_mod.diagnose_trie_invariant_chronologically_sorted
+)
+diagnose_trie_invariant_single_root = (
+    _impl_mod.diagnose_trie_invariant_single_root
+)
+diagnose_trie_invariant_search_children_valid = (
+    _impl_mod.diagnose_trie_invariant_search_children_valid
+)
+diagnose_trie_invariant_search_children_sorted = (
+    _impl_mod.diagnose_trie_invariant_search_children_sorted
+)
+diagnose_trie_invariant_no_indistinguishable_nodes = (
+    _impl_mod.diagnose_trie_invariant_no_indistinguishable_nodes
+)
+diagnose_trie_invariant_data_nodes_are_leaves = (
+    _impl_mod.diagnose_trie_invariant_data_nodes_are_leaves
+)
+diagnose_trie_invariant_search_lineage_compatible = (
+    _impl_mod.diagnose_trie_invariant_search_lineage_compatible
+)
+diagnose_trie_invariant_ancestor_bounds = (
+    _impl_mod.diagnose_trie_invariant_ancestor_bounds
+)
+diagnose_trie_invariant_root_at_zero = (
+    _impl_mod.diagnose_trie_invariant_root_at_zero
+)
+diagnose_trie_invariant_ranks_nonnegative = (
+    _impl_mod.diagnose_trie_invariant_ranks_nonnegative
+)
