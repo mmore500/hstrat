@@ -36,23 +36,23 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
-def _alifestd_downsample_tips_lineage_stratification_impl(
+def _alifestd_downsample_tips_lineage_stratified_impl(
     is_leaf: np.ndarray,
     criterion_values: np.ndarray,
-    stratification_values: np.ndarray,
+    stratified_values: np.ndarray,
     mrca_vector: np.ndarray,
     n_tips: typing.Optional[int] = None,
 ) -> np.ndarray:
-    """Shared numpy implementation for partition-based lineage tip
+    """Shared numpy implementation for stratified lineage tip
     downsampling.
 
     Computes off-lineage deltas from a pre-computed MRCA vector and
     returns a boolean extant mask, selecting the one leaf with the
-    smallest delta per stratification group.
+    smallest delta per stratified group.
 
-    When `n_tips` is an integer, stratification values are coarsened by
+    When `n_tips` is an integer, stratified values are coarsened by
     ranking and integer-dividing so that exactly `n_tips` groups are
-    formed.  When `n_tips` is ``None``, each distinct stratification value
+    formed.  When `n_tips` is ``None``, each distinct stratified value
     defines its own group.
 
     Parameters
@@ -61,14 +61,15 @@ def _alifestd_downsample_tips_lineage_stratification_impl(
         Boolean array indicating which taxa are leaves.
     criterion_values : numpy.ndarray
         Values used to compute off-lineage delta (all taxa).
-    stratification_values : numpy.ndarray
+    stratified_values : numpy.ndarray
         Values used to stratify leaves into groups (all taxa).
     mrca_vector : numpy.ndarray
         Integer array of MRCA ids for each taxon with respect to the
         target leaf.  Taxa in a different tree should have ``-1``.
     n_tips : int, optional
-        Desired number of stratification groups (and thus retained tips).
-        If ``None``, every distinct stratification value forms its own group.
+        Desired number of stratified groups (and thus retained tips).
+        If ``None``, every distinct stratified value forms its own
+        group.
 
     Returns
     -------
@@ -82,7 +83,7 @@ def _alifestd_downsample_tips_lineage_stratification_impl(
     safe_mrca = np.where(no_mrca_mask, 0, mrca_vector)
 
     logging.info(
-        "_alifestd_downsample_tips_lineage_stratification_impl: "
+        "_alifestd_downsample_tips_lineage_stratified_impl: "
         "calculating off lineage delta...",
     )
     off_lineage_delta = np.abs(
@@ -91,38 +92,40 @@ def _alifestd_downsample_tips_lineage_stratification_impl(
 
     # Select eligible leaves
     logging.info(
-        "_alifestd_downsample_tips_lineage_stratification_impl: "
+        "_alifestd_downsample_tips_lineage_stratified_impl: "
         "filtering leaf eligibility...",
     )
     is_eligible = is_leaf & ~no_mrca_mask
     eligible_ids = np.flatnonzero(is_eligible)
     eligible_deltas = off_lineage_delta[is_eligible]
-    eligible_stratifications = stratification_values[is_eligible]
+    eligible_stratified = stratified_values[is_eligible]
 
-    # Coarsen stratification values if n_tips is specified
+    # Coarsen stratified values if n_tips is specified
     if n_tips is not None:
-        unique_sorted = np.unique(eligible_stratifications)
+        unique_sorted = np.unique(eligible_stratified)
         n_unique = len(unique_sorted)
-        ranks = np.searchsorted(unique_sorted, eligible_stratifications)
-        eligible_stratifications = ranks * n_tips // n_unique
-        assert len(np.unique(eligible_stratifications)) == min(
-            n_tips, n_unique
-        )
+        ranks = np.searchsorted(unique_sorted, eligible_stratified)
+        eligible_stratified = ranks * n_tips // n_unique
+        assert len(np.unique(eligible_stratified)) == min(n_tips, n_unique)
 
-    # Per-stratification selection: for each group keep the leaf with the
-    # smallest delta.  Sort by (stratification, delta) then take the first
-    # occurrence of each unique stratification value.
+    # Per-stratum selection: for each group, keep the one leaf
+    # with the smallest delta.
     logging.info(
-        "_alifestd_downsample_tips_lineage_stratification_impl: "
-        "selecting kept ids per stratification...",
+        "_alifestd_downsample_tips_lineage_stratified_impl: "
+        "selecting kept ids per stratum...",
     )
-    sort_idx = np.lexsort((eligible_deltas, eligible_stratifications))
-    sorted_stratifications = eligible_stratifications[sort_idx]
-    _, first_occurrence = np.unique(sorted_stratifications, return_index=True)
-    kept_ids = eligible_ids[sort_idx[first_occurrence]]
+    # Vectorized: sort by (stratum, delta), then pick the first
+    # occurrence of each stratum (i.e., the one with the smallest delta).
+    sort_order = np.lexsort((eligible_deltas, eligible_stratified))
+    sorted_strata = eligible_stratified[sort_order]
+    sorted_ids = eligible_ids[sort_order]
+    first_mask = np.empty(len(sorted_strata), dtype=bool)
+    first_mask[0:1] = True
+    first_mask[1:] = sorted_strata[1:] != sorted_strata[:-1]
+    kept_ids = sorted_ids[first_mask]
 
     logging.info(
-        "_alifestd_downsample_tips_lineage_stratification_impl: "
+        "_alifestd_downsample_tips_lineage_stratified_impl: "
         "building extant mask...",
     )
     return np.bincount(kept_ids, minlength=len(is_leaf)).astype(bool)
@@ -133,18 +136,18 @@ def _alifestd_downsample_tips_lineage_stratification_impl(
     delete=True,
     update=False,
 )
-def alifestd_downsample_tips_lineage_stratification_asexual(
+def alifestd_downsample_tips_lineage_stratified_asexual(
     phylogeny_df: pd.DataFrame,
     n_tips: typing.Optional[int] = None,
     mutate: bool = False,
     seed: typing.Optional[int] = None,
     *,
     criterion_delta: str = "origin_time",
-    criterion_stratification: str = "origin_time",
+    criterion_stratified: str = "origin_time",
     criterion_target: str = "origin_time",
     progress_wrap: typing.Callable = lambda x: x,
 ) -> pd.DataFrame:
-    """Retain one leaf per stratification group, chosen by proximity to the
+    """Retain one leaf per stratified group, chosen by proximity to the
     lineage of a target leaf.
 
     Selects a target leaf as the leaf with the largest `criterion_target`
@@ -153,10 +156,10 @@ def alifestd_downsample_tips_lineage_stratification_asexual(
     delta" is computed as the absolute difference between the leaf's
     `criterion_delta` value and its MRCA's `criterion_delta` value.
 
-    Leaves are grouped by their `criterion_stratification` value. When
-    `n_tips` is an integer, stratification values are coarsened by ranking
-    and integer-dividing to form exactly `n_tips` groups. When `n_tips` is
-    ``None``, each distinct stratification value forms its own group. Within
+    Leaves are grouped by their `criterion_stratified` value. When
+    `n_tips` is an integer, stratified values are coarsened by ranking and
+    integer-dividing to form exactly `n_tips` groups. When `n_tips` is
+    ``None``, each distinct stratified value forms its own group. Within
     each group, the single leaf with the smallest off-lineage delta is
     retained.
 
@@ -169,8 +172,8 @@ def alifestd_downsample_tips_lineage_stratification_asexual(
 
         Must represent an asexual phylogeny.
     n_tips : int, optional
-        Desired number of stratification groups (and thus retained tips).
-        If ``None``, every distinct ``criterion_stratification`` value forms
+        Desired number of stratified groups (and thus retained tips).
+        If ``None``, every distinct ``criterion_stratified`` value forms
         its own group.
     mutate : bool, default False
         Are side effects on the input argument `phylogeny_df` allowed?
@@ -181,7 +184,7 @@ def alifestd_downsample_tips_lineage_stratification_asexual(
         Column name used to compute the off-lineage delta for each leaf.
         The delta is the absolute difference between a leaf's value and
         its MRCA's value in this column.
-    criterion_stratification : str, default "origin_time"
+    criterion_stratified : str, default "origin_time"
         Column name used to stratify leaves into groups.
     criterion_target : str, default "origin_time"
         Column name used to select the target leaf. The leaf with the
@@ -194,7 +197,7 @@ def alifestd_downsample_tips_lineage_stratification_asexual(
     Raises
     ------
     ValueError
-        If `criterion_delta`, `criterion_stratification`, or
+        If `criterion_delta`, `criterion_stratified`, or
         `criterion_target` is not a column in `phylogeny_df`.
 
     Returns
@@ -204,7 +207,7 @@ def alifestd_downsample_tips_lineage_stratification_asexual(
     """
     for criterion in (
         criterion_delta,
-        criterion_stratification,
+        criterion_stratified,
         criterion_target,
     ):
         if criterion not in phylogeny_df.columns:
@@ -219,25 +222,25 @@ def alifestd_downsample_tips_lineage_stratification_asexual(
         return phylogeny_df
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_asexual: "
+        "- alifestd_downsample_tips_lineage_stratified_asexual: "
         "adding ancestor_id col...",
     )
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df)
     if "ancestor_id" not in phylogeny_df.columns:
         raise ValueError(
-            "alifestd_downsample_tips_lineage_stratification_asexual only "
+            "alifestd_downsample_tips_lineage_stratified_asexual only "
             "supports asexual phylogenies.",
         )
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_asexual: "
+        "- alifestd_downsample_tips_lineage_stratified_asexual: "
         "marking leaves...",
     )
     if "is_leaf" not in phylogeny_df.columns:
         phylogeny_df = alifestd_mark_leaves(phylogeny_df)
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_asexual: "
+        "- alifestd_downsample_tips_lineage_stratified_asexual: "
         "checking contiguous ids...",
     )
     if alifestd_has_contiguous_ids(phylogeny_df):
@@ -252,7 +255,7 @@ def alifestd_downsample_tips_lineage_stratification_asexual(
     is_leaf = phylogeny_df["is_leaf"].to_numpy()
     target_values = phylogeny_df[criterion_target].to_numpy()
     criterion_values = phylogeny_df[criterion_delta].to_numpy()
-    stratification_values = phylogeny_df[criterion_stratification].to_numpy()
+    stratified_values = phylogeny_df[criterion_stratified].to_numpy()
 
     with opyt.apply_if_or_else(seed, RngStateContext, contextlib.nullcontext):
         target_id = _alifestd_downsample_tips_lineage_select_target_id(
@@ -260,7 +263,7 @@ def alifestd_downsample_tips_lineage_stratification_asexual(
         )
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_asexual: "
+        "- alifestd_downsample_tips_lineage_stratified_asexual: "
         "computing mrca vector...",
     )
     mrca_vector = alifestd_calc_mrca_id_vector_asexual(
@@ -268,19 +271,19 @@ def alifestd_downsample_tips_lineage_stratification_asexual(
     )
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_asexual: "
-        "computing lineage partition downsample...",
+        "- alifestd_downsample_tips_lineage_stratified_asexual: "
+        "computing lineage stratified downsample...",
     )
-    is_extant = _alifestd_downsample_tips_lineage_stratification_impl(
+    is_extant = _alifestd_downsample_tips_lineage_stratified_impl(
         is_leaf=is_leaf,
         criterion_values=criterion_values,
-        stratification_values=stratification_values,
+        stratified_values=stratified_values,
         mrca_vector=mrca_vector,
         n_tips=n_tips,
     )
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_asexual: pruning...",
+        "- alifestd_downsample_tips_lineage_stratified_asexual: pruning...",
     )
     phylogeny_df["extant"] = is_extant
     return alifestd_prune_extinct_lineages_asexual(
@@ -290,17 +293,17 @@ def alifestd_downsample_tips_lineage_stratification_asexual(
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
 
-Retain one leaf per stratification group, chosen by proximity to the
+Retain one leaf per stratified group, chosen by proximity to the
 lineage of a target leaf.
 
 The target leaf is chosen as the leaf with the largest
 `--criterion-target` value. For each leaf, the off-lineage delta is
 the absolute difference between the leaf's `--criterion-delta` value
 and its MRCA's `--criterion-delta` value with respect to the target.
-Leaves are grouped by their `--criterion-stratification` value. When
-`-n` is given, stratification values are coarsened into `-n` groups
-by ranking and integer division. Within each group, the leaf with the
-smallest delta is retained.
+Leaves are grouped by their `--criterion-stratified` value. When `-n`
+is given, stratified values are coarsened into `-n` groups by ranking
+and integer division. Within each group, the leaf with the smallest
+delta is retained.
 
 Data is assumed to be in alife standard format.
 Only supports asexual phylogenies.
@@ -319,19 +322,20 @@ Otherwise, no action is taken.
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
+        allow_abbrev=False,
         description=format_cli_description(_raw_description),
         formatter_class=argparse.RawTextHelpFormatter,
     )
     parser = _add_parser_base(
         parser=parser,
-        dfcli_module="hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratification_asexual",
+        dfcli_module="hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratified_asexual",
         dfcli_version=get_hstrat_version(),
     )
     parser.add_argument(
         "-n",
         default=None,
         type=int,
-        help="Number of partition groups (default: one per distinct value).",
+        help="Number of stratified groups (default: one per distinct value).",
     )
     parser.add_argument(
         "--criterion-delta",
@@ -340,7 +344,7 @@ def _create_parser() -> argparse.ArgumentParser:
         help="Column used to compute off-lineage delta (default: origin_time).",
     )
     parser.add_argument(
-        "--criterion-stratification",
+        "--criterion-stratified",
         default="origin_time",
         type=str,
         help="Column used to stratify leaves (default: origin_time).",
@@ -379,18 +383,18 @@ if __name__ == "__main__":
     parser = _create_parser()
     args, __ = parser.parse_known_args()
     with log_context_duration(
-        "hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratification_asexual",
+        "hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratified_asexual",
         logging.info,
     ):
         _run_dataframe_cli(
             base_parser=parser,
             output_dataframe_op=delegate_polars_implementation()(
                 functools.partial(
-                    alifestd_downsample_tips_lineage_stratification_asexual,
+                    alifestd_downsample_tips_lineage_stratified_asexual,
                     n_tips=args.n,
                     seed=args.seed,
                     criterion_delta=args.criterion_delta,
-                    criterion_stratification=args.criterion_stratification,
+                    criterion_stratified=args.criterion_stratified,
                     criterion_target=args.criterion_target,
                     progress_wrap=tqdm,
                     ignore_topological_sensitivity=args.ignore_topological_sensitivity,

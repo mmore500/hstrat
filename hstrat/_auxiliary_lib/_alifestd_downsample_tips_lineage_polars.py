@@ -262,6 +262,7 @@ hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_asexual :
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
+        allow_abbrev=False,
         description=format_cli_description(_raw_description),
         formatter_class=argparse.RawTextHelpFormatter,
     )

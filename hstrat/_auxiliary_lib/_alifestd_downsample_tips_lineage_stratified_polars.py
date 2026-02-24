@@ -20,8 +20,8 @@ from ._alifestd_calc_mrca_id_vector_asexual_polars import (
 from ._alifestd_downsample_tips_lineage_asexual import (
     _alifestd_downsample_tips_lineage_select_target_id,
 )
-from ._alifestd_downsample_tips_lineage_stratification_asexual import (
-    _alifestd_downsample_tips_lineage_stratification_impl,
+from ._alifestd_downsample_tips_lineage_stratified_asexual import (
+    _alifestd_downsample_tips_lineage_stratified_impl,
 )
 from ._alifestd_has_contiguous_ids_polars import (
     alifestd_has_contiguous_ids_polars,
@@ -50,17 +50,17 @@ from ._log_context_duration import log_context_duration
     delete=True,
     update=False,
 )
-def alifestd_downsample_tips_lineage_stratification_polars(
+def alifestd_downsample_tips_lineage_stratified_polars(
     phylogeny_df: pl.DataFrame,
     n_tips: typing.Optional[int] = None,
     seed: typing.Optional[int] = None,
     *,
     criterion_delta: str = "origin_time",
-    criterion_stratification: str = "origin_time",
+    criterion_stratified: str = "origin_time",
     criterion_target: str = "origin_time",
     progress_wrap: typing.Callable = lambda x: x,
 ) -> pl.DataFrame:
-    """Retain one leaf per stratification group, chosen by proximity to the
+    """Retain one leaf per stratified group, chosen by proximity to the
     lineage of a target leaf.
 
     Selects a target leaf as the leaf with the largest `criterion_target`
@@ -69,10 +69,10 @@ def alifestd_downsample_tips_lineage_stratification_polars(
     delta" is computed as the absolute difference between the leaf's
     `criterion_delta` value and its MRCA's `criterion_delta` value.
 
-    Leaves are grouped by their `criterion_stratification` value. When
-    `n_tips` is an integer, stratification values are coarsened by ranking
-    and integer-dividing to form exactly `n_tips` groups. When `n_tips` is
-    ``None``, each distinct stratification value forms its own group. Within
+    Leaves are grouped by their `criterion_stratified` value. When
+    `n_tips` is an integer, stratified values are coarsened by ranking and
+    integer-dividing to form exactly `n_tips` groups. When `n_tips` is
+    ``None``, each distinct stratified value forms its own group. Within
     each group, the single leaf with the smallest off-lineage delta is
     retained.
 
@@ -85,8 +85,8 @@ def alifestd_downsample_tips_lineage_stratification_polars(
 
         Must represent an asexual phylogeny.
     n_tips : int, optional
-        Desired number of stratification groups (and thus retained tips).
-        If ``None``, every distinct ``criterion_stratification`` value forms
+        Desired number of stratified groups (and thus retained tips).
+        If ``None``, every distinct ``criterion_stratified`` value forms
         its own group.
     seed : int, optional
         Random seed for reproducible target-leaf selection when there are
@@ -95,7 +95,7 @@ def alifestd_downsample_tips_lineage_stratification_polars(
         Column name used to compute the off-lineage delta for each leaf.
         The delta is the absolute difference between a leaf's value and
         its MRCA's value in this column.
-    criterion_stratification : str, default "origin_time"
+    criterion_stratified : str, default "origin_time"
         Column name used to stratify leaves into groups.
     criterion_target : str, default "origin_time"
         Column name used to select the target leaf. The leaf with the
@@ -111,7 +111,7 @@ def alifestd_downsample_tips_lineage_stratification_polars(
         If `phylogeny_df` has no "ancestor_id" column or if ids are
         non-contiguous or not topologically sorted.
     ValueError
-        If `criterion_delta`, `criterion_stratification`, or
+        If `criterion_delta`, `criterion_stratified`, or
         `criterion_target` is not a column in `phylogeny_df`.
 
     Returns
@@ -121,13 +121,13 @@ def alifestd_downsample_tips_lineage_stratification_polars(
 
     See Also
     --------
-    alifestd_downsample_tips_lineage_stratification_asexual :
+    alifestd_downsample_tips_lineage_stratified_asexual :
         Pandas-based implementation.
     """
     schema_names = phylogeny_df.lazy().collect_schema().names()
     for criterion in (
         criterion_delta,
-        criterion_stratification,
+        criterion_stratified,
         criterion_target,
     ):
         if criterion not in schema_names:
@@ -139,19 +139,19 @@ def alifestd_downsample_tips_lineage_stratification_polars(
         return phylogeny_df
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_polars: "
+        "- alifestd_downsample_tips_lineage_stratified_polars: "
         "adding ancestor_id col...",
     )
     phylogeny_df = alifestd_try_add_ancestor_id_col_polars(phylogeny_df)
     schema_names = phylogeny_df.lazy().collect_schema().names()
     if "ancestor_id" not in schema_names:
         raise NotImplementedError(
-            "alifestd_downsample_tips_lineage_stratification_polars only "
+            "alifestd_downsample_tips_lineage_stratified_polars only "
             "supports asexual phylogenies.",
         )
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_polars: "
+        "- alifestd_downsample_tips_lineage_stratified_polars: "
         "checking contiguous ids...",
     )
     if not alifestd_has_contiguous_ids_polars(phylogeny_df):
@@ -160,7 +160,7 @@ def alifestd_downsample_tips_lineage_stratification_polars(
         )
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_polars: "
+        "- alifestd_downsample_tips_lineage_stratified_polars: "
         "checking topological sort...",
     )
     if not alifestd_is_topologically_sorted_polars(phylogeny_df):
@@ -169,13 +169,13 @@ def alifestd_downsample_tips_lineage_stratification_polars(
         )
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_polars: "
+        "- alifestd_downsample_tips_lineage_stratified_polars: "
         "marking leaves...",
     )
     phylogeny_df = alifestd_mark_leaves_polars(phylogeny_df)
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_polars: "
+        "- alifestd_downsample_tips_lineage_stratified_polars: "
         "collecting is_leaf values...",
     )
     is_leaf = (
@@ -183,7 +183,7 @@ def alifestd_downsample_tips_lineage_stratification_polars(
     )
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_polars: "
+        "- alifestd_downsample_tips_lineage_stratified_polars: "
         "collecting criterion_target values...",
     )
     target_values = (
@@ -195,7 +195,7 @@ def alifestd_downsample_tips_lineage_stratification_polars(
     )
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_polars: "
+        "- alifestd_downsample_tips_lineage_stratified_polars: "
         "selecting target leaf...",
     )
     with opyt.apply_if_or_else(seed, RngStateContext, contextlib.nullcontext):
@@ -207,7 +207,7 @@ def alifestd_downsample_tips_lineage_stratification_polars(
     gc.collect()
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_polars: "
+        "- alifestd_downsample_tips_lineage_stratified_polars: "
         "collecting criterion_delta values...",
     )
     criterion_values = (
@@ -219,34 +219,34 @@ def alifestd_downsample_tips_lineage_stratification_polars(
     )
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_polars: "
-        "collecting criterion_stratification values...",
+        "- alifestd_downsample_tips_lineage_stratified_polars: "
+        "collecting criterion_stratified values...",
     )
-    stratification_values = (
+    stratified_values = (
         phylogeny_df.lazy()
-        .select(criterion_stratification)
+        .select(criterion_stratified)
         .collect()
         .to_series()
         .to_numpy()
     )
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_polars: "
+        "- alifestd_downsample_tips_lineage_stratified_polars: "
         f"computing mrca vector for {target_id=}...",
     )
     mrca_vector = alifestd_calc_mrca_id_vector_asexual_polars(
         phylogeny_df, target_id=target_id, progress_wrap=progress_wrap
     )
-    is_extant = _alifestd_downsample_tips_lineage_stratification_impl(
+    is_extant = _alifestd_downsample_tips_lineage_stratified_impl(
         is_leaf=is_leaf,
         criterion_values=criterion_values,
-        stratification_values=stratification_values,
+        stratified_values=stratified_values,
         mrca_vector=mrca_vector,
         n_tips=n_tips,
     )
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_stratification_polars: pruning...",
+        "- alifestd_downsample_tips_lineage_stratified_polars: pruning...",
     )
     phylogeny_df = phylogeny_df.with_columns(
         extant=is_extant,
@@ -258,17 +258,17 @@ def alifestd_downsample_tips_lineage_stratification_polars(
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
 
-Retain one leaf per stratification group, chosen by proximity to the
+Retain one leaf per stratified group, chosen by proximity to the
 lineage of a target leaf.
 
 The target leaf is chosen as the leaf with the largest
 `--criterion-target` value. For each leaf, the off-lineage delta is
 the absolute difference between the leaf's `--criterion-delta` value
 and its MRCA's `--criterion-delta` value with respect to the target.
-Leaves are grouped by their `--criterion-stratification` value. When
-`-n` is given, stratification values are coarsened into `-n` groups
-by ranking and integer division. Within each group, the leaf with the
-smallest delta is retained.
+Leaves are grouped by their `--criterion-stratified` value. When `-n`
+is given, stratified values are coarsened into `-n` groups by ranking
+and integer division. Within each group, the leaf with the smallest
+delta is retained.
 
 Data is assumed to be in alife standard format.
 Only supports asexual phylogenies.
@@ -284,7 +284,7 @@ Otherwise, no action is taken.
 
 See Also
 ========
-hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratification_asexual :
+hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratified_asexual :
     CLI entrypoint for Pandas-based implementation.
 """
 
@@ -292,19 +292,20 @@ hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratification_asexual :
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
+        allow_abbrev=False,
         description=format_cli_description(_raw_description),
         formatter_class=argparse.RawTextHelpFormatter,
     )
     parser = _add_parser_base(
         parser=parser,
-        dfcli_module="hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratification_polars",
+        dfcli_module="hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratified_polars",
         dfcli_version=get_hstrat_version(),
     )
     parser.add_argument(
         "-n",
         default=None,
         type=int,
-        help="Number of partition groups (default: one per distinct value).",
+        help="Number of stratified groups (default: one per distinct value).",
     )
     parser.add_argument(
         "--criterion-delta",
@@ -313,7 +314,7 @@ def _create_parser() -> argparse.ArgumentParser:
         help="Column used to compute off-lineage delta (default: origin_time).",
     )
     parser.add_argument(
-        "--criterion-stratification",
+        "--criterion-stratified",
         default="origin_time",
         type=str,
         help="Column used to stratify leaves (default: origin_time).",
@@ -354,17 +355,17 @@ if __name__ == "__main__":
 
     try:
         with log_context_duration(
-            "hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratification_polars",
+            "hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratified_polars",
             logging.info,
         ):
             _run_dataframe_cli(
                 base_parser=parser,
                 output_dataframe_op=functools.partial(
-                    alifestd_downsample_tips_lineage_stratification_polars,
+                    alifestd_downsample_tips_lineage_stratified_polars,
                     n_tips=args.n,
                     seed=args.seed,
                     criterion_delta=args.criterion_delta,
-                    criterion_stratification=args.criterion_stratification,
+                    criterion_stratified=args.criterion_stratified,
                     criterion_target=args.criterion_target,
                     progress_wrap=tqdm,
                     ignore_topological_sensitivity=args.ignore_topological_sensitivity,

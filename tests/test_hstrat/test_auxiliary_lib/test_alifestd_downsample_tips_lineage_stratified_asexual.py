@@ -7,7 +7,7 @@ import pytest
 from hstrat._auxiliary_lib import (
     alifestd_aggregate_phylogenies,
     alifestd_count_leaf_nodes,
-    alifestd_downsample_tips_lineage_stratification_asexual,
+    alifestd_downsample_tips_lineage_stratified_asexual,
     alifestd_to_working_format,
 )
 
@@ -31,7 +31,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
 @pytest.mark.parametrize("n_tips", [None, 1, 5, 10])
 @pytest.mark.parametrize("mutate", [True, False])
 @pytest.mark.parametrize("seed", [1, 42])
-def test_alifestd_downsample_tips_lineage_stratification_asexual(
+def test_alifestd_downsample_tips_lineage_stratified_asexual(
     phylogeny_df: pd.DataFrame,
     n_tips: typing.Optional[int],
     mutate: bool,
@@ -39,7 +39,7 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual(
 ):
     original_df = phylogeny_df.copy()
 
-    result_df = alifestd_downsample_tips_lineage_stratification_asexual(
+    result_df = alifestd_downsample_tips_lineage_stratified_asexual(
         phylogeny_df, n_tips, mutate=mutate, seed=seed
     )
 
@@ -53,14 +53,14 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual(
 
 
 @pytest.mark.parametrize("n_tips", [None, 1])
-def test_alifestd_downsample_tips_lineage_stratification_asexual_empty(
+def test_alifestd_downsample_tips_lineage_stratified_asexual_empty(
     n_tips: typing.Optional[int],
 ):
     phylogeny_df = pd.DataFrame(
         {"id": [], "parent_id": [], "ancestor_id": [], "origin_time": []}
     )
 
-    result_df = alifestd_downsample_tips_lineage_stratification_asexual(
+    result_df = alifestd_downsample_tips_lineage_stratified_asexual(
         phylogeny_df, n_tips
     )
 
@@ -82,13 +82,13 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_empty(
     ],
 )
 @pytest.mark.parametrize("seed", [1, 42])
-def test_alifestd_downsample_tips_lineage_stratification_asexual_seed_reproducibility(
+def test_alifestd_downsample_tips_lineage_stratified_asexual_seed_reproducibility(
     phylogeny_df: pd.DataFrame, seed: int
 ):
-    result1 = alifestd_downsample_tips_lineage_stratification_asexual(
+    result1 = alifestd_downsample_tips_lineage_stratified_asexual(
         phylogeny_df, 5, seed=seed
     )
-    result2 = alifestd_downsample_tips_lineage_stratification_asexual(
+    result2 = alifestd_downsample_tips_lineage_stratified_asexual(
         phylogeny_df, 5, seed=seed
     )
 
@@ -106,11 +106,11 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_seed_reproducib
         ),
     ],
 )
-def test_alifestd_downsample_tips_lineage_stratification_asexual_none_keeps_all_partitions(
+def test_alifestd_downsample_tips_lineage_stratified_asexual_none_keeps_all_strata(
     phylogeny_df: pd.DataFrame,
 ):
-    """With n_tips=None, one tip per distinct partition value is retained."""
-    result_df = alifestd_downsample_tips_lineage_stratification_asexual(
+    """With n_tips=None, one tip per distinct stratified value is retained."""
+    result_df = alifestd_downsample_tips_lineage_stratified_asexual(
         phylogeny_df, seed=1
     )
 
@@ -129,14 +129,14 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_none_keeps_all_
         ),
     ],
 )
-def test_alifestd_downsample_tips_lineage_stratification_asexual_large_n(
+def test_alifestd_downsample_tips_lineage_stratified_asexual_large_n(
     phylogeny_df: pd.DataFrame,
 ):
     """n_tips larger than distinct values should match n_tips=None."""
-    result_none = alifestd_downsample_tips_lineage_stratification_asexual(
+    result_none = alifestd_downsample_tips_lineage_stratified_asexual(
         phylogeny_df, seed=1
     )
-    result_large = alifestd_downsample_tips_lineage_stratification_asexual(
+    result_large = alifestd_downsample_tips_lineage_stratified_asexual(
         phylogeny_df, 100000000, seed=1
     )
 
@@ -145,7 +145,7 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_large_n(
     ) == alifestd_count_leaf_nodes(result_none)
 
 
-def test_alifestd_downsample_tips_lineage_stratification_asexual_missing_criterion():
+def test_alifestd_downsample_tips_lineage_stratified_asexual_missing_criterion():
     phylogeny_df = pd.DataFrame(
         {
             "id": [0, 1],
@@ -155,13 +155,13 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_missing_criteri
     )
 
     with pytest.raises(ValueError, match="criterion column"):
-        alifestd_downsample_tips_lineage_stratification_asexual(
+        alifestd_downsample_tips_lineage_stratified_asexual(
             phylogeny_df, criterion_delta="nonexistent"
         )
 
     with pytest.raises(ValueError, match="criterion column"):
-        alifestd_downsample_tips_lineage_stratification_asexual(
-            phylogeny_df, criterion_stratification="nonexistent"
+        alifestd_downsample_tips_lineage_stratified_asexual(
+            phylogeny_df, criterion_stratified="nonexistent"
         )
 
 
@@ -176,15 +176,15 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_missing_criteri
         ),
     ],
 )
-def test_alifestd_downsample_tips_lineage_stratification_asexual_custom_criterion(
+def test_alifestd_downsample_tips_lineage_stratified_asexual_custom_criterion(
     phylogeny_df: pd.DataFrame,
 ):
-    result_df = alifestd_downsample_tips_lineage_stratification_asexual(
+    result_df = alifestd_downsample_tips_lineage_stratified_asexual(
         phylogeny_df,
         5,
         seed=1,
         criterion_delta="origin_time",
-        criterion_stratification="origin_time",
+        criterion_stratified="origin_time",
         criterion_target="origin_time",
     )
 
@@ -192,7 +192,7 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_custom_criterio
     assert all(result_df["id"].isin(phylogeny_df["id"]))
 
 
-def test_alifestd_downsample_tips_lineage_stratification_asexual_multi_tree():
+def test_alifestd_downsample_tips_lineage_stratified_asexual_multi_tree():
     """Test with aggregated phylogenies (multiple trees)."""
     df1 = alifestd_to_working_format(
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
@@ -202,7 +202,7 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_multi_tree():
     )
     phylogeny_df = alifestd_aggregate_phylogenies([df1, df2])
 
-    result_df = alifestd_downsample_tips_lineage_stratification_asexual(
+    result_df = alifestd_downsample_tips_lineage_stratified_asexual(
         phylogeny_df, 5, seed=1
     )
 
@@ -210,13 +210,13 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_multi_tree():
     assert all(result_df["id"].isin(phylogeny_df["id"]))
 
 
-def test_alifestd_downsample_tips_lineage_stratification_asexual_no_temp_cols():
+def test_alifestd_downsample_tips_lineage_stratified_asexual_no_temp_cols():
     """Ensure no internal temporary columns leak into the output."""
     phylogeny_df = alifestd_to_working_format(
         pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
     )
 
-    result_df = alifestd_downsample_tips_lineage_stratification_asexual(
+    result_df = alifestd_downsample_tips_lineage_stratified_asexual(
         phylogeny_df, 5, seed=1
     )
 
@@ -224,7 +224,7 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_no_temp_cols():
         assert not col.startswith("_alifestd_downsample")
 
 
-def test_alifestd_downsample_tips_lineage_stratification_asexual_simple():
+def test_alifestd_downsample_tips_lineage_stratified_asexual_simple():
     """Test a simple hand-crafted tree.
 
     Tree structure:
@@ -234,7 +234,7 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_simple():
         |   +-- 4 (leaf, origin_time=4)
         +-- 2 (leaf, origin_time=2)
 
-    With criterion_stratification=origin_time and n_tips=None,
+    With criterion_stratified=origin_time and n_tips=None,
     each unique origin_time among leaves forms its own group.
     Leaves are at origin_time 2, 3, 4 => 3 groups => 3 leaves.
     """
@@ -246,7 +246,7 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_simple():
         }
     )
 
-    result_df = alifestd_downsample_tips_lineage_stratification_asexual(
+    result_df = alifestd_downsample_tips_lineage_stratified_asexual(
         phylogeny_df, seed=1
     )
 
@@ -255,8 +255,8 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_simple():
     assert 0 in result_df["id"].values  # root must be present
 
 
-def test_alifestd_downsample_tips_lineage_stratification_asexual_n_tips_coarsening():
-    """Test that n_tips coarsens partition values via rank + integer division.
+def test_alifestd_downsample_tips_lineage_stratified_asexual_n_tips_coarsening():
+    """Test that n_tips coarsens stratified values via rank + integer division.
 
     Tree structure:
         0 (root, origin_time=0)
@@ -265,7 +265,7 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_n_tips_coarseni
         |   +-- 4 (leaf, origin_time=4)
         +-- 2 (leaf, origin_time=2)
 
-    Leaves at origin_time 2, 3, 4 (3 distinct partitions).
+    Leaves at origin_time 2, 3, 4 (3 distinct strata).
     - n_tips=3: ranks [0,1,2], groups [0*3//3, 1*3//3, 2*3//3]=[0,1,2]
       => 3 groups => 3 leaves
     - n_tips=2: ranks [0,1,2], groups [0*2//3, 1*2//3, 2*2//3]=[0,0,1]
@@ -281,24 +281,24 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_n_tips_coarseni
         }
     )
 
-    result3 = alifestd_downsample_tips_lineage_stratification_asexual(
+    result3 = alifestd_downsample_tips_lineage_stratified_asexual(
         phylogeny_df, n_tips=3, seed=1
     )
     assert alifestd_count_leaf_nodes(result3) == 3
 
-    result2 = alifestd_downsample_tips_lineage_stratification_asexual(
+    result2 = alifestd_downsample_tips_lineage_stratified_asexual(
         phylogeny_df, n_tips=2, seed=1
     )
     assert alifestd_count_leaf_nodes(result2) == 2
 
-    result1 = alifestd_downsample_tips_lineage_stratification_asexual(
+    result1 = alifestd_downsample_tips_lineage_stratified_asexual(
         phylogeny_df, n_tips=1, seed=1
     )
     assert alifestd_count_leaf_nodes(result1) == 1
 
 
-def test_alifestd_downsample_tips_lineage_stratification_asexual_shared_partition():
-    """Test where multiple leaves share the same partition value.
+def test_alifestd_downsample_tips_lineage_stratified_asexual_shared_stratum():
+    """Test where multiple leaves share the same stratum value.
 
     Tree structure:
         0 (root, origin_time=0)
@@ -307,7 +307,7 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_shared_partitio
         |   +-- 4 (leaf, origin_time=2)
         +-- 2 (leaf, origin_time=2)
 
-    All leaves share origin_time=2, so there is only 1 unique partition.
+    All leaves share origin_time=2, so there is only 1 unique stratum.
     Regardless of n_tips, only 1 group is formed => 1 leaf retained.
     """
     phylogeny_df = pd.DataFrame(
@@ -318,12 +318,12 @@ def test_alifestd_downsample_tips_lineage_stratification_asexual_shared_partitio
         }
     )
 
-    result_none = alifestd_downsample_tips_lineage_stratification_asexual(
+    result_none = alifestd_downsample_tips_lineage_stratified_asexual(
         phylogeny_df, seed=1
     )
     assert alifestd_count_leaf_nodes(result_none) == 1
 
-    result_big = alifestd_downsample_tips_lineage_stratification_asexual(
+    result_big = alifestd_downsample_tips_lineage_stratified_asexual(
         phylogeny_df, n_tips=100, seed=1
     )
     assert alifestd_count_leaf_nodes(result_big) == 1
