@@ -617,32 +617,66 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
  */
 template<size_t max_differentia>
 void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
-  std::unordered_map<i64, std::array<u64, max_differentia + 1>> winners{};
-  std::vector<u64> losers;
 
-  for (auto child : ChildrenView(records, node)) {
-    const u64 differentia = records.differentia[child];
-    const i64 rank = records.rank[child];
-    auto& winner = winners[rank][differentia];
-    if (winner == 0 || child < winner) { std::swap(winner, child); }
-    if (child) losers.push_back(child);
-  }
-
-  for (const auto loser : losers) {
-    const u64 differentia = records.differentia[loser];
-    const i64 rank = records.rank[loser];
-    const u64 winner = winners[rank][differentia];
-
-    std::vector<u64> loser_children;
-    std::ranges::copy(
-      ChildrenView(records, loser), std::back_inserter(loser_children)
-    );
-    for (const u64 loser_child : loser_children) {
-      detach_search_parent(records, loser_child);
-      attach_search_parent(records, loser_child, winner);
+  assert(std::ranges::is_sorted(
+    ChildrenView(records, node),
+    [&records](const u64 lhs, const u64 rhs) {
+      return records.rank[lhs] < records.rank[rhs];
     }
-    detach_search_parent(records, loser);
+  ));
+  assert(std::ranges::all_of(
+    ChildrenView(records, node),
+    [&records](const u64 child){ return records.rank[child] >= 0; }
+  ));
+
+  std::array<std::vector<u64>, max_differentia + 1> losers{};
+  std::array<std::vector<u64>, max_differentia + 1> loser_epochs{};
+  std::array<std::vector<u64>, max_differentia + 1> epoch_winners{};
+  std::array<i64, max_differentia + 1> prev_child_rank{};
+  for (const auto child : ChildrenView(records, node)) {
+    assert(child > 0);
+
+    const auto child_d = records.differentia[child];
+    assert(child_d <= max_differentia);
+
+    const auto child_r = records.rank[child];
+    assert(child_r > 0 && child_r >= prev_child_rank[child_d]);
+
+    const auto d = child_d;
+    if (child_r != std::exchange(prev_child_rank[d], child_r)) {
+      epoch_winners[d].push_back(child);
+    } else {
+      const auto cur_winner = epoch_winners[d].back();
+      assert(cur_winner != child);
+      epoch_winners[d].back() = std::min(cur_winner, child);
+      const auto cur_loser = std::max(cur_winner, child);
+      losers[d].push_back(cur_loser);
+      loser_epochs[d].push_back(epoch_winners[d].size() - 1);
+    }
   }
+
+  // possible optimization: could track which differentia values have been seen
+  for (u64 d = 0; d <= max_differentia; ++d) {
+
+    assert(losers[d].size() == loser_epochs[d].size());
+    for (u64 i{}; i < losers[d].size(); ++i) {
+      const auto loser = losers[d][i];
+      const auto loser_epoch = loser_epochs[d][i];
+      const auto corresponding_winner = epoch_winners[d][loser_epoch];
+
+      std::vector<u64> loser_children;
+      std::ranges::copy(
+        ChildrenView(records, loser), std::back_inserter(loser_children)
+      );
+      for (const u64 loser_child : loser_children) {
+        detach_search_parent(records, loser_child);
+        attach_search_parent(records, loser_child, corresponding_winner);
+      }
+      detach_search_parent(records, loser);
+    }
+
+  }
+
 }
 
 // adapted from https://stackoverflow.com/a/20602159/17332200
