@@ -1483,32 +1483,40 @@ bool check_trie_invariant_data_nodes_are_leaves(const Records& records) {
 
 
 /**
- * Checks that search ancestors are reachable via the lineage trie.
+ * Checks that search ancestors are compatible with the lineage trie.
  * For each node with a valid search_ancestor_id, walking up the lineage
- * trie via ancestor_id should eventually reach the search ancestor.
+ * trie via ancestor_id should find a node that is indistinguishable
+ * from (i.e., same rank and differentia as) the search ancestor.
+ *
  * Skips check if search trie is not present.
  */
 bool check_trie_invariant_search_lineage_compatible(const Records& records) {
   if (!_has_search_trie(records)) return true;
 
-  for (u64 id = 0; id < records.size(); ++id) {
-    const u64 search_anc = records.search_ancestor_id[id];
-    if (search_anc == placeholder_value) return false;
-    if (search_anc == id) continue;  // detached or root, OK
+  for (u64 i = 0; i < records.size(); ++i) {
+    // only consider tips
+    if (records.dstream_data_id[i] == placeholder_value) continue;
 
-    // walk up lineage trie from id until we reach search_anc or root
-    u64 cur = id;
-    bool found = false;
-    u64 steps = 0;
-    while (cur != records.ancestor_id[cur]) {  // while not root
-      cur = records.ancestor_id[cur];
-      if (cur == search_anc) { found = true; break; }
-      if (++steps > records.size()) return false;  // cycle
+    assert(records.search_ancestor_id[i] == i);
+    u64 a = records.ancestor_id[i];
+    u64 s = a;
+    while (a) {
+      const auto rank_a = records.rank[a];
+      const auto rank_s = records.rank[s];
+      if (rank_a == rank_s) {
+        if (records.differentia[a] != records.differentia[s]) return false;
+      } else if (rank_a > rank_s) {
+        a = records.ancestor_id[a];
+        assert(records.rank[a] >= rank_s);
+      } else if (records.search_ancestor_id[s] == s) {
+        break;
+      } else if (rank_s > rank_a) {
+        s = records.search_ancestor_id[s];
+        assert(records.rank[s] <= rank_a);
+      } else assert(false);
     }
-    // check if we ended at root and root is the search ancestor
-    if (!found && cur == search_anc) found = true;
-    if (!found) return false;
   }
+
   return true;
 }
 
