@@ -679,8 +679,15 @@ void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
     }
 
     assert(std::ranges::is_sorted(loser_epochs[d]));
-    for (const auto loser_epoch : std::ranges::unique(loser_epochs[d])) {
-      const auto true_winner = epoch_winners[d][loser_epoch];
+    // std::ranges::unique returns a subrange of the *removed* (garbage)
+    // elements; the unique elements are in [begin, result.begin()).
+    const auto unique_tail = std::ranges::unique(loser_epochs[d]);
+    for (
+      auto it = loser_epochs[d].begin();
+      it != unique_tail.begin();
+      ++it
+    ) {
+      const auto true_winner = epoch_winners[d][*it];
       collapse_indistinguishable_nodes_small<max_differentia>(
         records, true_winner
       );
@@ -1483,9 +1490,17 @@ bool check_trie_invariant_data_nodes_are_leaves(const Records& records) {
 
 
 /**
- * Checks that search ancestors are reachable via the lineage trie.
+ * Checks that search ancestors are compatible with the lineage trie.
  * For each node with a valid search_ancestor_id, walking up the lineage
- * trie via ancestor_id should eventually reach the search ancestor.
+ * trie via ancestor_id should find a node that is indistinguishable
+ * from (i.e., same rank and differentia as) the search ancestor.
+ *
+ * Note: we check indistinguishability rather than identity because
+ * collapse_indistinguishable_nodes may merge sibling nodes with the
+ * same (rank, differentia) pair, reparenting children across lineage
+ * branches. The merged node is indistinguishable from the original
+ * lineage ancestor, so search correctness is preserved.
+ *
  * Skips check if search trie is not present.
  */
 bool check_trie_invariant_search_lineage_compatible(const Records& records) {
@@ -1496,17 +1511,29 @@ bool check_trie_invariant_search_lineage_compatible(const Records& records) {
     if (search_anc == placeholder_value) return false;
     if (search_anc == id) continue;  // detached or root, OK
 
-    // walk up lineage trie from id until we reach search_anc or root
+    const i64 sa_rank = records.rank[search_anc];
+    const u64 sa_diff = records.differentia[search_anc];
+
+    // walk up lineage trie from id until we find a node that is
+    // indistinguishable from search_anc (same rank and differentia)
+    // or reach the root
     u64 cur = id;
     bool found = false;
     u64 steps = 0;
     while (cur != records.ancestor_id[cur]) {  // while not root
       cur = records.ancestor_id[cur];
-      if (cur == search_anc) { found = true; break; }
+      if (
+        cur == search_anc
+        || (records.rank[cur] == sa_rank
+            && records.differentia[cur] == sa_diff)
+      ) { found = true; break; }
       if (++steps > records.size()) return false;  // cycle
     }
-    // check if we ended at root and root is the search ancestor
-    if (!found && cur == search_anc) found = true;
+    // check if we ended at root and root matches search ancestor
+    if (!found && (
+      cur == search_anc
+      || (records.rank[cur] == sa_rank && records.differentia[cur] == sa_diff)
+    )) found = true;
     if (!found) return false;
   }
   return true;

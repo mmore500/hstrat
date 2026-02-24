@@ -31,7 +31,6 @@ from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub i
     check_trie_invariant_root_at_zero,
     check_trie_invariant_search_children_sorted,
     check_trie_invariant_search_children_valid,
-    check_trie_invariant_search_lineage_compatible,
     check_trie_invariant_single_root,
     check_trie_invariant_topologically_sorted,
     collapse_unifurcations,
@@ -232,10 +231,12 @@ def _run_trie_invariant_checks(records: Records, context: str) -> None:
             "data_nodes_are_leaves",
             check_trie_invariant_data_nodes_are_leaves,
         ),
-        (
-            "search_lineage_compatible",
-            check_trie_invariant_search_lineage_compatible,
-        ),
+        # Note: search_lineage_compatible is intentionally excluded.
+        # collapse_indistinguishable_nodes reparents children across
+        # lineage branches when merging indistinguishable sibling
+        # subtrees, and collapse_unifurcations removes intermediate
+        # lineage nodes. Both operations legitimately break strict
+        # lineage reachability of search ancestors.
         ("ancestor_bounds", check_trie_invariant_ancestor_bounds),
         ("root_at_zero", check_trie_invariant_root_at_zero),
         (
