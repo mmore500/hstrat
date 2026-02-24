@@ -243,8 +243,11 @@ def _run_trie_invariant_checks(records: Records, context: str) -> None:
             check_trie_invariant_ranks_nonnegative,
         ),
     ]
-    for name, check_fn in _checks:
-        logging.info(f"checking trie invariant {name} ({context})...")
+    for i, (name, check_fn) in enumerate(_checks, 1):
+        logging.info(
+            f"checking trie invariant {i} of {len(_checks)}: "
+            f"{name} ({context})...",
+        )
         if not check_fn(records):
             raise AssertionError(
                 f"Trie invariant check failed: {name} ({context})"
