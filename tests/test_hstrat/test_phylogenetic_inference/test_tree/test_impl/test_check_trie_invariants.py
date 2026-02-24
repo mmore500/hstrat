@@ -1,10 +1,8 @@
 import numpy as np
-import pytest
 from tqdm import tqdm
 
 from hstrat.phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
     Records,
-    build_tree_searchtable_cpp_from_exploded,
     check_trie_invariant_ancestor_bounds,
     check_trie_invariant_chronologically_sorted,
     check_trie_invariant_contiguous_ids,
@@ -187,12 +185,9 @@ def test_invariant_fails_chronologically_sorted():
     # Node 1: rank 5
     records.addRecord(PV, 1, 0, 1, 1, 1, 1, 5, 1)
     # Node 2: ancestor is 1 (rank 5), but node 2 has rank 3 < 5
-    # Note: addRecord asserts rank[ancestor_id] <= rank, so we need
-    # init_root=False to bypass the normal constructor and craft this
-    # We can't actually create this with addRecord due to assertions.
-    # Instead, we demonstrate that a valid tree passes and a tree
-    # built with wrong ordering after collapse would fail.
-    pass  # covered by the assertion in addRecord
+    # addRecord asserts rank[ancestor_id] <= rank, so we cannot construct
+    # a chronologically-unsorted tree through the normal API.
+    # The positive case is tested in test_invariants_built_tree.
 
 
 def test_invariant_fails_single_root_multiple_roots():
@@ -214,11 +209,9 @@ def test_invariant_fails_single_root_no_roots():
     # Node 1's ancestor is 0, not itself
     records.addRecord(PV, 1, 0, 1, 1, 1, 1, 1, 1)
     # This tree has exactly one root (node 0), so it passes.
-    # To make it fail, we need a tree with zero roots.
-    # But addRecord assertion blocks ancestor_id != id for non-first node,
-    # and the first node can be self-referencing. So zero-root case
-    # can't be constructed with addRecord.
-    pass
+    # addRecord blocks constructing a zero-root tree, so we only verify
+    # the two-node tree has a single root.
+    assert check_trie_invariant_single_root(records)
 
 
 def test_invariant_fails_root_at_zero():
@@ -289,17 +282,13 @@ def test_invariant_search_checks_skip_after_full_collapse():
     assert check_trie_invariant_search_lineage_compatible(records)
 
 
-def test_invariant_ancestor_bounds_fails():
-    """ancestor_id >= size should fail ancestor_bounds check."""
-    records = Records(4, init_root=False)
-    # Node 0: root, ancestor_id=0 (self), OK
-    records.addRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)
-    # Node 1: ancestor_id = 99, out of bounds
-    # But addRecord asserts rank[ancestor_id] <= rank, which would crash
-    # for out-of-bounds access. So we can't test this with addRecord.
-    # This invariant catches corruption that might happen outside
-    # normal addRecord flow.
-    pass
+def test_invariant_ancestor_bounds_on_valid_tree():
+    """ancestor_bounds passes on a valid tree."""
+    records = _make_valid_built_records()
+    assert check_trie_invariant_ancestor_bounds(records)
+    # addRecord asserts rank[ancestor_id] <= rank, so out-of-bounds
+    # ancestor_id cannot be constructed through the normal API.
+    # This invariant catches corruption outside normal addRecord flow.
 
 
 def test_invariants_on_regression_tree():
