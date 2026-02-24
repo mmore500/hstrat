@@ -106,6 +106,10 @@ def _alifestd_downsample_tips_lineage_stratified_impl(
 
     # Coarsen stratified values if n_tips is specified
     if n_tips is not None:
+        logging.info(
+            "_alifestd_downsample_tips_lineage_stratified_impl: "
+            "coarsening stratified values...",
+        )
         n_groups = n_tips // n_tips_per_stratum
         unique_sorted = np.unique(eligible_stratified)
         n_unique = len(unique_sorted)
