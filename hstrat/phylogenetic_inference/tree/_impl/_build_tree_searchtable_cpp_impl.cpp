@@ -1510,10 +1510,11 @@ bool check_trie_invariant_search_lineage_compatible(const Records& records) {
         assert(records.rank[a] >= rank_s);
       } else if (records.search_ancestor_id[s] == s) {
         break;
-      } else if (rank_s > rank_a) {
+      } else {
+        assert(rank_s > rank_a);
         s = records.search_ancestor_id[s];
         assert(records.rank[s] <= rank_a);
-      } else assert(false);
+      }
     }
   }
 
