@@ -599,12 +599,15 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
     records.search_next_sibling_id[node] = node;
   }
 
-  assert(std::ranges::is_sorted(
-    ChildrenView(records, parent),
-    [&records](const u64 lhs, const u64 rhs) {
-      return records.rank[lhs] < records.rank[rhs];
-    }
-  ));
+  // full sorted check is too expensive to assert, so just check local sort...
+  assert(
+    records.rank[records.search_prev_sibling_id[node]]
+    <= records.rank[node]
+  );
+  assert(
+    records.rank[node]
+    <= records.rank[records.search_next_sibling_id[node]]
+  );
 
 }
 
