@@ -85,7 +85,7 @@ def alifestd_calc_mrca_id_vector_asexual_polars(
     )
     ancestor_ids = (
         phylogeny_df.lazy()
-        .select("ancestor_id")
+        .select(pl.col("ancestor_id").cast(pl.Int64))
         .collect()
         .to_series()
         .to_numpy()
