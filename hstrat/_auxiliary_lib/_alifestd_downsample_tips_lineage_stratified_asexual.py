@@ -129,9 +129,9 @@ def _alifestd_downsample_tips_lineage_stratified_impl(
     sorted_strata = eligible_stratified[sort_order]
     sorted_ids = eligible_ids[sort_order]
 
-    stratum_change = np.empty(len(sorted_strata), dtype=bool)
-    stratum_change[0:1] = True
-    stratum_change[1:] = sorted_strata[1:] != sorted_strata[:-1]
+    stratum_change = np.concatenate(
+        ([True], np.diff(sorted_strata) != 0),
+    )
     stratum_starts = np.flatnonzero(stratum_change)
     stratum_lengths = np.diff(
         np.append(stratum_starts, len(sorted_strata)),
