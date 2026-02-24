@@ -22,6 +22,18 @@ from .._auxiliary_lib import (
 )
 from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
     Records,
+    check_trie_invariant_ancestor_bounds,
+    check_trie_invariant_artifact_no_children,
+    check_trie_invariant_chronologically_sorted,
+    check_trie_invariant_contiguous_ids,
+    check_trie_invariant_no_indistinguishable_nodes,
+    check_trie_invariant_ranks_nonnegative,
+    check_trie_invariant_root_at_zero,
+    check_trie_invariant_search_children_sorted,
+    check_trie_invariant_search_children_valid,
+    check_trie_invariant_search_lineage_compatible,
+    check_trie_invariant_single_root,
+    check_trie_invariant_topologically_sorted,
     collapse_unifurcations,
     extend_tree_searchtable_cpp_from_exploded,
     extract_records_to_dict,
@@ -190,9 +202,60 @@ def _produce_exploded_slices(
     logging.info(" - worker complete")
 
 
+def _run_trie_invariant_checks(records: Records, context: str) -> None:
+    """Run all trie invariant checks, raising AssertionError on failure.
+
+    Uses explicit ``raise AssertionError(...)`` rather than ``assert`` so
+    checks are not stripped in optimized mode (``python -O``).
+    """
+    _checks = [
+        ("contiguous_ids", check_trie_invariant_contiguous_ids),
+        ("topologically_sorted", check_trie_invariant_topologically_sorted),
+        (
+            "chronologically_sorted",
+            check_trie_invariant_chronologically_sorted,
+        ),
+        ("single_root", check_trie_invariant_single_root),
+        (
+            "search_children_valid",
+            check_trie_invariant_search_children_valid,
+        ),
+        (
+            "search_children_sorted",
+            check_trie_invariant_search_children_sorted,
+        ),
+        (
+            "no_indistinguishable_nodes",
+            check_trie_invariant_no_indistinguishable_nodes,
+        ),
+        (
+            "artifact_no_children",
+            check_trie_invariant_artifact_no_children,
+        ),
+        (
+            "search_lineage_compatible",
+            check_trie_invariant_search_lineage_compatible,
+        ),
+        ("ancestor_bounds", check_trie_invariant_ancestor_bounds),
+        ("root_at_zero", check_trie_invariant_root_at_zero),
+        (
+            "nonroot_ranks_positive",
+            check_trie_invariant_ranks_nonnegative,
+        ),
+    ]
+    for name, check_fn in _checks:
+        logging.info(f"checking trie invariant {name} ({context})...")
+        if not check_fn(records):
+            raise AssertionError(
+                f"Trie invariant check failed: {name} ({context})"
+            )
+    logging.info(f"all trie invariant checks passed ({context})")
+
+
 def _build_records_chunked(
     slices: typing.Iterator[str],
     collapse_unif_freq: int,
+    check_trie_invariant_freq: int,
     dstream_S: int,
     exploded_slice_size: int,
     pa_source_type: str,
@@ -260,6 +323,14 @@ def _build_records_chunked(
                 logging.info,
             ):
                 records = collapse_unifurcations(records, dropped_only=True)
+
+        if (
+            check_trie_invariant_freq > 0
+            and (i + 1) % check_trie_invariant_freq == 0
+        ):
+            _run_trie_invariant_checks(
+                records, f"after slice {i + 1} / {len(slices)}"
+            )
 
         log_memory_usage(logging.info)
 
@@ -356,6 +427,7 @@ def _surface_unpacked_reconstruct(
     slices: typing.Iterator[str],
     *,
     collapse_unif_freq: int,
+    check_trie_invariant_freq: int,
     differentia_bitwidth: int,
     dstream_S: int,
     exploded_slice_size: int,
@@ -366,6 +438,7 @@ def _surface_unpacked_reconstruct(
     records = _build_records_chunked(
         slices,
         collapse_unif_freq=collapse_unif_freq,
+        check_trie_invariant_freq=check_trie_invariant_freq,
         dstream_S=dstream_S,
         exploded_slice_size=exploded_slice_size,
         pa_source_type=pa_source_type,
@@ -432,6 +505,7 @@ def surface_unpack_reconstruct(
     df: typing.Union[pl.DataFrame, pl.LazyFrame],
     *,
     collapse_unif_freq: int = 1,
+    check_trie_invariant_freq: int = 0,
     drop_dstream_metadata: typing.Optional[bool] = None,
     exploded_slice_size: int = 1_000_000,
     mp_context: str = "spawn",
@@ -483,6 +557,12 @@ def surface_unpack_reconstruct(
         Frequency of unifurcation collapse, in number of slices.
 
         Set to 0 to disable.
+
+    check_trie_invariant_freq : int, default 0
+        Frequency of trie invariant checks, in number of slices.
+
+        Set to 0 to disable (default).
+        Set to n > 0 to check every n slices.
 
     drop_dstream_metadata : bool or None, default None
         Should dstream/downstream columns be dropped from the output?
@@ -579,6 +659,7 @@ def surface_unpack_reconstruct(
         phylo_df = _surface_unpacked_reconstruct(
             slices,
             collapse_unif_freq=collapse_unif_freq,
+            check_trie_invariant_freq=check_trie_invariant_freq,
             differentia_bitwidth=differentia_bitwidth,
             dstream_S=dstream_S,
             exploded_slice_size=exploded_slice_size,

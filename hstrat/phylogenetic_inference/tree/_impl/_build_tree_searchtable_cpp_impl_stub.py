@@ -17,3 +17,35 @@ build_tree_searchtable_cpp_from_exploded = (
 build_tree_searchtable_cpp_from_nested = (
     _impl_mod.build_tree_searchtable_cpp_from_nested
 )
+check_trie_invariant_contiguous_ids = (
+    _impl_mod.check_trie_invariant_contiguous_ids
+)
+check_trie_invariant_topologically_sorted = (
+    _impl_mod.check_trie_invariant_topologically_sorted
+)
+check_trie_invariant_chronologically_sorted = (
+    _impl_mod.check_trie_invariant_chronologically_sorted
+)
+check_trie_invariant_single_root = _impl_mod.check_trie_invariant_single_root
+check_trie_invariant_search_children_valid = (
+    _impl_mod.check_trie_invariant_search_children_valid
+)
+check_trie_invariant_search_children_sorted = (
+    _impl_mod.check_trie_invariant_search_children_sorted
+)
+check_trie_invariant_no_indistinguishable_nodes = (
+    _impl_mod.check_trie_invariant_no_indistinguishable_nodes
+)
+check_trie_invariant_artifact_no_children = (
+    _impl_mod.check_trie_invariant_artifact_no_children
+)
+check_trie_invariant_search_lineage_compatible = (
+    _impl_mod.check_trie_invariant_search_lineage_compatible
+)
+check_trie_invariant_ancestor_bounds = (
+    _impl_mod.check_trie_invariant_ancestor_bounds
+)
+check_trie_invariant_root_at_zero = _impl_mod.check_trie_invariant_root_at_zero
+check_trie_invariant_ranks_nonnegative = (
+    _impl_mod.check_trie_invariant_ranks_nonnegative
+)

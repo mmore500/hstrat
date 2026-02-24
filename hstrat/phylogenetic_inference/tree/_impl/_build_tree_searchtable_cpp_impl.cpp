@@ -1301,10 +1301,264 @@ py::dict build_trie_searchtable_exploded(
 }
 
 
+/**
+ * Checks whether the search trie structure is present (not dismantled).
+ * After collapse_unifurcations(dropped_only=false), search fields are set
+ * to placeholder_value.
+ */
+bool _has_search_trie(const Records& records) {
+  if (records.size() == 0) return false;
+  return records.search_ancestor_id[0] != placeholder_value;
+}
+
+
+/**
+ * Checks that record ids are contiguously assigned 0, 1, ..., n-1.
+ */
+bool check_trie_invariant_contiguous_ids(const Records& records) {
+  return std::equal(
+    std::begin(records.id), std::end(records.id), CountingIterator<u64>{}
+  );
+}
+
+
+/**
+ * Checks that ancestor ids reference earlier records (ancestor_id[i] <= i).
+ */
+bool check_trie_invariant_topologically_sorted(const Records& records) {
+  return std::ranges::all_of(
+    records.id,
+    [&records](const u64 id) {
+      return records.ancestor_id[id] <= id;
+    }
+  );
+}
+
+
+/**
+ * Checks that parent ranks are <= child ranks for all non-root nodes.
+ */
+bool check_trie_invariant_chronologically_sorted(const Records& records) {
+  return std::ranges::all_of(
+    records.id,
+    [&records](const u64 id) {
+      return records.rank[records.ancestor_id[id]] <= records.rank[id];
+    }
+  );
+}
+
+
+/**
+ * Checks that there is exactly one root (node with ancestor_id == id).
+ */
+bool check_trie_invariant_single_root(const Records& records) {
+  if (records.size() == 0) return true;
+  const u64 root_count = std::ranges::count_if(
+    records.id,
+    [&records](const u64 id) { return records.ancestor_id[id] == id; }
+  );
+  return root_count == 1;
+}
+
+
+/**
+ * Checks that search child linked lists are well-formed:
+ *   - first child's prev_sibling points to itself
+ *   - last child's next_sibling points to itself
+ *   - forward and backward pointers are consistent
+ *   - all children's search_ancestor points to parent
+ *   - no cycles in sibling list
+ * Skips check if search trie is not present.
+ */
+bool check_trie_invariant_search_children_valid(const Records& records) {
+  if (!_has_search_trie(records)) return true;
+
+  for (u64 i = 0; i < records.size(); ++i) {
+    const u64 first_child = records.search_first_child_id[i];
+    if (first_child == placeholder_value) return false;
+
+    if (first_child == i) continue;  // no children, OK
+
+    if (first_child >= records.size()) return false;
+
+    // first child's prev_sibling should be itself (signals head of list)
+    if (records.search_prev_sibling_id[first_child] != first_child) {
+      return false;
+    }
+
+    // walk the sibling list
+    u64 cur = first_child;
+    u64 count = 0;
+    while (true) {
+      if (cur >= records.size()) return false;
+
+      // child's search_ancestor should point back to parent
+      if (records.search_ancestor_id[cur] != i) return false;
+
+      const u64 next = records.search_next_sibling_id[cur];
+      if (next == cur) break;  // last sibling, OK
+
+      if (next >= records.size()) return false;
+
+      // backward pointer consistency
+      if (records.search_prev_sibling_id[next] != cur) return false;
+
+      cur = next;
+      ++count;
+      if (count > records.size()) return false;  // cycle detection
+    }
+  }
+  return true;
+}
+
+
+/**
+ * Checks that search children are sorted by rank in ascending order.
+ * Skips check if search trie is not present.
+ */
+bool check_trie_invariant_search_children_sorted(const Records& records) {
+  if (!_has_search_trie(records)) return true;
+
+  for (u64 i = 0; i < records.size(); ++i) {
+    const u64 first_child = records.search_first_child_id[i];
+    if (first_child == i) continue;  // no children
+
+    i64 prev_rank = records.rank[first_child];
+    u64 cur = first_child;
+    while (true) {
+      const u64 next = records.search_next_sibling_id[cur];
+      if (next == cur) break;
+
+      if (records.rank[next] < prev_rank) return false;
+      prev_rank = records.rank[next];
+      cur = next;
+    }
+  }
+  return true;
+}
+
+
+/**
+ * Checks that no two children of the same parent share the same
+ * (rank, differentia) pair.
+ * Skips check if search trie is not present.
+ */
+bool check_trie_invariant_no_indistinguishable_nodes(const Records& records) {
+  if (!_has_search_trie(records)) return true;
+
+  for (u64 i = 0; i < records.size(); ++i) {
+    const u64 first_child = records.search_first_child_id[i];
+    if (first_child == i) continue;
+
+    // collect children (rank, differentia) pairs and check for duplicates
+    std::vector<std::pair<i64, u64>> child_pairs;
+    for (const u64 child : ChildrenView(records, i)) {
+      child_pairs.emplace_back(records.rank[child], records.differentia[child]);
+    }
+
+    std::ranges::sort(child_pairs);
+    const auto dup = std::ranges::adjacent_find(child_pairs);
+    if (dup != child_pairs.end()) return false;
+  }
+  return true;
+}
+
+
+/**
+ * Checks that artifact nodes (dstream_data_id != placeholder_value) have
+ * no search children.
+ * Skips check if search trie is not present.
+ */
+bool check_trie_invariant_artifact_no_children(const Records& records) {
+  if (!_has_search_trie(records)) return true;
+
+  return std::ranges::all_of(
+    records.id,
+    [&records](const u64 id) {
+      if (records.dstream_data_id[id] == placeholder_value) return true;
+      return records.search_first_child_id[id] == id;
+    }
+  );
+}
+
+
+/**
+ * Checks that search ancestors are reachable via the lineage trie.
+ * For each node with a valid search_ancestor_id, walking up the lineage
+ * trie via ancestor_id should eventually reach the search ancestor.
+ * Skips check if search trie is not present.
+ */
+bool check_trie_invariant_search_lineage_compatible(const Records& records) {
+  if (!_has_search_trie(records)) return true;
+
+  for (u64 id = 0; id < records.size(); ++id) {
+    const u64 search_anc = records.search_ancestor_id[id];
+    if (search_anc == placeholder_value) return false;
+    if (search_anc == id) continue;  // detached or root, OK
+
+    // walk up lineage trie from id until we reach search_anc or root
+    u64 cur = id;
+    bool found = false;
+    u64 steps = 0;
+    while (cur != records.ancestor_id[cur]) {  // while not root
+      cur = records.ancestor_id[cur];
+      if (cur == search_anc) { found = true; break; }
+      if (++steps > records.size()) return false;  // cycle
+    }
+    // check if we ended at root and root is the search ancestor
+    if (!found && cur == search_anc) found = true;
+    if (!found) return false;
+  }
+  return true;
+}
+
+
+/**
+ * Checks that all ancestor_id values reference valid indices.
+ */
+bool check_trie_invariant_ancestor_bounds(const Records& records) {
+  return std::ranges::all_of(
+    records.id,
+    [&records](const u64 id) {
+      return records.ancestor_id[id] < records.size();
+    }
+  );
+}
+
+
+/**
+ * Checks that the root node is at index 0 with expected properties:
+ *   - ancestor_id[0] == 0 (self-referencing)
+ *   - rank[0] == 0
+ */
+bool check_trie_invariant_root_at_zero(const Records& records) {
+  if (records.size() == 0) return true;
+  return records.ancestor_id[0] == 0 && records.rank[0] == 0;
+}
+
+
+/**
+ * Checks that all nodes have non-negative rank values.
+ * Negative ranks would indicate data corruption.
+ */
+bool check_trie_invariant_ranks_nonnegative(const Records& records) {
+  return std::ranges::all_of(
+    records.id,
+    [&records](const u64 id) {
+      return records.rank[id] >= 0;
+    }
+  );
+}
+
+
 PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
   m.attr("placeholder_value") = py::int_(placeholder_value);
   py::class_<Records>(m, "Records")
-      .def(py::init<u64>(), py::arg("init_size"))
+      .def(
+        py::init<u64, bool>(),
+        py::arg("init_size"),
+        py::arg("init_root")=true
+      )
       .def("__len__", &Records::size)
       .def("addRecord", &Records::addRecord,
         py::arg("data_id"),
@@ -1360,6 +1614,66 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
     py::arg("ranks"),
     py::arg("differentiae"),
     py::arg("progress_bar")
+  );
+  m.def(
+    "check_trie_invariant_contiguous_ids",
+    &check_trie_invariant_contiguous_ids,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_topologically_sorted",
+    &check_trie_invariant_topologically_sorted,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_chronologically_sorted",
+    &check_trie_invariant_chronologically_sorted,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_single_root",
+    &check_trie_invariant_single_root,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_search_children_valid",
+    &check_trie_invariant_search_children_valid,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_search_children_sorted",
+    &check_trie_invariant_search_children_sorted,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_no_indistinguishable_nodes",
+    &check_trie_invariant_no_indistinguishable_nodes,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_artifact_no_children",
+    &check_trie_invariant_artifact_no_children,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_search_lineage_compatible",
+    &check_trie_invariant_search_lineage_compatible,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_ancestor_bounds",
+    &check_trie_invariant_ancestor_bounds,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_root_at_zero",
+    &check_trie_invariant_root_at_zero,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_ranks_nonnegative",
+    &check_trie_invariant_ranks_nonnegative,
+    py::arg("records")
   );
 }
 

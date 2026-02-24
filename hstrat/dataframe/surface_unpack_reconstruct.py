@@ -158,6 +158,16 @@ def _create_parser() -> argparse.ArgumentParser:
         help="How often should dropped unifurcations be garbage collected?",
     )
     parser.add_argument(
+        "--check-trie-invariant-freq",
+        type=int,
+        default=0,
+        help=(
+            "How often should trie invariant checks be run? "
+            "Set to 0 to disable (default). "
+            "Set to n > 0 to check every n slices."
+        ),
+    )
+    parser.add_argument(
         "--exploded-slice-size",
         type=int,
         default=1_000_000,
@@ -197,6 +207,7 @@ def _main(mp_context: str) -> None:
             output_dataframe_op=functools.partial(
                 surface_unpack_reconstruct,
                 collapse_unif_freq=args.collapse_unif_freq,
+                check_trie_invariant_freq=args.check_trie_invariant_freq,
                 drop_dstream_metadata=args.drop_dstream_metadata,
                 exploded_slice_size=args.exploded_slice_size,
                 mp_context=mp_context,
