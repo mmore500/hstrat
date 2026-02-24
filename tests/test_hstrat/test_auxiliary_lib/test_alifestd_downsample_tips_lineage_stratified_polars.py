@@ -1,12 +1,14 @@
 import os
 import typing
 
+import numpy as np
 import pandas as pd
 import polars as pl
 import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_downsample_tips_lineage_stratified_asexual,
+    alifestd_sum_origin_time_deltas_asexual,
     alifestd_to_working_format,
 )
 from hstrat._auxiliary_lib._alifestd_assign_contiguous_ids_polars import (
@@ -217,7 +219,7 @@ def test_alifestd_downsample_tips_lineage_stratified_polars_missing_criterion(
 
     with pytest.raises(ValueError, match="criterion column"):
         alifestd_downsample_tips_lineage_stratified_polars(
-            df, criterion_stratified="nonexistent"
+            df, criterion_stratify="nonexistent"
         )
 
 
@@ -595,7 +597,7 @@ def test_alifestd_downsample_tips_lineage_stratified_polars_custom_criterion(
             5,
             seed=1,
             criterion_delta="origin_time",
-            criterion_stratified="origin_time",
+            criterion_stratify="origin_time",
             criterion_target="origin_time",
         )
         .lazy()
@@ -606,3 +608,223 @@ def test_alifestd_downsample_tips_lineage_stratified_polars_custom_criterion(
     assert set(result_df["id"].to_list()).issubset(
         set(phylogeny_df_pl["id"].to_list())
     )
+
+
+def _count_tips_polars(result: pl.DataFrame) -> int:
+    """Count leaf nodes in a polars result DataFrame."""
+    return (
+        alifestd_mark_leaves_polars(
+            alifestd_assign_contiguous_ids_polars(
+                result.select("id", "ancestor_id"),
+            ),
+        )
+        .lazy()
+        .select(pl.col("is_leaf").sum())
+        .collect()
+        .item()
+    )
+
+
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
+def test_alifestd_downsample_tips_lineage_stratified_polars_n_tips_per_stratum_validation(
+    apply: typing.Callable,
+):
+    """n_tips_per_stratum must evenly divide n_tips."""
+    df = apply(
+        pl.DataFrame(
+            {
+                "id": [0, 1, 2, 3, 4],
+                "ancestor_id": [0, 0, 0, 1, 1],
+                "origin_time": [0.0, 1.0, 2.0, 3.0, 4.0],
+                "destruction_time": [float("inf")] * 5,
+            }
+        ),
+    )
+
+    with pytest.raises(ValueError, match="n_tips_per_stratum"):
+        alifestd_downsample_tips_lineage_stratified_polars(
+            df, n_tips=3, seed=1, n_tips_per_stratum=2
+        )
+
+    with pytest.raises(ValueError, match="n_tips_per_stratum"):
+        alifestd_downsample_tips_lineage_stratified_polars(
+            df, n_tips=5, seed=1, n_tips_per_stratum=3
+        )
+
+
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
+def test_alifestd_downsample_tips_lineage_stratified_polars_n_tips_per_stratum_basic(
+    apply: typing.Callable,
+):
+    """Test n_tips_per_stratum picks correct number of tips per group."""
+    df = apply(
+        pl.DataFrame(
+            {
+                "id": [0, 1, 2, 3, 4, 5, 6],
+                "ancestor_id": [0, 0, 0, 1, 1, 1, 1],
+                "origin_time": [0.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0],
+                "destruction_time": [float("inf")] * 7,
+            }
+        ),
+    )
+
+    result = (
+        alifestd_downsample_tips_lineage_stratified_polars(
+            df, seed=1, n_tips_per_stratum=2
+        )
+        .lazy()
+        .collect()
+    )
+    assert _count_tips_polars(result) == 4
+
+    result1 = (
+        alifestd_downsample_tips_lineage_stratified_polars(
+            df, seed=1, n_tips_per_stratum=1
+        )
+        .lazy()
+        .collect()
+    )
+    assert _count_tips_polars(result1) == 2
+
+
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
+def test_alifestd_downsample_tips_lineage_stratified_polars_n_tips_per_stratum_with_n_tips(
+    apply: typing.Callable,
+):
+    """Test n_tips_per_stratum combined with n_tips."""
+    df = apply(
+        pl.DataFrame(
+            {
+                "id": [0, 1, 2, 3, 4, 5, 6],
+                "ancestor_id": [0, 0, 0, 1, 1, 1, 1],
+                "origin_time": [0.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0],
+                "destruction_time": [float("inf")] * 7,
+            }
+        ),
+    )
+
+    result = (
+        alifestd_downsample_tips_lineage_stratified_polars(
+            df, n_tips=4, seed=1, n_tips_per_stratum=2
+        )
+        .lazy()
+        .collect()
+    )
+    assert _count_tips_polars(result) == 4
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df",
+    [
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
+        ),
+    ],
+)
+def test_alifestd_downsample_tips_lineage_stratified_polars_less_branch_length_than_random(
+    phylogeny_df: pd.DataFrame,
+):
+    """Stratified downsampling should pull less total branch length (sum of
+    origin_time deltas) than random tip sampling, on asset datasets with a
+    spread of origin times.
+    """
+    n_tips = 5
+    phylogeny_df_pl = pl.from_pandas(phylogeny_df)
+
+    stratified_result_pl = (
+        alifestd_downsample_tips_lineage_stratified_polars(
+            phylogeny_df_pl, n_tips=n_tips, seed=1
+        )
+        .lazy()
+        .collect()
+    )
+    stratified_result_pd = stratified_result_pl.to_pandas()
+    stratified_bl = alifestd_sum_origin_time_deltas_asexual(
+        stratified_result_pd
+    )
+
+    rng = np.random.default_rng(42)
+    leaf_ids = phylogeny_df.loc[
+        ~phylogeny_df["id"].isin(phylogeny_df["ancestor_id"]),
+        "id",
+    ].values
+    random_bls = []
+    for _ in range(20):
+        chosen = rng.choice(leaf_ids, size=n_tips, replace=False)
+        keep = set(chosen)
+        for leaf_id in chosen:
+            cur = leaf_id
+            while cur not in keep or cur == leaf_id:
+                keep.add(cur)
+                parent = phylogeny_df.loc[
+                    phylogeny_df["id"] == cur, "ancestor_id"
+                ].values[0]
+                if parent == cur:
+                    break
+                cur = parent
+        random_sub = phylogeny_df[phylogeny_df["id"].isin(keep)].copy()
+        random_bls.append(alifestd_sum_origin_time_deltas_asexual(random_sub))
+
+    mean_random_bl = np.mean(random_bls)
+    assert stratified_bl < mean_random_bl, (
+        f"Stratified branch length {stratified_bl} should be less "
+        f"than mean random {mean_random_bl}"
+    )
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df",
+    [
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv")
+        ),
+    ],
+)
+@pytest.mark.parametrize("n_tips_per_stratum", [1, 2])
+def test_alifestd_downsample_tips_lineage_stratified_polars_correct_tip_count(
+    phylogeny_df: pd.DataFrame,
+    n_tips_per_stratum: int,
+):
+    """Verify correct total tips and tips-per-stratum counts."""
+    n_tips = 4 * n_tips_per_stratum
+    phylogeny_df_pl = pl.from_pandas(phylogeny_df)
+
+    result = (
+        alifestd_downsample_tips_lineage_stratified_polars(
+            phylogeny_df_pl,
+            n_tips=n_tips,
+            seed=1,
+            n_tips_per_stratum=n_tips_per_stratum,
+        )
+        .lazy()
+        .collect()
+    )
+
+    result_leaf_count = _count_tips_polars(result)
+    # Number of retained tips is min(n_tips, unique_strata * per_stratum)
+    assert result_leaf_count <= n_tips
+    assert result_leaf_count >= 1

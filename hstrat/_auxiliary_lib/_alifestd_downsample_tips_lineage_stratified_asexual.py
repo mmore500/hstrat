@@ -39,21 +39,23 @@ from ._log_context_duration import log_context_duration
 def _alifestd_downsample_tips_lineage_stratified_impl(
     is_leaf: np.ndarray,
     criterion_values: np.ndarray,
-    stratified_values: np.ndarray,
+    stratify_values: np.ndarray,
     mrca_vector: np.ndarray,
     n_tips: typing.Optional[int] = None,
+    n_tips_per_stratum: int = 1,
 ) -> np.ndarray:
     """Shared numpy implementation for stratified lineage tip
     downsampling.
 
     Computes off-lineage deltas from a pre-computed MRCA vector and
-    returns a boolean extant mask, selecting the one leaf with the
-    smallest delta per stratified group.
+    returns a boolean extant mask, selecting up to
+    ``n_tips_per_stratum`` leaves with the smallest delta per
+    stratified group.
 
     When `n_tips` is an integer, stratified values are coarsened by
-    ranking and integer-dividing so that exactly `n_tips` groups are
-    formed.  When `n_tips` is ``None``, each distinct stratified value
-    defines its own group.
+    ranking and integer-dividing so that exactly
+    ``n_tips // n_tips_per_stratum`` groups are formed.  When `n_tips`
+    is ``None``, each distinct stratified value defines its own group.
 
     Parameters
     ----------
@@ -61,15 +63,17 @@ def _alifestd_downsample_tips_lineage_stratified_impl(
         Boolean array indicating which taxa are leaves.
     criterion_values : numpy.ndarray
         Values used to compute off-lineage delta (all taxa).
-    stratified_values : numpy.ndarray
+    stratify_values : numpy.ndarray
         Values used to stratify leaves into groups (all taxa).
     mrca_vector : numpy.ndarray
         Integer array of MRCA ids for each taxon with respect to the
         target leaf.  Taxa in a different tree should have ``-1``.
     n_tips : int, optional
-        Desired number of stratified groups (and thus retained tips).
-        If ``None``, every distinct stratified value forms its own
-        group.
+        Desired number of retained tips.  If ``None``, every distinct
+        stratified value forms its own group and
+        ``n_tips_per_stratum`` tips are kept per group.
+    n_tips_per_stratum : int, default 1
+        Number of tips to retain per stratified group.
 
     Returns
     -------
@@ -98,31 +102,40 @@ def _alifestd_downsample_tips_lineage_stratified_impl(
     is_eligible = is_leaf & ~no_mrca_mask
     eligible_ids = np.flatnonzero(is_eligible)
     eligible_deltas = off_lineage_delta[is_eligible]
-    eligible_stratified = stratified_values[is_eligible]
+    eligible_stratified = stratify_values[is_eligible]
 
     # Coarsen stratified values if n_tips is specified
     if n_tips is not None:
+        n_groups = n_tips // n_tips_per_stratum
         unique_sorted = np.unique(eligible_stratified)
         n_unique = len(unique_sorted)
         ranks = np.searchsorted(unique_sorted, eligible_stratified)
-        eligible_stratified = ranks * n_tips // n_unique
-        assert len(np.unique(eligible_stratified)) == min(n_tips, n_unique)
+        eligible_stratified = ranks * n_groups // n_unique
+        assert len(np.unique(eligible_stratified)) == min(n_groups, n_unique)
 
-    # Per-stratum selection: for each group, keep the one leaf
-    # with the smallest delta.
+    # Per-stratum selection: for each group, keep up to
+    # n_tips_per_stratum leaves with the smallest delta.
     logging.info(
         "_alifestd_downsample_tips_lineage_stratified_impl: "
         "selecting kept ids per stratum...",
     )
     # Vectorized: sort by (stratum, delta), then pick the first
-    # occurrence of each stratum (i.e., the one with the smallest delta).
+    # n_tips_per_stratum occurrences of each stratum.
     sort_order = np.lexsort((eligible_deltas, eligible_stratified))
     sorted_strata = eligible_stratified[sort_order]
     sorted_ids = eligible_ids[sort_order]
-    first_mask = np.empty(len(sorted_strata), dtype=bool)
-    first_mask[0:1] = True
-    first_mask[1:] = sorted_strata[1:] != sorted_strata[:-1]
-    kept_ids = sorted_ids[first_mask]
+
+    stratum_change = np.empty(len(sorted_strata), dtype=bool)
+    stratum_change[0:1] = True
+    stratum_change[1:] = sorted_strata[1:] != sorted_strata[:-1]
+    stratum_starts = np.flatnonzero(stratum_change)
+    stratum_lengths = np.diff(
+        np.append(stratum_starts, len(sorted_strata)),
+    )
+    start_for_each = np.repeat(stratum_starts, stratum_lengths)
+    position_in_stratum = np.arange(len(sorted_strata)) - start_for_each
+    keep_mask = position_in_stratum < n_tips_per_stratum
+    kept_ids = sorted_ids[keep_mask]
 
     logging.info(
         "_alifestd_downsample_tips_lineage_stratified_impl: "
@@ -143,11 +156,12 @@ def alifestd_downsample_tips_lineage_stratified_asexual(
     seed: typing.Optional[int] = None,
     *,
     criterion_delta: str = "origin_time",
-    criterion_stratified: str = "origin_time",
+    criterion_stratify: str = "origin_time",
     criterion_target: str = "origin_time",
+    n_tips_per_stratum: int = 1,
     progress_wrap: typing.Callable = lambda x: x,
 ) -> pd.DataFrame:
-    """Retain one leaf per stratified group, chosen by proximity to the
+    """Retain leaves per stratified group, chosen by proximity to the
     lineage of a target leaf.
 
     Selects a target leaf as the leaf with the largest `criterion_target`
@@ -157,12 +171,13 @@ def alifestd_downsample_tips_lineage_stratified_asexual(
     difference between that leaf's `criterion_delta` value and the
     MRCA's `criterion_delta` value.
 
-    Leaves are grouped by their `criterion_stratified` value. When
-    `n_tips` is an integer, stratified values are coarsened by ranking and
-    integer-dividing to form exactly `n_tips` groups. When `n_tips` is
-    ``None``, each distinct stratified value forms its own group. Within
-    each group, the single leaf with the smallest off-lineage delta is
-    retained.
+    Leaves are grouped by their `criterion_stratify` value. When
+    `n_tips` is an integer, stratified values are coarsened by ranking
+    and integer-dividing to form exactly ``n_tips // n_tips_per_stratum``
+    groups. When `n_tips` is ``None``, each distinct stratified value
+    forms its own group (without ranking). Within each group, the
+    ``n_tips_per_stratum`` leaves with the smallest off-lineage delta
+    are retained.
 
     Only supports asexual phylogenies.
 
@@ -173,9 +188,8 @@ def alifestd_downsample_tips_lineage_stratified_asexual(
 
         Must represent an asexual phylogeny.
     n_tips : int, optional
-        Desired number of stratified groups (and thus retained tips).
-        If ``None``, every distinct ``criterion_stratified`` value forms
-        its own group.
+        Desired number of retained tips.  If ``None``, every distinct
+        ``criterion_stratify`` value forms its own group.
     mutate : bool, default False
         Are side effects on the input argument `phylogeny_df` allowed?
     seed : int, optional
@@ -185,30 +199,42 @@ def alifestd_downsample_tips_lineage_stratified_asexual(
         Column name used to compute the off-lineage delta for each leaf.
         The delta is the absolute difference between a leaf's value and
         its MRCA's value in this column.
-    criterion_stratified : str, default "origin_time"
+    criterion_stratify : str, default "origin_time"
         Column name used to stratify leaves into groups.
     criterion_target : str, default "origin_time"
         Column name used to select the target leaf. The leaf with the
         largest value in this column is chosen as the target. Note that
         ties are broken by random sample, allowing a seed to be
         provided.
+    n_tips_per_stratum : int, default 1
+        Number of tips to retain per stratified group.  Must evenly
+        divide ``n_tips`` when ``n_tips`` is not ``None``.
     progress_wrap : Callable, optional
         Pass tqdm or equivalent to display a progress bar.
 
     Raises
     ------
     ValueError
-        If `criterion_delta`, `criterion_stratified`, or
+        If `criterion_delta`, `criterion_stratify`, or
         `criterion_target` is not a column in `phylogeny_df`.
+    ValueError
+        If ``n_tips`` is not ``None`` and ``n_tips_per_stratum`` does
+        not evenly divide ``n_tips``.
 
     Returns
     -------
     pandas.DataFrame
         The pruned phylogeny in alife standard format.
     """
+    if n_tips is not None and n_tips % n_tips_per_stratum != 0:
+        raise ValueError(
+            f"n_tips_per_stratum={n_tips_per_stratum} does not evenly "
+            f"divide n_tips={n_tips}",
+        )
+
     for criterion in (
         criterion_delta,
-        criterion_stratified,
+        criterion_stratify,
         criterion_target,
     ):
         if criterion not in phylogeny_df.columns:
@@ -256,7 +282,7 @@ def alifestd_downsample_tips_lineage_stratified_asexual(
     is_leaf = phylogeny_df["is_leaf"].to_numpy()
     target_values = phylogeny_df[criterion_target].to_numpy()
     criterion_values = phylogeny_df[criterion_delta].to_numpy()
-    stratified_values = phylogeny_df[criterion_stratified].to_numpy()
+    stratify_values = phylogeny_df[criterion_stratify].to_numpy()
 
     with opyt.apply_if_or_else(seed, RngStateContext, contextlib.nullcontext):
         target_id = _alifestd_downsample_tips_lineage_select_target_id(
@@ -278,9 +304,10 @@ def alifestd_downsample_tips_lineage_stratified_asexual(
     is_extant = _alifestd_downsample_tips_lineage_stratified_impl(
         is_leaf=is_leaf,
         criterion_values=criterion_values,
-        stratified_values=stratified_values,
+        stratify_values=stratify_values,
         mrca_vector=mrca_vector,
         n_tips=n_tips,
+        n_tips_per_stratum=n_tips_per_stratum,
     )
 
     logging.info(
@@ -302,7 +329,7 @@ The target leaf is chosen as the leaf with the largest
 the absolute difference between that leaf's `--criterion-delta` value
 and the MRCA's `--criterion-delta` value (where the MRCA is of that
 leaf and the target).
-Leaves are grouped by their `--criterion-stratified` value. When `-n`
+Leaves are grouped by their `--criterion-stratify` value. When `-n`
 is given, stratified values are coarsened into `-n` groups by ranking
 and integer division. Within each group, the leaf with the smallest
 delta is retained.
@@ -346,7 +373,7 @@ def _create_parser() -> argparse.ArgumentParser:
         help="Column used to compute off-lineage delta (default: origin_time).",
     )
     parser.add_argument(
-        "--criterion-stratified",
+        "--criterion-stratify",
         default="origin_time",
         type=str,
         help="Column used to stratify leaves (default: origin_time).",
@@ -356,6 +383,12 @@ def _create_parser() -> argparse.ArgumentParser:
         default="origin_time",
         type=str,
         help="Column used to select the target leaf (default: origin_time).",
+    )
+    parser.add_argument(
+        "--n-tips-per-stratum",
+        default=1,
+        type=int,
+        help="Number of tips per stratum (default: 1).",
     )
     parser.add_argument(
         "--seed",
@@ -396,8 +429,9 @@ if __name__ == "__main__":
                     n_tips=args.n,
                     seed=args.seed,
                     criterion_delta=args.criterion_delta,
-                    criterion_stratified=args.criterion_stratified,
+                    criterion_stratify=args.criterion_stratify,
                     criterion_target=args.criterion_target,
+                    n_tips_per_stratum=args.n_tips_per_stratum,
                     progress_wrap=tqdm,
                     ignore_topological_sensitivity=args.ignore_topological_sensitivity,
                     drop_topological_sensitivity=args.drop_topological_sensitivity,

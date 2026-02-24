@@ -3,6 +3,7 @@ import functools
 import logging
 import os
 import sys
+import typing
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
@@ -33,15 +34,17 @@ from ._log_context_duration import log_context_duration
 )
 def alifestd_downsample_tips_canopy_asexual(
     phylogeny_df: pd.DataFrame,
-    num_tips: int,
+    num_tips: typing.Optional[int] = None,
     mutate: bool = False,
     criterion: str = "origin_time",
 ) -> pd.DataFrame:
     """Retain the `num_tips` leaves with the largest `criterion` values and
     prune extinct lineages.
 
-    If `num_tips` is greater than or equal to the number of leaves in the
-    phylogeny, the whole phylogeny is returned. Ties are broken arbitrarily.
+    If `num_tips` is ``None``, it defaults to the number of leaves that
+    share the maximum value of the `criterion` column. If `num_tips` is
+    greater than or equal to the number of leaves in the phylogeny, the
+    whole phylogeny is returned. Ties are broken arbitrarily.
 
     Only supports asexual phylogenies.
 
@@ -51,8 +54,9 @@ def alifestd_downsample_tips_canopy_asexual(
         The phylogeny as a dataframe in alife standard format.
 
         Must represent an asexual phylogeny.
-    num_tips : int
-        Number of tips to retain.
+    num_tips : int, optional
+        Number of tips to retain. If ``None``, defaults to the count of
+        leaves with the maximum `criterion` value.
     mutate : bool, default False
         Are side effects on the input argument `phylogeny_df` allowed?
     criterion : str, default "origin_time"
@@ -93,6 +97,9 @@ def alifestd_downsample_tips_canopy_asexual(
         # numpy array indexing instead of expensive .isin() calls.
         leaf_positions = alifestd_find_leaf_ids(phylogeny_df)
         leaf_df = phylogeny_df.iloc[leaf_positions]
+        if num_tips is None:
+            max_val = leaf_df[criterion].max()
+            num_tips = int((leaf_df[criterion] == max_val).sum())
         kept_ids = leaf_df.nlargest(num_tips, criterion)["id"]
         phylogeny_df["extant"] = np.bincount(
             kept_ids.to_numpy(), minlength=len(phylogeny_df)
@@ -100,6 +107,9 @@ def alifestd_downsample_tips_canopy_asexual(
     else:
         tips = alifestd_find_leaf_ids(phylogeny_df)
         leaf_df = phylogeny_df.loc[phylogeny_df["id"].isin(tips)]
+        if num_tips is None:
+            max_val = leaf_df[criterion].max()
+            num_tips = int((leaf_df[criterion] == max_val).sum())
         kept_ids = leaf_df.nlargest(num_tips, criterion)["id"]
         phylogeny_df["extant"] = phylogeny_df["id"].isin(kept_ids)
 
