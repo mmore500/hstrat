@@ -3,6 +3,7 @@ import functools
 import logging
 import os
 import sys
+import typing
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
@@ -29,14 +30,16 @@ from ._log_context_duration import log_context_duration
 )
 def alifestd_downsample_tips_canopy_polars(
     phylogeny_df: pl.DataFrame,
-    num_tips: int,
+    num_tips: typing.Optional[int] = None,
     criterion: str = "origin_time",
 ) -> pl.DataFrame:
     """Retain the `num_tips` leaves with the largest `criterion` values and
     prune extinct lineages.
 
-    If `num_tips` is greater than or equal to the number of leaves in the
-    phylogeny, the whole phylogeny is returned. Ties are broken arbitrarily.
+    If `num_tips` is ``None``, it defaults to the number of leaves that
+    share the maximum value of the `criterion` column. If `num_tips` is
+    greater than or equal to the number of leaves in the phylogeny, the
+    whole phylogeny is returned. Ties are broken arbitrarily.
 
     Only supports asexual phylogenies.
 
@@ -46,8 +49,9 @@ def alifestd_downsample_tips_canopy_polars(
         The phylogeny as a dataframe in alife standard format.
 
         Must represent an asexual phylogeny.
-    num_tips : int
-        Number of tips to retain.
+    num_tips : int, optional
+        Number of tips to retain. If ``None``, defaults to the count of
+        leaves with the maximum `criterion` value.
     criterion : str, default "origin_time"
         Column name used to rank leaves. The `num_tips` leaves with the
         largest values in this column are retained. Ties are broken
@@ -85,15 +89,23 @@ def alifestd_downsample_tips_canopy_polars(
     logging.info(
         "- alifestd_downsample_tips_canopy_polars: finding leaf ids...",
     )
-    marked_df = alifestd_mark_leaves_polars(phylogeny_df)
+    phylogeny_df = alifestd_mark_leaves_polars(phylogeny_df)
 
     logging.info(
         "- alifestd_downsample_tips_canopy_polars: selecting top leaf_ids...",
     )
+    leaves_lazy = phylogeny_df.lazy().filter(pl.col("is_leaf"))
+    if num_tips is None:
+        max_val = leaves_lazy.select(pl.col(criterion).max()).collect().item()
+        num_tips = (
+            leaves_lazy.filter(pl.col(criterion) == max_val)
+            .select(pl.len())
+            .collect()
+            .item()
+        )
+
     leaf_ids = (
-        marked_df.lazy()
-        .filter(pl.col("is_leaf"))
-        .sort(criterion, descending=True)
+        leaves_lazy.sort(criterion, descending=True)
         .head(num_tips)
         .select(pl.col("id"))
         .collect()

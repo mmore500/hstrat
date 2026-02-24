@@ -1,6 +1,7 @@
 import os
 import typing
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -8,6 +9,7 @@ from hstrat._auxiliary_lib import (
     alifestd_aggregate_phylogenies,
     alifestd_count_leaf_nodes,
     alifestd_downsample_tips_lineage_stratified_asexual,
+    alifestd_sum_origin_time_deltas_asexual,
     alifestd_to_working_format,
 )
 
@@ -161,7 +163,7 @@ def test_alifestd_downsample_tips_lineage_stratified_asexual_missing_criterion()
 
     with pytest.raises(ValueError, match="criterion column"):
         alifestd_downsample_tips_lineage_stratified_asexual(
-            phylogeny_df, criterion_stratified="nonexistent"
+            phylogeny_df, criterion_stratify="nonexistent"
         )
 
 
@@ -184,7 +186,7 @@ def test_alifestd_downsample_tips_lineage_stratified_asexual_custom_criterion(
         5,
         seed=1,
         criterion_delta="origin_time",
-        criterion_stratified="origin_time",
+        criterion_stratify="origin_time",
         criterion_target="origin_time",
     )
 
@@ -234,7 +236,7 @@ def test_alifestd_downsample_tips_lineage_stratified_asexual_simple():
         |   +-- 4 (leaf, origin_time=4)
         +-- 2 (leaf, origin_time=2)
 
-    With criterion_stratified=origin_time and n_tips=None,
+    With criterion_stratify=origin_time and n_tips=None,
     each unique origin_time among leaves forms its own group.
     Leaves are at origin_time 2, 3, 4 => 3 groups => 3 leaves.
     """
@@ -327,3 +329,247 @@ def test_alifestd_downsample_tips_lineage_stratified_asexual_shared_stratum():
         phylogeny_df, n_tips=100, seed=1
     )
     assert alifestd_count_leaf_nodes(result_big) == 1
+
+
+def test_alifestd_downsample_tips_lineage_stratified_asexual_n_tips_per_stratum_validation():
+    """n_tips_per_stratum must evenly divide n_tips."""
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4],
+            "ancestor_list": ["[none]", "[0]", "[0]", "[1]", "[1]"],
+            "origin_time": [0.0, 1.0, 2.0, 3.0, 4.0],
+        }
+    )
+
+    with pytest.raises(ValueError, match="n_tips_per_stratum"):
+        alifestd_downsample_tips_lineage_stratified_asexual(
+            phylogeny_df, n_tips=3, seed=1, n_tips_per_stratum=2
+        )
+
+    with pytest.raises(ValueError, match="n_tips_per_stratum"):
+        alifestd_downsample_tips_lineage_stratified_asexual(
+            phylogeny_df, n_tips=5, seed=1, n_tips_per_stratum=3
+        )
+
+
+def test_alifestd_downsample_tips_lineage_stratified_asexual_n_tips_per_stratum_basic():
+    """Test n_tips_per_stratum picks correct number of tips per group.
+
+    Tree structure:
+        0 (root, ot=0)
+        +-- 1 (ot=1)
+        |   +-- 3 (leaf, ot=2)
+        |   +-- 4 (leaf, ot=2)
+        |   +-- 5 (leaf, ot=3)
+        |   +-- 6 (leaf, ot=3)
+        +-- 2 (leaf, ot=2)
+
+    Strata (origin_time among leaves): {2, 3}.
+    With n_tips_per_stratum=2: pick 2 from each stratum.
+    Stratum 2 has 3 leaves (2, 3, 4), stratum 3 has 2 leaves (5, 6).
+    Result: 2 + 2 = 4 leaves.
+    """
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6],
+            "ancestor_list": [
+                "[none]",
+                "[0]",
+                "[0]",
+                "[1]",
+                "[1]",
+                "[1]",
+                "[1]",
+            ],
+            "origin_time": [0.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0],
+        }
+    )
+
+    result = alifestd_downsample_tips_lineage_stratified_asexual(
+        phylogeny_df, seed=1, n_tips_per_stratum=2
+    )
+    assert alifestd_count_leaf_nodes(result) == 4
+
+    result1 = alifestd_downsample_tips_lineage_stratified_asexual(
+        phylogeny_df, seed=1, n_tips_per_stratum=1
+    )
+    assert alifestd_count_leaf_nodes(result1) == 2
+
+
+def test_alifestd_downsample_tips_lineage_stratified_asexual_n_tips_per_stratum_with_n_tips():
+    """Test n_tips_per_stratum combined with n_tips.
+
+    Tree structure:
+        0 (root, ot=0)
+        +-- 1 (ot=1)
+        |   +-- 3 (leaf, ot=2)
+        |   +-- 4 (leaf, ot=2)
+        |   +-- 5 (leaf, ot=3)
+        |   +-- 6 (leaf, ot=3)
+        +-- 2 (leaf, ot=2)
+
+    n_tips=4, n_tips_per_stratum=2: 4//2=2 groups.
+    2 distinct strata, so 2 groups map naturally => 2 tips per group = 4.
+    """
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6],
+            "ancestor_list": [
+                "[none]",
+                "[0]",
+                "[0]",
+                "[1]",
+                "[1]",
+                "[1]",
+                "[1]",
+            ],
+            "origin_time": [0.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0],
+        }
+    )
+
+    result = alifestd_downsample_tips_lineage_stratified_asexual(
+        phylogeny_df, n_tips=4, seed=1, n_tips_per_stratum=2
+    )
+    assert alifestd_count_leaf_nodes(result) == 4
+
+
+def test_alifestd_downsample_tips_lineage_stratified_asexual_n_tips_per_stratum_no_ranking():
+    """With n_tips_per_stratum only (n_tips=None), stratify values are not
+    coarsened by ranking --- each distinct value forms its own stratum.
+
+    Construct a tree where ranking would merge strata but n_tips=None
+    should keep them separate.
+    """
+    phylogeny_df = pd.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            "ancestor_list": [
+                "[none]",
+                "[0]",
+                "[0]",
+                "[1]",
+                "[1]",
+                "[2]",
+                "[2]",
+                "[2]",
+                "[2]",
+            ],
+            "origin_time": [
+                0.0,
+                1.0,
+                1.0,
+                10.0,
+                10.0,
+                20.0,
+                20.0,
+                30.0,
+                30.0,
+            ],
+        }
+    )
+
+    # n_tips=None: 3 distinct leaf strata {10, 20, 30}, pick 1 each = 3
+    result = alifestd_downsample_tips_lineage_stratified_asexual(
+        phylogeny_df, seed=1, n_tips_per_stratum=1
+    )
+    assert alifestd_count_leaf_nodes(result) == 3
+
+    # n_tips=None, n_tips_per_stratum=2: 3 strata, pick 2 each = 6
+    result2 = alifestd_downsample_tips_lineage_stratified_asexual(
+        phylogeny_df, seed=1, n_tips_per_stratum=2
+    )
+    assert alifestd_count_leaf_nodes(result2) == 6
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df",
+    [
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        ),
+    ],
+)
+def test_alifestd_downsample_tips_lineage_stratified_asexual_less_branch_length_than_random(
+    phylogeny_df: pd.DataFrame,
+):
+    """Stratified downsampling should pull less total branch length (sum of
+    origin_time deltas) than random tip sampling, on asset datasets with a
+    spread of origin times.
+    """
+    n_tips = 5
+
+    stratified_result = alifestd_downsample_tips_lineage_stratified_asexual(
+        phylogeny_df, n_tips=n_tips, seed=1
+    )
+    stratified_bl = alifestd_sum_origin_time_deltas_asexual(stratified_result)
+
+    # Random tip sampling: keep n_tips random leaves and their lineages
+    rng = np.random.default_rng(42)
+    leaf_ids = phylogeny_df.loc[
+        ~phylogeny_df["id"].isin(phylogeny_df["ancestor_id"]),
+        "id",
+    ].values
+    random_bls = []
+    for _ in range(20):
+        chosen = rng.choice(leaf_ids, size=n_tips, replace=False)
+        # Build the set of ancestors for the chosen leaves
+        keep = set(chosen)
+        for leaf_id in chosen:
+            cur = leaf_id
+            while cur not in keep or cur == leaf_id:
+                keep.add(cur)
+                parent = phylogeny_df.loc[
+                    phylogeny_df["id"] == cur, "ancestor_id"
+                ].values[0]
+                if parent == cur:
+                    break
+                cur = parent
+        random_sub = phylogeny_df[phylogeny_df["id"].isin(keep)].copy()
+        random_bls.append(alifestd_sum_origin_time_deltas_asexual(random_sub))
+
+    mean_random_bl = np.mean(random_bls)
+    assert stratified_bl < mean_random_bl, (
+        f"Stratified branch length {stratified_bl} should be less "
+        f"than mean random {mean_random_bl}"
+    )
+
+
+@pytest.mark.parametrize(
+    "phylogeny_df",
+    [
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_ecoeaselection.csv"),
+        ),
+        alifestd_to_working_format(
+            pd.read_csv(f"{assets_path}/nk_lexicaseselection.csv"),
+        ),
+    ],
+)
+@pytest.mark.parametrize("n_tips_per_stratum", [1, 2])
+def test_alifestd_downsample_tips_lineage_stratified_asexual_correct_tip_count(
+    phylogeny_df: pd.DataFrame,
+    n_tips_per_stratum: int,
+):
+    """Verify correct total tips and tips-per-stratum counts."""
+    n_tips = 4 * n_tips_per_stratum
+
+    result = alifestd_downsample_tips_lineage_stratified_asexual(
+        phylogeny_df,
+        n_tips=n_tips,
+        seed=1,
+        n_tips_per_stratum=n_tips_per_stratum,
+    )
+
+    result_leaf_count = alifestd_count_leaf_nodes(result)
+    # Number of retained tips is min(n_tips, unique_strata * per_stratum)
+    assert result_leaf_count <= n_tips
+    assert result_leaf_count >= 1
+
+    # Verify per-stratum: leaf origin_times form strata; each should
+    # have at most n_tips_per_stratum leaves.
+    result_leaves = result[~result["id"].isin(result["ancestor_id"])]
+    strata_counts = result_leaves["origin_time"].value_counts()
+    assert all(strata_counts <= n_tips_per_stratum)
