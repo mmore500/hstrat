@@ -151,10 +151,11 @@ def alifestd_downsample_tips_lineage_stratified_asexual(
     lineage of a target leaf.
 
     Selects a target leaf as the leaf with the largest `criterion_target`
-    value (ties broken randomly). For each leaf, the most recent common
-    ancestor (MRCA) with the target leaf is identified and the "off-lineage
-    delta" is computed as the absolute difference between the leaf's
-    `criterion_delta` value and its MRCA's `criterion_delta` value.
+    value (ties broken randomly). For each non-target leaf, the most
+    recent common ancestor (MRCA) of that leaf and the target leaf is
+    identified, and the "off-lineage delta" is computed as the absolute
+    difference between that leaf's `criterion_delta` value and the
+    MRCA's `criterion_delta` value.
 
     Leaves are grouped by their `criterion_stratified` value. When
     `n_tips` is an integer, stratified values are coarsened by ranking and
@@ -298,8 +299,9 @@ lineage of a target leaf.
 
 The target leaf is chosen as the leaf with the largest
 `--criterion-target` value. For each leaf, the off-lineage delta is
-the absolute difference between the leaf's `--criterion-delta` value
-and its MRCA's `--criterion-delta` value with respect to the target.
+the absolute difference between that leaf's `--criterion-delta` value
+and the MRCA's `--criterion-delta` value (where the MRCA is of that
+leaf and the target).
 Leaves are grouped by their `--criterion-stratified` value. When `-n`
 is given, stratified values are coarsened into `-n` groups by ranking
 and integer division. Within each group, the leaf with the smallest
