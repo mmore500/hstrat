@@ -46,8 +46,7 @@ echo "      ! info: reference num root nodes $( \
 
 for opt in \
     "--check-trie-invariant-freq=1" \
-    "--check-trie-invariant-freq=1 --collapse-unif-freq=0" \
-    "--check-trie-invariant-freq=1 --collapse-unif-freq=-1" \
+    "--check-trie-invariant-freq=1 --collapse-unif-freq=1" \
 ; do
     echo "   - opt=${opt}"
 
