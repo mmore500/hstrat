@@ -29,10 +29,11 @@ cp /tmp/hstrat-gnkbc.pqt "${genomes}" 2>/dev/null \
     && cp "${genomes}" /tmp/hstrat-gnkbc.pqt; }
 
 # unpack and reconstruct reference (no invariant checks)
+# shellcheck disable=SC2086  # intentional word splitting
 ls -1 "${genomes}" \
     | python3 -m hstrat.dataframe.surface_build_tree "${reference}" \
     ${HSTRAT_TESTS_CLI_HEAD:-} --collapse-unif-freq=0 \
-    > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
+    > "${HSTRAT_TESTS_CLI_STDOUT}" 2>&1
 
 echo "BEGIN $0"
 echo "/ HSTRAT_TESTS_CLI_STDOUT=${HSTRAT_TESTS_CLI_STDOUT}"
@@ -51,10 +52,11 @@ for opt in \
     echo "   - opt=${opt}"
 
     # unpack and reconstruct alternate
+    # shellcheck disable=SC2086  # intentional word splitting
     ls -1 "${genomes}" \
         | python3 -m hstrat.dataframe.surface_build_tree "${alternate}" \
         ${HSTRAT_TESTS_CLI_HEAD:-} ${opt} \
-        > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
+        > "${HSTRAT_TESTS_CLI_STDOUT}" 2>&1
 
     echo "      ! info: alternate num root nodes $( \
         python3 -m hstrat._auxiliary_lib._alifestd_count_root_nodes \
@@ -65,7 +67,7 @@ for opt in \
         -m hstrat._auxiliary_lib._alifestd_test_leaves_isomorphic_asexual \
         --taxon-label "dstream_data_id" \
         "${reference}" "${alternate}" \
-        > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1 \
+        > "${HSTRAT_TESTS_CLI_STDOUT}" 2>&1 \
     ; then
         echo "   + PASS"
     else
