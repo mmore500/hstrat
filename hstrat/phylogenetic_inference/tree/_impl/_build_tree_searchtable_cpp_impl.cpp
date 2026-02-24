@@ -675,6 +675,14 @@ void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
       detach_search_parent(records, loser);
     }
 
+    assert(std::ranges::is_sorted(loser_epochs[d]));
+    for (const auto loser_epoch : std::ranges::unique(loser_epochs[d])) {
+      const auto true_winner = epoch_winners[d][loser_epoch];
+      collapse_indistinguishable_nodes_small<max_differentia>(
+        records, true_winner
+      );
+    }
+
   }
 
 }
@@ -713,6 +721,11 @@ void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
       }
       detach_search_parent(records, loser);
     }
+
+    if (children.size() > 1) {
+      collapse_indistinguishable_nodes_large(records, winner);
+    }
+
   }
 }
 
