@@ -89,12 +89,12 @@ def alifestd_downsample_tips_canopy_polars(
     logging.info(
         "- alifestd_downsample_tips_canopy_polars: finding leaf ids...",
     )
-    marked_df = alifestd_mark_leaves_polars(phylogeny_df)
+    phylogeny_df = alifestd_mark_leaves_polars(phylogeny_df)
 
     logging.info(
         "- alifestd_downsample_tips_canopy_polars: selecting top leaf_ids...",
     )
-    leaves_lazy = marked_df.lazy().filter(pl.col("is_leaf"))
+    leaves_lazy = phylogeny_df.lazy().filter(pl.col("is_leaf"))
     if num_tips is None:
         max_val = leaves_lazy.select(pl.col(criterion).max()).collect().item()
         num_tips = (
