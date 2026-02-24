@@ -125,14 +125,14 @@ from ._alifestd_downsample_tips_clade_asexual import (
 from ._alifestd_downsample_tips_lineage_asexual import (
     alifestd_downsample_tips_lineage_asexual,
 )
+from ._alifestd_downsample_tips_lineage_polars import (
+    alifestd_downsample_tips_lineage_polars,
+)
 from ._alifestd_downsample_tips_lineage_stratified_asexual import (
     alifestd_downsample_tips_lineage_stratified_asexual,
 )
 from ._alifestd_downsample_tips_lineage_stratified_polars import (
     alifestd_downsample_tips_lineage_stratified_polars,
-)
-from ._alifestd_downsample_tips_lineage_polars import (
-    alifestd_downsample_tips_lineage_polars,
 )
 from ._alifestd_downsample_tips_polars import alifestd_downsample_tips_polars
 from ._alifestd_drop_topological_sensitivity import (
