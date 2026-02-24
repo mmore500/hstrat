@@ -353,6 +353,29 @@ def test_multiple_roots(apply: typing.Callable):
         pytest.param(lambda x: x.lazy(), id="LazyFrame"),
     ],
 )
+def test_uint64_ancestor_id(apply: typing.Callable):
+    """Regression: UInt64 ancestor_id caused numba float64 type unification."""
+    df_pl = apply(
+        pl.DataFrame(
+            {
+                "id": pl.Series([0, 1, 2, 3], dtype=pl.UInt64),
+                "ancestor_id": pl.Series([0, 0, 1, 0], dtype=pl.UInt64),
+            }
+        )
+    )
+    result = alifestd_calc_mrca_id_vector_asexual_polars(df_pl, target_id=2)
+    np.testing.assert_array_equal(
+        result, np.array([0, 1, 2, 0], dtype=np.int64)
+    )
+
+
+@pytest.mark.parametrize(
+    "apply",
+    [
+        pytest.param(lambda x: x, id="DataFrame"),
+        pytest.param(lambda x: x.lazy(), id="LazyFrame"),
+    ],
+)
 def test_with_ancestor_list_col(apply: typing.Callable):
     """Test that ancestor_list is correctly converted to ancestor_id."""
     df_pl = apply(
