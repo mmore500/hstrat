@@ -525,6 +525,9 @@ void detach_search_parent(Records &records, const u64 node) {
   if (records.search_first_child_id[parent] == node) {
     const u64 child_id = is_last_child ? parent : next_sibling;
     records.search_first_child_id[parent] = child_id;
+    // mark next sibling as new first child (otherwise harmlessly mark self)
+    if (is_last_child) assert(next_sibling == node);
+    records.search_prev_sibling_id[next_sibling] = next_sibling;
   } else if (records.search_next_sibling_id[node] == node) {
     const u64 prev_sibling = records.search_prev_sibling_id[node];
     records.search_next_sibling_id[prev_sibling] = prev_sibling;
@@ -596,12 +599,15 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
     records.search_next_sibling_id[node] = node;
   }
 
-  assert(std::ranges::is_sorted(
-    ChildrenView(records, parent),
-    [&records](const u64 lhs, const u64 rhs) {
-      return records.rank[lhs] < records.rank[rhs];
-    }
-  ));
+  // full sorted check is too expensive to assert, so just check local sort...
+  assert(
+    records.rank[records.search_prev_sibling_id[node]]
+    <= records.rank[node]
+  );
+  assert(
+    records.rank[node]
+    <= records.rank[records.search_next_sibling_id[node]]
+  );
 
 }
 
@@ -614,32 +620,74 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
  */
 template<size_t max_differentia>
 void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
-  std::unordered_map<i64, std::array<u64, max_differentia + 1>> winners{};
-  std::vector<u64> losers;
 
-  for (auto child : ChildrenView(records, node)) {
-    const u64 differentia = records.differentia[child];
-    const i64 rank = records.rank[child];
-    auto& winner = winners[rank][differentia];
-    if (winner == 0 || child < winner) { std::swap(winner, child); }
-    if (child) losers.push_back(child);
-  }
-
-  for (const auto loser : losers) {
-    const u64 differentia = records.differentia[loser];
-    const i64 rank = records.rank[loser];
-    const u64 winner = winners[rank][differentia];
-
-    std::vector<u64> loser_children;
-    std::ranges::copy(
-      ChildrenView(records, loser), std::back_inserter(loser_children)
-    );
-    for (const u64 loser_child : loser_children) {
-      detach_search_parent(records, loser_child);
-      attach_search_parent(records, loser_child, winner);
+  assert(std::ranges::is_sorted(
+    ChildrenView(records, node),
+    [&records](const u64 lhs, const u64 rhs) {
+      return records.rank[lhs] < records.rank[rhs];
     }
-    detach_search_parent(records, loser);
+  ));
+  assert(std::ranges::all_of(
+    ChildrenView(records, node),
+    [&records](const u64 child){ return records.rank[child] >= 0; }
+  ));
+
+  std::array<std::vector<u64>, max_differentia + 1> losers{};
+  std::array<std::vector<u64>, max_differentia + 1> loser_epochs{};
+  std::array<std::vector<u64>, max_differentia + 1> epoch_winners{};
+  std::array<i64, max_differentia + 1> prev_child_rank{};
+  for (const auto child : ChildrenView(records, node)) {
+    assert(child > 0);
+
+    const auto child_d = records.differentia[child];
+    assert(child_d <= max_differentia);
+
+    const auto child_r = records.rank[child];
+    assert(child_r > 0 && child_r >= prev_child_rank[child_d]);
+
+    const auto d = child_d;
+    if (child_r != std::exchange(prev_child_rank[d], child_r)) {
+      epoch_winners[d].push_back(child);
+    } else {
+      const auto cur_winner = epoch_winners[d].back();
+      assert(cur_winner != child);
+      epoch_winners[d].back() = std::min(cur_winner, child);
+      const auto cur_loser = std::max(cur_winner, child);
+      losers[d].push_back(cur_loser);
+      loser_epochs[d].push_back(epoch_winners[d].size() - 1);
+    }
   }
+
+  // possible optimization: could track which differentia values have been seen
+  for (u64 d = 0; d <= max_differentia; ++d) {
+
+    assert(losers[d].size() == loser_epochs[d].size());
+    for (u64 i{}; i < losers[d].size(); ++i) {
+      const auto loser = losers[d][i];
+      const auto loser_epoch = loser_epochs[d][i];
+      const auto corresponding_winner = epoch_winners[d][loser_epoch];
+
+      std::vector<u64> loser_children;
+      std::ranges::copy(
+        ChildrenView(records, loser), std::back_inserter(loser_children)
+      );
+      for (const u64 loser_child : loser_children) {
+        detach_search_parent(records, loser_child);
+        attach_search_parent(records, loser_child, corresponding_winner);
+      }
+      detach_search_parent(records, loser);
+    }
+
+    assert(std::ranges::is_sorted(loser_epochs[d]));
+    for (const auto loser_epoch : std::ranges::unique(loser_epochs[d])) {
+      const auto true_winner = epoch_winners[d][loser_epoch];
+      collapse_indistinguishable_nodes_small<max_differentia>(
+        records, true_winner
+      );
+    }
+
+  }
+
 }
 
 // adapted from https://stackoverflow.com/a/20602159/17332200
@@ -676,6 +724,11 @@ void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
       }
       detach_search_parent(records, loser);
     }
+
+    if (children.size() > 1) {
+      collapse_indistinguishable_nodes_large(records, winner);
+    }
+
   }
 }
 
@@ -705,21 +758,21 @@ int bit_length(const u64 x) { return (8*sizeof x) - std::countl_zero(x); }
 void collapse_indistinguishable_nodes(Records & records, const u64 node) {
   switch (bit_length(records.max_differentia)) {
     case 0:
-    case 1:  // single-bit case
+    case 1:  // single-bit case: values 0-1
       collapse_indistinguishable_nodes_small<1>(records, node);
       break;
-    case 2:  // two-bit case
-      collapse_indistinguishable_nodes_small<2>(records, node);
+    case 2:  // two-bit case: values 0-3
+      collapse_indistinguishable_nodes_small<3>(records, node);
       break;
     case 3:
-    case 4:  // four-bit (hex value) case
-      collapse_indistinguishable_nodes_small<4>(records, node);
+    case 4:  // four-bit (hex value) case: values 0-15
+      collapse_indistinguishable_nodes_small<15>(records, node);
       break;
     case 5:
     case 6:
     case 7:
-    case 8:  // eight-bit (byte value) case
-      collapse_indistinguishable_nodes_small<8>(records, node);
+    case 8:  // eight-bit (byte value) case: values 0-255
+      collapse_indistinguishable_nodes_small<255>(records, node);
       break;
     default:  // larger than a byte
       collapse_indistinguishable_nodes_large(records, node);
@@ -818,7 +871,10 @@ u64 create_offstring(
     rank,  // rank
     differentia  // differentia
   );
-  attach_search_parent(records, node, parent);
+  const u64 dummy_data_id{placeholder_value};
+  if (data_id == dummy_data_id) {  // i.e., not a leaf node
+    attach_search_parent(records, node, parent);
+  }
   return node;
 }
 
@@ -946,7 +1002,7 @@ void insert_artifact(
     consolidate_trie(records, r, cur_node);
     cur_node = place_allele(records, cur_node, r, d);
   }
-  create_offstring(records, cur_node, num_strata_deposited - 1, -1, data_id);
+  create_offstring(records, cur_node, num_strata_deposited - 1, 0, data_id);
 }
 
 
