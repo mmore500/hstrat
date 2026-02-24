@@ -64,7 +64,7 @@ def check_trie_invariant_search_children_sorted(
 def check_trie_invariant_no_indistinguishable_nodes(
     records: Records,
 ) -> bool: ...
-def check_trie_invariant_artifact_no_children(
+def check_trie_invariant_data_nodes_are_leaves(
     records: Records,
 ) -> bool: ...
 def check_trie_invariant_search_lineage_compatible(

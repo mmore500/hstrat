@@ -36,8 +36,8 @@ check_trie_invariant_search_children_sorted = (
 check_trie_invariant_no_indistinguishable_nodes = (
     _impl_mod.check_trie_invariant_no_indistinguishable_nodes
 )
-check_trie_invariant_artifact_no_children = (
-    _impl_mod.check_trie_invariant_artifact_no_children
+check_trie_invariant_data_nodes_are_leaves = (
+    _impl_mod.check_trie_invariant_data_nodes_are_leaves
 )
 check_trie_invariant_search_lineage_compatible = (
     _impl_mod.check_trie_invariant_search_lineage_compatible

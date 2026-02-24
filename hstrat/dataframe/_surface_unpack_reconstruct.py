@@ -23,9 +23,9 @@ from .._auxiliary_lib import (
 from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
     Records,
     check_trie_invariant_ancestor_bounds,
-    check_trie_invariant_artifact_no_children,
     check_trie_invariant_chronologically_sorted,
     check_trie_invariant_contiguous_ids,
+    check_trie_invariant_data_nodes_are_leaves,
     check_trie_invariant_no_indistinguishable_nodes,
     check_trie_invariant_ranks_nonnegative,
     check_trie_invariant_root_at_zero,
@@ -229,8 +229,8 @@ def _run_trie_invariant_checks(records: Records, context: str) -> None:
             check_trie_invariant_no_indistinguishable_nodes,
         ),
         (
-            "artifact_no_children",
-            check_trie_invariant_artifact_no_children,
+            "data_nodes_are_leaves",
+            check_trie_invariant_data_nodes_are_leaves,
         ),
         (
             "search_lineage_compatible",

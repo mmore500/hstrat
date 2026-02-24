@@ -6,9 +6,9 @@ from hstrat.phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_s
     Records,
     build_tree_searchtable_cpp_from_exploded,
     check_trie_invariant_ancestor_bounds,
-    check_trie_invariant_artifact_no_children,
     check_trie_invariant_chronologically_sorted,
     check_trie_invariant_contiguous_ids,
+    check_trie_invariant_data_nodes_are_leaves,
     check_trie_invariant_no_indistinguishable_nodes,
     check_trie_invariant_ranks_nonnegative,
     check_trie_invariant_root_at_zero,
@@ -64,8 +64,8 @@ def _all_checks():
             check_trie_invariant_no_indistinguishable_nodes,
         ),
         (
-            "artifact_no_children",
-            check_trie_invariant_artifact_no_children,
+            "data_nodes_are_leaves",
+            check_trie_invariant_data_nodes_are_leaves,
         ),
         (
             "search_lineage_compatible",
@@ -264,10 +264,10 @@ def test_invariant_no_indistinguishable_on_built_tree():
     assert check_trie_invariant_no_indistinguishable_nodes(records)
 
 
-def test_invariant_artifact_no_children_on_built_tree():
-    """Artifact nodes have no children on a properly built tree."""
+def test_invariant_data_nodes_are_leaves_on_built_tree():
+    """Data nodes are leaf nodes on a properly built tree."""
     records = _make_valid_built_records()
-    assert check_trie_invariant_artifact_no_children(records)
+    assert check_trie_invariant_data_nodes_are_leaves(records)
 
 
 def test_invariant_search_lineage_compatible_on_built_tree():
@@ -285,7 +285,7 @@ def test_invariant_search_checks_skip_after_full_collapse():
     assert check_trie_invariant_search_children_valid(records)
     assert check_trie_invariant_search_children_sorted(records)
     assert check_trie_invariant_no_indistinguishable_nodes(records)
-    assert check_trie_invariant_artifact_no_children(records)
+    assert check_trie_invariant_data_nodes_are_leaves(records)
     assert check_trie_invariant_search_lineage_compatible(records)
 
 

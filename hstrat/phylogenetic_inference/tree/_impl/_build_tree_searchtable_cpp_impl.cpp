@@ -1465,11 +1465,11 @@ bool check_trie_invariant_no_indistinguishable_nodes(const Records& records) {
 
 
 /**
- * Checks that artifact nodes (dstream_data_id != placeholder_value) have
- * no search children.
+ * Checks that data nodes (dstream_data_id != placeholder_value) are leaf
+ * nodes, i.e., have no search children.
  * Skips check if search trie is not present.
  */
-bool check_trie_invariant_artifact_no_children(const Records& records) {
+bool check_trie_invariant_data_nodes_are_leaves(const Records& records) {
   if (!_has_search_trie(records)) return true;
 
   return std::ranges::all_of(
@@ -1651,8 +1651,8 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
     py::arg("records")
   );
   m.def(
-    "check_trie_invariant_artifact_no_children",
-    &check_trie_invariant_artifact_no_children,
+    "check_trie_invariant_data_nodes_are_leaves",
+    &check_trie_invariant_data_nodes_are_leaves,
     py::arg("records")
   );
   m.def(
