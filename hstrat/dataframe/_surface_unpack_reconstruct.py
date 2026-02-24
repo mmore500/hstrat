@@ -259,6 +259,7 @@ def _build_records_chunked(
     slices: typing.Iterator[str],
     collapse_unif_freq: int,
     check_trie_invariant_freq: int,
+    check_trie_invariant_after_collapse_unif: bool,
     dstream_S: int,
     exploded_slice_size: int,
     pa_source_type: str,
@@ -319,6 +320,20 @@ def _build_records_chunked(
         logging.info(f"unlinking slice {i + 1} / {len(slices)}...")
         os.unlink(inpath)
 
+        if (
+            check_trie_invariant_freq > 0
+            and (i + 1) % check_trie_invariant_freq == 0
+        ):
+            with log_context_duration(
+                "_run_trie_invariant_checks "
+                f"(before collapse, slice {i + 1} / {len(slices)})",
+                logging.info,
+            ):
+                _run_trie_invariant_checks(
+                    records,
+                    f"before collapse, after slice {i + 1} / {len(slices)}",
+                )
+
         if collapse_unif_freq > 0 and (i + 1) % collapse_unif_freq == 0:
             with log_context_duration(
                 "collapse_unifurcations(dropped_only=True) "
@@ -328,12 +343,19 @@ def _build_records_chunked(
                 records = collapse_unifurcations(records, dropped_only=True)
 
         if (
-            check_trie_invariant_freq > 0
+            check_trie_invariant_after_collapse_unif
+            and check_trie_invariant_freq > 0
             and (i + 1) % check_trie_invariant_freq == 0
         ):
-            _run_trie_invariant_checks(
-                records, f"after slice {i + 1} / {len(slices)}"
-            )
+            with log_context_duration(
+                "_run_trie_invariant_checks "
+                f"(after collapse, slice {i + 1} / {len(slices)})",
+                logging.info,
+            ):
+                _run_trie_invariant_checks(
+                    records,
+                    f"after collapse, after slice {i + 1} / {len(slices)}",
+                )
 
         log_memory_usage(logging.info)
 
@@ -431,6 +453,7 @@ def _surface_unpacked_reconstruct(
     *,
     collapse_unif_freq: int,
     check_trie_invariant_freq: int,
+    check_trie_invariant_after_collapse_unif: bool,
     differentia_bitwidth: int,
     dstream_S: int,
     exploded_slice_size: int,
@@ -442,6 +465,7 @@ def _surface_unpacked_reconstruct(
         slices,
         collapse_unif_freq=collapse_unif_freq,
         check_trie_invariant_freq=check_trie_invariant_freq,
+        check_trie_invariant_after_collapse_unif=check_trie_invariant_after_collapse_unif,
         dstream_S=dstream_S,
         exploded_slice_size=exploded_slice_size,
         pa_source_type=pa_source_type,
@@ -509,6 +533,7 @@ def surface_unpack_reconstruct(
     *,
     collapse_unif_freq: int = 1,
     check_trie_invariant_freq: int = 0,
+    check_trie_invariant_after_collapse_unif: bool = False,
     drop_dstream_metadata: typing.Optional[bool] = None,
     exploded_slice_size: int = 1_000_000,
     mp_context: str = "spawn",
@@ -663,6 +688,7 @@ def surface_unpack_reconstruct(
             slices,
             collapse_unif_freq=collapse_unif_freq,
             check_trie_invariant_freq=check_trie_invariant_freq,
+            check_trie_invariant_after_collapse_unif=check_trie_invariant_after_collapse_unif,
             differentia_bitwidth=differentia_bitwidth,
             dstream_S=dstream_S,
             exploded_slice_size=exploded_slice_size,

@@ -168,6 +168,15 @@ def _create_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--check-trie-invariant-after-collapse-unif",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help=(
+            "Should trie invariant checks also be run after collapse "
+            "unifurcations? Default is False (checks run before collapse only)."
+        ),
+    )
+    parser.add_argument(
         "--exploded-slice-size",
         type=int,
         default=1_000_000,
@@ -208,6 +217,7 @@ def _main(mp_context: str) -> None:
                 surface_unpack_reconstruct,
                 collapse_unif_freq=args.collapse_unif_freq,
                 check_trie_invariant_freq=args.check_trie_invariant_freq,
+                check_trie_invariant_after_collapse_unif=args.check_trie_invariant_after_collapse_unif,
                 drop_dstream_metadata=args.drop_dstream_metadata,
                 exploded_slice_size=args.exploded_slice_size,
                 mp_context=mp_context,
