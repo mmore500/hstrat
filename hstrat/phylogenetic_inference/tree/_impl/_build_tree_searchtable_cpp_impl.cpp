@@ -1699,6 +1699,7 @@ std::string _check_search_lineage_compatible_impl(const Records& records) {
               << ", differentia=" << records.differentia[s] << ")";
           return oss.str();
         }
+        a = records.ancestor_id[a];
         s = records.search_ancestor_id[s];
       } else if (rank_a > rank_s) {
         a = records.ancestor_id[a];
