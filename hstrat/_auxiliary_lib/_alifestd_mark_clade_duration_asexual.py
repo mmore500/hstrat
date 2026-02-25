@@ -9,7 +9,7 @@ import pandas as pd
 from ._alifestd_mark_max_descendant_origin_time_asexual import (
     alifestd_mark_max_descendant_origin_time_asexual,
 )
-from ._configure_prod_logging import configure_prod_logging
+from ._begin_prod_logging import begin_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
@@ -81,7 +81,7 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    configure_prod_logging()
+    begin_prod_logging()
 
     parser = _create_parser()
     args, __ = parser.parse_known_args()

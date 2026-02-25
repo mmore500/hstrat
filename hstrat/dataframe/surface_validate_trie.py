@@ -7,7 +7,7 @@ import polars as pl
 from tqdm import tqdm
 
 from .._auxiliary_lib import (
-    configure_prod_logging,
+    begin_prod_logging,
     format_cli_description,
     get_hstrat_version,
     log_context_duration,
@@ -121,7 +121,7 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    configure_prod_logging()
+    begin_prod_logging()
 
     parser = _create_parser()
     args = parser.parse_args()

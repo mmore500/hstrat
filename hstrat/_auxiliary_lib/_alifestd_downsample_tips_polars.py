@@ -17,7 +17,7 @@ from ._alifestd_prune_extinct_lineages_polars import (
 from ._alifestd_topological_sensitivity_warned_polars import (
     alifestd_topological_sensitivity_warned_polars,
 )
-from ._configure_prod_logging import configure_prod_logging
+from ._begin_prod_logging import begin_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
@@ -187,7 +187,7 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    configure_prod_logging()
+    begin_prod_logging()
 
     parser = _create_parser()
     args, __ = parser.parse_known_args()
