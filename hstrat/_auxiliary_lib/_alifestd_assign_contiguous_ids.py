@@ -76,7 +76,7 @@ def alifestd_assign_contiguous_ids(
 
     if "ancestor_id" in phylogeny_df.columns:
         phylogeny_df["ancestor_id"] = _reassign_ids_asexual(
-            original_ids, phylogeny_df["ancestor_id"].to_numpy(dtype=np.int64)
+            original_ids, phylogeny_df["ancestor_id"].to_numpy(dtype=np.uint64)
         )
         if "ancestor_list" in phylogeny_df:
             phylogeny_df["ancestor_list"] = alifestd_make_ancestor_list_col(
