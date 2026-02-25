@@ -1,6 +1,10 @@
+import os
+
 import numpy as np
+import polars as pl
 from tqdm import tqdm
 
+from hstrat.dataframe._surface_unpack_reconstruct import _dump_records
 from hstrat.phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
     Records,
     check_trie_invariant_ancestor_bounds,
@@ -16,6 +20,20 @@ from hstrat.phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_s
     check_trie_invariant_single_root,
     check_trie_invariant_topologically_sorted,
     collapse_unifurcations,
+    copy_records_to_dict,
+    describe_records,
+    diagnose_trie_invariant_ancestor_bounds,
+    diagnose_trie_invariant_chronologically_sorted,
+    diagnose_trie_invariant_contiguous_ids,
+    diagnose_trie_invariant_data_nodes_are_leaves,
+    diagnose_trie_invariant_no_indistinguishable_nodes,
+    diagnose_trie_invariant_ranks_nonnegative,
+    diagnose_trie_invariant_root_at_zero,
+    diagnose_trie_invariant_search_children_sorted,
+    diagnose_trie_invariant_search_children_valid,
+    diagnose_trie_invariant_search_lineage_compatible,
+    diagnose_trie_invariant_single_root,
+    diagnose_trie_invariant_topologically_sorted,
     extend_tree_searchtable_cpp_from_exploded,
     placeholder_value,
 )
@@ -74,6 +92,48 @@ def _all_checks():
         (
             "nonroot_ranks_positive",
             check_trie_invariant_ranks_nonnegative,
+        ),
+    ]
+
+
+def _all_diagnoses():
+    """Return list of (name, diagnose_fn) for all invariant diagnose funcs."""
+    return [
+        ("contiguous_ids", diagnose_trie_invariant_contiguous_ids),
+        (
+            "topologically_sorted",
+            diagnose_trie_invariant_topologically_sorted,
+        ),
+        (
+            "chronologically_sorted",
+            diagnose_trie_invariant_chronologically_sorted,
+        ),
+        ("single_root", diagnose_trie_invariant_single_root),
+        (
+            "search_children_valid",
+            diagnose_trie_invariant_search_children_valid,
+        ),
+        (
+            "search_children_sorted",
+            diagnose_trie_invariant_search_children_sorted,
+        ),
+        (
+            "no_indistinguishable_nodes",
+            diagnose_trie_invariant_no_indistinguishable_nodes,
+        ),
+        (
+            "data_nodes_are_leaves",
+            diagnose_trie_invariant_data_nodes_are_leaves,
+        ),
+        (
+            "search_lineage_compatible",
+            diagnose_trie_invariant_search_lineage_compatible,
+        ),
+        ("ancestor_bounds", diagnose_trie_invariant_ancestor_bounds),
+        ("root_at_zero", diagnose_trie_invariant_root_at_zero),
+        (
+            "ranks_nonnegative",
+            diagnose_trie_invariant_ranks_nonnegative,
         ),
     ]
 
@@ -157,9 +217,9 @@ def test_invariant_fails_contiguous_ids():
     """Non-contiguous ids should fail contiguous_ids check."""
     records = Records(4, init_root=False)
     # Create root at id 0 manually
-    records.addRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)
+    records.mockRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)
     # Skip id 1 and go to id 2
-    records.addRecord(PV, 2, 0, 0, 2, 2, 2, 1, 1)
+    records.mockRecord(PV, 2, 0, 0, 2, 2, 2, 1, 1)
     assert not check_trie_invariant_contiguous_ids(records)
 
 
@@ -167,11 +227,11 @@ def test_invariant_fails_topologically_sorted():
     """ancestor_id > id should fail topologically_sorted check."""
     records = Records(4, init_root=False)
     # Node 0: root
-    records.addRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)
+    records.mockRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)
     # Node 1: ancestor_id=2 which is > 1 (forward reference)
-    records.addRecord(PV, 1, 2, 1, 1, 1, 1, 1, 1)
+    records.mockRecord(PV, 1, 2, 1, 1, 1, 1, 1, 1)
     # Node 2: valid
-    records.addRecord(PV, 2, 0, 2, 2, 2, 2, 1, 2)
+    records.mockRecord(PV, 2, 0, 2, 2, 2, 2, 1, 2)
     assert not check_trie_invariant_topologically_sorted(records)
     # other invariants should still pass where applicable
     assert check_trie_invariant_contiguous_ids(records)
@@ -181,21 +241,22 @@ def test_invariant_fails_chronologically_sorted():
     """Parent rank > child rank should fail chronologically_sorted check."""
     records = Records(4, init_root=False)
     # Node 0: root with rank 0
-    records.addRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)
+    records.mockRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)
     # Node 1: rank 5
-    records.addRecord(PV, 1, 0, 1, 1, 1, 1, 5, 1)
+    records.mockRecord(PV, 1, 0, 1, 1, 1, 1, 5, 1)
     # Node 2: ancestor is 1 (rank 5), but node 2 has rank 3 < 5
-    # addRecord asserts rank[ancestor_id] <= rank, so we cannot construct
-    # a chronologically-unsorted tree through the normal API.
-    # The positive case is tested in test_invariants_built_tree.
+    records.mockRecord(PV, 2, 1, 2, 2, 2, 2, 3, 2)
+    assert not check_trie_invariant_chronologically_sorted(records)
+    # other invariants should still pass where applicable
+    assert check_trie_invariant_contiguous_ids(records)
 
 
 def test_invariant_fails_single_root_multiple_roots():
     """Multiple roots should fail single_root check."""
     records = Records(4, init_root=False)
     # Two self-referencing nodes (both roots)
-    records.addRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)
-    records.addRecord(PV, 1, 1, 1, 1, 1, 1, 0, 0)
+    records.mockRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)
+    records.mockRecord(PV, 1, 1, 1, 1, 1, 1, 0, 0)
     assert not check_trie_invariant_single_root(records)
     # contiguous ids should still pass
     assert check_trie_invariant_contiguous_ids(records)
@@ -205,11 +266,11 @@ def test_invariant_fails_single_root_no_roots():
     """No roots should fail single_root check."""
     records = Records(4, init_root=False)
     # Node 0 points to node 1, node 1 points to node 0 - no self-reference
-    records.addRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)
+    records.mockRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)
     # Node 1's ancestor is 0, not itself
-    records.addRecord(PV, 1, 0, 1, 1, 1, 1, 1, 1)
+    records.mockRecord(PV, 1, 0, 1, 1, 1, 1, 1, 1)
     # This tree has exactly one root (node 0), so it passes.
-    # addRecord blocks constructing a zero-root tree, so we only verify
+    # mockRecord blocks constructing a zero-root tree, so we only verify
     # the two-node tree has a single root.
     assert check_trie_invariant_single_root(records)
 
@@ -217,56 +278,22 @@ def test_invariant_fails_single_root_no_roots():
 def test_invariant_fails_root_at_zero():
     """Root not at index 0 should fail root_at_zero check."""
     records = Records(4, init_root=False)
-    # Node 0: NOT a root (ancestor_id != 0)
-    # But addRecord assertion: this->size() == 0 || ancestor_id != id
-    # means the first record CAN be self-referencing. To make index 0
-    # not be a root, we'd need ancestor_id[0] != 0.
-    # First record: no assertion on ancestor_id != id, so we can set
-    # ancestor_id = 0 which makes it self-referencing = root.
-    # To break root_at_zero, set rank[0] != 0
-    records.addRecord(PV, 0, 0, 0, 0, 0, 0, 5, 0)  # rank=5 instead of 0
+    records.mockRecord(PV, 0, 0, 0, 0, 0, 0, 5, 0)  # rank=5 instead of 0
+    assert not check_trie_invariant_root_at_zero(records)
+    records = Records(4, init_root=False)
+    records.mockRecord(PV, 0, 5, 0, 0, 0, 0, 0, 0)  # not a root
     assert not check_trie_invariant_root_at_zero(records)
 
 
 def test_invariant_ranks_nonnegative_passes():
     """Nodes with rank >= 0 should pass ranks_nonnegative check."""
     records = Records(4, init_root=False)
-    records.addRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)  # root, rank=0
-    records.addRecord(PV, 1, 0, 1, 1, 1, 1, 0, 1)  # rank=0, non-root
+    records.mockRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)  # root, rank=0
+    records.mockRecord(PV, 1, 0, 1, 1, 1, 1, 0, 1)  # rank=0, non-root
     assert check_trie_invariant_ranks_nonnegative(records)
     # other basic checks should still pass
     assert check_trie_invariant_topologically_sorted(records)
     assert check_trie_invariant_contiguous_ids(records)
-
-
-def test_invariant_search_children_valid_on_built_tree():
-    """Search children validity on a properly built tree."""
-    records = _make_valid_built_records()
-    assert check_trie_invariant_search_children_valid(records)
-
-
-def test_invariant_search_children_sorted_on_built_tree():
-    """Search children sort order on a properly built tree."""
-    records = _make_valid_built_records()
-    assert check_trie_invariant_search_children_sorted(records)
-
-
-def test_invariant_no_indistinguishable_on_built_tree():
-    """No indistinguishable nodes on a properly built tree."""
-    records = _make_valid_built_records()
-    assert check_trie_invariant_no_indistinguishable_nodes(records)
-
-
-def test_invariant_data_nodes_are_leaves_on_built_tree():
-    """Data nodes are leaf nodes on a properly built tree."""
-    records = _make_valid_built_records()
-    assert check_trie_invariant_data_nodes_are_leaves(records)
-
-
-def test_invariant_search_lineage_compatible_on_built_tree():
-    """Search trie compatible with lineage trie on a properly built tree."""
-    records = _make_valid_built_records()
-    assert check_trie_invariant_search_lineage_compatible(records)
 
 
 def test_invariant_search_checks_skip_after_full_collapse():
@@ -286,9 +313,14 @@ def test_invariant_ancestor_bounds_on_valid_tree():
     """ancestor_bounds passes on a valid tree."""
     records = _make_valid_built_records()
     assert check_trie_invariant_ancestor_bounds(records)
-    # addRecord asserts rank[ancestor_id] <= rank, so out-of-bounds
-    # ancestor_id cannot be constructed through the normal API.
-    # This invariant catches corruption outside normal addRecord flow.
+    # Negative: ancestor_id pointing out of bounds should fail
+    records = Records(4, init_root=False)
+    records.mockRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)  # root
+    records.mockRecord(PV, 1, 99, 1, 1, 1, 1, 1, 1)  # ancestor_id=99 >= size
+    assert not check_trie_invariant_ancestor_bounds(records)
+    diag = diagnose_trie_invariant_ancestor_bounds(records)
+    assert len(diag) > 0
+    assert "ancestor_bounds" in diag
 
 
 def test_invariants_on_regression_tree():
@@ -357,3 +389,136 @@ def test_search_children_valid_detects_bad_prev_sibling():
     assert check_trie_invariant_search_children_valid(records)
     assert check_trie_invariant_search_children_sorted(records)
     assert check_trie_invariant_no_indistinguishable_nodes(records)
+
+
+# ---- Diagnose function tests ----
+
+
+def test_diagnose_returns_empty_on_valid_singleton():
+    """All diagnose functions return empty string on a valid singleton."""
+    records = Records(1)
+    for name, diagnose_fn in _all_diagnoses():
+        result = diagnose_fn(records)
+        assert isinstance(result, str), f"{name} did not return str"
+        assert result == "", f"{name} non-empty on singleton: {result}"
+
+
+def test_diagnose_returns_empty_on_valid_built_tree():
+    """All diagnose functions return empty string on a valid built tree."""
+    records = _make_valid_built_records()
+    for name, diagnose_fn in _all_diagnoses():
+        result = diagnose_fn(records)
+        assert isinstance(result, str), f"{name} did not return str"
+        assert result == "", f"{name} non-empty on built tree: {result}"
+
+
+def test_diagnose_contiguous_ids_on_broken():
+    """diagnose_trie_invariant_contiguous_ids gives diagnostic on failure."""
+    records = Records(4, init_root=False)
+    records.mockRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)
+    records.mockRecord(PV, 2, 0, 0, 2, 2, 2, 1, 1)
+    diag = diagnose_trie_invariant_contiguous_ids(records)
+    assert len(diag) > 0
+    assert "contiguous_ids" in diag
+
+
+def test_diagnose_topologically_sorted_on_broken():
+    """diagnose_trie_invariant_topologically_sorted gives diagnostic."""
+    records = Records(4, init_root=False)
+    records.mockRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)
+    records.mockRecord(PV, 1, 2, 1, 1, 1, 1, 1, 1)
+    records.mockRecord(PV, 2, 0, 2, 2, 2, 2, 1, 2)
+    diag = diagnose_trie_invariant_topologically_sorted(records)
+    assert len(diag) > 0
+    assert "topologically_sorted" in diag
+
+
+def test_diagnose_single_root_on_broken():
+    """diagnose_trie_invariant_single_root gives diagnostic for two roots."""
+    records = Records(4, init_root=False)
+    records.mockRecord(PV, 0, 0, 0, 0, 0, 0, 0, 0)
+    records.mockRecord(PV, 1, 1, 1, 1, 1, 1, 0, 0)
+    diag = diagnose_trie_invariant_single_root(records)
+    assert len(diag) > 0
+    assert "single_root" in diag
+
+
+def test_diagnose_root_at_zero_on_broken():
+    """diagnose_trie_invariant_root_at_zero gives diagnostic."""
+    records = Records(4, init_root=False)
+    records.mockRecord(PV, 0, 0, 0, 0, 0, 0, 5, 0)
+    diag = diagnose_trie_invariant_root_at_zero(records)
+    assert len(diag) > 0
+    assert "root_at_zero" in diag
+
+
+def test_diagnose_after_full_collapse_all_empty():
+    """After full collapse, all diagnose functions return empty string."""
+    records = _make_valid_built_records()
+    records = collapse_unifurcations(records, dropped_only=False)
+    for name, diagnose_fn in _all_diagnoses():
+        result = diagnose_fn(records)
+        assert result == "", f"{name} non-empty after full collapse: {result}"
+
+
+# ---- describe_records tests ----
+
+
+def test_describe_records_singleton():
+    """describe_records returns a non-empty string for a singleton tree."""
+    records = Records(1)
+    summary = describe_records(records)
+    assert isinstance(summary, str)
+    assert "size=1" in summary
+    assert "Records(" in summary
+    assert "num_tips=" in summary
+
+
+def test_describe_records_built_tree():
+    """describe_records contains expected fields for a built tree."""
+    records = _make_valid_built_records()
+    summary = describe_records(records)
+    assert f"size={len(records)}" in summary
+    assert "num_tips=" in summary
+    assert "has_search_trie=" in summary
+    assert "rank:" in summary
+    assert "min=" in summary
+    assert "max=" in summary
+
+
+def test_describe_records_no_root_info():
+    """describe_records should not contain root-specific info."""
+    records = _make_valid_built_records()
+    summary = describe_records(records)
+    assert "root:" not in summary
+
+
+# ---- _dump_records tests ----
+
+
+def test_dump_records_creates_parquet():
+    """_dump_records writes a valid parquet file with expected columns."""
+    records = _make_valid_built_records()
+    dump_path = _dump_records(records, "test_invariant")
+    try:
+        assert os.path.isfile(dump_path)
+        assert dump_path.endswith(".pqt")
+        df = pl.read_parquet(dump_path)
+        assert len(df) == len(records)
+        # verify expected columns match copy_records_to_dict keys
+        expected_cols = set(copy_records_to_dict(records).keys())
+        assert set(df.columns) == expected_cols
+    finally:
+        os.unlink(dump_path)
+
+
+def test_dump_records_singleton():
+    """_dump_records works on a singleton Records."""
+    records = Records(1)
+    dump_path = _dump_records(records, "singleton_test")
+    try:
+        assert os.path.isfile(dump_path)
+        df = pl.read_parquet(dump_path)
+        assert len(df) == 1
+    finally:
+        os.unlink(dump_path)

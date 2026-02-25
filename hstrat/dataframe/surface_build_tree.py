@@ -8,6 +8,7 @@ from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 
 from .. import hstrat
 from .._auxiliary_lib import (
+    add_bool_arg,
     configure_prod_logging,
     format_cli_description,
     get_hstrat_version,
@@ -130,9 +131,9 @@ def _create_parser() -> argparse.ArgumentParser:
             "Set to n > 0 to check every n slices."
         ),
     )
-    parser.add_argument(
-        "--check-trie-invariant-after-collapse-unif",
-        action=argparse.BooleanOptionalAction,
+    add_bool_arg(
+        parser,
+        "check-trie-invariant-after-collapse-unif",
         default=False,
         help=(
             "Should trie invariant checks also be run after collapse "

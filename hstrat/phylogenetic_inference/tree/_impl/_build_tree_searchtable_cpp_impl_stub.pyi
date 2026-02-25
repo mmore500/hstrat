@@ -18,6 +18,18 @@ class Records:
         rank: int,
         differentia: int,
     ) -> None: ...
+    def mockRecord(
+        self,
+        data_id: int,
+        id: int,
+        ancestor_id: int,
+        search_ancestor_id: int,
+        search_first_child_id: int,
+        search_prev_sibling_id: int,
+        search_next_sibling_id: int,
+        rank: int,
+        differentia: int,
+    ) -> None: ...
     def __len__(self) -> int: ...
 
 placeholder_value: int
@@ -75,7 +87,7 @@ def check_trie_invariant_root_at_zero(records: Records) -> bool: ...
 def check_trie_invariant_ranks_nonnegative(
     records: Records,
 ) -> bool: ...
-def records_summary(records: Records) -> str: ...
+def describe_records(records: Records) -> str: ...
 def diagnose_trie_invariant_contiguous_ids(records: Records) -> str: ...
 def diagnose_trie_invariant_topologically_sorted(
     records: Records,

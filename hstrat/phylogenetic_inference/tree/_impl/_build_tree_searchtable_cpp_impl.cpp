@@ -233,6 +233,29 @@ struct Records {
     );
   }
 
+  void mockRecord(  // for testing purposes only; does not check invariants
+    const u64 data_id,
+    const u64 id,
+    const u64 ancestor_id,
+    const u64 search_ancestor_id,
+    const u64 search_first_child_id,
+    const u64 search_prev_sibling_id,
+    const u64 search_next_sibling_id,
+    const i64 rank,
+    const u64 differentia
+  ) {
+    this->dstream_data_id.push_back(data_id);
+    this->id.push_back(id);
+    this->search_first_child_id.push_back(search_first_child_id);
+    this->search_prev_sibling_id.push_back(search_prev_sibling_id);
+    this->search_next_sibling_id.push_back(search_next_sibling_id);
+    this->search_ancestor_id.push_back(search_ancestor_id);
+    this->ancestor_id.push_back(ancestor_id);
+    this->differentia.push_back(differentia);
+    this->rank.push_back(rank);
+    max_differentia = std::max(max_differentia, differentia);
+  }
+
   u64 size() const { return this->dstream_data_id.size(); }
 
 };
@@ -1315,21 +1338,77 @@ bool _has_search_trie(const Records& records) {
 
 
 /**
- * Returns a generic summary string describing the records state.
+ * Returns a summary string describing the records state.
+ * Includes size, tip count, search trie status, and per-column stats.
  * Used as a header for diagnostic messages.
  */
-std::string _records_summary(const Records& records) {
-  std::ostringstream oss;
-  oss << "Records(size=" << records.size()
-      << ", max_differentia=" << records.max_differentia
-      << ", has_search_trie="
-      << (_has_search_trie(records) ? "true" : "false");
-  if (records.size() > 0) {
-    oss << ", root: {rank=" << records.rank[0]
-        << ", ancestor_id=" << records.ancestor_id[0]
-        << ", dstream_data_id=" << records.dstream_data_id[0] << "}";
+std::string _describe_records(const Records& records) {
+  const size_t n = records.size();
+
+  // count tips (data nodes with non-placeholder dstream_data_id)
+  size_t num_tips = 0;
+  for (size_t i = 0; i < n; ++i) {
+    if (records.dstream_data_id[i] != placeholder_value) ++num_tips;
   }
-  oss << ")";
+
+  std::ostringstream oss;
+  oss << "Records(size=" << n
+      << ", num_tips=" << num_tips
+      << ", has_search_trie="
+      << (_has_search_trie(records) ? "true" : "false") << ")";
+
+  if (n > 0) {
+    // helper lambda for column min/max
+    const auto col_stats = [&](const char* name, const auto& vec) {
+      const auto [mn, mx] = std::minmax_element(vec.begin(), vec.end());
+      const auto nunique = count_unique_elements(vec.begin(), vec.end());
+      std::vector v(vec);
+      const auto m = std::next(v.begin(), v.size() / 2);
+      std::nth_element(v.begin(), m, v.end());
+      const auto median = *m;
+      oss << "\n  " << name
+        << ": min=" << *mn << ", max=" << *mx
+        << ", unique=" << nunique
+        << ", median=" << median;
+    };
+    const auto col_sample = [&](
+      const char* name, const auto& vec, const size_t sample_size=10
+  ) {
+      oss << "\n  " << name << " sample: [";
+      for (size_t i = 0; i < std::min(sample_size, vec.size()); ++i) {
+        oss << vec[i] << (i < sample_size - 1 ? ", " : "");
+      }
+      if (vec.size() > sample_size) oss << ", ...";
+      oss << "]";
+    };
+
+    col_stats("data_id", records.dstream_data_id);
+    col_sample("data_id", records.dstream_data_id);
+
+    col_stats("id", records.id);
+    col_sample("id", records.id);
+
+    col_stats("ancestor_id", records.ancestor_id);
+    col_sample("ancestor_id", records.ancestor_id);
+
+    col_stats("search_ancestor_id", records.search_ancestor_id);
+    col_sample("search_ancestor_id", records.search_ancestor_id);
+
+    col_stats("search_first_child_id", records.search_first_child_id);
+    col_sample("search_first_child_id", records.search_first_child_id);
+
+    col_stats("search_prev_sibling_id", records.search_prev_sibling_id);
+    col_sample("search_prev_sibling_id", records.search_prev_sibling_id);
+
+    col_stats("search_next_sibling_id", records.search_next_sibling_id);
+    col_sample("search_next_sibling_id", records.search_next_sibling_id);
+
+    col_stats("rank", records.rank);
+    col_sample("rank", records.rank);
+
+    col_stats("differentia", records.differentia);
+    col_sample("differentia", records.differentia);
+  }
   return oss.str();
 }
 
@@ -1690,7 +1769,7 @@ std::string diagnose_trie_invariant_contiguous_ids(const Records& records) {
   for (u64 i = 0; i < records.size(); ++i) {
     if (records.id[i] != i) {
       std::ostringstream oss;
-      oss << _records_summary(records)
+      oss << _describe_records(records)
           << "\ncontiguous_ids: id[" << i << "] = " << records.id[i]
           << ", expected " << i;
       return oss.str();
@@ -1704,7 +1783,7 @@ std::string diagnose_trie_invariant_topologically_sorted(
   for (const u64 id : records.id) {
     if (records.ancestor_id[id] > id) {
       std::ostringstream oss;
-      oss << _records_summary(records)
+      oss << _describe_records(records)
           << "\ntopologically_sorted: ancestor_id[" << id << "] = "
           << records.ancestor_id[id] << " > " << id;
       return oss.str();
@@ -1719,7 +1798,7 @@ std::string diagnose_trie_invariant_chronologically_sorted(
     const u64 anc = records.ancestor_id[id];
     if (records.rank[anc] > records.rank[id]) {
       std::ostringstream oss;
-      oss << _records_summary(records)
+      oss << _describe_records(records)
           << "\nchronologically_sorted: node " << id
           << " (rank=" << records.rank[id]
           << ") has ancestor " << anc
@@ -1740,7 +1819,7 @@ std::string diagnose_trie_invariant_single_root(const Records& records) {
   }
   if (roots.size() == 1) return "";
   std::ostringstream oss;
-  oss << _records_summary(records)
+  oss << _describe_records(records)
       << "\nsingle_root: found " << roots.size() << " root(s) at id(s): ";
   for (size_t j = 0; j < roots.size() && j < 10; ++j) {
     if (j) oss << ", ";
@@ -1755,7 +1834,7 @@ std::string diagnose_trie_invariant_search_children_valid(
   if (!_has_search_trie(records)) return "";
   auto diag = _check_search_children_valid_impl(records);
   if (diag.empty()) return "";
-  return _records_summary(records) + "\nsearch_children_valid: " + diag;
+  return _describe_records(records) + "\nsearch_children_valid: " + diag;
 }
 
 std::string diagnose_trie_invariant_search_children_sorted(
@@ -1763,7 +1842,7 @@ std::string diagnose_trie_invariant_search_children_sorted(
   if (!_has_search_trie(records)) return "";
   auto diag = _check_search_children_sorted_impl(records);
   if (diag.empty()) return "";
-  return _records_summary(records) + "\nsearch_children_sorted: " + diag;
+  return _describe_records(records) + "\nsearch_children_sorted: " + diag;
 }
 
 std::string diagnose_trie_invariant_no_indistinguishable_nodes(
@@ -1771,7 +1850,7 @@ std::string diagnose_trie_invariant_no_indistinguishable_nodes(
   if (!_has_search_trie(records)) return "";
   auto diag = _check_no_indistinguishable_nodes_impl(records);
   if (diag.empty()) return "";
-  return _records_summary(records)
+  return _describe_records(records)
       + "\nno_indistinguishable_nodes: " + diag;
 }
 
@@ -1782,7 +1861,7 @@ std::string diagnose_trie_invariant_data_nodes_are_leaves(
     if (records.dstream_data_id[id] != placeholder_value
         && records.search_first_child_id[id] != id) {
       std::ostringstream oss;
-      oss << _records_summary(records)
+      oss << _describe_records(records)
           << "\ndata_nodes_are_leaves: data node " << id
           << " (dstream_data_id=" << records.dstream_data_id[id]
           << ") has search children (first_child="
@@ -1798,7 +1877,7 @@ std::string diagnose_trie_invariant_search_lineage_compatible(
   if (!_has_search_trie(records)) return "";
   auto diag = _check_search_lineage_compatible_impl(records);
   if (diag.empty()) return "";
-  return _records_summary(records)
+  return _describe_records(records)
       + "\nsearch_lineage_compatible: " + diag;
 }
 
@@ -1806,7 +1885,7 @@ std::string diagnose_trie_invariant_ancestor_bounds(const Records& records) {
   for (const u64 id : records.id) {
     if (records.ancestor_id[id] >= records.size()) {
       std::ostringstream oss;
-      oss << _records_summary(records)
+      oss << _describe_records(records)
           << "\nancestor_bounds: ancestor_id[" << id << "] = "
           << records.ancestor_id[id] << " >= size " << records.size();
       return oss.str();
@@ -1819,7 +1898,7 @@ std::string diagnose_trie_invariant_root_at_zero(const Records& records) {
   if (records.size() == 0) return "";
   if (records.ancestor_id[0] == 0 && records.rank[0] == 0) return "";
   std::ostringstream oss;
-  oss << _records_summary(records)
+  oss << _describe_records(records)
       << "\nroot_at_zero: node 0 has ancestor_id=" << records.ancestor_id[0]
       << " (expected 0), rank=" << records.rank[0] << " (expected 0)";
   return oss.str();
@@ -1830,7 +1909,7 @@ std::string diagnose_trie_invariant_ranks_nonnegative(
   for (const u64 id : records.id) {
     if (records.rank[id] < 0) {
       std::ostringstream oss;
-      oss << _records_summary(records)
+      oss << _describe_records(records)
           << "\nranks_nonnegative: rank[" << id << "] = " << records.rank[id];
       return oss.str();
     }
@@ -1849,6 +1928,17 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
       )
       .def("__len__", &Records::size)
       .def("addRecord", &Records::addRecord,
+        py::arg("data_id"),
+        py::arg("id"),
+        py::arg("ancestor_id"),
+        py::arg("search_ancestor_id"),
+        py::arg("search_first_child_id"),
+        py::arg("search_prev_sibling_id"),
+        py::arg("search_next_sibling_id"),
+        py::arg("rank"),
+        py::arg("differentia")
+      )
+      .def("mockRecord", &Records::mockRecord,
         py::arg("data_id"),
         py::arg("id"),
         py::arg("ancestor_id"),
@@ -1964,8 +2054,8 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
     py::arg("records")
   );
   m.def(
-    "_records_summary",
-    &_records_summary,
+    "_describe_records",
+    &_describe_records,
     py::arg("records")
   );
   m.def(

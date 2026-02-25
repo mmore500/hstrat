@@ -167,9 +167,9 @@ def _create_parser() -> argparse.ArgumentParser:
             "Set to n > 0 to check every n slices."
         ),
     )
-    parser.add_argument(
-        "--check-trie-invariant-after-collapse-unif",
-        action=argparse.BooleanOptionalAction,
+    add_bool_arg(
+        parser,
+        "check-trie-invariant-after-collapse-unif",
         default=False,
         help=(
             "Should trie invariant checks also be run after collapse "

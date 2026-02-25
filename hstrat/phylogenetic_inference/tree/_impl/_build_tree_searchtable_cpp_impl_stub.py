@@ -49,7 +49,7 @@ check_trie_invariant_root_at_zero = _impl_mod.check_trie_invariant_root_at_zero
 check_trie_invariant_ranks_nonnegative = (
     _impl_mod.check_trie_invariant_ranks_nonnegative
 )
-records_summary = _impl_mod._records_summary
+describe_records = _impl_mod._describe_records
 diagnose_trie_invariant_contiguous_ids = (
     _impl_mod.diagnose_trie_invariant_contiguous_ids
 )
