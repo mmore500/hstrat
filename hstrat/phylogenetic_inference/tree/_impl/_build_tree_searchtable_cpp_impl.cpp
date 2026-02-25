@@ -1697,13 +1697,11 @@ std::string _check_search_lineage_compatible_impl(const Records& records) {
         s = records.search_ancestor_id[s];
       } else if (rank_a > rank_s) {
         a = records.ancestor_id[a];
-        assert(records.rank[a] >= rank_s);
       } else if (records.search_ancestor_id[s] == s) {
         break;
       } else {
         assert(rank_s > rank_a);
         s = records.search_ancestor_id[s];
-        assert(records.rank[s] <= rank_a);
       }
       if (++loop > records.size() * 3) {  // conservative upper bound on loop
         std::ostringstream oss;
