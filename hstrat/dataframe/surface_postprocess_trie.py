@@ -8,7 +8,7 @@ from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 
 from .. import hstrat
 from .._auxiliary_lib import (
-    configure_prod_logging,
+    begin_prod_logging,
     format_cli_description,
     get_hstrat_version,
     log_context_duration,
@@ -145,8 +145,7 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    configure_prod_logging()
-    logging.info("hstrat version %s", get_hstrat_version())
+    begin_prod_logging()
 
     parser = _create_parser()
     args, __ = parser.parse_known_args()

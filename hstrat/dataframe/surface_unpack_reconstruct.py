@@ -7,7 +7,7 @@ import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 
 from .._auxiliary_lib import (
-    configure_prod_logging,
+    begin_prod_logging,
     format_cli_description,
     get_hstrat_version,
     log_context_duration,
@@ -227,6 +227,5 @@ def _main(mp_context: str) -> None:
 
 
 if __name__ == "__main__":
-    configure_prod_logging()
-    logging.info("hstrat version %s", get_hstrat_version())
+    begin_prod_logging()
     _main("spawn")

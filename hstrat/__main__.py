@@ -1,10 +1,7 @@
-import logging
-
-from ._auxiliary_lib import configure_prod_logging, get_hstrat_version
+from ._auxiliary_lib import begin_prod_logging, get_hstrat_version
 
 if __name__ == "__main__":
-    configure_prod_logging()
-    logging.info("hstrat version %s", get_hstrat_version())
+    begin_prod_logging()
     print(f"hstrat v{get_hstrat_version()}")
     print(
         """
