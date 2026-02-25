@@ -704,7 +704,9 @@ void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
     }
 
     assert(std::ranges::is_sorted(loser_epochs[d]));
-    for (const auto loser_epoch : std::ranges::unique(loser_epochs[d])) {
+    const auto duplicates = std::ranges::unique(loser_epochs[d]);
+    loser_epochs[d].erase(duplicates.begin(), duplicates.end());
+    for (const auto loser_epoch : loser_epochs[d]) {
       const auto true_winner = epoch_winners[d][loser_epoch];
       collapse_indistinguishable_nodes_small<max_differentia>(
         records, true_winner
