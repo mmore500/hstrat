@@ -499,7 +499,7 @@ def test_describe_records_no_root_info():
 def test_dump_records_creates_parquet():
     """_dump_records writes a valid parquet file with expected columns."""
     records = _make_valid_built_records()
-    dump_path = _dump_records(records, "test_invariant")
+    dump_path = _dump_records(records)
     try:
         assert os.path.isfile(dump_path)
         assert dump_path.endswith(".pqt")
@@ -515,7 +515,7 @@ def test_dump_records_creates_parquet():
 def test_dump_records_singleton():
     """_dump_records works on a singleton Records."""
     records = Records(1)
-    dump_path = _dump_records(records, "singleton_test")
+    dump_path = _dump_records(records)
     try:
         assert os.path.isfile(dump_path)
         df = pl.read_parquet(dump_path)
