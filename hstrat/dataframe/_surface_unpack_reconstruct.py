@@ -3,6 +3,7 @@ import logging
 import math
 import multiprocessing
 import os
+import pathlib
 import typing
 import uuid
 
@@ -217,12 +218,20 @@ def _produce_exploded_slices(
 
 def _dump_records(records: Records) -> str:
     """Dump records to a parquet file and return the file path."""
-    dump_path = f"/tmp/hstrat_trie_reords__{uuid.uuid4()}.pqt"  # nosec B108
     records_df = pl.DataFrame(copy_records_to_dict(records))
-    records_df.write_parquet(dump_path)
-    render_polars_snapshot(records_df, "dumped records", display=logging.error)
-    logging.error(f"records dumped to {dump_path}")
-    return dump_path
+    for dump_path in (
+        pathlib.Path.home() / f"hstrat_trie_records_{uuid.uuid4()}.pqt",
+        f"/tmp/hstrat_trie_records_{uuid.uuid4()}.pqt",  # nosec B108
+    ):
+        try:
+            records_df.write_parquet(dump_path)
+            render_polars_snapshot(
+                records_df, "dumped records", display=logging.error
+            )
+            logging.error(f"records dumped to {dump_path}")
+            return str(dump_path)
+        except Exception as e:
+            logging.error(f"failed to dump records to {dump_path}: {e}")
 
 
 def _run_trie_invariant_checks(records: Records, context: str) -> None:
