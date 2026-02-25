@@ -228,4 +228,5 @@ def _main(mp_context: str) -> None:
 
 if __name__ == "__main__":
     configure_prod_logging()
+    logging.info("hstrat version %s", get_hstrat_version())
     _main("spawn")

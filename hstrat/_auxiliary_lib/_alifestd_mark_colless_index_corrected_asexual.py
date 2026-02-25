@@ -143,6 +143,7 @@ def _create_parser() -> argparse.ArgumentParser:
 
 if __name__ == "__main__":
     configure_prod_logging()
+    logging.info("hstrat version %s", get_hstrat_version())
 
     parser = _create_parser()
     args, __ = parser.parse_known_args()
