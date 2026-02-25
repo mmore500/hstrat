@@ -14,6 +14,7 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -1671,6 +1672,10 @@ bool check_trie_invariant_data_nodes_are_leaves(const Records& records) {
  * Returns empty string on pass, diagnostic string on failure.
  */
 std::string _check_search_lineage_compatible_impl(const Records& records) {
+
+  // optimize by memoizing visited (ancestor, search_ancestor) pairs to skip
+  std::unordered_set<std::pair<u64, u64>, pairhash> already_checked;
+  already_checked.reserve(records.size() * 2);  // heuristic reserve size
   for (u64 i = 0; i < records.size(); ++i) {
     // only consider tips
     if (records.dstream_data_id[i] == placeholder_value) continue;
@@ -1679,7 +1684,8 @@ std::string _check_search_lineage_compatible_impl(const Records& records) {
     u64 a = records.ancestor_id[i];
     u64 s = a;
     u64 loop = 0;
-    while (a) {
+    while (a && !already_checked.contains({a, s})) {
+      already_checked.insert({a, s});
       const auto rank_a = records.rank[a];
       const auto rank_s = records.rank[s];
       if (rank_a == rank_s) {
