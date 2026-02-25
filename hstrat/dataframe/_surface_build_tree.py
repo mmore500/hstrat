@@ -12,6 +12,8 @@ def surface_build_tree(
     df: pl.DataFrame,
     *,
     collapse_unif_freq: int = 1,
+    check_trie_invariant_freq: int = 0,
+    check_trie_invariant_after_collapse_unif: bool = False,
     exploded_slice_size: int = 1_000_000,
     mp_context: str = "spawn",
     pa_source_type: str = "memory_map",
@@ -134,6 +136,8 @@ def surface_build_tree(
     df = surface_unpack_reconstruct(
         df,
         collapse_unif_freq=collapse_unif_freq,
+        check_trie_invariant_freq=check_trie_invariant_freq,
+        check_trie_invariant_after_collapse_unif=check_trie_invariant_after_collapse_unif,
         exploded_slice_size=exploded_slice_size,
         mp_context=mp_context,
         pa_source_type=pa_source_type,

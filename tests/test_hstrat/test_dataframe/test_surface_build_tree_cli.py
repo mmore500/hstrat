@@ -45,6 +45,25 @@ def test_surface_build_tree_cli_csv():
     assert os.path.exists(output_file)
 
 
+def test_surface_build_tree_cli_check_trie_invariant_freq():
+    """Smoke test for --check-trie-invariant-freq=1 on build tree CLI."""
+    output_file = "/tmp/hstrat_surface_build_tree_invariant.csv"  # nosec B108
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(  # nosec B603
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_build_tree",
+            output_file,
+            "--check-trie-invariant-freq",
+            "1",
+        ],
+        check=True,
+        input=f"{assets}/packed.csv".encode(),
+    )
+    assert os.path.exists(output_file)
+
+
 def test_surface_build_tree_cli_parquet():
     output_file = "/tmp/hstrat_surface_build_tree.pqt"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)

@@ -124,6 +124,48 @@ def test_surface_unpack_reconstruct_cli_drop_with_no_drop_dstream_metadata():
     assert len(dstream_cols) > 2
 
 
+def test_surface_unpack_reconstruct_cli_check_trie_invariant_freq():
+    """Smoke test for --check-trie-invariant-freq flag."""
+    output_file = (
+        "/tmp/hstrat_unpack_surface_reconstruct_invariant.csv"  # nosec B108
+    )
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(  # nosec B603
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_unpack_reconstruct",
+            output_file,
+            "--check-trie-invariant-freq",
+            "1",
+        ],
+        check=True,
+        input=f"{assets}/packed.csv".encode(),
+    )
+    assert os.path.exists(output_file)
+
+
+def test_surface_unpack_reconstruct_cli_check_trie_invariant_freq_zero():
+    """Smoke test for --check-trie-invariant-freq=0 (disabled, default)."""
+    output_file = (
+        "/tmp/hstrat_unpack_surface_reconstruct_invariant0.csv"  # nosec B108
+    )
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(  # nosec B603
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_unpack_reconstruct",
+            output_file,
+            "--check-trie-invariant-freq",
+            "0",
+        ],
+        check=True,
+        input=f"{assets}/packed.csv".encode(),
+    )
+    assert os.path.exists(output_file)
+
+
 def test_surface_unpack_reconstruct_cli_drop_dstream_metadata_fails():
     output_file = (
         "/tmp/hstrat_unpack_surface_reconstruct_drop.pqt"  # nosec B108
