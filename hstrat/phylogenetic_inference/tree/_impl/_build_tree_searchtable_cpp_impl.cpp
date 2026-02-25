@@ -1610,6 +1610,9 @@ std::string _check_no_indistinguishable_nodes_impl(const Records& records) {
     // collect children (rank, differentia) pairs and check for duplicates
     std::vector<std::pair<i64, u64>> child_pairs;
     for (const u64 child : ChildrenView(records, i)) {
+      // leaves should not appear in search trie
+      assert(records.dstream_data_id[child] == placeholder_value);
+
       child_pairs.emplace_back(records.rank[child], records.differentia[child]);
     }
 
@@ -1619,7 +1622,12 @@ std::string _check_no_indistinguishable_nodes_impl(const Records& records) {
       std::ostringstream oss;
       oss << "parent " << i << " has indistinguishable children with"
           << " rank=" << dup->first
-          << ", differentia=" << dup->second;
+          << ", differentia=" << dup->second << "\n";
+      oss << "children (rank, differentia): [";
+      for (const auto& [r, d] : child_pairs) {
+        oss << "(" << r << ", " << d << "), ";
+      }
+      oss << "]";
       return oss.str();
     }
   }
