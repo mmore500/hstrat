@@ -1671,6 +1671,9 @@ bool check_trie_invariant_data_nodes_are_leaves(const Records& records) {
  * Returns empty string on pass, diagnostic string on failure.
  */
 std::string _check_search_lineage_compatible_impl(const Records& records) {
+
+  std::vector<uint8_t> already_checked(records.size(), false);  // optimization
+
   for (u64 i = 0; i < records.size(); ++i) {
     // only consider tips
     if (records.dstream_data_id[i] == placeholder_value) continue;
@@ -1679,7 +1682,7 @@ std::string _check_search_lineage_compatible_impl(const Records& records) {
     u64 a = records.ancestor_id[i];
     u64 s = a;
     u64 loop = 0;
-    while (a) {
+    while (a && !already_checked[a]) {
       const auto rank_a = records.rank[a];
       const auto rank_s = records.rank[s];
       if (rank_a == rank_s) {
@@ -1693,6 +1696,7 @@ std::string _check_search_lineage_compatible_impl(const Records& records) {
               << ", differentia=" << records.differentia[s] << ")";
           return oss.str();
         }
+        already_checked[a] = static_cast<uint8_t>(true);
         a = records.ancestor_id[a];
         s = records.search_ancestor_id[s];
       } else if (rank_a > rank_s) {
