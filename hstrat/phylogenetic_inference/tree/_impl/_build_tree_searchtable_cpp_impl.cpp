@@ -1589,6 +1589,7 @@ std::string _check_search_lineage_compatible_impl(const Records& records) {
     assert(records.search_ancestor_id[i] == i);
     u64 a = records.ancestor_id[i];
     u64 s = a;
+    u64 loop = 0;
     while (a) {
       const auto rank_a = records.rank[a];
       const auto rank_s = records.rank[s];
@@ -1614,6 +1615,12 @@ std::string _check_search_lineage_compatible_impl(const Records& records) {
         assert(rank_s > rank_a);
         s = records.search_ancestor_id[s];
         assert(records.rank[s] <= rank_a);
+      }
+      if (++loop > records.size() * 3) {  // conservative upper bound on loop
+        std::ostringstream oss;
+        oss << "node " << i << ": cycle detected in ancestor walk"
+            << " (a=" << a << ", a'=" << records.ancestor_id[a] << ", s=" << s << ", s'=" << records.search_ancestor_id[s] << ")";
+        return oss.str();
       }
     }
   }
