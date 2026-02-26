@@ -1673,19 +1673,14 @@ bool check_trie_invariant_data_nodes_are_leaves(const Records& records) {
  */
 std::string _check_search_lineage_compatible_impl(const Records& records) {
 
-  // optimize by memoizing visited (ancestor, search_ancestor) pairs to skip
-  std::unordered_set<std::pair<u64, u64>, pairhash> already_checked;
-  already_checked.reserve(records.size() * 2);  // heuristic reserve size
   for (u64 i = 0; i < records.size(); ++i) {
-    // only consider tips
-    if (records.dstream_data_id[i] == placeholder_value) continue;
+    // only consider searchable paths, exclude tips
+    if (records.search_ancestor_id[i] == i) continue;
 
-    assert(records.search_ancestor_id[i] == i);
     u64 a = records.ancestor_id[i];
-    u64 s = a;
+    u64 s = records.search_ancestor_id[i];
     u64 loop = 0;
-    while (a && !already_checked.contains({a, s})) {
-      already_checked.insert({a, s});
+    while (a) {
       const auto rank_a = records.rank[a];
       const auto rank_s = records.rank[s];
       if (rank_a == rank_s) {
@@ -1698,9 +1693,7 @@ std::string _check_search_lineage_compatible_impl(const Records& records) {
               << " (rank=" << rank_s
               << ", differentia=" << records.differentia[s] << ")";
           return oss.str();
-        }
-        a = records.ancestor_id[a];
-        s = records.search_ancestor_id[s];
+        } else break;  // only search one step back at a time
       } else if (rank_a > rank_s) {
         a = records.ancestor_id[a];
       } else if (records.search_ancestor_id[s] == s) {
