@@ -22,7 +22,9 @@ def _alifestd_mark_num_children_asexual_fast_path(
     ancestor_ids: np.ndarray,
 ) -> np.ndarray:
     """Implementation detail for `alifestd_mark_num_children_asexual`."""
-    num_children = np.bincount(ancestor_ids, minlength=len(ancestor_ids))
+    num_children = np.bincount(
+        ancestor_ids.astype(np.intp), minlength=len(ancestor_ids)
+    )
     num_children -= ancestor_ids == np.arange(len(ancestor_ids))
     return num_children
 
