@@ -119,8 +119,7 @@ def alifestd_downsample_tips_canopy_polars(
         log_memory_usage(logging.info)
 
     leaf_ids = (
-        leaves_lazy.sort(criterion, descending=True)
-        .head(num_tips)
+        leaves_lazy.top_k(num_tips, by=pl.col(criterion))
         .select(pl.col("id"))
         .collect()
         .to_series()
