@@ -14,7 +14,7 @@ from ._alifestd_mark_num_children_asexual import (
 def alifestd_find_leaf_ids_polars(
     phylogeny_df: pl.DataFrame,
 ) -> np.ndarray:
-    """What ids are not listed in any `ancestor_list`?
+    """What ids are ancestor to no other ids?
 
     Input dataframe is not mutated by this operation.
 
