@@ -22,6 +22,7 @@ from ._begin_prod_logging import begin_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
+from ._log_memory_usage import log_memory_usage
 
 
 def _alifestd_downsample_tips_polars_impl(
@@ -34,14 +35,15 @@ def _alifestd_downsample_tips_polars_impl(
     logging.info(
         "- alifestd_downsample_tips_polars: finding leaf ids...",
     )
-    marked_df = alifestd_mark_leaves_polars(phylogeny_df)
+    phylogeny_df = alifestd_mark_leaves_polars(phylogeny_df)
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_polars: collecting leaf ids...",
     )
     leaf_ids = (
-        marked_df.lazy()
+        phylogeny_df.lazy()
         .filter(pl.col("is_leaf"))
         .select(pl.col("id"))
         .collect()
@@ -49,12 +51,14 @@ def _alifestd_downsample_tips_polars_impl(
         .set_sorted()
     )
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_polars: sampling leaf_ids...",
     )
     leaf_ids = leaf_ids.sample(n=min(n_downsample, len(leaf_ids)), seed=seed)
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_polars: finding extant...",
@@ -62,6 +66,9 @@ def _alifestd_downsample_tips_polars_impl(
     phylogeny_df = phylogeny_df.with_columns(
         extant=pl.int_range(0, pl.len()).is_in(leaf_ids)  # contiguous ids
     )
+    del leaf_ids
+    gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_polars: pruning...",
