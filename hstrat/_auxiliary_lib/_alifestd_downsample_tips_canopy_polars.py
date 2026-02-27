@@ -1,5 +1,6 @@
 import argparse
 import functools
+import gc
 import logging
 import os
 import sys
@@ -74,7 +75,11 @@ def alifestd_downsample_tips_canopy_polars(
     alifestd_downsample_tips_canopy_asexual :
         Pandas-based implementation.
     """
+    logging.info(
+        "- alifestd_downsample_tips_canopy_polars: collecting schema...",
+    )
     schema_names = phylogeny_df.lazy().collect_schema().names()
+    gc.collect()
     if criterion not in schema_names:
         raise ValueError(
             f"criterion column {criterion!r} not found in phylogeny_df",
@@ -83,6 +88,9 @@ def alifestd_downsample_tips_canopy_polars(
     if "ancestor_id" not in schema_names:
         raise NotImplementedError("ancestor_id column required")
 
+    logging.info(
+        "- alifestd_downsample_tips_canopy_polars: checking empty...",
+    )
     if phylogeny_df.lazy().limit(1).collect().is_empty():
         return phylogeny_df
 
@@ -90,6 +98,7 @@ def alifestd_downsample_tips_canopy_polars(
         "- alifestd_downsample_tips_canopy_polars: finding leaf ids...",
     )
     phylogeny_df = alifestd_mark_leaves_polars(phylogeny_df)
+    gc.collect()
 
     logging.info(
         "- alifestd_downsample_tips_canopy_polars: selecting top leaf_ids...",
@@ -103,6 +112,7 @@ def alifestd_downsample_tips_canopy_polars(
             .collect()
             .item()
         )
+        gc.collect()
 
     leaf_ids = (
         leaves_lazy.sort(criterion, descending=True)
@@ -111,6 +121,7 @@ def alifestd_downsample_tips_canopy_polars(
         .collect()
         .to_series()
     )
+    gc.collect()
 
     logging.info(
         "- alifestd_downsample_tips_canopy_polars: marking extant...",
