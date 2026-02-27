@@ -169,12 +169,9 @@ def alifestd_prune_extinct_lineages_polars(
     logging.info(
         "- alifestd_prune_extinct_lineages_polars: filtering...",
     )
-    return (
-        phylogeny_df.filter(
-            pl.col("alifestd_has_extant_descendant"),
-        )
-        .drop("alifestd_has_extant_descendant")
-    )
+    return phylogeny_df.filter(
+        pl.col("alifestd_has_extant_descendant"),
+    ).drop("alifestd_has_extant_descendant")
 
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
