@@ -118,12 +118,29 @@ def alifestd_downsample_tips_canopy_polars(
         gc.collect()
         log_memory_usage(logging.info)
 
-    leaf_ids = (
-        leaves_lazy.top_k(num_tips, by=pl.col(criterion))
-        .select(pl.col("id"))
-        .collect()
-        .to_series()
+    logging.info(
+        "- alifestd_downsample_tips_canopy_polars: counting leaves...",
     )
+    total_leaves = leaves_lazy.select(pl.len()).collect().item()
+    logging.info(
+        f"- alifestd_downsample_tips_canopy_polars: {total_leaves=}...",
+    )
+
+    if num_tips >= total_leaves:
+        logging.info(
+            "- alifestd_downsample_tips_canopy_polars: taking all...",
+        )
+        leaf_ids = leaves_lazy.select(pl.col("id")).collect().to_series()
+    else:  # split case to prevent extreme top_k crash where num_tips is high
+        logging.info(
+            "- alifestd_downsample_tips_canopy_polars: taking top k...",
+        )
+        leaf_ids = (
+            leaves_lazy.top_k(num_tips, by=pl.col(criterion))
+            .select(pl.col("id"))
+            .collect()
+            .to_series()
+        )
     gc.collect()
     log_memory_usage(logging.info)
 
