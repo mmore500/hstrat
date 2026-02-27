@@ -25,6 +25,7 @@ from ._begin_prod_logging import begin_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
+from ._log_memory_usage import log_memory_usage
 
 
 @alifestd_topological_sensitivity_warned_polars(
@@ -74,12 +75,16 @@ def alifestd_prune_extinct_lineages_polars(
     schema_names = phylogeny_df.lazy().collect_schema().names()
     if "ancestor_id" not in schema_names:
         raise NotImplementedError("ancestor_id column required")
+    gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_prune_extinct_lineages_polars: checking empty...",
     )
     if phylogeny_df.lazy().limit(1).collect().is_empty():
         return phylogeny_df
+    gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_prune_extinct_lineages_polars: "
@@ -87,6 +92,8 @@ def alifestd_prune_extinct_lineages_polars(
     )
     if not alifestd_has_contiguous_ids_polars(phylogeny_df):
         raise NotImplementedError("non-contiguous ids not yet supported")
+    gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_prune_extinct_lineages_polars: "
@@ -96,6 +103,8 @@ def alifestd_prune_extinct_lineages_polars(
         raise NotImplementedError(
             "polars topological sort not yet implemented",
         )
+    gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_prune_extinct_lineages_polars: "
@@ -109,6 +118,8 @@ def alifestd_prune_extinct_lineages_polars(
         )
     else:
         raise ValueError('Need "extant" or "destruction_time" column.')
+    gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_prune_extinct_lineages_polars: "
@@ -116,6 +127,7 @@ def alifestd_prune_extinct_lineages_polars(
     )
     extant_mask = extant_mask.cast(pl.Boolean).collect().to_series().to_numpy()
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_prune_extinct_lineages_polars: "
@@ -130,6 +142,7 @@ def alifestd_prune_extinct_lineages_polars(
         .to_numpy()
     )
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_prune_extinct_lineages_polars: "
@@ -139,16 +152,27 @@ def alifestd_prune_extinct_lineages_polars(
         ancestor_ids.copy(),  # must copy to remove read-only flag...
         extant_mask.copy(),  # ... for numba compatibility
     )
+    del ancestor_ids, extant_mask
     gc.collect()
+    log_memory_usage(logging.info)
+
+    logging.info(
+        "- alifestd_prune_extinct_lineages_polars: marking...",
+    )
+    phylogeny_df = phylogeny_df.with_columns(
+        alifestd_has_extant_descendant=has_extant_descendant,
+    )
+    del has_extant_descendant
+    gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_prune_extinct_lineages_polars: filtering...",
     )
     return (
-        phylogeny_df.with_columns(
-            alifestd_has_extant_descendant=has_extant_descendant
+        phylogeny_df.filter(
+            pl.col("alifestd_has_extant_descendant"),
         )
-        .filter(pl.col("alifestd_has_extant_descendant"))
         .drop("alifestd_has_extant_descendant")
     )
 
