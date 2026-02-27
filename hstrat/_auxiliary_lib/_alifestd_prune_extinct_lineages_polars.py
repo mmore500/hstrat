@@ -1,5 +1,6 @@
 import argparse
 import functools
+import gc
 import logging
 import os
 
@@ -67,10 +68,16 @@ def alifestd_prune_extinct_lineages_polars(
     alifestd_prune_extinct_lineages_asexual :
         Pandas-based implementation.
     """
+    logging.info(
+        "- alifestd_prune_extinct_lineages_polars: collecting schema...",
+    )
     schema_names = phylogeny_df.lazy().collect_schema().names()
     if "ancestor_id" not in schema_names:
         raise NotImplementedError("ancestor_id column required")
 
+    logging.info(
+        "- alifestd_prune_extinct_lineages_polars: checking empty...",
+    )
     if phylogeny_df.lazy().limit(1).collect().is_empty():
         return phylogeny_df
 
@@ -108,6 +115,7 @@ def alifestd_prune_extinct_lineages_polars(
         "collecting extant mask...",
     )
     extant_mask = extant_mask.cast(pl.Boolean).collect().to_series().to_numpy()
+    gc.collect()
 
     logging.info(
         "- alifestd_prune_extinct_lineages_polars: "
@@ -121,6 +129,7 @@ def alifestd_prune_extinct_lineages_polars(
         .to_series()
         .to_numpy()
     )
+    gc.collect()
 
     logging.info(
         "- alifestd_prune_extinct_lineages_polars: "
@@ -130,6 +139,7 @@ def alifestd_prune_extinct_lineages_polars(
         ancestor_ids.copy(),  # must copy to remove read-only flag...
         extant_mask.copy(),  # ... for numba compatibility
     )
+    gc.collect()
 
     logging.info(
         "- alifestd_prune_extinct_lineages_polars: filtering...",
