@@ -42,6 +42,7 @@ from ._begin_prod_logging import begin_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
+from ._log_memory_usage import log_memory_usage
 
 
 @alifestd_topological_sensitivity_warned_polars(
@@ -191,6 +192,7 @@ def alifestd_downsample_tips_lineage_polars(
 
     del target_values
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_lineage_polars: "
@@ -203,6 +205,9 @@ def alifestd_downsample_tips_lineage_polars(
         .to_series()
         .to_numpy()
     )
+    gc.collect()
+    log_memory_usage(logging.info)
+
     logging.info(
         "- alifestd_downsample_tips_lineage_polars: "
         f"computing mrca vector for {target_id=}...",
@@ -210,18 +215,35 @@ def alifestd_downsample_tips_lineage_polars(
     mrca_vector = alifestd_calc_mrca_id_vector_asexual_polars(
         phylogeny_df, target_id=target_id, progress_wrap=progress_wrap
     )
+    gc.collect()
+    log_memory_usage(logging.info)
+
+    logging.info(
+        "- alifestd_downsample_tips_lineage_polars: "
+        "dispatching _alifestd_downsample_tips_lineage_impl...",
+    )
     is_extant = _alifestd_downsample_tips_lineage_impl(
         is_leaf=is_leaf,
         criterion_values=criterion_values,
         num_tips=num_tips,
         mrca_vector=mrca_vector,
     )
+    del criterion_values, is_leaf, mrca_vector
+    gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
-        "- alifestd_downsample_tips_lineage_polars: pruning...",
+        "- alifestd_downsample_tips_lineage_polars: mark extant...",
     )
     phylogeny_df = phylogeny_df.with_columns(
         extant=is_extant,
+    )
+    del is_extant
+    gc.collect()
+    log_memory_usage(logging.info)
+
+    logging.info(
+        "- alifestd_downsample_tips_lineage_polars: pruning...",
     )
     return alifestd_prune_extinct_lineages_polars(phylogeny_df).drop(
         "extant",
