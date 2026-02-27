@@ -102,7 +102,7 @@ def alifestd_downsample_tips_canopy_asexual(
             num_tips = int((leaf_df[criterion] == max_val).sum())
         kept_ids = leaf_df.nlargest(num_tips, criterion)["id"]
         phylogeny_df["extant"] = np.bincount(
-            kept_ids.to_numpy(), minlength=len(phylogeny_df)
+            kept_ids.to_numpy().astype(np.intp), minlength=len(phylogeny_df)
         ).astype(bool)
     else:
         tips = alifestd_find_leaf_ids(phylogeny_df)
