@@ -43,6 +43,7 @@ from ._begin_prod_logging import begin_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
+from ._log_memory_usage import log_memory_usage
 
 
 @alifestd_topological_sensitivity_warned_polars(
@@ -144,12 +145,16 @@ def alifestd_downsample_tips_lineage_stratified_polars(
     )
     phylogeny_df = alifestd_try_add_ancestor_id_col_polars(phylogeny_df)
     gc.collect()
+    log_memory_usage(logging.info)
+
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
         "collecting schema...",
     )
     schema_names = phylogeny_df.lazy().collect_schema().names()
     gc.collect()
+    log_memory_usage(logging.info)
+
     if "ancestor_id" not in schema_names:
         raise NotImplementedError(
             "alifestd_downsample_tips_lineage_stratified_polars only "
@@ -173,6 +178,7 @@ def alifestd_downsample_tips_lineage_stratified_polars(
     if phylogeny_df.lazy().limit(1).collect().is_empty():
         return phylogeny_df
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
@@ -183,6 +189,7 @@ def alifestd_downsample_tips_lineage_stratified_polars(
             "non-contiguous ids not yet supported",
         )
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
@@ -193,6 +200,7 @@ def alifestd_downsample_tips_lineage_stratified_polars(
             "topologically unsorted rows not yet supported",
         )
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
@@ -200,6 +208,7 @@ def alifestd_downsample_tips_lineage_stratified_polars(
     )
     phylogeny_df = alifestd_mark_leaves_polars(phylogeny_df)
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
@@ -209,6 +218,7 @@ def alifestd_downsample_tips_lineage_stratified_polars(
         phylogeny_df.lazy().select("is_leaf").collect().to_series().to_numpy()
     )
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
@@ -222,6 +232,7 @@ def alifestd_downsample_tips_lineage_stratified_polars(
         .to_numpy()
     )
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
@@ -234,6 +245,7 @@ def alifestd_downsample_tips_lineage_stratified_polars(
 
     del target_values
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
@@ -247,6 +259,7 @@ def alifestd_downsample_tips_lineage_stratified_polars(
         .to_numpy()
     )
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
@@ -260,6 +273,7 @@ def alifestd_downsample_tips_lineage_stratified_polars(
         .to_numpy()
     )
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
@@ -269,7 +283,8 @@ def alifestd_downsample_tips_lineage_stratified_polars(
         phylogeny_df, target_id=target_id, progress_wrap=progress_wrap
     )
     gc.collect()
-   
+    log_memory_usage(logging.info)
+
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
         "computing is_extant...",
@@ -284,12 +299,19 @@ def alifestd_downsample_tips_lineage_stratified_polars(
     )
     del criterion_values, is_leaf, mrca_vector, stratify_values
     gc.collect()
+    log_memory_usage(logging.info)
+
+    logging.info(
+        "- alifestd_downsample_tips_lineage_stratified_polars: "
+        "marking extant...",
+    )
+    phylogeny_df = phylogeny_df.with_columns(extant=is_extant)
+    del is_extant
+    gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: pruning...",
-    )
-    phylogeny_df = phylogeny_df.with_columns(
-        extant=is_extant,
     )
     return alifestd_prune_extinct_lineages_polars(phylogeny_df).drop(
         "extant",
