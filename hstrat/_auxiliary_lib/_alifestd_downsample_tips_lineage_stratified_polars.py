@@ -138,7 +138,24 @@ def alifestd_downsample_tips_lineage_stratified_polars(
             f"divide n_tips={n_tips}",
         )
 
+    logging.info(
+        "- alifestd_downsample_tips_lineage_stratified_polars: "
+        "adding ancestor_id col...",
+    )
+    phylogeny_df = alifestd_try_add_ancestor_id_col_polars(phylogeny_df)
+    gc.collect()
+    logging.info(
+        "- alifestd_downsample_tips_lineage_stratified_polars: "
+        "collecting schema...",
+    )
     schema_names = phylogeny_df.lazy().collect_schema().names()
+    gc.collect()
+    if "ancestor_id" not in schema_names:
+        raise NotImplementedError(
+            "alifestd_downsample_tips_lineage_stratified_polars only "
+            "supports asexual phylogenies.",
+        )
+
     for criterion in (
         criterion_delta,
         criterion_stratify,
@@ -149,20 +166,13 @@ def alifestd_downsample_tips_lineage_stratified_polars(
                 f"criterion column {criterion!r} not found in phylogeny_df",
             )
 
-    if phylogeny_df.lazy().limit(1).collect().is_empty():
-        return phylogeny_df
-
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
-        "adding ancestor_id col...",
+        "checking empty...",
     )
-    phylogeny_df = alifestd_try_add_ancestor_id_col_polars(phylogeny_df)
-    schema_names = phylogeny_df.lazy().collect_schema().names()
-    if "ancestor_id" not in schema_names:
-        raise NotImplementedError(
-            "alifestd_downsample_tips_lineage_stratified_polars only "
-            "supports asexual phylogenies.",
-        )
+    if phylogeny_df.lazy().limit(1).collect().is_empty():
+        return phylogeny_df
+    gc.collect()
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
@@ -172,6 +182,7 @@ def alifestd_downsample_tips_lineage_stratified_polars(
         raise NotImplementedError(
             "non-contiguous ids not yet supported",
         )
+    gc.collect()
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
@@ -181,12 +192,14 @@ def alifestd_downsample_tips_lineage_stratified_polars(
         raise NotImplementedError(
             "topologically unsorted rows not yet supported",
         )
+    gc.collect()
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
         "marking leaves...",
     )
     phylogeny_df = alifestd_mark_leaves_polars(phylogeny_df)
+    gc.collect()
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
@@ -195,6 +208,7 @@ def alifestd_downsample_tips_lineage_stratified_polars(
     is_leaf = (
         phylogeny_df.lazy().select("is_leaf").collect().to_series().to_numpy()
     )
+    gc.collect()
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
@@ -207,6 +221,7 @@ def alifestd_downsample_tips_lineage_stratified_polars(
         .to_series()
         .to_numpy()
     )
+    gc.collect()
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
@@ -231,6 +246,7 @@ def alifestd_downsample_tips_lineage_stratified_polars(
         .to_series()
         .to_numpy()
     )
+    gc.collect()
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
@@ -243,6 +259,7 @@ def alifestd_downsample_tips_lineage_stratified_polars(
         .to_series()
         .to_numpy()
     )
+    gc.collect()
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: "
@@ -250,6 +267,12 @@ def alifestd_downsample_tips_lineage_stratified_polars(
     )
     mrca_vector = alifestd_calc_mrca_id_vector_asexual_polars(
         phylogeny_df, target_id=target_id, progress_wrap=progress_wrap
+    )
+    gc.collect()
+   
+    logging.info(
+        "- alifestd_downsample_tips_lineage_stratified_polars: "
+        "computing is_extant...",
     )
     is_extant = _alifestd_downsample_tips_lineage_stratified_impl(
         is_leaf=is_leaf,
@@ -259,6 +282,8 @@ def alifestd_downsample_tips_lineage_stratified_polars(
         n_tips=n_tips,
         n_tips_per_stratum=n_tips_per_stratum,
     )
+    del criterion_values, is_leaf, mrca_vector, stratify_values
+    gc.collect()
 
     logging.info(
         "- alifestd_downsample_tips_lineage_stratified_polars: pruning...",
