@@ -22,6 +22,7 @@ from ._begin_prod_logging import begin_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
+from ._log_memory_usage import log_memory_usage
 
 
 @alifestd_topological_sensitivity_warned_polars(
@@ -80,6 +81,7 @@ def alifestd_downsample_tips_canopy_polars(
     )
     schema_names = phylogeny_df.lazy().collect_schema().names()
     gc.collect()
+    log_memory_usage(logging.info)
     if criterion not in schema_names:
         raise ValueError(
             f"criterion column {criterion!r} not found in phylogeny_df",
@@ -99,6 +101,7 @@ def alifestd_downsample_tips_canopy_polars(
     )
     phylogeny_df = alifestd_mark_leaves_polars(phylogeny_df)
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_canopy_polars: selecting top leaf_ids...",
@@ -113,6 +116,7 @@ def alifestd_downsample_tips_canopy_polars(
             .item()
         )
         gc.collect()
+        log_memory_usage(logging.info)
 
     leaf_ids = (
         leaves_lazy.sort(criterion, descending=True)
@@ -122,6 +126,7 @@ def alifestd_downsample_tips_canopy_polars(
         .to_series()
     )
     gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_canopy_polars: marking extant...",
@@ -129,6 +134,9 @@ def alifestd_downsample_tips_canopy_polars(
     phylogeny_df = phylogeny_df.with_columns(
         extant=pl.col("id").is_in(leaf_ids),
     )
+    del leaf_ids
+    gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_canopy_polars: pruning...",
