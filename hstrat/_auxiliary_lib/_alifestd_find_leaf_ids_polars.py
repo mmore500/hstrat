@@ -16,7 +16,6 @@ def alifestd_find_leaf_ids_polars(
 ) -> np.ndarray:
     """What ids are ancestor to no other ids?
 
-
     Parameters
     ----------
     phylogeny_df : polars.DataFrame or polars.LazyFrame
