@@ -1,4 +1,5 @@
 import argparse
+import contextlib
 import functools
 import gc
 import logging
@@ -8,10 +9,12 @@ import typing
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
+import numpy as np
+import opytional as opyt
 import polars as pl
 
 from ._add_bool_arg import add_bool_arg
-from ._alifestd_mark_leaves_polars import alifestd_mark_leaves_polars
+from ._alifestd_find_leaf_ids_polars import alifestd_find_leaf_ids_polars
 from ._alifestd_prune_extinct_lineages_polars import (
     alifestd_prune_extinct_lineages_polars,
 )
@@ -23,50 +26,44 @@ from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 from ._log_memory_usage import log_memory_usage
+from ._RngStateContext import RngStateContext
 
 
 def _alifestd_downsample_tips_polars_impl(
     phylogeny_df: pl.DataFrame,
     n_downsample: int,
-    seed: int,
 ) -> pl.DataFrame:
     """Implementation detail for alifestd_downsample_tips_polars."""
 
     logging.info(
-        "- alifestd_downsample_tips_polars: finding leaf ids...",
-    )
-    phylogeny_df = alifestd_mark_leaves_polars(phylogeny_df)
-    gc.collect()
-    log_memory_usage(logging.info)
-
-    logging.info(
         "- alifestd_downsample_tips_polars: collecting leaf ids...",
     )
-    leaf_ids = (
-        phylogeny_df.lazy()
-        .filter(pl.col("is_leaf"))
-        .select(pl.col("id"))
-        .collect()
-        .to_series()
-        .set_sorted()
-    )
+    leaf_ids = alifestd_find_leaf_ids_polars(phylogeny_df)
     gc.collect()
     log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_polars: sampling leaf_ids...",
     )
-    leaf_ids = leaf_ids.sample(n=min(n_downsample, len(leaf_ids)), seed=seed)
+    leaf_ids = np.random.choice(
+        leaf_ids, size=min(n_downsample, len(leaf_ids)), replace=False
+    )
+    gc.collect()
+    log_memory_usage(logging.info)
+
+    logging.info("- alifestd_downsample_tips_polars: collecting len(df)...")
+    len_df = phylogeny_df.lazy().select(pl.len()).collect().item()
+
+    logging.info("- alifestd_downsample_tips_polars: finding extant...")
+    extant_mask = np.bincount(leaf_ids, minlength=len_df).astype(bool)
+    del leaf_ids
     gc.collect()
     log_memory_usage(logging.info)
 
     logging.info(
-        "- alifestd_downsample_tips_polars: finding extant...",
+        "- alifestd_downsample_tips_polars: marking extant...",
     )
-    phylogeny_df = phylogeny_df.with_columns(
-        extant=pl.int_range(0, pl.len()).is_in(leaf_ids)  # contiguous ids
-    )
-    del leaf_ids
+    phylogeny_df = phylogeny_df.with_columns(extant=extant_mask)
     gc.collect()
     log_memory_usage(logging.info)
 
@@ -125,11 +122,11 @@ def alifestd_downsample_tips_polars(
     if phylogeny_df.lazy().limit(1).collect().is_empty():
         return phylogeny_df
 
-    return _alifestd_downsample_tips_polars_impl(
-        phylogeny_df,
-        n_downsample,
-        seed=seed,
-    )
+    with opyt.apply_if_or_else(seed, RngStateContext, contextlib.nullcontext):
+        return _alifestd_downsample_tips_polars_impl(
+            phylogeny_df,
+            n_downsample,
+        )
 
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
