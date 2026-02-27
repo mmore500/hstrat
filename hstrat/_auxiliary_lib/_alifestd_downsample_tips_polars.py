@@ -1,5 +1,6 @@
 import argparse
 import functools
+import gc
 import logging
 import os
 import sys
@@ -34,6 +35,7 @@ def _alifestd_downsample_tips_polars_impl(
         "- alifestd_downsample_tips_polars: finding leaf ids...",
     )
     marked_df = alifestd_mark_leaves_polars(phylogeny_df)
+    gc.collect()
 
     logging.info(
         "- alifestd_downsample_tips_polars: collecting leaf ids...",
@@ -46,11 +48,13 @@ def _alifestd_downsample_tips_polars_impl(
         .to_series()
         .set_sorted()
     )
+    gc.collect()
 
     logging.info(
         "- alifestd_downsample_tips_polars: sampling leaf_ids...",
     )
     leaf_ids = leaf_ids.sample(n=min(n_downsample, len(leaf_ids)), seed=seed)
+    gc.collect()
 
     logging.info(
         "- alifestd_downsample_tips_polars: finding extant...",
