@@ -1,5 +1,3 @@
-import os
-
 import more_itertools as mit
 import pytest
 
