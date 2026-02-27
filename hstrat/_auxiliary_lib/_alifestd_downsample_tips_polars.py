@@ -13,6 +13,7 @@ import numpy as np
 import opytional as opyt
 import polars as pl
 
+from ._RngStateContext import RngStateContext
 from ._add_bool_arg import add_bool_arg
 from ._alifestd_find_leaf_ids_polars import alifestd_find_leaf_ids_polars
 from ._alifestd_prune_extinct_lineages_polars import (
@@ -26,7 +27,6 @@ from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 from ._log_memory_usage import log_memory_usage
-from ._RngStateContext import RngStateContext
 
 
 def _alifestd_downsample_tips_polars_impl(
