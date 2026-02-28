@@ -58,7 +58,7 @@ distlib==0.4.0
     # via virtualenv
 distutils-strtobool==0.1.0
     # via teeplot
-downstream==1.16.5
+downstream==1.18.0
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8

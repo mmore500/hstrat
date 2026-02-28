@@ -12,7 +12,7 @@ anytree==2.13.0
     #   alifedata-phyloinformatics-convert
 astropy==7.2.0
     # via hstrat (../../pyproject.toml)
-astropy-iers-data==0.2026.2.16.0.48.25
+astropy-iers-data==0.2026.2.23.0.48.33
     # via astropy
 biopython==1.86
     # via
@@ -58,7 +58,7 @@ distlib==0.4.0
     # via virtualenv
 distutils-strtobool==0.1.0
     # via teeplot
-downstream==1.16.5
+downstream==1.18.0
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
@@ -69,6 +69,7 @@ execnet==2.1.2
 filelock==3.24.3
     # via
     #   cppimport
+    #   python-discovery
     #   tox
     #   virtualenv
 fishersrc==0.1.15
@@ -129,7 +130,7 @@ more-itertools==10.8.0
     # via
     #   hstrat (../../pyproject.toml)
     #   keyname
-mpmath==1.3.0
+mpmath==1.4.0
     # via hstrat (../../pyproject.toml)
 multidict==6.7.1
     # via yarl
@@ -204,6 +205,7 @@ pillow==12.1.1
 platformdirs==4.9.2
     # via
     #   black
+    #   python-discovery
     #   virtualenv
 pluggy==1.6.0
     # via
@@ -258,6 +260,8 @@ python-dateutil==2.9.0.post0
     # via
     #   matplotlib
     #   pandas
+python-discovery==1.1.0
+    # via virtualenv
 python-slugify==8.0.4
     # via
     #   hstrat (../../pyproject.toml)
@@ -339,7 +343,7 @@ tzdata==2025.3
     # via pandas
 validators==0.35.0
     # via alifedata-phyloinformatics-convert
-virtualenv==20.38.0
+virtualenv==21.1.0
     # via tox
 wcwidth==0.6.0
     # via prettytable
