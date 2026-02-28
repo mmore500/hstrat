@@ -9,6 +9,7 @@ wget -O /tmp/hstrat-examples-genomes.pqt https://osf.io/gnkbc/download
 ls -1 /tmp/hstrat-examples-genomes.pqt \
     | python3 -O -m hstrat.dataframe.surface_build_tree \
         --head 100_000 \
+        --exploded-slice-size 100000 \
         /tmp/reconstructed.csv
 
 # convert from alifestd to newick
