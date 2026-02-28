@@ -3,7 +3,9 @@
 set -euo pipefail
 
 # get example genome data
-wget -O /tmp/hstrat-examples-genomes.pqt https://osf.io/gnkbc/download
+cp /tmp/hstrat-gnkbc.pqt /tmp/hstrat-examples-genomes.pqt 2>/dev/null \
+    || { wget -O /tmp/hstrat-examples-genomes.pqt https://osf.io/gnkbc/download \
+    && cp /tmp/hstrat-examples-genomes.pqt /tmp/hstrat-gnkbc.pqt; }
 
 # unpack and reconstruct, only first 100_000 genomes for this example
 ls -1 /tmp/hstrat-examples-genomes.pqt \
