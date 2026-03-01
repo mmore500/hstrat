@@ -21,17 +21,20 @@ from ._log_context_duration import log_context_duration
 def _parse_newick_jit(
     chars: np.ndarray,
     n: int,
-    ids: np.ndarray,
-    ancestor_ids: np.ndarray,
-    label_starts: np.ndarray,
-    label_stops: np.ndarray,
-    bl_starts: np.ndarray,
-    bl_stops: np.ndarray,
-    bl_node_ids: np.ndarray,
-) -> typing.Tuple[int, int]:
+) -> typing.Tuple[
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    int,
+    int,
+]:
     """Inner JIT kernel for newick parsing.
 
-    Populates pre-allocated arrays with tree structure and records
+    Allocates and populates arrays with tree structure and records
     branch-length substring positions for external float conversion.
 
     Implementation detail for `_parse_newick`.
@@ -41,9 +44,19 @@ def _parse_newick_jit(
 
     Returns
     -------
-    tuple of int
-        (num_nodes, num_bls) counts of nodes and branch lengths found.
+    tuple
+        (ids, ancestor_ids, label_starts, label_stops, bl_starts, bl_stops,
+         bl_node_ids, num_nodes, num_bls).
     """
+    # pre-allocate arrays at maximum possible size
+    ids = np.empty(n, dtype=np.int64)
+    ancestor_ids = np.empty(n, dtype=np.int64)
+    label_starts = np.zeros(n, dtype=np.int64)
+    label_stops = np.zeros(n, dtype=np.int64)
+    bl_starts = np.empty(n, dtype=np.int64)
+    bl_stops = np.empty(n, dtype=np.int64)
+    bl_node_ids = np.empty(n, dtype=np.int64)
+
     # character codes
     LPAREN = np.uint8(ord("("))
     RPAREN = np.uint8(ord(")"))
@@ -167,14 +180,24 @@ def _parse_newick_jit(
 
         i += 1
 
-    return num_nodes, num_bls
+    return (
+        ids,
+        ancestor_ids,
+        label_starts,
+        label_stops,
+        bl_starts,
+        bl_stops,
+        bl_node_ids,
+        num_nodes,
+        num_bls,
+    )
 
 
 def _parse_newick(
     newick: str,
     chars: np.ndarray,
     n: int,
-) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Parse newick string characters into parallel arrays.
 
     Implementation detail for `alifestd_from_newick`.
@@ -198,24 +221,13 @@ def _parse_newick(
     Returns
     -------
     tuple of np.ndarray
-        (ids, ancestor_ids, branch_lengths, has_branch_length,
-         label_start_stops) where branch_lengths is always float64 with NaN
-        for missing values, and label_start_stops has shape (num_nodes, 2)
-        giving the start (inclusive) and stop (exclusive) index into `chars`
-        for each node's label.
+        (ids, ancestor_ids, branch_lengths, label_start_stops) where
+        branch_lengths is always float64 with NaN for missing values, and
+        label_start_stops has shape (num_nodes, 2) giving the start
+        (inclusive) and stop (exclusive) index into `chars` for each
+        node's label.
     """
-    # pre-allocate arrays at maximum possible size
-    ids = np.empty(n, dtype=np.int64)
-    ancestor_ids = np.empty(n, dtype=np.int64)
-    label_starts = np.zeros(n, dtype=np.int64)
-    label_stops = np.zeros(n, dtype=np.int64)
-    bl_starts = np.empty(n, dtype=np.int64)
-    bl_stops = np.empty(n, dtype=np.int64)
-    bl_node_ids = np.empty(n, dtype=np.int64)
-
-    num_nodes, num_bls = _parse_newick_jit(
-        chars,
-        n,
+    (
         ids,
         ancestor_ids,
         label_starts,
@@ -223,7 +235,9 @@ def _parse_newick(
         bl_starts,
         bl_stops,
         bl_node_ids,
-    )
+        num_nodes,
+        num_bls,
+    ) = _parse_newick_jit(chars, n)
 
     # trim to actual sizes
     ids = ids[:num_nodes]
@@ -232,14 +246,12 @@ def _parse_newick(
     # branch lengths: batch-convert substrings via numpy (always float64
     # internally; callers convert to the requested dtype with proper nulls)
     branch_lengths = np.full(num_nodes, np.nan, dtype=np.float64)
-    has_branch_length = np.zeros(num_nodes, dtype=np.int64)
     if num_bls:
         bl_strings = [
             newick[bl_starts[k] : bl_stops[k]] for k in range(num_bls)
         ]
         node_ids = bl_node_ids[:num_bls]
         branch_lengths[node_ids] = np.array(bl_strings, dtype=np.float64)
-        has_branch_length[node_ids] = 1
 
     # pack label start/stops into a 2D array
     label_start_stops = np.column_stack(
@@ -250,7 +262,6 @@ def _parse_newick(
         ids,
         ancestor_ids,
         branch_lengths,
-        has_branch_length,
         label_start_stops,
     )
 
@@ -333,7 +344,6 @@ def alifestd_from_newick(
         ids,
         ancestor_ids,
         branch_lengths,
-        _,  # has_branch_length
         label_start_stops,
     ) = _parse_newick(newick, chars, n)
 
