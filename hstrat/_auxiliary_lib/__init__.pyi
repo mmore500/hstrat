@@ -67,6 +67,8 @@ from ._alifestd_check_topological_sensitivity_polars import (
     alifestd_check_topological_sensitivity_polars,
 )
 from ._alifestd_chronological_sort import alifestd_chronological_sort
+from ._alifestd_coarsen_dilate_asexual import alifestd_coarsen_dilate_asexual
+from ._alifestd_coarsen_dilate_polars import alifestd_coarsen_dilate_polars
 from ._alifestd_coarsen_mask import alifestd_coarsen_mask
 from ._alifestd_coarsen_taxa_asexual import (
     alifestd_coarsen_taxa_asexual,
@@ -524,6 +526,8 @@ __all__ = [
     "alifestd_check_topological_sensitivity",
     "alifestd_check_topological_sensitivity_polars",
     "alifestd_chronological_sort",
+    "alifestd_coarsen_dilate_asexual",
+    "alifestd_coarsen_dilate_polars",
     "alifestd_coarsen_mask",
     "alifestd_coarsen_taxa_asexual",
     "alifestd_coarsen_taxa_asexual_make_agg",
