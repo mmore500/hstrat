@@ -69,6 +69,8 @@ def _build_newick_string(
     return ";\n".join(map(mit.one, child_newick_reprs.values())) + ";"
 
 
+# Performance (as of 2026-03-01, 200k-node caterpillar tree):
+#   hstrat ~9s vs treeswift ~5s
 def alifestd_as_newick_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

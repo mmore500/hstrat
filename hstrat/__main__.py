@@ -40,6 +40,8 @@ $ python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_lineage_stratified_
 $ python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_polars
 $ python3 -m hstrat._auxiliary_lib._alifestd_drop_topological_sensitivity
 $ python3 -m hstrat._auxiliary_lib._alifestd_drop_topological_sensitivity_polars
+$ python3 -m hstrat._auxiliary_lib._alifestd_from_newick
+$ python3 -m hstrat._auxiliary_lib._alifestd_from_newick_polars
 $ python3 -m hstrat._auxiliary_lib._alifestd_join_roots
 $ python3 -m hstrat._auxiliary_lib._alifestd_mark_ancestor_origin_time_asexual
 $ python3 -m hstrat._auxiliary_lib._alifestd_mark_clade_duration_asexual
