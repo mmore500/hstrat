@@ -400,3 +400,212 @@ def test_alifestd_asset_roundtrip(
             reconstructed["origin_time_delta"].dropna()
             == reconstructed["branch_length"].dropna()
         ).all()
+
+
+def test_quoted_label_with_comma():
+    result = alifestd_from_newick("('a,b','c,d');")
+    assert len(result) == 3
+    labels = set(result["taxon_label"])
+    assert "a,b" in labels
+    assert "c,d" in labels
+
+
+def test_quoted_label_with_colon():
+    result = alifestd_from_newick("('a:1','b:2');")
+    assert len(result) == 3
+    labels = set(result["taxon_label"])
+    assert "a:1" in labels
+    assert "b:2" in labels
+
+
+def test_quoted_label_with_paren():
+    result = alifestd_from_newick("('a(b)','c(d)');")
+    assert len(result) == 3
+    labels = set(result["taxon_label"])
+    assert "a(b)" in labels
+    assert "c(d)" in labels
+
+
+def test_quoted_label_with_semicolon():
+    result = alifestd_from_newick("('a;b','c;d');")
+    assert len(result) == 3
+    labels = set(result["taxon_label"])
+    assert "a;b" in labels
+    assert "c;d" in labels
+
+
+def test_quoted_label_with_bracket():
+    result = alifestd_from_newick("('a[b]','c[d]');")
+    assert len(result) == 3
+    labels = set(result["taxon_label"])
+    assert "a[b]" in labels
+    assert "c[d]" in labels
+
+
+def test_quoted_label_with_branch_length():
+    result = alifestd_from_newick("('node A':1.5,'node B':2.5);")
+    assert len(result) == 3
+    a = result[result["taxon_label"] == "node A"]
+    b = result[result["taxon_label"] == "node B"]
+    assert a["branch_length"].iloc[0] == pytest.approx(1.5)
+    assert b["branch_length"].iloc[0] == pytest.approx(2.5)
+
+
+def test_quoted_label_with_space_and_branch_length():
+    result = alifestd_from_newick(
+        "('leaf one':0.1,'leaf two':0.2)'the root':0.0;"
+    )
+    assert len(result) == 3
+    labels = set(result["taxon_label"])
+    assert "leaf one" in labels
+    assert "leaf two" in labels
+    assert "the root" in labels
+    root = result[result["taxon_label"] == "the root"]
+    assert root["branch_length"].iloc[0] == pytest.approx(0.0)
+
+
+def test_nested_comments():
+    result = alifestd_from_newick("(A[outer [inner] rest],B)C;")
+    assert len(result) == 3
+    labels = set(result["taxon_label"])
+    assert "A" in labels
+    assert "B" in labels
+    assert "C" in labels
+
+
+def test_comment_after_branch_length():
+    result = alifestd_from_newick("(A:1.5[comment],B:2.0[another])C;")
+    assert len(result) == 3
+    a = result[result["taxon_label"] == "A"]
+    b = result[result["taxon_label"] == "B"]
+    assert a["branch_length"].iloc[0] == pytest.approx(1.5)
+    assert b["branch_length"].iloc[0] == pytest.approx(2.0)
+
+
+def test_comment_before_label():
+    result = alifestd_from_newick("([pre]A,[pre]B)C;")
+    assert len(result) == 3
+    labels = set(result["taxon_label"])
+    assert "A" in labels
+    assert "B" in labels
+
+
+def test_branch_length_zero():
+    result = alifestd_from_newick("(A:0,B:0.0):0;")
+    a = result[result["taxon_label"] == "A"]
+    b = result[result["taxon_label"] == "B"]
+    assert a["branch_length"].iloc[0] == pytest.approx(0.0)
+    assert b["branch_length"].iloc[0] == pytest.approx(0.0)
+
+
+def test_branch_length_positive_sign():
+    result = alifestd_from_newick("(A:+1.5,B:+2.0);")
+    a = result[result["taxon_label"] == "A"]
+    b = result[result["taxon_label"] == "B"]
+    assert a["branch_length"].iloc[0] == pytest.approx(1.5)
+    assert b["branch_length"].iloc[0] == pytest.approx(2.0)
+
+
+def test_root_with_branch_length():
+    result = alifestd_from_newick("(A:1,B:2)root:5;")
+    root = result[result["taxon_label"] == "root"]
+    assert root["branch_length"].iloc[0] == pytest.approx(5.0)
+
+
+def test_all_internal_unlabeled():
+    result = alifestd_from_newick("((A,B),(C,D));")
+    assert len(result) == 7
+    labeled = result[result["taxon_label"] != ""]
+    assert set(labeled["taxon_label"]) == {"A", "B", "C", "D"}
+    unlabeled = result[result["taxon_label"] == ""]
+    assert len(unlabeled) == 3  # root + two internal
+
+
+def test_deeply_nested():
+    result = alifestd_from_newick("((((((leaf)a)b)c)d)e)root;")
+    assert len(result) == 7
+    leaf = result[result["taxon_label"] == "leaf"]
+    assert len(leaf) == 1
+    # trace ancestry: leaf -> a -> b -> c -> d -> e -> root
+    cur_id = leaf["id"].iloc[0]
+    depth = 0
+    while True:
+        row = result[result["id"] == cur_id].iloc[0]
+        if row["ancestor_id"] == row["id"]:
+            break
+        cur_id = row["ancestor_id"]
+        depth += 1
+    assert depth == 6
+
+
+def test_label_with_underscores_and_digits():
+    result = alifestd_from_newick("(node_1:1,node_2_a:2)root_0;")
+    labels = set(result["taxon_label"])
+    assert "node_1" in labels
+    assert "node_2_a" in labels
+    assert "root_0" in labels
+
+
+def test_branch_length_dtype_int():
+    result = alifestd_from_newick(
+        "(ant:17,(bat:31,cow:22):7,dog:22);",
+        branch_length_dtype=int,
+    )
+    assert result["branch_length"].dtype == np.int64
+    ant = result[result["taxon_label"] == "ant"]
+    assert ant["branch_length"].iloc[0] == 17
+    # missing branch length should be -1
+    root = result[result["ancestor_id"] == result["id"]]
+    assert root["branch_length"].iloc[0] == -1
+
+
+def test_branch_length_dtype_int_no_lengths():
+    result = alifestd_from_newick("(A,B)C;", branch_length_dtype=int)
+    assert result["branch_length"].dtype == np.int64
+    assert (result["branch_length"] == -1).all()
+
+
+def test_star_tree():
+    """Multifurcation with many children at root."""
+    result = alifestd_from_newick("(A,B,C,D,E,F,G,H);")
+    assert len(result) == 9
+    root = result[result["ancestor_id"] == result["id"]]
+    assert len(root) == 1
+    children = result[result["ancestor_id"] != result["id"]]
+    assert len(children) == 8
+    # all children share the same parent
+    assert children["ancestor_id"].nunique() == 1
+
+
+def test_single_leaf_in_parens():
+    result = alifestd_from_newick("(A);")
+    assert len(result) == 2
+    a = result[result["taxon_label"] == "A"]
+    assert len(a) == 1
+    root = result[result["ancestor_id"] == result["id"]]
+    assert a["ancestor_id"].iloc[0] == root["id"].iloc[0]
+
+
+def test_empty_label_with_branch_length():
+    result = alifestd_from_newick("(:1.0,:2.0):0.5;")
+    assert len(result) == 3
+    assert (result["taxon_label"] == "").all()
+    root = result[result["ancestor_id"] == result["id"]]
+    assert root["branch_length"].iloc[0] == pytest.approx(0.5)
+
+
+def test_spaces_after_comma():
+    """Spaces after commas should be stripped, not included in labels."""
+    result = alifestd_from_newick("(A, B, C);")
+    labels = set(result["taxon_label"])
+    assert "A" in labels
+    assert "B" in labels
+    assert "C" in labels
+
+
+def test_scientific_notation_positive_exponent():
+    result = alifestd_from_newick("(A:1e3,B:2.5E+2);")
+    a = result[result["taxon_label"] == "A"]
+    b = result[result["taxon_label"] == "B"]
+    assert a["branch_length"].iloc[0] == pytest.approx(1e3)
+    assert b["branch_length"].iloc[0] == pytest.approx(2.5e2)
