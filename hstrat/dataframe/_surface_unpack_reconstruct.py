@@ -57,13 +57,12 @@ from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub i
 
 def _sort_Tbar_argv(
     long_df: pl.DataFrame,
-    num_slices: int,
-    slice_index: int,
+    row_slice: slice,
 ) -> pl.DataFrame:
     """Fast chronological sort within dstream data id groups, when Tbar_argv
     is available."""
     with log_context_duration(
-        f"gather_indices ({slice_index + 1}/{num_slices})",
+        f"gather_indices ({row_slice})",
         logging.info,
     ):
         gather_indices = (  # argsort: what index should this row be sorted to?
@@ -84,7 +83,7 @@ def _sort_Tbar_argv(
         )
 
     with log_context_duration(
-        f".gather(gather_indices) ({slice_index + 1}/{num_slices})",
+        f".gather(gather_indices) ({row_slice})",
         logging.info,
     ):
         long_df = long_df.select(  # apply argsort
@@ -101,14 +100,13 @@ def _sort_Tbar_argv(
 
 def _sort_Tbar(
     long_df: pl.DataFrame,
-    num_slices: int,
-    slice_index: int,
+    row_slice: slice,
 ) -> pl.DataFrame:
     """Fallback chronological sort within dstream data id groups, when
     Tbar_argv is not available."""
     with log_context_duration(
         '.sort_by("dstream_Tbar").over(partition_by="dstream_data_id") '
-        f"({slice_index + 1}/{num_slices})",
+        f"({row_slice})",
         logging.info,
     ):
         long_df = long_df.select(
@@ -127,16 +125,14 @@ def _sort_Tbar(
 
 def _make_exploded_slice(
     df_slice: pl.DataFrame,
-    num_slices: int,
-    slice_index: int,
+    row_slice: slice,
 ) -> pl.DataFrame:
     """Explode dstream buffers to 1 differentia per row, calculating Tbar for
     each and ensuring strata are chronological within data id groups."""
 
     # explode dstream buffer to 1 differentia per row, calculating Tbar for each
     with log_context_duration(
-        "dstream.dataframe.explode_lookup_unpacked "
-        f"({slice_index + 1}/{num_slices})",
+        f"dstream.dataframe.explode_lookup_unpacked ({row_slice})",
         logging.info,
     ):
         long_df = dstream_dataframe.explode_lookup_unpacked(
@@ -150,11 +146,10 @@ def _make_exploded_slice(
         _sort_Tbar_argv,
     ]["dstream_Tbar_argv" in long_df.columns](
         long_df=long_df,
-        num_slices=num_slices,
-        slice_index=slice_index,
+        row_slice=row_slice,
     )
 
-    if slice_index == 0:
+    if row_slice.start == 0:
         render_polars_snapshot(long_df, "exploded", logging.info)
 
     return long_df
@@ -194,45 +189,28 @@ def _prepare_df_for_explosion(
 
 
 _pool_worker_df: typing.Optional[pl.DataFrame] = None
-_pool_worker_num_slices: typing.Optional[int] = None
 
 
 def _pool_worker_initializer(
-    df: typing.Union[pl.DataFrame, pl.LazyFrame],
-    exploded_slice_size: int,
+    lf: pl.LazyFrame,
 ) -> None:
-    """Pool worker initializer: prepare df once per worker.
-
-    Accepts a LazyFrame (cheap to pickle) and materialises it once.
-    """
-    global _pool_worker_df, _pool_worker_num_slices
-    _pool_worker_df, _pool_worker_num_slices = _prepare_df_for_explosion(
-        df, exploded_slice_size
-    )
+    """Pool worker initializer: collect scan_ipc LazyFrame once per worker."""
+    global _pool_worker_df
+    _pool_worker_df = lf.collect()
 
 
-def _explode_and_write_slice(
-    args: typing.Tuple[slice, int],
-) -> str:
+def _explode_and_write_slice(row_slice: slice) -> str:
     """Explode a single slice and write result to a temporary Arrow file.
 
     Receives a ``slice`` object as a lightweight task descriptor.  The
     prepared DataFrame is accessed via the module-level global set by
     ``_pool_worker_initializer``.
     """
-    row_slice, slice_index = args
-    logging.info(
-        f"- worker exploding slice {slice_index + 1}"
-        f" / {_pool_worker_num_slices}"
-    )
+    logging.info(f"- worker exploding {row_slice}")
     df_slice = _pool_worker_df[row_slice]
-    long_df = _make_exploded_slice(
-        df_slice=df_slice,
-        num_slices=_pool_worker_num_slices,
-        slice_index=slice_index,
-    )
+    long_df = _make_exploded_slice(df_slice=df_slice, row_slice=row_slice)
 
-    logging.info("- worker putting exploded data")
+    logging.info(f"- worker writing exploded data for {row_slice}")
     outpath = f"/tmp/{uuid.uuid4()}.arrow"  # nosec B108
     long_df.select(pl.all().shrink_dtype()).write_ipc(
         outpath, compression="uncompressed"
@@ -603,27 +581,27 @@ def _generate_exploded_slices_mp(
         mp_context = multiprocessing.get_context("spawn")
 
     logging.info(f"using multiprocessing pool with {mp_pool_size} workers")
-    # materialise to a temp Arrow file so that workers receive a scan_ipc
-    # LazyFrame (just a file path in the query plan) instead of pickling
-    # in-memory data
+    # prepare (unpack, sort, add row index) in the main process
+    df, num_slices = _prepare_df_for_explosion(df, exploded_slice_size)
+
+    # write prepared df to a temp Arrow file so workers receive a
+    # scan_ipc LazyFrame (just a file path) instead of pickled data
     df_path = f"/tmp/{uuid.uuid4()}_prepared.arrow"  # nosec B108
-    df.lazy().collect().write_ipc(df_path, compression="uncompressed")
+    df.write_ipc(df_path, compression="uncompressed")
+    del df
     lf = pl.scan_ipc(df_path)
 
     n = lf.select(pl.len()).collect().item()
     slices = [*iter_slices(n, exploded_slice_size)]
-    num_slices = len(slices)
-    tasks = [(s, i) for i, s in enumerate(slices)]
 
-    # scan_ipc lazyframe is cheap to pickle — just a file path
     pool = mp_context.Pool(
         processes=mp_pool_size,
         initializer=_pool_worker_initializer,
-        initargs=(lf, exploded_slice_size),
+        initargs=(lf,),
     )
     try:
         yield give_len(
-            pool.imap(_explode_and_write_slice, tasks),
+            pool.imap(_explode_and_write_slice, slices),
             num_slices,
         )
     finally:
