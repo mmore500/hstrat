@@ -602,8 +602,14 @@ def _generate_exploded_slices_mp(
         mp_context = multiprocessing.get_context("spawn")
 
     logging.info(f"using multiprocessing pool with {mp_pool_size} workers")
-    # compute num_slices from the lazyframe before sending to workers
-    n = df.lazy().select(pl.len()).collect().item()
+    # materialise to a temp Arrow file so that workers receive a scan_ipc
+    # LazyFrame (just a file path in the query plan) instead of pickling
+    # in-memory data
+    df_path = f"/tmp/{uuid.uuid4()}_prepared.arrow"  # nosec B108
+    df.lazy().collect().write_ipc(df_path, compression="uncompressed")
+    lf = pl.scan_ipc(df_path)
+
+    n = lf.select(pl.len()).collect().item()
     num_slices = math.ceil(n / exploded_slice_size)
 
     def _slice_tasks():
@@ -612,11 +618,11 @@ def _generate_exploded_slices_mp(
             end = min(start + exploded_slice_size, n)
             yield (slice(start, end), i)
 
-    # lazyframe is cheap to pickle; each worker materialises it once
+    # scan_ipc lazyframe is cheap to pickle — just a file path
     pool = mp_context.Pool(
         processes=mp_pool_size,
         initializer=_pool_worker_initializer,
-        initargs=(df.lazy(), exploded_slice_size),
+        initargs=(lf, exploded_slice_size),
     )
     try:
         yield give_len(
@@ -626,6 +632,7 @@ def _generate_exploded_slices_mp(
     finally:
         pool.close()
         pool.join()
+        os.unlink(df_path)
 
 
 def surface_unpack_reconstruct(
