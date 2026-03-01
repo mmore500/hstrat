@@ -193,36 +193,44 @@ def _prepare_df_for_explosion(
 
 
 _pool_worker_df: typing.Optional[pl.DataFrame] = None
+_pool_worker_num_slices: typing.Optional[int] = None
 
 
-def _pool_worker_initializer(df_path: str) -> None:
-    """Pool worker initializer: read prepared df from Arrow file once."""
-    global _pool_worker_df
-    _pool_worker_df = pl.read_ipc(df_path, memory_map=False)
+def _pool_worker_initializer(
+    df: typing.Union[pl.DataFrame, pl.LazyFrame],
+    exploded_slice_size: int,
+) -> None:
+    """Pool worker initializer: prepare df once per worker.
+
+    Accepts a LazyFrame (cheap to pickle) and materialises it once.
+    """
+    global _pool_worker_df, _pool_worker_num_slices
+    _pool_worker_df, _pool_worker_num_slices = _prepare_df_for_explosion(
+        df, exploded_slice_size
+    )
 
 
 def _explode_and_write_slice(
-    args: typing.Tuple[slice, int, int],
+    args: typing.Tuple[slice, int],
 ) -> str:
     """Explode a single slice and write result to a temporary Arrow file.
 
-    Receives a ``slice`` object and metadata as a lightweight task
-    descriptor.  The prepared DataFrame is accessed via the module-level
-    global set by ``_pool_worker_initializer``, avoiding repeated
-    serialisation of the full frame.
+    Receives a ``slice`` object as a lightweight task descriptor.  The
+    prepared DataFrame is accessed via the module-level global set by
+    ``_pool_worker_initializer``.
     """
-    row_slice, num_slices, slice_index = args
-    logging.info(f"- worker exploding slice {slice_index + 1} / {num_slices}")
+    row_slice, slice_index = args
+    logging.info(
+        f"- worker exploding slice {slice_index + 1}"
+        f" / {_pool_worker_num_slices}"
+    )
     df_slice = _pool_worker_df[row_slice]
-    # apply explode transformation
     long_df = _make_exploded_slice(
         df_slice=df_slice,
-        num_slices=num_slices,
+        num_slices=_pool_worker_num_slices,
         slice_index=slice_index,
     )
 
-    # pass exploded data to consumer through queue via tmpfile
-    # (better performing for fast read than passing directly through queue)
     logging.info("- worker putting exploded data")
     outpath = f"/tmp/{uuid.uuid4()}.arrow"  # nosec B108
     long_df.select(pl.all().shrink_dtype()).write_ipc(
@@ -230,40 +238,6 @@ def _explode_and_write_slice(
     )
     del long_df  # clear memory
     return outpath
-
-
-def _produce_exploded_slices(
-    queue: multiprocessing.JoinableQueue,
-    df: typing.Union[pl.DataFrame, pl.LazyFrame],
-    exploded_slice_size: int,
-) -> None:
-    """Exploded DataFrame in chunks, passed to queue for consumption."""
-    df, num_slices = _prepare_df_for_explosion(df, exploded_slice_size)
-
-    for slice_idx, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
-        logging.info(
-            f"- worker exploding slice {slice_idx + 1} / {num_slices}"
-        )
-        long_df = _make_exploded_slice(
-            df_slice=df_slice,
-            num_slices=num_slices,
-            slice_index=slice_idx,
-        )
-
-        logging.info("- worker putting exploded data")
-        outpath = f"/tmp/{uuid.uuid4()}.arrow"  # nosec B108
-        long_df.select(pl.all().shrink_dtype()).write_ipc(
-            outpath, compression="uncompressed"
-        )
-        del long_df
-        queue.put(outpath)
-        logging.info("- worker waiting for consumption")
-        queue.join()  # wait for produced item to be consumed
-        logging.info("- worker wait complete")
-
-    logging.info("- worker putting sentinel value to signal completion")
-    queue.put(None)  # send sentinel value to signal completion
-    logging.info(" - worker complete")
 
 
 def _dump_records(records: Records) -> str:
@@ -615,6 +589,11 @@ def _generate_exploded_slices_mp(
 ) -> typing.Iterator[typing.Iterator[str]]:
     """Generator wrapping generation of exploded data frame slices via
     parallel multiprocess producer(s)."""
+    if mp_pool_size < 1:
+        raise NotImplementedError(
+            f"mp_pool_size must be >= 1, got {mp_pool_size}"
+        )
+
     try:  # RE https://docs.pola.rs/user-guide/misc/multiprocessing/
         logging.info(f"attempting to use multiprocessing {mp_context} context")
         mp_context = multiprocessing.get_context(mp_context)
@@ -622,67 +601,31 @@ def _generate_exploded_slices_mp(
         logging.info("attempting to use multiprocessing spawn context")
         mp_context = multiprocessing.get_context("spawn")
 
-    if mp_pool_size <= 1:
-        logging.info("creating work queue")
-        queue = mp_context.JoinableQueue()
+    logging.info(f"using multiprocessing pool with {mp_pool_size} workers")
+    # compute num_slices from the lazyframe before sending to workers
+    n = df.lazy().select(pl.len()).collect().item()
+    num_slices = math.ceil(n / exploded_slice_size)
 
-        logging.info("spawning exploded df worker")
-        producer = mp_context.Process(
-            target=_produce_exploded_slices,
-            args=(
-                queue,
-                df,
-                exploded_slice_size,
-            ),  # lazyframe is cheap to send
-        )
-        logging.info("starting exploded df worker")
-        producer.start()
+    def _slice_tasks():
+        for i in range(num_slices):
+            start = i * exploded_slice_size
+            end = min(start + exploded_slice_size, n)
+            yield (slice(start, end), i)
 
-        num_slices = (
-            df.lazy().select(pl.len()).collect().item()
-            + (exploded_slice_size - 1)
-        ) // exploded_slice_size
-
-        yield give_len(  # enable len() on generator for nice logging
-            # yield generated slices until sentinel value None is received,
-            # immediately marking items as consumed (`task_done`) to trigger
-            # the next item to be produced if queue has been emptied
-            iter(lambda: (queue.get(), queue.task_done())[0], None),
+    # lazyframe is cheap to pickle; each worker materialises it once
+    pool = mp_context.Pool(
+        processes=mp_pool_size,
+        initializer=_pool_worker_initializer,
+        initargs=(df.lazy(), exploded_slice_size),
+    )
+    try:
+        yield give_len(
+            pool.imap(_explode_and_write_slice, _slice_tasks()),
             num_slices,
         )
-
-        producer.join()  # wait for producer to finish (no effect, but good form)
-    else:
-        logging.info(f"using multiprocessing pool with {mp_pool_size} workers")
-        df, num_slices = _prepare_df_for_explosion(df, exploded_slice_size)
-
-        # write prepared df to temp file so workers can read it
-        # without pickling the dataframe through initargs
-        df_path = f"/tmp/{uuid.uuid4()}_prepared.arrow"  # nosec B108
-        df.write_ipc(df_path, compression="uncompressed")
-        n = len(df)
-        del df
-
-        def _slice_tasks():
-            for i in range(num_slices):
-                start = i * exploded_slice_size
-                end = min(start + exploded_slice_size, n)
-                yield (slice(start, end), num_slices, i)
-
-        pool = mp_context.Pool(
-            processes=mp_pool_size,
-            initializer=_pool_worker_initializer,
-            initargs=(df_path,),
-        )
-        try:
-            yield give_len(
-                pool.imap(_explode_and_write_slice, _slice_tasks()),
-                num_slices,
-            )
-        finally:
-            pool.close()
-            pool.join()
-            os.unlink(df_path)
+    finally:
+        pool.close()
+        pool.join()
 
 
 def surface_unpack_reconstruct(
