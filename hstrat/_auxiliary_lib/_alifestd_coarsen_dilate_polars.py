@@ -171,13 +171,15 @@ def alifestd_coarsen_dilate_polars(
     logging.info(
         "- alifestd_coarsen_dilate_polars: running coarsen dilate...",
     )
-    new_ancestor_ids, new_criterion_values, keep_mask = (
-        _alifestd_coarsen_dilate_impl(
-            ancestor_ids,
-            criterion_values,
-            is_leaf,
-            dilation,
-        )
+    (
+        new_ancestor_ids,
+        new_criterion_values,
+        keep_mask,
+    ) = _alifestd_coarsen_dilate_impl(
+        ancestor_ids,
+        criterion_values,
+        is_leaf,
+        dilation,
     )
 
     logging.info(

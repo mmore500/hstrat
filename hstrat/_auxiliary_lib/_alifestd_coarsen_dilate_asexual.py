@@ -181,13 +181,15 @@ def alifestd_coarsen_dilate_asexual(
     criterion_values = phylogeny_df[criterion].values.copy()
     is_leaf = phylogeny_df["is_leaf"].values
 
-    new_ancestor_ids, new_criterion_values, keep_mask = (
-        _alifestd_coarsen_dilate_impl(
-            ancestor_ids,
-            criterion_values,
-            is_leaf,
-            dilation,
-        )
+    (
+        new_ancestor_ids,
+        new_criterion_values,
+        keep_mask,
+    ) = _alifestd_coarsen_dilate_impl(
+        ancestor_ids,
+        criterion_values,
+        is_leaf,
+        dilation,
     )
 
     phylogeny_df["ancestor_id"] = new_ancestor_ids
