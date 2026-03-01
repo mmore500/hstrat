@@ -48,15 +48,12 @@ def _parse_newick_jit(
         (ids, ancestor_ids, label_starts, label_stops, bl_starts, bl_stops,
          bl_node_ids, num_nodes, num_bls).
     """
-    # estimate max node count: each '(' and ',' creates a node, plus the
-    # root; counting all occurrences (even inside quotes/comments) gives a
-    # safe upper bound that is much smaller than n
-    COMMA_ = np.uint8(ord(","))
-    LPAREN_ = np.uint8(ord("("))
-    max_nodes = 1  # root
-    for j in range(n):
-        max_nodes += chars[j] == COMMA_
-        max_nodes += chars[j] == LPAREN_
+    # estimate max node count using a translation table: each '(' and ','
+    # creates a node, plus the root
+    node_weight = np.zeros(256, dtype=np.int64)
+    node_weight[np.uint8(ord(","))] = 1
+    node_weight[np.uint8(ord("("))] = 1
+    max_nodes = 1 + np.sum(node_weight[chars])
 
     # pre-allocate arrays using heuristic size
     ids = np.empty(max_nodes, dtype=np.int64)
@@ -100,77 +97,20 @@ def _parse_newick_jit(
 
     cur = 0
     i = 0
-    parse_length, parse_label = False, False
+    parse_label = False
 
     while i < n:
         c = chars[i]
 
-        # end of newick string
-        if not parse_label and c == SEMI:
-            pass  # done
-
-        # go to new child: '('
-        elif not parse_label and c == LPAREN:
-            child_id = num_nodes
-            ids[child_id] = child_id
-            ancestor_ids[child_id] = cur
-            num_nodes += 1
-            cur = child_id
-
-        # go to parent: ')'
-        elif not parse_label and c == RPAREN:
-            cur = ancestor_ids[cur]
-
-        # go to new sibling: ','
-        elif not parse_label and c == COMMA:
-            parent = ancestor_ids[cur]
-            child_id = num_nodes
-            ids[child_id] = child_id
-            ancestor_ids[child_id] = parent
-            num_nodes += 1
-            cur = child_id
-            # skip spaces after comma
-            while i + 1 < n and chars[i + 1] == SPACE:
-                i += 1
-
-        # comment (square brackets)
-        elif not parse_label and c == LBRACKET:
-            count = 1
-            i += 1
-            while i < n and count > 0:
-                count += chars[i] == LBRACKET
-                count -= chars[i] == RBRACKET
-                i += 1
-            i -= 1  # will be incremented at end of loop
-
-        # edge length — record substring position for external conversion
-        elif not parse_label and c == COLON:
-            parse_length = True
-
-        elif parse_length:
-            ls_start = i
-            while i < n and not is_bl_term[chars[i]]:
-                i += 1
-            bl_starts[num_bls] = ls_start
-            bl_stops[num_bls] = i
-            bl_node_ids[num_bls] = cur
-            num_bls += 1
-            i -= 1  # will be incremented at end of loop
-            parse_length = False
-
-        # quoted label
-        elif not parse_label and c == SQUOTE:
-            parse_label = True
-
-        # label (quoted or unquoted)
-        else:
+        # label handling first, so other branches don't need parse_label
+        # guards; quoted labels consume characters until closing quote
+        if parse_label:
             lbl_start = i
-            while parse_label or (i < n and not is_lbl_term[chars[i]]):
+            while i < n:
                 if chars[i] == SQUOTE:
-                    parse_label = not parse_label
-                    if not parse_label:
-                        i += 1
-                        break
+                    parse_label = False
+                    i += 1
+                    break
                 i += 1
             label_starts[cur] = lbl_start
             label_stops[cur] = i
@@ -185,7 +125,69 @@ def _parse_newick_jit(
                 and chars[label_stops[cur] - 1] == SQUOTE
             ):
                 label_stops[cur] -= 1
-            parse_label = False
+            i -= 1  # will be incremented at end of loop
+
+        # go to new child: '(' — most frequent structural characters first
+        elif c == LPAREN:
+            child_id = num_nodes
+            ids[child_id] = child_id
+            ancestor_ids[child_id] = cur
+            num_nodes += 1
+            cur = child_id
+
+        # go to new sibling: ','
+        elif c == COMMA:
+            parent = ancestor_ids[cur]
+            child_id = num_nodes
+            ids[child_id] = child_id
+            ancestor_ids[child_id] = parent
+            num_nodes += 1
+            cur = child_id
+            # skip spaces after comma
+            while i + 1 < n and chars[i + 1] == SPACE:
+                i += 1
+
+        # go to parent: ')'
+        elif c == RPAREN:
+            cur = ancestor_ids[cur]
+
+        # edge length — parse immediately without re-entering loop
+        elif c == COLON:
+            i += 1
+            ls_start = i
+            while i < n and not is_bl_term[chars[i]]:
+                i += 1
+            bl_starts[num_bls] = ls_start
+            bl_stops[num_bls] = i
+            bl_node_ids[num_bls] = cur
+            num_bls += 1
+            i -= 1  # will be incremented at end of loop
+
+        # quoted label
+        elif c == SQUOTE:
+            parse_label = True
+
+        # comment (square brackets)
+        elif c == LBRACKET:
+            count = 1
+            i += 1
+            while i < n and count > 0:
+                count += chars[i] == LBRACKET
+                count -= chars[i] == RBRACKET
+                i += 1
+            i -= 1  # will be incremented at end of loop
+
+        # end of newick string
+        elif c == SEMI:
+            pass  # done
+
+        # unquoted label
+        else:
+            lbl_start = i
+            while i < n and not is_lbl_term[chars[i]]:
+                i += 1
+            label_starts[cur] = lbl_start
+            label_stops[cur] = i
             i -= 1  # will be incremented at end of loop
 
         i += 1
