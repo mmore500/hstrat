@@ -157,18 +157,18 @@ def _parse_newick_jit(
                 i += 1
             i -= 1  # will be incremented at end of loop
 
+        # end of newick string
+        elif c == SEMI:
+            pass
+
         # unquoted label
-        elif not is_lbl_term[c]:
+        else:
             lbl_start = i
             while i < n and not is_lbl_term[chars[i]]:
                 i += 1
             label_starts[cur] = lbl_start
             label_stops[cur] = i
             i -= 1  # will be incremented at end of loop
-
-        # end of newick string (semicolon)
-        else:
-            pass
 
         i += 1
 
