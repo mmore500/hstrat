@@ -280,6 +280,9 @@ def _extract_labels(
     return labels
 
 
+# Performance (as of 2026-03-01, 200k-node caterpillar tree, JIT-warmed):
+#   with branch lengths: hstrat ~1.5s vs treeswift ~1.2s (~1.3x)
+#   without branch lengths: hstrat ~0.7s vs treeswift ~0.5s (~1.4x)
 def alifestd_from_newick(
     newick: str,
     *,
@@ -292,10 +295,6 @@ def alifestd_from_newick(
     standard format with columns: id, ancestor_id, taxon_label,
     origin_time_delta, and branch_length. Optionally includes
     ancestor_list.
-
-    Benchmarks on a 200k-node caterpillar tree (JIT-warmed) show
-    deserialization ~2x slower than treeswift. At 200k nodes (with
-    branch lengths): ~2.4s vs treeswift ~1.3s.
 
     Parameters
     ----------

@@ -14,6 +14,7 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+# Performance: see _alifestd_from_newick.py for benchmark numbers.
 def alifestd_from_newick_polars(
     newick: str,
     *,
@@ -26,10 +27,6 @@ def alifestd_from_newick_polars(
     standard format with columns: id, ancestor_id, taxon_label,
     origin_time_delta, and branch_length. Optionally includes
     ancestor_list.
-
-    Benchmarks on a 200k-node caterpillar tree (JIT-warmed) show
-    deserialization ~2x slower than treeswift. At 200k nodes (with
-    branch lengths): ~2.4s vs treeswift ~1.3s.
 
     Parameters
     ----------
