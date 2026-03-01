@@ -551,18 +551,18 @@ def test_branch_length_dtype_int():
         "(ant:17,(bat:31,cow:22):7,dog:22);",
         branch_length_dtype=int,
     )
-    assert result["branch_length"].dtype == np.int64
+    assert result["branch_length"].dtype == pd.Int64Dtype()
     ant = result[result["taxon_label"] == "ant"]
     assert ant["branch_length"].iloc[0] == 17
-    # missing branch length should be -1
+    # missing branch length should be pd.NA (null)
     root = result[result["ancestor_id"] == result["id"]]
-    assert root["branch_length"].iloc[0] == -1
+    assert pd.isna(root["branch_length"].iloc[0])
 
 
 def test_branch_length_dtype_int_no_lengths():
     result = alifestd_from_newick("(A,B)C;", branch_length_dtype=int)
-    assert result["branch_length"].dtype == np.int64
-    assert (result["branch_length"] == -1).all()
+    assert result["branch_length"].dtype == pd.Int64Dtype()
+    assert result["branch_length"].isna().all()
 
 
 def test_star_tree():

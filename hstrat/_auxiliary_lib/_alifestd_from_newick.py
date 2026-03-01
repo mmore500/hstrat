@@ -174,7 +174,6 @@ def _parse_newick(
     newick: str,
     chars: np.ndarray,
     n: int,
-    branch_length_dtype: type = float,
 ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Parse newick string characters into parallel arrays.
 
@@ -182,7 +181,7 @@ def _parse_newick(
 
     Uses a two-phase approach: an inner numba JIT kernel handles structural
     parsing and records branch-length substring positions, then float
-    conversion is performed externally via Python's built-in ``float()``.
+    conversion is performed externally via numpy.
 
     Adapted from
     https://github.com/niemasd/TreeSwift/blob/v1.1.45/treeswift/Tree.py#L1439
@@ -195,15 +194,13 @@ def _parse_newick(
         Array of uint8 character codes for the newick string.
     n : int
         Length of chars array.
-    branch_length_dtype : type, default float
-        Numpy dtype for branch length values. Use ``int`` to parse branch
-        lengths as integers.
 
     Returns
     -------
     tuple of np.ndarray
         (ids, ancestor_ids, branch_lengths, has_branch_length,
-         label_start_stops) where label_start_stops has shape (num_nodes, 2)
+         label_start_stops) where branch_lengths is always float64 with NaN
+        for missing values, and label_start_stops has shape (num_nodes, 2)
         giving the start (inclusive) and stop (exclusive) index into `chars`
         for each node's label.
     """
@@ -232,19 +229,16 @@ def _parse_newick(
     ids = ids[:num_nodes]
     ancestor_ids = ancestor_ids[:num_nodes]
 
-    # branch lengths: batch-convert substrings via numpy
-    np_dtype = np.dtype(branch_length_dtype)
-    if np.issubdtype(np_dtype, np.integer):
-        branch_lengths = np.full(num_nodes, -1, dtype=np_dtype)
-    else:
-        branch_lengths = np.full(num_nodes, np.nan, dtype=np_dtype)
+    # branch lengths: batch-convert substrings via numpy (always float64
+    # internally; callers convert to the requested dtype with proper nulls)
+    branch_lengths = np.full(num_nodes, np.nan, dtype=np.float64)
     has_branch_length = np.zeros(num_nodes, dtype=np.int64)
     if num_bls:
         bl_strings = [
             newick[bl_starts[k] : bl_stops[k]] for k in range(num_bls)
         ]
         node_ids = bl_node_ids[:num_bls]
-        branch_lengths[node_ids] = np.array(bl_strings, dtype=np_dtype)
+        branch_lengths[node_ids] = np.array(bl_strings, dtype=np.float64)
         has_branch_length[node_ids] = 1
 
     # pack label start/stops into a 2D array
@@ -301,9 +295,9 @@ def alifestd_from_newick(
     newick : str
         A phylogeny in Newick format.
     branch_length_dtype : type, default float
-        Numpy dtype for branch length values. Use ``int`` to parse branch
-        lengths as integers. Missing branch lengths will be -1 for integer
-        dtypes or NaN for float dtypes.
+        Dtype for branch length values. Use ``int`` to get nullable integer
+        columns (``pd.Int64Dtype``). Missing branch lengths will be ``pd.NA``
+        for integer dtypes or ``NaN`` for float dtypes.
     create_ancestor_list : bool, default False
         If True, include an ``ancestor_list`` column in the result.
 
@@ -341,20 +335,30 @@ def alifestd_from_newick(
         branch_lengths,
         _,  # has_branch_length
         label_start_stops,
-    ) = _parse_newick(newick, chars, n, branch_length_dtype)
+    ) = _parse_newick(newick, chars, n)
 
     labels = _extract_labels(newick, chars, label_start_stops)
 
-    # build origin_time_delta: same as branch_length for nodes that have it
-    origin_time_deltas = branch_lengths.copy()
+    # convert branch lengths to requested dtype with proper null handling
+    np_dtype = np.dtype(branch_length_dtype)
+    if np.issubdtype(np_dtype, np.integer):
+        # use pandas nullable integer: NaN -> pd.NA
+        bl_series = pd.array(
+            np.where(np.isnan(branch_lengths), pd.NA, branch_lengths),
+            dtype=pd.Int64Dtype(),
+        )
+        otd_series = bl_series.copy()
+    else:
+        bl_series = branch_lengths
+        otd_series = branch_lengths.copy()
 
     phylogeny_df = pd.DataFrame(
         {
             "id": ids,
             "ancestor_id": ancestor_ids,
             "taxon_label": labels,
-            "origin_time_delta": origin_time_deltas,
-            "branch_length": branch_lengths,
+            "origin_time_delta": otd_series,
+            "branch_length": bl_series,
         },
     )
 

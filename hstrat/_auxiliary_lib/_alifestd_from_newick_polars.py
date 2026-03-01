@@ -33,9 +33,9 @@ def alifestd_from_newick_polars(
     newick : str
         A phylogeny in Newick format.
     branch_length_dtype : type, default float
-        Numpy dtype for branch length values. Use ``int`` to parse branch
-        lengths as integers. Missing branch lengths will be -1 for integer
-        dtypes or NaN for float dtypes.
+        Dtype for branch length values. Use ``int`` to get nullable integer
+        columns (``pl.Int64``). Missing branch lengths will be ``null`` for
+        integer dtypes or ``NaN`` for float dtypes.
     create_ancestor_list : bool, default False
         If True, include an ``ancestor_list`` column in the result.
 
@@ -73,18 +73,26 @@ def alifestd_from_newick_polars(
         branch_lengths,
         _,  # has_branch_length
         label_start_stops,
-    ) = _parse_newick(newick, chars, n, branch_length_dtype)
+    ) = _parse_newick(newick, chars, n)
 
     labels = _extract_labels(newick, chars, label_start_stops)
 
-    origin_time_deltas = branch_lengths.copy()
+    # convert branch lengths to requested dtype with proper null handling
+    np_dtype = np.dtype(branch_length_dtype)
+    if np.issubdtype(np_dtype, np.integer):
+        # NaN -> null, then cast to Int64
+        bl_series = pl.Series(branch_lengths).fill_nan(None).cast(pl.Int64)
+        otd_series = bl_series.clone()
+    else:
+        bl_series = pl.Series(branch_lengths)
+        otd_series = pl.Series(branch_lengths.copy())
 
     columns = {
         "id": pl.Series(ids, dtype=pl.Int64),
         "ancestor_id": pl.Series(ancestor_ids, dtype=pl.Int64),
         "taxon_label": pl.Series(labels.tolist(), dtype=pl.Utf8),
-        "origin_time_delta": pl.Series(origin_time_deltas),
-        "branch_length": pl.Series(branch_lengths),
+        "origin_time_delta": otd_series,
+        "branch_length": bl_series,
     }
 
     if create_ancestor_list:
