@@ -115,8 +115,8 @@ def _parse_newick_jit(
             count = 1
             i += 1
             while i < n and count > 0:
-                count += (chars[i] == LBRACKET)
-                count -= (chars[i] == RBRACKET)
+                count += chars[i] == LBRACKET
+                count -= chars[i] == RBRACKET
                 i += 1
             i -= 1  # will be incremented at end of loop
 
@@ -142,9 +142,7 @@ def _parse_newick_jit(
         # label (quoted or unquoted)
         else:
             lbl_start = i
-            while parse_label or (
-                i < n and not is_lbl_term[chars[i]]
-            ):
+            while parse_label or (i < n and not is_lbl_term[chars[i]]):
                 if chars[i] == SQUOTE:
                     parse_label = not parse_label
                     if not parse_label:
@@ -219,9 +217,15 @@ def _parse_newick(
     bl_node_ids = np.empty(n, dtype=np.int64)
 
     num_nodes, num_bls = _parse_newick_jit(
-        chars, n,
-        ids, ancestor_ids, label_starts, label_stops,
-        bl_starts, bl_stops, bl_node_ids,
+        chars,
+        n,
+        ids,
+        ancestor_ids,
+        label_starts,
+        label_stops,
+        bl_starts,
+        bl_stops,
+        bl_node_ids,
     )
 
     # trim to actual sizes
@@ -237,7 +241,7 @@ def _parse_newick(
     has_branch_length = np.zeros(num_nodes, dtype=np.int64)
     if num_bls:
         bl_strings = [
-            newick[bl_starts[k]:bl_stops[k]] for k in range(num_bls)
+            newick[bl_starts[k] : bl_stops[k]] for k in range(num_bls)
         ]
         node_ids = bl_node_ids[:num_bls]
         branch_lengths[node_ids] = np.array(bl_strings, dtype=np_dtype)
