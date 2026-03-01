@@ -200,9 +200,7 @@ def _explode_and_write_slice(
     Parameters are passed as a tuple for compatibility with Pool.imap.
     """
     df_slice, num_slices, slice_index = args
-    logging.info(
-        f"- worker exploding slice {slice_index + 1} / {num_slices}"
-    )
+    logging.info(f"- worker exploding slice {slice_index + 1} / {num_slices}")
     # apply explode transformation
     long_df = _make_exploded_slice(
         df_slice=df_slice,
@@ -606,7 +604,11 @@ def _generate_exploded_slices_mp(
         logging.info("spawning exploded df worker")
         producer = mp_context.Process(
             target=_produce_exploded_slices,
-            args=(queue, df, exploded_slice_size),  # lazyframe is cheap to send
+            args=(
+                queue,
+                df,
+                exploded_slice_size,
+            ),  # lazyframe is cheap to send
         )
         logging.info("starting exploded df worker")
         producer.start()
@@ -626,9 +628,7 @@ def _generate_exploded_slices_mp(
 
         producer.join()  # wait for producer to finish (no effect, but good form)
     else:
-        logging.info(
-            f"using multiprocessing pool with {mp_pool_size} workers"
-        )
+        logging.info(f"using multiprocessing pool with {mp_pool_size} workers")
         df, num_slices = _prepare_df_for_explosion(df, exploded_slice_size)
 
         def _slice_args():
