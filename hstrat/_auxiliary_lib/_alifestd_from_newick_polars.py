@@ -17,6 +17,7 @@ from ._log_context_duration import log_context_duration
 def alifestd_from_newick_polars(
     newick: str,
     *,
+    branch_length_dtype: type = float,
     create_ancestor_list: bool = False,
 ) -> pl.DataFrame:
     """Convert a Newick format string to a phylogeny dataframe.
@@ -34,6 +35,10 @@ def alifestd_from_newick_polars(
     ----------
     newick : str
         A phylogeny in Newick format.
+    branch_length_dtype : type, default float
+        Numpy dtype for branch length values. Use ``int`` to parse branch
+        lengths as integers. Missing branch lengths will be -1 for integer
+        dtypes or NaN for float dtypes.
     create_ancestor_list : bool, default False
         If True, include an ``ancestor_list`` column in the result.
 
@@ -71,7 +76,7 @@ def alifestd_from_newick_polars(
         branch_lengths,
         _,  # has_branch_length
         label_start_stops,
-    ) = _parse_newick(newick, chars, n)
+    ) = _parse_newick(newick, chars, n, branch_length_dtype)
 
     labels = _extract_labels(newick, chars, label_start_stops)
 
@@ -81,8 +86,8 @@ def alifestd_from_newick_polars(
         "id": pl.Series(ids, dtype=pl.Int64),
         "ancestor_id": pl.Series(ancestor_ids, dtype=pl.Int64),
         "taxon_label": pl.Series(labels.tolist(), dtype=pl.Utf8),
-        "origin_time_delta": pl.Series(origin_time_deltas, dtype=pl.Float64),
-        "branch_length": pl.Series(branch_lengths, dtype=pl.Float64),
+        "origin_time_delta": pl.Series(origin_time_deltas),
+        "branch_length": pl.Series(branch_lengths),
     }
 
     if create_ancestor_list:
@@ -161,6 +166,7 @@ if __name__ == "__main__":
         phylogeny_df = alifestd_from_newick_polars(newick_str)
 
     output_ext = os.path.splitext(args.output_file)[1]
+    output_kwargs = eval_kwargs(args.output_kwargs)
     dispatch_writer = {
         ".csv": pl.DataFrame.write_csv,
         ".fea": pl.DataFrame.write_ipc,
@@ -176,7 +182,7 @@ if __name__ == "__main__":
     dispatch_writer[output_ext](
         phylogeny_df,
         args.output_file,
-        **eval_kwargs(args.output_kwargs),
+        **output_kwargs,
     )
 
     logging.info("done!")

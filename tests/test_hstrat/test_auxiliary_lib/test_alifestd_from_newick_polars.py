@@ -220,18 +220,21 @@ def test_alifestd_asset_roundtrip(
     assert len(roots) == 1
 
     if taxon_label == "id":
-        # extract columns from polars result
-        r_ids = reconstructed["id"].to_list()
-        r_ancestor_ids = reconstructed["ancestor_id"].to_list()
-        r_labels = reconstructed["taxon_label"].to_list()
-        id_to_label = dict(zip(r_ids, r_labels))
+        # compare edges using polars column extraction
+        id_to_label = dict(
+            zip(
+                reconstructed["id"].to_list(),
+                reconstructed["taxon_label"].to_list(),
+            )
+        )
         reconstructed_edges = set()
-        for rid, raid, label in zip(r_ids, r_ancestor_ids, r_labels):
-            if rid != raid:
-                parent_label = id_to_label[raid]
-                reconstructed_edges.add((int(label), int(parent_label)))
-            else:
-                reconstructed_edges.add((int(label), int(label)))
+        for rid, raid in zip(
+            reconstructed["id"].to_list(),
+            reconstructed["ancestor_id"].to_list(),
+        ):
+            label = id_to_label[rid]
+            parent_label = id_to_label[raid]
+            reconstructed_edges.add((int(label), int(parent_label)))
 
         original_edges = set()
         for _, row in phylogeny_df.iterrows():

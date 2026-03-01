@@ -36,37 +36,48 @@ def _parse_newick_jit(
 
     Implementation detail for `_parse_newick`.
 
+    Adapted from
+    https://github.com/niemasd/TreeSwift/blob/v1.1.45/treeswift/Tree.py#L1439
+
     Returns
     -------
     tuple of int
         (num_nodes, num_bls) counts of nodes and branch lengths found.
     """
     # character codes
-    LPAREN = np.uint8(40)  # '('
-    RPAREN = np.uint8(41)  # ')'
-    COMMA = np.uint8(44)  # ','
-    COLON = np.uint8(58)  # ':'
-    SEMI = np.uint8(59)  # ';'
-    SQUOTE = np.uint8(39)  # "'"
-    SPACE = np.uint8(32)  # ' '
-    LBRACKET = np.uint8(91)  # '['
-    RBRACKET = np.uint8(93)  # ']'
+    LPAREN = np.uint8(ord("("))
+    RPAREN = np.uint8(ord(")"))
+    COMMA = np.uint8(ord(","))
+    COLON = np.uint8(ord(":"))
+    SEMI = np.uint8(ord(";"))
+    SQUOTE = np.uint8(ord("'"))
+    SPACE = np.uint8(ord(" "))
+    LBRACKET = np.uint8(ord("["))
+    RBRACKET = np.uint8(ord("]"))
 
-    num_nodes = 0
+    # translation tables for delimiter detection
+    is_bl_term = np.zeros(256, dtype=np.uint8)
+    is_bl_term[COMMA] = 1
+    is_bl_term[RPAREN] = 1
+    is_bl_term[SEMI] = 1
+    is_bl_term[LBRACKET] = 1
+
+    is_lbl_term = np.zeros(256, dtype=np.uint8)
+    is_lbl_term[COLON] = 1
+    is_lbl_term[COMMA] = 1
+    is_lbl_term[SEMI] = 1
+    is_lbl_term[RPAREN] = 1
+    is_lbl_term[LBRACKET] = 1
+
+    # create root node (id 0)
+    ids[0] = 0
+    ancestor_ids[0] = 0  # root is its own ancestor
+    num_nodes = 1
     num_bls = 0
 
-    # create root node
-    root_id = num_nodes
-    ids[root_id] = root_id
-    ancestor_ids[root_id] = root_id  # root is its own ancestor
-    label_starts[root_id] = 0
-    label_stops[root_id] = 0
-    num_nodes += 1
-
-    cur = root_id
+    cur = 0
     i = 0
-    parse_length = False
-    parse_label = False
+    parse_length, parse_label = False, False
 
     while i < n:
         c = chars[i]
@@ -80,8 +91,6 @@ def _parse_newick_jit(
             child_id = num_nodes
             ids[child_id] = child_id
             ancestor_ids[child_id] = cur
-            label_starts[child_id] = 0
-            label_stops[child_id] = 0
             num_nodes += 1
             cur = child_id
 
@@ -95,8 +104,6 @@ def _parse_newick_jit(
             child_id = num_nodes
             ids[child_id] = child_id
             ancestor_ids[child_id] = parent
-            label_starts[child_id] = 0
-            label_stops[child_id] = 0
             num_nodes += 1
             cur = child_id
             # skip spaces after comma
@@ -108,10 +115,8 @@ def _parse_newick_jit(
             count = 1
             i += 1
             while i < n and count > 0:
-                if chars[i] == LBRACKET:
-                    count += 1
-                elif chars[i] == RBRACKET:
-                    count -= 1
+                count += (chars[i] == LBRACKET)
+                count -= (chars[i] == RBRACKET)
                 i += 1
             i -= 1  # will be incremented at end of loop
 
@@ -121,13 +126,7 @@ def _parse_newick_jit(
 
         elif parse_length:
             ls_start = i
-            while (
-                i < n
-                and chars[i] != COMMA
-                and chars[i] != RPAREN
-                and chars[i] != SEMI
-                and chars[i] != LBRACKET
-            ):
+            while i < n and not is_bl_term[chars[i]]:
                 i += 1
             bl_starts[num_bls] = ls_start
             bl_stops[num_bls] = i
@@ -144,12 +143,7 @@ def _parse_newick_jit(
         else:
             lbl_start = i
             while parse_label or (
-                i < n
-                and chars[i] != COLON
-                and chars[i] != COMMA
-                and chars[i] != SEMI
-                and chars[i] != RPAREN
-                and chars[i] != LBRACKET
+                i < n and not is_lbl_term[chars[i]]
             ):
                 if chars[i] == SQUOTE:
                     parse_label = not parse_label
@@ -182,6 +176,7 @@ def _parse_newick(
     newick: str,
     chars: np.ndarray,
     n: int,
+    branch_length_dtype: type = float,
 ) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Parse newick string characters into parallel arrays.
 
@@ -202,6 +197,9 @@ def _parse_newick(
         Array of uint8 character codes for the newick string.
     n : int
         Length of chars array.
+    branch_length_dtype : type, default float
+        Numpy dtype for branch length values. Use ``int`` to parse branch
+        lengths as integers.
 
     Returns
     -------
@@ -214,8 +212,8 @@ def _parse_newick(
     # pre-allocate arrays at maximum possible size
     ids = np.empty(n, dtype=np.int64)
     ancestor_ids = np.empty(n, dtype=np.int64)
-    label_starts = np.empty(n, dtype=np.int64)
-    label_stops = np.empty(n, dtype=np.int64)
+    label_starts = np.zeros(n, dtype=np.int64)
+    label_stops = np.zeros(n, dtype=np.int64)
     bl_starts = np.empty(n, dtype=np.int64)
     bl_stops = np.empty(n, dtype=np.int64)
     bl_node_ids = np.empty(n, dtype=np.int64)
@@ -230,14 +228,20 @@ def _parse_newick(
     ids = ids[:num_nodes]
     ancestor_ids = ancestor_ids[:num_nodes]
 
-    # branch lengths: batch-convert substrings via Python float()
-    branch_lengths = np.full(num_nodes, np.nan)
+    # branch lengths: batch-convert substrings via numpy
+    np_dtype = np.dtype(branch_length_dtype)
+    if np.issubdtype(np_dtype, np.integer):
+        branch_lengths = np.full(num_nodes, -1, dtype=np_dtype)
+    else:
+        branch_lengths = np.full(num_nodes, np.nan, dtype=np_dtype)
     has_branch_length = np.zeros(num_nodes, dtype=np.int64)
-    for k in range(num_bls):
-        branch_lengths[bl_node_ids[k]] = float(
-            newick[bl_starts[k]:bl_stops[k]]
-        )
-        has_branch_length[bl_node_ids[k]] = 1
+    if num_bls:
+        bl_strings = [
+            newick[bl_starts[k]:bl_stops[k]] for k in range(num_bls)
+        ]
+        node_ids = bl_node_ids[:num_bls]
+        branch_lengths[node_ids] = np.array(bl_strings, dtype=np_dtype)
+        has_branch_length[node_ids] = 1
 
     # pack label start/stops into a 2D array
     label_start_stops = np.column_stack(
@@ -268,17 +272,14 @@ def _extract_labels(
         if start == stop:
             labels[k] = ""
         else:
-            label = newick[start:stop]
-            # strip enclosing quotes if present
-            if len(label) >= 2 and label[0] == "'" and label[-1] == "'":
-                label = label[1:-1]
-            labels[k] = label
+            labels[k] = newick[start:stop].strip("'")
     return labels
 
 
 def alifestd_from_newick(
     newick: str,
     *,
+    branch_length_dtype: type = float,
     create_ancestor_list: bool = False,
 ) -> pd.DataFrame:
     """Convert a Newick format string to a phylogeny dataframe.
@@ -296,6 +297,10 @@ def alifestd_from_newick(
     ----------
     newick : str
         A phylogeny in Newick format.
+    branch_length_dtype : type, default float
+        Numpy dtype for branch length values. Use ``int`` to parse branch
+        lengths as integers. Missing branch lengths will be -1 for integer
+        dtypes or NaN for float dtypes.
     create_ancestor_list : bool, default False
         If True, include an ``ancestor_list`` column in the result.
 
@@ -333,7 +338,7 @@ def alifestd_from_newick(
         branch_lengths,
         _,  # has_branch_length
         label_start_stops,
-    ) = _parse_newick(newick, chars, n)
+    ) = _parse_newick(newick, chars, n, branch_length_dtype)
 
     labels = _extract_labels(newick, chars, label_start_stops)
 
@@ -430,32 +435,33 @@ if __name__ == "__main__":
         phylogeny_df = alifestd_from_newick(newick_str)
 
     output_ext = os.path.splitext(args.output_file)[1]
-    dispatch_writer = {
-        "pandas+.csv": pd.DataFrame.to_csv,
-        "pandas+.fea": pd.DataFrame.to_feather,
-        "pandas+.feather": pd.DataFrame.to_feather,
-        "pandas+.pqt": pd.DataFrame.to_parquet,
-        "pandas+.parquet": pd.DataFrame.to_parquet,
-    }
+    output_kwargs = eval_kwargs(args.output_kwargs)
 
     logging.info(
         f"writing alife-standard {output_ext} phylogeny data to "
         f"{args.output_file}...",
     )
-    output_kwargs = eval_kwargs(args.output_kwargs)
     if args.output_engine == "polars":
         phylogeny_df = pl.from_pandas(phylogeny_df)
         dispatch_writer = {
-            "polars+.csv": pl.DataFrame.write_csv,
-            "polars+.fea": pl.DataFrame.write_ipc,
-            "polars+.feather": pl.DataFrame.write_ipc,
-            "polars+.pqt": pl.DataFrame.write_parquet,
-            "polars+.parquet": pl.DataFrame.write_parquet,
+            ".csv": pl.DataFrame.write_csv,
+            ".fea": pl.DataFrame.write_ipc,
+            ".feather": pl.DataFrame.write_ipc,
+            ".pqt": pl.DataFrame.write_parquet,
+            ".parquet": pl.DataFrame.write_parquet,
         }
-    elif output_ext == ".csv":
-        output_kwargs.setdefault("index", False)
+    else:
+        if output_ext == ".csv":
+            output_kwargs.setdefault("index", False)
+        dispatch_writer = {
+            ".csv": pd.DataFrame.to_csv,
+            ".fea": pd.DataFrame.to_feather,
+            ".feather": pd.DataFrame.to_feather,
+            ".pqt": pd.DataFrame.to_parquet,
+            ".parquet": pd.DataFrame.to_parquet,
+        }
 
-    dispatch_writer[f"{args.output_engine}+{output_ext}"](
+    dispatch_writer[output_ext](
         phylogeny_df,
         args.output_file,
         **output_kwargs,
