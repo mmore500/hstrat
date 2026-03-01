@@ -78,6 +78,21 @@ def test_parser_no_prefix_matching_drop():
     assert "awoo" in remaining
 
 
+@pytest.mark.parametrize("mp_pool_size", [1, 2])
+def test_mp_pool_size(mp_pool_size: int):
+    df = pl.read_csv(f"{assets_path}/packed.csv")
+    res = surface_unpack_reconstruct(df, mp_pool_size=mp_pool_size)
+    assert len(res) > len(df)
+    assert alifestd_validate(
+        alifestd_try_add_ancestor_list_col(res.to_pandas()),
+    )
+    assert alifestd_is_chronologically_ordered(
+        alifestd_try_add_ancestor_list_col(
+            res.with_columns(origin_time=pl.col("dstream_rank")).to_pandas(),
+        ),
+    )
+
+
 def test_drop_dstream_metadata_false():
     """Passing drop_dstream_metadata=False should retain dstream columns."""
     df = pl.read_csv(f"{assets_path}/packed.csv")
