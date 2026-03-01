@@ -6,7 +6,6 @@ import typing
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
-import numpy as np
 import polars as pl
 
 from ._add_bool_arg import add_bool_arg
