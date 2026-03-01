@@ -17,6 +17,7 @@ from .._auxiliary_lib import (
     alifestd_make_empty,
     get_sole_scalar_value_polars,
     give_len,
+    iter_slices,
     log_context_duration,
     log_memory_usage,
     render_polars_snapshot,
@@ -610,13 +611,9 @@ def _generate_exploded_slices_mp(
     lf = pl.scan_ipc(df_path)
 
     n = lf.select(pl.len()).collect().item()
-    num_slices = math.ceil(n / exploded_slice_size)
-
-    def _slice_tasks():
-        for i in range(num_slices):
-            start = i * exploded_slice_size
-            end = min(start + exploded_slice_size, n)
-            yield (slice(start, end), i)
+    slices = [*iter_slices(n, exploded_slice_size)]
+    num_slices = len(slices)
+    tasks = [(s, i) for i, s in enumerate(slices)]
 
     # scan_ipc lazyframe is cheap to pickle — just a file path
     pool = mp_context.Pool(
@@ -626,7 +623,7 @@ def _generate_exploded_slices_mp(
     )
     try:
         yield give_len(
-            pool.imap(_explode_and_write_slice, _slice_tasks()),
+            pool.imap(_explode_and_write_slice, tasks),
             num_slices,
         )
     finally:
