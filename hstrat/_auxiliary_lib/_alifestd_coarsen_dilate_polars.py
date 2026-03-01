@@ -35,7 +35,7 @@ def alifestd_coarsen_dilate_polars(
     phylogeny_df: typing.Union[pl.DataFrame, pl.LazyFrame],
     *,
     criterion: str = "origin_time",
-    dilation: int,
+    dilation: int = 1,
 ) -> pl.DataFrame:
     """Coarsen a phylogeny by collapsing inner nodes within dilation windows.
 
