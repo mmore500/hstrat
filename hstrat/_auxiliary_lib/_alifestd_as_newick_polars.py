@@ -29,7 +29,7 @@ from ._log_context_duration import log_context_duration
 
 
 # Performance (as of 2026-03-01, 200k-node caterpillar tree):
-#   hstrat ~10s vs dendropy ~0.6s vs treeswift ~5s
+#   hstrat ~10s vs treeswift ~5s
 def alifestd_as_newick_polars(
     phylogeny_df: pl.DataFrame,
     *,

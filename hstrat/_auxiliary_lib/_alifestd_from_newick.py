@@ -97,38 +97,12 @@ def _parse_newick_jit(
 
     cur = 0
     i = 0
-    parse_label = False
 
     while i < n:
         c = chars[i]
 
-        # label handling first, so other branches don't need parse_label
-        # guards; quoted labels consume characters until closing quote
-        if parse_label:
-            lbl_start = i
-            while i < n:
-                if chars[i] == SQUOTE:
-                    parse_label = False
-                    i += 1
-                    break
-                i += 1
-            label_starts[cur] = lbl_start
-            label_stops[cur] = i
-            # strip enclosing quotes from label range if present
-            if (
-                label_stops[cur] > label_starts[cur]
-                and chars[label_starts[cur]] == SQUOTE
-            ):
-                label_starts[cur] += 1
-            if (
-                label_stops[cur] > label_starts[cur]
-                and chars[label_stops[cur] - 1] == SQUOTE
-            ):
-                label_stops[cur] -= 1
-            i -= 1  # will be incremented at end of loop
-
         # go to new child: '(' — most frequent structural characters first
-        elif c == LPAREN:
+        if c == LPAREN:
             child_id = num_nodes
             ids[child_id] = child_id
             ancestor_ids[child_id] = cur
@@ -163,9 +137,15 @@ def _parse_newick_jit(
             num_bls += 1
             i -= 1  # will be incremented at end of loop
 
-        # quoted label
+        # quoted label — parse inline through closing quote
         elif c == SQUOTE:
-            parse_label = True
+            i += 1
+            lbl_start = i
+            while i < n and chars[i] != SQUOTE:
+                i += 1
+            label_starts[cur] = lbl_start
+            label_stops[cur] = i
+            # i now points at closing quote; will be incremented at end
 
         # comment (square brackets)
         elif c == LBRACKET:
@@ -182,13 +162,16 @@ def _parse_newick_jit(
             pass  # done
 
         # unquoted label
-        else:
+        elif not is_lbl_term[c]:
             lbl_start = i
             while i < n and not is_lbl_term[chars[i]]:
                 i += 1
             label_starts[cur] = lbl_start
             label_stops[cur] = i
             i -= 1  # will be incremented at end of loop
+
+        else:
+            assert False
 
         i += 1
 

@@ -70,7 +70,7 @@ def _build_newick_string(
 
 
 # Performance (as of 2026-03-01, 200k-node caterpillar tree):
-#   hstrat ~9s vs dendropy ~0.6s vs treeswift ~5s
+#   hstrat ~9s vs treeswift ~5s
 def alifestd_as_newick_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
