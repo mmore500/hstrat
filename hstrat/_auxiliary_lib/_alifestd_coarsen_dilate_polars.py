@@ -35,7 +35,7 @@ def alifestd_coarsen_dilate_polars(
     phylogeny_df: typing.Union[pl.DataFrame, pl.LazyFrame],
     *,
     criterion: str = "origin_time",
-    dilation: int,
+    dilation: int = 1,
 ) -> pl.DataFrame:
     """Coarsen a phylogeny by collapsing inner nodes within dilation windows.
 
@@ -245,9 +245,9 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--dilation",
-        required=True,
+        default=1,
         type=int,
-        help="Width of the dilation window.",
+        help="Width of the dilation window (default: 1).",
     )
     add_bool_arg(
         parser,

@@ -104,7 +104,7 @@ def alifestd_coarsen_dilate_asexual(
     phylogeny_df: pd.DataFrame,
     *,
     criterion: str = "origin_time",
-    dilation: int,
+    dilation: int = 1,
     mutate: bool = False,
 ) -> pd.DataFrame:
     """Coarsen a phylogeny by collapsing inner nodes within dilation windows.
@@ -254,9 +254,9 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--dilation",
-        required=True,
+        default=1,
         type=int,
-        help="Width of the dilation window.",
+        help="Width of the dilation window (default: 1).",
     )
     add_bool_arg(
         parser,
