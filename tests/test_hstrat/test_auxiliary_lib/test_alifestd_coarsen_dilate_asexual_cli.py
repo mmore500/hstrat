@@ -13,6 +13,8 @@ def test_alifestd_coarsen_dilate_asexual_cli_help():
             "python3",
             "-m",
             "hstrat._auxiliary_lib._alifestd_coarsen_dilate_asexual",
+            "--dilation",
+            "1",
             "--help",
         ],
         check=True,

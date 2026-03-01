@@ -244,8 +244,9 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--dilation",
+        required=True,
         type=int,
-        help="Width of the dilation window (required).",
+        help="Width of the dilation window.",
     )
     add_bool_arg(
         parser,
@@ -266,13 +267,7 @@ if __name__ == "__main__":
     begin_prod_logging()
 
     parser = _create_parser()
-    args, remaining = parser.parse_known_args()
-    if (
-        args.dilation is None
-        and "--help" not in remaining
-        and "--version" not in remaining
-    ):
-        parser.error("the following arguments are required: --dilation")
+    args, __ = parser.parse_known_args()
 
     try:
         with log_context_duration(

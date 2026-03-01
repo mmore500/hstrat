@@ -62,18 +62,18 @@ def _alifestd_coarsen_dilate_impl(
             ancestor_ids[idx] = representative[anc]
             continue
 
+        anc_rep = representative[anc]
+        if anc_rep == idx:
+            # Root node (self-referencing) — always keep, snap in place
+            new_criterion[idx] = (criterion_values[idx] // dilation) * dilation
+            ancestor_ids[idx] = idx
+            continue
+
         # Snap inner node criterion to floor boundary
         val = criterion_values[idx]
         # Use floor division for both int and float
         snapped = (val // dilation) * dilation
         new_criterion[idx] = snapped
-
-        anc_rep = representative[anc]
-
-        if anc_rep == idx:
-            # Root node (self-referencing) — always keep
-            ancestor_ids[idx] = idx
-            continue
 
         # Check if this inner node should merge with its ancestor's
         # representative: they merge when both are inner nodes that
@@ -252,8 +252,9 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--dilation",
+        required=True,
         type=int,
-        help="Width of the dilation window (required).",
+        help="Width of the dilation window.",
     )
     add_bool_arg(
         parser,
@@ -274,13 +275,7 @@ if __name__ == "__main__":
     begin_prod_logging()
 
     parser = _create_parser()
-    args, remaining = parser.parse_known_args()
-    if (
-        args.dilation is None
-        and "--help" not in remaining
-        and "--version" not in remaining
-    ):
-        parser.error("the following arguments are required: --dilation")
+    args, __ = parser.parse_known_args()
     with log_context_duration(
         "hstrat._auxiliary_lib._alifestd_coarsen_dilate_asexual",
         logging.info,
