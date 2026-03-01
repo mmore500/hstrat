@@ -234,6 +234,40 @@ def test_missing_criterion():
         )
 
 
+def test_criterion_id_rejected():
+    df = pl.DataFrame(
+        {
+            "id": [0],
+            "ancestor_id": [0],
+            "origin_time": [0],
+        }
+    )
+    with pytest.raises(ValueError, match="must not be"):
+        alifestd_coarsen_dilate_polars(
+            df,
+            dilation=2,
+            criterion="id",
+            ignore_topological_sensitivity=True,
+        )
+
+
+def test_criterion_ancestor_id_rejected():
+    df = pl.DataFrame(
+        {
+            "id": [0],
+            "ancestor_id": [0],
+            "origin_time": [0],
+        }
+    )
+    with pytest.raises(ValueError, match="must not be"):
+        alifestd_coarsen_dilate_polars(
+            df,
+            dilation=2,
+            criterion="ancestor_id",
+            ignore_topological_sensitivity=True,
+        )
+
+
 @pytest.mark.parametrize(
     "apply",
     [

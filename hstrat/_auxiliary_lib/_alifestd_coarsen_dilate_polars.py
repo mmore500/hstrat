@@ -10,13 +10,14 @@ import numpy as np
 import polars as pl
 
 from ._add_bool_arg import add_bool_arg
-from ._alifestd_coarsen_dilate_asexual import _coarsen_dilate_impl
+from ._alifestd_coarsen_dilate_asexual import _alifestd_coarsen_dilate_impl
 from ._alifestd_has_contiguous_ids_polars import (
     alifestd_has_contiguous_ids_polars,
 )
 from ._alifestd_is_topologically_sorted_polars import (
     alifestd_is_topologically_sorted_polars,
 )
+from ._alifestd_mark_leaves_polars import alifestd_mark_leaves_polars
 from ._alifestd_topological_sensitivity_warned_polars import (
     alifestd_topological_sensitivity_warned_polars,
 )
@@ -33,9 +34,9 @@ from ._log_context_duration import log_context_duration
 )
 def alifestd_coarsen_dilate_polars(
     phylogeny_df: typing.Union[pl.DataFrame, pl.LazyFrame],
-    dilation: int,
     *,
     criterion: str = "origin_time",
+    dilation: int,
 ) -> pl.DataFrame:
     """Coarsen a phylogeny by collapsing inner nodes within dilation windows.
 
@@ -51,10 +52,10 @@ def alifestd_coarsen_dilate_polars(
     ----------
     phylogeny_df : polars.DataFrame or polars.LazyFrame
         Input phylogeny in alife standard format.
-    dilation : int
-        Width of the dilation window.  Must be a positive integer.
     criterion : str, default "origin_time"
         Column whose values define the time axis for dilation.
+    dilation : int
+        Width of the dilation window.  Must be a positive integer.
 
     Returns
     -------
@@ -66,8 +67,9 @@ def alifestd_coarsen_dilate_polars(
     NotImplementedError
         If input is not topologically sorted with contiguous ids.
     ValueError
-        If *dilation* is not a positive integer or if *criterion* is not
-        present in *phylogeny_df*.
+        If *dilation* is not a positive integer, if *criterion* is not
+        present in *phylogeny_df*, or if *criterion* is ``"id"`` or
+        ``"ancestor_id"``.
 
     See Also
     --------
@@ -76,6 +78,11 @@ def alifestd_coarsen_dilate_polars(
     """
     if dilation <= 0:
         raise ValueError(f"dilation must be positive, got {dilation}")
+
+    if criterion in ("id", "ancestor_id"):
+        raise ValueError(
+            f"criterion must not be 'id' or 'ancestor_id', got {criterion!r}",
+        )
 
     logging.info(
         "- alifestd_coarsen_dilate_polars: collecting schema...",
@@ -93,7 +100,7 @@ def alifestd_coarsen_dilate_polars(
         )
 
     if "ancestor_id" not in schema_names:
-        raise NotImplementedError("ancestor_id column required")
+        raise ValueError("asexual phylogeny required")
 
     logging.info(
         "- alifestd_coarsen_dilate_polars: checking empty...",
@@ -150,22 +157,27 @@ def alifestd_coarsen_dilate_polars(
     )
 
     logging.info(
-        "- alifestd_coarsen_dilate_polars: computing leaf status...",
+        "- alifestd_coarsen_dilate_polars: marking leaves...",
     )
-    is_leaf = np.ones(len(ancestor_ids), dtype=np.bool_)
-    for idx in range(len(ancestor_ids)):
-        anc = ancestor_ids[idx]
-        if anc != idx and 0 <= anc < len(is_leaf):
-            is_leaf[anc] = False
+    phylogeny_df_with_leaves = alifestd_mark_leaves_polars(phylogeny_df)
+    is_leaf = (
+        phylogeny_df_with_leaves.lazy()
+        .select("is_leaf")
+        .collect()
+        .to_series()
+        .to_numpy()
+    )
 
     logging.info(
         "- alifestd_coarsen_dilate_polars: running coarsen dilate...",
     )
-    new_ancestor_ids, new_criterion_values, keep_mask = _coarsen_dilate_impl(
-        ancestor_ids,
-        criterion_values,
-        is_leaf,
-        dilation,
+    new_ancestor_ids, new_criterion_values, keep_mask = (
+        _alifestd_coarsen_dilate_impl(
+            ancestor_ids,
+            criterion_values,
+            is_leaf,
+            dilation,
+        )
     )
 
     logging.info(
@@ -225,27 +237,27 @@ def _create_parser() -> argparse.ArgumentParser:
         dfcli_version=get_hstrat_version(),
     )
     parser.add_argument(
-        "--dilation",
-        type=int,
-        help="Width of the dilation window (required).",
-    )
-    parser.add_argument(
         "--criterion",
         default="origin_time",
         type=str,
         help="Column whose values define the time axis (default: origin_time).",
     )
-    add_bool_arg(
-        parser,
-        "ignore-topological-sensitivity",
-        default=False,
-        help="suppress topological sensitivity warning (default: False)",
+    parser.add_argument(
+        "--dilation",
+        type=int,
+        help="Width of the dilation window (required).",
     )
     add_bool_arg(
         parser,
         "drop-topological-sensitivity",
         default=False,
         help="drop topology-sensitive columns from output (default: False)",
+    )
+    add_bool_arg(
+        parser,
+        "ignore-topological-sensitivity",
+        default=False,
+        help="suppress topological sensitivity warning (default: False)",
     )
     return parser
 
@@ -271,10 +283,10 @@ if __name__ == "__main__":
                 base_parser=parser,
                 output_dataframe_op=functools.partial(
                     alifestd_coarsen_dilate_polars,
-                    dilation=args.dilation,
                     criterion=args.criterion,
-                    ignore_topological_sensitivity=args.ignore_topological_sensitivity,
+                    dilation=args.dilation,
                     drop_topological_sensitivity=args.drop_topological_sensitivity,
+                    ignore_topological_sensitivity=args.ignore_topological_sensitivity,
                 ),
             )
     except NotImplementedError as e:
