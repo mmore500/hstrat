@@ -157,12 +157,8 @@ def _make_exploded_slice(
 
 def _prepare_df_for_explosion(
     df: typing.Union[pl.DataFrame, pl.LazyFrame],
-    exploded_slice_size: int,
-) -> typing.Tuple[pl.DataFrame, int]:
-    """Unpack, sort, and prepare DataFrame for slice-wise explosion.
-
-    Returns prepared DataFrame and the number of slices.
-    """
+) -> pl.DataFrame:
+    """Unpack, sort, and prepare DataFrame for slice-wise explosion."""
     with log_context_duration(
         "dstream.dataframe.unpack_data_packed", logging.info
     ):
@@ -182,32 +178,29 @@ def _prepare_df_for_explosion(
         # ensure chunking doesn't affect data ids
         df = df.with_row_index("dstream_data_id")
 
-    num_slices = math.ceil(len(df) / exploded_slice_size)
-    logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
-
-    return df, num_slices
+    return df
 
 
-_pool_worker_df: typing.Optional[pl.DataFrame] = None
+_pool_worker_lf: typing.Optional[pl.LazyFrame] = None
 
 
-def _pool_worker_initializer(
-    lf: pl.LazyFrame,
-) -> None:
-    """Pool worker initializer: collect scan_ipc LazyFrame once per worker."""
-    global _pool_worker_df
-    _pool_worker_df = lf.collect()
+def _pool_worker_initializer(lf: pl.LazyFrame) -> None:
+    """Pool worker initializer: stash scan_ipc LazyFrame for on-demand use."""
+    global _pool_worker_lf
+    _pool_worker_lf = lf
 
 
 def _explode_and_write_slice(row_slice: slice) -> str:
     """Explode a single slice and write result to a temporary Arrow file.
 
-    Receives a ``slice`` object as a lightweight task descriptor.  The
-    prepared DataFrame is accessed via the module-level global set by
-    ``_pool_worker_initializer``.
+    Receives a ``slice`` object as a lightweight task descriptor.
+    Only the rows needed for this slice are collected from the LazyFrame
+    stored by ``_pool_worker_initializer``.
     """
     logging.info(f"- worker exploding {row_slice}")
-    df_slice = _pool_worker_df[row_slice]
+    df_slice = _pool_worker_lf.slice(
+        row_slice.start, row_slice.stop - row_slice.start
+    ).collect()
     long_df = _make_exploded_slice(df_slice=df_slice, row_slice=row_slice)
 
     logging.info(f"- worker writing exploded data for {row_slice}")
@@ -582,17 +575,18 @@ def _generate_exploded_slices_mp(
 
     logging.info(f"using multiprocessing pool with {mp_pool_size} workers")
     # prepare (unpack, sort, add row index) in the main process
-    df, num_slices = _prepare_df_for_explosion(df, exploded_slice_size)
+    df = _prepare_df_for_explosion(df)
 
     # write prepared df to a temp Arrow file so workers receive a
     # scan_ipc LazyFrame (just a file path) instead of pickled data
     df_path = f"/tmp/{uuid.uuid4()}_prepared.arrow"  # nosec B108
     df.write_ipc(df_path, compression="uncompressed")
+    n = len(df)
     del df
     lf = pl.scan_ipc(df_path)
 
-    n = lf.select(pl.len()).collect().item()
     slices = [*iter_slices(n, exploded_slice_size)]
+    logging.info(f"{n=} {exploded_slice_size=} {len(slices)=}")
 
     pool = mp_context.Pool(
         processes=mp_pool_size,
@@ -602,7 +596,7 @@ def _generate_exploded_slices_mp(
     try:
         yield give_len(
             pool.imap(_explode_and_write_slice, slices),
-            num_slices,
+            len(slices),
         )
     finally:
         pool.close()
