@@ -159,12 +159,14 @@ def _make_exploded_slice(
     return long_df
 
 
-def _produce_exploded_slices(
-    queue: multiprocessing.JoinableQueue,
+def _prepare_df_for_explosion(
     df: typing.Union[pl.DataFrame, pl.LazyFrame],
     exploded_slice_size: int,
-) -> None:
-    """Exploded DataFrame in chunks, passed to queue for consumption."""
+) -> typing.Tuple[pl.DataFrame, int]:
+    """Unpack, sort, and prepare DataFrame for slice-wise explosion.
+
+    Returns prepared DataFrame and the number of slices.
+    """
     with log_context_duration(
         "dstream.dataframe.unpack_data_packed", logging.info
     ):
@@ -187,25 +189,50 @@ def _produce_exploded_slices(
     num_slices = math.ceil(len(df) / exploded_slice_size)
     logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
 
-    for slice_idx, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
-        logging.info(
-            f"- worker exploding slice {slice_idx + 1} / {num_slices}"
-        )
-        # apply explode transformation
-        long_df = _make_exploded_slice(
-            df_slice=df_slice,
-            num_slices=num_slices,
-            slice_index=slice_idx,
-        )
+    return df, num_slices
 
-        # pass exploded data to consumer through queue via tmpfile
-        # (better performing for fast read than passing directly through queue)
-        logging.info("- worker putting exploded data")
-        outpath = f"/tmp/{uuid.uuid4()}.arrow"  # nosec B108
-        long_df.select(pl.all().shrink_dtype()).write_ipc(
-            outpath, compression="uncompressed"
+
+def _explode_and_write_slice(
+    args: typing.Tuple[pl.DataFrame, int, int],
+) -> str:
+    """Explode a single slice and write result to a temporary Arrow file.
+
+    Parameters are passed as a tuple for compatibility with Pool.imap.
+    """
+    df_slice, num_slices, slice_index = args
+    logging.info(
+        f"- worker exploding slice {slice_index + 1} / {num_slices}"
+    )
+    # apply explode transformation
+    long_df = _make_exploded_slice(
+        df_slice=df_slice,
+        num_slices=num_slices,
+        slice_index=slice_index,
+    )
+
+    # pass exploded data to consumer through queue via tmpfile
+    # (better performing for fast read than passing directly through queue)
+    logging.info("- worker putting exploded data")
+    outpath = f"/tmp/{uuid.uuid4()}.arrow"  # nosec B108
+    long_df.select(pl.all().shrink_dtype()).write_ipc(
+        outpath, compression="uncompressed"
+    )
+    del long_df  # clear memory
+    return outpath
+
+
+def _produce_exploded_slices(
+    queue: multiprocessing.JoinableQueue,
+    df: typing.Union[pl.DataFrame, pl.LazyFrame],
+    exploded_slice_size: int,
+) -> None:
+    """Exploded DataFrame in chunks, passed to queue for consumption."""
+    df, num_slices = _prepare_df_for_explosion(df, exploded_slice_size)
+
+    for slice_idx, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
+        outpath = _explode_and_write_slice(
+            (df_slice, num_slices, slice_idx),
         )
-        del long_df  # clear memory
         queue.put(outpath)
         logging.info("- worker waiting for consumption")
         queue.join()  # wait for produced item to be consumed
@@ -561,9 +588,10 @@ def _generate_exploded_slices_mp(
     df: typing.Union[pl.LazyFrame, pl.DataFrame],
     exploded_slice_size: int,
     mp_context: str,
+    mp_pool_size: int = 1,
 ) -> typing.Iterator[typing.Iterator[str]]:
-    """Generator wrapping genreation of exploded data frame slices via
-    parallel multiprocess producer."""
+    """Generator wrapping generation of exploded data frame slices via
+    parallel multiprocess producer(s)."""
     try:  # RE https://docs.pola.rs/user-guide/misc/multiprocessing/
         logging.info(f"attempting to use multiprocessing {mp_context} context")
         mp_context = multiprocessing.get_context(mp_context)
@@ -571,30 +599,53 @@ def _generate_exploded_slices_mp(
         logging.info("attempting to use multiprocessing spawn context")
         mp_context = multiprocessing.get_context("spawn")
 
-    logging.info("creating work queue")
-    queue = mp_context.JoinableQueue()
+    if mp_pool_size <= 1:
+        logging.info("creating work queue")
+        queue = mp_context.JoinableQueue()
 
-    logging.info("spawning exploded df worker")
-    producer = mp_context.Process(
-        target=_produce_exploded_slices,
-        args=(queue, df, exploded_slice_size),  # lazyframe is cheap to send
-    )
-    logging.info("starting exploded df worker")
-    producer.start()
+        logging.info("spawning exploded df worker")
+        producer = mp_context.Process(
+            target=_produce_exploded_slices,
+            args=(queue, df, exploded_slice_size),  # lazyframe is cheap to send
+        )
+        logging.info("starting exploded df worker")
+        producer.start()
 
-    num_slices = (
-        df.lazy().select(pl.len()).collect().item() + (exploded_slice_size - 1)
-    ) // exploded_slice_size
+        num_slices = (
+            df.lazy().select(pl.len()).collect().item()
+            + (exploded_slice_size - 1)
+        ) // exploded_slice_size
 
-    yield give_len(  # enable len() on generator for nice logging
-        # yield generated slices until sentinel value None is received,
-        # immediately marking items as consumed (`task_done`) to trigger
-        # the next item to be produced if queue has been emptied
-        iter(lambda: (queue.get(), queue.task_done())[0], None),
-        num_slices,
-    )
+        yield give_len(  # enable len() on generator for nice logging
+            # yield generated slices until sentinel value None is received,
+            # immediately marking items as consumed (`task_done`) to trigger
+            # the next item to be produced if queue has been emptied
+            iter(lambda: (queue.get(), queue.task_done())[0], None),
+            num_slices,
+        )
 
-    producer.join()  # wait for producer to finish (no effect, but good form)
+        producer.join()  # wait for producer to finish (no effect, but good form)
+    else:
+        logging.info(
+            f"using multiprocessing pool with {mp_pool_size} workers"
+        )
+        df, num_slices = _prepare_df_for_explosion(df, exploded_slice_size)
+
+        def _slice_args():
+            for i, df_slice in enumerate(
+                df.iter_slices(exploded_slice_size),
+            ):
+                yield (df_slice, num_slices, i)
+
+        pool = mp_context.Pool(processes=mp_pool_size)
+        try:
+            yield give_len(
+                pool.imap(_explode_and_write_slice, _slice_args()),
+                num_slices,
+            )
+        finally:
+            pool.close()
+            pool.join()
 
 
 def surface_unpack_reconstruct(
@@ -606,6 +657,7 @@ def surface_unpack_reconstruct(
     drop_dstream_metadata: typing.Optional[bool] = None,
     exploded_slice_size: int = 1_000_000,
     mp_context: str = "spawn",
+    mp_pool_size: int = 1,
     pa_source_type: str = "memory_map",
 ) -> pl.DataFrame:
     """Unpack dstream buffer and counter from genome data and construct an
@@ -674,6 +726,13 @@ def surface_unpack_reconstruct(
 
     mp_context : str, default 'spawn'
         Multiprocessing context to use for parallel processing.
+
+    mp_pool_size : int, default 1
+        Number of worker processes for exploding slices in parallel.
+
+        When 1, a single producer process is used (original behavior).
+        When greater than 1, a multiprocessing pool is used with ordered
+        results via ``Pool.imap``.
 
     pa_source_type : str, default 'memory_map'
         PyArrow type to use for exploded chunks (i.e., "memory_map" or
@@ -751,7 +810,7 @@ def surface_unpack_reconstruct(
 
     logging.info("dispatching to surface_unpacked_reconstruct")
     with _generate_exploded_slices_mp(
-        df, exploded_slice_size, mp_context
+        df, exploded_slice_size, mp_context, mp_pool_size
     ) as slices:
         phylo_df = _surface_unpacked_reconstruct(
             slices,

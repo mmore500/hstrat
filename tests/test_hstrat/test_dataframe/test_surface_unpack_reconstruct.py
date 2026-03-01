@@ -30,6 +30,21 @@ def test_smoke(pa_source_type: str):
     )
 
 
+@pytest.mark.parametrize("mp_pool_size", [1, 2])
+def test_mp_pool_size(mp_pool_size: int):
+    df = pl.read_csv(f"{assets_path}/packed.csv")
+    res = surface_unpack_reconstruct(df, mp_pool_size=mp_pool_size)
+    assert len(res) > len(df)
+    assert alifestd_validate(
+        alifestd_try_add_ancestor_list_col(res.to_pandas()),
+    )
+    assert alifestd_is_chronologically_ordered(
+        alifestd_try_add_ancestor_list_col(
+            res.with_columns(origin_time=pl.col("dstream_rank")).to_pandas(),
+        ),
+    )
+
+
 def test_drop_dstream_metadata_default():
     """Default behavior (None) should drop dstream/downstream columns."""
     df = pl.read_csv(f"{assets_path}/packed.csv")

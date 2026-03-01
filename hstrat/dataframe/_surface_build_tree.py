@@ -16,6 +16,7 @@ def surface_build_tree(
     check_trie_invariant_after_collapse_unif: bool = False,
     exploded_slice_size: int = 1_000_000,
     mp_context: str = "spawn",
+    mp_pool_size: int = 1,
     pa_source_type: str = "memory_map",
     delete_trunk: bool = True,
     trie_postprocessor: typing.Callable = NopTriePostprocessor(),
@@ -77,6 +78,13 @@ def surface_build_tree(
 
     mp_context : str, default 'spawn'
         Multiprocessing context to use for parallel processing.
+
+    mp_pool_size : int, default 1
+        Number of worker processes for exploding slices in parallel.
+
+        When 1, a single producer process is used (original behavior).
+        When greater than 1, a multiprocessing pool is used with ordered
+        results via ``Pool.imap``.
 
     pa_source_type : str, default 'memory_map'
         PyArrow type to use for exploded chunks (i.e., "memory_map" or
@@ -140,6 +148,7 @@ def surface_build_tree(
         check_trie_invariant_after_collapse_unif=check_trie_invariant_after_collapse_unif,
         exploded_slice_size=exploded_slice_size,
         mp_context=mp_context,
+        mp_pool_size=mp_pool_size,
         pa_source_type=pa_source_type,
     )
 
