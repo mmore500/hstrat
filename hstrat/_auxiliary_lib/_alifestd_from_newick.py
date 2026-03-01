@@ -289,8 +289,8 @@ def _extract_labels(
 
 
 # Performance (as of 2026-03-01, 200k-node caterpillar tree, JIT-warmed):
-#   with branch lengths: hstrat ~1.5s vs treeswift ~1.2s (~1.3x)
-#   without branch lengths: hstrat ~0.7s vs treeswift ~0.5s (~1.4x)
+#   with branch lengths: hstrat ~0.9s vs treeswift ~1.1s (~0.8x)
+#   without branch lengths: hstrat ~0.6s vs treeswift ~1.0s (~0.7x)
 def alifestd_from_newick(
     newick: str,
     *,
