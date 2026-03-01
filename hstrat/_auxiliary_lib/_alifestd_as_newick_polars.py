@@ -28,6 +28,8 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+# Performance (as of 2026-03-01, 200k-node caterpillar tree):
+#   hstrat ~10s vs dendropy ~0.6s vs treeswift ~5s
 def alifestd_as_newick_polars(
     phylogeny_df: pl.DataFrame,
     *,
@@ -35,10 +37,6 @@ def alifestd_as_newick_polars(
     progress_wrap: typing.Callable = lambda x: x,
 ) -> str:
     """Convert phylogeny dataframe to Newick format.
-
-    Benchmarks on a 200k-node caterpillar tree show serialization
-    ~16x slower than dendropy and ~2x slower than treeswift. At 200k
-    nodes: ~10s vs dendropy ~0.6s vs treeswift ~5s.
 
     Parameters
     ----------

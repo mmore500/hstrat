@@ -132,6 +132,19 @@ def _create_parser() -> argparse.ArgumentParser:
         help="Path to write Alife standard dataframe output to.",
     )
     parser.add_argument(
+        "--branch-length-dtype",
+        type=str,
+        choices=["float", "int"],
+        default="float",
+        help="Dtype for branch length values. Defaults to 'float'.",
+    )
+    parser.add_argument(
+        "--create-ancestor-list",
+        action="store_true",
+        default=False,
+        help="Include an ancestor_list column in the output.",
+    )
+    parser.add_argument(
         "--output-kwarg",
         action="append",
         dest="output_kwargs",
@@ -154,6 +167,9 @@ def _create_parser() -> argparse.ArgumentParser:
     return parser
 
 
+_dtype_lookup = {"float": float, "int": int}
+
+
 if __name__ == "__main__":
     configure_prod_logging()
 
@@ -167,7 +183,11 @@ if __name__ == "__main__":
         "hstrat._auxiliary_lib.alifestd_from_newick_polars", logging.info
     ):
         logging.info("converting from Newick format...")
-        phylogeny_df = alifestd_from_newick_polars(newick_str)
+        phylogeny_df = alifestd_from_newick_polars(
+            newick_str,
+            branch_length_dtype=_dtype_lookup[args.branch_length_dtype],
+            create_ancestor_list=args.create_ancestor_list,
+        )
 
     output_ext = os.path.splitext(args.output_file)[1]
     output_kwargs = eval_kwargs(args.output_kwargs)

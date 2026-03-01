@@ -69,6 +69,8 @@ def _build_newick_string(
     return ";\n".join(map(mit.one, child_newick_reprs.values())) + ";"
 
 
+# Performance (as of 2026-03-01, 200k-node caterpillar tree):
+#   hstrat ~9s vs dendropy ~0.6s vs treeswift ~5s
 def alifestd_as_newick_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -77,10 +79,6 @@ def alifestd_as_newick_asexual(
     progress_wrap: typing.Callable = lambda x: x,
 ) -> str:
     """Convert phylogeny dataframe to Newick format.
-
-    Benchmarks on a 200k-node caterpillar tree show serialization
-    ~15x slower than dendropy and ~2x slower than treeswift. At 200k
-    nodes: ~9s vs dendropy ~0.6s vs treeswift ~5s.
 
     Parameters
     ----------

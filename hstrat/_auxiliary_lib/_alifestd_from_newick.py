@@ -222,8 +222,9 @@ def _parse_newick(
     -------
     tuple of np.ndarray
         (ids, ancestor_ids, branch_lengths, label_start_stops) where
-        branch_lengths is always float64 with NaN for missing values, and
-        label_start_stops has shape (num_nodes, 2) giving the start
+        branch_lengths is float64 with NaN for missing values (callers
+        should convert to the user-requested dtype, e.g. nullable int),
+        and label_start_stops has shape (num_nodes, 2) giving the start
         (inclusive) and stop (exclusive) index into `chars` for each
         node's label.
     """
@@ -414,6 +415,19 @@ def _create_parser() -> argparse.ArgumentParser:
         help="DataFrame engine to use for writing the output file. Defaults to 'pandas'.",
     )
     parser.add_argument(
+        "--branch-length-dtype",
+        type=str,
+        choices=["float", "int"],
+        default="float",
+        help="Dtype for branch length values. Defaults to 'float'.",
+    )
+    parser.add_argument(
+        "--create-ancestor-list",
+        action="store_true",
+        default=False,
+        help="Include an ancestor_list column in the output.",
+    )
+    parser.add_argument(
         "--output-kwarg",
         action="append",
         dest="output_kwargs",
@@ -436,6 +450,9 @@ def _create_parser() -> argparse.ArgumentParser:
     return parser
 
 
+_dtype_lookup = {"float": float, "int": int}
+
+
 if __name__ == "__main__":
     configure_prod_logging()
 
@@ -449,7 +466,11 @@ if __name__ == "__main__":
         "hstrat._auxiliary_lib.alifestd_from_newick", logging.info
     ):
         logging.info("converting from Newick format...")
-        phylogeny_df = alifestd_from_newick(newick_str)
+        phylogeny_df = alifestd_from_newick(
+            newick_str,
+            branch_length_dtype=_dtype_lookup[args.branch_length_dtype],
+            create_ancestor_list=args.create_ancestor_list,
+        )
 
     output_ext = os.path.splitext(args.output_file)[1]
     output_kwargs = eval_kwargs(args.output_kwargs)
@@ -467,7 +488,7 @@ if __name__ == "__main__":
             ".pqt": pl.DataFrame.write_parquet,
             ".parquet": pl.DataFrame.write_parquet,
         }
-    else:
+    elif args.output_engine == "pandas":
         if output_ext == ".csv":
             output_kwargs.setdefault("index", False)
         dispatch_writer = {
@@ -477,6 +498,8 @@ if __name__ == "__main__":
             ".pqt": pd.DataFrame.to_parquet,
             ".parquet": pd.DataFrame.to_parquet,
         }
+    else:
+        raise ValueError(f"unsupported output engine: {args.output_engine!r}")
 
     dispatch_writer[output_ext](
         phylogeny_df,
