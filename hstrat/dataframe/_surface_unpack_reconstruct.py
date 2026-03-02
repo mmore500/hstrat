@@ -2,7 +2,6 @@ import contextlib
 import logging
 import math
 import multiprocessing
-import os
 import pathlib
 import typing
 import uuid
@@ -384,7 +383,7 @@ def _build_records_chunked(
                 )
 
         logging.info(f"unlinking slice {i + 1} / {len(slices)}...")
-        os.unlink(inpath)
+        pathlib.Path(inpath).unlink(missing_ok=True)
 
         if (
             check_trie_invariant_freq > 0
@@ -585,28 +584,30 @@ def _generate_exploded_slices_mp(
     df.write_ipc(df_path, compression="uncompressed")
     del df
 
-    logging.info(f"scanning {df_path}")
-    lf = pl.scan_ipc(df_path)
+    try:
+        logging.info(f"scanning {df_path}")
+        lf = pl.scan_ipc(df_path)
 
-    slices = [*iter_slices(nrows_log, exploded_slice_size)]
-    nslices_log = len(slices)
-    logging.info(
-        f"{nrows_log=} {exploded_slice_size=} {nslices_log=}",
-    )
-
-    logging.info(
-        f"creating multiprocessing pool with {mp_pool_size} workers",
-    )
-    with mp_context.Pool(
-        processes=mp_pool_size,
-        initializer=_pool_worker_initializer,
-        initargs=(lf,),
-    ) as pool:
-        yield give_len(
-            pool.imap(_explode_and_write_slice, slices),
-            nslices_log,
+        slices = [*iter_slices(nrows_log, exploded_slice_size)]
+        nslices_log = len(slices)
+        logging.info(
+            f"{nrows_log=} {exploded_slice_size=} {nslices_log=}",
         )
-    os.unlink(df_path)
+
+        logging.info(
+            f"creating multiprocessing pool with {mp_pool_size} workers",
+        )
+        with mp_context.Pool(
+            processes=mp_pool_size,
+            initializer=_pool_worker_initializer,
+            initargs=(lf,),
+        ) as pool:
+            yield give_len(
+                pool.imap(_explode_and_write_slice, slices),
+                nslices_log,
+            )
+    finally:
+        pathlib.Path(df_path).unlink(missing_ok=True)
 
 
 def surface_unpack_reconstruct(
