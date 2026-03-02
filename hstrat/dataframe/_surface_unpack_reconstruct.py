@@ -180,26 +180,15 @@ def _prepare_df_for_explosion(
     return df
 
 
-_pool_worker_lf: typing.Optional[pl.LazyFrame] = None
-
-
-def _pool_worker_initializer(lf: pl.LazyFrame) -> None:
-    """Pool worker initializer: stash scan_ipc LazyFrame for on-demand use."""
-    global _pool_worker_lf
-    _pool_worker_lf = lf
-
-
-def _explode_and_write_slice(row_slice: slice) -> str:
+def _explode_and_write_slice(args: typing.Tuple[pl.LazyFrame, slice]) -> str:
     """Explode a single slice and write result to a temporary Arrow file.
 
-    Receives a ``slice`` object as a lightweight task descriptor.
-    Only the rows needed for this slice are collected from the LazyFrame
-    stored by ``_pool_worker_initializer``.
+    Receives a ``(LazyFrame, slice)`` tuple as a lightweight task descriptor.
+    Only the rows needed for this slice are collected from the LazyFrame.
     """
+    lf, row_slice = args
     logging.info(f"- worker collecting {row_slice}")
-    df_slice = _pool_worker_lf.slice(
-        row_slice.start, row_slice.stop - row_slice.start
-    ).collect()
+    df_slice = lf[row_slice].collect()
     logging.info(f"- worker exploding {row_slice}")
     long_df = _make_exploded_slice(df_slice=df_slice, row_slice_log=row_slice)
 
@@ -345,45 +334,48 @@ def _build_records_chunked(
             f"opening slice ({i + 1} / {len(slices)}) from {inpath} "
             f" using {pa_source_type=}...",
         )
-        with getattr(pa, pa_source_type)(inpath, "rb") as source:
-            with log_context_duration(
-                "pa.ipc.open_file(source).read_all()",
-                logging.info,
-            ):
-                pa_array = pa.ipc.open_file(source).read_all()
-
-            np_array = {
-                "dstream_data_id": None,
-                "dstream_T": None,
-                "dstream_Tbar": None,
-                "dstream_value": None,
-            }
-            for col in np_array:
+        try:
+            with getattr(pa, pa_source_type)(inpath, "rb") as source:
                 with log_context_duration(
-                    f"pa_array['{col}'].to_numpy()",
+                    "pa.ipc.open_file(source).read_all()",
                     logging.info,
                 ):
-                    np_array[col] = pa_array[col].to_numpy()
+                    pa_array = pa.ipc.open_file(source).read_all()
 
-            logging.info(f"incorporating slice ({i + 1} / {len(slices)})...")
+                np_array = {
+                    "dstream_data_id": None,
+                    "dstream_T": None,
+                    "dstream_Tbar": None,
+                    "dstream_value": None,
+                }
+                for col in np_array:
+                    with log_context_duration(
+                        f"pa_array['{col}'].to_numpy()",
+                        logging.info,
+                    ):
+                        np_array[col] = pa_array[col].to_numpy()
 
-            with log_context_duration(
-                "extend_tree_searchtable_cpp_from_exploded "
-                f"({i + 1} / {len(slices)})",
-                logging.info,
-            ):
-                # dispatch to C++ tree-building implementation
-                extend_tree_searchtable_cpp_from_exploded(
-                    records,
-                    np_array["dstream_data_id"],
-                    np_array["dstream_T"],
-                    np_array["dstream_Tbar"],
-                    np_array["dstream_value"],
-                    tqdm.tqdm,
+                logging.info(
+                    f"incorporating slice ({i + 1} / {len(slices)})...",
                 )
 
-        logging.info(f"unlinking slice {i + 1} / {len(slices)}...")
-        pathlib.Path(inpath).unlink(missing_ok=True)
+                with log_context_duration(
+                    "extend_tree_searchtable_cpp_from_exploded "
+                    f"({i + 1} / {len(slices)})",
+                    logging.info,
+                ):
+                    # dispatch to C++ tree-building implementation
+                    extend_tree_searchtable_cpp_from_exploded(
+                        records,
+                        np_array["dstream_data_id"],
+                        np_array["dstream_T"],
+                        np_array["dstream_Tbar"],
+                        np_array["dstream_value"],
+                        tqdm.tqdm,
+                    )
+        finally:
+            logging.info(f"unlinking slice {i + 1} / {len(slices)}...")
+            pathlib.Path(inpath).unlink(missing_ok=True)
 
         if (
             check_trie_invariant_freq > 0
@@ -597,13 +589,12 @@ def _generate_exploded_slices_mp(
         logging.info(
             f"creating multiprocessing pool with {mp_pool_size} workers",
         )
-        with mp_context.Pool(
-            processes=mp_pool_size,
-            initializer=_pool_worker_initializer,
-            initargs=(lf,),
-        ) as pool:
+        with mp_context.Pool(processes=mp_pool_size) as pool:
             yield give_len(
-                pool.imap(_explode_and_write_slice, slices),
+                pool.imap(
+                    _explode_and_write_slice,
+                    [(lf, s) for s in slices],
+                ),
                 nslices_log,
             )
     finally:
