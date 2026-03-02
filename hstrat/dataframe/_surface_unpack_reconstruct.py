@@ -1,4 +1,5 @@
 import contextlib
+import gc
 import logging
 import math
 import multiprocessing
@@ -198,6 +199,7 @@ def _explode_and_write_slice(args: typing.Tuple[pl.LazyFrame, slice]) -> str:
         outpath, compression="uncompressed"
     )
     del long_df  # clear memory
+    gc.collect()
     return outpath
 
 
