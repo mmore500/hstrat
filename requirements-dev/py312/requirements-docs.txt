@@ -12,7 +12,7 @@ anytree==2.13.0
     #   alifedata-phyloinformatics-convert
 astropy==7.2.0
     # via hstrat (../../pyproject.toml)
-astropy-iers-data==0.2026.2.23.0.48.33
+astropy-iers-data==0.2026.3.2.0.47.4
     # via astropy
 asttokens==3.0.1
     # via stack-data
@@ -71,7 +71,7 @@ docutils==0.21.2
     #   nbsphinx
     #   sphinx
     #   sphinx-rtd-theme
-downstream==1.18.0
+downstream==1.20.0
     # via hstrat (../../pyproject.toml)
 ete3==3.1.3
     # via alifedata-phyloinformatics-convert
@@ -425,5 +425,5 @@ webencodings==0.5.1
     #   tinycss2
 wrapt==2.1.1
     # via deprecated
-yarl==1.22.0
+yarl==1.23.0
     # via alifedata-phyloinformatics-convert
