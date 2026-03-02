@@ -182,6 +182,15 @@ def _create_parser() -> argparse.ArgumentParser:
         default=1_000_000,
         help="Number of rows to process at once. Low values reduce memory use.",
     )
+    parser.add_argument(
+        "--mp-pool-size",
+        type=int,
+        default=1,
+        help=(
+            "Number of worker processes for exploding slices in parallel. "
+            "Default 1 (single producer process)."
+        ),
+    )
     add_bool_arg(
         parser,
         "drop-dstream-metadata",
@@ -221,6 +230,7 @@ def _main(mp_context: str) -> None:
                 drop_dstream_metadata=args.drop_dstream_metadata,
                 exploded_slice_size=args.exploded_slice_size,
                 mp_context=mp_context,
+                mp_pool_size=args.mp_pool_size,
                 pa_source_type=args.pa_source_type,
             ),
         )

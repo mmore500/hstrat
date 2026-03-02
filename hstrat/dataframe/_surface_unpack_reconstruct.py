@@ -1,8 +1,7 @@
 import contextlib
+import gc
 import logging
-import math
 import multiprocessing
-import os
 import pathlib
 import typing
 import uuid
@@ -17,6 +16,7 @@ from .._auxiliary_lib import (
     alifestd_make_empty,
     get_sole_scalar_value_polars,
     give_len,
+    iter_slices,
     log_context_duration,
     log_memory_usage,
     render_polars_snapshot,
@@ -56,13 +56,12 @@ from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub i
 
 def _sort_Tbar_argv(
     long_df: pl.DataFrame,
-    num_slices: int,
-    slice_index: int,
+    row_slice_log: slice,
 ) -> pl.DataFrame:
     """Fast chronological sort within dstream data id groups, when Tbar_argv
     is available."""
     with log_context_duration(
-        f"gather_indices ({slice_index + 1}/{num_slices})",
+        f"gather_indices ({row_slice_log})",
         logging.info,
     ):
         gather_indices = (  # argsort: what index should this row be sorted to?
@@ -83,7 +82,7 @@ def _sort_Tbar_argv(
         )
 
     with log_context_duration(
-        f".gather(gather_indices) ({slice_index + 1}/{num_slices})",
+        f".gather(gather_indices) ({row_slice_log})",
         logging.info,
     ):
         long_df = long_df.select(  # apply argsort
@@ -100,14 +99,13 @@ def _sort_Tbar_argv(
 
 def _sort_Tbar(
     long_df: pl.DataFrame,
-    num_slices: int,
-    slice_index: int,
+    row_slice_log: slice,
 ) -> pl.DataFrame:
     """Fallback chronological sort within dstream data id groups, when
     Tbar_argv is not available."""
     with log_context_duration(
         '.sort_by("dstream_Tbar").over(partition_by="dstream_data_id") '
-        f"({slice_index + 1}/{num_slices})",
+        f"({row_slice_log})",
         logging.info,
     ):
         long_df = long_df.select(
@@ -126,16 +124,14 @@ def _sort_Tbar(
 
 def _make_exploded_slice(
     df_slice: pl.DataFrame,
-    num_slices: int,
-    slice_index: int,
+    row_slice_log: slice,
 ) -> pl.DataFrame:
     """Explode dstream buffers to 1 differentia per row, calculating Tbar for
     each and ensuring strata are chronological within data id groups."""
 
     # explode dstream buffer to 1 differentia per row, calculating Tbar for each
     with log_context_duration(
-        "dstream.dataframe.explode_lookup_unpacked "
-        f"({slice_index + 1}/{num_slices})",
+        f"dstream.dataframe.explode_lookup_unpacked ({row_slice_log})",
         logging.info,
     ):
         long_df = dstream_dataframe.explode_lookup_unpacked(
@@ -149,22 +145,19 @@ def _make_exploded_slice(
         _sort_Tbar_argv,
     ]["dstream_Tbar_argv" in long_df.columns](
         long_df=long_df,
-        num_slices=num_slices,
-        slice_index=slice_index,
+        row_slice_log=row_slice_log,
     )
 
-    if slice_index == 0:
+    if row_slice_log.start == 0:
         render_polars_snapshot(long_df, "exploded", logging.info)
 
     return long_df
 
 
-def _produce_exploded_slices(
-    queue: multiprocessing.JoinableQueue,
+def _prepare_df_for_explosion(
     df: typing.Union[pl.DataFrame, pl.LazyFrame],
-    exploded_slice_size: int,
-) -> None:
-    """Exploded DataFrame in chunks, passed to queue for consumption."""
+) -> pl.DataFrame:
+    """Unpack, sort, and prepare DataFrame for slice-wise explosion."""
     with log_context_duration(
         "dstream.dataframe.unpack_data_packed", logging.info
     ):
@@ -184,36 +177,29 @@ def _produce_exploded_slices(
         # ensure chunking doesn't affect data ids
         df = df.with_row_index("dstream_data_id")
 
-    num_slices = math.ceil(len(df) / exploded_slice_size)
-    logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
+    return df
 
-    for slice_idx, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
-        logging.info(
-            f"- worker exploding slice {slice_idx + 1} / {num_slices}"
-        )
-        # apply explode transformation
-        long_df = _make_exploded_slice(
-            df_slice=df_slice,
-            num_slices=num_slices,
-            slice_index=slice_idx,
-        )
 
-        # pass exploded data to consumer through queue via tmpfile
-        # (better performing for fast read than passing directly through queue)
-        logging.info("- worker putting exploded data")
-        outpath = f"/tmp/{uuid.uuid4()}.arrow"  # nosec B108
-        long_df.select(pl.all().shrink_dtype()).write_ipc(
-            outpath, compression="uncompressed"
-        )
-        del long_df  # clear memory
-        queue.put(outpath)
-        logging.info("- worker waiting for consumption")
-        queue.join()  # wait for produced item to be consumed
-        logging.info("- worker wait complete")
+def _explode_and_write_slice(args: typing.Tuple[pl.LazyFrame, slice]) -> str:
+    """Explode a single slice and write result to a temporary Arrow file.
 
-    logging.info("- worker putting sentinel value to signal completion")
-    queue.put(None)  # send sentinel value to signal completion
-    logging.info(" - worker complete")
+    Receives a ``(LazyFrame, slice)`` tuple as a lightweight task descriptor.
+    Only the rows needed for this slice are collected from the LazyFrame.
+    """
+    lf, row_slice = args
+    logging.info(f"- worker collecting {row_slice}")
+    df_slice = lf[row_slice].collect()
+    logging.info(f"- worker exploding {row_slice}")
+    long_df = _make_exploded_slice(df_slice=df_slice, row_slice_log=row_slice)
+
+    logging.info(f"- worker writing exploded data for {row_slice}")
+    outpath = f"/tmp/{uuid.uuid4()}.arrow"  # nosec B108
+    long_df.select(pl.all().shrink_dtype()).write_ipc(
+        outpath, compression="uncompressed"
+    )
+    del long_df  # clear memory
+    gc.collect()
+    return outpath
 
 
 def _dump_records(records: Records) -> str:
@@ -349,45 +335,48 @@ def _build_records_chunked(
             f"opening slice ({i + 1} / {len(slices)}) from {inpath} "
             f" using {pa_source_type=}...",
         )
-        with getattr(pa, pa_source_type)(inpath, "rb") as source:
-            with log_context_duration(
-                "pa.ipc.open_file(source).read_all()",
-                logging.info,
-            ):
-                pa_array = pa.ipc.open_file(source).read_all()
-
-            np_array = {
-                "dstream_data_id": None,
-                "dstream_T": None,
-                "dstream_Tbar": None,
-                "dstream_value": None,
-            }
-            for col in np_array:
+        try:
+            with getattr(pa, pa_source_type)(inpath, "rb") as source:
                 with log_context_duration(
-                    f"pa_array['{col}'].to_numpy()",
+                    "pa.ipc.open_file(source).read_all()",
                     logging.info,
                 ):
-                    np_array[col] = pa_array[col].to_numpy()
+                    pa_array = pa.ipc.open_file(source).read_all()
 
-            logging.info(f"incorporating slice ({i + 1} / {len(slices)})...")
+                np_array = {
+                    "dstream_data_id": None,
+                    "dstream_T": None,
+                    "dstream_Tbar": None,
+                    "dstream_value": None,
+                }
+                for col in np_array:
+                    with log_context_duration(
+                        f"pa_array['{col}'].to_numpy()",
+                        logging.info,
+                    ):
+                        np_array[col] = pa_array[col].to_numpy()
 
-            with log_context_duration(
-                "extend_tree_searchtable_cpp_from_exploded "
-                f"({i + 1} / {len(slices)})",
-                logging.info,
-            ):
-                # dispatch to C++ tree-building implementation
-                extend_tree_searchtable_cpp_from_exploded(
-                    records,
-                    np_array["dstream_data_id"],
-                    np_array["dstream_T"],
-                    np_array["dstream_Tbar"],
-                    np_array["dstream_value"],
-                    tqdm.tqdm,
+                logging.info(
+                    f"incorporating slice ({i + 1} / {len(slices)})...",
                 )
 
-        logging.info(f"unlinking slice {i + 1} / {len(slices)}...")
-        os.unlink(inpath)
+                with log_context_duration(
+                    "extend_tree_searchtable_cpp_from_exploded "
+                    f"({i + 1} / {len(slices)})",
+                    logging.info,
+                ):
+                    # dispatch to C++ tree-building implementation
+                    extend_tree_searchtable_cpp_from_exploded(
+                        records,
+                        np_array["dstream_data_id"],
+                        np_array["dstream_T"],
+                        np_array["dstream_Tbar"],
+                        np_array["dstream_value"],
+                        tqdm.tqdm,
+                    )
+        finally:
+            logging.info(f"unlinking slice {i + 1} / {len(slices)}...")
+            pathlib.Path(inpath).unlink(missing_ok=True)
 
         if (
             check_trie_invariant_freq > 0
@@ -561,9 +550,15 @@ def _generate_exploded_slices_mp(
     df: typing.Union[pl.LazyFrame, pl.DataFrame],
     exploded_slice_size: int,
     mp_context: str,
+    mp_pool_size: int = 1,
 ) -> typing.Iterator[typing.Iterator[str]]:
-    """Generator wrapping genreation of exploded data frame slices via
-    parallel multiprocess producer."""
+    """Generator wrapping generation of exploded data frame slices via
+    parallel multiprocess producer(s)."""
+    if mp_pool_size < 1:
+        raise NotImplementedError(
+            f"mp_pool_size must be >= 1, got {mp_pool_size}"
+        )
+
     try:  # RE https://docs.pola.rs/user-guide/misc/multiprocessing/
         logging.info(f"attempting to use multiprocessing {mp_context} context")
         mp_context = multiprocessing.get_context(mp_context)
@@ -571,30 +566,41 @@ def _generate_exploded_slices_mp(
         logging.info("attempting to use multiprocessing spawn context")
         mp_context = multiprocessing.get_context("spawn")
 
-    logging.info("creating work queue")
-    queue = mp_context.JoinableQueue()
+    # prepare (unpack, sort, add row index) in the main process
+    df = _prepare_df_for_explosion(df)
 
-    logging.info("spawning exploded df worker")
-    producer = mp_context.Process(
-        target=_produce_exploded_slices,
-        args=(queue, df, exploded_slice_size),  # lazyframe is cheap to send
-    )
-    logging.info("starting exploded df worker")
-    producer.start()
+    # write prepared df to a temp Arrow file so workers receive a
+    # scan_ipc LazyFrame (just a file path) instead of pickled data
+    df_path = f"/tmp/{uuid.uuid4()}_prepared.arrow"  # nosec B108
+    nrows_log = len(df)
+    logging.info(f"writing prepared df ({nrows_log} rows) to {df_path}")
+    df.write_ipc(df_path, compression="uncompressed")
+    del df
+    gc.collect()
 
-    num_slices = (
-        df.lazy().select(pl.len()).collect().item() + (exploded_slice_size - 1)
-    ) // exploded_slice_size
+    try:
+        logging.info(f"scanning {df_path}")
+        lf = pl.scan_ipc(df_path)
 
-    yield give_len(  # enable len() on generator for nice logging
-        # yield generated slices until sentinel value None is received,
-        # immediately marking items as consumed (`task_done`) to trigger
-        # the next item to be produced if queue has been emptied
-        iter(lambda: (queue.get(), queue.task_done())[0], None),
-        num_slices,
-    )
+        slices = [*iter_slices(nrows_log, exploded_slice_size)]
+        nslices_log = len(slices)
+        logging.info(
+            f"{nrows_log=} {exploded_slice_size=} {nslices_log=}",
+        )
 
-    producer.join()  # wait for producer to finish (no effect, but good form)
+        logging.info(
+            f"creating multiprocessing pool with {mp_pool_size} workers",
+        )
+        with mp_context.Pool(processes=mp_pool_size) as pool:
+            yield give_len(
+                pool.imap(
+                    _explode_and_write_slice,
+                    [(lf, s) for s in slices],
+                ),
+                nslices_log,
+            )
+    finally:
+        pathlib.Path(df_path).unlink(missing_ok=True)
 
 
 def surface_unpack_reconstruct(
@@ -606,6 +612,7 @@ def surface_unpack_reconstruct(
     drop_dstream_metadata: typing.Optional[bool] = None,
     exploded_slice_size: int = 1_000_000,
     mp_context: str = "spawn",
+    mp_pool_size: int = 1,
     pa_source_type: str = "memory_map",
 ) -> pl.DataFrame:
     """Unpack dstream buffer and counter from genome data and construct an
@@ -674,6 +681,13 @@ def surface_unpack_reconstruct(
 
     mp_context : str, default 'spawn'
         Multiprocessing context to use for parallel processing.
+
+    mp_pool_size : int, default 1
+        Number of worker processes for exploding slices in parallel.
+
+        When 1, a single producer process is used (original behavior).
+        When greater than 1, a multiprocessing pool is used with ordered
+        results via ``Pool.imap``.
 
     pa_source_type : str, default 'memory_map'
         PyArrow type to use for exploded chunks (i.e., "memory_map" or
@@ -751,7 +765,7 @@ def surface_unpack_reconstruct(
 
     logging.info("dispatching to surface_unpacked_reconstruct")
     with _generate_exploded_slices_mp(
-        df, exploded_slice_size, mp_context
+        df, exploded_slice_size, mp_context, mp_pool_size
     ) as slices:
         phylo_df = _surface_unpacked_reconstruct(
             slices,

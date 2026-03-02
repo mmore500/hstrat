@@ -147,6 +147,15 @@ def _create_parser() -> argparse.ArgumentParser:
         help="Number of rows to process at once. Low values reduce memory use.",
     )
     parser.add_argument(
+        "--mp-pool-size",
+        type=int,
+        default=1,
+        help=(
+            "Number of worker processes for exploding slices in parallel. "
+            "Default 1 (single producer process)."
+        ),
+    )
+    parser.add_argument(
         "--delete-trunk",
         action=argparse.BooleanOptionalAction,
         default=True,
@@ -206,6 +215,7 @@ def _main(mp_context: str) -> None:
                 delete_trunk=args.delete_trunk,
                 exploded_slice_size=args.exploded_slice_size,
                 mp_context=mp_context,
+                mp_pool_size=args.mp_pool_size,
                 pa_source_type=args.pa_source_type,
                 trie_postprocessor=trie_postprocessor,
             ),
