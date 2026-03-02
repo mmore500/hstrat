@@ -577,6 +577,7 @@ def _generate_exploded_slices_mp(
     logging.info(f"writing prepared df ({nrows_log} rows) to {df_path}")
     df.write_ipc(df_path, compression="uncompressed")
     del df
+    gc.collect()
 
     try:
         logging.info(f"scanning {df_path}")
