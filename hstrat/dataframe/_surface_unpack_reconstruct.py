@@ -57,12 +57,12 @@ from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub i
 
 def _sort_Tbar_argv(
     long_df: pl.DataFrame,
-    row_slice: slice,
+    row_slice_log: slice,
 ) -> pl.DataFrame:
     """Fast chronological sort within dstream data id groups, when Tbar_argv
     is available."""
     with log_context_duration(
-        f"gather_indices ({row_slice})",
+        f"gather_indices ({row_slice_log})",
         logging.info,
     ):
         gather_indices = (  # argsort: what index should this row be sorted to?
@@ -83,7 +83,7 @@ def _sort_Tbar_argv(
         )
 
     with log_context_duration(
-        f".gather(gather_indices) ({row_slice})",
+        f".gather(gather_indices) ({row_slice_log})",
         logging.info,
     ):
         long_df = long_df.select(  # apply argsort
@@ -100,13 +100,13 @@ def _sort_Tbar_argv(
 
 def _sort_Tbar(
     long_df: pl.DataFrame,
-    row_slice: slice,
+    row_slice_log: slice,
 ) -> pl.DataFrame:
     """Fallback chronological sort within dstream data id groups, when
     Tbar_argv is not available."""
     with log_context_duration(
         '.sort_by("dstream_Tbar").over(partition_by="dstream_data_id") '
-        f"({row_slice})",
+        f"({row_slice_log})",
         logging.info,
     ):
         long_df = long_df.select(
@@ -125,14 +125,14 @@ def _sort_Tbar(
 
 def _make_exploded_slice(
     df_slice: pl.DataFrame,
-    row_slice: slice,
+    row_slice_log: slice,
 ) -> pl.DataFrame:
     """Explode dstream buffers to 1 differentia per row, calculating Tbar for
     each and ensuring strata are chronological within data id groups."""
 
     # explode dstream buffer to 1 differentia per row, calculating Tbar for each
     with log_context_duration(
-        f"dstream.dataframe.explode_lookup_unpacked ({row_slice})",
+        f"dstream.dataframe.explode_lookup_unpacked ({row_slice_log})",
         logging.info,
     ):
         long_df = dstream_dataframe.explode_lookup_unpacked(
@@ -146,10 +146,10 @@ def _make_exploded_slice(
         _sort_Tbar_argv,
     ]["dstream_Tbar_argv" in long_df.columns](
         long_df=long_df,
-        row_slice=row_slice,
+        row_slice_log=row_slice_log,
     )
 
-    if row_slice.start == 0:
+    if row_slice_log.start == 0:
         render_polars_snapshot(long_df, "exploded", logging.info)
 
     return long_df
@@ -202,7 +202,7 @@ def _explode_and_write_slice(row_slice: slice) -> str:
         row_slice.start, row_slice.stop - row_slice.start
     ).collect()
     logging.info(f"- worker exploding {row_slice}")
-    long_df = _make_exploded_slice(df_slice=df_slice, row_slice=row_slice)
+    long_df = _make_exploded_slice(df_slice=df_slice, row_slice_log=row_slice)
 
     logging.info(f"- worker writing exploded data for {row_slice}")
     outpath = f"/tmp/{uuid.uuid4()}.arrow"  # nosec B108
