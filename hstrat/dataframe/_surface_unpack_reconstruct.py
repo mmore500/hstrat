@@ -197,10 +197,11 @@ def _explode_and_write_slice(row_slice: slice) -> str:
     Only the rows needed for this slice are collected from the LazyFrame
     stored by ``_pool_worker_initializer``.
     """
-    logging.info(f"- worker exploding {row_slice}")
+    logging.info(f"- worker collecting {row_slice}")
     df_slice = _pool_worker_lf.slice(
         row_slice.start, row_slice.stop - row_slice.start
     ).collect()
+    logging.info(f"- worker exploding {row_slice}")
     long_df = _make_exploded_slice(df_slice=df_slice, row_slice=row_slice)
 
     logging.info(f"- worker writing exploded data for {row_slice}")
@@ -573,35 +574,39 @@ def _generate_exploded_slices_mp(
         logging.info("attempting to use multiprocessing spawn context")
         mp_context = multiprocessing.get_context("spawn")
 
-    logging.info(f"using multiprocessing pool with {mp_pool_size} workers")
     # prepare (unpack, sort, add row index) in the main process
     df = _prepare_df_for_explosion(df)
 
     # write prepared df to a temp Arrow file so workers receive a
     # scan_ipc LazyFrame (just a file path) instead of pickled data
     df_path = f"/tmp/{uuid.uuid4()}_prepared.arrow"  # nosec B108
+    nrows_log = len(df)
+    logging.info(f"writing prepared df ({nrows_log} rows) to {df_path}")
     df.write_ipc(df_path, compression="uncompressed")
-    n = len(df)
     del df
+
+    logging.info(f"scanning {df_path}")
     lf = pl.scan_ipc(df_path)
 
-    slices = [*iter_slices(n, exploded_slice_size)]
-    logging.info(f"{n=} {exploded_slice_size=} {len(slices)=}")
+    slices = [*iter_slices(nrows_log, exploded_slice_size)]
+    nslices_log = len(slices)
+    logging.info(
+        f"{nrows_log=} {exploded_slice_size=} {nslices_log=}",
+    )
 
-    pool = mp_context.Pool(
+    logging.info(
+        f"creating multiprocessing pool with {mp_pool_size} workers",
+    )
+    with mp_context.Pool(
         processes=mp_pool_size,
         initializer=_pool_worker_initializer,
         initargs=(lf,),
-    )
-    try:
+    ) as pool:
         yield give_len(
             pool.imap(_explode_and_write_slice, slices),
-            len(slices),
+            nslices_log,
         )
-    finally:
-        pool.close()
-        pool.join()
-        os.unlink(df_path)
+    os.unlink(df_path)
 
 
 def surface_unpack_reconstruct(
