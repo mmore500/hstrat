@@ -1,6 +1,7 @@
 import functools
 import typing
 
+from deprecated.sphinx import deprecated
 import polars as pl
 
 from ._alifestd_drop_topological_sensitivity_polars import (
@@ -11,6 +12,10 @@ from ._alifestd_warn_topological_sensitivity_polars import (
 )
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_topological_sensitivity_warned_polars instead.",
+)
 def alifestd_topological_sensitivity_warned_polars(
     *, insert: bool, delete: bool, update: bool
 ) -> typing.Callable:

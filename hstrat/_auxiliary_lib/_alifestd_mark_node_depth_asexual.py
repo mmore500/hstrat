@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
@@ -35,6 +36,10 @@ def _alifestd_calc_node_depth_asexual_contiguous(
     return node_depths
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_mark_node_depth_asexual instead.",
+)
 def alifestd_mark_node_depth_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

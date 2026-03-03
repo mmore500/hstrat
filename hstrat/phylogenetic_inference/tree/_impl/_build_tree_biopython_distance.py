@@ -4,12 +4,10 @@ import warnings
 import alifedata_phyloinformatics_convert as apc
 import opytional as opyt
 import pandas as pd
+from phyloframe import legacy as pfl
 
 from ...._auxiliary_lib import (
     BioPhyloTree,
-    alifestd_find_root_ids,
-    alifestd_make_empty,
-    alifestd_validate,
 )
 from ....genome_instrumentation import HereditaryStratigraphicColumn
 from ...population import build_distance_matrix_biopython
@@ -32,7 +30,7 @@ def build_tree_biopython_distance(
     # biopython doesn't represent empty tree elegantly
     # for simplicity, return early for this special case
     if len(population) == 0:
-        return alifestd_make_empty()
+        return pfl.alifestd_make_empty()
 
     taxon_labels = list(
         opyt.or_value(
@@ -85,7 +83,7 @@ def build_tree_biopython_distance(
 
     alifestd_df = append_genesis_organism(alifestd_df, mutate=True)
 
-    assert alifestd_validate(alifestd_df)
-    assert len(alifestd_find_root_ids(alifestd_df))
+    assert pfl.alifestd_validate(alifestd_df)
+    assert len(pfl.alifestd_find_root_ids(alifestd_df))
 
     return alifestd_df

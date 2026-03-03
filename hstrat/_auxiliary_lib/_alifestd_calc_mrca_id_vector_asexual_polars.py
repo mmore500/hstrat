@@ -1,6 +1,7 @@
 import logging
 import typing
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import polars as pl
 
@@ -18,6 +19,10 @@ from ._alifestd_try_add_ancestor_id_col_polars import (
 )
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_calc_mrca_id_vector_asexual_polars instead.",
+)
 def alifestd_calc_mrca_id_vector_asexual_polars(
     phylogeny_df: pl.DataFrame,
     *,

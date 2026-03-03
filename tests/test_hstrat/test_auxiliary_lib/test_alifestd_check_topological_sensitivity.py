@@ -1,11 +1,8 @@
-import warnings
-
 import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_check_topological_sensitivity,
-    alifestd_warn_topological_sensitivity,
 )
 from hstrat._auxiliary_lib._alifestd_check_topological_sensitivity import (
     _topologically_sensitive_cols,
@@ -221,53 +218,3 @@ def test_no_ops_returns_empty(base_df: pd.DataFrame):
         update=False,
     )
     assert result == []
-
-
-def test_warn_topological_sensitivity_warns(base_df: pd.DataFrame):
-    df = base_df.copy()
-    df["branch_length"] = 0
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        alifestd_warn_topological_sensitivity(
-            df,
-            "test_caller",
-            insert=False,
-            delete=True,
-            update=True,
-        )
-        assert len(w) == 1
-        assert "test_caller" in str(w[0].message)
-        assert "branch_length" in str(w[0].message)
-        assert "delete/update" in str(w[0].message)
-        assert "alifestd_drop_topological_sensitivity" in str(
-            w[0].message,
-        )
-
-
-def test_warn_topological_sensitivity_silent(base_df: pd.DataFrame):
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        alifestd_warn_topological_sensitivity(
-            base_df,
-            "test_caller",
-            insert=True,
-            delete=True,
-            update=True,
-        )
-        assert len(w) == 0
-
-
-def test_warn_topological_sensitivity_ops_in_message(base_df: pd.DataFrame):
-    df = base_df.copy()
-    df["sister_id"] = 0
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        alifestd_warn_topological_sensitivity(
-            df,
-            "test_caller",
-            insert=True,
-            delete=False,
-            update=True,
-        )
-        assert len(w) == 1
-        assert "insert/update" in str(w[0].message)

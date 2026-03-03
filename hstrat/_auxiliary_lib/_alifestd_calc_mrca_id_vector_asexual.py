@@ -1,6 +1,7 @@
 import logging
 import typing
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -44,6 +45,10 @@ def _alifestd_calc_mrca_id_vector_asexual_fast_path(
     return mrca_ids
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_calc_mrca_id_vector_asexual instead.",
+)
 def alifestd_calc_mrca_id_vector_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

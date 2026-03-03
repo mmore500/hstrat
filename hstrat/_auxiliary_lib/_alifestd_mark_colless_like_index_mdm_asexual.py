@@ -3,6 +3,7 @@ import logging
 import math
 import os
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
@@ -221,6 +222,10 @@ def _alifestd_mark_colless_like_index_asexual_impl(
     return phylogeny_df
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_mark_colless_like_index_mdm_asexual instead.",
+)
 def alifestd_mark_colless_like_index_mdm_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

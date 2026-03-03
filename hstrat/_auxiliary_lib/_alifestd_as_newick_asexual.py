@@ -4,6 +4,7 @@ import os
 import pathlib
 import typing
 
+from deprecated.sphinx import deprecated
 import more_itertools as mit
 import numpy as np
 import opytional as opyt
@@ -71,6 +72,10 @@ def _build_newick_string(
 
 # Performance (as of 2026-03-01, 200k-node caterpillar tree):
 #   hstrat ~9s vs treeswift ~5s
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_as_newick_asexual instead.",
+)
 def alifestd_as_newick_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

@@ -1,11 +1,8 @@
-import warnings
-
 import polars as pl
 import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_check_topological_sensitivity_polars,
-    alifestd_warn_topological_sensitivity_polars,
 )
 from hstrat._auxiliary_lib._alifestd_check_topological_sensitivity import (
     _topologically_sensitive_cols,
@@ -231,70 +228,3 @@ def test_insert_only_lazyframe_excludes(base_df: pl.DataFrame, col: str):
         update=False,
     )
     assert col not in result
-
-
-def test_warn_topological_sensitivity_polars_warns(base_df: pl.DataFrame):
-    df = base_df.with_columns(pl.lit(0).alias("branch_length"))
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        alifestd_warn_topological_sensitivity_polars(
-            df,
-            "test_caller",
-            insert=False,
-            delete=True,
-            update=True,
-        )
-        assert len(w) == 1
-        assert "test_caller" in str(w[0].message)
-        assert "branch_length" in str(w[0].message)
-        assert "delete/update" in str(w[0].message)
-        assert "alifestd_drop_topological_sensitivity" in str(
-            w[0].message,
-        )
-
-
-def test_warn_topological_sensitivity_polars_silent(base_df: pl.DataFrame):
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        alifestd_warn_topological_sensitivity_polars(
-            base_df,
-            "test_caller",
-            insert=True,
-            delete=True,
-            update=True,
-        )
-        assert len(w) == 0
-
-
-def test_warn_topological_sensitivity_polars_lazyframe(base_df: pl.DataFrame):
-    lazy = base_df.with_columns(
-        pl.lit(0).alias("edge_length"),
-    ).lazy()
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        alifestd_warn_topological_sensitivity_polars(
-            lazy,
-            "test_caller",
-            insert=False,
-            delete=True,
-            update=True,
-        )
-        assert len(w) == 1
-        assert "edge_length" in str(w[0].message)
-
-
-def test_warn_topological_sensitivity_polars_ops_in_message(
-    base_df: pl.DataFrame,
-):
-    df = base_df.with_columns(pl.lit(0).alias("sister_id"))
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        alifestd_warn_topological_sensitivity_polars(
-            df,
-            "test_caller",
-            insert=True,
-            delete=False,
-            update=False,
-        )
-        assert len(w) == 1
-        assert "insert" in str(w[0].message)

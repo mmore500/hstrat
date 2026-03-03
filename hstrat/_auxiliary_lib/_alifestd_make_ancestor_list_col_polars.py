@@ -1,6 +1,11 @@
+from deprecated.sphinx import deprecated
 import polars as pl
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_make_ancestor_list_col_polars instead.",
+)
 def alifestd_make_ancestor_list_col_polars(
     ids: pl.Series,
     ancestor_ids: pl.Series,

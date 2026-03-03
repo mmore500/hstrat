@@ -4,6 +4,7 @@ import itertools as it
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
@@ -145,6 +146,10 @@ def _alifestd_splay_polytomies_slow_path(
     insert=True,
     delete=False,
     update=True,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_splay_polytomies instead.",
 )
 def alifestd_splay_polytomies(
     phylogeny_df: pd.DataFrame,

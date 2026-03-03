@@ -3,6 +3,7 @@ import logging
 import os
 import pathlib
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import polars as pl
 
@@ -15,6 +16,10 @@ from ._log_context_duration import log_context_duration
 
 
 # Performance: see _alifestd_from_newick.py for benchmark numbers.
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_from_newick_polars instead.",
+)
 def alifestd_from_newick_polars(
     newick: str,
     *,

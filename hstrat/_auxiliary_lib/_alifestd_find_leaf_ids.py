@@ -1,3 +1,4 @@
+from deprecated.sphinx import deprecated
 import numpy as np
 import ordered_set as ods
 import pandas as pd
@@ -17,6 +18,10 @@ def _alifestd_find_leaf_ids_asexual_fast_path(
     return np.flatnonzero(child_counts == 0)
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_find_leaf_ids instead.",
+)
 def alifestd_find_leaf_ids(phylogeny_df: pd.DataFrame) -> np.ndarray:
     """What ids are not listed in any `ancestor_list`?
 

@@ -60,6 +60,8 @@ jobs:
         python -m pip install --upgrade pip setuptools
         pip install tox tox-gh-actions
     - name: Test with tox
+      env:
+        PYTHONWARNINGS: "ignore::DeprecationWarning"
       run: |
         export HSTRAT_TESTS_SUBDIVISION=${{ matrix.subdivision }}
         tox
@@ -221,6 +223,8 @@ jobs:
     - name: Log coverage configuration
       run: coverage debug sys
     - name: Run tests with coverage report
+      env:
+        PYTHONWARNINGS: "ignore::DeprecationWarning"
       run: coverage run -m pytest tests/test_hstrat/${{ matrix.subdivision }}
     - uses: codecov/codecov-action@v4
       with:

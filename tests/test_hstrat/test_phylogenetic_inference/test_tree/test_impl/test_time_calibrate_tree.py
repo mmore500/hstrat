@@ -1,7 +1,7 @@
 from iterpop import iterpop as ip
 import pandas as pd
+from phyloframe import legacy as pfl
 
-from hstrat._auxiliary_lib import alifestd_find_root_ids
 import hstrat.phylogenetic_inference.tree._impl as impl
 
 
@@ -22,7 +22,7 @@ def test_time_calibrate_tree_with_simple_tree():
         calibrated_df = impl.time_calibrate_tree(df, leaf_node_origin_times)
 
         assert df.equals(df_)
-        assert ip.popsingleton(alifestd_find_root_ids(calibrated_df)) == 0
+        assert ip.popsingleton(pfl.alifestd_find_root_ids(calibrated_df)) == 0
         assert dict(
             zip(calibrated_df["name"], calibrated_df["origin_time"])
         ) == {
@@ -99,7 +99,7 @@ def test_time_calibrate_tree_with_disjoint_tree1():
         calibrated_df = impl.time_calibrate_tree(df, leaf_node_origin_times)
 
         assert df.equals(df_)
-        assert set(alifestd_find_root_ids(calibrated_df)) == {0, 5}
+        assert set(pfl.alifestd_find_root_ids(calibrated_df)) == {0, 5}
         assert dict(
             zip(calibrated_df["name"], calibrated_df["origin_time"])
         ) == {
@@ -136,7 +136,7 @@ def test_time_calibrate_tree_with_disjoint_tree2():
         calibrated_df = impl.time_calibrate_tree(df, leaf_node_origin_times)
 
         assert df.equals(df_)
-        assert set(alifestd_find_root_ids(calibrated_df)) == {0, 5}
+        assert set(pfl.alifestd_find_root_ids(calibrated_df)) == {0, 5}
         assert dict(
             zip(calibrated_df["name"], calibrated_df["origin_time"])
         ) == {
@@ -174,7 +174,7 @@ def test_time_calibrate_tree_with_disjoint_tree3():
         calibrated_df = impl.time_calibrate_tree(df, leaf_node_origin_times)
 
         assert df.equals(df_)
-        assert set(alifestd_find_root_ids(calibrated_df)) == {0, 5}
+        assert set(pfl.alifestd_find_root_ids(calibrated_df)) == {0, 5}
         assert dict(
             zip(calibrated_df["name"], calibrated_df["origin_time"])
         ) == {
@@ -205,7 +205,7 @@ def test_time_calibrate_tree_with_zero_length_branch_tree():
         calibrated_df = impl.time_calibrate_tree(df, leaf_node_origin_times)
 
         assert df.equals(df_)
-        assert ip.popsingleton(alifestd_find_root_ids(calibrated_df)) == 0
+        assert ip.popsingleton(pfl.alifestd_find_root_ids(calibrated_df)) == 0
         assert dict(
             zip(calibrated_df["name"], calibrated_df["origin_time"])
         ) == {

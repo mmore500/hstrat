@@ -5,12 +5,11 @@ import more_itertools as mit
 import numpy as np
 import opytional as opyt
 import pandas as pd
+from phyloframe import legacy as pfl
 import polars as pl
 
 from ...._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
-    alifestd_make_empty,
-    alifestd_try_add_ancestor_list_col,
     argsort,
 )
 from ._build_tree_searchtable_cpp_impl_stub import (
@@ -49,7 +48,7 @@ def _finalize_records(
             "Consider setting force_common_ancestry=True.",
         )
 
-    return alifestd_try_add_ancestor_list_col(df, mutate=True)
+    return pfl.alifestd_try_add_ancestor_list_col(df, mutate=True)
 
 
 def _explode_population(
@@ -148,7 +147,7 @@ def build_tree_searchtable_cpp(
     """
     pop_len = len(population)
     if pop_len == 0:
-        res = alifestd_make_empty()
+        res = pfl.alifestd_make_empty()
         res["origin_time"] = pd.Series(dtype=int)
         res["taxon_label"] = None
         return res

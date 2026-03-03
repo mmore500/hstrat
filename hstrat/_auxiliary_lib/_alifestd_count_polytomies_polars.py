@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import polars as pl
 
 from ._alifestd_mark_num_children_polars import (
@@ -13,6 +14,10 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_count_polytomies_polars instead.",
+)
 def alifestd_count_polytomies_polars(phylogeny_df: pl.DataFrame) -> int:
     """Count how many inner nodes have more than two descendant nodes.
 

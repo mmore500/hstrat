@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import polars as pl
 
 from ._begin_prod_logging import begin_prod_logging
@@ -10,6 +11,10 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_count_root_nodes_polars instead.",
+)
 def alifestd_count_root_nodes_polars(phylogeny_df: pl.DataFrame) -> int:
     """How many root nodes are contained in phylogeny?"""
     if "ancestor_id" not in phylogeny_df.lazy().collect_schema().names():

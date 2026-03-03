@@ -4,6 +4,7 @@ import logging
 import os
 import typing
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
@@ -28,6 +29,10 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_mark_clade_logistic_growth_sister_asexual instead.",
+)
 def alifestd_mark_clade_logistic_growth_sister_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

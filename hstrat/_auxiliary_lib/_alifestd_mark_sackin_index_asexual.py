@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
@@ -58,6 +59,10 @@ def alifestd_mark_sackin_index_asexual_slow_path(
     return phylogeny_df["id"].map(sackin_dict).values
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_mark_sackin_index_asexual instead.",
+)
 def alifestd_mark_sackin_index_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

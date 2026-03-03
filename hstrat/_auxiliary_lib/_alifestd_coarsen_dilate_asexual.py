@@ -4,6 +4,7 @@ import logging
 import os
 import typing
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
@@ -99,6 +100,10 @@ def _alifestd_coarsen_dilate_impl(
     insert=False,
     delete=True,
     update=True,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_coarsen_dilate_asexual instead.",
 )
 def alifestd_coarsen_dilate_asexual(
     phylogeny_df: pd.DataFrame,

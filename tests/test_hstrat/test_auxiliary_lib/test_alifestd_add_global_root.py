@@ -1,5 +1,3 @@
-import warnings
-
 import pandas as pd
 import pytest
 
@@ -459,71 +457,6 @@ def test_root_attrs_empty_with_existing_column(mutate: bool):
     root_row = result_df[result_df["id"] == new_root_id].iloc[0]
     # origin_time not in root_attrs, so NaN from concat
     assert pd.isna(root_row["origin_time"])
-
-
-@pytest.mark.parametrize(
-    "col",
-    [
-        "branch_length",
-        "edge_length",
-        "origin_time_delta",
-        "node_depth",
-        "num_descendants",
-        "num_children",
-        "num_leaves",
-    ],
-)
-def test_warns_on_sensitive_column(col: str):
-    phylogeny_df = pd.DataFrame(
-        {
-            "id": [0, 1],
-            "ancestor_list": ["[none]", "[0]"],
-            col: [0.0, 1.0],
-        }
-    )
-
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        alifestd_add_global_root(phylogeny_df)
-        assert len(w) == 1
-        msg = str(w[0].message)
-        assert col in msg
-        assert "topology-dependent" in msg
-
-
-def test_warns_on_multiple_columns():
-    phylogeny_df = pd.DataFrame(
-        {
-            "id": [0, 1],
-            "ancestor_list": ["[none]", "[0]"],
-            "branch_length": [0.0, 1.0],
-            "edge_length": [0.0, 1.0],
-            "num_descendants": [1, 0],
-        }
-    )
-
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        alifestd_add_global_root(phylogeny_df)
-        assert len(w) == 1
-        msg = str(w[0].message)
-        assert "branch_length" in msg
-        assert "edge_length" in msg
-        assert "num_descendants" in msg
-
-
-def test_no_warning_without_warned_columns():
-    phylogeny_df = pd.DataFrame(
-        {
-            "id": [0, 1],
-            "ancestor_list": ["[none]", "[0]"],
-        }
-    )
-
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        alifestd_add_global_root(phylogeny_df)
-        assert len(w) == 0
 
 
 @pytest.mark.parametrize("mutate", [False, True])

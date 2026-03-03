@@ -3,6 +3,7 @@ from collections import Counter
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
@@ -11,6 +12,10 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_count_unifurcations instead.",
+)
 def alifestd_count_unifurcations(phylogeny_df: pd.DataFrame) -> int:
     """Count how many inner nodes have exactly one descendant node.
 

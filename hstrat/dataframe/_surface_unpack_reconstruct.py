@@ -8,12 +8,12 @@ import uuid
 
 from downstream import dataframe as dstream_dataframe
 import pandas as pd
+from phyloframe import legacy as pfl
 import polars as pl
 import pyarrow as pa
 import tqdm
 
 from .._auxiliary_lib import (
-    alifestd_make_empty,
     get_sole_scalar_value_polars,
     give_len,
     iter_slices,
@@ -739,7 +739,7 @@ def surface_unpack_reconstruct(
     # for simplicity, return early for this special case
     if df.lazy().limit(1).collect().is_empty():
         logging.info("empty input dataframe, returning empty result")
-        res = alifestd_make_empty()
+        res = pfl.alifestd_make_empty()
         res["taxon_label"] = None
         res["dstream_rank"] = pd.Series(dtype=int)
         res["hstrat_differentia_bitwidth"] = pd.Series(dtype=int)

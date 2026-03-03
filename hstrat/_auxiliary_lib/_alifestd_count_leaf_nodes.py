@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
@@ -10,6 +11,10 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_count_leaf_nodes instead.",
+)
 def alifestd_count_leaf_nodes(phylogeny_df: pd.DataFrame) -> int:
     """How many leaf nodes are contained in phylogeny?"""
     return len(alifestd_find_leaf_ids(phylogeny_df))

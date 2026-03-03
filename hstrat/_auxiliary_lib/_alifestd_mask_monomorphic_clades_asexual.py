@@ -1,3 +1,4 @@
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -85,6 +86,10 @@ def _alifestd_mask_monomorphic_clades_asexual_slow_path(
     return phylogeny_df
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_mask_monomorphic_clades_asexual instead.",
+)
 def alifestd_mask_monomorphic_clades_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

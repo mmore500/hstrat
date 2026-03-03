@@ -1,5 +1,6 @@
 import typing
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -15,6 +16,10 @@ from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._jit import jit
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_coarsen_taxa_asexual_make_agg instead.",
+)
 def alifestd_coarsen_taxa_asexual_make_agg(
     phylogeny_df: pd.DataFrame,
     default_agg: str = "first",
@@ -75,6 +80,10 @@ def alifestd_coarsen_taxa_asexual_make_agg(
     insert=False,
     delete=True,
     update=True,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_coarsen_taxa_asexual instead.",
 )
 def alifestd_coarsen_taxa_asexual(
     phylogeny_df: pd.DataFrame,

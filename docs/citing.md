@@ -37,6 +37,8 @@ MLA:
 
 If you use a "surface" data structure to store genome annotations, please also [cite downstream](https://mmore500.github.io/downstream/citing) as it provides underlying algorithm implementations for this feature.
 
+If you use phyloinformatics tools (e.g., alifestd dataframe operations), please also [cite phyloframe](https://github.com/mmore500/phyloframe) as it provides the underlying implementations for these features.
+
 ### Methodology
 
 Please cite hereditary stratigraphy methodology as

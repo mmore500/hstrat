@@ -7,15 +7,12 @@ import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
 import networkx as nx
 import pandas as pd
+from phyloframe import legacy as pfl
 import pytest
 from tqdm import tqdm
 
 from hstrat import hstrat
 from hstrat._auxiliary_lib import (
-    alifestd_collapse_unifurcations,
-    alifestd_has_multiple_roots,
-    alifestd_is_chronologically_ordered,
-    alifestd_validate,
     generate_n,
     random_tree,
     seed_random,
@@ -36,8 +33,8 @@ def test_empty_population():
     )
 
     assert len(tree) == 0
-    assert alifestd_validate(tree)
-    assert alifestd_is_chronologically_ordered(tree)
+    assert pfl.alifestd_validate(tree)
+    assert pfl.alifestd_is_chronologically_ordered(tree)
 
 
 def test_dual_population_no_mrca():
@@ -59,9 +56,9 @@ def test_dual_population_no_mrca():
         force_common_ancestry=True,
     )
     tree["name"] = tree["taxon_label"]
-    assert not alifestd_has_multiple_roots(tree)
-    assert alifestd_validate(tree)
-    assert alifestd_is_chronologically_ordered(tree)
+    assert not pfl.alifestd_has_multiple_roots(tree)
+    assert pfl.alifestd_validate(tree)
+    assert pfl.alifestd_is_chronologically_ordered(tree)
 
     root_clade = BaseTree.Clade(name="Inner1")
     root_clade.clades = [
@@ -72,7 +69,7 @@ def test_dual_population_no_mrca():
     assert (
         impl.tree_unweighted_robinson_foulds_distance(
             apc.alife_dataframe_to_biopython_tree(
-                alifestd_collapse_unifurcations(tree),
+                pfl.alifestd_collapse_unifurcations(tree),
                 setup_branch_lengths=True,
             ),
             true_tree,
@@ -125,8 +122,8 @@ def test_handwritten_trees(orig_tree, retention_policy, wrap):
         [*map(wrap, extant_population)],
     )
 
-    assert alifestd_validate(reconst_df)
-    assert alifestd_is_chronologically_ordered(reconst_df)
+    assert pfl.alifestd_validate(reconst_df)
+    assert pfl.alifestd_is_chronologically_ordered(reconst_df)
     reconst_tree = apc.alife_dataframe_to_dendropy_tree(
         reconst_df,
         setup_edge_lengths=True,
@@ -182,8 +179,8 @@ def test_reconstructed_mrca(orig_tree, retention_policy):
     )
     assert "origin_time" in reconst_df
 
-    assert alifestd_validate(reconst_df)
-    assert alifestd_is_chronologically_ordered(reconst_df)
+    assert pfl.alifestd_validate(reconst_df)
+    assert pfl.alifestd_is_chronologically_ordered(reconst_df)
     reconst_tree = apc.alife_dataframe_to_dendropy_tree(
         reconst_df,
         setup_edge_lengths=True,
@@ -325,8 +322,8 @@ def test_reconstructed_mrca_fuzz(
     )
     assert "origin_time" in reconst_df
 
-    assert alifestd_validate(reconst_df)
-    assert alifestd_is_chronologically_ordered(reconst_df)
+    assert pfl.alifestd_validate(reconst_df)
+    assert pfl.alifestd_is_chronologically_ordered(reconst_df)
     reconst_tree = apc.alife_dataframe_to_dendropy_tree(
         reconst_df,
         setup_edge_lengths=True,

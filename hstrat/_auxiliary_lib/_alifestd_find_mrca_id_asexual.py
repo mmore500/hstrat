@@ -1,6 +1,7 @@
 import typing
 import warnings
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 import sortedcontainers as sc
 
@@ -14,6 +15,10 @@ from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_find_mrca_id_asexual instead.",
+)
 def alifestd_find_mrca_id_asexual(
     phylogeny_df: pd.DataFrame,
     leaf_ids: typing.Iterable[int],

@@ -1,5 +1,6 @@
 import typing
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 import sortedcontainers as sc
 
@@ -12,6 +13,10 @@ from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_categorize_triplet_asexual instead.",
+)
 def alifestd_categorize_triplet_asexual(
     phylogeny_df: pd.DataFrame,
     triplet_ids: typing.Iterable[int],

@@ -1,10 +1,15 @@
 import itertools as it
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 from ._alifestd_make_empty import alifestd_make_empty
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_make_comb instead.",
+)
 def alifestd_make_comb(n_leaves: int) -> pd.DataFrame:
     r"""Build a comb/caterpillar tree with `n_leaves` leaves.
 

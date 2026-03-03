@@ -40,6 +40,7 @@ dependencies = [
   "ordered_set>=4.1.0",
   "polars[pyarrow,rt64]>=1.10.0,!=1.38.1",
   "packaging>=23.0",
+  "phyloframe>=0.0.1",
   "pandas>=2,<3",
   "pandera>=0.21.0",
   "prettytable>=3.5.0",

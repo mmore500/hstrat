@@ -2,11 +2,11 @@ import typing
 
 from iterpop import iterpop as ip
 import pandas as pd
+from phyloframe import legacy as pfl
 
 from . import trie_postprocess
 from ..._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
-    alifestd_make_empty,
 )
 from ..priors._detail import PriorBase
 from ._build_tree_trie_ensemble import build_tree_trie_ensemble
@@ -123,7 +123,7 @@ def build_tree_trie(
 
     # for simplicity, return early for this special case
     if len(population) == 0:
-        res = alifestd_make_empty()
+        res = pfl.alifestd_make_empty()
         res["origin_time"] = pd.Series(dtype=int)
         res["taxon_label"] = None
         return res

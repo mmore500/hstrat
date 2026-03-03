@@ -1,5 +1,6 @@
 import typing
 
+from deprecated.sphinx import deprecated
 import polars as pl
 
 from ._alifestd_check_topological_sensitivity_polars import (
@@ -10,6 +11,10 @@ from ._alifestd_warn_topological_sensitivity import (
 )
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_warn_topological_sensitivity_polars instead.",
+)
 def alifestd_warn_topological_sensitivity_polars(
     phylogeny_df: typing.Union[pl.DataFrame, pl.LazyFrame],
     caller: str,

@@ -4,6 +4,7 @@ import gc
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import polars as pl
@@ -32,6 +33,10 @@ from ._log_memory_usage import log_memory_usage
     insert=False,
     delete=True,
     update=False,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_prune_extinct_lineages_polars instead.",
 )
 def alifestd_prune_extinct_lineages_polars(
     phylogeny_df: pl.DataFrame,

@@ -1,11 +1,16 @@
 import itertools as it
 
+from deprecated.sphinx import deprecated
 import more_itertools as mit
 import pandas as pd
 
 from ._alifestd_make_empty import alifestd_make_empty
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_make_balanced_bifurcating instead.",
+)
 def alifestd_make_balanced_bifurcating(depth: int) -> pd.DataFrame:
     """Build a perfectly balanced bifurcating tree of given depth.
 
