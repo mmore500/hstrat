@@ -64,9 +64,9 @@ def alifestd_screen_trait_defined_clades_naive_asexual(
         mask_trait_present=mask_trait_present,
     )
 
-    phylogeny_df["alifestd_screen_trait_defined_clades_naive_asexual"] = (
-        trait_frequency
-    )
+    phylogeny_df[
+        "alifestd_screen_trait_defined_clades_naive_asexual"
+    ] = trait_frequency
 
     sister = phylogeny_df["sister_id"].values
     return (

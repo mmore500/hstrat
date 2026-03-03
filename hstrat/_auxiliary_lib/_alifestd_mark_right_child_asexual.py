@@ -88,10 +88,10 @@ def alifestd_mark_right_child_asexual(
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
 
     if alifestd_has_contiguous_ids(phylogeny_df):
-        phylogeny_df["right_child_id"] = (
-            _alifestd_mark_right_child_asexual_fast_path(
-                phylogeny_df["ancestor_id"].to_numpy()
-            )
+        phylogeny_df[
+            "right_child_id"
+        ] = _alifestd_mark_right_child_asexual_fast_path(
+            phylogeny_df["ancestor_id"].to_numpy()
         )
         return phylogeny_df
     else:

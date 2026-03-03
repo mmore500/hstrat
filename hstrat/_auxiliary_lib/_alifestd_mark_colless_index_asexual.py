@@ -25,10 +25,6 @@ from ._jit import jit
 from ._log_context_duration import log_context_duration
 
 
-@deprecated(
-    version="1.23.0",
-    reason="Use phyloframe.legacy.alifestd_mark_colless_index_asexual_fast_path instead.",
-)
 @jit(nopython=True)
 def alifestd_mark_colless_index_asexual_fast_path(
     ancestor_ids: np.ndarray,
@@ -63,10 +59,6 @@ def alifestd_mark_colless_index_asexual_fast_path(
     return colless_index
 
 
-@deprecated(
-    version="1.23.0",
-    reason="Use phyloframe.legacy.alifestd_mark_colless_index_asexual_slow_path instead.",
-)
 def alifestd_mark_colless_index_asexual_slow_path(
     phylogeny_df: pd.DataFrame,
 ) -> np.ndarray:
@@ -198,18 +190,18 @@ def alifestd_mark_colless_index_asexual(
         )
 
     if alifestd_has_contiguous_ids(phylogeny_df):
-        phylogeny_df["colless_index"] = (
-            alifestd_mark_colless_index_asexual_fast_path(
-                phylogeny_df["ancestor_id"].to_numpy(),
-                phylogeny_df["num_leaves"].to_numpy(),
-                phylogeny_df["left_child_id"].to_numpy(),
-            )
+        phylogeny_df[
+            "colless_index"
+        ] = alifestd_mark_colless_index_asexual_fast_path(
+            phylogeny_df["ancestor_id"].to_numpy(),
+            phylogeny_df["num_leaves"].to_numpy(),
+            phylogeny_df["left_child_id"].to_numpy(),
         )
     else:
-        phylogeny_df["colless_index"] = (
-            alifestd_mark_colless_index_asexual_slow_path(
-                phylogeny_df,
-            )
+        phylogeny_df[
+            "colless_index"
+        ] = alifestd_mark_colless_index_asexual_slow_path(
+            phylogeny_df,
         )
 
     return phylogeny_df

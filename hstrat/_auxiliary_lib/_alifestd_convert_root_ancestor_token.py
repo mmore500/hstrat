@@ -21,7 +21,7 @@ def alifestd_convert_root_ancestor_token(
     if not mutate:
         ancestor_list = ancestor_list.copy()
 
-    ancestor_list[ancestor_list.str.lower().isin(("[none]", "[]"))] = (
-        f"[{root_ancestor_token}]"
-    )
+    ancestor_list[
+        ancestor_list.str.lower().isin(("[none]", "[]"))
+    ] = f"[{root_ancestor_token}]"
     return ancestor_list

@@ -39,10 +39,10 @@ def alifestd_aggregate_phylogenies(
             phylogeny_df["id"] += aggregate_least_available_id
             if "ancestor_id" in phylogeny_df:
                 phylogeny_df["ancestor_id"] += aggregate_least_available_id
-                phylogeny_df["ancestor_list"] = (
-                    alifestd_make_ancestor_list_col(
-                        phylogeny_df["id"], phylogeny_df["ancestor_id"]
-                    )
+                phylogeny_df[
+                    "ancestor_list"
+                ] = alifestd_make_ancestor_list_col(
+                    phylogeny_df["id"], phylogeny_df["ancestor_id"]
                 )
             else:
                 phylogeny_df["ancestor_list"] = (

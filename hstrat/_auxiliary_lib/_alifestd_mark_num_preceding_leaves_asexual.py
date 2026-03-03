@@ -116,12 +116,12 @@ def alifestd_mark_num_preceding_leaves_asexual(
         )
 
     if alifestd_has_contiguous_ids(phylogeny_df):
-        phylogeny_df["num_preceding_leaves"] = (
-            _alifestd_mark_num_preceding_leaves_asexual_fast_path(
-                phylogeny_df["ancestor_id"].to_numpy(),
-                phylogeny_df["num_leaves"].to_numpy(),
-                phylogeny_df["is_right_child"].to_numpy(),
-            )
+        phylogeny_df[
+            "num_preceding_leaves"
+        ] = _alifestd_mark_num_preceding_leaves_asexual_fast_path(
+            phylogeny_df["ancestor_id"].to_numpy(),
+            phylogeny_df["num_leaves"].to_numpy(),
+            phylogeny_df["is_right_child"].to_numpy(),
         )
         return phylogeny_df
     else:
