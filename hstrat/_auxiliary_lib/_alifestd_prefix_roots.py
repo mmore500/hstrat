@@ -6,6 +6,7 @@ import os
 import typing
 import warnings
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
@@ -49,6 +50,10 @@ def _alifestd_prefix_roots_fast(
     insert=True,
     delete=False,
     update=True,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_prefix_roots instead.",
 )
 def alifestd_prefix_roots(
     phylogeny_df: pd.DataFrame,

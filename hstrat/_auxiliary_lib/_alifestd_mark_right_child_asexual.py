@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
@@ -59,6 +60,10 @@ def _alifestd_mark_right_child_asexual_slow_path(
     return phylogeny_df
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_mark_right_child_asexual instead.",
+)
 def alifestd_mark_right_child_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -83,10 +88,10 @@ def alifestd_mark_right_child_asexual(
     phylogeny_df = alifestd_try_add_ancestor_id_col(phylogeny_df, mutate=True)
 
     if alifestd_has_contiguous_ids(phylogeny_df):
-        phylogeny_df[
-            "right_child_id"
-        ] = _alifestd_mark_right_child_asexual_fast_path(
-            phylogeny_df["ancestor_id"].to_numpy()
+        phylogeny_df["right_child_id"] = (
+            _alifestd_mark_right_child_asexual_fast_path(
+                phylogeny_df["ancestor_id"].to_numpy()
+            )
         )
         return phylogeny_df
     else:

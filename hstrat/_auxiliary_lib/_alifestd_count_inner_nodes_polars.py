@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import polars as pl
 
 from ._alifestd_count_leaf_nodes_polars import alifestd_count_leaf_nodes_polars
@@ -11,6 +12,10 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_count_inner_nodes_polars instead.",
+)
 def alifestd_count_inner_nodes_polars(phylogeny_df: pl.DataFrame) -> int:
     """Count how many non-leaf nodes are contained in phylogeny."""
     num_leaves = alifestd_count_leaf_nodes_polars(phylogeny_df)

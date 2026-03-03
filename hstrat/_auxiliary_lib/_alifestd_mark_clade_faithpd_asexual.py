@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
@@ -64,6 +65,10 @@ def _alifestd_mark_clade_faithpd_asexual_slow_path(
     return phylogeny_df
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_mark_clade_faithpd_asexual instead.",
+)
 def alifestd_mark_clade_faithpd_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -104,11 +109,11 @@ def alifestd_mark_clade_faithpd_asexual(
         ].astype(np.int64)
 
     if alifestd_has_contiguous_ids(phylogeny_df):
-        phylogeny_df[
-            "clade_faithpd"
-        ] = _alifestd_mark_clade_faithpd_asexual_fast_path(
-            pd.to_numeric(phylogeny_df["ancestor_id"]).to_numpy(),
-            pd.to_numeric(phylogeny_df["origin_time_delta"]).to_numpy(),
+        phylogeny_df["clade_faithpd"] = (
+            _alifestd_mark_clade_faithpd_asexual_fast_path(
+                pd.to_numeric(phylogeny_df["ancestor_id"]).to_numpy(),
+                pd.to_numeric(phylogeny_df["origin_time_delta"]).to_numpy(),
+            )
         )
         return phylogeny_df
     else:

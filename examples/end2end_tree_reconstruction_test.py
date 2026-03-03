@@ -13,16 +13,8 @@ from colorclade import draw_colorclade_tree
 import matplotlib.pyplot as plt
 import opytional as opyt
 import pandas as pd
+from phyloframe import legacy as pfl
 from teeplot import teeplot as tp
-
-from hstrat._auxiliary_lib import (
-    alifestd_calc_triplet_distance_asexual,
-    alifestd_collapse_unifurcations,
-    alifestd_count_leaf_nodes,
-    alifestd_mark_node_depth_asexual,
-    alifestd_prune_extinct_lineages_asexual,
-    alifestd_try_add_ancestor_list_col,
-)
 
 
 def to_ascii(
@@ -31,10 +23,12 @@ def to_ascii(
     """Print a sample of the phylogeny dataframe."""
     phylogeny_df = phylogeny_df.copy()
     phylogeny_df["extant"] = phylogeny_df["taxon_label"].isin(taxon_labels)
-    phylogeny_df = alifestd_prune_extinct_lineages_asexual(
+    phylogeny_df = pfl.alifestd_prune_extinct_lineages_asexual(
         phylogeny_df, mutate=True
     ).drop(columns=["extant"])
-    phylogeny_df = alifestd_collapse_unifurcations(phylogeny_df, mutate=True)
+    phylogeny_df = pfl.alifestd_collapse_unifurcations(
+        phylogeny_df, mutate=True
+    )
 
     dp_tree = apc.RosettaTree(phylogeny_df).as_dendropy
     for nd in dp_tree.preorder_node_iter():
@@ -91,20 +85,20 @@ def sample_reference_and_reconstruction(
     path_vars = dict()  # outparam for exec
     exec(paths, path_vars)  # hack to load paths from shell script output
     true_phylo_df = load_df(path_vars["true_phylo_df_path"])
-    reconst_phylo_df = alifestd_try_add_ancestor_list_col(
+    reconst_phylo_df = pfl.alifestd_try_add_ancestor_list_col(
         load_df(path_vars["reconst_phylo_df_path"]),
     )  # ancestor_list column must be added to comply with alife standard
 
-    assert alifestd_count_leaf_nodes(
+    assert pfl.alifestd_count_leaf_nodes(
         true_phylo_df
-    ) == alifestd_count_leaf_nodes(reconst_phylo_df)
+    ) == pfl.alifestd_count_leaf_nodes(reconst_phylo_df)
 
     # we use == False and == True here because there are NaN values as well
     reconst_phylo_df_extant = reconst_phylo_df.copy()
     reconst_phylo_df_extant["extant"] = (
         reconst_phylo_df["is_fossil"] == False  # noqa: E712
     )
-    reconst_phylo_df_no_fossils = alifestd_prune_extinct_lineages_asexual(
+    reconst_phylo_df_no_fossils = pfl.alifestd_prune_extinct_lineages_asexual(
         reconst_phylo_df_extant,
     )
 
@@ -117,7 +111,9 @@ def sample_reference_and_reconstruction(
         .reset_index()
     )
 
-    true_phylo_df_no_fossils = alifestd_prune_extinct_lineages_asexual(new_df)
+    true_phylo_df_no_fossils = pfl.alifestd_prune_extinct_lineages_asexual(
+        new_df
+    )
 
     return {
         "exact": true_phylo_df,
@@ -141,11 +137,11 @@ def plot_colorclade_comparison(frames: typing.Dict[str, pd.DataFrame]) -> None:
     plt.style.use("dark_background")
     fig, axes = plt.subplots(3, 2)
 
-    frames["exact"] = alifestd_collapse_unifurcations(frames["exact"])
+    frames["exact"] = pfl.alifestd_collapse_unifurcations(frames["exact"])
     frames["exact"]["origin_time"] = frames["exact"]["depth"]
     frames["reconst"]["origin_time"] = frames["reconst"]["dstream_rank"]
 
-    frames["exact_dropped_fossils"] = alifestd_collapse_unifurcations(
+    frames["exact_dropped_fossils"] = pfl.alifestd_collapse_unifurcations(
         frames["exact_dropped_fossils"],
     )
     frames["exact_dropped_fossils"]["origin_time"] = frames[
@@ -155,8 +151,10 @@ def plot_colorclade_comparison(frames: typing.Dict[str, pd.DataFrame]) -> None:
         "reconst_dropped_fossils"
     ]["dstream_rank"]
 
-    true_df_no_lengths = alifestd_mark_node_depth_asexual(frames["exact"])
-    reconst_df_no_lengths = alifestd_mark_node_depth_asexual(frames["reconst"])
+    true_df_no_lengths = pfl.alifestd_mark_node_depth_asexual(frames["exact"])
+    reconst_df_no_lengths = pfl.alifestd_mark_node_depth_asexual(
+        frames["reconst"]
+    )
     true_df_no_lengths["origin_time"] = true_df_no_lengths["node_depth"]
     reconst_df_no_lengths["origin_time"] = reconst_df_no_lengths["node_depth"]
 
@@ -227,7 +225,7 @@ def display_reconstruction(
         tp.tee(
             plot_colorclade_comparison,
             {
-                k: alifestd_try_add_ancestor_list_col(v)
+                k: pfl.alifestd_try_add_ancestor_list_col(v)
                 for k, v in frames.items()
             },
             teeplot_dpi=100,
@@ -262,13 +260,15 @@ def test_reconstruct_one(
         fossil_interval=fossil_interval,
         create_plots=visualize,
     )
-    reconstruction_error = alifestd_calc_triplet_distance_asexual(
-        alifestd_collapse_unifurcations(frames["exact"]), frames["reconst"]
+    reconstruction_error = pfl.alifestd_calc_triplet_distance_asexual(
+        pfl.alifestd_collapse_unifurcations(frames["exact"]), frames["reconst"]
     )
 
     reconstruction_error_dropped_fossils = (
-        alifestd_calc_triplet_distance_asexual(
-            alifestd_collapse_unifurcations(frames["exact_dropped_fossils"]),
+        pfl.alifestd_calc_triplet_distance_asexual(
+            pfl.alifestd_collapse_unifurcations(
+                frames["exact_dropped_fossils"]
+            ),
             frames["reconst_dropped_fossils"],
         )
     )

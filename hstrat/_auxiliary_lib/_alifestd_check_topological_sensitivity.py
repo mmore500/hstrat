@@ -1,5 +1,6 @@
 import typing
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 # Columns that describe the node-to-parent relationship or position in the
@@ -66,6 +67,10 @@ def _get_sensitive_cols(insert: bool, delete: bool, update: bool) -> frozenset:
         return frozenset()
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_check_topological_sensitivity instead.",
+)
 def alifestd_check_topological_sensitivity(
     phylogeny_df: pd.DataFrame,
     *,

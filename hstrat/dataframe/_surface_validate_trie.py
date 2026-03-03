@@ -8,12 +8,11 @@ from downstream import dstream
 import more_itertools as mit
 import numpy as np
 import opytional as opyt
+from phyloframe import legacy as pfl
 import polars as pl
 
 from .._auxiliary_lib import (
     RngStateContext,
-    alifestd_has_contiguous_ids_polars,
-    alifestd_is_topologically_sorted_polars,
     get_sole_scalar_value_polars,
 )
 from .._auxiliary_lib._alifestd_find_leaf_ids import (
@@ -169,7 +168,7 @@ def surface_validate_trie(
     logging.info("surface_validate_trie: checking contiguous ids...")
     # required by _alifestd_find_leaf_ids_asexual_fast_path
     # and _alifestd_find_pair_mrca_id_asexual_fast_path
-    if not alifestd_has_contiguous_ids_polars(df):
+    if not pfl.alifestd_has_contiguous_ids_polars(df):
         raise ValueError(
             "surface_validate_trie: ids are not contiguous",
         )
@@ -177,7 +176,7 @@ def surface_validate_trie(
     logging.info("surface_validate_trie: checking topological sort...")
     # required by _alifestd_find_leaf_ids_asexual_fast_path
     # and _alifestd_find_pair_mrca_id_asexual_fast_path
-    if not alifestd_is_topologically_sorted_polars(df):
+    if not pfl.alifestd_is_topologically_sorted_polars(df):
         raise ValueError(
             "surface_validate_trie: data is not topologically sorted",
         )

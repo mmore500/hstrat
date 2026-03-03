@@ -1,5 +1,6 @@
 import typing
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -15,6 +16,10 @@ from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._jit import jit
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_coarsen_taxa_asexual_make_agg instead.",
+)
 def alifestd_coarsen_taxa_asexual_make_agg(
     phylogeny_df: pd.DataFrame,
     default_agg: str = "first",
@@ -75,6 +80,10 @@ def alifestd_coarsen_taxa_asexual_make_agg(
     insert=False,
     delete=True,
     update=True,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_coarsen_taxa_asexual instead.",
 )
 def alifestd_coarsen_taxa_asexual(
     phylogeny_df: pd.DataFrame,
@@ -140,13 +149,14 @@ def alifestd_coarsen_taxa_asexual(
     else:
         phylogeny_df.set_index("id", drop=False, inplace=True)
 
-    phylogeny_df[
-        "alifestd_coarsen_taxa_asexual_is_taxon_founder"
-    ] = np.logical_or.reduce(
-        phylogeny_df.loc[:, by].values.T
-        != phylogeny_df.loc[phylogeny_df["ancestor_id"].values, by].values.T
-    ) | (
-        phylogeny_df["is_root"].values
+    phylogeny_df["alifestd_coarsen_taxa_asexual_is_taxon_founder"] = (
+        np.logical_or.reduce(
+            phylogeny_df.loc[:, by].values.T
+            != phylogeny_df.loc[
+                phylogeny_df["ancestor_id"].values, by
+            ].values.T
+        )
+        | (phylogeny_df["is_root"].values)
     )
 
     if alifestd_has_contiguous_ids(phylogeny_df):
@@ -212,9 +222,9 @@ def _alifestd_coarsen_taxa_asexual_slow_path(
     `alifestd_mark_num_preceding_leaves_asexual`."""
     phylogeny_df.set_index("id", drop=False, inplace=True)
 
-    phylogeny_df[
-        "alifestd_coarsen_taxa_asexual_taxon_founder_id"
-    ] = phylogeny_df["id"]
+    phylogeny_df["alifestd_coarsen_taxa_asexual_taxon_founder_id"] = (
+        phylogeny_df["id"]
+    )
 
     for idx in phylogeny_df.index:
         ancestor_id = phylogeny_df.at[idx, "ancestor_id"]

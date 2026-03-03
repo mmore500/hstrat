@@ -1,5 +1,6 @@
 import logging
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import polars as pl
 
@@ -11,6 +12,10 @@ from ._alifestd_mark_num_children_asexual import (
 )
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_find_leaf_ids_polars instead.",
+)
 def alifestd_find_leaf_ids_polars(
     phylogeny_df: pl.DataFrame,
 ) -> np.ndarray:

@@ -1,3 +1,4 @@
+from deprecated.sphinx import deprecated
 import pandas as pd
 import tqdist
 
@@ -10,6 +11,10 @@ from . import (
 
 
 # adapted from https://github.com/mmore500/hstrat/blob/d23917cf03ba59061ff2f9b951efe79e995eb4d8/tests/test_hstrat/test_phylogenetic_inference/test_tree/_impl/_tree_quartet_distance.py
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_calc_triplet_distance_asexual instead.",
+)
 def alifestd_calc_triplet_distance_asexual(
     ref: pd.DataFrame,
     cmp: pd.DataFrame,

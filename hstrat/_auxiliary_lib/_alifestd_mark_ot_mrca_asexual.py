@@ -5,6 +5,7 @@ import os
 import typing
 import warnings
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import pandas as pd
@@ -23,6 +24,10 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_mark_ot_mrca_asexual instead.",
+)
 def alifestd_mark_ot_mrca_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

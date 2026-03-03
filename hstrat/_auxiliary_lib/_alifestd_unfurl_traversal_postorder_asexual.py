@@ -1,3 +1,4 @@
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -45,6 +46,10 @@ def _alifestd_unfurl_traversal_postorder_asexual_slow_path(
     return phylogeny_df.iloc[postorder_index, id_loc].to_numpy()
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_unfurl_traversal_postorder_asexual instead.",
+)
 def alifestd_unfurl_traversal_postorder_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

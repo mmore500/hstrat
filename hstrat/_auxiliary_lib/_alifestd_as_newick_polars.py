@@ -4,6 +4,7 @@ import os
 import pathlib
 import typing
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import polars as pl
 from tqdm import tqdm
@@ -30,6 +31,10 @@ from ._log_context_duration import log_context_duration
 
 # Performance (as of 2026-03-01, 200k-node caterpillar tree):
 #   hstrat ~10s vs treeswift ~5s
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_as_newick_polars instead.",
+)
 def alifestd_as_newick_polars(
     phylogeny_df: pl.DataFrame,
     *,

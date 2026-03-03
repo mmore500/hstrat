@@ -1,5 +1,6 @@
 import typing
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -109,6 +110,10 @@ def _alifestd_coarsen_mask_sexual(
     insert=False,
     delete=True,
     update=True,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_coarsen_mask instead.",
 )
 def alifestd_coarsen_mask(
     phylogeny_df: pd.DataFrame,

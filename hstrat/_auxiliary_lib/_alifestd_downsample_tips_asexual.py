@@ -5,6 +5,7 @@ import os
 import sys
 import typing
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
@@ -51,6 +52,10 @@ def _alifestd_downsample_tips_asexual_impl(
     insert=False,
     delete=True,
     update=False,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_downsample_tips_asexual instead.",
 )
 def alifestd_downsample_tips_asexual(
     phylogeny_df: pd.DataFrame,

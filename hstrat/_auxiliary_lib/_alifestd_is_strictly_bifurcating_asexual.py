@@ -1,3 +1,4 @@
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -5,6 +6,10 @@ from ._alifestd_to_working_format import alifestd_to_working_format
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_is_strictly_bifurcating_asexual instead.",
+)
 def alifestd_is_strictly_bifurcating_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

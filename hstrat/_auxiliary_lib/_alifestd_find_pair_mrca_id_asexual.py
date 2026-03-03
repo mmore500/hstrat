@@ -1,5 +1,6 @@
 import typing
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import opytional as opyt
 import pandas as pd
@@ -50,6 +51,10 @@ def _alifestd_find_pair_mrca_id_asexual_fast_path(
     return a
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_find_pair_mrca_id_asexual instead.",
+)
 def alifestd_find_pair_mrca_id_asexual(
     phylogeny_df: pd.DataFrame,
     first: int,

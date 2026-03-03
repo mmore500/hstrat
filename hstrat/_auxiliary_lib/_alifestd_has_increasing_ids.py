@@ -1,9 +1,14 @@
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_has_increasing_ids instead.",
+)
 def alifestd_has_increasing_ids(phylogeny_df: pd.DataFrame) -> bool:
     """Do offspring have larger id values than ancestors?
 

@@ -4,6 +4,7 @@ import os
 import pathlib
 import typing
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 import polars as pl
@@ -288,6 +289,10 @@ def _extract_labels(
 # Performance (as of 2026-03-01, 200k-node caterpillar tree, JIT-warmed):
 #   with branch lengths: hstrat ~0.9s vs treeswift ~1.1s (~0.8x)
 #   without branch lengths: hstrat ~0.6s vs treeswift ~1.0s (~0.7x)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_from_newick instead.",
+)
 def alifestd_from_newick(
     newick: str,
     *,

@@ -1,14 +1,10 @@
 import os
 import re
 
+from phyloframe import legacy as pfl
 import polars as pl
 import pytest
 
-from hstrat._auxiliary_lib import (
-    alifestd_is_chronologically_ordered,
-    alifestd_try_add_ancestor_list_col,
-    alifestd_validate,
-)
 from hstrat.dataframe import surface_unpack_reconstruct
 from hstrat.dataframe.surface_unpack_reconstruct import _create_parser
 
@@ -20,11 +16,11 @@ def test_smoke(pa_source_type: str):
     df = pl.read_csv(f"{assets_path}/packed.csv")
     res = surface_unpack_reconstruct(df, pa_source_type=pa_source_type)
     assert len(res) > len(df)
-    assert alifestd_validate(
-        alifestd_try_add_ancestor_list_col(res.to_pandas()),
+    assert pfl.alifestd_validate(
+        pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
     )
-    assert alifestd_is_chronologically_ordered(
-        alifestd_try_add_ancestor_list_col(
+    assert pfl.alifestd_is_chronologically_ordered(
+        pfl.alifestd_try_add_ancestor_list_col(
             res.with_columns(origin_time=pl.col("dstream_rank")).to_pandas(),
         ),
     )
@@ -35,11 +31,11 @@ def test_mp_pool_size(mp_pool_size: int):
     df = pl.read_csv(f"{assets_path}/packed.csv")
     res = surface_unpack_reconstruct(df, mp_pool_size=mp_pool_size)
     assert len(res) > len(df)
-    assert alifestd_validate(
-        alifestd_try_add_ancestor_list_col(res.to_pandas()),
+    assert pfl.alifestd_validate(
+        pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
     )
-    assert alifestd_is_chronologically_ordered(
-        alifestd_try_add_ancestor_list_col(
+    assert pfl.alifestd_is_chronologically_ordered(
+        pfl.alifestd_try_add_ancestor_list_col(
             res.with_columns(origin_time=pl.col("dstream_rank")).to_pandas(),
         ),
     )

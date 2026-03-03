@@ -1,12 +1,8 @@
 import os
 
+from phyloframe import legacy as pfl
 import polars as pl
 
-from hstrat._auxiliary_lib import (
-    alifestd_is_chronologically_ordered,
-    alifestd_try_add_ancestor_list_col,
-    alifestd_validate,
-)
 from hstrat.dataframe import surface_build_tree
 from hstrat.phylogenetic_inference.tree.trie_postprocess import (
     AssignOriginTimeNodeRankTriePostprocessor,
@@ -26,7 +22,7 @@ def test_smoke():
     )
     assert "origin_time" in res.columns
     assert len(df) <= len(res)
-    assert alifestd_validate(
-        alifestd_try_add_ancestor_list_col(res.to_pandas()),
+    assert pfl.alifestd_validate(
+        pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
     )
-    assert alifestd_is_chronologically_ordered(res.to_pandas())
+    assert pfl.alifestd_is_chronologically_ordered(res.to_pandas())

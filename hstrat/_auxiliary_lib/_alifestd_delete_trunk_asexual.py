@@ -4,6 +4,7 @@ import gc
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
@@ -26,6 +27,10 @@ from ._log_context_duration import log_context_duration
     insert=False,
     delete=True,
     update=True,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_delete_trunk_asexual instead.",
 )
 def alifestd_delete_trunk_asexual(
     phylogeny_df: pd.DataFrame,
@@ -85,11 +90,11 @@ def alifestd_delete_trunk_asexual(
         logging.info(
             "- alifestd_delete_trunk_asexual: updating ancestor_id...",
         )
-        phylogeny_df.loc[
-            phylogeny_df["ancestor_is_trunk"], "ancestor_id"
-        ] = phylogeny_df.loc[
-            phylogeny_df["ancestor_is_trunk"], "id"
-        ].to_numpy()
+        phylogeny_df.loc[phylogeny_df["ancestor_is_trunk"], "ancestor_id"] = (
+            phylogeny_df.loc[
+                phylogeny_df["ancestor_is_trunk"], "id"
+            ].to_numpy()
+        )
 
     if "ancestor_list" in phylogeny_df:
         logging.info(

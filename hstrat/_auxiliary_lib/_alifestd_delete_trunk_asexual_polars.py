@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import polars as pl
@@ -21,6 +22,10 @@ from ._log_context_duration import log_context_duration
     insert=False,
     delete=True,
     update=True,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_delete_trunk_asexual_polars instead.",
 )
 def alifestd_delete_trunk_asexual_polars(
     phylogeny_df: pl.DataFrame,

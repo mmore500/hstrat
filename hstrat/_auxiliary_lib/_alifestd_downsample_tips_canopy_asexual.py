@@ -5,6 +5,7 @@ import os
 import sys
 import typing
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
@@ -31,6 +32,10 @@ from ._log_context_duration import log_context_duration
     insert=False,
     delete=True,
     update=False,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_downsample_tips_canopy_asexual instead.",
 )
 def alifestd_downsample_tips_canopy_asexual(
     phylogeny_df: pd.DataFrame,

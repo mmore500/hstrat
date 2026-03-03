@@ -4,6 +4,7 @@ import logging
 import operator
 import os
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
@@ -88,6 +89,10 @@ def _create_has_extant_descendant_contiguous_sorted(
     insert=False,
     delete=True,
     update=False,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_prune_extinct_lineages_asexual instead.",
 )
 def alifestd_prune_extinct_lineages_asexual(
     phylogeny_df: pd.DataFrame,

@@ -3,6 +3,7 @@ import functools
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
@@ -28,6 +29,10 @@ from ._pairwise import pairwise
     insert=False,
     delete=False,
     update=True,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_reroot_at_id_asexual instead.",
 )
 def alifestd_reroot_at_id_asexual(
     phylogeny_df: pd.DataFrame,

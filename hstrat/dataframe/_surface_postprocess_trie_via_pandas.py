@@ -3,14 +3,11 @@ import logging
 import typing
 
 import pandas as pd
+from phyloframe import legacy as pfl
 import polars as pl
 from tqdm import tqdm
 
 from .._auxiliary_lib import (
-    alifestd_assign_contiguous_ids,
-    alifestd_collapse_unifurcations,
-    alifestd_delete_trunk_asexual,
-    alifestd_prefix_roots,
     get_sole_scalar_value_polars,
     log_context_duration,
     log_memory_usage,
@@ -24,12 +21,12 @@ def _do_collapse_unifurcations(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = alifestd_assign_contiguous_ids(df, mutate=True)
+        df = pfl.alifestd_assign_contiguous_ids(df, mutate=True)
 
     gc.collect()
 
     with log_context_duration("alifestd_collapse_unifurcations", logging.info):
-        df = alifestd_collapse_unifurcations(df, mutate=True)
+        df = pfl.alifestd_collapse_unifurcations(df, mutate=True)
 
     render_pandas_snapshot(df, "collapsed tree", logging.info)
 
@@ -42,7 +39,7 @@ def _do_delete_trunk(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = alifestd_assign_contiguous_ids(df, mutate=True)
+        df = pfl.alifestd_assign_contiguous_ids(df, mutate=True)
 
     gc.collect()
 
@@ -55,14 +52,14 @@ def _do_delete_trunk(
     df["origin_time"] = df["dstream_rank"]
 
     with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
-        df = alifestd_delete_trunk_asexual(df, mutate=True)
+        df = pfl.alifestd_delete_trunk_asexual(df, mutate=True)
 
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = alifestd_assign_contiguous_ids(df, mutate=True)
+        df = pfl.alifestd_assign_contiguous_ids(df, mutate=True)
 
     with log_context_duration("alifestd_prefix_roots", logging.info):
         # extend newly-clipped roots all the way back to dstream_S boundary
-        df = alifestd_prefix_roots(
+        df = pfl.alifestd_prefix_roots(
             df, allow_id_reassign=True, origin_time=dstream_S, mutate=True
         )
 
@@ -78,7 +75,7 @@ def _do_assign_contiguous_ids(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = alifestd_assign_contiguous_ids(df, mutate=True)
+        df = pfl.alifestd_assign_contiguous_ids(df, mutate=True)
 
     gc.collect()
 

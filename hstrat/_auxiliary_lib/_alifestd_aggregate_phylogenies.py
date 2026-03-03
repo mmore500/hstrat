@@ -1,11 +1,16 @@
 import typing
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_aggregate_phylogenies instead.",
+)
 def alifestd_aggregate_phylogenies(
     phylogeny_dfs: typing.List[pd.DataFrame],
     mutate: bool = False,
@@ -34,10 +39,10 @@ def alifestd_aggregate_phylogenies(
             phylogeny_df["id"] += aggregate_least_available_id
             if "ancestor_id" in phylogeny_df:
                 phylogeny_df["ancestor_id"] += aggregate_least_available_id
-                phylogeny_df[
-                    "ancestor_list"
-                ] = alifestd_make_ancestor_list_col(
-                    phylogeny_df["id"], phylogeny_df["ancestor_id"]
+                phylogeny_df["ancestor_list"] = (
+                    alifestd_make_ancestor_list_col(
+                        phylogeny_df["id"], phylogeny_df["ancestor_id"]
+                    )
                 )
             else:
                 phylogeny_df["ancestor_list"] = (

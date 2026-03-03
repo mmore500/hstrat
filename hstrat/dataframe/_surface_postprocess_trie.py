@@ -6,14 +6,11 @@ import typing
 import warnings
 
 from pandas import testing as pdt
+from phyloframe import legacy as pfl
 import polars as pl
 from tqdm import tqdm
 
 from .._auxiliary_lib import (
-    alifestd_assign_contiguous_ids_polars,
-    alifestd_collapse_unifurcations_polars,
-    alifestd_delete_trunk_asexual_polars,
-    alifestd_prefix_roots_polars,
     get_sole_scalar_value_polars,
     is_in_unit_test,
     log_context_duration,
@@ -32,13 +29,13 @@ def _do_collapse_unifurcations(
     logging.info("begin _do_collapse_unifurcations")
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = alifestd_assign_contiguous_ids_polars(df)
+        df = pfl.alifestd_assign_contiguous_ids_polars(df)
 
     gc.collect()
 
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_collapse_unifurcations", logging.info):
-        df = alifestd_collapse_unifurcations_polars(df)
+        df = pfl.alifestd_collapse_unifurcations_polars(df)
 
     render_polars_snapshot(df, "collapsed tree", logging.info)
 
@@ -53,7 +50,7 @@ def _do_delete_trunk(
     logging.info("begin _do_delete_trunk")
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = alifestd_assign_contiguous_ids_polars(df)
+        df = pfl.alifestd_assign_contiguous_ids_polars(df)
 
     gc.collect()
 
@@ -67,16 +64,16 @@ def _do_delete_trunk(
 
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
-        df = alifestd_delete_trunk_asexual_polars(df)
+        df = pfl.alifestd_delete_trunk_asexual_polars(df)
 
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = alifestd_assign_contiguous_ids_polars(df)
+        df = pfl.alifestd_assign_contiguous_ids_polars(df)
 
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_prefix_roots", logging.info):
         # extend newly-clipped roots all the way back to dstream_S boundary
-        df = alifestd_prefix_roots_polars(
+        df = pfl.alifestd_prefix_roots_polars(
             df, allow_id_reassign=True, origin_time=dstream_S
         )
 
@@ -94,7 +91,7 @@ def _do_assign_contiguous_ids(
     logging.info("begin _do_assign_contiguous_ids")
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = alifestd_assign_contiguous_ids_polars(df)
+        df = pfl.alifestd_assign_contiguous_ids_polars(df)
 
     gc.collect()
 

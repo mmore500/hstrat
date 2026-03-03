@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
@@ -36,6 +37,10 @@ def _alifestd_get_ancestor_origin_time_asexual_contiguous(
     return ancestor_origin_times
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_mark_ancestor_origin_time_asexual instead.",
+)
 def alifestd_mark_ancestor_origin_time_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -65,11 +70,11 @@ def alifestd_mark_ancestor_origin_time_asexual(
 
     if alifestd_has_contiguous_ids(phylogeny_df) and not phylogeny_df.empty:
         # optimized implementation for contiguous ids
-        phylogeny_df[
-            "ancestor_origin_time"
-        ] = _alifestd_get_ancestor_origin_time_asexual_contiguous(
-            phylogeny_df["ancestor_id"].values,
-            phylogeny_df["origin_time"].values,
+        phylogeny_df["ancestor_origin_time"] = (
+            _alifestd_get_ancestor_origin_time_asexual_contiguous(
+                phylogeny_df["ancestor_id"].values,
+                phylogeny_df["origin_time"].values,
+            )
         )
         return phylogeny_df
 

@@ -1,3 +1,4 @@
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -57,6 +58,10 @@ def _alifestd_calc_clade_trait_count_asexual_slow_path(
         return phylogeny_df["alifestd_calc_trait_count_asexual"].to_numpy()
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_calc_clade_trait_count_asexual instead.",
+)
 def alifestd_calc_clade_trait_count_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

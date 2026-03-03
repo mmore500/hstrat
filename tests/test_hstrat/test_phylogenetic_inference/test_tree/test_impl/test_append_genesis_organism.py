@@ -1,11 +1,11 @@
 import pandas as pd
+from phyloframe import legacy as pfl
 
-from hstrat._auxiliary_lib import alifestd_make_empty
 import hstrat.phylogenetic_inference.tree._impl as impl
 
 
 def test_append_genesis_organism_empty():
-    df = alifestd_make_empty()
+    df = pfl.alifestd_make_empty()
     df["origin_time"] = []
 
     expected_df = pd.DataFrame(

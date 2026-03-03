@@ -1,5 +1,6 @@
 import typing
 
+from deprecated.sphinx import deprecated
 import opytional as opyt
 import polars as pl
 
@@ -17,6 +18,10 @@ from ._alifestd_try_add_ancestor_id_col_polars import (
 )
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_find_pair_mrca_id_polars instead.",
+)
 def alifestd_find_pair_mrca_id_polars(
     phylogeny_df: pl.DataFrame,
     first: int,

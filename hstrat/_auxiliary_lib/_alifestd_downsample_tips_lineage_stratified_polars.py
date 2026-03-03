@@ -6,6 +6,7 @@ import logging
 import os
 import typing
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import opytional as opyt
@@ -50,6 +51,10 @@ from ._log_memory_usage import log_memory_usage
     insert=False,
     delete=True,
     update=False,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_downsample_tips_lineage_stratified_polars instead.",
 )
 def alifestd_downsample_tips_lineage_stratified_polars(
     phylogeny_df: pl.DataFrame,

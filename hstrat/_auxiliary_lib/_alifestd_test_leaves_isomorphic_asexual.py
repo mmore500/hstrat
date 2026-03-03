@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 from tqdm import tqdm
 
@@ -16,6 +17,10 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_test_leaves_isomorphic_asexual instead.",
+)
 def alifestd_test_leaves_isomorphic_asexual(
     df1: pd.DataFrame,
     df2: pd.DataFrame,

@@ -80,7 +80,9 @@ executing==2.2.1
 fastjsonschema==2.21.2
     # via nbformat
 fishersrc==0.1.15
-    # via hstrat (../../pyproject.toml)
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   phyloframe
 fonttools==4.61.1
     # via matplotlib
 idna==3.11
@@ -111,11 +113,13 @@ jinja2==3.1.6
 joblib==1.5.3
     # via
     #   hstrat (../../pyproject.toml)
+    #   phyloframe
     #   scikit-learn
 joinem==0.11.1
     # via
     #   hstrat (../../pyproject.toml)
     #   downstream
+    #   phyloframe
 jsonschema==4.26.0
     # via nbformat
 jsonschema-specifications==2025.9.1
@@ -141,6 +145,7 @@ lazy-loader==0.4
     # via
     #   hstrat (../../pyproject.toml)
     #   downstream
+    #   phyloframe
 lru-dict==1.4.1
     # via hstrat (../../pyproject.toml)
 markupsafe==3.0.3
@@ -163,6 +168,7 @@ more-itertools==10.8.0
     # via
     #   hstrat (../../pyproject.toml)
     #   keyname
+    #   phyloframe
 mpmath==1.4.0
     # via hstrat (../../pyproject.toml)
 multidict==6.7.1
@@ -200,6 +206,7 @@ numpy==2.4.2
     #   matplotlib
     #   pandas
     #   patsy
+    #   phyloframe
     #   pyerfa
     #   scikit-learn
     #   scipy
@@ -210,8 +217,11 @@ opytional==0.1.0
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
     #   downstream
+    #   phyloframe
 ordered-set==4.1.0
-    # via hstrat (../../pyproject.toml)
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   phyloframe
 packaging==26.0
     # via
     #   hstrat (../../pyproject.toml)
@@ -227,6 +237,7 @@ pandas==2.3.3
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
+    #   phyloframe
     #   seaborn
     #   statsmodels
 pandera==0.29.0
@@ -239,6 +250,8 @@ patsy==1.0.2
     # via statsmodels
 pexpect==4.9.0
     # via ipython
+phyloframe==0.1.0
+    # via hstrat (../../pyproject.toml)
 pickleshare==0.7.5
     # via ipython
 pillow==12.1.1
@@ -250,6 +263,7 @@ polars==1.37.1
     #   hstrat (../../pyproject.toml)
     #   downstream
     #   joinem
+    #   phyloframe
 polars-runtime-32==1.37.1
     # via polars
 polars-runtime-64==1.37.1
@@ -271,6 +285,7 @@ py==1.11.0
 pyarrow==23.0.1
     # via
     #   hstrat (../../pyproject.toml)
+    #   phyloframe
     #   polars
 pybind11==2.13.6
     # via hstrat (../../pyproject.toml)
@@ -319,7 +334,9 @@ rpds-py==0.30.0
 safe-assert==0.5.0
     # via hstrat (../../pyproject.toml)
 scikit-learn==1.8.0
-    # via hstrat (../../pyproject.toml)
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   phyloframe
 scipy==1.17.1
     # via
     #   scikit-learn
@@ -336,6 +353,7 @@ sortedcontainers==2.4.0
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
+    #   phyloframe
 soupsieve==2.8.3
     # via beautifulsoup4
 sphinx==8.1.3
@@ -363,7 +381,9 @@ sphinxcontrib-serializinghtml==2.0.0
 stack-data==0.6.3
     # via ipython
 statsmodels==0.14.6
-    # via hstrat (../../pyproject.toml)
+    # via
+    #   hstrat (../../pyproject.toml)
+    #   phyloframe
 text-unidecode==1.3
     # via python-slugify
 threadpoolctl==3.6.0
@@ -374,10 +394,13 @@ tornado==6.5.4
     # via
     #   ipykernel
     #   jupyter-client
+tqdist==1.0
+    # via phyloframe
 tqdm==4.67.3
     # via
     #   hstrat (../../pyproject.toml)
     #   joinem
+    #   phyloframe
 traitlets==5.14.3
     # via
     #   ipykernel
@@ -399,6 +422,7 @@ typing-extensions==4.15.0
     #   alifedata-phyloinformatics-convert
     #   beautifulsoup4
     #   pandera
+    #   phyloframe
     #   pydantic
     #   pydantic-core
     #   referencing
