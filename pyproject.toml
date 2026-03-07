@@ -105,6 +105,7 @@ testing = [
   "contexttimer==0.3.3",
   "coverage>=7.6.1",
   "flake8==3.7.8",
+  "isort>=5.12.0",
   "iterify==0.1.0",
   "more-itertools>=8.13.0",
   "mypy==0.991",
