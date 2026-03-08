@@ -25,18 +25,14 @@ from ._surface_postprocess_trie_via_pandas import (
 
 def _apply_empty_output_schema(df: pl.DataFrame) -> pl.DataFrame:
     """Transform an empty trie DataFrame to match the postprocessed output
-    schema: add ``hstrat_rank`` and drop internal-only columns.
-
-    Also casts ``ancestor_id`` to ``Int64`` to match the type produced by
-    phyloframe's ``alifestd_assign_contiguous_ids_polars`` in the non-empty
-    path.
-    """
+    schema: add ``hstrat_rank`` and drop internal-only columns."""
     if "dstream_rank" in df.columns and "dstream_S" in df.columns:
         df = df.with_columns(
             hstrat_rank=pl.col("dstream_rank") - pl.col("dstream_S"),
         )
+    # phyloframe may have cast ancestor_id to Int64; restore documented UInt64
     if "ancestor_id" in df.columns:
-        df = df.with_columns(pl.col("ancestor_id").cast(pl.Int64))
+        df = df.with_columns(pl.col("ancestor_id").cast(pl.UInt64))
     df = df.drop(
         "dstream_S",
         "hstrat_differentia_bitwidth",
@@ -313,6 +309,10 @@ def surface_postprocess_trie(
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df = df.drop(*to_drop)
+
+    # phyloframe may convert ancestor_id to Int64; restore documented UInt64
+    if "ancestor_id" in df.columns:
+        df = df.with_columns(pl.col("ancestor_id").cast(pl.UInt64))
 
     render_polars_snapshot(df, "as polars", logging.info)
     gc.collect()

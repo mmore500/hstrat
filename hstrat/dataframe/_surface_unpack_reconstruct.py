@@ -746,19 +746,16 @@ def surface_unpack_reconstruct(
             "dstream_S": pl.UInt32,
         }
         result = pl.DataFrame(schema=core_schema)
-        # forward user-defined columns with matching (empty) types
-        if isinstance(df, pl.LazyFrame):
-            input_schema = df.collect_schema()
-        else:
-            input_schema = df.schema
-        dstream_re = {"dstream_", "downstream_"}
-        for col_name, col_type in input_schema.items():
-            if col_name not in result.columns and not any(
-                col_name.startswith(p) for p in dstream_re
-            ):
-                result = result.with_columns(
-                    pl.Series(col_name, [], dtype=col_type),
-                )
+        try:
+            result = _join_user_defined_columns(
+                df, result, drop_dstream_metadata
+            )
+        except pl.exceptions.ColumnNotFoundError:
+            result = _join_user_defined_columns(
+                df.with_row_index("dstream_data_id"),
+                result,
+                drop_dstream_metadata,
+            )
         return result
 
     logging.info("extracting metadata...")
