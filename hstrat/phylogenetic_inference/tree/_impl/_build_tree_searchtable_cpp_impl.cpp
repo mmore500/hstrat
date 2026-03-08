@@ -7,6 +7,7 @@
 #include <atomic>
 #include <bit>
 #include <cassert>
+#include <chrono>
 #include <functional>
 #include <limits>
 #include <numeric>
@@ -14,6 +15,7 @@
 #include <span>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -1154,9 +1156,7 @@ struct ProgressBar {
 
 
 /**
- * Lock-free atomic counter that can be incremented without the GIL.
- * Exposed to Python so a polling thread can read the value and drive
- * tqdm updates from the Python side.
+ * Lock-free atomic counter incremented without the GIL from the hot loop.
  */
 struct AtomicCounter {
   std::atomic<u64> value{0};
@@ -1259,7 +1259,7 @@ void extend_trie_searchtable_exploded(
   const py::array_t<u64> &num_strata_depositeds,
   const py::array_t<i64> &ranks,
   const py::array_t<u64> &differentiae,
-  AtomicCounter &progress_counter
+  const py::handle &progress_ctor
 ) {
   assert(
     data_ids.size() == num_strata_depositeds.size()
@@ -1276,6 +1276,39 @@ void extend_trie_searchtable_exploded(
 
   const auto logging_info = py::module::import("logging").attr("info");
   logging_info("exploded searchtable cpp begin");
+
+  const u64 total = [&data_ids_](){
+    py_array_span<u64> span{
+      data_ids_, 0, static_cast<u64>(data_ids_.size())
+    };
+    return count_unique_elements(span.begin(), span.end());
+  }();
+
+  // create tqdm progress bar while we still hold the GIL
+  py::object pbar = progress_ctor("total"_a=total);
+
+  AtomicCounter counter;
+  std::atomic<bool> done{false};
+
+  // background thread that periodically acquires the GIL to update tqdm
+  std::thread progress_thread([&counter, &done, &pbar]() {
+    u64 prev = 0;
+    while (!done.load(std::memory_order_relaxed)) {
+      std::this_thread::sleep_for(std::chrono::seconds(10));
+      u64 cur = counter.load();
+      if (cur > prev) {
+        py::gil_scoped_acquire acquire;
+        pbar.attr("update")(cur - prev);
+        prev = cur;
+      }
+    }
+    // final update
+    u64 cur = counter.load();
+    if (cur > prev) {
+      py::gil_scoped_acquire acquire;
+      pbar.attr("update")(cur - prev);
+    }
+  });
 
   {  // release GIL for the entire insertion loop
     py::gil_scoped_release release;
@@ -1296,9 +1329,15 @@ void extend_trie_searchtable_exploded(
         num_strata_depositeds_[begin]
       );
       begin = end;
-      progress_counter.increment();
+      counter.increment();
     }
+    done.store(true, std::memory_order_relaxed);
+    // join progress thread while GIL is released so it can do
+    // its final py::gil_scoped_acquire without deadlocking
+    progress_thread.join();
   }  // GIL reacquired
+
+  pbar.attr("close")();
 
   logging_info(
     py::str(
@@ -1328,9 +1367,8 @@ py::dict build_trie_searchtable_exploded(
   const py::handle &progress_ctor
 ) {
   Records records{static_cast<u64>(data_ids.size())};
-  AtomicCounter progress_counter;
   extend_trie_searchtable_exploded(
-    records, data_ids, num_strata_depositeds, ranks, differentiae, progress_counter
+    records, data_ids, num_strata_depositeds, ranks, differentiae, progress_ctor
   );
 
   const auto logging_info = py::module::import("logging").attr("info");
@@ -1966,11 +2004,6 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
         py::arg("rank"),
         py::arg("differentia")
   );
-  py::class_<AtomicCounter>(m, "AtomicCounter")
-      .def(py::init<>())
-      .def("increment", &AtomicCounter::increment,
-        py::arg("n")=1)
-      .def("load", &AtomicCounter::load);
   m.def(
     "collapse_unifurcations",
     &collapse_unifurcations,
@@ -1995,7 +2028,7 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
     py::arg("num_strata_depositeds"),
     py::arg("ranks"),
     py::arg("differentiae"),
-    py::arg("progress_counter")
+    py::arg("progress_bar")
   );
   m.def(
     "build_tree_searchtable_cpp_from_exploded",
