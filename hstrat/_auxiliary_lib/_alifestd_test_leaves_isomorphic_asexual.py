@@ -124,6 +124,8 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
+    from phyloframe import legacy as pfl
+
     begin_prod_logging()
 
     parser = _create_parser()
@@ -149,10 +151,10 @@ if __name__ == "__main__":
     }[os.path.splitext(args.second_phylogeny)[1]](args.second_phylogeny)
 
     with log_context_duration(
-        "hstrat._auxiliary_lib.alifestd_test_leaves_isomorphic_asexual",
+        "pfl.alifestd_test_leaves_isomorphic_asexual",
         logging.info,
     ):
-        result = alifestd_test_leaves_isomorphic_asexual(
+        result = pfl.alifestd_test_leaves_isomorphic_asexual(
             first_df,
             second_df,
             taxon_label=args.taxon_label,
