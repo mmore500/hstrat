@@ -28,9 +28,9 @@ def _apply_empty_output_schema(df: pl.DataFrame) -> pl.DataFrame:
     schema: add ``hstrat_rank`` and drop internal-only columns."""
     assert df.is_empty(), "expected empty DataFrame"
     df = df.with_columns(
+        ancestor_id=pl.col("ancestor_id").cast(pl.UInt64),
         hstrat_rank=pl.lit(None, dtype=pl.UInt64),
     )
-    df = df.with_columns(pl.col("ancestor_id").cast(pl.UInt64))
     return df.drop(
         "dstream_S",
         "hstrat_differentia_bitwidth",
@@ -308,8 +308,7 @@ def surface_postprocess_trie(
     df = df.drop(*to_drop)
 
     # phyloframe may convert ancestor_id to Int64; restore documented UInt64
-    if "ancestor_id" in df.columns:
-        df = df.with_columns(pl.col("ancestor_id").cast(pl.UInt64))
+    df = df.cast({"ancestor_id": pl.UInt64})
 
     render_polars_snapshot(df, "as polars", logging.info)
     gc.collect()
