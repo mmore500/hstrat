@@ -28,7 +28,6 @@ def _apply_empty_output_schema(df: pl.DataFrame) -> pl.DataFrame:
     schema: add ``hstrat_rank`` and drop internal-only columns."""
     assert df.is_empty()
     df = df.with_columns(
-        id=pl.col("id").cast(pl.UInt32),
         ancestor_id=pl.col("ancestor_id").cast(pl.UInt64),
         hstrat_rank=pl.lit(None, dtype=pl.Int64),
     )
@@ -215,7 +214,7 @@ def surface_postprocess_trie(
         alife standard format, with the following columns:
 
         Required schema:
-        - 'id' : pl.UInt32
+        - 'id' : pl.UInt64
             - Unique identifier for each taxon (RE alife standard format).
         - 'ancestor_id' : pl.UInt64
             - Unique identifier for ancestor taxon  (RE alife standard format).

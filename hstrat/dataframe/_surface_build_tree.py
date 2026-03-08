@@ -115,7 +115,7 @@ def surface_build_tree(
         alife standard format, with the following columns:
 
         Required schema:
-        - 'id' : pl.UInt32
+        - 'id' : pl.UInt64
             - Unique identifier for each taxon (RE alife standard format).
         - 'ancestor_id' : pl.UInt64
             - Unique identifier for ancestor taxon  (RE alife standard format).

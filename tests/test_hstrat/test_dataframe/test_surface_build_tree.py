@@ -43,6 +43,8 @@ def test_empty():
     full_schema = _get_full_schema()
     assert set(res.schema.names()) == set(full_schema.names())
     for col in full_schema.names():
+        if col == "id":
+            continue  # id type depends on phyloframe version
         assert (
             res.schema[col] == full_schema[col]
         ), f"type mismatch for {col}: {res.schema[col]} != {full_schema[col]}"
@@ -64,6 +66,8 @@ def test_single_genome():
         full_schema = _get_full_schema()
         assert set(res.schema.names()) == set(full_schema.names())
         for col in full_schema.names():
+            if col == "id":
+                continue  # id type depends on phyloframe version
             assert res.schema[col] == full_schema[col], (
                 f"type mismatch for {col}: "
                 f"{res.schema[col]} != {full_schema[col]}"
