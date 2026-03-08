@@ -346,8 +346,7 @@ def _build_records_chunked(
 
         for i in range(nslices):
             logging.info(
-                f"taking exploded df off queue "
-                f"({i + 1} / {nslices})...",
+                f"taking exploded df off queue " f"({i + 1} / {nslices})...",
             )
 
             if readahead_future is not None:
@@ -385,7 +384,9 @@ def _build_records_chunked(
                     f"({i + 2} / {nslices})...",
                 )
                 readahead_future = reader.submit(
-                    _read_slice, next_inpath, pa_source_type,
+                    _read_slice,
+                    next_inpath,
+                    pa_source_type,
                 )
                 readahead_inpath = next_inpath
 
@@ -433,7 +434,9 @@ def _build_records_chunked(
                     f"({i + 1} / {nslices})",
                     logging.info,
                 ):
-                    records = collapse_unifurcations(records, dropped_only=True)
+                    records = collapse_unifurcations(
+                        records, dropped_only=True
+                    )
 
             if (
                 check_trie_invariant_after_collapse_unif
