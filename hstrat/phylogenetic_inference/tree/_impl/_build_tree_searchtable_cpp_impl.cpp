@@ -1147,6 +1147,8 @@ struct ProgressBar {
 
   void operator()() { this->_pbar.attr("update")(1); }
 
+  void operator()(u64 n) { this->_pbar.attr("update")(n); }
+
 };
 
 
@@ -1269,23 +1271,35 @@ void extend_trie_searchtable_exploded(
     }();
     ProgressBar pbar{progress_ctor("total"_a=total)};
 
-    u64 end;
-    for (u64 begin = 0; begin < static_cast<u64>(ranks.size()); begin = end) {
-      for (end = begin; end < static_cast<u64>(ranks.size()); ++end) {
-        if (data_ids_[begin] != data_ids_[end]) break;
-        // ranks must be in ascending order
-        else assert(begin == end || ranks_[end - 1] < ranks_[end]);
-      }  // ... fast fwd to end of seg w/ contiguous identical data_id values
+    constexpr u64 pbar_batch_size = 100;
+    u64 begin = 0;
+    while (begin < static_cast<u64>(ranks.size())) {
+      u64 batch_count = 0;
+      {  // release GIL for the computational hot path
+        py::gil_scoped_release release;
+        while (
+          begin < static_cast<u64>(ranks.size())
+          && batch_count < pbar_batch_size
+        ) {
+          u64 end = begin;
+          for (; end < static_cast<u64>(ranks.size()); ++end) {
+            if (data_ids_[begin] != data_ids_[end]) break;
+            // ranks must be in ascending order
+            else assert(begin == end || ranks_[end - 1] < ranks_[end]);
+          }  // ... fast fwd to end of seg w/ contiguous identical data_id values
 
-      insert_artifact(
-        records,
-        py_array_span<i64>(ranks_, begin, end),
-        py_array_span<u64>(differentiae_, begin, end),
-        data_ids_[begin],
-        num_strata_depositeds_[begin]
-      );
-      pbar();
-
+          insert_artifact(
+            records,
+            py_array_span<i64>(ranks_, begin, end),
+            py_array_span<u64>(differentiae_, begin, end),
+            data_ids_[begin],
+            num_strata_depositeds_[begin]
+          );
+          begin = end;
+          ++batch_count;
+        }
+      }  // GIL reacquired here for pbar Python callback
+      pbar(batch_count);
     }
 
     assert(std::cmp_greater_equal(records.size(), total));
