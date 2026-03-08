@@ -89,6 +89,29 @@ def test_parser_no_prefix_matching_drop():
     assert "awoo" in remaining
 
 
+def test_empty():
+    """Regression: empty genome set should produce an empty phylogeny without
+    crashing."""
+    df = pl.read_csv(f"{assets_path}/packed.csv").head(0)
+    res = surface_unpack_reconstruct(df)
+    assert len(res) == 0
+
+
+def test_single_genome():
+    """Regression: a single genome should produce a valid phylogeny."""
+    df = pl.read_csv(f"{assets_path}/packed.csv").head(1)
+    res = surface_unpack_reconstruct(df)
+    assert len(res) >= 1
+    assert pfl.alifestd_validate(
+        pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
+    )
+    assert pfl.alifestd_is_chronologically_ordered(
+        pfl.alifestd_try_add_ancestor_list_col(
+            res.with_columns(origin_time=pl.col("dstream_rank")).to_pandas(),
+        ),
+    )
+
+
 def test_drop_dstream_metadata_false():
     """Passing drop_dstream_metadata=False should retain dstream columns."""
     df = pl.read_csv(f"{assets_path}/packed.csv")

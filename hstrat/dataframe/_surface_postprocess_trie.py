@@ -66,6 +66,12 @@ def _do_delete_trunk(
     with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
         df = pfl.alifestd_delete_trunk_asexual_polars(df)
 
+    if df.lazy().limit(1).collect().is_empty():
+        logging.info("empty dataframe after trunk deletion")
+        return df.drop(
+            ["is_trunk", "ancestor_is_trunk", "origin_time"], strict=False
+        )
+
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
         df = pfl.alifestd_assign_contiguous_ids_polars(df)
@@ -233,6 +239,10 @@ def surface_postprocess_trie(
     log_memory_usage(logging.info)
     render_polars_snapshot(df, "raw tree", logging.info)
 
+    if df.lazy().limit(1).collect().is_empty():
+        logging.info("empty input dataframe, returning empty result")
+        return df
+
     logging.info("extracting differentia bitwidth")
     differentia_bitwidth = get_sole_scalar_value_polars(
         df, "hstrat_differentia_bitwidth"
@@ -243,6 +253,10 @@ def surface_postprocess_trie(
 
     if delete_trunk:
         df = _do_delete_trunk(df)
+
+    if df.lazy().limit(1).collect().is_empty():
+        logging.info("empty dataframe after trunk deletion, returning")
+        return df
 
     df = _do_collapse_unifurcations(df)
 
