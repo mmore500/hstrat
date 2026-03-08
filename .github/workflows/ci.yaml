@@ -393,12 +393,47 @@ jobs:
           key: cibw-cache-${{ matrix.os }}-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
             cibw-cache-${{ matrix.os }}-
+      - name: Pre-download virtualenv for cibuildwheel
+        shell: bash
+        run: |
+          # cibuildwheel downloads virtualenv.pyz from GitHub, which is
+          # prone to 429 rate limiting; pre-download with curl retries
+          # extract virtualenv version from cibuildwheel's bundled constraints
+          pip install cibuildwheel==2.23.3
+          VENV_VERSION=$(pip show virtualenv 2>/dev/null | grep ^Version | cut -d' ' -f2 || true)
+          if [ -z "$VENV_VERSION" ]; then
+            pip install virtualenv
+            VENV_VERSION=$(pip show virtualenv | grep ^Version | cut -d' ' -f2)
+          fi
+          # also check cibuildwheel's constraint files for the pinned version
+          PINNED_VERSION=$(python3 -c "
+          import pathlib, sysconfig, os
+          site = sysconfig.get_path('purelib')
+          for f in pathlib.Path(site, 'cibuildwheel', 'resources').glob('constraints-*.txt'):
+              for line in f.read_text().splitlines():
+                  if line.startswith('virtualenv=='):
+                      print(line.split('==')[1]); raise SystemExit
+          " 2>/dev/null || true)
+          VENV_VERSION="${PINNED_VERSION:-$VENV_VERSION}"
+          echo "Detected virtualenv version: $VENV_VERSION"
+          case "$RUNNER_OS" in
+            macOS) CACHE_DIR="$HOME/Library/Caches/cibuildwheel" ;;
+            Windows) CACHE_DIR="${LOCALAPPDATA:-$HOME/AppData/Local}/pypa/cibuildwheel/Cache" ;;
+            *) CACHE_DIR="$HOME/.cache/cibuildwheel" ;;
+          esac
+          mkdir -p "$CACHE_DIR"
+          TARGET="$CACHE_DIR/virtualenv-${VENV_VERSION}.pyz"
+          if [ ! -f "$TARGET" ]; then
+            echo "Downloading virtualenv ${VENV_VERSION} to ${TARGET}..."
+            curl -sL --retry 5 --retry-delay 10 --retry-all-errors \
+              -o "$TARGET" \
+              "https://github.com/pypa/get-virtualenv/blob/${VENV_VERSION}/public/virtualenv.pyz?raw=true"
+          else
+            echo "virtualenv ${VENV_VERSION} already cached at ${TARGET}"
+          fi
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.23.3
         env:
-          # use pip-installed virtualenv instead of downloading .pyz from
-          # GitHub, which is prone to 429 rate limiting
-          CIBW_DEPENDENCY_VERSIONS: latest
           # workaround pyarrow wheel issue
           # pre-install scipy with --only-binary to avoid source builds
           # failing in manylinux2014 containers without OpenBLAS
