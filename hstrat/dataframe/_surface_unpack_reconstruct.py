@@ -14,6 +14,7 @@ import pyarrow as pa
 import tqdm
 
 from .._auxiliary_lib import (
+    configure_prod_logging,
     get_sole_scalar_value_polars,
     give_len,
     iter_slices,
@@ -591,7 +592,10 @@ def _generate_exploded_slices_mp(
         logging.info(
             f"creating multiprocessing pool with {mp_pool_size} workers",
         )
-        with mp_context.Pool(processes=mp_pool_size) as pool:
+        with mp_context.Pool(
+            processes=mp_pool_size,
+            initializer=configure_prod_logging,
+        ) as pool:
             yield give_len(
                 pool.imap(
                     _explode_and_write_slice,
