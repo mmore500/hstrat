@@ -1,4 +1,3 @@
-import collections
 import concurrent.futures
 import contextlib
 import gc
