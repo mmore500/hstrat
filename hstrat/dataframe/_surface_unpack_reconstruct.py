@@ -1,3 +1,5 @@
+import collections
+import concurrent.futures
 import contextlib
 import gc
 import logging
@@ -309,6 +311,14 @@ def _run_trie_invariant_checks(records: Records, context: str) -> None:
     logging.info(f"all trie invariant checks passed ({context})")
 
 
+def _read_slice(inpath: str, pa_source_type: str) -> dict:
+    """Read an Arrow IPC slice from disk and convert columns to numpy."""
+    _cols = ("dstream_data_id", "dstream_T", "dstream_Tbar", "dstream_value")
+    with getattr(pa, pa_source_type)(inpath, "rb") as source:
+        pa_table = pa.ipc.open_file(source).read_all()
+    return {col: pa_table[col].to_numpy() for col in _cols}
+
+
 def _build_records_chunked(
     slices: typing.Iterator[str],
     collapse_unif_freq: int,
@@ -325,43 +335,66 @@ def _build_records_chunked(
     records = Records(init_size)  # handle for C++ tree-building data
 
     logging.info("consuming from exploded df worker")
-    for i, inpath in enumerate(slices):
-        logging.info(
-            f"taking exploded df off queue ({i + 1} / {len(slices)})...",
-        )
+    nslices = len(slices)
+    # use a background thread to read-ahead the next slice while the
+    # current one is being incorporated into the trie by C++ code
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as reader:
+        slices_iter = iter(slices)
+        readahead_future = None  # Future for the next slice's read
+        readahead_inpath = None  # path of the readahead slice
 
-        logging.info(
-            f"opening slice ({i + 1} / {len(slices)}) from {inpath} "
-            f" using {pa_source_type=}...",
-        )
-        try:
-            with getattr(pa, pa_source_type)(inpath, "rb") as source:
+        for i in range(nslices):
+            logging.info(
+                f"taking exploded df off queue "
+                f"({i + 1} / {nslices})...",
+            )
+
+            if readahead_future is not None:
+                # collect the pre-submitted readahead
+                inpath = readahead_inpath
+                logging.info(
+                    f"awaiting readahead for slice "
+                    f"({i + 1} / {nslices})...",
+                )
                 with log_context_duration(
-                    "pa.ipc.open_file(source).read_all()",
+                    f"readahead result ({i + 1} / {nslices})",
                     logging.info,
                 ):
-                    pa_array = pa.ipc.open_file(source).read_all()
-
-                np_array = {
-                    "dstream_data_id": None,
-                    "dstream_T": None,
-                    "dstream_Tbar": None,
-                    "dstream_value": None,
-                }
-                for col in np_array:
-                    with log_context_duration(
-                        f"pa_array['{col}'].to_numpy()",
-                        logging.info,
-                    ):
-                        np_array[col] = pa_array[col].to_numpy()
-
+                    np_array = readahead_future.result()
+                readahead_future = None
+                readahead_inpath = None
+            else:
+                # first iteration: no readahead yet, read synchronously
+                inpath = next(slices_iter)
                 logging.info(
-                    f"incorporating slice ({i + 1} / {len(slices)})...",
+                    f"reading slice ({i + 1} / {nslices}) "
+                    f"from {inpath} using {pa_source_type=}...",
                 )
+                with log_context_duration(
+                    f"_read_slice ({i + 1} / {nslices})",
+                    logging.info,
+                ):
+                    np_array = _read_slice(inpath, pa_source_type)
 
+            # submit readahead for the *next* slice if available
+            next_inpath = next(slices_iter, None)
+            if next_inpath is not None:
+                logging.info(
+                    f"submitting readahead for slice "
+                    f"({i + 2} / {nslices})...",
+                )
+                readahead_future = reader.submit(
+                    _read_slice, next_inpath, pa_source_type,
+                )
+                readahead_inpath = next_inpath
+
+            try:
+                logging.info(
+                    f"incorporating slice ({i + 1} / {nslices})...",
+                )
                 with log_context_duration(
                     "extend_tree_searchtable_cpp_from_exploded "
-                    f"({i + 1} / {len(slices)})",
+                    f"({i + 1} / {nslices})",
                     logging.info,
                 ):
                     # dispatch to C++ tree-building implementation
@@ -373,48 +406,50 @@ def _build_records_chunked(
                         np_array["dstream_value"],
                         tqdm.tqdm,
                     )
-        finally:
-            logging.info(f"unlinking slice {i + 1} / {len(slices)}...")
-            pathlib.Path(inpath).unlink(missing_ok=True)
-
-        if (
-            check_trie_invariant_freq > 0
-            and (i + 1) % check_trie_invariant_freq == 0
-        ):
-            with log_context_duration(
-                "_run_trie_invariant_checks "
-                f"(before collapse, slice {i + 1} / {len(slices)})",
-                logging.info,
-            ):
-                _run_trie_invariant_checks(
-                    records,
-                    f"before collapse, after slice {i + 1} / {len(slices)}",
+            finally:
+                logging.info(
+                    f"unlinking slice {i + 1} / {nslices}...",
                 )
+                pathlib.Path(inpath).unlink(missing_ok=True)
 
-        if collapse_unif_freq > 0 and (i + 1) % collapse_unif_freq == 0:
-            with log_context_duration(
-                "collapse_unifurcations(dropped_only=True) "
-                f"({i + 1} / {len(slices)})",
-                logging.info,
+            if (
+                check_trie_invariant_freq > 0
+                and (i + 1) % check_trie_invariant_freq == 0
             ):
-                records = collapse_unifurcations(records, dropped_only=True)
+                with log_context_duration(
+                    "_run_trie_invariant_checks "
+                    f"(before collapse, slice {i + 1} / {nslices})",
+                    logging.info,
+                ):
+                    _run_trie_invariant_checks(
+                        records,
+                        f"before collapse, after slice {i + 1} / {nslices}",
+                    )
 
-        if (
-            check_trie_invariant_after_collapse_unif
-            and check_trie_invariant_freq > 0
-            and (i + 1) % check_trie_invariant_freq == 0
-        ):
-            with log_context_duration(
-                "_run_trie_invariant_checks "
-                f"(after collapse, slice {i + 1} / {len(slices)})",
-                logging.info,
+            if collapse_unif_freq > 0 and (i + 1) % collapse_unif_freq == 0:
+                with log_context_duration(
+                    "collapse_unifurcations(dropped_only=True) "
+                    f"({i + 1} / {nslices})",
+                    logging.info,
+                ):
+                    records = collapse_unifurcations(records, dropped_only=True)
+
+            if (
+                check_trie_invariant_after_collapse_unif
+                and check_trie_invariant_freq > 0
+                and (i + 1) % check_trie_invariant_freq == 0
             ):
-                _run_trie_invariant_checks(
-                    records,
-                    f"after collapse, after slice {i + 1} / {len(slices)}",
-                )
+                with log_context_duration(
+                    "_run_trie_invariant_checks "
+                    f"(after collapse, slice {i + 1} / {nslices})",
+                    logging.info,
+                ):
+                    _run_trie_invariant_checks(
+                        records,
+                        f"after collapse, after slice {i + 1} / {nslices}",
+                    )
 
-        log_memory_usage(logging.info)
+            log_memory_usage(logging.info)
 
     logging.info("slices complete")
 
