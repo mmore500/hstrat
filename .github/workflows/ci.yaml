@@ -427,7 +427,7 @@ jobs:
             echo "Downloading virtualenv ${VENV_VERSION} to ${TARGET}..."
             curl -sL --retry 5 --retry-delay 10 --retry-all-errors \
               -o "$TARGET" \
-              "https://github.com/pypa/get-virtualenv/blob/${VENV_VERSION}/public/virtualenv.pyz?raw=true"
+              "https://github.com/mmore500/get-virtualenv/blob/${VENV_VERSION}/public/virtualenv.pyz?raw=true"
           else
             echo "virtualenv ${VENV_VERSION} already cached at ${TARGET}"
           fi
