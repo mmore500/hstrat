@@ -402,7 +402,7 @@ jobs:
           restore-keys: |
             cibw-cache-${{ matrix.os }}-
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.22.0
+        uses: pypa/cibuildwheel@v2.23.3
         env:
           # use pip-installed virtualenv instead of downloading .pyz from
           # GitHub, which is prone to 429 rate limiting
