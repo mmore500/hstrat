@@ -400,21 +400,21 @@ jobs:
           # prone to 429 rate limiting; pre-download with curl retries
           # extract virtualenv version from cibuildwheel's bundled constraints
           pip install cibuildwheel==2.23.3
-          VENV_VERSION=$(pip show virtualenv 2>/dev/null | grep ^Version | cut -d' ' -f2 || true)
-          if [ -z "$VENV_VERSION" ]; then
-            pip install virtualenv
-            VENV_VERSION=$(pip show virtualenv | grep ^Version | cut -d' ' -f2)
-          fi
-          # also check cibuildwheel's constraint files for the pinned version
-          PINNED_VERSION=$(python3 -c "
-          import pathlib, sysconfig, os
+          # extract the pinned virtualenv version from cibuildwheel's constraints
+          VENV_VERSION=$(python3 -c "
+          import pathlib, sysconfig
           site = sysconfig.get_path('purelib')
           for f in pathlib.Path(site, 'cibuildwheel', 'resources').glob('constraints-*.txt'):
               for line in f.read_text().splitlines():
                   if line.startswith('virtualenv=='):
                       print(line.split('==')[1]); raise SystemExit
-          " 2>/dev/null || true)
-          VENV_VERSION="${PINNED_VERSION:-$VENV_VERSION}"
+          ")
+          if [ -z "$VENV_VERSION" ]; then
+            VENV_VERSION=$(pip show virtualenv 2>/dev/null | grep ^Version | cut -d' ' -f2 || true)
+          fi
+          if [ -z "$VENV_VERSION" ]; then
+            echo "ERROR: Could not detect virtualenv version"; exit 1
+          fi
           echo "Detected virtualenv version: $VENV_VERSION"
           case "$RUNNER_OS" in
             macOS) CACHE_DIR="$HOME/Library/Caches/cibuildwheel" ;;
@@ -427,7 +427,11 @@ jobs:
             echo "Downloading virtualenv ${VENV_VERSION} to ${TARGET}..."
             curl -sL --retry 5 --retry-delay 10 --retry-all-errors \
               -o "$TARGET" \
-              "https://github.com/mmore500/get-virtualenv/blob/${VENV_VERSION}/public/virtualenv.pyz?raw=true"
+              "https://raw.githubusercontent.com/mmore500/get-virtualenv/${VENV_VERSION}/public/virtualenv.pyz"
+            # verify download succeeded and is non-empty
+            if [ ! -s "$TARGET" ]; then
+              echo "ERROR: Downloaded file is empty"; rm -f "$TARGET"; exit 1
+            fi
           else
             echo "virtualenv ${VENV_VERSION} already cached at ${TARGET}"
           fi
