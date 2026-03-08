@@ -26,7 +26,7 @@ from ._surface_postprocess_trie_via_pandas import (
 def _apply_empty_output_schema(df: pl.DataFrame) -> pl.DataFrame:
     """Transform an empty trie DataFrame to match the postprocessed output
     schema: add ``hstrat_rank`` and drop internal-only columns."""
-    assert df.is_empty(), "expected empty DataFrame"
+    assert df.is_empty()
     df = df.with_columns(
         ancestor_id=pl.col("ancestor_id").cast(pl.UInt64),
         hstrat_rank=pl.lit(None, dtype=pl.UInt64),
