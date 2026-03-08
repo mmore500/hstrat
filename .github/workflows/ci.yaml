@@ -401,17 +401,8 @@ jobs:
           # extract virtualenv version from cibuildwheel's bundled constraints
           pip install cibuildwheel==2.23.3
           # extract the pinned virtualenv version from cibuildwheel's constraints
-          VENV_VERSION=$(python3 -c "
-          from importlib.resources import files
-          for f in (files('cibuildwheel') / 'resources').iterdir():
-              if f.name.startswith('constraints-') and f.name.endswith('.txt'):
-                  for line in f.read_text().splitlines():
-                      if line.startswith('virtualenv=='):
-                          print(line.split('==')[1]); raise SystemExit
-          ")
-          if [ -z "$VENV_VERSION" ]; then
-            VENV_VERSION=$(pip show virtualenv 2>/dev/null | grep ^Version | cut -d' ' -f2 || true)
-          fi
+          CIBW_LOC=$(pip show cibuildwheel | grep ^Location | cut -d' ' -f2)
+          VENV_VERSION=$(grep -h '^virtualenv==' "$CIBW_LOC/cibuildwheel/resources"/constraints-*.txt 2>/dev/null | head -1 | sed 's/virtualenv==//')
           if [ -z "$VENV_VERSION" ]; then
             echo "ERROR: Could not detect virtualenv version"; exit 1
           fi
