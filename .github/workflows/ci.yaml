@@ -404,6 +404,9 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.22.0
         env:
+          # use pip-installed virtualenv instead of downloading .pyz from
+          # GitHub, which is prone to 429 rate limiting
+          CIBW_DEPENDENCY_VERSIONS: latest
           # workaround pyarrow wheel issue
           # pre-install scipy with --only-binary to avoid source builds
           # failing in manylinux2014 containers without OpenBLAS
