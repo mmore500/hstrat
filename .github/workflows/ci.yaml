@@ -425,10 +425,10 @@ jobs:
           TARGET="$CACHE_DIR/virtualenv-${VENV_VERSION}.pyz"
           if [ ! -f "$TARGET" ]; then
             echo "Downloading virtualenv ${VENV_VERSION} to ${TARGET}..."
-            curl -sL --retry 5 --retry-delay 10 --retry-all-errors \
+            curl -fsL --retry 5 --retry-delay 10 --retry-all-errors \
               -o "$TARGET" \
-              "https://raw.githubusercontent.com/mmore500/get-virtualenv/${VENV_VERSION}/public/virtualenv.pyz"
-            # verify download succeeded and is non-empty
+              "https://raw.githubusercontent.com/pypa/get-virtualenv/${VENV_VERSION}/public/virtualenv.pyz"
+            # verify download is non-empty
             if [ ! -s "$TARGET" ]; then
               echo "ERROR: Downloaded file is empty"; rm -f "$TARGET"; exit 1
             fi
