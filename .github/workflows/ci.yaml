@@ -393,12 +393,42 @@ jobs:
           key: cibw-cache-${{ matrix.os }}-${{ hashFiles('pyproject.toml') }}
           restore-keys: |
             cibw-cache-${{ matrix.os }}-
+      - name: Pre-download virtualenv for cibuildwheel
+        shell: bash
+        run: |
+          # cibuildwheel downloads virtualenv.pyz from GitHub, which is
+          # prone to 429 rate limiting; pre-download with curl retries
+          # extract virtualenv version from cibuildwheel's bundled constraints
+          pip install cibuildwheel==2.23.3
+          # extract the pinned virtualenv version from cibuildwheel's constraints
+          CIBW_LOC=$(pip show cibuildwheel | grep ^Location | cut -d' ' -f2)
+          VENV_VERSION=$(grep -h '^virtualenv==' "$CIBW_LOC/cibuildwheel/resources"/constraints-*.txt 2>/dev/null | head -1 | sed 's/virtualenv==//')
+          if [ -z "$VENV_VERSION" ]; then
+            echo "ERROR: Could not detect virtualenv version"; exit 1
+          fi
+          echo "Detected virtualenv version: $VENV_VERSION"
+          case "$RUNNER_OS" in
+            macOS) CACHE_DIR="$HOME/Library/Caches/cibuildwheel" ;;
+            Windows) CACHE_DIR="${LOCALAPPDATA:-$HOME/AppData/Local}/pypa/cibuildwheel/Cache" ;;
+            *) CACHE_DIR="$HOME/.cache/cibuildwheel" ;;
+          esac
+          mkdir -p "$CACHE_DIR"
+          TARGET="$CACHE_DIR/virtualenv-${VENV_VERSION}.pyz"
+          if [ ! -f "$TARGET" ]; then
+            echo "Downloading virtualenv ${VENV_VERSION} to ${TARGET}..."
+            curl -fsL --retry 5 --retry-delay 10 --retry-all-errors \
+              -o "$TARGET" \
+              "https://raw.githubusercontent.com/mmore500/get-virtualenv/${VENV_VERSION}/public/virtualenv.pyz"
+            # verify download is non-empty
+            if [ ! -s "$TARGET" ]; then
+              echo "ERROR: Downloaded file is empty"; rm -f "$TARGET"; exit 1
+            fi
+          else
+            echo "virtualenv ${VENV_VERSION} already cached at ${TARGET}"
+          fi
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.23.3
         env:
-          # use pip-installed virtualenv instead of downloading .pyz from
-          # GitHub, which is prone to 429 rate limiting
-          CIBW_DEPENDENCY_VERSIONS: latest
           # workaround pyarrow wheel issue
           # pre-install scipy with --only-binary to avoid source builds
           # failing in manylinux2014 containers without OpenBLAS
