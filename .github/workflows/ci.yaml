@@ -391,9 +391,22 @@ jobs:
           sudo sed -i 's/azure\.//' /etc/apt/sources.list
           sudo apt-get update -o Acquire::Retries=3
           sudo apt-get install -y python3.12-dev python3-dev python3-pybind11 -o Acquire::Retries=3
+      - name: Cache cibuildwheel dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/AppData/Local/pypa/cibuildwheel/Cache
+            ~/.cache/cibuildwheel
+            ~/Library/Caches/cibuildwheel
+          key: cibw-cache-${{ matrix.os }}-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            cibw-cache-${{ matrix.os }}-
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.22.0
+        uses: pypa/cibuildwheel@v2.23.3
         env:
+          # use pip-installed virtualenv instead of downloading .pyz from
+          # GitHub, which is prone to 429 rate limiting
+          CIBW_DEPENDENCY_VERSIONS: latest
           # workaround pyarrow wheel issue
           # pre-install scipy with --only-binary to avoid source builds
           # failing in manylinux2014 containers without OpenBLAS
