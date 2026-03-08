@@ -63,7 +63,7 @@ def _do_delete_trunk(
     ):
         dstream_S = df["dstream_S"].unique().squeeze()
 
-    df["is_trunk"] = df["dstream_rank"] < df["dstream_S"]
+    df["is_trunk"] = df["dstream_rank"] < df["dstream_S"] - 1
     df["origin_time"] = df["dstream_rank"]
 
     with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
@@ -152,6 +152,11 @@ def _surface_postprocess_trie_via_pandas(
 
     with log_context_duration("trie_postprocessor", logging.info):
         pre_postprocessor_columns = {*df.columns}
+        # Cast to signed to prevent uint64 underflow when
+        # dstream_rank < dstream_S (possible after trunk deletion
+        # with the S-1 threshold for zero-gen surfaces).
+        df["dstream_rank"] = df["dstream_rank"].astype("Int64")
+        df["dstream_S"] = df["dstream_S"].astype("Int64")
         df = df.rename(columns={"dstream_rank": "rank"})
         df = trie_postprocessor(
             df,
@@ -164,7 +169,9 @@ def _surface_postprocess_trie_via_pandas(
     render_pandas_snapshot(df, "with trie postprocessing", logging.info)
 
     logging.info("setting up hstrat_rank...")
-    df["hstrat_rank"] = df["dstream_rank"] - df["dstream_S"]
+    df["hstrat_rank"] = df["dstream_rank"].astype("Int64") - df[
+        "dstream_S"
+    ].astype("Int64")
 
     to_keep = {*original_columns} - {
         "dstream_S",
@@ -180,9 +187,8 @@ def _surface_postprocess_trie_via_pandas(
     with log_context_duration("pl.from_pandas", logging.info):
         df = pl.from_pandas(df)
 
-    # phyloframe may convert ancestor_id to Int64; restore documented UInt64
-    if "ancestor_id" in df.columns:
-        df = df.with_columns(pl.col("ancestor_id").cast(pl.UInt64))
+    # phyloframe may change id/ancestor_id types; restore documented UInt64
+    df = df.cast({"id": pl.UInt64, "ancestor_id": pl.UInt64})
 
     gc.collect()
     render_polars_snapshot(df, "as polars", logging.info)
