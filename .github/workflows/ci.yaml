@@ -402,12 +402,17 @@ jobs:
           pip install cibuildwheel==2.23.3
           # extract the pinned virtualenv version from cibuildwheel's constraints
           VENV_VERSION=$(python3 -c "
-          import pathlib, sysconfig
-          site = sysconfig.get_path('purelib')
-          for f in pathlib.Path(site, 'cibuildwheel', 'resources').glob('constraints-*.txt'):
-              for line in f.read_text().splitlines():
-                  if line.startswith('virtualenv=='):
-                      print(line.split('==')[1]); raise SystemExit
+          import pathlib, site, sysconfig
+          search_paths = [sysconfig.get_path('purelib'), site.getusersitepackages()]
+          try:
+              search_paths.extend(site.getsitepackages())
+          except Exception:
+              pass
+          for sp in search_paths:
+              for f in pathlib.Path(sp, 'cibuildwheel', 'resources').glob('constraints-*.txt'):
+                  for line in f.read_text().splitlines():
+                      if line.startswith('virtualenv=='):
+                          print(line.split('==')[1]); raise SystemExit
           ")
           if [ -z "$VENV_VERSION" ]; then
             VENV_VERSION=$(pip show virtualenv 2>/dev/null | grep ^Version | cut -d' ' -f2 || true)
