@@ -6,9 +6,7 @@ import opytional as opyt
 import pandas as pd
 from phyloframe import legacy as pfl
 
-from ...._auxiliary_lib import (
-    BioPhyloTree,
-)
+from ...._auxiliary_lib import BioPhyloTree
 from ....genome_instrumentation import HereditaryStratigraphicColumn
 from ...population import build_distance_matrix_biopython
 from ._append_genesis_organism import append_genesis_organism

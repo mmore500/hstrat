@@ -11,11 +11,7 @@ import pytest
 from tqdm import tqdm
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import (
-    generate_n,
-    random_tree,
-    seed_random,
-)
+from hstrat._auxiliary_lib import generate_n, random_tree, seed_random
 
 from . import _impl as impl
 

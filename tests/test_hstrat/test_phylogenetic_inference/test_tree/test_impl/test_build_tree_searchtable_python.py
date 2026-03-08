@@ -12,11 +12,7 @@ import pytest
 from tqdm import tqdm
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import (
-    generate_n,
-    random_tree,
-    seed_random,
-)
+from hstrat._auxiliary_lib import generate_n, random_tree, seed_random
 from hstrat.phylogenetic_inference.tree._impl import (
     build_tree_searchtable_python,
 )
