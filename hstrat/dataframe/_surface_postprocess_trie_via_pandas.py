@@ -17,6 +17,18 @@ from .._auxiliary_lib import (
 from ..phylogenetic_inference.tree.trie_postprocess import NopTriePostprocessor
 
 
+def _apply_empty_output_schema_pandas(df: pd.DataFrame) -> pd.DataFrame:
+    """Transform an empty trie DataFrame to match the postprocessed output
+    schema: add ``hstrat_rank`` and drop internal-only columns."""
+    if "dstream_rank" in df.columns and "dstream_S" in df.columns:
+        df["hstrat_rank"] = df["dstream_rank"] - df["dstream_S"]
+    df = df.drop(
+        columns=["dstream_S", "hstrat_differentia_bitwidth", "dstream_rank"],
+        errors="ignore",
+    )
+    return df
+
+
 def _do_collapse_unifurcations(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -55,7 +67,7 @@ def _do_delete_trunk(
         df = pfl.alifestd_delete_trunk_asexual(df, mutate=True)
 
     if df.empty:
-        logging.info("empty dataframe after trunk deletion")
+        logging.warning("empty dataframe after trunk deletion")
         df = df.drop(
             columns=["is_trunk", "ancestor_is_trunk", "origin_time"],
             errors="ignore",
@@ -106,8 +118,10 @@ def _surface_postprocess_trie_via_pandas(
     render_polars_snapshot(df, "raw tree", logging.info)
 
     if df.lazy().limit(1).collect().is_empty():
-        logging.info("empty input dataframe, returning empty result")
-        return df
+        logging.warning("empty input dataframe, returning empty result")
+        from ._surface_postprocess_trie import _apply_empty_output_schema
+
+        return _apply_empty_output_schema(df)
 
     logging.info("extracting differentia bitwidth")
     differentia_bitwidth = get_sole_scalar_value_polars(
@@ -126,8 +140,8 @@ def _surface_postprocess_trie_via_pandas(
         df = _do_delete_trunk(df)
 
     if df.empty:
-        logging.info("empty dataframe after trunk deletion, returning")
-        return pl.from_pandas(df)
+        logging.warning("empty dataframe after trunk deletion, returning")
+        return pl.from_pandas(_apply_empty_output_schema_pandas(df))
 
     df = _do_collapse_unifurcations(df)
 

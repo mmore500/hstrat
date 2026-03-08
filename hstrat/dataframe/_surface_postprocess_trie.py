@@ -23,6 +23,29 @@ from ._surface_postprocess_trie_via_pandas import (
 )
 
 
+def _apply_empty_output_schema(df: pl.DataFrame) -> pl.DataFrame:
+    """Transform an empty trie DataFrame to match the postprocessed output
+    schema: add ``hstrat_rank`` and drop internal-only columns.
+
+    Also casts ``ancestor_id`` to ``Int64`` to match the type produced by
+    phyloframe's ``alifestd_assign_contiguous_ids_polars`` in the non-empty
+    path.
+    """
+    if "dstream_rank" in df.columns and "dstream_S" in df.columns:
+        df = df.with_columns(
+            hstrat_rank=pl.col("dstream_rank") - pl.col("dstream_S"),
+        )
+    if "ancestor_id" in df.columns:
+        df = df.with_columns(pl.col("ancestor_id").cast(pl.Int64))
+    df = df.drop(
+        "dstream_S",
+        "hstrat_differentia_bitwidth",
+        "dstream_rank",
+        strict=False,
+    )
+    return df
+
+
 def _do_collapse_unifurcations(
     df: pl.DataFrame,
 ) -> pl.DataFrame:
@@ -67,7 +90,7 @@ def _do_delete_trunk(
         df = pfl.alifestd_delete_trunk_asexual_polars(df)
 
     if df.lazy().limit(1).collect().is_empty():
-        logging.info("empty dataframe after trunk deletion")
+        logging.warning("empty dataframe after trunk deletion")
         return df.drop(
             ["is_trunk", "ancestor_is_trunk", "origin_time"], strict=False
         )
@@ -240,8 +263,8 @@ def surface_postprocess_trie(
     render_polars_snapshot(df, "raw tree", logging.info)
 
     if df.lazy().limit(1).collect().is_empty():
-        logging.info("empty input dataframe, returning empty result")
-        return df
+        logging.warning("empty input dataframe, returning empty result")
+        return _apply_empty_output_schema(df)
 
     logging.info("extracting differentia bitwidth")
     differentia_bitwidth = get_sole_scalar_value_polars(
@@ -255,8 +278,8 @@ def surface_postprocess_trie(
         df = _do_delete_trunk(df)
 
     if df.lazy().limit(1).collect().is_empty():
-        logging.info("empty dataframe after trunk deletion, returning")
-        return df
+        logging.warning("empty dataframe after trunk deletion, returning")
+        return _apply_empty_output_schema(df)
 
     df = _do_collapse_unifurcations(df)
 

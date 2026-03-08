@@ -91,10 +91,17 @@ def test_parser_no_prefix_matching_drop():
 
 def test_empty():
     """Regression: empty genome set should produce an empty phylogeny without
-    crashing."""
-    df = pl.read_csv(f"{assets_path}/packed.csv").head(0)
-    res = surface_unpack_reconstruct(df)
+    crashing, with the same columns and types as a non-empty result."""
+    df = pl.read_csv(f"{assets_path}/packed.csv")
+    full = surface_unpack_reconstruct(df)
+
+    res = surface_unpack_reconstruct(df.head(0))
     assert len(res) == 0
+    assert set(res.schema.names()) == set(full.schema.names())
+    for col in full.schema.names():
+        assert (
+            res.schema[col] == full.schema[col]
+        ), f"type mismatch for {col}: {res.schema[col]} != {full.schema[col]}"
 
 
 def test_single_genome():

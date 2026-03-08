@@ -7,8 +7,6 @@ import typing
 import uuid
 
 from downstream import dataframe as dstream_dataframe
-import pandas as pd
-from phyloframe import legacy as pfl
 import polars as pl
 import pyarrow as pa
 import tqdm
@@ -738,13 +736,30 @@ def surface_unpack_reconstruct(
 
     # for simplicity, return early for this special case
     if df.lazy().limit(1).collect().is_empty():
-        logging.info("empty input dataframe, returning empty result")
-        res = pfl.alifestd_make_empty()
-        res["taxon_label"] = None
-        res["dstream_rank"] = pd.Series(dtype=int)
-        res["hstrat_differentia_bitwidth"] = pd.Series(dtype=int)
-        res["dstream_S"] = pd.Series(dtype=int)
-        return pl.from_pandas(res)
+        logging.warning("empty input dataframe, returning empty result")
+        core_schema = {
+            "dstream_data_id": pl.UInt64,
+            "id": pl.UInt64,
+            "ancestor_id": pl.UInt64,
+            "dstream_rank": pl.UInt64,
+            "hstrat_differentia_bitwidth": pl.UInt32,
+            "dstream_S": pl.UInt32,
+        }
+        result = pl.DataFrame(schema=core_schema)
+        # forward user-defined columns with matching (empty) types
+        if isinstance(df, pl.LazyFrame):
+            input_schema = df.collect_schema()
+        else:
+            input_schema = df.schema
+        dstream_re = {"dstream_", "downstream_"}
+        for col_name, col_type in input_schema.items():
+            if col_name not in result.columns and not any(
+                col_name.startswith(p) for p in dstream_re
+            ):
+                result = result.with_columns(
+                    pl.Series(col_name, [], dtype=col_type),
+                )
+        return result
 
     logging.info("extracting metadata...")
     dstream_storage_bitwidth = get_sole_scalar_value_polars(
