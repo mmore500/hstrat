@@ -187,7 +187,9 @@ def _surface_postprocess_trie_via_pandas(
     with log_context_duration("pl.from_pandas", logging.info):
         df = pl.from_pandas(df)
 
-    # phyloframe may convert ancestor_id to Int64; restore documented UInt64
+    # phyloframe may change id/ancestor_id types; restore documented UInt64
+    if "id" in df.columns:
+        df = df.with_columns(pl.col("id").cast(pl.UInt64))
     if "ancestor_id" in df.columns:
         df = df.with_columns(pl.col("ancestor_id").cast(pl.UInt64))
 
