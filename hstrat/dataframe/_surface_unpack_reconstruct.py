@@ -7,8 +7,6 @@ import typing
 import uuid
 
 from downstream import dataframe as dstream_dataframe
-import pandas as pd
-from phyloframe import legacy as pfl
 import polars as pl
 import pyarrow as pa
 import tqdm
@@ -742,13 +740,27 @@ def surface_unpack_reconstruct(
 
     # for simplicity, return early for this special case
     if df.lazy().limit(1).collect().is_empty():
-        logging.info("empty input dataframe, returning empty result")
-        res = pfl.alifestd_make_empty()
-        res["taxon_label"] = None
-        res["dstream_rank"] = pd.Series(dtype=int)
-        res["hstrat_differentia_bitwidth"] = pd.Series(dtype=int)
-        res["dstream_S"] = pd.Series(dtype=int)
-        return pl.from_pandas(res)
+        logging.warning("empty input dataframe, returning empty result")
+        core_schema = {
+            "dstream_data_id": pl.UInt64,
+            "id": pl.UInt64,
+            "ancestor_id": pl.UInt64,
+            "dstream_rank": pl.UInt64,
+            "hstrat_differentia_bitwidth": pl.UInt32,
+            "dstream_S": pl.UInt32,
+        }
+        result = pl.DataFrame(schema=core_schema)
+        try:
+            result = _join_user_defined_columns(
+                df, result, drop_dstream_metadata
+            )
+        except pl.exceptions.ColumnNotFoundError:
+            result = _join_user_defined_columns(
+                df.with_row_index("dstream_data_id"),
+                result,
+                drop_dstream_metadata,
+            )
+        return result
 
     logging.info("extracting metadata...")
     dstream_storage_bitwidth = get_sole_scalar_value_polars(

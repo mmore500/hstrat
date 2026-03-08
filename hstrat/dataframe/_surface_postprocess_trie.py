@@ -23,6 +23,22 @@ from ._surface_postprocess_trie_via_pandas import (
 )
 
 
+def _apply_empty_output_schema(df: pl.DataFrame) -> pl.DataFrame:
+    """Transform an empty trie DataFrame to match the postprocessed output
+    schema: add ``hstrat_rank`` and drop internal-only columns."""
+    assert df.is_empty()
+    df = df.with_columns(
+        ancestor_id=pl.col("ancestor_id").cast(pl.UInt64),
+        hstrat_rank=pl.lit(None, dtype=pl.UInt64),
+    )
+    return df.drop(
+        "dstream_S",
+        "hstrat_differentia_bitwidth",
+        "dstream_rank",
+        strict=False,
+    )
+
+
 def _do_collapse_unifurcations(
     df: pl.DataFrame,
 ) -> pl.DataFrame:
@@ -65,6 +81,12 @@ def _do_delete_trunk(
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
         df = pfl.alifestd_delete_trunk_asexual_polars(df)
+
+    if df.lazy().limit(1).collect().is_empty():
+        logging.warning("empty dataframe after trunk deletion")
+        return df.drop(
+            ["is_trunk", "ancestor_is_trunk", "origin_time"], strict=False
+        )
 
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
@@ -233,6 +255,10 @@ def surface_postprocess_trie(
     log_memory_usage(logging.info)
     render_polars_snapshot(df, "raw tree", logging.info)
 
+    if df.lazy().limit(1).collect().is_empty():
+        logging.warning("empty input dataframe, returning empty result")
+        return _apply_empty_output_schema(df)
+
     logging.info("extracting differentia bitwidth")
     differentia_bitwidth = get_sole_scalar_value_polars(
         df, "hstrat_differentia_bitwidth"
@@ -243,6 +269,10 @@ def surface_postprocess_trie(
 
     if delete_trunk:
         df = _do_delete_trunk(df)
+
+    if df.lazy().limit(1).collect().is_empty():
+        logging.warning("empty dataframe after trunk deletion, returning")
+        return _apply_empty_output_schema(df)
 
     df = _do_collapse_unifurcations(df)
 
@@ -276,6 +306,9 @@ def surface_postprocess_trie(
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df = df.drop(*to_drop)
+
+    # phyloframe may convert ancestor_id to Int64; restore documented UInt64
+    df = df.cast({"ancestor_id": pl.UInt64})
 
     render_polars_snapshot(df, "as polars", logging.info)
     gc.collect()
