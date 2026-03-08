@@ -22,7 +22,10 @@ from .._auxiliary_lib import (
     log_memory_usage,
     render_polars_snapshot,
 )
+import threading
+
 from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
+    AtomicCounter,
     Records,
     check_trie_invariant_ancestor_bounds,
     check_trie_invariant_chronologically_sorted,
@@ -397,15 +400,45 @@ def _build_records_chunked(
                     f"({i + 1} / {nslices})",
                     logging.info,
                 ):
-                    # dispatch to C++ tree-building implementation
-                    extend_tree_searchtable_cpp_from_exploded(
-                        records,
-                        np_array["dstream_data_id"],
-                        np_array["dstream_T"],
-                        np_array["dstream_Tbar"],
-                        np_array["dstream_value"],
-                        tqdm.tqdm,
+                    # dispatch to C++ tree-building implementation;
+                    # use AtomicCounter + polling thread so tqdm
+                    # updates live without reacquiring the GIL
+                    progress_counter = AtomicCounter()
+                    total = len(
+                        {*np_array["dstream_data_id"].tolist()},
                     )
+                    pbar = tqdm.tqdm(total=total)
+                    stop_event = threading.Event()
+
+                    def _poll_progress():
+                        prev = 0
+                        while not stop_event.wait(timeout=0.1):
+                            cur = progress_counter.load()
+                            if cur > prev:
+                                pbar.update(cur - prev)
+                                prev = cur
+                        # final update
+                        cur = progress_counter.load()
+                        if cur > prev:
+                            pbar.update(cur - prev)
+
+                    poll_thread = threading.Thread(
+                        target=_poll_progress, daemon=True,
+                    )
+                    poll_thread.start()
+                    try:
+                        extend_tree_searchtable_cpp_from_exploded(
+                            records,
+                            np_array["dstream_data_id"],
+                            np_array["dstream_T"],
+                            np_array["dstream_Tbar"],
+                            np_array["dstream_value"],
+                            progress_counter,
+                        )
+                    finally:
+                        stop_event.set()
+                        poll_thread.join()
+                        pbar.close()
             finally:
                 logging.info(
                     f"unlinking slice {i + 1} / {nslices}...",

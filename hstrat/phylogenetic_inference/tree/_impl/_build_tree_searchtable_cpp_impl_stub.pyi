@@ -32,6 +32,11 @@ class Records:
     ) -> None: ...
     def __len__(self) -> int: ...
 
+class AtomicCounter:
+    def __init__(self) -> None: ...
+    def increment(self, n: int = 1) -> None: ...
+    def load(self) -> int: ...
+
 placeholder_value: int
 
 def collapse_unifurcations(
@@ -45,7 +50,7 @@ def extend_tree_searchtable_cpp_from_exploded(
     num_strata_depositeds: np.ndarray,
     ranks: np.ndarray,
     differentiae: np.ndarray,
-    tqdm_progress_bar: typing.Union[typing.Type[tqdm.tqdm], mock.Mock],
+    progress_counter: AtomicCounter,
 ) -> None: ...
 def build_tree_searchtable_cpp_from_exploded(
     data_ids: np.ndarray,

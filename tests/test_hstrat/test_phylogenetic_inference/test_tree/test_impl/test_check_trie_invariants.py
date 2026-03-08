@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 from hstrat.dataframe._surface_unpack_reconstruct import _dump_records
 from hstrat.phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
+    AtomicCounter,
     Records,
     check_trie_invariant_ancestor_bounds,
     check_trie_invariant_chronologically_sorted,
@@ -51,8 +52,9 @@ def _make_valid_built_records():
     num_strata = np.array([4, 4, 4, 5, 5, 5], dtype=np.uint64)
     ranks = np.array([1, 2, 3, 1, 2, 4], dtype=np.int64)
     differentiae = np.array([10, 20, 30, 10, 20, 40], dtype=np.uint64)
+    progress_counter = AtomicCounter()
     extend_tree_searchtable_cpp_from_exploded(
-        records, data_ids, num_strata, ranks, differentiae, tqdm
+        records, data_ids, num_strata, ranks, differentiae, progress_counter
     )
     return records
 
@@ -162,8 +164,9 @@ def test_invariants_built_tree_single_artifact():
     num_strata = np.array([4, 4, 4], dtype=np.uint64)
     ranks = np.array([1, 2, 3], dtype=np.int64)
     differentiae = np.array([5, 10, 15], dtype=np.uint64)
+    progress_counter = AtomicCounter()
     extend_tree_searchtable_cpp_from_exploded(
-        records, data_ids, num_strata, ranks, differentiae, tqdm
+        records, data_ids, num_strata, ranks, differentiae, progress_counter
     )
     for name, check_fn in _all_checks():
         assert check_fn(records), f"{name} failed on single artifact tree"
@@ -203,8 +206,9 @@ def test_invariants_many_artifacts_shared_prefix():
     )
     ranks = np.array([1, 2, 1, 2, 1, 2, 1, 2], dtype=np.int64)
     differentiae = np.array([5, 10, 5, 20, 5, 30, 5, 40], dtype=np.uint64)
+    progress_counter = AtomicCounter()
     extend_tree_searchtable_cpp_from_exploded(
-        records, data_ids, num_strata, ranks, differentiae, tqdm
+        records, data_ids, num_strata, ranks, differentiae, progress_counter
     )
     for name, check_fn in _all_checks():
         assert check_fn(records), f"{name} failed on shared prefix tree"
@@ -342,8 +346,9 @@ def test_invariants_on_regression_tree():
         [0, 1, 3, 7, 2, 5, 4, 6, 0, 1, 3, 7, 2, 5, 4, 6],
         dtype=np.uint64,
     )
+    progress_counter = AtomicCounter()
     extend_tree_searchtable_cpp_from_exploded(
-        records, data_ids, num_strata, ranks, differentiae, tqdm
+        records, data_ids, num_strata, ranks, differentiae, progress_counter
     )
     for name, check_fn in _all_checks():
         assert check_fn(records), f"{name} failed on regression tree"
@@ -356,8 +361,9 @@ def test_invariants_on_distilled_regression_tree():
     num_strata = np.array([8, 8, 11], dtype=np.uint64)
     ranks = np.array([6, 7, 6], dtype=np.int64)
     differentiae = np.array([6, 7, 6], dtype=np.uint64)
+    progress_counter = AtomicCounter()
     extend_tree_searchtable_cpp_from_exploded(
-        records, data_ids, num_strata, ranks, differentiae, tqdm
+        records, data_ids, num_strata, ranks, differentiae, progress_counter
     )
     for name, check_fn in _all_checks():
         assert check_fn(records), f"{name} failed on distilled regression tree"
@@ -382,8 +388,9 @@ def test_search_children_valid_detects_bad_prev_sibling():
     )
     ranks = np.array([1, 2, 1, 2, 1, 2], dtype=np.int64)
     differentiae = np.array([5, 10, 5, 20, 5, 30], dtype=np.uint64)
+    progress_counter = AtomicCounter()
     extend_tree_searchtable_cpp_from_exploded(
-        records, data_ids, num_strata, ranks, differentiae, tqdm
+        records, data_ids, num_strata, ranks, differentiae, progress_counter
     )
     # This valid tree should pass
     assert check_trie_invariant_search_children_valid(records)

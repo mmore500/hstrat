@@ -10,6 +10,7 @@ import polars as pl
 
 from ...._auxiliary_lib import HereditaryStratigraphicArtifact, argsort
 from ._build_tree_searchtable_cpp_impl_stub import (
+    AtomicCounter,
     Records,
     build_tree_searchtable_cpp_from_exploded,
     build_tree_searchtable_cpp_from_nested,
@@ -191,13 +192,14 @@ def build_tree_searchtable_cpp(
             exploded_df.partition_by("data_ids"), batch_size
         ):
             slice_df = pl.concat(partition_dfs)
+            progress_counter = AtomicCounter()
             extend_tree_searchtable_cpp_from_exploded(
                 records,
                 slice_df["data_ids"].to_numpy(),
                 slice_df["num_strata_depositeds"].to_numpy(),
                 slice_df["ranks"].to_numpy(),
                 slice_df["differentiae"].to_numpy(),
-                opyt.or_value(progress_wrap, mock.Mock()),
+                progress_counter,
             )
             if not _entry_point.endswith("_nocollapse"):
                 records = collapse_unifurcations(records, dropped_only=True)

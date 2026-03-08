@@ -4,6 +4,7 @@
 #endif
 
 #include <algorithm>
+#include <atomic>
 #include <bit>
 #include <cassert>
 #include <functional>
@@ -1153,6 +1154,20 @@ struct ProgressBar {
 
 
 /**
+ * Lock-free atomic counter that can be incremented without the GIL.
+ * Exposed to Python so a polling thread can read the value and drive
+ * tqdm updates from the Python side.
+ */
+struct AtomicCounter {
+  std::atomic<u64> value{0};
+
+  void increment(u64 n = 1) { value.fetch_add(n, std::memory_order_relaxed); }
+
+  u64 load() const { return value.load(std::memory_order_relaxed); }
+};
+
+
+/**
  * Constructs the trie in the case where each element in each
  * of the below vectors represents a unique artifact. Includes
  * logging and an optional tqdm progress bar.
@@ -1244,7 +1259,7 @@ void extend_trie_searchtable_exploded(
   const py::array_t<u64> &num_strata_depositeds,
   const py::array_t<i64> &ranks,
   const py::array_t<u64> &differentiae,
-  const py::handle &progress_ctor
+  AtomicCounter &progress_counter
 ) {
   assert(
     data_ids.size() == num_strata_depositeds.size()
@@ -1262,48 +1277,28 @@ void extend_trie_searchtable_exploded(
   const auto logging_info = py::module::import("logging").attr("info");
   logging_info("exploded searchtable cpp begin");
 
-  {
-    const u64 total = [&data_ids_](){
-      py_array_span<u64> span{
-        data_ids_, 0, static_cast<u64>(data_ids_.size())
-      };
-      return count_unique_elements(span.begin(), span.end());
-    }();
-    ProgressBar pbar{progress_ctor("total"_a=total)};
-
-    constexpr u64 pbar_batch_size = 100;
+  {  // release GIL for the entire insertion loop
+    py::gil_scoped_release release;
     u64 begin = 0;
     while (begin < static_cast<u64>(ranks.size())) {
-      u64 batch_count = 0;
-      {  // release GIL for the computational hot path
-        py::gil_scoped_release release;
-        while (
-          begin < static_cast<u64>(ranks.size())
-          && batch_count < pbar_batch_size
-        ) {
-          u64 end = begin;
-          for (; end < static_cast<u64>(ranks.size()); ++end) {
-            if (data_ids_[begin] != data_ids_[end]) break;
-            // ranks must be in ascending order
-            else assert(begin == end || ranks_[end - 1] < ranks_[end]);
-          }  // ... fast fwd to end of seg w/ contiguous identical data_id values
+      u64 end = begin;
+      for (; end < static_cast<u64>(ranks.size()); ++end) {
+        if (data_ids_[begin] != data_ids_[end]) break;
+        // ranks must be in ascending order
+        else assert(begin == end || ranks_[end - 1] < ranks_[end]);
+      }  // ... fast fwd to end of seg w/ contiguous identical data_id values
 
-          insert_artifact(
-            records,
-            py_array_span<i64>(ranks_, begin, end),
-            py_array_span<u64>(differentiae_, begin, end),
-            data_ids_[begin],
-            num_strata_depositeds_[begin]
-          );
-          begin = end;
-          ++batch_count;
-        }
-      }  // GIL reacquired here for pbar Python callback
-      pbar(batch_count);
+      insert_artifact(
+        records,
+        py_array_span<i64>(ranks_, begin, end),
+        py_array_span<u64>(differentiae_, begin, end),
+        data_ids_[begin],
+        num_strata_depositeds_[begin]
+      );
+      begin = end;
+      progress_counter.increment();
     }
-
-    assert(std::cmp_greater_equal(records.size(), total));
-  }  // end progress bar scope
+  }  // GIL reacquired
 
   logging_info(
     py::str(
@@ -1333,8 +1328,9 @@ py::dict build_trie_searchtable_exploded(
   const py::handle &progress_ctor
 ) {
   Records records{static_cast<u64>(data_ids.size())};
+  AtomicCounter progress_counter;
   extend_trie_searchtable_exploded(
-    records, data_ids, num_strata_depositeds, ranks, differentiae, progress_ctor
+    records, data_ids, num_strata_depositeds, ranks, differentiae, progress_counter
   );
 
   const auto logging_info = py::module::import("logging").attr("info");
@@ -1970,6 +1966,11 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
         py::arg("rank"),
         py::arg("differentia")
   );
+  py::class_<AtomicCounter>(m, "AtomicCounter")
+      .def(py::init<>())
+      .def("increment", &AtomicCounter::increment,
+        py::arg("n")=1)
+      .def("load", &AtomicCounter::load);
   m.def(
     "collapse_unifurcations",
     &collapse_unifurcations,
@@ -1994,7 +1995,7 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
     py::arg("num_strata_depositeds"),
     py::arg("ranks"),
     py::arg("differentiae"),
-    py::arg("progress_bar")
+    py::arg("progress_counter")
   );
   m.def(
     "build_tree_searchtable_cpp_from_exploded",
