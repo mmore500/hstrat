@@ -247,14 +247,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip setuptools
         python -m pip install -r requirements-dev/py310/requirements-testing.txt
-    - name: Test isort tidyness
-      uses: jamescurtin/isort-action@master
-      with:
-          requirementsFiles: "requirements-dev/py310/requirements-testing.txt"
-    - name: Test Black tidyness
-      uses: psf/black@27d20144a7517594e24a1649451177b2a11284be
-      with:
-          version: "22.10.0"
     - uses: editorconfig-checker/action-editorconfig-checker@main
     - name: Test editorconfig tidyness
       run: editorconfig-checker

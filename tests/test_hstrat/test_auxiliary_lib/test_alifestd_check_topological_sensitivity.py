@@ -1,9 +1,7 @@
 import pandas as pd
 import pytest
 
-from hstrat._auxiliary_lib import (
-    alifestd_check_topological_sensitivity,
-)
+from hstrat._auxiliary_lib import alifestd_check_topological_sensitivity
 from hstrat._auxiliary_lib._alifestd_check_topological_sensitivity import (
     _topologically_sensitive_cols,
     _update_only_sensitive_cols,

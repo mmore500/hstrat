@@ -8,10 +8,7 @@ import pandas as pd
 from phyloframe import legacy as pfl
 import polars as pl
 
-from ...._auxiliary_lib import (
-    HereditaryStratigraphicArtifact,
-    argsort,
-)
+from ...._auxiliary_lib import HereditaryStratigraphicArtifact, argsort
 from ._build_tree_searchtable_cpp_impl_stub import (
     Records,
     build_tree_searchtable_cpp_from_exploded,

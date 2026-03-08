@@ -5,9 +5,7 @@ import pandas as pd
 from phyloframe import legacy as pfl
 
 from . import trie_postprocess
-from ..._auxiliary_lib import (
-    HereditaryStratigraphicArtifact,
-)
+from ..._auxiliary_lib import HereditaryStratigraphicArtifact
 from ..priors._detail import PriorBase
 from ._build_tree_trie_ensemble import build_tree_trie_ensemble
 from .trie_postprocess._detail import TriePostprocessorBase

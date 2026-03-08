@@ -11,10 +11,7 @@ import opytional as opyt
 from phyloframe import legacy as pfl
 import polars as pl
 
-from .._auxiliary_lib import (
-    RngStateContext,
-    get_sole_scalar_value_polars,
-)
+from .._auxiliary_lib import RngStateContext, get_sole_scalar_value_polars
 from .._auxiliary_lib._alifestd_find_leaf_ids import (
     _alifestd_find_leaf_ids_asexual_fast_path,
 )
