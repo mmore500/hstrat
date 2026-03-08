@@ -56,8 +56,6 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    from phyloframe import legacy as pfl
-
     parser = _create_parser()
     args = parser.parse_args()
     input_ext = os.path.splitext(args.phylogeny_file)[1]
@@ -75,9 +73,9 @@ if __name__ == "__main__":
     }[input_ext](args.phylogeny_file)
 
     with log_context_duration(
-        "pfl.alifestd_count_root_nodes", logging.info
+        "hstrat._auxiliary_lib.alifestd_count_root_nodes", logging.info
     ):
-        count = pfl.alifestd_count_root_nodes(phylogeny_df)
+        count = alifestd_count_root_nodes(phylogeny_df)
 
     print(count)
 
