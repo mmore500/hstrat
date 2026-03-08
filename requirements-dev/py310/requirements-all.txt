@@ -97,7 +97,7 @@ docutils==0.21.2
     #   readme-renderer
     #   sphinx
     #   sphinx-rtd-theme
-downstream==1.21.0
+downstream==1.21.1
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
@@ -140,6 +140,8 @@ ipython==8.12.3
     # via
     #   hstrat (../../pyproject.toml)
     #   ipykernel
+isort==8.0.1
+    # via hstrat (../../pyproject.toml)
 iterify==0.1.0
     # via hstrat (../../pyproject.toml)
 iterpop==0.4.1
