@@ -152,6 +152,11 @@ def _surface_postprocess_trie_via_pandas(
 
     with log_context_duration("trie_postprocessor", logging.info):
         pre_postprocessor_columns = {*df.columns}
+        # Cast to signed to prevent uint64 underflow when
+        # dstream_rank < dstream_S (possible after trunk deletion
+        # with the S-1 threshold for zero-gen surfaces).
+        df["dstream_rank"] = df["dstream_rank"].astype("Int64")
+        df["dstream_S"] = df["dstream_S"].astype("Int64")
         df = df.rename(columns={"dstream_rank": "rank"})
         df = trie_postprocessor(
             df,
@@ -164,7 +169,9 @@ def _surface_postprocess_trie_via_pandas(
     render_pandas_snapshot(df, "with trie postprocessing", logging.info)
 
     logging.info("setting up hstrat_rank...")
-    df["hstrat_rank"] = df["dstream_rank"] - df["dstream_S"]
+    df["hstrat_rank"] = df["dstream_rank"].astype("Int64") - df[
+        "dstream_S"
+    ].astype("Int64")
 
     to_keep = {*original_columns} - {
         "dstream_S",

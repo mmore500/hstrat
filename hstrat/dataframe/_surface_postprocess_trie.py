@@ -28,8 +28,9 @@ def _apply_empty_output_schema(df: pl.DataFrame) -> pl.DataFrame:
     schema: add ``hstrat_rank`` and drop internal-only columns."""
     assert df.is_empty()
     df = df.with_columns(
+        id=pl.col("id").cast(pl.UInt32),
         ancestor_id=pl.col("ancestor_id").cast(pl.UInt64),
-        hstrat_rank=pl.lit(None, dtype=pl.UInt64),
+        hstrat_rank=pl.lit(None, dtype=pl.Int64),
     )
     return df.drop(
         "dstream_S",
@@ -214,17 +215,17 @@ def surface_postprocess_trie(
         alife standard format, with the following columns:
 
         Required schema:
-        - 'id' : pl.UInt64
+        - 'id' : pl.UInt32
             - Unique identifier for each taxon (RE alife standard format).
         - 'ancestor_id' : pl.UInt64
             - Unique identifier for ancestor taxon  (RE alife standard format).
-        - 'hstrat_rank' : pl.UInt64
+        - 'hstrat_rank' : pl.Int64
             - Num generations elapsed for ancestral differentia.
             - Corresponds to `dstream_Tbar` - `dstream_S` for inner nodes.
             - Corresponds to `dstream_T` - 1 - `dstream_S` for leaf nodes.
 
         Optional schema:
-        - 'origin_time' : pl.UInt64
+        - 'origin_time' : pl.Int64
             - Estimated origin time for phylogeny nodes, in generations elapsed
               since founding ancestor.
 
@@ -282,6 +283,13 @@ def surface_postprocess_trie(
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("trie_postprocessor", logging.info):
         pre_postprocessor_columns = {*df.columns}
+        # Cast to signed to prevent uint64 underflow when
+        # dstream_rank < dstream_S (possible after trunk deletion
+        # with the S-1 threshold for zero-gen surfaces).
+        df = df.with_columns(
+            pl.col("dstream_rank").cast(pl.Int64),
+            pl.col("dstream_S").cast(pl.Int64),
+        )
         df = df.rename({"dstream_rank": "rank"})
         df = trie_postprocessor(
             df,
@@ -295,7 +303,8 @@ def surface_postprocess_trie(
 
     logging.info("setting up hstrat_rank...")
     df = df.with_columns(
-        hstrat_rank=pl.col("dstream_rank") - pl.col("dstream_S"),
+        hstrat_rank=pl.col("dstream_rank").cast(pl.Int64)
+        - pl.col("dstream_S").cast(pl.Int64),
     )
 
     to_keep = {*original_columns} - {
