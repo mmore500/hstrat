@@ -188,10 +188,7 @@ def _surface_postprocess_trie_via_pandas(
         df = pl.from_pandas(df)
 
     # phyloframe may change id/ancestor_id types; restore documented UInt64
-    if "id" in df.columns:
-        df = df.with_columns(pl.col("id").cast(pl.UInt64))
-    if "ancestor_id" in df.columns:
-        df = df.with_columns(pl.col("ancestor_id").cast(pl.UInt64))
+    df = df.cast({"id": pl.UInt64, "ancestor_id": pl.UInt64})
 
     gc.collect()
     render_polars_snapshot(df, "as polars", logging.info)
