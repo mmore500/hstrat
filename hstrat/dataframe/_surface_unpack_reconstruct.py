@@ -194,7 +194,7 @@ def _explode_and_write_slice(args: typing.Tuple[pl.LazyFrame, slice]) -> str:
     logging.info(f"- worker writing exploded data for {row_slice}")
     outpath = f"/tmp/{uuid.uuid4()}.arrow"  # nosec B108
     long_df.select(pl.all().shrink_dtype()).write_ipc(
-        outpath, compression="uncompressed"
+        outpath, compression="lz4"
     )
     del long_df  # clear memory
     gc.collect()
@@ -573,7 +573,7 @@ def _generate_exploded_slices_mp(
     df_path = f"/tmp/{uuid.uuid4()}_prepared.arrow"  # nosec B108
     nrows_log = len(df)
     logging.info(f"writing prepared df ({nrows_log} rows) to {df_path}")
-    df.write_ipc(df_path, compression="uncompressed")
+    df.write_ipc(df_path, compression="lz4")
     del df
     gc.collect()
 
