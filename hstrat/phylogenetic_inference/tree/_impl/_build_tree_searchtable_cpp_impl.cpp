@@ -8,8 +8,10 @@
 #include <bit>
 #include <cassert>
 #include <chrono>
+#include <condition_variable>
 #include <functional>
 #include <limits>
+#include <mutex>
 #include <numeric>
 #include <ranges>
 #include <span>
@@ -1148,22 +1150,58 @@ struct ProgressBar {
 
   ~ProgressBar() { this->_pbar.attr("close")(); }
 
-  void operator()() { this->_pbar.attr("update")(1); }
-
-  void operator()(u64 n) { this->_pbar.attr("update")(n); }
+  void operator()(u64 n = 1) { this->_pbar.attr("update")(n); }
 
 };
 
 
 /**
- * Lock-free atomic counter incremented without the GIL from the hot loop.
+ * Background thread that polls a counter and acquires the GIL periodically
+ * to update a tqdm progress bar. Completes once the counter reaches total.
+ *
+ * Must be constructed while the GIL is held. Call join() with the GIL
+ * released to avoid deadlock with the thread's gil_scoped_acquire.
  */
-struct AtomicCounter {
-  std::atomic<u64> value{0};
+struct ProgressPoller {
 
-  void increment(u64 n = 1) { value.fetch_add(n, std::memory_order_relaxed); }
+  py::object _pbar;
+  u64 _total;
+  std::atomic<u64> _counter{0};
+  std::mutex _mutex;
+  std::condition_variable _cv;
+  std::thread _thread;
 
-  u64 load() const { return value.load(std::memory_order_relaxed); }
+  ProgressPoller(py::object pbar, u64 total)
+    : _pbar(std::move(pbar)), _total(total),
+      _thread(&ProgressPoller::_run, this) {}
+
+  ~ProgressPoller() {
+    if (_thread.joinable()) _thread.join();
+  }
+
+  void increment(u64 n = 1) {
+    u64 prev = _counter.fetch_add(n, std::memory_order_release);
+    if (prev + n >= _total) _cv.notify_one();
+  }
+
+  void join() { _thread.join(); }
+
+private:
+  void _run() {
+    u64 prev = 0;
+    while (prev < _total) {
+      {
+        std::unique_lock<std::mutex> lock(_mutex);
+        _cv.wait_for(lock, std::chrono::seconds(10), [this]() {
+          return _counter.load(std::memory_order_acquire) >= _total;
+        });
+      }
+      u64 cur = _counter.load(std::memory_order_acquire);
+      py::gil_scoped_acquire acquire;
+      _pbar.attr("update")(cur - prev);
+      prev = cur;
+    }
+  }
 };
 
 
@@ -1277,67 +1315,48 @@ void extend_trie_searchtable_exploded(
   const auto logging_info = py::module::import("logging").attr("info");
   logging_info("exploded searchtable cpp begin");
 
-  const u64 total = [&data_ids_](){
-    py_array_span<u64> span{
-      data_ids_, 0, static_cast<u64>(data_ids_.size())
-    };
-    return count_unique_elements(span.begin(), span.end());
-  }();
+  {
+    const u64 total = [&data_ids_](){
+      py_array_span<u64> span{
+        data_ids_, 0, static_cast<u64>(data_ids_.size())
+      };
+      return count_unique_elements(span.begin(), span.end());
+    }();
 
-  // create tqdm progress bar while we still hold the GIL
-  py::object pbar = progress_ctor("total"_a=total);
+    // ProgressPoller spawns a background thread that acquires the GIL
+    // every 10s to update tqdm; completes once counter reaches total
+    ProgressPoller poller{progress_ctor("total"_a=total), total};
 
-  AtomicCounter counter;
-  std::atomic<bool> done{false};
+    {  // release GIL for the computational hot path
+      py::gil_scoped_release release;
 
-  // background thread that periodically acquires the GIL to update tqdm
-  std::thread progress_thread([&counter, &done, &pbar]() {
-    u64 prev = 0;
-    while (!done.load(std::memory_order_relaxed)) {
-      std::this_thread::sleep_for(std::chrono::seconds(10));
-      u64 cur = counter.load();
-      if (cur > prev) {
-        py::gil_scoped_acquire acquire;
-        pbar.attr("update")(cur - prev);
-        prev = cur;
+      u64 begin = 0;
+      while (begin < static_cast<u64>(ranks.size())) {
+        u64 end = begin;
+        for (; end < static_cast<u64>(ranks.size()); ++end) {
+          if (data_ids_[begin] != data_ids_[end]) break;
+          // ranks must be in ascending order
+          else assert(begin == end || ranks_[end - 1] < ranks_[end]);
+        }  // ... fast fwd to end of seg w/ contiguous identical data_id values
+
+        insert_artifact(
+          records,
+          py_array_span<i64>(ranks_, begin, end),
+          py_array_span<u64>(differentiae_, begin, end),
+          data_ids_[begin],
+          num_strata_depositeds_[begin]
+        );
+        begin = end;
+        poller.increment();
       }
-    }
-    // final update
-    u64 cur = counter.load();
-    if (cur > prev) {
-      py::gil_scoped_acquire acquire;
-      pbar.attr("update")(cur - prev);
-    }
-  });
 
-  {  // release GIL for the entire insertion loop
-    py::gil_scoped_release release;
-    u64 begin = 0;
-    while (begin < static_cast<u64>(ranks.size())) {
-      u64 end = begin;
-      for (; end < static_cast<u64>(ranks.size()); ++end) {
-        if (data_ids_[begin] != data_ids_[end]) break;
-        // ranks must be in ascending order
-        else assert(begin == end || ranks_[end - 1] < ranks_[end]);
-      }  // ... fast fwd to end of seg w/ contiguous identical data_id values
+      // join poller while GIL is released so it can do its final
+      // gil_scoped_acquire without deadlocking
+      poller.join();
+    }  // GIL reacquired
 
-      insert_artifact(
-        records,
-        py_array_span<i64>(ranks_, begin, end),
-        py_array_span<u64>(differentiae_, begin, end),
-        data_ids_[begin],
-        num_strata_depositeds_[begin]
-      );
-      begin = end;
-      counter.increment();
-    }
-    done.store(true, std::memory_order_relaxed);
-    // join progress thread while GIL is released so it can do
-    // its final py::gil_scoped_acquire without deadlocking
-    progress_thread.join();
-  }  // GIL reacquired
-
-  pbar.attr("close")();
+    assert(std::cmp_greater_equal(records.size(), total));
+  }  // end progress poller scope
 
   logging_info(
     py::str(

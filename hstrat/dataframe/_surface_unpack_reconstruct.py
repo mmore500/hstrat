@@ -313,10 +313,12 @@ def _run_trie_invariant_checks(records: Records, context: str) -> None:
 
 def _read_slice(inpath: str, pa_source_type: str) -> dict:
     """Read an Arrow IPC slice from disk and convert columns to numpy."""
+    logging.info(f"_read_slice {inpath} using {pa_source_type=}")
     _cols = ("dstream_data_id", "dstream_T", "dstream_Tbar", "dstream_value")
-    with getattr(pa, pa_source_type)(inpath, "rb") as source:
-        pa_table = pa.ipc.open_file(source).read_all()
-    return {col: pa_table[col].to_numpy() for col in _cols}
+    with log_context_duration(f"_read_slice {inpath}", logging.info):
+        with getattr(pa, pa_source_type)(inpath, "rb") as source:
+            pa_table = pa.ipc.open_file(source).read_all()
+        return {col: pa_table[col].to_numpy() for col in _cols}
 
 
 def _build_records_chunked(
