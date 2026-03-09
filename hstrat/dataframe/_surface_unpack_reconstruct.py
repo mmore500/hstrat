@@ -327,21 +327,24 @@ def _read_slice(inpath: str, pa_source_type: str) -> dict:
 
 
 def _readahead_slices(
-    slices: typing.Sequence[str],
+    slices: typing.Iterator[str],
     pa_source_type: str,
 ) -> typing.Iterator[typing.Tuple[str, dict]]:
     """Yield (inpath, np_arrays) pairs, prefetching the next slice in a
     background thread while the caller processes the current one."""
-    nslices = len(slices)
+    slices_iter = iter(slices)
+    first = next(slices_iter, None)
+    if first is None:
+        return
     with futures.ThreadPoolExecutor(max_workers=1) as reader:
-        future = reader.submit(_read_slice, slices[0], pa_source_type)
-        for i, inpath in enumerate(slices):
+        future = reader.submit(_read_slice, first, pa_source_type)
+        inpath = first
+        for next_inpath in slices_iter:
             np_arrays = future.result()
-            if i + 1 < nslices:
-                future = reader.submit(
-                    _read_slice, slices[i + 1], pa_source_type
-                )
+            future = reader.submit(_read_slice, next_inpath, pa_source_type)
             yield inpath, np_arrays
+            inpath = next_inpath
+        yield inpath, future.result()
 
 
 def _build_records_chunked(
@@ -359,7 +362,6 @@ def _build_records_chunked(
     logging.info(f"{init_size=}")
     records = Records(init_size)  # handle for C++ tree-building data
 
-    slices = list(slices)
     logging.info("consuming from exploded df worker")
     nslices = len(slices)
     for i, (inpath, np_arrays) in enumerate(
