@@ -97,7 +97,7 @@ docutils==0.21.2
     #   readme-renderer
     #   sphinx
     #   sphinx-rtd-theme
-downstream==1.21.2
+downstream==1.21.3
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
@@ -109,7 +109,7 @@ executing==2.2.1
     # via stack-data
 fastjsonschema==2.21.2
     # via nbformat
-filelock==3.25.0
+filelock==3.25.1
     # via
     #   cppimport
     #   python-discovery
@@ -589,7 +589,7 @@ uv==0.4.18
     # via hstrat (../../pyproject.toml)
 validators==0.35.0
     # via alifedata-phyloinformatics-convert
-virtualenv==21.1.0
+virtualenv==21.2.0
     # via tox
 wcwidth==0.6.0
     # via

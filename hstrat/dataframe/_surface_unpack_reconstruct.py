@@ -156,12 +156,16 @@ def _make_exploded_slice(
 
 def _prepare_df_for_explosion(
     df: typing.Union[pl.DataFrame, pl.LazyFrame],
+    mp_context: str,
+    mp_pool_size: int,
 ) -> pl.DataFrame:
     """Unpack, sort, and prepare DataFrame for slice-wise explosion."""
     with log_context_duration(
         "dstream.dataframe.unpack_data_packed", logging.info
     ):
-        df = dstream_dataframe.unpack_data_packed(df)
+        df = dstream_dataframe.unpack_data_packed(
+            df, mp_context=mp_context, mp_pool_size=mp_pool_size
+        )
 
     render_polars_snapshot(df, "unpacked", logging.info)
 
@@ -582,7 +586,7 @@ def _generate_exploded_slices_mp(
         mp_context = multiprocessing.get_context("spawn")
 
     # prepare (unpack, sort, add row index) in the main process
-    df = _prepare_df_for_explosion(df)
+    df = _prepare_df_for_explosion(df, mp_context, mp_pool_size)
 
     # write prepared df to a temp Arrow file so workers receive a
     # scan_ipc LazyFrame (just a file path) instead of pickled data
