@@ -387,9 +387,7 @@ def _build_records_chunked(
                     tqdm.tqdm,
                 )
         finally:
-            logging.info(
-                f"unlinking slice {i + 1} / {nslices}...",
-            )
+            logging.info(f"unlinking slice {i + 1} / {nslices}...")
             pathlib.Path(inpath).unlink(missing_ok=True)
 
         if (
