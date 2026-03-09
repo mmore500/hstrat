@@ -345,7 +345,7 @@ def _readahead_slices(
 
 
 def _build_records_chunked(
-    slices: typing.Iterator[str],
+    slices: typing.Sequence[str],
     collapse_unif_freq: int,
     check_trie_invariant_freq: int,
     check_trie_invariant_after_collapse_unif: bool,
