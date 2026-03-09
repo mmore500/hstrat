@@ -1315,7 +1315,7 @@ void extend_trie_searchtable_exploded(
   const auto logging_info = py::module::import("logging").attr("info");
   logging_info("exploded searchtable cpp begin");
 
-  {
+  { // scope: ProgressPoller must be destroyed before logging_info below
     const u64 total = [&data_ids_](){
       py_array_span<u64> span{
         data_ids_, 0, static_cast<u64>(data_ids_.size())
