@@ -331,10 +331,7 @@ def _readahead_slices(
     pa_source_type: str,
 ) -> typing.Iterator[typing.Tuple[str, dict]]:
     """Yield (inpath, np_array) pairs, prefetching the next slice in a
-    background thread while the caller processes the current one.
-
-    Note: Python's logging module is thread-safe (uses per-handler locks),
-    so _read_slice's logging calls work correctly from the worker thread."""
+    background thread while the caller processes the current one."""
     nslices = len(slices)
     with concurrent.futures.ThreadPoolExecutor(max_workers=1) as reader:
         future = reader.submit(_read_slice, slices[0], pa_source_type)
