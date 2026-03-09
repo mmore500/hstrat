@@ -1,4 +1,4 @@
-import concurrent.futures
+from concurrent import futures
 import contextlib
 import gc
 import logging
@@ -333,7 +333,7 @@ def _readahead_slices(
     """Yield (inpath, np_arrays) pairs, prefetching the next slice in a
     background thread while the caller processes the current one."""
     nslices = len(slices)
-    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as reader:
+    with futures.ThreadPoolExecutor(max_workers=1) as reader:
         future = reader.submit(_read_slice, slices[0], pa_source_type)
         for i, inpath in enumerate(slices):
             np_arrays = future.result()
