@@ -317,31 +317,31 @@ def _read_slice(inpath: str, pa_source_type: str) -> dict:
     with log_context_duration(f"pa.ipc.open_file {inpath}", logging.info):
         with getattr(pa, pa_source_type)(inpath, "rb") as source:
             pa_table = pa.ipc.open_file(source).read_all()
-    np_array = {}
+    np_arrays = {}
     for col in _cols:
         with log_context_duration(
             f"pa_table['{col}'].to_numpy()", logging.info
         ):
-            np_array[col] = pa_table[col].to_numpy()
-    return np_array
+            np_arrays[col] = pa_table[col].to_numpy()
+    return np_arrays
 
 
 def _readahead_slices(
     slices: typing.Sequence[str],
     pa_source_type: str,
 ) -> typing.Iterator[typing.Tuple[str, dict]]:
-    """Yield (inpath, np_array) pairs, prefetching the next slice in a
+    """Yield (inpath, np_arrays) pairs, prefetching the next slice in a
     background thread while the caller processes the current one."""
     nslices = len(slices)
     with concurrent.futures.ThreadPoolExecutor(max_workers=1) as reader:
         future = reader.submit(_read_slice, slices[0], pa_source_type)
         for i, inpath in enumerate(slices):
-            np_array = future.result()
+            np_arrays = future.result()
             if i + 1 < nslices:
                 future = reader.submit(
                     _read_slice, slices[i + 1], pa_source_type
                 )
-            yield inpath, np_array
+            yield inpath, np_arrays
 
 
 def _build_records_chunked(
@@ -361,7 +361,7 @@ def _build_records_chunked(
 
     logging.info("consuming from exploded df worker")
     nslices = len(slices)
-    for i, (inpath, np_array) in enumerate(
+    for i, (inpath, np_arrays) in enumerate(
         _readahead_slices(slices, pa_source_type),
     ):
         logging.info(
@@ -380,10 +380,10 @@ def _build_records_chunked(
                 # dispatch to C++ tree-building implementation
                 extend_tree_searchtable_cpp_from_exploded(
                     records,
-                    np_array["dstream_data_id"],
-                    np_array["dstream_T"],
-                    np_array["dstream_Tbar"],
-                    np_array["dstream_value"],
+                    np_arrays["dstream_data_id"],
+                    np_arrays["dstream_T"],
+                    np_arrays["dstream_Tbar"],
+                    np_arrays["dstream_value"],
                     tqdm.tqdm,
                 )
         finally:
