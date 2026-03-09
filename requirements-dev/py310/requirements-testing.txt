@@ -226,15 +226,15 @@ pluggy==1.6.0
     # via
     #   pytest
     #   tox
-polars==1.37.1
+polars==1.36.1
     # via
     #   hstrat (../../pyproject.toml)
     #   downstream
     #   joinem
     #   phyloframe
-polars-runtime-32==1.37.1
+polars-runtime-32==1.36.1
     # via polars
-polars-runtime-64==1.37.1
+polars-runtime-64==1.36.1
     # via polars
 prettytable==3.17.0
     # via hstrat (../../pyproject.toml)

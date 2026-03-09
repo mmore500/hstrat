@@ -12,7 +12,7 @@ anytree==2.13.0
     #   alifedata-phyloinformatics-convert
 astropy==7.2.0
     # via hstrat (../../pyproject.toml)
-astropy-iers-data==0.2026.3.2.0.47.4
+astropy-iers-data==0.2026.3.9.0.47.45
     # via astropy
 asttokens==3.0.1
     # via stack-data
@@ -258,15 +258,15 @@ pillow==12.1.1
     # via matplotlib
 platformdirs==4.9.4
     # via jupyter-core
-polars==1.37.1
+polars==1.36.1
     # via
     #   hstrat (../../pyproject.toml)
     #   downstream
     #   joinem
     #   phyloframe
-polars-runtime-32==1.37.1
+polars-runtime-32==1.36.1
     # via polars
-polars-runtime-64==1.37.1
+polars-runtime-64==1.36.1
     # via polars
 prettytable==3.17.0
     # via hstrat (../../pyproject.toml)
