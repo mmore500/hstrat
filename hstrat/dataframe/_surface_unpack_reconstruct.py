@@ -565,7 +565,7 @@ def _generate_exploded_slices_mp(
     df: typing.Union[pl.LazyFrame, pl.DataFrame],
     exploded_slice_size: int,
     mp_context: str,
-    mp_pool_size: int = 1,
+    mp_pool_size: int,
 ) -> typing.Iterator[typing.Iterator[str]]:
     """Generator wrapping generation of exploded data frame slices via
     parallel multiprocess producer(s)."""
