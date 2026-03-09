@@ -1,3 +1,4 @@
+from concurrent import futures
 import contextlib
 import gc
 import logging
@@ -194,7 +195,7 @@ def _explode_and_write_slice(args: typing.Tuple[pl.LazyFrame, slice]) -> str:
     logging.info(f"- worker writing exploded data for {row_slice}")
     outpath = f"/tmp/{uuid.uuid4()}.arrow"  # nosec B108
     long_df.select(pl.all().shrink_dtype()).write_ipc(
-        outpath, compression="uncompressed"
+        outpath, compression="lz4"
     )
     del long_df  # clear memory
     gc.collect()
@@ -309,6 +310,43 @@ def _run_trie_invariant_checks(records: Records, context: str) -> None:
     logging.info(f"all trie invariant checks passed ({context})")
 
 
+def _read_slice(inpath: str, pa_source_type: str) -> dict:
+    """Read an Arrow IPC slice from disk and convert columns to numpy."""
+    logging.info(f"_read_slice {inpath} using {pa_source_type=}")
+    _cols = ("dstream_data_id", "dstream_T", "dstream_Tbar", "dstream_value")
+    with log_context_duration(f"pa.ipc.open_file {inpath}", logging.info):
+        with getattr(pa, pa_source_type)(inpath, "rb") as source:
+            pa_table = pa.ipc.open_file(source).read_all()
+    np_arrays = {}
+    for col in _cols:
+        with log_context_duration(
+            f"pa_table['{col}'].to_numpy()", logging.info
+        ):
+            np_arrays[col] = pa_table[col].to_numpy()
+    return np_arrays
+
+
+def _readahead_slices(
+    slices: typing.Iterator[str],
+    pa_source_type: str,
+) -> typing.Iterator[typing.Tuple[str, dict]]:
+    """Yield (inpath, np_arrays) pairs, prefetching the next slice in a
+    background thread while the caller processes the current one."""
+    slices_iter = iter(slices)
+    first = next(slices_iter, None)
+    if first is None:
+        return
+    with futures.ThreadPoolExecutor(max_workers=1) as reader:
+        future = reader.submit(_read_slice, first, pa_source_type)
+        inpath = first
+        for next_inpath in slices_iter:
+            np_arrays = future.result()
+            future = reader.submit(_read_slice, next_inpath, pa_source_type)
+            yield inpath, np_arrays
+            inpath = next_inpath
+        yield inpath, future.result()
+
+
 def _build_records_chunked(
     slices: typing.Iterator[str],
     collapse_unif_freq: int,
@@ -325,56 +363,34 @@ def _build_records_chunked(
     records = Records(init_size)  # handle for C++ tree-building data
 
     logging.info("consuming from exploded df worker")
-    for i, inpath in enumerate(slices):
+    nslices = len(slices)
+    for i, (inpath, np_arrays) in enumerate(
+        _readahead_slices(slices, pa_source_type),
+    ):
         logging.info(
-            f"taking exploded df off queue ({i + 1} / {len(slices)})...",
+            f"taking exploded df off queue ({i + 1} / {nslices})...",
         )
 
-        logging.info(
-            f"opening slice ({i + 1} / {len(slices)}) from {inpath} "
-            f" using {pa_source_type=}...",
-        )
         try:
-            with getattr(pa, pa_source_type)(inpath, "rb") as source:
-                with log_context_duration(
-                    "pa.ipc.open_file(source).read_all()",
-                    logging.info,
-                ):
-                    pa_array = pa.ipc.open_file(source).read_all()
-
-                np_array = {
-                    "dstream_data_id": None,
-                    "dstream_T": None,
-                    "dstream_Tbar": None,
-                    "dstream_value": None,
-                }
-                for col in np_array:
-                    with log_context_duration(
-                        f"pa_array['{col}'].to_numpy()",
-                        logging.info,
-                    ):
-                        np_array[col] = pa_array[col].to_numpy()
-
-                logging.info(
-                    f"incorporating slice ({i + 1} / {len(slices)})...",
+            logging.info(
+                f"incorporating slice ({i + 1} / {nslices})...",
+            )
+            with log_context_duration(
+                "extend_tree_searchtable_cpp_from_exploded "
+                f"({i + 1} / {nslices})",
+                logging.info,
+            ):
+                # dispatch to C++ tree-building implementation
+                extend_tree_searchtable_cpp_from_exploded(
+                    records,
+                    np_arrays["dstream_data_id"],
+                    np_arrays["dstream_T"],
+                    np_arrays["dstream_Tbar"],
+                    np_arrays["dstream_value"],
+                    tqdm.tqdm,
                 )
-
-                with log_context_duration(
-                    "extend_tree_searchtable_cpp_from_exploded "
-                    f"({i + 1} / {len(slices)})",
-                    logging.info,
-                ):
-                    # dispatch to C++ tree-building implementation
-                    extend_tree_searchtable_cpp_from_exploded(
-                        records,
-                        np_array["dstream_data_id"],
-                        np_array["dstream_T"],
-                        np_array["dstream_Tbar"],
-                        np_array["dstream_value"],
-                        tqdm.tqdm,
-                    )
         finally:
-            logging.info(f"unlinking slice {i + 1} / {len(slices)}...")
+            logging.info(f"unlinking slice {i + 1} / {nslices}...")
             pathlib.Path(inpath).unlink(missing_ok=True)
 
         if (
@@ -383,18 +399,18 @@ def _build_records_chunked(
         ):
             with log_context_duration(
                 "_run_trie_invariant_checks "
-                f"(before collapse, slice {i + 1} / {len(slices)})",
+                f"(before collapse, slice {i + 1} / {nslices})",
                 logging.info,
             ):
                 _run_trie_invariant_checks(
                     records,
-                    f"before collapse, after slice {i + 1} / {len(slices)}",
+                    f"before collapse, after slice {i + 1} / {nslices}",
                 )
 
         if collapse_unif_freq > 0 and (i + 1) % collapse_unif_freq == 0:
             with log_context_duration(
                 "collapse_unifurcations(dropped_only=True) "
-                f"({i + 1} / {len(slices)})",
+                f"({i + 1} / {nslices})",
                 logging.info,
             ):
                 records = collapse_unifurcations(records, dropped_only=True)
@@ -406,12 +422,12 @@ def _build_records_chunked(
         ):
             with log_context_duration(
                 "_run_trie_invariant_checks "
-                f"(after collapse, slice {i + 1} / {len(slices)})",
+                f"(after collapse, slice {i + 1} / {nslices})",
                 logging.info,
             ):
                 _run_trie_invariant_checks(
                     records,
-                    f"after collapse, after slice {i + 1} / {len(slices)}",
+                    f"after collapse, after slice {i + 1} / {nslices}",
                 )
 
         log_memory_usage(logging.info)
@@ -573,7 +589,7 @@ def _generate_exploded_slices_mp(
     df_path = f"/tmp/{uuid.uuid4()}_prepared.arrow"  # nosec B108
     nrows_log = len(df)
     logging.info(f"writing prepared df ({nrows_log} rows) to {df_path}")
-    df.write_ipc(df_path, compression="uncompressed")
+    df.write_ipc(df_path, compression="lz4")
     del df
     gc.collect()
 
