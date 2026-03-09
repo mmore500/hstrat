@@ -368,7 +368,7 @@ def _build_records_chunked(
         _readahead_slices(slices, pa_source_type),
     ):
         logging.info(
-            f"taking exploded df off queue " f"({i + 1} / {nslices})...",
+            f"taking exploded df off queue ({i + 1} / {nslices})...",
         )
 
         try:
