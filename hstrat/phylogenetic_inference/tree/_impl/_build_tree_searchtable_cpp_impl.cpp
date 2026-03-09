@@ -1150,7 +1150,7 @@ struct ProgressBar {
 
   ~ProgressBar() { this->_pbar.attr("close")(); }
 
-  void operator()(u64 n = 1) { this->_pbar.attr("update")(n); }
+  void operator()(const u64 n = 1) { this->_pbar.attr("update")(n); }
 
 };
 
@@ -1171,7 +1171,7 @@ struct ProgressPoller {
   std::condition_variable _cv;
   std::thread _thread;
 
-  ProgressPoller(py::object pbar, u64 total)
+  ProgressPoller(py::object pbar, const u64 total)
     : _pbar(std::move(pbar)), _total(total),
       _thread(&ProgressPoller::_run, this) {}
 
@@ -1179,7 +1179,7 @@ struct ProgressPoller {
     if (_thread.joinable()) _thread.join();
   }
 
-  void increment(u64 n = 1) {
+  void increment(const u64 n = 1) {
     u64 prev = _counter.fetch_add(n, std::memory_order_release);
     if (prev + n >= _total) _cv.notify_one();
   }
@@ -1327,33 +1327,33 @@ void extend_trie_searchtable_exploded(
     // every 10s to update tqdm; completes once counter reaches total
     ProgressPoller poller{progress_ctor("total"_a=total), total};
 
-    {  // release GIL for the computational hot path
-      py::gil_scoped_release release;
+    { // scope: release GIL for computational hot path, reacquire at end
+    py::gil_scoped_release release;
 
-      u64 begin = 0;
-      while (begin < static_cast<u64>(ranks.size())) {
-        u64 end = begin;
-        for (; end < static_cast<u64>(ranks.size()); ++end) {
-          if (data_ids_[begin] != data_ids_[end]) break;
-          // ranks must be in ascending order
-          else assert(begin == end || ranks_[end - 1] < ranks_[end]);
-        }  // ... fast fwd to end of seg w/ contiguous identical data_id values
+    u64 begin = 0;
+    while (begin < static_cast<u64>(ranks.size())) {
+      u64 end = begin;
+      for (; end < static_cast<u64>(ranks.size()); ++end) {
+        if (data_ids_[begin] != data_ids_[end]) break;
+        // ranks must be in ascending order
+        else assert(begin == end || ranks_[end - 1] < ranks_[end]);
+      }  // ... fast fwd to end of seg w/ contiguous identical data_id values
 
-        insert_artifact(
-          records,
-          py_array_span<i64>(ranks_, begin, end),
-          py_array_span<u64>(differentiae_, begin, end),
-          data_ids_[begin],
-          num_strata_depositeds_[begin]
-        );
-        begin = end;
-        poller.increment();
-      }
+      insert_artifact(
+        records,
+        py_array_span<i64>(ranks_, begin, end),
+        py_array_span<u64>(differentiae_, begin, end),
+        data_ids_[begin],
+        num_strata_depositeds_[begin]
+      );
+      begin = end;
+      poller.increment();
+    }
 
-      // join poller while GIL is released so it can do its final
-      // gil_scoped_acquire without deadlocking
-      poller.join();
-    }  // GIL reacquired
+    // join poller while GIL is released so it can do its final
+    // gil_scoped_acquire without deadlocking
+    poller.join();
+    } // end GIL release scope
 
     assert(std::cmp_greater_equal(records.size(), total));
   }  // end progress poller scope

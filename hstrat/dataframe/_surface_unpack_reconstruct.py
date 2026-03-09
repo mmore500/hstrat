@@ -1,4 +1,3 @@
-import concurrent.futures
 import contextlib
 import gc
 import logging
@@ -337,123 +336,83 @@ def _build_records_chunked(
 
     logging.info("consuming from exploded df worker")
     nslices = len(slices)
-    # use a background thread to read-ahead the next slice while the
-    # current one is being incorporated into the trie by C++ code
-    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as reader:
-        slices_iter = iter(slices)
-        readahead_future = None  # Future for the next slice's read
-        readahead_inpath = None  # path of the readahead slice
+    for i, inpath in enumerate(slices):
+        logging.info(
+            f"taking exploded df off queue " f"({i + 1} / {nslices})...",
+        )
 
-        for i in range(nslices):
+        logging.info(
+            f"reading slice ({i + 1} / {nslices}) "
+            f"from {inpath} using {pa_source_type=}...",
+        )
+        with log_context_duration(
+            f"_read_slice ({i + 1} / {nslices})",
+            logging.info,
+        ):
+            np_array = _read_slice(inpath, pa_source_type)
+
+        try:
             logging.info(
-                f"taking exploded df off queue " f"({i + 1} / {nslices})...",
+                f"incorporating slice ({i + 1} / {nslices})...",
             )
-
-            if readahead_future is not None:
-                # collect the pre-submitted readahead
-                inpath = readahead_inpath
-                logging.info(
-                    f"awaiting readahead for slice "
-                    f"({i + 1} / {nslices})...",
-                )
-                with log_context_duration(
-                    f"readahead result ({i + 1} / {nslices})",
-                    logging.info,
-                ):
-                    np_array = readahead_future.result()
-                readahead_future = None
-                readahead_inpath = None
-            else:
-                # first iteration: no readahead yet, read synchronously
-                inpath = next(slices_iter)
-                logging.info(
-                    f"reading slice ({i + 1} / {nslices}) "
-                    f"from {inpath} using {pa_source_type=}...",
-                )
-                with log_context_duration(
-                    f"_read_slice ({i + 1} / {nslices})",
-                    logging.info,
-                ):
-                    np_array = _read_slice(inpath, pa_source_type)
-
-            # submit readahead for the *next* slice if available
-            next_inpath = next(slices_iter, None)
-            if next_inpath is not None:
-                logging.info(
-                    f"submitting readahead for slice "
-                    f"({i + 2} / {nslices})...",
-                )
-                readahead_future = reader.submit(
-                    _read_slice,
-                    next_inpath,
-                    pa_source_type,
-                )
-                readahead_inpath = next_inpath
-
-            try:
-                logging.info(
-                    f"incorporating slice ({i + 1} / {nslices})...",
-                )
-                with log_context_duration(
-                    "extend_tree_searchtable_cpp_from_exploded "
-                    f"({i + 1} / {nslices})",
-                    logging.info,
-                ):
-                    # dispatch to C++ tree-building implementation
-                    extend_tree_searchtable_cpp_from_exploded(
-                        records,
-                        np_array["dstream_data_id"],
-                        np_array["dstream_T"],
-                        np_array["dstream_Tbar"],
-                        np_array["dstream_value"],
-                        tqdm.tqdm,
-                    )
-            finally:
-                logging.info(
-                    f"unlinking slice {i + 1} / {nslices}...",
-                )
-                pathlib.Path(inpath).unlink(missing_ok=True)
-
-            if (
-                check_trie_invariant_freq > 0
-                and (i + 1) % check_trie_invariant_freq == 0
+            with log_context_duration(
+                "extend_tree_searchtable_cpp_from_exploded "
+                f"({i + 1} / {nslices})",
+                logging.info,
             ):
-                with log_context_duration(
-                    "_run_trie_invariant_checks "
-                    f"(before collapse, slice {i + 1} / {nslices})",
-                    logging.info,
-                ):
-                    _run_trie_invariant_checks(
-                        records,
-                        f"before collapse, after slice {i + 1} / {nslices}",
-                    )
+                # dispatch to C++ tree-building implementation
+                extend_tree_searchtable_cpp_from_exploded(
+                    records,
+                    np_array["dstream_data_id"],
+                    np_array["dstream_T"],
+                    np_array["dstream_Tbar"],
+                    np_array["dstream_value"],
+                    tqdm.tqdm,
+                )
+        finally:
+            logging.info(
+                f"unlinking slice {i + 1} / {nslices}...",
+            )
+            pathlib.Path(inpath).unlink(missing_ok=True)
 
-            if collapse_unif_freq > 0 and (i + 1) % collapse_unif_freq == 0:
-                with log_context_duration(
-                    "collapse_unifurcations(dropped_only=True) "
-                    f"({i + 1} / {nslices})",
-                    logging.info,
-                ):
-                    records = collapse_unifurcations(
-                        records, dropped_only=True
-                    )
-
-            if (
-                check_trie_invariant_after_collapse_unif
-                and check_trie_invariant_freq > 0
-                and (i + 1) % check_trie_invariant_freq == 0
+        if (
+            check_trie_invariant_freq > 0
+            and (i + 1) % check_trie_invariant_freq == 0
+        ):
+            with log_context_duration(
+                "_run_trie_invariant_checks "
+                f"(before collapse, slice {i + 1} / {nslices})",
+                logging.info,
             ):
-                with log_context_duration(
-                    "_run_trie_invariant_checks "
-                    f"(after collapse, slice {i + 1} / {nslices})",
-                    logging.info,
-                ):
-                    _run_trie_invariant_checks(
-                        records,
-                        f"after collapse, after slice {i + 1} / {nslices}",
-                    )
+                _run_trie_invariant_checks(
+                    records,
+                    f"before collapse, after slice {i + 1} / {nslices}",
+                )
 
-            log_memory_usage(logging.info)
+        if collapse_unif_freq > 0 and (i + 1) % collapse_unif_freq == 0:
+            with log_context_duration(
+                "collapse_unifurcations(dropped_only=True) "
+                f"({i + 1} / {nslices})",
+                logging.info,
+            ):
+                records = collapse_unifurcations(records, dropped_only=True)
+
+        if (
+            check_trie_invariant_after_collapse_unif
+            and check_trie_invariant_freq > 0
+            and (i + 1) % check_trie_invariant_freq == 0
+        ):
+            with log_context_duration(
+                "_run_trie_invariant_checks "
+                f"(after collapse, slice {i + 1} / {nslices})",
+                logging.info,
+            ):
+                _run_trie_invariant_checks(
+                    records,
+                    f"after collapse, after slice {i + 1} / {nslices}",
+                )
+
+        log_memory_usage(logging.info)
 
     logging.info("slices complete")
 
