@@ -589,7 +589,7 @@ def _generate_exploded_slices_mp(
     df_path = f"/tmp/{uuid.uuid4()}_prepared.arrow"  # nosec B108
     nrows_log = len(df)
     logging.info(f"writing prepared df ({nrows_log} rows) to {df_path}")
-    df.write_ipc(df_path, compression="lz4")
+    df.write_ipc(df_path, compression="uncompressed")
     del df
     gc.collect()
 
