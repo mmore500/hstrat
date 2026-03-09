@@ -58,7 +58,7 @@ distlib==0.4.0
     # via virtualenv
 distutils-strtobool==0.1.0
     # via teeplot
-downstream==1.21.1
+downstream==1.21.2
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
@@ -78,7 +78,7 @@ fishersrc==0.1.15
     #   phyloframe
 flake8==3.7.8
     # via hstrat (../../pyproject.toml)
-fonttools==4.61.1
+fonttools==4.62.0
     # via matplotlib
 idna==3.11
     # via yarl
@@ -108,7 +108,7 @@ keyname==0.6.0
     # via
     #   hstrat (../../pyproject.toml)
     #   teeplot
-kiwisolver==1.4.9
+kiwisolver==1.5.0
     # via matplotlib
 lazy-loader==0.5
     # via

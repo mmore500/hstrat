@@ -97,7 +97,7 @@ docutils==0.21.2
     #   readme-renderer
     #   sphinx
     #   sphinx-rtd-theme
-downstream==1.21.1
+downstream==1.21.2
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
@@ -121,7 +121,7 @@ fishersrc==0.1.15
     #   phyloframe
 flake8==3.7.8
     # via hstrat (../../pyproject.toml)
-fonttools==4.61.1
+fonttools==4.62.0
     # via matplotlib
 idna==3.11
     # via
@@ -185,7 +185,7 @@ keyname==0.6.0
     # via
     #   hstrat (../../pyproject.toml)
     #   teeplot
-kiwisolver==1.4.9
+kiwisolver==1.5.0
     # via matplotlib
 lazy-loader==0.5
     # via
