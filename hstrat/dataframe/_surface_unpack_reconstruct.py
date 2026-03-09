@@ -1,3 +1,4 @@
+import concurrent.futures
 import contextlib
 import gc
 import logging
@@ -313,10 +314,34 @@ def _read_slice(inpath: str, pa_source_type: str) -> dict:
     """Read an Arrow IPC slice from disk and convert columns to numpy."""
     logging.info(f"_read_slice {inpath} using {pa_source_type=}")
     _cols = ("dstream_data_id", "dstream_T", "dstream_Tbar", "dstream_value")
-    with log_context_duration(f"_read_slice {inpath}", logging.info):
+    with log_context_duration(f"pa.ipc.open_file {inpath}", logging.info):
         with getattr(pa, pa_source_type)(inpath, "rb") as source:
             pa_table = pa.ipc.open_file(source).read_all()
-        return {col: pa_table[col].to_numpy() for col in _cols}
+    np_array = {}
+    for col in _cols:
+        with log_context_duration(
+            f"pa_table['{col}'].to_numpy()", logging.info
+        ):
+            np_array[col] = pa_table[col].to_numpy()
+    return np_array
+
+
+def _readahead_slices(
+    slices: typing.Sequence[str],
+    pa_source_type: str,
+) -> typing.Iterator[typing.Tuple[str, dict]]:
+    """Yield (inpath, np_array) pairs, prefetching the next slice in a
+    background thread while the caller processes the current one."""
+    nslices = len(slices)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as reader:
+        future = reader.submit(_read_slice, slices[0], pa_source_type)
+        for i, inpath in enumerate(slices):
+            np_array = future.result()
+            if i + 1 < nslices:
+                future = reader.submit(
+                    _read_slice, slices[i + 1], pa_source_type
+                )
+            yield inpath, np_array
 
 
 def _build_records_chunked(
@@ -336,20 +361,12 @@ def _build_records_chunked(
 
     logging.info("consuming from exploded df worker")
     nslices = len(slices)
-    for i, inpath in enumerate(slices):
+    for i, (inpath, np_array) in enumerate(
+        _readahead_slices(slices, pa_source_type),
+    ):
         logging.info(
             f"taking exploded df off queue " f"({i + 1} / {nslices})...",
         )
-
-        logging.info(
-            f"reading slice ({i + 1} / {nslices}) "
-            f"from {inpath} using {pa_source_type=}...",
-        )
-        with log_context_duration(
-            f"_read_slice ({i + 1} / {nslices})",
-            logging.info,
-        ):
-            np_array = _read_slice(inpath, pa_source_type)
 
         try:
             logging.info(
