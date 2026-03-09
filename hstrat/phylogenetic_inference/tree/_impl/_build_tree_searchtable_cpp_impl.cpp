@@ -1330,10 +1330,9 @@ void extend_trie_searchtable_exploded(
     { // scope: release GIL for computational hot path, reacquire at end
     py::gil_scoped_release release;
 
-    u64 begin = 0;
-    while (begin < static_cast<u64>(ranks.size())) {
-      u64 end = begin;
-      for (; end < static_cast<u64>(ranks.size()); ++end) {
+    u64 end;
+    for (u64 begin = 0; begin < static_cast<u64>(ranks.size()); begin = end) {
+      for (end = begin; end < static_cast<u64>(ranks.size()); ++end) {
         if (data_ids_[begin] != data_ids_[end]) break;
         // ranks must be in ascending order
         else assert(begin == end || ranks_[end - 1] < ranks_[end]);
@@ -1346,7 +1345,6 @@ void extend_trie_searchtable_exploded(
         data_ids_[begin],
         num_strata_depositeds_[begin]
       );
-      begin = end;
       poller.increment();
     }
 
