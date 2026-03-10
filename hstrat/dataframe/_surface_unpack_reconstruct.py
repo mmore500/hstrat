@@ -175,6 +175,9 @@ def _prepare_df_for_explosion(
     with log_context_duration('.sort("dstream_T")', logging.info):
         df = df.sort("dstream_T", descending=False, maintain_order=True)
 
+    # hint for optimizer: dstream_T is sorted after the sort above
+    df = df.with_columns(pl.col("dstream_T").set_sorted())
+
     render_polars_snapshot(df, "sorted", logging.info)
 
     # optionally shuffle rows within same-T groups to randomize
@@ -184,14 +187,12 @@ def _prepare_df_for_explosion(
             "shuffle over same-T " f"(seed={shuffle_over_same_T_seed})",
             logging.info,
         ):
-            lf = df.lazy()
-            lf = lf.with_columns(pl.col("dstream_T").set_sorted())
-            df = lf.with_columns(
+            df = df.with_columns(
                 pl.all()
                 .exclude("dstream_T")
                 .shuffle(seed=shuffle_over_same_T_seed)
                 .over("dstream_T"),
-            ).collect()
+            )
 
         render_polars_snapshot(df, "shuffled same-T groups", logging.info)
 
