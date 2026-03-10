@@ -188,6 +188,15 @@ def _create_parser() -> argparse.ArgumentParser:
             """(i.e., "memory_map" or "OSFile")."""
         ),
     )
+    parser.add_argument(
+        "--shuffle-same-T-groups-seed",
+        type=int,
+        default=None,
+        help=(
+            "If set, shuffle rows within same-dstream_T groups after "
+            "sorting but before exploding. Value is the random seed."
+        ),
+    )
 
     return parser
 
@@ -217,6 +226,7 @@ def _main(mp_context: str) -> None:
                 mp_context=mp_context,
                 mp_pool_size=args.mp_pool_size,
                 pa_source_type=args.pa_source_type,
+                shuffle_same_T_groups_seed=args.shuffle_same_T_groups_seed,
                 trie_postprocessor=trie_postprocessor,
             ),
         )

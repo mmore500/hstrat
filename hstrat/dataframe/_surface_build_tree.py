@@ -18,6 +18,7 @@ def surface_build_tree(
     mp_context: str = "spawn",
     mp_pool_size: int = 1,
     pa_source_type: str = "memory_map",
+    shuffle_same_T_groups_seed: typing.Optional[int] = None,
     delete_trunk: bool = True,
     trie_postprocessor: typing.Callable = NopTriePostprocessor(),
     # ^^^ NopTriePostprocessor is stateless, so is safe as default value
@@ -90,6 +91,11 @@ def surface_build_tree(
         PyArrow type to use for exploded chunks (i.e., "memory_map" or
         "OSFile").
 
+    shuffle_same_T_groups_seed : int or None, default None
+        If not None, shuffle rows within same-dstream_T groups after
+        sorting but before exploding. The value is used as the random
+        seed for reproducibility. Set to None to disable (default).
+
     delete_trunk : bool, default `True`
         Should trunk nodes with rank less than `dstream_S` be deleted?
 
@@ -150,6 +156,7 @@ def surface_build_tree(
         mp_context=mp_context,
         mp_pool_size=mp_pool_size,
         pa_source_type=pa_source_type,
+        shuffle_same_T_groups_seed=shuffle_same_T_groups_seed,
     )
 
     logging.info("surface_build_tree running surface_postprocess_trie...")
