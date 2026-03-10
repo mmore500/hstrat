@@ -97,7 +97,7 @@ docutils==0.21.2
     #   readme-renderer
     #   sphinx
     #   sphinx-rtd-theme
-downstream==1.21.3
+downstream==1.21.8
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
@@ -326,7 +326,7 @@ patsy==1.0.2
     # via statsmodels
 pexpect==4.9.0
     # via ipython
-phyloframe==0.1.0
+phyloframe==0.1.1
     # via hstrat (../../pyproject.toml)
 phylotrackpy==0.2.4
     # via hstrat (../../pyproject.toml)
@@ -414,7 +414,7 @@ python-dateutil==2.9.0.post0
     #   jupyter-client
     #   matplotlib
     #   pandas
-python-discovery==1.1.1
+python-discovery==1.1.2
     # via virtualenv
 python-slugify==8.0.4
     # via

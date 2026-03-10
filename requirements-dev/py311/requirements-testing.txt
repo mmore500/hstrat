@@ -58,7 +58,7 @@ distlib==0.4.0
     # via virtualenv
 distutils-strtobool==0.1.0
     # via teeplot
-downstream==1.21.3
+downstream==1.21.8
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
@@ -210,7 +210,7 @@ pathspec==1.0.4
     # via black
 patsy==1.0.2
     # via statsmodels
-phyloframe==0.1.0
+phyloframe==0.1.1
     # via hstrat (../../pyproject.toml)
 phylotrackpy==0.2.4
     # via hstrat (../../pyproject.toml)
