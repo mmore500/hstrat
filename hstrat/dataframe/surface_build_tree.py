@@ -189,7 +189,7 @@ def _create_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
-        "--shuffle-same-T-groups-seed",
+        "--shuffle-over-same-T-seed",
         type=int,
         default=None,
         help=(
@@ -226,7 +226,7 @@ def _main(mp_context: str) -> None:
                 mp_context=mp_context,
                 mp_pool_size=args.mp_pool_size,
                 pa_source_type=args.pa_source_type,
-                shuffle_same_T_groups_seed=args.shuffle_same_T_groups_seed,
+                shuffle_over_same_T_seed=args.shuffle_over_same_T_seed,
                 trie_postprocessor=trie_postprocessor,
             ),
         )
