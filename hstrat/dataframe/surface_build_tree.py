@@ -197,6 +197,16 @@ def _create_parser() -> argparse.ArgumentParser:
             "sorting but before exploding. Value is the random seed."
         ),
     )
+    add_bool_arg(
+        parser,
+        "drop-dstream-metadata",
+        default=None,
+        help=(
+            "Drop all dstream/downstream columns from the output? "
+            "Omit for default behavior (drop some metadata). "
+            "Use --no-drop-dstream-metadata to retain."
+        ),
+    )
 
     return parser
 
@@ -222,6 +232,7 @@ def _main(mp_context: str) -> None:
                 check_trie_invariant_freq=args.check_trie_invariant_freq,
                 check_trie_invariant_after_collapse_unif=args.check_trie_invariant_after_collapse_unif,
                 delete_trunk=args.delete_trunk,
+                drop_dstream_metadata=args.drop_dstream_metadata,
                 exploded_slice_size=args.exploded_slice_size,
                 mp_context=mp_context,
                 mp_pool_size=args.mp_pool_size,

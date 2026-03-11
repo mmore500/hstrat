@@ -14,6 +14,7 @@ def surface_build_tree(
     collapse_unif_freq: int = 1,
     check_trie_invariant_freq: int = 0,
     check_trie_invariant_after_collapse_unif: bool = False,
+    drop_dstream_metadata: typing.Optional[bool] = None,
     exploded_slice_size: int = 1_000_000,
     mp_context: str = "spawn",
     mp_pool_size: int = 1,
@@ -70,6 +71,13 @@ def surface_build_tree(
                 - Polars expression to validate exploded data.
             - 'downstream_validate_unpacked' : pl.String, polars expression
                 - Polars expression to validate unpacked data.
+
+    drop_dstream_metadata : bool or None, default None
+        Drop all dstream/downstream columns from the output?
+
+        If None (default), some metadata columns are dropped.
+        If False, all dstream/downstream columns are retained.
+        If True, raises NotImplementedError.
 
     collapse_unif_freq : int, default 1
         How often should dropped unifurcations be garbage collected?
@@ -152,6 +160,7 @@ def surface_build_tree(
         collapse_unif_freq=collapse_unif_freq,
         check_trie_invariant_freq=check_trie_invariant_freq,
         check_trie_invariant_after_collapse_unif=check_trie_invariant_after_collapse_unif,
+        drop_dstream_metadata=drop_dstream_metadata,
         exploded_slice_size=exploded_slice_size,
         mp_context=mp_context,
         mp_pool_size=mp_pool_size,
