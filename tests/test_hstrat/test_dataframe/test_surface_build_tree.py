@@ -28,6 +28,25 @@ def test_smoke():
     assert pfl.alifestd_is_chronologically_ordered(res.to_pandas())
 
 
+def test_shuffle_over_same_T_seed():
+    """Smoke test: shuffle_over_same_T_seed produces a valid phylogeny."""
+    df = pl.read_csv(f"{assets_path}/packed.csv")
+    res = surface_build_tree(
+        df,
+        collapse_unif_freq=0,
+        shuffle_over_same_T_seed=42,
+        trie_postprocessor=AssignOriginTimeNodeRankTriePostprocessor(
+            t0="dstream_S",
+        ),
+    )
+    assert "origin_time" in res.columns
+    assert len(df) <= len(res)
+    assert pfl.alifestd_validate(
+        pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
+    )
+    assert pfl.alifestd_is_chronologically_ordered(res.to_pandas())
+
+
 def _get_full_schema():
     """Get expected output schema from a known-good two-genome run."""
     df = pl.read_csv(f"{assets_path}/packed.csv")

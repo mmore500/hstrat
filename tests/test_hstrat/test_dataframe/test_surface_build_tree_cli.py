@@ -64,6 +64,25 @@ def test_surface_build_tree_cli_check_trie_invariant_freq():
     assert os.path.exists(output_file)
 
 
+def test_surface_build_tree_cli_shuffle_over_same_T_seed():
+    """Smoke test for --shuffle-over-same-T-seed on build tree CLI."""
+    output_file = "/tmp/hstrat_surface_build_tree_shuffle.csv"  # nosec B108
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(  # nosec B603
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_build_tree",
+            output_file,
+            "--shuffle-over-same-T-seed",
+            "42",
+        ],
+        check=True,
+        input=f"{assets}/packed.csv".encode(),
+    )
+    assert os.path.exists(output_file)
+
+
 def test_surface_build_tree_cli_parquet():
     output_file = "/tmp/hstrat_surface_build_tree.pqt"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)

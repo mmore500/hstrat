@@ -186,6 +186,27 @@ def test_surface_unpack_reconstruct_cli_mp_pool_size():
     assert os.path.exists(output_file)
 
 
+def test_surface_unpack_reconstruct_cli_shuffle_over_same_T_seed():
+    """Smoke test for --shuffle-over-same-T-seed flag."""
+    output_file = (
+        "/tmp/hstrat_unpack_surface_reconstruct_shuffle.csv"  # nosec B108
+    )
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(  # nosec B603
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_unpack_reconstruct",
+            output_file,
+            "--shuffle-over-same-T-seed",
+            "42",
+        ],
+        check=True,
+        input=f"{assets}/packed.csv".encode(),
+    )
+    assert os.path.exists(output_file)
+
+
 def test_surface_unpack_reconstruct_cli_drop_dstream_metadata_fails():
     output_file = (
         "/tmp/hstrat_unpack_surface_reconstruct_drop.pqt"  # nosec B108

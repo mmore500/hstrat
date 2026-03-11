@@ -158,6 +158,7 @@ def _prepare_df_for_explosion(
     df: typing.Union[pl.DataFrame, pl.LazyFrame],
     mp_context: str,
     mp_pool_size: int,
+    shuffle_over_same_T_seed: typing.Optional[int] = None,
 ) -> pl.DataFrame:
     """Unpack, sort, and prepare DataFrame for slice-wise explosion."""
     with log_context_duration(
@@ -174,7 +175,26 @@ def _prepare_df_for_explosion(
     with log_context_duration('.sort("dstream_T")', logging.info):
         df = df.sort("dstream_T", descending=False, maintain_order=True)
 
+    # hint for optimizer: dstream_T is sorted after the sort above
+    df = df.with_columns(pl.col("dstream_T").set_sorted())
+
     render_polars_snapshot(df, "sorted", logging.info)
+
+    # optionally shuffle rows within same-T groups to randomize
+    # insertion order of genomes with equal generation counts
+    if shuffle_over_same_T_seed is not None:
+        with log_context_duration(
+            "shuffle over same-T " f"(seed={shuffle_over_same_T_seed})",
+            logging.info,
+        ):
+            df = df.with_columns(
+                pl.all()
+                .exclude("dstream_T")
+                .shuffle(seed=shuffle_over_same_T_seed)
+                .over("dstream_T"),
+            )
+
+        render_polars_snapshot(df, "shuffled same-T groups", logging.info)
 
     if "dstream_data_id" not in df.columns:
         logging.info(" - adding dstream_data_id column")
@@ -570,6 +590,7 @@ def _generate_exploded_slices_mp(
     exploded_slice_size: int,
     mp_context: str,
     mp_pool_size: int,
+    shuffle_over_same_T_seed: typing.Optional[int] = None,
 ) -> typing.Iterator[typing.Iterator[str]]:
     """Generator wrapping generation of exploded data frame slices via
     parallel multiprocess producer(s)."""
@@ -586,7 +607,9 @@ def _generate_exploded_slices_mp(
         mp_context = multiprocessing.get_context("spawn")
 
     # prepare (unpack, sort, add row index) in the main process
-    df = _prepare_df_for_explosion(df, mp_context, mp_pool_size)
+    df = _prepare_df_for_explosion(
+        df, mp_context, mp_pool_size, shuffle_over_same_T_seed
+    )
 
     # write prepared df to a temp Arrow file so workers receive a
     # scan_ipc LazyFrame (just a file path) instead of pickled data
@@ -636,6 +659,7 @@ def surface_unpack_reconstruct(
     mp_context: str = "spawn",
     mp_pool_size: int = 1,
     pa_source_type: str = "memory_map",
+    shuffle_over_same_T_seed: typing.Optional[int] = None,
 ) -> pl.DataFrame:
     """Unpack dstream buffer and counter from genome data and construct an
     estimated phylogenetic tree for the genomes.
@@ -714,6 +738,11 @@ def surface_unpack_reconstruct(
     pa_source_type : str, default 'memory_map'
         PyArrow type to use for exploded chunks (i.e., "memory_map" or
         "OSFile").
+
+    shuffle_over_same_T_seed : int or None, default None
+        If not None, shuffle rows within same-dstream_T groups after
+        sorting but before exploding. The value is used as the random
+        seed for reproducibility. Set to None to disable (default).
 
     Returns
     -------
@@ -801,7 +830,11 @@ def surface_unpack_reconstruct(
 
     logging.info("dispatching to surface_unpacked_reconstruct")
     with _generate_exploded_slices_mp(
-        df, exploded_slice_size, mp_context, mp_pool_size
+        df,
+        exploded_slice_size,
+        mp_context,
+        mp_pool_size,
+        shuffle_over_same_T_seed,
     ) as slices:
         phylo_df = _surface_unpacked_reconstruct(
             slices,
