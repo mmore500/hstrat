@@ -97,7 +97,7 @@ docutils==0.21.2
     #   readme-renderer
     #   sphinx
     #   sphinx-rtd-theme
-downstream==1.21.8
+downstream==1.21.9
     # via hstrat (../../pyproject.toml)
 entrypoints==0.3
     # via flake8
@@ -325,7 +325,7 @@ patsy==1.0.2
     # via statsmodels
 pexpect==4.9.0
     # via ipython
-phyloframe==0.1.1
+phyloframe==0.2.0
     # via hstrat (../../pyproject.toml)
 phylotrackpy==0.2.4
     # via hstrat (../../pyproject.toml)

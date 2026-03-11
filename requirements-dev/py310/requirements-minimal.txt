@@ -38,7 +38,7 @@ deprecated==1.3.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
-downstream==1.21.8
+downstream==1.21.9
     # via hstrat (../../pyproject.toml)
 ete3==3.1.3
     # via alifedata-phyloinformatics-convert
@@ -147,7 +147,7 @@ pandera==0.29.0
     # via hstrat (../../pyproject.toml)
 patsy==1.0.2
     # via statsmodels
-phyloframe==0.1.1
+phyloframe==0.2.0
     # via hstrat (../../pyproject.toml)
 pillow==12.1.1
     # via matplotlib
