@@ -23,7 +23,10 @@ from ._surface_postprocess_trie_via_pandas import (
 )
 
 
-def _apply_empty_output_schema(df: pl.DataFrame) -> pl.DataFrame:
+def _apply_empty_output_schema(
+    df: pl.DataFrame,
+    drop_dstream_metadata: typing.Optional[bool] = None,
+) -> pl.DataFrame:
     """Transform an empty trie DataFrame to match the postprocessed output
     schema: add ``hstrat_rank`` and drop internal-only columns."""
     assert df.is_empty()
@@ -32,12 +35,15 @@ def _apply_empty_output_schema(df: pl.DataFrame) -> pl.DataFrame:
         ancestor_id=pl.col("ancestor_id").cast(pl.UInt64),
         hstrat_rank=pl.lit(None, dtype=pl.Int64),
     )
-    return df.drop(
-        "dstream_S",
-        "hstrat_differentia_bitwidth",
-        "dstream_rank",
-        strict=False,
-    )
+    if drop_dstream_metadata is not False:
+        logging.info("dropping dstream metadata from empty output...")
+        df = df.drop(
+            "dstream_rank",
+            "dstream_S",
+            "hstrat_differentia_bitwidth",
+            strict=False,
+        )
+    return df
 
 
 def _do_collapse_unifurcations(
@@ -150,6 +156,7 @@ def _validate_against_via_pandas(func: typing.Callable) -> typing.Callable:
 def surface_postprocess_trie(
     df: pl.DataFrame,
     *,
+    drop_dstream_metadata: typing.Optional[bool] = None,
     trie_postprocessor: typing.Callable = NopTriePostprocessor(),
     # ^^^ NopTriePostprocessor is stateless, so is safe as default value
     delete_trunk: bool = True,
@@ -258,7 +265,7 @@ def surface_postprocess_trie(
 
     if df.lazy().limit(1).collect().is_empty():
         logging.warning("empty input dataframe, returning empty result")
-        return _apply_empty_output_schema(df)
+        return _apply_empty_output_schema(df, drop_dstream_metadata)
 
     logging.info("extracting differentia bitwidth")
     differentia_bitwidth = get_sole_scalar_value_polars(
@@ -273,7 +280,7 @@ def surface_postprocess_trie(
 
     if df.lazy().limit(1).collect().is_empty():
         logging.warning("empty dataframe after trunk deletion, returning")
-        return _apply_empty_output_schema(df)
+        return _apply_empty_output_schema(df, drop_dstream_metadata)
 
     df = _do_collapse_unifurcations(df)
 
@@ -307,11 +314,10 @@ def surface_postprocess_trie(
         - pl.col("dstream_S").cast(pl.Int64),
     )
 
-    to_keep = {*original_columns} - {
-        "dstream_S",
-        "hstrat_differentia_bitwidth",
-        "dstream_rank",
-    }
+    to_keep = {*original_columns}
+    if drop_dstream_metadata is not False:
+        logging.info("dropping dstream metadata columns...")
+        to_keep -= {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"}
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df = df.drop(*to_drop)

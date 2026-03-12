@@ -17,7 +17,10 @@ from .._auxiliary_lib import (
 from ..phylogenetic_inference.tree.trie_postprocess import NopTriePostprocessor
 
 
-def _apply_empty_output_schema_pandas(df: pd.DataFrame) -> pd.DataFrame:
+def _apply_empty_output_schema_pandas(
+    df: pd.DataFrame,
+    drop_dstream_metadata: typing.Optional[bool] = None,
+) -> pd.DataFrame:
     """Transform an empty trie DataFrame to match the postprocessed output
     schema: add ``hstrat_rank`` and drop internal-only columns."""
     if "dstream_rank" in df.columns and "dstream_S" in df.columns:
@@ -25,10 +28,16 @@ def _apply_empty_output_schema_pandas(df: pd.DataFrame) -> pd.DataFrame:
     # phyloframe may have cast ancestor_id to int64; restore documented uint64
     if "ancestor_id" in df.columns:
         df["ancestor_id"] = df["ancestor_id"].astype("uint64")
-    df = df.drop(
-        columns=["dstream_S", "hstrat_differentia_bitwidth", "dstream_rank"],
-        errors="ignore",
-    )
+    if drop_dstream_metadata is not False:
+        logging.info("dropping dstream metadata from empty output...")
+        df = df.drop(
+            columns=[
+                "dstream_rank",
+                "dstream_S",
+                "hstrat_differentia_bitwidth",
+            ],
+            errors="ignore",
+        )
     return df
 
 
@@ -110,6 +119,7 @@ def _do_assign_contiguous_ids(
 def _surface_postprocess_trie_via_pandas(
     df: pl.DataFrame,
     *,
+    drop_dstream_metadata: typing.Optional[bool] = None,
     trie_postprocessor: typing.Callable = NopTriePostprocessor(),
     delete_trunk: bool = True,
     # ^^^ NopTriePostprocessor is stateless, so is safe as default value
@@ -124,7 +134,7 @@ def _surface_postprocess_trie_via_pandas(
         logging.warning("empty input dataframe, returning empty result")
         from ._surface_postprocess_trie import _apply_empty_output_schema
 
-        return _apply_empty_output_schema(df)
+        return _apply_empty_output_schema(df, drop_dstream_metadata)
 
     logging.info("extracting differentia bitwidth")
     differentia_bitwidth = get_sole_scalar_value_polars(
@@ -144,7 +154,9 @@ def _surface_postprocess_trie_via_pandas(
 
     if df.empty:
         logging.warning("empty dataframe after trunk deletion, returning")
-        return pl.from_pandas(_apply_empty_output_schema_pandas(df))
+        return pl.from_pandas(
+            _apply_empty_output_schema_pandas(df, drop_dstream_metadata),
+        )
 
     df = _do_collapse_unifurcations(df)
 
@@ -173,11 +185,10 @@ def _surface_postprocess_trie_via_pandas(
         "dstream_S"
     ].astype("Int64")
 
-    to_keep = {*original_columns} - {
-        "dstream_S",
-        "hstrat_differentia_bitwidth",
-        "dstream_rank",
-    }
+    to_keep = {*original_columns}
+    if drop_dstream_metadata is not False:
+        logging.info("dropping dstream metadata columns...")
+        to_keep -= {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"}
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df.drop(columns=[*to_drop], inplace=True)

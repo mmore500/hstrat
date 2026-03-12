@@ -172,6 +172,7 @@ def surface_build_tree(
     df = surface_postprocess_trie(
         df,
         delete_trunk=delete_trunk,
+        drop_dstream_metadata=drop_dstream_metadata,
         trie_postprocessor=trie_postprocessor,
     )
 
