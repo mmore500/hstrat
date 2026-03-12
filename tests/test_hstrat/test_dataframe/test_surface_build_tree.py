@@ -95,6 +95,23 @@ def test_drop_dstream_metadata_false():
     assert len(no_drop_dstream_cols) > len(default_dstream_cols)
 
 
+def test_drop_dstream_metadata_false_preserves_dstream_rank():
+    """Passing drop_dstream_metadata=False should preserve dstream_rank
+    through both surface_unpack_reconstruct and surface_postprocess_trie."""
+    df = pl.read_csv(f"{assets_path}/packed.csv")
+    res_default = surface_build_tree(df, collapse_unif_freq=0)
+    res_no_drop = surface_build_tree(
+        df,
+        collapse_unif_freq=0,
+        drop_dstream_metadata=False,
+    )
+    # dstream_rank should be dropped by default
+    assert "dstream_rank" not in res_default.columns
+    # dstream_rank should be preserved when drop_dstream_metadata=False
+    assert "dstream_rank" in res_no_drop.columns
+    assert res_no_drop["dstream_rank"].null_count() < len(res_no_drop)
+
+
 def test_parser_no_prefix_matching_drop():
     """Regression: --drop must not prefix-match --drop-dstream-metadata."""
     parser = _create_parser()
