@@ -68,6 +68,7 @@ def _sort_Tbar_argv(
             long_df.select(
                 gather_indices=pl.when(  # where do data id's transition?
                     pl.col("dstream_data_id").shift(
+                        n=1,  # shift forward
                         fill_value=long_df["dstream_data_id"].first() + 1,
                     )
                     != pl.col("dstream_data_id")
@@ -155,7 +156,7 @@ def _make_exploded_slice(
 
 
 def _prepare_df_for_explosion(
-    df: typing.Union[pl.DataFrame, pl.LazyFrame],
+    df: pl.DataFrame,
     mp_context: str,
     mp_pool_size: int,
     shuffle_over_same_T_seed: typing.Optional[int] = None,
@@ -175,10 +176,11 @@ def _prepare_df_for_explosion(
     # ensure genomes sorted by generations elapsed in ascending order
     # AFTER dstream_T has been unpacked, but before exploded
     with log_context_duration('.sort("dstream_T")', logging.info):
-        df = df.sort("dstream_T", descending=False, maintain_order=True)
-
-    # hint for optimizer: dstream_T is sorted after the sort above
-    df = df.with_columns(pl.col("dstream_T").set_sorted())
+        df = df.sort(
+            "dstream_T", descending=False, maintain_order=True
+        ).with_columns(  # hint for optimizer,... likely unnecessary
+            pl.col("dstream_T").set_sorted(),
+        )
 
     render_polars_snapshot(df, "sorted", logging.info)
 
@@ -186,7 +188,7 @@ def _prepare_df_for_explosion(
     # insertion order of genomes with equal generation counts
     if shuffle_over_same_T_seed is not None:
         with log_context_duration(
-            "shuffle over same-T " f"(seed={shuffle_over_same_T_seed})",
+            f"shuffle over same dstream_T ({shuffle_over_same_T_seed=})",
             logging.info,
         ):
             df = df.with_columns(
@@ -195,8 +197,7 @@ def _prepare_df_for_explosion(
                 .shuffle(seed=shuffle_over_same_T_seed)
                 .over("dstream_T"),
             )
-
-        render_polars_snapshot(df, "shuffled same-T groups", logging.info)
+        render_polars_snapshot(df, "shuffled", logging.info)
 
     return df
 
@@ -489,7 +490,7 @@ def _join_user_defined_columns(
         )
     elif bool(drop_dstream_metadata):
         raise NotImplementedError(
-            "explicit --drop-dstream-metadata is not yet supported"
+            "explicit --drop-dstream-metadata is not yet supported",
         )
     else:
         df = df.with_columns(
