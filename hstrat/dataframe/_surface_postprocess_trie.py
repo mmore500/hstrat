@@ -35,15 +35,15 @@ def _apply_empty_output_schema(
         ancestor_id=pl.col("ancestor_id").cast(pl.UInt64),
         hstrat_rank=pl.lit(None, dtype=pl.Int64),
     )
-    to_drop = []
     if drop_dstream_metadata is not False:
-        to_drop.extend(
-            ["dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"],
+        logging.info("dropping dstream metadata from empty output")
+        df = df.drop(
+            "dstream_rank",
+            "dstream_S",
+            "hstrat_differentia_bitwidth",
+            strict=False,
         )
-    return df.drop(
-        *to_drop,
-        strict=False,
-    )
+    return df
 
 
 def _do_collapse_unifurcations(
@@ -314,12 +314,9 @@ def surface_postprocess_trie(
         - pl.col("dstream_S").cast(pl.Int64),
     )
 
-    always_drop = set()
+    to_keep = {*original_columns}
     if drop_dstream_metadata is not False:
-        always_drop.update(
-            {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"},
-        )
-    to_keep = {*original_columns} - always_drop
+        to_keep -= {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"}
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df = df.drop(*to_drop)
