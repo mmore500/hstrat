@@ -34,8 +34,8 @@ def _finalize_records(
         str(sorted_labels[i]) if i != placeholder_value else "_inner_node"
         for i in df["dstream_data_id"]
     ]
-    df["dstream_data_id"] = df["dstream_data_id"].where(
-        df["dstream_data_id"] != placeholder_value,
+    df["dstream_data_id"] = df["dstream_data_id"].replace(
+        placeholder_value, None
     )
 
     multiple_true_roots = (
