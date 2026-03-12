@@ -38,7 +38,7 @@ dependencies = [
   "mpmath>=1.1.0",
   "opytional>=0.1.0",
   "ordered_set>=4.1.0",
-  "polars[pyarrow,rt64]>=1.10.0,!=1.37.*",
+  "polars[pyarrow,rt64]>=1.10.0,!=1.37.*,!=1.39.*",
   "packaging>=23.0",
   "phyloframe>=0.2.0",
   "pandas>=2,<3",
