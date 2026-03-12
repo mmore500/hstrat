@@ -29,7 +29,7 @@ def _apply_empty_output_schema_pandas(
     if "ancestor_id" in df.columns:
         df["ancestor_id"] = df["ancestor_id"].astype("uint64")
     if drop_dstream_metadata is not False:
-        logging.info("dropping dstream metadata from empty output")
+        logging.info("dropping dstream metadata from empty output...")
         df = df.drop(
             columns=[
                 "dstream_rank",
@@ -187,6 +187,7 @@ def _surface_postprocess_trie_via_pandas(
 
     to_keep = {*original_columns}
     if drop_dstream_metadata is not False:
+        logging.info("dropping dstream metadata columns...")
         to_keep -= {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"}
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")

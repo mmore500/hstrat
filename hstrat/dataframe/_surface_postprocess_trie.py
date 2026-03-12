@@ -36,7 +36,7 @@ def _apply_empty_output_schema(
         hstrat_rank=pl.lit(None, dtype=pl.Int64),
     )
     if drop_dstream_metadata is not False:
-        logging.info("dropping dstream metadata from empty output")
+        logging.info("dropping dstream metadata from empty output...")
         df = df.drop(
             "dstream_rank",
             "dstream_S",
@@ -316,6 +316,7 @@ def surface_postprocess_trie(
 
     to_keep = {*original_columns}
     if drop_dstream_metadata is not False:
+        logging.info("dropping dstream metadata columns...")
         to_keep -= {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"}
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
