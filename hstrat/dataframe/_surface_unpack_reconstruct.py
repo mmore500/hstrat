@@ -802,10 +802,9 @@ def surface_unpack_reconstruct(
 
     if (
         df.lazy()
-        .select(pl.col("dstream_data_id") == placeholder_value)
+        .select((pl.col("dstream_data_id") == placeholder_value).any())
         .collect()
-        .to_series()
-        .any()
+        .item()
     ):
         raise ValueError(
             "Input genome dataframe 'dstream_data_id' column contains "
