@@ -54,6 +54,7 @@ def test_smoke_drop_dstream_metadata_false():
     )
     assert "dstream_rank" in res.columns
     assert "dstream_S" in res.columns
+    assert "hstrat_differentia_bitwidth" in res.columns
     assert len(res) > 0
     assert pfl.alifestd_validate(
         pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
@@ -61,12 +62,14 @@ def test_smoke_drop_dstream_metadata_false():
 
 
 def test_drop_dstream_metadata_default_drops_rank_and_S():
-    """Default behavior should drop dstream_rank and dstream_S."""
+    """Default behavior should drop dstream_rank, dstream_S, and
+    hstrat_differentia_bitwidth."""
     df = pl.read_csv(f"{assets_path}/packed.csv")
     raw = surface_unpack_reconstruct(df)
     res = surface_postprocess_trie(raw)
     assert "dstream_rank" not in res.columns
     assert "dstream_S" not in res.columns
+    assert "hstrat_differentia_bitwidth" not in res.columns
 
 
 def test_zero_generations_elapsed():

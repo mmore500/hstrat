@@ -28,9 +28,11 @@ def _apply_empty_output_schema_pandas(
     # phyloframe may have cast ancestor_id to int64; restore documented uint64
     if "ancestor_id" in df.columns:
         df["ancestor_id"] = df["ancestor_id"].astype("uint64")
-    to_drop = ["hstrat_differentia_bitwidth"]
+    to_drop = []
     if drop_dstream_metadata is not False:
-        to_drop.extend(["dstream_rank", "dstream_S"])
+        to_drop.extend(
+            ["dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"],
+        )
     df = df.drop(
         columns=to_drop,
         errors="ignore",
@@ -182,9 +184,11 @@ def _surface_postprocess_trie_via_pandas(
         "dstream_S"
     ].astype("Int64")
 
-    always_drop = {"hstrat_differentia_bitwidth"}
+    always_drop = set()
     if drop_dstream_metadata is not False:
-        always_drop.update({"dstream_rank", "dstream_S"})
+        always_drop.update(
+            {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"},
+        )
     to_keep = {*original_columns} - always_drop
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")

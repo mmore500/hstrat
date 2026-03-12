@@ -105,12 +105,14 @@ def test_drop_dstream_metadata_false_preserves_dstream_rank_and_S():
         collapse_unif_freq=0,
         drop_dstream_metadata=False,
     )
-    # dstream_rank and dstream_S should be dropped by default
+    # dstream metadata should be dropped by default
     assert "dstream_rank" not in res_default.columns
     assert "dstream_S" not in res_default.columns
-    # dstream_rank and dstream_S should be preserved when False
+    assert "hstrat_differentia_bitwidth" not in res_default.columns
+    # dstream metadata should be preserved when False
     assert "dstream_rank" in res_no_drop.columns
     assert "dstream_S" in res_no_drop.columns
+    assert "hstrat_differentia_bitwidth" in res_no_drop.columns
     assert res_no_drop["dstream_rank"].null_count() < len(res_no_drop)
     assert res_no_drop["dstream_S"].null_count() < len(res_no_drop)
 
