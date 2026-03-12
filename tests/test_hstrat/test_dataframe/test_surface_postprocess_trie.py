@@ -41,7 +41,8 @@ def test_dstream_rank_in_unpack_reconstruct():
 
 
 def test_smoke_drop_dstream_metadata_false():
-    """Smoke test: drop_dstream_metadata=False retains dstream_rank."""
+    """Smoke test: drop_dstream_metadata=False retains dstream_rank and
+    dstream_S."""
     df = pl.read_csv(f"{assets_path}/packed.csv")
     raw = surface_unpack_reconstruct(df)
     res = surface_postprocess_trie(
@@ -52,18 +53,20 @@ def test_smoke_drop_dstream_metadata_false():
         ),
     )
     assert "dstream_rank" in res.columns
+    assert "dstream_S" in res.columns
     assert len(res) > 0
     assert pfl.alifestd_validate(
         pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
     )
 
 
-def test_drop_dstream_metadata_default_drops_rank():
-    """Default behavior should drop dstream_rank."""
+def test_drop_dstream_metadata_default_drops_rank_and_S():
+    """Default behavior should drop dstream_rank and dstream_S."""
     df = pl.read_csv(f"{assets_path}/packed.csv")
     raw = surface_unpack_reconstruct(df)
     res = surface_postprocess_trie(raw)
     assert "dstream_rank" not in res.columns
+    assert "dstream_S" not in res.columns
 
 
 def test_zero_generations_elapsed():

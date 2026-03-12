@@ -35,9 +35,9 @@ def _apply_empty_output_schema(
         ancestor_id=pl.col("ancestor_id").cast(pl.UInt64),
         hstrat_rank=pl.lit(None, dtype=pl.Int64),
     )
-    to_drop = ["dstream_S", "hstrat_differentia_bitwidth"]
+    to_drop = ["hstrat_differentia_bitwidth"]
     if drop_dstream_metadata is not False:
-        to_drop.append("dstream_rank")
+        to_drop.extend(["dstream_rank", "dstream_S"])
     return df.drop(
         *to_drop,
         strict=False,
@@ -312,9 +312,9 @@ def surface_postprocess_trie(
         - pl.col("dstream_S").cast(pl.Int64),
     )
 
-    always_drop = {"dstream_S", "hstrat_differentia_bitwidth"}
+    always_drop = {"hstrat_differentia_bitwidth"}
     if drop_dstream_metadata is not False:
-        always_drop.add("dstream_rank")
+        always_drop.update({"dstream_rank", "dstream_S"})
     to_keep = {*original_columns} - always_drop
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
