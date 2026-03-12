@@ -8,6 +8,7 @@ from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 
 from .. import hstrat
 from .._auxiliary_lib import (
+    add_bool_arg,
     begin_prod_logging,
     format_cli_description,
     get_hstrat_version,
@@ -141,6 +142,16 @@ def _create_parser() -> argparse.ArgumentParser:
             "distinct founding strata into independent trees."
         ),
     )
+    add_bool_arg(
+        parser,
+        "drop-dstream-metadata",
+        default=None,
+        help=(
+            "Drop all dstream/downstream columns from the output? "
+            "Omit for default behavior (drop some metadata). "
+            "Use --no-drop-dstream-metadata to retain."
+        ),
+    )
     return parser
 
 
@@ -164,6 +175,7 @@ if __name__ == "__main__":
             output_dataframe_op=functools.partial(
                 surface_postprocess_trie,
                 delete_trunk=args.delete_trunk,
+                drop_dstream_metadata=args.drop_dstream_metadata,
                 trie_postprocessor=trie_postprocessor,
             ),
         )
