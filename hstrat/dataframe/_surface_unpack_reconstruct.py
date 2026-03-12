@@ -505,7 +505,11 @@ def _join_user_defined_columns(
         logging.info(f" - {len(joined_columns)} column(s) to join")
         logging.info(f" - joining columns: {[*joined_columns]}")
         phylo_df = phylo_df.join(
-            df.lazy().collect(), on="dstream_data_id", how="left"
+            df.lazy().collect(),
+            how="left",
+            maintain_order="left",
+            on="dstream_data_id",
+            validate="1:1",
         )
     else:
         logging.info(" - no columns to join, skipping")
