@@ -68,6 +68,7 @@ def _sort_Tbar_argv(
             long_df.select(
                 gather_indices=pl.when(  # where do data id's transition?
                     pl.col("dstream_data_id").shift(
+                        n=1,  # shift forward
                         fill_value=long_df["dstream_data_id"].first() + 1,
                     )
                     != pl.col("dstream_data_id")
@@ -155,12 +156,14 @@ def _make_exploded_slice(
 
 
 def _prepare_df_for_explosion(
-    df: typing.Union[pl.DataFrame, pl.LazyFrame],
+    df: pl.DataFrame,
     mp_context: str,
     mp_pool_size: int,
     shuffle_over_same_T_seed: typing.Optional[int] = None,
 ) -> pl.DataFrame:
     """Unpack, sort, and prepare DataFrame for slice-wise explosion."""
+    assert "dstream_data_id" in df.lazy().collect_schema().names()
+
     with log_context_duration(
         "dstream.dataframe.unpack_data_packed", logging.info
     ):
@@ -173,10 +176,11 @@ def _prepare_df_for_explosion(
     # ensure genomes sorted by generations elapsed in ascending order
     # AFTER dstream_T has been unpacked, but before exploded
     with log_context_duration('.sort("dstream_T")', logging.info):
-        df = df.sort("dstream_T", descending=False, maintain_order=True)
-
-    # hint for optimizer: dstream_T is sorted after the sort above
-    df = df.with_columns(pl.col("dstream_T").set_sorted())
+        df = df.sort(
+            "dstream_T", descending=False, maintain_order=True
+        ).with_columns(  # hint for optimizer,... likely unnecessary
+            pl.col("dstream_T").set_sorted(),
+        )
 
     render_polars_snapshot(df, "sorted", logging.info)
 
@@ -184,7 +188,7 @@ def _prepare_df_for_explosion(
     # insertion order of genomes with equal generation counts
     if shuffle_over_same_T_seed is not None:
         with log_context_duration(
-            "shuffle over same-T " f"(seed={shuffle_over_same_T_seed})",
+            f"shuffle over same dstream_T ({shuffle_over_same_T_seed=})",
             logging.info,
         ):
             df = df.with_columns(
@@ -193,13 +197,7 @@ def _prepare_df_for_explosion(
                 .shuffle(seed=shuffle_over_same_T_seed)
                 .over("dstream_T"),
             )
-
-        render_polars_snapshot(df, "shuffled same-T groups", logging.info)
-
-    if "dstream_data_id" not in df.columns:
-        logging.info(" - adding dstream_data_id column")
-        # ensure chunking doesn't affect data ids
-        df = df.with_row_index("dstream_data_id")
+        render_polars_snapshot(df, "shuffled", logging.info)
 
     return df
 
@@ -492,7 +490,7 @@ def _join_user_defined_columns(
         )
     elif bool(drop_dstream_metadata):
         raise NotImplementedError(
-            "explicit --drop-dstream-metadata is not yet supported"
+            "explicit --drop-dstream-metadata is not yet supported",
         )
     else:
         df = df.with_columns(
@@ -787,6 +785,15 @@ def surface_unpack_reconstruct(
     render_polars_snapshot(df, "packed", logging.info)
     logging.info(f"packed {type(df)=}")
 
+    logging.info("ensuring uint64 dstream_data_id...")
+    df = df.with_columns(
+        dstream_data_id=pl.coalesce(
+            pl.col("^dstream_data_id$"),
+            pl.int_range(pl.len(), dtype=pl.UInt64),
+        ).cast(pl.UInt64),
+    )
+    render_polars_snapshot(df, "coalesced", logging.info)
+
     # for simplicity, return early for this special case
     if df.lazy().limit(1).collect().is_empty():
         logging.warning("empty input dataframe, returning empty result")
@@ -798,18 +805,11 @@ def surface_unpack_reconstruct(
             "hstrat_differentia_bitwidth": pl.UInt32,
             "dstream_S": pl.UInt32,
         }
-        result = pl.DataFrame(schema=core_schema)
-        try:
-            result = _join_user_defined_columns(
-                df, result, drop_dstream_metadata
-            )
-        except pl.exceptions.ColumnNotFoundError:
-            result = _join_user_defined_columns(
-                df.with_row_index("dstream_data_id"),
-                result,
-                drop_dstream_metadata,
-            )
-        return result
+        return _join_user_defined_columns(
+            df,
+            pl.DataFrame(schema=core_schema),
+            drop_dstream_metadata,
+        )
 
     logging.info("extracting metadata...")
     dstream_storage_bitwidth = get_sole_scalar_value_polars(
@@ -849,15 +849,8 @@ def surface_unpack_reconstruct(
 
     logging.info("joining user-defined columns...")
     with log_context_duration("_join_user_defined_columns", logging.info):
-        try:
-            phylo_df = _join_user_defined_columns(
-                df, phylo_df, drop_dstream_metadata
-            )
-        except pl.exceptions.ColumnNotFoundError:
-            phylo_df = _join_user_defined_columns(
-                df.with_row_index("dstream_data_id"),
-                phylo_df,
-                drop_dstream_metadata,
-            )
+        phylo_df = _join_user_defined_columns(
+            df, phylo_df, drop_dstream_metadata
+        )
 
     return phylo_df
