@@ -800,7 +800,13 @@ def surface_unpack_reconstruct(
     )
     render_polars_snapshot(df, "coalesced", logging.info)
 
-    if (df["dstream_data_id"] == placeholder_value).any():
+    if (
+        df.lazy()
+        .select(pl.col("dstream_data_id") == placeholder_value)
+        .collect()
+        .to_series()
+        .any()
+    ):
         raise ValueError(
             "Input genome dataframe 'dstream_data_id' column contains "
             f"the reserved placeholder value {placeholder_value}. "
