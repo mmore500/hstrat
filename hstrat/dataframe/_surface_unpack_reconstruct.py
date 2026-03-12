@@ -785,11 +785,11 @@ def surface_unpack_reconstruct(
     render_polars_snapshot(df, "packed", logging.info)
     logging.info(f"packed {type(df)=}")
 
-    logging.info("ensuring dstream_data_id...")
+    logging.info("ensuring uint64 dstream_data_id...")
     df = df.with_columns(
         dstream_data_id=pl.coalesce(
             pl.col("^dstream_data_id$"),
-            pl.row_index(),
+            pl.int_range(dtype=pl.UInt64),
         ).cast(pl.UInt64),
     )
     render_polars_snapshot(df, "coalesced", logging.info)
