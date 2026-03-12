@@ -805,10 +805,9 @@ def surface_unpack_reconstruct(
             "hstrat_differentia_bitwidth": pl.UInt32,
             "dstream_S": pl.UInt32,
         }
-        result = pl.DataFrame(schema=core_schema)
-        result = _join_user_defined_columns(
+        return _join_user_defined_columns(
             df,
-            result,
+            pl.DataFrame(schema=core_schema),
             drop_dstream_metadata,
         )
 
