@@ -51,6 +51,7 @@ from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub i
     diagnose_trie_invariant_topologically_sorted,
     extend_tree_searchtable_cpp_from_exploded,
     extract_records_to_dict,
+    placeholder_value,
 )
 
 
@@ -503,7 +504,11 @@ def _join_user_defined_columns(
         logging.info(f" - {len(joined_columns)} column(s) to join")
         logging.info(f" - joining columns: {[*joined_columns]}")
         phylo_df = phylo_df.join(
-            df.lazy().collect(), on="dstream_data_id", how="left"
+            df.lazy().collect(),
+            how="left",
+            maintain_order="left",
+            on="dstream_data_id",
+            validate="1:1",
         )
     else:
         logging.info(" - no columns to join, skipping")
@@ -534,6 +539,7 @@ def _construct_result_dataframe(
             schema=schema,
         )
         .with_columns(
+            pl.col("dstream_data_id").replace(placeholder_value, None),
             pl.lit(differentia_bitwidth)
             .alias("hstrat_differentia_bitwidth")
             .cast(pl.UInt32),
@@ -793,6 +799,19 @@ def surface_unpack_reconstruct(
         ).cast(pl.UInt64),
     )
     render_polars_snapshot(df, "coalesced", logging.info)
+
+    if (
+        df.lazy()
+        .select((pl.col("dstream_data_id") == placeholder_value).any())
+        .collect()
+        .item()
+    ):
+        raise ValueError(
+            "Input genome dataframe 'dstream_data_id' column contains "
+            f"the reserved placeholder value {placeholder_value}. "
+            "This value is used internally to mark inner tree nodes "
+            "and must not appear in input data.",
+        )
 
     # for simplicity, return early for this special case
     if df.lazy().limit(1).collect().is_empty():
