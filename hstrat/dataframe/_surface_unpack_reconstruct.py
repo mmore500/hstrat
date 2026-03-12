@@ -789,7 +789,7 @@ def surface_unpack_reconstruct(
     df = df.with_columns(
         dstream_data_id=pl.coalesce(
             pl.col("^dstream_data_id$"),
-            pl.int_range(dtype=pl.UInt64),
+            pl.int_range(pl.len(), dtype=pl.UInt64),
         ).cast(pl.UInt64),
     )
     render_polars_snapshot(df, "coalesced", logging.info)
