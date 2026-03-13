@@ -1,6 +1,6 @@
 import typing
-import warnings
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -8,6 +8,9 @@ from ._alifestd_is_asexual import alifestd_is_asexual
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
+)
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
@@ -103,6 +106,15 @@ def _alifestd_coarsen_mask_sexual(
     return res
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=False,
+    delete=True,
+    update=True,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_coarsen_mask instead.",
+)
 def alifestd_coarsen_mask(
     phylogeny_df: pd.DataFrame,
     mask: pd.Series,  # boolean mask
@@ -117,14 +129,6 @@ def alifestd_coarsen_mask(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
-
-    if "branch_length" in phylogeny_df or "edge_length" in phylogeny_df:
-        warnings.warn(
-            "alifestd_coarsen_mask does not update branch length columns. "
-            "Use `origin_time` to recalculate branch lengths for coarsened "
-            "phylogeny."
-        )
-
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 

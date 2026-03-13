@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 from tqdm import tqdm
 
@@ -10,12 +11,16 @@ from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_mark_leaves import alifestd_mark_leaves
 from ._alifestd_to_working_format import alifestd_to_working_format
-from ._configure_prod_logging import configure_prod_logging
+from ._begin_prod_logging import begin_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_test_leaves_isomorphic_asexual instead.",
+)
 def alifestd_test_leaves_isomorphic_asexual(
     df1: pd.DataFrame,
     df2: pd.DataFrame,
@@ -119,7 +124,7 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    configure_prod_logging()
+    begin_prod_logging()
 
     parser = _create_parser()
     args = parser.parse_args()

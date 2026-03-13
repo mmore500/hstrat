@@ -1,8 +1,11 @@
 import typing
+import warnings
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 import sortedcontainers as sc
 
+from ._alifestd_count_root_nodes import alifestd_count_root_nodes
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_mark_num_descendants_asexual import (
@@ -12,6 +15,10 @@ from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_find_mrca_id_asexual instead.",
+)
 def alifestd_find_mrca_id_asexual(
     phylogeny_df: pd.DataFrame,
     leaf_ids: typing.Iterable[int],
@@ -23,6 +30,13 @@ def alifestd_find_mrca_id_asexual(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
+
+    if alifestd_count_root_nodes(phylogeny_df) > 1:
+        # could fix this case to return -1 or None later if needed
+        warnings.warn(
+            "MRCA finding not yet implemented for forests (multiple roots); "
+            "lookup may hang if leaf_ids span multiple trees.",
+        )
 
     if not mutate:
         phylogeny_df = phylogeny_df.copy()

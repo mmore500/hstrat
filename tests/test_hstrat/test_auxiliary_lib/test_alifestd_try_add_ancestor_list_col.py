@@ -40,7 +40,7 @@ alifestd_try_add_ancestor_list_col_ = enforce_identical_polars_result(
         lambda x: x,
     ],
 )
-def test_alifestd_try_add_ancestor_id_col_asexual(phylogeny_df, apply):
+def test_alifestd_try_add_ancestor_list_col_asexual(phylogeny_df, apply):
     phylogeny_df = alifestd_try_add_ancestor_id_col(
         apply(phylogeny_df),
     )

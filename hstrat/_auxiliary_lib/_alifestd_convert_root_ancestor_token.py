@@ -1,6 +1,11 @@
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_convert_root_ancestor_token instead.",
+)
 def alifestd_convert_root_ancestor_token(
     ancestor_list: pd.Series,
     root_ancestor_token: str,

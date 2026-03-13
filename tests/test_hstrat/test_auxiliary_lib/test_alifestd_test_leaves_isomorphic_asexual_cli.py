@@ -7,7 +7,7 @@ assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
 def test_alifestd_test_leaves_isomorphic_asexual_cli_help():
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -19,7 +19,7 @@ def test_alifestd_test_leaves_isomorphic_asexual_cli_help():
 
 
 def test_alifestd_test_leaves_isomorphic_asexual_cli_version():
-    subprocess.run(
+    subprocess.run(  # nosec B603
         [
             "python3",
             "-m",
@@ -48,7 +48,7 @@ def test_alifestd_test_leaves_isomorphic_asexual_cli_csv1(input_file: str):
         "--taxon-label",
         "id",
     ]
-    result = subprocess.run(cmd)
+    result = subprocess.run(cmd)  # nosec B603
     assert result.returncode == 0
 
 
@@ -62,5 +62,5 @@ def test_alifestd_test_leaves_isomorphic_asexual_cli_csv2():
         "--taxon-label",
         "id",
     ]
-    result = subprocess.run(cmd)
+    result = subprocess.run(cmd)  # nosec B603
     assert result.returncode == 1

@@ -1,3 +1,4 @@
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -9,7 +10,7 @@ from ._jit import jit
 
 
 @jit(nopython=True)
-def alifestd_mask_descendants_asexual_fast_path(
+def _alifestd_mask_descendants_asexual_fast_path(
     ancestor_ids: np.ndarray,
     ancestor_mask: np.ndarray,
 ) -> np.ndarray:
@@ -20,7 +21,7 @@ def alifestd_mask_descendants_asexual_fast_path(
     return ancestor_mask
 
 
-def alifestd_mask_descendants_asexual_slow_path(
+def _alifestd_mask_descendants_asexual_slow_path(
     phylogeny_df: pd.DataFrame,
 ) -> pd.DataFrame:
     phylogeny_df.index = phylogeny_df["id"]
@@ -36,6 +37,10 @@ def alifestd_mask_descendants_asexual_slow_path(
     return phylogeny_df
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_mask_descendants_asexual instead.",
+)
 def alifestd_mask_descendants_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -72,10 +77,10 @@ def alifestd_mask_descendants_asexual(
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df[
             "alifestd_mask_descendants_asexual"
-        ] = alifestd_mask_descendants_asexual_fast_path(
+        ] = _alifestd_mask_descendants_asexual_fast_path(
             phylogeny_df["ancestor_id"].to_numpy(),
             phylogeny_df["alifestd_mask_descendants_asexual"].to_numpy(),
         )
         return phylogeny_df
     else:
-        return alifestd_mask_descendants_asexual_slow_path(phylogeny_df)
+        return _alifestd_mask_descendants_asexual_slow_path(phylogeny_df)

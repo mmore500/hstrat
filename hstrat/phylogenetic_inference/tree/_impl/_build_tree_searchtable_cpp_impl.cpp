@@ -4,14 +4,22 @@
 #endif
 
 #include <algorithm>
+#include <atomic>
 #include <bit>
 #include <cassert>
+#include <chrono>
+#include <condition_variable>
 #include <functional>
 #include <limits>
+#include <mutex>
 #include <numeric>
 #include <ranges>
 #include <span>
+#include <sstream>
+#include <string>
+#include <thread>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -231,6 +239,29 @@ struct Records {
     );
   }
 
+  void mockRecord(  // for testing purposes only; does not check invariants
+    const u64 data_id,
+    const u64 id,
+    const u64 ancestor_id,
+    const u64 search_ancestor_id,
+    const u64 search_first_child_id,
+    const u64 search_prev_sibling_id,
+    const u64 search_next_sibling_id,
+    const i64 rank,
+    const u64 differentia
+  ) {
+    this->dstream_data_id.push_back(data_id);
+    this->id.push_back(id);
+    this->search_first_child_id.push_back(search_first_child_id);
+    this->search_prev_sibling_id.push_back(search_prev_sibling_id);
+    this->search_next_sibling_id.push_back(search_next_sibling_id);
+    this->search_ancestor_id.push_back(search_ancestor_id);
+    this->ancestor_id.push_back(ancestor_id);
+    this->differentia.push_back(differentia);
+    this->rank.push_back(rank);
+    max_differentia = std::max(max_differentia, differentia);
+  }
+
   u64 size() const { return this->dstream_data_id.size(); }
 
 };
@@ -416,45 +447,6 @@ Records collapse_unifurcations(Records &records, const bool dropped_only) {
 }
 
 /**
- * A makeshift iterator for children, called like this:
- *
- *   ChildrenGenerator iter(records, node);
- *   while ((child = iter.next())) {
- *     ...
- *   }
- *
- * Returns a value of 0 when there is no more children.
- */
-class ChildrenGenerator {
-private:
-  const Records &records;
-  u64 prev;
-  const u64 node;
-
-public:
-  ChildrenGenerator(
-    const Records &records, const u64 node
-  ) : records(records), prev(0), node(node) {}
-
-  u64 next() {
-    u64 cur;
-    if (!this->prev) {
-      this->prev = this->node;
-      cur = this->records.search_first_child_id[this->node];
-    } else {
-      cur = this->records.search_next_sibling_id[this->prev];
-    }
-    if (this->prev == cur) {
-      return 0;
-    }
-    this->prev = cur;
-    return this->prev;
-  }
-
-};
-
-
-/**
  * A more permissive declval.
 */
 template<class T> T& permissive_declval() {
@@ -564,6 +556,9 @@ void detach_search_parent(Records &records, const u64 node) {
   if (records.search_first_child_id[parent] == node) {
     const u64 child_id = is_last_child ? parent : next_sibling;
     records.search_first_child_id[parent] = child_id;
+    // mark next sibling as new first child (otherwise harmlessly mark self)
+    if (is_last_child) assert(next_sibling == node);
+    records.search_prev_sibling_id[next_sibling] = next_sibling;
   } else if (records.search_next_sibling_id[node] == node) {
     const u64 prev_sibling = records.search_prev_sibling_id[node];
     records.search_next_sibling_id[prev_sibling] = prev_sibling;
@@ -595,9 +590,7 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
   records.search_ancestor_id[node] = parent;
   assert(parent <= node);
   assert(records.rank[parent] <= records.rank[node]);
-
-  const u64 ancestor_first_child = records.search_first_child_id[parent];
-  assert(ancestor_first_child != placeholder_value);
+  assert(records.search_first_child_id[parent] != placeholder_value);
 
   // insert node into the list of children, choosing its position in order
   // to keep the list in ascending order by rank
@@ -637,12 +630,15 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
     records.search_next_sibling_id[node] = node;
   }
 
-  assert(std::ranges::is_sorted(
-    ChildrenView(records, parent),
-    [&records](const u64 lhs, const u64 rhs) {
-      return records.rank[lhs] < records.rank[rhs];
-    }
-  ));
+  // full sorted check is too expensive to assert, so just check local sort...
+  assert(
+    records.rank[records.search_prev_sibling_id[node]]
+    <= records.rank[node]
+  );
+  assert(
+    records.rank[node]
+    <= records.rank[records.search_next_sibling_id[node]]
+  );
 
 }
 
@@ -655,32 +651,76 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
  */
 template<size_t max_differentia>
 void collapse_indistinguishable_nodes_small(Records &records, const u64 node) {
-  std::unordered_map<i64, std::array<u64, max_differentia + 1>> winners{};
-  std::vector<u64> losers;
 
-  for (auto child : ChildrenView(records, node)) {
-    const u64 differentia = records.differentia[child];
-    const i64 rank = records.rank[child];
-    auto& winner = winners[rank][differentia];
-    if (winner == 0 || child < winner) { std::swap(winner, child); }
-    if (child) losers.push_back(child);
-  }
-
-  for (const auto loser : losers) {
-    const u64 differentia = records.differentia[loser];
-    const i64 rank = records.rank[loser];
-    const u64 winner = winners[rank][differentia];
-
-    std::vector<u64> loser_children;
-    std::ranges::copy(
-      ChildrenView(records, loser), std::back_inserter(loser_children)
-    );
-    for (const u64 loser_child : loser_children) {
-      detach_search_parent(records, loser_child);
-      attach_search_parent(records, loser_child, winner);
+  assert(std::ranges::is_sorted(
+    ChildrenView(records, node),
+    [&records](const u64 lhs, const u64 rhs) {
+      return records.rank[lhs] < records.rank[rhs];
     }
-    detach_search_parent(records, loser);
+  ));
+  assert(std::ranges::all_of(
+    ChildrenView(records, node),
+    [&records](const u64 child){ return records.rank[child] >= 0; }
+  ));
+
+  std::array<std::vector<u64>, max_differentia + 1> losers{};
+  std::array<std::vector<u64>, max_differentia + 1> loser_epochs{};
+  std::array<std::vector<u64>, max_differentia + 1> epoch_winners{};
+  std::array<i64, max_differentia + 1> prev_child_rank{};
+  for (const auto child : ChildrenView(records, node)) {
+    assert(child > 0);
+
+    const auto child_d = records.differentia[child];
+    assert(child_d <= max_differentia);
+
+    const auto child_r = records.rank[child];
+    assert(child_r > 0 && child_r >= prev_child_rank[child_d]);
+
+    const auto d = child_d;
+    if (child_r != std::exchange(prev_child_rank[d], child_r)) {
+      epoch_winners[d].push_back(child);
+    } else {
+      const auto cur_winner = epoch_winners[d].back();
+      assert(cur_winner != child);
+      epoch_winners[d].back() = std::min(cur_winner, child);
+      const auto cur_loser = std::max(cur_winner, child);
+      losers[d].push_back(cur_loser);
+      loser_epochs[d].push_back(epoch_winners[d].size() - 1);
+    }
   }
+
+  // possible optimization: could track which differentia values have been seen
+  for (u64 d = 0; d <= max_differentia; ++d) {
+
+    assert(losers[d].size() == loser_epochs[d].size());
+    for (u64 i{}; i < losers[d].size(); ++i) {
+      const auto loser = losers[d][i];
+      const auto loser_epoch = loser_epochs[d][i];
+      const auto corresponding_winner = epoch_winners[d][loser_epoch];
+
+      std::vector<u64> loser_children;
+      std::ranges::copy(
+        ChildrenView(records, loser), std::back_inserter(loser_children)
+      );
+      for (const u64 loser_child : loser_children) {
+        detach_search_parent(records, loser_child);
+        attach_search_parent(records, loser_child, corresponding_winner);
+      }
+      detach_search_parent(records, loser);
+    }
+
+    assert(std::ranges::is_sorted(loser_epochs[d]));
+    const auto duplicates = std::ranges::unique(loser_epochs[d]);
+    loser_epochs[d].erase(duplicates.begin(), duplicates.end());
+    for (const auto loser_epoch : loser_epochs[d]) {
+      const auto true_winner = epoch_winners[d][loser_epoch];
+      collapse_indistinguishable_nodes_small<max_differentia>(
+        records, true_winner
+      );
+    }
+
+  }
+
 }
 
 // adapted from https://stackoverflow.com/a/20602159/17332200
@@ -696,9 +736,7 @@ struct pairhash {
  */
 void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
   std::unordered_map<std::pair<i64, u64>, std::vector<u64>, pairhash> groups;
-  ChildrenGenerator gen(records, node);
-  u64 child;
-  while ((child = gen.next())) {
+  for (const u64 child : ChildrenView(records, node)) {
     std::vector<u64> &items = groups[
       std::pair{records.rank[child], records.differentia[child]}
     ];
@@ -710,9 +748,7 @@ void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
       const u64 loser = children[i];
 
       std::vector<u64> loser_children;
-      ChildrenGenerator loser_children_gen(records, loser);
-      u64 loser_child;
-      while ((loser_child = loser_children_gen.next())) {
+      for (const u64 loser_child : ChildrenView(records, loser)) {
         loser_children.push_back(loser_child);
       }
       for (const u64 loser_child : loser_children) {
@@ -721,6 +757,11 @@ void collapse_indistinguishable_nodes_large(Records &records, const u64 node) {
       }
       detach_search_parent(records, loser);
     }
+
+    if (children.size() > 1) {
+      collapse_indistinguishable_nodes_large(records, winner);
+    }
+
   }
 }
 
@@ -750,21 +791,21 @@ int bit_length(const u64 x) { return (8*sizeof x) - std::countl_zero(x); }
 void collapse_indistinguishable_nodes(Records & records, const u64 node) {
   switch (bit_length(records.max_differentia)) {
     case 0:
-    case 1:  // single-bit case
+    case 1:  // single-bit case: values 0-1
       collapse_indistinguishable_nodes_small<1>(records, node);
       break;
-    case 2:  // two-bit case
-      collapse_indistinguishable_nodes_small<2>(records, node);
+    case 2:  // two-bit case: values 0-3
+      collapse_indistinguishable_nodes_small<3>(records, node);
       break;
     case 3:
-    case 4:  // four-bit (hex value) case
-      collapse_indistinguishable_nodes_small<4>(records, node);
+    case 4:  // four-bit (hex value) case: values 0-15
+      collapse_indistinguishable_nodes_small<15>(records, node);
       break;
     case 5:
     case 6:
     case 7:
-    case 8:  // eight-bit (byte value) case
-      collapse_indistinguishable_nodes_small<8>(records, node);
+    case 8:  // eight-bit (byte value) case: values 0-255
+      collapse_indistinguishable_nodes_small<255>(records, node);
       break;
     default:  // larger than a byte
       collapse_indistinguishable_nodes_large(records, node);
@@ -863,7 +904,10 @@ u64 create_offstring(
     rank,  // rank
     differentia  // differentia
   );
-  attach_search_parent(records, node, parent);
+  const u64 dummy_data_id{placeholder_value};
+  if (data_id == dummy_data_id) {  // i.e., not a leaf node
+    attach_search_parent(records, node, parent);
+  }
   return node;
 }
 
@@ -991,7 +1035,7 @@ void insert_artifact(
     consolidate_trie(records, r, cur_node);
     cur_node = place_allele(records, cur_node, r, d);
   }
-  create_offstring(records, cur_node, num_strata_deposited - 1, -1, data_id);
+  create_offstring(records, cur_node, num_strata_deposited - 1, 0, data_id);
 }
 
 
@@ -1106,8 +1150,58 @@ struct ProgressBar {
 
   ~ProgressBar() { this->_pbar.attr("close")(); }
 
-  void operator()() { this->_pbar.attr("update")(1); }
+  void operator()(const u64 n = 1) { this->_pbar.attr("update")(n); }
 
+};
+
+
+/**
+ * Background thread that polls a counter and acquires the GIL periodically
+ * to update a tqdm progress bar. Completes once the counter reaches total.
+ *
+ * Must be constructed while the GIL is held. Call join() with the GIL
+ * released to avoid deadlock with the thread's gil_scoped_acquire.
+ */
+struct ProgressPoller {
+
+  py::object _pbar;
+  u64 _total;
+  std::atomic<u64> _counter{0};
+  std::mutex _mutex;
+  std::condition_variable _cv;
+  std::thread _thread;
+
+  ProgressPoller(py::object pbar, const u64 total)
+    : _pbar(std::move(pbar)), _total(total),
+      _thread(&ProgressPoller::_run, this) {}
+
+  ~ProgressPoller() {
+    if (_thread.joinable()) _thread.join();
+  }
+
+  void increment(const u64 n = 1) {
+    u64 prev = _counter.fetch_add(n, std::memory_order_release);
+    if (prev + n >= _total) _cv.notify_one();
+  }
+
+  void join() { _thread.join(); }
+
+private:
+  void _run() {
+    u64 prev = 0;
+    while (prev < _total) {
+      {
+        std::unique_lock<std::mutex> lock(_mutex);
+        _cv.wait_for(lock, std::chrono::seconds(10), [this]() {
+          return _counter.load(std::memory_order_acquire) >= _total;
+        });
+      }
+      u64 cur = _counter.load(std::memory_order_acquire);
+      py::gil_scoped_acquire acquire;
+      _pbar.attr("update")(cur - prev);
+      prev = cur;
+    }
+  }
 };
 
 
@@ -1221,14 +1315,20 @@ void extend_trie_searchtable_exploded(
   const auto logging_info = py::module::import("logging").attr("info");
   logging_info("exploded searchtable cpp begin");
 
-  {
+  { // scope: ProgressPoller must be destroyed before logging_info below
     const u64 total = [&data_ids_](){
       py_array_span<u64> span{
         data_ids_, 0, static_cast<u64>(data_ids_.size())
       };
       return count_unique_elements(span.begin(), span.end());
     }();
-    ProgressBar pbar{progress_ctor("total"_a=total)};
+
+    // ProgressPoller spawns a background thread that acquires the GIL
+    // every 10s to update tqdm; completes once counter reaches total
+    ProgressPoller poller{progress_ctor("total"_a=total), total};
+
+    { // scope: release GIL for computational hot path, reacquire at end
+    py::gil_scoped_release release;
 
     u64 end;
     for (u64 begin = 0; begin < static_cast<u64>(ranks.size()); begin = end) {
@@ -1245,12 +1345,16 @@ void extend_trie_searchtable_exploded(
         data_ids_[begin],
         num_strata_depositeds_[begin]
       );
-      pbar();
-
+      poller.increment();
     }
 
+    // join poller while GIL is released so it can do its final
+    // gil_scoped_acquire without deadlocking
+    poller.join();
+    } // end GIL release scope
+
     assert(std::cmp_greater_equal(records.size(), total));
-  }  // end progress bar scope
+  }  // end progress poller scope
 
   logging_info(
     py::str(
@@ -1290,12 +1394,623 @@ py::dict build_trie_searchtable_exploded(
 }
 
 
+/**
+ * Checks whether the search trie structure is present (not dismantled).
+ * After collapse_unifurcations(dropped_only=false), search fields are set
+ * to placeholder_value.
+ */
+bool _has_search_trie(const Records& records) {
+  if (records.size() == 0) return false;
+  return records.search_ancestor_id[0] != placeholder_value;
+}
+
+
+/**
+ * Returns a summary string describing the records state.
+ * Includes size, tip count, search trie status, and per-column stats.
+ * Used as a header for diagnostic messages.
+ */
+std::string _describe_records(const Records& records) {
+  const size_t n = records.size();
+
+  // count tips (data nodes with non-placeholder dstream_data_id)
+  size_t num_tips = 0;
+  for (size_t i = 0; i < n; ++i) {
+    if (records.dstream_data_id[i] != placeholder_value) ++num_tips;
+  }
+
+  std::ostringstream oss;
+  oss << "Records(size=" << n
+      << ", num_tips=" << num_tips
+      << ", has_search_trie="
+      << (_has_search_trie(records) ? "true" : "false") << ")";
+
+  if (n > 0) {
+    // helper lambda for column min/max
+    const auto col_stats = [&](const char* name, const auto& vec) {
+      const auto [mn, mx] = std::minmax_element(vec.begin(), vec.end());
+      const auto nunique = count_unique_elements(vec.begin(), vec.end());
+      std::vector v(vec);
+      const auto m = std::next(v.begin(), v.size() / 2);
+      std::nth_element(v.begin(), m, v.end());
+      const auto median = *m;
+      oss << "\n  " << name
+        << ": min=" << *mn << ", max=" << *mx
+        << ", unique=" << nunique
+        << ", median=" << median;
+    };
+    const auto col_sample = [&](
+      const char* name, const auto& vec, const size_t sample_size=10
+  ) {
+      oss << "\n  " << name << " sample: [";
+      for (size_t i = 0; i < std::min(sample_size, vec.size()); ++i) {
+        oss << vec[i] << (i < sample_size - 1 ? ", " : "");
+      }
+      if (vec.size() > sample_size) oss << ", ...";
+      oss << "]";
+    };
+
+    col_stats("data_id", records.dstream_data_id);
+    col_sample("data_id", records.dstream_data_id);
+
+    col_stats("id", records.id);
+    col_sample("id", records.id);
+
+    col_stats("ancestor_id", records.ancestor_id);
+    col_sample("ancestor_id", records.ancestor_id);
+
+    col_stats("search_ancestor_id", records.search_ancestor_id);
+    col_sample("search_ancestor_id", records.search_ancestor_id);
+
+    col_stats("search_first_child_id", records.search_first_child_id);
+    col_sample("search_first_child_id", records.search_first_child_id);
+
+    col_stats("search_prev_sibling_id", records.search_prev_sibling_id);
+    col_sample("search_prev_sibling_id", records.search_prev_sibling_id);
+
+    col_stats("search_next_sibling_id", records.search_next_sibling_id);
+    col_sample("search_next_sibling_id", records.search_next_sibling_id);
+
+    col_stats("rank", records.rank);
+    col_sample("rank", records.rank);
+
+    col_stats("differentia", records.differentia);
+    col_sample("differentia", records.differentia);
+  }
+  return oss.str();
+}
+
+
+/**
+ * Checks that record ids are contiguously assigned 0, 1, ..., n-1.
+ */
+bool check_trie_invariant_contiguous_ids(const Records& records) {
+  return std::equal(
+    std::begin(records.id), std::end(records.id), CountingIterator<u64>{}
+  );
+}
+
+
+/**
+ * Checks that ancestor ids reference earlier records (ancestor_id[i] <= i).
+ */
+bool check_trie_invariant_topologically_sorted(const Records& records) {
+  return std::ranges::all_of(
+    records.id,
+    [&records](const u64 id) {
+      return records.ancestor_id[id] <= id;
+    }
+  );
+}
+
+
+/**
+ * Checks that parent ranks are <= child ranks for all non-root nodes.
+ */
+bool check_trie_invariant_chronologically_sorted(const Records& records) {
+  return std::ranges::all_of(
+    records.id,
+    [&records](const u64 id) {
+      return records.rank[records.ancestor_id[id]] <= records.rank[id];
+    }
+  );
+}
+
+
+/**
+ * Checks that there is exactly one root (node with ancestor_id == id).
+ */
+bool check_trie_invariant_single_root(const Records& records) {
+  if (records.size() == 0) return true;
+  const u64 root_count = std::ranges::count_if(
+    records.id,
+    [&records](const u64 id) { return records.ancestor_id[id] == id; }
+  );
+  return root_count == 1;
+}
+
+
+/**
+ * Shared implementation for search_children_valid check.
+ * Returns empty string on pass, diagnostic string on failure.
+ */
+std::string _check_search_children_valid_impl(const Records& records) {
+  for (u64 i = 0; i < records.size(); ++i) {
+    const u64 first_child = records.search_first_child_id[i];
+    if (first_child == placeholder_value) {
+      std::ostringstream oss;
+      oss << "search_first_child_id[" << i << "] is placeholder_value";
+      return oss.str();
+    }
+
+    if (first_child == i) continue;  // no children, OK
+
+    if (first_child >= records.size()) {
+      std::ostringstream oss;
+      oss << "search_first_child_id[" << i << "] = " << first_child
+          << " >= size " << records.size();
+      return oss.str();
+    }
+
+    // first child's prev_sibling should be itself (signals head of list)
+    if (records.search_prev_sibling_id[first_child] != first_child) {
+      std::ostringstream oss;
+      oss << "first child " << first_child << " of node " << i
+          << " has prev_sibling "
+          << records.search_prev_sibling_id[first_child] << " != itself";
+      return oss.str();
+    }
+
+    // walk the sibling list
+    u64 cur = first_child;
+    u64 count = 0;
+    while (true) {
+      if (cur >= records.size()) {
+        std::ostringstream oss;
+        oss << "sibling " << cur << " in children of node " << i
+            << " >= size " << records.size();
+        return oss.str();
+      }
+
+      // child's search_ancestor should point back to parent
+      if (records.search_ancestor_id[cur] != i) {
+        std::ostringstream oss;
+        oss << "child " << cur << " has search_ancestor "
+            << records.search_ancestor_id[cur] << " != parent " << i;
+        return oss.str();
+      }
+
+      const u64 next = records.search_next_sibling_id[cur];
+      if (next == cur) break;  // last sibling, OK
+
+      if (next >= records.size()) {
+        std::ostringstream oss;
+        oss << "next_sibling[" << cur << "] = " << next << " >= size "
+            << records.size();
+        return oss.str();
+      }
+
+      // backward pointer consistency
+      if (records.search_prev_sibling_id[next] != cur) {
+        std::ostringstream oss;
+        oss << "backward pointer mismatch: prev_sibling[" << next << "] = "
+            << records.search_prev_sibling_id[next] << " != " << cur;
+        return oss.str();
+      }
+
+      cur = next;
+      ++count;
+      if (count > records.size()) {
+        std::ostringstream oss;
+        oss << "cycle detected in sibling list of node " << i;
+        return oss.str();
+      }
+    }
+  }
+  return "";
+}
+
+
+/**
+ * Checks that search child linked lists are well-formed:
+ *   - first child's prev_sibling points to itself
+ *   - last child's next_sibling points to itself
+ *   - forward and backward pointers are consistent
+ *   - all children's search_ancestor points to parent
+ *   - no cycles in sibling list
+ * Skips check if search trie is not present.
+ */
+bool check_trie_invariant_search_children_valid(const Records& records) {
+  if (!_has_search_trie(records)) return true;
+  return _check_search_children_valid_impl(records).empty();
+}
+
+
+/**
+ * Shared implementation for search_children_sorted check.
+ * Returns empty string on pass, diagnostic string on failure.
+ */
+std::string _check_search_children_sorted_impl(const Records& records) {
+  for (u64 i = 0; i < records.size(); ++i) {
+    const u64 first_child = records.search_first_child_id[i];
+    if (first_child == i) continue;  // no children
+
+    i64 prev_rank = records.rank[first_child];
+    u64 cur = first_child;
+    while (true) {
+      const u64 next = records.search_next_sibling_id[cur];
+      if (next == cur) break;
+
+      if (records.rank[next] < prev_rank) {
+        std::ostringstream oss;
+        oss << "children of node " << i << " not sorted: child " << next
+            << " has rank " << records.rank[next]
+            << " < previous sibling " << cur << " rank " << prev_rank;
+        return oss.str();
+      }
+      prev_rank = records.rank[next];
+      cur = next;
+    }
+  }
+  return "";
+}
+
+
+/**
+ * Checks that search children are sorted by rank in ascending order.
+ * Skips check if search trie is not present.
+ */
+bool check_trie_invariant_search_children_sorted(const Records& records) {
+  if (!_has_search_trie(records)) return true;
+  return _check_search_children_sorted_impl(records).empty();
+}
+
+
+/**
+ * Shared implementation for no_indistinguishable_nodes check.
+ * Returns empty string on pass, diagnostic string on failure.
+ */
+std::string _check_no_indistinguishable_nodes_impl(const Records& records) {
+  for (u64 i = 0; i < records.size(); ++i) {
+    const u64 first_child = records.search_first_child_id[i];
+    if (first_child == i) continue;
+
+    // collect children (rank, differentia) pairs and check for duplicates
+    std::vector<std::pair<i64, u64>> child_pairs;
+    for (const u64 child : ChildrenView(records, i)) {
+      // leaves should not appear in search trie
+      assert(records.dstream_data_id[child] == placeholder_value);
+
+      child_pairs.emplace_back(records.rank[child], records.differentia[child]);
+    }
+
+    std::ranges::sort(child_pairs);
+    const auto dup = std::ranges::adjacent_find(child_pairs);
+    if (dup != child_pairs.end()) {
+      std::ostringstream oss;
+      oss << "parent " << i << " has indistinguishable children with"
+          << " rank=" << dup->first
+          << ", differentia=" << dup->second << "\n";
+      oss << "children (rank, differentia): [";
+      for (const auto& [r, d] : child_pairs) {
+        oss << "(" << r << ", " << d << "), ";
+      }
+      oss << "]";
+      return oss.str();
+    }
+  }
+  return "";
+}
+
+
+/**
+ * Checks that no two children of the same parent share the same
+ * (rank, differentia) pair.
+ * Skips check if search trie is not present.
+ */
+bool check_trie_invariant_no_indistinguishable_nodes(const Records& records) {
+  if (!_has_search_trie(records)) return true;
+  return _check_no_indistinguishable_nodes_impl(records).empty();
+}
+
+
+/**
+ * Checks that data nodes (dstream_data_id != placeholder_value) are leaf
+ * nodes, i.e., have no search children.
+ * Skips check if search trie is not present.
+ */
+bool check_trie_invariant_data_nodes_are_leaves(const Records& records) {
+  if (!_has_search_trie(records)) return true;
+
+  return std::ranges::all_of(
+    records.id,
+    [&records](const u64 id) {
+      if (records.dstream_data_id[id] == placeholder_value) return true;
+      return records.search_first_child_id[id] == id;
+    }
+  );
+}
+
+
+/**
+ * Shared implementation for search_lineage_compatible check.
+ * Returns empty string on pass, diagnostic string on failure.
+ */
+std::string _check_search_lineage_compatible_impl(const Records& records) {
+
+  for (u64 i = 0; i < records.size(); ++i) {
+    // only consider searchable paths, exclude tips
+    if (records.search_ancestor_id[i] == i) continue;
+
+    u64 a = records.ancestor_id[i];
+    u64 s = records.search_ancestor_id[i];
+    u64 loop = 0;
+    while (a) {
+      const auto rank_a = records.rank[a];
+      const auto rank_s = records.rank[s];
+      if (rank_a == rank_s) {
+        if (records.differentia[a] != records.differentia[s]) {
+          std::ostringstream oss;
+          oss << "node " << i << ": lineage node " << a
+              << " (rank=" << rank_a
+              << ", differentia=" << records.differentia[a]
+              << ") incompatible with search node " << s
+              << " (rank=" << rank_s
+              << ", differentia=" << records.differentia[s] << ")";
+          return oss.str();
+        } else break;  // only search one step back at a time
+      } else if (rank_a > rank_s) {
+        a = records.ancestor_id[a];
+      } else if (records.search_ancestor_id[s] == s) {
+        break;
+      } else {
+        assert(rank_s > rank_a);
+        s = records.search_ancestor_id[s];
+      }
+      if (++loop > records.size() * 3) {  // conservative upper bound on loop
+        std::ostringstream oss;
+        oss << "node " << i << ": cycle detected in ancestor walk"
+            << " (a=" << a << ", a'=" << records.ancestor_id[a] << ", s=" << s << ", s'=" << records.search_ancestor_id[s] << ")";
+        return oss.str();
+      }
+    }
+  }
+
+  return "";
+}
+
+
+/**
+ * Checks that search ancestors are compatible with the lineage trie.
+ * For each node with a valid search_ancestor_id, walking up the lineage
+ * trie via ancestor_id should find a node that is indistinguishable
+ * from (i.e., same rank and differentia as) the search ancestor.
+ *
+ * Skips check if search trie is not present.
+ */
+bool check_trie_invariant_search_lineage_compatible(const Records& records) {
+  if (!_has_search_trie(records)) return true;
+  return _check_search_lineage_compatible_impl(records).empty();
+}
+
+
+/**
+ * Checks that all ancestor_id values reference valid indices.
+ */
+bool check_trie_invariant_ancestor_bounds(const Records& records) {
+  return std::ranges::all_of(
+    records.id,
+    [&records](const u64 id) {
+      return records.ancestor_id[id] < records.size();
+    }
+  );
+}
+
+
+/**
+ * Checks that the root node is at index 0 with expected properties:
+ *   - ancestor_id[0] == 0 (self-referencing)
+ *   - rank[0] == 0
+ */
+bool check_trie_invariant_root_at_zero(const Records& records) {
+  if (records.size() == 0) return true;
+  return records.ancestor_id[0] == 0 && records.rank[0] == 0;
+}
+
+
+/**
+ * Checks that all nodes have non-negative rank values.
+ * Negative ranks would indicate data corruption.
+ */
+bool check_trie_invariant_ranks_nonnegative(const Records& records) {
+  return std::ranges::all_of(
+    records.id,
+    [&records](const u64 id) {
+      return records.rank[id] >= 0;
+    }
+  );
+}
+
+
+// ============================================================
+// Diagnose functions: return diagnostic string (empty = pass).
+// On failure, the string starts with a generic records summary.
+// ============================================================
+
+std::string diagnose_trie_invariant_contiguous_ids(const Records& records) {
+  for (u64 i = 0; i < records.size(); ++i) {
+    if (records.id[i] != i) {
+      std::ostringstream oss;
+      oss << _describe_records(records)
+          << "\ncontiguous_ids: id[" << i << "] = " << records.id[i]
+          << ", expected " << i;
+      return oss.str();
+    }
+  }
+  return "";
+}
+
+std::string diagnose_trie_invariant_topologically_sorted(
+    const Records& records) {
+  for (const u64 id : records.id) {
+    if (records.ancestor_id[id] > id) {
+      std::ostringstream oss;
+      oss << _describe_records(records)
+          << "\ntopologically_sorted: ancestor_id[" << id << "] = "
+          << records.ancestor_id[id] << " > " << id;
+      return oss.str();
+    }
+  }
+  return "";
+}
+
+std::string diagnose_trie_invariant_chronologically_sorted(
+    const Records& records) {
+  for (const u64 id : records.id) {
+    const u64 anc = records.ancestor_id[id];
+    if (records.rank[anc] > records.rank[id]) {
+      std::ostringstream oss;
+      oss << _describe_records(records)
+          << "\nchronologically_sorted: node " << id
+          << " (rank=" << records.rank[id]
+          << ") has ancestor " << anc
+          << " (rank=" << records.rank[anc] << ")";
+      return oss.str();
+    }
+  }
+  return "";
+}
+
+std::string diagnose_trie_invariant_single_root(const Records& records) {
+  if (records.size() == 0) return "";
+  std::vector<u64> roots;
+  for (const u64 id : records.id) {
+    if (records.ancestor_id[id] == id) {
+      roots.push_back(id);
+    }
+  }
+  if (roots.size() == 1) return "";
+  std::ostringstream oss;
+  oss << _describe_records(records)
+      << "\nsingle_root: found " << roots.size() << " root(s) at id(s): ";
+  for (size_t j = 0; j < roots.size() && j < 10; ++j) {
+    if (j) oss << ", ";
+    oss << roots[j];
+  }
+  if (roots.size() > 10) oss << ", ...";
+  return oss.str();
+}
+
+std::string diagnose_trie_invariant_search_children_valid(
+    const Records& records) {
+  if (!_has_search_trie(records)) return "";
+  auto diag = _check_search_children_valid_impl(records);
+  if (diag.empty()) return "";
+  return _describe_records(records) + "\nsearch_children_valid: " + diag;
+}
+
+std::string diagnose_trie_invariant_search_children_sorted(
+    const Records& records) {
+  if (!_has_search_trie(records)) return "";
+  auto diag = _check_search_children_sorted_impl(records);
+  if (diag.empty()) return "";
+  return _describe_records(records) + "\nsearch_children_sorted: " + diag;
+}
+
+std::string diagnose_trie_invariant_no_indistinguishable_nodes(
+    const Records& records) {
+  if (!_has_search_trie(records)) return "";
+  auto diag = _check_no_indistinguishable_nodes_impl(records);
+  if (diag.empty()) return "";
+  return _describe_records(records)
+      + "\nno_indistinguishable_nodes: " + diag;
+}
+
+std::string diagnose_trie_invariant_data_nodes_are_leaves(
+    const Records& records) {
+  if (!_has_search_trie(records)) return "";
+  for (const u64 id : records.id) {
+    if (records.dstream_data_id[id] != placeholder_value
+        && records.search_first_child_id[id] != id) {
+      std::ostringstream oss;
+      oss << _describe_records(records)
+          << "\ndata_nodes_are_leaves: data node " << id
+          << " (dstream_data_id=" << records.dstream_data_id[id]
+          << ") has search children (first_child="
+          << records.search_first_child_id[id] << ")";
+      return oss.str();
+    }
+  }
+  return "";
+}
+
+std::string diagnose_trie_invariant_search_lineage_compatible(
+    const Records& records) {
+  if (!_has_search_trie(records)) return "";
+  auto diag = _check_search_lineage_compatible_impl(records);
+  if (diag.empty()) return "";
+  return _describe_records(records)
+      + "\nsearch_lineage_compatible: " + diag;
+}
+
+std::string diagnose_trie_invariant_ancestor_bounds(const Records& records) {
+  for (const u64 id : records.id) {
+    if (records.ancestor_id[id] >= records.size()) {
+      std::ostringstream oss;
+      oss << _describe_records(records)
+          << "\nancestor_bounds: ancestor_id[" << id << "] = "
+          << records.ancestor_id[id] << " >= size " << records.size();
+      return oss.str();
+    }
+  }
+  return "";
+}
+
+std::string diagnose_trie_invariant_root_at_zero(const Records& records) {
+  if (records.size() == 0) return "";
+  if (records.ancestor_id[0] == 0 && records.rank[0] == 0) return "";
+  std::ostringstream oss;
+  oss << _describe_records(records)
+      << "\nroot_at_zero: node 0 has ancestor_id=" << records.ancestor_id[0]
+      << " (expected 0), rank=" << records.rank[0] << " (expected 0)";
+  return oss.str();
+}
+
+std::string diagnose_trie_invariant_ranks_nonnegative(
+    const Records& records) {
+  for (const u64 id : records.id) {
+    if (records.rank[id] < 0) {
+      std::ostringstream oss;
+      oss << _describe_records(records)
+          << "\nranks_nonnegative: rank[" << id << "] = " << records.rank[id];
+      return oss.str();
+    }
+  }
+  return "";
+}
+
+
 PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
   m.attr("placeholder_value") = py::int_(placeholder_value);
   py::class_<Records>(m, "Records")
-      .def(py::init<u64>(), py::arg("init_size"))
+      .def(
+        py::init<u64, bool>(),
+        py::arg("init_size"),
+        py::arg("init_root")=true
+      )
       .def("__len__", &Records::size)
       .def("addRecord", &Records::addRecord,
+        py::arg("data_id"),
+        py::arg("id"),
+        py::arg("ancestor_id"),
+        py::arg("search_ancestor_id"),
+        py::arg("search_first_child_id"),
+        py::arg("search_prev_sibling_id"),
+        py::arg("search_next_sibling_id"),
+        py::arg("rank"),
+        py::arg("differentia")
+      )
+      .def("mockRecord", &Records::mockRecord,
         py::arg("data_id"),
         py::arg("id"),
         py::arg("ancestor_id"),
@@ -1350,12 +2065,137 @@ PYBIND11_MODULE(_build_tree_searchtable_cpp_impl, m) {
     py::arg("differentiae"),
     py::arg("progress_bar")
   );
+  m.def(
+    "check_trie_invariant_contiguous_ids",
+    &check_trie_invariant_contiguous_ids,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_topologically_sorted",
+    &check_trie_invariant_topologically_sorted,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_chronologically_sorted",
+    &check_trie_invariant_chronologically_sorted,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_single_root",
+    &check_trie_invariant_single_root,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_search_children_valid",
+    &check_trie_invariant_search_children_valid,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_search_children_sorted",
+    &check_trie_invariant_search_children_sorted,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_no_indistinguishable_nodes",
+    &check_trie_invariant_no_indistinguishable_nodes,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_data_nodes_are_leaves",
+    &check_trie_invariant_data_nodes_are_leaves,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_search_lineage_compatible",
+    &check_trie_invariant_search_lineage_compatible,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_ancestor_bounds",
+    &check_trie_invariant_ancestor_bounds,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_root_at_zero",
+    &check_trie_invariant_root_at_zero,
+    py::arg("records")
+  );
+  m.def(
+    "check_trie_invariant_ranks_nonnegative",
+    &check_trie_invariant_ranks_nonnegative,
+    py::arg("records")
+  );
+  m.def(
+    "_describe_records",
+    &_describe_records,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_contiguous_ids",
+    &diagnose_trie_invariant_contiguous_ids,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_topologically_sorted",
+    &diagnose_trie_invariant_topologically_sorted,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_chronologically_sorted",
+    &diagnose_trie_invariant_chronologically_sorted,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_single_root",
+    &diagnose_trie_invariant_single_root,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_search_children_valid",
+    &diagnose_trie_invariant_search_children_valid,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_search_children_sorted",
+    &diagnose_trie_invariant_search_children_sorted,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_no_indistinguishable_nodes",
+    &diagnose_trie_invariant_no_indistinguishable_nodes,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_data_nodes_are_leaves",
+    &diagnose_trie_invariant_data_nodes_are_leaves,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_search_lineage_compatible",
+    &diagnose_trie_invariant_search_lineage_compatible,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_ancestor_bounds",
+    &diagnose_trie_invariant_ancestor_bounds,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_root_at_zero",
+    &diagnose_trie_invariant_root_at_zero,
+    py::arg("records")
+  );
+  m.def(
+    "diagnose_trie_invariant_ranks_nonnegative",
+    &diagnose_trie_invariant_ranks_nonnegative,
+    py::arg("records")
+  );
 }
 
 
 /*
 <%
-cfg['extra_compile_args'] = ['-std=c++20', '-Wall', '-Wextra', '-DDEBUG']
+cfg['extra_compile_args'] = ['-std=c++20', '-Wall', '-Wextra', '-DDEBUG', '-D_GLIBCXX_ASSERTIONS']
 setup_pybind11(cfg)
 %>
 */

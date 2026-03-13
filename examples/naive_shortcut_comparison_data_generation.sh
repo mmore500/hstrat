@@ -14,8 +14,8 @@ python3 examples/end2end_tree_reconstruction_test.py --help 2>&1 | head -n 4
 python3 examples/end2end_tree_reconstruction_test.py --help  2>&1 | head -n 4 &
 wait
 
-for i in $(seq 1 $2); do
-  while [[ $(jobs | wc -l) -ge $1 ]]; do
+for i in $(seq 1 "$2"); do
+  while [[ $(jobs | wc -l) -ge "$1" ]]; do
     sleep 1
   done
   echo "Spawning job $i"
@@ -28,7 +28,7 @@ for i in $(seq 1 $2); do
     --retention-algo dstream.steady_algo dstream.tilted_algo dstream.stretched_algo dstream.hybrid_0_steady_1_tiltedxtc_2_algo \
     --differentia-bitwidth 64 8 1 \
     --surface-size 256 32 16 \
-    --output-path end2end-reconstruction-error-$i.csv \
+    --output-path "end2end-reconstruction-error-$i.csv" \
     2>&1 | tee "run-$i.log" &
 done
 

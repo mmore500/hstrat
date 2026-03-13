@@ -266,7 +266,7 @@ def display_reconstruction(
             },
             teeplot_dpi=100,
             teeplot_outattrs=kwargs,
-            teeplot_outdir="/tmp/end2end-visualizations",
+            teeplot_outdir="/tmp/end2end-visualizations",  # nosec B108
         )
 
 
@@ -383,7 +383,7 @@ def _parse_args():
     parser.add_argument(
         "--output-path",
         type=str,
-        default="/tmp/end2end-reconstruction-error.csv",
+        default="/tmp/end2end-reconstruction-error.csv",  # nosec B108
     )
     args = parser.parse_args()
     if args.repeats > 1 and not args.no_preset_randomness:
@@ -406,7 +406,7 @@ if __name__ == "__main__":
                 visualize=not args.skip_visualization,
                 no_preset_randomness=args.no_preset_randomness,
                 reconstruction_algorithm=reconstruction_algorithm,
-                retention_algo=retention_algo
+                retention_algo=retention_algo,
             )
             for (
                 fossil_interval,
@@ -414,13 +414,15 @@ if __name__ == "__main__":
                 differentia_bitwidth,
                 reconstruction_algorithm,
                 retention_algo,
-            ) in tqdm(itertools.product(
-                args.fossil_interval,
-                args.surface_size,
-                args.differentia_bitwidth,
-                args.reconstruction_algorithm,
-                args.retention_algo,
-            ))
+            ) in tqdm(
+                itertools.product(
+                    args.fossil_interval,
+                    args.surface_size,
+                    args.differentia_bitwidth,
+                    args.reconstruction_algorithm,
+                    args.retention_algo,
+                )
+            )
             for _ in tqdm(range(args.repeats))
         ]
     ).sort_values(

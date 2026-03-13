@@ -5,14 +5,10 @@ import more_itertools as mit
 import numpy as np
 import opytional as opyt
 import pandas as pd
+from phyloframe import legacy as pfl
 
 from ...._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
-    alifestd_collapse_unifurcations,
-    alifestd_count_children_of_asexual,
-    alifestd_find_root_ids,
-    alifestd_make_empty,
-    alifestd_try_add_ancestor_list_col,
     argsort,
     give_len,
 )
@@ -158,16 +154,18 @@ def _finalize_records(
     df["origin_time"] = df["rank"].astype(np.uint64)
 
     df = df[["id", "ancestor_id", "origin_time", "taxon_label"]]
-    df = alifestd_try_add_ancestor_list_col(df, mutate=True)
-    root_id = mit.one(alifestd_find_root_ids(df))
-    multiple_true_roots = alifestd_count_children_of_asexual(df, root_id) > 1
+    df = pfl.alifestd_try_add_ancestor_list_col(df, mutate=True)
+    root_id = mit.one(pfl.alifestd_find_root_ids(df))
+    multiple_true_roots = (
+        pfl.alifestd_count_children_of_asexual(df, root_id) > 1
+    )
     if multiple_true_roots and not force_common_ancestry:
         raise ValueError(
             "Reconstruction resulted in multiple independent trees, "
             "due to artifacts definitively sharing no common ancestor. "
             "Consider setting force_common_ancestry=True.",
         )
-    df = alifestd_collapse_unifurcations(df, mutate=True)
+    df = pfl.alifestd_collapse_unifurcations(df, mutate=True)
 
     return df
 
@@ -216,7 +214,7 @@ def build_tree_searchtable_python(
     """
     pop_len = len(population)
     if pop_len == 0:
-        res = alifestd_make_empty()
+        res = pfl.alifestd_make_empty()
         res["origin_time"] = pd.Series(dtype=int)
         res["taxon_label"] = None
         return res

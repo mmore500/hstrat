@@ -1,5 +1,6 @@
 import typing
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -7,11 +8,18 @@ from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_mark_roots import alifestd_mark_roots
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
+)
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._jit import jit
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_coarsen_taxa_asexual_make_agg instead.",
+)
 def alifestd_coarsen_taxa_asexual_make_agg(
     phylogeny_df: pd.DataFrame,
     default_agg: str = "first",
@@ -68,6 +76,15 @@ def alifestd_coarsen_taxa_asexual_make_agg(
     }
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=False,
+    delete=True,
+    update=True,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_coarsen_taxa_asexual instead.",
+)
 def alifestd_coarsen_taxa_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

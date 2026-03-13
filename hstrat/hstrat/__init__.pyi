@@ -90,6 +90,7 @@ from phylogenetic_inference import (
     trie_postprocess,
 )
 from serialization import (
+    assemblage_from_dstream_df,
     assemblage_from_records,
     col_from_int,
     col_from_packet,
@@ -112,6 +113,7 @@ from serialization import (
     specimen_from_records,
     surf_from_hex,
     surf_to_hex,
+    surf_to_specimen,
     unassemblage_from_records,
     unpack_differentiae,
     unpack_differentiae_bytes,
@@ -147,6 +149,7 @@ from stratum_retention_strategy import (
 from stratum_retention_viz import (
     animate,
     ascii,
+    assemblage_to_ascii,
     col_to_ascii,
     mrca_uncertainty_absolute_barplot,
     mrca_uncertainty_relative_barplot,
@@ -266,6 +269,7 @@ __all__ = [
     "PeelBackConjoinedLeavesTriePostprocessor",
     "SampleAncestralRollbacksTriePostprocessor",
     # serialization
+    "assemblage_from_dstream_df",
     "assemblage_from_records",
     "col_from_int",
     "col_from_packet",
@@ -288,6 +292,7 @@ __all__ = [
     "specimen_from_records",
     "surf_from_hex",
     "surf_to_hex",
+    "surf_to_specimen",
     "unassemblage_from_records",
     "unpack_differentiae",
     "unpack_differentiae_bytes",
@@ -321,6 +326,7 @@ __all__ = [
     # stratum_retention_viz
     "animate",
     "ascii",
+    "assemblage_to_ascii",
     "plot",
     "col_to_ascii",
     "stratum_retention_animate",

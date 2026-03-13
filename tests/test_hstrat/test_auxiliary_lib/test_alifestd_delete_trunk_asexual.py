@@ -242,7 +242,7 @@ def test_alifestd_delete_trunk_asexual_noncontiguous_trunk(mutate: bool):
 
 def test_alifestd_delete_trunk_asexual_unifurcation():
     phylo = pd.read_csv(f"{assets}/trunktestphylo.csv")
-    phylo["is_trunk"] = phylo["hstrat_rank"] < 64
+    phylo["is_trunk"] = phylo["dstream_rank"] < 64
     assert alifestd_test_leaves_isomorphic_asexual(
         phylo, phylo, taxon_label="dstream_data_id"
     )
@@ -286,7 +286,7 @@ def test_alifestd_delete_trunk_asexual_unifurcation():
             ),
         )
 
-    phylo["origin_time"] = phylo["hstrat_rank"]
+    phylo["origin_time"] = phylo["dstream_rank"]
     for allow_id_reassign in [True, False]:
         assert alifestd_test_leaves_isomorphic_asexual(
             clean(

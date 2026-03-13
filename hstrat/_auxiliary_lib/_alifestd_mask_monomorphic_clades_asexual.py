@@ -1,3 +1,4 @@
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -9,7 +10,7 @@ from ._jit import jit
 
 
 @jit(nopython=True)
-def alifestd_mask_monomorphic_clades_asexual_fast_path(
+def _alifestd_mask_monomorphic_clades_asexual_fast_path(
     ancestor_ids: np.ndarray,
     trait_mask: np.ndarray,
     trait_values: np.ndarray,
@@ -35,7 +36,7 @@ def alifestd_mask_monomorphic_clades_asexual_fast_path(
     return res
 
 
-def alifestd_mask_monomorphic_clades_asexual_slow_path(
+def _alifestd_mask_monomorphic_clades_asexual_slow_path(
     phylogeny_df: pd.DataFrame,
 ) -> pd.DataFrame:
     """Implementation detail for `alifestd_mask_monomorphic_clades_asexual`."""
@@ -85,6 +86,10 @@ def alifestd_mask_monomorphic_clades_asexual_slow_path(
     return phylogeny_df
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_mask_monomorphic_clades_asexual instead.",
+)
 def alifestd_mask_monomorphic_clades_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -141,7 +146,7 @@ def alifestd_mask_monomorphic_clades_asexual(
     ):
         phylogeny_df[
             "alifestd_mask_monomorphic_clades_asexual"
-        ] = alifestd_mask_monomorphic_clades_asexual_fast_path(
+        ] = _alifestd_mask_monomorphic_clades_asexual_fast_path(
             phylogeny_df["ancestor_id"].to_numpy(),
             phylogeny_df[
                 "alifestd_mask_monomorphic_clades_asexual_mask"
@@ -151,7 +156,7 @@ def alifestd_mask_monomorphic_clades_asexual(
             ].to_numpy(),
         )
     else:
-        phylogeny_df = alifestd_mask_monomorphic_clades_asexual_slow_path(
+        phylogeny_df = _alifestd_mask_monomorphic_clades_asexual_slow_path(
             phylogeny_df,
         )
 

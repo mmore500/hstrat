@@ -1,5 +1,6 @@
 import numbers
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 from ._alifestd_mark_origin_time_delta_asexual import (
@@ -7,6 +8,10 @@ from ._alifestd_mark_origin_time_delta_asexual import (
 )
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_sum_origin_time_deltas_asexual instead.",
+)
 def alifestd_sum_origin_time_deltas_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
