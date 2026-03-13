@@ -26,7 +26,7 @@ except (ImportError, ModuleNotFoundError) as e:
     print("python3 -m pip install phylotrackpy")
     raise e
 
-evolution_selector = random.Random(1)  # ensure consistent true phylogeny
+evolution_selector: random.Random
 
 
 def consistent_state_randrange(bitwidth: int):
@@ -126,6 +126,7 @@ def make_Organism(
     surf_dtype = {
         1: np.uint8,
         8: np.uint8,
+        16: np.uint16,
         64: np.uint64,
     }[differentia_bitwidth]
     empty_surface = np.empty(surface_size, dtype=surf_dtype)
@@ -314,6 +315,13 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--differentia-bitwidth", type=int, default=1)
     parser.add_argument("--surface-size", type=int, default=64)
     parser.add_argument(
+        "--fossil-interval",
+        type=int,
+    )
+    parser.add_argument(
+        "--retention-algo", type=str, default="dstream.steady_algo"
+    )
+    parser.add_argument(
         "--genome-df-path",
         type=str,
         default="/tmp/genome-evolve_surf_dstream.pqt",
@@ -324,13 +332,13 @@ def _parse_args() -> argparse.Namespace:
         default="/tmp/phylo-evolve_surf_dstream.csv",
     )
     parser.add_argument(
-        "--fossil-interval",
-        type=int,
+        "--no-preset-randomness",
+        action="store_true",
     )
 
     args = parser.parse_args()
 
-    if args.differentia_bitwidth not in (1, 8, 64):
+    if args.differentia_bitwidth not in (1, 8, 16, 64):
         raise NotImplementedError()
 
     if args.surface_size < 8:
@@ -358,16 +366,21 @@ def _get_df_save_handler(path: str) -> typing.Callable:
 
 
 if __name__ == "__main__":
-    np.random.seed(2)  # ensure reproducibility
-    random.seed(2)
-
     args = _parse_args()
+
+    if args.no_preset_randomness:
+        evolution_selector = random.Random()
+    else:
+        # ensure consistent true phylogeny
+        evolution_selector = random.Random(1)
+        np.random.seed(2)  # ensure reproducibility
+        random.seed(2)
 
     # configure organism class
     syst = systematics.Systematics(lambda x: x.uid)  # each org is own taxon
     syst.add_snapshot_fun(systematics.Taxon.get_info, "taxon_label")
     Organism = make_Organism(
-        dstream_algo=dstream.steady_algo,
+        dstream_algo=eval(args.retention_algo, {"dstream": dstream}),
         differentia_bitwidth=args.differentia_bitwidth,
         surface_size=args.surface_size,
         syst=syst,

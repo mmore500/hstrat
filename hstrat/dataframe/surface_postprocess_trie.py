@@ -8,8 +8,7 @@ from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 
 from .. import hstrat
 from .._auxiliary_lib import (
-    add_bool_arg,
-    begin_prod_logging,
+    configure_prod_logging,
     format_cli_description,
     get_hstrat_version,
     log_context_duration,
@@ -32,7 +31,7 @@ Input Schema: Required Columns
     - Unique identifier for each taxon (RE alife standard format).
 'ancestor_id' : integer
     - Unique identifier for ancestor taxon  (RE alife standard format).
-'dstream_rank' : integer
+'hstrat_rank' : integer
     - Num generations elapsed for ancestral differentia.
     - Corresponds to `dstream_Tbar` for inner nodes.
     - Corresponds `dstream_T` - 1 for leaf nodes
@@ -68,7 +67,7 @@ Output Schema: Required Columns
 'ancestor_id' : integer
     Unique identifier for ancestor taxon (RE alife standard format).
 
-'hstrat_rank' : integer
+'hstrat_rank_from_t0' : integer
     - Num generations elapsed for ancestral differentia.
     - Corresponds to `dstream_Tbar` - `dstream_S` for inner nodes.
     - Corresponds `dstream_T` - 1 - `dstream_S` for leaf nodes
@@ -109,7 +108,6 @@ Behind the scenes, the following postprocessing steps occur:
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
-        allow_abbrev=False,
         description=format_cli_description(raw_message),
         formatter_class=argparse.RawTextHelpFormatter,
     )
@@ -142,21 +140,11 @@ def _create_parser() -> argparse.ArgumentParser:
             "distinct founding strata into independent trees."
         ),
     )
-    add_bool_arg(
-        parser,
-        "drop-dstream-metadata",
-        default=None,
-        help=(
-            "Drop all dstream/downstream columns from the output? "
-            "Omit for default behavior (drop some metadata). "
-            "Use --no-drop-dstream-metadata to retain."
-        ),
-    )
     return parser
 
 
 if __name__ == "__main__":
-    begin_prod_logging()
+    configure_prod_logging()
 
     parser = _create_parser()
     args, __ = parser.parse_known_args()
@@ -175,7 +163,6 @@ if __name__ == "__main__":
             output_dataframe_op=functools.partial(
                 surface_postprocess_trie,
                 delete_trunk=args.delete_trunk,
-                drop_dstream_metadata=args.drop_dstream_metadata,
                 trie_postprocessor=trie_postprocessor,
             ),
         )

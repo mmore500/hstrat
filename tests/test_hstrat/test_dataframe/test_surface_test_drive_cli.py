@@ -6,7 +6,7 @@ assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
 def test_surface_test_drive_cli_help():
-    subprocess.run(  # nosec B603
+    subprocess.run(
         [
             "python3",
             "-m",
@@ -18,7 +18,7 @@ def test_surface_test_drive_cli_help():
 
 
 def test_surface_test_drive_cli_version():
-    subprocess.run(  # nosec B603
+    subprocess.run(
         [
             "python3",
             "-m",
@@ -30,9 +30,9 @@ def test_surface_test_drive_cli_version():
 
 
 def test_surface_test_drive_cli_csv():
-    output_file = "/tmp/hstrat_surface_test_drive.csv"  # nosec B108
+    output_file = "/tmp/hstrat_surface_test_drive.csv"
     pathlib.Path(output_file).unlink(missing_ok=True)
-    subprocess.run(  # nosec B603
+    subprocess.run(
         [
             "python3",
             "-m",
@@ -46,9 +46,9 @@ def test_surface_test_drive_cli_csv():
 
 
 def test_surface_test_drive_cli_parquet():
-    output_file = "/tmp/hstrat_surface_test_drive.pqt"  # nosec B108
+    output_file = "/tmp/hstrat_surface_test_drive.pqt"
     pathlib.Path(output_file).unlink(missing_ok=True)
-    subprocess.run(  # nosec B603
+    subprocess.run(
         [
             "python3",
             "-m",
@@ -63,9 +63,9 @@ def test_surface_test_drive_cli_parquet():
 
 
 def test_surface_test_drive_cli_flags():
-    output_file = "/tmp/hstrat_surface_test_drive_flags.pqt"  # nosec B108
+    output_file = "/tmp/hstrat_surface_test_drive_flags.pqt"
     pathlib.Path(output_file).unlink(missing_ok=True)
-    subprocess.run(  # nosec B603
+    subprocess.run(
         [
             "python3",
             "-m",
@@ -88,11 +88,9 @@ def test_surface_test_drive_cli_flags():
 
 
 def test_surface_test_drive_cli_pipe_reconstruct():
-    output_file = (
-        "/tmp/hstrat_surface_test_drive_reconstruct.pqt"  # nosec B108
-    )
+    output_file = "/tmp/hstrat_surface_test_drive_reconstruct.pqt"
     pathlib.Path(output_file).unlink(missing_ok=True)
-    td = subprocess.run(  # nosec B603
+    td = subprocess.run(
         [
             "python3",
             "-m",
@@ -108,7 +106,7 @@ def test_surface_test_drive_cli_pipe_reconstruct():
         check=True,
         input=f"{assets}/nk_ecoeaselection.csv".encode(),
     )
-    subprocess.run(  # nosec B603
+    subprocess.run(
         [
             "python3",
             "-m",

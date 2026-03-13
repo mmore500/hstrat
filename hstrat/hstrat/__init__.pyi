@@ -3,7 +3,6 @@ from dataframe import (
     surface_postprocess_trie,
     surface_test_drive,
     surface_unpack_reconstruct,
-    surface_validate_trie,
 )
 from frozen_instrumentation import (
     HereditaryStratigraphicAssemblage,
@@ -188,7 +187,6 @@ __all__ = [
     "surface_postprocess_trie",
     "surface_test_drive",
     "surface_unpack_reconstruct",
-    "surface_validate_trie",
     # frozen_instrumentation
     "HereditaryStratigraphicAssemblage",
     "HereditaryStratigraphicAssemblageSpecimen",
@@ -328,8 +326,8 @@ __all__ = [
     # stratum_retention_viz
     "animate",
     "ascii",
-    "plot",
     "assemblage_to_ascii",
+    "plot",
     "col_to_ascii",
     "stratum_retention_animate",
     "policy_panel_animate",

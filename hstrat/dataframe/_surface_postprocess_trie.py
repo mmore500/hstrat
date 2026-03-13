@@ -6,11 +6,14 @@ import typing
 import warnings
 
 from pandas import testing as pdt
-from phyloframe import legacy as pfl
 import polars as pl
 from tqdm import tqdm
 
 from .._auxiliary_lib import (
+    alifestd_assign_contiguous_ids_polars,
+    alifestd_collapse_unifurcations_polars,
+    alifestd_delete_trunk_asexual_polars,
+    alifestd_prefix_roots_polars,
     get_sole_scalar_value_polars,
     is_in_unit_test,
     log_context_duration,
@@ -23,42 +26,16 @@ from ._surface_postprocess_trie_via_pandas import (
 )
 
 
-def _apply_empty_output_schema(
-    df: pl.DataFrame,
-    drop_dstream_metadata: typing.Optional[bool] = None,
-) -> pl.DataFrame:
-    """Transform an empty trie DataFrame to match the postprocessed output
-    schema: add ``hstrat_rank`` and drop internal-only columns."""
-    assert df.is_empty()
-    df = df.with_columns(
-        id=pl.col("id").cast(pl.UInt64),
-        ancestor_id=pl.col("ancestor_id").cast(pl.UInt64),
-        hstrat_rank=pl.lit(None, dtype=pl.Int64),
-    )
-    if drop_dstream_metadata is not False:
-        logging.info("dropping dstream metadata from empty output...")
-        df = df.drop(
-            "dstream_rank",
-            "dstream_S",
-            "hstrat_differentia_bitwidth",
-            strict=False,
-        )
-    return df
-
-
 def _do_collapse_unifurcations(
     df: pl.DataFrame,
 ) -> pl.DataFrame:
-    logging.info("begin _do_collapse_unifurcations")
-    logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = pfl.alifestd_assign_contiguous_ids_polars(df)
+        df = alifestd_assign_contiguous_ids_polars(df)
 
     gc.collect()
 
-    logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_collapse_unifurcations", logging.info):
-        df = pfl.alifestd_collapse_unifurcations_polars(df)
+        df = alifestd_collapse_unifurcations_polars(df)
 
     render_polars_snapshot(df, "collapsed tree", logging.info)
 
@@ -70,10 +47,8 @@ def _do_collapse_unifurcations(
 def _do_delete_trunk(
     df: pl.DataFrame,
 ) -> pl.DataFrame:
-    logging.info("begin _do_delete_trunk")
-    logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = pfl.alifestd_assign_contiguous_ids_polars(df)
+        df = alifestd_assign_contiguous_ids_polars(df)
 
     gc.collect()
 
@@ -81,34 +56,24 @@ def _do_delete_trunk(
         dstream_S = get_sole_scalar_value_polars(df, "dstream_S")
 
     df = df.with_columns(
-        is_trunk=pl.col("dstream_rank") < dstream_S - 1,
-        origin_time=pl.col("dstream_rank"),
+        is_trunk=pl.col("hstrat_rank") < dstream_S,
+        origin_time=pl.col("hstrat_rank"),
     )
 
-    logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_delete_trunk_asexual", logging.info):
-        df = pfl.alifestd_delete_trunk_asexual_polars(df)
+        df = alifestd_delete_trunk_asexual_polars(df)
 
-    if df.lazy().limit(1).collect().is_empty():
-        logging.warning("empty dataframe after trunk deletion")
-        return df.drop(
-            ["is_trunk", "ancestor_is_trunk", "origin_time"], strict=False
-        )
-
-    logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = pfl.alifestd_assign_contiguous_ids_polars(df)
+        df = alifestd_assign_contiguous_ids_polars(df)
 
-    logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_prefix_roots", logging.info):
         # extend newly-clipped roots all the way back to dstream_S boundary
-        df = pfl.alifestd_prefix_roots_polars(
+        df = alifestd_prefix_roots_polars(
             df, allow_id_reassign=True, origin_time=dstream_S
         )
 
     gc.collect()
 
-    logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     return df.drop(
         ["is_trunk", "ancestor_is_trunk", "origin_time"], strict=False
     )
@@ -117,10 +82,8 @@ def _do_delete_trunk(
 def _do_assign_contiguous_ids(
     df: pl.DataFrame,
 ) -> pl.DataFrame:
-    logging.info("begin _do_assign_contiguous_ids")
-    logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
-        df = pfl.alifestd_assign_contiguous_ids_polars(df)
+        df = alifestd_assign_contiguous_ids_polars(df)
 
     gc.collect()
 
@@ -156,7 +119,6 @@ def _validate_against_via_pandas(func: typing.Callable) -> typing.Callable:
 def surface_postprocess_trie(
     df: pl.DataFrame,
     *,
-    drop_dstream_metadata: typing.Optional[bool] = None,
     trie_postprocessor: typing.Callable = NopTriePostprocessor(),
     # ^^^ NopTriePostprocessor is stateless, so is safe as default value
     delete_trunk: bool = True,
@@ -182,7 +144,7 @@ def surface_postprocess_trie(
             - 'ancestor_id' : pl.UInt64
                 - Unique identifier for ancestor taxon  (RE alife standard
                   format).
-            - 'dstream_rank' : pl.UInt64
+            - 'hstrat_rank' : pl.UInt64
                 - Num generations elapsed for ancestral differentia.
                 - Corresponds to `dstream_Tbar` for inner nodes.
                 - Corresponds to `dstream_T` - 1 for leaf nodes.
@@ -226,13 +188,13 @@ def surface_postprocess_trie(
             - Unique identifier for each taxon (RE alife standard format).
         - 'ancestor_id' : pl.UInt64
             - Unique identifier for ancestor taxon  (RE alife standard format).
-        - 'hstrat_rank' : pl.Int64
+        - 'hstrat_rank_from_t0' : pl.UInt64
             - Num generations elapsed for ancestral differentia.
             - Corresponds to `dstream_Tbar` - `dstream_S` for inner nodes.
             - Corresponds to `dstream_T` - 1 - `dstream_S` for leaf nodes.
 
         Optional schema:
-        - 'origin_time' : pl.Int64
+        - 'origin_tme' : pl.UInt64
             - Estimated origin time for phylogeny nodes, in generations elapsed
               since founding ancestor.
 
@@ -263,10 +225,6 @@ def surface_postprocess_trie(
     log_memory_usage(logging.info)
     render_polars_snapshot(df, "raw tree", logging.info)
 
-    if df.lazy().limit(1).collect().is_empty():
-        logging.warning("empty input dataframe, returning empty result")
-        return _apply_empty_output_schema(df, drop_dstream_metadata)
-
     logging.info("extracting differentia bitwidth")
     differentia_bitwidth = get_sole_scalar_value_polars(
         df, "hstrat_differentia_bitwidth"
@@ -278,52 +236,36 @@ def surface_postprocess_trie(
     if delete_trunk:
         df = _do_delete_trunk(df)
 
-    if df.lazy().limit(1).collect().is_empty():
-        logging.warning("empty dataframe after trunk deletion, returning")
-        return _apply_empty_output_schema(df, drop_dstream_metadata)
-
     df = _do_collapse_unifurcations(df)
 
     df = _do_assign_contiguous_ids(df)
 
-    logging.info("applying trie postprocessor...")
-    logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("trie_postprocessor", logging.info):
         pre_postprocessor_columns = {*df.columns}
-        # Cast to signed to prevent uint64 underflow when
-        # dstream_rank < dstream_S (possible after trunk deletion
-        # with the S-1 threshold for zero-gen surfaces).
-        df = df.with_columns(
-            pl.col("dstream_rank").cast(pl.Int64),
-            pl.col("dstream_S").cast(pl.Int64),
-        )
-        df = df.rename({"dstream_rank": "rank"})
+        df = df.rename({"hstrat_rank": "rank"})
         df = trie_postprocessor(
             df,
             p_differentia_collision=2**-differentia_bitwidth,
             mutate=True,
             progress_wrap=tqdm,
         )
-        df = df.rename({"rank": "dstream_rank"})
+        df = df.rename({"rank": "hstrat_rank"})
 
     render_polars_snapshot(df, "with trie postprocessing", logging.info)
 
-    logging.info("setting up hstrat_rank...")
+    logging.info("setting up hstrat_rank_from_t0...")
     df = df.with_columns(
-        hstrat_rank=pl.col("dstream_rank").cast(pl.Int64)
-        - pl.col("dstream_S").cast(pl.Int64),
+        hstrat_rank_from_t0=pl.col("hstrat_rank") - pl.col("dstream_S"),
     )
 
-    to_keep = {*original_columns}
-    if drop_dstream_metadata is not False:
-        logging.info("dropping dstream metadata columns...")
-        to_keep -= {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"}
+    to_keep = {*original_columns} - {
+        "dstream_S",
+        "hstrat_differentia_bitwidth",
+        "hstrat_rank",
+    }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df = df.drop(*to_drop)
-
-    # phyloframe may change id/ancestor_id types; restore documented UInt64
-    df = df.cast({"id": pl.UInt64, "ancestor_id": pl.UInt64})
 
     render_polars_snapshot(df, "as polars", logging.info)
     gc.collect()

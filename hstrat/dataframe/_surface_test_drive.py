@@ -2,9 +2,9 @@ import typing
 
 import downstream
 from downstream import dstream, dsurf
-from phyloframe import legacy as pfl
 import polars as pl
 
+from .._auxiliary_lib import alifestd_mark_leaves
 from ..genome_instrumentation import HereditaryStratigraphicSurface
 from ..serialization import surf_to_hex
 from ..test_drive import descend_template_phylogeny_alifestd
@@ -113,7 +113,7 @@ def surface_test_drive(
     )
     df_pd = df.to_pandas()
     if "extant" not in df_pd.columns:
-        df_pd = pfl.alifestd_mark_leaves(df_pd, mutate=True)
+        df_pd = alifestd_mark_leaves(df_pd, mutate=True)
         df_pd["extant"] = df_pd["is_leaf"].values
 
     extant_ids = df_pd.loc[df_pd["extant"].values, "id"].values
