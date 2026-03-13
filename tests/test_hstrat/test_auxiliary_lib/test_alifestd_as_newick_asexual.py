@@ -33,7 +33,9 @@ def test_fuzz(phylogeny_df: pd.DataFrame):
 
     rosetta_tree = apc.RosettaTree.from_newick(result)
     reconstructed = rosetta_tree.as_alife
-    reconstructed["taxon_label"].fillna(reconstructed["label"], inplace=True)
+    reconstructed["taxon_label"] = reconstructed["taxon_label"].fillna(
+        reconstructed["label"]
+    )
     reconstructed["taxon_label"] = reconstructed["taxon_label"].astype(int)
     reconstructed = alifestd_try_add_ancestor_id_col(reconstructed)
 

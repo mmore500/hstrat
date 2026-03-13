@@ -6,7 +6,10 @@ import alifedata_phyloinformatics_convert as apc
 import pandas as pd
 from phyloframe import legacy as pfl
 
+from ...._auxiliary_lib._patch_phyloframe_pandas3 import patch_phyloframe
 from ._estimate_origin_times import estimate_origin_times
+
+patch_phyloframe()
 
 
 def time_calibrate_tree(

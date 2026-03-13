@@ -199,7 +199,7 @@ packaging==26.0
     #   pytest
     #   statsmodels
     #   tox
-pandas==2.3.3
+pandas==3.0.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert

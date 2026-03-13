@@ -41,7 +41,7 @@ dependencies = [
   "polars[pyarrow,rt64]>=1.10.0,!=1.37.*,!=1.39.*",
   "packaging>=23.0",
   "phyloframe>=0.2.0",
-  "pandas>=2,<3",
+  "pandas>=2",
   "pandera>=0.21.0",
   "prettytable>=3.5.0",
   "pyarrow>=16.0.0",

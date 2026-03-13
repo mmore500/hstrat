@@ -153,7 +153,7 @@ def alifestd_mask_monomorphic_clades_asexual(
             ].to_numpy(dtype=np.bool_),
             phylogeny_df[
                 "alifestd_mask_monomorphic_clades_asexual_trait"
-            ].to_numpy(),
+            ].to_numpy().copy(),
         )
     else:
         phylogeny_df = _alifestd_mask_monomorphic_clades_asexual_slow_path(

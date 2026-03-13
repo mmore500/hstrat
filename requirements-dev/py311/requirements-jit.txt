@@ -149,7 +149,7 @@ packaging==26.0
     #   matplotlib
     #   pandera
     #   statsmodels
-pandas==2.3.3
+pandas==3.0.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
