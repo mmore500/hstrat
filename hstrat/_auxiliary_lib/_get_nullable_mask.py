@@ -25,4 +25,4 @@ def get_nullable_mask(series: pd.Series) -> np.ndarray:
     data, so no copy is made. Changes to the mask will propagate to the Series
     object, and vice versa.
     """
-    return series._data.array._mask
+    return series.array._mask
