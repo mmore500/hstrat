@@ -10,7 +10,7 @@ from tqdm import tqdm
 from hstrat.dataframe._surface_test_drive import surface_test_drive
 
 from .._auxiliary_lib import (
-    begin_prod_logging,
+    configure_prod_logging,
     format_cli_description,
     get_hstrat_version,
     log_context_duration,
@@ -85,7 +85,6 @@ pl.DataFrame
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
-        allow_abbrev=False,
         description=format_cli_description(raw_message),
         formatter_class=argparse.RawTextHelpFormatter,
     )
@@ -141,5 +140,5 @@ def _main() -> None:
 
 
 if __name__ == "__main__":
-    begin_prod_logging()
+    configure_prod_logging()
     _main()

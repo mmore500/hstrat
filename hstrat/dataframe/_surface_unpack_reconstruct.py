@@ -1,75 +1,57 @@
-from concurrent import futures
 import contextlib
-import gc
+from enum import Enum
 import logging
+import math
 import multiprocessing
-import pathlib
+import os
 import typing
 import uuid
 
+import downstream as dstream
 from downstream import dataframe as dstream_dataframe
+import pandas as pd
 import polars as pl
 import pyarrow as pa
 import tqdm
 
 from .._auxiliary_lib import (
-    configure_prod_logging,
+    alifestd_make_empty,
     get_sole_scalar_value_polars,
     give_len,
-    iter_slices,
     log_context_duration,
     log_memory_usage,
     render_polars_snapshot,
 )
+from ..phylogenetic_inference.tree import build_tree_trie
 from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
     Records,
-    check_trie_invariant_ancestor_bounds,
-    check_trie_invariant_chronologically_sorted,
-    check_trie_invariant_contiguous_ids,
-    check_trie_invariant_data_nodes_are_leaves,
-    check_trie_invariant_no_indistinguishable_nodes,
-    check_trie_invariant_ranks_nonnegative,
-    check_trie_invariant_root_at_zero,
-    check_trie_invariant_search_children_sorted,
-    check_trie_invariant_search_children_valid,
-    check_trie_invariant_search_lineage_compatible,
-    check_trie_invariant_single_root,
-    check_trie_invariant_topologically_sorted,
     collapse_unifurcations,
-    copy_records_to_dict,
-    diagnose_trie_invariant_ancestor_bounds,
-    diagnose_trie_invariant_chronologically_sorted,
-    diagnose_trie_invariant_contiguous_ids,
-    diagnose_trie_invariant_data_nodes_are_leaves,
-    diagnose_trie_invariant_no_indistinguishable_nodes,
-    diagnose_trie_invariant_ranks_nonnegative,
-    diagnose_trie_invariant_root_at_zero,
-    diagnose_trie_invariant_search_children_sorted,
-    diagnose_trie_invariant_search_children_valid,
-    diagnose_trie_invariant_search_lineage_compatible,
-    diagnose_trie_invariant_single_root,
-    diagnose_trie_invariant_topologically_sorted,
     extend_tree_searchtable_cpp_from_exploded,
     extract_records_to_dict,
-    placeholder_value,
 )
+from ..serialization import surf_from_hex
+
+
+class ReconstructionAlgorithm(Enum):
+    NAIVE = "naive"
+    SHORTCUT = "shortcut"
 
 
 def _sort_Tbar_argv(
     long_df: pl.DataFrame,
-    row_slice_log: slice,
+    num_slices: int,
+    slice_index: int,
 ) -> pl.DataFrame:
     """Fast chronological sort within dstream data id groups, when Tbar_argv
     is available."""
     with log_context_duration(
-        f"gather_indices ({row_slice_log})",
+        f"gather_indices ({slice_index + 1}/{num_slices})",
         logging.info,
     ):
         gather_indices = (  # argsort: what index should this row be sorted to?
             long_df.select(
                 gather_indices=pl.when(  # where do data id's transition?
                     pl.col("dstream_data_id").shift(
-                        n=1,  # shift forward
                         fill_value=long_df["dstream_data_id"].first() + 1,
                     )
                     != pl.col("dstream_data_id")
@@ -84,7 +66,7 @@ def _sort_Tbar_argv(
         )
 
     with log_context_duration(
-        f".gather(gather_indices) ({row_slice_log})",
+        f".gather(gather_indices) ({slice_index + 1}/{num_slices})",
         logging.info,
     ):
         long_df = long_df.select(  # apply argsort
@@ -101,13 +83,14 @@ def _sort_Tbar_argv(
 
 def _sort_Tbar(
     long_df: pl.DataFrame,
-    row_slice_log: slice,
+    num_slices: int,
+    slice_index: int,
 ) -> pl.DataFrame:
     """Fallback chronological sort within dstream data id groups, when
     Tbar_argv is not available."""
     with log_context_duration(
         '.sort_by("dstream_Tbar").over(partition_by="dstream_data_id") '
-        f"({row_slice_log})",
+        f"({slice_index + 1}/{num_slices})",
         logging.info,
     ):
         long_df = long_df.select(
@@ -126,14 +109,16 @@ def _sort_Tbar(
 
 def _make_exploded_slice(
     df_slice: pl.DataFrame,
-    row_slice_log: slice,
+    num_slices: int,
+    slice_index: int,
 ) -> pl.DataFrame:
     """Explode dstream buffers to 1 differentia per row, calculating Tbar for
     each and ensuring strata are chronological within data id groups."""
 
     # explode dstream buffer to 1 differentia per row, calculating Tbar for each
     with log_context_duration(
-        f"dstream.dataframe.explode_lookup_unpacked ({row_slice_log})",
+        "dstream.dataframe.explode_lookup_unpacked "
+        f"({slice_index + 1}/{num_slices})",
         logging.info,
     ):
         long_df = dstream_dataframe.explode_lookup_unpacked(
@@ -147,237 +132,78 @@ def _make_exploded_slice(
         _sort_Tbar_argv,
     ]["dstream_Tbar_argv" in long_df.columns](
         long_df=long_df,
-        row_slice_log=row_slice_log,
+        num_slices=num_slices,
+        slice_index=slice_index,
     )
 
-    if row_slice_log.start == 0:
+    if slice_index == 0:
         render_polars_snapshot(long_df, "exploded", logging.info)
 
     return long_df
 
 
-def _prepare_df_for_explosion(
-    df: pl.DataFrame,
-    mp_context: str,
-    mp_pool_size: int,
-    shuffle_over_same_T_seed: typing.Optional[int] = None,
-) -> pl.DataFrame:
-    """Unpack, sort, and prepare DataFrame for slice-wise explosion."""
-    assert "dstream_data_id" in df.lazy().collect_schema().names()
-
+def _produce_exploded_slices(
+    queue: multiprocessing.JoinableQueue,
+    df: typing.Union[pl.DataFrame, pl.LazyFrame],
+    exploded_slice_size: int,
+) -> None:
+    """Exploded DataFrame in chunks, passed to queue for consumption."""
     with log_context_duration(
         "dstream.dataframe.unpack_data_packed", logging.info
     ):
-        df = dstream_dataframe.unpack_data_packed(
-            df, mp_context=mp_context, mp_pool_size=mp_pool_size
-        )
+        df = dstream_dataframe.unpack_data_packed(df)
 
     render_polars_snapshot(df, "unpacked", logging.info)
 
     # ensure genomes sorted by generations elapsed in ascending order
     # AFTER dstream_T has been unpacked, but before exploded
     with log_context_duration('.sort("dstream_T")', logging.info):
-        df = df.sort(
-            "dstream_T", descending=False, maintain_order=True
-        ).with_columns(  # hint for optimizer,... likely unnecessary
-            pl.col("dstream_T").set_sorted(),
-        )
+        df = df.sort("dstream_T", descending=False, maintain_order=True)
 
     render_polars_snapshot(df, "sorted", logging.info)
 
-    # optionally shuffle rows within same-T groups to randomize
-    # insertion order of genomes with equal generation counts
-    if shuffle_over_same_T_seed is not None:
-        with log_context_duration(
-            f"shuffle over same dstream_T ({shuffle_over_same_T_seed=})",
-            logging.info,
-        ):
-            df = df.with_columns(
-                pl.all()
-                .exclude("dstream_T")
-                .shuffle(seed=shuffle_over_same_T_seed)
-                .over("dstream_T"),
-            )
-        render_polars_snapshot(df, "shuffled", logging.info)
+    if "dstream_data_id" not in df.columns:
+        logging.info(" - adding dstream_data_id column")
+        # ensure chunking doesn't affect data ids
+        df = df.with_row_index("dstream_data_id")
 
-    return df
+    num_slices = math.ceil(len(df) / exploded_slice_size)
+    logging.info(f"{len(df)=} {exploded_slice_size=} {num_slices=}")
 
-
-def _explode_and_write_slice(args: typing.Tuple[pl.LazyFrame, slice]) -> str:
-    """Explode a single slice and write result to a temporary Arrow file.
-
-    Receives a ``(LazyFrame, slice)`` tuple as a lightweight task descriptor.
-    Only the rows needed for this slice are collected from the LazyFrame.
-    """
-    lf, row_slice = args
-    logging.info(f"- worker collecting {row_slice}")
-    df_slice = lf[row_slice].collect()
-    logging.info(f"- worker exploding {row_slice}")
-    long_df = _make_exploded_slice(df_slice=df_slice, row_slice_log=row_slice)
-
-    logging.info(f"- worker writing exploded data for {row_slice}")
-    outpath = f"/tmp/{uuid.uuid4()}.arrow"  # nosec B108
-    long_df.select(pl.all().shrink_dtype()).write_ipc(
-        outpath, compression="lz4"
-    )
-    del long_df  # clear memory
-    gc.collect()
-    return outpath
-
-
-def _dump_records(records: Records) -> str:
-    """Dump records to a parquet file and return the file path."""
-    records_df = pl.DataFrame(copy_records_to_dict(records))
-    render_polars_snapshot(records_df, "dumped records", display=logging.error)
-    for dump_path in (
-        pathlib.Path.home() / f"hstrat_trie_records_{uuid.uuid4()}.pqt",
-        f"/tmp/hstrat_trie_records_{uuid.uuid4()}.pqt",  # nosec B108
-    ):
-        try:
-            records_df.write_parquet(dump_path)
-            logging.error(f"records dumped to {dump_path}")
-            return str(dump_path)
-        except Exception as e:
-            logging.error(f"failed to dump records to {dump_path}: {e}")
-
-
-def _run_trie_invariant_checks(records: Records, context: str) -> None:
-    """Run all trie invariant checks, raising AssertionError on failure.
-
-    On failure, logs diagnostic information from the corresponding
-    ``diagnose_trie_invariant_*`` function, dumps the records to a file,
-    and raises ``AssertionError``.
-
-    Uses explicit ``raise AssertionError(...)`` rather than ``assert`` so
-    checks are not stripped in optimized mode (``python -O``).
-    """
-    _checks = [
-        (
-            "contiguous_ids",
-            check_trie_invariant_contiguous_ids,
-            diagnose_trie_invariant_contiguous_ids,
-        ),
-        (
-            "topologically_sorted",
-            check_trie_invariant_topologically_sorted,
-            diagnose_trie_invariant_topologically_sorted,
-        ),
-        (
-            "chronologically_sorted",
-            check_trie_invariant_chronologically_sorted,
-            diagnose_trie_invariant_chronologically_sorted,
-        ),
-        (
-            "single_root",
-            check_trie_invariant_single_root,
-            diagnose_trie_invariant_single_root,
-        ),
-        (
-            "search_children_valid",
-            check_trie_invariant_search_children_valid,
-            diagnose_trie_invariant_search_children_valid,
-        ),
-        (
-            "search_children_sorted",
-            check_trie_invariant_search_children_sorted,
-            diagnose_trie_invariant_search_children_sorted,
-        ),
-        (
-            "no_indistinguishable_nodes",
-            check_trie_invariant_no_indistinguishable_nodes,
-            diagnose_trie_invariant_no_indistinguishable_nodes,
-        ),
-        (
-            "data_nodes_are_leaves",
-            check_trie_invariant_data_nodes_are_leaves,
-            diagnose_trie_invariant_data_nodes_are_leaves,
-        ),
-        (
-            "search_lineage_compatible",
-            check_trie_invariant_search_lineage_compatible,
-            diagnose_trie_invariant_search_lineage_compatible,
-        ),
-        (
-            "ancestor_bounds",
-            check_trie_invariant_ancestor_bounds,
-            diagnose_trie_invariant_ancestor_bounds,
-        ),
-        (
-            "root_at_zero",
-            check_trie_invariant_root_at_zero,
-            diagnose_trie_invariant_root_at_zero,
-        ),
-        (
-            "nonroot_ranks_positive",
-            check_trie_invariant_ranks_nonnegative,
-            diagnose_trie_invariant_ranks_nonnegative,
-        ),
-    ]
-    for i, (name, check_fn, diagnose_fn) in enumerate(_checks, 1):
+    for slice_idx, df_slice in enumerate(df.iter_slices(exploded_slice_size)):
         logging.info(
-            f"checking trie invariant {i} of {len(_checks)}: "
-            f"{name} ({context})...",
+            f"- worker exploding slice {slice_idx + 1} / {num_slices}"
         )
-        if not check_fn(records):
-            diagnostic = diagnose_fn(records)
-            logging.error(
-                f"trie invariant check failed: {name} ({context})\n"
-                f"{diagnostic}",
-            )
-            dump_path = _dump_records(records)
-            raise AssertionError(
-                f"Trie invariant check failed: {name} ({context})\n"
-                f"{diagnostic}\n"
-                f"Records dumped to: {dump_path}"
-            )
-    logging.info(f"all trie invariant checks passed ({context})")
+        # apply explode transformation
+        long_df = _make_exploded_slice(
+            df_slice=df_slice,
+            num_slices=num_slices,
+            slice_index=slice_idx,
+        )
 
+        # pass exploded data to consumer through queue via tmpfile
+        # (better performing for fast read than passing directly through queue)
+        logging.info("- worker putting exploded data")
+        outpath = f"/tmp/{uuid.uuid4()}.arrow"
+        long_df.select(pl.all().shrink_dtype()).write_ipc(
+            outpath, compression="uncompressed"
+        )
+        del long_df  # clear memory
+        queue.put(outpath)
+        logging.info("- worker waiting for consumption")
+        queue.join()  # wait for produced item to be consumed
+        logging.info("- worker wait complete")
 
-def _read_slice(inpath: str, pa_source_type: str) -> dict:
-    """Read an Arrow IPC slice from disk and convert columns to numpy."""
-    logging.info(f"_read_slice {inpath} using {pa_source_type=}")
-    _cols = ("dstream_data_id", "dstream_T", "dstream_Tbar", "dstream_value")
-    with log_context_duration(f"pa.ipc.open_file {inpath}", logging.info):
-        with getattr(pa, pa_source_type)(inpath, "rb") as source:
-            pa_table = pa.ipc.open_file(source).read_all()
-    np_arrays = {}
-    for col in _cols:
-        with log_context_duration(
-            f"pa_table['{col}'].to_numpy()", logging.info
-        ):
-            np_arrays[col] = pa_table[col].to_numpy()
-    return np_arrays
-
-
-def _readahead_slices(
-    slices: typing.Iterator[str],
-    pa_source_type: str,
-) -> typing.Iterator[typing.Tuple[str, dict]]:
-    """Yield (inpath, np_arrays) pairs, prefetching the next slice in a
-    background thread while the caller processes the current one."""
-    slices_iter = iter(slices)
-    first = next(slices_iter, None)
-    if first is None:
-        return
-    with futures.ThreadPoolExecutor(max_workers=1) as reader:
-        future = reader.submit(_read_slice, first, pa_source_type)
-        inpath = first
-        for next_inpath in slices_iter:
-            np_arrays = future.result()
-            future = reader.submit(_read_slice, next_inpath, pa_source_type)
-            yield inpath, np_arrays
-            inpath = next_inpath
-        yield inpath, future.result()
+    logging.info("- worker putting sentinel value to signal completion")
+    queue.put(None)  # send sentinel value to signal completion
+    logging.info(" - worker complete")
 
 
 def _build_records_chunked(
     slices: typing.Iterator[str],
     collapse_unif_freq: int,
-    check_trie_invariant_freq: int,
-    check_trie_invariant_after_collapse_unif: bool,
     dstream_S: int,
     exploded_slice_size: int,
-    pa_source_type: str,
 ) -> Records:
     """Build tree searchtable from DataFrame, exploding in chunks to reduce
     memory usage."""
@@ -386,72 +212,43 @@ def _build_records_chunked(
     records = Records(init_size)  # handle for C++ tree-building data
 
     logging.info("consuming from exploded df worker")
-    nslices = len(slices)
-    for i, (inpath, np_arrays) in enumerate(
-        _readahead_slices(slices, pa_source_type),
-    ):
+    for i, inpath in enumerate(slices):
         logging.info(
-            f"taking exploded df off queue ({i + 1} / {nslices})...",
+            f"taking exploded df off queue ({i + 1} / {len(slices)})...",
         )
 
-        try:
-            logging.info(
-                f"incorporating slice ({i + 1} / {nslices})...",
-            )
+        logging.info(
+            f"opening slice ({i + 1} / {len(slices)}) from {inpath}...",
+        )
+        with pa.memory_map(inpath, "rb") as source:  # use pyarrow fast reader
+            pa_array = pa.ipc.open_file(source).read_all()
+
+            logging.info(f"incorporating slice ({i + 1} / {len(slices)})...")
             with log_context_duration(
                 "extend_tree_searchtable_cpp_from_exploded "
-                f"({i + 1} / {nslices})",
+                f"({i + 1} / {len(slices)})",
                 logging.info,
             ):
                 # dispatch to C++ tree-building implementation
                 extend_tree_searchtable_cpp_from_exploded(
                     records,
-                    np_arrays["dstream_data_id"],
-                    np_arrays["dstream_T"],
-                    np_arrays["dstream_Tbar"],
-                    np_arrays["dstream_value"],
+                    pa_array["dstream_data_id"].to_numpy(),
+                    pa_array["dstream_T"].to_numpy(),
+                    pa_array["dstream_Tbar"].to_numpy(),
+                    pa_array["dstream_value"].to_numpy(),
                     tqdm.tqdm,
                 )
-        finally:
-            logging.info(f"unlinking slice {i + 1} / {nslices}...")
-            pathlib.Path(inpath).unlink(missing_ok=True)
 
-        if (
-            check_trie_invariant_freq > 0
-            and (i + 1) % check_trie_invariant_freq == 0
-        ):
-            with log_context_duration(
-                "_run_trie_invariant_checks "
-                f"(before collapse, slice {i + 1} / {nslices})",
-                logging.info,
-            ):
-                _run_trie_invariant_checks(
-                    records,
-                    f"before collapse, after slice {i + 1} / {nslices}",
-                )
+        logging.info(f"unlinking slice {i + 1} / {len(slices)}...")
+        os.unlink(inpath)
 
         if collapse_unif_freq > 0 and (i + 1) % collapse_unif_freq == 0:
             with log_context_duration(
                 "collapse_unifurcations(dropped_only=True) "
-                f"({i + 1} / {nslices})",
+                f"({i + 1} / {len(slices)})",
                 logging.info,
             ):
                 records = collapse_unifurcations(records, dropped_only=True)
-
-        if (
-            check_trie_invariant_after_collapse_unif
-            and check_trie_invariant_freq > 0
-            and (i + 1) % check_trie_invariant_freq == 0
-        ):
-            with log_context_duration(
-                "_run_trie_invariant_checks "
-                f"(after collapse, slice {i + 1} / {nslices})",
-                logging.info,
-            ):
-                _run_trie_invariant_checks(
-                    records,
-                    f"after collapse, after slice {i + 1} / {nslices}",
-                )
 
         log_memory_usage(logging.info)
 
@@ -478,25 +275,14 @@ def _build_records_chunked(
 
 
 def _join_user_defined_columns(
-    df: pl.DataFrame,
-    phylo_df: pl.DataFrame,
-    drop_dstream_metadata: typing.Optional[bool],
+    df: pl.DataFrame, phylo_df: pl.DataFrame
 ) -> pl.DataFrame:
     """Join user-defined columns from input data onto reconstructed tree
     dataframe."""
-    if drop_dstream_metadata is None:  # default behavior
-        df = df.select(
-            pl.exclude("^dstream_.*$", "^downstream_.*$"),
-            pl.col("dstream_data_id").cast(pl.UInt64),
-        )
-    elif bool(drop_dstream_metadata):
-        raise NotImplementedError(
-            "explicit --drop-dstream-metadata is not yet supported",
-        )
-    else:
-        df = df.with_columns(
-            pl.col("dstream_data_id").cast(pl.UInt64),
-        )
+    df = df.select(
+        pl.exclude("^dstream_.*$", "^downstream_.*$"),
+        pl.col("dstream_data_id").cast(pl.UInt64),
+    )
     joined_columns = {*df.lazy().collect_schema().names()} - {
         *phylo_df.lazy().collect_schema().names()
     }
@@ -504,11 +290,7 @@ def _join_user_defined_columns(
         logging.info(f" - {len(joined_columns)} column(s) to join")
         logging.info(f" - joining columns: {[*joined_columns]}")
         phylo_df = phylo_df.join(
-            df.lazy().collect(),
-            how="left",
-            maintain_order="left",
-            on="dstream_data_id",
-            validate="1:1",
+            df.lazy().collect(), on="dstream_data_id", how="left"
         )
     else:
         logging.info(" - no columns to join, skipping")
@@ -539,13 +321,12 @@ def _construct_result_dataframe(
             schema=schema,
         )
         .with_columns(
-            pl.col("dstream_data_id").replace(placeholder_value, None),
             pl.lit(differentia_bitwidth)
             .alias("hstrat_differentia_bitwidth")
             .cast(pl.UInt32),
             pl.lit(dstream_S).alias("dstream_S").cast(pl.UInt32),
         )
-        .rename({"rank": "dstream_rank"})
+        .rename({"rank": "hstrat_rank"})
     )
 
 
@@ -553,23 +334,18 @@ def _surface_unpacked_reconstruct(
     slices: typing.Iterator[str],
     *,
     collapse_unif_freq: int,
-    check_trie_invariant_freq: int,
-    check_trie_invariant_after_collapse_unif: bool,
     differentia_bitwidth: int,
     dstream_S: int,
     exploded_slice_size: int,
-    pa_source_type: str,
 ) -> pl.DataFrame:
     """Reconstruct phylogenetic tree from unpacked dstream data."""
     logging.info("building tree searchtable chunkwise...")
+
     records = _build_records_chunked(
         slices,
         collapse_unif_freq=collapse_unif_freq,
-        check_trie_invariant_freq=check_trie_invariant_freq,
-        check_trie_invariant_after_collapse_unif=check_trie_invariant_after_collapse_unif,
         dstream_S=dstream_S,
         exploded_slice_size=exploded_slice_size,
-        pa_source_type=pa_source_type,
     )
 
     with log_context_duration("_construct_result_dataframe", logging.info):
@@ -593,16 +369,9 @@ def _generate_exploded_slices_mp(
     df: typing.Union[pl.LazyFrame, pl.DataFrame],
     exploded_slice_size: int,
     mp_context: str,
-    mp_pool_size: int,
-    shuffle_over_same_T_seed: typing.Optional[int] = None,
 ) -> typing.Iterator[typing.Iterator[str]]:
-    """Generator wrapping generation of exploded data frame slices via
-    parallel multiprocess producer(s)."""
-    if mp_pool_size < 1:
-        raise NotImplementedError(
-            f"mp_pool_size must be >= 1, got {mp_pool_size}"
-        )
-
+    """Generator wrapping genreation of exploded data frame slices via
+    parallel multiprocess producer."""
     try:  # RE https://docs.pola.rs/user-guide/misc/multiprocessing/
         logging.info(f"attempting to use multiprocessing {mp_context} context")
         mp_context = multiprocessing.get_context(mp_context)
@@ -610,60 +379,39 @@ def _generate_exploded_slices_mp(
         logging.info("attempting to use multiprocessing spawn context")
         mp_context = multiprocessing.get_context("spawn")
 
-    # prepare (unpack, sort, add row index) in the main process
-    df = _prepare_df_for_explosion(
-        df, mp_context, mp_pool_size, shuffle_over_same_T_seed
+    logging.info("creating work queue")
+    queue = mp_context.JoinableQueue()
+
+    logging.info("spawning exploded df worker")
+    producer = mp_context.Process(
+        target=_produce_exploded_slices,
+        args=(queue, df, exploded_slice_size),  # lazyframe is cheap to send
+    )
+    logging.info("starting exploded df worker")
+    producer.start()
+
+    num_slices = (
+        df.lazy().select(pl.len()).collect().item() + (exploded_slice_size - 1)
+    ) // exploded_slice_size
+
+    yield give_len(  # enable len() on generator for nice logging
+        # yield generated slices until sentinel value None is received,
+        # immediately marking items as consumed (`task_done`) to trigger
+        # the next item to be produced if queue has been emptied
+        iter(lambda: (queue.get(), queue.task_done())[0], None),
+        num_slices,
     )
 
-    # write prepared df to a temp Arrow file so workers receive a
-    # scan_ipc LazyFrame (just a file path) instead of pickled data
-    df_path = f"/tmp/{uuid.uuid4()}_prepared.arrow"  # nosec B108
-    nrows_log = len(df)
-    logging.info(f"writing prepared df ({nrows_log} rows) to {df_path}")
-    df.write_ipc(df_path, compression="lz4")
-    del df
-    gc.collect()
-
-    try:
-        logging.info(f"scanning {df_path}")
-        lf = pl.scan_ipc(df_path)
-
-        slices = [*iter_slices(nrows_log, exploded_slice_size)]
-        nslices_log = len(slices)
-        logging.info(
-            f"{nrows_log=} {exploded_slice_size=} {nslices_log=}",
-        )
-
-        logging.info(
-            f"creating multiprocessing pool with {mp_pool_size} workers",
-        )
-        with mp_context.Pool(
-            processes=mp_pool_size,
-            initializer=configure_prod_logging,
-        ) as pool:
-            yield give_len(
-                pool.imap(
-                    _explode_and_write_slice,
-                    [(lf, s) for s in slices],
-                ),
-                nslices_log,
-            )
-    finally:
-        pathlib.Path(df_path).unlink(missing_ok=True)
+    producer.join()  # wait for producer to finish (no effect, but good form)
 
 
 def surface_unpack_reconstruct(
     df: typing.Union[pl.DataFrame, pl.LazyFrame],
     *,
     collapse_unif_freq: int = 1,
-    check_trie_invariant_freq: int = 0,
-    check_trie_invariant_after_collapse_unif: bool = False,
-    drop_dstream_metadata: typing.Optional[bool] = None,
     exploded_slice_size: int = 1_000_000,
     mp_context: str = "spawn",
-    mp_pool_size: int = 1,
-    pa_source_type: str = "memory_map",
-    shuffle_over_same_T_seed: typing.Optional[int] = None,
+    reconstruction_algorithm: ReconstructionAlgorithm = ReconstructionAlgorithm.SHORTCUT,
 ) -> pl.DataFrame:
     """Unpack dstream buffer and counter from genome data and construct an
     estimated phylogenetic tree for the genomes.
@@ -712,41 +460,16 @@ def surface_unpack_reconstruct(
 
         Set to 0 to disable.
 
-    check_trie_invariant_freq : int, default 0
-        Frequency of trie invariant checks, in number of slices.
-
-        Set to 0 to disable (default).
-        Set to n > 0 to check every n slices.
-
-    drop_dstream_metadata : bool or None, default None
-        Should dstream/downstream columns be dropped from the output?
-
-        - If None, some dstream/downstream columns are dropped
-          (default behavior).
-        - If False, dstream/downstream columns are retained in the output.
-        - If True, raises NotImplementedError (not yet supported).
-
     exploded_slice_size : int, default 1_000_000
         Number of rows to process at once. Lower values reduce memory usage.
 
     mp_context : str, default 'spawn'
         Multiprocessing context to use for parallel processing.
 
-    mp_pool_size : int, default 1
-        Number of worker processes for exploding slices in parallel.
-
-        When 1, a single producer process is used (original behavior).
-        When greater than 1, a multiprocessing pool is used with ordered
-        results via ``Pool.imap``.
-
-    pa_source_type : str, default 'memory_map'
-        PyArrow type to use for exploded chunks (i.e., "memory_map" or
-        "OSFile").
-
-    shuffle_over_same_T_seed : int or None, default None
-        If not None, shuffle rows within same-dstream_T groups after
-        sorting but before exploding. The value is used as the random
-        seed for reproducibility. Set to None to disable (default).
+    reconstruction_algorithm : ReconstructionAlgorithm, default SHORTCUT
+        Reconstruction algorithm to use. ReconstructionAlgorithm.SHORTCUT
+        should nearly always be used, but ReconstructionAlgorithm.NAIVE
+        is also supported for benchmarking and evaluation purposes.
 
     Returns
     -------
@@ -758,7 +481,7 @@ def surface_unpack_reconstruct(
             - Unique identifier for each taxon (RE alife standard format).
         - 'ancestor_id' : pl.UInt64
             - Unique identifier for ancestor taxon  (RE alife standard format).
-        - 'dstream_rank' : pl.UInt64
+        - 'hstrat_rank' : pl.UInt64
             - Num generations elapsed for ancestral differentia.
             - Corresponds to`dstream_Tbar` for inner nodes.
             - Corresponds `dstream_T` - 1 for leaf nodes
@@ -791,44 +514,15 @@ def surface_unpack_reconstruct(
     render_polars_snapshot(df, "packed", logging.info)
     logging.info(f"packed {type(df)=}")
 
-    logging.info("ensuring uint64 dstream_data_id...")
-    df = df.with_columns(
-        dstream_data_id=pl.coalesce(
-            pl.col("^dstream_data_id$"),
-            pl.int_range(pl.len(), dtype=pl.UInt64),
-        ).cast(pl.UInt64),
-    )
-    render_polars_snapshot(df, "coalesced", logging.info)
-
-    if (
-        df.lazy()
-        .select((pl.col("dstream_data_id") == placeholder_value).any())
-        .collect()
-        .item()
-    ):
-        raise ValueError(
-            "Input genome dataframe 'dstream_data_id' column contains "
-            f"the reserved placeholder value {placeholder_value}. "
-            "This value is used internally to mark inner tree nodes "
-            "and must not appear in input data.",
-        )
-
     # for simplicity, return early for this special case
     if df.lazy().limit(1).collect().is_empty():
-        logging.warning("empty input dataframe, returning empty result")
-        core_schema = {
-            "dstream_data_id": pl.UInt64,
-            "id": pl.UInt64,
-            "ancestor_id": pl.UInt64,
-            "dstream_rank": pl.UInt64,
-            "hstrat_differentia_bitwidth": pl.UInt32,
-            "dstream_S": pl.UInt32,
-        }
-        return _join_user_defined_columns(
-            df,
-            pl.DataFrame(schema=core_schema),
-            drop_dstream_metadata,
-        )
+        logging.info("empty input dataframe, returning empty result")
+        res = alifestd_make_empty()
+        res["taxon_label"] = None
+        res["hstrat_rank"] = pd.Series(dtype=int)
+        res["hstrat_differentia_bitwidth"] = pd.Series(dtype=int)
+        res["dstream_S"] = pd.Series(dtype=int)
+        return pl.from_pandas(res)
 
     logging.info("extracting metadata...")
     dstream_storage_bitwidth = get_sole_scalar_value_polars(
@@ -846,30 +540,72 @@ def surface_unpack_reconstruct(
         )
     differentia_bitwidth = dstream_storage_bitwidth // dstream_S
     logging.info(f" - differentia bitwidth: {differentia_bitwidth}")
-
-    logging.info("dispatching to surface_unpacked_reconstruct")
-    with _generate_exploded_slices_mp(
-        df,
-        exploded_slice_size,
-        mp_context,
-        mp_pool_size,
-        shuffle_over_same_T_seed,
-    ) as slices:
-        phylo_df = _surface_unpacked_reconstruct(
-            slices,
-            collapse_unif_freq=collapse_unif_freq,
-            check_trie_invariant_freq=check_trie_invariant_freq,
-            check_trie_invariant_after_collapse_unif=check_trie_invariant_after_collapse_unif,
-            differentia_bitwidth=differentia_bitwidth,
-            dstream_S=dstream_S,
-            exploded_slice_size=exploded_slice_size,
-            pa_source_type=pa_source_type,
+    if reconstruction_algorithm == ReconstructionAlgorithm.NAIVE:
+        if "downstream_exclude_exploded" in df.columns:
+            df = df.filter(
+                pl.col("downstream_exclude_exploded").not_().fill_null(True)
+            ).drop("downstream_exclude_exploded")
+        if "dstream_data_id" not in df.columns:
+            df = df.with_row_index("dstream_data_id").with_columns(
+                pl.col("dstream_data_id").cast(pl.UInt64)
+            )
+        population = [
+            surf_from_hex(
+                hex,
+                eval(algo, {"dstream": dstream.dstream}),
+                dstream_S=S,
+                dstream_T_bitwidth=T_bitwidth,
+                dstream_T_bitoffset=T_bitoffset,
+                dstream_storage_bitwidth=storage_bitwidth,
+                dstream_storage_bitoffset=storage_bitoffset,
+            )
+            for hex, algo, S, T_bitwidth, T_bitoffset, storage_bitwidth, storage_bitoffset in df.lazy()
+            .select(
+                [
+                    "data_hex",
+                    "dstream_algo",
+                    "dstream_S",
+                    "dstream_T_bitwidth",
+                    "dstream_T_bitoffset",
+                    "dstream_storage_bitwidth",
+                    "dstream_storage_bitoffset",
+                ]
+            )
+            .collect()
+            .iter_rows()
+        ]
+        phylo_df = pl.from_pandas(
+            build_tree_trie(
+                population,
+                [*df.lazy().collect()["taxon_label"]],
+                force_common_ancestry=True,
+            )
+        ).join(
+            df.select(["taxon_label", "dstream_data_id"]).lazy().collect(),
+            on="taxon_label",
+            how="left",
         )
+    else:
+        logging.info("dispatching to surface_unpacked_reconstruct")
+        with _generate_exploded_slices_mp(
+            df, exploded_slice_size, mp_context
+        ) as slices:
+            phylo_df = _surface_unpacked_reconstruct(
+                slices,
+                collapse_unif_freq=collapse_unif_freq,
+                differentia_bitwidth=differentia_bitwidth,
+                dstream_S=dstream_S,
+                exploded_slice_size=exploded_slice_size,
+            )
 
     logging.info("joining user-defined columns...")
     with log_context_duration("_join_user_defined_columns", logging.info):
-        phylo_df = _join_user_defined_columns(
-            df, phylo_df, drop_dstream_metadata
-        )
+        try:
+            phylo_df = _join_user_defined_columns(df, phylo_df)
+        except pl.exceptions.ColumnNotFoundError:
+            phylo_df = _join_user_defined_columns(
+                df.with_row_index("dstream_data_id"),
+                phylo_df,
+            )
 
     return phylo_df

@@ -1,8 +1,8 @@
 import os
 
-from phyloframe import legacy as pfl
 import polars as pl
 
+from hstrat._auxiliary_lib import alifestd_count_leaf_nodes
 from hstrat.dataframe import surface_test_drive
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
@@ -17,7 +17,7 @@ def test_smoke():
         dstream_S=64,
         stratum_differentia_bit_width=1,
     )
-    assert len(pop) == pfl.alifestd_count_leaf_nodes(df)
+    assert len(pop) == alifestd_count_leaf_nodes(df)
     assert "origin_time" in pop.columns
     assert "data_hex" in pop.columns
     assert (pop["dstream_storage_bitwidth"] == 64).all()

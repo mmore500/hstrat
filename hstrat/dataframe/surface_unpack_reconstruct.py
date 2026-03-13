@@ -7,13 +7,15 @@ import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 
 from .._auxiliary_lib import (
-    begin_prod_logging,
+    configure_prod_logging,
     format_cli_description,
     get_hstrat_version,
     log_context_duration,
 )
-from .._auxiliary_lib._add_bool_arg import add_bool_arg
-from ._surface_unpack_reconstruct import surface_unpack_reconstruct
+from ._surface_unpack_reconstruct import (
+    ReconstructionAlgorithm,
+    surface_unpack_reconstruct,
+)
 
 raw_message = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
 
@@ -74,9 +76,6 @@ Additional user-provided columns will be forwarded to phylogeny output.
 For these columns, output rows for tip nodes are assigned values from corresponding genome row in original data.
 Internal tree nodes will take null values in user-provided columns.
 
-By default, columns prefixed with 'dstream_' or 'downstream_' are dropped from output (except 'dstream_data_id' and 'dstream_S').
-Use --no-drop-dstream-metadata to retain these columns.
-
 
 Output Schema
 =============
@@ -86,7 +85,7 @@ Output Schema
 'ancestor_id' : integer
     Unique identifier for ancestor taxon (RE alife standard format).
 
-'dstream_rank' : integer
+'hstrat_rank' : floating point or integer
     Num generations elapsed for ancestral differentia (a.k.a. rank).
     Corresponds to `dstream_Tbar` for inner nodes.
     Corresponds `dstream_T` - 1 for leaf nodes.
@@ -142,7 +141,6 @@ Environment variables POLARS_MAX_THREADS and NUMBA_NUM_THREADS may be used to tu
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
-        allow_abbrev=False,
         description=format_cli_description(raw_message),
         formatter_class=argparse.RawTextHelpFormatter,
     )
@@ -158,73 +156,24 @@ def _create_parser() -> argparse.ArgumentParser:
         help="How often should dropped unifurcations be garbage collected?",
     )
     parser.add_argument(
-        "--check-trie-invariant-freq",
-        type=int,
-        default=0,
-        help=(
-            "How often should trie invariant checks be run? "
-            "Set to 0 to disable (default). "
-            "Set to n > 0 to check every n slices."
-        ),
-    )
-    add_bool_arg(
-        parser,
-        "check-trie-invariant-after-collapse-unif",
-        default=False,
-        help=(
-            "Should trie invariant checks also be run after collapse "
-            "unifurcations? Default is False (checks run before collapse only)."
-        ),
-    )
-    parser.add_argument(
         "--exploded-slice-size",
         type=int,
         default=1_000_000,
         help="Number of rows to process at once. Low values reduce memory use.",
     )
     parser.add_argument(
-        "--mp-pool-size",
-        type=int,
-        default=1,
-        help=(
-            "Number of worker processes for exploding slices in parallel. "
-            "Default 1 (single producer process)."
-        ),
-    )
-    add_bool_arg(
-        parser,
-        "drop-dstream-metadata",
-        default=None,
-        help=(
-            "Drop all dstream/downstream columns from the output? "
-            "Omit for default behavior (drop some metadata). "
-            "Use --no-drop-dstream-metadata to retain."
-        ),
-    )
-    parser.add_argument(
-        "--pa-source-type",
-        type=str,
-        default="memory_map",
-        help=(
-            "PyArrow type to use for exploded chunks "
-            """(i.e., "memory_map" or "OSFile")."""
-        ),
-    )
-    parser.add_argument(
-        "--shuffle-over-same-T-seed",
-        type=int,
-        default=None,
-        help=(
-            "If set, shuffle rows within same-dstream_T groups after "
-            "sorting but before exploding. Value is the random seed."
-        ),
+        "--reconstruction-algorithm",
+        type=ReconstructionAlgorithm,
+        default=ReconstructionAlgorithm.SHORTCUT,
+        choices=list(ReconstructionAlgorithm),
+        help='Phylogenetic tree reconstruction algorithm to use. "shortcut" should be used unless benchmarking naive approach.',
     )
     return parser
 
 
 def _main(mp_context: str) -> None:
     parser = _create_parser()
-    args, __ = parser.parse_known_args()
+    args, _ = parser.parse_known_args()
 
     with log_context_duration(
         "hstrat.dataframe.surface_unpack_reconstruct", logging.info
@@ -234,18 +183,13 @@ def _main(mp_context: str) -> None:
             output_dataframe_op=functools.partial(
                 surface_unpack_reconstruct,
                 collapse_unif_freq=args.collapse_unif_freq,
-                check_trie_invariant_freq=args.check_trie_invariant_freq,
-                check_trie_invariant_after_collapse_unif=args.check_trie_invariant_after_collapse_unif,
-                drop_dstream_metadata=args.drop_dstream_metadata,
                 exploded_slice_size=args.exploded_slice_size,
+                reconstruction_algorithm=args.reconstruction_algorithm,
                 mp_context=mp_context,
-                mp_pool_size=args.mp_pool_size,
-                pa_source_type=args.pa_source_type,
-                shuffle_over_same_T_seed=args.shuffle_over_same_T_seed,
             ),
         )
 
 
 if __name__ == "__main__":
-    begin_prod_logging()
+    configure_prod_logging()
     _main("spawn")

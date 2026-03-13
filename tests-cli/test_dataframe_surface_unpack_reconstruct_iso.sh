@@ -23,10 +23,8 @@ err() {
 trap err ERR
 
 # get example genome data
-cp /tmp/hstrat-gnkbc.pqt "${genomes}" 2>/dev/null \
-    || { wget -O "${genomes}" https://osf.io/gnkbc/download \
-    > "${HSTRAT_TESTS_CLI_STDOUT}" 2>&1 \
-    && cp "${genomes}" /tmp/hstrat-gnkbc.pqt; }
+wget -O "${genomes}" https://osf.io/gnkbc/download \
+    > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
 # unpack and reconstruct reference
 ls -1 "${genomes}" \
@@ -55,7 +53,7 @@ for opt in \
         ${HSTRAT_TESTS_CLI_HEAD:-} ${opt} \
         > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
-    if python3 -m phyloframe.legacy._alifestd_test_leaves_isomorphic_asexual \
+    if python3 -m hstrat._auxiliary_lib._alifestd_test_leaves_isomorphic_asexual \
         --taxon-label "dstream_data_id" \
         "${reference}" "${alternate}" \
         > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1 \
