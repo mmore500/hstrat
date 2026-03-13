@@ -63,9 +63,9 @@ def patch_phyloframe() -> None:
         def _patched_reroot(phylogeny_df, *args, **kwargs):
             # Force ancestor_id column to have writable numpy backing
             phylogeny_df = phylogeny_df.copy()
-            phylogeny_df["ancestor_id"] = phylogeny_df[
-                "ancestor_id"
-            ].to_numpy().copy()
+            phylogeny_df["ancestor_id"] = (
+                phylogeny_df["ancestor_id"].to_numpy().copy()
+            )
             if "id" in phylogeny_df.columns:
                 phylogeny_df["id"] = phylogeny_df["id"].to_numpy().copy()
             return _orig_reroot(phylogeny_df, *args, **kwargs)
