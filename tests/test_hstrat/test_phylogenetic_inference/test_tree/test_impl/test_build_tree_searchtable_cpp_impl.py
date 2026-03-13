@@ -1,11 +1,7 @@
+from phyloframe import legacy as pfl
 import polars as pl
 from tqdm import tqdm
 
-from hstrat._auxiliary_lib import (
-    alifestd_is_chronologically_ordered,
-    alifestd_try_add_ancestor_list_col,
-    alifestd_validate,
-)
 from hstrat.phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
     Records,
     build_tree_searchtable_cpp_from_exploded,
@@ -139,11 +135,11 @@ def test_regression_original():
         tqdm,
     )
     res = pl.DataFrame(res)
-    assert alifestd_validate(
-        alifestd_try_add_ancestor_list_col(res.to_pandas()),
+    assert pfl.alifestd_validate(
+        pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
     )
-    assert alifestd_is_chronologically_ordered(
-        alifestd_try_add_ancestor_list_col(
+    assert pfl.alifestd_is_chronologically_ordered(
+        pfl.alifestd_try_add_ancestor_list_col(
             res.with_columns(origin_time=pl.col("rank")).to_pandas(),
         ),
     )
@@ -200,11 +196,11 @@ def test_regression_distilled():
         tqdm,
     )
     res = pl.DataFrame(res)
-    assert alifestd_validate(
-        alifestd_try_add_ancestor_list_col(res.to_pandas()),
+    assert pfl.alifestd_validate(
+        pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
     )
-    assert alifestd_is_chronologically_ordered(
-        alifestd_try_add_ancestor_list_col(
+    assert pfl.alifestd_is_chronologically_ordered(
+        pfl.alifestd_try_add_ancestor_list_col(
             res.with_columns(origin_time=pl.col("rank")).to_pandas(),
         ),
     )

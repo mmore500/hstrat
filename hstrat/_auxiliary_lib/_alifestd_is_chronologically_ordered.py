@@ -1,6 +1,7 @@
 import io
 import warnings
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 from ._alifestd_find_chronological_inconsistency import (
@@ -89,6 +90,10 @@ def _report_diagnosis(df: pd.DataFrame, taxon_id: int) -> None:
     warnings.warn("\n".join(warning_lines))
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_is_chronologically_ordered instead.",
+)
 def alifestd_is_chronologically_ordered(
     phylogeny_df: pd.DataFrame,
     diagnose: bool = True,

@@ -40,3 +40,5 @@ RUN python3 -m hstrat.dataframe.surface_unpack_reconstruct --help
 # Clean up
 RUN apt-get clean \
     && rm -rf /root/.cache /tmp/* /app
+
+ENTRYPOINT echo "Error:  no default entrypoint; use 'singularity exec python3 -m hstrat' instead of 'singularity run'." >&2; exit 1

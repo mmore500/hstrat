@@ -6,11 +6,11 @@ import random
 import alifedata_phyloinformatics_convert as apc
 from downstream import dstream, dsurf
 import pandas as pd
+from phyloframe import legacy as pfl
 import pytest
 from tqdm import tqdm
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import alifestd_find_leaf_ids
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
@@ -106,7 +106,7 @@ def test_descend_template_phylogeny(
         tree.leaf_node_iter(),
         key=lambda node: id_index.get_loc(node.id),
     )
-    assert [n.id for n in sorted_leaf_nodes] == alifestd_find_leaf_ids(
+    assert [n.id for n in sorted_leaf_nodes] == pfl.alifestd_find_leaf_ids(
         phylogeny_df
     ).tolist()
     for extant_ids, sorted_extant_nodes in (
@@ -252,7 +252,7 @@ def test_descend_template_phylogeny_surface(
         tree.leaf_node_iter(),
         key=lambda node: id_index.get_loc(node.id),
     )
-    assert [n.id for n in sorted_leaf_nodes] == alifestd_find_leaf_ids(
+    assert [n.id for n in sorted_leaf_nodes] == pfl.alifestd_find_leaf_ids(
         phylogeny_df
     ).tolist()
     for extant_ids, sorted_extant_nodes in (

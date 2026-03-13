@@ -1,3 +1,4 @@
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -11,6 +12,10 @@ from ._alifestd_mark_sister_asexual import alifestd_mark_sister_asexual
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_screen_trait_defined_clades_naive_asexual instead.",
+)
 def alifestd_screen_trait_defined_clades_naive_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

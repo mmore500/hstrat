@@ -1,3 +1,4 @@
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -40,6 +41,10 @@ def _is_topologically_sorted(
     return True
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_is_topologically_sorted instead.",
+)
 def alifestd_is_topologically_sorted(phylogeny_df: pd.DataFrame) -> bool:
     """Are all organisms listed after members of their `ancestor_list`?
 

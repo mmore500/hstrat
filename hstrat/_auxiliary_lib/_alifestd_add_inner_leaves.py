@@ -1,21 +1,36 @@
 import argparse
+import functools
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
 import pandas as pd
 
+from ._add_bool_arg import add_bool_arg
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_mark_leaves import alifestd_mark_leaves
-from ._configure_prod_logging import configure_prod_logging
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
+)
+from ._begin_prod_logging import begin_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=True,
+    delete=False,
+    update=False,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_add_inner_leaves instead.",
+)
 def alifestd_add_inner_leaves(
     phylogeny_df: pd.DataFrame, mutate: bool = False
 ) -> pd.DataFrame:
@@ -78,6 +93,7 @@ Additional Notes
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
+        allow_abbrev=False,
         description=format_cli_description(_raw_description),
         formatter_class=argparse.RawTextHelpFormatter,
     )
@@ -86,11 +102,23 @@ def _create_parser() -> argparse.ArgumentParser:
         dfcli_module="hstrat._auxiliary_lib._alifestd_add_inner_leaves",
         dfcli_version=get_hstrat_version(),
     )
+    add_bool_arg(
+        parser,
+        "ignore-topological-sensitivity",
+        default=False,
+        help="suppress topological sensitivity warning (default: False)",
+    )
+    add_bool_arg(
+        parser,
+        "drop-topological-sensitivity",
+        default=False,
+        help="drop topology-sensitive columns from output (default: False)",
+    )
     return parser
 
 
 if __name__ == "__main__":
-    configure_prod_logging()
+    begin_prod_logging()
 
     parser = _create_parser()
     args, __ = parser.parse_known_args()
@@ -100,6 +128,10 @@ if __name__ == "__main__":
         _run_dataframe_cli(
             base_parser=parser,
             output_dataframe_op=delegate_polars_implementation()(
-                alifestd_add_inner_leaves,
+                functools.partial(
+                    alifestd_add_inner_leaves,
+                    ignore_topological_sensitivity=args.ignore_topological_sensitivity,
+                    drop_topological_sensitivity=args.drop_topological_sensitivity,
+                ),
             ),
         )

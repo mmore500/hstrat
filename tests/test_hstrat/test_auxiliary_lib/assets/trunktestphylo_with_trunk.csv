@@ -1,0 +1,5 @@
+id,ancestor_list,is_trunk
+0,[none],True
+1,[0],True
+2,[1],False
+3,[1],False

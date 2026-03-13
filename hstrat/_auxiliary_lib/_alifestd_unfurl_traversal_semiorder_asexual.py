@@ -1,6 +1,7 @@
 import itertools as it
 import typing
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -132,6 +133,10 @@ def _alifestd_unfurl_traversal_semiorder_asexual_slow_path(
     return result
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_unfurl_traversal_semiorder_asexual instead.",
+)
 def alifestd_unfurl_traversal_semiorder_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

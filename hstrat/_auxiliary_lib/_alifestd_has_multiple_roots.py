@@ -1,6 +1,11 @@
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_has_multiple_roots instead.",
+)
 def alifestd_has_multiple_roots(phylogeny_df: pd.DataFrame) -> bool:
     """Does the phylogeny two or more root organisms?
 

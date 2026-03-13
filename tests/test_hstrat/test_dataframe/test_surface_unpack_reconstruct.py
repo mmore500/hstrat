@@ -1,26 +1,156 @@
 import os
+import re
 
+from phyloframe import legacy as pfl
 import polars as pl
+import pytest
 
-from hstrat._auxiliary_lib import (
-    alifestd_is_chronologically_ordered,
-    alifestd_try_add_ancestor_list_col,
-    alifestd_validate,
-)
 from hstrat.dataframe import surface_unpack_reconstruct
+from hstrat.dataframe.surface_unpack_reconstruct import _create_parser
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
-def test_smoke():
+@pytest.mark.parametrize("pa_source_type", ["memory_map", "OSFile"])
+def test_smoke(pa_source_type: str):
     df = pl.read_csv(f"{assets_path}/packed.csv")
-    res = surface_unpack_reconstruct(df)
+    res = surface_unpack_reconstruct(df, pa_source_type=pa_source_type)
     assert len(res) > len(df)
-    assert alifestd_validate(
-        alifestd_try_add_ancestor_list_col(res.to_pandas()),
+    assert pfl.alifestd_validate(
+        pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
     )
-    assert alifestd_is_chronologically_ordered(
-        alifestd_try_add_ancestor_list_col(
-            res.with_columns(origin_time=pl.col("hstrat_rank")).to_pandas(),
+    assert pfl.alifestd_is_chronologically_ordered(
+        pfl.alifestd_try_add_ancestor_list_col(
+            res.with_columns(origin_time=pl.col("dstream_rank")).to_pandas(),
         ),
     )
+
+
+@pytest.mark.parametrize("mp_pool_size", [1, 2])
+def test_mp_pool_size(mp_pool_size: int):
+    df = pl.read_csv(f"{assets_path}/packed.csv")
+    res = surface_unpack_reconstruct(df, mp_pool_size=mp_pool_size)
+    assert len(res) > len(df)
+    assert pfl.alifestd_validate(
+        pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
+    )
+    assert pfl.alifestd_is_chronologically_ordered(
+        pfl.alifestd_try_add_ancestor_list_col(
+            res.with_columns(origin_time=pl.col("dstream_rank")).to_pandas(),
+        ),
+    )
+
+
+def test_drop_dstream_metadata_default():
+    """Default behavior (None) should drop dstream/downstream columns."""
+    df = pl.read_csv(f"{assets_path}/packed.csv")
+    res = surface_unpack_reconstruct(df)
+    dstream_cols = [
+        c
+        for c in res.columns
+        if re.match(r"^dstream_", c) or re.match(r"^downstream_", c)
+    ]
+    # only dstream_data_id, dstream_S, and dstream_rank should survive
+    assert set(dstream_cols) == {
+        "dstream_data_id",
+        "dstream_S",
+        "dstream_rank",
+    }
+
+
+def test_drop_dstream_metadata_true_raises():
+    """Passing drop_dstream_metadata=True should raise NotImplementedError."""
+    df = pl.read_csv(f"{assets_path}/packed.csv")
+    with pytest.raises(NotImplementedError):
+        surface_unpack_reconstruct(df, drop_dstream_metadata=True)
+
+
+def test_parser_no_prefix_matching_drop():
+    """Regression: --drop must not prefix-match --drop-dstream-metadata.
+
+    The parser uses parse_known_args before joinem registers --drop.
+    Without allow_abbrev=False, argparse prefix-matches --drop to
+    --drop-dstream-metadata, causing conflicts when both --drop and
+    --no-drop-dstream-metadata appear on the same command line.
+    """
+    parser = _create_parser()
+    # --drop is not registered on this parser (joinem adds it later),
+    # so it should pass through as an unknown arg
+    args, remaining = parser.parse_known_args(
+        [
+            "--no-drop-dstream-metadata",
+            "--drop",
+            "awoo",
+            "/dev/null",
+        ],
+    )
+    assert args.drop_dstream_metadata is False
+    assert "--drop" in remaining
+    assert "awoo" in remaining
+
+
+def test_empty():
+    """Regression: empty genome set should produce an empty phylogeny without
+    crashing, with the same columns and types as a non-empty result."""
+    df = pl.read_csv(f"{assets_path}/packed.csv")
+    full = surface_unpack_reconstruct(df)
+
+    res = surface_unpack_reconstruct(df.head(0))
+    assert len(res) == 0
+    assert set(res.schema.names()) == set(full.schema.names())
+    for col in full.schema.names():
+        assert (
+            res.schema[col] == full.schema[col]
+        ), f"type mismatch for {col}: {res.schema[col]} != {full.schema[col]}"
+
+
+def test_single_genome():
+    """Regression: a single genome should produce a valid phylogeny."""
+    df = pl.read_csv(f"{assets_path}/packed.csv").head(1)
+    res = surface_unpack_reconstruct(df)
+    assert len(res) >= 1
+    assert pfl.alifestd_validate(
+        pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
+    )
+    assert pfl.alifestd_is_chronologically_ordered(
+        pfl.alifestd_try_add_ancestor_list_col(
+            res.with_columns(origin_time=pl.col("dstream_rank")).to_pandas(),
+        ),
+    )
+
+
+def test_shuffle_over_same_T_seed():
+    """Smoke test: shuffle_over_same_T_seed produces a valid phylogeny."""
+    df = pl.read_csv(f"{assets_path}/packed.csv")
+    res = surface_unpack_reconstruct(df, shuffle_over_same_T_seed=42)
+    assert len(res) > len(df)
+    assert pfl.alifestd_validate(
+        pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
+    )
+    assert pfl.alifestd_is_chronologically_ordered(
+        pfl.alifestd_try_add_ancestor_list_col(
+            res.with_columns(
+                origin_time=pl.col("dstream_rank"),
+            ).to_pandas(),
+        ),
+    )
+
+
+def test_drop_dstream_metadata_false():
+    """Passing drop_dstream_metadata=False should retain dstream columns."""
+    df = pl.read_csv(f"{assets_path}/packed.csv")
+    res = surface_unpack_reconstruct(df, drop_dstream_metadata=False)
+    assert len(res) > len(df)
+    # dstream columns from input should be forwarded
+    input_dstream_cols = {
+        c
+        for c in df.columns
+        if re.match(r"^dstream_", c) or re.match(r"^downstream_", c)
+    }
+    output_dstream_cols = {
+        c
+        for c in res.columns
+        if re.match(r"^dstream_", c) or re.match(r"^downstream_", c)
+    }
+    # all original dstream columns should be present in output
+    assert input_dstream_cols <= output_dstream_cols

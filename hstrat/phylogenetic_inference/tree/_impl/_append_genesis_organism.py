@@ -1,6 +1,5 @@
 import pandas as pd
-
-from ...._auxiliary_lib import alifestd_find_root_ids
+from phyloframe import legacy as pfl
 
 
 def append_genesis_organism(
@@ -19,7 +18,7 @@ def append_genesis_organism(
             return alifestd_df
 
         genesis_id = alifestd_df["id"].max() + 1
-        for old_root_id in alifestd_find_root_ids(alifestd_df):
+        for old_root_id in pfl.alifestd_find_root_ids(alifestd_df):
             if "ancestor_id" in alifestd_df:
                 alifestd_df.loc[
                     alifestd_df["id"] == old_root_id, "ancestor_id"

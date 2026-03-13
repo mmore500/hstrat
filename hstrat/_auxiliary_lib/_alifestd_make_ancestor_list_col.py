@@ -1,3 +1,4 @@
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 from ._alifestd_make_ancestor_list_col_polars import (
@@ -9,6 +10,10 @@ from ._delegate_polars_implementation import (
 )
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_make_ancestor_list_col instead.",
+)
 @delegate_polars_implementation(alifestd_make_ancestor_list_col_polars)
 def alifestd_make_ancestor_list_col(
     ids: Series_T,

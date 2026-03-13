@@ -4,31 +4,30 @@ set -euo pipefail
 
 has_cppimport="$(python3 -m pip freeze | grep '^cppimport==' | wc -l)"
 if [ "${has_cppimport}" -eq 0 ]; then
-    echo "cppimport required for $(basename "$0") but not installed." >&2
-    echo "python3 -m pip install cppimport" >&2
+    echo "cppimport required for $(basename "$0") but not installed."
+    echo "python3 -m pip install cppimport"
     exit 1
 fi
 
 cd "$(dirname "$0")"
 
-id="$(date +"%H-%M-%S")-$(uuidgen)"
-genome_df_path="/tmp/end2end-raw-genome-evolve_surf_dstream_$id.pqt"
-true_phylo_df_path="/tmp/end2end-true-phylo-evolve_surf_dstream_$id.csv"
-reconst_phylo_df_path="/tmp/end2end-reconst-phylo-evolve_surf_dstream_$id.pqt"
+genome_df_path="/tmp/end2end-raw-genome-evolve_surf_dstream.pqt"
+true_phylo_df_path="/tmp/end2end-true-phylo-evolve_surf_dstream.csv"
+reconst_phylo_df_path="/tmp/end2end-reconst-phylo-evolve_surf_dstream.pqt"
 
 # generate data
 ./evolve_dstream_surf.py \
     "$@" \
     --genome-df-path "${genome_df_path}" \
     --phylo-df-path "${true_phylo_df_path}" \
-    >&2
+    >/dev/null 2>&1
 
 # do reconstruction
 ls "${genome_df_path}" | python3 -m \
     hstrat.dataframe.surface_unpack_reconstruct \
+    --exploded-slice-size 100000 \
     "${reconst_phylo_df_path}" \
-    --reconstruction-algorithm "${HSTRAT_RECONSTRUCTION_ALGO:-shortcut}" \
-    >&2
+    >/dev/null 2>&1
 
 # log output paths
 echo "genome_df_path = '${genome_df_path}'"

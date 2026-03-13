@@ -1,7 +1,12 @@
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_find_root_ids instead.",
+)
 def alifestd_find_root_ids(phylogeny_df: pd.DataFrame) -> np.ndarray:  # int
     """What ids have an empty `ancestor_list`?
 

@@ -3,12 +3,11 @@ import typing
 
 import opytional as opyt
 import pandas as pd
+from phyloframe import legacy as pfl
 
 from ..._auxiliary_lib import (
     HereditaryStratigraphicArtifact,
     RngStateContext,
-    alifestd_collapse_unifurcations,
-    alifestd_make_empty,
     anytree_tree_to_alife_dataframe,
     flag_last,
 )
@@ -18,7 +17,7 @@ from ._impl import TrieInnerNode, build_trie_from_artifacts
 
 def _finalize_trie(trie: TrieInnerNode) -> pd.DataFrame:
     "Convert to alifestd dataframe and collapse unifurcations."
-    return alifestd_collapse_unifurcations(
+    return pfl.alifestd_collapse_unifurcations(
         anytree_tree_to_alife_dataframe(trie), mutate=True
     )
 
@@ -36,7 +35,7 @@ def _build_tree_trie_ensemble(
     """
     # for simplicity, return early for this special case
     if len(population) == 0:
-        res = alifestd_make_empty()
+        res = pfl.alifestd_make_empty()
         res["origin_time"] = pd.Series(dtype=int)
         res["taxon_label"] = None
         return res

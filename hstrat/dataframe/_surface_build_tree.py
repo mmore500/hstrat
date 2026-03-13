@@ -12,8 +12,14 @@ def surface_build_tree(
     df: pl.DataFrame,
     *,
     collapse_unif_freq: int = 1,
+    check_trie_invariant_freq: int = 0,
+    check_trie_invariant_after_collapse_unif: bool = False,
+    drop_dstream_metadata: typing.Optional[bool] = None,
     exploded_slice_size: int = 1_000_000,
     mp_context: str = "spawn",
+    mp_pool_size: int = 1,
+    pa_source_type: str = "memory_map",
+    shuffle_over_same_T_seed: typing.Optional[int] = None,
     delete_trunk: bool = True,
     trie_postprocessor: typing.Callable = NopTriePostprocessor(),
     # ^^^ NopTriePostprocessor is stateless, so is safe as default value
@@ -66,6 +72,13 @@ def surface_build_tree(
             - 'downstream_validate_unpacked' : pl.String, polars expression
                 - Polars expression to validate unpacked data.
 
+    drop_dstream_metadata : bool or None, default None
+        Drop all dstream/downstream columns from the output?
+
+        If None (default), some metadata columns are dropped.
+        If False, all dstream/downstream columns are retained.
+        If True, raises NotImplementedError.
+
     collapse_unif_freq : int, default 1
         How often should dropped unifurcations be garbage collected?
 
@@ -74,6 +87,22 @@ def surface_build_tree(
 
     mp_context : str, default 'spawn'
         Multiprocessing context to use for parallel processing.
+
+    mp_pool_size : int, default 1
+        Number of worker processes for exploding slices in parallel.
+
+        When 1, a single producer process is used (original behavior).
+        When greater than 1, a multiprocessing pool is used with ordered
+        results via ``Pool.imap``.
+
+    pa_source_type : str, default 'memory_map'
+        PyArrow type to use for exploded chunks (i.e., "memory_map" or
+        "OSFile").
+
+    shuffle_over_same_T_seed : int or None, default None
+        If not None, shuffle rows within same-dstream_T groups after
+        sorting but before exploding. The value is used as the random
+        seed for reproducibility. Set to None to disable (default).
 
     delete_trunk : bool, default `True`
         Should trunk nodes with rank less than `dstream_S` be deleted?
@@ -104,13 +133,13 @@ def surface_build_tree(
             - Unique identifier for each taxon (RE alife standard format).
         - 'ancestor_id' : pl.UInt64
             - Unique identifier for ancestor taxon  (RE alife standard format).
-        - 'hstrat_rank_from_t0' : pl.UInt64
+        - 'hstrat_rank' : pl.Int64
             - Num generations elapsed for ancestral differentia.
             - Corresponds to `dstream_Tbar` - `dstream_S` for inner nodes.
             - Corresponds to `dstream_T` - 1 - `dstream_S` for leaf nodes.
 
         Optional schema:
-        - 'origin_time' : pl.UInt64
+        - 'origin_time' : pl.Int64
             - Estimated origin time for phylogeny nodes, in generations elapsed
               since founding ancestor.
 
@@ -129,14 +158,21 @@ def surface_build_tree(
     df = surface_unpack_reconstruct(
         df,
         collapse_unif_freq=collapse_unif_freq,
+        check_trie_invariant_freq=check_trie_invariant_freq,
+        check_trie_invariant_after_collapse_unif=check_trie_invariant_after_collapse_unif,
+        drop_dstream_metadata=drop_dstream_metadata,
         exploded_slice_size=exploded_slice_size,
         mp_context=mp_context,
+        mp_pool_size=mp_pool_size,
+        pa_source_type=pa_source_type,
+        shuffle_over_same_T_seed=shuffle_over_same_T_seed,
     )
 
     logging.info("surface_build_tree running surface_postprocess_trie...")
     df = surface_postprocess_trie(
         df,
         delete_trunk=delete_trunk,
+        drop_dstream_metadata=drop_dstream_metadata,
         trie_postprocessor=trie_postprocessor,
     )
 

@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 from ._format_cli_description import format_cli_description
@@ -9,6 +10,10 @@ from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_count_root_nodes instead.",
+)
 def alifestd_count_root_nodes(phylogeny_df: pd.DataFrame) -> int:
     """How many root nodes are contained in phylogeny?"""
     if "ancestor_id" in phylogeny_df.columns:
