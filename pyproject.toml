@@ -151,5 +151,10 @@ line_length = 79
 profile = "black"
 skip_gitignore = true
 
+[tool.coverage.run]
+omit = [
+    "hstrat/_auxiliary_lib/_alifestd_*",
+]
+
 [tool.scikit-build]
 sdist.exclude = ["docs/assets"]
