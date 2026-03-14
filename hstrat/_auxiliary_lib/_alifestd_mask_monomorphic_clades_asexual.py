@@ -134,9 +134,9 @@ def alifestd_mask_monomorphic_clades_asexual(
         trait_values = inverse
 
     phylogeny_df["alifestd_mask_monomorphic_clades_asexual_mask"] = trait_mask
-    phylogeny_df["alifestd_mask_monomorphic_clades_asexual_trait"] = (
-        trait_values
-    )
+    phylogeny_df[
+        "alifestd_mask_monomorphic_clades_asexual_trait"
+    ] = trait_values
 
     if not alifestd_is_topologically_sorted(phylogeny_df):
         phylogeny_df = alifestd_topological_sort(phylogeny_df, mutate=True)
@@ -145,21 +145,21 @@ def alifestd_mask_monomorphic_clades_asexual(
         alifestd_has_contiguous_ids(phylogeny_df)
         and trait_values.dtype.kind.lower() not in "o"
     ):
-        phylogeny_df["alifestd_mask_monomorphic_clades_asexual"] = (
-            _alifestd_mask_monomorphic_clades_asexual_fast_path(
-                phylogeny_df["ancestor_id"].to_numpy(),
-                phylogeny_df[
-                    "alifestd_mask_monomorphic_clades_asexual_mask"
-                ].to_numpy(
-                    copy=parse_version(pd.__version__) >= parse_version("3"),
-                    dtype=np.bool_,
-                ),
-                phylogeny_df[
-                    "alifestd_mask_monomorphic_clades_asexual_trait"
-                ].to_numpy(
-                    copy=parse_version(pd.__version__) >= parse_version("3"),
-                ),
-            )
+        phylogeny_df[
+            "alifestd_mask_monomorphic_clades_asexual"
+        ] = _alifestd_mask_monomorphic_clades_asexual_fast_path(
+            phylogeny_df["ancestor_id"].to_numpy(),
+            phylogeny_df[
+                "alifestd_mask_monomorphic_clades_asexual_mask"
+            ].to_numpy(
+                copy=parse_version(pd.__version__) >= parse_version("3"),
+                dtype=np.bool_,
+            ),
+            phylogeny_df[
+                "alifestd_mask_monomorphic_clades_asexual_trait"
+            ].to_numpy(
+                copy=parse_version(pd.__version__) >= parse_version("3"),
+            ),
         )
     else:
         phylogeny_df = _alifestd_mask_monomorphic_clades_asexual_slow_path(
