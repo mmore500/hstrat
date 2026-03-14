@@ -8,9 +8,8 @@ from hstrat._auxiliary_lib import (
 
 from ._impl import pandas_pre3_only
 
-pytestmark = pandas_pre3_only
 
-
+@pandas_pre3_only
 def test_alifestd_reroot_at_id_asexual_inner_node_terminal_node():
     phylogeny_df = pd.DataFrame(
         {
@@ -37,6 +36,7 @@ def test_alifestd_reroot_at_id_asexual_inner_node_terminal_node():
         assert df.equals(df_)
 
 
+@pandas_pre3_only
 def test_alifestd_reroot_at_id_asexual_inner_node_bifurcation():
     phylogeny_df = pd.DataFrame(
         {
@@ -63,6 +63,7 @@ def test_alifestd_reroot_at_id_asexual_inner_node_bifurcation():
         assert df.equals(df_)
 
 
+@pandas_pre3_only
 def test_alifestd_reroot_at_id_asexual_inner_node_trifurcation():
     phylogeny_df = pd.DataFrame(
         {
@@ -89,6 +90,7 @@ def test_alifestd_reroot_at_id_asexual_inner_node_trifurcation():
         assert df.equals(df_)
 
 
+@pandas_pre3_only
 def test_alifestd_reroot_at_id_asexual_singleton():
     phylogeny_df = pd.DataFrame(
         {

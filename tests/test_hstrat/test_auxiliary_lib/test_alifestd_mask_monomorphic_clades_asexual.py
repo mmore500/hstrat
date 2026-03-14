@@ -9,9 +9,8 @@ from hstrat._auxiliary_lib import (
 
 from ._impl import pandas_pre3_only
 
-pytestmark = pandas_pre3_only
 
-
+@pandas_pre3_only
 def test_empty():
     mt = alifestd_make_empty()
     result_df = alifestd_mask_monomorphic_clades_asexual(
@@ -24,6 +23,7 @@ def test_empty():
 
 
 # Test simple cases with separate parametrization for mutate and dtype
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [False, True])
 @pytest.mark.parametrize("dtype", [int, float, str, tuple])
 def test_simple1(mutate: bool, dtype: type):
@@ -53,6 +53,7 @@ def test_simple1(mutate: bool, dtype: type):
         assert original_df.equals(phylogeny_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [False, True])
 @pytest.mark.parametrize("dtype", [int, float, str, tuple])
 def test_simple2(mutate: bool, dtype: type):
@@ -83,6 +84,7 @@ def test_simple2(mutate: bool, dtype: type):
         assert original_df.equals(phylogeny_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [False, True])
 @pytest.mark.parametrize("dtype", [int, float, str, tuple])
 def test_simple3(mutate: bool, dtype: type):
@@ -113,6 +115,7 @@ def test_simple3(mutate: bool, dtype: type):
         assert original_df.equals(phylogeny_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [False, True])
 @pytest.mark.parametrize("dtype", [int, float, str, tuple])
 def test_simple4(mutate: bool, dtype: type):
@@ -143,6 +146,7 @@ def test_simple4(mutate: bool, dtype: type):
         assert original_df.equals(phylogeny_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [False, True])
 @pytest.mark.parametrize("dtype", [int, float, str, tuple])
 def test_simple5(mutate: bool, dtype: type):
@@ -173,6 +177,7 @@ def test_simple5(mutate: bool, dtype: type):
         assert original_df.equals(phylogeny_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [False, True])
 @pytest.mark.parametrize("dtype", [int, float, str, tuple])
 def test_simple6(mutate: bool, dtype: type):
@@ -200,6 +205,7 @@ def test_simple6(mutate: bool, dtype: type):
         assert original_df.equals(phylogeny_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [False, True])
 @pytest.mark.parametrize("dtype", [int, float, str, tuple])
 def test_simple7(mutate: bool, dtype: type):
@@ -229,6 +235,7 @@ def test_simple7(mutate: bool, dtype: type):
         assert original_df.equals(phylogeny_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [False, True])
 @pytest.mark.parametrize("dtype", [int, float, str, tuple])
 def test_simple8(mutate: bool, dtype: type):
@@ -258,6 +265,7 @@ def test_simple8(mutate: bool, dtype: type):
         assert original_df.equals(phylogeny_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [False, True])
 @pytest.mark.parametrize("dtype", [int, float, str, tuple])
 def test_simple9(mutate: bool, dtype: type):
@@ -288,6 +296,7 @@ def test_simple9(mutate: bool, dtype: type):
         assert original_df.equals(phylogeny_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [False, True])
 @pytest.mark.parametrize("dtype", [int, float, str, tuple])
 def test_simple10(mutate: bool, dtype: type):
@@ -318,6 +327,7 @@ def test_simple10(mutate: bool, dtype: type):
         assert original_df.equals(phylogeny_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [False, True])
 @pytest.mark.parametrize("dtype", [int, float, str, tuple])
 def test_simple11(mutate: bool, dtype: type):

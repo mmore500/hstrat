@@ -11,9 +11,8 @@ from hstrat._auxiliary_lib import (
 
 from ._impl import pandas_pre3_only
 
-pytestmark = pandas_pre3_only
 
-
+@pandas_pre3_only
 def test_alifestd_splay_polytomies_empty():
     pd.testing.assert_frame_equal(
         alifestd_splay_polytomies(alifestd_make_empty()).reset_index(
@@ -25,6 +24,7 @@ def test_alifestd_splay_polytomies_empty():
     )
 
 
+@pandas_pre3_only
 def test_alifestd_splay_polytomies_singleton():
     df = pd.DataFrame(
         {
@@ -40,6 +40,7 @@ def test_alifestd_splay_polytomies_singleton():
     pd.testing.assert_frame_equal(result_df, expected_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("shuffle", [True, False])
 def test_alifestd_splay_polytomies_no_polytomies(shuffle):
     # Test case for a phylogeny dataframe with only bifurcations
@@ -64,6 +65,7 @@ def test_alifestd_splay_polytomies_no_polytomies(shuffle):
     pd.testing.assert_frame_equal(result_df, expected_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("shuffle", [True, False])
 def test_alifestd_splay_polytomies_no_polytomies_unifurcation(shuffle):
     # Test case for a phylogeny dataframe with no polytomies,
@@ -98,6 +100,7 @@ def test_alifestd_splay_polytomies_no_polytomies_unifurcation(shuffle):
     pd.testing.assert_frame_equal(result_df, expected_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("shuffle", [True, False])
 def test_alifestd_splay_polytomies_no_polytomies_only_unifurcation(shuffle):
     # Test case for a phylogeny dataframe with only unifurcations
@@ -129,6 +132,7 @@ def test_alifestd_splay_polytomies_no_polytomies_only_unifurcation(shuffle):
     pd.testing.assert_frame_equal(result_df, expected_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("rotate", [True, False])
 def test_alifestd_splay_polytomies_one_polytomy_of_size_three(rotate):
     # Test case for a phylogeny dataframe with one polytomy of size three
@@ -169,6 +173,7 @@ def test_alifestd_splay_polytomies_one_polytomy_of_size_three(rotate):
     )
 
 
+@pandas_pre3_only
 def test_alifestd_splay_polytomies_one_polytomy_of_size_three_with_unifurcation():
     # Test case for a phylogeny dataframe with one polytomy of size three
     # and unifurcations
@@ -235,6 +240,7 @@ def test_alifestd_splay_polytomies_one_polytomy_of_size_three_with_unifurcation(
     )
 
 
+@pandas_pre3_only
 def test_alifestd_splay_polytomies_two_polytomies_with_unifurcation():
     # Test case for a phylogeny dataframe with two polytomies, one of size
     # three and one of size four, and a unifurcation
@@ -337,6 +343,7 @@ def test_alifestd_splay_polytomies_two_polytomies_with_unifurcation():
         ),  #  <- has polytomy
     ],
 )
+@pandas_pre3_only
 def test_alifestd_splay_polytomies_mutate(df):
     df_ = df.copy()
     alifestd_splay_polytomies(df, mutate=False)

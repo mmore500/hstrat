@@ -6,11 +6,10 @@ import pandas as pd
 
 from ._impl import pandas_pre3_only
 
-pytestmark = pandas_pre3_only
-
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
+@pandas_pre3_only
 def test_alifestd_reroot_at_id_asexual_cli_help():
     subprocess.run(  # nosec B603
         [
@@ -25,6 +24,7 @@ def test_alifestd_reroot_at_id_asexual_cli_help():
     )
 
 
+@pandas_pre3_only
 def test_alifestd_reroot_at_id_asexual_cli_version():
     subprocess.run(  # nosec B603
         [
@@ -37,6 +37,7 @@ def test_alifestd_reroot_at_id_asexual_cli_version():
     )
 
 
+@pandas_pre3_only
 def test_alifestd_reroot_at_id_asexual_cli_csv():
     output_file = "/tmp/hstrat_alifestd_reroot_at_id_asexual.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
@@ -59,6 +60,7 @@ def test_alifestd_reroot_at_id_asexual_cli_csv():
     assert "id" in result_df.columns
 
 
+@pandas_pre3_only
 def test_alifestd_reroot_at_id_asexual_cli_parquet():
     output_file = "/tmp/hstrat_alifestd_reroot_at_id_asexual.pqt"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)

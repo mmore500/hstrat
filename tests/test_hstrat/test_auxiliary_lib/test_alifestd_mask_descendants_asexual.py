@@ -9,9 +9,8 @@ from hstrat._auxiliary_lib import (
 
 from ._impl import pandas_pre3_only
 
-pytestmark = pandas_pre3_only
 
-
+@pandas_pre3_only
 def test_empty():
     mt = alifestd_make_empty()
     result_df = alifestd_mask_descendants_asexual(
@@ -21,6 +20,7 @@ def test_empty():
     assert len(result_df) == 0
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple1(mutate: bool):
     phylogeny_df = pd.DataFrame(
@@ -44,6 +44,7 @@ def test_simple1(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple2(mutate: bool):
     phylogeny_df = pd.DataFrame(
@@ -68,6 +69,7 @@ def test_simple2(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple3(mutate: bool):
     phylogeny_df = pd.DataFrame(
@@ -92,6 +94,7 @@ def test_simple3(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple4(mutate: bool):
     phylogeny_df = pd.DataFrame(
@@ -115,6 +118,7 @@ def test_simple4(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple5(mutate: bool):
     phylogeny_df = pd.DataFrame(
@@ -139,6 +143,7 @@ def test_simple5(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple6(mutate: bool):
     phylogeny_df = pd.DataFrame(
@@ -160,6 +165,7 @@ def test_simple6(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple7(mutate: bool):
     phylogeny_df = pd.DataFrame(

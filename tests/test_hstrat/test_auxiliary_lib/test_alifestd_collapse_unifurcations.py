@@ -30,8 +30,6 @@ from hstrat._auxiliary_lib import (
 
 from ._impl import pandas_pre3_only
 
-pytestmark = pandas_pre3_only
-
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
@@ -81,6 +79,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         "none",
     ],
 )
+@pandas_pre3_only
 def test_alifestd_collapse_unifurcations(
     phylogeny_df: pd.DataFrame,
     apply: typing.Callable,
@@ -167,6 +166,7 @@ def test_alifestd_collapse_unifurcations(
         assert descendants == (phylogeny_descendants_lookup[id_] - dropped_ids)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [True, False])
 def test_alifestd_collapse_unifurcations_collapse1(mutate: bool):
     # 0 -> 1 -> 2 -> 4
@@ -199,6 +199,7 @@ def test_alifestd_collapse_unifurcations_collapse1(mutate: bool):
         assert df.equals(original_df)
 
 
+@pandas_pre3_only
 @pytest.mark.parametrize("mutate", [True, False])
 def test_alifestd_collapse_unifurcations_collapse2(mutate: bool):
     df = pd.DataFrame(
@@ -241,6 +242,7 @@ def test_alifestd_collapse_unifurcations_collapse2(mutate: bool):
         lambda x: x,
     ],
 )
+@pandas_pre3_only
 def test_alifestd_collapse_unifurcations_trunktest(
     phylogeny_df: pd.DataFrame, apply: typing.Callable
 ):

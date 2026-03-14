@@ -10,8 +10,6 @@ from hstrat._auxiliary_lib import (
 
 from ._impl import enforce_identical_polars_result, pandas_pre3_only
 
-pytestmark = pandas_pre3_only
-
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 alifestd_make_ancestor_list_col_ = enforce_identical_polars_result(
@@ -30,6 +28,7 @@ alifestd_make_ancestor_list_col_ = enforce_identical_polars_result(
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
+@pandas_pre3_only
 def test_alifestd_make_ancestor_list_col(phylogeny_df: pd.DataFrame):
 
     phylogeny_df["ancestor_id"] = alifestd_make_ancestor_id_col(
@@ -43,6 +42,7 @@ def test_alifestd_make_ancestor_list_col(phylogeny_df: pd.DataFrame):
     )
 
 
+@pandas_pre3_only
 def test_alifestd_make_ancestor_list_col_empty():
     res = alifestd_make_ancestor_list_col_(
         pd.Series(dtype=int), pd.Series(dtype=int)
@@ -51,6 +51,7 @@ def test_alifestd_make_ancestor_list_col_empty():
     assert pd.api.types.is_string_dtype(res.dtype)
 
 
+@pandas_pre3_only
 def test_alifestd_make_ancestor_list_col_root_ancestor_token():
     res = alifestd_make_ancestor_list_col_(
         pd.Series([0]),
