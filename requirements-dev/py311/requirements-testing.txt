@@ -194,6 +194,7 @@ packaging==26.0
     #   lazy-loader
     #   matplotlib
     #   pandera
+    #   phyloframe
     #   pytest
     #   statsmodels
     #   tox
@@ -210,7 +211,7 @@ pathspec==1.0.4
     # via black
 patsy==1.0.2
     # via statsmodels
-phyloframe==0.2.0
+phyloframe==0.2.3
     # via hstrat (../../pyproject.toml)
 phylotrackpy==0.2.4
     # via hstrat (../../pyproject.toml)
@@ -279,8 +280,6 @@ python-slugify==8.0.4
     # via
     #   hstrat (../../pyproject.toml)
     #   teeplot
-pytz==2025.2
-    # via pandas
 pyyaml==6.0.1
     # via
     #   hstrat (../../pyproject.toml)
@@ -361,8 +360,6 @@ typing-inspect==0.9.0
     # via pandera
 typing-inspection==0.4.2
     # via pydantic
-tzdata==2025.3
-    # via pandas
 validators==0.35.0
     # via alifedata-phyloinformatics-convert
 virtualenv==20.38.0

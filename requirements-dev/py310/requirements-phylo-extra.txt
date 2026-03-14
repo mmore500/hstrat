@@ -137,8 +137,9 @@ packaging==26.0
     #   lazy-loader
     #   matplotlib
     #   pandera
+    #   phyloframe
     #   statsmodels
-pandas==3.0.1
+pandas==2.3.3
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
@@ -149,7 +150,7 @@ pandera==0.29.0
     # via hstrat (../../pyproject.toml)
 patsy==1.0.2
     # via statsmodels
-phyloframe==0.2.0
+phyloframe==0.2.3
     # via hstrat (../../pyproject.toml)
 phylotrackpy==0.2.4
     # via hstrat (../../pyproject.toml)

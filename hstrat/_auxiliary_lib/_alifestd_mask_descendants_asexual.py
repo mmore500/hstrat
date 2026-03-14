@@ -1,5 +1,6 @@
 from deprecated.sphinx import deprecated
 import numpy as np
+from packaging.version import parse as parse_version
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
@@ -78,9 +79,9 @@ def alifestd_mask_descendants_asexual(
         phylogeny_df["alifestd_mask_descendants_asexual"] = (
             _alifestd_mask_descendants_asexual_fast_path(
                 phylogeny_df["ancestor_id"].to_numpy(),
-                phylogeny_df["alifestd_mask_descendants_asexual"]
-                .to_numpy()
-                .copy(),
+                phylogeny_df["alifestd_mask_descendants_asexual"].to_numpy(
+                    copy=parse_version(pd.__version__) >= parse_version("3"),
+                ),
             )
         )
         return phylogeny_df

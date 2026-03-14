@@ -11,11 +11,8 @@ from ..._auxiliary_lib import (
     anytree_tree_to_alife_dataframe,
     flag_last,
 )
-from ..._auxiliary_lib._patch_phyloframe_pandas3 import patch_phyloframe
 from ...juxtaposition import calc_probability_differentia_collision_between
 from ._impl import TrieInnerNode, build_trie_from_artifacts
-
-patch_phyloframe()
 
 
 def _finalize_trie(trie: TrieInnerNode) -> pd.DataFrame:

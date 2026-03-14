@@ -9,6 +9,7 @@ from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
+from packaging.version import parse as parse_version
 import pandas as pd
 
 from ._add_bool_arg import add_bool_arg
@@ -83,7 +84,9 @@ def _alifestd_collapse_unifurcations_asexual(
     logging.info("- alifestd_collapse_unifurcations: calculating reindex...")
     assert (phylogeny_df["id"] >= phylogeny_df["ancestor_id"]).all()
     keep_filter, ancestor_ids = _collapse_unifurcations(
-        phylogeny_df["ancestor_id"].to_numpy().copy(),
+        phylogeny_df["ancestor_id"].to_numpy(
+            copy=parse_version(pd.__version__) >= parse_version("3"),
+        ),
     )
 
     logging.info("- alifestd_collapse_unifurcations: applying reindex...")

@@ -14,10 +14,7 @@ from .._auxiliary_lib import (
     render_pandas_snapshot,
     render_polars_snapshot,
 )
-from .._auxiliary_lib._patch_phyloframe_pandas3 import patch_phyloframe
 from ..phylogenetic_inference.tree.trie_postprocess import NopTriePostprocessor
-
-patch_phyloframe()
 
 
 def _apply_empty_output_schema_pandas(

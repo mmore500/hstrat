@@ -1,5 +1,6 @@
 from deprecated.sphinx import deprecated
 import numpy as np
+from packaging.version import parse as parse_version
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
@@ -149,10 +150,15 @@ def alifestd_mask_monomorphic_clades_asexual(
                 phylogeny_df["ancestor_id"].to_numpy(),
                 phylogeny_df[
                     "alifestd_mask_monomorphic_clades_asexual_mask"
-                ].to_numpy(dtype=np.bool_),
-                phylogeny_df["alifestd_mask_monomorphic_clades_asexual_trait"]
-                .to_numpy()
-                .copy(),
+                ].to_numpy(
+                    copy=parse_version(pd.__version__) >= parse_version("3"),
+                    dtype=np.bool_,
+                ),
+                phylogeny_df[
+                    "alifestd_mask_monomorphic_clades_asexual_trait"
+                ].to_numpy(
+                    copy=parse_version(pd.__version__) >= parse_version("3"),
+                ),
             )
         )
     else:

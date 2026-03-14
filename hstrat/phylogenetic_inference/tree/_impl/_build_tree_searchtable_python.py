@@ -12,10 +12,7 @@ from ...._auxiliary_lib import (
     argsort,
     give_len,
 )
-from ...._auxiliary_lib._patch_phyloframe_pandas3 import patch_phyloframe
 from ._Searchtable import Searchtable
-
-patch_phyloframe()
 
 
 def _collapse_indistinguishable_children(

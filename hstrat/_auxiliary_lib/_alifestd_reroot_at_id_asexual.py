@@ -7,6 +7,7 @@ from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
+from packaging.version import parse as parse_version
 import pandas as pd
 
 from ._add_bool_arg import add_bool_arg
@@ -71,7 +72,9 @@ def alifestd_reroot_at_id_asexual(
 
     # contiguous id implementation
     if alifestd_has_contiguous_ids(phylogeny_df):
-        ancestor_id_arr = phylogeny_df["ancestor_id"].to_numpy().copy()
+        ancestor_id_arr = phylogeny_df["ancestor_id"].to_numpy(
+            copy=parse_version(pd.__version__) >= parse_version("3"),
+        )
         id_arr = phylogeny_df["id"].to_numpy()
         copy_to_slice = unfurled_lineage[1:]
         copy_from_slice = unfurled_lineage[:-1]
@@ -81,7 +84,9 @@ def alifestd_reroot_at_id_asexual(
 
     # noncontiguous id implementation
     else:
-        ancestor_id_arr = phylogeny_df["ancestor_id"].to_numpy().copy()
+        ancestor_id_arr = phylogeny_df["ancestor_id"].to_numpy(
+            copy=parse_version(pd.__version__) >= parse_version("3"),
+        )
         id_arr = phylogeny_df["id"].to_numpy()
         iloc_lookup = dict(
             zip(phylogeny_df["id"], np.arange(len(phylogeny_df)))
