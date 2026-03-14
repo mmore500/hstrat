@@ -301,6 +301,7 @@ packaging==26.0
     #   matplotlib
     #   nbconvert
     #   pandera
+    #   phyloframe
     #   pytest
     #   setuptools-scm
     #   sphinx
@@ -327,7 +328,7 @@ patsy==1.0.2
     # via statsmodels
 pexpect==4.9.0
     # via ipython
-phyloframe==0.2.0
+phyloframe==0.2.3
     # via hstrat (../../pyproject.toml)
 phylotrackpy==0.2.4
     # via hstrat (../../pyproject.toml)

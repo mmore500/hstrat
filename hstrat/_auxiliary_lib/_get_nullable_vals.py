@@ -24,4 +24,4 @@ def get_nullable_vals(series: pd.Series) -> np.ndarray:
     made. Changes to the returned array will propagate to the Series object's
     underlying values, and vice versa.
     """
-    return series._data.array._data
+    return series.array._data

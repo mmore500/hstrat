@@ -7,6 +7,7 @@ from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._jit import jit
+from ._require_pandas_pre3 import require_pandas_pre3
 
 
 @jit(nopython=True)
@@ -41,6 +42,7 @@ def _alifestd_mask_descendants_asexual_slow_path(
     version="1.23.0",
     reason="Use phyloframe.legacy.alifestd_mask_descendants_asexual instead.",
 )
+@require_pandas_pre3
 def alifestd_mask_descendants_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -63,7 +65,6 @@ def alifestd_mask_descendants_asexual(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
-
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 

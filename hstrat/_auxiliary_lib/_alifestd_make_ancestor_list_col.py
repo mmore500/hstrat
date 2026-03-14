@@ -8,6 +8,7 @@ from ._delegate_polars_implementation import (
     Series_T,
     delegate_polars_implementation,
 )
+from ._require_pandas_pre3 import require_pandas_pre3
 
 
 @deprecated(
@@ -15,6 +16,7 @@ from ._delegate_polars_implementation import (
     reason="Use phyloframe.legacy.alifestd_make_ancestor_list_col instead.",
 )
 @delegate_polars_implementation(alifestd_make_ancestor_list_col_polars)
+@require_pandas_pre3
 def alifestd_make_ancestor_list_col(
     ids: Series_T,
     ancestor_ids: Series_T,
@@ -28,7 +30,6 @@ def alifestd_make_ancestor_list_col(
     "None" will yield the entry "[None]" and the token "" will yield the entry
     "[]". Default "none".
     """
-
     assert isinstance(ids, pd.Series) and isinstance(ancestor_ids, pd.Series)
     res = ancestor_ids.map("[{!s}]".format).astype(str)  # specify for empty
     res[ids == ancestor_ids] = f"[{root_ancestor_token}]"

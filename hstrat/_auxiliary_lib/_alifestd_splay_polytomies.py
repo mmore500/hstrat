@@ -26,6 +26,7 @@ from ._jit import jit
 from ._jit_numba_dict_t import jit_numba_dict_t
 from ._jit_numpy_int64_t import jit_numpy_int64_t
 from ._log_context_duration import log_context_duration
+from ._require_pandas_pre3 import require_pandas_pre3
 
 
 @jit(nopython=True)
@@ -151,6 +152,7 @@ def _alifestd_splay_polytomies_slow_path(
     version="1.23.0",
     reason="Use phyloframe.legacy.alifestd_splay_polytomies instead.",
 )
+@require_pandas_pre3
 def alifestd_splay_polytomies(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

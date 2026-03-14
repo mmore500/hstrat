@@ -8,6 +8,7 @@ from . import (
     alifestd_count_root_nodes,
     alifestd_mark_leaves,
 )
+from ._require_pandas_pre3 import require_pandas_pre3
 
 
 # adapted from https://github.com/mmore500/hstrat/blob/d23917cf03ba59061ff2f9b951efe79e995eb4d8/tests/test_hstrat/test_phylogenetic_inference/test_tree/_impl/_tree_quartet_distance.py
@@ -15,6 +16,7 @@ from . import (
     version="1.23.0",
     reason="Use phyloframe.legacy.alifestd_calc_triplet_distance_asexual instead.",
 )
+@require_pandas_pre3
 def alifestd_calc_triplet_distance_asexual(
     ref: pd.DataFrame,
     cmp: pd.DataFrame,

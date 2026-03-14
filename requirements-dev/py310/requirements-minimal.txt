@@ -135,6 +135,7 @@ packaging==26.0
     #   lazy-loader
     #   matplotlib
     #   pandera
+    #   phyloframe
     #   statsmodels
 pandas==2.3.3
     # via
@@ -147,7 +148,7 @@ pandera==0.29.0
     # via hstrat (../../pyproject.toml)
 patsy==1.0.2
     # via statsmodels
-phyloframe==0.2.0
+phyloframe==0.2.3
     # via hstrat (../../pyproject.toml)
 pillow==12.1.1
     # via matplotlib

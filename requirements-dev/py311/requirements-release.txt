@@ -152,9 +152,10 @@ packaging==26.0
     #   lazy-loader
     #   matplotlib
     #   pandera
+    #   phyloframe
     #   setuptools-scm
     #   statsmodels
-pandas==2.3.3
+pandas==3.0.1
     # via
     #   hstrat (../../pyproject.toml)
     #   alifedata-phyloinformatics-convert
@@ -167,7 +168,7 @@ pathlib2==2.3.7.post1
     # via bumpver
 patsy==1.0.2
     # via statsmodels
-phyloframe==0.2.0
+phyloframe==0.2.3
     # via hstrat (../../pyproject.toml)
 pillow==12.1.1
     # via matplotlib
@@ -212,8 +213,6 @@ python-dateutil==2.9.0.post0
     #   pandas
 python-slugify==8.0.4
     # via hstrat (../../pyproject.toml)
-pytz==2025.2
-    # via pandas
 pyyaml==6.0.3
     # via astropy
 readme-renderer==44.0
@@ -295,8 +294,6 @@ typing-inspect==0.9.0
     # via pandera
 typing-inspection==0.4.2
     # via pydantic
-tzdata==2025.3
-    # via pandas
 urllib3==2.6.3
     # via requests
 uv==0.4.18
