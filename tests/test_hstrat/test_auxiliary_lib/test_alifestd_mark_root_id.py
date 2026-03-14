@@ -13,7 +13,7 @@ from hstrat._auxiliary_lib import (
     alifestd_validate,
 )
 
-from ._impl import pandas_pre3_only
+from ._impl import mark_skipif_pandas_post3
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
@@ -32,7 +32,7 @@ assets_path = os.path.join(os.path.dirname(__file__), "assets")
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 def test_fuzz(apply: typing.Callable, phylogeny_df: pd.DataFrame):
     original = phylogeny_df.copy()
 
@@ -49,7 +49,7 @@ def test_fuzz(apply: typing.Callable, phylogeny_df: pd.DataFrame):
 @pytest.mark.parametrize(
     "apply", [alifestd_try_add_ancestor_id_col, lambda x: x]
 )
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 def test_empty(apply: typing.Callable):
     res = alifestd_mark_root_id(apply(alifestd_make_empty()))
     assert "root_id" in res
@@ -59,7 +59,7 @@ def test_empty(apply: typing.Callable):
 @pytest.mark.parametrize(
     "apply", [alifestd_try_add_ancestor_id_col, lambda x: x]
 )
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 def test_singleton(apply: typing.Callable):
     record = {"id": 0, "ancestor_id": 0, "ancestor_list": "[None]"}
     original = apply(pd.DataFrame.from_records([record]))
@@ -76,7 +76,7 @@ def test_singleton(apply: typing.Callable):
 @pytest.mark.parametrize(
     "apply", [alifestd_try_add_ancestor_id_col, lambda x: x]
 )
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_asexual1(apply: typing.Callable, mutate: bool):
     phylogeny_df = pd.DataFrame(
@@ -100,7 +100,7 @@ def test_asexual1(apply: typing.Callable, mutate: bool):
 @pytest.mark.parametrize(
     "apply", [alifestd_try_add_ancestor_id_col, lambda x: x]
 )
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_asexual2(apply: typing.Callable, mutate: bool):
     phylogeny_df = pd.DataFrame(
@@ -125,7 +125,7 @@ def test_asexual2(apply: typing.Callable, mutate: bool):
 @pytest.mark.parametrize(
     "apply", [alifestd_try_add_ancestor_id_col, lambda x: x]
 )
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_asexual3(apply: typing.Callable, mutate: bool):
     phylogeny_df = pd.DataFrame(
@@ -150,7 +150,7 @@ def test_asexual3(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_sexual1(mutate: bool):
     phylogeny_df = pd.DataFrame(
@@ -170,7 +170,7 @@ def test_sexual1(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_sexual2(mutate: bool):
     phylogeny_df = pd.DataFrame(
@@ -194,7 +194,7 @@ def test_sexual2(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_sexual3(mutate: bool):
     phylogeny_df = pd.DataFrame(

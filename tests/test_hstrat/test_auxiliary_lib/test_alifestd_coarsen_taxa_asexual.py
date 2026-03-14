@@ -6,10 +6,10 @@ from hstrat._auxiliary_lib import (
     alifestd_make_empty,
 )
 
-from ._impl import pandas_pre3_only
+from ._impl import mark_skipif_pandas_post3
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("col", ["id", "ancestor_id", "ancestor_list"])
 def test_coarsen_agg_override_error(col: str):
     phylogeny_df = pd.DataFrame(
@@ -27,7 +27,7 @@ def test_coarsen_agg_override_error(col: str):
         )
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_empty_coarsen(mutate: bool):
     phylogeny_df = alifestd_make_empty()
@@ -41,7 +41,7 @@ def test_empty_coarsen(mutate: bool):
     assert len(result) == 0
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_singleton_coarsen(mutate: bool):
     # A single-node tree coarsens to itself.
@@ -77,7 +77,7 @@ def test_singleton_coarsen(mutate: bool):
         pd.testing.assert_frame_equal(phylogeny_df, original)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_chain_coarsen(mutate: bool):
     # Chain 0 -> 1 -> 2, all rows share dummy=0, so you get
@@ -109,7 +109,7 @@ def test_chain_coarsen(mutate: bool):
         pd.testing.assert_frame_equal(phylogeny_df, original)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_star_coarsen(mutate: bool):
     # Star tree 0 -> {1,2}, all share dummy=0.
@@ -139,7 +139,7 @@ def test_star_coarsen(mutate: bool):
         pd.testing.assert_frame_equal(phylogeny_df, original)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_group_by_sequence(mutate: bool):
     # Supplying `by` as a sequence should behave same as single key.
@@ -172,7 +172,7 @@ def test_group_by_sequence(mutate: bool):
         pd.testing.assert_frame_equal(phylogeny_df, original)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_chain_coarsen_with_overrides(mutate: bool):
     # Chain 0 -> 1 -> 2, all share group=0. Check that:
@@ -215,7 +215,7 @@ def test_chain_coarsen_with_overrides(mutate: bool):
         pd.testing.assert_frame_equal(phylogeny_df, original)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_multiple_independent_chains(mutate: bool):
     # Two disjoint chains with group=0 or group=1.
@@ -252,7 +252,7 @@ def test_multiple_independent_chains(mutate: bool):
         pd.testing.assert_frame_equal(phylogeny_df, original)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_chain_two_group_keys(mutate: bool):
     # Chain 0 -> 1 -> 2, grouped by TWO keys:
@@ -296,7 +296,7 @@ def test_chain_two_group_keys(mutate: bool):
         pd.testing.assert_frame_equal(phylogeny_df, original)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_branching_disconnected_same_group_with_parent_id(mutate: bool):
     # 10-node tree with single-parent pointers:
@@ -378,7 +378,7 @@ def test_branching_disconnected_same_group_with_parent_id(mutate: bool):
         pd.testing.assert_frame_equal(df, original)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_branching_disconnected_same_group_with_parent_id2(mutate: bool):
     # 10-node tree with single-parent pointers:

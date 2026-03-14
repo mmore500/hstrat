@@ -6,10 +6,10 @@ from hstrat._auxiliary_lib import (
     alifestd_validate,
 )
 
-from ._impl import pandas_pre3_only
+from ._impl import mark_skipif_pandas_post3
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 def test_alifestd_reroot_at_id_asexual_inner_node_terminal_node():
     phylogeny_df = pd.DataFrame(
         {
@@ -36,7 +36,7 @@ def test_alifestd_reroot_at_id_asexual_inner_node_terminal_node():
         assert df.equals(df_)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 def test_alifestd_reroot_at_id_asexual_inner_node_bifurcation():
     phylogeny_df = pd.DataFrame(
         {
@@ -63,7 +63,7 @@ def test_alifestd_reroot_at_id_asexual_inner_node_bifurcation():
         assert df.equals(df_)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 def test_alifestd_reroot_at_id_asexual_inner_node_trifurcation():
     phylogeny_df = pd.DataFrame(
         {
@@ -90,7 +90,7 @@ def test_alifestd_reroot_at_id_asexual_inner_node_trifurcation():
         assert df.equals(df_)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 def test_alifestd_reroot_at_id_asexual_singleton():
     phylogeny_df = pd.DataFrame(
         {

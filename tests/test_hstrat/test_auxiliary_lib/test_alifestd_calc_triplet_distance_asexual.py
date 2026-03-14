@@ -6,7 +6,7 @@ from hstrat._auxiliary_lib import (
     alifestd_make_ancestor_list_col,
 )
 
-from ._impl import pandas_pre3_only
+from ._impl import mark_skipif_pandas_post3
 
 
 @pytest.mark.parametrize(
@@ -42,7 +42,7 @@ from ._impl import pandas_pre3_only
         ),
     ],
 )
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 def test_polytomy_identical(df: pd.DataFrame):
     df["ancestor_list"] = alifestd_make_ancestor_list_col(
         df["id"], df["ancestor_id"]
@@ -51,7 +51,7 @@ def test_polytomy_identical(df: pd.DataFrame):
         assert alifestd_calc_triplet_distance_asexual(adf, bdf) == 0
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 def test_differing_wrong1():
     adf = pd.DataFrame(
         {
@@ -79,7 +79,7 @@ def test_differing_wrong1():
     )
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 def test_differing_wrong2():
     adf = pd.DataFrame(
         {
@@ -114,7 +114,7 @@ def test_differing_wrong2():
     )
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 def test_identical_polytomy1():
     adf = pd.DataFrame(
         {
@@ -145,7 +145,7 @@ def test_identical_polytomy1():
     )
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 def test_differing_wrong_big():
     adf = pd.DataFrame(
         {
@@ -182,7 +182,7 @@ def test_differing_wrong_big():
     assert 0 < est < 1
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 def test_differing_polytomy_asymmetrical_strict():
     adf = pd.DataFrame(
         {

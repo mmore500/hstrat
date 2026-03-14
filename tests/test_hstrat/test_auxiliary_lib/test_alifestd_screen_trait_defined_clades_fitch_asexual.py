@@ -10,12 +10,12 @@ from hstrat._auxiliary_lib import (
     alifestd_to_working_format,
 )
 
-from ._impl import pandas_pre3_only
+from ._impl import mark_skipif_pandas_post3
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 def test_empty():
     phylogeny_df = alifestd_make_empty()
     phylogeny_df["origin_time"] = None
@@ -27,7 +27,7 @@ def test_empty():
     assert len(res) == 0
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple1(apply: typing.Callable, mutate: bool):
@@ -53,7 +53,7 @@ def test_simple1(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple2(mutate: bool):
     # Tree structure:
@@ -85,7 +85,7 @@ def test_simple2(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple3(apply: typing.Callable, mutate: bool):
@@ -131,7 +131,7 @@ def test_simple3(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple4(apply: typing.Callable, mutate: bool):
@@ -206,7 +206,7 @@ def test_simple4(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple5(apply: typing.Callable, mutate: bool):
@@ -252,7 +252,7 @@ def test_simple5(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple6(apply: typing.Callable, mutate: bool):
@@ -298,7 +298,7 @@ def test_simple6(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple7(apply: typing.Callable, mutate: bool):
@@ -344,7 +344,7 @@ def test_simple7(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple8(apply: typing.Callable, mutate: bool):
@@ -390,7 +390,7 @@ def test_simple8(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple9(apply: typing.Callable, mutate: bool):
@@ -436,7 +436,7 @@ def test_simple9(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple10(mutate: bool):
     # Tree structure:
@@ -469,7 +469,7 @@ def test_simple10(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple11(mutate: bool):
     # Tree structure:
@@ -502,7 +502,7 @@ def test_simple11(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple12(mutate: bool):
     # Tree structure:
@@ -535,7 +535,7 @@ def test_simple12(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple13(mutate: bool):
     # Tree structure:
@@ -568,7 +568,7 @@ def test_simple13(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple14(apply: typing.Callable, mutate: bool):
@@ -614,7 +614,7 @@ def test_simple14(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple15(apply: typing.Callable, mutate: bool):
@@ -660,7 +660,7 @@ def test_simple15(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple16(apply: typing.Callable, mutate: bool):
@@ -706,7 +706,7 @@ def test_simple16(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple17(apply: typing.Callable, mutate: bool):
@@ -781,7 +781,7 @@ def test_simple17(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple18(apply: typing.Callable, mutate: bool):
@@ -856,7 +856,7 @@ def test_simple18(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple19(apply: typing.Callable, mutate: bool):
@@ -893,7 +893,7 @@ def test_simple19(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple20(apply: typing.Callable, mutate: bool):
@@ -950,7 +950,7 @@ def test_simple20(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple21(apply: typing.Callable, mutate: bool):
@@ -1007,7 +1007,7 @@ def test_simple21(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple22(apply: typing.Callable, mutate: bool):
@@ -1076,7 +1076,7 @@ def test_simple22(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple23(apply: typing.Callable, mutate: bool):

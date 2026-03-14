@@ -12,12 +12,12 @@ from hstrat._auxiliary_lib import (
     alifestd_to_working_format,
 )
 
-from ._impl import pandas_pre3_only
+from ._impl import mark_skipif_pandas_post3
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 def test_empty():
     phylogeny_df = alifestd_make_empty()
     phylogeny_df["origin_time"] = None
@@ -28,7 +28,7 @@ def test_empty():
     assert len(res) == 0
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple1(apply: typing.Callable, mutate: bool):
@@ -54,7 +54,7 @@ def test_simple1(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple2(mutate: bool):
     # Tree structure:
@@ -85,7 +85,7 @@ def test_simple2(mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple4(apply: typing.Callable, mutate: bool):
@@ -130,7 +130,7 @@ def test_simple4(apply: typing.Callable, mutate: bool):
         assert original_df.equals(phylogeny_df)
 
 
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 @pytest.mark.parametrize("apply", [lambda x: x, alifestd_to_working_format])
 @pytest.mark.parametrize("mutate", [True, False])
 def test_simple5(apply: typing.Callable, mutate: bool):
@@ -204,7 +204,7 @@ def test_simple5(apply: typing.Callable, mutate: bool):
         pd.read_csv(f"{assets_path}/nk_tournamentselection.csv"),
     ],
 )
-@pandas_pre3_only
+@mark_skipif_pandas_post3
 def test_fuzz(phylogeny_df: pd.DataFrame):
     phylogeny_df = alifestd_mark_leaves(phylogeny_df)
     phylogeny_df = alifestd_mark_num_leaves_asexual(phylogeny_df)
