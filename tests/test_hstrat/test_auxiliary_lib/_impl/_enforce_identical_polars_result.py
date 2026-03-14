@@ -38,7 +38,9 @@ def enforce_identical_polars_result(
                 pl_result, recurse=recurse_type_checks
             )
             pd.testing.assert_series_equal(
-                pl_result, pd_result, check_names=False,
+                pl_result,
+                pd_result,
+                check_names=False,
                 check_dtype=False,
             )
         else:
