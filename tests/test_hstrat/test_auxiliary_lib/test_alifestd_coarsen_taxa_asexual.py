@@ -1,4 +1,3 @@
-from packaging.version import parse as parse_version
 import pandas as pd
 import pytest
 
@@ -7,10 +6,9 @@ from hstrat._auxiliary_lib import (
     alifestd_make_empty,
 )
 
-pytestmark = pytest.mark.skipif(
-    parse_version(pd.__version__) >= parse_version("3"),
-    reason="alifestd functions are not compatible with pandas >= 3",
-)
+from ._impl import pandas_pre3_only
+
+pytestmark = pandas_pre3_only
 
 
 @pytest.mark.parametrize("col", ["id", "ancestor_id", "ancestor_list"])

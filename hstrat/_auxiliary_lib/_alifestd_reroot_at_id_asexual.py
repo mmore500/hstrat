@@ -7,7 +7,6 @@ from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
-from packaging.version import parse as parse_version
 import pandas as pd
 
 from ._add_bool_arg import add_bool_arg
@@ -24,6 +23,7 @@ from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 from ._pairwise import pairwise
+from ._require_pandas_pre3 import require_pandas_pre3
 
 
 @alifestd_topological_sensitivity_warned(
@@ -35,6 +35,7 @@ from ._pairwise import pairwise
     version="1.23.0",
     reason="Use phyloframe.legacy.alifestd_reroot_at_id_asexual instead.",
 )
+@require_pandas_pre3
 def alifestd_reroot_at_id_asexual(
     phylogeny_df: pd.DataFrame,
     new_root_id: int,
@@ -62,11 +63,6 @@ def alifestd_reroot_at_id_asexual(
     pandas.DataFrame
         The rerooted phylogeny in alife standard format.
     """
-    if parse_version(pd.__version__) >= parse_version("3"):
-        raise RuntimeError(
-            "This function is not compatible with pandas >= 3. "
-            "Use phyloframe.legacy.alifestd_reroot_at_id_asexual instead.",
-        )
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 

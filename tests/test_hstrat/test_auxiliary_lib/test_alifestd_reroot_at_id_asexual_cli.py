@@ -2,14 +2,11 @@ import os
 import pathlib
 import subprocess
 
-from packaging.version import parse as parse_version
 import pandas as pd
-import pytest
 
-pytestmark = pytest.mark.skipif(
-    parse_version(pd.__version__) >= parse_version("3"),
-    reason="alifestd functions are not compatible with pandas >= 3",
-)
+from ._impl import pandas_pre3_only
+
+pytestmark = pandas_pre3_only
 
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 

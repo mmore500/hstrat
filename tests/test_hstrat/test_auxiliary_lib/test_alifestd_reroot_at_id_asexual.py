@@ -1,17 +1,14 @@
 import numpy as np
-from packaging.version import parse as parse_version
 import pandas as pd
-import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_reroot_at_id_asexual,
     alifestd_validate,
 )
 
-pytestmark = pytest.mark.skipif(
-    parse_version(pd.__version__) >= parse_version("3"),
-    reason="alifestd functions are not compatible with pandas >= 3",
-)
+from ._impl import pandas_pre3_only
+
+pytestmark = pandas_pre3_only
 
 
 def test_alifestd_reroot_at_id_asexual_inner_node_terminal_node():

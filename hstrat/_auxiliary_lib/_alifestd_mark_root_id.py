@@ -6,7 +6,6 @@ import typing
 from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
-from packaging.version import parse as parse_version
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
@@ -19,12 +18,14 @@ from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
+from ._require_pandas_pre3 import require_pandas_pre3
 
 
 @deprecated(
     version="1.23.0",
     reason="Use phyloframe.legacy.alifestd_mark_root_id instead.",
 )
+@require_pandas_pre3
 def alifestd_mark_root_id(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -43,12 +44,6 @@ def alifestd_mark_root_id(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
-    if parse_version(pd.__version__) >= parse_version("3"):
-        raise RuntimeError(
-            "This function is not compatible with pandas >= 3. "
-            "Use phyloframe.legacy.alifestd_mark_root_id instead.",
-        )
-
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 

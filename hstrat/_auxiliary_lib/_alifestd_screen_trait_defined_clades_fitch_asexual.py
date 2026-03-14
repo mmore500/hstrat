@@ -3,18 +3,19 @@ import typing
 
 from deprecated.sphinx import deprecated
 import numpy as np
-from packaging.version import parse as parse_version
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._require_pandas_pre3 import require_pandas_pre3
 
 
 @deprecated(
     version="1.23.0",
     reason="Use phyloframe.legacy.alifestd_screen_trait_defined_clades_fitch_asexual instead.",
 )
+@require_pandas_pre3
 def alifestd_screen_trait_defined_clades_fitch_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -38,12 +39,6 @@ def alifestd_screen_trait_defined_clades_fitch_asexual(
     with array elements as the number of nodes in the clade that have the
     trait. Returned array matches row order of the input DataFrame.
     """
-    if parse_version(pd.__version__) >= parse_version("3"):
-        raise RuntimeError(
-            "This function is not compatible with pandas >= 3. "
-            "Use phyloframe.legacy.alifestd_screen_trait_defined_clades_fitch_asexual instead.",
-        )
-
     if len(phylogeny_df) == 0:
         return np.array([], dtype=bool)
 

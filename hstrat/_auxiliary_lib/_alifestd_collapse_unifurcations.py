@@ -9,7 +9,6 @@ from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
-from packaging.version import parse as parse_version
 import pandas as pd
 
 from ._add_bool_arg import add_bool_arg
@@ -31,6 +30,7 @@ from ._get_hstrat_version import get_hstrat_version
 from ._jit import jit
 from ._jit_numpy_uint8_t import jit_numpy_uint8_t
 from ._log_context_duration import log_context_duration
+from ._require_pandas_pre3 import require_pandas_pre3
 
 
 @jit(nopython=True)
@@ -110,6 +110,7 @@ def _alifestd_collapse_unifurcations_asexual(
     version="1.23.0",
     reason="Use phyloframe.legacy.alifestd_collapse_unifurcations instead.",
 )
+@require_pandas_pre3
 def alifestd_collapse_unifurcations(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -134,11 +135,6 @@ def alifestd_collapse_unifurcations(
     alifestd_collapse_unifurcations_polars :
         Polars-based implementation.
     """
-    if parse_version(pd.__version__) >= parse_version("3"):
-        raise RuntimeError(
-            "This function is not compatible with pandas >= 3. "
-            "Use phyloframe.legacy.alifestd_collapse_unifurcations instead.",
-        )
     # special optimized handling for asexual phylogenies
     if alifestd_is_asexual(phylogeny_df):
         return _alifestd_collapse_unifurcations_asexual(

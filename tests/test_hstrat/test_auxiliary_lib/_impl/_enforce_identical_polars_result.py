@@ -41,7 +41,7 @@ def enforce_identical_polars_result(
                 pl_result,
                 pd_result,
                 check_names=False,
-                check_dtype=False,
+                check_dtype=True,
             )
         else:
             assert pd_result == pl_result

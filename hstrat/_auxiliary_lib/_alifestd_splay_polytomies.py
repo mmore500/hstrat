@@ -8,7 +8,6 @@ from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
-from packaging.version import parse as parse_version
 import pandas as pd
 
 from ._add_bool_arg import add_bool_arg
@@ -27,6 +26,7 @@ from ._jit import jit
 from ._jit_numba_dict_t import jit_numba_dict_t
 from ._jit_numpy_int64_t import jit_numpy_int64_t
 from ._log_context_duration import log_context_duration
+from ._require_pandas_pre3 import require_pandas_pre3
 
 
 @jit(nopython=True)
@@ -152,6 +152,7 @@ def _alifestd_splay_polytomies_slow_path(
     version="1.23.0",
     reason="Use phyloframe.legacy.alifestd_splay_polytomies instead.",
 )
+@require_pandas_pre3
 def alifestd_splay_polytomies(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -185,11 +186,6 @@ def alifestd_splay_polytomies(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
-    if parse_version(pd.__version__) >= parse_version("3"):
-        raise RuntimeError(
-            "This function is not compatible with pandas >= 3. "
-            "Use phyloframe.legacy.alifestd_splay_polytomies instead.",
-        )
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
