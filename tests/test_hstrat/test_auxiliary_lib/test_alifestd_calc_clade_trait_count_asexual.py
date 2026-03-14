@@ -1,6 +1,7 @@
 import os
 import typing
 
+from packaging.version import parse as parse_version
 import pandas as pd
 import pytest
 
@@ -10,6 +11,11 @@ from hstrat._auxiliary_lib import (
     alifestd_mark_leaves,
     alifestd_mark_num_leaves_asexual,
     alifestd_to_working_format,
+)
+
+pytestmark = pytest.mark.skipif(
+    parse_version(pd.__version__) >= parse_version("3"),
+    reason="alifestd functions are not compatible with pandas >= 3",
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")

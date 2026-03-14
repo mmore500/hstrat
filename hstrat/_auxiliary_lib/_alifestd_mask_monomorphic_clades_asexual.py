@@ -122,6 +122,11 @@ def alifestd_mask_monomorphic_clades_asexual(
     -------
     pd.DataFrame
     """
+    if parse_version(pd.__version__) >= parse_version("3"):
+        raise RuntimeError(
+            "This function is not compatible with pandas >= 3. "
+            "Use phyloframe.legacy.alifestd_mask_monomorphic_clades_asexual instead.",
+        )
 
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
@@ -151,15 +156,10 @@ def alifestd_mask_monomorphic_clades_asexual(
             phylogeny_df["ancestor_id"].to_numpy(),
             phylogeny_df[
                 "alifestd_mask_monomorphic_clades_asexual_mask"
-            ].to_numpy(
-                copy=parse_version(pd.__version__) >= parse_version("3"),
-                dtype=np.bool_,
-            ),
+            ].to_numpy(dtype=np.bool_),
             phylogeny_df[
                 "alifestd_mask_monomorphic_clades_asexual_trait"
-            ].to_numpy(
-                copy=parse_version(pd.__version__) >= parse_version("3"),
-            ),
+            ].to_numpy(),
         )
     else:
         phylogeny_df = _alifestd_mask_monomorphic_clades_asexual_slow_path(

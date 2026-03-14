@@ -1,4 +1,5 @@
 from deprecated.sphinx import deprecated
+from packaging.version import parse as parse_version
 import pandas as pd
 import tqdist
 
@@ -21,12 +22,15 @@ def alifestd_calc_triplet_distance_asexual(
     taxon_label_key: str = "taxon_label",
 ) -> float:
     """Calculate the triplet distance between two trees."""
+    if parse_version(pd.__version__) >= parse_version("3"):
+        raise RuntimeError(
+            "This function is not compatible with pandas >= 3. "
+            "Use phyloframe.legacy.alifestd_calc_triplet_distance_asexual instead.",
+        )
 
     ref = alifestd_mark_leaves(alifestd_collapse_unifurcations(ref))
     cmp = alifestd_mark_leaves(alifestd_collapse_unifurcations(cmp))
 
-    ref[taxon_label_key] = ref[taxon_label_key].astype(object)
-    cmp[taxon_label_key] = cmp[taxon_label_key].astype(object)
     ref.loc[~ref["is_leaf"], taxon_label_key] = ""
     cmp.loc[~cmp["is_leaf"], taxon_label_key] = ""
 

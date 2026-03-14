@@ -1,10 +1,16 @@
 import numpy as np
+from packaging.version import parse as parse_version
 import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_make_empty,
     alifestd_mask_descendants_asexual,
+)
+
+pytestmark = pytest.mark.skipif(
+    parse_version(pd.__version__) >= parse_version("3"),
+    reason="alifestd functions are not compatible with pandas >= 3",
 )
 
 

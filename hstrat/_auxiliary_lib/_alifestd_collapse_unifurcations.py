@@ -84,9 +84,7 @@ def _alifestd_collapse_unifurcations_asexual(
     logging.info("- alifestd_collapse_unifurcations: calculating reindex...")
     assert (phylogeny_df["id"] >= phylogeny_df["ancestor_id"]).all()
     keep_filter, ancestor_ids = _collapse_unifurcations(
-        phylogeny_df["ancestor_id"].to_numpy(
-            copy=parse_version(pd.__version__) >= parse_version("3"),
-        ),
+        phylogeny_df["ancestor_id"].to_numpy(),
     )
 
     logging.info("- alifestd_collapse_unifurcations: applying reindex...")
@@ -136,6 +134,11 @@ def alifestd_collapse_unifurcations(
     alifestd_collapse_unifurcations_polars :
         Polars-based implementation.
     """
+    if parse_version(pd.__version__) >= parse_version("3"):
+        raise RuntimeError(
+            "This function is not compatible with pandas >= 3. "
+            "Use phyloframe.legacy.alifestd_collapse_unifurcations instead.",
+        )
     # special optimized handling for asexual phylogenies
     if alifestd_is_asexual(phylogeny_df):
         return _alifestd_collapse_unifurcations_asexual(

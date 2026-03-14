@@ -3,6 +3,7 @@ import itertools as it
 import os
 import typing
 
+from packaging.version import parse as parse_version
 import pandas as pd
 import pandas.testing as pdt
 import polars as pl
@@ -26,6 +27,11 @@ from hstrat._auxiliary_lib import (
     alifestd_topological_sort,
     alifestd_try_add_ancestor_id_col,
     alifestd_validate,
+)
+
+pytestmark = pytest.mark.skipif(
+    parse_version(pd.__version__) >= parse_version("3"),
+    reason="alifestd functions are not compatible with pandas >= 3",
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")

@@ -62,6 +62,11 @@ def alifestd_reroot_at_id_asexual(
     pandas.DataFrame
         The rerooted phylogeny in alife standard format.
     """
+    if parse_version(pd.__version__) >= parse_version("3"):
+        raise RuntimeError(
+            "This function is not compatible with pandas >= 3. "
+            "Use phyloframe.legacy.alifestd_reroot_at_id_asexual instead.",
+        )
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
@@ -72,32 +77,29 @@ def alifestd_reroot_at_id_asexual(
 
     # contiguous id implementation
     if alifestd_has_contiguous_ids(phylogeny_df):
-        ancestor_id_arr = phylogeny_df["ancestor_id"].to_numpy(
-            copy=parse_version(pd.__version__) >= parse_version("3"),
-        )
-        id_arr = phylogeny_df["id"].to_numpy()
         copy_to_slice = unfurled_lineage[1:]
         copy_from_slice = unfurled_lineage[:-1]
-        ancestor_id_arr[copy_to_slice] = id_arr[copy_from_slice]
-        ancestor_id_arr[new_root_id] = id_arr[new_root_id]
-        phylogeny_df["ancestor_id"] = ancestor_id_arr
+        phylogeny_df["ancestor_id"].to_numpy()[copy_to_slice] = phylogeny_df[
+            "id"
+        ].to_numpy()[copy_from_slice]
+
+        phylogeny_df["ancestor_id"].to_numpy()[new_root_id] = phylogeny_df[
+            "id"
+        ].to_numpy()[new_root_id]
 
     # noncontiguous id implementation
     else:
-        ancestor_id_arr = phylogeny_df["ancestor_id"].to_numpy(
-            copy=parse_version(pd.__version__) >= parse_version("3"),
-        )
-        id_arr = phylogeny_df["id"].to_numpy()
         iloc_lookup = dict(
             zip(phylogeny_df["id"], np.arange(len(phylogeny_df)))
         )
         for ancestor_id, descendant_id in pairwise(reversed(unfurled_lineage)):
             iloc = iloc_lookup[ancestor_id]
-            ancestor_id_arr[iloc] = descendant_id
+            phylogeny_df["ancestor_id"].to_numpy()[iloc] = descendant_id
 
         new_root_iloc = iloc_lookup[new_root_id]
-        ancestor_id_arr[new_root_iloc] = id_arr[new_root_iloc]
-        phylogeny_df["ancestor_id"] = ancestor_id_arr
+        phylogeny_df["ancestor_id"].to_numpy()[new_root_iloc] = phylogeny_df[
+            "id"
+        ].to_numpy()[new_root_iloc]
 
     # update ancestor list
     phylogeny_df["ancestor_list"] = alifestd_make_ancestor_list_col(

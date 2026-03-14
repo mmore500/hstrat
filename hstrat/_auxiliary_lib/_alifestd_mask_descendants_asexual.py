@@ -64,6 +64,11 @@ def alifestd_mask_descendants_asexual(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
+    if parse_version(pd.__version__) >= parse_version("3"):
+        raise RuntimeError(
+            "This function is not compatible with pandas >= 3. "
+            "Use phyloframe.legacy.alifestd_mask_descendants_asexual instead.",
+        )
 
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
@@ -80,9 +85,7 @@ def alifestd_mask_descendants_asexual(
             "alifestd_mask_descendants_asexual"
         ] = _alifestd_mask_descendants_asexual_fast_path(
             phylogeny_df["ancestor_id"].to_numpy(),
-            phylogeny_df["alifestd_mask_descendants_asexual"].to_numpy(
-                copy=parse_version(pd.__version__) >= parse_version("3"),
-            ),
+            phylogeny_df["alifestd_mask_descendants_asexual"].to_numpy(),
         )
         return phylogeny_df
     else:

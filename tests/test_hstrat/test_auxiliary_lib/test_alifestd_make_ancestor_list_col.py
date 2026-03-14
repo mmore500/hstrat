@@ -1,5 +1,6 @@
 import os
 
+from packaging.version import parse as parse_version
 import pandas as pd
 import pytest
 
@@ -9,6 +10,11 @@ from hstrat._auxiliary_lib import (
 )
 
 from ._impl import enforce_identical_polars_result
+
+pytestmark = pytest.mark.skipif(
+    parse_version(pd.__version__) >= parse_version("3"),
+    reason="alifestd functions are not compatible with pandas >= 3",
+)
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
 

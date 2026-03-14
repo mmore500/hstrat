@@ -6,6 +6,7 @@ import typing
 from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
+from packaging.version import parse as parse_version
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
@@ -42,6 +43,11 @@ def alifestd_mark_root_id(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
+    if parse_version(pd.__version__) >= parse_version("3"):
+        raise RuntimeError(
+            "This function is not compatible with pandas >= 3. "
+            "Use phyloframe.legacy.alifestd_mark_root_id instead.",
+        )
 
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
@@ -58,27 +64,20 @@ def alifestd_mark_root_id(
 
     phylogeny_df["root_id"] = phylogeny_df["id"]
     if "ancestor_id" in phylogeny_df.columns:  # asexual
-        root_ids = phylogeny_df["root_id"].to_numpy(copy=True)
-        ancestor_ids = phylogeny_df["ancestor_id"].to_numpy()
-        idx_lookup = {v: i for i, v in enumerate(phylogeny_df.index)}
-        for pos, index in enumerate(phylogeny_df.index):
-            ancestor_id = ancestor_ids[pos]
-            anc_pos = idx_lookup[ancestor_id]
-            root_ids[pos] = root_ids[anc_pos]
-        phylogeny_df["root_id"] = root_ids
+        root_id_col = phylogeny_df["root_id"]
+        ancestor_id_col = phylogeny_df["ancestor_id"]
+        for index in phylogeny_df.index:
+            ancestor_id = ancestor_id_col.at[index]
+            root_id_col.at[index] = root_id_col.at[ancestor_id]
     else:  # sexual
-        root_ids = phylogeny_df["root_id"].to_numpy(copy=True)
+        root_id_col = phylogeny_df["root_id"]
         ancestor_list_col = phylogeny_df["ancestor_list"]
-        idx_lookup = {v: i for i, v in enumerate(phylogeny_df.index)}
-        for pos, index in enumerate(phylogeny_df.index):
-            ancestor_list = ancestor_list_col.iat[pos]
-            ancestor_id_list = alifestd_parse_ancestor_ids(ancestor_list)
-            candidate_roots = [
-                root_ids[idx_lookup[aid]] for aid in ancestor_id_list
-            ]
+        for index in phylogeny_df.index:
+            ancestor_list = ancestor_list_col.at[index]
+            ancestor_ids = alifestd_parse_ancestor_ids(ancestor_list)
+            candidate_roots = [*map(root_id_col.at.__getitem__, ancestor_ids)]
             # "or" covers genesis empty list case
-            root_ids[pos] = selector(candidate_roots or [index])
-        phylogeny_df["root_id"] = root_ids
+            root_id_col.at[index] = selector(candidate_roots or [index])
 
     return phylogeny_df
 

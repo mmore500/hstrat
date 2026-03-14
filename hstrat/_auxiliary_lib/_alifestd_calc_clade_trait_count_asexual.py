@@ -77,6 +77,11 @@ def alifestd_calc_clade_trait_count_asexual(
     elements as the number of nodes in the clade that have the trait. Returned
     array matches row order of the input DataFrame.
     """
+    if parse_version(pd.__version__) >= parse_version("3"):
+        raise RuntimeError(
+            "This function is not compatible with pandas >= 3. "
+            "Use phyloframe.legacy.alifestd_calc_clade_trait_count_asexual instead.",
+        )
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
@@ -88,9 +93,7 @@ def alifestd_calc_clade_trait_count_asexual(
     if alifestd_is_working_format_asexual(phylogeny_df):
         return _alifestd_calc_clade_trait_count_asexual_fast_path(
             pd.to_numeric(phylogeny_df["ancestor_id"]).to_numpy(),
-            phylogeny_df["alifestd_calc_trait_count_asexual"].to_numpy(
-                copy=parse_version(pd.__version__) >= parse_version("3")
-            ),
+            phylogeny_df["alifestd_calc_trait_count_asexual"].to_numpy(),
         )
     else:
         return _alifestd_calc_clade_trait_count_asexual_slow_path(phylogeny_df)

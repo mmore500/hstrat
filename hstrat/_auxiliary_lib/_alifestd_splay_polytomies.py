@@ -185,6 +185,11 @@ def alifestd_splay_polytomies(
     If mutate set True, operation does not occur in place; still use return
     value to get transformed phylogeny dataframe.
     """
+    if parse_version(pd.__version__) >= parse_version("3"):
+        raise RuntimeError(
+            "This function is not compatible with pandas >= 3. "
+            "Use phyloframe.legacy.alifestd_splay_polytomies instead.",
+        )
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
@@ -201,10 +206,7 @@ def alifestd_splay_polytomies(
             new_ids,
             new_ancestor_ids,
         ) = _alifestd_splay_polytomies_fast_path(
-            phylogeny_df["ancestor_id"].to_numpy(
-                dtype=np.int64,
-                copy=parse_version(pd.__version__) >= parse_version("3"),
-            )
+            phylogeny_df["ancestor_id"].to_numpy(dtype=np.int64)
         )
         addendum = phylogeny_df.loc[new_source_ids].copy()
         addendum["id"] = new_ids

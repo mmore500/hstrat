@@ -1,4 +1,5 @@
 from deprecated.sphinx import deprecated
+from packaging.version import parse as parse_version
 import pandas as pd
 
 from ._alifestd_make_ancestor_list_col_polars import (
@@ -28,11 +29,14 @@ def alifestd_make_ancestor_list_col(
     "None" will yield the entry "[None]" and the token "" will yield the entry
     "[]". Default "none".
     """
+    if parse_version(pd.__version__) >= parse_version("3"):
+        raise RuntimeError(
+            "This function is not compatible with pandas >= 3. "
+            "Use phyloframe.legacy.alifestd_make_ancestor_list_col instead.",
+        )
 
     assert isinstance(ids, pd.Series) and isinstance(ancestor_ids, pd.Series)
-    res = ancestor_ids.map("[{!s}]".format).astype(object)  # specify for empty
-    is_root = ids.to_numpy() == ancestor_ids.to_numpy()
-    res = res.copy()
-    res[is_root] = f"[{root_ancestor_token}]"
+    res = ancestor_ids.map("[{!s}]".format).astype(str)  # specify for empty
+    res[ids == ancestor_ids] = f"[{root_ancestor_token}]"
 
     return res

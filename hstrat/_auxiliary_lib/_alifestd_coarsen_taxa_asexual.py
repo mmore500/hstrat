@@ -2,6 +2,7 @@ import typing
 
 from deprecated.sphinx import deprecated
 import numpy as np
+from packaging.version import parse as parse_version
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
@@ -112,6 +113,11 @@ def alifestd_coarsen_taxa_asexual(
         Helper function to generate default `agg` dict, which may be customized
         before being passed to `alifestd_coarsen_taxa_asexual`.
     """
+    if parse_version(pd.__version__) >= parse_version("3"):
+        raise RuntimeError(
+            "This function is not compatible with pandas >= 3. "
+            "Use phyloframe.legacy.alifestd_coarsen_taxa_asexual instead.",
+        )
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 
@@ -163,11 +169,11 @@ def alifestd_coarsen_taxa_asexual(
             phylogeny_df["ancestor_id"],
             phylogeny_df["alifestd_coarsen_taxa_asexual_taxon_founder_id"],
         ) = _alifestd_coarsen_taxa_asexual_fast_path(
-            phylogeny_df["ancestor_id"].to_numpy(copy=True),
+            phylogeny_df["ancestor_id"].values,
             phylogeny_df[
                 "alifestd_coarsen_taxa_asexual_is_taxon_founder"
-            ].to_numpy(),
-            phylogeny_df["is_root"].to_numpy(),
+            ].values,
+            phylogeny_df["is_root"].values,
         )
     else:
         phylogeny_df = _alifestd_coarsen_taxa_asexual_slow_path(
@@ -181,10 +187,10 @@ def alifestd_coarsen_taxa_asexual(
     ).agg(agg)
 
     if "ancestor_list" in phylogeny_df:
-        phylogeny_df["ancestor_list"] = alifestd_make_ancestor_list_col(
+        phylogeny_df.loc[:, "ancestor_list"] = alifestd_make_ancestor_list_col(
             phylogeny_df["id"],
             phylogeny_df["ancestor_id"],
-        ).astype(object)
+        )
 
     return phylogeny_df.drop(
         [

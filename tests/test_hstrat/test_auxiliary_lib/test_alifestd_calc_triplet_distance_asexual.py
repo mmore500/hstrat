@@ -1,9 +1,15 @@
+from packaging.version import parse as parse_version
 import pandas as pd
 import pytest
 
 from hstrat._auxiliary_lib import (
     alifestd_calc_triplet_distance_asexual,
     alifestd_make_ancestor_list_col,
+)
+
+pytestmark = pytest.mark.skipif(
+    parse_version(pd.__version__) >= parse_version("3"),
+    reason="alifestd functions are not compatible with pandas >= 3",
 )
 
 
