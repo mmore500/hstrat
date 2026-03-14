@@ -267,11 +267,19 @@ def test_alifestd_delete_trunk_asexual_unifurcation():
         taxon_label="dstream_data_id",
     )
 
+    pd_result = alifestd_delete_trunk_asexual(phylo)
+    pl_result = alifestd_delete_trunk_asexual_polars(
+        pl.from_pandas(phylo)
+    ).to_pandas()
+    # Normalize nan/None in object columns for pandas 3 compatibility
+    for col in pd_result.columns:
+        if pd_result[col].dtype == object:
+            pd_result[col] = pd_result[col].where(pd_result[col].notna(), None)
+        if pl_result[col].dtype == object:
+            pl_result[col] = pl_result[col].where(pl_result[col].notna(), None)
     pdt.assert_frame_equal(
-        alifestd_delete_trunk_asexual(phylo),
-        alifestd_delete_trunk_asexual_polars(
-            pl.from_pandas(phylo)
-        ).to_pandas(),
+        pd_result,
+        pl_result,
         check_dtype=False,
     )
 

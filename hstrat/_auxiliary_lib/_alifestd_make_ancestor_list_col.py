@@ -30,7 +30,9 @@ def alifestd_make_ancestor_list_col(
     """
 
     assert isinstance(ids, pd.Series) and isinstance(ancestor_ids, pd.Series)
-    res = ancestor_ids.map("[{!s}]".format).astype(str)  # specify for empty
-    res[ids == ancestor_ids] = f"[{root_ancestor_token}]"
+    res = ancestor_ids.map("[{!s}]".format).astype(object)  # specify for empty
+    is_root = ids.to_numpy() == ancestor_ids.to_numpy()
+    res = res.copy()
+    res[is_root] = f"[{root_ancestor_token}]"
 
     return res

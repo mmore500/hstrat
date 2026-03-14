@@ -163,11 +163,11 @@ def alifestd_coarsen_taxa_asexual(
             phylogeny_df["ancestor_id"],
             phylogeny_df["alifestd_coarsen_taxa_asexual_taxon_founder_id"],
         ) = _alifestd_coarsen_taxa_asexual_fast_path(
-            phylogeny_df["ancestor_id"].values,
+            phylogeny_df["ancestor_id"].to_numpy(copy=True),
             phylogeny_df[
                 "alifestd_coarsen_taxa_asexual_is_taxon_founder"
-            ].values,
-            phylogeny_df["is_root"].values,
+            ].to_numpy(),
+            phylogeny_df["is_root"].to_numpy(),
         )
     else:
         phylogeny_df = _alifestd_coarsen_taxa_asexual_slow_path(
@@ -181,10 +181,10 @@ def alifestd_coarsen_taxa_asexual(
     ).agg(agg)
 
     if "ancestor_list" in phylogeny_df:
-        phylogeny_df.loc[:, "ancestor_list"] = alifestd_make_ancestor_list_col(
+        phylogeny_df["ancestor_list"] = alifestd_make_ancestor_list_col(
             phylogeny_df["id"],
             phylogeny_df["ancestor_id"],
-        )
+        ).astype(object)
 
     return phylogeny_df.drop(
         [

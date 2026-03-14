@@ -25,6 +25,8 @@ def alifestd_calc_triplet_distance_asexual(
     ref = alifestd_mark_leaves(alifestd_collapse_unifurcations(ref))
     cmp = alifestd_mark_leaves(alifestd_collapse_unifurcations(cmp))
 
+    ref[taxon_label_key] = ref[taxon_label_key].astype(object)
+    cmp[taxon_label_key] = cmp[taxon_label_key].astype(object)
     ref.loc[~ref["is_leaf"], taxon_label_key] = ""
     cmp.loc[~cmp["is_leaf"], taxon_label_key] = ""
 
