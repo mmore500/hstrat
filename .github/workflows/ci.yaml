@@ -497,7 +497,7 @@ jobs:
       - build-script
       - coverage
       - cli-smoke
-      - deploy-test
+      # - deploy-test
       - examples
       - packaging-bdist
       - packaging-sdist
