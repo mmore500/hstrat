@@ -8,6 +8,7 @@ from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
+from packaging.version import parse as parse_version
 import pandas as pd
 
 from ._add_bool_arg import add_bool_arg
@@ -200,7 +201,10 @@ def alifestd_splay_polytomies(
             new_ids,
             new_ancestor_ids,
         ) = _alifestd_splay_polytomies_fast_path(
-            phylogeny_df["ancestor_id"].to_numpy(dtype=np.int64)
+            phylogeny_df["ancestor_id"].to_numpy(
+                dtype=np.int64,
+                copy=parse_version(pd.__version__) >= parse_version("3"),
+            )
         )
         addendum = phylogeny_df.loc[new_source_ids].copy()
         addendum["id"] = new_ids

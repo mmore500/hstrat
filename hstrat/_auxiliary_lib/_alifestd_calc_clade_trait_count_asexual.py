@@ -1,5 +1,6 @@
 from deprecated.sphinx import deprecated
 import numpy as np
+from packaging.version import parse as parse_version
 import pandas as pd
 
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
@@ -87,7 +88,9 @@ def alifestd_calc_clade_trait_count_asexual(
     if alifestd_is_working_format_asexual(phylogeny_df):
         return _alifestd_calc_clade_trait_count_asexual_fast_path(
             pd.to_numeric(phylogeny_df["ancestor_id"]).to_numpy(),
-            phylogeny_df["alifestd_calc_trait_count_asexual"].to_numpy(),
+            phylogeny_df["alifestd_calc_trait_count_asexual"].to_numpy(
+                copy=parse_version(pd.__version__) >= parse_version("3")
+            ),
         )
     else:
         return _alifestd_calc_clade_trait_count_asexual_slow_path(phylogeny_df)
