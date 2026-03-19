@@ -30,7 +30,9 @@ def test_alifestd_downsample_tips_clade_asexual_cli_version():
 
 
 def test_alifestd_downsample_tips_clade_asexual_cli_csv():
-    output_file = "/tmp/hstrat_alifestd_downsample_tips_clade_asexual.csv"
+    output_file = (
+        "/tmp/hstrat_alifestd_downsample_tips_clade_asexual.csv"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
@@ -48,7 +50,9 @@ def test_alifestd_downsample_tips_clade_asexual_cli_csv():
 
 
 def test_alifestd_downsample_tips_clade_asexual_cli_parquet():
-    output_file = "/tmp/hstrat_alifestd_downsample_tips_clade_asexual.pqt"
+    output_file = (
+        "/tmp/hstrat_alifestd_downsample_tips_clade_asexual.pqt"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
@@ -59,6 +63,46 @@ def test_alifestd_downsample_tips_clade_asexual_cli_parquet():
             "1",
             "--seed",
             "50_000_000",
+            output_file,
+        ],
+        check=True,
+        input=f"{assets}/example-standard-toy-asexual-phylogeny.csv".encode(),
+    )
+    assert os.path.exists(output_file)
+
+
+def test_alifestd_downsample_tips_clade_asexual_cli_ignore_topological_sensitivity():
+    output_file = (
+        "/tmp/hstrat_alifestd_downsample_tips_clade_asexual_ignore.csv"
+    )
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_downsample_tips_clade_asexual",
+            "-n",
+            "1",
+            "--ignore-topological-sensitivity",
+            output_file,
+        ],
+        check=True,
+        input=f"{assets}/example-standard-toy-asexual-phylogeny.csv".encode(),
+    )
+    assert os.path.exists(output_file)
+
+
+def test_alifestd_downsample_tips_clade_asexual_cli_drop_topological_sensitivity():
+    output_file = "/tmp/hstrat_alifestd_downsample_tips_clade_asexual_drop.csv"
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_downsample_tips_clade_asexual",
+            "-n",
+            "1",
+            "--drop-topological-sensitivity",
             output_file,
         ],
         check=True,

@@ -9,7 +9,7 @@ from ._jit import jit
 
 
 @jit(nopython=True)
-def alifestd_mark_num_descendants_asexual_fast_path(
+def _alifestd_mark_num_descendants_asexual_fast_path(
     ancestor_ids: np.ndarray,
 ) -> np.ndarray:
     """Implementation detail for `alifestd_mark_num_descendants_asexual`."""
@@ -25,7 +25,7 @@ def alifestd_mark_num_descendants_asexual_fast_path(
     return num_descendants
 
 
-def alifestd_mark_num_descendants_asexual_slow_path(
+def _alifestd_mark_num_descendants_asexual_slow_path(
     phylogeny_df: pd.DataFrame,
 ) -> pd.DataFrame:
     """Implementation detail for `alifestd_mark_num_descendants_asexual`."""
@@ -72,9 +72,9 @@ def alifestd_mark_num_descendants_asexual(
     if alifestd_has_contiguous_ids(phylogeny_df):
         phylogeny_df[
             "num_descendants"
-        ] = alifestd_mark_num_descendants_asexual_fast_path(
+        ] = _alifestd_mark_num_descendants_asexual_fast_path(
             phylogeny_df["ancestor_id"].to_numpy()
         )
         return phylogeny_df
     else:
-        return alifestd_mark_num_descendants_asexual_slow_path(phylogeny_df)
+        return _alifestd_mark_num_descendants_asexual_slow_path(phylogeny_df)

@@ -11,10 +11,10 @@ def alifestd_assign_contiguous_ids_polars(
     Organisms retain the same row location; only id numbers change. Input
     dataframe is not mutated by this operation unless `mutate` True.
     """
+    phylogeny_df = phylogeny_df.lazy().collect()  # lazy not yet implemented
+
     if "ancestor_list" in phylogeny_df.columns:
         raise NotImplementedError
-
-    phylogeny_df = phylogeny_df.lazy().collect()
 
     new_ancestor_ids = _reassign_ids_asexual(
         phylogeny_df["id"].to_numpy(),

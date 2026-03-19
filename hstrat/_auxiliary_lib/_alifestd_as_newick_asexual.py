@@ -8,6 +8,7 @@ import more_itertools as mit
 import numpy as np
 import opytional as opyt
 import pandas as pd
+import polars as pl
 from tqdm import tqdm
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
@@ -19,6 +20,7 @@ from ._alifestd_unfurl_traversal_postorder_asexual import (
     alifestd_unfurl_traversal_postorder_asexual,
 )
 from ._configure_prod_logging import configure_prod_logging
+from ._eval_kwargs import eval_kwargs
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
@@ -53,7 +55,7 @@ def _build_newick_string(
 ) -> str:
     child_newick_reprs = dict()
     for id_, taxon_label, origin_time_delta, ancestor_id in progress_wrap(
-        zip(ids, labels, origin_time_deltas, ancestor_ids)
+        zip(ids, labels, origin_time_deltas.astype(str), ancestor_ids)
     ):
         newick_repr = _format_newick_repr(taxon_label, origin_time_delta)
 
@@ -131,7 +133,6 @@ def alifestd_as_newick_asexual(
             postorder_ids,
             ["id", "__hstrat_label", "origin_time_delta", "ancestor_id"],
         ]
-        .astype({"origin_time_delta": str})
         .to_numpy()
         .T
     )
@@ -157,14 +158,35 @@ def _create_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawTextHelpFormatter,
     )
     parser.add_argument(
-        "--input-file",
         "-i",
+        "--input-file",
         type=str,
         help="Alife standard dataframe file to convert to Newick format.",
     )
     parser.add_argument(
-        "--output-file",
+        "--input-engine",
+        type=str,
+        choices=["pandas", "polars"],
+        default="pandas",
+        help="DataFrame engine to use for reading the input file. Defaults to 'pandas'.",
+    )
+    parser.add_argument(
+        "--input-kwarg",
+        action="append",
+        dest="input_kwargs",
+        type=str,
+        default=[],
+        help=(
+            "Additional keyword arguments to pass to input engine call. "
+            "Provide as 'key=value'. "
+            "Specify multiple kwargs by using this flag multiple times. "
+            "Arguments will be evaluated as Python expressions. "
+            "Example: 'infer_schema_length=None'"
+        ),
+    )
+    parser.add_argument(
         "-o",
+        "--output-file",
         type=str,
         help="Path to write Newick-formatted output to.",
     )
@@ -190,18 +212,31 @@ if __name__ == "__main__":
     parser = _create_parser()
     args = parser.parse_args()
     input_ext = os.path.splitext(args.input_file)[1]
+    dispatch_reader = {
+        "pandas+.csv": pd.read_csv,
+        "pandas+.fea": pd.read_feather,
+        "pandas+.feather": pd.read_feather,
+        "pandas+.pqt": pd.read_parquet,
+        "pandas+.parquet": pd.read_parquet,
+        "polars+.csv": pl.read_csv,
+        "polars+.fea": pl.read_ipc,
+        "polars+.feather": pl.read_ipc,
+        "polars+.pqt": pl.read_parquet,
+        "polars+.parquet": pl.read_parquet,
+    }
 
     logging.info(
         f"reading alife-standard {input_ext} phylogeny data from "
         f"{args.input_file}...",
     )
-    phylogeny_df = {
-        ".csv": pd.read_csv,
-        ".fea": pd.read_feather,
-        ".feather": pd.read_feather,
-        ".pqt": pd.read_parquet,
-        ".parquet": pd.read_parquet,
-    }[input_ext](args.input_file)
+    phylogeny_df = dispatch_reader[f"{args.input_engine}+{input_ext}"](
+        args.input_file,
+        **eval_kwargs(args.input_kwargs),
+    )
+
+    if args.input_engine == "polars":
+        with log_context_duration("pl.DataFrame.to_pandas", logging.info):
+            phylogeny_df = phylogeny_df.to_pandas()
 
     with log_context_duration(
         "hstrat._auxiliary_lib.alifestd_as_newick_asexual", logging.info

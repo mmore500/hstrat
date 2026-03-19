@@ -30,7 +30,7 @@ def test_alifestd_to_working_format_cli_version():
 
 
 def test_alifestd_to_working_format_cli_csv():
-    output_file = "/tmp/hstrat_alifestd_to_working_format.csv"
+    output_file = "/tmp/hstrat_alifestd_to_working_format.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
@@ -46,7 +46,7 @@ def test_alifestd_to_working_format_cli_csv():
 
 
 def test_alifestd_to_working_format_cli_parquet():
-    output_file = "/tmp/hstrat_alifestd_to_working_format.pqt"
+    output_file = "/tmp/hstrat_alifestd_to_working_format.pqt"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [

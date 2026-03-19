@@ -30,14 +30,14 @@ def test_surface_postprocess_trie_cli_version():
 
 
 def test_surface_postprocess_trie_cli_csv():
-    output_file = "/tmp/hstrat_surface_postprocess_trie.csv"
+    output_file = "/tmp/hstrat_surface_postprocess_trie.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
             "python3",
             "-m",
             "hstrat.dataframe.surface_unpack_reconstruct",
-            "/tmp/hstrat_unpack_surface_reconstruct_.csv",
+            "/tmp/hstrat_unpack_surface_reconstruct_.csv",  # nosec B108
         ],
         check=True,
         input=f"{assets}/packed.csv".encode(),
@@ -50,20 +50,20 @@ def test_surface_postprocess_trie_cli_csv():
             output_file,
         ],
         check=True,
-        input="/tmp/hstrat_unpack_surface_reconstruct_.csv".encode(),
+        input="/tmp/hstrat_unpack_surface_reconstruct_.csv".encode(),  # nosec B108
     )
     assert os.path.exists(output_file)
 
 
 def test_surface_postprocess_trie_cli_parquet():
-    output_file = "/tmp/hstrat_surface_postprocess_trie.pqt"
+    output_file = "/tmp/hstrat_surface_postprocess_trie.pqt"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
             "python3",
             "-m",
             "hstrat.dataframe.surface_unpack_reconstruct",
-            "/tmp/hstrat_unpack_surface_reconstruct_.pqt",
+            "/tmp/hstrat_unpack_surface_reconstruct_.pqt",  # nosec B108
             "--shrink-dtypes",
             "--exploded-slice-size",
             "50_000_000",
@@ -82,6 +82,6 @@ def test_surface_postprocess_trie_cli_parquet():
             "hstrat.NopTriePostprocessor()",
         ],
         check=True,
-        input="/tmp/hstrat_unpack_surface_reconstruct_.pqt".encode(),
+        input="/tmp/hstrat_unpack_surface_reconstruct_.pqt".encode(),  # nosec B108
     )
     assert os.path.exists(output_file)

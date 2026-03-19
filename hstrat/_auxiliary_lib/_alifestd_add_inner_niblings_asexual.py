@@ -5,8 +5,16 @@ from ._alifestd_add_inner_knuckles_asexual import (
 )
 from ._alifestd_mark_leaves import alifestd_mark_leaves
 from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
+)
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=True,
+    delete=False,
+    update=True,
+)
 def alifestd_add_inner_niblings_asexual(
     phylogeny_df: pd.DataFrame, mutate: bool = False
 ) -> pd.DataFrame:

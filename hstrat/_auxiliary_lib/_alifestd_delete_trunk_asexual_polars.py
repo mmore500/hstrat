@@ -2,9 +2,17 @@ import logging
 
 import polars as pl
 
+from ._alifestd_topological_sensitivity_warned_polars import (
+    alifestd_topological_sensitivity_warned_polars,
+)
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
+@alifestd_topological_sensitivity_warned_polars(
+    insert=False,
+    delete=True,
+    update=True,
+)
 def alifestd_delete_trunk_asexual_polars(
     phylogeny_df: pl.DataFrame,
 ) -> pl.DataFrame:
@@ -22,9 +30,11 @@ def alifestd_delete_trunk_asexual_polars(
     --------
     alifestd_collapse_trunk_asexual
     """
+    phylogeny_df = phylogeny_df.lazy().collect()  # lazy not yet implemented
+
     if "is_trunk" not in phylogeny_df:
         raise ValueError(
-            "`is_trunk` column not provided, trunk is unspecified"
+            "`is_trunk` column not provided, trunk is unspecified",
         )
 
     if "ancestor_list" in phylogeny_df:

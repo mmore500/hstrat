@@ -30,7 +30,7 @@ def test_surface_test_drive_cli_version():
 
 
 def test_surface_test_drive_cli_csv():
-    output_file = "/tmp/hstrat_surface_test_drive.csv"
+    output_file = "/tmp/hstrat_surface_test_drive.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
@@ -46,7 +46,7 @@ def test_surface_test_drive_cli_csv():
 
 
 def test_surface_test_drive_cli_parquet():
-    output_file = "/tmp/hstrat_surface_test_drive.pqt"
+    output_file = "/tmp/hstrat_surface_test_drive.pqt"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
@@ -63,7 +63,7 @@ def test_surface_test_drive_cli_parquet():
 
 
 def test_surface_test_drive_cli_flags():
-    output_file = "/tmp/hstrat_surface_test_drive_flags.pqt"
+    output_file = "/tmp/hstrat_surface_test_drive_flags.pqt"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
@@ -88,7 +88,9 @@ def test_surface_test_drive_cli_flags():
 
 
 def test_surface_test_drive_cli_pipe_reconstruct():
-    output_file = "/tmp/hstrat_surface_test_drive_reconstruct.pqt"
+    output_file = (
+        "/tmp/hstrat_surface_test_drive_reconstruct.pqt"  # nosec B108
+    )
     pathlib.Path(output_file).unlink(missing_ok=True)
     td = subprocess.run(
         [

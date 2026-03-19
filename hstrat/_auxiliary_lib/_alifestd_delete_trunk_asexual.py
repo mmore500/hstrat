@@ -5,9 +5,17 @@ import numpy as np
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
+)
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=False,
+    delete=True,
+    update=True,
+)
 def alifestd_delete_trunk_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

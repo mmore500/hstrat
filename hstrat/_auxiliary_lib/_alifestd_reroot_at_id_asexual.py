@@ -1,15 +1,21 @@
-import warnings
-
 import numpy as np
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
+)
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
 from ._pairwise import pairwise
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=False,
+    delete=False,
+    update=True,
+)
 def alifestd_reroot_at_id_asexual(
     phylogeny_df: pd.DataFrame,
     new_root_id: int,
@@ -37,14 +43,6 @@ def alifestd_reroot_at_id_asexual(
     pandas.DataFrame
         The rerooted phylogeny in alife standard format.
     """
-
-    if "branch_length" in phylogeny_df or "edge_length" in phylogeny_df:
-        warnings.warn(
-            "alifestd_reroot_at_id_asexual does not update branch length "
-            "columns. Use `origin_time` to recalculate branch lengths for "
-            "rerooted phylogeny."
-        )
-
     if not mutate:
         phylogeny_df = phylogeny_df.copy()
 

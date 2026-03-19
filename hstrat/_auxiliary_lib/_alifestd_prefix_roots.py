@@ -8,6 +8,9 @@ import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_mark_roots import alifestd_mark_roots
+from ._alifestd_topological_sensitivity_warned import (
+    alifestd_topological_sensitivity_warned,
+)
 
 
 def _alifestd_prefix_roots_fast(
@@ -30,6 +33,11 @@ def _alifestd_prefix_roots_fast(
     return pd.concat([prepended_roots, phylogeny_df], ignore_index=True)
 
 
+@alifestd_topological_sensitivity_warned(
+    insert=True,
+    delete=False,
+    update=True,
+)
 def alifestd_prefix_roots(
     phylogeny_df: pd.DataFrame,
     *,

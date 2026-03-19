@@ -30,7 +30,7 @@ def test_alifestd_join_roots_cli_version():
 
 
 def test_alifestd_join_roots_cli_csv():
-    output_file = "/tmp/hstrat_alifestd_join_roots.csv"
+    output_file = "/tmp/hstrat_alifestd_join_roots.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
@@ -46,13 +46,47 @@ def test_alifestd_join_roots_cli_csv():
 
 
 def test_alifestd_join_roots_cli_parquet():
-    output_file = "/tmp/hstrat_alifestd_join_roots.pqt"
+    output_file = "/tmp/hstrat_alifestd_join_roots.pqt"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
     subprocess.run(
         [
             "python3",
             "-m",
             "hstrat._auxiliary_lib._alifestd_join_roots",
+            output_file,
+        ],
+        check=True,
+        input=f"{assets}/example-standard-toy-asexual-phylogeny.csv".encode(),
+    )
+    assert os.path.exists(output_file)
+
+
+def test_alifestd_join_roots_cli_ignore_topological_sensitivity():
+    output_file = "/tmp/hstrat_alifestd_join_roots_ignore.csv"
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_join_roots",
+            "--ignore-topological-sensitivity",
+            output_file,
+        ],
+        check=True,
+        input=f"{assets}/example-standard-toy-asexual-phylogeny.csv".encode(),
+    )
+    assert os.path.exists(output_file)
+
+
+def test_alifestd_join_roots_cli_drop_topological_sensitivity():
+    output_file = "/tmp/hstrat_alifestd_join_roots_drop.csv"
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(
+        [
+            "python3",
+            "-m",
+            "hstrat._auxiliary_lib._alifestd_join_roots",
+            "--drop-topological-sensitivity",
             output_file,
         ],
         check=True,
