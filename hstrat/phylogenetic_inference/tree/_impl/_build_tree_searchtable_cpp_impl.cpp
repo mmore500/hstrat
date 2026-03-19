@@ -706,6 +706,62 @@ void collapse_indistinguishable_nodes(Records & records, const u64 node) {
  * children of those children to the node. Then, attaching children
  * becomes much faster, avoiding deep searches.
  *
+ * We previously believed that all children of a node will have the
+ * same rank, as the consolidate step should result in all children
+ * having rank `rank` after it runs. However, this neglected the case
+ * when a collapse_indistinguishable_nodes step ends up moving children
+ * from a winner to a loser, one of which had not been able to
+ * consolidate in a while, resulting in it having children of a rank
+ * that should have been dropped.
+ *
+ * The following example illustrates this case. Note, the value at
+ * each node represents the differentia value
+ *
+ *    1       2       3       4       5
+ * ++++++++++++++++++++++++++++++++++++++
+ *          /-0-------1-------0
+ *    1----<
+ *          \-1-------1-------1
+ *
+ * Suppose we now are processing the node:
+ *
+ *    1       1       1       _       1
+ *
+ * Then, the tree becomes:
+ *
+ *          /-0-------1-------0
+ *    1----<
+ *          \-1-------1---------------1
+ *
+ * Note that the child in rank 4 was only consolidated in the the
+ * node that was actually being processed (i.e., the node with rank 3
+ * in the lower branch). Therefore, it is not yet consolidated in the
+ * upper branch. So, now suppose that we proceed the node:
+ *
+ *    1       _       0       _       1        0
+ *
+ * After consolidation (but before collapse), the tree is:
+ *
+ *                  /-1-------0
+ *    1------------<
+ *                  \-1---------------1
+ *
+ * Then, the 1 is collapsed to:
+ *
+ *                          /-0
+ *    1---------------1----<
+ *                          \---------1
+ *
+ * Finally, adding the node gives:
+ *
+ *                          /-0
+ *    1---------------1----<
+ *                 \        \---------1
+ *                  \-0---------------1--------0
+ *
+ * Therefore, we cannot hold an invariant that the children of any node
+ * must all have the same rank.
+ *
  * @see collapse_indistinguishable_nodes
  */
 void consolidate_trie(Records &records, const i64 rank, const u64 node) {
