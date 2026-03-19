@@ -1,8 +1,13 @@
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_count_children_of_asexual instead.",
+)
 def alifestd_count_children_of_asexual(
     phylogeny_df: pd.DataFrame,
     parent: int,

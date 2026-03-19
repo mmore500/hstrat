@@ -1,6 +1,7 @@
 import functools
 import typing
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 from ._alifestd_drop_topological_sensitivity import (
@@ -11,6 +12,10 @@ from ._alifestd_warn_topological_sensitivity import (
 )
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_topological_sensitivity_warned instead.",
+)
 def alifestd_topological_sensitivity_warned(
     *, insert: bool, delete: bool, update: bool
 ) -> typing.Callable:

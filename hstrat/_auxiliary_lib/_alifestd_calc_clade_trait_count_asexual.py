@@ -1,3 +1,4 @@
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -8,6 +9,7 @@ from ._alifestd_is_working_format_asexual import (
 from ._alifestd_topological_sort import alifestd_topological_sort
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._jit import jit
+from ._require_pandas_pre3 import require_pandas_pre3
 
 
 @jit(nopython=True)
@@ -57,6 +59,11 @@ def _alifestd_calc_clade_trait_count_asexual_slow_path(
         return phylogeny_df["alifestd_calc_trait_count_asexual"].to_numpy()
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_calc_clade_trait_count_asexual instead.",
+)
+@require_pandas_pre3
 def alifestd_calc_clade_trait_count_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

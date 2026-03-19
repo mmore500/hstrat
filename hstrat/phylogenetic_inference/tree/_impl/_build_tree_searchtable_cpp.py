@@ -5,14 +5,10 @@ import more_itertools as mit
 import numpy as np
 import opytional as opyt
 import pandas as pd
+from phyloframe import legacy as pfl
 import polars as pl
 
-from ...._auxiliary_lib import (
-    HereditaryStratigraphicArtifact,
-    alifestd_make_empty,
-    alifestd_try_add_ancestor_list_col,
-    argsort,
-)
+from ...._auxiliary_lib import HereditaryStratigraphicArtifact, argsort
 from ._build_tree_searchtable_cpp_impl_stub import (
     Records,
     build_tree_searchtable_cpp_from_exploded,
@@ -38,6 +34,9 @@ def _finalize_records(
         str(sorted_labels[i]) if i != placeholder_value else "_inner_node"
         for i in df["dstream_data_id"]
     ]
+    df["dstream_data_id"] = df["dstream_data_id"].replace(
+        placeholder_value, None
+    )
 
     multiple_true_roots = (
         (df["id"] != 0) & (df["ancestor_id"] == 0)
@@ -49,7 +48,7 @@ def _finalize_records(
             "Consider setting force_common_ancestry=True.",
         )
 
-    return alifestd_try_add_ancestor_list_col(df, mutate=True)
+    return pfl.alifestd_try_add_ancestor_list_col(df, mutate=True)
 
 
 def _explode_population(
@@ -148,7 +147,7 @@ def build_tree_searchtable_cpp(
     """
     pop_len = len(population)
     if pop_len == 0:
-        res = alifestd_make_empty()
+        res = pfl.alifestd_make_empty()
         res["origin_time"] = pd.Series(dtype=int)
         res["taxon_label"] = None
         return res

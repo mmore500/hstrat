@@ -1,6 +1,11 @@
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_is_chronologically_sorted instead.",
+)
 def alifestd_is_chronologically_sorted(
     phylogeny_df: pd.DataFrame,
     how: str = "origin_time",

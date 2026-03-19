@@ -2,6 +2,7 @@ import os
 import typing
 import warnings
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 from ._alifestd_check_topological_sensitivity import (
@@ -44,6 +45,10 @@ def _alifestd_warn_topological_sensitivity(
         )
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_warn_topological_sensitivity instead.",
+)
 def alifestd_warn_topological_sensitivity(
     phylogeny_df: pd.DataFrame,
     caller: str,

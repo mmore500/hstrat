@@ -4,13 +4,10 @@ import typing
 
 import alifedata_phyloinformatics_convert as apc
 import dendropy as dp
+from phyloframe import legacy as pfl
 import pytest
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import (
-    alifestd_is_chronologically_ordered,
-    alifestd_validate,
-)
 
 from . import _impl as impl
 
@@ -23,8 +20,8 @@ def test_empty_population(use_impl: typing.Optional[str]):
     tree = hstrat.build_tree_searchtable(population, use_impl=use_impl)
 
     assert len(tree) == 0
-    assert alifestd_validate(tree)
-    assert alifestd_is_chronologically_ordered(tree)
+    assert pfl.alifestd_validate(tree)
+    assert pfl.alifestd_is_chronologically_ordered(tree)
 
 
 @pytest.mark.parametrize("use_impl", ["cpp", "python", None])
@@ -77,8 +74,8 @@ def test_smoke(
         [*map(wrap, extant_population)], use_impl=use_impl
     )
 
-    assert alifestd_validate(reconst_df)
-    assert alifestd_is_chronologically_ordered(reconst_df)
+    assert pfl.alifestd_validate(reconst_df)
+    assert pfl.alifestd_is_chronologically_ordered(reconst_df)
     reconst_tree = apc.alife_dataframe_to_dendropy_tree(
         reconst_df,
         setup_edge_lengths=True,

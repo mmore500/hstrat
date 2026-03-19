@@ -1,5 +1,6 @@
 import typing
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -10,6 +11,10 @@ from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
 from ._estimate_binomial_p import estimate_binomial_p
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_estimate_triplet_distance_asexual instead.",
+)
 def alifestd_estimate_triplet_distance_asexual(
     first_df: pd.DataFrame,
     second_df: pd.DataFrame,

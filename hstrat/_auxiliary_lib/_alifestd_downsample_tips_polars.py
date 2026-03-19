@@ -1,63 +1,72 @@
 import argparse
+import contextlib
 import functools
+import gc
 import logging
 import os
 import sys
 import typing
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
+import numpy as np
+import opytional as opyt
 import polars as pl
 
+from ._RngStateContext import RngStateContext
 from ._add_bool_arg import add_bool_arg
-from ._alifestd_mark_leaves_polars import alifestd_mark_leaves_polars
+from ._alifestd_find_leaf_ids_polars import alifestd_find_leaf_ids_polars
 from ._alifestd_prune_extinct_lineages_polars import (
     alifestd_prune_extinct_lineages_polars,
 )
 from ._alifestd_topological_sensitivity_warned_polars import (
     alifestd_topological_sensitivity_warned_polars,
 )
-from ._configure_prod_logging import configure_prod_logging
+from ._begin_prod_logging import begin_prod_logging
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
+from ._log_memory_usage import log_memory_usage
 
 
 def _alifestd_downsample_tips_polars_impl(
     phylogeny_df: pl.DataFrame,
     n_downsample: int,
-    seed: int,
 ) -> pl.DataFrame:
     """Implementation detail for alifestd_downsample_tips_polars."""
 
     logging.info(
-        "- alifestd_downsample_tips_polars: finding leaf ids...",
-    )
-    marked_df = alifestd_mark_leaves_polars(phylogeny_df)
-
-    logging.info(
         "- alifestd_downsample_tips_polars: collecting leaf ids...",
     )
-    leaf_ids = (
-        marked_df.lazy()
-        .filter(pl.col("is_leaf"))
-        .select(pl.col("id"))
-        .collect()
-        .to_series()
-        .set_sorted()
-    )
+    leaf_ids = alifestd_find_leaf_ids_polars(phylogeny_df)
+    gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_polars: sampling leaf_ids...",
     )
-    leaf_ids = leaf_ids.sample(n=min(n_downsample, len(leaf_ids)), seed=seed)
+    leaf_ids = np.random.choice(
+        leaf_ids, size=min(n_downsample, len(leaf_ids)), replace=False
+    )
+    gc.collect()
+    log_memory_usage(logging.info)
+
+    logging.info("- alifestd_downsample_tips_polars: collecting len(df)...")
+    len_df = phylogeny_df.lazy().select(pl.len()).collect().item()
+
+    logging.info("- alifestd_downsample_tips_polars: finding extant...")
+    extant_mask = np.bincount(leaf_ids, minlength=len_df).astype(bool)
+    del leaf_ids
+    gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
-        "- alifestd_downsample_tips_polars: finding extant...",
+        "- alifestd_downsample_tips_polars: marking extant...",
     )
-    phylogeny_df = phylogeny_df.with_columns(
-        extant=pl.int_range(0, pl.len()).is_in(leaf_ids)  # contiguous ids
-    )
+    phylogeny_df = phylogeny_df.with_columns(extant=extant_mask)
+    gc.collect()
+    log_memory_usage(logging.info)
 
     logging.info(
         "- alifestd_downsample_tips_polars: pruning...",
@@ -69,6 +78,10 @@ def _alifestd_downsample_tips_polars_impl(
     insert=False,
     delete=True,
     update=False,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_downsample_tips_polars instead.",
 )
 def alifestd_downsample_tips_polars(
     phylogeny_df: pl.DataFrame,
@@ -114,11 +127,11 @@ def alifestd_downsample_tips_polars(
     if phylogeny_df.lazy().limit(1).collect().is_empty():
         return phylogeny_df
 
-    return _alifestd_downsample_tips_polars_impl(
-        phylogeny_df,
-        n_downsample,
-        seed=seed,
-    )
+    with opyt.apply_if_or_else(seed, RngStateContext, contextlib.nullcontext):
+        return _alifestd_downsample_tips_polars_impl(
+            phylogeny_df,
+            n_downsample,
+        )
 
 
 _raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
@@ -149,6 +162,7 @@ hstrat._auxiliary_lib._alifestd_downsample_tips_asexual :
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
+        allow_abbrev=False,
         description=format_cli_description(_raw_description),
         formatter_class=argparse.RawTextHelpFormatter,
     )
@@ -186,7 +200,7 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    configure_prod_logging()
+    begin_prod_logging()
 
     parser = _create_parser()
     args, __ = parser.parse_known_args()

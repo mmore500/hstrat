@@ -1,3 +1,4 @@
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -8,6 +9,10 @@ from ._unfurl_lineage_with_contiguous_ids import (
 )
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_unfurl_lineage_asexual instead.",
+)
 def alifestd_unfurl_lineage_asexual(
     phylogeny_df: pd.DataFrame,
     leaf_id: int,

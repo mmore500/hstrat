@@ -1,6 +1,11 @@
+from deprecated.sphinx import deprecated
 import polars as pl
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_is_topologically_sorted_polars instead.",
+)
 def alifestd_is_topologically_sorted_polars(
     phylogeny_df: pl.DataFrame,
 ) -> bool:

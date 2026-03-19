@@ -1,10 +1,10 @@
 import os
 
 import alifedata_phyloinformatics_convert as apc
+from phyloframe import legacy as pfl
 import pytest
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import alifestd_validate
 
 from . import _impl as impl
 
@@ -172,7 +172,7 @@ def test_reconstructed_dist(orig_tree, retention_policy, wrap):
     )
     assert "origin_time" in reconst_df
 
-    assert alifestd_validate(reconst_df)
+    assert pfl.alifestd_validate(reconst_df)
     reconst_tree = apc.alife_dataframe_to_dendropy_tree(
         reconst_df,
         setup_edge_lengths=True,

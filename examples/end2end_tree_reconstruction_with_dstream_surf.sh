@@ -25,6 +25,7 @@ reconst_phylo_df_path="/tmp/end2end-reconst-phylo-evolve_surf_dstream.pqt"
 # do reconstruction
 ls "${genome_df_path}" | python3 -m \
     hstrat.dataframe.surface_unpack_reconstruct \
+    --exploded-slice-size 100000 \
     "${reconst_phylo_df_path}" \
     >/dev/null 2>&1
 

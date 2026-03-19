@@ -1,6 +1,11 @@
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_make_ancestor_id_col instead.",
+)
 def alifestd_make_ancestor_id_col(
     ids: pd.Series, ancestor_lists: pd.Series
 ) -> pd.Series:

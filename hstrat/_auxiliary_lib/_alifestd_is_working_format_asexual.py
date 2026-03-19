@@ -1,9 +1,14 @@
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_is_topologically_sorted import alifestd_is_topologically_sorted
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_is_working_format_asexual instead.",
+)
 def alifestd_is_working_format_asexual(
     phylogeny_df,
     mutate: bool = False,

@@ -1,5 +1,12 @@
+import argparse
+import functools
+import logging
+import os
 import typing
 
+from deprecated.sphinx import deprecated
+import joinem
+from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
 import pandas as pd
 
@@ -15,8 +22,17 @@ from ._alifestd_mark_is_left_child_asexual import (
 )
 from ._alifestd_mark_roots import alifestd_mark_roots
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
+from ._begin_prod_logging import begin_prod_logging
+from ._delegate_polars_implementation import delegate_polars_implementation
+from ._format_cli_description import format_cli_description
+from ._get_hstrat_version import get_hstrat_version
+from ._log_context_duration import log_context_duration
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_mark_clade_fblr_growth_sister_asexual instead.",
+)
 def alifestd_mark_clade_fblr_growth_sister_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
@@ -118,3 +134,58 @@ def alifestd_mark_clade_fblr_growth_sister_asexual(
         phylogeny_df.loc[nowork_ids, "clade_fblr_growth_sister"] = np.nan
 
     return phylogeny_df
+
+
+_raw_description = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
+
+Add column `clade_fblr_growth_sister`, containing the coefficient of a fblr regression fit comparing origin times of this clade's descendant leaves to those of its sister clade.
+
+Data is assumed to be in alife standard format.
+
+Additional Notes
+================
+- Use `--eager-read` if modifying data file inplace.
+
+- This CLI entrypoint is experimental and may be subject to change.
+"""
+
+
+def _create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        add_help=False,
+        allow_abbrev=False,
+        description=format_cli_description(_raw_description),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser = _add_parser_base(
+        parser=parser,
+        dfcli_module="hstrat._auxiliary_lib._alifestd_mark_clade_fblr_growth_sister_asexual",
+        dfcli_version=get_hstrat_version(),
+    )
+    parser.add_argument(
+        "--parallel-backend",
+        type=str,
+        default=None,
+        help="joblib parallel backend to use (default: None)",
+    )
+    return parser
+
+
+if __name__ == "__main__":
+    begin_prod_logging()
+
+    parser = _create_parser()
+    args, __ = parser.parse_known_args()
+    with log_context_duration(
+        "hstrat._auxiliary_lib._alifestd_mark_clade_fblr_growth_sister_asexual",
+        logging.info,
+    ):
+        _run_dataframe_cli(
+            base_parser=parser,
+            output_dataframe_op=delegate_polars_implementation()(
+                functools.partial(
+                    alifestd_mark_clade_fblr_growth_sister_asexual,
+                    parallel_backend=args.parallel_backend,
+                ),
+            ),
+        )

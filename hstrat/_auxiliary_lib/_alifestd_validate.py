@@ -1,6 +1,7 @@
 import typing
 import warnings
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 from ._alifestd_is_asexual import alifestd_is_asexual
@@ -117,6 +118,10 @@ def _alifestd_validate(
     )
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_validate instead.",
+)
 def alifestd_validate(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

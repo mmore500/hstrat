@@ -1,3 +1,4 @@
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -6,6 +7,10 @@ from ._alifestd_calc_clade_trait_count_asexual import (
 )
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_calc_clade_trait_frequency_asexual instead.",
+)
 def alifestd_calc_clade_trait_frequency_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

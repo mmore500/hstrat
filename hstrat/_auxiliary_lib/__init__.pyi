@@ -13,6 +13,7 @@ from ._HereditaryStratigraphicInstrument import (
 from ._RecursionLimit import RecursionLimit
 from ._RngStateContext import RngStateContext
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
+from ._add_bool_arg import add_bool_arg
 from ._alifestd_add_global_root import alifestd_add_global_root
 from ._alifestd_add_inner_knuckles_asexual import (
     alifestd_add_inner_knuckles_asexual,
@@ -23,6 +24,7 @@ from ._alifestd_add_inner_niblings_asexual import (
 )
 from ._alifestd_aggregate_phylogenies import alifestd_aggregate_phylogenies
 from ._alifestd_as_newick_asexual import alifestd_as_newick_asexual
+from ._alifestd_as_newick_polars import alifestd_as_newick_polars
 from ._alifestd_assign_contiguous_ids import alifestd_assign_contiguous_ids
 from ._alifestd_assign_contiguous_ids_polars import (
     alifestd_assign_contiguous_ids_polars,
@@ -65,6 +67,8 @@ from ._alifestd_check_topological_sensitivity_polars import (
     alifestd_check_topological_sensitivity_polars,
 )
 from ._alifestd_chronological_sort import alifestd_chronological_sort
+from ._alifestd_coarsen_dilate_asexual import alifestd_coarsen_dilate_asexual
+from ._alifestd_coarsen_dilate_polars import alifestd_coarsen_dilate_polars
 from ._alifestd_coarsen_mask import alifestd_coarsen_mask
 from ._alifestd_coarsen_taxa_asexual import (
     alifestd_coarsen_taxa_asexual,
@@ -85,13 +89,25 @@ from ._alifestd_count_children_of_asexual import (
     alifestd_count_children_of_asexual,
 )
 from ._alifestd_count_inner_nodes import alifestd_count_inner_nodes
+from ._alifestd_count_inner_nodes_polars import (
+    alifestd_count_inner_nodes_polars,
+)
 from ._alifestd_count_leaf_nodes import alifestd_count_leaf_nodes
+from ._alifestd_count_leaf_nodes_polars import alifestd_count_leaf_nodes_polars
 from ._alifestd_count_polytomies import alifestd_count_polytomies
+from ._alifestd_count_polytomies_polars import alifestd_count_polytomies_polars
 from ._alifestd_count_root_nodes import alifestd_count_root_nodes
+from ._alifestd_count_root_nodes_polars import alifestd_count_root_nodes_polars
 from ._alifestd_count_unifurcating_roots_asexual import (
     alifestd_count_unifurcating_roots_asexual,
 )
+from ._alifestd_count_unifurcating_roots_polars import (
+    alifestd_count_unifurcating_roots_polars,
+)
 from ._alifestd_count_unifurcations import alifestd_count_unifurcations
+from ._alifestd_count_unifurcations_polars import (
+    alifestd_count_unifurcations_polars,
+)
 from ._alifestd_delete_trunk_asexual import alifestd_delete_trunk_asexual
 from ._alifestd_delete_trunk_asexual_polars import (
     alifestd_delete_trunk_asexual_polars,
@@ -109,6 +125,18 @@ from ._alifestd_downsample_tips_canopy_polars import (
 from ._alifestd_downsample_tips_clade_asexual import (
     alifestd_downsample_tips_clade_asexual,
 )
+from ._alifestd_downsample_tips_lineage_asexual import (
+    alifestd_downsample_tips_lineage_asexual,
+)
+from ._alifestd_downsample_tips_lineage_polars import (
+    alifestd_downsample_tips_lineage_polars,
+)
+from ._alifestd_downsample_tips_lineage_stratified_asexual import (
+    alifestd_downsample_tips_lineage_stratified_asexual,
+)
+from ._alifestd_downsample_tips_lineage_stratified_polars import (
+    alifestd_downsample_tips_lineage_stratified_polars,
+)
 from ._alifestd_downsample_tips_polars import alifestd_downsample_tips_polars
 from ._alifestd_drop_topological_sensitivity import (
     alifestd_drop_topological_sensitivity,
@@ -123,8 +151,17 @@ from ._alifestd_find_chronological_inconsistency import (
     alifestd_find_chronological_inconsistency,
 )
 from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
+from ._alifestd_find_leaf_ids_polars import alifestd_find_leaf_ids_polars
 from ._alifestd_find_mrca_id_asexual import alifestd_find_mrca_id_asexual
+from ._alifestd_find_pair_mrca_id_asexual import (
+    alifestd_find_pair_mrca_id_asexual,
+)
+from ._alifestd_find_pair_mrca_id_polars import (
+    alifestd_find_pair_mrca_id_polars,
+)
 from ._alifestd_find_root_ids import alifestd_find_root_ids
+from ._alifestd_from_newick import alifestd_from_newick
+from ._alifestd_from_newick_polars import alifestd_from_newick_polars
 from ._alifestd_has_compact_ids import alifestd_has_compact_ids
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
 from ._alifestd_has_contiguous_ids_polars import (
@@ -222,9 +259,7 @@ from ._alifestd_mark_max_descendant_origin_time_asexual import (
     alifestd_mark_max_descendant_origin_time_asexual,
 )
 from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
-from ._alifestd_mark_node_depth_asexual_polars import (
-    alifestd_mark_node_depth_asexual_polars,
-)
+from ._alifestd_mark_node_depth_polars import alifestd_mark_node_depth_polars
 from ._alifestd_mark_num_children_asexual import (
     alifestd_mark_num_children_asexual,
 )
@@ -344,6 +379,7 @@ from ._argsort import argsort
 from ._as_compact_type import as_compact_type
 from ._as_nullable_type import as_nullable_type
 from ._assign_intersecting_subsets import assign_intersecting_subsets
+from ._begin_prod_logging import begin_prod_logging
 from ._bit_ceil import bit_ceil
 from ._bit_drop_msb import bit_drop_msb
 from ._bit_floor import bit_floor
@@ -466,12 +502,14 @@ from ._with_rng_state_context import with_rng_state_context
 from ._zip_strict import zip_strict
 
 __all__ = [
+    "add_bool_arg",
     "alifestd_add_global_root",
     "alifestd_add_inner_knuckles_asexual",
     "alifestd_add_inner_leaves",
     "alifestd_add_inner_niblings_asexual",
     "alifestd_aggregate_phylogenies",
     "alifestd_as_newick_asexual",
+    "alifestd_as_newick_polars",
     "alifestd_assign_contiguous_ids",
     "alifestd_assign_contiguous_ids_polars",
     "alifestd_assign_root_ancestor_token",
@@ -488,6 +526,8 @@ __all__ = [
     "alifestd_check_topological_sensitivity",
     "alifestd_check_topological_sensitivity_polars",
     "alifestd_chronological_sort",
+    "alifestd_coarsen_dilate_asexual",
+    "alifestd_coarsen_dilate_polars",
     "alifestd_coarsen_mask",
     "alifestd_coarsen_taxa_asexual",
     "alifestd_coarsen_taxa_asexual_make_agg",
@@ -502,6 +542,12 @@ __all__ = [
     "alifestd_count_polytomies",
     "alifestd_count_unifurcating_roots_asexual",
     "alifestd_count_unifurcations",
+    "alifestd_count_inner_nodes_polars",
+    "alifestd_count_leaf_nodes_polars",
+    "alifestd_count_polytomies_polars",
+    "alifestd_count_root_nodes_polars",
+    "alifestd_count_unifurcating_roots_polars",
+    "alifestd_count_unifurcations_polars",
     "alifestd_delete_trunk_asexual",
     "alifestd_delete_trunk_asexual_polars",
     "alifestd_delete_unifurcating_roots_asexual",
@@ -509,14 +555,23 @@ __all__ = [
     "alifestd_downsample_tips_canopy_polars",
     "alifestd_downsample_tips_asexual",
     "alifestd_downsample_tips_clade_asexual",
+    "alifestd_downsample_tips_lineage_asexual",
+    "alifestd_downsample_tips_lineage_stratified_asexual",
+    "alifestd_downsample_tips_lineage_stratified_polars",
+    "alifestd_downsample_tips_lineage_polars",
     "alifestd_downsample_tips_polars",
     "alifestd_drop_topological_sensitivity",
     "alifestd_drop_topological_sensitivity_polars",
     "alifestd_estimate_triplet_distance_asexual",
     "alifestd_find_chronological_inconsistency",
     "alifestd_find_leaf_ids",
+    "alifestd_find_leaf_ids_polars",
     "alifestd_find_mrca_id_asexual",
+    "alifestd_find_pair_mrca_id_asexual",
+    "alifestd_find_pair_mrca_id_polars",
     "alifestd_find_root_ids",
+    "alifestd_from_newick",
+    "alifestd_from_newick_polars",
     "alifestd_has_compact_ids",
     "alifestd_has_contiguous_ids",
     "alifestd_has_contiguous_ids_polars",
@@ -560,7 +615,7 @@ __all__ = [
     "alifestd_mark_left_child_asexual",
     "alifestd_mark_max_descendant_origin_time_asexual",
     "alifestd_mark_node_depth_asexual",
-    "alifestd_mark_node_depth_asexual_polars",
+    "alifestd_mark_node_depth_polars",
     "alifestd_mark_num_children_asexual",
     "alifestd_mark_num_children_polars",
     "alifestd_mark_num_descendants_asexual",
@@ -628,6 +683,7 @@ __all__ = [
     "AnyTreeFastLevelOrderIter",
     "AnyTreeFastPreOrderIter",
     "AnyTreeFastPostOrderIter",
+    "begin_prod_logging",
     "BioPhyloTree",
     "bit_ceil",
     "bit_drop_msb",

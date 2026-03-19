@@ -1,5 +1,6 @@
 import typing
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -10,6 +11,10 @@ from ._alifestd_mark_node_depth_asexual import alifestd_mark_node_depth_asexual
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_calc_mrca_id_matrix_asexual instead.",
+)
 def alifestd_calc_mrca_id_matrix_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,

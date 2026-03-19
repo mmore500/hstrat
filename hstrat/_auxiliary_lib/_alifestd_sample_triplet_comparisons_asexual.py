@@ -1,5 +1,6 @@
 import typing
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -10,6 +11,10 @@ from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
 from ._alifestd_find_mrca_id_asexual import alifestd_find_mrca_id_asexual
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_sample_triplet_comparisons_asexual instead.",
+)
 def alifestd_sample_triplet_comparisons_asexual(
     first_df: pd.DataFrame,
     second_df: pd.DataFrame,

@@ -30,12 +30,14 @@ _hstrat_ enables phylogenetic inference on distributed digital evolution populat
 
 ## Install
 
-`python3 -m pip install hstrat`
+```bash
+python3 -m pip install hstrat==1.25.0
+```
 
 A containerized release of `hstrat` is available via [ghcr.io](https://ghcr.io/mmore500/hstrat)
 
 ```bash
-singularity exec docker://ghcr.io/mmore500/hstrat:v1.20.28 python3 -m hstrat --help
+singularity exec docker://ghcr.io/mmore500/hstrat:v1.25.0 python3 -m hstrat --help
 ```
 
 ## Features

@@ -4,6 +4,7 @@ import logging
 import operator
 import os
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import numpy as np
@@ -17,7 +18,7 @@ from ._alifestd_topological_sensitivity_warned import (
 )
 from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_unfurl_lineage_asexual import alifestd_unfurl_lineage_asexual
-from ._configure_prod_logging import configure_prod_logging
+from ._begin_prod_logging import begin_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
@@ -88,6 +89,10 @@ def _create_has_extant_descendant_contiguous_sorted(
     insert=False,
     delete=True,
     update=False,
+)
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_prune_extinct_lineages_asexual instead.",
 )
 def alifestd_prune_extinct_lineages_asexual(
     phylogeny_df: pd.DataFrame,
@@ -195,6 +200,7 @@ hstrat._auxiliary_lib._alifestd_prune_extinct_lineages_polars :
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
+        allow_abbrev=False,
         description=format_cli_description(_raw_description),
         formatter_class=argparse.RawTextHelpFormatter,
     )
@@ -219,7 +225,7 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    configure_prod_logging()
+    begin_prod_logging()
 
     parser = _create_parser()
     args, __ = parser.parse_known_args()

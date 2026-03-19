@@ -4,6 +4,7 @@ import os
 import pathlib
 import typing
 
+from deprecated.sphinx import deprecated
 import more_itertools as mit
 import numpy as np
 import opytional as opyt
@@ -19,7 +20,7 @@ from ._alifestd_try_add_ancestor_id_col import alifestd_try_add_ancestor_id_col
 from ._alifestd_unfurl_traversal_postorder_asexual import (
     alifestd_unfurl_traversal_postorder_asexual,
 )
-from ._configure_prod_logging import configure_prod_logging
+from ._begin_prod_logging import begin_prod_logging
 from ._eval_kwargs import eval_kwargs
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
@@ -69,12 +70,18 @@ def _build_newick_string(
     return ";\n".join(map(mit.one, child_newick_reprs.values())) + ";"
 
 
+# Performance (as of 2026-03-01, 200k-node caterpillar tree):
+#   hstrat ~9s vs treeswift ~5s
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_as_newick_asexual instead.",
+)
 def alifestd_as_newick_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
     *,
     taxon_label: typing.Optional[str] = None,
-    progress_wrap=lambda x: x,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> str:
     """Convert phylogeny dataframe to Newick format.
 
@@ -207,7 +214,7 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    configure_prod_logging()
+    begin_prod_logging()
 
     parser = _create_parser()
     args = parser.parse_args()

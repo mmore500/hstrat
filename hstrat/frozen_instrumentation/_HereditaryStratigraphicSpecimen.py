@@ -57,7 +57,7 @@ class HereditaryStratigraphicSpecimen:
             "int64",
             "uint64",
         )
-        self._data.index.astype(np.uint64, copy=False)
+        self._data.index.astype(np.int64, copy=False)
 
     def GetStratumDifferentiaBitWidth(
         self: "HereditaryStratigraphicSpecimen",
@@ -168,7 +168,7 @@ class HereditaryStratigraphicSpecimen:
             A numpy array containing ranks of differentia entries, including
             null entries for differentia that are not retained.
         """
-        return self._data.index.array.to_numpy(copy=False, dtype=np.uint64)
+        return self._data.index.array.to_numpy(copy=False, dtype=np.int64)
 
     def GetRankAtColumnIndex(
         self: "HereditaryStratigraphicSpecimen",

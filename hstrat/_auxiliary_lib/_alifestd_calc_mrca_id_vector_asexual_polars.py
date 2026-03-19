@@ -1,6 +1,7 @@
 import logging
 import typing
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import polars as pl
 
@@ -13,14 +14,15 @@ from ._alifestd_has_contiguous_ids_polars import (
 from ._alifestd_is_topologically_sorted_polars import (
     alifestd_is_topologically_sorted_polars,
 )
-from ._alifestd_mark_node_depth_asexual import (
-    _alifestd_calc_node_depth_asexual_contiguous,
-)
 from ._alifestd_try_add_ancestor_id_col_polars import (
     alifestd_try_add_ancestor_id_col_polars,
 )
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_calc_mrca_id_vector_asexual_polars instead.",
+)
 def alifestd_calc_mrca_id_vector_asexual_polars(
     phylogeny_df: pl.DataFrame,
     *,
@@ -88,7 +90,7 @@ def alifestd_calc_mrca_id_vector_asexual_polars(
     )
     ancestor_ids = (
         phylogeny_df.lazy()
-        .select("ancestor_id")
+        .select(pl.col("ancestor_id").cast(pl.Int64))
         .collect()
         .to_series()
         .to_numpy()
@@ -101,16 +103,8 @@ def alifestd_calc_mrca_id_vector_asexual_polars(
 
     logging.info(
         "- alifestd_calc_mrca_id_vector_asexual_polars: "
-        "calculating node depths...",
-    )
-    node_depths = _alifestd_calc_node_depth_asexual_contiguous(
-        ancestor_ids,
-    )
-
-    logging.info(
-        "- alifestd_calc_mrca_id_vector_asexual_polars: "
         "computing mrca ids...",
     )
     return _alifestd_calc_mrca_id_vector_asexual_fast_path(
-        ancestor_ids, node_depths, target_id, progress_wrap
+        ancestor_ids, target_id
     )

@@ -4,11 +4,8 @@ import warnings
 
 import alifedata_phyloinformatics_convert as apc
 import pandas as pd
+from phyloframe import legacy as pfl
 
-from ...._auxiliary_lib import (
-    alifestd_is_chronologically_ordered,
-    alifestd_reroot_at_id_asexual,
-)
 from ._estimate_origin_times import estimate_origin_times
 
 
@@ -62,7 +59,7 @@ def time_calibrate_tree(
     for new_root_id in sorted(
         new_root_ids, key=lambda x: (node_origin_times[x], x), reverse=True
     ):
-        alifestd_df = alifestd_reroot_at_id_asexual(
+        alifestd_df = pfl.alifestd_reroot_at_id_asexual(
             alifestd_df.drop(
                 ["branch_length", "edge_length"],
                 axis="columns",
@@ -102,6 +99,6 @@ def time_calibrate_tree(
         else:
             assert False, negative_origin_time_correction_method
 
-    assert alifestd_is_chronologically_ordered(alifestd_df)
+    assert pfl.alifestd_is_chronologically_ordered(alifestd_df)
 
     return alifestd_df

@@ -1,3 +1,4 @@
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 from ._alifestd_count_leaf_nodes import alifestd_count_leaf_nodes
@@ -5,6 +6,10 @@ from ._alifestd_count_root_nodes import alifestd_count_root_nodes
 from ._alifestd_count_unifurcations import alifestd_count_unifurcations
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_calc_polytomic_index instead.",
+)
 def alifestd_calc_polytomic_index(phylogeny_df: pd.DataFrame) -> int:
     """Count how many fewer inner nodes are contained in phylogeny than expected
     if strictly bifurcationg.

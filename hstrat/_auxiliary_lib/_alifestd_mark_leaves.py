@@ -2,19 +2,24 @@ import argparse
 import logging
 import os
 
+from deprecated.sphinx import deprecated
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 import pandas as pd
 
 from ._alifestd_find_leaf_ids import alifestd_find_leaf_ids
 from ._alifestd_has_contiguous_ids import alifestd_has_contiguous_ids
-from ._configure_prod_logging import configure_prod_logging
+from ._begin_prod_logging import begin_prod_logging
 from ._delegate_polars_implementation import delegate_polars_implementation
 from ._format_cli_description import format_cli_description
 from ._get_hstrat_version import get_hstrat_version
 from ._log_context_duration import log_context_duration
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_mark_leaves instead.",
+)
 def alifestd_mark_leaves(
     phylogeny_df: pd.DataFrame, mutate: bool = False
 ) -> pd.DataFrame:
@@ -61,6 +66,7 @@ hstrat._auxiliary_lib._alifestd_mark_leaves_polars :
 def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
+        allow_abbrev=False,
         description=format_cli_description(_raw_description),
         formatter_class=argparse.RawTextHelpFormatter,
     )
@@ -73,7 +79,7 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-    configure_prod_logging()
+    begin_prod_logging()
 
     parser = _create_parser()
     args, __ = parser.parse_known_args()

@@ -3,16 +3,11 @@ import typing
 from astropy.utils.decorators import deprecated_renamed_argument
 import numpy as np
 import pandas as pd
+from phyloframe import legacy as pfl
 
 from hstrat._auxiliary_lib import HereditaryStratigraphicInstrument
 
 from ..._auxiliary_lib import (
-    alifestd_find_leaf_ids,
-    alifestd_has_contiguous_ids,
-    alifestd_has_multiple_roots,
-    alifestd_is_topologically_sorted,
-    alifestd_to_working_format,
-    alifestd_topological_sort,
     cast_int_lossless,
     give_len,
     unfurl_lineage_with_contiguous_ids,
@@ -72,18 +67,18 @@ def descend_template_phylogeny_alifestd(
         organism id.
     """
 
-    assert not alifestd_has_multiple_roots(phylogeny_df)
+    assert not pfl.alifestd_has_multiple_roots(phylogeny_df)
 
     # must take leaf_ids before possible topological sort to preserve order
     if extant_ids is None:
-        extant_ids = alifestd_find_leaf_ids(phylogeny_df)
+        extant_ids = pfl.alifestd_find_leaf_ids(phylogeny_df)
 
-    working_df = alifestd_to_working_format(phylogeny_df)
+    working_df = pfl.alifestd_to_working_format(phylogeny_df)
     assert "ancestor_id" in working_df
 
-    if not alifestd_has_contiguous_ids(phylogeny_df):
-        if not alifestd_is_topologically_sorted(phylogeny_df):
-            phylogeny_df = alifestd_topological_sort(phylogeny_df)
+    if not pfl.alifestd_has_contiguous_ids(phylogeny_df):
+        if not pfl.alifestd_is_topologically_sorted(phylogeny_df):
+            phylogeny_df = pfl.alifestd_topological_sort(phylogeny_df)
 
         extant_ids = _reassign_ids_asexual(
             phylogeny_df["id"].to_numpy(), np.fromiter(extant_ids, int)

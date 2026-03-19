@@ -1,5 +1,6 @@
 import typing
 
+from deprecated.sphinx import deprecated
 import numpy as np
 import pandas as pd
 
@@ -76,6 +77,10 @@ def _alifestd_find_chronological_inconsistency_asexual(
         )
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_find_chronological_inconsistency instead.",
+)
 def alifestd_find_chronological_inconsistency(
     phylogeny_df: pd.DataFrame,
 ) -> typing.Optional[int]:

@@ -1,14 +1,10 @@
 import logging
 
+from phyloframe import legacy as pfl
 import pytest
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import (
-    alifestd_is_chronologically_ordered,
-    alifestd_splay_polytomies,
-    alifestd_validate,
-    seed_random,
-)
+from hstrat._auxiliary_lib import seed_random
 
 
 @pytest.mark.parametrize("tree_seed", [1, 2, 3])
@@ -53,14 +49,14 @@ def test_reconstructed_mrca_fuzz(
         ),
     )
 
-    control_df = alifestd_splay_polytomies(
+    control_df = pfl.alifestd_splay_polytomies(
         hstrat.build_tree_trie(control_population)
     )
-    assert alifestd_validate(control_df)
-    assert alifestd_is_chronologically_ordered(control_df)
+    assert pfl.alifestd_validate(control_df)
+    assert pfl.alifestd_is_chronologically_ordered(control_df)
 
     out_dfs = map(
-        alifestd_splay_polytomies,
+        pfl.alifestd_splay_polytomies,
         hstrat.build_tree_trie_ensemble(
             test_population,
             trie_postprocessors=[
@@ -99,8 +95,8 @@ def test_reconstructed_mrca_fuzz(
     true_mean_origin_time = control_df["origin_time"].mean()
     test_errs = dict()
     for postprocessor, test_df in test_dfs.items():
-        assert alifestd_validate(test_df)
-        assert alifestd_is_chronologically_ordered(test_df)
+        assert pfl.alifestd_validate(test_df)
+        assert pfl.alifestd_is_chronologically_ordered(test_df)
         test_mean_origin_time = test_df["origin_time"].mean()
         test_err = test_mean_origin_time - true_mean_origin_time
         test_errs[postprocessor] = test_err

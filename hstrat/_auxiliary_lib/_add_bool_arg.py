@@ -1,11 +1,12 @@
 import argparse
+import typing
 
 
 # adapted from https://stackoverflow.com/a/31347222
 def add_bool_arg(
     parser: argparse.ArgumentParser,
     name: str,
-    default: bool = False,
+    default: typing.Optional[bool] = False,
     help: str = "",
 ) -> None:
     """Add a ``--name/--no-name`` boolean flag pair to *parser*.
@@ -16,7 +17,7 @@ def add_bool_arg(
         The argument parser to add the flag to.
     name : str
         The flag name (e.g., ``"insert"`` adds ``--insert``/``--no-insert``).
-    default : bool, default False
+    default : bool or None, default False
         Default value when neither flag is provided.
     help : str, default ""
         Help text shown for the ``--name`` flag.

@@ -1,11 +1,16 @@
 import typing
 
+from deprecated.sphinx import deprecated
 import pandas as pd
 
 from ._alifestd_make_ancestor_list_col import alifestd_make_ancestor_list_col
 from ._alifestd_parse_ancestor_ids import alifestd_parse_ancestor_ids
 
 
+@deprecated(
+    version="1.23.0",
+    reason="Use phyloframe.legacy.alifestd_aggregate_phylogenies instead.",
+)
 def alifestd_aggregate_phylogenies(
     phylogeny_dfs: typing.List[pd.DataFrame],
     mutate: bool = False,

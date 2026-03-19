@@ -3,9 +3,9 @@ import typing
 import numpy as np
 
 from ..._auxiliary_lib import (
+    iter_monotonic_equivalencies,
     iter_monotonic_equivalencies_reverse,
     jit,
-    reversed_range,
 )
 from ...frozen_instrumentation import HereditaryStratigraphicSpecimen
 from .._calc_min_implausible_spurious_consecutive_differentia_collisions_between import (
@@ -14,9 +14,6 @@ from .._calc_min_implausible_spurious_consecutive_differentia_collisions_between
 from .._impl_column._calc_rank_of_parity_segue_between import (
     calc_rank_of_parity_segue_between,
 )
-from ._iter_mutual_rank_indices import _compare_differentia_at_common_ranks
-
-_reversed_range_jit = jit(cache=False, nopython=True)(reversed_range)
 
 
 @jit(cache=False, nopython=True)
@@ -26,10 +23,12 @@ def _find_first_disparity_or_last_commonality(
     second_ranks: np.ndarray,
     second_differentiae: np.ndarray,
 ) -> typing.Optional[typing.Tuple[int, int]]:
-    for positions, comp in _compare_differentia_at_common_ranks(
-        first_ranks, first_differentiae, second_ranks, second_differentiae
-    ):
-        if not comp:
+    for tup in iter_monotonic_equivalencies(first_ranks, second_ranks):
+        # workaround: unpack inside loop body to avoid numba
+        # generator-in-zip KeyError bug with `for a, b in generator`
+        pos1, pos2 = tup
+        positions = (pos1, pos2)
+        if first_differentiae[pos1] != second_differentiae[pos2]:
             return positions
     return positions
 
@@ -43,15 +42,18 @@ def _backtrack_n_equivalencies(
     strict: bool,
 ) -> typing.Tuple[int, int]:
 
-    for i, positions in enumerate(
-        iter_monotonic_equivalencies_reverse(
-            first_ranks,
-            second_ranks,
-            start=start,
-        )
+    i = 0
+    for tup in iter_monotonic_equivalencies_reverse(
+        first_ranks,
+        second_ranks,
+        start=start,
     ):
+        # workaround: unpack inside loop body to avoid numba
+        # generator-in-zip KeyError bug with `for i, x in enumerate(generator)`
+        positions = tup
         if i == n:
             return positions
+        i += 1
     if strict:
         return None
     else:

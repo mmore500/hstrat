@@ -1,6 +1,6 @@
 import argparse
 
-from hstrat._auxiliary_lib._add_bool_arg import add_bool_arg
+from hstrat._auxiliary_lib import add_bool_arg
 
 
 def test_default_false():
