@@ -1164,41 +1164,49 @@ struct ProgressBar {
  */
 struct ProgressPoller {
 
-  py::object _pbar;
-  u64 _total;
-  std::atomic<u64> _counter{0};
-  std::mutex _mutex;
-  std::condition_variable _cv;
-  std::thread _thread;
-
   ProgressPoller(py::object pbar, const u64 total)
-    : _pbar(std::move(pbar)), _total(total),
-      _thread(&ProgressPoller::_run, this) {}
+    : pbar(std::move(pbar)), total(total),
+      updating_thread(&ProgressPoller::run, this) {
+    if (const char *s = std::getenv("TQDM_MININTERVAL")) {
+      this->wait_period = std::chrono::duration<double>{std::stod(std::string{s})};
+    } else {
+      this->wait_period = std::chrono::duration<double>{10.};
+    }
+  }
 
   ~ProgressPoller() {
-    if (_thread.joinable()) _thread.join();
+    if (updating_thread.joinable()) updating_thread.join();
   }
 
   void increment(const u64 n = 1) {
-    u64 prev = _counter.fetch_add(n, std::memory_order_release);
-    if (prev + n >= _total) _cv.notify_one();
+    u64 prev = n_iterations.fetch_add(n, std::memory_order_release);
+    if (prev + n >= total) cv.notify_one();
   }
 
-  void join() { _thread.join(); }
+  void join() { updating_thread.join(); }
 
 private:
-  void _run() {
+
+  py::object pbar;
+  u64 total;
+  std::atomic<u64> n_iterations{};
+  std::mutex mutex;
+  std::condition_variable cv;
+  std::thread updating_thread;
+  std::chrono::duration<double> wait_period;
+
+  void run() {
     u64 prev = 0;
-    while (prev < _total) {
+    while (prev < total) {
       {
-        std::unique_lock<std::mutex> lock(_mutex);
-        _cv.wait_for(lock, std::chrono::seconds(10), [this]() {
-          return _counter.load(std::memory_order_acquire) >= _total;
+        std::unique_lock<std::mutex> lock(mutex);
+        cv.wait_for(lock, this->wait_period, [this]() {
+          return n_iterations.load(std::memory_order_acquire) >= total;
         });
       }
-      u64 cur = _counter.load(std::memory_order_acquire);
+      u64 cur = n_iterations.load(std::memory_order_acquire);
       py::gil_scoped_acquire acquire;
-      _pbar.attr("update")(cur - prev);
+      pbar.attr("update")(cur - prev);
       prev = cur;
     }
   }
