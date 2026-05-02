@@ -90,8 +90,8 @@ def deposit_bits_to_hex_scalar(bits: np.ndarray) -> str:
     """
     Pack via bitwise ops on a single numpy scalar (uint8/16/32/64).
 
-    Mirrors the scalar-buffer pattern used in
-    https://github.com/mmore500/allele-evoepi-concept/blob/main/bindle/2026-04-29-allele-abm-phylogeny-hstrat-32site.py
+    Adapted from the scalar-buffer pattern used in
+    https://github.com/mmore500/allele-evoepi-concept/blob/5771ac941a7b36bda22bc42f062f921698097c46/bindle/2026-04-29-allele-abm-phylogeny-hstrat-32site.py
     where slot k occupies bit `(S - 1) - k`, i.e. slot 0 is the MSB.
     """
     S = len(bits)
