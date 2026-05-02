@@ -86,10 +86,6 @@ def deposit_bits_to_hex_array(bits: np.ndarray) -> str:
     return T_hex + surface_hex
 
 
-# scalar dtype for each S we exercise; the buffer is one numpy scalar
-SCALAR_DTYPE = {8: np.uint8, 16: np.uint16, 32: np.uint32, 64: np.uint64}
-
-
 def deposit_bits_to_hex_scalar(bits: np.ndarray) -> str:
     """
     Pack via bitwise ops on a single numpy scalar (uint8/16/32/64).
@@ -99,7 +95,8 @@ def deposit_bits_to_hex_scalar(bits: np.ndarray) -> str:
     where slot k occupies bit `(S - 1) - k`, i.e. slot 0 is the MSB.
     """
     S = len(bits)
-    dtype = SCALAR_DTYPE[S]
+    # smallest unsigned dtype that holds an S-bit value
+    dtype = np.min_scalar_type(2**S - 1).type
     surface = dtype(0)
     for T, value in enumerate(bits):
         assert ALGO.has_ingest_capacity(S, T + 1)
