@@ -27,32 +27,32 @@ import polars as pl
 ALGO = dstream.sticky_algo
 ALGO_NAME = "dstream.sticky_algo"
 
-# (surface hex, surface as 0b... int, surface as bit string)
+# (surface hex, surface as base-10 int, surface as bit string)
 # Each row is the same value written three ways under big-endian/
 # MSB-first packing. S is derived as len(hex) * 4.
 CASES = [
-    ("ad", 0b10101101, "10101101"),
-    ("be", 0b10111110, "10111110"),
-    ("beef", 0b1011111011101111, "1011111011101111"),
-    ("feed", 0b1111111011101101, "1111111011101101"),
+    ("ad", 173, "10101101"),
+    ("be", 190, "10111110"),
+    ("beef", 48879, "1011111011101111"),
+    ("feed", 65261, "1111111011101101"),
     (
         "dac0ffee",
-        0b11011010110000001111111111101110,
+        3670081518,
         "11011010110000001111111111101110",
     ),
     (
         "fadeface",
-        0b11111010110111101111101011001110,
+        4208917198,
         "11111010110111101111101011001110",
     ),
     (
         "decafbeabad00bee",
-        0b1101111011001010111110111110101010111010110100000000101111101110,
+        16053920807290670062,
         "1101111011001010111110111110101010111010110100000000101111101110",
     ),
     (
         "c0ffeebabedecade",
-        0b1100000011111111111011101011101010111110110111101100101011011110,
+        13907096660176980702,
         "1100000011111111111011101011101010111110110111101100101011011110",
     ),
 ]
@@ -126,9 +126,7 @@ if __name__ == "__main__":
         # --- forward leg: bits -> numpy buffer -> hex -----------------
         data_hex = deposit_bits_to_hex(bits_in)
         surface_hex = data_hex[8:]  # strip the 4-byte T prefix
-        assert (
-            surface_hex == expected_hex.lower()
-        ), f"serialize mismatch: got {surface_hex} expected {expected_hex}"
+        assert surface_hex == expected_hex.lower()
 
         # --- reverse leg: hex -> bits via explode_lookup_packed -------
         df = unpack_hex(data_hex, S)
