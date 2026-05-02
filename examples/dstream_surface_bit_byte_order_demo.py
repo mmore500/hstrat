@@ -27,21 +27,32 @@ import polars as pl
 ALGO = dstream.sticky_algo
 ALGO_NAME = "dstream.sticky_algo"
 
-# (surface hex, expected bit string under big-endian/MSB-first packing).
-# S is derived as len(hex) * 4.
+# (surface hex, surface as 0b... int, surface as bit string)
+# Each row is the same value written three ways under big-endian/
+# MSB-first packing. S is derived as len(hex) * 4.
 CASES = [
-    ("ad", "10101101"),
-    ("be", "10111110"),
-    ("beef", "1011111011101111"),
-    ("feed", "1111111011101101"),
-    ("dac0ffee", "11011010110000001111111111101110"),
-    ("fadeface", "11111010110111101111101011001110"),
+    ("ad", 0b10101101, "10101101"),
+    ("be", 0b10111110, "10111110"),
+    ("beef", 0b1011111011101111, "1011111011101111"),
+    ("feed", 0b1111111011101101, "1111111011101101"),
+    (
+        "dac0ffee",
+        0b11011010110000001111111111101110,
+        "11011010110000001111111111101110",
+    ),
+    (
+        "fadeface",
+        0b11111010110111101111101011001110,
+        "11111010110111101111101011001110",
+    ),
     (
         "decafbeabad00bee",
+        0b1101111011001010111110111110101010111010110100000000101111101110,
         "1101111011001010111110111110101010111010110100000000101111101110",
     ),
     (
         "c0ffeebabedecade",
+        0b1100000011111111111011101011101010111110110111101100101011011110,
         "1100000011111111111011101011101010111110110111101100101011011110",
     ),
 ]
@@ -101,11 +112,14 @@ def unpack_hex(data_hex: str, S: int) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    for expected_hex, expected_bits in CASES:
+    for expected_hex, expected_int, expected_bits in CASES:
         S = len(expected_hex) * 4
         assert len(expected_bits) == S
 
-        # cross-check the hardcoded bit string against a fresh decode
+        # parallel cross-checks: hex, 0b... int, and bit string must
+        # all describe the same value under big-endian/MSB-first packing
+        assert int(expected_hex, 16) == expected_int
+        assert format(expected_int, f"0{S}b") == expected_bits
         bits_in = np.array([int(c) for c in expected_bits], dtype=np.uint8)
         np.testing.assert_array_equal(bits_in, hex_to_bits(expected_hex))
 
