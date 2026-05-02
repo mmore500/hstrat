@@ -64,9 +64,9 @@ def hex_to_bits(hex_str: str) -> np.ndarray:
     return np.unpackbits(np.frombuffer(raw, dtype=np.uint8), bitorder="big")
 
 
-def deposit_bits_to_hex(bits: np.ndarray) -> str:
+def deposit_bits_to_hex_array(bits: np.ndarray) -> str:
     """
-    Run `bits` through sticky_algo deposits and serialize to hex.
+    Pack via a length-S numpy uint8 array, one slot per element.
 
     Mirrors the byte/bit ordering used in
     `examples/evolve_dstream_surf.py`.
@@ -82,6 +82,36 @@ def deposit_bits_to_hex(bits: np.ndarray) -> str:
     # pack surface bits big-endian (slot 0 -> MSB of first byte)
     surface_hex = np.packbits(surface, bitorder="big").tobytes().hex()
     # T as big-endian uint32 prefix
+    T_hex = np.uint32(S).astype(">u4").tobytes().hex()
+    return T_hex + surface_hex
+
+
+# scalar dtype for each S we exercise; the buffer is one numpy scalar
+SCALAR_DTYPE = {8: np.uint8, 16: np.uint16, 32: np.uint32, 64: np.uint64}
+
+
+def deposit_bits_to_hex_scalar(bits: np.ndarray) -> str:
+    """
+    Pack via bitwise ops on a single numpy scalar (uint8/16/32/64).
+
+    Mirrors the scalar-buffer pattern used in
+    https://github.com/mmore500/allele-evoepi-concept/blob/main/bindle/2026-04-29-allele-abm-phylogeny-hstrat-32site.py
+    where slot k occupies bit `(S - 1) - k`, i.e. slot 0 is the MSB.
+    """
+    S = len(bits)
+    dtype = SCALAR_DTYPE[S]
+    surface = dtype(0)
+    for T, value in enumerate(bits):
+        assert ALGO.has_ingest_capacity(S, T + 1)
+        site = ALGO.assign_storage_site(S, T)
+        assert site is not None
+        surface ^= dtype(value) << dtype(S - 1 - site)
+
+    bytewidth = np.dtype(dtype).itemsize
+    # gotcha: on numpy 2.x, scalar.astype(">uN") drops the byte-order
+    # qualifier and emits native-endian bytes. wrapping in np.asarray
+    # gives a 0-d array, which honors `>` correctly.
+    surface_hex = np.asarray(surface).astype(f">u{bytewidth}").tobytes().hex()
     T_hex = np.uint32(S).astype(">u4").tobytes().hex()
     return T_hex + surface_hex
 
@@ -124,7 +154,10 @@ if __name__ == "__main__":
         np.testing.assert_array_equal(bits_in, hex_to_bits(expected_hex))
 
         # --- forward leg: bits -> numpy buffer -> hex -----------------
-        data_hex = deposit_bits_to_hex(bits_in)
+        # both buffer styles (length-S uint8 array, single scalar) must
+        # serialize to the same hex blob
+        data_hex = deposit_bits_to_hex_array(bits_in)
+        assert data_hex == deposit_bits_to_hex_scalar(bits_in)
         surface_hex = data_hex[8:]  # strip the 4-byte T prefix
         assert surface_hex == expected_hex.lower()
 
