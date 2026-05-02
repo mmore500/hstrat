@@ -16,13 +16,12 @@ Conventions exercised here (matches `examples/evolve_dstream_surf.py`):
     bitorder, so slot 0 is the MSB of the first byte.
 """
 
-import numpy as np
-import pandas as pd
-import polars as pl
-
 import downstream
 from downstream import dataframe as dstream_dataframe
 from downstream import dstream
+import numpy as np
+import pandas as pd
+import polars as pl
 
 ALGO = dstream.sticky_algo
 ALGO_NAME = "dstream.sticky_algo"
@@ -88,9 +87,7 @@ def unpack_hex(data_hex: str, S: int) -> pd.DataFrame:
     )
     exploded = dstream_dataframe.explode_lookup_packed(df, value_type="uint8")
     return (
-        exploded.to_pandas()
-        .sort_values("dstream_Tbar")
-        .reset_index(drop=True)
+        exploded.to_pandas().sort_values("dstream_Tbar").reset_index(drop=True)
     )
 
 
@@ -101,9 +98,9 @@ if __name__ == "__main__":
         data_hex, T = deposit_bits_to_hex(bits_in, S)
 
         surface_hex = data_hex[8:]  # strip the 4-byte T prefix
-        assert surface_hex == expected_hex.lower(), (
-            f"serialize mismatch: got {surface_hex} expected {expected_hex}"
-        )
+        assert (
+            surface_hex == expected_hex.lower()
+        ), f"serialize mismatch: got {surface_hex} expected {expected_hex}"
 
         # --- reverse leg: hex -> bits via explode_lookup_packed -------
         df = unpack_hex(data_hex, S)
