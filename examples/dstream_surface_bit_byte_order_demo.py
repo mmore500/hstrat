@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
-"""Round-trip reference: pack 1-bit differentiae into a `sticky_algo`
-surface buffer with explicit byte/bit ordering, hex-serialize, then
-deserialize via `downstream.dataframe.explode_lookup_packed` and check
-that the bits land back in the slots we wrote.
+"""
+Bit/byte-order reference for dstream surface buffers.
 
-`sticky_algo` retains the first S deposits and drops the rest, so the
-slot/Tbar map is trivial: slot k <-> Tbar k. That makes it the cleanest
-algorithm for pinning down byte/bit order assumptions: any mismatch
-between what we wrote and what we read back is an ordering bug, not an
-artifact of the retention policy.
+Use this as a debug aid when you suspect a packing/unpacking mismatch:
+each case pins down the exact bit string that lives behind a given hex
+blob under the conventions used in `examples/evolve_dstream_surf.py`.
 
 Conventions exercised here (matches `examples/evolve_dstream_surf.py`):
   * `dstream_T` packed as big-endian uint32 at the start of `data_hex`.
   * Surface bits packed via `numpy.packbits` with default ("big")
     bitorder, so slot 0 is the MSB of the first byte.
+
+`sticky_algo` is used only as a convenient vehicle: it deposits the
+first S values into slots 0..S-1 in order, so the (slot, Tbar) map is
+the identity and any mismatch we see is unambiguously a byte/bit-order
+bug rather than a retention-policy artifact.
 """
 
 import downstream
@@ -26,44 +27,52 @@ import polars as pl
 ALGO = dstream.sticky_algo
 ALGO_NAME = "dstream.sticky_algo"
 
-# (expected hex for the surface buffer, surface size S in bits)
+# (surface hex, expected bit string under big-endian/MSB-first packing).
+# S is derived as len(hex) * 4.
 CASES = [
-    ("ad", 1 * 8),
-    ("be", 1 * 8),
-    ("beef", 2 * 8),
-    ("feed", 2 * 8),
-    ("dac0ffee", 4 * 8),
-    ("fadeface", 4 * 8),
-    ("decafbeabad00bee", 8 * 8),
-    ("c0ffeebabedecade", 8 * 8),
+    ("ad", "10101101"),
+    ("be", "10111110"),
+    ("beef", "1011111011101111"),
+    ("feed", "1111111011101101"),
+    ("dac0ffee", "11011010110000001111111111101110"),
+    ("fadeface", "11111010110111101111101011001110"),
+    (
+        "decafbeabad00bee",
+        "1101111011001010111110111110101010111010110100000000101111101110",
+    ),
+    (
+        "c0ffeebabedecade",
+        "1100000011111111111011101011101010111110110111101100101011011110",
+    ),
 ]
 
 
-def hex_to_bits(hex_str: str, nbits: int) -> np.ndarray:
-    """Big-endian, MSB-first bit decoding of `hex_str` to `nbits` bits."""
-    nbytes = (nbits + 7) // 8
-    raw = bytes.fromhex(hex_str.ljust(nbytes * 2, "0"))
-    bits = np.unpackbits(np.frombuffer(raw, dtype=np.uint8), bitorder="big")
-    return bits[:nbits].astype(np.uint8)
+def hex_to_bits(hex_str: str) -> np.ndarray:
+    """Big-endian, MSB-first bit decoding of `hex_str`."""
+    raw = bytes.fromhex(hex_str)
+    return np.unpackbits(np.frombuffer(raw, dtype=np.uint8), bitorder="big")
 
 
-def deposit_bits_to_hex(bits: np.ndarray, S: int) -> tuple[str, int]:
-    """Run `bits` through sticky_algo deposits and serialize the resulting
-    surface to hex, mirroring `examples/evolve_dstream_surf.py`."""
+def deposit_bits_to_hex(bits: np.ndarray) -> str:
+    """
+    Run `bits` through sticky_algo deposits and serialize to hex.
+
+    Mirrors the byte/bit ordering used in
+    `examples/evolve_dstream_surf.py`.
+    """
+    S = len(bits)
     surface = np.zeros(S, dtype=np.uint8)
-    n_deposits = 0
     for T, value in enumerate(bits):
         assert ALGO.has_ingest_capacity(S, T + 1)
         site = ALGO.assign_storage_site(S, T)
-        if site is not None:  # sticky drops deposits past the first S
-            surface[site] = value
-        n_deposits += 1
+        assert site is not None  # len(bits) == S, so no deposit is dropped
+        surface[site] = value
 
     # pack surface bits big-endian (slot 0 -> MSB of first byte)
     surface_hex = np.packbits(surface, bitorder="big").tobytes().hex()
     # T as big-endian uint32 prefix
-    T_hex = np.uint32(n_deposits).astype(">u4").tobytes().hex()
-    return T_hex + surface_hex, n_deposits
+    T_hex = np.uint32(S).astype(">u4").tobytes().hex()
+    return T_hex + surface_hex
 
 
 def unpack_hex(data_hex: str, S: int) -> pd.DataFrame:
@@ -92,11 +101,16 @@ def unpack_hex(data_hex: str, S: int) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    for expected_hex, S in CASES:
-        # --- forward leg: bits -> numpy buffer -> hex -----------------
-        bits_in = hex_to_bits(expected_hex, S)
-        data_hex, T = deposit_bits_to_hex(bits_in, S)
+    for expected_hex, expected_bits in CASES:
+        S = len(expected_hex) * 4
+        assert len(expected_bits) == S
 
+        # cross-check the hardcoded bit string against a fresh decode
+        bits_in = np.array([int(c) for c in expected_bits], dtype=np.uint8)
+        np.testing.assert_array_equal(bits_in, hex_to_bits(expected_hex))
+
+        # --- forward leg: bits -> numpy buffer -> hex -----------------
+        data_hex = deposit_bits_to_hex(bits_in)
         surface_hex = data_hex[8:]  # strip the 4-byte T prefix
         assert (
             surface_hex == expected_hex.lower()
@@ -110,7 +124,6 @@ if __name__ == "__main__":
         np.testing.assert_array_equal(bits_in, bits_out)
         assert (df["dstream_Tbar"].to_numpy() == np.arange(S)).all()
 
-        bits_str = "".join(map(str, bits_out.tolist()))
-        print(f"`0x{expected_hex.lower()}` (S={S})  ->  `{bits_str}`  ok")
+        print(f"`0x{expected_hex.lower()}` (S={S})  ->  `{expected_bits}`  ok")
 
     print("all round-trips ok")
