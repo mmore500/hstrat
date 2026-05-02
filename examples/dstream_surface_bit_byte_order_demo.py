@@ -92,7 +92,6 @@ def deposit_bits_to_hex_scalar(bits: np.ndarray) -> str:
 
     Adapted from the scalar-buffer pattern used in
     https://github.com/mmore500/allele-evoepi-concept/blob/5771ac941a7b36bda22bc42f062f921698097c46/bindle/2026-04-29-allele-abm-phylogeny-hstrat-32site.py
-    where slot k occupies bit `(S - 1) - k`, i.e. slot 0 is the MSB.
     """
     S = len(bits)
     # smallest unsigned dtype that holds an S-bit value
@@ -102,6 +101,7 @@ def deposit_bits_to_hex_scalar(bits: np.ndarray) -> str:
         assert ALGO.has_ingest_capacity(S, T + 1)
         site = ALGO.assign_storage_site(S, T)
         assert site is not None
+        # slot k occupies bit (S - 1) - k, i.e. slot 0 is the MSB
         surface ^= dtype(value) << dtype(S - 1 - site)
 
     bytewidth = np.dtype(dtype).itemsize
