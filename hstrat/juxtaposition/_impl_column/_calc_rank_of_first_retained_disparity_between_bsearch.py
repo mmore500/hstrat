@@ -80,9 +80,9 @@ def calc_rank_of_first_retained_disparity_between_bsearch(
         # discount collision_implausibility_threshold - 1 common
         # ranks due to potential spurious differentia collisions;
         # if not enough common ranks are available we still know
-        # *definitively* that a disparity occured (because we
+        # *definitively* that a disparity occurred (because we
         # observed disparite strata at the same rank); so, make the
-        # conservative assumption that the disparity occured as far
+        # conservative assumption that the disparity occurred as far
         # back as possible (rank 0)
         spurious_collision_corrected_idx = max(
             first_disparite_idx - collision_plausibility_threshold,

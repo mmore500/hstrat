@@ -72,7 +72,7 @@ class HereditaryStratumOrderedStoreList(HereditaryStratumOrderedStoreBase):
         """How many strata are present in the store?
 
         May be fewer than the number of strata deposited if deletions have
-        occured.
+        occurred.
         """
         return len(self._data)
 
@@ -157,7 +157,7 @@ class HereditaryStratumOrderedStoreList(HereditaryStratumOrderedStoreBase):
         indices = [get_column_index_of_rank(rank) for rank in ranks]
         # adapted from https://stackoverflow.com/a/11303234/17332200
         # iterate over indices in reverse order to prevent invalidation
-        # reversed() is an potential optimization
+        # reversed() is a potential optimization
         # given indices is assumed to be in ascending order
         for index in sorted(reversed(indices), reverse=True):
             assert index is not None

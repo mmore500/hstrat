@@ -67,7 +67,7 @@ class HereditaryStratumOrderedStoreDict(HereditaryStratumOrderedStoreBase):
         """How many strata are present in the store?
 
         May be fewer than the number of strata deposited if deletions have
-        occured.
+        occurred.
         """
         return len(self._data)
 

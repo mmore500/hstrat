@@ -9,8 +9,8 @@ Under the pseudostochastic resolution policy, the worst and average case number
 of strata retained (i.e., space complexity) scales as O(n) with respect to
 the number of strata deposited.
 
-This policy implementation that the most ancient and most recent strata will
-always be retained. For the secondmost recently deposited sratum, a
+This policy implementation guarantees that the most ancient and most recent
+strata will always be retained. For the second-most recently deposited stratum, a
 pseudorandom coin flip is performed. Depending on the outcome of that coin
 flip, the stratum is either immediately purged or retained permanently.
 """

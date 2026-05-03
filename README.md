@@ -59,7 +59,7 @@ _hstrat operates just as well in single-processor simulation, but direct phyloge
 
 This code briefly demonstrates,
 
-1.  initialization of a population of `HereditaryStratigraphicColumn` of objects,
+1.  initialization of a population of `HereditaryStratigraphicColumn` objects,
 2.  generation-to-generation transmission of `HereditaryStratigraphicColumn` objects with simple synchronous turnover, and then
 3.  reconstruction of phylogenetic history from the final population of `HereditaryStratigraphicColumn` objects.
 

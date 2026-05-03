@@ -66,7 +66,7 @@ class HereditaryStratigraphicSpecimen:
         return self._stratum_differentia_bit_width
 
     def GetNextRank(self: "HereditaryStratigraphicSpecimen") -> int:
-        """Get the next rank that would be be deposited on the column.
+        """Get the next rank that would be deposited on the column.
 
         Returns
         -------
@@ -78,7 +78,7 @@ class HereditaryStratigraphicSpecimen:
     def GetNumStrataDeposited(
         self: "HereditaryStratigraphicSpecimen",
     ) -> int:
-        """How many strata have been depostited on the column?
+        """How many strata have been deposited on the column?
 
         Note that a first stratum is deposited on the column during
         initialization.

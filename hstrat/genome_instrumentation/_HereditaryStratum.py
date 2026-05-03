@@ -40,7 +40,7 @@ class HereditaryStratum:
         ----------
         annotation: any, optional
             Optional object to store as an annotation. Allows arbitrary user-
-            provided to be associated with this stratum's generation in its
+            provided data to be associated with this stratum's generation in its
             line of descent.
         differentia_bit_width: int, optional
             The bit width of the generated differentia. Default 64, allowing

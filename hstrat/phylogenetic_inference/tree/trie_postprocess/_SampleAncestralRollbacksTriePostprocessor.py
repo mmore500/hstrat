@@ -185,7 +185,7 @@ class SampleAncestralRollbacksTriePostprocessor(
         spurious differentia collisions.
 
         Each rollback operation alters the tree as if a single spurious
-        collision had occured; a single branch is adjusted to exhibit the next-
+        collision had occurred; a single branch is adjusted to exhibit the next-
         most-ancient last commonality.
 
         The number of rollback operations is calculated from the number of

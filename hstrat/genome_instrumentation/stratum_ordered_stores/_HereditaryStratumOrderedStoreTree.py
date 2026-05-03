@@ -104,7 +104,7 @@ class HereditaryStratumOrderedStoreTree(HereditaryStratumOrderedStoreBase):
         """How many strata are present in the store?
 
         May be fewer than the number of strata deposited if deletions have
-        occured.
+        occurred.
         """
         return self._num_strata_retained
 

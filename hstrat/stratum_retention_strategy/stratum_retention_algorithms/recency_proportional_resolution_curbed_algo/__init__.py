@@ -4,13 +4,13 @@ recency-proportional MRCA uncertainty.
 The curbed recency-proportional resolution policy ensures that retained stratum
 count respects a user-specified size cap. Recency-proportional MRCA resolution
 is provided at finest-possible granularity given space constraint with graceful
-degradation of granularity occuring as deposition history grows.
+degradation of granularity occurring as deposition history grows.
 
 This policy works by splicing together successively-sparser
 `recency_proportional_resolution_algo` parameterizations then --- after the
 stratum retention count upper bound of the sparsest
 `recency_proportional_resolution_algo` exceeds storage capacity --- a
-permanently fixed parameterization of the `geometric_seq_nth root` algorithm.
+permanently fixed parameterization of the `geometric_seq_nth_root` algorithm.
 
 While
 
@@ -18,11 +18,11 @@ While
 
 `recency_proportional_resolution_algo` policies apply with resolution
 
-    size_curb // ceil(log2(num_depisitons)) - 1.
+    size_curb // ceil(log2(num_depositions)) - 1.
 
 For
 
-    num_depisitons > 2 ** (size_curb // 3) // 2,
+    num_depositions > 2 ** (size_curb // 3) // 2,
 
 a `geometric_sequence_nth_root_algorithm` policy with degree
 
@@ -32,7 +32,7 @@ and interspersal 2 applies. To ensure availability of ranks required by the
 `geometric_sequence_nth_root_algorithm`, the transition between algorithms
 occurs exactly before recency-proportional resolution 1 would apply.
 
-Because strata retained by each policy supersets
+Because strata retained by each policy are supersets of
 strata retained by all subsequent retention policies, uncertainty bounds for
 all policies apply within their respective domains. (I.e., all strata expected
 by each policy are available when that policy activates.)

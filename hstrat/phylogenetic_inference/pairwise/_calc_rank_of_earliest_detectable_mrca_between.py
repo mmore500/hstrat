@@ -17,7 +17,7 @@ def calc_rank_of_earliest_detectable_mrca_between(
     Calculates the earliest possible rank a MRCA between first and second
     could be reliably detected at.
 
-    Even if a true MRCA of first and second exists, if it occured earlier
+    Even if a true MRCA of first and second exists, if it occurred earlier
     than the rank calculated here it could not be reliably detected with
     sufficient confidence after accounting for the possibility of spurious
     differentia collisions. (Although subsequent spurious differentia

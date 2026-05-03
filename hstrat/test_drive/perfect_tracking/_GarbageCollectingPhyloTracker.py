@@ -223,12 +223,12 @@ class GarbageCollectingPhyloTracker:
     def _WouldInsertionOverflow(
         self: "GarbageCollectingPhyloTracker", num_to_insert: int
     ) -> bool:
-        """Is buffer capacity sufficinet to accomodate `num_to_insert`
+        """Is buffer capacity sufficient to accommodate `num_to_insert`
         insertions?"""
         return self._num_records + num_to_insert >= self._GetBufferCapacity()
 
     def _GrowBuffer(self: "GarbageCollectingPhyloTracker") -> None:
-        """Allocate a additional buffer space.
+        """Allocate additional buffer space.
 
         Buffer grows by a fixed proportion of current buffer size.
         """

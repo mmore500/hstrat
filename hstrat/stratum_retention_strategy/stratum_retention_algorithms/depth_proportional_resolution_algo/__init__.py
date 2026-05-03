@@ -62,7 +62,7 @@ See Also
 --------
 depth_proportional_resolution_tapered_algo:
     For a retention policy that achieves the same guarantees for depth-
-    proportional resolution but purges unnecessary strata more graudally.
+    proportional resolution but purges unnecessary strata more gradually.
 """
 
 from ...._auxiliary_lib import lazy_attach_stub

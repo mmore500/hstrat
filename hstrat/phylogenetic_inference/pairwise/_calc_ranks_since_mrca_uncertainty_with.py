@@ -19,7 +19,7 @@ def calc_ranks_since_mrca_uncertainty_with(
     """How wide is the estimation window for generations elapsed since MRCA?
 
     Calculates uncertainty of estimate for the number of depositions
-    elapsed along focal column's line of descent since the most common recent
+    elapsed along focal column's line of descent since the most recent common
     ancestor with other.
 
     Returns 0 if no common ancestor between focal and other can be resolved

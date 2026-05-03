@@ -9,7 +9,7 @@ class PerfectBacktrackHandle:
     """
 
     # Achieves 60% the performance of C++ shared_ptr-based implementation in
-    # tracking a unbranching linked list and outperforms the C++ implementation
+    # tracking an unbranching linked list and outperforms the C++ implementation
     # by 30% in tracking a phylogenetic tree with random selection
     #
     #   p = [impl() for __ in range(100)]
@@ -20,8 +20,8 @@ class PerfectBacktrackHandle:
     # and https://gist.github.com/mmore500/71eb2f3f14afb02fba476dd2cea45210
     # (didn't complete debugging, but is representative of speed)
 
-    # tried a dict-based database approach, but even with native implementaiton
-    # was aboutt 3x slower than this approach
+    # tried a dict-based database approach, but even with native implementation
+    # was about 3x slower than this approach
     # see https://gist.github.com/mmore500/7e9b85f005882d1e4b0206a9ef6d1de2
 
     parent: "PerfectBacktrackHandle"
