@@ -36,8 +36,8 @@ class HereditaryStratigraphicColumnBundle:
         assert (
             len({c.GetNumStrataDeposited() for c in columns.values()}) == 1
         ), (
-            "All columns provided ot HereditaryStratigraphicColumnBundle "
-            "must have same number strata deposited. "
+            "All columns provided to HereditaryStratigraphicColumnBundle "
+            "must have the same number of strata deposited. "
         )
         self._columns = columns
 

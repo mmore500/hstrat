@@ -41,7 +41,7 @@ def _call_anytree(
     # a strictly bifurcating/unifurcating tree
     # ... correction for multifurcations (i.e., due to strong selection
     # pressure) should be considered in the future (including whether such
-    # corections are necessary in the first place)
+    # corrections are necessary in the first place)
     num_leaves = sum(node.is_leaf for node in AnyTreeFastPreOrderIter(trie))
     unzip_opportunities = num_leaves
 

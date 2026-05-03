@@ -12,7 +12,7 @@ def alifestd_make_ancestor_id_col(
     """Translate ancestor ids from a column of singleton `ancestor_list`s into a
     pure-integer series representation.
 
-    Each organism must have one or zero ancestors (i.e., asexualasexual data).
+    Each organism must have one or zero ancestors (i.e., asexual data).
     In the returned series, ancestor id will be assigned to own id for no-
     ancestor organisms.
     """
