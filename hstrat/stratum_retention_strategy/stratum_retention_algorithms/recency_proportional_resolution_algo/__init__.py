@@ -3,8 +3,8 @@ r"""Provide log space complexity and recency-proportional strata spacing.
 The MRCA-recency-proportional resolution policy ensures estimates of MRCA
 rank will have uncertainty bounds less than or equal to a user-specified
 proportion of the actual number of generations elapsed since the MRCA and the
-deepest of the compared columns. MRCA rank estimate uncertainty in the worst case
-scales as O(n) with respect to the greater number of strata
+deepest of the compared columns. MRCA rank estimate uncertainty in the
+worst case scales as O(n) with respect to the greater number of strata
 deposited on either column. However, with respect to estimating the rank of the
 MRCA when lineages diverged any fixed number of generations ago, uncertainty
 scales as O(1).
