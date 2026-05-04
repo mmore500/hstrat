@@ -3,7 +3,7 @@
 The approximate space-filling MRCA-recency-proportional resolution policy
 imposes an O(1) limit on the number of retained strata and guarantees that
 retained strata will be exponentially distributed with respect to ranks elapsed
-since their deposit. MRCA rank estimate uncertainty scales in the worst case
+since their deposit. MRCA rank estimate uncertainty in the worst case
 scales as O(n) with respect to the greater number of strata deposited on either
 column. However, with respect to estimating the rank of the MRCA when lineages
 diverged any fixed number of generations ago, uncertainty scales as O(n^{1/k}).
@@ -14,9 +14,9 @@ strata deposited.
 
 Suppose k is specified as the policy's target precision k. Then, the first k
 strata deposited will be retained. Subsequently, strata are retained so that
-MRCA rank estimate uncertainty is less than or equal to s * (1 - n^(-1/k)) is
-the number of strata deposited and s is the true number of ranks deposited
-since the MRCA. As n goes to infinity, the number of strata retained fluctuates
+MRCA rank estimate uncertainty is less than or equal to s * (1 - n^(-1/k)),
+where n is the number of strata deposited and s is the true number of ranks
+deposited since the MRCA. As n goes to infinity, the number of strata retained fluctuates
 below a hard upper limit of 4k + 2 (inclusive) strata. For larger target space
 utilizations, number of strata retained appears generally less than twice the
 target space utilization.

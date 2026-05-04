@@ -17,7 +17,7 @@ def calc_rank_of_mrca_uncertainty_among(
     """How wide is the estimate window for generation of MRCA?
 
     Calculate uncertainty of estimate for the number of depositions
-    elapsed along the line of descent before the most common recent
+    elapsed along the line of descent before the most recent common
     ancestor with second.
 
     Returns 0 if no common ancestor between first and second can be resolved

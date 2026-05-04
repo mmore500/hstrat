@@ -78,7 +78,7 @@ def alifestd_mark_num_preceding_leaves_asexual(
     phylogeny_df: pd.DataFrame,
     mutate: bool = False,
 ) -> pd.DataFrame:
-    """Add column `num_preceding_leaves` with count of all leaves occuring
+    """Add column `num_preceding_leaves` with count of all leaves occurring
     before the present node in an inorder traversal.
 
     For internal nodes, the number of leaf nodes prior to the traversal of

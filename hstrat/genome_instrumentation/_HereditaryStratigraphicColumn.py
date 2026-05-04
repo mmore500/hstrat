@@ -43,7 +43,7 @@ class HereditaryStratigraphicColumn:
     Stratum retention policy and stratum differentia bit width can be configured
     to tune the time and space complexity of the column, trading-off with
     uncertainty induced on estimates of phylogenetic distance back to the most
-    common recent ancestor of two columns.
+    recent common ancestor of two columns.
 
     Arbitrary user-defined data can be associated with strata by optional
     argument to the CloneDescendant method. (Note that a first stratum is
@@ -102,7 +102,7 @@ class HereditaryStratigraphicColumn:
             for 2^64 distinct values.
         initial_stratum_annotation: any, optional
             Optional object to store as an annotation. Allows arbitrary user-
-            provided to be associated with the first stratum deposition in the
+            provided data to be associated with the first stratum deposition in the
             line of descent.
         stratum_ordered_store: callable or tuple of store and count, optional
             One of:
@@ -192,10 +192,10 @@ class HereditaryStratigraphicColumn:
         as a data member of generated strata.
 
         Note that strata are not required to be stored if the stratum retention
-        policy allows for the rank of a stratum to be calcualted as a function
+        policy allows for the rank of a stratum to be calculated as a function
         of its position within the column and the number of strata deposited
         onto the column. However, it may be beneficial to store the stratum
-        anyways for performance reasons if this calculation is expenxive.
+        anyways for performance reasons if this calculation is expensive.
         """
         return (
             self._CanOmitStratumDepositionRank()
@@ -232,7 +232,7 @@ class HereditaryStratigraphicColumn:
         ----------
         annotation: any, optional
             Optional object to store as an annotation. Allows arbitrary user-
-            provided to be associated with this stratum deposition in the
+            provided data to be associated with this stratum deposition in the
             line of descent.
         """
         new_stratum = self._CreateStratum(
@@ -399,7 +399,7 @@ class HereditaryStratigraphicColumn:
         return self._stratum_ordered_store.GetNumStrataRetained()
 
     def GetNumStrataDeposited(self: "HereditaryStratigraphicColumn") -> int:
-        """How many strata have been depostited on the column?
+        """How many strata have been deposited on the column?
 
         Note that a first stratum is deposited on the column during
         initialization.
@@ -564,7 +564,7 @@ class HereditaryStratigraphicColumn:
         ----------
         stratum_annotation: any, optional
             Optional object to store as an annotation. Allows arbitrary user-
-            provided to be associated with this stratum deposition in the
+            provided data to be associated with this stratum deposition in the
             line of descent.
         """
         res = self.Clone()

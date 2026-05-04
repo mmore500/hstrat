@@ -85,7 +85,7 @@ def random_tree(
     else:
         tree = nx.empty_graph(0, create_using)
         if tree.is_directed():
-            # Use a arbitrary root node and dfs to define edge directions
+            # Use an arbitrary root node and dfs to define edge directions
             edges = nx.dfs_edges(utree, source=0)
         else:
             edges = utree.edges

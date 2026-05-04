@@ -66,7 +66,7 @@ class HereditaryStratigraphicAssemblageSpecimen:
     def GetNumStrataDeposited(
         self: "HereditaryStratigraphicAssemblageSpecimen",
     ) -> int:
-        """How many strata have been depostited on the column?
+        """How many strata have been deposited on the column?
 
         Note that a first stratum is deposited on the column during
         initialization.

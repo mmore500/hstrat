@@ -3,7 +3,7 @@ r"""Provide log space complexity and recency-proportional strata spacing.
 The MRCA-recency-proportional resolution policy ensures estimates of MRCA
 rank will have uncertainty bounds less than or equal to a user-specified
 proportion of the actual number of generations elapsed since the MRCA and the
-deepest of the compared columns. MRCA rank estimate uncertainty scales in the
+deepest of the compared columns. MRCA rank estimate uncertainty in the
 worst case scales as O(n) with respect to the greater number of strata
 deposited on either column. However, with respect to estimating the rank of the
 MRCA when lineages diverged any fixed number of generations ago, uncertainty
@@ -76,10 +76,9 @@ the rank that is the highest power of 2 less than or equal to our bound. If we
 repeat this procedure as we recurse, we are guaranteed that this rank will have
 been preserved across all previous timepoints.
 
-This is because a partial sum sequence where all elements are powers of 2 and
-elements in the sequence are will include all multiples of powers of 2 greater
-than or equal to the first element that are less than or equal to the sum of
-the entire sequence.
+This is because a partial sum sequence where all elements are powers of 2 will
+include all multiples of powers of 2 greater than or equal to the first element
+that are less than or equal to the sum of the entire sequence.
 
 An example is the best way to convince yourself. Thinking analogously in base
 10,

@@ -29,7 +29,7 @@ The bit width of differentiae controls the probability of spurious collision eve
 
 In analogy to geological layering, we refer to the data deposited each generation (differentia and optional user-defined arbitrary annotations) as a _stratum_.
 We call the annotation comprised of strata deposited at each generation a _hereditary stratigraphic column_.
-In accordance, we describe this general approach for relatedness estimation _hereditary stratigraphy_.
+In accordance, we describe this general approach for relatedness estimation as _hereditary stratigraphy_.
 
 ### Pruning Strata
 

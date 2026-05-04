@@ -36,8 +36,8 @@ class HereditaryStratigraphicColumnBundle:
         assert (
             len({c.GetNumStrataDeposited() for c in columns.values()}) == 1
         ), (
-            "All columns provided ot HereditaryStratigraphicColumnBundle "
-            "must have same number strata deposited. "
+            "All columns provided to HereditaryStratigraphicColumnBundle "
+            "must have the same number of strata deposited. "
         )
         self._columns = columns
 
@@ -84,7 +84,7 @@ class HereditaryStratigraphicColumnBundle:
         ----------
         annotation: any, optional
             Optional object to store as an annotation. Allows arbitrary user-
-            provided to be associated with this stratum's generation in its
+            provided data to be associated with this stratum's generation in its
             line of descent.
         """
         for column in self._columns.values():
@@ -138,7 +138,7 @@ class HereditaryStratigraphicColumnBundle:
         ----------
         stratum_annotation: any, optional
             Optional object to store as an annotation. Allows arbitrary user-
-            provided to be associated with this stratum deposition in the
+            provided data to be associated with this stratum deposition in the
             line of descent.
         """
         res = self.Clone()

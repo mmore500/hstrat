@@ -18,7 +18,7 @@ This section builds up the visualizations step-by-step in the table above.
 
 The leftmost column animates the evolution of a single hereditary stratigraphic column over generations with no historical overlay.
 The column itself is shown "tipped over," appearing as a horizontal blue rectangle.
-Upside-down triangles are stratum within the column.
+Upside-down triangles are strata within the column.
 The position of strata in the `x` dimension correspond to the generation of their deposition; new strata are appended on the right.
 Retention status is depicted with color.
 Black strata are retained and red strata have been pruned.
@@ -74,14 +74,14 @@ Available options are
 - `NumStrataRetainedExactEvaluator`
 - `NumStrataRetainedUpperBoundEvaluator`
 
-The second, a "parameterizer" controls whether the policy property should be paramaterized to be greater than, equal, or less than equal a target value.
+The second, a "parameterizer" controls whether the policy property should be parameterized to be greater than, equal to, or leq (i.e., `<=`) to a target value.
 Available options are
 
 - `PropertyAtMostParameterizer`
 - `PropertyAtLeastParameterizer`
 - `PropertyExactlyParameterizer`
 
-The evaluator should be provided as an argument to parameterizer, which should in turn be provided as an argument to the algorithm's `Policy` initializer.
+The evaluator should be provided as an argument to the parameterizer, which should in turn be provided as an argument to the algorithm's `Policy` initializer.
 
 ```python3
 stratum_retention_policy = hstrat.geom_seq_nth_root_tapered_algo.Policy(
@@ -186,7 +186,7 @@ It exhibits logarithmic `O(log(n))` space complexity.
 
 ### Curbed Recency Proportional Resolution Algorithm
 
-The curbed recency-proportional resolution algorithm eagerly utilize fixed stratum storage capacity to minimize recency-proportional MRCA uncertainty.
+The curbed recency-proportional resolution algorithm eagerly utilizes fixed stratum storage capacity to minimize recency-proportional MRCA uncertainty.
 
 This strategy provides the finest-possible recency-proportional granularity within parameterized space constraint.
 Resolution degrades gracefully as deposition history grows.
@@ -197,7 +197,7 @@ However, this curbed recency-proportional algorithm makes fuller (i.e., more agg
 In this way, it is similar to the tapered geometric sequence nth root algorithm during early depositions.
 The tapered nth root algorithm makes fullest use of fixed available space.
 In fact, it perfectly fills available space.
-However, the curbed recency-proportional algorithm's space use is more effective at early time points --- it better minimizes recency-proportional MRCA uncertainty than the curbed algorithm.
+However, the tapered recency-proportional algorithm's space use is more effective at early time points --- it better minimizes recency-proportional MRCA uncertainty than the curbed algorithm.
 
 | Sparse Parameterization                                                                                                                                                                                                                                                                                                  | Dense Parameterization                                                                                                                                                                                                                                                                                                   |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -210,10 +210,10 @@ However, the curbed recency-proportional algorithm's space use is more effective
 | [![](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-79+viz=strata-retained-num-lineplot+ext=.png)](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-79+viz=strata-retained-num-lineplot+ext=.png) | [![](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-79+viz=mrca-uncertainty-absolute-barplot+ext=.png)](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-79+viz=mrca-uncertainty-absolute-barplot+ext=.png) | [![](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-79+viz=mrca-uncertainty-relative-barplot+ext=.png)](docs/assets/num_generations=256+policy=curbed-recency-proportional-resolution-stratum-retention-algorithm-size-curb-79+viz=mrca-uncertainty-relative-barplot+ext=.png) |
 
 This policy works by splicing together successively-sparser
-`recency_proportional_resolution_algo` paramaterizations then a
-permanently fixed parameterization of the `geometric_seq_nth root` algorithm.
+`recency_proportional_resolution_algo` parameterizations then a
+permanently fixed parameterization of the `geometric_seq_nth_root` algorithm.
 Sparsification occurs when upper bound space use increases to exceed the fixed-size available capacity.
-For a very sparse paramaterization with a size cap of eight strata, shown below, the transition to `geometric_seq_nth_root_ago` can be seen at generation 129.
+For a very sparse parameterization with a size cap of eight strata, shown below, the transition to `geometric_seq_nth_root_algo` can be seen at generation 129.
 
 | Very Sparse Parameterization | |
 |------------------------------|-|

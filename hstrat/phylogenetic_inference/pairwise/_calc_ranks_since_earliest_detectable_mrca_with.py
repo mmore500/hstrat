@@ -19,7 +19,7 @@ def calc_ranks_since_earliest_detectable_mrca_with(
     How many depositions have elapsed along focal's lineage since the earliest
     possible rank a MRCA between focal and other could be reliably detected at?
 
-    Even if a true MRCA of focal and other exists, if it occured earlier
+    Even if a true MRCA of focal and other exists, if it occurred earlier
     than the rank calculated here it could not be reliably detected with
     sufficient confidence after accounting for the possibility of spurious
     differentia collisions. (Although subsequent spurious differentia

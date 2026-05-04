@@ -62,7 +62,7 @@ def calc_rank_of_first_retained_disparity_between_generic(
             second_iter = None
 
     # we need to keep track of enough last-seen common ranks so that we
-    # can discount this many (minus 1) as potentially occuring due to
+    # can discount this many (minus 1) as potentially occurring due to
     # spurious differentia collisions
     assert (
         first.GetStratumDifferentiaBitWidth()
@@ -102,9 +102,9 @@ def calc_rank_of_first_retained_disparity_between_generic(
                 # discount collision_implausibility_threshold - 1 common
                 # ranks due to potential spurious differentia collisions;
                 # if not enough common ranks are available we still know
-                # *definitively* that a disparity occured (because we
+                # *definitively* that a disparity occurred (because we
                 # observed disparite strata at the same rank); so, make the
-                # conservative assumption that the disparity occured as far
+                # conservative assumption that the disparity occurred as far
                 # back as possible (the oldest up to nth last-seen common
                 # rank, at the back of the deque)
                 return preceding_common_ranks[-1]

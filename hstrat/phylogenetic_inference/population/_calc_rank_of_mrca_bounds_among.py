@@ -40,7 +40,7 @@ def calc_rank_of_mrca_bounds_among(
 
     Notes
     -----
-    Currently implementaiton uses a naive O(n^2) approach. A more efficient
+    Current implementation uses a naive O(n^2) approach. A more efficient
     implementation should be possible.
 
     The true rank of the MRCA is guaranteed to never fall above the bounds

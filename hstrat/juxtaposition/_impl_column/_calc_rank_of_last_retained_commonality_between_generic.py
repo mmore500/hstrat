@@ -23,7 +23,7 @@ def calc_rank_of_last_retained_commonality_between_generic(
     Implementation detail with general-case implementation.
     """
     # we need to keep track of enough ranks of last-seen common strata so
-    # that we can discount this many (minus 1) as potentially occuring due
+    # that we can discount this many (minus 1) as potentially occurring due
     # to spurious differentia collisions
     assert (
         first.GetStratumDifferentiaBitWidth()

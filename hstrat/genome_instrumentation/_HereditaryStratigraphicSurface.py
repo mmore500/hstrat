@@ -41,7 +41,7 @@ class HereditaryStratigraphicSurface:
         """A wrapper around the downstream Surface object to match the
         `hstrat.HereditaryStratigraphicColumn` interface.
 
-        Initially depoists `S + predeposit_strata` strata, where `S` is the
+        Initially deposits `S + predeposit_strata` strata, where `S` is the
         surface size. If surface is already initialized, `predeposit_strata` is
         ignored and a ValueError is raised if `predeposit_strata` is not None.
 
@@ -217,7 +217,7 @@ class HereditaryStratigraphicSurface:
         return min(self._surface.T, self._surface.S)
 
     def GetNumStrataDeposited(self: "HereditaryStratigraphicSurface") -> int:
-        """How many strata have been depostited on the surface?
+        """How many strata have been deposited on the surface?
 
         Note that a first `S` strata may be deposited on the surface during
         initialization.

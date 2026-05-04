@@ -15,7 +15,7 @@ def calc_rank_of_earliest_detectable_mrca_among(
     Calculates the earliest possible rank a MRCA among the population
     could be reliably detected at.
 
-    Even if a true MRCA of the population exists, if it occured earlier
+    Even if a true MRCA of the population exists, if it occurred earlier
     than the rank calculated here it could not be reliably detected with
     sufficient confidence after accounting for the possibility of spurious
     differentia collisions. (Although subsequent spurious differentia
@@ -31,7 +31,7 @@ def calc_rank_of_earliest_detectable_mrca_among(
 
     Notes
     -----
-    Currently implementaiton uses a naive O(n^2) approach. A more efficient
+    Current implementation uses a naive O(n^2) approach. A more efficient
     implementation should be possible.
     """
 

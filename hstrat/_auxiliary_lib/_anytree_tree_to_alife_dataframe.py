@@ -14,7 +14,7 @@ from ._AnyTreeFastPreOrderIter import AnyTreeFastPreOrderIter
 def anytree_tree_to_alife_dataframe(
     tree: anytree.AnyNode,
 ) -> pd.DataFrame:
-    """Convert a anytree tree to a dataframe formatted to the
+    """Convert an anytree tree to a dataframe formatted to the
     artificial life community data format standards.
 
     The following Node object attributes will automatically be exported to
