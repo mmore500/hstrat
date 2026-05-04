@@ -74,7 +74,7 @@ Available options are
 - `NumStrataRetainedExactEvaluator`
 - `NumStrataRetainedUpperBoundEvaluator`
 
-The second, a "parameterizer" controls whether the policy property should be parameterized to be greater than, equal to, or less than or equal to a target value.
+The second, a "parameterizer" controls whether the policy property should be parameterized to be greater than, equal to, or leq (i.e., `<=`) to a target value.
 Available options are
 
 - `PropertyAtMostParameterizer`
