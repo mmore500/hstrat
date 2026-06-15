@@ -429,6 +429,13 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.23.3
         env:
+          # Prefer pre-built binary wheels during the test install so that
+          # scipy/scikit-learn/numpy are never built from source. Source builds
+          # of scipy fail inside the manylinux2014 test containers because no
+          # OpenBLAS is available ("Dependency OpenBLAS not found"). This env
+          # var also applies to cibuildwheel's own install of the hstrat wheel
+          # under test, which CIBW_BEFORE_TEST cannot influence on its own.
+          CIBW_ENVIRONMENT: PIP_PREFER_BINARY=1
           # workaround pyarrow wheel issue
           # pre-install scipy with --only-binary to avoid source builds
           # failing in manylinux2014 containers without OpenBLAS
