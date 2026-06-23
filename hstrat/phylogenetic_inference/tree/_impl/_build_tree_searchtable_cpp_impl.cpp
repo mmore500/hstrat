@@ -594,34 +594,12 @@ void attach_search_parent(Records &records, const u64 node, const u64 parent) {
 
   // insert node into the list of children, choosing its position in order
   // to keep the list in ascending order by rank
-  const i64 rank = records.rank[node];
   const auto siblings = ChildrenView(records, parent);
-  u64 precursor_id = parent;
-  const auto next_sibling_it = std::ranges::find_if(
-    siblings,
-    [&records, &precursor_id, rank](const u64 sibling){
-      const bool res = records.rank[sibling] >= rank;
-      if (!res) precursor_id = sibling;
-      return res;
-    }
-  );
-
+  const auto next_sibling_it = siblings.begin();
   const bool has_next_sibling = next_sibling_it != siblings.end();
-  const bool has_prev_sibling = next_sibling_it != siblings.begin();
 
-  if (has_prev_sibling) {
-    assert(
-      !has_next_sibling
-      || records.search_prev_sibling_id[*next_sibling_it] == precursor_id
-    );
-    assert(precursor_id != parent);
-    records.search_next_sibling_id[precursor_id] = node;
-    records.search_prev_sibling_id[node] = precursor_id;
-  } else {
-    assert(precursor_id == parent);
-    records.search_first_child_id[parent] = node;
-    records.search_prev_sibling_id[node] = node;
-  }
+  records.search_first_child_id[parent] = node;
+  records.search_prev_sibling_id[node] = node;
 
   if (has_next_sibling) {
     records.search_prev_sibling_id[*next_sibling_it] = node;
@@ -822,6 +800,62 @@ void collapse_indistinguishable_nodes(Records & records, const u64 node) {
  * children of those children to the node. Then, attaching children
  * becomes much faster, avoiding deep searches.
  *
+ * We previously believed that all children of a node will have the
+ * same rank, as the consolidate step should result in all children
+ * having rank `rank` after it runs. However, this neglected the case
+ * when a collapse_indistinguishable_nodes step ends up moving children
+ * from a winner to a loser, one of which had not been able to
+ * consolidate in a while, resulting in it having children of a rank
+ * that should have been dropped.
+ *
+ * The following example illustrates this case. Note, the value at
+ * each node represents the differentia value
+ *
+ *    1       2       3       4       5
+ * ++++++++++++++++++++++++++++++++++++++
+ *          /-0-------1-------0
+ *    1----<
+ *          \-1-------1-------1
+ *
+ * Suppose we now are processing the node:
+ *
+ *    1       1       1       _       1
+ *
+ * Then, the tree becomes:
+ *
+ *          /-0-------1-------0
+ *    1----<
+ *          \-1-------1---------------1
+ *
+ * Note that the child in rank 4 was only consolidated in the the
+ * node that was actually being processed (i.e., the node with rank 3
+ * in the lower branch). Therefore, it is not yet consolidated in the
+ * upper branch. So, now suppose that we proceed the node:
+ *
+ *    1       _       0       _       1        0
+ *
+ * After consolidation (but before collapse), the tree is:
+ *
+ *                  /-1-------0
+ *    1------------<
+ *                  \-1---------------1
+ *
+ * Then, the 1 is collapsed to:
+ *
+ *                          /-0
+ *    1---------------1----<
+ *                          \---------1
+ *
+ * Finally, adding the node gives:
+ *
+ *                          /-0
+ *    1---------------1----<
+ *                 \        \---------1
+ *                  \-0---------------1--------0
+ *
+ * Therefore, we cannot hold an invariant that the children of any node
+ * must all have the same rank.
+ *
  * @see collapse_indistinguishable_nodes
  */
 void consolidate_trie(Records &records, const i64 rank, const u64 node) {
@@ -831,28 +865,20 @@ void consolidate_trie(Records &records, const i64 rank, const u64 node) {
     [&records, rank](const u64 child){ return records.rank[child] <= rank; }
   ));
 
-  if (
-    children_range.begin() == children_range.end()
-    // chidlren are stored in ascending order by rank
-    || records.rank[*children_range.begin()] == rank
-  ) [[likely]] {
-    assert(std::ranges::all_of(
+  if (std::ranges::all_of(
       children_range,
       [&records, rank](const u64 child){ return records.rank[child] == rank; }
-    ));
+    )) [[likely]] {
     return;
   }
 
   // children are stored in ascending order by rank, so this is equivalent
   // to copy_if < rank
   std::vector<u64> node_stack;
-  const auto copy_end = std::ranges::find_if(
+  std::ranges::copy_if(
     children_range,
-    [&records, rank](const u64 node){ return records.rank[node] == rank; }
-  );
-  std::ranges::copy(
-    std::ranges::subrange(children_range.begin(), copy_end),
-    std::back_inserter(node_stack)
+    std::back_inserter(node_stack),
+    [&records, rank](const u64 node){ return records.rank[node] < rank; }
   );
 
   assert(!node_stack.empty());
