@@ -271,15 +271,15 @@ pillow==12.3.0
     # via matplotlib
 platformdirs==4.12.4
     # via jupyter-core
-polars==2.0.0
+polars==1.44.2
     # via
     #   hstrat (../../pyproject.toml)
     #   downstream
     #   joinem
     #   phyloframe
-polars-runtime-32==2.0.0
+polars-runtime-32==1.44.2
     # via polars
-polars-runtime-64==2.0.0
+polars-runtime-64==1.44.2
     # via polars
 prettytable==3.18.0
     # via hstrat (../../pyproject.toml)
