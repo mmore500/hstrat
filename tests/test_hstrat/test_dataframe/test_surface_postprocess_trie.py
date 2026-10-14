@@ -3,6 +3,7 @@ import os
 from downstream import dstream, dsurf
 from phyloframe import legacy as pfl
 import polars as pl
+import pytest
 
 from hstrat import hstrat
 from hstrat.dataframe import (
@@ -125,3 +126,57 @@ def test_zero_generations_elapsed():
     assert pfl.alifestd_validate(
         pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
     )
+
+
+@pytest.mark.parametrize("num_subtrees", [1, 50, 5000])
+def test_prefix_roots_preserves_topological_order(num_subtrees: int):
+    """Trunk deletion that leaves roots above rank S triggers root prefixing.
+
+    The result must remain topologically sorted with contiguous ids.
+    Guards against row reordering by unordered joins, e.g., under the Polars
+    streaming engine.
+    """
+    S = 4
+    rows = [(0, 0, 0, None), (1, 0, 1, None), (2, 1, 2, None)]  # trunk
+    next_id, next_data_id = 3, 0
+    for i in range(num_subtrees):
+        subtree_root = next_id
+        rows.append((subtree_root, 2, S + 5 + i % 7, None))
+        next_id += 1
+        for __ in range(2):
+            rows.append((next_id, subtree_root, S + 40, next_data_id))
+            next_id += 1
+            next_data_id += 1
+
+    ids, ancestor_ids, ranks, data_ids = zip(*rows)
+    raw = pl.DataFrame(
+        {
+            "id": ids,
+            "ancestor_id": ancestor_ids,
+            "dstream_rank": ranks,
+            "dstream_data_id": data_ids,
+            "hstrat_differentia_bitwidth": [8] * len(ids),
+            "dstream_S": [S] * len(ids),
+        },
+        schema={
+            "id": pl.UInt64,
+            "ancestor_id": pl.UInt64,
+            "dstream_rank": pl.UInt64,
+            "dstream_data_id": pl.UInt64,
+            "hstrat_differentia_bitwidth": pl.UInt32,
+            "dstream_S": pl.UInt32,
+        },
+    )
+
+    res = surface_postprocess_trie(
+        raw,
+        trie_postprocessor=AssignOriginTimeNodeRankTriePostprocessor(),
+    )
+
+    # each subtree gains one prefixed root; trunk is deleted
+    assert len(res) == 4 * num_subtrees
+    assert pfl.alifestd_is_topologically_sorted_polars(res)
+    assert pfl.alifestd_has_contiguous_ids_polars(res)
+    assert res["dstream_data_id"].drop_nulls().sort().to_list() == [
+        *range(2 * num_subtrees)
+    ]
