@@ -11,6 +11,7 @@ from Bio.Phylo.BaseTree import Clade as BioClade
 import alifedata_phyloinformatics_convert as apc
 from colorclade import draw_colorclade_tree
 import matplotlib.pyplot as plt
+import numpy as np
 import opytional as opyt
 import pandas as pd
 from phyloframe import legacy as pfl
@@ -111,9 +112,13 @@ def sample_reference_and_reconstruction(
         .reset_index()
     )
 
+    # taxa with inf or nan destruction_time are extant
+    new_df["extant"] = new_df["destruction_time"].isna() | np.isinf(
+        new_df["destruction_time"],
+    )
     true_phylo_df_no_fossils = pfl.alifestd_prune_extinct_lineages_asexual(
         new_df
-    )
+    ).drop(columns=["extant"])
 
     return {
         "exact": true_phylo_df,
