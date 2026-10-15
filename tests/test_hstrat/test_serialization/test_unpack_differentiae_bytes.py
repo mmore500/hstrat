@@ -1,8 +1,8 @@
-import more_itertools as mit
 import pytest
 import typing_extensions
 
 from hstrat import hstrat
+from hstrat._auxiliary_lib import zip_strict
 
 
 @pytest.mark.parametrize(
@@ -54,7 +54,7 @@ def test_pack_differentiae_bytes(differentia_bit_width, num_strata):
             differentiae_byte_bit_order="little",
         )
 
-    for stratum, differentia in mit.zip_equal(
+    for stratum, differentia in zip_strict(
         original_strata,
         unpacked_differentiae,
     ):
@@ -107,7 +107,7 @@ def test_pack_differentiae_bytes_specify_num_differentia_packed(
         num_packed_differentia=len(original_strata),
     )
 
-    for stratum, differentia in mit.zip_equal(
+    for stratum, differentia in zip_strict(
         original_strata,
         unpacked_differentiae,
     ):
