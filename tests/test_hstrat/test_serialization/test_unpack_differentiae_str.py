@@ -1,9 +1,8 @@
 import contexttimer as ctt
-import more_itertools as mit
 import pytest
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import is_base64
+from hstrat._auxiliary_lib import is_base64, zip_strict
 
 
 @pytest.mark.parametrize(
@@ -55,7 +54,7 @@ def test_pack_differentiae_str(differentia_bit_width, num_strata):
             differentiae_byte_bit_order="little",
         )
 
-    for stratum, differentia in mit.zip_equal(
+    for stratum, differentia in zip_strict(
         original_strata,
         unpacked_differentiae,
     ):
