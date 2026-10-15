@@ -153,4 +153,4 @@ def surface_test_drive(
     forwarded = df.filter(df_pd["extant"].values).select(
         pl.exclude("id", "ancestor_id", "ancestor_list", *data.keys()),
     )
-    return pl.DataFrame(data, schema=schema).hstack(forwarded.get_columns())
+    return pl.DataFrame(data, schema=schema).hstack(forwarded)
