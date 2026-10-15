@@ -130,12 +130,6 @@ def test_zero_generations_elapsed():
 
 @pytest.mark.parametrize("num_subtrees", [1, 50, 5000])
 def test_prefix_roots_preserves_topological_order(num_subtrees: int):
-    """Trunk deletion that leaves roots above rank S triggers root prefixing.
-
-    The result must remain topologically sorted with contiguous ids.
-    Guards against row reordering by unordered joins, e.g., under the Polars
-    streaming engine.
-    """
     S = 4
     rows = [(0, 0, 0, None), (1, 0, 1, None), (2, 1, 2, None)]  # trunk
     next_id, next_data_id = 3, 0
