@@ -27,7 +27,7 @@ def _bitarray_unpack_differentiae(
     differentiae_byte_bit_order: typing.Literal["big", "little"],
     num_packed_differentia: typing.Optional[int],
 ) -> typing.Iterator[int]:
-    bits = BitArray(bytes=buffer)
+    bits = BitArray(buffer)
     num_header_bits = (
         8
         if num_packed_differentia is None and bool(differentia_bit_width % 8)
