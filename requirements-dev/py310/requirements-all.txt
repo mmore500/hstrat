@@ -168,7 +168,7 @@ joblib==1.6.0
     #   hstrat (../../pyproject.toml)
     #   phyloframe
     #   scikit-learn
-joinem==0.14.0
+joinem==0.15.0
     # via
     #   hstrat (../../pyproject.toml)
     #   downstream
