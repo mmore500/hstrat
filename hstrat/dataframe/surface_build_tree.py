@@ -2,6 +2,7 @@ import argparse
 import functools
 import logging
 import os
+import typing
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
@@ -103,16 +104,19 @@ See Also
 """
 
 
-def _create_parser() -> argparse.ArgumentParser:
+def _create_parser(
+    description: str = raw_message,
+    dfcli_module: str = "hstrat.dataframe.surface_build_tree",
+) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
         allow_abbrev=False,
-        description=format_cli_description(raw_message),
+        description=format_cli_description(description),
         formatter_class=argparse.RawTextHelpFormatter,
     )
     _add_parser_base(
         parser=parser,
-        dfcli_module="hstrat.dataframe.surface_build_tree",
+        dfcli_module=dfcli_module,
         dfcli_version=get_hstrat_version(),
     )
     parser.add_argument(
@@ -211,35 +215,42 @@ def _create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _main(mp_context: str) -> None:
-    parser = _create_parser()
-    args, __ = parser.parse_known_args()
-
+def _make_build_tree_op(
+    args: argparse.Namespace, mp_context: str
+) -> typing.Callable:
+    """Bind parsed CLI args to `surface_build_tree`."""
     logging.info(
         "instantiating trie postprocess functor: "
         f"`{args.trie_postprocessor}`",
     )
     trie_postprocessor = eval(args.trie_postprocessor, {"hstrat": hstrat})
 
+    return functools.partial(
+        surface_build_tree,
+        collapse_unif_freq=args.collapse_unif_freq,
+        check_trie_invariant_freq=args.check_trie_invariant_freq,
+        check_trie_invariant_after_collapse_unif=args.check_trie_invariant_after_collapse_unif,
+        delete_trunk=args.delete_trunk,
+        drop_dstream_metadata=args.drop_dstream_metadata,
+        exploded_slice_size=args.exploded_slice_size,
+        mp_context=mp_context,
+        mp_pool_size=args.mp_pool_size,
+        pa_source_type=args.pa_source_type,
+        shuffle_over_same_T_seed=args.shuffle_over_same_T_seed,
+        trie_postprocessor=trie_postprocessor,
+    )
+
+
+def _main(mp_context: str) -> None:
+    parser = _create_parser()
+    args, __ = parser.parse_known_args()
+
     with log_context_duration(
         "hstrat.dataframe.surface_build_tree", logging.info
     ):
         _run_dataframe_cli(
             base_parser=parser,
-            output_dataframe_op=functools.partial(
-                surface_build_tree,
-                collapse_unif_freq=args.collapse_unif_freq,
-                check_trie_invariant_freq=args.check_trie_invariant_freq,
-                check_trie_invariant_after_collapse_unif=args.check_trie_invariant_after_collapse_unif,
-                delete_trunk=args.delete_trunk,
-                drop_dstream_metadata=args.drop_dstream_metadata,
-                exploded_slice_size=args.exploded_slice_size,
-                mp_context=mp_context,
-                mp_pool_size=args.mp_pool_size,
-                pa_source_type=args.pa_source_type,
-                shuffle_over_same_T_seed=args.shuffle_over_same_T_seed,
-                trie_postprocessor=trie_postprocessor,
-            ),
+            output_dataframe_op=_make_build_tree_op(args, mp_context),
         )
 
 
