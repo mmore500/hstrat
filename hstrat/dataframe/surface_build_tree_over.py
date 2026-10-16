@@ -1,9 +1,11 @@
 import functools
 import logging
 import os
+import sys
+import typing
 
 import joinem
-from joinem._dataframe_cli import _eval_kwargs, _run_dataframe_cli
+from joinem._dataframe_cli import _run_dataframe_cli
 import polars as pl
 
 from .. import hstrat
@@ -28,20 +30,19 @@ See `python3 -m hstrat.dataframe.surface_build_tree --help` for details.
 
 Partition Keys
 ==============
-Provide each `--partition-by` value as 'name=value', where value is a column name (string) or a polars expression.
-Values are evaluated as Python expressions, with access to polars as `pl`.
-Partition key columns are added to input data as `name`, as with `with_columns`.
+Each `--partition-by` value is evaluated as a Python expression, with access to polars as `pl`, and must produce a column name (string) or a polars expression.
+Partition key columns are added to input data as with `with_columns`, so name derived keys via `.alias`.
 For example,
-    --partition-by 'replicate="replicate"'
-    --partition-by 'replicate=pl.col("replicate")'
-    --partition-by 'epoch=pl.col("update") // 1000'
+    --partition-by '"replicate"'
+    --partition-by 'pl.col("replicate")'
+    --partition-by '(pl.col("update") // 1000).alias("epoch")'
 
 Pass flag multiple times to partition by combination of values.
 
 Partition key values are forwarded to all output rows, including inner tree nodes.
 
 To reconstruct separate phylogenies per source data file,
-    --with-column 'pl.lit(filepath).alias("source")' --partition-by 'source="source"'
+    --with-column 'pl.lit(filepath).alias("source")' --partition-by '"source"'
 
 
 Additional Notes
@@ -64,6 +65,18 @@ phyloframe.legacy.alifestd_aggregate_phylogenies_polars :
 """
 
 
+def _eval_partition_by(partition_by: str) -> typing.Union[str, pl.Expr]:
+    try:
+        return eval(partition_by, {"pl": pl})
+    except Exception as e:
+        logging.error(
+            "Failed to parse partition-by expression `%s` error: %s",
+            partition_by,
+            e,
+        )
+        sys.exit(1)
+
+
 def _main(mp_context: str) -> None:
     parser = _create_base_parser(
         description=raw_message,
@@ -75,15 +88,11 @@ def _main(mp_context: str) -> None:
         default=[],
         dest="partition_by",
         help=(
-            "Column to partition rows by, so that tree reconstruction is "
-            "performed independently for each distinct value (or "
-            "combination of values, if repeated). "
-            "Provide as 'name=value', where value is a column name or "
-            "polars expression. "
-            "Arguments will be evaluated as Python expressions, with access "
-            "to polars as `pl`. "
-            "Example: "
-            r"""'epoch=pl.col("update") // 1000'"""
+            "Column name or expression to partition rows by, so that tree "
+            "reconstruction is performed independently for each distinct "
+            "value (or combination of values, if repeated). Has access to "
+            "polars as `pl`. Example: "
+            r"""'pl.col("replicate")'"""
         ),
         type=str,
     )
@@ -104,12 +113,7 @@ def _main(mp_context: str) -> None:
             base_parser=parser,
             output_dataframe_op=functools.partial(
                 surface_build_tree_over,
-                partition_by=[
-                    (pl.col(value) if isinstance(value, str) else value).alias(
-                        name,
-                    )
-                    for name, value in _eval_kwargs(args.partition_by).items()
-                ],
+                partition_by=[*map(_eval_partition_by, args.partition_by)],
                 collapse_unif_freq=args.collapse_unif_freq,
                 check_trie_invariant_freq=args.check_trie_invariant_freq,
                 check_trie_invariant_after_collapse_unif=args.check_trie_invariant_after_collapse_unif,

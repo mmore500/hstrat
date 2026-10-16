@@ -75,6 +75,23 @@ def test_surface_build_tree_over_cli_requires_partition_by():
     assert b"--partition-by" in result.stderr
 
 
+def test_surface_build_tree_over_cli_partition_by_invalid():
+    result = subprocess.run(  # nosec B603
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_build_tree_over",
+            "/tmp/hstrat_surface_build_tree_over_invalid.pqt",  # nosec B108
+            "--partition-by",
+            "awoo",  # bare name, not a string or expression
+        ],
+        capture_output=True,
+        input=f"{assets}/packed.csv".encode(),
+    )
+    assert result.returncode != 0
+    assert b"Failed to parse partition-by expression" in result.stderr
+
+
 def test_surface_build_tree_over_cli_csv():
     output_file = "/tmp/hstrat_surface_build_tree_over.csv"  # nosec B108
     pathlib.Path(output_file).unlink(missing_ok=True)
@@ -85,7 +102,7 @@ def test_surface_build_tree_over_cli_csv():
             "hstrat.dataframe.surface_build_tree_over",
             output_file,
             "--partition-by",
-            'awoo="awoo"',
+            '"awoo"',
         ],
         check=True,
         input=f"{assets}/packed.csv".encode(),
@@ -96,9 +113,9 @@ def test_surface_build_tree_over_cli_csv():
 @pytest.mark.parametrize(
     "partition_by",
     [
-        ['awoo="awoo"'],
-        ['awoo=pl.col("awoo")'],
-        ['awoo_len=pl.col("awoo").str.len_chars()', 'awoo="awoo"'],
+        ['"awoo"'],
+        ['pl.col("awoo")'],
+        ['pl.col("awoo").str.len_chars().alias("awoo_len")', '"awoo"'],
     ],
 )
 def test_surface_build_tree_over_cli_partition_by(partition_by: list):
@@ -135,7 +152,7 @@ def test_surface_build_tree_over_cli_filepath():
             "--how",
             "diagonal_relaxed",
             "--partition-by",
-            'source="source"',
+            '"source"',
         ],
         check=True,
         input=f"{assets}/packed.csv\n{assets}/packed_long.csv".encode(),
@@ -155,7 +172,7 @@ def test_surface_build_tree_over_cli_matches_separate(genomes_file: str):
         genomes_file,
         "/tmp/hstrat_surface_build_tree_over_cmp.pqt",  # nosec B108
         "--partition-by",
-        f"part={key}",
+        f'({key}).alias("part")',
     )
     assert res["id"].is_unique().all()
     assert res["part"].null_count() == 0
@@ -193,7 +210,7 @@ def test_surface_build_tree_over_cli_empty():
         "--filter",
         "False",
         "--partition-by",
-        'awoo="awoo"',
+        '"awoo"',
     )
     assert res.is_empty()
     assert {"id", "ancestor_id"} <= {*res.columns}
