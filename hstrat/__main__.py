@@ -7,7 +7,9 @@ if __name__ == "__main__":
         """
 Available commands (stabilized API):
 $ python3 -m hstrat.dataframe.surface_build_tree
+$ python3 -m hstrat.dataframe.surface_build_tree_over
 $ python3 -m hstrat.dataframe.surface_postprocess_trie
+$ python3 -m hstrat.dataframe.surface_test_drive
 $ python3 -m hstrat.dataframe.surface_unpack_reconstruct
 $ python3 -m hstrat.dataframe.surface_validate_trie
 

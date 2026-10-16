@@ -135,7 +135,9 @@ def _main() -> None:
                 stratum_differentia_bit_width=args.stratum_differentia_bit_width,
                 dstream_algo=args.dstream_algo,
                 dstream_S=args.dstream_S,
-                progress_wrap=tqdm,
+                progress_wrap=functools.partial(
+                    tqdm, desc="surface_test_drive"
+                ),
             ),
         )
 

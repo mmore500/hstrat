@@ -103,16 +103,19 @@ See Also
 """
 
 
-def _create_parser() -> argparse.ArgumentParser:
+def _create_parser(
+    raw_description: str,
+    dfcli_module: str,
+) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         add_help=False,
         allow_abbrev=False,
-        description=format_cli_description(raw_message),
+        description=format_cli_description(raw_description),
         formatter_class=argparse.RawTextHelpFormatter,
     )
     _add_parser_base(
         parser=parser,
-        dfcli_module="hstrat.dataframe.surface_build_tree",
+        dfcli_module=dfcli_module,
         dfcli_version=get_hstrat_version(),
     )
     parser.add_argument(
@@ -212,7 +215,10 @@ def _create_parser() -> argparse.ArgumentParser:
 
 
 def _main(mp_context: str) -> None:
-    parser = _create_parser()
+    parser = _create_parser(
+        raw_description=raw_message,
+        dfcli_module="hstrat.dataframe.surface_build_tree",
+    )
     args, __ = parser.parse_known_args()
 
     logging.info(
