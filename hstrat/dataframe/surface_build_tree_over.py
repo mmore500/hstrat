@@ -78,7 +78,7 @@ def _eval_partition_by(partition_by: str) -> typing.Union[str, pl.Expr]:
 
 def _main(mp_context: str) -> None:
     parser = _create_base_parser(
-        description=raw_message,
+        raw_description=raw_message,
         dfcli_module="hstrat.dataframe.surface_build_tree_over",
     )
     partition_by_action = parser.add_argument(

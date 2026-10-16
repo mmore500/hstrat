@@ -119,7 +119,10 @@ def test_drop_dstream_metadata_false_preserves_dstream_rank_and_S():
 
 def test_parser_no_prefix_matching_drop():
     """Regression: --drop must not prefix-match --drop-dstream-metadata."""
-    parser = _create_parser()
+    parser = _create_parser(
+        raw_description="",
+        dfcli_module="hstrat.dataframe.surface_build_tree",
+    )
     args, remaining = parser.parse_known_args(
         [
             "--no-drop-dstream-metadata",
