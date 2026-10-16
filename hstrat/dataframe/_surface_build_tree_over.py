@@ -70,9 +70,6 @@ def surface_build_tree_over(
 
     Notes
     -----
-    If not provided, 'dstream_data_id' is assigned from row number before
-    partitioning, so values are unique across partitions.
-
     Partitions are ordered by first appearance in input data.
 
     See Also
@@ -90,17 +87,7 @@ def surface_build_tree_over(
     partition_names = [expr.meta.output_name() for expr in partition_by]
     logging.info(f"surface_build_tree_over partitioning by {partition_names}")
 
-    df = (
-        df.lazy()
-        .with_columns(  # ensure unique across partitions
-            dstream_data_id=pl.coalesce(
-                pl.col("^dstream_data_id$"),
-                pl.int_range(pl.len(), dtype=pl.UInt64),
-            ).cast(pl.UInt64),
-        )
-        .with_columns(*partition_by)
-        .collect()
-    )
+    df = df.lazy().with_columns(*partition_by).collect()
     schema = df.schema
 
     return pfl.alifestd_aggregate_phylogenies_polars(

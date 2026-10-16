@@ -47,7 +47,6 @@ To reconstruct separate phylogenies per source data file,
 
 Additional Notes
 ================
-If not provided, 'dstream_data_id' is assigned from row number before partitioning, so values are unique across partitions.
 Partitions are ordered by first appearance in input data.
 This CLI entrypoint is experimental and may be subject to change.
 

@@ -25,7 +25,7 @@ def test_partition_by(partition_by):
     # one independent tree per partition
     assert pfl.alifestd_count_root_nodes_polars(res) == 2
     assert res["id"].is_unique().all()
-    assert res["dstream_data_id"].drop_nulls().sort().to_list() == [0, 1]
+    assert res["dstream_data_id"].drop_nulls().len() == 2
     # partition keys forwarded to all rows, including inner nodes
     assert res["awoo"].null_count() == 0
     assert res["awoo"].unique(maintain_order=True).to_list() == ["bar", "baz"]
