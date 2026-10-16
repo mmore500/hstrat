@@ -32,3 +32,27 @@ def test_smoke():
     assert set(zip(pop["td_source_id"], pop["origin_time"])) <= set(
         zip(df["id"], df["origin_time"]),
     )
+
+
+def test_no_forwarded_columns():
+    df = pl.read_csv(f"{assets_path}/nk_ecoeaselection.csv")
+    df = df.select("id", "ancestor_list", "origin_time")
+    pop = surface_test_drive(
+        df,
+        dstream_algo="dstream.steady_algo",
+        dstream_S=64,
+        stratum_differentia_bit_width=1,
+    )
+    assert len(pop) == pfl.alifestd_count_leaf_nodes(df)
+    assert set(pop.columns) == {
+        "data_hex",
+        "downstream_version",
+        "dstream_algo",
+        "dstream_storage_bitwidth",
+        "dstream_storage_bitoffset",
+        "dstream_T_bitwidth",
+        "dstream_T_bitoffset",
+        "dstream_S",
+        "origin_time",
+        "td_source_id",
+    }

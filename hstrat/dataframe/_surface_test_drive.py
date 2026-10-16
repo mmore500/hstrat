@@ -148,12 +148,9 @@ def surface_test_drive(
         "origin_time": pl.UInt64,
         "td_source_id": pl.UInt64,
     }
-    return pl.concat(
-        (
-            pl.DataFrame(data, schema=schema),
-            df.select(
-                pl.exclude("id", "ancestor_id", "ancestor_list", *data.keys()),
-            ).filter(df_pd["extant"].values),
-        ),
-        how="horizontal",
+    # hstack rather than horizontal concat, because selecting zero forwarded
+    # columns yields a height-zero frame that horizontal concat rejects
+    forwarded = df.filter(df_pd["extant"].values).select(
+        pl.exclude("id", "ancestor_id", "ancestor_list", *data.keys()),
     )
+    return pl.DataFrame(data, schema=schema).hstack(forwarded)
