@@ -79,7 +79,7 @@ def surface_build_tree_over(
     return pfl.alifestd_aggregate_phylogenies_polars(
         surface_build_tree(
             group, **kwargs
-        ).with_columns(  # forward partition key onto all rows, incl. inner
+        ).with_columns(  # forward partition key onto all rows, incl. non-leaf
             pl.lit(value, dtype=schema[name]).alias(name)
             for name, value in zip(partition_names, key)
         )
