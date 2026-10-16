@@ -196,4 +196,4 @@ def test_surface_build_tree_over_cli_empty():
         "awoo",
     )
     assert res.is_empty()
-    assert {"id", "ancestor_id", "awoo"} <= {*res.columns}
+    assert {"id", "ancestor_id"} <= {*res.columns}

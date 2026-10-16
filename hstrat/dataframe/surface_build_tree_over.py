@@ -57,8 +57,8 @@ See Also
 -m hstrat.dataframe.surface_build_tree :
     Reconstruct a single tree from all genomes.
 
--m phyloframe.legacy._alifestd_aggregate_phylogeny_partitions_polars :
-    Concatenate partitions of a dataframe as independent phylogenies.
+phyloframe.legacy.alifestd_aggregate_phylogenies_polars :
+    Concatenate independent phylogenies, reassigning ids.
 """
 
 
@@ -120,28 +120,21 @@ def _main(mp_context: str) -> None:
     ):
         _run_dataframe_cli(
             base_parser=parser,
-            output_dataframe_op=lambda df: pfl.alifestd_aggregate_phylogeny_partitions_polars(
-                pl.concat(
-                    [
-                        broadcast_key(build_tree(group), key, group.schema)
-                        for key, group in tqdm(
-                            df.lazy()
-                            .with_columns(  # ensure unique across partitions
-                                dstream_data_id=pl.coalesce(
-                                    pl.col("^dstream_data_id$"),
-                                    pl.int_range(pl.len(), dtype=pl.UInt64),
-                                ).cast(pl.UInt64),
-                            )
-                            .with_columns(*partition_by)
-                            .collect()
-                            .group_by(partition_names, maintain_order=True),
-                            desc="partitions",
-                        )
-                    ]
-                    or [build_tree(df.lazy().with_columns(*partition_by))],
-                    how="diagonal_relaxed",
-                ),
-                partitioned_by=partition_names,
+            output_dataframe_op=lambda df: pfl.alifestd_aggregate_phylogenies_polars(
+                broadcast_key(build_tree(group), key, group.schema)
+                for key, group in tqdm(
+                    df.lazy()
+                    .with_columns(  # ensure unique across partitions
+                        dstream_data_id=pl.coalesce(
+                            pl.col("^dstream_data_id$"),
+                            pl.int_range(pl.len(), dtype=pl.UInt64),
+                        ).cast(pl.UInt64),
+                    )
+                    .with_columns(*partition_by)
+                    .collect()
+                    .group_by(partition_names, maintain_order=True),
+                    desc="partitions",
+                )
             ),
         )
 
