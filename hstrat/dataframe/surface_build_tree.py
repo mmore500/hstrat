@@ -2,7 +2,6 @@ import argparse
 import functools
 import logging
 import os
-import typing
 
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
@@ -215,42 +214,35 @@ def _create_parser(
     return parser
 
 
-def _make_build_tree_op(
-    args: argparse.Namespace, mp_context: str
-) -> typing.Callable:
-    """Bind parsed CLI args to `surface_build_tree`."""
+def _main(mp_context: str) -> None:
+    parser = _create_parser()
+    args, __ = parser.parse_known_args()
+
     logging.info(
         "instantiating trie postprocess functor: "
         f"`{args.trie_postprocessor}`",
     )
     trie_postprocessor = eval(args.trie_postprocessor, {"hstrat": hstrat})
 
-    return functools.partial(
-        surface_build_tree,
-        collapse_unif_freq=args.collapse_unif_freq,
-        check_trie_invariant_freq=args.check_trie_invariant_freq,
-        check_trie_invariant_after_collapse_unif=args.check_trie_invariant_after_collapse_unif,
-        delete_trunk=args.delete_trunk,
-        drop_dstream_metadata=args.drop_dstream_metadata,
-        exploded_slice_size=args.exploded_slice_size,
-        mp_context=mp_context,
-        mp_pool_size=args.mp_pool_size,
-        pa_source_type=args.pa_source_type,
-        shuffle_over_same_T_seed=args.shuffle_over_same_T_seed,
-        trie_postprocessor=trie_postprocessor,
-    )
-
-
-def _main(mp_context: str) -> None:
-    parser = _create_parser()
-    args, __ = parser.parse_known_args()
-
     with log_context_duration(
         "hstrat.dataframe.surface_build_tree", logging.info
     ):
         _run_dataframe_cli(
             base_parser=parser,
-            output_dataframe_op=_make_build_tree_op(args, mp_context),
+            output_dataframe_op=functools.partial(
+                surface_build_tree,
+                collapse_unif_freq=args.collapse_unif_freq,
+                check_trie_invariant_freq=args.check_trie_invariant_freq,
+                check_trie_invariant_after_collapse_unif=args.check_trie_invariant_after_collapse_unif,
+                delete_trunk=args.delete_trunk,
+                drop_dstream_metadata=args.drop_dstream_metadata,
+                exploded_slice_size=args.exploded_slice_size,
+                mp_context=mp_context,
+                mp_pool_size=args.mp_pool_size,
+                pa_source_type=args.pa_source_type,
+                shuffle_over_same_T_seed=args.shuffle_over_same_T_seed,
+                trie_postprocessor=trie_postprocessor,
+            ),
         )
 
 

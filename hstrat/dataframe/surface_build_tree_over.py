@@ -1,3 +1,4 @@
+import functools
 import logging
 import os
 import typing
@@ -8,13 +9,14 @@ from phyloframe import legacy as pfl
 import polars as pl
 from tqdm import tqdm
 
+from .. import hstrat
 from .._auxiliary_lib import (
     begin_prod_logging,
     get_hstrat_version,
     log_context_duration,
 )
+from ._surface_build_tree import surface_build_tree
 from .surface_build_tree import _create_parser as _create_base_parser
-from .surface_build_tree import _make_build_tree_op
 
 raw_message = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
 
@@ -104,7 +106,26 @@ def _main(mp_context: str) -> None:
     partition_names = [expr.meta.output_name() for expr in partition_by]
     logging.info(f"partitioning by {partition_names}")
 
-    build_tree = _make_build_tree_op(args, mp_context)
+    logging.info(
+        "instantiating trie postprocess functor: "
+        f"`{args.trie_postprocessor}`",
+    )
+    trie_postprocessor = eval(args.trie_postprocessor, {"hstrat": hstrat})
+
+    build_tree = functools.partial(
+        surface_build_tree,
+        collapse_unif_freq=args.collapse_unif_freq,
+        check_trie_invariant_freq=args.check_trie_invariant_freq,
+        check_trie_invariant_after_collapse_unif=args.check_trie_invariant_after_collapse_unif,
+        delete_trunk=args.delete_trunk,
+        drop_dstream_metadata=args.drop_dstream_metadata,
+        exploded_slice_size=args.exploded_slice_size,
+        mp_context=mp_context,
+        mp_pool_size=args.mp_pool_size,
+        pa_source_type=args.pa_source_type,
+        shuffle_over_same_T_seed=args.shuffle_over_same_T_seed,
+        trie_postprocessor=trie_postprocessor,
+    )
 
     def broadcast_key(
         phylo_df: pl.DataFrame, key: typing.Tuple, schema: pl.Schema
