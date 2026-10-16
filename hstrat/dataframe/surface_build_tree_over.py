@@ -125,7 +125,9 @@ def _main(mp_context: str) -> None:
                 pa_source_type=args.pa_source_type,
                 shuffle_over_same_T_seed=args.shuffle_over_same_T_seed,
                 trie_postprocessor=trie_postprocessor,
-                progress_wrap=functools.partial(tqdm, desc="partitions"),
+                progress_wrap=functools.partial(
+                    tqdm, desc="surface_build_tree_over"
+                ),
             ),
         )
 

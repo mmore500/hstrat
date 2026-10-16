@@ -146,7 +146,9 @@ if __name__ == "__main__":
             df,
             max_num_checks=args.max_num_checks,
             max_violations=args.max_violations,
-            progress_wrap=functools.partial(tqdm, desc="checking leaf pairs"),
+            progress_wrap=functools.partial(
+                tqdm, desc="surface_validate_trie"
+            ),
             seed=args.seed,
         )
 

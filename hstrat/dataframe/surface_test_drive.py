@@ -136,7 +136,7 @@ def _main() -> None:
                 dstream_algo=args.dstream_algo,
                 dstream_S=args.dstream_S,
                 progress_wrap=functools.partial(
-                    tqdm, desc="descending template phylogeny"
+                    tqdm, desc="surface_test_drive"
                 ),
             ),
         )
