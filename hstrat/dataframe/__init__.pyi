@@ -1,4 +1,5 @@
 from ._surface_build_tree import surface_build_tree
+from ._surface_build_tree_over import surface_build_tree_over
 from ._surface_postprocess_trie import surface_postprocess_trie
 from ._surface_test_drive import surface_test_drive
 from ._surface_unpack_reconstruct import surface_unpack_reconstruct
@@ -7,6 +8,7 @@ from ._surface_validate_trie import surface_validate_trie
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
     "surface_build_tree",
+    "surface_build_tree_over",
     "surface_postprocess_trie",
     "surface_test_drive",
     "surface_unpack_reconstruct",

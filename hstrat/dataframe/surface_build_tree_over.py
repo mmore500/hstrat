@@ -1,13 +1,10 @@
 import functools
 import logging
 import os
-import typing
 
 import joinem
-from joinem._dataframe_cli import _run_dataframe_cli
-from phyloframe import legacy as pfl
+from joinem._dataframe_cli import _eval_kwargs, _run_dataframe_cli
 import polars as pl
-from tqdm import tqdm
 
 from .. import hstrat
 from .._auxiliary_lib import (
@@ -15,7 +12,7 @@ from .._auxiliary_lib import (
     get_hstrat_version,
     log_context_duration,
 )
-from ._surface_build_tree import surface_build_tree
+from ._surface_build_tree_over import surface_build_tree_over
 from .surface_build_tree import _create_parser as _create_base_parser
 
 raw_message = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
@@ -31,20 +28,20 @@ See `python3 -m hstrat.dataframe.surface_build_tree --help` for details.
 
 Partition Keys
 ==============
-Each `--partition-by` value is evaluated as a Python expression, with access to polars as `pl`.
-If evaluation does not produce a polars expression (e.g., a bare column name), the value is taken as a column name.
+Provide each `--partition-by` value as 'name=value', where value is a column name (string) or a polars expression.
+Values are evaluated as Python expressions, with access to polars as `pl`.
+Partition key columns are added to input data as `name`, as with `with_columns`.
 For example,
-    --partition-by 'replicate'
-    --partition-by 'pl.col("replicate")'
-    --partition-by 'pl.col("update") // 1000'
+    --partition-by 'replicate="replicate"'
+    --partition-by 'replicate=pl.col("replicate")'
+    --partition-by 'epoch=pl.col("update") // 1000'
 
 Pass flag multiple times to partition by combination of values.
 
-Partition key columns are added to input data as with `with_columns`, so name derived keys via `.alias`.
 Partition key values are forwarded to all output rows, including inner tree nodes.
 
 To reconstruct separate phylogenies per source data file,
-    --with-column 'pl.lit(filepath).alias("source")' --partition-by 'source'
+    --with-column 'pl.lit(filepath).alias("source")' --partition-by 'source="source"'
 
 
 Additional Notes
@@ -59,24 +56,12 @@ See Also
 -m hstrat.dataframe.surface_build_tree :
     Reconstruct a single tree from all genomes.
 
+hstrat.dataframe.surface_build_tree_over :
+    Python API for this CLI entrypoint.
+
 phyloframe.legacy.alifestd_aggregate_phylogenies_polars :
     Concatenate independent phylogenies, reassigning ids.
 """
-
-
-def _eval_partition_by(partition_by: str) -> pl.Expr:
-    """Evaluate partition key as polars expression, falling back to
-    treating it as a column name."""
-    try:
-        evaluated = eval(partition_by, {"pl": pl})
-    except Exception:
-        evaluated = None
-
-    if isinstance(evaluated, pl.Expr):
-        return evaluated
-    else:
-        logging.info(f"taking --partition-by {partition_by!r} as column name")
-        return pl.col(partition_by)
 
 
 def _main(mp_context: str) -> None:
@@ -90,11 +75,15 @@ def _main(mp_context: str) -> None:
         default=[],
         dest="partition_by",
         help=(
-            "Column name or expression to partition rows by, so that tree "
-            "reconstruction is performed independently for each distinct "
-            "value (or combination of values, if repeated). Has access to "
-            "polars as `pl`. Example: "
-            r"""'pl.col("replicate")'"""
+            "Column to partition rows by, so that tree reconstruction is "
+            "performed independently for each distinct value (or "
+            "combination of values, if repeated). "
+            "Provide as 'name=value', where value is a column name or "
+            "polars expression. "
+            "Arguments will be evaluated as Python expressions, with access "
+            "to polars as `pl`. "
+            "Example: "
+            r"""'epoch=pl.col("update") // 1000'"""
         ),
         type=str,
     )
@@ -102,60 +91,36 @@ def _main(mp_context: str) -> None:
     # enforce only in full parse, so that --help works without flag
     partition_by_action.required = True
 
-    partition_by = [*map(_eval_partition_by, args.partition_by)]
-    partition_names = [expr.meta.output_name() for expr in partition_by]
-    logging.info(f"partitioning by {partition_names}")
-
     logging.info(
         "instantiating trie postprocess functor: "
         f"`{args.trie_postprocessor}`",
     )
     trie_postprocessor = eval(args.trie_postprocessor, {"hstrat": hstrat})
 
-    build_tree = functools.partial(
-        surface_build_tree,
-        collapse_unif_freq=args.collapse_unif_freq,
-        check_trie_invariant_freq=args.check_trie_invariant_freq,
-        check_trie_invariant_after_collapse_unif=args.check_trie_invariant_after_collapse_unif,
-        delete_trunk=args.delete_trunk,
-        drop_dstream_metadata=args.drop_dstream_metadata,
-        exploded_slice_size=args.exploded_slice_size,
-        mp_context=mp_context,
-        mp_pool_size=args.mp_pool_size,
-        pa_source_type=args.pa_source_type,
-        shuffle_over_same_T_seed=args.shuffle_over_same_T_seed,
-        trie_postprocessor=trie_postprocessor,
-    )
-
-    def broadcast_key(
-        phylo_df: pl.DataFrame, key: typing.Tuple, schema: pl.Schema
-    ) -> pl.DataFrame:
-        # forward partition key onto all rows, including inner nodes
-        return phylo_df.with_columns(
-            pl.lit(value, dtype=schema[name]).alias(name)
-            for name, value in zip(partition_names, key)
-        )
-
     with log_context_duration(
         "hstrat.dataframe.surface_build_tree_over", logging.info
     ):
         _run_dataframe_cli(
             base_parser=parser,
-            output_dataframe_op=lambda df: pfl.alifestd_aggregate_phylogenies_polars(
-                broadcast_key(build_tree(group), key, group.schema)
-                for key, group in tqdm(
-                    df.lazy()
-                    .with_columns(  # ensure unique across partitions
-                        dstream_data_id=pl.coalesce(
-                            pl.col("^dstream_data_id$"),
-                            pl.int_range(pl.len(), dtype=pl.UInt64),
-                        ).cast(pl.UInt64),
+            output_dataframe_op=functools.partial(
+                surface_build_tree_over,
+                partition_by=[
+                    (pl.col(value) if isinstance(value, str) else value).alias(
+                        name,
                     )
-                    .with_columns(*partition_by)
-                    .collect()
-                    .group_by(partition_names, maintain_order=True),
-                    desc="partitions",
-                )
+                    for name, value in _eval_kwargs(args.partition_by).items()
+                ],
+                collapse_unif_freq=args.collapse_unif_freq,
+                check_trie_invariant_freq=args.check_trie_invariant_freq,
+                check_trie_invariant_after_collapse_unif=args.check_trie_invariant_after_collapse_unif,
+                delete_trunk=args.delete_trunk,
+                drop_dstream_metadata=args.drop_dstream_metadata,
+                exploded_slice_size=args.exploded_slice_size,
+                mp_context=mp_context,
+                mp_pool_size=args.mp_pool_size,
+                pa_source_type=args.pa_source_type,
+                shuffle_over_same_T_seed=args.shuffle_over_same_T_seed,
+                trie_postprocessor=trie_postprocessor,
             ),
         )
 
