@@ -4,7 +4,6 @@ import typing
 from phyloframe import legacy as pfl
 import polars as pl
 
-from ..phylogenetic_inference.tree.trie_postprocess import NopTriePostprocessor
 from ._surface_build_tree import surface_build_tree
 
 
@@ -16,19 +15,8 @@ def surface_build_tree_over(
         pl.Expr,
         typing.Sequence[typing.Union[str, pl.Expr]],
     ],
-    collapse_unif_freq: int = 1,
-    check_trie_invariant_freq: int = 0,
-    check_trie_invariant_after_collapse_unif: bool = False,
-    drop_dstream_metadata: typing.Optional[bool] = None,
-    exploded_slice_size: int = 1_000_000,
-    mp_context: str = "spawn",
-    mp_pool_size: int = 1,
-    pa_source_type: str = "memory_map",
-    shuffle_over_same_T_seed: typing.Optional[int] = None,
-    delete_trunk: bool = True,
-    trie_postprocessor: typing.Callable = NopTriePostprocessor(),
-    # ^^^ NopTriePostprocessor is stateless, so is safe as default value
     progress_wrap: typing.Callable = lambda x: x,
+    **kwargs,
 ) -> pl.DataFrame:
     """Partitioned interface to end-to-end tree reconstruction for
     surface-based genome annotations.
@@ -55,8 +43,8 @@ def surface_build_tree_over(
         output rows, including inner tree nodes.
     progress_wrap : Callable, optional
         Pass tqdm or equivalent to display a progress bar.
-
-    Other parameters are as for `surface_build_tree`.
+    **kwargs
+        Forwarded to `surface_build_tree`.
 
     Returns
     -------
@@ -90,18 +78,7 @@ def surface_build_tree_over(
 
     return pfl.alifestd_aggregate_phylogenies_polars(
         surface_build_tree(
-            group,
-            collapse_unif_freq=collapse_unif_freq,
-            check_trie_invariant_freq=check_trie_invariant_freq,
-            check_trie_invariant_after_collapse_unif=check_trie_invariant_after_collapse_unif,
-            drop_dstream_metadata=drop_dstream_metadata,
-            exploded_slice_size=exploded_slice_size,
-            mp_context=mp_context,
-            mp_pool_size=mp_pool_size,
-            pa_source_type=pa_source_type,
-            shuffle_over_same_T_seed=shuffle_over_same_T_seed,
-            delete_trunk=delete_trunk,
-            trie_postprocessor=trie_postprocessor,
+            group, **kwargs
         ).with_columns(  # forward partition key onto all rows, incl. inner
             pl.lit(value, dtype=schema[name]).alias(name)
             for name, value in zip(partition_names, key)
