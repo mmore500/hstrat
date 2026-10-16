@@ -18,8 +18,8 @@ def surface_build_tree_over(
     progress_wrap: typing.Callable = lambda x: x,
     **kwargs,
 ) -> pl.DataFrame:
-    """Partitioned interface to end-to-end tree reconstruction for
-    surface-based genome annotations.
+    """Interface for end-to-end tree reconstruction over distinct
+    subsets of surface-based genome annotations.
 
     Splits input rows into partitions by distinct values of `partition_by`
     column(s) or expression(s), and applies `surface_build_tree`
