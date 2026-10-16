@@ -45,7 +45,6 @@ To reconstruct separate phylogenies per source data file,
 Additional Notes
 ================
 Partitions are ordered by first appearance in input data.
-This CLI entrypoint is experimental and may be subject to change.
 
 
 See Also
