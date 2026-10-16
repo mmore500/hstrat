@@ -54,7 +54,7 @@ for opt in \
     ls -1 "${genomes}" \
         | python3 -m hstrat.dataframe.surface_build_tree_over \
         "${alternate}" ${HSTRAT_TESTS_CLI_HEAD:-} ${opt} \
-        --partition-by 'pl.lit(0).alias("partition")' \
+        --with-column 'pl.lit(0).alias("partition")' --partition-by partition \
         > ${HSTRAT_TESTS_CLI_STDOUT} 2>&1
 
     echo "      ! info: alternate num root nodes $( \
