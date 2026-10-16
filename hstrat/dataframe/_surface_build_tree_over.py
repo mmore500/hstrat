@@ -25,7 +25,8 @@ def surface_build_tree_over(
     column(s) or expression(s), and applies `surface_build_tree`
     independently to each partition. Reconstructed phylogenies are then
     concatenated as independent trees, with taxon ids reassigned to prevent
-    collisions. Genomes in different partitions become leaves in different trees.
+    collisions. Genomes in different partitions become leaves in different
+    trees.
 
     Parameters
     ----------
