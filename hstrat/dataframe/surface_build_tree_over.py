@@ -12,8 +12,8 @@ from .._auxiliary_lib import (
     get_hstrat_version,
     log_context_duration,
 )
+from ._impl import create_surface_build_tree_cli_parser
 from ._surface_build_tree_over import surface_build_tree_over
-from .surface_build_tree import _create_parser as _create_base_parser
 
 raw_message = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
 
@@ -61,7 +61,7 @@ phyloframe.legacy.alifestd_aggregate_phylogenies_polars :
 
 
 def _main(mp_context: str) -> None:
-    parser = _create_base_parser(
+    parser = create_surface_build_tree_cli_parser(
         raw_description=raw_message,
         dfcli_module="hstrat.dataframe.surface_build_tree_over",
     )
