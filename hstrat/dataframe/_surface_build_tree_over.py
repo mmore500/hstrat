@@ -3,7 +3,6 @@ import typing
 
 from phyloframe import legacy as pfl
 import polars as pl
-from tqdm import tqdm
 
 from ..phylogenetic_inference.tree.trie_postprocess import NopTriePostprocessor
 from ._surface_build_tree import surface_build_tree
@@ -29,7 +28,7 @@ def surface_build_tree_over(
     delete_trunk: bool = True,
     trie_postprocessor: typing.Callable = NopTriePostprocessor(),
     # ^^^ NopTriePostprocessor is stateless, so is safe as default value
-    progress_wrap: typing.Callable = tqdm,
+    progress_wrap: typing.Callable = lambda x: x,
 ) -> pl.DataFrame:
     """Partitioned interface to end-to-end tree reconstruction for
     surface-based genome annotations.
@@ -54,9 +53,8 @@ def surface_build_tree_over(
         Expressions are added to input data as with `with_columns`, so name
         derived keys via `.alias`. Partition key values are forwarded to all
         output rows, including inner tree nodes.
-    progress_wrap : Callable, default `tqdm`
-        Wrapper applied to the partition iterator, e.g., to display a
-        progress bar.
+    progress_wrap : Callable, optional
+        Pass tqdm or equivalent to display a progress bar.
 
     Other parameters are as for `surface_build_tree`.
 

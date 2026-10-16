@@ -1,4 +1,5 @@
 import argparse
+import functools
 import logging
 import os
 import sys
@@ -145,7 +146,7 @@ if __name__ == "__main__":
             df,
             max_num_checks=args.max_num_checks,
             max_violations=args.max_violations,
-            progress_wrap=tqdm,
+            progress_wrap=functools.partial(tqdm, desc="checking leaf pairs"),
             seed=args.seed,
         )
 
