@@ -6,7 +6,7 @@ import polars as pl
 import pytest
 
 from hstrat.dataframe import surface_build_tree
-from hstrat.dataframe.surface_build_tree import _create_parser
+from hstrat.dataframe._impl import create_surface_build_tree_cli_parser
 from hstrat.phylogenetic_inference.tree.trie_postprocess import (
     AssignOriginTimeNodeRankTriePostprocessor,
 )
@@ -119,7 +119,7 @@ def test_drop_dstream_metadata_false_preserves_dstream_rank_and_S():
 
 def test_parser_no_prefix_matching_drop():
     """Regression: --drop must not prefix-match --drop-dstream-metadata."""
-    parser = _create_parser(
+    parser = create_surface_build_tree_cli_parser(
         raw_description="",
         dfcli_module="hstrat.dataframe.surface_build_tree",
     )
