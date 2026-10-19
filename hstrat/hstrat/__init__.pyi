@@ -1,5 +1,6 @@
 from dataframe import (
     surface_build_tree,
+    surface_build_tree_over,
     surface_postprocess_trie,
     surface_test_drive,
     surface_unpack_reconstruct,
@@ -185,6 +186,7 @@ from test_drive import (
 __all__ = [
     # dataframe
     "surface_build_tree",
+    "surface_build_tree_over",
     "surface_postprocess_trie",
     "surface_test_drive",
     "surface_unpack_reconstruct",
