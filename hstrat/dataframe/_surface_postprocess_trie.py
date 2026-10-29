@@ -11,7 +11,6 @@ import polars as pl
 from tqdm import tqdm
 
 from .._auxiliary_lib import (
-    accumulate_num_collapsed_unifurcations,
     get_sole_scalar_value_polars,
     is_in_unit_test,
     log_context_duration,
@@ -54,26 +53,25 @@ def _do_accumulate_num_collapsed_unifurcations(
     """Tally unifurcations about to be collapsed into
     `hstrat_num_collapsed_unifurcations` column.
 
-    Assumes contiguous ids and topological sorting.
+    Each collapsed unifurcation contributes itself, plus any unifurcations
+    previously collapsed into it. Assumes contiguous ids and topological
+    sorting.
     """
     col = "hstrat_num_collapsed_unifurcations"
+    tmp = "_hstrat_unifurcation_length"
     has_col = col in df.lazy().collect_schema().names()
+    num_collapsed = pl.col(col).fill_null(0) if has_col else pl.lit(0)
     with log_context_duration(
-        "accumulate_num_collapsed_unifurcations", logging.info
+        "alifestd_mark_unifurcation_length_polars", logging.info
     ):
-        num_collapsed = accumulate_num_collapsed_unifurcations(
-            df.lazy().select("ancestor_id").collect().to_series().to_numpy(),
-            (
-                df.lazy()
-                .select(pl.col(col).fill_null(0))
-                .collect()
-                .to_series()
-                .to_numpy()
-                if has_col
-                else None
-            ),
+        df = pfl.alifestd_mark_unifurcation_length_polars(
+            df,
+            mark_as=tmp,
+            weights=(num_collapsed + 1) if has_col else None,
         )
-    return df.with_columns(pl.Series(col, num_collapsed, dtype=pl.UInt32))
+    return df.with_columns(
+        (num_collapsed + pl.col(tmp)).cast(pl.UInt32).alias(col),
+    ).drop(tmp)
 
 
 def _do_collapse_unifurcations(

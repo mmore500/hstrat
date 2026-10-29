@@ -8,7 +8,6 @@ import polars as pl
 from tqdm import tqdm
 
 from .._auxiliary_lib import (
-    accumulate_num_collapsed_unifurcations,
     get_sole_scalar_value_polars,
     log_context_duration,
     log_memory_usage,
@@ -49,17 +48,23 @@ def _do_accumulate_num_collapsed_unifurcations(
     """Tally unifurcations about to be collapsed into
     `hstrat_num_collapsed_unifurcations` column.
 
-    Assumes contiguous ids and topological sorting.
+    Each collapsed unifurcation contributes itself, plus any unifurcations
+    previously collapsed into it. Assumes contiguous ids and topological
+    sorting.
     """
     col = "hstrat_num_collapsed_unifurcations"
+    weights = "_hstrat_unifurcation_weight"
+    tmp = "_hstrat_unifurcation_length"
+    num_collapsed = df[col].fillna(0) if col in df.columns else 0
+    df[weights] = num_collapsed + 1
     with log_context_duration(
-        "accumulate_num_collapsed_unifurcations", logging.info
+        "alifestd_mark_unifurcation_length_asexual", logging.info
     ):
-        df[col] = accumulate_num_collapsed_unifurcations(
-            df["ancestor_id"].to_numpy(),
-            df[col].fillna(0).to_numpy() if col in df.columns else None,
+        df = pfl.alifestd_mark_unifurcation_length_asexual(
+            df, mutate=True, mark_as=tmp, weights=weights
         )
-    return df
+    df[col] = (num_collapsed + df[tmp]).astype("uint32")
+    return df.drop(columns=[tmp, weights])
 
 
 def _do_collapse_unifurcations(

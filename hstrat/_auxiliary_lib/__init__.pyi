@@ -13,9 +13,6 @@ from ._HereditaryStratigraphicInstrument import (
 from ._RecursionLimit import RecursionLimit
 from ._RngStateContext import RngStateContext
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
-from ._accumulate_num_collapsed_unifurcations import (
-    accumulate_num_collapsed_unifurcations,
-)
 from ._add_bool_arg import add_bool_arg
 from ._alifestd_add_global_root import alifestd_add_global_root
 from ._alifestd_add_inner_knuckles_asexual import (
@@ -391,9 +388,6 @@ from ._bytes_swap_bit_order import bytes_swap_bit_order
 from ._calc_lineage_affine_with_contiguous_ids import (
     calc_lineage_affine_with_contiguous_ids,
 )
-from ._calc_lineage_max_with_contiguous_ids import (
-    calc_lineage_max_with_contiguous_ids,
-)
 from ._calc_min_child_value_with_contiguous_ids import (
     calc_min_child_value_with_contiguous_ids,
 )
@@ -515,7 +509,6 @@ from ._with_rng_state_context import with_rng_state_context
 from ._zip_strict import zip_strict
 
 __all__ = [
-    "accumulate_num_collapsed_unifurcations",
     "add_bool_arg",
     "alifestd_add_global_root",
     "alifestd_add_inner_knuckles_asexual",
@@ -705,7 +698,6 @@ __all__ = [
     "bit_floor",
     "bytes_swap_bit_order",
     "calc_lineage_affine_with_contiguous_ids",
-    "calc_lineage_max_with_contiguous_ids",
     "calc_min_child_value_with_contiguous_ids",
     "capitalize_n",
     "caretdown_marker",

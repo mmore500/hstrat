@@ -9,7 +9,6 @@ import polars as pl
 from ...._auxiliary_lib import (
     apply_unique_rows,
     calc_lineage_affine_with_contiguous_ids,
-    calc_lineage_max_with_contiguous_ids,
     calc_min_child_value_with_contiguous_ids,
 )
 from ...priors import UniformPrior
@@ -141,7 +140,24 @@ def _calc_origin_times(
     )
     estimates = np.where(is_leaf | is_root, int_ranks, estimates)
     estimates = np.where(has_rank, estimates, np.nan)
-    return calc_lineage_max_with_contiguous_ids(ancestor_ids, estimates)
+
+    # ensure estimates do not precede ancestors' estimates
+    lineage_max = (
+        pfl.alifestd_mark_lineage_cummax_polars(
+            pl.DataFrame(
+                {
+                    "id": np.arange(n),
+                    "ancestor_id": ancestor_ids,
+                    "estimate": estimates,
+                },
+            ),
+            "estimate",
+            mark_as="lineage_max",
+        )
+        .get_column("lineage_max")
+        .to_numpy()
+    )
+    return np.where(has_rank, lineage_max, np.nan)
 
 
 def _call_polars(
