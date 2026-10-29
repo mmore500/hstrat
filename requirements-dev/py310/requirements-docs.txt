@@ -263,7 +263,7 @@ patsy==1.0.3
     # via statsmodels
 pexpect==4.9.0
     # via ipython
-phyloframe==0.10.3
+phyloframe==0.13.1
     # via hstrat (../../pyproject.toml)
 pickleshare==0.7.5
     # via ipython
