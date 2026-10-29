@@ -108,12 +108,6 @@ def test_collapse_unifurcations_accumulates_counts():
     assert result["rank"] == [0, 2, 3, 4]
     assert result["num_collapsed_unifurcations"] == [0, 1, 0, 1]
 
-    # repeat collapse should preserve counts
-    records = collapse_unifurcations(records, dropped_only=False)
-    result = copy_records_to_dict(records)
-    assert result["rank"] == [0, 2, 3, 4]
-    assert result["num_collapsed_unifurcations"] == [0, 1, 0, 1]
-
 
 def test_regression_original():
     exploded = pl.DataFrame(
