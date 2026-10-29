@@ -23,7 +23,7 @@ def _make_cherry_df(**kwargs) -> pl.DataFrame:
 
 def test_base_class():
     assert issubclass(
-        hstrat.AssignOriginTimeUnbiasedTriePostprocessor,
+        hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor,
         detail.TriePostprocessorBase,
     )
 
@@ -32,21 +32,21 @@ def test_anytree_not_implemented():
     root = impl.TrieInnerNode(rank=None, differentia=None, parent=None)
     impl.TrieInnerNode(rank=0, differentia=0, parent=root)
     with pytest.raises(NotImplementedError):
-        hstrat.AssignOriginTimeUnbiasedTriePostprocessor()(
+        hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()(
             root, p_differentia_collision=0.5
         )
 
 
 def test_pandas_not_implemented():
     with pytest.raises(NotImplementedError):
-        hstrat.AssignOriginTimeUnbiasedTriePostprocessor()(
+        hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()(
             _make_cherry_df().to_pandas(), p_differentia_collision=0.5
         )
 
 
 def test_no_collision_probability_gives_interval_mean():
     df = _make_cherry_df()
-    df = hstrat.AssignOriginTimeUnbiasedTriePostprocessor()(
+    df = hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()(
         df, p_differentia_collision=0.0
     )
     df = coerce_to_pandas(df)
@@ -59,7 +59,7 @@ def test_no_collision_probability_gives_interval_mean():
 
 def test_collisions_give_earlier_estimate():
     df = _make_cherry_df()
-    ftor = hstrat.AssignOriginTimeUnbiasedTriePostprocessor()
+    ftor = hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()
     estimates = [
         coerce_to_pandas(
             ftor(df, p_differentia_collision=p),
@@ -71,7 +71,7 @@ def test_collisions_give_earlier_estimate():
 
 
 def test_collapsed_unifurcations_give_earlier_estimate():
-    ftor = hstrat.AssignOriginTimeUnbiasedTriePostprocessor()
+    ftor = hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()
     without = coerce_to_pandas(
         ftor(_make_cherry_df(), p_differentia_collision=0.5),
     )
@@ -96,7 +96,7 @@ def test_exact_posterior_mean():
     )
     p = 0.5
     df = coerce_to_pandas(
-        hstrat.AssignOriginTimeUnbiasedTriePostprocessor()(
+        hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()(
             df, p_differentia_collision=p
         ),
     )
@@ -122,7 +122,7 @@ def test_exact_posterior_mean_collapsed():
     )
     p = 0.5
     df = coerce_to_pandas(
-        hstrat.AssignOriginTimeUnbiasedTriePostprocessor()(
+        hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()(
             df, p_differentia_collision=p
         ),
     )
@@ -143,7 +143,7 @@ def test_collapsed_unifurcation_below_bounds_mismatch():
         },
     )
     df = coerce_to_pandas(
-        hstrat.AssignOriginTimeUnbiasedTriePostprocessor()(
+        hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()(
             df, p_differentia_collision=0.0
         ),
     )
@@ -152,7 +152,7 @@ def test_collapsed_unifurcation_below_bounds_mismatch():
 
 
 def test_t0():
-    ftor = hstrat.AssignOriginTimeUnbiasedTriePostprocessor()
+    ftor = hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()
     base = coerce_to_pandas(
         ftor(_make_cherry_df(), p_differentia_collision=0.5),
     )
@@ -166,7 +166,7 @@ def test_t0():
     )
     for t0 in (5, "t0_"):
         res = coerce_to_pandas(
-            hstrat.AssignOriginTimeUnbiasedTriePostprocessor(t0=t0)(
+            hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor(t0=t0)(
                 df, p_differentia_collision=0.5
             ),
         )
@@ -183,7 +183,7 @@ def test_null_rank_root():
         },
     )
     df = coerce_to_pandas(
-        hstrat.AssignOriginTimeUnbiasedTriePostprocessor()(
+        hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()(
             df, p_differentia_collision=0.5
         ),
     )
@@ -202,7 +202,7 @@ def test_estimates_respect_ancestors_and_children():
         },
     )
     df = coerce_to_pandas(
-        hstrat.AssignOriginTimeUnbiasedTriePostprocessor()(
+        hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()(
             df, p_differentia_collision=0.5
         ),
     )
@@ -217,7 +217,7 @@ def test_empty():
         {"id": [], "ancestor_id": [], "rank": []},
         schema={"id": pl.UInt64, "ancestor_id": pl.UInt64, "rank": pl.Int64},
     )
-    df = hstrat.AssignOriginTimeUnbiasedTriePostprocessor()(
+    df = hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()(
         df, p_differentia_collision=0.5
     )
     assert "origin_time" in df.columns
@@ -225,7 +225,7 @@ def test_empty():
 
 
 def test_assigned_property():
-    df = hstrat.AssignOriginTimeUnbiasedTriePostprocessor(
+    df = hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor(
         assigned_property="blueberry",
     )(_make_cherry_df(), p_differentia_collision=0.5)
     assert "blueberry" in df.columns
@@ -234,7 +234,7 @@ def test_assigned_property():
 
 def test_mutate():
     df = _make_cherry_df()
-    df_ = hstrat.AssignOriginTimeUnbiasedTriePostprocessor()(
+    df_ = hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()(
         df, p_differentia_collision=0.5, mutate=False
     )
     assert "origin_time" in df_.columns
@@ -246,6 +246,13 @@ def test_noncontiguous_ids():
         {"id": [0, 2], "ancestor_id": [0, 0], "rank": [0, 1]},
     )
     with pytest.raises(NotImplementedError):
-        hstrat.AssignOriginTimeUnbiasedTriePostprocessor()(
+        hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()(
             df, p_differentia_collision=0.5
+        )
+
+
+def test_warns_for_wider_differentiae():
+    with pytest.warns(UserWarning, match="binary"):
+        hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()(
+            _make_cherry_df(), p_differentia_collision=0.25
         )

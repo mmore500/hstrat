@@ -1,5 +1,6 @@
 import functools
 import typing
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -66,7 +67,7 @@ def _calc_edge_masses(
 
 
 def _calc_origin_times(
-    ftor: "AssignOriginTimeUnbiasedTriePostprocessor",
+    ftor: "AssignOriginTimeAffinePosteriorTriePostprocessor",
     ancestor_ids: np.ndarray,
     ranks: np.ndarray,  # float, NaN for missing
     num_collapsed: np.ndarray,
@@ -161,7 +162,7 @@ def _calc_origin_times(
 
 
 def _call_polars(
-    ftor: "AssignOriginTimeUnbiasedTriePostprocessor",
+    ftor: "AssignOriginTimeAffinePosteriorTriePostprocessor",
     trie: pl.DataFrame,
     p_differentia_collision: float,
 ) -> pl.DataFrame:
@@ -209,7 +210,7 @@ def _call_polars(
     )
 
 
-class AssignOriginTimeUnbiasedTriePostprocessor(TriePostprocessorBase):
+class AssignOriginTimeAffinePosteriorTriePostprocessor(TriePostprocessorBase):
     """Functor to assign origin time property to trie nodes, correcting for
     bias from spurious differentia collisions.
 
@@ -256,7 +257,7 @@ class AssignOriginTimeUnbiasedTriePostprocessor(TriePostprocessorBase):
     _t0: typing.Union[int, str]  # origin time offset, or property name
 
     def __init__(
-        self: "AssignOriginTimeUnbiasedTriePostprocessor",
+        self: "AssignOriginTimeAffinePosteriorTriePostprocessor",
         prior: PriorBase = UniformPrior(),  # ok as kwarg; immutable
         assigned_property: str = "origin_time",
         *,
@@ -289,7 +290,7 @@ class AssignOriginTimeUnbiasedTriePostprocessor(TriePostprocessorBase):
         self._t0 = t0
 
     def __call__(
-        self: "AssignOriginTimeUnbiasedTriePostprocessor",
+        self: "AssignOriginTimeAffinePosteriorTriePostprocessor",
         trie: typing.Union[TrieInnerNode, pd.DataFrame, pl.DataFrame],
         p_differentia_collision: float,
         mutate: bool = False,
@@ -329,6 +330,13 @@ class AssignOriginTimeUnbiasedTriePostprocessor(TriePostprocessorBase):
                 "pandas tries are not supported; use polars",
             )
         elif isinstance(trie, pl.DataFrame):
+            if p_differentia_collision < 0.5:
+                warnings.warn(
+                    "AssignOriginTimeAffinePosteriorTriePostprocessor assumes "
+                    "bifurcating trie nodes, which holds for binary (single "
+                    "bit) differentiae; estimates for polytomies may be "
+                    "overcorrected with wider differentiae.",
+                )
             if not mutate:
                 trie = trie.clone()
             return _call_polars(

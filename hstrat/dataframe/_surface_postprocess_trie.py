@@ -205,7 +205,8 @@ def _validate_against_via_pandas(func: typing.Callable) -> typing.Callable:
                 )
             except NotImplementedError as e:
                 warnings.warn(
-                    f"pandas support not implemented, skipping validation: {e}",
+                    "skipping pandas validation, unsupported by pandas "
+                    f"implementation: {e}",
                 )
                 return result
             # convert to pandas to avoid Polars StringCache issues
@@ -269,7 +270,7 @@ def surface_postprocess_trie(
                   between each node and its ancestor.
                 - Incremented as unifurcations are collapsed, then made
                   available to `trie_postprocessor` (e.g., for
-                  `AssignOriginTimeUnbiasedTriePostprocessor`).
+                  `AssignOriginTimeAffinePosteriorTriePostprocessor`).
                 - Dropped from output with dstream metadata.
 
     delete_trunk : bool, default `True`
