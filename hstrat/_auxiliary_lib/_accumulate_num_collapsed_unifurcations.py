@@ -2,7 +2,7 @@ import typing
 
 import numpy as np
 
-from ..._auxiliary_lib import jit
+from ._jit import jit
 
 
 @jit(nopython=True)
