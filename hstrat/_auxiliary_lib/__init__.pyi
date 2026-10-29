@@ -13,6 +13,9 @@ from ._HereditaryStratigraphicInstrument import (
 from ._RecursionLimit import RecursionLimit
 from ._RngStateContext import RngStateContext
 from ._ScalarFormatterFixedPrecision import ScalarFormatterFixedPrecision
+from ._accumulate_num_collapsed_unifurcations import (
+    accumulate_num_collapsed_unifurcations,
+)
 from ._add_bool_arg import add_bool_arg
 from ._alifestd_add_global_root import alifestd_add_global_root
 from ._alifestd_add_inner_knuckles_asexual import (
@@ -375,6 +378,7 @@ from ._anytree_iterative_deepcopy import anytree_iterative_deepcopy
 from ._anytree_peel_sibling_to_cousin import anytree_peel_sibling_to_cousin
 from ._anytree_tree_to_alife_dataframe import anytree_tree_to_alife_dataframe
 from ._apply_swaps import apply_swaps
+from ._apply_unique_rows import apply_unique_rows
 from ._argsort import argsort
 from ._as_compact_type import as_compact_type
 from ._as_nullable_type import as_nullable_type
@@ -384,6 +388,15 @@ from ._bit_ceil import bit_ceil
 from ._bit_drop_msb import bit_drop_msb
 from ._bit_floor import bit_floor
 from ._bytes_swap_bit_order import bytes_swap_bit_order
+from ._calc_lineage_affine_with_contiguous_ids import (
+    calc_lineage_affine_with_contiguous_ids,
+)
+from ._calc_lineage_max_with_contiguous_ids import (
+    calc_lineage_max_with_contiguous_ids,
+)
+from ._calc_min_child_value_with_contiguous_ids import (
+    calc_min_child_value_with_contiguous_ids,
+)
 from ._capitalize_n import capitalize_n
 from ._caretdown_marker import caretdown_marker
 from ._caretup_marker import caretup_marker
@@ -502,6 +515,7 @@ from ._with_rng_state_context import with_rng_state_context
 from ._zip_strict import zip_strict
 
 __all__ = [
+    "accumulate_num_collapsed_unifurcations",
     "add_bool_arg",
     "alifestd_add_global_root",
     "alifestd_add_inner_knuckles_asexual",
@@ -674,6 +688,7 @@ __all__ = [
     "anytree_peel_sibling_to_cousin",
     "anytree_tree_to_alife_dataframe",
     "apply_swaps",
+    "apply_unique_rows",
     "argsort",
     "as_compact_type",
     "as_nullable_type",
@@ -689,6 +704,9 @@ __all__ = [
     "bit_drop_msb",
     "bit_floor",
     "bytes_swap_bit_order",
+    "calc_lineage_affine_with_contiguous_ids",
+    "calc_lineage_max_with_contiguous_ids",
+    "calc_min_child_value_with_contiguous_ids",
     "capitalize_n",
     "caretdown_marker",
     "caretup_marker",

@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from phyloframe import legacy as pfl
 
-from hstrat.dataframe._impl import accumulate_num_collapsed_unifurcations
+from hstrat._auxiliary_lib import accumulate_num_collapsed_unifurcations
 
 
 def test_empty():

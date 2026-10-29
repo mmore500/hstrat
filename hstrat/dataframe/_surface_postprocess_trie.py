@@ -11,6 +11,7 @@ import polars as pl
 from tqdm import tqdm
 
 from .._auxiliary_lib import (
+    accumulate_num_collapsed_unifurcations,
     get_sole_scalar_value_polars,
     is_in_unit_test,
     log_context_duration,
@@ -18,7 +19,6 @@ from .._auxiliary_lib import (
     render_polars_snapshot,
 )
 from ..phylogenetic_inference.tree.trie_postprocess import NopTriePostprocessor
-from ._impl import accumulate_num_collapsed_unifurcations
 from ._surface_postprocess_trie_via_pandas import (
     _surface_postprocess_trie_via_pandas,
 )
