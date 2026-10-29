@@ -531,6 +531,7 @@ def _construct_result_dataframe(
         "id": pl.UInt64,
         "ancestor_id": pl.UInt64,
         "rank": pl.UInt64,
+        "num_collapsed_unifurcations": pl.UInt32,
     }
     records_dict = {k: records_dict[k] for k in schema}
     return (
@@ -545,7 +546,14 @@ def _construct_result_dataframe(
             .cast(pl.UInt32),
             pl.lit(dstream_S).alias("dstream_S").cast(pl.UInt32),
         )
-        .rename({"rank": "dstream_rank"})
+        .rename(
+            {
+                "rank": "dstream_rank",
+                "num_collapsed_unifurcations": (
+                    "hstrat_num_collapsed_unifurcations"
+                ),
+            },
+        )
     )
 
 
@@ -767,6 +775,12 @@ def surface_unpack_reconstruct(
             - Corresponds to `dstream_value_bitwidth`.
         - 'dstream_S' : pl.UInt32
             - Capacity of dstream buffer, in number of data items.
+        - 'hstrat_num_collapsed_unifurcations' : pl.UInt32
+            - Number of unifurcating trie nodes collapsed away between this
+              node and its ancestor.
+            - Each collapsed node corresponds to a differentia shared among
+              all descendant leaves, which may have arisen from a spurious
+              differentia collision.
         - 'dstream_data_id' : pl.UInt64
             - Unique identifier for each genome in source dataframe
             - Set to source dataframe row index if not provided.
@@ -823,6 +837,7 @@ def surface_unpack_reconstruct(
             "dstream_rank": pl.UInt64,
             "hstrat_differentia_bitwidth": pl.UInt32,
             "dstream_S": pl.UInt32,
+            "hstrat_num_collapsed_unifurcations": pl.UInt32,
         }
         return _join_user_defined_columns(
             df,

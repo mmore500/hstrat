@@ -27,7 +27,12 @@ def _finalize_records(
 ) -> pd.DataFrame:
     """Collate as phylogeny dataframe in alife standard format."""
     df = pd.DataFrame(
-        {k: v for k, v in records.items() if not k.startswith("search_")},
+        {
+            k: v
+            for k, v in records.items()
+            if not k.startswith("search_")
+            and k != "num_collapsed_unifurcations"
+        },
     )
     df["origin_time"] = df["rank"]
     df["taxon_label"] = [

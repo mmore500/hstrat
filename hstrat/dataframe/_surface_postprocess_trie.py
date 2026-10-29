@@ -18,6 +18,7 @@ from .._auxiliary_lib import (
     render_polars_snapshot,
 )
 from ..phylogenetic_inference.tree.trie_postprocess import NopTriePostprocessor
+from ._impl import accumulate_num_collapsed_unifurcations
 from ._surface_postprocess_trie_via_pandas import (
     _surface_postprocess_trie_via_pandas,
 )
@@ -41,9 +42,38 @@ def _apply_empty_output_schema(
             "dstream_rank",
             "dstream_S",
             "hstrat_differentia_bitwidth",
+            "hstrat_num_collapsed_unifurcations",
             strict=False,
         )
     return df
+
+
+def _do_accumulate_num_collapsed_unifurcations(
+    df: pl.DataFrame,
+) -> pl.DataFrame:
+    """Tally unifurcations about to be collapsed into
+    `hstrat_num_collapsed_unifurcations` column.
+
+    Assumes contiguous ids and topological sorting.
+    """
+    col = "hstrat_num_collapsed_unifurcations"
+    has_col = col in df.lazy().collect_schema().names()
+    with log_context_duration(
+        "accumulate_num_collapsed_unifurcations", logging.info
+    ):
+        num_collapsed = accumulate_num_collapsed_unifurcations(
+            df.lazy().select("ancestor_id").collect().to_series().to_numpy(),
+            (
+                df.lazy()
+                .select(pl.col(col).fill_null(0))
+                .collect()
+                .to_series()
+                .to_numpy()
+                if has_col
+                else None
+            ),
+        )
+    return df.with_columns(pl.Series(col, num_collapsed, dtype=pl.UInt32))
 
 
 def _do_collapse_unifurcations(
@@ -55,6 +85,8 @@ def _do_collapse_unifurcations(
         df = pfl.alifestd_assign_contiguous_ids_polars(df)
 
     gc.collect()
+
+    df = _do_accumulate_num_collapsed_unifurcations(df)
 
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_collapse_unifurcations", logging.info):
@@ -196,6 +228,13 @@ def surface_postprocess_trie(
         Optional schema:
             - 'dstream_data_id' : pl.UInt64
                 - Unique identifier for each genome in source genomedataframe
+            - 'hstrat_num_collapsed_unifurcations' : pl.UInt32
+                - Number of unifurcating trie nodes previously collapsed away
+                  between each node and its ancestor.
+                - Incremented as unifurcations are collapsed, then made
+                  available to `trie_postprocessor` (e.g., for
+                  `AssignOriginTimeUnbiasedTriePostprocessor`).
+                - Dropped from output with dstream metadata.
 
     delete_trunk : bool, default `True`
         Should trunk nodes with rank less than `dstream_S` be deleted?
@@ -317,7 +356,12 @@ def surface_postprocess_trie(
     to_keep = {*original_columns}
     if drop_dstream_metadata is not False:
         logging.info("dropping dstream metadata columns...")
-        to_keep -= {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"}
+        to_keep -= {
+            "dstream_rank",
+            "dstream_S",
+            "hstrat_differentia_bitwidth",
+            "hstrat_num_collapsed_unifurcations",
+        }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df = df.drop(*to_drop)
