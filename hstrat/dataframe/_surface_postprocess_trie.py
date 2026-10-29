@@ -169,7 +169,16 @@ def _validate_against_via_pandas(func: typing.Callable) -> typing.Callable:
             warnings.warn(
                 "CI environment detected, performing extra validation tests",
             )
-            expected = _surface_postprocess_trie_via_pandas(*args, **kwargs)
+            try:
+                expected = _surface_postprocess_trie_via_pandas(
+                    *args, **kwargs
+                )
+            except NotImplementedError as e:
+                warnings.warn(
+                    "skipping pandas validation, unsupported by pandas "
+                    f"implementation: {e}",
+                )
+                return result
             # convert to pandas to avoid Polars StringCache issues
             pdt.assert_frame_equal(
                 result.to_pandas(),
@@ -231,7 +240,7 @@ def surface_postprocess_trie(
                   between each node and its ancestor.
                 - Incremented as unifurcations are collapsed, then made
                   available to `trie_postprocessor` (e.g., for
-                  `AssignOriginTimeUnbiasedTriePostprocessor`).
+                  `AssignOriginTimeAffinePosteriorTriePostprocessor`).
                 - Dropped from output with dstream metadata.
 
     delete_trunk : bool, default `True`

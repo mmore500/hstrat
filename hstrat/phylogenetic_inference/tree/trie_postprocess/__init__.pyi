@@ -1,6 +1,9 @@
 from ._AssignDestructionTimeYoungestPlusOneTriePostprocessor import (
     AssignDestructionTimeYoungestPlusOneTriePostprocessor,
 )
+from ._AssignOriginTimeAffinePosteriorTriePostprocessor import (
+    AssignOriginTimeAffinePosteriorTriePostprocessor,
+)
 from ._AssignOriginTimeExpectedValueTriePostprocessor import (
     AssignOriginTimeExpectedValueTriePostprocessor,
 )
@@ -12,9 +15,6 @@ from ._AssignOriginTimeNodeRankTriePostprocessor import (
 )
 from ._AssignOriginTimeSampleNaiveTriePostprocessor import (
     AssignOriginTimeSampleNaiveTriePostprocessor,
-)
-from ._AssignOriginTimeUnbiasedTriePostprocessor import (
-    AssignOriginTimeUnbiasedTriePostprocessor,
 )
 from ._CompoundTriePostprocessor import CompoundTriePostprocessor
 from ._NopTriePostprocessor import NopTriePostprocessor
@@ -28,11 +28,11 @@ from ._SampleAncestralRollbacksTriePostprocessor import (
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
     "AssignDestructionTimeYoungestPlusOneTriePostprocessor",
+    "AssignOriginTimeAffinePosteriorTriePostprocessor",
     "AssignOriginTimeExpectedValueTriePostprocessor",
     "AssignOriginTimeNaiveTriePostprocessor",
     "AssignOriginTimeNodeRankTriePostprocessor",
     "AssignOriginTimeSampleNaiveTriePostprocessor",
-    "AssignOriginTimeUnbiasedTriePostprocessor",
     "CompoundTriePostprocessor",
     "NopTriePostprocessor",
     "PeelBackConjoinedLeavesTriePostprocessor",

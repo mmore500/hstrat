@@ -11,8 +11,8 @@ from hstrat.dataframe import (
     surface_unpack_reconstruct,
 )
 from hstrat.phylogenetic_inference.tree.trie_postprocess import (
+    AssignOriginTimeAffinePosteriorTriePostprocessor,
     AssignOriginTimeNodeRankTriePostprocessor,
-    AssignOriginTimeUnbiasedTriePostprocessor,
 )
 
 assets_path = os.path.join(os.path.dirname(__file__), "assets")
@@ -40,7 +40,7 @@ def test_smoke_unbiased():
     raw = surface_unpack_reconstruct(df)
     res = surface_postprocess_trie(
         raw,
-        trie_postprocessor=AssignOriginTimeUnbiasedTriePostprocessor(
+        trie_postprocessor=AssignOriginTimeAffinePosteriorTriePostprocessor(
             t0="dstream_S",
         ),
     )

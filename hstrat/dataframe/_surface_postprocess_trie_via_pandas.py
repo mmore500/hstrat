@@ -198,21 +198,12 @@ def _surface_postprocess_trie_via_pandas(
         df["dstream_rank"] = df["dstream_rank"].astype("Int64")
         df["dstream_S"] = df["dstream_S"].astype("Int64")
         df = df.rename(columns={"dstream_rank": "rank"})
-        try:
-            df = trie_postprocessor(
-                df,
-                p_differentia_collision=2**-differentia_bitwidth,
-                mutate=True,
-                progress_wrap=tqdm,
-            )
-        except NotImplementedError:
-            logging.info("trie postprocessor requires polars, converting...")
-            df = trie_postprocessor(
-                pl.from_pandas(df),
-                p_differentia_collision=2**-differentia_bitwidth,
-                mutate=True,
-                progress_wrap=tqdm,
-            ).to_pandas()
+        df = trie_postprocessor(
+            df,
+            p_differentia_collision=2**-differentia_bitwidth,
+            mutate=True,
+            progress_wrap=tqdm,
+        )
         df = df.rename(columns={"rank": "dstream_rank"})
 
     render_pandas_snapshot(df, "with trie postprocessing", logging.info)
