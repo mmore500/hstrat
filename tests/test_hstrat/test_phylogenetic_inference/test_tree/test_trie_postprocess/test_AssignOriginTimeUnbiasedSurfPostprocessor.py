@@ -39,6 +39,24 @@ def _calc_estimate(
     return df["origin_time"][1]
 
 
+def _calc_global_root_estimate(
+    algo: str, S: int, T_a: int, T_b: int, p: float
+) -> float:
+    # 0 (global root, rank S) <- 1, 2 (leaves, rank T - 1)
+    df = pl.DataFrame(
+        {
+            "id": [0, 1, 2],
+            "ancestor_id": [0, 0, 0],
+            "rank": [S, T_a - 1, T_b - 1],
+            "dstream_S": [S] * 3,
+        },
+    )
+    df = hstrat.AssignOriginTimeGeometricTriePostprocessor(algo)(
+        df, p_differentia_collision=p
+    )
+    return df["origin_time"][0]
+
+
 def test_base_class():
     assert issubclass(
         hstrat.AssignOriginTimeGeometricTriePostprocessor,
@@ -106,26 +124,30 @@ def test_exactly_unbiased(algo: str, S: int, T_a: int, T_b: int, p: float):
     common = common[common >= S]
     assert len(common)
 
-    # cache estimates by trie lca rank
-    estimates = {
-        rank: _calc_estimate(algo, S, rank, T_a, T_b, p) for rank in common
-    }
-    collision_free = {
-        rank: _calc_estimate(algo, S, rank, T_a, T_b, 0.0) for rank in common
-    }
+    # cache estimates by trie lca rank; splits before first shared rank
+    # give separate roots, scored as global root at S (index -1)
+    def calc_estimates(p: float) -> typing.Dict[int, float]:
+        return {
+            -1: _calc_global_root_estimate(algo, S, T_a, T_b, p),
+            **{
+                i: _calc_estimate(algo, S, rank, T_a, T_b, p)
+                for i, rank in enumerate(common)
+            },
+        }
 
-    # true divergence times; splits before first shared rank are excluded,
-    # as reconstruction would give separate roots
-    for T in range(common[0], min(T_a, T_b) - 1):
+    estimates, collision_free = calc_estimates(p), calc_estimates(0.0)
+
+    # true divergence times
+    for T in range(S, min(T_a, T_b) - 1):
         # i'th shared rank is last at or before true split
         i = np.searchsorted(common, T, side="right") - 1
         n = len(common) - 1 - i  # number of later shared ranks
         # trie lca at (i + K)'th shared rank, w/ K spurious matches
         expected_value = sum(
-            (p**K * (1 - p) if K < n else p**n) * estimates[common[i + K]]
+            (p**K * (1 - p) if K < n else p**n) * estimates[i + K]
             for K in range(n + 1)
         )
-        assert expected_value == pytest.approx(collision_free[common[i]])
+        assert expected_value == pytest.approx(collision_free[i])
 
 
 @pytest.mark.parametrize(
@@ -157,6 +179,14 @@ def test_estimates_clamped_at_t0():
     rank = retained[retained < S][-1]
     estimate = _calc_estimate("steady_algo", S, rank, T, T, 0.0)
     next_shared = retained[retained > rank][0]
+    assert estimate == (next_shared - S - 1) / 2
+
+
+def test_global_root_estimated():
+    S, T = 16, 200
+    retained = _lookup_retained_ranks("steady_algo", S, T)
+    next_shared = retained[retained > S][0]
+    estimate = _calc_global_root_estimate("steady_algo", S, T, T, 0.0)
     assert estimate == (next_shared - S - 1) / 2
 
 
