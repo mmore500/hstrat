@@ -45,17 +45,15 @@ def alifestd_collapse_unifurcations_tallied_polars(
     ):
         phylogeny_df = pfl.alifestd_mark_unifurcation_length_polars(
             phylogeny_df,
-            mark_as="_alifestd_collapse_unifurcations_tallied_polars_tally_length",
+            mark_as="_alifestd_collapse_unifurcations_tallied_tally_length",
             weights=tally + 1,
         )
     phylogeny_df = phylogeny_df.with_columns(
         (
             tally
-            + pl.col(
-                "_alifestd_collapse_unifurcations_tallied_polars_tally_length"
-            )
+            + pl.col("_alifestd_collapse_unifurcations_tallied_tally_length")
         ).cast(schema[tally_col]),
-    ).drop("_alifestd_collapse_unifurcations_tallied_polars_tally_length")
+    ).drop("_alifestd_collapse_unifurcations_tallied_tally_length")
 
     with log_context_duration(
         "alifestd_collapse_unifurcations_polars", logging.info
