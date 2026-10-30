@@ -4,11 +4,11 @@ from ._AssignDestructionTimeYoungestPlusOneTriePostprocessor import (
 from ._AssignOriginTimeAffinePosteriorTriePostprocessor import (
     AssignOriginTimeAffinePosteriorTriePostprocessor,
 )
-from ._AssignOriginTimeGeometricTriePostprocessor import (
-    AssignOriginTimeGeometricTriePostprocessor,
-)
 from ._AssignOriginTimeExpectedValueTriePostprocessor import (
     AssignOriginTimeExpectedValueTriePostprocessor,
+)
+from ._AssignOriginTimeGeometricTriePostprocessor import (
+    AssignOriginTimeGeometricTriePostprocessor,
 )
 from ._AssignOriginTimeNaiveTriePostprocessor import (
     AssignOriginTimeNaiveTriePostprocessor,
