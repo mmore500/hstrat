@@ -10,6 +10,7 @@
 #include <chrono>
 #include <condition_variable>
 #include <functional>
+#include <iterator>
 #include <limits>
 #include <mutex>
 #include <numeric>
@@ -377,19 +378,22 @@ Records collapse_unifurcations(Records &records, const bool dropped_only) {
 
   // count removed records between each kept record and its new ancestor
   // (for removed records, holds the count to pass on to descendants)
-  // (std::for_each applies in order, so ancestors are tallied first)
-  std::vector<u32> num_collapsed(records.size());
-  std::for_each(
+  // (ancestors precede descendants, so their tallies are already inserted)
+  std::vector<u32> num_collapsed;
+  num_collapsed.reserve(records.size());
+  std::transform(
     std::begin(records.id),
     std::end(records.id),
+    std::back_inserter(num_collapsed),
     [&num_collapsed, &records, &is_not_selected_unifurcation](const u64 id) {
       const u64 ancestor_id = records.ancestor_id[id];
+      assert(ancestor_id <= id);
       const u32 inherited = (
         ancestor_id != id and !is_not_selected_unifurcation[ancestor_id]
       ) ? num_collapsed[ancestor_id] : 0;
       const u32 own = records.collapsed_unifurcations[id];
       const bool should_keep = is_not_selected_unifurcation[id];
-      num_collapsed[id] = inherited + own + !should_keep;
+      return static_cast<u32>(inherited + own + !should_keep);
     }
   );
 
