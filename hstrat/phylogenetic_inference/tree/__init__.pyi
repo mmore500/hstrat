@@ -7,7 +7,6 @@ from ._build_tree_trie_ensemble import build_tree_trie_ensemble
 from ._build_tree_upgma import build_tree_upgma
 from .trie_postprocess import (
     AssignDestructionTimeYoungestPlusOneTriePostprocessor,
-    AssignOriginTimeAffinePosteriorTriePostprocessor,
     AssignOriginTimeExpectedValueTriePostprocessor,
     AssignOriginTimeUnbiasedSurfPostprocessor,
     AssignOriginTimeNaiveTriePostprocessor,
@@ -30,7 +29,6 @@ __all__ = [
     "build_tree",
     "trie_postprocess",
     "AssignDestructionTimeYoungestPlusOneTriePostprocessor",
-    "AssignOriginTimeAffinePosteriorTriePostprocessor",
     "AssignOriginTimeExpectedValueTriePostprocessor",
     "AssignOriginTimeUnbiasedSurfPostprocessor",
     "AssignOriginTimeNaiveTriePostprocessor",

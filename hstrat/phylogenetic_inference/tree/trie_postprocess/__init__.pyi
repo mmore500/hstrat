@@ -1,9 +1,6 @@
 from ._AssignDestructionTimeYoungestPlusOneTriePostprocessor import (
     AssignDestructionTimeYoungestPlusOneTriePostprocessor,
 )
-from ._AssignOriginTimeAffinePosteriorTriePostprocessor import (
-    AssignOriginTimeAffinePosteriorTriePostprocessor,
-)
 from ._AssignOriginTimeExpectedValueTriePostprocessor import (
     AssignOriginTimeExpectedValueTriePostprocessor,
 )
@@ -35,7 +32,6 @@ from ._SpliceChronologicalConsistencyTriePostprocessor import (
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
     "AssignDestructionTimeYoungestPlusOneTriePostprocessor",
-    "AssignOriginTimeAffinePosteriorTriePostprocessor",
     "AssignOriginTimeExpectedValueTriePostprocessor",
     "AssignOriginTimeUnbiasedSurfPostprocessor",
     "AssignOriginTimeNaiveTriePostprocessor",

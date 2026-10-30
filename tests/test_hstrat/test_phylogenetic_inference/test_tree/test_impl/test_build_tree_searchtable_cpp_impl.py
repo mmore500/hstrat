@@ -44,7 +44,6 @@ def test_collapse_all_unifurcations_linear_tree():
         "search_next_sibling_id": [placeholder_value] * 2,
         "rank": [0, 7],
         "differentia": [0, 7],
-        "collapsed_unifurcations": [0, 6],
     }
 
     for key in expected:
@@ -82,69 +81,11 @@ def test_collapse_all_unifurcations_branched_tree():
         "search_next_sibling_id": [placeholder_value] * 5,
         "rank": [0, 2, 3, 4, 4],
         "differentia": [0, 1, 0, 1, 2],
-        "collapsed_unifurcations": [0, 1, 2, 0, 0],
     }
 
     for key, value in result.items():
         expected_value = expected[key]
         assert value == expected_value, key
-
-
-def test_collapse_unifurcations_accumulates_counts():
-    # 0 <- 1 <- 2 <- 3 <- 5
-    #            \ <- 4
-    records = Records(6)
-    records.addRecord(1, 1, 0, 0, 2, 1, 1, 1, 1)
-    records.addRecord(2, 2, 1, 1, 3, 2, 2, 2, 1)
-    records.addRecord(3, 3, 2, 2, 5, 3, 4, 3, 1)
-    records.addRecord(4, 4, 2, 2, 4, 3, 4, 3, 2)
-    records.addRecord(5, 5, 3, 3, 5, 5, 5, 4, 1)
-
-    records = collapse_unifurcations(records, dropped_only=False)
-    result = copy_records_to_dict(records)
-    # 0 <- 2(1) <- 4(2)
-    #        \ <- 5(3)
-    assert result["ancestor_id"] == [0, 0, 1, 1]
-    assert result["rank"] == [0, 2, 3, 4]
-    assert result["collapsed_unifurcations"] == [0, 1, 0, 1]
-
-
-def test_collapse_unifurcations_long_chain_counts():
-    # 0 <- 1 <- ... <- n - 2 <- n - 1 (leaf), plus sibling leaf at end
-    n = 1000
-    records = Records(n + 1)
-    for id_ in range(1, n):
-        last = id_ == n - 1
-        records.addRecord(
-            id_,
-            id_,
-            id_ - 1,
-            id_ - 1,
-            id_ if last else id_ + 1,
-            id_,
-            n if last else id_,
-            id_,
-            0,
-        )
-    records.addRecord(n, n, n - 2, n - 2, n, n - 1, n, n - 1, 1)
-
-    records = collapse_unifurcations(records, dropped_only=False)
-    result = copy_records_to_dict(records)
-    # 0 <- n - 2 <- n - 1
-    #        \ <- n
-    assert result["rank"] == [0, n - 2, n - 1, n - 1]
-    assert result["collapsed_unifurcations"] == [0, n - 3, 0, 0]
-
-
-def test_collapse_unifurcations_no_unifurcations():
-    # 0 <- 1, 2
-    records = Records(3)
-    records.addRecord(1, 1, 0, 0, 1, 1, 2, 1, 0)
-    records.addRecord(2, 2, 0, 0, 2, 1, 2, 1, 1)
-    records = collapse_unifurcations(records, dropped_only=False)
-    result = copy_records_to_dict(records)
-    assert result["ancestor_id"] == [0, 0, 0]
-    assert result["collapsed_unifurcations"] == [0, 0, 0]
 
 
 def test_regression_original():

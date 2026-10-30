@@ -40,7 +40,6 @@ from juxtaposition import (
 from phylogenetic_inference import (
     ArbitraryPrior,
     AssignDestructionTimeYoungestPlusOneTriePostprocessor,
-    AssignOriginTimeAffinePosteriorTriePostprocessor,
     AssignOriginTimeExpectedValueTriePostprocessor,
     AssignOriginTimeUnbiasedSurfPostprocessor,
     AssignOriginTimeNaiveTriePostprocessor,
@@ -268,7 +267,6 @@ __all__ = [
     "build_tree",
     "trie_postprocess",
     "AssignDestructionTimeYoungestPlusOneTriePostprocessor",
-    "AssignOriginTimeAffinePosteriorTriePostprocessor",
     "AssignOriginTimeExpectedValueTriePostprocessor",
     "AssignOriginTimeUnbiasedSurfPostprocessor",
     "AssignOriginTimeNaiveTriePostprocessor",

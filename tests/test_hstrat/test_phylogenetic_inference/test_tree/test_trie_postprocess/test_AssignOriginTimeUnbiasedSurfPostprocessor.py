@@ -1,191 +1,282 @@
-import functools
 import itertools
-import os
 import typing
 
 from downstream import dstream
 import numpy as np
-from phyloframe import legacy as pfl
 import polars as pl
 import pytest
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import ExperimentalWarning, seed_random
-from hstrat.dataframe import surface_build_tree as surface_build_tree_naive
-from hstrat.dataframe import surface_test_drive
-
-assets = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "../../../test_dataframe/assets",
-)
+import hstrat.phylogenetic_inference.tree._impl as impl
+import hstrat.phylogenetic_inference.tree.trie_postprocess._detail as detail
 
 
-def surface_build_tree(df: pl.DataFrame, **kwargs) -> pl.DataFrame:
-    """Build tree with unbiased origin times."""
-    return surface_build_tree_naive(
-        df,
-        trie_postprocessor=hstrat.AssignOriginTimeUnbiasedSurfPostprocessor(
-            **kwargs
-        ),
-    )
+def _lookup_retained_ranks(algo: str, S: int, T: int) -> np.ndarray:
+    algo = getattr(dstream, algo.removeprefix("dstream."))
+    return np.sort([*algo.lookup_ingest_times(S, T)]).astype(np.int64)
 
 
-@functools.lru_cache(maxsize=None)
-def make_population(
-    dstream_algo: str = "dstream.steady_algo",
-    dstream_S: int = 64,
-    bitwidth: int = 1,
+def _make_two_tip_trie(
+    S: int, lca_rank: int, T_a: int, T_b: int, root_rank: int = 0
 ) -> pl.DataFrame:
-    """Surface annotations for tips of a reference phylogeny."""
-    df = pl.read_csv(f"{assets}/nk_ecoeaselection.csv")
-    return surface_test_drive(
-        df,
-        dstream_algo=dstream_algo,
-        dstream_S=dstream_S,
-        stratum_differentia_bit_width=bitwidth,
+    # 0 (root) <- 1 (lca) <- 2, 3 (leaves, rank T - 1)
+    return pl.DataFrame(
+        {
+            "id": [0, 1, 2, 3],
+            "ancestor_id": [0, 0, 1, 1],
+            "rank": [root_rank, lca_rank, T_a - 1, T_b - 1],
+            "dstream_S": [S] * 4,
+        },
     )
 
 
-def _calc_cherry_errors(
-    phylo: pl.DataFrame, true_split_times: typing.List[int]
-) -> np.ndarray:
-    """Estimated minus true divergence time, for each cherry's tip pair."""
-    ancestor_ids = phylo["ancestor_id"].to_numpy()
-    origin_times = phylo["origin_time"].to_numpy()
-    leaf_ids = {
-        source_id: id_
-        for id_, source_id in enumerate(phylo["td_source_id"])
-        if source_id is not None
-    }
+def _calc_estimate(
+    algo: str, S: int, lca_rank: int, T_a: int, T_b: int, p: float
+) -> float:
+    df = hstrat.AssignOriginTimeGeometricTriePostprocessor(algo)(
+        _make_two_tip_trie(S, lca_rank, T_a, T_b), p_differentia_collision=p
+    )
+    return df["origin_time"][1]
 
-    def lineage(id_: int) -> typing.List[int]:
-        lineage = [id_]
-        while ancestor_ids[lineage[-1]] != lineage[-1]:
-            lineage.append(ancestor_ids[lineage[-1]])
-        return lineage
 
-    errors = []
-    for k, true_split_time in enumerate(true_split_times):
-        lineage_a = lineage(leaf_ids[3 * k + 2])
-        lineage_b = {*lineage(leaf_ids[3 * k + 3])}
-        mrca_id = next((id_ for id_ in lineage_a if id_ in lineage_b), None)
-        if mrca_id is not None:  # split before first shared rank otherwise
-            errors.append(origin_times[mrca_id] - true_split_time)
-    return np.array(errors)
+def test_base_class():
+    assert issubclass(
+        hstrat.AssignOriginTimeGeometricTriePostprocessor,
+        detail.TriePostprocessorBase,
+    )
+
+
+def test_anytree_not_implemented():
+    root = impl.TrieInnerNode(rank=None, differentia=None, parent=None)
+    impl.TrieInnerNode(rank=0, differentia=0, parent=root)
+    with pytest.raises(NotImplementedError):
+        hstrat.AssignOriginTimeGeometricTriePostprocessor("steady_algo")(
+            root, p_differentia_collision=0.5
+        )
+
+
+def test_pandas_not_implemented():
+    with pytest.raises(NotImplementedError):
+        hstrat.AssignOriginTimeGeometricTriePostprocessor("steady_algo")(
+            _make_two_tip_trie(8, 16, 100, 100).to_pandas(),
+            p_differentia_collision=0.5,
+        )
+
+
+@pytest.mark.parametrize(
+    "dstream_algo",
+    ["dstream.steady_algo", "steady_algo", dstream.steady_algo],
+)
+def test_dstream_algo_spec(dstream_algo: typing.Any):
+    df = hstrat.AssignOriginTimeGeometricTriePostprocessor(dstream_algo)(
+        _make_two_tip_trie(8, 16, 100, 100), p_differentia_collision=0.5
+    )
+    assert df["origin_time"].null_count() == 0
 
 
 @pytest.mark.parametrize(
     "algo", ["steady_algo", "tilted_algo", "hybrid_0_steady_1_tilted_2_algo"]
 )
-def test_origin_times_unbiased(algo: str):
-    # many independent cherries under a common root: root (generation 0)
-    # <- split (generation T) <- two tips (generation G)
-    seed_random(1)
-    S, G, num_cherries = 16, 200, 400
-    # test drive deposits S items before founding, so ranks are offset by S
-    retained = np.sort(
-        getattr(dstream, algo).lookup_ingest_times_batched(
-            S, np.array([G + S], dtype=np.uint64), parallel=False
-        )[0],
-    )
-    first_shared = retained[retained >= S][0] - S
-    split_times = np.random.randint(first_shared, G - 1, size=num_cherries)
-    true_df = pl.DataFrame(
-        {
-            "id": np.arange(3 * num_cherries + 1),
-            "ancestor_id": [
-                0,
-                *itertools.chain(
-                    *((0, k, k) for k in range(1, 3 * num_cherries, 3))
-                ),
-            ],
-            "origin_time": [
-                0,
-                *itertools.chain(*((T, G, G) for T in split_times)),
-            ],
-        },
-    ).cast(pl.UInt64)
-    tips_df = surface_test_drive(
-        true_df.lazy(),
-        dstream_algo=f"dstream.{algo}",
-        dstream_S=S,
-        stratum_differentia_bit_width=1,
-    )
-
-    corrected = _calc_cherry_errors(
-        surface_build_tree(tips_df),
-        split_times.tolist(),
-    )
-    uncorrected = _calc_cherry_errors(
-        surface_build_tree_naive(tips_df).with_columns(
-            origin_time=pl.col("hstrat_rank"),
-        ),
-        split_times.tolist(),
-    )
-
-    standard_error = corrected.std() / np.sqrt(len(corrected))
-    assert len(corrected) >= 0.99 * num_cherries
-    assert abs(corrected.mean()) < 3 * standard_error
-    # without correction, estimates are biased toward being too recent
-    assert uncorrected.mean() - corrected.mean() > 3 * standard_error
+@pytest.mark.parametrize("S", [8, 16, 32])
+@pytest.mark.parametrize("T_a, T_b", [(200, 200), (200, 150), (130, 200)])
+def test_no_collision_probability_gives_interval_midpoint(
+    algo: str, S: int, T_a: int, T_b: int
+):
+    retained_a = _lookup_retained_ranks(algo, S, T_a)
+    retained_b = _lookup_retained_ranks(algo, S, T_b)
+    common = np.intersect1d(retained_a, retained_b)
+    common = common[common >= S]
+    for lo, hi in zip(common, [*common[1:], min(T_a, T_b)]):
+        # interval between node rank and next shared rank, offset by t0 = S
+        expected = (lo + hi - 1) / 2 - S
+        assert _calc_estimate(algo, S, lo, T_a, T_b, 0.0) == expected
 
 
 @pytest.mark.parametrize(
-    "dstream_algo", ["dstream.steady_algo", "dstream.tilted_algo"]
+    "algo", ["steady_algo", "tilted_algo", "hybrid_0_steady_1_tilted_2_algo"]
 )
-@pytest.mark.parametrize("bitwidth", [1, 8])
-def test_topology_unchanged(dstream_algo: str, bitwidth: int):
-    pop = make_population(dstream_algo, 64, bitwidth)
-    phylo = surface_build_tree(pop)
-    naive = surface_build_tree_naive(pop)
-    assert phylo.select("id", "ancestor_id", "hstrat_rank").equals(
-        naive.select("id", "ancestor_id", "hstrat_rank"),
+@pytest.mark.parametrize("S", [8, 16, 32])
+@pytest.mark.parametrize("T_a, T_b", [(200, 200), (200, 150), (130, 200)])
+@pytest.mark.parametrize("p", [0.5, 0.25])
+def test_exactly_unbiased(algo: str, S: int, T_a: int, T_b: int, p: float):
+    # shared retained ranks; spurious matches occur at these
+    retained_a = _lookup_retained_ranks(algo, S, T_a)
+    retained_b = _lookup_retained_ranks(algo, S, T_b)
+    common = np.intersect1d(retained_a, retained_b)
+    common = common[common >= S]
+    assert len(common)
+
+    # cache estimates by trie lca rank
+    estimates = {
+        rank: _calc_estimate(algo, S, rank, T_a, T_b, p) for rank in common
+    }
+    collision_free = {
+        rank: _calc_estimate(algo, S, rank, T_a, T_b, 0.0) for rank in common
+    }
+
+    # true divergence times; splits before first shared rank are excluded,
+    # as reconstruction would give separate roots
+    for T in range(common[0], min(T_a, T_b) - 1):
+        # i'th shared rank is last at or before true split
+        i = np.searchsorted(common, T, side="right") - 1
+        n = len(common) - 1 - i  # number of later shared ranks
+        # trie lca at (i + K)'th shared rank, w/ K spurious matches
+        expected_value = sum(
+            (p**K * (1 - p) if K < n else p**n) * estimates[common[i + K]]
+            for K in range(n + 1)
+        )
+        assert expected_value == pytest.approx(collision_free[common[i]])
+
+
+@pytest.mark.parametrize(
+    "algo", ["steady_algo", "tilted_algo", "hybrid_0_steady_1_tilted_2_algo"]
+)
+def test_terminal_node(algo: str):
+    S, T = 16, 200
+    retained = _lookup_retained_ranks(algo, S, T)
+    last_shared = retained.max()
+    for p in 0.0, 0.5:
+        # no shared rank remains after node, so no extrapolation
+        assert _calc_estimate(algo, S, last_shared, T, T, p) == (
+            (last_shared + T - 1) / 2 - S
+        )
+
+
+def test_collisions_give_earlier_estimate():
+    S, T = 16, 200
+    common = _lookup_retained_ranks("steady_algo", S, T)
+    rank = common[common >= S][1]
+    assert _calc_estimate("steady_algo", S, rank, T, T, 0.5) < (
+        _calc_estimate("steady_algo", S, rank, T, T, 0.0)
     )
 
 
-def test_tree_shape():
-    pop = make_population()
-    phylo = surface_build_tree(pop)
-    assert pfl.alifestd_is_topologically_sorted_polars(phylo)
-    assert pfl.alifestd_has_contiguous_ids_polars(phylo)
-    leaves = phylo.filter(pl.col("dstream_data_id").is_not_null())
-    assert len(leaves) == len(pop)
-    expected = leaves.join(
-        pop.select("td_source_id", pl.col("origin_time").alias("td_time")),
-        on="td_source_id",
+def test_estimates_clamped_at_t0():
+    S, T = 16, 200
+    retained = _lookup_retained_ranks("steady_algo", S, T)
+    rank = retained[retained < S][-1]
+    estimate = _calc_estimate("steady_algo", S, rank, T, T, 0.0)
+    next_shared = retained[retained > rank][0]
+    assert estimate == (next_shared - S - 1) / 2
+
+
+def test_roots_and_leaves_assigned_rank():
+    S = 16
+    df = hstrat.AssignOriginTimeGeometricTriePostprocessor("steady_algo")(
+        _make_two_tip_trie(S, 40, 200, 150, root_rank=S),
+        p_differentia_collision=0.5,
     )
-    assert (expected["origin_time"] == expected["td_time"] - 1).all()
+    assert df["origin_time"].to_list()[0] == 0
+    assert df["origin_time"].to_list()[2:] == [199 - S, 149 - S]
 
 
-def test_no_delete_trunk():
-    pop = make_population()
-    phylo = surface_build_tree_naive(
-        pop,
-        delete_trunk=False,
-        trie_postprocessor=hstrat.AssignOriginTimeUnbiasedSurfPostprocessor(),
+def test_int_t0():
+    S, T = 16, 200
+    df = _make_two_tip_trie(S, 40, T, T)
+    res_col = hstrat.AssignOriginTimeGeometricTriePostprocessor("steady_algo")(
+        df, p_differentia_collision=0.5
     )
-    assert phylo["origin_time"].is_finite().all()
+    res_int = hstrat.AssignOriginTimeGeometricTriePostprocessor(
+        "steady_algo", t0=S
+    )(df, p_differentia_collision=0.5)
+    assert res_col["origin_time"].equals(res_int["origin_time"])
+
+    res_zero = hstrat.AssignOriginTimeGeometricTriePostprocessor(
+        "steady_algo", t0=0
+    )(df, p_differentia_collision=0.5)
+    assert res_zero["origin_time"][2] == T - 1
 
 
-def test_polars_only():
-    postprocessor = hstrat.AssignOriginTimeUnbiasedSurfPostprocessor()
-    trie = pl.DataFrame(
+def test_polytomy():
+    # 0 (root) <- 1 (rank 40) <- 2, 3, 4 (leaves)
+    S, Ts = 16, [200, 150, 180]
+    df = pl.DataFrame(
         {
-            "id": [0],
-            "ancestor_id": [0],
-            "rank": [64],
-            "dstream_S": [64],
-            "dstream_algo": ["dstream.steady_algo"],
+            "id": [0, 1, 2, 3, 4],
+            "ancestor_id": [0, 0, 1, 1, 1],
+            "rank": [0, 40, *(T - 1 for T in Ts)],
+            "dstream_S": [S] * 5,
         },
     )
+    res = hstrat.AssignOriginTimeGeometricTriePostprocessor("steady_algo")(
+        df, p_differentia_collision=0.0
+    )
+    common = list(
+        itertools.accumulate(
+            (_lookup_retained_ranks("steady_algo", S, T) for T in Ts),
+            np.intersect1d,
+        ),
+    )[-1]
+    next_shared = common[common > 40][0]
+    assert res["origin_time"][1] == (40 + next_shared - 1) / 2 - S
+
+
+def test_nested_inner_nodes():
+    # 0 (root) <- 1 (rank 20) <- 2 (rank 60) <- 3, 4 (leaves)
+    #                         <- 5 (leaf)
+    S, T = 16, 200
+    df = pl.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5],
+            "ancestor_id": [0, 0, 1, 2, 2, 1],
+            "rank": [0, 20, 60, T - 1, T - 1, T - 61],
+            "dstream_S": [S] * 6,
+        },
+    )
+    res = hstrat.AssignOriginTimeGeometricTriePostprocessor("steady_algo")(
+        df, p_differentia_collision=0.0
+    )
+    # youngest tip under each of node 1's children has T - 60
+    common = np.intersect1d(
+        _lookup_retained_ranks("steady_algo", S, T),
+        _lookup_retained_ranks("steady_algo", S, T - 60),
+    )
+    next_shared = common[common > 20][0]
+    assert res["origin_time"][1] == (20 + next_shared - 1) / 2 - S
+    retained = _lookup_retained_ranks("steady_algo", S, T)
+    next_shared = retained[retained > 60][0]
+    assert res["origin_time"][2] == (60 + next_shared - 1) / 2 - S
+
+
+def test_empty():
+    df = pl.DataFrame(
+        {"id": [], "ancestor_id": [], "rank": [], "dstream_S": []},
+        schema={
+            "id": pl.UInt64,
+            "ancestor_id": pl.UInt64,
+            "rank": pl.Int64,
+            "dstream_S": pl.Int64,
+        },
+    )
+    res = hstrat.AssignOriginTimeGeometricTriePostprocessor(
+        "steady_algo", t0=0
+    )(df, p_differentia_collision=0.5)
+    assert len(res) == 0
+    assert "origin_time" in res.columns
+
+
+def test_assigned_property():
+    res = hstrat.AssignOriginTimeGeometricTriePostprocessor(
+        "steady_algo", assigned_property="foo"
+    )(_make_two_tip_trie(8, 16, 100, 100), p_differentia_collision=0.5)
+    assert "foo" in res.columns
+    assert "origin_time" not in res.columns
+
+
+def test_mutate():
+    df = _make_two_tip_trie(8, 16, 100, 100)
+    original = df.clone()
+    hstrat.AssignOriginTimeGeometricTriePostprocessor("steady_algo")(
+        df, p_differentia_collision=0.5, mutate=False
+    )
+    assert df.equals(original)
+
+
+def test_noncontiguous_ids():
+    df = _make_two_tip_trie(8, 16, 100, 100).with_columns(
+        pl.col("id") * 2, pl.col("ancestor_id") * 2
+    )
     with pytest.raises(NotImplementedError):
-        postprocessor(trie.to_pandas(), p_differentia_collision=0.5)
-    assert postprocessor(trie, p_differentia_collision=0.5)[
-        "origin_time"
-    ].to_list() == [0.0]
-
-
-def test_experimental_warning(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.delenv("HSTRAT_WARN_EXPERIMENTAL_SUPPRESS", raising=False)
-    with pytest.warns(ExperimentalWarning):
-        hstrat.AssignOriginTimeUnbiasedSurfPostprocessor()
+        hstrat.AssignOriginTimeGeometricTriePostprocessor("steady_algo")(
+            df, p_differentia_collision=0.5
+        )

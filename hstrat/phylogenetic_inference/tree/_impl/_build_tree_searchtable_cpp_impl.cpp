@@ -10,7 +10,6 @@
 #include <chrono>
 #include <condition_variable>
 #include <functional>
-#include <iterator>
 #include <limits>
 #include <mutex>
 #include <numeric>
@@ -33,7 +32,6 @@ namespace py = pybind11;
 
 typedef int64_t i64;
 typedef uint64_t u64;
-typedef uint32_t u32;
 constexpr u64 placeholder_value = std::numeric_limits<int64_t>::max();
 
 /** @brief Discard the output of functions that requires an output iterator */
@@ -159,9 +157,6 @@ public:
  *      records are consolidated. `ancestor_id` remains to save
  *      the information, while `search_ancestor_id` changes.
  *    - Parents have a higher `rank` than children.
- *    - `collapsed_unifurcations` counts unifurcation records that have
- *      been removed by `collapse_unifurcations` between a record and its
- *      `ancestor_id`.
  *  @see build_trie_searchtable_nested
  *  @see build_trie_searchtable_exploded
  *  @see extend_trie_searchtable_exploded
@@ -176,7 +171,6 @@ struct Records {
   std::vector<u64> ancestor_id;
   std::vector<u64> differentia;
   std::vector<i64> rank;
-  std::vector<u32> collapsed_unifurcations;
   u64 max_differentia = 0;
 
   explicit Records(const u64 init_size, const bool init_root=true) {
@@ -189,7 +183,6 @@ struct Records {
     this->ancestor_id.reserve(init_size);
     this->differentia.reserve(init_size);
     this->rank.reserve(init_size);
-    this->collapsed_unifurcations.reserve(init_size);
 
     if (init_root) {
       this->addRecord(placeholder_value, 0, 0, 0, 0, 0, 0, 0, 0); // root node
@@ -213,9 +206,6 @@ struct Records {
     this->ancestor_id.swap(other.ancestor_id);
     this->differentia.swap(other.differentia);
     this->rank.swap(other.rank);
-    this->collapsed_unifurcations.swap(
-      other.collapsed_unifurcations
-    );
     std::swap(this->max_differentia, other.max_differentia);
   }
 
@@ -242,7 +232,6 @@ struct Records {
     this->ancestor_id.push_back(ancestor_id);
     this->differentia.push_back(differentia);
     this->rank.push_back(rank);
-    this->collapsed_unifurcations.push_back(0);
     max_differentia = std::max(max_differentia, differentia);
     assert(
       search_ancestor_id == placeholder_value
@@ -270,7 +259,6 @@ struct Records {
     this->ancestor_id.push_back(ancestor_id);
     this->differentia.push_back(differentia);
     this->rank.push_back(rank);
-    this->collapsed_unifurcations.push_back(0);
     max_differentia = std::max(max_differentia, differentia);
   }
 
@@ -294,9 +282,6 @@ struct Records {
  *  If dropped_only=False, removes all unifurcations. Note that this should only
  *  be called if no more records will be added to the trie (i.e., reconstruction
  *  is complete).
- *
- *  Kept records' `collapsed_unifurcations` are incremented by the number of
- *  removed records between them and their (new) ancestor.
  */
 Records collapse_unifurcations(Records &records, const bool dropped_only) {
   assert(std::equal(
@@ -376,32 +361,6 @@ Records collapse_unifurcations(Records &records, const bool dropped_only) {
     }
   );
 
-  // count removed records between each kept record and its new ancestor
-  // (for removed records, holds the count to pass on to descendants)
-  // (ancestors precede descendants, so their tallies are already inserted)
-  std::vector<u32> num_collapsed;
-  num_collapsed.reserve(records.size());
-  std::transform(
-    std::begin(records.id),
-    std::end(records.id),
-    std::back_inserter(num_collapsed),
-    [&num_collapsed, &records, &is_not_selected_unifurcation](const u64 id) {
-      const u64 ancestor_id = records.ancestor_id[id];
-      assert(ancestor_id <= id);
-      const u32 inherited_tally = (
-        ancestor_id != id and !is_not_selected_unifurcation[ancestor_id]
-      ) ? num_collapsed[ancestor_id] : 0;
-      const u32 own_tally = records.collapsed_unifurcations[id];
-      const bool should_keep = is_not_selected_unifurcation[id];
-      // sum in 64 bits to check against u32 overflow
-      const u64 tally = (
-        u64{inherited_tally} + own_tally + static_cast<u64>(!should_keep)
-      );
-      assert(tally <= std::numeric_limits<u32>::max());
-      return static_cast<u32>(tally);
-    }
-  );
-
   // create new record set
   const auto reserve_size = records.size() + records.size() / 2;  // 1.5x
   Records new_records(reserve_size, /* init_root= */ false);
@@ -411,7 +370,7 @@ Records collapse_unifurcations(Records &records, const bool dropped_only) {
     std::end(records.id),
     std::begin(id_remap),
     null_output_iterator<int>{},
-    [&is_not_selected_unifurcation, &id_remap, &new_records, &records, &num_collapsed, dropped_only](
+    [&is_not_selected_unifurcation, &id_remap, &new_records, &records, dropped_only](
       const u64 old_id, const u64 new_id
     ) {
         const bool should_keep = is_not_selected_unifurcation[old_id];
@@ -459,7 +418,6 @@ Records collapse_unifurcations(Records &records, const bool dropped_only) {
           records.rank[old_id],
           records.differentia[old_id]
       );
-      new_records.collapsed_unifurcations.back() = num_collapsed[old_id];
 
       assert(records.rank[old_id] >= new_records.rank[
         id_remap[records.search_ancestor_id[old_id]]
@@ -1134,7 +1092,6 @@ py::dict copy_records_to_dict(Records &records) {
   return_mapping.insert({"differentia", records.differentia});
   py::dict res = py::cast(return_mapping);
   res["rank"] = records.rank;
-  res["collapsed_unifurcations"] = records.collapsed_unifurcations;
   return res;
 }
 
@@ -1181,9 +1138,6 @@ py::dict extract_records_to_dict(Records &records) {
   );
   py::dict res = py::cast(return_mapping);
   res["rank"] = as_pyarray(std::move(records.rank));
-  res["collapsed_unifurcations"] = as_pyarray(
-    std::move(records.collapsed_unifurcations)
-  );
   return res;
 }
 
