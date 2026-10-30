@@ -30,8 +30,7 @@ def _finalize_records(
         {
             k: v
             for k, v in records.items()
-            if not k.startswith("search_")
-            and k != "num_collapsed_unifurcations"
+            if not k.startswith("search_") and k != "collapsed_unifurcations"
         },
     )
     df["origin_time"] = df["rank"]

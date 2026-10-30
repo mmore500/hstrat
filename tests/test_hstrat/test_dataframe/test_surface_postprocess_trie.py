@@ -45,7 +45,7 @@ def test_smoke_unbiased():
         ),
     )
     assert "origin_time" in res.columns
-    assert "hstrat_num_collapsed_unifurcations" not in res.columns
+    assert "hstrat_collapsed_unifurcations" not in res.columns
     assert pfl.alifestd_validate(
         pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
     )
@@ -64,16 +64,16 @@ def test_smoke_unbiased():
     )
 
 
-def test_num_collapsed_unifurcations():
+def test_collapsed_unifurcations():
     df = pl.read_csv(f"{assets_path}/packed.csv")
     raw = surface_unpack_reconstruct(df)
-    assert "hstrat_num_collapsed_unifurcations" in raw.columns
+    assert "hstrat_collapsed_unifurcations" in raw.columns
     res = surface_postprocess_trie(raw, drop_dstream_metadata=False)
-    assert "hstrat_num_collapsed_unifurcations" in res.columns
-    assert res["hstrat_num_collapsed_unifurcations"].null_count() == 0
+    assert "hstrat_collapsed_unifurcations" in res.columns
+    assert res["hstrat_collapsed_unifurcations"].null_count() == 0
     assert (
-        res["hstrat_num_collapsed_unifurcations"].sum()
-        >= raw["hstrat_num_collapsed_unifurcations"].sum()
+        res["hstrat_collapsed_unifurcations"].sum()
+        >= raw["hstrat_collapsed_unifurcations"].sum()
     )
 
 

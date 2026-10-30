@@ -44,7 +44,7 @@ def test_collapse_all_unifurcations_linear_tree():
         "search_next_sibling_id": [placeholder_value] * 2,
         "rank": [0, 7],
         "differentia": [0, 7],
-        "num_collapsed_unifurcations": [0, 6],
+        "collapsed_unifurcations": [0, 6],
     }
 
     for key in expected:
@@ -82,7 +82,7 @@ def test_collapse_all_unifurcations_branched_tree():
         "search_next_sibling_id": [placeholder_value] * 5,
         "rank": [0, 2, 3, 4, 4],
         "differentia": [0, 1, 0, 1, 2],
-        "num_collapsed_unifurcations": [0, 1, 2, 0, 0],
+        "collapsed_unifurcations": [0, 1, 2, 0, 0],
     }
 
     for key, value in result.items():
@@ -106,7 +106,7 @@ def test_collapse_unifurcations_accumulates_counts():
     #        \ <- 5(3)
     assert result["ancestor_id"] == [0, 0, 1, 1]
     assert result["rank"] == [0, 2, 3, 4]
-    assert result["num_collapsed_unifurcations"] == [0, 1, 0, 1]
+    assert result["collapsed_unifurcations"] == [0, 1, 0, 1]
 
 
 def test_regression_original():
