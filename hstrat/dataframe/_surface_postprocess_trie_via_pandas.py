@@ -35,36 +35,36 @@ def _apply_empty_output_schema_pandas(
                 "dstream_rank",
                 "dstream_S",
                 "hstrat_differentia_bitwidth",
-                "hstrat_num_collapsed_unifurcations",
+                "hstrat_collapsed_unifurcations",
             ],
             errors="ignore",
         )
     return df
 
 
-def _do_accumulate_num_collapsed_unifurcations(
+def _do_accumulate_collapsed_unifurcations(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
     """Tally unifurcations about to be collapsed into
-    `hstrat_num_collapsed_unifurcations` column.
+    `hstrat_collapsed_unifurcations` column.
 
     Each collapsed unifurcation contributes itself, plus any unifurcations
     previously collapsed into it. Assumes contiguous ids and topological
     sorting.
     """
-    col = "hstrat_num_collapsed_unifurcations"
-    weights = "_hstrat_unifurcation_weight"
-    tmp = "_hstrat_unifurcation_length"
-    num_collapsed = df[col].fillna(0) if col in df.columns else 0
-    df[weights] = num_collapsed + 1
+    col = "hstrat_collapsed_unifurcations"
+    # null for roots left by trunk deletion
+    df[col] = df[col].fillna(0) if col in df.columns else 0
+
+    df["_hstrat_weight"] = df[col] + 1
     with log_context_duration(
         "alifestd_mark_unifurcation_length_asexual", logging.info
     ):
         df = pfl.alifestd_mark_unifurcation_length_asexual(
-            df, mutate=True, mark_as=tmp, weights=weights
+            df, mutate=True, mark_as="_hstrat_length", weights="_hstrat_weight"
         )
-    df[col] = (num_collapsed + df[tmp]).astype("uint32")
-    return df.drop(columns=[tmp, weights])
+    df[col] = (df[col] + df["_hstrat_length"]).astype("uint32")
+    return df.drop(columns=["_hstrat_length", "_hstrat_weight"])
 
 
 def _do_collapse_unifurcations(
@@ -75,7 +75,7 @@ def _do_collapse_unifurcations(
 
     gc.collect()
 
-    df = _do_accumulate_num_collapsed_unifurcations(df)
+    df = _do_accumulate_collapsed_unifurcations(df)
 
     with log_context_duration("alifestd_collapse_unifurcations", logging.info):
         df = pfl.alifestd_collapse_unifurcations(df, mutate=True)
@@ -220,7 +220,7 @@ def _surface_postprocess_trie_via_pandas(
             "dstream_rank",
             "dstream_S",
             "hstrat_differentia_bitwidth",
-            "hstrat_num_collapsed_unifurcations",
+            "hstrat_collapsed_unifurcations",
         }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")

@@ -41,37 +41,38 @@ def _apply_empty_output_schema(
             "dstream_rank",
             "dstream_S",
             "hstrat_differentia_bitwidth",
-            "hstrat_num_collapsed_unifurcations",
+            "hstrat_collapsed_unifurcations",
             strict=False,
         )
     return df
 
 
-def _do_accumulate_num_collapsed_unifurcations(
+def _do_accumulate_collapsed_unifurcations(
     df: pl.DataFrame,
 ) -> pl.DataFrame:
     """Tally unifurcations about to be collapsed into
-    `hstrat_num_collapsed_unifurcations` column.
+    `hstrat_collapsed_unifurcations` column.
 
     Each collapsed unifurcation contributes itself, plus any unifurcations
     previously collapsed into it. Assumes contiguous ids and topological
     sorting.
     """
-    col = "hstrat_num_collapsed_unifurcations"
-    tmp = "_hstrat_unifurcation_length"
-    has_col = col in df.lazy().collect_schema().names()
-    num_collapsed = pl.col(col).fill_null(0) if has_col else pl.lit(0)
+    col = "hstrat_collapsed_unifurcations"
+    num_collapsed = (
+        pl.col(col).fill_null(0)  # null for roots left by trunk deletion
+        if col in df.lazy().collect_schema().names()
+        else pl.lit(0, dtype=pl.UInt32)
+    )
+
     with log_context_duration(
         "alifestd_mark_unifurcation_length_polars", logging.info
     ):
         df = pfl.alifestd_mark_unifurcation_length_polars(
-            df,
-            mark_as=tmp,
-            weights=(num_collapsed + 1) if has_col else None,
+            df, mark_as="_hstrat_length", weights=num_collapsed + 1
         )
     return df.with_columns(
-        (num_collapsed + pl.col(tmp)).cast(pl.UInt32).alias(col),
-    ).drop(tmp)
+        (num_collapsed + pl.col("_hstrat_length")).cast(pl.UInt32).alias(col),
+    ).drop("_hstrat_length")
 
 
 def _do_collapse_unifurcations(
@@ -84,7 +85,7 @@ def _do_collapse_unifurcations(
 
     gc.collect()
 
-    df = _do_accumulate_num_collapsed_unifurcations(df)
+    df = _do_accumulate_collapsed_unifurcations(df)
 
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration("alifestd_collapse_unifurcations", logging.info):
@@ -235,7 +236,7 @@ def surface_postprocess_trie(
         Optional schema:
             - 'dstream_data_id' : pl.UInt64
                 - Unique identifier for each genome in source genomedataframe
-            - 'hstrat_num_collapsed_unifurcations' : pl.UInt32
+            - 'hstrat_collapsed_unifurcations' : pl.UInt32
                 - Number of unifurcating trie nodes previously collapsed away
                   between each node and its ancestor.
                 - Incremented as unifurcations are collapsed, then made
@@ -367,7 +368,7 @@ def surface_postprocess_trie(
             "dstream_rank",
             "dstream_S",
             "hstrat_differentia_bitwidth",
-            "hstrat_num_collapsed_unifurcations",
+            "hstrat_collapsed_unifurcations",
         }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")

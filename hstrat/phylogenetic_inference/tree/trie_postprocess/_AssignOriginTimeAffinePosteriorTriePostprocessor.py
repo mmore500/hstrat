@@ -1,4 +1,3 @@
-import functools
 import typing
 import warnings
 
@@ -7,7 +6,7 @@ import pandas as pd
 from phyloframe import legacy as pfl
 import polars as pl
 
-from ...._auxiliary_lib import apply_unique_rows
+from ...._auxiliary_lib import jit
 from ...priors import UniformPrior
 from ...priors._detail import PriorBase
 from .._impl import TrieInnerNode
@@ -30,69 +29,65 @@ def _mark_tree_values(
     )
 
 
-def _make_interval_stats(
-    prior: PriorBase,
-) -> typing.Callable[[int, int], typing.Tuple[float, float]]:
-    """Create cached lookup for prior probability mass and conditioned mean
-    of interval [begin, end), in rank units offset by `t0`."""
-
-    @functools.lru_cache(maxsize=None)
-    def interval_stats(begin: int, end: int) -> typing.Tuple[float, float]:
-        begin = max(begin, 0)  # MRCA cannot precede t0
-        if end <= begin:
-            return 0.0, 0.0
-        return (
-            float(prior.CalcIntervalProbabilityProxy(begin, end)),
-            float(prior.CalcIntervalConditionedMean(begin, end)),
-        )
-
-    return interval_stats
-
-
-def _calc_edge_masses(
-    begin_rank: int,
-    end_rank: int,
-    num_collapsed: int,
-    p_differentia_collision: float,
-    interval_stats: typing.Callable,
+@jit(nopython=True)
+def _calc_interval_stats(
+    begin: float, end: float
 ) -> typing.Tuple[float, float]:
-    """Sum collision-discounted prior mass (and mass-weighted conditioned
-    mean) over intervals between matched ranks along an edge.
+    """Calculate uniform prior mass, and mass times conditioned mean, of
+    interval [begin, end), in rank units offset by `t0`."""
+    begin = max(begin, 0.0)  # MRCA cannot precede t0
+    mass = max(end - begin, 0.0)
+    return mass, mass * (begin + end - 1) / 2
 
-    The edge spans `begin_rank` to `end_rank`, with `num_collapsed` matched
-    ranks between them that were collapsed away. Collapsed ranks are
+
+@jit(nopython=True)
+def _calc_edge_masses_fast_path(
+    begin_ranks: np.ndarray,
+    end_ranks: np.ndarray,
+    num_collapsed: np.ndarray,
+    p_differentia_collision: float,
+) -> typing.Tuple[np.ndarray, np.ndarray]:
+    """Sum collision-discounted uniform prior mass (and its first moment)
+    over intervals between matched ranks along each edge.
+
+    Each edge spans `begin_ranks` to `end_ranks`, with `num_collapsed`
+    matched ranks between them that were collapsed away. Collapsed ranks are
     assumed evenly spaced. An MRCA within the j'th interval would require
     spurious differentia collisions at each matched rank thereafter, through
-    `end_rank`.
+    the edge's end rank.
     """
-    num_intervals = num_collapsed + 1
-    positions = np.round(
-        np.linspace(begin_rank, end_rank, num_intervals + 1),
-    ).astype(np.int64)
-    mass, moment = 0.0, 0.0
-    for j in range(num_intervals):
-        weight, mean = interval_stats(int(positions[j]), int(positions[j + 1]))
-        discount = p_differentia_collision ** (num_intervals - j)
-        mass += weight * discount
-        moment += weight * mean * discount
-    return mass, moment
+    masses = np.zeros(len(begin_ranks), dtype=np.float64)
+    moments = np.zeros(len(begin_ranks), dtype=np.float64)
+    for k, begin_rank in enumerate(begin_ranks):
+        num_intervals = num_collapsed[k] + 1
+        span = end_ranks[k] - begin_rank
+        begin = float(begin_rank)
+        for j in range(num_intervals):
+            end = np.rint(begin_rank + span * (j + 1) / num_intervals)
+            # collapsed ranks are distinct, except where preceding t0
+            assert begin < end or end <= 0
+            mass, moment = _calc_interval_stats(begin, end)
+            discount = p_differentia_collision ** (num_intervals - j)
+            masses[k] += mass * discount
+            moments[k] += moment * discount
+            begin = end
+    return masses, moments
 
 
 def _calc_origin_times(
-    ftor: "AssignOriginTimeAffinePosteriorTriePostprocessor",
     ancestor_ids: np.ndarray,
     ranks: np.ndarray,  # float, NaN for missing
     num_collapsed: np.ndarray,
     p_differentia_collision: float,
 ) -> np.ndarray:
     """Implementation detail."""
-    interval_stats = _make_interval_stats(ftor._prior)
     p = p_differentia_collision
     n = len(ancestor_ids)
     if n == 0:
         return np.zeros(0, dtype=np.float64)
     is_root = ancestor_ids == np.arange(n)
     is_leaf = ~np.bincount(ancestor_ids[~is_root], minlength=n).astype(bool)
+    is_inner = ~(is_root | is_leaf)
     has_rank = ~np.isnan(ranks)
 
     # missing ranks (i.e., prefixed roots) treated as t0 boundary
@@ -100,16 +95,17 @@ def _calc_origin_times(
     ancestor_ranks = int_ranks[ancestor_ids]
 
     # discounted prior mass contributed by each edge...
-    edge_masses, edge_moments = apply_unique_rows(
-        lambda begin, end, collapsed: _calc_edge_masses(
-            begin, end, collapsed, p, interval_stats
-        ),
-        ancestor_ranks,
-        int_ranks,
-        num_collapsed,
+    edge_masses = np.zeros(n, dtype=np.float64)
+    edge_moments = np.zeros(n, dtype=np.float64)
+    (
+        edge_masses[is_inner],
+        edge_moments[is_inner],
+    ) = _calc_edge_masses_fast_path(
+        ancestor_ranks[is_inner],
+        int_ranks[is_inner],
+        num_collapsed[is_inner],
+        p,
     )
-    edge_masses[is_root | is_leaf] = 0.0
-    edge_moments[is_root | is_leaf] = 0.0
 
     # ... accumulated along path from root, discounted by collisions needed
     discounts = p ** (num_collapsed.astype(np.float64) + 1.0)
@@ -138,17 +134,18 @@ def _calc_origin_times(
     mismatch_ranks = np.where(
         np.isfinite(mismatch_ranks) & ~is_leaf, mismatch_ranks, int_ranks + 1
     ).astype(np.int64)
+    assert (mismatch_ranks > int_ranks).all()
 
     # posterior mean, including final interval requiring no collisions
-    last_masses, last_means = apply_unique_rows(
-        interval_stats, int_ranks, mismatch_ranks
-    )
+    clamped_ranks = np.maximum(int_ranks, 0)  # MRCA cannot precede t0
+    last_masses = np.maximum(mismatch_ranks - clamped_ranks, 0)
+    last_moments = last_masses * (clamped_ranks + mismatch_ranks - 1) / 2
     total_masses = path_masses + last_masses
     with np.errstate(divide="ignore", invalid="ignore"):
         estimates = np.where(
             total_masses > 0,
-            (path_moments + last_masses * last_means) / total_masses,
-            np.maximum(last_means, int_ranks),
+            (path_moments + last_moments) / total_masses,
+            clamped_ranks,  # all candidate intervals precede t0
         )
 
     # bound by children's ranks and ancestors' estimates
@@ -160,7 +157,7 @@ def _calc_origin_times(
             values=int_ranks,
         ),
     )
-    estimates = np.where(is_leaf | is_root, int_ranks, estimates)
+    estimates = np.where(is_inner, estimates, int_ranks)
     estimates = np.where(has_rank, estimates, np.nan)
 
     # ensure estimates do not precede ancestors' estimates
@@ -184,7 +181,7 @@ def _call_polars(
         raise NotImplementedError("non-topologically-sorted not supported")
 
     schema_names = trie.lazy().collect_schema().names()
-    col = ftor._num_collapsed_property
+    col = "hstrat_collapsed_unifurcations"
     t0 = (
         pl.col(ftor._t0).cast(pl.Float64).fill_null(0.0)
         if isinstance(ftor._t0, str)
@@ -205,7 +202,6 @@ def _call_polars(
     )
 
     origin_times = _calc_origin_times(
-        ftor,
         arrays["ancestor_id"].to_numpy(),
         arrays["rank"].fill_null(np.nan).to_numpy(),
         arrays["num_collapsed"].to_numpy(),
@@ -231,7 +227,7 @@ class AssignOriginTimeAffinePosteriorTriePostprocessor(TriePostprocessorBase):
     postprocessor instead assigns the posterior mean of each inner node's
     origin time, accounting for all possible collision scenarios.
 
-    Under the provided prior, the MRCA of a node's subtrees is taken to fall
+    Under a uniform prior, the MRCA of a node's subtrees is taken to fall
     within any interval between successive matched (i.e., retained in common)
     ranks along the node's path from the root, with posterior weight
     proportional to that interval's prior probability times
@@ -242,6 +238,8 @@ class AssignOriginTimeAffinePosteriorTriePostprocessor(TriePostprocessorBase):
 
     Notes
     -----
+    Only `UniformPrior` is currently supported.
+
     Each inner node is treated as a bifurcation (i.e., one spurious
     collision per matched rank). This assumption holds for binary (single
     bit) differentiae, where at most two children can branch at any rank.
@@ -253,7 +251,7 @@ class AssignOriginTimeAffinePosteriorTriePostprocessor(TriePostprocessorBase):
 
     For collapsed tries (e.g., `surface_postprocess_trie`), the number of
     collapsed-away matched ranks along each edge is read from the
-    `hstrat_num_collapsed_unifurcations` column, if present. Collapsed ranks
+    `hstrat_collapsed_unifurcations` column, if present. Collapsed ranks
     are assumed evenly spaced along their edge. Without this column,
     estimates only account for ranks of nodes present in the trie,
     undercorrecting for collision bias.
@@ -263,8 +261,6 @@ class AssignOriginTimeAffinePosteriorTriePostprocessor(TriePostprocessorBase):
     """
 
     _assigned_property: str  # property name for assigned origin time
-    _num_collapsed_property: str  # property name for collapsed counts
-    _prior: PriorBase  # prior expectation for ancestor origin times
     _t0: typing.Union[int, str]  # origin time offset, or property name
 
     def __init__(
@@ -272,7 +268,6 @@ class AssignOriginTimeAffinePosteriorTriePostprocessor(TriePostprocessorBase):
         prior: PriorBase = UniformPrior(),  # ok as kwarg; immutable
         assigned_property: str = "origin_time",
         *,
-        num_collapsed_property: str = "hstrat_num_collapsed_unifurcations",
         t0: typing.Union[int, str] = 0,
     ) -> None:
         """Initialize functor instance.
@@ -282,12 +277,10 @@ class AssignOriginTimeAffinePosteriorTriePostprocessor(TriePostprocessorBase):
         prior : PriorBase, default UniformPrior()
             Prior distribution of ancestor origin times.
 
-            Prior is evaluated over origin times offset by `t0`.
+            Prior is evaluated over origin times offset by `t0`. Only
+            `UniformPrior` is currently supported.
         assigned_property : str, default "origin_time"
             The property name for the assigned origin time.
-        num_collapsed_property : str, default "hstrat_num_collapsed_unifurcations"
-            The property name for the number of unifurcating nodes collapsed
-            away between each node and its ancestor.
         t0 : int or str, default 0
             The property name or constant value for the origin time offset.
 
@@ -295,9 +288,9 @@ class AssignOriginTimeAffinePosteriorTriePostprocessor(TriePostprocessorBase):
             before `t0` are considered impossible. For
             `surface_postprocess_trie`, use `"dstream_S"`.
         """
+        if not isinstance(prior, UniformPrior):
+            raise NotImplementedError("only UniformPrior is supported")
         self._assigned_property = assigned_property
-        self._num_collapsed_property = num_collapsed_property
-        self._prior = prior
         self._t0 = t0
 
     def __call__(

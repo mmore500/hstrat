@@ -77,7 +77,7 @@ def test_collapsed_unifurcations_give_earlier_estimate():
     )
     with_ = coerce_to_pandas(
         ftor(
-            _make_cherry_df(hstrat_num_collapsed_unifurcations=[0, 3, 0, 0]),
+            _make_cherry_df(hstrat_collapsed_unifurcations=[0, 3, 0, 0]),
             p_differentia_collision=0.5,
         ),
     )
@@ -117,7 +117,7 @@ def test_exact_posterior_mean_collapsed():
             "id": [0, 1, 2, 3],
             "ancestor_id": [0, 0, 1, 1],
             "rank": [0, 8, 12, 12],
-            "hstrat_num_collapsed_unifurcations": [0, 1, 0, 0],
+            "hstrat_collapsed_unifurcations": [0, 1, 0, 0],
         },
     )
     p = 0.5
@@ -139,7 +139,7 @@ def test_collapsed_unifurcation_below_bounds_mismatch():
             "id": [0, 1, 2, 3],
             "ancestor_id": [0, 0, 1, 1],
             "rank": [0, 8, 16, 16],
-            "hstrat_num_collapsed_unifurcations": [0, 0, 1, 1],
+            "hstrat_collapsed_unifurcations": [0, 0, 1, 1],
         },
     )
     df = coerce_to_pandas(
@@ -197,8 +197,8 @@ def test_estimates_respect_ancestors_and_children():
         {
             "id": [0, 1, 2, 3, 4, 5, 6],
             "ancestor_id": [0, 0, 1, 1, 2, 2, 3],
-            "rank": [0, 30, 31, 32, 40, 40, 40],
-            "hstrat_num_collapsed_unifurcations": [0, 0, 5, 0, 0, 0, 0],
+            "rank": [0, 30, 36, 32, 40, 40, 40],
+            "hstrat_collapsed_unifurcations": [0, 0, 5, 0, 0, 0, 0],
         },
     )
     df = coerce_to_pandas(
@@ -255,4 +255,11 @@ def test_warns_for_wider_differentiae():
     with pytest.warns(UserWarning, match="binary"):
         hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()(
             _make_cherry_df(), p_differentia_collision=0.25
+        )
+
+
+def test_non_uniform_prior_not_implemented():
+    with pytest.raises(NotImplementedError):
+        hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor(
+            prior=hstrat.ArbitraryPrior(),
         )
