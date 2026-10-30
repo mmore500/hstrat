@@ -7,6 +7,12 @@ import polars as pl
 import pytest
 
 from hstrat import hstrat
+from hstrat._auxiliary_lib import seed_random
+from hstrat.dataframe import (
+    surface_postprocess_trie,
+    surface_test_drive,
+    surface_unpack_reconstruct,
+)
 import hstrat.phylogenetic_inference.tree._impl as impl
 import hstrat.phylogenetic_inference.tree.trie_postprocess._detail as detail
 
@@ -310,3 +316,93 @@ def test_noncontiguous_ids():
         hstrat.AssignOriginTimeGeometricTriePostprocessor("steady_algo")(
             df, p_differentia_collision=0.5
         )
+
+
+def _calc_cherry_errors(
+    reconstructed_df: pl.DataFrame, true_split_times: typing.List[int]
+) -> np.ndarray:
+    """Estimated minus true divergence time, for each cherry's tip pair."""
+    ancestor_ids = reconstructed_df["ancestor_id"].to_numpy()
+    origin_times = reconstructed_df["origin_time"].to_numpy()
+    leaf_ids = {
+        source_id: id_
+        for id_, source_id in enumerate(reconstructed_df["td_source_id"])
+        if source_id is not None
+    }
+
+    def lineage(id_: int) -> typing.List[int]:
+        lineage = [id_]
+        while ancestor_ids[lineage[-1]] != lineage[-1]:
+            lineage.append(ancestor_ids[lineage[-1]])
+        return lineage
+
+    errors = []
+    for k, true_split_time in enumerate(true_split_times):
+        lineage_a = lineage(leaf_ids[3 * k + 2])
+        lineage_b = {*lineage(leaf_ids[3 * k + 3])}
+        mrca_id = next((id_ for id_ in lineage_a if id_ in lineage_b), None)
+        if mrca_id is not None:  # split before first shared rank otherwise
+            errors.append(origin_times[mrca_id] - true_split_time)
+    return np.array(errors)
+
+
+@pytest.mark.parametrize(
+    "algo", ["steady_algo", "tilted_algo", "hybrid_0_steady_1_tilted_2_algo"]
+)
+def test_reconstructed_origin_times_unbiased(algo: str):
+    # many independent cherries under a common root: root (generation 0)
+    # <- split (generation T) <- two tips (generation G)
+    seed_random(1)
+    S, G, num_cherries = 16, 200, 400
+    # test drive deposits S items before founding, so ranks are offset by S
+    retained = _lookup_retained_ranks(algo, S, G + S)
+    first_shared = retained[retained >= S][0] - S
+    split_times = np.random.randint(first_shared, G - 1, size=num_cherries)
+    true_df = pl.DataFrame(
+        {
+            "id": np.arange(3 * num_cherries + 1),
+            "ancestor_id": [
+                0,
+                *itertools.chain(
+                    *((0, k, k) for k in range(1, 3 * num_cherries, 3))
+                ),
+            ],
+            "origin_time": [
+                0,
+                *itertools.chain(*((T, G, G) for T in split_times)),
+            ],
+        },
+    ).cast(pl.UInt64)
+    tips_df = surface_test_drive(
+        true_df.lazy(),
+        dstream_algo=f"dstream.{algo}",
+        dstream_S=S,
+        stratum_differentia_bit_width=1,
+    )
+    raw_df = surface_unpack_reconstruct(tips_df)
+
+    errors = {
+        name: _calc_cherry_errors(
+            surface_postprocess_trie(raw_df, trie_postprocessor=postprocessor),
+            split_times.tolist(),
+        )
+        for name, postprocessor in (
+            (
+                "corrected",
+                hstrat.AssignOriginTimeGeometricTriePostprocessor(algo),
+            ),
+            (
+                "uncorrected",
+                hstrat.AssignOriginTimeNodeRankTriePostprocessor(
+                    t0="dstream_S",
+                ),
+            ),
+        )
+    }
+
+    corrected = errors["corrected"]
+    standard_error = corrected.std() / np.sqrt(len(corrected))
+    assert len(corrected) >= 0.99 * num_cherries
+    assert abs(corrected.mean()) < 3 * standard_error
+    # without correction, estimates are biased toward being too recent
+    assert errors["uncorrected"].mean() - corrected.mean() > 3 * standard_error
