@@ -93,8 +93,10 @@ def _calc_origin_times(
 
     ids = np.arange(n)
     is_root = ancestor_ids == ids
-    is_leaf = ~np.bincount(ancestor_ids[~is_root], minlength=n).astype(bool)
-    is_inner = ~(is_root | is_leaf)
+    num_children = np.bincount(ancestor_ids[~is_root], minlength=n)
+    is_leaf = num_children == 0
+    # roots with multiple children bound divergence like inner nodes
+    is_inner = ~is_leaf & (~is_root | (num_children >= 2))
 
     # youngest (minimum dstream_T) tip within each node's clade
     tip_Ts = np.where(is_leaf, ranks + 1, np.nan)  # leaf rank is T - 1
@@ -241,9 +243,16 @@ class AssignOriginTimeGeometricTriePostprocessor(TriePostprocessorBase):
     children, so they correspond to clade MRCA times where reconstructed
     topology is correct.
 
+    Lineages that diverged before their first shared rank appear under
+    separate roots, with no common ancestor in the trie. To estimate their
+    divergence times, join roots under a single global root at rank
+    `dstream_S`
+    beforehand. Roots with multiple children are estimated like inner
+    nodes, so this global root is assigned the same unbiased estimate.
+
     Only polars dataframe tries with a uniform `dstream_S` are supported
     (e.g., via `surface_postprocess_trie`). Leaf ranks are taken to be
-    `dstream_T - 1`. Roots and leaves are assigned their rank.
+    `dstream_T - 1`. Leaves and unifurcating roots are assigned their rank.
     """
 
     _assigned_property: str  # property name for assigned origin time
