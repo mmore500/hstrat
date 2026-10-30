@@ -162,7 +162,7 @@ pandera==0.34.1
     # via hstrat (../../pyproject.toml)
 patsy==1.0.3
     # via statsmodels
-phyloframe==0.14.0
+phyloframe==0.15.0
     # via hstrat (../../pyproject.toml)
 phylotrackpy==0.2.4
     # via hstrat (../../pyproject.toml)

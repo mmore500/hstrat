@@ -8,7 +8,6 @@ import polars as pl
 from tqdm import tqdm
 
 from .._auxiliary_lib import (
-    alifestd_collapse_unifurcations_tallied_asexual,
     get_sole_scalar_value_polars,
     log_context_duration,
     log_memory_usage,
@@ -52,10 +51,10 @@ def _do_collapse_unifurcations(
     gc.collect()
 
     with log_context_duration(
-        "alifestd_collapse_unifurcations_tallied_asexual", logging.info
+        "pfl.alifestd_collapse_unifurcations_tallied_asexual", logging.info
     ):
-        df = alifestd_collapse_unifurcations_tallied_asexual(
-            df, "hstrat_collapsed_unifurcations", mutate=True
+        df = pfl.alifestd_collapse_unifurcations_tallied_asexual(
+            df, mutate=True, tally_as="hstrat_collapsed_unifurcations"
         )
 
     render_pandas_snapshot(df, "collapsed tree", logging.info)

@@ -180,7 +180,7 @@ pathlib2==2.3.7.post1
     # via bumpver
 patsy==1.0.3
     # via statsmodels
-phyloframe==0.14.0
+phyloframe==0.15.0
     # via hstrat (../../pyproject.toml)
 pillow==12.3.0
     # via matplotlib

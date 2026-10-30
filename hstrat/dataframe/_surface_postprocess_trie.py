@@ -11,7 +11,6 @@ import polars as pl
 from tqdm import tqdm
 
 from .._auxiliary_lib import (
-    alifestd_collapse_unifurcations_tallied_polars,
     get_sole_scalar_value_polars,
     is_in_unit_test,
     log_context_duration,
@@ -60,10 +59,10 @@ def _do_collapse_unifurcations(
 
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
     with log_context_duration(
-        "alifestd_collapse_unifurcations_tallied_polars", logging.info
+        "pfl.alifestd_collapse_unifurcations_tallied_polars", logging.info
     ):
-        df = alifestd_collapse_unifurcations_tallied_polars(
-            df, "hstrat_collapsed_unifurcations"
+        df = pfl.alifestd_collapse_unifurcations_tallied_polars(
+            df, tally_as="hstrat_collapsed_unifurcations"
         )
 
     render_polars_snapshot(df, "collapsed tree", logging.info)

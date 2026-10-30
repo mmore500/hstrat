@@ -82,12 +82,6 @@ from ._alifestd_collapse_unifurcations import alifestd_collapse_unifurcations
 from ._alifestd_collapse_unifurcations_polars import (
     alifestd_collapse_unifurcations_polars,
 )
-from ._alifestd_collapse_unifurcations_tallied_asexual import (
-    alifestd_collapse_unifurcations_tallied_asexual,
-)
-from ._alifestd_collapse_unifurcations_tallied_polars import (
-    alifestd_collapse_unifurcations_tallied_polars,
-)
 from ._alifestd_convert_root_ancestor_token import (
     alifestd_convert_root_ancestor_token,
 )
@@ -541,8 +535,6 @@ __all__ = [
     "alifestd_collapse_trunk_asexual",
     "alifestd_collapse_unifurcations",
     "alifestd_collapse_unifurcations_polars",
-    "alifestd_collapse_unifurcations_tallied_asexual",
-    "alifestd_collapse_unifurcations_tallied_polars",
     "alifestd_count_children_of_asexual",
     "alifestd_count_inner_nodes",
     "alifestd_count_leaf_nodes",
