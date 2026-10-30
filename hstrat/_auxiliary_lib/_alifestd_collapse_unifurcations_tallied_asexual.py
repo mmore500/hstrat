@@ -44,20 +44,31 @@ def alifestd_collapse_unifurcations_tallied_asexual(
 
     assert not phylogeny_df[tally_col].isna().any()
 
-    phylogeny_df["_tally_weight"] = phylogeny_df[tally_col] + 1
+    phylogeny_df[
+        "_alifestd_collapse_unifurcations_tallied_asexual_tally_weight"
+    ] = (phylogeny_df[tally_col] + 1)
     with log_context_duration(
         "alifestd_mark_unifurcation_length_asexual", logging.info
     ):
         phylogeny_df = pfl.alifestd_mark_unifurcation_length_asexual(
             phylogeny_df,
             mutate=True,
-            mark_as="_tally_length",
-            weights="_tally_weight",
+            mark_as="_alifestd_collapse_unifurcations_tallied_asexual_tally_length",
+            weights="_alifestd_collapse_unifurcations_tallied_asexual_tally_weight",
         )
     phylogeny_df[tally_col] = (
-        phylogeny_df[tally_col] + phylogeny_df["_tally_length"]
+        phylogeny_df[tally_col]
+        + phylogeny_df[
+            "_alifestd_collapse_unifurcations_tallied_asexual_tally_length"
+        ]
     ).astype(phylogeny_df[tally_col].dtype)
-    phylogeny_df.drop(columns=["_tally_length", "_tally_weight"], inplace=True)
+    phylogeny_df.drop(
+        columns=[
+            "_alifestd_collapse_unifurcations_tallied_asexual_tally_length",
+            "_alifestd_collapse_unifurcations_tallied_asexual_tally_weight",
+        ],
+        inplace=True,
+    )
 
     with log_context_duration("alifestd_collapse_unifurcations", logging.info):
         return pfl.alifestd_collapse_unifurcations(phylogeny_df, mutate=True)
