@@ -198,13 +198,14 @@ def _call_polars(
             pl.col("ancestor_id").cast(pl.Int64).alias("ancestor_id"),
             (pl.col("rank").cast(pl.Float64) - t0).alias("rank"),
             (
-                pl.col(col).fill_null(0).cast(pl.Int64)
+                pl.col(col).cast(pl.Int64)
                 if col in schema_names
                 else pl.lit(0, dtype=pl.Int64)
             ).alias("num_collapsed"),
         )
         .collect()
     )
+    assert arrays["num_collapsed"].null_count() == 0
 
     origin_times = _calc_origin_times(
         arrays["ancestor_id"].to_numpy(),
