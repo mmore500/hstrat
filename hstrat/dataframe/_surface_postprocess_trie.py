@@ -41,7 +41,6 @@ def _apply_empty_output_schema(
             "dstream_rank",
             "dstream_S",
             "hstrat_differentia_bitwidth",
-            "hstrat_collapsed_unifurcations",
             strict=False,
         )
     return df
@@ -58,12 +57,8 @@ def _do_collapse_unifurcations(
     gc.collect()
 
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
-    with log_context_duration(
-        "pfl.alifestd_collapse_unifurcations_tallied_polars", logging.info
-    ):
-        df = pfl.alifestd_collapse_unifurcations_tallied_polars(
-            df, tally_as="hstrat_collapsed_unifurcations"
-        )
+    with log_context_duration("alifestd_collapse_unifurcations", logging.info):
+        df = pfl.alifestd_collapse_unifurcations_polars(df)
 
     render_polars_snapshot(df, "collapsed tree", logging.info)
 
@@ -113,12 +108,11 @@ def _do_delete_trunk(
         df = pfl.alifestd_prefix_roots_polars(
             df, allow_id_reassign=True, origin_time=dstream_S
         )
-    # prefixed roots sit at dstream_S boundary, with no collapsed unifs
+    # prefixed roots sit at dstream_S boundary
     df = df.with_columns(
         pl.col("dstream_rank").fill_null(dstream_S),
         pl.col("dstream_S").fill_null(dstream_S),
         pl.col("hstrat_differentia_bitwidth").fill_null(differentia_bitwidth),
-        pl.col("hstrat_collapsed_unifurcations").fill_null(0),
     )
 
     gc.collect()
@@ -219,13 +213,6 @@ def surface_postprocess_trie(
         Optional schema:
             - 'dstream_data_id' : pl.UInt64
                 - Unique identifier for each genome in source genomedataframe
-            - 'hstrat_collapsed_unifurcations' : pl.UInt32
-                - Number of unifurcating trie nodes previously collapsed away
-                  between each node and its ancestor.
-                - Incremented as unifurcations are collapsed, then made
-                  available to `trie_postprocessor` (e.g., for
-                  `AssignOriginTimeAffinePosteriorTriePostprocessor`).
-                - Dropped from output with dstream metadata.
 
     delete_trunk : bool, default `True`
         Should trunk nodes with rank less than `dstream_S` be deleted?
@@ -347,12 +334,7 @@ def surface_postprocess_trie(
     to_keep = {*original_columns}
     if drop_dstream_metadata is not False:
         logging.info("dropping dstream metadata columns...")
-        to_keep -= {
-            "dstream_rank",
-            "dstream_S",
-            "hstrat_differentia_bitwidth",
-            "hstrat_collapsed_unifurcations",
-        }
+        to_keep -= {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"}
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df = df.drop(*to_drop)

@@ -35,7 +35,6 @@ def _apply_empty_output_schema_pandas(
                 "dstream_rank",
                 "dstream_S",
                 "hstrat_differentia_bitwidth",
-                "hstrat_collapsed_unifurcations",
             ],
             errors="ignore",
         )
@@ -50,12 +49,8 @@ def _do_collapse_unifurcations(
 
     gc.collect()
 
-    with log_context_duration(
-        "pfl.alifestd_collapse_unifurcations_tallied_asexual", logging.info
-    ):
-        df = pfl.alifestd_collapse_unifurcations_tallied_asexual(
-            df, mutate=True, tally_as="hstrat_collapsed_unifurcations"
-        )
+    with log_context_duration("alifestd_collapse_unifurcations", logging.info):
+        df = pfl.alifestd_collapse_unifurcations(df, mutate=True)
 
     render_pandas_snapshot(df, "collapsed tree", logging.info)
 
@@ -100,7 +95,6 @@ def _do_delete_trunk(
         "hstrat_differentia_bitwidth": (
             df["hstrat_differentia_bitwidth"].unique().squeeze()
         ),
-        "hstrat_collapsed_unifurcations": 0,
     }
     dtypes = df[[*fill_values]].dtypes
     with log_context_duration("alifestd_prefix_roots", logging.info):
@@ -108,7 +102,7 @@ def _do_delete_trunk(
         df = pfl.alifestd_prefix_roots(
             df, allow_id_reassign=True, origin_time=dstream_S, mutate=True
         )
-    # prefixed roots sit at dstream_S boundary, with no collapsed unifs
+    # prefixed roots sit at dstream_S boundary
     df = df.fillna(fill_values).astype(dtypes.to_dict())
 
     del df["is_trunk"]
@@ -204,12 +198,7 @@ def _surface_postprocess_trie_via_pandas(
     to_keep = {*original_columns}
     if drop_dstream_metadata is not False:
         logging.info("dropping dstream metadata columns...")
-        to_keep -= {
-            "dstream_rank",
-            "dstream_S",
-            "hstrat_differentia_bitwidth",
-            "hstrat_collapsed_unifurcations",
-        }
+        to_keep -= {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"}
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df.drop(columns=[*to_drop], inplace=True)

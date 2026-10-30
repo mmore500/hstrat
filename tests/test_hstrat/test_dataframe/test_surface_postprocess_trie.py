@@ -11,7 +11,7 @@ from hstrat.dataframe import (
     surface_unpack_reconstruct,
 )
 from hstrat.phylogenetic_inference.tree.trie_postprocess import (
-    AssignOriginTimeAffinePosteriorTriePostprocessor,
+    AssignOriginTimeGeometricTriePostprocessor,
     AssignOriginTimeNodeRankTriePostprocessor,
 )
 
@@ -40,12 +40,11 @@ def test_smoke_unbiased():
     raw = surface_unpack_reconstruct(df)
     res = surface_postprocess_trie(
         raw,
-        trie_postprocessor=AssignOriginTimeAffinePosteriorTriePostprocessor(
-            t0="dstream_S",
+        trie_postprocessor=AssignOriginTimeGeometricTriePostprocessor(
+            "dstream.steady_algo",
         ),
     )
     assert "origin_time" in res.columns
-    assert "hstrat_collapsed_unifurcations" not in res.columns
     assert pfl.alifestd_validate(
         pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
     )
@@ -61,19 +60,6 @@ def test_smoke_unbiased():
     assert (
         res["origin_time"].drop_nulls().mean()
         <= naive["origin_time"].drop_nulls().mean() + 1
-    )
-
-
-def test_collapsed_unifurcations():
-    df = pl.read_csv(f"{assets_path}/packed.csv")
-    raw = surface_unpack_reconstruct(df)
-    assert "hstrat_collapsed_unifurcations" in raw.columns
-    res = surface_postprocess_trie(raw, drop_dstream_metadata=False)
-    assert "hstrat_collapsed_unifurcations" in res.columns
-    assert res["hstrat_collapsed_unifurcations"].null_count() == 0
-    assert (
-        res["hstrat_collapsed_unifurcations"].sum()
-        >= raw["hstrat_collapsed_unifurcations"].sum()
     )
 
 
@@ -194,7 +180,6 @@ def test_prefix_roots_preserves_topological_order(num_subtrees: int):
             "dstream_data_id": data_ids,
             "hstrat_differentia_bitwidth": [8] * len(ids),
             "dstream_S": [S] * len(ids),
-            "hstrat_collapsed_unifurcations": [0] * len(ids),
         },
         schema={
             "id": pl.UInt64,
@@ -203,7 +188,6 @@ def test_prefix_roots_preserves_topological_order(num_subtrees: int):
             "dstream_data_id": pl.UInt64,
             "hstrat_differentia_bitwidth": pl.UInt32,
             "dstream_S": pl.UInt32,
-            "hstrat_collapsed_unifurcations": pl.UInt32,
         },
     )
 

@@ -100,7 +100,11 @@ def _calc_origin_times(
     tip_Ts = np.where(is_leaf, ranks + 1, np.nan)  # leaf rank is T - 1
     youngest_Ts = pfl.alifestd_mark_to_array_polars(
         pl.DataFrame(
-            {"id": ids, "ancestor_id": ancestor_ids, "_values": tip_Ts},
+            {
+                "id": ids,
+                "ancestor_id": ancestor_ids,
+                "_values": pl.Series(tip_Ts, nan_to_null=True),
+            },
         ),
         pfl.alifestd_mark_lineage_cummin_polars,
         values="_values",
@@ -122,7 +126,7 @@ def _calc_origin_times(
         retained,
         inverse,
         parent_ids,
-        np.where(np.isfinite(first_shared), first_shared, np.inf),
+        first_shared,
         n,
     )
 
@@ -167,7 +171,7 @@ def _call_polars(
     dstream_S = (
         trie.lazy().select(pl.col("dstream_S").unique()).collect().to_series()
     )
-    assert len(dstream_S) == 1, "mixed dstream_S not supported"
+    assert len(dstream_S) <= 1, "mixed dstream_S not supported"
 
     t0 = (
         pl.col(ftor._t0).cast(pl.Int64)
@@ -191,7 +195,7 @@ def _call_polars(
         arrays["t0"].to_numpy(),
         p_differentia_collision,
         ftor._dstream_algo,
-        int(dstream_S.item()),
+        int(dstream_S.item()) if len(dstream_S) else 0,
     )
     return trie.with_columns(
         pl.Series(ftor._assigned_property, origin_times, dtype=pl.Float64),
