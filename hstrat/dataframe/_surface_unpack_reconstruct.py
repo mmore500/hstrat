@@ -551,7 +551,7 @@ def _construct_result_dataframe(
         .rename(
             {
                 "rank": "dstream_rank",
-                "collapsed_unifurcations": ("hstrat_collapsed_unifurcations"),
+                "collapsed_unifurcations": "hstrat_collapsed_unifurcations",
             },
         )
     )
