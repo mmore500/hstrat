@@ -95,14 +95,22 @@ def _do_delete_trunk(
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
         df = pfl.alifestd_assign_contiguous_ids(df, mutate=True)
 
+    fill_values = {
+        "dstream_rank": dstream_S,
+        "dstream_S": dstream_S,
+        "hstrat_differentia_bitwidth": (
+            df["hstrat_differentia_bitwidth"].unique().squeeze()
+        ),
+        "hstrat_collapsed_unifurcations": 0,
+    }
+    dtypes = df[[*fill_values]].dtypes
     with log_context_duration("alifestd_prefix_roots", logging.info):
         # extend newly-clipped roots all the way back to dstream_S boundary
         df = pfl.alifestd_prefix_roots(
             df, allow_id_reassign=True, origin_time=dstream_S, mutate=True
         )
-    # no unifurcations collapsed into prefixed roots
-    col = "hstrat_collapsed_unifurcations"
-    df[col] = df[col].fillna(0).astype("uint32")
+    # prefixed roots sit at dstream_S boundary, with no collapsed unifs
+    df = df.fillna(fill_values).astype(dtypes.to_dict())
 
     del df["is_trunk"]
     del df["ancestor_is_trunk"]
