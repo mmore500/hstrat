@@ -7,15 +7,27 @@ import pandas as pd
 from phyloframe import legacy as pfl
 import polars as pl
 
-from ...._auxiliary_lib import (
-    apply_unique_rows,
-    calc_lineage_affine_with_contiguous_ids,
-    calc_min_child_value_with_contiguous_ids,
-)
+from ...._auxiliary_lib import apply_unique_rows
 from ...priors import UniformPrior
 from ...priors._detail import PriorBase
 from .._impl import TrieInnerNode
 from ._detail import TriePostprocessorBase
+
+
+def _mark_tree_values(
+    op: typing.Callable,
+    ancestor_ids: np.ndarray,
+    **columns: np.ndarray,
+) -> np.ndarray:
+    """Apply phyloframe polars mark operation `op` to tree with given value
+    columns, passed to `op` by name, returning marked values."""
+    tree = pl.DataFrame(
+        {"id": np.arange(len(ancestor_ids)), "ancestor_id": ancestor_ids}
+        | columns,
+    )
+    return (
+        op(tree, *columns, mark_as="_marked").get_column("_marked").to_numpy()
+    )
 
 
 def _make_interval_stats(
@@ -101,11 +113,14 @@ def _calc_origin_times(
 
     # ... accumulated along path from root, discounted by collisions needed
     discounts = p ** (num_collapsed.astype(np.float64) + 1.0)
-    path_masses = calc_lineage_affine_with_contiguous_ids(
-        ancestor_ids, discounts, edge_masses
-    )
-    path_moments = calc_lineage_affine_with_contiguous_ids(
-        ancestor_ids, discounts, edge_moments
+    path_masses, path_moments = (
+        _mark_tree_values(
+            pfl.alifestd_mark_lineage_affine_polars,
+            ancestor_ids,
+            scale=discounts,
+            offset=edge_values,
+        )
+        for edge_values in (edge_masses, edge_moments)
     )
 
     # estimate first rank where children differ (exclusive MRCA bound);
@@ -115,11 +130,13 @@ def _calc_origin_times(
         ancestor_ranks + (int_ranks - ancestor_ranks) / (num_collapsed + 1),
     )
     first_ranks[first_ranks <= ancestor_ranks] = np.inf
-    mismatch_ranks = calc_min_child_value_with_contiguous_ids(
-        ancestor_ids, first_ranks
+    mismatch_ranks = _mark_tree_values(
+        pfl.alifestd_mark_min_child_value_polars,
+        ancestor_ids,
+        values=first_ranks,
     )
     mismatch_ranks = np.where(
-        np.isfinite(mismatch_ranks), mismatch_ranks, int_ranks + 1
+        np.isfinite(mismatch_ranks) & ~is_leaf, mismatch_ranks, int_ranks + 1
     ).astype(np.int64)
 
     # posterior mean, including final interval requiring no collisions
@@ -137,26 +154,20 @@ def _calc_origin_times(
     # bound by children's ranks and ancestors' estimates
     estimates = np.minimum(
         estimates,
-        calc_min_child_value_with_contiguous_ids(ancestor_ids, int_ranks),
+        _mark_tree_values(
+            pfl.alifestd_mark_min_child_value_polars,
+            ancestor_ids,
+            values=int_ranks,
+        ),
     )
     estimates = np.where(is_leaf | is_root, int_ranks, estimates)
     estimates = np.where(has_rank, estimates, np.nan)
 
     # ensure estimates do not precede ancestors' estimates
-    lineage_max = (
-        pfl.alifestd_mark_lineage_cummax_polars(
-            pl.DataFrame(
-                {
-                    "id": np.arange(n),
-                    "ancestor_id": ancestor_ids,
-                    "estimate": estimates,
-                },
-            ),
-            "estimate",
-            mark_as="lineage_max",
-        )
-        .get_column("lineage_max")
-        .to_numpy()
+    lineage_max = _mark_tree_values(
+        pfl.alifestd_mark_lineage_cummax_polars,
+        ancestor_ids,
+        estimate=estimates,
     )
     return np.where(has_rank, lineage_max, np.nan)
 
