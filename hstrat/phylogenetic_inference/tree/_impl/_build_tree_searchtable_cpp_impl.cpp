@@ -388,12 +388,17 @@ Records collapse_unifurcations(Records &records, const bool dropped_only) {
     [&num_collapsed, &records, &is_not_selected_unifurcation](const u64 id) {
       const u64 ancestor_id = records.ancestor_id[id];
       assert(ancestor_id <= id);
-      const u32 inherited = (
+      const u32 inherited_tally = (
         ancestor_id != id and !is_not_selected_unifurcation[ancestor_id]
       ) ? num_collapsed[ancestor_id] : 0;
-      const u32 own = records.collapsed_unifurcations[id];
+      const u32 own_tally = records.collapsed_unifurcations[id];
       const bool should_keep = is_not_selected_unifurcation[id];
-      return static_cast<u32>(inherited + own + !should_keep);
+      // sum in 64 bits to check against u32 overflow
+      const u64 tally = (
+        u64{inherited_tally} + own_tally + static_cast<u64>(!should_keep)
+      );
+      assert(tally <= std::numeric_limits<u32>::max());
+      return static_cast<u32>(tally);
     }
   );
 

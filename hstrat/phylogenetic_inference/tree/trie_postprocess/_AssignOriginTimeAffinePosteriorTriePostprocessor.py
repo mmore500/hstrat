@@ -153,25 +153,27 @@ def _calc_origin_times(
             clamped_ranks,  # all candidate intervals precede t0
         )
 
-    # bound inner node estimates by children's ranks; others get own rank
+    # inner node MRCA precedes its children; roots and leaves keep own rank
     min_child_ranks = _calc_mark_array(
         pfl.alifestd_mark_min_child_value_polars,
         ancestor_ids,
         values=int_ranks,
     )
-    estimates = np.select(
-        [~has_rank, ~is_inner],
-        [np.nan, int_ranks],
-        default=np.minimum(estimates, min_child_ranks),
+    estimates = np.where(
+        is_inner,
+        np.minimum(estimates, min_child_ranks),
+        int_ranks,
     )
 
-    # ensure estimates do not precede ancestors' estimates
-    lineage_max = _calc_mark_array(
-        pfl.alifestd_mark_lineage_cummax_polars,
-        ancestor_ids,
-        estimate=estimates,
-    )
-    return np.where(has_rank, lineage_max, np.nan)
+    # each node's posterior is its parent's (rescaled), plus mass only at
+    # later ranks, so estimates cannot precede ancestors' estimates
+    has_ranked_ancestor = has_rank & has_rank[ancestor_ids]
+    assert (
+        estimates[has_ranked_ancestor]
+        >= estimates[ancestor_ids][has_ranked_ancestor] - 1e-6
+    ).all()
+
+    return np.where(has_rank, estimates, np.nan)
 
 
 def _call_polars(
