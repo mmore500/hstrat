@@ -13,13 +13,13 @@ from .._impl import TrieInnerNode
 from ._detail import TriePostprocessorBase
 
 
-def _mark_tree_values(
+def _calc_mark_array(
     op: typing.Callable,
     ancestor_ids: np.ndarray,
     **columns: np.ndarray,
 ) -> np.ndarray:
-    """Apply phyloframe polars mark operation `op` to tree with given value
-    columns, passed to `op` by name, returning marked values."""
+    """Calculate array marked by phyloframe polars operation `op` over tree
+    with given value columns, passed to `op` by name."""
     tree = pl.DataFrame(
         {"id": np.arange(len(ancestor_ids)), "ancestor_id": ancestor_ids}
         | columns,
@@ -111,7 +111,7 @@ def _calc_origin_times(
     # ... accumulated along path from root, discounted by collisions needed
     discounts = p ** (num_collapsed.astype(np.float64) + 1.0)
     path_masses, path_moments = (
-        _mark_tree_values(
+        _calc_mark_array(
             pfl.alifestd_mark_lineage_affine_polars,
             ancestor_ids,
             scale=discounts,
@@ -127,7 +127,7 @@ def _calc_origin_times(
         ancestor_ranks + (int_ranks - ancestor_ranks) / (num_collapsed + 1),
     )
     first_ranks[first_ranks <= ancestor_ranks] = np.inf
-    mismatch_ranks = _mark_tree_values(
+    mismatch_ranks = _calc_mark_array(
         pfl.alifestd_mark_min_child_value_polars,
         ancestor_ids,
         values=first_ranks,
@@ -153,20 +153,20 @@ def _calc_origin_times(
             clamped_ranks,  # all candidate intervals precede t0
         )
 
-    # bound by children's ranks and ancestors' estimates
-    estimates = np.minimum(
-        estimates,
-        _mark_tree_values(
-            pfl.alifestd_mark_min_child_value_polars,
-            ancestor_ids,
-            values=int_ranks,
-        ),
+    # bound inner node estimates by children's ranks; others get own rank
+    min_child_ranks = _calc_mark_array(
+        pfl.alifestd_mark_min_child_value_polars,
+        ancestor_ids,
+        values=int_ranks,
     )
-    estimates = np.where(is_inner, estimates, int_ranks)
-    estimates = np.where(has_rank, estimates, np.nan)
+    estimates = np.select(
+        [~has_rank, ~is_inner],
+        [np.nan, int_ranks],
+        default=np.minimum(estimates, min_child_ranks),
+    )
 
     # ensure estimates do not precede ancestors' estimates
-    lineage_max = _mark_tree_values(
+    lineage_max = _calc_mark_array(
         pfl.alifestd_mark_lineage_cummax_polars,
         ancestor_ids,
         estimate=estimates,

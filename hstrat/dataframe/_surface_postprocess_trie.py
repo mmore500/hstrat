@@ -11,6 +11,7 @@ import polars as pl
 from tqdm import tqdm
 
 from .._auxiliary_lib import (
+    alifestd_collapse_unifurcations_tallied_polars,
     get_sole_scalar_value_polars,
     is_in_unit_test,
     log_context_duration,
@@ -47,34 +48,6 @@ def _apply_empty_output_schema(
     return df
 
 
-def _do_accumulate_collapsed_unifurcations(
-    df: pl.DataFrame,
-) -> pl.DataFrame:
-    """Tally unifurcations about to be collapsed into
-    `hstrat_collapsed_unifurcations` column.
-
-    Each collapsed unifurcation contributes itself, plus any unifurcations
-    previously collapsed into it. Assumes contiguous ids and topological
-    sorting.
-    """
-    col = "hstrat_collapsed_unifurcations"
-    num_collapsed = (
-        pl.col(col).fill_null(0)  # null for roots left by trunk deletion
-        if col in df.lazy().collect_schema().names()
-        else pl.lit(0, dtype=pl.UInt32)
-    )
-
-    with log_context_duration(
-        "alifestd_mark_unifurcation_length_polars", logging.info
-    ):
-        df = pfl.alifestd_mark_unifurcation_length_polars(
-            df, mark_as="_hstrat_length", weights=num_collapsed + 1
-        )
-    return df.with_columns(
-        (num_collapsed + pl.col("_hstrat_length")).cast(pl.UInt32).alias(col),
-    ).drop("_hstrat_length")
-
-
 def _do_collapse_unifurcations(
     df: pl.DataFrame,
 ) -> pl.DataFrame:
@@ -85,11 +58,13 @@ def _do_collapse_unifurcations(
 
     gc.collect()
 
-    df = _do_accumulate_collapsed_unifurcations(df)
-
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
-    with log_context_duration("alifestd_collapse_unifurcations", logging.info):
-        df = pfl.alifestd_collapse_unifurcations_polars(df)
+    with log_context_duration(
+        "alifestd_collapse_unifurcations_tallied_polars", logging.info
+    ):
+        df = alifestd_collapse_unifurcations_tallied_polars(
+            df, "hstrat_collapsed_unifurcations"
+        )
 
     render_polars_snapshot(df, "collapsed tree", logging.info)
 
@@ -136,6 +111,8 @@ def _do_delete_trunk(
         df = pfl.alifestd_prefix_roots_polars(
             df, allow_id_reassign=True, origin_time=dstream_S
         )
+    # no unifurcations collapsed into prefixed roots
+    df = df.with_columns(pl.col("hstrat_collapsed_unifurcations").fill_null(0))
 
     gc.collect()
 
@@ -176,8 +153,7 @@ def _validate_against_via_pandas(func: typing.Callable) -> typing.Callable:
                 )
             except NotImplementedError as e:
                 warnings.warn(
-                    "skipping pandas validation, unsupported by pandas "
-                    f"implementation: {e}",
+                    f"pandas support not implemented, skipping validation: {e}",
                 )
                 return result
             # convert to pandas to avoid Polars StringCache issues

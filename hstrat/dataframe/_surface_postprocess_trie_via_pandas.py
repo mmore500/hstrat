@@ -8,6 +8,7 @@ import polars as pl
 from tqdm import tqdm
 
 from .._auxiliary_lib import (
+    alifestd_collapse_unifurcations_tallied_asexual,
     get_sole_scalar_value_polars,
     log_context_duration,
     log_memory_usage,
@@ -42,31 +43,6 @@ def _apply_empty_output_schema_pandas(
     return df
 
 
-def _do_accumulate_collapsed_unifurcations(
-    df: pd.DataFrame,
-) -> pd.DataFrame:
-    """Tally unifurcations about to be collapsed into
-    `hstrat_collapsed_unifurcations` column.
-
-    Each collapsed unifurcation contributes itself, plus any unifurcations
-    previously collapsed into it. Assumes contiguous ids and topological
-    sorting.
-    """
-    col = "hstrat_collapsed_unifurcations"
-    # null for roots left by trunk deletion
-    df[col] = df[col].fillna(0) if col in df.columns else 0
-
-    df["_hstrat_weight"] = df[col] + 1
-    with log_context_duration(
-        "alifestd_mark_unifurcation_length_asexual", logging.info
-    ):
-        df = pfl.alifestd_mark_unifurcation_length_asexual(
-            df, mutate=True, mark_as="_hstrat_length", weights="_hstrat_weight"
-        )
-    df[col] = (df[col] + df["_hstrat_length"]).astype("uint32")
-    return df.drop(columns=["_hstrat_length", "_hstrat_weight"])
-
-
 def _do_collapse_unifurcations(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -75,10 +51,12 @@ def _do_collapse_unifurcations(
 
     gc.collect()
 
-    df = _do_accumulate_collapsed_unifurcations(df)
-
-    with log_context_duration("alifestd_collapse_unifurcations", logging.info):
-        df = pfl.alifestd_collapse_unifurcations(df, mutate=True)
+    with log_context_duration(
+        "alifestd_collapse_unifurcations_tallied_asexual", logging.info
+    ):
+        df = alifestd_collapse_unifurcations_tallied_asexual(
+            df, "hstrat_collapsed_unifurcations", mutate=True
+        )
 
     render_pandas_snapshot(df, "collapsed tree", logging.info)
 
@@ -122,6 +100,9 @@ def _do_delete_trunk(
         df = pfl.alifestd_prefix_roots(
             df, allow_id_reassign=True, origin_time=dstream_S, mutate=True
         )
+    # no unifurcations collapsed into prefixed roots
+    col = "hstrat_collapsed_unifurcations"
+    df[col] = df[col].fillna(0).astype("uint32")
 
     del df["is_trunk"]
     del df["ancestor_is_trunk"]
