@@ -1,12 +1,23 @@
+import collections
+import random
+import typing
+
 import numpy as np
 import pandas as pd
+from phyloframe import legacy as pfl
 import polars as pl
 import pytest
 
 from hstrat import hstrat
 from hstrat._auxiliary_lib import coerce_to_pandas
+from hstrat.dataframe import (
+    surface_postprocess_trie,
+    surface_test_drive,
+    surface_unpack_reconstruct,
+)
 import hstrat.phylogenetic_inference.tree._impl as impl
 import hstrat.phylogenetic_inference.tree.trie_postprocess._detail as detail
+from hstrat.test_drive import evolve_fitness_trait_population
 
 
 def _make_cherry_df(**kwargs) -> pl.DataFrame:
@@ -263,3 +274,121 @@ def test_non_uniform_prior_not_implemented():
         hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor(
             prior=hstrat.ArbitraryPrior(),
         )
+
+
+def _calc_true_mrca_times(
+    true_df: pd.DataFrame, reconstructed_df: pd.DataFrame
+) -> typing.Dict[int, int]:
+    """Map each reconstructed inner node with two or more children to the
+    true origin time of the MRCA of its leaves."""
+    ancestor_of = dict(zip(true_df["id"], true_df["ancestor_id"]))
+    origin_time_of = dict(zip(true_df["id"], true_df["origin_time"]))
+
+    def lineage(id_: int) -> typing.Set[int]:
+        res = {id_}
+        while ancestor_of[id_] != id_:
+            id_ = ancestor_of[id_]
+            res.add(id_)
+        return res
+
+    children_of = collections.defaultdict(list)
+    for id_, ancestor_id in zip(
+        reconstructed_df["id"], reconstructed_df["ancestor_id"]
+    ):
+        if id_ != ancestor_id:
+            children_of[ancestor_id].append(id_)
+
+    source_of = dict(
+        zip(reconstructed_df["id"], reconstructed_df["td_source_id"])
+    )
+    leaves_of = {}
+    for id_ in reversed(reconstructed_df["id"].tolist()):
+        children = children_of[id_]
+        leaves_of[id_] = (
+            [int(source_of[id_])]
+            if not children
+            else [leaf for child in children for leaf in leaves_of[child]]
+        )
+
+    return {
+        id_: max(
+            origin_time_of[x]
+            for x in set.intersection(*map(lineage, leaves_of[id_]))
+        )
+        for id_, children in children_of.items()
+        if len(children) >= 2
+    }
+
+
+class _NoCollisionCorrection:
+    """Wrap postprocessor to ignore spurious collisions."""
+
+    def __init__(self, postprocessor: typing.Callable) -> None:
+        self._postprocessor = postprocessor
+
+    def __call__(self, trie, p_differentia_collision, **kwargs):
+        return self._postprocessor(trie, p_differentia_collision=0.0, **kwargs)
+
+
+def test_reconstructed_origin_times_unbiased():
+    # simulate neutral evolution, then reconstruct from 1-bit surfaces
+    random.seed(0)
+    np.random.seed(0)
+    true_df = pfl.alifestd_to_working_format(
+        evolve_fitness_trait_population(
+            population_size=128,
+            num_generations=200,
+            num_islands=4,
+            num_niches=1,
+            p_island_migration=1e-2,
+            mut_distn=lambda size=None: np.zeros(size),
+        ),
+    )
+    tips_df = surface_test_drive(
+        pl.from_pandas(true_df[["id", "ancestor_id", "origin_time"]])
+        .cast(pl.UInt64)
+        .lazy(),
+        dstream_algo="dstream.steady_algo",
+        dstream_S=32,
+        stratum_differentia_bit_width=1,
+    )
+    raw_df = surface_unpack_reconstruct(tips_df)
+
+    postprocessor = hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor(
+        t0="dstream_S",
+    )
+    errors = {}
+    for name, trie_postprocessor in (
+        ("corrected", postprocessor),
+        ("uncorrected", _NoCollisionCorrection(postprocessor)),
+    ):
+        reconstructed_df = surface_postprocess_trie(
+            raw_df, trie_postprocessor=trie_postprocessor
+        ).to_pandas()
+        # align reconstructed and true time scales, using leaves
+        is_leaf = reconstructed_df["td_source_id"].notna()
+        true_origin_times = dict(zip(true_df["id"], true_df["origin_time"]))
+        offset = np.median(
+            reconstructed_df.loc[is_leaf, "td_source_id"]
+            .astype(int)
+            .map(true_origin_times)
+            - reconstructed_df.loc[is_leaf, "origin_time"]
+        )
+        origin_times = dict(
+            zip(reconstructed_df["id"], reconstructed_df["origin_time"])
+        )
+        errors[name] = np.array(
+            [
+                origin_times[id_] + offset - true_mrca_time
+                for id_, true_mrca_time in _calc_true_mrca_times(
+                    true_df, reconstructed_df
+                ).items()
+            ],
+        )
+
+    corrected = errors["corrected"]
+    standard_error = corrected.std() / np.sqrt(len(corrected))
+    assert len(corrected) > 20
+    assert abs(corrected.mean()) < 3 * standard_error
+    # without correction, estimates are biased toward being too recent
+    assert errors["uncorrected"].mean() - corrected.mean() > 3 * standard_error
