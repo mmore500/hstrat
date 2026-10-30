@@ -194,6 +194,7 @@ def test_prefix_roots_preserves_topological_order(num_subtrees: int):
             "dstream_data_id": data_ids,
             "hstrat_differentia_bitwidth": [8] * len(ids),
             "dstream_S": [S] * len(ids),
+            "hstrat_collapsed_unifurcations": [0] * len(ids),
         },
         schema={
             "id": pl.UInt64,
@@ -202,6 +203,7 @@ def test_prefix_roots_preserves_topological_order(num_subtrees: int):
             "dstream_data_id": pl.UInt64,
             "hstrat_differentia_bitwidth": pl.UInt32,
             "dstream_S": pl.UInt32,
+            "hstrat_collapsed_unifurcations": pl.UInt32,
         },
     )
 
