@@ -35,8 +35,9 @@ def _calc_interval_stats(
 ) -> typing.Tuple[float, float]:
     """Calculate uniform prior mass, and mass times conditioned mean, of
     interval [begin, end), in rank units offset by `t0`."""
-    begin = max(begin, 0.0)  # MRCA cannot precede t0
-    mass = max(end - begin, 0.0)
+    # MRCA cannot precede t0
+    begin, end = max(begin, 0.0), max(end, 0.0)
+    mass = end - begin
     return mass, mass * (begin + end - 1) / 2
 
 
@@ -137,9 +138,13 @@ def _calc_origin_times(
     assert (mismatch_ranks > int_ranks).all()
 
     # posterior mean, including final interval requiring no collisions
-    clamped_ranks = np.maximum(int_ranks, 0)  # MRCA cannot precede t0
-    last_masses = np.maximum(mismatch_ranks - clamped_ranks, 0)
-    last_moments = last_masses * (clamped_ranks + mismatch_ranks - 1) / 2
+    # MRCA cannot precede t0
+    clamped_ranks = np.maximum(int_ranks, 0)
+    clamped_mismatch_ranks = np.maximum(mismatch_ranks, 0)
+    last_masses = clamped_mismatch_ranks - clamped_ranks
+    last_moments = (
+        last_masses * (clamped_ranks + clamped_mismatch_ranks - 1) / 2
+    )
     total_masses = path_masses + last_masses
     with np.errstate(divide="ignore", invalid="ignore"):
         estimates = np.where(
