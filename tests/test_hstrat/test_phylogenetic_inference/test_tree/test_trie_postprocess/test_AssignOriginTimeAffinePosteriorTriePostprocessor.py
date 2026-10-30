@@ -1,5 +1,5 @@
 import collections
-import random
+import functools
 import typing
 
 import numpy as np
@@ -9,7 +9,7 @@ import polars as pl
 import pytest
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import coerce_to_pandas
+from hstrat._auxiliary_lib import coerce_to_pandas, seed_random
 from hstrat.dataframe import (
     surface_postprocess_trie,
     surface_test_drive,
@@ -17,7 +17,6 @@ from hstrat.dataframe import (
 )
 import hstrat.phylogenetic_inference.tree._impl as impl
 import hstrat.phylogenetic_inference.tree.trie_postprocess._detail as detail
-from hstrat.test_drive import evolve_fitness_trait_population
 
 
 def _make_cherry_df(**kwargs) -> pl.DataFrame:
@@ -184,8 +183,7 @@ def test_t0():
         np.testing.assert_allclose(res["origin_time"], base["origin_time"])
 
 
-def test_null_rank_root():
-    # as produced by alifestd_prefix_roots in surface_postprocess_trie
+def test_null_rank_not_supported():
     df = pl.DataFrame(
         {
             "id": [0, 1, 2, 3],
@@ -193,14 +191,10 @@ def test_null_rank_root():
             "rank": [None, 10, 40, 40],
         },
     )
-    df = coerce_to_pandas(
+    with pytest.raises(AssertionError):
         hstrat.AssignOriginTimeAffinePosteriorTriePostprocessor()(
             df, p_differentia_collision=0.5
-        ),
-    )
-    assert pd.isna(df.loc[0, "origin_time"])
-    assert 0 <= df.loc[1, "origin_time"] < 40
-    assert df.loc[2, "origin_time"] == 40
+        )
 
 
 def test_estimates_respect_ancestors_and_children():
@@ -281,16 +275,6 @@ def _calc_true_mrca_times(
 ) -> typing.Dict[int, int]:
     """Map each reconstructed inner node with two or more children to the
     true origin time of the MRCA of its leaves."""
-    ancestor_of = dict(zip(true_df["id"], true_df["ancestor_id"]))
-    origin_time_of = dict(zip(true_df["id"], true_df["origin_time"]))
-
-    def lineage(id_: int) -> typing.Set[int]:
-        res = {id_}
-        while ancestor_of[id_] != id_:
-            id_ = ancestor_of[id_]
-            res.add(id_)
-        return res
-
     children_of = collections.defaultdict(list)
     for id_, ancestor_id in zip(
         reconstructed_df["id"], reconstructed_df["ancestor_id"]
@@ -298,6 +282,7 @@ def _calc_true_mrca_times(
         if id_ != ancestor_id:
             children_of[ancestor_id].append(id_)
 
+    # true ids of leaves descending from each reconstructed node
     source_of = dict(
         zip(reconstructed_df["id"], reconstructed_df["td_source_id"])
     )
@@ -310,13 +295,22 @@ def _calc_true_mrca_times(
             else [leaf for child in children for leaf in leaves_of[child]]
         )
 
-    return {
-        id_: max(
-            origin_time_of[x]
-            for x in set.intersection(*map(lineage, leaves_of[id_]))
+    mrca_ids_with = {
+        leaf: pfl.alifestd_calc_mrca_id_vector_asexual(true_df, target_id=leaf)
+        for leaf in map(int, reconstructed_df["td_source_id"].dropna())
+    }
+    true_mrca_ids = {
+        id_: functools.reduce(
+            lambda mrca_id, leaf: mrca_ids_with[leaf][mrca_id],
+            leaves_of[id_][1:],
+            leaves_of[id_][0],
         )
         for id_, children in children_of.items()
         if len(children) >= 2
+    }
+    origin_times = true_df["origin_time"].to_numpy()
+    return {
+        id_: origin_times[mrca_id] for id_, mrca_id in true_mrca_ids.items()
     }
 
 
@@ -332,10 +326,9 @@ class _NoCollisionCorrection:
 
 def test_reconstructed_origin_times_unbiased():
     # simulate neutral evolution, then reconstruct from 1-bit surfaces
-    random.seed(0)
-    np.random.seed(0)
+    seed_random(0)
     true_df = pfl.alifestd_to_working_format(
-        evolve_fitness_trait_population(
+        hstrat.evolve_fitness_trait_population(
             population_size=128,
             num_generations=200,
             num_islands=4,

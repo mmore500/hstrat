@@ -127,6 +127,7 @@ def _do_delete_trunk(
         "hstrat_differentia_bitwidth": get_sole_scalar_value_pandas(
             df, "hstrat_differentia_bitwidth"
         ),
+        "hstrat_collapsed_unifurcations": 0,
     }
     # before prefixing roots, whose nulls make integer columns float
     dtypes = df[[*fill_values]].dtypes
@@ -135,9 +136,8 @@ def _do_delete_trunk(
         df = pfl.alifestd_prefix_roots(
             df, allow_id_reassign=True, origin_time=dstream_S, mutate=True
         )
-    # no unifurcations collapsed into prefixed roots
-    col = "hstrat_collapsed_unifurcations"
-    df[col] = df[col].fillna(0).astype("uint32")
+    # prefixed roots sit at dstream_S boundary, with no collapsed unifs
+    df = df.fillna(fill_values).astype(dtypes.to_dict())
 
     del df["is_trunk"]
     del df["ancestor_is_trunk"]

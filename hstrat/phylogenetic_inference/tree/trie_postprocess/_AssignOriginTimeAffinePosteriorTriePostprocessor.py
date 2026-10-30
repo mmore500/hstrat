@@ -77,7 +77,7 @@ def _calc_edge_masses_fast_path(
 
 def _calc_origin_times(
     ancestor_ids: np.ndarray,
-    ranks: np.ndarray,  # float, NaN for missing
+    ranks: np.ndarray,  # int, offset by t0
     num_collapsed: np.ndarray,
     p_differentia_collision: float,
 ) -> np.ndarray:
@@ -89,11 +89,8 @@ def _calc_origin_times(
     is_root = ancestor_ids == np.arange(n)
     is_leaf = ~np.bincount(ancestor_ids[~is_root], minlength=n).astype(bool)
     is_inner = ~(is_root | is_leaf)
-    has_rank = ~np.isnan(ranks)
 
-    # missing ranks (i.e., prefixed roots) treated as t0 boundary
-    int_ranks = np.where(has_rank, ranks, 0.0).astype(np.int64)
-    ancestor_ranks = int_ranks[ancestor_ids]
+    ancestor_ranks = ranks[ancestor_ids]
 
     # discounted prior mass contributed by each edge...
     edge_masses = np.zeros(n, dtype=np.float64)
@@ -103,7 +100,7 @@ def _calc_origin_times(
         edge_moments[is_inner],
     ) = _calc_edge_masses_fast_path(
         ancestor_ranks[is_inner],
-        int_ranks[is_inner],
+        ranks[is_inner],
         num_collapsed[is_inner],
         p,
     )
@@ -124,7 +121,7 @@ def _calc_origin_times(
     # for collapsed unifurcations, use first collapsed rank (even spacing);
     # leaf ranks (i.e., dstream_T - 1) also bound MRCA, as leaf origin time
     first_ranks = np.round(
-        ancestor_ranks + (int_ranks - ancestor_ranks) / (num_collapsed + 1),
+        ancestor_ranks + (ranks - ancestor_ranks) / (num_collapsed + 1),
     )
     first_ranks[first_ranks <= ancestor_ranks] = np.inf
     mismatch_ranks = _calc_mark_array(
@@ -133,13 +130,13 @@ def _calc_origin_times(
         values=first_ranks,
     )
     mismatch_ranks = np.where(
-        np.isfinite(mismatch_ranks) & ~is_leaf, mismatch_ranks, int_ranks + 1
+        np.isfinite(mismatch_ranks) & ~is_leaf, mismatch_ranks, ranks + 1
     ).astype(np.int64)
-    assert (mismatch_ranks > int_ranks).all()
+    assert (mismatch_ranks > ranks).all()
 
     # posterior mean, including final interval requiring no collisions
     # MRCA cannot precede t0
-    clamped_ranks = np.maximum(int_ranks, 0)
+    clamped_ranks = np.maximum(ranks, 0)
     clamped_mismatch_ranks = np.maximum(mismatch_ranks, 0)
     last_masses = clamped_mismatch_ranks - clamped_ranks
     last_moments = (
@@ -157,23 +154,19 @@ def _calc_origin_times(
     min_child_ranks = _calc_mark_array(
         pfl.alifestd_mark_min_child_value_polars,
         ancestor_ids,
-        values=int_ranks,
+        values=ranks,
     )
     estimates = np.where(
         is_inner,
         np.minimum(estimates, min_child_ranks),
-        int_ranks,
+        ranks,
     )
 
     # each node's posterior is its parent's (rescaled), plus mass only at
     # later ranks, so estimates cannot precede ancestors' estimates
-    has_ranked_ancestor = has_rank & has_rank[ancestor_ids]
-    assert (
-        estimates[has_ranked_ancestor]
-        >= estimates[ancestor_ids][has_ranked_ancestor] - 1e-6
-    ).all()
+    assert (estimates >= estimates[ancestor_ids] - 1e-6).all()
 
-    return np.where(has_rank, estimates, np.nan)
+    return estimates
 
 
 def _call_polars(
@@ -190,15 +183,15 @@ def _call_polars(
     schema_names = trie.lazy().collect_schema().names()
     col = "hstrat_collapsed_unifurcations"
     t0 = (
-        pl.col(ftor._t0).cast(pl.Float64).fill_null(0.0)
+        pl.col(ftor._t0).cast(pl.Int64)
         if isinstance(ftor._t0, str)
-        else pl.lit(float(ftor._t0))
+        else pl.lit(ftor._t0, dtype=pl.Int64)
     )
     arrays = (
         trie.lazy()
         .select(
             pl.col("ancestor_id").cast(pl.Int64).alias("ancestor_id"),
-            (pl.col("rank").cast(pl.Float64) - t0).alias("rank"),
+            (pl.col("rank").cast(pl.Int64) - t0).alias("rank"),
             (
                 pl.col(col).cast(pl.Int64)
                 if col in schema_names
@@ -207,11 +200,12 @@ def _call_polars(
         )
         .collect()
     )
+    assert arrays["rank"].null_count() == 0
     assert arrays["num_collapsed"].null_count() == 0
 
     origin_times = _calc_origin_times(
         arrays["ancestor_id"].to_numpy(),
-        arrays["rank"].fill_null(np.nan).to_numpy(),
+        arrays["rank"].to_numpy(),
         arrays["num_collapsed"].to_numpy(),
         p_differentia_collision,
     )
@@ -220,7 +214,6 @@ def _call_polars(
             ftor._assigned_property,
             origin_times,
             dtype=pl.Float64,
-            nan_to_null=True,
         ),
     )
 

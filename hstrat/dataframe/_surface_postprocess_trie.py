@@ -145,8 +145,13 @@ def _do_delete_trunk(
         df = pfl.alifestd_prefix_roots_polars(
             df, allow_id_reassign=True, origin_time=dstream_S
         )
-    # no unifurcations collapsed into prefixed roots
-    df = df.with_columns(pl.col("hstrat_collapsed_unifurcations").fill_null(0))
+    # prefixed roots sit at dstream_S boundary, with no collapsed unifs
+    df = df.with_columns(
+        pl.col("dstream_rank").fill_null(dstream_S),
+        pl.col("dstream_S").fill_null(dstream_S),
+        pl.col("hstrat_differentia_bitwidth").fill_null(differentia_bitwidth),
+        pl.col("hstrat_collapsed_unifurcations").fill_null(0),
+    )
 
     gc.collect()
 
