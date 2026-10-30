@@ -160,7 +160,7 @@ pandera==0.34.1
     # via hstrat (../../pyproject.toml)
 patsy==1.0.3
     # via statsmodels
-phyloframe==0.13.1
+phyloframe==0.14.0
     # via hstrat (../../pyproject.toml)
 pillow==12.3.0
     # via matplotlib
