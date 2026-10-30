@@ -9,6 +9,7 @@ from ._log_context_duration import log_context_duration
 def alifestd_collapse_unifurcations_tallied_asexual(
     phylogeny_df: pd.DataFrame,
     tally_col: str,
+    *,
     mutate: bool = False,
 ) -> pd.DataFrame:
     """Collapse unifurcations, tallying collapsed nodes into `tally_col`.
