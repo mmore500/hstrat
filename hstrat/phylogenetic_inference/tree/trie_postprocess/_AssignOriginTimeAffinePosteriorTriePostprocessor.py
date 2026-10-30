@@ -13,22 +13,6 @@ from .._impl import TrieInnerNode
 from ._detail import TriePostprocessorBase
 
 
-def _calc_mark_array(
-    op: typing.Callable,
-    ancestor_ids: np.ndarray,
-    **columns: np.ndarray,
-) -> np.ndarray:
-    """Calculate array marked by phyloframe polars operation `op` over tree
-    with given value columns, passed to `op` by name."""
-    tree = pl.DataFrame(
-        {"id": np.arange(len(ancestor_ids)), "ancestor_id": ancestor_ids}
-        | columns,
-    )
-    return (
-        op(tree, *columns, mark_as="_marked").get_column("_marked").to_numpy()
-    )
-
-
 @jit(nopython=True)
 def _calc_interval_stats(
     begin: float, end: float
@@ -106,13 +90,17 @@ def _calc_origin_times(
     )
 
     # ... accumulated along path from root, discounted by collisions needed
+    tree = pl.DataFrame({"id": np.arange(n), "ancestor_id": ancestor_ids})
     discounts = p ** (num_collapsed.astype(np.float64) + 1.0)
     path_masses, path_moments = (
-        _calc_mark_array(
+        pfl.alifestd_mark_to_array_polars(
+            tree.with_columns(
+                _scale=pl.Series(discounts),
+                _offset=pl.Series(edge_values),
+            ),
             pfl.alifestd_mark_lineage_affine_polars,
-            ancestor_ids,
-            scale=discounts,
-            offset=edge_values,
+            scale="_scale",
+            offset="_offset",
         )
         for edge_values in (edge_masses, edge_moments)
     )
@@ -124,10 +112,10 @@ def _calc_origin_times(
         ancestor_ranks + (ranks - ancestor_ranks) / (num_collapsed + 1),
     )
     first_ranks[first_ranks <= ancestor_ranks] = np.inf
-    mismatch_ranks = _calc_mark_array(
+    mismatch_ranks = pfl.alifestd_mark_to_array_polars(
+        tree.with_columns(_values=pl.Series(first_ranks)),
         pfl.alifestd_mark_min_child_value_polars,
-        ancestor_ids,
-        values=first_ranks,
+        values="_values",
     )
     mismatch_ranks = np.where(
         np.isfinite(mismatch_ranks) & ~is_leaf, mismatch_ranks, ranks + 1
@@ -151,10 +139,10 @@ def _calc_origin_times(
         )
 
     # inner node MRCA precedes its children; roots and leaves keep own rank
-    min_child_ranks = _calc_mark_array(
+    min_child_ranks = pfl.alifestd_mark_to_array_polars(
+        tree.with_columns(_values=pl.Series(ranks)),
         pfl.alifestd_mark_min_child_value_polars,
-        ancestor_ids,
-        values=ranks,
+        values="_values",
     )
     estimates = np.where(
         is_inner,
