@@ -109,6 +109,44 @@ def test_collapse_unifurcations_accumulates_counts():
     assert result["collapsed_unifurcations"] == [0, 1, 0, 1]
 
 
+def test_collapse_unifurcations_long_chain_counts():
+    # 0 <- 1 <- ... <- n - 2 <- n - 1 (leaf), plus sibling leaf at end
+    n = 1000
+    records = Records(n + 1)
+    for id_ in range(1, n):
+        last = id_ == n - 1
+        records.addRecord(
+            id_,
+            id_,
+            id_ - 1,
+            id_ - 1,
+            id_ if last else id_ + 1,
+            id_,
+            n if last else id_,
+            id_,
+            0,
+        )
+    records.addRecord(n, n, n - 2, n - 2, n, n - 1, n, n - 1, 1)
+
+    records = collapse_unifurcations(records, dropped_only=False)
+    result = copy_records_to_dict(records)
+    # 0 <- n - 2 <- n - 1
+    #        \ <- n
+    assert result["rank"] == [0, n - 2, n - 1, n - 1]
+    assert result["collapsed_unifurcations"] == [0, n - 3, 0, 0]
+
+
+def test_collapse_unifurcations_no_unifurcations():
+    # 0 <- 1, 2
+    records = Records(3)
+    records.addRecord(1, 1, 0, 0, 1, 1, 2, 1, 0)
+    records.addRecord(2, 2, 0, 0, 2, 1, 2, 1, 1)
+    records = collapse_unifurcations(records, dropped_only=False)
+    result = copy_records_to_dict(records)
+    assert result["ancestor_id"] == [0, 0, 0]
+    assert result["collapsed_unifurcations"] == [0, 0, 0]
+
+
 def test_regression_original():
     exploded = pl.DataFrame(
         {
