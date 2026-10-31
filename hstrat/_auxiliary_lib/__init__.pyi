@@ -4,8 +4,8 @@ from ._AnyTreeFastLevelOrderIter import AnyTreeFastLevelOrderIter
 from ._AnyTreeFastPostOrderIter import AnyTreeFastPostOrderIter
 from ._AnyTreeFastPreOrderIter import AnyTreeFastPreOrderIter
 from ._BioPhyloTree import BioPhyloTree
-from ._ExperimentalWarning import ExperimentalWarning
 from ._CopyableSeriesItemsIter import CopyableSeriesItemsIter
+from ._ExperimentalWarning import ExperimentalWarning
 from ._GetAttrLaunderShim import GetAttrLaunderShim
 from ._HereditaryStratigraphicArtifact import HereditaryStratigraphicArtifact
 from ._HereditaryStratigraphicInstrument import (
