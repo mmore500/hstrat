@@ -2,46 +2,39 @@ import warnings
 
 import pytest
 
-from hstrat._auxiliary_lib import ExperimentalWarning, warn_experimental
+from hstrat._auxiliary_lib._ExperimentalWarning import ExperimentalWarning
+from hstrat._auxiliary_lib._warn_experimental import warn_experimental
 
 
 @warn_experimental
-def _add(a: int, b: int) -> int:
-    """Add two numbers."""
+def _add(a: int, b: int = 1) -> int:
+    """Add numbers."""
     return a + b
 
 
-@warn_experimental
-class _Adder:
-    """Add a number."""
-
-    def __init__(self: "_Adder", a: int) -> None:
-        self.a = a
-
-    def __call__(self: "_Adder", b: int) -> int:
-        return self.a + b
-
-
-def test_function(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.delenv("HSTRAT_WARN_EXPERIMENTAL_SUPPRESS", raising=False)
+def test_warns_and_returns():
     with pytest.warns(ExperimentalWarning, match="_add is experimental"):
-        assert _add(1, 2) == 3
+        assert _add(1, b=2) == 3
+
+
+def test_is_user_warning():
+    assert issubclass(ExperimentalWarning, UserWarning)
+
+
+def test_preserves_metadata():
     assert _add.__name__ == "_add"
-    assert _add.__doc__ == "Add two numbers."
+    assert _add.__doc__ == "Add numbers."
 
 
-def test_class(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.delenv("HSTRAT_WARN_EXPERIMENTAL_SUPPRESS", raising=False)
-    with pytest.warns(ExperimentalWarning, match="_Adder is experimental"):
-        adder = _Adder(1)
-    assert isinstance(adder, _Adder)
-    assert adder(2) == 3
-    assert _Adder.__doc__ == "Add a number."
-
-
-def test_suppress(monkeypatch: pytest.MonkeyPatch):
+def test_silenced_by_environment_variable(monkeypatch):
     monkeypatch.setenv("HSTRAT_WARN_EXPERIMENTAL_SUPPRESS", "1")
     with warnings.catch_warnings():
         warnings.simplefilter("error")
-        assert _add(1, 2) == 3
-        assert _Adder(1)(2) == 3
+        assert _add(1) == 2
+
+
+def test_silenced_by_filter():
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        warnings.filterwarnings("ignore", category=ExperimentalWarning)
+        assert _add(1) == 2

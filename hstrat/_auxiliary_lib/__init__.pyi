@@ -4,6 +4,7 @@ from ._AnyTreeFastLevelOrderIter import AnyTreeFastLevelOrderIter
 from ._AnyTreeFastPostOrderIter import AnyTreeFastPostOrderIter
 from ._AnyTreeFastPreOrderIter import AnyTreeFastPreOrderIter
 from ._BioPhyloTree import BioPhyloTree
+from ._ExperimentalWarning import ExperimentalWarning
 from ._CopyableSeriesItemsIter import CopyableSeriesItemsIter
 from ._ExperimentalWarning import ExperimentalWarning
 from ._GetAttrLaunderShim import GetAttrLaunderShim
@@ -694,7 +695,6 @@ __all__ = [
     "AnyTreeFastPostOrderIter",
     "begin_prod_logging",
     "BioPhyloTree",
-    "clamp",
     "ExperimentalWarning",
     "bit_ceil",
     "bit_drop_msb",
