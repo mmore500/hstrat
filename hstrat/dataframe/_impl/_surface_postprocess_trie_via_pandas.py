@@ -7,14 +7,16 @@ from phyloframe import legacy as pfl
 import polars as pl
 from tqdm import tqdm
 
-from .._auxiliary_lib import (
+from ..._auxiliary_lib import (
     get_sole_scalar_value_polars,
     log_context_duration,
     log_memory_usage,
     render_pandas_snapshot,
     render_polars_snapshot,
 )
-from ..phylogenetic_inference.tree.trie_postprocess import NopTriePostprocessor
+from ...phylogenetic_inference.tree.trie_postprocess import (
+    NopTriePostprocessor,
+)
 
 
 def _apply_empty_output_schema_pandas(

@@ -10,14 +10,16 @@ from phyloframe import legacy as pfl
 import polars as pl
 from tqdm import tqdm
 
-from .._auxiliary_lib import (
+from ..._auxiliary_lib import (
     get_sole_scalar_value_polars,
     is_in_unit_test,
     log_context_duration,
     log_memory_usage,
     render_polars_snapshot,
 )
-from ..phylogenetic_inference.tree.trie_postprocess import NopTriePostprocessor
+from ...phylogenetic_inference.tree.trie_postprocess import (
+    NopTriePostprocessor,
+)
 from ._surface_postprocess_trie_via_pandas import (
     _surface_postprocess_trie_via_pandas,
 )
