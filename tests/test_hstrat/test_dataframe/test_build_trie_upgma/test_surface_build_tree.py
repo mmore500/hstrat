@@ -27,12 +27,12 @@ def test_all_pairs_total_exact(dstream_algo: str, bitwidth: int):
 def test_tree_shape():
     pop = make_population()
     phylo = surface_build_tree(pop)
-    assert len(pop) < len(phylo) <= 2 * len(pop) - 1
+    assert len(phylo) == 2 * len(pop) - 1
     assert pfl.alifestd_is_topologically_sorted_polars(phylo)
     assert pfl.alifestd_has_contiguous_ids_polars(phylo)
     ids, ancestors = phylo["id"].to_numpy(), phylo["ancestor_id"].to_numpy()
     num_children = np.bincount(ancestors[ancestors != ids], minlength=len(ids))
-    assert (num_children[num_children > 0] >= 2).all()
+    assert (num_children[num_children > 0] == 2).all()
     assert (ancestors == ids).sum() == 1
     assert is_chronological(phylo)
 
@@ -88,8 +88,20 @@ def test_single():
 def test_sampling_parameters(num_samples: int, direct_max: int):
     pop = make_population("dstream.tilted_algo", 64, 1)
     phylo = surface_build_tree(
-        pop, num_samples=num_samples, direct_max=direct_max, seed=2
+        pop, num_samples=num_samples, direct_max=direct_max, sampling_seed=2
     )
     expected = direct_all_pairs_total(pop)
     assert tree_all_pairs_total(phylo) == pytest.approx(expected, rel=1e-9)
     assert is_chronological(phylo)
+
+
+def test_identical_genomes_separate_leaves():
+    pop = make_population()
+    pop = pl.concat([pop, pop.head(5), pop.head(5)])
+    phylo = surface_build_tree(pop)
+    assert len(phylo) == 2 * len(pop) - 1
+    leaves = phylo.filter(pl.col("dstream_data_id").is_not_null())
+    assert len(leaves) == len(pop)
+    assert leaves["dstream_data_id"].n_unique() == len(pop)
+    expected = direct_all_pairs_total(pop)
+    assert tree_all_pairs_total(phylo) == pytest.approx(expected, rel=1e-9)

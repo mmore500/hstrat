@@ -130,7 +130,7 @@ def _main(mp_context: str) -> None:
         help="Compute linkage exactly when product of cluster sizes is at most this.",
     )
     parser.add_argument(
-        "--seed",
+        "--sampling-seed",
         type=int,
         default=1,
         help="Random seed for sampled linkage values.",
@@ -160,7 +160,7 @@ def _main(mp_context: str) -> None:
                 candidate_pool_size=args.candidate_pool_size,
                 num_samples=args.num_samples,
                 direct_max=args.direct_max,
-                seed=args.seed,
+                sampling_seed=args.sampling_seed,
                 trie_postprocessor=trie_postprocessor,
             ),
         )

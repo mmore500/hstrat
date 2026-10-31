@@ -31,7 +31,7 @@ def surface_build_tree(
     candidate_pool_size: int = 10,
     num_samples: int = 64,
     direct_max: int = 64,
-    seed: int = 1,
+    sampling_seed: int = 1,
     trie_postprocessor: typing.Callable = NopTriePostprocessor(),
     # ^^^ NopTriePostprocessor is stateless, so is safe as default value
 ) -> pl.DataFrame:
@@ -97,7 +97,7 @@ def surface_build_tree(
         Linkage between clusters is computed exactly when the product of
         their sizes is at most this.
 
-    seed : int, default 1
+    sampling_seed : int, default 1
         Random seed for sampled linkage values.
 
     trie_postprocessor : Callable, default `hstrat.NopTriePostprocessor()`
@@ -173,7 +173,7 @@ def surface_build_tree(
             pool_size=candidate_pool_size,
             n_samples=num_samples,
             direct_max=direct_max,
-            seed=seed,
+            seed=sampling_seed,
         )
         del trie
         logging.info(f"scaffold_upgma stats: {stats}")
