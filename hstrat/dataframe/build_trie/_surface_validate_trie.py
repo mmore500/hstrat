@@ -11,16 +11,16 @@ import opytional as opyt
 from phyloframe import legacy as pfl
 import polars as pl
 
-from .._auxiliary_lib import RngStateContext, get_sole_scalar_value_polars
-from .._auxiliary_lib._alifestd_find_leaf_ids import (
+from ..._auxiliary_lib import RngStateContext, get_sole_scalar_value_polars
+from ..._auxiliary_lib._alifestd_find_leaf_ids import (
     _alifestd_find_leaf_ids_asexual_fast_path,
 )
-from .._auxiliary_lib._alifestd_find_pair_mrca_id_asexual import (
+from ..._auxiliary_lib._alifestd_find_pair_mrca_id_asexual import (
     _alifestd_find_pair_mrca_id_asexual_fast_path,
 )
-from ..genome_instrumentation import HereditaryStratigraphicSurface
-from ..juxtaposition import calc_rank_of_first_retained_disparity_between
-from ..serialization import surf_from_hex
+from ...genome_instrumentation import HereditaryStratigraphicSurface
+from ...juxtaposition import calc_rank_of_first_retained_disparity_between
+from ...serialization import surf_from_hex
 
 # columns required to deserialize surfaces from data_hex
 _deserialization_columns = (

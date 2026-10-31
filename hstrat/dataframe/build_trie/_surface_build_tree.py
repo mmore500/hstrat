@@ -3,7 +3,9 @@ import typing
 
 import polars as pl
 
-from ..phylogenetic_inference.tree.trie_postprocess import NopTriePostprocessor
+from ...phylogenetic_inference.tree.trie_postprocess import (
+    NopTriePostprocessor,
+)
 from ._surface_postprocess_trie import surface_postprocess_trie
 from ._surface_unpack_reconstruct import surface_unpack_reconstruct
 
