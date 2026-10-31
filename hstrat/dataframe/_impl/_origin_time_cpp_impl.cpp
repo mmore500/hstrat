@@ -751,18 +751,26 @@ void scaffold_upgma_impl(
   const i64 m = ob.rep.size();
   out_stats[0] = m;
 
-  // output ids: tips 0..n-1, then one node per object with count >= 2, then
-  // cluster merges; node_of[cluster] is its output node
+  // output ids: tips 0..n-1, then count - 1 nodes per object with count >= 2,
+  // then cluster merges; node_of[cluster] is its output node
   i64 next_out = n;
   std::vector<i64> node_of(2 * m - 1, -1);
   for (i64 o = 0; o < m; ++o) {
     if (ob.count[o] == 1) {
       node_of[o] = ob.tips[o][0];
     } else {
-      const i64 u = next_out++;
-      node_of[o] = u;
-      out_time[u] = pair_estimate(tips, est, ob.rep[o], ob.rep[o]);  // identical pairs
-      for (const i64 t : ob.tips[o]) out_parent[t] = u;
+      // identical tips merge first, all at their pairwise estimate; output
+      // as a binary chain, as UPGMA over individual tips would give
+      const double t_same = pair_estimate(tips, est, ob.rep[o], ob.rep[o]);
+      i64 below = ob.tips[o][0];
+      for (size_t j = 1; j < ob.tips[o].size(); ++j) {
+        const i64 u = next_out++;
+        out_time[u] = t_same;
+        out_parent[below] = u;
+        out_parent[ob.tips[o][j]] = u;
+        below = u;
+      }
+      node_of[o] = below;
     }
   }
 
