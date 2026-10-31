@@ -3,8 +3,13 @@ import typing
 
 from phyloframe import legacy as pfl
 import polars as pl
+import tqdm
 
-from ..._auxiliary_lib import warn_experimental
+from ..._auxiliary_lib import (
+    log_context_duration,
+    log_memory_usage,
+    warn_experimental,
+)
 from ...phylogenetic_inference.tree.trie_postprocess import (
     NopTriePostprocessor,
 )
@@ -167,18 +172,22 @@ def surface_build_tree(
             raise NotImplementedError("non-contiguous trie ids not supported")
 
         logging.info("surface_build_tree running scaffold_upgma...")
-        parent, time, stats = scaffold_upgma(
-            *tips_cpp_args(tips),
-            trie["ancestor_id"].cast(pl.Int64).to_numpy(),
-            tips.tip_of_node(trie["dstream_data_id"]),
-            k=num_candidates,
-            pool_size=candidate_pool_size,
-            n_samples=num_samples,
-            direct_max=direct_max,
-            seed=sampling_seed,
-        )
+        with log_context_duration("scaffold_upgma", logging.info):
+            parent, time, stats = scaffold_upgma(
+                *tips_cpp_args(tips),
+                trie["ancestor_id"].cast(pl.Int64).to_numpy(),
+                tips.tip_of_node(trie["dstream_data_id"]),
+                k=num_candidates,
+                pool_size=candidate_pool_size,
+                n_samples=num_samples,
+                direct_max=direct_max,
+                seed=sampling_seed,
+                progress_bar=tqdm.tqdm,
+            )
         del trie
-        logging.info(f"scaffold_upgma stats: {stats}")
+        for key, value in stats.items():
+            logging.info(f" - scaffold_upgma {key}: {value}")
+        log_memory_usage(logging.info)
 
     logging.info("surface_build_tree running assemble_tip_tree...")
     df = assemble_tip_tree(

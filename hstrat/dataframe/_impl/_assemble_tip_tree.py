@@ -96,4 +96,5 @@ def assemble_tip_tree(
             progress_wrap=tqdm,
         )
 
+    render_polars_snapshot(phylo_df, "postprocessed tree", logging.info)
     return phylo_df

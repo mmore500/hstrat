@@ -32,13 +32,22 @@
 // pairwise estimates.
 
 #include <algorithm>
+#include <atomic>
+#include <chrono>
 #include <cmath>
+#include <condition_variable>
 #include <cstdint>
+#include <cstdlib>
 #include <limits>
+#include <memory>
+#include <mutex>
 #include <numeric>
+#include <optional>
 #include <random>
 #include <span>
 #include <stdexcept>
+#include <string>
+#include <thread>
 #include <tuple>
 #include <unordered_map>
 #include <vector>
@@ -48,9 +57,151 @@
 #include <pybind11/stl.h>
 
 namespace py = pybind11;
+using namespace pybind11::literals;
 
 typedef int64_t i64;
 typedef uint64_t u64;
+
+namespace {
+
+/**
+ * Background thread that polls a counter and acquires the GIL periodically
+ * to update a tqdm progress bar. Completes once the counter reaches total,
+ * or once finish() is called (e.g., if total is not known in advance).
+ *
+ * Adapted from _build_tree_searchtable_cpp_impl.cpp.
+ *
+ * Must be constructed while the GIL is held. Call join() with the GIL
+ * released to avoid deadlock with the thread's gil_scoped_acquire.
+ */
+struct ProgressPoller {
+
+  ProgressPoller(py::object pbar, const u64 total)
+    : pbar(std::move(pbar)), total(total),
+      updating_thread(&ProgressPoller::run, this) {
+    if (const char *s = std::getenv("TQDM_MININTERVAL")) {
+      this->wait_period = std::chrono::duration<double>{std::stod(std::string{s})};
+    } else {
+      this->wait_period = std::chrono::duration<double>{10.};
+    }
+  }
+
+  ~ProgressPoller() {
+    if (updating_thread.joinable()) updating_thread.join();
+  }
+
+  void increment(const u64 n = 1) {
+    u64 prev = n_iterations.fetch_add(n, std::memory_order_release);
+    if (prev + n >= total) cv.notify_one();
+  }
+
+  void finish() {
+    finished.store(true, std::memory_order_release);
+    cv.notify_one();
+  }
+
+  void join() { updating_thread.join(); }
+
+  /** Close the progress bar; call with the GIL held, after join(). */
+  void close() { pbar.attr("close")(); }
+
+private:
+
+  py::object pbar;
+  u64 total;
+  std::atomic<u64> n_iterations{};
+  std::atomic<bool> finished{false};
+  std::mutex mutex;
+  std::condition_variable cv;
+  std::thread updating_thread;
+  std::chrono::duration<double> wait_period;
+
+  bool done() const {
+    return finished.load(std::memory_order_acquire)
+      || n_iterations.load(std::memory_order_acquire) >= total;
+  }
+
+  void run() {
+    u64 prev = 0;
+    while (true) {
+      {
+        std::unique_lock<std::mutex> lock(mutex);
+        cv.wait_for(lock, this->wait_period, [this]() { return done(); });
+      }
+      const bool is_done = done();
+      u64 cur = n_iterations.load(std::memory_order_acquire);
+      {
+        py::gil_scoped_acquire acquire;
+        pbar.attr("update")(cur - prev);
+      }
+      prev = cur;
+      if (is_done) break;
+    }
+  }
+};
+
+/**
+ * Successive progress bars for the substeps of a computation that runs with
+ * the GIL released. Each substep is logged and gets its own tqdm progress
+ * bar, constructed from progress_ctor with a description and total (None if
+ * not known in advance).
+ *
+ * Must be constructed while the GIL is held and used while it is released.
+ */
+struct Substeps {
+
+  Substeps(const py::handle &progress_ctor, std::string name)
+    : progress_ctor(progress_ctor), name(std::move(name)) {}
+
+  ~Substeps() { end(); }
+
+  /** Begin a substep, ending any previous one. */
+  void begin(const std::string &desc, const std::optional<u64> total = std::nullopt) {
+    end();
+    py::gil_scoped_acquire acquire;
+    py::module::import("logging").attr("info")(
+      py::str("{} {} begin").format(name, desc)
+    );
+    py::object total_arg = total ? py::object(py::int_(*total)) : py::object(py::none());
+    poller = std::make_unique<ProgressPoller>(
+      progress_ctor("total"_a=total_arg, "desc"_a=py::str("{} {}").format(name, desc)),
+      total.value_or(std::numeric_limits<u64>::max())
+    );
+    current = desc;
+  }
+
+  void step(const u64 n = 1) {
+    if (poller) poller->increment(n);
+  }
+
+  /** End the current substep, if any. */
+  void end() {
+    if (!poller) return;
+    poller->finish();
+    poller->join();
+    py::gil_scoped_acquire acquire;
+    poller->close();
+    poller.reset();
+    py::module::import("logging").attr("info")(
+      py::str("{} {} complete").format(name, current)
+    );
+  }
+
+  /** Log a message, prefixed by the computation's name. */
+  void log(const std::string &msg) const {
+    py::gil_scoped_acquire acquire;
+    py::module::import("logging").attr("info")(py::str("{} {}").format(name, msg));
+  }
+
+private:
+
+  py::handle progress_ctor;
+  std::string name;
+  std::string current;
+  std::unique_ptr<ProgressPoller> poller;
+};
+
+}  // namespace
 
 namespace {
 
@@ -504,7 +655,7 @@ struct ListTrie {
 /** Each object's top-k closest distinct partners, deepest trie groups first. */
 std::vector<std::vector<int>> find_candidates(
   const Tips &tips, const Estimator &est, const Objects &ob, const int k, const int pool_size,
-  i64 &pool_pairs
+  i64 &pool_pairs, Substeps &substeps
 ) {
   const i64 m = ob.rep.size();
   std::vector<int> order(m);
@@ -517,6 +668,7 @@ std::vector<std::vector<int>> find_candidates(
   std::vector<int> chosen;
   std::vector<std::pair<double, int>> scored;
   for (const int o : order) {
+    substeps.step();
     const i64 b = ob.rep[o];
     const auto ranks = tips.ranks_of(b);
     const auto diffs = tips.diffs_of(b);
@@ -591,7 +743,10 @@ struct Link {
 /** Pool inverted parent/child blocks (child time below parent's), weighted
  *  by w; nodes with w <= 0 are left as is. Keeps the w-weighted total of
  *  times. Returns the number of block merges. */
-i64 pool_inversions_impl(const i64 n, const i64 *parent, double *time, const double *w) {
+template <typename F>
+i64 pool_inversions_impl(
+  const i64 n, const i64 *parent, double *time, const double *w, F &&on_pass
+) {
   std::vector<i64> block(n);
   std::iota(block.begin(), block.end(), 0);
   std::vector<double> wsum(w, w + n), tsum(n, 0.0);
@@ -609,6 +764,7 @@ i64 pool_inversions_impl(const i64 n, const i64 *parent, double *time, const dou
   i64 merges = 0;
   bool changed = true;
   while (changed) {
+    on_pass();
     changed = false;
     for (i64 u = 0; u < n; ++u) {
       const i64 p = parent[u];
@@ -634,9 +790,11 @@ i64 pool_inversions_impl(const i64 n, const i64 *parent, double *time, const dou
  *  topologically sorted, with each ancestor before its descendants. */
 void cross_pair_sums_impl(
   const i64 n_nodes, const i64 *anc, const i64 *rank, const i64 *tip_of_node,
-  const Tips &tips, const Estimator &est, double *out_sums, i64 *out_counts
+  const Tips &tips, const Estimator &est, double *out_sums, i64 *out_counts,
+  Substeps &substeps
 ) {
   const Tree tree(n_nodes, anc, tip_of_node);
+  substeps.begin("sweeping trie nodes", n_nodes);
   // all-pairs totals: swept at branching nodes, zero at leaves, and
   // inherited through single-child nodes (children have larger ids)
   std::vector<double> all_sum(n_nodes, 0.0);
@@ -644,6 +802,7 @@ void cross_pair_sums_impl(
   LocalTrie trie;
   std::vector<std::pair<i64, i64>> order;
   for (i64 w = n_nodes - 1; w >= 0; --w) {
+    substeps.step();
     const auto kids = tree.kids(w);
     if (kids.size() >= 2) {
       sweep(tips, est, tree.tips_under(w), rank[w], trie, order, all_sum[w], all_count[w]);
@@ -667,7 +826,8 @@ void cross_pair_sums_impl(
  *  closer). Outputs tips 0..n-1 and merges n..2n-2, parents after children;
  *  the root is its own parent. */
 void brute_upgma_impl(
-  const i64 n, const Tips &tips, const Estimator &est, i64 *out_parent, double *out_time
+  const i64 n, const Tips &tips, const Estimator &est, i64 *out_parent, double *out_time,
+  Substeps &substeps
 ) {
   for (i64 v = 0; v < 2 * n - 1; ++v) {
     out_parent[v] = v;
@@ -675,11 +835,14 @@ void brute_upgma_impl(
   }
   if (n < 2) return;
   std::vector<double> D((size_t)n * n, 0.0);
+  substeps.begin("calculating pairwise estimates", (u64)n * (n - 1) / 2);
   for (i64 a = 0; a < n; ++a) {
     for (i64 b = a + 1; b < n; ++b) {
       D[a * n + b] = D[b * n + a] = pair_estimate(tips, est, a, b);
     }
+    substeps.step(n - 1 - a);
   }
+  substeps.begin("merging clusters", n - 1);
   std::vector<double> size(n, 1.0);
   std::vector<i64> node_of(n);
   std::iota(node_of.begin(), node_of.end(), 0);
@@ -721,7 +884,9 @@ void brute_upgma_impl(
     alive[B] = 0;
     node_of[A] = u;
     --n_alive;
+    substeps.step();
   }
+  substeps.end();
 }
 
 void scaffold_upgma_impl(
@@ -733,8 +898,9 @@ void scaffold_upgma_impl(
   i64 *out_parent,  // length 2 n_tips; tips are 0..n-1; parents have larger ids
   double *out_time,  // node times (NaN for tips)
   i64 *out_n_nodes,  // number of nodes used
-  i64 *out_stats  // [objects, pool pairs, candidate pairs, direct pairs, sampled,
-                  //  height sweeps, sweep work, fallbacks, inversions, pool merges]
+  i64 *out_stats,  // [objects, pool pairs, candidate pairs, direct pairs, sampled,
+                   //  height sweeps, sweep work, fallbacks, inversions, pool merges]
+  Substeps &substeps
 ) {
   const Tips tips{tip_T, tip_off, tip_ranks, tip_diffs};
   const Estimator est{p, t0};
@@ -747,9 +913,12 @@ void scaffold_upgma_impl(
   *out_n_nodes = n;
   if (n < 2) return;
 
+  substeps.begin("deduplicating genomes");
   const Objects ob = deduplicate(tips, n);
   const i64 m = ob.rep.size();
   out_stats[0] = m;
+  substeps.end();
+  substeps.log(std::to_string(m) + " distinct genomes among " + std::to_string(n));
 
   // output ids: tips 0..n-1, then count - 1 nodes per object with count >= 2,
   // then cluster merges; node_of[cluster] is its output node
@@ -780,7 +949,8 @@ void scaffold_upgma_impl(
   }
 
   i64 pool_pairs = 0;
-  auto nbrs = find_candidates(tips, est, ob, (int)k, (int)pool_size, pool_pairs);
+  substeps.begin("finding candidate neighbors", m);
+  auto nbrs = find_candidates(tips, est, ob, (int)k, (int)pool_size, pool_pairs, substeps);
   out_stats[1] = pool_pairs;
 
   std::mt19937_64 rng(seed);
@@ -796,6 +966,7 @@ void scaffold_upgma_impl(
     size[o] = ob.count[o];
     owner[o] = o;
   }
+  substeps.begin("calculating candidate pairwise estimates", m);
   for (int i = 0; i < m; ++i) {
     for (const int j : nbrs[i]) {
       if (i < j) {
@@ -804,6 +975,7 @@ void scaffold_upgma_impl(
         ++out_stats[2];
       }
     }
+    substeps.step();
   }
   std::vector<std::vector<int>>().swap(nbrs);
 
@@ -871,6 +1043,7 @@ void scaffold_upgma_impl(
     pos[chain.back()] = -1;
     chain.pop_back();
   };
+  substeps.begin("merging clusters", m - 1);
   while (n_alive > 1) {
     if (chain.empty()) {
       while (!alive[scan]) ++scan;
@@ -960,6 +1133,7 @@ void scaffold_upgma_impl(
       alive[A] = alive[B] = 0;
       alive[U] = 1;
       --n_alive;
+      substeps.step();
     } else if (pos[best] >= 0) {
       while (chain.back() != best) pop();
       push(X);
@@ -992,7 +1166,9 @@ void scaffold_upgma_impl(
   // merge's height is, so a sampled merge needs one sweep of A u B only
   std::vector<double> all_sum(n_clusters, 0.0);
   std::vector<i64> both;
+  substeps.begin("calculating exact heights", m - 1);
   for (i64 U = m; U < n_clusters; ++U) {  // children have smaller ids
+    substeps.step();
     const int A = kid1[U], B = kid2[U];
     const double pairs = size[A] * size[B];
     if (sampled_merge[U]) {
@@ -1021,7 +1197,11 @@ void scaffold_upgma_impl(
   for (i64 u = n; u < root; ++u) {
     if (out_time[u] < out_time[out_parent[u]]) ++out_stats[8];
   }
-  out_stats[9] = pool_inversions_impl(n_out, out_parent, out_time, w.data());
+  substeps.begin("pooling inversions (passes)");
+  out_stats[9] = pool_inversions_impl(
+    n_out, out_parent, out_time, w.data(), [&]() { substeps.step(); }
+  );
+  substeps.end();
 }
 
 /** CSR tip data, checked and held for the duration of a call. */
@@ -1054,7 +1234,8 @@ PYBIND11_MODULE(_origin_time_cpp_impl, m) {
     "cross_pair_sums",
     [](const i64_array &ancestor_ids, const i64_array &ranks, const i64_array &tip_of_node,
        const i64_array &tip_T, const i64_array &tip_off, const i64_array &tip_ranks,
-       const u64_array &tip_diffs, const double p, const double t0) {
+       const u64_array &tip_diffs, const double p, const double t0,
+       const py::handle &progress_ctor) {
       const TipArrays ta{tip_T, tip_off, tip_ranks, tip_diffs};
       ta.check();
       const i64 n = ancestor_ids.size();
@@ -1068,21 +1249,30 @@ PYBIND11_MODULE(_origin_time_cpp_impl, m) {
       }
       f64_array sums(n);
       i64_array counts(n);
+      py::module::import("logging").attr("info")(
+        py::str("cross pair sums cpp begin, {} trie nodes and {} tips").format(n, ta.n())
+      );
       {
+        Substeps substeps{progress_ctor, "cross pair sums cpp"};
         py::gil_scoped_release release;
         cross_pair_sums_impl(n, ancestor_ids.data(), ranks.data(), tip_of_node.data(), ta.view(),
-                             Estimator{p, t0}, sums.mutable_data(), counts.mutable_data());
+                             Estimator{p, t0}, sums.mutable_data(), counts.mutable_data(),
+                             substeps);
+        substeps.end();
       }
+      py::module::import("logging").attr("info")("cross pair sums cpp complete");
       return std::make_tuple(sums, counts);
     },
     py::arg("ancestor_ids"), py::arg("ranks"), py::arg("tip_of_node"), py::arg("tip_T"),
     py::arg("tip_off"), py::arg("tip_ranks"), py::arg("tip_diffs"), py::arg("p"), py::arg("t0"),
+    py::arg("progress_bar"),
     R"(Per-node sums and counts of pairwise estimates over cross-child tip pairs.)"
   );
 
   m.def(
     "pool_inversions",
-    [](const i64_array &ancestor_ids, const f64_array &times, const f64_array &weights) {
+    [](const i64_array &ancestor_ids, const f64_array &times, const f64_array &weights,
+       const py::handle &progress_ctor) {
       const i64 n = ancestor_ids.size();
       if (times.size() != n || weights.size() != n) throw std::invalid_argument("arrays differ in length");
       for (i64 v = 0; v < n; ++v) {
@@ -1090,10 +1280,26 @@ PYBIND11_MODULE(_origin_time_cpp_impl, m) {
       }
       f64_array out(n);
       std::copy(times.data(), times.data() + n, out.mutable_data());
-      const i64 merges = pool_inversions_impl(n, ancestor_ids.data(), out.mutable_data(), weights.data());
+      py::module::import("logging").attr("info")(
+        py::str("pool inversions cpp begin, {} nodes").format(n)
+      );
+      i64 merges;
+      {
+        Substeps substeps{progress_ctor, "pool inversions cpp"};
+        py::gil_scoped_release release;
+        substeps.begin("pooling (passes)");
+        merges = pool_inversions_impl(
+          n, ancestor_ids.data(), out.mutable_data(), weights.data(),
+          [&]() { substeps.step(); }
+        );
+        substeps.end();
+      }
+      py::module::import("logging").attr("info")(
+        py::str("pool inversions cpp complete, {} block merges").format(merges)
+      );
       return std::make_tuple(out, merges);
     },
-    py::arg("ancestor_ids"), py::arg("times"), py::arg("weights"),
+    py::arg("ancestor_ids"), py::arg("times"), py::arg("weights"), py::arg("progress_bar"),
     R"(Pool inverted parent/child time blocks, keeping weighted totals.)"
   );
 
@@ -1102,7 +1308,8 @@ PYBIND11_MODULE(_origin_time_cpp_impl, m) {
     [](const i64_array &tip_T, const i64_array &tip_off, const i64_array &tip_ranks,
        const u64_array &tip_diffs, const double p, const double t0,
        const i64_array &trie_ancestor_ids, const i64_array &trie_tip_of_node, const i64 k,
-       const i64 pool_size, const i64 n_samples, const i64 direct_max, const u64 seed) {
+       const i64 pool_size, const i64 n_samples, const i64 direct_max, const u64 seed,
+       const py::handle &progress_ctor) {
       const TipArrays ta{tip_T, tip_off, tip_ranks, tip_diffs};
       ta.check();
       const i64 n = ta.n(), n_trie = trie_ancestor_ids.size();
@@ -1121,13 +1328,21 @@ PYBIND11_MODULE(_origin_time_cpp_impl, m) {
       std::vector<double> time(std::max<i64>(2 * n, 1));
       i64 n_nodes = 0;
       std::vector<i64> stats(10, 0);
+      py::module::import("logging").attr("info")(
+        py::str("scaffold upgma cpp begin, {} tips and {} trie nodes").format(n, n_trie)
+      );
       {
+        Substeps substeps{progress_ctor, "scaffold upgma cpp"};
         py::gil_scoped_release release;
         scaffold_upgma_impl(n, ta.T.data(), ta.off.data(), ta.ranks.data(), ta.diffs.data(), p, t0,
                             n_trie, trie_ancestor_ids.data(), trie_tip_of_node.data(), k, pool_size,
                             n_samples, direct_max, seed, parent.data(), time.data(), &n_nodes,
-                            stats.data());
+                            stats.data(), substeps);
+        substeps.end();
       }
+      py::module::import("logging").attr("info")(
+        py::str("scaffold upgma cpp complete, {} nodes").format(n_nodes)
+      );
       i64_array out_parent(n_nodes);
       f64_array out_time(n_nodes);
       std::copy(parent.begin(), parent.begin() + n_nodes, out_parent.mutable_data());
@@ -1142,27 +1357,35 @@ PYBIND11_MODULE(_origin_time_cpp_impl, m) {
     py::arg("tip_T"), py::arg("tip_off"), py::arg("tip_ranks"), py::arg("tip_diffs"), py::arg("p"),
     py::arg("t0"), py::arg("trie_ancestor_ids"), py::arg("trie_tip_of_node"), py::arg("k") = 5,
     py::arg("pool_size") = 10, py::arg("n_samples") = 64, py::arg("direct_max") = 64,
-    py::arg("seed") = 1,
+    py::arg("seed") = 1, py::arg("progress_bar"),
     R"(Scaffold average-linkage UPGMA over tips; returns (parent, time, stats).)"
   );
 
   m.def(
     "brute_upgma",
     [](const i64_array &tip_T, const i64_array &tip_off, const i64_array &tip_ranks,
-       const u64_array &tip_diffs, const double p, const double t0) {
+       const u64_array &tip_diffs, const double p, const double t0,
+       const py::handle &progress_ctor) {
       const TipArrays ta{tip_T, tip_off, tip_ranks, tip_diffs};
       ta.check();
       const i64 n = ta.n(), n_out = std::max<i64>(2 * n - 1, 0);
       i64_array parent(n_out);
       f64_array time(n_out);
+      py::module::import("logging").attr("info")(
+        py::str("brute upgma cpp begin, {} tips").format(n)
+      );
       if (n > 0) {
+        Substeps substeps{progress_ctor, "brute upgma cpp"};
         py::gil_scoped_release release;
-        brute_upgma_impl(n, ta.view(), Estimator{p, t0}, parent.mutable_data(), time.mutable_data());
+        brute_upgma_impl(n, ta.view(), Estimator{p, t0}, parent.mutable_data(), time.mutable_data(),
+                         substeps);
+        substeps.end();
       }
+      py::module::import("logging").attr("info")("brute upgma cpp complete");
       return std::make_tuple(parent, time);
     },
     py::arg("tip_T"), py::arg("tip_off"), py::arg("tip_ranks"), py::arg("tip_diffs"), py::arg("p"),
-    py::arg("t0"),
+    py::arg("t0"), py::arg("progress_bar"),
     R"(Average-linkage UPGMA over all pairwise estimates; returns (parent, time).)"
   );
 

@@ -2,8 +2,13 @@ import logging
 import typing
 
 import polars as pl
+import tqdm
 
-from ..._auxiliary_lib import warn_experimental
+from ..._auxiliary_lib import (
+    log_context_duration,
+    log_memory_usage,
+    warn_experimental,
+)
 from ...phylogenetic_inference.tree.trie_postprocess import (
     NopTriePostprocessor,
 )
@@ -116,7 +121,9 @@ def surface_build_tree(
         )
 
         logging.info("surface_build_tree running brute_upgma...")
-        parent, time = brute_upgma(*tips_cpp_args(tips))
+        with log_context_duration("brute_upgma", logging.info):
+            parent, time = brute_upgma(*tips_cpp_args(tips), tqdm.tqdm)
+        log_memory_usage(logging.info)
 
     logging.info("surface_build_tree running assemble_tip_tree...")
     df = assemble_tip_tree(
