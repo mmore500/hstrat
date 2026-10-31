@@ -4,7 +4,7 @@ import numpy as np
 import polars as pl
 from tqdm import tqdm
 
-from hstrat.dataframe._surface_unpack_reconstruct import _dump_records
+from hstrat.dataframe._impl._surface_unpack_reconstruct import _dump_records
 from hstrat.phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
     Records,
     check_trie_invariant_ancestor_bounds,

@@ -10,14 +10,16 @@ from phyloframe import legacy as pfl
 import polars as pl
 from tqdm import tqdm
 
-from .._auxiliary_lib import (
+from ..._auxiliary_lib import (
     get_sole_scalar_value_polars,
     is_in_unit_test,
     log_context_duration,
     log_memory_usage,
     render_polars_snapshot,
 )
-from ..phylogenetic_inference.tree.trie_postprocess import NopTriePostprocessor
+from ...phylogenetic_inference.tree.trie_postprocess import (
+    NopTriePostprocessor,
+)
 from ._surface_postprocess_trie_via_pandas import (
     _surface_postprocess_trie_via_pandas,
 )
@@ -79,6 +81,9 @@ def _do_delete_trunk(
 
     with log_context_duration("get_sole_scalar_value_polars", logging.info):
         dstream_S = get_sole_scalar_value_polars(df, "dstream_S")
+        differentia_bitwidth = get_sole_scalar_value_polars(
+            df, "hstrat_differentia_bitwidth"
+        )
 
     df = df.with_columns(
         is_trunk=pl.col("dstream_rank") < dstream_S - 1,
@@ -105,6 +110,12 @@ def _do_delete_trunk(
         df = pfl.alifestd_prefix_roots_polars(
             df, allow_id_reassign=True, origin_time=dstream_S
         )
+    # prefixed roots sit at dstream_S boundary
+    df = df.with_columns(
+        pl.col("dstream_rank").fill_null(dstream_S),
+        pl.col("dstream_S").fill_null(dstream_S),
+        pl.col("hstrat_differentia_bitwidth").fill_null(differentia_bitwidth),
+    )
 
     gc.collect()
 
@@ -139,7 +150,15 @@ def _validate_against_via_pandas(func: typing.Callable) -> typing.Callable:
             warnings.warn(
                 "CI environment detected, performing extra validation tests",
             )
-            expected = _surface_postprocess_trie_via_pandas(*args, **kwargs)
+            try:
+                expected = _surface_postprocess_trie_via_pandas(
+                    *args, **kwargs
+                )
+            except NotImplementedError as e:
+                warnings.warn(
+                    f"pandas support not implemented, skipping validation: {e}",
+                )
+                return result
             # convert to pandas to avoid Polars StringCache issues
             pdt.assert_frame_equal(
                 result.to_pandas(),

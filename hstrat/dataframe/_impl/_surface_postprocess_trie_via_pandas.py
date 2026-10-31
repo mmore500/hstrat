@@ -7,14 +7,16 @@ from phyloframe import legacy as pfl
 import polars as pl
 from tqdm import tqdm
 
-from .._auxiliary_lib import (
+from ..._auxiliary_lib import (
     get_sole_scalar_value_polars,
     log_context_duration,
     log_memory_usage,
     render_pandas_snapshot,
     render_polars_snapshot,
 )
-from ..phylogenetic_inference.tree.trie_postprocess import NopTriePostprocessor
+from ...phylogenetic_inference.tree.trie_postprocess import (
+    NopTriePostprocessor,
+)
 
 
 def _apply_empty_output_schema_pandas(
@@ -89,11 +91,21 @@ def _do_delete_trunk(
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
         df = pfl.alifestd_assign_contiguous_ids(df, mutate=True)
 
+    fill_values = {
+        "dstream_rank": dstream_S,
+        "dstream_S": dstream_S,
+        "hstrat_differentia_bitwidth": (
+            df["hstrat_differentia_bitwidth"].unique().squeeze()
+        ),
+    }
+    dtypes = df[[*fill_values]].dtypes
     with log_context_duration("alifestd_prefix_roots", logging.info):
         # extend newly-clipped roots all the way back to dstream_S boundary
         df = pfl.alifestd_prefix_roots(
             df, allow_id_reassign=True, origin_time=dstream_S, mutate=True
         )
+    # prefixed roots sit at dstream_S boundary
+    df = df.fillna(fill_values).astype(dtypes.to_dict())
 
     del df["is_trunk"]
     del df["ancestor_is_trunk"]

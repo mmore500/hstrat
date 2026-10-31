@@ -228,7 +228,7 @@ pathspec==1.1.1
     # via black
 patsy==1.0.3
     # via statsmodels
-phyloframe==0.10.3
+phyloframe==0.15.0
     # via hstrat (../../pyproject.toml)
 phylotrackpy==0.2.4
     # via hstrat (../../pyproject.toml)

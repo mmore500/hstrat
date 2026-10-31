@@ -12,7 +12,7 @@ import polars as pl
 import pyarrow as pa
 import tqdm
 
-from .._auxiliary_lib import (
+from ..._auxiliary_lib import (
     configure_prod_logging,
     get_sole_scalar_value_polars,
     give_len,
@@ -21,7 +21,7 @@ from .._auxiliary_lib import (
     log_memory_usage,
     render_polars_snapshot,
 )
-from ..phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
+from ...phylogenetic_inference.tree._impl._build_tree_searchtable_cpp_impl_stub import (
     Records,
     check_trie_invariant_ancestor_bounds,
     check_trie_invariant_chronologically_sorted,
