@@ -40,7 +40,6 @@ from priors import (
 from tree import (
     AssignDestructionTimeYoungestPlusOneTriePostprocessor,
     AssignOriginTimeExpectedValueTriePostprocessor,
-    AssignOriginTimeUnbiasedSurfPostprocessor,
     AssignOriginTimeNaiveTriePostprocessor,
     AssignOriginTimeNodeRankTriePostprocessor,
     AssignOriginTimeSampleNaiveTriePostprocessor,
@@ -107,7 +106,6 @@ __all__ = [
     "trie_postprocess",
     "AssignDestructionTimeYoungestPlusOneTriePostprocessor",
     "AssignOriginTimeExpectedValueTriePostprocessor",
-    "AssignOriginTimeUnbiasedSurfPostprocessor",
     "AssignOriginTimeNaiveTriePostprocessor",
     "AssignOriginTimeNodeRankTriePostprocessor",
     "AssignOriginTimeSampleNaiveTriePostprocessor",
