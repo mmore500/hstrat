@@ -1,4 +1,3 @@
-from . import build_trie
 from .build_trie import (
     surface_build_tree,
     surface_build_tree_over,
@@ -10,7 +9,6 @@ from .build_trie import (
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
-    "build_trie",
     "surface_build_tree",
     "surface_build_tree_over",
     "surface_postprocess_trie",
