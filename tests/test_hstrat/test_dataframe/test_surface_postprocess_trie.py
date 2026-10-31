@@ -11,7 +11,6 @@ from hstrat.dataframe import (
     surface_unpack_reconstruct,
 )
 from hstrat.phylogenetic_inference.tree.trie_postprocess import (
-    AssignOriginTimeGeometricTriePostprocessor,
     AssignOriginTimeNodeRankTriePostprocessor,
 )
 
@@ -33,34 +32,6 @@ def test_smoke():
         pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
     )
     assert pfl.alifestd_is_chronologically_ordered(res.to_pandas())
-
-
-def test_smoke_unbiased():
-    df = pl.read_csv(f"{assets_path}/packed.csv")
-    raw = surface_unpack_reconstruct(df)
-    res = surface_postprocess_trie(
-        raw,
-        trie_postprocessor=AssignOriginTimeGeometricTriePostprocessor(
-            "dstream.steady_algo",
-        ),
-    )
-    assert "origin_time" in res.columns
-    assert pfl.alifestd_validate(
-        pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
-    )
-
-    naive = surface_postprocess_trie(
-        raw,
-        trie_postprocessor=AssignOriginTimeNodeRankTriePostprocessor(
-            t0="dstream_S",
-        ),
-    )
-    # collision correction should not make estimates more recent than
-    # last shared rank, on average
-    assert (
-        res["origin_time"].drop_nulls().mean()
-        <= naive["origin_time"].drop_nulls().mean() + 1
-    )
 
 
 def test_dstream_rank_in_unpack_reconstruct():

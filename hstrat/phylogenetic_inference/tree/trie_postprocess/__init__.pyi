@@ -4,9 +4,6 @@ from ._AssignDestructionTimeYoungestPlusOneTriePostprocessor import (
 from ._AssignOriginTimeExpectedValueTriePostprocessor import (
     AssignOriginTimeExpectedValueTriePostprocessor,
 )
-from ._AssignOriginTimeGeometricTriePostprocessor import (
-    AssignOriginTimeGeometricTriePostprocessor,
-)
 from ._AssignOriginTimeNaiveTriePostprocessor import (
     AssignOriginTimeNaiveTriePostprocessor,
 )
@@ -29,7 +26,6 @@ from ._SampleAncestralRollbacksTriePostprocessor import (
 __all__ = [
     "AssignDestructionTimeYoungestPlusOneTriePostprocessor",
     "AssignOriginTimeExpectedValueTriePostprocessor",
-    "AssignOriginTimeGeometricTriePostprocessor",
     "AssignOriginTimeNaiveTriePostprocessor",
     "AssignOriginTimeNodeRankTriePostprocessor",
     "AssignOriginTimeSampleNaiveTriePostprocessor",
