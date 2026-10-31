@@ -84,6 +84,15 @@ jobs:
         python3 -m hstrat.dataframe.surface_build_tree --help
         python3 -m hstrat.dataframe.surface_unpack_reconstruct --help
         python3 -m hstrat.dataframe.surface_postprocess_trie --help
+        python3 -m hstrat.dataframe.build_trie.surface_build_tree --help
+        python3 -m hstrat.dataframe.build_trie.surface_build_tree_over --help
+        python3 -m hstrat.dataframe.build_trie.surface_unpack_reconstruct --help
+        python3 -m hstrat.dataframe.build_trie.surface_postprocess_trie --help
+        python3 -m hstrat.dataframe.build_trie.surface_test_drive --help
+        python3 -m hstrat.dataframe.build_trie.surface_validate_trie --help
+        python3 -m hstrat.dataframe.build_trie_crosspair.surface_build_tree --help
+        python3 -m hstrat.dataframe.build_trie_upgma.surface_build_tree --help
+        python3 -m hstrat.dataframe.build_brute_upgma.surface_build_tree --help
         python3 -m hstrat._auxiliary_lib._alifestd_as_newick_asexual --help
         python3 -m hstrat._auxiliary_lib._alifestd_downsample_tips_asexual --help
         python3 -m hstrat._auxiliary_lib._alifestd_try_add_ancestor_list_col --help
