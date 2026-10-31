@@ -4,6 +4,7 @@ import typing
 from phyloframe import legacy as pfl
 import polars as pl
 
+from ..._auxiliary_lib import warn_experimental
 from ...phylogenetic_inference.tree.trie_postprocess import (
     NopTriePostprocessor,
 )
@@ -18,6 +19,7 @@ from .._impl._surface_explode_tips import (
 )
 
 
+@warn_experimental
 def surface_build_tree(
     df: pl.DataFrame,
     *,

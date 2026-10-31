@@ -4,6 +4,7 @@ from ._AnyTreeFastLevelOrderIter import AnyTreeFastLevelOrderIter
 from ._AnyTreeFastPostOrderIter import AnyTreeFastPostOrderIter
 from ._AnyTreeFastPreOrderIter import AnyTreeFastPreOrderIter
 from ._BioPhyloTree import BioPhyloTree
+from ._ExperimentalWarning import ExperimentalWarning
 from ._CopyableSeriesItemsIter import CopyableSeriesItemsIter
 from ._GetAttrLaunderShim import GetAttrLaunderShim
 from ._HereditaryStratigraphicArtifact import HereditaryStratigraphicArtifact
@@ -496,6 +497,7 @@ from ._unfurl_lineage_with_contiguous_ids import (
 )
 from ._unpairwise import unpairwise
 from ._unzip import unzip
+from ._warn_experimental import warn_experimental
 from ._warn_once import warn_once
 from ._with_omission import with_omission
 from ._with_rng_state_context import with_rng_state_context
@@ -685,6 +687,7 @@ __all__ = [
     "AnyTreeFastPostOrderIter",
     "begin_prod_logging",
     "BioPhyloTree",
+    "ExperimentalWarning",
     "bit_ceil",
     "bit_drop_msb",
     "bit_floor",
@@ -800,6 +803,7 @@ __all__ = [
     "unfurl_lineage_with_contiguous_ids",
     "unpairwise",
     "unzip",
+    "warn_experimental",
     "warn_once",
     "with_omission",
     "with_rng_state_context",
