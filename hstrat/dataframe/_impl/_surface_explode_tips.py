@@ -9,6 +9,7 @@ from ..._auxiliary_lib import (
     get_sole_scalar_value_polars,
     iter_slices,
     log_context_duration,
+    log_memory_usage,
 )
 from ._surface_unpack_reconstruct import (
     _make_exploded_slice,
@@ -125,16 +126,22 @@ def surface_explode_tips(
         )
     differentia_bitwidth = dstream_storage_bitwidth // dstream_S
 
+    logging.info(f" - dstream S: {dstream_S}")
+    logging.info(f" - differentia bitwidth: {differentia_bitwidth}")
+
     df = _prepare_df_for_explosion(df, mp_context, mp_pool_size)
     cols = ("dstream_data_id", "dstream_T", "dstream_Tbar", "dstream_value")
     parts = {col: [] for col in cols}
-    for row_slice in iter_slices(len(df), exploded_slice_size):
+    slices = [*iter_slices(len(df), exploded_slice_size)]
+    for i, row_slice in enumerate(slices):
+        logging.info(f"exploding slice {i + 1} / {len(slices)}...")
         long_df = _make_exploded_slice(
             df_slice=df[row_slice], row_slice_log=row_slice
         )
         for col in cols:
             parts[col].append(long_df[col].to_numpy())
         del long_df
+        log_memory_usage(logging.info)
 
     with log_context_duration("assembling tip arrays", logging.info):
         data_id, T, Tbar, value = (
@@ -153,6 +160,10 @@ def surface_explode_tips(
             )
         off = np.append(starts, len(data_id)).astype(np.int64)
 
+    logging.info(
+        f"surface_explode_tips complete, {len(starts)} tips "
+        f"with {len(data_id)} retained strata",
+    )
     return SurfaceTips(
         data_id=data_id[starts].astype(np.uint64),
         T=T[starts].astype(np.int64),

@@ -1,10 +1,17 @@
+import logging
 import typing
 
 import numpy as np
 import pandas as pd
 from phyloframe import legacy as pfl
 import polars as pl
+import tqdm
 
+from ..._auxiliary_lib import (
+    log_context_duration,
+    log_memory_usage,
+    render_polars_snapshot,
+)
 from ...phylogenetic_inference.tree._impl import TrieInnerNode
 from ...phylogenetic_inference.tree.trie_postprocess._detail import (
     TriePostprocessorBase,
@@ -30,16 +37,24 @@ def attach_cross_pair_sums(
         raise NotImplementedError("non-contiguous ids not supported")
     if not pfl.alifestd_is_topologically_sorted_polars(trie):
         raise NotImplementedError("non-topologically-sorted not supported")
-    sums, counts = cross_pair_sums(
-        trie["ancestor_id"].cast(pl.Int64).to_numpy(),
-        trie["dstream_rank"].cast(pl.Int64).to_numpy(),
-        tips.tip_of_node(trie["dstream_data_id"]),
-        *tips_cpp_args(tips),
-    )
-    return trie.with_columns(
+    logging.info("beginning attach_cross_pair_sums")
+    with log_context_duration("tips.tip_of_node", logging.info):
+        tip_of_node = tips.tip_of_node(trie["dstream_data_id"])
+    with log_context_duration("cross_pair_sums", logging.info):
+        sums, counts = cross_pair_sums(
+            trie["ancestor_id"].cast(pl.Int64).to_numpy(),
+            trie["dstream_rank"].cast(pl.Int64).to_numpy(),
+            tip_of_node,
+            *tips_cpp_args(tips),
+            tqdm.tqdm,
+        )
+    log_memory_usage(logging.info)
+    trie = trie.with_columns(
         pl.Series(CROSS_PAIR_SUM, sums, dtype=pl.Float64),
         pl.Series(CROSS_PAIR_COUNT, counts, dtype=pl.Int64),
     )
+    render_polars_snapshot(trie, "with cross pair sums", logging.info)
+    return trie
 
 
 def _call_polars(
@@ -68,9 +83,11 @@ def _call_polars(
         arrays["rank"].to_numpy(),
     ).astype(np.float64)
     if ftor._pool_inversions:
-        times, __ = pool_inversions(
-            arrays["ancestor_id"].to_numpy(), times, counts
-        )
+        with log_context_duration("pool_inversions", logging.info):
+            times, num_merges = pool_inversions(
+                arrays["ancestor_id"].to_numpy(), times, counts, tqdm.tqdm
+            )
+        logging.info(f" - {num_merges} inversion pooling merges")
     return trie.with_columns(
         pl.Series(ftor._assigned_property, times, dtype=pl.Float64),
     )
