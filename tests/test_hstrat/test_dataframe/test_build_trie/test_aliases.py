@@ -18,7 +18,10 @@ from hstrat.dataframe import build_trie
     ],
 )
 def test_top_level_aliases(name: str):
-    assert getattr(dataframe, name) is getattr(build_trie, name)
+    # resolve via lazy loaders, as importing a same-named CLI submodule
+    # (e.g., in other tests) rebinds the package attribute to the module
+    assert dataframe.__getattr__(name) is build_trie.__getattr__(name)
+    assert callable(dataframe.__getattr__(name))
 
 
 @pytest.mark.parametrize(
