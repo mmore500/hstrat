@@ -46,6 +46,7 @@ from tree import (
     CompoundTriePostprocessor,
     NopTriePostprocessor,
     PeelBackConjoinedLeavesTriePostprocessor,
+    PipeCallablePostprocessor,
     SampleAncestralRollbacksTriePostprocessor,
     build_tree,
     build_tree_nj,
@@ -110,5 +111,6 @@ __all__ = [
     "CompoundTriePostprocessor",
     "NopTriePostprocessor",
     "PeelBackConjoinedLeavesTriePostprocessor",
+    "PipeCallablePostprocessor",
     "SampleAncestralRollbacksTriePostprocessor",
 ]

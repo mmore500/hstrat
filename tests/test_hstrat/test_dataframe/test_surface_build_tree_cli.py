@@ -167,3 +167,28 @@ def test_surface_build_tree_cli_parquet():
         input=f"{assets}/packed.csv".encode(),
     )
     assert os.path.exists(output_file)
+
+
+def test_surface_build_tree_cli_trie_postprocessor_namespace():
+    """CLI postprocessors are evaluated with hstrat, np, pf, and pl."""
+    output_file = "/tmp/hstrat_surface_build_tree_pipe.pqt"  # nosec B108
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    subprocess.run(  # nosec B603
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_build_tree",
+            output_file,
+            "--trie-postprocessor",
+            "hstrat.PipeCallablePostprocessor("
+            "lambda trie: trie.with_columns("
+            "foo=pl.lit(np.int64(7)),"
+            "pf_name=pl.lit(pf.__name__),"
+            "))",
+        ],
+        check=True,
+        input=f"{assets}/packed.csv".encode(),
+    )
+    df = pl.read_parquet(output_file)
+    assert (df["foo"] == 7).all()
+    assert (df["pf_name"] == "phyloframe").all()

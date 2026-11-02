@@ -84,8 +84,11 @@ def create_surface_build_tree_cli_parser(
             "Postprocessors are available to estimate taxon `origin_time`, "
             "apply topological corrections for systematic overestimation of "
             "relatedness, etc. "
-            "Will be `eval`-ed as Python code before use. "
-            "Must support Pandas dataframe input."
+            "Will be `eval`-ed as Python code before use, with `hstrat`, "
+            "`np` (numpy), `pf` (phyloframe), and `pl` (polars) available "
+            "(e.g., 'hstrat.PipeCallablePostprocessor(lambda trie: "
+            "trie.with_columns(foo=pl.lit(1)))'). "
+            "Must support Polars dataframe input."
         ),
     )
     parser.add_argument(

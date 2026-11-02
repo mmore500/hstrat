@@ -14,6 +14,7 @@ from .trie_postprocess import (
     CompoundTriePostprocessor,
     NopTriePostprocessor,
     PeelBackConjoinedLeavesTriePostprocessor,
+    PipeCallablePostprocessor,
     SampleAncestralRollbacksTriePostprocessor,
 )
 
@@ -33,5 +34,6 @@ __all__ = [
     "CompoundTriePostprocessor",
     "NopTriePostprocessor",
     "PeelBackConjoinedLeavesTriePostprocessor",
+    "PipeCallablePostprocessor",
     "SampleAncestralRollbacksTriePostprocessor",
 ]

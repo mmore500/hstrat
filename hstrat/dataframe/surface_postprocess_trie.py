@@ -6,7 +6,6 @@ import os
 import joinem
 from joinem._dataframe_cli import _add_parser_base, _run_dataframe_cli
 
-from .. import hstrat
 from .._auxiliary_lib import (
     add_bool_arg,
     begin_prod_logging,
@@ -14,6 +13,7 @@ from .._auxiliary_lib import (
     get_hstrat_version,
     log_context_duration,
 )
+from ._impl import eval_trie_postprocessor
 from ._surface_postprocess_trie import surface_postprocess_trie
 
 raw_message = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
@@ -127,8 +127,11 @@ def _create_parser() -> argparse.ArgumentParser:
             "Postprocessors are available to estimate taxon `origin_time`, "
             "apply topological corrections for systematic overestimation of "
             "relatedness, etc. "
-            "Will be `eval`-ed as Python code before use. "
-            "Must support Pandas dataframe input."
+            "Will be `eval`-ed as Python code before use, with `hstrat`, "
+            "`np` (numpy), `pf` (phyloframe), and `pl` (polars) available "
+            "(e.g., 'hstrat.PipeCallablePostprocessor(lambda trie: "
+            "trie.with_columns(foo=pl.lit(1)))'). "
+            "Must support Polars dataframe input."
         ),
     )
     parser.add_argument(
@@ -165,7 +168,7 @@ if __name__ == "__main__":
         "instantiating trie postprocess functor: "
         f"`{args.trie_postprocessor}`",
     )
-    trie_postprocessor = eval(args.trie_postprocessor, {"hstrat": hstrat})
+    trie_postprocessor = eval_trie_postprocessor(args.trie_postprocessor)
 
     with log_context_duration(
         "hstrat.dataframe.surface_postprocess_trie", logging.info
