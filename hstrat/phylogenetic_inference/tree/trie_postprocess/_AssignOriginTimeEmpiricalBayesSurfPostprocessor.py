@@ -42,17 +42,17 @@ def _calc_prior_moments(
     u1 = H - b + 1
     u2 = H - a + 1
     # exact closed forms at alpha = 0 (uniform), and at alpha = 1 and 2, where
-    # the general formula below divides by zero; special-case tolerance is
+    # the general formula below divides by zero; tolerance is
     # sqrt(float64 epsilon), balancing the general formula's cancellation error against
     # the special cases' error
-    special_case_tolerance = np.sqrt(np.finfo(np.float64).eps)
-    if abs(alpha) < special_case_tolerance:
+    tol = np.sqrt(np.finfo(np.float64).eps)
+    if abs(alpha) < tol:
         mass = u2 - u1
         mean_u = (u1 + u2) / 2
-    elif abs(alpha - 1) < special_case_tolerance:
+    elif abs(alpha - 1) < tol:
         mass = np.log(u2 / u1)
         mean_u = (u2 - u1) / mass
-    elif abs(alpha - 2) < special_case_tolerance:
+    elif abs(alpha - 2) < tol:
         mass = 1 / u1 - 1 / u2
         mean_u = np.log(u2 / u1) / mass
     else:
