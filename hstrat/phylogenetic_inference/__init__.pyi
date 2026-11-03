@@ -50,6 +50,7 @@ from tree import (
     PeelBackConjoinedLeavesTriePostprocessor,
     PipeCallablePostprocessor,
     SampleAncestralRollbacksTriePostprocessor,
+    SpliceChronologicalConsistencyTriePostprocessor,
     build_tree,
     build_tree_nj,
     build_tree_searchtable,
@@ -117,4 +118,5 @@ __all__ = [
     "PeelBackConjoinedLeavesTriePostprocessor",
     "PipeCallablePostprocessor",
     "SampleAncestralRollbacksTriePostprocessor",
+    "SpliceChronologicalConsistencyTriePostprocessor",
 ]

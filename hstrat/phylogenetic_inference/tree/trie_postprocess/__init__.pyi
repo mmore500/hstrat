@@ -28,6 +28,9 @@ from ._PipeCallablePostprocessor import PipeCallablePostprocessor
 from ._SampleAncestralRollbacksTriePostprocessor import (
     SampleAncestralRollbacksTriePostprocessor,
 )
+from ._SpliceChronologicalConsistencyTriePostprocessor import (
+    SpliceChronologicalConsistencyTriePostprocessor,
+)
 
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
@@ -43,4 +46,5 @@ __all__ = [
     "PeelBackConjoinedLeavesTriePostprocessor",
     "PipeCallablePostprocessor",
     "SampleAncestralRollbacksTriePostprocessor",
+    "SpliceChronologicalConsistencyTriePostprocessor",
 ]

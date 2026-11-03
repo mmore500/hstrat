@@ -166,7 +166,10 @@ class AssignOriginTimeUnbiasedSurfPostprocessor(TriePostprocessorBase):
     Estimates are unbiased on average, not individually: they may precede
     ancestors' estimates, giving negative branch lengths. Topology is left
     unchanged. For individual estimates bounded within their own and earlier
-    intervals, see `AssignOriginTimeEmpiricalBayesSurfPostprocessor`.
+    intervals, see `AssignOriginTimeEmpiricalBayesSurfPostprocessor`. To
+    resolve inversions by adjusting topology, follow with
+    `SpliceChronologicalConsistencyTriePostprocessor`, via
+    `CompoundTriePostprocessor`.
 
     Notes
     -----
@@ -184,6 +187,20 @@ class AssignOriginTimeUnbiasedSurfPostprocessor(TriePostprocessorBase):
     ...     df,
     ...     trie_postprocessor=(
     ...         hstrat.AssignOriginTimeUnbiasedSurfPostprocessor()
+    ...     ),
+    ... )
+
+    or, with chronological consistency,
+
+    >>> hstrat.dataframe.surface_build_tree(  # doctest: +SKIP
+    ...     df,
+    ...     trie_postprocessor=hstrat.CompoundTriePostprocessor(
+    ...         [
+    ...             hstrat.AssignOriginTimeGeometricSurfPostprocessor(
+    ...                 "dstream.steady_algo",
+    ...             ),
+    ...             hstrat.SpliceChronologicalConsistencyTriePostprocessor(),
+    ...         ],
     ...     ),
     ... )
 
