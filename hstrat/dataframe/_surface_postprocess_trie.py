@@ -72,27 +72,24 @@ def _prefix_roots(
     df: pl.DataFrame, dstream_S: int, differentia_bitwidth: int
 ) -> pl.DataFrame:
     """Extend newly-clipped roots back to the founding ancestor, and fill
-    prefixed roots' rank and uniform hstrat metadata columns.
-
-    Prefixed roots take rank `dstream_S - 1`, the founding ancestor's last
-    initial (i.e., predeposited) stratum: the latest rank shared by every
-    lineage, and the earliest rank kept by trunk deletion. So, no root
-    outranks its children.
-    """
+    prefixed roots' rank and uniform hstrat metadata columns."""
     with log_context_duration("alifestd_prefix_roots", logging.info):
         df = pfl.alifestd_prefix_roots_polars(
             df, allow_id_reassign=True, origin_time=dstream_S - 1
         )
     fill_values = {
+        # founding ancestor's last initial (i.e., predeposited) stratum: the
+        # latest rank shared by every lineage, and the earliest kept by trunk
+        # deletion
         "dstream_rank": dstream_S - 1,
         "dstream_S": dstream_S,
         "hstrat_differentia_bitwidth": differentia_bitwidth,
     }
-    if "dstream_algo" in df.columns:  # uniform; absent in older tries
-        fill_values["dstream_algo"] = df["dstream_algo"].drop_nulls().first()
+    fill_values["dstream_algo"] = df["dstream_algo"].drop_nulls().first()
     df = df.with_columns(
         pl.col(col).fill_null(value) for col, value in fill_values.items()
     )
+    assert (df["dstream_rank"] >= dstream_S - 1).all()  # roots precede
     assert df["dstream_S"].n_unique() == 1
     assert df["hstrat_differentia_bitwidth"].n_unique() == 1
     return df

@@ -63,28 +63,25 @@ def _do_collapse_unifurcations(
 
 def _prefix_roots(df: pd.DataFrame, dstream_S: int) -> pd.DataFrame:
     """Extend newly-clipped roots back to the founding ancestor, and fill
-    prefixed roots' rank and uniform hstrat metadata columns.
-
-    Prefixed roots take rank `dstream_S - 1`, the founding ancestor's last
-    initial (i.e., predeposited) stratum: the latest rank shared by every
-    lineage, and the earliest rank kept by trunk deletion. So, no root
-    outranks its children.
-    """
+    prefixed roots' rank and uniform hstrat metadata columns."""
     fill_values = {
+        # founding ancestor's last initial (i.e., predeposited) stratum: the
+        # latest rank shared by every lineage, and the earliest kept by trunk
+        # deletion
         "dstream_rank": dstream_S - 1,
         "dstream_S": dstream_S,
         "hstrat_differentia_bitwidth": get_sole_scalar_value_pandas(
             df, "hstrat_differentia_bitwidth"
         ),
     }
-    if "dstream_algo" in df.columns:  # uniform; absent in older tries
-        fill_values["dstream_algo"] = df["dstream_algo"].dropna().iloc[0]
+    fill_values["dstream_algo"] = df["dstream_algo"].dropna().iloc[0]
     dtypes = df[[*fill_values]].dtypes.to_dict()  # prefixing makes ints float
     with log_context_duration("alifestd_prefix_roots", logging.info):
         df = pfl.alifestd_prefix_roots(
             df, allow_id_reassign=True, origin_time=dstream_S - 1, mutate=True
         )
     df = df.fillna(fill_values).astype(dtypes)
+    assert (df["dstream_rank"] >= dstream_S - 1).all()  # roots precede
     assert df["dstream_S"].nunique() == 1
     assert df["hstrat_differentia_bitwidth"].nunique() == 1
     return df

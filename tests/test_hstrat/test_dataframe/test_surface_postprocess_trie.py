@@ -167,6 +167,8 @@ def test_prefix_roots_preserves_topological_order(num_subtrees: int):
             "hstrat_differentia_bitwidth": pl.UInt32,
             "dstream_S": pl.UInt32,
         },
+    ).with_columns(
+        dstream_algo=pl.lit("dstream.steady_algo", dtype=pl.Categorical),
     )
 
     res = surface_postprocess_trie(
