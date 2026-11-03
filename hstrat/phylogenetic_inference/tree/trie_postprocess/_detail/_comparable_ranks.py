@@ -4,22 +4,14 @@ import logging
 import types
 import typing
 
-from downstream import dstream
 import numpy as np
 from phyloframe import legacy as pfl
 import polars as pl
 
-from ....._auxiliary_lib import log_context_duration
-
-
-def resolve_dstream_algo(
-    dstream_algo: typing.Union[str, types.ModuleType],
-) -> types.ModuleType:
-    """Look up downstream algorithm module by name (e.g.,
-    "dstream.steady_algo"), if needed."""
-    if isinstance(dstream_algo, str):
-        return getattr(dstream, dstream_algo.removeprefix("dstream."))
-    return dstream_algo
+from ....._auxiliary_lib import (
+    get_sole_scalar_value_polars,
+    log_context_duration,
+)
 
 
 def get_sole_dstream_S(trie: pl.DataFrame) -> int:
@@ -28,13 +20,9 @@ def get_sole_dstream_S(trie: pl.DataFrame) -> int:
         raise NotImplementedError("non-contiguous ids not supported")
     if not pfl.alifestd_is_topologically_sorted_polars(trie):
         raise NotImplementedError("non-topologically-sorted not supported")
-
-    dstream_S = (
-        trie.lazy().select(pl.col("dstream_S").unique()).collect().to_series()
-    )
-    if len(dstream_S) > 1:
-        raise NotImplementedError("mixed dstream_S not supported")
-    return int(dstream_S.item()) if len(dstream_S) else 0
+    if trie.is_empty():
+        return 0
+    return int(get_sole_scalar_value_polars(trie, "dstream_S"))
 
 
 def _mark_comparison_bounds(

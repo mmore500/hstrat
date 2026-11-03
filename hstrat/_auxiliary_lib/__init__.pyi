@@ -456,6 +456,7 @@ from ._jit_numba_integer_array_ts import (
 from ._jit_numpy_bool_t import jit_numpy_bool_t
 from ._jit_numpy_int64_t import jit_numpy_int64_t
 from ._jit_numpy_uint8_t import jit_numpy_uint8_t
+from ._jit_prange import jit_prange
 from ._join_paragraphs_from_one_sentence_per_line import (
     join_paragraphs_from_one_sentence_per_line,
 )
@@ -483,6 +484,7 @@ from ._render_pandas_snapshot import render_pandas_snapshot
 from ._render_polars_snapshot import render_polars_snapshot
 from ._render_to_base64url import render_to_base64url
 from ._render_to_numeral_system import render_to_numeral_system
+from ._resolve_dstream_algo import resolve_dstream_algo
 from ._reversed_enumerate import reversed_enumerate
 from ._reversed_range import reversed_range
 from ._scale_luminosity import scale_luminosity
@@ -759,6 +761,7 @@ __all__ = [
     "jit_numba_dict_t",
     "jit_numpy_bool_t",
     "jit_numpy_int64_t",
+    "jit_prange",
     "jit_numpy_uint8_t",
     "jit_TypingError",
     "join_paragraphs_from_one_sentence_per_line",
@@ -783,6 +786,7 @@ __all__ = [
     "release_cur_mpl_fig",
     "render_pandas_snapshot",
     "render_polars_snapshot",
+    "resolve_dstream_algo",
     "random_choice_generator",
     "random_tree",
     "render_to_base64url",

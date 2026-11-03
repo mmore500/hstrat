@@ -5,14 +5,13 @@ import typing
 import numpy as np
 import polars as pl
 
-from ...._auxiliary_lib import log_context_duration
+from ...._auxiliary_lib import log_context_duration, resolve_dstream_algo
 from ._detail import TriePostprocessorBase
 from ._detail._comparable_ranks import (
     first_retained_between,
     get_sole_dstream_S,
     iter_retained_ranks,
     mark_inner_node_bounds,
-    resolve_dstream_algo,
 )
 
 
@@ -123,7 +122,7 @@ class AssignOriginTimeGeometricSurfPostprocessor(TriePostprocessorBase):
     Estimates are unbiased on average, not individually: they may precede
     ancestors' estimates, giving negative branch lengths. Topology is left
     unchanged. For individual estimates bounded within their own and earlier
-    intervals, see `AssignOriginTimeBenchmarkedBayesSurfPostprocessor`.
+    intervals, see `AssignOriginTimeEmpiricalBayesSurfPostprocessor`.
 
     Notes
     -----
