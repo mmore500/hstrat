@@ -3,13 +3,13 @@ import os
 
 from downstream import dstream
 import numpy as np
+from phyloframe import legacy as pfl
 import polars as pl
 import pytest
 
 from hstrat import hstrat
 from hstrat.dataframe import surface_build_tree, surface_test_drive
 from hstrat.phylogenetic_inference.tree.trie_postprocess._AssignOriginTimeEmpiricalBayesSurfPostprocessor import (
-    _calc_mrca_pair_counts,
     _calc_posterior_origin_times,
     _calc_prior_moments,
 )
@@ -149,7 +149,10 @@ def test_matches_geometric_average(dstream_algo: str, bitwidth: int):
     assert benchmarked.select("id", "ancestor_id").equals(
         geometric.select("id", "ancestor_id"),
     )
-    weights = _calc_mrca_pair_counts(benchmarked)
+    weights = pfl.alifestd_mark_to_array_polars(
+        benchmarked.select(pl.col("id", "ancestor_id").cast(pl.Int64)),
+        pfl.alifestd_mark_num_mrca_leaf_pairs_polars,
+    )
     assert weights.sum() == len(pop) * (len(pop) - 1) / 2
     np.testing.assert_allclose(
         weights @ benchmarked["origin_time"].to_numpy(),

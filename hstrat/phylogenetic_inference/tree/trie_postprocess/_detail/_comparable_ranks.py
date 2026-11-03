@@ -51,11 +51,10 @@ def _mark_comparison_bounds(
         values="_tip_T",
         reverse=True,
     ).astype(np.int64)
-    # max over children, as negated min over children of negated values
-    compare_T = -pfl.alifestd_mark_to_array_polars(
+    compare_T = pfl.alifestd_mark_to_array_polars(
         trie,
-        pfl.alifestd_mark_min_child_value_polars,
-        values=-pl.Series(clade_min_T),
+        pfl.alifestd_mark_max_child_value_polars,
+        values=pl.Series(clade_min_T),
     ).astype(np.int64)
     return num_children, compare_T, clade_min_T
 

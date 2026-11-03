@@ -188,24 +188,6 @@ def _calc_posterior_origin_times(
     return origin_times
 
 
-def _calc_mrca_pair_counts(trie: pl.DataFrame) -> np.ndarray:
-    """Number of leaf pairs whose most recent common ancestor is each node.
-
-    Trie must have contiguous ids and be topologically sorted.
-    """
-    tree = trie.select(pl.col("id", "ancestor_id").cast(pl.Int64))
-    num_leaves = pfl.alifestd_mark_to_array_polars(
-        tree, pfl.alifestd_mark_num_leaves_polars
-    ).astype(np.float64)
-    ids = tree["id"].to_numpy()
-    ancestors = tree["ancestor_id"].to_numpy()
-    is_child = ids != ancestors
-    child_sq_sums = np.zeros(len(ids))
-    np.add.at(child_sq_sums, ancestors[is_child], num_leaves[is_child] ** 2)
-    has_children = np.bincount(ancestors[is_child], minlength=len(ids)) > 0
-    return np.where(has_children, (num_leaves**2 - child_sq_sums) / 2, 0.0)
-
-
 def _benchmark(
     posterior: np.ndarray,
     weights: np.ndarray,
@@ -242,7 +224,10 @@ def _call_polars(
 ) -> pl.DataFrame:
     """Implementation detail."""
     dstream_S = get_sole_dstream_S(trie)
-    pair_counts = _calc_mrca_pair_counts(trie) if len(trie) else np.zeros(0)
+    pair_counts = pfl.alifestd_mark_to_array_polars(
+        trie.select(pl.col("id", "ancestor_id").cast(pl.Int64)),
+        pfl.alifestd_mark_num_mrca_leaf_pairs_polars,
+    )
     if ftor._alpha is not None:  # fixed prior exponent
         alphas = [ftor._alpha]
     elif pair_counts.sum() == 0:  # nothing to benchmark; uniform prior
