@@ -4,7 +4,7 @@ import typing
 from phyloframe import legacy as pfl
 import polars as pl
 
-from ...._auxiliary_lib import log_context_duration
+from ...._auxiliary_lib import log_context_duration, warn_experimental
 from ._detail import TriePostprocessorBase
 
 
@@ -74,6 +74,7 @@ def _call_polars(
     return _fill_spliced_nodes(trie, num_original)
 
 
+@warn_experimental
 class SpliceChronologicalConsistencyTriePostprocessor(TriePostprocessorBase):
     """Functor to resolve trie nodes with origin times preceding their
     parent's by adjusting topology, leaving origin times unchanged.
@@ -104,7 +105,7 @@ class SpliceChronologicalConsistencyTriePostprocessor(TriePostprocessorBase):
 
     Examples
     --------
-    >>> hstrat.dataframe.surface_build_tree(  # doctest: +SKIP
+    >>> hstrat.dataframe.surface_build_tree(
     ...     df,
     ...     trie_postprocessor=hstrat.CompoundTriePostprocessor(
     ...         [
