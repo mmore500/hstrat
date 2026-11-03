@@ -79,7 +79,7 @@ def _brute_force(trie: pl.DataFrame, algo: str, p: float, alpha: float):
 
     result = []
     for i in ids:
-        if not children[i] or (ancestors[i] == i and len(children[i]) < 2):
+        if not children[i] or ancestors[i] == i:  # leaf or root
             result.append(ranks[i] - S)
             continue
         compare_T = max(youngest_T(c) for c in children[i])
@@ -287,10 +287,13 @@ def _make_pool_coarsen_steps() -> list:
         hstrat.PipeCallablePostprocessor(
             pl.DataFrame.drop, "num_mrca_leaf_pairs", "num_leaves"
         ),
+        hstrat.PipeCallablePostprocessor(pfl.alifestd_mark_leaves_polars),
         hstrat.PipeCallablePostprocessor(
-            pfl.alifestd_coarsen_taxa_polars, by="origin_time"
+            pfl.alifestd_coarsen_taxa_polars, by=["origin_time", "is_leaf"]
         ),
-        hstrat.PipeCallablePostprocessor(pl.DataFrame.drop, "is_root"),
+        hstrat.PipeCallablePostprocessor(
+            pl.DataFrame.drop, "is_root", "num_children"
+        ),
         hstrat.PipeCallablePostprocessor(
             pfl.alifestd_assign_contiguous_ids_polars,
         ),
@@ -336,3 +339,22 @@ def test_pool_and_coarsen_surface_build_tree():
     )
     assert pfl.alifestd_find_chronological_inconsistency_polars(phylo) is None
     assert pfl.alifestd_count_leaf_nodes_polars(phylo) == len(pop)
+
+
+def test_pool_and_coarsen_keeps_leaves():
+    # root (0) <- leaf preceding root (-1), and leaf (5): pooling raises the
+    # first leaf to its parent's origin time, but it must not be collapsed
+    trie = pl.DataFrame(
+        {
+            "id": [0, 1, 2],
+            "ancestor_id": [0, 0, 0],
+            "origin_time": [0.0, -1.0, 5.0],
+            "rank": [64, 63, 69],
+        },
+    )
+    result = hstrat.CompoundTriePostprocessor(_make_pool_coarsen_steps())(
+        trie, p_differentia_collision=0.5
+    )
+    assert pfl.alifestd_find_chronological_inconsistency_polars(result) is None
+    assert pfl.alifestd_count_leaf_nodes_polars(result) == 2
+    assert len(result) == len(trie)

@@ -9,11 +9,11 @@ from ....._auxiliary_lib import log_context_duration
 
 
 def mark_inner_node_bounds(trie_df: pl.DataFrame) -> pl.DataFrame:
-    """Mark inner nodes, i.e., nodes whose children diverged from one
-    another, and the bounds of their comparable ranks.
+    """Mark inner nodes, i.e., nodes that are neither leaves nor roots,
+    and the bounds of their comparable ranks.
 
     Returns `rank` (Int64) and added columns, per node:
-    - `is_inner`: does node bound divergence among its children?
+    - `is_inner`: is node neither a leaf nor a root?
     - `compare_T`: `dstream_T` at which its children's differentiae are
       compared, i.e., the largest of their minimum tip `dstream_T`, as ranks
       retained there are retained by every child's youngest tip
@@ -26,7 +26,6 @@ def mark_inner_node_bounds(trie_df: pl.DataFrame) -> pl.DataFrame:
         pl.col("id", "ancestor_id", "rank").cast(pl.Int64),
     )
     with log_context_duration("mark_inner_node_bounds", logging.info):
-        marked_df = pfl.alifestd_mark_num_children_polars(marked_df)
         marked_df = pfl.alifestd_mark_leaves_polars(marked_df)
         marked_df = pfl.alifestd_mark_roots_polars(marked_df)
         marked_df = marked_df.with_columns(
@@ -42,11 +41,9 @@ def mark_inner_node_bounds(trie_df: pl.DataFrame) -> pl.DataFrame:
             mark_as="compare_T",
         )
 
-        # roots with multiple children bound divergence like inner nodes
         bounds_df = marked_df.select(
             "rank",
-            is_inner=(pl.col("num_children") >= 2)
-            | ((pl.col("num_children") == 1) & ~pl.col("is_root")),
+            is_inner=~pl.col("is_leaf") & ~pl.col("is_root"),
             compare_T=pl.col("compare_T"),
             clade_min_T=pl.col("clade_min_T"),
         ).collect()

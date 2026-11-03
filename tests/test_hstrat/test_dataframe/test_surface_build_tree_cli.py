@@ -2,6 +2,7 @@ import os
 import pathlib
 import subprocess
 
+from phyloframe import legacy as pfl
 import polars as pl
 
 assets = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
@@ -192,3 +193,61 @@ def test_surface_build_tree_cli_trie_postprocessor_namespace():
     df = pl.read_parquet(output_file)
     assert (df["foo"] == 7).all()
     assert (df["pf_name"] == "phyloframe").all()
+
+
+def test_surface_build_tree_cli_empirical_bayes_pool_coarsen():
+    """Smoke test the empirical Bayes postprocessor, followed by pooling
+    origin time inversions and collapsing zero-length branches, as
+    recommended in its docstring, from the command line."""
+    output_file = "/tmp/hstrat_surface_build_tree_eb_pool.csv"  # nosec B108
+    pathlib.Path(output_file).unlink(missing_ok=True)
+    trie_postprocessor = """hstrat.CompoundTriePostprocessor(
+        [
+            hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
+                "dstream.steady_algo",
+            ),
+            hstrat.PipeCallablePostprocessor(
+                pf.legacy.alifestd_mark_num_mrca_leaf_pairs_polars,
+            ),
+            hstrat.PipeCallablePostprocessor(
+                pf.legacy.alifestd_pool_chronological_consistency_polars,
+                weight_by="num_mrca_leaf_pairs",
+            ),
+            hstrat.PipeCallablePostprocessor(
+                pl.DataFrame.drop, "num_mrca_leaf_pairs", "num_leaves"
+            ),
+            hstrat.PipeCallablePostprocessor(
+                pf.legacy.alifestd_mark_leaves_polars,
+            ),
+            hstrat.PipeCallablePostprocessor(
+                pf.legacy.alifestd_coarsen_taxa_polars,
+                by=["origin_time", "is_leaf"],
+            ),
+            hstrat.PipeCallablePostprocessor(
+                pl.DataFrame.drop, "is_root", "num_children"
+            ),
+            hstrat.PipeCallablePostprocessor(
+                pf.legacy.alifestd_assign_contiguous_ids_polars,
+            ),
+        ],
+    )"""
+    subprocess.run(  # nosec B603
+        [
+            "python3",
+            "-m",
+            "hstrat.dataframe.surface_build_tree",
+            output_file,
+            "--trie-postprocessor",
+            trie_postprocessor,
+        ],
+        check=True,
+        input=f"{assets}/packed.csv".encode(),
+    )
+    phylo = pl.read_csv(output_file)
+    assert not {"is_leaf", "is_root", "num_children"} & {*phylo.columns}
+    assert "origin_time" in phylo.columns
+    assert phylo["origin_time"].is_finite().all()
+    assert pfl.alifestd_find_chronological_inconsistency_polars(phylo) is None
+    assert pfl.alifestd_count_leaf_nodes_polars(phylo) == len(
+        pl.read_csv(f"{assets}/packed.csv")
+    )

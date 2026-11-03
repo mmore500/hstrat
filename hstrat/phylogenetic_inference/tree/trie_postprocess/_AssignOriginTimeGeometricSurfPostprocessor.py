@@ -170,7 +170,7 @@ class AssignOriginTimeGeometricSurfPostprocessor(TriePostprocessorBase):
     Only polars dataframe tries with a uniform `dstream_S` are supported
     (e.g., via `surface_postprocess_trie`). Origin times are relative to
     `dstream_S`. Leaf ranks are taken to be `dstream_T - 1`. Leaves and
-    unifurcating roots are assigned their rank.
+    roots are assigned their rank.
 
     Examples
     --------

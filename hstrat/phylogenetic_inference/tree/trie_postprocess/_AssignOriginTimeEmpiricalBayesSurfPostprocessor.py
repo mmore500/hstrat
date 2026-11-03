@@ -234,7 +234,7 @@ def _calc_posterior_origin_times(
     """Posterior mean origin times, relative to `dstream_S`, of all nodes
     (rows) for each prior exponent in `alpha_grid` (columns).
 
-    Leaves and unifurcating roots are assigned their rank.
+    Leaves and roots are assigned their rank.
     """
     estimates_df, posterior = _calc_inner_estimates(
         trie=trie,
@@ -417,7 +417,8 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     `alifestd_pool_chronological_consistency_polars` (which conserves the
     benchmarked weighted average). Pooled blocks share an origin time, so
     then collapse the resulting zero-length branches via
-    `alifestd_coarsen_taxa_polars`. Chain these after this postprocessor
+    `alifestd_coarsen_taxa_polars`, also by `is_leaf` so that leaves are
+    never merged into their ancestors. Chain these after this postprocessor
     with `PipeCallablePostprocessor`, via `CompoundTriePostprocessor`,
     cleaning up working columns and reassigning contiguous ids (see
     Examples).
@@ -425,7 +426,7 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     Only polars dataframe tries with a uniform `dstream_S` are supported
     (e.g., via `surface_postprocess_trie`). Origin times are relative to
     `dstream_S`. Leaf ranks are taken to be `dstream_T - 1`. Leaves and
-    unifurcating roots are assigned their rank.
+    roots are assigned their rank.
 
     References
     ----------
@@ -470,12 +471,16 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     ...             hstrat.PipeCallablePostprocessor(
     ...                 pl.DataFrame.drop, "num_mrca_leaf_pairs", "num_leaves"
     ...             ),
-    ...             # collapse zero-length branches
+    ...             # collapse zero-length branches, keeping leaves
     ...             hstrat.PipeCallablePostprocessor(
-    ...                 pfl.alifestd_coarsen_taxa_polars, by="origin_time"
+    ...                 pfl.alifestd_mark_leaves_polars,
     ...             ),
     ...             hstrat.PipeCallablePostprocessor(
-    ...                 pl.DataFrame.drop, "is_root"
+    ...                 pfl.alifestd_coarsen_taxa_polars,
+    ...                 by=["origin_time", "is_leaf"],
+    ...             ),
+    ...             hstrat.PipeCallablePostprocessor(
+    ...                 pl.DataFrame.drop, "is_root", "num_children"
     ...             ),
     ...             hstrat.PipeCallablePostprocessor(
     ...                 pfl.alifestd_assign_contiguous_ids_polars,
