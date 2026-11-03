@@ -91,7 +91,7 @@ def _prefix_roots(
     df = df.with_columns(
         pl.col(col).fill_null(value) for col, value in fill_values.items()
     )
-    # roots should precede
+    # prefixed roots should precede
     assert (df["dstream_rank"] >= dstream_S - 1).all()
     assert df["dstream_S"].n_unique() == 1
     assert df["hstrat_differentia_bitwidth"].n_unique() == 1
