@@ -74,7 +74,9 @@ def _prefix_roots(df: pd.DataFrame, dstream_S: int) -> pd.DataFrame:
             df, "hstrat_differentia_bitwidth"
         ),
     }
-    fill_values["dstream_algo"] = df["dstream_algo"].dropna().unique().item()
+    fill_values["dstream_algo"] = (
+        df["dstream_algo"].dropna().drop_duplicates().item()
+    )
     dtypes = df[[*fill_values]].dtypes.to_dict()  # prefixing makes ints float
     with log_context_duration("alifestd_prefix_roots", logging.info):
         df = pfl.alifestd_prefix_roots(
