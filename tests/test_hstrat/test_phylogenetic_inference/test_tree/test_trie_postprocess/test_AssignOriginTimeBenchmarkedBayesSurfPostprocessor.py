@@ -132,7 +132,7 @@ def test_grid_increasing_in_alpha():
 
 def test_clamped_warns():
     postprocessor = hstrat.AssignOriginTimeBenchmarkedBayesSurfPostprocessor(
-        "dstream.steady_algo", alpha_bounds=(-1e-3, 1e-3)
+        "dstream.steady_algo", alpha_grid=(-1e-3, 1e-3)
     )
     with pytest.warns(UserWarning, match="clamping"):
         result = postprocessor(_make_trie(), p_differentia_collision=0.5)
@@ -141,9 +141,9 @@ def test_clamped_warns():
 
 def test_invalid_arguments():
     for kwargs in [
-        dict(alpha_bounds=(1.0, -1.0)),
-        dict(alpha_bounds=(0.0, 0.0)),
-        dict(alpha_tolerance=0.0),
+        dict(alpha_grid=(0.0,)),
+        dict(alpha_grid=(1.0, -1.0)),
+        dict(alpha_grid=(0.0, 0.0)),
     ]:
         with pytest.raises(ValueError):
             hstrat.AssignOriginTimeBenchmarkedBayesSurfPostprocessor(
