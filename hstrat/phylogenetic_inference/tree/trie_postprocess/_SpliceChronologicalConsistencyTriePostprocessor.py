@@ -135,9 +135,9 @@ class SpliceChronologicalConsistencyTriePostprocessor(TriePostprocessorBase):
     def __call__(
         self: "SpliceChronologicalConsistencyTriePostprocessor",
         trie: pl.DataFrame,
-        p_differentia_collision: float,
-        mutate: bool = False,
-        progress_wrap: typing.Callable = lambda x: x,
+        p_differentia_collision: float,  # noqa: ARG002
+        mutate: bool = False,  # noqa: ARG002
+        progress_wrap: typing.Callable = lambda x: x,  # noqa: ARG002
     ) -> pl.DataFrame:
         """Splice in nodes to resolve origin time inversions.
 
@@ -156,6 +156,8 @@ class SpliceChronologicalConsistencyTriePostprocessor(TriePostprocessorBase):
             Not used.
         mutate : bool, default False
             Are side effects on the input argument `trie` allowed?
+
+            Not used, as polars operations don't modify their input.
         progress_wrap : typing.Callable, optional
             Pass tqdm or equivalent to report progress.
 
@@ -171,6 +173,4 @@ class SpliceChronologicalConsistencyTriePostprocessor(TriePostprocessorBase):
                 f"{type(trie)} tries are not supported; use polars "
                 "dataframe tries (e.g., surface_postprocess_trie)",
             )
-        if not mutate:
-            trie = trie.clone()
         return _call_polars(self, trie)
