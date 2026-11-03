@@ -85,9 +85,10 @@ def create_surface_build_tree_cli_parser(
             "apply topological corrections for systematic overestimation of "
             "relatedness, etc. "
             "Will be `eval`-ed as Python code before use, with `hstrat`, "
-            "`np` (numpy), `pf` (phyloframe), and `pl` (polars) available "
-            "(e.g., 'hstrat.PipeCallablePostprocessor(lambda trie: "
-            "trie.with_columns(foo=pl.lit(1)))'). "
+            "`np` (numpy), `pf` (phyloframe), `pl` (polars), and `tqdm` "
+            "available "
+            "(e.g., 'hstrat.PipeCallablePostprocessor(pl.DataFrame.with_columns, "
+            "foo=pl.lit(1))'). "
             "Must support Polars dataframe input."
         ),
     )

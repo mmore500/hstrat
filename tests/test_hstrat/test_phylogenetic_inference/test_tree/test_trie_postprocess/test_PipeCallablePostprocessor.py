@@ -15,7 +15,7 @@ assets = os.path.join(
 def test_pipe():
     trie = pl.DataFrame({"id": [0, 1], "ancestor_id": [0, 0]})
     result = hstrat.PipeCallablePostprocessor(
-        lambda df: df.with_columns(foo=pl.lit("bar")),
+        pl.DataFrame.with_columns, foo=pl.lit("bar")
     )(trie, p_differentia_collision=0.5)
     assert result["foo"].to_list() == ["bar", "bar"]
     assert "foo" not in trie.columns
@@ -45,7 +45,7 @@ def test_surface_build_tree():
     phylo = surface_build_tree(
         df,
         trie_postprocessor=hstrat.PipeCallablePostprocessor(
-            lambda trie: trie.with_columns(foo=pl.lit("bar")),
+            pl.DataFrame.with_columns, foo=pl.lit("bar")
         ),
     )
     assert (phylo["foo"] == "bar").all()

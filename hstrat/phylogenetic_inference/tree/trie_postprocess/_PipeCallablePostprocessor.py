@@ -11,7 +11,7 @@ class PipeCallablePostprocessor(TriePostprocessorBase):
 
     Notes
     -----
-    Only polars dataframe tries are supported (e.g., via
+    Only polars dataframe trie support is currently implemented (e.g., via
     `surface_postprocess_trie`).
 
     Examples
@@ -19,15 +19,15 @@ class PipeCallablePostprocessor(TriePostprocessorBase):
     >>> hstrat.dataframe.surface_build_tree(  # doctest: +SKIP
     ...     df,
     ...     trie_postprocessor=hstrat.PipeCallablePostprocessor(
-    ...         lambda trie: trie.with_columns(foo=pl.lit("bar")),
+    ...         pl.DataFrame.with_columns, foo=pl.lit("bar")
     ...     ),
     ... )
 
     or, from the command line,
-    `--trie-postprocessor 'hstrat.PipeCallablePostprocessor(lambda trie: trie.with_columns(foo=pl.lit("bar")))'`.
+    `--trie-postprocessor 'hstrat.PipeCallablePostprocessor(pl.DataFrame.with_columns, foo=pl.lit("bar"))'`.
     """
 
-    _function: typing.Callable  # applied to trie, returning trie
+    _op: typing.Callable  # applied to trie, returning trie
     _args: tuple  # additional positional arguments for function
     _kwargs: dict  # additional keyword arguments for function
 
@@ -49,16 +49,16 @@ class PipeCallablePostprocessor(TriePostprocessorBase):
         **kwargs
             Additional keyword arguments passed to `function`.
         """
-        self._function = function
+        self._op = function
         self._args = args
         self._kwargs = kwargs
 
     def __call__(
         self: "PipeCallablePostprocessor",
         trie: pl.DataFrame,
-        p_differentia_collision: float,
-        mutate: bool = False,
-        progress_wrap: typing.Callable = lambda x: x,
+        p_differentia_collision: float,  # noqa: ARG002
+        mutate: bool = False,  # noqa: ARG002
+        progress_wrap: typing.Callable = lambda x: x,  # noqa: ARG002
     ) -> pl.DataFrame:
         """Apply callable to trie.
 
@@ -76,6 +76,8 @@ class PipeCallablePostprocessor(TriePostprocessorBase):
             Not used.
         mutate : bool, default False
             Are side effects on the input argument `trie` allowed?
+
+            Not used, as polars operations don't modify their input.
         progress_wrap : typing.Callable, optional
             Pass tqdm or equivalent to report progress.
 
@@ -91,6 +93,4 @@ class PipeCallablePostprocessor(TriePostprocessorBase):
                 f"{type(trie)} tries are not supported; use polars "
                 "dataframe tries (e.g., surface_postprocess_trie)",
             )
-        if not mutate:
-            trie = trie.clone()
-        return trie.pipe(self._function, *self._args, **self._kwargs)
+        return trie.pipe(self._op, *self._args, **self._kwargs)
