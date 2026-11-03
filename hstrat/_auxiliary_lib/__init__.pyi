@@ -411,6 +411,7 @@ from ._eval_kwargs import eval_kwargs
 from ._except_wrap_sentinel import except_wrap_sentinel
 from ._fill_zeros_with_last import fill_zeros_with_last
 from ._find_bounds import find_bounds
+from ._find_first_between_sorted_rows import find_first_between_sorted_rows
 from ._fit_fblr import fit_fblr
 from ._flag_last import flag_last
 from ._flat_len import flat_len
@@ -421,6 +422,7 @@ from ._get_hstrat_version import get_hstrat_version
 from ._get_nullable_mask import get_nullable_mask
 from ._get_nullable_vals import get_nullable_vals
 from ._get_package_name import get_package_name
+from ._get_sole_scalar_value_pandas import get_sole_scalar_value_pandas
 from ._get_sole_scalar_value_polars import get_sole_scalar_value_polars
 from ._give_len import give_len
 from ._indices_of_unique import indices_of_unique
@@ -435,6 +437,7 @@ from ._is_strictly_decreasing import is_strictly_decreasing
 from ._is_strictly_increasing import is_strictly_increasing
 from ._is_subset import is_subset
 from ._iter_chunks import iter_chunks
+from ._iter_dstream_ingest_times_sorted import iter_dstream_ingest_times_sorted
 from ._iter_monotonic_equivalencies import iter_monotonic_equivalencies
 from ._iter_monotonic_equivalencies_reverse import (
     iter_monotonic_equivalencies_reverse,
@@ -719,6 +722,7 @@ __all__ = [
     "except_wrap_sentinel",
     "fill_zeros_with_last",
     "find_bounds",
+    "find_first_between_sorted_rows",
     "fit_fblr",
     "flag_last",
     "flat_len",
@@ -729,6 +733,7 @@ __all__ = [
     "get_nullable_mask",
     "get_nullable_vals",
     "get_package_name",
+    "get_sole_scalar_value_pandas",
     "get_sole_scalar_value_polars",
     "GetAttrLaunderShim",
     "give_len",
@@ -746,6 +751,7 @@ __all__ = [
     "is_strictly_increasing",
     "is_subset",
     "iter_chunks",
+    "iter_dstream_ingest_times_sorted",
     "iter_monotonic_equivalencies",
     "iter_monotonic_equivalencies_reverse",
     "iter_slices",

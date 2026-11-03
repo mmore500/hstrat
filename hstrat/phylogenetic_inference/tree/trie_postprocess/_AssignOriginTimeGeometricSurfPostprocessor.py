@@ -3,16 +3,18 @@ import types
 import typing
 
 import numpy as np
+from phyloframe import legacy as pfl
 import polars as pl
 
-from ...._auxiliary_lib import log_context_duration, resolve_dstream_algo
-from ._detail import TriePostprocessorBase
-from ._detail._comparable_ranks import (
-    first_retained_between,
-    get_sole_dstream_S,
-    iter_retained_ranks,
-    mark_inner_node_bounds,
+from ...._auxiliary_lib import (
+    find_first_between_sorted_rows,
+    get_sole_scalar_value_polars,
+    iter_dstream_ingest_times_sorted,
+    log_context_duration,
+    resolve_dstream_algo,
 )
+from ._detail import TriePostprocessorBase
+from ._detail._comparable_ranks import mark_inner_node_bounds
 
 
 def _calc_geometric_chunk(
@@ -28,8 +30,8 @@ def _calc_geometric_chunk(
     # mismatch rank: first comparable rank after node; and following
     # comparable rank, bounding the next interval; ranks at or after the
     # clade's youngest tip are not comparable
-    first_shared, second_shared = first_retained_between(
-        retained, ranks, youngest_T, num=2
+    first_shared, second_shared = find_first_between_sorted_rows(
+        retained, after=ranks, before=youngest_T, num=2
     ).T
 
     # intervals end at youngest tip if no further comparable rank
@@ -62,33 +64,39 @@ def _calc_geometric_origin_times(
     p_differentia_collision: float,
     dstream_algo: types.ModuleType,
     dstream_S: int,
+    progress_wrap: typing.Callable,
 ) -> np.ndarray:
     """Calculate origin times, relative to `dstream_S`, that are unbiased
     with respect to spurious differentia collisions.
 
-    Trie must have contiguous ids, be topologically sorted, and provide an
-    integer `rank` column, with leaf rank `dstream_T - 1`.
+    Trie must be non-empty, have contiguous ids, be topologically sorted,
+    and provide an integer `rank` column, with leaf rank `dstream_T - 1`.
     """
-    if trie.is_empty():
-        return np.zeros(0, dtype=np.float64)
-    ranks, is_inner, compare_T, youngest_T = mark_inner_node_bounds(trie)
-    inner_ranks = ranks[is_inner].astype(np.float64)
-    youngest_T = youngest_T.astype(np.float64)
+    bounds = mark_inner_node_bounds(trie)
+    inner = bounds.filter("is_inner")
+    inner_ranks = inner["rank"].to_numpy().astype(np.float64)
+    youngest_T = inner["clade_min_T"].to_numpy().astype(np.float64)
 
-    origin_times = (ranks - dstream_S).astype(np.float64)
-    inner_times = np.empty(len(compare_T))
+    inner_times = np.empty(len(inner))
     with log_context_duration("_calc_geometric_chunk", logging.info):
-        for chunk, retained in iter_retained_ranks(
-            dstream_algo, dstream_S, compare_T
+        for chunk, retained in progress_wrap(
+            iter_dstream_ingest_times_sorted(
+                dstream_algo,
+                dstream_S,
+                inner["compare_T"].to_numpy(),
+                chunk_size=2**16,
+            ),
         ):
             inner_times[chunk] = _calc_geometric_chunk(
-                retained,
-                inner_ranks[chunk],
-                youngest_T[chunk],
-                p_differentia_collision,
-                dstream_S,
+                retained=retained,
+                ranks=inner_ranks[chunk],
+                youngest_T=youngest_T[chunk],
+                p=p_differentia_collision,
+                dstream_S=dstream_S,
             )
-    origin_times[is_inner] = inner_times
+
+    origin_times = (bounds["rank"].to_numpy() - dstream_S).astype(np.float64)
+    origin_times[bounds["is_inner"].to_numpy()] = inner_times
     return origin_times
 
 
@@ -96,13 +104,24 @@ def _call_polars(
     ftor: "AssignOriginTimeGeometricSurfPostprocessor",
     trie: pl.DataFrame,
     p_differentia_collision: float,
+    progress_wrap: typing.Callable,
 ) -> pl.DataFrame:
     """Implementation detail."""
+    if not pfl.alifestd_has_contiguous_ids_polars(trie):
+        raise NotImplementedError("non-contiguous ids not supported")
+    if not pfl.alifestd_is_topologically_sorted_polars(trie):
+        raise NotImplementedError("non-topologically-sorted not supported")
+    if trie.is_empty():
+        return trie.with_columns(
+            pl.Series(ftor._assigned_property, [], dtype=pl.Float64),
+        )
+
     origin_times = _calc_geometric_origin_times(
         trie,
         p_differentia_collision,
         ftor._dstream_algo,
-        get_sole_dstream_S(trie),
+        int(get_sole_scalar_value_polars(trie, "dstream_S")),
+        progress_wrap,
     )
     return trie.with_columns(
         pl.Series(ftor._assigned_property, origin_times, dtype=pl.Float64),
@@ -193,7 +212,7 @@ class AssignOriginTimeGeometricSurfPostprocessor(TriePostprocessorBase):
         self: "AssignOriginTimeGeometricSurfPostprocessor",
         trie: pl.DataFrame,
         p_differentia_collision: float,
-        mutate: bool = False,
+        mutate: bool = False,  # noqa: ARG002
         progress_wrap: typing.Callable = lambda x: x,
     ) -> pl.DataFrame:
         """Assign origin times to trie nodes.
@@ -212,10 +231,11 @@ class AssignOriginTimeGeometricSurfPostprocessor(TriePostprocessorBase):
             existing differentia.
         mutate : bool, default False
             Are side effects on the input argument `trie` allowed?
-        progress_wrap : typing.Callable, optional
-            Pass tqdm or equivalent to report progress.
 
-            Not used in the current implementation.
+            Not used, as polars operations don't modify their input.
+        progress_wrap : typing.Callable, optional
+            Pass tqdm or equivalent to report progress over chunks of
+            inner nodes.
 
         Returns
         -------
@@ -227,6 +247,4 @@ class AssignOriginTimeGeometricSurfPostprocessor(TriePostprocessorBase):
                 f"{type(trie)} tries are not supported; use polars "
                 "dataframe tries (e.g., surface_postprocess_trie)",
             )
-        if not mutate:
-            trie = trie.clone()
-        return _call_polars(self, trie, p_differentia_collision)
+        return _call_polars(self, trie, p_differentia_collision, progress_wrap)

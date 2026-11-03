@@ -108,8 +108,9 @@ def _do_delete_trunk(
         df = pfl.alifestd_prefix_roots_polars(
             df, allow_id_reassign=True, origin_time=dstream_S
         )
-    # prefixed roots sit at dstream_S boundary, but not after their children
-    # (kept nodes may have rank dstream_S - 1)
+    # prefixed roots sit at dstream_S boundary, or at their earliest child's
+    # rank if earlier (nodes at rank dstream_S - 1 are kept), so that no
+    # root's rank exceeds its children's
     child_min_rank = (
         df.lazy()
         .filter(pl.col("id") != pl.col("ancestor_id"))

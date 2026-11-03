@@ -9,6 +9,7 @@ import polars as pl
 from tqdm import tqdm
 
 from .._auxiliary_lib import (
+    get_sole_scalar_value_pandas,
     get_sole_scalar_value_polars,
     log_context_duration,
     log_memory_usage,
@@ -68,10 +69,8 @@ def _do_delete_trunk(
 
     gc.collect()
 
-    with log_context_duration(
-        "df['dstream_S'].unique().squeeze()", logging.info
-    ):
-        dstream_S = df["dstream_S"].unique().squeeze()
+    with log_context_duration("get_sole_scalar_value_pandas", logging.info):
+        dstream_S = get_sole_scalar_value_pandas(df, "dstream_S")
 
     df["is_trunk"] = df["dstream_rank"] < df["dstream_S"] - 1
     df["origin_time"] = df["dstream_rank"]
@@ -93,8 +92,8 @@ def _do_delete_trunk(
     fill_values = {
         "dstream_rank": dstream_S,
         "dstream_S": dstream_S,
-        "hstrat_differentia_bitwidth": (
-            df["hstrat_differentia_bitwidth"].unique().squeeze()
+        "hstrat_differentia_bitwidth": get_sole_scalar_value_pandas(
+            df, "hstrat_differentia_bitwidth"
         ),
     }
     dtypes = df[[*fill_values]].dtypes
@@ -103,8 +102,9 @@ def _do_delete_trunk(
         df = pfl.alifestd_prefix_roots(
             df, allow_id_reassign=True, origin_time=dstream_S, mutate=True
         )
-    # prefixed roots sit at dstream_S boundary, but not after their children
-    # (kept nodes may have rank dstream_S - 1)
+    # prefixed roots sit at dstream_S boundary, or at their earliest child's
+    # rank if earlier (nodes at rank dstream_S - 1 are kept), so that no
+    # root's rank exceeds its children's
     is_child = df["id"] != df["ancestor_id"]
     child_min_rank = (
         df.loc[is_child].groupby("ancestor_id")["dstream_rank"].min()

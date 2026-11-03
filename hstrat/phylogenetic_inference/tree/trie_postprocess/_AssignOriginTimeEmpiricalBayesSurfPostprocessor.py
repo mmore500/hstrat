@@ -8,6 +8,8 @@ from phyloframe import legacy as pfl
 import polars as pl
 
 from ...._auxiliary_lib import (
+    get_sole_scalar_value_polars,
+    iter_dstream_ingest_times_sorted,
     jit,
     jit_prange,
     log_context_duration,
@@ -17,11 +19,7 @@ from ._AssignOriginTimeGeometricSurfPostprocessor import (
     _calc_geometric_chunk,
 )
 from ._detail import TriePostprocessorBase
-from ._detail._comparable_ranks import (
-    get_sole_dstream_S,
-    iter_retained_ranks,
-    mark_inner_node_bounds,
-)
+from ._detail._comparable_ranks import mark_inner_node_bounds
 
 
 @jit(nopython=True)
@@ -37,8 +35,10 @@ def _calc_prior_moments(
     """
     if b <= a:
         return 0.0, (a + b - 1) / 2
-    u1 = H - b + 1.0
-    u2 = H - a + 1.0
+    u1 = H - b + 1
+    u2 = H - a + 1
+    # exact closed forms, where the general case divides by zero (alpha = 1
+    # or 2) or simplifies (alpha = 0); tolerance only selects the case
     if abs(alpha) < 1e-9:
         mass = u2 - u1
         mean_u = (u1 + u2) / 2
@@ -133,39 +133,53 @@ def _calc_inner_estimates(
     dstream_algo: types.ModuleType,
     dstream_S: int,
     alphas: np.ndarray,
+    progress_wrap: typing.Callable,
 ) -> _InnerEstimates:
     """Posterior mean origin times of inner nodes for each prior exponent in
     `alphas`, and their geometric estimates, in one pass over comparable
     ranks.
 
-    Trie must have contiguous ids, be topologically sorted, and provide an
-    integer `rank` column, with leaf rank `dstream_T - 1`.
+    Trie must be non-empty, have contiguous ids, be topologically sorted,
+    and provide an integer `rank` column, with leaf rank `dstream_T - 1`.
     """
     alphas = np.asarray(alphas, dtype=np.float64)
-    if trie.is_empty():
-        empty = np.zeros(0)
-        return _InnerEstimates(
-            empty, empty.astype(bool), np.zeros((0, len(alphas))), empty
-        )
-    ranks, is_inner, compare_T, youngest_T = mark_inner_node_bounds(trie)
-    inner_ranks = ranks[is_inner].astype(np.float64)
-    youngest_T = youngest_T.astype(np.float64)
+    bounds = mark_inner_node_bounds(trie)
+    inner = bounds.filter("is_inner")
+    inner_ranks = inner["rank"].to_numpy().astype(np.float64)
+    youngest_T = inner["clade_min_T"].to_numpy().astype(np.float64)
     p = float(p_differentia_collision)
 
-    posterior = np.empty((len(compare_T), len(alphas)))
-    geometric = np.empty(len(compare_T))
+    posterior = np.empty((len(inner), len(alphas)))
+    geometric = np.empty(len(inner))
     with log_context_duration("_calc_inner_estimates", logging.info):
-        for chunk, retained in iter_retained_ranks(
-            dstream_algo, dstream_S, compare_T
+        for chunk, retained in progress_wrap(
+            iter_dstream_ingest_times_sorted(
+                dstream_algo,
+                dstream_S,
+                inner["compare_T"].to_numpy(),
+                chunk_size=2**16,
+            ),
         ):
-            args = (retained, inner_ranks[chunk], youngest_T[chunk], p)
             posterior[chunk] = _calc_posterior_means_fast_path(
-                *args, int(dstream_S), alphas
+                retained=retained,
+                ranks=inner_ranks[chunk],
+                youngest_T=youngest_T[chunk],
+                p=p,
+                dstream_S=int(dstream_S),
+                alphas=alphas,
             )
-            geometric[chunk] = _calc_geometric_chunk(*args, dstream_S)
+            geometric[chunk] = _calc_geometric_chunk(
+                retained=retained,
+                ranks=inner_ranks[chunk],
+                youngest_T=youngest_T[chunk],
+                p=p,
+                dstream_S=dstream_S,
+            )
 
-    base = (ranks - dstream_S).astype(np.float64)
-    return _InnerEstimates(base, is_inner, posterior, geometric)
+    base = (bounds["rank"].to_numpy() - dstream_S).astype(np.float64)
+    return _InnerEstimates(
+        base, bounds["is_inner"].to_numpy(), posterior, geometric
+    )
 
 
 def _calc_posterior_origin_times(
@@ -174,6 +188,7 @@ def _calc_posterior_origin_times(
     dstream_algo: types.ModuleType,
     dstream_S: int,
     alphas: np.ndarray,
+    progress_wrap: typing.Callable,
 ) -> np.ndarray:
     """Posterior mean origin times, relative to `dstream_S`, of all nodes
     (rows) for each prior exponent in `alphas` (columns).
@@ -181,21 +196,28 @@ def _calc_posterior_origin_times(
     Leaves and unifurcating roots are assigned their rank.
     """
     estimates = _calc_inner_estimates(
-        trie, p_differentia_collision, dstream_algo, dstream_S, alphas
+        trie,
+        p_differentia_collision,
+        dstream_algo,
+        dstream_S,
+        alphas,
+        progress_wrap,
     )
     origin_times = np.repeat(estimates.base[:, None], len(alphas), axis=1)
     origin_times[estimates.is_inner] = estimates.posterior
     return origin_times
 
 
-def _benchmark(
+def _estimate_prior_exponent_by_benchmarking(
     posterior: np.ndarray,
     weights: np.ndarray,
     target: float,
     alpha_grid: np.ndarray,
 ) -> typing.Tuple[np.ndarray, float]:
-    """Interpolate posterior means between grid prior exponents bracketing
-    where their weighted mean matches target.
+    """Estimate the prior exponent (i.e., empirical Bayes hyperparameter)
+    at which the weighted mean of posterior means matches the benchmark
+    `target`, interpolating posterior means between bracketing grid
+    exponents.
 
     Posterior means are nondecreasing in prior exponent, so the weighted
     mean is monotonic over grid columns. Returns interpolated means and the
@@ -221,34 +243,56 @@ def _call_polars(
     ftor: "AssignOriginTimeEmpiricalBayesSurfPostprocessor",
     trie: pl.DataFrame,
     p_differentia_collision: float,
+    progress_wrap: typing.Callable,
 ) -> pl.DataFrame:
     """Implementation detail."""
-    dstream_S = get_sole_dstream_S(trie)
-    pair_counts = pfl.alifestd_mark_to_array_polars(
-        trie.select(pl.col("id", "ancestor_id").cast(pl.Int64)),
-        pfl.alifestd_mark_num_mrca_leaf_pairs_polars,
-    )
+    if not pfl.alifestd_has_contiguous_ids_polars(trie):
+        raise NotImplementedError("non-contiguous ids not supported")
+    if not pfl.alifestd_is_topologically_sorted_polars(trie):
+        raise NotImplementedError("non-topologically-sorted not supported")
+    if trie.is_empty():
+        return trie.with_columns(
+            pl.Series(ftor._assigned_property, [], dtype=pl.Float64),
+        )
+    dstream_S = int(get_sole_scalar_value_polars(trie, "dstream_S"))
+
+    with log_context_duration(
+        "alifestd_mark_num_mrca_leaf_pairs_polars", logging.info
+    ):
+        pair_counts = pfl.alifestd_mark_to_array_polars(
+            trie.select(pl.col("id", "ancestor_id").cast(pl.Int64)),
+            pfl.alifestd_mark_num_mrca_leaf_pairs_polars,
+        )
     if ftor._alpha is not None:  # fixed prior exponent
         alphas = [ftor._alpha]
     elif pair_counts.sum() == 0:  # nothing to benchmark; uniform prior
         alphas = [0.0]
     else:
         alphas = ftor._alpha_grid
+    logging.info(f" - prior exponents evaluated: {len(alphas)}")
 
     estimates = _calc_inner_estimates(
-        trie, p_differentia_collision, ftor._dstream_algo, dstream_S, alphas
+        trie,
+        p_differentia_collision,
+        ftor._dstream_algo,
+        dstream_S,
+        alphas,
+        progress_wrap,
     )
     if len(alphas) == 1:
-        inner_means = estimates.posterior[:, 0]
+        inner_means, alpha = estimates.posterior[:, 0], alphas[0]
     else:
         weights = pair_counts[estimates.is_inner]
-        inner_means, alpha = _benchmark(
-            estimates.posterior,
-            weights,
-            float(np.dot(weights, estimates.geometric)),
-            ftor._alpha_grid,
-        )
-        logging.info(f" - empirical Bayes prior exponent: {alpha}")
+        with log_context_duration(
+            "_estimate_prior_exponent_by_benchmarking", logging.info
+        ):
+            inner_means, alpha = _estimate_prior_exponent_by_benchmarking(
+                posterior=estimates.posterior,
+                weights=weights,
+                target=float(np.dot(weights, estimates.geometric)),
+                alpha_grid=ftor._alpha_grid,
+            )
+    logging.info(f" - empirical Bayes prior exponent: {alpha}")
 
     origin_times = estimates.base.copy()
     origin_times[estimates.is_inner] = inner_means
@@ -281,8 +325,8 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     mismatch bound (i.e., more recent divergence), and lower `alpha` toward
     deeper intervals.
 
-    A single tree-wide `alpha` is benchmarked (i.e., as in Bayesian
-    benchmarking; Datta, Ghosh, et al. 2011), so that the average of node
+    A single tree-wide `alpha` is estimated by empirical Bayes (Casella
+    1985), benchmarked (Datta et al. 2011) so that the average of node
     estimates, weighted by the number of leaf pairs whose most recent common
     ancestor each node is, matches that of
     `AssignOriginTimeGeometricSurfPostprocessor`, which is unbiased with
@@ -297,6 +341,16 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     `AssignOriginTimeGeometricSurfPostprocessor`: from `dstream_algo`, as
     the ranks retained at the largest of the node's children's minimum tip
     `dstream_T`, truncated at the clade's minimum tip `dstream_T`.
+
+    References
+    ----------
+    Casella, G. (1985). An introduction to empirical Bayes data analysis.
+    The American Statistician, 39(2), 83-87.
+    https://doi.org/10.1080/00031305.1985.10479400
+
+    Datta, G. S., Ghosh, M., Steorts, R., & Maples, J. (2011). Bayesian
+    benchmarking with applications to small area estimation. TEST, 20(3),
+    574-588. https://doi.org/10.1007/s11749-010-0218-y
 
     Notes
     -----
@@ -368,7 +422,7 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
         self: "AssignOriginTimeEmpiricalBayesSurfPostprocessor",
         trie: pl.DataFrame,
         p_differentia_collision: float,
-        mutate: bool = False,
+        mutate: bool = False,  # noqa: ARG002
         progress_wrap: typing.Callable = lambda x: x,
     ) -> pl.DataFrame:
         """Assign origin times to trie nodes.
@@ -387,10 +441,11 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
             existing differentia.
         mutate : bool, default False
             Are side effects on the input argument `trie` allowed?
-        progress_wrap : typing.Callable, optional
-            Pass tqdm or equivalent to report progress.
 
-            Not used in the current implementation.
+            Not used, as polars operations don't modify their input.
+        progress_wrap : typing.Callable, optional
+            Pass tqdm or equivalent to report progress over chunks of
+            inner nodes.
 
         Returns
         -------
@@ -402,6 +457,4 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
                 f"{type(trie)} tries are not supported; use polars "
                 "dataframe tries (e.g., surface_postprocess_trie)",
             )
-        if not mutate:
-            trie = trie.clone()
-        return _call_polars(self, trie, p_differentia_collision)
+        return _call_polars(self, trie, p_differentia_collision, progress_wrap)

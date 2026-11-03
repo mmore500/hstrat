@@ -105,7 +105,7 @@ def test_brute_force_hand_built(alpha: float, p: float):
     trie = _make_hand_trie()
     np.testing.assert_allclose(
         _calc_posterior_origin_times(
-            trie, p, dstream.steady_algo, 64, [alpha]
+            trie, p, dstream.steady_algo, 64, [alpha], lambda x: x
         )[:, 0],
         _brute_force(trie, "dstream.steady_algo", p, alpha),
     )
@@ -119,7 +119,9 @@ def test_brute_force_population(dstream_algo: str, bitwidth: int):
     trie, p = make_trie(dstream_algo, bitwidth)
     algo = getattr(dstream, dstream_algo.removeprefix("dstream."))
     alphas = [-3.0, 0.0, 1.5]
-    result = _calc_posterior_origin_times(trie, p, algo, 64, alphas)
+    result = _calc_posterior_origin_times(
+        trie, p, algo, 64, alphas, lambda x: x
+    )
     for k, alpha in enumerate(alphas):
         np.testing.assert_allclose(
             result[:, k], _brute_force(trie, dstream_algo, p, alpha)
@@ -174,7 +176,7 @@ def test_monotonic_in_alpha(dstream_algo: str, bitwidth: int):
     trie, p = make_trie(dstream_algo, bitwidth)
     algo = getattr(dstream, dstream_algo.removeprefix("dstream."))
     grid = _calc_posterior_origin_times(
-        trie, p, algo, 64, np.linspace(-6, 6, 49)
+        trie, p, algo, 64, np.linspace(-6, 6, 49), lambda x: x
     )
     assert (np.diff(grid, axis=1) >= -1e-9).all()
 
