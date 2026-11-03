@@ -18,6 +18,7 @@ from ._NopTriePostprocessor import NopTriePostprocessor
 from ._PeelBackConjoinedLeavesTriePostprocessor import (
     PeelBackConjoinedLeavesTriePostprocessor,
 )
+from ._PipeCallablePostprocessor import PipeCallablePostprocessor
 from ._SampleAncestralRollbacksTriePostprocessor import (
     SampleAncestralRollbacksTriePostprocessor,
 )
@@ -32,5 +33,6 @@ __all__ = [
     "CompoundTriePostprocessor",
     "NopTriePostprocessor",
     "PeelBackConjoinedLeavesTriePostprocessor",
+    "PipeCallablePostprocessor",
     "SampleAncestralRollbacksTriePostprocessor",
 ]

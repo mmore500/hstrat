@@ -139,7 +139,15 @@ def _validate_against_via_pandas(func: typing.Callable) -> typing.Callable:
             warnings.warn(
                 "CI environment detected, performing extra validation tests",
             )
-            expected = _surface_postprocess_trie_via_pandas(*args, **kwargs)
+            try:
+                expected = _surface_postprocess_trie_via_pandas(
+                    *args, **kwargs
+                )
+            except NotImplementedError as e:
+                warnings.warn(
+                    f"pandas support not implemented, skipping validation: {e}",
+                )
+                return result
             # convert to pandas to avoid Polars StringCache issues
             pdt.assert_frame_equal(
                 result.to_pandas(),

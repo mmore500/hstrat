@@ -49,6 +49,7 @@ from phylogenetic_inference import (
     GeometricPrior,
     NopTriePostprocessor,
     PeelBackConjoinedLeavesTriePostprocessor,
+    PipeCallablePostprocessor,
     SampleAncestralRollbacksTriePostprocessor,
     UniformPrior,
     ballpark_patristic_distance_between,
@@ -271,6 +272,7 @@ __all__ = [
     "CompoundTriePostprocessor",
     "NopTriePostprocessor",
     "PeelBackConjoinedLeavesTriePostprocessor",
+    "PipeCallablePostprocessor",
     "SampleAncestralRollbacksTriePostprocessor",
     # serialization
     "assemblage_from_dstream_df",
