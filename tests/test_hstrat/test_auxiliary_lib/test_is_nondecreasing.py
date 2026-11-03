@@ -54,3 +54,9 @@ class TestIsNondecreasing(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_atol():
+    assert not is_nondecreasing([1.0, 0.9])
+    assert is_nondecreasing([1.0, 0.9], atol=0.1 + 1e-12)
+    assert not is_nondecreasing([1.0, 0.8], atol=0.1)

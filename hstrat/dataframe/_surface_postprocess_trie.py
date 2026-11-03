@@ -40,6 +40,7 @@ def _apply_empty_output_schema(
         df = df.drop(
             "dstream_rank",
             "dstream_S",
+            "dstream_algo",
             "hstrat_differentia_bitwidth",
             strict=False,
         )
@@ -67,6 +68,36 @@ def _do_collapse_unifurcations(
     return df
 
 
+def _prefix_roots(
+    df: pl.DataFrame, dstream_S: int, differentia_bitwidth: int
+) -> pl.DataFrame:
+    """Extend newly-clipped roots back to the founding ancestor, and fill
+    prefixed roots' rank and uniform hstrat metadata columns."""
+    with log_context_duration("alifestd_prefix_roots", logging.info):
+        df = pfl.alifestd_prefix_roots_polars(
+            df, allow_id_reassign=True, origin_time=dstream_S - 1
+        )
+    fill_values = {
+        # founding ancestor's last initial (i.e., predeposited) stratum: the
+        # latest rank shared by every lineage, and the earliest kept by trunk
+        # deletion
+        "dstream_rank": dstream_S - 1,
+        "dstream_S": dstream_S,
+        "hstrat_differentia_bitwidth": differentia_bitwidth,
+    }
+    fill_values["dstream_algo"] = (
+        df["dstream_algo"].drop_nulls().unique().item()
+    )
+    df = df.with_columns(
+        pl.col(col).fill_null(value) for col, value in fill_values.items()
+    )
+    # prefixed roots should precede
+    assert (df["dstream_rank"] >= dstream_S - 1).all()
+    assert df["dstream_S"].n_unique() == 1
+    assert df["hstrat_differentia_bitwidth"].n_unique() == 1
+    return df
+
+
 def _do_delete_trunk(
     df: pl.DataFrame,
 ) -> pl.DataFrame:
@@ -79,6 +110,9 @@ def _do_delete_trunk(
 
     with log_context_duration("get_sole_scalar_value_polars", logging.info):
         dstream_S = get_sole_scalar_value_polars(df, "dstream_S")
+        differentia_bitwidth = get_sole_scalar_value_polars(
+            df, "hstrat_differentia_bitwidth"
+        )
 
     df = df.with_columns(
         is_trunk=pl.col("dstream_rank") < dstream_S - 1,
@@ -100,11 +134,7 @@ def _do_delete_trunk(
         df = pfl.alifestd_assign_contiguous_ids_polars(df)
 
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
-    with log_context_duration("alifestd_prefix_roots", logging.info):
-        # extend newly-clipped roots all the way back to dstream_S boundary
-        df = pfl.alifestd_prefix_roots_polars(
-            df, allow_id_reassign=True, origin_time=dstream_S
-        )
+    df = _prefix_roots(df, dstream_S, differentia_bitwidth)
 
     gc.collect()
 
@@ -260,6 +290,15 @@ def surface_postprocess_trie(
 
     Currently, data is converted to Pandas for processing, then back to Polars.
 
+    For large, trusted inputs, phyloframe's repeated precondition checks
+    (contiguous ids and topological sorting, rerun by each phyloframe
+    operation) can be bypassed, for speed, by setting environment variables
+    `PHYLOFRAME_DANGEROUSLY_ASSUME_LEGACY_ALIFESTD_HAS_CONTIGUOUS_IDS_POLARS`
+    and
+    `PHYLOFRAME_DANGEROUSLY_ASSUME_LEGACY_ALIFESTD_IS_TOPOLOGICALLY_SORTED_POLARS`.
+    Bypassed checks are not rerun anywhere, so only set these for inputs
+    known to satisfy them.
+
     See Also
     --------
     surface_unpack_reconstruct :
@@ -325,7 +364,12 @@ def surface_postprocess_trie(
     to_keep = {*original_columns}
     if drop_dstream_metadata is not False:
         logging.info("dropping dstream metadata columns...")
-        to_keep -= {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"}
+        to_keep -= {
+            "dstream_algo",
+            "dstream_rank",
+            "dstream_S",
+            "hstrat_differentia_bitwidth",
+        }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df = df.drop(*to_drop)

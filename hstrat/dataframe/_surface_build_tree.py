@@ -151,6 +151,17 @@ def surface_build_tree(
 
         Note that the alife-standard `ancestor_list` column is not included in
         the output.
+
+    Notes
+    -----
+    For large, trusted inputs, phyloframe's repeated precondition checks
+    (contiguous ids and topological sorting, rerun by each phyloframe
+    operation) can be bypassed, for speed, by setting environment variables
+    `PHYLOFRAME_DANGEROUSLY_ASSUME_LEGACY_ALIFESTD_HAS_CONTIGUOUS_IDS_POLARS`
+    and
+    `PHYLOFRAME_DANGEROUSLY_ASSUME_LEGACY_ALIFESTD_IS_TOPOLOGICALLY_SORTED_POLARS`.
+    Bypassed checks are not rerun anywhere, so only set these for inputs
+    known to satisfy them.
     """
     logging.info("surface_build_tree begin")
 

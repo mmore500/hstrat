@@ -5,6 +5,7 @@ from ._AnyTreeFastPostOrderIter import AnyTreeFastPostOrderIter
 from ._AnyTreeFastPreOrderIter import AnyTreeFastPreOrderIter
 from ._BioPhyloTree import BioPhyloTree
 from ._CopyableSeriesItemsIter import CopyableSeriesItemsIter
+from ._ExperimentalWarning import ExperimentalWarning
 from ._GetAttrLaunderShim import GetAttrLaunderShim
 from ._HereditaryStratigraphicArtifact import HereditaryStratigraphicArtifact
 from ._HereditaryStratigraphicInstrument import (
@@ -389,6 +390,7 @@ from ._caretdown_marker import caretdown_marker
 from ._caretup_marker import caretup_marker
 from ._cast_int_lossless import cast_int_lossless
 from ._check_testing_requirements import check_testing_requirements
+from ._clamp import clamp
 from ._cmp import cmp
 from ._cmp_approx import cmp_approx
 from ._coerce_to_pandas import coerce_to_pandas
@@ -411,6 +413,7 @@ from ._eval_kwargs import eval_kwargs
 from ._except_wrap_sentinel import except_wrap_sentinel
 from ._fill_zeros_with_last import fill_zeros_with_last
 from ._find_bounds import find_bounds
+from ._find_first_between_sorted_rows import find_first_between_sorted_rows
 from ._fit_fblr import fit_fblr
 from ._flag_last import flag_last
 from ._flat_len import flat_len
@@ -421,6 +424,7 @@ from ._get_hstrat_version import get_hstrat_version
 from ._get_nullable_mask import get_nullable_mask
 from ._get_nullable_vals import get_nullable_vals
 from ._get_package_name import get_package_name
+from ._get_sole_scalar_value_pandas import get_sole_scalar_value_pandas
 from ._get_sole_scalar_value_polars import get_sole_scalar_value_polars
 from ._give_len import give_len
 from ._indices_of_unique import indices_of_unique
@@ -435,6 +439,7 @@ from ._is_strictly_decreasing import is_strictly_decreasing
 from ._is_strictly_increasing import is_strictly_increasing
 from ._is_subset import is_subset
 from ._iter_chunks import iter_chunks
+from ._iter_dstream_ingest_times_sorted import iter_dstream_ingest_times_sorted
 from ._iter_monotonic_equivalencies import iter_monotonic_equivalencies
 from ._iter_monotonic_equivalencies_reverse import (
     iter_monotonic_equivalencies_reverse,
@@ -456,6 +461,8 @@ from ._jit_numba_integer_array_ts import (
 from ._jit_numpy_bool_t import jit_numpy_bool_t
 from ._jit_numpy_int64_t import jit_numpy_int64_t
 from ._jit_numpy_uint8_t import jit_numpy_uint8_t
+from ._jit_prange import jit_prange
+from ._jit_warn import jit_warn
 from ._join_paragraphs_from_one_sentence_per_line import (
     join_paragraphs_from_one_sentence_per_line,
 )
@@ -483,6 +490,7 @@ from ._render_pandas_snapshot import render_pandas_snapshot
 from ._render_polars_snapshot import render_polars_snapshot
 from ._render_to_base64url import render_to_base64url
 from ._render_to_numeral_system import render_to_numeral_system
+from ._resolve_dstream_algo import resolve_dstream_algo
 from ._reversed_enumerate import reversed_enumerate
 from ._reversed_range import reversed_range
 from ._scale_luminosity import scale_luminosity
@@ -496,6 +504,7 @@ from ._unfurl_lineage_with_contiguous_ids import (
 )
 from ._unpairwise import unpairwise
 from ._unzip import unzip
+from ._warn_experimental import warn_experimental
 from ._warn_once import warn_once
 from ._with_omission import with_omission
 from ._with_rng_state_context import with_rng_state_context
@@ -685,6 +694,8 @@ __all__ = [
     "AnyTreeFastPostOrderIter",
     "begin_prod_logging",
     "BioPhyloTree",
+    "clamp",
+    "ExperimentalWarning",
     "bit_ceil",
     "bit_drop_msb",
     "bit_floor",
@@ -717,6 +728,7 @@ __all__ = [
     "except_wrap_sentinel",
     "fill_zeros_with_last",
     "find_bounds",
+    "find_first_between_sorted_rows",
     "fit_fblr",
     "flag_last",
     "flat_len",
@@ -727,6 +739,7 @@ __all__ = [
     "get_nullable_mask",
     "get_nullable_vals",
     "get_package_name",
+    "get_sole_scalar_value_pandas",
     "get_sole_scalar_value_polars",
     "GetAttrLaunderShim",
     "give_len",
@@ -744,6 +757,7 @@ __all__ = [
     "is_strictly_increasing",
     "is_subset",
     "iter_chunks",
+    "iter_dstream_ingest_times_sorted",
     "iter_monotonic_equivalencies",
     "iter_monotonic_equivalencies_reverse",
     "iter_slices",
@@ -759,8 +773,10 @@ __all__ = [
     "jit_numba_dict_t",
     "jit_numpy_bool_t",
     "jit_numpy_int64_t",
+    "jit_prange",
     "jit_numpy_uint8_t",
     "jit_TypingError",
+    "jit_warn",
     "join_paragraphs_from_one_sentence_per_line",
     "launder_impl_modules",
     "lazy_attach",
@@ -783,6 +799,7 @@ __all__ = [
     "release_cur_mpl_fig",
     "render_pandas_snapshot",
     "render_polars_snapshot",
+    "resolve_dstream_algo",
     "random_choice_generator",
     "random_tree",
     "render_to_base64url",
@@ -800,6 +817,7 @@ __all__ = [
     "unfurl_lineage_with_contiguous_ids",
     "unpairwise",
     "unzip",
+    "warn_experimental",
     "warn_once",
     "with_omission",
     "with_rng_state_context",

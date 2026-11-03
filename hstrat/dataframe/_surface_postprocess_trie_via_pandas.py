@@ -8,6 +8,7 @@ import polars as pl
 from tqdm import tqdm
 
 from .._auxiliary_lib import (
+    get_sole_scalar_value_pandas,
     get_sole_scalar_value_polars,
     log_context_duration,
     log_memory_usage,
@@ -32,6 +33,7 @@ def _apply_empty_output_schema_pandas(
         logging.info("dropping dstream metadata from empty output...")
         df = df.drop(
             columns=[
+                "dstream_algo",
                 "dstream_rank",
                 "dstream_S",
                 "hstrat_differentia_bitwidth",
@@ -59,6 +61,33 @@ def _do_collapse_unifurcations(
     return df
 
 
+def _prefix_roots(df: pd.DataFrame, dstream_S: int) -> pd.DataFrame:
+    """Extend newly-clipped roots back to the founding ancestor, and fill
+    prefixed roots' rank and uniform hstrat metadata columns."""
+    fill_values = {
+        # founding ancestor's last initial (i.e., predeposited) stratum: the
+        # latest rank shared by every lineage, and the earliest kept by trunk
+        # deletion
+        "dstream_rank": dstream_S - 1,
+        "dstream_S": dstream_S,
+        "hstrat_differentia_bitwidth": get_sole_scalar_value_pandas(
+            df, "hstrat_differentia_bitwidth"
+        ),
+    }
+    fill_values["dstream_algo"] = df["dstream_algo"].dropna().unique().item()
+    dtypes = df[[*fill_values]].dtypes.to_dict()  # prefixing makes ints float
+    with log_context_duration("alifestd_prefix_roots", logging.info):
+        df = pfl.alifestd_prefix_roots(
+            df, allow_id_reassign=True, origin_time=dstream_S - 1, mutate=True
+        )
+    df = df.fillna(fill_values).astype(dtypes)
+    # prefixed roots should precede
+    assert (df["dstream_rank"] >= dstream_S - 1).all()
+    assert df["dstream_S"].nunique() == 1
+    assert df["hstrat_differentia_bitwidth"].nunique() == 1
+    return df
+
+
 def _do_delete_trunk(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -67,10 +96,8 @@ def _do_delete_trunk(
 
     gc.collect()
 
-    with log_context_duration(
-        "df['dstream_S'].unique().squeeze()", logging.info
-    ):
-        dstream_S = df["dstream_S"].unique().squeeze()
+    with log_context_duration("get_sole_scalar_value_pandas", logging.info):
+        dstream_S = get_sole_scalar_value_pandas(df, "dstream_S")
 
     df["is_trunk"] = df["dstream_rank"] < df["dstream_S"] - 1
     df["origin_time"] = df["dstream_rank"]
@@ -89,11 +116,7 @@ def _do_delete_trunk(
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
         df = pfl.alifestd_assign_contiguous_ids(df, mutate=True)
 
-    with log_context_duration("alifestd_prefix_roots", logging.info):
-        # extend newly-clipped roots all the way back to dstream_S boundary
-        df = pfl.alifestd_prefix_roots(
-            df, allow_id_reassign=True, origin_time=dstream_S, mutate=True
-        )
+    df = _prefix_roots(df, dstream_S)
 
     del df["is_trunk"]
     del df["ancestor_is_trunk"]
@@ -188,7 +211,12 @@ def _surface_postprocess_trie_via_pandas(
     to_keep = {*original_columns}
     if drop_dstream_metadata is not False:
         logging.info("dropping dstream metadata columns...")
-        to_keep -= {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"}
+        to_keep -= {
+            "dstream_algo",
+            "dstream_rank",
+            "dstream_S",
+            "hstrat_differentia_bitwidth",
+        }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df.drop(columns=[*to_drop], inplace=True)

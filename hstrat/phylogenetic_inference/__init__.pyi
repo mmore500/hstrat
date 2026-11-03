@@ -39,7 +39,9 @@ from priors import (
 )
 from tree import (
     AssignDestructionTimeYoungestPlusOneTriePostprocessor,
+    AssignOriginTimeEmpiricalBayesSurfPostprocessor,
     AssignOriginTimeExpectedValueTriePostprocessor,
+    AssignOriginTimeUnbiasedSurfPostprocessor,
     AssignOriginTimeNaiveTriePostprocessor,
     AssignOriginTimeNodeRankTriePostprocessor,
     AssignOriginTimeSampleNaiveTriePostprocessor,
@@ -104,7 +106,9 @@ __all__ = [
     "build_tree",
     "trie_postprocess",
     "AssignDestructionTimeYoungestPlusOneTriePostprocessor",
+    "AssignOriginTimeEmpiricalBayesSurfPostprocessor",
     "AssignOriginTimeExpectedValueTriePostprocessor",
+    "AssignOriginTimeUnbiasedSurfPostprocessor",
     "AssignOriginTimeNaiveTriePostprocessor",
     "AssignOriginTimeNodeRankTriePostprocessor",
     "AssignOriginTimeSampleNaiveTriePostprocessor",

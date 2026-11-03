@@ -56,6 +56,9 @@ def test_smoke_drop_dstream_metadata_false():
     assert "dstream_rank" in res.columns
     assert "dstream_S" in res.columns
     assert "hstrat_differentia_bitwidth" in res.columns
+    assert res["dstream_algo"].cast(pl.String).to_list() == [
+        "dstream.steady_algo"
+    ] * len(res)
     assert len(res) > 0
     assert pfl.alifestd_validate(
         pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
@@ -70,6 +73,7 @@ def test_drop_dstream_metadata_default_drops_rank_and_S():
     res = surface_postprocess_trie(raw)
     assert "dstream_rank" not in res.columns
     assert "dstream_S" not in res.columns
+    assert "dstream_algo" not in res.columns
     assert "hstrat_differentia_bitwidth" not in res.columns
 
 
@@ -126,6 +130,9 @@ def test_zero_generations_elapsed():
     assert pfl.alifestd_validate(
         pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
     )
+    # prefixed roots don't outrank their children, kept at rank S - 1
+    ranks = res["hstrat_rank"].to_numpy()
+    assert (ranks >= ranks[res["ancestor_id"].to_numpy().astype(int)]).all()
 
 
 @pytest.mark.parametrize("num_subtrees", [1, 50, 5000])
@@ -160,6 +167,8 @@ def test_prefix_roots_preserves_topological_order(num_subtrees: int):
             "hstrat_differentia_bitwidth": pl.UInt32,
             "dstream_S": pl.UInt32,
         },
+    ).with_columns(
+        dstream_algo=pl.lit("dstream.steady_algo", dtype=pl.Categorical),
     )
 
     res = surface_postprocess_trie(
