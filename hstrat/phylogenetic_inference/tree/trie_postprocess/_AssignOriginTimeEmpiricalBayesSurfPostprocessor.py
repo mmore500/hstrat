@@ -42,8 +42,8 @@ def _calc_prior_moments(
     u1 = H - b + 1
     u2 = H - a + 1
     # exact closed forms at alpha = 0 (uniform), and at alpha = 1 and 2, where
-    # the general formula below divides by zero; tolerance is
-    # sqrt(float64 epsilon), balancing the general formula's cancellation error against
+    # the general formula below divides by zero; tolerance is sqrt(float64
+    # epsilon), balancing the general formula's cancellation error against
     # the special cases' error
     tol = np.sqrt(np.finfo(np.float64).eps)
     if abs(alpha) < tol:
