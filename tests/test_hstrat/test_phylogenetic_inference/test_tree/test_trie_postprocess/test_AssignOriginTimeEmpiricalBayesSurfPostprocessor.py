@@ -285,14 +285,21 @@ def _make_pool_coarsen_steps() -> list:
             weight_by="num_mrca_leaf_pairs",
         ),
         hstrat.PipeCallablePostprocessor(
-            pl.DataFrame.drop, "num_mrca_leaf_pairs", "num_leaves"
+            pl.DataFrame.drop,
+            "num_mrca_leaf_pairs",
+            "num_leaves",
+            strict=False,
         ),
         hstrat.PipeCallablePostprocessor(pfl.alifestd_mark_leaves_polars),
         hstrat.PipeCallablePostprocessor(
             pfl.alifestd_coarsen_taxa_polars, by=["origin_time", "is_leaf"]
         ),
         hstrat.PipeCallablePostprocessor(
-            pl.DataFrame.drop, "is_root", "num_children"
+            pl.DataFrame.drop,
+            "is_leaf",
+            "is_root",
+            "num_children",
+            strict=False,
         ),
         hstrat.PipeCallablePostprocessor(
             pfl.alifestd_assign_contiguous_ids_polars,
