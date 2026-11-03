@@ -8,10 +8,10 @@ from phyloframe import legacy as pfl
 import polars as pl
 
 from ...._auxiliary_lib import (
+    clamp,
     get_sole_scalar_value_polars,
     iter_dstream_ingest_times_sorted,
     jit,
-    clamp,
     jit_prange,
     log_context_duration,
     resolve_dstream_algo,
