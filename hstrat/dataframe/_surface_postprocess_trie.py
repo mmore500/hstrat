@@ -85,11 +85,14 @@ def _prefix_roots(
         "dstream_S": dstream_S,
         "hstrat_differentia_bitwidth": differentia_bitwidth,
     }
-    fill_values["dstream_algo"] = df["dstream_algo"].drop_nulls().first()
+    fill_values["dstream_algo"] = (
+        df["dstream_algo"].drop_nulls().unique().item()
+    )
     df = df.with_columns(
         pl.col(col).fill_null(value) for col, value in fill_values.items()
     )
-    assert (df["dstream_rank"] >= dstream_S - 1).all()  # roots precede
+    # prefixed roots should precede their children
+    assert (df["dstream_rank"] >= dstream_S - 1).all()
     assert df["dstream_S"].n_unique() == 1
     assert df["hstrat_differentia_bitwidth"].n_unique() == 1
     return df

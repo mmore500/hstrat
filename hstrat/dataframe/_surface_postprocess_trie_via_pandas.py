@@ -74,14 +74,15 @@ def _prefix_roots(df: pd.DataFrame, dstream_S: int) -> pd.DataFrame:
             df, "hstrat_differentia_bitwidth"
         ),
     }
-    fill_values["dstream_algo"] = df["dstream_algo"].dropna().iloc[0]
+    fill_values["dstream_algo"] = df["dstream_algo"].dropna().unique().item()
     dtypes = df[[*fill_values]].dtypes.to_dict()  # prefixing makes ints float
     with log_context_duration("alifestd_prefix_roots", logging.info):
         df = pfl.alifestd_prefix_roots(
             df, allow_id_reassign=True, origin_time=dstream_S - 1, mutate=True
         )
     df = df.fillna(fill_values).astype(dtypes)
-    assert (df["dstream_rank"] >= dstream_S - 1).all()  # roots precede
+    # prefixed roots should precede their children
+    assert (df["dstream_rank"] >= dstream_S - 1).all()
     assert df["dstream_S"].nunique() == 1
     assert df["hstrat_differentia_bitwidth"].nunique() == 1
     return df
