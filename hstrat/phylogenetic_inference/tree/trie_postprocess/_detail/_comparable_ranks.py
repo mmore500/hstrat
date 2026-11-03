@@ -32,34 +32,37 @@ def mark_inner_node_bounds(trie_df: pl.DataFrame) -> pl.DataFrame:
     Trie must have contiguous ids, be topologically sorted, and provide an
     integer `rank` column, with leaf rank `dstream_T - 1`.
     """
-    marked_df = trie_df.lazy().select(
-        pl.col("id", "ancestor_id", "rank").cast(pl.Int64),
-    )
-    with log_context_duration("mark_inner_node_bounds", logging.info):
-        marked_df = pfl.alifestd_mark_leaves_polars(marked_df)
-        marked_df = pfl.alifestd_mark_roots_polars(marked_df)
-        marked_df = marked_df.with_columns(
-            # leaf rank is dstream_T - 1
-            _tip_T=pl.when("is_leaf").then(pl.col("rank") + 1),
+    bounds_lf = (
+        trie_df.lazy()
+        .select(pl.col("id", "ancestor_id", "rank").cast(pl.Int64))
+        .pipe(pfl.alifestd_mark_leaves_polars)
+        .pipe(pfl.alifestd_mark_roots_polars)
+        # leaf rank is dstream_T - 1
+        .with_columns(_tip_T=pl.when("is_leaf").then(pl.col("rank") + 1))
+        .pipe(
+            pfl.alifestd_mark_lineage_cummin_polars,
+            "_tip_T",
+            reverse=True,
+            mark_as="clade_min_T",
         )
-        marked_df = pfl.alifestd_mark_lineage_cummin_polars(
-            marked_df, "_tip_T", reverse=True, mark_as="clade_min_T"
-        )
-        marked_df = pfl.alifestd_mark_max_child_value_polars(
-            marked_df.with_columns(pl.col("clade_min_T").cast(pl.Int64)),
+        .with_columns(pl.col("clade_min_T").cast(pl.Int64))
+        .pipe(
+            pfl.alifestd_mark_max_child_value_polars,
             "clade_min_T",
             mark_as="compare_T",
         )
-        marked_df = pfl.alifestd_mark_num_mrca_leaf_pairs_polars(marked_df)
-
-        bounds_df = marked_df.select(
+        .pipe(pfl.alifestd_mark_num_mrca_leaf_pairs_polars)
+        .select(
             "rank",
             "is_leaf",
             "is_root",
             "num_mrca_leaf_pairs",
-            compare_T=pl.col("compare_T"),
-            clade_min_T=pl.col("clade_min_T"),
-        ).collect()
+            "compare_T",
+            "clade_min_T",
+        )
+    )
+    with log_context_duration("mark_inner_node_bounds", logging.info):
+        bounds_df = bounds_lf.collect()
 
     # children are compared no earlier than the clade's youngest tip
     assert (bounds_df["compare_T"] >= bounds_df["clade_min_T"]).all()

@@ -71,51 +71,30 @@ def _do_collapse_unifurcations(
 def _prefix_roots(
     df: pl.DataFrame, dstream_S: int, differentia_bitwidth: int
 ) -> pl.DataFrame:
-    """Extend newly-clipped roots back to the `dstream_S` boundary, and fill
-    prefixed roots' rank and uniform hstrat metadata columns."""
+    """Extend newly-clipped roots back to the founding ancestor, and fill
+    prefixed roots' rank and uniform hstrat metadata columns.
+
+    Prefixed roots take rank `dstream_S - 1`, the founding ancestor's last
+    initial (i.e., predeposited) stratum: the latest rank shared by every
+    lineage, and the earliest rank kept by trunk deletion. So, no root
+    outranks its children.
+    """
     with log_context_duration("alifestd_prefix_roots", logging.info):
-        # extend newly-clipped roots all the way back to dstream_S boundary
         df = pfl.alifestd_prefix_roots_polars(
-            df, allow_id_reassign=True, origin_time=dstream_S
+            df, allow_id_reassign=True, origin_time=dstream_S - 1
         )
-    # ensure prefixed roots precede their children: take dstream_S, or
-    # earliest child's rank if earlier (nodes at rank dstream_S - 1 are kept)
-    marked_df = pfl.alifestd_mark_roots_polars(df.lazy(), mark_as="_is_root")
-    child_min_rank_df = (
-        marked_df.filter(~pl.col("_is_root"))
-        .group_by("ancestor_id")
-        .agg(_child_min_rank=pl.col("dstream_rank").min())
-    )
-    df = marked_df.join(
-        child_min_rank_df,
-        left_on="id",
-        right_on="ancestor_id",
-        how="left",
-        maintain_order="left",
-    )
-    df = (
-        df.with_columns(
-            pl.col("dstream_rank").fill_null(
-                pl.min_horizontal(pl.lit(dstream_S), "_child_min_rank").cast(
-                    df.schema["dstream_rank"],
-                ),
-            ),
-            pl.col("dstream_S").fill_null(dstream_S),
-            pl.col("hstrat_differentia_bitwidth").fill_null(
-                differentia_bitwidth
-            ),
-            *(  # uniform, if present (e.g., absent in older tries)
-                pl.col(col).fill_null(pl.col(col).drop_nulls().first())
-                for col in ["dstream_algo"]
-                if col in marked_df.collect_schema().names()
-            ),
-        )
-        .drop("_child_min_rank", "_is_root")
-        .collect()
+    fill_values = {
+        "dstream_rank": dstream_S - 1,
+        "dstream_S": dstream_S,
+        "hstrat_differentia_bitwidth": differentia_bitwidth,
+    }
+    if "dstream_algo" in df.columns:  # uniform; absent in older tries
+        fill_values["dstream_algo"] = df["dstream_algo"].drop_nulls().first()
+    df = df.with_columns(
+        pl.col(col).fill_null(value) for col, value in fill_values.items()
     )
     assert df["dstream_S"].n_unique() == 1
     assert df["hstrat_differentia_bitwidth"].n_unique() == 1
-
     return df
 
 

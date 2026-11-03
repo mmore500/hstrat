@@ -10,6 +10,7 @@ import polars as pl
 from ...._auxiliary_lib import (
     clamp,
     get_sole_scalar_value_polars,
+    is_nondecreasing,
     is_strictly_increasing,
     iter_dstream_ingest_times_sorted,
     jit,
@@ -112,7 +113,6 @@ def _calc_posterior_means_fast_path(
     # if zero, sum over all intervals
     early_exit = posterior_mean_tolerance > 0
     result = np.empty((num_nodes, len(alpha_grid)))
-    scratch = np.empty((num_nodes, num_retained + 3))  # per-node bounds
     for i in jit_prange(num_nodes):
         rank = ranks[i]
         # node's own interval: from node rank to first comparable rank
@@ -126,21 +126,13 @@ def _calc_posterior_means_fast_path(
         lo = clamp(rank - dstream_S, 0.0, np.inf)
         hi = clamp(first_shared - dstream_S, 0.0, np.inf)
         H = max(hi, 1.0)
-
-        # interval bounds: mismatch bound, node rank, then comparable ranks
-        # before node rank, latest first, back to dstream_S
-        bounds = scratch[i]
-        bounds[0] = hi
-        bounds[1] = lo
-        num_bounds = 2
-        for j in range(num_retained - 1, -1, -1):
-            if retained_ranks[i, j] < rank:
-                bounds[num_bounds] = clamp(
-                    retained_ranks[i, j] - dstream_S, 0.0, np.inf
-                )
-                num_bounds += 1
-        bounds[num_bounds] = 0.0
-        num_bounds += 1
+        # comparable ranks before node rank, as earlier intervals' bounds
+        num_earlier = 0
+        while (
+            num_earlier < num_retained
+            and retained_ranks[i, num_earlier] < rank
+        ):
+            num_earlier += 1
 
         for k in range(len(alpha_grid)):
             # bounds prior mass of all remaining intervals, within [0, hi)
@@ -150,7 +142,10 @@ def _calc_posterior_means_fast_path(
             numerator = 0.0
             denominator = 0.0
             p_collisions = 1.0  # jth interval requires j collisions
-            for j in range(num_bounds - 1):
+            # node's own interval, then earlier intervals between comparable
+            # ranks, latest first, back to dstream_S
+            upper, lower = hi, lo
+            for j in range(num_earlier + 2):
                 # remaining intervals' weight is at most p_collisions *
                 # total_mass, and their means lie in [0, H], so stop once
                 # they could shift the posterior mean by at most
@@ -162,12 +157,21 @@ def _calc_posterior_means_fast_path(
                 ):
                     break
                 mass, mean = _calc_prior_moments(
-                    bounds[j + 1], bounds[j], H, alpha_grid[k]
+                    lower, upper, H, alpha_grid[k]
                 )
                 weight = mass * p_collisions
                 numerator += weight * mean
                 denominator += weight
                 p_collisions *= p
+                upper = lower
+                if j < num_earlier:  # next comparable rank down
+                    lower = clamp(
+                        retained_ranks[i, num_earlier - 1 - j] - dstream_S,
+                        0.0,
+                        np.inf,
+                    )
+                else:  # back to dstream_S
+                    lower = 0.0
             if denominator > 0:
                 result[i, k] = numerator / denominator
             else:
@@ -297,8 +301,12 @@ def _estimate_prior_exponent_by_benchmarking(
     exactly. A finer grid makes them closer to exact posterior means.
     """
     sums = weights @ posterior
-    # posterior means are nondecreasing in prior exponent
-    assert (np.diff(sums) >= -1e-6 * max(abs(sums[-1]), 1.0)).all()
+    # posterior means are nondecreasing in prior exponent, so weighted sums
+    # should be too, up to floating point error
+    if not is_nondecreasing(sums, atol=1e-6 * max(abs(sums[-1]), 1.0)):
+        raise RuntimeError(
+            "weighted posterior means not nondecreasing over alpha_grid",
+        )
     logging.info(
         f" - benchmarking target {target}, attainable over alpha_grid "
         f"[{sums[0]}, {sums[-1]}]",
