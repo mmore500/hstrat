@@ -694,6 +694,7 @@ __all__ = [
     "AnyTreeFastPostOrderIter",
     "begin_prod_logging",
     "BioPhyloTree",
+    "clamp",
     "ExperimentalWarning",
     "bit_ceil",
     "bit_drop_msb",

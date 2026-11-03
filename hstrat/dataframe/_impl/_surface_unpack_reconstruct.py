@@ -771,6 +771,8 @@ def surface_unpack_reconstruct(
             - Corresponds to `dstream_value_bitwidth`.
         - 'dstream_S' : pl.UInt32
             - Capacity of dstream buffer, in number of data items.
+        - 'dstream_algo' : pl.Categorical
+            - Name of downstream curation algorithm used.
         - 'dstream_data_id' : pl.UInt64
             - Unique identifier for each genome in source dataframe
             - Set to source dataframe row index if not provided.
@@ -827,6 +829,7 @@ def surface_unpack_reconstruct(
             "dstream_rank": pl.UInt64,
             "hstrat_differentia_bitwidth": pl.UInt32,
             "dstream_S": pl.UInt32,
+            "dstream_algo": pl.Categorical,
         }
         return _join_user_defined_columns(
             df,

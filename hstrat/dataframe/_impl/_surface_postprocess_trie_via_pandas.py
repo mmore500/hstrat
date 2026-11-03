@@ -8,6 +8,7 @@ import polars as pl
 from tqdm import tqdm
 
 from ..._auxiliary_lib import (
+    get_sole_scalar_value_pandas,
     get_sole_scalar_value_polars,
     log_context_duration,
     log_memory_usage,
@@ -117,22 +118,7 @@ def _do_delete_trunk(
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
         df = pfl.alifestd_assign_contiguous_ids(df, mutate=True)
 
-    fill_values = {
-        "dstream_rank": dstream_S,
-        "dstream_S": dstream_S,
-        "hstrat_differentia_bitwidth": get_sole_scalar_value_pandas(
-            df, "hstrat_differentia_bitwidth"
-        ),
-    }
-    # before prefixing roots, whose nulls make integer columns float
-    dtypes = df[[*fill_values]].dtypes
-    with log_context_duration("alifestd_prefix_roots", logging.info):
-        # extend newly-clipped roots all the way back to dstream_S boundary
-        df = pfl.alifestd_prefix_roots(
-            df, allow_id_reassign=True, origin_time=dstream_S, mutate=True
-        )
-    # prefixed roots sit at dstream_S boundary
-    df = df.fillna(fill_values).astype(dtypes.to_dict())
+    df = _prefix_roots(df, dstream_S)
 
     del df["is_trunk"]
     del df["ancestor_is_trunk"]
@@ -227,7 +213,12 @@ def _surface_postprocess_trie_via_pandas(
     to_keep = {*original_columns}
     if drop_dstream_metadata is not False:
         logging.info("dropping dstream metadata columns...")
-        to_keep -= {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"}
+        to_keep -= {
+            "dstream_algo",
+            "dstream_rank",
+            "dstream_S",
+            "hstrat_differentia_bitwidth",
+        }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df.drop(columns=[*to_drop], inplace=True)

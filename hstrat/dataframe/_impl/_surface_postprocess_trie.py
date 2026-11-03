@@ -136,17 +136,7 @@ def _do_delete_trunk(
         df = pfl.alifestd_assign_contiguous_ids_polars(df)
 
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
-    with log_context_duration("alifestd_prefix_roots", logging.info):
-        # extend newly-clipped roots all the way back to dstream_S boundary
-        df = pfl.alifestd_prefix_roots_polars(
-            df, allow_id_reassign=True, origin_time=dstream_S
-        )
-    # prefixed roots sit at dstream_S boundary
-    df = df.with_columns(
-        pl.col("dstream_rank").fill_null(dstream_S),
-        pl.col("dstream_S").fill_null(dstream_S),
-        pl.col("hstrat_differentia_bitwidth").fill_null(differentia_bitwidth),
-    )
+    df = _prefix_roots(df, dstream_S, differentia_bitwidth)
 
     gc.collect()
 
@@ -376,7 +366,12 @@ def surface_postprocess_trie(
     to_keep = {*original_columns}
     if drop_dstream_metadata is not False:
         logging.info("dropping dstream metadata columns...")
-        to_keep -= {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"}
+        to_keep -= {
+            "dstream_algo",
+            "dstream_rank",
+            "dstream_S",
+            "hstrat_differentia_bitwidth",
+        }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df = df.drop(*to_drop)
