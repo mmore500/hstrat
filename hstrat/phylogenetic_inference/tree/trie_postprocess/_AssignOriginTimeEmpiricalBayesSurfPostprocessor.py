@@ -10,9 +10,11 @@ import polars as pl
 from ...._auxiliary_lib import (
     clamp,
     get_sole_scalar_value_polars,
+    is_strictly_increasing,
     iter_dstream_ingest_times_sorted,
     jit,
     jit_prange,
+    jit_warn,
     log_context_duration,
     resolve_dstream_algo,
     warn_experimental,
@@ -22,14 +24,6 @@ from ._AssignOriginTimeGeometricSurfPostprocessor import (
 )
 from ._detail import TriePostprocessorBase
 from ._detail._comparable_ranks import mark_inner_node_bounds
-
-# Prior exponents within this tolerance of 0, 1, or 2 use exact special-case
-# closed forms. Near 1 and 2, the general formula loses precision to
-# cancellation (dividing a small difference by `1 - alpha` or `2 - alpha`),
-# while the special case's error grows with distance from the exponent. The
-# square root of machine epsilon balances these, as is standard for such
-# switchovers (e.g., finite-difference step sizes).
-_SPECIAL_CASE_TOLERANCE = float(np.sqrt(np.finfo(np.float64).eps))
 
 
 @jit(nopython=True)
@@ -48,14 +42,17 @@ def _calc_prior_moments(
     u1 = H - b + 1
     u2 = H - a + 1
     # exact closed forms at alpha = 0 (uniform), and at alpha = 1 and 2, where
-    # the general formula below divides by zero (see _SPECIAL_CASE_TOLERANCE)
-    if abs(alpha) < _SPECIAL_CASE_TOLERANCE:
+    # the general formula below divides by zero; tolerance is sqrt(float64
+    # epsilon), balancing the general formula's cancellation error against
+    # the special cases' error
+    tol = 1.4901161193847656e-08
+    if abs(alpha) < tol:
         mass = u2 - u1
         mean_u = (u1 + u2) / 2
-    elif abs(alpha - 1) < _SPECIAL_CASE_TOLERANCE:
+    elif abs(alpha - 1) < tol:
         mass = np.log(u2 / u1)
         mean_u = (u2 - u1) / mass
-    elif abs(alpha - 2) < _SPECIAL_CASE_TOLERANCE:
+    elif abs(alpha - 2) < tol:
         mass = 1 / u1 - 1 / u2
         mean_u = np.log(u2 / u1) / mass
     else:
@@ -65,38 +62,60 @@ def _calc_prior_moments(
     # clamp to interval's generations
     mean = clamp(H + 0.5 - mean_u, a, max(a, b - 1))
     if not np.isfinite(mean):
-        # powers under/overflow only for extreme alpha (well beyond the
+        # powers under/overflow only for extreme alpha (i.e., well beyond the
         # default grid); fall back to the uniform-prior interval mean
+        jit_warn(
+            "prior moments under/overflowed for extreme prior exponent; "
+            "falling back to uniform-prior interval mean",
+        )
         mean = (a + b - 1) / 2
     return mass, mean
 
 
 @jit(nopython=True, parallel=True)
 def _calc_posterior_means_fast_path(
-    retained: np.ndarray,
+    retained_ranks: np.ndarray,
     ranks: np.ndarray,
-    youngest_T: np.ndarray,
+    clade_min_T: np.ndarray,
     p: float,
     dstream_S: int,
-    alphas: np.ndarray,
+    alpha_grid: np.ndarray,
 ) -> np.ndarray:
     """Posterior mean divergence times, relative to `dstream_S`, of inner
-    nodes (rows of sorted `retained`, ranks retained at their comparison
-    `dstream_T`) for each prior exponent in `alphas` (columns)."""
-    num_nodes, num_retained = retained.shape
-    result = np.empty((num_nodes, len(alphas)))
+    nodes for each prior exponent in `alpha_grid` (columns).
+
+    Parameters
+    ----------
+    retained_ranks : np.ndarray
+        Per inner node (rows), the ranks retained at the `dstream_T` its
+        children are compared at, sorted ascending.
+    ranks : np.ndarray
+        Per inner node, its rank.
+    clade_min_T : np.ndarray
+        Per inner node, the minimum tip `dstream_T` over its clade, beyond
+        which ranks are not comparable.
+    p : float
+        Differentia collision probability.
+    dstream_S : int
+        Surface size; ranks before it are not comparable.
+    alpha_grid : np.ndarray
+        Prior exponents to evaluate.
+    """
+    num_nodes, num_retained = retained_ranks.shape
+    result = np.empty((num_nodes, len(alpha_grid)))
     scratch = np.empty((num_nodes, num_retained + 3))  # per-node bounds
     for i in jit_prange(num_nodes):
         rank = ranks[i]
         # node's own interval: from node rank to first comparable rank
         # after (i.e., mismatch bound), or to youngest tip if none
-        first_shared = youngest_T[i]
+        first_shared = clade_min_T[i]
         for j in range(num_retained):
-            if rank < retained[i, j] < youngest_T[i]:
-                first_shared = retained[i, j]
+            if rank < retained_ranks[i, j] < clade_min_T[i]:
+                first_shared = retained_ranks[i, j]
                 break
-        lo = max(rank - dstream_S, 0.0)
-        hi = max(first_shared - dstream_S, 0.0)
+        # divergence cannot precede dstream_S
+        lo = clamp(rank - dstream_S, 0.0, np.inf)
+        hi = clamp(first_shared - dstream_S, 0.0, np.inf)
         H = max(hi, 1.0)
 
         # interval bounds: mismatch bound, node rank, then comparable ranks
@@ -106,19 +125,21 @@ def _calc_posterior_means_fast_path(
         bounds[1] = lo
         num_bounds = 2
         for j in range(num_retained - 1, -1, -1):
-            if retained[i, j] < rank:
-                bounds[num_bounds] = max(retained[i, j] - dstream_S, 0.0)
+            if retained_ranks[i, j] < rank:
+                bounds[num_bounds] = clamp(
+                    retained_ranks[i, j] - dstream_S, 0.0, np.inf
+                )
                 num_bounds += 1
         bounds[num_bounds] = 0.0
         num_bounds += 1
 
-        for k in range(len(alphas)):
+        for k in range(len(alpha_grid)):
             numerator = 0.0
             denominator = 0.0
             p_collisions = 1.0  # jth interval requires j collisions
             for j in range(num_bounds - 1):
                 mass, mean = _calc_prior_moments(
-                    bounds[j + 1], bounds[j], H, alphas[k]
+                    bounds[j + 1], bounds[j], H, alpha_grid[k]
                 )
                 weight = mass * p_collisions
                 numerator += weight * mean
@@ -129,6 +150,10 @@ def _calc_posterior_means_fast_path(
             else:
                 # all intervals empty, i.e., node at the dstream_S boundary
                 # with no generations to diverge over; take interval midpoint
+                jit_warn(
+                    "inner node with no generations to diverge over; "
+                    "assigning interval midpoint",
+                )
                 result[i, k] = (lo + hi - 1) / 2
     return result
 
@@ -138,11 +163,11 @@ def _calc_inner_estimates(
     p_differentia_collision: float,
     dstream_algo: types.ModuleType,
     dstream_S: int,
-    alphas: np.ndarray,
+    alpha_grid: np.ndarray,
     progress_wrap: typing.Callable,
 ) -> typing.Tuple[pl.DataFrame, np.ndarray]:
     """Posterior mean origin times of inner nodes for each prior exponent in
-    `alphas`, and their geometric estimates, in one pass over comparable
+    `alpha_grid`, and their geometric estimates, in one pass over comparable
     ranks.
 
     Returns a dataframe of all nodes' `base` origin time (i.e., rank,
@@ -153,36 +178,35 @@ def _calc_inner_estimates(
     Trie must be non-empty, have contiguous ids, be topologically sorted,
     and provide an integer `rank` column, with leaf rank `dstream_T - 1`.
     """
-    alphas = np.asarray(alphas, dtype=np.float64)
+    alpha_grid = np.asarray(alpha_grid, dtype=np.float64)
     bounds_df = mark_inner_node_bounds(trie_df=trie)
     inner_df = bounds_df.filter("is_inner")
     inner_ranks = inner_df["rank"].to_numpy().astype(np.float64)
-    youngest_T = inner_df["clade_min_T"].to_numpy().astype(np.float64)
+    clade_min_T = inner_df["clade_min_T"].to_numpy().astype(np.float64)
     p = float(p_differentia_collision)
 
-    posterior = np.empty((len(inner_df), len(alphas)))
+    posterior = np.empty((len(inner_df), len(alpha_grid)))
     geometric = np.empty(len(inner_df))
     with log_context_duration("_calc_inner_estimates", logging.info):
-        for chunk, retained in progress_wrap(
-            iter_dstream_ingest_times_sorted(
-                dstream_algo=dstream_algo,
-                dstream_S=dstream_S,
-                T=inner_df["compare_T"].to_numpy(),
-                chunk_size=2**16,
-            ),
+        for chunk, retained_ranks in iter_dstream_ingest_times_sorted(
+            dstream_algo=dstream_algo,
+            dstream_S=dstream_S,
+            T=inner_df["compare_T"].to_numpy(),
+            chunk_size=2**16,
+            progress_wrap=progress_wrap,
         ):
             posterior[chunk] = _calc_posterior_means_fast_path(
-                retained=retained,
+                retained_ranks=retained_ranks,
                 ranks=inner_ranks[chunk],
-                youngest_T=youngest_T[chunk],
+                clade_min_T=clade_min_T[chunk],
                 p=p,
                 dstream_S=int(dstream_S),
-                alphas=alphas,
+                alpha_grid=alpha_grid,
             )
             geometric[chunk] = _calc_geometric_chunk(
-                retained=retained,
+                retained_ranks=retained_ranks,
                 ranks=inner_ranks[chunk],
-                youngest_T=youngest_T[chunk],
+                clade_min_T=clade_min_T[chunk],
                 p=p,
                 dstream_S=dstream_S,
             )
@@ -204,11 +228,11 @@ def _calc_posterior_origin_times(
     p_differentia_collision: float,
     dstream_algo: types.ModuleType,
     dstream_S: int,
-    alphas: np.ndarray,
+    alpha_grid: np.ndarray,
     progress_wrap: typing.Callable,
 ) -> np.ndarray:
     """Posterior mean origin times, relative to `dstream_S`, of all nodes
-    (rows) for each prior exponent in `alphas` (columns).
+    (rows) for each prior exponent in `alpha_grid` (columns).
 
     Leaves and unifurcating roots are assigned their rank.
     """
@@ -217,11 +241,11 @@ def _calc_posterior_origin_times(
         p_differentia_collision=p_differentia_collision,
         dstream_algo=dstream_algo,
         dstream_S=dstream_S,
-        alphas=alphas,
+        alpha_grid=alpha_grid,
         progress_wrap=progress_wrap,
     )
     origin_times = np.repeat(
-        estimates_df["base"].to_numpy()[:, None], len(alphas), axis=1
+        estimates_df["base"].to_numpy()[:, None], len(alpha_grid), axis=1
     )
     origin_times[estimates_df["is_inner"].to_numpy()] = posterior
     return origin_times
@@ -245,13 +269,18 @@ def _estimate_prior_exponent_by_benchmarking(
     sums = weights @ posterior
     # posterior means are nondecreasing in prior exponent
     assert (np.diff(sums) >= -1e-6 * max(abs(sums[-1]), 1.0)).all()
-    if target < sums[0] or target > sums[-1]:
+    clipped_target = np.clip(target, sums[0], sums[-1])
+    if clipped_target != target:
         warnings.warn(
             f"benchmarking target {target} outside range attainable over "
             "alpha_grid; clamping prior exponent to nearest grid bound",
         )
-    # fractional grid index where weighted mean matches target
-    index = np.interp(target, sums, np.arange(len(alpha_grid)))
+    # Invert the nondecreasing weighted sums by linear interpolation: find
+    # the fractional grid index at which they reach the target (e.g., 2.25
+    # is a quarter of the way from column 2 to column 3). Posterior means
+    # and the prior exponent are then interpolated between those bracketing
+    # columns by the same fraction.
+    index = np.interp(clipped_target, sums, np.arange(len(alpha_grid)))
     k = min(int(index), len(alpha_grid) - 2)
     lam = index - k
     return (
@@ -284,25 +313,27 @@ def _call_polars(
             trie.select(pl.col("id", "ancestor_id").cast(pl.Int64)),
             pfl.alifestd_mark_num_mrca_leaf_pairs_polars,
         )
-    if len(ftor._alpha_grid) == 1:  # fixed prior exponent
-        alphas = ftor._alpha_grid
-    elif pair_counts.sum() == 0:  # nothing to benchmark; uniform prior
-        alphas = np.array([0.0])
+    if len(ftor._alpha_grid) == 1:
+        logging.info(" - fixed prior exponent; skipping benchmarking")
+        alpha_grid = ftor._alpha_grid
+    elif pair_counts.sum() == 0:
+        logging.info(" - no leaf pairs to benchmark; using uniform prior")
+        alpha_grid = np.array([0.0])
     else:
-        alphas = ftor._alpha_grid
-    logging.info(f" - prior exponents evaluated: {len(alphas)}")
+        logging.info(f" - benchmarking over {len(ftor._alpha_grid)} exponents")
+        alpha_grid = ftor._alpha_grid
 
     estimates_df, posterior = _calc_inner_estimates(
         trie=trie,
         p_differentia_collision=p_differentia_collision,
         dstream_algo=ftor._dstream_algo,
         dstream_S=dstream_S,
-        alphas=alphas,
+        alpha_grid=alpha_grid,
         progress_wrap=progress_wrap,
     )
     is_inner = estimates_df["is_inner"].to_numpy()
-    if len(alphas) == 1:
-        inner_means, alpha = posterior[:, 0], float(alphas[0])
+    if len(alpha_grid) == 1:
+        inner_means, alpha = posterior[:, 0], float(alpha_grid[0])
     else:
         weights = pair_counts[is_inner]
         geometric = estimates_df.filter("is_inner")["geometric"].to_numpy()
@@ -314,7 +345,7 @@ def _call_polars(
                 posterior=posterior,
                 weights=weights,
                 target=float(np.dot(weights, geometric)),
-                alpha_grid=alphas,
+                alpha_grid=alpha_grid,
             )
     logging.info(f" - empirical Bayes prior exponent: {alpha}")
 
@@ -358,14 +389,43 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     respect to collisions without assuming a prior. Posterior means are
     evaluated over `alpha_grid` and linearly interpolated between the grid
     exponents bracketing the target. Alternately, pass a single-value
-    `alpha_grid` to fix the prior exponent and skip benchmarking. So, the geometric estimator sets the tree-wide
-    average over leaf pairs, and the posterior distributes it across nodes,
-    with each estimate bounded within its own and earlier intervals.
+    `alpha_grid` to fix the prior exponent and skip benchmarking. So, the
+    geometric estimator sets the tree-wide average over leaf pairs, and the
+    posterior distributes it across nodes, with each estimate bounded within
+    its own and earlier intervals.
 
     Comparable ranks are looked up as for
     `AssignOriginTimeGeometricSurfPostprocessor`: from `dstream_algo`, as
     the ranks retained at the largest of the node's children's minimum tip
     `dstream_T`, truncated at the clade's minimum tip `dstream_T`.
+
+    See Also
+    --------
+    AssignOriginTimeGeometricSurfPostprocessor :
+        Prior-free estimates, unbiased on average, used as the benchmark.
+    PipeCallablePostprocessor :
+        Applies a callable, e.g., a phyloframe function, to the trie.
+    CompoundTriePostprocessor :
+        Chains postprocessors.
+
+    Notes
+    -----
+    Each node is estimated independently, so chronological consistency
+    between nodes is not guaranteed. To resolve any inversions while
+    keeping topology, pool inverted nodes' origin times with their
+    ancestors' into leaf-pair-weighted means, via phyloframe's
+    `alifestd_pool_chronological_consistency_polars` (which conserves the
+    benchmarked weighted average). Pooled blocks share an origin time, so
+    then collapse the resulting zero-length branches via
+    `alifestd_coarsen_taxa_polars`. Chain these after this postprocessor
+    with `PipeCallablePostprocessor`, via `CompoundTriePostprocessor`,
+    cleaning up working columns and reassigning contiguous ids (see
+    Examples).
+
+    Only polars dataframe tries with a uniform `dstream_S` are supported
+    (e.g., via `surface_postprocess_trie`). Origin times are relative to
+    `dstream_S`. Leaf ranks are taken to be `dstream_T - 1`. Leaves and
+    unifurcating roots are assigned their rank.
 
     References
     ----------
@@ -377,16 +437,6 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     benchmarking with applications to small area estimation. TEST, 20(3),
     574-588. https://doi.org/10.1007/s11749-010-0218-y
 
-    Notes
-    -----
-    Each node is estimated independently, so chronological consistency
-    between nodes is not guaranteed.
-
-    Only polars dataframe tries with a uniform `dstream_S` are supported
-    (e.g., via `surface_postprocess_trie`). Origin times are relative to
-    `dstream_S`. Leaf ranks are taken to be `dstream_T - 1`. Leaves and
-    unifurcating roots are assigned their rank.
-
     Examples
     --------
     >>> hstrat.dataframe.surface_build_tree(
@@ -395,6 +445,42 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     ...         hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
     ...             "dstream.steady_algo",
     ...         )
+    ...     ),
+    ... )
+
+    or, to then pool origin time inversions and collapse zero-length
+    branches,
+
+    >>> from phyloframe import legacy as pfl
+    >>> hstrat.dataframe.surface_build_tree(
+    ...     df,
+    ...     trie_postprocessor=hstrat.CompoundTriePostprocessor(
+    ...         [
+    ...             hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
+    ...                 "dstream.steady_algo",
+    ...             ),
+    ...             # pool inversions, weighted by leaf pairs per MRCA
+    ...             hstrat.PipeCallablePostprocessor(
+    ...                 pfl.alifestd_mark_num_mrca_leaf_pairs_polars,
+    ...             ),
+    ...             hstrat.PipeCallablePostprocessor(
+    ...                 pfl.alifestd_pool_chronological_consistency_polars,
+    ...                 weight_by="num_mrca_leaf_pairs",
+    ...             ),
+    ...             hstrat.PipeCallablePostprocessor(
+    ...                 pl.DataFrame.drop, "num_mrca_leaf_pairs", "num_leaves"
+    ...             ),
+    ...             # collapse zero-length branches
+    ...             hstrat.PipeCallablePostprocessor(
+    ...                 pfl.alifestd_coarsen_taxa_polars, by="origin_time"
+    ...             ),
+    ...             hstrat.PipeCallablePostprocessor(
+    ...                 pl.DataFrame.drop, "is_root"
+    ...             ),
+    ...             hstrat.PipeCallablePostprocessor(
+    ...                 pfl.alifestd_assign_contiguous_ids_polars,
+    ...             ),
+    ...         ],
     ...     ),
     ... )
     """
@@ -434,8 +520,8 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
         alpha_grid = np.asarray(alpha_grid, dtype=np.float64)
         if (
             alpha_grid.ndim != 1
-            or len(alpha_grid) == 0
-            or not (np.diff(alpha_grid) > 0).all()
+            or alpha_grid.size == 0
+            or not is_strictly_increasing(alpha_grid)
         ):
             raise ValueError("alpha_grid must be nonempty and increasing")
         self._dstream_algo = resolve_dstream_algo(dstream_algo)

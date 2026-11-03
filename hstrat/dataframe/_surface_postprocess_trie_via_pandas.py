@@ -61,6 +61,39 @@ def _do_collapse_unifurcations(
     return df
 
 
+def _prefix_roots(df: pd.DataFrame, dstream_S: int) -> pd.DataFrame:
+    """Extend newly-clipped roots back to the `dstream_S` boundary, and fill
+    prefixed roots' rank and uniform hstrat metadata columns."""
+    fill_cols = ["dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"]
+    dtypes = df[fill_cols].dtypes.to_dict()  # prefixing makes ints float
+    differentia_bitwidth = get_sole_scalar_value_pandas(
+        df, "hstrat_differentia_bitwidth"
+    )
+    with log_context_duration("alifestd_prefix_roots", logging.info):
+        df = pfl.alifestd_prefix_roots(
+            df, allow_id_reassign=True, origin_time=dstream_S, mutate=True
+        )
+
+    # ensure prefixed roots precede their children: take dstream_S, or
+    # earliest child's rank if earlier (nodes at rank dstream_S - 1 are kept)
+    is_root = pfl.alifestd_mark_roots(df)["is_root"].to_numpy()
+    child_min_rank = (
+        df.loc[~is_root].groupby("ancestor_id")["dstream_rank"].min()
+    )
+    df["dstream_rank"] = df["dstream_rank"].fillna(
+        np.minimum(dstream_S, df["id"].map(child_min_rank)),
+    )
+    df = df.fillna(
+        {
+            "dstream_S": dstream_S,
+            "hstrat_differentia_bitwidth": differentia_bitwidth,
+        },
+    ).astype(dtypes)
+    assert df["dstream_S"].nunique() == 1
+    assert df["hstrat_differentia_bitwidth"].nunique() == 1
+    return df
+
+
 def _do_delete_trunk(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -89,32 +122,7 @@ def _do_delete_trunk(
     with log_context_duration("alifestd_assign_contiguous_ids", logging.info):
         df = pfl.alifestd_assign_contiguous_ids(df, mutate=True)
 
-    fill_values = {
-        "dstream_rank": dstream_S,
-        "dstream_S": dstream_S,
-        "hstrat_differentia_bitwidth": get_sole_scalar_value_pandas(
-            df, "hstrat_differentia_bitwidth"
-        ),
-    }
-    # before prefixing roots, whose nulls make integer columns float
-    dtypes = df[[*fill_values]].dtypes
-    with log_context_duration("alifestd_prefix_roots", logging.info):
-        # extend newly-clipped roots all the way back to dstream_S boundary
-        df = pfl.alifestd_prefix_roots(
-            df, allow_id_reassign=True, origin_time=dstream_S, mutate=True
-        )
-    # ensure prefixed roots don't outrank their children: take dstream_S, or
-    # earliest child's rank if earlier (nodes at rank dstream_S - 1 are kept)
-    is_root = pfl.alifestd_mark_roots(df)["is_root"].to_numpy()
-    child_min_rank = (
-        df.loc[~is_root].groupby("ancestor_id")["dstream_rank"].min()
-    )
-    df["dstream_rank"] = df["dstream_rank"].fillna(
-        np.minimum(dstream_S, df["id"].map(child_min_rank)),
-    )
-    df = df.fillna(fill_values).astype(dtypes.to_dict())
-    assert df["dstream_S"].nunique() == 1
-    assert df["hstrat_differentia_bitwidth"].nunique() == 1
+    df = _prefix_roots(df, dstream_S)
 
     del df["is_trunk"]
     del df["ancestor_is_trunk"]

@@ -16,6 +16,7 @@ def clamp(value: _T, lo: _T, hi: _T) -> _T:
     assert not hi < lo
     if value < lo:
         return lo
-    if hi < value:
+    elif hi < value:
         return hi
-    return value
+    else:
+        return value

@@ -10,7 +10,18 @@ from hstrat._auxiliary_lib import iter_dstream_ingest_times_sorted
 def test_iter_dstream_ingest_times_sorted(algo, chunk_size: int):
     S = 16
     T = np.random.default_rng(1).integers(S, 500, size=100)
-    chunks = [*iter_dstream_ingest_times_sorted(algo, S, T, chunk_size)]
+    wrapped = []
+
+    def progress_wrap(iterable):
+        wrapped.append(len(iterable))
+        return iterable
+
+    chunks = [
+        *iter_dstream_ingest_times_sorted(
+            algo, S, T, chunk_size, progress_wrap=progress_wrap
+        )
+    ]
+    assert wrapped == [len(chunks)]
     # chunks cover all rows once, in order of T, last shorter if uneven
     indices = np.concatenate([chunk for chunk, __ in chunks])
     assert sorted(indices.tolist()) == [*range(len(T))]

@@ -12,6 +12,7 @@ def iter_dstream_ingest_times_sorted(
     dstream_S: int,
     T: np.ndarray,
     chunk_size: int,
+    progress_wrap: typing.Callable,
 ) -> typing.Iterator[typing.Tuple[np.ndarray, np.ndarray]]:
     """Yield chunks of row indices, and the ingest times retained by
     `dstream_algo` at each row's `T`, sorted ascending, as floats.
@@ -20,9 +21,12 @@ def iter_dstream_ingest_times_sorted(
     chunks, and lookups are made once per unique `T` within each chunk, in
     parallel. Chunks together cover all rows once; the last chunk is
     shorter if `chunk_size` does not evenly divide `len(T)`.
+
+    Pass tqdm or equivalent as `progress_wrap` to report progress over
+    chunks.
     """
     order = np.argsort(T, kind="stable")
-    for begin in range(0, len(T), chunk_size):
+    for begin in progress_wrap(range(0, len(T), chunk_size)):
         chunk = order[begin : begin + chunk_size]  # clipped at end of T
         unique_T, inverse = np.unique(T[chunk], return_inverse=True)
         with log_context_duration(

@@ -10,8 +10,10 @@ def _warn(name: str) -> None:
     if "HSTRAT_WARN_EXPERIMENTAL_SUPPRESS" not in os.environ:
         warnings.warn(
             f"{name} is experimental. Its interface and results can change "
-            "in the future. To silence this warning, set the environment "
-            "variable HSTRAT_WARN_EXPERIMENTAL_SUPPRESS, or filter hstrat's "
+            "in the future, and its results have not yet been extensively "
+            "validated, so they may be less reliable. To silence this "
+            "warning, set the environment variable "
+            "HSTRAT_WARN_EXPERIMENTAL_SUPPRESS, or filter hstrat's "
             "ExperimentalWarning category.",
             ExperimentalWarning,
             stacklevel=3,

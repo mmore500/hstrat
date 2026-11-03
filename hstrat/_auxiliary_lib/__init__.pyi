@@ -462,6 +462,7 @@ from ._jit_numpy_bool_t import jit_numpy_bool_t
 from ._jit_numpy_int64_t import jit_numpy_int64_t
 from ._jit_numpy_uint8_t import jit_numpy_uint8_t
 from ._jit_prange import jit_prange
+from ._jit_warn import jit_warn
 from ._join_paragraphs_from_one_sentence_per_line import (
     join_paragraphs_from_one_sentence_per_line,
 )
@@ -775,6 +776,7 @@ __all__ = [
     "jit_prange",
     "jit_numpy_uint8_t",
     "jit_TypingError",
+    "jit_warn",
     "join_paragraphs_from_one_sentence_per_line",
     "launder_impl_modules",
     "lazy_attach",

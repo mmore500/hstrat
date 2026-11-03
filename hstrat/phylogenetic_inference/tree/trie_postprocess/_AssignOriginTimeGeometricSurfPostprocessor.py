@@ -19,34 +19,34 @@ from ._detail._comparable_ranks import mark_inner_node_bounds
 
 
 def _calc_geometric_chunk(
-    retained: np.ndarray,
+    retained_ranks: np.ndarray,
     ranks: np.ndarray,
-    youngest_T: np.ndarray,
+    clade_min_T: np.ndarray,
     p: float,
     dstream_S: int,
 ) -> np.ndarray:
     """Geometric origin time estimates, relative to `dstream_S`, for a chunk
-    of inner nodes, given sorted ranks `retained` at their comparison
+    of inner nodes, given sorted `retained_ranks` at their comparison
     `dstream_T`."""
     # mismatch rank: first comparable rank after node; and following
     # comparable rank, bounding the next interval; ranks at or after the
     # clade's youngest tip are not comparable
     first_shared, second_shared = find_first_between_sorted_rows(
-        rows=retained, after=ranks, before=youngest_T, num=2
+        rows=retained_ranks, after=ranks, before=clade_min_T, num=2
     ).T
 
     # intervals end at youngest tip if no further comparable rank
     is_terminal = ~np.isfinite(first_shared)
-    first_shared = np.where(is_terminal, youngest_T, first_shared)
+    first_shared = np.where(is_terminal, clade_min_T, first_shared)
     second_shared = np.where(
-        np.isfinite(second_shared), second_shared, youngest_T
+        np.isfinite(second_shared), second_shared, clade_min_T
     )
 
     # midpoints of node's interval and the next, relative to dstream_S;
     # divergence cannot precede dstream_S
-    lo = np.maximum(ranks - dstream_S, 0)
-    mid = np.maximum(first_shared - dstream_S, 0)
-    hi = np.maximum(second_shared - dstream_S, 0)
+    lo = np.clip(ranks - dstream_S, 0, None)
+    mid = np.clip(first_shared - dstream_S, 0, None)
+    hi = np.clip(second_shared - dstream_S, 0, None)
     this_midpoints = (lo + mid - 1) / 2
     next_midpoints = (mid + hi - 1) / 2
 
@@ -76,22 +76,21 @@ def _calc_geometric_origin_times(
     bounds_df = mark_inner_node_bounds(trie_df=trie)
     inner_df = bounds_df.filter("is_inner")
     inner_ranks = inner_df["rank"].to_numpy().astype(np.float64)
-    youngest_T = inner_df["clade_min_T"].to_numpy().astype(np.float64)
+    clade_min_T = inner_df["clade_min_T"].to_numpy().astype(np.float64)
 
     inner_times = np.empty(len(inner_df))
     with log_context_duration("_calc_geometric_chunk", logging.info):
-        for chunk, retained in progress_wrap(
-            iter_dstream_ingest_times_sorted(
-                dstream_algo=dstream_algo,
-                dstream_S=dstream_S,
-                T=inner_df["compare_T"].to_numpy(),
-                chunk_size=2**16,
-            ),
+        for chunk, retained_ranks in iter_dstream_ingest_times_sorted(
+            dstream_algo=dstream_algo,
+            dstream_S=dstream_S,
+            T=inner_df["compare_T"].to_numpy(),
+            chunk_size=2**16,
+            progress_wrap=progress_wrap,
         ):
             inner_times[chunk] = _calc_geometric_chunk(
-                retained=retained,
+                retained_ranks=retained_ranks,
                 ranks=inner_ranks[chunk],
-                youngest_T=youngest_T[chunk],
+                clade_min_T=clade_min_T[chunk],
                 p=p_differentia_collision,
                 dstream_S=dstream_S,
             )

@@ -1,6 +1,7 @@
 class ExperimentalWarning(UserWarning):
     """Warning category for experimental functionality, whose interface and
-    results can change in the future.
+    results can change in the future, and whose results have not yet been
+    extensively validated.
 
     Silence it by setting the environment variable
     `HSTRAT_WARN_EXPERIMENTAL_SUPPRESS`, or by filtering this category,

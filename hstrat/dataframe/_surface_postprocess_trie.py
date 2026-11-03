@@ -67,6 +67,52 @@ def _do_collapse_unifurcations(
     return df
 
 
+def _prefix_roots(
+    df: pl.DataFrame, dstream_S: int, differentia_bitwidth: int
+) -> pl.DataFrame:
+    """Extend newly-clipped roots back to the `dstream_S` boundary, and fill
+    prefixed roots' rank and uniform hstrat metadata columns."""
+    with log_context_duration("alifestd_prefix_roots", logging.info):
+        # extend newly-clipped roots all the way back to dstream_S boundary
+        df = pfl.alifestd_prefix_roots_polars(
+            df, allow_id_reassign=True, origin_time=dstream_S
+        )
+    # ensure prefixed roots precede their children: take dstream_S, or
+    # earliest child's rank if earlier (nodes at rank dstream_S - 1 are kept)
+    marked_df = pfl.alifestd_mark_roots_polars(df.lazy(), mark_as="_is_root")
+    child_min_rank_df = (
+        marked_df.filter(~pl.col("_is_root"))
+        .group_by("ancestor_id")
+        .agg(_child_min_rank=pl.col("dstream_rank").min())
+    )
+    df = marked_df.join(
+        child_min_rank_df,
+        left_on="id",
+        right_on="ancestor_id",
+        how="left",
+        maintain_order="left",
+    )
+    df = (
+        df.with_columns(
+            pl.col("dstream_rank").fill_null(
+                pl.min_horizontal(pl.lit(dstream_S), "_child_min_rank").cast(
+                    df.schema["dstream_rank"],
+                ),
+            ),
+            pl.col("dstream_S").fill_null(dstream_S),
+            pl.col("hstrat_differentia_bitwidth").fill_null(
+                differentia_bitwidth
+            ),
+        )
+        .drop("_child_min_rank", "_is_root")
+        .collect()
+    )
+    assert df["dstream_S"].n_unique() == 1
+    assert df["hstrat_differentia_bitwidth"].n_unique() == 1
+
+    return df
+
+
 def _do_delete_trunk(
     df: pl.DataFrame,
 ) -> pl.DataFrame:
@@ -103,43 +149,7 @@ def _do_delete_trunk(
         df = pfl.alifestd_assign_contiguous_ids_polars(df)
 
     logging.info(f" - len(df): {df.lazy().select(pl.len()).collect().item()}")
-    with log_context_duration("alifestd_prefix_roots", logging.info):
-        # extend newly-clipped roots all the way back to dstream_S boundary
-        df = pfl.alifestd_prefix_roots_polars(
-            df, allow_id_reassign=True, origin_time=dstream_S
-        )
-    # ensure prefixed roots don't outrank their children: take dstream_S, or
-    # earliest child's rank if earlier (nodes at rank dstream_S - 1 are kept)
-    marked_df = pfl.alifestd_mark_roots_polars(df.lazy(), mark_as="_is_root")
-    child_min_rank_df = (
-        marked_df.filter(~pl.col("_is_root"))
-        .group_by("ancestor_id")
-        .agg(_child_min_rank=pl.col("dstream_rank").min())
-    )
-    df = marked_df.join(
-        child_min_rank_df,
-        left_on="id",
-        right_on="ancestor_id",
-        how="left",
-        maintain_order="left",
-    )
-    df = (
-        df.with_columns(
-            pl.col("dstream_rank").fill_null(
-                pl.min_horizontal(pl.lit(dstream_S), "_child_min_rank").cast(
-                    df.schema["dstream_rank"],
-                ),
-            ),
-            pl.col("dstream_S").fill_null(dstream_S),
-            pl.col("hstrat_differentia_bitwidth").fill_null(
-                differentia_bitwidth
-            ),
-        )
-        .drop("_child_min_rank", "_is_root")
-        .collect()
-    )
-    assert df["dstream_S"].n_unique() == 1
-    assert df["hstrat_differentia_bitwidth"].n_unique() == 1
+    df = _prefix_roots(df, dstream_S, differentia_bitwidth)
 
     gc.collect()
 

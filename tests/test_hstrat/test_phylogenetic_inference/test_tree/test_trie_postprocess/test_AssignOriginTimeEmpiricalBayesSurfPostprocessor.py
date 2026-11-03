@@ -272,3 +272,67 @@ def test_experimental_warning(monkeypatch: pytest.MonkeyPatch):
         hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
             "dstream.steady_algo",
         )
+
+
+def _make_pool_coarsen_steps() -> list:
+    """Postprocessing steps after empirical Bayes, as in its docstring."""
+    return [
+        hstrat.PipeCallablePostprocessor(
+            pfl.alifestd_mark_num_mrca_leaf_pairs_polars,
+        ),
+        hstrat.PipeCallablePostprocessor(
+            pfl.alifestd_pool_chronological_consistency_polars,
+            weight_by="num_mrca_leaf_pairs",
+        ),
+        hstrat.PipeCallablePostprocessor(
+            pl.DataFrame.drop, "num_mrca_leaf_pairs", "num_leaves"
+        ),
+        hstrat.PipeCallablePostprocessor(
+            pfl.alifestd_coarsen_taxa_polars, by="origin_time"
+        ),
+        hstrat.PipeCallablePostprocessor(pl.DataFrame.drop, "is_root"),
+        hstrat.PipeCallablePostprocessor(
+            pfl.alifestd_assign_contiguous_ids_polars,
+        ),
+    ]
+
+
+def test_pool_and_coarsen_inversions():
+    # root (0) <- inner (10) <- inverted inner (4) <- two leaves (20)
+    trie = pl.DataFrame(
+        {
+            "id": [0, 1, 2, 3, 4, 5],
+            "ancestor_id": [0, 0, 1, 2, 2, 1],
+            "origin_time": [0.0, 10.0, 4.0, 20.0, 20.0, 20.0],
+            "rank": [64, 100, 99, 199, 199, 199],
+        },
+    )
+    assert pfl.alifestd_find_chronological_inconsistency_polars(trie) == 2
+    result = hstrat.CompoundTriePostprocessor(_make_pool_coarsen_steps())(
+        trie, p_differentia_collision=0.5
+    )
+    assert pfl.alifestd_find_chronological_inconsistency_polars(result) is None
+    # inverted node pooled with, then collapsed into, its parent, at their
+    # mean origin time weighted by leaf pairs per MRCA, (2 * 10 + 1 * 4) / 3
+    assert len(result) == len(trie) - 1
+    assert result.columns == trie.columns
+    assert pfl.alifestd_has_contiguous_ids_polars(result)
+    assert pfl.alifestd_is_topologically_sorted_polars(result)
+    assert sorted(result["origin_time"].to_list()) == [0, 8, 20, 20, 20]
+
+
+def test_pool_and_coarsen_surface_build_tree():
+    pop = make_population("dstream.tilted_algo", 1)
+    phylo = surface_build_tree(
+        pop,
+        trie_postprocessor=hstrat.CompoundTriePostprocessor(
+            [
+                hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
+                    "dstream.tilted_algo",
+                ),
+                *_make_pool_coarsen_steps(),
+            ],
+        ),
+    )
+    assert pfl.alifestd_find_chronological_inconsistency_polars(phylo) is None
+    assert pfl.alifestd_count_leaf_nodes_polars(phylo) == len(pop)
