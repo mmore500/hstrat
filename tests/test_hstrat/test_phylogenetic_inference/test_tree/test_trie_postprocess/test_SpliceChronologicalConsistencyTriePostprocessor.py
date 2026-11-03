@@ -119,22 +119,20 @@ def test_polars_only():
     "dstream_algo", ["dstream.steady_algo", "dstream.tilted_algo"]
 )
 @pytest.mark.parametrize("bitwidth", [1, 8])
-def test_after_geometric(dstream_algo: str, bitwidth: int):
+def test_after_unbiased(dstream_algo: str, bitwidth: int):
     pop = surface_test_drive(
         pl.read_csv(f"{assets}/nk_ecoeaselection.csv"),
         dstream_algo=dstream_algo,
         dstream_S=64,
         stratum_differentia_bit_width=bitwidth,
     )
-    geometric = hstrat.AssignOriginTimeGeometricSurfPostprocessor(
-        dstream_algo,
-    )
-    unspliced = surface_build_tree(pop, trie_postprocessor=geometric)
+    unbiased = hstrat.AssignOriginTimeUnbiasedSurfPostprocessor()
+    unspliced = surface_build_tree(pop, trie_postprocessor=unbiased)
     spliced = surface_build_tree(
         pop,
         trie_postprocessor=hstrat.CompoundTriePostprocessor(
             [
-                geometric,
+                unbiased,
                 hstrat.SpliceChronologicalConsistencyTriePostprocessor(),
             ],
         ),
@@ -178,12 +176,10 @@ def _make_nonultrametric_tree(rng: np.random.Generator) -> pl.DataFrame:
     ).cast(pl.UInt64)
 
 
-def test_after_geometric_with_inversions():
+def test_after_unbiased_with_inversions():
     seed_random(1)
     rng = np.random.default_rng(1)
-    geometric = hstrat.AssignOriginTimeGeometricSurfPostprocessor(
-        "dstream.steady_algo",
-    )
+    unbiased = hstrat.AssignOriginTimeUnbiasedSurfPostprocessor()
     for __ in range(50):  # find reconstruction with origin time inversions
         pop = surface_test_drive(
             _make_nonultrametric_tree(rng).lazy(),
@@ -191,7 +187,7 @@ def test_after_geometric_with_inversions():
             dstream_S=16,
             stratum_differentia_bit_width=1,
         )
-        unspliced = surface_build_tree(pop, trie_postprocessor=geometric)
+        unspliced = surface_build_tree(pop, trie_postprocessor=unbiased)
         if _count_inversions(unspliced):
             break
     else:
@@ -201,7 +197,7 @@ def test_after_geometric_with_inversions():
         pop,
         trie_postprocessor=hstrat.CompoundTriePostprocessor(
             [
-                geometric,
+                unbiased,
                 hstrat.SpliceChronologicalConsistencyTriePostprocessor(),
             ],
         ),

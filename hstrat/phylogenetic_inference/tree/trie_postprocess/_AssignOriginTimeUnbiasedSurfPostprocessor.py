@@ -196,9 +196,7 @@ class AssignOriginTimeUnbiasedSurfPostprocessor(TriePostprocessorBase):
     ...     df,
     ...     trie_postprocessor=hstrat.CompoundTriePostprocessor(
     ...         [
-    ...             hstrat.AssignOriginTimeGeometricSurfPostprocessor(
-    ...                 "dstream.steady_algo",
-    ...             ),
+    ...             hstrat.AssignOriginTimeUnbiasedSurfPostprocessor(),
     ...             hstrat.SpliceChronologicalConsistencyTriePostprocessor(),
     ...         ],
     ...     ),

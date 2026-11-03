@@ -97,7 +97,7 @@ class SpliceChronologicalConsistencyTriePostprocessor(TriePostprocessorBase):
 
     Use after a postprocessor that assigns origin times, e.g., to resolve
     negative branch lengths from
-    `AssignOriginTimeGeometricSurfPostprocessor`, via
+    `AssignOriginTimeUnbiasedSurfPostprocessor`, via
     `CompoundTriePostprocessor`.
 
     Notes
@@ -111,9 +111,7 @@ class SpliceChronologicalConsistencyTriePostprocessor(TriePostprocessorBase):
     ...     df,
     ...     trie_postprocessor=hstrat.CompoundTriePostprocessor(
     ...         [
-    ...             hstrat.AssignOriginTimeGeometricSurfPostprocessor(
-    ...                 "dstream.steady_algo",
-    ...             ),
+    ...             hstrat.AssignOriginTimeUnbiasedSurfPostprocessor(),
     ...             hstrat.SpliceChronologicalConsistencyTriePostprocessor(),
     ...         ],
     ...     ),
