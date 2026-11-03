@@ -19,8 +19,10 @@ def iter_dstream_ingest_times_sorted(
 
     Rows are chunked in order of `T`, so that rows with equal `T` share
     chunks, and lookups are made once per unique `T` within each chunk, in
-    parallel. Chunks together cover all rows once; the last chunk is
-    shorter if `chunk_size` does not evenly divide `len(T)`.
+    parallel. So, chunks and the rows within them are not in row order; use
+    each chunk's yielded row indices to place results. Chunks together
+    cover all rows once; the last chunk is shorter if `chunk_size` does not
+    evenly divide `len(T)`.
 
     Pass tqdm or equivalent as `progress_wrap` to report progress over
     chunks.

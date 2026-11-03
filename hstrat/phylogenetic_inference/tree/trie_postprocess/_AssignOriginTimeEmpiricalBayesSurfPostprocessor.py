@@ -45,7 +45,7 @@ def _calc_prior_moments(
     # the general formula below divides by zero; tolerance is sqrt(float64
     # epsilon), balancing the general formula's cancellation error against
     # the special cases' error
-    tol = 1.4901161193847656e-08
+    tol = np.sqrt(np.finfo(np.float64).eps)
     if abs(alpha) < tol:
         mass = u2 - u1
         mean_u = (u1 + u2) / 2
@@ -80,6 +80,7 @@ def _calc_posterior_means_fast_path(
     p: float,
     dstream_S: int,
     alpha_grid: np.ndarray,
+    truncation_tolerance: float,
 ) -> np.ndarray:
     """Posterior mean divergence times, relative to `dstream_S`, of inner
     nodes for each prior exponent in `alpha_grid` (columns).
@@ -100,8 +101,13 @@ def _calc_posterior_means_fast_path(
         Surface size; ranks before it are not comparable.
     alpha_grid : np.ndarray
         Prior exponents to evaluate.
+    truncation_tolerance : float
+        Stop summing over earlier intervals once their remaining
+        contribution could shift a posterior mean by at most this many
+        generations. If zero, all intervals are summed.
     """
     num_nodes, num_retained = retained_ranks.shape
+    early_exit = truncation_tolerance > 0  # if zero, sum over all intervals
     result = np.empty((num_nodes, len(alpha_grid)))
     scratch = np.empty((num_nodes, num_retained + 3))  # per-node bounds
     for i in jit_prange(num_nodes):
@@ -134,10 +140,23 @@ def _calc_posterior_means_fast_path(
         num_bounds += 1
 
         for k in range(len(alpha_grid)):
+            # bounds prior mass of all remaining intervals, within [0, hi)
+            total_mass = 0.0
+            if early_exit:
+                total_mass, __ = _calc_prior_moments(0.0, hi, H, alpha_grid[k])
             numerator = 0.0
             denominator = 0.0
             p_collisions = 1.0  # jth interval requires j collisions
             for j in range(num_bounds - 1):
+                # remaining intervals' weight is at most p_collisions *
+                # total_mass, and their means lie in [0, H], so stop once
+                # they could shift the posterior mean by at most tolerance
+                if (
+                    early_exit
+                    and p_collisions * total_mass * H
+                    <= truncation_tolerance * denominator
+                ):
+                    break
                 mass, mean = _calc_prior_moments(
                     bounds[j + 1], bounds[j], H, alpha_grid[k]
                 )
@@ -164,6 +183,7 @@ def _calc_inner_estimates(
     dstream_algo: types.ModuleType,
     dstream_S: int,
     alpha_grid: np.ndarray,
+    truncation_tolerance: float,
     progress_wrap: typing.Callable,
 ) -> typing.Tuple[pl.DataFrame, np.ndarray]:
     """Posterior mean origin times of inner nodes for each prior exponent in
@@ -180,7 +200,8 @@ def _calc_inner_estimates(
     """
     alpha_grid = np.asarray(alpha_grid, dtype=np.float64)
     bounds_df = mark_inner_node_bounds(trie_df=trie)
-    inner_df = bounds_df.filter("is_inner")
+    is_inner = (~bounds_df["is_leaf"] & ~bounds_df["is_root"]).to_numpy()
+    inner_df = bounds_df.filter(is_inner)
     inner_ranks = inner_df["rank"].to_numpy().astype(np.float64)
     clade_min_T = inner_df["clade_min_T"].to_numpy().astype(np.float64)
     p = float(p_differentia_collision)
@@ -202,6 +223,7 @@ def _calc_inner_estimates(
                 p=p,
                 dstream_S=int(dstream_S),
                 alpha_grid=alpha_grid,
+                truncation_tolerance=truncation_tolerance,
             )
             geometric[chunk] = _calc_geometric_chunk(
                 retained_ranks=retained_ranks,
@@ -212,12 +234,11 @@ def _calc_inner_estimates(
             )
     assert np.isfinite(posterior).all()
 
-    is_inner = bounds_df["is_inner"].to_numpy()
     all_geometric = np.full(len(bounds_df), np.nan)
     all_geometric[is_inner] = geometric
     estimates_df = bounds_df.select(
         base=(pl.col("rank") - dstream_S).cast(pl.Float64),
-        is_inner="is_inner",
+        is_inner=pl.Series(is_inner),
         geometric=pl.Series(all_geometric).fill_nan(None),
     )
     return estimates_df, posterior
@@ -229,6 +250,7 @@ def _calc_posterior_origin_times(
     dstream_algo: types.ModuleType,
     dstream_S: int,
     alpha_grid: np.ndarray,
+    truncation_tolerance: float,
     progress_wrap: typing.Callable,
 ) -> np.ndarray:
     """Posterior mean origin times, relative to `dstream_S`, of all nodes
@@ -242,6 +264,7 @@ def _calc_posterior_origin_times(
         dstream_algo=dstream_algo,
         dstream_S=dstream_S,
         alpha_grid=alpha_grid,
+        truncation_tolerance=truncation_tolerance,
         progress_wrap=progress_wrap,
     )
     origin_times = np.repeat(
@@ -265,21 +288,32 @@ def _estimate_prior_exponent_by_benchmarking(
     Posterior means are nondecreasing in prior exponent, so the weighted
     mean is monotonic over grid columns. Returns interpolated means and the
     corresponding interpolated prior exponent.
+
+    Interpolated means stand in for (i.e., approximate) posterior means
+    under the interpolated prior exponent, between the bracketing grid
+    exponents, and are chosen so that their weighted mean matches `target`
+    exactly. A finer grid makes them closer to exact posterior means.
     """
     sums = weights @ posterior
     # posterior means are nondecreasing in prior exponent
     assert (np.diff(sums) >= -1e-6 * max(abs(sums[-1]), 1.0)).all()
+    logging.info(
+        f" - benchmarking target {target}, attainable over alpha_grid "
+        f"[{sums[0]}, {sums[-1]}]",
+    )
     clipped_target = np.clip(target, sums[0], sums[-1])
     if clipped_target != target:
         warnings.warn(
             f"benchmarking target {target} outside range attainable over "
             "alpha_grid; clamping prior exponent to nearest grid bound",
         )
-    # Invert the nondecreasing weighted sums by linear interpolation: find
-    # the fractional grid index at which they reach the target (e.g., 2.25
-    # is a quarter of the way from column 2 to column 3). Posterior means
-    # and the prior exponent are then interpolated between those bracketing
-    # columns by the same fraction.
+    # the weighted sums increase with grid index, so we can look up, rather
+    # than search for, the fractional grid index at which they reach the
+    # target: swap axes, interpolating grid index as a function of weighted
+    # sum (e.g., 2.25 is a quarter of the way from column 2 to column 3);
+    # this treats weighted sums as linear between grid points, an
+    # approximation; posterior means and the prior exponent are then
+    # interpolated between the bracketing columns by the same fraction
     index = np.interp(clipped_target, sums, np.arange(len(alpha_grid)))
     k = min(int(index), len(alpha_grid) - 2)
     lam = index - k
@@ -329,10 +363,12 @@ def _call_polars(
         dstream_algo=ftor._dstream_algo,
         dstream_S=dstream_S,
         alpha_grid=alpha_grid,
+        truncation_tolerance=ftor._truncation_tolerance,
         progress_wrap=progress_wrap,
     )
     is_inner = estimates_df["is_inner"].to_numpy()
     if len(alpha_grid) == 1:
+        logging.info(f" - assigning posterior means under {alpha_grid[0]=}")
         inner_means, alpha = posterior[:, 0], float(alpha_grid[0])
     else:
         weights = pair_counts[is_inner]
@@ -450,7 +486,7 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     ... )
 
     or, to then pool origin time inversions and collapse zero-length
-    branches,
+    branches, keeping leaves,
 
     >>> from phyloframe import legacy as pfl
     >>> hstrat.dataframe.surface_build_tree(
@@ -460,36 +496,20 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     ...             hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
     ...                 "dstream.steady_algo",
     ...             ),
-    ...             # pool inversions, weighted by leaf pairs per MRCA
     ...             hstrat.PipeCallablePostprocessor(
+    ...                 pfl.alifestd_pipe_unary_ops_polars,
     ...                 pfl.alifestd_mark_num_mrca_leaf_pairs_polars,
-    ...             ),
-    ...             hstrat.PipeCallablePostprocessor(
-    ...                 pfl.alifestd_pool_chronological_consistency_polars,
-    ...                 weight_by="num_mrca_leaf_pairs",
-    ...             ),
-    ...             hstrat.PipeCallablePostprocessor(
-    ...                 pl.DataFrame.drop,
-    ...                 "num_mrca_leaf_pairs",
-    ...                 "num_leaves",
-    ...                 strict=False,
-    ...             ),
-    ...             # collapse zero-length branches, keeping leaves
-    ...             hstrat.PipeCallablePostprocessor(
+    ...                 lambda df: pfl.alifestd_pool_chronological_consistency_polars(
+    ...                     df, weight_by="num_mrca_leaf_pairs"
+    ...                 ),
     ...                 pfl.alifestd_mark_leaves_polars,
-    ...             ),
-    ...             hstrat.PipeCallablePostprocessor(
-    ...                 pfl.alifestd_coarsen_taxa_polars,
-    ...                 by=["origin_time", "is_leaf"],
-    ...             ),
-    ...             hstrat.PipeCallablePostprocessor(
-    ...                 pl.DataFrame.drop,
-    ...                 "is_leaf",
-    ...                 "is_root",
-    ...                 "num_children",
-    ...                 strict=False,
-    ...             ),
-    ...             hstrat.PipeCallablePostprocessor(
+    ...                 lambda df: pfl.alifestd_coarsen_taxa_polars(
+    ...                     df, by=["origin_time", "is_leaf"]
+    ...                 ),
+    ...                 lambda df: df.drop(
+    ...                     "is_leaf", "is_root", "num_children",
+    ...                     "num_leaves", "num_mrca_leaf_pairs", strict=False,
+    ...                 ),
     ...                 pfl.alifestd_assign_contiguous_ids_polars,
     ...             ),
     ...         ],
@@ -500,6 +520,7 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     _assigned_property: str  # property name for assigned origin time
     _dstream_algo: types.ModuleType  # downstream algorithm of surfaces
     _alpha_grid: np.ndarray  # prior exponents evaluated, or fixed exponent
+    _truncation_tolerance: float  # in generations, per posterior mean
 
     def __init__(
         self: "AssignOriginTimeEmpiricalBayesSurfPostprocessor",
@@ -507,6 +528,7 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
         assigned_property: str = "origin_time",
         *,
         alpha_grid: typing.Sequence[float] = tuple(np.linspace(-3, 3, 25)),
+        truncation_tolerance: float = 1e-9,
     ) -> None:
         """Initialize functor instance.
 
@@ -526,8 +548,15 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
             attainable over the grid, estimates are clamped to the nearest
             grid bound, with a warning.
 
-            A single value fixes the prior exponent, skipping benchmarking
-            (e.g., `alpha_grid=[0]` gives the uniform prior).
+            Must be nonempty and strictly increasing. A single value fixes
+            the prior exponent, skipping benchmarking (e.g., `alpha_grid=[0]`
+            gives the uniform prior).
+        truncation_tolerance : float, default 1e-9
+            Absolute tolerance, in generations, for truncating each
+            posterior mean's sum over earlier intervals.
+            Earlier intervals, which require ever more spurious collisions,
+            are skipped once they could shift a mean by at most this much.
+            If zero, all intervals are summed exactly.
         """
         alpha_grid = np.asarray(alpha_grid, dtype=np.float64)
         if (
@@ -539,6 +568,9 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
         self._dstream_algo = resolve_dstream_algo(dstream_algo)
         self._assigned_property = assigned_property
         self._alpha_grid = alpha_grid
+        if truncation_tolerance < 0:
+            raise ValueError("truncation_tolerance must be nonnegative")
+        self._truncation_tolerance = float(truncation_tolerance)
 
     def __call__(
         self: "AssignOriginTimeEmpiricalBayesSurfPostprocessor",

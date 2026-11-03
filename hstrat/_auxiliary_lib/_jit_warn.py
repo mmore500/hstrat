@@ -10,10 +10,6 @@ except (ImportError, ModuleNotFoundError):  # pragma: no cover
     objmode = contextlib.nullcontext
 
 
-def _warn(message: str) -> None:
-    warnings.warn(message, RuntimeWarning)
-
-
 @jit(nopython=True)
 def jit_warn(message: str) -> None:
     """Issue a `RuntimeWarning` with `message`, including from within
@@ -23,4 +19,4 @@ def jit_warn(message: str) -> None:
     message is shown once.
     """
     with objmode():
-        _warn(message)
+        warnings.warn(message, RuntimeWarning)

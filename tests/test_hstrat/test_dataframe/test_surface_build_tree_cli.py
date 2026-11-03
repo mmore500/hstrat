@@ -207,33 +207,19 @@ def test_surface_build_tree_cli_empirical_bayes_pool_coarsen():
                 "dstream.steady_algo",
             ),
             hstrat.PipeCallablePostprocessor(
+                pf.legacy.alifestd_pipe_unary_ops_polars,
                 pf.legacy.alifestd_mark_num_mrca_leaf_pairs_polars,
-            ),
-            hstrat.PipeCallablePostprocessor(
-                pf.legacy.alifestd_pool_chronological_consistency_polars,
-                weight_by="num_mrca_leaf_pairs",
-            ),
-            hstrat.PipeCallablePostprocessor(
-                pl.DataFrame.drop,
-                "num_mrca_leaf_pairs",
-                "num_leaves",
-                strict=False,
-            ),
-            hstrat.PipeCallablePostprocessor(
+                lambda df: pf.legacy.alifestd_pool_chronological_consistency_polars(
+                    df, weight_by="num_mrca_leaf_pairs"
+                ),
                 pf.legacy.alifestd_mark_leaves_polars,
-            ),
-            hstrat.PipeCallablePostprocessor(
-                pf.legacy.alifestd_coarsen_taxa_polars,
-                by=["origin_time", "is_leaf"],
-            ),
-            hstrat.PipeCallablePostprocessor(
-                pl.DataFrame.drop,
-                "is_leaf",
-                "is_root",
-                "num_children",
-                strict=False,
-            ),
-            hstrat.PipeCallablePostprocessor(
+                lambda df: pf.legacy.alifestd_coarsen_taxa_polars(
+                    df, by=["origin_time", "is_leaf"]
+                ),
+                lambda df: df.drop(
+                    "is_leaf", "is_root", "num_children",
+                    "num_leaves", "num_mrca_leaf_pairs", strict=False,
+                ),
                 pf.legacy.alifestd_assign_contiguous_ids_polars,
             ),
         ],

@@ -9,11 +9,14 @@ from ....._auxiliary_lib import log_context_duration
 
 
 def mark_inner_node_bounds(trie_df: pl.DataFrame) -> pl.DataFrame:
-    """Mark inner nodes, i.e., nodes that are neither leaves nor roots,
-    and the bounds of their comparable ranks.
+    """Mark leaves and roots, and the bounds of nodes' comparable ranks.
+
+    Inner nodes, i.e., nodes that are neither leaves nor roots, are those
+    `~is_leaf & ~is_root`.
 
     Returns `rank` (Int64) and added columns, per node:
-    - `is_inner`: is node neither a leaf nor a root?
+    - `is_leaf`: is node a leaf?
+    - `is_root`: is node a root?
     - `compare_T`: `dstream_T` at which its children's differentiae are
       compared, i.e., the largest of their minimum tip `dstream_T`, as ranks
       retained there are retained by every child's youngest tip
@@ -43,7 +46,8 @@ def mark_inner_node_bounds(trie_df: pl.DataFrame) -> pl.DataFrame:
 
         bounds_df = marked_df.select(
             "rank",
-            is_inner=~pl.col("is_leaf") & ~pl.col("is_root"),
+            "is_leaf",
+            "is_root",
             compare_T=pl.col("compare_T"),
             clade_min_T=pl.col("clade_min_T"),
         ).collect()

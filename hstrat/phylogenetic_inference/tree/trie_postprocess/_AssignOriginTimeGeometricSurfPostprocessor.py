@@ -74,7 +74,8 @@ def _calc_geometric_origin_times(
     and provide an integer `rank` column, with leaf rank `dstream_T - 1`.
     """
     bounds_df = mark_inner_node_bounds(trie_df=trie)
-    inner_df = bounds_df.filter("is_inner")
+    is_inner = (~bounds_df["is_leaf"] & ~bounds_df["is_root"]).to_numpy()
+    inner_df = bounds_df.filter(is_inner)
     inner_ranks = inner_df["rank"].to_numpy().astype(np.float64)
     clade_min_T = inner_df["clade_min_T"].to_numpy().astype(np.float64)
 
@@ -100,7 +101,7 @@ def _calc_geometric_origin_times(
     origin_times = (bounds_df["rank"].to_numpy() - dstream_S).astype(
         np.float64
     )
-    origin_times[bounds_df["is_inner"].to_numpy()] = inner_times
+    origin_times[is_inner] = inner_times
     return origin_times
 
 
@@ -166,7 +167,6 @@ class AssignOriginTimeGeometricSurfPostprocessor(TriePostprocessorBase):
 
     Notes
     -----
-
     Only polars dataframe tries with a uniform `dstream_S` are supported
     (e.g., via `surface_postprocess_trie`). Origin times are relative to
     `dstream_S`. Leaf ranks are taken to be `dstream_T - 1`. Leaves and

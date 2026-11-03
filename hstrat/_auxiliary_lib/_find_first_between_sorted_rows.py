@@ -25,7 +25,8 @@ def find_first_between_sorted_rows(
     Returns
     -------
     np.ndarray
-        Array of shape `(len(rows), num)`.
+        The found values (not indices), as an array of shape
+        `(len(rows), num)`, in ascending order within each row.
     """
     # index of first value after `after`, as rows are sorted ascending
     columns = (rows <= after[:, None]).sum(axis=1)[:, None] + np.arange(num)

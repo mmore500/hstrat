@@ -106,7 +106,7 @@ def test_brute_force_hand_built(alpha: float, p: float):
     trie = _make_hand_trie()
     np.testing.assert_allclose(
         _calc_posterior_origin_times(
-            trie, p, dstream.steady_algo, 64, [alpha], lambda x: x
+            trie, p, dstream.steady_algo, 64, [alpha], 0.0, lambda x: x
         )[:, 0],
         _brute_force(trie, "dstream.steady_algo", p, alpha),
     )
@@ -121,7 +121,7 @@ def test_brute_force_population(dstream_algo: str, bitwidth: int):
     algo = getattr(dstream, dstream_algo.removeprefix("dstream."))
     alphas = [-3.0, 0.0, 1.5]
     result = _calc_posterior_origin_times(
-        trie, p, algo, 64, alphas, lambda x: x
+        trie, p, algo, 64, alphas, 0.0, lambda x: x
     )
     for k, alpha in enumerate(alphas):
         np.testing.assert_allclose(
@@ -177,7 +177,7 @@ def test_monotonic_in_alpha(dstream_algo: str, bitwidth: int):
     trie, p = make_trie(dstream_algo, bitwidth)
     algo = getattr(dstream, dstream_algo.removeprefix("dstream."))
     grid = _calc_posterior_origin_times(
-        trie, p, algo, 64, np.linspace(-6, 6, 49), lambda x: x
+        trie, p, algo, 64, np.linspace(-6, 6, 49), 0.0, lambda x: x
     )
     assert (np.diff(grid, axis=1) >= -1e-9).all()
 
@@ -278,30 +278,23 @@ def _make_pool_coarsen_steps() -> list:
     """Postprocessing steps after empirical Bayes, as in its docstring."""
     return [
         hstrat.PipeCallablePostprocessor(
+            pfl.alifestd_pipe_unary_ops_polars,
             pfl.alifestd_mark_num_mrca_leaf_pairs_polars,
-        ),
-        hstrat.PipeCallablePostprocessor(
-            pfl.alifestd_pool_chronological_consistency_polars,
-            weight_by="num_mrca_leaf_pairs",
-        ),
-        hstrat.PipeCallablePostprocessor(
-            pl.DataFrame.drop,
-            "num_mrca_leaf_pairs",
-            "num_leaves",
-            strict=False,
-        ),
-        hstrat.PipeCallablePostprocessor(pfl.alifestd_mark_leaves_polars),
-        hstrat.PipeCallablePostprocessor(
-            pfl.alifestd_coarsen_taxa_polars, by=["origin_time", "is_leaf"]
-        ),
-        hstrat.PipeCallablePostprocessor(
-            pl.DataFrame.drop,
-            "is_leaf",
-            "is_root",
-            "num_children",
-            strict=False,
-        ),
-        hstrat.PipeCallablePostprocessor(
+            lambda df: pfl.alifestd_pool_chronological_consistency_polars(
+                df, weight_by="num_mrca_leaf_pairs"
+            ),
+            pfl.alifestd_mark_leaves_polars,
+            lambda df: pfl.alifestd_coarsen_taxa_polars(
+                df, by=["origin_time", "is_leaf"]
+            ),
+            lambda df: df.drop(
+                "is_leaf",
+                "is_root",
+                "num_children",
+                "num_leaves",
+                "num_mrca_leaf_pairs",
+                strict=False,
+            ),
             pfl.alifestd_assign_contiguous_ids_polars,
         ),
     ]
@@ -365,3 +358,22 @@ def test_pool_and_coarsen_keeps_leaves():
     assert pfl.alifestd_find_chronological_inconsistency_polars(result) is None
     assert pfl.alifestd_count_leaf_nodes_polars(result) == 2
     assert len(result) == len(trie)
+
+
+@pytest.mark.parametrize("bitwidth", [1, 8])
+def test_truncation_tolerance(bitwidth: int):
+    trie, p = make_trie("dstream.steady_algo", bitwidth)
+    exact, default = (
+        hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
+            "dstream.steady_algo", truncation_tolerance=tolerance
+        )(trie, p_differentia_collision=p)["origin_time"].to_numpy()
+        for tolerance in (0.0, 1e-9)
+    )
+    np.testing.assert_allclose(default, exact, rtol=0, atol=1e-6)
+
+
+def test_invalid_truncation_tolerance():
+    with pytest.raises(ValueError):
+        hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
+            "dstream.steady_algo", truncation_tolerance=-1.0
+        )
