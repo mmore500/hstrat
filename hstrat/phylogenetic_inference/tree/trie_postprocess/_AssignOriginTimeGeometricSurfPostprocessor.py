@@ -123,7 +123,7 @@ class AssignOriginTimeGeometricSurfPostprocessor(TriePostprocessorBase):
     Estimates are unbiased on average, not individually: they may precede
     ancestors' estimates, giving negative branch lengths. Topology is left
     unchanged. For individual estimates bounded within their own and earlier
-    intervals, see `AssignOriginTimeEmpiricalBayesSurfPostprocessor`.
+    intervals, see `AssignOriginTimeBenchmarkedBayesSurfPostprocessor`.
 
     Notes
     -----

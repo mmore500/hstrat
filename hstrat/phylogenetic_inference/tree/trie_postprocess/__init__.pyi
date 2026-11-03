@@ -1,8 +1,8 @@
 from ._AssignDestructionTimeYoungestPlusOneTriePostprocessor import (
     AssignDestructionTimeYoungestPlusOneTriePostprocessor,
 )
-from ._AssignOriginTimeEmpiricalBayesSurfPostprocessor import (
-    AssignOriginTimeEmpiricalBayesSurfPostprocessor,
+from ._AssignOriginTimeBenchmarkedBayesSurfPostprocessor import (
+    AssignOriginTimeBenchmarkedBayesSurfPostprocessor,
 )
 from ._AssignOriginTimeExpectedValueTriePostprocessor import (
     AssignOriginTimeExpectedValueTriePostprocessor,
@@ -32,7 +32,7 @@ from ._SampleAncestralRollbacksTriePostprocessor import (
 # adapted from https://stackoverflow.com/a/31079085
 __all__ = [
     "AssignDestructionTimeYoungestPlusOneTriePostprocessor",
-    "AssignOriginTimeEmpiricalBayesSurfPostprocessor",
+    "AssignOriginTimeBenchmarkedBayesSurfPostprocessor",
     "AssignOriginTimeExpectedValueTriePostprocessor",
     "AssignOriginTimeGeometricSurfPostprocessor",
     "AssignOriginTimeNaiveTriePostprocessor",
