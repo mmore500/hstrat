@@ -16,9 +16,9 @@ def find_first_between_sorted_rows(
     rows : np.ndarray
         2D array, with each row sorted ascending.
     after : np.ndarray
-        Exclusive lower bound for each row; values must exceed it.
+        Exclusive lower bound values for each row.
     before : np.ndarray
-        Exclusive upper bound for each row; values must be less than it.
+        Exclusive upper bound values for each row.
     num : int
         Number of values to find per row.
 
