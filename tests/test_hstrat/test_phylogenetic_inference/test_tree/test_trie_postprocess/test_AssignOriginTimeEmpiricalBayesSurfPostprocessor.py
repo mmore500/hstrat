@@ -8,6 +8,7 @@ import polars as pl
 import pytest
 
 from hstrat import hstrat
+from hstrat._auxiliary_lib import ExperimentalWarning
 from hstrat.dataframe import surface_build_tree, surface_test_drive
 from hstrat.phylogenetic_inference.tree.trie_postprocess._AssignOriginTimeEmpiricalBayesSurfPostprocessor import (
     _calc_posterior_origin_times,
@@ -203,10 +204,10 @@ def test_prior_moments(alpha: float):
 
 
 @pytest.mark.parametrize("alpha", [-2.0, 0.0, 1.5])
-def test_fixed_alpha(alpha: float):
+def test_single_value_grid(alpha: float):
     trie = _make_hand_trie()
     result = hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-        "dstream.steady_algo", alpha=alpha
+        "dstream.steady_algo", alpha_grid=[alpha]
     )(trie, p_differentia_collision=0.5)
     np.testing.assert_allclose(
         result["origin_time"].to_numpy(),
@@ -224,7 +225,7 @@ def test_clamped_warns():
 
 
 def test_invalid_alpha_grid():
-    for alpha_grid in [(0.0,), (1.0, -1.0), (0.0, 0.0)]:
+    for alpha_grid in [(), (1.0, -1.0), (0.0, 0.0), [[0.0, 1.0]]]:
         with pytest.raises(ValueError):
             hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
                 "dstream.steady_algo", alpha_grid=alpha_grid
@@ -263,3 +264,11 @@ def test_no_leaf_pairs_uses_uniform_prior():
         result["origin_time"].to_numpy(),
         _brute_force(trie, "dstream.steady_algo", 0.5, 0.0),
     )
+
+
+def test_experimental_warning(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.delenv("HSTRAT_WARN_EXPERIMENTAL_SUPPRESS", raising=False)
+    with pytest.warns(ExperimentalWarning):
+        hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
+            "dstream.steady_algo",
+        )

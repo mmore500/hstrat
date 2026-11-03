@@ -8,7 +8,7 @@ import polars as pl
 from ....._auxiliary_lib import log_context_duration
 
 
-def mark_inner_node_bounds(trie: pl.DataFrame) -> pl.DataFrame:
+def mark_inner_node_bounds(trie_df: pl.DataFrame) -> pl.DataFrame:
     """Mark inner nodes, i.e., nodes whose children diverged from one
     another, and the bounds of their comparable ranks.
 
@@ -22,32 +22,35 @@ def mark_inner_node_bounds(trie: pl.DataFrame) -> pl.DataFrame:
     Trie must have contiguous ids, be topologically sorted, and provide an
     integer `rank` column, with leaf rank `dstream_T - 1`.
     """
-    marked = trie.select(pl.col("id", "ancestor_id", "rank").cast(pl.Int64))
+    marked_df = trie_df.lazy().select(
+        pl.col("id", "ancestor_id", "rank").cast(pl.Int64),
+    )
     with log_context_duration("mark_inner_node_bounds", logging.info):
-        marked = pfl.alifestd_mark_num_children_polars(marked)
-        marked = marked.with_columns(
+        marked_df = pfl.alifestd_mark_num_children_polars(marked_df)
+        marked_df = pfl.alifestd_mark_leaves_polars(marked_df)
+        marked_df = pfl.alifestd_mark_roots_polars(marked_df)
+        marked_df = marked_df.with_columns(
             # leaf rank is dstream_T - 1
-            _tip_T=pl.when(pl.col("num_children") == 0).then(
-                pl.col("rank") + 1
-            ),
+            _tip_T=pl.when("is_leaf").then(pl.col("rank") + 1),
         )
-        marked = pfl.alifestd_mark_lineage_cummin_polars(
-            marked, "_tip_T", reverse=True, mark_as="clade_min_T"
+        marked_df = pfl.alifestd_mark_lineage_cummin_polars(
+            marked_df, "_tip_T", reverse=True, mark_as="clade_min_T"
         )
-        marked = pfl.alifestd_mark_max_child_value_polars(
-            marked.with_columns(pl.col("clade_min_T").cast(pl.Int64)),
+        marked_df = pfl.alifestd_mark_max_child_value_polars(
+            marked_df.with_columns(pl.col("clade_min_T").cast(pl.Int64)),
             "clade_min_T",
             mark_as="compare_T",
         )
 
-    # roots with multiple children bound divergence like inner nodes
-    return marked.select(
-        "rank",
-        is_inner=(pl.col("num_children") >= 2)
-        | (
-            (pl.col("num_children") == 1)
-            & (pl.col("id") != pl.col("ancestor_id"))
-        ),
-        compare_T=pl.col("compare_T").cast(pl.Int64),
-        clade_min_T=pl.col("clade_min_T"),
-    )
+        # roots with multiple children bound divergence like inner nodes
+        bounds_df = marked_df.select(
+            "rank",
+            is_inner=(pl.col("num_children") >= 2)
+            | ((pl.col("num_children") == 1) & ~pl.col("is_root")),
+            compare_T=pl.col("compare_T"),
+            clade_min_T=pl.col("clade_min_T"),
+        ).collect()
+
+    # children are compared no earlier than the clade's youngest tip
+    assert (bounds_df["compare_T"] >= bounds_df["clade_min_T"]).all()
+    return bounds_df

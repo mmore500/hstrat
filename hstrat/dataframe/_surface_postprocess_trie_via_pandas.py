@@ -96,23 +96,25 @@ def _do_delete_trunk(
             df, "hstrat_differentia_bitwidth"
         ),
     }
+    # before prefixing roots, whose nulls make integer columns float
     dtypes = df[[*fill_values]].dtypes
     with log_context_duration("alifestd_prefix_roots", logging.info):
         # extend newly-clipped roots all the way back to dstream_S boundary
         df = pfl.alifestd_prefix_roots(
             df, allow_id_reassign=True, origin_time=dstream_S, mutate=True
         )
-    # prefixed roots sit at dstream_S boundary, or at their earliest child's
-    # rank if earlier (nodes at rank dstream_S - 1 are kept), so that no
-    # root's rank exceeds its children's
-    is_child = df["id"] != df["ancestor_id"]
+    # ensure prefixed roots don't outrank their children: take dstream_S, or
+    # earliest child's rank if earlier (nodes at rank dstream_S - 1 are kept)
+    is_root = pfl.alifestd_mark_roots(df)["is_root"].to_numpy()
     child_min_rank = (
-        df.loc[is_child].groupby("ancestor_id")["dstream_rank"].min()
+        df.loc[~is_root].groupby("ancestor_id")["dstream_rank"].min()
     )
     df["dstream_rank"] = df["dstream_rank"].fillna(
         np.minimum(dstream_S, df["id"].map(child_min_rank)),
     )
     df = df.fillna(fill_values).astype(dtypes.to_dict())
+    assert df["dstream_S"].nunique() == 1
+    assert df["hstrat_differentia_bitwidth"].nunique() == 1
 
     del df["is_trunk"]
     del df["ancestor_is_trunk"]

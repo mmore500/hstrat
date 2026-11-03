@@ -12,6 +12,7 @@ from ...._auxiliary_lib import (
     iter_dstream_ingest_times_sorted,
     log_context_duration,
     resolve_dstream_algo,
+    warn_experimental,
 )
 from ._detail import TriePostprocessorBase
 from ._detail._comparable_ranks import mark_inner_node_bounds
@@ -31,7 +32,7 @@ def _calc_geometric_chunk(
     # comparable rank, bounding the next interval; ranks at or after the
     # clade's youngest tip are not comparable
     first_shared, second_shared = find_first_between_sorted_rows(
-        retained, after=ranks, before=youngest_T, num=2
+        rows=retained, after=ranks, before=youngest_T, num=2
     ).T
 
     # intervals end at youngest tip if no further comparable rank
@@ -72,18 +73,18 @@ def _calc_geometric_origin_times(
     Trie must be non-empty, have contiguous ids, be topologically sorted,
     and provide an integer `rank` column, with leaf rank `dstream_T - 1`.
     """
-    bounds = mark_inner_node_bounds(trie)
-    inner = bounds.filter("is_inner")
-    inner_ranks = inner["rank"].to_numpy().astype(np.float64)
-    youngest_T = inner["clade_min_T"].to_numpy().astype(np.float64)
+    bounds_df = mark_inner_node_bounds(trie_df=trie)
+    inner_df = bounds_df.filter("is_inner")
+    inner_ranks = inner_df["rank"].to_numpy().astype(np.float64)
+    youngest_T = inner_df["clade_min_T"].to_numpy().astype(np.float64)
 
-    inner_times = np.empty(len(inner))
+    inner_times = np.empty(len(inner_df))
     with log_context_duration("_calc_geometric_chunk", logging.info):
         for chunk, retained in progress_wrap(
             iter_dstream_ingest_times_sorted(
-                dstream_algo,
-                dstream_S,
-                inner["compare_T"].to_numpy(),
+                dstream_algo=dstream_algo,
+                dstream_S=dstream_S,
+                T=inner_df["compare_T"].to_numpy(),
                 chunk_size=2**16,
             ),
         ):
@@ -95,8 +96,12 @@ def _calc_geometric_origin_times(
                 dstream_S=dstream_S,
             )
 
-    origin_times = (bounds["rank"].to_numpy() - dstream_S).astype(np.float64)
-    origin_times[bounds["is_inner"].to_numpy()] = inner_times
+    assert np.isfinite(inner_times).all()
+
+    origin_times = (bounds_df["rank"].to_numpy() - dstream_S).astype(
+        np.float64
+    )
+    origin_times[bounds_df["is_inner"].to_numpy()] = inner_times
     return origin_times
 
 
@@ -117,17 +122,18 @@ def _call_polars(
         )
 
     origin_times = _calc_geometric_origin_times(
-        trie,
-        p_differentia_collision,
-        ftor._dstream_algo,
-        int(get_sole_scalar_value_polars(trie, "dstream_S")),
-        progress_wrap,
+        trie=trie,
+        p_differentia_collision=p_differentia_collision,
+        dstream_algo=ftor._dstream_algo,
+        dstream_S=int(get_sole_scalar_value_polars(trie, "dstream_S")),
+        progress_wrap=progress_wrap,
     )
     return trie.with_columns(
         pl.Series(ftor._assigned_property, origin_times, dtype=pl.Float64),
     )
 
 
+@warn_experimental
 class AssignOriginTimeGeometricSurfPostprocessor(TriePostprocessorBase):
     """Functor to scale back trie node origin times so that their expected
     values under spurious differentia collisions are unbiased.
@@ -172,7 +178,7 @@ class AssignOriginTimeGeometricSurfPostprocessor(TriePostprocessorBase):
     Pass as `trie_postprocessor` to `hstrat.dataframe.surface_build_tree`
     or `hstrat.dataframe.surface_postprocess_trie`, e.g.,
 
-    >>> hstrat.dataframe.surface_build_tree(  # doctest: +SKIP
+    >>> hstrat.dataframe.surface_build_tree(
     ...     df,
     ...     trie_postprocessor=(
     ...         hstrat.AssignOriginTimeGeometricSurfPostprocessor(

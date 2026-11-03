@@ -7,8 +7,9 @@ def find_first_between_sorted_rows(
     before: np.ndarray,
     num: int,
 ) -> np.ndarray:
-    """First `num` values of each ascending-sorted row of `rows` strictly
-    between that row's `after` and `before` (inf where fewer)."""
+    """Find the first `num` values of each ascending-sorted row of `rows`
+    that lie strictly between that row's `after` and `before`, padding with
+    inf where fewer exist."""
     # index of first value after `after`, as rows are sorted ascending
     columns = (rows <= after[:, None]).sum(axis=1)[:, None] + np.arange(num)
     in_bounds = columns < rows.shape[1]

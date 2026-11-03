@@ -10,7 +10,7 @@ import polars as pl
 import pytest
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import seed_random
+from hstrat._auxiliary_lib import ExperimentalWarning, seed_random
 from hstrat.dataframe import surface_build_tree as surface_build_tree_naive
 from hstrat.dataframe import surface_test_drive
 
@@ -183,3 +183,11 @@ def test_polars_only():
     assert postprocessor(trie, p_differentia_collision=0.5)[
         "origin_time"
     ].to_list() == [0.0]
+
+
+def test_experimental_warning(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.delenv("HSTRAT_WARN_EXPERIMENTAL_SUPPRESS", raising=False)
+    with pytest.warns(ExperimentalWarning):
+        hstrat.AssignOriginTimeGeometricSurfPostprocessor(
+            "dstream.steady_algo",
+        )
