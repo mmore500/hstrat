@@ -108,12 +108,31 @@ def _do_delete_trunk(
         df = pfl.alifestd_prefix_roots_polars(
             df, allow_id_reassign=True, origin_time=dstream_S
         )
-    # prefixed roots sit at dstream_S boundary
+    # prefixed roots sit at dstream_S boundary, but not after their children
+    # (kept nodes may have rank dstream_S - 1)
+    child_min_rank = (
+        df.lazy()
+        .filter(pl.col("id") != pl.col("ancestor_id"))
+        .group_by("ancestor_id")
+        .agg(_child_min_rank=pl.col("dstream_rank").min())
+        .collect()
+    )
+    df = df.join(
+        child_min_rank,
+        left_on="id",
+        right_on="ancestor_id",
+        how="left",
+        maintain_order="left",
+    )
     df = df.with_columns(
-        pl.col("dstream_rank").fill_null(dstream_S),
+        pl.col("dstream_rank").fill_null(
+            pl.min_horizontal(pl.lit(dstream_S), "_child_min_rank").cast(
+                df.schema["dstream_rank"],
+            ),
+        ),
         pl.col("dstream_S").fill_null(dstream_S),
         pl.col("hstrat_differentia_bitwidth").fill_null(differentia_bitwidth),
-    )
+    ).drop("_child_min_rank")
 
     gc.collect()
 

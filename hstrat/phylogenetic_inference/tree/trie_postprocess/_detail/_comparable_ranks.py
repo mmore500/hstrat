@@ -103,7 +103,7 @@ def iter_retained_ranks(
         chunk = slice(begin, begin + chunk_size)
         unique_T, inverse = np.unique(T[chunk], return_inverse=True)
         retained = dstream_algo.lookup_ingest_times_batched(
-            dstream_S, unique_T.astype(np.uint64), parallel=False
+            dstream_S, unique_T.astype(np.uint64), parallel=True
         ).astype(np.float64)[inverse]
         yield chunk, np.sort(retained, axis=1)
 
@@ -116,8 +116,12 @@ def first_retained_between(
 ) -> np.ndarray:
     """First `num` sorted `retained` ranks strictly between `after` and
     `before`, per row (inf if none)."""
-    is_between = (after[:, None] < retained) & (retained < before[:, None])
-    between = np.sort(np.where(is_between, retained, np.inf), axis=1)
-    result = np.full((len(retained), num), np.inf)
-    result[:, : min(num, between.shape[1])] = between[:, :num]
-    return result
+    # index of first rank after `after`, as rows are sorted ascending
+    columns = (retained <= after[:, None]).sum(axis=1)[:, None] + np.arange(
+        num
+    )
+    in_bounds = columns < retained.shape[1]
+    result = np.take_along_axis(
+        retained, np.minimum(columns, retained.shape[1] - 1), axis=1
+    )
+    return np.where(in_bounds & (result < before[:, None]), result, np.inf)

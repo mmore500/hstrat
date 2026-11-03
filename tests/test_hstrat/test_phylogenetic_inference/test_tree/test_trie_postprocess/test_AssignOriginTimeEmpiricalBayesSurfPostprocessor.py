@@ -239,3 +239,22 @@ def test_polars_only():
         hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
             "dstream.steady_algo",
         )(_make_hand_trie().to_pandas(), p_differentia_collision=0.5)
+
+
+def test_no_leaf_pairs_uses_uniform_prior():
+    # root (rank 64) <- unifurcation (rank 100) <- leaf: no leaf pairs
+    trie = pl.DataFrame(
+        {
+            "id": [0, 1, 2],
+            "ancestor_id": [0, 0, 1],
+            "rank": [64, 100, 199],
+            "dstream_S": [64] * 3,
+        },
+    )
+    result = hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
+        "dstream.steady_algo",
+    )(trie, p_differentia_collision=0.5)
+    np.testing.assert_allclose(
+        result["origin_time"].to_numpy(),
+        _brute_force(trie, "dstream.steady_algo", 0.5, 0.0),
+    )

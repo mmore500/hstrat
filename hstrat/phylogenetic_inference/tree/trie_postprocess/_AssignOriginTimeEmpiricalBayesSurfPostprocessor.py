@@ -14,7 +14,7 @@ from ...._auxiliary_lib import (
     resolve_dstream_algo,
 )
 from ._AssignOriginTimeGeometricSurfPostprocessor import (
-    _calc_geometric_origin_times,
+    _calc_geometric_chunk,
 )
 from ._detail import TriePostprocessorBase
 from ._detail._comparable_ranks import (
@@ -72,6 +72,7 @@ def _calc_posterior_means_fast_path(
     `dstream_T`) for each prior exponent in `alphas` (columns)."""
     num_nodes, num_retained = retained.shape
     result = np.empty((num_nodes, len(alphas)))
+    scratch = np.empty((num_nodes, num_retained + 3))  # per-node bounds
     for i in jit_prange(num_nodes):
         rank = ranks[i]
         # node's own interval: from node rank to first comparable rank
@@ -87,7 +88,7 @@ def _calc_posterior_means_fast_path(
 
         # interval bounds: mismatch bound, node rank, then comparable ranks
         # before node rank, latest first, back to dstream_S
-        bounds = np.empty(num_retained + 3)
+        bounds = scratch[i]
         bounds[0] = hi
         bounds[1] = lo
         num_bounds = 2
@@ -117,6 +118,56 @@ def _calc_posterior_means_fast_path(
     return result
 
 
+class _InnerEstimates(typing.NamedTuple):
+    """Origin time estimates, relative to `dstream_S`, of inner nodes."""
+
+    base: np.ndarray  # all nodes' ranks, relative to `dstream_S`
+    is_inner: np.ndarray  # is node inner?
+    posterior: np.ndarray  # inner nodes (rows) by prior exponent (columns)
+    geometric: np.ndarray  # geometric estimates of inner nodes
+
+
+def _calc_inner_estimates(
+    trie: pl.DataFrame,
+    p_differentia_collision: float,
+    dstream_algo: types.ModuleType,
+    dstream_S: int,
+    alphas: np.ndarray,
+) -> _InnerEstimates:
+    """Posterior mean origin times of inner nodes for each prior exponent in
+    `alphas`, and their geometric estimates, in one pass over comparable
+    ranks.
+
+    Trie must have contiguous ids, be topologically sorted, and provide an
+    integer `rank` column, with leaf rank `dstream_T - 1`.
+    """
+    alphas = np.asarray(alphas, dtype=np.float64)
+    if trie.is_empty():
+        empty = np.zeros(0)
+        return _InnerEstimates(
+            empty, empty.astype(bool), np.zeros((0, len(alphas))), empty
+        )
+    ranks, is_inner, compare_T, youngest_T = mark_inner_node_bounds(trie)
+    inner_ranks = ranks[is_inner].astype(np.float64)
+    youngest_T = youngest_T.astype(np.float64)
+    p = float(p_differentia_collision)
+
+    posterior = np.empty((len(compare_T), len(alphas)))
+    geometric = np.empty(len(compare_T))
+    with log_context_duration("_calc_inner_estimates", logging.info):
+        for chunk, retained in iter_retained_ranks(
+            dstream_algo, dstream_S, compare_T
+        ):
+            args = (retained, inner_ranks[chunk], youngest_T[chunk], p)
+            posterior[chunk] = _calc_posterior_means_fast_path(
+                *args, int(dstream_S), alphas
+            )
+            geometric[chunk] = _calc_geometric_chunk(*args, dstream_S)
+
+    base = (ranks - dstream_S).astype(np.float64)
+    return _InnerEstimates(base, is_inner, posterior, geometric)
+
+
 def _calc_posterior_origin_times(
     trie: pl.DataFrame,
     p_differentia_collision: float,
@@ -127,35 +178,13 @@ def _calc_posterior_origin_times(
     """Posterior mean origin times, relative to `dstream_S`, of all nodes
     (rows) for each prior exponent in `alphas` (columns).
 
-    Leaves and unifurcating roots are assigned their rank. Trie must have
-    contiguous ids, be topologically sorted, and provide an integer `rank`
-    column, with leaf rank `dstream_T - 1`.
+    Leaves and unifurcating roots are assigned their rank.
     """
-    alphas = np.asarray(alphas, dtype=np.float64)
-    if trie.is_empty():
-        return np.zeros((0, len(alphas)))
-    ranks, is_inner, compare_T, youngest_T = mark_inner_node_bounds(trie)
-    inner_ranks = ranks[is_inner].astype(np.float64)
-    youngest_T = youngest_T.astype(np.float64)
-
-    inner_means = np.empty((len(compare_T), len(alphas)))
-    with log_context_duration("_calc_posterior_means", logging.info):
-        for chunk, retained in iter_retained_ranks(
-            dstream_algo, dstream_S, compare_T
-        ):
-            inner_means[chunk] = _calc_posterior_means_fast_path(
-                retained,
-                inner_ranks[chunk],
-                youngest_T[chunk],
-                float(p_differentia_collision),
-                int(dstream_S),
-                alphas,
-            )
-
-    origin_times = np.repeat(
-        (ranks - dstream_S).astype(np.float64)[:, None], len(alphas), axis=1
+    estimates = _calc_inner_estimates(
+        trie, p_differentia_collision, dstream_algo, dstream_S, alphas
     )
-    origin_times[is_inner] = inner_means
+    origin_times = np.repeat(estimates.base[:, None], len(alphas), axis=1)
+    origin_times[estimates.is_inner] = estimates.posterior
     return origin_times
 
 
@@ -178,20 +207,20 @@ def _calc_mrca_pair_counts(trie: pl.DataFrame) -> np.ndarray:
 
 
 def _benchmark(
-    origin_times: np.ndarray,
+    posterior: np.ndarray,
     weights: np.ndarray,
     target: float,
     alpha_grid: np.ndarray,
 ) -> typing.Tuple[np.ndarray, float]:
-    """Interpolate origin times between grid prior exponents bracketing
+    """Interpolate posterior means between grid prior exponents bracketing
     where their weighted mean matches target.
 
     Posterior means are nondecreasing in prior exponent, so the weighted
-    mean is monotonic over grid columns. Returns interpolated origin times
-    and the corresponding interpolated prior exponent.
+    mean is monotonic over grid columns. Returns interpolated means and the
+    corresponding interpolated prior exponent.
     """
-    sums = weights @ origin_times
-    if not sums[0] < target < sums[-1]:
+    sums = weights @ posterior
+    if target < sums[0] or target > sums[-1]:
         warnings.warn(
             f"benchmarking target {target} outside range attainable over "
             "alpha_grid; clamping prior exponent to grid end",
@@ -201,7 +230,7 @@ def _benchmark(
     k = min(int(index), len(alpha_grid) - 2)
     lam = index - k
     return (
-        (1 - lam) * origin_times[:, k] + lam * origin_times[:, k + 1],
+        (1 - lam) * posterior[:, k] + lam * posterior[:, k + 1],
         float(np.interp(index, np.arange(len(alpha_grid)), alpha_grid)),
     )
 
@@ -213,24 +242,31 @@ def _call_polars(
 ) -> pl.DataFrame:
     """Implementation detail."""
     dstream_S = get_sole_dstream_S(trie)
-    alphas = ftor._alpha_grid if ftor._alpha is None else [ftor._alpha]
-    origin_times = _calc_posterior_origin_times(
+    pair_counts = _calc_mrca_pair_counts(trie) if len(trie) else np.zeros(0)
+    if ftor._alpha is not None:  # fixed prior exponent
+        alphas = [ftor._alpha]
+    elif pair_counts.sum() == 0:  # nothing to benchmark; uniform prior
+        alphas = [0.0]
+    else:
+        alphas = ftor._alpha_grid
+
+    estimates = _calc_inner_estimates(
         trie, p_differentia_collision, ftor._dstream_algo, dstream_S, alphas
     )
-    weights = _calc_mrca_pair_counts(trie) if len(trie) else np.zeros(0)
-    if ftor._alpha is None and weights.sum() > 0:
-        target = np.dot(
+    if len(alphas) == 1:
+        inner_means = estimates.posterior[:, 0]
+    else:
+        weights = pair_counts[estimates.is_inner]
+        inner_means, alpha = _benchmark(
+            estimates.posterior,
             weights,
-            _calc_geometric_origin_times(
-                trie, p_differentia_collision, ftor._dstream_algo, dstream_S
-            ),
-        )
-        origin_times, alpha = _benchmark(
-            origin_times, weights, target, ftor._alpha_grid
+            float(np.dot(weights, estimates.geometric)),
+            ftor._alpha_grid,
         )
         logging.info(f" - empirical Bayes prior exponent: {alpha}")
-    else:  # fixed prior exponent, or nothing to benchmark
-        origin_times = origin_times[:, 0]
+
+    origin_times = estimates.base.copy()
+    origin_times[estimates.is_inner] = inner_means
     return trie.with_columns(
         pl.Series(ftor._assigned_property, origin_times, dtype=pl.Float64),
     )

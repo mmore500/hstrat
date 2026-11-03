@@ -15,6 +15,48 @@ from ._detail._comparable_ranks import (
 )
 
 
+def _calc_geometric_chunk(
+    retained: np.ndarray,
+    ranks: np.ndarray,
+    youngest_T: np.ndarray,
+    p: float,
+    dstream_S: int,
+) -> np.ndarray:
+    """Geometric origin time estimates, relative to `dstream_S`, for a chunk
+    of inner nodes, given sorted ranks `retained` at their comparison
+    `dstream_T`."""
+    # mismatch rank: first comparable rank after node; and following
+    # comparable rank, bounding the next interval; ranks at or after the
+    # clade's youngest tip are not comparable
+    first_shared, second_shared = first_retained_between(
+        retained, ranks, youngest_T, num=2
+    ).T
+
+    # intervals end at youngest tip if no further comparable rank
+    is_terminal = ~np.isfinite(first_shared)
+    first_shared = np.where(is_terminal, youngest_T, first_shared)
+    second_shared = np.where(
+        np.isfinite(second_shared), second_shared, youngest_T
+    )
+
+    # midpoints of node's interval and the next, relative to dstream_S;
+    # divergence cannot precede dstream_S
+    lo = np.maximum(ranks - dstream_S, 0)
+    mid = np.maximum(first_shared - dstream_S, 0)
+    hi = np.maximum(second_shared - dstream_S, 0)
+    this_midpoints = (lo + mid - 1) / 2
+    next_midpoints = (mid + hi - 1) / 2
+
+    # spurious collisions at successive comparable ranks are geometric, so
+    # extrapolating back from next interval cancels expected inflation;
+    # no extrapolation if no comparable rank remains to collide at
+    return np.where(
+        is_terminal,
+        this_midpoints,
+        (this_midpoints - p * next_midpoints) / (1 - p),
+    )
+
+
 def _calc_geometric_origin_times(
     trie: pl.DataFrame,
     p_differentia_collision: float,
@@ -27,52 +69,26 @@ def _calc_geometric_origin_times(
     Trie must have contiguous ids, be topologically sorted, and provide an
     integer `rank` column, with leaf rank `dstream_T - 1`.
     """
-    p = p_differentia_collision
     if trie.is_empty():
         return np.zeros(0, dtype=np.float64)
     ranks, is_inner, compare_T, youngest_T = mark_inner_node_bounds(trie)
+    inner_ranks = ranks[is_inner].astype(np.float64)
+    youngest_T = youngest_T.astype(np.float64)
 
-    # mismatch rank: first comparable rank after node; and following
-    # comparable rank, bounding the next interval; ranks at or after the
-    # clade's youngest tip are not comparable
-    shared = np.full((len(compare_T), 2), np.inf)
-    with log_context_duration("first_retained_between", logging.info):
+    origin_times = (ranks - dstream_S).astype(np.float64)
+    inner_times = np.empty(len(compare_T))
+    with log_context_duration("_calc_geometric_chunk", logging.info):
         for chunk, retained in iter_retained_ranks(
             dstream_algo, dstream_S, compare_T
         ):
-            shared[chunk] = first_retained_between(
+            inner_times[chunk] = _calc_geometric_chunk(
                 retained,
-                ranks[is_inner][chunk].astype(np.float64),
-                youngest_T[chunk].astype(np.float64),
-                num=2,
+                inner_ranks[chunk],
+                youngest_T[chunk],
+                p_differentia_collision,
+                dstream_S,
             )
-    first_shared, second_shared = shared.T
-
-    # intervals end at youngest tip if no further comparable rank
-    youngest_T = youngest_T.astype(np.float64)
-    is_terminal = ~np.isfinite(first_shared)
-    first_shared = np.where(is_terminal, youngest_T, first_shared)
-    second_shared = np.where(
-        np.isfinite(second_shared), second_shared, youngest_T
-    )
-
-    # midpoints of node's interval and the next, relative to dstream_S;
-    # divergence cannot precede dstream_S
-    lo = np.maximum(ranks[is_inner] - dstream_S, 0)
-    mid = np.maximum(first_shared - dstream_S, 0)
-    hi = np.maximum(second_shared - dstream_S, 0)
-    this_midpoints = (lo + mid - 1) / 2
-    next_midpoints = (mid + hi - 1) / 2
-
-    # spurious collisions at successive comparable ranks are geometric, so
-    # extrapolating back from next interval cancels expected inflation;
-    # no extrapolation if no comparable rank remains to collide at
-    origin_times = (ranks - dstream_S).astype(np.float64)
-    origin_times[is_inner] = np.where(
-        is_terminal,
-        this_midpoints,
-        (this_midpoints - p * next_midpoints) / (1 - p),
-    )
+    origin_times[is_inner] = inner_times
     return origin_times
 
 

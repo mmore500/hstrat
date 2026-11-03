@@ -2,6 +2,7 @@ import gc
 import logging
 import typing
 
+import numpy as np
 import pandas as pd
 from phyloframe import legacy as pfl
 import polars as pl
@@ -102,7 +103,15 @@ def _do_delete_trunk(
         df = pfl.alifestd_prefix_roots(
             df, allow_id_reassign=True, origin_time=dstream_S, mutate=True
         )
-    # prefixed roots sit at dstream_S boundary
+    # prefixed roots sit at dstream_S boundary, but not after their children
+    # (kept nodes may have rank dstream_S - 1)
+    is_child = df["id"] != df["ancestor_id"]
+    child_min_rank = (
+        df.loc[is_child].groupby("ancestor_id")["dstream_rank"].min()
+    )
+    df["dstream_rank"] = df["dstream_rank"].fillna(
+        np.minimum(dstream_S, df["id"].map(child_min_rank)),
+    )
     df = df.fillna(fill_values).astype(dtypes.to_dict())
 
     del df["is_trunk"]

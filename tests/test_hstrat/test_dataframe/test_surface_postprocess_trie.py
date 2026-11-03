@@ -126,6 +126,9 @@ def test_zero_generations_elapsed():
     assert pfl.alifestd_validate(
         pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
     )
+    # prefixed roots don't outrank their children, kept at rank S - 1
+    ranks = res["hstrat_rank"].to_numpy()
+    assert (ranks >= ranks[res["ancestor_id"].to_numpy().astype(int)]).all()
 
 
 @pytest.mark.parametrize("num_subtrees", [1, 50, 5000])

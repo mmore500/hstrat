@@ -183,3 +183,21 @@ def test_polars_only():
     assert postprocessor(trie, p_differentia_collision=0.5)[
         "origin_time"
     ].to_list() == [0.0]
+
+
+def test_first_retained_between():
+    from hstrat.phylogenetic_inference.tree.trie_postprocess._detail._comparable_ranks import (
+        first_retained_between,
+    )
+
+    rng = np.random.default_rng(1)
+    retained = np.sort(rng.integers(0, 100, size=(500, 16)), axis=1)
+    retained = retained.astype(np.float64)
+    after = rng.integers(-5, 105, size=500).astype(np.float64)
+    before = after + rng.integers(0, 60, size=500)
+    for num in [1, 2, 20]:
+        result = first_retained_between(retained, after, before, num)
+        for row, a, b, res in zip(retained, after, before, result):
+            between = [r for r in row if a < r < b][:num]
+            expected = between + [np.inf] * (num - len(between))
+            assert res.tolist() == expected
