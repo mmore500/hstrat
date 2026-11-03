@@ -132,19 +132,51 @@ def test_grid_increasing_in_alpha():
 
 def test_clamped_warns():
     postprocessor = hstrat.AssignOriginTimeBenchmarkedBayesSurfPostprocessor(
-        "dstream.steady_algo", alpha_grid=(-1e-3, 1e-3)
+        "dstream.steady_algo", alpha_bounds=(-1e-3, 1e-3)
     )
     with pytest.warns(UserWarning, match="clamping"):
         result = postprocessor(_make_trie(), p_differentia_collision=0.5)
     assert result["origin_time"].is_finite().all()
 
 
-def test_invalid_alpha_grid():
-    for alpha_grid in [(0.0,), (1.0, -1.0)]:
+def test_invalid_arguments():
+    for kwargs in [
+        dict(alpha_bounds=(1.0, -1.0)),
+        dict(alpha_bounds=(0.0, 0.0)),
+        dict(alpha_tolerance=0.0),
+    ]:
         with pytest.raises(ValueError):
             hstrat.AssignOriginTimeBenchmarkedBayesSurfPostprocessor(
-                "dstream.steady_algo", alpha_grid=alpha_grid
+                "dstream.steady_algo", **kwargs
             )
+
+
+@pytest.mark.parametrize(
+    "dstream_algo", ["dstream.steady_algo", "dstream.tilted_algo"]
+)
+@pytest.mark.parametrize("bitwidth", [1, 8])
+def test_weighted_mean_monotonic_in_alpha(dstream_algo: str, bitwidth: int):
+    captured = {}
+
+    def capture(trie, p_differentia_collision, mutate, progress_wrap):
+        if not isinstance(trie, pl.DataFrame):
+            raise NotImplementedError
+        captured["trie"] = trie.clone()
+        captured["p"] = p_differentia_collision
+        return trie
+
+    surface_build_tree(
+        make_population(dstream_algo, bitwidth), trie_postprocessor=capture
+    )
+    trie, p = captured["trie"], captured["p"]
+    posterior = BackwardLagPosterior(
+        trie, p, resolve_dstream_algo(dstream_algo), 64
+    )
+    grid = posterior.inner_means_grid(np.linspace(-6, 6, 49))
+    # each node's posterior mean is nondecreasing in alpha
+    assert (np.diff(grid, axis=1) >= -1e-9).all()
+    weights = _calc_mrca_pair_counts(trie)[posterior.is_inner]
+    assert (np.diff(weights @ grid) >= -1e-9).all()
 
 
 def test_assigned_property():

@@ -34,34 +34,51 @@ def _calc_mrca_pair_counts(trie: pl.DataFrame) -> np.ndarray:
 
 
 def _benchmark(
-    grid_means: np.ndarray,
+    posterior: BackwardLagPosterior,
     weights: np.ndarray,
     target: float,
-    alpha_grid: np.ndarray,
+    alpha_bounds: typing.Tuple[float, float],
+    alpha_tolerance: float,
 ) -> typing.Tuple[np.ndarray, float]:
-    """Interpolate inner nodes' posterior means between prior exponents
-    bracketing where their weighted mean matches target.
+    """Bisect prior exponent so inner nodes' weighted posterior mean matches
+    target, then interpolate between the final bracket's means.
 
-    Posterior means increase with prior exponent, so the weighted mean is
-    monotonic over grid columns. Returns interpolated means and the
-    corresponding interpolated prior exponent.
+    Each node's posterior mean is nondecreasing in prior exponent (raising
+    it reweights the prior by a factor increasing in divergence time, while
+    collision likelihoods don't depend on it), so the weighted mean is
+    monotonic. Interpolating between the bracket's means matches target
+    exactly. Returns inner nodes' means and the interpolated exponent.
     """
-    grid_sums = weights @ grid_means
-    for end, beyond in (
-        (0, target <= grid_sums[0]),
-        (-1, target >= grid_sums[-1]),
+
+    def evaluate(alpha: float) -> typing.Tuple[np.ndarray, float]:
+        means = posterior.inner_means_grid(np.array([alpha]))[:, 0]
+        return means, float(np.dot(weights, means))
+
+    lo, hi = alpha_bounds
+    (lo_means, lo_sum), (hi_means, hi_sum) = evaluate(lo), evaluate(hi)
+    for alpha, means, beyond in (
+        (lo, lo_means, target <= lo_sum),
+        (hi, hi_means, target >= hi_sum),
     ):
         if beyond:
             warnings.warn(
                 f"benchmarking target {target} outside range attainable "
-                f"over alpha_grid; clamping prior exponent to {alpha_grid[end]}",
+                f"within alpha_bounds; clamping prior exponent to {alpha}",
             )
-            return grid_means[:, end], float(alpha_grid[end])
-    k = int(np.searchsorted(grid_sums, target)) - 1
-    lam = (target - grid_sums[k]) / (grid_sums[k + 1] - grid_sums[k])
+            return means, float(alpha)
+
+    while hi - lo > alpha_tolerance:
+        mid = (lo + hi) / 2
+        mid_means, mid_sum = evaluate(mid)
+        if mid_sum < target:
+            lo, lo_means, lo_sum = mid, mid_means, mid_sum
+        else:
+            hi, hi_means, hi_sum = mid, mid_means, mid_sum
+
+    lam = (target - lo_sum) / (hi_sum - lo_sum) if hi_sum > lo_sum else 0.5
     return (
-        (1 - lam) * grid_means[:, k] + lam * grid_means[:, k + 1],
-        float((1 - lam) * alpha_grid[k] + lam * alpha_grid[k + 1]),
+        (1 - lam) * lo_means + lam * hi_means,
+        float((1 - lam) * lo + lam * hi),
     )
 
 
@@ -86,10 +103,11 @@ def _call_polars(
             trie, p_differentia_collision, ftor._dstream_algo, dstream_S
         )[posterior.is_inner]
         inner_means, alpha = _benchmark(
-            posterior.inner_means_grid(ftor._alpha_grid),
+            posterior,
             weights,
             float(np.dot(weights, geometric)),
-            ftor._alpha_grid,
+            ftor._alpha_bounds,
+            ftor._alpha_tolerance,
         )
         logging.info(f" - benchmarked Bayes prior exponent: {alpha}")
         origin_times = posterior.with_inner_means(inner_means)
@@ -127,10 +145,12 @@ class AssignOriginTimeBenchmarkedBayesSurfPostprocessor(TriePostprocessorBase):
     estimates, weighted by the number
     of leaf pairs whose most recent common ancestor each node is, matches
     that of `AssignOriginTimeGeometricSurfPostprocessor`, which is unbiased
-    with respect to collisions without assuming a prior. Posterior means are
-    evaluated over `alpha_grid` and linearly interpolated between the grid
-    exponents bracketing the target. Alternately, pass a fixed `alpha` to
-    skip benchmarking. So, the geometric estimator sets the
+    with respect to collisions without assuming a prior. Each node's
+    posterior mean is nondecreasing in `alpha`, so the weighted average is
+    monotonic: `alpha` is bisected within `alpha_bounds` to
+    `alpha_tolerance`, and node estimates are linearly interpolated between
+    the final bracket's to match the target exactly. Alternately, pass a
+    fixed `alpha` to skip benchmarking. So, the geometric estimator sets the
     tree-wide average over leaf pairs, and the posterior distributes it
     across nodes, with each estimate bounded within its own and earlier
     intervals.
@@ -164,7 +184,8 @@ class AssignOriginTimeBenchmarkedBayesSurfPostprocessor(TriePostprocessorBase):
 
     _assigned_property: str  # property name for assigned origin time
     _dstream_algo: types.ModuleType  # downstream algorithm of surfaces
-    _alpha_grid: np.ndarray  # prior exponents evaluated
+    _alpha_bounds: typing.Tuple[float, float]  # prior exponent search range
+    _alpha_tolerance: float  # prior exponent search precision
     _alpha: typing.Optional[float]  # fixed prior exponent, if any
 
     def __init__(
@@ -172,7 +193,8 @@ class AssignOriginTimeBenchmarkedBayesSurfPostprocessor(TriePostprocessorBase):
         dstream_algo: typing.Union[str, types.ModuleType],
         assigned_property: str = "origin_time",
         *,
-        alpha_grid: typing.Sequence[float] = tuple(np.linspace(-3, 3, 25)),
+        alpha_bounds: typing.Tuple[float, float] = (-3.0, 3.0),
+        alpha_tolerance: float = 0.01,
         alpha: typing.Optional[float] = None,
     ) -> None:
         """Initialize functor instance.
@@ -186,24 +208,33 @@ class AssignOriginTimeBenchmarkedBayesSurfPostprocessor(TriePostprocessorBase):
             For example, `"dstream.steady_algo"` or `dstream.steady_algo`.
         assigned_property : str, default "origin_time"
             Property name for assigned origin time.
-        alpha_grid : sequence of float, default 25 values from -3 to 3
-            Prior exponents `alpha` evaluated, in increasing order.
+        alpha_bounds : tuple of float, default (-3.0, 3.0)
+            Range of prior exponents `alpha` searched.
 
             Heuristic. If the benchmarking target lies beyond the range
-            attainable over the grid, estimates are clamped to the nearer
-            end of the grid, with a warning. Ignored if `alpha` is given.
+            attainable within the bounds, estimates are clamped to the
+            nearer bound, with a warning. Ignored if `alpha` is given.
+        alpha_tolerance : float, default 0.01
+            Width of bracket on `alpha` at which bisection stops, before
+            interpolating between bracket ends.
+
+            About `log2((hi - lo) / alpha_tolerance) + 2` posterior
+            evaluations are needed (e.g., 12 for the defaults). Ignored if
+            `alpha` is given.
         alpha : float, optional
             Fixed prior exponent to use instead of benchmarking.
 
             For example, `alpha=0` gives the uniform prior. If given, the
             geometric benchmark is not computed.
         """
-        alpha_grid = np.asarray(alpha_grid, dtype=np.float64)
-        if len(alpha_grid) < 2 or not (np.diff(alpha_grid) > 0).all():
-            raise ValueError("alpha_grid must be increasing, of length >= 2")
+        if not alpha_bounds[0] < alpha_bounds[1]:
+            raise ValueError(f"invalid alpha_bounds {alpha_bounds}")
+        if not alpha_tolerance > 0:
+            raise ValueError(f"invalid alpha_tolerance {alpha_tolerance}")
         self._dstream_algo = resolve_dstream_algo(dstream_algo)
         self._assigned_property = assigned_property
-        self._alpha_grid = alpha_grid
+        self._alpha_bounds = (float(alpha_bounds[0]), float(alpha_bounds[1]))
+        self._alpha_tolerance = float(alpha_tolerance)
         self._alpha = None if alpha is None else float(alpha)
 
     def __call__(
