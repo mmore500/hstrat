@@ -1,7 +1,6 @@
 import logging
 import typing
 
-import numpy as np
 from phyloframe import legacy as pfl
 import polars as pl
 
@@ -26,31 +25,16 @@ def _fill_spliced_nodes(trie: pl.DataFrame, num_original: int) -> pl.DataFrame:
     # spliced nodes take nearest original ancestor's rank, as trie ranks
     # increase along lineages; spliced roots take their clade's min rank
     ranked = trie.select(pl.col("id", "ancestor_id").cast(pl.Int64), "rank")
-    with_ancestor_rank = pfl.alifestd_mark_to_array_polars(
-        ranked,
-        pfl.alifestd_mark_lineage_cummax_polars,
-        values="rank",
+    ranked = pfl.alifestd_mark_lineage_ffill_polars(
+        ranked, "rank", mark_as="_ancestor_rank"
     )
-    with_clade_rank = pfl.alifestd_mark_to_array_polars(
-        ranked,
-        pfl.alifestd_mark_lineage_cummin_polars,
-        values="rank",
-        reverse=True,
+    ranked = pfl.alifestd_mark_lineage_cummin_polars(
+        ranked, "rank", reverse=True, mark_as="_clade_rank"
     )
-
-    def to_series(values: np.ndarray) -> pl.Series:
-        # spliced roots have no ranked ancestors, i.e., cummax of -inf
-        values = values.astype(np.float64)
-        return pl.Series(np.where(np.isfinite(values), values, np.nan))
-
-    filled_rank = (
-        to_series(with_ancestor_rank)
-        .fill_nan(None)
-        .fill_null(to_series(with_clade_rank).fill_nan(None))
-    )
-    return trie.with_columns(
-        pl.col("rank").fill_null(filled_rank.cast(trie.schema["rank"])),
-    )
+    filled_rank = ranked.select(
+        pl.coalesce("_ancestor_rank", "_clade_rank").cast(trie.schema["rank"]),
+    ).to_series()
+    return trie.with_columns(rank=filled_rank)
 
 
 def _call_polars(
