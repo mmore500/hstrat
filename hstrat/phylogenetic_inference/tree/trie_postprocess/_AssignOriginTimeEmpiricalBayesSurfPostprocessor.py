@@ -42,17 +42,17 @@ def _calc_prior_moments(
     u1 = H - b + 1
     u2 = H - a + 1
     # exact closed forms at alpha = 0 (uniform), and at alpha = 1 and 2, where
-    # the general formula below divides by zero; tolerance is sqrt(float64
-    # epsilon), balancing the general formula's cancellation error against
+    # the general formula below divides by zero; special-case tolerance is
+    # sqrt(float64 epsilon), balancing the general formula's cancellation error against
     # the special cases' error
-    tol = np.sqrt(np.finfo(np.float64).eps)
-    if abs(alpha) < tol:
+    special_case_tolerance = np.sqrt(np.finfo(np.float64).eps)
+    if abs(alpha) < special_case_tolerance:
         mass = u2 - u1
         mean_u = (u1 + u2) / 2
-    elif abs(alpha - 1) < tol:
+    elif abs(alpha - 1) < special_case_tolerance:
         mass = np.log(u2 / u1)
         mean_u = (u2 - u1) / mass
-    elif abs(alpha - 2) < tol:
+    elif abs(alpha - 2) < special_case_tolerance:
         mass = 1 / u1 - 1 / u2
         mean_u = np.log(u2 / u1) / mass
     else:
@@ -80,7 +80,7 @@ def _calc_posterior_means_fast_path(
     p: float,
     dstream_S: int,
     alpha_grid: np.ndarray,
-    truncation_tolerance: float,
+    posterior_mean_tolerance: float,
 ) -> np.ndarray:
     """Posterior mean divergence times, relative to `dstream_S`, of inner
     nodes for each prior exponent in `alpha_grid` (columns).
@@ -101,13 +101,14 @@ def _calc_posterior_means_fast_path(
         Surface size; ranks before it are not comparable.
     alpha_grid : np.ndarray
         Prior exponents to evaluate.
-    truncation_tolerance : float
+    posterior_mean_tolerance : float
         Stop summing over earlier intervals once their remaining
         contribution could shift a posterior mean by at most this many
         generations. If zero, all intervals are summed.
     """
     num_nodes, num_retained = retained_ranks.shape
-    early_exit = truncation_tolerance > 0  # if zero, sum over all intervals
+    # if zero, sum over all intervals
+    early_exit = posterior_mean_tolerance > 0
     result = np.empty((num_nodes, len(alpha_grid)))
     scratch = np.empty((num_nodes, num_retained + 3))  # per-node bounds
     for i in jit_prange(num_nodes):
@@ -150,11 +151,12 @@ def _calc_posterior_means_fast_path(
             for j in range(num_bounds - 1):
                 # remaining intervals' weight is at most p_collisions *
                 # total_mass, and their means lie in [0, H], so stop once
-                # they could shift the posterior mean by at most tolerance
+                # they could shift the posterior mean by at most
+                # posterior_mean_tolerance
                 if (
                     early_exit
                     and p_collisions * total_mass * H
-                    <= truncation_tolerance * denominator
+                    <= posterior_mean_tolerance * denominator
                 ):
                     break
                 mass, mean = _calc_prior_moments(
@@ -183,7 +185,7 @@ def _calc_inner_estimates(
     dstream_algo: types.ModuleType,
     dstream_S: int,
     alpha_grid: np.ndarray,
-    truncation_tolerance: float,
+    posterior_mean_tolerance: float,
     progress_wrap: typing.Callable,
 ) -> typing.Tuple[pl.DataFrame, np.ndarray]:
     """Posterior mean origin times of inner nodes for each prior exponent in
@@ -223,7 +225,7 @@ def _calc_inner_estimates(
                 p=p,
                 dstream_S=int(dstream_S),
                 alpha_grid=alpha_grid,
-                truncation_tolerance=truncation_tolerance,
+                posterior_mean_tolerance=posterior_mean_tolerance,
             )
             geometric[chunk] = _calc_geometric_chunk(
                 retained_ranks=retained_ranks,
@@ -250,7 +252,7 @@ def _calc_posterior_origin_times(
     dstream_algo: types.ModuleType,
     dstream_S: int,
     alpha_grid: np.ndarray,
-    truncation_tolerance: float,
+    posterior_mean_tolerance: float,
     progress_wrap: typing.Callable,
 ) -> np.ndarray:
     """Posterior mean origin times, relative to `dstream_S`, of all nodes
@@ -264,7 +266,7 @@ def _calc_posterior_origin_times(
         dstream_algo=dstream_algo,
         dstream_S=dstream_S,
         alpha_grid=alpha_grid,
-        truncation_tolerance=truncation_tolerance,
+        posterior_mean_tolerance=posterior_mean_tolerance,
         progress_wrap=progress_wrap,
     )
     origin_times = np.repeat(
@@ -363,7 +365,7 @@ def _call_polars(
         dstream_algo=ftor._dstream_algo,
         dstream_S=dstream_S,
         alpha_grid=alpha_grid,
-        truncation_tolerance=ftor._truncation_tolerance,
+        posterior_mean_tolerance=ftor._posterior_mean_tolerance,
         progress_wrap=progress_wrap,
     )
     is_inner = estimates_df["is_inner"].to_numpy()
@@ -520,7 +522,7 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     _assigned_property: str  # property name for assigned origin time
     _dstream_algo: types.ModuleType  # downstream algorithm of surfaces
     _alpha_grid: np.ndarray  # prior exponents evaluated, or fixed exponent
-    _truncation_tolerance: float  # in generations, per posterior mean
+    _posterior_mean_tolerance: float  # in generations, per posterior mean
 
     def __init__(
         self: "AssignOriginTimeEmpiricalBayesSurfPostprocessor",
@@ -528,7 +530,7 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
         assigned_property: str = "origin_time",
         *,
         alpha_grid: typing.Sequence[float] = tuple(np.linspace(-3, 3, 25)),
-        truncation_tolerance: float = 1e-9,
+        posterior_mean_tolerance: float = 1e-9,
     ) -> None:
         """Initialize functor instance.
 
@@ -551,12 +553,12 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
             Must be nonempty and strictly increasing. A single value fixes
             the prior exponent, skipping benchmarking (e.g., `alpha_grid=[0]`
             gives the uniform prior).
-        truncation_tolerance : float, default 1e-9
-            Absolute tolerance, in generations, for truncating each
-            posterior mean's sum over earlier intervals.
-            Earlier intervals, which require ever more spurious collisions,
-            are skipped once they could shift a mean by at most this much.
-            If zero, all intervals are summed exactly.
+        posterior_mean_tolerance : float, default 1e-9
+            Absolute error tolerance, in generations, for each posterior
+            mean. Each mean sums over earlier and earlier intervals, which
+            require ever more spurious collisions; the sum is truncated once
+            the remaining intervals could shift the mean by at most this
+            much. If zero, all intervals are summed exactly.
         """
         alpha_grid = np.asarray(alpha_grid, dtype=np.float64)
         if (
@@ -568,9 +570,9 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
         self._dstream_algo = resolve_dstream_algo(dstream_algo)
         self._assigned_property = assigned_property
         self._alpha_grid = alpha_grid
-        if truncation_tolerance < 0:
-            raise ValueError("truncation_tolerance must be nonnegative")
-        self._truncation_tolerance = float(truncation_tolerance)
+        if posterior_mean_tolerance < 0:
+            raise ValueError("posterior_mean_tolerance must be nonnegative")
+        self._posterior_mean_tolerance = float(posterior_mean_tolerance)
 
     def __call__(
         self: "AssignOriginTimeEmpiricalBayesSurfPostprocessor",

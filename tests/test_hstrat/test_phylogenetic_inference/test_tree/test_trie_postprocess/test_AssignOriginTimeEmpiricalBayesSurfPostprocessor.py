@@ -361,19 +361,19 @@ def test_pool_and_coarsen_keeps_leaves():
 
 
 @pytest.mark.parametrize("bitwidth", [1, 8])
-def test_truncation_tolerance(bitwidth: int):
+def test_posterior_mean_tolerance(bitwidth: int):
     trie, p = make_trie("dstream.steady_algo", bitwidth)
     exact, default = (
         hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-            "dstream.steady_algo", truncation_tolerance=tolerance
+            "dstream.steady_algo", posterior_mean_tolerance=tolerance
         )(trie, p_differentia_collision=p)["origin_time"].to_numpy()
         for tolerance in (0.0, 1e-9)
     )
     np.testing.assert_allclose(default, exact, rtol=0, atol=1e-6)
 
 
-def test_invalid_truncation_tolerance():
+def test_invalid_posterior_mean_tolerance():
     with pytest.raises(ValueError):
         hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-            "dstream.steady_algo", truncation_tolerance=-1.0
+            "dstream.steady_algo", posterior_mean_tolerance=-1.0
         )
