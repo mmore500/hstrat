@@ -67,7 +67,9 @@ def _call_polars(
     ):
         trie = pfl.alifestd_splice_chronological_consistency_polars(
             trie.rename(renames),
-        ).rename({v: k for k, v in renames.items()})
+        )
+    assert pfl.alifestd_find_chronological_inconsistency_polars(trie) is None
+    trie = trie.rename({v: k for k, v in renames.items()})
 
     if trie.lazy().select(pl.len()).collect().item() == num_original:
         return trie  # nothing spliced
