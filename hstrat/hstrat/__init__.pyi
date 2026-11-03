@@ -53,6 +53,7 @@ from phylogenetic_inference import (
     PeelBackConjoinedLeavesTriePostprocessor,
     PipeCallablePostprocessor,
     SampleAncestralRollbacksTriePostprocessor,
+    SpliceChronologicalConsistencyTriePostprocessor,
     UniformPrior,
     ballpark_patristic_distance_between,
     ballpark_rank_of_mrca_between,
@@ -278,6 +279,7 @@ __all__ = [
     "PeelBackConjoinedLeavesTriePostprocessor",
     "PipeCallablePostprocessor",
     "SampleAncestralRollbacksTriePostprocessor",
+    "SpliceChronologicalConsistencyTriePostprocessor",
     # serialization
     "assemblage_from_dstream_df",
     "assemblage_from_records",
