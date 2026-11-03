@@ -79,6 +79,9 @@ def _do_delete_trunk(
 
     with log_context_duration("get_sole_scalar_value_polars", logging.info):
         dstream_S = get_sole_scalar_value_polars(df, "dstream_S")
+        differentia_bitwidth = get_sole_scalar_value_polars(
+            df, "hstrat_differentia_bitwidth"
+        )
 
     df = df.with_columns(
         is_trunk=pl.col("dstream_rank") < dstream_S - 1,
@@ -105,6 +108,12 @@ def _do_delete_trunk(
         df = pfl.alifestd_prefix_roots_polars(
             df, allow_id_reassign=True, origin_time=dstream_S
         )
+    # prefixed roots sit at dstream_S boundary
+    df = df.with_columns(
+        pl.col("dstream_rank").fill_null(dstream_S),
+        pl.col("dstream_S").fill_null(dstream_S),
+        pl.col("hstrat_differentia_bitwidth").fill_null(differentia_bitwidth),
+    )
 
     gc.collect()
 

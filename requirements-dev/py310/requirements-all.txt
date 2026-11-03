@@ -343,7 +343,7 @@ patsy==1.0.3
     # via statsmodels
 pexpect==4.9.0
     # via ipython
-phyloframe==0.10.3
+phyloframe==0.15.0
     # via hstrat (../../pyproject.toml)
 phylotrackpy==0.2.4
     # via hstrat (../../pyproject.toml)
