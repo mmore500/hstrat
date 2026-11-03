@@ -9,9 +9,14 @@ from hstrat import hstrat
 from hstrat.dataframe import surface_build_tree, surface_test_drive
 from hstrat.phylogenetic_inference.tree.trie_postprocess._AssignOriginTimeEmpiricalBayesSurfPostprocessor import (
     _calc_mrca_pair_counts,
+    _fit_alpha_ml,
 )
-from hstrat.phylogenetic_inference.tree.trie_postprocess._detail._exponential_posterior import (
-    _calc_exponential_prior_moments,
+from hstrat.phylogenetic_inference.tree.trie_postprocess._detail._backward_age_posterior import (
+    BackwardAgePosterior,
+    _calc_prior_moments,
+)
+from hstrat.phylogenetic_inference.tree.trie_postprocess._detail._comparable_ranks import (
+    resolve_dstream_algo,
 )
 
 assets = os.path.join(
@@ -80,37 +85,86 @@ def test_matches_geometric_average(dstream_algo: str, bitwidth: int):
     )
 
 
-@pytest.mark.parametrize("rate", [-1.0, -0.01, -1e-8, 0.0, 1e-8, 0.01, 1.0])
-def test_prior_moments(rate: float):
+@pytest.mark.parametrize("alpha", [-3.0, -1.0, 0.0, 0.5, 1.0, 2.5])
+def test_prior_moments(alpha: float):
     a = np.array([[0.0, 3.0, 10.0, 5.0]])
-    b = np.array([[1.0, 50.0, 400.0, 5.0]])
-    shift = np.array([[max(rate, 0) * 400.0]])
-    masses, means = _calc_exponential_prior_moments(a, b, shift, rate)
+    b = np.array([[1.0, 50.0, 135.0, 5.0]])
+    c = np.array([[135.0]])
+    masses, means = _calc_prior_moments(a, b, c, alpha)
     for ai, bi, mass, mean in zip(a[0], b[0], masses[0], means[0]):
         if bi <= ai:
             assert mass == 0
             continue
-        t = np.linspace(ai, bi, 200_001)
-        density = np.exp(rate * t - shift.item())
-        expected_mass = np.trapezoid(density, t)
-        expected_mean = np.trapezoid(t * density, t) / expected_mass - 0.5
+        # generations integrated over unit cells centered on them
+        t = np.linspace(ai - 0.5, bi - 0.5, 400_001)
+        density = ((c.item() - t) / (c.item() + 0.5)) ** -alpha
+        expected_mass = np.trapezoid(density, t) / (c.item() + 0.5)
+        expected_mean = np.trapezoid(t * density, t) / np.trapezoid(density, t)
         np.testing.assert_allclose(mass, expected_mass, rtol=1e-5)
-        np.testing.assert_allclose(mean, expected_mean, rtol=1e-5, atol=1e-6)
+        np.testing.assert_allclose(mean, expected_mean, rtol=1e-6, atol=1e-9)
 
 
-def test_clamped_rate_warns():
-    postprocessor = hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-        "dstream.steady_algo", rate_bounds=(-1e-9, 1e-9)
+@pytest.mark.parametrize("p", [0.5, 2**-8])
+def test_uniform_prior_at_zero(p: float):
+    # alpha = 0 gives interval midpoints weighted by length and collisions
+    trie = _make_trie()
+    origin_times = BackwardAgePosterior(
+        trie, p, resolve_dstream_algo("dstream.steady_algo"), 64
+    ).origin_times(0.0)
+    assert origin_times[3:].tolist() == [135.0] * 3
+    assert (np.diff([origin_times[1], 36.0]) > 0).all()  # below midpoint
+
+
+@pytest.mark.parametrize(
+    "dstream_algo", ["dstream.steady_algo", "dstream.tilted_algo"]
+)
+@pytest.mark.parametrize("bitwidth", [1, 8])
+def test_ml_maximizes_likelihood(dstream_algo: str, bitwidth: int):
+    pop = make_population(dstream_algo, bitwidth)
+    captured = {}
+
+    def capture(trie, p_differentia_collision, mutate, progress_wrap):
+        if not isinstance(trie, pl.DataFrame):
+            raise NotImplementedError
+        captured["trie"] = trie.clone()
+        captured["p"] = p_differentia_collision
+        return trie
+
+    surface_build_tree(pop, trie_postprocessor=capture)
+    trie, p = captured["trie"], captured["p"]
+    posterior = BackwardAgePosterior(
+        trie, p, resolve_dstream_algo(dstream_algo), 64
     )
-    with pytest.warns(UserWarning, match="clamping"):
+    alpha = _fit_alpha_ml(posterior, (-8.0, 8.0), 1e-4)
+    best = posterior.log_likelihoods(alpha).sum()
+    for other in np.linspace(-8, 8, 65):
+        assert posterior.log_likelihoods(other).sum() <= best + 1e-6
+
+    result = hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
+        dstream_algo, fit="ml"
+    )(trie, p_differentia_collision=p)
+    np.testing.assert_allclose(
+        result["origin_time"].to_numpy(), posterior.origin_times(alpha)
+    )
+
+
+def test_clamped_alpha_warns():
+    postprocessor = hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
+        "dstream.steady_algo", alpha_bounds=(-1e-9, 1e-9)
+    )
+    with pytest.warns(UserWarning, match="clamped"):
         result = postprocessor(_make_trie(), p_differentia_collision=0.5)
     assert result["origin_time"].is_finite().all()
 
 
-def test_invalid_rate_bounds():
+def test_invalid_arguments():
     with pytest.raises(ValueError):
         hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-            "dstream.steady_algo", rate_bounds=(1.0, -1.0)
+            "dstream.steady_algo", alpha_bounds=(1.0, -1.0)
+        )
+    with pytest.raises(ValueError):
+        hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
+            "dstream.steady_algo", fit="calibrated"
         )
 
 

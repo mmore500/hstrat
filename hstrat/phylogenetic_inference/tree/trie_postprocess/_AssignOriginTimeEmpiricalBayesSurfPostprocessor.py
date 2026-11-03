@@ -11,8 +11,8 @@ from ._AssignOriginTimeGeometricSurfPostprocessor import (
     _calc_geometric_origin_times,
 )
 from ._detail import TriePostprocessorBase
+from ._detail._backward_age_posterior import BackwardAgePosterior
 from ._detail._comparable_ranks import get_sole_dstream_S, resolve_dstream_algo
-from ._detail._exponential_posterior import ExponentialPosterior
 
 
 def _calc_mrca_pair_counts(trie: pl.DataFrame) -> np.ndarray:
@@ -33,42 +33,82 @@ def _calc_mrca_pair_counts(trie: pl.DataFrame) -> np.ndarray:
     return np.where(has_children, (num_leaves**2 - child_sq_sums) / 2, 0.0)
 
 
-def _fit_rate(
-    posterior: ExponentialPosterior,
+def _warn_clamped(alpha: float, why: str) -> None:
+    warnings.warn(
+        f"empirical Bayes prior exponent clamped to bound {alpha}: {why}",
+    )
+
+
+def _fit_alpha_mm(
+    posterior: BackwardAgePosterior,
     weights: np.ndarray,
     target: float,
-    rate_bounds: typing.Tuple[float, float],
-    rate_tolerance: float,
+    alpha_bounds: typing.Tuple[float, float],
+    alpha_tolerance: float,
 ) -> float:
-    """Bisect prior rate so posterior's weighted mean matches target.
+    """Bisect prior exponent so posterior's weighted mean matches target.
 
-    Posterior means increase with prior rate (higher rates favor more
-    recent divergence), so the weighted mean is monotonic.
+    Posterior means increase with prior exponent (higher exponents favor
+    smaller backward ages, i.e., more recent divergence), so the weighted
+    mean is monotonic.
     """
 
-    def excess(rate: float) -> float:
-        return float(np.dot(weights, posterior(rate))) - target
+    def excess(alpha: float) -> float:
+        return float(np.dot(weights, posterior.origin_times(alpha))) - target
 
-    lo, hi = rate_bounds
+    lo, hi = alpha_bounds
     if excess(lo) >= 0:
-        warnings.warn(
-            f"empirical Bayes target {target} at or below posterior mean "
-            f"for lowest prior rate {lo}; clamping to {lo}",
-        )
+        _warn_clamped(lo, f"target {target} at or below attainable range")
         return lo
     if excess(hi) <= 0:
-        warnings.warn(
-            f"empirical Bayes target {target} at or above posterior mean "
-            f"for highest prior rate {hi}; clamping to {hi}",
-        )
+        _warn_clamped(hi, f"target {target} at or above attainable range")
         return hi
-    while hi - lo > rate_tolerance:
+    while hi - lo > alpha_tolerance:
         mid = (lo + hi) / 2
         if excess(mid) < 0:
             lo = mid
         else:
             hi = mid
     return (lo + hi) / 2
+
+
+def _fit_alpha_ml(
+    posterior: BackwardAgePosterior,
+    alpha_bounds: typing.Tuple[float, float],
+    alpha_tolerance: float,
+    num_grid: int = 33,
+) -> float:
+    """Maximize summed log marginal likelihood of inner nodes' placements
+    over prior exponent, by grid search refined by golden-section search.
+    """
+
+    def objective(alpha: float) -> float:
+        return float(posterior.log_likelihoods(alpha).sum())
+
+    grid = np.linspace(*alpha_bounds, num_grid)
+    values = [objective(alpha) for alpha in grid]
+    best = int(np.argmax(values))
+    lo = grid[max(best - 1, 0)]
+    hi = grid[min(best + 1, num_grid - 1)]
+
+    inv_phi = (np.sqrt(5) - 1) / 2
+    x1, x2 = hi - inv_phi * (hi - lo), lo + inv_phi * (hi - lo)
+    f1, f2 = objective(x1), objective(x2)
+    while hi - lo > alpha_tolerance:
+        if f1 < f2:
+            lo, x1, f1 = x1, x2, f2
+            x2 = lo + inv_phi * (hi - lo)
+            f2 = objective(x2)
+        else:
+            hi, x2, f2 = x2, x1, f1
+            x1 = hi - inv_phi * (hi - lo)
+            f1 = objective(x1)
+    alpha = float((lo + hi) / 2)
+    if best in (0, num_grid - 1) and np.isclose(
+        alpha, grid[best], atol=2 * alpha_tolerance
+    ):
+        _warn_clamped(grid[best], "marginal likelihood maximized at bound")
+    return alpha
 
 
 def _call_polars(
@@ -78,13 +118,17 @@ def _call_polars(
 ) -> pl.DataFrame:
     """Implementation detail."""
     dstream_S = get_sole_dstream_S(trie)
-    posterior = ExponentialPosterior(
+    posterior = BackwardAgePosterior(
         trie, p_differentia_collision, ftor._dstream_algo, dstream_S
     )
-    pair_counts = _calc_mrca_pair_counts(trie) if len(trie) else np.zeros(0)
-    if pair_counts.sum() == 0:  # no leaf pairs to calibrate against
-        rate = 0.0
+    if not posterior.is_inner.any():  # nothing to fit
+        alpha = 0.0
+    elif ftor._fit == "ml":
+        alpha = _fit_alpha_ml(
+            posterior, ftor._alpha_bounds, ftor._alpha_tolerance
+        )
     else:
+        pair_counts = _calc_mrca_pair_counts(trie)
         weights = pair_counts / pair_counts.sum()
         target = float(
             np.dot(
@@ -97,23 +141,26 @@ def _call_polars(
                 ),
             ),
         )
-        rate = _fit_rate(
+        alpha = _fit_alpha_mm(
             posterior,
             weights,
             target,
-            ftor._rate_bounds,
-            ftor._rate_tolerance,
+            ftor._alpha_bounds,
+            ftor._alpha_tolerance,
         )
-    logging.info(f" - empirical Bayes prior rate: {rate}")
+    logging.info(f" - empirical Bayes ({ftor._fit}) prior exponent: {alpha}")
     return trie.with_columns(
-        pl.Series(ftor._assigned_property, posterior(rate), dtype=pl.Float64),
+        pl.Series(
+            ftor._assigned_property,
+            posterior.origin_times(alpha),
+            dtype=pl.Float64,
+        ),
     )
 
 
 class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     """Functor to assign trie node origin times as posterior means, under a
-    prior fit so that their tree-wide average matches the unbiased
-    geometric estimate.
+    prior fit to the trie by empirical Bayes.
 
     Spurious differentia collisions cause lineages to appear to share
     common ancestry for longer than they truly did. So, a node's children
@@ -125,19 +172,25 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     proportional to `p_differentia_collision ** j`.
 
     Each inner node is assigned its posterior mean divergence time, under a
-    prior over generations since `dstream_S`, `t`, with density
-    proportional to `exp(rate * t)`. Lower `rate` favors earlier divergence
-    (i.e., toward the root), and higher `rate` later divergence (i.e.,
-    toward the tips), with `rate = 0` uniform. The prior's tilt within an
-    interval depends only on the interval's width, not on how many
-    generations have elapsed. The prior rate is fit by empirical Bayes:
-    chosen so that the average of node estimates, weighted by the number
-    of leaf pairs whose most recent common ancestor each node is, matches
-    that of `AssignOriginTimeGeometricSurfPostprocessor`, which is unbiased
-    with respect to collisions without assuming a prior. So, the geometric
-    estimator sets the tree-wide average, and the posterior distributes it
-    across nodes, with each estimate bounded within its own and earlier
-    intervals.
+    power-law prior over backward age `u` (generations before the clade's
+    youngest tip), with density proportional to `u ** -alpha`: `alpha = 0`
+    is uniform over time, and `alpha = 1` log-uniform over backward age.
+    Higher `alpha` favors more recent divergence (i.e., toward the tips),
+    and lower `alpha` earlier divergence (i.e., toward the root).
+
+    A single tree-wide `alpha` is fit by empirical Bayes, either
+
+    - `fit="mm"` (moment matching): so that the average of node
+      estimates, weighted by the number of leaf pairs whose most recent
+      common ancestor each node is, matches that of
+      `AssignOriginTimeGeometricSurfPostprocessor`, which is unbiased with
+      respect to collisions without assuming a prior. So, the geometric
+      estimator sets the tree-wide average over leaf pairs, and the
+      posterior distributes it across nodes; or
+    - `fit="ml"` (maximum likelihood): to maximize the summed log marginal
+      likelihood of inner nodes' observed placements, each normalized
+      over all generations up to the clade's youngest tip. Each inner node
+      gets an equal vote, regardless of its number of leaf pairs.
 
     Comparable ranks are looked up as for
     `AssignOriginTimeGeometricSurfPostprocessor`: from `dstream_algo`, as
@@ -146,7 +199,8 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
 
     Notes
     -----
-    Each node is estimated independently, so chronological consistency
+    Estimates are bounded within each node's own and earlier intervals, but
+    each node is estimated independently, so chronological consistency
     between nodes is not guaranteed.
 
     Only polars dataframe tries with a uniform `dstream_S` are supported
@@ -168,16 +222,18 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
 
     _assigned_property: str  # property name for assigned origin time
     _dstream_algo: types.ModuleType  # downstream algorithm of surfaces
-    _rate_bounds: typing.Tuple[float, float]  # prior rate search range
-    _rate_tolerance: float  # prior rate search precision
+    _fit: str  # how prior exponent is fit
+    _alpha_bounds: typing.Tuple[float, float]  # prior exponent search range
+    _alpha_tolerance: float  # prior exponent search precision
 
     def __init__(
         self: "AssignOriginTimeEmpiricalBayesSurfPostprocessor",
         dstream_algo: typing.Union[str, types.ModuleType],
         assigned_property: str = "origin_time",
         *,
-        rate_bounds: typing.Tuple[float, float] = (-1.0, 1.0),
-        rate_tolerance: float = 1e-6,
+        fit: typing.Literal["mm", "ml"] = "mm",
+        alpha_bounds: typing.Tuple[float, float] = (-8.0, 8.0),
+        alpha_tolerance: float = 1e-4,
     ) -> None:
         """Initialize functor instance.
 
@@ -190,23 +246,31 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
             For example, `"dstream.steady_algo"` or `dstream.steady_algo`.
         assigned_property : str, default "origin_time"
             Property name for assigned origin time.
-        rate_bounds : tuple of float, default (-1.0, 1.0)
-            Range searched for prior rate, per generation.
+        fit : {"mm", "ml"}, default "mm"
+            How tree-wide prior exponent `alpha` is fit.
 
-            Heuristic: at rates of +/-1 per generation, prior mass within
-            intervals spanning more than a few generations concentrates at
-            their ends, so posterior means approach their limits. If the fit
-            target lies outside the range, the rate is clamped to the nearer
-            bound, with a warning.
-        rate_tolerance : float, default 1e-6
-            Precision to which prior rate is fit, by bisection.
+            If "mm" (moment matching), match the leaf-pair-weighted average
+            of the geometric estimator. If "ml" (maximum likelihood),
+            maximize the summed log marginal likelihood of inner nodes'
+            placements.
+        alpha_bounds : tuple of float, default (-8.0, 8.0)
+            Range searched for prior exponent `alpha`.
+
+            Heuristic. Wider ranges admit more extreme priors, which
+            concentrate mass near the ends of intervals. If the fit lands
+            on a bound, a warning is raised.
+        alpha_tolerance : float, default 1e-4
+            Precision to which prior exponent `alpha` is fit.
         """
-        if not rate_bounds[0] < rate_bounds[1]:
-            raise ValueError(f"invalid rate_bounds {rate_bounds}")
+        if fit not in ("mm", "ml"):
+            raise ValueError(f"unknown fit {fit!r}")
+        if not alpha_bounds[0] < alpha_bounds[1]:
+            raise ValueError(f"invalid alpha_bounds {alpha_bounds}")
         self._dstream_algo = resolve_dstream_algo(dstream_algo)
         self._assigned_property = assigned_property
-        self._rate_bounds = tuple(rate_bounds)
-        self._rate_tolerance = rate_tolerance
+        self._fit = fit
+        self._alpha_bounds = tuple(alpha_bounds)
+        self._alpha_tolerance = alpha_tolerance
 
     def __call__(
         self: "AssignOriginTimeEmpiricalBayesSurfPostprocessor",
