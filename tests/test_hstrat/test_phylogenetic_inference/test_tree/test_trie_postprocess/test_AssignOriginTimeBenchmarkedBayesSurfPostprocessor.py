@@ -160,3 +160,61 @@ def test_polars_only():
         hstrat.AssignOriginTimeBenchmarkedBayesSurfPostprocessor(
             "dstream.steady_algo",
         )(_make_trie().to_pandas(), p_differentia_collision=0.5)
+
+
+@pytest.mark.parametrize("alpha", [-2.0, 0.0, 1.5])
+def test_fixed_alpha(alpha: float):
+    trie = _make_trie()
+    result = hstrat.AssignOriginTimeBenchmarkedBayesSurfPostprocessor(
+        "dstream.steady_algo", alpha=alpha
+    )(trie, p_differentia_collision=0.5)
+    expected = BackwardLagPosterior(
+        trie, 0.5, resolve_dstream_algo("dstream.steady_algo"), 64
+    ).origin_times(alpha)
+    np.testing.assert_allclose(result["origin_time"].to_numpy(), expected)
+
+
+@pytest.mark.parametrize(
+    "dstream_algo", ["dstream.steady_algo", "dstream.tilted_algo"]
+)
+@pytest.mark.parametrize("bitwidth", [1, 8])
+def test_fast_path_matches_reference(dstream_algo: str, bitwidth: int):
+    from hstrat.phylogenetic_inference.tree.trie_postprocess._detail import (
+        _backward_lag_posterior as blp,
+    )
+    from hstrat.phylogenetic_inference.tree.trie_postprocess._detail import (
+        _comparable_ranks as cr,
+    )
+
+    captured = {}
+
+    def capture(trie, p_differentia_collision, mutate, progress_wrap):
+        if not isinstance(trie, pl.DataFrame):
+            raise NotImplementedError
+        captured["trie"] = trie.clone()
+        captured["p"] = p_differentia_collision
+        return trie
+
+    surface_build_tree(
+        make_population(dstream_algo, bitwidth), trie_postprocessor=capture
+    )
+    trie, p = captured["trie"], captured["p"]
+    ranks, is_inner, compare_T, youngest_T = cr.mark_inner_node_bounds(trie)
+    alphas = np.linspace(-3, 3, 25)
+    for chunk, retained in cr.iter_retained_ranks(
+        resolve_dstream_algo(dstream_algo), 64, compare_T
+    ):
+        args = (
+            retained,
+            ranks[is_inner].astype(np.float64)[chunk],
+            youngest_T.astype(np.float64)[chunk],
+            p,
+            64,
+            alphas,
+        )
+        np.testing.assert_allclose(
+            blp._calc_means_grid_fast_path(*args),
+            blp._calc_chunk_means_grid(*args),
+            rtol=1e-12,
+            atol=1e-9,
+        )

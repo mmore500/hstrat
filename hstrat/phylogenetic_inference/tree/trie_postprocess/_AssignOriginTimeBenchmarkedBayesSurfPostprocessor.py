@@ -75,7 +75,9 @@ def _call_polars(
     posterior = BackwardLagPosterior(
         trie, p_differentia_collision, ftor._dstream_algo, dstream_S
     )
-    if not posterior.is_inner.any():  # nothing to benchmark
+    if ftor._alpha is not None:  # fixed prior exponent, not benchmarked
+        origin_times = posterior.origin_times(ftor._alpha)
+    elif not posterior.is_inner.any():  # nothing to benchmark
         origin_times = posterior.origin_times(0.0)
     else:
         pair_counts = _calc_mrca_pair_counts(trie)
@@ -127,7 +129,8 @@ class AssignOriginTimeBenchmarkedBayesSurfPostprocessor(TriePostprocessorBase):
     that of `AssignOriginTimeGeometricSurfPostprocessor`, which is unbiased
     with respect to collisions without assuming a prior. Posterior means are
     evaluated over `alpha_grid` and linearly interpolated between the grid
-    exponents bracketing the target. So, the geometric estimator sets the
+    exponents bracketing the target. Alternately, pass a fixed `alpha` to
+    skip benchmarking. So, the geometric estimator sets the
     tree-wide average over leaf pairs, and the posterior distributes it
     across nodes, with each estimate bounded within its own and earlier
     intervals.
@@ -162,6 +165,7 @@ class AssignOriginTimeBenchmarkedBayesSurfPostprocessor(TriePostprocessorBase):
     _assigned_property: str  # property name for assigned origin time
     _dstream_algo: types.ModuleType  # downstream algorithm of surfaces
     _alpha_grid: np.ndarray  # prior exponents evaluated
+    _alpha: typing.Optional[float]  # fixed prior exponent, if any
 
     def __init__(
         self: "AssignOriginTimeBenchmarkedBayesSurfPostprocessor",
@@ -169,6 +173,7 @@ class AssignOriginTimeBenchmarkedBayesSurfPostprocessor(TriePostprocessorBase):
         assigned_property: str = "origin_time",
         *,
         alpha_grid: typing.Sequence[float] = tuple(np.linspace(-3, 3, 25)),
+        alpha: typing.Optional[float] = None,
     ) -> None:
         """Initialize functor instance.
 
@@ -186,7 +191,12 @@ class AssignOriginTimeBenchmarkedBayesSurfPostprocessor(TriePostprocessorBase):
 
             Heuristic. If the benchmarking target lies beyond the range
             attainable over the grid, estimates are clamped to the nearer
-            end of the grid, with a warning.
+            end of the grid, with a warning. Ignored if `alpha` is given.
+        alpha : float, optional
+            Fixed prior exponent to use instead of benchmarking.
+
+            For example, `alpha=0` gives the uniform prior. If given, the
+            geometric benchmark is not computed.
         """
         alpha_grid = np.asarray(alpha_grid, dtype=np.float64)
         if len(alpha_grid) < 2 or not (np.diff(alpha_grid) > 0).all():
@@ -194,6 +204,7 @@ class AssignOriginTimeBenchmarkedBayesSurfPostprocessor(TriePostprocessorBase):
         self._dstream_algo = resolve_dstream_algo(dstream_algo)
         self._assigned_property = assigned_property
         self._alpha_grid = alpha_grid
+        self._alpha = None if alpha is None else float(alpha)
 
     def __call__(
         self: "AssignOriginTimeBenchmarkedBayesSurfPostprocessor",

@@ -8,7 +8,7 @@ import typing
 import numpy as np
 import polars as pl
 
-from ....._auxiliary_lib import log_context_duration
+from ....._auxiliary_lib import jit, log_context_duration
 from ._comparable_ranks import (
     first_retained_between,
     iter_retained_ranks,
@@ -99,6 +99,98 @@ def _calc_chunk_means_grid(
     return result
 
 
+try:
+    from numba import prange
+except (ImportError, ModuleNotFoundError):  # pragma: no cover
+    prange = range
+
+
+@jit(nopython=True)
+def _calc_prior_moment_scalar(
+    a: float, b: float, H: float, alpha: float
+) -> typing.Tuple[float, float]:
+    """Scalar `_calc_prior_moments`, with `H = max(hi, 1)`."""
+    if b <= a:
+        return 0.0, (a + b - 1) / 2
+    u1 = H - b + 1.0
+    u2 = H - a + 1.0
+    if abs(alpha) < 1e-9:
+        mass = u2 - u1
+        mean_u = (u1 + u2) / 2
+    elif abs(alpha - 1) < 1e-9:
+        mass = np.log(u2 / u1)
+        mean_u = (u2 - u1) / mass
+    elif abs(alpha - 2) < 1e-9:
+        mass = 1 / u1 - 1 / u2
+        mean_u = np.log(u2 / u1) / mass
+    else:
+        mass = (u2 ** (1 - alpha) - u1 ** (1 - alpha)) / (1 - alpha)
+        moment = (u2 ** (2 - alpha) - u1 ** (2 - alpha)) / (2 - alpha)
+        mean_u = moment / mass
+    mean = min(max(H + 0.5 - mean_u, a), max(a, b - 1))
+    if not np.isfinite(mean):
+        mean = (a + b - 1) / 2
+    return mass, mean
+
+
+@jit(nopython=True, parallel=True)
+def _calc_means_grid_fast_path(
+    retained: np.ndarray,
+    ranks: np.ndarray,
+    youngest_T: np.ndarray,
+    p: float,
+    dstream_S: int,
+    alphas: np.ndarray,
+) -> np.ndarray:
+    """Fused, parallel implementation of `_calc_chunk_means_grid`, over
+    inner nodes (rows of sorted `retained`) and prior exponents."""
+    num_nodes, num_retained = retained.shape
+    result = np.empty((num_nodes, len(alphas)))
+    for i in prange(num_nodes):
+        rank = ranks[i]
+        # node's own interval: from node rank to first comparable rank
+        # after, or to youngest tip if none
+        first_shared = youngest_T[i]
+        for j in range(num_retained):
+            if rank < retained[i, j] < youngest_T[i]:
+                first_shared = retained[i, j]
+                break
+        lo = max(rank - dstream_S, 0.0)
+        hi = max(first_shared - dstream_S, 0.0)
+        H = max(hi, 1.0)
+
+        # interval bounds: mismatch bound, node rank, then comparable ranks
+        # before node rank, latest first, back to dstream_S
+        bounds = np.empty(num_retained + 3)
+        bounds[0] = hi
+        bounds[1] = lo
+        num_bounds = 2
+        for j in range(num_retained - 1, -1, -1):
+            if retained[i, j] < rank:
+                bounds[num_bounds] = max(retained[i, j] - dstream_S, 0.0)
+                num_bounds += 1
+        bounds[num_bounds] = 0.0
+        num_bounds += 1
+
+        for k in range(len(alphas)):
+            numerator = 0.0
+            denominator = 0.0
+            p_collisions = 1.0  # jth interval requires j collisions
+            for j in range(num_bounds - 1):
+                mass, mean = _calc_prior_moment_scalar(
+                    bounds[j + 1], bounds[j], H, alphas[k]
+                )
+                weight = mass * p_collisions
+                numerator += weight * mean
+                denominator += weight
+                p_collisions *= p
+            if denominator > 0:
+                result[i, k] = numerator / denominator
+            else:
+                result[i, k] = (lo + hi - 1) / 2
+    return result
+
+
 class BackwardLagPosterior:
     """Posterior mean divergence times of inner nodes' children, given
     spurious differentia collisions, under a prior with density
@@ -152,13 +244,13 @@ class BackwardLagPosterior:
             for chunk, retained in iter_retained_ranks(
                 self._dstream_algo, self._dstream_S, compare_T
             ):
-                result[chunk] = _calc_chunk_means_grid(
+                result[chunk] = _calc_means_grid_fast_path(
                     retained,
                     inner_ranks[chunk],
                     youngest_T[chunk],
-                    self._p,
-                    self._dstream_S,
-                    alphas,
+                    float(self._p),
+                    int(self._dstream_S),
+                    np.asarray(alphas, dtype=np.float64),
                 )
         return result
 
