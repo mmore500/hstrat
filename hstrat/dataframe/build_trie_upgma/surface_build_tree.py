@@ -5,13 +5,15 @@ import os
 import joinem
 from joinem._dataframe_cli import _run_dataframe_cli
 
-from ... import hstrat
 from ..._auxiliary_lib import (
     begin_prod_logging,
     get_hstrat_version,
     log_context_duration,
 )
-from .._impl import create_surface_build_tree_cli_parser
+from .._impl import (
+    create_surface_build_tree_cli_parser,
+    eval_trie_postprocessor,
+)
 from ._surface_build_tree import surface_build_tree
 
 raw_message = f"""{os.path.basename(__file__)} | (hstrat v{get_hstrat_version()}/joinem v{joinem.__version__})
@@ -141,7 +143,7 @@ def _main(mp_context: str) -> None:
         "instantiating trie postprocess functor: "
         f"`{args.trie_postprocessor}`",
     )
-    trie_postprocessor = eval(args.trie_postprocessor, {"hstrat": hstrat})
+    trie_postprocessor = eval_trie_postprocessor(args.trie_postprocessor)
 
     with log_context_duration(
         "hstrat.dataframe.build_trie_upgma.surface_build_tree", logging.info
