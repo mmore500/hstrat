@@ -6,7 +6,7 @@ import polars as pl
 import pytest
 
 from hstrat import hstrat
-from hstrat._auxiliary_lib import seed_random
+from hstrat._auxiliary_lib import ExperimentalWarning, seed_random
 from hstrat.dataframe import surface_build_tree, surface_test_drive
 
 assets = os.path.join(
@@ -212,3 +212,9 @@ def test_after_geometric_with_inversions():
     assert pfl.alifestd_has_contiguous_ids_polars(spliced)
     assert spliced["hstrat_rank"].null_count() == 0
     assert {*spliced["origin_time"]} == {*unspliced["origin_time"]}
+
+
+def test_experimental_warning(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.delenv("HSTRAT_WARN_EXPERIMENTAL_SUPPRESS", raising=False)
+    with pytest.warns(ExperimentalWarning):
+        hstrat.SpliceChronologicalConsistencyTriePostprocessor()

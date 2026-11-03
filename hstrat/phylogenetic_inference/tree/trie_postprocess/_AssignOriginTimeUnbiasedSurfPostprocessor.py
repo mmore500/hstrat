@@ -192,7 +192,7 @@ class AssignOriginTimeUnbiasedSurfPostprocessor(TriePostprocessorBase):
 
     or, with chronological consistency,
 
-    >>> hstrat.dataframe.surface_build_tree(  # doctest: +SKIP
+    >>> hstrat.dataframe.surface_build_tree(
     ...     df,
     ...     trie_postprocessor=hstrat.CompoundTriePostprocessor(
     ...         [
