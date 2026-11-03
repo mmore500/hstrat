@@ -20,14 +20,12 @@ assets = os.path.join(
 )
 
 
-def surface_build_tree(
-    df: pl.DataFrame, dstream_algo: str, **kwargs
-) -> pl.DataFrame:
-    """Build tree with geometric origin times."""
+def surface_build_tree(df: pl.DataFrame, **kwargs) -> pl.DataFrame:
+    """Build tree with unbiased origin times."""
     return surface_build_tree_naive(
         df,
-        trie_postprocessor=hstrat.AssignOriginTimeGeometricSurfPostprocessor(
-            dstream_algo, **kwargs
+        trie_postprocessor=hstrat.AssignOriginTimeUnbiasedSurfPostprocessor(
+            **kwargs
         ),
     )
 
@@ -115,7 +113,7 @@ def test_origin_times_unbiased(algo: str):
     )
 
     corrected = _calc_cherry_errors(
-        surface_build_tree(tips_df, f"dstream.{algo}"),
+        surface_build_tree(tips_df),
         split_times.tolist(),
     )
     uncorrected = _calc_cherry_errors(
@@ -138,7 +136,7 @@ def test_origin_times_unbiased(algo: str):
 @pytest.mark.parametrize("bitwidth", [1, 8])
 def test_topology_unchanged(dstream_algo: str, bitwidth: int):
     pop = make_population(dstream_algo, 64, bitwidth)
-    phylo = surface_build_tree(pop, dstream_algo)
+    phylo = surface_build_tree(pop)
     naive = surface_build_tree_naive(pop)
     assert phylo.select("id", "ancestor_id", "hstrat_rank").equals(
         naive.select("id", "ancestor_id", "hstrat_rank"),
@@ -147,7 +145,7 @@ def test_topology_unchanged(dstream_algo: str, bitwidth: int):
 
 def test_tree_shape():
     pop = make_population()
-    phylo = surface_build_tree(pop, "dstream.steady_algo")
+    phylo = surface_build_tree(pop)
     assert pfl.alifestd_is_topologically_sorted_polars(phylo)
     assert pfl.alifestd_has_contiguous_ids_polars(phylo)
     leaves = phylo.filter(pl.col("dstream_data_id").is_not_null())
@@ -164,19 +162,21 @@ def test_no_delete_trunk():
     phylo = surface_build_tree_naive(
         pop,
         delete_trunk=False,
-        trie_postprocessor=hstrat.AssignOriginTimeGeometricSurfPostprocessor(
-            "dstream.steady_algo",
-        ),
+        trie_postprocessor=hstrat.AssignOriginTimeUnbiasedSurfPostprocessor(),
     )
     assert phylo["origin_time"].is_finite().all()
 
 
 def test_polars_only():
-    postprocessor = hstrat.AssignOriginTimeGeometricSurfPostprocessor(
-        "dstream.steady_algo",
-    )
+    postprocessor = hstrat.AssignOriginTimeUnbiasedSurfPostprocessor()
     trie = pl.DataFrame(
-        {"id": [0], "ancestor_id": [0], "rank": [64], "dstream_S": [64]},
+        {
+            "id": [0],
+            "ancestor_id": [0],
+            "rank": [64],
+            "dstream_S": [64],
+            "dstream_algo": ["dstream.steady_algo"],
+        },
     )
     with pytest.raises(NotImplementedError):
         postprocessor(trie.to_pandas(), p_differentia_collision=0.5)
@@ -188,6 +188,4 @@ def test_polars_only():
 def test_experimental_warning(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.delenv("HSTRAT_WARN_EXPERIMENTAL_SUPPRESS", raising=False)
     with pytest.warns(ExperimentalWarning):
-        hstrat.AssignOriginTimeGeometricSurfPostprocessor(
-            "dstream.steady_algo",
-        )
+        hstrat.AssignOriginTimeUnbiasedSurfPostprocessor()

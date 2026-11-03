@@ -16,14 +16,16 @@ from ...._auxiliary_lib import (
     jit_prange,
     jit_warn,
     log_context_duration,
-    resolve_dstream_algo,
     warn_experimental,
 )
-from ._AssignOriginTimeGeometricSurfPostprocessor import (
-    _calc_geometric_chunk,
+from ._AssignOriginTimeUnbiasedSurfPostprocessor import (
+    _calc_unbiased_chunk,
 )
 from ._detail import TriePostprocessorBase
-from ._detail._comparable_ranks import mark_inner_node_bounds
+from ._detail._comparable_ranks import (
+    get_dstream_algo,
+    mark_inner_node_bounds,
+)
 
 
 @jit(nopython=True)
@@ -180,7 +182,7 @@ def _calc_posterior_means_fast_path(
 
 
 def _calc_inner_estimates(
-    trie: pl.DataFrame,
+    bounds_df: pl.DataFrame,
     p_differentia_collision: float,
     dstream_algo: types.ModuleType,
     dstream_S: int,
@@ -189,19 +191,17 @@ def _calc_inner_estimates(
     progress_wrap: typing.Callable,
 ) -> typing.Tuple[pl.DataFrame, np.ndarray]:
     """Posterior mean origin times of inner nodes for each prior exponent in
-    `alpha_grid`, and their geometric estimates, in one pass over comparable
+    `alpha_grid`, and their unbiased estimates, in one pass over comparable
     ranks.
 
     Returns a dataframe of all nodes' `base` origin time (i.e., rank,
-    relative to `dstream_S`), `is_inner`, and `geometric` estimate (null for
+    relative to `dstream_S`), `is_inner`, and `unbiased` estimate (null for
     non-inner nodes), and a matrix of posterior means, with inner nodes as
     rows and prior exponents as columns.
 
-    Trie must be non-empty, have contiguous ids, be topologically sorted,
-    and provide an integer `rank` column, with leaf rank `dstream_T - 1`.
+    `bounds_df` is as marked by `mark_inner_node_bounds`.
     """
     alpha_grid = np.asarray(alpha_grid, dtype=np.float64)
-    bounds_df = mark_inner_node_bounds(trie_df=trie)
     is_inner = (~bounds_df["is_leaf"] & ~bounds_df["is_root"]).to_numpy()
     inner_df = bounds_df.filter(is_inner)
     inner_ranks = inner_df["rank"].to_numpy().astype(np.float64)
@@ -209,7 +209,7 @@ def _calc_inner_estimates(
     p = float(p_differentia_collision)
 
     posterior = np.empty((len(inner_df), len(alpha_grid)))
-    geometric = np.empty(len(inner_df))
+    unbiased = np.empty(len(inner_df))
     with log_context_duration("_calc_inner_estimates", logging.info):
         for chunk, retained_ranks in iter_dstream_ingest_times_sorted(
             dstream_algo=dstream_algo,
@@ -227,7 +227,7 @@ def _calc_inner_estimates(
                 alpha_grid=alpha_grid,
                 posterior_mean_tolerance=posterior_mean_tolerance,
             )
-            geometric[chunk] = _calc_geometric_chunk(
+            unbiased[chunk] = _calc_unbiased_chunk(
                 retained_ranks=retained_ranks,
                 ranks=inner_ranks[chunk],
                 clade_min_T=clade_min_T[chunk],
@@ -236,12 +236,12 @@ def _calc_inner_estimates(
             )
     assert np.isfinite(posterior).all()
 
-    all_geometric = np.full(len(bounds_df), np.nan)
-    all_geometric[is_inner] = geometric
+    all_unbiased = np.full(len(bounds_df), np.nan)
+    all_unbiased[is_inner] = unbiased
     estimates_df = bounds_df.select(
         base=(pl.col("rank") - dstream_S).cast(pl.Float64),
         is_inner=pl.Series(is_inner),
-        geometric=pl.Series(all_geometric).fill_nan(None),
+        unbiased=pl.Series(all_unbiased).fill_nan(None),
     )
     return estimates_df, posterior
 
@@ -261,7 +261,7 @@ def _calc_posterior_origin_times(
     Leaves and roots are assigned their rank.
     """
     estimates_df, posterior = _calc_inner_estimates(
-        trie=trie,
+        bounds_df=mark_inner_node_bounds(trie_df=trie),
         p_differentia_collision=p_differentia_collision,
         dstream_algo=dstream_algo,
         dstream_S=dstream_S,
@@ -342,13 +342,8 @@ def _call_polars(
         )
     dstream_S = int(get_sole_scalar_value_polars(trie, "dstream_S"))
 
-    with log_context_duration(
-        "alifestd_mark_num_mrca_leaf_pairs_polars", logging.info
-    ):
-        pair_counts = pfl.alifestd_mark_to_array_polars(
-            trie.select(pl.col("id", "ancestor_id").cast(pl.Int64)),
-            pfl.alifestd_mark_num_mrca_leaf_pairs_polars,
-        )
+    bounds_df = mark_inner_node_bounds(trie_df=trie)
+    pair_counts = bounds_df["num_mrca_leaf_pairs"].to_numpy()
     if len(ftor._alpha_grid) == 1:
         logging.info(" - fixed prior exponent; skipping benchmarking")
         alpha_grid = ftor._alpha_grid
@@ -360,9 +355,9 @@ def _call_polars(
         alpha_grid = ftor._alpha_grid
 
     estimates_df, posterior = _calc_inner_estimates(
-        trie=trie,
+        bounds_df=bounds_df,
         p_differentia_collision=p_differentia_collision,
-        dstream_algo=ftor._dstream_algo,
+        dstream_algo=get_dstream_algo(trie),
         dstream_S=dstream_S,
         alpha_grid=alpha_grid,
         posterior_mean_tolerance=ftor._posterior_mean_tolerance,
@@ -374,15 +369,15 @@ def _call_polars(
         inner_means, alpha = posterior[:, 0], float(alpha_grid[0])
     else:
         weights = pair_counts[is_inner]
-        geometric = estimates_df.filter("is_inner")["geometric"].to_numpy()
-        assert len(weights) == len(geometric) == len(posterior)
+        unbiased = estimates_df.filter("is_inner")["unbiased"].to_numpy()
+        assert len(weights) == len(unbiased) == len(posterior)
         with log_context_duration(
             "_estimate_prior_exponent_by_benchmarking", logging.info
         ):
             inner_means, alpha = _estimate_prior_exponent_by_benchmarking(
                 posterior=posterior,
                 weights=weights,
-                target=float(np.dot(weights, geometric)),
+                target=float(np.dot(weights, unbiased)),
                 alpha_grid=alpha_grid,
             )
     logging.info(f" - empirical Bayes prior exponent: {alpha}")
@@ -398,7 +393,7 @@ def _call_polars(
 class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     """Functor to assign trie node origin times as posterior means, under a
     prior fit by empirical Bayes so that their tree-wide average matches
-    the collision-unbiased geometric estimate (i.e., benchmarked Bayes).
+    the collision-unbiased estimate (i.e., benchmarked Bayes).
 
     Spurious differentia collisions cause lineages to appear to share
     common ancestry for longer than they truly did. So, a node's children
@@ -423,23 +418,24 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     1985), benchmarked (Datta et al. 2011) so that the average of node
     estimates, weighted by the number of leaf pairs whose most recent common
     ancestor each node is, matches that of
-    `AssignOriginTimeGeometricSurfPostprocessor`, which is unbiased with
+    `AssignOriginTimeUnbiasedSurfPostprocessor`, which is unbiased with
     respect to collisions without assuming a prior. Posterior means are
     evaluated over `alpha_grid` and linearly interpolated between the grid
     exponents bracketing the target. Alternately, pass a single-value
     `alpha_grid` to fix the prior exponent and skip benchmarking. So, the
-    geometric estimator sets the tree-wide average over leaf pairs, and the
+    unbiased estimator sets the tree-wide average over leaf pairs, and the
     posterior distributes it across nodes, with each estimate bounded within
     its own and earlier intervals.
 
     Comparable ranks are looked up as for
-    `AssignOriginTimeGeometricSurfPostprocessor`: from `dstream_algo`, as
+    `AssignOriginTimeUnbiasedSurfPostprocessor`: via the trie's uniform
+    `dstream_algo` column, as
     the ranks retained at the largest of the node's children's minimum tip
     `dstream_T`, truncated at the clade's minimum tip `dstream_T`.
 
     See Also
     --------
-    AssignOriginTimeGeometricSurfPostprocessor :
+    AssignOriginTimeUnbiasedSurfPostprocessor :
         Prior-free estimates, unbiased on average, used as the benchmark.
     PipeCallablePostprocessor :
         Applies a callable, e.g., a phyloframe function, to the trie.
@@ -481,9 +477,7 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     >>> hstrat.dataframe.surface_build_tree(
     ...     df,
     ...     trie_postprocessor=(
-    ...         hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-    ...             "dstream.steady_algo",
-    ...         )
+    ...         hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor()
     ...     ),
     ... )
 
@@ -495,9 +489,7 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     ...     df,
     ...     trie_postprocessor=hstrat.CompoundTriePostprocessor(
     ...         [
-    ...             hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-    ...                 "dstream.steady_algo",
-    ...             ),
+    ...             hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(),
     ...             hstrat.PipeCallablePostprocessor(
     ...                 pfl.alifestd_pipe_unary_ops_polars,
     ...                 pfl.alifestd_mark_num_mrca_leaf_pairs_polars,
@@ -520,13 +512,11 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
     """
 
     _assigned_property: str  # property name for assigned origin time
-    _dstream_algo: types.ModuleType  # downstream algorithm of surfaces
     _alpha_grid: np.ndarray  # prior exponents evaluated, or fixed exponent
     _posterior_mean_tolerance: float  # in generations, per posterior mean
 
     def __init__(
         self: "AssignOriginTimeEmpiricalBayesSurfPostprocessor",
-        dstream_algo: typing.Union[str, types.ModuleType],
         assigned_property: str = "origin_time",
         *,
         alpha_grid: typing.Sequence[float] = tuple(np.linspace(-3, 3, 25)),
@@ -536,11 +526,6 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
 
         Parameters
         ----------
-        dstream_algo : str or module
-            Downstream algorithm used to curate surfaces, used to look up
-            retained ranks.
-
-            For example, `"dstream.steady_algo"` or `dstream.steady_algo`.
         assigned_property : str, default "origin_time"
             Property name for assigned origin time.
         alpha_grid : sequence of float, default 25 values from -3 to 3
@@ -574,7 +559,6 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
             or not is_strictly_increasing(alpha_grid)
         ):
             raise ValueError("alpha_grid must be nonempty and increasing")
-        self._dstream_algo = resolve_dstream_algo(dstream_algo)
         self._assigned_property = assigned_property
         self._alpha_grid = alpha_grid
         if posterior_mean_tolerance < 0:

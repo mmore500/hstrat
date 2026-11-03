@@ -203,9 +203,7 @@ def test_surface_build_tree_cli_empirical_bayes_pool_coarsen():
     pathlib.Path(output_file).unlink(missing_ok=True)
     trie_postprocessor = """hstrat.CompoundTriePostprocessor(
         [
-            hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-                "dstream.steady_algo",
-            ),
+            hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(),
             hstrat.PipeCallablePostprocessor(
                 pf.legacy.alifestd_pipe_unary_ops_polars,
                 pf.legacy.alifestd_mark_num_mrca_leaf_pairs_polars,

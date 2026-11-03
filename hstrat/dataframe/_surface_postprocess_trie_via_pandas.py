@@ -34,6 +34,7 @@ def _apply_empty_output_schema_pandas(
         logging.info("dropping dstream metadata from empty output...")
         df = df.drop(
             columns=[
+                "dstream_algo",
                 "dstream_rank",
                 "dstream_S",
                 "hstrat_differentia_bitwidth",
@@ -89,6 +90,10 @@ def _prefix_roots(df: pd.DataFrame, dstream_S: int) -> pd.DataFrame:
             "hstrat_differentia_bitwidth": differentia_bitwidth,
         },
     ).astype(dtypes)
+    if "dstream_algo" in df.columns:  # uniform; absent in older tries
+        df["dstream_algo"] = df["dstream_algo"].fillna(
+            df["dstream_algo"].dropna().iloc[0],
+        )
     assert df["dstream_S"].nunique() == 1
     assert df["hstrat_differentia_bitwidth"].nunique() == 1
     return df
@@ -217,7 +222,12 @@ def _surface_postprocess_trie_via_pandas(
     to_keep = {*original_columns}
     if drop_dstream_metadata is not False:
         logging.info("dropping dstream metadata columns...")
-        to_keep -= {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"}
+        to_keep -= {
+            "dstream_algo",
+            "dstream_rank",
+            "dstream_S",
+            "hstrat_differentia_bitwidth",
+        }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df.drop(columns=[*to_drop], inplace=True)

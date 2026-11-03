@@ -7,8 +7,8 @@ from ._AssignOriginTimeEmpiricalBayesSurfPostprocessor import (
 from ._AssignOriginTimeExpectedValueTriePostprocessor import (
     AssignOriginTimeExpectedValueTriePostprocessor,
 )
-from ._AssignOriginTimeGeometricSurfPostprocessor import (
-    AssignOriginTimeGeometricSurfPostprocessor,
+from ._AssignOriginTimeUnbiasedSurfPostprocessor import (
+    AssignOriginTimeUnbiasedSurfPostprocessor,
 )
 from ._AssignOriginTimeNaiveTriePostprocessor import (
     AssignOriginTimeNaiveTriePostprocessor,
@@ -34,7 +34,7 @@ __all__ = [
     "AssignDestructionTimeYoungestPlusOneTriePostprocessor",
     "AssignOriginTimeEmpiricalBayesSurfPostprocessor",
     "AssignOriginTimeExpectedValueTriePostprocessor",
-    "AssignOriginTimeGeometricSurfPostprocessor",
+    "AssignOriginTimeUnbiasedSurfPostprocessor",
     "AssignOriginTimeNaiveTriePostprocessor",
     "AssignOriginTimeNodeRankTriePostprocessor",
     "AssignOriginTimeSampleNaiveTriePostprocessor",

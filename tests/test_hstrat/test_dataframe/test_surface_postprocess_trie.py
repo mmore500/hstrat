@@ -56,6 +56,9 @@ def test_smoke_drop_dstream_metadata_false():
     assert "dstream_rank" in res.columns
     assert "dstream_S" in res.columns
     assert "hstrat_differentia_bitwidth" in res.columns
+    assert res["dstream_algo"].cast(pl.String).to_list() == [
+        "dstream.steady_algo"
+    ] * len(res)
     assert len(res) > 0
     assert pfl.alifestd_validate(
         pfl.alifestd_try_add_ancestor_list_col(res.to_pandas()),
@@ -70,6 +73,7 @@ def test_drop_dstream_metadata_default_drops_rank_and_S():
     res = surface_postprocess_trie(raw)
     assert "dstream_rank" not in res.columns
     assert "dstream_S" not in res.columns
+    assert "dstream_algo" not in res.columns
     assert "hstrat_differentia_bitwidth" not in res.columns
 
 

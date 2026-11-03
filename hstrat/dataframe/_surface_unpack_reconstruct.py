@@ -520,6 +520,7 @@ def _construct_result_dataframe(
     records: Records,
     differentia_bitwidth: int,
     dstream_S: int,
+    dstream_algo: str,
 ) -> pl.DataFrame:
     """Convert tree searchtable records to DataFrame."""
     logging.info("converting records to dict...")
@@ -544,6 +545,7 @@ def _construct_result_dataframe(
             .alias("hstrat_differentia_bitwidth")
             .cast(pl.UInt32),
             pl.lit(dstream_S).alias("dstream_S").cast(pl.UInt32),
+            pl.lit(dstream_algo).alias("dstream_algo").cast(pl.Categorical),
         )
         .rename({"rank": "dstream_rank"})
     )
@@ -557,6 +559,7 @@ def _surface_unpacked_reconstruct(
     check_trie_invariant_after_collapse_unif: bool,
     differentia_bitwidth: int,
     dstream_S: int,
+    dstream_algo: str,
     exploded_slice_size: int,
     pa_source_type: str,
 ) -> pl.DataFrame:
@@ -577,6 +580,7 @@ def _surface_unpacked_reconstruct(
             records,
             differentia_bitwidth=differentia_bitwidth,
             dstream_S=dstream_S,
+            dstream_algo=dstream_algo,
         )
 
     del records  # clear memory
@@ -767,6 +771,8 @@ def surface_unpack_reconstruct(
             - Corresponds to `dstream_value_bitwidth`.
         - 'dstream_S' : pl.UInt32
             - Capacity of dstream buffer, in number of data items.
+        - 'dstream_algo' : pl.Categorical
+            - Name of downstream curation algorithm used.
         - 'dstream_data_id' : pl.UInt64
             - Unique identifier for each genome in source dataframe
             - Set to source dataframe row index if not provided.
@@ -823,6 +829,7 @@ def surface_unpack_reconstruct(
             "dstream_rank": pl.UInt64,
             "hstrat_differentia_bitwidth": pl.UInt32,
             "dstream_S": pl.UInt32,
+            "dstream_algo": pl.Categorical,
         }
         return _join_user_defined_columns(
             df,
@@ -847,6 +854,9 @@ def surface_unpack_reconstruct(
     differentia_bitwidth = dstream_storage_bitwidth // dstream_S
     logging.info(f" - differentia bitwidth: {differentia_bitwidth}")
 
+    dstream_algo = str(get_sole_scalar_value_polars(df, "dstream_algo"))
+    logging.info(f" - dstream algo: {dstream_algo}")
+
     logging.info("dispatching to surface_unpacked_reconstruct")
     with _generate_exploded_slices_mp(
         df,
@@ -862,6 +872,7 @@ def surface_unpack_reconstruct(
             check_trie_invariant_after_collapse_unif=check_trie_invariant_after_collapse_unif,
             differentia_bitwidth=differentia_bitwidth,
             dstream_S=dstream_S,
+            dstream_algo=dstream_algo,
             exploded_slice_size=exploded_slice_size,
             pa_source_type=pa_source_type,
         )

@@ -40,6 +40,7 @@ def _apply_empty_output_schema(
         df = df.drop(
             "dstream_rank",
             "dstream_S",
+            "dstream_algo",
             "hstrat_differentia_bitwidth",
             strict=False,
         )
@@ -102,6 +103,11 @@ def _prefix_roots(
             pl.col("dstream_S").fill_null(dstream_S),
             pl.col("hstrat_differentia_bitwidth").fill_null(
                 differentia_bitwidth
+            ),
+            *(  # uniform, if present (e.g., absent in older tries)
+                pl.col(col).fill_null(pl.col(col).drop_nulls().first())
+                for col in ["dstream_algo"]
+                if col in marked_df.collect_schema().names()
             ),
         )
         .drop("_child_min_rank", "_is_root")
@@ -305,6 +311,15 @@ def surface_postprocess_trie(
 
     Currently, data is converted to Pandas for processing, then back to Polars.
 
+    For large, trusted inputs, phyloframe's repeated precondition checks
+    (contiguous ids and topological sorting, rerun by each phyloframe
+    operation) can be bypassed, for speed, by setting environment variables
+    `PHYLOFRAME_DANGEROUSLY_ASSUME_LEGACY_ALIFESTD_HAS_CONTIGUOUS_IDS_POLARS`
+    and
+    `PHYLOFRAME_DANGEROUSLY_ASSUME_LEGACY_ALIFESTD_IS_TOPOLOGICALLY_SORTED_POLARS`.
+    Bypassed checks are not rerun anywhere, so only set these for inputs
+    known to satisfy them.
+
     See Also
     --------
     surface_unpack_reconstruct :
@@ -370,7 +385,12 @@ def surface_postprocess_trie(
     to_keep = {*original_columns}
     if drop_dstream_metadata is not False:
         logging.info("dropping dstream metadata columns...")
-        to_keep -= {"dstream_rank", "dstream_S", "hstrat_differentia_bitwidth"}
+        to_keep -= {
+            "dstream_algo",
+            "dstream_rank",
+            "dstream_S",
+            "hstrat_differentia_bitwidth",
+        }
     to_drop = pre_postprocessor_columns - to_keep
     logging.info(f"dropping columns {to_drop=}...")
     df = df.drop(*to_drop)

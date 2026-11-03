@@ -1,11 +1,16 @@
-"""Comparable-rank bounds shared by geometric origin-time postprocessors."""
+"""Comparable-rank bounds shared by surface origin-time postprocessors."""
 
 import logging
+import types
 
 from phyloframe import legacy as pfl
 import polars as pl
 
-from ....._auxiliary_lib import log_context_duration
+from ....._auxiliary_lib import (
+    get_sole_scalar_value_polars,
+    log_context_duration,
+    resolve_dstream_algo,
+)
 
 
 def mark_inner_node_bounds(trie_df: pl.DataFrame) -> pl.DataFrame:
@@ -17,6 +22,8 @@ def mark_inner_node_bounds(trie_df: pl.DataFrame) -> pl.DataFrame:
     Returns `rank` (Int64) and added columns, per node:
     - `is_leaf`: is node a leaf?
     - `is_root`: is node a root?
+    - `num_mrca_leaf_pairs`: number of leaf pairs whose most recent common
+      ancestor is node
     - `compare_T`: `dstream_T` at which its children's differentiae are
       compared, i.e., the largest of their minimum tip `dstream_T`, as ranks
       retained there are retained by every child's youngest tip
@@ -43,11 +50,13 @@ def mark_inner_node_bounds(trie_df: pl.DataFrame) -> pl.DataFrame:
             "clade_min_T",
             mark_as="compare_T",
         )
+        marked_df = pfl.alifestd_mark_num_mrca_leaf_pairs_polars(marked_df)
 
         bounds_df = marked_df.select(
             "rank",
             "is_leaf",
             "is_root",
+            "num_mrca_leaf_pairs",
             compare_T=pl.col("compare_T"),
             clade_min_T=pl.col("clade_min_T"),
         ).collect()
@@ -55,3 +64,16 @@ def mark_inner_node_bounds(trie_df: pl.DataFrame) -> pl.DataFrame:
     # children are compared no earlier than the clade's youngest tip
     assert (bounds_df["compare_T"] >= bounds_df["clade_min_T"]).all()
     return bounds_df
+
+
+def get_dstream_algo(trie_df: pl.DataFrame) -> types.ModuleType:
+    """Look up the trie's uniform `dstream_algo` column, as attached by
+    `surface_unpack_reconstruct`."""
+    if "dstream_algo" not in trie_df.columns:
+        raise ValueError(
+            "trie has no dstream_algo column, as attached by "
+            "surface_unpack_reconstruct",
+        )
+    return resolve_dstream_algo(
+        str(get_sole_scalar_value_polars(trie_df, "dstream_algo")),
+    )

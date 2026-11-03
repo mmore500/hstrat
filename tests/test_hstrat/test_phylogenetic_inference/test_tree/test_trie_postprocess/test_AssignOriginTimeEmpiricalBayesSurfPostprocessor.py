@@ -56,6 +56,7 @@ def _make_hand_trie() -> pl.DataFrame:
             "ancestor_id": [0, 0, 1, 2, 2, 1],
             "rank": [64, 100, 99, 199, 199, 199],
             "dstream_S": [64] * 6,
+            "dstream_algo": ["dstream.steady_algo"] * 6,
         },
     )
 
@@ -133,24 +134,20 @@ def test_brute_force_population(dstream_algo: str, bitwidth: int):
     "dstream_algo", ["dstream.steady_algo", "dstream.tilted_algo"]
 )
 @pytest.mark.parametrize("bitwidth", [1, 8])
-def test_matches_geometric_average(dstream_algo: str, bitwidth: int):
+def test_matches_unbiased_average(dstream_algo: str, bitwidth: int):
     pop = make_population(dstream_algo, bitwidth)
     benchmarked = surface_build_tree(
         pop,
         trie_postprocessor=(
-            hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-                dstream_algo,
-            )
+            hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor()
         ),
     )
-    geometric = surface_build_tree(
+    unbiased = surface_build_tree(
         pop,
-        trie_postprocessor=hstrat.AssignOriginTimeGeometricSurfPostprocessor(
-            dstream_algo,
-        ),
+        trie_postprocessor=hstrat.AssignOriginTimeUnbiasedSurfPostprocessor(),
     )
     assert benchmarked.select("id", "ancestor_id").equals(
-        geometric.select("id", "ancestor_id"),
+        unbiased.select("id", "ancestor_id"),
     )
     weights = pfl.alifestd_mark_to_array_polars(
         benchmarked.select(pl.col("id", "ancestor_id").cast(pl.Int64)),
@@ -159,13 +156,13 @@ def test_matches_geometric_average(dstream_algo: str, bitwidth: int):
     assert weights.sum() == len(pop) * (len(pop) - 1) / 2
     np.testing.assert_allclose(
         weights @ benchmarked["origin_time"].to_numpy(),
-        weights @ geometric["origin_time"].to_numpy(),
+        weights @ unbiased["origin_time"].to_numpy(),
         rtol=1e-9,
     )
     # leaves keep their rank
     leaves = pl.Series(weights == 0)
     assert benchmarked.filter(leaves)["origin_time"].equals(
-        geometric.filter(leaves)["origin_time"],
+        unbiased.filter(leaves)["origin_time"],
     )
 
 
@@ -207,7 +204,7 @@ def test_prior_moments(alpha: float):
 def test_single_value_grid(alpha: float):
     trie = _make_hand_trie()
     result = hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-        "dstream.steady_algo", alpha_grid=[alpha]
+        alpha_grid=[alpha]
     )(trie, p_differentia_collision=0.5)
     np.testing.assert_allclose(
         result["origin_time"].to_numpy(),
@@ -217,7 +214,7 @@ def test_single_value_grid(alpha: float):
 
 def test_clamped_warns():
     postprocessor = hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-        "dstream.steady_algo", alpha_grid=(-1e-3, 1e-3)
+        alpha_grid=(-1e-3, 1e-3)
     )
     with pytest.warns(UserWarning, match="clamping"):
         result = postprocessor(_make_hand_trie(), p_differentia_collision=0.5)
@@ -228,13 +225,13 @@ def test_invalid_alpha_grid():
     for alpha_grid in [(), (1.0, -1.0), (0.0, 0.0), [[0.0, 1.0]]]:
         with pytest.raises(ValueError):
             hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-                "dstream.steady_algo", alpha_grid=alpha_grid
+                alpha_grid=alpha_grid
             )
 
 
 def test_assigned_property():
     result = hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-        "dstream.steady_algo", assigned_property="foo"
+        assigned_property="foo"
     )(_make_hand_trie(), p_differentia_collision=2**-8)
     assert "foo" in result.columns
     assert result["foo"][3:].to_list() == [135.0] * 3
@@ -242,9 +239,9 @@ def test_assigned_property():
 
 def test_polars_only():
     with pytest.raises(NotImplementedError):
-        hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-            "dstream.steady_algo",
-        )(_make_hand_trie().to_pandas(), p_differentia_collision=0.5)
+        hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor()(
+            _make_hand_trie().to_pandas(), p_differentia_collision=0.5
+        )
 
 
 def test_no_leaf_pairs_uses_uniform_prior():
@@ -255,11 +252,12 @@ def test_no_leaf_pairs_uses_uniform_prior():
             "ancestor_id": [0, 0, 1],
             "rank": [64, 100, 199],
             "dstream_S": [64] * 3,
+            "dstream_algo": ["dstream.steady_algo"] * 3,
         },
     )
-    result = hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-        "dstream.steady_algo",
-    )(trie, p_differentia_collision=0.5)
+    result = hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor()(
+        trie, p_differentia_collision=0.5
+    )
     np.testing.assert_allclose(
         result["origin_time"].to_numpy(),
         _brute_force(trie, "dstream.steady_algo", 0.5, 0.0),
@@ -269,9 +267,7 @@ def test_no_leaf_pairs_uses_uniform_prior():
 def test_experimental_warning(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.delenv("HSTRAT_WARN_EXPERIMENTAL_SUPPRESS", raising=False)
     with pytest.warns(ExperimentalWarning):
-        hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-            "dstream.steady_algo",
-        )
+        hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor()
 
 
 def _make_pool_coarsen_steps() -> list:
@@ -330,9 +326,7 @@ def test_pool_and_coarsen_surface_build_tree():
         pop,
         trie_postprocessor=hstrat.CompoundTriePostprocessor(
             [
-                hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-                    "dstream.tilted_algo",
-                ),
+                hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(),
                 *_make_pool_coarsen_steps(),
             ],
         ),
@@ -365,9 +359,9 @@ def test_pool_and_coarsen_keeps_leaves():
 def test_posterior_mean_tolerance(bitwidth: int, tolerance: float):
     trie, p = make_trie("dstream.steady_algo", bitwidth)
     exact, truncated = (
-        hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-            "dstream.steady_algo", **kwargs
-        )(trie, p_differentia_collision=p)["origin_time"].to_numpy()
+        hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(**kwargs)(
+            trie, p_differentia_collision=p
+        )["origin_time"].to_numpy()
         for kwargs in ({}, {"posterior_mean_tolerance": tolerance})
     )
     # benchmarking interpolation can amplify per-node error slightly
@@ -377,5 +371,12 @@ def test_posterior_mean_tolerance(bitwidth: int, tolerance: float):
 def test_invalid_posterior_mean_tolerance():
     with pytest.raises(ValueError):
         hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-            "dstream.steady_algo", posterior_mean_tolerance=-1.0
+            posterior_mean_tolerance=-1.0
+        )
+
+
+def test_dstream_algo_missing():
+    with pytest.raises(ValueError, match="dstream_algo"):
+        hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor()(
+            _make_hand_trie().drop("dstream_algo"), p_differentia_collision=0.5
         )

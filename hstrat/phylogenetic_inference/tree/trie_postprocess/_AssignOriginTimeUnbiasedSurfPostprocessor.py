@@ -11,21 +11,23 @@ from ...._auxiliary_lib import (
     get_sole_scalar_value_polars,
     iter_dstream_ingest_times_sorted,
     log_context_duration,
-    resolve_dstream_algo,
     warn_experimental,
 )
 from ._detail import TriePostprocessorBase
-from ._detail._comparable_ranks import mark_inner_node_bounds
+from ._detail._comparable_ranks import (
+    get_dstream_algo,
+    mark_inner_node_bounds,
+)
 
 
-def _calc_geometric_chunk(
+def _calc_unbiased_chunk(
     retained_ranks: np.ndarray,
     ranks: np.ndarray,
     clade_min_T: np.ndarray,
     p: float,
     dstream_S: int,
 ) -> np.ndarray:
-    """Geometric origin time estimates, relative to `dstream_S`, for a chunk
+    """Unbiased origin time estimates, relative to `dstream_S`, for a chunk
     of inner nodes, given sorted `retained_ranks` at their comparison
     `dstream_T`."""
     # mismatch rank: first comparable rank after node; and following
@@ -60,7 +62,7 @@ def _calc_geometric_chunk(
     )
 
 
-def _calc_geometric_origin_times(
+def _calc_unbiased_origin_times(
     trie: pl.DataFrame,
     p_differentia_collision: float,
     dstream_algo: types.ModuleType,
@@ -80,7 +82,7 @@ def _calc_geometric_origin_times(
     clade_min_T = inner_df["clade_min_T"].to_numpy().astype(np.float64)
 
     inner_times = np.empty(len(inner_df))
-    with log_context_duration("_calc_geometric_chunk", logging.info):
+    with log_context_duration("_calc_unbiased_chunk", logging.info):
         for chunk, retained_ranks in iter_dstream_ingest_times_sorted(
             dstream_algo=dstream_algo,
             dstream_S=dstream_S,
@@ -88,7 +90,7 @@ def _calc_geometric_origin_times(
             chunk_size=2**16,
             progress_wrap=progress_wrap,
         ):
-            inner_times[chunk] = _calc_geometric_chunk(
+            inner_times[chunk] = _calc_unbiased_chunk(
                 retained_ranks=retained_ranks,
                 ranks=inner_ranks[chunk],
                 clade_min_T=clade_min_T[chunk],
@@ -106,7 +108,7 @@ def _calc_geometric_origin_times(
 
 
 def _call_polars(
-    ftor: "AssignOriginTimeGeometricSurfPostprocessor",
+    ftor: "AssignOriginTimeUnbiasedSurfPostprocessor",
     trie: pl.DataFrame,
     p_differentia_collision: float,
     progress_wrap: typing.Callable,
@@ -121,10 +123,10 @@ def _call_polars(
             pl.Series(ftor._assigned_property, [], dtype=pl.Float64),
         )
 
-    origin_times = _calc_geometric_origin_times(
+    origin_times = _calc_unbiased_origin_times(
         trie=trie,
         p_differentia_collision=p_differentia_collision,
-        dstream_algo=ftor._dstream_algo,
+        dstream_algo=get_dstream_algo(trie),
         dstream_S=int(get_sole_scalar_value_polars(trie, "dstream_S")),
         progress_wrap=progress_wrap,
     )
@@ -134,7 +136,7 @@ def _call_polars(
 
 
 @warn_experimental
-class AssignOriginTimeGeometricSurfPostprocessor(TriePostprocessorBase):
+class AssignOriginTimeUnbiasedSurfPostprocessor(TriePostprocessorBase):
     """Functor to scale back trie node origin times so that their expected
     values under spurious differentia collisions are unbiased.
 
@@ -155,8 +157,9 @@ class AssignOriginTimeGeometricSurfPostprocessor(TriePostprocessorBase):
     for every true divergence time. Where no comparable rank remains between
     a node and its youngest tip, the interval midpoint is assigned as-is.
 
-    Comparable ranks for a node are looked up from `dstream_algo`, as the
-    ranks retained at the largest of its children's minimum tip
+    Comparable ranks for a node are looked up, via the trie's uniform
+    `dstream_algo` column (as attached by `surface_unpack_reconstruct`), as
+    the ranks retained at the largest of its children's minimum tip
     `dstream_T` (i.e., ranks retained by every child's youngest tip),
     truncated at the clade's minimum tip `dstream_T`.
 
@@ -180,41 +183,31 @@ class AssignOriginTimeGeometricSurfPostprocessor(TriePostprocessorBase):
     >>> hstrat.dataframe.surface_build_tree(
     ...     df,
     ...     trie_postprocessor=(
-    ...         hstrat.AssignOriginTimeGeometricSurfPostprocessor(
-    ...             "dstream.steady_algo",
-    ...         )
+    ...         hstrat.AssignOriginTimeUnbiasedSurfPostprocessor()
     ...     ),
     ... )
 
     or, from the command line,
-    `--trie-postprocessor 'hstrat.AssignOriginTimeGeometricSurfPostprocessor("dstream.steady_algo")'`.
+    `--trie-postprocessor 'hstrat.AssignOriginTimeUnbiasedSurfPostprocessor()'`.
     """
 
     _assigned_property: str  # property name for assigned origin time
-    _dstream_algo: types.ModuleType  # downstream algorithm of surfaces
 
     def __init__(
-        self: "AssignOriginTimeGeometricSurfPostprocessor",
-        dstream_algo: typing.Union[str, types.ModuleType],
+        self: "AssignOriginTimeUnbiasedSurfPostprocessor",
         assigned_property: str = "origin_time",
     ) -> None:
         """Initialize functor instance.
 
         Parameters
         ----------
-        dstream_algo : str or module
-            Downstream algorithm used to curate surfaces, used to look up
-            retained ranks.
-
-            For example, `"dstream.steady_algo"` or `dstream.steady_algo`.
         assigned_property : str, default "origin_time"
             Property name for assigned origin time.
         """
-        self._dstream_algo = resolve_dstream_algo(dstream_algo)
         self._assigned_property = assigned_property
 
     def __call__(
-        self: "AssignOriginTimeGeometricSurfPostprocessor",
+        self: "AssignOriginTimeUnbiasedSurfPostprocessor",
         trie: pl.DataFrame,
         p_differentia_collision: float,
         mutate: bool = False,  # noqa: ARG002
