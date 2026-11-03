@@ -81,7 +81,7 @@ def _prefix_roots(df: pd.DataFrame, dstream_S: int) -> pd.DataFrame:
             df, allow_id_reassign=True, origin_time=dstream_S - 1, mutate=True
         )
     df = df.fillna(fill_values).astype(dtypes)
-    # prefixed roots should precede their children
+    # roots should precede
     assert (df["dstream_rank"] >= dstream_S - 1).all()
     assert df["dstream_S"].nunique() == 1
     assert df["hstrat_differentia_bitwidth"].nunique() == 1
