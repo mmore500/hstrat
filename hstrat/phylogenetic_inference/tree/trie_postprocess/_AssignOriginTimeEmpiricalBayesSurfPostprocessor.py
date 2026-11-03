@@ -530,7 +530,7 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
         assigned_property: str = "origin_time",
         *,
         alpha_grid: typing.Sequence[float] = tuple(np.linspace(-3, 3, 25)),
-        posterior_mean_tolerance: float = 1e-9,
+        posterior_mean_tolerance: float = 0.0,
     ) -> None:
         """Initialize functor instance.
 
@@ -553,12 +553,19 @@ class AssignOriginTimeEmpiricalBayesSurfPostprocessor(TriePostprocessorBase):
             Must be nonempty and strictly increasing. A single value fixes
             the prior exponent, skipping benchmarking (e.g., `alpha_grid=[0]`
             gives the uniform prior).
-        posterior_mean_tolerance : float, default 1e-9
+        posterior_mean_tolerance : float, default 0.0
             Absolute error tolerance, in generations, for each posterior
             mean. Each mean sums over earlier and earlier intervals, which
             require ever more spurious collisions; the sum is truncated once
             the remaining intervals could shift the mean by at most this
             much. If zero, all intervals are summed exactly.
+
+            Consider, e.g., `posterior_mean_tolerance=1` for speed: errors
+            of at most a generation are typically far below estimates'
+            uncertainty, and truncation is several times faster for wider
+            differentiae or larger `dstream_S` (e.g., about 8x for 8-bit
+            differentiae, or 3x for 1-bit differentiae with `dstream_S`
+            128).
         """
         alpha_grid = np.asarray(alpha_grid, dtype=np.float64)
         if (

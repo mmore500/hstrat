@@ -360,16 +360,18 @@ def test_pool_and_coarsen_keeps_leaves():
     assert len(result) == len(trie)
 
 
+@pytest.mark.parametrize("tolerance", [1e-9, 1.0])
 @pytest.mark.parametrize("bitwidth", [1, 8])
-def test_posterior_mean_tolerance(bitwidth: int):
+def test_posterior_mean_tolerance(bitwidth: int, tolerance: float):
     trie, p = make_trie("dstream.steady_algo", bitwidth)
-    exact, default = (
+    exact, truncated = (
         hstrat.AssignOriginTimeEmpiricalBayesSurfPostprocessor(
-            "dstream.steady_algo", posterior_mean_tolerance=tolerance
+            "dstream.steady_algo", **kwargs
         )(trie, p_differentia_collision=p)["origin_time"].to_numpy()
-        for tolerance in (0.0, 1e-9)
+        for kwargs in ({}, {"posterior_mean_tolerance": tolerance})
     )
-    np.testing.assert_allclose(default, exact, rtol=0, atol=1e-6)
+    # benchmarking interpolation can amplify per-node error slightly
+    np.testing.assert_allclose(truncated, exact, rtol=0, atol=2 * tolerance)
 
 
 def test_invalid_posterior_mean_tolerance():
