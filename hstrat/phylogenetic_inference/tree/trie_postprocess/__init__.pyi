@@ -7,9 +7,6 @@ from ._AssignOriginTimeEmpiricalBayesSurfPostprocessor import (
 from ._AssignOriginTimeExpectedValueTriePostprocessor import (
     AssignOriginTimeExpectedValueTriePostprocessor,
 )
-from ._AssignOriginTimeUnbiasedSurfPostprocessor import (
-    AssignOriginTimeUnbiasedSurfPostprocessor,
-)
 from ._AssignOriginTimeNaiveTriePostprocessor import (
     AssignOriginTimeNaiveTriePostprocessor,
 )
@@ -18,6 +15,9 @@ from ._AssignOriginTimeNodeRankTriePostprocessor import (
 )
 from ._AssignOriginTimeSampleNaiveTriePostprocessor import (
     AssignOriginTimeSampleNaiveTriePostprocessor,
+)
+from ._AssignOriginTimeUnbiasedSurfPostprocessor import (
+    AssignOriginTimeUnbiasedSurfPostprocessor,
 )
 from ._CompoundTriePostprocessor import CompoundTriePostprocessor
 from ._NopTriePostprocessor import NopTriePostprocessor

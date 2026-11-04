@@ -11,4 +11,5 @@ def get_sole_scalar_value_pandas(
     Raises ValueError if column `col_name` holds no values, or several
     distinct values.
     """
-    return pd.unique(df[col_name]).item()
+    # via Series, as unique values of categoricals lack item in older pandas
+    return df[col_name].drop_duplicates().item()

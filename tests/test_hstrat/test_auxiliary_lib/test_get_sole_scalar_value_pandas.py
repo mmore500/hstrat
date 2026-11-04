@@ -19,3 +19,11 @@ def test_get_sole_scalar_value_pandas_empty():
     df = pd.DataFrame({"col": []})
     with pytest.raises(ValueError):
         get_sole_scalar_value_pandas(df, "col")
+
+
+def test_get_sole_scalar_value_pandas_categorical():
+    df = pd.DataFrame({"col": pd.Categorical(["a", "a", "a"])})
+    assert get_sole_scalar_value_pandas(df, "col") == "a"
+    df = pd.DataFrame({"col": pd.Categorical(["a", "b"])})
+    with pytest.raises(ValueError):
+        get_sole_scalar_value_pandas(df, "col")
