@@ -7,9 +7,9 @@ from ._seed_random import _seed_random_jitted
 
 
 class RngStateContext:
-    """A context manager that temporarily reseeds the `random` module random
-    number generator (RNG) and restores the original RNG state upon exiting the
-    scope.
+    """A context manager that temporarily reseeds the `random` module and
+    NumPy global random number generators (RNGs), as well as numba-internal
+    RNG state, and restores the original RNG state upon exiting the scope.
     """
 
     def __init__(self, seed: int):
@@ -28,6 +28,7 @@ class RngStateContext:
         self._saved_state = random.getstate()
         self._saved_np_state = np.random.get_state()
         random.seed(self.seed)
+        np.random.seed(self.seed)
         _seed_random_jitted(self.seed)
 
     def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
