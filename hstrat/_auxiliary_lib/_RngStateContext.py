@@ -27,10 +27,13 @@ class RngStateContext:
         _saved_state, then reseeds the RNG with the specified seed value."""
         self._saved_state = random.getstate()
         self._saved_np_state = np.random.get_state()
-        random.seed(self.seed)
         # NumPy's legacy seeding only accepts seeds in [0, 2**32)
-        np.random.seed(self.seed % 2**32)
-        _seed_random_jitted(self.seed)
+        np_seed = self.seed % 2**32
+        # Seed jitted RNG first: without numba, it falls back to seeding
+        # the Python-level random and np.random, which are reseeded below.
+        _seed_random_jitted(np_seed)
+        random.seed(self.seed)
+        np.random.seed(np_seed)
 
     def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
         """Exits the context manager and restores the RNG state to the value
