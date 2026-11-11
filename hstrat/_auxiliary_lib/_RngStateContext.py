@@ -28,7 +28,8 @@ class RngStateContext:
         self._saved_state = random.getstate()
         self._saved_np_state = np.random.get_state()
         random.seed(self.seed)
-        np.random.seed(self.seed)
+        # NumPy's legacy seeding only accepts seeds in [0, 2**32)
+        np.random.seed(self.seed % 2**32)
         _seed_random_jitted(self.seed)
 
     def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:

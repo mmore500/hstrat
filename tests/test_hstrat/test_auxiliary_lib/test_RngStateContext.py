@@ -203,3 +203,17 @@ def test_rng_state_context_numpy_global_restored():
     rest = np.random.random(2)
 
     np.testing.assert_array_equal([first, *rest], expected)
+
+
+@pytest.mark.parametrize("seed", [2**32, 2**63 - 1, -1, -(2**40)])
+def test_rng_state_context_out_of_numpy_range_seed(seed):
+    """Seeds outside NumPy's legacy [0, 2**32) range are accepted."""
+    with RngStateContext(seed):
+        values1 = np.random.random(5)
+        py_values1 = [random.random() for _ in range(5)]
+    with RngStateContext(seed):
+        values2 = np.random.random(5)
+        py_values2 = [random.random() for _ in range(5)]
+
+    np.testing.assert_array_equal(values1, values2)
+    assert py_values1 == py_values2
