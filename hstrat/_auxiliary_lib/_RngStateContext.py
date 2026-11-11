@@ -29,8 +29,6 @@ class RngStateContext:
         self._saved_np_state = np.random.get_state()
         # NumPy's legacy seeding only accepts seeds in [0, 2**32)
         np_seed = self.seed % 2**32
-        # Seed jitted RNG first: without numba, it falls back to seeding
-        # the Python-level random and np.random, which are reseeded below.
         _seed_random_jitted(np_seed)
         random.seed(self.seed)
         np.random.seed(np_seed)
