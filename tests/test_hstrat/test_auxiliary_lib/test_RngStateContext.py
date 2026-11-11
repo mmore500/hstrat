@@ -174,3 +174,46 @@ def test_rng_state_context_jitted_exit_deterministic():
 
     for a, b in zip(results_after_exit, results_after_exit[1:]):
         np.testing.assert_array_equal(a, b)
+
+
+def test_rng_state_context_numpy_global_deterministic():
+    """NumPy global RNG is seeded, independent of numba-internal state."""
+    with RngStateContext(42):
+        values1 = np.random.random(5)
+        permutation1 = np.random.permutation(100)
+    with RngStateContext(42):
+        values2 = np.random.random(5)
+        permutation2 = np.random.permutation(100)
+    with RngStateContext(43):
+        values3 = np.random.random(5)
+
+    np.testing.assert_array_equal(values1, values2)
+    np.testing.assert_array_equal(permutation1, permutation2)
+    assert not np.array_equal(values1, values3)
+
+
+def test_rng_state_context_numpy_global_restored():
+    np.random.seed(7)
+    expected = np.random.random(3)
+
+    np.random.seed(7)
+    first = np.random.random()
+    with RngStateContext(42):
+        np.random.random(10)
+    rest = np.random.random(2)
+
+    np.testing.assert_array_equal([first, *rest], expected)
+
+
+@pytest.mark.parametrize("seed", [2**32, 2**63 - 1, -1, -(2**40)])
+def test_rng_state_context_out_of_numpy_range_seed(seed):
+    """Seeds outside NumPy's legacy [0, 2**32) range are accepted."""
+    with RngStateContext(seed):
+        values1 = np.random.random(5)
+        py_values1 = [random.random() for _ in range(5)]
+    with RngStateContext(seed):
+        values2 = np.random.random(5)
+        py_values2 = [random.random() for _ in range(5)]
+
+    np.testing.assert_array_equal(values1, values2)
+    assert py_values1 == py_values2
